@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318775AbSHQX5T>; Sat, 17 Aug 2002 19:57:19 -0400
+	id <S318779AbSHRAZ4>; Sat, 17 Aug 2002 20:25:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318776AbSHQX5T>; Sat, 17 Aug 2002 19:57:19 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:15881 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S318775AbSHQX5S>;
-	Sat, 17 Aug 2002 19:57:18 -0400
-Date: Sun, 18 Aug 2002 01:01:12 +0100 (IST)
-From: Mel <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-mm@kvack.org, <linux-kernel@vger.kernel.org>
-Subject: Re: VM Regress 0.5 - Compile error with CONFIG_HIGHMEM
-In-Reply-To: <20020817132153.A11758@infradead.org>
-Message-ID: <Pine.LNX.4.44.0208180058530.15099-100000@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318780AbSHRAZ4>; Sat, 17 Aug 2002 20:25:56 -0400
+Received: from 209-221-203-149.dsl.qnet.com ([209.221.203.149]:54024 "HELO
+	divino.rinspin.com") by vger.kernel.org with SMTP
+	id <S318779AbSHRAZz>; Sat, 17 Aug 2002 20:25:55 -0400
+Subject: Re: IDE?  IDE-TNG driver
+From: Scott Bronson <bronson@rinspin.com>
+To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0208172353330.3111-100000@sharra.ivimey.org>
+References: <Pine.LNX.4.44.0208172353330.3111-100000@sharra.ivimey.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 17 Aug 2002 17:28:38 -0700
+Message-Id: <1029630519.1541.11.camel@emma>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Aug 2002, Christoph Hellwig wrote:
+On Sat, 2002-08-17 at 15:57, Ruth Ivimey-Cook wrote:
+>  a) some people want basically module-less kernels
 
-> Shouldn't an undonditional #include <linux/highmem.h> do it much cleaner?
->
+Everyone I've heard advocating a moduleless kernel uses an argument that
+boils down to "it's slightly more secure."  Does anybody have a GOOD
+reason for not using modules?  Obsolete or embedded hardware arguments
+don't count.
 
-I imagine so, but I had a bus to catch and didn't have time to verify if
-they were files that should be unconditionally included. As it will be
-Monday before I'm working again, I choose the safe option
 
--- 
-Mel Gorman
-MSc Student, University of Limerick
-http://www.csn.ul.ie/~mel
+>  b) in some environments, you need to be able to select the IO mechanism 
+>     without the ability to select the module to load.
+
+If that's the case, won't a kernel parameter suffice?  Can you
+elaborate?
+
+    - Scott
+
+
 

@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269981AbUJWB6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269968AbUJWCHj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269981AbUJWB6p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 21:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269936AbUJWBvA
+	id S269968AbUJWCHj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 22:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269865AbUJWCHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 21:51:00 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:43024 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S269845AbUJWBsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 21:48:47 -0400
-Message-ID: <4179B87D.3020505@superbug.co.uk>
-Date: Sat, 23 Oct 2004 02:48:45 +0100
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arvind Kalyan <base16@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: GPRS on Linux fails due to 255.255.255.255 remote address.
-References: <90c25f2704102211212031af71@mail.gmail.com>
-In-Reply-To: <90c25f2704102211212031af71@mail.gmail.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Oct 2004 22:07:34 -0400
+Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:26583
+	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S269854AbUJWCGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 22:06:13 -0400
+Date: Fri, 22 Oct 2004 22:12:27 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Update to Documentation/ramdisk.txt - take 2
+Message-ID: <20041023021227.GF4368@kurtwerks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <4179B7A9.6020205@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4179B7A9.6020205@verizon.net>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.9
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arvind Kalyan wrote:
-> Hi,
+On Fri, Oct 22, 2004 at 09:45:13PM -0400, Jim Nelson took 229 lines to write:
+> @#%*^#$ Mozilla.  Line wrap was set too low.
 > 
-> I'm trying to use my Airtel GPRS connection under Linux.
-> 
-> 
-> Status: pppd refuses connection due to improper remote IP address
-> (255.255.255.255)
-> 
+> Let's try this again - hopefully, Mozilla won't mangle my patch this time.
 
-This is a bug in pppd or the linux kernel.
-Can the linux kernel handle un-numbered Point-to-Point links?
+Urgl:
 
-This is a point-to-point link, so we should ignore the remote IP 
-address, and add local routes (e.g. default route) pointing to interface 
-names, and not IP addresses.
+patching file Documentation/ramdisk.txt
+Hunk #1 FAILED at 5.
+Hunk #2 FAILED at 103.
+Hunk #3 FAILED at 115.
+Hunk #4 FAILED at 128.
+Hunk #5 FAILED at 154.
+5 out of 5 hunks FAILED -- saving rejects to file
+Documentation/ramdisk.txt.rej
 
-I agree that it would have looked prettier if the remote end used 
-something other than 255.255.255.255, but pppd should not care about it, 
-so who cares what number it is.
-
-I do not know if this is a bug in the linux kernel, or just pppd.
-Can the linux kernel handle un-numbered Point-to-Point links?
-
-James
+Kurt
+-- 
+Next to being shot at and missed, nothing is really quite as satisfying
+as an income tax refund.
+	-- F. J. Raymond

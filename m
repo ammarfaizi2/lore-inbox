@@ -1,68 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268140AbRHFU7A>; Mon, 6 Aug 2001 16:59:00 -0400
+	id <S268817AbRHFVDk>; Mon, 6 Aug 2001 17:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268563AbRHFU6v>; Mon, 6 Aug 2001 16:58:51 -0400
-Received: from dsl254-096-012.nyc1.dsl.speakeasy.net ([216.254.96.12]:3556
-	"EHLO mercury.infiniconsys.com") by vger.kernel.org with ESMTP
-	id <S268140AbRHFU6c> convert rfc822-to-8bit; Mon, 6 Aug 2001 16:58:32 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Resources for SCSI, SRP, Infiniband?
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
-Date: Mon, 6 Aug 2001 16:58:37 -0400
-Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB0C4C84@mercury.infiniconsys.com>
-Thread-Topic: Resources for SCSI, SRP, Infiniband?
-Thread-Index: AcEetqZBAESq6IV3QCqob25/Hwr6lwAA5kmw
-From: "Heinz, Michael" <mheinz@infiniconsys.com>
-To: "Pete Zaitcev" <zaitcev@redhat.com>,
-        "linux-kernel" <linux-kernel@vger.kernel.org>
+	id <S268832AbRHFVDa>; Mon, 6 Aug 2001 17:03:30 -0400
+Received: from r85m244.cybercable.tm.fr ([195.132.85.244]:20352 "HELO
+	picsou.chatons") by vger.kernel.org with SMTP id <S268817AbRHFVDZ>;
+	Mon, 6 Aug 2001 17:03:25 -0400
+Date: Mon, 6 Aug 2001 23:03:35 +0200
+From: David Monniaux <monniaux.remove_me_this_for_spam@di.ens.fr>
+To: linux-kernel@vger.kernel.org
+Subject: APM poweroff under Linux 2.4.7 / 2.4.2 RH 7.1
+Message-ID: <20010806230335.A2473@picsou.chatons>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, Pete.
+Dear all,
 
+I have an Athlon on an ASUS A7V133.
+This machine powers off perfectly using a stock RedHat 7.1 kernel (2.4.2).
+However, it refuses to power off with 2.4.7, with all APM options set
+correctly (including power off in real mode).
 
-That's kind of the impression I was forming - nothing public for IB,
-everything under the covers. Kind of silly, in the long run. 
+Now for the funny part: copying the 2.4.2 apm.c to the 2.4.7 and
+recompiling yielded a working poweroff. So *something* has been broken
+between 2.4.2 and 2.4.7 with APM poweroff. :-)
 
-As for the SCSI - thanks, at least I know I won't be breaking any rules
-(since there aren't any... ;->)
-
-
-Everybody loves a clown, but nobody will lend him money.
-
-Michael "Pork Chop" Heinz
-Infinicon Systems
-610-205-0457 
-
------Original Message-----
-From: Pete Zaitcev [mailto:zaitcev@redhat.com]
-Sent: Monday, August 06, 2001 4:14 PM
-To: Heinz, Michael; linux-kernel
-Subject: Re: Resources for SCSI, SRP, Infiniband?
-
-
-> I'm making progress, but could someone direct me to a list of do's and
-
-> don't's for SCSI drivers in 2.4?
-
-Laugh, sadly.
-
-> Also, anybody else looking at developing IB and or SRP?
-
-Nobody does IB in the open, because hardware is not generally
-available. Adapter manufacturers roll their proprietary stacks.
-I work in a Trillian style effort (e.g. definitely to be opensourced
-at a later date) - contact johnsonm at redhat if you are interested
-in joining.
-
-No SRP implementations exist that I know of, prorotypes may
-be out there, coming from storage startups. AFAIK, Intel is
-using a packetised SCSI mapping, at least Ashok Raj made
-noises about it on IDF.
-
--- Pete
-
+-- 
+David Monniaux            http://www.di.ens.fr/~monniaux
+Laboratoire d'informatique de l'École Normale Supérieure,
+Paris, France

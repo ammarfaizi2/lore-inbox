@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261875AbSI3AYW>; Sun, 29 Sep 2002 20:24:22 -0400
+	id <S261857AbSI3AZq>; Sun, 29 Sep 2002 20:25:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261876AbSI3AYW>; Sun, 29 Sep 2002 20:24:22 -0400
-Received: from zero.aec.at ([193.170.194.10]:13834 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S261875AbSI3AYV>;
-	Sun, 29 Sep 2002 20:24:21 -0400
-Date: Mon, 30 Sep 2002 02:29:15 +0200
-From: Andi Kleen <ak@muc.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: hch@infradead.org, ak@muc.de, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
-Message-ID: <20020930002915.GA2805@averell>
-References: <20020929152731.GA10631@averell> <20020929182643.C8564@infradead.org> <20020929.171110.04716295.davem@redhat.com>
+	id <S261863AbSI3AZq>; Sun, 29 Sep 2002 20:25:46 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:56581 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S261857AbSI3AZb>; Sun, 29 Sep 2002 20:25:31 -0400
+Date: Sun, 29 Sep 2002 21:05:38 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] net/Config.in
+Message-ID: <20020930000537.GG7028@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+References: <UTC200209300001.g8U01iY27223.aeb@smtp.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020929.171110.04716295.davem@redhat.com>
+In-Reply-To: <UTC200209300001.g8U01iY27223.aeb@smtp.cwi.nl>
 User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 02:11:10AM +0200, David S. Miller wrote:
->    From: Christoph Hellwig <hch@infradead.org>
->    Date: Sun, 29 Sep 2002 18:26:43 +0100
->    
->    BTW, do you have any stats on the better optimization?
+Em Mon, Sep 30, 2002 at 02:01:44AM +0200, Andries.Brouwer@cwi.nl escreveu:
+> > Thanks, accepted, I'm pushing to DaveM in some moments ...
 > 
-> Unlikely since we disable strict aliasing on the gcc command
-> line which is why I think this suggested __malloc thing is
-> utterly pointless.
+> OK, that was the configuration part.
+> The kernel oopses at boot time in llc_sap_find().
+> I seem to recall that I saw some such oopses on lk
+> but didnt pay attention. Has this been fixed already?
 
-My understanding of it is: Please correct me if I'm wrong [i haven't 
-verified this with tree dumps]
+Humm, 2.5.39? It is compiled statically, isn't it? I'm working exclusively
+with modules up to now, I'll try to reproduce and fix it :-\
 
--fno-strict-aliasing tells each pointer that it can alias with everything
-else (puts it in alias set 0)
-
-__attribute__((malloc)) overwrites this so that the compiler knows that
-this particular pointer that has been returned  (puts it into an own
-alias set again and overwrites the -fno-strict-aliasing default) 
-
-Another way to overwrite it would be restrict, but nobody uses that
-currently. May make sense to add it to compile compiler version checked
-macros too, so that it can be safely used.
-
-Then it would be actually possible to write functions that get optimized
-this way. I'm aware that the aliasing stuff mostly helps with array walks
-and loops, which are not that common in the kernel, but it could be still
-useful.
-
--Andi
+- Arnaldo

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbTLOS1N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 13:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTLOS1M
+	id S263937AbTLOS0X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 13:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbTLOS0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 13:27:12 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:5490 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S263942AbTLOS1H (ORCPT
+	Mon, 15 Dec 2003 13:26:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54959 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263937AbTLOS0T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 13:27:07 -0500
-Date: Mon, 15 Dec 2003 10:30:00 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rearrange cpumask.h headers in conventional structure
-Message-Id: <20031215103000.270955e9.pj@sgi.com>
-In-Reply-To: <20031215090331.2ca5a755.akpm@osdl.org>
-References: <20031215001045.41b98136.pj@sgi.com>
-	<20031215090331.2ca5a755.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Dec 2003 13:26:19 -0500
+Date: Mon, 15 Dec 2003 10:26:11 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: PCI Express support for 2.4 kernel
+In-Reply-To: <3FDC9DC5.2070302@intel.com>
+Message-ID: <Pine.LNX.4.58.0312151023570.1488@home.osdl.org>
+References: <3FDC9DC5.2070302@intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Personally, I rather prefer that include/linux/cpumask.h be retained, and
-> that it perform the inclusion of <asm/cpumask.h>.
 
-Good idea.  Should have thought of it myself ;).
 
-I'll come up with another patch - probably tomorrow.
+This really isn't appropriate. The
 
-Thanks.
+	With PCI-E, config space accessed through memory. Each device gets
+	its own 4k memory mapped config, total 256M for all devices.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+thing _really_ does not work on x86, since 256M of IO mapping is _way_ way
+too much.
+
+You _really_ need to allocate a FIXMAP entry (just one), and then use
+
+	set_fixmap_nocache(FIX_PCIEXPRESS, phys);
+
+to set it up for each device.
+
+That's actually going to be a lot simpler than what you do now.
+
+		Linus
+

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262887AbSJWHE3>; Wed, 23 Oct 2002 03:04:29 -0400
+	id <S262888AbSJWHJS>; Wed, 23 Oct 2002 03:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262888AbSJWHE3>; Wed, 23 Oct 2002 03:04:29 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:29609 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S262887AbSJWHE2>; Wed, 23 Oct 2002 03:04:28 -0400
-From: Richard Stallman <rms@gnu.org>
-To: nico@cam.org
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.44.0210211331250.5873-100000@xanadu.home> (message
-	from Nicolas Pitre on Mon, 21 Oct 2002 13:56:05 -0400 (EDT))
-Subject: Re: Bitkeeper outrage, old and new
-Reply-to: rms@gnu.org
-References: <Pine.LNX.4.44.0210211331250.5873-100000@xanadu.home>
-Message-Id: <E184Ff4-0007WQ-00@fencepost.gnu.org>
-Date: Wed, 23 Oct 2002 03:10:38 -0400
+	id <S262889AbSJWHJS>; Wed, 23 Oct 2002 03:09:18 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:6793 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S262888AbSJWHJR>; Wed, 23 Oct 2002 03:09:17 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 23 Oct 2002 08:39:48 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
+Cc: Bongani <bhlope@mweb.co.za>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] 2.5.44 Stop bttv_driver.c from flooding /var/log/messages
+Message-ID: <20021023063948.GB16884@bytesex.org>
+References: <200210222202.22801.bhlope@mweb.co.za> <Pine.BSF.4.44.0210222056330.717-100000@e0-0.zab2.int.zabbadoz.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.BSF.4.44.0210222056330.717-100000@e0-0.zab2.int.zabbadoz.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-People who disagree with my views about free software often say that
-it is ineffective for me to talk about them.  The ways they say this
-are as boundless as human imagination, but the message is the same:
-"No one agrees with you, no one cares, you are wasting your time, your
-efforts are totally ineffective."
+> To Suse-folks: what happend to gerd ? I had seen lots of questions
+> 	regarding v4l2 on this list but no answers.
 
-However, other evidence shows that some people are paying attention
-even if others are not.  Talking about principles encourages people to
-think about them, and that has an influence.  In the long run, it has
-been very effective--merely writing code would have achieved little.
+I read lkml very briefly.  Better use the video4linux list, that highly
+increases the chance I see it.
 
-I conclude that the reason people insist so strongly that no one is
-listening is precisely because that isn't so.  The aim of these
-messages is to cause discouragement.  After recognizing this, one can
-easily avoid believing them.
+  Gerd
 
-      Until it happens please assume that those who
-    chose to use the tool they want are exercising their freedom
+PS: I have bttv updates in the queue anyway (also available from
+    http://bytesex.org/patches/2.5/).  There are v4l2 patches too.
 
-They are exercising a legal right to do something foolish and
-harmful.  Freedom does not mean nobody can criticize you.
+-- 
+You can't please everybody.  And usually if you _try_ to please
+everybody, the end result is one big mess.
+				-- Linus Torvalds, 2002-04-20

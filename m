@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268789AbTGOQBN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 12:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268761AbTGOP6J
+	id S268794AbTGOQBM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:01:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268789AbTGOQAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 11:58:09 -0400
-Received: from mail.kroah.org ([65.200.24.183]:62105 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268748AbTGOP5s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 11:57:48 -0400
-Date: Tue, 15 Jul 2003 09:11:27 -0700
-From: Greg KH <greg@kroah.com>
-To: CaT <cat@zip.com.au>
+	Tue, 15 Jul 2003 12:00:11 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:41149
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S268577AbTGOP7c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 11:59:32 -0400
+Date: Tue, 15 Jul 2003 12:14:18 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Jeff Mock <jeff-ml@mock.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-t1: i2c+sensors still whacky (hi Greg :)
-Message-ID: <20030715161127.GA2925@kroah.com>
-References: <20030715090726.GJ363@zip.com.au>
+Subject: Re: SCSI ATA driver in 2.4.22 ?
+Message-ID: <20030715161418.GE13207@gtf.org>
+References: <PMEMILJKPKGMMELCJCIGOEKNCCAA.kfrazier@mdc-dayton.com> <PMEMILJKPKGMMELCJCIGOEKNCCAA.kfrazier@mdc-dayton.com> <5.1.0.14.2.20030715084326.077d0480@mail.mock.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030715090726.GJ363@zip.com.au>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <5.1.0.14.2.20030715084326.077d0480@mail.mock.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 07:07:27PM +1000, CaT wrote:
-> Ok. For a while i2c+sensors for me would freeze my box. Lately though
-> it has been slowing it down to a crawl. And by slow I mean I can see
-> the framebuffer console scroll block by block and be able to see 
-> individual lines half-scrolled and suchlike things. All is fine with 
-> the kernel until it hits the i2c and sensors code. Then it slows to
-> a crawl. By the look at the HD usage indicator it seems that it pauses
-> a second at a time (ie approx seconds pause, burst of activity, seconds
-> pause etc). This also happened before AS was merged into the kernel.
+On Tue, Jul 15, 2003 at 08:58:16AM -0700, Jeff Mock wrote:
+> 
+> Is Jeff Garzik's SCSI ATA driver going in 2.4.22?  I've been using it
+> with great success with 2.4.21-ac4, but I haven't seen it in any
+> of the 2.4.22-pre kernels.
+> 
+> If it's not going in, is there an alternative for accessing serial
+> ATA devices in native/enhanced mode rather than legacy mode?
 
-So, if you don't have any i2c code loaded, everything works?  How about
-just loading the i2c driver and not the sensor driver?
+My preference would be to merge into 2.6.0-test first, then send it to
+Marcelo after that.  Otherwise, people upgrading 2.4->2.6 would get
+shafted.
 
-Oh, how about enabiling debugging in the i2c driver that you are using?
-Any interesting info in the kernel log would be appreciated.
+Besides that, I certainly would not object to it being in 2.4.22.
+(but I'm biased :))
 
-thanks,
 
-greg k-h
+> By the way, if you name your child libata, some say the name has
+> some nice qualities:
+> 
+>    http://www.kabalarians.com/male/libata.htm
+
+That rules ;-)
+
+	Jeff
+
+
+

@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUIALnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266149AbUIALng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266163AbUIALnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 07:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUIALnQ
+	id S266149AbUIALng (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 07:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUIALnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 07:43:16 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:58506 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266163AbUIALnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 07:43:14 -0400
-Subject: Re: Embedded Linux :: How different is it?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: arjanv@redhat.com
-Cc: prasad@atc.tcs.co.in,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1094034205.2947.6.camel@laptop.fenrus.com>
-References: <51980.203.200.212.145.1094033022.squirrel@203.200.212.145>
-	 <1094034205.2947.6.camel@laptop.fenrus.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094035251.2376.31.camel@localhost.localdomain>
+	Wed, 1 Sep 2004 07:43:35 -0400
+Received: from f22.mail.ru ([194.67.57.55]:15881 "EHLO f22.mail.ru")
+	by vger.kernel.org with ESMTP id S266149AbUIALnc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 07:43:32 -0400
+From: Kirill Korotaev <kksx@mail.ru>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] obscure pid implementation fix (v2)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 01 Sep 2004 11:40:53 +0100
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 192.168.0.129 via proxy [195.133.213.201]
+Date: Wed, 01 Sep 2004 15:43:30 +0400
+Reply-To: Kirill Korotaev <kksx@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1C2TWU-0005Te-00.kksx-mail-ru@f22.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-01 at 11:23, Arjan van de Ven wrote:
-> yes you absolutely are entitled to the full source code including
-> "all the source code for all modules it contains, plus any
-> associated interface definition files, plus the scripts used to
-> control compilation and installation"
-> 
-> In fact the vendor of the phone is required to either ship the source
-> with the phone (rare) or include a written offer to give you the source.
+I remade the previous patch against the latest Linus tree, please apply.
 
-Several appliances I have seen stick a large zip of the sources on the
-CD that comes with them and otherwise contains windows drivers, adobe
-acrobat and the manual they were too cheap to print.
+This patch fixes strange and obscure pid implementation in current kernels:
+- it removes calling of put_task_struct() from detach_pid()
+  under tasklist_lock. This allows to use blocking calls
+  in security_task_free() hooks (in __put_task_struct()).
+- it saves some space = 5*5 ints = 100 bytes in task_struct
+- it's smaller and tidy, more straigthforward and doesn't use
+  any knowledge about pids using and assignment.
+- it removes pid_links and pid_struct doesn't hold reference counters
+  on task_struct. instead, new pid_structs and linked altogether and
+  only one of them is inserted in hash_list.
 
-Its also worth emphasizing that you shouldn't expect a Linux based phone
-vendor to do anything more than suggest you buy a new one if you break
-it reflashing the OS with your own changes 8)
+Signed-off-by: Kirill Korotaev (kksx@mail.ru)
 
+Kirill
 

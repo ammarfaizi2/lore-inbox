@@ -1,204 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263009AbTJaE64 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 23:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263018AbTJaE6z
+	id S263018AbTJaFHK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 00:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTJaFHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 23:58:55 -0500
-Received: from web12304.mail.yahoo.com ([216.136.173.102]:41489 "HELO
-	web12304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263009AbTJaE6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 23:58:49 -0500
-Message-ID: <20031031045849.14921.qmail@web12304.mail.yahoo.com>
-Date: Thu, 30 Oct 2003 20:58:49 -0800 (PST)
-From: Vinayak Kariappa <c_vinayak@yahoo.com>
-Subject: 3Dfx framebuffer driver tdfxfb_cursor() bit-wise ANDing
-To: linux-kernel maillist <linux-kernel@vger.kernel.org>, hmallat@cc.hut.fi
+	Fri, 31 Oct 2003 00:07:10 -0500
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:8840 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S263018AbTJaFHE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 00:07:04 -0500
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="Big5"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: MIME::Lite 1.2  (F2.71; T1.001; A1.51; B2.12; Q2.03)
+From: "CN" <cnliou9@fastmail.fm>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 30 Oct 2003 21:04:39 -0800
+X-Epoch: 1067576679
+X-Sasl-enc: k8AMlAd9gRHTGCg7wkCTOw
+Subject: Re: kernel: i8253 counting too high! resetting..
+References: <20031029075010.596C57A6C6@smtp.us2.messagingengine.com> <20031030171235.GA59683@teraz.cwru.edu>
+In-Reply-To: <20031030171235.GA59683@teraz.cwru.edu>
+Message-Id: <20031031050439.E03B17E2B8@smtp.us2.messagingengine.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following is the code section from 
- linux-2.6.0-test9\drivers\video\tdfxfb.c
+Thank you a lot!
 
-This is the 3Dfx framebuffer driver.
+> > entries in syslog from kernel 2.4.22 upgraded from Debian woody (gcc
+> > 2.95.4) running on AMD K6II 450MHz with 64MB RAM. I don't have such
+> > problem in kernel 2.4.20 upgraded from Slackware (gcc 2.95.3) running on
+> > another box with the identical CPU and main board (but with 192MB RAM).
+> > Does this message hurt anything?
+> 
+> Can you please provide additional details about your hardware?
+> What kind of main board are you using, and what southbridge?
 
-I have noticed that if statements with bit-wise AND 
-(&) is been typed as logical AND (&&) 
-i.e. all the if statements anding with FB_CUR_*
+Now I found that the two boards are slightly different. The printings on
+the biggest 2 chips on the problematic board are:
 
-as I don't have a 3Dfx card I am unable to test.
-Sorry for not attaching a patch file.
+ALi
+M1542 A1
+100MHz
+9949 TS05
 
+ALi
+M1543C B1
+9947 TM07
 
----code section---
+respectively. While the board having no i8253 messages has the chips:
 
-static int tdfxfb_cursor(struct fb_info *info, struct
-fb_cursor *cursor)
-{
-	struct tdfx_par *par = (struct tdfx_par *) info->par;
-	unsigned long flags;
+ALi
+M1542 A1
+100MHz
+9937 TS05
 
-	/*
-	 * If the cursor is not be changed this means either
-we want the 
-	 * current cursor state (if enable is set) or we want
-to query what
-	 * we can do with the cursor (if enable is not set) 
- 	 */
-	if (!cursor->set) return 0;
+ALi
+M1543C B1
+0002 TM05
 
-	/* Too large of a cursor :-( */
-	if (cursor->image.width > 64 || cursor->image.height
-> 64)
-		return -ENXIO;
+> What is the reported latency of your IDE interface?
 
-	/* 
-	 * If we are going to be changing things we should
-disable
-	 * the cursor first 
-	 */
-	if (info->cursor.enable) {
-		spin_lock_irqsave(&par->DAClock, flags);
-		info->cursor.enable = 0;
-		del_timer(&(par->hwcursor.timer));
-		tdfx_outl(par, VIDPROCCFG, par->hwcursor.disable);
-		spin_unlock_irqrestore(&par->DAClock, flags);
-	}
+Sorry! I don't quite understand the meanings! I am trying to report all I
+know about. dmesg on the problematic box shows:
 
-	/* Disable the Cursor */
-	if ((cursor->set && FB_CUR_SETCUR) &&
-!cursor->enable)
-		return 0;
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+hda: FUJITSU MPE3064AT, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: attached ide-disk driver.
+hda: 12672450 sectors (6488 MB) w/512KiB Cache, CHS=13410/15/63
+Partition check:
+ hda: [PTBL] [788/255/63] hda1
 
-	/* fix cursor color - XFree86 forgets to restore it
-properly */
-	if (cursor->set && FB_CUR_SETCMAP) {
-		struct fb_cmap cmap = cursor->image.cmap;
-		unsigned long bg_color, fg_color;
+One thing I want to mention here is that this disk supports 66MHz DMA
+access according to Fjuitsu's whitepaper. OTOH, the board running kernel
+2.4.20 reports:
 
-		cmap.len = 2;/* Voodoo 3+ only support 2 color
-cursors*/
-		fg_color = ((cmap.red[cmap.start] << 16) |
-			    (cmap.green[cmap.start] << 8)  |
-			    (cmap.blue[cmap.start]));
-		bg_color = ((cmap.red[cmap.start+1] << 16) |
-			    (cmap.green[cmap.start+1] << 8) |
-			    (cmap.blue[cmap.start+1]));
-		fb_copy_cmap(&cmap, &info->cursor.image.cmap, 0);
-		spin_lock_irqsave(&par->DAClock, flags);
-		banshee_make_room(par, 2);
-		tdfx_outl(par, HWCURC0, bg_color);
-		tdfx_outl(par, HWCURC1, fg_color);
-		spin_unlock_irqrestore(&par->DAClock, flags);
-	}
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+ALI15X3: IDE controller on PCI bus 00 dev 78
+PCI: Assigned IRQ 10 for device 00:0f.0
+ALI15X3: chipset revision 194
+ALI15X3: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: Maxtor 91021U2, ATA DISK drive
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+hdc: Maxtor 91021U2, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+blk: queue c02c60a4, I/O limit 4095Mb (mask 0xffffffff)
+hda: 20010816 sectors (10246 MB) w/512KiB Cache, CHS=1245/255/63,
+UDMA(66)
+blk: queue c02c6408, I/O limit 4095Mb (mask 0xffffffff)
+hdc: 20010816 sectors (10246 MB) w/512KiB Cache, CHS=19852/16/63,
+UDMA(66)
+Partition check:
+ hda: hda1
+ hdc: [PTBL] [1245/255/63] hdc1
 
-	if (cursor->set && FB_CUR_SETPOS) {
-		int x, y;
+which looks to me that it supports DMA 66 as expected. I set the bios' of
+these 2 boxes to the same parameters related to IDE in menu "Integrated
+Peripherals".
 
-		x = cursor->image.dx;
-		y = cursor->image.dy;
-		y -= info->var.yoffset;
-		info->cursor.image.dx = x;
-		info->cursor.image.dy = y;
-		x += 63;
-		y += 63;
-		spin_lock_irqsave(&par->DAClock, flags);
-		banshee_make_room(par, 1);
-		tdfx_outl(par, HWCURLOC, (y << 16) + x);
-		spin_unlock_irqrestore(&par->DAClock, flags);
-	}
+Best Regards,
 
-	/* Not supported so we fake it */
-	if (cursor->set && FB_CUR_SETHOT) {
-		info->cursor.hot.x = cursor->hot.x;
-		info->cursor.hot.y = cursor->hot.y;
-	}
+CN
 
-	if (cursor->set && FB_CUR_SETSHAPE) {
-		/*
-	 	 * Voodoo 3 and above cards use 2 monochrome cursor
-patterns.
-		 *    The reason is so the card can fetch 8 words at
-a time
-		 * and are stored on chip for use for the next 8
-scanlines.
-		 * This reduces the number of times for access to
-draw the
-		 * cursor for each screen refresh.
-		 *    Each pattern is a bitmap of 64 bit wide and 64
-bit high
-		 * (total of 8192 bits or 1024 Kbytes). The two
-patterns are
-		 * stored in such a way that pattern 0 always
-resides in the
-		 * lower half (least significant 64 bits) of a 128
-bit word
-		 * and pattern 1 the upper half. If you examine the
-data of
-		 * the cursor image the graphics card uses then from
-the
-		 * begining you see line one of pattern 0, line one
-of
-		 * pattern 1, line two of pattern 0, line two of
-pattern 1,
-		 * etc etc. The linear stride for the cursor is
-always 16 bytes
-		 * (128 bits) which is the maximum cursor width
-times two for
-		 * the two monochrome patterns.
-		 */
-		u8 *cursorbase = (u8 *) info->cursor.image.data;
-		char *bitmap = (char *)cursor->image.data;
-		char *mask = cursor->mask;
-		int i, j, k, h = 0;
-
-		for (i = 0; i < 64; i++) {
-			if (i < cursor->image.height) {
-				j = (cursor->image.width + 7) >> 3;
-				k = 8 - j;
-
-				for (;j > 0; j--) {
-				/* Pattern 0. Copy the cursor bitmap to it */
-					fb_writeb(*bitmap, cursorbase + h);
-					bitmap++;
-				/* Pattern 1. Copy the cursor mask to it */
-					fb_writeb(*mask, cursorbase + h + 8);
-					mask++;
-					h++;
-				}
-				for (;k > 0; k--) {
-					fb_writeb(0, cursorbase + h);
-					fb_writeb(~0, cursorbase + h + 8);
-					h++;
-				}
-			} else {
-				fb_writel(0, cursorbase + h);
-				fb_writel(0, cursorbase + h + 4);
-				fb_writel(~0, cursorbase + h + 8);
-				fb_writel(~0, cursorbase + h + 12);
-				h += 16;
-			}
-		}
-	}
-	/* Turn the cursor on */
-	cursor->enable = 1;
-	info->cursor = *cursor;
-	mod_timer(&par->hwcursor.timer, jiffies+HZ/2);
-	spin_lock_irqsave(&par->DAClock, flags);
-	banshee_make_room(par, 1);
-	tdfx_outl(par, VIDPROCCFG, par->hwcursor.enable);
-	spin_unlock_irqrestore(&par->DAClock, flags);
-	return 0;
-}
-
-
-Thanks,
-Vinayak
-
-
-__________________________________
-Do you Yahoo!?
-Exclusive Video Premiere - Britney Spears
-http://launch.yahoo.com/promos/britneyspears/
+-- 
+http://www.fastmail.fm - And now for something completely different…

@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318144AbSIORtz>; Sun, 15 Sep 2002 13:49:55 -0400
+	id <S318145AbSIOR5m>; Sun, 15 Sep 2002 13:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318145AbSIORtz>; Sun, 15 Sep 2002 13:49:55 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:37303 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S318144AbSIORty>; Sun, 15 Sep 2002 13:49:54 -0400
-Date: Sun, 15 Sep 2002 14:54:27 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-cc: Andrew Morton <akpm@digeo.com>, Axel Siebenwirth <axel@hh59.org>,
-       Con Kolivas <conman@kolivas.net>, lkml <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>, <lse-tech@lists.sourceforge.net>
-Subject: RE: 2.5.34-mm4
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBAEAHFGAA.znmeb@aracnet.com>
-Message-ID: <Pine.LNX.4.44L.0209151452560.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318148AbSIOR5m>; Sun, 15 Sep 2002 13:57:42 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:5248 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318145AbSIOR5l>;
+	Sun, 15 Sep 2002 13:57:41 -0400
+Date: Sun, 15 Sep 2002 17:42:48 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>,
+       James Blackwell <jblack@linuxguru.net>, linux-kernel@vger.kernel.org,
+       jonathan@buzzard.org.uk
+Subject: Re: [PATCH] IRQ patch for Toshiba Char Driver in 2.5.34
+Message-ID: <20020915154248.GA3647@elf.ucw.cz>
+References: <20020909115956.GA23290@comet> <20020911112938.A25726@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020911112938.A25726@infradead.org>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002, M. Edward Borasky wrote:
+Hi!
 
-> Borasky's Corollary 1: If you *can* measure it and it *does* exist, the
-> cheapest solution may still be to buy more memory, more disks or a
-> faster processor.
+> You've just made the driver horribly racy on SMP or preempt
+> systems..
 
-Current 2.5 is sluggish on systems with a fast CPU and 768 MB
-of RAM, whereas current -ac runs the same workload smoothly
-with 128 MB of RAM.
+Well, as long as toshiba does not make SMP notebooks, we are safe ;-).
 
-Now tell me, what's your point ?
+								Pavel
 
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

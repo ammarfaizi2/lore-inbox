@@ -1,34 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263531AbRFAO1Y>; Fri, 1 Jun 2001 10:27:24 -0400
+	id <S263534AbRFAObO>; Fri, 1 Jun 2001 10:31:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263534AbRFAO1E>; Fri, 1 Jun 2001 10:27:04 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:264 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263531AbRFAO1C>; Fri, 1 Jun 2001 10:27:02 -0400
-Subject: Re: 2.4.[35] + Dell Poweredge 8450 + Oops on boot
-To: katz@advanced.org (Terry Katz)
-Date: Fri, 1 Jun 2001 15:25:03 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <004d01c0eaa4$6dc81860$21efd3d1@advanced.org> from "Terry Katz" at Jun 01, 2001 10:09:10 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263537AbRFAObE>; Fri, 1 Jun 2001 10:31:04 -0400
+Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:53172 "EHLO
+	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S263534AbRFAOau>; Fri, 1 Jun 2001 10:30:50 -0400
+Date: Fri, 1 Jun 2001 16:30:42 +0200 (CEST)
+From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+To: jamal <hadi@cyberus.ca>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: [PATCH] support for Cobalt Networks (x86 only) systems (forrealthis
+In-Reply-To: <Pine.GSO.4.30.0106011006220.10502-100000@shell.cyberus.ca>
+Message-ID: <Pine.LNX.4.33.0106011620340.18082-100000@kenzo.iwr.uni-heidelberg.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E155prL-0000aH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> isapnp: Scanning for PnP cards...
-> isapnp: No Plug & Play device found
-> PnP: PNP BIOS installation structure at 0xc00f68f0
-> PnP: PNP BIOS version 1.0, entry at f0000:a611, dseg at 400 Unable to
-> handle kernel paging request at virtual address 0000ff48  printing eip:
-> 00003c9c *pde = 00000000
-> Oops: 0002
-> CPU:    0
-> EIP:    0068:[<00003c9c>]
+On Fri, 1 Jun 2001, jamal wrote:
 
-Your Pnp BIOS crahsed somewhere in the BIOS when we called it - Disable PnP
-bios support or get a bios update
+> Jeff, Thanks for copying netdev. Wish more people would do that.
+
+Shame on me, I should have thought of that too... I joined lkml only about
+2 weeks ago because netdev related topics are sometimes discussed only
+there...
+
+> Not really.
+>
+> One idea i have been toying with is to maintain hysteris or threshold of
+> some form in dev_watchdog;
+
+AFAIK, dev_watchdog is right now used only for Tx (if I'm wrong, please
+correct me!). So how do you sense link loss if you expect only high Rx
+traffic ?
+
+> example: if watchdog timer expires threshold times, you declare the link
+> dead and send netif_carrier_off netlink message.
+> On recovery, you send  netif_carrier_on
+
+I assume that you mean "on recovery" as in "first succesful hard_start_xmit".
+
+> Assumption:
+> If the tx path is blocked, more than likely the link is down.
+
+Yes, but is this a good approximation ? I'm not saying that it's not, I'm
+merely asking for counter-arguments.
+
+-- 
+Bogdan Costescu
+
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
+
+

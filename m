@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266130AbRHJITA>; Fri, 10 Aug 2001 04:19:00 -0400
+	id <S265810AbRHJIQa>; Fri, 10 Aug 2001 04:16:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266040AbRHJISu>; Fri, 10 Aug 2001 04:18:50 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45929 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S266006AbRHJISl>; Fri, 10 Aug 2001 04:18:41 -0400
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Dirk W. Steinberg" <dws@dirksteinberg.de>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: Swapping for diskless nodes
-In-Reply-To: <Pine.LNX.4.33L.0108091758070.1439-100000@duckman.distro.conectiva>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 10 Aug 2001 02:11:46 -0600
-In-Reply-To: <Pine.LNX.4.33L.0108091758070.1439-100000@duckman.distro.conectiva>
-Message-ID: <m1k80ctjul.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S266006AbRHJIQU>; Fri, 10 Aug 2001 04:16:20 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:20498 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S265810AbRHJIQF>; Fri, 10 Aug 2001 04:16:05 -0400
+Date: Fri, 10 Aug 2001 03:46:39 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Eduard Phetisov <wert@mb.ru>
+Cc: linux-kernel@vger.kernel.org, haible@ma2s2.mathematik.uni-karlsruhe.de,
+        osrc@pell.chi.il.us, quintela@fi.udc.es, dwmw2@redhat.com
+Subject: Re: BUG in the kernels 2.4.x
+In-Reply-To: <3B739598.BC4091DB@mb.ru>
+Message-ID: <Pine.LNX.4.21.0108100346200.15623-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
 
-> On 9 Aug 2001, Eric W. Biederman wrote:
-> 
-> > I don't know about that.  We already can swap over just about
-> > everything because we can swap over the loopback device.
-> 
-> Last I looked the loopback device could deadlock your
-> system without you needing to swap over it ;)
 
-It wouldn't suprise me.  But the fact remains that in 2.4 we allow it.
-And if we allw it there is little excuse for doing it wrong.
+On Fri, 10 Aug 2001, Eduard Phetisov wrote:
 
-Actually except for network cases it looks easier to prevent deadlocks
-on the swapping path than with the loop back devices.  We can call
-aops->prepare_write_out when we place the page in the swap cache
-to make certain we aren't over a hole in a file, and there is room in the
-filesystem to store the data.
+> I think what I find a bug in the kernels 2.4.x.
+> Bug apears then several processes allocates some memory. If size of the
+> free memory less then size of claimed memory by processes, system went
+> down. 
 
-Eric
+What do you mean by system went down ?
+
+Complete lockup or slowndown?
+

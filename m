@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264921AbUD2TQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264928AbUD2TWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264921AbUD2TQm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 15:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbUD2TQm
+	id S264928AbUD2TWU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 15:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbUD2TWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 15:16:42 -0400
-Received: from mail.kroah.org ([65.200.24.183]:48581 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264921AbUD2TQk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 15:16:40 -0400
-Date: Thu, 29 Apr 2004 12:16:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Bryan Small <code_smith@comcast.net>, Sean Young <sean@mess.org>,
-       Chester <fitchett@phidgets.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB: add new USB PhidgetServo driver
-Message-ID: <20040429191605.GB18643@kroah.com>
-References: <20040428181806.GA36322@atlantis.8hz.com> <20040429031040.GA5336@kroah.com> <EF9BE23E-9A0D-11D8-B72E-000A95B17CC2@comcast.net> <200404292110.21235.oliver@neukum.org>
+	Thu, 29 Apr 2004 15:22:19 -0400
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:16828 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S264928AbUD2TWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 15:22:18 -0400
+Date: Thu, 29 Apr 2004 12:22:09 -0700
+From: Tim Hockin <thockin@sun.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: BUG: might_sleep in /proc/swaps code
+Message-ID: <20040429192209.GF1483@sun.com>
+Reply-To: thockin@sun.com
+References: <20040428232457.GB1483@sun.com> <20040429005333.GE17014@parcelfarce.linux.theplanet.co.uk> <20040429020309.GF17014@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200404292110.21235.oliver@neukum.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040429020309.GF17014@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 09:10:21PM +0200, Oliver Neukum wrote:
-> Am Donnerstag, 29. April 2004 20:49 schrieb Bryan Small:
-> > The IFkit ( both 8/8/8 and 0/8/8) and the TextLCD will work nearly the
-> > same as Sean's servo control. They will use sysfs also. They will be
+On Thu, Apr 29, 2004 at 03:03:09AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> OK, here comes.  New semaphore protecting insertions/removals in the
+> set of swap components + switch of ->start()/->stop() to the same
+> semaphore [fixes deadlocks] + trivial cleanup of ->next().
 > 
-> I don't want to spoil the party, but in which way is using sysfs in this
-> way different from using it as a form of devfs?
+> See if it works for you...
 
-	- one value per file, no char or block nodes
-	- devices can export many different files depending on their
-	  needs (no ioctl crud needed.)
-	- you can use a script or libsysfs a web browser, or anything
-	  else that reads directory trees and files to access the device
-	  info.
-	- you can have as many devices as you want in the system, no
-	  limitations on minor numbers, or anything else.
-	- no unsolvable kernel race and locking issues
-	- no horribly formatted code from a developer who is no longer
-	  maintaining it.
+Well, it stops bitching about might_sleep(), so it solves the obvious
+problems.  I'm not in a position to comment about the other complexities of
+swapfile.c, so I'll take it on faith that you got it right. :)
 
-Shall I go on?  :)
-
-thanks,
-
-greg k-h
+Thanks
+Tim

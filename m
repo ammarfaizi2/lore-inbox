@@ -1,115 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262789AbTAEEXQ>; Sat, 4 Jan 2003 23:23:16 -0500
+	id <S262806AbTAEEbE>; Sat, 4 Jan 2003 23:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbTAEEXQ>; Sat, 4 Jan 2003 23:23:16 -0500
-Received: from f58.sea2.hotmail.com ([207.68.165.58]:39690 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S262789AbTAEEXP>;
-	Sat, 4 Jan 2003 23:23:15 -0500
-X-Originating-IP: [218.75.193.47]
-From: "fretre lewis" <fretre3618@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: more question, please help me understand this  line code about pci
-Date: Sun, 05 Jan 2003 04:31:37 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F58f8BylrQa7kaHvHJ100011ed9@hotmail.com>
-X-OriginalArrivalTime: 05 Jan 2003 04:31:40.0424 (UTC) FILETIME=[57A19080:01C2B473]
+	id <S262807AbTAEEbE>; Sat, 4 Jan 2003 23:31:04 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9079 "HELO
+	mailhub.stusta.mhn.de") by vger.kernel.org with SMTP
+	id <S262806AbTAEEbC>; Sat, 4 Jan 2003 23:31:02 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Wolfgang Walter <ml-linux-kernel@studentenwerk.mhn.de>
+Organization: Studentenwerk =?iso-8859-1?q?M=FCnchen?=
+To: David Schwartz <davids@webmaster.com>
+Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+Date: Sun, 5 Jan 2003 05:39:35 +0100
+User-Agent: KMail/1.4.3
+Cc: <linux-kernel@vger.kernel.org>, <rms@gnu.org>
+References: <20030105001731.AAA11069@shell.webmaster.com@whenever>
+In-Reply-To: <20030105001731.AAA11069@shell.webmaster.com@whenever>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200301050539.35205.ml-linux-kernel@studentenwerk.mhn.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 05 January 2003 01:17, David Schwartz wrote:
+> On Sat, 04 Jan 2003 18:44:58 -0500, Richard Stallman wrote:
+> >Defending shrink wrap licensing agreements, arguing to weaken
+> >fair use and
+> >first sale doctrines, and arguing that if you include a header it's
+> >a derived
+> >work is a strange way to defend intellectual freedom.
+> >
+> >Those are not my views.  Are you confusing me with someone else?
+>
+> 	Then please explain to me how the GPL comes to apply to a person who
+> did not agree to it as a condition of receiving a copyrighted work.
+> Please explain to me why you think that the GPL should have applied
+> to kernel modules that only include header files.
+>
+
+You seem not to understand copyright.
+
+The GPL does not affect the user of the software. If you have bought a copy of 
+Red Linux distribution cd i.a. it is not necessary to accept the GPL (or BSD 
+or whatever license) to use the software. You may sell your received copy 
+when ever you want to ever you want for whatever price you can get - if you 
+do not keep a copy. As you can do with microsoft windows - if you bought it 
+(and did not licensed it from microsoft). I.a. it is not necessary to provide 
+source code because it is Red Hat which a) made the copy and b) did so by 
+accepting the GPL. 
+
+But if you want to make and use or distribute copies of that CD or distributed 
+works, well, then you must get explicit permission from the copyright owners 
+- as you would have to for any copyrightable work. This is so because of 
+copyright law. If you buy the software you only have the right to use it. You 
+do not have by default the right to distribute copies, make or distribute 
+derived works etc.
+
+If the CD would be a copy of microsoft windows you would have to negotiate 
+with microsoft - probably they would not allow that you distribute a derived 
+version.
+
+Now the authors of the software on the Red Hat CD make you an offer: you may 
+accept the GPL. If you do so, they allow you to make and distribute copies or 
+derived works under certain conditions. You don't have to accept the GPL. If 
+you do not, you may try to negotiate for other terms with the copyright 
+holders.
+
+> 	That's a lot better than trying to arm twist others in to providing
+> our freedom to use their works. When you talk about forcing a person
+> to distribute the source code to a derived work, you are only talking
+> about their control over what they added. When a person creates a
+
+Do you understand? You are not allowed to produce derived works without 
+permission of the copyright owner. He may do so under what consitions he want 
+(or simply does not allow you to do so at all).
+
+With the GPL the copyright owner(s) of the work grants you the right to do so 
+under certain conditions described under the GPL. One right is to produce 
+derived works at all and 
+
+Have you ever got permission from microsoft or adobe to produce derived works 
+from windows 2000 or photoshop?
+
+> derived work of an open source work, all they have to offer is the
+> value they added. In the name of freedom, you take their control over
+> their work from them.
+
+No, they allow you to do the work at all. By default you would not be allowed 
+to add value at all.
+
+>
+> 	This is the same "freedom" that socialism promises the workers. They
+> call it the freedom to own the machinery they use to produce.
+> Analogously, this "freedom" is really just the loss of the freedom of
+> ownership.
+
+No. The authors of the work has with your words - the "ownership" of his work. 
+Law says that one facete of that "ownership" is that he may allow or forbid 
+derived works. And if he allows someone to produce a derived work its under 
+his conditions.
+
+The GPL does not restrict you. Contrary, it uses copyright law to establish a 
+pool of software with much more freedom as copyright law gives to you. It 
+only does not give you so much freedom to deny other people the same 
+freedoms. The copyright holders can only do so, because copyright law itself 
+give you none of these rights at all.
+
+Richard Stallmann - if I understand him right - beliefs that the rights the 
+GPL grants should be granted (for software) by copyright law itself and 
+therefor granted for every software. You may argument about that.
+
+But you cant't argument that an author as owner of his work should use a less 
+restrictive license than the GPL so you can make a derived work and 
+distribute it under a more restrictive license than GPL. Why should he want 
+to allow that at all (a lot of peoply allow that choosing a BSD-license - 
+nice gift)? Nobody can force him to do so. Its not the GPL which restricts 
+your freedom, it is copyright law and the author(s) of the work you want to 
+made a derived work from.
+
+It is simply impossible that authors have control under which condition 
+derived works may be made from their works AND in the same time have the 
+right to made derived works from works of other authors without control of 
+these authors.
 
 
-  thank Alan Cox and John Bradford , very nice.
+By the way: a completely different question is if a work is a derived work. Is 
+a driver for nvidia a derived work. Well, the GPL can not define that, of 
+course - because it only applies to derived works. No license can that. A 
+licence may state what it will not regard as a derived work.
 
-  however, I am afraid I haven't make my idea quite clear because of my pool 
-english, permit me saying again:
-
-  I am learning code about pci, and I can't understand some lines in
-pci_check_direct(), at arch/i386/kernel/pci-pc.c
-
-the PCI spec v2.0 say: ( page32)
-
-"Anytime a host bridge sees a full DWORD I/O write from the host to
-CONFIG_ADDRESS, the bridge must latch the data into its CONFIG_ADDRESS
-register. On full DWORD I/O reads to CONFIG_ADDRESS,the bridge must return 
-the
-data in CONFIG_ADDRESS. Any other types of accesses to this 
-address(non-DWORD)
-have no effect on CONFIG_ADDRESS and are excuted as normal I/O transaction 
-on PCI bus......"
-
-CONFIG_ADDRESS = 0xcf8
-CONFIG_data = 0xcfc
-
-so I think "outb (0x01, 0xCFB);" just is a normal write to a device at port 
-address 0xCFB (maybe wrong, fixed me), then my questions are:
-
-1. which device is at port address 0xCFB?
-
-2. what is meaning of the writing operation "outb (0x01, 0xCFB);" for THIS 
-device?, it'seem that PCI spec v2.0 not say anything about it?
-
-3. why need "outb (0x01, 0xCFB);" before configuration operation "outl 
-(0x80000000, 0xCF8);" if check configuration type 1? and why need "outb 
-(0x00, 0xCFB);" before "outb (0x00, 0xCF8);" if check configuration type 2?
-
-please help me, thanks a lot.
-
-406 static struct pci_ops * __devinit pci_check_direct(void)
-407 {
-408         unsigned int tmp;
-409         unsigned long flags;
-410
-411         __save_flags(flags); __cli();
-412
-413         /*
-414          * Check if configuration type 1 works.
-415          */
-416         if (pci_probe & PCI_PROBE_CONF1) {
-417                 outb (0x01, 0xCFB);  <<<=========
-418                 tmp = inl (0xCF8);
-419                 outl (0x80000000, 0xCF8);
-420                 if (inl (0xCF8) == 0x80000000 &&
-421                     pci_sanity_check(&pci_direct_conf1)) {
-422                         outl (tmp, 0xCF8);
-423                         __restore_flags(flags);
-424                         printk(KERN_INFO "PCI: Using configuration type 
-1\n");
-425                         request_region(0xCF8, 8, "PCI conf1");
-426                         return &pci_direct_conf1;
-427                 }
-428                 outl (tmp, 0xCF8);
-429         }
-430
-431         /*
-432          * Check if configuration type 2 works.
-433          */
-434         if (pci_probe & PCI_PROBE_CONF2) {
-435                 outb (0x00, 0xCFB);   <<<=========
-436                 outb (0x00, 0xCF8);
-437                 outb (0x00, 0xCFA);
-438                 if (inb (0xCF8) == 0x00 && inb (0xCFA) == 0x00 &&
-439                     pci_sanity_check(&pci_direct_conf2)) {
-440                         __restore_flags(flags);
-441                         printk(KERN_INFO "PCI: Using configuration type 
-2\n");
-442                         request_region(0xCF8, 4, "PCI conf2");
-443                         return &pci_direct_conf2;
-444                 }
-445         }
-446
-447         __restore_flags(flags);
-448         return NULL;
-449 }
-450
-451 #endif
+The courts decide what is a derived work. The courts decide that your book 
+with a main character named Harry Potter, wizard studying in Hogwards, is a 
+derived work from 4 those well known Rowling-books and that you may not 
+distribute it without permission.
 
 
+Greetings,
 
-
-
-_________________________________________________________________
-MSN 8 with e-mail virus protection service: 2 months FREE* 
-http://join.msn.com/?page=features/virus
-
+Wolfgang Walter
+-- 
+Wolfgang Walter
+Studentenwerk München
+Anstalt des öffentlichen Rechts
+EDV
+Leopoldstraße 15
+80802 München
+Tel: +49 89 38196-276
+Fax: +49 89 38196-144
+wolfgang.walter@studentenwerk.mhn.de
+http://www.studentenwerk.mhn.de/

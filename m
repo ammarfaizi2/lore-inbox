@@ -1,95 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbUKLTAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbUKLTCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262612AbUKLTAb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 14:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbUKLTAb
+	id S261520AbUKLTCg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 14:02:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbUKLTCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 14:00:31 -0500
-Received: from mailfe06.swip.net ([212.247.154.161]:4493 "EHLO
-	mailfe06.swip.net") by vger.kernel.org with ESMTP id S262612AbUKLTAU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 14:00:20 -0500
-X-T2-Posting-ID: 2Ngqim/wGkXHuU4sHkFYGQ==
-Subject: Re: 2.6.10-rc1-mm5
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mpm@selenic.com
-In-Reply-To: <20041111012333.1b529478.akpm@osdl.org>
-References: <20041111012333.1b529478.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1100286003.18492.0.camel@boxen>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 12 Nov 2004 20:00:03 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Nov 2004 14:02:36 -0500
+Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:6607 "EHLO
+	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S262616AbUKLTCQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 14:02:16 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] handle quoted module parameters
+Date: Fri, 12 Nov 2004 12:02:10 -0700
+Message-ID: <08A354A3A9CCA24F9EE9BE13600CFBC50F3AF0@wcosmb07.cos.agilent.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] handle quoted module parameters
+Thread-Index: AcTIbqK/jkXcqa/GSIyqBFMGLgaOogAeHyDg
+From: <yiding_wang@agilent.com>
+To: <rddunlap@osdl.org>
+Cc: <yiding_wang@agilent.com>, <arjan@infradead.org>,
+       <linux-kernel@vger.kernel.org>, <rusty@rustcorp.com.au>,
+       <akpm@osdl.org>
+X-OriginalArrivalTime: 12 Nov 2004 19:02:11.0140 (UTC) FILETIME=[1D391840:01C4C8EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-11 at 10:23, Andrew Morton wrote: 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm5/
-> 
-> 
-> - Various updates to various things.  Nothing really stands out.
+Hello Randy,
 
-Got a few of these running LTP (the second -x 4 run). I was beating up
-NFS a bit when I saw this (this coming from the server side). UP x86 box
-with netconsole using tulip NIC. No preempt involved and it doesn't
-appear to happen if I don't put some IO pressure on it, seems
-reproducible otherwise.
+Thanks for your two responses!
 
+Based on your patch, the format of argument will be changed from standard format before:
+Used to be:
+modprm1=first,ext modprm2=second,ext modprm3="third1,ext third2,ext"
+where the quotation in modprm3 represents the whole string, including space, to be the value of third parameter modprm3.
 
+Now the patch changes modprm3 to "modprm3=third1,ext third2,ext" which equivalent to putting quotation mark on normal parameter define "modprm1=first,ext". Do you think linux community will take that change?
 
-Badness in local_bh_enable at kernel/softirq.c:140
-[<c011c3c6>] local_bh_enable+0x86/0x90
-[<c038c4b7>] svc_write_space+0x27/0x90
-[<c0335ebb>] sock_wfree+0x5b/0x60
-[<c0337229>] __kfree_skb+0x49/0xe0
-[<c03469b9>] zap_completion_queue+0x39/0x60
-[<c03468cf>] netpoll_poll+0x7f/0xc0
-[<c0346b1e>] netpoll_send_skb+0x7e/0xc0
-[<c02dbf72>] write_msg+0x32/0x40
-[<c02dbf40>] write_msg+0x0/0x40
-[<c01178d5>] __call_console_drivers+0x45/0x50
-[<c01179c5>] call_console_drivers+0x75/0x100
-[<c0117d4e>] release_console_sem+0x5e/0xf0
-[<c0117c3e>] vprintk+0xfe/0x160
-[<c0117b37>] printk+0x17/0x20
-[<c014880e>] sys_swapon+0x58e/0x790
-[<c0103db3>] syscall_call+0x7/0xb
-Badness in local_bh_enable at kernel/softirq.c:140
-[<c0104db7>] dump_stack+0x17/0x20
-[<c011cf45>] local_bh_enable+0x85/0x90
-[<c038fde8>] svc_write_space+0x28/0x90
-[<c0338e48>] sock_wfree+0x58/0x60
-[<c033a179>] __kfree_skb+0x49/0xd0
-[<c0349b6a>] zap_completion_queue+0x3a/0x60
-[<c0349a7b>] netpoll_poll+0x7b/0xb0
-[<c0349cc7>] netpoll_send_skb+0x87/0xd0
-[<c02de37a>] write_msg+0x3a/0x50
-[<c0118202>] __call_console_drivers+0x52/0x60
-[<c01182ff>] call_console_drivers+0x7f/0x100
-[<c011869a>] release_console_sem+0x6a/0x100
-[<c011856e>] vprintk+0xfe/0x160
-[<c0118468>] printk+0x18/0x20
-[<c014abe7>] sys_swapon+0x5b7/0x7d0
-[<c0103fb7>] syscall_call+0x7/0xb
-Badness in local_bh_enable at kernel/softirq.c:140
-[<c0104db7>] dump_stack+0x17/0x20
-[<c011cf45>] local_bh_enable+0x85/0x90
-[<c038fde8>] svc_write_space+0x28/0x90
-[<c0338e48>] sock_wfree+0x58/0x60
-[<c033a179>] __kfree_skb+0x49/0xd0
-[<c0349b6a>] zap_completion_queue+0x3a/0x60
-[<c0349a7b>] netpoll_poll+0x7b/0xb0
-[<c0349cc7>] netpoll_send_skb+0x87/0xd0
-[<c02de37a>] write_msg+0x3a/0x50
-[<c0118202>] __call_console_drivers+0x52/0x60
-[<c01182ff>] call_console_drivers+0x7f/0x100
-[<c011869a>] release_console_sem+0x6a/0x100
-[<c011856e>] vprintk+0xfe/0x160
-[<c0118468>] printk+0x18/0x20
-[<c014abe7>] sys_swapon+0x5b7/0x7d0
-[<c0103fb7>] syscall_call+0x7/0xb
+Another question is the parameter length is not limited in 2.4.x kernel. Why this is restricted under 2.6.x. (param_set_charp())?
+
+Regards,
+
+Eddie
 
 
+-----Original Message-----
+From: Randy.Dunlap [mailto:rddunlap@osdl.org]
+Sent: Thursday, November 11, 2004 8:17 PM
+To: Randy.Dunlap
+Cc: yiding_wang@agilent.com; arjan@infradead.org;
+linux-kernel@vger.kernel.org; rusty@rustcorp.com.au; akpm
+Subject: [PATCH] handle quoted module parameters
 
+
+Here's a patch with better description.
+
+
+Fix module parameter quote handling.
+Module parameter strings (with spaces) are quoted like so:
+"modprm=this test"
+and not like this:
+modprm="this test"
+
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+
+diffstat:=
+  kernel/params.c |   15 ++++++++++++---
+  1 files changed, 12 insertions(+), 3 deletions(-)
+
+
+-- 
+~Randy

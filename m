@@ -1,54 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293018AbSCEMQP>; Tue, 5 Mar 2002 07:16:15 -0500
+	id <S293016AbSCEMV4>; Tue, 5 Mar 2002 07:21:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292996AbSCEMQF>; Tue, 5 Mar 2002 07:16:05 -0500
-Received: from [199.203.178.211] ([199.203.178.211]:3717 "EHLO
-	exchange.store-age.com") by vger.kernel.org with ESMTP
-	id <S292986AbSCEMPx> convert rfc822-to-8bit; Tue, 5 Mar 2002 07:15:53 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-Subject: RE: FW: BUG in spinlock.h:133
+	id <S292996AbSCEMVr>; Tue, 5 Mar 2002 07:21:47 -0500
+Received: from compsciinn-gw.customer.ALTER.NET ([157.130.84.134]:42880 "EHLO
+	picard.csihq.com") by vger.kernel.org with ESMTP id <S292972AbSCEMVa>;
+	Tue, 5 Mar 2002 07:21:30 -0500
+Message-ID: <003501c1c440$394b6d00$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csi.cc>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>,
+        "raid" <linux-raid@vger.kernel.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Linux-2.4.19-pre2-ac2 Oops
+Date: Tue, 5 Mar 2002 07:21:02 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="x-user-defined"
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 5 Mar 2002 14:15:13 +0200
-Message-ID: <DCC3761A6EC31643A3BAF8BB584B26CC0AAE90@exchange.store-age.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FW: BUG in spinlock.h:133
-Thread-Index: AcHDrHgEEZW54hkiQUCHwtkYEbYImgAkrejA
-From: "Alexander Sandler" <ASandler@store-age.com>
-To: "Robert Love" <rml@tech9.net>
-Cc: "Linux Kernel \"Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+I was running Linux-2.4.16 but was getting oopses resyncing my 2TB array
+(alreay emailed to this list).
 
-I found it. It was an uninitialized semahore. 
-10x for help.
+So...upgraded to Linux-2.4.19-pre2-ac2 and it now oopses in a new place:
 
-Alexandr Sandler.
+Unable to handle kernel paging request at virtual address 9b78003c
+*pde = 00000000
+Oops: 0000
+CPU: 0
+EIP: 0010:[<c01a06fa>] Tainted: P
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 001007
+eax: 00331a4f  ebx: f79ea617  ecx: 00000018  edx: 00331a50
+esi: 00000000  edi: f79ea617  ebp: 9b780000  esp: f6e87c48
+ds: 0018  es: 0018  ss: 0018
+Process raid5d (pid: 235, stackpage=f6e87000)
+Stack: f79ea617 00000000 f79ea618 00000202 00000000 c01a734c f79ea617
+f79ea600
+       00000000 f79ea618 00000202 00000296 f7b611c0 f79ea600 00000282
+c01a69cb
+       f79ea618 f79ea600 00000000 00000008 f7952800 c01a6bba f79ea618
+00000000
+Call Trace: [<c01a734c>] [<c01a69cb>] [<c01a6bba>] [<c01a6e02>] [<c01bd43a
+>]
+            [<c01a1027>] [<c01a0ee6>] [<c011b760>] [<c011b64d>] [<c011b3ef>]
+[<c01087ed>]
+            [<c010a928>] [<f8820fd6>] [<f8821d0c>] [<f882510c>] [<f88262e1>]
+[<f88269c7>]
+            [<c01c8d45>] [<c0105624>]
+Code: 8b 55 3c ff 05 a8 f9 32 c0 81 c2 c8 00 00 00 83 7d 38 00 74
 
-> On Mon, 2002-03-04 at 06:50, Alexander Sandler wrote:
-> 
-> > I am getting a BUG in include/asm-i386/spinlock.h:133 when 
-> I am doing some
-> > I/O with driver I am working on. Does anyone has any idea 
-> what it can be?
-> > The system is Linux RedHat 7.1 on dual CPU machine running 
-> kernel 2.4.16.
-> 
-> That BUG means lock->magic was not set properly, which is a debug-only
-> parameter to make sure the lock was properly initialized.
-> 
-> Thus, either you are not properly initializing your 
-> spin_locks or there
-> is a memory corruption problem.
-> 
-> The EIP at the time of the BUG should of been reported - what was it? 
-> Find it in your System.map to see where the problem is ...
-> 
-> 	Robert Love
+>>EIP; c01a06fa <scsi_dispatch_cmd+46/28c>   <=====
+Trace; c01a734c <scsi_request_fn+2f8/33c>
+Trace; c01a69cb <scsi_queue_next_request+47/110>
+Trace; c01a6bba <__scsi_end_request+126/130>
+Trace; c01a6e02 <scsi_io_completion+166/378>
+Trace; c01a1027 <scsi_finish_command+a7/b0>
+Trace; c01a0ee6 <scsi_bottom_half_handler+c2/d8>
+Trace; c011b760 <bh_action+4c/8c>
+Trace; c011b64d <tasklet_hi_action+61/90>
+Trace; c011b3ef <do_softirq+6f/cc>
+Trace; c01087ed <do_IRQ+dd/ec>
+Trace; c010a928 <call_do_IRQ+5/d>
+Trace; f8820fd6 <[xor]xor_sse_4+36/334>
+Trace; f8821d0c <[xor]xor_block+70/94>
+Trace; f882510c <[raid5]compute_block+c8/e4>
+Trace; f88262e1 <[raid5]handle_stripe+ce5/f88>
+Trace; f88269c7 <[raid5]raid5d+127/154>
+Trace; c01c8d45 <md_thread+145/1a8>
+Trace; c0105624 <kernel_thread+28/38>
+Code;  c01a06fa <scsi_dispatch_cmd+46/28c>
+00000000 <_EIP>:
+Code;  c01a06fa <scsi_dispatch_cmd+46/28c>   <=====
+   0:   8b 55 3c                  mov    0x3c(%ebp),%edx   <=====
+Code;  c01a06fd <scsi_dispatch_cmd+49/28c>
+   3:   ff 05 a8 f9 32 c0         incl   0xc032f9a8
+Code;  c01a0703 <scsi_dispatch_cmd+4f/28c>
+   9:   81 c2 c8 00 00 00         add    $0xc8,%edx
+Code;  c01a0709 <scsi_dispatch_cmd+55/28c>
+   f:   83 7d 38 00               cmpl   $0x0,0x38(%ebp)
+Code;  c01a070d <scsi_dispatch_cmd+59/28c>
+  13:   74 00                     je     15 <_EIP+0x15> c01a070f
+<scsi_dispatch_cmd+5b/28c>
+
+
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
+

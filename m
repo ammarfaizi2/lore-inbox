@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130388AbRARA7o>; Wed, 17 Jan 2001 19:59:44 -0500
+	id <S131355AbRARBEq>; Wed, 17 Jan 2001 20:04:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131355AbRARA7e>; Wed, 17 Jan 2001 19:59:34 -0500
-Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:10759 "EHLO
-	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
-	id <S130388AbRARA71>; Wed, 17 Jan 2001 19:59:27 -0500
-Date: Thu, 18 Jan 2001 00:59:22 +0000 (GMT)
-From: Tim Fletcher <tim@parrswood.manchester.sch.uk>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: Werner Almesberger <Werner.Almesberger@epfl.ch>,
-        Venkatesh Ramamurthy <Venkateshr@ami.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-In-Reply-To: <200101180039.f0I0du929822@webber.adilger.net>
-Message-ID: <Pine.LNX.4.30.0101180048260.29484-100000@pine.parrswood.manchester.sch.uk>
+	id <S131573AbRARBE1>; Wed, 17 Jan 2001 20:04:27 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:17682 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131355AbRARBEQ>; Wed, 17 Jan 2001 20:04:16 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14950.16631.2919.360911@wire.cadcamlab.org>
+Date: Wed, 17 Jan 2001 19:03:50 -0600 (CST)
+To: Mo McKinlay <mmckinlay@gnu.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: named streams, extended attributes, and posix
+In-Reply-To: <20010116182806.B6364@cadcamlab.org>
+	<Pine.LNX.4.30.0101170035340.364-100000@nvws005.nv.london>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have a mirrored boot drive in a pair of firewalls / routers and to test
-> > before I put them into service I pulled hda and the machine booted fine
-> > from hdc and baring winging about the missing disk (all the drives are
-> > mirrored) carried on as normal. A fresh disk was put and rebuilt no
-> > problems and was then booted off with the other disk missing.
->
-> Ahh.  What I was missing was that by specifying /dev/md0 as the root device,
-> not only do you get an identical map for the kernels, but the root device
-> remains /dev/md0 no matter which drive fails and LILO/kernel don't need to
-> do anything special to find it.  This assumes the BIOS can boot from /dev/hdc
-> to start with (i.e. /dev/hda is totally gone).
 
-Hence I have the disks in caddies to make taking them out all together
-easier, to force the bios to find the /dev/hdc as the boot drive
+[Mo McKinlay]
+> We went through this last time around. What happens to directories
+> with streams?
 
-> How does MD/RAID0 know which array should be /dev/md0?  What if you had a
-> second array on /dev/hdb and /dev/hdd, would that become /dev/md0 (assuming
-> it had a kernel/boot sector)?
+Yeah, I agree, 'file/stream' is lousy syntax as well.  If it weren't
+for the possibility of having streams on directories, it would almost
+be acceptible.  I still don't know which (':' or '/') is the worse
+hack.
 
-/etc/raidtab specifies which drives belong in which array, but I only have
-hda and hdc so I can't really answer the question
+As I've said elsewhere in this thread, I can't think of *any* clean way
+to shoehorn forks into nice, transparent posix calls.  It really wants
+a new API.
 
--- 
-   Tim Fletcher - Network manager   .~.
-                                    /V\      L   I   N   U   X
-     nightshade@solanum.net        // \\  >Don't fear the penguin<
-tim@parrswood.manchester.sch.uk   /(   )\
- irc: Night-Shade on quakenet      ^^-^^
-
-Never apply a StarTrek solution to a Babylon 5 problem
-
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261459AbRFRQo7>; Mon, 18 Jun 2001 12:44:59 -0400
+	id <S261502AbRFRQrj>; Mon, 18 Jun 2001 12:47:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261502AbRFRQot>; Mon, 18 Jun 2001 12:44:49 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:8461 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S261459AbRFRQok>; Mon, 18 Jun 2001 12:44:40 -0400
-Date: Mon, 18 Jun 2001 13:44:29 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: German Gomez Garcia <german@piraos.com>,
-        Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Strange behaviour of swap under 2.4.5-ac15
-In-Reply-To: <20010618170306.A1317@athlon.random>
-Message-ID: <Pine.LNX.4.33.0106181344100.32426-100000@duckman.distro.conectiva>
+	id <S261616AbRFRQr3>; Mon, 18 Jun 2001 12:47:29 -0400
+Received: from ss01.nc.us.ibm.com ([32.97.136.231]:48769 "EHLO
+	ddstreet.raleigh.ibm.com") by vger.kernel.org with ESMTP
+	id <S261502AbRFRQrQ>; Mon, 18 Jun 2001 12:47:16 -0400
+Date: Mon, 18 Jun 2001 12:42:16 -0400 (EDT)
+From: Dan Streetman <ddstreet@us.ibm.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ps2 keyboard filter hook
+Message-ID: <Pine.LNX.4.10.10106181106260.28494-100000@ddstreet.raleigh.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Jun 2001, Andrea Arcangeli wrote:
-> On Mon, Jun 18, 2001 at 11:54:09AM -0300, Rik van Riel wrote:
-> > YOUR PATCH fixes a real bug, true.  But that wasn't
-> > what German was complaining about ;)
->
-> How did you know that before he made his first reply to my email?
 
-Because he started the thread and I read his first email? ;)
+>I find it very odd indeed with IBM's big voice of open source
+>praise, yada yada, and what Lou has said in the past, that there
+>would be any question at all of wether it would be open source or
+>not.  Isn't big blue behind open source?  Or is it just for
+>publicity?  Makes me wonder now...
 
-Rik
+Yes, IBM is definately behind OSS, but that doesn't mean everything is suddenly
+opened...and for many people, it's still got to have a 'business' (or legal)
+reason to be made open (apart from the technical benefits of OSS)...
+
+IBM is one of the biggest companies around, and obviously everyone can't do a
+mental 180 in a short period of time...;-)
+
+Although I just got here a year ago, so I don't really know what it was like in
+the 'old days' :)
+
+>Must be some real good rocket science in that interface that
+>theres no way on earth someone else could come up with it for it
+>to be important IP to protect.  Makes me wonder what's hiding
+>behind it...
+
+I actually think that in this case (and possibly many others) it's not a case
+of wanting to 'protect' amazing code or design, but more that people are used to
+working a certain way (closed), and it's hard to change.  They still have a
+'reflex' that tells them to keep it closed, and need a good business (or legal)
+reason to open it...instead of asking 'why not?' they ask 'why?'.
+
+In this specific case, the obvious benefits like peer review, increased user and
+developer base, etc. were ignored; they thought the user and/or developer base
+(any retail company or ISV) was too specific and/or small.
+
 --
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
+Dan Streetman
+ddstreet@us.ibm.com
+--------------------------------------------------
+186,282 miles per second:
+It isn't just a good idea, it's the law!
 
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+
 

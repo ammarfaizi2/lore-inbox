@@ -1,52 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbTDHP2O (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 11:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbTDHP2O (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 11:28:14 -0400
-Received: from tomts19.bellnexxia.net ([209.226.175.73]:30690 "EHLO
-	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261845AbTDHP2N (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 11:28:13 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: 2.5.67-mm1
-Date: Tue, 8 Apr 2003 11:39:58 -0400
-User-Agent: KMail/1.5.9
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030408042239.053e1d23.akpm@digeo.com> <200304080917.15648.tomlins@cam.org> <20030408083153.5dec0d0e.rddunlap@osdl.org>
-In-Reply-To: <20030408083153.5dec0d0e.rddunlap@osdl.org>
-MIME-Version: 1.0
+	id S261857AbTDHPrZ (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 11:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbTDHPrZ (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 11:47:25 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:56980 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261857AbTDHPrY (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 11:47:24 -0400
+Date: Tue, 8 Apr 2003 08:58:58 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5 io statistics?
+Message-ID: <20030408155858.GB27912@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200304081139.58218.tomlins@cam.org>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On April 8, 2003 11:31 am, Randy.Dunlap wrote:
-> On Tue, 8 Apr 2003 09:17:15 -0400 Ed Tomlinson <tomlins@cam.org> wrote:
-> | Hi,
-> |
-> | This does not boot here.  I loop with the following message.
-> |
-> | i8042.c: Can't get irq 12 for AUX, unregistering the port.
-> |
-> | irq 12 is used (correctly) by my 20267 ide card.  My mouse is
-> | usb and AUX is not used.
-> |
-> | Ideas?
->
-> I guess that's due to my early kbd init patch.
-> So why do you have i8042 configured into your kernel?
+Is there a writeup of the changes anywhere?  I'd like to port cstat to 2.5.
+Cstat is sort of a netstat/vmstat combo:
 
-One, What exactly configures it?  Two my keyboard is not usb, just
-my mouse.
+load free cach swap pgin  pgou dk0 dk1 dk2 dk3 ipkt opkt  int  ctx  usr sys idl
+0.00  19M 562M  48M 4.0K   12K   0   0   0   0  137   25  267   83    0   0 100
+0.00  18M 563M  48M   0    12K   0   0   0   0  133   22  258   77    0   1  99
 
-> The loop doesn't terminate?  Do you get the same message (above)
-> over and over again?
-
-Yes, until I trigger a reboot (SysReq+B).
-
-Ed
-
-
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

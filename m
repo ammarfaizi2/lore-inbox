@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131076AbQKTFvO>; Mon, 20 Nov 2000 00:51:14 -0500
+	id <S131365AbQKTFxO>; Mon, 20 Nov 2000 00:53:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131129AbQKTFvE>; Mon, 20 Nov 2000 00:51:04 -0500
-Received: from mx2.core.com ([208.40.40.41]:13492 "EHLO smtp-2.core.com")
-	by vger.kernel.org with ESMTP id <S131076AbQKTFuv>;
-	Mon, 20 Nov 2000 00:50:51 -0500
-Message-ID: <3A18B4B8.37508FA0@megsinet.net>
-Date: Sun, 19 Nov 2000 23:20:56 -0600
-From: "M.H.VanLeeuwen" <vanl@megsinet.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Ford <david@linux.com>
+	id <S131366AbQKTFxE>; Mon, 20 Nov 2000 00:53:04 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:55547 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S131365AbQKTFw5>; Mon, 20 Nov 2000 00:52:57 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200011200522.eAK5MrK04520@webber.adilger.net>
+Subject: Re: ext2 sparse superblocks
+In-Reply-To: <3A175226.3A9C3180@holly-springs.nc.us> "from Michael Rothwell at
+ Nov 18, 2000 11:08:06 pm"
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Date: Sun, 19 Nov 2000 22:22:53 -0700 (MST)
 CC: linux-kernel@vger.kernel.org
-Subject: Re: run level 1, login takes too long, 2.4.X vs. 2.2.X
-In-Reply-To: <3A18573B.E65CA88A@megsinet.net> <3A18AA1F.FAC00978@linux.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Michael Rothwell write:
+> I'm looking for documentation on Ext2's support for sparse superblocks.
+> What it the method uses to reduce the number of superblocks?  How are
+> they laid out before vs after sparse_super is enabled?  Any caveats?
 
-Yup, I know rpc.portmap isn't running, the point is that it wasn't running on either
-2.2.17 or 2.4.X.  Isn't run level 1 supposed to only be the bare minimum of running
-processes, a few kernel processes, init and getty.  No network services...
+In an old-style (non-sparse) filesystem, every block group has a superblock
+copy.  Only the superblock in the first group is used in normal cases.  In
+a sparse filesystem, superblock copies are in groups 0, 1 and ones that are
+powers of 3, 5, and 7.  The primary superblock is in group 0, and backups
+are in groups 1, 3, 5, 7, 9, 25, 27, 49, 81, 125, etc.
 
-What's changed in the kernel to elicit this behavior?
+This greatly reduces the number of superblock copies stored in large
+filesystems.  What is actually more important is that group descriptor
+backups are only stored in the "sparse" groups as well.  Because the
+group descriptor table grows with the size of the filesystem, if there
+is a backup copy in each group (as with the old non-sparse layout) it
+would eventually fill the entire filesystem.
 
-Is there a better "faster" way to get root access at run level 1 w/o login & passwd
-on 2.4.X?
+For a 1kB block non-sparse ext2 filesystem, this happens at 2TB -
+basically the entire filesystem is full with metadata, and no room
+to put any regular data.  For a 4kB block filesystem, this would
+happen at 524 TB.  With sparse filesystems, the metadata will only
+take a small percentage of the available space.
 
-No it's not an everyday occurance, but I was impatiently thinking the sytem had
-locked up and rebooted a couple of times, so it got me wondering why 2.2.X and
-2.4.X differ in this basic behavior. 
-
-Martin
-
-David Ford wrote:
-> 
-> rpc.portmap isn't running, your login configuration/nss requires yp or something provided ans an RPC.
-> 
-> -d
-> 
-> "M.H.VanLeeuwen" wrote:
-> 
-> > I had occasion to "telinit 1" today and found that it took a long time
-> > to login after root passwd was entered.  this doesn't happen with 2.2.X
-> > kernels.
-> >
-> > Is this to be expected with the 2.4 series kernels? or a bug?
-> >
-> > Martin
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbUKAMIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbUKAMLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbUKAMIT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 07:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbUKAMIT
+	id S261762AbUKAMLW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 07:11:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUKAMLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 07:08:19 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:41393 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261760AbUKAMIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 07:08:05 -0500
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Z Smith <plinius@comcast.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4185489B.5070604@comcast.net>
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
-	 <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <20041030222720.GA22753@hockin.org>
-	 <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <1099176319.25194.10.camel@localhost.localdomain>
-	 <41843E10.1040800@comcast.net>
-	 <1099235990.16414.12.camel@localhost.localdomain>
-	 <4185489B.5070604@comcast.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1099307105.17126.55.camel@localhost.localdomain>
+	Mon, 1 Nov 2004 07:11:21 -0500
+Received: from cantor.suse.de ([195.135.220.2]:50084 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261762AbUKAMLG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 07:11:06 -0500
+Date: Mon, 1 Nov 2004 13:07:04 +0100
+From: Olaf Hering <olh@suse.de>
+To: Christoph Hellwig <hch@infradead.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: Disambiguation for panic_timeout's sysctl
+Message-ID: <20041101120704.GB24626@suse.de>
+References: <Pine.LNX.4.53.0410311721470.20529@yvahk01.tjqt.qr> <20041101120227.GA24626@suse.de> <20041101120411.GA26958@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 01 Nov 2004 11:05:06 +0000
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041101120411.GA26958@infradead.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-10-31 at 20:18, Z Smith wrote:
-> My laptop's framebuffer is only 800x600x24bpp VESA, or 1406kB.
-> But look at what X is doing:
+ On Mon, Nov 01, Christoph Hellwig wrote:
 
-X has the frame buffer mapped as reported by VESA sizing not the 
-minimal for the mode. (Think about RandR and you'll see why)
-
-> root       632  6.1 17.5 22024 16440 ?       S    12:05   0:17 X :0
+> On Mon, Nov 01, 2004 at 01:02:27PM +0100, Olaf Hering wrote:
+> >  On Sun, Oct 31, Jan Engelhardt wrote:
+> > 
+> > > 
+> > > 
+> > > The /proc/sys/kernel/panic file looked to me like it was something like
+> > > /proc/sysrq-trigger -- until I looked into the kernel sources which reveal that
+> > > it sets the variable "panic_timeout" in kernel/sched.c.
+> > 
+> > This will probably break applications that expect the filename 'panic'.
 > 
-> The more apps in use, the more memory is used, but at the moment
-> I've only got xterm, rxvt, thunderbird, xclock and xload. My wm is
-> blackbox which is using 5 megs.
+> And why should applications care for the panic timeout?  Especially only
+> a few days after it's been added to the kernel?
 
-Mostly shared with the other apps, you did remember to divide each page
-by the number of users ?
+/proc/sys/kernel/panic exists since at least 2.6.5.
+Its used to override the silly default '0' on i386, but one should be
+able to boot with panic=$bignum
 
-> Also, just curious but why would memory-mapped I/O be counted
-> in the memory usage anyway? Shouldn't there be a separate number
-> for framebuffer memory and the like?
+-- 
+USB is for mice, FireWire is for men!
 
-Actually there is probably not enough information in /proc to do the
-maths on it. The kernel itself has a clear idea which vma's are not
-backed by ram in the usual sense as they are marked VM_IO.
-
-> > I've helped write tiny UI kits (take a look at nanogui for example) but
-> > they don't have the flexibility of X.
-> 
-> In my experience, most of the flexibility is not necessary for
-> 97% of what I do, yet it evidently costs a lot in memory usage
-> and speed.
-
-So my X server is 1Mb larger because I can run networked apps and play
-bzflag. Suits me as a tradeoff - I'm not saying it always is the right
-decision - nanogui works well in restricted environments like video
-recorders for example.
-
+sUse lINUX ag, nÜRNBERG

@@ -1,64 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273828AbSISXrz>; Thu, 19 Sep 2002 19:47:55 -0400
+	id <S273908AbSISXxI>; Thu, 19 Sep 2002 19:53:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273908AbSISXrz>; Thu, 19 Sep 2002 19:47:55 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:13698 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S273828AbSISXry>; Thu, 19 Sep 2002 19:47:54 -0400
-Message-Id: <200209192352.g8JNqqZ06542@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: inbox
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: robn@verdi.et.tudelft.nl, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: ext3 fs: no userspace writes == no disk writes ? 
-In-Reply-To: Your message of "20 Sep 2002 00:25:59 BST."
-             <1032477959.29068.12.camel@irongate.swansea.linux.org.uk> 
+	id <S273955AbSISXxH>; Thu, 19 Sep 2002 19:53:07 -0400
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:7335 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S273908AbSISXxG>; Thu, 19 Sep 2002 19:53:06 -0400
+Date: Thu, 19 Sep 2002 20:01:47 -0400
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: Hint benchmark reaches memory size limit on 4gb box
+Message-ID: <20020920000147.GA21875@rushmore>
 Mime-Version: 1.0
-Content-Type: text/plain
-Date: Fri, 20 Sep 2002 01:52:52 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Alan,
+>> 1) hint (possibly FLOAT & LONGLONG together)
+>> 2) netperf -t TCP_RR    # request/response
+>> 3) chat # 2 rooms with semi-long lived clients
+>> 4) postmark     # 2 directories + lots of files
+>> 5) configure && make && make check GNU ed
 
-> On Fri, 2002-09-20 at 00:04, Andrew Morton wrote:
-> > There are frequently written areas of an ext3 filesystem - the
-> > journal, the superblock.  Those would wear out pretty quickly.
-> 
-> CF is -supposed- to wear level.
+>> Any suggestions?
 
-Yes I know.
+> Dunno, Randy.  I'd say, yes, you hit 3G.  I guess one
+> needs to look to find a way to make it less consumptive.
 
-But I haven't been able to find any specs from any CF manufacturer
-about this mechanism, percentage of spare sectors or number of allowed
-write-cycles in general.  Does it work by writing and than reading it
-back and if it's different remapping the sector from a pool of spare
-sectors ?
+It's been running for about 20 hours on 2.5.34-mm1.
 
-My guess is that it will work OK in a typical CF-in-a-camera situation:
-after some thousands of photo's something gets remapped without the
-user noticing.
+A few observations:
+The swap happy processes from hint _really_ slowed
+down when they hit swap.  swap is on two scsi spindles
+shared with standard filesystems.  It seems they are
+being penalized a lot for being swap hogs, though it
+could be just that the swap devices are slow.  Hint
+may be abnormal in that it really accesses all the
+processes memory space.  (I'd prefer a combination
+of a big process that uses a lot of mem, and other
+processes that are big but relatively inactive so
+they get paged out.)
 
-But if you write every few seconds to the same block(s) (journal and/or
-superblock, which I was/am afraid of happening with ext3 in my original
-question) you'll run out of remap sectors and kill any CF reliably
-within a couple of days.  Suppose there is a write to a certain sector
-every 5 seconds and assume a 100000 allowed writecycles (I read this
-number several times in several flashdocs, but not in any CF docs ..).
-That results in a lifetime of 5.8 days for this particular sector.
-Then it gets remapped.  How long you can get away with this depends on
-how many "hot" sectors like this you have in your fs and how many spares
-are available on your CF.  But in the (not so far away) end you *will* kill
-your CF I think.
+I don't have any other systems to compare the 
+current run to.   
 
-Now if there are NO kernel/ext3 "automatic" writes and your application
-has the right behaviour (mine has I think) using ext3 on CF looks like
-a nice, easy & stable solution in which killing your CF takes many years :-)
+I expect the hint processes to run until either swap
+is full, or they hit the ~3gb limit.  At the current
+rate it may be a day or two.
 
-	greetings,
-	Rob van Nieuwkerk
+So I'm wondering if you think i should just abort the
+current test, and try 2.5.36-mm1, or if the benchmark
+needs adjustment.
+
+netperf early in the run had a mostly "low confidence"
+intervals.  i.e. confidence < 60%.  In the later runs,
+now that swap is heavily utilized, confidence is high.
+
+                Trans.   CPU    CPU    S.dem   S.dem
+                Rate     local  remote local   remote
+                per sec  % S    % S    us/Tr   us/Tr
+early in run   15423.32  99.98  106.65 282.036  300.834
+later in run   17494.21  99.98  106.65 228.648  243.888
+
+I'm not running chat.  I may add that if I can teach it
+to throttle sensibly.
+
+I was surprised that early in the run, swap was ~ 300MB
+used, though the hint processes were ~500 megs.  I.E. 
+Swap was seeing some action earlier than I expected.
+
+postmark creates ~65 gb of stuff.  It uses a lun that
+isn't shared with swap.  
+
+The ed compile loop is very fast.
+
+This is a bit of top.  High system time here.
+
+4:07pm  up 3 days, 22:18,  1 user,  load average: 5.86, 5.71, 5.65
+59 processes: 56 sleeping, 3 running, 0 zombie, 0 stopped
+CPU0 states: 3.12% user, 96.2% system,  0.0% nice,  0.0% idle
+CPU1 states: 57.1% user, 42.4% system,  0.0% nice,  0.0% idle
+CPU2 states: 68.3% user, 31.5% system,  0.0% nice,  0.0% idle
+CPU3 states: 51.4% user, 48.1% system,  0.0% nice,  0.0% idle
+Mem:  3723360K av, 3717740K used,    5620K free,       0K shrd,   74488K buff
+                    730812K actv, 2662512K in_d,       0K in_c,       0K target
+Swap: 4065056K av, 3073364K used,  991692K free                 1907636K cached
+
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+12571 root      16   0  1708  728  1636 S    52.1  0.0   1:15 netperf
+12572 root      25   0  1656  552  1656 R    47.6  0.0   1:09 netserver
+10889 root      15   0 20560  18M  1368 D    25.7  0.4 148:43 postmark-1_5
+   11 root      15   0     0    0     0 SW    5.1  0.0 107:05 kswapd0
+27998 root      19   0  7408 5792  3788 R     3.8  0.1   0:00 cc1
+21393 root      15   0 1626M 328M  1508 D     1.3  9.0 117:13 LONGLONG
+21395 root      15   0 1788M 348M  1508 D     1.3  9.5 106:41 DOUBLE
+21351 root      17   0  2240 1024  2140 S     0.1  0.0   0:26 run_ed
+26002 root      15   0     0    0     0 SW    0.1  0.0   1:06 pdflush
+    1 root      15   0  1420  476  1384 S     0.0  0.0   0:19 init
+
+
+Here is some vmstat 30: cs is high.  Oddly si/so bi/bo and in are 0.
+That's with either procps-2.5.34-mm1 or rml's recent procps.
+
+   procs                      memory      swap          io     system      cpu
+ r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+ 1  3  0 3126544   5444  75556 2013780  0    0     0     0    0 36193 37 63  0
+ 1  3  1 3127780   5828  75832 2014888  0    0     0     0    0 31957 37 63  0
+ 4  3  0 3127676  11192  76252 2005696  0    0     0     0    0 36403 36 64  0
+ 3  3  0 3126180   5672  76220 2008508  0    0     0     0    0 31978 39 61  0
+ 3  3  0 3127720   6700  76364 2010060  0    0     0     0    0 36683 36 64  0
+ 2  3  0 3126988   5444  76492 2012024  0    0     0     0    0 31689 38 62  0
+
+
+iostat 30 says there is really disk activity:
+Device:        tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+dev8-0      406.46      6285.98      2083.54     108056      35816  (root/swap)
+dev8-1      103.49      1149.51       916.35      19760      15752  (usr/swap)
+dev8-2      333.51     16341.13     13502.73     280904     232112  (raid5 array)
+
+Should the bench be adjusted, or should I boot 2.5.36-mm1?
+
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+

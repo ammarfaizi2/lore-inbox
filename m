@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261872AbSJKIWr>; Fri, 11 Oct 2002 04:22:47 -0400
+	id <S261974AbSJKIXc>; Fri, 11 Oct 2002 04:23:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261974AbSJKIWr>; Fri, 11 Oct 2002 04:22:47 -0400
-Received: from denise.shiny.it ([194.20.232.1]:3758 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S261872AbSJKIWq>;
-	Fri, 11 Oct 2002 04:22:46 -0400
-Message-ID: <XFMail.20021011102620.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S262114AbSJKIXb>; Fri, 11 Oct 2002 04:23:31 -0400
+Received: from ophelia.ess.nec.de ([193.141.139.8]:44265 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S261974AbSJKIX2> convert rfc822-to-8bit; Fri, 11 Oct 2002 04:23:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: Andrew Theurer <habanero@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [PATCH] pooling NUMA scheduler with initial load balancing
+Date: Fri, 11 Oct 2002 10:27:59 +0200
+User-Agent: KMail/1.4.1
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+References: <200210091826.20759.efocht@ess.nec.de> <200210101234.34345.habanero@us.ibm.com> <200210110947.11714.efocht@ess.nec.de>
+In-Reply-To: <200210110947.11714.efocht@ess.nec.de>
 MIME-Version: 1.0
-In-Reply-To: <20021010225050.GC2673@matchmail.com>
-Date: Fri, 11 Oct 2002 10:26:20 +0200 (CEST)
-From: Giuliano Pochini <pochini@shiny.it>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-Cc: andersen@codepoet.org, Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Mark Mielke <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org,
-       Robert Love <rml@tech9.net>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210111027.59589.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->> When a process opens a file with O_STREAMING, it tells the kernel
->> it will use the data only once, but it tells nothing about other
->> tasks. If that process reads something which is already cached,
->> then it must not drop it because someone other used it recently
->> and IMHO pagecache only should be allowed to drop it.
+On Friday 11 October 2002 09:47, Erich Focht wrote:
+> Hi Andrew,
 >
-> You are missing the point.  If the app thinks that might happen, it
-> shouldn't use O_STREAMING.
-> 
-> Though, how do you get around some binary app using O_STREAMING when it
-> shouldn't?
+> On Thursday 10 October 2002 19:34, Andrew Theurer wrote:
+> > Thanks very much Erich.  I did come across another problem here on
+> > numa-q. In task_to_steal() there is a divide by cache_decay_ticks, which
+> > apparantly is 0 on my system.  This may have to do with notsc, but I am
+> > not sure.  I set cache_decay_ticks to 8, (I cannot boot without using
+> > notsc) which is probably not correct, but I can now boot 16 processor
+> > numa-q on 2.5.40-mm1 with your patches!  I'll get some benchmark results
+> > soon.
+>
+> oops... This is a bug in 2.5-i386. It means that the O(1) scheduler in
+> 2.5 doesn't work well either because it doesn't take into account cache
+> coolness. I'll post a fix to LKML in a few minutes.
 
-Yes, it is with the current behaviour of O_STREAMING. If we change it to
-what I said above, O_STREAMING becomes useful in a larger set of cases
-with no drawbacks, I think. To not drop pages that were not loaded with
-O_STREAMING flag sounds simple, but I don't know how much it is easy to
-implement.
+Sorry, I thought the smp_tune_scheduling() call went lost during the
+transition to the new cpu boot scheme. But it's there. And the problem
+is indeed "notsc". So you'll have to fix it, I can't.
 
+If you set the cache_decay_ticks to something non-zero, you should
+_really_ do this for all the scheduler tests, otherwise your measurements
+will not be comparable.
 
-Bye.
+Regards,
+Erich
 

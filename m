@@ -1,74 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288372AbSACXFx>; Thu, 3 Jan 2002 18:05:53 -0500
+	id <S288374AbSACXPp>; Thu, 3 Jan 2002 18:15:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288376AbSACXFn>; Thu, 3 Jan 2002 18:05:43 -0500
-Received: from ausxc07.us.dell.com ([143.166.227.166]:334 "EHLO
-	ausxc07.us.dell.com") by vger.kernel.org with ESMTP
-	id <S288372AbSACXFa>; Thu, 3 Jan 2002 18:05:30 -0500
-Message-ID: <71714C04806CD5119352009027289217022C417D@ausxmrr502.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: linux-kernel@vger.kernel.org
-Cc: nils@kernelconcepts.de, giometti@ascensit.com, pb@nexus.co.uk,
-        chowes@vsol.net, gorgo@itc.hu, info@itc.hu, lethal@chaoticdreams.org,
-        woody@netwinder.org
-Subject: RE: [CFT][PATCH] watchdog nowayout and timeout module parameters
-Date: Thu, 3 Jan 2002 17:05:19 -0600 
+	id <S288375AbSACXPg>; Thu, 3 Jan 2002 18:15:36 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:58065 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S288374AbSACXP3>; Thu, 3 Jan 2002 18:15:29 -0500
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Extern variables in *.c files (maintainers pls read this)
+In-Reply-To: <02010216180403.01928@manta> <3C340EA9.FE084B4C@zip.com.au>
+	<20020103095742.A11443@flint.arm.linux.org.uk>
+	<200201032028.g03KSsE29484@Port.imtp.ilyichevsk.odessa.ua>
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: 04 Jan 2002 00:14:54 +0100
+Message-ID: <87zo3vyqkx.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No changes, just forward-ported the patches.  
-14 drivers modified, 5 drivers approved, one (wdt977) being handled by its
-maintainer, two email addresses 
-invalid, leaving 6 to hear from.
+"vda@port.imtp.ilyichevsk.odessa.ua"  <vda@port.imtp.ilyichevsk.odessa.ua> writes:
 
-Patch against 2.4.18-pre1 at
-http://domsch.com/linux/patches/linux-2.4.18-pre1-nowayout-20020103.patch
- acquirewdt.c   |   21 ++++++++++++---
- advantechwdt.c |   42 ++++++++++++++++++++++++++-----
- eurotechwdt.c  |   49 ++++++++++++++++++++++++++++---------
- i810-tco.c     |   32 +++++++++++++++++++-----
- ib700wdt.c     |   39 +++++++++++++++++++++++++----
- machzwd.c      |   48 ++++++++++++++++++++++--------------
- mixcomwd.c     |   75
-+++++++++++++++++++++++++++++++--------------------------
- pcwd.c         |   45 +++++++++++++++++++++++++---------
- sbc60xxwdt.c   |   14 +++++++++-
- shwdt.c        |   21 +++++++++++++--
- softdog.c      |   33 +++++++++++++++++--------
- wdt.c          |   41 +++++++++++++++++++++++++------
- wdt_pci.c      |   43 +++++++++++++++++++++++++-------
- 13 files changed, 374 insertions(+), 129 deletions(-)
+> And this method is traditional for C. We have struct declarations and fn 
+> propotypes in *.h, we should place extern vars there too. Always.
 
-Patch against 2.5.2-pre6 at
-http://domsch.com/linux/patches/linux-2.5.2-pre6-nowayout-20020103.patch
- acquirewdt.c   |   21 ++++++++++++----
- advantechwdt.c |   42 ++++++++++++++++++++++++++------
- eurotechwdt.c  |   49 +++++++++++++++++++++++++++++--------
- i810-tco.c     |   32 +++++++++++++++++++-----
- ib700wdt.c     |   39 ++++++++++++++++++++++++++----
- machzwd.c      |   48 +++++++++++++++++++++++-------------
- mixcomwd.c     |   74
-+++++++++++++++++++++++++++++++--------------------------
- pcwd.c         |   47 ++++++++++++++++++++++++++----------
- sbc60xxwdt.c   |   14 ++++++++++
- shwdt.c        |   21 +++++++++++++---
- softdog.c      |   33 +++++++++++++++++--------
- wdt.c          |   41 +++++++++++++++++++++++++------
- wdt_pci.c      |   43 +++++++++++++++++++++++++--------
- 13 files changed, 374 insertions(+), 130 deletions(-)
+Agreed.
 
+> If you are a kernel subsystem or driver maintainer, you may wish to check 
+> whether *your* part of kernel has any extern variable defs. Just run this
+> hunter script in top dir of kernel source:
+> -----------------------
+> #!/bin/sh
+> 
+> function do_grep() {
+>     pattern="$1"
+>     dir="$2"
+>     shift;shift
+>     
+>     for i in $dir/$*; do
+>         if ! test -d "$i"; then
+>             if test -e "$i"; then
+> 		grep -E "$pattern" "$i" /dev/null
+> 	    fi
+>         fi
+>     done
+>     for i in $dir/*; do
+>         if test -d "$i"; then
+> 	    do_grep "$pattern" "$i" $*
+> 	fi
+>     done
+> }
+> 
+> do_grep 'extern [^()]*;' . "*.c" 2>&1 | tee ../extern.log
+> ---------------------------------
 
-Thanks,
-Matt
+FWIW, I suppose you meant:
+$ find . -name '*.c' | xargs grep -E 'extern [^()]*;' 2>&1 | tee extern.log
 
---
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions www.dell.com/linux
-#1 US Linux Server provider with 24.5% (IDC Dec 2001)
-#2 Worldwide Linux Server provider with 18.2% (IDC Dec 2001)
+Regards, Olaf.

@@ -1,84 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbTH2Q2P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 12:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbTH2Q2O
+	id S261427AbTH2Q17 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 12:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbTH2Q16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 12:28:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13456 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261452AbTH2Q1z (ORCPT
+	Fri, 29 Aug 2003 12:27:58 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:699 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261427AbTH2Q1w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 12:27:55 -0400
-Message-Id: <200308291627.h7TGRoX02912@mail.osdl.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, cliffw@osdl.org
-Subject: Re: 2.6.0-test4-mm3 
-In-Reply-To: Message from Andrew Morton <akpm@osdl.org> 
-   of "Fri, 29 Aug 2003 08:35:40 PDT." <20030829083540.58c9dd47.akpm@osdl.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 29 Aug 2003 09:27:50 -0700
-From: Cliff White <cliffw@osdl.org>
+	Fri, 29 Aug 2003 12:27:52 -0400
+Date: Fri, 29 Aug 2003 18:27:49 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>
+Message-ID: <Pine.GSO.4.21.0308291820540.3919-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Boszormenyi Zoltan <zboszor@freemail.hu> wrote:
-> >
-> > I tried to "make modules_install" on the compiled tree.
-> > It says:
-> > 
-> > # make modules_install
-> > Install a current version of module-init-tools
-> > See http://www.codemonkey.org.uk/post-halloween-2.5.txt
-> > make: *** [_modinst_] Error 1
-> > 
-> > But I have installed it! It's called modutils-2.4.25-8
-> > (was -5 previously) from RH rawhide, it works on older
-> > (2.6.0-test4-mm1) kernels.
-> > This modutils is united with module-init-tools-0.9.12,
-> > it reports version 2.4.25 but detects newer kernels and uses
-> > the new module interface.
-> 
-> Tricky.
-> 
-> It's wrong of the Red Hat package to misidentify itself in this manner.
-> 
-> It would sort-of make sense for `depmod -V' to autodetect the kernel
-> version and print either "modutils" or "module-init-utils".  But that's not
-> accurate either: a `make modules_install' would fail when performed under a
-> 2.4 kernel.
-> 
-> So yes, I think that your patch to RH modutils+module-init-tools is the best
-> approach: after all, it tells the truth.
-> 
-> Meanwhile, I'll alter Valdis's patch so that it warns, but does not fail
-> the make.
-> 
+On Fri, 29 Aug 2003, Jamie Lokier wrote:
+> I'd appreciate if folks would run the program below on various
+> machines, especially those whose caches aren't automatically coherent
+> at the hardware level.
 
-This also breaks STP. We installed module-init-tools using the 'moveold' 
-method,
-so we can still run 2.4.
-Our depmod is in /usr/local/sbin. 
-Using /sbin/depmod hoses us. Using PATH works for us.
+Are you also interested in m68k? ;-)
 
-[root@stp1-002 linux]# depmod -V
-module-init-tools 0.9.12
+cassandra:/tmp# time ./test
+Test separation: 4096 bytes: FAIL - store buffer not coherent
+Test separation: 8192 bytes: FAIL - store buffer not coherent
+Test separation: 16384 bytes: FAIL - store buffer not coherent
+Test separation: 32768 bytes: FAIL - store buffer not coherent
+Test separation: 65536 bytes: FAIL - store buffer not coherent
+Test separation: 131072 bytes: FAIL - store buffer not coherent
+Test separation: 262144 bytes: FAIL - store buffer not coherent
+Test separation: 524288 bytes: FAIL - store buffer not coherent
+Test separation: 1048576 bytes: FAIL - store buffer not coherent
+Test separation: 2097152 bytes: FAIL - store buffer not coherent
+Test separation: 4194304 bytes: FAIL - store buffer not coherent
+Test separation: 8388608 bytes: FAIL - store buffer not coherent
+Test separation: 16777216 bytes: FAIL - store buffer not coherent
+VM page alias coherency test: failed; will use copy buffers instead
 
-[root@stp1-002 linux]# /sbin/depmod -V
-depmod version 2.4.22
+real	0m0.478s
+user	0m0.110s
+sys	0m0.190s
+cassandra:/tmp# cat /proc/cpuinfo 
+CPU:		68040
+MMU:		68040
+FPU:		68040
+Clocking:	24.8MHz
+BogoMips:	16.53
+Calibration:	82688 loops
+cassandra:/tmp# 
 
-[root@stp1-002 linux]# /usr/local/sbin/depmod -V
-module-init-tools 0.9.12
 
-Please send patch, we'll get some tests moving.
-cliffw
+callisto$ time ./test
+Test separation: 4096 bytes: pass
+Test separation: 8192 bytes: pass
+Test separation: 16384 bytes: pass
+Test separation: 32768 bytes: pass
+Test separation: 65536 bytes: pass
+Test separation: 131072 bytes: pass
+Test separation: 262144 bytes: pass
+Test separation: 524288 bytes: pass
+Test separation: 1048576 bytes: pass
+Test separation: 2097152 bytes: pass
+Test separation: 4194304 bytes: pass
+Test separation: 8388608 bytes: pass
+Test separation: 16777216 bytes: pass
+VM page alias coherency test: all sizes passed
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+real	0m0.329s
+user	0m0.270s
+sys	0m0.050s
+callisto$ cat /proc/cpuinfo 
+cpu		: 604r
+clock		: 200MHz
+revision	: 18.3 (pvr 0009 1203)
+bogomips	: 398.13
+machine		: CHRP IBM,LongTrail-2
+memory bank 0	: 32 MB SDRAM
+memory bank 1	: 32 MB SDRAM
+memory bank 2	: 32 MB SDRAM
+memory bank 3	: 32 MB SDRAM
+board l2	: 512 KB Pipelined Synchronous (Write-Through)
+callisto$
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

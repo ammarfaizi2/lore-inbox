@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265922AbRF2Pcu>; Fri, 29 Jun 2001 11:32:50 -0400
+	id <S266105AbRF2Piu>; Fri, 29 Jun 2001 11:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266101AbRF2Pck>; Fri, 29 Jun 2001 11:32:40 -0400
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:21255 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S265997AbRF2Pc3>; Fri, 29 Jun 2001 11:32:29 -0400
-To: Michael J Clark <clarkmic@pobox.upenn.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP/IP stack
-In-Reply-To: <200106281433.f5SEXk800876@pobox.upenn.edu>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: Michael J Clark's message of "Thu, 28 Jun 2001 10:33:46 -0400 (EDT)"
-Date: 29 Jun 2001 10:32:21 -0500
-Message-ID: <vbau20z9u9m.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S266104AbRF2Pik>; Fri, 29 Jun 2001 11:38:40 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6408 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265997AbRF2Pi3>; Fri, 29 Jun 2001 11:38:29 -0400
+Subject: Re: Qlogic Fiber Channel
+To: christophe.barbe@lineo.fr (=?ISO-8859-1?Q?christophe_barb=E9?=)
+Date: Fri, 29 Jun 2001 16:38:21 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <20010629173631.A15608@pc8.lineo.fr> from "=?ISO-8859-1?Q?christophe_barb=E9?=" at Jun 29, 2001 05:36:31 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15G0Ld-0000Vo-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael J Clark <clarkmic@pobox.upenn.edu> writes:
+> manage to get a recent IP-enhanced firmware we could rewrite the missing =
+> IP
+> code. Half of the job is already done in the source of this driver.
 > 
-> I have been reading through TCP/IP Illustrated Vol 2 and the linux 
-> source.  I am having a heck of a time finding where it sees a SYN packet 
-> and check to see if the desitination port is open.  In the book it looks 
-> like it happens in tcp_input where it looks for the PCB for a segment.  
-> Any pointers would be greatly appeciated.
+> I didn't manage to reach the good person from qlogic. Perhaps someone wou=
+> ld
+> have better results.
 
-In 2.2.19 (since I have the source handy), this processing is done in
-"linux/net/ipv4/tcp_input.c" in function "tcp_rcv_state_process".  If
-a SYN packet arrives and the socket is in state TCP_LISTEN, the
-address-family-specific "conn_request" function is called.  For IPv4,
-this is "tcp_v4_conn_request" in "tcp_ipv4.c".
+Well lets wait and see what qlogic have to say, but removing IP support in
+the middle of a stable release is bad. And I still do not believe the
+driver will be hard to fix, its relatively clean
 
-On the other hand, if a SYN packet is sent to a TCP_CLOSE socket,
-"tcp_rcv_state_process" returns 1.  This is an indication to the
-caller ("tcp_v4_do_rcv" in "tcp_ipv4.c", in the case of IPv4) to send
-a RST packet.
-
-Kevin <buhr@stat.wisc.edu>

@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263368AbTJVEbs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 00:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTJVEbs
+	id S263406AbTJVEfR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 00:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTJVEfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 00:31:48 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:42514 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S263368AbTJVEbr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 00:31:47 -0400
-Date: Tue, 21 Oct 2003 21:30:58 -0700
-From: Jeremy Higdon <jeremy@sgi.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: gwh@sgi.com, jbarnes@sgi.com, aniket_m@hotmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Patch to add support for SGI's IOC4 chipset
-Message-ID: <20031022043058.GC80096@sgi.com>
-References: <3F7CB4A9.3C1F1237@sgi.com> <200310162020.51303.bzolnier@elka.pw.edu.pl> <20031021063536.GA78855@sgi.com> <200310211639.28346.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Oct 2003 00:35:17 -0400
+Received: from taco.zianet.com ([216.234.192.159]:59656 "HELO taco.zianet.com")
+	by vger.kernel.org with SMTP id S263406AbTJVEfL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 00:35:11 -0400
+From: Steven Cole <elenstev@mesatop.com>
+To: Paul Jakma <paul@clubi.ie>
+Subject: Re: Scaling noise
+Date: Tue, 21 Oct 2003 21:46:41 -0600
+User-Agent: KMail/1.5
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <200309272113.18030.elenstev@mesatop.com> <Pine.LNX.4.56.0310220220130.27492@fogarty.jakma.org>
+In-Reply-To: <Pine.LNX.4.56.0310220220130.27492@fogarty.jakma.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200310211639.28346.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200310212146.41423.elenstev@mesatop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 04:39:28PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> On Tuesday 21 of October 2003 08:35, Jeremy Higdon wrote:
-> > > - defining IDE_ARCH_ACK_INTR and ide_ack_intr() in sgiioc4.c is a no-op,
-> > >   it should be done <asm/ide.h> to make it work
-> > >   (I think the same problem is present in 2.4.x)
-> >
-> > The definition in <include/linux/ide.h> is only used if IDE_ARCH_ACK_INTR
-> > is not defined.  sgiioc4.c defines IDE_ARCH_ACK_INTR before including that
-> > file, so I believe we get the definition we want without touching ide.h,
-> > don't we?
-> 
-> ide_ack_intr() is used by ide-io.c.  If IDE_ARCH_ACK_INTR is not defined
-> in ide.h (and it won't be cause you are doing this only in sgiioc4.c
-> /sgiioc4.h in 2.4.x case/ about which ide-io.c has abolutely no idea)
-> ide_ack_intr() will turn into no-op and hwif->ack_intr() won't be called.
+On Tuesday 21 October 2003 07:22 pm, Paul Jakma wrote:
+> On Sat, 27 Sep 2003, Steven Cole wrote:
+> > It appears that SGI is working to scale the Altix to 128 CPUs on
+> > Linux.
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=106323064611280&w=2
+>
+> This may be interesting so:
+>
+> 	http://lwn.net/Articles/54822/
+>
+> it announces:
+>
+> 	"record levels of sustained performance and scalability on a
+>         256-processor global shared-memory SGI Altix 3000 system, the
+>         largest such system ever to run on the Linux ® operating
+>         system."
 
-I see what you mean.  Thanks for spotting and fixing this.
+This thread was continued with this post:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=106471432320108&w=2
 
-I've run into a problem in testing.  For some reason, I've started to get
-ide timeouts, and the error recovery is not working correctly, due to a
-problem in the driver.
+Quoting LM:
+> Dave and friends can protest as much as they want that the kernel works
+> and it scales (it does work, it doesn't scale by comparison to something
+> like IRIX) 
 
-In sgiioc4_ide_dma_stop(), sgiioc4_ide_dma_end(), and sgiioc4_clearirq(),
-there are calls to xide_delay(), which uses schedule_timeout() to sleep.
-Since all of these sgiioc4_ functions can be called from interrupt context,
-that's an obvious problem.
+Even though SGI is producing machines as noted above, and planning
+on scaling to 512 or even 1024 processors in a SSI machine, that ability
+to scale remains to be proven.  Meanwhile, IRIX is running a 2048 cpu
+SSI machine at Wright-Patterson Air Force Base as noted here: 
+http://www.sgi.com/newsroom/press_releases/2003/october/msrc.html
 
-In sgiioc4_clearirq(), the delay function is while we're waiting for the
-interrupt to clear.
+So, the original point seems to be holding for now.  It will be interesting
+to see just how far the new (2.6) linux kernel will scale.
 
-In sgiioc4_ide_dma_stop(), we're waiting for the DMA bit to clear.
+I've been having difficulty getting posts from home to reach lkml due to
+a problem with my ISP inserting a bogus "Delivered-To" header, which
+results in bounces from vger.kernel.org.  If this message reaches lkml, 
+then my efforts to fix this have been successful.
 
-In sgiioc4_ide_dma_end(), we're waiting for another DMA to finish.
-
-I believe that the right answer is to use udelay() and give up after
-a short period of time.  My question is what does the ide layer
-expect?  That is, if you call the dma_end function and the hardware
-driver can't succeed, what would you like us to do?  Is there a way
-to return error, or should we just fail and the ide infrastructure
-will pick it up later and reset things?
-
-I am new to Linux IDE, so forgive these questions if the answers should
-be obvious.
-
-thanks
-
-jeremy
+Steven

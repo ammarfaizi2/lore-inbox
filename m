@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbTLXRNw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 12:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTLXRNw
+	id S263742AbTLXRXM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 12:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263758AbTLXRXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 12:13:52 -0500
-Received: from mail.kroah.org ([65.200.24.183]:3467 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263711AbTLXRNu (ORCPT
+	Wed, 24 Dec 2003 12:23:12 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:32207 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263742AbTLXRXL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 12:13:50 -0500
-Date: Wed, 24 Dec 2003 09:10:54 -0800
-From: Greg KH <greg@kroah.com>
-To: Ian Kent <raven@themaw.net>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       ULMO@Q.NET, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] clean up fs/devfs/base.c
-Message-ID: <20031224171054.GB29796@kroah.com>
-References: <20031224034110.GA25709@kroah.com> <Pine.LNX.4.33.0312241155170.3667-100000@wombat.indigo.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0312241155170.3667-100000@wombat.indigo.net.au>
-User-Agent: Mutt/1.4.1i
+	Wed, 24 Dec 2003 12:23:11 -0500
+To: Sven K=?iso-8859-15?q?=F6?=hler <skoehler@upb.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: allow process or user to listen on priviledged ports?
+References: <bscg1m$1eg$1@sea.gmane.org>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Wed, 24 Dec 2003 18:23:07 +0100
+Message-ID: <87oetynn9g.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 24, 2003 at 12:00:13PM +0800, Ian Kent wrote:
-> On Tue, 23 Dec 2003, Greg KH wrote:
-> 
-> > On Tue, Dec 23, 2003 at 06:38:20PM -0800, Andrew Morton wrote:
-> > >
-> > > Now would be a good time for someone to feed the whole thing through indent
-> > > though.
-> >
-> > As much as I enjoy using the devfs code as my "bad coding style"
-> > example, here's a patch against 2.6.0 that cleans up the devfs code to
-> > follow the proper kernel coding style.
-> 
-> I think it needs a little bit more than that Greg.
+Sven Köhler <skoehler@upb.de> writes:
 
-Oh, I know it does.  That was just a "convert to proper coding format in
-15 minutes" patch.  You should start with that and work from there.
-But, if you are going to do this, remember to submit in incremental
-changes.  I suggest this patch go in, as it is just a reformatting,
-nothing else.  Then you can work from there, changing the actual logic
-of the code.
+> my problem is, that i want an application to listen on a priviledged
+> port (e.g. port 80) and to run as a "normal" unpriviledged user
+>
+> So is there any machanism to bind that permission (to listen on a
+> priviledged tcp-port) to a specific user or a specific process?
 
-thanks,
+Of course, there is :-)
+<http://www.olafdietsche.de/linux/accessfs/>
 
-greg k-h
+Regards, Olaf.

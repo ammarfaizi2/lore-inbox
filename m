@@ -1,56 +1,254 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268909AbRHLBp0>; Sat, 11 Aug 2001 21:45:26 -0400
+	id <S268911AbRHLBpg>; Sat, 11 Aug 2001 21:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268913AbRHLBpQ>; Sat, 11 Aug 2001 21:45:16 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:35725
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S268909AbRHLBpD>; Sat, 11 Aug 2001 21:45:03 -0400
-Date: Sat, 11 Aug 2001 18:44:47 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available.
-Message-ID: <20010811184447.A17435@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20010811150255.G4657@cpe-24-221-152-185.az.sprintbbd.net> <4736.997579282@ocs3.ocs-net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4736.997579282@ocs3.ocs-net>
-User-Agent: Mutt/1.3.20i
+	id <S268913AbRHLBp1>; Sat, 11 Aug 2001 21:45:27 -0400
+Received: from femail8.sdc1.sfba.home.com ([24.0.95.88]:39590 "EHLO
+	femail8.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S268911AbRHLBpN>; Sat, 11 Aug 2001 21:45:13 -0400
+Date: Sat, 11 Aug 2001 21:48:11 -0400 (EDT)
+From: Garett Spencley <gspen@home.com>
+X-X-Sender: <gspen@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+Subject: Q3A segfaults with 2.4.8
+Message-ID: <Pine.LNX.4.33L2.0108112137350.17803-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 12, 2001 at 11:21:22AM +1000, Keith Owens wrote:
-> On Sat, 11 Aug 2001 15:02:55 -0700, 
-> Tom Rini <trini@kernel.crashing.org> wrote:
-> >On Sun, Aug 12, 2001 at 01:03:00AM +1000, Keith Owens wrote:
-> >
-> >> Changes from Release 1.
-> >[snip]
-> >>   Document kbuild targets and C to assembler conversions.  As always,
-> >>   Documentation/kbuild/kbuild-2.5.txt is your friend.
-> >
-> >Okay, I've played with this a bit on PPC, and got it working to boot :)
-> >Now here's what I see as the slight problems with it.  At least on PPC
-> >what we do is generate the offset bits, and then have another file,
-> >arch/ppc/kernel/ppc_asm.h include that file and have some other useful
-> >macros for .S files.  So any of the .S files which include ppc_asm.h
-> >would need an additional
-> >extra_aflags(foo.o $(src_includelist /arch/$(ARCH)))
-> 
-> That will be required for all asm code that includes offsets.h, on all
-> architectures, I doubt there will be more than 10 on any arch.
+Hi,
 
-Hopefully not much more than 10, I hope.
+I have no idea how to debug this so some insight would be very helpful.
+Quake3 arena is crashing with 2.4.8 and 2.4.8-ac1.
 
-> The alternative of having code in some arch directory updating
-> include/asm-$(ARCH)/offsets.h is worse.  It is a terrible design to
-> have code in one makefile updating files in another directory.  It is a
-> layer violation which is always a bad idea.
+I'm pretty sure it's related to the emu10k1 changes because the last
+output is:
 
-Right.  I figured it'd be worth pointing out, if nothing else.
+...loading 'scripts/sky.shader'
+...loading 'scripts/test.shader'
+----- finished R_Init -----
+
+------- sound initialization -------
+------------------------------------
+Received signal 11, exiting...
+
+It works fine with 2.4.7 and -ac series.
+
+Here's my system info:
+
+Mandrake 8.0
+
+Linux version 2.4.8-ac1 (root@localhost.localdomain) (gcc version 3.0) #1
+Sat Aug 11 18:16:04 EDT 2001
+
+$ cat /proc/cpuinfo
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 2
+model name	: AMD Athlon(tm) Processor
+stepping	: 1
+cpu MHz		: 704.960
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips	: 1405.74
+
+$ cat /proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial(auto)
+0376-0376 : ide1
+03c0-03df : vga+
+03e8-03ef : serial(auto)
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+0400-040f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+0cf8-0cff : PCI conf1
+9000-9fff : PCI Bus #01
+  9c00-9cff : 3Dfx Interactive, Inc. Voodoo 3
+c800-c81f : Creative Labs SB Live! EMU10000
+  c800-c81f : EMU10K1
+cc00-ccff : Realtek Semiconductor Co., Ltd. RTL-8139
+  cc00-ccff : 8139too
+d000-d01f : VIA Technologies, Inc. UHCI USB
+  d000-d01f : usb-uhci
+d400-d41f : VIA Technologies, Inc. UHCI USB (#2)
+  d400-d41f : usb-uhci
+d800-d803 : Advanced Micro Devices [AMD] AMD-751 [Irongate] System Controller
+dc00-dc07 : Creative Labs SB Live!
+  dc00-dc07 : emu10k1-gp
+ffa0-ffaf : VIA Technologies, Inc. Bus Master IDE
+  ffa0-ffa7 : ide0
+  ffa8-ffaf : ide1
+
+$ cat /proc/iomem
+00000000-0009efff : System RAM
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-09ffffff : System RAM
+  00100000-0026e5e9 : Kernel code
+  0026e5ea-002db53f : Kernel data
+dfc00000-e3cfffff : PCI Bus #01
+  e0000000-e1ffffff : 3Dfx Interactive, Inc. Voodoo 3
+e4000000-e7ffffff : Advanced Micro Devices [AMD] AMD-751 [Irongate] System Controller
+ebdfd000-ebdfdfff : Brooktree Corporation Bt878
+  ebdfd000-ebdfdfff : bttv
+ebdfe000-ebdfefff : Brooktree Corporation Bt878
+ebdff000-ebdfffff : Advanced Micro Devices [AMD] AMD-751 [Irongate] System Controller
+ebe00000-efefffff : PCI Bus #01
+  ec000000-edffffff : 3Dfx Interactive, Inc. Voodoo 3
+efffff00-efffffff : Realtek Semiconductor Co., Ltd. RTL-8139
+  efffff00-efffffff : 8139too
+
+# lspci -vvv
+00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] System Controller (rev 25)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 64
+	Region 0: Memory at e4000000 (32-bit, prefetchable) [size=64M]
+	Region 1: Memory at ebdff000 (32-bit, prefetchable) [size=4K]
+	Region 2: I/O ports at d800 [disabled] [size=4]
+	Capabilities: [a0] AGP version 1.0
+		Status: RQ=15 SBA+ 64bit- FW- Rate=x1,x2
+		Command: RQ=0 SBA- AGP+ 64bit- FW- Rate=x1
+
+00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] AGP Bridge (rev 01) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+	I/O behind bridge: 00009000-00009fff
+	Memory behind bridge: ebe00000-efefffff
+	Prefetchable memory behind bridge: dfc00000-e3cfffff
+	BridgeCtl: Parity- SERR+ NoISA- VGA+ MAbort- >Reset- FastB2B-
+
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 1b)
+	Subsystem: Asustek Computer, Inc.: Unknown device 800d
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+00:04.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06) (prog-if 8a [Master SecP PriP])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Region 4: I/O ports at ffa0 [size=16]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 0e) (prog-if 00 [UHCI])
+	Subsystem: Unknown device 0925:1234
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 08
+	Interrupt: pin D routed to IRQ 10
+	Region 4: I/O ports at d000 [size=32]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 0e) (prog-if 00 [UHCI])
+	Subsystem: Unknown device 0925:1234
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 08
+	Interrupt: pin D routed to IRQ 10
+	Region 4: I/O ports at d400 [size=32]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:04.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 20)
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:0e.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+	Subsystem: AOPEN Inc. ALN-325C
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: I/O ports at cc00 [size=256]
+	Region 1: Memory at efffff00 (32-bit, non-prefetchable) [size=256]
+
+00:0f.0 Multimedia video controller: Brooktree Corporation Bt878 (rev 02)
+	Subsystem: Hauppauge computer works Inc.: Unknown device 13eb
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (4000ns min, 10000ns max)
+	Interrupt: pin A routed to IRQ 5
+	Region 0: Memory at ebdfd000 (32-bit, prefetchable) [size=4K]
+
+00:0f.1 Multimedia controller: Brooktree Corporation Bt878 (rev 02)
+	Subsystem: Hauppauge computer works Inc.: Unknown device 13eb
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (1000ns min, 63750ns max)
+	Interrupt: pin A routed to IRQ 5
+	Region 0: Memory at ebdfe000 (32-bit, prefetchable) [size=4K]
+
+00:10.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 07)
+	Subsystem: Creative Labs CT4832 SBLive! Value
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (500ns min, 5000ns max)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at c800 [size=32]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:10.1 Input device controller: Creative Labs SB Live! (rev 07)
+	Subsystem: Creative Labs Gameport Joystick
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Region 0: I/O ports at dc00 [size=8]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:05.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01) (prog-if 00 [VGA])
+	Subsystem: 3Dfx Interactive, Inc. Voodoo3 AGP
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at ec000000 (32-bit, non-prefetchable) [size=32M]
+	Region 1: Memory at e0000000 (32-bit, prefetchable) [size=32M]
+	Region 2: I/O ports at 9c00 [size=256]
+	Expansion ROM at efef0000 [disabled] [size=64K]
+	Capabilities: [54] AGP version 1.0
+		Status: RQ=7 SBA+ 64bit+ FW- Rate=x1,x2
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+	Capabilities: [60] Power Management version 1
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+Thanks in advance for any help,
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Garett Spencley
+
+I encourage you to encrypt e-mail sent to me using PGP
+My public key is available on PGP key servers (http://keyservers.net)
+Key fingerprint: 8062 1A46 9719 C929 578C BB4E 7799 EC1A AB12 D3B9
+

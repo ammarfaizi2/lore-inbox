@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317306AbSHGKr0>; Wed, 7 Aug 2002 06:47:26 -0400
+	id <S317054AbSHGKsW>; Wed, 7 Aug 2002 06:48:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317327AbSHGKr0>; Wed, 7 Aug 2002 06:47:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:40150 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317306AbSHGKrZ>;
-	Wed, 7 Aug 2002 06:47:25 -0400
-Date: Wed, 07 Aug 2002 03:38:20 -0700 (PDT)
-Message-Id: <20020807.033820.126760020.davem@redhat.com>
-To: kwijibo@zianet.com
-Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
-Subject: Re: Tigon3 and jumbo frames
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D5045C1.6050302@zianet.com>
-References: <3D5045C1.6050302@zianet.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S317110AbSHGKsW>; Wed, 7 Aug 2002 06:48:22 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:24825 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317054AbSHGKsV>; Wed, 7 Aug 2002 06:48:21 -0400
+Subject: Re: kernel thread exit race
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+In-Reply-To: <15696.61666.452460.264138@laputa.namesys.com>
+References: <15696.59115.395706.489896@laputa.namesys.com>
+	<1028719111.18156.227.camel@irongate.swansea.linux.org.uk> 
+	<15696.61666.452460.264138@laputa.namesys.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Aug 2002 13:11:23 +0100
+Message-Id: <1028722283.18156.274.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: kwijibo@zianet.com
-   Date: Tue, 06 Aug 2002 15:55:13 -0600
+On Wed, 2002-08-07 at 11:05, Nikita Danilov wrote:
+> Ah I see, thank you and Russell. But this depends on no architecture
+> ever accessing spinlock data after letting waiters to run, otherwise
+> there still is (tiny) window for race at the end of complete() call,
+> right?
 
-   Does the new version of the tigon 3 (tg3) drivers support jumbo
-   frames?
-
-It works, use a direct connection between two tg3 cards if you
-don't believe us :-)
+complete() as opposed to spinlocks/semaphores is defined to be safe to
+free the object once the complete finishes
 

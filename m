@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVBXWkz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVBXWkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbVBXWkz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 17:40:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVBXWky
+	id S262531AbVBXWkj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 17:40:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbVBXWkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 17:40:54 -0500
-Received: from calma.pair.com ([209.68.1.95]:16657 "HELO calma.pair.com")
-	by vger.kernel.org with SMTP id S262530AbVBXWkS (ORCPT
+	Thu, 24 Feb 2005 17:40:37 -0500
+Received: from fire.osdl.org ([65.172.181.4]:34968 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262531AbVBXWjx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 17:40:18 -0500
-Date: Thu, 24 Feb 2005 17:40:09 -0500
-From: "Chad N. Tindel" <chad@tindel.net>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Xterm Hangs - Possible scheduler defect?
-Message-ID: <20050224224009.GA66192@calma.pair.com>
-References: <20050223230639.GA33795@calma.pair.com> <20050223183634.31869fa6.akpm@osdl.org> <20050224052630.GA99960@calma.pair.com> <421DD5CC.5060106@aitel.hist.no> <20050224173356.GA11593@calma.pair.com> <16926.21614.267728.100131@wombat.chubb.wattle.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16926.21614.267728.100131@wombat.chubb.wattle.id.au>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 24 Feb 2005 17:39:53 -0500
+Message-ID: <421E57C9.3090308@osdl.org>
+Date: Thu, 24 Feb 2005 14:40:09 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stuart MacDonald <stuartm@connecttech.com>
+CC: "'Greg Folkert'" <greg@gregfolkert.net>,
+       "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: Re: Greg's Decree! (was Re: Linus' decrees?)
+References: <002201c51abd$712cf500$294b82ce@stuartm>
+In-Reply-To: <002201c51abd$712cf500$294b82ce@stuartm>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In many Unices, crucial kernel threads run at realtime priority with a
-> static priority higher than is accessible to user code.
+Stuart MacDonald wrote:
+> From: Greg Folkert [mailto:greg@gregfolkert.net] 
+> 
+>>On Thu, 2005-02-24 at 15:03 -0500, Stuart MacDonald wrote:
+>>
+>>>Recently I ran across
+>>>
+>>>http://groups.google.ca/groups?hl=en&lr=lang_en&safe=off&selm=
+>>>1033074519.2698.5.
+>>>camel%40localhost.localdomain
+>>>
+>>>Is there a collection point for Linus' decrees?
 
-Yep.  
+[snip]
 
-> That being said, however, you've got to be a privileged user to set
-> real time very high priority on a thread, and if you do, you'd better
-> know what you're doing.  Any SCHED_FIFO thread should run for a time,
-> then sleep for a time, or it *will* DOS everything else on the
-> processor.
+> So what I'm wondering is, is there a location on the net where Linus'
+> statements about how the kernel is to be are collected? ie, Where the
+> above statements could all be found, with cites.
+> 
+> I'm thinking there's probably other info about the standard way of
+> doing things in regards to the kernel (all aspects thereof) that Linus
+> has put forth that might be handy for me to know, and I'm hoping that
+> there's a handy dandy collection that I can peruse.
+> 
+> I guess what I'm looking for is a collection of linux kernel policies.
+> Is there such a collection?
 
-This is only true if you're not doing what you said in your first paragraph,
-i.e. running crucial kernel threads higher than any user thread.
+Not that I know of, but it would be nice, esp. for newcomers.
 
-Chad
+-- 
+~Randy
+
+ObPlug:  there is a small collection of Linus/Andrew/et al quotes
+at http://www.madrone.org/quotes/linuxquotes.html
+and I have lots more queued up for there, but there aren't
+enough hours in a day.

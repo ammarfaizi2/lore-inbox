@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311710AbSEEMoj>; Sun, 5 May 2002 08:44:39 -0400
+	id <S311701AbSEEMrQ>; Sun, 5 May 2002 08:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311829AbSEEMoi>; Sun, 5 May 2002 08:44:38 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:39457 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S311710AbSEEMoi>; Sun, 5 May 2002 08:44:38 -0400
-Message-ID: <61DB42B180EAB34E9D28346C11535A783A7586@nocmail101.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'David S. Miller'" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org,
-        "'zippel@linux-m68k.org'" <zippel@linux-m68k.org>
-Subject: RE: my slab cache broken on sparc64
-Date: Sun, 5 May 2002 07:44:24 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S311829AbSEEMrP>; Sun, 5 May 2002 08:47:15 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:53515 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S311701AbSEEMrO>; Sun, 5 May 2002 08:47:14 -0400
+Date: Sun, 5 May 2002 14:47:04 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "J.P. Morris" <jpm@it-he.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.x keyboard oddities
+Message-ID: <20020505124704.GC4990@louise.pinerecords.com>
+In-Reply-To: <20020504234908.39e71442.jpm@it-he.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 13 days, 2:27)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Do it like this instead.
->
->	int fault;
->	mm_segment_t old_fs;
->
->	...
->
->	old_fs = get_fs();
->	set_fs(KERNEL_DS);
->	fault = __get_user(tmp, pc->name);
->	set_fs(old_fs);
->
->	if (fault) {
->	...
+> [J.P. Morris <jpm@it-he.org>]
+> The other day I finally got a 2.5 kernel (2.5.13) to compile and boot.
+> One of the major stumbling (crashing) blocks seems to be DEVFS, so I
+> simply disabled it and booted the kernel.
+> 
+> The system appears to have come up completely now, except for the
+> keyboard which is totally frozen throughout the entire boot process.
+> 
+> I don't have another PC but I might try and get my Psion Series 5
+> to act as a VT100 terminal and go in through serial.
+> 
+> The keyboard is a bog-standard AT 102 keyboard, attached through a
+> AT/PS2 converter to an ABIT KT133 ATX motherboard.. no USB stuff.
+> Keyboard is turned on in the input devices option in kernel config.
+> But it's utterly dead: even ALT-SYSRQ-B.  Is this normal?
 
-Hmm.  Just got back to this, and I thought I had taken that into account and
-left all the important parts out of a loop, or if, context.  I'll look at
-what I DID do, though, and maybe I'll file that last patch under my things
-you shouldn't do while half asleep folder...
+1) Try booting with 'acpi=off'. It's broken for a number of systems
+(does precisely what you've described) and no official update is
+available as of yet. Alternatively, you can try to apply the most
+recent ACPI patch from [1].
 
-Thanks
-Bruce H.
+2) Make sure you've enabled core input support and userland keyboard
+interface (CONFIG_INPUT, CONFIG_INPUT_KEYBDEV).
+
+T.
+
+
+[1] http://www.sourceforge.net/projects/acpi/

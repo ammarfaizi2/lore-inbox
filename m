@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbUJaVO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUJaV3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbUJaVO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 16:14:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbUJaVO6
+	id S261210AbUJaV3f (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 16:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbUJaV3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 16:14:58 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:28132 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261660AbUJaVOt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 16:14:49 -0500
-Date: Sun, 31 Oct 2004 13:14:36 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow
-Message-ID: <20041031211436.GE27728@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Pavel Machek <pavel@suse.cz>,
-	Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
-	Xavier Bestel <xavier.bestel@free.fr>,
-	James Bruce <bruce@andrew.cmu.edu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Andrea Arcangeli <andrea@novell.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <20041031210323.GG5578@elf.ucw.cz>
+	Sun, 31 Oct 2004 16:29:32 -0500
+Received: from gprs214-91.eurotel.cz ([160.218.214.91]:24197 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261210AbUJaV32 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 16:29:28 -0500
+Date: Sun, 31 Oct 2004 22:29:14 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, "Brown, Len" <len.brown@intel.com>,
+       "Moore, Robert" <robert.moore@intel.com>,
+       Alex Williamson <alex.williamson@hp.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: Userspace ACPI interpreter ( was RE: [ACPI] [RFC] dev_acpi: support for userspace access to acpi)
+Message-ID: <20041031212914.GH5578@elf.ucw.cz>
+References: <3ACA40606221794F80A5670F0AF15F84041AC000@pdsmsx403>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041031210323.GG5578@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F84041AC000@pdsmsx403>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 31, 2004 at 10:03:23PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > In Spain, reverse engineering is allowed for interoperability.
-> > 
-> > And in lots of other places.  Which has been mentioned in this and other
-> > instances of this discussion for the last 5 years.  And the response is
-> > that BK already gives you documented ways to interoperate, extensively
-> > documented, in fact.  You can get data and/or metadata into and out of
-> > BK from the command line.  You could create your own network protocol,
-> > client, and server using the documented interfaces that BK has.  You
-> > could create your own CVS2BK tool, your own BK2CVS tool, etc., all
-> > using documented interfaces.
-> 
-> Actually, I probably could not, due to legal reasons. Or do you tell
-> me that it is okay for people to develop BK2ARCH importer tool, using
-> documented interfaces, with free version of bitkeeper?
+Hi!
 
-Pavel, you've burned up any goodwill you may have once had.
-You getting an exception to the BK license is about as likely as 
-you getting a date with Halle Berry.  If that happens, swing by 
-to introduce me and I'll be happy to reconsider.
+> >> On IA64 platform, ACPI interpreter seems to be mandatory for those
+> >> stuff, but IA32 is not.  So, the ram disk is the generic solution 
+> >> for loading user space interpreter for boot. 
+> >
+> >In two sentences: If you want to play with moving the interpreter
+> >to user-space, please do so, and do it on ia64, so you have to
+> >deal with the interesting problems.
+> >
+> >And this whole thing is a gigantic tangent that is only distracting
+> >attention from the real question at hand, namely, Alex's dev_acpi
+> >patch, which exists today and enables some very interesting new
+> >functionality.
+> >
+> 
+>   Yes, I agree Alex's dev_acpi is interesting, which could result in 
+> the removal of some acpi specific drive such as battery.c, button.c,
+> fan.c, thermal.c ....   So, I raised the question of userspace ACPI 
+> interpreter.  Intuitively, userspace is the right place for interpreter.
+
+I do not think you want to put thermal/fan into userspace. If you boot
+machine with init=/bin/bash, you should have working system. System
+without fan fail... fast.
+
+Plus you want to do suspend/resume.
+								Pavel
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129165AbRBBNN0>; Fri, 2 Feb 2001 08:13:26 -0500
+	id <S129051AbRBBNVt>; Fri, 2 Feb 2001 08:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129074AbRBBNNQ>; Fri, 2 Feb 2001 08:13:16 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:15600 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129165AbRBBNND>; Fri, 2 Feb 2001 08:13:03 -0500
-Date: Fri, 2 Feb 2001 11:12:12 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Jagan_Pochimireddy@3com.com
-cc: Prasanna P Subash <psubash@turbolinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel ver 2.4.1 VFS problem
-In-Reply-To: <882569E7.0008ABE1.00@hqoutbound.ops.3com.com>
-Message-ID: <Pine.LNX.4.21.0102021111300.1321-100000@duckman.distro.conectiva>
+	id <S129074AbRBBNVk>; Fri, 2 Feb 2001 08:21:40 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:31756 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S129051AbRBBNVY>; Fri, 2 Feb 2001 08:21:24 -0500
+Date: Fri, 2 Feb 2001 13:21:21 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sard on kernel 2.4
+In-Reply-To: <Pine.LNX.4.21.0102012322560.18665-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.30.0102021320390.17125-100000@ferret.lmh.ox.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001 Jagan_Pochimireddy@3com.com wrote:
 
-> That problem solved by compiling the correct SCSI driver into
-> the kernel. Now it is the problem with input console. It says
-> Unable to open Input console. This is after mounting VFS.
+On Fri, 2 Feb 2001, Marcelo Tosatti wrote:
 
-Same thing ... you haven't compiled in a console driver.
+>
+> Linus,
+>
+> There is a significative amount of people who use sard's additional block
+> layer statistics (I'm one of them). It would be nice to have it in the
+> official free.
 
-I guess it would be good if you assumed for a while that
-all errors you get are forgotten drivers, at least until
-you get your system fully booted ;)
+Definitely.
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Cheers
+Chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,50 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287120AbRL2EWk>; Fri, 28 Dec 2001 23:22:40 -0500
+	id <S287129AbRL2ElW>; Fri, 28 Dec 2001 23:41:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287121AbRL2EWa>; Fri, 28 Dec 2001 23:22:30 -0500
-Received: from marine.sonic.net ([208.201.224.37]:13170 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S287120AbRL2EWS>;
-	Fri, 28 Dec 2001 23:22:18 -0500
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Fri, 28 Dec 2001 20:21:39 -0800
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: State of the new config & build system
-Message-ID: <20011229042139.GC14067@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011228161603.B5397@havoc.gtf.org> <7850.1009589209@ocs3.intra.ocs.com.au> <20011228225803.A7801@havoc.gtf.org>
+	id <S287130AbRL2ElL>; Fri, 28 Dec 2001 23:41:11 -0500
+Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:52240 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S287129AbRL2Ekw>; Fri, 28 Dec 2001 23:40:52 -0500
+Date: Fri, 28 Dec 2001 20:40:41 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: timothy.covell@ashavan.org, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, support@redhat.com
+Subject: Re: Fwd: Hard Lockup on 2.4.16 with Via ieee1394 (sbp2 mode)
+Message-ID: <20011228204041.A14736@one-eyed-alien.net>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	timothy.covell@ashavan.org, linux-kernel@vger.kernel.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, support@redhat.com
+In-Reply-To: <200112290321.fBT3GCSs007627@svr3.applink.net> <3C2D3DBB.6ADE1CC5@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
 Content-Disposition: inline
-In-Reply-To: <20011228225803.A7801@havoc.gtf.org>
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C2D3DBB.6ADE1CC5@zip.com.au>; from akpm@zip.com.au on Fri, Dec 28, 2001 at 07:51:23PM -0800
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 28, 2001 at 10:58:03PM -0500, Legacy Fishtank wrote:
-> s/break/update dependencies/
-> 
-> I assumed this was blindingly obvious, but I guess not.
 
-To YOU and other kernel hackers, yes.
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-But not to everyone.
+Hrm...
 
-Plus, as I understand it, it will be faster to:
+Does this apply to usb-storage also?  Under what conditions do you need to
+hold the io_request_lock when calling the done function?
 
-apply a patch and rebuild with kbuild 2.5
+usb-storage calls it from task context, not from IRQ context.... if that
+makes any difference.
 
-than to:
+Matt
 
-apply a patch, make dep && make bzImage.
+On Fri, Dec 28, 2001 at 07:51:23PM -0800, Andrew Morton wrote:
+> Timothy Covell wrote:
+> >=20
+> > lockup
+> > ...
+> > sbp2
+> > ...
+> > SMP
+> > ...
+>=20
+> --- linux-2.4.17-pre8/drivers/ieee1394/sbp2.c	Mon Dec 10 13:46:20 2001
+> +++ linux-akpm/drivers/ieee1394/sbp2.c	Wed Dec 12 20:50:16 2001
+> @@ -2773,7 +2773,9 @@ static void sbp2scsi_complete_command(st
+>  	/*
+>  	 * Tell scsi stack that we're done with this command
+>  	 */
+> +	spin_lock_irq(&io_request_lock);
+>  	done (SCpnt);
+> +	spin_unlock_irq(&io_request_lock);
+> =20
+>  	return;
+>  }
+>=20
+> -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Correct?
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+Da.  Am thinkink of carbonated borscht for lonk nights of coding.
+					-- Pitr
+User Friendly, 7/24/1998
+
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8LUlJz64nssGU+ykRAne4AKD4l3yDpefSIPUvAVkDY45sKTzoKACgin4L
+5K2cADnfvPO49ctUUyLnKsI=
+=YAiR
+-----END PGP SIGNATURE-----
+
+--gBBFr7Ir9EOA20Yy--

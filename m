@@ -1,102 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271857AbTGRPjg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 11:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271850AbTGRPij
+	id S268238AbTGRPge (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 11:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbTGRPaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 11:38:39 -0400
-Received: from [193.137.96.140] ([193.137.96.140]:21130 "EHLO dwarf.utad.pt")
-	by vger.kernel.org with ESMTP id S263752AbTGRPhU (ORCPT
+	Fri, 18 Jul 2003 11:30:22 -0400
+Received: from pop.gmx.net ([213.165.64.20]:35993 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268238AbTGRPWh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 11:37:20 -0400
-X-Spam-Filter: check_local@dwarf.utad.pt by digitalanswers.org
-X-Spam-Header: 550.Reject.Received:count_Received
-Message-ID: <3F1815A1.4070409@alvie.com>
-Date: Fri, 18 Jul 2003 16:43:29 +0100
-From: Alvaro Lopes <alvieboy@alvie.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Oops with ALSA and OSS emulation - 2.6.0-test1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 18 Jul 2003 11:22:37 -0400
+Message-Id: <5.2.1.1.2.20030718165530.01adacd0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Fri, 18 Jul 2003 17:41:45 +0200
+To: Davide Libenzi <davidel@xmailserver.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O6int for interactivity
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.55.0307180630450.5077@bigblue.dev.mcafeelabs.co
+ m>
+References: <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
+ <200307170030.25934.kernel@kolivas.org>
+ <200307170030.25934.kernel@kolivas.org>
+ <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the following oops when I start some audio applications:
+At 06:46 AM 7/18/2003 -0700, Davide Libenzi wrote:
+>On Fri, 18 Jul 2003, Mike Galbraith wrote:
+>
+> > At 03:12 PM 7/16/2003 -0700, Davide Libenzi wrote:
+> >
+> > >http://www.xmailserver.org/linux-patches/irman2.c
+> > >
+> > >and run it with different -n (number of tasks) and -b (CPU burn ms time).
+> > >At the same time try to build a kernel for example. Then you will realize
+> > >that interactivity is not the bigger problem that the scheduler has right
+> > >now.
+> >
+> > I added an irman2 load to contest.  Con's changes 06+06.1 stomped it flat
+> > [1].  irman2 is modified to run for 30s at a time, but with default 
+> parameters.
+>
+>In my case I cannot even estimate the time. It takes 8:33 ususally to do a
+>bzImage, and after 15 minutes I ctrl-c with only two lines printed in the
+>console. If you consider the ratio between the total number of lines that
+>a kernel build spits out, this couls have taken hours. Also, you might
 
-Jul 15 16:05:25 supernova kernel: Unable to handle kernel paging request 
-at virtual address d0a07000
-Jul 15 16:05:25 supernova kernel:  printing eip:
-Jul 15 16:05:25 supernova kernel: d09b5b37
-Jul 15 16:05:25 supernova kernel: *pde = 0ff7f067
-Jul 15 16:05:25 supernova kernel: *pte = 00000000
-Jul 15 16:05:25 supernova kernel: Oops: 0000 [#1]
-Jul 15 16:05:25 supernova kernel: CPU:    0
-Jul 15 16:05:25 supernova kernel: EIP:    
-0060:[__crc_send_group_sig_info+5177760/5680417]    Tainted: P
-Jul 15 16:05:25 supernova kernel: EFLAGS: 00210202
-Jul 15 16:05:25 supernova kernel: EIP is at resample_expand+0x343/0x377 
-[snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel: eax: d09b5b37   ebx: 00000000   ecx: 
-000007ff   edx: 00000000
-Jul 15 16:05:25 supernova kernel: esi: d0a80166   edi: c3355610   ebp: 
-d0a06ffe   esp: c4f55e54
-Jul 15 16:05:25 supernova kernel: ds: 007b   es: 007b   ss: 0068
-Jul 15 16:05:25 supernova kernel: Process fltk-eclient (pid: 668, 
-threadinfo=c4f54000 task=c7478080)
-Jul 15 16:05:25 supernova kernel: Stack: d09b2fb1 c3355580 c3c644e0 
-c4f55e80 00000000 c4f5007b ffffff00 ffffffff
-Jul 15 16:05:25 supernova kernel:        d09b595b d09b5aaf d09b5b37 
-c33555f0 00000000 00000004 00000004 00000001
-Jul 15 16:05:25 supernova kernel:        00000000 000003ee 0000045a 
-00000400 c3355580 c6975580 d09b5fe1 c3355580
-Jul 15 16:05:25 supernova kernel: Call Trace:
-Jul 15 16:05:25 supernova kernel:  
-[__crc_send_group_sig_info+5166618/5680417] 
-snd_pcm_plug_playback_channels_mask+0x72/0xd8 [snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel:  
-[__crc_send_group_sig_info+5177284/5680417] resample_expand+0x167/0x377 
-[snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel:  
-[__crc_send_group_sig_info+5177624/5680417] resample_expand+0x2bb/0x377 
-[snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel:  
-[__crc_send_group_sig_info+5177760/5680417] resample_expand+0x343/0x377 
-[snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel:  
-[__crc_send_group_sig_info+5178954/5680417] rate_transfer+0x59/0x5d 
-[snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel:  
-[__crc_send_group_sig_info+5167602/5680417] 
-snd_pcm_plug_write_transfer+0x95/0xf4 [snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel:  
-[__crc_send_group_sig_info+5151219/5680417] 
-snd_pcm_oss_write2+0xd0/0x13c [snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel:  
-[__crc_send_group_sig_info+5151752/5680417] 
-snd_pcm_oss_write1+0x1a9/0x1d0 [snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel:  
-[__crc_send_group_sig_info+5159856/5680417] snd_pcm_oss_write+0x43/0x5d 
-[snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel:  
-[__crc_send_group_sig_info+5159789/5680417] snd_pcm_oss_write+0x0/0x5d 
-[snd_pcm_oss]
-Jul 15 16:05:25 supernova kernel:  [vfs_write+176/281] vfs_write+0xb0/0x119
-Jul 15 16:05:25 supernova kernel:  [do_gettimeofday+25/134] 
-do_gettimeofday+0x19/0x86
-Jul 15 16:05:25 supernova kernel:  [sys_write+66/99] sys_write+0x42/0x63
-Jul 15 16:05:25 supernova kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jul 15 16:05:25 supernova kernel:
-Jul 15 16:05:25 supernova kernel: Code: 8b 45 00 eb ac 0f b6 45 00 c1 e0 
-08 eb a3 81 fa 00 80 00 00
+Yeah, I noticed... it's a nasty little bugger.
 
-The card is a intel8x0 (Intel 82801CA/CAM AC'97)
-Kernel is tainted due to nvidia drivers.
+>want also to try a low number of processes with a short burn, like the new
+>patch seems to do to better hit mm players. Something like:
+>
+>irman2 -n 10 -b 40
 
-Any ideas on what might be ?
+If I hadn't done the restart after 30 seconds thing, I knew it would take 
+ages.  I wanted something to see contrast, not a life sentence ;-)
 
+>Guys, I'm saying this not because I do not appreciate the time Con is
+>spending on it. I just hate to see time spent in the wrong priorities.
+>Whatever super privileged sleep->burn pattern you code, it can be
+>exploited w/out a global throttle for the CPU time assigned to interactive
+>and non interactive tasks. This is Unix guys and it is used in multi-user
+>environments, we cannot ship with a flaw like this.
 
-Álvaro
+(Oh, I agree that the problem is nasty.  I like fair scheduling a lot... 
+when _I'm_ not the one starving things to death;)
+
+         -Mike 
 

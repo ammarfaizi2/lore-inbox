@@ -1,135 +1,211 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVBORmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVBORpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbVBORmk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 12:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVBORmk
+	id S261444AbVBORpL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 12:45:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVBORpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 12:42:40 -0500
-Received: from rproxy.gmail.com ([64.233.170.192]:6553 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261622AbVBORmG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 12:42:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=iVL6wpn20UDo1paCcrqRE9RicfLlIWpPaYdqXz1G1JI1vzq0qvX5j2HqXrliMug5G5gozYzxNz437XEnqJQI1e7sCbdky75MAus/yYKp0en0rVRBDs4J0kosxkZuPHBUYlvkx2mhSvEmNmUBgBuKyzcRx63rBNugEOVxlfrGeoE=
-Message-ID: <d120d5000502150942527fd4ea@mail.gmail.com>
-Date: Tue, 15 Feb 2005 12:42:03 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Kenan Esau <kenan.esau@conan.de>
-Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
-Cc: Vojtech Pavlik <vojtech@suse.cz>, harald.hoyer@redhat.de,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <1108487008.2843.21.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 15 Feb 2005 12:45:11 -0500
+Received: from 83-216-143-24.alista342.adsl.metronet.co.uk ([83.216.143.24]:41888
+	"EHLO devzero.co.uk") by vger.kernel.org with ESMTP id S261622AbVBORnZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 12:43:25 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Lorenzo Colitti <lorenzo@colitti.com>
+Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
+Date: Tue, 15 Feb 2005 17:42:55 +0000
+User-Agent: KMail/1.7.91
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+References: <20050214211105.GA12808@elf.ucw.cz> <1108482083.12031.10.camel@elrond.flymine.org> <42122054.8010408@colitti.com>
+In-Reply-To: <42122054.8010408@colitti.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-References: <20050211201013.GA6937@ucw.cz> <1108457880.2843.5.camel@localhost>
-	 <20050215134308.GE7250@ucw.cz>
-	 <d120d500050215064357fa60c@mail.gmail.com>
-	 <1108487008.2843.21.camel@localhost>
+Content-Disposition: inline
+Message-Id: <200502151742.55362.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Feb 2005 18:03:28 +0100, Kenan Esau <kenan.esau@conan.de> wrote:
-> Am Dienstag, den 15.02.2005, 09:43 -0500 schrieb Dmitry Torokhov:
-> > On Tue, 15 Feb 2005 14:43:08 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > > On Tue, Feb 15, 2005 at 09:57:59AM +0100, Kenan Esau wrote:
-> > > > +static struct dmi_system_id lifebook_dmi_table[] = {
-> > > > +     {
-> > > > +             .ident = "Fujitsu Siemens Lifebook B-Sereis",
-> > > > +             .matches = {
-> > > > +                     DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK B Series"),
-> > > > +             },
-> > > > +     },
-> > > > +     { }
-> > > > +};
-> > >
-> > > This might be a bit too much generic. Are you sure there are no B Series
-> > > lifebooks without a touchscreen?
-> > >
-> >
-> > And another concern: does this notebook (or others using this
-> > touchscreen) have an active MUX? We don't want to force LBTOUCH
-> > protocol on an external mouse.
-> 
-> All B-Series Lifebooks have the same touchscreen-hardware. But Dmitri's
-> concern is correct -- at the moment I would enforce the LBTOUCH-protocol
-> on external mice...
-> 
-> I have to fix this. I will additionally to the DMI stuff use "Status
-> Request". On a "Request ID"-Command the Device always answers with a
-> 0x00 -- could this also be helpfull?
-> 
-> > > > +static psmouse_ret_t lifebook_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
-> > > > +{
-> > > > +     unsigned char *packet = psmouse->packet;
-> > > > +     struct input_dev *dev = &psmouse->dev;
-> > > > +
-> > > > +        unsigned long x = 0;
-> > > > +        unsigned long y = 0;
-> > > > +        static uint8_t pkt_lst_touch = 0;
-> > > > +     static uint8_t pkt_cur_touch = 0;
-> > > > +     uint8_t pkt_lb = packet[0] & LBTOUCH_LB;
-> > > > +     uint8_t pkt_rb = packet[0] & LBTOUCH_RB;
-> >
-> > We usually don't use userspace types here. unsigned char or u8 for kernel.
-> >
-> > > > +
-> > > > +                psmouse->protocol_handler = lifebook_process_byte;
-> > > > +                psmouse->disconnect = lifebook_disconnect;
-> > > > +                psmouse->reconnect  = lifebook_initialize;
-> > > > +                psmouse->initialize = lifebook_initialize;
-> > > > +                psmouse->pktsize = 3;
-> > > > +     }
-> > > > +
-> > > > +     return 0;
-> > > > +}
-> > >
-> > > The change to the psmouse interface I'm leaving to Dmitry to comment on.
-> >
-> > I don't think that we need a separate initialize handler simply
-> > because it is called just once, at initialization time. Here we know
-> > exactly what device (protocol) we are dealing with, no need for
-> > indirection.
-> 
-> I introduced the new initialize-handler since psmouse->initialize() is
-> also used in psmouse-base.c. This is to prevent putting if-statements on
-> each place where the initialization-function for a certain protocol is
-> called in psmouse-base.c.
+On Tuesday 15 Feb 2005 16:16, Lorenzo Colitti wrote:
+[snip]
+>
+> Ok, here is the output from dmidecode (Debian package) and from lspci. I
+> don't have acpidmp and I don't know where to get it, but if you think
+> it's necessary I can download it if you tell me where to find it.
 
-It would be good idea if protocols were initialized in many difefrent
-places, but the all are called from one place - psmouse_extensions.
-Some protocols that can be detected without changing hardware state
-have 2 functions - detect and init and the others have ony detect
-which does initialization as well. But they all are called from the
-same place.
+Find below a diff of my dmidecode output versus Lorenzo's. Nothing much
+to call home about.
 
-psmouse_initialize has somewhat confising name, it is not "initialize
-protocol", it is "enable streaming and initialize common parameters,
-such as rate and resolution". Plus I think it is too late to do
-protocol init in psmouse_initialize as this will not allow falling
-back to "lesser" protocols if higher prtocol initialization fails.
+[alistair] 17:40 [~/dmidecode-2.5] diff -Nudr -U3 lorenzo dmiout
+--- lorenzo     2005-02-15 17:37:36.091770768 +0000
++++ dmiout      2005-02-15 17:40:08.801555352 +0000
+@@ -1,13 +1,13 @@
+ # dmidecode 2.5
+ SMBIOS 2.3 present.
+ 31 structures occupying 1354 bytes.
+-Table at 0x000FF2EB.
++Table at 0x000FA1EE.
+ Handle 0x0000
+        DMI type 0, 20 bytes.
+        BIOS Information
+                Vendor: Hewlett-Packard
+-               Version: 68BDD Ver. F.0F
+-               Release Date: 07/23/2004
++               Version: 68BDD Ver. F.11
++               Release Date: 11/22/2004
+                Address: 0xE0000
+                Runtime Size: 128 kB
+                ROM Size: 1024 kB
+@@ -37,10 +37,10 @@
+        DMI type 1, 25 bytes.
+        System Information
+                Manufacturer: Hewlett-Packard
+-               Product Name: HP Compaq nc6000 (DJ254A#ABB)
+-               Version: F.0F
+-               Serial Number: XXXXXXXXXX
+-               UUID: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
++               Product Name: HP Compaq nc6000 (PK522PS#UUF)
++               Version: F.11
++               Serial Number: <censored>
++               UUID: <censored>
+                Wake-up Type: Power Switch
+ Handle 0x0002
+        DMI type 2, 8 bytes.
+@@ -52,11 +52,11 @@
+ Handle 0x0003
+        DMI type 3, 13 bytes.
+        Chassis Information
+-               Manufacturer: Hewlett-Packard
++               Manufacturer: Hewlett-Packard
+                Type: Notebook
+                Lock: Not Present
+                Version: Not Specified
+-               Serial Number: XXXXXXXXXX
++               Serial Number: <censored>
+                Asset Tag:
+                Boot-up State: Safe
+                Power Supply State: Safe
+@@ -69,8 +69,8 @@
+                Type: Central Processor
+                Family: Pentium M
+                Manufacturer: Intel(R)
+-               ID: XX XX XX XX XX XX XX XX
+-               Signature: Type 0, Family 6, Model 9, Stepping 5
++               ID: D6 06 00 00 BF F9 E9 AF
++               Signature: Type 0, Family 6, Model 13, Stepping 6
+                Flags:
+                        FPU (Floating-point unit on-chip)
+                        VME (Virtual mode extension)
+@@ -93,13 +93,14 @@
+                        FXSR (Fast floating-point save and restore)
+                        SSE (Streaming SIMD extensions)
+                        SSE2 (Streaming SIMD extensions 2)
++                       SS (Self-snoop)
+                        TM (Thermal monitor supported)
+                        SBF (Signal break on FERR)
+-               Version: Intel(R) Pentium(R) M processor 1400MHz
++               Version: Intel(R) Pentium(R) M processor 1.60GHz
+                Voltage: 1.8 V
+                External Clock: 100 MHz
+-               Max Speed: 1400 MHz
+-               Current Speed: 1400 MHz
++               Max Speed: 1600 MHz
++               Current Speed: 1600 MHz
+                Status: Populated, Enabled
+                Upgrade: None
+                L1 Cache Handle: 0x0005
+@@ -131,8 +132,8 @@
+                Configuration: Enabled, Not Socketed, Level 2
+                Operational Mode: Write Back
+                Location: External
+-               Installed Size: 1024 KB
+-               Maximum Size: 1024 KB
++               Installed Size: 2048 KB
++               Maximum Size: 2048 KB
+                Supported SRAM Types:
+                        Burst
+                Installed SRAM Type: Burst
+@@ -194,7 +195,7 @@
+                Form Factor: SODIMM
+                Set: None
+                Locator: DIMM #1
+-               Bank Locator: 030B2C25
++               Bank Locator: 6605F934
+                Type: DDR
+                Type Detail: Synchronous
+                Speed: 142 MHz (7.0 ns)
+@@ -213,12 +214,12 @@
+                Form Factor: SODIMM
+                Set: None
+                Locator: DIMM #2
+-               Bank Locator: 051FD180
++               Bank Locator: 0322BB20
+                Type: DDR
+                Type Detail: Synchronous
+                Speed: 142 MHz (7.0 ns)
+                Manufacturer: Not Specified
+-               Serial Number: XXXXXXXXXXXX-XXXXX
++               Serial Number: <censored>
+                Asset Tag: Not Specified
+                Part Number: Not Specified
+ Handle 0x000E
+@@ -294,8 +295,8 @@
+        Portable Battery
+                Location: Primary
+                Manufacturer: Hewlett-Packard
+-               Manufacture Date: 12/12/2003
+-               Serial Number: 00001
++               Manufacture Date: 08/20/2004
++               Serial Number: 01726
+                Name: Not Specified
+                Chemistry: Lithium Ion
+                Design Capacity: 2700 mWh
+@@ -357,11 +358,11 @@
+        DMI type 133, 34 bytes.
+        OEM-specific Type
+                Header and Data:
+-                       85 22 85 00 01 30 11 1F 0D CE 0B 02 00 6E 00 15
+-                       00 24 30 B2 00 5C 2B 02 80 00 00 00 0D 10 13 10
+-                       05 10
++                       85 22 85 00 01 30 11 84 0E 84 0E 04 00 20 00 17
++                       00 C8 2F 91 F8 5C 2B 02 C0 00 00 00 F2 0F F7 0F
++                       DF 0F
+                Strings:
+-                       00001 12/12/2003
++                       01726 08/20/2004
+                        HP
+ Handle 0x0086
+        DMI type 126, 34 bytes.
 
-> I admit since I am also using a different reconnect-function than
-> psmouse-base it's not such a huge benefit but think of a new
-> protocol/device which uses the same reconnect-function as psmouse-base
-> but a different init-function.
-
-I am not sure what difference does it make - if there is no reconnect
-hamdler psmosue will end up calling psmouse_extensions which will
-re-initialize hardware with proper function for the protocol. It still
-does not require a handler in psmouse structure.
-
-> 
-> My goal was to have no dependency from psmouse-base to the
-> lifebook-handling (none but lifebook_detect()). Thus the indirection is
-> IMHO needed.
-
-You can hide all of it right in lifebook_detect or acknowledge that
-you have 2 fucntions and call them from psmouse-base, like synaptics
-and alps do. I don't think it exposes lbtouch internals too much.
+[root] 17:41 [/home/alistair/dmidecode-2.5] lspci
+00:00.0 Host bridge: Intel Corp. 82855PM Processor to I/O Controller (rev 03)
+00:01.0 PCI bridge: Intel Corp. 82855PM Processor to AGP Controller (rev 03)
+00:1d.0 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 03)
+00:1d.1 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 03)
+00:1d.2 USB Controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 03)
+00:1d.7 USB Controller: Intel Corp. 82801DB/DBM (ICH4/ICH4-M) USB2 EHCI Controller (rev 03)
+00:1e.0 PCI bridge: Intel Corp. 82801 Mobile PCI Bridge (rev 83)
+00:1f.0 ISA bridge: Intel Corp. 82801DBM (ICH4-M) LPC Interface Bridge (rev 03)
+00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4-M) IDE Controller (rev 03)
+00:1f.3 SMBus: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus Controller (rev 03)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 03)
+00:1f.6 Modem: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Modem Controller (rev 03)
+01:00.0 VGA compatible controller: ATI Technologies Inc RV350 [Mobility Radeon 9600 M10]
+02:04.0 Network controller: Intel Corp. PRO/Wireless 2200BG (rev 05)
+02:06.0 CardBus bridge: O2 Micro, Inc. OZ711M3 SmartCardBus MultiMediaBay Controller
+02:06.1 CardBus bridge: O2 Micro, Inc. OZ711M3 SmartCardBus MultiMediaBay Controller
+02:06.2 System peripheral: O2 Micro, Inc. OZ711Mx MultiMediaBay Accelerator
+02:06.3 CardBus bridge: O2 Micro, Inc. OZ711M3 SmartCardBus MultiMediaBay Controller
+02:0e.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5705M_2 Gigabit Ethernet (rev 03)
 
 -- 
-Dmitry
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

@@ -1,109 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbTFACDL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 22:03:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbTFACDL
+	id S261166AbTFACki (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 22:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTFACkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 22:03:11 -0400
-Received: from a11a.mannikko1.ton.tut.fi ([195.148.185.30]:65286 "EHLO
-	a11a.mannikko1.ton.tut.fi") by vger.kernel.org with ESMTP
-	id S261161AbTFACDJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 22:03:09 -0400
-Date: Sun, 1 Jun 2003 05:16:11 +0300
-From: Pasi Savolainen <pvsavola@luukku.com>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] amd76x_pm port to 2.5.70
-Message-ID: <20030601021611.GA13152@a11a.mannikko1.ton.tut.fi>
+	Sat, 31 May 2003 22:40:37 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:62041 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261166AbTFACkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 22:40:37 -0400
+Date: Sat, 31 May 2003 19:54:14 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Riesen <fork0@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-bk4+: oops by mc -v /proc/bus/pci/00/00.0
+Message-Id: <20030531195414.10c957b7.akpm@digeo.com>
+In-Reply-To: <20030531165523.GA18067@steel.home>
+References: <20030531165523.GA18067@steel.home>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030531214223.GA21788@suse.de>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Jun 2003 02:53:59.0633 (UTC) FILETIME=[0D0D1410:01C327E9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Riesen <fork0@users.sourceforge.net> wrote:
+>
+> MC (Midnight Commander 4.6.0 Gentoo) segfaults trying to mmap files
+>  under /proc/bus/pci.
 
-* Dave Jones <davej@codemonkey.org.uk>:
-> On Sat, May 31, 2003 at 09:33:21PM +0300, Pasi Savolainen wrote:
-> > +	/* Clear W4SG, and set PMIOEN, if using a 765/766 set STPGNT as well.
-> > +	 * AMD-766: C3A41; page 59 in AMD-766 doc
-> > +	 * AMD-768: DevB:3x41C; page 94 in AMD-768 doc */
-> > +	pci_read_config_byte(pdev_sb, 0x41, &regbyte);
-> > +	if(enable) {
-> > +		regbyte |= ((0 << 0) | (is_766?1:0 << 1) | (1 << 7));
->                          ^^^^^^
->  
-> This looks totally bogus. If you want that bit clearing, you need
-> to AND its inverse, not OR it.  The second statement also looks a
-> bit funny to the eye.
+Thanks.  This will fix it up.
 
-AFAICT, it's 'for future expansion', NMC. I'll trim it down. Either way,
-that enable seems to work, at least on my machine. As I don't know much
-about it, I can't say what's right/wrong.
-(I don't have the spec. Only code that does desired thing)
+It's pretty lame.  Really we need a proper vma constructor
+somewhere.
 
-> > +static void
-> > +amd76x_smp_idle(void)
-> > +{
-> > +	/*
-> > +	 * Exit idle mode immediately if the CPU does not change.
-> > +	 * Usually that means that we have some load on another CPU.
-> > +	 */
-> > +
-> > +	if (prs[0].idle && prs[1].idle && amd76x_pm_cfg.last_pr == smp_processor_id()) {
-> > +		prs[0].idle = 0;
-> > +		prs[1].idle = 0;
-> > +		/* This looks redundent as it was just checked in the if() */
-> > +		/* amd76x_pm_cfg.last_pr = smp_processor_id(); */
-> 
-> except with preemption, it may have changed. This needs to be fixed,
-> as noted in the function header. Either get_cpu(),put_cpu() or explicit
-> preempt_enable/disable()		
+diff -puN mm/mmap.c~pci-mmap-fix mm/mmap.c
+--- 25/mm/mmap.c~pci-mmap-fix	2003-05-31 19:49:20.000000000 -0700
++++ 25-akpm/mm/mmap.c	2003-05-31 19:49:35.000000000 -0700
+@@ -677,6 +677,7 @@ munmap_back:
+ 	vma->vm_pgoff = pgoff;
+ 	vma->vm_file = NULL;
+ 	vma->vm_private_data = NULL;
++	vma->vm_next = NULL;
+ 	INIT_LIST_HEAD(&vma->shared);
+ 
+ 	if (file) {
 
-This is idle loop, like we're not doing anything, and if somebody is to
-preempt us, then it sure means we're not supposed to idle.
+_
 
-Second point is (I'm _really_ on thin ground here..) that if we get_cpu()
-here, and other CPU is sleeping, then it'd be woken up sooner, for cache
-will need syncing.
-
-> > +/*
-> > + *    Info exported through "/proc/driver/amd76x_pm"
-> 
-> This should really be using sysfs. Adding extra junk to /proc is
-> somewhat frowned upon, and with the other PM stuff now living in
-> sysfs, that seems to be the way forward.
-
-done.
-
-> 
-> > +static void __exit
-> > +amd76x_pm_cleanup(void)
-> > +{
-> > +#ifndef AMD76X_NTH
-> > +	pm_idle = amd76x_pm_cfg.orig_idle;
-> > +	wmb();
-> > +	//__asm__ __volatile__ ("wbinvd;"); // propagate through SMP
-> 
-> Not sure why this was there, is it noted in the 766 spec to flush
-> the cache ? if so, it needs to be reenabled, and used with on_each_cpu()
-
-Zwane told me to use synchronize_kernel(); it cured my crashes on rmmod
-amd76x_pm. -> hack removed.
-
-> Sounds like possible candidate for something that should be exposed
-> via sysfs.
-
-done.
-
-Iteration n at
-<http://varg.dyndns.org/psi/files/misc/amd76x_pm-2.5.70.patch.bz2>
-
-/sys/devices/pci0/00:00.0/C2_cnt  (ro) number of C2 calls made.
-/sys/devices/pci0/00:00.0/lazy_idle (rw) number of successfull idle
- calls to be made before entering C2.
-
-
--- 
-   Psi -- <http://www.iki.fi/pasi.savolainen>

@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131144AbRBMWTT>; Tue, 13 Feb 2001 17:19:19 -0500
+	id <S130962AbRBMWSj>; Tue, 13 Feb 2001 17:18:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131273AbRBMWTJ>; Tue, 13 Feb 2001 17:19:09 -0500
-Received: from snowbird.megapath.net ([216.200.176.7]:21007 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S131144AbRBMWSz>;
-	Tue, 13 Feb 2001 17:18:55 -0500
-Subject: Re: Will the IBM OMNI printer driver be making its way into the
-	kernel tree?
-From: Miles Lane <miles@megapathdsl.net>
-To: timw@splhi.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010213140512.A8339@kochanski.internal.splhi.com>
-In-Reply-To: <auto-000013960967@megapathdsl.net> 
-	<20010213140512.A8339@kochanski.internal.splhi.com>
-Content-Type: text/plain
-X-Mailer: Evolution (0.8/+cvs.2001.02.13.10.24 - Preview Release)
-Date: 13 Feb 2001 14:18:43 -0800
-Mime-Version: 1.0
-Message-ID: <auto-000013965666@megapathdsl.net>
+	id <S131144AbRBMWST>; Tue, 13 Feb 2001 17:18:19 -0500
+Received: from colorfullife.com ([216.156.138.34]:32520 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130962AbRBMWSK>;
+	Tue, 13 Feb 2001 17:18:10 -0500
+Message-ID: <3A89B2A1.E188AF9A@colorfullife.com>
+Date: Tue, 13 Feb 2001 23:18:09 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+CC: Ingo Molnar <mingo@chiara.elte.hu>, Andrew Morton <andrewm@uow.edu.au>,
+        Frank de Lange <frank@unternet.org>,
+        Martin Josefsson <gandalf@wlug.westbo.se>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.1, 2.4.2-pre3: APIC lockups
+In-Reply-To: <Pine.GSO.3.96.1010213203553.1931A-100000@delta.ds2.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whoops.
+"Maciej W. Rozycki" wrote:
+> 
+> Hi,
+> 
+>  After performing various tests I came to the following workaround for
+> APIC lockups which people observe under IRQ load, mostly for networking
+> stuff.  I believe the test should work in all cases as it basically
+> implements a manual replacement for EOI messages.  In my simulated
+> environment I was unable to get a lockup with the code in place, even
+> though I was getting about every other level-triggered IRQ misdelivered.
+> 
+>  Please test it extensively, as much as you can, before I submit it for
+> inclusion.  If you ever get "Aieee!!!  Remote IRR still set after unlock!"
+> message, please report it to me immediately -- it means the code failed.
+>
+No messages.
 
-The reason I asked about inclusion is that printing is one of the areas
-that Linux seems to struggle in terms of usability and I thought perhaps
-it would make sense to modular print drivers in the kernel tree.  Since 
-the OMNI driver is ghostscript-based, including it in the kernel is
-obviously a bogus idea.  Sorry for missing the obvious.
+> There is also an additional debugging/statistics counter provided in
+> /proc/cpuinfo that counts interrupts which got delivered with its trigger
+> mode mismatched.  Check it out to find if you get any misdelivered
+> interrupts at all.
+> 
+I'm running my default webserver load test, and I get ~40 /second, 92735
+total.
 
-I do wonder if there are no print drivers that would make sense in the
-kernel tree.  After all, we have USB device drivers in the tree,
-including
-scanners, which aren't all that different from printers, are they?
+bw_tcp says 1.13 MB/sec, that's wire speed.
 
-I apologize in advance if I am just being incredibly stupid about this.
+tcpdump | grep 'sack ' doesn't show unusually many lost packets.
 
-    Miles
+Look promising.
 
+--
+	Manfred

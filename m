@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265871AbTL3RUv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 12:20:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265872AbTL3RUv
+	id S265855AbTL3R1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 12:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265859AbTL3R1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 12:20:51 -0500
-Received: from pool-64-223-239-211.port.east.verizon.net ([64.223.239.211]:28627
-	"EHLO evilbint.mylan") by vger.kernel.org with ESMTP
-	id S265871AbTL3RUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 12:20:50 -0500
-Date: Tue, 30 Dec 2003 12:20:47 -0500
-From: Greg Fitzgerald <gregf@bigtimegeeks.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: psmouse_proto=exps
-Message-ID: <20031230172046.GA7127@evilbint>
-References: <20031230042834.GA32087@evilbint> <200312292337.59371.dtor_core@ameritech.net>
+	Tue, 30 Dec 2003 12:27:24 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:10908 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S265855AbTL3R1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 12:27:23 -0500
+Date: Tue, 30 Dec 2003 09:27:17 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4] Is a negative rsect in /proc/partitions normal?
+Message-ID: <20031230172717.GT1882@matchmail.com>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org
+References: <20031230014429.GL1882@matchmail.com> <20031229191106.I6209@schatzie.adilger.int> <20031230024331.GN1882@matchmail.com> <Pine.LNX.4.58L.0312300958050.22101@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200312292337.59371.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.LNX.4.58L.0312300958050.22101@logos.cnet>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 30, 2003 at 09:58:19AM -0200, Marcelo Tosatti wrote:
+> 
+> 
+> > struct hd_struct in include/linux/genhd.h:61 has them all unsigned int.
+> >
+> > How's this patch look against 2.4.23?
+> 
+> Looks good, applied.
+> 
 
-Hey,
-
-	Changed my line in grub.conf and now it works perfect. Thanks a lot i been screwing with this for
-	a while now. I guess i overlooked that when i was reading the source for psmouse-base.c. Thanks again!
-
-	--Greg
+Great, thanks Marcelo!

@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVAVIyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbVAVJDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbVAVIyi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 03:54:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbVAVIyi
+	id S262684AbVAVJDS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 04:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbVAVJDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 03:54:38 -0500
-Received: from mailout.despammed.com ([65.112.71.29]:61666 "EHLO
-	mailout.despammed.com") by vger.kernel.org with ESMTP
-	id S262683AbVAVIyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 03:54:37 -0500
-Date: Sat, 22 Jan 2005 02:37:42 -0600 (CST)
-Message-Id: <200501220837.j0M8bgk22582@mailout.despammed.com>
-From: ndiamond@despammed.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: negative diskspace usage
-X-Mailer: despammed.com
+	Sat, 22 Jan 2005 04:03:17 -0500
+Received: from ozlabs.org ([203.10.76.45]:20611 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262684AbVAVJDN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 04:03:13 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16882.5835.468874.683779@cargo.ozlabs.ibm.com>
+Date: Sat, 22 Jan 2005 20:03:07 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH] PPC: fix stack alignment for signal handlers
+In-Reply-To: <200501220756.j0M7u06B021617@magilla.sf.frob.com>
+References: <200501220756.j0M7u06B021617@magilla.sf.frob.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wichert Akkerman wrote:
+Roland McGrath writes:
 
-> After cleaning up a bit df suddenly showed interesting results:
-> 
-> Filesystem            Size  Used Avail Use% Mounted on
-> /dev/md4             1019M  -64Z  1.1G 101% /tmp
-> 
-> Filesystem           1K-blocks      Used Available Use% Mounted on
-> /dev/md4               1043168 -73786976294838127736   1068904 101% /tmp
+> For PPC32 signal handlers, while the frame itself was of properly aligned
+> size, no alignment of the starting stack pointer was done at all, so that a
+> signal handler can still get a misaligned stack pointer if the interrupted
+> registers had one, though the kernel isn't gratuitously misaligning good
+> ones like it is for PPC64.  I added explicit alignment to fix that.
 
-It looks like Windows 95's FDISK
-command created the partitions.
-After that it doesn't matter which
-operating systems you connect the
-drive to when formatting the
-partitions and writing files and
-cleaning whatever you want to clean.
-The partition boundaries still remain
-where Windows 95 put them, and you
-have overlapping partitions.
+This part is unnecessary, because arch/ppc/kernel/signal.c:do_signal()
+already aligns the stack pointer to a 16-byte boundary:
 
-After backing up whatever files you
-can still access (and don't trust
-the contents of the files either),
-zero out the MBR and start over.
+        if ((ka.sa.sa_flags & SA_ONSTACK) && current->sas_ss_size
+            && !on_sig_stack(regs->gpr[1]))
+                newsp = current->sas_ss_sp + current->sas_ss_size;
+        else
+                newsp = regs->gpr[1];
+        newsp &= ~0xfUL;
+
+        /* Whee!  Actually deliver the signal.  */
+        if (ka.sa.sa_flags & SA_SIGINFO)
+                handle_rt_signal(signr, &ka, &info, oldset, regs, newsp);
+        else
+                handle_signal(signr, &ka, &info, oldset, regs, newsp);
+
+The additions to arch/ppc64/kernel/signal32.c are likewise
+unnecessary, because do_signal32() also does newsp &= ~0xfUL (in fact
+the code there is very similar to the ppc32 code).
+
+You are correct about the 64-bit case though.  I thought we had fixed
+that but evidently not.  Your patch looks fine as far as
+arch/ppc64/kernel/signal.c is concerned.
+
+Regards,
+Paul.

@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267260AbTGOLqL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 07:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267274AbTGOLqL
+	id S267275AbTGOLs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 07:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267300AbTGOLs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 07:46:11 -0400
-Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:2754 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S267260AbTGOLqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 07:46:08 -0400
-Subject: Re: sizeof (siginfo_t) problem
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF688246EA.0B58B996-ONC1256D64.00411F64-C1256D64.0041CE23@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Tue, 15 Jul 2003 13:58:46 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 15/07/2003 13:59:47
+	Tue, 15 Jul 2003 07:48:26 -0400
+Received: from mailb.telia.com ([194.22.194.6]:61890 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id S267275AbTGOLsV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 07:48:21 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, ajoshi@kernel.crashing.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: radeonfb patch for 2.4.22...
+References: <Pine.LNX.4.10.10307141315170.28093-100000@gate.crashing.org>
+	<Pine.LNX.4.55L.0307141533330.8994@freak.distro.conectiva>
+	<1058255052.620.2.camel@gaston>
+From: Peter Osterlund <petero2@telia.com>
+Date: 15 Jul 2003 14:02:42 +0200
+In-Reply-To: <1058255052.620.2.camel@gaston>
+Message-ID: <m2ptkcknfh.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-> This means it does not work on any kernels so far, if we don't add a pad
-> to the kernel and just fix __ARCH_SI_PREAMBLE_SIZE on s390x, then GCC
-> will suddenly work with all newer kernels but will never work with older
-> kernels.
+> > >
+> > > Which is what the original 0.1.8 patch included, his fixes were included.
+> > 
+> > Ah really? I though that his changes were not merged in your 0.1.8 patch.
+> > 
+> > So can I just revert his patch and accept your instead that all of his
+> > stuff is in ? Whoaa, great.
+> 
+> No. 0.1.8 lacks a lot of my stuffs
 
-This is a kernel bug and I'm inclined to say that this has to be fixed in
-the kernel and only there. If it didn't work at all so far nobody will
-complain that it suddenly works with the kernel fix. It is an ABI change
-but for an ABI that didn't work so far. I don't see a problem with the
-simple fix to use __ARCH_SI_PREAMBLE_SIZE (4 * sizeof(int)) for s390x.
+I have a small problem with radeonfb in 2.4.22-pre5 (+manually created
+radeonfb.h file). During boot, when the console is switched over to
+the frame buffer device, the screen becomes corrupted. Mostly by white
+squares in a grid pattern and some squares with other colors. Between
+the squares, normal characters can be seen, but each character is
+duplicated. Here is a picture: (not very sharp unfortunately)
 
-blue skies,
-   Martin
+        http://w1.894.telia.com/~u89404340/radeonfb.jpg 
 
+Text added after the switch is not corrupted, so eventually the
+corruption is scrolled off the screen and after that the framebuffer
+appears to be working correctly.
 
+2.4.22-pre3 does not have this problem. I haven't found a patch for
+the vanilla 0.1.8 version, so I don't know if that version also has
+this problem. I think someone has reported a similar problem in 2.5.x,
+but I don't remember the details.
+
+Here are some messages from the kernel log:
+
+Jul 14 23:08:44 best kernel: radeonfb: ref_clk=2700, ref_div=12, xclk=18300 from BIOS
+Jul 14 23:08:44 best kernel: radeonfb: panel ID string: Samsung LTN150P1-L02    
+Jul 14 23:08:44 best kernel: radeonfb: detected LCD panel size from BIOS: 1400x1050
+Jul 14 23:08:44 best kernel: Console: switching to colour frame buffer device 175x65
+Jul 14 23:08:44 best kernel: radeonfb: ATI Radeon M7 LW DDR SGRAM 64 MB
+Jul 14 23:08:44 best kernel: radeonfb: DVI port LCD monitor connected
+Jul 14 23:08:44 best kernel: radeonfb: CRT port no monitor connected
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265715AbSJTAcq>; Sat, 19 Oct 2002 20:32:46 -0400
+	id <S265719AbSJTAhK>; Sat, 19 Oct 2002 20:37:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265717AbSJTAcp>; Sat, 19 Oct 2002 20:32:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:9902 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265715AbSJTAco>;
-	Sat, 19 Oct 2002 20:32:44 -0400
-Date: Sun, 20 Oct 2002 02:38:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Jan Dittmer <jan@jandittmer.de>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: Oops on boot with TCQ enabled (VIA KT133A)
-Message-ID: <20021020003834.GJ871@suse.de>
-References: <200210190241.49618.jan@jandittmer.de> <20021019091518.GG871@suse.de> <20021019222403.B3018@ucw.cz> <20021019230434.A800@ucw.cz>
-Mime-Version: 1.0
+	id <S265721AbSJTAhK>; Sat, 19 Oct 2002 20:37:10 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:14092
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S265719AbSJTAhK>; Sat, 19 Oct 2002 20:37:10 -0400
+Date: Sat, 19 Oct 2002 17:41:03 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Brian Gerst <bgerst@quark.didntduck.org>
+cc: Christian Borntraeger <linux@borntraeger.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
+In-Reply-To: <3DB1F55E.2060501@quark.didntduck.org>
+Message-ID: <Pine.LNX.4.10.10210191738160.24031-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021019230434.A800@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19 2002, Vojtech Pavlik wrote:
-> On Sat, Oct 19, 2002 at 10:24:03PM +0200, Vojtech Pavlik wrote:
-> 
-> > > It's not an oops, and it's not causes by TCQ either. The above is simply
-> > > a reminder to fix the ide init sequence, because it's probe sequence
-> > > tries to use drive->disk before it has been set up. That is worked
-> > > around, but stack is dumped for good measure. So you can feel
-> > > comfortable using 2.5.44 regardless.
-> > > 
-> > > But I'm curious about TCQ on your system, since another VIA user
-> > > reported problems. Does it appear to work for you?
-> > 
-> > It definitely works on my VIA just fine.
-> 
-> Famous last words. I tried to play with the /proc using_tcq setting and
-> got a filesystem corruption immediately.
+On Sat, 19 Oct 2002, Brian Gerst wrote:
 
-There _may_ be issues with changing depth on the fly. So if you could
-just test without fiddling with changing depths that would be great.
+> > Asking me to make it so you or anyone else can bypass
+> > copy-content-protection is out of the question.  If you do not ask the
+> > device to do bad things, then it will not do bad things back at you.
+> 
+> Nobody asked you to bypass the protection, only to sanely error out when 
+> it is found.  Refusing to read the disk is ok, but allowing the system 
+> to crash is not.
 
--- 
-Jens Axboe
+I thought I specified what was need to decode the issue, maybe since there
+are two multiple threads now I have lost track of which one I am
+responding.  Thus I will repeat in this thread.
+
+True, however since I suspect the device was attempting to thwart and
+crash the system, until a trace of the sense data returns from the device
+and the re-action of the kernel to those target responses, not much can be
+done to prevent such a crash.
+
+Cheers,
+
+
+Andre Hedrick
+LAD Storage Consulting Group
+
 

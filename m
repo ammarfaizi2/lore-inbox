@@ -1,28 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310256AbSCAALv>; Thu, 28 Feb 2002 19:11:51 -0500
+	id <S310305AbSCABsC>; Thu, 28 Feb 2002 20:48:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310254AbSCAAJg>; Thu, 28 Feb 2002 19:09:36 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18704 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310237AbSCAAH6>; Thu, 28 Feb 2002 19:07:58 -0500
-Subject: Re: Kernel module ethics.
-To: rthrapp@sbcglobal.net (Richard Thrapp)
-Date: Fri, 1 Mar 2002 00:22:08 +0000 (GMT)
-Cc: J.A.K.Mouw@its.tudelft.nl (Erik Mouw), lachinois@hotmail.com (Allo! Allo!),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <1014868787.3565.127.camel@wizard> from "Richard Thrapp" at Feb 27, 2002 09:59:46 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310231AbSCABqI>; Thu, 28 Feb 2002 20:46:08 -0500
+Received: from [63.204.6.12] ([63.204.6.12]:1942 "EHLO mail.somanetworks.com")
+	by vger.kernel.org with ESMTP id <S310314AbSCABlP>;
+	Thu, 28 Feb 2002 20:41:15 -0500
+Date: Thu, 28 Feb 2002 20:40:54 -0500 (EST)
+From: "Scott Murray" <scottm@somanetworks.com>
+X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
+To: Hua Zhong <hzhong@cisco.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: question about running program from a RAM disk
+In-Reply-To: <01bc01c1c0a6$a3c315e0$bb3147ab@amer.cisco.com>
+Message-ID: <Pine.LNX.4.33.0202282035100.10239-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gaoK-0001gQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anyway, you're not distributing your kernel with your module linked in,
-> so you're not distributing a derivative of a GPLed program, so by my
-> understanding section 2b doesn't apply.  Comments?
+On Thu, 28 Feb 2002, Hua Zhong wrote:
 
-Look up "derivative work". Its nothing to do with programmer think
+> In the final system we are going to turn off swap. I had dreamed that Linux
+> could directly use the page frame on the RAM disk instead of doing another
+> copy :-)
+
+Both ramfs and tmpfs do what you're asking for.  If you are booting
+from an initial ramdisk, it's possible to copy the contents of your
+ramdisk into a ramfs or tmpfs filesystem at boot time, change roots
+with the pivot_root utility, and then throw away the ramdisk.  See
+Documentation/initrd.txt for more information on this.
+
+Scott
+
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
+
+

@@ -1,71 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVARSey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVARShN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVARSey (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 13:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVARSey
+	id S261382AbVARShN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 13:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVARShM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 13:34:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32150 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261379AbVARSeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 13:34:44 -0500
-Message-ID: <41ED56B5.8000603@pobox.com>
-Date: Tue, 18 Jan 2005 13:34:29 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Martins Krikis <mkrikis@yahoo.com>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: iswraid and 2.4.x?
-References: <20050118172816.21090.qmail@web30208.mail.mud.yahoo.com> <41ED51C3.6030004@pobox.com> <20050118151359.GB27635@logos.cnet>
-In-Reply-To: <20050118151359.GB27635@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jan 2005 13:37:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4547 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261384AbVARSgp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 13:36:45 -0500
+Date: Tue, 18 Jan 2005 10:36:33 -0800
+From: Greg KH <greg@kroah.com>
+To: long <tlnguyen@snoqualmie.dp.intel.com>
+Cc: linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
+Subject: Re: [PATCH] PCI: add PCI Express Port Bus Driver subsystem
+Message-ID: <20050118183633.GA13783@kroah.com>
+References: <200501181928.j0IJSvVv023915@snoqualmie.dp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501181928.j0IJSvVv023915@snoqualmie.dp.intel.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> On Tue, Jan 18, 2005 at 01:13:23PM -0500, Jeff Garzik wrote:
+On Tue, Jan 18, 2005 at 11:28:57AM -0800, long wrote:
+> On Mon, 17 Jan 2005 15:49:08 -0800 Greg KH wrote:
+> > > +int pcie_port_device_register(struct pci_dev *dev)
+> > > +{
+> > > +	struct pcie_device *parent;
+> > > +	int status, type, capabilities, irq_mode, i;
+> > > +	int vectors[PCIE_PORT_DEVICE_MAXSERVICES];
+> > > +	u16 reg16;
+> > > +
+> > > +	/* Get port type */
+> > > +	pci_read_config_word(dev, 
+> > > +		pci_find_capability(dev, PCI_CAP_ID_EXP) + 
+> > > +		PCIE_CAPABILITIES_REG, &reg16);
+> > > +	type = (reg16 >> 4) & PORT_TYPE_MASK;
+> > > +
+> > > +	/* Now get port services */
+> > > +	capabilities = get_port_device_capability(dev);
+> > > +	irq_mode = assign_interrupt_mode(dev, vectors, capabilities);
+> > > +
+> > > +	/* Allocate parent */
+> > > +	parent = alloc_pcie_device(NULL, dev, type, 0, dev->irq, irq_mode);
+> > > +	if (!parent) 
+> > > +		return -ENOMEM;
+> > > +	
+> > > +	status = device_register(&parent->device);
+> > > +	if (status) {
+> > > +		kfree(parent);
+> > > +		return status;
+> > > +	}
+> >
+> >
+> > This puts all of the pcie "port" structures in /sys/devices/  Shouldn't
+> > you make the parent of the device you create point to the pci_dev
+> > structure that's passed into this function?  That would make the sysfs
+> > tree a lot saner I think.
 > 
->>Martins Krikis wrote:
->>
->>>--- Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->>>
->>>
->>>
->>>>It seems the general consensus is to merge iswraid, so I'm fine with
->>>>it.
->>>>
->>>>Martins, we are approaching -rc stage, I would prefer the merge to
->>>>happen 
->>>>at the beginning of 2.4.29-pre. Is that fine for you?
->>>
->>>
->>>Marcelo,
->>>
->>>I seemed to have missed the 2.4.29-pre stages, unfortunately.
->>>Are you planning on a 2.4.30, too? I'd still love to get
->>>iswraid accepted in the 2.4 tree eventually...
->>>
->>>The version that's out on SourceForge right now would be alright
->>>as is with the 2.4.29-x kernels, if that's any help. In about a
->>>week I'm planning to have a new version that adds RAID10 support
->>>for the ICH7R-based machines. Please let me know what my options
->>>are (if any) regarding getting iswraid in 2.4.
->>
->>I ACK getting this into 2.4, as well...
-> 
-> 
-> OK, can you please review if for 2.4.30-pre Jeff ? 
+> The patch makes the parent of the device point to the pci_dev structure
+> that is passed into this function. If you think it is cleaner that the
+> patch should not, I will update the patch to reflect your input.
 
-Check your inbox from months ago ;-)  AFAICS his current version 
-addresses all the comments from Alan and myself, from when it hit lkml 6 
-months(?) ago...
+That would be great, but it doesn't show up that way on my box.  All of
+the portX devices are in /sys/devices/ which is what I don't think you
+want.  I would love for them to have the parent of the pci_dev structure
+:)
 
-I'll give it another quick lookover though, sure.
+thanks,
 
-	Jeff
-
-
+greg k-h

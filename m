@@ -1,242 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267425AbTAQIOs>; Fri, 17 Jan 2003 03:14:48 -0500
+	id <S267427AbTAQIbs>; Fri, 17 Jan 2003 03:31:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267426AbTAQIOs>; Fri, 17 Jan 2003 03:14:48 -0500
-Received: from packet.digeo.com ([12.110.80.53]:10727 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267425AbTAQIOp>;
-	Fri, 17 Jan 2003 03:14:45 -0500
-Date: Fri, 17 Jan 2003 00:24:51 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: 2.5.59-mm1
-Message-Id: <20030117002451.69f1eda1.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267429AbTAQIbs>; Fri, 17 Jan 2003 03:31:48 -0500
+Received: from holomorphy.com ([66.224.33.161]:14741 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267427AbTAQIbr>;
+	Fri, 17 Jan 2003 03:31:47 -0500
+Date: Fri, 17 Jan 2003 00:40:37 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: remove will_become_orphaned_pgrp()
+Message-ID: <20030117084037.GC940@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	akpm@zip.com.au, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Jan 2003 08:23:36.0904 (UTC) FILETIME=[BB74E480:01C2BE01]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm1/
-
-I've stripped these patches down to just those things which seriously should
-go into Linus's tree.
-
-I'm mainly interested in gathering bugfixes across the rest of this month,
-but if people have more substantial things which are clearly 2.6 material and
-need some testing then OK.
-
-
-
-Changes since 2.5.58-mm1:
-
-
--deadline-np.patch
--saner-readahead.patch
--ext3-leak-fix.patch
--hugetlbfs-read-write.patch
--ext3-ino_t-cleanup.patch
-
- Merged
-
--rcf.patch
-
- run-child-first didn't seem to help anything, and an alarming number of
- cleanups and fixes were needed to get it working right.  Later.
-
--cputimes_stat.patch
-
- Not to Linus's taste.
-
--smaller-head-arrays.patch
-
- This was just for trolling Manfred.
-
-+deadline-np-42.patch
-+deadline-np-43.patch
-
- I/O scheduler changes from Nick.
-
--ptrace-flush.patch
-
- Wasn't a serious patch anyway
-
--rcu-stats.patch
-
- Not sure we need this.
-
-+ext3-scheduling-storm.patch
-
- Fix the bug wherein ext3 sometimes shows blips of 100k context
- switches/sec.
-
--ext3-fsync-speedup.patch
-
- Haven't tested this yet.
-
--lockless-current_kernel_time.patch
-
- Is ia32-only.
-
--honour-vm_reserved.patch
-
- Unnecessary
-
-+mixer-bounds-check.patch
-
- sound/oss/sb_mixer.c fixlets
-
-+kirq.patch
-
- Nitin Kamble's rework of the ia32 SMP interrupt distribution logic.
-
-+ext3-truncate-ordered-pages.patch
-
- Free truncated pages earlier from ext3 - should fix the strange "cannot
- fork" thing which Con reports.
-
-+read_cache_pages-cleanup.patch
-+remove-GFP_HIGHIO.patch
-
- Cleanups.
-
--wli-02_do_sak.patch
--wli-03_proc_super.patch
--wli-06_uml_get_task.patch
--wli-07_numaq_mem_map.patch
--wli-08_numaq_pgdat.patch
--wli-09_has_stopped_jobs.patch
--wli-10_inode_wait.patch
--wli-13_rmap_nrpte.patch
-
- Not convinced about these.
-
--dcache_rcu-2.patch
--dcache_rcu-3.patch
-
- Looks like nothing is happening here until Mr Viro returns.
-
--page-walk-api.patch
--page-walk-api-2.5.53-mm2-update.patch
--page-walk-scsi.patch
--page-walk-scsi-2.5.53-mm2.patch
-
- This is 2.7 material.
-
-+stack-overflow-fix.patch
-
- Fix thinko in the ia32 stack overflow checker.
-
-+Richard_Henderson_for_President.patch
-
- It's all right for him - he lives in Australia.
-
-+parenthesise-pgd_index.patch
-+macro-double-eval-fix.patch
-+mmzone-parens.patch
-+blkdev-fixes.patch
-
- Header file safety.
-
-
-
-All 34 patches:
-
-kgdb.patch
-
-devfs-fix.patch
-
-deadline-np-42.patch
-  (undescribed patch)
-
-deadline-np-43.patch
-  (undescribed patch)
-
-setuid-exec-no-lock_kernel.patch
-  remove lock_kernel() from exec of setuid apps
-
-buffer-debug.patch
-  buffer.c debugging
-
-warn-null-wakeup.patch
-
-reiserfs-readpages.patch
-  reiserfs v3 readpages support
-
-fadvise.patch
-  implement posix_fadvise64()
-
-ext3-scheduling-storm.patch
-  ext3: fix scheduling storm and lockups
-
-auto-unplug.patch
-  self-unplugging request queues
-
-less-unplugging.patch
-  Remove most of the blk_run_queues() calls
-
-scheduler-tunables.patch
-  scheduler tunables
-
-htlb-2.patch
-  hugetlb: fix MAP_FIXED handling
-
-mixer-bounds-check.patch
-  OSS ioctl bounds checking fix
-
-kirq.patch
-
-ext3-truncate-ordered-pages.patch
-  ext3: explicitly free truncated pages
-
-prune-icache-stats.patch
-  add stats for page reclaim via inode freeing
-
-vma-file-merge.patch
-
-mmap-whitespace.patch
-
-read_cache_pages-cleanup.patch
-  cleanup in read_cache_pages()
-
-remove-GFP_HIGHIO.patch
-  remove __GFP_HIGHIO
-
-quota-lockfix.patch
-  quota locking fix
-
-quota-offsem.patch
-  quota semaphore fix
-
-oprofile-p4.patch
-
-op4-fix.patch
-
-wli-11_pgd_ctor.patch
-  (undescribed patch)
-
-wli-11_pgd_ctor-update.patch
-  pgd_ctor update
-
-stack-overflow-fix.patch
-  stack overflow checking fix
-
-Richard_Henderson_for_President.patch
-  Subject: [PATCH] Richard Henderson for President!
-
-parenthesise-pgd_index.patch
-  Subject: i386 pgd_index() doesn't parenthesize its arg
-
-macro-double-eval-fix.patch
-  Subject: Re: i386 pgd_index() doesn't parenthesize its arg
-
-mmzone-parens.patch
-  asm-i386/mmzone.h macro paren/eval fixes
-
-blkdev-fixes.patch
-  blkdev.h fixes
-
-
+will_become_orphaned_pgrp()'s sole use is is_orphaned_pgrp(). Fold its
+body into is_orphaned_pgrp(), rename __will_become_orphaned_pgrp(), and
+adjust callers. Code shrinkage plus some relief from underscore-itis.
+
+
+$ diffstat ~/patches/orphan-2.5.59 
+ exit.c |   15 +++++----------
+ 1 files changed, 5 insertions(+), 10 deletions(-)
+
+===== kernel/exit.c 1.80 vs edited =====
+--- 1.80/kernel/exit.c	Mon Jan 13 23:56:41 2003
++++ edited/kernel/exit.c	Fri Jan 17 00:28:18 2003
+@@ -156,7 +156,7 @@
+  *
+  * "I ask you, have you ever known what it is to be an orphan?"
+  */
+-static int __will_become_orphaned_pgrp(int pgrp, task_t *ignored_task)
++static int will_become_orphaned_pgrp(int pgrp, task_t *ignored_task)
+ {
+ 	struct task_struct *p;
+ 	struct list_head *l;
+@@ -177,22 +177,17 @@
+ 	return ret;	/* (sighing) "Often!" */
+ }
+ 
+-static int will_become_orphaned_pgrp(int pgrp, struct task_struct * ignored_task)
++int is_orphaned_pgrp(int pgrp)
+ {
+ 	int retval;
+ 
+ 	read_lock(&tasklist_lock);
+-	retval = __will_become_orphaned_pgrp(pgrp, ignored_task);
++	retval = will_become_orphaned_pgrp(pgrp, NULL);
+ 	read_unlock(&tasklist_lock);
+ 
+ 	return retval;
+ }
+ 
+-int is_orphaned_pgrp(int pgrp)
+-{
+-	return will_become_orphaned_pgrp(pgrp, 0);
+-}
+-
+ static inline int has_stopped_jobs(int pgrp)
+ {
+ 	int retval = 0;
+@@ -495,7 +490,7 @@
+ 	    (p->session == father->session)) {
+ 		int pgrp = p->pgrp;
+ 
+-		if (__will_become_orphaned_pgrp(pgrp, 0) && has_stopped_jobs(pgrp)) {
++		if (will_become_orphaned_pgrp(pgrp, NULL) && has_stopped_jobs(pgrp)) {
+ 			__kill_pg_info(SIGHUP, (void *)1, pgrp);
+ 			__kill_pg_info(SIGCONT, (void *)1, pgrp);
+ 		}
+@@ -579,7 +574,7 @@
+ 	
+ 	if ((t->pgrp != current->pgrp) &&
+ 	    (t->session == current->session) &&
+-	    __will_become_orphaned_pgrp(current->pgrp, current) &&
++	    will_become_orphaned_pgrp(current->pgrp, current) &&
+ 	    has_stopped_jobs(current->pgrp)) {
+ 		__kill_pg_info(SIGHUP, (void *)1, current->pgrp);
+ 		__kill_pg_info(SIGCONT, (void *)1, current->pgrp);

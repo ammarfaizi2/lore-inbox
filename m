@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266509AbUGPJb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266502AbUGPJwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266509AbUGPJb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 05:31:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266502AbUGPJbf
+	id S266502AbUGPJwb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 05:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUGPJwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 05:31:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31968 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266509AbUGPJ37 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 05:29:59 -0400
-Date: Fri, 16 Jul 2004 05:29:23 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Eirik Nordbroden <eirik.nordbroden@morecom.no>
-Cc: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: Question on Linux and SCHED_FIFO scheduling for POSIX threads
-Message-ID: <20040716092923.GO21264@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <40FB8221D224C44393B0549DDB7A5CE8378C37@tor.lokal.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Jul 2004 05:52:31 -0400
+Received: from out012pub.verizon.net ([206.46.170.137]:6850 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S266502AbUGPJw3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 05:52:29 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Organization: Organization: undetectable
+To: <linux-kernel@vger.kernel.org>
+Subject: New mobo question
+Date: Fri, 16 Jul 2004 05:52:27 -0400
+User-Agent: KMail/1.6
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <40FB8221D224C44393B0549DDB7A5CE8378C37@tor.lokal.lan>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407160552.27074.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [141.153.127.68] at Fri, 16 Jul 2004 04:52:28 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 16, 2004 at 11:11:54AM +0200, Eirik Nordbr?den wrote:
-> Can anybody clarify how SCHED_FIFO scheduling and thread priorities works
-> on Linux? We are novices in this field in the Linux environment and needs
-> help to understand how it works. To verify the behaviour we made up a
-> small test program consisting of four threads and a mutex. We have run the
-> program on both the 2.6.5 and 2.6.7 kernels with same behaviour.
-> 
-> Program:
-> 
-> T-MAIN: scheduling policy=SCHED_FIFO, priority=1
-> T-LP:   scheduling policy=SCHED_FIFO, priority=10
-> T-MP:   scheduling policy=SCHED_FIFO, priority=20
-> T-HP:   scheduling policy=SCHED_FIFO, priority=30
-> 
-> The program runs like this:
-> 
-> T-MAIN locks mutex => T-MAIN runs.
-> T-MAIN creates T-LP => T-LP runs.
-> T-LP waits for mutex => T-MAIN runs.
-> T-MAIN creates T-MP => T-MP runs.
-> T-MP waits for mutex => T-MAIN runs.
-> T-MAIN creates T-HP => T-HP runs.
-> T-HP waits for mutex => T-MAIN runs.
-> T-MAIN waits 3 seconds and unlocks mutex => T-LP runs.
-> T-LP waits 3 seconds and unlocks mutex => T-MP runs.
-> T-MP waits 3 seconds and unlocks mutex => T-HP runs.
-> :
-> :
-> 
-> For us this is unexpected behaviour. We would expect that the thread with
-> the highest priority would be scheduled to run when a number of threads is
-> waiting for a mutex and the mutex is unlocked. Can anyone clarify this?
-> Have we missed something?
+Greetings;
 
-NPTL locking is implemented on top of futex(2).
-futex(2) queues are ATM FIFOs, not priority based queues.
-Check http://developer.osdl.org/dev/robustmutexes/
-for some patches which introduce priority based queues for futexes (well,
-AFAIK they introduce new syscalls and call the primitive fusyn instead).
+I've ordered a new mobo as I'm having what appears to be data bus 
+problems with this one after a rather spectacular failure of a 
+gforce2 video card, memtest86 says I have a lot of errors where 
+00000020 was written, but 00000000 came back, at semi-random 
+locations scattered thoughout half a gig of dimms running at half 
+their rated DDR266 speed.  The last nibble of the address is always 
+zero, and the next nibble is always even.
 
-	Jakub
+The new mobo is nforce2 based, a Biostar M7NCD-PRO, and will have a 
+gig of memory.
+
+Is there a way to prebuild a kernel that will run on both boards?, 
+this older board is a VIA82686/VIA8233 based board, a Biostar M7VIB.
+
+I don't run an initrd normally.
+
+-- 
+Cheers, Gene
+There are 4 boxes to be used in defense of liberty. 
+Soap, ballot, jury, and ammo.
+Please use in that order, starting now.  -Ed Howdershelt, Author
+Additions to this message made by Gene Heskett are Copyright 2004, 
+Maurice E. Heskett, all rights reserved.

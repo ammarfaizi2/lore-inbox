@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262692AbSJTOZU>; Sun, 20 Oct 2002 10:25:20 -0400
+	id <S262780AbSJTObO>; Sun, 20 Oct 2002 10:31:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262708AbSJTOZU>; Sun, 20 Oct 2002 10:25:20 -0400
-Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:60137 "EHLO
-	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262692AbSJTOZS>; Sun, 20 Oct 2002 10:25:18 -0400
-Date: Sun, 20 Oct 2002 12:31:07 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Con Kolivas <conman@kolivas.net>
-cc: Jim Houston <jim.houston@attbi.com>, <linux-kernel@vger.kernel.org>,
-       <mingo@elte.hu>, <andrea@suse.de>, <jim.houston@ccur.com>,
-       <akpm@digeo.com>
-Subject: Re: [PATCH] Re: Pathological case identified from contest
-In-Reply-To: <200210201733.44683.conman@kolivas.net>
-Message-ID: <Pine.LNX.4.44L.0210201230070.22993-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262784AbSJTObO>; Sun, 20 Oct 2002 10:31:14 -0400
+Received: from faui80.informatik.uni-erlangen.de ([131.188.38.1]:6652 "EHLO
+	faui80.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S262780AbSJTObN>; Sun, 20 Oct 2002 10:31:13 -0400
+From: Richard Zidlicky <rdzidlic@immd8.informatik.uni-erlangen.de>
+Date: Sun, 20 Oct 2002 16:37:16 +0200 (MEST)
+Message-Id: <200210201437.g9KEbGk00427@faui8s7.informatik.uni-erlangen.de>
+To: axboe@suse.de, phillips@arcor.de
+Subject: Re: 2.4 mm trouble [possible lru race]
+Cc: riel@conectiva.com.br, zippel@linux-m68k.org,
+       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org
+X-Sun-Charset: US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Oct 2002, Con Kolivas wrote:
+> 
+> On Tuesday 01 October 2002 20:04, Jens Axboe wrote:
+> > On Tue, Oct 01 2002, Daniel Phillips wrote:
+> > > On Tuesday 01 October 2002 19:31, Jens Axboe wrote:
+> > > > Again, m68k was the target.
+> > > 
+> > > Sure fine, no good reason to be cryptic about it though.
+> > > 
+> > >    #error "m68k doesn't do SMP yet"
+> > > 
+> > > So SMP must be off or the compile would abort.  Well, the only interesting
+> > 
+> > There's no CONFIG_SMP in the m68k arch config.in. Anyways, enough
+> > beating of dead horse :)
+> 
+> The horse isn't dead yet, it's still twitching a little.  At this
+> point we still need to speculate about wny anyone would want an SMP
+> Dragonball machine ;-)
 
-> The rest of the results were otherwise similar. It seems your patch
-> served to disadvantage kernel compilation in preference for more of the
-> background load.
+not on Dragonball but there were many 68040 SMP systems around long 
+before Intel had anything SMP capable. In the late 80'ies those were 
+considered real number crunchers :)
 
-Probably a priority inheritance thing between parent and child
-processes, this should be easily fixable to be fairer (if it
-isn't already fairest with Jim's patch).
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+Richard
 

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbTDKUSY (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbTDKUSX (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 16:18:23 -0400
-Received: from mail.mediaways.net ([193.189.224.113]:52127 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP id S261705AbTDKUST (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 16:18:19 -0400
-Subject: Re: 2.4.21pre6 (__ide_dma_test_irq) called while not waiting
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1049885242.9897.7.camel@dhcp22.swansea.linux.org.uk>
-References: <1049879881.2774.40.camel@fortknox>
-	 <1049885242.9897.7.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050092626.2333.109.camel@fortknox>
-Mime-Version: 1.0
-Date: 11 Apr 2003 22:23:47 +0200
-Content-Transfer-Encoding: 7bit
+	id S261717AbTDKUUz (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTDKUUz (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 16:20:55 -0400
+Received: from windsormachine.com ([206.48.122.28]:26116 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S261754AbTDKUUy (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:20:54 -0400
+Date: Fri, 11 Apr 2003 16:32:06 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Chris Hanson <cph@zurich.ai.mit.edu>
+cc: John Bradford <john@grabjohn.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       <linux-kernel@vger.kernel.org>,
+       <linux-hotplug-devel@lists.sourceforge.net>
+Subject: Re: [ANNOUNCE] udev 0.1 release
+In-Reply-To: <E19453q-0004gk-00@nuwen.ai.mit.edu>
+Message-ID: <Pine.LNX.4.33.0304111628160.14943-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-09 at 12:47, Alan Cox wrote:
-> On Mer, 2003-04-09 at 10:18, Soeren Sonnenburg wrote:
-> > hdi: 4 bytes in FIFO
-> > hdi: timeout waiting for DMA
-> > hdi: (__ide_dma_test_irq) called while not waiting
-> > hdi: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
-> > 
-> > hdk: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
-> 
-> This looks like a shared IRQ occurred while a command was being
-> sent. The IDE layer apparently tested for the IRQ before it 
-> was ready to do so as part of finding out what is going on. The
-> -ac tree (and pre7) may possibly have fixed it with the command
-> delay stuff that Ross Biro figured out
+On Fri, 11 Apr 2003, Chris Hanson wrote:
 
-Ok, I copied 2*25GB over the network trying all sorts of things to make
-the compu crash. I was not successful :-)
+> Using a tree (what you are calling massively parallel) for
+> distribution produces a uniform voltage drop for all of the devices,
+> and has a better worst-case voltage drop than a serial chaining
+> distribution.  The serial chain has different voltage drops for each
+> pair of disks, depending on how far down the chain they are, but the
+> worst case is very bad.
+>
 
-However a hdparm -S0 -d1 -Xudma5 -c 1 -u 1 -m 16 /dev/hde was enough to
-get that message again which I could not simple reproduce by just
-copying things over the network. So it seems the actual bug was fixed in
-pre7 but hdparm tweaking seems to need another fix to be safe...
+I do wonder how we're going to run the 46KW of power (Assuming these
+drives pull similar to the drive i just checked) down the line.
 
-Thanks,
-Soeren.
+Should we use solid copper bars in a bus setup?  You'll be pulling 2000
+amps off the 5v, and 3000 off the 12V.  We may wish to rethink the method
+of hooking up our 46000 watt power supply.  I suspect a bus may be a
+better way, and probably easier to setup and maintain.
+
+And much more fun when you drop a screwdriver across it.
+
+Mike
 

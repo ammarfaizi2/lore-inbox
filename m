@@ -1,57 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135296AbRDWPYN>; Mon, 23 Apr 2001 11:24:13 -0400
+	id <S135321AbRDWP0E>; Mon, 23 Apr 2001 11:26:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135293AbRDWPYE>; Mon, 23 Apr 2001 11:24:04 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:49165 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S135310AbRDWPXu>; Mon, 23 Apr 2001 11:23:50 -0400
-Date: Mon, 23 Apr 2001 17:23:48 +0200 (CEST)
-From: axel <axel@rayfun.org>
-To: linux-kernel@vger.kernel.org
-Message-ID: <Pine.LNX.4.21.0104231718220.2691-100000@neon.rayfun.org>
+	id <S135346AbRDWPZv>; Mon, 23 Apr 2001 11:25:51 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:53175 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S135293AbRDWPYS>;
+	Mon, 23 Apr 2001 11:24:18 -0400
+Message-ID: <3AE44925.307069E4@mandrakesoft.com>
+Date: Mon, 23 Apr 2001 11:24:21 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jesper Juhl <juhl@eisenstein.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pedantic code cleanup - am I wasting my time with this?
+In-Reply-To: <3AE449A3.3050601@eisenstein.dk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+Jesper Juhl wrote:
+> 
+> Hi people,
+> 
+> I'm reading through various pieces of source code to try and get an
+> understanding of how the kernel works (with the hope that I'll
+> eventually be able to contribute something really usefull, but you've
+> got to start somewhere ;)
+> 
+> While reading through the source I've stumbled across various bits and
+> pieces that are not exactely wrong, but not strictly correct either. I
+> was wondering if I would be wasting my time by cleaning this up or if it
+> would actually be appreciated. One example of these things is the patch
+> below:
+> 
+> --- linux-2.4.3-vanilla/include/linux/rtnetlink.h       Sun Apr 22
+> 02:29:20 2001
+> +++ linux-2.4.3/include/linux/rtnetlink.h       Mon Apr 23 17:09:02 2001
+> @@ -112,7 +112,7 @@
+>          RTN_PROHIBIT,           /* Administratively prohibited  */
+>          RTN_THROW,              /* Not in this table            */
+>          RTN_NAT,                /* Translate this address       */
+> -       RTN_XRESOLVE,           /* Use external resolver        */
+> +       RTN_XRESOLVE            /* Use external resolver        */
+>   };
+> 
+>   #define RTN_MAX RTN_XRESOLVE
+> @@ -278,7 +278,7 @@
+>   #define RTAX_CWND RTAX_CWND
+>          RTAX_ADVMSS,
+>   #define RTAX_ADVMSS RTAX_ADVMSS
+> -       RTAX_REORDERING,
+> +       RTAX_REORDERING
+>   #define RTAX_REORDERING RTAX_REORDERING
+>   };
+> 
+> @@ -501,7 +501,7 @@
+>          TCA_OPTIONS,
+>          TCA_STATS,
+>          TCA_XSTATS,
+> -       TCA_RATE,
+> +       TCA_RATE
 
-I just tried to compile latest kernel 2.4.4pre6 with following error
-output. Unfortunately I don't have no idea what this wants to tell me.
-Probably something about those rw_semaphores I have recently read about in
-lkml.
+These patches increase the possibility of errors when adding future
+items to these lists.
 
-Regards,
-Axel Siebenwirth
-
-
-make[1]: Entering directory `/usr/src/linux-2.4.4pre6/arch/i386/lib'
-make all_targets
-make[2]: Entering directory `/usr/src/linux-2.4.4pre6/arch/i386/lib'
-make[2]: Nothing to be done for `all_targets'.
-make[2]: Leaving directory `/usr/src/linux-2.4.4pre6/arch/i386/lib'
-make[1]: Leaving directory `/usr/src/linux-2.4.4pre6/arch/i386/lib'
-ld -m elf_i386 -T /usr/src/linux-2.4.4pre6/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-        drivers/block/block.o drivers/char/char.o drivers/misc/misc.o
-drivers/net/net.o drivers/media/media.o  drivers/isdn/isdn.a
-drivers/scsi/scsidrv.o drivers/scsi/aic7xxx/aic7xxx_drv.o
-drivers/cdrom/driver.o drivers/pci/driver.o drivers/pnp/pnp.o
-drivers/video/video.o \
-        net/network.o \
-        /usr/src/linux-2.4.4pre6/arch/i386/lib/lib.a
-/usr/src/linux-2.4.4pre6/lib/lib.a
-/usr/src/linux-2.4.4pre6/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-/usr/src/linux-2.4.4pre6/lib/lib.a(rwsem.o): In function
-`__rwsem_do_wake':
-rwsem.o(.text+0x30): undefined reference to `__builtin_expect'
-rwsem.o(.text+0x73): undefined reference to `__builtin_expect'
-make: *** [vmlinux] Error 1
-
+-- 
+Jeff Garzik      | The difference between America and England is that
+Building 1024    | the English think 100 miles is a long distance and
+MandrakeSoft     | the Americans think 100 years is a long time.
+                 |      (random fortune)

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312584AbSDSRfG>; Fri, 19 Apr 2002 13:35:06 -0400
+	id <S312601AbSDSRjQ>; Fri, 19 Apr 2002 13:39:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312601AbSDSRfF>; Fri, 19 Apr 2002 13:35:05 -0400
-Received: from a59178.upc-a.chello.nl ([62.163.59.178]:13317 "EHLO
-	www.unternet.org") by vger.kernel.org with ESMTP id <S312584AbSDSRfF>;
-	Fri, 19 Apr 2002 13:35:05 -0400
-Date: Fri, 19 Apr 2002 19:35:26 +0200
-From: Frank de Lange <lkml-frank@unternet.org>
-To: linux-kernel@vger.kernel.org
-Subject: severe slowdown with 2.4 series w/heavy disk access (revisited)
-Message-ID: <20020419193507.A17439@unternet.org>
+	id <S312610AbSDSRjP>; Fri, 19 Apr 2002 13:39:15 -0400
+Received: from employees.nextframe.net ([212.169.100.200]:40696 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S312601AbSDSRjP>; Fri, 19 Apr 2002 13:39:15 -0400
+Date: Fri, 19 Apr 2002 19:39:14 +0200
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re:   [patch] ide updates
+Message-ID: <20020419193914.D334@sexything>
+Reply-To: morten.helgesen@nextframe.net
+In-Reply-To: <20020419180851.C334@sexything> <Pine.LNX.4.33.0204191238080.19090-100000@coffee.psychology.mcmaster.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi'all,
+On Fri, Apr 19, 2002 at 12:39:24PM -0400, Mark Hahn wrote:
+> > guys with other WD drives, in particular :) You can use the
+> > attached perl script, sent to me by Jens, to check you drives.
+> 
+> did the script give valid results?  (I wrote it...)
 
-Anyone remember this thread:
+sure - seems to work like a charm :)
 
-   "severe slowdown with 2.4 series w/heavy disk access"
+> 
+> thanks, mark hahn.
+> 
+> 
 
-   http://hypermail.spyroid.com/linux-kernel/archived/2001/week52/0266.html
+== Morten
 
-It describes the tendency of 2.4 series kernels to slowdown under I/O load.
-Well, that problem still seems to be alive and kicking. And no, it is not
-related to reiserfs as I previously suggested in this thread:
-
-   "Abysmal interactive performance on 2.4.linus", archived here:
-
-   http://www.uwsg.iu.edu/hypermail/linux/kernel/0111.1/0911.html
-
-I removed the last reiserfs partition quite some time ago, currently running
-mostly ext3 with ext2 root fs.
-
-The systems use IDE disks, I don't have any SCSI-systems handy to test whether
-this might be IDE-only (anyone?). Currently running 2.4.18 (with preempt and
-lowlatency, but the problems are NOT related to those patches as they also hit
-unpatched kernels) on SMP (Abit BP-6 yeah yeah I know but it does not seem to
-be specific to the BP-6).
-
-Does anyone else see these problems? Specifically, does anyone with a
-SCSI-based system see this happening? Also, does anyone who uses only ext2 (no
-ext3 or reiserfs, let alone jfs/xfs or any other journaling fs) see this?
-
-Cheers//Frank
-
- [ BTW: I'm moving to Sweden, and am looking for a project/job in Västra
-   Götaland, preferrably Göteborg... Anyone know anything interesting? ]
 -- 
-  WWWWW      ________________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  \ `--| _/     <Hacker for Hire>      \
-   `---'  \                            /
-           \ lkml-frank@unternet.org  /
-            `------------------------'
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
+
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

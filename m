@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130467AbRCDK2i>; Sun, 4 Mar 2001 05:28:38 -0500
+	id <S130466AbRCDKRM>; Sun, 4 Mar 2001 05:17:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130471AbRCDK23>; Sun, 4 Mar 2001 05:28:29 -0500
-Received: from smtp-rt-12.wanadoo.fr ([193.252.19.60]:8087 "EHLO
-	tamaris.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S130467AbRCDK2O>; Sun, 4 Mar 2001 05:28:14 -0500
-Message-ID: <3AA21866.62907063@wanadoo.fr>
-Date: Sun, 04 Mar 2001 11:26:46 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Organization: Home PC
-X-Mailer: Mozilla 4.76 [fr] (X11; U; Linux 2.4.3-pre1 i686)
-X-Accept-Language: fr, en
+	id <S130467AbRCDKQx>; Sun, 4 Mar 2001 05:16:53 -0500
+Received: from shad0w.dial.nildram.co.uk ([195.112.18.51]:24328 "EHLO
+	pandora.shad0w.org") by vger.kernel.org with ESMTP
+	id <S130466AbRCDKQp>; Sun, 4 Mar 2001 05:16:45 -0500
+Date: Sun, 4 Mar 2001 04:58:16 -0500 (EST)
+From: "Chris \"_Shad0w_\" Crowther" <shadow@shad0w.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+Subject: Re: my first post to the list - newbie alert
+In-Reply-To: <E14ZKNh-0004DB-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0103040456570.10044-100000@monolith.sanctum.shad0w.org>
 MIME-Version: 1.0
-To: Andrew Morton <andrewm@uow.edu.au>
-CC: linux-fbdev-devel@sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-        lad <linux-audio-dev@ginette.musique.umontreal.ca>,
-        James Simmons <jsimmons@linux-fbdev.org>,
-        Brad Douglas <brad@neruo.com>
-Subject: Re: [prepatches] removal of console_lock
-In-Reply-To: <3AA1EF6C.A9C7613E@uow.edu.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Sat, 3 Mar 2001, Alan Cox wrote:
 
-> This patch fixes it.  Interrupts are enabled across all console operations.
+> > <beavis>You might even score!</beavis>
 > 
-> It's still somewhat a work-in-progress.
+> Of course its attitudes like that which leads them to have to set up their
+> own mailing lists, and contribute to the rather low count of women on the
+> kernel credits
 
-The patch applies OK against 2.4.3-pre1
-At the end of make bzImage I got
-kerne/kernel.o(.text+0xcd00): undefined reference to 'in_interrupt'
+	And makes some men wish they weren't...guilt by association and
+all that.
 
-PR
+	Hmm, I should probably catch up on my linuxchix folders actually.
+
 -- 
-------------------------------------------------
- Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+Chris "_Shad0w_" Crowther
+shad0w@shad0w.org
+http://www.shad0w.org.uk/
+

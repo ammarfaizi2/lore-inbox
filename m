@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314475AbSEHPfF>; Wed, 8 May 2002 11:35:05 -0400
+	id <S314483AbSEHPpK>; Wed, 8 May 2002 11:45:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314477AbSEHPfE>; Wed, 8 May 2002 11:35:04 -0400
-Received: from ua83d37hel.dial.kolumbus.fi ([62.248.234.83]:20299 "EHLO
-	rankki.uworld.dyndns.org") by vger.kernel.org with ESMTP
-	id <S314475AbSEHPfE>; Wed, 8 May 2002 11:35:04 -0400
-Message-ID: <3CD94582.DE18AB99@kolumbus.fi>
-Date: Wed, 08 May 2002 18:34:26 +0300
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S314486AbSEHPpJ>; Wed, 8 May 2002 11:45:09 -0400
+Received: from hdlc-ln.gsc-game.kiev.ua ([62.244.16.254]:46597 "EHLO
+	redhat.gsc-game.kiev.ua") by vger.kernel.org with ESMTP
+	id <S314483AbSEHPpI>; Wed, 8 May 2002 11:45:08 -0400
+Message-ID: <004401c1f6a7$98f06ff0$e310f43e@manowar>
+From: "Serguei I. Ivantsov" <admin@gsc-game.kiev.ua>
+To: "Der Herr Hofrat" <der.herr@mail.hofr.at>
+Cc: <linux-gcc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <200205081200.g48C0a805476@hofr.at>
+Subject: Re: Measure time
+Date: Wed, 8 May 2002 18:46:53 +0300
 MIME-Version: 1.0
-To: Mike Kravetz <kravetz@us.ibm.com>
-CC: Robert Love <rml@tech9.net>, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: O(1) scheduler gives big boost to tbench 192
-In-Reply-To: <20020507151356.A18701@w-mikek.des.beaverton.ibm.com> <E175DhD-0000HF-00@the-village.bc.nu> <20020507154322.F1537@w-mikek2.des.beaverton.ibm.com> <1020814775.2084.43.camel@bigsur> <20020507164857.G1537@w-mikek2.des.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Kravetz wrote:
-> 
-> I'd really like to know if there are any real workloads that
-> benefited from this feature, rather than just some benchmark.
+Is there any function like GetTickCount() in M$ Win32 that retrieves time in
+milliseconds?
 
-Maybe this is the reason why O(1) scheduler has big latencies with
-pthread_cond_*() functions which original scheduler doesn't have?
-I think I tracked the problem down to try_to_wake_up(), but I was unable to
-fix it.
+--
+ Regards,
+  Serguei I. Ivantsov
+
+----- Original Message -----
+From: "Der Herr Hofrat" <der.herr@mail.hofr.at>
+To: "Serguei I. Ivantsov" <administrator@svitonline.com>
+Cc: <linux-gcc@vger.kernel.org>; <linux-kernel@vger.kernel.org>
+Sent: Wednesday, May 08, 2002 3:00 PM
+Subject: Re: Measure time
 
 
-	- Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+> > Hello!
+> >
+> > Is there any function for high precision time measuring.
+> > time() returns only in second. I need nanoseconds.
+> >
+> you can directly read the TSC but that will not realy give you nanoseconds
+> resolution as the actual read access even on a PIII/1GHz is going to take
+> up to a few 100 nanoseconds, and depending on what you want to time
+> stamp the overall jitter of that code can easaly be in the
+> range of a microsecond.
+>
+> There are some hard-realtime patches to the Linux kernel that will
+> allow time precission of aprox. 1us (the TSC has a precission of 32ns)
+> but I don't think you can get below that without dedicated hardware.
+>
+> for RTLinux check at ftp://ftp.rtlinux.org/pub/rtlinux/
+>
+> hofrat
 

@@ -1,53 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286358AbRLJSk6>; Mon, 10 Dec 2001 13:40:58 -0500
+	id <S286357AbRLJSk6>; Mon, 10 Dec 2001 13:40:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286357AbRLJSkv>; Mon, 10 Dec 2001 13:40:51 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:33298 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S286358AbRLJSke>; Mon, 10 Dec 2001 13:40:34 -0500
-Message-Id: <200112101840.fBAIeTg53340@aslan.scsiguy.com>
-To: LBJM <LB33JM16@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: highmem, aic7xxx, and vfat: too few segs for dma mapping 
-In-Reply-To: Your message of "Sun, 09 Dec 2001 18:32:43 MST."
-             <3C1410BB.6884E52F@yahoo.com> 
-Date: Mon, 10 Dec 2001 11:40:29 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S286359AbRLJSkm>; Mon, 10 Dec 2001 13:40:42 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:46852 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S286357AbRLJSkV>;
+	Mon, 10 Dec 2001 13:40:21 -0500
+Date: Mon, 10 Dec 2001 19:40:03 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Christian Laursen <xi@borderworlds.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NULL pointer dereference in moxa driver
+Message-Id: <20011210194003.1cb9f54a.skraw@ithnet.com>
+In-Reply-To: <m3zo4rm05v.fsf@borg.borderworlds.dk>
+In-Reply-To: <m3zo4rm05v.fsf@borg.borderworlds.dk>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->When I upgraded to 2gigs of ram I was using 2.4.10 then used 2.4.14 and
->2.4.16 each did a kernel panic. however none do it with highmem off.
+On 10 Dec 2001 18:53:48 +0100
+Christian Laursen <xi@borderworlds.dk> wrote:
 
-I am still investigating the cause of this particular problem.  In
-fact we are building up a new system today in the hope of being able
-to reproduce and solve this problem.
+> I have a problem when trying to use two of the serial cards known as
+> MOXA C104H/PCI.
+> 
+> When only using one, everything works like a charm, but when
+> an attempt is made to access a serial port on the second card,
+> I get a NULL pointer dereference.
+> 
+> 
+> This is the relevant output from dmesg:
+> 
+> MOXA Smartio family driver version 1.2
+> Tty devices major number = 174, callout devices major number = 175
+> Found MOXA C104H/PCI series board(BusNo=0,DevNo=10)
+> 
+> 
+> The relevant stuff from /proc/pci:
+> 
+>   Bus  0, device  10, function  0:
+>     Serial controller: Moxa Technologies Co Ltd Smartio C104H/PCI (rev 2).
+>       IRQ 10.
+>       I/O at 0xa800 [0xa87f].
+>       I/O at 0xa400 [0xa43f].
+>       I/O at 0xa000 [0xa00f].
+>   Bus  0, device  11, function  0:
+>     Serial controller: Moxa Technologies Co Ltd Smartio C104H/PCI (#2) (rev 2).
+>       IRQ 11.
+>       I/O at 0x9800 [0x987f].
+>       I/O at 0x9400 [0x943f].
+>       I/O at 0x9000 [0x900f].
 
->I've also had the error locking at making tag count 64( somebody in the
->archives said that it doing that is normal. I've had that problem for
->years it doesn't hurt anything so I ignore it. so why does it do that?)
+Well there you have it: they didn't recognise the second board at all. The dmesg should show it, but does not.
+Please try attached patch to mxser.c. I cannot test, I have no two cards (in fact I haven't a single one either ;-). If it works out tell me and send patch to support@moxa.com.tw with regards from me :-)
 
-Its an informational message, not an error.  The system is telling
-you that it has dynamically determined the maximum queue depth of
-the device.
+Have fun,
+Stephan
 
->I've read through the archives somebody posted the if they change the
->#define NSEG from 128 to 512 it goes away. it went away for me too when
->I did that and recomplied the kernel it went away for me too.
->I found this in aic7xxx_osm.h suggesting the 128 setting was only for
->highmem off
->/*
-> * Number of SG segments we require.  So long as the S/G segments for
-> * a particular transaction are allocated in a physically contiguous
-> * manner and are allocated below 4GB, the number of S/G segments is
-> * unrestricted.
-> */
 
-This is merely saying that the controller requires that the S/G list is
-allocated below 4GB in the PCI bus address space (note that on some platforms
-this may not mean the same thing as allocated within the first 4GB of
-physical memory).
+--- linux/drivers/char/mxser.c-orig     Mon Dec 10 19:29:13 2001
++++ linux/drivers/char/mxser.c  Mon Dec 10 19:34:36 2001
+@@ -614,9 +614,9 @@
+                n = (sizeof(mxser_pcibrds) / sizeof(mxser_pcibrds[0])) - 1;
+                index = 0;
+                for (b = 0; b < n; b++) {
+-                       pdev = pci_find_device(mxser_pcibrds[b].vendor,
+-                                              mxser_pcibrds[b].device, pdev);
+-                       if (!pdev || pci_enable_device(pdev))
++                       while (pdev = pci_find_device(mxser_pcibrds[b].vendor,
++                                              mxser_pcibrds[b].device, pdev)) {
++                       if (pci_enable_device(pdev))
+                                continue;
+                        hwconf.pdev = pdev;
+                        printk("Found MOXA %s board(BusNo=%d,DevNo=%d)\n",
+@@ -646,6 +646,7 @@
+ 
+                        }
+ 
++                       }
+                }
+        }
+ #endif
 
---
-Justin
+
+

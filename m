@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315808AbSEEB04>; Sat, 4 May 2002 21:26:56 -0400
+	id <S315797AbSEEBc7>; Sat, 4 May 2002 21:32:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315809AbSEEB0z>; Sat, 4 May 2002 21:26:55 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:55818 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315808AbSEEB0z>; Sat, 4 May 2002 21:26:55 -0400
-Message-ID: <3CD47BA7.9080006@evision-ventures.com>
-Date: Sun, 05 May 2002 02:24:07 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S315810AbSEEBc6>; Sat, 4 May 2002 21:32:58 -0400
+Received: from ool-182c923d.dyn.optonline.net ([24.44.146.61]:57731 "EHLO
+	www.milanese.cc") by vger.kernel.org with ESMTP id <S315797AbSEEBc5>;
+	Sat, 4 May 2002 21:32:57 -0400
+Message-ID: <1020562447.3cd48c0f8e83c@www.milanese.cc>
+Date: Sat,  4 May 2002 21:34:07 -0400
+From: "Peter J. Milanese" <peterm@milanese.cc>
+To: linux-kernel@vger.kernel.org
+Subject: SMBfs / Unicode problem perhaps?
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.13 IDE and preemptible kernel problems
-In-Reply-To: <Pine.LNX.4.44.0205031110550.1602-100000@home.transmeta.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Linus Torvalds napisa³:
-> 
-> On Fri, 3 May 2002, Martin Dalecki wrote:
-> 
-> 
->>Uz.ytkownik Andi Kleen napisa?:
->>
->>>Hi,
->>>
->>>When booting an preemptible kernel 2.5.13 kernel on x86-64 I get
->>>very quickly an scheduling in interrupt BUG. It looks like the
->>>preempt_count becomes 0 inside the ATA interrupt handler. This
->>>could happen when save_flags/restore_flags and friends are unmatched
->>>and you have too many flags restores in IDE.
->>
->>Thank you for pointing out. I will re check it.
-> 
-> 
-> Martin, may I suggest that the next line of cleanups should be to remove
-> all vestiges of the old global interrupt locking from the IDE driver?
-> Including, for example, the crap "PCI method 1" access stuff in CMD640x..
-> 
-> Also, if you turn on spinlock debugging, that tends to help find the
-> really silly things faster (leaving the harder races to be solved by
-> brainforce ;)
 
 
-OK, lest's make a deal you do the following and - realize
-immediately that there is a need for single argument
-time_past() or whatever and I turn spinlock debugging on :-).
+Greetings-
 
-[root@kozaczek linux]# find ./ -name "*.[ch]" -exec grep time_after /dev/null {} 
-\; | wc
-     265    1638   21285
-[root@kozaczek linux]# find ./ -name "*.[ch]" -exec grep time_after /dev/null {} 
-\; | grep jiffies | wc
-     239    1497   19080
-[root@kozaczek linux]#
+ I don't know if this is just for my compile, or if this has been seen as a
+problem yet. I recently set up 2.5.13, however the same issue persisted with
+2.5.7 as well. I can successfully mount smbfs, however, it seems that the
+directory contents are not translated correctly.
 
+bash-2.04$ ls -la
+ls: b: No such file or directory
+ls: d: No such file or directory
+ls: m: No such file or directory
+ls: M: No such file or directory
+ls: r: No such file or directory
+ls: R: No such file or directory
+ls: r: No such file or directory
+ls: R: No such file or directory
+ls: s: No such file or directory
+ls: w: No such file or directory
 
+Every 1st letter of the directory contents.
 
+I could not find anything about this in the archive, and was curious as to
+anyone else having this problem, and any input I could get-
 
+Thanks
 
+P
 

@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVAJUTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbVAJUUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbVAJUTq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 15:19:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVAJUQb
+	id S262474AbVAJUUK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 15:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVAJUT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 15:16:31 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:60902 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262502AbVAJUMj (ORCPT
+	Mon, 10 Jan 2005 15:19:57 -0500
+Received: from colin2.muc.de ([193.149.48.15]:23813 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262474AbVAJUTA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 15:12:39 -0500
-Date: Mon, 10 Jan 2005 12:12:33 -0800 (PST)
-From: Michael Werner <werner@mrcoffee.engr.sgi.com>
-Message-Id: <200501102012.j0AKCXJr2075714@mrcoffee.engr.sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch 2.6.10-mm2] agpgart: Add agp_find_bridge function
+	Mon, 10 Jan 2005 15:19:00 -0500
+Date: 10 Jan 2005 21:18:59 +0100
+Date: Mon, 10 Jan 2005 21:18:59 +0100
+From: Andi Kleen <ak@muc.de>
+To: YhLu <YhLu@tyan.com>
+Cc: "'Mikael Pettersson'" <mikpe@csd.uu.se>, jamesclv@us.ibm.com,
+       Matt_Domsch@dell.com, discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       suresh.b.siddha@intel.com
+Subject: Re: 256 apic id for amd64
+Message-ID: <20050110201859.GB98279@muc.de>
+References: <3174569B9743D511922F00A0C9431423072913A4@TYANWEB>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3174569B9743D511922F00A0C9431423072913A4@TYANWEB>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch gives non-generic platforms a method for using
-platform specific agp_find_bridge functions.
+On Mon, Jan 10, 2005 at 12:09:48PM -0800, YhLu wrote:
+> Try this one.
 
-Signed-off-by: Mike Werner <werner@sgi.com>
----
+I don't think it will work at all on Intel HT systems, since
+nobody initializes c->x86_num_cores there. phys_proc_id[] 
+is supposed to be the same on two HT siblings.
 
- drivers/char/agp/backend.c  |    5 ++++-
- include/linux/agp_backend.h |    2 ++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+You'll either need to initialize c->x86_num_cores on Intel too.
+But since Intel seems to have dual cores upcomming and you'll
+want HyperThreading support too it would need to be a new field.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-#   Add agp_find_bridge
-# 
-diff -Nru a/drivers/char/agp/backend.c b/drivers/char/agp/backend.c
---- a/drivers/char/agp/backend.c	2005-01-10 09:21:20 -08:00
-+++ b/drivers/char/agp/backend.c	2005-01-10 09:21:20 -08:00
-@@ -50,6 +50,9 @@
- 	.minor = AGPGART_VERSION_MINOR,
- };
- 
-+struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *) =
-+	&agp_generic_find_bridge;
-+
- struct agp_bridge_data *agp_bridge;
- LIST_HEAD(agp_bridges);
- EXPORT_SYMBOL(agp_bridge);
-@@ -63,7 +66,7 @@
- {
- 	struct agp_bridge_data *bridge;
- 
--	bridge = agp_generic_find_bridge(pdev);
-+	bridge = agp_find_bridge(pdev);
- 
- 	if (!bridge)
- 		return NULL;
-diff -Nru a/include/linux/agp_backend.h b/include/linux/agp_backend.h
---- a/include/linux/agp_backend.h	2005-01-10 09:21:20 -08:00
-+++ b/include/linux/agp_backend.h	2005-01-10 09:21:20 -08:00
-@@ -94,6 +94,8 @@
- extern struct agp_bridge_data *agp_bridge;
- extern struct list_head agp_bridges;
- 
-+extern struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *);
-+
- extern void agp_free_memory(struct agp_memory *);
- extern struct agp_memory *agp_allocate_memory(struct agp_bridge_data *, size_t, u32);
- extern int agp_copy_info(struct agp_bridge_data *, struct agp_kern_info *);
+Alternatively you can split the function for AMD and Intel and
+use the new algorithm on AMD only.  Perhaps that's better.
+In the later case I would only use it when CMP_LEGACY is set.  
+
+-Andi

@@ -1,79 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263878AbSJHABl>; Mon, 7 Oct 2002 20:01:41 -0400
+	id <S263937AbSJHADF>; Mon, 7 Oct 2002 20:03:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263879AbSJHABl>; Mon, 7 Oct 2002 20:01:41 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:9164 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S263878AbSJHABk>; Mon, 7 Oct 2002 20:01:40 -0400
-Date: Mon, 7 Oct 2002 21:06:33 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Porter <porter@cox.net>,
-       "David S. Miller" <davem@redhat.com>, giduru@yahoo.com,
-       Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The end of embedded Linux?
-Message-ID: <20021008000632.GO3485@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Porter <porter@cox.net>,
-	"David S. Miller" <davem@redhat.com>, giduru@yahoo.com,
-	Andre Hedrick <andre@linux-ide.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org> <20021005205238.47023.qmail@web13201.mail.yahoo.com> <20021005.212832.102579077.davem@redhat.com> <20021007092212.B18610@home.com> <20021007230109.GI3485@conectiva.com.br> <1034033007.26504.44.camel@irongate.swansea.linux.org.uk> <20021007234733.GN3485@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021007234733.GN3485@conectiva.com.br>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S263938AbSJHADF>; Mon, 7 Oct 2002 20:03:05 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:32680 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S263937AbSJHADC>;
+	Mon, 7 Oct 2002 20:03:02 -0400
+Date: Mon, 7 Oct 2002 17:11:04 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [bk/patch] Rename driverfs to kfs
+Message-ID: <Pine.LNX.4.44.0210071701460.16276-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Oct 07, 2002 at 08:47:33PM -0300, Arnaldo C. Melo escreveu:
-> Em Tue, Oct 08, 2002 at 12:23:27AM +0100, Alan Cox escreveu:
-> > On Tue, 2002-10-08 at 00:01, Arnaldo Carvalho de Melo wrote:
-> > to tweak
-> > > > the values exactly how we want in a specific application.  The tweaking
-> > > > options can be buried under advanced kernel options with the appropriate
-> > > > disclaimers about shooting yourself in the foot.
- 
-> > > That is how I think it should be done, yes.
- 
-> > Submitting dprintk() seems like a great starting point. I've also got
-> > some patches in the archive someone sent that allows you to configure
-> > out the #! exec stuff
- 
-> Ok, will do that in the next days.
- 
 
-Ok, so what do you think of a include/linux/debug.h
+Hey there.
 
-and a CONFIG_DEBUG_MESSAGES
+It's the incredible mutable filesystem. As was talked about at the Kernel
+Summit in Ottawa, and as has been threatened in the past three months,
+here is the patch to rename driverfs to kfs. 
 
-and in debug.h:
+It's really simple, and is basically a global search and replace of all
+the direct users of driverfs (so far only the driver model and acpi), as 
+well as the documentation.
 
-#ifdef CONFIG_DEBUG_MESSAGES
-#define dprintk printk(KERN_DEBUG.....) /* find the best of the 1001 variants
-                                          already in the tree */
-#else
-#define dprintk(.....)
-#endif
+As a result of this, you must of course update your /etc/fstab to mount 
+kfs instead of driverfs. 
 
-and in drivers currently using dprintk (and in others that want to start using
-it instead of homebrew equivalent macros):
+Please apply. 
 
-#include <linux/debug.h>
 
-...happily use dprintk...
+	-pat
 
-and the default kernel config would just disable (or other sane default agreed
-here) so, assuming it is disabled it'd be easy to enable it on a per source
-code file, doing this:
+Please pull from 
 
-#include <other_includes>
-#define CONFIG_DEBUG_MESSAGES
-#include <linux/debug.h>
+	bk://ldm.bkbits.net/linux-2.5-kfs
 
-Would this be acceptable? Ah, all of the above is quickly hacked pseudocode 8)
+This will update the following files:
 
-- Arnaldo
+ Documentation/filesystems/driverfs.txt   |  330 -----------
+ drivers/acpi/driverfs.c                  |   46 -
+ fs/driverfs/Makefile                     |    9 
+ fs/driverfs/inode.c                      |  706 ------------------------
+ include/linux/driverfs_fs.h              |   70 --
+ Documentation/driver-model/binding.txt   |    4 
+ Documentation/driver-model/bus.txt       |    4 
+ Documentation/driver-model/class.txt     |    8 
+ Documentation/driver-model/device.txt    |    6 
+ Documentation/driver-model/driver.txt    |    6 
+ Documentation/driver-model/interface.txt |    2 
+ Documentation/driver-model/overview.txt  |   12 
+ Documentation/filesystems/kfs.txt        |  333 +++++++++++
+ drivers/acpi/Makefile                    |    2 
+ drivers/acpi/acpi_bus.h                  |    4 
+ drivers/acpi/driverfs.c                  |    2 
+ drivers/acpi/kfs.c                       |   66 +-
+ drivers/base/core.c                      |   12 
+ drivers/base/fs/bus.c                    |   20 
+ drivers/base/fs/class.c                  |   30 -
+ drivers/base/fs/device.c                 |   30 -
+ drivers/base/fs/driver.c                 |   12 
+ drivers/base/fs/intf.c                   |    8 
+ drivers/base/interface.c                 |    2 
+ fs/Makefile                              |    2 
+ fs/kfs/Makefile                          |    9 
+ fs/kfs/inode.c                           |  900 +++++++++++++++++++++++++++----
+ include/linux/device.h                   |    2 
+ include/linux/kfs.h                      |   86 ++
+ 29 files changed, 1357 insertions(+), 1366 deletions(-)
+
+through these ChangeSets:
+
+<mochel@osdl.org> (02/10/07 1.573.1.140)
+   kfs documentation: s/driverfs/kfs/g in driver model and kfs docs.
+   
+   Also, move Documentation/filesystems/driverfs.txt to 
+   Documentation/filesystems/kfs.txt.
+
+<mochel@osdl.org> (02/10/07 1.573.1.139)
+   kfs: s/driverfs/kfs/ for kfs API calls and their users in the kernel.
+
+<mochel@osdl.org> (02/10/07 1.573.1.138)
+   ACPI: move driverfs.c to kfs.c
+
+<mochel@osdl.org> (02/10/07 1.573.1.137)
+   kfs: s/driverfs/kfs/ for internal functions. 
+   
+   The API still is not affected. 
+   
+   init_kfs_fs() is now a core_initcall and happens implicitly, instead of being explicitly
+   called from the driver model init.
+
+<mochel@osdl.org> (02/10/07 1.573.1.136)
+   Rename driverfs to kfs: directories and header files.
+   
+   This doesn't change the API at all; it only moves fs/driverfs to fs/kfs and 
+   changes the name of hte header file. 
+   
+   All the users of the header have been updated.
+   
+   Also, the name in the fs_type is changed, so it shows up as kfs in /proc/filesystems
+   and must be mounted as such.
+
+

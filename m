@@ -1,91 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUBYP6i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 10:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUBYP6h
+	id S261389AbUBYP7w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 10:59:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbUBYP7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 10:58:37 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:49403 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S261375AbUBYP60
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 10:58:26 -0500
-Date: Wed, 25 Feb 2004 08:58:23 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Split kgdb into "lite" and "normal" parts
-Message-ID: <20040225155823.GP1052@smtp.west.cox.net>
-References: <20040218225010.GH321@elf.ucw.cz> <20040224232703.GC9209@elf.ucw.cz> <20040224233809.GK1052@smtp.west.cox.net> <200402251249.28519.amitkale@emsyssoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402251249.28519.amitkale@emsyssoft.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 25 Feb 2004 10:59:52 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:26623 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261389AbUBYP7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 10:59:38 -0500
+Message-ID: <403CC667.2000403@acm.org>
+Date: Wed, 25 Feb 2004 09:59:35 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IPMI driver updates, part 1b
+References: <403B57B8.2000008@acm.org>	<403BE39D.2080207@acm.org> <20040224170024.4e75a85c.akpm@osdl.org>
+In-Reply-To: <20040224170024.4e75a85c.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 12:49:28PM +0530, Amit S. Kale wrote:
-> On Wednesday 25 Feb 2004 5:08 am, Tom Rini wrote:
-> > On Wed, Feb 25, 2004 at 12:27:03AM +0100, Pavel Machek wrote:
-> > > > > > > Tested (core-lite.patch + i386-lite.patch + 8250.patch)
-> > > > > > > combination. Looks good.
-> > > > > > >
-> > > > > > > Let's first check this in and then do more cleanups.
-> > > > > > > Tom, does it sound ok?
-> > > > > >
-> > > > > > This sounds fine to me.  Pavel, I'm guessing you did this with
-> > > > > > quilt, could you provide some pointers on how to replicate this in
-> > > > > > the future?
-> > > > >
-> > > > > Unfortunately, I done it by hand :-(. But if -lite parts are not
-> > > > > merged, soon, I'll be forced to start using quilt. Doing stuff by
-> > > > > hand is quite painfull...
-> > > >
-> > > > There's still a whole bunch of bogons in the -lite patch still, so I
-> > > > don't think it should be merged yet.
-> > >
-> > > Well, it seems to contains a *lot* less bogons than what currently is
-> > > in -mm series.
-> > >
-> > > What big problems do you see? It does not yet use weak symbols, but I
-> > > do not think that's a serious problem. What else?
-> >
-> > The first two big ones are:
-> > - Doesn't like gdb 6.0 (You cannot assume the first packet is Hc...)
+Andrew Morton wrote:
+
+>Corey Minyard <minyard@acm.org> wrote:
+>  
+>
+>>It helps to actually attach the code.
+>>    
+>>
+>
+>Got there eventually.
+>
+>Patches seem reasonable, thanks.  I'm not sure how to judge the suitability
+>of the socket interface but it only touches your code..
+>
+Let's leave the af_ipmi code out for now.  I'd like to get some opinions 
+on it, though.
+
+>
+>- Several instances of IPMI_MAX_MSG_LENGTH-sized local arrays.  It's not
+>  toooo large, but watch out for the stack space.
+>
+I will rework these.  These used to be much smaller, but newer hardware 
+needed larger sizes.
+
+>
+>- You should convert the MODULE_PARMs to module_param() sometime.
+>
+Will do.
+
+>
+>- Be aware that the bitfields in struct seq_table will all fall into the
+>  same word and the compiler doesn't access them atomically.  You must
+>  provide your own locking to prevent updates to them from scribbling on
+>  each other.  Or make them integers.
+>
+These are only accessed when the sequence number lock is held, so they 
+should be ok.
+
+>
+>- You misspelt breadcrumbs!
+>
+Argh!  I'll get that fixed one of these days :)
+
+>
+>- This:
+>
+>	extern struct si_sm_handlers kcs_smi_handlers;
+>
+>  should be in a header file.
+>
+ok.
+
+>
+>- kcs_event_handler() sets `time = 0;' but never uses it again.
+>
+Actually, that's not true.  There's an evil goto that goes back to 
+"restart:", thus the time needs to be cleared.
+
+>
+>- status2txt() should take the caller's char* rather than use a static buffer.
+>
+Ok, I'll fix that.
+
+>
+>- In ipmi_bt_sm.c:
+>
+>	volatile unsigned char status;
+>
+>  The volatile is a red flag.   It seems to be unneeded.
+>
+I'll ask the person who wrote this about it.
+
+>
+>- We have #ifdef CONFIG_HIGH_RES_TIMERS code in there?
+>
+Well, yes.  That's so if people add the high-res timer patch, this 
+driver can take advantage of it.  Is that a problem?
+
+>
+>- drivers/char/ipmi/ipmi_si.c has lots of
+>
+>        struct smi_info *smi_info = (struct smi_info *) send_info;
+>
+>  You don't need to cast a void* and it's actually a harmful thing to do:
+>  it suppresses useful warnings if someone goes and changes the type of the
+>  rhs.
+>
+Yes, true.
+
+>
+>- ipmi_wait_for_queue() doesn't need set_current_state(TASK_RUNNING);
+>  after schedule_timeout() (I removed it)
+>
+Ok.
+
+>
+>- There's a locking bug in ipmi_recvmsg(): it can unlock i_lock when it
+>  isn't held.   I added this:
+>
+>diff -puN net/ipmi/af_ipmi.c~af_ipmi-locking-fix net/ipmi/af_ipmi.c
+>--- 25/net/ipmi/af_ipmi.c~af_ipmi-locking-fix	Tue Feb 24 16:56:36 2004
+>+++ 25-akpm/net/ipmi/af_ipmi.c	Tue Feb 24 16:57:00 2004
+>@@ -336,6 +336,7 @@ static int ipmi_recvmsg(struct kiocb *io
+> 		}
 > 
-> Can you tell me more about this?
-
-You make an assumption that the first packet is $Hc..., which you cannot
-do.  gdb 6's first packet is $qOffsets.  I'll post the patch for this
-shortly.
-
-> > - Wierdities with kgdb_killed_or_detached / kgdb_might_be_resumed
-> >   (both can die).
+> 		timeo = ipmi_wait_for_queue(i, timeo);
+>+		spin_lock_irqsave(&i->lock, flags);
+> 	}
 > 
-> Yes. These have to be thought over again. I don't think a perfect solution 
-> exists for all problems related to gdb kill/die followed by a reattach. We 
-> should attempt a proper design describing different scenarios.
+> 	rcvmsg = list_entry(i->msg_list.next, struct ipmi_recv_msg, link);
+>
+>
+> which may or may not be correct.
+>
+I'll look at this.
 
-I don't see the problem to be delt with.  GDB reconnecting is not a
-special case.
+>
+>
+>Anyway, that's all fairly trivial.  Please retest this code in the next
+>-mm, send me any updates against that as appropriate and we'll get this
+>merged up, thanks.
+>
+Ok.
 
-> > - All of the function pointer games (of which the weak symbols, but not
-> >   all of them) are a part of.
-> > - Issues w/ handling 'D' and 'k' packets cleaner (and I think there was
-> >   a correctness fix in there, too, but it was a while ago).
-> 
-> Is this wrt kgdb_killed.., kgdb_might..., remove breakpoints?
+Thank you for your help.
 
-This will be part of the patch I hope to post today:
-http://ppc.bkbits.net:8080/linux-2.6-kgdb/patch@1.1500.2.19?nav=index.html|ChangeSet@-4w|cset@1.1500.2.19
+-Corey
 
-> > - Don't ACK packets sitting on the line
-> 
-> More info please.
-
-I see you've already taken this bit:
-http://ppc.bkbits.net:8080/linux-2.6-kgdb/patch@1.1500.2.16?nav=index.html|ChangeSet@-4w|cset@1.1500.2.16
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264643AbUD1GGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUD1Gay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264643AbUD1GGi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 02:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264647AbUD1GGh
+	id S264652AbUD1Gay (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 02:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264651AbUD1Gay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 02:06:37 -0400
-Received: from prosun.first.gmd.de ([194.95.168.2]:24266 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S264643AbUD1GGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 02:06:34 -0400
-To: linux-kernel@vger.kernel.org
-Date: Wed, 28 Apr 2004 08:06:19 +0200
-From: Soeren Sonnenburg <kernel@nn7.de>
-Message-ID: <pan.2004.04.28.06.06.19.311999@nn7.de>
-Organization: Local Intranet News
+	Wed, 28 Apr 2004 02:30:54 -0400
+Received: from FE-mail03.albacom.net ([213.217.149.83]:38617 "EHLO
+	FE-mail03.sfg.albacom.net") by vger.kernel.org with ESMTP
+	id S264652AbUD1GaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 02:30:25 -0400
+Message-ID: <000e01c42cea$5ea02720$0200a8c0@arrakis>
+Reply-To: "Marco Cavallini" <linux@koansoftware.com>
+From: "Marco Cavallini" <linux@koansoftware.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Cc: "Greg KH" <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+References: <005c01c42b82$60d82f60$0200a8c0@arrakis> <20040426185612.GB28530@kroah.com> <003501c42c24$06e87940$0200a8c0@arrakis> <20040427171737.GB2465@mars.ravnborg.org> <000701c42c7e$20214810$0200a8c0@arrakis> <20040427175754.GA2968@mars.ravnborg.org>
+Subject: Re: Problem with CONFIG_USB_SL811HS
+Date: Wed, 28 Apr 2004 08:30:40 +0200
+Organization: Koan s.a.s.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-References: <1083047064.3158.2.camel@localhost>
-Subject: Re: Largest mallocs opteron vs. 32bit systems
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Apr 2004 06:24:24 +0000, Soeren Sonnenburg wrote:
+> > In Linux-2.4.26 the problem is in
+> > drivers/usb/host/Makefile
+>
+> I assumed you were using the 2.6 kernel, so I did not
+> even look at 2.4.
+>
+> Sorry for the noise.
 
-> Hello...
-> 
-> I just did some tests trying to malloc() memory on an opteron and a xeon
-> system...
-> [...]
-> So one 'looses' 500M.
-> 
-> Feedback welcome,
-> Soeren
+No problem .
+However I've noticed that the latest sources version for SL811 are in 2.4.26
+and in 2.6.6 there are only the old one.
+Could some linux-usb mantainer tell me if should be a good idea to update
+these bringing sources from 2.4.26 and porting them to 2.6.6-rc2 ?
+Thank you
 
-
-I just want to mention, that this is kernel 2.4.21 (including quite a
-number of redhat patches...) and due to a miscomputation 100M should be
-added to every number...
-
-Also when I malloc in smaller blocks (ie. size 1M) I get closer to 3G on a
-i386 system (like 29xxM).
-
-Soeren
-
+Marco Cavallini
 

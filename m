@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316827AbSGZFLW>; Fri, 26 Jul 2002 01:11:22 -0400
+	id <S316840AbSGZFNX>; Fri, 26 Jul 2002 01:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316847AbSGZFLV>; Fri, 26 Jul 2002 01:11:21 -0400
-Received: from dsl-213-023-043-040.arcor-ip.net ([213.23.43.40]:13276 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316827AbSGZFLU>;
-	Fri, 26 Jul 2002 01:11:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "jdow" <jdow@earthlink.net>, "Bill Davidsen" <davidsen@tmr.com>
-Subject: Re: [PATCH -ac] Panicking in morse code
-Date: Fri, 26 Jul 2002 07:13:03 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "Andrew Rodland" <arodland@noln.com>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96.1020725084540.11202C-100000@gatekeeper.tmr.com> <E17Xw0V-0004f8-00@starship> <032001c23460$2f59e340$1125a8c0@wednesday>
-In-Reply-To: <032001c23460$2f59e340$1125a8c0@wednesday>
+	id <S316847AbSGZFNX>; Fri, 26 Jul 2002 01:13:23 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:11270 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316840AbSGZFNW>; Fri, 26 Jul 2002 01:13:22 -0400
+Message-ID: <3D40DA00.9080603@evision.ag>
+Date: Fri, 26 Jul 2002 07:11:28 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17XxPT-0005N0-00@starship>
+To: Jesse Barnes <jbarnes@sgi.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lock assertion macros for 2.5.28
+References: <20020725233047.GA782991@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 July 2002 06:52, jdow wrote:
-> From: "Daniel Phillips" <phillips@arcor.de>
-> > On Thursday 25 July 2002 14:51, Bill Davidsen wrote:
-> > > ??? If the length is 1..5 I suspect you could use the top two bits and fit
-> > > the whole thing in a byte. But since bytes work well, use the top three
-> > > bits for length without the one bit offset. Still a big win over strings,
-> > > although a LOT harder to get right by eye.
-> >
-> > Please read back through the thread and see how 255 different 7 bit codes
-> > complete with lengths can be packed into 8 bits.
+Jesse Barnes wrote:
+> Here's the lastest version of the lockassert patch.  It includes:
+>   o MUST_HOLD for all architectures
+>   o MUST_HOLD_RW for architectures implementing rwlock_is_locked (only
+>     ia64 at the moment, as part of this patch)
+>   o MUST_HOLD_RWSEM for arcitectures that use rwsem-spinlock.h
+>   o MUST_HOLD_SEM for ia64
+>   o a call to MUST_HOLD(&inode_lock) in inode.c:__iget().
 > 
-> It appears someone is under the misapprehension that Morse characters are
-> all 5 elements or less. "SK" is an example of a six element meta-character,
-> one of a set that needs caring for, "...-.-".
+> I'd be happy to take patches that implement the above routines for
+> other architectures and/or patches that sprinkle the macros where
+> they're needed.
 
-Need I point out that we are now perfectly positioned to invent the additional
-morse codes needed to represent all the remaining ascii characters?  We could
-call the revised code... err... "remorse" ;-)
+Well one one place? Every single implementation of the request_fn
+method from the request_queue_t needs to hold some
+lock associated with the queue in question.
 
--- 
-Daniel
+In fact you will find ASSERT_LOCK macros sparnkled through the scsi code 
+already right now. BTW> ASSERT_HOLDS would sound a bit more
+familiar to some of us.
+
+This minor issue asside I think that your idea is a good thing.
+
+

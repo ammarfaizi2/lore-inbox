@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262285AbSI1R1a>; Sat, 28 Sep 2002 13:27:30 -0400
+	id <S262287AbSI1Ra2>; Sat, 28 Sep 2002 13:30:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262287AbSI1R1a>; Sat, 28 Sep 2002 13:27:30 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38397 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262285AbSI1R01>;
-	Sat, 28 Sep 2002 13:26:27 -0400
-Message-ID: <3D95E747.28DE7217@mvista.com>
-Date: Sat, 28 Sep 2002 10:30:47 -0700
+	id <S262289AbSI1Ra2>; Sat, 28 Sep 2002 13:30:28 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:43517 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262287AbSI1R2P>;
+	Sat, 28 Sep 2002 13:28:15 -0400
+Message-ID: <3D95E776.D94BFCBA@mvista.com>
+Date: Sat, 28 Sep 2002 10:31:34 -0700
 From: george anzinger <george@mvista.com>
 Organization: Monta Vista Software
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
@@ -16,2167 +16,2585 @@ MIME-Version: 1.0
 To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
        "george@mvista.com" <george@mvista.com>,
        Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH 2/6] High-res-timers part 2 (x86 platform code) take 2
+Subject: [PATCH 4/6] High-res-timers part 4 (support-lib) take 2
 Content-Type: multipart/mixed;
- boundary="------------E198A0778B34A132E8AA21AB"
+ boundary="------------870587E2DCC423C090A79CB6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 This is a multi-part message in MIME format.
---------------E198A0778B34A132E8AA21AB
+--------------870587E2DCC423C090A79CB6
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-This patch, in conjunction with the "core" high-res-timers
-patch implements high resolution timers on the i386
-platforms.  The high-res-timers use the periodic interrupt
-to "remind" the system to look at the clock.  The clock
-should be relatively high resolution (1 micro second or
-better).  This patch allows configuring of three possible
-clocks, the TSC, the ACPI pm timer, or the Programmable
-interrupt timer (PIT).  Most of the changes in this patch
-are in the arch/i386/time.c code.
+The 4th, 5th, and 6th parts are support code and not really
+part of the kernel.
 
-With this patch applied and enabled (at config time in the
-processor feature section), the system clock will be the
-specified clock.  The PIT is not used to keep track of time,
-but only to remind the system to look at the clock.  Sub
-jiffies are kept and available for code that knows how to
-use them.
+This part contains the user land library build code, change
+log, and readme stuff.
+
+There are two library stub generation bits, one for a shared
+library and one for an archive library.  The archive library
+is arch neutral, the share is i386 only.
+
+
+The whole of this patch will create and populate the
+Documentation/high-res-timers/ directory.  It , with the
+remaining parts, is very useful for testing correct
+functioning of the new system calls.  It
+also contains a test program (performance.c) that will
+generate graph data for gnuplot showing interesting
+performance numbers WRT to large numbers timers.
 -- 
 George Anzinger   george@mvista.com
 High-res-timers: 
 http://sourceforge.net/projects/high-res-timers/
 Preemption patch:
 http://www.kernel.org/pub/linux/kernel/people/rml
---------------E198A0778B34A132E8AA21AB
-Content-Type: text/plain; charset=us-ascii;
- name="hrtimers-i386-2.5.39-1.0.patch"
-Content-Transfer-Encoding: 7bit
+--------------870587E2DCC423C090A79CB6
+Content-Type: text/plain; charset=iso-8859-1;
+ name="hrtimers-lib-etc-2.5.34-1.0.patch"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline;
- filename="hrtimers-i386-2.5.39-1.0.patch"
+ filename="hrtimers-lib-etc-2.5.34-1.0.patch"
 
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/arch/i386/Config.help linux/arch/i386/Config.help
---- linux-2.5.39-core/arch/i386/Config.help	Fri Sep 27 17:05:09 2002
-+++ linux/arch/i386/Config.help	Fri Sep 27 17:29:59 2002
-@@ -44,6 +44,75 @@
-   Say Y here if you are building a kernel for a desktop, embedded
-   or real-time system.  Say N if you are unsure.
- 
-+High-res-timers
-+CONFIG_HIGH_RES_TIMERS
-+  POSIX timers are available by default.  This option enables high
-+  resolution POSIX timers.  With this option the resolution is at
-+  least 1 micro second.  High resolution is not free.  If enabled this
-+  option will add a small overhead each time a timer expires that is
-+  not on a 1/HZ tick boundry.  If no such timers are used the overhead
-+  is nil.
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/CHANGELOG linux/Documentation/high-res-timers/C=
+HANGELOG
+--- linux-2.5.36-kb/Documentation/high-res-timers/CHANGELOG	Wed Dec 31 16=
+:00:00 1969
++++ linux/Documentation/high-res-timers/CHANGELOG	Fri Sep 27 11:05:08 200=
+2
+@@ -0,0 +1,107 @@
++For version 2.4.18-3.0
 +
-+  This option enables two additional POSIX CLOCKS, CLOCK_REALTIME_HR
-+  and CLOCK_MONOTONIC_HR.  Note that this option does not change the
-+  resolution of CLOCK_REALTIME or CLOCK_MONOTONIC which remain at 1/HZ
-+  resolution.
++This version is the first to have the clock_nanosleep absolute feature
++which POSIX says, if the clock is set under the sleep, it will still
++expire when it should (unless that time is now past, in which case it
++should expire immediately).
 +
-+High-res-timers clock
-+CONFIG_HIGH_RES_TIMER_ACPI_PM 
-+  This option allows you to choose the wall clock timer for your system.
-+  With high resolution timers on the x86 platforms it is best to keep
-+  the interrupt generating timer separate from the time keeping timer.
-+  On x86 platforms there are three possible sources implemented for the
-+  wall clock.  These are:
-+ 
-+  <timer>				<resolution>
-+  ACPI power management (pm) timer	~280 nano seconds
-+  TSC (Time Stamp Counter)		1/CPU clock
-+  PIT (Programmable Interrupt Timer)	~838 nano seconds
++We now have a clock_nanosleep test with help from Robert Love and
++George.	 It actually verifies the above feature as well as that signals
++that don't get delivered to the user do not cause clock_nanosleep to
++stop, while those that do, do.	We tested using SIGSTOP and SIGCONT.
 +
-+  The PIT is used to generate interrupts and at any given time will be
-+  programmed to interrupt when the next timer is to expire or on the
-+  next 1/HZ tick.  For this reason it is best to not use this timer as
-+  the wall clock timer.  This timer has a resolution of 838 nano
-+  seconds.  THIS OPTION SHOULD ONLY BE USED IF BOTH ACPI AND TSC ARE
-+  NOT AVAILABLE.
++It turns out that, if we are not doing high res (either because it is
++turned off or because there are no high res timers expiring) that the
++PIT (which is to give us periodic interrupts) drifts with respect to the=
+
++clock, be it TSC or ACPI pm timer.  This causes the jiffie interrupts to=
+
++drift around causing varying and significant latency in the delivery
++of low res timers.  We now have code to detect this drift and "touch"
++the PIT as needed to get it to give us interrupts much closer to when we=
+
++want them.  I suppose we could use this as an indication that we have
++not done as good a job of calibrating the TSC as we would like.	 But
++even the ACPI drifts and it should be on the same "rock".
 +
-+  The TSC runs at the cpu clock rate (i.e. its resolution is 1/CPU
-+  clock) and it has a very low access time.  However, it is subject,
-+  in some (incorrect) processors, to throttling to cool the cpu, and
-+  to other slow downs during power management.  If your cpu is correct
-+  and does not change the TSC frequency for throttling or power
-+  management this is the best clock timer.
++The man pages have been updated to (hopefully) get the arguments right.
 +
-+  The ACPI pm timer is available on systems with Advanced Configuration
-+  and Power Interface support.  The pm timer is available on these
-+  systems even if you don't use or enable ACPI in the software or the
-+  BIOS (but see Default ACPI pm timer address).  The timer has a
-+  resolution of about 280 nanoseconds, however, the access time is a bit
-+  higher that that of the TSC.  Since it is part of ACPI it is intended
-+  to keep track of time while the system is under power management, thus
-+  it is not subject to the problems of the TSC.
++A bug was found and fixed in the test to see if a timer was referenced
++to CLOCK_MONOTONIC.  It caused nasty errors when converting such timers
++to the system base.
 +
-+  If you enable the ACPI pm timer and it can not be found, it is
-+  possible that your BIOS is not producing the ACPI table or that your
-+  machine does not support ACPI.  In the former case, see "Default ACPI
-+  pm timer address".  If the timer is not found the boot will fail when
-+  trying to calibrate the delay timer.
++After spending a LOT of time getting clock_nanosleep and its test to
++work, I decided to error out requests for times beyond what can be fit
++in the (size of long) jiffie.  In the past these were just set to the
++max value.  This just caused such obvious errors to look like normal
++timers, not fun to debug.
 +
-+Default ACPI pm timer address
-+CONFIG_HIGH_RES_TIMER_ACPI_PM_ADD
-+  This option is available for use on systems where the BIOS does not
-+  generate the ACPI tables if ACPI is not enabled.  For example some
-+  BIOSes will not generate the ACPI tables if APM is enabled.  The ACPI
-+  pm timer is still available but can not be found by the software.
-+  This option allows you to supply the needed address.  When the high
-+  resolution timers code finds a valid ACPI pm timer address it reports
-+  it in the boot messages log (look for lines that begin with
-+  "High-res-timers:").  You can turn on the ACPI support in the BIOS,
-+  boot the system and find this value.  You can then enter it at
-+  configure time.  Both the report and the entry are in decimal.
++AND, least I forget, we have moved to a shared system call stub library.=
+
++This should allow you to not reload your using code, even if the system
++call numbers change.  It did take a few more files (purloined from
++glibc) to do it, however.
 +
- CONFIG_X86
-   This is Linux's home port.  Linux was originally native to the Intel
-   386, and runs on all the later x86 processors including the Intel
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/arch/i386/config.in linux/arch/i386/config.in
---- linux-2.5.39-core/arch/i386/config.in	Fri Sep 27 17:05:09 2002
-+++ linux/arch/i386/config.in	Fri Sep 27 17:29:59 2002
-@@ -157,6 +157,23 @@
- bool 'Huge TLB Page Support' CONFIG_HUGETLB_PAGE
- 
- bool 'Symmetric multi-processing support' CONFIG_SMP
-+bool 'Configure High-Resolution-Timers' CONFIG_HIGH_RES_TIMERS
-+#
-+# We assume that if the box doesn't have a TSC it doesn't have ACPI either.
-+#
-+if [ "$CONFIG_HIGH_RES_TIMERS" = "y" -a "$CONFIG_X86_TSC" = "y" ]; then
-+	choice 'Clock source?' \
-+		"ACPI-pm-timer  CONFIG_HIGH_RES_TIMER_ACPI_PM  \
-+		Time-stamp-counter/TSC  CONFIG_HIGH_RES_TIMER_TSC \
-+		Programable-interrupt-timer/PIT CONFIG_HIGH_RES_TIMER_PIT" Time-stamp-counter/TSC
-+else
-+	if [ "$CONFIG_HIGH_RES_TIMERS" = "y" ]; then
-+		define_bool CONFIG_HIGH_RES_TIMER_PIT y
-+        fi
-+fi
-+if [ "$CONFIG_HIGH_RES_TIMER_ACPI_PM" = "y" ]; then
-+	int 'Default ACPI pm timer address' CONFIG_HIGH_RES_TIMER_ACPI_PM_ADD 0
-+fi 
- bool 'Preemptible Kernel' CONFIG_PREEMPT
- if [ "$CONFIG_SMP" != "y" ]; then
-    bool 'Local APIC support on uniprocessors' CONFIG_X86_UP_APIC
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/arch/i386/kernel/Makefile linux/arch/i386/kernel/Makefile
---- linux-2.5.39-core/arch/i386/kernel/Makefile	Thu Sep 26 11:23:49 2002
-+++ linux/arch/i386/kernel/Makefile	Fri Sep 27 17:29:59 2002
-@@ -16,6 +16,7 @@
- obj-$(CONFIG_MCA)		+= mca.o
- obj-$(CONFIG_X86_MSR)		+= msr.o
- obj-$(CONFIG_X86_CPUID)		+= cpuid.o
-+obj-$(CONFIG_HIGH_RES_TIMER_ACPI_PM) += high-res-tbxfroot.o
- obj-$(CONFIG_MICROCODE)		+= microcode.o
- obj-$(CONFIG_APM)		+= apm.o
- obj-$(CONFIG_ACPI)		+= acpi.o
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/arch/i386/kernel/high-res-tbxfroot.c linux/arch/i386/kernel/high-res-tbxfroot.c
---- linux-2.5.39-core/arch/i386/kernel/high-res-tbxfroot.c	Wed Dec 31 16:00:00 1969
-+++ linux/arch/i386/kernel/high-res-tbxfroot.c	Fri Sep 27 17:29:59 2002
-@@ -0,0 +1,272 @@
-+/******************************************************************************
-+ *
-+ * Module Name: tbxfroot - Find the root ACPI table (RSDT)
-+ *              $Revision: 49 $
-+ *
-+ *****************************************************************************/
++The library make file will also figure out if the itimer struct is neede=
+d
++in posix_lib.h and do the right thing.
 +
++For version 2.4.18-1.0
++
++Made the sub_expire member of the timer_list structure unconditional.
++This should allow modules compiled against high res on or off to play
++regardless of how the kernel is compiled.
++
++Also moved jiffies out of the #define name space.  It is now defined by
++the linker and is only in the extern name space.  You are free to use it=
+
++as a dummy variable, local variable or member of a struct or union.
++
++For version 2.4.17-3.0
++
++Found a fixed a major bug that lost (or delayed) timers for a LONG time.=
+
++All timers, not just POSIX timers.
++
++Also removed changes to limits.h and changed config.in to default to
++3000 timers and to use the TSC clock.  Also disabled some debug code
++that was getting turned on if CONFIG_KGDB was defined.
++
++For version 2.4.17-2.2
++
++Fixed the set up of the arch_to_latch conversion constant so we actually=
+
++do get sub jiffies interrupts, thanks to Jim Houston for spotting this
++one.
++
++Put normalize code in the clock_gettime() call so we no longer return
++un-normalized time (i.e. nanoseconds > 1 sec.).
++
++Changed the run_timer_list code to get the latest version of "NOW" just
++prior to the scan.
++
++Changed schedule_next_interrupt() to accept a flag indicating how to
++return if the requested time has already elapsed (it was indicating
++"time elapsed" and not scheduling an interrupt which does not work well
++if we REALLY need the interrupt).
++
++For version 2.4.17-2.1
++
++Since 2.4.17-3.1 (the last to go to sourceforge)
++
++Fixed compile problems with high-res-timers turned off (who would do
++such a thing?)
++
++Changed all the ex_ math code to sc_ (it is scaled math after all).
++
++Added man pages
++
++Changed to no longer try to measure the minimun interval we can
++support.  It is now fixed at 500 micro seconds.	 Looking for a new way
++to do this.  The old one ran into NMI issues on SMP machines.
++
++Fixed config.in "] problem (must be " ]).
++
++Picked up several more name space collisions on jiffies.
++
++Added the rest of the system call links for all archs, save, I think sh.=
+
++
++Fixed a bug where a call to clock_gettime messed up gettimeofday.
++
++Simplified the lib stuff and moved the whole thing into the kernel tree.=
+
++It no longer depends on links in /usr/include.
++
++I am sure I am forgetting something, but sigh, lets ship this thing.
++
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/README linux/Documentation/high-res-timers/READ=
+ME
+--- linux-2.5.36-kb/Documentation/high-res-timers/README	Wed Dec 31 16:00=
+:00 1969
++++ linux/Documentation/high-res-timers/README	Fri Sep 27 11:05:23 2002
+@@ -0,0 +1,138 @@
++
++This is the read me file for the high-res-timer patch.
++
++New with this release (2.4.18-3.0):
++
++The info below has changed.  Please read it again rather than assume it
++is the same.
++
++
++This file and those "near" it are in the kernel tree.  You may move it
++out if you like, however, if you build the library file where it is you
++should not need to mess with the links to the kernel tree as described
++below.	Also, should you want to send me a patch, I would like it to be
++in this location.
++
++Be aware that the patch is not just to the kernel.  There are four
++parts:
++
++1.)The kernel patch, =
+
++2.)A library file (contains the system call stubs and a header file), an=
+d
++3.)A patch to a header files to expand some of the signal structures and=
+
++such. =
+
++4.)A set of test programs.
++
++For the newer glibc library, the bits/types.h file is ok as it stands.
++An old version is included just in case, but it is renamed to stay out
++of the way (see ./usr_incl/bits/).  The bits/signinfo.h file provided
++is, I think, compatable with both the new and old libraries.  I included=
+
++a patched version from the Red Hat 7.3 distro.	There is also a patch in
++case you want to know what changed or what to use some other version.  I=
+
++think the patch file for this header will work with both old and new
++libraries.  In any case you have the desired result and can act
++accordinly.
++
++There are a bunch of other header files under usr_incl.	 These are used
++ONLY to make the system call stub library.  The only file you may want
++to move to /usr/include is the bits/siginfo.h file.
++
++If you like, you can copy siginfo.h file to a separate directory (called=
+
++"bits"), and then use "-I/xxx" in the cc command, where "xxx" is the
++path to then new bits directory. (Don't include "bits" in xxx, the
++#include <bits/yyy.h> has the "bits" in it.)  This is what I am doing
++for testing so as not to affect my include files till I am REALLY sure
++this is what I want.  The test program Makefile is set up to pick up the=
+
++include files from the directory created for them by applying this
++patch.	The patch includes a patched version of siginfo.h, but you may
++want to patch your own to be sure you have current versions for your
++system (this is from glib-2.2.4-13).
++
++Header file issues: In addition to the headers called out in the
++standard and the man pages you will want to include the lib/posix_time.h=
+
++file in this patch.  This file is automaticly configured by the library
++make file to remove a possible conflict with your standard headers.  It
++has everything you need to use glibc versions as old as 2.1.2.	New
++glibc versions have almost all of this stuff included in them.	If you
++have trouble with the auto configure stuff, all it changes is an #ifdef
++NEED_ITIMERSPEC.  Do let me know if this does not work on your system.
++
++You will need to build the library file (make is included in the patch)
++AFTER you patch the kernel as it uses the system call definitions the
++patch puts in (also after the first make on the tree so that the asm
++link in include is defined in the kernel tree).	 In order for this to
++work you need to have a symbolic link in /usr/include for asm that
++points to the kernel include asm directory.  You already have this link,=
+
++but it may point to a different kernel if you have more than one on your=
+
++system.	 Again, you can provide an alternative for this by putting
++"-Ipath/include" in the CPPFLAGS macro in the library build make file. =
+
++Here path should be to the top directory of your new kernel (i.e. where
++include is found).  Note, the Makefile trys to point to a directory in
++the tar ball but this will not exist and should be harmless if you have =
+the
++correct asm link.  A recommended link for asm in /usr/include is:
++
++ln -s ../src/linux/include/asm asm
++
++This assumes that you have your kernel(s) located in the /usr/src
++directory and have a symbolic link to the current kernel (which you will=
+
++need to do the patch).	If you should move to a new kernel, changing the
++link in /usr/src will allow the /usr/include/asm to follow.
++
++After building the library, install it in your /usr/lib directory on
++your target. Then rebuild your kernel, and you should be set to build
++timer calls into your applications.
++
++MAN PAGES
++
++We now have man pages (Thanks to Robert Love).	=
+
++
++However, we did the man pages for the system we would like to have, but
++don't just yet.	 Here are the known deficiencies:
++
++The SIGEV_THREAD stuff in timer_create() requires glibc or thread
++package support which we just don't have yet.
++
++The SIGEV_THREAD in timer_create() requires thread groups be supported
++in the thread package.	Linux threads does not yet use thread groups so
++this will not work.  If you do create your own, or use a thread package
++that does use thread groups, be aware that the thread id that is to be
++passed to the kernel must be a pid, not a pthread_t id.	 Again glibc
++will do this translation once it gets to using thread groups.
++
++The clock_* man pages talk about two CLOCK_*CPU* clocks.  These will be
++supported someday, but not just yet.  For now, expect bad clock id
++errors on these clocks.
++
++The man pages on *_getcpuclockid actually describe functions in the
++existing glibc, at least at newer revs.	 You may or may not actually
++find the functions depending on your glibc version.  Not that it
++matters, because, as we said above, we don't yet support these clocks in=
+
++the kernel.
++
++Installing the man pages:
++
++In the .../man directory there is a make file that will install the
++pages.	The target directory must exist and is determined as follows:
++
++# If the  enviroment variable MANPATH is  defined and not  null, use the=
+
++# first entry in it.
++
++# Otherwise, if "/etc/man.config" exists, use the first MANPATH entry in=
+
++# it.  If both of these fail, print an error and quit.
++
++# If you  want to override this to  put the pages in  directory foo use:=
+
++# make MANPATH=3Dfoo
++
++# If you  want to  force it to	use the	 /etc/man.config and you  have a
++# MANPATH use: make MANPATH=3D
++
++Usually you will need root capability to store into the man page
++directory.
++
++Thats all the problems I can think of.	As always, let me know if there
++is more to be said here, or anywhere.
++
++Let me know if you have any problems.  I would like to keep these
++instructions for the next user...  Be nice if they were correct :)
++
++George Anzinger george@mvista.com
++
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/lib/Makefile linux/Documentation/high-res-timer=
+s/lib/Makefile
+--- linux-2.5.36-kb/Documentation/high-res-timers/lib/Makefile	Wed Dec 31=
+ 16:00:00 1969
++++ linux/Documentation/high-res-timers/lib/Makefile	Fri Sep 27 11:03:55 =
+2002
+@@ -0,0 +1,24 @@
++LIBPOSIXTIME =3D libposixtime.so
++
++SOURCES =3D syscall_timer.c =
+
++OBJECTS =3D $(SOURCES:.c=3D.o)
++
++SYSASM =3D  -I../../../include/ -I../usr_incl/
++CPPFLAGS =3D -D_POSIX_TIMERS=3D1 -D_POSIX_C_SOURCE=3D199309L -D_XOPEN_SO=
+URCE -D_LIBC $(SYSASM)
++CFLAGS =3D -g -Wall -shared -fpic -fPIC
++
++all: $(LIBPOSIXTIME)($(OBJECTS))
++
++clean:
++	rm -f *.o *.a *.so *~ core .depend t--* tmp
++
++.depend: $(SOURCES) test_itimerspec
++	$(CC) $(CPPFLAGS)  -M $(SOURCES) | \
++		sed -e '/:/s|^[^ :]*|$(LIBPOSIXTIME)(&)|' > .depend
++	chmod +x test_itimerspec
++	./test_itimerspec $(CC) $(CPPFLAGS) &>/dev/null
++	make
++
++# The above make insures that "all:" is done with the newly created .dep=
+end
++
++include .depend
+Binary files linux-2.5.36-kb/Documentation/high-res-timers/lib/libposixti=
+me.so and linux/Documentation/high-res-timers/lib/libposixtime.so differ
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/lib/posix_time.h linux/Documentation/high-res-t=
+imers/lib/posix_time.h
+--- linux-2.5.36-kb/Documentation/high-res-timers/lib/posix_time.h	Wed De=
+c 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/lib/posix_time.h	Fri Sep 27 11:03=
+:37 2002
+@@ -0,0 +1,151 @@
 +/*
-+ *  Copyright (C) 2000, 2001 R. Byron Moore
-+
-+ *  This code purloined and modified by George Anzinger
-+ *                          Copyright (C) 2002 by MontaVista Software.
-+ *  It is part of the high-res-timers ACPI option and its sole purpose is
-+ *  to find the darn timer.
++ * Copyright (C) 1997 by the University of Kansas Center for Research,
++ * Inc.	 This software was developed by the Information and
++ * Telecommunication Technology Center (ITTC) at the University of
++ * Kansas.  Partial funding for this project was provided by Sprint. Thi=
+s
++ * software may be used and distributed according to the terms of the GN=
+U
++ * Public License, incorporated herein by reference.  Neither ITTC nor
++ * Sprint accept any liability whatsoever for this product.
 + *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
++ * This project was developed under the direction of Dr. Douglas Niehaus=
+=2E
 + *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
++ * Authors: Shyam Pather, Balaji Srinivasan =
+
 + *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ * Please send bug-reports/suggestions/comments to posix@ittc.ukans.edu
++ *
++ * Further details about this project can be obtained at
++ *    http://hegel.ittc.ukans.edu/projects/posix/
++ *
++ * Currently part of the high-res-timers project:
++ *	   http://sourceforge.net/projects/high-res-timers/
++ *
 + */
 +
-+/* This is most annoying!  We want to find the address of the pm timer in the
-+ * ACPI hardware package.  We know there is one if ACPI is available at all 
-+ * as it is part of the basic ACPI hardware set. 
-+ * However, the powers that be have conspired to make it a real
-+ * pain to find the address.  We have written a minimal search routine
-+ * that we use only once on boot up.  We try to cover all the bases including
-+ * checksum, and version.  We will try to get some constants and structures
-+ * from the ACPI code in an attempt to follow it, but darn, what a mess.
++/*********************** NOTES on this file.****************************=
+
 + *
-+ * First problem, the include files are in the driver package....
-+ * and what a mess they are.  We pick up the kernel string and types first.
-+
-+ * But then there is the COMPILER_DEPENDENT_UINT64 ...
-+ */
-+
-+#define COMPILER_DEPENDENT_UINT64   unsigned long long
-+#include <linux/kernel.h>
-+#include <linux/string.h>
-+#include <../drivers/acpi/include/actypes.h>
-+#include <../drivers/acpi/include/actbl.h>
-+#include <../drivers/acpi/include/acconfig.h>
-+#include <linux/init.h>
-+#include <asm/page.h>
-+
-+#define STRNCMP(d,s,n)  strncmp((d), (s), (NATIVE_INT)(n))
-+#define RSDP_CHECKSUM_LENGTH 20
-+
-+#ifndef CONFIG_ACPI
-+/*******************************************************************************
++ * This is a header file for use with the POSIX timers.	 If you have a
++ * current glibc, most of what is here is already defined and thus, not
++ * needed. The only part you would need with the latest glibc (2.2.5)
++ * for example, is the CLOCK_MONOTONIC, and the CLOCK_*_HR defines.
 + *
-+ * FUNCTION:    hrt_acpi_checksum
++ * When this code is integerated into glibc this file will go away.
 + *
-+ * PARAMETERS:  Buffer              - Buffer to checksum
-+ *              Length              - Size of the buffer
++ * An effort was made to avoid errors because something is already defin=
+ed
++ * however, this is life, so there will always be some issues.	If anythi=
+ng
++ * here collides with your normal libc header files, you can most likey
++ * just comment out the offending parts.
 + *
-+ * RETURNS      8 bit checksum of buffer
-+ *
-+ * DESCRIPTION: Computes an 8 bit checksum of the buffer(length) and returns it.
-+ *
-+ ******************************************************************************/
-+static  __init
-+u8
-+hrt_acpi_checksum (
-+	void                    *buffer,
-+	u32                     length)
-+{
-+	u8                      *limit;
-+	u8                      *rover;
-+	u8                      sum = 0;
++ ***********************************************************************=
+*/
 +
 +
-+	if (buffer && length) {
-+		/*  Buffer and Length are valid   */
 +
-+		limit = (u8 *) buffer + length;
++#ifndef __POSIX_TIME_H
++#define __POSIX_TIME_H
 +
-+		for (rover = buffer; rover < limit; rover++) {
-+			sum = (u8) (sum + *rover);
-+		}
-+	}
++#include <signal.h>
++#include <time.h>
 +
-+	return (sum);
-+}
++#ifdef _POSIX_TIMERS
 +
-+/*******************************************************************************
-+ *
-+ * FUNCTION:    hrt_acpi_scan_memory_for_rsdp
-+ *
-+ * PARAMETERS:  Start_address       - Starting pointer for search
-+ *              Length              - Maximum length to search
-+ *
-+ * RETURN:      Pointer to the RSDP if found, otherwise NULL.
-+ *
-+ * DESCRIPTION: Search a block of memory for the RSDP signature
-+ *
-+ ******************************************************************************/
-+static  __init
-+u8 *
-+hrt_acpi_scan_memory_for_rsdp (
-+	u8                      *start_address,
-+	u32                     length)
-+{
-+	u32                     offset;
-+	u8                      *mem_rover;
++#ifndef CLOCK_REALTIME
++#define CLOCK_REALTIME		 0
++#endif
++#ifndef CLOCK_MONOTONIC
++#define CLOCK_MONOTONIC		 1
++#endif
++#ifndef CLOCK_PROCESS_CPUTIME_ID
++#define CLOCK_PROCESS_CPUTIME_ID 2
++#endif
++#ifndef CLOCK_THREAD_CPUTIME_ID
++#define CLOCK_THREAD_CPUTIME_ID	 3
++#endif
++#ifndef CLOCK_REALTIME_HR
++#define CLOCK_REALTIME_HR	 4
++#endif
++#ifndef CLOCK_MONOTONIC_HR
++#define CLOCK_MONOTONIC_HR	 5
++#endif
 +
++#define NOF_CLOCKS 10
 +
-+	/* Search from given start addr for the requested length  */
++#undef	TIMER_ABSTIME
++#define TIMER_ABSTIME 0x01
 +
-+	for (offset = 0, mem_rover = start_address;
-+		 offset < length;
-+		 offset += RSDP_SCAN_STEP, mem_rover += RSDP_SCAN_STEP) {
++#undef TIMER_MAX
++#define TIMER_MAX 32000
 +
-+		/* The signature and checksum must both be correct */
++#ifndef NSEC_PER_SEC
++#define NSEC_PER_SEC 1000000000L
++#endif
 +
-+		if (STRNCMP ((NATIVE_CHAR *) mem_rover,
-+				RSDP_SIG, sizeof (RSDP_SIG)-1) == 0 &&
-+			hrt_acpi_checksum (mem_rover, RSDP_CHECKSUM_LENGTH) == 0) {
-+			/* If so, we have found the RSDP */
++#if !defined __clockid_t_defined
++typedef int clockid_t;
++# define __clockid_t_defined	1
++#endif
 +
-+;
-+			return (mem_rover);
-+		}
-+	}
++#ifndef __timer_t_defined
++# define __timer_t_defined	1
++typedef int timer_t;
++#endif
 +
-+	/* Searched entire block, no RSDP was found */
-+
-+
-+	return (NULL);
-+}
-+
-+
-+/*******************************************************************************
-+ *
-+ * FUNCTION:    hrt_acpi_find_rsdp
-+ *
-+ * PARAMETERS: 
-+ *
-+ * RETURN:      Logical address of rsdp
-+ *
-+ * DESCRIPTION: Search lower 1_mbyte of memory for the root system descriptor
-+ *              pointer structure.  If it is found, return its address,
-+ *              else return 0.
-+ *
-+ *              NOTE: The RSDP must be either in the first 1_k of the Extended
-+ *              BIOS Data Area or between E0000 and FFFFF (ACPI 1.0 section
-+ *              5.2.2; assertion #421).
-+ *
-+ ******************************************************************************/
-+/* Constants used in searching for the RSDP in low memory */
-+
-+#define LO_RSDP_WINDOW_BASE         0           /* Physical Address */
-+#define HI_RSDP_WINDOW_BASE         0xE0000     /* Physical Address */
-+#define LO_RSDP_WINDOW_SIZE         0x400
-+#define HI_RSDP_WINDOW_SIZE         0x20000
-+#define RSDP_SCAN_STEP              16
-+
-+static  __init
-+RSDP_DESCRIPTOR *
-+hrt_find_acpi_rsdp (void)
-+{
-+	u8                      *mem_rover;
-+
-+
-+        /*
-+         * 1) Search EBDA (low memory) paragraphs
-+         */
-+        mem_rover = hrt_acpi_scan_memory_for_rsdp((u8 *)__va(LO_RSDP_WINDOW_BASE),
-+                                                     LO_RSDP_WINDOW_SIZE);
-+
-+        if (!mem_rover) {
-+                /*
-+                 * 2) Search upper memory: 
-+                 *    16-byte boundaries in E0000h-F0000h
-+                 */
-+                mem_rover = hrt_acpi_scan_memory_for_rsdp((u8 *)__va(HI_RSDP_WINDOW_BASE),
-+                                                         HI_RSDP_WINDOW_SIZE);
-+        }
-+
-+        if (mem_rover) {
-+                /* Found it, return the logical address */
-+
-+                return (RSDP_DESCRIPTOR *)mem_rover;
-+        }
-+        return (RSDP_DESCRIPTOR *)0;
-+}
-+
-+__init
-+u32
-+hrt_get_acpi_pm_ptr(void)
-+{
-+        fadt_descriptor_rev2 *fadt;
-+        RSDT_DESCRIPTOR_REV2 *rsdt;
-+        XSDT_DESCRIPTOR_REV2 *xsdt;
-+        RSDP_DESCRIPTOR *rsdp = hrt_find_acpi_rsdp ();
-+
-+        if ( ! rsdp){
-+                printk("ACPI: System description tables not found\n");
-+                return 0;
-+        }
-+        /*
-+         * Now that we have that problem out of the way, lets set up this
-+         * timer.  We need to figure the addresses based on the revision
-+         * of ACPI, which is in this here table we just found.
-+         * We will not check the RSDT checksum, but will the FADT.
-+         */
-+        if ( rsdp->revision == 2){
-+                xsdt = (XSDT_DESCRIPTOR_REV2 *)__va(rsdp->xsdt_physical_address);
-+                fadt = (fadt_descriptor_rev2 *)__va(xsdt->table_offset_entry [0]);
-+        }else{
-+                rsdt = (RSDT_DESCRIPTOR_REV2 *)__va(rsdp->rsdt_physical_address);
-+                fadt = (fadt_descriptor_rev2 *)__va(rsdt->table_offset_entry [0]);
-+        }
-+        /*
-+         * Verify the signature and the checksum
-+         */
-+        if (STRNCMP ((NATIVE_CHAR *) fadt->header.signature ,
-+                     FADT_SIG, sizeof (FADT_SIG)-1) == 0 &&
-+            hrt_acpi_checksum ((NATIVE_CHAR *)fadt, fadt->header.length) == 0) {
-+                /*
-+                 * looks good.  Again, based on revision,
-+                 * pluck the addresses we want and get out.
-+                 */
-+                if ( rsdp->revision == 2){
-+                        return (u32 )fadt->Xpm_tmr_blk.address;
-+                }else{
-+                        return (u32 )fadt->V1_pm_tmr_blk;
-+                }
-+        }
-+        printk("ACPI: Signature or checksum failed on FADT\n");
-+        return 0;
-+}
-+
-+#else
-+int acpi_get_firmware_table (
-+	acpi_string             signature,
-+	u32                     instance,
-+	u32                     flags,
-+	acpi_table_header       **table_pointer);
-+
-+extern  fadt_descriptor_rev2 acpi_fadt;
-+__init
-+u32
-+hrt_get_acpi_pm_ptr(void)
-+{
-+        fadt_descriptor_rev2 *fadt = &acpi_fadt;
-+        fadt_descriptor_rev2 local_fadt;
-+
-+        if (! fadt || !fadt->header.signature[0]){
-+                fadt = &local_fadt;
-+                acpi_get_firmware_table("FACP",1,0,(acpi_table_header **)&fadt);
-+        }
-+        if ( ! fadt|| !fadt->header.signature[0]){
-+                printk("ACPI: Could not find the ACPI pm timer.");
-+        }
-+               
-+        if ( fadt->header.revision == 2){
-+                        return (u32)fadt->Xpm_tmr_blk.address;
-+        }else{
-+                        return (u32 )fadt->V1_pm_tmr_blk;
-+        }
++#ifdef __cplusplus
++extern "C" {
++#endif
++#if 0	     // fix confused pretty printer
 +}
 +#endif
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/arch/i386/kernel/time.c linux/arch/i386/kernel/time.c
---- linux-2.5.39-core/arch/i386/kernel/time.c	Fri Sep 27 17:05:09 2002
-+++ linux/arch/i386/kernel/time.c	Fri Sep 27 17:29:59 2002
-@@ -29,7 +29,10 @@
-  *	Fixed a xtime SMP race (we need the xtime_lock rw spinlock to
-  *	serialize accesses to xtime/lost_ticks).
-  */
--
-+/* 2002-8-13 George Anzinger  Modified for High res timers: 
-+ *                            Copyright (C) 2002 MontaVista Software
++/* POSIX.1b structure for timer start values and intervals.  */
++/* If the following is already defined, just change the 1 to a 0 */
++#define NEED_ITIMERSPEC
++#ifndef NEED_ITIMERSPEC
++struct itimerspec
++  {
++    struct timespec it_interval;
++    struct timespec it_value;
++  };
++#endif
++/*
++ * Proto types can be repeated, so this should cause no errors even
++ * if time.h already defined it.
 +*/
-+#define _INCLUDED_FROM_TIME_C
- #include <linux/errno.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
-@@ -61,19 +64,19 @@
- 
- extern spinlock_t i8259A_lock;
- 
--#include "do_timer.h"
- 
- /*
-  * for x86_do_profile()
-  */
- #include <linux/irq.h>
-+#include <linux/hrtime.h>
- 
-+#include "do_timer.h"
- u64 jiffies_64;
- 
- unsigned long cpu_khz;	/* Detected as we calibrate the TSC */
- 
--/* Number of usecs that the last interrupt was delayed */
--static int delay_at_last_interrupt;
-+static __initdata unsigned long tsc_cycles_per_5_jiffies; /* set only if TSC */
- 
- static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
- 
-@@ -87,7 +90,24 @@
- extern rwlock_t xtime_lock;
- extern unsigned long wall_jiffies;
- 
 +
-+#ifndef CONFIG_HIGH_RES_TIMERS
-+
-+/* Number of usecs that the last interrupt was delayed */
-+static int delay_at_last_interrupt;
-+
-+#endif  /* CONFIG_HIGH_RES_TIMERS */
-+
- spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
-+/*
-+ * We have three of these do_xxx_gettimeoffset() routines:
-+ * do_fast_gettimeoffset(void) for TSC systems with out high-res-timers
-+ * do_slow_gettimeoffset(void) for ~TSC systems with out high-res-timers
-+ * do_highres__gettimeoffset(void) for systems with high-res-timers
-+ *
-+ * Pick the desired one at compile time...
-+ */
-+#if ! defined(CONFIG_HIGH_RES_TIMERS) && defined(CONFIG_X86_TSC)
- 
- static inline unsigned long do_fast_gettimeoffset(void)
- {
-@@ -117,14 +137,15 @@
- 	/* our adjusted time offset in microseconds */
- 	return delay_at_last_interrupt + edx;
- }
-+#define do_gettimeoffset() do_fast_gettimeoffset()
-+#endif
- 
- #define TICK_SIZE (tick_nsec / 1000)
- 
- spinlock_t i8253_lock = SPIN_LOCK_UNLOCKED;
- EXPORT_SYMBOL(i8253_lock);
- 
--#ifndef CONFIG_X86_TSC
--
-+#if  ! defined(CONFIG_HIGH_RES_TIMERS) && ! defined(CONFIG_X86_TSC)
- /* This function must be called with interrupts disabled 
-  * It was inspired by Steve McCanne's microtime-i386 for BSD.  -- jrs
-  * 
-@@ -222,10 +243,21 @@
- 
- static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;
- 
--#else
-+#endif
- 
--#define do_gettimeoffset()	do_fast_gettimeoffset()
-+#ifdef CONFIG_HIGH_RES_TIMERS
- 
-+static unsigned long do_highres_gettimeoffset(void)
-+{
-+        /*
-+         * We are under the xtime_lock here.
-+         */
-+        long tmp = quick_get_cpuctr();
-+        long rtn = arch_cycles_to_usec(tmp + sub_jiffie());
-+	return rtn;
-+}
-+
-+#define do_gettimeoffset() do_highres_gettimeoffset()
- #endif
- 
- /*
-@@ -240,16 +272,25 @@
- 	read_lock_irqsave(&xtime_lock, flags);
- 	usec = do_gettimeoffset();
- 	{
-+                /*
-+                 * FIX ME***** Due to adjtime and such
-+                 * this should be changed to actually update
-+                 * wall time using the proper routine.
-+                 * Otherwise we run the risk of time moving
-+                 * backward due to different interpretations
-+                 * of the jiffie.  I.e jiffie != 1/HZ
-+                 * (but it is close).
-+                 */
- 		unsigned long lost = jiffies - wall_jiffies;
- 		if (lost)
--			usec += lost * (1000000 / HZ);
-+			usec += lost * (USEC_PER_SEC / HZ);
- 	}
- 	sec = xtime.tv_sec;
- 	usec += (xtime.tv_nsec / 1000);
- 	read_unlock_irqrestore(&xtime_lock, flags);
- 
--	while (usec >= 1000000) {
--		usec -= 1000000;
-+	while (usec >= USEC_PER_SEC) {
-+		usec -= USEC_PER_SEC;
- 		sec++;
- 	}
- 
-@@ -267,10 +308,10 @@
- 	 * made, and then undo it!
- 	 */
- 	tv->tv_usec -= do_gettimeoffset();
--	tv->tv_usec -= (jiffies - wall_jiffies) * (1000000 / HZ);
-+	tv->tv_usec -= (jiffies - wall_jiffies) * (USEC_PER_SEC / HZ);
- 
- 	while (tv->tv_usec < 0) {
--		tv->tv_usec += 1000000;
-+		tv->tv_usec += USEC_PER_SEC;
- 		tv->tv_sec--;
- 	}
- 
-@@ -380,7 +421,14 @@
- 
- 	do_timer_interrupt_hook(regs);
- 
--	/*
-+        /* 
-+         * This is dumb for two reasons.  
-+         * 1.) it is based on wall time which has not yet been updated.
-+         * 2.) it is checked each tick for something that happens each
-+         *     10 min.  Why not use a timer for it?  Much lower overhead,
-+         *     in fact, zero if STA_UNSYNC is set.
-+         */
-+        /*
- 	 * If we have an externally synchronized Linux clock, then update
- 	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
- 	 * called as close as possible to 500 ms before the new second starts.
-@@ -395,21 +443,6 @@
- 			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
- 	}
- 	    
--#ifdef CONFIG_MCA
--	if( MCA_bus ) {
--		/* The PS/2 uses level-triggered interrupts.  You can't
--		turn them off, nor would you want to (any attempt to
--		enable edge-triggered interrupts usually gets intercepted by a
--		special hardware circuit).  Hence we have to acknowledge
--		the timer interrupt.  Through some incredibly stupid
--		design idea, the reset for IRQ 0 is done by setting the
--		high bit of the PPI port B (0x61).  Note that some PS/2s,
--		notably the 55SX, work fine if this is removed.  */
--
--		irq = inb_p( 0x61 );	/* read the current state */
--		outb_p( irq|0x80, 0x61 );	/* reset the IRQ */
--	}
--#endif
- }
- 
- static int use_tsc;
-@@ -421,17 +454,19 @@
-  */
- void timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
-+#ifndef CONFIG_HIGH_RES_TIMERS
- 	int count;
--
-+#endif
- 	/*
- 	 * Here we are in the timer irq handler. We just have irqs locally
- 	 * disabled but we don't know if the timer_bh is running on the other
--	 * CPU. We need to avoid to SMP race with it. NOTE: we don' t need
-+	 * CPU. We need to avoid to SMP race with it. NOTE: we don't need
- 	 * the irq version of write_lock because as just said we have irq
- 	 * locally disabled. -arca
- 	 */
- 	write_lock(&xtime_lock);
- 
-+#ifndef CONFIG_HIGH_RES_TIMERS
- 	if (use_tsc)
- 	{
- 		/*
-@@ -439,6 +474,10 @@
- 		 * the same time. We do the RDTSC stuff first, since it's
- 		 * faster. To avoid any inconsistencies, we need interrupts
- 		 * disabled locally.
-+                 * Note: It is dumb to put the spin_lock() between these two
-+                 * operations since we are trying to sync the two clocks.
-+                 * Also, the rdtscl is so fast, know one will know the
-+                 * difference.
- 		 */
- 
- 		/*
-@@ -446,11 +485,11 @@
- 		 * has the SA_INTERRUPT flag set. -arca
- 		 */
- 	
--		/* read Pentium cycle counter */
- 
-+		spin_lock(&i8253_lock);
-+		/* read Pentium cycle counter */
- 		rdtscl(last_tsc_low);
- 
--		spin_lock(&i8253_lock);
- 		outb_p(0x00, 0x43);     /* latch the count ASAP */
- 
- 		count = inb_p(0x40);    /* read the latched count */
-@@ -460,13 +499,123 @@
- 		count = ((LATCH-1) - count) * TICK_SIZE;
- 		delay_at_last_interrupt = (count + LATCH/2) / LATCH;
- 	}
-- 
-+#endif /* ! CONFIG_HIGH_RES_TIMERS */ 
- 	do_timer_interrupt(irq, NULL, regs);
- 
-+#ifdef CONFIG_MCA
-+        /*
-+         * This code mover here from do_timer_interrupt() as part of the
-+         * high-res timers change because it should be done every interrupt
-+         * but do_timer_interrupt() wants to return early if it is not a 
-+         * "1/HZ" tick interrupt.  For non-high-res systems the code is in
-+         * exactly the same location (i.e. it is moved from the tail of the
-+         * above called function to the next thing after the function).
-+         */
-+	if( MCA_bus ) {
-+		/* The PS/2 uses level-triggered interrupts.  You can't
-+		turn them off, nor would you want to (any attempt to
-+		enable edge-triggered interrupts usually gets intercepted by a
-+		special hardware circuit).  Hence we have to acknowledge
-+		the timer interrupt.  Through some incredibly stupid
-+		design idea, the reset for IRQ 0 is done by setting the
-+		high bit of the PPI port B (0x61).  Note that some PS/2s,
-+		notably the 55SX, work fine if this is removed.  */
-+
-+		irq = inb_p( 0x61 );	/* read the current state */
-+		outb_p( irq|0x80, 0x61 );	/* reset the IRQ */
-+	}
-+#endif
- 	write_unlock(&xtime_lock);
- 
- }
- 
-+#ifdef CONFIG_HIGH_RES_TIMERS
-+/*
-+ * ALL_PERIODIC mode is used if we MUST support the NMI watchdog.  In this
-+ * case we must continue to provide interrupts even if they are not serviced.
-+ * In this mode, we leave the chip in periodic mode programmed to interrupt
-+ * every jiffie.  This is done by, for short intervals, programming a short
-+ * time, waiting till it is loaded and then programming the 1/HZ.  The chip
-+ * will not load the 1/HZ count till the short count expires.  If the last
-+ * interrupt was programmed to be short, we need to program another short
-+ * to cover the remaining part of the jiffie and can then just leave the
-+ * chip alone.  Note that is is also a low overhead way of doing things as
-+ * we do not have to mess with the chip MOST of the time.
-+ */
-+int last_was_long = 0;
-+
-+int _schedule_next_int(unsigned long jiffie_f,long sub_jiffie_in, int always)
-+{
-+        long sub_jiff_offset; 
-+        IF_ALL_PERIODIC( if ((sub_jiffie_in == -1) && last_was_long) return 0);
-+        /* 
-+         * First figure where we are in time. 
-+         * A note on locking.  We are under the timerlist_lock here.  This
-+         * means that interrupts are off already, so don't use irq versions.
-+         */
-+        if_SMP( read_lock(&xtime_lock));
-+
-+        sub_jiff_offset = quick_update_jiffies_sub(jiffie_f);
-+
-+        if_SMP( read_unlock(&xtime_lock));
-+
-+
-+        if ((IF_ALL_PERIODIC( last_was_long =) (sub_jiffie_in == -1 ))) {
-+
-+                sub_jiff_offset = cycles_per_jiffies - sub_jiff_offset;
-+
-+        }else{
-+                 sub_jiff_offset = sub_jiffie_in - sub_jiff_offset;
-+        }
-+        /*
-+         * If time is already passed, just return saying so.
-+         */
-+        if (! always && (sub_jiff_offset <  high_res_test_val)){
-+                IF_ALL_PERIODIC( last_was_long = 0);
-+                return 1;
-+        }
-+        reload_timer_chip(sub_jiff_offset);
-+        return 0;
-+}
-+
-+int change_timer_mode(enum timer_chip_mode mode, int period)
-+{
-+	unsigned long flags;
-+
-+        /*
-+         * Note on locking.  The &i8253_lock is the chip spin_lock.
-+         * We must unlock to allow the reload (which will reaquire it),
-+         * however, that code is usually called with local irq disabled, 
-+         * so that is what we do here, by not useing the combined spin_unlock.
-+         */
-+        kernel_timer_mode = mode;
-+        spin_lock_irqsave(&i8253_lock, flags);
-+	if (mode == timer_chip_periodic) {
-+		put_timer_in_periodic_mode();
-+                spin_unlock(&i8253_lock);
-+		reload_timer_chip(period);
-+                timer_latch_reset(LATCH);
-+	} else {
-+		put_timer_in_oneshot_mode();
-+                spin_unlock(&i8253_lock);
-+                timer_latch_reset(0xffff);
-+                IF_ALL_PERIODIC(timer_latch_reset(LATCH));
-+                _schedule_next_int(jiffies,-1,1);
-+	}
-+        local_irq_restore(flags);
-+	printk(KERN_DEBUG "[%s:%s:%d] timer_mode:%d\n", __FILE__, __FUNCTION__, \
-+	       __LINE__, kernel_timer_mode);
-+	return 0;
-+}
-+#ifdef CONFIG_APM
-+void restart_timer(void)
-+{
-+        change_timer_mode(kernel_timer_mode,LATCH);
-+}
-+#endif /* CONFIG__APM */
-+#endif /* CONFIG_HIGH_RES_TIMERS */
-+
-+
- /* not static: needed by APM */
- unsigned long get_cmos_time(void)
- {
-@@ -509,6 +658,27 @@
- 	return mktime(year, mon, day, hour, min, sec);
- }
- 
-+#define CAL_JIFS 5
-+#define CALIBRATE_LATCH	(((CAL_JIFS * CLOCK_TICK_RATE) + HZ/2)/HZ)
-+#define CALIBRATE_TIME	((CAL_JIFS * USEC_PER_SEC)/HZ)
-+#define CALIBRATE_TIME_NSEC (CAL_JIFS * (NSEC_PER_SEC/HZ))
-+
-+#ifdef CONFIG_HIGH_RES_TIMERS
-+
-+void __init hrtimer_init(void)
-+{
-+        /*
-+         * The init_hrtimers macro is in the choosen support package
-+         * depending on the clock source, PIT, TSC, or ACPI pm timer.
-+	 */
-+        init_hrtimers();
-+	change_timer_mode(timer_chip_oneshot,0);
-+        
-+}
-+#else
-+#define hrtimer_init()
-+#endif /* ! CONFIG_HIGH_RES_TIMERS */ 
-+
- /* ------ Calibrate the TSC ------- 
-  * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
-  * Too much 64-bit arithmetic here to do this cleanly in C, and for
-@@ -518,8 +688,6 @@
-  * device.
-  */
- 
--#define CALIBRATE_LATCH	(5 * LATCH)
--#define CALIBRATE_TIME	(5 * 1000020/HZ)
- 
- #ifdef CONFIG_X86_TSC
- static unsigned long __init calibrate_tsc(void)
-@@ -570,6 +738,14 @@
- 		/* Error: ECPUTOOSLOW */
- 		if (endlow <= CALIBRATE_TIME)
- 			goto bad_ctc;
-+                /*
-+                 * endlow at this point is CAL_JIFS*arch clocks
-+                 * per jiffie.  Set up the value for 
-+                 * high_res use. Note: keep the whole
-+                 * value for now, hrtimer_init will do
-+                 * the divide (want that precision).
-+                 */
-+                tsc_cycles_per_5_jiffies = endlow;
- 
- 		__asm__("divl %2"
- 			:"=a" (endlow), "=d" (endhigh)
-@@ -584,6 +760,9 @@
- 	 * 32 bits..
- 	 */
- bad_ctc:
-+#ifdef CONFIG_HIGH_RES_TIMERS
-+        printk("******************** TSC calibrate failed!\n");
-+#endif
- 	return 0;
- }
- #endif /* CONFIG_X86_TSC */
-@@ -611,6 +790,7 @@
- 	
- 	xtime.tv_sec = get_cmos_time();
- 	xtime.tv_nsec = 0;
-+        IF_HIGH_RES(tick_nsec = NSEC_PER_SEC / HZ);
- 
- /*
-  * If we have APM enabled or the CPU clock speed is variable
-@@ -653,6 +833,10 @@
- #ifndef do_gettimeoffset
- 			do_gettimeoffset = do_fast_gettimeoffset;
- #endif
-+                        /*
-+                         * Kick off the high res timers
-+                         */
-+                        hrtimer_init();
- 
- 			/* report CPU clock rate in Hz.
- 			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/arch/i386/mach-generic/do_timer.h linux/arch/i386/mach-generic/do_timer.h
---- linux-2.5.39-core/arch/i386/mach-generic/do_timer.h	Thu Sep 26 11:23:49 2002
-+++ linux/arch/i386/mach-generic/do_timer.h	Fri Sep 27 17:29:59 2002
-@@ -14,6 +14,11 @@
- static inline void do_timer_interrupt_hook(struct pt_regs *regs)
- {
- 	do_timer(regs);
-+        IF_HIGH_RES(
-+                if (!new_jiffie())
-+                        return;
-+                jiffies_intr = 0;
-+                )
- /*
-  * In the SMP case we use the local APIC timer interrupt to do the
-  * profiling, except when we simulate SMP mode on a uniprocessor
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/include/asm-i386/hrtime-M386.h linux/include/asm-i386/hrtime-M386.h
---- linux-2.5.39-core/include/asm-i386/hrtime-M386.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime-M386.h	Fri Sep 27 17:29:59 2002
-@@ -0,0 +1,247 @@
-+/*
-+ *
-+ * File: include/asm-i386/hrtime-M386.h
-+ * Copyright (C) 1999 by the University of Kansas Center for Research, Inc.
-+ * Copyright (C) 2001 by MontaVista Software.
-+ *
-+ * This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ * 
-+ * Authors: Balaji S., Raghavan Menon
-+ *	    Furquan Ansari, Jason Keimig, Apurva Sheth
-+ *
-+ * Thanx to Michael Barabanov for helping me with the non-pentium code.
-+ *
-+ * Please send bug-reports/suggestions/comments to utime@ittc.ukans.edu
-+ * 
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/utime/ 
-+ *    or in the file Documentation/utime.txt
-+ */
-+/* This is in case its not a pentuim or a ppro.
-+ * we dont have access to the cycle counters
-+ */
-+/* 
-+ * This code swiped from the utime project to support high res timers
-+ * Principle thief George Anzinger george@mvista.com
-+ */
-+#ifndef _ASM_HRTIME_M386_H
-+#define _ASM_HRTIME_M386_H
-+
-+#ifdef __KERNEL__
-+
-+
-+extern int base_c0,base_c0_offset;
-+#define timer_latch_reset(x) _timer_latch_reset = x
-+extern int _timer_latch_reset;
-+
-+/*
-+ * Never call this routine with local ints on.
-+ * update_jiffies_sub()
-+ */
-+
-+extern inline unsigned int read_timer_chip(void)
-+{
-+	unsigned int next_intr;
-+
-+	LATCH_CNT0();
-+	READ_CNT0(next_intr);
-+	return next_intr;
-+}
-+
-+#define HR_SCALE_ARCH_NSEC 20
-+#define HR_SCALE_ARCH_USEC 30
-+#define HR_SCALE_NSEC_ARCH 32
-+#define HR_SCALE_USEC_ARCH 29
-+
-+#define cf_arch_to_usec (SC_n(HR_SCALE_ARCH_USEC,1000000)/ \
-+                           (long long)CLOCK_TICK_RATE)
-+
-+extern inline int arch_cycles_to_usec(long update)
-+{
-+	return (mpy_sc_n(HR_SCALE_ARCH_USEC, update ,arch_to_usec));
-+}
-+#define cf_arch_to_nsec (SC_n(HR_SCALE_ARCH_NSEC,1000000000)/ \
-+                           (long long)CLOCK_TICK_RATE)
-+
-+extern inline int arch_cycles_to_nsec(long update)
-+{
-+        return mpy_sc_n(HR_SCALE_ARCH_NSEC,  update, arch_to_nsec);
-+}
-+/* 
-+ * And the other way...
-+ */
-+#define cf_usec_to_arch (SC_n( HR_SCALE_USEC_ARCH,CLOCK_TICK_RATE)/ \
-+                                            (long long)1000000)
-+extern inline int usec_to_arch_cycles(unsigned long usec)
-+{
-+        return mpy_sc_n(HR_SCALE_USEC_ARCH,usec,usec_to_arch);
-+}
-+#define cf_nsec_to_arch (SC_n( HR_SCALE_NSEC_ARCH,CLOCK_TICK_RATE)/ \
-+                                            (long long)1000000000)
-+extern inline int nsec_to_arch_cycles(long nsec)
-+{
-+        return (mpy_ex32(nsec,nsec_to_arch));
-+}
-+/*
-+ * If this is defined otherwise to allow NTP adjusting, it should
-+ * be scaled by about 16 bits (or so) to allow small percentage
-+ * changes
-+ */
-+#define arch_cycles_to_latch(x) x
-+/*
-+ * This function updates base_c0
-+ * This function is always called under the write_lock_irq(&xtime_lock)
-+ * It returns the number of "clocks" since the last call to it.
-+ *
-+ * There is a problem having a counter that has a period the same as it is
-+ * interagated.  I.e. did it just roll over or has a very short time really
-+ * elapsed.  (One of the reasons one should not use the PIT for both ints
-+ * and time.)  We will take the occurance of an interrupt since last time
-+ * to indicate that the counter has reset.  This will work for the 
-+ * get_cpuctr() code but is flawed for the quick_get_cpuctr() as it is
-+ * called when ever time is requested.  For that code, we make sure that
-+ * we never move backward in time.
-+ */
-+extern inline  unsigned long get_cpuctr(void)
-+{
-+	int c0;
-+	long rtn;
-+
-+	spin_lock(&i8253_lock);
-+	c0 = read_timer_chip();
-+
-+        rtn = base_c0 - c0 + _timer_latch_reset;
-+
-+//	if (rtn < 0) {
-+//                rtn += _timer_latch_reset;
-+//        }
-+	base_c0 = c0;
-+        base_c0_offset = 0;
-+	spin_unlock(&i8253_lock);
-+
-+	return rtn;
-+}
-+/*
-+ * In an SMP system this is called under the read_lock_irq(xtime_lock)
-+ * In a UP system it is also called with this lock (PIT case only)
-+ * It returns the number of "clocks" since the last call to get_cpuctr (above).
-+ */
-+extern inline unsigned long quick_get_cpuctr(void)
-+{
-+	register  int c0;
-+        long rtn;
-+
-+	spin_lock(&i8253_lock);
-+	c0 = read_timer_chip();
-+        /*
-+         * If the new count is greater than 
-+         * the last one (base_c0) the chip has just rolled and an 
-+         * interrupt is pending.  To get the time right. We need to add
-+         * _timer_latch_reset to the answer.  All this is true if only
-+         * one roll is involved, but base_co should be updated at least
-+         * every 1/HZ.
-+         */
-+        rtn = base_c0 - c0;
-+	if (rtn < base_c0_offset) {
-+                rtn += _timer_latch_reset;
-+        }
-+        base_c0_offset = rtn;
-+	spin_unlock(&i8253_lock);
-+        return rtn;
-+}
-+
-+#ifdef _INCLUDED_FROM_TIME_C
-+int base_c0 = 0;
-+int base_c0_offset = 0;
-+struct timer_conversion_bits timer_conversion_bits = {
-+        _cycles_per_jiffies: (LATCH),
-+        _nsec_to_arch:       cf_nsec_to_arch,
-+        _usec_to_arch:       cf_usec_to_arch,
-+        _arch_to_nsec:       cf_arch_to_nsec,
-+        _arch_to_usec:       cf_arch_to_usec,
-+        _arch_to_latch:      1
-+};
-+int _timer_latch_reset;
-+
-+#define set_last_timer_cc() (void)(1)
-+
-+/* This returns the correct cycles_per_sec from a calibrated one
-+ */
-+#define arch_hrtime_init(x) (CLOCK_TICK_RATE)
-+
-+/*
-+ * The reload_timer_chip routine is called under the timerlist lock (irq off)
-+ * and, in SMP, the xtime_lock.  We also take the i8253_lock for the chip access
-+ */
-+
-+extern inline void reload_timer_chip( int new_latch_value)
-+{
-+	int c1, c1new, delta;
-+        unsigned char pit_status;
-+	/*
-+         * In put value is in timer units for the 386 platform.
-+         * We must be called with irq disabled.
-+	 */
-+	spin_lock(&i8253_lock);
-+	/*
-+         * we need to get this last value of the timer chip
-+	 */
-+	LATCH_CNT0_AND_CNT1();
-+	READ_CNT0(delta);
-+	READ_CNT1(c1);
-+	base_c0 -= delta;
-+
-+	new_latch_value = arch_cycles_to_latch( new_latch_value );
-+        if (new_latch_value < TIMER_DELTA){
-+                new_latch_value = TIMER_DELTA;
-+        }
-+        IF_ALL_PERIODIC( put_timer_in_periodic_mode());
-+        outb_p(new_latch_value & 0xff, PIT0);	/* LSB */
-+	outb(new_latch_value >> 8, PIT0);	/* MSB */
-+        do {
-+                outb_p(PIT0_LATCH_STATUS,PIT_COMMAND);
-+                pit_status = inb(PIT0);
-+        }while (pit_status & PIT_NULL_COUNT);
-+        do {
-+                LATCH_CNT0_AND_CNT1();
-+                READ_CNT0(delta);
-+                READ_CNT1(c1new);
-+        } while (!(((new_latch_value-delta)&0xffff) < 15));
-+
-+        IF_ALL_PERIODIC(
-+                outb_p(LATCH & 0xff, PIT0);	/* LSB */
-+                outb(LATCH >> 8, PIT0);	        /* MSB */
-+                )
-+
-+	/*
-+         * this is assuming that counter one is latched on with
-+	 * 18 as the value
-+	 * Most BIOSes do this i guess....
-+	 */
-+        //IF_DEBUG(if (delta > 50000) BREAKPOINT);
-+        c1 -= c1new;
-+	base_c0 += ((c1 < 0) ? (c1 + 18) : (c1)) + delta;
-+        if ( base_c0 < 0 ){
-+                base_c0 += _timer_latch_reset;
-+        }
-+	spin_unlock(&i8253_lock);
-+	return;
-+}
-+/*
-+ * No run time conversion factors need to be set up as the PIT has a fixed
-+ * speed.
-+ */
-+#define init_hrtimers()
-+
-+#endif /* _INCLUDED_FROM_HRTIME_C_ */
-+#define final_clock_init()
-+#endif /* __KERNEL__ */
-+#endif /* _ASM_HRTIME_M386_H */
-+
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/include/asm-i386/hrtime-M586.h linux/include/asm-i386/hrtime-M586.h
---- linux-2.5.39-core/include/asm-i386/hrtime-M586.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime-M586.h	Fri Sep 27 17:29:59 2002
-@@ -0,0 +1,160 @@
-+/*
-+ * UTIME: On-demand Microsecond Resolution Timers
-+ * ----------------------------------------------
-+ *
-+ * File: include/asm-i586/hrtime-Macpi.h
-+ * Copyright (C) 1999 by the University of Kansas Center for Research, Inc.
-+ * Copyright (C) 2001 by MontaVista Software.
-+ *
-+ * This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ * 
-+ * Authors: Balaji S., Raghavan Menon
-+ *	    Furquan Ansari, Jason Keimig, Apurva Sheth
-+ *
-+ * Please send bug-reports/suggestions/comments to utime@ittc.ukans.edu
-+ * 
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/utime/ 
-+ *    or in the file Documentation/utime.txt
-+ */
-+/* 
-+ * This code swiped from the utime project to support high res timers
-+ * Principle thief George Anzinger george@mvista.com
-+ */
-+#include <asm/msr.h>
-+#ifndef _ASM_HRTIME_M586_H
-+#define _ASM_HRTIME_M586_H
-+
-+#ifdef __KERNEL__
-+
-+#ifdef _INCLUDED_FROM_TIME_C
-+/*
-+ * This gets redefined when we calibrate the TSC
-+ */
-+struct timer_conversion_bits timer_conversion_bits = {
-+        _cycles_per_jiffies: LATCH
-+};
++#ifndef __THROW
++#define __THROW
 +#endif
 +
-+/*
-+ * This define avoids an ugly ifdef in time.c
-+ */
-+#define get_cpuctr_from_timer_interrupt()
-+#define timer_latch_reset(s)
-+
-+/* NOTE: When trying to port this to other architectures define
-+ * this to be (void)(1) (ie. #define set_last_timer_cc() (void)(1))
-+ * otherwise sched.c would give an undefined reference
-+ */
-+
-+extern void set_last_timer_cc(void);
-+/*
-+ * These are specific to the pentium counters
-+ */
-+extern inline unsigned long get_cpuctr(void)
-+{
-+        /*
-+         * We are interested only in deltas so we just use the low bits
-+         * at 1GHZ this should be good for 4.2 seconds, at 100GHZ 42 ms
-+         */
-+	unsigned long old = last_update;
-+        rdtscl(last_update);
-+	return last_update - old;
-+}
-+extern inline unsigned long quick_get_cpuctr(void)
-+{
-+	unsigned long value;
-+        rdtscl(value);
-+	return value - last_update;
-+}
-+#define arch_hrtime_init(x) (x)
-+
-+extern unsigned long long base_cpuctr;
-+extern unsigned long base_jiffies;
-+/* 
-+ * We use various scaling.  The ex32 scales by 2**32, sc_n by the first parm.
-+ * When working with constants, choose a scale such that x/n->(32-scale)< 1/2.
-+ * So for 1/3 <1/2 so scale of 32, where as 3/1 must be shifted 3 times (3/8) to
-+ * be less than 1/2 so scale should be 29
-+ *
-+ * The principle high end is when we can no longer keep 1/HZ worth of arch
-+ * time (TSC counts) in an integer.  This will happen somewhere between 40GHz and
-+ * 50GHz with HZ set to 100.  For now we are cool and the scale of 24 works for 
-+ * the nano second to arch from 2MHz to 40+GHz.  
-+ */
-+#define HR_TIME_SCALE_NSEC 22
-+#define HR_TIME_SCALE_USEC 14
-+extern inline int arch_cycles_to_usec(unsigned long update) 
-+{
-+	return (mpy_ex32(update ,arch_to_usec));
-+}
-+
-+extern inline int arch_cycles_to_latch(unsigned long update)
-+{
-+        return (mpy_ex32(update ,arch_to_latch));
-+}
-+
-+extern inline int arch_cycles_to_nsec(long update)
-+{
-+        return mpy_sc_n(HR_TIME_SCALE_NSEC,  update, arch_to_nsec);
-+}
-+/* 
-+ * And the other way...
-+ */
-+extern inline int usec_to_arch_cycles(unsigned long usec)
-+{
-+        return mpy_sc_n(HR_TIME_SCALE_USEC,usec,usec_to_arch);
-+}
-+extern inline int nsec_to_arch_cycles(unsigned long nsec)
-+{
-+        return mpy_sc_n(HR_TIME_SCALE_NSEC,nsec,nsec_to_arch);
-+}
-+
-+EXTERN int pit_pgm_correction;
-+
-+#ifdef _INCLUDED_FROM_TIME_C
-+
-+#include <asm/io.h>
-+
-+
-+#ifndef USEC_PER_SEC
-+#define USEC_PER_SEC 1000000
-+#endif
-+        /*
-+         * Code for runtime calibration of high res timers
-+         * Watch out, cycles_per_sec will overflow when we
-+         * get a ~ 2.14 GHz machine...
-+         * We are starting with tsc_cycles_per_5_jiffies set to 
-+         * 5 times the actual value (as set by 
-+         * calibrate_tsc() ).
-+	 */
-+#define init_hrtimers() \
-+        arch_to_usec = fast_gettimeoffset_quotient; \
-+ \
-+        arch_to_latch = div_ll_X_l(mpy_l_X_l_ll(fast_gettimeoffset_quotient, \
-+                                                CLOCK_TICK_RATE),           \
-+                                   (USEC_PER_SEC));          \
-+\
-+        arch_to_nsec = div_sc_n(HR_TIME_SCALE_NSEC, \
-+                               CALIBRATE_TIME * NSEC_PER_USEC, \
-+                               tsc_cycles_per_5_jiffies); \
-+ \
-+        nsec_to_arch = div_sc_n(HR_TIME_SCALE_NSEC, \
-+                                tsc_cycles_per_5_jiffies, \
-+                                CALIBRATE_TIME * NSEC_PER_USEC); \
-+        usec_to_arch = div_sc_n(HR_TIME_SCALE_USEC, \
-+                                tsc_cycles_per_5_jiffies, \
-+                                CALIBRATE_TIME ); \
-+        cycles_per_jiffies = tsc_cycles_per_5_jiffies / CAL_JIFS;  
-+
-+
-+#endif   /* _INCLUDED_FROM_HRTIME_C */
-+#endif				/* __KERNEL__ */
-+#endif				/* _ASM_HRTIME-M586_H */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/include/asm-i386/hrtime-Macpi.h linux/include/asm-i386/hrtime-Macpi.h
---- linux-2.5.39-core/include/asm-i386/hrtime-Macpi.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime-Macpi.h	Fri Sep 27 17:29:59 2002
-@@ -0,0 +1,195 @@
-+/*
-+ *
-+ * File: include/asm-i386/hrtime-Macpi.h 
-+ * Copyright (C) 2001 by MontaVista Software,
-+
-+ * This software may be used and distributed according to the terms of
-+ * the GNU Public License, incorporated herein by reference.
-+
-+ */
-+#include <asm/msr.h>
-+#include <asm/io.h>
-+#ifndef _ASM_HRTIME_Macpi_H
-+#define _ASM_HRTIME_Macpi_H
-+
-+#ifdef __KERNEL__
-+
-+/*
-+ * This define avoids an ugly ifdef in time.c
-+ */
-+#define timer_latch_reset(s)
-+
-+/* NOTE: When trying to port this to other architectures define
-+ * this to be (void)(1) (ie. #define set_last_timer_cc() (void)(1))
-+ * otherwise sched.c would give an undefined reference
-+ */
-+
-+extern void set_last_timer_cc(void);
-+/*
-+ * These are specific to the ACPI pm counter
-+ * The spec says the counter can be either 32 or 24 bits wide.  We treat them
-+ * both as 24 bits.  Its faster than doing the test.
-+ */
-+#define SIZE_MASK 0xffffff
-+
-+extern int acpi_pm_tmr_address;
-+
-+extern inline unsigned long get_cpuctr(void)
-+{
-+        static long old;
-+
-+        old = last_update;
-+        last_update = inl(acpi_pm_tmr_address);
-+        return (last_update - old) & SIZE_MASK;
-+}
-+extern inline unsigned long quick_get_cpuctr(void)
-+{
-+        return (inl(acpi_pm_tmr_address) - last_update) & SIZE_MASK;
-+}
-+#define arch_hrtime_init(x) (x)
-+
-+
-+/* 
-+ * We use various scaling.  The ex32 scales by 2**32, sc_n by the first parm.
-+ * When working with constants, choose a scale such that x/n->(32-scale)< 1/2.
-+ * So for 1/3 <1/2 so scale of 32, where as 3/1 must be shifted 3 times (3/8) to
-+ * be less than 1/2 so scale should be 29
-+ *
-+ */
-+#define HR_SCALE_ARCH_NSEC 22
-+#define HR_SCALE_ARCH_USEC 32
-+#define HR_SCALE_NSEC_ARCH 32
-+#define HR_SCALE_USEC_ARCH 29
-+
-+#ifndef  PM_TIMER_FREQUENCY 
-+#define PM_TIMER_FREQUENCY  3579545/*45   counts per second */
-+#endif
-+#define PM_TIMER_FREQUENCY_x_100  357954545  /* counts per second * 100*/
-+
-+#define cf_arch_to_usec (SC_32(100000000)/(long long)PM_TIMER_FREQUENCY_x_100)
-+extern inline int arch_cycles_to_usec(unsigned long update) 
-+{
-+	return (mpy_ex32(update ,arch_to_usec));
-+}
-+/*
-+ * We need to take 1/3 of the presented value (or more exactly)
-+ * CLOCK_TICK_RATE /PM_TIMER_FREQUENCY.  Note that these two timers
-+ * are on the same cyrstal so will be EXACTLY 1/3.
-+ */
-+#define cf_arch_to_latch SC_32(CLOCK_TICK_RATE)/(long long)(CLOCK_TICK_RATE * 3)
-+extern inline int arch_cycles_to_latch(unsigned long update)
-+{
-+        return (mpy_ex32(update ,arch_to_latch));
-+}
-+
-+#define cf_arch_to_nsec (SC_n(HR_SCALE_ARCH_NSEC,100000000000LL)/ \
-+                           (long long)PM_TIMER_FREQUENCY_x_100)
-+
-+extern inline int arch_cycles_to_nsec(long update)
-+{
-+        return mpy_sc_n(HR_SCALE_ARCH_NSEC,  update, arch_to_nsec);
-+}
-+/* 
-+ * And the other way...
-+ */
-+#define cf_usec_to_arch (SC_n( HR_SCALE_USEC_ARCH,PM_TIMER_FREQUENCY_x_100)/ \
-+                                            (long long)100000000)
-+extern inline int usec_to_arch_cycles(unsigned long usec)
-+{
-+        return mpy_sc_n(HR_SCALE_USEC_ARCH,usec,usec_to_arch);
-+}
-+#define cf_nsec_to_arch (SC_n( HR_SCALE_NSEC_ARCH,PM_TIMER_FREQUENCY)/ \
-+                                            (long long)1000000000)
-+extern inline int nsec_to_arch_cycles(unsigned long nsec)
-+{
-+        return mpy_ex32(nsec,nsec_to_arch);
-+}
-+
-+//EXTERN int pit_pgm_correction;
-+
-+#ifdef _INCLUDED_FROM_TIME_C
-+
-+#include <asm/io.h>
-+struct timer_conversion_bits timer_conversion_bits = {
-+        _cycles_per_jiffies: ((PM_TIMER_FREQUENCY + HZ/2) / HZ),
-+        _nsec_to_arch:       cf_nsec_to_arch,
-+        _usec_to_arch:       cf_usec_to_arch,
-+        _arch_to_nsec:       cf_arch_to_nsec,
-+        _arch_to_usec:       cf_arch_to_usec,
-+        _arch_to_latch:      cf_arch_to_latch
-+};
-+int acpi_pm_tmr_address;
-+
-+
-+/*
-+ * No run time conversion factors need to be set up as the pm timer has a fixed
-+ * speed.
-+ */
-+/*
-+ * Here we have a local udelay for our init use only.  The system delay has
-+ * has not yet been calibrated when we use this, however, we do know
-+ * tsc_cycles_per_5_jiffies...
-+ */
-+extern unsigned long tsc_cycles_per_5_jiffies;
-+
-+static inline __init void hrt_udelay(int usec)
-+{
-+        long now,end;
-+        rdtscl(end);
-+        end += (usec * tsc_cycles_per_5_jiffies) / (USEC_PER_JIFFIES * 5);
-+        do {rdtscl(now);} while((end - now) > 0);
-+
-+}
-+extern int hrt_get_acpi_pm_ptr(void);
-+
-+#if defined( CONFIG_HIGH_RES_TIMER_ACPI_PM_ADD) && CONFIG_HIGH_RES_TIMER_ACPI_PM_ADD > 0
-+#define default_pm_add CONFIG_HIGH_RES_TIMER_ACPI_PM_ADD
-+#define message "High-res-timers: ACPI pm timer not found.  Trying specified address %d\n"
-+#else
-+#define default_pm_add 0
-+#define message \
-+        "High-res-timers: ACPI pm timer not found(%d) and no backup."\
-+        "\nCheck BIOS settings or supply a backup.  See configure documentation.\n"
-+#endif
-+#define fail_message \
-+"High-res-timers: >-<--><-->-<-->-<-->-<--><-->-<-->-<-->-<-->-<-->-<-->-<-->-<\n"\
-+"High-res-timers: >Failed to find the ACPI pm timer                           <\n"\
-+"High-res-timers: >-<--><-->-<-->-<-->-<-->Boot will fail in Calibrate Delay  <\n"\
-+"High-res-timers: >Supply a valid default pm timer address                    <\n"\
-+"High-res-timers: >or get your BIOS to turn on ACPI support.                  <\n"\
-+"High-res-timers: >See CONFIGURE help for more information.                   <\n"\
-+"High-res-timers: >-<--><-->-<-->-<-->-<--><-->-<-->-<-->-<-->-<-->-<-->-<-->-<\n"
-+/*
-+ * After we get the address, we set last_update to the current timer value
-+ */
-+static inline __init void  init_hrtimers(void)
-+{
-+        acpi_pm_tmr_address = hrt_get_acpi_pm_ptr(); 
-+        if (!acpi_pm_tmr_address){                    
-+                printk(message,default_pm_add);
-+                if ( (acpi_pm_tmr_address = default_pm_add)){
-+                        last_update +=  quick_get_cpuctr();
-+                        hrt_udelay(4);
-+                       if (!quick_get_cpuctr()){
-+                                printk("High-res-timers: No ACPI pm timer found at %d.\n",
-+                                       acpi_pm_tmr_address);
-+                                acpi_pm_tmr_address = 0;
-+                        } 
-+                } 
-+        }else{
-+                if (default_pm_add != acpi_pm_tmr_address) {
-+                        printk("High-res-timers: Ignoring supplied default ACPI pm timer address.\n"); 
-+                }
-+                last_update +=  quick_get_cpuctr();
-+        }
-+        if (!acpi_pm_tmr_address){
-+                printk(fail_message);
-+        }else{
-+                printk("High-res-timers: Found ACPI pm timer at %d\n",
-+                       acpi_pm_tmr_address);
-+        }
-+}
-+
-+#endif   /* _INCLUDED_FROM_TIME_C_ */
-+#endif				/* __KERNEL__ */
-+#endif				/* _ASM_HRTIME-Mapic_H */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/include/asm-i386/hrtime.h linux/include/asm-i386/hrtime.h
---- linux-2.5.39-core/include/asm-i386/hrtime.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/hrtime.h	Fri Sep 27 17:29:59 2002
-@@ -0,0 +1,458 @@
-+/*
-+ *
-+ * File: include/asm-i386/hrtime.h
-+ * Copyright (C) 1999 by the University of Kansas Center for Research, Inc.  
-+ * Copyright (C) 2001 by MontaVista Software.
-+ *
-+ * This software was developed by the Information and
-+ * Telecommunication Technology Center (ITTC) at the University of
-+ * Kansas.  Partial funding for this project was provided by Sprint. This
-+ * software may be used and distributed according to the terms of the GNU
-+ * Public License, incorporated herein by reference.  Neither ITTC nor
-+ * Sprint accept any liability whatsoever for this product.
-+ *
-+ * This project was developed under the direction of Dr. Douglas Niehaus.
-+ * 
-+ * Authors: Balaji S., Raghavan Menon
-+ *	    Furquan Ansari, Jason Keimig, Apurva Sheth
-+ *
-+ * Please send bug-reports/suggestions/comments to utime@ittc.ukans.edu
-+ * 
-+ * Further details about this project can be obtained at
-+ *    http://hegel.ittc.ukans.edu/projects/utime/ 
-+ *    or in the file Documentation/high-res-timers/
-+ */
-+/*
-+ * This code purloined from the utime project for high res timers.
-+ * Principle modifier George Anzinger george@mvista.com
-+ */
-+#ifndef _I386_HRTIME_H
-+#define _I386_HRTIME_H
-+#ifdef __KERNEL__
-+
-+#include <linux/config.h>	/* for CONFIG_APM etc... */
-+#include <asm/types.h>		/* for u16s */
-+#include <asm/io.h>
-+#include <asm/sc_math.h>        /* scaling math routines */
-+#include <asm/delay.h>
-+/*
-+ * What "IF_ALL_PERIODIC" does it to set up the PIT so that it always,
-+ * if we don't touch it again, will tick at a 1/HZ rate.  This is done
-+ * by programing the interrupt we want and, once it it loaded, dropping
-+ * a 1/HZ program on top of it.  The PIT will give us the desired interrupt
-+ * and, at interrupt time, load the 1/HZ program.  So...
-+
-+ * If no sub 1/HZ ticks are needed AND we are aligned with the 1/HZ 
-+ * boundry, we don't need to touch the PIT.  Otherwise we do the above.
-+
-+ * In theory you could turn this off, but it has been so long....
-+
-+ * There are two reasons to keep this:
-+ * 1. The NMI watchdog uses the timer interrupt to generate the NMI interrupts.
-+ * 2. We don't have to touch the PIT unless we have a sub jiffie event in
-+ *    the next 1/HZ interval (unless we drift away from the 1/HZ boundry).
-+ */
-+#if 1
-+#define IF_ALL_PERIODIC(a) a
-+#else
-+#define IF_ALL_PERIODIC(a)
-+#endif
-+
-+#ifdef _INCLUDED_FROM_TIME_C
-+#define EXTERN
-+#else 
-+#define EXTERN  extern 
-+#endif
-+
-+
-+/*
-+ * The high-res-timers option is set up to self configure with different 
-+ * platforms.  It is up to the platform to provide certian macros which
-+ * override the default macros defined in system without (or with disabled)
-+ * high-res-timers.
-+ *
-+ * To do high-res-timers at some fundamental level the timer interrupt must
-+ * be seperated from the time keeping tick.  A tick can still be generated
-+ * by the timer interrupt, but it may be surrounded by non-tick interrupts.
-+ * It is up to the platform to determine if a particular interrupt is a tick,
-+ * and up to the timer code (in timer.c) to determine what time events have
-+ * expired.
-+ *
-+ * Macros:
-+ * update_jiffies()  This macro is to compute the new value of jiffie and 
-+ *                   sub_jiffie.  If high-res-timers are not available it
-+ *                   may be assumed that this macro will be called once
-+ *                   every 1/HZ and so should reduce to:
-+ *
-+ * 	(*(u64 *)&jiffies_64)++;
-+ *
-+ * sub_jiffie, in this case will always be zero, and need not be addressed.
-+ * It is assumed that the sub_jiffie is in platform defined units and runs
-+ * from 0 to a value which represents 1/HZ on that platform.  (See conversion
-+ * macro requirements below.)
-+ * If high-res-timers are available, this macro will be called each timer
-+ * interrupt which may be more often than 1/HZ.  It is up to the code to 
-+ * determine if a new jiffie has just started and pass this info to:
-+ *
-+ * new_jiffie() which should return true if the last call to update_jiffie()
-+ *              moved the jiffie count (as apposed to just the sub_jiffie).
-+ *              For systems without high-res-timers the kernel will predefine
-+ *              this to be 0 which will allow the compiler to optimize the code
-+ *              for this case.
-+ *
-+ * schedule_next_int(jiffie_f,sub_jiffie_v,always) is a macro that the 
-+ *                                 platform should 
-+ *                                 provide that will set up the timer interrupt 
-+ *                                 hardware to interrupt at the absolute time
-+ *                                 defined by jiffie_f,sub_jiffie_v where the 
-+ *                                 units are 1/HZ and the platform defined 
-+ *                                 sub_jiffie unit.  This function must 
-+ *                                 determine the actual current time and the 
-+ *                                 requested offset and act accordingly.  A 
-+ *                                 sub_jiffie_v value of -1 should be 
-+ *                                 understood to mean the next even jiffie 
-+ *                                 regardless of the jiffie_f value.  If 
-+ *                                 the current jiffie is not jiffie_f, it 
-+ *                                 may be assumed that the requested time 
-+ *                                 has passed and an immeadiate interrupt 
-+ *                                 should be taken.  If high-res-timers are 
-+ *                                 not available, this macro should evaluate 
-+ *                                 to nil.  This macro may return 1 if always
-+ *                                 if false AND the requested time has passed.
-+ *                                 "Always" indicates that an interrupt is
-+ *                                 required even if the time has already passed.
-+ */
-+
-+
-+/*
-+ * no of usecs less than which events cannot be scheduled
-+ */
-+#define TIMER_DELTA  5
-+
-+#define CONFIG_HIGH_RES_RESOLUTION 1000    // nano second resolution 
-+                                           // we will use for high res.
-+
-+#define USEC_PER_JIFFIES  (1000000/HZ)
-+/*
-+ * This is really: x*(CLOCK_TICK_RATE+HZ/2)/1000000
-+ * Note that we can not figure the constant part at
-+ * compile time because we would loose precision.
-+ */
-+#define PIT0_LATCH_STATUS 0xc2
-+#define PIT0 0x40
-+#define PIT1 0x41
-+#define PIT_COMMAND 0x43
-+#define PIT0_ONE_SHOT 0x38
-+#define PIT0_PERIODIC 0x34
-+#define PIT0_LATCH_COUNT 0xd2
-+#define PIT01_LATCH_COUNT 0xd6
-+#define PIT_NULL_COUNT 0x40
-+#define READ_CNT0(varr) {varr = inb(PIT0);varr += (inb(PIT0))<<8;}
-+#define READ_CNT1(var) { var = inb(PIT1); }
-+#define LATCH_CNT0() { outb(PIT0_LATCH_COUNT,PIT_COMMAND); }
-+#define LATCH_CNT0_AND_CNT1() { outb(PIT01_LATCH_COUNT,PIT_COMMAND); }
-+
-+#define TO_LATCH(x) (((x)*LATCH)/USEC_PER_JIFFIES)
-+
-+#define sub_jiffie() _sub_jiffie
-+#define schedule_next_int(a,b,c)  _schedule_next_int(a,b,c)
-+
-+#define update_jiffies() update_jiffies_sub()
-+#define new_jiffie() jiffies_intr
-+#define high_res_test() high_res_test_val = -  cycles_per_jiffies;
-+#define high_res_end_test() high_res_test_val = 0;
-+
-+enum timer_chip_mode {
-+	timer_chip_periodic, timer_chip_oneshot
-+};
-+extern unsigned long next_intr;
-+extern spinlock_t i8253_lock;
-+extern rwlock_t xtime_lock;
-+
-+extern int _schedule_next_int(unsigned long jiffie_f,long sub_jiffie_in, int always);
-+
-+extern unsigned int volatile latch_reload;
-+
-+EXTERN int jiffies_intr;
-+EXTERN int _sub_jiffie;
-+EXTERN unsigned long volatile last_update;
-+EXTERN int high_res_test_val;
-+EXTERN enum timer_chip_mode kernel_timer_mode;
-+
-+#ifndef CONFIG_HIGH_RES_TIMER_PIT 
-+IF_ALL_PERIODIC(
-+        EXTERN  int min_hz_sub_jiffie;
-+        EXTERN  int max_hz_sub_jiffie;
-+        extern int last_was_long;
-+        )
-+
-+#endif
-+extern inline void put_timer_in_oneshot_mode(void)
-+{
-+        /* binary, mode 4, LSB/MSB, ch 0 */
-+        outb_p(PIT0_ONE_SHOT, PIT_COMMAND); 
-+}
-+
-+extern inline void put_timer_in_periodic_mode(void)
-+{
-+	/* binary, mode 2, LSB/MSB, ch 0 */
-+	outb_p(PIT0_PERIODIC, PIT_COMMAND);
-+}
-+/*
-+ * Now go ahead and include the clock specific file 586/386/acpi
-+ * These asm files have extern inline functions to do a lot of
-+ * stuff as well as the conversion routines.
-+ */
-+#ifdef CONFIG_HIGH_RES_TIMER_ACPI_PM
-+#include <asm/hrtime-Macpi.h>
-+#elif defined(CONFIG_HIGH_RES_TIMER_PIT)
-+#include <asm/hrtime-M386.h>
-+#elif defined(CONFIG_HIGH_RES_TIMER_TSC)
-+#include <asm/hrtime-M586.h>
-+#else
-+#error "Need one of: CONFIG_HIGH_RES_TIMER_ACPI_PM CONFIG_HIGH_RES_TIMER_TSC CONFIG_HIGH_RES_TIMER_ACPI_PM"
-+#endif
-+
-+extern int jiffies_intr;
-+extern unsigned long long jiffiesll;
-+
-+/*
-+ * We stole this routine from the Utime code, but there it
-+ * calculated microseconds and here we calculate sub_jiffies
-+ * which have (in this case) units of TSC count.  (If there
-+ * is no TSC, see hrtime-M386.h where a different unit
-+ * is used.  This allows the more expensive math (to get
-+ * standard units) to be done only when needed.  Also this
-+ * makes it as easy (and as efficient) to calculate nano
-+ * as well as micro seconds.
-+ */
-+
-+extern inline void arch_update_jiffies (unsigned long update) 
-+{
-+        int _new_jiffie = 0;
-+        /*
-+         * update is the delta in sub_jiffies
-+         */
-+        _sub_jiffie += update;
-+        while ((unsigned long)_sub_jiffie > cycles_per_jiffies){
-+                _sub_jiffie -= cycles_per_jiffies; 
-+                _new_jiffie++;
-+        }
-+	if (_new_jiffie) {
-+		jiffies_intr += _new_jiffie;
-+		jiffies_64 += _new_jiffie;
-+	}
-+}
-+#define SC_32_TO_USEC (SC_32(1000000)/ (long long)CLOCK_TICK_RATE)
-+
-+
-+
-+/*
-+ * This routine is always called under the write_lockirq(xtime_lock)
-+ */
-+extern inline void update_jiffies_sub(void)
-+{
-+	unsigned long cycles_update;
-+
-+	cycles_update = get_cpuctr();
-+
-+
-+	arch_update_jiffies(cycles_update);
-+        /*
-+         * In the ALL_PERIODIC mode we program the PIT to give periodic
-+         * interrupts and, if no sub_jiffie timers are due, leave it alone.
-+         * This means that it can drift WRT the clock (TSC or pm timer).
-+         * What we are trying to do is to program the next interrupt to
-+         * occure on exactly the requested time.  If we are not doing 
-+         * sub HZ interrupts we expect to find a small excess of time
-+         * beyond the 1/HZ, i.e. _sub_jiffie will have some small value. 
-+         * This value will drift AND may jump upward from time to time. 
-+         * The drift is due to not having precise tracking between the 
-+         * two timers (the PIT and either the TSC or the PM timer) and
-+         * the jump is caused by interrupt delays, cache misses etc. 
-+         * We need to correct for the drift.  To correct all we need to 
-+         * do is to set "last_was_long" to zero and a new timer program 
-+         * will be started to "do the right thing".
-+ 
-+         * Detecting the need to do this correction is another issue. 
-+         * Here is what we do:
-+         * Each interrupt where last_was_long is !=0 (indicates the
-+         * interrupt should be on a 1/HZ boundry) we check the resulting 
-+         * _sub_jiffie.  If it is smaller than some MIN value, we do
-+         * the correction.  (Note that drift that makes the value  
-+         * smaller is the easy one.)  We also require that
-+         * _sub_jiffie <= some max at least once over a period of 1 second. 
-+         * I.e.  with HZ = 100, we will allow up to 99 "late" interrupts
-+         * before we do a correction.
-+
-+         * The values we use for min_hz_sub_jiffie and max_hz_sub_jiffie 
-+         * depend on the units and we will start by, during boot,
-+         * observing what MIN appears to be.  We will set max_hz_sub_jiffie
-+         * to be about 100 machine cycles more than this.
-+
-+         * Note that with  min_hz_sub_jiffie and max_hz_sub_jiffie
-+         * set to 0, this code will reset the PIT every HZ.
-+         */         
-+#ifndef CONFIG_HIGH_RES_TIMER_PIT 
-+       IF_ALL_PERIODIC(
-+                if ( ! last_was_long )
-+                        return;
-+                if ( _sub_jiffie < min_hz_sub_jiffie ){
-+                        last_was_long = 0;
-+                        return;
-+                }
-+                if (_sub_jiffie <=  max_hz_sub_jiffie) {
-+                        last_was_long = 1;
-+                        return;
-+                }
-+                if ( ++last_was_long > HZ ){
-+                        last_was_long = 0;
-+                        return;
-+                }
-+                )
-+#endif
-+}
-+
-+/*
-+ * quick_update_jiffies_sub returns the sub_jiffie offset of 
-+ * current time from the "ref_jiff" jiffie value.  We do this
-+ * with out updating any memory values and thus do not need to
-+ * take any locks, if we are careful.
-+ *
-+ * I don't know how to eliminate the lock in the SMP case, so..
-+ * Oh, and also the PIT case requires a lock anyway, so..
-+ */
-+#if defined (CONFIG_SMP) || defined(CONFIG_HIGH_RES_TIMER_PIT)
-+static inline void get_rat_jiffies(unsigned long *jiffies_f,long * _sub_jiffie_f,unsigned long *update)
-+{
-+	unsigned long flags;
-+
-+        read_lock_irqsave(&xtime_lock, flags);
-+        *jiffies_f = jiffies;
-+        *_sub_jiffie_f = _sub_jiffie;
-+        *update = quick_get_cpuctr();
-+        read_unlock_irqrestore(&xtime_lock, flags);
-+}
-+#else
-+static inline void get_rat_jiffies(unsigned long *jiffies_f,long *_sub_jiffie_f,unsigned long *update)
-+{
-+        unsigned long last_update_f;
-+        do {
-+                *jiffies_f = jiffies;
-+                last_update_f = last_update;
-+                barrier();
-+                *_sub_jiffie_f = _sub_jiffie;
-+                *update = quick_get_cpuctr();
-+                barrier();
-+        }while (*jiffies_f != jiffies || last_update_f != last_update);
-+}
-+#endif /* CONFIG_SMP */
-+
-+/*
-+ * If smp, this must be called with the read_lockirq(&xtime_lock) held.
-+ * No lock is needed if not SMP.
-+ */
-+
-+extern inline long quick_update_jiffies_sub(unsigned long ref_jiff)
-+{
-+	unsigned long update;
-+	unsigned long rtn;
-+        unsigned long jiffies_f;
-+        long  _sub_jiffie_f;
-+
-+
-+        get_rat_jiffies( &jiffies_f,&_sub_jiffie_f,&update);
-+
-+        rtn = _sub_jiffie_f + (unsigned long) update;
-+        rtn += (jiffies_f - ref_jiff) * cycles_per_jiffies;
-+        return rtn;
-+
-+}
-+#ifndef CONFIG_HIGH_RES_TIMER_PIT
-+extern inline void reload_timer_chip( int new_latch_value)
-+{
-+        IF_ALL_PERIODIC( unsigned char pit_status);
-+	/*
-+         * The input value is in arch cycles
-+         * We must be called with irq disabled.
-+	 */
-+
-+	new_latch_value = arch_cycles_to_latch( new_latch_value );
-+        if (new_latch_value < TIMER_DELTA){
-+                new_latch_value = TIMER_DELTA;
-+        }
-+	spin_lock(&i8253_lock);
-+        IF_ALL_PERIODIC( put_timer_in_periodic_mode());
-+	outb_p(new_latch_value & 0xff, PIT0);	/* LSB */
-+	outb(new_latch_value >> 8, PIT0);	/* MSB */
-+        IF_ALL_PERIODIC(
-+                do {
-+                        outb_p(PIT0_LATCH_STATUS,PIT_COMMAND);
-+                        pit_status = inb(PIT0);
-+                }while (pit_status & PIT_NULL_COUNT);
-+                outb_p(LATCH & 0xff, PIT0);	/* LSB */
-+                outb(LATCH >> 8, PIT0);	        /* MSB */
-+                )
-+	spin_unlock(&i8253_lock);
-+	return;
-+}
-+/*
-+ * Time out for a discussion.  Because the PIT and TSC (or the PIT and
-+ * pm timer) may drift WRT each other, we need a way to get the jiffie
-+ * interrupt to happen as near to the jiffie roll as possible.  This
-+ * insures that we will get the interrupt when the timer is to be
-+ * delivered, not before (we would not deliver) or later, making the
-+ * jiffie timers different from the sub_jiffie deliveries.  We would
-+ * also like any latency between a "requested" interrupt and the
-+ * automatic jiffie interrupts from the PIT to be the same.  Since it
-+ * takes some time to set up the PIT, we assume that requested
-+ * interrupts may be a bit late when compared to the automatic
-+ * interrupts.  When we request a jiffie interrupt, we want the
-+ * interrupt to happen at the requested time, which will be a bit before
-+ * we get to the jiffies update code. 
-+ *
-+ * What we want to determine here is a.) how long it takes (min) to get
-+ * from a requested interrupt to the jiffies update code and b.) how
-+ * long it takes when the interrupt is automatic (i.e. from the PIT
-+ * reset logic).  When we set "last_was_long" to zero, the next tick
-+ * setup code will "request" a jiffies interrupt (as long as we do not
-+ * have any sub jiffie timers pending).  The interrupt after the
-+ * requested one will be automatic.  Ignoring drift over this 2/HZ time
-+ * we then get two latency values, the requested latency and the
-+ * automatic latency.  We set up the difference to correct the requested
-+ * time and the second one as the center of a window which we will use
-+ * to detect the need to resync the PIT.  We do this for HZ ticks and
-+ * take the min.
-+ */
-+#define NANOSEC_SYNC_LIMIT 2000  // Try for 2 usec. max drift
-+#define final_clock_init() \
-+        { unsigned long end = jiffies + HZ + HZ; \
-+          int min_a =  cycles_per_jiffies, min_b =  cycles_per_jiffies;  \
-+          long flags;                         \
-+          while (time_before(jiffies,end)){ \
-+               unsigned long f_jiffies = jiffies;     \
-+                                            \
-+               while (jiffies == f_jiffies); \
-+               last_was_long = 0;            \
-+               while (jiffies == f_jiffies + 1); \
-+               read_lock_irqsave(&xtime_lock, flags); \
-+               if ( _sub_jiffie < min_a) \
-+                     min_a =  _sub_jiffie; \
-+               read_unlock_irqrestore(&xtime_lock, flags); \
-+               while (jiffies == f_jiffies + 2); \
-+               read_lock_irqsave(&xtime_lock, flags); \
-+               if ( _sub_jiffie < min_b) \
-+                     min_b =  _sub_jiffie; \
-+               read_unlock_irqrestore(&xtime_lock, flags); \
-+          }                             \
-+         min_hz_sub_jiffie = min_b -  nsec_to_arch_cycles(NANOSEC_SYNC_LIMIT);\
-+          if( min_hz_sub_jiffie < 0)  min_hz_sub_jiffie = 0; \
-+          max_hz_sub_jiffie = min_b +  nsec_to_arch_cycles(NANOSEC_SYNC_LIMIT);\
-+       }
-+
-+         // pit_pgm_correction = min_a - min_b; 
-+        // if(pit_pgm_correction < 0)  pit_pgm_correction = 0; 
-+
-+#endif                          /* not CONFIG_HIGH_RES_TIMER_PIT */
-+#endif				/* __KERNEL__ */
-+#endif				/* _I386_HRTIME_H */
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/include/asm-i386/sc_math.h linux/include/asm-i386/sc_math.h
---- linux-2.5.39-core/include/asm-i386/sc_math.h	Wed Dec 31 16:00:00 1969
-+++ linux/include/asm-i386/sc_math.h	Fri Sep 27 17:29:59 2002
-@@ -0,0 +1,143 @@
-+#ifndef SC_MATH
-+#define SC_MATH
-+#define MATH_STR(X) #X
-+#define MATH_NAME(X) X
-+
-+/*
-+ * Pre scaling defines
-+ */
-+#define SC_32(x) ((long long)x<<32)
-+#define SC_n(n,x) (((long long)x)<<n)
-+/*
-+ * This routine preforms the following calculation:
-+ *
-+ * X = (a*b)>>32
-+ * we could, (but don't) also get the part shifted out.
-+ */
-+extern inline long mpy_ex32(long a,long b)
-+{
-+        long edx;
-+	__asm__("imull %2"
-+		:"=a" (a), "=d" (edx)
-+		:"rm" (b),
-+		 "0" (a));
-+        return edx;
-+}
-+/*
-+ * X = (a/b)<<32 or more precisely x = (a<<32)/b
-+ */
-+
-+extern inline long div_ex32(long a, long b)
-+{
-+        long dum;
-+        __asm__("divl %2"
-+                :"=a" (b), "=d" (dum)
-+                :"r" (b), "0" (0), "1" (a));
-+        
-+        return b;
-+}
-+/*
-+ * X = (a*b)>>24
-+ * we could, (but don't) also get the part shifted out.
-+ */
-+
-+#define mpy_ex24(a,b) mpy_sc_n(24,a,b)
-+/*
-+ * X = (a/b)<<24 or more precisely x = (a<<24)/b
-+ */
-+#define div_ex24(a,b) div_sc_n(24,a,b)
-+
-+/*
-+ * The routines allow you to do x = (a/b) << N and
-+ * x=(a*b)>>N for values of N from 1 to 32.
-+ *
-+ * These are handy to have to do scaled math.
-+ * Scaled math has two nice features:
-+ * A.) A great deal more precision can be maintained by
-+ *     keeping more signifigant bits.
-+ * B.) Often an in line div can be repaced with a mpy
-+ *     which is a LOT faster.
-+ */
-+
-+#define mpy_sc_n(N,aa,bb) ({long edx,a=aa,b=bb; \
-+	__asm__("imull %2\n\t" \
-+                "shldl $(32-"MATH_STR(N)"),%0,%1"    \
-+		:"=a" (a), "=d" (edx)\
-+		:"rm" (b),            \
-+		 "0" (a)); edx;})
-+
-+
-+#define div_sc_n(N,aa,bb) ({long dum=aa,dum2,b=bb; \
-+        __asm__("shrdl $(32-"MATH_STR(N)"),%4,%3\n\t"  \
-+                "sarl $(32-"MATH_STR(N)"),%4\n\t"      \
-+                "divl %2"              \
-+                :"=a" (dum2), "=d" (dum)      \
-+                :"rm" (b), "0" (0), "1" (dum)); dum2;})  
-+
-+  
-+/*
-+ * (long)X = ((long long)divs) / (long)div
-+ * (long)rem = ((long long)divs) % (long)div
-+ *
-+ * Warning, this will do an exception if X overflows.
-+ */
-+#define div_long_long_rem(a,b,c) div_ll_X_l_rem(a,b,c)
-+
-+extern inline long div_ll_X_l_rem(long long divs, long div,long * rem)
-+{
-+        long dum2;
-+        __asm__( "divl %2"
-+                :"=a" (dum2), "=d" (*rem)
-+                :"rm" (div), "A" (divs));
-+        
-+        return dum2;
-+
-+}
-+/*
-+ * same as above, but no remainder
-+ */
-+extern inline long div_ll_X_l(long long divs, long div)
-+{
-+        long dum;
-+        return div_ll_X_l_rem(divs,div,&dum);
-+}
-+/*
-+ * (long)X = (((long)divh<<32) | (long)divl) / (long)div
-+ * (long)rem = (((long)divh<<32) % (long)divl) / (long)div
-+ *
-+ * Warning, this will do an exception if X overflows.
-+ */
-+extern inline long div_h_or_l_X_l_rem(long divh,long divl, long div,long* rem)
-+{
-+        long dum2;
-+        __asm__( "divl %2"
-+                :"=a" (dum2), "=d" (*rem)
-+                :"rm" (div), "0" (divl),"1" (divh));
-+        
-+        return dum2;
-+
-+}
-+extern inline long long mpy_l_X_l_ll(long mpy1,long mpy2)
-+{
-+        long long eax;
-+	__asm__("imull %1\n\t"
-+		:"=A" (eax)
-+		:"rm" (mpy2),
-+		 "a" (mpy1));
-+        
-+        return eax;
-+
-+}
-+extern inline long  mpy_1_X_1_h(long mpy1,long mpy2,long *hi)
-+{
-+        long eax;
-+	__asm__("imull %2\n\t"
-+		:"=a" (eax),"=d" (*hi)
-+		:"rm" (mpy2),
-+		 "0" (mpy1));
-+        
-+        return eax;
-+
-+}
-+
-+#endif
-diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.39-core/include/asm-i386/signal.h linux/include/asm-i386/signal.h
---- linux-2.5.39-core/include/asm-i386/signal.h	Mon Sep  9 10:35:04 2002
-+++ linux/include/asm-i386/signal.h	Fri Sep 27 17:29:59 2002
-@@ -216,9 +216,47 @@
- 	__asm__("bsfl %1,%0" : "=r"(word) : "rm"(word) : "cc");
- 	return word;
- }
-+/*
-+ * These macros are used by nanosleep() however, they could be used
-+ * by other code that needs the pt_regs.  These are passed in different
-+ * ways by the various platforms.  In the x86, the address of the first
-+ * parameter is the address of the registers (and the first param is in 
-+ * a register because of the asmcall stuff.
-+ * Darn, I give up.  No more generic stuff.  Here we code the required 
-+ * entry for selected given functions.  One way or another, we will let 
-+ * the various archs work out how they want to deal with it.  Too bad 
-+ * there isn't a fixed way to grab the pt_regs...
- 
-+ * And while were at it, there needs to be a way to set the return code
-+ * on the way to do_signal().  It (i.e. do_signal()) saves the regs on 
-+ * the callers stack to call the user handler and then the return is
-+ * done using those registers.  This means that the error code MUST be
-+ * set in the register PRIOR to calling do_signal().  See our answer 
-+ * below...thanks to  Jim Houston <jim.houston@attbi.com>
-+ */
- struct pt_regs;
- extern int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
-+
-+#define NANOSLEEP_ENTRY(a) asmlinkage long sys_nanosleep( struct timespec* rqtp, \
-+                                                          struct timespec * rmtp) \
-+{       struct pt_regs *regs = (struct pt_regs *)&rqtp; \
-+        a
-+
-+#define CLOCK_NANOSLEEP_ENTRY(a) asmlinkage long sys_clock_nanosleep( \
-+                               clockid_t which_clock,      \
-+                               int flags,                  \
-+                               const struct timespec *rqtp, \
-+                               struct timespec *rmtp)       \
-+{       struct pt_regs *regs = (struct pt_regs *)&which_clock; \
-+        a
-+
-+#define PT_REGS_ENTRY(type,name,p1_type,p1, p2_type,p2) \
-+type name(p1_type p1,p2_type p2)\
-+{       struct pt_regs *regs = (struct pt_regs *)&p1;
-+
-+#define _do_signal() (regs->eax = -EINTR, do_signal(regs, NULL))
-+
-+
- 
- #endif /* __KERNEL__ */
- 
++extern int timer_create(clockid_t which_clock, =
 
---------------E198A0778B34A132E8AA21AB--
++			struct sigevent *timer_event_spec,
++			timer_t *created_timer_id) __THROW;
++
++extern int timer_gettime(timer_t timer_id, struct itimerspec *setting) _=
+_THROW;
++
++extern int timer_settime(timer_t timer_id,
++			 int flags,
++			 const struct itimerspec *new_setting,
++			 struct itimerspec *old_setting) __THROW;
++
++extern int timer_getoverrun(timer_t timer_id) __THROW;
++
++extern int timer_delete(timer_t timer_id) __THROW;
++
++extern int clock_gettime(clockid_t which_clock, struct timespec *ts) __T=
+HROW;
++
++extern int clock_settime(clockid_t which_clock, =
+
++			 const struct timespec *setting) __THROW;
++
++extern int clock_getres(clockid_t which_clock, =
+
++			struct timespec *resolution) __THROW;
++
++extern int clock_nanosleep(clockid_t which_clock,
++		    int flags,
++		    const struct timespec *new_setting, =
+
++		    struct timespec *old_setting) __THROW;
++ =
+
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* POSIX_TIMERS */
++
++#endif /* __POSIX_TIME_H */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/lib/syscall_timer.c linux/Documentation/high-re=
+s-timers/lib/syscall_timer.c
+--- linux-2.5.36-kb/Documentation/high-res-timers/lib/syscall_timer.c	Wed=
+ Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/lib/syscall_timer.c	Fri Sep 27 11=
+:03:19 2002
+@@ -0,0 +1,94 @@
++//#include <signal.h>
++//#include <time.h>
++#include <linux/unistd.h>
++#include "posix_time.h"
++#include <sysdeps/i386/sysdep.h>
++#include <errno.h>
++//#include "syscall_timer.h"
++
++#define __NR___timer_create	__NR_timer_create
++#define __NR___timer_gettime	__NR_timer_gettime
++#define __NR___timer_settime	__NR_timer_settime
++#define __NR___timer_getoverrun __NR_timer_getoverrun
++#define __NR___timer_delete	__NR_timer_delete
++
++#define __NR___clock_settime   __NR_clock_settime
++#define __NR___clock_gettime   __NR_clock_gettime
++#define __NR___clock_getres    __NR_clock_getres
++#define __NR___clock_nanosleep __NR_clock_nanosleep
++
++#undef _syscall1
++#define _syscall1(type,name,type1,arg1) \
++type name(type1 arg1) \
++{ \
++     return INLINE_SYSCALL( name, 1, arg1); \
++}
++
++
++#undef _syscall2
++#define _syscall2(type,name,type1,arg1,type2,arg2) \
++type name(type1 arg1,type2 arg2) \
++{ \
++     return INLINE_SYSCALL( name, 2, arg1, arg2); \
++}
++
++
++#undef _syscall3
++#define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
++type name(type1 arg1,type2 arg2,type3 arg3) \
++{ \
++     return INLINE_SYSCALL( name, 3, arg1, arg2, arg3); \
++}
++
++_syscall3(int, timer_create, clockid_t, which_clock, struct sigevent *,
++	  timer_event_spec, timer_t *, created_timer_id)
++
++#undef _syscall4
++#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4)=
+ \
++type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
++{ \
++     return INLINE_SYSCALL( name, 4, arg1, arg2, arg3, arg4); \
++}
++
++/* This will expand into the timer_gettime system call stub. */
++_syscall2(int, timer_gettime, =
+
++	  timer_t, timer_id, =
+
++	  struct itimerspec *, setting)
++
++/* This will expand into the timer_settime system call stub. */
++_syscall4(int, timer_settime, =
+
++	  timer_t, timer_id, =
+
++	  int, flags, =
+
++	  const struct itimerspec *, new_setting,
++	  struct itimerspec *, old_setting)
++
++/* This will expand into the timer_gettime system call stub. */
++_syscall1(int, timer_getoverrun, =
+
++	  timer_t, timer_id)
++
++/* This will expand into the timer_delete system call stub. */
++_syscall1(int, timer_delete, =
+
++	  timer_t, timer_id)
++
++/* This will expand into the clock_getres system call stub. */
++_syscall2(int, clock_getres, =
+
++	  clockid_t, which_clock,
++	  struct timespec *,resolution)
++
++/* This will expand into the clock_gettime system call stub. */
++_syscall2(int, clock_gettime, =
+
++	  clockid_t, which_clock,
++	  struct timespec *,time)
++
++/* This will expand into the clock_settime system call stub. */
++_syscall2(int, clock_settime, =
+
++	  clockid_t, which_clock,
++	  const struct timespec *,time)
++
++/* This will expand into the clock_nanosleep system call stub. */
++_syscall4(int, clock_nanosleep, =
+
++	  clockid_t, which_clock,
++	  int, flags,
++	  const struct timespec *,rqtp,
++	  struct timespec *,rmtp)
++
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/lib/test_itimerspec linux/Documentation/high-re=
+s-timers/lib/test_itimerspec
+--- linux-2.5.36-kb/Documentation/high-res-timers/lib/test_itimerspec	Wed=
+ Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/lib/test_itimerspec	Fri Sep 27 11=
+:03:27 2002
+@@ -0,0 +1,32 @@
++#!/bin/bash
++
++# This bit of nonsense fixes up posix_time.h to either define
++# sturct itimerspec or not, depending on if the library headers
++# have already defined it.  It does a test by compiling a trivial
++# program and testing if there are errors.  If there are errors
++# it inverts the inclusion of the definition.  That is it does not
++# matter if posix_time.h starts with the struc defined or not, if
++# the assumption is wrong we just change it.
++
++# The interesting thing is that even if the lib does not define it
++# the definition is still there, it is just not exposed because of
++# some dumb rules having to do with what flags are defined. =
+
++
++FILE=3D"posix_time.h"
++OUTFILE=3D"tmp"
++
++tf=3D"t--st"
++	rm -f $tf.c
++	echo "#include <linux/unistd.h>" >$tf.c
++	echo "#include \"$FILE\"">>$tf.c
++	echo "int main(struct itimerspec *t){t->it_interval.tv_sec++;return 0;}=
+">>$tf.c
++	foo=3D`$* $tf.c -o $tf`&>/dev/null
++	result=3D"$?"
++#	echo $result
++#	echo "from file"$foo
++	if [ "$result" !=3D "0" ] ; then =
+
++	    awk '$0 =3D=3D "#ifdef NEED_ITIMERSPEC" {$0 =3D "#ifndef NEED_ITIME=
+RSPEC";print;next} $0 =3D=3D "#ifndef NEED_ITIMERSPEC" {$0=3D"#ifdef NEED=
+_ITIMERSPEC"}{print}' $FILE >$OUTFILE
++	    rm $FILE
++	    mv $OUTFILE $FILE
++	 fi
++	 rm -f $tf*
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/libX/Makefile linux/Documentation/high-res-time=
+rs/libX/Makefile
+--- linux-2.5.36-kb/Documentation/high-res-timers/libX/Makefile	Wed Dec 3=
+1 16:00:00 1969
++++ linux/Documentation/high-res-timers/libX/Makefile	Fri Sep 27 11:04:21=
+ 2002
+@@ -0,0 +1,25 @@
++LIBPOSIXTIME =3D libposixtime.so
++
++SOURCES =3D syscall_timer.c =
+
++OBJECTS =3D $(SOURCES:.c=3D.o)
++
++SYSASM =3D  -I../../../include/ -I../usr_incl/
++CPPFLAGS =3D -D_POSIX_TIMERS=3D1 -D_POSIX_C_SOURCE=3D199309L -D_XOPEN_SO=
+URCE $(SYSASM)
++CFLAGS =3D -g -Wall -shared =
+
++
++all: $(LIBPOSIXTIME)($(OBJECTS))
++
++clean:
++	rm -f *.o *.a *.so *~ core .depend t--* tmp
++
++tf =3D t--st.c
++.depend: $(SOURCES)
++	$(CC) $(CPPFLAGS)  -M $(SOURCES) | \
++		sed -e '/:/s|^[^ :]*|$(LIBPOSIXTIME)(&)|' > .depend
++	rm -f $(tf)
++	./test_itimerspec $(CC) $(CPPFLAGS) &>/dev/null
++	make
++
++# The above make insures that "all:" is done with the newly created .dep=
+end
++
++include .depend
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/libX/posix_time.h linux/Documentation/high-res-=
+timers/libX/posix_time.h
+--- linux-2.5.36-kb/Documentation/high-res-timers/libX/posix_time.h	Wed D=
+ec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/libX/posix_time.h	Fri Sep 27 11:0=
+4:31 2002
+@@ -0,0 +1,151 @@
++/*
++ * Copyright (C) 1997 by the University of Kansas Center for Research,
++ * Inc.	 This software was developed by the Information and
++ * Telecommunication Technology Center (ITTC) at the University of
++ * Kansas.  Partial funding for this project was provided by Sprint. Thi=
+s
++ * software may be used and distributed according to the terms of the GN=
+U
++ * Public License, incorporated herein by reference.  Neither ITTC nor
++ * Sprint accept any liability whatsoever for this product.
++ *
++ * This project was developed under the direction of Dr. Douglas Niehaus=
+=2E
++ *
++ * Authors: Shyam Pather, Balaji Srinivasan =
+
++ *
++ * Please send bug-reports/suggestions/comments to posix@ittc.ukans.edu
++ *
++ * Further details about this project can be obtained at
++ *    http://hegel.ittc.ukans.edu/projects/posix/
++ *
++ * Currently part of the high-res-timers project:
++ *	   http://sourceforge.net/projects/high-res-timers/
++ *
++ */
++
++/*********************** NOTES on this file.****************************=
+
++ *
++ * This is a header file for use with the POSIX timers.	 If you have a
++ * current glibc, most of what is here is already defined and thus, not
++ * needed. The only part you would need with the latest glibc (2.2.5)
++ * for example, is the CLOCK_MONOTONIC, and the CLOCK_*_HR defines.
++ *
++ * When this code is integerated into glibc this file will go away.
++ *
++ * An effort was made to avoid errors because something is already defin=
+ed
++ * however, this is life, so there will always be some issues.	If anythi=
+ng
++ * here collides with your normal libc header files, you can most likey
++ * just comment out the offending parts.
++ *
++ ***********************************************************************=
+*/
++
++
++
++#ifndef __POSIX_TIME_H
++#define __POSIX_TIME_H
++
++#include <signal.h>
++#include <time.h>
++
++#ifdef _POSIX_TIMERS
++
++#ifndef CLOCK_REALTIME
++#define CLOCK_REALTIME		 0
++#endif
++#ifndef CLOCK_MONOTONIC
++#define CLOCK_MONOTONIC		 1
++#endif
++#ifndef CLOCK_PROCESS_CPUTIME_ID
++#define CLOCK_PROCESS_CPUTIME_ID 2
++#endif
++#ifndef CLOCK_THREAD_CPUTIME_ID
++#define CLOCK_THREAD_CPUTIME_ID	 3
++#endif
++#ifndef CLOCK_REALTIME_HR
++#define CLOCK_REALTIME_HR	 4
++#endif
++#ifndef CLOCK_MONOTONIC_HR
++#define CLOCK_MONOTONIC_HR	 5
++#endif
++
++#define NOF_CLOCKS 10
++
++#undef	TIMER_ABSTIME
++#define TIMER_ABSTIME 0x01
++
++#undef TIMER_MAX
++#define TIMER_MAX 32000
++
++#ifndef NSEC_PER_SEC
++#define NSEC_PER_SEC 1000000000L
++#endif
++
++#if !defined __clockid_t_defined
++typedef int clockid_t;
++# define __clockid_t_defined	1
++#endif
++
++#ifndef __timer_t_defined
++# define __timer_t_defined	1
++typedef int timer_t;
++#endif
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++#if 0	     // fix confused pretty printer
++}
++#endif
++/* POSIX.1b structure for timer start values and intervals.  */
++/* If the following is already defined, just change the 1 to a 0 */
++#define NEED_ITIMERSPEC
++#ifndef NEED_ITIMERSPEC
++struct itimerspec
++  {
++    struct timespec it_interval;
++    struct timespec it_value;
++  };
++#endif
++/*
++ * Proto types can be repeated, so this should cause no errors even
++ * if time.h already defined it.
++*/
++
++#ifndef __THROW
++#define __THROW
++#endif
++
++extern int timer_create(clockid_t which_clock, =
+
++			struct sigevent *timer_event_spec,
++			timer_t *created_timer_id) __THROW;
++
++extern int timer_gettime(timer_t timer_id, struct itimerspec *setting) _=
+_THROW;
++
++extern int timer_settime(timer_t timer_id,
++			 int flags,
++			 const struct itimerspec *new_setting,
++			 struct itimerspec *old_setting) __THROW;
++
++extern int timer_getoverrun(timer_t timer_id) __THROW;
++
++extern int timer_delete(timer_t timer_id) __THROW;
++
++extern int clock_gettime(clockid_t which_clock, struct timespec *ts) __T=
+HROW;
++
++extern int clock_settime(clockid_t which_clock, =
+
++			 const struct timespec *setting) __THROW;
++
++extern int clock_getres(clockid_t which_clock, =
+
++			struct timespec *resolution) __THROW;
++
++extern int clock_nanosleep(clockid_t which_clock,
++		    int flags,
++		    const struct timespec *new_setting, =
+
++		    struct timespec *old_setting) __THROW;
++ =
+
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* POSIX_TIMERS */
++
++#endif /* __POSIX_TIME_H */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/libX/syscall_timer.c linux/Documentation/high-r=
+es-timers/libX/syscall_timer.c
+--- linux-2.5.36-kb/Documentation/high-res-timers/libX/syscall_timer.c	We=
+d Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/libX/syscall_timer.c	Fri Sep 27 1=
+1:04:42 2002
+@@ -0,0 +1,64 @@
++//#include <signal.h>
++//#include <time.h>
++#include <linux/unistd.h>
++#include "posix_time.h"
++//#include "syscall_timer.h"
++
++#define __NR___timer_create	__NR_timer_create
++#define __NR___timer_gettime	__NR_timer_gettime
++#define __NR___timer_settime	__NR_timer_settime
++#define __NR___timer_getoverrun __NR_timer_getoverrun
++#define __NR___timer_delete	__NR_timer_delete
++
++#define __NR___clock_settime   __NR_clock_settime
++#define __NR___clock_gettime   __NR_clock_gettime
++#define __NR___clock_getres    __NR_clock_getres
++#define __NR___clock_nanosleep __NR_clock_nanosleep
++
++/* This will expand into the timer_create system call stub. */
++_syscall3(int, timer_create, clockid_t, which_clock, struct sigevent *,
++	  timer_event_spec, timer_t *, created_timer_id)
++
++/* This will expand into the timer_gettime system call stub. */
++_syscall2(int, timer_gettime, =
+
++	  timer_t, timer_id, =
+
++	  struct itimerspec *, setting)
++
++/* This will expand into the timer_settime system call stub. */
++_syscall4(int, timer_settime, =
+
++	  timer_t, timer_id, =
+
++	  int, flags, =
+
++	  const struct itimerspec *, new_setting,
++	  struct itimerspec *, old_setting)
++
++/* This will expand into the timer_gettime system call stub. */
++_syscall1(int, timer_getoverrun, =
+
++	  timer_t, timer_id)
++
++/* This will expand into the timer_delete system call stub. */
++_syscall1(int, timer_delete, =
+
++	  timer_t, timer_id)
++
++/* This will expand into the clock_getres system call stub. */
++_syscall2(int, clock_getres, =
+
++	  clockid_t, which_clock,
++	  struct timespec *,resolution)
++
++/* This will expand into the clock_gettime system call stub. */
++_syscall2(int, clock_gettime, =
+
++	  clockid_t, which_clock,
++	  struct timespec *,time)
++
++/* This will expand into the clock_settime system call stub. */
++_syscall2(int, clock_settime, =
+
++	  clockid_t, which_clock,
++	  const struct timespec *,time)
++
++/* This will expand into the clock_nanosleep system call stub. */
++_syscall4(int, clock_nanosleep, =
+
++	  clockid_t, which_clock,
++	  int, flags,
++	  const struct timespec *,rqtp,
++	  struct timespec *,rmtp)
++
++
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/libX/test_itimerspec linux/Documentation/high-r=
+es-timers/libX/test_itimerspec
+--- linux-2.5.36-kb/Documentation/high-res-timers/libX/test_itimerspec	We=
+d Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/libX/test_itimerspec	Fri Sep 27 1=
+1:04:52 2002
+@@ -0,0 +1,32 @@
++#!/bin/bash
++
++# This bit of nonsense fixes up posix_time.h to either define
++# sturct itimerspec or not, depending on if the library headers
++# have already defined it.  It does a test by compiling a trivial
++# program and testing if there are errors.  If there are errors
++# it inverts the inclusion of the definition.  That is it does not
++# matter if posix_time.h starts with the struc defined or not, if
++# the assumption is wrong we just change it.
++
++# The interesting thing is that even if the lib does not define it
++# the definition is still there, it is just not exposed because of
++# some dumb rules having to do with what flags are defined. =
+
++
++FILE=3D"posix_time.h"
++OUTFILE=3D"tmp"
++
++tf=3D"t--st"
++	rm -f $tf.c
++	echo "#include <linux/unistd.h>" >$tf.c
++	echo "#include \"$FILE\"">>$tf.c
++	echo "int main(struct itimerspec *t){t->it_interval.tv_sec++;return 0;}=
+">>$tf.c
++	foo=3D`$* $tf.c`&>/dev/null
++	result=3D"$?"
++#	echo $result
++#	echo "from file"$foo
++	if [ "$result" !=3D "0" ] ; then =
+
++	    awk '$0 =3D=3D "#ifdef NEED_ITIMERSPEC" {$0 =3D "#ifndef NEED_ITIME=
+RSPEC";print;next} $0 =3D=3D "#ifndef NEED_ITIMERSPEC" {$0=3D"#ifdef NEED=
+_ITIMERSPEC"}{print}' $FILE >$OUTFILE
++	    rm $FILE
++	    mv $OUTFILE $FILE
++	 fi
++	 rm -f $tf*
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/usr_incl/bits/siginfo.h linux/Documentation/hig=
+h-res-timers/usr_incl/bits/siginfo.h
+--- linux-2.5.36-kb/Documentation/high-res-timers/usr_incl/bits/siginfo.h=
+	Wed Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/usr_incl/bits/siginfo.h	Wed Sep 1=
+8 17:39:54 2002
+@@ -0,0 +1,292 @@
++/* siginfo_t, sigevent and constants.  Linux version.
++   Copyright (C) 1997, 1998 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Library General Public License a=
+s
++   published by the Free Software Foundation; either version 2 of the
++   License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Library General Public License for more details.
++
++   You should have received a copy of the GNU Library General Public
++   License along with the GNU C Library; see the file COPYING.LIB.  If n=
+ot,
++   write to the Free Software Foundation, Inc., 59 Temple Place - Suite =
+330,
++   Boston, MA 02111-1307, USA.  */
++
++#if !defined _SIGNAL_H && !defined __need_siginfo_t
++# error "Never include this file directly.  Use <signal.h> instead"
++#endif
++
++#if (!defined __have_siginfo_t \
++     && (defined _SIGNAL_H || defined __need_siginfo_t))
++# define __have_siginfo_t	1
++
++/* Type for data associated with a signal.  */
++typedef union sigval
++  {
++    int sival_int;
++    void *sival_ptr;
++  } sigval_t;
++
++# define __SI_MAX_SIZE     128
++# define __SI_PAD_SIZE     ((__SI_MAX_SIZE / sizeof (int)) - 3)
++
++typedef struct siginfo
++  {
++    int si_signo;		/* Signal number.  */
++    int si_errno;		/* If non-zero, an errno value associated with
++				   this signal, as defined in <errno.h>.  */
++    int si_code;		/* Signal code.  */
++
++    union
++      {
++	int _pad[__SI_PAD_SIZE];
++
++	 /* kill().  */
++	struct
++	  {
++	    __pid_t si_pid;	/* Sending process ID.  */
++	    __uid_t si_uid;	/* Real user ID of sending process.  */
++	  } _kill;
++
++	/* POSIX.1b timers.  */
++	struct
++	  {
++	    __timer_t _tid;	/* timer id */
++            int _overrun;	/* overrun count */
++	    sigval_t si_sigval;	/* Signal value, same as below  */
++	  } _timer;
++
++	/* POSIX.1b signals.  */
++	struct
++	  {
++	    __pid_t si_pid;	/* Sending process ID.  */
++	    __uid_t si_uid;	/* Real user ID of sending process.  */
++	    sigval_t si_sigval;	/* Signal value.  */
++	  } _rt;
++
++	/* SIGCHLD.  */
++	struct
++	  {
++	    __pid_t si_pid;	/* Which child.  */
++	    __uid_t si_uid;	/* Real user ID of sending process.  */
++	    int si_status;	/* Exit value or signal.  */
++	    __clock_t si_utime;
++	    __clock_t si_stime;
++	  } _sigchld;
++
++	/* SIGILL, SIGFPE, SIGSEGV, SIGBUS.  */
++	struct
++	  {
++	    void *si_addr;	/* Faulting insn/memory ref.  */
++	  } _sigfault;
++
++	/* SIGPOLL.  */
++	struct
++	  {
++	    int si_band;	/* Band event for SIGPOLL.  */
++	    int si_fd;
++	  } _sigpoll;
++      } _sifields;
++  } siginfo_t;
++
++
++/* X/Open requires some more fields with fixed names.  */
++# define si_pid		_sifields._kill.si_pid
++# define si_uid		_sifields._kill.si_uid
++# define si_tid		_sifields._timer._tid
++# define si_overrun	_sifields._timer._overrun
++# define si_status	_sifields._sigchld.si_status
++# define si_utime	_sifields._sigchld.si_utime
++# define si_stime	_sifields._sigchld.si_stime
++# define si_value	_sifields._rt.si_sigval
++# define si_int		_sifields._rt.si_sigval.sival_int
++# define si_ptr		_sifields._rt.si_sigval.sival_ptr
++# define si_addr	_sifields._sigfault.si_addr
++# define si_band	_sifields._sigpoll.si_band
++# define si_fd		_sifields._sigpoll.si_fd
++
++/* To be compatable with prior _timer members */
++
++#define _timer1 _tid
++#define _timer2 _overrun
++
++
++/* Values for `si_code'.  Positive values are reserved for kernel-genera=
+ted
++   signals.  */
++enum
++{
++  SI_SIGIO =3D -5,		/* Sent by queued SIGIO. */
++# define SI_SIGIO	SI_SIGIO
++  SI_ASYNCIO,			/* Sent by AIO completion.  */
++# define SI_ASYNCIO	SI_ASYNCIO
++  SI_MESGQ,			/* Sent by real time mesq state change.  */
++# define SI_MESGQ	SI_MESGQ
++  SI_TIMER,			/* Sent by timer expiration.  */
++# define SI_TIMER	SI_TIMER
++  SI_QUEUE,			/* Sent by sigqueue.  */
++# define SI_QUEUE	SI_QUEUE
++  SI_USER			/* Sent by kill, sigsend, raise.  */
++# define SI_USER	SI_USER
++};
++
++
++/* `si_code' values for SIGILL signal.  */
++enum
++{
++  ILL_ILLOPC =3D 1,		/* Illegal opcode.  */
++# define ILL_ILLOPC	ILL_ILLOPC
++  ILL_ILLOPN,			/* Illegal operand.  */
++# define ILL_ILLOPN	ILL_ILLOPN
++  ILL_ILLADR,			/* Illegal addressing mode.  */
++# define ILL_ILLADR	ILL_ILLADR
++  ILL_ILLTRP,			/* Illegal trap. */
++# define ILL_ILLTRP	ILL_ILLTRP
++  ILL_PRVOPC,			/* Privileged opcode.  */
++# define ILL_PRVOPC	ILL_PRVOPC
++  ILL_PRVREG,			/* Privileged register.  */
++# define ILL_PRVREG	ILL_PRVREG
++  ILL_COPROC,			/* Coprocessor error.  */
++# define ILL_COPROC	ILL_COPROC
++  ILL_BADSTK			/* Internal stack error.  */
++# define ILL_BADSTK	ILL_BADSTK
++};
++
++/* `si_code' values for SIGFPE signal.  */
++enum
++{
++  FPE_INTDIV =3D 1,		/* Integer divide by zero.  */
++# define FPE_INTDIV	FPE_INTDIV
++  FPE_INTOVF,			/* Integer overflow.  */
++# define FPE_INTOVF	FPE_INTOVF
++  FPE_FLTDIV,			/* Floating point divide by zero.  */
++# define FPE_FLTDIV	FPE_FLTDIV
++  FPE_FLTOVF,			/* Floating point overflow.  */
++# define FPE_FLTOVF	FPE_FLTOVF
++  FPE_FLTUND,			/* Floating point underflow.  */
++# define FPE_FLTUND	FPE_FLTUND
++  FPE_FLTRES,			/* Floating point inexact result.  */
++# define FPE_FLTRES	FPE_FLTRES
++  FPE_FLTINV,			/* Floating point invalid operation.  */
++# define FPE_FLTINV	FPE_FLTINV
++  FPE_FLTSUB			/* Subscript out of range.  */
++# define FPE_FLTSUB	FPE_FLTSUB
++};
++
++/* `si_code' values for SIGSEGV signal.  */
++enum
++{
++  SEGV_MAPERR =3D 1,		/* Address not mapped to object.  */
++# define SEGV_MAPERR	SEGV_MAPERR
++  SEGV_ACCERR			/* Invalid permissions for mapped object.  */
++# define SEGV_ACCERR	SEGV_ACCERR
++};
++
++/* `si_code' values for SIGBUS signal.  */
++enum
++{
++  BUS_ADRALN =3D 1,		/* Invalid address alignment.  */
++# define BUS_ADRALN	BUS_ADRALN
++  BUS_ADRERR,			/* Non-existant physical address.  */
++# define BUS_ADRERR	BUS_ADRERR
++  BUS_OBJERR			/* Object specific hardware error.  */
++# define BUS_OBJERR	BUS_OBJERR
++};
++
++/* `si_code' values for SIGTRAP signal.  */
++enum
++{
++  TRAP_BRKPT =3D 1,		/* Process breakpoint.  */
++# define TRAP_BRKPT	TRAP_BRKPT
++  TRAP_TRACE			/* Process trace trap.  */
++# define TRAP_TRACE	TRAP_TRACE
++};
++
++/* `si_code' values for SIGCHLD signal.  */
++enum
++{
++  CLD_EXITED =3D 1,		/* Child has exited.  */
++# define CLD_EXITED	CLD_EXITED
++  CLD_KILLED,			/* Child was killed.  */
++# define CLD_KILLED	CLD_KILLED
++  CLD_DUMPED,			/* Child terminated abnormally.  */
++# define CLD_DUMPED	CLD_DUMPED
++  CLD_TRAPPED,			/* Traced child has trapped.  */
++# define CLD_TRAPPED	CLD_TRAPPED
++  CLD_STOPPED,			/* Child has stopped.  */
++# define CLD_STOPPED	CLD_STOPPED
++  CLD_CONTINUED			/* Stopped child has continued.  */
++# define CLD_CONTINUED	CLD_CONTINUED
++};
++
++/* `si_code' values for SIGPOLL signal.  */
++enum
++{
++  POLL_IN =3D 1,			/* Data input available.  */
++# define POLL_IN	POLL_IN
++  POLL_OUT,			/* Output buffers available.  */
++# define POLL_OUT	POLL_OUT
++  POLL_MSG,			/* Input message available.   */
++# define POLL_MSG	POLL_MSG
++  POLL_ERR,			/* I/O error.  */
++# define POLL_ERR	POLL_ERR
++  POLL_PRI,			/* High priority input available.  */
++# define POLL_PRI	POLL_PRI
++  POLL_HUP			/* Device disconnected.  */
++# define POLL_HUP	POLL_HUP
++};
++
++# undef __need_siginfo_t
++#endif	/* !have siginfo_t && (have _SIGNAL_H || need siginfo_t).  */
++
++
++#if defined _SIGNAL_H && !defined __have_sigevent_t
++# define __have_sigevent_t	1
++
++/* Structure to transport application-defined values with signals.  */
++# define __SIGEV_MAX_SIZE	64
++# define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE / sizeof (int)) - 3)
++
++typedef struct sigevent
++  {
++    sigval_t sigev_value;
++    int sigev_signo;
++    int sigev_notify;
++
++    union
++      {
++	int _pad[__SIGEV_PAD_SIZE];
++        int _tid;
++
++	struct
++	  {
++	    void (*_function) __PMT ((sigval_t)); /* Function to start.  */
++	    void *_attribute;			  /* Really pthread_attr_t.  */
++	  } _sigev_thread;
++      } _sigev_un;
++  } sigevent_t;
++
++/* POSIX names to access some of the members.  */
++# define sigev_notify_function   _sigev_un._sigev_thread._function
++# define sigev_notify_attributes _sigev_un._sigev_thread._attribute
++# define sigev_notify_thread_id  _sigev_un._tid
++
++/* `sigev_notify' values.  */
++enum
++{
++  SIGEV_SIGNAL =3D 0,		/* Notify via signal.  */
++# define SIGEV_SIGNAL	SIGEV_SIGNAL
++  SIGEV_NONE,			/* Other notification: meaningless.  */
++# define SIGEV_NONE	SIGEV_NONE
++  SIGEV_THREAD,			/* Deliver via thread creation.  */
++# define SIGEV_THREAD	SIGEV_THREAD
++  SIGEV_DUMMY,                  /* To allow binary enumeration */
++  SIGEV_THREAD_ID
++# define SIGEV_THREAD_ID SIGEV_THREAD_ID
++};
++
++#endif	/* have _SIGNAL_H.  */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/usr_incl/bits/siginfo.h-old linux/Documentation=
+/high-res-timers/usr_incl/bits/siginfo.h-old
+--- linux-2.5.36-kb/Documentation/high-res-timers/usr_incl/bits/siginfo.h=
+-old	Wed Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/usr_incl/bits/siginfo.h-old	Wed S=
+ep 18 17:39:54 2002
+@@ -0,0 +1,314 @@
++/* siginfo_t, sigevent and constants.  Linux/SPARC version.
++   Copyright (C) 1997, 1998, 1999, 2000, 2001 Free Software Foundation, =
+Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#if !defined _SIGNAL_H && !defined __need_siginfo_t \
++    && !defined __need_sigevent_t
++# error "Never include this file directly.  Use <signal.h> instead"
++#endif
++
++#include <bits/wordsize.h>
++
++#if (!defined __have_sigval_t \
++     && (defined _SIGNAL_H || defined __need_siginfo_t \
++	 || defined __need_sigevent_t))
++# define __have_sigval_t	1
++
++/* Type for data associated with a signal.  */
++typedef union sigval
++  {
++    int sival_int;
++    void *sival_ptr;
++  } sigval_t;
++#endif
++
++#if (!defined __have_siginfo_t \
++     && (defined _SIGNAL_H || defined __need_siginfo_t))
++# define __have_siginfo_t	1
++
++# define __SI_MAX_SIZE     128
++# if __WORDSIZE =3D=3D 64
++#  define __SI_PAD_SIZE     ((__SI_MAX_SIZE / sizeof (int)) - 4)
++# else
++#  define __SI_PAD_SIZE     ((__SI_MAX_SIZE / sizeof (int)) - 3)
++# endif
++
++typedef struct siginfo
++  {
++    int si_signo;		/* Signal number.  */
++    int si_errno;		/* If non-zero, an errno value associated with
++				   this signal, as defined in <errno.h>.  */
++    int si_code;		/* Signal code.  */
++
++    union
++      {
++	int _pad[__SI_PAD_SIZE];
++
++	 /* kill().  */
++	struct
++	  {
++	    __pid_t si_pid;	/* Sending process ID.  */
++	    __uid_t si_uid;	/* Real user ID of sending process.  */
++	  } _kill;
++
++	/* POSIX.1b timers.  */
++	struct
++	  {
++	    __timer_t _tid;	/* timer id */
++            int _overrun;	/* overrun count */
++	    sigval_t si_sigval;	/* Signal value, same as below  */
++          } _timer;
++
++	/* POSIX.1b signals.  */
++	struct
++	  {
++	    __pid_t si_pid;	/* Sending process ID.  */
++	    __uid_t si_uid;	/* Real user ID of sending process.  */
++	    sigval_t si_sigval;	/* Signal value.  */
++	  } _rt;
++
++	/* SIGCHLD.  */
++	struct
++	  {
++	    __pid_t si_pid;	/* Which child.  */
++	    __uid_t si_uid;	/* Real user ID of sending process.  */
++	    int si_status;	/* Exit value or signal.  */
++	    __clock_t si_utime;
++	    __clock_t si_stime;
++	  } _sigchld;
++
++	/* SIGILL, SIGFPE, SIGSEGV, SIGBUS.  */
++	struct
++	  {
++	    void *si_addr;	/* Faulting insn/memory ref.  */
++	  } _sigfault;
++
++	/* SIGPOLL.  */
++	struct
++	  {
++	    long int si_band;	/* Band event for SIGPOLL.  */
++	    int si_fd;
++	  } _sigpoll;
++      } _sifields;
++  } siginfo_t;
++
++
++/* X/Open requires some more fields with fixed names.  */
++# define si_pid		_sifields._kill.si_pid
++# define si_uid		_sifields._kill.si_uid
++# define si_timer1	_sifields._timer._timer1
++# define si_timer2	_sifields._timer._timer2
++# define si_status	_sifields._sigchld.si_status
++# define si_utime	_sifields._sigchld.si_utime
++# define si_stime	_sifields._sigchld.si_stime
++# define si_value	_sifields._rt.si_sigval
++# define si_int		_sifields._rt.si_sigval.sival_int
++# define si_ptr		_sifields._rt.si_sigval.sival_ptr
++# define si_addr	_sifields._sigfault.si_addr
++# define si_tid		_sifields._timer._tid
++# define si_overrun	_sifields._timer._overrun
++# define si_band	_sifields._sigpoll.si_band
++# define si_fd		_sifields._sigpoll.si_fd
++
++
++/* Values for `si_code'.  Positive values are reserved for kernel-genera=
+ted
++   signals.  */
++enum
++{
++  SI_ASYNCNL =3D -6,		/* Sent by asynch name lookup completion.  */
++# define SI_ASYNCNL	SI_ASYNCNL
++  SI_SIGIO,			/* Sent by queued SIGIO. */
++# define SI_SIGIO	SI_SIGIO
++  SI_ASYNCIO,			/* Sent by AIO completion.  */
++# define SI_ASYNCIO	SI_ASYNCIO
++  SI_MESGQ,			/* Sent by real time mesq state change.  */
++# define SI_MESGQ	SI_MESGQ
++  SI_TIMER,			/* Sent by timer expiration.  */
++# define SI_TIMER	SI_TIMER
++  SI_QUEUE,			/* Sent by sigqueue.  */
++# define SI_QUEUE	SI_QUEUE
++  SI_USER,			/* Sent by kill, sigsend, raise.  */
++# define SI_USER	SI_USER
++  SI_KERNEL =3D 0x80		/* Send by kernel.  */
++#define SI_KERNEL	SI_KERNEL
++};
++
++
++/* `si_code' values for SIGILL signal.  */
++enum
++{
++  ILL_ILLOPC =3D 1,		/* Illegal opcode.  */
++# define ILL_ILLOPC	ILL_ILLOPC
++  ILL_ILLOPN,			/* Illegal operand.  */
++# define ILL_ILLOPN	ILL_ILLOPN
++  ILL_ILLADR,			/* Illegal addressing mode.  */
++# define ILL_ILLADR	ILL_ILLADR
++  ILL_ILLTRP,			/* Illegal trap. */
++# define ILL_ILLTRP	ILL_ILLTRP
++  ILL_PRVOPC,			/* Privileged opcode.  */
++# define ILL_PRVOPC	ILL_PRVOPC
++  ILL_PRVREG,			/* Privileged register.  */
++# define ILL_PRVREG	ILL_PRVREG
++  ILL_COPROC,			/* Coprocessor error.  */
++# define ILL_COPROC	ILL_COPROC
++  ILL_BADSTK			/* Internal stack error.  */
++# define ILL_BADSTK	ILL_BADSTK
++};
++
++/* `si_code' values for SIGFPE signal.  */
++enum
++{
++  FPE_INTDIV =3D 1,		/* Integer divide by zero.  */
++# define FPE_INTDIV	FPE_INTDIV
++  FPE_INTOVF,			/* Integer overflow.  */
++# define FPE_INTOVF	FPE_INTOVF
++  FPE_FLTDIV,			/* Floating point divide by zero.  */
++# define FPE_FLTDIV	FPE_FLTDIV
++  FPE_FLTOVF,			/* Floating point overflow.  */
++# define FPE_FLTOVF	FPE_FLTOVF
++  FPE_FLTUND,			/* Floating point underflow.  */
++# define FPE_FLTUND	FPE_FLTUND
++  FPE_FLTRES,			/* Floating point inexact result.  */
++# define FPE_FLTRES	FPE_FLTRES
++  FPE_FLTINV,			/* Floating point invalid operation.  */
++# define FPE_FLTINV	FPE_FLTINV
++  FPE_FLTSUB			/* Subscript out of range.  */
++# define FPE_FLTSUB	FPE_FLTSUB
++};
++
++/* `si_code' values for SIGSEGV signal.  */
++enum
++{
++  SEGV_MAPERR =3D 1,		/* Address not mapped to object.  */
++# define SEGV_MAPERR	SEGV_MAPERR
++  SEGV_ACCERR			/* Invalid permissions for mapped object.  */
++# define SEGV_ACCERR	SEGV_ACCERR
++};
++
++/* `si_code' values for SIGBUS signal.  */
++enum
++{
++  BUS_ADRALN =3D 1,		/* Invalid address alignment.  */
++# define BUS_ADRALN	BUS_ADRALN
++  BUS_ADRERR,			/* Non-existant physical address.  */
++# define BUS_ADRERR	BUS_ADRERR
++  BUS_OBJERR			/* Object specific hardware error.  */
++# define BUS_OBJERR	BUS_OBJERR
++};
++
++/* `si_code' values for SIGTRAP signal.  */
++enum
++{
++  TRAP_BRKPT =3D 1,		/* Process breakpoint.  */
++# define TRAP_BRKPT	TRAP_BRKPT
++  TRAP_TRACE			/* Process trace trap.  */
++# define TRAP_TRACE	TRAP_TRACE
++};
++
++/* `si_code' values for SIGCHLD signal.  */
++enum
++{
++  CLD_EXITED =3D 1,		/* Child has exited.  */
++# define CLD_EXITED	CLD_EXITED
++  CLD_KILLED,			/* Child was killed.  */
++# define CLD_KILLED	CLD_KILLED
++  CLD_DUMPED,			/* Child terminated abnormally.  */
++# define CLD_DUMPED	CLD_DUMPED
++  CLD_TRAPPED,			/* Traced child has trapped.  */
++# define CLD_TRAPPED	CLD_TRAPPED
++  CLD_STOPPED,			/* Child has stopped.  */
++# define CLD_STOPPED	CLD_STOPPED
++  CLD_CONTINUED			/* Stopped child has continued.  */
++# define CLD_CONTINUED	CLD_CONTINUED
++};
++
++/* `si_code' values for SIGPOLL signal.  */
++enum
++{
++  POLL_IN =3D 1,			/* Data input available.  */
++# define POLL_IN	POLL_IN
++  POLL_OUT,			/* Output buffers available.  */
++# define POLL_OUT	POLL_OUT
++  POLL_MSG,			/* Input message available.   */
++# define POLL_MSG	POLL_MSG
++  POLL_ERR,			/* I/O error.  */
++# define POLL_ERR	POLL_ERR
++  POLL_PRI,			/* High priority input available.  */
++# define POLL_PRI	POLL_PRI
++  POLL_HUP			/* Device disconnected.  */
++# define POLL_HUP	POLL_HUP
++};
++
++# undef __need_siginfo_t
++#endif	/* !have siginfo_t && (have _SIGNAL_H || need siginfo_t).  */
++
++
++#if (defined _SIGNAL_H || defined __need_sigevent_t) \
++    && !defined __have_sigevent_t
++# define __have_sigevent_t	1
++
++/* Structure to transport application-defined values with signals.  */
++# define __SIGEV_MAX_SIZE	64
++# if __WORDSIZE =3D=3D 64
++#  define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE / sizeof (int)) - 4)
++# else
++#  define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE / sizeof (int)) - 3)
++# endif
++
++/* Forward declaration of the `pthread_attr_t' type.  */
++struct __pthread_attr_s;
++
++typedef struct sigevent
++  {
++    sigval_t sigev_value;
++    int sigev_signo;
++    int sigev_notify;
++
++    union
++      {
++	int _pad[__SIGEV_PAD_SIZE];
++        int _tid;
++              =
+
++	struct
++	  {
++	    void (*_function) (sigval_t);	  /* Function to start.  */
++	    struct __pthread_attr_s *_attribute;  /* Really pthread_attr_t.  */=
+
++	  } _sigev_thread;
++      } _sigev_un;
++  } sigevent_t;
++
++/* POSIX names to access some of the members.  */
++# define sigev_notify_function   _sigev_un._sigev_thread._function
++# define sigev_notify_attributes _sigev_un._sigev_thread._attribute
++# define sigev_notify_thread_id  _sigev_un._tid
++
++/* `sigev_notify' values.  */
++enum
++{
++  SIGEV_SIGNAL =3D 0,		/* Notify via signal.  */
++# define SIGEV_SIGNAL	SIGEV_SIGNAL
++  SIGEV_NONE,			/* Other notification: meaningless.  */
++# define SIGEV_NONE	SIGEV_NONE
++  SIGEV_THREAD,			/* Deliver via thread creation.  */
++# define SIGEV_THREAD	SIGEV_THREAD
++  SIGEV_DUMMY,
++  SIGEV_THREAD_ID
++# define SIGEV_THREAD_ID SIGEV_THREAD_ID
++};
++
++#endif	/* have _SIGNAL_H.  */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/usr_incl/bits/types.h-should-not-need linux/Doc=
+umentation/high-res-timers/usr_incl/bits/types.h-should-not-need
+--- linux-2.5.36-kb/Documentation/high-res-timers/usr_incl/bits/types.h-s=
+hould-not-need	Wed Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/usr_incl/bits/types.h-should-not-=
+need	Wed Sep 18 17:39:54 2002
+@@ -0,0 +1,155 @@
++/* Copyright (C) 1991,92,94,95,96,97,98,99 Free Software Foundation, Inc=
+=2E
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Library General Public License a=
+s
++   published by the Free Software Foundation; either version 2 of the
++   License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Library General Public License for more details.
++
++   You should have received a copy of the GNU Library General Public
++   License along with the GNU C Library; see the file COPYING.LIB.  If n=
+ot,
++   write to the Free Software Foundation, Inc., 59 Temple Place - Suite =
+330,
++   Boston, MA 02111-1307, USA.  */
++
++/*
++ * Never include this file directly; use <sys/types.h> instead.
++ */
++
++#ifndef	_BITS_TYPES_H
++#define	_BITS_TYPES_H	1
++
++#include <features.h>
++
++#define __need_size_t
++#include <stddef.h>
++
++/* Convenience types.  */
++typedef unsigned char __u_char;
++typedef unsigned short __u_short;
++typedef unsigned int __u_int;
++typedef unsigned long __u_long;
++#ifdef __GNUC__
++__extension__ typedef unsigned long long int __u_quad_t;
++__extension__ typedef long long int __quad_t;
++#else
++typedef struct
++  {
++    long int __val[2];
++  } __quad_t;
++typedef struct
++  {
++    __u_long __val[2];
++  } __u_quad_t;
++#endif
++typedef signed char __int8_t;
++typedef unsigned char __uint8_t;
++typedef signed short int __int16_t;
++typedef unsigned short int __uint16_t;
++typedef signed int __int32_t;
++typedef unsigned int __uint32_t;
++#ifdef __GNUC__
++__extension__ typedef signed long long int __int64_t;
++__extension__ typedef unsigned long long int __uint64_t;
++#endif
++typedef __quad_t *__qaddr_t;
++
++typedef __u_quad_t __dev_t;		/* Type of device numbers.  */
++typedef __u_int __uid_t;		/* Type of user identifications.  */
++typedef __u_int __gid_t;		/* Type of group identifications.  */
++typedef __u_long __ino_t;		/* Type of file serial numbers.  */
++typedef __u_int __mode_t;		/* Type of file attribute bitmasks.  */
++typedef __u_int __nlink_t; 		/* Type of file link counts.  */
++typedef long int __off_t;		/* Type of file sizes and offsets.  */
++typedef __quad_t __loff_t;		/* Type of file sizes and offsets.  */
++typedef int __pid_t;			/* Type of process identifications.  */
++typedef int __ssize_t;			/* Type of a byte count, or error.  */
++typedef long int __rlim_t;		/* Type of resource counts.  */
++typedef __quad_t __rlim64_t;		/* Type of resource counts (LFS).  */
++typedef __u_int __id_t;			/* General type for ID.  */
++
++typedef struct
++  {
++    int __val[2];
++  } __fsid_t;				/* Type of file system IDs.  */
++
++/* Everythin' else.  */
++typedef int __daddr_t;			/* The type of a disk address.  */
++typedef char *__caddr_t;
++typedef long int __time_t;
++typedef long int __swblk_t;		/* Type of a swap block maybe?  */
++=0C
++typedef long int __clock_t;
++typedef int __timer_t;
++typedef int __clockid_t;
++
++/* One element in the file descriptor mask array.  */
++typedef unsigned long int __fd_mask;
++
++/* Number of descriptors that can fit in an `fd_set'.  */
++#define __FD_SETSIZE	1024
++
++/* It's easier to assume 8-bit bytes than to get CHAR_BIT.  */
++#define __NFDBITS	(8 * sizeof (__fd_mask))
++#define	__FDELT(d)	((d) / __NFDBITS)
++#define	__FDMASK(d)	((__fd_mask) 1 << ((d) % __NFDBITS))
++
++/* fd_set for select and pselect.  */
++typedef struct
++  {
++    /* XPG4.2 requires this member name.  Otherwise avoid the name
++       from the global namespace.  */
++#ifdef __USE_XOPEN
++    __fd_mask fds_bits[__FD_SETSIZE / __NFDBITS];
++# define __FDS_BITS(set) ((set)->fds_bits)
++#else
++    __fd_mask __fds_bits[__FD_SETSIZE / __NFDBITS];
++# define __FDS_BITS(set) ((set)->__fds_bits)
++#endif
++  } __fd_set;
++
++
++typedef int __key_t;
++
++/* Used in `struct shmid_ds'.  */
++typedef unsigned short int __ipc_pid_t;
++
++
++/* Types from the Large File Support interface.  */
++
++/* Type to count number os disk blocks.  */
++typedef long int __blkcnt_t;
++typedef __quad_t __blkcnt64_t;
++
++/* Type to count file system blocks.  */
++typedef __u_long __fsblkcnt_t;
++typedef __u_quad_t __fsblkcnt64_t;
++
++/* Type to count file system inodes.  */
++typedef __u_long __fsfilcnt_t;
++typedef __u_quad_t __fsfilcnt64_t;
++
++/* Type of file serial numbers.  */
++typedef __u_long __ino64_t;
++
++/* Type of file sizes and offsets.  */
++typedef __loff_t __off64_t;
++
++/* Used in XTI.  */
++typedef int __t_scalar_t;
++typedef unsigned int __t_uscalar_t;
++
++/* Duplicates info from stdint.h but this is used in unistd.h.  */
++typedef int __intptr_t;
++
++
++/* Now add the thread types.  */
++#ifdef __USE_UNIX98
++# include <bits/pthreadtypes.h>
++#endif
++
++#endif /* bits/types.h */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/usr_incl/bp-asm.h linux/Documentation/high-res-=
+timers/usr_incl/bp-asm.h
+--- linux-2.5.36-kb/Documentation/high-res-timers/usr_incl/bp-asm.h	Wed D=
+ec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/usr_incl/bp-asm.h	Wed Sep 18 17:3=
+9:54 2002
+@@ -0,0 +1,144 @@
++/* Bounded-pointer definitions for x86 assembler.
++   Copyright (C) 2000 Free Software Foundation, Inc.
++   Contributed by Greg McGary <greg@mcgary.org>
++   This file is part of the GNU C Library.  Its master source is NOT par=
+t of
++   the C library, however.  The master source lives in the GNU MP Librar=
+y.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _bp_asm_h_
++# define _bp_asm_h_ 1
++
++# if __ASSEMBLER__
++
++#  if __BOUNDED_POINTERS__
++
++/* Bounded pointers occupy three words.  */
++#   define PTR_SIZE 12
++/* Bounded pointer return values are passed back through a hidden
++   argument that points to caller-allocate space.  The hidden arg
++   occupies one word on the stack.  */
++#   define RTN_SIZE 4
++/* Although the caller pushes the hidden arg, the callee is
++   responsible for popping it.  */
++#   define RET_PTR ret $RTN_SIZE
++/* Maintain frame pointer chain in leaf assembler functions for the bene=
+fit
++   of debugging stack traces when bounds violations occur.  */
++#   define ENTER pushl %ebp; movl %esp, %ebp
++#   define LEAVE movl %ebp, %esp; popl %ebp
++/* Stack space overhead of procedure-call linkage: return address and
++   frame pointer.  */
++#   define LINKAGE 8
++/* Stack offset of return address after calling ENTER.  */
++#   define PCOFF 4
++
++/* Int 5 is the "bound range" exception also raised by the "bound"
++   instruction.  */
++#   define BOUNDS_VIOLATED int $5
++
++#   define CHECK_BOUNDS_LOW(VAL_REG, BP_MEM)	\
++	cmpl 4+BP_MEM, VAL_REG;			\
++	jae 0f; /* continue if value >=3D low */	\
++	BOUNDS_VIOLATED;			\
++    0:
++
++#   define CHECK_BOUNDS_HIGH(VAL_REG, BP_MEM, Jcc)	\
++	cmpl 8+BP_MEM, VAL_REG;				\
++	Jcc 0f; /* continue if value < high */		\
++	BOUNDS_VIOLATED;				\
++    0:
++
++#   define CHECK_BOUNDS_BOTH(VAL_REG, BP_MEM)	\
++	cmpl 4+BP_MEM, VAL_REG;			\
++	jb 1f; /* die if value < low */		\
++    	cmpl 8+BP_MEM, VAL_REG;			\
++	jb 0f; /* continue if value < high */	\
++    1:	BOUNDS_VIOLATED;			\
++    0:
++
++#   define CHECK_BOUNDS_BOTH_WIDE(VAL_REG, BP_MEM, LENGTH)	\
++	CHECK_BOUNDS_LOW(VAL_REG, BP_MEM);			\
++	addl LENGTH, VAL_REG;					\
++    	cmpl 8+BP_MEM, VAL_REG;					\
++	jbe 0f; /* continue if value <=3D high */			\
++	BOUNDS_VIOLATED;					\
++    0:	subl LENGTH, VAL_REG /* restore value */
++
++/* Take bounds from BP_MEM and affix them to the pointer
++   value in %eax, stuffing all into memory at RTN(%esp).
++   Use %edx as a scratch register.  */
++
++#   define RETURN_BOUNDED_POINTER(BP_MEM)	\
++	movl RTN(%esp), %edx;			\
++	movl %eax, 0(%edx);			\
++	movl 4+BP_MEM, %eax;			\
++	movl %eax, 4(%edx);			\
++	movl 8+BP_MEM, %eax;			\
++	movl %eax, 8(%edx)
++
++#   define RETURN_NULL_BOUNDED_POINTER		\
++	movl RTN(%esp), %edx;			\
++	movl %eax, 0(%edx);			\
++	movl %eax, 4(%edx);			\
++	movl %eax, 8(%edx)
++
++/* The caller of __errno_location is responsible for allocating space
++   for the three-word BP return-value and passing pushing its address
++   as an implicit first argument.  */
++#   define PUSH_ERRNO_LOCATION_RETURN		\
++	subl $8, %esp;				\
++	subl $4, %esp;				\
++	pushl %esp
++
++/* __errno_location is responsible for popping the implicit first
++   argument, but we must pop the space for the BP itself.  We also
++   dereference the return value in order to dig out the pointer value.  =
+*/
++#   define POP_ERRNO_LOCATION_RETURN		\
++	popl %eax;				\
++	addl $8, %esp
++
++#  else /* !__BOUNDED_POINTERS__ */
++
++/* Unbounded pointers occupy one word.  */
++#   define PTR_SIZE 4
++/* Unbounded pointer return values are passed back in the register %eax.=
+  */
++#   define RTN_SIZE 0
++/* Use simple return instruction for unbounded pointer values.  */
++#   define RET_PTR ret
++/* Don't maintain frame pointer chain for leaf assembler functions.  */
++#   define ENTER
++#   define LEAVE
++/* Stack space overhead of procedure-call linkage: return address only. =
+ */
++#   define LINKAGE 4
++/* Stack offset of return address after calling ENTER.  */
++#   define PCOFF 0
++
++#   define CHECK_BOUNDS_LOW(VAL_REG, BP_MEM)
++#   define CHECK_BOUNDS_HIGH(VAL_REG, BP_MEM, Jcc)
++#   define CHECK_BOUNDS_BOTH(VAL_REG, BP_MEM)
++#   define CHECK_BOUNDS_BOTH_WIDE(VAL_REG, BP_MEM, LENGTH)
++#   define RETURN_BOUNDED_POINTER(BP_MEM)
++
++#   define RETURN_NULL_BOUNDED_POINTER
++
++#   define PUSH_ERRNO_LOCATION_RETURN
++#   define POP_ERRNO_LOCATION_RETURN
++
++#  endif /* !__BOUNDED_POINTERS__ */
++
++# endif /* __ASSEMBLER__ */
++
++#endif /* _bp_asm_h_ */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/usr_incl/bp-sym.h linux/Documentation/high-res-=
+timers/usr_incl/bp-sym.h
+--- linux-2.5.36-kb/Documentation/high-res-timers/usr_incl/bp-sym.h	Wed D=
+ec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/usr_incl/bp-sym.h	Wed Sep 18 17:3=
+9:54 2002
+@@ -0,0 +1,26 @@
++/* Bounded-pointer symbol modifier.
++   Copyright (C) 2000 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++   Contributed by Greg McGary <greg@mcgary.org>
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#define BP_SYM(name) _BP_SYM (name)
++#if __BOUNDED_POINTERS__
++# define _BP_SYM(name) __BP_##name
++#else
++# define _BP_SYM(name) name
++#endif
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/usr_incl/siginfo.patch linux/Documentation/high=
+-res-timers/usr_incl/siginfo.patch
+--- linux-2.5.36-kb/Documentation/high-res-timers/usr_incl/siginfo.patch	=
+Wed Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/usr_incl/siginfo.patch	Wed Sep 18=
+ 17:39:54 2002
+@@ -0,0 +1,65 @@
++--- /usr/include/bits/siginfo.h	Tue Aug 13 17:11:34 2002
+++++ bits/siginfo.h	Tue Aug 13 17:22:12 2002
++@@ -56,8 +56,9 @@
++ 	/* POSIX.1b timers.  */
++ 	struct
++ 	  {
++-	    unsigned int _timer1;
++-	    unsigned int _timer2;
+++	    __timer_t _tid;	/* timer id */
+++            int _overrun;	/* overrun count */
+++	    sigval_t si_sigval;	/* Signal value, same as below  */
++ 	  } _timer;
++ =
+
++ 	/* POSIX.1b signals.  */
++@@ -97,6 +98,8 @@
++ /* X/Open requires some more fields with fixed names.  */
++ # define si_pid		_sifields._kill.si_pid
++ # define si_uid		_sifields._kill.si_uid
+++# define si_tid		_sifields._timer._tid
+++# define si_overrun	_sifields._timer._overrun
++ # define si_status	_sifields._sigchld.si_status
++ # define si_utime	_sifields._sigchld.si_utime
++ # define si_stime	_sifields._sigchld.si_stime
++@@ -107,6 +110,11 @@
++ # define si_band	_sifields._sigpoll.si_band
++ # define si_fd		_sifields._sigpoll.si_fd
++ =
+
+++/* To be compatable with prior _timer members */
+++
+++#define _timer1 _tid
+++#define _timer2 _overrun
+++
++ =
+
++ /* Values for `si_code'.  Positive values are reserved for kernel-gener=
+ated
++    signals.  */
++@@ -252,6 +260,7 @@
++     union
++       {
++ 	int _pad[__SIGEV_PAD_SIZE];
+++        int _tid;
++ =
+
++ 	struct
++ 	  {
++@@ -264,6 +273,7 @@
++ /* POSIX names to access some of the members.  */
++ # define sigev_notify_function   _sigev_un._sigev_thread._function
++ # define sigev_notify_attributes _sigev_un._sigev_thread._attribute
+++# define sigev_notify_thread_id  _sigev_un._tid
++ =
+
++ /* `sigev_notify' values.  */
++ enum
++@@ -272,8 +282,11 @@
++ # define SIGEV_SIGNAL	SIGEV_SIGNAL
++   SIGEV_NONE,			/* Other notification: meaningless.  */
++ # define SIGEV_NONE	SIGEV_NONE
++-  SIGEV_THREAD			/* Deliver via thread creation.  */
+++  SIGEV_THREAD,			/* Deliver via thread creation.  */
++ # define SIGEV_THREAD	SIGEV_THREAD
+++  SIGEV_DUMMY,                  /* To allow binary enumeration */
+++  SIGEV_THREAD_ID
+++# define SIGEV_THREAD_ID SIGEV_THREAD_ID
++ };
++ =
+
++ #endif	/* have _SIGNAL_H.  */
++
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/usr_incl/sysdeps/generic/sysdep.h linux/Documen=
+tation/high-res-timers/usr_incl/sysdeps/generic/sysdep.h
+--- linux-2.5.36-kb/Documentation/high-res-timers/usr_incl/sysdeps/generi=
+c/sysdep.h	Wed Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/usr_incl/sysdeps/generic/sysdep.h=
+	Wed Sep 18 17:39:54 2002
+@@ -0,0 +1,43 @@
++/* Generic asm macros used on many machines.
++   Copyright (C) 1991, 92, 93, 96, 98 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef C_LABEL
++
++/* Define a macro we can use to construct the asm name for a C symbol.  =
+*/
++#ifdef	NO_UNDERSCORES
++#ifdef	__STDC__
++#define C_LABEL(name)		name##:
++#else
++#define C_LABEL(name)		name/**/:
++#endif
++#else
++#ifdef	__STDC__
++#define C_LABEL(name)		_##name##:
++#else
++#define C_LABEL(name)		_/**/name/**/:
++#endif
++#endif
++
++#endif
++
++/* Mark the end of function named SYM.  This is used on some platforms
++   to generate correct debugging information.  */
++#ifndef END
++#define END(sym)
++#endif
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/usr_incl/sysdeps/i386/sysdep.h linux/Documentat=
+ion/high-res-timers/usr_incl/sysdeps/i386/sysdep.h
+--- linux-2.5.36-kb/Documentation/high-res-timers/usr_incl/sysdeps/i386/s=
+ysdep.h	Wed Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/usr_incl/sysdeps/i386/sysdep.h	We=
+d Sep 18 17:39:54 2002
+@@ -0,0 +1,294 @@
++/* Copyright (C) 1992, 93, 95, 96, 97, 98, 99, 00 Free Software Foundati=
+on, Inc.
++   This file is part of the GNU C Library.
++   Contributed by Ulrich Drepper, <drepper@gnu.org>, August 1995.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#ifndef _LINUX_I386_SYSDEP_H
++#define _LINUX_I386_SYSDEP_H 1
++
++/* There is some commonality.  */
++#include <sysdeps/unix/i386/sysdep.h>
++#include <bp-sym.h>
++#include <bp-asm.h>
++
++/* For Linux we can use the system call table in the header file
++	/usr/include/asm/unistd.h
++   of the kernel.  But these symbols do not follow the SYS_* syntax
++   so we have to redefine the `SYS_ify' macro here.  */
++#undef SYS_ify
++#define SYS_ify(syscall_name)	__NR_##syscall_name
++
++/* ELF-like local names start with `.L'.  */
++#undef L
++#define L(name)	.L##name
++
++#ifdef __ASSEMBLER__
++
++/* Linux uses a negative return value to indicate syscall errors,
++   unlike most Unices, which use the condition codes' carry flag.
++
++   Since version 2.1 the return value of a system call might be
++   negative even if the call succeeded.  E.g., the `lseek' system call
++   might return a large offset.  Therefore we must not anymore test
++   for < 0, but test for a real error by making sure the value in %eax
++   is a real error number.  Linus said he will make sure the no syscall
++   returns a value in -1 .. -4095 as a valid result so we can savely
++   test with -4095.  */
++
++/* We don't want the label for the error handle to be global when we def=
+ine
++   it here.  */
++#ifdef PIC
++# define SYSCALL_ERROR_LABEL 0f
++#else
++# define SYSCALL_ERROR_LABEL syscall_error
++#endif
++
++#undef	PSEUDO
++#define	PSEUDO(name, syscall_name, args)				      \
++  .text;								      \
++  ENTRY (name)								      \
++    DO_CALL (args, syscall_name);					      \
++    cmpl $-4095, %eax;							      \
++    jae SYSCALL_ERROR_LABEL;						      \
++  L(pseudo_end):
++
++#undef	PSEUDO_END
++#define	PSEUDO_END(name)						      \
++  SYSCALL_ERROR_HANDLER							      \
++  END (name)
++
++#ifndef PIC
++#define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.=
+  */
++#else
++/* Store (- %eax) into errno through the GOT.  */
++#ifdef _LIBC_REENTRANT
++#define SYSCALL_ERROR_HANDLER						      \
++0:pushl %ebx;								      \
++  call 1f;								      \
++1:popl %ebx;								      \
++  xorl %edx, %edx;							      \
++  addl $_GLOBAL_OFFSET_TABLE_+[.-1b], %ebx;				      \
++  subl %eax, %edx;							      \
++  pushl %edx;								      \
++  PUSH_ERRNO_LOCATION_RETURN;						      \
++  call BP_SYM (__errno_location)@PLT;					      \
++  POP_ERRNO_LOCATION_RETURN;						      \
++  popl %ecx;								      \
++  popl %ebx;								      \
++  movl %ecx, (%eax);							      \
++  orl $-1, %eax;							      \
++  jmp L(pseudo_end);
++/* A quick note: it is assumed that the call to `__errno_location' does
++   not modify the stack!  */
++#else
++#define SYSCALL_ERROR_HANDLER						      \
++0:call 1f;								      \
++1:popl %ecx;								      \
++  xorl %edx, %edx;							      \
++  addl $_GLOBAL_OFFSET_TABLE_+[.-1b], %ecx;				      \
++  subl %eax, %edx;							      \
++  movl errno@GOT(%ecx), %ecx;						      \
++  movl %edx, (%ecx);							      \
++  orl $-1, %eax;							      \
++  jmp L(pseudo_end);
++#endif	/* _LIBC_REENTRANT */
++#endif	/* PIC */
++
++/* Linux takes system call arguments in registers:
++
++	syscall number	%eax	     call-clobbered
++	arg 1		%ebx	     call-saved
++	arg 2		%ecx	     call-clobbered
++	arg 3		%edx	     call-clobbered
++	arg 4		%esi	     call-saved
++	arg 5		%edi	     call-saved
++
++   The stack layout upon entering the function is:
++
++	20(%esp)	Arg# 5
++	16(%esp)	Arg# 4
++	12(%esp)	Arg# 3
++	 8(%esp)	Arg# 2
++	 4(%esp)	Arg# 1
++	  (%esp)	Return address
++
++   (Of course a function with say 3 arguments does not have entries for
++   arguments 4 and 5.)
++
++   The following code tries hard to be optimal.  A general assumption
++   (which is true according to the data books I have) is that
++
++	2 * xchg	is more expensive than	pushl + movl + popl
++
++   Beside this a neat trick is used.  The calling conventions for Linux
++   tell that among the registers used for parameters %ecx and %edx need
++   not be saved.  Beside this we may clobber this registers even when
++   they are not used for parameter passing.
++
++   As a result one can see below that we save the content of the %ebx
++   register in the %edx register when we have less than 3 arguments
++   (2 * movl is less expensive than pushl + popl).
++
++   Second unlike for the other registers we don't save the content of
++   %ecx and %edx when we have more than 1 and 2 registers resp.
++
++   The code below might look a bit long but we have to take care for
++   the pipelined processors (i586).  Here the `pushl' and `popl'
++   instructions are marked as NP (not pairable) but the exception is
++   two consecutive of these instruction.  This gives no penalty on
++   other processors though.  */
++
++#undef	DO_CALL
++#define DO_CALL(args, syscall_name)			      		      \
++    PUSHARGS_##args							      \
++    DOARGS_##args							      \
++    movl $SYS_ify (syscall_name), %eax;					      \
++    int $0x80								      \
++    POPARGS_##args
++
++#define PUSHARGS_0	/* No arguments to push.  */
++#define	DOARGS_0	/* No arguments to frob.  */
++#define	POPARGS_0	/* No arguments to pop.  */
++#define	_PUSHARGS_0	/* No arguments to push.  */
++#define _DOARGS_0(n)	/* No arguments to frob.  */
++#define	_POPARGS_0	/* No arguments to pop.  */
++
++#define PUSHARGS_1	movl %ebx, %edx; PUSHARGS_0
++#define	DOARGS_1	_DOARGS_1 (4)
++#define	POPARGS_1	POPARGS_0; movl %edx, %ebx
++#define	_PUSHARGS_1	pushl %ebx; _PUSHARGS_0
++#define _DOARGS_1(n)	movl n(%esp), %ebx; _DOARGS_0(n-4)
++#define	_POPARGS_1	_POPARGS_0; popl %ebx
++
++#define PUSHARGS_2	PUSHARGS_1
++#define	DOARGS_2	_DOARGS_2 (8)
++#define	POPARGS_2	POPARGS_1
++#define _PUSHARGS_2	_PUSHARGS_1
++#define	_DOARGS_2(n)	movl n(%esp), %ecx; _DOARGS_1 (n-4)
++#define	_POPARGS_2	_POPARGS_1
++
++#define PUSHARGS_3	_PUSHARGS_2
++#define DOARGS_3	_DOARGS_3 (16)
++#define POPARGS_3	_POPARGS_3
++#define _PUSHARGS_3	_PUSHARGS_2
++#define _DOARGS_3(n)	movl n(%esp), %edx; _DOARGS_2 (n-4)
++#define _POPARGS_3	_POPARGS_2
++
++#define PUSHARGS_4	_PUSHARGS_4
++#define DOARGS_4	_DOARGS_4 (24)
++#define POPARGS_4	_POPARGS_4
++#define _PUSHARGS_4	pushl %esi; _PUSHARGS_3
++#define _DOARGS_4(n)	movl n(%esp), %esi; _DOARGS_3 (n-4)
++#define _POPARGS_4	_POPARGS_3; popl %esi
++
++#define PUSHARGS_5	_PUSHARGS_5
++#define DOARGS_5	_DOARGS_5 (32)
++#define POPARGS_5	_POPARGS_5
++#define _PUSHARGS_5	pushl %edi; _PUSHARGS_4
++#define _DOARGS_5(n)	movl n(%esp), %edi; _DOARGS_4 (n-4)
++#define _POPARGS_5	_POPARGS_4; popl %edi
++
++#else	/* !__ASSEMBLER__ */
++
++/* We need some help from the assembler to generate optimal code.  We
++   define some macros here which later will be used.  */
++asm (".L__X'%ebx =3D 1\n\t"
++     ".L__X'%ecx =3D 2\n\t"
++     ".L__X'%edx =3D 2\n\t"
++     ".L__X'%eax =3D 3\n\t"
++     ".L__X'%esi =3D 3\n\t"
++     ".L__X'%edi =3D 3\n\t"
++     ".L__X'%ebp =3D 3\n\t"
++     ".L__X'%esp =3D 3\n\t"
++     ".macro bpushl name reg\n\t"
++     ".if 1 - \\name\n\t"
++     ".if 2 - \\name\n\t"
++     "pushl %ebx\n\t"
++     ".else\n\t"
++     "xchgl \\reg, %ebx\n\t"
++     ".endif\n\t"
++     ".endif\n\t"
++     ".endm\n\t"
++     ".macro bpopl name reg\n\t"
++     ".if 1 - \\name\n\t"
++     ".if 2 - \\name\n\t"
++     "popl %ebx\n\t"
++     ".else\n\t"
++     "xchgl \\reg, %ebx\n\t"
++     ".endif\n\t"
++     ".endif\n\t"
++     ".endm\n\t"
++     ".macro bmovl name reg\n\t"
++     ".if 1 - \\name\n\t"
++     ".if 2 - \\name\n\t"
++     "movl \\reg, %ebx\n\t"
++     ".endif\n\t"
++     ".endif\n\t"
++     ".endm\n\t");
++
++/* Define a macro which expands inline into the wrapper code for a syste=
+m
++   call.  */
++#undef INLINE_SYSCALL
++#define INLINE_SYSCALL(name, nr, args...) \
++  ({									      \
++    unsigned int resultvar;						      \
++    asm volatile (							      \
++    LOADARGS_##nr							      \
++    "movl %1, %%eax\n\t"						      \
++    "int $0x80\n\t"							      \
++    RESTOREARGS_##nr							      \
++    : "=3Da" (resultvar)							      \
++    : "i" (__NR_##name) ASMFMT_##nr(args) : "memory", "cc");		      \
++    if (resultvar >=3D 0xfffff001)					      \
++      {									      \
++	__set_errno (-resultvar);					      \
++	resultvar =3D 0xffffffff;						      \
++      }									      \
++    (int) resultvar; })
++
++#define LOADARGS_0
++#define LOADARGS_1 \
++    "bpushl .L__X'%k2, %k2\n\t"						      \
++    "bmovl .L__X'%k2, %k2\n\t"
++#define LOADARGS_2	LOADARGS_1
++#define LOADARGS_3	LOADARGS_1
++#define LOADARGS_4	LOADARGS_1
++#define LOADARGS_5	LOADARGS_1
++
++#define RESTOREARGS_0
++#define RESTOREARGS_1 \
++    "bpopl .L__X'%k2, %k2\n\t"
++#define RESTOREARGS_2	RESTOREARGS_1
++#define RESTOREARGS_3	RESTOREARGS_1
++#define RESTOREARGS_4	RESTOREARGS_1
++#define RESTOREARGS_5	RESTOREARGS_1
++
++#define ASMFMT_0()
++#define ASMFMT_1(arg1) \
++	, "acdSD" (arg1)
++#define ASMFMT_2(arg1, arg2) \
++	, "adCD" (arg1), "c" (arg2)
++#define ASMFMT_3(arg1, arg2, arg3) \
++	, "aCD" (arg1), "c" (arg2), "d" (arg3)
++#define ASMFMT_4(arg1, arg2, arg3, arg4) \
++	, "aD" (arg1), "c" (arg2), "d" (arg3), "S" (arg4)
++#define ASMFMT_5(arg1, arg2, arg3, arg4, arg5) \
++	, "a" (arg1), "c" (arg2), "d" (arg3), "S" (arg4), "D" (arg5)
++
++#endif	/* __ASSEMBLER__ */
++
++#endif /* linux/i386/sysdep.h */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/usr_incl/sysdeps/unix/i386/sysdep.h linux/Docum=
+entation/high-res-timers/usr_incl/sysdeps/unix/i386/sysdep.h
+--- linux-2.5.36-kb/Documentation/high-res-timers/usr_incl/sysdeps/unix/i=
+386/sysdep.h	Wed Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/usr_incl/sysdeps/unix/i386/sysdep=
+=2Eh	Wed Sep 18 17:39:54 2002
+@@ -0,0 +1,36 @@
++/* Copyright (C) 1991, 92, 93, 95, 96, 97 Free Software Foundation, Inc.=
+
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdeps/unix/sysdep.h>
++#include <sysdeps/i386/sysdep.h>
++
++#ifdef	__ASSEMBLER__
++
++/* This is defined as a separate macro so that other sysdep.h files
++   can include this one and then redefine DO_CALL.  */
++
++#define DO_CALL(syscall_name, args)					      \
++  lea SYS_ify (syscall_name), %eax;					      \
++  lcall $7, $0
++
++#define	r0		%eax	/* Normal return-value register.  */
++#define	r1		%edx	/* Secondary return-value register.  */
++#define scratch 	%ecx	/* Call-clobbered register for random use.  */
++#define MOVE(x,y)	movl x, y
++
++#endif	/* __ASSEMBLER__ */
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.36-kb/Docu=
+mentation/high-res-timers/usr_incl/sysdeps/unix/sysdep.h linux/Documentat=
+ion/high-res-timers/usr_incl/sysdeps/unix/sysdep.h
+--- linux-2.5.36-kb/Documentation/high-res-timers/usr_incl/sysdeps/unix/s=
+ysdep.h	Wed Dec 31 16:00:00 1969
++++ linux/Documentation/high-res-timers/usr_incl/sysdeps/unix/sysdep.h	We=
+d Sep 18 17:39:54 2002
+@@ -0,0 +1,53 @@
++/* Copyright (C) 1991, 92, 93, 96, 98 Free Software Foundation, Inc.
++   This file is part of the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Lesser General Public
++   License as published by the Free Software Foundation; either
++   version 2.1 of the License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Lesser General Public License for more details.
++
++   You should have received a copy of the GNU Lesser General Public
++   License along with the GNU C Library; if not, write to the Free
++   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
++   02111-1307 USA.  */
++
++#include <sysdeps/generic/sysdep.h>
++
++#include <sys/syscall.h>
++#define	HAVE_SYSCALLS
++
++/* Note that using a `PASTE' macro loses.  */
++#ifdef	__STDC__
++#define	SYSCALL__(name, args)	PSEUDO (__##name, name, args)
++#else
++#define	SYSCALL__(name, args)	PSEUDO (__/**/name, name, args)
++#endif
++#define	SYSCALL(name, args)	PSEUDO (name, name, args)
++
++/* Machine-dependent sysdep.h files are expected to define the macro
++   PSEUDO (function_name, syscall_name) to emit assembly code to define =
+the
++   C-callable function FUNCTION_NAME to do system call SYSCALL_NAME.
++   r0 and r1 are the system call outputs.  MOVE(x, y) should be defined =
+as
++   an instruction such that "MOVE(r1, r0)" works.  ret should be defined=
+
++   as the return instruction.  */
++
++#ifdef __STDC__
++#define SYS_ify(syscall_name) SYS_##syscall_name
++#else
++#define SYS_ify(syscall_name) SYS_/**/syscall_name
++#endif
++
++/* Terminate a system call named SYM.  This is used on some platforms
++   to generate correct debugging information.  */
++#ifndef PSEUDO_END
++#define PSEUDO_END(sym)
++#endif
++
++/* Wrappers around system calls should normally inline the system call c=
+ode.
++   But sometimes it is not possible or implemented and we use this code.=
+  */
++#define INLINE_SYSCALL(name, nr, args...) __syscall_##name (args)
+
+--------------870587E2DCC423C090A79CB6--
 

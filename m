@@ -1,212 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbTEMUYK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 16:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTEMUYK
+	id S263459AbTEMUdf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 16:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTEMUde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 16:24:10 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:48389
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263365AbTEMUYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 16:24:04 -0400
-Date: Tue, 13 May 2003 13:29:10 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Jens Axboe <axboe@suse.de>, Dave Jones <davej@codemonkey.org.uk>,
-       "Mudama, Eric" <eric_mudama@maxtor.com>,
-       Oleg Drokin <green@namesys.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
-       lkhelp@rekl.yi.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69, IDE TCQ can't be enabled
-In-Reply-To: <20030513184205.GC11073@gtf.org>
-Message-ID: <Pine.LNX.4.10.10305131324070.2718-200000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="1430322656-696845145-1052857750=:2718"
+	Tue, 13 May 2003 16:33:34 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:19163 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263459AbTEMUc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 16:32:27 -0400
+Date: Tue, 13 May 2003 13:46:20 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Oleg Drokin <green@namesys.com>
+Cc: jdike@karaya.com, roland@redhat.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: build problems on architectures where FIXADDR_* stuff is not
+ constant
+Message-Id: <20030513134620.3dafeaf3.akpm@digeo.com>
+In-Reply-To: <20030513122329.GA31609@namesys.com>
+References: <20030513122329.GA31609@namesys.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 May 2003 20:45:06.0753 (UTC) FILETIME=[89641B10:01C31990]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Oleg Drokin <green@namesys.com> wrote:
+>
+>    Since there are architectures where FIXADDR_* stuff is not constant (e.g. UML),
+> ...
+> +			fixmap_vma.vm_start = FIXADDR_START;
+> +			fixmap_vma.vm_end = FIXADDR_TOP;
+> +			fixmap_vma.vm_page_prot = PAGE_READONLY;
+>  			pgd = pgd_offset_k(pg);
+>  			if (!pgd)
+>  				return i ? : -EFAULT;
 
---1430322656-696845145-1052857750=:2718
-Content-Type: text/plain; charset=us-ascii
+That's modifying static storage which other, unrelated processes or CPUs
+may be playing with.
+
+The new code in get_user_pages() is rather rude - it's returning a
+statically allocated VMA which isn't in the VMA tree - the caller (who
+holds mmap_sem()) could reasonably expect that the VMA can be located via
+find_vma(), or removed from the tree or whatever.  But it cannot.
+
+I think it needs to be redone.  Either by stuffing a VMA into every
+process's mm which describes the fixmap area, or by failing
+get_user_pages() if the caller has passed in a non-NULL `vmas' and is
+requesting access to the fixmap area.
+
+Probably the latter.  That'll require that access_process_vm() be changed
+to not require a vma.  It's only using the vma for cache flushing, but the
+flishing in there is borked anyway.  
 
 
-
-This is the last time I got TAG running clean!
-Proof you have zero gain on writes and huge gains on reads.
-
-Still it is a lame protocol.
-
-On Tue, 13 May 2003, Jeff Garzik wrote:
-
-> On Tue, May 13, 2003 at 08:13:37PM +0200, Jens Axboe wrote:
-> > btw, you may want to see the IDE_TCQ_FIDDLE_SI define in ide-tcq, here's
-> > the comment I put there:
-> > 
-> > /*
-> >  * we are leaving the SERVICE interrupt alone, IBM drives have it
-> >  * on per default and it can't be turned off. Doesn't matter, this
-> >  * is the sane config.
-> >  */
-> > #undef IDE_TCQ_FIDDLE_SI
-> > 
-> > Are you sure this isn't what you are seeing?
-> 
-> 
-> My information comes solely from IDENTIFY DEVICE...
-> 
-> 	Jeff
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
---1430322656-696845145-1052857750=:2718
-Content-Type: text/plain; charset=us-ascii; name="ide-2.3.99-pre9-tag.dmesg"
-Content-Transfer-Encoding: base64
-Content-ID: <Pine.LNX.4.10.10305131329100.2718@master.linux-ide.org>
-Content-Description: 
-Content-Disposition: attachment; filename="ide-2.3.99-pre9-tag.dmesg"
-
-TGludXggdmVyc2lvbiAyLjMuOTktcHJlOS10YWcgKHJvb3RAeGF0aHkubGlu
-dXgtaWRlLm9yZykgKGdjYyB2ZXJzaW9uIGVnY3MtMi45MS42NiAxOTk5MDMx
-NC9MaW51eCAoZWdjcy0xLjEuMiByZWxlYXNlKSkgIzEgRnJpIEFwciAyNiAx
-ODozNTo0MCBQRFQgMjAwMg0KQklPUy1wcm92aWRlZCBwaHlzaWNhbCBSQU0g
-bWFwOg0KIGU4MjA6IDAwMDAwMDAwMDAwOWZjMDAgQCAwMDAwMDAwMDAwMDAw
-MDAwICh1c2FibGUpDQogZTgyMDogMDAwMDAwMDAwMDAwMDQwMCBAIDAwMDAw
-MDAwMDAwOWZjMDAgKHJlc2VydmVkKQ0KIGU4MjA6IDAwMDAwMDAwMDAwMTAw
-MDAgQCAwMDAwMDAwMDAwMGYwMDAwIChyZXNlcnZlZCkNCiBlODIwOiAwMDAw
-MDAwMDAwMDAxMDAwIEAgMDAwMDAwMDBmZWMwMDAwMCAocmVzZXJ2ZWQpDQog
-ZTgyMDogMDAwMDAwMDAwMDAwMTAwMCBAIDAwMDAwMDAwZmVlMDAwMDAgKHJl
-c2VydmVkKQ0KIGU4MjA6IDAwMDAwMDAwMDAwMTAwMDAgQCAwMDAwMDAwMGZm
-ZmYwMDAwIChyZXNlcnZlZCkNCiBlODIwOiAwMDAwMDAwMDNmZWYwMDAwIEAg
-MDAwMDAwMDAwMDEwMDAwMCAodXNhYmxlKQ0KIGU4MjA6IDAwMDAwMDAwMDAw
-MGQwMDAgQCAwMDAwMDAwMDNmZmYzMDAwIChBQ1BJIGRhdGEpDQogZTgyMDog
-MDAwMDAwMDAwMDAwMzAwMCBAIDAwMDAwMDAwM2ZmZjAwMDAgKEFDUEkgTlZT
-KQ0KV2FybmluZyBvbmx5IDg5Nk1CIHdpbGwgYmUgdXNlZC4NClVzZSBhIEhJ
-R0hNRU0gZW5hYmxlZCBrZXJuZWwuDQpPbiBub2RlIDAgdG90YWxwYWdlczog
-MjI5Mzc2DQp6b25lKDApOiA0MDk2IHBhZ2VzLg0Kem9uZSgxKTogMjI1Mjgw
-IHBhZ2VzLg0Kem9uZSgyKTogMCBwYWdlcy4NCkluaXRpYWxpemluZyBDUFUj
-MA0KRGV0ZWN0ZWQgOTk3NDcyMzQ1IEh6IHByb2Nlc3Nvci4NCmlkZV9zZXR1
-cDogaWRlYnVzPTMzDQpDb25zb2xlOiBjb2xvdXIgVkdBKyA4MHgyNQ0KQ2Fs
-aWJyYXRpbmcgZGVsYXkgbG9vcC4uLiAxOTg1Ljc0IEJvZ29NSVBTDQpNZW1v
-cnk6IDg5ODY2OGsvOTE3NTA0ayBhdmFpbGFibGUgKDE0NjlrIGtlcm5lbCBj
-b2RlLCAxODQ0OGsgcmVzZXJ2ZWQsIDk5ayBkYXRhLCAxOTZrIGluaXQsIDBr
-IGhpZ2htZW0pDQpEZW50cnktY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAx
-MzEwNzIgKG9yZGVyOiA4LCAxMDQ4NTc2IGJ5dGVzKQ0KQnVmZmVyLWNhY2hl
-IGhhc2ggdGFibGUgZW50cmllczogNjU1MzYgKG9yZGVyOiA2LCAyNjIxNDQg
-Ynl0ZXMpDQpQYWdlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMjYyMTQ0
-IChvcmRlcjogOCwgMTA0ODU3NiBieXRlcykNCmttZW1fY3JlYXRlOiBQb2lz
-b25pbmcgcmVxdWVzdGVkLCBidXQgY29uIGdpdmVuIC0gYmRldl9jYWNoZQ0K
-SW5vZGUtY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA2NTUzNiAob3JkZXI6
-IDcsIDUyNDI4OCBieXRlcykNCmttZW1fY3JlYXRlOiBQb2lzb25pbmcgcmVx
-dWVzdGVkLCBidXQgY29uIGdpdmVuIC0gaW5vZGVfY2FjaGUNClZGUzogRGlz
-a3F1b3RhcyB2ZXJzaW9uIGRxdW90XzYuNC4wIGluaXRpYWxpemVkDQpDUFU6
-IEwxIEkgQ2FjaGU6IDY0SyAgTDEgRCBDYWNoZTogNjRLDQpDUFU6IEwyIENh
-Y2hlOiAyNTZLDQpDUFU6IEFNRCBBTUQgQXRobG9uKHRtKSBQcm9jZXNzb3Ig
-c3RlcHBpbmcgMDENCkNoZWNraW5nIDM4Ni8zODcgY291cGxpbmcuLi4gT0ss
-IEZQVSB1c2luZyBleGNlcHRpb24gMTYgZXJyb3IgcmVwb3J0aW5nLg0KQ2hl
-Y2tpbmcgJ2hsdCcgaW5zdHJ1Y3Rpb24uLi4gT0suDQpBTUQgSzYgc3RlcHBp
-bmcgQiBkZXRlY3RlZCAtIDw2Pks2IEJVRyAyMDAzMzY4NSAyMDAwMDAwMCAo
-UmVwb3J0IHRoZXNlIGlmIHRlc3QgcmVwb3J0IGlzIGluY29ycmVjdCkNCkFN
-RCBLNiBzdGVwcGluZyBCIGRldGVjdGVkIC0gc3lzdGVtIHN0YWJpbGl0eSBt
-YXkgYmUgaW1wYWlyZWQgd2hlbiBtb3JlIHRoYW4gMzIgTUIgYXJlIHVzZWQu
-DQpQbGVhc2Ugc2VlIGh0dHA6Ly93d3cubXlnYWxlLmNvbS9+cG91bG90L2s2
-YnVnLmh0bWwNClBPU0lYIGNvbmZvcm1hbmNlIHRlc3RpbmcgYnkgVU5JRklY
-DQptdHJyOiB2MS4zNiAoMjAwMDAyMjEpIFJpY2hhcmQgR29vY2ggKHJnb29j
-aEBhdG5mLmNzaXJvLmF1KQ0KUENJOiBQQ0kgQklPUyByZXZpc2lvbiAyLjEw
-IGVudHJ5IGF0IDB4ZmI0NjAsIGxhc3QgYnVzPTINClBDSTogVXNpbmcgY29u
-ZmlndXJhdGlvbiB0eXBlIDENClBDSTogUHJvYmluZyBQQ0kgaGFyZHdhcmUN
-ClBDSTogVXNpbmcgSVJRIHJvdXRlciBkZWZhdWx0IFsxMDIyLzc0NDNdIGF0
-IDAwOjA3LjANCmlzYXBucDogU2Nhbm5pbmcgZm9yIFBucCBjYXJkcy4uLg0K
-aXNhcG5wOiBObyBQbHVnICYgUGxheSBkZXZpY2UgZm91bmQNCkxpbnV4IE5F
-VDQuMCBmb3IgTGludXggMi4zDQpCYXNlZCB1cG9uIFN3YW5zZWEgVW5pdmVy
-c2l0eSBDb21wdXRlciBTb2NpZXR5IE5FVDMuMDM5DQprbWVtX2NyZWF0ZTog
-UG9pc29uaW5nIHJlcXVlc3RlZCwgYnV0IGNvbiBnaXZlbiAtIHNrYnVmZl9o
-ZWFkX2NhY2hlDQpORVQ0OiBVbml4IGRvbWFpbiBzb2NrZXRzIDEuMC9TTVAg
-Zm9yIExpbnV4IE5FVDQuMC4NCk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9y
-IE5FVDQuMA0KSVAgUHJvdG9jb2xzOiBJQ01QLCBVRFAsIFRDUCwgSUdNUA0K
-SVA6IHJvdXRpbmcgY2FjaGUgaGFzaCB0YWJsZSBvZiA4MTkyIGJ1Y2tldHMs
-IDY0S2J5dGVzDQpUQ1A6IEhhc2ggdGFibGVzIGNvbmZpZ3VyZWQgKGVzdGFi
-bGlzaGVkIDY1NTM2IGJpbmQgNjU1MzYpDQpMaW51eCBJUCBtdWx0aWNhc3Qg
-cm91dGVyIDAuMDYgcGx1cyBQSU0tU00NCk5FVDQ6IEFwcGxlVGFsayAwLjE4
-IGZvciBMaW51eCBORVQ0LjANCkluaXRpYWxpemluZyBSVCBuZXRsaW5rIHNv
-Y2tldA0KU3RhcnRpbmcga3N3YXBkIHYxLjYNCnB0eTogMjU2IFVuaXg5OCBw
-dHlzIGNvbmZpZ3VyZWQNClJBTURJU0sgZHJpdmVyIGluaXRpYWxpemVkOiAx
-NiBSQU0gZGlza3Mgb2YgNDA5Nksgc2l6ZSAxMDI0IGJsb2Nrc2l6ZQ0KVW5p
-Zm9ybSBNdWx0aS1QbGF0Zm9ybSBFLUlERSBkcml2ZXIgUmV2aXNpb246IDYu
-MzANCmlkZTogQXNzdW1pbmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVlZCBmb3Ig
-UElPIG1vZGVzDQpBTUQ3NDQxOiBJREUgY29udHJvbGxlciBvbiBQQ0kgYnVz
-IDAwIGRldiAzOQ0KQU1ENzQ0MTogY2hpcHNldCByZXZpc2lvbiAzDQpBTUQ3
-NDQxOiBub3QgMTAwJSBuYXRpdmUgbW9kZTogd2lsbCBwcm9iZSBpcnFzIGxh
-dGVyDQpBTUQ3NDQxOiBkaXNhYmxpbmcgc2luZ2xlLXdvcmQgRE1BIHN1cHBv
-cnQgKHJldmlzaW9uIDwgQzQpDQogICAgaWRlMDogQk0tRE1BIGF0IDB4YjAw
-MC0weGIwMDcsIEJJT1Mgc2V0dGluZ3M6IGhkYTpETUEsIGhkYjpwaW8NCiAg
-ICBpZGUxOiBCTS1ETUEgYXQgMHhiMDA4LTB4YjAwZiwgQklPUyBzZXR0aW5n
-czogaGRjOkRNQSwgaGRkOnBpbw0KaGRhOiBJQk0tRFRMQS0zMDcwNzUsIEFU
-QSBESVNLIGRyaXZlDQpoZGM6IExUTjI0MiwgQVRBUEkgQ0RST00gZHJpdmUN
-CmlkZTAgYXQgMHgxZjAtMHgxZjcsMHgzZjYgb24gaXJxIDE0DQppZGUxIGF0
-IDB4MTcwLTB4MTc3LDB4Mzc2IG9uIGlycSAxNQ0KaGRhOiAxNTAxMzY1NjAg
-c2VjdG9ycyAoNzY4NzAgTUIpIHcvMTkxNktpQiBDYWNoZSwgQ0hTPTkzNDUv
-MjU1LzYzLCBVRE1BKDEwMCkNCmhkYTogUXVldWVkIERNQSBlbmFibGVkDQpS
-ZWxlYXNlIGludGVycnVwdCBlbmFibGVkDQoNCmhkYzogQVRBUEkgMjRYIENE
-LVJPTSBkcml2ZSwgMTIwa0IgQ2FjaGUsIERNQQ0KVW5pZm9ybSBDRC1ST00g
-ZHJpdmVyIFJldmlzaW9uOiAzLjA4DQpQYXJ0aXRpb24gY2hlY2s6DQogL2Rl
-di9pZGUvaG9zdDAvYnVzMC90YXJnZXQwL2x1bjA6R0VPcXRhZz0wDQpSRVpx
-dGFnPTANCk1VTHF0YWc9MA0KIHAxIHAyIHAzIDwgcDUgcDYgcDcgcDggcDkg
-cDEwID4NCkZsb3BweSBkcml2ZShzKTogZmQwIGlzIDEuNDRNDQpGREMgMCBp
-cyBhIHBvc3QtMTk5MSA4MjA3Nw0KTFZNIHZlcnNpb24gMC44ZmluYWwgIGJ5
-IEhlaW56IE1hdWVsc2hhZ2VuICAoMTUvMDIvMjAwMCkNCmx2bSAtLSBEcml2
-ZXIgc3VjY2Vzc2Z1bGx5IGluaXRpYWxpemVkDQogaWQ6IDB4ZmYgIGlvOiAw
-eDMwMCA8Nz4gaWQ6IDB4ZmYgIGlvOiAweDIxMCA8Nz4gaWQ6IDB4ZmYgIGlv
-OiAweDI0MCA8Nz4gaWQ6IDB4ZmYgIGlvOiAweDI4MCA8Nz4gaWQ6IDB4ZmYg
-IGlvOiAweDJjMCA8Nz4gaWQ6IDB4ZmYgIGlvOiAweDIwMCA8Nz4gaWQ6IDB4
-ZmYgIGlvOiAweDMyMCA8Nz4gaWQ6IDB4ZmYgIGlvOiAweDM0MCA8Nz4gaWQ6
-IDB4ZmYgIGlvOiAweDM2MCA8NT5SQU1ESVNLOiBDb21wcmVzc2VkIGltYWdl
-IGZvdW5kIGF0IGJsb2NrIDANCkZyZWVpbmcgaW5pdHJkIG1lbW9yeTogMjYx
-ayBmcmVlZA0KU2VyaWFsIGRyaXZlciB2ZXJzaW9uIDQuOTMgKDIwMDAtMDMt
-MjApIHdpdGggTUFOWV9QT1JUUyBNVUxUSVBPUlQgU0hBUkVfSVJRIFNFUklB
-TF9QQ0kgSVNBUE5QIGVuYWJsZWQNCnR0eVMwMCBhdCAweDAzZjggKGlycSA9
-IDQpIGlzIGEgMTY1NTBBDQp0dHlTMDEgYXQgMHgwMmY4IChpcnEgPSAzKSBp
-cyBhIDE2NTUwQQ0KUmVhbCBUaW1lIENsb2NrIERyaXZlciB2MS4xMGMNCk5v
-bi12b2xhdGlsZSBtZW1vcnkgZHJpdmVyIHYxLjANCkxpbnV4IFR1bGlwIGRy
-aXZlciB2ZXJzaW9uIDAuOS40LjMgKEFwciAxNCwgMjAwMCkNCmV0aDA6IExp
-dGUtT24gODJjMTY4IFBOSUMgcmV2IDMzIGF0IDB4YTAwMCwgMDA6QTA6Q0M6
-M0Y6Q0E6RjgsIElSUSAxMC4NCmV0aDA6ICBNSUkgdHJhbnNjZWl2ZXIgIzEg
-Y29uZmlnIDEwMDAgc3RhdHVzIDc4MmQgYWR2ZXJ0aXNpbmcgMDFlMS4NCmlw
-X2Nvbm50cmFjayAoNzE2OCBidWNrZXRzLCA1NzM0NCBtYXgpDQppcF90YWJs
-ZXM6IChjKTIwMDAgTmV0ZmlsdGVyIGNvcmUgdGVhbQ0KZGV2ZnM6IHYwLjk2
-ICgyMDAwMDQzMCkgUmljaGFyZCBHb29jaCAocmdvb2NoQGF0bmYuY3Npcm8u
-YXUpDQpkZXZmczogYm9vdF9vcHRpb25zOiAweDINClZGUzogTW91bnRlZCBy
-b290IChleHQyIGZpbGVzeXN0ZW0pLg0KRnJlZWluZyB1bnVzZWQga2VybmVs
-IG1lbW9yeTogMTk2ayBmcmVlZA0KTkVUNDogTGludXggSVBYIDAuMzggZm9y
-IE5FVDQuMA0KSVBYIFBvcnRpb25zIENvcHlyaWdodCAoYykgMTk5NSBDYWxk
-ZXJhLCBJbmMuDQoNCg0KRmlsZSAnLi9Cb25uaWUuMTIyMycsIHNpemU6IDEw
-NzM3NDE4MjQsIHZvbHVtZXM6IDENCldyaXRpbmcgd2l0aCBwdXRjKCkuLi4g
-IGRvbmU6ICAxMDk1OCBrQi9zICA4MS4wICVDUFUNClJld3JpdGluZy4uLiAg
-ICAgICAgICAgIGRvbmU6ICAgODkyNyBrQi9zICAxMS4wICVDUFUNCldyaXRp
-bmcgaW50ZWxsaWdlbnRseS4uLmRvbmU6ICAxOTc1NSBrQi9zICAxMi40ICVD
-UFUNClJlYWRpbmcgd2l0aCBnZXRjKCkuLi4gIGRvbmU6ICAxMDU4OCBrQi9z
-ICA4Mi41ICVDUFUNClJlYWRpbmcgaW50ZWxsaWdlbnRseS4uLmRvbmU6ICA2
-NjE3MCBrQi9zICAzOC4xICVDUFUNClNlZWtlciAxLi4uU2Vla2VyIDIuLi5T
-ZWVrZXIgMy4uLnN0YXJ0ICdlbS4uLmRvbmUuLi5kb25lLi4uZG9uZS4uLg0K
-ICAgICAgICAgICAgICAtLS1TZXF1ZW50aWFsIE91dHB1dCAobm9zeW5jKS0t
-LSAtLS1TZXF1ZW50aWFsIElucHV0LS0gLS1SbmQgU2Vlay0NCiAgICAgICAg
-ICAgICAgLVBlciBDaGFyLSAtLUJsb2NrLS0tIC1SZXdyaXRlLS0gLVBlciBD
-aGFyLSAtLUJsb2NrLS0tIC0tMDRrICgwMyktDQpNYWNoaW5lICAgIE1CIEsv
-c2VjICVDUFUgSy9zZWMgJUNQVSBLL3NlYyAlQ1BVIEsvc2VjICVDUFUgSy9z
-ZWMgJUNQVSAgIC9zZWMgJUNQVQ0KICAgICAgIDEqMTAyNCAxMDk1OCA4MS4w
-IDE5NzU1IDEyLjQgIDg5MjcgMTEuMCAxMDU4OCA4Mi41IDY2MTcwIDM4LjEg
-IDM0NS43ICAwLjANCg0KDQo=
---1430322656-696845145-1052857750=:2718--

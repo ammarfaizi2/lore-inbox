@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbUKFV10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbUKFV3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbUKFV10 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 16:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUKFV10
+	id S261477AbUKFV3y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 16:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbUKFV3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 16:27:26 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:56337 "HELO
+	Sat, 6 Nov 2004 16:29:53 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1042 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261476AbUKFV1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 16:27:21 -0500
-Date: Sat, 6 Nov 2004 22:26:46 +0100
+	id S261477AbUKFV3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 16:29:51 -0500
+Date: Sat, 6 Nov 2004 22:29:17 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: len.brown@intel.com, acpi-devel@lists.sourceforge.net,
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: Len Brown <len.brown@intel.com>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] [2.6 patch] drivers/acpi: remove unused exported functions
-Message-ID: <20041106212646.GO1295@stusta.de>
-References: <20041105215021.GF1295@stusta.de> <20041106203934.GA27251@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [2.6 patch] drivers/acpi: remove unused exported functions
+Message-ID: <20041106212917.GP1295@stusta.de>
+References: <20041105215021.GF1295@stusta.de> <1099707007.13834.1969.camel@d845pe> <20041106114844.GK1295@stusta.de> <418CEE3A.40503@conectiva.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041106203934.GA27251@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <418CEE3A.40503@conectiva.com.br>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 08:39:34PM +0000, Matthew Wilcox wrote:
-> On Fri, Nov 05, 2004 at 10:50:21PM +0100, Adrian Bunk wrote:
-> > -acpi_status
-> > -acpi_install_gpe_block (
-> > -	acpi_handle                     gpe_device,
-> > -	struct acpi_generic_address     *gpe_block_address,
-> > -	u32                             register_count,
-> > -	u32                             interrupt_level);
-> > -
-> > -acpi_status
-> > -acpi_remove_gpe_block (
-> > -	acpi_handle                     gpe_device);
-> > -
+On Sat, Nov 06, 2004 at 01:31:06PM -0200, Arnaldo Carvalho de Melo wrote:
 > 
-> I just wrote a driver that uses these two.  Probably best if you refer to
-> http://developer.intel.com/technology/iapc/acpi/downloads/ACPICA-ProgRef.pdf
-> before deleting "unused" functions as these are part of the published
-> interfaces that the ACPICA provides.
+> Suggestion that satisfies both of you, I think:
+> 
+> #undef ACPI_FUTURE_USAGE
+> #ifdef ACPI_FUTURE_USAGE
+> tons of unused exported functions
+> #endif /* ACPU_FUTURE_USAGE */
+> 
+> This is what is being done in at least one case in the kernel network
+> subsystem, incremental patches adds new functions, to be used by
+> future patches, but sometimes Real Life (tm) gets in the way and the
+> programmer stalls development for some time, no problem, just ifdef it.
+> 
+> When, in the future, some functions start being used, hey, very easy
+> to remove the #ifdef.
+> 
+> Even for people trying to debug such subsystems eventually to get
+> something working its _nice_ to know at first glance what is really
+> being used, speeding up the process for the benefit or everybody.
 
-If an in-kernel usage for some of the functions is coming soon simply 
-ignore these parts of my patch.
+That's a good idea.
 
-But if there's EXPORT_SYMBOL'ed code since nearly since nearly three 
-years in the kernel that has like drivers/acpi/hardware/hwtimer.c 
-exactly zero users, the only effect of this code is a code bloat for all 
-users of ACPI.
+To make it easier, I could send a patc to move all the ACPI 
+EXPORT_SYMBOL's away from acpi_ksyms.c or you have to touch two files 
+for every function.
 
-Prehaps #ifdef 0's are the best solution for published but unused 
-interfaces?
+@Len:
+What's your opinion on this proposal?
+
+> Best Regards,
+> 
+> - Arnaldo
+>...
 
 cu
 Adrian

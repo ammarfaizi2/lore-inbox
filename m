@@ -1,82 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbVCHTZB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVCHTas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbVCHTZB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 14:25:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVCHTYa
+	id S262104AbVCHTas (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 14:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbVCHTas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 14:24:30 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:43051 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262068AbVCHTWj (ORCPT
+	Tue, 8 Mar 2005 14:30:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30407 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262083AbVCHT2X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 14:22:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=d8fN3JOfQNjx9g3SffU+ESSrXqhedPHZM26XDp3YrWH7d8JT413T9aVCJUBDRezZdsNUmEYLbxEcm4DfUpEei4nK8OzWEXYTWqVE8qLQk4aADyZgf5ACo7Pg33lFt3hBv1rvzsGXSa2EoPSavcHH0IqrnhStLT+2E+pYXQaWeKI=
-Message-ID: <d91f4d0c050308112120aace61@mail.gmail.com>
-Date: Tue, 8 Mar 2005 14:21:38 -0500
-From: George Georgalis <georgalis@gmail.com>
-Reply-To: George Georgalis <georgalis@gmail.com>
-To: linux-kernel@vger.kernel.org, users@spamassassin.apache.org,
-       misc@list.smarden.org, supervision@list.skarnet.org, nix@esperi.org.uk,
-       mkettler@evi-inc.com
-Subject: Re: a problem with linux 2.6.11 and sa
-In-Reply-To: <20050308171953.GB1936@ixeon.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 8 Mar 2005 14:28:23 -0500
+Message-ID: <422DFC52.D0F12E0B@redhat.com>
+Date: Tue, 08 Mar 2005 14:26:10 -0500
+From: Dave Anderson <anderson@redhat.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-e.49.4nmi_enterprise i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: vivek goyal <vgoyal@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Query: Kdump: Core Image ELF Format
+References: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
+		<422DC166.BFFF3CC0@redhat.com> <m13bv6m2hy.fsf_-_@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-References: <20050303214023.GD1251@ixeon.local>
-	 <6.2.1.2.0.20050303165334.038f32a0@192.168.50.2>
-	 <20050303224616.GA1428@ixeon.local>
-	 <871xaqb6o0.fsf@amaterasu.srvr.nix>
-	 <20050308165814.GA1936@ixeon.local>
-	 <20050308171953.GB1936@ixeon.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Mar 2005 12:19:53 -0500, George Georgalis <george@galis.org> wrote:
-> On Tue, Mar 08, 2005 at 11:58:14AM -0500, George Georgalis wrote:
-> >On Tue, Mar 08, 2005 at 01:37:03PM +0000, Nix wrote:
-> >>On Thu, 3 Mar 2005, George Georgalis uttered the following:
-> >>> I recall a problem a while back with a pipe from
-> >>> /proc/kmsg that was sent by root to a program with a
-> >>> user uid. The fix was to run the logging program as
-> >>> root. Has that protected pipe method been extended
-> >>> since 2.6.8.1?
-> >>
-> >>The entire implementation of pipes has been radically revised between
-> >>2.6.10 and 2.6.11: see, e.g., <http://lwn.net/Articles/118750/> and
-> >><http://lwn.net/Articles/119682/>.
-> >>
-> >>Bugs have been spotted in this area in 2.6.10: this may be
-> >>another one.
+"Eric W. Biederman" wrote:
+
+> Dave Anderson <anderson@redhat.com> writes:
+>
+> > vivek goyal wrote:
 > >
-> >Thanks, my issue is clearly between 2.6.10 and 2.6.11; though I won't be
-> >able to drill down anything more specific, for a while. The links
-> >do look relevant but I cannot say for sure.
+> > > Hi,
+> > >
+> > > Kdump (A kexec based crash dumping mechanism) is going to export the
+> > > kernel core image in ELF format. ELF was chosen as a format, keeping in
+> > > mind that gdb can be used for limited debugging and "Crash" can be used
+> > > for advanced debugging.
+> > >
+> > > Core image ELF headers are prepared before crash and stored at a safe
+> > > place in memory. These headers are retrieved over a kexec boot and final
+> > > elf core image is prepared for analysis.
+> > >
+> > > Given the fact physical memory can be dis-contiguous, One program header
+> > > of type PT_LOAD is created for every contiguous memory chunk present in
+> > > the system. Other information like register states etc. is captured in
+> > > notes section.
+> > >
+> > > Now the issue is, on i386, whether to prepare core headers in ELF32 or
+> > > ELF64 format. gdb can not analyze ELF64 core image for i386 system. I
+> > > don't know about "crash". Can "crash" support ELF64 core image file for
+> > > i386 system?
+> > >
+> >
+> > Not in its current state, but it can certainly be modified to do so.
+> > The embedded gdb module never is even aware of the vmcore file.
+> > (It is essentially executed as "gdb vmlinux").
+> >
+> > And currently crash only expects a single PT_LOAD section, but
+> > that's due for a change.  It's been OK for its current set of supported
+> > processors to use sparse file space for non-existent memory,
+> > but it's kind of a pain with ia64's 256GB holes.
+>
+> Weird.  A sparse file.  I can almost see that but that looks like
+> a really bad format to transport from one system to another.
+>
 
-Here is a problem with 2.6.10:
+Exactly.  Although the -S tar flag helps, and when uncompressed
+it actually makes a smaller file on the receiving end because of
+"real" zero-filled pages.
 
-while read file; do mplayer $file ; done <mediafiles.txt
+>
+> > The point is that adapting crash to handle whatever format
+> > you come up with is the easy part of the whole equation.
+>
+> Good.  Then the concentration should be a simple well understood
+> format that we don't need to change all of the time.
+>
+> > > Given the limitation of analysis tools, if core headers are prepared in
+> > > ELF32 format then how to handle PAE systems?
+> > >
+> >
+> > Are you asking about what would be the p_vaddr values for the higher
+> > memory segments?   FWIW, with the single-PT_LOAD segment currently
+> > supported by crash, there's only one p_vaddr, but in any case, crash doesn't
+> > use it, so PAE is not a problem.
+>
+> PAE (physical address extension) are 64bit addresses on a 32bit box.  So
+> vivek real question was where do we put the bytes.
 
-or
+> Do I understand it correctly that crash currently just gets raw
+> memory data and the register state from the core file?  Then it
+> figures out the virtual to physical mapping by looking at vmlinux?
+>
+> Eric
 
-tail -n93  mediafiles.txt | while read file; do mplayer $file ; done
+Pretty much...
 
-for each file path in that text file I get:
+The register set is there, but it's been primarily used to figure out
+the panic task from the kernel stack address there, although in later
+dump versions, the NT_TASKSTRUCT notes section gives us the same thing.
+Because of the various dump formats it's supported over time, yes, it
+tries to glean the vast majority of the information it needs by using
+the vmlinux file and raw data, and not rely on stuff in the various
+different header formats.
 
-Failed to open /dev/rtc: Permission denied (it should be readable by the user.)
+In any case, I totally agree with your aims:
 
-In addition the audio pcm level is set to zero (presumably by mplayer).
+> What I aimed at was a simple picture of memory decorated with the
+> register state.  We should be able to derive everything beyond that.
+> And the fact that it is all in user space should make it straight
+> forward to change if needed.
+>
 
-This does work:
-for file in `cat mediafiles.txt`; do mplayer $file ; done
+Dave Anderson
 
-but discovering and fixing code now broke will be unpleasent.
-What exactly is going on? 
 
-// George
-
--- 
-George Georgalis, systems architect, administrator Linux BSD IXOYE
-http://galis.org/george/ cell:646-331-2027 mailto:george@galis.org

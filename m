@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267380AbSLRV6T>; Wed, 18 Dec 2002 16:58:19 -0500
+	id <S267410AbSLRWBd>; Wed, 18 Dec 2002 17:01:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267370AbSLRV4f>; Wed, 18 Dec 2002 16:56:35 -0500
-Received: from conductor.synapse.net ([199.84.54.18]:46608 "HELO
-	conductor.synapse.net") by vger.kernel.org with SMTP
-	id <S267362AbSLRV4X> convert rfc822-to-8bit; Wed, 18 Dec 2002 16:56:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "D.A.M. Revok" <marvin@synapse.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133  Promise ctrlr, or...
-Date: Wed, 18 Dec 2002 17:03:18 -0500
-User-Agent: KMail/1.4.1
-References: <Pine.LNX.4.10.10212180241580.8350-100000@master.linux-ide.org> <200212181635.58164.marvin@synapse.net> <1040251122.26501.0.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1040251122.26501.0.camel@irongate.swansea.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, support@promise.com
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212181703.18647.marvin@synapse.net>
+	id <S267409AbSLRWBF>; Wed, 18 Dec 2002 17:01:05 -0500
+Received: from bitmover.com ([192.132.92.2]:36783 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267405AbSLRWAt>;
+	Wed, 18 Dec 2002 17:00:49 -0500
+Date: Wed, 18 Dec 2002 14:08:45 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: John Bradford <john@bradfords.org.uk>
+Cc: Larry McVoy <lm@bitmover.com>, alan@redhat.com, torvalds@transmeta.com,
+       davej@codemonkey.org.uk, vonbrand@inf.utfsm.cl,
+       linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+Message-ID: <20021218140845.L7976@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	John Bradford <john@bradfords.org.uk>,
+	Larry McVoy <lm@bitmover.com>, alan@redhat.com,
+	torvalds@transmeta.com, davej@codemonkey.org.uk,
+	vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org, akpm@digeo.com
+References: <20021218114512.J7976@work.bitmover.com> <200212182039.gBIKdCqL000183@darkstar.example.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200212182039.gBIKdCqL000183@darkstar.example.net>; from john@bradfords.org.uk on Wed, Dec 18, 2002 at 08:39:11PM +0000
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Then I'm not buying Promise from now on.  Period.
+> > And exactly how is your statement different than
+> > 
+> >     "we have a system for seeing what bugs appear to be -kernel-list"
+> > ?
+> 
+> This forthcoming BK-related flamewar falls in to category 1, I.E. is
+> not a 2.6 feature :-)
 
-Being non-able to both 
-boot-from-SCSI-CDR, and
-use smartctl
-is non-acceptable, and if their NDAs rig that then they are a threat 
-against /everything/ I base on my systems.
+I don't understand why BK is part of the conversation.  It has nothing to
+do with it.  If every time I post to this list the assumption is that it's
+"time to beat larry up about BK" then it's time for me to get off the list.
 
-Promise, your business-model damages your customer-relationship's 
-survival, are you listening??
-
-
-On Wed 18 December, 2002 17:38, you wrote:
->On Wed, 2002-12-18 at 21:35, D.A.M. Revok wrote:
->> So.  I /think/ that somehow the Promise controller isn't being
->> initialized properly by the Linux kernel, UNLESS the mobo's BIOS
->> inits it first?
->
->In some situations yes. The BIOS does stuff including fixups we mere
->mortals arent permitted to know about.
-
+I can understand it when we're discussing BK; other than that, it's pretty
+friggin lame.  If that's what was behind your posts, Alan, there is an
+easy procmail fix for that.
 -- 
-http://www.drawright.com/
- - "The New Drawing on the Right Side of the Brain" ( Betty Edwards, 
-check "Theory", "Gallery", and "Exercises" )
-http://www.ldonline.org/ld_indepth/iep/seven_habits.html
- - "The 7 Habits of Highly Effective People" ( this site is same 
-principles as Covey's book )
-http://www.eiconsortium.org/research/ei_theory_performance.htm
- - "Working With Emotional Intelligence" ( Goleman: this link is 
-/revised/ theory, "Working. . . " is practical )
-http://www.leadershipnow.com/leadershop/1978-5.html
- - Corps Business: The 30 /Management Principles/ of the U.S. Marines ( 
-David Freedman )
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

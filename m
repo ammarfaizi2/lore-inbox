@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129480AbQK0X0z>; Mon, 27 Nov 2000 18:26:55 -0500
+        id <S129632AbQK0X2o>; Mon, 27 Nov 2000 18:28:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129639AbQK0X0p>; Mon, 27 Nov 2000 18:26:45 -0500
-Received: from iq.sch.bme.hu ([152.66.226.168]:46672 "EHLO iq.rulez.org")
-        by vger.kernel.org with ESMTP id <S129480AbQK0X0g>;
-        Mon, 27 Nov 2000 18:26:36 -0500
-Date: Mon, 27 Nov 2000 23:56:54 +0100 (CET)
-From: Sasi Peter <sape@iq.rulez.org>
-To: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Multi-Chanel ATA, was: Re: ATA-4, ATA-5 TCQ status
-In-Reply-To: <14882.20520.247769.591536@hertz.ikp.physik.tu-darmstadt.de>
-Message-ID: <Pine.LNX.4.30.0011272353410.27635-100000@iq.rulez.org>
+        id <S129639AbQK0X2e>; Mon, 27 Nov 2000 18:28:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48389 "EHLO
+        www.linux.org.uk") by vger.kernel.org with ESMTP id <S129632AbQK0X2V>;
+        Mon, 27 Nov 2000 18:28:21 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011272257.eARMvw302186@flint.arm.linux.org.uk>
+Subject: Re: [PATCH] removal of "static foo = 0"
+To: acahalan@cs.uml.edu (Albert D. Cahalan)
+Date: Mon, 27 Nov 2000 22:57:57 +0000 (GMT)
+Cc: aeb@veritas.com (Andries Brouwer), linux-kernel@vger.kernel.org
+In-Reply-To: <200011272033.eARKXgr497038@saturn.cs.uml.edu> from "Albert D. Cahalan" at Nov 27, 2000 03:33:42 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000, Uwe Bonnes wrote:
+Albert D. Cahalan writes:
+> It is too late to fix things now. It would have been good to
+> have the compiler put explicitly zeroed data in a segment that
+> isn't shared with non-zero or uninitialized data, so that the
+> uninitialized data could be set to 0xfff00fff to catch bugs.
+> It would take much effort over many years to make that work.
 
-> the 3Ware Controllers have up to 8 channels. However I think you can
-> only use one drive per chanel.
+Oh dear, here's that misconception again.
 
-Hi!
+static int a;
 
-I'm afraid they have only one with intel RISC on board for hardware raid,
-which amkes these card rather exensive for me wanting multilple channels,
-nota higher quality of service.
-It's like I do not want GB Ethernet, I only wanta single card with 4 Fast
-Ethernet ports. Just for storage: a single ATA-4/5 host adapter PCI card
-with as many channels as possible...
+isn't a bug.  It is not "uninitialised data".  It is defined to be
+zero.  Setting the BSS of any C program to contain non-zero data will
+break it.  Fact.  The only bug you'll find is the fact that you're
+breaking the C standard.
 
--- 
-SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
+There is only two places where you come across uninitialised data:
 
+1. memory obtained from outside text, data, bss limit of the program
+   (ie, malloced memory)
+2. if you use auto variables which may be allocated on the stack
 
+All variables declared at top-level are initialised.  No questions
+asked.  And its not a bug to rely on such a fact.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

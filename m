@@ -1,85 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRC2WIq>; Thu, 29 Mar 2001 17:08:46 -0500
+	id <S129134AbRC2VaM>; Thu, 29 Mar 2001 16:30:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129166AbRC2WIf>; Thu, 29 Mar 2001 17:08:35 -0500
-Received: from godzilla.monsters.org ([204.180.109.4]:33287 "EHLO
-	godzilla.monsters.org") by vger.kernel.org with ESMTP
-	id <S129143AbRC2WIU>; Thu, 29 Mar 2001 17:08:20 -0500
-Message-Id: <200103292206.f2TM6sJ10808@zero.monsters.org>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: Memory leak in the ramfs file system
-Mime-Version: 1.0
+	id <S129164AbRC2VaD>; Thu, 29 Mar 2001 16:30:03 -0500
+Received: from ns-inetext.inet.com ([199.171.211.140]:51659 "EHLO
+	ns-inetext.inet.com") by vger.kernel.org with ESMTP
+	id <S129134AbRC2V3w>; Thu, 29 Mar 2001 16:29:52 -0500
+Message-ID: <3AC3A920.835C9550@inet.com>
+Date: Thu, 29 Mar 2001 15:29:04 -0600
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ulrich Drepper <drepper@cygnus.com>
+CC: dank@trellisinc.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcnet32 compilation fix for 2.4.3pre6
+In-Reply-To: <20010329210925.3161C6E099@fancypants.trellisinc.com> <m3hf0cs1xu.fsf@otr.mynet.cygnus.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 29 Mar 2001 16:06:54 -0600
-From: Stephen L Johnson <sjohnson@monsters.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A group of us from the handhelds.org site think that we have found a memory 
-leak in the ramfs file system. After a long period of create and deleting 
-small files in a mounted ramfs partition we have substantially less freemem.  
-The problem has been confirmed on 2.4.2 on an i386 and StormARM ports.
+Ulrich Drepper wrote:
+> 
+> dank@trellisinc.com writes:
+> 
+> > with the new ansi standard, this use of __inline__ is no longer
+> > necessary,
+> 
+> This is not correct.  Since the semantics of inline in C99 and gcc
+> differ all code which depends on the gcc semantics should continue to
+> use __inline__ since this keyword will hopefully forever signal the
+> gcc semantics.
 
-The problem was found by a developer running an application on an iPAQ that 
-quickly writes a 4K file to the ramfs, does some editing of the file and it 
-then deleted. The application will quickly eat up all free memory and cause 
-the platform to fail within 5 minutes.
+So what are the differences?  (Or, what would I read to learn the
+differences?)
+When are they important to us?
 
-Test case: from a shell, run this short script for a long period of time (over 
-1 hour):
+TIA,
 
-   i=0 ; while : ; do echo 1 >$i ; rm $i ; i=`expr $i + 1` ; done
-
-This test was run  on an Compaq iPAQ 3650 using the 2.4.2-rmk1-np3 kernel from 
-the CVS repository on cvs.handhelds.org.
-
-The following two data points are the output from /proc/meminfo.  The first  
-'cat' was done about 1 minute after the loop has been running. The second 
-'cat' was done 10 minutes after the script loop had been killed.
-
-# cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  31686656 21446656 10240000        0        0 11264000
-Swap:        0        0        0
-MemTotal:        30944 kB
-MemFree:         10000 kB
-MemShared:           0 kB
-Buffers:             0 kB
-Cached:          11000 kB
-Active:           4656 kB
-Inact_dirty:      4220 kB
-Inact_clean:      2124 kB
-Inact_target:        0 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:        30944 kB
-LowFree:         10000 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-
-# cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  31686656 24178688  7507968        0        0 12357632
-Swap:        0        0        0
-MemTotal:        30944 kB
-MemFree:          7332 kB
-MemShared:           0 kB
-Buffers:             0 kB
-Cached:          12068 kB
-Active:           4560 kB
-Inact_dirty:      5384 kB
-Inact_clean:      2124 kB
-Inact_target:       16 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:        30944 kB
-LowFree:          7332 kB
-SwapTotal:           0 kB
-SwapFree:            0 kB
-
---
-Stephen L Johnson  <sjohnson@monsters.org>
-
-
+Eli
+-----------------------.           Rule of Accuracy: When working toward
+Eli Carter             |            the solution of a problem, it always 
+eli.carter(at)inet.com `------------------ helps if you know the answer.

@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261594AbSI0BNj>; Thu, 26 Sep 2002 21:13:39 -0400
+	id <S261596AbSI0BXK>; Thu, 26 Sep 2002 21:23:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261595AbSI0BNj>; Thu, 26 Sep 2002 21:13:39 -0400
-Received: from ns.commfireservices.com ([216.6.9.162]:29452 "HELO
-	hemi.commfireservices.com") by vger.kernel.org with SMTP
-	id <S261594AbSI0BNi>; Thu, 26 Sep 2002 21:13:38 -0400
-Date: Thu, 26 Sep 2002 21:18:04 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-Cc: twaugh@redhat.com, <serial24@macrolink.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pre8)
-In-Reply-To: <E17uesu-0002dE-00@mm.lan.amelek.gda.pl>
-Message-ID: <Pine.LNX.4.44.0209262116550.1632-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261597AbSI0BXK>; Thu, 26 Sep 2002 21:23:10 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261596AbSI0BXK>; Thu, 26 Sep 2002 21:23:10 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [patch 4/4] increase traffic on linux-kernel
+Date: Fri, 27 Sep 2002 01:31:17 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <an0cd5$262$1@penguin.transmeta.com>
+References: <3D928864.23666D93@digeo.com>
+X-Trace: palladium.transmeta.com 1033090106 18894 127.0.0.1 (27 Sep 2002 01:28:26 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 27 Sep 2002 01:28:26 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Sep 2002, Marek Michalkiewicz wrote:
+In article <3D928864.23666D93@digeo.com>,
+Andrew Morton  <akpm@digeo.com> wrote:
+>
+>Infrastructure to detect sleep-inside-spinlock bugs.  Really only
+>useful if compiled with CONFIG_PREEMPT=y.  It prints out a whiny
+>message and a stack backtrace if someone calls a function which might
+>sleep from within an atomic region.
 
-> I need this for NM9835 support (working fine here on two machines) -
-> I'd like to submit a separate patch for this (so the parport_serial.c
-> NM9835-related changes are easy to see, after the file is moved to
-> the new place).  Please let me know if you see any problems with
-> this patch - it certainly looks like a bug fix to me...
+This is in my BK tree now, along with Ingo's symbolic backtraces, which
+makes it possibly less tedious to read the output. 
 
-Ahh return of the 9835 =) This POS never goes away...
+I would suggest that all developers for a while run with 
 
-	Zwane
+	CONFIG_PREEMPT=y
+	CONFIG_DEBUG_KERNEL=y
+	CONFIG_KALLSYMS=y
 
---
-function.linuxpower.ca
+and see if something shows up in their subsystem (but be careful about
+the backtraces, since they often contain old crud, especially since gcc
+does a horrible job at keeping the stack together and thus leaves unused
+"holes" in the stack frame which then show old and stale info). 
 
+It shows clearly that at least the sound PCM code does locking
+completely the wrong way around, apparently at least partly because of
+bad abstraction macros that hide the fact that some locks are semaphores
+and others are spinlocks.
 
+[ Rant: abstraction like this is _bad_, for christ sake! Don't hide what
+  locks you're using just to make the code look simpler.  Hint: trying
+  to do a "down()" within a spinlock is stupid and not produtive. ]
+
+Thanks,
+
+		Linus

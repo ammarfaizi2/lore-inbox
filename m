@@ -1,136 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVATW6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbVATW66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbVATW6M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 17:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVATW5t
+	id S262208AbVATW66 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 17:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVATW66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 17:57:49 -0500
-Received: from opersys.com ([64.40.108.71]:1806 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262208AbVATW5Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 17:57:24 -0500
-Message-ID: <41F039C7.1080300@opersys.com>
-Date: Thu, 20 Jan 2005 18:07:51 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Thu, 20 Jan 2005 17:58:58 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:10440 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262208AbVATW6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 17:58:50 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [PATCH][RFC] swsusp: speed up image restoring on x86-64
+Date: Thu, 20 Jan 2005 23:58:53 +0100
+User-Agent: KMail/1.7.1
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       hugang@soulinfo.com, LKML <linux-kernel@vger.kernel.org>
+References: <200501202032.31481.rjw@sisk.pl> <200501202246.38506.rjw@sisk.pl> <20050120220630.GB22201@elf.ucw.cz>
+In-Reply-To: <20050120220630.GB22201@elf.ucw.cz>
 MIME-Version: 1.0
-To: Werner Almesberger <wa@almesberger.net>
-CC: tglx@linutronix.de, Roman Zippel <zippel@linux-m68k.org>,
-       Tim Bird <tim.bird@am.sony.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: Re: [RFC] Instrumentation (was Re: 2.6.11-rc1-mm1)
-References: <20050120183951.A17570@almesberger.net>
-In-Reply-To: <20050120183951.A17570@almesberger.net>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501202358.53918.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Werner Almesberger wrote:
->  - if the probe target is an instruction long enough, replace it with
->    a jump or call (that's what I think the kprobes folks are working
->    on. I remember for sure that they were thinking about it.)
-
-I heard about this years ago, but I don't know that anything came of
-it. I suspect that this is not as simple as it looks and that the
-only reliable way to do it is with a trap.
-
-> Probably because everybody saw that it was good :-)
-
-Great, thanks. That's what we'll aim for then. We've already got
-the "disable" and "static" implemented, so now we need to figure
-out how do we best implement this tagging. IBM's kernel hooks
-allowed the NOP solution, so I'm guessing it shouldn't be that
-much of a stretch to extend it for marking up the code for kprobes
-and friends. I don't know whether this code is still maintained or
-not, but I'd like to hear input as to whether this is a good basis,
-or whether you're thinking of something like your uml-sim hooks?
-
-> So you need seeking, even in the presence of fine-grained control
-> over what gets traced in the first place ? (As opposed to extracting
-> the interesting data from the full trace, given that the latter
-> shouldn't contain too much noise.)
-
-The problem is that you don't necessarily know beforehand what's
-the problem. So here's an actual example:
-
-I had a client who had this box on which a task was always getting
-picked up by the OOM killer. Try as they might, the development
-team couldn't figure out which part of the code was causing this.
-So we put LTT in there and in less than 5 minutes we found the
-problem. It turned out that a user-space access to a memory-mapped
-FPGA caused an unexpected FP interrupt to occur, and the application
-found itself in a recursive signal handler. In this case there was
-an application symptom, but it was a hardware problem.
-
-This is just a simple example, but there are plenty of other
-examples where a sysadmin will be experiencing some weird
-hard to reproduce bugs on some of his systems and he'll spend
-a considerable amount of time trying to guess what's happening.
-This is especially complicated when there's no indication as to
-what's the root of the problem. So at that point being able to
-log everything and being able to rapidely browse through it is
-critical.
-
-Once you've done such a first trace you _may_ _possibly_ be
-able to refine your search requirements and relog with that in
-mind, but that's after the fact.
-
-> Or that they have been consumed. My question is just whether this
-> kind of aggregation is something you need.
-
-Absolutely. If you're thinking about short 100kb or MBs traces,
-then a simpler scheme would be possible. But when we're talking
-about GB and 100GBs spaning days, there's got to be a managed
-way of doing it.
-
->>I have nothing against kprobes. People keep refering to it as if
->>it magically made all the related problems go away, and it doesn't.
+On Thursday, 20 of January 2005 23:06, Pavel Machek wrote:
+> Hi!
 > 
+> > > > The following patch speeds up the restoring of swsusp images on x86-64
+> > > > and makes the assembly code more readable (tested and works on AMD64).  It's
+> > > > against 2.6.11-rc1-mm1, but applies to 2.6.11-rc1-mm2.  Please consifer for applying.
+> > > 
+> > > Can you really measure the speedup?
+> > 
+> > In terms of time?  Probably I can, but I prefer to measure it in terms of the numbers of
+> > operations to be performed.
+> > 
+> > With this patch, at least 8 times less memory accesses are required to restore an image
+> > than without it, and in the original code cr3 is reloaded after copying each _byte_,
+> > let alone the SIB arithmetics.  I'd expect it to be 10 times faster
+> > or so.
 > 
-> Yes, I know just too well :-) In umlsim, I have pretty much the
-> same problems, and the solutions aren't always nice. So far, I've
-> been lucky enough that I could almost always find a suitable
-> function entry to abuse.
+> Well, 8 times less cr3 reloads may be significant... for the copy
+> loop. Speeding up copy loop that takes  ... 100msec?... of whole
+> resume (30 seconds) does not seem too important to me.
+> 
+> > The readability of code is also important, IMHO.
+> 
+> It did not seem too much better to me.
 
-Glad you acknowledge as much.
+Well, the beauty is in the eye of the beholder. :-)
 
-> However, since a kprobes-based mechanism is - in the worst case,
-> i.e. when needing markup - as good as direct calls to LTT, and gives
-> you a lot more flexibility if things aren't quite as hostile, I
-> think it makes sense to focus on such a solution.
+Still, it shrinks the code (22 lines vs 37 lines), it uses less GPRs (5 vs 7), it uses less
+SIB arithmetics (0 vs 4 times), it uses a well known scheme for copying data pages.
+As far as the result is concerned, it is equivalent to the existing code, but it's simpler
+(and faster).  IMO, simpler code is always easier to understand.
 
-You certainly have a lot more experience than I do with that, so
-I'd like to solicit your help. As above: what's the best way to
-provide this in addition to the static and disable points?
 
-> Yup, but you could move even more intelligence outside the kernel.
-> All you really need in the kernel is a place to put the probe,
-> plus some debugging information to tell you where you find the
-> data (the latter possibly combined with gently coercing the
-> compiler to put it at some accessible place).
+> > > If you want cheap way to speed it up, kill cr3 manipulation.
+> > 
+> > Sure, but I think it's there for a reason.
+> 
+> Reason is "to crash it early if we have wrong pagetables".
+> 
+> > > Anyway, this is likely to clash with hugang's work; I'd prefer this not to be applied.
+> > 
+> > I am aware of that, but you are not going to merge the hugang's patches soon, are you?
+> > If necessary, I can change the patch to work with his code (hugang, what do you think?).
+> 
+> I think it is just not worth the effort.
 
-Right, but then you end up with a mechanism with generalized hooks.
-Actually there was a time when LTT was a driver and you could
-either build it as a module or keep it built-in. However, when
-we published patches to get LTT accepted in 2.5 we were told on
-LKML to move LTT into kernel/ and avoid all this driver stuff.
-Having it, or parts of it, in the kernel makes it much simpler
-and much more likely that the existing ad-hoc tracing code
-spreading accross the sources be removed in exchange for a
-single agreed upon way of doing things.
+Why?  It won't take much time.  I've spent more time for writing the messages
+in this thread ... ;-)
 
-It must be said that like I had done with relayfs, the LTT patch
-will go through a major redux and I will post the patches for
-review like before on LKML.
+Greets,
+RJW
 
-Karim
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

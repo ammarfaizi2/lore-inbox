@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266768AbUGUWkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266764AbUGUWsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266768AbUGUWkf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 18:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266766AbUGUWkf
+	id S266764AbUGUWsp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 18:48:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266766AbUGUWsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 18:40:35 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:13530 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266764AbUGUWk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 18:40:26 -0400
-Date: Thu, 22 Jul 2004 00:40:11 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Greg KH <greg@kroah.com>, Jesse Stockall <stockall@magma.ca>,
-       Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
+	Wed, 21 Jul 2004 18:48:45 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:8909 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S266764AbUGUWso (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 18:48:44 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Greg KH <greg@kroah.com>
 Subject: Re: [PATCH] delete devfs
-Message-ID: <20040721224011.GY14733@fs.tum.de>
-References: <20040721141524.GA12564@kroah.com> <200407211626.55670.oliver@neukum.org> <20040721145208.GA13522@kroah.com> <1090444782.8033.4.camel@homer.blizzard.org> <20040721212745.GC18110@kroah.com> <20040721220237.GX14733@fs.tum.de> <20040722001125.A3512@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Thu, 22 Jul 2004 00:47:53 +0200
+User-Agent: KMail/1.6.2
+Cc: Jesse Stockall <stockall@magma.ca>, linux-kernel@vger.kernel.org
+References: <20040721141524.GA12564@kroah.com> <1090446817.8033.18.camel@homer.blizzard.org> <20040721220529.GB18721@kroah.com>
+In-Reply-To: <20040721220529.GB18721@kroah.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040722001125.A3512@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407220047.53153.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 12:11:25AM +0200, Francois Romieu wrote:
-> Adrian Bunk <bunk@fs.tum.de> :
-> [...]
-> > Could anyone please explain this mysterious "new development model of  
-> > the kernel"?
+Am Donnerstag, 22. Juli 2004 00:05 schrieb Greg KH:
+> > That's the point that Oliver and I raised, the "leave it till 2.7" (not
+> > breaking things for real world users) argument seems stronger than the
+> > "rip it now" (because it makes things cleaner, easier to code, etc)
+> > argument. 
 > 
-> It would not be nice with LWN.
+> The kernel development model (the whole stable/development tree thing)
+> has changed based on the discussions at the kernel summit yesterday.
+> See lwn.net for more details. That is why I sent this patch at this
+> point in time.
 
-If essential information for contributing to the Linux kernel would be 
-available only for paying costumers of LWN this was my last day on 
-linux-kernel. [1]
+Interesting, but we are not talking about an _internal_ API here.
+It's about blocking the upgrade path. System using a stable kernel will
+needlessly stop working after an upgrade to another stable kernel.
 
-> > Is this some personal fight from you against Linus or someone else you 
-> > are trying to bring to linux-kernel, or WTF has happened???
-> 
-> Patch was submitted to -mm. -mm filters a lot lately.
-
-Which patch are you talking about?
-Greg's patch was made against 2.6.8-rc2 ...
-
-> Can't we have a peaceful week on l-k for once ? :o)
-> 
-> Ueimor
-
-cu
-Adrian
-
-[1] This is not meant against the LWN business model.
-    But in this case this is essential information that should have been
-    posted to linux-kernel before the first patch appeared.
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+	Regards
+		Oliver
 

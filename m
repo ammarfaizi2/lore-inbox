@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263473AbRFFEaZ>; Wed, 6 Jun 2001 00:30:25 -0400
+	id <S263041AbRFFEjf>; Wed, 6 Jun 2001 00:39:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263354AbRFFEaQ>; Wed, 6 Jun 2001 00:30:16 -0400
-Received: from [208.48.139.185] ([208.48.139.185]:38072 "HELO
-	forty.greenhydrant.com") by vger.kernel.org with SMTP
-	id <S263479AbRFFEaH>; Wed, 6 Jun 2001 00:30:07 -0400
-Date: Tue, 5 Jun 2001 21:30:01 -0700
-From: David Rees <dbr@greenhydrant.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Network Performance Testing Summary
-Message-ID: <20010605213001.A13200@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <F120XA946xFRFtReq5G0000dddd@hotmail.com>
-Mime-Version: 1.0
+	id <S262629AbRFFEjZ>; Wed, 6 Jun 2001 00:39:25 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:58516 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263238AbRFFEjM>;
+	Wed, 6 Jun 2001 00:39:12 -0400
+Message-ID: <3B1DB3EC.AF7034@mandrakesoft.com>
+Date: Wed, 06 Jun 2001 00:39:08 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Ford <david@blue-labs.org>
+Cc: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac9
+In-Reply-To: <20010605234928.A28971@lightning.swansea.linux.org.uk> <3B1DB270.6070603@blue-labs.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <F120XA946xFRFtReq5G0000dddd@hotmail.com>; from jw2357@hotmail.com on Wed, Jun 06, 2001 at 02:52:03AM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 06, 2001 at 02:52:03AM +0000, John William wrote:
-> 
-> The curse of the HP Vectra XU 5/90 strikes again!
-> 
-> What is interesting is that I tried the NetGear FA310, FA311, 3COM 3cSOHO 
-> and 3C905C-TX cards and both the receive and transmit speeds (measured with 
-> both iperf and netperf) were so close to each other as to be a non-issue.
-> 
-> Several people e-mailed me to let me know that "card 'X' performance is 
-> terrible, I can only get good performance with card 'Y'". So, I just thought 
-> I should send this message out to set things a bit straight.
+David Ford wrote:
+>  >>EIP; c01269f9 <proc_getdata+4d/154>   <=====
+> Trace; c01b1021 <read_eeprom+131/1a8>
+> Trace; c01b1c43 <rtl8139_tx_timeout+143/148>
+> Trace; c01b2643 <rtl8139_interrupt+5f/170>
+> Trace; c0137fc0 <__emul_lookup_dentry+a4/fc>
+> Trace; c0138871 <open_namei+4d1/560>
+> Trace; c0167ccb <leaf_define_dest_src_infos+1a7/1ac>
+> Trace; c012e389 <do_readv_writev+15d/228>
+> Trace; c012e2c2 <do_readv_writev+96/228>
 
-Did you monitor CPU usage during these tests?
+This trace looks corrupted to me... are you sure that System.map for the
+crashed kernel matches -exactly- with the one ksymoops used to decode
+this?  It uses /proc/ksyms by default, which is incorrect for most
+postmortem ksymoops runs...
 
-I did some throughput comparing a DLink RTL8139 based card to a 3C905C-TX card on a K6-2 450.  
-Both managed to fully saturate 100Mbps.  However, the DLink used up ~90% CPU, and the 3Com 
-only used about 50% CPU.  This was on 2.4.5, with the 8139too driver from 2.4.3.
+rtl8139_interrupt doesn't call tx_timeout, which doesn't call
+read_eeprom, which doesn't call proc_getdata.
 
--Dave
+-- 
+Jeff Garzik      | An expert is one who knows more and more about
+Building 1024    | less and less until he knows absolutely everything
+MandrakeSoft     | about nothing.

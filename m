@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262438AbTEAUiM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 16:38:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbTEAUiL
+	id S262407AbTEAUdi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 16:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTEAUdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 16:38:11 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:53129 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262438AbTEAUiK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 16:38:10 -0400
-Date: Thu, 1 May 2003 13:52:19 -0700
-From: Greg KH <greg@kroah.com>
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mc@stanford.edu
-Subject: Re: [CHECKER] 5 potential user-pointer errors that allow arbitrary reads from kernel
-Message-ID: <20030501205219.GA3616@kroah.com>
-References: <Pine.GSO.4.44.0304302131150.22117-100000@elaine24.Stanford.EDU>
+	Thu, 1 May 2003 16:33:38 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:50163 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262407AbTEAUdf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 16:33:35 -0400
+Subject: Re: kernel BUG at net/socket.c:147
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: "Michael D. Harnois" <mharnois@cpinternet.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1051821220.4440.1.camel@mharnois.mdharnois.net>
+References: <1051821220.4440.1.camel@mharnois.mdharnois.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3hYBr5GavMgORpCl9Dnf"
+Organization: Red Hat, Inc.
+Message-Id: <1051821952.1407.6.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0304302131150.22117-100000@elaine24.Stanford.EDU>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 01 May 2003 22:45:53 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 09:39:18PM -0700, Junfeng Yang wrote:
-> ---------------------------------------------------------
-> [BUG] proc_dir_entry.write_proc can take tainted inputs
-> 
-> /home/junfeng/linux-2.5.63/drivers/usb/media/vicam.c:1117:vicam_write_proc_gain:
-> ERROR:TAINTED:1117:1117: passing tainted ptr 'buffer' to simple_strtoul
-> [Callstack:
-> /home/junfeng/linux-2.5.63/net/core/pktgen.c:991:vicam_write_proc_gain((tainted
-> 1))]
-> 
-> static int vicam_write_proc_gain(struct file *file, const char *buffer,
-> 				unsigned long count, void *data)
-> {
-> 	struct vicam_camera *cam = (struct vicam_camera *)data;
-> 
-> 
-> Error --->
-> 	cam->gain = simple_strtoul(buffer, NULL, 10);
 
-Real bug, I'll fix this.
+--=-3hYBr5GavMgORpCl9Dnf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> ---------------------------------------------------------
-> [BUG] proc_dir_entry.write_proc can take tainted inputs
-> 
-> /home/junfeng/linux-2.5.63/drivers/usb/media/vicam.c:1107:vicam_write_proc_shutter:
-> ERROR:TAINTED:1107:1107: passing tainted ptr 'buffer' to simple_strtoul
-> [Callstack:
-> /home/junfeng/linux-2.5.63/net/core/pktgen.c:991:vicam_write_proc_shutter((tainted
-> 1))]
-> 
-> static int vicam_write_proc_shutter(struct file *file, const char *buffer,
-> 				unsigned long count, void *data)
-> {
-> 	struct vicam_camera *cam = (struct vicam_camera *)data;
-> 
-> 
-> Error --->
-> 	cam->shutter_speed = simple_strtoul(buffer, NULL, 10);
+On Thu, 2003-05-01 at 22:33, Michael D. Harnois wrote:
+> This is with 2.5.68-bk11 but happened also with bk10.
+>=20
+> May  1 15:30:20 mharnois kernel: ------------[ cut here ]------------
+> May  1 15:30:20 mharnois kernel: kernel BUG at net/socket.c:147!
+> May  1 15:30:20 mharnois kernel: invalid operand: 0000 [#1]
+> May  1 15:30:20 mharnois kernel: CPU:    0
+> May  1 15:30:20 mharnois kernel: EIP:  =20
+> 0060:[net_family_get+110/128]    Tainted: PF=20
 
-Again, real bug, I'll fix it.
+May  1 15:30:20 mharnois kernel:  <6>note: vmnet-bridge[9886] exited
+with preempt_count 2
 
-thanks,
 
-greg k-h
+does it happen without vmware too ?
+
+--=-3hYBr5GavMgORpCl9Dnf
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+sYeAxULwo51rQBIRAgHLAJ4wublkhJ3erOrG89+RV0lxOb37iACgknqh
+oAModnoUjQ2thNmT8YmFe2Y=
+=lept
+-----END PGP SIGNATURE-----
+
+--=-3hYBr5GavMgORpCl9Dnf--

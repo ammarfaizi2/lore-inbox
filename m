@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263876AbTJ1JFP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 04:05:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263888AbTJ1JFP
+	id S263895AbTJ1JXN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 04:23:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbTJ1JXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 04:05:15 -0500
-Received: from platane.lps.ens.fr ([129.199.121.28]:44941 "EHLO
-	platane.lps.ens.fr") by vger.kernel.org with ESMTP id S263876AbTJ1JFL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 04:05:11 -0500
-Date: Tue, 28 Oct 2003 10:03:04 +0100
-From: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
-To: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: status of ipchains in 2.6?
-Message-ID: <20031028090304.GA19302@lps.ens.fr>
+	Tue, 28 Oct 2003 04:23:12 -0500
+Received: from gprs197-51.eurotel.cz ([160.218.197.51]:61826 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263895AbTJ1JXM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 04:23:12 -0500
+Date: Tue, 28 Oct 2003 10:20:27 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: John Levon <levon@movementarian.org>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [AMD64 1/3] fix C99-style declarations
+Message-ID: <20031028092026.GA1167@elf.ucw.cz>
+References: <20031025182824.GA12117@gtf.org> <20031025202750.GC27754@wotan.suse.de> <20031025204717.GA78345@compsoc.man.ac.uk> <20031025205617.GD27754@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200310280127.h9S1RM5d002140@napali.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031025205617.GD27754@wotan.suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists linux-kernel, you wrote:
->I recently discovered that ipchains is rather broken.  I noticed the
->problem on ia64, but suspect that it's likely to affect all 64-bit
->platforms (if not 32-bit platforms).  A more detailed description of
->the problem I'm seeing is here:
->
->       http://tinyurl.com/sm9d
+Hi!
 
-I have just posted less than 12 hours ago a bug-report about a __very__
-similar problem occuring on ia32. I trigger it very easily with a rsync
-from the client machine. I haven't been able to obtain a complete trace,
-though.
+> > This has happened more than once in the tree.
+> > 
+> > When all the architectures have a minimum gcc requirement that accepts
+> > mixed code and declarations by default, it can be removed ...
+> 
+> Would be my prefered solution. Discourage 2.95.
+> 
+> Sooner or later we have to do that anyways when a bug in 2.95 
+> is found that breaks code (has happened with all gccs so far). 
+> Sooner would be better, as supporting 2.95 seems to be already
+> a significant mainteance burden.
 
-In my case, 2.6.0-test4 is working fine.
+Well.. except that 2.95 is still two times faster than gcc 3.3 :-(.
 
-Éric Brunet
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

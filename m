@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263024AbSJGNtE>; Mon, 7 Oct 2002 09:49:04 -0400
+	id <S263061AbSJGOAV>; Mon, 7 Oct 2002 10:00:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263030AbSJGNtD>; Mon, 7 Oct 2002 09:49:03 -0400
-Received: from mario.gams.at ([194.42.96.10]:39192 "EHLO mario.gams.at")
-	by vger.kernel.org with ESMTP id <S263024AbSJGNtD> convert rfc822-to-8bit;
-	Mon, 7 Oct 2002 09:49:03 -0400
-Message-Id: <200210071354.g97DseH11195@frodo.gams.co.at>
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.3
-From: Bernd Petrovitsch <bernd@gams.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Sleep 
-References: <20021004020548.GC10722@holomorphy.com> 
-In-reply-to: Your message of "Thu, 03 Oct 2002 19:05:48 PDT."
-             <20021004020548.GC10722@holomorphy.com> 
-X-url: http://www.luga.at/~bernd/
+	id <S263063AbSJGOAV>; Mon, 7 Oct 2002 10:00:21 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:15343 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263061AbSJGOAU>; Mon, 7 Oct 2002 10:00:20 -0400
+Subject: Re: The end of embedded Linux?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Abraham vd Merwe <abraham@2d3d.co.za>
+Cc: Russell King <rmk@arm.linux.org.uk>, "David S. Miller" <davem@redhat.com>,
+       simon@baydel.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021007141053.B14444@crystal.2d3d.co.za>
+References: <20021005.212832.102579077.davem@redhat.com>
+	<1033923206.21282.28.camel@irongate.swansea.linux.org.uk>
+	<3DA16A9B.7624.4B0397@localhost>
+	<20021007.033644.85392050.davem@redhat.com>
+	<20021007125755.A5381@flint.arm.linux.org.uk> 
+	<20021007141053.B14444@crystal.2d3d.co.za>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Oct 2002 15:12:45 +0100
+Message-Id: <1033999965.25063.16.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Mon, 07 Oct 2002 15:54:40 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->On Wed, Oct 02, 2002 at 09:48:15PM -0400, linuxguruguy wrote:
->> Do kernel hackers ever sleep
->
->No.
+On Mon, 2002-10-07 at 13:10, Abraham vd Merwe wrote:
+> Hi Russell!
+> 
+> > And as final proof, the solution taken by two embedded companies is
+> > to develop two completely separate cs89x0 driver from the existing one
+> > (and then pick one/merge them) rather than fixing stuff in the way
+> > suggested by Alan.
+> 
+> Hey, the original cs89x0 driver were just too ugly to actually work on -
+> It was much more productive to just start from scratch (;
 
-ACK.
-----  snip  ----
-{16}man 2 sleep
-No entry for sleep in section 2 of the manual
-----  snip  ----
-	Bernd
--- 
-Bernd Petrovitsch                              Email : bernd@gams.at
-g.a.m.s gmbh                                  Fax : +43 1 205255-900
-Prinz-Eugen-Straﬂe 8                    A-1040 Vienna/Austria/Europe
-                     LUGA : http://www.luga.at
-
+But in that case if you have a better cs89x0 driver that works well and
+works on multiple platforms, 2.5 is the right time to throw it at the
+tree and bury the current one
 

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262018AbTFJXx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 19:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTFJXx2
+	id S262127AbTFJXz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 19:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbTFJXz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 19:53:28 -0400
-Received: from exchange-1.umflint.edu ([141.216.3.48]:54948 "EHLO
-	Exchange-1.umflint.edu") by vger.kernel.org with ESMTP
-	id S262018AbTFJXx1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 19:53:27 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Wrong number of cpus detected/reported
-Date: Tue, 10 Jun 2003 20:04:15 -0400
-Message-ID: <37885B2630DF0C4CA95EFB47B30985FB0188001A@exchange-1.umflint.edu>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Wrong number of cpus detected/reported
-Thread-Index: AcMvkruui86MQQpzSoamMQH5DPB+hwAGcYsA
-From: "Lauro, John" <jlauro@umflint.edu>
-To: "Timothy Miller" <miller@techsource.com>
-Cc: <linux-kernel@vger.kernel.org>
+	Tue, 10 Jun 2003 19:55:56 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60407 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262127AbTFJXzz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 19:55:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10552903152794@kroah.com>
+Subject: Re: [PATCH] And yet more PCI fixes for 2.5.70
+In-Reply-To: <1055290315109@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 10 Jun 2003 17:11:55 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What kernels balance the loads properly?  When I did some simple tests
-with a dual Xeon 2.4, I couldn't get it Linux to balance properly.
-About 30% of the time it would be off balance with two CPU bound
-processes, and that is about the statistical rate.  I think that was
-with 2.4.20, but might have been 2.4.18.  With 3 processes, one would
-always get an unfair advantage compared to the other two.
+ChangeSet 1.1396, 2003/06/10 14:17:24-07:00, greg@kroah.com
 
-> -----Original Message-----
-> From: Timothy Miller [mailto:miller@techsource.com]
-> Sent: Tuesday, June 10, 2003 5:09 PM
-> To: David Schwartz
-> Cc: xyko_ig@ig.com.br; linux-kernel@vger.kernel.org
-> Subject: Re: Wrong number of cpus detected/reported
-> 
-> But if the kernel doesn't have HT support, then it won't necessarily
-> balance loads properly.
-> 
+[PATCH] PCI: replace usage of pci_present() in drivers/sbus/sbus.c
+
+
+ drivers/sbus/sbus.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/sbus/sbus.c b/drivers/sbus/sbus.c
+--- a/drivers/sbus/sbus.c	Tue Jun 10 17:04:09 2003
++++ b/drivers/sbus/sbus.c	Tue Jun 10 17:04:09 2003
+@@ -334,7 +334,7 @@
+ 		nd = prom_searchsiblings(topnd, "sbus");
+ 		if(nd == 0) {
+ #ifdef CONFIG_PCI
+-			if (!pci_present()) {
++			if (pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) == NULL) {
+ 				prom_printf("Neither SBUS nor PCI found.\n");
+ 				prom_halt();
+ 			} else {
+

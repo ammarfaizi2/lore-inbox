@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265008AbSKSCYA>; Mon, 18 Nov 2002 21:24:00 -0500
+	id <S261398AbSKSCdx>; Mon, 18 Nov 2002 21:33:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265114AbSKSCYA>; Mon, 18 Nov 2002 21:24:00 -0500
-Received: from almesberger.net ([63.105.73.239]:46597 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S265008AbSKSCX7>; Mon, 18 Nov 2002 21:23:59 -0500
-Date: Mon, 18 Nov 2002 23:30:47 -0300
-From: Werner Almesberger <wa@almesberger.net>
+	id <S261399AbSKSCdx>; Mon, 18 Nov 2002 21:33:53 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:48132 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261398AbSKSCdw>; Mon, 18 Nov 2002 21:33:52 -0500
+Date: Tue, 19 Nov 2002 02:40:32 +0000
+From: John Levon <levon@movementarian.org>
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, Doug Ledford <dledford@redhat.com>,
-       Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Module Refcount & Stuff mini-FAQ
-Message-ID: <20021118233047.P1407@almesberger.net>
+Message-ID: <20021119024032.GA99837@compsoc.man.ac.uk>
 References: <20021118230821.8F3822C241@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021118230821.8F3822C241@lists.samba.org>; from rusty@rustcorp.com.au on Tue, Nov 19, 2002 at 09:58:56AM +1100
+In-Reply-To: <20021118230821.8F3822C241@lists.samba.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *18DyJU-000CkV-00*8Hh21B6HCQo* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Q: When does try_module_get(owner) fail?
-> A: When the module is not ready to be entered (ie. still in
->    init_module) or it is being removed.  It fails to prevent you
->    entering the module as it is being discarded (init might fail, or
->    it's being removed).
+On Tue, Nov 19, 2002 at 09:58:56AM +1100, Rusty Russell wrote:
 
-I'd suggest "It fails in order to [...]" to avoid the "does work
-exactly NOT as advertised" ambiguity ;-)
+>    The previous code required to implement the two module loading
+>    system call, the module querying system call, and the /proc/ksyms
+>    output, required a little more code than the current x86 linker.
 
-> Q: But modules call my register() routine which wants to call back
->    into one of the function pointers immediately, and so
->    try_module_get() fails!
-> A: You're being called from the module, so someone already has a
->    reference (unless there's a bug), so you don't need a
->    try_module_get().
+This makes it sound like you're not bringing /proc/ksyms back (or an
+equivalent to let userspace know where modules are loaded). I hope this
+isn't the case...
 
-Hmm, I haven't really looked at your new code, but this sounds as
-if try_module_get gets an exclusive lock. Is this true ? Doesn't
-seem to make sense to me.
-
-> Hope that helps?
-
-Don't you want to repeat the golden rule at the end, just as a
-polite reminder ? :-) (Just kidding.)
-
-- Werner
+regards
+john
 
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Khendon's Law: If the same point is made twice by the same person,
+the thread is over.

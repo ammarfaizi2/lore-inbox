@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318060AbSHBCwJ>; Thu, 1 Aug 2002 22:52:09 -0400
+	id <S317946AbSHBDMk>; Thu, 1 Aug 2002 23:12:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318061AbSHBCwJ>; Thu, 1 Aug 2002 22:52:09 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:20161 "EHLO e1.ny.us.ibm.com.")
-	by vger.kernel.org with ESMTP id <S318060AbSHBCwJ>;
-	Thu, 1 Aug 2002 22:52:09 -0400
-To: "David S. Miller" <davem@redhat.com>
-cc: riel@conectiva.com.br, akpm@zip.com.au, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, rohit.seth@intel.com, sunil.saxena@intel.com,
-       asit.k.mallick@intel.com
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: large page patch 
-In-reply-to: Your message of Thu, 01 Aug 2002 19:23:04 PDT.
-             <20020801.192304.85746519.davem@redhat.com> 
+	id <S317947AbSHBDMk>; Thu, 1 Aug 2002 23:12:40 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13073 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317946AbSHBDMk>; Thu, 1 Aug 2002 23:12:40 -0400
+Date: Thu, 1 Aug 2002 20:17:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Banai Zoltan <bazooka@emitel.hu>
+cc: Alexander Viro <viro@math.psu.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.30
+In-Reply-To: <20020802003832.GA439@bazooka.saturnus.vein.hu>
+Message-ID: <Pine.LNX.4.44.0208012015291.16391-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <32149.1028256798.1@us.ibm.com>
-Date: Thu, 01 Aug 2002 19:53:18 -0700
-Message-Id: <E17aSZ9-0008Mb-00@w-gerrit2>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020801.192304.85746519.davem@redhat.com>, > : "David S. Miller" w
-rites:
->    From: Gerrit Huizenga <gh@us.ibm.com>
->    Date: Thu, 01 Aug 2002 19:29:52 -0700
->    
->    other memory piggish apps (e.g. think scientific) would benefit
-> 
-> There are example "benchmark'ish" example on Naohiko Shimizu's
-> large page project page.
 
-No 2.5 code, though.  :(  But there *is* 2.2.16 code!
 
-gerrit
+On Fri, 2 Aug 2002, Banai Zoltan wrote:
+>
+> But it does not boot,( nor does 2.5.24)
+> with 2.5.30 it panics at PNP BIOS initalisation,
+
+If the PNP BIOS panic is new (ie it didn't happen in 2.5.24), can you
+write down the whole panic (and look up the symbols) and send that one to
+Ingo Molnar <mingo@elte.hu>?
+
+That would most likely be due to some of the GDT reorganizations that
+happened for 2.5.30 due to the thread-local-storage patches.
+
+		Linus
+

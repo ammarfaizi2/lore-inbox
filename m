@@ -1,62 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbTFTKUn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 06:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTFTKUm
+	id S262720AbTFTKXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 06:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbTFTKXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 06:20:42 -0400
-Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:57728
-	"HELO ghanima.endorphin.org") by vger.kernel.org with SMTP
-	id S262645AbTFTKUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 06:20:34 -0400
-Date: Fri, 20 Jun 2003 12:33:00 +0200
-To: Andi Kleen <ak@suse.de>
+	Fri, 20 Jun 2003 06:23:25 -0400
+Received: from www01.ies.inet6.fr ([62.210.153.201]:59615 "EHLO
+	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S262720AbTFTKXM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 06:23:12 -0400
+Message-ID: <3EF2E3D5.90908@inet6.fr>
+Date: Fri, 20 Jun 2003 12:37:09 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030314
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Initial Vector Fix for loop.c.
-Message-ID: <20030620103300.GA2360@ghanima.endorphin.org>
-References: <20030620090612.GA1322@ghanima.endorphin.org.suse.lists.linux.kernel> <p73u1al3xlw.fsf@oldwotan.suse.de> <20030620101452.GA2233@ghanima.endorphin.org> <20030620102455.GC26678@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
-Content-Disposition: inline
-In-Reply-To: <20030620102455.GC26678@wotan.suse.de>
-User-Agent: Mutt/1.3.28i
-From: Fruhwirth Clemens <clemens@endorphin.org>
-X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
+Subject: Re: [SIS IDE] Enhanced SiS96x support
+References: <3EF0FC4E.4090805@inet6.fr> <20030620092613.A13834@ucw.cz>
+In-Reply-To: <20030620092613.A13834@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ Vojtech Pavlik wrote:
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>On Thu, Jun 19, 2003 at 01:57:02AM +0200, Lionel Bouton wrote:
+>  
+>
+>>Hi,
+>>
+>>you'll find attached a patch against 2.4.21-ac1 for the SiS IDE driver.
+>>
+>>This is a 99% Vojtech work :
+>>- Independant southbridge detection (no need to add MuTIOL northbridge 
+>>PCI ids to the driver),
+>>- Lots of code cleanup,
+>>- Debug code removed (unused for a while, I will maintain it in my tree 
+>>if needed),
+>>
+>>I changed 2 things :
+>>- SiS745 was reported to me as a MuTIOL northbridge chip, it is treated 
+>>as such by removing it from the integrated chip table,
+>>    
+>>
+>
+>Look at http://www.sis.com/products/chipsets/oa/socketa/745.htm
+>The chip has internal MuTIOL, but no 961/2/3 chip can be connected
+>to it. I'm not sure, of course, whether the internal IDE of this chip
+>behaves like a 961/2/3, though.
+>  
+>
 
-On Fri, Jun 20, 2003 at 12:24:55PM +0200, Andi Kleen wrote:
-> On Fri, Jun 20, 2003 at 12:14:52PM +0200, Fruhwirth Clemens wrote:
-> > There is no cryptoloop installation which is affected by this. Read my =
-mail
-> > properly. Every cryptoloop setup out there uses loop-AES or kerneli's
-> > patch-int. And both fixed this issue a _long_ time ago. (Have a look at
->=20
-> That's completely wrong. I know of several independent implementation
-> and installations.
+The SiS chipset line can be quite confusing :
 
-Can't you just name them?
+- the 730 was roughly a 735 with integrated video,
+- the 740 is a pure northbridge with integrated video whereas the 745 
+docs mention MuTIOL (usually a hint for separated north/south bridges) 
+but the southbridge is still integrated and seems to be ATA100 like the 
+735. I hope there isn't any 745 revision with different capabilities I'm 
+not yet aware of...
 
-Clemens
+I'll post a one liner this evening or a full patch if Alan and/or Linus 
+didn't already patch their tree.
 
---k+w/mQv8wyuph6w0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+LB.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+8uLcW7sr9DEJLk4RAuH7AJ9TB6WnV9qFu7FYImLe4q1AJ0e4wACdGhEu
-34tazfT1sANNmo8F67OQA6Y=
-=MGYJ
------END PGP SIGNATURE-----
-
---k+w/mQv8wyuph6w0--

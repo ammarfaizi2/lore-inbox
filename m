@@ -1,131 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbTIZSYj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 14:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbTIZSYj
+	id S261563AbTIZSeN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 14:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbTIZSeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 14:24:39 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:34564 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S261555AbTIZSYb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 14:24:31 -0400
-From: Michael Frank <mhf@linuxmail.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [BUG?] SIS IDE DMA errors
-Date: Sat, 27 Sep 2003 02:22:00 +0800
-User-Agent: KMail/1.5.2
-Cc: M?ns Rullg?rd <mru@users.sourceforge.net>, andre@linux-ide.org,
+	Fri, 26 Sep 2003 14:34:13 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:52393 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261563AbTIZSeD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 14:34:03 -0400
+Date: Fri, 26 Sep 2003 20:33:23 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: M?ns Rullg?rd <mru@users.sourceforge.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Michael Frank <mhf@linuxmail.org>,
        linux-kernel@vger.kernel.org
-References: <yw1x7k3vlokf.fsf@users.sourceforge.net> <200309262332.30091.mhf@linuxmail.org> <20030926165957.GA11150@ucw.cz>
-In-Reply-To: <20030926165957.GA11150@ucw.cz>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [BUG?] SIS IDE DMA errors
+Message-ID: <20030926183323.GA12614@ucw.cz>
+References: <yw1x7k3vlokf.fsf@users.sourceforge.net> <200309262208.30582.mhf@linuxmail.org> <yw1x3cejlk34.fsf@users.sourceforge.net> <200309262332.30091.mhf@linuxmail.org> <20030926165957.GA11150@ucw.cz> <yw1x7k3vjw8o.fsf@users.sourceforge.net> <20030926175358.GA12072@ucw.cz> <yw1x3cejjvdw.fsf@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309270222.00517.mhf@linuxmail.org>
+In-Reply-To: <yw1x3cejjvdw.fsf@users.sourceforge.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 27 September 2003 00:59, Vojtech Pavlik wrote:
-> On Fri, Sep 26, 2003 at 11:32:30PM +0800, Michael Frank wrote:
-> > On Friday 26 September 2003 22:07, M?ns Rullg?rd wrote:
-> > > Michael Frank <mhf@linuxmail.org> writes:
-> > > 
-> > > > Suspect chipset related issue which should be looked into.
-> > > 
-> > > That's what someone told me three months ago, too.  Nothing happened,
-> > > though.
-> > > 
-> > 
-> > OK, now that we are two, we copy the IDE maintainer ;)
+On Fri, Sep 26, 2003 at 07:46:03PM +0200, M?ns Rullg?rd wrote:
+> Vojtech Pavlik <vojtech@suse.cz> writes:
 > 
-> Actually, it's me who wrote the 961 and 963 support. It works fine for
-> most people. Did you check you cabling?
+> >> > Actually, it's me who wrote the 961 and 963 support. It works fine for
+> >> > most people. Did you check you cabling?
+> >> 
+> >> I'm dealing with a laptop, but I suppose I could wiggle the cables a
+> >> bit.  I still doubt it's a cable problem, since reading works
+> >> flawlessly.
+> >
+> > Hmm, that's indeed interesting and it'd point to a driver problem -
+> 
+> See, I told you :)
+> 
+> > when reading, the drive is dictating the timing, but when writing, it's
+> > the controllers turn.
+> >
+> > So if the controller timing is not correctly programmed, reads function,
+> > but writes don't.
+> 
+> Furthermore, short writes work just fine.  The errors usually start
+> happening after about 100 MB at full speed.  When copying from NFS
+> over a 100 MB/s network it usually goes a little longer, sometimes
+> even up to 500 MB.  All this could indicate that there is some error
+> in the timing, and that it takes some time for it build up enough to
+> trigger the bad things.  Or am I wrong?
 
-It is 80 conductor cable. 
+Well, yes. There's nothing to build up. There are no two timers to
+synchronize - basically the controller sends the data at a certain speed
+and the drive must be able to understand the data at that speed. So, if
+you configure the controller to UDMA133 and the drive can only do
+UDMA100, it'll fail sooner or later. It doesn't necessarily fail
+immediately, since the drive has some margin above its engineered speed
+that it'll be able to receive.
 
-2.4.22-pre7 was terrible for me - since pre9 or so it has almost gone away,
-the cable is the same. These days I get the message only once a week or so.
+> Why can't the drive give notice when it's ready to accept more data?
 
-Interesting is that we both use IBM drives albeit different generations.
+It does, it does. The problem would only occur if the signalling rate
+was too high for the driver to receive it. If the drive's buffers are
+full, it'll signal the controller to delay sending, but first the data
+must reach the buffer.
 
-I found the udma setting affects speed but not the dma-timer-expiry problem.
+> That would seem like the simple solution, instead of trying to
+> synchronize the timers.
 
-/dev/hda:
+There fortunately are no timers to be synchronized. However, you can't
+do the handshake at every single byte, that'd slow down the transfers
+considerablt.
 
-ATA device, with non-removable media
-powers-up in standby; SET FEATURES subcmd spins-up.
-        Model Number:       IC35L090AVV207-0
-        Serial Number:      VNVC00G3CABSMD
-        Firmware Revision:  V23OA63A
-Standards:
-        Used: ATA/ATAPI-6 T13 1410D revision 3a
-        Supported: 6 5 4 3
-Configuration:
-        Logical         max     current
-        cylinders       16383   65535
-        heads           16      1
-        sectors/track   63      63
-        --
-        CHS current addressable sectors:    4128705
-        LBA    user addressable sectors:  160836480
-        LBA48  user addressable sectors:  160836480
-        device size with M = 1024*1024:       78533 MBytes
-        device size with M = 1000*1000:       82348 MBytes (82 GB)
-Capabilities:
-        LBA, IORDY(can be disabled)
-        bytes avail on r/w long: 52     Queue depth: 32
-        Standby timer values: spec'd by Standard, no device specific minimum
-        R/W multiple sector transfer: Max = 16  Current = 16
-        Advanced power management level: unknown setting (0x0000)
-        Recommended acoustic management value: 128, current value: 254
-        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4
-             Cycle time: no flow control=240ns  IORDY flow control=120ns
-Commands/features:
-        Enabled Supported:
-           *    NOP cmd
-           *    READ BUFFER cmd
-           *    WRITE BUFFER cmd
-           *    Host Protected Area feature set
-                Release interrupt
-           *    Look-ahead
-           *    Write cache
-           *    Power Management feature set
-                Security Mode feature set
-           *    SMART feature set
-           *    FLUSH CACHE EXT command
-           *    Mandatory FLUSH CACHE command
-           *    Device Configuration Overlay feature set
-           *    48-bit Address feature set
-                Automatic Acoustic Management feature set
-                SET MAX security extension
-                Address Offset Reserved Area Boot
-                SET FEATURES subcommand required to spinup after power up
-                Power-Up In Standby feature set
-                Advanced Power Management feature set
-           *    READ/WRITE DMA QUEUED
-           *    General Purpose Logging feature set
-           *    SMART self-test
-           *    SMART error logging
-Security:
-        Master password revision code = 65534
-                supported
-        not     enabled
-        not     locked
-        not     frozen
-        not     expired: security count
-        not     supported: enhanced erase
-        46min for SECURITY ERASE UNIT.
-HW reset results:
-        CBLID- above Vih
-        Device num = 0 determined by the jumper
-Checksum: correct
+> 
+> > Can you send me the output of 'lspci -vvxxx' of the IDE device?
+> > I'll take a look to see if it looks correct.
+> 
+> Here you go:
 
+Thanks.
 
-> > Regards
-> > Michael
+> 00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0) (prog-if 80 [Master])
+>         Subsystem: Asustek Computer, Inc.: Unknown device 1688
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 128
+>         Region 4: I/O ports at b800 [size=16]
+> 00: 39 10 13 55 07 00 00 00 d0 80 01 01 00 80 80 00
+> 10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 20: 01 b8 00 00 00 00 00 00 00 00 00 00 43 10 88 16
+> 30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 40: 31 81 00 00 31 85 00 00 08 01 e6 51 00 02 00 02
 
+Ok, this means:
+
+31 - hda: 90ns data active time, 30 ns data recovery time (PIO4)
+41 - hda: UDMA enabled, UDMA mode 5 (UDMA100)
+00 - hdb: 240ns/360ns (PIO0) - no drive present
+00 - hdb: UDMA disabled
+31 - hdc: 90ns/30ns PIO4
+85 - hdc: UDMA enabled, UDMA mode 2 (UDMA33)
+00 - hdd: 240ns/360ns (PIO0) - no drive present
+00 - hdd: UDMA disabled
+
+So the config is correct if you have /dev/hda your harddrive, that's
+capable of UDMA100 and /dev/hdc a CDROM and capable of UDMA33. Is that
+right?
+
+08 - 80-wire cables (needed for UDMA44 and higher) NOT installed.
+     FIFO threshold set to 3/4 for read and to 1/4 for write.
+
+01 - IDE controller in compatibility mode. Native and test modes
+     disabled. (normal)
+
+e6 - PCI burst enable, EDB R-R pipeline enable, Fast postwrite enable,
+     device ID masqueraded as sis5513 (although real is 5517)
+     channels 0 and 1 enabled in normal mode
+
+51 - Postwrite enabled on hda and hdc, prefetch on hda only
+
+00 02 - 512 bytes prefetch size for hda
+00 02 - 512 bytes prefetch size for hdc
+
+All this is OK, possibly except for the 80-wire cable not being present,
+but if this is a notebook, there might be a completely different cable
+type than what's standard, and the detection might not work there.
+
+> 50: 01 00 01 06 00 00 00 00 00 00 00 00 00 00 00 00
+> 60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+> >> It appears to me that during heavy IO load, some DMA interrupts get
+> >> lost, for some reason.
+> >
+> > Well, I've got this feeling that not just IDE interrupts get lost under
+> > heavy IO load with recent kernels ...
+> 
+> Like mouse and keyboard...
+
+Like everything. But only for mouse, keyboard, timer and ide it HURTS.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312133AbSCUOAX>; Thu, 21 Mar 2002 09:00:23 -0500
+	id <S312169AbSCUOCX>; Thu, 21 Mar 2002 09:02:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312169AbSCUOAN>; Thu, 21 Mar 2002 09:00:13 -0500
-Received: from ns1.baby-dragons.com ([199.33.245.254]:11142 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S312133AbSCUOAB>; Thu, 21 Mar 2002 09:00:01 -0500
-Date: Thu, 21 Mar 2002 08:58:51 -0500 (EST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Rolf Eike Beer <eike@bilbo.math.uni-mannheim.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.7 Documentation/00-INDEX
-In-Reply-To: <200203210922.38625@bilbo.math.uni-mannheim.de>
-Message-ID: <Pine.LNX.4.44.0203210856100.21698-100000@filesrv1.baby-dragons.com>
+	id <S312213AbSCUOCN>; Thu, 21 Mar 2002 09:02:13 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:30223 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S312169AbSCUOBx>;
+	Thu, 21 Mar 2002 09:01:53 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15513.59145.678790.431319@gargle.gargle.HOWL>
+Date: Fri, 22 Mar 2002 00:58:33 +1100
+From: Christopher Yeoh <cyeoh@samba.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [PATCH] fcntl returns wrong error code
+In-Reply-To: <E16o2cX-0005At-00@the-village.bc.nu>
+X-Mailer: VM 7.03 under Emacs 21.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 2002/3/21 13:28+0000  Alan Cox writes:
+> > When fcntl(fd, F_DUPFD, b) is called where 'b' is greater than the
+> > maximum allowable value EINVAL should be returned. From POSIX:
+> > 
+> > "[EINVAL] The cmd argument is invalid, or the cmd argument is F_DUPFD and
+> > arg is negative or greater than or equal to {OPEN_MAX}, or ..."
+> 
+> Where does it mention rlimit ? Also we sort of have a problem since
+> OPEN_MAX is not a constant on Linux x86. I guess that means a libc enforced
+> behaviour or something for that bit
 
-	Hello Rolf & all ,
+In this case OPEN_MAX is defined as:
 
-On Thu, 21 Mar 2002, Rolf Eike Beer wrote:
-> Am Thursday 21 March 2002 09:12 schrieben Sie:
-> > Rolf Eike Beer <eike@bilbo.math.uni-mannheim.de> writes:
+"3.167 File descriptor 
 
-> -Configure.help
-> -	- text file that is used for help when you run "make config"
-	Why are we loosing the help file ?
-	What are we replacing it with ?  Tia ,  JimL
+A per-process unique, non negative integer used to identify an open
+file for the purpose of file access. The value of a file descriptor
+is from zero to {OPEN_MAX}. A process can have no more than {OPEN_MAX} file
+descriptors open simultaneously. File descriptors may also be used ...."
 
+Also from the limit.h page in Headers section it mentions that "many
+of the listed limits are not invariant, and at runtime, the value of
+the limit may differ from those given in the header ..... <snip> ..
+.. For these reasons an application may use the fpathconf(),
+pathconf() and sysconf() functions to determine the actual value of a
+limit at runtime."
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+So the standard does take into account that the value may not be
+constant and (I think) that in the fcntl case the OPEN_MAX refers to
+the actual runtime value, which is not necessarily the same as the
+definition in limits.h.
 
+This problem was picked up by the POSIX.1-1990 test suite which
+does a sysconf(_SC_OPEN_MAX) to determine OPEN_MAX. 
+
+btw Stephen Rothwell pointed out that there is a much neater way to
+achieve the same change. I'll post a new patch in the morning.
+
+Chris
+-- 
+cyeoh@au.ibm.com
+IBM OzLabs Linux Development Group
+Canberra, Australia

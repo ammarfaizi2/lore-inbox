@@ -1,33 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263104AbRFGUkW>; Thu, 7 Jun 2001 16:40:22 -0400
+	id <S263106AbRFGUoN>; Thu, 7 Jun 2001 16:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263106AbRFGUkN>; Thu, 7 Jun 2001 16:40:13 -0400
-Received: from kerberos2.troja.mff.cuni.cz ([195.113.28.3]:26996 "HELO
-	kerberos2.troja.mff.cuni.cz") by vger.kernel.org with SMTP
-	id <S263104AbRFGUkA>; Thu, 7 Jun 2001 16:40:00 -0400
-Received: from argo.troja.mff.cuni.cz (195.113.28.11)
-  by vger.kernel.org with SMTP; 7 Jun 2001 20:39:43 -0000
-Date: Thu, 7 Jun 2001 22:39:43 +0200 (MET DST)
-From: Pavel Kankovsky <peak@argo.troja.mff.cuni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: PTRACE_ATTACH breaks wait4()
-Message-ID: <20010607223921.D94.0@argo.troja.mff.cuni.cz>
+	id <S263116AbRFGUoD>; Thu, 7 Jun 2001 16:44:03 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:28429 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263106AbRFGUny>; Thu, 7 Jun 2001 16:43:54 -0400
+Date: Thu, 7 Jun 2001 13:43:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: Background scanning change on 2.4.6-pre1
+In-Reply-To: <Pine.LNX.4.21.0106071545520.1156-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0106071330060.6510-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let A be a process and B its child. When another process, let's call
-it C, does ptrace(PTRACE_ATTACH) on B, wait4(pid of B, ...) will always
-return ECHILD when invoked from A after B has been attached to C because
-wait4() does not take children traced by other processes into account.
-The problem was observed on 2.2.19. I suppose it exists in 2.4 as well.
 
-Apparently, I am not the first person who encountered this problem. See
-<http://www.uwsg.indiana.edu/hypermail/linux/kernel/9901.3/0869.html>
+On Thu, 7 Jun 2001, Marcelo Tosatti wrote:
+> 
+> Who did this change to refill_inactive_scan() in 2.4.6-pre1 ? 
 
---Pavel Kankovsky aka Peak  [ Boycott Microsoft--http://www.vcnet.com/bms ]
-"Resistance is futile. Open your source code and prepare for assimilation."
+I think it was Andreas Dilger..
 
+>         /*
+>          * When we are background aging, we try to increase the page aging
+>          * information in the system.
+>          */
+>         if (!target)
+>                 maxscan = nr_active_pages >> 4;
+> 
+> This is going to make all pages have age 0 on an idle system after some
+> time (the old code from Rik which has been replaced by this code tried to 
+> avoid that)
+
+He posted a nice explanation of how this change made behaviour noticeably
+smoother, and how you could actually see the nicer balance between the
+active and inactive lists using osview.
+
+The code is not necessarily "correct", but this patch was accompanied by
+useful real-life user information.
+
+Now, I think the problem with the old code was that it didn't do _any_
+background page aging if "inactive" was large enough. And that really
+doesn't make all that much sense. Background page aging is needed to
+"sort" the active list, regardless of how many inactive pages there are.
+
+The decision to not do page aging should not be based on the number of
+inactive pages, and I think the patch is correct in that sense.
+
+Now, if you were to change the code to something like
+
+	/* background scanning? */
+	if (!target) {
+		if (atomic_read(page_aging) <= 0)
+			return 0;
+		maxscan = nr_active_pages >> 4;
+	}
+
+and make the "page_aging" be something that goes up when we age stuff up
+and goes down when we age it down, and does the proper balancing, THAT
+would probably be ok. Then the decision to not age in the background would
+be based on whether we have lots of pages getting aged up or not.
+
+Heuristics should make sense, not be "random".
+
+		Linus
 

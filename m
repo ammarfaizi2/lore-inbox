@@ -1,76 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284133AbRLFP4G>; Thu, 6 Dec 2001 10:56:06 -0500
+	id <S284435AbRLFPzq>; Thu, 6 Dec 2001 10:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284300AbRLFPz5>; Thu, 6 Dec 2001 10:55:57 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:49157 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S284133AbRLFPzo>; Thu, 6 Dec 2001 10:55:44 -0500
-Date: Thu, 6 Dec 2001 12:39:06 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix pcmcia errors
-In-Reply-To: <15374.54521.402903.123657@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.21.0112061238210.20750-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284432AbRLFPzh>; Thu, 6 Dec 2001 10:55:37 -0500
+Received: from mail.redhat.com ([199.183.24.239]:41487 "EHLO mail.redhat.com")
+	by vger.kernel.org with ESMTP id <S284300AbRLFPz0>;
+	Thu, 6 Dec 2001 10:55:26 -0500
+Date: Thu, 6 Dec 2001 09:56:04 -0600
+From: Jason Kohles <jkohles@redhat.com>
+To: Keith Warno <krjw@optonline.net>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 + strace 4.4 + setuid programs
+Message-ID: <20011206095604.B1975@traveller.localdomain>
+In-Reply-To: <Pine.LNX.4.40.0112060104140.32509-100000@behemoth.hobitch.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.40.0112060104140.32509-100000@behemoth.hobitch.com>; from krjw@optonline.net on Thu, Dec 06, 2001 at 01:09:02AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Paul, 
-
-As David commented, you're using PCI code unconditionally.
-
-Could you please fix that ? 
-
-
-On Thu, 6 Dec 2001, Paul Mackerras wrote:
-
-> Marcelo,
+On Thu, Dec 06, 2001 at 01:09:02AM -0500, Keith Warno wrote:
+> Hmm.  Is strace supposed to be capable of tracing setuid programs (ie,
+> su) when executed by mortal users?  I always thought this was a big
+> no-no.
 > 
-> The PCMCIA patch that I sent you and which you included in 2.4.17-pre2
-> turns out to have a case where it can get a NULL pointer dereference.
-> The patch below fixes that.  I posted this patch on the list earlier
-> and the person who was having the problem (Alan Ford) reported that it
-> fixes the problem for him, so please include this patch in your next
-> release.
-> 
-> Thanks,
-> Paul.
-> 
-> diff -urN linux-2.4.17-pre2/drivers/pcmcia/rsrc_mgr.c pmac/drivers/pcmcia/rsrc_mgr.c
-> --- linux-2.4.17-pre2/drivers/pcmcia/rsrc_mgr.c	Sat Dec  1 15:49:24 2001
-> +++ pmac/drivers/pcmcia/rsrc_mgr.c	Mon Dec  3 14:28:16 2001
-> @@ -107,17 +107,19 @@
->  static struct resource *resource_parent(unsigned long b, unsigned long n,
->  					int flags, struct pci_dev *dev)
->  {
-> -	struct resource res;
-> +	struct resource res, *pr;
->  
-> -	if (dev == NULL) {
-> -		if (flags & IORESOURCE_MEM)
-> -			return &iomem_resource;
-> -		return &ioport_resource;
-> +	if (dev != NULL) {
-> +		res.start = b;
-> +		res.end = b + n - 1;
-> +		res.flags = flags;
-> +		pr = pci_find_parent_resource(dev, &res);
-> +		if (pr)
-> +			return pr;
->  	}
-> -	res.start = b;
-> -	res.end = b + n - 1;
-> -	res.flags = flags;
-> -	return pci_find_parent_resource(dev, &res);
-> +	if (flags & IORESOURCE_MEM)
-> +		return &iomem_resource;
-> +	return &ioport_resource;
->  }
->  
->  static inline int check_io_resource(unsigned long b, unsigned long n,
-> 
+You can trace them, but strace will ignore the setuid bit on the process,
+for example if you strace su, you will see a lot of permission denied, as
+it won't actually run as root, and won't be able to open things like
+/etc/shadow or /proc/self/fd/0.  If you want to strace setuid things and
+have the setuid bit honored, you have to run strace as root with the -u
+option.
 
+-- 
+Jason Kohles                                 jkohles@redhat.com
+Senior System Architect                      (703)786-8036 (cellular)
+Red Hat Professional Consulting              (703)456-2940 (office)

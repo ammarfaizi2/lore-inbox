@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269112AbUJQNRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269116AbUJQNUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269112AbUJQNRM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 09:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269116AbUJQNRM
+	id S269116AbUJQNUV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 09:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269117AbUJQNUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 09:17:12 -0400
-Received: from out002pub.verizon.net ([206.46.170.141]:59273 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S269112AbUJQNRG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 09:17:06 -0400
-From: Glenn Burkhardt <gbburkhardt@verizon.net>
-Reply-To: glenn@aoi-industries.com
-To: Matt Porter <mporter@kernel.crashing.org>
-Subject: Re: remap_page_range64() for PPC
-Date: Sun, 17 Oct 2004 09:17:04 -0400
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <20041016034642.F1DD0C60D@aoi-industries.com> <20041015233226.B1500@home.com>
-In-Reply-To: <20041015233226.B1500@home.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Oct 2004 09:20:20 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:52396 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269116AbUJQNUF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 09:20:05 -0400
+Date: Sun, 17 Oct 2004 15:21:07 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Andrew Rodland <arodland@entermail.net>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+Message-ID: <20041017132107.GA18462@elte.hu>
+References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <1097888438.6737.63.camel@krustophenia.net> <1097894120.31747.1.camel@krustophenia.net> <20041016064205.GA30371@elte.hu> <1097917325.1424.13.camel@krustophenia.net> <20041016103608.GA3548@elte.hu> <32801.192.168.1.5.1098018846.squirrel@192.168.1.5>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410170917.04673.gbburkhardt@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [68.163.131.2] at Sun, 17 Oct 2004 08:17:05 -0500
+In-Reply-To: <32801.192.168.1.5.1098018846.squirrel@192.168.1.5>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 16 October 2004 02:32 am, Matt Porter wrote:
-> On Fri, Oct 15, 2004 at 11:46:42PM -0400, Glenn Burkhardt wrote:
-> > I'm writing an application to run on a PowerPC with a 2.4 embedded
-> > Linux kernel, and I want to make device registers for our custom
-> > hardware accessable from user space with mmap().  The physical address
-> > of the device is above the 4gb boundary (we attach to the 440's
-> > external peripheral bus), so a standard 'remap_page_range()' call
-> > won't work.
->
-> <snip>
->
-> This has come up several times on the ppc lists (but since we still
-> don't have archives back, nobody can search anyway). I dropped
-                                                                                             ^^^^^^
-> 2.4 and 2.5 patches in source.mvista.com:/pub/linuxppc/ a long
-   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> time ago.  You just need to update your board-specific fixup routine
-> in that version or just make a copy or remap_page_range() into your
-> driver and use u64 for the phys address.
 
-Do you mean that you applied a patch, or had one and decided not to 
-use it?  I just looked at mm/memory.c didn't notice anything 
-substantially different in remap_page_range().  To which module was 
-the patch applied?
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-Thanks for verifying that the approach I took was correct, which was
-to use u64 for the phys address for remap_page_range().
+> The point where the boot/init sequence stalls is marked with a
+> "<<<---STALL--->>>" line mark. Then it follows the output of SysRq-S
+> (Sync), SysRq-T (Trace), another SysRq-S (Sync), and finally a SysRq-B
+> (reBoot).
 
+thanks. Could you send me the full successful bootlog of -U4 with
+PREEMPT_REALTIME disabled (but otherwise the same .config)?
+
+this looks suspicious:
+
+eth0: -- ERROR --
+        Class:  internal Software error
+        Nr:  0x1ae
+        Msg:  General: Driver release date not initialized
+eth0: -- ERROR --
+        Class:  internal Software error
+        Nr:  0x1ae
+        Msg:  General: Driver release date not initialized
+eth0: 3Com Gigabit LOM (3C940)
+eth0: network connection down
+      PrefPort:A  RlmtMode:Check Link State
+
+is this normal? Could the stall simply be a bootup stall due to no
+network available?
+
+	Ingo

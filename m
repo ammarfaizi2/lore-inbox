@@ -1,70 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVADVDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVADVEn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261853AbVADVDw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 16:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVADVDi
+	id S261700AbVADVEn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 16:04:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVADVEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:03:38 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:35263 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261700AbVADVBp (ORCPT
+	Tue, 4 Jan 2005 16:04:36 -0500
+Received: from waste.org ([216.27.176.166]:9125 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261700AbVADVEA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:01:45 -0500
-Message-Id: <200501042058.j04KwFED002211@laptop11.inf.utfsm.cl>
-To: Felipe Alfaro Solana <lkml@mac.com>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@stusta.de>, Rik van Riel <riel@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@debian.org>
-Subject: Re: starting with 2.7 
-In-Reply-To: Message from Felipe Alfaro Solana <lkml@mac.com> 
-   of "Tue, 04 Jan 2005 15:27:04 BST." <B470A11D-5E5C-11D9-A816-000D9352858E@mac.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 04 Jan 2005 17:58:15 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 4 Jan 2005 16:04:00 -0500
+Date: Tue, 4 Jan 2005 13:03:43 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: domen@coderock.org, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/6] delete unused file
+Message-ID: <20050104210342.GA2995@waste.org>
+References: <20041226153257.0F3501F126@trashy.coderock.org> <1104081178.15994.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1104081178.15994.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana <lkml@mac.com> said:
-> On 4 Jan 2005, at 14:27, Horst von Brand wrote:
-> > Felipe Alfaro Solana <lkml@mac.com> said:
+On Sun, Dec 26, 2004 at 05:13:00PM +0000, Alan Cox wrote:
+> On Sul, 2004-12-26 at 15:33, domen@coderock.org wrote:
+> > Remove nowhere referenced file. (egrep "filename\." didn't find anything)
+> 
+> This file is there for a reason - it completes the set of endian types
+> should anyone port to a mixed endian system.
 
-[...]
+Please name one such box that doesn't support a more sensible order
+and is vaguely Linux-capable. The PDP-11 does not qualify, as it's
+only 16-bit and could be made to DTRT for 32-bit values in the
+compiler if you were going to go to the trouble of making "int" and
+"void *" 32 bits on a 16-bit arch and then trying to fit the
+resulting bloated code in the 4MB the later PDP-11s supported.
 
-> >> I think new developments will force a 2.7 branch: when 2.6 feature set
-> >> stabilizes, people will keep more time testing a stable, relatively
-> >> static kernel base, finding bugs, instead of trying to keep up with
-> >> changes.
+This file is silly.
 
-> > And when 2.7 opens, very few developers will tend 2.6; and as 2.7 
-> > diverges from it, fewer and fewer fixes will find their way back. And
-> > so you finally get a rock-stable (== unchanging) 2.6, but hopelessly
-> > out of date and thus unfixable (if nothing else because there are no
-> > people around who remember how it worked).
-
-> I can see no easy solution for this... If Linus decides to fork off 
-> 2.7, development efforts will go into 2.7 and fixes should get 
-> backported to 2.6. If Linus decides to stay with 2.6, new development 
-> will have to be "conservative" enough not to break things that were 
-> working.
-
-Exactly.
-
-> I tend to prefer forking off 2.7: more agressive features can be 
-> implemented and tested without bothering disrupting the stable 2.6 
-> branch.
-
-Have any particular features in mind? If you have some, you can fork off
-your own BK repository and play there (wait... that is how (currently)
-out-of-tree drivers are developed!). Or you could start an unofficial
-experimental fork. If none of the above, I guess you'd just have to wait
-until Our Fearless Leader decides it is time for 2.7.
-
-Just forcing a 2.7 "because that'll stabilize 2.6" is nonsense. Because
-then 2.6 won't stabilize any faster (probably slower).
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Mathematics is the supreme nostalgia of our time.

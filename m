@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbTJEBcb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 21:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262855AbTJEBcb
+	id S262853AbTJEB5j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 21:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262855AbTJEB5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 21:32:31 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:6084 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S262854AbTJEBca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 21:32:30 -0400
-Date: Sun, 5 Oct 2003 02:31:57 +0100
-From: Dave Jones <davej@redhat.com>
-To: William Scott Lockwood III <vlad@lrsehosting.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Onboard LAN Asus A7V8X-X (VT6102 [Rhine-II])
-Message-ID: <20031005013157.GA6474@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	William Scott Lockwood III <vlad@lrsehosting.com>,
-	linux-kernel@vger.kernel.org
-References: <20031004161037.05b9e5ee.davem@redhat.com> <002601c38ad3$650e14a0$0200a8c0@wsl3>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <002601c38ad3$650e14a0$0200a8c0@wsl3>
-User-Agent: Mutt/1.5.4i
+	Sat, 4 Oct 2003 21:57:39 -0400
+Received: from [200.214.116.9] ([200.214.116.9]:15323 "HELO vialink.com.br")
+	by vger.kernel.org with SMTP id S262853AbTJEB5i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 21:57:38 -0400
+Message-ID: <3F7F7A9E.1060204@vialink.com.br>
+Date: Sat, 04 Oct 2003 22:57:50 -0300
+From: Juan Carlos Castro y Castro <jcastro@vialink.com.br>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; pt-BR; rv:1.1) Gecko/20020826
+X-Accept-Language: pt-BR,en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel doesn't see USB ADSL modem - pegasus?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 04, 2003 at 06:58:22PM -0500, William Scott Lockwood III wrote:
- > This motherboard has source included (but has an unfortunate advertising
- > clause) at the website for the onboard nic, but I can't make it work in
- > 2.4.22 - is this nic supported natively, or will it be?  I didn't find an
- > option for it in 2.4.22 or 2.6.0-test6. Is there any interest in a driver
- > for this board? It's a VIA VT6102 [Rhine-II].
+Well, it didn't work -- I inserted the following line in pegasus.h:
 
-CONFIG_VIA_RHINE should do the trick, though with the same chip on a
-different board in 2.4.22, I had to boot with "acpi=off noapic"
-This is now fixed in 2.4.23 iirc.
+PEGASUS_DEV( "SpeedStream", VENDOR_SIEMENS, 0xe240,
+DEFAULT_GPIO_RESET | PEGASUS_II )
 
-		Dave
+Because that's what appeared in /proc/bus/usb/devices. But now, modprobe 
+pegasus hangs (the process, not the machine). Also, any attemp to access 
+/proc/bus/usb hangs the process. Kudzu hangs too. Now I reached the 
+limits of my knowledge. :(
 
 -- 
- Dave Jones     http://www.codemonkey.org.uk
+"I drank WHAT?" --Socrates
+
+

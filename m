@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267041AbTAFSQK>; Mon, 6 Jan 2003 13:16:10 -0500
+	id <S264883AbTAFS3V>; Mon, 6 Jan 2003 13:29:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267082AbTAFSQK>; Mon, 6 Jan 2003 13:16:10 -0500
-Received: from ppp-217-133-219-133.dialup.tiscali.it ([217.133.219.133]:23169
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S267041AbTAFSQJ>; Mon, 6 Jan 2003 13:16:09 -0500
-Date: Mon, 6 Jan 2003 19:17:37 +0100
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Set TIF_IRET in more places
-Message-ID: <20030106181737.GA6867@ldb>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Linux-Kernel ML <linux-kernel@vger.kernel.org>
-References: <20030106144601.GA2447@ldb> <Pine.LNX.4.44.0301060755510.2084-100000@home.transmeta.com>
+	id <S265093AbTAFS3S>; Mon, 6 Jan 2003 13:29:18 -0500
+Received: from quattro.sventech.com ([205.252.248.110]:387 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S264883AbTAFS3L>; Mon, 6 Jan 2003 13:29:11 -0500
+Date: Mon, 6 Jan 2003 13:37:49 -0500
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: "=?iso-8859-1?Q?=D8ystein_Svendsen?=" <svendsen@pvv.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with uhci and usb-uhci
+Message-ID: <20030106133749.D18351@sventech.com>
+References: <E18UxuX-0001yJ-00@localhost> <20030104184649.B14645@sventech.com> <3E17781D.30702@pvv.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301060755510.2084-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E17781D.30702@pvv.org>; from svendsen@pvv.org on Sun, Jan 05, 2003 at 01:11:09AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 05, 2003, Øystein Svendsen <svendsen@pvv.org> wrote:
+> Johannes Erdfelt wrote:
+> 
+> >Have you tried this with OHCI?
+>
+> I am not able to load the OHCI driver on my system, so the answer is no. 
+>  I guess my hardware is not compatible.
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I assume you have UHCI hardware then. You would need OHCI hardware to
+use the OHCI driver :)
 
-I've looked again at it and it is actually less problematic that I
-first thought but I still see the following two cases:
+> >The error message for uhci.o atleast is returning back a babble error
+> >which will then stall the pipe.
+> >
+> >A babble error is usually a driver or device issue.
+>
+> I am not very familiar on how the USB stuff works, but I'll try to take 
+> a look on the usb-midi.c after I get some sleep.  I was assuming there 
+> was trouble with the UHCI stuff because the USB bus seems to remain 
+> stalled even after i unplug the MIDI adapter from the USB bus.
 
-1. vfork seems to not set any TIF_ flags so a ptracer setting regs
-while a vforking task is stopped in ptrace_notify called from vfork
-would result in clobbered %ecx and %edx.
+The bus doesn't STALL, but there may have been a problem with the host
+controller.
 
-2. A ptracer could use %ecx or %edx to pass information to signal
-handlers and this would not work with the current [rt_]sigsuspend.
+For instance, some VIA controllers will lock up if it receives a BABBLE
+condition.
 
-These only need setting TIF_IRET on ptrace setregs though.
+JE
 
-There is also the very small advantage of being able to hardcode
-SYSENTER_RETURN as the return eip for sysexit if TIF_IRET is set in
-all the 3 places.
-
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+GchAdjkty3ft5+cRAmlmAJ0dw/LnDXDwg+M8Luq8gjX4adJpFQCfdUfl
-W+iIlCFMHMiTihw+cuGPxCI=
-=DMN9
------END PGP SIGNATURE-----
-
---gKMricLos+KVdGMg--

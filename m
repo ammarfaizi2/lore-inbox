@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRACSBX>; Wed, 3 Jan 2001 13:01:23 -0500
+	id <S129747AbRACSFX>; Wed, 3 Jan 2001 13:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRACSBN>; Wed, 3 Jan 2001 13:01:13 -0500
-Received: from csa.iisc.ernet.in ([144.16.67.8]:6408 "EHLO csa.iisc.ernet.in")
-	by vger.kernel.org with ESMTP id <S129226AbRACSBH>;
-	Wed, 3 Jan 2001 13:01:07 -0500
-Date: Wed, 3 Jan 2001 22:59:48 +0530 (IST)
-From: Sourav Sen <sourav@csa.iisc.ernet.in>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: is eth header is not transmitted 
-Message-ID: <Pine.SOL.3.96.1010103223330.7550A-100000@kohinoor.csa.iisc.ernet.in>
+	id <S129183AbRACSFO>; Wed, 3 Jan 2001 13:05:14 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:30480 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129267AbRACSFD>;
+	Wed, 3 Jan 2001 13:05:03 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Date: Wed, 3 Jan 2001 18:27:05 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Oops in prune_dcache (2.4.0-prerelease)
+CC: Dan Aloni <karrde@callisto.yi.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, viro@math.psu.edu
+X-mailer: Pegasus Mail v3.40
+Message-ID: <11894872650B@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On  3 Jan 01 at 13:08, Udo A. Steinberg wrote:
+> Alexander Viro wrote:
+> >
+> > In principle, it might be that d_find_alias() is broken. I don't see where
+> > it could happen, but then I'm half-asleep right now...  While we are at it,
+> > do you have
+> 
+> >         * autofs
+> 
+> Yes.
+> 
+> >         * knfsd
+> >         * ncpfs
+> 
+> No, neither of these two.
 
-Hi,
-	In the function ip_build_xmit(), immediately after
-sk_alloc_send_skb(), skb_reserve(skb, hh_len) is called. Now
-skb_reserve(skb,len) only increment the data pointer and tail pointer by 
-len amt.
+I saw oopses in prune_dcache() during umount() of ncpfs circa 6 months
+ago. As I was never able to reproduce problem, and it just stopped from
+happenning as unexpected as it appeared, I never reported that. And
+~2 times I got endless loop in d_prune_aliases() where it somewhat
+happened that d_alias list looked like
 
-	Now in a particular hard_start_xmit() say for rtl8139, the data
-transfer is taking place from skb->data :
-	outl(virt_to_bus(skb->data), ioaddr + TxAddr0 + entry*4)
+1 -> 2 -> 3 -> 4 -> 2 -> 3 -> 4 ... (maybe after pruning d_count = 0
+                                    entries...)
 
-So, I cannot understand, if transfer starts from data and not head, is
-ethrnet header not transmitted? what I am missing? 
-
-/sourav
-
+so it never stopped :-( But it really happened long long ago, I think
+that sometime June-September 2000, and couple of logic changed since
+then in both ncpfs and vfs.
+                                    Best regards,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267494AbRGMPtC>; Fri, 13 Jul 2001 11:49:02 -0400
+	id <S267497AbRGMQH7>; Fri, 13 Jul 2001 12:07:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267495AbRGMPsx>; Fri, 13 Jul 2001 11:48:53 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:41713 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S267494AbRGMPst>; Fri, 13 Jul 2001 11:48:49 -0400
-Message-ID: <3B4F1890.12005981@uow.edu.au>
-Date: Sat, 14 Jul 2001 01:49:36 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-CC: Lance Larsh <llarsh@oracle.com>,
+	id <S267498AbRGMQHt>; Fri, 13 Jul 2001 12:07:49 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:49755 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S267497AbRGMQHe>; Fri, 13 Jul 2001 12:07:34 -0400
+Date: Fri, 13 Jul 2001 18:07:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: lvm-devel@sistina.com, Andi Kleen <ak@suse.de>,
+        Lance Larsh <llarsh@oracle.com>,
         Brian Strand <bstrand@switchmanagement.com>,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
-In-Reply-To: <3B4E7666.EFD7CC89@uow.edu.au> <Pine.LNX.4.33.0107130834080.313-100000@desktop>
+        linux-kernel@vger.kernel.org
+Subject: Re: [lvm-devel] Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
+Message-ID: <20010713180716.C24180@athlon.random>
+In-Reply-To: <20010713005501.J19011@athlon.random> <200107130735.f6D7Z0Bl029176@webber.adilger.int>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200107130735.f6D7Z0Bl029176@webber.adilger.int>; from adilger@turbolinux.com on Fri, Jul 13, 2001 at 01:35:00AM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeffrey W. Baker" wrote:
+On Fri, Jul 13, 2001 at 01:35:00AM -0600, Andreas Dilger wrote:
+> Andrea writes:
+> > With the current design of the pe_lock_req logic when you return from
+> > the ioctl(PE_LOCK) syscall, you never have the guarantee that all the
+> > in-flight writes are commited to disk, the
+> > fsync_dev(pe_lock_req.data.lv_dev) is just worthless, there's an huge
+> > race window between the fsync_dev and the pe_lock_req.lock = LOCK_PE
+> > where whatever I/O can be started without you fiding it later in the
+> > _pe_request list.
 > 
-> > ...
-> > ext2: Throughput 2.71849 MB/sec (NB=3.39812 MB/sec  27.1849 MBit/sec)
-> > ext3: Throughput 12.3623 MB/sec (NB=15.4529 MB/sec  123.623 MBit/sec)
-> >
-> > ext3 patches are at http://www.uow.edu.au/~andrewm/linux/ext3/
-> >
-> > The difference will be less dramatic with large, individual writes.
+> Yes there is a slight window there, but fsync_dev() serves to flush out the
+> majority of outstanding I/Os to disk (it waits for I/O completion).  All
+> of these buffers should be on disk, right?
+
+Yes, however fsync_dev also has the problem that it cannot catch rawio.
+Plus fsync_dev is useless since whatever I/O can be started between
+fsync_dev and the pe_lock.
+
+But the even bigger problem (regardless of fsync_dev) is that by the
+time we set pe_lock and we return from the ioctl(PE_LOCK) we only know
+all the requests passed the pe_lock-check in lvm_map, but we never know
+if they are just commited on disk by the time we start moving the PVs.
+
 > 
-> This is a totally transient effect, right?  The journal acts as a faster
-> buffer, but if programs are writing a lot of data to the disk for a very
-> long time, the throughput will eventually be throttled by writing the
-> journal back into the filesystem.
+> > Even despite of that window we don't even wait the
+> > requests running just after the lock test to complete, the only lock we
+> > have is in lvm_map, but we should really track which of those bh are
+> > been committed successfully to the platter before we can actually copy
+> > the pv under the lvm from userspace.
+> 
+> As soon as we set LOCK_PE, any new I/Os coming in on the LV device will
+> be put on the queue, so we don't need to worry about those.  We have to
 
-It varies a lot with workload.  With large writes such as 
-'iozone -s 300m -a -i 0' it seems about the same throughput
-as ext2.  It would take some time to characterise fully.
+Correct, actually as Joe noticed that is broken too but for other reasource
+management reasons (I also thought about the resource management thing
+of too many bh queued waiting the pv move, but I ignored that problem
+for now since that part cannot silenty generate corruption, as worse it
+will deadlock the machine which is much better than silenty corrupting
+the fs and letting the administrator thing the pv_move worked ok).
 
-> For programs that write in bursts, it looks like a huge win!
+> do something like sync_buffers(PV, 1) for the PV that is underneath the
+> PE being moved, to ensure any buffers that arrived between fsync_dev()
+> and LOCK_PE are flushed (they are the only buffers that can be in flight).
 
-yes - lots of short writes (eg: mailspools) will benefit considerably.
-The benefits come from the additional merging and sorting which
-can be performed on the writeback data.
+correct, we need to ensure those buffers are flushed, however
+sync_buffers(PV, 1) is broken way to do that, it won't work out because
+no buffer cache or bh in general lives on top of the PV and secondly we must
+handle anonymous bh rawio etc too before moving the PV around (anonymous
+buffers in kiobufs are never visible in any lru list, they are only
+telling the blkdev where to write, they're not holding any memory or
+data, the kiobuf does but we don't know which kiobufs are writing to the
+LV...)
 
-I suspect some of the dbench benefit comes from the fact that
-the files are unlinked at the end of the test - if the data hasn't
-been written back at that time the buffers are hunted down and
-zapped - they *never* get written.
+One right way I can imagine to fix the in-flight-I/O race is to overload
+the end_io callback with a private one for all the bh passing through
+lvm_map, and atomically counting the number of in-flight-bh per-LV, then
+you lock the device and you wait the count to go down to zero while you
+unplug the tq_disk. The fsync_dev basically only matters to try to
+reduce the size of the bh-queue while we hold the lock (so we avoid a
+flood of bh caming from kupdate for example), but the fsync_dev cannot
+be part of the locking logic itself. You may use the bh_async patch
+from IBM that I am maintaining in my tree waiting 2.5 to avoid
+allocating a new bh for the callback overload.
 
-If anyone wants to test sync throughput, please be sure to use
-0.9.3-pre - it fixes some rather sucky behaviour with large journals.
+> Is there another problem you are referring to?
 
--
+yes that's it.
+
+> AFAICS, there would only be a large window for missed buffers if you
+> were doing two PE moves at once, and had contention for _pe_lock,
+
+Ok, let's forget the two concurrent PE moves at once for now ;) Let's
+get right the one live pv_move case first ;)
+
+Andrea

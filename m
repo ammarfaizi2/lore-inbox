@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273007AbRINSTy>; Fri, 14 Sep 2001 14:19:54 -0400
+	id <S273369AbRINSUO>; Fri, 14 Sep 2001 14:20:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273369AbRINSTo>; Fri, 14 Sep 2001 14:19:44 -0400
-Received: from [207.167.207.80] ([207.167.207.80]:33512 "EHLO mx.atitech.ca")
-	by vger.kernel.org with ESMTP id <S273007AbRINSTh>;
-	Fri, 14 Sep 2001 14:19:37 -0400
-Message-ID: <761E23C7F09AD51188990008C74C26141222@fgl00exh01.atitech.com>
-From: Alexander Stohr <AlexanderS@ati.com>
-To: Alexander Stohr <AlexanderS@ati.com>, linux-kernel@vger.kernel.org
-Subject: 2.4.9 highmem.h/bh_kmap raises "void*" warnings
-Date: Fri, 14 Sep 2001 20:18:18 +0200
+	id <S273370AbRINSUF>; Fri, 14 Sep 2001 14:20:05 -0400
+Received: from winds.org ([209.115.81.9]:39433 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id <S273369AbRINST6>;
+	Fri, 14 Sep 2001 14:19:58 -0400
+Date: Fri, 14 Sep 2001 14:19:57 -0400 (EDT)
+From: Byron Stanoszek <gandalf@winds.org>
+To: Roberto Jung Drebes <drebes@inf.ufrgs.br>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Chris Vandomelen <chrisv@b0rked.dhs.org>,
+        <linux-kernel@vger.kernel.org>,
+        VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
+In-Reply-To: <Pine.GSO.4.21.0109140523060.3130-100000@jacui>
+Message-ID: <Pine.LNX.4.33.0109141414430.29038-100000@winds.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this code:
+On Fri, 14 Sep 2001, Roberto Jung Drebes wrote:
 
-  static inline char *bh_kmap(struct buffer_head *bh)
+> +/* Fixes some oopses on fast_copy_page when it uses 'movntq's
+> + * instead of 'movq's on Athlon/Duron optimized kernels.
+> + * Bit 7 at offset 0x55 seems to be responsible.
+> + * > Device 0 Offset 55 - Debug (RW)
+> + * > 7-0 Reserved (do not program). default = 0
+> + * > *** ABIT KT7A 3R BIOS: non-zero!? (oopses)
+> + * > *** ABIT KT7A YH BIOS: zero. (works)
+> + */
 
-  {
+I'm using the ZT bios with ABIT KT7A and I have not encountered any OOPSes or
+anything with Athlon/Duron optimized kernels. I've been using the -ac kernels
+since 2.4.0, upgrading regularly. I'm running a 1200 MHz TBird.  I'm reluctant
+to try later BIOSes because #1: Mine works as it is now, and #2: I'm afraid of
+'increased memory stability' changes that would decrease performance or raise
+CPU temperature (as one BIOS changelog had mentioned).
 
-      return kmap(bh->b_page) + bh_offset(bh);
+Output of /proc/bus/pci/00/00.0:
 
-  }
+000:  06 11 05 03 06 00 10 22  03 00 00 06 00 08 00 00         "
+010:  08 00 00 d8 00 00 00 00  00 00 00 00 00 00 00 00
+020:  00 00 00 00 00 00 00 00  00 00 00 00 7b 14 01 a4              {
+030:  00 00 00 00 a0 00 00 00  00 00 00 00 00 00 00 00
+040:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+050:  18 a3 ec b4 47 89 10 10  08 80 00 00 08 08 0c 10      G
+060:  3c 2a 00 20 52 52 52 c6  45 0c 43 0f 08 5f 00 00  <*  RRR E C  _
+070:  dc 88 cc 0c 0e 80 d2 00  01 b4 19 02 00 00 00 00
+080:  0f 40 00 00 c0 00 00 00  02 00 00 00 00 00 00 00   @
+090:  00 00 00 00 00 00 00 00  00 00 00 00 00 32 00 00               2
+0A0:  02 c0 20 00 17 02 00 1f  00 00 00 00 2f 12 14 00              /
+0B0:  49 da 88 58 31 ff 80 05  67 00 00 00 00 00 00 00  I  X1   g
+0C0:  01 00 02 00 00 00 00 00  00 00 00 00 00 00 00 00
+0D0:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+*
+0F0:  00 00 00 00 00 03 03 00  22 00 00 00 00 00 91 06          "
 
- 
-  static inline void *kmap(struct page *page) { return page_address(page); }
+The ZT bios has bit 7 of offset 0x55 set, too.
 
-raises a "void* used in arithmetics" warning.
+This is an unmodified 2.4.8-ac7.
 
-you might want to fix that by applying this
-change to the critical line.
+ -Byron
 
-      return (char*)kmap(bh->b_page) + bh_offset(bh);
-
-
-of course not anybody does run their compiles with most warnings on,
-but in order to reason my proposal, its better to explicitely 
-specify and fix the size of the elements than passing this size 
-decision over to the compiler designer.
-
-regards AlexS
-
-PS: i am not subscribed to this list.
+-- 
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com
 

@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbTFKVNy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 17:13:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264507AbTFKVN1
+	id S264476AbTFKVQm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 17:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264507AbTFKVQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 17:13:27 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:11020 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264500AbTFKVMg
+	Wed, 11 Jun 2003 17:16:16 -0400
+Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:7089 "HELO
+	mail.keyresearch.com") by vger.kernel.org with SMTP id S264490AbTFKVPC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 17:12:36 -0400
-Date: Wed, 11 Jun 2003 22:26:19 +0100
-From: John Levon <levon@movementarian.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: oprofile broken by sysfs updates
-Message-ID: <20030611212619.GA67428@compsoc.man.ac.uk>
-References: <20030611211220.GA634@elf.ucw.cz>
+	Wed, 11 Jun 2003 17:15:02 -0400
+Subject: Re: [PATCH] New x86_64 time code for 2.5.70
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: ak@suse.de, vojtech@suse.cz, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3EE79FD1.8060503@kolumbus.fi>
+References: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
+	 <3EE79FD1.8060503@kolumbus.fi>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1055366925.17154.95.camel@serpentine.internal.keyresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030611211220.GA634@elf.ucw.cz>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19QD6q-00094J-1O*MAUnrCOyAG6*
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 11 Jun 2003 14:28:45 -0700
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 11:12:20PM +0200, Pavel Machek wrote:
+On Wed, 2003-06-11 at 14:32, Mika Penttilä wrote:
 
-> arch/i386/oprofile/nmi_int.c must be suspended before
-> arch/i386/kernel/apic.c is.
-> 
-> How is that guaranteed with new code?
+> Line below seems to be wrong, given hpet period is in fsecs.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105517556119093&w=2
+I don't believe the HPET code got much testing in 2.4, and my boxes
+don't have ACPI table entries for the HPET, so it's troublesome to test
+it on them.
 
-regards
-john
+	<b
+

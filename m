@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266184AbUAQV7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 16:59:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUAQV7Q
+	id S266191AbUAQWGn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 17:06:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUAQWGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 16:59:16 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:57315 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S266184AbUAQV7P
+	Sat, 17 Jan 2004 17:06:43 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:64972 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S266191AbUAQWGm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 16:59:15 -0500
-Date: Sat, 17 Jan 2004 13:59:08 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Condor <condor@vereya.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.24 may be bug in prints.c:341
-Message-ID: <20040117215908.GA1748@srv-lnx2600.matchmail.com>
-Mail-Followup-To: Condor <condor@vereya.net>, linux-kernel@vger.kernel.org
-References: <00e201c3dd32$25bde0d0$8648493e@ixip.net> <20040117195151.GY1748@srv-lnx2600.matchmail.com> <010801c3dd37$1ff2ee20$8648493e@ixip.net> <20040117202324.GZ1748@srv-lnx2600.matchmail.com> <012001c3dd38$fcb89c50$8648493e@ixip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <012001c3dd38$fcb89c50$8648493e@ixip.net>
-User-Agent: Mutt/1.5.4i
+	Sat, 17 Jan 2004 17:06:42 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Misshielle Wong" <mwl@bajoo.net>, "Giuliano Pochini" <pochini@shiny.it>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: License question
+Date: Sat, 17 Jan 2004 14:06:32 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEPBJJAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2055
+In-Reply-To: <opr1xqbz2lq5eh14@localhost>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 17, 2004 at 10:31:42PM +0200, Condor wrote:
-> I not use ksymoops.
 
-EXACTLY!
 
-The trace is unusable to anyone until you run it through ksymoops...
+> > Is it possile to include in the kernel distro some code with this
+> > BSD-style license ?
 
-And as oleg said, you have hardware problems, so you should fix that.
+> Let me see
+
+	Yes, in general. No, not this license.
+ 
+> > - Redistributions of source code must retain the above copyright
+> > notice, this list of conditions and the following disclaimers.
+
+	Sorry, that's an "additional restriction" not permitted under the GPL.
+
+> > - Redistributions in binary form must reproduce the above copyright
+> > notice, this list of conditions and the following disclaimers in the
+> > documentation and/or other materials provided with the distribution.
+
+	I believe this is an additional restriction as well.
+
+> Mmmm... I think yes. Code in kernel must be licensed GPL. Above allow 
+> sublicense so ok
+
+	They allow sublicensing, but the sublicense can't remove the additional restriction. See section 6 of the GPL.
+
+	To make this license GPL compatible, the two restrictions above would have to be modified to be identical to, or a proper subset of, section 2 clauses b and c of the GPL.
+
+	DS
+
+

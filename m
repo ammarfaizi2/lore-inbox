@@ -1,70 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266093AbRGJJR4>; Tue, 10 Jul 2001 05:17:56 -0400
+	id <S266044AbRGJJQg>; Tue, 10 Jul 2001 05:16:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266109AbRGJJRq>; Tue, 10 Jul 2001 05:17:46 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:3019 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S266093AbRGJJRg>; Tue, 10 Jul 2001 05:17:36 -0400
-Date: Tue, 10 Jul 2001 12:17:25 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Rob Landley <landley@webofficenow.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))
-Message-ID: <20010710121724.Z1503@niksula.cs.hut.fi>
-In-Reply-To: <E15JIVD-0000Qc-00@the-village.bc.nu> <01070912485904.00705@localhost.localdomain>
+	id <S266079AbRGJJQ1>; Tue, 10 Jul 2001 05:16:27 -0400
+Received: from ns.tasking.nl ([195.193.207.2]:23563 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id <S266044AbRGJJQL>;
+	Tue, 10 Jul 2001 05:16:11 -0400
+Date: Tue, 10 Jul 2001 11:14:17 +0200
+From: Dick Streefland <dick.streefland@tasking.com>
+To: linux-kernel@vger.kernel.org
+Subject: nosmp kernel parameter problems
+Message-ID: <20010710111417.A2532@kemi.tasking.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01070912485904.00705@localhost.localdomain>; from landley@webofficenow.com on Mon, Jul 09, 2001 at 12:48:59PM -0400
+X-Mailer: Mutt 1.0i (Linux)
+Organization: TASKING Software BV, Amersfoort, The Netherlands
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 09, 2001 at 12:48:59PM -0400, you [Rob Landley] claimed:
-> 
-> (P.S. What kind of CPU load is most likely to send a processor into overheat? 
->  (Other than "a tight loop", thanks.  I mean what kind of instructions?)  
-> This is going to be CPU specific, isn't it?  Our would a general instruction 
-> mix that doesn't call halt be enough?  It would need to keep the FPU busy 
-> too, wouldn't it?  And maybe handle interrupts.  Hmmm...)
+Hi,
 
-See Robert Redelmeier's cpuburn:
+I'm running kernel 2.4.6 on a dual Pentium system. When I boot the SMP
+kernel with the "nosmp" kernel parameter, The SCSI and USB systems
+stop working.
 
-http://users.ev1.net/~redelm/
+This is the SCSI driver:
+Jul  9 20:56:23 two kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.13 
+Jul  9 20:56:23 two kernel:         <Adaptec aic7890/91 Ultra2 SCSI adapter> 
+Jul  9 20:56:23 two kernel:         aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/255 SCBs 
 
-It is coded is assembly specificly to heat the CPU as much as possible. See
-the README for details, but it seems that floating point operations are
-tougher than integers and MMX can be even harder (depending on CPU model, of
-course). Not sure what kind of role SSE, SSE2, 3dNow! play these days.
-Perhaps Alan knows?
- 
-> I wonder...  The torture test Tom's Hardware guide uses for processor 
-> overheating is GCC compiling the Linux kernel. 
+During the bus probe, I get the following sequence of messages for every ID:
+Jul  9 20:51:13 two kernel: scsi0:0:0:0: Attempting to queue an ABORT message 
+Jul  9 20:51:13 two kernel: scsi0:0:0:0: Command already completed 
+Jul  9 20:51:13 two kernel: aic7xxx_abort returns 8194 
+Jul  9 20:51:13 two kernel: scsi0:0:0:0: Attempting to queue an ABORT message 
+Jul  9 20:51:13 two kernel: scsi0:0:0:0: Command already completed 
+Jul  9 20:51:13 two kernel: aic7xxx_abort returns 8194 
+Jul  9 20:51:13 two kernel: scsi0:0:0:0: Attempting to queue a TARGET RESET message 
+Jul  9 20:51:13 two kernel: scsi0:0:0:0: Is not an active device 
+Jul  9 20:51:13 two kernel: aic7xxx_dev_reset returns 8194 
+Jul  9 20:51:13 two kernel: scsi0:0:0:0: Attempting to queue an ABORT message 
+Jul  9 20:51:13 two kernel: scsi0:0:0:0: Command already completed 
+Jul  9 20:51:13 two kernel: aic7xxx_abort returns 8194 
+Jul  9 20:51:13 two kernel: scsi0:0:0:0: Attempting to queue an ABORT message 
+Jul  9 20:51:13 two kernel: scsi0:0:0:0: Command already completed 
+Jul  9 20:51:13 two kernel: aic7xxx_abort returns 8194 
+Jul  9 20:51:13 two kernel: scsi: device set offline - not ready or command retry failed after bus reset: host 0 channel 0 id 0 lun 0 
 
-That shouldn't really be that good a test. During compilation, CPU spends a
-_lot_ of time waiting for the memory and even for the disk io. For maximum
-heat, you really want a tight loop of instructions, that sits firmly in L1
-cache.
+And here are the USB messages:
+Jul  9 20:51:20 two kernel: usb.c: registered new driver usbdevfs 
+Jul  9 20:51:20 two kernel: usb.c: registered new driver hub 
+Jul  9 20:51:20 two kernel: usb-uhci.c: $Revision: 1.259 $ time 23:33:45 Jul  5 2001 
+Jul  9 20:51:20 two kernel: usb-uhci.c: High bandwidth mode enabled 
+Jul  9 20:51:20 two kernel: usb-uhci.c: USB UHCI at I/O 0xe000, IRQ 19 
+Jul  9 20:51:20 two kernel: usb-uhci.c: Detected 2 ports 
+Jul  9 20:51:20 two kernel: usb.c: new USB bus registered, assigned bus number 1 
+Jul  9 20:51:20 two kernel: Product: USB UHCI Root Hub 
+Jul  9 20:51:20 two kernel: SerialNumber: e000 
+Jul  9 20:51:20 two kernel: hub.c: USB hub found 
+Jul  9 20:51:20 two kernel: hub.c: 2 ports detected 
+Jul  9 20:51:21 two kernel: usb-uhci.c: v1.251:USB Universal Host Controller Interface driver 
+Jul  9 20:51:21 two kernel: usb.c: registered new driver hid 
+Jul  9 20:51:21 two kernel: hid.c: v1.16:USB HID support drivers 
+Jul  9 20:51:21 two kernel: usb.c: registered new driver usbscanner 
+Jul  9 20:51:21 two kernel: scanner.c: USB Scanner support registered. 
+Jul  9 20:51:21 two kernel: usb.c: registered new driver usblp 
+Jul  9 20:51:21 two kernel: printer.c: v0.8:USB Printer Device Class driver 
+...
+Jul  9 20:51:21 two kernel: hub.c: USB new device connect on bus1/1, assigned device number 2 
+Jul  9 20:51:21 two kernel: usb_control/bulk_msg: timeout 
+Jul  9 20:51:21 two kernel: usb.c: USB device not accepting new address=2 (error=-110) 
+Jul  9 20:51:21 two kernel: hub.c: USB new device connect on bus1/1, assigned device number 3 
+Jul  9 20:51:21 two kernel: Adding Swap: 131064k swap-space (priority -1) 
+Jul  9 20:51:21 two kernel: usb_control/bulk_msg: timeout 
+Jul  9 20:51:21 two kernel: usb.c: USB device not accepting new address=3 (error=-110) 
+Jul  9 20:51:21 two kernel: hub.c: USB new device connect on bus1/2, assigned device number 4 
+Jul  9 20:51:21 two kernel: eth0: Setting Rx mode to 1 addresses. 
+Jul  9 20:51:21 two kernel: usb_control/bulk_msg: timeout 
+Jul  9 20:51:21 two kernel: usb.c: USB device not accepting new address=4 (error=-110) 
+Jul  9 20:51:21 two kernel: hub.c: USB new device connect on bus1/2, assigned device number 5 
+Jul  9 20:51:21 two kernel: eth0: Setting Rx mode to 2 addresses. 
+Jul  9 20:51:21 two kernel: usb_control/bulk_msg: timeout 
+Jul  9 20:51:21 two kernel: usb.c: USB device not accepting new address=5 (error=-110) 
 
-The gcc compile is a good test for many other tests - it uses a lot of
-memory with complex pointers references (tests memory, and bit errors in
-pointers are likely to sig11 rather than produce subtle errors in output),
-stresses chipset somewhat (memory throughput), and cpu somewhat. But to test
-CPU overheating and nothing else, cpuburn should be a lot better. (Even
-seti@home is better as it uses FPU). Just run them an observe the sensors
-readings. Cpuburn gets several degrees higher.
+There should be two devices on the USB bus:
+Jul  9 20:56:27 two kernel: hub.c: USB new device connect on bus1/1, assigned device number 2 
+Jul  9 20:56:27 two kernel: Manufacturer: Logitech 
+Jul  9 20:56:27 two kernel: Product: USB Mouse 
+Jul  9 20:56:27 two kernel: mouse0: PS/2 mouse device for input0 
+Jul  9 20:56:27 two kernel: input0: USB HID v1.10 Mouse [Logitech USB Mouse] on usb1:2.0 
+Jul  9 20:56:27 two kernel: hub.c: USB new device connect on bus1/2, assigned device number 3 
+Jul  9 20:56:27 two kernel: Product: Camera 
+Jul  9 20:56:27 two kernel: usb.c: USB device 3 (vend/prod 0x46d/0x870) is not claimed by any active driver. 
 
-> the compile in a loop, add in a processor temperature detector daemon to kill 
-> the test and HLT the system if the temperature went too high...
-
-Cpuburn exists when CPU miscalculates something (sign of overheat).
-
-I'm not sure if cpuburn is included in cerberus these days (istr it is), but
-a nice test set for memory, cpu, disk etc to run over night or over weekend
-to catch most of the hw faults would definetely be nice. 
-
-
--- v --
-
-v@iki.fi
+-- 
+Dick Streefland                      ////            TASKING Software BV
+dick.streefland@tasking.com         (@ @)         http://www.tasking.com
+--------------------------------oOO--(_)--OOo---------------------------

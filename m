@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbTERPB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 11:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTERPB1
+	id S261773AbTERP6X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 11:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTERP6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 11:01:27 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5831 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262106AbTERPB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 11:01:26 -0400
-Date: Sun, 18 May 2003 17:14:12 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: James Morris <jmorris@intercode.com.au>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, davem@redhat.com,
+	Sun, 18 May 2003 11:58:23 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:55681 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261773AbTERP6W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 11:58:22 -0400
+Date: Sun, 18 May 2003 17:11:05 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@codemonkey.org.uk>,
+       kraxel@suse.de, jsimmons@infradead.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Added missing dependencies on CRYPTO_HMAC
-Message-ID: <20030518151412.GD12766@fs.tum.de>
-References: <20030518031546.GA4943@gondor.apana.org.au> <Mutt.LNX.4.44.0305181334280.21675-100000@excalibur.intercode.com.au>
+Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
+Message-ID: <20030518161105.GA7404@mail.jlokier.co.uk>
+References: <20030515145640.GA19152@averell> <20030515151633.GA6128@suse.de> <1053118296.5599.27.camel@dhcp22.swansea.linux.org.uk> <20030518053935.GA4112@averell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Mutt.LNX.4.44.0305181334280.21675-100000@excalibur.intercode.com.au>
+In-Reply-To: <20030518053935.GA4112@averell>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 18, 2003 at 01:40:28PM +1000, James Morris wrote:
-> On Sun, 18 May 2003, Herbert Xu wrote:
-> 
-> > On Sun, May 18, 2003 at 12:19:09PM +1000, James Morris wrote:
-> > > 
-> > > See crypto/Kconfig, CRYPTO_HMAC is being defaulted to Y if these protocols 
-> > > are selected.
+Andi Kleen wrote:
+> On Fri, May 16, 2003 at 10:51:36PM +0200, Alan Cox wrote:
+> > On Iau, 2003-05-15 at 16:16, Dave Jones wrote:
+> > > There are PCI ET4000's too.  Though if we can get the PCI IDs for those,
+> > > we can work around them with a quirk.  I have one *somewhere*, but it'll
+> > > take me a while to dig it out.
 > > 
-> > Yes, but the user can then set them to no.  This does happen as the
-> > Crypto menu is listed after Networking so someone going through it
-> > in that order can select INET_AH and then go on to disable Crypto.
+> > Some older SiS cards have problems too. I have a 6326 that doesn't work
+> > with sisfb (too old) and vesafb with mtrr fails.
 > 
-> Yes, we allow users to override the defaults if they wish, at their own 
-> peril.
->...
+> Can you provide PCI info for them to add a quirk ? 
 
-The real problems are more subtle:
-Consider someone uses neither CRYPTO_HMAC nor INET_AH and later changes 
-his .config using menuconfig - the "default" does _nothing_ since 
-CRYPTO_HMAC already has a value.
+What exactly "doesn't work" with these cards?
 
-Thinking more about this issue it seems the "enable" feature in the
-latest Kconfig patch will be the correct solution.
+I'm thinking that the only way write-combining MTRRs could possibly
+break a framebuffer is if part of the address range is used as a
+register bank - otherwise, to the card, it just looks like well
+written rendering code.
 
+If this is so, then it might be possible to set write-combining MTRRs
+while the framebuffer is operating, but to temporarily disable those
+MTRRs while calling into the VESA BIOS code, for these cards.
 
-> James Morris
+And if that does work, then it might even be reasonable to temporarily
+disable the MTRRs while calling the BIOS for all vesafb cards, thus
+removing the need for a blacklist -- which is a headache for something
+that needs to be as portable to unknown cards as vesafb.
 
-cu
-Adrian
+-- Jamie
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

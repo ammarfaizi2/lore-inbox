@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281692AbRKQDnm>; Fri, 16 Nov 2001 22:43:42 -0500
+	id <S281694AbRKQDqW>; Fri, 16 Nov 2001 22:46:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281698AbRKQDnd>; Fri, 16 Nov 2001 22:43:33 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:43532 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S281692AbRKQDna>;
-	Fri, 16 Nov 2001 22:43:30 -0500
-Date: Sat, 17 Nov 2001 00:21:04 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Tony Reed <Tony@TRLJC.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: It's me again ...
-Message-ID: <20011117002104.C2043@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Tony Reed <Tony@TRLJC.COM>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011117015851.531B415B4A@kubrick.trljc.com>
+	id <S281695AbRKQDqM>; Fri, 16 Nov 2001 22:46:12 -0500
+Received: from f207.law9.hotmail.com ([64.4.9.207]:49416 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S281694AbRKQDpz>;
+	Fri, 16 Nov 2001 22:45:55 -0500
+X-Originating-IP: [216.41.49.127]
+From: "Jeff Long" <jeffwlong@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Zombies with 2.4.15pre5 (exit.c)
+Date: Sat, 17 Nov 2001 03:45:49 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011117015851.531B415B4A@kubrick.trljc.com>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+Content-Type: text/plain; format=flowed
+Message-ID: <F207EKzlO329qhXbGE400017908@hotmail.com>
+X-OriginalArrivalTime: 17 Nov 2001 03:45:49.0951 (UTC) FILETIME=[593430F0:01C16F1A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Nov 16, 2001 at 08:58:51PM -0500, Tony Reed escreveu:
-> I've been building kernels since 2.2.15 or something, and I've never
-> had problems before, so bear with me.
-> 
-> Where is "deacivate_page" defined?  Because, right at the end, I'm
-> getting:
+Running 2.4.15pre5 (UP) on i386, running UML 2.4.14-2.
+UML processes create threads on the host system that don't
+die.  Threads are stuck at do_exit( ), so I backed out the
+patch to kernel/exit.c @ 539 (in 2.4.15pre5 patch):
 
-two options: delete the references to deactivate_page in
-drivers/block/loop.c and rebuild your kernel or get the latest 2.4.15
-prepatch that has this fixed.
+  p->state = TASK_DEAD;
 
-- Arnaldo
+and things work fine.  I do not see zombies with anything
+other than UML processes/native threads.
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+

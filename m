@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262089AbSJIU7j>; Wed, 9 Oct 2002 16:59:39 -0400
+	id <S262032AbSJIVFY>; Wed, 9 Oct 2002 17:05:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262080AbSJIU7j>; Wed, 9 Oct 2002 16:59:39 -0400
-Received: from marc2.theaimsgroup.com ([63.238.77.172]:43024 "EHLO
-	marc2.theaimsgroup.com") by vger.kernel.org with ESMTP
-	id <S262089AbSJIU7i>; Wed, 9 Oct 2002 16:59:38 -0400
-Date: Wed, 9 Oct 2002 17:05:22 -0400
-Message-Id: <200210092105.g99L5MB17433@marc2.theaimsgroup.com>
-From: Hank Leininger <linux-kernel@progressive-comp.com>
-Reply-To: Hank Leininger <hlein@progressive-comp.com>
+	id <S262033AbSJIVFY>; Wed, 9 Oct 2002 17:05:24 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:13954 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S262032AbSJIVFY>;
+	Wed, 9 Oct 2002 17:05:24 -0400
+Date: Wed, 9 Oct 2002 23:11:02 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
 To: linux-kernel@vger.kernel.org
-Subject: Re: BK kernel commits list
-X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
-X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
-X-Warning: Report any violation of list policy to abuse@progressive-comp.com
-X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
+Subject: Unresolved symbols in ext2/ext3/i2c-elektor in 2.5.41-ac2
+Message-ID: <20021009211102.GA11645@ulima.unil.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-10-09, "David S. Miller" <davem@redhat.com> wrote: 
- 
-> I've created: 
->     bk-commits-head@vger.kernel.org 
->     bk-commits-24@vger.kernel.org 
- 
-FYI, I added these to the MARC list archives: 
- 
-http://marc.theaimsgroup.com/?l=bk-commits-head&r=1&w=2 
-http://marc.theaimsgroup.com/?l=bk-commits-24&r=1&w=2 
- 
-...Sometime last night, so they've got all of today's traffic. 
- 
--- 
-Hank Leininger <hlein@progressive-comp.com>  
-   
+Hello,
+
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.41-ac2;fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.5.41-ac2/kernel/drivers/i2c/i2c-elektor.o
+depmod: 	cli
+depmod: 	sti
+depmod: *** Unresolved symbols in
+/lib/modules/2.5.41-ac2/kernel/fs/ext2/ext2.o
+depmod: 	generic_file_aio_read
+depmod: 	generic_file_aio_write
+depmod: *** Unresolved symbols in
+/lib/modules/2.5.41-ac2/kernel/fs/ext3/ext3.o
+depmod: 	do_sync_read
+depmod: 	generic_file_aio_read
+depmod: 	generic_file_aio_write
+depmod: 	do_sync_write
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

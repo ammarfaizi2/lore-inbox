@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266550AbUA3B4O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 20:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUA3BxS
+	id S266534AbUA3Bjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 20:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUA3Bhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 20:53:18 -0500
-Received: from rxrelay.lga.net.sg ([203.92.84.247]:47283 "HELO
-	rxrelay.lga.net.sg") by vger.kernel.org with SMTP id S266530AbUA3Bwi
+	Thu, 29 Jan 2004 20:37:39 -0500
+Received: from mail.kroah.org ([65.200.24.183]:15068 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266526AbUA3BcJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 20:52:38 -0500
-Message-ID: <01C3E716.AA1B04A0.vanitha@agilis.st.com.sg>
-From: Vanitha Ramaswami <vanitha@agilis.st.com.sg>
-Reply-To: "vanitha@agilis.st.com.sg" <vanitha@agilis.st.com.sg>
-To: "'redhat-ppp-list@redhat.com'" <redhat-ppp-list@redhat.com>,
-       "'kernelnewbies@nl.linux.org'" <kernelnewbies@nl.linux.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Help in writing a synchrnous ppp driver
-Date: Fri, 30 Jan 2004 09:51:41 +0800
-Organization: Agilis
-X-Mailer: Microsoft Internet E-mail/MAPI - 8.0.0.4211
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jan 2004 20:32:09 -0500
+Subject: Re: [PATCH] PCI Update for 2.6.2-rc2
+In-Reply-To: <1075426306325@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 29 Jan 2004 17:31:46 -0800
+Message-Id: <10754263062112@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+ChangeSet 1.1511, 2004/01/29 14:26:41-08:00, willy@debian.org
 
-In linux kernel, what is the difference between the ppp_synctty.c
-(PPP synchronous TTY device driver) and syncppp.c (synchronous ppp)
-functions..?
+[PATCH] PCI Hotplug: Better reporting of PCI frequency / bus mode problems for acpi driver
 
-I have a High speed serial driver that is capable of doing HDLC framing
-using a Network Processor. I want to run PPP on that serial driver. 
-The device driver has just provided functions to read/write on the device.
+When plugging a 33MHz card into a bus that's running at 66MHz, I'd like
+to see a better error message than:
 
-I intend to add a proprietary header to the packets coming out of PPP.
-Do i need to use the PPP synchronous TTY device driver or the one similar
-to syncppp.c. I am not clear of when to use the syncppp functions sppp_input etc.?
+acpiphp_glue: notify_handler: unknown event type 0x5 for \_SB_.SBA0.PCI4.S2F0
 
-To use the functions in ppp_synctty.c,  then does the driver also needs to be a TTY
-driver.?
+The following patch would give us:
 
-Whether all the linux driver written for serial devices need to be TTY drivers..?
+Device \_SB_.SBA0.PCI4.S2F0 cannot be configured due to a frequency mismatch
 
-Thanks,
-Vanitha
+which I think is clearer.
+
+
+ drivers/pci/hotplug/acpiphp_glue.c |   15 +++++++++++++++
+ 1 files changed, 15 insertions(+)
+
+
+diff -Nru a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
+--- a/drivers/pci/hotplug/acpiphp_glue.c	Thu Jan 29 17:24:40 2004
++++ b/drivers/pci/hotplug/acpiphp_glue.c	Thu Jan 29 17:24:40 2004
+@@ -974,6 +974,21 @@
+ 		dbg("%s: Device eject notify on %s\n", __FUNCTION__, objname);
+ 		break;
+ 
++	case ACPI_NOTIFY_FREQUENCY_MISMATCH:
++		printk(KERN_ERR "Device %s cannot be configured due"
++				" to a frequency mismatch\n", objname);
++		break;
++
++	case ACPI_NOTIFY_BUS_MODE_MISMATCH:
++		printk(KERN_ERR "Device %s cannot be configured due"
++				" to a bus mode mismatch\n", objname);
++		break;
++
++	case ACPI_NOTIFY_POWER_FAULT:
++		printk(KERN_ERR "Device %s has suffered a power fault\n",
++				objname);
++		break;
++
+ 	default:
+ 		warn("notify_handler: unknown event type 0x%x for %s\n", type, objname);
+ 		break;
 

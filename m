@@ -1,62 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266759AbUGUWco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266633AbUGUWfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266759AbUGUWco (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 18:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266761AbUGUWcn
+	id S266633AbUGUWfq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 18:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266761AbUGUWfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 18:32:43 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:61960 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S266759AbUGUWcm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 18:32:42 -0400
-Date: Wed, 21 Jul 2004 15:31:44 -0700
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Scott Wood <scott@timesys.com>,
-       Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040721223144.GA9303@nietzsche.lynx.com>
-References: <20040719102954.GA5491@elte.hu> <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721183010.GA2206@yoda.timesys> <20040721210051.GA2744@yoda.timesys> <20040721211826.GB30871@elte.hu> <20040721221423.GA1774@nietzsche.lynx.com>
-Mime-Version: 1.0
+	Wed, 21 Jul 2004 18:35:46 -0400
+Received: from web53804.mail.yahoo.com ([206.190.36.199]:33629 "HELO
+	web53804.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266633AbUGUWfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 18:35:40 -0400
+Message-ID: <20040721223540.16485.qmail@web53804.mail.yahoo.com>
+Date: Wed, 21 Jul 2004 15:35:40 -0700 (PDT)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: RE: [PATCH] remove 55 dead prototypes from include/acpi/acdisasm.h
+To: "Moore, Robert" <robert.moore@intel.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Cc: len.brown@intel.com, acpi-devel@lists.sourceforge.net
+In-Reply-To: <37F890616C995246BE76B3E6B2DBE055017355C4@orsmsx403.amr.corp.intel.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040721221423.GA1774@nietzsche.lynx.com>
-User-Agent: Mutt/1.5.6+20040523i
-From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 21, 2004 at 03:14:23PM -0700, Bill Huey wrote:
-> On Wed, Jul 21, 2004 at 11:18:26PM +0200, Ingo Molnar wrote:
-> > trying to make softirqs preemptible surely wont fly for 2.6 and it will
-> > also overly complicate the softirq model. What's so terminally wrong
-> > about adding preemption checks to the softirq paths? It should solve the
-> > preemption problem for good. The unbound softirq paths are well-known
-> > (mostly in the networking code) and already have preemption-alike
-> > checks.
-> 
-> These folks are tring to make the entire kernel fully preemptable,
-> possibly, to handle arbitrary preemption at any point during the
-> execution. It's a noble task to make the kernel preemptable in that
-> way, but what I've seen is that the use of non-preemptive critical
-> sections commits all locks below it in the call/lock graph to also
-> be non-preemptive critical sections and therefore forcing the use
-> of traditional lock-break and other techniques to lower latency.
+--- "Moore, Robert" <robert.moore@intel.com> wrote:
+> These aren't nonexistent functions, they are part of the AML
+> disassembler (which is not always configured into the kernel)
 
-One thing that would preserve the correctness of this system might be to
-use a per-CPU blocking lock to directly back the uses of local_bh_*
-functions explicitly. This altered system would be functionally isomorphic,
-but would permit preemption in bhs.
+  With respect, I cannot find the functions listed below anywhere in
+the kernel.org kernel.  Where are they?  Given that they are not present,
+you should consider either contributing them to the mainline kernel source
+tree, or removing their prototypes.
 
-This is something I've been thinking about for a while so it could be
-off track or wrong and I'm open (pleading) for correction.
+from include/acpi/acdisasm.h:
 
-It's a radical departure from the current "deferred-everthing" model
-that Linux and many other general purpose OSes are currently using.
-The overall performance penalty is unknown, but the possiblity of
-lowering latency could still be very significant.
+acpi_dm_address_space
+acpi_dm_ascending_op
+acpi_dm_bit_list
+acpi_dm_block_type
+acpi_dm_byte_list
+acpi_dm_comma_if_field_member
+acpi_dm_comma_if_list_member
+acpi_dm_decode_attribute
+acpi_dm_decode_internal_object
+acpi_dm_decode_node
+acpi_dm_descending_op
+acpi_dm_disasm_byte_list
+acpi_dm_disassemble
+acpi_dm_disassemble_one_op
+acpi_dm_display_arguments
+acpi_dm_display_internal_object
+acpi_dm_display_locals
+acpi_dm_display_path
+acpi_dm_dma_descriptor
+acpi_dm_dump_name
+acpi_dm_dword_descriptor
+acpi_dm_eisa_id
+acpi_dm_end_dependent_descriptor
+acpi_dm_field_flags
+acpi_dm_fixed_io_descriptor
+acpi_dm_fixed_mem32_descriptor
+acpi_dm_generic_register_descriptor
+acpi_dm_indent
+acpi_dm_interrupt_descriptor
+acpi_dm_io_descriptor
+acpi_dm_io_flags
+acpi_dm_irq_descriptor
+acpi_dm_is_resource_descriptor
+acpi_dm_is_string_buffer
+acpi_dm_is_unicode_buffer
+acpi_dm_list_type
+acpi_dm_match_keyword
+acpi_dm_match_op
+acpi_dm_memory24_descriptor
+acpi_dm_memory32_descriptor
+acpi_dm_memory_flags
+acpi_dm_method_flags
+acpi_dm_namestring
+acpi_dm_qword_descriptor
+acpi_dm_region_flags
+acpi_dm_resource_descriptor
+acpi_dm_start_dependent_descriptor
+acpi_dm_unicode
+acpi_dm_validate_name
+acpi_dm_vendor_large_descriptor
+acpi_dm_vendor_small_descriptor
+acpi_dm_walk_parse_tree
+acpi_dm_word_descriptor
+acpi_is_eisa_id
+acpi_ps_display_object_pathname
 
-bill
+
+from include/acpi/acdebug.h:
+
+acpi_db_add_to_history
+acpi_db_check_integrity
+acpi_db_classify_one_object
+acpi_db_close_debug_file
+acpi_db_command_dispatch
+acpi_db_count_namespace_objects
+acpi_db_create_execution_threads
+acpi_db_decode_and_display_object
+acpi_db_disassemble_aml
+acpi_db_display_all_methods
+acpi_db_display_arguments
+acpi_db_display_calling_tree
+acpi_db_display_gpes
+acpi_db_display_help
+acpi_db_display_history
+acpi_db_display_locals
+acpi_db_display_locks
+acpi_db_display_method_info
+acpi_db_display_object_type
+acpi_db_display_objects
+acpi_db_display_resources
+acpi_db_display_results
+acpi_db_display_statistics
+acpi_db_display_table_info
+acpi_db_dump_buffer
+acpi_db_dump_namespace
+acpi_db_dump_namespace_by_owner
+acpi_db_dump_object
+acpi_db_dump_parser_descriptor
+acpi_db_enumerate_object
+acpi_db_execute
+acpi_db_execute_method
+acpi_db_execute_setup
+acpi_db_execute_thread
+acpi_db_execution_walk
+acpi_db_find_name_in_namespace
+acpi_db_find_references
+acpi_db_generate_gpe
+acpi_db_generate_statistics
+acpi_db_get_from_history
+acpi_db_get_line
+acpi_db_get_next_token
+acpi_db_get_outstanding_allocations
+acpi_db_get_pointer
+acpi_db_get_table_from_file
+acpi_db_integrity_walk
+acpi_db_load_acpi_table
+acpi_db_local_ns_lookup
+acpi_db_match_argument
+acpi_db_match_command
+acpi_db_method_thread
+acpi_db_open_debug_file
+acpi_db_prep_namestring
+acpi_db_read_table_from_file
+acpi_db_second_pass_parse
+acpi_db_send_notify
+acpi_db_set_method_breakpoint
+acpi_db_set_method_call_breakpoint
+acpi_db_set_method_data
+acpi_db_set_output_destination
+acpi_db_set_scope
+acpi_db_single_thread
+acpi_db_start_command
+acpi_db_unload_acpi_table
+acpi_db_walk_and_match_name
+acpi_db_walk_for_references
+acpi_db_walk_for_specific_objects
+ae_local_load_table
 

@@ -1,114 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264841AbRGSCDV>; Wed, 18 Jul 2001 22:03:21 -0400
+	id <S264846AbRGSCju>; Wed, 18 Jul 2001 22:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264846AbRGSCDM>; Wed, 18 Jul 2001 22:03:12 -0400
-Received: from web10408.mail.yahoo.com ([216.136.130.110]:63506 "HELO
-	web10408.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S264841AbRGSCCz>; Wed, 18 Jul 2001 22:02:55 -0400
-Message-ID: <20010719020259.24124.qmail@web10408.mail.yahoo.com>
-Date: Thu, 19 Jul 2001 12:02:59 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-To: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010718182201.J13239@arthur.ubicom.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S264853AbRGSCjj>; Wed, 18 Jul 2001 22:39:39 -0400
+Received: from gatekeeper.zeitgeist.com ([204.243.76.2]:50917 "EHLO
+	charon.ny.zeitgeist.com") by vger.kernel.org with ESMTP
+	id <S264846AbRGSCjd>; Wed, 18 Jul 2001 22:39:33 -0400
+Message-Id: <200107190239.f6J2dNU01537@thx1138.ny.zeitgeist.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: "Michael Stiller" <michael@toyland.ping.de>, linux-kernel@vger.kernel.org
+Subject: Re: PCI hiccup installing Lucent/Orinoco carbus PCI adapter 
+In-Reply-To: Your message of "18 Jul 2001 08:56:06 +0200."
+             <20010718065606.1125.qmail@toyland.ping.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 18 Jul 2001 22:39:23 -0400
+From: David HM Spector <spector@zeitgeist.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> wrote: > On
-Wed, Jul 18, 2001 at 03:18:59PM +1000, Steve Kieu
-> wrote:
-> > My advice:
-> > 
-> > Dont use reiserfs,JFS
-> > it is ok to use ext2 
-> > 
-> > Go journalling? use ext3 or XFS
-> > 
-> > I have used  all of these fs and pick up this rule
-> (up
-> > to now, not sure it remains right in the far 
-> future)
-> 
-> FUD. I've been using reiserfs on quite some systems
+Michael,
 
-Probably !. I said just from my computer, :-)
+It was very hard to get the info on whether or not the BIOS was allocating an 
+INT for the Orinoco PCI cardbus because it flies by so damned fast.  
+However, after (literally) taking a picture of the screen with a digital 
+camera (oy!!) I was able to determine that the BIOS is NOT allocating an 
+INT for this card.  
 
-Reiserfs uses system resources more than others.
-Perfomance is ok (not as far more or less than JFS)
-but after using for a while, some mysterious things
-happen ; for example, the ini file of some program is
-changed wihtout any reason. For example I run mc and
-make it learn all keys, and pause when executing a
-command ; After reboot, sometimes all these setting
-are lost, some times not. It still happen with XFS
-though but never see in ext2, ext3 (now I am using)
+Everything else is in the box seems to be allocated properly.  I even removed 
+all but the video card just to make sure that it wasn't a resource constraint 
+problem... 
 
-JFS I was happy to use that when my computer is normal
-power off. One time, power outage then it completely
-trashed my root partition (can not recover by any
-means) Have to restore from backup file and sure, let
-it go for now.
+My next step is to get 2.4.6 up to see if that patch fixes it, but my machine 
+keeps hanging up just after activating the swap space.  Haven't figured that 
+one out yet, but I think it mught be a large memory problem as my
+machine has 1GB of main memory.
 
-I aggree Reiserfs should be stable but unfortunately
-in my computer it doesn's show any good sign of
-advantages than xfs or ext3. Dont mention about some
-minor bug like zero log file (fixed already I hope)
-but the data. Ahhh, I remember one time when I ran
+_DHMS
 
-pppd call myisp
-
-pppd can not make the connection. I view the syslog
-file and noticed that chat send the wrong command to
-the modem. Strange, I thought as it is usually ok to
-make the connection. Check the /etc/ppp/chat/myisp
-file ; things seem to be normal. Ok I delete that file
-and edit it again exactly what I saw in the previous
-file. Run pppd call myisp; it is Ok. What do you
-think?
-
-It has not yet happen to me now, for about 2 weeks
-(with ext3)
-
-Okay may be that is FUD ; lets be like that way. I
-only say from my usage.
-
-Cheers,
+-- 
+--------------------------------------------------------------------------------
+David HM Spector                        Network Design & Infrastructure Security
+spector@zeitgeist.com               -or-                     spector@spector.com
+Amateur Radio: W2DHM (ARRL life member) GridSquare: FN30hv (40.52'45"N 73.21'21"W) 
+-.-. --- -. -. . -.-. -  .-- .. - ....  .- -- .- - . ..- .-.  .-. .- -.. .. ---
+Those who will not reason, are bigots, those who cannot, are fools, and those who 
+dare not, are slaves.     -George Gordon Noel Byron [a.k.a Lord Byron](1788-1824)
 
 
-> and never got any
-> problem. If reiserfs wouldn't be stable, SuSE
-> wouldn't have supported
-> it as one of their stable filesystems for over a
-> year.
-> 
-> 
-> Erik
-> 
-> -- 
-> J.A.K. (Erik) Mouw, Information and Communication
-> Theory Group, Department
-> of Electrical Engineering, Faculty of Information
-> Technology and Systems,
-> Delft University of Technology, PO BOX 5031,  2600
-> GA Delft, The Netherlands
-> Phone: +31-15-2783635  Fax: +31-15-2781843  Email:
-> J.A.K.Mouw@its.tudelft.nl
-> WWW: http://www-ict.its.tudelft.nl/~erik/
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/ 
 
-=====
-S.KIEU
 
-_____________________________________________________________________________
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- Voice chat, mail alerts, stock quotes and favourite news and lots more!
+

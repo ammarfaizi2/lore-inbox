@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261312AbSLXLhZ>; Tue, 24 Dec 2002 06:37:25 -0500
+	id <S261545AbSLXM3j>; Tue, 24 Dec 2002 07:29:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbSLXLhZ>; Tue, 24 Dec 2002 06:37:25 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:56587 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S261312AbSLXLhY>;
-	Tue, 24 Dec 2002 06:37:24 -0500
-Date: Tue, 24 Dec 2002 12:45:35 +0100 (CET)
-From: venom@sns.it
+	id <S261581AbSLXM3j>; Tue, 24 Dec 2002 07:29:39 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:8656 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261545AbSLXM3i>; Tue, 24 Dec 2002 07:29:38 -0500
+Date: Tue, 24 Dec 2002 13:33:45 +0100
+From: Hans-Joachim Baader <hjb@pro-linux.de>
 To: linux-kernel@vger.kernel.org
-Subject: aicasm: SIG 11 with 2.5.53 (new aic7xxx driver problem)
-Message-ID: <Pine.LNX.4.43.0212241237480.30482-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Crash with 3c59x.o
+Message-ID: <20021224123341.GA22985@kiwi.hjbaader.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-HI,
-I was compiling new kernel 2.5.53.
-If "build adaptec formware" option is enabled, (I know I should avoid it, but it
-is a development kernel, and I am doing tests ;) ),
-compiling aic7xxx driver,
-compilation fails because
-of a segmentation fault I get running aicasm.
+I experienced a reproducible crash with the 3c59x network module on my dual
+Celeron machine. To reproduce, do the following:
 
+/etc/init.d/networking stop
+rmmod 3c59x; modprobe 3c59x (several times)
+rmmod 3c59x
+/etc/init.d/networking start
 
-Here is the error message:
+Then the system freezes. All kernels from 2.4.20-rc1 to 2.4.21-pre2 appear
+to have this bug. Some time after the freeze, a message appears, I didn't
+copy it completely:
 
-yacc -d -b aicasm_gram aicasm_gram.y
-yacc: 2 rules never reduced
-mv aicasm_gram.tab.c aicasm_gram.c
-mv aicasm_gram.tab.h aicasm_gram.h
-yacc -d -b aicasm_macro_gram -p mm aicasm_macro_gram.y
-mv aicasm_macro_gram.tab.c aicasm_macro_gram.c
-mv aicasm_macro_gram.tab.h aicasm_macro_gram.h
-lex  -oaicasm_scan.c aicasm_scan.l
-lex  -Pmm -oaicasm_macro_scan.c aicasm_macro_scan.l
-gcc -I/usr/include -I. -ldb aicasm.c aicasm_symbol.c aicasm_gram.c
-aicasm_macro_gram.c aicasm_scan.c aicasm_macro_scan.c -o aicasm
-drivers/scsi/aic7xxx/aicasm/aicasm -Idrivers/scsi/aic7xxx -r
-drivers/scsi/aic7xxx/aic7xxx_reg.h -o drivers/scsi/aic7xxx/aic7xxx_seq.h
-drivers/scsi/aic7xxx/aic7xxx.seq
-drivers/scsi/aic7xxx/aicasm/aicasm: 888 instructions used
-make[3]: *** [drivers/scsi/aic7xxx/aic7xxx_seq.h] Segmentation fault
-make[3]: *** Deleting file `drivers/scsi/aic7xxx/aic7xxx_seq.h'
-make[2]: *** [drivers/scsi/aic7xxx] Error 2
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+wait_on_irq, CPU1:
+irq: 1 [ 2 0 ]
+bh:  0 [ 1 0 ]
 
+CPU 0 call stack appears to be empty
+CPU 1 call stack appears to be:
+  __global_cli flush_to_ldisc __run_task_queue context_thread kernel_thread
 
-system is Athlon tbird 1300, 768 MB RAM,
-via 686b chipset, gcc 3.2.1, binutils 2.13.90.0.16,
-glibc 2.3.1.
+lspci:
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00:09.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 30)
+00:0b.0 Serial controller: NetMos Technology 222N-2 I/O Card (2S+1P) (rev 01)
+00:0f.0 Ethernet controller: 3Com Corporation 3c590 10BaseT [Vortex]
+00:13.0 Unknown mass storage controller: Triones Technologies, Inc. HPT366 / HPT370 (rev 01)
+00:13.1 Unknown mass storage controller: Triones Technologies, Inc. HPT366 / HPT370 (rev 01)
 
-Hope this helps
+As you can see, there are two 3Com cards which are both recognized by the
+driver.
 
-Luigi
-
-
-
+Regards,
+hjb
+-- 
+Pro-Linux - Germany's largest volunteer Linux support site
+http://www.pro-linux.de/          Public Key ID 0x3DDBDDEA

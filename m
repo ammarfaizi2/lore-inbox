@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316022AbSEJPS5>; Fri, 10 May 2002 11:18:57 -0400
+	id <S316023AbSEJPTu>; Fri, 10 May 2002 11:19:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316023AbSEJPS4>; Fri, 10 May 2002 11:18:56 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:4615 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S316022AbSEJPSz>;
-	Fri, 10 May 2002 11:18:55 -0400
-Date: Fri, 10 May 2002 08:18:18 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: how to redirect serial console to telnet session?
-In-Reply-To: <20020510160945.B7165@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.33L2.0205100817430.6809-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316025AbSEJPTt>; Fri, 10 May 2002 11:19:49 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32704 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316023AbSEJPTp>;
+	Fri, 10 May 2002 11:19:45 -0400
+Date: Fri, 10 May 2002 08:07:25 -0700 (PDT)
+Message-Id: <20020510.080725.94585622.davem@redhat.com>
+To: jgarzik@mandrakesoft.com
+Cc: chen_xiangping@emc.com, linux-kernel@vger.kernel.org
+Subject: Re: Tcp/ip offload card driver
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3CDBE34A.8050806@mandrakesoft.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 May 2002, Russell King wrote:
+   From: Jeff Garzik <jgarzik@mandrakesoft.com>
+   Date: Fri, 10 May 2002 11:12:10 -0400
+   
+   Linux TCP implementation will always be more powerful and more flexible 
+   than any NIC, too.  I doubt they have netlink and netfilter on NICs, for 
+   example :)
 
-| On Fri, May 10, 2002 at 09:05:41AM -0400, Chris Friesen wrote:
-| > Accordingly, I grabbed what looked like the important bits of xconsole, but it
-| > appears that this only gets me stuff written to /dev/console from userspace.
-| > How do I go about getting the output of kernel-level printk()s as well?
-|
-| Check the LKML archives for something called 'netconsole' (or use google).
-| It got mentioned here about 6 months to a year ago.
+It has the same problem as proprietary implementations of the BSD
+stack, same bugs and same enhancements done N-times instead of once.
 
-It's in http://people.redhat.com/mingo/netconsole-patches/ (for 2.4.10).
+Anyone who thinks that having a different TCP implementation on each
+different kind of network card installed on your system is sane, would
+you please pass it on brotha so I can smoke some of it too! :-)
 
--- 
-~Randy
+On a more serious note, it might be at some level considerable (the
+maintainence nightmare et al.) if there was some real life
+demonstrable performance gain with current systems.
 
+For example, do a SpecWEB run with TUX both using on-chip-TCP and
+without, same networking card.  Show a demonstrable gain from the
+on-chip-TCP implementation.  I bet you can't.  If you can make such a
+claim using a setup that other people could reproduce themselves by
+buying your card and running the test, I'll eat all of my words.

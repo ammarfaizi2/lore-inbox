@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131187AbQLHDaU>; Thu, 7 Dec 2000 22:30:20 -0500
+	id <S130194AbQLHDeV>; Thu, 7 Dec 2000 22:34:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131850AbQLHDaL>; Thu, 7 Dec 2000 22:30:11 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:1757 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131187AbQLHD3u>;
-	Thu, 7 Dec 2000 22:29:50 -0500
-Date: Thu, 7 Dec 2000 21:59:18 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: aeb@veritas.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
-In-Reply-To: <UTC200012080235.DAA157231.aeb@aak.cwi.nl>
-Message-ID: <Pine.GSO.4.21.0012072156420.22281-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130565AbQLHDeL>; Thu, 7 Dec 2000 22:34:11 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:44838 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S130194AbQLHDd5>; Thu, 7 Dec 2000 22:33:57 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Joseph Cheek <joseph@cheek.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at buffer.c:827 in test12-pre6 and 7 
+In-Reply-To: Your message of "Thu, 07 Dec 2000 17:23:51 -0800."
+             <3A303827.AF486F37@cheek.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 08 Dec 2000 14:03:18 +1100
+Message-ID: <3276.976244598@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 07 Dec 2000 17:23:51 -0800, 
+Joseph Cheek <joseph@cheek.com> wrote:
+>i'll check it out.  i'm compiling ksymoops now, is there a way to get it to
+>work without a static libbfd?  all i've got is a libbfd.so, and i'm going to
+>need to recompile binutils if i must have a libbfd.a.
 
+ksymoops/Makefile, change
+$(CC) $(OBJECTS) $(CFLAGS) -Wl,-Bstatic -lbfd -liberty -Wl,-Bdynamic -o $@
+to
+$(CC) $(OBJECTS) $(CFLAGS) -lbfd -liberty -o $@
 
-On Fri, 8 Dec 2000 Andries.Brouwer@cwi.nl wrote:
-
-> > BTW, if you still have 1.7, 1.10, 1.13 and 1.14...
-> 
-> See ftp://ftp.cwi.nl/pub/aeb/manpages/ (will soon disappear again).
-
-Got them, thanks.
-
-> > BTW, could we finally lose mpx(2)?
-> 
-> Maybe we lost it - I find sys_mpx only in a comment in arch/arm/kernel/calls.S
-
-Sure, but man2/mpx.2 is alive and well...
+But you should have libbfd.a.  Debian splits binutils into binutils and
+binutils-dev, libbfd.a might be in the latter.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

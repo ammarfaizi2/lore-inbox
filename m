@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264631AbRFPOOs>; Sat, 16 Jun 2001 10:14:48 -0400
+	id <S264630AbRFPOST>; Sat, 16 Jun 2001 10:18:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264632AbRFPOOj>; Sat, 16 Jun 2001 10:14:39 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:41008 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S264630AbRFPOOY>; Sat, 16 Jun 2001 10:14:24 -0400
-Message-ID: <002201c0f66e$90675360$3303a8c0@einstein>
-From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: "Thomas Molina" <tmolina@home.com>,
-        "Rachel Greenham" <rachel@linuxgrrls.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106160827100.13727-100000@localhost.localdomain>
-Subject: Re: VIA KT133A crash *post* 2.4.3-ac6
-Date: Sat, 16 Jun 2001 16:13:45 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S264633AbRFPOSJ>; Sat, 16 Jun 2001 10:18:09 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:36873 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S264630AbRFPOR7>; Sat, 16 Jun 2001 10:17:59 -0400
+Subject: Re: threading question
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15Abr6-00057R-00@the-village.bc.nu>
+In-Reply-To: <E15Abr6-00057R-00@the-village.bc.nu>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 16 Jun 2001 10:16:49 -0400
+Message-Id: <992701010.9390.4.camel@gromit>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm certainly willing to provide any data it's decided is necessary to
-> collect to make the correlations.  I'll even volunteer to be the
-.
-> bit different - I have the hard drive on the promise interface (ide2) and
+On 14 Jun 2001 19:28:32 +0100, Alan Cox wrote:
 
-If possible, can you remove the hard disc from the promise and attach it on
-the VIA-Controller and test if the problem still occurs? (prepare a bootdisc
-if you cannot boot. Propably, you have to pass a new root-partition to the
-kernel)
-I hardly believe that the promise controller has some problems with the new
-VIA setup introduced in 2.4.3-ac7. Using the promise ports of the A7V133 is
-the only correlation I see again and again...
+> Co-routines or better language choices are much more efficient ways to express
+> the event handling problem.
+
+Can you provide any info and/or examples of co-routines? I'm curious to
+see a good example of co-routines' "betterness."
+
+Thanks,
 
 --
-PS: Sorry for using outlook, but sometimes you use an computer you doesn´t
-own. :-)
+Michael Rothwell
+rothwell@holly-springs.nc.us
+
 

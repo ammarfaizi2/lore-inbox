@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267989AbTAHVNf>; Wed, 8 Jan 2003 16:13:35 -0500
+	id <S267869AbTAHVOv>; Wed, 8 Jan 2003 16:14:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267990AbTAHVNf>; Wed, 8 Jan 2003 16:13:35 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:5360 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S267989AbTAHVNe>; Wed, 8 Jan 2003 16:13:34 -0500
-Date: Wed, 8 Jan 2003 22:22:14 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: PCI code:  why need  outb (0x01, 0xCFB); ?
-In-Reply-To: <CACAEBD1F1C@vcnet.vc.cvut.cz>
-Message-ID: <Pine.GSO.3.96.1030108221508.11293D-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S267878AbTAHVOv>; Wed, 8 Jan 2003 16:14:51 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:58374 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267869AbTAHVOu>;
+	Wed, 8 Jan 2003 16:14:50 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301082123.h08LNXSY003383@darkstar.example.net>
+Subject: Re: Killing off the boot sector (was: [STATUS 2.5]  January 8, 2002)
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Wed, 8 Jan 2003 21:23:33 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <avi06f$89g$1@cesium.transmeta.com> from "H. Peter Anvin" at Jan 08, 2003 12:03:27 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, Petr Vandrovec wrote:
-
-> > > 1. which device is at port address 0xCFB?
-> > 
-> > Hopefully none.
+> Can we *please* kill off the stupid in-kernel boot sector?
 > 
-> Actually I'm not sure. This code is here since at least 2.0.28,
-> and during googling I even found code for direct PCI access
-> (http://www-user.tu-chemnitz.de/~heha/viewzip.cgi/hs_freeware/gerald.zip/DIRECTNT.CPP?auto=CPP)
-> which sets lowest bit at 0xCFB to 1 before doing PCI config
-> accesses and reset it back to original value afterward.
-> 
-> So I believe that there were some chipsets (probably in 486&PCI times)
-> which did conf1/conf2 accesses depending on value of this bit.
-> Unfortunately I was not able to confirm this - almost nobody provides
-> northbridge datasheets from '94 era, even Intel does not provide them
-> (f.e. Neptune) anymore :-(
+> Here is a patch that guts it to print an error message.  It's even
+> tested.
 
- Fortunately that's not true.  Grab the relevant docs from: 
-'ftp://download.intel.com/support/chipsets/430nx/'.  The semantics of
-0xcf8, 0xcf9, 0xcfa and 0xcfb I/O ports when used as byte quantities is
-explained there.  Note that 0xcf8 and 0xcfa are the way to get at the PCI
-config space using conf2 accesses. 
+> -# This procedure turns off the floppy drive motor, so
+> -# that we enter the kernel in a known state, and
+> -# don't have to worry about it later.
+> -# NOTE: Doesn't save %ax or %dx; do it yourself if you need to.
+> -
+> -kill_motor:
+> -#if 1
+> -	xorw	%ax, %ax		# reset FDC
+> -	xorb	%dl, %dl
+> -	int	$0x13
+> -#else
+> -	movw	$0x3f2, %dx
+> -	xorb	%al, %al
+> -	outb	%al, %dx
+> -#endif
+> -	ret
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Shouldn't that part stay, incase somebody boots a machine from a
+floppy, and leaves it running for hours?
 
+> +	.ascii	"Direct booting from floppy is no longer supported.\r\n"
+> +	.ascii	"Please use a boot loader program instead.\r\n"
+> +	.ascii	"\n"
+> +	.ascii	"Remove disk and press any key to reboot . . .\r\n"
+
+Couldn't you put an ASCII penguin in there?  :-)
+
+John.

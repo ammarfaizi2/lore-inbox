@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265952AbTFSVFT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 17:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265953AbTFSVFS
+	id S265950AbTFSVEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 17:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265949AbTFSVEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 17:05:18 -0400
-Received: from diesel.grid4.com ([208.49.116.17]:37765 "EHLO diesel.grid4.com")
-	by vger.kernel.org with ESMTP id S265952AbTFSVEv (ORCPT
+	Thu, 19 Jun 2003 17:04:16 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:30430 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S265950AbTFSVEP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 17:04:51 -0400
-Date: Thu, 19 Jun 2003 17:18:49 -0400
-From: Paul <set@pobox.com>
-To: John Goerzen <jgoerzen@complete.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21 packet writing?
-Message-ID: <20030619211849.GB2297@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	John Goerzen <jgoerzen@complete.org>, linux-kernel@vger.kernel.org
-References: <87d6hczgiu.fsf@complete.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87d6hczgiu.fsf@complete.org>
+	Thu, 19 Jun 2003 17:04:15 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780E040933@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Alan Stern'" <stern@rowland.harvard.edu>,
+       "'Patrick Mochel'" <mochel@osdl.org>
+Cc: "'Greg KH'" <greg@kroah.com>,
+       "'viro@parcelfarce.linux.theplanet.co.uk'" 
+	<viro@parcelfarce.linux.theplanet.co.uk>,
+       "'Kevin P. Fleming'" <kpfleming@cox.net>,
+       "'Russell King'" <rmk@arm.linux.org.uk>,
+       "'Mike Anderson'" <andmike@us.ibm.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Flaw in the driver-model implementation of attributes
+Date: Thu, 19 Jun 2003 14:18:11 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Goerzen <jgoerzen@complete.org>, on Tue Jun 17, 2003 [01:48:57 PM] said:
-> Hello,
+> From: Alan Stern [mailto:stern@rowland.harvard.edu]
 > 
-> I've been using the packet writing patches floating around for some
-> time, and find them very useful.  I have modified slightly a recent
-> one to work with 2.4.21-rc8.  It worked with the IDE CD-ROM driver
-> (that is, /dev/hdc), but with the ide-scsi driver at /dev/scd0, it
-> would read but threw up a write error every time a modification was
-> attempted.
+> On Thu, 19 Jun 2003, Patrick Mochel wrote:
 > 
-> Has anyone made a packet writing patch compatible with 2.4.21 that
-> works with ide-scsi?
+> > SCSI copied USB in this respect. I've always been skeptical about the
+> > representation, though Greg had good reason to initially do this. I
+wonder
+> > if that object could be moved over /sys/class/usb-host/ these days..
 > 
-> My workaround to date has been to unload the ide-scsi module and
-> insert the IDE cdrom module when I want to use packet writing, and do
-> the reverse when I want to use cdrecord.  It's quite annoying and I'd
-> rather just use one device the whole time.
-> 
-> Thanks,
-> John Goerzen
-> 
+> I wonder about the apparent proliferation of entries under /sys/class/.
+> If people continue to add things like /sys/class/usb-storage/ right at the
+> top level, won't it become rather unwieldy?  What would be a good place to
+> put something like that?
 
-	Hi;
+That was exactly my point with the "it-should-go-where-the-
+physical-device-is" suggestion. /sys/class will become something
+as wild as /proc is now IANF.
 
-	Peter Osterlund posted this to the
-packet-writing@suse.com mailing list. Im using it, with ide-scsi.
-(no modules) [barely tested, though]
-
-http://w1.894.telia.com/~u89404340/patches/packet/2.4/packet-2.4.21.patch.bz2
-
-Paul
-set@pobox.com
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269503AbUJLHlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269504AbUJLHpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269503AbUJLHlL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 03:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269502AbUJLHlL
+	id S269504AbUJLHpA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 03:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269502AbUJLHpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 03:41:11 -0400
-Received: from mail.dif.dk ([193.138.115.101]:30436 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S269501AbUJLHlB (ORCPT
+	Tue, 12 Oct 2004 03:45:00 -0400
+Received: from mail.dif.dk ([193.138.115.101]:64485 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S269504AbUJLHok (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 03:41:01 -0400
-Date: Tue, 12 Oct 2004 09:48:44 +0200 (CEST)
+	Tue, 12 Oct 2004 03:44:40 -0400
+Date: Tue, 12 Oct 2004 09:52:22 +0200 (CEST)
 From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Rajsekar <rajsekar@peacock.METOO.ernet.in>
+To: Rajsekar <rajsekar@peacock.ernet.in>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsusp freezes
-In-Reply-To: <y49d5zoz99q.fsf@sahana.cs.iitm.ernet.in>
-Message-ID: <Pine.LNX.4.61.0410120943310.2957@dragon.hygekrogen.localhost>
-References: <y49d5zoz99q.fsf@sahana.cs.iitm.ernet.in>
+Subject: Re: swsusp freezes (fwd)
+Message-ID: <Pine.LNX.4.61.0410120950230.2957@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
 
 On Tue, 12 Oct 2004, Rajsekar wrote:
 
@@ -46,4 +45,9 @@ other documents linked from that page).
 --
 Jesper Juhl
 
+
+PS. That obfuscation of your email address is pretty annoying. Besides, 
+once there has been a single reply to you and the list with the edited 
+address it's no longer useful to prevent spam, so it's a pretty pointless 
+thing to do in the first place.
 

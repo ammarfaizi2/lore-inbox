@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264992AbTF1AUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 20:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbTF1ATl
+	id S264977AbTF1AWz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 20:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265006AbTF1AVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 20:19:41 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:53448 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264982AbTF1ASX
+	Fri, 27 Jun 2003 20:21:33 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:25264 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S265007AbTF1AVS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 20:18:23 -0400
-Date: Fri, 27 Jun 2003 17:32:18 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: Andrew Morton <akpm@digeo.com>, davidel@xmailserver.org, davem@redhat.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+	Fri, 27 Jun 2003 20:21:18 -0400
+Date: Fri, 27 Jun 2003 17:15:50 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "David S. Miller" <davem@redhat.com>, greearb@candelatech.com
+cc: davidel@xmailserver.org, linux-kernel@vger.kernel.org,
        linux-net@vger.kernel.org, netdev@oss.sgi.com
 Subject: Re: networking bugs and bugme.osdl.org
-Message-ID: <20030628003218.GE18676@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ben Collins <bcollins@debian.org>, Andrew Morton <akpm@digeo.com>,
-	davidel@xmailserver.org, davem@redhat.com, mbligh@aracnet.com,
-	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-	netdev@oss.sgi.com
-References: <20030626.224739.88478624.davem@redhat.com> <21740000.1056724453@[10.10.2.4]> <Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com> <20030627.143738.41641928.davem@redhat.com> <Pine.LNX.4.55.0306271454490.4457@bigblue.dev.mcafeelabs.com> <20030627213153.GR501@phunnypharm.org> <20030627162527.714091ce.akpm@digeo.com> <20030627223024.GT501@phunnypharm.org>
-Mime-Version: 1.0
+Message-ID: <34180000.1056759349@[10.10.2.4]>
+In-Reply-To: <20030627.170022.74744550.davem@redhat.com>
+References: <3EFCC1EB.2070904@candelatech.com><20030627.151906.102571486.davem@redhat.com><3EFCC6EE.3020106@candelatech.com> <20030627.170022.74744550.davem@redhat.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030627223024.GT501@phunnypharm.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 27, 2003 at 06:30:24PM -0400, Ben Collins wrote:
-> > - The bugs which are affecting people the most get reported the most.
+--"David S. Miller" <davem@redhat.com> wrote (on Friday, June 27, 2003 17:00:22 -0700):
+
+>    From: Ben Greear <greearb@candelatech.com>
+>    Date: Fri, 27 Jun 2003 15:36:30 -0700
+>    
+>    So, you'd be happy so long as bugz sent mail to the netdev mailing
+>    lists instead of to you?
 > 
-> Not to mention the "breeding" affect. A bug that many people have seen
-> only once, but can never pinpoint because they can't reproduce it. One
-> of those people reports the problem to the mailing list, and suddenly
-> half a dozen respond with "me too, but here's some extra info that I
-> saw". You can't get that with a bug database.
+> The best power I have to scale is the delete key in my email
+> reader, when I delete an email it's gone and that's it.
+> 
+> bugme bugs don't have this attribute, they are like emails that
+> persist forever until someone does something about them, and this is
+> the big problem I have with it.
 
-I can't believe that I'm dumb enough to ask this given the BK experience.
-We've built BugDB technology and we're quite interested in trying to make
-a system that works for engineers as well as managers.  All that DB crud
-is great for managers who want metrics but engineers want an easy way to
-deal with the bugs.  For example, an email interface.  Our bugdb already
-has that, the emails include a URL so you can go look at that and do stuff
-to it but you can also reply to the email and do everything through the 
-email interface.  An NNTP interface is in the works.
+Right ... but if bugs were sent to netdev or whatever, you'd get 
+something similar to what you have today, as long as *you* don't
+go looking in bugme (which you've made it clear you won't). Other
+people seem to find this useful, and they can still go use it if 
+they like.
 
-Is there any interest in having us mirror the bugzilla DB and work on
-making an interface that works for people with different needs?  I had
-already assumed that I'd get hissed out of the room if I proposed this
-so feel free to say no if that's what you want.
+So presumably that'd work out OK?
 
-On the other hand, this one is maybe easier to swallow than BK because
-the interfaces are standard protocols (SMTP, HTTP, NNTP and maybe IMAP or
-POP some day) so you don't have to put your fingers on any evil BitMover
-software to get at it.
+M.
 
-If you do want us to look at this then I'd suggest that you elect someone
-to come up with a proposal that the community finds acceptable, i.e., if
-you use it then we have to do some stuff like
-    - free access for everyone
-    - data exported in CSV form so other people can get at it
-    - ???
-
-If you say you want it then we have to figure out some way that
-the community is happy up front.  I'd suggest that Alan define the
-relationship, he has credibility, he doesn't like BK, he's smart enough
-to not get talked into something unreasonable, etc.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbUCRUQX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 15:16:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUCRUQW
+	id S262917AbUCRUQh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 15:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbUCRUQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 15:16:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:15771 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262909AbUCRUQV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 15:16:21 -0500
-Date: Thu, 18 Mar 2004 12:18:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Armin Schindler <armin@melware.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH 2.6] serialization of kernelcapi work
-Message-Id: <20040318121826.61c9f145.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.31.0403181117350.10499-100000@phoenix.one.melware.de>
-References: <Pine.LNX.4.31.0403181117350.10499-100000@phoenix.one.melware.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 18 Mar 2004 15:16:37 -0500
+Received: from smtp.terra.es ([213.4.129.129]:42310 "EHLO tsmtp4.mail.isp")
+	by vger.kernel.org with ESMTP id S262917AbUCRUQf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 15:16:35 -0500
+Date: Thu, 18 Mar 2004 21:15:32 +0100
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Rik van Riel <riel@redhat.com>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1-aa1
+Message-Id: <20040318211532.293bb63c.diegocg@teleline.es>
+In-Reply-To: <Pine.LNX.4.44.0403181144290.16728-100000@chimarrao.boston.redhat.com>
+References: <20040318164253.GO2246@dualathlon.random>
+	<Pine.LNX.4.44.0403181144290.16728-100000@chimarrao.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Armin Schindler <armin@melware.de> wrote:
->
-> Hi all,
-> 
-> the ISDN kernelcapi function recv_handler() is triggered by
-> schedule_work() and dispatches the CAPI messages to the applications.
-> 
-> Since a workqueue function may run on another CPU at the same time,
-> reordering of CAPI messages may occur.
+El Thu, 18 Mar 2004 11:49:52 -0500 (EST) Rik van Riel <riel@redhat.com> escribió:
 
-TCP has the same problem.
+> I suspect the security paranoid will like this patch too,
+> because it allows gnupg to mlock the memory it wants to
+> have locked.
 
-> For serialization I suggest a mutex semaphore in recv_handler(),
-> patch is appended (yet untested).
+I think it's good for cd-burning too. Currently most of the distros set
+the suid bit for cdrecord (wich implies some security bugs). You can
+workaround that by changing the devide node's permissions and kill the suid bit:
+brw-rw----    1 root     burning     22,   0 2003-05-23 16:41 /dev/cd-rw
 
-It will work OK.  It isn't very scalable of course, but I assume you're
-dealing with relatively low bandwidths.
+but still cdrecord will cry:
+cdrecord: Operation not permitted. WARNING: Cannot do mlockall(2).
+cdrecord: WARNING: This causes a high risk for buffer underruns.
 
-I would suggest that you look at avoiding the global semaphore.  Suppose
-someone has 64 interfaces or something.  Is that possible?  It might be
-better to put the semaphore into struct capi_ctr so you can at least
-process frames from separate cards in parallel.
+With that patch desktop users will be able to burn cds without falling into
+buffer underruns and without using the suid hack, I guess? Nice work :)
 
-> Is there a better way to do user-context work serialized ?
-
-Not really - you've been bitten by the compulsory per-cpuness of the
-workqueue handlers.
-
-You could have a standalone kernel thread or always queue the work onto CPU
-#0 (the function to do this isn't merged, but exists).  But both these are
-unscalable.
-
-So apart from moving recv_handler_lock into struct capi_ctr I can't think
-of anything clever.
-
-
+	Diego Calleja

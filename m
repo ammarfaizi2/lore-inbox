@@ -1,106 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264375AbRFOMou>; Fri, 15 Jun 2001 08:44:50 -0400
+	id <S264381AbRFOMuk>; Fri, 15 Jun 2001 08:50:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264376AbRFOMok>; Fri, 15 Jun 2001 08:44:40 -0400
-Received: from picard.csihq.com ([204.17.222.1]:38299 "EHLO picard.csihq.com")
-	by vger.kernel.org with ESMTP id <S264375AbRFOMo1>;
-	Fri, 15 Jun 2001 08:44:27 -0400
-Message-ID: <025c01c0f598$f04d0f30$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "Robert Kleemann" <robert@kleemann.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106142028150.1149-100000@localhost.localdomain>
-Subject: Re: Client receives TCP packets but does not ACK
-Date: Fri, 15 Jun 2001 08:44:36 -0400
+	id <S264389AbRFOMub>; Fri, 15 Jun 2001 08:50:31 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:46976 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S264381AbRFOMuU>; Fri, 15 Jun 2001 08:50:20 -0400
+Date: Fri, 15 Jun 2001 08:49:41 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: Roger Larsson <roger.larsson@norran.net>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SMP spin-locks
+In-Reply-To: <20010615141047.K754@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.3.95.1010615084626.26538A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's the end of my run -- I assume this means my config works OK?
-I'm on a dual PIII/600 linux-2.4.6-pre3 -- ran it all on the local host.
+On Fri, 15 Jun 2001, Ingo Oeser wrote:
 
-received msg#90, name pad1, 1 blocks, 12 total bytes
-received msg#91, name pad1, 1 blocks, 12 total bytes
-received msg#92, name class tande.server.ClientMap, 1624 blocks, 3244 total
-bytes
-received msg#93, name pad1, 1 blocks, 12 total bytes
-received msg#94, name pad1, 1 blocks, 12 total bytes
-received msg#95, name pad1, 1 blocks, 12 total bytes
-received msg#96, name class tande.server.ClientMap, 1624 blocks, 3244 total
-bytes
-successfully read all blocks
+> On Thu, Jun 14, 2001 at 05:05:07PM -0400, Richard B. Johnson wrote:
+> > The problem is that a data acquisition board across the PCI bus
+> > gives a data transfer rate of 10 to 11 megabytes per second
+> > with a UP kernel, and the transfer drops to 5-6 megabytes per
+> > second with a SMP kernel. The ISR is really simple and copies
+> > data, that's all.
+> > 
+> > The 'read()' routine uses a spinlock when it modifies pointers.
+> > 
+> > I started to look into where all the CPU clocks were going. The
+> > SMP spinlock code is where it's going. There is often contention
+> > for the lock because interrupts normally occur at 50 to 60 kHz.
+> 
+> Then you need another (better?) queueing mechanism.
+> 
+> Use multiple queues and a _overflowable_ sequence number as
+> global variable between the queues. 
+> 
+> N Queues (N := no. of CPUs + 1), which have a spin_lock for each
+> queue.
+> 
+> optionally: One reader packet reassembly priority queue (APQ) ordered by
+>    sequence number (implicitly or explicitly), if this shouldn't
+>    be done in user space.
+> 
+> In the writer ISR: 
+> 
+>    Foreach Queue in RR order (start with remebered one):
+>    - Try to lock it with spin_trylock (totally inline!)
+>      + Failed
+>         * if we failed to find a free queue for x "rounds", disable
+>           device (we have no reader) and notify user space somehow
+>        * increment "rounds" 
+>        * next queue
+>      + Succeed
+>        * Increment sequence number
+>        * Put data record into queue
+>       (* remember this queue as last queue used)
+>       (* mark queue "not empty")
+>        * do other IRQ work...
+> 
+> In the reader routine:
+>    Foreach Queue in RR order (start with remebered one):
+>    - No data counter above threshold -> EAGAIN [1] 
+>    - Try to lock it with spin_trylock (totally inline!)
+>      + Failed -> next queue
+>      + Succeed
+>        * if queue empty, unlock and try next one
+>       (* remember this queue as last queue used)
+>        * Get one data record from queue (in queue order!)
+>        * Move data record into APQ
+>        * Unlock queue
+>        * Deliver as much data from the APQ, as the user wants and
+>          is available
+>     - if all queues empty or locked -> increment "no data round"
+>       counter
+>   
+> 
+> Notes:
+>    The "last queue used" variable is static, but local to routine.
+>    It is there to decrease the number of iterations and distribute
+>    the data to all queues as more equally.
+> 
+> 
+>    Statistics about lock contention per queue, per round and per
+>    try would be nice here to estimate the number of queues
+>    needed.
+> 
+>    The APQ can be quite large, if the sequences are bad
+>    distributed and some queues tend to be always locked, if the
+>    reader wants to read from this queue.
+> 
+>    The above can be solved by 2^N "One entry queues" (aka slots)
+>    and sequence numbers mapping to this slots. If you need many
+>    slots (more then 256, I would say) then this is again 
+>    inaccaptable, because of the iteration cost in the ISR.
+>    
+> What do you think? After some polishing this should decrease lock
+> contention noticibly.
+> 
+> 
+> Regards
+> 
+> Ingo Oeser
+> 
+> [1] Blocking will be harder to implement here, since we need to
+>    notify the reader routine, that we have data available, which
+>    involves some latency you cannot afford. Maybe this could be
+>    done via schedule_task(), if needed.
+> -- 
+> Use ReiserFS to get a faster fsck and Ext2 to fsck slowly and gently.
+> 
 
-I'm concerned that you're probably just overruning your IP stack:
-      foreach $block (@blocks) {
-        print $client $block;
-        $bytes += length($block);
-      }
+For further discussion I will take this off-list. However, you are
+correct. The very simple ISR that I have (I did preallocate buffers)
+leaves a great deal of room for improvement.
 
-TCP is NOT a guaranteed protocol -- you can't just blast data from one port
-to another and expect it to work.
-a tcp-write is NOT guaranteed -- and as you've seen -- a recv() isn't either
-(that's why you need timeouts).
-You're probably overrunning the tcp buffer on your "print" statement and
-truncating a block.
-I don't see where you're checking for        EAGAIN or EWOULDBLOCK (see man
-send).
-Not real sure how to do this in perl...
+However, the logic that you mention has execution overhead as well.
 
 
-You need a layer-7 protocol that will guarantee your transactions -- once
-you're client acks/naks your server I'll bet everything works hunky-dory.
-If you're not familiar with the OSI model
-http://www.csihq.com/~mike/students/networking/iso/isomodel.html
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
------ Original Message -----
-From: "Robert Kleemann" <robert@kleemann.org>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, June 14, 2001 11:50 PM
-Subject: Re: Client receives TCP packets but does not ACK
+Cheers,
+Dick Johnson
 
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-A couple people have requested a test case.
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
-The problem first showed up in a very large java app.  Since then I
-wrote a small perl program to duplicate the behavior of the large app
-by sending the same data, in the same order, in the same sized blocks,
-from the server to the client.
-
-If you want to test this on your configuration then download the
-following two files:
-http://www.kleemann.org/crap/clientserver
-http://www.kleemann.org/crap/log1e1.txt
-
-Place a copy of the files in the same directory on both the client and
-the server and run the program the following way:
-
-[server]$ ./clientserver -s log1e1.txt
-listening on port 20001
-
-[client]$ ./clientserver -c serverhostname log1e1.txt
-
-The server will attempt to send the data to the client which then
-verifies each byte received.
-
-My client generally stops ack-ing between messages 15 and 25.
-
-Robert.
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
 

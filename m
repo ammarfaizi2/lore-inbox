@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbTJXPR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 11:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbTJXPR3
+	id S262308AbTJXPVF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 11:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTJXPVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 11:17:29 -0400
-Received: from hell.org.pl ([212.244.218.42]:42247 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S262297AbTJXPR2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 11:17:28 -0400
-Date: Fri, 24 Oct 2003 17:18:42 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: M?ns Rullg?rd <mru@users.sourceforge.net>,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
-Message-ID: <20031024151842.GB26732@hell.org.pl>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	M?ns Rullg?rd <mru@users.sourceforge.net>,
-	acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20031020141512.GA30157@hell.org.pl> <yw1x8yngj7xg.fsf@users.sourceforge.net> <20031020184750.GA26154@hell.org.pl> <20031023082410.GC643@openzaurus.ucw.cz>
+	Fri, 24 Oct 2003 11:21:05 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:4101 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262306AbTJXPVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 11:21:02 -0400
+Subject: Re: [PATCH]  2.4.23-pre8 driver udpate for MPT Fusion (2.05.10)
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: "Moore, Eric Dean" <emoore@lsil.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57035A944F@exa-atlanta.se.lsil.com>
+References: <0E3FA95632D6D047BA649F95DAB60E57035A944F@exa-atlanta.se.lsil.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 24 Oct 2003 11:20:59 -0400
+Message-Id: <1067008859.2109.18.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <20031023082410.GC643@openzaurus.ucw.cz>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Pavel Machek:
-> Find out which versions break it, pay special atetion to
-> hwsleep.c.
+On Fri, 2003-10-24 at 10:53, Moore, Eric Dean wrote:
+> Here's a patch for 2.4.23-pre8 kernel for MPT Fusion driver, coming from LSI
+> Logic.
+> 
+> This patch is large, so I have placed it on the LSI ftp site at:
+> ftp://ftp.lsil.com/HostAdapterDrivers/linux/Fusion-MPT/2.05.10/mptlinux-2.05
+> .10.patch
+> 
+> A new email address is setup for directing any MPT Fusion questions:
+> mpt_linux_developer@lsil.com
 
-I stated in my original mail that the last working version was 2.6.0-test3.
-test4 is broken w.r. to S1, and test5 resumes with ACPI interrupts gone.
-I'll try to be more specific, though.
-Best regards,
+The policy for driver updates into 2.4 is that they should be backports
+from 2.6 (for things like mpt fusion that have similar drivers) so that
+the newer driver gets into 2.6 first.  If you want to send the 2.6
+patches, I can queue them up for when the "bugfix only" freeze is
+relaxed.
 
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+James
+
+

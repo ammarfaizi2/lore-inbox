@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277476AbRJJWWr>; Wed, 10 Oct 2001 18:22:47 -0400
+	id <S277487AbRJJW01>; Wed, 10 Oct 2001 18:26:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277487AbRJJWWh>; Wed, 10 Oct 2001 18:22:37 -0400
-Received: from are.twiddle.net ([64.81.246.98]:43942 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S277476AbRJJWWW>;
-	Wed, 10 Oct 2001 18:22:22 -0400
-Date: Wed, 10 Oct 2001 15:22:51 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Paul McKenney <Paul.McKenney@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        Paul Mackerras <paulus@samba.org>
-Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-ID: <20011010152251.A31099@twiddle.net>
-Mail-Followup-To: Paul McKenney <Paul.McKenney@us.ibm.com>,
-	linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-	Paul Mackerras <paulus@samba.org>
-In-Reply-To: <OF99CB0435.488D4308-ON88256AE1.0077A859@boulder.ibm.com>
-Mime-Version: 1.0
+	id <S277493AbRJJW0R>; Wed, 10 Oct 2001 18:26:17 -0400
+Received: from quark.didntduck.org ([216.43.55.190]:57092 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S277487AbRJJWZ6>; Wed, 10 Oct 2001 18:25:58 -0400
+Message-ID: <3BC4CB03.BE1FC37@didntduck.org>
+Date: Wed, 10 Oct 2001 18:26:11 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bob Matthews <bmatthews@redhat.com>
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11 oops
+In-Reply-To: <3BC4B34C.BB45D829@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OF99CB0435.488D4308-ON88256AE1.0077A859@boulder.ibm.com>; from Paul.McKenney@us.ibm.com on Wed, Oct 10, 2001 at 02:47:05PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 02:47:05PM -0700, Paul McKenney wrote:
-> Just to make sure I understand...  This rmbdd() would use IPIs to
-> get all the CPUs' caches synchronized, right?
+Bob Matthews wrote:
+> 
+> Linus,
+> 
+> I've received an oops while booting 2.4.11 on two different SMP
+> machines.  The kernel was SMP, HIGHMEM=64G with sym53c8xx, 3c59x,
+> eepro100, aic7xx and megaraid drivers statically linked.
+>
+> eax: 37e8ace4   ebx: 00000001     ecx: 00000001       edx: c02e1990
+> Code;  c013d941 <exec_mmap+111/1f0>   <=====
+>    0:   0f 22 d8                  mov    %eax,%cr3   <=====
 
-No, it would expand to rmb on Alpha, and to nothing elsewhere.
+What looks like happened here is that the pgd pointer isn't properly
+aligned (it should be 32 byte aligned and 0x37e8ace4 is not).  Do you
+have slab debugging turned on?  I think this has been fixed already in
+the AC kernels.
 
+--
 
-r~
+				Brian Gerst

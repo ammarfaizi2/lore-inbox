@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316528AbSE3Jcg>; Thu, 30 May 2002 05:32:36 -0400
+	id <S316047AbSE3Jfg>; Thu, 30 May 2002 05:35:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316530AbSE3Jcf>; Thu, 30 May 2002 05:32:35 -0400
-Received: from codepoet.org ([166.70.14.212]:19377 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S316528AbSE3Jcf>;
-	Thu, 30 May 2002 05:32:35 -0400
-Date: Thu, 30 May 2002 03:32:36 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.19 - What's up with the kernel build?
-Message-ID: <20020530093235.GA29851@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Russell King <rmk@arm.linux.org.uk>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0205292019090.9971-100000@chaos.physics.uiowa.edu> <3CF5E698.2020806@mandrakesoft.com> <20020530085413.GA29170@codepoet.org> <20020530100144.B10611@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S316488AbSE3Jff>; Thu, 30 May 2002 05:35:35 -0400
+Received: from tartu.cyber.ee ([193.40.6.68]:30220 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id <S316047AbSE3Jfe>;
+	Thu, 30 May 2002 05:35:34 -0400
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre9
+In-Reply-To: <20020529232525.GE3174@werewolf.able.es>
+User-Agent: tin/1.5.12-20020227 ("Toxicity") (UNIX) (Linux/2.4.18 (i586))
+Message-Id: <E17DMKl-0002tW-00@roos.tartu-labor>
+Date: Thu, 30 May 2002 12:35:03 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu May 30, 2002 at 10:01:44AM +0100, Russell King wrote:
-> > Shockingly, not everyone uses mandrake's gcc 3.0.4...  ;-)
-> > 
-> > GCCINCDIR:= ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
-> > CFLAGS+=-nostdinc -I $(GCCINCDIR)
-> 
-> There is a nicer way of achieving the same thing:
-> 
-> CFLAGS	+= -nostdinc -iwithprefix include
-> 
-> `-iwithprefix DIR'
->      Add a directory to the second include path.  The directory's name
+JAM> I still have some small fixes collected from the list, that if really
+JAM> needed should be included in final...
+JAM> Can anybody say if they still are valid (they apply fine on -pre9):
 
-Cool, I didn't know about this one.  thanks,
+JAM> ********************** 01-fs-pagemap:
+JAM> --- linux-2.4.19-pre7-jam1/fs/partitions/check.h.orig   2002-04-16 17:22:33.000000000 +0200
+JAM> +++ linux-2.4.19-pre7-jam1/fs/partitions/check.h        2002-04-16 17:23:08.000000000 +0200
+JAM> @@ -2,6 +2,9 @@
+JAM>   * add_partition adds a partitions details to the devices partition
+JAM>   * description.
+JAM>   */
+JAM> +
+JAM> +#include <linux/pagemap.h>
+JAM> +
+JAM>  void add_gd_partition(struct gendisk *hd, int minor, int start, int size);
+JAM>  
+JAM>  typedef struct {struct page *v;} Sector;
 
- -Erik
+This chunk is not needed anymore, Marcelo fixed it differently (including
+pagemap.h from acorn.c IIRC). Fixed in pre9, I tested it.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+-- 
+Meelis Roos (mroos@linux.ee)

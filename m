@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbTEMBzw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 21:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbTEMBzw
+	id S263132AbTEMBtr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 21:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263139AbTEMBtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 21:55:52 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:31728 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262531AbTEMBzu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 21:55:50 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780CCB0453@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'William Lee Irwin III'" <wli@holomorphy.com>
-Cc: "'Chris Friesen'" <cfriesen@nortelnetworks.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: how to measure scheduler latency on powerpc?  realfeel doesn'
-	 t work due to /dev/rtc issues
-Date: Mon, 12 May 2003 19:08:30 -0700
+	Mon, 12 May 2003 21:49:06 -0400
+Received: from siaag2af.compuserve.com ([149.174.40.136]:40344 "EHLO
+	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
+	id S263132AbTEMBsL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 21:48:11 -0400
+Date: Mon, 12 May 2003 21:57:28 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: The disappearing sys_call_table export.
+To: Yoav Weiss <ml-lkml@unpatched.org>
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <200305122200_MC3-1-3890-B108@compuserve.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: William Lee Irwin III [mailto:wli@holomorphy.com]
-> 
-> From: William Lee Irwin III [mailto:wli@holomorphy.com]
-> >> This is ridiculous. Just make sure you're not sharing interrupts and
-> >> count cycles starting at the ISR instead of wakeup and tag events
-> >> properly if you truly believe that to be your metric. You, as the
-> >> kernel, are notified whenever the interrupts occur and can just look
-> >> at the time of day and cycle counts.
-> 
-> On Mon, May 12, 2003 at 05:20:39PM -0700, Perez-Gonzalez, Inaky wrote:
-> > Well, I am only suggesting a way to _FORCE_ interrupts to happen
-> > at a certain rate controllable by _SOMEBODY_, not as the system
-> > gets them. Chris was concerned about not having a way to
-> > _GENERATE_ interrupts at a certain rate.
-> > What you are suggesting is the other part of the picture, how to
-> > measure the latency and AFAICS, it is not part of the problem of
-> > generating the interrupts.
-> 
-> It also seems somewhat pointless to measure it under artificial
-> conditions. Interrupts happen often anyway and you probably want to
+Yoav Weiss wrote:
 
-Your artificial conditions are your control measurements. Then you
-add the loads in the background; by being able to selectively add
-and remove loads (the real live loads), then you can more easily
-identify who is causing delays and under what conditions. It is
-not as thorough as a full code analysis ... but if your coverage
-is well done can help a lot.
+>>   "That can be done manually" does not get you the check mark in
+>> the list of features.  Management wants idiot-resistant security.
+>
+> It has nothing to do with idiot-resistance.  Why should this multi-write
+> operation be done in kernel ?  mkswap is a usermode program.  mkfs is a
+> usermode program.  If you want to have a wipeswap script that copies a
+> chunk of your /dev/zero to the swap, it should also be in usermode.  Just
+> run it in wherever rc file you use to swapoff.
 
-But I am sure you know all this already.
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+  And when I type 'swapoff' at the command line the whole scheme fails
+unless I am a perfect robot sysadmin and always remember to wipe the
+file.  This needs to 'fail safe' and it needs to be done within the kernel
+to be considered a working feature.

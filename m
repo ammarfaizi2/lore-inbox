@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262588AbREOAZk>; Mon, 14 May 2001 20:25:40 -0400
+	id <S262589AbREOAeU>; Mon, 14 May 2001 20:34:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262590AbREOAZa>; Mon, 14 May 2001 20:25:30 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:38668 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262588AbREOAZ1>; Mon, 14 May 2001 20:25:27 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.4.4 kernel reports wrong amount of physical memory
-Date: 14 May 2001 17:25:18 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9dpt1e$185$1@cesium.transmeta.com>
-In-Reply-To: <200105142250.f4EMoHt02203@adsl-209-76-109-63.dsl.snfc21.pacbell.net> <Pine.LNX.4.33.0105142025000.18102-100000@duckman.distro.conectiva>
+	id <S262590AbREOAeK>; Mon, 14 May 2001 20:34:10 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16141 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S262589AbREOAdz>; Mon, 14 May 2001 20:33:55 -0400
+Date: Mon, 14 May 2001 21:33:35 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <viro@math.psu.edu>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <E14zPot-0001Sa-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0105142132510.18102-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.33.0105142025000.18102-100000@duckman.distro.conectiva>
-By author:    Rik van Riel <riel@conectiva.com.br>
-In newsgroup: linux.dev.kernel
+On Mon, 14 May 2001, Alan Cox wrote:
+
+> > I've been doubting whether to work on both the -ac kernels
+> > and the -linus tree, but this is a pretty good argument for
+> > sticking with -ac and just ignoring the -linus tree...
 >
-> On Mon, 14 May 2001, Wayne Whitney wrote:
-> > In mailing-lists.linux-kernel, you wrote:
-> >
-> > > You need to compile highmem support into the kernel if you want to
-> > > use more than 890 MB of RAM, set it to maximum 4GB for best
-> > > performance...
-> >
-> > On a similar note, what is the maximum physical memory supported
-> > by the 4GB option?
-> 
-> Ummm, 4GB maybe? ;)
-> 
+> Time will make that decision. Linus kindly gave us all the power
+> to vote with our feet. One thing I absolutely refuse to do is to
+> let a disagreemnt over some specific device implementation turn
+> into an excuse for a wider difference in the trees.
 
-It seems obvious once you know why the limits are there.  The 1 GB
-limit (actually 1024-128 MB = 896 MB) is a software limit; the 4 GB
-and 64 GB limits are hardware limits and are exact.
+Agreed. However, if this thing means I cannot use the -linus
+tree without devfs, then it will also mean my VM stuff only
+gets tested on -ac kernels...
 
-IMO we should rename the 1 GB option!
+regards,
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291210AbSAaR6Z>; Thu, 31 Jan 2002 12:58:25 -0500
+	id <S291212AbSAaSBZ>; Thu, 31 Jan 2002 13:01:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291209AbSAaR6P>; Thu, 31 Jan 2002 12:58:15 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4868 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291208AbSAaR6B>; Thu, 31 Jan 2002 12:58:01 -0500
-Message-ID: <3C598585.4090004@zytor.com>
-Date: Thu, 31 Jan 2002 09:57:25 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        Werner Almesberger <wa@almesberger.net>,
-        "Erik A. Hendriks" <hendriks@lanl.gov>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>	<3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org>	<3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org>	<3C58CAE0.4040102@zytor.com> <m1r8o7ayo3.fsf@frodo.biederman.org>	<3C58DD2E.10106@zytor.com> <m1n0yvaucy.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S291213AbSAaSBF>; Thu, 31 Jan 2002 13:01:05 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:14382 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S291212AbSAaSBC>; Thu, 31 Jan 2002 13:01:02 -0500
+Date: Thu, 31 Jan 2002 19:02:02 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Momchil Velikov <velco@fadata.bg>,
+        John Stoffel <stoffel@casc.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+Message-ID: <20020131190202.I1309@athlon.random>
+In-Reply-To: <20020131153607.C1309@athlon.random> <Pine.LNX.4.33.0201310942210.1537-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.33.0201310942210.1537-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jan 31, 2002 at 09:46:52AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+On Thu, Jan 31, 2002 at 09:46:52AM -0800, Linus Torvalds wrote:
+> On Thu, 31 Jan 2002, Andrea Arcangeli wrote:
+> >
+> > but with the radix tree (please correct me if I'm wrong) the height will
+> > increase eventually, no matter what (so it won't be an effective O(1)
+> > like the hashtable provides in real life, not the worst case, the common
+> > case). With the hashtable the height won't increase instead.
+> 
+> No.
+> 
+> The radix tree is basically O(1), because the maximum depth of a 7-bit
+> radix tree is just 5. The index is only a 32-bit number.
+
+then it will break on archs with more ram than 1<<(32+PAGE_CACHE_SHIFT).
+
+Also there must be some significant memory overhead that can be
+triggered with a certain layout of pages, in some configuration it
+should take much more ram than the hashtable if I understood well how it
+works.
+
+Also its O(1) may be slower than the O(N) of the hashtable in the 99% of
+the cases.
 
 > 
->>From my experience PXE is not easier to use than coming up with my
-> own.  At least not for machines that regularly need to network boot.
-> And many motherboard manufacturers are happy to replace their PXE
-> option rom with an etherboot option rom.
+> We could, in fact, make all page caches use a fixed-depth tree, which is
+> clearly O(1). But the radix tree is slightly faster and tends to use less
+> memory under common loads, so..
 > 
-> And besides not working well PXE is overly complicated, and
-> intricately tied to the x86 BIOS.  I would rather simply follow the
-> good internet RFC's and work on filling in the one missing piece.  A
-> file format.  And the ELF file format works very well.  
-> 
+> Remember: you must NOT ignore the constant part of a "O(x)" equation.
+> Hashes tend to be effectively O(1) under most loads, but they have cache
+> costs, and they have scalability costs that a radix tree doesn't have.
 
-> Besides all of that of that I regularly network boot LinuxBIOS which
-> PXE can't cope with.
-> 
-> Using etherboot I don't need a second stage bootloader.  Etherboot
-> does work well.  I don't need anything beyond vanilla DHCP and TFTP
-> (the standards for network booting).  The research into how to do it
-> has really been done.  And I can work on interesting things like
-> adding end to end checksums of the image I am booting.
-> 
+the scalability cost I obviously agree :) (however on some workload with
+all tasks on the same inode, the scalability cost remains the same).
 
-
-Etherboot requires a specific other driver.  The problem with what 
-you're proposing -- and let me get it very clear here, it's a huge 
-problem -- is that you have no device-independent access to the boot 
-medium (in this case, the network) once you have loaded the initial boot 
-program.  This is an enormous drawback.
-
-That's the thing with PXE and the BIOS too, for that matter: they might 
-be specs done by monkeys, but when it really counts, what you need is 
-really there (modulo bugs, but that applies to everything.)
-
-	-hpa
-
+Andrea

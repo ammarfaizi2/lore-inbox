@@ -1,35 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVDES4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVDETJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbVDES4q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVDESzM
+	id S261935AbVDETJO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVDESyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:55:12 -0400
-Received: from ns3.dataphone.se ([212.37.0.170]:4308 "EHLO
-	mail-slave.dataphone.se") by vger.kernel.org with ESMTP
-	id S261514AbVDESvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:51:17 -0400
-From: Magnus Damm <damm@opensource.se>
-To: linux-kernel@vger.kernel.org
-Cc: Magnus Damm <damm@opensource.se>
-Message-Id: <20050405181944.16123.2372.92859@clementine.local>
-Subject: [PATCH] opl3sa2: MODULE_PARM_DESC
-Date: Tue,  5 Apr 2005 20:51:13 +0200 (CEST)
+	Tue, 5 Apr 2005 14:54:22 -0400
+Received: from zamok.crans.org ([138.231.136.6]:2204 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261898AbVDESvl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:51:41 -0400
+Message-ID: <4252DE40.6050305@crans.org>
+Date: Tue, 05 Apr 2005 20:51:44 +0200
+From: =?ISO-8859-1?Q?Mathieu_B=E9rard?= <Mathieu.Berard@crans.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc1-mm4 crash while mounting a reiserfs3 filesystem
+References: <42500F5E.9090604@crans.org>	 <20050403145606.51ffeb72.akpm@osdl.org> <58cb370e05040501476c2cb71f@mail.gmail.com>
+In-Reply-To: <58cb370e05040501476c2cb71f@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-opl3sa2: Fix "irq"-parameter name typo for parameter description.
+Bartlomiej Zolnierkiewicz a écrit :
+> On Apr 3, 2005 11:56 PM, Andrew Morton <akpm@osdl.org> wrote:
+> 
+>>Mathieu Bérard <Mathieu.Berard@crans.org> wrote:
+>>
+>>>Hi,
+>>>I get a 100% reproductible oops while booting linux 2.6.12-rc1-mm4.
+>>>(Everyting run smoothly using 2.6.11-mm1)
+>>>It seems to be related with mounting a reiserfs3 filesystem.
+>>
+>>It looks more like an IDE bug.
+>>
+>>
+>>>ReiserFS: hdg1: checking transaction log (hdg1)
+>>>Unable to handle kernel paging request at virtual address 0a373138
+>>>  printing eip:
+>>>df6d1211
+>>>*pde = 00000000
+>>>Oops: 0002 [#1]
+>>>PREEMPT
+>>>Modules linked in: ext2 mbcache w83627hf i2c_sensor i2c_isa ppp_generic
+>>>slhc w83627hf_wdt msr cpuid
+>>>rtc
+>>>CPU:    0
+>>>EIP:    0060:[<df6d1211>]    Not tainted VLI
+>>>EFLAGS: 00010202   (2.6.12-rc1-mm4)
+>>>EIP is at 0xdf6d1211
+>>>eax: c9393266   ebx: df6d1c84   ecx: d84eab1e   edx: c155ccf8
+>>>esi: c039242c   edi: c039239c   ebp: 700d580a   esp: df6d1c80
+>>>ds: 007b   es: 007b   ss: 0068
+>>>Process mount (pid: 1132, threadinfo=df6d1000 task=df711a50)
+>>>Stack: c039242c c0229945 c039239c df6d1000 df6d1000 c039242c c155ccf8
+>>>c0223051
+>>>        00000088 00001388 c159ae28 df6d1000 c039242c c155ccf8 c039239c
+>>>c022333e
+>>>        df6d1d1c ffffffff c153d6e0 c155bd78 00000000 df6d1d1c c14007f0
+>>>c0212260
+>>>Call Trace:
+>>>  [<c0229945>] flagged_taskfile+0x125/0x380
+>>>  [<c0223051>] start_request+0x1f1/0x2a0
+>>>  [<c022333e>] ide_do_request+0x20e/0x3c0
+>>>  [<c0212260>] __generic_unplug_device+0x20/0x30
+>>>  [<c0212281>] generic_unplug_device+0x11/0x30
+>>>  [<c02122ac>] blk_backing_dev_unplug+0xc/0x10
+>>>  [<c0156336>] sync_buffer+0x26/0x40
+>>>  [<c02a0b22>] __wait_on_bit+0x42/0x70
+>>>  [<c0156310>] sync_buffer+0x0/0x40
+>>>  [<c0156310>] sync_buffer+0x0/0x40
+>>>  [<c02a0bcd>] out_of_line_wait_on_bit+0x7d/0x90
+>>>  [<c012bf80>] wake_bit_function+0x0/0x60
+>>>  [<c01563c9>] __wait_on_buffer+0x29/0x30
+>>>  [<c01b0dd7>] _update_journal_header_block+0xf7/0x140
+>>>  [<c01b290d>] journal_read+0x31d/0x470
+>>>  [<c01b3241>] journal_init+0x4e1/0x650
+>>>  [<c011748b>] printk+0x1b/0x20
+>>>  [<c01a3ced>] reiserfs_fill_super+0x34d/0x770
+>>>  [<c01c9470>] snprintf+0x20/0x30
+>>>  [<c0189ab6>] disk_name+0x96/0xf0
+>>>  [<c015bf75>] get_sb_bdev+0xe5/0x130
+>>>  [<c0163945>] link_path_walk+0x65/0x140
+>>>  [<c01a4168>] get_super_block+0x18/0x20
+>>>  [<c01a39a0>] reiserfs_fill_super+0x0/0x770
+>>>  [<c015c194>] do_kern_mount+0x44/0xf020 30 20 30 20 30 20 30 20 30 20
+>>>30 20 30 20 30 20 <1>general p
+>>
+>>It appears that we might have jumped from flagged_taskfile into something
+>>at 0xdf6d1211, which is rather odd.
+> 
+> 
+> It is very odd, we shouldn't hit flagged_taskfile() in the first 
+> place.  This function currently is executed only for special
+> HDIO_DRIVE_TASKFILE ioctl requests.
+> 
 
-Signed-off-by: Magnus Damm <damm@opensource.se>
+Whatever the explanation was, This oops is fixed in 2.6.12-rc2-mm1...
 
---- linux-2.6.12-rc2/sound/oss/opl3sa2.c	2005-04-05 16:57:30.000000000 +0200
-+++ linux-2.6.12-rc2-autoparam/sound/oss/opl3sa2.c	2005-04-05 19:22:49.469074368 +0200
-@@ -199,7 +199,7 @@
- MODULE_PARM_DESC(mpu_io, "Set MIDI I/O base (0x330 or other. Address must be even and must be from 0x300 to 0x334)");
- 
- module_param(irq, int, 0);
--MODULE_PARM_DESC(mss_irq, "Set MSS (audio) IRQ (5, 7, 9, 10, 11, 12)");
-+MODULE_PARM_DESC(irq, "Set MSS (audio) IRQ (5, 7, 9, 10, 11, 12)");
- 
- module_param(dma, int, 0);
- MODULE_PARM_DESC(dma, "Set MSS (audio) first DMA channel (0, 1, 3)");
+-- 
+Mathieu Bérard
+

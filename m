@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131721AbQJ2OcV>; Sun, 29 Oct 2000 09:32:21 -0500
+	id <S131769AbQJ2Onh>; Sun, 29 Oct 2000 09:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131726AbQJ2OcM>; Sun, 29 Oct 2000 09:32:12 -0500
-Received: from slc346.modem.xmission.com ([166.70.2.92]:28946 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S131721AbQJ2OcD>; Sun, 29 Oct 2000 09:32:03 -0500
-To: Raul Miller <moth@magenta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: guarantee_memory() syscall?
-In-Reply-To: <972824256.eb26eb5e@magenta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 29 Oct 2000 06:31:45 -0700
-In-Reply-To: Raul Miller's message of "Sun, 29 Oct 2000 08:03:35 -0500"
-Message-ID: <m1n1fn7ozi.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S131768AbQJ2On1>; Sun, 29 Oct 2000 09:43:27 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:33447 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131762AbQJ2OnL>;
+	Sun, 29 Oct 2000 09:43:11 -0500
+Date: Sun, 29 Oct 2000 09:43:08 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: PATCH: killing read_ahead[]
+In-Reply-To: <Pine.LNX.4.10.10010261332390.2575-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0010290932060.27484-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Raul Miller <moth@magenta.com> writes:
 
-> Can anyone tell me about the viability of a guarantee_memory() syscall?
+
+On Thu, 26 Oct 2000, Linus Torvalds wrote:
+
+> The alternative is to have an entirely different approach, where the page
+> cache itself only knows about the maximum page (in which case your current
+> "last_page" calculation is right on), and then anybody who needs to know
+> about partial pages needs to get THAT information from the inode.
 > 
-> [I'm thinking: it would either kill the process, or allocate all virtual
-> memory needed for its shared libraries, buffers, allocated memory, etc.
-> Furthermore, it would render this process immune to the OOM killer,
-> unless it allocated further memory.]
+> I'd almost prefer the alternative approach. Especially as right now the
+> only real problem we're fighting is to make sure we never return an
+> invalid page - the sub-page offset really doesn't matter for those things,
+> and everybody who cares about the sub-page-information already obviously
+> has it.
 
-Except for the OOM killer semantics mlockall already exists.
+s/everybody/almost &/
+There are only two places where we really care. And one of them can be
+trivially shot.
+	* O_APPEND handling. Well, duh - we can take the main loop
+of generic_file_write() into a separate function (do_generic_file_write())
+and be done with that - grab the semaphore, possibly adjust the ->f_pos,
+pass the actor to do_generic_file_write(), be happy.
+	* do_generic_file_read() should know how much to copy from the
+last page. We could push that into the actor. Or we could mirror that
+data in struct address_space.
 
-Eric
+	But yes, 99% of cases care only about the index of last page. So
+I really don't think that size>>PAGE_CACHE_SHIFT makes sense from VM point
+of view.
+
+	OK, I have the "push to actor" variant and I'll send it once it
+will get some testing. Changing it to "mirror both" is not a problem, anyway.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

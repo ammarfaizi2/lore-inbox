@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262609AbRFGOaz>; Thu, 7 Jun 2001 10:30:55 -0400
+	id <S262655AbRFGOdz>; Thu, 7 Jun 2001 10:33:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262615AbRFGOaq>; Thu, 7 Jun 2001 10:30:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28426 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262609AbRFGOad>;
-	Thu, 7 Jun 2001 10:30:33 -0400
-Date: Thu, 7 Jun 2001 15:28:36 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: bohdan@kivc.vstu.vinnica.ua,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S262653AbRFGOdp>; Thu, 7 Jun 2001 10:33:45 -0400
+Received: from kivc.vstu.vinnica.ua ([62.244.53.242]:60547 "EHLO
+	kivc.vstu.vinnica.ua") by vger.kernel.org with ESMTP
+	id <S262628AbRFGOde>; Thu, 7 Jun 2001 10:33:34 -0400
+Date: Thu, 7 Jun 2001 17:27:45 +0300
+From: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: isolating process..
-Message-ID: <20010607152836.B1765@flint.arm.linux.org.uk>
-In-Reply-To: <200106071340.IAA59373@tomcat.admin.navo.hpc.mil>
+Message-ID: <20010607172745.B9925@kivc.vstu.vinnica.ua>
+Mail-Followup-To: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200106071340.IAA59373@tomcat.admin.navo.hpc.mil> <20010607152836.B1765@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <200106071340.IAA59373@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Thu, Jun 07, 2001 at 08:40:06AM -0500
+In-Reply-To: <20010607152836.B1765@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Jun 07, 2001 at 03:28:36PM +0100
+X-Logged: Logged by kivc.vstu.vinnica.ua as f57ERj210127 at Thu Jun  7 17:27:45 2001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 07, 2001 at 08:40:06AM -0500, Jesse Pollard wrote:
-> ---------  Received message begins Here  ---------
-> > Byt how should I restrict him open socket and send some data (my IP,
-> > for example) somewhere ??
+On Thu, Jun 07, 2001 at 03:28:36PM +0100, Russell King wrote:
 
-I believe that Netfilter will do this for you.  Look at:
+> I believe that Netfilter will do this for you.  
+a) that'll require 2.4.x
+b) that'll require 2.4.x recompilation
+c) that will definitely not solve all the problems arise
 
-Owner match support (EXPERIMENTAL)
-CONFIG_IP_NF_MATCH_OWNER
-  Packet owner matching allows you to match locally-generated packets
-  based on who created them: the user, group, process or session.
-
-  If you want to compile it as a module, say M here and read
-  Documentation/modules.txt.  If unsure, say `N'.
-
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+thanks, anyway
 

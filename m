@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUJWHHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267416AbUJWGrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUJWHHp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 03:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJWHHp
+	id S267416AbUJWGrO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 02:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271426AbUJVQzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 03:07:45 -0400
-Received: from daffy.napanet.net ([206.81.96.18]:61707 "EHLO mx1.napanet.net")
-	by vger.kernel.org with ESMTP id S261875AbUJWHHl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 03:07:41 -0400
-Date: Sat, 23 Oct 2004 00:06:14 -0700
-From: Stephen Lewis <lewis@napanet.net>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Message-Id: <20041023000614.6ca68c2e.lewis@napanet.net>
-In-Reply-To: <200410230045.49517.gene.heskett@verizon.net>
-References: <20041022101529.732254eb.lewis@napanet.net>
-	<200410230045.49517.gene.heskett@verizon.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.8; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 22 Oct 2004 12:55:00 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:60097 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S271441AbUJVQxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 12:53:08 -0400
+Message-ID: <4179322B.7020904@drdos.com>
+Date: Fri, 22 Oct 2004 10:15:39 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com> <20041022084823.GA14847@elte.hu>
+In-Reply-To: <20041022084823.GA14847@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Oct 2004 00:45:49 -0400
-Gene Heskett <gene.heskett@verizon.net> wrote:
+Ingo Molnar wrote:
 
-...
-> >Baseline - I can get accelerated 3D graphics and video overlay
-> >and YV12 and VGA registers with open source driver that compiles
-> >for PowerPC and DEC Alpha today for $85 - Radeon 7500 PCI.
-> 
-> 'scuse me, but have you tried to buy one of those locally?  The 
-> unwashed masses of us are stuck with whatever we can buy at Circuit 
-> City et all, and the cheapest thing today for an AGP slot is the 
-> house brands of the 9200 SE w/128 megs of ddr ram.
+>first i was slighly puzzled and suspected that your mail server somehow
+>delayed your outgoing email for ~1.5 years then i found what i believe
+>is the secret message hidden in your email:
+>
+>* Jeff V. Merkey <jmerkey@drdos.com> wrote:
+>
+>  
+>
+>>[...] The memory sickness [...]
+>>[...] I was experiencing  [...]
+>>[...] is constant [...]
+>>    
+>>
+>
+>please confirm decoding was correct! Meanwhile our secret message back
+>to agent 000 is:
+>
+>  IN THAT CONDITION MUST NOT POST TO LKML UNDER ANY CIRCUMSTANCE!
+>
+>[this message has been caps-encrypted. COMPARTMENTED 12B3. EYES ONLY.]
+>
+>	Ingo
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Ingo,
 
-What do you have against eBay?
+Bite me.
 
->...
-> Has this links code been substantially updated since the 6.8.1 release 
-> as built on an x86 system?  If not, then this common readily 
-> available card is still not supported all that well, my lspci outputs 
-> say the vendor codes are unknown.  And my glxgears is 198 fps.
-> 
+:-)
 
-Sorry I have no x86 systems.
-9200SE is listed as 3d accelerated see here:
-http://freedesktop.org/~xorg/X11R6.8.0/doc/radeon.4.html
-maybe you do not have dri loaded?
-
-> -- 
-> Cheers, Gene
-
-Stephen Lewis
+Jeff

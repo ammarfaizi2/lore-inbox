@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262911AbTDAXAn>; Tue, 1 Apr 2003 18:00:43 -0500
+	id <S262898AbTDAW4l>; Tue, 1 Apr 2003 17:56:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262912AbTDAXAn>; Tue, 1 Apr 2003 18:00:43 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:1798 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S262911AbTDAXAm>; Tue, 1 Apr 2003 18:00:42 -0500
-Date: Tue, 1 Apr 2003 15:12:02 -0800
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PATCH: dpt_i2o memory leak comments
-Message-ID: <20030401231202.GC4078@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200304012105.h31L5vG11354@hera.kernel.org> <20030401131504.5d25020b.rddunlap@osdl.org> <Pine.LNX.4.53.0304011624030.27457@chaos> <1049232414.20250.17.camel@laptop-linux.cunninghams>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262903AbTDAW4l>; Tue, 1 Apr 2003 17:56:41 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:51221 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S262898AbTDAW4k>; Tue, 1 Apr 2003 17:56:40 -0500
+From: Jos Hulzink <josh@stack.nl>
+To: Matthew Harrell 
+	<mharrell-dated-1049658915.d5a407@bittwiddlers.com>,
+       Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 529] New: ACPI under 2.5.50+ (approx) locks system hard during bootup
+Date: Wed, 2 Apr 2003 01:07:58 +0200
+User-Agent: KMail/1.5
+Cc: chris@wirex.com, andrew.grover@intel.com
+References: <130680000.1049224849@flay> <20030401114749.A7647@figure1.int.wirex.com> <20030401195514.GA29214@bittwiddlers.com>
+In-Reply-To: <20030401195514.GA29214@bittwiddlers.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1049232414.20250.17.camel@laptop-linux.cunninghams>
-User-Agent: Mutt/1.3.27i
+Message-Id: <200304020107.58676.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 02, 2003 at 09:26:54AM +1200, Nigel Cunningham wrote:
-> On Wed, 2003-04-02 at 09:26, Richard B. Johnson wrote:
-> > Loose means that something is rattling around, not connected, or
-> > not tied down. Lose is what happens on the Crap Tables (as above).
-> 
-> Is it clearer to say: Loose is a state, lose is a verb?
+On Tuesday 01 April 2003 21:55, Matthew Harrell wrote:
+> I've tried every kernel I could get to build up through 2.5.66 and nothing
+> changed.  Same behavior every time
+>
+> Also, I can get them all to boot into single user mode.  I'm going to check
+> if the hang is caused by the loading of the alsa modules (which run on the
+> same interrupt) or something else.
 
-No, because loose is also a verb meaning to make loose or
-remove restraints.  English is such a fun language.
+The only way I can boot recent 2.5 kernels is to make sure my BIOS does 
+nothing that even smells like ACPI. The only response I got so far on the 
+lkml is "disable acpi support" and "disable apic support". The only 
+conclusion I can make is that the ACPI support in 2.5 is buggy enough to 
+prevent 2.5 to emerge into 2.6 for a long time from now, and unfortunately 
+nobody seems to care. I detected big IRQ / ACPI / APIC trouble since about  
+2.5.44 - 2.5.53, and nothing has changed since. 
 
-To lose something implies the loss is unintended, either
-real or pretense.  Unless the loss is unintentional you
-really shouldn't be using the word "lose".  If it is
-unintentional it should probably be past tense (lost).
+NFI, I just don't understand that a core problem that prevents me from booting 
+2.5 kernels, is noticed by so few others that it is able to remain unfixed 
+for so long.
 
-At this point I cannot be sure of the context here but what
-is probably meant would be clearer if we used the word
-"discard".
-
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+Jos

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264602AbTLESM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:12:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264855AbTLESM3
+	id S264365AbTLESLF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:11:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264375AbTLESLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:12:29 -0500
-Received: from slider.rack66.net ([212.3.252.135]:20126 "EHLO
-	slider.rack66.net") by vger.kernel.org with ESMTP id S264602AbTLESMX
+	Fri, 5 Dec 2003 13:11:04 -0500
+Received: from 149106.vserver.de ([62.75.149.106]:48827 "EHLO
+	149106.vserver.de") by vger.kernel.org with ESMTP id S264365AbTLESJU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 13:12:23 -0500
-Date: Fri, 5 Dec 2003 19:12:22 +0100
-From: Filip Van Raemdonck <filipvr@xs4all.be>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031205181222.GA24882@debian>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031205140304.GF17870@michonline.com> <001401c3bb56$3b2fdd40$ca41cb3f@amer.cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 5 Dec 2003 13:09:20 -0500
+From: Ralf Orlowski <ralf@orle.de>
+Reply-To: ralf@orle.de
+Organization: privat
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: crypto support in kernel 2.4.23
+Date: Fri, 5 Dec 2003 19:09:07 +0100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <001401c3bb56$3b2fdd40$ca41cb3f@amer.cisco.com>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200312051909.07265.ralf@orle.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 05, 2003 at 09:35:52AM -0800, Hua Zhong wrote:
-> > So far, I don't see any reason why a module that uses an 
-> > inline function provided via a kernel header could be distributed in
-> > binary 
-> > format without being a "derived work" and thus bound by the GPL.
-> 
-> Yeah, the same reason that XFS, NUMA, etc are derived works from Unix
-> since they must include Unix header files.
+Hi,
 
-Nope, they #include Linux header files - at least in their Linux version.
-Even if one version does #include Unix headers, that does not mean
-copyright to the rest of the code automatically belongs to the Unix
-copyright holder.
+can someone tell me, how I can get the crypto support to work in kernel
+2.4.23.
 
-And we're not even talking about source code; we're talking about
-_binary modules_. Which do include object code which comes from GPLed
-(inline) code; and are thus derived works.
+When I try to use this, the kernel compiles just fine with crypto activated
+in the configuration. But when I then try to load the modules I always get
+these error-messages:
+
+/lib/modules/2.4.23/kernel/crypto/twofish.o: unresolved symbol
+crypto_unregister_alg
+/lib/modules/2.4.23/kernel/crypto/twofish.o: unresolved symbol
+crypto_register_alg
+/lib/modules/2.4.23/kernel/crypto/twofish.o: insmod
+/lib/modules/2.4.23/kernel/crypto/twofish.o failed
+/lib/modules/2.4.23/kernel/crypto/twofish.o: insmod twofish failed
+
+Does someone know, what is missing here? I couldn't find any documentation,
+that already mentions this problem.
 
 
-Regards,
+Bye
 
-Filip
-
+Ralf
 -- 
-We have joy, we have fun,
-we have Linux on our Sun.
+Ralf Orlowski                           voice: +49-4122-977356
+Katzhagen 98                            mobil: +49-173-5239069
+25436 Uetersen                          E-mail: Ralf@orle.de
+GERMANY             PGP 5.0 Key available at public keyservers
+

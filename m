@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287595AbSALWMS>; Sat, 12 Jan 2002 17:12:18 -0500
+	id <S287593AbSALWQq>; Sat, 12 Jan 2002 17:16:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287593AbSALWMG>; Sat, 12 Jan 2002 17:12:06 -0500
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:58612 "HELO
-	dardhal") by vger.kernel.org with SMTP id <S287588AbSALWLy>;
-	Sat, 12 Jan 2002 17:11:54 -0500
-Date: Sat, 12 Jan 2002 23:11:45 +0100
-From: Jose Luis Domingo Lopez <jdomingo@internautas.org>
-To: Tony Glader <Tony.Glader@blueberrysolutions.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: F00F-bug workaround working?
-Message-ID: <20020112221144.GC1406@localhost>
-Mail-Followup-To: Tony Glader <Tony.Glader@blueberrysolutions.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201122347270.16871-100000@blueberrysolutions.com>
+	id <S287588AbSALWQg>; Sat, 12 Jan 2002 17:16:36 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:42247 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S287598AbSALWQ1>;
+	Sat, 12 Jan 2002 17:16:27 -0500
+Date: Sat, 12 Jan 2002 15:13:47 -0700
+From: yodaiken@fsmlabs.com
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, yodaiken@fsmlabs.com,
+        Rob Landley <landley@trommello.org>, Robert Love <rml@tech9.net>,
+        nigel@nrg.org, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020112151347.A6981@hq.fsmlabs.com>
+In-Reply-To: <E16PTB7-0002rC-00@the-village.bc.nu> <3C409FB2.8D93354F@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.33.0201122347270.16871-100000@blueberrysolutions.com>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2i
+In-Reply-To: <3C409FB2.8D93354F@linux-m68k.org>; from zippel@linux-m68k.org on Sat, Jan 12, 2002 at 09:42:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 12 January 2002, at 23:49:06 +0200,
-Tony Glader wrote:
-
-> I have had problems with 2.4.17 running in a Classic Pentium (lot of 
-> oopses). I'm sure that there's no problem with hardware. Is F00F'bug 
-> workaround work still?
+On Sat, Jan 12, 2002 at 09:42:26PM +0100, Roman Zippel wrote:
+> Hi,
 > 
-No problems here with any 2.4.x kernel, both with old and new
-workarounds for the mentioned bug.
+> Alan Cox wrote:
+> 
+> > > Because the IRIX implementation sucks, every implementation has to suck?
+> > > Somehow I have the suspicion you're trying to discourage everyone from
+> > > even trying, because if he'd succeeded you'd loose a big chunk of
+> > > potential RTLinux customers.
+> > 
+> > Victor has had the same message for years, as have others like Larry McVoy
+> > (in fact if Larry and Victor agree on something its unusual enough to
+> >  remember). So I can vouch for the fact Victor hasn't changed his tune from
+> > before rtlinux was ever any real commercial toy. I think you owe him an
+> > apology.
+> 
+> Did I really say something that bad? I would be actually surprised, if
+> Victor wouldn't act in the best interest of his company. The other
+> possibility is that Victor must have had such a terrible experience with
+> IRIX, so that he thinks any attempts to add better soft realtime or even
+> hard realtime capabilities (not just as addon) must be doomed to fail.
 
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 5
-model		: 2
-model name	: Pentium 75 - 200
-stepping	: 12
-cpu MHz		: 165.792
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: yes
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr mce cx8
-bogomips	: 330.95
+Well, how about a third possibility - that I see a problem you have not
+seen and that you should try to argue on technical terms instead of psychoanlyzing
+me or looking for financial motives?
 
-Jan 12 12:30:21 dardhal kernel: Intel Pentium with F0 0F bug -
-workaround enabled
 
 -- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo AT internautas DOT   org  => Spam at your own risk
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

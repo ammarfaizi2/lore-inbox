@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289907AbSAPJsi>; Wed, 16 Jan 2002 04:48:38 -0500
+	id <S289917AbSAPKDm>; Wed, 16 Jan 2002 05:03:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289909AbSAPJsS>; Wed, 16 Jan 2002 04:48:18 -0500
-Received: from lmail.actcom.co.il ([192.114.47.13]:34954 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S289907AbSAPJsL>; Wed, 16 Jan 2002 04:48:11 -0500
-Message-Id: <200201160947.g0G9lxv15813@lmail.actcom.co.il>
-Content-Type: text/plain; charset=US-ASCII
-From: Itai Nahshon <nahshon@actcom.co.il>
-Reply-To: nahshon@actcom.co.il
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: Re: SCSI host numbers?
-Date: Wed, 16 Jan 2002 11:47:54 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu> <200201151219.g0FCJUD15091@lmail.actcom.co.il> <200201160703.g0G73Sr27779@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <200201160703.g0G73Sr27779@vindaloo.ras.ucalgary.ca>
+	id <S289804AbSAPKDd>; Wed, 16 Jan 2002 05:03:33 -0500
+Received: from yeager.cse.Buffalo.EDU ([128.205.36.9]:43185 "EHLO
+	yeager.cse.Buffalo.EDU") by vger.kernel.org with ESMTP
+	id <S290321AbSAPKDV>; Wed, 16 Jan 2002 05:03:21 -0500
+Date: Wed, 16 Jan 2002 05:03:20 -0500 (EST)
+From: Nelson Mok <nmok@cse.Buffalo.EDU>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: USB Sandisk SDDR-31 problems in 2.4.9 - 2.4.17
+In-Reply-To: <Pine.SOL.4.30.0201100411100.25549-100000@yeager.cse.Buffalo.EDU>
+Message-ID: <Pine.SOL.4.30.0201160501390.7904-100000@yeager.cse.Buffalo.EDU>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 January 2002 09:03 am, Richard Gooch wrote:
-> But if you load, unload and reload a host driver, and it's not listed
-> in scsihosts=, then won't it get a different host number each time?
+On Thu, 10 Jan 2002, Nelson Mok wrote:
 
-In the fist time that it registers it is added to scsi_host_no_list
-(see code under "if (flag_new) {" in scsi/host.c).
-Than it will get the same number again every time.
+> My system is currently an AMD Athlon with kernel 2.4.17, Adaptec 2940 PCI
+> SCSI card, Plextor 40X SCSI CD-ROM, Plextor 8x CD-R and the USB Sandisk
+> SDDR-31 compact flash reader.  With the 2.4.x series of the kernel, in
+> particular with RedHat's 2.4.9 kernel, 2.4.15, 2.4.16, and 2.4.17 I have
+> been experiencing the same two problems.
+>
+> 1. the SCSI CD-ROM on my system works fine, that is until I mount the USB
+> cf reader.  After doing so, any attempts to mount a CD in the CD-ROM gives
+> me the message "mount: wrong fs type, bad option, bad superblock on
+> /dev/cdrom, or too many mounted file systems".  If the CD-ROM is already
+> mounted and I then mount the USB cf reader, the CD-ROM will no longer
+> respond...  unmounting and mounting the CD-ROM at this point seems to work
+> but any attempt to access the information is futile.  The physical eject
+> on the CD-ROM also ceases to function after this.  Tried removing all the
+> USB modules followed by the SCSI modules and then modprobe them all again
+> but doing that does not affect anything.  Only way to access my CD-ROM
+> again is a reboot of the machine.  The wierd thing to this is, it does not
+> affect my CD-R drive as it continues to work fine.  This happens again if
+> I were to repeat the above mentioned steps.
+>
+> 2. after mounting the USB cf reader, the shutting down of the system
+> stalls for quite a bit at the point where it tries to unmount all the file
+> systems.  This occurs regardless of whether I unmounted the drive or not.
+>
+>
+> Lastly, I know both the CD-ROM and USB cf reader are fine as they have
+> worked fine under the later 2.2.x kernels, as well as in Windows.
 
-scsi_host_no_list is discarded only when scsi_mod
-gets unloaded (that is if compiled as module).
+To add to this, even after the system refuses to mount the CD-ROM, I can
+still control a musical CD through xmms...  skip tracks, play, stop, and
+pause the musical CD.
 
--- Itai

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbTBXW3e>; Mon, 24 Feb 2003 17:29:34 -0500
+	id <S261375AbTBXW0c>; Mon, 24 Feb 2003 17:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261527AbTBXW3e>; Mon, 24 Feb 2003 17:29:34 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:64438 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261463AbTBXW3d>; Mon, 24 Feb 2003 17:29:33 -0500
-Date: Mon, 24 Feb 2003 17:39:34 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
-Message-ID: <20030224173934.T3910@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <Pine.LNX.4.44.0302241259320.13406-100000@penguin.transmeta.com> <jeznol5plv.fsf@sykes.suse.de>
+	id <S261463AbTBXW0c>; Mon, 24 Feb 2003 17:26:32 -0500
+Received: from packet.digeo.com ([12.110.80.53]:10720 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261375AbTBXW0b>;
+	Mon, 24 Feb 2003 17:26:31 -0500
+Date: Mon, 24 Feb 2003 14:33:41 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pte_alloc_kernel needs additional check
+Message-Id: <20030224143341.0b3e1faa.akpm@digeo.com>
+In-Reply-To: <1046123680.13919.67.camel@plars>
+References: <1046123680.13919.67.camel@plars>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <jeznol5plv.fsf@sykes.suse.de>; from schwab@suse.de on Mon, Feb 24, 2003 at 10:35:24PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Feb 2003 22:36:38.0240 (UTC) FILETIME=[319B7E00:01C2DC55]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 10:35:24PM +0100, Andreas Schwab wrote:
-> Linus Torvalds <torvalds@transmeta.com> writes:
+Paul Larson <plars@linuxtestproject.org> wrote:
+>
+> This applies against 2.5.63.
+> pte_alloc_kernel needs a check for pmd_present(*pmd) at the end.
 > 
-> |> Does gcc still warn about things like
-> |> 
-> |> 	#define COUNT (sizeof(array)/sizeof(element))
-> |> 
-> |> 	int i;
-> |> 	for (i = 0; i < COUNT; i++)
-> |> 		...
-> |> 
-> |> where COUNT is obviously unsigned (because sizeof is size_t and thus 
-> |> unsigned)?
-> |> 
-> |> Gcc used to complain about things like that, which is a FUCKING DISASTER. 
+> Thanks,
+> Paul Larson
 > 
-> How can you distinguish that from other occurrences of (int)<(size_t)?
+> --- linux-2.5.63/mm/memory.c	Mon Feb 24 13:05:31 2003
+> +++ linux-2.5.63-fix/mm/memory.c	Mon Feb 24 15:45:05 2003
+> @@ -186,7 +186,9 @@
+>  		pmd_populate_kernel(mm, pmd, new);
+>  	}
+>  out:
+> -	return pte_offset_kernel(pmd, address);
+> +	if (pmd_present(*pmd))
+> +		return pte_offset_kernel(pmd, address);
+> +	return NULL;
+>  }
+>  #define PTE_TABLE_MASK	((PTRS_PER_PTE-1) * sizeof(pte_t))
+>  #define PMD_TABLE_MASK	((PTRS_PER_PMD-1) * sizeof(pmd_t))
 
-Value range propagation pass, then warn?
+Confused.  I cannot see a codepath which makes this test necessary?
 
-	Jakub
+

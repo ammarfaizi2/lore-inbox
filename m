@@ -1,75 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264840AbTFESkN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 14:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbTFESkN
+	id S264870AbTFESww (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 14:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbTFESww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 14:40:13 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:25749 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S264840AbTFESkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 14:40:12 -0400
-From: Daniel Phillips <dphillips@sistina.com>
-Reply-To: dphillips@sistina.com
-Organization: Sistina
-To: Kevin Corry <kevcorry@us.ibm.com>, dm-devel@sistina.com,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [dm-devel] Re: [RFC] device-mapper ioctl interface
-Date: Thu, 5 Jun 2003 20:53:57 +0200
-User-Agent: KMail/1.5.2
-References: <20030605093943.GD434@fib011235813.fsnet.co.uk> <200306051900.37276.dphillips@sistina.com> <200306051250.30994.kevcorry@us.ibm.com>
-In-Reply-To: <200306051250.30994.kevcorry@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Jun 2003 14:52:52 -0400
+Received: from [195.82.120.238] ([195.82.120.238]:30364 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S264870AbTFESwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 14:52:51 -0400
+Date: Thu, 5 Jun 2003 20:10:13 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [BK PATCH] PCI and PCI Hotplug changes and fixes for 2.5.70
+Message-ID: <20030605191013.GA14113@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	pcihpd-discuss@lists.sourceforge.net
+References: <20030605013147.GA9804@kroah.com> <20030605021452.GA15711@kroah.com> <20030605083815.GA16879@suse.de> <20030605084933.GI2329@kroah.com> <20030605085938.GC16879@suse.de> <20030605090645.GA2887@kroah.com> <20030605091802.GA17356@suse.de> <20030605171835.GC5424@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306052053.57352.dphillips@sistina.com>
+In-Reply-To: <20030605171835.GC5424@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 June 2003 19:50, Kevin Corry wrote:
-> On Thursday 05 June 2003 12:00, Daniel Phillips wrote:
-> > On Thursday 05 June 2003 18:47, Kevin Corry wrote:
-> > > 2) Removing suspended devices. The current code (2.5.70) does not allow
-> > > a suspended device to be removed/unlinked from the ioctl interface,
-> > > since removing it would leave you with no way to resume it (and hence
-> > > flush any pending I/Os). Alasdair mentioned a couple of new ideas. One
-> > > would be to reload the device with an error-map and force it to resume,
-> > > thus erroring any pending I/Os and allowing the device to be removed.
-> > > This seems a bit heavy-handed.
-> >
-> > Which is the heavy-handed part?
->
-> The part about automatically reloading the table with an error map and
-> forcing it to resume. It just seemed to me that user-space ought to be able
-> to gather enough information to determine that a device needed to be
-> resumed before it could be removed. Thus the kernel driver wouldn't be
-> forced to implement such a policy.
+On Thu, Jun 05, 2003 at 10:18:35AM -0700, Greg KH wrote:
 
-I didn't see anything about doing that in-kernel.
+ > > The fact that a tree-wide 'cleanup' like this goes in just a few hours
+ > > after its posted before chance to comment is another argument, but
+ > > concentrating on the technical point here, I still think this is a
+ > > step backwards.
+ > 
+ > Why?  I just got rid of a function (well macro) that isn't even needed
+ > (as proven by replacing it with an existing function.)  That's
+ > technically a good thing :)
 
-> Talking with Alasadair again, he mentioned a case I hadn't considered.
-> Devices would now be created without a mapping and initially suspended. If
-> some other error occurred, and you decided to just delete the device before
-> loading a mapping, it would fail.  And having to resume a device with no
-> mapping just to be able to delete it definitely seems odd.
->
-> So, it's not like I'm dead-set against this idea. I was just curious what
-> the reasoning was behind this change.
+Not when that replacement reduces readability, which in the case of
+agpgart is all I care about wrt these changes.
 
-It's similar to the way a lot of things work in Linux: you have to let 
-operations run to completion so they can let go of resources.  One day we'll 
-be able to shoot down transfers in mid-flight, but I doubt that's going to 
-happen in this cycle.
+ > Now I can agree that some of those replacements could be done with a
+ > different function call, as almost none of the replacements in the
+ > driver/* tree really want to walk all of the pci devices in the tree.
+ > They usually just want to walk all devices of a type of pci device (be
+ > it capability, or other trait.)  I'd be glad to take changes of this
+ > sort in the future.
 
-So in general, the idea is: let any outstanding operations complete, but feed 
-them errors.  What else can we do?
+Ok, for the ones I'm interested in, (agpgart), I don't see how things
+can get much cleaner than they used to be.
 
-I don't see this as heavyweight at all.  Policy stays in user space, and a 
-lightweight error path lives in the kernel.
+07 - hammer. Needs to walk the whole list, matching pci devices on
+     bus 0, func 3, slots >23 & <32
+	 This set of rules is so specialised, I see it hard to concieve how
+	 a generic helper function for the pci layer could be written.
+08 - generic. Needs to know about every AGP device on the bus.
+     ok, a for_each_agp_dev may actually make life easier here,
+	 but as its the only place this happens, consider it inlined,
+	 using pci_for_each_dev
+09 - isoch. Could also use a 'for_each_agp_dev', but to be honest,
+     it shouldn't be scanning at all, but being passed what it needs.
 
-Regards,
+For the time being, I'm actually tempted to hack up a 'for_each_agp_dev'
+for the latter two, but 07 still bugs me.
 
-Daniel
+		Dave
 

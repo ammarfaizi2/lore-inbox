@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVCRTOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVCRTRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVCRTOy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 14:14:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVCRTOy
+	id S261863AbVCRTRU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 14:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVCRTRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 14:14:54 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30220 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261826AbVCRTOl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 14:14:41 -0500
-Date: Fri, 18 Mar 2005 20:14:39 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: John Kacur <jkacur@rogers.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg Stark <gsstark@mit.edu>,
-       Jean Delvare <khali@linux-fr.org>
-Subject: Re: 2.6.11 breaks modules gratuitously
-Message-ID: <20050318191439.GG3143@stusta.de>
-References: <3JrTO-1C4-41@gated-at.bofh.it> <20050318194915.580c3511.khali@linux-fr.org> <1111172461.5993.10.camel@linux.site>
+	Fri, 18 Mar 2005 14:17:20 -0500
+Received: from fire.osdl.org ([65.172.181.4]:8331 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261863AbVCRTRD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 14:17:03 -0500
+Date: Fri, 18 Mar 2005 11:16:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Robin Holt <holt@sgi.com>
+Cc: peterc@gelato.unsw.edu.au, holt@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: vm_dirty_ratio seems a bit large.
+Message-Id: <20050318111639.24b007f7.akpm@osdl.org>
+In-Reply-To: <20050318123112.GA28473@lnx-holt.americas.sgi.com>
+References: <20050317205213.GC17353@lnx-holt.americas.sgi.com>
+	<20050317133148.1122e9c4.akpm@osdl.org>
+	<16954.1107.911531.142306@wombat.chubb.wattle.id.au>
+	<20050318123112.GA28473@lnx-holt.americas.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111172461.5993.10.camel@linux.site>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 02:01:02PM -0500, John Kacur wrote:
+Robin Holt <holt@sgi.com> wrote:
+>
+> > No, you could just extend them to understand fixed point.  Keep
+>  > printing integers as integers, print non-integers with one (or two:
+>  > will we ever need 0.01% increments?) decimal places.
 > 
-> So perhaps we can introduce a new term to linux kernel development,
-> reexporting a symbol can now be known as debunking?
->...
- 
-Are you saying unexporting a symbol was bunk?  ;-)
+>  Right now, it is possible to build our largest Altix configuration with
+>  64TB of memory (unfortunatetly, we can't get any customers to pay that
+>  large of bill ;).  We are currently shipping a few 4TB systems and hope
+>  to be selling 20TB systems by the end of the year (at least engineering
+>  hopes to).
+> 
+>  Given that, two decimal places are really not enough.  We probably need
+>  at least 3.
+> 
+>  Is there any reason to not do 3 places?  Is this the right direction to
+>  head or does anybody know of problems this would cause?
 
-cu
-Adrian
+It's a rather unorthodox fix, but not illogical.  I guess it depends upon
+how much sysctl infrastructure it adds.  Probably quite a lot.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Another approach would be to just say the ratio now has a range 0 .. 
+999,999 and then, if it happens to be less than 100, treat that as a
+percentage for back-compatibility reasons.  Although that's a bit kludgy
+and perhaps a completely new /proc entry would be better.
 

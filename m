@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbTIHN15 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 09:27:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTIHNZq
+	id S262421AbTIHNad (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 09:30:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTIHN2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 09:25:46 -0400
-Received: from main.gmane.org ([80.91.224.249]:33708 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262328AbTIHNZZ (ORCPT
+	Mon, 8 Sep 2003 09:28:07 -0400
+Received: from hell.org.pl ([212.244.218.42]:267 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S262201AbTIHN0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 09:25:25 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Subject: Re: [blockdevices/NBD] huge read/write-operations are splitted by
- the kernel
-Date: Mon, 08 Sep 2003 15:26:01 +0200
-Message-ID: <bji001$sop$1@sea.gmane.org>
-References: <bjgh6a$82o$1@sea.gmane.org> <20030908085802.GH840@suse.de>
+	Mon, 8 Sep 2003 09:26:40 -0400
+Date: Mon, 8 Sep 2003 15:29:33 +0200
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       "Brown, Len" <len.brown@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, acpi-devel@sourceforge.net
+Subject: Re: [ACPI] RE: [patch] 2.4.x ACPI updates
+Message-ID: <20030908132933.GA23269@hell.org.pl>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCCA@hdsmsx402.hd.intel.com> <Pine.LNX.4.55L.0308231826470.5824@freak.distro.conectiva> <20030823223340.GA7129@hell.org.pl> <20030902143756.GH1358@openzaurus.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030818
-X-Accept-Language: en-us, en
-In-Reply-To: <20030908085802.GH840@suse.de>
-X-Enigmail-Version: 0.76.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <20030902143756.GH1358@openzaurus.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You'll probably find that if you bump the max_sectors count if your
-> drive to 256 from 255 (that is the default if you haven't set it), then
-> you'll see 128kb chunks all the time.
-> 
-> See max_sectors[] array.
+Thus wrote Pavel Machek:
+> > This is probably a BIOS / hardware bug, a rare occurence actually.
+> > The logs show:
+> > #v+
+> > acpi_power-0363 [64] acpi_power_transition : Error transitioning device [CFAN] to D0
+> > acpi_bus-0496 [63] acpi_bus_set_power    : Error transitioning device [CFAN] to D0
+> > acpi_thermal-0549 [62] acpi_thermal_active   : Unable to turn cooling device [c12d2528] 'on'
+> > Unable to handle kernel paging request at virtual address 876c33c4
+> > [...]
+> > #v-
+> > (sometimes there's D3 in place of D0, depending on the trip points /
+> > temperature readings), and then the oops follows. Unfortunately, I
+> > can't provide the ksymoops output, as the kernel which the oops was logged
+> > on has been gone long since.
+> > 
+> > Anyway, this is by no means reproducible, occurs quasi-randomly (more often
+> You should be able to do echo ? > /proc/acpi/*/fan/state to stress this manually...
 
-To make it clear:
-the kernel will never read or write more sectors at once than specified 
-in the max_sectors array (where every device has its own value), right?
+Of course. It prints the messages, but doesn't oops. I'm waiting to
+reproduce it on 2.4.23-pre here right now.
+Best regards,
 
-
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

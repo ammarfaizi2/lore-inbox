@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316825AbSGVLoa>; Mon, 22 Jul 2002 07:44:30 -0400
+	id <S316217AbSGVEx0>; Mon, 22 Jul 2002 00:53:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316835AbSGVLo3>; Mon, 22 Jul 2002 07:44:29 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:53757 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316825AbSGVLo3>; Mon, 22 Jul 2002 07:44:29 -0400
-Subject: Re: [PATCH] strict VM overcommit
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: Adrian Bunk <bunk@fs.tum.de>, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0207220937570.614-100000@divine.city.tvnet.hu>
-References: <Pine.LNX.4.30.0207220937570.614-100000@divine.city.tvnet.hu>
-Content-Type: text/plain
+	id <S316223AbSGVEx0>; Mon, 22 Jul 2002 00:53:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4105 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316217AbSGVExZ>;
+	Mon, 22 Jul 2002 00:53:25 -0400
+Message-ID: <3D3B925D.624986EE@zip.com.au>
+Date: Sun, 21 Jul 2002 22:04:29 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
+References: <Pine.LNX.4.44L.0207201740580.12241-100000@imladris.surriel.com> <Pine.LNX.4.44.0207201351160.1552-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 22 Jul 2002 14:00:09 +0100
-Message-Id: <1027342809.31782.28.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 09:08, Szakacsits Szabolcs wrote:
-> > > kill can't kill processes in uninterruptible sleep, etc, etc)? Why the
-> > In these cases the kernel infrastructure doesn't support the ability to
-> > recover from such a state,
+Linus Torvalds wrote:
 > 
-> You again anwered else but ironically you just rebute yourself that
-> there are cases when the system knows better then the admin.
+> On Sat, 20 Jul 2002, Rik van Riel wrote:
+> >
+> > OK, I'll try to forward-port Ed's code to do that from 2.4 to 2.5
+> > this weekend...
+> 
+> Side note: while I absolutely think that is the right thing to do, that's
+> also the much more "interesting" change. As a result, I'd be happier if it
+> went through channels (ie probably Andrew) and had some wider testing
+> first at least in the form of a CFT on linux-kernel.
+> 
 
-And purists consider those flaws
+I'd suggest that we avoid putting any additional changes into
+the VM until we have solutions available for:
 
-> What the patch claims is no OOM. In the swapoff case potentially there
-> are OOM's. This is called bug (the feature not follows the behavior
-> what it specified when admin turned it on). Why do you call this bug
-> perfectly handled case? What differentiate this case from all other
-> when the system knows better not to destroy your data without at least
-> a "force" operation for example?
+2: Make it work with pte-highmem  (Bill Irwin is signed up for this)
 
-Lets put this bluntly. Your swapdisk is losing sectors left right and
-centre. You propose a system where the kernel says "sorry might cause an
-OOM" and I lose everything as the disk goes down. Letting the admin set
-policy means I can swapoff, maybe lose a program or two to OOM but not
-lose the entire system in the process.
+4: Move the pte_chains into highmem too (Bill, I guess)
 
-Its quite clear that being able to override the kernels assumptions
-about what is right are sensible. It always has been
+6: maybe GC the pte_chain backing pages. (Seems unavoidable.  Rik?)
 
+
+Especially pte_chains in highmem.  Failure to fix this well
+is a showstopper for rmap on large ia32 machines, which makes
+it a showstopper full stop.
+
+If we can get something in place which works acceptably on Martin
+Bligh's machines, and we can see that the gains of rmap (whatever
+they are ;)) are worth the as-yet uncoded pains then let's move on.
+But until then, adding new stuff to the VM just makes a `patch -R'
+harder to do.
+
+-

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262358AbSJOFOj>; Tue, 15 Oct 2002 01:14:39 -0400
+	id <S262324AbSJOFOg>; Tue, 15 Oct 2002 01:14:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262365AbSJOFOi>; Tue, 15 Oct 2002 01:14:38 -0400
-Received: from packet.digeo.com ([12.110.80.53]:26061 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262358AbSJOFOh>;
-	Tue, 15 Oct 2002 01:14:37 -0400
-Message-ID: <3DABA596.39C9D782@digeo.com>
-Date: Mon, 14 Oct 2002 22:20:22 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
+	id <S262358AbSJOFOg>; Tue, 15 Oct 2002 01:14:36 -0400
+Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:3468
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262324AbSJOFOf>; Tue, 15 Oct 2002 01:14:35 -0400
+Date: Tue, 15 Oct 2002 01:07:21 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: Kernel mailing list <linux-kernel@vger.kernel.org>,
+       Harald Dankworth <harald@pronto.tv>,
+       Atle =?iso-8859-1?q?Sj=F8n=F8st?= <atle@pronto.tv>
+Subject: Re: cdrom_sysctl_register uses LOTS of CPU, and no cdrom is attached
+ (2.4.20-pre10)
+In-Reply-To: <200210141639.08832.roy@karlsbakk.net>
+Message-ID: <Pine.LNX.4.44.0210150102120.1795-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       ext2-devel@lists.sourceforge.net, "tytso@mit.edu" <tytso@mit.edu>
-Subject: Re: 2.5.43-m3
-References: <3DABA351.7E9C1CFB@digeo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Oct 2002 05:20:22.0549 (UTC) FILETIME=[8F7AF450:01C2740A]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 Oct 2002, Roy Sigurd Karlsbakk wrote:
 
-yeah, yeah.  off-by-one.
+> attached is the .config and these three readprofile output files (pro[123]). 
+> see time to see the interval they have been created in
 
-Andrew Morton wrote:
-> 
-> ...
-> - Add Ingo's current remap_file_pages() patch.  I had to renumber his
->   syscall from 253 to 254 due to a clash with the oprofile syscall.
-> 
+These look like bungled up profiles of the magnitude that even i couldn't 
+conjure up ;)
 
-This will only work on ia32.  To test on other architectures, please
-do a patch -p1 -R of
+	Zwane
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.42/2.5.42-mm3/broken-out/mpopulate.patch
+PS: If not, my sincerest apologies...
+
+-- 
+function.linuxpower.ca
+
+

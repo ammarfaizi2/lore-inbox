@@ -1,82 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272453AbTHSR7s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272963AbTHSRHv
+	id S272607AbTHSSE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:04:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272602AbTHSR77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:07:51 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:27780 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S272671AbTHSQwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 12:52:22 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 19 Aug 2003 18:52:19 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: willy@w.ods.org, richard@aspectgroup.co.uk, alan@lxorguk.ukuu.org.uk,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
-       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819185219.116fd259.skraw@ithnet.com>
-In-Reply-To: <20030819085717.56046afd.davem@redhat.com>
-References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
-	<20030819145403.GA3407@alpha.home.local>
-	<20030819170751.2b92ba2e.skraw@ithnet.com>
-	<20030819085717.56046afd.davem@redhat.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 19 Aug 2003 13:59:59 -0400
+Received: from mtaw6.prodigy.net ([64.164.98.56]:45028 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S270772AbTHSRvt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 13:51:49 -0400
+Message-ID: <3F4264BA.3020207@pacbell.net>
+Date: Tue, 19 Aug 2003 10:56:10 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: jw@pegasys.ws
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Does sysfs really provides persistent hardware path to devices?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003 08:57:17 -0700
-"David S. Miller" <davem@redhat.com> wrote:
+> That's nice.  Now add a second camera from the same vendor
+> :(  No, i don't expect you to be able to uniquely identify
+> identical devices being added and removed from a single USB buss
+> in a persistent way.  But it would be nice if we could get
+> consistency between busses so that a mouse on one USB buss
+> weren't confused with a mouse on another USB buss.
 
-> On Tue, 19 Aug 2003 17:07:51 +0200
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
-> 
-> > Hm, what rule is broken by the remote host, then?
-> 
-> It means that systems (like Linux) that make IP addresses owned by the
-> host instead of specific interfaces cannot correctly interoperate with
-> such remote systems.
-> 
-> It is also the case that a host cannot possibly be aware of all
-> subnets present on a given LAN, therefore is should be liberal in it's
-> replies to ARP requests.
-> 
-> Finally, it violates the most basic rule of IP networking:
-> 
-> "Be liberal in what you accept, and conservative in what you send"
-> -Jon Postel
+Well the add/remove part is potentially an issue, depending
+on how you run things.  The conventional solution, used
+with other serial lines since long before UNIX, is labeling
+ports according to what should be plugged in to them.
 
-If I understood what Richard said in this thread Jon just shot you down. The
-conservative way to _request_ arp would definitely be to request it from the
-"correct" subnet, because as a sender you ought to give credit to knowing that
-"bad" boxes out there won't answer if you do otherwise. There can be no doubt
-what "conservative" means here.
-Additionally, the remote box is not really bad behaving:
+There's a usb_device->devpath field that provides a stable
+topological identifier for devices within a USB bus, each id
+corresponding to one of those port labels.  That field is
+merged into sysfs bus_id values for USB.
 
-<quote RFC-985>
-   A.3.  ARP datagram
+It's not so nice for bus identifiers themselves, "usbN".
+Though clearly there's a physical path there too, and it's
+normally stable enough that PCI slot names won't change.
+(Except on high end systems, where the topology may be
+more stable than the bus numbers ... but we don't have
+anything like usb_device->devpath for use with PCI.)
 
-      An ARP reply is discarded if the destination IP address does not
-      match the local host address.  An ARP request is discarded if the
-      source IP address is not in the same subnet.  It is desirable that
-      this test be overridden by a configuration parameter, in order to
-      support the infrequent cases where more than one subnet may
-      coexist on the same cable (see RFC-925 for examples).
+So the problem is how to munch the sysfs information into
+the persistent path information you want.  It's demonstrably
+doable ... though it does look to be a PITA.
 
-</quote>
+- Dave
 
-This means the remote box is completely ok if not answering to a request with
-source ip from another subnet.
-So from what I read here requesting arp should really only happen with a source
-ip from the same subnet.
-
-Regards,
-Stephan

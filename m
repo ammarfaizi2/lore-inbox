@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264629AbSKRSRB>; Mon, 18 Nov 2002 13:17:01 -0500
+	id <S262908AbSKRSVI>; Mon, 18 Nov 2002 13:21:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264630AbSKRSRA>; Mon, 18 Nov 2002 13:17:00 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:8203 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S264629AbSKRSQ7>; Mon, 18 Nov 2002 13:16:59 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB191C@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: "'immortal1015'" <immortal1015@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: RE: Does Intel E1000-82544 Gigabit Ethernet Card support Scatter/
-	Gather mode
-Date: Mon, 18 Nov 2002 10:23:42 -0800
+	id <S263204AbSKRSVI>; Mon, 18 Nov 2002 13:21:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3844 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262908AbSKRSVI>;
+	Mon, 18 Nov 2002 13:21:08 -0500
+Message-ID: <3DD9311A.3080006@pobox.com>
+Date: Mon, 18 Nov 2002 13:27:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: jordan.breeding@attbi.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tco/rng support for Intel chipsets other than the i810?
+References: <20021118175200.XMDP6492.rwcrmhc51.attbi.com@rwcrwbc71>
+In-Reply-To: <20021118175200.XMDP6492.rwcrmhc51.attbi.com@rwcrwbc71>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, it does ...
+jordan.breeding@attbi.com wrote:
 
-Thanks
-Manish
-
------Original Message-----
-From: immortal1015 [mailto:immortal1015@hotpop.com]
-Sent: Monday, November 18, 2002 2:57 AM
-To: linux-kernel@vger.kernel.org
-Subject: Does Intel E1000-82544 Gigabit Ethernet Card support
-Scatter/Gather mode
-
-
-Hi, all.
-Does Intel E1000-82544 Gigabit Ethernet Card support Scatter/Gather mode?
-
-best regards
-yours immortal
+> Do Intel chipsets other than the i810 have hardware support for 
+> rng/tco drivers
+> (i845, i860, E7500)?  If so will Linux be getting drivers for the tco/rng
+> capabilities of those chipsets some time in the future?  Thanks.
 
 
 
+WRT RNG, more than just i810 supports RNG, yes.  There are several 
+chipset ids in i810_rng.c which are for later versions after i810.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+So, the driver is perhaps misnamed at this point :) but it's not a huge 
+deal, so I haven't renamed it to i8xx_rng.c.  :)
+
+	Jeff
+
+
+

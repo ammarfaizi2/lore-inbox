@@ -1,50 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270688AbRHSTBa>; Sun, 19 Aug 2001 15:01:30 -0400
+	id <S270646AbRHSTAA>; Sun, 19 Aug 2001 15:00:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270684AbRHSTBU>; Sun, 19 Aug 2001 15:01:20 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:10592
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S270676AbRHSTBF>; Sun, 19 Aug 2001 15:01:05 -0400
-Message-ID: <3B800CF9.9000606@fugmann.dhs.org>
-Date: Sun, 19 Aug 2001 21:01:13 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
+	id <S270676AbRHSS7u>; Sun, 19 Aug 2001 14:59:50 -0400
+Received: from mail.LF.net ([212.9.160.2]:44560 "EHLO mail.LF.net")
+	by vger.kernel.org with ESMTP id <S270646AbRHSS7n>;
+	Sun, 19 Aug 2001 14:59:43 -0400
+Message-ID: <3B800CA3.AF9E321F@janglednerves.com>
+Date: Sun, 19 Aug 2001 20:59:47 +0200
+From: Albrecht Jacobs <Albrecht.Jacobs@janglednerves.com>
+Organization: jangled nerves GmbH
+X-Mailer: Mozilla 4.51C-SGI [en] (X11; I; IRIX64 6.5 IP30)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: chuckw@ieee.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Looking for comments on Bottom-Half/Tasklet/SoftIRQ
-In-Reply-To: <20010818231704.A2388@ieee.org> <3B7FF06A.4090606@fugmann.dhs.org> <20010819013508.B2388@ieee.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>
+CC: "(Martin Jacobs)" <100.179370@germanynet.de>, linux-kernel@vger.kernel.org
+Subject: Re: Q: 2.4.[37]-XFS: /dev/nst0m: cannot allocate memory
+In-Reply-To: <Pine.LNX.4.33.0108181033140.12556-100000@kai.makisara.local>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chuckw@ieee.org wrote:
-> Thanks
+Kai Makisara wrote:
 > 
-> 	So, Bottom halves don't need to be re-entrant as do tasklets.  SoftIRQ's
-> need to be re-entrant.  The advantage of tasklets is that each tasklet can
-> be farmed out to different CPU's AND they don't need to be re-entrant 
-> because only one instance is allowed at a time.  I think I got it.
-
-That is 100% correct.
-
+> On Fri, 17 Aug 2001, (Martin Jacobs) wrote:
 > 
-> 	Could you direct me to some code in the kernel which uses tasklets
-> so I can see the inner workings?
+> > Hi all,
+> >
+> > I cannot read anything from my tape (Tandberg DLT8000, LVD
+> > interface, ID=5) connected to an aic7899 or an sym53c895 using
+> > kernel 2.4.3-XFS or 2.4.7-XFS. (Everything works fine on
+> > 2.2.16.) Loading of st.o works. stinit works. mt (status, tape
+> > positioning) works. But when I try to read the amanda header
+> > from the tape (dd if=/dev/nst0m bs=32k count=1) I get the
+> > error
+> >
+> > dd: reading `/dev/nst0m': Cannot allocate memory
+> >
+> ...
+> > Nearly the same for tar (with default block size of 512 byte).
+> >
+> > BUT: if I use bs=64k it works!!?
+> >
+> In variable block mode in 2.4, you get ENOMEM if the block on the tape is
+> larger than the byte count in the read(). 2.2 just returned what you asked
+> for and silentlry threw away the rest of the block. If the byte count is
+> larger than the block size, then the block is returned.
+> 
+> I.e., the first block on your tape is larger than 32 kB.
+> 
+>         Kai
 
-Actually very few systems in the kernel has been rewritten to use 
-tasklets instead og BH's.
+If I understand you right this is a FEATURE, not a bug! I find it quite
+irritating when using a tape device. Shouldn't I get some error message
+about wrong block size?
+	Forgive me but I am some sort of end user (admin) and not a kernel
+hacker.
+BTW, where can I get documentation about this 'feature'?
+ 
+Thanks anyway!
 
-But as they are very simillar to BH's, you should be able to use the 
-same thinking, its just a new API.
+-- 
+albrecht jacobs
 
-Take a look at include/linux/interrupt.h
-(or http://lxr.linux.no/source/include/linux/interrupt.h, an invaluable 
-source when coding for linux).
+jangled nerves gmbh
+hallstrasse 25
+d-70376 stuttgart
 
-Regards
-Anders Fugmann
+fon:   +49 711 550375-44
+fax:   +49 711 550375-22
 
+mailto:albrecht.jacobs@janglednerves.com
+http://www.janglednerves.com/

@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbUKQRKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262473AbUKQRVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbUKQRKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 12:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbUKQRFQ
+	id S262473AbUKQRVF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 12:21:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbUKQRUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 12:05:16 -0500
-Received: from fsmlabs.com ([168.103.115.128]:12941 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262439AbUKQRDR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 12:03:17 -0500
-Date: Wed, 17 Nov 2004 10:03:00 -0700 (MST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andi Kleen <ak@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Intel thermal monitor for x86_64
-In-Reply-To: <20041115090156.GC1662@wotan.suse.de>
-Message-ID: <Pine.LNX.4.61.0411171001550.3941@musoma.fsmlabs.com>
-References: <Pine.LNX.4.61.0411130629190.3062@musoma.fsmlabs.com>
- <20041114081649.GA16795@wotan.suse.de> <Pine.LNX.4.61.0411141801320.3754@musoma.fsmlabs.com>
- <20041115090156.GC1662@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Nov 2004 12:20:55 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:37861 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262450AbUKQRTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 12:19:52 -0500
+Subject: Re: GPL version, "at your option"?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Fruhwirth Clemens <clemens@endorphin.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0411170822200.2222@ppc970.osdl.org>
+References: <1100614115.16127.16.camel@ghanima>
+	 <Pine.LNX.4.53.0411161547260.7946@gockel.physik3.uni-rostock.de>
+	 <Pine.LNX.4.58.0411160746030.2222@ppc970.osdl.org>
+	 <1100704183.32677.28.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0411170822200.2222@ppc970.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100708189.512.64.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 17 Nov 2004 16:16:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Nov 2004, Andi Kleen wrote:
+On Mer, 2004-11-17 at 16:28, Linus Torvalds wrote:
+> In other words, if you didn't have that "v2 or later" in your original 
+> patches, they were _always_ just the regular GPLv2.
 
-> No, I was just worried about the locking issues.  Ok it was my mistake
-> then I assume you used an NMI LVT setup. Without NMI using printk
-> is fine and simpler. Can you change it to do that directly? 
-> 
-> Putting events additionally into mcelog would be still nice though.
-> 
-> > > Also can you at least additionally log an synthetic event using mce_log() ?
-> > > This way someone collecting these log entries centrally get its it 
-> > > all in the same log file. 
-> > 
-> > Ok, then i think we need to make the mce logging capable of storing 
-> > extended information, is the code i did for i386 ok with you?
-> 
-> No, see my other mail for that.
-> 
-> for the thermtrips I would just redefine some fields and invent 
-> a magic high bank number.
+I did have that.
 
-Thanks for the input Andi, i'll rework the patch.
+> That said, when I clarified (and I do want to make clear that the header 
+> on the COPYING file is a _clarification_, not a change of license) it, I 
+> told people that if they disagreed with me, they should send in patches 
+> saying "v2 or later" to their own code.
 
-	Zwane
+Well no obligation exists, but please add "All code owned by Alan Cox
+and present in this kernel is licensed GPL v2 or later" to your copying
+or another appropriate file. (A comment in the code for each one would
+be rather messy)
+
+It might be a good idea to figure out how to have a list of contributors
+who've said that or "v2 - or if Linus Torvalds so chooses, a later
+version"
+
+> Note the "IF". Linux _never_ had the "v2 or later" clause, so that "if" 
+> was never an issue, and the clarification on top of the COPYING file 
+> really _is_ just a clarification.
+
+Correction noted. I went and checked 1.2.0 and indeed it says nothing
+about versions in that specific top level file.
+
+Alan
+

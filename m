@@ -1,79 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262701AbVBFFAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271120AbVBFFH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262701AbVBFFAu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 00:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271524AbVBFFAu
+	id S271120AbVBFFH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 00:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272718AbVBFFH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 00:00:50 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:16142 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S262701AbVBFFAh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 00:00:37 -0500
-Date: Sun, 06 Feb 2005 14:01:35 +0900 (JST)
-Message-Id: <20050206.140135.112327413.yoshfuji@linux-ipv6.org>
-To: davem@davemloft.net
-Cc: herbert@gondor.apana.org.au, mirko.parthey@informatik.tu-chemnitz.de,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, shemminger@osdl.org,
-       yoshfuji@linux-ipv6.org
-Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20050205200242.2b629de7.davem@davemloft.net>
-References: <20050205064643.GA29758@gondor.apana.org.au>
-	<20050205.195039.05988480.yoshfuji@linux-ipv6.org>
-	<20050205200242.2b629de7.davem@davemloft.net>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sun, 6 Feb 2005 00:07:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53937 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262165AbVBFFHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 00:07:19 -0500
+Message-ID: <4205A5F3.9050804@pobox.com>
+Date: Sun, 06 Feb 2005 00:06:59 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martins Krikis <mkrikis@yahoo.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH 2.4.29] libata: fix ata_piix on ICH6R in RAID mode
+References: <87d5vjtzf5.fsf@yahoo.com>
+In-Reply-To: <87d5vjtzf5.fsf@yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20050205200242.2b629de7.davem@davemloft.net> (at Sat, 5 Feb 2005 20:02:42 -0800), "David S. Miller" <davem@davemloft.net> says:
+Martins Krikis wrote:
+> --- linux-2.4.29/drivers/scsi/libata-core.c	2005-01-25 20:55:41.000000000 -0500
+> +++ linux-2.4.29-iswraid/drivers/scsi/libata-core.c	2005-02-01 20:23:51.000000000 -0500
+> @@ -3597,7 +3597,8 @@ int ata_pci_init_one (struct pci_dev *pd
+>  	else
+>  		port[1] = port[0];
+>  
+> -	if ((port[0]->host_flags & ATA_FLAG_NO_LEGACY) == 0) {
+> +	if ((port[0]->host_flags & ATA_FLAG_NO_LEGACY) == 0
+> +	    && (pdev->class >> 8) == PCI_CLASS_STORAGE_IDE) {
+>  		/* TODO: support transitioning to native mode? */
+>  		pci_read_config_byte(pdev, PCI_CLASS_PROG, &tmp8);
+>  		mask = (1 << 2) | (1 << 0);
 
-> > Yes, IPv6 needs "split device" semantics
-> > (for per-device statistics such as Ip6InDelivers etc),
-> > and I like later solution.
-> 
-> Ok.  I never read whether ipv6, like ipv4, is specified to support
-> a model of host based ownership of addresses.  Does anyone know?
+applied
 
-I'm not sure it is explicitly specified, but there're some hints:
-
-1. we need to allow multiple addresses on multiple interfaces.
-   e.g. link-local address
-
-2. if a packet has come from A to link-local address on the other side B,
-   we should not receive it.
-         +-------+
-    ---->|A     B|
-         +-------+
-
-   Currently, it does not happen in usual because ndisc does NOT handle
-   addresses on other device.
-
-3. mib document states that we should take statistics on interface which 
-   the address belongs to; not the interface where the packet has come
-   from:
-
-cited from RFC2011bis:
-Local (*) packets on the input side are counted on the interface
-associated with their destination address, which may not be the
-interface on which they were received.  This requirement is caused by
-the possibility of losing the original interface during processing,
-especially re-assembly.
-
-(*): here it means incoming, but not forwarding.
-
-
-BTW, BSD has similar reference to interface structure in routeing entry.
-
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

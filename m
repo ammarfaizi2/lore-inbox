@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317695AbSGOXor>; Mon, 15 Jul 2002 19:44:47 -0400
+	id <S317735AbSGPClp>; Mon, 15 Jul 2002 22:41:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317696AbSGOXoq>; Mon, 15 Jul 2002 19:44:46 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45060 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317695AbSGOXop>; Mon, 15 Jul 2002 19:44:45 -0400
-Message-ID: <3D335F04.6070700@zytor.com>
-Date: Mon, 15 Jul 2002 16:47:16 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en, sv
+	id <S317743AbSGPClo>; Mon, 15 Jul 2002 22:41:44 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:21574 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S317735AbSGPClo>;
+	Mon, 15 Jul 2002 22:41:44 -0400
+From: <Hell.Surfers@cwctv.net>
+To: hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
+Date: Tue, 16 Jul 2002 03:44:16 +0100
+Subject: RE:Re: Re: how to improve the throughput of linux network
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc1-ac5
-References: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com>	<20020715220241Z317668-	 685+9887@vger.kernel.org> 	<agvl00$jjm$1@cesium.transmeta.com>	<1026779299.32689.46.camel@irongate.swansea.linux.org.uk> 	<3D335903.6000603@zytor.com> <1026775760.1093.508.camel@sinai>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1026787456423"
+Message-ID: <0fa130844021072DTVMAIL3@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> On Mon, 2002-07-15 at 16:21, H. Peter Anvin wrote:
-> 
-> 
->>Hmmm...
->>
->>This bothers me somewhat, because a .bz2 file should not have been
->>created if the .gz file was corrupt, but the original poster strongly
->>implied that he had both the .gz file and a .bz2 file, unless your
->>update came in between.
-> 
-> 
-> No, I think the bzip2 was not created while the gzip file was corrupt.
-> 
-> Earlier, there was a corrupt gzip and no bzip2 file.
-> 
-> Then I guess Alan fixed it, and now there exists both a valid gzip and
-> bzip2 file.  So I think your stuff is working fine :)
-> 
 
-Right, misunderstanding cleared up.
+--1026787456423
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-By the way, these things really should go to the kernel/patch author,
-not to the list.
+well only if it was used little amounts, like once every hour, it would dynamically unload in between, and dont modules, recompile on each use? I was told they were, although im more of a sound driver person.
 
-	-hpa
+- "Yes. Yes. OKAY.", Installing Microsoft software has always felt like an argument with your Mum (alledgedly).
+
+On Mon, 15 Jul 2002 22:36:52 -0400 (EDT) Mark Hahn <hahn@physics.mcmaster.ca> wrote:
+
+--1026787456423
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from coffee.psychology.mcmaster.ca ([130.113.218.59]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Tue, 16 Jul 2002 03:30:22 +0100
+Received: from localhost (hahn@localhost)
+	by coffee.psychology.mcmaster.ca (8.11.6/8.11.6) with ESMTP id g6G2aqS25896
+	for <Hell.Surfers@cwctv.net>; Mon, 15 Jul 2002 22:36:52 -0400
+X-Authentication-Warning: coffee.psychology.mcmaster.ca: hahn owned process doing -bs
+Date: Mon, 15 Jul 2002 22:36:52 -0400 (EDT)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
+To: <Hell.Surfers@cwctv.net>
+Subject: RE:Re: Re: how to improve the throughput of linux network
+In-Reply-To: <0f9412748011072DTVMAIL3@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.33.0207152236400.25831-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-Path: hahn@physics.mcmaster.ca
+
+> Using it as a module would only slow you down if netfilter is required, because itwould load and unload, contstantly, causing you to remember what the 486 was like.
+
+why would it get unloaded repeatedly?
+
+--1026787456423--
 
 

@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277435AbRJJWEP>; Wed, 10 Oct 2001 18:04:15 -0400
+	id <S277471AbRJJWFf>; Wed, 10 Oct 2001 18:05:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277437AbRJJWEF>; Wed, 10 Oct 2001 18:04:05 -0400
-Received: from 24-168-215-96.he.cox.rr.com ([24.168.215.96]:30599 "EHLO
-	asd.ppp0.com") by vger.kernel.org with ESMTP id <S277435AbRJJWDr>;
-	Wed, 10 Oct 2001 18:03:47 -0400
-Message-ID: <44355.192.168.65.5.1002751405.squirrel@maxwell.local>
-Date: Wed, 10 Oct 2001 18:03:25 -0400 (EDT)
-Subject: Re: Tainted Modules Help Notices
-From: "Anthony DeRobertis" <asd@suespammers.org>
-To: <kaos@ocs.com.au>
-In-Reply-To: <16172.1002749316@ocs3.intra.ocs.com.au>
-In-Reply-To: <16172.1002749316@ocs3.intra.ocs.com.au>
-Cc: <sirmorcant@morcant.org>, <tkhoadfdsaf@hotmail.com>, <dwmw2@infradead.org>,
-        <alan@lxorguk.ukuu.org.uk>, <viro@math.psu.edu>,
-        <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.0 [rc1])
+	id <S277440AbRJJWF0>; Wed, 10 Oct 2001 18:05:26 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:21181 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S277437AbRJJWFV>; Wed, 10 Oct 2001 18:05:21 -0400
+Message-ID: <3BC4EFFC.42ACE59E@us.ibm.com>
+Date: Wed, 10 Oct 2001 15:03:56 -1000
+From: Mingming cao <cmm@us.ibm.com>
+Organization: Linux Technology Center
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]Fix bug:rmdir could remove current working directory
+In-Reply-To: <Pine.GSO.4.21.0110101743140.21168-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro wrote:
+> 
+> On Wed, 10 Oct 2001, Mingming cao wrote:
+> 
+> > Hi Linus, Alan and Al,
+> >
+> > I found that rmdir(2) could remove current working directory
+> > successfully.  This happens when the given pathname points to current
+> > working directory, not ".", but something else. For example, the current
+> > working directory's absolute pathname.  I read the man page of
+> > rmdir(2).  It says in this case EBUSY error should be returned.  I
+> > suspected this is a bug and added a check in vfs_rmdir(). The following
+> > patch is against 2.4.10 and has been verified.  Please comment and
+> > apply.
+> 
+> It's not a bug.  Moreover, test you add is obviously bogus - what about
+> cwd of other processes?
+> 
+> Actually, rmdir() on a busy directory _is_ OK.  Implementation is allowed
+> to refuse doing that, but it's not required to.
 
-> To triage bug reports.  Any bug report against a tainted kernel is
-> almost certain to be bounced with "your kernel contains code that
-> we do not have the source for, send this bug report to the company
-> that
-> maintains the non-GPL code".
+I thought about the case when rmdir() on the cwd of other processes,
+but, as you said, that is implementation dependent. However rmdir() on
+"." does returns EBUSY error. Should not we keep the rmdir() behavior
+consistent: rmdir() on the current working directory of the current
+process is not OK?
 
-Couldn't this mess be solved with a module (optionally) containing a URL
-to a source-code tarball? Modules that come with the kernel would point
-to the relevant kernel sources on ftp.kernel.org.
-
-This would alleviate all worry about things like closed-source BSD;
-after all, anyone could check if there is source availible with wget.
-
-
-
+-- 
+Mingming Cao

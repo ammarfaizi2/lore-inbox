@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132381AbRAaQ50>; Wed, 31 Jan 2001 11:57:26 -0500
+	id <S132383AbRAaQ40>; Wed, 31 Jan 2001 11:56:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132356AbRAaQ5Q>; Wed, 31 Jan 2001 11:57:16 -0500
-Received: from md.aacisd.com ([64.23.207.34]:1808 "HELO md.aacisd.com")
-	by vger.kernel.org with SMTP id <S132289AbRAaQ4z>;
-	Wed, 31 Jan 2001 11:56:55 -0500
-Message-ID: <8FED3D71D1D2D411992A009027711D67187E@md>
-From: Nathan Black <NBlack@md.aacisd.com>
-To: linux-kernel@vger.kernel.org
-Subject: drive/block device write scheduling, buffer flushing?
-Date: Wed, 31 Jan 2001 11:52:25 -0500
+	id <S132289AbRAaQ4Q>; Wed, 31 Jan 2001 11:56:16 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:19215 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S132356AbRAaQ4A>;
+	Wed, 31 Jan 2001 11:56:00 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: J Brook <jbk@postmark.net>
+Date: Wed, 31 Jan 2001 17:54:37 MET-1
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Matrox G450 problems with 2.4.0 and xfree
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <142905C63D47@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was wondering if there is a way to make the kernel write to disk faster. 
-I need to maintain a 10 MB /sec write rate to a 10K scsi disk in a computer,
-but it caches and doesn't start writing to disk until I hit about 700 MB. At
-that point, it pauses(presumably while the kernel is flushing some of the
-buffers) and I will have missed data that I am trying to capture.
+On 31 Jan 01 at 17:41, J Brook wrote:
+> 
+>  I don't have Windows installed on my machine, but I find that if I
+> cold boot to 2.2 (RH7) first and start up X (4.0.2 with Matrox driver
+> 1.00.04 compiled in), I am then able to "shutdown -r now" and warm
 
-Any ideas?
+Yes, they use same secret code... At least I think...
 
-Nathan
+> restart to 2.4 with FB acceleration enabled. This generally works
+> fine for me.
+> 
+>  This isn't generally too much of a problem because 2.4.x is so
+> stable
+> I don't have to reboot for weeks!
+
+You can reboot any number of times you want. Just do not unplug
+powercord from computer...
+ 
+>  I'm willing to try out some patches if that would be useful.
+
+Problem is that I really do not have any idea what's wrong - as
+after any change I do to driver, I cannot know for sure whether
+after boot it works because of I worked around some problem, or
+because of hardware powered up in `correct' state...
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

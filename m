@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVDAXrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbVDAXsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbVDAXrE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 18:47:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVDAXrE
+	id S262804AbVDAXsc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 18:48:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262959AbVDAXsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 18:47:04 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:52827 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S262803AbVDAXq6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 18:46:58 -0500
-Message-ID: <424DDD6D.3010204@tls.msk.ru>
-Date: Sat, 02 Apr 2005 03:46:53 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] quiet ide-cd warning
-References: <20050401201111.GH15453@waste.org>
-In-Reply-To: <20050401201111.GH15453@waste.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Apr 2005 18:48:31 -0500
+Received: from mail.kroah.org ([69.55.234.183]:25052 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262804AbVDAXsI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 18:48:08 -0500
+Cc: gregkh@suse.de
+Subject: PCI: clean up the dynamic id logic a little bit.
+In-Reply-To: <11123992742611@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 1 Apr 2005 15:47:54 -0800
+Message-Id: <11123992741405@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> This shuts up a potential uninitialized variable warning.
+ChangeSet 1.2181.16.25, 2005/03/28 22:00:24-08:00, gregkh@suse.de
 
-Potential warning or potential uninitialized use?
-The code was right before the change, and if the compiler
-generates such a warning on it, it's the compiler who
-should be fixed, not the code: it's obvious the variable
-can't be used uninitialized here, and moving the things
-around like that makes the code misleading and hard to
-understand...
+PCI: clean up the dynamic id logic a little bit.
 
-/mjt
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-> Signed-off-by: Matt Mackall <mpm@selenic.com>
-> 
-> Index: af/drivers/ide/ide-cd.c
-> ===================================================================
-> --- af.orig/drivers/ide/ide-cd.c	2005-04-01 11:17:37.000000000 -0800
-> +++ af/drivers/ide/ide-cd.c	2005-04-01 11:55:09.000000000 -0800
-> @@ -430,7 +430,7 @@ void cdrom_analyze_sense_data(ide_drive_
->  #if VERBOSE_IDE_CD_ERRORS
->  	{
->  		int i;
-> -		const char *s;
-> +		const char *s = "bad sense key!";
->  		char buf[80];
->  
->  		printk ("ATAPI device %s:\n", drive->name);
-> @@ -445,8 +445,6 @@ void cdrom_analyze_sense_data(ide_drive_
->  
->  		if (sense->sense_key < ARY_LEN(sense_key_texts))
->  			s = sense_key_texts[sense->sense_key];
-> -		else
-> -			s = "bad sense key!";
->  
->  		printk("%s -- (Sense key=0x%02x)\n", s, sense->sense_key);
->  
-> 
+
+ drivers/pci/pci-driver.c |   11 ++---------
+ 1 files changed, 2 insertions(+), 9 deletions(-)
+
+
+diff -Nru a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+--- a/drivers/pci/pci-driver.c	2005-04-01 15:31:02 -08:00
++++ b/drivers/pci/pci-driver.c	2005-04-01 15:31:02 -08:00
+@@ -49,13 +49,6 @@
+ 	return error;
+ }
+ 
+-static inline void
+-dynid_init(struct dynid *dynid)
+-{
+-	memset(dynid, 0, sizeof(*dynid));
+-	INIT_LIST_HEAD(&dynid->node);
+-}
+-
+ /**
+  * store_new_id
+  *
+@@ -82,8 +75,9 @@
+ 	dynid = kmalloc(sizeof(*dynid), GFP_KERNEL);
+ 	if (!dynid)
+ 		return -ENOMEM;
+-	dynid_init(dynid);
+ 
++	memset(dynid, 0, sizeof(*dynid));
++	INIT_LIST_HEAD(&dynid->node);
+ 	dynid->id.vendor = vendor;
+ 	dynid->id.device = device;
+ 	dynid->id.subvendor = subvendor;
+@@ -167,7 +161,6 @@
+ {
+ 	return -ENODEV;
+ }
+-static inline void dynid_init(struct dynid *dynid) {}
+ static inline void pci_init_dynids(struct pci_dynids *dynids) {}
+ static inline void pci_free_dynids(struct pci_driver *drv) {}
+ static inline int pci_create_newid_file(struct pci_driver *drv)
 

@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131354AbRCSFdH>; Mon, 19 Mar 2001 00:33:07 -0500
+	id <S131362AbRCSFgh>; Mon, 19 Mar 2001 00:36:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131362AbRCSFc6>; Mon, 19 Mar 2001 00:32:58 -0500
-Received: from toscano.org ([64.50.191.142]:8674 "HELO bubba.toscano.org")
-	by vger.kernel.org with SMTP id <S131354AbRCSFcx>;
-	Mon, 19 Mar 2001 00:32:53 -0500
-Date: Mon, 19 Mar 2001 00:32:12 -0500
-From: Pete Toscano <pete.lkml@toscano.org>
+	id <S131363AbRCSFg1>; Mon, 19 Mar 2001 00:36:27 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:31154 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S131362AbRCSFgU>; Mon, 19 Mar 2001 00:36:20 -0500
+Date: Sun, 18 Mar 2001 21:29:59 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
 To: Andreas Dilger <adilger@turbolinux.com>
-Cc: John R Lenton <john@grulic.org.ar>,
+cc: John R Lenton <john@grulic.org.ar>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [sligthly OT] serial console on palm
-Message-ID: <20010319003212.D2382@bubba.toscano.org>
-Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
-	Andreas Dilger <adilger@turbolinux.com>,
-	John R Lenton <john@grulic.org.ar>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010319012801.B2849@grulic.org.ar> <200103190510.f2J5AKE01065@webber.adilger.int>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200103190510.f2J5AKE01065@webber.adilger.int>; from adilger@turbolinux.com on Sun, Mar 18, 2001 at 10:10:20PM -0700
-X-Unexpected: The Spanish Inquisition
-X-Uptime: 12:29am  up 12:01,  3 users,  load average: 0.08, 0.07, 0.01
+In-Reply-To: <200103190510.f2J5AKE01065@webber.adilger.int>
+Message-ID: <Pine.LNX.4.33.0103182129170.15811-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+there is a vt100 terminal emulater available for the palm (I had it, but
+haven't used it in a while, I may have lost it due to not backing things
+up properly)
 
---GvXjxJ+pjyke8COw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+David Lang
 
-I use my Palm VX as a serial console on Linux, OpenBSD, FreeBSD, and
-Solaris.  Just get a serial cable for your unit and some console program
-such as pTelnet.  The rest is quite simple.  If you find something
-different than pTelnet for console, please let me know as I find it
-crashes too much.
+ On Sun, 18 Mar 2001, Andreas Dilger wrote:
 
-pete
-
-On Sun, 18 Mar 2001, Andreas Dilger wrote:
-
+> Date: Sun, 18 Mar 2001 22:10:20 -0700 (MST)
+> From: Andreas Dilger <adilger@turbolinux.com>
+> To: John R Lenton <john@grulic.org.ar>
+> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: Re: [sligthly OT] serial console on palm
+>
 > John Lenton writes:
 > > I remember seing a project to get a palm pilot working as a
 > > serial console, but now google seems unable to find it. Does
 > > anyone know of such a project?
->=20
+>
 > I got one recently called "serialrecord" for the Palm, but it is one-way
 > only (useful for capturing OOPSes or so.  If someone had a two-way console
 > for the Palm, it would be great.  Sorry, no URL, but you _should_ be able
 > to find it in l-k archives.
+>
+> Cheers, Andreas
+> --
+> Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+>                  \  would they cancel out, leaving him still hungry?"
+> http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
---GvXjxJ+pjyke8COw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6tZncsMikd2rK89sRAkOoAJ4i095pIiKj3QrTywat9w0sm4bffwCeMSiA
-T0KRToVkh8WobbWXXRmPDSo=
-=r8bs
------END PGP SIGNATURE-----
-
---GvXjxJ+pjyke8COw--

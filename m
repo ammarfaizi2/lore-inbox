@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264679AbSLGTPB>; Sat, 7 Dec 2002 14:15:01 -0500
+	id <S264686AbSLGT1M>; Sat, 7 Dec 2002 14:27:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264683AbSLGTPB>; Sat, 7 Dec 2002 14:15:01 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:9222 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264679AbSLGTPA>;
-	Sat, 7 Dec 2002 14:15:00 -0500
-Date: Sat, 7 Dec 2002 11:22:04 -0800
-From: Greg KH <greg@kroah.com>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Adam Belay <ambx1@neo.rr.com>, perex@suse.cz, linux-kernel@vger.kernel.org,
-       pelaufer@adelphia.net
-Subject: Re: [PATCH] Linux PnP Support V0.93 - 2.5.50
-Message-ID: <20021207192203.GB16559@kroah.com>
-References: <20021201143221.GC333@neo.rr.com> <Pine.LNX.4.50.0212071322230.3130-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0212071322230.3130-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.4i
+	id <S264690AbSLGT1M>; Sat, 7 Dec 2002 14:27:12 -0500
+Received: from MUNSTER-178.ubishops.ca ([207.162.100.178]:4 "EHLO cort.ws")
+	by vger.kernel.org with ESMTP id <S264686AbSLGT1L>;
+	Sat, 7 Dec 2002 14:27:11 -0500
+Date: Sat, 7 Dec 2002 14:36:20 +0000 (/etc/localtime)
+From: Thomas Cort <tcort@cort.ws>
+To: linux-kernel@vger.kernel.org
+cc: alan@redhat.com, alan@lxorguk.ukuu.org.uk, tsbogend@alpha.franken.de
+Subject: [PATCH] Linux-2.2.23 drivers/net/lance.c unused variable 
+Message-ID: <Pine.LNX.4.21.0212071426250.106-100000@cort.ws>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 07, 2002 at 01:24:29PM -0500, Zwane Mwaikambo wrote:
-> On Sun, 1 Dec 2002, Adam Belay wrote:
-> 
-> > Attached is a patch, gzipped for size, that updates the 2.5.50 to the latest pnp
-> > version.  It includes all 9 of the previously submitted patches.
-> >
-> > Highlights are as follows:
-> > -PnP BIOS fixes
-> > -Several new macros
-> > -PnP Card Services
-> > -Various bug fixes
-> > -more drivers converted to the new APIs
-> >
-> > PnP developers please use this patch.
-> 
-> Could we get a void* in pnp_dev? I'm finding myself resorting to
-> driver internal arrays in order to track locations of device private structures.
+Trivial patch to remove unused variable "int i" from
+static int lance_close(struct device *dev) in
+drivers/net/lance.c. I checked 2.5.50 and this variable is _not_
+present. Kernel compiles and works fine with the following patch:
 
-Use the struct device void pointer for stuff like this.  There's some
-helpful functions to get access to this easily (but don't seem to see
-them in pnp.h at first glance...)
+/** SNIP **/
 
-thanks,
+--- /usr/src/linux/drivers/net/lance.c  Sun Mar 25 16:37:34 2001
++++ /usr/src/linux/drivers/net/lance.c  Sat Dec  7 13:14:18 2002
+@@ -1174,7 +1174,6 @@
+ {
+        int ioaddr = dev->base_addr;
+        struct lance_private *lp = (struct lance_private *)dev->priv;
+-       int i;
 
-greg k-h
+        dev->start = 0;
+        dev->tbusy = 1;
+
+/** SNIP **/
+
+Please apply the patch to the next version of the 2.2 Kernel.
+
+-Thomas Cort <tcort@cort.ws>
+

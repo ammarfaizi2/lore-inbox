@@ -1,94 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311068AbSCHUlx>; Fri, 8 Mar 2002 15:41:53 -0500
+	id <S311105AbSCHUsO>; Fri, 8 Mar 2002 15:48:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311079AbSCHUlo>; Fri, 8 Mar 2002 15:41:44 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:49395 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S311068AbSCHUli>;
-	Fri, 8 Mar 2002 15:41:38 -0500
-Message-ID: <3C8921AB.6DC37849@mvista.com>
-Date: Fri, 08 Mar 2002 12:40:11 -0800
+	id <S311108AbSCHUsD>; Fri, 8 Mar 2002 15:48:03 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:8181 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S311105AbSCHUrr>;
+	Fri, 8 Mar 2002 15:47:47 -0500
+Message-ID: <3C89234B.F9F1BDD1@mvista.com>
+Date: Fri, 08 Mar 2002 12:47:07 -0800
 From: george anzinger <george@mvista.com>
 Organization: Monta Vista Software
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Terje Eggestad <terje.eggestad@scali.com>,
-        Ben Greear <greearb@candelatech.com>,
-        Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: gettimeofday() system call timing curiosity
-In-Reply-To: <Pine.LNX.3.95.1020308134552.6627A-100000@chaos.analogic.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Hubertus Franke <frankeh@watson.ibm.com>,
+        Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+In-Reply-To: <Pine.LNX.4.33.0203081109390.2749-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
+Linus Torvalds wrote:
 > 
-> On Fri, 8 Mar 2002, Jamie Lokier wrote:
-> 
-> > Jamie Lokier wrote:
-> > > It takes the median of 1000 samples of the TSC time taken to do a
-> > > rdtsc/gettimeofday/rdtsc measurement, then uses that as the threshold
-> > > for deciding which of the subsequent 1000000 measurements are accepted.
-> > > Then linear regression through the accepted points.
-> > >
-> > > I see a couple of results there which suggests a probable fault in the
-> > > filtering algorithm.  Perhaps it should simply use the smallest TSC time
-> > > taken as the threshold.
+> On Fri, 8 Mar 2002, Hubertus Franke wrote:
 > >
-> > I've looked more closely.  Of all the machines I have access to, only my
-> > laptop shows the anomolous measurements.
-> >
-> > It turns out that the median of "time in TSC cycles to do a
-> > rdtsc+gettimeofday+rdtsc measurement" varies from run to run.  It only
-> > varies between two values, though.
-> >
-> [SNIPPED...]
+> > Could you also comment on the functionality that has been discussed.
 > 
-> The following program clearly shows that Linux will not return the
-> same gettimeofday values twice in succession. Since it provably takes
-> less than 1 microsecond to make a system call on a modern machine,
-> Linux must be waiting within the gettimeofday procedure long enough
-> to make certain that the time has changed. This may be screwing up
-> any performance measurments made with gettimeofday().
+> First off, I have to say that I really like the current patch by Rusty.
+> The hashing approach is very clean, and it all seems quite good. As to
+> specific points:
 > 
-Balderdash!!  It is easy to do if you machine is fast enough.  On my
-800MHZ PIII gettimeofday take about 0.7 micro seconds min. over about
-100 calls, NO loop overhead.  
+> > (I) the fairness issues that have been raised.
+> >     do you support two wakeup mechanism: FUTEX_UP and FUTEX_UP_FAIR
+> >     or you don't care about fairness and starvation
+> 
+> I don't think fairness and starvation is that big of a deal for
+> semaphores, usually being unfair in these things tends to just improve
+> performance through better cache locality with no real downside. That
+> said, I think the option should be open (which it does seem to be).
+> 
+> For rwlocks, my personal preference is the fifo-fair-preference (unlike
+> semaphore fairness, I have actually seen loads where read- vs
+> write-preference really is unacceptable). This might be a point where we
+> give users the choice.
+> 
+> I do think we should make the lock bigger - I worry that atomic_t simply
+> won't be enough for things like fair rwlocks, which might want a
+> "cmpxchg8b" on x86.
+> 
+> So I would suggest making the size (and thus alignment check) of locks at
+> least 8 bytes (and preferably 16). That makes it slightly harder to put
+> locks on the stack, but gcc does support stack alignment, even if the code
+> sucks right now.
+> 
+I think this is needed if we want to address the "task dies while
+holding a lock" issue.  In this case we need to know who holds the lock.
 
 -g
 
-> #include <stdio.h>
-> #include <sys/time.h>
+>                 Linus
 > 
-> int main(void);
-> int main()
-> {
->    struct timeval tv, pv;
->    tv.tv_sec  = tv.tv_usec = pv.tv_sec = pv.tv_usec = 0;
->    for(;;)
->    {
->         (void)gettimeofday(&tv, NULL);
->         if((tv.tv_sec != pv.tv_sec) || (tv.tv_usec != pv.tv_usec))
->             printf("sec = %ld usec = %ld\n", tv.tv_sec, tv.tv_usec);
->          else
->             puts("The same!");
->          pv = tv;
->    }
->    return 0;
-> }
-> 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-> 
->         Bill Gates? Who?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
 George           george@mvista.com

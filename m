@@ -1,1038 +1,419 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263096AbTI3Db7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 23:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbTI3Db7
+	id S263097AbTI3EA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 00:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbTI3EA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 23:31:59 -0400
-Received: from dp.samba.org ([66.70.73.150]:16107 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263096AbTI3Dbf (ORCPT
+	Tue, 30 Sep 2003 00:00:29 -0400
+Received: from dsl-082-082-146-170.arcor-ip.net ([82.82.146.170]:17416 "HELO
+	obi.mine.nu") by vger.kernel.org with SMTP id S263097AbTI3EAA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 23:31:35 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Tim Hockin <thockin@hockin.org>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, braam@clusterfs.com, neilb@cse.unsw.edu.au,
-       David Meybohm <dmeybohm@bellsouth.net>
-Subject: Re: [PATCH] Many groups patch. 
-In-reply-to: Your message of "Mon, 29 Sep 2003 10:25:31 MST."
-             <Pine.LNX.4.44.0309291024040.28114-100000@home.osdl.org> 
-Date: Tue, 30 Sep 2003 09:30:07 +1000
-Message-Id: <20030930033134.AC71E2C0A4@lists.samba.org>
+	Tue, 30 Sep 2003 00:00:00 -0400
+Subject: [PATCH] mpc8xx watchdog timer (2.4.22-bk26)
+From: Andreas Oberritter <obi@saftware.de>
+To: linux-kernel@vger.kernel.org
+Cc: Tom Rini <trini@kernel.crashing.org>, Florian Schirmer <jolt@tuxbox.org>
+Content-Type: multipart/mixed; boundary="=-4RsDp59Ksh2QAtrQwGfm"
+Message-Id: <1064894394.821.107.camel@shiva.eth.saftware.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 30 Sep 2003 05:59:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0309291024040.28114-100000@home.osdl.org> you write:
-> 
-> On Mon, 29 Sep 2003, Rusty Russell wrote:
-> > 
-> > This version drops the internal groups array (it's so often shared
-> > that it's not worth it, and the logic becomes a bit neater), and does
-> > vmalloc fallback in case someone has massive number of groups.
-> 
-> Why?
 
-(Rusty points at Tim).
+--=-4RsDp59Ksh2QAtrQwGfm
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-He has 10,000 groups.  Now me, I'm happy with the minimal fix.
+Hi,
 
-> kmalloc() works fine. Anybody who needs 200 groups may be sane, but 
-> anybody who needs more than fits in a kmalloc() is definitely so far out 
-> that there is no point. 
+the attached patch adds support for the internal watchdog of the mpc8xx
+series of CPUs including the watchdog user space interface. It has been
+tested on the D-Box2 board which requires this patch because the
+watchdog timer is enabled by its boot loader. It should work on other
+8xx boards as well.
 
-And worse, there are the intermediate kmallocs which would need to be
-fixed (thanks to Stephen Rothwell for pointing this out).  Fixing this
-would make it even uglier.
+Any comments?
 
-Here's an updated one (with David Meybohm's fix, too -- Thanks!),
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Regards,
+Andreas
 
-Name: Dynamic Allocation of Groups Array When Required: With Refcounting
-Author: Rusty Russell
-Status: Booted on 2.6.0-test6-bk1
-Depends: Misc/qemu-page-offset.patch.gz
+--=-4RsDp59Ksh2QAtrQwGfm
+Content-Disposition: attachment; filename=linux-2.4.22-bk26-m8xxwdt.diff
+Content-Type: text/plain; name=linux-2.4.22-bk26-m8xxwdt.diff; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 
-D: This patch allows the maximum number of groups to be varied using
-D: sysctl.  Since sharing is so common, we use a refcounted external
-D: array for groups.
-D: 
-D: Changes:
-D: 1) Remove the NGROUPS define from archs.
-D: 2) Fixup the few places which declare [NGROUPS] arrays on the stack.
-D: 3) The ia64, s390 and sparc64 ports have their own setgroups/getgroups
-D:    implementations: unify them on the ia64 one, which calls the core
-D:    functions.
-D: 4) Change the task_struct's groups to a pointer to inside a refcounted
-D:    external array, fix up fork() to inc refcount.
-D: 5) Introduce max_groups and use it instead of NGROUPS.
-D: 6) Add a sysctl to vary max_groups.
-D: 
-D: This patch scars nfs: artificially restrict the groups there to 
-D: SVC_CRED_NGROUPS (32), which is probably wrong, but won't break if
-D: they don't change the default.
-D: 
-D: This patch breaks intermezzo: I'm not sure how they want to deal
-D: with it.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/arch/ia64/ia32/sys_ia32.c .12070-2.6.0-test6-more_groups_refcount/arch/ia64/ia32/sys_ia32.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/arch/ia64/ia32/sys_ia32.c	2003-09-29 10:25:17.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/arch/ia64/ia32/sys_ia32.c	2003-09-29 17:18:46.000000000 +1000
-@@ -2432,17 +2432,24 @@ asmlinkage long
- sys32_getgroups16 (int gidsetsize, short *grouplist)
- {
- 	mm_segment_t old_fs = get_fs();
--	gid_t gl[NGROUPS];
-+	gid_t *gl;
- 	int ret, i;
+===== arch/ppc/kernel/Makefile 1.34 vs edited =====
+--- 1.34/arch/ppc/kernel/Makefile	Fri Aug 29 06:31:27 2003
++++ edited/arch/ppc/kernel/Makefile	Tue Sep 30 05:01:44 2003
+@@ -64,6 +64,9 @@
+ obj-$(CONFIG_PPC4xx_DMA)	+= ppc4xx_dma.o
+ obj-$(CONFIG_PPC4xx_EDMA)	+= ppc4xx_sgdma.o
+ obj-$(CONFIG_8xx)		+= m8xx_setup.o ppc8xx_pic.o
++ifdef CONFIG_8xx_WDT
++obj-y				+= m8xx_wdt.o
++endif
+ ifeq ($(CONFIG_8xx),y)
+ obj-$(CONFIG_PCI)		+= qspan_pci.o
+ ifndef CONFIG_MATH_EMULATION
+===== arch/ppc/kernel/m8xx_setup.c 1.22 vs edited =====
+--- 1.22/arch/ppc/kernel/m8xx_setup.c	Thu Jul  3 18:56:34 2003
++++ edited/arch/ppc/kernel/m8xx_setup.c	Tue Sep 30 05:01:46 2003
+@@ -58,6 +58,7 @@
  
-+	gl = kmalloc(sizeof(gl[0]) * current->ngroups, GFP_KERNEL);
-+	if (!gl)
-+		return -ENOMEM;
+ extern unsigned long find_available_memory(void);
+ extern void m8xx_cpm_reset(uint);
++extern void m8xx_wdt_handler_install(bd_t *bp);
+ 
+ void __init
+ m8xx_setup_arch(void)
+@@ -184,6 +185,13 @@
+ 	if (request_irq(DEC_INTERRUPT, timebase_interrupt, 0, "tbint",
+ 				NULL) != 0)
+ 		panic("Could not allocate timer IRQ!");
 +
- 	set_fs(KERNEL_DS);
- 	ret = sys_getgroups(gidsetsize, gl);
- 	set_fs(old_fs);
- 
--	if (gidsetsize && ret > 0 && ret <= NGROUPS)
-+	if (gidsetsize && ret > 0)
- 		for (i = 0; i < ret; i++, grouplist++)
--			if (put_user(gl[i], grouplist))
--				return -EFAULT;
-+			if (put_user(gl[i], grouplist)) {
-+				ret = -EFAULT;
-+				break;
-+			}
-+	kfree(gl);
- 	return ret;
++#ifdef CONFIG_8xx_WDT
++	/* Install watchdog timer handler early because it might be
++	 * already enabled by the bootloader
++	 */
++	m8xx_wdt_handler_install(binfo);
++#endif
  }
  
-@@ -2452,17 +2459,23 @@ asmlinkage long
- sys32_setgroups16 (int gidsetsize, short *grouplist)
- {
- 	mm_segment_t old_fs = get_fs();
--	gid_t gl[NGROUPS];
-+	gid_t *gl;
- 	int ret, i;
+ /* The RTC on the MPC8xx is an internal register.
+===== arch/ppc/kernel/ppc_ksyms.c 1.36 vs edited =====
+--- 1.36/arch/ppc/kernel/ppc_ksyms.c	Sat Sep 27 06:10:40 2003
++++ edited/arch/ppc/kernel/ppc_ksyms.c	Tue Sep 30 05:33:27 2003
+@@ -357,6 +357,12 @@
+ EXPORT_SYMBOL(cpm_free_handler);
+ EXPORT_SYMBOL(m8xx_cpm_hostalloc);
+ EXPORT_SYMBOL(m8xx_cpm_dpalloc);
++#ifdef CONFIG_8xx_WDT
++extern int m8xx_wdt_get_timeout(void);
++extern void m8xx_wdt_reset(void);
++EXPORT_SYMBOL(m8xx_wdt_get_timeout);
++EXPORT_SYMBOL(m8xx_wdt_reset);
++#endif /* CONFIG_8xx_WDT */
+ #endif /* CONFIG_8xx */
  
--	if ((unsigned) gidsetsize > NGROUPS)
-+	if ((unsigned) gidsetsize > max_groups)
- 		return -EINVAL;
-+	gl = kmalloc(sizeof(gl[0]) * gidsetsize, GFP_KERNEL);
-+	if (!gl)
-+		return -ENOMEM;
- 	for (i = 0; i < gidsetsize; i++, grouplist++)
--		if (get_user(gl[i], grouplist))
-+		if (get_user(gl[i], grouplist)) {
-+			kfree(gl);
- 			return -EFAULT;
-+		}
- 	set_fs(KERNEL_DS);
- 	ret = sys_setgroups(gidsetsize, gl);
- 	set_fs(old_fs);
-+	kfree(gl);
- 	return ret;
- }
+ /* Those should really be inline */
+===== drivers/char/Config.in 1.58 vs edited =====
+--- 1.58/drivers/char/Config.in	Thu Sep 25 05:54:18 2003
++++ edited/drivers/char/Config.in	Tue Sep 30 05:01:48 2003
+@@ -254,6 +254,7 @@
+    fi
+    tristate '  ZF MachZ Watchdog' CONFIG_MACHZ_WDT
+    dep_tristate '  AMD 766/768 TCO Timer/Watchdog' CONFIG_AMD7XX_TCO $CONFIG_EXPERIMENTAL
++   dep_tristate '  MPC8xx Watchdog Timer' CONFIG_8xx_WDT $CONFIG_8xx
+ fi
+ endmenu
  
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/arch/mips/kernel/sysirix.c .12070-2.6.0-test6-more_groups_refcount/arch/mips/kernel/sysirix.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/arch/mips/kernel/sysirix.c	2003-09-29 10:25:18.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/arch/mips/kernel/sysirix.c	2003-09-29 17:18:46.000000000 +1000
-@@ -368,7 +368,7 @@ asmlinkage int irix_syssgi(struct pt_reg
- 			retval = HZ;
- 			goto out;
- 		case 4:
--			retval = NGROUPS;
-+			retval = max_groups;
- 			goto out;
- 		case 5:
- 			retval = NR_OPEN;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/arch/s390/kernel/compat_linux.c .12070-2.6.0-test6-more_groups_refcount/arch/s390/kernel/compat_linux.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/arch/s390/kernel/compat_linux.c	2003-09-29 10:25:21.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/arch/s390/kernel/compat_linux.c	2003-09-29 17:18:46.000000000 +1000
-@@ -189,40 +189,57 @@ asmlinkage long sys32_setfsgid16(u16 gid
- 	return sys_setfsgid((gid_t)gid);
- }
+===== drivers/char/Makefile 1.37 vs edited =====
+--- 1.37/drivers/char/Makefile	Wed Aug 27 22:18:26 2003
++++ edited/drivers/char/Makefile	Tue Sep 30 05:01:49 2003
+@@ -305,6 +305,7 @@
+ obj-$(CONFIG_WAFER_WDT) += wafer5823wdt.o
+ obj-$(CONFIG_SOFT_WATCHDOG) += softdog.o
+ obj-$(CONFIG_AMD7XX_TCO) += amd7xx_tco.o
++obj-$(CONFIG_8xx_WDT) += mpc8xx_wdt.o
  
--asmlinkage long sys32_getgroups16(int gidsetsize, u16 *grouplist)
-+extern asmlinkage long sys_getgroups (int gidsetsize, gid_t *grouplist);
+ subdir-$(CONFIG_MWAVE) += mwave
+ ifeq ($(CONFIG_MWAVE),y)
+===== arch/ppc/kernel/m8xx_wdt.c 1.0 vs 1.1 =====
+--- /dev/null	Thu Jan  1 01:00:00 1970
++++ 1.1/arch/ppc/kernel/m8xx_wdt.c	Tue Sep 30 05:34:45 2003
+@@ -0,0 +1,103 @@
++/*
++ * m8xx_wdt.c - MPC8xx watchdog driver
++ *
++ * Copyright (C) 2002 Florian Schirmer <jolt@tuxbox.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
 +
-+asmlinkage long
-+sys32_getgroups16 (int gidsetsize, short *grouplist)
- {
--	u16 groups[NGROUPS];
--	int i,j;
-+	mm_segment_t old_fs = get_fs();
-+	gid_t *gl;
-+	int ret, i;
- 
--	if (gidsetsize < 0)
--		return -EINVAL;
--	i = current->ngroups;
--	if (gidsetsize) {
--		if (i > gidsetsize)
--			return -EINVAL;
--		for(j=0;j<i;j++)
--			groups[j] = current->groups[j];
--		if (copy_to_user(grouplist, groups, sizeof(u16)*i))
--			return -EFAULT;
--	}
--	return i;
-+	gl = kmalloc(sizeof(gl[0]) * current->ngroups, GFP_KERNEL);
-+	if (!gl)
-+		return -ENOMEM;
++#include <linux/init.h>
++#include <linux/irq.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <asm/8xx_immap.h>
 +
-+	set_fs(KERNEL_DS);
-+	ret = sys_getgroups(gidsetsize, gl);
-+	set_fs(old_fs);
++static int wdt_timeout;
 +
-+	if (gidsetsize && ret > 0)
-+		for (i = 0; i < ret; i++, grouplist++)
-+			if (put_user(gl[i], grouplist)) {
-+				ret = -EFAULT;
-+				break;
-+			}
-+	kfree(gl);
-+	return ret;
- }
- 
--asmlinkage long sys32_setgroups16(int gidsetsize, u16 *grouplist)
-+extern asmlinkage long sys_setgroups (int gidsetsize, gid_t *grouplist);
++void m8xx_wdt_reset(void)
++{
++	volatile immap_t *imap = (volatile immap_t *)IMAP_ADDR;
 +
-+asmlinkage long
-+sys32_setgroups16 (int gidsetsize, short *grouplist)
- {
--	u16 groups[NGROUPS];
--	int i;
-+	mm_segment_t old_fs = get_fs();
-+	gid_t *gl;
-+	int ret, i;
- 
--	if (!capable(CAP_SETGID))
--		return -EPERM;
--	if ((unsigned) gidsetsize > NGROUPS)
-+	if ((unsigned) gidsetsize > max_groups)
- 		return -EINVAL;
--	if (copy_from_user(groups, grouplist, gidsetsize * sizeof(u16)))
--		return -EFAULT;
--	for (i = 0 ; i < gidsetsize ; i++)
--		current->groups[i] = (gid_t)groups[i];
--	current->ngroups = gidsetsize;
--	return 0;
-+	gl = kmalloc(sizeof(gl[0]) * gidsetsize, GFP_KERNEL);
-+	if (!gl)
-+		return -ENOMEM;
-+	for (i = 0; i < gidsetsize; i++, grouplist++)
-+		if (get_user(gl[i], grouplist)) {
-+			kfree(gl);
-+			return -EFAULT;
-+		}
-+	set_fs(KERNEL_DS);
-+	ret = sys_setgroups(gidsetsize, gl);
-+	set_fs(old_fs);
-+	kfree(gl);
-+	return ret;
- }
- 
- asmlinkage long sys32_getuid16(void)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/arch/sparc/kernel/sys_sunos.c .12070-2.6.0-test6-more_groups_refcount/arch/sparc/kernel/sys_sunos.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/arch/sparc/kernel/sys_sunos.c	2003-09-22 10:27:56.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/arch/sparc/kernel/sys_sunos.c	2003-09-29 17:18:46.000000000 +1000
-@@ -896,7 +896,7 @@ extern asmlinkage long sunos_sysconf (in
- 		ret = HZ;
- 		break;
- 	case _SC_NGROUPS_MAX:
--		ret = NGROUPS_MAX;
-+		ret = max_groups;
- 		break;
- 	case _SC_OPEN_MAX:
- 		ret = OPEN_MAX;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/arch/sparc64/kernel/sys_sparc32.c .12070-2.6.0-test6-more_groups_refcount/arch/sparc64/kernel/sys_sparc32.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/arch/sparc64/kernel/sys_sparc32.c	2003-09-29 10:25:22.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/arch/sparc64/kernel/sys_sparc32.c	2003-09-29 17:18:46.000000000 +1000
-@@ -206,40 +206,57 @@ asmlinkage long sys32_setfsgid16(u16 gid
- 	return sys_setfsgid((gid_t)gid);
- }
- 
--asmlinkage long sys32_getgroups16(int gidsetsize, u16 *grouplist)
-+extern asmlinkage long sys_getgroups (int gidsetsize, gid_t *grouplist);
++	imap->im_siu_conf.sc_swsr = 0x556c;	/* write magic1 */
++	imap->im_siu_conf.sc_swsr = 0xaa39;	/* write magic2 */
++}
 +
-+asmlinkage long
-+sys32_getgroups16 (int gidsetsize, short *grouplist)
- {
--	u16 groups[NGROUPS];
--	int i,j;
-+	mm_segment_t old_fs = get_fs();
-+	gid_t *gl;
-+	int ret, i;
- 
--	if (gidsetsize < 0)
--		return -EINVAL;
--	i = current->ngroups;
--	if (gidsetsize) {
--		if (i > gidsetsize)
--			return -EINVAL;
--		for(j=0;j<i;j++)
--			groups[j] = current->groups[j];
--		if (copy_to_user(grouplist, groups, sizeof(u16)*i))
--			return -EFAULT;
--	}
--	return i;
-+	gl = kmalloc(sizeof(gl[0]) * current->ngroups, GFP_KERNEL);
-+	if (!gl)
-+		return -ENOMEM;
++static void m8xx_wdt_interrupt(int irq, void *dev, struct pt_regs *regs)
++{
++	volatile immap_t *imap = (volatile immap_t *)IMAP_ADDR;
 +
-+	set_fs(KERNEL_DS);
-+	ret = sys_getgroups(gidsetsize, gl);
-+	set_fs(old_fs);
++	m8xx_wdt_reset();
 +
-+	if (gidsetsize && ret > 0)
-+		for (i = 0; i < ret; i++, grouplist++)
-+			if (put_user(gl[i], grouplist)) {
-+				ret = -EFAULT;
-+				break;
-+			}
-+	kfree(gl);
-+	return ret;
- }
- 
--asmlinkage long sys32_setgroups16(int gidsetsize, u16 *grouplist)
-+extern asmlinkage long sys_setgroups (int gidsetsize, gid_t *grouplist);
++	imap->im_sit.sit_piscr |= PISCR_PS;	/* clear irq */
++}
 +
-+asmlinkage long
-+sys32_setgroups16 (int gidsetsize, short *grouplist)
- {
--	u16 groups[NGROUPS];
--	int i;
-+	mm_segment_t old_fs = get_fs();
-+	gid_t *gl;
-+	int ret, i;
- 
--	if (!capable(CAP_SETGID))
--		return -EPERM;
--	if ((unsigned) gidsetsize > NGROUPS)
-+	if ((unsigned) gidsetsize > max_groups)
- 		return -EINVAL;
--	if (copy_from_user(groups, grouplist, gidsetsize * sizeof(u16)))
--		return -EFAULT;
--	for (i = 0 ; i < gidsetsize ; i++)
--		current->groups[i] = (gid_t)groups[i];
--	current->ngroups = gidsetsize;
--	return 0;
-+	gl = kmalloc(sizeof(gl[0]) * gidsetsize, GFP_KERNEL);
-+	if (!gl)
-+		return -ENOMEM;
-+	for (i = 0; i < gidsetsize; i++, grouplist++)
-+		if (get_user(gl[i], grouplist)) {
-+			kfree(gl);
-+			return -EFAULT;
-+		}
-+	set_fs(KERNEL_DS);
-+	ret = sys_setgroups(gidsetsize, gl);
-+	set_fs(old_fs);
-+	kfree(gl);
-+	return ret;
- }
- 
- asmlinkage long sys32_getuid16(void)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/arch/sparc64/kernel/sys_sunos32.c .12070-2.6.0-test6-more_groups_refcount/arch/sparc64/kernel/sys_sunos32.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/arch/sparc64/kernel/sys_sunos32.c	2003-09-22 10:27:56.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/arch/sparc64/kernel/sys_sunos32.c	2003-09-29 17:18:46.000000000 +1000
-@@ -859,7 +859,7 @@ extern asmlinkage s32 sunos_sysconf (int
- 		ret = HZ;
- 		break;
- 	case _SC_NGROUPS_MAX:
--		ret = NGROUPS_MAX;
-+		ret = max_groups;
- 		break;
- 	case _SC_OPEN_MAX:
- 		ret = OPEN_MAX;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/fs/nfsd/auth.c .12070-2.6.0-test6-more_groups_refcount/fs/nfsd/auth.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/fs/nfsd/auth.c	2003-09-22 10:21:34.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/fs/nfsd/auth.c	2003-09-29 17:18:46.000000000 +1000
-@@ -26,7 +26,7 @@ nfsd_setuser(struct svc_rqst *rqstp, str
- 			cred->cr_uid = exp->ex_anon_uid;
- 		if (!cred->cr_gid)
- 			cred->cr_gid = exp->ex_anon_gid;
--		for (i = 0; i < NGROUPS; i++)
-+		for (i = 0; i < SVC_CRED_NGROUPS; i++)
- 			if (!cred->cr_groups[i])
- 				cred->cr_groups[i] = exp->ex_anon_gid;
- 	}
-@@ -39,7 +39,9 @@ nfsd_setuser(struct svc_rqst *rqstp, str
- 		current->fsgid = cred->cr_gid;
- 	else
- 		current->fsgid = exp->ex_anon_gid;
--	for (i = 0; i < NGROUPS; i++) {
++void __init m8xx_wdt_handler_install(bd_t *binfo)
++{
++	volatile immap_t *imap = (volatile immap_t *)IMAP_ADDR;
++	u32 pitc;
++	u32 sypcr;
++	u32 pitrtclk;
 +
-+	/* We can do this because cow_current_groups() was done at birth. */
-+	for (i = 0; i < SVC_CRED_NGROUPS; i++) {
- 		gid_t group = cred->cr_groups[i];
- 		if (group == (gid_t) NOGROUP)
- 			break;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/fs/nfsd/nfs4state.c .12070-2.6.0-test6-more_groups_refcount/fs/nfsd/nfs4state.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/fs/nfsd/nfs4state.c	2003-09-29 10:25:52.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/fs/nfsd/nfs4state.c	2003-09-29 17:18:46.000000000 +1000
-@@ -244,7 +244,7 @@ copy_cred(struct svc_cred *target, struc
- 
- 	target->cr_uid = source->cr_uid;
- 	target->cr_gid = source->cr_gid;
--	for(i = 0; i < NGROUPS; i++)
-+	for(i = 0; i < SVC_CREDS_NGROUPS; i++)
- 		target->cr_groups[i] = source->cr_groups[i];
- }
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/fs/nfsd/nfssvc.c .12070-2.6.0-test6-more_groups_refcount/fs/nfsd/nfssvc.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/fs/nfsd/nfssvc.c	2003-09-22 10:26:12.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/fs/nfsd/nfssvc.c	2003-09-29 17:18:46.000000000 +1000
-@@ -182,6 +182,11 @@ nfsd(struct svc_rqst *rqstp)
- 	daemonize("nfsd");
- 	current->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
- 
-+	if (cow_current_groups(SVC_CRED_NGROUPS) < 0) {
-+		printk("Unable to start nfsd thread: can't set groups\n");
-+		goto out;
++	sypcr = imap->im_siu_conf.sc_sypcr;
++
++	if (!(sypcr & 0x04)) {
++		printk(KERN_NOTICE "m8xx_wdt: wdt disabled (SYPCR: 0x%08X)\n", sypcr);
++		return;
 +	}
 +
- 	/* After daemonize() this kernel thread shares current->fs
- 	 * with the init process. We need to create files with a
- 	 * umask of 0 instead of init's umask. */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-alpha/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-alpha/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-alpha/param.h	2003-09-21 17:27:17.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-alpha/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -19,10 +19,6 @@
- 
- #define EXEC_PAGESIZE	8192
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-arm/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-arm/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-arm/param.h	2003-09-22 10:28:10.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-arm/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -26,10 +26,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS         32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP         (-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-arm26/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-arm26/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-arm26/param.h	2003-09-22 10:09:07.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-arm26/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -22,10 +22,6 @@
- # define HZ		100
- #endif
- 
--#ifndef NGROUPS
--#define NGROUPS         32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP         (-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-cris/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-cris/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-cris/param.h	2003-09-22 10:23:13.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-cris/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -14,10 +14,6 @@
- 
- #define EXEC_PAGESIZE	8192
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-h8300/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-h8300/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-h8300/param.h	2003-09-22 10:07:04.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-h8300/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -14,10 +14,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-i386/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-i386/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-i386/param.h	2003-09-29 17:18:46.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-i386/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -18,10 +18,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-ia64/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-ia64/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-ia64/param.h	2003-09-29 10:25:58.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-ia64/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -10,10 +10,6 @@
- 
- #define EXEC_PAGESIZE	65536
- 
--#ifndef NGROUPS
--# define NGROUPS	32
--#endif
--
- #ifndef NOGROUP
- # define NOGROUP	(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-m68k/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-m68k/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-m68k/param.h	2003-09-21 17:26:43.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-m68k/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -13,10 +13,6 @@
- 
- #define EXEC_PAGESIZE	8192
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-m68knommu/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-m68knommu/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-m68knommu/param.h	2003-09-21 17:31:31.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-m68knommu/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -44,10 +44,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-mips/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-mips/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-mips/param.h	2003-09-22 10:22:44.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-mips/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -33,10 +33,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-parisc/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-parisc/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-parisc/param.h	2003-09-21 17:31:10.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-parisc/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -17,10 +17,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-ppc/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-ppc/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-ppc/param.h	2003-09-22 09:47:27.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-ppc/param.h	2003-09-29 17:18:46.000000000 +1000
-@@ -13,10 +13,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-ppc64/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-ppc64/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-ppc64/param.h	2003-09-21 17:26:44.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-ppc64/param.h	2003-09-29 17:18:47.000000000 +1000
-@@ -20,10 +20,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-s390/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-s390/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-s390/param.h	2003-09-21 17:29:29.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-s390/param.h	2003-09-29 17:18:47.000000000 +1000
-@@ -21,10 +21,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-sh/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-sh/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-sh/param.h	2003-09-22 10:23:00.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-sh/param.h	2003-09-29 17:18:47.000000000 +1000
-@@ -17,10 +17,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-sparc/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-sparc/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-sparc/param.h	2003-09-21 17:26:18.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-sparc/param.h	2003-09-29 17:18:47.000000000 +1000
-@@ -14,10 +14,6 @@
- 
- #define EXEC_PAGESIZE	8192    /* Thanks for sun4's we carry baggage... */
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-sparc64/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-sparc64/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-sparc64/param.h	2003-09-21 17:26:18.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-sparc64/param.h	2003-09-29 17:18:47.000000000 +1000
-@@ -14,10 +14,6 @@
- 
- #define EXEC_PAGESIZE	8192    /* Thanks for sun4's we carry baggage... */
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-um/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-um/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-um/param.h	2003-09-21 17:28:16.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-um/param.h	2003-09-29 17:18:47.000000000 +1000
-@@ -3,10 +3,6 @@
- 
- #define EXEC_PAGESIZE   4096
- 
--#ifndef NGROUPS
--#define NGROUPS         32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP         (-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-v850/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-v850/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-v850/param.h	2003-09-21 17:31:32.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-v850/param.h	2003-09-29 17:18:47.000000000 +1000
-@@ -18,10 +18,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-x86_64/param.h .12070-2.6.0-test6-more_groups_refcount/include/asm-x86_64/param.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/asm-x86_64/param.h	2003-09-21 17:30:30.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/asm-x86_64/param.h	2003-09-29 17:18:47.000000000 +1000
-@@ -13,10 +13,6 @@
- 
- #define EXEC_PAGESIZE	4096
- 
--#ifndef NGROUPS
--#define NGROUPS		32
--#endif
--
- #ifndef NOGROUP
- #define NOGROUP		(-1)
- #endif
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/linux/init_task.h .12070-2.6.0-test6-more_groups_refcount/include/linux/init_task.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/linux/init_task.h	2003-09-22 10:27:37.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/linux/init_task.h	2003-09-29 17:18:47.000000000 +1000
-@@ -56,6 +56,8 @@
- 	.siglock	= SPIN_LOCK_UNLOCKED, 		\
- }
- 
-+extern struct task_groups init_groups;
++	m8xx_wdt_reset();
 +
- /*
-  *  INIT_TASK is used to set up the first task table, touch at
-  * your own risk!. Base=0, limit=0x1fffff (=2MB)
-@@ -108,6 +110,7 @@
- 	.proc_lock	= SPIN_LOCK_UNLOCKED,				\
- 	.switch_lock	= SPIN_LOCK_UNLOCKED,				\
- 	.journal_info	= NULL,						\
-+	.groups		= init_groups.groups,				\
- }
- 
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/linux/sched.h .12070-2.6.0-test6-more_groups_refcount/include/linux/sched.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/linux/sched.h	2003-09-29 10:26:05.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/linux/sched.h	2003-09-29 17:18:47.000000000 +1000
-@@ -328,6 +328,15 @@ struct k_itimer {
- struct io_context;			/* See blkdev.h */
- void exit_io_context(void);
- 
-+/* Size is determined by task_struct's ngroups. */
-+struct task_groups
++	printk(KERN_NOTICE "m8xx_wdt: active wdt found (SWTC: 0x%04X, SWP: 0x%01X)\n",
++			(sypcr >> 16), sypcr & 0x01);
++
++	wdt_timeout = (sypcr >> 16) & 0xFFFF;
++
++	if (!wdt_timeout)
++		wdt_timeout = 0xFFFF;
++
++	if (sypcr & 0x01)
++		wdt_timeout *= 2048;
++
++	/*
++	 * Fire trigger if half of the wdt ticked down 
++	 */
++
++	if (imap->im_sit.sit_rtcsc & RTCSC_38K)
++		pitrtclk = 9600;
++	else
++		pitrtclk = 8192;
++
++	if ((wdt_timeout) > (UINT_MAX / pitrtclk))
++		pitc = wdt_timeout / binfo->bi_intfreq * pitrtclk / 2;
++	else
++		pitc = pitrtclk * wdt_timeout / binfo->bi_intfreq / 2;
++
++	imap->im_sit.sit_pitc = pitc << 16;
++	imap->im_sit.sit_piscr = (mk_int_int_mask(PIT_INTERRUPT) << 8) | PISCR_PIE | PISCR_PTE;
++
++	if (request_irq(PIT_INTERRUPT, m8xx_wdt_interrupt, 0, "watchdog", NULL))
++		panic("m8xx_wdt: could not allocate watchdog irq!");
++
++	printk(KERN_NOTICE "m8xx_wdt: keep-alive trigger installed (PITC: 0x%04X)\n", pitc);
++
++	wdt_timeout /= binfo->bi_intfreq;
++}
++
++int m8xx_wdt_get_timeout(void)
 +{
-+	atomic_t usage;
-+	gid_t groups[0];
++	return wdt_timeout;
++}
++
+===== drivers/char/mpc8xx_wdt.c 1.0 vs 1.1 =====
+--- /dev/null	Thu Jan  1 01:00:00 1970
++++ 1.1/drivers/char/mpc8xx_wdt.c	Tue Sep 30 05:34:51 2003
+@@ -0,0 +1,183 @@
++/*
++ * mpc8xx_wdt.c - MPC8xx watchdog userspace interface
++ *
++ * Copyright (C) 2002 Florian Schirmer <jolt@tuxbox.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/miscdevice.h>
++#include <linux/module.h>
++#include <linux/watchdog.h>
++#include <asm/8xx_immap.h>
++#include <asm/uaccess.h>
++
++extern int m8xx_wdt_get_timeout(void);
++extern void m8xx_wdt_reset(void);
++
++static struct semaphore wdt_sem;
++static int wdt_status;
++
++static struct watchdog_info ident = {
++	.identity = "MPC8xx watchdog",
++	.options = WDIOF_KEEPALIVEPING,
 +};
 +
-+extern int max_groups;
-+
- struct task_struct {
- 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
- 	struct thread_info *thread_info;
-@@ -403,7 +413,7 @@ struct task_struct {
- 	uid_t uid,euid,suid,fsuid;
- 	gid_t gid,egid,sgid,fsgid;
- 	int ngroups;
--	gid_t	groups[NGROUPS];
-+	gid_t *groups; /* task_groups->groups */
- 	kernel_cap_t   cap_effective, cap_inheritable, cap_permitted;
- 	int keep_capabilities:1;
- 	struct user_struct *user;
-@@ -602,6 +612,12 @@ extern int send_group_sigqueue(int, stru
- extern int do_sigaction(int, const struct k_sigaction *, struct k_sigaction *);
- extern int do_sigaltstack(const stack_t __user *, stack_t __user *, unsigned long);
- 
-+/* container_of doesn't like arrays. */
-+static inline struct task_groups *task_groups(gid_t *groups)
++static void mpc8xx_wdt_handler_disable(void)
 +{
-+	return (void *)groups - offsetof(struct task_groups, groups);
++	volatile immap_t *imap = (volatile immap_t *)IMAP_ADDR;
++
++	imap->im_sit.sit_piscr &= ~(PISCR_PIE | PISCR_PTE);
++
++	printk(KERN_NOTICE "mpc8xx_wdt: keep-alive handler deactivated\n");
 +}
 +
- /* These can be the second arg to send_sig_info/send_group_sig_info.  */
- #define SEND_SIG_NOINFO ((struct siginfo *) 0)
- #define SEND_SIG_PRIV	((struct siginfo *) 1)
-@@ -678,6 +694,10 @@ extern int do_execve(char *, char __user
- extern long do_fork(unsigned long, unsigned long, struct pt_regs *, unsigned long, int __user *, int __user *);
- extern struct task_struct * copy_process(unsigned long, unsigned long, struct pt_regs *, unsigned long, int __user *, int __user *);
- 
-+/* Copy-on-write current groups to this size, if possible.  0 or -err. */
-+extern int cow_current_groups(unsigned int ngroups);
-+extern void release_groups(gid_t *groups);
-+
- #ifdef CONFIG_SMP
- extern void wait_task_inactive(task_t * p);
- #else
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/linux/sunrpc/svcauth.h .12070-2.6.0-test6-more_groups_refcount/include/linux/sunrpc/svcauth.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/linux/sunrpc/svcauth.h	2003-09-22 09:47:41.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/linux/sunrpc/svcauth.h	2003-09-29 17:18:47.000000000 +1000
-@@ -16,10 +16,12 @@
- #include <linux/sunrpc/cache.h>
- #include <linux/hash.h>
- 
-+#define SVC_CRED_NGROUPS	32
-+
- struct svc_cred {
- 	uid_t			cr_uid;
- 	gid_t			cr_gid;
--	gid_t			cr_groups[NGROUPS];
-+	gid_t			cr_groups[SVC_CRED_NGROUPS];
- };
- 
- struct svc_rqst;		/* forward decl */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/include/linux/sysctl.h .12070-2.6.0-test6-more_groups_refcount/include/linux/sysctl.h
---- .12070-2.6.0-test6-more_groups_refcount.pre/include/linux/sysctl.h	2003-09-22 10:28:13.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/include/linux/sysctl.h	2003-09-29 17:18:47.000000000 +1000
-@@ -127,6 +127,7 @@ enum
- 	KERN_PANIC_ON_OOPS=57,  /* int: whether we will panic on an oops */
- 	KERN_HPPA_PWRSW=58,	/* int: hppa soft-power enable */
- 	KERN_HPPA_UNALIGNED=59,	/* int: hppa unaligned-trap enable */
-+	KERN_MAX_GROUPS=60,	/* int: setgroups limit */
- };
- 
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/init/main.c .12070-2.6.0-test6-more_groups_refcount/init/main.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/init/main.c	2003-09-29 10:26:06.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/init/main.c	2003-09-29 17:18:47.000000000 +1000
-@@ -594,7 +594,6 @@ static int init(void * unused)
- 	 * The Bourne shell can be used instead of init if we are 
- 	 * trying to recover a really broken machine.
- 	 */
--
- 	if (execute_command)
- 		run_init_process(execute_command);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/kernel/fork.c .12070-2.6.0-test6-more_groups_refcount/kernel/fork.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/kernel/fork.c	2003-09-29 10:26:06.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/kernel/fork.c	2003-09-29 17:18:47.000000000 +1000
-@@ -85,6 +85,7 @@ void __put_task_struct(struct task_struc
- 
- 	security_task_free(tsk);
- 	free_uid(tsk->user);
-+	release_groups(tsk->groups);
- 	free_task(tsk);
- }
- 
-@@ -817,6 +818,7 @@ struct task_struct *copy_process(unsigne
- 
- 	atomic_inc(&p->user->__count);
- 	atomic_inc(&p->user->processes);
-+	atomic_inc(&task_groups(p->groups)->usage);
- 
- 	/*
- 	 * If multiple threads are within copy_process(), then this check
-@@ -1063,6 +1065,7 @@ bad_fork_cleanup_put_domain:
- bad_fork_cleanup_count:
- 	atomic_dec(&p->user->processes);
- 	free_uid(p->user);
-+	release_groups(p->groups);
- bad_fork_free:
- 	free_task(p);
- 	goto fork_out;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/kernel/sys.c .12070-2.6.0-test6-more_groups_refcount/kernel/sys.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/kernel/sys.c	2003-09-29 10:26:06.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/kernel/sys.c	2003-09-29 17:18:47.000000000 +1000
-@@ -1069,6 +1069,56 @@ out:
- 	return err;
- }
- 
-+/* Never freed */
-+struct task_groups init_groups = { .usage = ATOMIC_INIT(2) };
-+
-+int max_groups = 32;
-+
-+void release_groups(gid_t *groups)
++static void mpc8xx_wdt_handler_enable(void)
 +{
-+	struct task_groups *tgrp = task_groups(groups);
++	volatile immap_t *imap = (volatile immap_t *)IMAP_ADDR;
 +
-+	if (atomic_dec_and_test(&tgrp->usage))
-+		kfree(tgrp);
++	imap->im_sit.sit_piscr |= PISCR_PIE | PISCR_PTE;
++
++	printk(KERN_NOTICE "mpc8xx_wdt: keep-alive handler activated\n");
 +}
 +
-+/* This does the actual copy and changeover.  Caller sets
-+ * current->ngroups and changes group array if everything else goes ok. */
-+static inline int alloc_new_groups(unsigned int ngroups)
++static int mpc8xx_wdt_open(struct inode *inode, struct file *file)
 +{
-+	struct task_groups *tgrp;
++	switch (MINOR(inode->i_rdev)) {
++	case WATCHDOG_MINOR:
++		if (down_trylock(&wdt_sem))
++			return -EBUSY;
 +
-+	if (ngroups < current->ngroups)
-+		ngroups = current->ngroups;
++		m8xx_wdt_reset();
++		mpc8xx_wdt_handler_disable();
++		break;
 +
-+	tgrp = kmalloc(sizeof(*tgrp)+sizeof(tgrp->groups[0])*ngroups,GFP_KERNEL);
-+	if (!tgrp)
-+		return -ENOMEM;
-+	atomic_set(&tgrp->usage, 1);
-+
-+	memcpy(tgrp->groups, current->groups,
-+	       sizeof(tgrp->groups[0]) * current->ngroups);
-+
-+	release_groups(current->groups);
-+	current->groups = tgrp->groups;
-+	return 0;
-+}
-+
-+/* Unshare and maybe enlarge current groups to this size, if possible.
-+ * 0 or -err. */
-+int cow_current_groups(unsigned int ngroups)
-+{
-+	if (ngroups > max_groups)
-+		return -EINVAL;
-+
-+	/* Shared, or needs expansion? */
-+	if (atomic_read(&task_groups(current->groups)->usage) > 1
-+	    || ngroups > current->ngroups)
-+		return alloc_new_groups(ngroups);
-+
-+	return 0;
-+}
-+
- /*
-  * Supplementary group IDs
-  */
-@@ -1094,27 +1150,36 @@ asmlinkage long sys_getgroups(int gidset
- }
- 
- /*
-- *	SMP: Our groups are not shared. We can copy to/from them safely
-+ *	SMP: Our groups are copy-on-write. We can copy to/from them safely
-  *	without another task interfering.
-  */
-  
- asmlinkage long sys_setgroups(int gidsetsize, gid_t __user *grouplist)
- {
--	gid_t groups[NGROUPS];
-+	gid_t *groups;
- 	int retval;
- 
-+	printk("sys_setgroups %u groups\n", gidsetsize);
- 	if (!capable(CAP_SETGID))
- 		return -EPERM;
--	if ((unsigned) gidsetsize > NGROUPS)
--		return -EINVAL;
--	if (copy_from_user(groups, grouplist, gidsetsize * sizeof(gid_t)))
--		return -EFAULT;
-+	retval = cow_current_groups(gidsetsize);
-+	if (retval < 0)
-+		return retval;
-+	groups = kmalloc(sizeof(groups[0]) * gidsetsize, GFP_KERNEL);
-+	if (!groups)
-+		return -ENOMEM;
-+	if (copy_from_user(groups, grouplist, gidsetsize * sizeof(gid_t))) {
-+		retval = -EFAULT;
-+		goto out;
++	default:
++		return -ENODEV;
 +	}
- 	retval = security_task_setgroups(gidsetsize, groups);
- 	if (retval)
--		return retval;
-+		goto out;
- 	memcpy(current->groups, groups, gidsetsize * sizeof(gid_t));
- 	current->ngroups = gidsetsize;
--	return 0;
-+out:
-+	kfree(groups);
-+	return retval;
- }
- 
- static int supplemental_group_member(gid_t grp)
-@@ -1434,6 +1499,7 @@ asmlinkage long sys_prctl(int option, un
- 	return error;
- }
- 
-+EXPORT_SYMBOL(cow_current_groups);
- EXPORT_SYMBOL(notifier_chain_register);
- EXPORT_SYMBOL(notifier_chain_unregister);
- EXPORT_SYMBOL(notifier_call_chain);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/kernel/sysctl.c .12070-2.6.0-test6-more_groups_refcount/kernel/sysctl.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/kernel/sysctl.c	2003-09-29 10:26:06.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/kernel/sysctl.c	2003-09-29 17:18:47.000000000 +1000
-@@ -581,6 +581,14 @@ static ctl_table kern_table[] = {
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec,
- 	},
-+	{
-+		.ctl_name	= KERN_MAX_GROUPS,
-+		.procname	= "max_groups",
-+		.data		= &max_groups,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
- 	{ .ctl_name = 0 }
- };
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/kernel/uid16.c .12070-2.6.0-test6-more_groups_refcount/kernel/uid16.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/kernel/uid16.c	2003-09-22 10:07:19.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/kernel/uid16.c	2003-09-29 17:18:47.000000000 +1000
-@@ -109,7 +109,6 @@ asmlinkage long sys_setfsgid16(old_gid_t
- 
- asmlinkage long sys_getgroups16(int gidsetsize, old_gid_t __user *grouplist)
- {
--	old_gid_t groups[NGROUPS];
- 	int i,j;
- 
- 	if (gidsetsize < 0)
-@@ -118,34 +117,48 @@ asmlinkage long sys_getgroups16(int gids
- 	if (gidsetsize) {
- 		if (i > gidsetsize)
- 			return -EINVAL;
--		for(j=0;j<i;j++)
--			groups[j] = current->groups[j];
--		if (copy_to_user(grouplist, groups, sizeof(old_gid_t)*i))
-+		if (!access_ok(VERIFY_WRITE, grouplist, sizeof(old_gid_t)*i))
- 			return -EFAULT;
-+		for(j=0;j<i;j++) {
-+			old_gid_t group;
-+			group = current->groups[j];
-+			if (copy_to_user(grouplist+j, &group, sizeof(group)))
-+				return -EFAULT;
-+		}
- 	}
- 	return i;
- }
- 
- asmlinkage long sys_setgroups16(int gidsetsize, old_gid_t __user *grouplist)
- {
--	old_gid_t groups[NGROUPS];
--	gid_t new_groups[NGROUPS];
--	int i;
-+	old_gid_t *groups;
-+	gid_t *new_groups;
-+	int i, ret;
- 
- 	if (!capable(CAP_SETGID))
- 		return -EPERM;
--	if ((unsigned) gidsetsize > NGROUPS)
--		return -EINVAL;
 +
-+	if ((ret = cow_current_groups(gidsetsize)) < 0)
++	return 0;
++}
++
++static int mpc8xx_wdt_release(struct inode *inode, struct file *file)
++{
++	m8xx_wdt_reset();
++
++#if !defined(CONFIG_WATCHDOG_NOWAYOUT)
++	mpc8xx_wdt_handler_enable();
++#endif
++
++	up(&wdt_sem);
++
++	return 0;
++}
++
++static ssize_t mpc8xx_wdt_write(struct file *file, const char *data,
++				size_t len, loff_t * ppos)
++{
++	/* Can't seek (pwrite) on this device */
++	if (ppos != &file->f_pos)
++		return -ESPIPE;
++
++	if (!len)
++		return 0;
++
++	m8xx_wdt_reset();
++
++	return 1;
++}
++
++static int mpc8xx_wdt_ioctl(struct inode *inode, struct file *file,
++			    unsigned int cmd, unsigned long arg)
++{
++	switch (cmd) {
++	case WDIOC_GETSUPPORT:
++		if (copy_to_user((void *)arg, &ident, sizeof(ident)))
++			return -EFAULT;
++		break;
++
++	case WDIOC_GETSTATUS:
++	case WDIOC_GETBOOTSTATUS:
++		if (put_user(wdt_status, (int *)arg))
++			return -EFAULT;
++		wdt_status &= ~WDIOF_KEEPALIVEPING;
++		break;
++
++	case WDIOC_KEEPALIVE:
++		m8xx_wdt_reset();
++		wdt_status |= WDIOF_KEEPALIVEPING;
++		break;
++
++	case WDIOC_GETTIMEOUT:
++	{
++		int timeout = m8xx_wdt_get_timeout();
++		if (put_user(timeout, (int *)arg))
++			return -EFAULT;
++		break;
++	}
++
++	default:
++		return -ENOTTY;
++	}
++
++	return 0;
++}
++
++static struct file_operations mpc8xx_wdt_fops = {
++	.owner = THIS_MODULE,
++	.write = mpc8xx_wdt_write,
++	.ioctl = mpc8xx_wdt_ioctl,
++	.open = mpc8xx_wdt_open,
++	.release = mpc8xx_wdt_release,
++};
++
++static struct miscdevice mpc8xx_wdt_miscdev = {
++	.minor = WATCHDOG_MINOR,
++	.name = "watchdog",
++	.fops = &mpc8xx_wdt_fops,
++};
++
++static int __init mpc8xx_wdt_init(void)
++{
++	int ret;
++
++	sema_init(&wdt_sem, 1);
++
++	if ((ret = misc_register(&mpc8xx_wdt_miscdev))) {
++		printk(KERN_WARNING "mpc8xx_wdt: cound not register userspace interface\n");
 +		return ret;
-+	ret = -ENOMEM;
-+	groups = kmalloc(sizeof(groups[0]) * gidsetsize, GFP_KERNEL);
-+	new_groups = kmalloc(sizeof(new_groups[0]) * gidsetsize, GFP_KERNEL);
-+	if (!groups || !new_groups)
-+		goto out;
-+	ret = -EFAULT;
- 	if (copy_from_user(groups, grouplist, gidsetsize * sizeof(old_gid_t)))
--		return -EFAULT;
-+		goto out;
- 	for (i = 0 ; i < gidsetsize ; i++)
- 		new_groups[i] = (gid_t)groups[i];
--	i = security_task_setgroups(gidsetsize, new_groups);
--	if (i)
--		return i;
-+	ret = security_task_setgroups(gidsetsize, new_groups);
-+	if (ret)
-+		goto out;
- 	memcpy(current->groups, new_groups, gidsetsize * sizeof(gid_t));
- 	current->ngroups = gidsetsize;
--	return 0;
-+out:
-+	kfree(groups);
-+	kfree(new_groups);
-+	return ret;
- }
- 
- asmlinkage long sys_getuid16(void)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12070-2.6.0-test6-more_groups_refcount.pre/net/sunrpc/svcauth_unix.c .12070-2.6.0-test6-more_groups_refcount/net/sunrpc/svcauth_unix.c
---- .12070-2.6.0-test6-more_groups_refcount.pre/net/sunrpc/svcauth_unix.c	2003-09-22 10:23:05.000000000 +1000
-+++ .12070-2.6.0-test6-more_groups_refcount/net/sunrpc/svcauth_unix.c	2003-09-29 17:18:47.000000000 +1000
-@@ -434,11 +434,11 @@ svcauth_unix_accept(struct svc_rqst *rqs
- 	if (slen > 16 || (len -= (slen + 2)*4) < 0)
- 		goto badcred;
- 	for (i = 0; i < slen; i++)
--		if (i < NGROUPS)
-+		if (i < SVC_CRED_NGROUPS)
- 			cred->cr_groups[i] = ntohl(svc_getu32(argv));
- 		else
- 			svc_getu32(argv);
--	if (i < NGROUPS)
-+	if (i < SVC_CRED_NGROUPS)
- 		cred->cr_groups[i] = NOGROUP;
- 
- 	if (svc_getu32(argv) != RPC_AUTH_NULL || svc_getu32(argv) != 0) {
++	}
++
++	return 0;
++}
++
++static void __exit mpc8xx_wdt_exit(void)
++{
++	misc_deregister(&mpc8xx_wdt_miscdev);
++
++	m8xx_wdt_reset();
++	mpc8xx_wdt_handler_enable();
++}
++
++module_init(mpc8xx_wdt_init);
++module_exit(mpc8xx_wdt_exit);
++
++MODULE_AUTHOR("Florian Schirmer <jolt@tuxbox.org>");
++MODULE_DESCRIPTION("MPC8xx watchdog driver");
++MODULE_LICENSE("GPL");
+
+--=-4RsDp59Ksh2QAtrQwGfm--
+

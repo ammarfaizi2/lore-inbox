@@ -1,114 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273298AbRIWHFu>; Sun, 23 Sep 2001 03:05:50 -0400
+	id <S268926AbRIWHDt>; Sun, 23 Sep 2001 03:03:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273299AbRIWHFl>; Sun, 23 Sep 2001 03:05:41 -0400
-Received: from hall.mail.mindspring.net ([207.69.200.60]:4878 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S273298AbRIWHFc>; Sun, 23 Sep 2001 03:05:32 -0400
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-From: Robert Love <rml@tech9.net>
-To: Andre Pang <ozone@algorithm.com.au>
-Cc: linux-kernel@vger.kernel.org, safemode@speakeasy.net,
-        Dieter.Nuetzel@hamburg.de, iafilius@xs4all.nl, ilsensine@inwind.it,
-        george@mvista.com
-In-Reply-To: <1001143341.117502.5311.nullmailer@bozar.algorithm.com.au>
-In-Reply-To: <1000939458.3853.17.camel@phantasy>
-	<1001131036.557760.4340.nullmailer@bozar.algorithm.com.au>
-	<1001139027.1245.28.camel@phantasy> 
-	<1001143341.117502.5311.nullmailer@bozar.algorithm.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Evolution-Format: text/plain
-X-Mailer: Evolution/0.13.99+cvs.2001.09.21.20.26 (Preview Release)
-Date: 23 Sep 2001 03:05:41 -0400
-Message-Id: <1001228764.864.53.camel@phantasy>
-Mime-Version: 1.0
+	id <S273298AbRIWHDi>; Sun, 23 Sep 2001 03:03:38 -0400
+Received: from embolism.psychosis.com ([216.242.103.100]:61454 "EHLO
+	embolism.psychosis.com") by vger.kernel.org with ESMTP
+	id <S268926AbRIWHDg>; Sun, 23 Sep 2001 03:03:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: David Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] Initrd Dynamic v4.2 - New Feature: Tmpfs root support
+Date: Sun, 23 Sep 2001 03:03:59 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org, LRP <linux-router@linuxrouter.org>,
+        LRPD <linux-router-devel@linuxrouter.org>
+In-Reply-To: <Pine.GSO.4.21.0109230036450.13262-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0109230036450.13262-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15l3IH-0005Tu-00@schizo.psychosis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-09-22 at 03:22, Andre Pang wrote:
-> arrgh!  i just realised my script buggered up and was producing the same
-> graph for all the results.  please have a look at the page again, sorry.
+On Sunday 23 September 2001 0:41, Alexander Viro wrote:
+> >
+> > Please consider it for inclusion in the next 2.4 kernel release.
+>
+> Sigh...  With initramfs it can be done in userland. 
 
-no problem...
+Using Initrd Dynamic a person can boot with a ramdisk as their primary
+root, populating it with tar.gz archive(s). Making 'image' changes works
+very well and in a modular way. (IE root.tgz, etc.tgz) 
 
-> apart from that, i'm still confused.  compared to other graphs produced
-> by the latencytest program, my system seems to have huge latencies.
-> unless i'm reading it wrongly, the graph is saying that i'm getting
-> latencies of up to 30ms, and a lot of overruns.  compare this to
-> 
->     http://www.gardena.net/benno/linux/audio/2.4.0-test2/3x256.html
-> 
-> which shows latencytest on 2.4.0-test2, and
-> 
->     http://www.gardena.net/benno/linux/audio/2.2.10-p133-3x128/3x128.html
-> 
-> which are the results for latencytest on 2.2.10.  admittedly these
-> kernels are much older, but i'm consistently getting far more latency
-> than those kernels.  that's the bit i'm confused about :)  i've tried
-> Andrew Morton's low-latency patches as well, to no avail.  i've made
-> sure i've tuned my hard disks correctly, and i don't have any other
-> realtime processes running.
-> 
-> am i concerned with a different issue than the one you're addressing?
+With this release you can now forgo an internal mkfs on /dev/ram0 before 
+archive extraction and go straight to a truly dynamic tmpfs VFS as the root
+without the minix FS limitations. 
 
-No, I understand now.  I honestly don't know what to say about your
-results.
+Now, could you please explain to me how the hell you boot to a tmpfs
+root from userland!?!? This feature *creates* your userland.
 
-You are right, those older kernels are showing much better response
-times than your kernel.  One would think your newer kernel, with
-preemption or low-latency patch, would be an improvement.
+Maybe you're just confused what this feature does. Maybe you've never
+worked with systems that run a volatile root. Maybe you've just never made
+a boot disk.
 
-I honestly don't know what to tell you.  It could be a piece of hardware
-(or, more accurately) its driver ... 
+Maybe you even think it's sane to compile userland into the kernel? <snicker 
+snicker> I just looked at your initramfs. From what I see it's the same 
+scheme I used to use In the Linux Router Project before I wrote 
+initrd-archive. Except I did it *entirely* in userland back in 1997. It 
+sucked. Badly.
 
-the /proc/latencytimes output shows us that no single lock is accounting
-for your bad times.  In fact, all your locks aren't that bad, so...
+> _Please_, let's stop
+> adding complexity to already ridiculously bloated late boot stages.
 
-maybe the problem is in the "overruns" -- I don't know what that means
-exactly.  maybe someone else on the list can shed some light? 
-otheriwse, you can email the author perhaps.
+It's funny you've refered to my patch as bloated. What you've wrote (which is 
+a limited solution) weighs in at ~122k. Initrd Dynamic is ~35K complete and 
+that includes ~7K of mkfs_minix, which can be removed when use Linux 2.4 with 
+tmpfs (and ~2K of Configure.help : > ). Compiled up it add only ~3K to the 
+kernel size, and as for boot complexity, I agree lets reduce it. Leave it
+up to the bootloader to populate initrd memory space, or let a specific 
+driver tie the initrd file handle to a device to load from. Initrd Dynamic
+is made to work this way and is (should be) entirely platform independant
+code.
 
-With whatever buffer or whatnot is overrunning (and you are getting a
-bit of them, compared to those other URLs you posted), something is
-stalling or repeating.
+One day I hope someone finally implements loading kernel modules from 
+'initrd' type memory space, again leaving the job of getting them their to 
+the boot loader. (Actually it's called the multi boot standard and GRUB boot 
+loader has supported it for 3(?) years.)
 
-> > the preemption-test patch is showing _MAX_ latencies of 0.8ms through
-> > 12ms.  this is fine, too.
-> 
-> yep, i agree with that ... so why is latencytest showing scheduling
-> latencies of > 30ms?  i get the feeling i'm confusing two different
-> issues here.  from what i understand, /proc/latencytimes shows the
-> how long it takes for various functions in the kernel to finish, and
-> the latencytest result shows how long it takes for it to be
-> re-scheduled (represented by the white line on the graph).
+> David, no offence, but let's do it the right way.
 
-Pretty much.
+It is done right. Infact, I'm proud that this release finally has implemented 
+it to perfection for the purposes it was designed. It took 3 years
+to get to this point of a completly dynamic, modular, ram based root.
 
-/proc/latencytimes shows you how long specific locks are held in the
-kernel, so this isn't the same as how long certain functions take (which
-could be longer or shorter).  The reason for showing lock duration is
-that preemption (with the preemptible kernel patch) can not occur during
-a lock for concurrency reasons, so we want to find long-held locks and
-try to find a solution to them.
+It never fails, post a patch to kernel and they come out of the wood work 
+with delusional bitching. This is one reason I sat on releases for 9 months.
+BTW Offence intended...
 
-latencytest does indeed show scheduling latency.  it tries to show you
-how well the system can keep up with the audio buffer.  with a
-preemptible kernel, you can reduce this latency to a very small number,
-baring any large locks (from above).
-
-latencytest's latency is a function of the sum of the latencies reported
-by /proc/latencytimes. thus, a bad latency in latencytest could be
-caused by what you see in /proc/latencytest.  you would think we would
-see one or two long locks screwing everything up, but we do not.
-
-I would try to see what the overruns mean exactly, and see if any
-hardware drivers could be at fault (right now we don't report time with
-interrupts disabled in /proc/latencytimes, which could be a factor too).
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Dave

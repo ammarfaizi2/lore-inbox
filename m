@@ -1,102 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269250AbRGaLBK>; Tue, 31 Jul 2001 07:01:10 -0400
+	id <S269255AbRGaLNz>; Tue, 31 Jul 2001 07:13:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269251AbRGaLA7>; Tue, 31 Jul 2001 07:00:59 -0400
-Received: from gandalf.drinsama.de ([212.72.64.1]:52487 "EHLO
-	gandalf.drinsama.de") by vger.kernel.org with ESMTP
-	id <S269250AbRGaLAz>; Tue, 31 Jul 2001 07:00:55 -0400
-From: "Thomas Tanner" <tanner@ffii.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: harddisk suddenly locked?!
-Date: Tue, 31 Jul 2001 13:00:07 +0200
-Message-ID: <MABBKEJEMCFLBEDCGCDNGEABCAAA.tanner@ffii.org>
+	id <S269256AbRGaLNq>; Tue, 31 Jul 2001 07:13:46 -0400
+Received: from pop.gmx.net ([194.221.183.20]:41718 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S269255AbRGaLNg>;
+	Tue, 31 Jul 2001 07:13:36 -0400
+X-Sieve: cmu-sieve 2.0
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_BF4CTT4WBY30QX12DPTT"
+From: Andreas Bauer <akbauer@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] drivers/sound/esssolo1.c glitch?!
+Date: Tue, 31 Jul 2001 13:11:35 +0200
+X-Mailer: KMail [version 1.2]
+Cc: t.sailer@alumni.ethz.ch
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
+Reply-To: baueran@in.tum.de
+Message-Id: <01073113113508.01137@funnelweb>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Please help me! I'm desperate
 
- I can't access the data on my harddrive any longer ;-((
+--------------Boundary-00=_BF4CTT4WBY30QX12DPTT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
- The IBM Disk Fitness Test tool tells me:
-   Model                   : IBM-DJNA-372200
-   Microcode level         : J71OA30K
-   ATA Compliance          : ATA-4
-  ...
-   Settings
-  ...
-     S.M.A.R.T. status     : Good
-     Security feature      : Supported
-       Password            : Set
-       Password level      : High
-       Security mode       : Locked
+Hello Thomas, (and kernel list)
 
- However, I haven't set any password. I don't even know how to set it!!
- My system is (was) Linux 2.4.7 with PIIX support and "SCSI over IDE"
-enabled,
- experimental IDE code disabled.
- After booting the system and leaving it one hour alone (idle, no internet
-connection)
- I wanted to start XWindows (4.01). However, it switched the video mode and
-suddenly
- locked up for ~10 sec. I pressed Ctrl-Alt-Backspace/Del several times to
-reboot.
- After some seconds it responded and seemed to shut down as usual.
- Since then the hd is locked and I don't know why.
+   When I tried to compile 2.4.7 today with support for my ESS Techn. ES 1988 
+Allegro-1 sound card, the linker came up with a few errors concerning 
+undefined function references in sounddrivers.o
 
- According to the ATA-3 specification there are two passwords: a master and
-a user password.
- The passwords are stored in the EPROM of the hd and are certainly very very
-hard to remove.
- A locked drive rejects all media access commands.
- When a new master password is set, the drive won't be locked.
- Setting a new user password locks the drive the next time it is powered-on.
- A drive can be unlocked by one of the two passwords.
- IBM sets the master password to all ASCII blanks (0x20) during
- manufacturing.
+   Therefore I modified your file drivers/sound/esssolo1.c slightly in order 
+to resolve these reference problems. Please find my modifications as 
+attachment to this e-mail. It's only a few lines and I hope you as well as 
+others consider them a useful contribution anyway.
 
- To unlock a drive one has to send the command SECURITY UNLOCK (0xBB)
- and transfer a single sector to the drive:
- Word
- 0     Bit 0 Identifier: 0=compare user password, 0=compare master password
- 1-16  Password (32 Bytes)
- 17-255 reserved
+   I'd be grateful to hear some feedback on this.
 
- Word 128 of the Identify Drive command contains the Security status:
- Bit
- 8 : Security level  0=High (can be unlocked), 1=Maximum (disk must be
-erased)
- 4 : 1=Security count expired (more than five failed unlock tries,
-hard-reset necessary)
- 3 : 1=Security frozen (all security commands aborted)
- 2 : 1=Security locked (media access not allowed)
- 1 : 1=Security enabled
- 0 : 1=Security supported
+   - Andreas
+--------------Boundary-00=_BF4CTT4WBY30QX12DPTT
+Content-Type: text/x-c;
+  charset="iso-8859-1";
+  name="esssolo_patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="esssolo_patch"
 
- Something must have sent a lock command to my hd. Maybe a bug in the IDE
-code?
- I hope to be able to unlock my drive using the default master password.
- My question is: how can I send the unlock command to the hd?
- Is there any program that can do it?
- AFAICS one can send only the command code using a HDIO_DRIVE_CMD ioctl.
- But how can I transfer the password?
+--- esssolo1.ORIGINAL	Sat Jul 28 16:16:47 2001
++++ esssolo1.c	Sat Jul 28 16:20:24 2001
+@@ -82,6 +82,9 @@
+  *    22.05.2001   0.19  more cleanups, changed PM to PCI 2.4 style, got rid
+  *                       of global list of devices, using pci device data.
+  *                       Marcus Meissner <mm@caldera.de>
++ *    28.07.2001   0.20  Added definitions for external functions
++ *                       gameport_register_port, gameport_unregister_port
++ *                       Andreas Bauer <baueran@in.tum.de>
+  */
+ 
+ /*****************************************************************************/
+@@ -106,7 +109,21 @@
+ #include <linux/wrapper.h>
+ #include <asm/uaccess.h>
+ #include <asm/hardirq.h>
++
++#if defined(CONFIG_INPUT_ANALOG) || defined(CONFIG_INPUT_ANALOG_MODULE)
+ #include <linux/gameport.h>
++#else
++struct gameport {
++	int io;
++	int size;
++};
++ 
++extern inline void gameport_register_port(struct gameport *gameport) {
++}
++ 
++extern inline void gameport_unregister_port(struct gameport *gameport) {
++}
++#endif
+ 
+ #include "dm.h"
+ 
 
- Any ideas?
-
- Thank you very much in advance!
-
-PS: please CC to me
-
-Thomas Tanner-------------------
-tanner@(ffii.org|gnu.org|gmx.de)
-
+--------------Boundary-00=_BF4CTT4WBY30QX12DPTT--

@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265886AbUBGVg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 16:36:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265901AbUBGVg4
+	id S265901AbUBGWDt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 17:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265919AbUBGWDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 16:36:56 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16083 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265886AbUBGVgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 16:36:54 -0500
-Date: Sat, 7 Feb 2004 22:36:46 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Robert F Merrill <griever@t2n.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-mm1 won't compile (been doing this since 2.6.1-mm2 or so)
-Message-ID: <20040207213646.GE7388@fs.tum.de>
-References: <402558C0.5010100@t2n.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <402558C0.5010100@t2n.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 7 Feb 2004 17:03:48 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:59144 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S265901AbUBGWD1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 17:03:27 -0500
+Date: Sat, 7 Feb 2004 23:03:15 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andreas Gruenbacher <agruen@suse.de>
+cc: "kbuild-devel@lists.sourceforge.net" 
+	<kbuild-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Bug in "select" dependency checking?
+In-Reply-To: <1076078947.19043.27.camel@E136.suse.de>
+Message-ID: <Pine.LNX.4.58.0402070026140.7851@serv>
+References: <1076027838.2223.95.camel@nb.suse.de>  <Pine.LNX.4.58.0402061448500.7851@serv>
+ <1076078947.19043.27.camel@E136.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 07, 2004 at 04:29:36PM -0500, Robert F Merrill wrote:
-> When I upgraded to 2.6.1-mm4, I did the usual thing, copied my old 
-> .config from 2.6.1-mm1 and did make oldconfig.
-> 
-> However, when I run make, this happens:
-> 
-> include/asm/processor.h:68: error: `CONFIG_X86_L1_CACHE_SHIFT' 
-> undeclared here (not in a function)
-> include/asm/processor.h:68: error: requested alignment is not a constant
-> make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
-> 
-> 
-> The only way I've found to fix this is to add a manual #define for this 
-> symbol to autoconf.h
-> 
-> The config option IS in i386/defconfig, but for some reason doesn't get 
-> put into .config
-> 
-> if I add it to .config manually, it gets removed when I run make (?!?).
-> 
-> I don't think this happens if I delete .config and make one from scratch.
+Hi,
 
-It seems when you did "make oldconfig" you said "no" to all cpu options.
+On Fri, 6 Feb 2004, Andreas Gruenbacher wrote:
 
-You should select the cpu type(s) you want to run your kernel on.
+> > config NFSD_ACL
+> > 	bool "..."
+> > 	depends on NFSD_V3
+> > 	select NFS_ACL_SUPPORT if NFSD
+> >
+> > you avoid the warning and it does the same.
+>
+> Does it? I would assume this to limit NFS_ACL_SUPPORT to y or n
+> depending on the value of NFSD_ACL. If should be y, m or n depending on
+> the value of NFSD.
 
-Run "make menuconfig" and select the appropriate cpu types in
-  Processor type and features
-    Processor support
+That's what the "if NFSD" part does, it's added to the expression and so
+modifies how NFS_ACL_SUPPORT is selected. If you enable the debug options
+in xconfig you can see the generated expression, which is used to
+calculate the final value.
+While looking at this, I noticed that a bit too much is added, the NFSD_V3
+dependency is also added, but it belongs to NFSD_ACL, otherwise it can
+also unintentionally turn the bool into a tristate. I'll have to fix
+this...
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+bye, Roman

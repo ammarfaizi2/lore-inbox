@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268876AbRHFQ5I>; Mon, 6 Aug 2001 12:57:08 -0400
+	id <S268893AbRHFQ6i>; Mon, 6 Aug 2001 12:58:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268895AbRHFQ46>; Mon, 6 Aug 2001 12:56:58 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:17669 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268876AbRHFQ4p>; Mon, 6 Aug 2001 12:56:45 -0400
-Date: Mon, 6 Aug 2001 13:56:47 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-In-Reply-To: <200108061647.f76GlG521620@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33L.0108061355590.1439-100000@duckman.distro.conectiva>
+	id <S268897AbRHFQ62>; Mon, 6 Aug 2001 12:58:28 -0400
+Received: from ns3.keyaccesstech.com ([209.47.245.85]:37133 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S268893AbRHFQ6O>; Mon, 6 Aug 2001 12:58:14 -0400
+Date: Mon, 6 Aug 2001 12:58:24 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems in using loadLin
+In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC549@elway.lss.emc.com>
+Message-ID: <Pine.LNX.4.33.0108061256530.1637-100000@terbidium.openservices.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Aug 2001, Richard Gooch wrote:
+On Mon, 6 Aug 2001, chen, xiangping wrote:
 
-> Well, funny you send this today, Al, as today was supposed to be
-> the day I start work on fixing a pile of races. I've got the
-> most important features in before 2.5 is forked, and I've got a
-> free day to get started on this.
+> Hi,
+>
+> I am trying to use loadlin to boot up a machine. But after I
+> replaced the bzImage, the kernel fails to boot up. It prints
+> out error messages like:
+> 	...
+> 	VFS: Mounted root (ext2 filesystem) readonly
+> 	Freeing unused kernel memory : 96K freed
+> 	Warning: unable to open an initial console
+> 	Kernel panic: No init found. Try passing init= option to kernel.
+>
+> The boot.bat file is:
+> 	loadlin.exe bzImage ro root=0x0821
+>
+> Thanks,
+>
+> Xiangping
 
-"most important features in before 2.5 is forked" ?!?!
+0x0821 represents /dev/sdc1. Did you build the SCSI driver into the kernel, or
+do use an initrd?
 
-While you leave bugfixes lying around for a YEAR ?!?!
-
-Can you get any more irresponsible as a maintainer ?
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 

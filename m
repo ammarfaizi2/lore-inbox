@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132831AbRDXGvf>; Tue, 24 Apr 2001 02:51:35 -0400
+	id <S132829AbRDXGqZ>; Tue, 24 Apr 2001 02:46:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132834AbRDXGvZ>; Tue, 24 Apr 2001 02:51:25 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:59878 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S132831AbRDXGvR>; Tue, 24 Apr 2001 02:51:17 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        "David L. Parsley" <parsley@linuxjedi.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints?
-In-Reply-To: <Pine.GSO.4.21.0104231133120.3617-100000@weyl.math.psu.edu>
-Organisation: SAP LinuxLab
-In-Reply-To: <Pine.GSO.4.21.0104231133120.3617-100000@weyl.math.psu.edu>
-Message-ID: <m33dazqr86.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+	id <S132831AbRDXGqQ>; Tue, 24 Apr 2001 02:46:16 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:11533 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S132829AbRDXGqJ>;
+	Tue, 24 Apr 2001 02:46:09 -0400
+Date: Tue, 24 Apr 2001 07:44:45 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Szabolcs Szakacsits <szaka@f-secure.com>
+Subject: [patch] swap-speedup-2.4.3-B3
+In-Reply-To: <Pine.LNX.4.30.0104231707350.31693-200000@elte.hu>
+Message-ID: <Pine.LNX.4.30.0104240714200.1227-100000@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: 24 Apr 2001 08:33:12 +0200
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexander,
 
-On Mon, 23 Apr 2001, Alexander Viro wrote:
->> I like it. ext2fs does the same, so there should be no VFS
->> hassles involved. Al?
-> 
-> We should get ext2 and friends to move the sucker _out_ of struct
-> inode.  As it is, sizeof(struct inode) is way too large. This is 2.5
-> stuff, but it really has to be done. More filesystems adding stuff
-> into the union is a Bad Thing(tm). If you want to allocates space -
-> allocate if yourself; ->clear_inode() is the right place for freeing
-> it.
+the latest swap-speedup patch can be found at:
 
-Yes, I agree that the union is way too large and I did not plan to
-extend it but simply use the size it has.
+  http://people.redhat.com/mingo/swap-speedup/swap-speedup-2.4.3-B3
 
-if (strlen(path) < sizeof(inode->u))
-        inline the symlink;
-else
-        put it into the page cache;
+(the patch is against 2.4.4-pre6 or 2.4.3-ac13.)
 
-So if somebody really cleans up the private inode structures it will
-not trigger that often any more and we perhaps have to rethink the
-idea.
+-B3 includes Marcelo's patch for another area that blocks unnecesserily on
+locked swapcache pages: async swapcache readahead. Marcello did some tests
+which shows that this fix brought some nice improvements too.
 
-But also if we use struct shmem_inode_info which is 92 bytes right now
-we would inline all symlinks on my machine.
+"make -j32 bzImage" using 128MB mem, 128MB swap, 4 CPUs:
 
-If we reduced its size to 32 (which could be easily done) we would
-still inline 6642 out of 9317 symlinks on my machine. That's not bad.
+  stock 2.4.3-ac13
+  ----------------
+  real    4m0.678s
+  user    4m2.870s
+  sys     0m38.920s
 
-Greetings
-		Christoph
+  swap-speedup-A2
+  ---------------
+  real    3m24.190s
+  user    4m1.070s
+  sys     0m31.950s
 
+  swap-speedup-B3 (A2 + Marcelo's swapin-readahead non-blocking patch)
+  ---------------
+  real    3m7.410s
+  user    4m0.940s
+  sys     0m28.680s
+
+ie. for this kernel compile test:
+
+   swap-speedup-A2 is a 18% speedup relative to stock 2.4.3-ac13
+   swap-speedup-B3 is a 28% speedup relative to stock 2.4.3-ac13
+
+and the amount of CPU time spent in the kernel has been reduced
+significantly as well.
+
+I believe all the correctness and SMP-locking issues have been taken care
+of in -B3 as well.
+
+	Ingo
 

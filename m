@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263402AbTLSM5R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 07:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTLSM4R
+	id S263387AbTLSNKw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 08:10:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbTLSNKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 07:56:17 -0500
-Received: from mail-04.iinet.net.au ([203.59.3.36]:42112 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263402AbTLSMrA
+	Fri, 19 Dec 2003 08:10:52 -0500
+Received: from smtp120.tiscali.dk ([62.79.79.111]:16632 "EHLO
+	smtp120.tiscali.dk") by vger.kernel.org with ESMTP id S263387AbTLSNKu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 07:47:00 -0500
-Message-ID: <3FE2F32E.3050202@cyberone.com.au>
-Date: Fri, 19 Dec 2003 23:46:38 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Fri, 19 Dec 2003 08:10:50 -0500
+Message-ID: <3FE2F8D4.1030903@agol.dk>
+Date: Fri, 19 Dec 2003 14:10:44 +0100
+From: Niels Elgaard Larsen <elgaard@agol.dk>
+Reply-To: elgaard@agol.dk
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: Xavier Bestel <xavier.bestel@free.fr>, Jonathan Corbet <corbet@lwn.net>,
-       Kendrick Hamilton <hamilton@sedsystems.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux Device Drivers 3rd Edition
-References: <Pine.LNX.4.10.10312190344260.7879-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10312190344260.7879-100000@master.linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: Problem loopmounting CD on 2.6.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A similar (probably the same) problem have been reported for cryptoloop.
+With a ISO9660 CD (actually Knoppix) in drive /dev/hdc, no SCSI emulation:
 
+amigos20:/mnt# losetup /dev/loop5 /dev/hdc
+amigos20:/mnt# mount -r /dev/loop5 /mnt/foo
 
-Andre Hedrick wrote:
+Gives kernel output:
 
->Well to be a little more prickly ...
->
->There are two other revisions I know of, Kernel Internals from the mid
->90's and then the rare KHG by MKJ ?  The last KHG I recall was v0.[4,5,6] 
->for a.out and the transition to elf.
->
->Cheers,
->
->Andre Hedrick
->LAD Storage Consulting Group
->
->Point, the API is being documented, sometimes not as timely as desired.
->
+===
+hdc: cdrom_read_intr: data underrun (2 blocks)
+end_request: I/O error, dev hdc, sector 64
+isofs_fill_super: bread failed, dev=loop5, iso_blknum=16, block=32
+===
 
-Hi Andre
-Out of interest, does this have a legal (or other) significance?
+It works in 2.4.20
 
-PS I don't want to start anything, just interested due to my (small)
-contributions to the code. Thanks.
+Also
 
+dd if=/dev/hdc of=/tmp/foo
+losetup /dev/loop5 /tmp/foo
+mount -r /dev/loop5 /mnt/foo
+
+works
+
+-- 
+Niels Elgaard Larsen
+elgaard@agol.dk
+http://www.agol.dk/elgaard
 

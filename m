@@ -1,52 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVC0JTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVC0KCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbVC0JTx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 04:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVC0JTh
+	id S261504AbVC0KCY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 05:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVC0KCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 04:19:37 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:64148 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261504AbVC0JRw (ORCPT
+	Sun, 27 Mar 2005 05:02:24 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:6826 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261504AbVC0KCP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 04:17:52 -0500
-Date: Sun, 27 Mar 2005 01:16:30 -0800
-From: Jeremy Higdon <jeremy@sgi.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: "Moore, Eric Dean" <Eric.Moore@lsil.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 6/7] - MPT FUSION - SPLITTING SCSI HOST DRIVERS
-Message-ID: <20050327091630.GA938785@sgi.com>
-References: <91888D455306F94EBD4D168954A9457C01B70565@nacos172.co.lsil.com> <1111809137.5541.7.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111809137.5541.7.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
+	Sun, 27 Mar 2005 05:02:15 -0500
+Message-ID: <42468606.280849C6@tv-sign.ru>
+Date: Sun, 27 Mar 2005 14:08:06 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Christoph Lameter <christoph@lameter.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 0/5] timers: description
+References: <200503261952.j2QJq1g27569@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 25, 2005 at 09:52:17PM -0600, James Bottomley wrote:
-> On Thu, 2005-03-24 at 16:57 -0700, Moore, Eric Dean wrote:
-> > +static struct device_attribute mptscsih_queue_depth_attr = {
-> > +       .attr = {
-> > +               .name =         "queue_depth",
-> > +               .mode =         S_IWUSR,
-> > +       },
-> > +       .store = mpt_core_store_queue_depth,
-> > +};
-> 
-> But in the original which you're removing, this was implemented via the
-> change_queue_depth API.
-> 
-> It looks like the patches you're posting are actually an older version
-> of the fusion driver.   Do you have the split done on a current copy?
-> 
-> Thanks,
-> 
-> James
+"Chen, Kenneth W" wrote:
+>
+> Oleg Nesterov wrote on March 19, 2005 17:28:48
+> > These patches are updated version of 'del_timer_sync: proof of
+> > concept' 2 patches.
+>
+> I changed schedule_timeout() to call the new del_timer_sync instead of
+> currently del_singleshot_timer_sync in attempt to stress these set of
+> patches a bit more and I just observed a kernel hang.
+>
+> The symptom starts with lost network connectivity.  It looks like the
+> entire ethernet connections were gone, followed by blank screen on the
+> console.  I'm not sure whether it is a hard or soft hang, but system
+> is inaccessible (blank screen and no network connection). I'm forced
+> to do a reboot when that happens.
 
-James, actually this queue depth code predates your change_queue_depth
-API.  I don't think it was ever converted to the new API.
+Very strange. I am running 2.6.11 + timer patches +
+	#define del_singleshot_timer_sync(t) del_timer_sync(t)
+without any problems.
 
-jeremy
+This timer is private to schedule_timeout(), it can't change
+base, so del_timer_sync() should be "obviously correct" in
+that case.
+
+What kernel version? Could you try this stupid patch?
+
+Oleg.
+
+--- TST/kernel/timer.c~	2005-03-27 16:47:20.000000000 +0400
++++ TST/kernel/timer.c	2005-03-27 17:16:32.000000000 +0400
+@@ -352,27 +352,46 @@ EXPORT_SYMBOL(del_timer);
+  */
+ int del_timer_sync(struct timer_list *timer)
+ {
++	unsigned long tout;
++	int running = 0, migrated = 0, done = 0;
+ 	int ret;
+ 
+ 	check_timer(timer);
+ 
++	preempt_disable();
++	tout = jiffies + 10;
++
+ 	ret = 0;
+ 	for (;;) {
+ 		unsigned long flags;
+ 		tvec_base_t *base;
+ 
+ 		base = timer_base(timer);
+-		if (!base)
++		if (!base) {
++			preempt_enable();
+ 			return ret;
++		}
++		if (time_after(jiffies, tout)) {
++			preempt_enable();
++			printk(KERN_ERR "del_timer_sync hang: %d %d %d %d\n",
++				running, migrated, done, ret);
++			dump_stack();
++			return 0;
++		}
+ 
+ 		spin_lock_irqsave(&base->lock, flags);
+ 
+-		if (base->running_timer == timer)
++		if (base->running_timer == timer) {
++			++running;
+ 			goto unlock;
++		}
+ 
+-		if (timer_base(timer) != base)
++		if (timer_base(timer) != base) {
++			++migrated;
+ 			goto unlock;
++		}
+ 
++		++done;
+ 		if (timer_pending(timer)) {
+ 			list_del(&timer->entry);
+ 			ret = 1;

@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUJAUPG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUJAUPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266341AbUJAUPG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 16:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266245AbUJAULS
+	id S266459AbUJAUPv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 16:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266245AbUJAUPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 16:11:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:646 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266308AbUJAUII (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:08:08 -0400
-Date: Fri, 1 Oct 2004 13:11:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-mm@kvack.org, piggin@cyberone.com.au, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] memory defragmentation to satisfy high order allocations
-Message-Id: <20041001131147.3780722b.akpm@osdl.org>
-In-Reply-To: <20041001182221.GA3191@logos.cnet>
-References: <20041001182221.GA3191@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 1 Oct 2004 16:15:22 -0400
+Received: from inetc.connecttech.com ([64.7.140.42]:59666 "EHLO
+	inetc.connecttech.com") by vger.kernel.org with ESMTP
+	id S266459AbUJAUNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 16:13:52 -0400
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Paul Fulghum'" <paulkf@microgate.com>
+Cc: "'Russell King'" <rmk+lkml@arm.linux.org.uk>,
+       "=?iso-8859-1?Q?'Roland_Ca=DFebohm'?=" 
+	<roland.cassebohm@VisionSystems.de>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Serial driver hangs
+Date: Fri, 1 Oct 2004 16:13:30 -0400
+Organization: Connect Tech Inc.
+Message-ID: <010101c4a7f3$1ef63540$294b82ce@stuartm>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+In-Reply-To: <1096575030.19487.50.camel@localhost.localdomain>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
-> The following patch implements a "coalesce_memory()" function 
-> which takes "zone" and "order" as a parameter. 
-> 
-> It tries to move enough physically nearby pages to form a free area
-> of "order" size.
-> 
-> It does that by checking whether the page can be moved, allocating a new page, 
-> unmapping the pte's to it, copying data to new page, remapping the ptes, 
-> and reinserting the page on the radix/LRU.
+From: linux-kernel-owner@vger.kernel.org 
+> flush_to_ldisc was ok, then someone added the low latency
+> flag. In the current 2.6.9rc3 patch flush_to_ldisc honours
+> TTY_DONT_FLIP also
 
-Presumably this duplicates some of the memory hot-remove patches.
+I've come late to this discussion. Not sure what the scope of this
+cleanup is, but I'd like to see the flip buffers done away with
+entirely, to be replaced by a single buffer with proper r/w locking.
+Or keep the flip arrangement, but move it out of tty_struct so that it
+can be made larger. Some of our high speed products find the rx buffer
+to be less than sufficient.
 
-Apparently Dave Hansen has working and sane-looking hot remove code
-which is in a close-to-submittable state.
+..Stu
+

@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317034AbSGCPfx>; Wed, 3 Jul 2002 11:35:53 -0400
+	id <S317037AbSGCPsr>; Wed, 3 Jul 2002 11:48:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317036AbSGCPfx>; Wed, 3 Jul 2002 11:35:53 -0400
-Received: from ns.suse.de ([213.95.15.193]:27142 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317034AbSGCPfv>;
-	Wed, 3 Jul 2002 11:35:51 -0400
-Date: Wed, 3 Jul 2002 17:38:22 +0200
-From: Dave Jones <davej@suse.de>
-To: Skip Ford <skip.ford@verizon.net>
-Cc: James Simmons <jsimmons@transvirtual.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] New Console system BK
-Message-ID: <20020703173822.C8934@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Skip Ford <skip.ford@verizon.net>,
-	James Simmons <jsimmons@transvirtual.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44.0207011232450.27788-100000@www.transvirtual.com> <200207020011.g620BTZ9000182@pool-141-150-241-241.delv.east.verizon.net>
+	id <S317054AbSGCPsq>; Wed, 3 Jul 2002 11:48:46 -0400
+Received: from mail.uni-kl.de ([131.246.137.52]:5561 "EHLO uni-kl.de")
+	by vger.kernel.org with ESMTP id <S317037AbSGCPsq>;
+	Wed, 3 Jul 2002 11:48:46 -0400
+Date: Wed, 3 Jul 2002 17:51:13 +0200
+From: Eduard Bloch <edi@gmx.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+Message-ID: <20020703155113.GA26299@zombie.inka.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200207020011.g620BTZ9000182@pool-141-150-241-241.delv.east.verizon.net>; from skip.ford@verizon.net on Mon, Jul 01, 2002 at 08:11:28PM -0400
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 01, 2002 at 08:11:28PM -0400, Skip Ford wrote:
- > James Simmons wrote:
- > > 
- > > Since 2.5.1 I have placed into the kernel part of the new console system
- > > code into the DJ tree. So it has been well tested. I was hoping to have
- > > all the keyboard devices ported over to the input api and the fbdev
- > > drivers over to the new api. Unfortunely due to time restraints this will
- > > not be the case. So here goes the first installment of the new console
- > > system. Please test it yourselves and I will push it to Linus soon.
- > > 
- > >  http://www.transvirtual.com/~jsimmons/console.diff.gz
- > 
- > With your patch, I have to release the alt key between Fx keys to change
- > VTs.  Is that intentional?
- > 
- > Without the patch, I can hold down alt and hit F1, F2, F3, F4, then
- > release the alt key and I will have switched to each of the VTs.
- > With this patch, I have to press/release alt for each Fx key.
+Why not another way round? Just make the ide-scsi driver be prefered,
+and hack ide-scsi a bit to simulate the cdrom and adv.floppy devices
+that are expected as /dev/hd* by some user's configuration?
 
-Strange, that's a reoccurance of a bug that happened many moons ago
-circa 2.5.4-dj or so, which James then subsequently fixed. Seems he
-dropped a bugfix or two..
+To be honest - why keep ide-[cd,floppy,tape] when they can be almost
+completely replaced with ide-scsi? I know about only few cdrom devices
+that are broken (== not ATAPI compliant) but can be used with
+workarounds in the current ide-cd driver. OTOH many users do already
+need ide-scsi to access cd recorders and similar hardware, so they would
+benefit much more from having ide-scsi as default than few users of
+broken "atapi" drives.
 
-        Dave
+Other operating systems did switch to constitent (scsi-based) way of
+accessing all kinds of removable media drivers. Why does Linux have to
+keep a kludge, written years ago without having a good concept?
 
+Gruss/Regards,
+Eduard.
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Ich glaube nicht, daß man dieses Stück in Software umgesetzte Scheiße über-
+haupt mieser machen kann, als es sowieso schon ist. Das dürfte das einzige
+Programm sein, das vom Verhalten und seinen Anwendern her schlimmer als XP
+auf einem Amiga ist. - Manuel Richardt in ka.talk ueber Outlook Express
+

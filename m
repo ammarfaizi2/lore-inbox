@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316755AbSGLS3l>; Fri, 12 Jul 2002 14:29:41 -0400
+	id <S316751AbSGLS1v>; Fri, 12 Jul 2002 14:27:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316757AbSGLS3k>; Fri, 12 Jul 2002 14:29:40 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:57862 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316755AbSGLS3j>; Fri, 12 Jul 2002 14:29:39 -0400
-Date: Fri, 12 Jul 2002 20:32:20 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Dave Jones <davej@suse.de>
-cc: Thunder from the hill <thunder@ngforever.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [CHECKER] 56 potential lock/unlock bugs in 2.5.8
-In-Reply-To: <20020712200507.G16956@suse.de>
-Message-ID: <Pine.LNX.4.44.0207122030040.8911-100000@serv>
+	id <S316753AbSGLS1u>; Fri, 12 Jul 2002 14:27:50 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:39157 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S316751AbSGLS1t>;
+	Fri, 12 Jul 2002 14:27:49 -0400
+Message-ID: <3D2F1225.C46E4B42@mvista.com>
+Date: Fri, 12 Jul 2002 10:30:13 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roland Dreier <roland@topspin.com>
+CC: Stevie O <oliver@klozoff.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: HZ, preferably as small as possible
+References: <Pine.LNX.4.10.10207110847170.6183-100000@zeus.compusonic.fi>
+		<5.1.0.14.2.20020711201602.022387b0@whisper.qrpff.net>
+		<3D2E2C48.DCB509D7@mvista.com> <52adoxrb1f.fsf@topspin.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Roland Dreier wrote:
+> 
+> >>>>> "george" == george anzinger <george@mvista.com> writes:
+> 
+>     george> Well, in truth it has nothing to do with interrupts.  It
+>     george> is just that that is the way most systems keep time.  The
+>     george> REAL definition of HZ is in its relationship to jiffies
+>     george> and seconds.
+> 
+>     george> I.e. jiffies * HZ = seconds, by definition.
+> 
+> I'm sure you know the truth, but this isn't quite right.  Just to be
+> pedantic and make sure the correct definition is out there:
+> 
+>   jiffies / HZ = seconds
+> 
+> For example if HZ is 100 then the jiffy counter is incremented 100
+> times each second.
+> 
+Of course you are right.  Must have been a brain fart :)
 
-On Fri, 12 Jul 2002, Dave Jones wrote:
-
-> (whilst on the subject of affs, and whilst I remember..)
-> btw, affs has been failing fsx runs again for the last few kernels.
-> truncating to largest ever: 0x13e76
-> domapwrite: mmap: Invalid argument
-> LOG DUMP (4 total operations):
-> 1(1 mod 256): TRUNCATE UP   from 0x0 to 0x13e76
-> 2(2 mod 256): WRITE 0x17098 thru 0x26857    (0xf7c0 bytes) HOLE
-> 3(3 mod 256): READ  0xc73e thru 0x1b801 (0xf0c4 bytes)
-> 4(4 mod 256): MAPWRITE 0x32e00 thru 0x331fc (0x3fd bytes)
-> fsx: save_buffer: short write, 0x30ba8 bytes instead of 0x331fd
-
-Which last few kernels? Was it a ffs or an ofs image? For ofs images you
-have to call fsx with "-W -R" to disable mmap operations.
-
-bye, Roman
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

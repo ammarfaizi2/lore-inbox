@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268273AbUHKWTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268274AbUHKWWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268273AbUHKWTM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 18:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268274AbUHKWTM
+	id S268274AbUHKWWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 18:22:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268277AbUHKWWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:19:12 -0400
-Received: from cantor.suse.de ([195.135.220.2]:50844 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268273AbUHKWTG (ORCPT
+	Wed, 11 Aug 2004 18:22:08 -0400
+Received: from mail.tpgi.com.au ([203.12.160.113]:15302 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S268274AbUHKWUK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:19:06 -0400
-Date: Thu, 12 Aug 2004 00:19:03 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: James Morris <jmorris@redhat.com>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [LSM] Rework LSM hooks
-Message-ID: <20040811221903.GA14744@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	James Morris <jmorris@redhat.com>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-References: <20040810085746.GB12445@tpkurt.garloff.de> <Xine.LNX.4.44.0408101006580.7711-100000@dhcp83-76.boston.redhat.com>
+	Wed, 11 Aug 2004 18:20:10 -0400
+Subject: Re: [PATCH] SCSI midlayer power management
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Nathan Bryant <nbryant@optonline.net>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       "'James Bottomley'" <James.Bottomley@steeleye.com>,
+       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+In-Reply-To: <411A1B72.1010302@optonline.net>
+References: <4119611D.60401@optonline.net>
+	 <20040811080935.GA26098@elf.ucw.cz>  <411A1B72.1010302@optonline.net>
+Content-Type: text/plain
+Message-Id: <1092262602.3553.14.camel@laptop.cunninghams>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
-Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0408101006580.7711-100000@dhcp83-76.boston.redhat.com>
-X-Operating-System: Linux 2.6.7-0-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 12 Aug 2004 08:16:42 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, 2004-08-11 at 23:13, Nathan Bryant wrote:
+> >>ACPI S1 and S4/swsusp are untested, but I think there should be no
+> >>regressions with S1. To do S1 properly, we probably need to tell the
+> >>drive to spin down, and I don't know what the SCSI command is for
+> >>that... For S4, the call to scsi_device_quiesce might pose a problem for
+> >>the subsequent state dump to disk. But I'm not sure swsusp ever worked
+> >>for SCSI.
 
-On Tue, Aug 10, 2004 at 10:16:29AM -0400, James Morris wrote:
-> Is this just an ia64 issue?  If so, then perhaps we should look at only
-> penalising ia64?  Otherwise, loading an LSM module is going to cause
-> expensive false unlikely() on _every_ LSM hook.
+I tried it on an OSDL machine and could suspend (suspend 2), but only
+resume as far as copying back the original kernel. The problem then
+looked to me like it was request ids not matching what the drive was
+expecting (but I'm ignorant of scsi, so might be completely wrong
+there).
 
-You should worry about the fast path.
-That's no LSM being loaded and just using the default capabilities.
-Which is what most users usse as of this time.
-If you do call into any serious LSM, you'll spend much more CPU cycles
-anyway ...
+> answer is NO. For purposes of not suspending the drivers, I haven't 
+> looked into how swsusp would see which host adapter owns which drive, 
+> but some of the required information seems to be present in sysfs.
 
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>             [Koeln, DE]
-Physics:Plasma modeling <garloff@plasimo.phys.tue.nl> [TU Eindhoven, NL]
-Linux: SUSE Labs (Head)        <garloff@suse.de>    [SUSE Nuernberg, DE]
+With my 'device tree' code, I'm getting the struct dev of the device
+we're using via the struct block_device in the swap_info struct.
 
---pWyiEgJYm5f9v55/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Nigel
+-- 
+Nigel Cunningham
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+Many today claim to be tolerant. But true tolerance can cope with others
+being intolerant.
 
-iD8DBQFBGptXxmLh6hyYd04RAmG3AKCbE4d3UN521RWJIeSufHvyzgoFPwCgkZJ5
-ecTBFNF89/PX0akXdUsPMZQ=
-=Aoar
------END PGP SIGNATURE-----
-
---pWyiEgJYm5f9v55/--

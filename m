@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269117AbUJERp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269080AbUJERrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269117AbUJERp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269120AbUJERp5
+	id S269080AbUJERrv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269076AbUJERrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 13:45:57 -0400
-Received: from kwisatz.net1.nerim.net ([80.65.225.31]:18186 "EHLO
-	www.rubis.org") by vger.kernel.org with ESMTP id S269117AbUJERpx
+	Tue, 5 Oct 2004 13:47:51 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58775 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269120AbUJERqA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 13:45:53 -0400
-Date: Tue, 5 Oct 2004 19:45:49 +0200
-From: Stephane Jourdois <stephane@rubis.org>
-To: linux-kernel@vger.kernel.org
-Message-ID: <20041005174548.GA4672@diamant.rubis.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20041004020207.4f168876.akpm@osdl.org> <20041004121528.GA4635@diamant.rubis.org>
+	Tue, 5 Oct 2004 13:46:00 -0400
+Date: Tue, 5 Oct 2004 18:45:58 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Grant Grundler <iod00d@hp.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, "Luck, Tony" <tony.luck@intel.com>,
+       Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+Message-ID: <20041005174558.GZ16153@parcelfarce.linux.theplanet.co.uk>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C647@scsmsx401.amr.corp.intel.com> <200410050843.44265.jbarnes@engr.sgi.com> <20041005162201.GC18567@cup.hp.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041004121528.GA4635@diamant.rubis.org>
-X-Operating-System: Linux 2.6.9-rc2-mm1
-X-Send-From: diamant.rubis.org
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: 192.168.0.2
-X-SA-Exim-Mail-From: kwisatz@rubis.org
-Subject: Re: 2.6.9-rc3-mm2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on www.rubis.org)
+In-Reply-To: <20041005162201.GC18567@cup.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 04, 2004 at 02:15:32PM +0200, Stephane Jourdois wrote:
-> This kernel does not boot on my i386 laptop. I have nothing after
-> "Uncompressing kernel... Ok, booting linux". The fans are increasingly
-> running, so I suspect cpu is heavily used at this time. I tried to
-> wait several minutes, just to see.
-> 
-> I have the same problem since 2.6.9-rc2-mm2. Last booting kernel is
-> 2.6.9-rc2-mm1. I tried every -mm kernel between -rc2-mm1 and -rc3-mm2.
-> 
-> #
-> # Performance-monitoring counters support
-> #
-> # CONFIG_PERFCTR is not set
-> CONFIG_KEXEC=y
-> CONFIG_CRASH_DUMP=y
-> CONFIG_BACKUP_BASE=16
-> CONFIG_BACKUP_SIZE=32
+On Tue, Oct 05, 2004 at 09:22:01AM -0700, Grant Grundler wrote:
+> pci_root_ops should be static. It's only intended for ACPI.
 
-Answering to myself :
+What I had intended when I wrote this code was that platforms that didn't
+want to use the generic SAL code (and why not?  It doesn't seem like it
+should be the hardest thing in the world to move your hacks into SAL)
+was that people should override
 
-disable kexec.
+  struct pci_raw_ops *raw_pci_ops = &pci_sal_ops;
 
-Sorry for the noise.
+by just assigning raw_pci_ops in their own code.  I haven't looked at
+the SGI code yet, but this is how arch/i386/pci/direct.c (for example)
+works.
+
+> Maybe rename pci_root_ops to "acpi_pci_ops" would make that clearer.
+
+No.  Don't rename it to anything ACPI specific.  It isn't.  It's just an
+alternative route to access configuration space when you don't even
+have a PCI bus, let alone a device.
 
 -- 
- ///  Stephane Jourdois         /"\  ASCII RIBBON CAMPAIGN \\\
-(((    Ingénieur développement  \ /    AGAINST HTML MAIL    )))
- \\\   24 rue Cauchy             X                         ///
-  \\\  75015  Paris             / \    +33 6 8643 3085    ///
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

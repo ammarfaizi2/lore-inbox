@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316569AbSIEArQ>; Wed, 4 Sep 2002 20:47:16 -0400
+	id <S316289AbSIEAmj>; Wed, 4 Sep 2002 20:42:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316580AbSIEArQ>; Wed, 4 Sep 2002 20:47:16 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:41487 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316569AbSIEArP>;
-	Wed, 4 Sep 2002 20:47:15 -0400
-Date: Wed, 4 Sep 2002 17:49:51 -0700
+	id <S316437AbSIEAmi>; Wed, 4 Sep 2002 20:42:38 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:40207 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316289AbSIEAmi>;
+	Wed, 4 Sep 2002 20:42:38 -0400
+Date: Wed, 4 Sep 2002 17:45:14 -0700
 From: Greg KH <greg@kroah.com>
-To: Frank Davis <fdavis@si.rr.com>
+To: Tony Hoyle <tmh@nothing-on.tv>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.33 : drivers/hotplug/cpqphp_core.c error
-Message-ID: <20020905004951.GC8947@kroah.com>
-References: <Pine.LNX.4.44.0209011755040.25625-100000@localhost.localdomain>
+Subject: Re: Oops in pl2303 driver
+Message-ID: <20020905004514.GB8947@kroah.com>
+References: <3D7117D3.5080100@nothing-on.tv> <20020901005124.GA15259@kroah.com> <3D7291BB.1010004@nothing-on.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209011755040.25625-100000@localhost.localdomain>
+In-Reply-To: <3D7291BB.1010004@nothing-on.tv>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 01, 2002 at 05:56:32PM -0400, Frank Davis wrote:
-> Hello all,
->   While a 'make modules', I received the following error.
-> 
-> Regards,
-> Frank
-> 
-> In file included from cpqphp_core.c:40:
-> cpqphp.h: In function `cpq_get_latch_status':
+On Sun, Sep 01, 2002 at 11:16:27PM +0100, Tony Hoyle wrote:
+> A clue perhaps?  I switch from the uhci to the usb-uhci driver and the 
+> oops stopped happening (there were a couple of make mrproper/rebuilds in 
+> between too).
 
-<snip>
-
-This is due to the __FUNCTION__ usages in this driver.  But this driver
-has been broken for a while, so I've now fixed this problem, and am
-working on the core functional problems.  I should have a new version in
-a few days.
-
-Do you have a machine that you use this driver on, that you would be
-willing to help test any changes on?
+That makes me very suspicious.  If you can reproduce it with the uhci
+driver again, please let me know.  I'm getting some odd reports of a
+problem like this, but I'm unable to reproduce it, and others are having
+a hard time too.
 
 thanks,
 

@@ -1,47 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbTLOROi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 12:14:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbTLOROh
+	id S263885AbTLORZu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 12:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTLORZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 12:14:37 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:39442 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id S263834AbTLOROg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 12:14:36 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RESEND x 2] Fix booting on a number of Motorola PPC32 machines 
-In-reply-to: Your message of "Mon, 15 Dec 2003 09:51:17 PDT."
-             <20031215165117.GA11761@stop.crashing.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Dec 2003 04:14:25 +1100
-Message-ID: <5232.1071508465@ocs3.intra.ocs.com.au>
+	Mon, 15 Dec 2003 12:25:50 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:39593 "EHLO
+	ns.kalifornia.com") by vger.kernel.org with ESMTP id S263885AbTLORZf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 12:25:35 -0500
+Message-ID: <3FDDEE8B.3080000@blue-labs.org>
+Date: Mon, 15 Dec 2003 12:25:31 -0500
+From: David Ford <david+hb@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: as@sci.fi
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 vs 2.6
+References: <fa.iaibikf.1l5injd@ifi.uio.no> <fa.m5245vp.h0ukb5@ifi.uio.no> <20031215105602.8E693B802@hylsy.jippii.fi>
+In-Reply-To: <20031215105602.8E693B802@hylsy.jippii.fi>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Dec 2003 09:51:17 -0700, 
-Tom Rini <trini@kernel.crashing.org> wrote:
->===== arch/ppc/boot/simple/Makefile 1.23 vs edited =====
->--- 1.23/arch/ppc/boot/simple/Makefile	Mon Sep 15 01:01:24 2003
->+++ edited/arch/ppc/boot/simple/Makefile	Mon Dec  1 12:25:29 2003
->@@ -73,9 +73,8 @@
->    cacheflag-$(CONFIG_K2)		:= -include $(clear_L2_L3)
-> 
-> # kconfig 'feature', only one of these will ever be 'y' at a time.
->-# The rest will be unset.
->-motorola := $(CONFIG_MCPN765)$(CONFIG_MVME5100)$(CONFIG_PRPMC750) \
->-$(CONFIG_PRPMC800)$(CONFIG_LOPEC)$(CONFIG_PPLUS)
->+# The rest will be unset.  Each of these must be on one line.
->+motorola := $(CONFIG_MCPN765)$(CONFIG_MVME5100)$(CONFIG_PRPMC750)$(CONFIG_PRPMC800)$(CONFIG_LOPEC)$(CONFIG_PPLUS)
-> pcore := $(CONFIG_PCORE)$(CONFIG_POWERPMC250)
+Partial comments below
 
-If you want to keep the original line for readability, follow it with
+Anssi Saari wrote:
 
-motorola := $(strip $(motorola))
+>>  -- modules don't autoload for some reason (though I'm sure that could
+>>     be solved),
+>>    
+>>
+>
+>I've had this too, with autofs4 and 3c59x. After patching lirc into the
+>kernel, the only real issue is with the console. I found a patch for radeonfb,
+>but didn't get anywhere with it.
+>
+>The rest of my problems is userland stuff:
+>
+>- Murasaki (a hotplug agent) doesn't react when USB things are plugged in
+>  
+>
 
-To remove leading and trailing spaces.
+You need to update your hotplug installation.  Turn on debugging in your 
+hotplug scripts and copy the appropriate object ID numbers into the 
+usb.usermap file.
+
+>- swapon -a takes two minutes to complete for some reason
+>  
+>
+
+Try recreating your swapon partition/file?  Turning on a gig of swap 
+here happens pretty quick.
+
+>- rpc.lockd doesn't start, it says lockdsvc: Function not implemented. I don't
+>  
+>
+
+Update/rebuild your rpc/nfs tools.
+
+>  know if I really need this anyway, nfs seems to work fine
+>- zsh doesn't complete make targets like menuconfig
+>- I'd also like to point out that cdrecord isn't sufficient for my 
+>  CD writing needs, I need cdrdao too and it doesn't seem to support
+>  direct access to ATAPI drives. 
+>  
+>
+
+I haven't used zsh or cdrdao so I can't comment on them.   I don't use 
+the above modules, but all the other modules on my system (numerous) do 
+autoload just fine.  NFS is a big PITA for me for other reasons but the 
+services do start.
+
+My systems are of the Gentoo flavor.
+
+David
 

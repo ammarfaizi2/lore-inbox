@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266109AbUBEQVG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 11:21:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266283AbUBEQVF
+	id S265362AbUBEQQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 11:16:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265993AbUBEQQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 11:21:05 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:5007 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S266109AbUBEQVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 11:21:03 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16418.28008.992150.238765@laputa.namesys.com>
-Date: Thu, 5 Feb 2004 19:20:56 +0300
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	Thu, 5 Feb 2004 11:16:26 -0500
+Received: from fw.osdl.org ([65.172.181.6]:43174 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265362AbUBEQQZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 11:16:25 -0500
+Date: Thu, 5 Feb 2004 08:18:10 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Luis Miguel =?ISO-8859-1?B?R2FyY+1h?= <ktech@wanadoo.es>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
 Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
-In-Reply-To: <68430000.1075997516@[10.10.2.4]>
-References: <20040205014405.5a2cf529.akpm@osdl.org>
-	<40222D4B.6050608@cyberone.com.au>
-	<68430000.1075997516@[10.10.2.4]>
-X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
+Message-Id: <20040205081810.7116be92.akpm@osdl.org>
+In-Reply-To: <40223089.8050607@wanadoo.es>
+References: <40223089.8050607@wanadoo.es>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh writes:
- > 
- > The idle toad's way is to shove it in the pgdat.
- > Maybe even the zone structure?
+Luis Miguel García <ktech@wanadoo.es> wrote:
+>
+> Andrew Morton wrote:
+> 
+> >
+> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/ 
+> >>
+> >>
+> >>
+> >> - Merged some page reclaim fixes from Nick and Nikita.  These yield some
+> >>  performance improvements in low memory and heavy paging situations.
+> >>
+> >>
+> 
+> Andrew, do you know if this acpi pull down has nforce support fixed?
 
-Include hell lies that way.
+It doesn't appear that way.
 
- > 
- > M.
+> Or perhaps it's even unnotified to the acpi team?
 
-Nikita.
+I do not know.  Sending them a bugzilla ID would help, if such a thing exists.
 

@@ -1,109 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264055AbTJ1Rrz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 12:47:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbTJ1Rrz
+	id S264053AbTJ1Rrc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 12:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTJ1Rrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 12:47:55 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:51187 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264055AbTJ1Rru
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 12:47:50 -0500
-Message-ID: <3F9EABC1.9070009@mvista.com>
-Date: Tue, 28 Oct 2003 10:47:45 -0700
-From: Mark Bellon <mbellon@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Tue, 28 Oct 2003 12:47:32 -0500
+Received: from smtp2.dei.uc.pt ([193.137.203.229]:15294 "EHLO smtp2.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S264053AbTJ1Rr2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 12:47:28 -0500
+Date: Tue, 28 Oct 2003 17:40:37 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Joachim Bremer <joachim.bremer@ricardo.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23pre8 - ACPI Kernel Panic on boot
+In-Reply-To: <200310281332.h9SDW2708105@sarah.ricardo.de>
+Message-ID: <Pine.LNX.4.58.0310281738450.13347@student.dei.uc.pt>
+References: <200310281332.h9SDW2708105@sarah.ricardo.de>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: ANNOUNCE: User-space System Device Enumeration (uSDE)
-References: <Pine.LNX.4.44.0310271343170.13116-100000@cherise> <3F9DA5A6.3020008@mvista.com> <20031027233934.GA3408@kroah.com>
-In-Reply-To: <20031027233934.GA3408@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
 
->On Mon, Oct 27, 2003 at 04:09:26PM -0700, Mark Bellon wrote:
->  
+The same happens wit me in my Asus M3N Laptop...
+
+Mind
+
+--
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
+
+On Tue, 28 Oct 2003, Joachim Bremer wrote:
+
+> Hi,
 >
->>The uSDE was built in response to a set of telco and embedded community 
->>requirements. We found it difficult to express our ideas. Everyone 
->>wanted to see code and documentation. Here is the code and the initial 
->>documentation. This is a starting point...
->>
->>    
->>
->>>If not, are you planning on merging your efforts with udev in the future?
->>>
->>>      
->>>
->>It is to everyone's advantage to converge on an implementation of 
->>enumeration that meets all of the requirements.
->>    
->>
+> on my laptop HP NX9005 2.4.23pre8 will panic on boot. Tracing
+> down the differences between 2.4.23pre7 and pre8 a found that
+> the problems is in patchset 1.1063.43.26. Backing out this patch
+> lets the laptop boot again. Decode oops follows.
 >
->What are your requirements, and why does udev not meet them?  Is there
->some major disagreement between what udev does, and what you want to do?
->If so, what?
+> Joachim
 >
-The requirements were collected from the OSDL CGL requirements 
-specification version 1.0 and 1.1 ratified September 2002. They come 
-from extensive discussions with the OSDL members as part of the 
-definition of these requirements, expounding on them:
-
-* The embracing of all device types with no specialization or limitation.
-
-* The ability to have total control over the handling a device via 
-external policy programs. Policy programs are invoked with a formal 
-command line and description of the event that caused there invocation.
-
-* The "service container" concept. A device is classified (or recognized 
-by a pattern match) and this raises an (queued) event which is caught by 
-a configurable "service container". The container is an ordered list of 
-handlers that process the device.
-
-* Event queuing and aggregation. Minimizing the number of program 
-invocations (fork/exec) is critical in embedded environments - small 
-processors.
-
-* Aggressive device enumeration. Multiple concurrent policy execution 
-and management.
-
-* Device information persistence is a function of device policies, not 
-the enumeration framework.
-There are many situation where persistence is not an issue at all or 
-only in specific cases (like disks). Why always pay for the memory/disk, 
-for persistence, when it is not (always) necessary?
-
-* Transactional protection of multiple configuration files is necessary. 
-Multiple configuration files must often be modified in unison and 
-insurance is necessary that an accurate and correct set of data is used 
-when processing devices.
-
->udev has been out in the world since April, any reason for not helping
->out with the existing project instead of going off and starting your
->own?  It's not that I mind competing projects, it's just that I don't
->see your reasoning as to why there needs to be two different ones.
->  
+> No modules in ksyms, skipping objects
+> No ksyms, skipping lsmod
+> kernel BUG at slab.c:1130!
+> invalid operand: 0000
+> CPU:    0
+> EIP:    0010:[<c012df25>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010202
+> eax: 000001f0   ebx: c1797270   ecx: 000001f0   edx: c02db798
+> esi: c1797278   edi: c1797270   ebp: 000001f0   esp: c031da84
+> ds: 0018   es: 0018   ss: 0018
+> Process swapper (pid: 0, stackpage=c031d000)
+> Stack: c031dac0 00000388 c01ca227 00200000 00000388 c1797270 c1797278 00000246
+>        000001f0 c012e2a3 c1797270 000001f0 00000009 c031dad8 00000001 00000001
+>        c01a5cde 00000060 000001f0 c01c8ebc 00000060 00000001 c02a78c1 c02a7884
+> Call trace:    [<c01ca227>] [<c012e2a3>] [<c01a5cde>] [<c01c8ebc>] [<c01c8fad>]
+>   [<c01c8c82>] [<c01ca153>] [<c01cc793>] [<c01c168f>] [<c01c0dec>] [<c01c0f3c>]
+>   [<c01c8c36>] [<c01ca1d4>] [<c01ac6bf>] [<c01c1408>] [<c01c141d>] [<c01a8073>]
+>   [<c01c1454>] [<c01c207a>] [<c01bcabc>] [<c01bc995>] [<c01bc71d>] [<c01ba804>]
+>   [<c01bf28d>] [<c01d1b49>] [<c01d1bc5>] [<c01ad11d>] [<c01acf2e>] [<c01af467>]
+>   [<c01a5e0f>] [<c01087c5>] [<c01a5e03>] [<c0108944>] [<c010ac98>] [<c01d591f>]
+>   [<c01d5843>] [<c0105372>] [<c0105000>]
+> Code: 0f 0b 6a 04 0e 4d 29 c0 89 c8 c7 44 24 0c 01 00 00 00 25 f0
 >
-The two packages take philosophically different approaches and arrive 
-with (largely) overlapping and some non-overlapping capabilities - after 
-all they are both trying to do "the same thing". The uSDE has strengths 
-and weaknesses just as udev or any program does. It is certainly 
-possible to discuss changes (and make patches) to udev to incorporate 
-the key issues addressed in the uSDE implementation.
-
-The uSDE is an encapsulation of ideas and techniques. It is "complete" 
-enough for those ideas to be discussed in a community setting and we can 
-see how/what to move things together. Think of it as the projects 
-"resting place" from which to confidently discuss techniques and 
-implementions.
-
-mark
-
-
+>
+> >>EIP; c012df25 <kmem_cache_grow+45/1f0>   <=====
+>
+> >>edx; c02db798 <cache_sizes+18/c0>
+> >>esp; c031da84 <init_task_union+1a84/2000>
+>
+> Trace; c01ca227 <acpi_ut_status_exit+49/55>
+> Trace; c012e2a3 <kmalloc+e3/110>
+> Trace; c01a5cde <acpi_os_allocate+e/11>
+> Trace; c01c8ebc <acpi_ut_callocate+75/e5>
+> Trace; c01c8fad <acpi_ut_callocate_and_track+20/81>
+> Trace; c01c8c82 <acpi_ut_acquire_from_cache+cf/e3>
+> Trace; c01ca153 <acpi_ut_trace_ptr+2c/30>
+> Trace; c01cc793 <acpi_ut_create_generic_state+c/15>
+> Trace; c01c168f <acpi_ps_push_scope+3c/b0>
+> Trace; c01c0dec <acpi_ps_parse_loop+4ce/a40>
+> Trace; c01c0f3c <acpi_ps_parse_loop+61e/a40>
+> Trace; c01c8c36 <acpi_ut_acquire_from_cache+83/e3>
+> Trace; c01ca1d4 <acpi_ut_exit+1d/27>
+> Trace; c01ac6bf <acpi_ds_push_walk_state+4a/51>
+> Trace; c01c1408 <acpi_ps_parse_aml+aa/242>
+> Trace; c01c141d <acpi_ps_parse_aml+bf/242>
+> Trace; c01a8073 <acpi_ds_call_control_method+171/261>
+> Trace; c01c1454 <acpi_ps_parse_aml+f6/242>
+> Trace; c01c207a <acpi_psx_execute+226/2b0>
+> Trace; c01bcabc <acpi_ns_execute_control_method+e5/104>
+> Trace; c01bc995 <acpi_ns_evaluate_by_handle+df/121>
+> Trace; c01bc71d <acpi_ns_evaluate_relative+141/192>
+> Trace; c01ba804 <acpi_hw_low_level_read+10f/11c>
+> Trace; c01bf28d <acpi_evaluate_object+179/282>
+> Trace; c01d1b49 <acpi_ec_gpe_query+104/11b>
+> Trace; c01d1bc5 <acpi_ec_gpe_handler+65/93>
+> Trace; c01ad11d <acpi_ev_gpe_dispatch+7e/1bb>
+> Trace; c01acf2e <acpi_ev_gpe_detect+119/16a>
+> Trace; c01af467 <acpi_ev_sci_xrupt_handler+37/4d>
+> Trace; c01a5e0f <acpi_irq+c/e>
+> Trace; c01087c5 <handle_IRQ_event+45/70>
+> Trace; c01a5e03 <acpi_irq+0/e>
+> Trace; c0108944 <do_IRQ+64/a0>
+> Trace; c010ac98 <call_do_IRQ+5/d>
+> Trace; c01d591f <acpi_processor_idle+dc/1cf>
+> Trace; c01d5843 <acpi_processor_idle+0/1cf>
+> Trace; c0105372 <cpu_idle+42/60>
+> Trace; c0105000 <_stext+0/0>
+>
+> Code;  c012df25 <kmem_cache_grow+45/1f0>
+> 00000000 <_EIP>:
+> Code;  c012df25 <kmem_cache_grow+45/1f0>   <=====
+>    0:   0f 0b                     ud2a      <=====
+> Code;  c012df27 <kmem_cache_grow+47/1f0>
+>    2:   6a 04                     push   $0x4
+> Code;  c012df29 <kmem_cache_grow+49/1f0>
+>    4:   0e                        push   %cs
+> Code;  c012df2a <kmem_cache_grow+4a/1f0>
+>    5:   4d                        dec    %ebp
+> Code;  c012df2b <kmem_cache_grow+4b/1f0>
+>    6:   29 c0                     sub    %eax,%eax
+> Code;  c012df2d <kmem_cache_grow+4d/1f0>
+>    8:   89 c8                     mov    %ecx,%eax
+> Code;  c012df2f <kmem_cache_grow+4f/1f0>
+>    a:   c7 44 24 0c 01 00 00      movl   $0x1,0xc(%esp,1)
+> Code;  c012df36 <kmem_cache_grow+56/1f0>
+>   11:   00
+> Code;  c012df37 <kmem_cache_grow+57/1f0>
+>   12:   25 f0 00 00 00            and    $0xf0,%eax
+>
+>  <0>Kernel panic: Aiee, killing interrupt handler!
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

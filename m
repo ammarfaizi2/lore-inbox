@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263493AbRFFFip>; Wed, 6 Jun 2001 01:38:45 -0400
+	id <S263487AbRFFFhp>; Wed, 6 Jun 2001 01:37:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263491AbRFFFif>; Wed, 6 Jun 2001 01:38:35 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:38404 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S263488AbRFFFiR>; Wed, 6 Jun 2001 01:38:17 -0400
-Date: Wed, 6 Jun 2001 09:37:00 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Tom Vier <tmv5@home.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Linux 2.4.5-ac6
-Message-ID: <20010606093700.A1445@jurassic.park.msu.ru>
-In-Reply-To: <20010605214107.A566@jurassic.park.msu.ru> <Pine.GSO.3.96.1010605201147.26115F-100000@delta.ds2.pg.gda.pl>
+	id <S263488AbRFFFhf>; Wed, 6 Jun 2001 01:37:35 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:8718 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263487AbRFFFhV>;
+	Wed, 6 Jun 2001 01:37:21 -0400
+Date: Tue, 5 Jun 2001 22:36:18 -0700
+From: Greg KH <greg@kroah.com>
+To: John Chris Wren <jcwren@jcwren.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USBDEVFS_URB_TYPE_INTERRUPT
+Message-ID: <20010605223618.A3743@kroah.com>
+In-Reply-To: <NDBBKBJHGFJMEMHPOPEGGEIBCIAA.jcwren@jcwren.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.3.96.1010605201147.26115F-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Tue, Jun 05, 2001 at 08:32:50PM +0200
+In-Reply-To: <NDBBKBJHGFJMEMHPOPEGGEIBCIAA.jcwren@jcwren.com>; from jcwren@jcwren.com on Wed, Jun 06, 2001 at 01:31:41AM -0400
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 05, 2001 at 08:32:50PM +0200, Maciej W. Rozycki wrote:
-> ((current->personality & ADDR_LIMIT_32BIT) ? 0x40000000 : TASK_SIZE / 2)
+On Wed, Jun 06, 2001 at 01:31:41AM -0400, John Chris Wren wrote:
 > 
-> to support 32-bit binaries.  So if the personality is set appropriately
-> for netscape, mmap() should work fine as is, placing maps in the low 4GB.
+> 	I was designing a USB based device and was looking through the 2.4.5 kernel
+> code, and noticed that while it supports bulk, iso, and control types, there
+> is no support for interrupt types.  A grep through the entire kernel source
+> code reveals that USBDEVFS_URB_TYPE_INTERRUPT defined in
+> linux/usbdevice_fs.h, but no where is it used.  Any thoughts as to why that
+> might be?
+> 
+> 	A google search didn't seem to turn up any answers either.
 
-This works perfectly with ELF, but unfortunately netscape isn't recognized
-as 32 bit binary.
+Try this thread for why it is not supported:
 
-> No need to patch arch_get_unmapped_area(), but OSF/1 compatibility code
-> might need fixing.  I suppose an OSF/1 binary must have an appropriate
-> flag set in its header after building with the -taso option so that the
-> system knows the binary wants 32-bit addressing.
+	http://marc.theaimsgroup.com/?l=linux-usb-devel&m=99004006207974&w=2
 
-I'm not sure if COFF headers have such flag at all. I'll check this.
+If you still have questions about this, the linux-usb-devel mailing list
+is the better place to discuss it.
 
-Ivan.
+greg k-h

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRATSQz>; Sat, 20 Jan 2001 13:16:55 -0500
+	id <S129561AbRATSZf>; Sat, 20 Jan 2001 13:25:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130063AbRATSQp>; Sat, 20 Jan 2001 13:16:45 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:23558 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129511AbRATSQ0>;
-	Sat, 20 Jan 2001 13:16:26 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101201803.VAA04679@ms2.inr.ac.ru>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-To: raj@cup.hp.com (Rick Jones)
-Date: Sat, 20 Jan 2001 21:03:43 +0300 (MSK)
+	id <S131033AbRATSZ0>; Sat, 20 Jan 2001 13:25:26 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:18002 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129561AbRATSZS>; Sat, 20 Jan 2001 13:25:18 -0500
+Date: Sat, 20 Jan 2001 19:25:53 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: andersg@0x63.nu
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A68AFBB.5750B564@cup.hp.com> from "Rick Jones" at Jan 19, 1 01:20:59 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+Subject: Re: lvm-oops in 2.4.1pre8
+Message-ID: <20010120192553.K8717@athlon.random>
+In-Reply-To: <20010120184106.A355@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010120184106.A355@h55p111.delphi.afb.lu.se>; from andersg@0x63.nu on Sat, Jan 20, 2001 at 06:41:06PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sat, Jan 20, 2001 at 06:41:06PM +0100, andersg@0x63.nu wrote:
+> hi,
+> 
+> got this oops when doing a 
+> vgextend -v vgroot /dev/ide/host2/bus0/target0/lun0/part2 \
+> /dev/ide/host2/bus1/target0/lun0/part2
 
-> 							is there really
-> much value in the second request flowing to the server before the first
-> byte of the reply has hit?
+You should upgrade to 0.9.1_beta2 that should merge all the known fixes out
+there. It's planned for inclusion into 2.4.1.
 
-Yes, of course, it has lots of sense: f.e. all the icons, referenced
-parent page are batched to single well-coalesced stream without rtt delays
-between them. It is the only sense of pipelining yet.
-
-Otherwise, you get http/1.0 with keepalives.
-
-Alexey
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

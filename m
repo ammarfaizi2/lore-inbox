@@ -1,57 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262474AbTD3Wi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 18:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbTD3Wi0
+	id S262498AbTD3Ws2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 18:48:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTD3Ws2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 18:38:26 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:4574 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S262474AbTD3WiZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 18:38:25 -0400
-Message-ID: <D3A3AA459175A44CB5326F26DA7A189C1F7ECA@orsmsx405.jf.intel.com>
-From: "Selbak, Rolla N" <rolla.n.selbak@intel.com>
-To: linux-kernel@vger.kernel.org
-Cc: ltp-list@lists.sourceforge.net, posixtest-discuss@lists.sourceforge.net
-Subject: Open POSIX Test Suite 1.0.0
-Date: Wed, 30 Apr 2003 15:50:14 -0700
+	Wed, 30 Apr 2003 18:48:28 -0400
+Received: from firenze.terenet.com.br ([200.255.3.10]:44938 "EHLO
+	firenze.terenet.com.br") by vger.kernel.org with ESMTP
+	id S262498AbTD3WsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 18:48:25 -0400
+From: Rafael Santos <rafael@thinkfreak.com.br>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Date: Wed, 30 Apr 2003 20:00:02 -0300
+X-Priority: 3 (Normal)
+Reply-To: rafael@thinkfreak.com.br
+In-Reply-To: <p73vfwx2uw8.fsf@oldwotan.suse.de>
+Message-Id: <1UVQRFALHIE82ZYICTO43SQVTC751.3eb05572@rafaelnote.ns1.lhost.com.br>
+Subject: Re: software reset
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: text/plain; charset="us-ascii"
+X-Mailer: Opera 6.05 build 1140
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Release 1.0.0 of the Open POSIX Test Suite is now available at
-http://posixtest.sourceforge.net
+	Just a doubt...
 
-This release contains complete core POSIX conformance interface tests for:
-Signals, Message queues, Semaphores, Timers, <sched.h> process scheduling.
-Threads core tests 95% complete.
+	#define MODULE 1
+	#define __KERNEL__ 1
 
-It also contains bug fixes from 0.9.0. The release notes that appear on
-download describe how to compile and run these tests.  The file QUICK-START
-is a quick and practical way to get started building and running the tests.
-The README page and the Open POSIX Test Suite website (above) will give more
-information on the project goals and progress as well as information on how
-to contribute or contact us if you are interested. 
-
-Many thanks to Jerome Marchand, Robert Williamson and other members of the
-POSIX testing community for their bug fixes, patches, and suggestions on how
-to improve the 0.9.0 suite. 
-
-The Open POSIX Test Suite is an open source test suite with the goal of
-creating conformance test suites, as well as potentially functional and
-stress test suites, to the functions described in the IEEE Std 1003.1-2001
-System Interfaces specification. Initial work is focusing on timers,
-threads, semaphores, signals, and message queues. Feel free to contact
-posixtest-discuss@lists.sourceforge.net if you would like further
-information. 
+	What are those for? What do they do?
 
 
-Rolla 
 
-* my views are not necessarily my employer's *
+4/29/03 12:19:51 PM, Andi Kleen <ak@suse.de> wrote:
+
+>joe briggs <jbriggs@briggsmedia.com> writes:
+>
+>> Can anyone tell me how to absolutely force a reset on a i386?  Specifically, 
+>> is there a system call that will call the assembly instruction to assert the 
+>> RESET bus line? I try to use the "reboot(LINUX_REBOOT_CMD_RESTART,0,0,NULL)" 
+>> call, but it will not always work.  Occassionally, I experience a "missed 
+>> interrupt" on a Promise IDE controller, and while I can telnet into the 
+>> system, I can't reset it.  Any help greatly appreciated!  Since these systems 
+>> are 1000's of miles away, the need to remotely reset it paramont.
+>
+>The most reliable way is to force a triple fault; load zero into
+>the IDT register and then trigger an exception. The linux kernel 
+>does that in fact for reboot and so far I haven't seen any machine failing
+>to reset yet.
+>
+>-Andi
+>
+>If you don't trust reboot you can use something like (untested!).
+>Compile with -c and load with insmod. I'm pretty sure it will reset
+>your box.
+>
+>#define MODULE 1
+>#define __KERNEL__ 1
+>#include <linux/module.h>
+>
+>int init_module(void)
+>{ 
+>        static struct { 
+>                short limit;
+>                unsigned ptr;
+>        } desc = { 64000, 0 }; 
+>
+>        asm volatile("lidt %0" : "m" (desc)); 
+>        asm volatile("movl %0,%%esp ; int $3" : "g" (0)); 
+>} 
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+Rafael Costa dos Santos
+ThinkFreak Comércio e Soluções em Hardware e Software
+Rio de Janeiro / RJ / Brazil
+rafael@thinkfreak.com.br
++ 55 21 9432-9266
+
 

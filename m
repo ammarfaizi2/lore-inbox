@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289945AbSAKXis>; Fri, 11 Jan 2002 18:38:48 -0500
+	id <S290167AbSAKXm6>; Fri, 11 Jan 2002 18:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290165AbSAKXii>; Fri, 11 Jan 2002 18:38:38 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:54287 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289945AbSAKXi0>;
-	Fri, 11 Jan 2002 18:38:26 -0500
-Date: Fri, 11 Jan 2002 21:38:05 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <Pine.LNX.4.33.0201111609340.2580-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.33L.0201112136140.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290168AbSAKXms>; Fri, 11 Jan 2002 18:42:48 -0500
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:6571 "EHLO
+	scaup.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S290167AbSAKXme>; Fri, 11 Jan 2002 18:42:34 -0500
+Date: Fri, 11 Jan 2002 18:46:07 -0500
+To: linux-kernel@vger.kernel.org
+Cc: undisclosed-recipients:;
+Subject: benchmarks on 4 recent kernels
+Message-ID: <20020111184607.A235@earthlink.net>
+In-Reply-To: <13.4a4d8c3.296d0cfd@aol.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <13.4a4d8c3.296d0cfd@aol.com>; from Dohmcap4@aol.com on Tue, Jan 08, 2002 at 10:03:25PM -0500
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jan 2002, Mark Hahn wrote:
+Kernels:
+2.4.17rmap11a
+2.4.18pre2aa2
+2.4.18-pre3
+2.5.2-pre11
 
-> > overall performance seems far lower.  For instance, without the patch
-> > the -j build finishes in ~10 minutes (2x933P3/256MB) but with the patch
->
-> please, PLEASE stop using "make -j"
-> for anything except the fork-bomb that it is.
-> pretending that it's a benchmark, especially one
-> to guide kernel tuning, is a travesty!
+dbench 64, 128, 192, unixbench, and lmbench * 7 on a
+K6-2/475 with 384 MB ram at:
 
-Actually, it's as good a benchmark as any. Knowing
-how well the system is able to recover from heavy
-overload situations is useful to know if your
-server gets heavily overloaded at times.
+http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
 
-If one VM falls over horribly under half the load
-it takes to make another VM go slower, I know which
-one I'd want on my server.
-
-> if you want to simulate VM load, so something sane like
-> boot with mem=32M, or a simple "mmap(lots); mlockall" tool.
-
-... and then you come up with something WAY less
-realistic than 'make -j' ;)))
-
-cheers,
-
-Rik
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Randy Hron
 

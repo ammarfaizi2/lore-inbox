@@ -1,167 +1,173 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317950AbSHDQXS>; Sun, 4 Aug 2002 12:23:18 -0400
+	id <S317981AbSHDQeH>; Sun, 4 Aug 2002 12:34:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317960AbSHDQXS>; Sun, 4 Aug 2002 12:23:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1028 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317950AbSHDQXQ>;
-	Sun, 4 Aug 2002 12:23:16 -0400
-Date: Sun, 4 Aug 2002 17:26:50 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: softirq parameters
-Message-ID: <20020804172650.N24631@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317984AbSHDQeH>; Sun, 4 Aug 2002 12:34:07 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:57251 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S317981AbSHDQeF>; Sun, 4 Aug 2002 12:34:05 -0400
+Message-ID: <3D4D5726.4040904@quark.didntduck.org>
+Date: Sun, 04 Aug 2002 12:32:38 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] i386 boot pagetables cleanup part 2
+Content-Type: multipart/mixed;
+ boundary="------------070708010204080401030108"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------070708010204080401030108
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-what do you guys think about this patch?  nobody's using the data argument
-to the softirq routines, but most of the routines want to know which
-CPU they're running on.
+Reorganize i386/kernel/head.S to eliminate the .org directives.
+- boot_pgtables move to .data.init so they can be reclaimed after the 
+final pagetables are set up.
+- empty_zero_page and swapper_pg_dir move to .data.page_aligned
+- the IDT and GDT descriptors are moved to .data
 
-also, we have:
+The end effect is that we can now fully use the first page of head.S 
+saving about half a page of memory.
 
-static struct softirq_action softirq_vec[32] __cacheline_aligned_in_smp;
+--
+				Brian Gerst
 
-and i rather wonder why we cache-align them.  they only get initialised at
-startup (kernel or module init), so this cacheline must be in shared state.
+--------------070708010204080401030108
+Content-Type: text/plain;
+ name="boot_pte2-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="boot_pte2-1"
 
-diff -urpNX dontdiff linux-2.5.30/drivers/scsi/scsi.c linux-2.5.30-willy/drivers/scsi/scsi.c
---- linux-2.5.30/drivers/scsi/scsi.c	2002-07-06 07:21:00.000000000 -0600
-+++ linux-2.5.30-willy/drivers/scsi/scsi.c	2002-08-04 08:26:13.000000000 -0600
-@@ -1192,9 +1192,8 @@ void scsi_done(Scsi_Cmnd * SCpnt)
-  * interrupt latency, stack depth, and reentrancy of the low-level
-  * drivers.
-  */
--static void scsi_softirq(struct softirq_action *h)
-+static void scsi_softirq(int cpu)
- {
--	int cpu = smp_processor_id();
- 	struct softscsi_data *queue = &softscsi_data[cpu];
+diff -urN linux-bg1/arch/i386/kernel/head.S linux/arch/i386/kernel/head.S
+--- linux-bg1/arch/i386/kernel/head.S	Sun Aug  4 11:01:52 2002
++++ linux/arch/i386/kernel/head.S	Sun Aug  4 11:58:40 2002
+@@ -339,6 +339,19 @@
+ 	iret
  
- 	while (queue->head) {
-@@ -2567,7 +2566,7 @@ static int __init init_scsi(void)
- 	bus_register(&scsi_driverfs_bus_type);
+ /*
++ * Real beginning of normal "text" segment
++ */
++ENTRY(stext)
++ENTRY(_stext)
++
++/*
++ * This starts the data section. Note that the above is all
++ * in the text section because it has alignment requirements
++ * that we cannot fulfill any other way.
++ */
++.data
++
++/*
+  * The IDT and GDT 'descriptors' are a strange 48-bit object
+  * only used by the lidt and lgdt instructions. They are not
+  * like usual segment descriptors - they consist of a 16-bit
+@@ -362,53 +375,6 @@
  
- 	/* Where we handle work queued by scsi_done */
--	open_softirq(SCSI_SOFTIRQ, scsi_softirq, NULL);
-+	open_softirq(SCSI_SOFTIRQ, scsi_softirq);
+ 	.fill NR_CPUS-1,6,0		# space for the other GDT descriptors
  
- 	return 0;
- }
-diff -urpNX dontdiff linux-2.5.30/include/linux/interrupt.h linux-2.5.30-willy/include/linux/interrupt.h
---- linux-2.5.30/include/linux/interrupt.h	2002-07-27 12:09:21.000000000 -0600
-+++ linux-2.5.30-willy/include/linux/interrupt.h	2002-07-27 12:12:52.000000000 -0600
-@@ -77,12 +77,11 @@ enum
- 
- struct softirq_action
- {
--	void	(*action)(struct softirq_action *);
--	void	*data;
-+	void	(*action)(int cpu);
- };
- 
- asmlinkage void do_softirq(void);
--extern void open_softirq(int nr, void (*action)(struct softirq_action*), void *data);
-+extern void open_softirq(int nr, void (*action)(int cpu));
- extern void softirq_init(void);
- #define __cpu_raise_softirq(cpu, nr) do { softirq_pending(cpu) |= 1UL << (nr); } while (0)
- extern void FASTCALL(cpu_raise_softirq(unsigned int cpu, unsigned int nr));
-diff -urpNX dontdiff linux-2.5.30/kernel/softirq.c linux-2.5.30-willy/kernel/softirq.c
---- linux-2.5.30/kernel/softirq.c	2002-08-02 05:44:53.000000000 -0600
-+++ linux-2.5.30-willy/kernel/softirq.c	2002-08-02 05:45:35.000000000 -0600
-@@ -86,7 +86,7 @@ restart:
- 
- 		do {
- 			if (pending & 1)
--				h->action(h);
-+				h->action(cpu);
- 			h++;
- 			pending >>= 1;
- 		} while (pending);
-@@ -136,9 +136,8 @@ void raise_softirq(unsigned int nr)
- 	local_irq_restore(flags);
- }
- 
--void open_softirq(int nr, void (*action)(struct softirq_action*), void *data)
-+void open_softirq(int nr, void (*action)(int cpu))
- {
--	softirq_vec[nr].data = data;
- 	softirq_vec[nr].action = action;
- }
- 
-@@ -176,7 +175,7 @@ void __tasklet_hi_schedule(struct taskle
- 	local_irq_restore(flags);
- }
- 
--static void tasklet_action(struct softirq_action *a)
-+static void tasklet_action(int cpu)
- {
- 	struct tasklet_struct *list;
- 
-@@ -209,7 +208,7 @@ static void tasklet_action(struct softir
- 	}
- }
- 
--static void tasklet_hi_action(struct softirq_action *a)
-+static void tasklet_hi_action(int cpu)
- {
- 	struct tasklet_struct *list;
- 
-@@ -321,8 +320,8 @@ void __init softirq_init()
- 	for (i=0; i<32; i++)
- 		tasklet_init(bh_task_vec+i, bh_action, i);
- 
--	open_softirq(TASKLET_SOFTIRQ, tasklet_action, NULL);
--	open_softirq(HI_SOFTIRQ, tasklet_hi_action, NULL);
-+	open_softirq(TASKLET_SOFTIRQ, tasklet_action);
-+	open_softirq(HI_SOFTIRQ, tasklet_hi_action);
- }
- 
- void __run_task_queue(task_queue *list)
-diff -urpNX dontdiff linux-2.5.30/net/core/dev.c linux-2.5.30-willy/net/core/dev.c
---- linux-2.5.30/net/core/dev.c	2002-06-20 16:53:53.000000000 -0600
-+++ linux-2.5.30-willy/net/core/dev.c	2002-06-29 09:10:38.000000000 -0600
-@@ -1333,10 +1333,8 @@ static __inline__ void skb_bond(struct s
- 		skb->dev = dev->master;
- }
- 
--static void net_tx_action(struct softirq_action *h)
-+static void net_tx_action(int cpu)
- {
--	int cpu = smp_processor_id();
+-/*
+- * This is initialized to create an identity-mapping at 0-8M (for bootup
+- * purposes) and another mapping of the 0-8M area at virtual address
+- * PAGE_OFFSET.
+- */
+-.org 0x1000
+-ENTRY(swapper_pg_dir)
+-	.long 0x0007 + __PA(boot_pgtables)
+-	.long 0x1007 + __PA(boot_pgtables)
+-	/* default: 766 entries */
+-	.fill BOOT_USER_PGD_PTRS-2,4,0
+-	.long 0x0007 + __PA(boot_pgtables)
+-	.long 0x1007 + __PA(boot_pgtables)
+-	/* default: 254 entries */
+-	.fill BOOT_KERNEL_PGD_PTRS-2,4,0
 -
- 	if (softnet_data[cpu].completion_queue) {
- 		struct sk_buff *clist;
+-/*
+- * The page tables are initialized to only 8MB here - the final page
+- * tables are set up later depending on memory size.
+- */
+-.org 0x2000
+-boot_pgtables:
+-
+-/*
+- * empty_zero_page must immediately follow the page tables ! (The
+- * initialization loop counts until empty_zero_page)
+- */
+-
+-.org 0x4000
+-boot_pgtables_end:
+-ENTRY(empty_zero_page)
+-
+-.org 0x5000
+-
+-/*
+- * Real beginning of normal "text" segment
+- */
+-ENTRY(stext)
+-ENTRY(_stext)
+-
+-/*
+- * This starts the data section. Note that the above is all
+- * in the text section because it has alignment requirements
+- * that we cannot fulfill any other way.
+- */
+-.data
+-
+ ALIGN
+ /*
+  * The Global Descriptor Table contains 20 quadwords, per-CPU.
+@@ -444,3 +410,26 @@
+ 	.fill (NR_CPUS-1)*GDT_ENTRIES,8,0 /* other CPU's GDT */
+ #endif
  
-@@ -1573,9 +1571,8 @@ job_done:
- 	return 0;
- }
++.section .data.page_aligned, "aw"
++ENTRY(empty_zero_page)
++	.fill 4096,1,0
++
++/*
++ * This is initialized to create an identity-mapping at 0-8M (for bootup
++ * purposes) and another mapping of the 0-8M area at virtual address
++ * PAGE_OFFSET.
++ */
++ENTRY(swapper_pg_dir)
++	.long 0x0007 + __PA(boot_pgtables)
++	.long 0x1007 + __PA(boot_pgtables)
++	/* default: 766 entries */
++	.fill BOOT_USER_PGD_PTRS-2,4,0
++	.long 0x0007 + __PA(boot_pgtables)
++	.long 0x1007 + __PA(boot_pgtables)
++	/* default: 254 entries */
++	.fill BOOT_KERNEL_PGD_PTRS-2,4,0
++
++.section .data.boot_pgtable, "aw"
++boot_pgtables:
++	.fill 2*4096,1,0
++boot_pgtables_end:
+diff -urN linux-bg1/arch/i386/vmlinux.lds linux/arch/i386/vmlinux.lds
+--- linux-bg1/arch/i386/vmlinux.lds	Tue Jul 23 19:19:44 2002
++++ linux/arch/i386/vmlinux.lds	Sun Aug  4 11:59:19 2002
+@@ -63,6 +63,7 @@
+   .data.percpu  : { *(.data.percpu) }
+   __per_cpu_end = .;
+   . = ALIGN(4096);
++  .data.boot_pgtable : { *(.data.boot_pgtable) }
+   __init_end = .;
  
--static void net_rx_action(struct softirq_action *h)
-+static void net_rx_action(int this_cpu)
- {
--	int this_cpu = smp_processor_id();
- 	struct softnet_data *queue = &softnet_data[this_cpu];
- 	unsigned long start_time = jiffies;
- 	int budget = netdev_max_backlog;
-@@ -2816,8 +2813,8 @@ static int __init net_dev_init(void)
+   . = ALIGN(4096);
+@@ -72,7 +73,7 @@
+   __nosave_end = .;
  
- 	dev_boot_phase = 0;
+   . = ALIGN(4096);
+-  .data.page_aligned : { *(.data.idt) }
++  .data.page_aligned : { *(.data.page_aligned) *(.data.idt) }
  
--	open_softirq(NET_TX_SOFTIRQ, net_tx_action, NULL);
--	open_softirq(NET_RX_SOFTIRQ, net_rx_action, NULL);
-+	open_softirq(NET_TX_SOFTIRQ, net_tx_action);
-+	open_softirq(NET_RX_SOFTIRQ, net_rx_action);
- 
- 	dst_init();
- 	dev_mcast_init();
+   . = ALIGN(32);
+   .data.cacheline_aligned : { *(.data.cacheline_aligned) }
 
--- 
-Revolutions do not require corporate support.
+--------------070708010204080401030108--
+

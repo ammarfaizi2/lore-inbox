@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264424AbRFOPSV>; Fri, 15 Jun 2001 11:18:21 -0400
+	id <S264425AbRFOPhQ>; Fri, 15 Jun 2001 11:37:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264425AbRFOPSK>; Fri, 15 Jun 2001 11:18:10 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:56583 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264424AbRFOPR4>; Fri, 15 Jun 2001 11:17:56 -0400
-Date: Fri, 15 Jun 2001 12:17:51 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <linux-mm@kvack.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [RFT][PATCH] even out background aging
-Message-ID: <Pine.LNX.4.33.0106151211360.2262-100000@duckman.distro.conectiva>
+	id <S264426AbRFOPg5>; Fri, 15 Jun 2001 11:36:57 -0400
+Received: from oscar.broadcom.ie ([192.107.110.20]:4365 "EHLO broadcom.ie")
+	by vger.kernel.org with ESMTP id <S264425AbRFOPgf>;
+	Fri, 15 Jun 2001 11:36:35 -0400
+Message-ID: <F491DB9E5447D51188DF00B0D0AA207503F45C@phoebe.broadcom.ie>
+From: Mark Smith <mark.smith@broadcom.ie>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Enabling Netfilters to Mark packets in Red-Hat
+Date: Fri, 15 Jun 2001 16:37:53 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Request For Testers:  please test this on your system...]
+I have been trying to enable Netfilters to mark ip packets, (i.e. using
+iptables and iproute2).  My problem is that after upgrading from 2.2.4
+kernel to a 2.4 version, I did the following:
 
-Hi,
+make menuconfig - enabling the appropriate options
 
-the following patch makes use of the fact that refill_inactive()
-now calls swap_out() before calling refill_inactive_scan() and
-the fact that the inactive_dirty list is now reclaimed in a fair
-LRU order.
+make dep
 
-Background scanning can now be replaced by a simple call to
-refill_inactive(), instead of the refill_inactive_scan(), which
-gave mapped pages an unfair advantage over unmapped ones.
+make bzImage
 
-The special-casing of the amount to scan in refill_inactive_scan()
-is removed as well, there's absolutely no reason we'd need it with
-the current VM balance.
-
-regards,
-
-Rik
---
+make bzlilo
 
 
---- linux-2.4.6-pre3/mm/vmscan.c.orig	Thu Jun 14 12:28:03 2001
-+++ linux-2.4.6-pre3/mm/vmscan.c	Fri Jun 15 11:55:09 2001
-@@ -695,13 +695,6 @@
- 	int page_active = 0;
- 	int nr_deactivated = 0;
+The problem is I cannot get iptables or ipoute2 working.  I can see header
+files for iptables, but nothing eslse, and I cannot find any reference to
+iproute2 whatsoever.
 
--	/*
--	 * When we are background aging, we try to increase the page aging
--	 * information in the system.
--	 */
--	if (!target)
--		maxscan = nr_active_pages >> 4;
--
- 	/* Take the lock while messing with the list... */
- 	spin_lock(&pagemap_lru_lock);
- 	while (maxscan-- > 0 && (page_lru = active_list.prev) != &active_list) {
-@@ -978,7 +971,7 @@
- 			recalculate_vm_stats();
+Can anyone mail me as to what I may be doing wrong?  I am a relative
+newcomer to linux.
 
- 			/* Do background page aging. */
--			refill_inactive_scan(DEF_PRIORITY, 0);
-+			refill_inactive(GFP_KSWAPD, 0);
- 		}
-
- 		run_task_queue(&tq_disk);
-
+Cheers.

@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263143AbTDFWlq (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 18:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbTDFWlp (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 18:41:45 -0400
-Received: from modemcable169.130-200-24.mtl.mc.videotron.ca ([24.200.130.169]:3590
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S263143AbTDFWlo (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 18:41:44 -0400
-Date: Sun, 6 Apr 2003 18:48:21 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-cc: LKML <linux-kernel@vger.kernel.org>, Andy Grover <andrew.grover@intel.com>
-Subject: Re: 2.5.66-bk12: acpi_power_off: sleeping function called from
- illegal context
-In-Reply-To: <1049668212.725.13.camel@teapot.felipe-alfaro.com>
-Message-ID: <Pine.LNX.4.50.0304061847220.2268-100000@montezuma.mastecende.com>
-References: <1049668212.725.13.camel@teapot.felipe-alfaro.com>
+	id S263151AbTDFWxA (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 18:53:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTDFWxA (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 18:53:00 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:45249 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id S263151AbTDFWxA (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 18:53:00 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16016.45674.743959.682129@wombat.chubb.wattle.id.au>
+Date: Mon, 7 Apr 2003 09:04:10 +1000
+To: John Bradford <john@grabjohn.com>
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] take 48-bit lba a bit further
+In-Reply-To: <175955253@toto.iv>
+X-Mailer: VM 7.07 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Apr 2003, Felipe Alfaro Solana wrote:
+>>>>> "John" == John Bradford <john@grabjohn.com> writes:
 
-> Power down.
-> acpi_power_off called
-> Debug: sleeping function called from illegal context at
-> include/asm/semaphore.h: 119
-> Call  Trace:
->  [<c012088a>] __might_sleep+0x5f/0x75
->  [<c01ffb10>] acpi_os_wait_semaphore+0xc5/0xea
->  [<c021440c>] acpi_ut_acquire_mutex+0x51/0x73
->  [<c020ab4f>] acpi_set_register+0x34/0x15d
->  [<c020b1f6>] acpi_enter_sleep_state+0x77/0x1ab
->  [<c0215d7d>] acpi_power_off+0x21/0x23
->  [<c011a3e5>] machine_power_off+0x10/0x13
->  [<c0135f7b>] sys_reboot+0x332/0x741
->  [<c011e010>] schedule+0x210/0x6d7
->  [<c0130daf>] group_send_sig_info+0x2af/0x6b6
->  [<c011e50d>] preempt_schedule+0x36/0x50
->  [<c0131384>] kill_proc_info+0x60/0x62
->  [<c0134346>] sys_kill+0x4d/0x51
->  [<c016e76b>] __fput+0xaf/0xfb
->  [<c016cabc>] filp_close+0x160/0x226
->  [<c01850cb>] sys_ioctl+0x197/0x3e8
->  [<c010af29>] sysenter_past_esp+0x52/0x71
 
-You probably need this;
+John> So, say you have a choice of either a 256Kb request to a low
+John> block number, which can use the faster 28-bit mode, or a 512Kb
+John> request to the same low block number, which can only be made
+John> using 48-bit LBA, which is the best to use?
 
-Index: linux-2.5.66/drivers/acpi/osl.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.66/drivers/acpi/osl.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 osl.c
---- linux-2.5.66/drivers/acpi/osl.c	24 Mar 2003 23:39:26 -0000	1.1.1.1
-+++ linux-2.5.66/drivers/acpi/osl.c	6 Apr 2003 22:46:04 -0000
-@@ -750,7 +750,7 @@ acpi_os_wait_semaphore(
- 
- 	ACPI_DEBUG_PRINT ((ACPI_DB_MUTEX, "Waiting for semaphore[%p|%d|%d]\n", handle, units, timeout));
- 
--	if (in_atomic())
-+	if (in_atomic() || irqs_disabled())
- 		timeout = 0;
- 
- 	switch (timeout)
--- 
-function.linuxpower.ca
+Interrupt overhead as measured here is greater than the IO overhead
+(at least on IA64 and alpha machines).  The bigger the transfer for a
+single interrupt, the better.
+
+Peter C

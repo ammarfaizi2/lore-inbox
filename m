@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264419AbUFCW7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264623AbUFCXCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264419AbUFCW7g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 18:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264518AbUFCW7f
+	id S264623AbUFCXCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 19:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbUFCXCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 18:59:35 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:47542 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264419AbUFCW7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 18:59:32 -0400
-From: Suresh Siddha <suresh.b.siddha@intel.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Date: Thu, 3 Jun 2004 15:58:27 -0700
-User-Agent: KMail/1.6.2
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-References: <20040602205025.GA21555@elte.hu> <200406031224.13319.suresh.b.siddha@intel.com> <20040603203709.GB868@wotan.suse.de>
-In-Reply-To: <20040603203709.GB868@wotan.suse.de>
+	Thu, 3 Jun 2004 19:02:24 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:14750 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S264623AbUFCXCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 19:02:18 -0400
+Message-ID: <40BFADE5.9040506@myrealbox.com>
+Date: Thu, 03 Jun 2004 16:01:57 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>, mingo@elte.hu
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       arjanv@redhat.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
+References: <20040602205025.GA21555@elte.hu>	<Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org>	<20040603072146.GA14441@elte.hu>	<20040603124448.GA28775@elte.hu> <20040603175422.4378d901.ak@suse.de>
+In-Reply-To: <20040603175422.4378d901.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406031558.27495.suresh.b.siddha@intel.com>
-X-OriginalArrivalTime: 03 Jun 2004 22:58:24.0530 (UTC) FILETIME=[464D4720:01C449BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 June 2004 13:37, Andi Kleen wrote:
-> > What do you mean by "in the future"? on x86, with the current no execute 
-> > patch, malloc() will be non-exec
+Andi Kleen wrote:
+> On Thu, 3 Jun 2004 14:44:48 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> On x86-64 the heap is executable right now at least.
 > 
+> 
+>>- in exec.c, since address-space executability is a security-relevant
+>>item, we must clear the personality when we exec a setuid binary. I
+>>believe this is also a (small) security robustness fix for current
+>>64-bit architectures.
+> 
+> 
+> I'm not sure I like that. This means I cannot earily force an i386 uname 
+> or 3GB address space on suid programs anymore on x86-64.
+> 
+> While in theory it could be a small security problem I think the utility
+> is much greater.
+> 
+> It's hard to see how setting NX could cause a security hole. The program
+> may crash, but it is unlikely to be exploitable.
 
-oh! I see. Looks like only Ingo's exec-shield patch is doing that.
+The whole point of NX, though, is that it prevents certain classes of 
+exploits.  If a setuid binary is vulnerable to one of these, then Ingo's 
+patch "fixes" it.  Your approach breaks that.
 
-thanks,
-suresh
+I don't like Ingo's fix either, though.  At least it should check 
+CAP_PTRACE or some such.  A better fix would be for LSM to pass down a flag 
+indicating a change of security context.  I'll throw that in to my 
+caps/apply_creds cleanup, in case that ever gets applied.
+
+--Andy
+
+
+> 
+> -Andi
+

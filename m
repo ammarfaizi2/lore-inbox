@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVAEQ46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVAERES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbVAEQ46 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 11:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVAEQ46
+	id S261827AbVAERES (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 12:04:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVAERES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 11:56:58 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:60564 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S261788AbVAEQ44
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 11:56:56 -0500
-Date: Wed, 5 Jan 2005 17:56:44 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: APIC/LAPIC hanging problems on nForce2 system.
-In-Reply-To: <Pine.LNX.4.61.0501050904430.6858@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.60.0501051756010.25946@kepler.fjfi.cvut.cz>
-References: <Pine.LNX.4.60.0501051604200.24191@kepler.fjfi.cvut.cz>
- <Pine.LNX.4.61.0501050904430.6858@montezuma.fsmlabs.com>
+	Wed, 5 Jan 2005 12:04:18 -0500
+Received: from math.ut.ee ([193.40.5.125]:30870 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261827AbVAEREP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 12:04:15 -0500
+Date: Wed, 5 Jan 2005 19:04:13 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.6.9+ keyboard LED problem
+Message-ID: <Pine.SOC.4.61.0501051856090.9146@math.ut.ee>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The input changes in 2.6.9 made keyboard LED setting unreliable. 2.6.8 
+is OK, 2.6.9, 2.6.10 and todays BK are buggy.
 
-On Wed, 5 Jan 2005, Zwane Mwaikambo wrote:
+The problem is that setting the LEDs now interferes with keyboard and 
+ps/2 mouse input and makes the kernel lose key press and key release 
+events.
 
-> On Wed, 5 Jan 2005, Martin Drab wrote:
-> 
-> > I'm witnessing a total freeze on my system when the APIC and LAPIC are 
-> > enabled in kernel 2.6.10-bk7.
-> > 
-> > The feeze seems to occur whenever there is some heavy interrupt occurance, 
-> > usually high network communication load, or high HDD activity. The freeze 
-> > does not occur after constant time during the heavy interrupt load, but it 
-> > ALLWAYS occurs, and allways after quite a short time. The freeze is total, 
-> > I mean nothing reacts, then, even the cursor on the HW text console stops 
-> > blinking. Only cold reset helps.
-> > 
-> > The problem disappears when I turn off APIC and LAPIC (by the "noapic 
-> > nolapic" commands at the kernel boot command line). I tried to turn off 
-> > only APIC (i.e., only "noapic"), at first it seemd to be working, but it 
-> > frozen anyway, only a bit later. I also tried to turn off only the LAPIC 
-> > (i.e.,  only "nolapic"), but then my HDD was loosing interrupts, so the 
-> > system didn't even boot.
-> > 
-> > I also tried the native kernel from MDK 10.1 i586, i.e. 2.6.8.1-12mdk and 
-> > it works without any problem with both APIC and LAPIC enabled.
-> > 
-> > Does anybody have a clue what could be wrong? 
-> 
-> I'm assuming that 2.6.10 is ok?
+Short demonstation:
+#!/bin/sh
+while :; do xset led 3; xset -led 3; sleep 0.01; done
 
-If I remember correctly it is not working as well.
+This script works from X but the same effect can be seen on the console 
+using setleds. The problem was found with ledcontrol package but is 
+easyly reproduced with the script above.
 
-Martin
+Key press and release events are lost, mouse movement is lost or 
+movement is converted into clicks or mouse loses sync (by dmesg info). 
+There are also messages like
+atkbd.c: Unknown key released (translated set 2, code 0xe0 on isa0060/serio0).
+atkbd.c: Use 'setkeycodes e060 <keycode>' to make it known.
+in dmesg.
 
+Don't try the script without the sleep command unless you have a network 
+connection to log in and kill the script ;)
+
+-- 
+Meelis Roos (mroos@linux.ee)

@@ -1,38 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293187AbSDCHFO>; Wed, 3 Apr 2002 02:05:14 -0500
+	id <S293132AbSDCHDo>; Wed, 3 Apr 2002 02:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293204AbSDCHEy>; Wed, 3 Apr 2002 02:04:54 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:1299 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S293187AbSDCHEm>; Wed, 3 Apr 2002 02:04:42 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Subject: Re: [PATCH] bitops cleanup 3/4 
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: Your message of "Tue, 02 Apr 2002 23:08:47 MST."
-             <200204030608.g3368l903461@vindaloo.ras.ucalgary.ca> 
-Date: Wed, 03 Apr 2002 16:29:04 +1000
-Message-Id: <E16seGa-0008NA-00@wagner.rustcorp.com.au>
+	id <S293187AbSDCHDe>; Wed, 3 Apr 2002 02:03:34 -0500
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:44261 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S293132AbSDCHDY>;
+	Wed, 3 Apr 2002 02:03:24 -0500
+Date: Wed, 3 Apr 2002 08:00:31 +0100
+Message-Id: <200204030700.g3370VO01976@fenrus.demon.nl>
+From: arjan@fenrus.demon.nl
+To: "Axel H. Siebenwirth" <axel@hh59.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Another BUG in page_alloc.c:108
+In-Reply-To: <20020403035406.GA2925@neon>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200204030608.g3368l903461@vindaloo.ras.ucalgary.ca> you write:
-> Rusty Russell writes:
-> > Linus, please apply (no object code changes).
-> > 
-> > This changes everything arch specific PPC and i386 which should have
-> > been unsigned long (it doesn't *matter*, but bad habits get copied).
-> > 
-> > I left the devfs ones for Richard to submit separately, since they
-> > actually change the resulting code.
-> 
-> ??? But you didn't leave the devfs ones alone: your patch changes a
-> devfs file:
+In article <20020403035406.GA2925@neon> you wrote:
+> EIP:    0010:[__free_pages_ok+45/688]    Tainted: P 
 
-Sorry, my slip on dividing up the patches.  It doesn't make a
-difference if that bit gets applied now anyway.
+Nvidia ? 
+I get the distinct impression that the lastest nvidia drivers
+reintroduced a bug that fubars the page allocator ;(
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+

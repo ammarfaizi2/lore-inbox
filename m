@@ -1,63 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283675AbRLOUVP>; Sat, 15 Dec 2001 15:21:15 -0500
+	id <S283588AbRLOUNp>; Sat, 15 Dec 2001 15:13:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284019AbRLOUVG>; Sat, 15 Dec 2001 15:21:06 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:38273 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S283675AbRLOUUy>;
-	Sat, 15 Dec 2001 15:20:54 -0500
-Date: Sat, 15 Dec 2001 23:18:33 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mempool design
-In-Reply-To: <20011215134711.A30548@redhat.com>
-Message-ID: <Pine.LNX.4.33.0112152235340.26748-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283592AbRLOUNf>; Sat, 15 Dec 2001 15:13:35 -0500
+Received: from ns.caldera.de ([212.34.180.1]:47331 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S283588AbRLOUNU>;
+	Sat, 15 Dec 2001 15:13:20 -0500
+Date: Sat, 15 Dec 2001 21:13:11 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix for OOPS on failed sysvfs mount
+Message-ID: <20011215211311.A2247@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Marcelo,
 
-On Sat, 15 Dec 2001, Benjamin LaHaise wrote:
+currently sysvfs lacks to mark inodes for which ->read_inode failed
+to be bad.  This make read_super OOPS if the root inode is invalid.
 
-> [...] The design for reservations is to use enforced accounting limits
-> to achive the effect of seperate memory pools. [...]
+Doesn't touch generic code, ext2 does the same for ages.
 
-how is this going to handle higher-order pools? How is this going to
-handle the need for composite allocations?
+	Christoph
 
-I think putting in reservation for higher-order pages is going to make
-some parts of page_alloc.c *really* complex, and this complexity i dont
-think we need.
+-- 
+Of course it doesn't work. We've performed a software upgrade.
 
-> [...] Mempool's design is to build seperate pools on top of existing
-> pools of memory. Can't you see the obvious duplication that implies?
-
-no. Mempool's design is to build preallocated, reserved,
-guaranteed-allocation pools on top of simpler allocators. Simpler
-allocators will try reasonably hard to get something allocated, but might
-fail as well. The majority of allocations within the kernel has no
-deadlock relevance at all. If we allocate a new file structure, or create
-a new socket, or are trying to page in overcommitted memory then we can
-return with -ENOMEM (or OOM) just fine. Allocators are simpler and faster
-without built-in deadlock avoidance and 'reserves'.
-
-so the difference in design is that you are trying to add reservations as
-a feature of the allocators themselves, while i'm trying to add it as a
-generic, allocator-independent subsystem, which also solved a number of
-other problems we always had in the IO code. Under this design, the 'pure'
-allocators themselves have no concept of reserved pools at all, so there
-is no duplication in concepts. (and no duplication of code.)
-
-so the fundamental question is, should reservation be a core functionality
-of allocators, or should it be a separate subsystem. *If* it can be put
-into the core allocators (page allocator, SLAB) that gives us all the
-features that mempool gives us today then i think i'd like that approach.
-But i cannot really see how the composite allocation thing can be done via
-reservations.
-
-	Ingo
-
+diff -uNr -Xdontdiff linux-2.4.16/fs/sysv/ChangeLog linux/fs/sysv/ChangeLog
+--- linux-2.4.16/fs/sysv/ChangeLog	Mon Dec 10 10:04:53 2001
++++ linux/fs/sysv/ChangeLog	Sat Dec 15 16:56:16 2001
+@@ -1,3 +1,12 @@
++Sat Dec 15 2001  Christoph Hellwig  <hch@caldera.de>
++
++	* inode.c (sysv_read_inode): Mark inode as bad in case of failure.
++	* super.c (complete_read_super): Check for bad root inode.
++
++Wed Nov 21 2001  Andrew Morton  <andrewm@uow.edu.au>
++
++	* file.c (sysv_sync_file): Call fsync_inode_data_buffers.
++
+ Fri Oct 26 2001  Christoph Hellwig  <hch@caldera.de>
+ 
+ 	* dir.c, ialloc.c, namei.c, include/linux/sysv_fs_i.h:
+diff -uNr -Xdontdiff linux-2.4.16/fs/sysv/inode.c linux/fs/sysv/inode.c
+--- linux-2.4.16/fs/sysv/inode.c	Mon Dec 10 10:04:53 2001
++++ linux/fs/sysv/inode.c	Sat Dec 15 12:56:04 2001
+@@ -152,13 +152,13 @@
+ 		printk("Bad inode number on dev %s"
+ 		       ": %d is out of range\n",
+ 		       kdevname(inode->i_dev), ino);
+-		return;
++		goto bad_inode;
+ 	}
+ 	raw_inode = sysv_raw_inode(sb, ino, &bh);
+ 	if (!raw_inode) {
+ 		printk("Major problem: unable to read inode from dev %s\n",
+ 		       bdevname(inode->i_dev));
+-		return;
++		goto bad_inode;
+ 	}
+ 	/* SystemV FS: kludge permissions if ino==SYSV_ROOT_INO ?? */
+ 	inode->i_mode = fs16_to_cpu(sb, raw_inode->i_mode);
+@@ -178,6 +178,11 @@
+ 		rdev = (u16)fs32_to_cpu(sb, inode->u.sysv_i.i_data[0]);
+ 	inode->u.sysv_i.i_dir_start_lookup = 0;
+ 	sysv_set_inode(inode, rdev);
++	return;
++
++bad_inode:
++	make_bad_inode(inode);
++	return;
+ }
+ 
+ static struct buffer_head * sysv_update_inode(struct inode * inode)
+diff -uNr -Xdontdiff linux-2.4.16/fs/sysv/super.c linux/fs/sysv/super.c
+--- linux-2.4.16/fs/sysv/super.c	Mon Dec 10 10:04:53 2001
++++ linux/fs/sysv/super.c	Sat Dec 15 12:36:59 2001
+@@ -325,7 +325,7 @@
+ 	/* set up enough so that it can read an inode */
+ 	sb->s_op = &sysv_sops;
+ 	root_inode = iget(sb,SYSV_ROOT_INO);
+-	if (!root_inode) {
++	if (!root_inode || is_bad_inode(root_inode)) {
+ 		printk("SysV FS: get root inode failed\n");
+ 		return 0;
+ 	}

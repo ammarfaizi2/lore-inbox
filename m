@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279061AbRJ2HMC>; Mon, 29 Oct 2001 02:12:02 -0500
+	id <S279060AbRJ2HrT>; Mon, 29 Oct 2001 02:47:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279060AbRJ2HLv>; Mon, 29 Oct 2001 02:11:51 -0500
-Received: from pasuuna.fmi.fi ([193.166.211.17]:51208 "EHLO pasuuna.fmi.fi")
-	by vger.kernel.org with ESMTP id <S279061AbRJ2HLj>;
-	Mon, 29 Oct 2001 02:11:39 -0500
-From: Kari Hurtta <hurtta@leija.mh.fmi.fi>
-Message-Id: <200110290712.f9T7CAf0007823@leija.fmi.fi>
-Subject: Re: [off topic?] Re: [PATCH] strtok --> strsep in framebuffer drivers
- (part 2)
-In-Reply-To: <20011029063437.A14886@win.tue.nl>
-To: Guest section DW <dwguest@win.tue.nl>
-Date: Mon, 29 Oct 2001 09:12:10 +0200 (EET)
-CC: =?ISO-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@loewe-komp.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL95a (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-X-Filter: pasuuna: 2 received headers rewritten with id 20011029/09571/01
-X-Filter: pasuuna: ID 4270, 1 parts scanned for known viruses
-X-Filter: leija.fmi.fi: ID 23915, 1 parts scanned for known viruses
+	id <S279064AbRJ2HrI>; Mon, 29 Oct 2001 02:47:08 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:64521 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S279060AbRJ2HrC>; Mon, 29 Oct 2001 02:47:02 -0500
+Date: Mon, 29 Oct 2001 08:47:36 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.13-ac4
+Message-ID: <20011029084736.A3152@suse.cz>
+In-Reply-To: <20011028204003.A1640@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011028204003.A1640@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Sun, Oct 28, 2001 at 08:40:03PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, Oct 27, 2001 at 10:55:09AM +0300, Kari Hurtta wrote:
-> 
-> > manual page IS incorrect (at least if it describes glibc2 function.)
-> 
-> If you think anything is wrong, write to the manpage maintainer
-> (aeb@cwi.nl) what you think is wrong and why.
+On Sun, Oct 28, 2001 at 08:40:03PM +0000, Alan Cox wrote:
 
-I do not know from where that manual page text was quoted.
+> o	Handle chipsets that dont get 8254 latches	(Roberto Biancardi)
+> 	right and trigger the VIA warning in error
 
+This looks good. I've done some investigation myself, and it looks like
+on non-VIA chipsets that trigger the problem sometimes the two counter
+bytes read from the 8254 get swapped. I've got some indirect evidence
+that this also could happen with the original i8254. 
 
-According of Ren_ Scharfe, man page text is correct on Mandrake 8.
+This is a problem per se, because it also does nasty things to the
+system clock then. And this is not always detected by the
 
-Well, same error is on man page on this system
-(Linux Mandrake release 7.1 (helium)).
+if (count > LATCH) {}
 
-So is that fixed by distributor (of Mandrake) or is it fixed by
-manpage maintainer ?
+test. I'd see two solutions for this:
+
+1) Have a better heuristic about what the value read should be and
+discard it if it doesn't look good, re-reading, and if it still doesn't
+look good, re-programming the chip.
+
+2) Always read the chip at least two times.
+
+By the way, if we made the 8254 accesses (spinlock?) protected (which
+should be done anyway, right now definitely more than one CPU can access
+the registers at once), I think we could remove the outb(0, 0x43);,
+saving some cycles.
 
 -- 
-          /"\                           |  Kari 
-          \ /     ASCII Ribbon Campaign |    Hurtta
-           X      Against HTML Mail     |
-          / \                           |
+Vojtech Pavlik
+SuSE Labs

@@ -1,68 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269589AbUINWDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269563AbUINV6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269589AbUINWDq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 18:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269462AbUINWAN
+	id S269563AbUINV6o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 17:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUINVye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 18:00:13 -0400
-Received: from mail.gmx.de ([213.165.64.20]:23941 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269436AbUINVz7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 17:55:59 -0400
-X-Authenticated: #1725425
-Date: Wed, 15 Sep 2004 00:03:03 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: "Giacomo A. Catenazzi" <cate@pixelized.ch>
-Cc: greg@kroah.com, cfriesen@nortelnetworks.com, cate@debian.org,
-       linux-kernel@vger.kernel.org, tigran@veritas.com, md@Linux.IT
-Subject: Re: udev is too slow creating devices
-Message-Id: <20040915000303.5c179979.Ballarin.Marc@gmx.de>
-In-Reply-To: <414757FD.5050209@pixelized.ch>
-References: <41473972.8010104@debian.org>
-	<41474926.8050808@nortelnetworks.com>
-	<20040914195221.GA21691@kroah.com>
-	<414757FD.5050209@pixelized.ch>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 14 Sep 2004 17:54:34 -0400
+Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:20125 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S269674AbUINSL1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 14:11:27 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>
+Subject: Re: /proc/config reducing kernel image size
+Date: Tue, 14 Sep 2004 15:11:15 -0300
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <1095179606.11939.22.camel@host-81-191-110-70.bluecom.no> <200409141444.02624.norberto+linux-kernel@bensa.ath.cx> <1095184644.1838.11.camel@host-81-191-110-70.bluecom.no>
+In-Reply-To: <1095184644.1838.11.camel@host-81-191-110-70.bluecom.no>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409141511.15970.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Sep 2004 22:43:41 +0200
-"Giacomo A. Catenazzi" <cate@pixelized.ch> wrote:
+Tom Fredrik Blenning Klaussen wrote:
+> On Tue, 2004-09-14 at 19:44, Norberto Bensa wrote:
+> > Try this:
+>
+> You're right.
+> Am I correct when I say that when an option is not present, it assumes
+> it's default?
 
-> 
-> After a brief discussion with debian udev maintainer, I've an
-> other proposal/opinion.
-> 
-> The "bug" appear only in two places: at udev start and after
-> a modprobe, so IMHO we should correct these two place, so that:
+Exactly.
 
-This cannot be fixed easily and there would be little gain but great
-risks. For example, I have a device where reading partition tables can
-take up to two seconds. Other devices could be broken and modprobe would
-never return. This would effectively freeze the system when it happens in
-boot scripts.
+Best regards,
+Norberto
 
-> - from a user side perspective it is the right thing!
->    (after a successful modprobe, I expect module and devices
->     are created sussesfully)
-
-This assumption is wrong, even with a completely static /dev.
-Common example:
-modprobe usb-storage / ppa / whatever
-Now, for any reason the kernel is unable to read the partition table.
-The script tries to access /dev/sda1 => boom
-In fact, udev is even an improvement here. Instead of checking the device
-node repeatedly you simply wait for udev to call you. When it does you can
-be sure that the device node exists and is valid.
-
-> Else every distribution should create a script for
-> every init.d script that would eventually use (also
-> indirectly) a kernel module.
-
-Why not? This is the best way to achieve true and reliable hotplug
-support.
-
-Regards

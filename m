@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131621AbQLVC1U>; Thu, 21 Dec 2000 21:27:20 -0500
+	id <S131593AbQLVCca>; Thu, 21 Dec 2000 21:32:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131750AbQLVC1K>; Thu, 21 Dec 2000 21:27:10 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64641 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131621AbQLVC1C>;
-	Thu, 21 Dec 2000 21:27:02 -0500
-Date: Thu, 21 Dec 2000 20:56:11 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Jan Niehusmann <jan@gondor.com>, linux-kernel@vger.kernel.org,
-        adilger@turbolinux.com
-Subject: Re: [PATCH] Re: fs corruption with invalidate_buffers()
-In-Reply-To: <Pine.LNX.4.10.10012211634440.945-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0012212054350.5877-100000@weyl.math.psu.edu>
+	id <S131665AbQLVCcV>; Thu, 21 Dec 2000 21:32:21 -0500
+Received: from michae7.lnk.telstra.net ([139.130.137.101]:59908 "EHLO
+	ppro.pineview.net") by vger.kernel.org with ESMTP
+	id <S131593AbQLVCcQ>; Thu, 21 Dec 2000 21:32:16 -0500
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: No more DoS
+Message-ID: <977453684.3a42c2744fbb7@ppro.pineview.net>
+Date: Fri, 22 Dec 2000 13:24:44 +1100 (CST)
+From: Mike OConnor <kernel@pineview.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 203.38.186.33
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi 
 
+I would like to point who ever is in charge of the TCP stack for the linux 
+kernel at a site which claims to have a method of eliminate denial of service 
+(DoS) attacks
 
-On Thu, 21 Dec 2000, Linus Torvalds wrote:
+http://grc.com/r&d/nomoredos.htm
 
-> 
-> 
-> On Fri, 22 Dec 2000, Jan Niehusmann wrote:
-> > 
-> > This is the result - against test12-pre7, but works well with 
-> > test13-pre3:
-> 
-> This looks bogus.
+With my limited unstanding of TCP and DoS attacks this would seem to be the 
+answer, instead of a work around.
 
-It is bogus. My apologies.
-
+Cheers
+    Mike OConnor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSG3T6n>; Tue, 30 Jul 2002 15:58:43 -0400
+	id <S316322AbSG3UDR>; Tue, 30 Jul 2002 16:03:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316615AbSG3T6m>; Tue, 30 Jul 2002 15:58:42 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:7313 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316610AbSG3T6m>;
-	Tue, 30 Jul 2002 15:58:42 -0400
-Subject: Re: link errors in 2.5.29+bk
-From: Paul Larson <plars@austin.ibm.com>
-To: Meelis Roos <mroos@linux.ee>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.43.0207291351390.24473-100000@romulus.cs.ut.ee>
-References: <Pine.GSO.4.43.0207291351390.24473-100000@romulus.cs.ut.ee>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 Jul 2002 14:58:24 -0500
-Message-Id: <1028059116.11135.268.camel@plars.austin.ibm.com>
+	id <S316342AbSG3UDR>; Tue, 30 Jul 2002 16:03:17 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:63464 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S316322AbSG3UDQ>; Tue, 30 Jul 2002 16:03:16 -0400
+Date: Tue, 30 Jul 2002 16:06:31 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sanitize TLS API
+Message-ID: <20020730160631.R1596@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20020730174336.A18385@lst.de> <Pine.LNX.4.44.0207302059060.22902-100000@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207302059060.22902-100000@localhost.localdomain>; from mingo@elte.hu on Tue, Jul 30, 2002 at 09:00:09PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-29 at 05:53, Meelis Roos wrote:
-
-> aic7xxx_old has yet to be converted to cli removal:
+On Tue, Jul 30, 2002 at 09:00:09PM +0200, Ingo Molnar wrote:
 > 
-> drivers/built-in.o: In function `aic7xxx_handle_seqint':
-> drivers/built-in.o(.text+0x2d2c4): undefined reference to `sti'
-> drivers/built-in.o: In function `aic7xxx_isr':
-> drivers/built-in.o(.text+0x320b4): undefined reference to `sti'
+> On Tue, 30 Jul 2002, Christoph Hellwig wrote:
+> 
+> > Currently sys_set_thread_area has a magic flags argument that might
+> > change it's behaivour completly.
+> > 
+> > Split out the TLS_FLAG_CLEAR case that has nothing in common with the
+> > rest into it's own syscall, sys_clear_thread_area and change the second
+> > argument to int writable.
+> 
+> i did not feel like wasting two syscall slots for this, but the cleanups
+> look fine to me otherwise.
 
-See if this works for you.
+Actually, is the clear operation really necessary?
+IMHO the best clear is movw $0x03, %gs, then all accesses through %gs will
+trap. Calling set_thread_area (0, 1); will result in 0xb segment
+acting exactly like %ds or %es.
 
--Paul Larson
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.525   -> 1.526  
-#	drivers/scsi/aic7xxx_old.c	1.22    -> 1.23   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/07/30	plars@plap.(none)	1.526
-#  
-# --------------------------------------------
-#
-diff -Nru a/drivers/scsi/aic7xxx_old.c b/drivers/scsi/aic7xxx_old.c
---- a/drivers/scsi/aic7xxx_old.c	Tue Jul 30 14:30:14 2002
-+++ b/drivers/scsi/aic7xxx_old.c	Tue Jul 30 14:30:14 2002
-@@ -5077,7 +5077,7 @@
-         }
-         else 
-         {
--          sti();
-+          local_irq_enable();
-           panic("aic7xxx: AWAITING_MSG for an SCB that does "
-                 "not have a waiting message.\n");
-         }
-@@ -6933,7 +6933,7 @@
- #endif
-     if (errno & (SQPARERR | ILLOPCODE | ILLSADDR))
-     {
--      sti();
-+      local_irq_enable();
-       panic("aic7xxx: unrecoverable BRKADRINT.\n");
-     }
-     if (errno & ILLHADDR)
-
+	Jakub

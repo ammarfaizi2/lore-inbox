@@ -1,91 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315119AbSECSgn>; Fri, 3 May 2002 14:36:43 -0400
+	id <S315130AbSECShI>; Fri, 3 May 2002 14:37:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315120AbSECSgn>; Fri, 3 May 2002 14:36:43 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:21032 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S315119AbSECSgl>; Fri, 3 May 2002 14:36:41 -0400
-Date: Fri, 3 May 2002 20:37:38 +0200
-From: Andrea Arcangeli <andrea@suse.de>
+	id <S315133AbSECShH>; Fri, 3 May 2002 14:37:07 -0400
+Received: from msp-65-29-16-52.mn.rr.com ([65.29.16.52]:55936 "HELO
+	local.enodev.com") by vger.kernel.org with SMTP id <S315130AbSECShF>;
+	Fri, 3 May 2002 14:37:05 -0400
+Date: Fri, 3 May 2002 13:36:57 -0500
+From: Shawn <core@enodev.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19pre8aa1 & vm-34
-Message-ID: <20020503203738.E1396@dualathlon.random>
+Subject: Re: [LINK FAILURE] 2.5.12-dj1 (mark_buffer_uptodate)
+Message-ID: <20020503183657.GA23553@local.enodev.com>
+In-Reply-To: <20020503181719.GA20588@local.enodev.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Full patchkit:
+Is the right thing to do?
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa1.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa1/
+--- rd.c	Fri May  3 12:48:35 2002
++++ rd.c.new	Fri May  3 13:35:43 2002
+@@ -122,7 +122,7 @@
+ 		do {
+ 			if (!buffer_uptodate(tmp)) {
+ 				memset(address, 0, tmp->b_size);
+-				mark_buffer_uptodate(tmp, 1);
++				set_buffer_uptodate(tmp);
+ 			}
+ 			address += tmp->b_size;
+ 			tmp = tmp->b_this_page;
 
-Only VM updates:
+On 05/03, Shawn said something like:
+> Searched the archives, and didn't find anything.
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.19pre8/vm-34.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.19pre8/vm-34/
+...
 
-Diff between 2.4.19pre7aa3 and 2.4.19pre8aa1 besides moving from pre7 to
-pre8:
+> make CFLAGS="-D__KERNEL__ -I/usr/src/2.5/linux-2.5.12/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon  " -C  arch/i386/lib
+> make[1]: Entering directory `/usr/src/2.5/linux-2.5.12/arch/i386/lib'
+> make all_targets
+> make[2]: Entering directory `/usr/src/2.5/linux-2.5.12/arch/i386/lib'
+> make[2]: Nothing to be done for `all_targets'.
+> make[2]: Leaving directory `/usr/src/2.5/linux-2.5.12/arch/i386/lib'
+> make[1]: Leaving directory `/usr/src/2.5/linux-2.5.12/arch/i386/lib'
+> ld -m elf_i386 -T /usr/src/2.5/linux-2.5.12/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
+> 	--start-group \
+> 	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+> 	/usr/src/2.5/linux-2.5.12/arch/i386/lib/lib.a /usr/src/2.5/linux-2.5.12/lib/lib.o /usr/src/2.5/linux-2.5.12/arch/i386/lib/lib.a \
+> 	 drivers/base/base.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/drm/drm.o drivers/atm/atm.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o drivers/md/mddev.o \
+> 	net/network.o \
+> 	--end-group \
+> 	-o vmlinux
+> drivers/block/block.o: In function `ramdisk_updatepage':
+> drivers/block/block.o(.text+0xc514): undefined reference to `mark_buffer_uptodate'
+> make: *** [vmlinux] Error 1
 
-Only in 2.4.19pre7aa3: 00_19pre7_x86_setup_cleanups-1
-Only in 2.4.19pre7aa3: 00_backout-kio-request-1
-Only in 2.4.19pre7aa3: 00_bh-IPI-1
-Only in 2.4.19pre7aa3: 00_k7-prefetch-1
-Only in 2.4.19pre7aa3: 00_kiobuf_init-1
-Only in 2.4.19pre7aa3: 00_spinlock-cacheline-3
-Only in 2.4.19pre7aa3: 00_std-serial-first-1
-Only in 2.4.19pre7aa3: 00_timer_bh-deadlock-1
+--
+Shawn Leas
+core@enodev.com
 
-	Merged in mainline. BTW, please merge also the other part of the
-	10_tlb-state now called 10_tlb-state-2.
-
-Only in 2.4.19pre7aa3: 00_block-highmem-all-18b-10.gz
-Only in 2.4.19pre8aa1: 00_block-highmem-all-18b-11.gz
-Only in 2.4.19pre7aa3: 00_nfs-rpc-ping-1
-Only in 2.4.19pre8aa1: 00_nfs-rpc-ping-2
-Only in 2.4.19pre7aa3: 00_rwsem-fair-28
-Only in 2.4.19pre7aa3: 00_rwsem-fair-28-recursive-8
-Only in 2.4.19pre8aa1: 00_rwsem-fair-29
-Only in 2.4.19pre8aa1: 00_rwsem-fair-29-recursive-8
-Only in 2.4.19pre7aa3: 05_vm_17_rest-3
-Only in 2.4.19pre8aa1: 05_vm_17_rest-4
-Only in 2.4.19pre7aa3: 10_rawio-vary-io-7
-Only in 2.4.19pre8aa1: 10_rawio-vary-io-8
-Only in 2.4.19pre7aa3: 10_tlb-state-1
-Only in 2.4.19pre8aa1: 10_tlb-state-2
-Only in 2.4.19pre7aa3: 30_dyn-sched-5
-Only in 2.4.19pre8aa1: 30_dyn-sched-6
-Only in 2.4.19pre7aa3: 30_x86_setup-boot-cleanup-2
-Only in 2.4.19pre8aa1: 30_x86_setup-boot-cleanup-3
-Only in 2.4.19pre7aa3: 60_tux-exports-2
-Only in 2.4.19pre8aa1: 60_tux-exports-3
-Only in 2.4.19pre7aa3: 70_xfs-1.1-0.gz
-Only in 2.4.19pre8aa1: 70_xfs-1.1-1.gz
-
-	Rediffed due rejects.
-
-Only in 2.4.19pre7aa3: 00_nfs-tcp-tweaks-4
-Only in 2.4.19pre7aa3: 00_nfs-tcp-tweaks-4-rmv-cong-nonsense-3
-
-	Replaced by mainline.
-
-Only in 2.4.19pre7aa3: 00_wake_up_page-1
-
-	Backed out because superflous. (noticed by Christoph Hellwig)
-
-Only in 2.4.19pre7aa3: 81_x86_64-arch-5.gz
-Only in 2.4.19pre8aa1: 81_x86_64-arch-6.gz
-Only in 2.4.19pre8aa1: 84_x86_64-io-compile-1
-Only in 2.4.19pre7aa3: 84_x86_64-out_of_line_bug-1
-Only in 2.4.19pre7aa3: 85_x86_64-mmx-xmm-init-3
-Only in 2.4.19pre8aa1: 85_x86_64-mmx-xmm-init-4
-
-	Latest updates from cvs.x86-64.org CVS.
-
-Andrea
+In school, every period ends with a bell.  Every sentence ends
+with a period.  Every crime ends with a sentence.
+						-- Stephen Wright

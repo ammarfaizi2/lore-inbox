@@ -1,24 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVBTOoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVBTOpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVBTOoX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 09:44:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVBTOoW
+	id S261839AbVBTOpf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 09:45:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbVBTOpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 09:44:22 -0500
-Received: from jade.aracnet.com ([216.99.193.136]:45756 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S261835AbVBTOoT
+	Sun, 20 Feb 2005 09:45:34 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:10429 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S261839AbVBTOpQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 09:44:19 -0500
-Date: Sun, 20 Feb 2005 06:44:12 -0800
+	Sun, 20 Feb 2005 09:45:16 -0500
+Date: Sun, 20 Feb 2005 06:45:08 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jeff Garzik <jgarzik@pobox.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: ncunningham@cyclades.com, kwijibo@zianet.com,
+To: ncunningham@cyclades.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Should kirqd work on HT?
-Message-ID: <320350000.1108910651@[10.10.2.4]>
-In-Reply-To: <421769BD.4060606@pobox.com>
-References: <88056F38E9E48644A0F562A38C64FB60040DBACB@scsmsx403.amr.corp.intel.com> <421769BD.4060606@pobox.com>
+Message-ID: <320610000.1108910707@[10.10.2.4]>
+In-Reply-To: <1108794699.4098.28.camel@desktop.cunningham.myip.net.au>
+References: <1108794699.4098.28.camel@desktop.cunningham.myip.net.au>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,25 +25,30 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Jeff Garzik <jgarzik@pobox.com> wrote (on Saturday, February 19, 2005 11:30:53 -0500):
-
-> Pallipadi, Venkatesh wrote:
->> You are right. Kernel balancer doesn't move around the irqs, unless it
->> has too many interrupts. The logic is moving around interrupts all the
->> time will not be good on caches. So, there is a threshold above which
->> the balancer start moving things around.
->> 
->> You should see them moving around if you do 'ping -f' or a big 'dd' from
->> the disk.
+> I've noticed this problem for a while, but only now decided to ask.
+> Interrupt balancing doesn't do anything on my system.
 > 
-> If kirqd is moving NIC interrupts, it's broken.
+>            CPU0       CPU1
+>   0:   31931808          0    IO-APIC-edge  timer
+>   1:      76595          0    IO-APIC-edge  i8042
+>   8:          1          0    IO-APIC-edge  rtc
+>   9:          1          0   IO-APIC-level  acpi
+>  14:        122          1    IO-APIC-edge  ide0
+>  16:    4074456          0   IO-APIC-level  uhci_hcd, uhci_hcd, radeon@PCI:1:0:0
+>  17:    4295132          0   IO-APIC-level  Intel ICH5
+>  18:    2070933          0   IO-APIC-level  libata, uhci_hcd, eth0
+>  19:     887311          0   IO-APIC-level  uhci_hcd
+>  22:     572530          0   IO-APIC-level  ath0
+> NMI:   31931749   31931636 (I've since disabled the nmi_watchdog)
+> LOC:   31931252   31931251
+> ERR:          0
+> MIS:          0
 > 
-> (and another reason why irqbalanced is preferable)
+> I enabled the debugging and found that it doesn't think it's worth the
+> effort. Is that correct? Not a complaint, just curious!
 
-Why is it broken to move NIC interrupts? Obviously you don't want to
-rotate them around a lot, but in the interests of fairness to other 
-processes, it seems reasonable to migrate them occasionally (IIRC, kirqd
-rate limits to once a second or something).
+I think it's nothing to do with HT, just the rate you're sending intterrupts
+at isn't high enough to bother rotating.
 
 M.
 

@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271578AbTGQWYX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 18:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271601AbTGQWYX
+	id S271585AbTGQW1e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 18:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271584AbTGQW1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 18:24:23 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55304 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271578AbTGQWXm
+	Thu, 17 Jul 2003 18:27:34 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:6784 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP id S271582AbTGQW1V
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 18:23:42 -0400
-Date: Thu, 17 Jul 2003 18:31:00 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Deepak Saxena <dsaxena@mvista.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David griego <dagriego@hotmail.com>,
-       alan@storlinksemi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Alan Shih: "TCP IP Offloading Interface"
-In-Reply-To: <20030714215321.GA22061@xanadu.az.mvista.com>
-Message-ID: <Pine.LNX.3.96.1030717182339.17023A-100000@gatekeeper.tmr.com>
+	Thu, 17 Jul 2003 18:27:21 -0400
+From: root@mauve.demon.co.uk
+Message-Id: <200307172242.XAA24301@mauve.demon.co.uk>
+Subject: Re: Wireless linux router
+To: lunz@falooley.org (Jason Lunz)
+Date: Thu, 17 Jul 2003 23:42:29 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <slrnbhe6aq.95n.lunz@stoli.localnet> from "Jason Lunz" at Jul 17, 2003 09:46:05 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jul 2003, Deepak Saxena wrote:
-
-> On Jul 14 2003, at 21:34, Alan Cox was caught saying:
+> 
+> root@mauve.demon.co.uk said:
+> > A while ago there was much discussion about wireless routers with
+> > linux kernels, and no source.
 > > 
-> > You don't have to. You can go build and test and maintain a set of TOE patches.
-> > Nobody is stopping you. Lots of Linux code exists because someone decided that
-> > the official story was wrong and proved it so.
+> > Are there any readily available ones that do, and that I can edit the 
+> > image, and that have a couple of meg of RAM/ROM free?
 > 
-> Alan,
-> 
-> I agree with your basic sentiment, but the issue here is that supporting
-> TOE requires changes that are very intimate to the kernel. This is not
-> like developing I2O which is an edge driver layer, but a core portion
-> of the kernel.  Some support from the community is going to be needed. 
-> Currently, any time someone mentions the idea of discussing a TOE 
-> interface, it's shot down as being evil and bad. 
-> 
-> /me thinks that the HW vendors that really want TOE support need
->  to fund some Linux networking folks to go look at the problem
->  in detail.
+> I've been playing with the Dell Truemobile 1184. It has 16M ram + 16M
+> flash, an ethernet interface for the internet uplink, another ethernet
+> interface hardwired to a four-port 10/100 switch, and a prism2 wireless
+> interface. If you open up the box, the machine has a serial console if
+> you can connect something to the pins.
+<snip>
+> I intend to eventually upload my own firmware to it, but I still have a
+> lot of investigating to do before i'm confident I won't turn it into a
+> paperweight. Any help would be appreciated. :)
 
-My impression is that they have looked at the problem and think it's evil
-and bad. Or perhaps more accurately, impractical and undesirable.
+Hmm, I see these are going for ~$100 on ebay.
 
-Based on my slight understanding, I think that doing TOE would require
-vast changes in the way the kernel passes data and status, and given that
-2.6 is a butterfly clawing its way out of the cocoon, there's no way a
-major change is going to be made until 2.7.
+Thanks.
 
-I'm not suggesting that people will like the idea better then, but at
-least the concept of major change might not be rejected, no matter what
-the change might be.
+The only more ideal thing would be something that looks like a 4 port
+powered USB2 hub, but you plug a CF disk in, or a mass-storage device, and
+it tries to boot from it.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+You now can make random things by plugging in USB stuff.
+Want a network accessible webcam, plug in a camera or three, a [wireless?]
+network, and away you go.
+
+Almost trivial to make and would be very cheap.
+The problem is that pesky supply and demand thing :)
 

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264033AbUDFWQn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 18:16:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264036AbUDFWQn
+	id S264032AbUDFWWz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 18:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbUDFWWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 18:16:43 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:12482 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S264033AbUDFWQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 18:16:42 -0400
-Date: Tue, 6 Apr 2004 23:14:03 +0100
-From: Dave Jones <davej@redhat.com>
-To: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-Cc: Bjoern Michaelsen <bmichaelsen@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: AGP problem SiS 746FX Linux 2.6.5-rc3
-Message-ID: <20040406221403.GB10142@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>,
-	Bjoern Michaelsen <bmichaelsen@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <20040406031949.GA8351@lord.sinclair> <200404062304.12089.volker.hemmann@heim10.tu-clausthal.de> <20040406210811.GA10142@redhat.com> <200404070001.35514.volker.hemmann@heim10.tu-clausthal.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Apr 2004 18:22:54 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:43713 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S264032AbUDFWWw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 18:22:52 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] don't offer GEN_RTC on ia64
+Date: Tue, 6 Apr 2004 16:22:49 -0600
+User-Agent: KMail/1.6.1
+Cc: p_gortmaker@yahoo.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200404070001.35514.volker.hemmann@heim10.tu-clausthal.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404061622.49260.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 07, 2004 at 12:01:35AM +0200, Hemmann, Volker Armin wrote:
+gen_rtc.c doesn't work on ia64 (we don't have asm/rtc.h, for starters),
+so don't offer it there.
 
- > ok, I was a little confused so:
- > vanilla 2.6.5+this patch: old testgart garbeling problem again
- > patched 2.6.5-rc3+this patch: everything fine
- > vanilla 2.6.5+agpgart-2004-04-06.diff+ this patch: everything fine, too
-
-Ah yes, sorry I should've mentioned you need the other parts.
-This is as expected. I'll push this out. Thanks for your
-testing, and your patience 8-)
-
-		Dave
-
+===== drivers/char/Kconfig 1.32 vs edited =====
+--- 1.32/drivers/char/Kconfig	Tue Mar 16 03:10:34 2004
++++ edited/drivers/char/Kconfig	Tue Apr  6 15:58:28 2004
+@@ -768,7 +768,7 @@
+ 
+ config GEN_RTC
+ 	tristate "Generic /dev/rtc emulation"
+-	depends on RTC!=y
++	depends on RTC!=y && !IA64
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you

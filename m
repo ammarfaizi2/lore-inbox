@@ -1,50 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261165AbREUMQf>; Mon, 21 May 2001 08:16:35 -0400
+	id <S261228AbREUMYZ>; Mon, 21 May 2001 08:24:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261202AbREUMQZ>; Mon, 21 May 2001 08:16:25 -0400
-Received: from t2.redhat.com ([199.183.24.243]:39928 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S261165AbREUMQK>; Mon, 21 May 2001 08:16:10 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <l03130304b72ea286711e@[192.168.239.105]> 
-In-Reply-To: <l03130304b72ea286711e@[192.168.239.105]>  <20010518105353.A13684@thyrsus.com> <3B053B9B.23286E6C@redhat.com> <20010518112625.A14309@thyrsus.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <8485.990357599@redhat.com> <20010520111856.C3431@thyrsus.com> <15823.990372866@redhat.com> <20010520114411.A3600@thyrsus.com> <16267.990374170@redhat.com> <20010520131457.A3769@thyrsus.com> 
-To: Jonathan Morton <chromi@cyberspace.org>
-Cc: Helge Hafting <helgehaf@idb.hist.no>, esr@thyrsus.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Background to the argument about CML2 design philosophy 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 21 May 2001 13:15:23 +0100
-Message-ID: <18583.990447323@redhat.com>
+	id <S261297AbREUMYP>; Mon, 21 May 2001 08:24:15 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:64010 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S261295AbREUMYB>;
+	Mon, 21 May 2001 08:24:01 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200105211223.f4LCNjW29237@oboe.it.uc3m.es>
+Subject: [PATCH] allow acpi to be turned off at boot
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Mon, 21 May 2001 14:23:45 +0200 (MET DST)
+CC: dwmw2@redhat.com, andrew.grover@intel.com
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ACPI seemed a fine thing until I found that it doesn't allow for
+hibernation or suspension of my laptop, and there is no way
+(apparently) to turn it off at boot and let APM take over. Here's
+a patch to allow "acpi=off" at boot. There's room for more parsing
+in the code.
 
-chromi@cyberspace.org said:
->  Having now briefly looked at the language constructs first-hand, I
-> can see two ways to go about this:
+I didn't notice the problem until ACPI actually started working :-) for
+my laptop (tosh portege) in recent kernels.  Previously I'd always
+compiled it in anyway, but it never loaded itself.
 
-> 1) Have a HACKER symbol which unsuppresses the "unusual" options, and
-> suppresses the "generalised" ones 
+Have this until the code gets modularized.
 
-> 2) Have a HACKERS submenu system which contains all the derivations
-> that could *possibly* be un-defaulted, and allow our intrepid hacker
-> to explicitly force each to a value or leave unset.
-
-I prefer the former, which is how it's already implemented in CML1.
-
-But the discussion of this is entirely unrelated to the discussion of CML2, 
-and changes along these lines must not be forced into the kernel with the 
-CML2 patch.
-
-If ESR is going to sneak policy changes into the kernel with the CML2 
-mechanism patch, I'm sure we all have patches we'd like him to add to it 
-too, because we don't want to have to justify them on their own. :)
-
---
-dwmw2
+Peter
 
 
+--- linux-2.4.4/drivers/acpi/driver.c.pre-ptb	Sat May 19 21:00:00 2001
++++ linux-2.4.4/drivers/acpi/driver.c	Mon May 21 14:15:02 2001
+@@ -24,6 +24,8 @@
+  * - Fix interruptible_sleep_on() races
+  * Andrew Grover <andrew.grover@intel.com> 2001-2-28
+  * - Major revamping
++ * Peter Breuer <ptb@it.uc3m.es> 2001-5-20
++ * - parse boot time params.
+  */
+ 
+ #include <linux/config.h>
+@@ -59,6 +61,23 @@
+ 
+ FADT_DESCRIPTOR acpi_fadt;
+ 
++static int acpi_disabled;
++#ifndef MODULE
++static int __init acpi_setup(char *str) {
++   while (str && *str) {
++       if (strncmp(str, "off", 3) == 0)
++          acpi_disabled = 1;
++       str = strchr(str, ',');
++       if (str)
++          str += strspn(str, ", \t");
++   }
++   return 1;
++}
++
++__setup("acpi=", acpi_setup);
++#endif
++
++
+ /*
+  * Start the interpreter
+  */
+@@ -73,6 +92,11 @@
+ 		printk(KERN_NOTICE "ACPI: APM is already active, exiting\n");
+ 		return -ENODEV;
+ 	}
++
++       if (acpi_disabled) {
++          	printk(KERN_NOTICE "ACPI: disabled on user request.\n");
++          	return -ENODEV;
++       }                
+ 
+ 	if (!ACPI_SUCCESS(acpi_initialize_subsystem())) {
+ 		printk(KERN_ERR "ACPI: Driver initialization failed\n");

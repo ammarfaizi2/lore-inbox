@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129199AbRBGWT3>; Wed, 7 Feb 2001 17:19:29 -0500
+	id <S129161AbRBGWZX>; Wed, 7 Feb 2001 17:25:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129434AbRBGWTI>; Wed, 7 Feb 2001 17:19:08 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129199AbRBGWTG> convert rfc822-to-8bit; Wed, 7 Feb 2001 17:19:06 -0500
-Date: Wed, 7 Feb 2001 17:18:11 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Gérard Roudier <groudier@club-internet.fr>
-cc: davej@suse.de, Alan Cox <alan@redhat.com>, becker@scyld.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Hamachi not doing pci_enable before reading resources
-In-Reply-To: <Pine.LNX.4.10.10102072135320.905-100000@linux.local>
-Message-ID: <Pine.LNX.3.95.1010207171646.249A-100000@chaos.analogic.com>
+	id <S129434AbRBGWZN>; Wed, 7 Feb 2001 17:25:13 -0500
+Received: from mail.heymax.com ([63.96.5.101]:48654 "EHLO heymax.com")
+	by vger.kernel.org with ESMTP id <S129161AbRBGWZH>;
+	Wed, 7 Feb 2001 17:25:07 -0500
+From: "Jason Ford" <jason@heymax.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: aacraid 2.4.0 kernel
+Date: Wed, 7 Feb 2001 17:23:30 -0500
+Message-ID: <PNEPLDDEADCDEBANKDDHEEGPCAAA.jason@heymax.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
+X-MDRemoteIP: 10.0.1.21
+X-Return-Path: jason@heymax.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Feb 2001, [ISO-8859-1] Gérard Roudier wrote:
+I see in the archives of this mailing list that someone was working on the
+aacraid driver for the 2.4 kernel however that post was almost 2 months old.
+I know Alan Cox denied inclusion of the driver due to the poor nature it was
+written for the 2.2 tree. Every post that I have seen so far has just said
+that Adaptec is working on it. However, I am sure there are many people out
+there like myself that have to support this card in enviroments that would
+be benifical to upgrade to 2.4 kernel. I am not a part of this list however
+have been scouring through geocrawler.com archives of this list everyday for
+the last month hoping and waiting.
 
-> 
-> You missed the newer statements about every piece of hardware being
-> assumed to be hot-pluggable and all the hardware being under full control
-> by CPU.
-> 
-> You also missed the well known point that only device drivers are broken
-> under Linux and that all the generic O/S code is just perfect. :-)
-> 
->   Gérard.
-> 
+Does anyone know the status of the driver or even the possibilities of it
+getting included into the next kernel version (2.4.2)?
 
-Yep. I missed a lot. When the next 'release' comes out, I'll have
-to rewrite all my drivers again --sigh...
+Please CC me on any replies that you may send.
 
-Cheers,
-Dick Johnson
+Thanks for you time..
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+Jason Ford
+jason@heymax.com
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+Heymax Interactive
+
+http://www.heymax.com
+
+
 
 
 -

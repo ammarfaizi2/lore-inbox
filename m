@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277798AbRJIQAA>; Tue, 9 Oct 2001 12:00:00 -0400
+	id <S277803AbRJIP7m>; Tue, 9 Oct 2001 11:59:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277802AbRJIP7v>; Tue, 9 Oct 2001 11:59:51 -0400
-Received: from [217.6.75.131] ([217.6.75.131]:62878 "EHLO
-	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
-	id <S277798AbRJIP7j>; Tue, 9 Oct 2001 11:59:39 -0400
-Message-ID: <3BC32117.52E68787@internetwork-ag.de>
-Date: Tue, 09 Oct 2001 18:08:55 +0200
-From: Till Immanuel Patzschke <tip@internetwork-ag.de>
-Organization: interNetwork AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
+	id <S277802AbRJIP7a>; Tue, 9 Oct 2001 11:59:30 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:7296 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S277798AbRJIP7Q>;
+	Tue, 9 Oct 2001 11:59:16 -0400
+Date: Tue, 09 Oct 2001 08:56:30 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] Race between init_idle and reschedule_idle
+Message-ID: <1890410975.1002617790@[10.10.1.2]>
+In-Reply-To: <20011009091222.A4644@watson.ibm.com>
+X-Mailer: Mulberry/2.0.5 (Win32)
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [Q] cannot fork w/ 1000s of procs (but still mem avail.)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> martin, we experienced the same problem way back when we brought our
+> Fujitsu based Numa machine up. We also experience the problem with 
+> our cpu pooling and load balancing approach. I think the ksoftirq might
+> have similar problems.
+> We solved it in a similar fashion, through counters.
+> I strongly suggest to put this code into the main track.
 
-hopefully a simple question to answer: I get "cannot fork" messages on my
-machine running some 20000 processes and threads (1 master proc, 3 threads),
-where each (master) process opens a socket and does IP traffic over it.
-Although there is plenty of memory left (4GB box, 2GB used, 0 swap), I get
-"cannot fork - out of memory" when trying to increase the number of procs. (If
-none of the procs does IP, I can start more [of course?!].)
-Anything I can do to increase the number of active processes using IP? Any
-kernel paramter, limit, sizing?
+It's there, in both Linus' and Alan's latest trees. 
 
-Many thanks for the help in advance!
+For ages, it showed up as an undiagnosable BINT error, but in 2.4.10 it 
+changed to a  diagnosable panic, making it fairly easy to resolve. Not sure 
+what changed this - may have been luck ;-)
 
-Immanuel
-
-
---
-Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
-interNetwork AG                         Phone:  +49-(0)611-1731-121
-Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
-D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
-
-
+M.
 

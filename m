@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262935AbVAQWaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262981AbVAQWi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262935AbVAQWaG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 17:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbVAQWZE
+	id S262981AbVAQWi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 17:38:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbVAQWYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 17:25:04 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:9098 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S262935AbVAQWEs (ORCPT
+	Mon, 17 Jan 2005 17:24:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:21456 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262949AbVAQWLm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 17:04:48 -0500
-Subject: Re: [UPDATE] Severe performance problems with kernel 2.6.10
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Gabriel Tataranu <tgabi@belent.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41EC1721.8080405@belent.com>
-References: <41EC1721.8080405@belent.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105995611.16119.16.camel@localhost.localdomain>
+	Mon, 17 Jan 2005 17:11:42 -0500
+Date: Mon, 17 Jan 2005 14:11:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com,
+       rusty@rustcorp.com.au, dipankar@in.ibm.com
+Subject: Re: [patch] mm: Reimplementation of dynamic percpu memory allocator
+Message-Id: <20050117141117.4606b58a.akpm@osdl.org>
+In-Reply-To: <20050117182735.GA2322@impedimenta.in.ibm.com>
+References: <20050113083412.GA7567@impedimenta.in.ibm.com>
+	<20050113005730.0e10b2d9.akpm@osdl.org>
+	<20050114150519.GA3189@impedimenta.in.ibm.com>
+	<20050114013425.77ad7c3f.akpm@osdl.org>
+	<20050117182735.GA2322@impedimenta.in.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 17 Jan 2005 21:00:15 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-01-17 at 19:50, Gabriel Tataranu wrote:
-> For those interested:
+Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
+>
+>  > So...  is it not possible to enhance vmalloc() for node-awareness, then
+>  > just use it?
+>  > 
 > 
-> The performance issues (below) where due to a strange bug in the kernel
-> VM triggered by the motherboard BIOS. This affects Asus P4P800
-> motherboards(-MX and -VM tested) with more that 1 GB RAM. The built-in
-> VGA can use 1-32 MB RAM for display but configured with less than 16 MB
-> of video RAM the board will behave EXTREMELY poor in linux (2.6.9 also
-> tested to behave like this).
+>  Memory for block management (free lists, bufctl lists) is also resident 
+>  in one block.  A typical block in this allocator looks like this:
+> 
 
-I'll take a guess. Can you send me the boot dmesg and /proc/mtrr of both
-the slow and the normal cases. I think I know what the BIOS is doing and
-I've been looking for a system doing this so I can find a
-vict^H^H^Holunteer to test some ideas out.
-
-Alan
-
+I still don't get it.  It is possible to calculate the total size of the
+block beforehand, yes?  So why not simply vmalloc_numa() a block of that
+size then populate it?

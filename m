@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262685AbUJ0Xcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbUJ0Xcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262685AbUJ0Xcb (ORCPT <rfc822;willy@w.ods.org>);
+	id S262791AbUJ0Xcb (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 27 Oct 2004 19:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbUJ0Uvl
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbUJ0UvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 16:51:41 -0400
-Received: from mail.dif.dk ([193.138.115.101]:4271 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262723AbUJ0Uq0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 16:46:26 -0400
-Date: Wed, 27 Oct 2004 22:54:48 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Danny Brow <dan@fullmotions.com>
-Cc: Kernel-List <linux-kernel@vger.kernel.org>
-Subject: Re: SSH and 2.6.9
-In-Reply-To: <1098906712.2972.7.camel@hanzo.fullmotions.com>
-Message-ID: <Pine.LNX.4.61.0410272247460.3284@dragon.hygekrogen.localhost>
-References: <1098906712.2972.7.camel@hanzo.fullmotions.com>
+	Wed, 27 Oct 2004 16:51:07 -0400
+Received: from smtp08.auna.com ([62.81.186.18]:43923 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S262722AbUJ0UpZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 16:45:25 -0400
+Date: Wed, 27 Oct 2004 20:45:24 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [PATCH] Rename SECTOR_SIZE to BIO_SECTOR_SIZE
+To: Matt Mackall <mpm@selenic.com>
+Cc: Chris Wedgwood <cw@f00f.org>, Jens Axboe <axboe@suse.de>,
+       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+References: <20041027060828.GA32396@taniwha.stupidest.org>
+	<417F4497.3020205@pobox.com> <20041027065524.GA1524@taniwha.stupidest.org>
+	<20041027072212.GN15910@suse.de>
+	<20041027190523.GA19330@taniwha.stupidest.org>
+	<20041027202733.GG28904@waste.org>
+In-Reply-To: <20041027202733.GG28904@waste.org> (from mpm@selenic.com on Wed
+	Oct 27 22:27:33 2004)
+X-Mailer: Balsa 2.2.5
+Message-Id: <1098909924l.12725l.0l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Danny Brow wrote:
 
-> I have this odd issue with the 2.6.9 & greater kernels, that I can't ssh
-> or use scp any more, this is what happens when I try:
+On 2004.10.27, Matt Mackall wrote:
+> On Wed, Oct 27, 2004 at 12:05:23PM -0700, Chris Wedgwood wrote:
+> > Rename (one of the uses of) SECTOR_SIZE to BIO_SECTOR_SIZE which is
+> > more appropriate.
 > 
-> SSH Error with-in X:
-> ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
-> Host key verification failed.
+> > Index: cw-current/include/linux/ide.h
+> > ===================================================================
+> > --- cw-current.orig/include/linux/ide.h	2004-10-27 11:33:06.237319044 -0700
+> > +++ cw-current/include/linux/ide.h	2004-10-27 11:35:13.246711414 -0700
+> > @@ -202,8 +202,8 @@
+> >  #define PARTN_BITS	6	/* number of minor dev bits for partitions */
+> >  #define PARTN_MASK	((1<<PARTN_BITS)-1)	/* a useful bit mask */
+> >  #define MAX_DRIVES	2	/* per interface; 2 assumed by lots of code */
+> > -#define SECTOR_SIZE	512
+> > -#define SECTOR_WORDS	(SECTOR_SIZE / 4)	/* number of 32bit words per sector */
+> > +#define BIO_SECTOR_SIZE	512
+> > +#define SECTOR_WORDS	(BIO_SECTOR_SIZE / 4)	/* number of 32bit words per sector */
+> >  #define IDE_LARGE_SEEK(b1,b2,t)	(((b1) > (b2) + (t)) || ((b2) > (b1) + (t)))
 > 
-> SCP Error with-in X:
-> ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
-> Host key verification failed.
-> lost connection
-> 
-> I just get Host key verification failed in the terminal with either
-> command.
-> 
-> ssh-askpass does not exsisit but it never has & ssh/scp works fine with
-> 2.6.8.1 and below. When upgrading to the new kernel I just copied my
-> old .config and did a make oldconfig, make, etc.
-> 
-> Any ideas?
+> So shouldn't this be in bio.h now?
 > 
 
-As it happens, I had a chat with a few people on IRC a few days ago who 
-had very similar trouble and I had no such trouble. After talking about 
-our kernel configs a bit we came to the conclusion that the main 
-difference between our .config's (except for some hardware specific 
-drivers and a few other bits that seemed unrelated) was that they had 
-CONFIG_LEGACY_PTYS=y while I had it unset. One guy recompiled his kernel 
-on the spot and disabled CONFIG_LEGACY_PTYS and then reported that his 
-trouble went away. He may have made other changes as well, I don't know, 
-and it may have been some of the seemingly unrelated bits that did the 
-trick, again I don't know.
-
-I have not attempted to verify this myself, but I'd say it's worth a try 
-for you to disable CONFIG_LEGACY_PTYS (if you have it enabled) and then 
-test that (and report your findings back).
+And for uniformity, SECTOR_WORDS -> BIO_SECTOR_WORDS ?
 
 --
-Jesper Juhl
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Community) for i586
+Linux 2.6.9-jam1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #6
+
 

@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVATTNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVATTN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbVATTNx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 14:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVATTNv
+	id S261912AbVATTN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 14:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVATTJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 14:13:51 -0500
-Received: from news.suse.de ([195.135.220.2]:46045 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261720AbVATTJ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 14:09:28 -0500
-Subject: Re: Fix ea-in-inode default ACL creation
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200501201856.j0KIuiif016865@turing-police.cc.vt.edu>
-References: <1106245344.15959.13.camel@winden.suse.de>
-	 <200501201856.j0KIuiif016865@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Organization: SUSE Labs
-Message-Id: <1106248164.15959.69.camel@winden.suse.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 20 Jan 2005 20:09:24 +0100
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Jan 2005 14:09:23 -0500
+Received: from rev.193.226.232.13.euroweb.hu ([193.226.232.13]:56999 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261836AbVATTGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 14:06:42 -0500
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] FUSE - fix llseek on device
+Message-Id: <E1CrhdR-0006h3-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 20 Jan 2005 20:06:25 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-20 at 19:56, Valdis.Kletnieks@vt.edu wrote:
-> [...] I'm failing to see how adding *another* zero operation [...] is going to help the
-> fact [...]
+Andrew,
 
-It's an ancient kernel hackers trick:  ;)
-> +		EXT3_I(inode)->i_state &= ~EXT3_STATE_NEW;
+This patch makes llseek behave properly on the FUSE device
 
-Regards,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX GMBH
+Thanks,
+Miklos
 
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+
+diff -rup linux-2.6.11-rc1-mm2/fs/fuse/dev.c linux-fuse/fs/fuse/dev.c
+--- linux-2.6.11-rc1-mm2/fs/fuse/dev.c	2005-01-20 09:30:15.000000000 +0100
++++ linux-fuse/fs/fuse/dev.c	2005-01-20 20:01:50.000000000 +0100
+@@ -784,6 +784,7 @@ static int fuse_dev_release(struct inode
+ 
+ struct file_operations fuse_dev_operations = {
+ 	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
+ 	.read		= fuse_dev_read,
+ 	.readv		= fuse_dev_readv,
+ 	.write		= fuse_dev_write,

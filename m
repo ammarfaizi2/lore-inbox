@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270688AbTHAHnA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 03:43:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270689AbTHAHnA
+	id S275193AbTHAH6U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 03:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275194AbTHAH6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 03:43:00 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:60632 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S270688AbTHAHm5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 03:42:57 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [vfat]incompatible dirent structure between user space and kernel space?
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Date: Fri, 1 Aug 2003 15:42:54 +0800
-Message-ID: <571ACEFD467F7749BC50E0A98C17CDD8F327A2@pdsmsx403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [vfat]incompatible dirent structure between user space and kernel space?
-Thread-Index: AcNYAIPhoig/btWLSHGkpEfglvOZ2g==
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 01 Aug 2003 07:42:55.0011 (UTC) FILETIME=[84F09730:01C35800]
+	Fri, 1 Aug 2003 03:58:19 -0400
+Received: from c2mailgwalt.mailcentro.com ([207.183.238.112]:10467 "EHLO
+	c2mailgwalt.mailcentro.com") by vger.kernel.org with ESMTP
+	id S275193AbTHAH6S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 03:58:18 -0400
+X-Version: Mailcentro(english)
+X-SenderIP: 80.58.9.46
+X-SenderID: 7831070
+From: "Jose Luis Alarcon" <jlalarcon@chevy.zzn.com>
+Message-Id: <F759403221D30FB40B5B2C15610E4950@jlalarcon.chevy.zzn.com>
+Date: Fri, 1 Aug 2003 09:58:05 +0200
+X-Priority: Normal
+Content-Type: text/plain; charset=iso-8859-1
+To: nathans@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: xfs problems (2.6.0-test2)
+X-Mailer: Web Based Pronto
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, all,
-	I tried to invoke vfat's ioctl to read directory information on
-some vfat file system. However I found the returned information shifted
-by 1 byte. I mean:
+>
+>Hi there,
+>
+>What XFS blocksize are you using, and what is your page size?
+>There are known issues when using blocksizes smaller than the
+>page size in the 2.6 XFS code at the moment.
+>
 
-Expected: 	initrd~1.img
-Actual:	nitrd~1.img
+  Hi Nathan, and congratilations for the SGI work.
 
-	The biggest problem is the structure dirent, which in kernel is:
-Struct dirent{
-	Long			d_ino;
-	__kernel_off_t	d_off;
-	unsigned short	d_reclen;
-	char			d_name[256];
-};
-	However in user space, /usr/include/bits/dirent.h:
-...
-	unsigned short int d_reclen;
-	unsigned char	d_type; ******
-	char d_name[256];
-};
+  Now i have a Mandrake with the 2.5.75 kernel and XFS in
+all partitions. The filesystem looks work very well.
 
-	The d_type is the point here. Then has anybody encountered same
-problem? I confirmed this problem existing both in kernel 2.6.0-test1(RH
-as2.1/Itanium/Tiger) and kernel 2.4.18-14(RedHat Linux 8.0 3.2-7). 
+  I am planning install 2.6.0-test3 when it comes and i wanna
+ask you: how can i know what blocksize am i using?, and how
+know what is the page size in my system?.
 
-	Also a problem confusing me is that I only include <dirent.h> in
-my test file and there is no explicit reference to <bits/dirent.h> in
-/usr/include/dirent.h. How could <bits/dirent.h> replace my inclusion of
-<dirent.h>? In fact, the definition of dirent in <dirent.h> is same as
-one in kernel space.
+  Thanks you, very much, in advance.
 
-Thanks,
-Kevin
+  Regards.
+
+  Jose.
+
+
+http://linuxespana.scripterz.org
+
+FreeBSD RELEASE 4.8.
+Mandrake Linux 9.1 Kernel 2.5.75 XFS.
+Registered BSD User 51101.
+Registered Linux User #213309.
+Memories..... You are talking about memories. 
+Rick Deckard. Blade Runner.
+
+
+Get your Free E-mail at http://chevy.zzn.com
+___________________________________________________________
+Get your own Web-based E-mail Service at http://www.zzn.com

@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbTISKds (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 06:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbTISK2t
+	id S261500AbTISK2c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 06:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbTISK1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 06:28:49 -0400
-Received: from smtp2.clear.net.nz ([203.97.37.27]:11654 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S261515AbTISK1X
+	Fri, 19 Sep 2003 06:27:03 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:19854 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261489AbTISK0x convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 06:27:23 -0400
-Date: Fri, 19 Sep 2003 22:27:40 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: Resuming from software suspend
-In-reply-to: <yw1xoexhkrtb.fsf@users.sourceforge.net>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1063967259.7874.14.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-References: <1063915370.2410.12.camel@laptop-linux>
- <yw1xad91nrmd.fsf@users.sourceforge.net>
- <1063958370.5520.6.camel@laptop-linux>
- <yw1xu179mc55.fsf@users.sourceforge.net>
- <1063963914.7253.9.camel@laptop-linux>
- <yw1xwuc5kt7e.fsf_-_@users.sourceforge.net>
- <1063965939.7874.6.camel@laptop-linux> <yw1xoexhkrtb.fsf@users.sourceforge.net>
+	Fri, 19 Sep 2003 06:26:53 -0400
+Subject: [PATCH 9/11] input: Enlarge the timeout for PS/2 mouse full reset
+In-Reply-To: <10639672013970@twilight.ucw.cz>
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Fri, 19 Sep 2003 12:26:42 +0200
+Message-Id: <10639672021535@twilight.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Provided you're not making the data of the filesystem inconsistent with
-the state that the suspended image is expecting to see, you won't get
-any corruption. As to beginning a resume without rebooting, whether it
-would work would depend upon the size of the image, the amount of memory
-used when you start the resume and the degree of overlap between the two
-sets of memory.
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/input
 
-Regards,
+===================================================================
 
-Nigel
+ChangeSet@1.1347, 2003-09-19 01:23:29-07:00, vojtech@suse.cz
+  psmouse-base.c:
+    Enlarge the timeout for PS/2 mouse full reset.
 
-On Fri, 2003-09-19 at 22:15, Måns Rullgård wrote:
-> Nigel Cunningham <ncunningham@clear.net.nz> writes:
-> 
-> > If your filesystems were mounted readonly and the boot won't mount them
-> > writable, you should be fine with no special precautions. Last time I
-> > looked at 2.6 code, it didn't fix the suspend header when you use
-> > noresume. If that's still true, you should be able to boot with the
-> > noresume option, and then later normally.
-> 
-> What I want to do is boot, do some things, and then resume the
-> suspended state without rebooting between.  Is that possible?  I don't
-> see any reason why it should be impossible to do, even if it's not
-> currently supported.
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
 
-You see, at just the right time, when we were still powerless,
-Christ died for the ungodly.
-	-- Romans 5:6, NIV.
+ psmouse-base.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+===================================================================
+
+diff -Nru a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+--- a/drivers/input/mouse/psmouse-base.c	Fri Sep 19 12:15:54 2003
++++ b/drivers/input/mouse/psmouse-base.c	Fri Sep 19 12:15:54 2003
+@@ -223,7 +223,7 @@
+ 	psmouse->cmdcnt = receive;
+ 
+ 	if (command == PSMOUSE_CMD_RESET_BAT)
+-                timeout = 2000000; /* 2 sec */
++                timeout = 4000000; /* 4 sec */
+ 
+ 	if (command & 0xff)
+ 		if (psmouse_sendbyte(psmouse, command & 0xff))
 

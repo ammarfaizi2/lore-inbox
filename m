@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269865AbRHDVWk>; Sat, 4 Aug 2001 17:22:40 -0400
+	id <S269857AbRHDVtj>; Sat, 4 Aug 2001 17:49:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269867AbRHDVWa>; Sat, 4 Aug 2001 17:22:30 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:60424 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S269865AbRHDVWU>;
-	Sat, 4 Aug 2001 17:22:20 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200108042122.f74LMR313894@saturn.cs.uml.edu>
-Subject: Re: don't feed the trolls (was: intermediate summary of ext3-2.4-0.9.4 thread)
-To: /dev/null@localhost.emma.line.org
-Date: Sat, 4 Aug 2001 17:22:27 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
-In-Reply-To: <20010804053018.D16516@emma1.emma.line.org> from "Matthias Andree" at Aug 04, 2001 05:30:18 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S269861AbRHDVt3>; Sat, 4 Aug 2001 17:49:29 -0400
+Received: from femail39.sdc1.sfba.home.com ([24.254.60.33]:51076 "EHLO
+	femail39.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S269857AbRHDVtR>; Sat, 4 Aug 2001 17:49:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: linux-kernel@vger.kernel.org
+Subject: Possibly unfreezable system?
+Date: Sat, 4 Aug 2001 14:52:14 -0700
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01080414521403.02694@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree writes:
-> On Fri, 03 Aug 2001, Albert D. Cahalan wrote:
+(I'm going to get my ass handed to me for this one, I just know it, but I 
+have to try.)
 
->> This is just completely true. One wonders why we seem to enjoy
->> getting screwed this way. We shouldn't be patching these MTAs or
->> hacking Linux to act like BSD. We should be avoiding these MTAs.
->
-> Oh, you should make a start avoiding any MTAs because that way, this
-> list would get rid of one trouble maker after all.
->
-> Don't feed the trolls.
+I'm not a coder, I can't impliment this, I don't even know for sure if it 
+IS possible to impliment without a complete rewrite of the kernel.
+This is also not something that would likely be added to 2.4, it'd 
+probably be a 2.5 thing.
 
-That wasn't intended to be a troll, though I do realize that it
-could cause some noise -- including your post. Plenty of noise is
-already being generated trying to accommodate hostile MTA authors.
+Note that I intend for the behavior below to be CONFIGURABLE, NOT the 
+default behavior of the kernel, and that the exact behavior be (somewhat) 
+configurable without diving into the code.
 
-Seriously, consider:
+I've lately seen many complaints regarding the inability to even access a 
+system that something (such as kswapd) is going crazy on.
+The solution, to me, seems simple, have the kernel reserve some extra RAM 
+at boot (a few megs), and dictate that it get at least X amount of 
+processor time, consistantly, to allow for the following:
+An alt-sysrq key that switches to a certain virtual console, kills 
+whatever might already be running there, and allow a person to log in in 
+order to kill whatever is causing the system to freeze, run out of 
+memory, etc. The program(s) running here would run in that extra RAM the 
+kernel reserved at boot.
+This obviously degrades performance somewhat, but if properly 
+implimented, the pros could outweigh the cons on even the most 
+resource-sensitive systems.
 
-1. there are MTA authors that actively promote BSD over Linux
-2. Linux users and distributions promote their MTA software
-
-There is no sense in this. It is masochism and suicide.
-It is worse than a waste of time to accommodate these MTAs.
-
-Getting back on topic... while non-inherited ext2 attributes might
-be nice, I'm sure the ext2/VFS authors don't need to be pestered
-about it, and certainly not because of some lame software making
-non-standard assumptions about filesystem behavior.
+Again, I mean for this to be CONFIGURABLE, and NOT the default behavior.
+And please, don't flame me, none of this may be doable, if so, I 
+apologize for wasting everyone's time.

@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUFLWIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUFLWJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUFLWIf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 18:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbUFLWIf
+	id S264937AbUFLWJa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 18:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264939AbUFLWJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 18:08:35 -0400
-Received: from mail5.tpgi.com.au ([203.12.160.101]:40854 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S264936AbUFLWIc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 18:08:32 -0400
-Message-ID: <40CB7EBD.2020109@linuxmail.org>
-Date: Sun, 13 Jun 2004 08:07:57 +1000
+	Sat, 12 Jun 2004 18:09:30 -0400
+Received: from mail.tpgi.com.au ([203.12.160.113]:33694 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S264937AbUFLWIm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 18:08:42 -0400
+Message-ID: <40CB7F09.6030301@linuxmail.org>
+Date: Sun, 13 Jun 2004 08:09:13 +1000
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: herbert@gondor.apana.org.au, pavel@suse.cz, mochel@digitalimplant.org,
-       linux-kernel@vger.kernel.org
+To: pavel@ucw.cz
+CC: Herbert Xu <herbert@gondor.apana.org.au>, Pavel Machek <pavel@suse.cz>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       kernel list <linux-kernel@vger.kernel.org>, akpm@zip.com.au
 Subject: Re: Fix memory leak in swsusp
-References: <20040609130451.GA23107@elf.ucw.cz>	<E1BYN8O-0008Vg-00@gondolin.me.apana.org.au>	<20040610105629.GA367@gondor.apana.org.au>	<20040610212448.GD6634@elf.ucw.cz>	<20040610233707.GA4741@gondor.apana.org.au>	<20040611094844.GC13834@elf.ucw.cz>	<20040611101655.GA8208@gondor.apana.org.au>	<20040611102327.GF13834@elf.ucw.cz>	<20040611110314.GA8592@gondor.apana.org.au>	<40CA75CA.2030209@linuxmail.org> <20040611210059.2522e02d.akpm@osdl.org>
-In-Reply-To: <20040611210059.2522e02d.akpm@osdl.org>
+References: <20040612084708.23965272BA@smtp.etmail.cz>
+In-Reply-To: <20040612084708.23965272BA@smtp.etmail.cz>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+X-TPG-Antivirus: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+pavel@ucw.cz wrote:
+> At this point it is okay to memcpy - it is copying pagedir, at that point we are outside any critical session. --p
 
-Andrew Morton wrote:
-> Nigel Cunningham <ncunningham@linuxmail.org> wrote:
-> 
->> We were avoiding the use of memcpy because it messes up the preempt count with 3DNow, and 
->> potentially as other unseen side effects. The preempt could possibly simply be reset at resume time, 
->> but the point remains.
-> 
-> 
-> eh?  memcpy just copies memory.  Maybe your meant copy_*_user()?
-
-At some stage, you copy the page that contains the preempt count for the process that is doing the 
-suspending. If you use memcpy on a 3Dnow machine, the preempt count is incremented prior to doing 
-the copy of the page. Then, at resume time, it is one too high.
-
-Regards,
+Ah. So you're not doing the atomic copy in this routine? Humble apologies.
 
 Nigel
+
 -- 
 Nigel & Michelle Cunningham
 C/- Westminster Presbyterian Church Belconnen

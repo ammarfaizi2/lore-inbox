@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288804AbSAIFDl>; Wed, 9 Jan 2002 00:03:41 -0500
+	id <S288810AbSAIFPc>; Wed, 9 Jan 2002 00:15:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288805AbSAIFDb>; Wed, 9 Jan 2002 00:03:31 -0500
-Received: from gear.torque.net ([204.138.244.1]:19473 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S288804AbSAIFDS>;
-	Wed, 9 Jan 2002 00:03:18 -0500
-Message-ID: <3C3BCEB9.B14D20FD@torque.net>
-Date: Wed, 09 Jan 2002 00:01:46 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.2-pre10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.2-pre9 scsi cleanup
+	id <S288817AbSAIFPW>; Wed, 9 Jan 2002 00:15:22 -0500
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:54740 "EHLO
+	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S288810AbSAIFPQ>; Wed, 9 Jan 2002 00:15:16 -0500
+Date: Wed, 9 Jan 2002 00:19:21 -0500
+To: linux-kernel@vger.kernel.org
+Cc: andrea@suse.de
+Subject: Re: 2.4.18pre2aa1
+Message-ID: <20020109001921.A11017@earthlink.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki <dalecki@evision-ventures.com>
+> I also couldn't resist to add the dyn_sched because I'm dealing with
+> servers that needs to run 2k tasks (with only a few of them running at
+> the same time loading cpu), so there the reclaculate loop was evil and
+> the change is simple enough to be kind of obviously correct (btw: I also
 
-> The attached patch does the following.
+Something has made a dramatic change in dbench throughput:
+
+2.4.18pre2aa2   Throughput 23.4521 MB/sec (NB=29.3152 MB/sec  234.521 MBit/sec)  64 procs
+2.4.17rc2aa2    Throughput 19.6605 MB/sec (NB=24.5756 MB/sec  196.605 MBit/sec)  64 procs
+2.4.18pre2      Throughput 12.1986 MB/sec (NB=15.2483 MB/sec  121.986 MBit/sec)  64 procs
+
+2.4.18pre2aa2   Throughput 18.6495 MB/sec (NB=23.3119 MB/sec  186.495 MBit/sec)  128 procs
+2.4.17rc2aa2    Throughput 14.1212 MB/sec (NB=17.6515 MB/sec  141.212 MBit/sec)  128 procs
+2.4.18pre2      Throughput 8.00551 MB/sec (NB=10.0069 MB/sec  80.0551 MBit/sec)  128 procs
+
+2.4.18pre2aa2   Throughput 9.79641 MB/sec (NB=12.2455 MB/sec  97.9641 MBit/sec)  192 procs
+2.4.18pre2      Throughput 8.09211 MB/sec (NB=10.1151 MB/sec  80.9211 MBit/sec)  192 procs
+2.4.17rc2aa2    Throughput 5.80232 MB/sec (NB=7.2529 MB/sec   58.0232 MBit/sec)  192 procs
+
+Some more test results for recent kernels are at:
+http://home.earthlink.net/~rwhron/kernel/repo.html
+
+> URL:
 > 
-> 1. Clean up some ifdef confusion in do_mount
-> 
-> 2. Clean up the scsi code to make ppa.c work.
-> 
-> 3. Clean up some unneccessary unneeded globals from scsi code.
-> 
-> 4. Make a bit more sure, that the minor() and friends end up in
-> unsigned int's.
+>   ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18pre2aa1.bz2
 
-<snip/>
+Based on the diff logs, here is a history of changes going into 2.4.18pre2aa1:
+http://home.earthlink.net/~rwhron/kernel/2.4.18pre2aa1.html
 
-Martin,
-Please don't post a omnibus SCSI subsystem patch like this.
+-- 
+Randy Hron
 
-Most of the code you are changing is actively maintained.
-For example:
-  - scsi mid-level + sr [Jens Axboe]
-  - ppa [Tim Waugh]
-  - sg  [me]
-
-Some of us have grown attached to the way 'cat /proc/scsi/scsi'
-looks. More importantly, many distributions have scripts that
-parse it. GOTO Masanori's <gotom@debian.or.jp> suggestion of
-of an exported scsi_device_types() seems a better option.
-Also there are 32 SCSI device types (0 to 31) and perhaps
-the "unknown"s and those that are missing could be replaced
-by scsi_dev_<n> .
-
-Also there is an appropriate newsgroup for this sort of
-proposal and it is called: linux-scsi@vger.kernel.org
-
-Doug Gilbert

@@ -1,115 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbUBOAGd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 19:06:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUBOAGd
+	id S263646AbUBOAHm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 19:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbUBOAHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 19:06:33 -0500
-Received: from 215.commandprompt.com ([207.173.200.215]:21750 "EHLO
-	hosting.commandprompt.com") by vger.kernel.org with ESMTP
-	id S263632AbUBOAGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 19:06:22 -0500
-Date: Sat, 14 Feb 2004 16:06:17 -0800 (PST)
-From: "Joshua D. Drake" <jd@commandprompt.com>
-To: zohn_ming wu <wu_zohn_ming@yahoo.com>
-cc: linux-kernel@vger.kernel.org, <pgsql-hackers@postgresql.org>
-Subject: Re: [HACKERS] friday 13 bug?
-In-Reply-To: <20040214234405.96047.qmail@web41204.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.44.0402141605050.27049-100000@hosting.commandprompt.com>
+	Sat, 14 Feb 2004 19:07:41 -0500
+Received: from twinlark.arctic.org ([168.75.98.6]:15239 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S263646AbUBOAGg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 19:06:36 -0500
+Date: Sat, 14 Feb 2004 16:06:35 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Simonas Leleiva <Simonas.Leleiva@e-net.lt>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: benchmarking bandwidth Northbridge<->RAM
+In-Reply-To: <4022C869.10805@e-net.lt>
+Message-ID: <Pine.LNX.4.58.0402141554380.5174@twinlark.arctic.org>
+References: <4022C869.10805@e-net.lt>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 6 Feb 2004, Simonas Leleiva wrote:
 
-I personally ran into the exact same thing with another customer.
-They are running RedHat 8.0 with (2.4.20 at the time). We had to upgrade 
-them to 2.4.23 and reboot. Worked like a charm. This was about two months 
-ago. I swear it was almost the exact same error.
+> 2. But what about L1/L2 caching ruining the benchmark, about which I judge
+> from very big results (~5GB/s is truly not the correct benchmark with my
+> 2x166MHz RAM and 64bit bus - in the best case it should not overflow
+> 2.5GB/s)? I've searched the web for cache disablings, but what I've only
+> found was the memtest's source-code, which works only under plain non-Linux
+> (non PM) environment (memtest makes a bootable floppy and then launches 'bare
+> naked'). So I find memtest's inline assembly useless under linux..
 
-Sincerely,
+mem read/write latency for memory mapped uncachable doesn't always have a
+direct relationship to the cold-cache case of the normal cachable path.
+it's still an interesting thing to measure the uncachable path -- but
+if you're really interested in the cachable path you need to do it a
+different way.
 
-Joshua D. Drake
+the absolute best way to look at cold cache mem read latency is to set up
+a random pointer chase.  it has to be random because you want to eliminate
+the effect of automatic hw prefetchers present in most modern hardware.
 
+lmbench 3.0 has some code which is almost right (iirc it's the lat_mem
+component) -- but it does these random walks within a page before moving
+to another page.  this doesn't defeat prefetchers well enough.  i.e. a
+prefetcher need only see a couple accesses on a page before it can just
+decide to stream the entire page in and get a better cache hit rate.
+in my experience there are prefetchers which defeat this.
 
-On Sat, 14 Feb 2004, zohn_ming wu wrote:
+in case you haven't heard of a pointer chase, it's basically a loop which
+looks like this:
 
-> Kernel 2.4.23 on redhat 8.0Please cc any response from
-> linux kernel list.  TIA.
-> 
-> On or about 7:50am Friday 13 2004 my postgresql server
-> breaks down.  I can ssh and use "top" and "ps" but
-> postgresql stops accepting connection.  A small perl
-> script that logs system load average also hangs.  I
-> cannot "kill -9" any hang processes including
-> postgreqsql postmaster process.
-> 
-> I then check dmesg and found error message that I copy
-> and paste at the bottom.
-> 
-> I finally issued reboot but reboot also didn't work
-> and I had to push the reset button.
-> 
-> AMD XP 2500+ with 1.5GB Memory.  Postgresql data lives
-> on a software raid 1 device.
-> 
-> Kernel 2.4.23 on redhat 8.0
-> 
-> Postgresql 7.4
-> 
-> The last time server was rebooted was about 60 days
-> ago when I upgraded the kernel
-> 
-> Can someone suggest anything to help me avoid this
-> type of breakdown?  I tried to post the message
-> yesterday but postgresql list wasn't responding at all
-> to subscription request.
-> 
-> ------------
-> 
-> swap_free: Bad swap file entry 00000004
-> kernel BUG at buffer.c:539!
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c0138e8e>]    Not tainted
-> EFLAGS: 00010282
-> eax: cfd10a40   ebx: 00000002   ecx: e75f6ac0   edx:
-> c02c548c
-> esi: e75f6ac0   edi: 00000001   ebp: e75f6ac0   esp:
-> f74efe60
-> ds: 0018   es: 0018   ss: 0018
-> Process postmaster (pid: 457, stackpage=f74ef000)
-> Stack: 00000002 c01397ab e75f6ac0 00000002 e75f6ac0
-> 00001000 c013a326 e75f6ac0
->        00001000 00000000 00420000 00000000 c2166b40
-> f7822980 c013aaef f7822980
->        c2166b40 00000000 00001000 c2166b40 f7822980
-> 00001000 f7822a34 c016064c
-> Call Trace:    [<c01397ab>] [<c013a326>] [<c013aaef>]
-> [<c016064c>] [<c0160310>]
->   [<c012af71>] [<c012b4f6>] [<c015d8a9>] [<c0137753>]
-> [<c010733f>]
->                                                       
->                                                       
->     
-> Code: 0f 0b 1b 02 17 e0 23 c0 8b 02 85 c0 75 07 89 0a
-> 89 49 24 8b
-> linux-kernel@vger.kernel.orglinux-kernel@vger.kernel.orglinux-kernel@vger.kernel.org
-> 
-> __________________________________
-> Do you Yahoo!?
-> Yahoo! Finance: Get your refund fast by filing online.
-> http://taxes.yahoo.com/filing.html
-> 
-> ---------------------------(end of broadcast)---------------------------
-> TIP 5: Have you checked our extensive FAQ?
-> 
->                http://www.postgresql.org/docs/faqs/FAQ.html
-> 
+	void *p = foo;
 
--- 
-Co-Founder
-Command Prompt, Inc.
-The wheel's spinning but the hamster's dead
+	for (;;) {
+		p = *(void **)p;
+		p = *(void **)p;
+		p = *(void **)p;
+		... repeated 100 times
+	}
 
+it's a linked list walk basically.
+
+the genius of pointer chases is that you can measure a bazillion memory
+system details just by varying the layout of the linked list.
+
+to defeat L1/L2/prefetchers choose a large arena, say 32MiB, break it up
+into 64B (or whatever the linesize is) objects, then place those objects
+into a linked list in a random order.
+
+-dean
+
+p.s. bunzip2 is a real-world workload which is essentially a random
+memory walk over 4-byte objects in a 3600000 byte array.

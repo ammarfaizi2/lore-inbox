@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289322AbSAOAak>; Mon, 14 Jan 2002 19:30:40 -0500
+	id <S289324AbSAOAba>; Mon, 14 Jan 2002 19:31:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289323AbSAOAaV>; Mon, 14 Jan 2002 19:30:21 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:7696 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S289322AbSAOAaI>;
-	Mon, 14 Jan 2002 19:30:08 -0500
-Date: Mon, 14 Jan 2002 17:24:54 +1100
+	id <S289323AbSAOAbV>; Mon, 14 Jan 2002 19:31:21 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:29458 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S289324AbSAOAbM>;
+	Mon, 14 Jan 2002 19:31:12 -0500
+Date: Mon, 14 Jan 2002 17:35:31 +1100
 From: Anton Blanchard <anton@samba.org>
-To: davem@redhat.com, ralf@uni-koblenz.de, linux-kernel@vger.kernel.org
-Subject: Re: memory-mapped i/o barrier
-Message-ID: <20020114062454.GA18794@krispykreme>
-In-Reply-To: <20020110134859.A729245@sgi.com>
+To: Dave Jones <davej@suse.de>, "David S. Miller" <davem@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: results: Remove 8 bytes from struct page on 64bit archs
+Message-ID: <20020114063531.GC18794@krispykreme>
+In-Reply-To: <20020106.060824.106263786.davem@redhat.com> <Pine.LNX.4.33.0201061542450.3859-100000@Appserv.suse.de> <20020107012555.GA6623@krispykreme> <20020106192204.B27356@twiddle.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020110134859.A729245@sgi.com>
+In-Reply-To: <20020106192204.B27356@twiddle.net>
 User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+> The powerpc backend claims to have a fast divide instruction
+> (via RTX_COST if you care about such things).  We'll replace
+> with shift when dividing by powers of 2, but won't try the
+> multiply by a constant inverse trick.
 
-Hi,
+To follow up: Alan Modra found and fixed the bug, it seems we were only
+using the optimisation when the arguments were <= 32bit.
 
-> Here's a copy of a patch I just got accepted into the 2.5 patch for
-> ia64, and I'm wondering if you guys will accept something similar.  On
-> mips64, mmiob() could just be implemented as a 'sync', but I'm not
-> sure how to do it (or if it's even necessary) on other platforms.
-> Please let me know what you think.  I wrote a small documentation file
-> for the macro that appears at the top of the patch.
-> 
-> Thanks,
-> Jesse
-> 
-> 
-> diff -Naur --exclude=*~ --exclude=TAGS linux-2.4.17-ia64/Documentation/mmio_barrier.txt linux-2.4.17-ia64-mmiob/Documentation/mmio_barrier.txt
-> --- linux-2.4.17-ia64/Documentation/mmio_barrier.txt	Wed Dec 31 16:00:00 1969
-> +++ linux-2.4.17-ia64-mmiob/Documentation/mmio_barrier.txt	Tue Jan  8 15:57:37 2002
-> @@ -0,0 +1,15 @@
-> +On some platforms, so-called memory-mapped I/O is weakly ordered.  For
-> +example, the following might occur:
-> +
-> +CPU A writes 0x1 to Device #1
-> +CPU B writes 0x2 to Device #1
-> +Device #1 sees 0x2
-> +Device #1 sees 0x1
-
-Can loads/stores also complete out of order to IO? (the example just shows
-a store from one cpu passing one from another cpu)
-
-On ppc32/ppc64 this can happen, it is fixed up in the low level pci
-routines. Is there a case where you cant wrap it up in the low level
-routines like ppc32/ppc64?
+The target we use is RS64a which has a cost of 60 odd instructions
+for divide.
 
 Anton

@@ -1,131 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVCOXFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbVCOXGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbVCOXFG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 18:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVCOXDo
+	id S262097AbVCOXGz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 18:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVCOXGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 18:03:44 -0500
-Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:10190 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262121AbVCOXBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 18:01:52 -0500
-Date: Tue, 15 Mar 2005 16:02:20 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-cc: Grzegorz Kulewski <kangur@polcom.net>, Andrew Morton <akpm@osdl.org>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, shaohua.li@intel.com,
-       Len Brown <len.brown@intel.com>
-Subject: Re: [ACPI] Re: Fw: Anybody? 2.6.11 (stable and -rc) ACPI breaks USB
-In-Reply-To: <1110915355.5917.41.camel@eeyore>
-Message-ID: <Pine.LNX.4.61.0503151543420.23036@montezuma.fsmlabs.com>
-References: <20050304234622.63e8a335.akpm@osdl.org> 
- <Pine.LNX.4.62.0503110006260.30687@alpha.polcom.net>  <1110559685.4822.15.camel@eeyore>
-  <Pine.LNX.4.62.0503112009070.22293@alpha.polcom.net>  <1110574599.4822.54.camel@eeyore>
-  <Pine.LNX.4.62.0503112239580.25254@alpha.polcom.net>  <1110580150.4822.75.camel@eeyore>
-  <Pine.LNX.4.62.0503131607330.23588@alpha.polcom.net> <1110915355.5917.41.camel@eeyore>
+	Tue, 15 Mar 2005 18:06:18 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:54776 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262065AbVCOXDq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 18:03:46 -0500
+Message-ID: <4237693A.30300@mvista.com>
+Date: Tue, 15 Mar 2005 15:01:14 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: john stultz <johnstul@us.ibm.com>
+CC: Matt Mackall <mpm@selenic.com>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
+Subject: Re: [topic change] jiffies as a time value
+References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>	 <20050313004902.GD3163@waste.org>	 <1110825765.30498.370.camel@cog.beaverton.ibm.com>	 <423620EA.3040205@mvista.com> <1110849062.30498.450.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1110849062.30498.450.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bjorn,
-
-On Tue, 15 Mar 2005, Bjorn Helgaas wrote:
-
-> That seems awfully suspicious to me.  So the following is
-> probably safe as far as it goes, but not sufficient for all
-> cases.
-
-VIA bridges allow for IRQ routing updates by programming 
-PCI_INTERRUPT_LINE, so it is supposed to work even if we do it for all the 
-devices, so it appears to be a board/bios specific problem.
-
-> Shaohua, Len, Zwane?  This is related to 
->     http://bugzilla.kernel.org/show_bug.cgi?id=3319
+john stultz wrote:
+> On Mon, 2005-03-14 at 15:40 -0800, George Anzinger wrote:
 > 
-> ===== arch/i386/pci/irq.c 1.55 vs edited =====
-> --- 1.55/arch/i386/pci/irq.c	2005-02-07 22:39:15 -07:00
-> +++ edited/arch/i386/pci/irq.c	2005-03-15 10:11:44 -07:00
-> @@ -1026,7 +1026,6 @@
->  static int pirq_enable_irq(struct pci_dev *dev)
->  {
->  	u8 pin;
-> -	extern int via_interrupt_line_quirk;
->  	struct pci_dev *temp_dev;
->  
->  	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
-> @@ -1081,10 +1080,6 @@
->  		printk(KERN_WARNING "PCI: No IRQ known for interrupt pin %c of device %s.%s\n",
->  		       'A' + pin, pci_name(dev), msg);
->  	}
-> -	/* VIA bridges use interrupt line for apic/pci steering across
-> -	   the V-Link */
-> -	else if (via_interrupt_line_quirk)
-> -		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq & 15);
->  	return 0;
->  }
->  
-> ===== drivers/acpi/pci_irq.c 1.37 vs edited =====
-> --- 1.37/drivers/acpi/pci_irq.c	2005-03-01 09:57:29 -07:00
-> +++ edited/drivers/acpi/pci_irq.c	2005-03-15 10:10:57 -07:00
-> @@ -388,7 +388,6 @@
->  	u8			pin = 0;
->  	int			edge_level = ACPI_LEVEL_SENSITIVE;
->  	int			active_high_low = ACPI_ACTIVE_LOW;
-> -	extern int		via_interrupt_line_quirk;
->  
->  	ACPI_FUNCTION_TRACE("acpi_pci_irq_enable");
->  
-> @@ -437,9 +436,6 @@
->  			return_VALUE(0);
->  		}
->   	}
-> -
-> -	if (via_interrupt_line_quirk)
-> -		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, irq & 15);
->  
->  	dev->irq = acpi_register_gsi(irq, edge_level, active_high_low);
->  
-> ===== drivers/pci/quirks.c 1.72 vs edited =====
-> --- 1.72/drivers/pci/quirks.c	2005-03-10 01:38:25 -07:00
-> +++ edited/drivers/pci/quirks.c	2005-03-15 12:15:00 -07:00
-> @@ -683,19 +683,23 @@
->  }
->  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82454NX,	quirk_disable_pxb );
->  
-> -/*
-> - *	VIA northbridges care about PCI_INTERRUPT_LINE
-> - */
-> -int via_interrupt_line_quirk;
-> -
-> -static void __devinit quirk_via_bridge(struct pci_dev *pdev)
-> +static void __devinit quirk_via_irqpic(struct pci_dev *dev)
->  {
-> -	if(pdev->devfn == 0) {
-> -		printk(KERN_INFO "PCI: Via IRQ fixup\n");
-> -		via_interrupt_line_quirk = 1;
-> +	u8 irq, new_irq = dev->irq & 0xf;
-> +
-> +	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
-> +	if (new_irq != irq) {
-> +		printk(KERN_INFO "PCI: Via IRQ fixup for %s, from %d to %d\n",
-> +			pci_name(dev), irq, new_irq);
-> +		udelay(15);
-> +		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
->  	}
->  }
-> -DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_ANY_ID,                     quirk_via_bridge );
-> +DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, quirk_via_irqpic);
-> +DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, quirk_via_irqpic);
-> +DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_6, quirk_via_irqpic);
-> +DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8233_5,   quirk_via_irqpic);
-> +DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8233_7,   quirk_via_irqpic);
+>>john stultz wrote:
+>>
+>>>On Sat, 2005-03-12 at 16:49 -0800, Matt Mackall wrote:
+>>>
+>>>>>+	/* finally, update legacy time values */
+>>>>>+	write_seqlock_irqsave(&xtime_lock, x_flags);
+>>>>>+	xtime = ns2timespec(system_time + wall_time_offset);
+>>>>>+	wall_to_monotonic = ns2timespec(wall_time_offset);
+>>>>>+	wall_to_monotonic.tv_sec = -wall_to_monotonic.tv_sec;
+>>>>>+	wall_to_monotonic.tv_nsec = -wall_to_monotonic.tv_nsec;
+>>>>>+	/* XXX - should jiffies be updated here? */
+>>>>
+>>>>Excellent question. 
+>>>
+>>>Indeed.  Currently jiffies is used as both a interrupt counter and a
+>>>time unit, and I'm trying make it just the former. If I emulate it then
+>>>it stops functioning as a interrupt counter, and if I don't then I'll
+>>>probably break assumptions about jiffies being a time unit. So I'm not
+>>>sure which is the easiest path to go until all the users of jiffies are
+>>>audited for intent. 
+>>
+>>Really?  Who counts interrupts???  The timer code treats jiffies as a unit of 
+>>time.  You will need to rewrite that to make it otherwise.  
+> 
+> 
+> Ug. I'm thin on time this week, so I was hoping to save this discussion
+> for later, but I guess we can get into it now.
+> 
+> Well, assuming timer interrupts actually occur HZ times a second, yes
+> one could (and current practice, one does) implicitly interpret jiffies
+> as being a valid notion of time.  However with SMIs, bad drivers that
+> disable interrupts for too long, and virtualization the reality is that
+> that assumption doesn't hold. 
+> 
+> We do have the lost-ticks compensation code that tries to help this, but
+> that conflicts with some virtualization implementations. Suspend/resume
+> tries to compensate jiffies for ticks missed over time suspended, but
+> I'm not sure how accurate it really is (additionally, looking at it now,
+> it assumes jiffies is only 32bits).
+> 
+> Adding to that, the whole jiffies doesn't really increment at HZ, but
+> ACTHZ confusion, or bad drivers that assume HZ=100, we get a fair amount
+> of trouble stemming from folks using jiffies as a time value.  Because
+> in reality, it is just a interrupt counter.
 
-This looks like it'll only affect the PCI device associated with the 
-listed south bridges, which might break systems which relied on the per 
-device setting. Your 'debug' patch actually made sense to me, that is, 
-moving the PCI_INTERRUPT_LINE fixup at gsi register.
+Well, currently, in x86 systems it causes wall clock to advance a very well 
+defined amount.  That it is not exactly 1/HZ is something we need to live with...
+> 
+> So now, if new timeofday code emulates jiffies, we have to decide if it
+> emulates jiffies at HZ or ACTHZ? Also there could be issues with jiffies
+> possibly jittering from it being incremented every tick and then set to
+> the proper time when the timekeeping code runs. 
 
-Thanks,
-	Zwane
+I think your overlooking timers.  We have a given resolution for timers and some 
+code, at least, expects timers to run with that resolution.  This REQUIRES 
+interrupts at resolution frequency.  We can argue about what that interrupt 
+event is called (currently a jiffies interrupt) and disparage the fact that 
+hardware can not give us "nice" numbers for the resolution, but we do need the 
+interrupts.  That there are bad places in the code where interrupts are delayed 
+is not really important in this discussion.  For what it worth, the RT patch 
+Ingo is working on is getting latencies down in the 10s of microseconds region.
+
+We also need, IMNSHO to recognize that, at lest with some hardware, that 
+interrupt IS in fact the clock and is the only reasonable way we have of reading 
+it.  This is true, for example, on the x86.  The TSC we use as a fill in for 
+between interrupts is not stable in the long term and should only be used to 
+interpolate over 1 to 10 ticks or so.
+> 
+> I'm not sure which is the best way to go, but it sounds that emulating
+> it is probably the easiest. I just deferred the question with a comment
+> until now because its not completely obvious. Any suggestions on the
+> above questions (I'm guessing the answers are: use ACTHZ, and the jitter
+> won't hurt that bad). 
+> 
+> 
+>>But then you have 
+>>another problem.  To correctly function, times need to expire on time (hay how 
+>>bout that) not some time later.  To do this we need an interrupt source.  To 
+>>this point in time, the jiffies interrupt has been the indication that one or 
+>>more timer may have expired.  While we don't need to "count" the interrupts, we 
+>>DO need them to expire the timers AND they need to be on time.
+> 
+> 
+> Well, something Nish Aravamudan has been working on is converting the
+> common users of jiffies (drivers) to start using human time units. These
+> very well understood units (which avoid HZ/ACTHZ/HZ=100 assumptions) can
+> then be accurately changed to jiffies (or possibly some other time unit)
+> internally. It would even be possible for soft-timers to expire based
+> upon the actual high-res time value, rather then the low-res tick-
+> counter(which is something else Nish has been playing with). When that
+> occurs we can easily start doing other interesting things that I believe
+> you've already been working on in your HRT code, such as changing the
+> timer interrupt frequency dynamically, or working with multiple timer
+> interrupt sources. 
+
+This is also what is done in things like posix timers.  The fact remains that, 
+at least in the posix timers case, the resolution is exported to the user and 
+implies certain things.  I am not sure we are explicitly exporting the 
+resolution in the kernel, but, down under the code, there is a resolution AND it 
+impacts what one should expect of timers.
+> 
+> So basically, lots of interesting questions and possibilities and I very
+> much look forward to your input and suggestions. 
+> 
+It may help to understand that MOST internal timers (i.e. timers the kernel 
+sets) never expire.  They are canceled by the caller because they were really 
+"dead man" timers, i.e. "it better happen be this time or we are hurting".
+
+Users, on the other hand, for the most part set up timers to allow bits of code 
+to run either periodically or at some specified time.  These are the folks who 
+care about latency and being on time.
+
+User also, of course, also use "dead man" timers such as, for example, the time 
+out on select.  By their nature the "dead man" timer, usually, does not have 
+strict on time requirements.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+

@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbTFPSJT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 14:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbTFPSJT
+	id S264075AbTFPSSn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 14:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264087AbTFPSSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 14:09:19 -0400
-Received: from ida.rowland.org ([192.131.102.52]:50180 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S264085AbTFPSJO (ORCPT
+	Mon, 16 Jun 2003 14:18:43 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:59348 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264075AbTFPSSm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 14:09:14 -0400
-Date: Mon, 16 Jun 2003 14:23:07 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Russell King <rmk@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-       Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Flaw in the driver-model implementation of attributes
-In-Reply-To: <20030616180344.GP6754@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44L0.0306161413510.1350-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Jun 2003 14:18:42 -0400
+Subject: RE: e1000 performance hack for ppc64 (Power4)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Feldman, Scott" <scott.feldman@intel.com>
+Cc: Herman Dierks <hdierks@us.ibm.com>, "David S. Miller" <davem@redhat.com>,
+       ltd@cisco.com, Anton Blanchard <anton@samba.org>, dwg@au1.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nancy J Milliner <milliner@us.ibm.com>,
+       Ricardo C Gonzalez <ricardoz@us.ibm.com>,
+       Brian Twichell <twichell@us.ibm.com>, netdev@oss.sgi.com
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E010107D94C@orsmsx402.jf.intel.com>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E010107D94C@orsmsx402.jf.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055788229.1609.4.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 16 Jun 2003 11:30:29 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jun 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-
-> On Mon, Jun 16, 2003 at 01:54:34PM -0400, Alan Stern wrote:
+On Mon, 2003-06-16 at 11:21, Feldman, Scott wrote:
+> Herman wrote:
+> > Its only the MTU 1500 case with non-TSO that we are 
+> > discussing here so copying a few bytes is really not a big 
+> > deal as the data is already in cache from copying into 
+> > kernel.  If it lets the adapter run at speed, thats what 
+> > customers want and what we need. Granted, if the HW could 
+> > deal with this we would not have to, but thats not the case 
+> > today so I want to spend a few CPU cycles to get best 
+> > performance. Again, if this is not done on other platforms, I 
+> > don't understand why you care.
 > 
-> > That's not practical.  How else can a device driver provide 
-> > device-specific configuration options or information in sysfs?  In many 
-> > cases the device is owned by the bus, not the device driver.
-> 
-> Practical or not, when you put sysfs object into a structure, you take
-> full responsibility for the lifetime of that structure.  Period.
+> I care because adding the arch-specific hack creates a maintenance issue
+> for 
 
-I agree.  The problem here is that the sysfs/driver-model core is putting
-an object into a structure (i.e., a pointer to the device_attribute
-structure is being stored in the dentry for a user-owned file) without
-taking the corresponding responsibility for the lifetime of the driver
-code that the attribute refers to.  The struct driver's reference count is 
-_not_ incremented; in fact device_create_file() doesn't even _have_ a 
-struct driver argument to say who the caller is.
+Scott, would you be pleased if something was implemented out of the
+driver, in generic net code?  Something that all the drivers could use,
+even if nothing but e1000 used it for now.
 
-You could make a good case that this ought to be fixed by changing either
-the sysfs or the driver model code.  But in either case, the fault lies in
-the core implementation, not in the driver.
-
-> Note that problems exist even when kernel is non-modular.  Even if code
-> stays in place, the data getting freed under you is just as bad.  And
-> that can trivially happen without any modules.
-
-Of course.
-
-Alan Stern
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbTJTRdC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 13:33:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbTJTRdC
+	id S262720AbTJTR0t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 13:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbTJTR0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 13:33:02 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:57353 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S262687AbTJTRc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 13:32:58 -0400
-Date: Mon, 20 Oct 2003 19:30:33 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: "Noah J. Misch" <noah@caltech.edu>
-cc: irda-users@lists.sourceforge.net, <netdev@oss.sgi.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [irda-users] [PATCH] Make VLSI FIR depend on X86
-In-Reply-To: <Pine.GSO.4.58.0310171456080.13905@blinky>
-Message-ID: <Pine.LNX.4.44.0310201138020.4246-100000@notebook.home.mdiehl.de>
+	Mon, 20 Oct 2003 13:26:49 -0400
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:38332 "EHLO
+	openlab.rtlab.org") by vger.kernel.org with ESMTP id S262720AbTJTR0r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 13:26:47 -0400
+Date: Mon, 20 Oct 2003 13:26:26 -0400 (EDT)
+From: "Calin A. Culianu" <calin@ajvar.org>
+X-X-Sender: <calin@rtlab.med.cornell.edu>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Rereading the Partition Table (ioctl BLKRRPART)
+In-Reply-To: <20031020103840.J17778@schatzie.adilger.int>
+Message-ID: <Pine.LNX.4.33L2.0310201324150.17966-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Oct 2003, Noah J. Misch wrote:
+On Mon, 20 Oct 2003, Andreas Dilger wrote:
 
-> This is a trivial patch against the Kconfig entry for the VLSI FIR driver to
-> make it depend on X86.  The in-tree code guarantees that the driver will only
-> build on X86, and according to the comments therein no machine of another
-> architecture has this hardware anyway.
+> On Oct 20, 2003  11:38 -0400, Calin A. Culianu wrote:
+> > Anyhow, in my quest to keep my uptime as high as possible, I was wondering
+> > how feasible it would be to make the BLKRRPART ioctl a little more
+> > flexible, so that in some cases a reboot wouldn't be required.
+> >
+> > Well, what do you guys think?  I am tempted to just hack the sources now
+> > to get this working for myself, but before I start I am afraid maybe the
+> > situation isn't quite so simple... or there might be something I am
+> > overlooking.  Can someone with more experience in the kernel share their
+> > thoughts on this?
+>
+> It already exists, and newer partition editors already support this.  I
+> think parted and partx will use the new partition ioctls to change the
+> kernel's partition table without a reboot.  Sadly, no documentation on
+> how to use partx.
 
-Well, it would work with any arch, _if_ there was a way to sync the 
-streaming pci dma buffers before giving them back to hardware. Last time I 
-checked there was no pci_dma api call to achieve this on all platforms. 
-For X86 however it's trivial due to cache coherency.
+Really? Coolness..  so the onus is on the userspace process to specify
+which partitions are suspected of having changed?  Is that the reason for
+a new ioctl?
 
-The guy is used with X86 notebooks only - unless whoever owns the 
-controller design decides to make some CardBus PC-Card for people with 
-notebooks lacking IrDA-support.
+Just out of curiousity: What was the motivation for adding a new ioctl?
+What would have been wrong with also hacking BLKRRPART to behave this way,
+as in, have it figure out if a re-read is possible based on the heuristics
+I already suggested...
 
-> Granted, no human intelligently configuring a kernel for his or her particular
-> system would make this mistake, but perhaps someone building a distribution
-> kernel would.  I suggest this patch because it keeps the signal to noise ratio
-> for those testing allyesconfig builds low.
-
-Valid point, yes.
-
-> This patch applies to the linux-2.5 BK tree as of 0400 UTC 10/20/2003, and for
-> some time before that as well.  Please consider for eventual inclusion.  It may
-> be too much of a fringe case until 2.6.0 begins its stable series.
-
-Thanks, second this.
-
-Martin
+-Calin
 

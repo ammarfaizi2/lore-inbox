@@ -1,11 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S318000AbSGRDV2>; Wed, 17 Jul 2002 23:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S318001AbSGRDV2>; Wed, 17 Jul 2002 23:21:28 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:23827 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S318000AbSGRDVP>;
+	Wed, 17 Jul 2002 23:21:15 -0400
+From: <Hell.Surfers@cwctv.net>
+To: kelledin+LKML@skarpsey.dyndns.org, linux-kernel@vger.kernel.org
+Date: Thu, 18 Jul 2002 04:23:50 +0100
+Subject: RE:Re: File Corruption in Kernel 2.4.18
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1026962630897"
+Message-ID: <057c03423031272DTVMAIL8@smtp.cwctv.net>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+--1026962630897
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+I disagree, its a bug in bash, i can justfeel it.
+
+- I found it hard, it was hard to find, ohwell, whatever, nevermind. Kurt Cobain.
+
+On 	Wed, 17 Jul 2002 22:11:13 -0500 	Kelledin <kelledin+LKML@skarpsey.dyndns.org> wrote:
+
+--1026962630897
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Thu, 18 Jul 2002 04:12:41 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 	id <S317988AbSGRDI2>; Wed, 17 Jul 2002 23:08:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
 	id <S317989AbSGRDI2>; Wed, 17 Jul 2002 23:08:28 -0400
 Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:30468 "EHLO
 	Midgard.attbi.com") by vger.kernel.org with ESMTP
 	id <S317988AbSGRDI1> convert rfc822-to-8bit; Wed, 17 Jul 2002 23:08:27 -0400
+Received: from valhalla (Valhalla.attbi.com [192.168.0.2])
+	by Midgard.attbi.com (8.12.5/8.12.5) with ESMTP id g6I3BDSF021470;
+	Wed, 17 Jul 2002 22:11:13 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
 To: linux-kernel@vger.kernel.org
@@ -19,7 +59,9 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Message-Id: <200207172211.13025.kelledin+LKML@skarpsey.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+hell.surfers=40cwctv.net@vger.kernel.org
 
 This could possibly be a problem with your hard drive.  Judging 
 from the model number, you have a 45GB IBM DeskStar 75GXP, one 
@@ -87,4 +129,12 @@ On Wednesday 17 July 2002 09:00 pm, J. Hart wrote:
 Kelledin
 "If a server crashes in a server farm and no one pings it, does 
 it still cost four figures to fix?"
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1026962630897--
+
 

@@ -1,59 +1,221 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbVCEAnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263395AbVCEA4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbVCEAnq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263516AbVCEAkJ
+	id S263395AbVCEA4b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVCEAxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:40:09 -0500
-Received: from orb.pobox.com ([207.8.226.5]:44972 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S263318AbVCEAOb (ORCPT
+	Fri, 4 Mar 2005 19:53:20 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:7118 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263513AbVCEAtP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 19:14:31 -0500
-Date: Fri, 4 Mar 2005 16:14:22 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       tglx@linutronix.de, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050305001422.GF9796@ip68-4-98-123.oc.oc.cox.net>
-References: <20050303160330.5db86db7.akpm@osdl.org> <20050304025746.GD26085@tolot.miese-zwerge.org> <20050303213005.59a30ae6.akpm@osdl.org> <1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org> <20050304091612.GG14764@suse.de> <20050304012154.619948d7.akpm@osdl.org> <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org> <4228A9B9.4060308@pobox.com> <4228B1EB.4040503@mesatop.com>
+	Fri, 4 Mar 2005 19:49:15 -0500
+Subject: Re: [PATCH] 2.6.11-mm1 "nobh" support for ext3 writeback mode
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050304163153.62afd2f1.akpm@osdl.org>
+References: <1109980952.7236.39.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050304162331.4a7dfdb8.akpm@osdl.org>
+	 <20050304163153.62afd2f1.akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-d68dFKLbW7F8kMz1olLb"
+Organization: 
+Message-Id: <1109983594.7236.67.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4228B1EB.4040503@mesatop.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Mar 2005 16:46:34 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 12:07:23PM -0700, Steven Cole wrote:
+
+--=-d68dFKLbW7F8kMz1olLb
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Fri, 2005-03-04 at 16:31, Andrew Morton wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > page reclaim can come in, grab the page lock and
+> > whip the page off the mapping.
 > 
-> Here's an idea which might just be too simple, but here it is anyway:
+> No it can't - we hold an additional ref on the page, so reclaim will back
+> off.  Still, it feels a bit flakey.
 > 
-> Modifiy the bk snapshot scripts to name the 2.6.x series snapshots as -PREy
-> instead of -BKy.  That way, the general population of users will see
-> the -bk snapshots as -pre releases.  According to Linus, pre == bk.  So,
-> name them as such.
+> And we're not supposed to take lock_page() inside journal_start, because
+> that's a ranking violation.  Probably i_sem will prevent an actual deadlock
+> occurring, however.
+> 
 
-I heartily second this!! If "pre" == "bk", then make it "pre"!
+Here is the new patch to deal with locking, with more code :(
 
-> Linus, wait for at least two weeks before releasing the first -rc.
-> That way, the bulk on the thundering herd of patches will be hopefully
-> be merged by then.  And users will have 2.6.x-PRE[1..14] to test.
-> The hard part for the kernel.org script writer might be to disable
-> the -bk/-pre snapshot once the first -rc is out.
+Thanks,
+Badari
 
-Errh... personally, I find the -rc-bk snapshots to be useful sync
-points. They're also what seems to make it into davej's
-"rawhide"/"fc-devel" Fedora testing kernels. (Perhaps those don't get
-widely tested, but they do get *some* testing -- e.g. they're how I
-managed to hit (and get fixed) the TCP stack overflow.)
 
-I guess the best thing would be for the script to revert to the current
-("-bk") naming scheme once -rc1 is out. Otherwise it would need to do,
-say, 2.6.12-rc2-pre1 instead of 2.6.12-rc1-bk1, and while that seems
-natural to me, I don't know how the rest of the planet's human population
-would react...
 
--Barry K. Nathan <barryn@pobox.com>
+--=-d68dFKLbW7F8kMz1olLb
+Content-Disposition: attachment; filename=ext3-writeback-nobh.patch5
+Content-Type: text/x-patch; name=ext3-writeback-nobh.patch5; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -Naurp -Xdontdiff linux-2.6.11/fs/ext3/inode.c linux-2.6.11.new/fs/ext3/inode.c
+--- linux-2.6.11/fs/ext3/inode.c	2005-03-04 16:43:22.536143072 -0800
++++ linux-2.6.11.new/fs/ext3/inode.c	2005-03-04 17:43:16.719744112 -0800
+@@ -20,6 +20,7 @@
+  * 	(jj@sunsite.ms.mff.cuni.cz)
+  *
+  *  Assorted race fixes, rewrite of ext3_get_block() by Al Viro, 2000
++ *  Add "nobh" support for ext3 writeback mode - pbadari@us.ibm.com
+  */
+ 
+ #include <linux/module.h>
+@@ -1016,7 +1017,10 @@ retry:
+ 		ret = PTR_ERR(handle);
+ 		goto out;
+ 	}
+-	ret = block_prepare_write(page, from, to, ext3_get_block);
++	if (test_opt(inode->i_sb, NOBH))
++		ret = nobh_prepare_write(page, from, to, ext3_get_block);
++	else
++		ret = block_prepare_write(page, from, to, ext3_get_block);
+ 	if (ret)
+ 		goto prepare_write_failed;
+ 
+@@ -1100,7 +1104,12 @@ static int ext3_writeback_commit_write(s
+ 	new_i_size = ((loff_t)page->index << PAGE_CACHE_SHIFT) + to;
+ 	if (new_i_size > EXT3_I(inode)->i_disksize)
+ 		EXT3_I(inode)->i_disksize = new_i_size;
+-	ret = generic_commit_write(file, page, from, to);
++
++	if (test_opt(inode->i_sb, NOBH))
++		ret = nobh_commit_write(file, page, from, to);
++	else
++		ret = generic_commit_write(file, page, from, to);
++
+ 	ret2 = ext3_journal_stop(handle);
+ 	if (!ret)
+ 		ret = ret2;
+@@ -1385,7 +1394,11 @@ static int ext3_writeback_writepage(stru
+ 		goto out_fail;
+ 	}
+ 
+-	ret = block_write_full_page(page, ext3_get_block, wbc);
++	if (test_opt(inode->i_sb, NOBH))
++		ret = nobh_writepage(page, ext3_get_block, wbc);
++	else
++		ret = block_write_full_page(page, ext3_get_block, wbc);
++
+ 	err = ext3_journal_stop(handle);
+ 	if (!ret)
+ 		ret = err;
+@@ -1646,13 +1659,46 @@ static int ext3_block_truncate_page(hand
+ 	unsigned blocksize, iblock, length, pos;
+ 	struct inode *inode = mapping->host;
+ 	struct buffer_head *bh;
+-	int err;
++	int err = 0;
+ 	void *kaddr;
+ 
+ 	blocksize = inode->i_sb->s_blocksize;
+ 	length = blocksize - (offset & (blocksize - 1));
+ 	iblock = index << (PAGE_CACHE_SHIFT - inode->i_sb->s_blocksize_bits);
+ 
++	if (test_opt(inode->i_sb, NOBH) && !page_has_buffers(page)) {
++		if (!PageUptodate(page)) {
++			struct buffer_head map_bh;
++			bh = &map_bh;
++			bh->b_state = 0;
++			clear_buffer_mapped(bh);
++			ext3_get_block(inode, iblock, bh, 0);
++			if (!buffer_mapped(bh)) 
++				goto unlock;
++			err = -EIO;
++			set_bh_page(bh, page, 0);
++			bh->b_this_page = 0;
++			bh->b_size = 1 << inode->i_blkbits;
++			ll_rw_block(READ, 1, &bh);
++			wait_on_buffer(bh);
++			if (!buffer_uptodate(bh))
++				goto unlock;
++			SetPageMappedToDisk(page);
++		}
++		if (err == 0 && PageUptodate(page)) {
++			kaddr = kmap_atomic(page, KM_USER0);
++			memset(kaddr + offset, 0, length);
++			flush_dcache_page(page);
++			kunmap_atomic(kaddr, KM_USER0);
++			set_page_dirty(page);
++			goto unlock;
++		}
++		/* 
++		 * Well, we tried to work without buffers and failed.
++		 * Fallback to creating buffers
++		 */
++	}
++	
+ 	if (!page_has_buffers(page))
+ 		create_empty_buffers(page, blocksize, 0);
+ 
+diff -Naurp -Xdontdiff linux-2.6.11/fs/ext3/super.c linux-2.6.11.new/fs/ext3/super.c
+--- linux-2.6.11/fs/ext3/super.c	2005-03-01 23:38:38.000000000 -0800
++++ linux-2.6.11.new/fs/ext3/super.c	2005-03-04 16:45:22.038975880 -0800
+@@ -576,7 +576,7 @@ enum {
+ 	Opt_resgid, Opt_resuid, Opt_sb, Opt_err_cont, Opt_err_panic, Opt_err_ro,
+ 	Opt_nouid32, Opt_check, Opt_nocheck, Opt_debug, Opt_oldalloc, Opt_orlov,
+ 	Opt_user_xattr, Opt_nouser_xattr, Opt_acl, Opt_noacl,
+-	Opt_reservation, Opt_noreservation, Opt_noload,
++	Opt_reservation, Opt_noreservation, Opt_noload, Opt_nobh,
+ 	Opt_commit, Opt_journal_update, Opt_journal_inum,
+ 	Opt_abort, Opt_data_journal, Opt_data_ordered, Opt_data_writeback,
+ 	Opt_usrjquota, Opt_grpjquota, Opt_offusrjquota, Opt_offgrpjquota,
+@@ -611,6 +611,7 @@ static match_table_t tokens = {
+ 	{Opt_reservation, "reservation"},
+ 	{Opt_noreservation, "noreservation"},
+ 	{Opt_noload, "noload"},
++	{Opt_nobh, "nobh"},
+ 	{Opt_commit, "commit=%u"},
+ 	{Opt_journal_update, "journal=update"},
+ 	{Opt_journal_inum, "journal=%u"},
+@@ -924,6 +925,9 @@ clear_qf_name:
+ 			match_int(&args[0], &option);
+ 			*n_blocks_count = option;
+ 			break;
++		case Opt_nobh:
++			set_opt(sbi->s_mount_opt, NOBH);
++			break;
+ 		default:
+ 			printk (KERN_ERR
+ 				"EXT3-fs: Unrecognized mount option \"%s\" "
+@@ -1563,6 +1567,19 @@ static int ext3_fill_super (struct super
+ 		break;
+ 	}
+ 
++	if (test_opt(sb, NOBH)) {
++		if (sb->s_blocksize_bits != PAGE_CACHE_SHIFT) {
++			printk(KERN_WARNING "EXT3-fs: Ignoring nobh option "
++				"since filesystem blocksize doesn't match "
++				"pagesize\n");
++			clear_opt(sbi->s_mount_opt, NOBH);
++		}
++		if (!(test_opt(sb, DATA_FLAGS) == EXT3_MOUNT_WRITEBACK_DATA)) {
++			printk(KERN_WARNING "EXT3-fs: Ignoring nobh option - "
++				"its supported only with writeback mode\n");
++			clear_opt(sbi->s_mount_opt, NOBH);
++		}
++	}
+ 	/*
+ 	 * The journal_load will have done any necessary log recovery,
+ 	 * so we can safely mount the rest of the filesystem now.
+diff -Naurp -Xdontdiff linux-2.6.11/include/linux/ext3_fs.h linux-2.6.11.new/include/linux/ext3_fs.h
+--- linux-2.6.11/include/linux/ext3_fs.h	2005-03-01 23:38:10.000000000 -0800
++++ linux-2.6.11.new/include/linux/ext3_fs.h	2005-03-04 16:46:29.101780784 -0800
+@@ -357,6 +357,7 @@ struct ext3_inode {
+ #define EXT3_MOUNT_POSIX_ACL		0x08000	/* POSIX Access Control Lists */
+ #define EXT3_MOUNT_RESERVATION		0x10000	/* Preallocation */
+ #define EXT3_MOUNT_BARRIER		0x20000 /* Use block barriers */
++#define EXT3_MOUNT_NOBH			0x40000 /* No bufferheads */
+ 
+ /* Compatibility, for having both ext2_fs.h and ext3_fs.h included at once */
+ #ifndef _LINUX_EXT2_FS_H
+
+--=-d68dFKLbW7F8kMz1olLb--
 

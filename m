@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278932AbRK2SoZ>; Thu, 29 Nov 2001 13:44:25 -0500
+	id <S283389AbRK2StF>; Thu, 29 Nov 2001 13:49:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283384AbRK2SoP>; Thu, 29 Nov 2001 13:44:15 -0500
-Received: from sword.damocles.com ([209.100.46.1]:31915 "EHLO
-	sword.damocles.com") by vger.kernel.org with ESMTP
-	id <S278932AbRK2SoH>; Thu, 29 Nov 2001 13:44:07 -0500
-From: Jeff Randall <randall@sword.damocles.com>
-Message-Id: <200111291844.fATIi4T09155@sword.damocles.com>
-Subject: Re: Patch: Fix serial module use count (2.4.16 _and_ 2.5)
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Thu, 29 Nov 2001 12:44:04 -0600 (CST)
-Cc: balbir_soni@yahoo.com (Balbir Singh), linux-kernel@vger.kernel.org
-In-Reply-To: <20011129181227.I6214@flint.arm.linux.org.uk> from "Russell King" at Nov 29, 2001 06:12:27 PM
-Reply-To: randall@uph.com
-X-Mailer: ELM [version 2.5 PL3]
+	id <S283394AbRK2StA>; Thu, 29 Nov 2001 13:49:00 -0500
+Received: from c1238376-a.parker1.co.home.com ([65.6.124.144]:53511 "HELO
+	mail.ecnerwal.com") by vger.kernel.org with SMTP id <S283384AbRK2Spl>;
+	Thu, 29 Nov 2001 13:45:41 -0500
+Date: Thu, 29 Nov 2001 11:38:15 -0700 (MST)
+From: Ron Lawrence <rlawrence@netraverse.com>
+X-X-Sender: <rjlawre@monster.jayfay.com>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: Peter Osterlund <petero2@telia.com>, Jens Axboe <axboe@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: CDROM ioctl bug (fwd)
+In-Reply-To: <20011129182745.O10601@suse.de>
+Message-ID: <Pine.LNX.4.33.0111291128320.2330-100000@monster.jayfay.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Thu, Nov 29, 2001 at 12:03:07PM -0600, Jeff Randall wrote:
-> > All of the other UNIX variants I've dealth with behave that way.
-> > However, you cannot just make that change without having some means
-> > of identifying that behavior change because all of the linux
-> > serial drivers have been written to assume that their close()
-> > will be called even after their open() has failed.
-> 
-> It's not only serial drivers, its everything that is a tty driver.
-> I believe that auditing and fixing that lot in 2.4 just isn't going
-> to happen - it's supposed to be a stable kernel after all.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Thu, 29 Nov 2001, Douglas Gilbert wrote:
+
+> Peter,
+> That patch is flawed as Jens and I found out the hard way
+> in the sg driver. The scsi_do_req() can lead to the pointer
+> chain on the following assignment into q being invalid (in
+> the worst case).
 >
-> > I'm not opposed to such a change in behavior, but at least be
-> > sure that it's somehow identifiable (kernel version, a define
-> > set in a header, etc) so that the 3rd party drivers have a means
-> > to identify the change.
-> 
-> eg, #if KERNEL_VERSION >= LINUX_VERSION(2,5,0)
+> The easy fix is to move the assignment into q _before_
+> the call to scsi_do_req().
+>
+> Doug Gilbert
 
-Exactly.  This is not a minor behavior change that can be isolated to
-a few drivers.  It's a fundamental change in behavior that is widespread
-(I mentioned serial drivers specifically as that's what I was concerned
-with but you are correct that it affects everything that uses the tty layer).
+Douglas, Moving the assignment up did the trick. The responsiveness is
+back to it's old self again.
 
-It's probably a good change to make at some point in the future, but it
-needs to happen in a well defined and clearly identifiable way.  It would
-probably be best for it to happen in the 2.5 tree.
+Thanks.
 
+Jens, will you take care of submitting this patch, so it can be fixed in
+the mainline kernel, or do I need to do something? I'm happy to do
+whatever it takes to get this in.
 
-
-> > Redhat 7.1 included that behavior change in the kernel they shipped
-> > and it caused no end of problems for those of us that were doing
-> > serial drivers since there was no way to easily identify that the
-> > patch had been included.
-> 
-> The change which adds the MOD_DEC_USE_COUNT stuff is bogus, and it
-> shouldn't have been made.  (I'm assuming this is what you're talking
-> about).
-
-Yes.  Redhat's default kernel in 7.1 (2.4.2-2 as it identifies itself)
-will not call the close() routines if the open() routines return an
-error.  The real problem isn't that the behavior changed, but that there's
-no easy way to tell that they had changed it.
+Ron Lawrence
+rlawrence@NeTraverse.com
 
 
--- 
-randall+lkml@uph.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8BoCaU0yq8UBYK2oRAuENAKCWIZ2+ulSLsC7rG7+hjo2vy6UsYgCgsGIm
+wRS6Pkb6G3mITKZ1aciMKtM=
+=Z/Cy
+-----END PGP SIGNATURE-----
+
+

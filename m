@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314459AbSILI6i>; Thu, 12 Sep 2002 04:58:38 -0400
+	id <S314278AbSILI4z>; Thu, 12 Sep 2002 04:56:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314514AbSILI6i>; Thu, 12 Sep 2002 04:58:38 -0400
-Received: from h181n1fls11o1004.telia.com ([195.67.254.181]:11409 "EHLO
-	ringstrom.mine.nu") by vger.kernel.org with ESMTP
-	id <S314459AbSILI6g>; Thu, 12 Sep 2002 04:58:36 -0400
-Date: Thu, 12 Sep 2002 11:03:19 +0200 (CEST)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: tori@boris.prodako.se
-To: Ingo Molnar <mingo@elte.hu>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with the O(1) scheduler in 2.4.19
-In-Reply-To: <Pine.LNX.4.44.0209121005430.5452-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0209121008160.26031-100000@boris.prodako.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314396AbSILI4y>; Thu, 12 Sep 2002 04:56:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38670 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314278AbSILI4y>; Thu, 12 Sep 2002 04:56:54 -0400
+Date: Thu, 12 Sep 2002 10:01:40 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 SCSI core bug?
+Message-ID: <20020912100140.A32196@flint.arm.linux.org.uk>
+References: <20020911221859.A17951@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020911221859.A17951@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Wed, Sep 11, 2002 at 10:19:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Sep 2002, Ingo Molnar wrote:
+On Wed, Sep 11, 2002 at 10:19:00PM +0100, Russell King wrote:
+> Ok, so we were asking for 0xfe 512-byte sectors, which is 130048.
+> So why did SCSI tell me that it wanted 38400 bytes in
+> SCpnt->request_bufflen?
 
-> On Wed, 11 Sep 2002, Tobias Ringstrom wrote:
-> 
-> > In other words:  Any nice-0 task that has been sleeping for two seconds
-> > or more will be able to monololize the CPU for up to 0.7 seconds.  Do
-> > you agree that this is a problem, or am I being too narrow-minded?  :-)
-> 
-> well, 'monopolize' the CPU from CPU-hogs - yes. Take the CPU from other
-> interactive tasks: no.
+Ok, problem found.
 
-(Thanks Ingo for your quick answers!)
+There's a nice loop in scsi_send_eh_cmnd() which just loops endlessly
+trying to retry a SCpnt command on medium error without restoring it
+to its pristine state before giving it back to the host, or limiting
+the number of retries.
 
-I don't mind that interactive processes can take the CPU from CPU hogs,
-but I do think that there is room for classification improvements.
+The end result is that the SCSI command says N sectors, the request
+list may say N * sector size bytes, but SCpnt->request_bufflen may
+be complete rubbish, since the HBA driver is allowed to modify this
+field during the processing of a command.
 
-A few observations (with suggested solutions):
+We do have a specific function to restore the SCSI command data to
+a pristine state (scsi_eh_retry_command).
 
-1. The nice levels are not symmetric.  Compared to a nice 0 process, a
-   nice 19 process will get 6% CPU, but compared to a nice -20 process, a
-   nice 0 process will get 33 % CPU.  This can be solved by scaling the
-   conversion from nice level to priority in a different way.  The
-   drawback of this is shorter time slices for nice 0 processes.
+Ok, so there's two bugs here:
 
-2. Nice -20 is really impotent.  In addition to the point above, the
-   interactive classification stuff is what makes it really impotent.
-   That a nice -20 process loses 0.7 seconds to a nice 0 task says it all.  
-   How about making -20 processes interactive unconditionally?
+1. It's possible for SCSI to completely bring a box to a complete
+   standstill when it encounters a SCSI error.
 
-3. More than 90% of all tasks in a system are classified as interactive at
-   any given time (since they are sleeping).  For example all cron jobs
-   are classified as interactive, which sounds really strange.  IMHO, it's
-   a good example of a non-interactive background job.  (I'll run my crond
-   at nice 19 for now.)
+2. Not retrying the command in its correct state.
 
-   I'm curious, why are you using the process average sleep time to
-   determine interactiveness and not the presense of prematurely abandoned
-   timeslices?
+I'll look at cooking up a patch for both of these in the next few days
+or so.
 
-4. Using SCHED_RR is one way out, but I suspect that the busy-loop
-   nanosleep implementation for "realtime" processes will lock up the
-   machine in my case.  I suggest that the 2 ms limit is removed.  It can
-   be done in userspace as a gettimeofday loop for applications which
-   care.
-
-I'll continue thinking about this to see if I can come up with something
-constructive, but it would be extremely valuable to get your view since
-you are the expert and you have been working on this for a long time.
-
-/Tobias
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

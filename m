@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266218AbSLIVSC>; Mon, 9 Dec 2002 16:18:02 -0500
+	id <S266243AbSLIV1M>; Mon, 9 Dec 2002 16:27:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266224AbSLIVSC>; Mon, 9 Dec 2002 16:18:02 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:56500 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id <S266218AbSLIVSB>;
-	Mon, 9 Dec 2002 16:18:01 -0500
-Date: Mon, 9 Dec 2002 22:27:41 +0100
-From: Kristof Sardemann <ksardem@linux01.gwdg.de>
-X-Mailer: The Bat! (v1.60q) Personal
-Reply-To: Kristof Sardemann <ksardem@linux01.gwdg.de>
-Organization: KKI
-X-Priority: 3 (Normal)
-Message-ID: <523223727.20021209222741@linux01.gwdg.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re[2]: bug in via-rhine network-driver (transmit timed out)
-In-Reply-To: <20021209165847.GA17495@gtf.org>
-References: <1653237694.20021209175407@linux01.gwdg.de>
- <20021209165847.GA17495@gtf.org>
-MIME-Version: 1.0
+	id <S266246AbSLIV1M>; Mon, 9 Dec 2002 16:27:12 -0500
+Received: from pc-3536.ethz.ch ([129.132.66.115]:5264 "EHLO mail.topsy.net")
+	by vger.kernel.org with ESMTP id <S266243AbSLIV1K>;
+	Mon, 9 Dec 2002 16:27:10 -0500
+Date: Mon, 9 Dec 2002 22:34:53 +0100
+From: Lukas Ruf <ruf@rawip.org>
+To: Linux Kernel ml <linux-kernel@vger.kernel.org>
+Subject: 2.4.20-ac1 hangs IBM Thinkpad
+Message-ID: <20021209213453.GJ28720@maremma.ch>
+Mail-Followup-To: Linux Kernel ml <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-GPG: 0xED6F778D -- visit http://www.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dear all,
 
->> 
->> I successfully got the old transmit-out-error again ;-)
->> - and this time with "options via-rhine debug=3" in modules.conf.
+2.4.20-ac1 has hung my Laptop several times.  May this be due to the
+ATA-problem I found emails for in the archive?
 
-JG> Does booting with "noapic" in lilo/grub fix this?
-Yes, it did - as I mentioned in my previous postings ;)
-..this was just a debug-report for source-bugfixing.
-
---
-Bye.
-Kristof <ksardem@linux01.gwdg.de>
-
+Lukas
+PS: I switched back to 2.4.19 which has been running without
+    problems...
+-- 
+Lukas Ruf
+http://www.lpr.ch
+Wanna know anything about raw ip? 
+Join rawip@rawip.org on http://www.rawip.org

@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbTIZPl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 11:41:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTIZPl3
+	id S262362AbTIZPdE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 11:33:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTIZPdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 11:41:29 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:53976 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262366AbTIZPl2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 11:41:28 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Fri, 26 Sep 2003 11:33:04 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:6667 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S262362AbTIZPdC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 11:33:02 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns?=
+	=?iso-8859-1?q?=20Rullg=E5rd?=)
+Subject: Re: [BUG?] SIS IDE DMA errors
+Date: Fri, 26 Sep 2003 23:32:30 +0800
+User-Agent: KMail/1.5.2
+References: <yw1x7k3vlokf.fsf@users.sourceforge.net> <200309262208.30582.mhf@linuxmail.org> <yw1x3cejlk34.fsf@users.sourceforge.net>
+In-Reply-To: <yw1x3cejlk34.fsf@users.sourceforge.net>
+Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16244.24102.608275.589856@napali.hpl.hp.com>
-Date: Fri, 26 Sep 2003 08:41:26 -0700
-To: Andi Kleen <ak@muc.de>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-In-Reply-To: <m3ad8rinta.fsf@averell.firstfloor.org>
-References: <zU7D.2Ji.27@gated-at.bofh.it>
-	<m3ad8rinta.fsf@averell.firstfloor.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200309262332.30091.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 26 Sep 2003 17:14:57 +0200, Andi Kleen <ak@muc.de> said:
+On Friday 26 September 2003 22:07, Måns Rullgård wrote:
+> Michael Frank <mhf@linuxmail.org> writes:
+> 
+> > Suspect chipset related issue which should be looked into.
+> 
+> That's what someone told me three months ago, too.  Nothing happened,
+> though.
+> 
 
-  Andi> Manfred Spraul <manfred@colorfullife.com> writes:
-  >> David wrote:
+OK, now that we are two, we copy the IDE maintainer ;)
 
-  >>> Fine, then we should have something like an rx_copybreak scheme
-  >>> in the ns83820 driver too.
+I guess it is fair to say that we are happy to test patches.
 
-  >> Is that really the right solution? Add a full-packet copy to
-  >> every driver?  IMHO the fastest solution would be to copy only
-  >> the ip & tcp headers, and keep the rest as it is. And preferable
-  >> in the network core, to avoid having to copy&paste that into
-  >> every driver.
+And here is my lspci -vv.
 
-  Andi> One problem is that you still have an unaligned->aligned copy
-  Andi> to user space in recvmsg (the user buffer is usually aligned
-  Andi> and the network payload will be unaligned). And that will be
-  Andi> very slow.
+00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (prog-if 80 [Master])
+        Subsystem: Micro-Star International Co., Ltd.: Unknown device 5332
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 128
+        Interrupt: pin ? routed to IRQ 10
+        Region 4: I/O ports at 4000 [size=16]
+        Capabilities: <available only to root>
 
-Why would that be?  Slower, yes, but very slow?
 
-	--david
+Regards
+Michael
+

@@ -1,113 +1,226 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314938AbSEXURR>; Fri, 24 May 2002 16:17:17 -0400
+	id <S314981AbSEXU1p>; Fri, 24 May 2002 16:27:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314957AbSEXURQ>; Fri, 24 May 2002 16:17:16 -0400
-Received: from web12301.mail.yahoo.com ([216.136.173.99]:47528 "HELO
-	web12301.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314938AbSEXURP>; Fri, 24 May 2002 16:17:15 -0400
-Message-ID: <20020524201715.97204.qmail@web12301.mail.yahoo.com>
-Date: Fri, 24 May 2002 13:17:15 -0700 (PDT)
-From: Myrddin Ambrosius <imipak@yahoo.com>
-Subject: Re: Linux crypto?
-To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "David S. Miller" <davem@redhat.com>, tori@ringstrom.mine.nu,
-        imipak@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.05.10205242028060.11037-100000@mausmaki.cosy.sbg.ac.at>
-MIME-Version: 1.0
+	id <S315042AbSEXU1o>; Fri, 24 May 2002 16:27:44 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:41296 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314981AbSEXU1l>; Fri, 24 May 2002 16:27:41 -0400
+Date: Fri, 24 May 2002 22:26:58 +0200
+From: Andrea Arcangeli <andrea@e-mind.com>
+To: Dan Kegel <dank@kegel.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
+        Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
+        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+Message-ID: <20020524202658.GI15703@dualathlon.random>
+In-Reply-To: <Pine.LNX.4.21.0204292127480.1709-100000@localhost.localdomain> <3CEDF94C.592636A6@kegel.com> <3CEDFCED.D10CD618@zip.com.au> <3CEE806D.D52FBEA5@kegel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Thomas 'Dent' Mirlacher <dent@cosy.sbg.ac.at>
-wrote:
-> well probably everything which isn't plain english
-> written with a pen
-> on white paper would be outlawed by then ;)
+[ speaking for myself in this whole email, and CC'ed l-k ]
 
-Should be easy to test:
+On Fri, May 24, 2002 at 11:03:25AM -0700, Dan Kegel wrote:
+> software patent on Tux... http://lwn.net/daily/
 
-if [ cat /usa/laws | grep ban | grep written | grep -q
-english ]; then
-  echo "Ok, time to panic"
-fi
+I'm more lucky than most of you because the original article is in
+Italian so I can understand all the details. btw, I noticed the italian
+linux community is very aware and responsive (we even had a law proposal
+to help the free software IIRC).
 
-Output:
+Just for reference I attached the 13 line long patch in -aa that is
+being requested to be put under this patent:
 
-"You're too late. That's a $1000 fine, for using
-dictionary words."
+	http://l2.espacenet.com/espacenet/viewer?PN=WO0217597&CY=ep&LG=en&DB=EPD
 
-> ... but what about having all the crypto stuff in
-> question beeing handled
-> by modules (developed outside the USSA) and having
-> the networking-related
-> code in the kernel - could the hooks itself be a
-> problem?
+the code is available also from here:
 
-Hmmmm. This would be an interesting idea. In theory, I
-don't see why this couldn't be done via an extension
-of the existing network hooks.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa4/60_atomic-lookup-5
 
-IIRC, there are hooks for adding new networking
-protocols, so it shouldn't be too difficult to extend
-this mechanism.
+and in the tux patches at www.redhat.com/~mingo/ that I merged in my
+tree and that are shipped with various vendor kernels.
 
-What you'd need is the ability to layer one transport
-mechanism over another, as well as add them in
-parallel. That way, you're not adding hooks to be used
--for- IPSec, merely hooks that IPSec could exploit.
+Now dropping this feature from tux is a matter of a few hours and it
+cannot make difference if your vfs working set fits in dcache, but
+that's not the problem. I wonder what's next, should I apply for a
+patent for the classzone algorithm in the memory balancing or is Ingo
+going to patent the O1 scheduler too? Ingo, Alan, Arjan, DaveM are so much
+worried about binary only modules, Alan even speaks about the DMCA all
+over the place, this is an order of magnitude worse, this even forbids
+you to use this tequnique despite you may invented it too from scratch
+and it's your own idea too. To make the opposite example despite IBM is
+a big patent producer IBM even allowed the usage of their RCU patents in
+the linux kernel (I've the paperwork under my desk and Linus should have
+received too), and other stuff donated to gcc and probably much more
+that I don't know about, IMHO exactly to avoid linux to be castrated by
+patents. So this news is totally stunning from my part.
 
-This could also be used to simplify the tunneling
-code. A tunnel would become an n-deep stack of
-transport mechanisms, each piping into the next.
-Instead of having to write a new tunneling system for
-every possible combination, you'd simply write your
-transport mechanism to support a "generic" input and
-"generic" output channel. Any protocol could then be
-tunelled through any other protocol, including a
-protocol which is already being used to tunnel.
+I think it is in the interest of the US gov to do something to avoid
+these three patents to pass and hurt the linux developement. I think
+this is a breakpoint and they cannot ignore those issues at this point.
+If they act now, they will stop the problem at its root and we don't
+risk a fragmentation. Until it was only rtlinux to be patented that is
+never been a showstopper because real time apps are a niche market and
+they're not mainstream but the O_ATOMICLOOKUP API is even exported to
+userspace! (for all the wrong reasons btw, because that's not yet part
+of mainline for some unknown reason but if mainline collides on some
+number I will notice in a jiffy and the collision could be resolved so
+it's a minor problem compared to the patent) Even Ingo said once a few
+years back to l-k that somebody should do something to at least avoid
+the application of patentes to linux (I can search and forward you the
+email if you're curious) and I certainly agreed with that opinion.
 
-For IPSec, this translates to the transport mode
-becoming: network protocol -> IPSec
+I can probably do nothing more than to write this email just to give
+more awareness about the technical parts of the problem, so not really
+much, but at least if the thing passes I felt I did all I could to try
+to avoid it.
 
-And, for tunneling mode, you'd want something like:
-network protocol -> IPSec -> network protocol
+I would also suggest to apply the below patch to mainline (if something
+to avoid collisions on the O_ flag #defines that as said is a minor
+problem after all).
 
-By allowing protocol stacks, and by having a generic
-interface, it would be easy to throw the output over a
-non-IP connection.
+diff -urN 2.4.15pre1/fs/namei.c atomic-lookup/fs/namei.c
+--- 2.4.15pre1/fs/namei.c	Wed Oct 24 08:04:22 2001
++++ atomic-lookup/fs/namei.c	Fri Nov  9 04:34:12 2001
+@@ -448,9 +448,13 @@
+ {
+ 	struct dentry *dentry;
+ 	struct inode *inode;
+-	int err;
++	int err, atomic;
+ 	unsigned int lookup_flags = nd->flags;
+ 
++	atomic = 0;
++	if (lookup_flags & LOOKUP_ATOMIC)
++		atomic = 1;
++
+ 	while (*name=='/')
+ 		name++;
+ 	if (!*name)
+@@ -519,6 +523,9 @@
+ 		/* This does the actual lookups.. */
+ 		dentry = cached_lookup(nd->dentry, &this, LOOKUP_CONTINUE);
+ 		if (!dentry) {
++			err = -EWOULDBLOCKIO;
++			if (atomic)
++				break;
+ 			dentry = real_lookup(nd->dentry, &this, LOOKUP_CONTINUE);
+ 			err = PTR_ERR(dentry);
+ 			if (IS_ERR(dentry))
+@@ -582,6 +589,9 @@
+ 		}
+ 		dentry = cached_lookup(nd->dentry, &this, 0);
+ 		if (!dentry) {
++			err = -EWOULDBLOCKIO;
++			if (atomic)
++				break;
+ 			dentry = real_lookup(nd->dentry, &this, 0);
+ 			err = PTR_ERR(dentry);
+ 			if (IS_ERR(dentry))
+@@ -924,6 +934,8 @@
+ 	
+ 	if (f & O_DIRECTORY)
+ 		retval |= LOOKUP_DIRECTORY;
++	if (f & O_ATOMICLOOKUP)
++		retval |= LOOKUP_ATOMIC;
+ 
+ 	return retval;
+ }
+diff -urN 2.4.15pre1/include/asm-alpha/fcntl.h atomic-lookup/include/asm-alpha/fcntl.h
+--- 2.4.15pre1/include/asm-alpha/fcntl.h	Sun Sep 23 21:11:40 2001
++++ atomic-lookup/include/asm-alpha/fcntl.h	Fri Nov  9 04:34:12 2001
+@@ -20,6 +20,7 @@
+ #define O_DIRECTORY	0100000	/* must be a directory */
+ #define O_NOFOLLOW	0200000 /* don't follow links */
+ #define O_LARGEFILE	0400000 /* will be set by the kernel on every open */
++#define O_ATOMICLOOKUP  01000000 /* do atomic file lookup */
+ #define O_DIRECT	02000000 /* direct disk access - should check with OSF/1 */
+ 
+ #define F_DUPFD		0	/* dup */
+diff -urN 2.4.15pre1/include/asm-i386/fcntl.h atomic-lookup/include/asm-i386/fcntl.h
+--- 2.4.15pre1/include/asm-i386/fcntl.h	Sun Sep 23 21:11:40 2001
++++ atomic-lookup/include/asm-i386/fcntl.h	Fri Nov  9 04:34:12 2001
+@@ -20,6 +20,7 @@
+ #define O_LARGEFILE	0100000
+ #define O_DIRECTORY	0200000	/* must be a directory */
+ #define O_NOFOLLOW	0400000 /* don't follow links */
++#define O_ATOMICLOOKUP	01000000 /* do atomic file lookup */
+ 
+ #define F_DUPFD		0	/* dup */
+ #define F_GETFD		1	/* get close_on_exec */
+diff -urN 2.4.15pre1/include/asm-ia64/fcntl.h atomic-lookup/include/asm-ia64/fcntl.h
+--- 2.4.15pre1/include/asm-ia64/fcntl.h	Thu Nov 16 15:37:42 2000
++++ atomic-lookup/include/asm-ia64/fcntl.h	Fri Nov  9 04:34:12 2001
+@@ -28,6 +28,7 @@
+ #define O_LARGEFILE	0100000
+ #define O_DIRECTORY	0200000	/* must be a directory */
+ #define O_NOFOLLOW	0400000 /* don't follow links */
++#define O_ATOMICLOOKUP  01000000 /* do atomic file lookup */
+ 
+ #define F_DUPFD		0	/* dup */
+ #define F_GETFD		1	/* get close_on_exec */
+diff -urN 2.4.15pre1/include/asm-ppc/fcntl.h atomic-lookup/include/asm-ppc/fcntl.h
+--- 2.4.15pre1/include/asm-ppc/fcntl.h	Tue Nov  6 02:04:53 2001
++++ atomic-lookup/include/asm-ppc/fcntl.h	Fri Nov  9 04:34:42 2001
+@@ -23,6 +23,7 @@
+ #define O_NOFOLLOW      0100000	/* don't follow links */
+ #define O_LARGEFILE     0200000
+ #define O_DIRECT	0400000	/* direct disk access hint */
++#define O_ATOMICLOOKUP 01000000 /* do atomic file lookup */
+ 
+ #define F_DUPFD		0	/* dup */
+ #define F_GETFD		1	/* get close_on_exec */
+diff -urN 2.4.15pre1/include/asm-sparc/fcntl.h atomic-lookup/include/asm-sparc/fcntl.h
+--- 2.4.15pre1/include/asm-sparc/fcntl.h	Sun Sep 23 21:11:42 2001
++++ atomic-lookup/include/asm-sparc/fcntl.h	Fri Nov  9 04:34:12 2001
+@@ -20,6 +20,7 @@
+ #define O_DIRECTORY	0x10000	/* must be a directory */
+ #define O_NOFOLLOW	0x20000	/* don't follow links */
+ #define O_LARGEFILE	0x40000
++#define O_ATOMICLOOKUP  0x80000 /* do atomic file lookup */
+ #define O_DIRECT        0x100000 /* direct disk access hint */
+ 
+ #define F_DUPFD		0	/* dup */
+diff -urN 2.4.15pre1/include/asm-sparc64/fcntl.h atomic-lookup/include/asm-sparc64/fcntl.h
+--- 2.4.15pre1/include/asm-sparc64/fcntl.h	Sun Sep 23 21:11:42 2001
++++ atomic-lookup/include/asm-sparc64/fcntl.h	Fri Nov  9 04:34:12 2001
+@@ -20,6 +20,7 @@
+ #define O_DIRECTORY	0x10000	/* must be a directory */
+ #define O_NOFOLLOW	0x20000	/* don't follow links */
+ #define O_LARGEFILE	0x40000
++#define O_ATOMICLOOKUP  0x80000 /* do atomic file lookup */
+ #define O_DIRECT        0x100000 /* direct disk access hint */
+ 
+ 
+diff -urN 2.4.15pre1/include/linux/errno.h atomic-lookup/include/linux/errno.h
+--- 2.4.15pre1/include/linux/errno.h	Fri Aug 17 05:02:27 2001
++++ atomic-lookup/include/linux/errno.h	Fri Nov  9 04:34:12 2001
+@@ -21,6 +21,9 @@
+ #define EBADTYPE	527	/* Type not supported by server */
+ #define EJUKEBOX	528	/* Request initiated, but will not complete before timeout */
+ 
++/* Defined for TUX async IO */
++#define EWOULDBLOCKIO	530	/* Would block due to block-IO */
++
+ #endif
+ 
+ #endif
+diff -urN 2.4.15pre1/include/linux/fs.h atomic-lookup/include/linux/fs.h
+--- 2.4.15pre1/include/linux/fs.h	Tue Nov  6 02:04:53 2001
++++ atomic-lookup/include/linux/fs.h	Fri Nov  9 04:34:12 2001
+@@ -1260,6 +1260,7 @@
+ #define LOOKUP_POSITIVE		(8)
+ #define LOOKUP_PARENT		(16)
+ #define LOOKUP_NOALT		(32)
++#define LOOKUP_ATOMIC		(64)
+ /*
+  * Type of the last component on LOOKUP_PARENT
+  */
 
-At present, if you want to use IPSec over ATM, you'd
-need two tunnels. One for IPSec over IP, and one for
-IP over ATM. Each would need to be independently
-maintained, and you'd end up with a fascinating
-routing table, trying to get packets from one virtual
-device to another virtual device, through a virtual
-network space, without the router daemon deciding that
-what you REALLY want is some clam chowder.
-
-With the layering concept, you're simply wrapping one
-protocol in another, as many deep as you like, to
-produce a single, composite device, with the precice
-characteristics you want. For the IPSec over ATM,
-you've no tunnels, just the two wrappers (IP->IPSec,
-and IPSec->ATM), to produce a composite IP->IPSec->ATM
-virtual device.
-
-This is gettig WAAY too off-topic, at this point, but
-I could picture the protocols themselves being built
-up, LEGO-style, out of sub-components, both in
-parallel and as wrappers. The "standard" protocols
-would then be simply one way to wire the networking
-code, but there'd be a virtually infinite number of
-combinations you could do.
-
-(Most of those combinations would be meaningless, but
-could prove highly entertaining!)
-
-
-__________________________________________________
-Do You Yahoo!?
-LAUNCH - Your Yahoo! Music Experience
-http://launch.yahoo.com
+Andrea

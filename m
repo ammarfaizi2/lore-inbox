@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261433AbSKIRpv>; Sat, 9 Nov 2002 12:45:51 -0500
+	id <S262129AbSKIRsn>; Sat, 9 Nov 2002 12:48:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261450AbSKIRpv>; Sat, 9 Nov 2002 12:45:51 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:55056 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S261433AbSKIRpu>; Sat, 9 Nov 2002 12:45:50 -0500
-Message-Id: <200211091752.gA9HqR802867@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: linux-kernel@vger.kernel.org, James.Bottomley@HansenPartnership.com
-Subject: Re: [PATCH][2.5] notsc option needs some attention/TLC
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 09 Nov 2002 12:52:27 -0500
-From: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S262291AbSKIRsn>; Sat, 9 Nov 2002 12:48:43 -0500
+Received: from 205-158-62-131.outblaze.com ([205.158.62.131]:18922 "HELO
+	ws5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S262129AbSKIRsl>; Sat, 9 Nov 2002 12:48:41 -0500
+Message-ID: <20021109175520.30470.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 10 Nov 2002 01:55:20 +0800
+Subject: contest results and ext3 corruptions
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-1.us4.outblaze.com
+X-Habeas-Swe-1: winter into spring
+X-Habeas-Swe-2: brightly anticipated
+X-Habeas-Swe-3: like Habeas SWE (tm)
+X-Habeas-Swe-4: Copyright 2002 Habeas (tm)
+X-Habeas-Swe-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-Swe-6: email in exchange for a license for this Habeas
+X-Habeas-Swe-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-Swe-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-Swe-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> having this config option ass-backwards is mind-bogglingly confusing,
-> and there seems no real reason for it. John had a plan to just put  in
-> CONFIG_X86_PIT instead as the inverse of this, and delete
-> CONFIG_X86_TSC. He seems to have gone off this idea for some reason I
-> can't understand ... I think it solves a lot of these issues ...
+Hi all,
+I've just ran contest again 2.5.46, 
+here the most intersting part of the results:
 
-Actually, this is partly my fault.  When the subarch code went in, the meaning 
-of CONFIG_X86_TSC got altered to mean, 'If not y, don't use tsc at all' (so I 
-could disable the TSC entirely for Voyager). Then, when code moved to 
-kernel/timers we got some code with the old meaning and some with the new, 
-hence the confusion.
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [3]              461.0   28      46      8       3.66
+2.5.44 [3]              371.8   38      37      10      2.95
+2.5.45 [1]              396.9   37      36      10      3.15
+2.5.45-mcp3 [1]         557.5   25      49      9       4.42
+2.5.46 [5]              809.1   20      81      10      6.42
 
-The CONFIG_X86_PIT was something I added to try to clarify.  There are three 
-cases with this:
+What happened here ?
 
-PIT y, TSC n: Never use TSC, always use PIT
-PIT y, TSC y: Try TSC at first, if it doesn't work, fall back to PIT
-PIT n, TSC y: TSC always works, use it without testing.
+I'm using an ext3 fs and after the test I got this error message:
+EXT3-fs error (device ide0(3,6)) in ext3_new_inode: error 28
 
-Obviously PIT n, TSC n is bogus.
+startx didn't work anymore complaining about fixed font missing...
 
-There are also two distinct usages of TSC:
+fsck.ext3 fixed the problem.
 
-1. do_fast_gettimeofday (now in timers) which *requires* the TSCs to be 
-synchronised across all CPUs
-2. more accurate udelay (which already has the mechanisms in place to cope 
-with TSCs running at different rates).
+I hope it helps.
 
-1. is usually the reason why numa like machines want to disable the TSC 
-entirely.
+Ciao,
+        Paolo
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
 
-Linus isn't very happy with the global TSC disable patch (see 
-http://marc.theaimsgroup.com/?t=103652952900006&r=1&w=2).  And wants a better 
-solution.  (Then, of course, there are the additional timer options, like the 
-cyclone).
-
-James
-
-
-
-
-
+Powered by Outblaze

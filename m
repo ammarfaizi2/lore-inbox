@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272375AbTGYXK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 19:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272376AbTGYXK7
+	id S272376AbTGYXOr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 19:14:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272377AbTGYXOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 19:10:59 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:5761
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272375AbTGYXK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 19:10:59 -0400
-From: Con Kolivas <kernel@kolivas.org>
+	Fri, 25 Jul 2003 19:14:47 -0400
+Received: from quechua.inka.de ([193.197.184.2]:63686 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S272376AbTGYXOr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 19:14:47 -0400
+From: Bernd Eckenfels <ecki-lkm@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched-2.6.0-test1-G3, interactivity changes, audio latency
-Date: Sat, 26 Jul 2003 09:30:15 +1000
-User-Agent: KMail/1.5.2
-References: <Pine.LNX.4.44.0307252146550.16235-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0307252146550.16235-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307260930.16108.kernel@kolivas.org>
+Subject: Re: 2.4 -> 2.2 differences?
+In-Reply-To: <20030725142434.GS32585@rdlg.net>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.20-xfs (i686))
+Message-Id: <E19gC0Z-0001RR-00@calista.inka.de>
+Date: Sat, 26 Jul 2003 01:29:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 Jul 2003 05:59, Ingo Molnar wrote:
-> my current "interactivity changes" scheduler patchset can be found at:
->
-> 	redhat.com/~mingo/O(1)-scheduler/sched-2.6.0-test1-G3
->
-> (this patch is mostly orthogonal to Con's patchset, but obviously collides
-> patch-wise. The patch should also cleanly apply to 2.6.0-test1-bk2.)
+In article <20030725142434.GS32585@rdlg.net> you wrote:
+> With all the SCO fun going on I have people asking me what functionality
+> we would loose if we rolled from 2.4.21 kernel to the last known stable
+> 2.2 kernel.
 
-If the engineer is back to tune his own engine, the mechanic shall stop 
-playing with it.
+it is easier to turn off SMP.
 
-Con
+BTW: what will happen if there is some SMP code from IBM in the kernel which
+is owned by SCO? Isnt it a matter of days to remove that code? Does anybody
+have to pay for past usage of the code?
 
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

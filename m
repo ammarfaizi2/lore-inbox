@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280848AbRKYM1y>; Sun, 25 Nov 2001 07:27:54 -0500
+	id <S280856AbRKYMq1>; Sun, 25 Nov 2001 07:46:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280843AbRKYM1o>; Sun, 25 Nov 2001 07:27:44 -0500
-Received: from [212.18.232.186] ([212.18.232.186]:38918 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S280848AbRKYM1a>; Sun, 25 Nov 2001 07:27:30 -0500
-Date: Sun, 25 Nov 2001 12:25:57 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Padraig Brady <padraig@antefacto.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove trailing whitespace
-Message-ID: <20011125122557.A23807@flint.arm.linux.org.uk>
-In-Reply-To: <3BFE8559.1040403@antefacto.com> <01112514004301.00864@manta>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01112514004301.00864@manta>; from vda@port.imtp.ilyichevsk.odessa.ua on Sun, Nov 25, 2001 at 02:00:43PM -0200
+	id <S280857AbRKYMqQ>; Sun, 25 Nov 2001 07:46:16 -0500
+Received: from AGrenoble-101-1-6-196.abo.wanadoo.fr ([80.11.197.196]:21120
+	"EHLO strider.virtualdomain.net") by vger.kernel.org with ESMTP
+	id <S280856AbRKYMqH> convert rfc822-to-8bit; Sun, 25 Nov 2001 07:46:07 -0500
+Message-ID: <3C00E8EB.4060908@wanadoo.fr>
+Date: Sun, 25 Nov 2001 13:49:47 +0100
+From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, fr
+MIME-Version: 1.0
+To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.4.13 Kernel and Ext3 vs Ext2
+In-Reply-To: <E167ja2-0004fF-00@carbon.btinternet.com> <9tpiio$n4u$1@cesium.transmeta.com> <20011125224259.A4844@higherplane.net> <EXCH01SMTP011Np7vXe00002de9@smtp.netcabo.pt>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 25, 2001 at 02:00:43PM -0200, vda wrote:
-> Isn't it easier to write a script 'clean_trailing_ws' (or whatever)
-> and add it to scripts/ ?
-> Linus can apply such 'cleaning' scripts at times like 2.4 -> 2.5
+Miguel Maria Godinho de Matos wrote:
 
-It's best to have a script that you pass all patches through which
-strips off trailing space on any line that gets added (you can't
-do it blindly since the context lines must obviously match the
-original, as must the lines being removed).
 
-I do this automatically when people send stuff to my patch system.
-Appears to work well.
+> My question is, which kernel version support the ext3 partition format?
 
-It solves the problem of the trailing space getting into the source
-in the first place, and doesn't produce a huge 25MB patch.
 
-I suppose you could also remove anything which matched 1-7 spaces
-and a tab character, but this might be less reliable.  Obviously
-you can't replace 8 spaces with a tab character, since it might
-be part of a printk string.
+2.4.15pre2 onwards
 
-If anyone's interested, this is a fragment from the perl script which
-processes incoming patches.  Might be useful to someone.
+I would wait for 2.4.16 to be out though, or try 2.4.16pre1.
 
-	#
-	# And now the actual patch itself
-	#
-	while (<STDIN>)
-	{
-		chomp;
-		s/\s+$// if m/^\+/;
-		$mail .= "$_\n";
-		$patchtext .= "$_\n";
-	}
+> ext3 had lots of advantages over 
+> ext2, i choosen ext3!
+> 
+> I want to know whether i did the right or the wrong thing, and which are the 
+> main differences between these two types!!!
 
-I'm sure someone can come up with something more efficient. 8)
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Well ext3 is a journalled file system... See 
+http://www.linuxdoc.org/LDP/LG/issue68/dellomodarme.html
+for a good explanation of this.
+
+
+> ha, and before saying goodbye, where can read the complete information about 
+> each and every kernel release?
+
+
+Read the Changelogs.
+kernels released until yesterday :
+ftp://ftp.kernel.org/pub/linux/kernel/testing/old/
+from now on :
+ftp://ftp.kernel.org/pub/linux/kernel/v2.4/testing/
+ftp://ftp.kernel.org/pub/linux/kernel/v2.5/testing/
+
+François
 

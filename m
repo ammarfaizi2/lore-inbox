@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267782AbTBGKWd>; Fri, 7 Feb 2003 05:22:33 -0500
+	id <S267783AbTBGKyW>; Fri, 7 Feb 2003 05:54:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267783AbTBGKWd>; Fri, 7 Feb 2003 05:22:33 -0500
-Received: from p0051.as-l043.contactel.cz ([194.108.242.51]:46841 "EHLO
-	SnowWhite.janik.cz") by vger.kernel.org with ESMTP
-	id <S267782AbTBGKWa> convert rfc822-to-8bit; Fri, 7 Feb 2003 05:22:30 -0500
-To: sjralston1@netscape.net
-Cc: Pam.Delaney@lsil.com
-Cc: linux-kernel@vger.kernel.org
-Subject: mptctl only as a module?
-From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
-X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
- ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
- iHiAs(t(~b#1.{w.d[=Z
-Date: Fri, 07 Feb 2003 11:07:03 +0100
-Message-ID: <m365rw9zg8.fsf@Janik.cz>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i386-suse-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+	id <S267785AbTBGKyW>; Fri, 7 Feb 2003 05:54:22 -0500
+Received: from packet.digeo.com ([12.110.80.53]:35057 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267783AbTBGKyV>;
+	Fri, 7 Feb 2003 05:54:21 -0500
+Date: Fri, 7 Feb 2003 03:03:50 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Cc: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.5.59-mm9
+Message-Id: <20030207030350.728b4618.akpm@digeo.com>
+In-Reply-To: <20030207013921.0594df03.akpm@digeo.com>
+References: <20030207013921.0594df03.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Feb 2003 11:03:50.0778 (UTC) FILETIME=[987265A0:01C2CE98]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton <akpm@digeo.com> wrote:
+>
+> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm9/
 
-is there any reason to allow compilation of mptctl.o (CONFIG_FUSION_CTL)
-only as a module?
+I've taken this down.
 
-drivers/message/fusion/Config.in:
+Ingo, there's something bad in the signal changes in Linus's current tree.
 
-  if [ "$CONFIG_MODULES" = "y" ]; then
-    [...]
-    dep_tristate "  Fusion MPT misc device (ioctl) driver" CONFIG_FUSION_CTL $CONFIG_FUSION m
-  fi
+mozilla won't display, and is unkillable:
 
-I tried to compile it in and it works. I'd like to have static kernel
-without modules, but need mptctl :-(
--- 
-Pavel Janík
+mnm:/home/akpm> ps aux|grep moz               
+akpm      1462  0.0  2.5 44568 23244 ?       S    02:26   0:00 /usr/lib/mozilla-1.3a/mozilla-bin
+akpm      1463  0.0  2.5 44568 23244 ?       S    02:26   0:00 /usr/lib/mozilla-1.3a/mozilla-bin
+akpm      1469  0.0  2.5 44568 23244 ?       S    02:26   0:00 /usr/lib/mozilla-1.3a/mozilla-bin
+akpm      1470  0.0  2.5 44568 23244 ?       S    02:26   0:00 /usr/lib/mozilla-1.3a/mozilla-bin
+akpm      1471  0.0  2.5 44568 23244 ?       S    02:26   0:00 /usr/lib/mozilla-1.3a/mozilla-bin
+akpm      9024  0.0  0.0  3260  556 pts/19   S    02:32   0:00 grep moz
+mnm:/home/akpm> kill -9 1462 1463 1469 1470 1471
+mnm:/home/akpm> ps aux|grep moz                 
+akpm      1462  0.0  2.5 44568 23244 ?       S    02:26   0:00 /usr/lib/mozilla-1.3a/mozilla-bin
+akpm      1463  0.0  2.5 44568 23244 ?       S    02:26   0:00 /usr/lib/mozilla-1.3a/mozilla-bin
+akpm      1469  0.0  2.5 44568 23244 ?       S    02:26   0:00 /usr/lib/mozilla-1.3a/mozilla-bin
+akpm      1470  0.0  2.5 44568 23244 ?       S    02:26   0:00 /usr/lib/mozilla-1.3a/mozilla-bin
+akpm      1471  0.0  2.5 44568 23244 ?       S    02:26   0:00 /usr/lib/mozilla-1.3a/mozilla-bin
+akpm      9028  0.0  0.0  3260  556 pts/19   S    02:33   0:00 grep moz
+mnm:/home/akpm> ps axo pid,comm,wchan|grep moz
+ 1462 mozilla-bin      schedule_timeout
+ 1463 mozilla-bin      rt_sigsuspend
+ 1469 mozilla-bin      rt_sigsuspend
+ 1470 mozilla-bin      rt_sigsuspend
+ 1471 mozilla-bin      rt_sigsuspend
 
-I'm glad that Emacs is bigger and more open than some of the people who use
-it.
-                  -- Tony Reed in gnu.emacs.help
+
+That's just from bringing up X and starting mozilla 1.13a.  Happens every time.
+
+

@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131005AbRACUtI>; Wed, 3 Jan 2001 15:49:08 -0500
+	id <S131161AbRACUz2>; Wed, 3 Jan 2001 15:55:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131051AbRACUs7>; Wed, 3 Jan 2001 15:48:59 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:63236 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S131005AbRACUsx>; Wed, 3 Jan 2001 15:48:53 -0500
-To: shawn.starr@home.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SHM Not working in 2.4.0-prerelease
-In-Reply-To: <3A537EA8.45889173@home.net>
-From: Doug McNaught <doug@wireboard.com>
-Date: 03 Jan 2001 15:15:13 -0500
-In-Reply-To: Shawn Starr's message of "Wed, 03 Jan 2001 14:34:01 -0500"
-Message-ID: <m3g0j0l7e6.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+	id <S131152AbRACUzJ>; Wed, 3 Jan 2001 15:55:09 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:63758 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131165AbRACUXl>;
+	Wed, 3 Jan 2001 15:23:41 -0500
+Date: Wed, 3 Jan 2001 17:47:39 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dcache 2nd chance replacement
+In-Reply-To: <20010103204354.E32185@athlon.random>
+Message-ID: <Pine.LNX.4.21.0101031745380.1403-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr <shawn.starr@home.net> writes:
-
-> [spstarr@coredump /etc]$ free
->              total       used       free     shared    buffers
-> cached
-> Mem:         62496      61264       1232          0       1248
-> 28848
+On Wed, 3 Jan 2001, Andrea Arcangeli wrote:
+> On Wed, Jan 03, 2001 at 04:59:16PM -0200, Rik van Riel wrote:
+> > I know this probably isn't of any help under very low
+> > and very high loads, but it should provide a nice
+> > improvement under medium loads...
 > 
-> 
-> There's no shared memory being used?
+> It should provide an improvement under high VFS load (lots of
+> files lookedup and not kept referenced all the time).
 
-[...]
+Not really. Under very high VFS loads we'd just scan
+through the list twice and free the entries anyway.
 
-> the shmfs is mounted. Is there any configuration i need to get shm
-> memory activiated?
+The only time when this scanning is an improvement is
+when we have something like a "working set" for the
+dentry cache *and* the refill/scan rate is constant
+enough that that "working set" doesn't get flooded out
+by the new dentry pages.
 
-The 'shared' field in /proc/meminfo (source for 'top' and 'free') has
-nothing to do with {SysV,POSIX} shared memory.  The 'shared' field
-referred to memory that was used by more than one process (shared
-libraries, shared text segments etc).  As I understand it, under 2.4
-the 'shared' field is very expensive to calculate, so we don't--the
-zero value is there to avoid breaking programs that parse
-/proc/meminfo. 
+Note that creating a new dentry doesn't set the
+referenced bit exactly to avoid this from happening.
 
--Doug
+regards,
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbUJZJGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbUJZJJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbUJZJGd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 05:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbUJZJGd
+	id S261855AbUJZJJL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 05:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbUJZJJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 05:06:33 -0400
-Received: from hell.org.pl ([62.233.239.4]:2825 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S261852AbUJZJGb (ORCPT
+	Tue, 26 Oct 2004 05:09:11 -0400
+Received: from [69.55.226.176] ([69.55.226.176]:49808 "EHLO www.drugphish.ch")
+	by vger.kernel.org with ESMTP id S261855AbUJZJI7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 05:06:31 -0400
-Date: Tue, 26 Oct 2004 11:06:29 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Len Brown <len.brown@intel.com>, Andi Kleen <ak@suse.de>,
-       "Li, Shaohua" <shaohua.li@intel.com>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: [ACPI] [Proposal]Another way to save/restore PCI config space for suspend/resume
-Message-ID: <20041026090629.GA17454@hell.org.pl>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Len Brown <len.brown@intel.com>, Andi Kleen <ak@suse.de>,
-	"Li, Shaohua" <shaohua.li@intel.com>,
-	ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-	lkml <linux-kernel@vger.kernel.org>, greg@kroah.com,
-	Pavel Machek <pavel@suse.cz>
-References: <1098766257.8433.7.camel@sli10-desk.sh.intel.com> <20041026051100.GA5844@wotan.suse.de> <417DEA8D.4080307@intel.com> <1098780150.2789.19.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <1098780150.2789.19.camel@laptop.fenrus.org>
-User-Agent: Mutt/1.4.2i
+	Tue, 26 Oct 2004 05:08:59 -0400
+Message-ID: <417E1425.208@drugphish.ch>
+Date: Tue, 26 Oct 2004 11:08:53 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 oops (probably I/O congestion/starvation related), already
+ solved?
+References: <417A4E16.9080505@drugphish.ch> <20041025201436.GA23934@suse.de>
+In-Reply-To: <20041025201436.GA23934@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Arjan van de Ven:
-> > What this comes down to is that extended config space is device-specific.
-> > Generic solutions will fail.  Only device drivers will work.
-> > 
-> > If there are no drivers for PCI bridges to properly save/restore
-> > their config space, then should create them, even if this is all the 
-> > drivers do.
-> note that by default, if there is no driver, the first 64 bytes of
-> config space are saved/restored.
+Hello Jens,
 
-That's not enough -- some devices with no drivers (think LPC bridges) might
-need more (see http://bugme.osdl.org/show_bug.cgi?id=3609).
-Best regards,
+Thanks for your reply.
 
+> Just to be on the safe side, have you reproduced it without?
+
+Nope, I would first like to backup the data since this trace got me 
+pretty scared and I care about the data on this disk. So I bought a 
+DVD-R burner and I'm now happily doing my 160GB of backup.
+
+> Just
+> because nvidia doesn't show up in the trace, doesn't mean it hasn't
+> corrupted memory elsewhere.
+
+Fair enough.
+
+> 00200200 is the list deletion poison, double remove of a list and in
+> this case the timer base. That's pretty bad news.
+> 
+> So please do try and reproduce without the nvidia module.
+
+I will try, for sure and I'll post back my results if I can make it oops 
+again.. However I don't know how to reproduce it. I showed up once or 
+twice during high I/O and while I was writing to and reading from disk 
+over ieee1394. Could it also be a bad cable? The I/O is also dog slow 
+when writing to disk, reading is like 15 MBytes/s.
+
+> This is also a list related issue:
+> 
+>         if (!list_empty(&sbi->s_orphan))
+>                 dump_orphan_list(sb, sbi);
+>         J_ASSERT(list_empty(&sbi->s_orphan));
+
+I'll also try a new firewire cable, since most of the times (in my 
+experience) the cable has been the source of all problems. Normally the 
+disk gets only remounted RO during deletion of files (this is a really 
+irritating thing right now, I can't delete my files over ieee1394) which 
+seems to prevent this kind of oops.
+
+Thanks and best regards,
+Roberto Nibali, ratz
 -- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+echo 
+'[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq' | dc

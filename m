@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbUKHHh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbUKHHmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbUKHHh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 02:37:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbUKHHh4
+	id S261773AbUKHHmg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 02:42:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbUKHHmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 02:37:56 -0500
-Received: from linaeum.absolutedigital.net ([63.87.232.45]:61870 "EHLO
-	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S261764AbUKHHhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 02:37:39 -0500
-Date: Mon, 8 Nov 2004 02:37:34 -0500 (EST)
-From: Cal Peake <cp@absolutedigital.net>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kernel SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: [PATCH] Documentation/kernel-parameters.txt: scsi param updates
- [RESEND]
-Message-ID: <Pine.LNX.4.61.0411062327150.31630@linaeum.absolutedigital.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Nov 2004 02:42:36 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2524 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261773AbUKHHmd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 02:42:33 -0500
+Date: Sun, 7 Nov 2004 23:42:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: diffie@gmail.com, linux-kernel@vger.kernel.org, diffie@blazebox.homeip.net,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.10-rc1-mm3
+Message-Id: <20041107234225.02c2f9b6.akpm@osdl.org>
+In-Reply-To: <20041108075934.GA4602@elte.hu>
+References: <9dda349204110611043e093bca@mail.gmail.com>
+	<20041107024841.402c16ed.akpm@osdl.org>
+	<20041108075934.GA4602@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> > Weird.  Can you send me the .config?
+> 
+>  reproducible here too with Paul's .config.
 
-This patch updates Documentation/kernel-parameters.txt with the proper 
-SCSI LUNs params and adds a description for 'max_luns'.
+Me too.  The problem starts out at tty_register_driver():
 
-thanks,
+	if ( !(driver->flags & TTY_DRIVER_NO_DEVFS) ) {
+		for(i = 0; i < driver->num; i++)
+		    tty_register_device(driver, i, NULL);
 
--- Cal
+That NULL for the struct device* propagates all the way down to
+class_hotplug_name() and bang.  This bug is present in Linus's tree.
 
-Signed-off-by: Cal Peake <cp@absolutedigital.net>
 
---- linux-2.6.10-rc1-bk16/Documentation/kernel-parameters.txt	2004-11-06 23:11:03.000000000 -0500
-+++ linux-2.6.10-rc1-bk16-1/Documentation/kernel-parameters.txt	2004-11-06 23:21:07.000000000 -0500
-@@ -652,9 +652,10 @@
- 	maxcpus=	[SMP] Maximum number of processors that	an SMP kernel
- 			should make use of
- 
--	max_scsi_luns=	[SCSI]
-+	max_luns=	[SCSI] Maximum number of LUNs to probe
-+			Should be between 1 and 2^32-1.
- 
--	max_scsi_report_luns=
-+	max_report_luns=
- 			[SCSI] Maximum number of LUNs received
- 			Should be between 1 and 16384.
- 
+0xc026d8ce in class_hotplug_name (kset=0xc03ccf80, kobj=0xc17b3614) at drivers/base/class.c:278
+278             return class_dev->class->name;
+(gdb) bt
+#0  0xc026d8ce in class_hotplug_name (kset=0xc03ccf80, kobj=0xc17b3614) at drivers/base/class.c:278
+#1  0xc02164eb in kobject_hotplug (kobj=0xc17b3614, action=0) at lib/kobject_uevent.c:243
+#2  0xc0215f3a in kobject_add (kobj=0xc17b3614) at lib/kobject.c:188
+#3  0xc026db46 in class_device_add (class_dev=0xc17b360c) at drivers/base/class.c:401
+#4  0xc026dc0d in class_device_register (class_dev=0xc17b360c) at drivers/base/class.c:427
+#5  0xc026e09f in class_simple_device_add (cs=0xcffa3d80, dev=0, device=0x0, fmt=0x0)
+    at drivers/base/class_simple.c:153
+#6  0xc0254b8d in tty_register_device (driver=0xc1781c00, index=0, device=0x0) at drivers/char/tty_io.c:2708
+#7  0xc0254ed0 in tty_register_driver (driver=0xc1781c00) at drivers/char/tty_io.c:2845
+#8  0xc0577a1b in legacy_pty_init () at drivers/char/pty.c:299
+#9  0xc0577be9 in pty_init () at drivers/char/pty.c:406
+#10 0xc05647da in do_initcalls () at init/main.c:625
+#11 0xc056484e in do_basic_setup () at init/main.c:668
+#12 0xc0100410 in init (unused=0x80) at init/main.c:736
+#13 0xc0104255 in kernel_thread_helper () at arch/i386/kernel/process.c:293
+
+I assume that tty_register_driver is at fault, but will call in Greg for
+adjudication. 

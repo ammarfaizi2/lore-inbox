@@ -1,81 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUHWRtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266450AbUHWRuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266295AbUHWRtj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 13:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266306AbUHWRti
+	id S266450AbUHWRuI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 13:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266306AbUHWRuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 13:49:38 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:484 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266295AbUHWRsF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 13:48:05 -0400
-Subject: [PATCH] reduce casting in sysenter.c
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-ENv+0792SJgk/Yrj7UTL"
-Message-Id: <1093283274.3153.958.camel@nighthawk>
+	Mon, 23 Aug 2004 13:50:08 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11392 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266376AbUHWRq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 13:46:59 -0400
+Date: Mon, 23 Aug 2004 19:42:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Erik Rigtorp <erik@rigtorp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make swsusp produce nicer screen output
+Message-ID: <20040823174217.GC603@openzaurus.ucw.cz>
+References: <20040820152317.GA7118@linux.nu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 23 Aug 2004 10:47:54 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040820152317.GA7118@linux.nu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-ENv+0792SJgk/Yrj7UTL
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> I made a small patch that makes swsusp produce a bit nicer screen output,
+> it's still a little rough though.
 
-Ran across this because it's another place where an unsigned long is
-passed directly to __pa().  Making the "page" variable a void* seems a
-bit more natural than an unsigned long and reduces the net number of
-casts by 1.  Without it, we probably need another (void *) cast in the
-__pa() call. 
+Well, it looks nice, be sure to submit smooth version :-).
 
-For more explanation as to why this was probably done originally, see
-this post:
-http://marc.theaimsgroup.com/?l=linux-mm&m=109155379124628&w=2
+				Pavel
 
--- Dave
+> @@ -85,10 +85,17 @@
+>  
+>  static void free_some_memory(void)
+>  {
+> -	printk("Freeing memory: ");
+> -	while (shrink_all_memory(10000))
+> -		printk(".");
+> -	printk("|\n");
+> +	int i = 0;
+> +	char *p = "-\|/";
+> +	
+> +	printk("Freeing memory:  ");
+> +	while (shrink_all_memory(10000)) {
+> +		printk("\b%c", p[i]);
+> +		i++;
+> +		if (i > 3)
+> +			i = 0;
+> +	}
+> +	printk("\bdone\n");
+>  }
 
---=-ENv+0792SJgk/Yrj7UTL
-Content-Disposition: attachment; filename=sysenter-types.patch
-Content-Type: text/x-patch; name=sysenter-types.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
+I'd leave dots here. Its usefull to see if it done something or not.
 
-
-
----
-
- memhotplug-dave/arch/i386/kernel/sysenter.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff -puN arch/i386/kernel/sysenter.c~sysenter-types arch/i386/kernel/sysenter.c
---- memhotplug/arch/i386/kernel/sysenter.c~sysenter-types	2004-08-23 10:38:24.000000000 -0700
-+++ memhotplug-dave/arch/i386/kernel/sysenter.c	2004-08-23 10:38:24.000000000 -0700
-@@ -43,18 +43,18 @@ extern const char vsyscall_sysenter_star
- 
- static int __init sysenter_setup(void)
- {
--	unsigned long page = get_zeroed_page(GFP_ATOMIC);
-+	void *page = (void *)get_zeroed_page(GFP_ATOMIC);
- 
- 	__set_fixmap(FIX_VSYSCALL, __pa(page), PAGE_READONLY_EXEC);
- 
- 	if (!boot_cpu_has(X86_FEATURE_SEP)) {
--		memcpy((void *) page,
-+		memcpy(page,
- 		       &vsyscall_int80_start,
- 		       &vsyscall_int80_end - &vsyscall_int80_start);
- 		return 0;
- 	}
- 
--	memcpy((void *) page,
-+	memcpy(page,
- 	       &vsyscall_sysenter_start,
- 	       &vsyscall_sysenter_end - &vsyscall_sysenter_start);
- 
-_
-
---=-ENv+0792SJgk/Yrj7UTL--
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

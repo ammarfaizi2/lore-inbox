@@ -1,81 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbUKFDac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbUKFDpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbUKFDac (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 22:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbUKFD3S
+	id S261301AbUKFDpP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 22:45:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbUKFDpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 22:29:18 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:4356 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261307AbUKFD0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 22:26:16 -0500
-Subject: RE: Possible GPL infringement in Broadcom-based routers
-From: David Woodhouse <dwmw2@infradead.org>
-To: davids@webmaster.com
-Cc: "Jp@Enix. Org" <jp@enix.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOECKPJAA.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKOECKPJAA.davids@webmaster.com>
-Content-Type: text/plain
-Date: Sat, 06 Nov 2004 03:23:24 +0000
-Message-Id: <1099711404.27598.44.camel@localhost.localdomain>
+	Fri, 5 Nov 2004 22:45:15 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:53013 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261301AbUKFDpK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 22:45:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=YrP8UXGtcJMHe7cd9Y8d5wwVowtCLmXQRVIW7ovR63L/0zBJbY66Gc12tt4QVFtQhvMBAbStkbpuIkiWy5X24tL/TEEAmKrwuPUQQjvsbWtjKJgHlV2XnvR5+v0JynneuJAV5CZmo4b6GSn/C2jDlEHayUv9lJQUdwQCtuzoDyM=
+Message-ID: <8783be660411051945252097c3@mail.gmail.com>
+Date: Fri, 5 Nov 2004 22:45:04 -0500
+From: Ross Biro <ross.biro@gmail.com>
+Reply-To: Ross Biro <ross.biro@gmail.com>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: [PATCH 2/3] WIN_* -> ATA_CMD_* conversion: update WIN_* users to use ATA_CMD_*
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041106032314.GC6060@taniwha.stupidest.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <20041103091101.GC22469@taniwha.stupidest.org>
+	 <418AE8C0.3040205@pobox.com>
+	 <58cb370e041105051635c15281@mail.gmail.com>
+	 <20041106032314.GC6060@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-05 at 11:59 -0800, David Schwartz wrote:
-> If that were true, I could poem up on a billboard and sue anyone who read it.
+On Fri, 5 Nov 2004 19:23:14 -0800, Chris Wedgwood <cw@f00f.org> wrote:
+> @@ -434,7 +434,7 @@
+>                 try_to_flush_leftover_data(drive);
+>         if (hwif->INB(IDE_STATUS_REG) & (BUSY_STAT|DRQ_STAT)) {
+>                 /* force an abort */
+> -               hwif->OUTB(WIN_IDLEIMMEDIATE,IDE_COMMAND_REG);
+> +               hwif->OUTB(ATA_CMD_IDLEIMMEDIATE,IDE_COMMAND_REG);
+>         }
+>         if (rq->errors >= ERROR_MAX || blk_noretry_request(rq))
+>                 DRIVER(drive)->end_request(drive, 0, 0);
 
-Your analogy is flawed. Consider instead the case where you want to sue
-not someone who _read_ it, but someone who copied it down into their
-notebook, went home and then published an anthology of poems including
-yours. 
+Just a reminder, this error recovery doesn't work on many modern hard
+drives, and is a violation of all ATA specs after ATA-2*.  In
+particular, most Maxtor and Western Digital Drives will not recover
+from errors with this command sequence.  The preferred error recovery
+is to do a reset followed by a set features, because that is what
+Windows does (as told to me by a drive vendor).  I've tested the
+reset/set features method of error recovery and it works on all the
+drives I've tried.  I have not tried it on any older drives, or any
+other types of ATAPI devices.
 
->  The FSF is, of course, free to take any position it wants to. As I
-> understand the law, if you want to restrict use, you must restrict access.
-> Give free access, you give free use.
+    Ross
 
-Adam said 'an activity that is restricted by copyright', and in the
-context it's blindingly obvious that he means _copying_ and
-_distribution_, not just use. Yet you persist in your misdirection.
-
-Anyone copying and distributing the Linux kernel must comply with the
-copyright licence which _conditionally_ grants them permission to do so.
-
-In particular, the permissions granted by the GPL on the Linux kernel
-are conditional on your agreement that when you distribute a collective
-work which is based in part on the Linux kernel, you also release all
-other parts of that whole, EVEN THOSE WHICH ARE NOT DERIVED WORKS OF THE
-KERNEL, under the terms of the GPL.
-
-The GPL does not claim any fundamental 'rights' to those parts which are
-your own work, just as commercial copyright licences don't claim any
-fundamental 'right' to your money. It's just a trade you are offered;
-that is what is asked of you, in return for permission to distribute the
-GPL'd work.
-
-You have the right to refrain from entering that agreement; to refrain
-from distributing the GPL'd work. You do not have the right to
-distribute the GPL'd work _without_ complying with the terms of its
-licence. That would be a criminal offence.
-
-Anyone distributing a work which is a whole based on the Linux kernel
-and other non-GPL'd works, other than 'mere aggregation on a volume of a
-storage or distribution medium', is quite clearly violating the terms of
-the GPL. (Bearing in mind the specific exception for userspace).
-
-It's very clear, given that the firmware for these routers is completely
-useless without either the kernel or the network driver modules, that
-it's more than 'mere aggregation' -- the parts form a coherent whole.
-
-Thus, even when the modules are NOT a 'derived work', they _MUST_ be
-distributed under the terms of the GPL in order for permission to
-distribute the _kernel_ to be granted.
-
--- 
-dwmw2
-
+*Most drives set the ATA-2 support flag, so technically they are in
+violation of the ATA spec if they don't support this error recovery,
+but the drive vendors don't care, they just make sure it works with
+windows.

@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265880AbSLIR1g>; Mon, 9 Dec 2002 12:27:36 -0500
+	id <S265828AbSLIRls>; Mon, 9 Dec 2002 12:41:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265885AbSLIR1g>; Mon, 9 Dec 2002 12:27:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36619 "EHLO
+	id <S265798AbSLIRls>; Mon, 9 Dec 2002 12:41:48 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45580 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265880AbSLIR1d>; Mon, 9 Dec 2002 12:27:33 -0500
-Date: Mon, 9 Dec 2002 09:35:59 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Mikael Starvik <mikael.starvik@axis.com>
-cc: "'Daniel Jacobowitz'" <dan@debian.org>,
-       "'george anzinger'" <george@mvista.com>,
-       "'Jim Houston'" <jim.houston@ccur.com>,
-       "'Stephen Rothwell'" <sfr@canb.auug.org.au>,
-       "'LKML'" <linux-kernel@vger.kernel.org>,
-       "'anton@samba.org'" <anton@samba.org>,
-       "'David S. Miller'" <davem@redhat.com>, "'ak@muc.de'" <ak@muc.de>,
-       "'davidm@hpl.hp.com'" <davidm@hpl.hp.com>,
-       "'schwidefsky@de.ibm.com'" <schwidefsky@de.ibm.com>,
-       "'ralf@gnu.org'" <ralf@gnu.org>,
-       "'willy@debian.org'" <willy@debian.org>
-Subject: RE: [PATCH] compatibility syscall layer (lets try again)
-In-Reply-To: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE4E9@mailse01.axis.se>
-Message-ID: <Pine.LNX.4.44.0212090906340.3410-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265828AbSLIRlr>; Mon, 9 Dec 2002 12:41:47 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Intel P6 vs P7 system call performance
+Date: Mon, 9 Dec 2002 17:48:45 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <at2l1t$g5n$1@penguin.transmeta.com>
+References: <200212090830.gB98USW05593@flux.loup.net>
+X-Trace: palladium.transmeta.com 1039456160 26934 127.0.0.1 (9 Dec 2002 17:49:20 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 9 Dec 2002 17:49:20 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 9 Dec 2002, Mikael Starvik wrote:
+In article <200212090830.gB98USW05593@flux.loup.net>,
+Mike Hayward  <hayward@loup.net> wrote:
 >
-> No problem for CRIS architechture (port will be submitted when 2.5.51
-> has been released if that happens before xmas).
+>I have been benchmarking Pentium 4 boxes against my Pentium III laptop
+>with the exact same kernel and executables as well as custom compiled
+>kernels.  The Pentium III has a much lower clock rate and I have
+>noticed that system call performance (and hence io performance) is up
+>to an order of magnitude higher on my Pentium III laptop.  1k block IO
+>reads/writes are anemic on the Pentium 4, for example, so I'm trying
+>to figure out why and thought someone might have an idea.
 
-Note that I've not committed the patch to my tree at all, and as far as I
-am concerned this is in somebody elses court (ie somebody that cares about
-restarting). I don't have any strong feelings either way about how
-restarting should work - and I'd like to have somebody take it up and
-testing it as well as having architecture maintainers largely sign off on
-this approach.
+P4's really suck at system calls.  A 2.8GHz P4 does a simple system call
+a lot _slower_ than a 500MHz PIII. 
 
-It's certainly more flexible to save restart info in user space registers,
-so in that way it's good. It has some downsides, though - it may be
-against the callinmg convention of the architecture, for example, to
-change those registers (some people expect the system call arguments to
-not be changed by the system call, so when it returns and the arguments
-have been modified to be the "restart arguments", those people would be
-unhappy).
+The P4 has problems with some other things too, but the "int + iret"
+instruction combination is absolutely the worst I've seen.  A 1.2GHz
+Athlon will be 5-10 times faster than the fastest P4 on system call
+overhead. 
 
-And apparently ia64 is again being a singularly awkward architecture.
+HOWEVER, the P4 is really good at a lot of other things. On average, a
+P4 tends to perform quite well on most loads, and hyperthreading (if you
+have a Xeon or one of the newer desktop CPU's) also tends to work quite
+well to smooth things out in real life.
+
+In short: the P4 architecture excels at some things, and it sucks at
+others. It _mostly_ tends to excel more than suck.
 
 			Linus
-

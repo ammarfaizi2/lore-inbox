@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUJSEou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267935AbUJSE4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267921AbUJSEou (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 00:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267939AbUJSEot
+	id S267935AbUJSE4V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 00:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267939AbUJSE4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 00:44:49 -0400
-Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:50809 "HELO
-	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267921AbUJSElQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 00:41:16 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] SCSI updates for 2.6.9
-Date: Mon, 18 Oct 2004 23:41:13 -0500
-User-Agent: KMail/1.6.2
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>, willy@debian.org,
-       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
-References: <1098137016.2011.339.camel@mulgrave>
-In-Reply-To: <1098137016.2011.339.camel@mulgrave>
+	Tue, 19 Oct 2004 00:56:20 -0400
+Received: from jpnmailout01.yamato.ibm.com ([203.141.80.81]:49821 "EHLO
+	jpnmailout01.yamato.ibm.com") by vger.kernel.org with ESMTP
+	id S267935AbUJSE4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 00:56:19 -0400
+In-Reply-To: <200410182041.02192.david-b@pacbell.net>
+Subject: Re: [ACPI] Re: PATCH/RFC: driver model/pmcore wakeup hooks (1/4)
+To: David Brownell <david-b@pacbell.net>
+Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@ucw.cz>
+X-Mailer: Lotus Notes Release 6.0.2CF2 July 23, 2003
+Message-ID: <OF79267D02.4622732F-ON49256F32.001A8322-49256F32.001A98B9@jp.ibm.com>
+From: Hiroshi 2 Itoh <HIROIT@jp.ibm.com>
+Date: Tue, 19 Oct 2004 13:55:32 +0900
+X-MIMETrack: Serialize by Router on D19ML115/19/M/IBM(Release 6.51HF338 | June 21, 2004) at
+ 2004/10/19 13:55:55
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410182341.13648.dtor_core@ameritech.net>
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 October 2004 05:03 pm, James Bottomley wrote:
 
-> Matthew Wilcox:
->   o Add SPI-5 constants to scsi.h
 
-This breaks Firewire SBP2 build:
 
-  CC [M]  drivers/ieee1394/sbp2.o
-In file included from drivers/ieee1394/sbp2.c:78:
-drivers/ieee1394/sbp2.h:61:1: warning: "ABORT_TASK_SET" redefined
-In file included from drivers/scsi/scsi.h:31,
-                 from drivers/ieee1394/sbp2.c:67:
-include/scsi/scsi.h:255:1: warning: this is the location of the previous definition
-In file included from drivers/ieee1394/sbp2.c:78:
-drivers/ieee1394/sbp2.h:62:1: warning: "LOGICAL_UNIT_RESET" redefined
-In file included from drivers/scsi/scsi.h:31,
-                 from drivers/ieee1394/sbp2.c:67:
-include/scsi/scsi.h:267:1: warning: this is the location of the previous definition
 
-It looks like firewire has its own set of commands with conflicting names.
-Who should win?
+David Brownell wrote:
 
--- 
-Dmitry
+>So what would that patch need before ACPI could convert to use it?
+
+>I didn't notice any obvious associations between the strings in
+>the acpi/wakeup file and anything in sysfs.  Which of USB1..USB4
+>was which of the three controllers shown by "lspci" (and which
+>one was "extra"!), as one head-scratcher.
+
+>For PCI, I'd kind of expect pci_enable_wake() to trigger the
+>additional ACPI-specific work to make sure the device can
+>actually wake that system.   Seems like dev->platform_data
+>might need to combine with some platform-specific API hook.
+
+>- Dave
+
+Does anoyone give me a link to the original RFC?
+I cannot find the original mail as a newbie associated with this list.
+
+Hiro.
+

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129876AbQJ0K0P>; Fri, 27 Oct 2000 06:26:15 -0400
+	id <S129150AbQJ0KcP>; Fri, 27 Oct 2000 06:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129873AbQJ0K0H>; Fri, 27 Oct 2000 06:26:07 -0400
-Received: from Cantor.suse.de ([194.112.123.193]:19461 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129866AbQJ0KZw>;
-	Fri, 27 Oct 2000 06:25:52 -0400
-Date: Fri, 27 Oct 2000 12:25:49 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Andi Kleen <ak@suse.de>, Alexander Viro <viro@math.psu.edu>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>, kumon@flab.fujitsu.co.jp,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Negative scalability by removal of lock_kernel()?(Was: Strange performance behavior of 2.4.0-test9)
-Message-ID: <20001027122549.A22417@gruyere.muc.suse.de>
-In-Reply-To: <39F92187.A7621A09@timpanogas.org> <Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>, <Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>; <20001027094613.A18382@gruyere.muc.suse.de> <39F957BC.4289FF10@uow.edu.au>
-Mime-Version: 1.0
+	id <S129155AbQJ0KcF>; Fri, 27 Oct 2000 06:32:05 -0400
+Received: from isis.its.uow.edu.au ([130.130.68.21]:46293 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129150AbQJ0Kbz>; Fri, 27 Oct 2000 06:31:55 -0400
+Message-ID: <39F95995.FA84F9D9@uow.edu.au>
+Date: Fri, 27 Oct 2000 21:31:49 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Timothy Ball <timball@tux.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VM-global-2.2.18pre17-7
+In-Reply-To: <Pine.LNX.4.21.0010251633080.3324-100000@freak.distro.conectiva> <39F84B64.5935C12@ovh.net> <39F8566D.51561CB3@profmakx.de> <39F85A09.DA88452F@ovh.net>,
+		<39F85A09.DA88452F@ovh.net>; from oles@ovh.net on Thu, Oct 26, 2000 at 06:21:29PM +0200 <20001026155323.E12432@gwyn.tux.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <39F957BC.4289FF10@uow.edu.au>; from andrewm@uow.edu.au on Fri, Oct 27, 2000 at 09:23:56PM +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2000 at 09:23:56PM +1100, Andrew Morton wrote:
-> Andi Kleen wrote:
-> > 
-> > When you have two CPUs contending on common paths it is better to do:
-> > [ spinlock stuff ]
+Timothy Ball wrote:
 > 
-> Andi, if the lock_kernel() is removed then the first time the CPUs will butt heads is on a semaphore.  This is much more expensive.
-> 
-> I bet if acquire_fl_sem() and release_fl_sem() are turned into lock_kernel()/unlock_kernel() then the scalability will come back.
+> I get similar eth0 hangs using a 3c59x. Though outside of rebooting I
+> have no clue how to get networking going again.
 
-To test your theory it would be enough to watch context switch rates in top
+If this is 2.2.17 then please send me the details.
 
-
-
--Andi
+If it's something earlier then you will need to use the 2.2.17 driver. 
+Or, even better, the 2.2.18 candidate:
+http://www.uow.edu.au/~andrewm/linux/3c59x-2.2.18-pre16-1.gz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUJATQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266183AbUJATSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266189AbUJATQk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 15:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUJATQk
+	id S266183AbUJATSf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 15:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUJATSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 15:16:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21449 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266170AbUJATQj (ORCPT
+	Fri, 1 Oct 2004 15:18:34 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:50632 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266183AbUJATS2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 15:16:39 -0400
-Date: Fri, 1 Oct 2004 12:14:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Sy, Dely L" <dely.l.sy@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm4 - Getting dev->irq equals 0
-Message-Id: <20041001121421.6f47861a.akpm@osdl.org>
-In-Reply-To: <468F3FDA28AA87429AD807992E22D07E02B9512F@orsmsx408>
-References: <468F3FDA28AA87429AD807992E22D07E02B9512F@orsmsx408>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 1 Oct 2004 15:18:28 -0400
+Message-ID: <12c511ca04100112181a252c92@mail.gmail.com>
+Date: Fri, 1 Oct 2004 12:18:25 -0700
+From: Tony Luck <tony.luck@gmail.com>
+Reply-To: tony.luck@intel.com
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [ia64 patch 2.6.9-rc3] build: ccache/distcc fix for ia64
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, kai@germaschewski.name, sam@ravnborg.org
+In-Reply-To: <16733.12213.315295.653547@napali.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20041001101040.GA25104@elte.hu>
+	 <16733.12213.315295.653547@napali.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Sy, Dely L" <dely.l.sy@intel.com> wrote:
->
-> Andrew,
+On Fri, 1 Oct 2004 03:21:41 -0700, David Mosberger
+<davidm@napali.hpl.hp.com> wrote:
+> >>>>> On Fri, 1 Oct 2004 12:10:40 +0200, Ingo Molnar <mingo@elte.hu> said:
 > 
-> I encountered a problem in running shpchp & pciehp drivers on
-> 2.6.9-rc2-mm4 kernel.  With ACPI & MSI enabled in the kernel, I 
-> got dev->irq properly for the hot-plug controllers.  With ACPI 
-> enabled and MSI not-enabled in this kernel, I got dev->irq 
-> equal 0 for the controllers. With the same options set in 
-> 2.6.8.1 & 2.6.9-rc2, things worked fine on the same system.
+>   Ingo> the (tested) patch below fixes ccache/distcc-assisted building
+>   Ingo> of the ia64 tree. (CC is "ccache distcc gcc" in that case, not
+>   Ingo> a simple one-word "gcc" - this confused the check-gas and
+>   Ingo> toolchain-flags scripts.)
 > 
-> Do you know of any changes in the -mm4 that might have caused this
-> problem?
+> Looks fine to me.
+> 
+> Thanks,
+> 
+>         --david
 
-Sorry, no, I cannot suggest where the problem lies.  Possibly
-bk-acpi.patch, but that's quite small at present.
+Me too ... applied (though I would have found this patch faster if you
+had copied
+the linux-ia64@vger.kernel.org list).
+
+-Tony
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,70 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262402AbSJ0OHu>; Sun, 27 Oct 2002 09:07:50 -0500
+	id <S262409AbSJ0O1O>; Sun, 27 Oct 2002 09:27:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262404AbSJ0OHu>; Sun, 27 Oct 2002 09:07:50 -0500
-Received: from mta01bw.bigpond.com ([139.134.6.78]:53743 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S262402AbSJ0OHt>; Sun, 27 Oct 2002 09:07:49 -0500
-Message-ID: <3DBBF4EB.7030406@snapgear.com>
-Date: Mon, 28 Oct 2002 00:15:07 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: linux-2.5.44uc1 (MMU-less support)
-References: <3DBAC09A.4090104@snapgear.com> <20021026201856.GA1670@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262410AbSJ0O1O>; Sun, 27 Oct 2002 09:27:14 -0500
+Received: from zero.aec.at ([193.170.194.10]:20229 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S262409AbSJ0O1O>;
+	Sun, 27 Oct 2002 09:27:14 -0500
+Date: Sun, 27 Oct 2002 15:33:27 +0100
+From: Andi Kleen <ak@muc.de>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New nanosecond stat patch for 2.5.44 - new patch II
+Message-ID: <20021027143327.GA21795@averell>
+References: <20021027121318.GA2249@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021027121318.GA2249@averell>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+> ftp://ftp.firstfloor.org/pub/ak/v2.5/nsec-2.5.44-1.bz2
 
-Sam Ravnborg wrote:
-> On Sun, Oct 27, 2002 at 02:19:38AM +1000, Greg Ungerer wrote:
-> 
->>   - arch Makefiles rewritten
-> 
-> Took a look at them.
-> See comments below.
+This version unfortunately had some problems. I removed it now
+and replaced it with 
 
-Thanks.
-Rolled on these in to the next patch set.
+ftp://ftp.firstfloor.org/pub/ak/v2.5/nsec-2.5.44-2.bz2
 
-Had to make one small adjustment:
+If you already got -1 please redownload.
 
-> +
-> +arch/$(ARCH)/kernel/asm-offsets.s: include/asm include/linux/version.h \
-> +				   include/config/MARKER
-> +
-> +include/asm-$(ARCH)/asm-offsets.h.tmp: arch/$(ARCH)/kernel/asm-offsets.s
-> +	@$(generate-asm-offsets.h) < $< > $@
-> +
-> +include/asm-$(ARCH)/asm-offsets.h: include/asm-$(ARCH)/asm-offsets.h.tmp
-> +	@echo -n '  Generating $@'
-> +	@$(update-if-changed)
-> Combine it like this instead:
-> include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
-> 				   include/asm include/linux/version.h \
-> 				   include/config/MARKER
-> 	@echo -n '  Generating $@'
-> 	@$(generate-asm-offsets.h) < $< > $@
-                                           ^^^
-
-This needs to be $@.tmp, "update-if-changed" specifically looks
-for the .tmp named file.
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
+Thank you,
+-Andi

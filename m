@@ -1,103 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264082AbUEXGkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbUEXGmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264082AbUEXGkY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 02:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbUEXGkX
+	id S263028AbUEXGmi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 02:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUEXGmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 02:40:23 -0400
-Received: from web90007.mail.scd.yahoo.com ([66.218.94.65]:49014 "HELO
-	web90007.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S264072AbUEXGkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 02:40:00 -0400
-Message-ID: <20040524063959.5107.qmail@web90007.mail.scd.yahoo.com>
-Date: Sun, 23 May 2004 23:39:59 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: Help understanding slow down
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, jakob@unthought.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040524062754.GO1833@holomorphy.com>
-MIME-Version: 1.0
+	Mon, 24 May 2004 02:42:37 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:3051 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263028AbUEXGmV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 02:42:21 -0400
+Date: Mon, 24 May 2004 10:43:34 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Billy Biggs <vektor@dumbterm.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: tvtime and the Linux 2.6 scheduler
+Message-ID: <20040524084334.GB24967@elte.hu>
+References: <20040523154859.GC22399@dumbterm.net> <200405240254.20171.kernel@kolivas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405240254.20171.kernel@kolivas.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, here is the output:
 
-317955 total                                     
-0.1302
-263633 poll_idle                               
-4545.3966
-  6764 do_page_fault                             
-5.1951
-  3650 kmap_atomic                              
-28.2946
-  3288 __d_lookup                               
-12.0000
-  1856 atomic_dec_and_lock                      
-30.4262
-  1823 do_no_page                                
-2.4870
-  1398 do_anonymous_page                         
-3.1991
-  1168 link_path_walk                            
-0.5266
-  1138 find_get_page                            
-19.9649
-  1128 zap_pte_range                             
-1.2450
-  1075 nfs_lookup_revalidate                     
-0.7739
-  1039 page_remove_rmap                          
-5.0437
-  1006 in_group_p                                
-9.4906
-   987 handle_mm_fault                           
-2.2742
-   913 do_wp_page                                
-1.1499
-   816 finish_task_switch                        
-6.6885
-   772 tg3_poll                                  
-2.6621
-   762 rpcauth_lookup_credcache                  
-1.3275
-   722 page_add_file_rmap                        
-4.1257
-   623 system_call                              
-14.1591
-   607 strncpy_from_user                         
-6.8202
+* Con Kolivas <kernel@kolivas.org> wrote:
 
-Thanks again!
-Phy
-
-
-
---- William Lee Irwin III <wli@holomorphy.com> wrote:
-> On Sun, May 23, 2004 at 11:23:37PM -0700, Phy Prabab
-> wrote:
-> > Sorry for the late reply.   No this is a dual Xeon
-> > 3.06Ghz.  All runs are with the same hardware and
-> same
-> > make/build system.
-> > How do I generate a profile of the system.  I have
-> > alrady compiled profiling and have enabled the
-> kernel.
+> >      33 ms : time per NTSC frame
 > 
-> readprofile -n -m /boot/System.map-`uname -r` | sort
-> -rn -k 1,1 | head -22
+> snip
 > 
-> No need for compiled-in support, just boot with
-> profile=1.
-> 
-> 
-> -- wli
+> The followup email from someone describing good performance may help
+> us understand what's going on. Your example of poor performance is one
+> when the cpu performance is marginal to get exactly 30 fps processed
+> and on the screen. The cpu overhead in 2.6 is slightly higher than 2.4
+> so a borderline case may be just pushed over. 
 
+most of the cpu overhead comes from HZ=1000. Especial with SCHED_FIFO
+there should be minimal (if any) impact from the scheduler changes -
+SCHED_FIFO tasks get all CPU time, no ifs and whens.
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Domains – Claim yours for only $14.70/year
-http://smallbusiness.promotions.yahoo.com/offer 
+could people who experience tvtime performance problems apply the patch
+below to change HZ back to 100? Does it have any impact?
+
+	Ingo
+
+--- linux/include/asm-i386/param.h.orig	
++++ linux/include/asm-i386/param.h	
+@@ -2,7 +2,7 @@
+ #define _ASMi386_PARAM_H
+ 
+ #ifdef __KERNEL__
+-# define HZ		1000		/* Internal kernel timer frequency */
++# define HZ		100		/* Internal kernel timer frequency */
+ # define USER_HZ	100		/* .. some user interfaces are in "ticks" */
+ # define CLOCKS_PER_SEC		(USER_HZ)	/* like times() */
+ #endif

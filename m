@@ -1,47 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVBNK2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVBNKai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVBNK2V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 05:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVBNK2V
+	id S261383AbVBNKai (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 05:30:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVBNKah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 05:28:21 -0500
-Received: from pop.gmx.de ([213.165.64.20]:61586 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261386AbVBNK2J (ORCPT
+	Mon, 14 Feb 2005 05:30:37 -0500
+Received: from black.click.cz ([62.141.0.10]:45761 "EHLO click.cz")
+	by vger.kernel.org with ESMTP id S261383AbVBNKaL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 05:28:09 -0500
-X-Authenticated: #8956447
-Subject: Re: [Problem] slow write to dvd-ram since 2.6.7-bk8
-From: Droebbel <droebbel.melta@gmx.de>
+	Mon, 14 Feb 2005 05:30:11 -0500
+From: Michal Rokos <michal@rokos.info>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <20050214085320.GA4910@dose.home.local>
-References: <1108301794.9280.18.camel@localhost.localdomain>
-	 <20050213142635.GA2035@animx.eu.org>
-	 <20050214085320.GA4910@dose.home.local>
-Content-Type: text/plain
-Date: Mon, 14 Feb 2005 11:28:06 +0100
-Message-Id: <1108376886.9495.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.1.5 
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+Date: Mon, 14 Feb 2005 11:29:50 +0100
+User-Agent: KMail/1.7.92
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Disposition: inline
+Message-Id: <200502141129.51037.michal@rokos.info>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mo, 2005-02-14 at 09:53 +0100, Tino Keitel wrote:
->I also have low write performance (around 300 kb/s) with several 2.6
->kernels (2.6.7 to 2.6.9-mm1) and I can hear the head jump around when I
->use ext2 or UDF. It will be fast when written directly to the device
->without a file system using dd.  The drive is a LG GSA-4040B. I tried
->several media types from Panasonic and EMTEC.
->
->I'll try to test if the problem disappears with 2.6.6.
+Hello,
 
-I had also tested writing with dd (forgot to mention), it seemed faster
-sometimes, but not as fast as it could be. pre-2.6.7-bk8 was still
-faster, though only about 25%.
+I was unable to compile hotplug-ng against klibc until this patch went
+in:
 
-Which 2.6.7 did you use? 
+--- /dev/null   2005-02-14 09:23:10.000000000 +0100
++++ hotplug-ng/klibc/include/features.h 2005-02-11 16:18:35.000000000
++0100
+@@ -0,0 +1,5 @@
++#ifndef        _FEATURES_H
++#define        _FEATURES_H     1
++
++#endif /* features.h  */
++
 
-Regards
-David
+My system is debian (sid);
+gcc version 3.3.5 (Debian 1:3.3.5-8)
+libc6-2.3.2.ds1-20
 
+The same goes for udev + klibc.
+
+Or is there other trick?
+
+Michal
+
+PS: Error message was:
+Precompiling hotplug.c:                                               [ERROR]
+gcc -pipe -DLOG -Os -fomit-frame-pointer -D_GNU_SOURCE -Wall -nostdinc 
+-mregpar
+m=3 -DREGPARM=3 -march=i386 -Os -g -falign-functions=0 -falign-jumps=0 
+-falign-
+loops=0 -D__KLIBC__ -fno-builtin-printf 
+-I/home/michal/WORK/devel/bk/hotplug-ng
+/klibc_fixups 
+-include /home/michal/WORK/devel/bk/hotplug-ng/klibc_fixups/klibc
+_fixups.h -I/home/michal/WORK/devel/bk/hotplug-ng/klibc/include 
+-I/home/michal/
+WORK/devel/bk/hotplug-ng/klibc/include/arch/i386 
+-I/home/michal/WORK/devel/bk/h
+otplug-ng/klibc/include/bits32 -I/usr/lib/gcc-lib/i486-linux/3.3.5/include 
+-I/l
+ib/modules/2.6.11-rc4-mr/build/include 
+-I/home/michal/WORK/devel/bk/hotplug-ng/
+libsysfs/sysfs -I/home/michal/WORK/devel/bk/hotplug-ng/libsysfs -c -o 
+hotplug.o
+ hotplug.c
+In file included 
+from /lib/modules/2.6.11-rc4-mr/build/include/linux/posix_type
+s.h:47,
+                 from /home/michal/WORK/devel/bk/hotplug-ng/klibc/include/sys/t
+ypes.h:15,
+                 from /home/michal/WORK/devel/bk/hotplug-ng/klibc/include/unist
+d.h:11,
+                 from /home/michal/WORK/devel/bk/hotplug-ng/klibc_fixups/klibc_
+fixups.h:7,
+                 from <command line>:8:
+/usr/lib/gcc-lib/i486-linux/3.3.5/include/asm/posix_types.h:13:22: features.h:
+No such file or directory
+make: *** [hotplug.o] Error 1

@@ -1,56 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262345AbTJFQUb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 12:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbTJFQUb
+	id S262369AbTJFQUF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 12:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbTJFQUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 12:20:31 -0400
-Received: from cs666870-201.austin.rr.com ([66.68.70.201]:5763 "EHLO
-	mod.homelinux.org") by vger.kernel.org with ESMTP id S262345AbTJFQUI
+	Mon, 6 Oct 2003 12:20:05 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:65154 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264015AbTJFQTl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 12:20:08 -0400
-From: Sraphim <sraphim@mofd.net>
-To: linux-kernel@vger.kernel.org
-Subject: SBP2 does not work with Apple iPod in versions later than 2.4.19
-Date: Mon, 6 Oct 2003 11:49:28 -0500
-User-Agent: KMail/1.5
-Organization: Mists of Destiny
+	Mon, 6 Oct 2003 12:19:41 -0400
+Date: Mon, 6 Oct 2003 12:22:04 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: John Bradford <john@grabjohn.com>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, Dave Jones <davej@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FDC motor left on
+In-Reply-To: <200310061606.h96G6qhp000963@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.53.0310061218040.9590@chaos>
+References: <Pine.LNX.4.53.0310031322430.499@chaos> <20031003235801.GA5183@redhat.com>
+ <Pine.LNX.4.53.0310060834180.8593@chaos> <16257.26407.439415.325123@gargle.gargle.HOWL>
+ <Pine.LNX.4.53.0310061059220.9165@chaos> <200310061606.h96G6qhp000963@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310061149.28426.sraphim@mofd.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have recently upgraded from 2.4.19 to 2.4.22, and have discovered that the 
-SBP2 module no longer functions correctly with the Apple iPod (which should 
-behave like a standard firewire disk drive). In the 2.4.19 kernel, it works 
-perfectly, every time, however, it does not anymore. I have also tried every 
-version after 2.4.19, and the same problem exists.
+On Mon, 6 Oct 2003, John Bradford wrote:
 
-It detects the device fine, and it "logs into" it, and on the screen of the 
-iPod, it has the "do not disconnect' sign, meaning that it did that step 
-successfully, but its impossible to mount. In the old kernel version, I would 
-use mount /dev/sda2 , and it would mount the volume just fine, but now, mount 
-claims that sda2 is not a valid block device. 
+> > > > If you can end up with another floppy drive motor on under
+> > > > any condition when the kernel is given control, then you
+> > > > can simply reset both (or all) floppy motor control bits.
+> > >
+> > > This is not a problem to deal with in the kernel - what if there is
+> > > hardware other than a floppy controller at that address?
+> > >
+> >
+> > In the ix86 architecture (and it is in arch-specific code), there
+> > cannot be anything at this address except a floppy or nothing.
+> > In both cases, you are covered.
+> >
+> > I any embedded systems developer decides to put something besides
+> > a FDC at that address, it is up to them to fix the problems they
+> > create, not linux.
+>
+> If no support for floppy drives is compiled in to the kernel, it's
+> reasonable to expect no floppy-related accesses to be done to those
+> ports.
+>
+> > > The bootloader needs to ensure that the hardware is at least in a
+> > > sensible state when the kernel is entered.  Infact, unless the system
+> > > is being booted from floppy, why is the BIOS accessing the floppy at
+> > > all?
+> > >
+> >
+> > The BIOS accesses the floppy (if one exists) because of the
+> > boot order having been selected. Many who have computers,
+> > that are not accessible to others, have the BIOS set up so
+> > that the first thing to check for a boot-loader is the floppy,
+> > then the CD-ROM, then the hard disk. This lets them do their
+> > normal work without having to muck with the BIOS.
+> >
+> > It is not an error to configure a machine this way. It
+> > is an option. It is an error, however, to leave a floppy
+> > disk-drive motor ON forever.
+>
+> OK, so the bootloader is at fault, not the BIOS.  If the BIOS is
+> configured to allow booting from floppy, but you decide to boot from
+> other media on any occasion, the first code loaded, I.E. the
+> bootloader, should turn off the floppy motor.
+>
+> > > Re-configure the BIOS not to try to boot from the floppy, or to seek
+> > > the drive to see whether it is capable of 40 or 80 tracks.
+> > >
+> >
+> > The BIOS can be (correctly) set to any of many possible boot-
+> > options.
+>
+> If the floppy motor ends up being on all the time, how is that a
+> correct configuration?
+>
+> > > If that is not possible, (on a laptop with an obscure BIOS for
+> > > example), add a delay to the bootloader.  Assumng interupts are still
+> > > enabled, the BIOS will switch the floppy off after a few seconds.
+> > >
+> >
+> > An arbitrary delay is a very bad hack.
+>
+> Yes, it is, the real solution is to fix the bootloader.  I was simply
+> providing a workaround.
+>
+> > If you need something OFF,
+> > you turn it OFF. One should never work-around a primative like
+> > ON or OFF. The digital-output registers at the FDC's specified
+> > address is where this is done.
+>
+> I consider it just as much of a hack to add floppy-related code to all
+> i386 kernels whether they are for floppy-less machines or not.
+>
+> John.
+>
 
-Here is the output from dmesg after I insmod sbp2. Note how there is no 
-information regarding SCSI device assignment and the like:
+Well we are in agreement that it must be turned OFF. The only
+question is where it should be done. Already the kernel fixes
+the video board (generic VGA) and other stuff that it may
+find wrong (PCI bus), etc. So, a simple read/write to a
+machine-compatible port might be the simplest accommodation.
 
-ieee1394: Node added: ID:BUS[0-01:1023]  GUID[000a2700020c8630]
-ieee1394: The root node is not cycle master capable; selecting a new root node 
-and resetting...
-ieee1394: Node changed: 0-01:1023 -> 0-00:1023
-ieee1394: Node changed: 0-00:1023 -> 0-01:1023
-sbp2: $Rev: 1010 $ Ben Collins <bcollins@debian.org>
-scsi0 : SCSI emulation for IEEE-1394 SBP-2 Devices
-ieee1394: sbp2: Logged into SBP-2 device
-ieee1394: sbp2: Node 0-00:1023: Max speed [S400] - Max payload [2048]
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-I am sure that I compiled in SCSI support, and SCSI disk/CDROM/tape/generic 
-support into the kernel. I have also compiled in support for ieee1394. No 
-matter what, it does not work correctly. Am I missing something? Or perhaps 
-this new SBP2 module requires me to pass something to it in order to enable 
-the SCSI emulation or something?
+

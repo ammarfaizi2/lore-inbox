@@ -1,163 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289360AbSAVTSA>; Tue, 22 Jan 2002 14:18:00 -0500
+	id <S289363AbSAVTVK>; Tue, 22 Jan 2002 14:21:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289365AbSAVTRw>; Tue, 22 Jan 2002 14:17:52 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:42765 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S289360AbSAVTRn>; Tue, 22 Jan 2002 14:17:43 -0500
-Date: Tue, 22 Jan 2002 16:06:38 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.18-pre6
-Message-ID: <Pine.LNX.4.21.0201221602360.2059-100000@freak.distro.conectiva>
+	id <S289364AbSAVTVA>; Tue, 22 Jan 2002 14:21:00 -0500
+Received: from 216-42-72-169.ppp.netsville.net ([216.42.72.169]:60631 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S289363AbSAVTUw>; Tue, 22 Jan 2002 14:20:52 -0500
+Date: Tue, 22 Jan 2002 14:19:45 -0500
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>, Rik van Riel <riel@conectiva.com.br>
+cc: Andreas Dilger <adilger@turbolabs.com>, Shawn Starr <spstarr@sh0n.net>,
+        linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: Possible Idea with filesystem buffering.
+Message-ID: <2080500000.1011727185@tiny>
+In-Reply-To: <3C4DB36F.4090306@namesys.com>
+In-Reply-To: <Pine.LNX.4.33L.0201221234470.32617-100000@imladris.surriel.com>
+ <3C4DB36F.4090306@namesys.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Well, I ended up including a wrong patch in pre5. Do not use it.
 
-Here is pre6 to fix that mistake.
+On Tuesday, January 22, 2002 09:46:07 PM +0300 Hans Reiser
+<reiser@namesys.com> wrote:
 
-pre6:
+> Rik van Riel wrote:
+>>> The FS doesn't know how long a page has been dirty, or how often it
+>>> gets used,
+>> In an efficient system, the FS will never get to know this, either.
+> 
+> I don't understand this statement.  If dereferencing a vfs op for every
+> page aging is too expensive, then ask it to age more than one page at a
+> time.  Or do I miss your meaning?
 
-- Removed patch in icmp code: its not needed 
-  and causes problems				(me)
+Its not about the cost of a function call, it's what the FS does to make
+that call useful.  Pretend for a second the VM tells the FS everything it
+needs to know to age a page (whatever scheme the FS wants to use).
 
-pre5:
+Then pretend the VM decides there's memory pressure, and tells the FS
+subcache to start freeing ram.  So, the FS goes through its list of pages
+and finds the most suitable one for flushing, but it has no idea how
+suitable that page is in comparison with the pages that don't belong to
+that FS (or even other pages from different mount points of the same FS
+flavor).
 
-- Include missing radeonfb defines		(Erik Andersen)
-- Fix fs/buffer.c thinko introduced in pre4	(Andrew Morton)
-- USB bugfixes					(Greg KH)
-- Make fat work correctly with gcc-3.0.x 	(Tom Rini)
-- Avoid overusage of the vmalloc area by 
-  NTFS						(Anton Altaparmakov)
-- atyfb: Decrease clock rate for 3d RAGE XL 	(David S. Miller)
-- Sungem driver bugfixes			(David S. Miller)
-- More networking updates			(David S. Miller)
-- More SPARC updates				(David S. Miller)
-- devfs update 					(Richard Gooch)
-- Reiserfs expanding truncate fix		(Chris Mason)
-- ext3 update					(Andrew Morton/Stephen Tweedie)
-- Add support to WDIOC_SETTIMEOUT on several
-  watchdog drivers				(Joel Becker)
-- dl2k driver update				(Jeff Garzik)
-- Orinoco driver update				(David Gibson)
-- Radeonfb driver update			(Ani Joshi)
-- Avoid free_swap_and_cache() from leaving 
-  freeable pages on the cache			(Hugh Dickins)
-- Add workarounds for AMD Elan processors	(Robert Schwebel)
-- Random pmac driver bugfixing			(Benjamin Herrenschmidt)
-- emu10k1 driver update				(Rui Sousa)
+Since each subcache has its own aging scheme, you can't look at a page from
+subcache A and compare it with a page from subcache B.
 
-pre4:
+All the filesystem can do is flush its own pages, which might be the least
+suitable pages on the entire box.  The VM has no way of knowing, and
+neither does the FS, and that's why its inefficient.
 
-- Networking updates				(David S. Miller)
-- clgenfb update				(Jeff Garzik)
-- 8139cp: make it faster			(Jeff Garzik)
-- 8139too: fix bugs, add experimental RX reset	(Jeff Garzik)
-- Add MII ethtool interface and change 
-  several drivers to support that		(Jeff Garzik)
-- Fix ramdisk corruption problems		(Andrea Arcangeli) 	
-- Correct in-kernel MS_ASYNC behaviour 
-  on msync/fsync()				(Andrew Morton)
-- Fix PLIP problems 				(Niels Jensen)
-- Fix problems triggered by the "fsx test" 
-  on smbfs					(Urban Widmark)
-- Turn on OOSTORE for IDT winchip		(from -ac tree)
-- Fix iphase crash				(from -ac tree)
-- Fix crash with two mxser cards		(from -ac tree)
-- Fix tty write block bug			(from -ac tree)
-- Add mono/stereo detect to gemtek pci radio	(from -ac tree)
-- Fix sf16fmi crash on load			(from -ac tree)
-- add CP1250 (windows eastern european) 
-  translation table				(from -ac tree)
-- cs46xx driver update				(from -ac tree)
-- Fix rare data loss case with RAID-1		(Ingo Molnar)
-- Add 2.5.x compatibility for the kdev_t
-  changes					(me)
-- SPARC updates					(David S. Miller)
+Please let me know if I misunderstood the original plan ;-)
 
-pre3:
-
-- Cris arch merge				(Bjorn Wesen)
-- Finish PPC merge				(Benjamin Herrenschmidt)
-- Add Dell PowerEdge 2400 to 
-  "use BIOS to reboot" blacklist		(Arjan van de Ven)
-- Avoid potential oops at module unload with 
-  cyclades driver				(Andrew Morton)
-- Gracefully handle SCSI initialization 
-  failures					(Pete Zaitcev)
-- USB update					(Greg KH)
-- Fix potential oops while ejecting ide cds 	(Zwane Mwaikambo)
-- Unify page freeing codepaths 			(Benjamin LaHaise)
-- Miata dma corruption workaround 		(Richard Henderson)
-- Fix vmalloc corruption problem on machines 
-  with virtual dcaches				(Ralf Baechle)
-- Reiserfs fixes				(Oleg Drokin)
-- DiskOnChip driver update			(David Woodhouse)
-- Do not inherit page locking rules across 
-  fork/exec					(Dave Anderson)
-- Add DRM 4.0 for XFree 4.0 users convenience	(Christoph Hellwig)
-- Replace .text.lock with .subsection 		(Keith Owens)
-- IrDA bugfixes					(Jean Tourrilhes)
-
-pre2: 
-
-- APIC LVTERR fixes				(Mikael Pettersson)
-- Fix ppdev ioctl oops and deadlock		(Tim Waugh)
-- parport fixes					(Tim Waugh)
-- orinoco wireless driver update		(David Gibson)
-- Fix oopsable race in binfmt_elf.c 		(Alexander Viro)
-- Small sx16 driver bugfix			(Heinz-Ado Arnolds)
-- sbp2 deadlock fix 				(Andrew Morton)
-- Fix JFFS2 write error handling		(David Woodhouse)
-- Intermezzo update				(Peter J. Braam)
-- Proper AGP support for Intel 830MP chipsets	(Nicolas Aspert)
-- Alpha fixes					(Jay Estabrook)
-- 53c700 SCSI driver update			(James Bottomley)
-- Fix coredump mmap_sem deadlock on IA64	(David Mosberger)
-- 3ware driver update				(Adam Radford)
-- Fix elevator insertion point on failed 
-  request merge					(Jens Axboe)
-- Remove bogus rpciod_tcp_dispatcher definition (David Woodhouse)
-- Reiserfs fixes				(Oleg Drokin)
-- de4x5 endianess fixes				(Kip Walker)
-- ISDN CAPI cleanup				(Kai Germaschewski)
-- Make refill_inactive() correctly account 
-  progress					(me)
-
-pre1:
-
-- S390 merge					(IBM)
-- SuperH merge					(SuperH team)
-- PPC merge					(Benjamin Herrenschmidt)
-- PCI DMA update				(David S. Miller)
-- radeonfb update 				(Ani Joshi)
-- aty128fb update				(Ani Joshi)
-- Add nVidia GeForce3 support to rivafb		(Ani Joshi)
-- Add PM support to opl3sa2			(Zwane Mwaikambo)
-- Basic ethtool support for 3com, starfire
-  and pcmcia net drivers			(Jeff Garzik)
-- Add MII ethtool interface			(Jeff Garzik)
-- starfire,sundance,dl2k,sis900,8139{too,cp},
-  natsemi driver updates			(Jeff Garzik)
-- ufs/minix: mark inodes as bad in case of read
-  failure					(Christoph Hellwig)
-- ReiserFS fixes				(Oleg Drokin)
-- sonypi update					(Stelian Pop)
-- n_hdlc update					(Paul Fulghum)
-- Fix compile error on aty_base.c		(Tobias Ringstrom)
-- Document cpu_to_xxxx() on kernel-hacking doc  (Rusty Russell)
-- USB update					(Greg KH)
-- Fix sysctl console loglevel bug on 
-  IA64 (and possibly other archs)		(Jesper Juhl) 
-- Update Athlon/VIA PCI quirks			(Calin A. Culianu)
-- blkmtd update					(Simon Evans)
-- boot protocol update (makes the highest 
-  possible initrd address available to the 
-  bootloader)					(H. Peter Anvin)
-- NFS fixes					(Trond Myklebust)
+-chris
 

@@ -1,97 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262069AbSJJGix>; Thu, 10 Oct 2002 02:38:53 -0400
+	id <S263251AbSJJGkA>; Thu, 10 Oct 2002 02:40:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262079AbSJJGix>; Thu, 10 Oct 2002 02:38:53 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:28423 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262069AbSJJGiv>; Thu, 10 Oct 2002 02:38:51 -0400
-Message-Id: <200210100639.g9A6djp01401@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Derek Fawcus <dfawcus@cisco.com>
-Subject: Re: Looking for testers with these NICs
-Date: Thu, 10 Oct 2002 09:33:12 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <200210091637.g99Gbmp30784@Port.imtp.ilyichevsk.odessa.ua> <20021009200553.I29133@edinburgh.cisco.com>
-In-Reply-To: <20021009200553.I29133@edinburgh.cisco.com>
+	id <S263252AbSJJGkA>; Thu, 10 Oct 2002 02:40:00 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:36827 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S263251AbSJJGjx>; Thu, 10 Oct 2002 02:39:53 -0400
+Reply-To: <suresh.babu@wipro.com>
+From: "Suresh babu V." <suresh.babu@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem with sethostname() ??
+Date: Thu, 10 Oct 2002 12:13:28 +0530
+Organization: Wipro Technologies
+Message-ID: <003d01c27028$5784a9f0$630b720a@sureshbabu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed;
+	boundary="----=_NextPartTM-000-db2acf37-6c1c-4dcb-9550-4c4ebac6c78c"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 October 2002 17:05, Derek Fawcus wrote:
-> On Wed, Oct 09, 2002 at 07:31:17PM -0200, Denis Vlasenko wrote:
-> > ni65.c
->
-> I've got some of these knocking about,  but rather than use that
-> driver, I have a (quite old) patch,  that allows the normal lance
-> driver to be used.  The patch dates back from 1.3.x,  but I think I
-> may have a more recent version around.
 
-Well, if you want, give this a spin. Can you test it on
-SMP or preempt kernel?
+This is a multi-part message in MIME format.
 
-diff -u --recursive linux-2.5.40org/drivers/net/ni65.c linux-2.5.40/drivers/net/ni65.c
---- linux-2.5.40org/drivers/net/ni65.c	Thu Oct  3 12:08:00 2002
-+++ linux-2.5.40/drivers/net/ni65.c	Wed Oct  9 10:35:18 2002
-@@ -176,6 +176,9 @@
- #define writedatareg(val) { writereg(val,CSR0); }
- #endif
+------=_NextPartTM-000-db2acf37-6c1c-4dcb-9550-4c4ebac6c78c
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-+/* Not to be confused with priv->lock */
-+static spinlock_t irq_lock = SPIN_LOCK_UNLOCKED;
-+
- static unsigned char ni_vendor[] = { 0x02,0x07,0x01 };
+Hi,
 
- static struct card {
-@@ -409,7 +412,7 @@
- 		p->features = 0x0;
- 	}
+	While attempting for some testing with sethostname() call, I got
+this problem . As explained in the man page the sethostname call is
+failing(ret val = -1 & errno = EFAULT(14)) for invalid address and valid
+length. But the problem is after running the following test, hostname is
+getting reset to NULL. I tested in both 2.4 & 2.5 kernels.
 
--	if(test_bit(0,&cards[i].config)) {
-+	if(test_bit(0,(unsigned long*)(&cards[i].config))) {
- 		dev->irq = irqtab[(inw(ioaddr+L_CONFIG)>>2)&3];
- 		dev->dma = dmatab[inw(ioaddr+L_CONFIG)&3];
- 		printk("IRQ %d (from card), DMA %d (from card).\n",dev->irq,dev->dma);
-@@ -420,7 +423,7 @@
- 			int dma_channels = ((inb(DMA1_STAT_REG) >> 4) & 0x0f) | (inb(DMA2_STAT_REG) & 0xf0);
- 			for(i=1;i<5;i++) {
- 				int dma = dmatab[i];
--				if(test_bit(dma,&dma_channels) || request_dma(dma,"ni6510"))
-+				if(test_bit(dma,(unsigned long*)&dma_channels) || request_dma(dma,"ni6510"))
- 					continue;
+Any comments on this?? 
 
- 				flags=claim_dma_lock();
-@@ -1118,8 +1121,7 @@
- 							 (skb->len > T_BUF_SIZE) ? T_BUF_SIZE : skb->len);
- 			dev_kfree_skb (skb);
+----------------------------------
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
 
--			save_flags(flags);
--			cli();
-+			spin_lock_irqsave(&irq_lock, flags);
+main()
+{
+int ret, errno;
+unsigned short int len;
+char host[50]="tmphost"; /* hostname max size is 64 */
+errno = 0;
+len = sizeof(host); 
 
- 			tmdp = p->tmdhead + p->tmdnum;
- 			tmdp->u.buffer = (u32) isa_virt_to_bus(p->tmdbounce[p->tmdbouncenum]);
-@@ -1128,8 +1130,7 @@
- #ifdef XMT_VIA_SKB
- 		}
- 		else {
--			save_flags(flags);
--			cli();
-+			spin_lock_irqsave(&irq_lock, flags);
+/* valid length and invalid address, expected err is EFAULT */
+ret = sethostname((void *)-1, len);
+printf("return val : %d, err no: %d \n",ret,errno);
 
- 			tmdp = p->tmdhead + p->tmdnum;
- 			tmdp->u.buffer = (u32) isa_virt_to_bus(skb->data);
-@@ -1150,7 +1151,7 @@
- 		p->lock = 0;
- 		dev->trans_start = jiffies;
+} 
+-------------------------------------------------
 
--		restore_flags(flags);
-+		spin_unlock_irqrestore(&irq_lock, flags);
- 	}
+        I saw the code of sys_sethostname() function (sys.c) , in which
+copy_from_user() is being called. I would like to know is it required to
+validate the name argument before calling copy_from_user() to avoid such
+problems.
+
+        We could expect similar problem in setdomainname() also in which
+same sort of code is used. 
+
+
+
+PS : Please CC me your replies as I havn't subscribed to the list.
  
- 	return 0;
+Thanks,
+Suresh.
+
+
+------=_NextPartTM-000-db2acf37-6c1c-4dcb-9550-4c4ebac6c78c
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+**************************Disclaimer**************************************************    
+ 
+ Information contained in this E-MAIL being proprietary to Wipro Limited is 'privileged' 
+and 'confidential' and intended for use only by the individual or entity to which it is 
+addressed. You are notified that any use, copying or dissemination of the information 
+contained in the E-MAIL in any manner whatsoever is strictly prohibited.
+
+****************************************************************************************
+
+------=_NextPartTM-000-db2acf37-6c1c-4dcb-9550-4c4ebac6c78c--

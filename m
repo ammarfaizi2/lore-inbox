@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUCHWAj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 17:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbUCHWAj
+	id S261351AbUCHWCn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 17:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbUCHWCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 17:00:39 -0500
-Received: from hc652af67.dhcp.vt.edu ([198.82.175.103]:34688 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261232AbUCHWAd (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 17:00:33 -0500
-Message-Id: <200403082200.i28M0F2k009714@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-rc2-mm1 
-In-reply-to: Your message of "Sun, 07 Mar 2004 22:32:21 PST."
-             <20040307223221.0f2db02e.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040307223221.0f2db02e.akpm@osdl.org>
+	Mon, 8 Mar 2004 17:02:42 -0500
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:18124 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261351AbUCHWB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 17:01:56 -0500
+Date: Mon, 8 Mar 2004 23:01:53 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: lvm2 performance data with linux-2.6
+Message-ID: <20040308220153.GB19977@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200403081916.i28JGgE25794@mail.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Mar 2004 17:00:15 -0500
+Content-Disposition: inline
+In-Reply-To: <200403081916.i28JGgE25794@mail.osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 07 Mar 2004 22:32:21 PST, Andrew Morton <akpm@osdl.org>  said:
+On Mon, 08 Mar 2004, markw@osdl.org wrote:
+
+> I've started collecting various data (including oprofile) using our
+> DBT-2 (OLTP) workload with lvm2 on linux 2.6.2 and 2.6.3 on ia32 and
+> ia64 platforms:
+> 	http://developer.osdl.org/markw/lvm2/
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc2/2.6.4
--rc2-mm1/
+> So far I've only varied the stripe width with lvm, from 8 KB to 512 KB,
+> for PostgreSQL that is using 8 KB sized blocks with ext2.  It appears
 
-> Changes since 2.6.4-rc1-mm2:
-> 
-> 
->  linus.patch
+Does ext2 write 8 KByte sized blocks atomically on IA32?
 
-The Linus patch apparently has a half-done fix - it does it in smp.c but not
-in io_apic.c - so building non-SMP we get:
+Or is this no requirement for PostgreSQL consistency?
 
-arch/i386/kernel/io_apic.c:703: error: conflicting types for 'send_IPI_self'
-include/asm/hw_irq.h:54: error: previous declaration of 'send_IPI_self' was here
-arch/i386/kernel/io_apic.c:703: error: conflicting types for 'send_IPI_self'
-include/asm/hw_irq.h:54: error: previous declaration of 'send_IPI_self' was here
+-- 
+Matthias Andree
 
-Fix:
-
---- linux-2.6.4-rc2-mm1/arch/i386/kernel/io_apic.c.akpm	2004-03-08 16:53:02.337724358 -0500
-+++ linux-2.6.4-rc2-mm1/arch/i386/kernel/io_apic.c	2004-03-08 16:53:20.950171060 -0500
-@@ -699,7 +699,7 @@
- #endif /* CONFIG_IRQBALANCE */
- 
- #ifndef CONFIG_SMP
--void send_IPI_self(int vector)
-+void fastcall send_IPI_self(int vector)
- {
- 	unsigned int cfg;
- 
-
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

@@ -1,73 +1,56 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262088AbVDABGK (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 31 Mar 2005 20:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbVDABGJ
+	id S262588AbVDACNK (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 31 Mar 2005 21:13:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVDACNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 20:06:09 -0500
-Received: from [211.36.37.45] ([211.36.37.45]:23990 "HELO mail.qsv15.com")
-	by vger.kernel.org with SMTP id S262088AbVDABGA (ORCPT
+	Thu, 31 Mar 2005 21:13:10 -0500
+Received: from [203.237.124.70] ([203.237.124.70]:18180 "HELO freemail.de")
+	by vger.kernel.org with SMTP id S262588AbVDACNE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 20:06:00 -0500
-Date: 31 Mar 2005 19:32:46 +0900
-Message-ID: <20050331103246.3590.qmail@mail.qsv15.com>
-From: info@qsv15.com
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=20=1B$B<d$7$,$j20$N5?= =?ISO-8859-1?Q?.J}$N$=3F$a$K=1B(B?=
+	Thu, 31 Mar 2005 21:13:04 -0500
+Message-ID: <d2ef01c5361a$4aeca700$6d4a27a9@softwarenews>
+From: <softwarenews@freemail.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Beursverkoop software
+Date: Thu, 31 Mar 2005 17:51:40 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262088AbVDABGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262588AbVDACNK@vger.kernel.org>
 
+Geachte dames en heren,
+ 
+Ergert u zich ook altijd over de hoge prijzen die voor software gevraagd
+worden?
+ 
+Daar komt nu een einde aan. Wij leveren u alle mogelijke software voor een
+fractie van de normale prijs.
+ 
+De software wordt vanuit het buitenland direct naar uw adres verzonden,
+omdat het daar minder kost dan in de winkels alhier.
+ 
+Originele versies met originele serienummers en de normale support voor
+weinig geld, bijvoorbeeld:
+ 
+Microsoft Windows XP prof. voor 50 USD in plaats van 270 USD
+Adobe Photoshop 80 USD in plaats van 650 USD
+ 
+Deze en andere topprodukten kunt u verwachten. Aarzel niet en bezoek onze
+winkel. 
+De winkel is geheel Engelstalig, maar alle produkten kunnen in elke taal
+geinstalleerd worden.
+ 
 
-○゜゜。 ━━━━━━━━━━○ ━━━━━○━━━━━━━━━
-゜　ｏ　　　　　　　　　　　　　　　　　。　　　　　　　 ｏ　
- 　 　　 ｏ゜　　‥…━　出　会　い　PC　 ━…‥　　　
-　　　 ○　　ｏ　　゜ｏ　　 　　　　　　　　　　　　　　　　
-━━━　○　ｏ　━━━━━━━━━━━━━━━━━━━━　○　
+ 
+Veel winkelplezier.
+ 
+Met vriendelijke groet,
+ 
+ResellerNews
 
-
-￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣￣
-　　　　　　　　 本気で逢える　お勧めサイト
-┌───────────────────────────┐
-　　　　　　　　◆只今ポイント大幅サービス中◆
-　　　　　
-　　『本気』でヤリたいなら、まずはご近所検索でこちらから
-　　　　　↓　↓　↓　↓　↓　↓　↓　↓　↓　↓　↓
-　　　http://com.deai-pc.com/?num=5001
-
- ●サイト内書き込み紹介
-
-・ゆき：22歳　『恋人募集』
-
-今日みたいな日は大好きな人と一緒にいたいなぁ☆ずっと
-くっついてイチャイチャするんだぁ♪そんなふうにしてくれる人
-探してるヨ！ラブもしたいなぁ〜☆
-
-
-・真奈美：20歳　『遊び相手募集』
-
-彼氏が本当に欲しいけど・・・そういうの苦手で出会いもないので
-困ってます^^;誰かまずは遊んだりできる友達になりたいな☆
-今二十歳です♪
-
-
-〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓
-
-
-【出会いサイト】が氾濫しまくってる中、真剣に出会える
-相手を探している人が多いのが、我がサイトの特徴ですね。
-
-女性登録数の多さ”業界NO1”を誇る超人気サイト
-こちらからまずはお試し登録からはじめてみてはどうですか？
-
-　　　　　↓　↓　↓　↓　↓　↓　↓
-　　http://com.deai-pc.com/index.php?num=601
-
-
-〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓
-
-サイト内のやり取りは全て24時間管理のセキュリティと
-最新のネット技術によりしっかり保護され漏洩される事はございません。
-お客様からの信頼に支えられ運営させて頂いています、自信を持って
-お客様の情報をお守り致します。
-
-提供：de@i PC

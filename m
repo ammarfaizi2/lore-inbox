@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261718AbTCQOtm>; Mon, 17 Mar 2003 09:49:42 -0500
+	id <S261719AbTCQOvd>; Mon, 17 Mar 2003 09:51:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261719AbTCQOtm>; Mon, 17 Mar 2003 09:49:42 -0500
-Received: from pat.uio.no ([129.240.130.16]:45703 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S261718AbTCQOtk>;
-	Mon, 17 Mar 2003 09:49:40 -0500
-To: jlnance@unity.ncsu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS file consistency
-References: <20030317145054.GA7030@ncsu.edu>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 17 Mar 2003 16:00:25 +0100
-In-Reply-To: <20030317145054.GA7030@ncsu.edu>
-Message-ID: <shswuiyqbqu.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	id <S261720AbTCQOvd>; Mon, 17 Mar 2003 09:51:33 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:18324 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id <S261719AbTCQOvc>; Mon, 17 Mar 2003 09:51:32 -0500
+Date: Mon, 17 Mar 2003 10:02:21 -0500 (EST)
+From: Rik van Riel <riel@surriel.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Paul Albrecht <palbrecht@uswest.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 vm, program load, page faulting, ...
+In-Reply-To: <002401c2eb78$cca714e0$d5bb0243@oemcomputer>
+Message-ID: <Pine.LNX.4.44.0303171001030.2571-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == jlnance  <jlnance@unity.ncsu.edu> writes:
+On Sat, 15 Mar 2003, Paul Albrecht wrote:
 
-     > Hello All,
-     >     I am trying to track down some file consistency problems I
-     >     am seeing
-     > and I want to make sure my assumptions about NFS are correct.
-     >     Say I have 2 NFS clients, machine A and machine B.  Machine
-     >     A does
-     > an open/write/close on a file.  After this machine B does an
-     > open/read on the file.  Is machine B guaranteed to read the
-     > same data that A wrote or is there a delay between the time A
-     > closes the file and the time B can expect to see valid data?
+> ... Why does the kernel page fault on text pages, present in the page
+> cache, when a program starts? Couldn't the pte's for text present in the
+> page cache be resolved when they're mapped to memory?
 
-No delay should be necessary. Machine B should see the data that A
-wrote.
+The mmap() syscall only sets up the VMA info, it doesn't
+fill in the page tables. That only happens when the process
+page faults.
 
-     > Also if the file already existed before A wrote it, and B had
-     > already read from it and closed it, does this affect anything?
+Note that filling in a bunch of page table entries mapping
+already present pagecache pages at exec() time might be a
+good idea.  It's just that nobody has gotten around to that
+yet...
 
-Nope.
-
-However the Linux 2.4.x NFS server has a known bug/feature that may
-affect things: because the mtime only has a 1 second resolution,
-changes that occur within < 1 second of one another may not cause
-mtime to be updated.  When this occurs, the NFS client has no way to
-tell that the file has changed.
-This limitation no longer exists in Linux 2.5.x...
-
-Cheers,
-  Trond

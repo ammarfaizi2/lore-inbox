@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269921AbUJSRbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267770AbUJSRbR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269921AbUJSRbq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 13:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUJSR22
+	id S267770AbUJSRbR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 13:31:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269688AbUJSR2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 13:28:28 -0400
-Received: from galaxy.systems.pipex.net ([62.241.162.31]:55007 "EHLO
-	galaxy.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S267961AbUJSRXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 13:23:09 -0400
-Message-ID: <41754D7B.8090203@dsl.pipex.com>
-Date: Tue, 19 Oct 2004 18:23:07 +0100
-From: Johan Groth <jgroth@dsl.pipex.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+	Tue, 19 Oct 2004 13:28:33 -0400
+Received: from brown.brainfood.com ([146.82.138.61]:3968 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S267770AbUJSRWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 13:22:50 -0400
+Date: Tue, 19 Oct 2004 12:22:48 -0500 (CDT)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
+In-Reply-To: <20041019124605.GA28896@elte.hu>
+Message-ID: <Pine.LNX.4.58.0410191222050.1216@gradall.private.brainfood.com>
+References: <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu>
+ <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu>
+ <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu>
+ <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
+ <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
+ <20041019124605.GA28896@elte.hu>
 MIME-Version: 1.0
-To: Ross Biro <ross.biro@gmail.com>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Dma problems with Promise IDE controller
-References: <41741CDB.5010300@dsl.pipex.com>	 <58cb370e04101813221d36b793@mail.gmail.com>	 <8783be660410181420683d1341@mail.gmail.com>	 <41753E1D.8010608@dsl.pipex.com> <8783be660410191013230a1b48@mail.gmail.com>
-In-Reply-To: <8783be660410191013230a1b48@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ross Biro wrote:
-[snip]
+On Tue, 19 Oct 2004, Ingo Molnar wrote:
 
-> 
-> The drive still has a bad sector.  You are having trouble because the
-> error recover in the Linux ide code is not the same as Windows and
-> most drive vendors care about Windows, not the ATA-Spec.  On top of
-> that Linux switches out of DMA mode once it hits a bad sector, so the
-> drive will be very slow from the on.
-> 
-> The only way you are going to fix the problem is if your drive has
-> some spare sectors still available, and you do a write with out a read
-> to the bad sector.
+>
+> i have released the -U6 Real-Time Preemption patch:
+>
+>   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U6
+>
+> this is a fixes-only release.
+>
+> found and fixed the 'big bug' that was probably the one causing
+> stability problems for a number of people. There was a small window for
+> a task double-free race to occur, causing all sorts of crashes later on.
+> This bug could trigger on UP and SMP systems alike, on SMP being a bit
+> more frequent.
 
-Ok, I pretty sure it has spare sectors. How do I write to that sector 
-without a read and how do I find which sector is bad?
-
-Sorry for all these questions but this is the first time I've had these 
-kind of problems ever. SCSI disks fix bad blocks by themselves so you 
-don't have to do anything.
-
-Regards,
-Johan
+I am still having the same bug(repeatable by running liquidwar) as I reported
+with -U5(see my earlier email).

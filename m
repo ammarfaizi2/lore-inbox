@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269218AbUIBVtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269221AbUIBV57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269218AbUIBVtG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 17:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269216AbUIBVpp
+	id S269221AbUIBV57 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 17:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269217AbUIBV55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 17:45:45 -0400
-Received: from inx.pm.waw.pl ([195.116.170.20]:41452 "EHLO inx.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S269196AbUIBVpD (ORCPT
+	Thu, 2 Sep 2004 17:57:57 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:57066 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269221AbUIBV4S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 17:45:03 -0400
-To: Michael Hunold <hunold@convergence.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Dual-Ethernet DECchip 21142/43 doesn't like cold boots
-References: <41374B9F.6000404@convergence.de>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 02 Sep 2004 23:25:32 +0200
-In-Reply-To: <41374B9F.6000404@convergence.de> (Michael Hunold's message of
- "Thu, 02 Sep 2004 18:34:39 +0200")
-Message-ID: <m33c20z7lf.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Thu, 2 Sep 2004 17:56:18 -0400
+Date: Thu, 2 Sep 2004 23:57:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
+Message-ID: <20040902215728.GA28571@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040902111003.GA4256@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Hunold <hunold@convergence.de> writes:
 
-> Linux Tulip driver version 1.1.13 (May 11, 2002)
-> ACPI: PCI interrupt 0000:02:04.0[A] -> GSI 11 (level, low) -> IRQ 11
-> tulip0:  EEPROM default media type Autosense.
-> tulip0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
-> tulip0: ***WARNING***: No MII transceiver found!
-> eth0: Digital DS21143 Tulip rev 33 at 0xe280ff80, 00:00:D1:1B:EF:2E, IRQ 11.
+i've released the -R0 patch:
 
-Interesting - I'm occasionally seeing same warnings with SMC EtherPower II.
-May be unrelated, though. And despite the warning, the card actually
-works.
-This is SMC epic100 chip, not a Tulip or clone.
--- 
-Krzysztof Halasa
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-R0
+ 
+ontop of:
+
+  http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
+
+i've given up on the netdev_backlog_granularity approach, and as a
+replacement i've modified specific network drivers to return at a safe
+point if softirq preemption is requested. This gives the same end result
+but is more robust. For the time being i've fixed 8193too.c and e100.c.
+(will fix up other drivers too as latencies get reported)
+
+this should fix the crash reported by P.O. Gaillard, and it should solve
+the packet delay/loss issues reported by Mark H Johnson. I cannot see
+any problems on my rtl8193 testbox anymore.
+
+	Ingo

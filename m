@@ -1,38 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266169AbUFPFIC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266171AbUFPFIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbUFPFIC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 01:08:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266172AbUFPFIC
+	id S266171AbUFPFIK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 01:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266172AbUFPFIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 16 Jun 2004 01:08:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64475 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266171AbUFPFIC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 16 Jun 2004 01:08:02 -0400
-Received: from dirac.phys.uwm.edu ([129.89.57.19]:55178 "EHLO
-	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S266169AbUFPFIA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 01:08:00 -0400
-Date: Wed, 16 Jun 2004 00:07:58 -0500 (CDT)
-From: Bruce Allen <ballen@gravity.phys.uwm.edu>
-To: Adam Radford <aradford@amcc.com>
-cc: Peter Maas <fedora@rooker.dyndns.org>, linux-kernel@vger.kernel.org
-Subject: RE: 3ware 9500S Drivers (mm kernel)
-In-Reply-To: <HZDEQB01.6HW@hadar.amcc.com>
-Message-ID: <Pine.GSO.4.21.0406160006310.12222-100000@dirac.phys.uwm.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Tue, 15 Jun 2004 22:03:24 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Moshe <moshe.gurvich@kabbalah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: getting up Intel gigE 82547GI (8086:1075) crashes kernel
+Message-Id: <20040615220324.1657a4f6.rddunlap@osdl.org>
+In-Reply-To: <1087353399.3534.20.camel@moshe.kci.kabbalah.com>
+References: <1087353399.3534.20.camel@moshe.kci.kabbalah.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am also working with Bruce Allen (smartmontools developer) to make
-> the 3w-9xxx driver work with smartmontools.  This shouldn't require
-> any driver changes.
+On Tue, 15 Jun 2004 19:36:39 -0700 Moshe wrote:
 
-This should happen on the timescale of two weeks.  I've got a 9500 series
-controller on hand and some SATA disks on order. Once the disks arrive,
-with Adam's help it shouldn't take me long to get smartmontools working on
-the 9500 series controllers.
+| Hi, 
+| 
+| I've got few Dell PE750 boxes with P4HT.
+|  
+| Installed Mandrake 10.0 with 2.6.3-smp.
+|  
+| This box have 2 onboard nics:
+| eth0: 82547GI (8086:1075)
+| eth1: 82541GI (8086:1076)
+|  
+| When I try to ifup eth0 it crashes kernel, i can't even toggle NumLock,
+| when i boot with noapic, i can at least toggle NumLock, but nothing
+| else.
+|  
+| eth1 gets up fine and works perfectly.
+|  
+| I've got suggestions to rebuild kernel without acpi, apm, apic.. will it
+| help?
 
-The most novel aspect is that this will use the driver's character device
-interface rather than the block interface.
+You don't have to rebuild the kernel to turn those off -- there
+are boot/command line options for them.  See
+linux-2.6.x/Documentation/kernel-parameters.txt for info.
 
-Cheers,
-	Bruce
+E.g.,
+acpi=off apm=off noapic
 
+| Any others ideas?
+| Thanks..
+
+No serial console or other debugging tool available?
+
+|  # lspci -v:
+|  01:01.0 Ethernet controller: Intel Corp.: Unknown device 1075
+|  Subsystem: Dell Computer Corporation: Unknown device 0165
+|  Flags: bus master, 66Mhz, medium devsel, latency 0, IRQ 18
+|  Memory at fe1e0000 (32-bit, non-prefetchable) [size=128K]
+|  I/O ports at ece0 [size=32]
+|  Capabilities: [dc] Power Management version 2
+|  
+|  03:02.0 Ethernet controller: Intel Corp.: Unknown device 1076
+|  Subsystem: Dell Computer Corporation: Unknown device 0165
+|  Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 21
+|  Memory at fdee0000 (32-bit, non-prefetchable) [size=128K]
+|  I/O ports at dcc0 [size=64]
+|  Capabilities: [dc] Power Management version 2
+|  Capabilities: [e4] PCI-X non-bridge device.
+|  
+|  # dmesg:
+|  Intel(R) PRO/1000 Network Driver - version 5.2.30.1-k1
+|  Copyright (c) 1999-2004 Intel Corporation.
+|  PCI: Setting latency timer of device 0000:01:01.0 to 64
+|  eth0: Intel(R) PRO/1000 Network Connection
+|  eth1: Intel(R) PRO/1000 Network Connection
+
+--
+~Randy

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267661AbTACU5N>; Fri, 3 Jan 2003 15:57:13 -0500
+	id <S267659AbTACU4w>; Fri, 3 Jan 2003 15:56:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267662AbTACU5N>; Fri, 3 Jan 2003 15:57:13 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:23194 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S267661AbTACU5I>;
-	Fri, 3 Jan 2003 15:57:08 -0500
-Subject: Re: [2.5.54] OOPS: unable to handle kernel paging request
-From: Steven Barnhart <sbarn03@softhome.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0301031046100.25684-100000@coffee.psychology.mcmaster.ca>
-References: <Pine.LNX.4.44.0301031046100.25684-100000@coffee.psychology.mcmaster.ca>
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Jan 2003 16:05:53 -0500
-Message-Id: <1041627959.1862.2.camel@sbarn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S267660AbTACU4w>; Fri, 3 Jan 2003 15:56:52 -0500
+Received: from web41008.mail.yahoo.com ([66.218.93.7]:49300 "HELO
+	web41008.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267659AbTACU4v>; Fri, 3 Jan 2003 15:56:51 -0500
+Message-ID: <20030103210518.4875.qmail@web41008.mail.yahoo.com>
+Date: Fri, 3 Jan 2003 13:05:18 -0800 (PST)
+From: me athome <any_junk@yahoo.com>
+Subject: Dual P4 xeon and linux ethernet bridging 
+To: linux-kernel@vger.kernel.org
+Cc: any_junk@yahool.com, bridge@math.leidenuniv.nl
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-03 at 10:48, Mark Hahn wrote:
-> it's not very meaningful: some part of the kernel tried dereferencing
-> a null pointer (as it happens, with a negative offset, such as you might
-> expect from a variable sitting in the stack).
-> the negativeness is not surprising, and the value of the offset would
-> depend on your cpu/compiler/config.
+Hello,
 
-Well I have a Intel Celeron 1.06 GHz (i686). 384MB ram, gcc 3.2 (redhat
-8 release). I don't really know how to decode it since I have no serial
-console hookups...anything paticualr I could get from the oops report
-during bootup? i.e. what sections to copy?
+I am testing linux bridging with kernel 2.4.20 on a
+dual P4 2.4 GHz Xeon and found problematic results.
+With a packet size of 128Bytes the maximum throughput
+is about 160Mbps (Full duplex). I than tried the same
+test with only one P4 and the throughput was the same.
+That leads me to believe that the second CPU was not
+doing anything during the first test (and indeed the
+system and use utilization was always 0%).
 
--- 
-Steven
-sbarn03@softhome.net
-GnuPG Fingerprint: 9357 F403 B0A1 E18D 86D5  2230 BB92 6D64 D516 0A94
+At this point I was convinced that the bridge code
+cannot use the second cpu so I tried the whole setup
+on my dual P3 and on that machine there is a big
+difference between one and two cpus enabled. 
 
+I went back to the dual P4 and tried the clean 2.4.20
+kernel with Ingo’s irq balance patch
+(irqbalance-2.4.20-MRC.patch.txt). The result was the
+same although the interrupts were indeed balanced. The
+behavior of ‘top’ was much different though, before
+after 160Mbps cpu0 would be in 100% system and cpu1
+was always 0% while now both cpu0 and cpu1 were at 50%
+(and no more).
+
+I tried every combination of hyper treading on/off
+with or without the irqbalance patch as well as
+acpismp=force.
+
+Am I crazy for expecting the second P4 to do
+something?
+
+Ron.
+
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

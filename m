@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264023AbRFHPvO>; Fri, 8 Jun 2001 11:51:14 -0400
+	id <S264017AbRFHPrF>; Fri, 8 Jun 2001 11:47:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264021AbRFHPvF>; Fri, 8 Jun 2001 11:51:05 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1540 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262168AbRFHPuq>;
-	Fri, 8 Jun 2001 11:50:46 -0400
-Date: Wed, 6 Jun 2001 23:21:34 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [driver] New life for Serial mice
-Message-ID: <20010606232133.E38@toy.ucw.cz>
-In-Reply-To: <20010606125556.A1766@suse.cz>
+	id <S262168AbRFHPqy>; Fri, 8 Jun 2001 11:46:54 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:41743 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S264017AbRFHPqs>; Fri, 8 Jun 2001 11:46:48 -0400
+Subject: Unresolved symbols in 2.4.6-pre1
+From: Dietmar Kling <dietmar.kling@sam-net.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 08 Jun 2001 17:46:42 +0200
+Message-Id: <992015202.32691.0.camel@minitiger>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010606125556.A1766@suse.cz>; from vojtech@suse.cz on Wed, Jun 06, 2001 at 12:55:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-> 
-> If you still have your 3-button MouseSystems (or any other serial) mouse
-> somewhere in your driver, forgotten becase of the incredibly slow update
-> rate causing so much jumping of the pointer on the screen that it is
-> unusable, you may want to pull it out and give it a try.
-> 
-> Or if you're still using it with some old 486 computer, this driver is
-> for you. 
-> 
-> What it does is that it enhances the update rate from 24 (with current
-> GPM and X drivers) to 96. This is almost what the best USB mice do.
+A make modules_install gives:
 
-What's the "prediction" stuff? Does it mean you are guessing some values
-by interpolation? [If so, what kind of update rate would it do on USB?]
-								Pavel
-
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/input/keybdev.o
+depmod:         tasklet_schedule
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/isdn/hisax/hisax.o
+depmod:         tasklet_hi_schedule
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/isdn/isdn.o
+depmod:         tasklet_hi_schedule
+depmod:         do_softirq
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/net/ppp_async.o
+depmod:         do_softirq
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/net/ppp_generic.o
+depmod:         do_softirq
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/net/ppp_synctty.o
+depmod:         do_softirq
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/net/pppoe.o
+depmod:         do_softirq
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.6-pre1/kernel/drivers/net/pppox.o
+depmod:         do_softirq
 

@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267022AbSKLWFF>; Tue, 12 Nov 2002 17:05:05 -0500
+	id <S267013AbSKLV6o>; Tue, 12 Nov 2002 16:58:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267023AbSKLWFF>; Tue, 12 Nov 2002 17:05:05 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:43515 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267022AbSKLWFE>; Tue, 12 Nov 2002 17:05:04 -0500
-Date: Tue, 12 Nov 2002 17:11:10 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: viro@math.psu.edu
+	id <S267014AbSKLV6o>; Tue, 12 Nov 2002 16:58:44 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:64960 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267013AbSKLV6n>;
+	Tue, 12 Nov 2002 16:58:43 -0500
+Date: Tue, 12 Nov 2002 14:03:57 -0800 (PST)
+Message-Id: <20021112.140357.81690208.davem@redhat.com>
+To: rusty@rustcorp.com.au
 Cc: linux-kernel@vger.kernel.org
-Subject: path_release missing or not?
-Message-ID: <20021112171110.A21229@devserv.devel.redhat.com>
+Subject: Re: [PATCH] module_name()
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021112174741.6073E2C2B2@lists.samba.org>
+References: <20021112174741.6073E2C2B2@lists.samba.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al, please tell me if the patch below is bogus. I checked paths
-and it looks right, but I may be missing something.
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Wed, 13 Nov 2002 04:32:58 +1100
 
--- Pete
-
---- linux-2.4.19/fs/namei.c	2002-08-02 17:39:45.000000000 -0700
-+++ linux-2.4.19-p3/fs/namei.c	2002-11-12 14:01:55.000000000 -0800
-@@ -1984,8 +1984,10 @@
- 	 * bloody create() on broken symlinks. Furrfu...
- 	 */
- 	name = __getname();
--	if (!name)
-+	if (!name) {
-+		path_release(nd);
- 		return -ENOMEM;
-+	}
- 	strcpy(name, nd->last.name);
- 	nd->last.name = name;
- 	return 0;
+   I prefer this: it also has the advantage of ensuring the name of
+   built-in modules is consistent across the kernel.
+   
+I'd rather get NULL for built-in, this also eliminates
+the issue of having umpteen "[built-in]" string copies in
+the kernel since this is expanded by an inline.

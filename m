@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130845AbQJaXVZ>; Tue, 31 Oct 2000 18:21:25 -0500
+	id <S130829AbQJaXWF>; Tue, 31 Oct 2000 18:22:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130830AbQJaXVF>; Tue, 31 Oct 2000 18:21:05 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:20490 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130829AbQJaXUz>;
-	Tue, 31 Oct 2000 18:20:55 -0500
-Date: Tue, 31 Oct 2000 16:15:48 -0700
-From: Nathan Paul Simons <npsimons@fsmlabs.com>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: Larry McVoy <lm@bitmover.com>, Paul Menage <pmenage@ensim.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+	id <S130859AbQJaXVz>; Tue, 31 Oct 2000 18:21:55 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:22532 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S130829AbQJaXVW>;
+	Tue, 31 Oct 2000 18:21:22 -0500
+Date: Wed, 1 Nov 2000 01:21:03 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Paul Menage <pmenage@ensim.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001031161548.A32348@fsmlabs.com>
-Reply-To: npsimons@fsmlabs.com
-In-Reply-To: <E13qj56-0003h9-00@pmenage-dt.ensim.com> <39FF3D53.C46EB1A8@timpanogas.org> <20001031140534.A22819@work.bitmover.com> <39FF4488.83B6C1CE@timpanogas.org> <20001031142733.A23516@work.bitmover.com> <39FF49C8.475C2EA7@timpanogas.org>
+Message-ID: <20001101012103.J833@mea-ext.zmailer.org>
+In-Reply-To: <E13qj56-0003h9-00@pmenage-dt.ensim.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <39FF49C8.475C2EA7@timpanogas.org>; from Jeff V. Merkey on Tue, Oct 31, 2000 at 03:38:00PM -0700
-X-Bad-Disk-Header: Do you ever get that syncing feeling?
-Organization: FSMLabs <http://www.fsmlabs.com/>
+Content-Disposition: inline
+In-Reply-To: <E13qj56-0003h9-00@pmenage-dt.ensim.com>; from pmenage@ensim.com on Tue, Oct 31, 2000 at 01:36:32PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2000 at 03:38:00PM -0700, Jeff V. Merkey wrote:
-> It's makes more money in a week than Linux has ever made.  
+On Tue, Oct 31, 2000 at 01:36:32PM -0800, Paul Menage wrote:
+> On Tue, 31 Oct 2000, Rik van Riel wrote:
+> >Ummm, last I looked Linux held the Specweb99 record;
+> >by a wide margin...
+> 
+> ... but since then IBM/Zeus appear to have taken the lead:
+> 
+> http://www.spec.org/osg/web99/results/res2000q3/
+> 
+> But they were using a somewhat beefier machine - has anyone got Tux
+> SpecWeb99 figures for a 12 CPU, 64 GB, 12 NIC system?
 
-	The same could be said about Windows; that doesn't make it a
-technically superior solution.
-	Speaking of Windows, a lot of your arguments are starting to sound
-more and more like arguments made a while back by a certain OS vendor from
-Seattle . . . 
+  Good grief, what monster hardware...
 
-Wish not to seem, but to be, the best.
-    -- Aeschylus
+  Those are (of course) system results which give some impression of
+  how much users can pull out of the box.
 
--- 
-Nathan Paul Simons, Junior Software Engineer for FSMLabs
-http://www.fsmlabs.com/
+  Trying to make them a bit more comparable, scaling the number with
+  the number of processors:
+
+  Zeus     12x600MHz IBM RS64-III     7288 SpecWEB99  ~ 607 SpecWEB99/CPU
+  Zeus     4x375MHz IBM Power3-II     2175 SpecWEB99  ~ 544 SpecWEB99/CPU
+  TUX 1.0  8x700MHz Pentium-III-Xeon  6387 SpecWEB99  ~ 798 SpecWeb99/CPU
+  IIS      2x800MHz Pentium-III-Xeon  1060 SpecWEB99  ~ 530 SpecWEB99/CPU
+  IIS      1x700MHz Pentium-III-Xeon   971 SpecWEB99  = 971 SpecWEB99/CPU
+
+  Ok, more workers to do the thing, but each can achieve a bit less in
+  the IBM/Zeus case than TUX 1.0.   The smaller IBM/Zeus test case with
+  older and slower processors yields almost as good results per CPU as
+  the big one.   CPU clock speed increase has been lost into inter-CPU
+  collisions ?  (that is, bad scaling)
+
+  The IIS results are also interesting in their own.  Single-CPU IIS
+  yields impressive PER CPU result, but adding second CPU is apparently
+  quite useless excercise.   Hmm... Can't be..  As if that DUAL CPU
+  result is actually run in single-CPU mode.  The difference can
+  directly be explained by the clock rate difference..
+  (Surely the runners of that test *can't* make such an elementary
+   mistake!)
+
+
+  To be able to compare apples and apples, I would like to see single,
+  and dual CPU SpecWEB99 results with TUX.  Then that apparent 20%
+  better "per CPU result" of the single-CPU IIS could not be explained
+  away with SMP inter-CPU communication overhead/collisions.
+
+> Paul
+
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

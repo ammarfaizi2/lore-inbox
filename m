@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263011AbTFDHSV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 03:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbTFDHSV
+	id S263056AbTFDHeX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 03:34:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTFDHeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 03:18:21 -0400
-Received: from [151.17.201.167] ([151.17.201.167]:24581 "EHLO mail.teamfab.it")
-	by vger.kernel.org with ESMTP id S263011AbTFDHSU (ORCPT
+	Wed, 4 Jun 2003 03:34:22 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:18321 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263056AbTFDHeW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 03:18:20 -0400
-Message-ID: <3EDD9E5C.9060902@teamfab.it>
-Date: Wed, 04 Jun 2003 09:23:08 +0200
-From: Luca Montecchiani <luca.montecchiani@teamfab.it>
-Organization: TeamSystem Spa
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; it-IT; rv:1.3.1) Gecko/20030519
-X-Accept-Language: it, en, en-us
-MIME-Version: 1.0
-To: Narayan Desai <desai@mcs.anl.gov>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: partition table problem with 2.4.21-rc7
-References: <87brxemtev.fsf@mcs.anl.gov>
-In-Reply-To: <87brxemtev.fsf@mcs.anl.gov>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jun 2003 03:34:22 -0400
+Date: Wed, 4 Jun 2003 09:47:37 +0200
+From: Vojtech Pavlik <vojtech@ucw.cz>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Yoann <linux-yoann@ifrance.com>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       "Albert D.Cahalan" <acahalan@cs.uml.edu>
+Subject: Re: another must-fix: major PS/2 mouse problem
+Message-ID: <20030604094737.C5345@ucw.cz>
+References: <1054431962.22103.744.camel@cube> <3EDD87FD.6020307@ifrance.com> <20030603232155.1488c02f.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030603232155.1488c02f.akpm@digeo.com>; from akpm@digeo.com on Tue, Jun 03, 2003 at 11:21:55PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Narayan Desai ha scritto:
+On Tue, Jun 03, 2003 at 11:21:55PM -0700, Andrew Morton wrote:
 
-> When i boot 2.4.21-rc7, i get the error:
-> Partition check:
->  hda:end_request: I/O error, dev 03:00 (hda), sector 0
-> end_request: I/O error, dev 03:00 (hda), sector 2
-> end_request: I/O error, dev 03:00 (hda), sector 4
-> end_request: I/O error, dev 03:00 (hda), sector 6
-> end_request: I/O error, dev 03:00 (hda), sector 0
-> end_request: I/O error, dev 03:00 (hda), sector 2
-> end_request: I/O error, dev 03:00 (hda), sector 4
-> end_request: I/O error, dev 03:00 (hda), sector 6
->  unable to read partition table
+> We believe that it may be due to the ethernet driver holding interrupts off
+> for too long when the traffic is heavy.
+
+Note that this doesn't necessarily mean that the ethernet driver
+disables the interrupts for a too long time, it just means that the
+computer is only servicing the network interrupts at that time, and
+since the mouse interrupt does have a lower priority, it's serviced
+not very often and with huge delays.
+
+In such a case the network driver should either use interrupt mitigation
+if the cards supports it (reading many packets per one interrupt) or
+switch to a polled mode.
+
+> Does that seem to match your observations?  Does the problem happen when
+> the net traffic is high?
 > 
-> after this, the system is able to mount a partition on this disk
-> properly. can anyone shed any light on this? This didn't happen with
-> pre3. btw, devfs is enabled, if that makes any difference. a config is
-> attached.
+> Which ethernet driver are you using?
 
-I've have that annoying messages too and I've verified that the
-source of the problem is :
-
-> CONFIG_BLK_DEV_IDEDISK=m
-
-the ide code check the partition-table twice, but the first
-time without the ide-disk module and so the error...
-
-Alan ?
-
-
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287676AbSBGMm5>; Thu, 7 Feb 2002 07:42:57 -0500
+	id <S287764AbSBGMp5>; Thu, 7 Feb 2002 07:45:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287710AbSBGMms>; Thu, 7 Feb 2002 07:42:48 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:13 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287676AbSBGMmf>;
-	Thu, 7 Feb 2002 07:42:35 -0500
-Date: Thu, 7 Feb 2002 10:42:22 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <alan@lxorguk.ukuu.org.uk>, <Ulrich.Weigand@de.ibm.com>,
-        <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: The IBM order relaxation patch
-In-Reply-To: <20020207.042903.71864726.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33L.0202071041560.17850-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S287710AbSBGMps>; Thu, 7 Feb 2002 07:45:48 -0500
+Received: from oker.escape.de ([194.120.234.254]:16176 "EHLO oker.escape.de")
+	by vger.kernel.org with ESMTP id <S287793AbSBGMpb>;
+	Thu, 7 Feb 2002 07:45:31 -0500
+Date: Thu, 7 Feb 2002 13:20:53 +0100 (CET)
+From: Matthias Kilian <kili@outback.escape.de>
+To: <linux-kernel@vger.kernel.org>
+cc: <kili@outback.escape.de>
+Subject: Re: Problems with iso9660 as initrd
+In-Reply-To: <a3seft$h50$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0202071316501.21862-100000@outback.escape.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, David S. Miller wrote:
->    From: Rik van Riel <riel@conectiva.com.br>
->    Date: Thu, 7 Feb 2002 10:16:22 -0200 (BRST)
->
->    The only problem is that it doesn't.  It won't try to free
->    pages once you have enough free pages, which means you'll
->    just end up in a livelock.
->
-> It always calls balance_classzone which always calls try_to_free_pages
-> which always will try to free SWAP_CLUSTER_MAX pages.
+On 6 Feb 2002, H. Peter Anvin wrote:
 
-Duh, indeed.  It seems Linus' free_plenty() checks were
-removed somewhere along the way.
+> > I am building a floppy using a compressed iso9660 filesystem as an
+> > initrd image.
+[...]
+> You definitely are... I don't think anyone else has ever tried running
+> a zisofs off a ramdisk before!
 
-Rik
+On for an initrd, it will never work, since initrd checks for minix, ext2
+and romfs only (see drivers/block/rd.c, identify_ramdisk_image()).
+
+BTW: what's with the new initrd scheme (using loading a cpio image into a
+tmpfs)? I'm still waiting for this to go into the official kernels
+(currently I use my own patch doing the same thing for tar images).
+
+Kili
+
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+Windows is so bootyful...
 
-http://www.surriel.com/		http://distro.conectiva.com/
+
 

@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314783AbSE2Knd>; Wed, 29 May 2002 06:43:33 -0400
+	id <S314811AbSE2Kvb>; Wed, 29 May 2002 06:51:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314787AbSE2Knc>; Wed, 29 May 2002 06:43:32 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:8680 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S314783AbSE2Knb>; Wed, 29 May 2002 06:43:31 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Nick Evgeniev" <nick@octet.spb.ru>
-Date: Wed, 29 May 2002 20:43:07 +1000 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15604.45243.291277.197140@notabene.cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-pre8-ac5 ide & raid0 bugs
-In-Reply-To: message from Nick Evgeniev on Wednesday May 29
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	id <S314829AbSE2Kva>; Wed, 29 May 2002 06:51:30 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:35339 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S314811AbSE2Kva>;
+	Wed, 29 May 2002 06:51:30 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200205291051.g4TApEC24775@oboe.it.uc3m.es>
+Subject: Re: Kernel deadlock using nbd over acenic driver
+In-Reply-To: <20020527134413.E35@toy.ucw.cz> from Pavel Machek at "May 27, 2002
+ 01:44:14 pm"
+To: Pavel Machek <pavel@suse.cz>
+Date: Wed, 29 May 2002 12:51:14 +0200 (MET DST)
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>, Steve Whitehouse <Steve@ChyGwyn.com>,
+        linux kernel <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk,
+        chen_xiangping@emc.com
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday May 29, nick@octet.com wrote:
-> Hi,
+"A month of sundays ago Pavel Machek wrote:"
+> Hi!
 > 
-> I wrote about ide problems with 2.4.19-pre8 a few days ago (it just trashed
-> filesystem in a couple hours) & I was told to try 2.4.19-pre8-ac5 it was a
-> little bit better though every 5-8 hours I've got ide errors in log (at
-> least it didn't crash my reiserfs volumes yet):
----snip--
-> >-----------------------------
-> But now I've got even more bugs in log like:
-> >-----------------------------
-> May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
-> across chunks or bigger than 16k 37713311 4
-> May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert block
-> across chunks or bigger than 16k 37713343 4
+> > Look in some of the block drivers, floppy.c or loop.c.  These do call
+> > the task queue, even though that's only as an aid to the rest of the
+> > kernel, because they know they can help at that point, and it's not at
+> > all clear what context they're in.  Perhaps it's best to look in
+> > floppy.c, which runs the task queue in its init routine!  I mean to say
+> 
+> Init routine is called from insmod context or at kernel bootup (from pid==1).
 
-This is a request for a 4K block that is not 4K aligned... this
-shouldn't happen.
-Are you using LVM or something to partition the raid0 array?
-... though I seem to recall that LVM always partitions in multiples of
-4K so that shouldn't be a problem.
+That's nitpicking!  That the kernel init routine runs after a process is
+started is an accident (and I'm not sure it's true, but what the heck
+..).  Where does it say that one can rely on this?
 
-More detais of configuration please.
+My point is that the disk task queue "just happens".  Maybe some days in
+the life of the kernel development it happens in a process context,
+and maybe some days it doesn't.  Conceptually, I don't see any necesity
+that it should or ought to, and even if it does, I don't see why it
+should be expected to run in the context of a particular process, let
+alone the one you think it should run in, on, by, from ... 
 
-> The question is -- What I have to try to get WORKING ide driver under
-> "STABLE" kernel?
+> Both look like process context to me.
 
-Use SCSI :-?
+And both of the oranges in front of me look orange. Neverthess, I have
+eaten some red oranges.
 
-NeilBrown
+Peter

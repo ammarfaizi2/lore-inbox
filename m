@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbVCJUga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263048AbVCJUgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbVCJUga (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 15:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbVCJUde
+	id S263048AbVCJUgb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 15:36:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263050AbVCJUdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 15:33:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:24714 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263123AbVCJUbc (ORCPT
+	Thu, 10 Mar 2005 15:33:22 -0500
+Received: from fire.osdl.org ([65.172.181.4]:38068 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263116AbVCJUbX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 15:31:32 -0500
-Date: Thu, 10 Mar 2005 12:31:12 -0800
-From: Greg KH <greg@kroah.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Netdev <netdev@oss.sgi.com>, Linus Torvalds <torvalds@osdl.org>,
-       stable@kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCHES] 2.6.x net driver oops fixes
-Message-ID: <20050310203112.GA20337@kroah.com>
-References: <422F59E8.2090707@pobox.com> <20050310202548.GV5389@shell0.pdx.osdl.net>
+	Thu, 10 Mar 2005 15:31:23 -0500
+Date: Thu, 10 Mar 2005 12:30:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: Direct io on block device has performance regression on 2.6.x
+ kernel
+Message-Id: <20050310123043.69e5fd48.akpm@osdl.org>
+In-Reply-To: <200503101831.j2AIV2g03286@unix-os.sc.intel.com>
+References: <20050309200936.0b1bea9e.akpm@osdl.org>
+	<200503101831.j2AIV2g03286@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050310202548.GV5389@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 12:25:48PM -0800, Chris Wright wrote:
-> * Jeff Garzik (jgarzik@pobox.com) wrote:
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>
+> Losing 6% just from Linux kernel is a huge deal for this type of benchmark.
+>  People work for days to implement features which might give sub percentage
+>  gain.  Making Software run faster is not easy, but making software run slower
+>  apparently is a fairly easy task.
 > 
-> > This will update the following files:
-> > 
-> >  drivers/net/sis900.c    |   41 +++++++++++++++++++++--------------------
-> >  drivers/net/via-rhine.c |    3 +++
 > 
-> The via-rhine fix is already in the stable queue.  But the sis900 oops
-> fix does not apply to the stable tree.  It relies on a few intermediate
-> patches.  Appears to still be an issue for the older version which is in
-> 2.6.11.  Here's a stab at a backport.  Would you like to review/validate
-> or drop this one?
 
-The pci_name() portion of this patch is not necessary for the -stable
-tree.  Care to remove it?
+heh
 
-thanks,
+> 
+>  > Fine-grained alignment is probably too hard, and it should fall back to
+>  > __blockdev_direct_IO().
+>  >
+>  > Does it do the right thing with a request which is non-page-aligned, but
+>  > 512-byte aligned?
+>  >
+>  > readv and writev?
+>  >
+> 
+>  That's why direct_io_worker() is slower.  It does everything and handles
+>  every possible usage scenarios out there.  I hope making the function fatter
+>  is not in the plan.
 
-greg k-h
+We just cannot make a change like this if it does not support readv and
+writev well, and if it does not support down-to-512-byte size and
+alignment.  It will break applications.
+

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310881AbSCHOqZ>; Fri, 8 Mar 2002 09:46:25 -0500
+	id <S310899AbSCHOsO>; Fri, 8 Mar 2002 09:48:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310884AbSCHOqQ>; Fri, 8 Mar 2002 09:46:16 -0500
-Received: from jalon.able.es ([212.97.163.2]:39828 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S310881AbSCHOpL>;
-	Fri, 8 Mar 2002 09:45:11 -0500
-Date: Fri, 8 Mar 2002 15:44:59 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: rwhron@earthlink.net
-Subject: [PATCHSET] Linux 2.4.19-pre2-jam3
-Message-ID: <20020308144459.GA2149@werewolf.able.es>
+	id <S310894AbSCHOsE>; Fri, 8 Mar 2002 09:48:04 -0500
+Received: from mail.internet-factory.de ([195.122.142.5]:48777 "EHLO
+	mail.internet-factory.de") by vger.kernel.org with ESMTP
+	id <S310888AbSCHOrq>; Fri, 8 Mar 2002 09:47:46 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Holger Lubitz <h.lubitz@internet-factory.de>
+Newsgroups: lists.linux.kernel
+Subject: Re: 160gb maxtor with promise ultra 100
+Date: Fri, 08 Mar 2002 15:47:44 +0100
+Organization: Internet Factory AG
+Message-ID: <3C88CF10.A097C2A3@internet-factory.de>
+In-Reply-To: <3C87C6CB.F05C3B96@internet-factory.de> <Pine.LNX.4.21_heb2.09.0203072312010.1837-100000@matan.home>
+NNTP-Posting-Host: bastille.internet-factory.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.3
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: darkstar.internet-factory.de 1015598864 31254 195.122.142.158 (8 Mar 2002 14:47:44 GMT)
+X-Complaints-To: usenet@internet-factory.de
+NNTP-Posting-Date: 8 Mar 2002 14:47:44 GMT
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19-pre2-ac3 i686)
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Matan proclaimed:
+> I had something similar - with 2.4.17+ide patch and PDC20265. The kernel
+> hanged at exactly the same position. I moved the disk to hdg (master on
+> second channel, instead of first), and it works OK.
 
-Updated to vm-29 and vm-io-3 (this time was easy, Andrea already did himself).
-Direct links:
+Thanks for the hint, but this is not really an option for me. Both
+drives should be master on their own channel. I would have tried with
+both drives on the secondary channel, unfortunately the cable is too
+short for that configuration. It would barely work for the primary, but
+then I still have the hde: problem.
 
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre2-jam3/
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre2-jam3.tar.gz
-
-By.
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.19-pre2-jam3 #1 SMP Fri Mar 8 00:56:28 CET 2002 i686
+Holger

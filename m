@@ -1,47 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293601AbSCKWrz>; Mon, 11 Mar 2002 17:47:55 -0500
+	id <S293647AbSCKWrz>; Mon, 11 Mar 2002 17:47:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293547AbSCKWrp>; Mon, 11 Mar 2002 17:47:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5385 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293574AbSCKWq4>; Mon, 11 Mar 2002 17:46:56 -0500
-Date: Mon, 11 Mar 2002 14:45:49 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: <frankeh@watson.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <E16jYnr-0003T7-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.33.0203111441120.17864-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293601AbSCKWrm>; Mon, 11 Mar 2002 17:47:42 -0500
+Received: from mail.rpi.edu ([128.113.22.40]:59536 "EHLO mail.rpi.edu")
+	by vger.kernel.org with ESMTP id <S293547AbSCKWqy>;
+	Mon, 11 Mar 2002 17:46:54 -0500
+Date: Mon, 11 Mar 2002 17:47:02 -0500 (EST)
+Message-Id: <20020311.174702.74741981.obatan@rpi.edu>
+To: greearb@candelatech.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: a faster way to gettimeofday?
+From: OBATA Noboru <noboru@ylug.org>
+In-Reply-To: <3C859007.50102@candelatech.com>
+In-Reply-To: <3C859007.50102@candelatech.com>
+X-Mailer: Mew version 3.0.54 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I have a program that I very often need to calculate the current
+> time, with milisecond accuracy.  I've been using gettimeofday(),
+> but gprof shows it's taking a significant (10% or so) amount of
+> time.  Is there a faster (and perhaps less portable?) way to get
+> the time information on x86?  My program runs as root, so should
+> have any permissions it needs to use some backdoor hack if that
+> helps!
 
-On Sat, 9 Mar 2002, Rusty Russell wrote:
-> > 
-> > So I would suggest making the size (and thus alignment check) of locks at
-> > least 8 bytes (and preferably 16). That makes it slightly harder to put
-> > locks on the stack, but gcc does support stack alignment, even if the code
-> > sucks right now.
-> 
-> Actually, I disagree.
-> 
-> 1) We've left wiggle room in the second arg to sys_futex() to add rwsems
->    later if required.
-> 2) Someone needs to implement them and prove they are superior to the
->    pure userspace solution.
+Just from curious, I have implemented the userland gettimeofday
+as a shared library.  It runs about ten times faster than the
+system call on my PC, Pentium4 1.5GHz, Linux-2.4.18-pre9-ac3.
 
-You've convinced me.
+The benchmark program says:
 
-Considering how long people argued about dubious cycle measurements on the 
-rwsem implementation, and where the crrent one actually uses a spinlock 
-for exclusion on the fast path, the kernel lock really probably doesn't 
-need to be expanded, and as there is provable overhead to the expansion, 
-I'll just agree with you.
+  system call: 1.226556 usec/call
+  userland   : 0.133730 usec/call, (usec = micro second = 0.000001 sec)
 
-Applied.
+It is available from:
 
-		Linus
+  http://www.cs.rpi.edu/~obatan/ugettime/ugettime-0.1.1.tar.gz
 
+You have to run calibration program "calib" first.  Then compile
+a shared library ugettime.so, in which these calibrated
+parameters are embedded as constants.  (So you need to recompile
+it whenever you reboot the system. :-)  Please read README to
+see how to use it.
+
+Preloading this library enables the userland gettimeofday.  For
+example,
+
+  $ LD_PRELOAD=./ugettime.so emacs
+
+will execute emacs and all gettimeofday system calls that emacs
+issues will be handled by ./ugettime.so.
+
+Patient calibration gives you very accurate userland
+gettimeofday if your original gettimeofday and TSC on your
+system has good enough precision.
+
+I'm running verification program for 18 hours, but the userland
+gettimeofday still synchronizes with the actual system call.
+
+  :
+  :
+  sys: 1015885532.519445              <- system call
+  usr: 1015885532.519444 (-0.000001)  <- userland (difference in seconds)
+  sys: 1015885533.029344
+  usr: 1015885533.029344 (+0.000000)
+  sys: 1015885533.539446
+  usr: 1015885533.539445 (-0.000001)
+  :
+  :
+
+Yes, it is just for fun...  Enjoy!
+
+-- 
+OBATA Noboru (noboru@ylug.org)

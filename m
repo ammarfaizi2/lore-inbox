@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268590AbUIZKG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268877AbUIZKHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268590AbUIZKG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 06:06:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268812AbUIZKG3
+	id S268877AbUIZKHi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 06:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269503AbUIZKHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 06:06:29 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:19901 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S268590AbUIZKG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 06:06:27 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm3: swsusp horribly slow on AMD64
-Date: Sun, 26 Sep 2004 12:08:02 +0200
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>
-References: <200409251214.28743.rjw@sisk.pl> <20040925234045.GA17856@elf.ucw.cz>
-In-Reply-To: <20040925234045.GA17856@elf.ucw.cz>
-MIME-Version: 1.0
+	Sun, 26 Sep 2004 06:07:36 -0400
+Received: from gprs214-184.eurotel.cz ([160.218.214.184]:8066 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S268812AbUIZKHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 06:07:17 -0400
+Date: Sun, 26 Sep 2004 12:04:42 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Kevin Fenzi <kevin@scrye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+Message-ID: <20040926100442.GG10435@elf.ucw.cz>
+References: <20040924021956.98FB5A315A@voldemort.scrye.com> <20040924143714.GA826@openzaurus.ucw.cz> <20040924210958.A3C5AA2073@voldemort.scrye.com> <1096069216.3591.16.camel@desktop.cunninghams> <20040925014546.200828E71E@voldemort.scrye.com> <1096113235.5937.3.camel@desktop.cunninghams> <415562FE.3080709@yahoo.com.au> <20040925154527.GA8212@elf.ucw.cz> <1096149821.8359.1.camel@desktop.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409261208.02209.rjw@sisk.pl>
+In-Reply-To: <1096149821.8359.1.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 of September 2004 01:40, Pavel Machek wrote:
-> Hi!
-> 
-> > I've just tried to suspend my box and I must admit I've given up after 30 
-> > minutes (sic!) of waiting when there were only 12% of pages written to 
-disk.  
-> > Apparently, swsusp slows down to an unacceptable level after saying "PM: 
-> > Writing image to disk".
+Hi!
+
+> > True, defragmenter would not help.
 > > 
-> > The box is an Athlon 64-based notebook.  The .config is available at:
-> > http://www.sisk.pl/kernel/040925/2.6.9-rc2-mm3.config
-> > and the output of dmesg is available at:
-> > http://www.sisk.pl/kernel/040925/2.6.9-rc2-mm3-dmesg.log
+> > Anyway, conversion from order-8 allocation should be pretty easy, but
+> > I never seen that failure case and this is first report... So I'm not
+> > doing that work just yet. [There's big chunk of changes waiting in
+> > -mm, that needs to be merged because any other work should be done.]
 > 
-> We have seen something similar after hdparm was used on specific
-> machines. Are you using hdparm?
+> Are we still planning on having suspend2 replace swsusp eventually? It
+> was a lot of work to switch from those high order allocations, and if we
+> are still going to replace swsusp, perhaps it's would be a better use of
+> your time to do other things?
 
-Not explicitly, but it's used by SuSE initscripts to set IDE DMA, AFAICS.  
-However, the problem did not occur on 2.6.9-rc2-mm1 with the same 
-initscripts.
+I do not know if I'm more scared of swsusp1 to kill order-8
+allocations or if suspend2's two page sets scare me more. (Hooks
+suspend2 needs to stop all page cache activity are scary...)
 
-Greets,
-RJW
-
+I certainly want some parts of suspend2 (like improved freezer, if it
+can be made small enough), but I'm no longer sure I want all of it. I
+expected many people complaining about highmem problems in swsusp1,
+and that just did not happen; SMP support turned out to be reasonably
+simple...
+									Pavel
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

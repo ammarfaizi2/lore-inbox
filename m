@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293347AbSCOVtD>; Fri, 15 Mar 2002 16:49:03 -0500
+	id <S293348AbSCOVuY>; Fri, 15 Mar 2002 16:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293352AbSCOVsx>; Fri, 15 Mar 2002 16:48:53 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:14485 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S293347AbSCOVsi>;
-	Fri, 15 Mar 2002 16:48:38 -0500
-Date: Fri, 15 Mar 2002 21:42:33 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Joe Korty <joe.korty@ccur.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.18 scheduler bugs
-In-Reply-To: <E16lziH-0004ma-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0203152138550.22550-100000@elte.hu>
+	id <S293352AbSCOVuO>; Fri, 15 Mar 2002 16:50:14 -0500
+Received: from jffdns01.or.intel.com ([134.134.248.3]:32210 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S293348AbSCOVt7>; Fri, 15 Mar 2002 16:49:59 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7D03@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Udo A. Steinberg'" <reality@delusion.de>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: RE: [OOPS] Kernel powerdown
+Date: Fri, 15 Mar 2002 13:49:44 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 15 Mar 2002, Alan Cox wrote:
-
-> > > moment work for them becomes available.  I see no reason why an idle cpu
-> > > should be forced to remain idle until the next tick, nor why fixing that
-> > > should be considered `broken'.
-> > 
-> > performance. IPIs are expensive.
+> From: Udo A. Steinberg [mailto:reality@delusion.de]
+> > Does the machine power off successfully using ACPI when the 
+> NMI watchdog is
+> > not enabled?
 > 
-> On a PIII I can see this being the case, especially as they dont power
-> save on hlt nowdays.
+> No, it never managed to power off with ACPI. It works with APM though.
 
-it's an option, and the default is to use the hlt instruction. The main
-reason is to let Linux save power - and those who need that final
-performance edge (and it's measurable), can enable it. HTL still uses less
-power than the tight idle loop.
+Oh. Well then the NMI thing is a red herring. Try the latest ACPI patch from
+sf.net/projects/acpi and see if that fixes things.
 
-> [...] But on the Athlon the IPI isnt going down a little side channel
-> between cpus.
-
-but even in the Athlon case an IPI is still an IRQ entry, which will add
-at least 200 cycles or more to the idle wakeup latency.
-
-	Ingo
-
+-- Andy

@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267696AbUJRTmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUJRThP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267696AbUJRTmS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 15:42:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267683AbUJRTmF
+	id S266511AbUJRThP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 15:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267602AbUJRTgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 15:42:05 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:59153 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S267708AbUJRTlI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 15:41:08 -0400
-Date: Mon, 18 Oct 2004 12:40:40 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bill Huey <bhuey@lnxw.com>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
-Message-ID: <20041018194040.GC15313@nietzsche.lynx.com>
-References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041018193251.GA15313@nietzsche.lynx.com> <20041018193603.GB8159@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041018193603.GB8159@elte.hu>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Mon, 18 Oct 2004 15:36:44 -0400
+Received: from mail.scitechsoft.com ([63.195.13.67]:14504 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S267657AbUJRTfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 15:35:00 -0400
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: Jon Smirl <jonsmirl@gmail.com>
+Date: Mon, 18 Oct 2004 12:34:45 -0700
+MIME-Version: 1.0
+Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Message-ID: <4173B865.23362.117B098E@localhost>
+In-reply-to: <9e47339104101610447a393abc@mail.gmail.com>
+References: <416E6ADC.3007.294DF20D@localhost>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 09:36:03PM +0200, Ingo Molnar wrote:
-> * Bill Huey <bhuey@lnxw.com> wrote:
+Jon Smirl <jonsmirl@gmail.com> wrote:
+
+> > What this means is that it should be possible to build a new version of
+> > the VESA framebuffer console driver for the Linux kernel that will have
+> > these important features:
 > > 
-> >   CC      arch/i386/kernel/traps.o
-> > arch/i386/kernel/traps.c: In function `do_debug':
-> > arch/i386/kernel/traps.c:786: error: `sysenter_past_esp' undeclared (first use in this function)
-> > arch/i386/kernel/traps.c:786: error: (Each undeclared identifier is reported only once
-> > arch/i386/kernel/traps.c:786: error: for each function it appears in.)
-> > make[1]: *** [arch/i386/kernel/traps.o] Error 1
-> > make: *** [arch/i386/kernel] Error 2
+> > 1. Be able to switch display modes on the fly, supporting all modes
+> > enumerated by the Video BIOS.
+> > 
+> > 2. Be able to support refresh rate control on graphics cards that support
+> > the VBE 3.0 services.
 > 
-> i guess this might be an -mm1 breakage if CONFIG_KGDB enabled - does it
-> happen with vanilla -mm1 too?
+> How is this going to work if there are multiple graphics cards
+> installed? Each card will want to install it's own VBE extension
+> interrupt. 
 
-yep, should I wait for -mm2 ?
+Yep. The code I have ported to the Linux kernel right now does not 
+support multiple consoles because porting that code would be a lot more 
+work (I would prefer to keep it in userland if possible since it already 
+works there).
 
-bill
+Anyway the way the system works for multiple controllers is that there is 
+a separate BIOS image and separate machine state maintained for each 
+graphics card. So you can run the VBE driver on the primary, secondary 
+and ternary drivers if you want. We do it all the time with SNAP just for 
+fun and giggles ;-)
+
+Regards,
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
+
 

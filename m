@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbTKDSHm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 13:07:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTKDSHm
+	id S262446AbTKDR72 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 12:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbTKDR71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 13:07:42 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:51464 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S262456AbTKDSHl (ORCPT
+	Tue, 4 Nov 2003 12:59:27 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:2475 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262446AbTKDR70 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 13:07:41 -0500
-Date: Tue, 4 Nov 2003 19:07:28 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Sergey Vlasov <vsu@altlinux.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VGA Console Idea
-In-Reply-To: <20031104204426.12c06ccb.vsu@altlinux.ru>
-Message-ID: <Pine.LNX.4.44.0311041902321.5053-100000@gaia.cela.pl>
+	Tue, 4 Nov 2003 12:59:26 -0500
+Message-ID: <3FA7E8F7.7060304@colorfullife.com>
+Date: Tue, 04 Nov 2003 18:59:19 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John M Collins <jmc@xisl.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Semaphores and threads anomaly and bug?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately, this won't work, because the standard VGA text mode
-> uses funny tricks to convert 8x16 font bitmaps in memory to 9x16
-> bitmaps for real display (some graphic characters from the original
-> IBM charset are specially handled by the hardware).
+John wrote:
 
-True, forgot about this (not so) little detail.  In 9pixel-wide font 
-modes, the 9th pixel for all chars is taken to be background, except for 
-0xC0..0xDF, where (if enabled) the 9th column is a copy of the eighth.  
-Basically this means my idea would work only in 8-pixel wide font modes 
-(which are probably still used quite a bit, on laptops especially - I'm 
-using a 100x40 video mode on my 800x600 LCD display with 8x15 font). 
+>I know this isn't defined anywhere but the seems to be an ambiguity and 
+>discrepancy between versions of Unix and Linux over threads and semaphores.
+>
+>Do the "SEM_UNDO"s get applied when a thread terminates or when the 
+>"whole thing" terminates?
+>  
+>
+According to the Unix spec: per-process.
+Older Linux kernels applied it per-thread. Newer kernels can handle it 
+per-process, and AFAIK it's the default for NPTL.
 
-> However, for the framebuffer console (where we don't have hidden 9th
-> pixel column) this could be useful - it is certainly better to lose
-> high-intensity background (which almost nobody uses) than
-> high-intensity foreground (which is used much more often). Probably
-> this can be performed without actually inverting anything...
+>I think that in ipc/sem.c line 1062 the line should be made 
+>conditional on "u->semadj[i]" being non-zero.
+>  
+>
+Fixed in 2.6. But there is another bug in that block: undos can increase 
+the semaphore value above SEMVMX.
 
-In framebuffer mode we should theoretically have no problem supporting any 
-number of characters we want.  As long as we don't use direct video memory 
-access thru vcs/vcsa were programs expect 8-bit characters we can keep 
-even 16-bit (or 32) chars in memory (probably in unicode) - this of couse 
-increases the size of the font we need to keep resident in memory, but 
-we'd almost be rid of one level of font-mapping...
+>There is a potential problem here in that the code in ipc/sem.c doesn't 
+>allow the adjustment to yield a negative value but what if it starts at 
+>zero, thread A increments it, thread B decrements it back to zero (both 
+>with SEM_UNDO) and thread A exits first? Thread A's undo won't work and 
+>then thread B's undo will increment it again leaving it in an incorrect 
+>state which is different from thread B exiting first.
+>  
+>
+Correct. undo operations should never try to decrease the semaphore 
+value - an attempt to decrease below 0 is either silently ignored, or 
+the semaphore value is set to 0.
 
-> PS: I really use high-intensity background colors in VIM (though I
-> rarely run in in the console these days).
-:)
+--
+    Manfred
 

@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTDVUmV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 16:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263862AbTDVUmV
+	id S263858AbTDVUko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 16:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263859AbTDVUko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 16:42:21 -0400
-Received: from mx1.it.wmich.edu ([141.218.1.89]:39925 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S263861AbTDVUk6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 16:40:58 -0400
-Message-ID: <3EA5ABAE.1020009@wmich.edu>
-Date: Tue, 22 Apr 2003 16:53:02 -0400
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030318
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.68 state of matroxfb 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Apr 2003 16:40:44 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:10245 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263858AbTDVUkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 16:40:42 -0400
+Date: Tue, 22 Apr 2003 21:52:47 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Ford <david+cert@blue-labs.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: devfs_register(cpu/microcode): illegal mode: 8180
+Message-ID: <20030422215247.A12367@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Ford <david+cert@blue-labs.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <3EA56D99.8060300@blue-labs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3EA56D99.8060300@blue-labs.org>; from david+cert@blue-labs.org on Tue, Apr 22, 2003 at 12:28:09PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm just wondering what the state of the matroxfb driver is and why it's 
-an option in the kernel when it's completely uncompilable and has been 
-for many months. I know it requires patches to work and i was under the 
-assumption that these patches were at linux-fbdev.org but that site has 
-been down for the past few days i've tried to access it and with no 
-documentation updates about the new matroxfb driver since 2.4, I've been 
-unable to verify if this is the only place to find the matroxfb patches. 
-  So what i'm getting at is why is there a matroxfb option in the 
-current kernel when the driver isn't there and what the future/current 
-situation is with the framebuffer driver. I'd like to get the most 
-hardware support for video output as possible and it seems like the mga 
-(mplayer)  driver built on top of the fb driver is the way to do that 
-and since my Nvidia card is twice as fast at X operations as my G450, I 
-was assuming that the 2.5 fb code was just much better than the 2.4 fb 
-code since I use the nvidia fb driver in 2.5 with X using the nvidia 
-driver (Xfree's ). I've never been able to test that theory though 
-because i've never been able to build 2.5's matroxfb.
+On Tue, Apr 22, 2003 at 12:28:09PM -0400, David Ford wrote:
+> FYI, Still hasn't been fixed in 2.5.68 :)
+
+There's no call to devfs_register in arch/i386/kernel/microcode.c
+in 2.5.68 anymore.
 

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266997AbSLDSLs>; Wed, 4 Dec 2002 13:11:48 -0500
+	id <S266991AbSLDSGW>; Wed, 4 Dec 2002 13:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267001AbSLDSLs>; Wed, 4 Dec 2002 13:11:48 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:9966 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S266997AbSLDSLo>; Wed, 4 Dec 2002 13:11:44 -0500
-Date: Wed, 4 Dec 2002 19:19:00 +0100
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: Alex Riesen <Alexander.Riesen@synopsys.COM>, linux-kernel@vger.kernel.org
-Subject: Re: world read permissions on /proc/irq/prof_cpu_mask and ...smp_affinity
-Message-ID: <20021204181900.GF26745@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-References: <20021203114938.GD26745@riesen-pc.gr05.synopsys.com> <Pine.LNX.4.44.0212041036001.22730-100000@devserv.devel.redhat.com>
+	id <S267008AbSLDSGW>; Wed, 4 Dec 2002 13:06:22 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5389 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266991AbSLDSGV>;
+	Wed, 4 Dec 2002 13:06:21 -0500
+Date: Wed, 4 Dec 2002 10:13:53 -0800
+From: Greg KH <greg@kroah.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BKPATCH] bus notifiers for the generic device model
+Message-ID: <20021204181353.GA28062@kroah.com>
+References: <20021204175602.GC27780@kroah.com> <200212041804.gB4I4g803144@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212041036001.22730-100000@devserv.devel.redhat.com>
+In-Reply-To: <200212041804.gB4I4g803144@localhost.localdomain>
 User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 10:37:01AM -0500, Ingo Molnar wrote:
-> > Is there any reason to set the permissions to 0600?
-> > It makes the admin to login as root just to look on the
-> > current system state.
-> > Is there something against 0644?
+On Wed, Dec 04, 2002 at 12:04:41PM -0600, James Bottomley wrote:
+> greg@kroah.com said:
+> > But doesn't the bus specific core know when drivers are attached, as
+> > it was told to register or unregister a specific driver?  So I don't
+> > see why this is really needed. 
 > 
-> i've got nothing against 0644, 0600 was just the default paranoid value.  
-> (reading it could in theory mean an IO-APIC read.)
+> The problem is that the bus specific core registration no-longer knows if the 
+> probes succeeded or failed (and if they did, what devices were attached), 
+> since probing is controlled by the base core.
 
-The some objections against it (in vein: most people who want to
-read it, supposed to want write into it).
+Not quite.  Well, I guess you can modify all of your drivers to do this,
+but see below for an easier way.
 
-But as for now it seems to be the only reason to have it readable
-(and such things as /proc/ide/ideN/hdX/settings) is pure curiousity:
-i don't really like to bother usually overworked admin to look at the
-prof_cpu_mask just to figure out why all interrupts handled by CPU0.
-And he is supposed to deny any my attempts to get root-SUID cat :)
+> What the bus needs to know is when a driver attaches to a specific device (and 
+> what device it has attached to).
 
--alex
+Why not have a call in the driver that notifies the bus specific core of
+this?  Or just check the status of the return value of your "probe"
+function that the bus provides.  See usb_device_probe() and
+pci_device_probe() for examples of this.
+
+thanks,
+
+greg k-h

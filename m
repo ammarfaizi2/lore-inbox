@@ -1,231 +1,262 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262600AbVBYAia@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVBXXkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262600AbVBYAia (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 19:38:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVBXXst
+	id S262568AbVBXXkM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 18:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbVBXXf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:48:49 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61449 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262575AbVBXXic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:38:32 -0500
-Date: Fri, 25 Feb 2005 00:38:30 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] AGP: make some code static
-Message-ID: <20050224233830.GT8651@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 24 Feb 2005 18:35:29 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:166 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262563AbVBXXbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:31:15 -0500
+Message-ID: <421E63C1.3030703@acm.org>
+Date: Thu, 24 Feb 2005 17:31:13 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] I2C patch 4 - Add a timer to the I2C core
+Content-Type: multipart/mixed;
+ boundary="------------050300080804090004000803"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+This is a multi-part message in MIME format.
+--------------050300080804090004000803
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+This is one in a series of patches for adding a non-blocking interface 
+to the I2C driver for supporting the IPMI SMBus driver.
 
----
+--------------050300080804090004000803
+Content-Type: text/plain;
+ name="i2c_add_timer.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i2c_add_timer.diff"
 
- drivers/char/agp/ali-agp.c      |    4 ++--
- drivers/char/agp/amd-k7-agp.c   |    2 +-
- drivers/char/agp/amd64-agp.c    |    2 +-
- drivers/char/agp/ati-agp.c      |    2 +-
- drivers/char/agp/backend.c      |    6 +++---
- drivers/char/agp/efficeon-agp.c |    2 +-
- drivers/char/agp/frontend.c     |    6 +++---
- drivers/char/agp/nvidia-agp.c   |    2 +-
- drivers/char/agp/sis-agp.c      |    2 +-
- drivers/char/agp/sworks-agp.c   |    2 +-
- drivers/char/agp/via-agp.c      |    5 ++---
- include/linux/agp_backend.h     |    2 --
- 12 files changed, 17 insertions(+), 20 deletions(-)
+Add a timer to the I2C layer.  This doesn't do much until the
+non-blocking code shows up.
 
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/ali-agp.c.old	2005-01-30 18:46:21.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/ali-agp.c	2005-01-30 18:46:45.000000000 +0100
-@@ -192,7 +192,7 @@
- 	{4, 1024, 0, 3}
- };
- 
--struct agp_bridge_driver ali_generic_bridge = {
-+static struct agp_bridge_driver ali_generic_bridge = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes		= ali_generic_sizes,
- 	.size_type		= U32_APER_SIZE,
-@@ -215,7 +215,7 @@
- 	.agp_destroy_page	= ali_destroy_page,
- };
- 
--struct agp_bridge_driver ali_m1541_bridge = {
-+static struct agp_bridge_driver ali_m1541_bridge = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes		= ali_generic_sizes,
- 	.size_type		= U32_APER_SIZE,
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/amd-k7-agp.c.old	2005-01-30 18:46:58.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/amd-k7-agp.c	2005-01-30 18:47:08.000000000 +0100
-@@ -358,7 +358,7 @@
- 	{.mask = 1, .type = 0}
- };
- 
--struct agp_bridge_driver amd_irongate_driver = {
-+static struct agp_bridge_driver amd_irongate_driver = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes		= amd_irongate_sizes,
- 	.size_type		= LVL2_APER_SIZE,
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/amd64-agp.c.old	2005-01-30 18:47:31.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/amd64-agp.c	2005-01-30 18:47:39.000000000 +0100
-@@ -243,7 +243,7 @@
- }
- 
- 
--struct agp_bridge_driver amd_8151_driver = {
-+static struct agp_bridge_driver amd_8151_driver = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes		= amd_8151_sizes,
- 	.size_type		= U32_APER_SIZE,
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/ati-agp.c.old	2005-01-30 18:48:22.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/ati-agp.c	2005-01-30 18:48:30.000000000 +0100
-@@ -393,7 +393,7 @@
- 	return 0;
- }
- 
--struct agp_bridge_driver ati_generic_bridge = {
-+static struct agp_bridge_driver ati_generic_bridge = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes		= ati_generic_sizes,
- 	.size_type		= LVL2_APER_SIZE,
---- linux-2.6.11-rc2-mm2-full/include/linux/agp_backend.h.old	2005-01-30 18:49:55.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/include/linux/agp_backend.h	2005-01-30 18:50:02.000000000 +0100
-@@ -94,8 +94,6 @@
- extern struct agp_bridge_data *agp_bridge;
- extern struct list_head agp_bridges;
- 
--extern struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *);
--
- extern void agp_free_memory(struct agp_memory *);
- extern struct agp_memory *agp_allocate_memory(struct agp_bridge_data *, size_t, u32);
- extern int agp_copy_info(struct agp_bridge_data *, struct agp_kern_info *);
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/backend.c.old	2005-01-30 18:48:45.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/backend.c	2005-01-30 18:50:19.000000000 +0100
-@@ -50,7 +50,7 @@
- 	.minor = AGPGART_VERSION_MINOR,
- };
- 
--struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *) =
-+static struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *) =
- 	&agp_generic_find_bridge;
- 
- struct agp_bridge_data *agp_bridge;
-@@ -96,7 +96,7 @@
- EXPORT_SYMBOL(agp_backend_release);
- 
- 
--struct { int mem, agp; } maxes_table[] = {
-+static struct { int mem, agp; } maxes_table[] = {
- 	{0, 0},
- 	{32, 4},
- 	{64, 28},
-@@ -323,7 +323,7 @@
- 	return 0;
- }
- 
--void __exit agp_exit(void)
-+static void __exit agp_exit(void)
- {
- }
- 
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/efficeon-agp.c.old	2005-01-30 18:50:32.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/efficeon-agp.c	2005-01-30 18:50:42.000000000 +0100
-@@ -303,7 +303,7 @@
- }
- 
- 
--struct agp_bridge_driver efficeon_driver = {
-+static struct agp_bridge_driver efficeon_driver = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes		= efficeon_generic_sizes,
- 	.size_type		= LVL2_APER_SIZE,
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/frontend.c.old	2005-01-30 18:50:57.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/frontend.c	2005-01-30 18:51:27.000000000 +0100
-@@ -235,7 +235,7 @@
- 
- /* File private list routines */
- 
--struct agp_file_private *agp_find_private(pid_t pid)
-+static struct agp_file_private *agp_find_private(pid_t pid)
- {
- 	struct agp_file_private *curr;
- 
-@@ -250,7 +250,7 @@
- 	return NULL;
- }
- 
--void agp_insert_file_private(struct agp_file_private * priv)
-+static void agp_insert_file_private(struct agp_file_private * priv)
- {
- 	struct agp_file_private *prev;
- 
-@@ -262,7 +262,7 @@
- 	agp_fe.file_priv_list = priv;
- }
- 
--void agp_remove_file_private(struct agp_file_private * priv)
-+static void agp_remove_file_private(struct agp_file_private * priv)
- {
- 	struct agp_file_private *next;
- 	struct agp_file_private *prev;
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/nvidia-agp.c.old	2005-01-30 18:52:18.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/nvidia-agp.c	2005-01-30 18:52:26.000000000 +0100
-@@ -288,7 +288,7 @@
- };
- 
- 
--struct agp_bridge_driver nvidia_driver = {
-+static struct agp_bridge_driver nvidia_driver = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes		= nvidia_generic_sizes,
- 	.size_type		= U8_APER_SIZE,
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/sis-agp.c.old	2005-01-30 18:52:39.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/sis-agp.c	2005-01-30 18:52:47.000000000 +0100
-@@ -119,7 +119,7 @@
- 	{4, 1024, 0, 3}
- };
- 
--struct agp_bridge_driver sis_driver = {
-+static struct agp_bridge_driver sis_driver = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes 	= sis_generic_sizes,
- 	.size_type		= U8_APER_SIZE,
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/sworks-agp.c.old	2005-01-30 18:52:59.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/sworks-agp.c	2005-01-30 18:53:08.000000000 +0100
-@@ -409,7 +409,7 @@
- 	agp_device_command(command, 0);
- }
- 
--struct agp_bridge_driver sworks_driver = {
-+static struct agp_bridge_driver sworks_driver = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes		= serverworks_sizes,
- 	.size_type		= LVL2_APER_SIZE,
---- linux-2.6.11-rc2-mm2-full/drivers/char/agp/via-agp.c.old	2005-01-30 18:53:41.000000000 +0100
-+++ linux-2.6.11-rc2-mm2-full/drivers/char/agp/via-agp.c	2005-01-30 18:54:19.000000000 +0100
-@@ -162,7 +162,7 @@
- }
- 
- 
--struct agp_bridge_driver via_agp3_driver = {
-+static struct agp_bridge_driver via_agp3_driver = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes		= agp3_generic_sizes,
- 	.size_type		= U8_APER_SIZE,
-@@ -185,7 +185,7 @@
- 	.agp_destroy_page	= agp_generic_destroy_page,
- };
- 
--struct agp_bridge_driver via_driver = {
-+static struct agp_bridge_driver via_driver = {
- 	.owner			= THIS_MODULE,
- 	.aperture_sizes		= via_generic_sizes,
- 	.size_type		= U8_APER_SIZE,
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
+Index: linux-2.6.11-rc4/drivers/i2c/i2c-core.c
+===================================================================
+--- linux-2.6.11-rc4.orig/drivers/i2c/i2c-core.c
++++ linux-2.6.11-rc4/drivers/i2c/i2c-core.c
+@@ -33,6 +33,12 @@
+ #include <asm/uaccess.h>
+ 
+ 
++static int i2c_stop_timer(struct i2c_adapter * adap);
++static void i2c_start_timer(struct i2c_adapter * adap,
++			    struct i2c_op_q_entry * entry);
++
++#define USEC_PER_JIFFIE (1000000 / HZ)
++
+ static LIST_HEAD(adapters);
+ static LIST_HEAD(drivers);
+ static DECLARE_MUTEX(core_lists);
+@@ -143,6 +149,19 @@
+ 	list_add_tail(&adap->list,&adapters);
+ 	INIT_LIST_HEAD(&adap->clients);
+ 
++	adap->timer = kmalloc(sizeof(*adap->timer), GFP_KERNEL);
++	if (!adap->timer) {
++		res = -ENOMEM;
++		goto out_unlock;
++	}
++		
++	init_timer(&adap->timer->timer);
++	spin_lock_init(&adap->timer->lock);
++	adap->timer->deleted = 0;
++	adap->timer->running = 0;
++	adap->timer->next_call_time = 0;
++	adap->timer->adapter = adap;
++
+ 	/* Add the adapter to the driver core.
+ 	 * If the parent pointer is not set up,
+ 	 * we add this adapter to the host bus.
+@@ -185,6 +204,7 @@
+ 	struct i2c_driver *driver;
+ 	struct i2c_client *client;
+ 	int res = 0;
++	unsigned long flags;
+ 
+ 	down(&core_lists);
+ 
+@@ -237,6 +257,17 @@
+ 	device_unregister(&adap->dev);
+ 	list_del(&adap->list);
+ 
++	/* Stop the timer and free its memory */
++	spin_lock_irqsave(&adap->timer->lock, flags);
++	if (i2c_stop_timer(adap)) {
++		spin_unlock_irqrestore(&adap->timer->lock, flags);
++		kfree(adap->timer);
++	} else {
++		adap->timer->deleted = 1;
++		spin_unlock_irqrestore(&adap->timer->lock, flags);
++	}
++	adap->timer = NULL;
++
+ 	/* wait for sysfs to drop all references */
+ 	wait_for_completion(&adap->dev_released);
+ 	wait_for_completion(&adap->class_dev_released);
+@@ -583,6 +614,83 @@
+ module_exit(i2c_exit);
+ 
+ /* ----------------------------------------------------
++ * Timer operations
++ * ----------------------------------------------------
++ */
++static void i2c_handle_timer(unsigned long data);
++
++static void i2c_start_timer(struct i2c_adapter * adap,
++			    struct i2c_op_q_entry * entry)
++{
++	unsigned int wait_jiffies;
++	struct i2c_timer *t = adap->timer;
++	unsigned long flags;
++
++	wait_jiffies = ((entry->call_again_us + USEC_PER_JIFFIE - 1)
++			/ USEC_PER_JIFFIE);
++	if (wait_jiffies == 0)
++		wait_jiffies = 1;
++	/* This won't be polled from the user code, so
++	   start a timer to poll it. */
++	spin_lock_irqsave(&t->lock, flags);
++	if (! t->running) {
++		t->timer.expires = jiffies + wait_jiffies;
++		t->timer.data = (unsigned long) t;
++		t->timer.function = i2c_handle_timer;
++		t->running = 1;
++		t->next_call_time = wait_jiffies * USEC_PER_JIFFIE;
++		add_timer(&t->timer);
++		t->sequence = adap->timer_sequence;
++	}
++	spin_unlock_irqrestore(&t->lock, flags);
++}
++
++/* Returns true if the timer is stopped (or was not running), false if
++   not.  Must be called with the timer lock held. */
++static int i2c_stop_timer(struct i2c_adapter * adap)
++{
++	return (!adap->timer->running || del_timer(&adap->timer->timer));
++}
++
++static void i2c_handle_timer(unsigned long data)
++{
++	struct i2c_timer      * t = (void *) data;
++	struct i2c_adapter    * adap;
++	unsigned long         flags;
++	struct i2c_op_q_entry * entry;
++	unsigned int          sequence_match;
++
++	spin_lock_irqsave(&t->lock, flags);
++	if (t->deleted) {
++		spin_unlock_irqrestore(&t->lock, flags);
++		kfree(t);
++		return;
++	}
++
++	adap = t->adapter;
++	t->running = 0;
++	sequence_match = adap->timer_sequence == t->sequence;
++	spin_unlock_irqrestore(&t->lock, flags);
++
++	entry = i2c_entry_get(adap);
++	pr_debug("i2c_handle_timer: %p %p\n", adap, entry);
++	if (!entry)
++		return;
++
++	if (sequence_match) {
++		/* Poll will go here. */
++
++		if (!entry_completed(entry))
++			i2c_start_timer(adap, entry);
++	} else if (entry->use_timer)
++		/* We raced in timer deletion, just restart the
++		   timer if necessary. */
++		i2c_start_timer(adap, entry);
++
++	i2c_entry_put(adap, entry);
++}
++
++/* ----------------------------------------------------
+  * the functional interface to the i2c busses.
+  * ----------------------------------------------------
+  */
+@@ -1425,6 +1533,21 @@
+ 	if (atomic_dec_and_test(&e->completed)) {
+ 		/* We are the lucky winner!  We get to clean up the
+ 		   entry. */
++		if (e->use_timer) {
++			unsigned long    flags;
++			struct i2c_timer *t = adap->timer;
++			spin_lock_irqsave(&t->lock, flags);
++			if (!i2c_stop_timer(adap))
++				/* If we are unable to stop the timer, that
++				   means the timer has gone off but has not
++				   yet run the first part of the handler call.
++				   Increment the sequence so the timer handler
++				   can detect this. */
++				adap->timer_sequence++;
++			else
++				t->running = 0;
++			spin_unlock_irqrestore(&t->lock, flags);
++		}
+ 		if (e->complete)
+ 			e->complete(adap, e);
+ 	}
+Index: linux-2.6.11-rc4/include/linux/i2c.h
+===================================================================
+--- linux-2.6.11-rc4.orig/include/linux/i2c.h
++++ linux-2.6.11-rc4/include/linux/i2c.h
+@@ -35,6 +35,7 @@
+ #include <linux/completion.h>
+ #include <linux/list.h>
+ #include <linux/spinlock.h>
++#include <linux/timer.h>
+ #include <asm/semaphore.h>
+ #include <asm/atomic.h>
+ 
+@@ -244,6 +245,21 @@
+ };
+ 
+ /*
++ * The timer has it's own separately allocated data structure because
++ * it needs to be able to exist even if the adapter is deleted (due to
++ * timer cancellation races).
++ */
++struct i2c_timer {
++	spinlock_t lock;
++	int deleted;
++	struct timer_list timer;
++	int running;
++	unsigned int next_call_time;
++	struct i2c_adapter *adapter;
++	unsigned int sequence;
++};
++
++/*
+  * i2c_adapter is the structure used to identify a physical i2c bus along
+  * with the access algorithms necessary to access it.
+  */
+@@ -265,6 +281,11 @@
+ 
+ 	struct semaphore bus_lock;
+ 
++	/* Used to time non-blocking operations.  The sequence is used
++	   to handle race conditions in the timer handler. */
++	struct i2c_timer *timer;
++	unsigned int timer_sequence;
++
+ 	int timeout;
+ 	int retries;
+ 	struct device dev;		/* the adapter device */
+
+--------------050300080804090004000803--

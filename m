@@ -1,104 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVDAJ2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262679AbVDAJaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262668AbVDAJ2G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 04:28:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVDAJ2G
+	id S262679AbVDAJaK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 04:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbVDAJ3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 04:28:06 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:4547 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262668AbVDAJ14 (ORCPT
+	Fri, 1 Apr 2005 04:29:34 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:64673 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262669AbVDAJ3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 04:27:56 -0500
-Subject: Re: cn_queue.c
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050401004804.52519e17.akpm@osdl.org>
-References: <20050331173215.49c959a0.akpm@osdl.org>
-	 <1112341236.9334.97.camel@uganda> <20050331235706.5b5981db.akpm@osdl.org>
-	 <1112344811.9334.146.camel@uganda>  <20050401004804.52519e17.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PmiqlSyrqT1ddrcgNai4"
-Organization: MIPT
-Date: Fri, 01 Apr 2005 13:34:08 +0400
-Message-Id: <1112348048.9334.174.camel@uganda>
+	Fri, 1 Apr 2005 04:29:21 -0500
+Date: Fri, 1 Apr 2005 01:29:02 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: nickpiggin@yahoo.com.au, kenneth.w.chen@intel.com, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Industry db benchmark result on recent 2.6 kernels
+Message-Id: <20050401012902.2fb1a992.pj@engr.sgi.com>
+In-Reply-To: <20050401065955.GB26203@elte.hu>
+References: <200503312214.j2VMEag23175@unix-os.sc.intel.com>
+	<424C8956.7070108@yahoo.com.au>
+	<20050331220526.3719ed7f.pj@engr.sgi.com>
+	<20050401065955.GB26203@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 01 Apr 2005 13:27:29 +0400 (MSD)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> It has to be made sure that H1+H2+H3 != H4+H5+H6,
 
---=-PmiqlSyrqT1ddrcgNai4
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yeah - if you start trying to think about the general case here, the
+combinations tend to explode on one.
 
-On Fri, 2005-04-01 at 00:48 -0800, Andrew Morton wrote:
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> >
-> >  New object has 0 reference counter when created.
-> >  If some work is appointed to the object, then it's counter is atomical=
-ly
-> >  incremented. It is decremented when the work is finished.
-> >  If object is supposed to be removed while some work
-> >  may be appointed to it, core ensures that no work _is_ appointed,=20
-> >  and atomically disallows[for example removing workqueue, removing
-> >  callback, all with appropriate locks being hold]=20
-> >  any other work appointment for the given object.
-> >  After it [when no work can be appointed to the object] if object
-> >  still has pending work [and thus has it's refcounter not zero],=20
-> >  removing path waits untill appropriate refcnt hits zero.=20
-> >  Since no _new_ work can be appointed at that level it is just
-> >  while (atomic_read(refcnt) !=3D 0)
-> >    msleep();
->=20
-> More like:
->=20
-> 	while (atomic_read(&obj->refcnt))
-> 		msleep();
-> 	kfree(obj);
+I'm thinking we get off easy, because:
 
-Yep :)
+ 1) Specific arch's can apply specific short cuts.
 
-> which introduces the possibility of someone grabbing a new ref on the
-> object just before the kfree().  If there is no means by which any other
-> actor can acquire a ref to this object then OK, no race.
+	My intuition was that any specific architecture, when it
+	got down to specifics, could find enough ways to cheat
+	so that it could get results quickly, that easily fit
+	in a single 'distance' word, which results were 'close
+	enough.'
 
-No, object is already removed from the pathes where someone may access
-it.
-It is only waiting until already assigned work is finished.
+ 2) The bigger the system, the more uniform its core hardware.
 
-> But it's rather surprising that such a thing can be achieved without any
-> locking.  What happens if another CPU has just entered
-> cn_queue_del_callback(), for example?  It has a live cn_callback_entry in
-> `cbq' which has a zero refcount - cn_queue_free_dev() can throw it away.
+	At least SGI's big iron systems are usually pretty
+	uniform in the hardware that matters here.  We might mix
+	two cpu speeds, or a couple of memory sizes.  Not much
+	more, at least that I know of.  A 1024 NUMA cobbled
+	together from a wide variety of parts would be a very
+	strange beast indeed.
 
-cn_queue_free_dev() will wait until dev->refcnt hits zero=20
-before freeing any resources,
-but it can happen only after cn_queue_del_callback() does=20
-it's work on given callback device [actually when all callbacks=20
-are removed].
-When new callback is added into device, it's refcnt is incremented
-[before adition btw, if addition fails in the middle, reference is
-decremented], when callbak is removed, device's reference counter
-is decremented aromically after all work is finished.
+ 3) Approximate results (aliasing at the edges) are ok.
 
---=20
-        Evgeniy Polyakov
+	If the SN2 arch code ends up telling the cache latency
+	initialization code that two cpus on opposite sides of
+	a 1024 cpu system are the same distance as another such
+	pair, even though they aren't exactly the same distance,
+	does anyone care?  Not I.
 
-Crash is better than data corruption -- Arthur Grabowski
+So I think we've got plenty of opportunity to special case arch's,
+plenty of headroom, and plenty of latitude to bend not break if we do
+start to push the limits.
 
---=-PmiqlSyrqT1ddrcgNai4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Think of that 64 bits as if it was floating point, not int.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCTRWPIKTPhE+8wY0RAof4AKCW6GG+kZXoPstGRZDNni6YXM0/wQCfSpMW
-OoVnHgzEn9haI6BhjAq9IUE=
-=d1ZW
------END PGP SIGNATURE-----
-
---=-PmiqlSyrqT1ddrcgNai4--
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264550AbUGMInm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUGMIo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264550AbUGMInm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 04:43:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264656AbUGMInm
+	id S264639AbUGMIo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 04:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264656AbUGMIo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 04:43:42 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:32951 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264550AbUGMInl (ORCPT
+	Tue, 13 Jul 2004 04:44:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:19858 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264639AbUGMIow (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 04:43:41 -0400
-Date: Tue, 13 Jul 2004 10:43:39 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Olaf Titz <olaf@bigred.inka.de>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-In-Reply-To: <E1BjmAw-0005MS-00@bigred.inka.de>
-Message-ID: <Pine.GSO.4.58.0407131042310.6985@waterleaf.sonytel.be>
-References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
- <Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org> <m1fz80c406.fsf@ebiederm.dsl.xmission.com>
- <Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org> <m1smc09p6m.fsf@ebiederm.dsl.xmission.com>
- <E1BjmAw-0005MS-00@bigred.inka.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 Jul 2004 04:44:52 -0400
+Date: Tue, 13 Jul 2004 01:43:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
+ Preemption Patch
+Message-Id: <20040713014316.2ce9181d.akpm@osdl.org>
+In-Reply-To: <1089707483.20381.33.camel@mindpipe>
+References: <20040709182638.GA11310@elte.hu>
+	<20040710222510.0593f4a4.akpm@osdl.org>
+	<1089673014.10777.42.camel@mindpipe>
+	<20040712163141.31ef1ad6.akpm@osdl.org>
+	<1089677823.10777.64.camel@mindpipe>
+	<20040712174639.38c7cf48.akpm@osdl.org>
+	<1089687168.10777.126.camel@mindpipe>
+	<20040712205917.47d1d58b.akpm@osdl.org>
+	<1089707483.20381.33.camel@mindpipe>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Jul 2004, Olaf Titz wrote:
-> in C. (Worse in C++ where usage of NULL is discouraged, I've always
-> wondered about the reasons.)
+Lee Revell <rlrevell@joe-job.com> wrote:
+>
+> Jul 13 04:27:50 mindpipe kernel: ALSA /usr/src/alsa-cvs-1.0.5/alsa-driver/alsa-kernel/core/pcm_lib.c:169: XRUN: pcmC0D0p
+>  Jul 13 04:27:50 mindpipe kernel:  [__crc_totalram_pages+1387264/5353478] snd_pcm_period_elapsed+0x2ca/0x410 [snd_pcm]
+>  Jul 13 04:27:50 mindpipe kernel:  [group_send_sig_info+101/144] group_send_sig_info+0x65/0x90
+>  Jul 13 04:27:50 mindpipe kernel:  [__crc_totalram_pages+1455070/5353478] snd_emu10k1_interrupt+0x3c8/0x480 [snd_emu10k1]
+>  Jul 13 04:27:50 mindpipe kernel:  [handle_IRQ_event+49/96] handle_IRQ_event+0x31/0x60
+>  Jul 13 04:27:50 mindpipe kernel:  [do_IRQ+155/352] do_IRQ+0x9b/0x160
+>  Jul 13 04:27:50 mindpipe kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
+>  Jul 13 04:27:50 mindpipe kernel:  [_mmx_memcpy+141/384] _mmx_memcpy+0x8d/0x180
+>  Jul 13 04:27:50 mindpipe kernel:  [scrup+242/320] scrup+0xf2/0x140
+>  Jul 13 04:27:50 mindpipe kernel:  [lf+96/112] lf+0x60/0x70
+>  Jul 13 04:27:50 mindpipe kernel:  [do_con_trol+2907/3360] do_con_trol+0xb5b/0xd20
+>  Jul 13 04:27:50 mindpipe kernel:  [do_con_write+1128/1888] do_con_write+0x468/0x760
+>  Jul 13 04:27:50 mindpipe kernel:  [con_put_char+51/64] con_put_char+0x33/0x40
 
-[ wondered about this as well, but the answer has been posted before in this
-  thread ]
+framebuffer scrolling inside lock_kernel().  Tricky.  Suggest you use X or
+vgacon.  You can try removing the lock_kernel() calls from do_tty_write(),
+but make sure you're wearing ear protection.
 
-Because C++ doesn't do implicit conversions from void * to anything *.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

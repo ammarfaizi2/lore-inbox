@@ -1,40 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316853AbSHXW7G>; Sat, 24 Aug 2002 18:59:06 -0400
+	id <S316856AbSHXX0D>; Sat, 24 Aug 2002 19:26:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316856AbSHXW7G>; Sat, 24 Aug 2002 18:59:06 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:58822 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S316853AbSHXW7F>;
-	Sat, 24 Aug 2002 18:59:05 -0400
-Message-ID: <1030230196.3d6810b4aa1ff@kolivas.net>
-Date: Sun, 25 Aug 2002 09:03:16 +1000
-From: conman@kolivas.net
-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: Preempt note in the logs
-References: <Pine.LNX.4.44.0208241157590.3234-100000@hawkeye.luckynet.adm> <1030212663.861.3.camel@phantasy>
-In-Reply-To: <1030212663.861.3.camel@phantasy>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S316857AbSHXX0D>; Sat, 24 Aug 2002 19:26:03 -0400
+Received: from ppp-217-133-222-183.dialup.tiscali.it ([217.133.222.183]:2976
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S316856AbSHXX0B>; Sat, 24 Aug 2002 19:26:01 -0400
+Subject: [PATCH TRIVIAL] Make rmap.c alloc/free actually inline
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@conectiva.com.br>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-CzlLeYd2i7stijHp+QNV"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 25 Aug 2002 01:29:27 +0200
+Message-Id: <1030231767.1538.63.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert
 
-Sorry you're getting involved in this. It all centres around me merging a few of
-the more popular performance patches [O(1),preempt,low latency,rmap]. 
+--=-CzlLeYd2i7stijHp+QNV
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-The preempt count in the log they're referring to only occurs frequently with my
-patches so it's not due to your code; it happens with every single process using
-my butchered patch. I based the merging on your latest patch for 2.4.19 and a
-previous patch you had created for preempt on O(1) for 2.4.18
+GCC can only inline functions when the function definition comes before
+its use.
 
-http://kernel.kolivas.net
 
-I don't expect you to debug this, and I expect it's a fault in my version of
-sched.c (most obvious choice).
+--- linux-2.5.31/mm/rmap.c~	2002-08-13 19:36:16.000000000 +0200
++++ linux-2.5.31/mm/rmap.c	2002-08-25 01:08:00.000000000 +0200
+@@ -53,9 +53,45 @@ struct pte_chain {
+ };
+ 
+ static kmem_cache_t	*pte_chain_cache;
+-static inline struct pte_chain * pte_chain_alloc(void);
+-static inline void pte_chain_free(struct pte_chain *, struct pte_chain *,
+-		struct page *);
++
++/**
++ * pte_chain_alloc - allocate a pte_chain struct
++ *
++ * Returns a pointer to a fresh pte_chain structure. Allocates new
++ * pte_chain structures as required.
++ * Caller needs to hold the page's pte_chain_lock.
++ */
++static inline struct pte_chain *pte_chain_alloc(void)
++{
++	return kmem_cache_alloc(pte_chain_cache, GFP_ATOMIC);
++}
++
++/**
++ * pte_chain_free - free pte_chain structure
++ * @pte_chain: pte_chain struct to free
++ * @prev_pte_chain: previous pte_chain on the list (may be NULL)
++ * @page: page this pte_chain hangs off (may be NULL)
++ *
++ * This function unlinks pte_chain from the singly linked list it
++ * may be on and adds the pte_chain to the free list. May also be
++ * called for new pte_chain structures which aren't on any list yet.
++ * Caller needs to hold the pte_chain_lock if the page is non-NULL.
++ */
++static inline void pte_chain_free(struct pte_chain * pte_chain,
++		struct pte_chain * prev_pte_chain, struct page * page)
++{
++	if (prev_pte_chain)
++		prev_pte_chain->next = pte_chain->next;
++	else if (page)
++		page->pte.chain = pte_chain->next;
++
++	kmem_cache_free(pte_chain_cache, pte_chain);
++}
++
++
++/**
++ ** VM stuff below this comment
++ **/
+ 
+ /**
+  * page_referenced - test if the page was referenced
+@@ -358,41 +394,6 @@ int try_to_unmap(struct page * page)
+  ** functions.
+  **/
+ 
+-
+-/**
+- * pte_chain_free - free pte_chain structure
+- * @pte_chain: pte_chain struct to free
+- * @prev_pte_chain: previous pte_chain on the list (may be NULL)
+- * @page: page this pte_chain hangs off (may be NULL)
+- *
+- * This function unlinks pte_chain from the singly linked list it
+- * may be on and adds the pte_chain to the free list. May also be
+- * called for new pte_chain structures which aren't on any list yet.
+- * Caller needs to hold the pte_chain_lock if the page is non-NULL.
+- */
+-static inline void pte_chain_free(struct pte_chain * pte_chain,
+-		struct pte_chain * prev_pte_chain, struct page * page)
+-{
+-	if (prev_pte_chain)
+-		prev_pte_chain->next = pte_chain->next;
+-	else if (page)
+-		page->pte.chain = pte_chain->next;
+-
+-	kmem_cache_free(pte_chain_cache, pte_chain);
+-}
+-
+-/**
+- * pte_chain_alloc - allocate a pte_chain struct
+- *
+- * Returns a pointer to a fresh pte_chain structure. Allocates new
+- * pte_chain structures as required.
+- * Caller needs to hold the page's pte_chain_lock.
+- */
+-static inline struct pte_chain *pte_chain_alloc(void)
+-{
+-	return kmem_cache_alloc(pte_chain_cache, GFP_ATOMIC);
+-}
+-
+ void __init pte_chain_init(void)
+ {
+ 	pte_chain_cache = kmem_cache_create(	"pte_chain",
 
-Cheers,
-Con Kolivas
 
+--=-CzlLeYd2i7stijHp+QNV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD4DBQA9aBbXdjkty3ft5+cRAi9EAJ0cNk9l8YOSm0mQ+O0lCHRb0DXXVwCY7F2b
+6i3wWzaT/r8wk1ZNfiHXrw==
+=Gbzb
+-----END PGP SIGNATURE-----
+
+--=-CzlLeYd2i7stijHp+QNV--

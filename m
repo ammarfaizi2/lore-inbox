@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130944AbRCFFeo>; Tue, 6 Mar 2001 00:34:44 -0500
+	id <S130946AbRCFFlz>; Tue, 6 Mar 2001 00:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130945AbRCFFee>; Tue, 6 Mar 2001 00:34:34 -0500
-Received: from gear.torque.net ([204.138.244.1]:6411 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S130944AbRCFFeY>;
-	Tue, 6 Mar 2001 00:34:24 -0500
-Message-ID: <3AA47557.1DC03D6@torque.net>
-Date: Tue, 06 Mar 2001 00:27:51 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.2 i586)
-X-Accept-Language: en
+	id <S130948AbRCFFlq>; Tue, 6 Mar 2001 00:41:46 -0500
+Received: from mail005.syd.optusnet.com.au ([203.2.75.229]:6805 "EHLO
+	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S130946AbRCFFlf>; Tue, 6 Mar 2001 00:41:35 -0500
+Message-ID: <003901c0a600$1a5d3220$0200a8c0@dingoblue.net.au>
+From: "Adrian Levi" <a_levi@dingoblue.net.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: Possible Bug? 2.2.18
+Date: Tue, 6 Mar 2001 15:41:31 +1000
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: scsi vs ide performance on fsync's
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 	
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+running 2.2.18 on a AMD486DX4 - 120 with 34Mb Ram running RH6.2 I obtained
+these errors while trying to copy files from a burnt CD.
 
-Linus Torvalds wrote:
+Mar  6 10:13:33 lefty kernel: hdb: command error: status=0x51 { DriveReady
+SeekComplete Error }
+Mar  6 10:13:33 lefty kernel: hdb: command error: error=0x54
+Mar  6 10:13:33 lefty kernel: end_request: I/O error, dev 03:40 (hdb),
+sector 140520
+Mar  6 10:13:33 lefty kernel: ATAPI device hdb:
+Mar  6 10:13:34 lefty kernel:   Error: Illegal request -- (Sense key=0x05)
+Mar  6 10:13:34 lefty kernel:   Illegal mode for this track or incompatible
+medium -- (asc=0x64, ascq=0x00)
+Mar  6 10:40:57 lefty kernel: hdb: command error: status=0x51 { DriveReady
+SeekComplete Error }
+Mar  6 10:40:57 lefty kernel: hdb: command error: error=0x54
+Mar  6 10:40:57 lefty kernel: ATAPI device hdb:
+Mar  6 10:40:57 lefty kernel:   Error: Illegal request -- (Sense key=0x05)
+Mar  6 10:40:57 lefty kernel:   Illegal mode for this track or incompatible
+medium -- (asc=0x64, ascq=0x00)
 
-> Well, it's entirely possible that the mid-level SCSI layer is doing
-> something horribly stupid.
+The system locked hard with the drive light on, not accepting commands via
+telnet. I plugged in a Keyboard and Monitor and line after line of:
 
-Well it's in good company as FreeBSD 4.2 on the same hardware
-returns the same result (including IDE timings that were too
-fast). My timepeg analysis showed that the SCSI disk was consuming
-the time, not any of the SCSI layers.
+hdb: Missed Interupt   (As close as i can get via memory).
 
-> On the other hand, it's also entirely possible that IDE is just a lot
-> better than what the SCSI-bigots tend to claim. It's not all that
-> surprising, considering that the PC industry has pushed untold billions of
-> dollars into improving IDE, with SCSI as nary a consideration. The above
-> may just simply be the Truth, with a capital T.
+Holding Ctrl+Alt+SysRq responded in what looked like the screen switching
+between a login screen and the afformentioned error messages.
 
-What exactly do you think fsync() and fdatasync() should
-do? If they need to wait for dirty buffers to get flushed
-to the disk oxide then multiple reported IDE results to
-this thread are defying physics.
+Please cc replies to a_levi@dingoblue.net.au
+
+Adrian Levi.
 
 
-Doug Gilbert
+

@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSFTJ21>; Thu, 20 Jun 2002 05:28:27 -0400
+	id <S313060AbSFTJfH>; Thu, 20 Jun 2002 05:35:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313060AbSFTJ20>; Thu, 20 Jun 2002 05:28:26 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:5873 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S312973AbSFTJ2Z>; Thu, 20 Jun 2002 05:28:25 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
+	id <S313070AbSFTJfH>; Thu, 20 Jun 2002 05:35:07 -0400
+Received: from pc-62-31-66-56-ed.blueyonder.co.uk ([62.31.66.56]:50048 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S313060AbSFTJfG>; Thu, 20 Jun 2002 05:35:06 -0400
+Date: Thu, 20 Jun 2002 10:34:29 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Christopher Li <chrisl@gnuchina.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Alexander Viro <viro@math.psu.edu>, DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
+Message-ID: <20020620103429.A2464@redhat.com>
+References: <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain> <E17KoGz-0000y5-00@starship>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15633.40926.324833.121952@wombat.chubb.wattle.id.au>
-Date: Thu, 20 Jun 2002 19:26:54 +1000
-To: paulus@samba.org
-CC: linux-kernel@vger.kernel.org, trivial@rustcorp.com
-Subject: ppp_generic.c doesn't compile on IA64
-X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-X-Face: .slVUC18R`%{j(W3ztQe~*ATzet;h`*Wv33MZ]*M,}9AP<`+C=U)c#NzI5vK!0^d#6:<_`a
- {#.<}~(T^aJ~]-.C'p~saJ7qZXP-$AY==]7,9?WVSH5sQ}g3,8j>u%@f$/Z6,WR7*E~BFY.Yjw,H6<
- F.cEDj2$S:kO2+-5<]afj@kC!:uw\(<>lVpk)lPZs+2(=?=D/TZPG+P9LDN#1RRUPxdX
-Comments: Hyperbole mail buttons accepted, v04.18.
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17KoGz-0000y5-00@starship>; from phillips@bonn-fries.net on Thu, Jun 20, 2002 at 12:49:57AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi Paul,
-   ppp_generic.c needs the attached patch (or something like it) to
-compile on IA64, because outl() is a macro that expands to something
-that doesn't look like a label.
+On Thu, Jun 20, 2002 at 12:49:57AM +0200, Daniel Phillips wrote:
+ 
+> I don't have code, but let me remind you of this post:
+> 
+>    http://marc.theaimsgroup.com/?l=ext2-devel&m=102132142032096&w=2
+> 
+> A sketch of the coalescing design is at the end.  I'll formalize that.
 
---- /tmp/geta7153	Thu Jun 20 19:23:26 2002
-+++ linux-2.5.23/drivers/net/ppp_generic.c	Thu Jun 20 19:23:24 2002
-@@ -2437,7 +2437,7 @@
- 	write_lock_bh(&pch->upl);
- 	ret = -EINVAL;
- 	if (pch->ppp != 0)
--		goto outl;
-+		goto out_unlock;
- 
- 	ppp_lock(ppp);
- 	if (pch->file.hdrlen > ppp->file.hdrlen)
-@@ -2452,7 +2452,7 @@
- 	ppp_unlock(ppp);
- 	ret = 0;
- 
-- outl:
-+ out_unlock:
- 	write_unlock_bh(&pch->upl);
-  out:
- 	up(&all_ppp_sem);
+One question --- just how stable will this be if we boot into a kernel
+that doesn't have the coalescing enabled, and start modifying
+directories?  We _could_ just teach the current code to clear those
+top 8 bits in the parent any time we touch a leaf node, but that's
+unnecessarily expensive, so we'd really need to have some way of
+either recreating the hint fields from scratch every so often, or of
+spotting when they have become badly out-of-date.
+
+Cheers,
+ Stephen

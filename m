@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbTIPN4s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 09:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTIPN4s
+	id S261905AbTIPN7e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 09:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTIPN7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 09:56:48 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:2308 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S261845AbTIPN4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 09:56:41 -0400
-Subject: Re: Nearly succes with suspend to disk in -test5-mm2
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Mathieu LESNIAK <maverick@eskuel.net>, LKML <linux-kernel@vger.kernel.org>,
-       mochel@osdl.org
-In-Reply-To: <20030916121229.GE585@elf.ucw.cz>
-References: <3F660BF7.6060106@eskuel.net> <20030916114822.GB602@elf.ucw.cz>
-	 <1063714222.1302.5.camel@teapot.felipe-alfaro.com>
-	 <20030916121229.GE585@elf.ucw.cz>
+	Tue, 16 Sep 2003 09:59:34 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:9381 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261905AbTIPN7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 09:59:33 -0400
+Subject: Re: [2.6 Patch] Kernel-doc updates 7 of 15 -- /fs/inode.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Still <mikal@stillhq.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+In-Reply-To: <1063681483.3f667dcbbf875@dubai.stillhq.com>
+References: <1063681483.3f667dcbbf875@dubai.stillhq.com>
 Content-Type: text/plain
-Message-Id: <1063720598.1488.13.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 16 Sep 2003 15:56:38 +0200
 Content-Transfer-Encoding: 7bit
+Message-Id: <1063720681.10037.28.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
+Date: Tue, 16 Sep 2003 14:58:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-16 at 14:12, Pavel Machek wrote:
-> Hi!
-> 
-> > > cat you try with echo 4 > /proc/acpi/sleep?
-> > 
-> > It does nothing for me... No messages in the kernel ring, no intention
-> > to perform a swsusp.
-> 
-> That's strange; can you cat /proc/acpi/sleep?
+On Maw, 2003-09-16 at 04:04, Michael Still wrote:
+>  
+>  /*
 
-# cat /proc/acpi/sleep
-S0 S3 S4 S5
+Should be /** there for dispose_list so that the entry is generated,
+otherwise it thinks its just a comment. The rest looks great
 
-# cat /sys/power/state
-standby mem disk
-
-# cat /sys/power/disk
-platform
-
-I compiled swsusp into 2.6.0-test5-mm2 and defined "/dev/hda2" as the
-default partition used to store the swsusp data.
-
-Curiously, echo 3 > /proc/acpi/sleep works, although I get panics and
-oopses.
 

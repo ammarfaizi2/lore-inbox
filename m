@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283603AbRL1A3e>; Thu, 27 Dec 2001 19:29:34 -0500
+	id <S283311AbRL1AYy>; Thu, 27 Dec 2001 19:24:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283618AbRL1A3Y>; Thu, 27 Dec 2001 19:29:24 -0500
-Received: from bcboy-linux.cisco.com ([171.71.68.225]:22796 "EHLO
-	bcboy-linux.cisco.com") by vger.kernel.org with ESMTP
-	id <S283603AbRL1A3T>; Thu, 27 Dec 2001 19:29:19 -0500
-Date: Thu, 27 Dec 2001 16:28:41 -0800
-From: Brian Craft <bcboy@thecraftstudio.com>
-To: Andreas Dilger <adilger@turbolabs.com>
+	id <S283591AbRL1AYf>; Thu, 27 Dec 2001 19:24:35 -0500
+Received: from mail.gmx.net ([213.165.64.20]:24534 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S283311AbRL1AY0>;
+	Thu, 27 Dec 2001 19:24:26 -0500
+Date: Fri, 28 Dec 2001 01:24:12 +0100
+From: Christian Ohm <chr.ohm@gmx.net>
+To: Hans Reiser <reiser@namesys.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: pasting arbitrary input to consoles
-Message-ID: <20011227162841.A20931@bcboy-linux.cisco.com>
-In-Reply-To: <20011227141759.A19460@bcboy-linux.cisco.com> <20011227155157.L12868@lynx.no>
+Subject: Re: file corruption in 2.4.16/17
+Message-ID: <20011228002412.GA691@moongate.thevoid.net>
+In-Reply-To: <20011222220223.GA537@moongate.thevoid.net> <3C26F2AC.1050809@namesys.com> <20011225004459.GB3752@moongate.thevoid.net> <3C285384.3020302@namesys.com> <20011226005327.GA3970@moongate.thevoid.net> <20011226092024.A871@namesys.com> <20011227030946.GA472@moongate.thevoid.net> <3C2B00B3.4040505@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011227155157.L12868@lynx.no>; from adilger@turbolabs.com on Thu, Dec 27, 2001 at 03:51:57PM -0700
+Content-Disposition: inline
+In-Reply-To: <3C2B00B3.4040505@namesys.com>
+User-Agent: Mutt/1.3.24i
+Organization: theVoid
+X-Operating-System: Linux moongate 2.4.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 27, 2001 at 02:06:27PM +0300, Hans Reiser wrote:
+> It sounds like you get reiserfs corruptions easily, without crashing the 
+> machine or anythin unusual, and in that case you surely have hardware 
+> problems.  Please note in our FAQ the discussion of how reiserfs runs 
+> hotter than ext2, and it is common for improperly cooled CPUs to work 
+> well for ext2 and not reiserfs (tail combining heats the CPU).
 
+not likely; its a duron 700 and lm-sensors says < 37 degree celsius with
+open case (as it is now) and about 45 with closed case.
 
-On Thu, Dec 27, 2001 at 03:51:57PM -0700, Andreas Dilger wrote:
-> Well, you could also make the voice-aware shell as the default shell for
-> a given user
+anyway, i've created a new fat32 partition where the old reiserfs one was,
+copied lots of files to it and diffed them. no difference. i copied the same
+files as earlier to the new reiserfs partition and diffed them. no
+difference. no other corrupted files elsewhere, as far as i have seen now.
+so whatever was the cause of this seems to have gone now (always the same
+kernel, nothing changed with the hardware). perhaps the reiserfs file system
+structure got corrupted somehow and thus caused this. don't know. if i have
+nothing else to do, i'll create another reiserfs partition where the old one
+was and try to corrupt some files.
 
-Interesting idea, though you'd need to auto login one of the consoles (since
-the shell won't be up at the login prompt).
+i'll report back if i get corrupted files again. until then, thanks to
+everyone trying to help me and sorry for taking your time.
 
-> For X you could also make the voice recognition system an input method
-
-We're currently using the XTest extension, which works well. There are a number
-of techniques you can use for X.
-
-I just wrote a proof-of-concept for a truly hideous console solution:
-
-    o Read the first line of /dev/vcs0
-    o Write the to-be-pasted text to /dev/vcs0
-    o Select the text via ioctl on /dev/tty0
-    o Restore the first line of /dev/vcs0
-    o Paste via ioctl on /dev/tty0
-
-Hehehe. It works. And it's good just for the gross-out value.
-
-Thanks,
-b.c.
+bye
+christian ohm

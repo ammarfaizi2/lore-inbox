@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVC2KIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVC2KKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbVC2KIO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 05:08:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVC2KIO
+	id S262321AbVC2KKl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 05:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVC2KKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 05:08:14 -0500
-Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:54214 "EHLO
-	mailgate2.uni-halle.de") by vger.kernel.org with ESMTP
-	id S262314AbVC2KIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 05:08:01 -0500
-Date: Tue, 29 Mar 2005 12:07:52 +0200 (MEST)
-From: Bert Wesarg <wesarg@informatik.uni-halle.de>
-Subject: Re: [PATCH] kernel/param.c: don't use .max when .num is NULL in
- param_array_set()
-In-reply-to: <1112076353.21459.34.camel@localhost.localdomain>
-X-X-Sender: wesarg@turing
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.GSO.4.56.0503291206050.5367@turing>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <Pine.GSO.4.56.0503271455190.25037@turing>
- <1112076353.21459.34.camel@localhost.localdomain>
-X-Scan-Signature: b201ac420b9ec321412dc753cd35eaf2
+	Tue, 29 Mar 2005 05:10:41 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:40611 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262321AbVC2KKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 05:10:34 -0500
+Subject: Re: [patch] use cheaper elv_queue_empty when unplug a device
+From: Arjan van de Ven <arjan@infradead.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Jens Axboe <axboe@suse.de>, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <42491DBE.6020303@yahoo.com.au>
+References: <200503290253.j2T2rqg25691@unix-os.sc.intel.com>
+	 <20050329080646.GE16636@suse.de>  <42491DBE.6020303@yahoo.com.au>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 12:10:25 +0200
+Message-Id: <1112091026.6282.43.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-03-29 at 19:19 +1000, Nick Piggin wrote:
+> - removes the relock/retry merge mechanism in __make_request if we
+>    aren't able to get the GFP_ATOMIC allocation. Just fall through
+>    and assume the chances of getting a merge will be small (is this
+>    a valid assumption? Should measure it I guess).
+
+this may have a potential problem; if the vm gets in trouble, you
+suddenly start to generate worse IO patterns, which means IO performance
+goes down right when it's most needed.....
+
+of course we need to figure if this actually ever hits in practice,
+because if it doesn't I'm all for simpler code.
 
 
-On Tue, 29 Mar 2005, Rusty Russell wrote:
-
-> On Sun, 2005-03-27 at 14:57 +0200, Bert Wesarg wrote:
-> > Hello,
-> >
-> > there seems to be a bug, at least for me, in kernel/param.c for arrays
-> > with .num == NULL. If .num == NULL, the function param_array_set() uses
-> > &.max for the call to param_array(), wich alters the .max value to the
-> > number of arguments. The result is, you can't set more array arguments as
-> > the last time you set the parameter.
->
-> Yes.  But this ignores the larger problem, in that the printing routines
-> need *some* way of telling how many to print.  We could add a new
-> element for this case, at the price of enlarging the structure a little
-> for every array parameter.  I think you'll find that with your patch,
-> the code does this:
->
-> 	$ insmod example.ko array=1,2,3
-> 	$ cat /sys/module/example/parameters/array
-> 	1,2,3,0,0,0,0,0,0,0
-
-Yes, but in this case you can/will past a num pointer to
-module_param_array(), when it is important to know how many arguments are
-specified.
-
-greetings,
-bert
-
->
-> Cheers,
-> Rusty.
-> --
-> A bad analogy is like a leaky screwdriver -- Richard Braakman
->

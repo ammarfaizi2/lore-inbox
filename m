@@ -1,71 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130336AbRCBGGM>; Fri, 2 Mar 2001 01:06:12 -0500
+	id <S130341AbRCBGTD>; Fri, 2 Mar 2001 01:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130341AbRCBGGB>; Fri, 2 Mar 2001 01:06:01 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:45765 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S130336AbRCBGFn>; Fri, 2 Mar 2001 01:05:43 -0500
-Date: Fri, 02 Mar 2001 15:05:32 +0900
-Message-ID: <snkwhfir.wl@frostrubin.open.nm.fujitsu.co.jp>
-From: tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-To: rml@ufl.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2ac8 lost char devices
-In-Reply-To: <983511748.3a9f32c4e5ca2@webmail.ufl.edu>
-In-Reply-To: <983511748.3a9f32c4e5ca2@webmail.ufl.edu>
-User-Agent: Wanderlust/2.4.0 (Rio) EMY/1.13.9 (Art is long, life is short) SLIM/1.14.3 () APEL/10.2 MULE XEmacs/21.2 (beta38) (Peisino) (i386-kondara-linux)
-MIME-Version: 1.0
+	id <S130342AbRCBGSn>; Fri, 2 Mar 2001 01:18:43 -0500
+Received: from smtp03.vsnl.net ([203.197.12.9]:3794 "EHLO smtp03.vsnl.net")
+	by vger.kernel.org with ESMTP id <S130341AbRCBGSl>;
+	Fri, 2 Mar 2001 01:18:41 -0500
+From: Ashwin D <ashwinds@yahoo.com>
+Date: Fri, 2 Mar 2001 11:44:24 +0530
+X-Mailer: KMail [version 1.1.99]
 Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: RE: 2.4.2ac8 lost char devices 
+Mime: Is mine not mime
+MIME-Version: 1.0
+Message-Id: <01030211442401.00680@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, 
 
-Hello, 
-
-At Fri, 02 Mar 2001 00:42:28 -0500,
-<rml@ufl.edu> wrote:
-> 
-> actually, its not just ps/2 mice -- it seems to be something generic to char
-> devices. agpgartis failing to register itself, too.
-> 
-> what changed with char device handling from ac7 to ac8?
-> 
-> robert love
-> rml@ufl.edu
-> -
-
-  misc_register() in drivers/char/misc.c seems to have a problem.
-
-
- int misc_register(struct miscdevice * misc)
- {      
-        static devfs_handle_t devfs_handle;
--               
-+       struct miscdevice *c;
-+               
-        if (misc->next || misc->prev)
-                return -EBUSY;
-        down(&misc_sem);
-+       c = misc_list.next;
-+               
-+       while ((c != &misc_list) && (c->minor != misc->minor))
-+               c = c->next;
-+       if (c == &misc_list) {
-
-  This should be  (c != &misc_list)
-
-+               up(&misc_sem);
-+               return -EBUSY;
-+       }
-
-
----
-Nobuhiro Tachino
-Development Department
-Linux Division
-Software Group
-FUJITSU LIMITED
-TEL: +81 559 24 7273
-FAX: +81 559 24 6196
-E-Mail: tachino@open.nm.fujitsu.co.jp
+I lost graphics on my i810 - failed to get minor is the error message on 
+boot. 
+Ashwin

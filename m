@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVAPPbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVAPPkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbVAPPbM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 10:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVAPPbM
+	id S261258AbVAPPkR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 10:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVAPPkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 10:31:12 -0500
-Received: from smtp-vbr13.xs4all.nl ([194.109.24.33]:47378 "EHLO
-	smtp-vbr13.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261253AbVAPPbJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 10:31:09 -0500
-From: "Udo van den Heuvel" <udovdh@xs4all.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: VIA Rhine ethernet driver bug
-Date: Sun, 16 Jan 2005 16:31:04 +0100
-Message-ID: <000d01c4fbe0$64c1e010$450aa8c0@hierzo>
+	Sun, 16 Jan 2005 10:40:17 -0500
+Received: from lakermmtao06.cox.net ([68.230.240.33]:30346 "EHLO
+	lakermmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S261258AbVAPPkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 10:40:13 -0500
+From: Steve Snyder <swsnyder@insightbb.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Testing optimize-for-size suitability?
+Date: Sun, 16 Jan 2005 10:40:12 -0500
+User-Agent: KMail/1.5
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501161040.12907.swsnyder@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Is there a benchmark or set of benchmarks that would allow me to test the 
+suitability of the CONFIG_CC_OPTIMIZE_FOR_SIZE kernel config option?
 
-On VIA-Rhine ethernet chips that give errors like:
+It seems to me that the benefit of this option is very dependant on the 
+amount of CPU cache installed, with the compiler code generation being a 
+secondary factor.  The use, or not, of CONFIG_CC_OPTIMIZE_FOR_SIZE is 
+basically an act of faith without knowing how it impacts my particular 
+environment.
 
-Jan 13 19:35:46 epia kernel: eth1: Oversized Ethernet frame spanned multiple
-buffers, entry 0x4 length 0 status 00000600!
+I've got a Pentium4 CPU with 512KB of L2 cache, and I'm using GCC v3.3.3.  
+How can I determine whether or not CONFIG_CC_OPTIMIZE_FOR_SIZE should be 
+used for my system?
 
-(for all 16 entries)
-
-Setting the mtu to a lower value than 1500 appears to help (tested at 500,
-and 1000 is in progress).
-Could this give a hint to the cause of the bug?
-
-
-Kind regards,
-Udo
-
+Thanks.
 

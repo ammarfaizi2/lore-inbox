@@ -1,91 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264127AbTEaDY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 23:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbTEaDY7
+	id S264134AbTEaDog (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 23:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264135AbTEaDog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 23:24:59 -0400
-Received: from main.gmane.org ([80.91.224.249]:59812 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264127AbTEaDY6 (ORCPT
+	Fri, 30 May 2003 23:44:36 -0400
+Received: from almesberger.net ([63.105.73.239]:4 "EHLO host.almesberger.net")
+	by vger.kernel.org with ESMTP id S264134AbTEaDof (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 23:24:58 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Brian J. Murrell" <brian@interlinx.bc.ca>
-Subject: Re: local apic timer ints not working with vmware: nolocalapic
-Date: Fri, 30 May 2003 23:38:16 -0400
-Message-ID: <pan.2003.05.31.03.38.16.701826@interlinx.bc.ca>
-References: <2C8EEAE5E5C@vcnet.vc.cvut.cz> <20030528173432.GA21379@linux.interlinx.bc.ca> <Pine.LNX.4.50.0305281341160.1982-100000@montezuma.mastecende.com> <pan.2003.05.30.22.14.35.511205@interlinx.bc.ca> <Pine.LNX.4.50.0305301907230.29718-100000@montezuma.mastecende.com>
+	Fri, 30 May 2003 23:44:35 -0400
+Date: Sat, 31 May 2003 00:57:51 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Carl Spalletta <cspalletta@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cute kernel trick, or communistic ploy?
+Message-ID: <20030531005751.A8250@almesberger.net>
+References: <20030530231231.64427.qmail@web41501.mail.yahoo.com> <20030530223355.A3639@almesberger.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030530223355.A3639@almesberger.net>; from wa@almesberger.net on Fri, May 30, 2003 at 10:33:55PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2003 19:23:33 -0400, Zwane Mwaikambo wrote:
-> 
-> Considering the dalay, i'll resend and give it another go, but generally 
-> it means it's not going anywhere.
+I wrote:
+> (I shouldn't need to kmalloc $data or the casts in kfree.
+> Two more things to fix ...)
 
-That sucks.
+Ancient history. With the current version
+http://umlsim.sourceforge.net/umlsim-37.tar.gz
+it can be written as
 
-> 
->> The unfortunate thing is that even this sort of fix will not help my
->> situation.  The reason being (which I only discovered by accident when I
->> set "dont_enable_local_apic = 1" rather than "dont_use_local_apic_timer"
->> and it didn't correct the booting problem) is that it seems that even if
->> the local apic is set disabled by setting dont_enable_local_apic = 1 in
->> arch/i386/kernel/apic.c, setup_APIC_clocks() is still called.
-> 
-> How did you determine that?
+#define GFP_ATOMIC 0x20
+$uml = $run_uml("A","no-such-script",1);
+$page = (char *) kmalloc(4096,GFP_ATOMIC);
+$start = (char **) kmalloc(4,GFP_ATOMIC);
+$eof = (int *) kmalloc(4,GFP_ATOMIC);
+uptime_read_proc($page,$start,0,0,$eof,0);
+kfree($eof);
+printk(*$start);
+kfree($start);
+kfree($page);
 
-Well, originally it was a mistake in setting the wrong flag to 1
-(dont_enable_local_apic rather than dont_use_local_apic_timer) and finding
-that it did not cure the problem, when I went back to my change to figure
-out why, I noticed that I had set the wrong flag.
+- Werner
 
-> Was this with my patch applied?
-
-I did not try your patch since I did pretty much the same thing with my
-"mistake" described above.
-
-> I 
-> originally did this patch for the exact same problem (buggy local APIC 
-> implimentation).
-
-I know nothing about the APIC stuff, but it seems strange that even though
-it's disabled (dont_enable_local_apic = 1) setup_APIC_clocks() is still
-called.  Maybe the latter is not dependent on the former, so there should
-not be a dependence on dont_enable_local_apic == 0 for setup_APIC_clocks()
-to still be used.
-
-> Linux version 2.5.70-mm1 (zwane@montezuma.mastecende.com) (gcc version 
-> Kernel command line: nolapic nmi_watchdog=2 ro root=/dev/hda1 profile=2 
-> debug console=tty0 cons0
-> kernel profiling enabled
-> Initializing CPU#0
-> CPU0: Intel Celeron (Mendocino) stepping 05
-> per-CPU timeslice cutoff: 365.65 usecs.
-> task migration cache decay timeout: 1 msecs.
-> SMP motherboard not detected.
-> Local APIC not detected. Using dummy APIC emulation.
-> Starting migration thread for cpu 0
-
-Yes, it's further along in the boot where my system runs into trouble,
-right here:
-
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 1658.7651 MHz.
-..... host bus clock speed is 0.0000 MHz.
-cpu: 0, clocks: 0, slice: 0
-
-I will take another stab at all of this tomorrow to double-verify what I
-am saying here regarding the use of local APIC timer interrupts even if
-the local apic usage flag is set to disable (dont_enable_local_apic = 1).
-
-b.
-
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

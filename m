@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312638AbSDAWYX>; Mon, 1 Apr 2002 17:24:23 -0500
+	id <S292855AbSDAWVN>; Mon, 1 Apr 2002 17:21:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312643AbSDAWYN>; Mon, 1 Apr 2002 17:24:13 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8708 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312638AbSDAWYC>; Mon, 1 Apr 2002 17:24:02 -0500
-Subject: Re: Oops in emu10k1 driver
-To: bloch@verdurin.com (Adam Huffman)
-Date: Mon, 1 Apr 2002 23:41:04 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020401215107.GA28180@asus.verdurin.priv> from "Adam Huffman" at Apr 01, 2002 10:51:08 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312634AbSDAWVE>; Mon, 1 Apr 2002 17:21:04 -0500
+Received: from racine.noos.net ([212.198.2.71]:53806 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id <S292855AbSDAWUq>;
+	Mon, 1 Apr 2002 17:20:46 -0500
+Date: Tue, 2 Apr 2002 00:21:16 +0200 (CEST)
+From: Cyril Chevrot <cyril.chevrot@asim.lip6.fr>
+X-X-Sender: root@m154
+To: Rahul Siddharthan <rsidd@online.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux needs new leadership
+In-Reply-To: <20020401201710.GA2619@lpt.ens.fr>
+Message-ID: <Pine.LNX.4.40.0204020016200.24634-100000@m154>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16sAU4-0000gd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> VMware died when I put an audio CD into my DVD drive.  I wouldn't have
-> mentioned it here but for the fact that there was an Oops and when
-> decoded it pointed to the emu10k1 driver:
+On Mon, 1 Apr 2002, Rahul Siddharthan wrote:
 
-Yes but we don't know what vmware has been doing. Please try the same thing
-a few times without vmware running
+> You wrote:
+>
+> > > Theo de Raadt: Theo is an exceptional candidate. Not only is he a
+> > > more than adequate hacker; he attracts exactly the type of people
+> > > to OpenBSD that he wants, and will jettison those who are not up to
+> > > the task.
+> > "First off, I don't like a lot of the elitism that does on among Linux
+> > hackers.[...] If you think using Un*x makes you some kind of super
+> > genius who should be feared by mere mortals and
+> > end users, either get over it or start using *BSD. *BSD users (and
+> > developers) are all complete jackasses, so you'll fit right in."
+> > (Linus Torvalds, 1 Avr 2001)
+>
+> Uhh, no, that was "Linus Torvalds" on 1 April 2001...
 
-> kernel BUG at audio.c:1474!
-> invalid operand: 0000
+I have realized that just after post my message ! Excuse me for that
+mistake.
 
 
-This one does look like a real bug in the emu10k driver, rather than a
-vmware caused funny
+> Rahul
+
+--
+	Cyril
+

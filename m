@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129831AbQLGQ7e>; Thu, 7 Dec 2000 11:59:34 -0500
+	id <S129319AbQLGRAF>; Thu, 7 Dec 2000 12:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129708AbQLGQ7Y>; Thu, 7 Dec 2000 11:59:24 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49419 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129632AbQLGQ7O>; Thu, 7 Dec 2000 11:59:14 -0500
-Subject: Re: [Fwd: 2.4.0-test12-pre7]
-To: randy.dunlap@intel.com (Randy Dunlap)
-Date: Thu, 7 Dec 2000 16:30:35 +0000 (GMT)
-Cc: torvalds@transmeta.com (torvalds@transmeta.com), rmk@arm.linux.org.uk,
-        linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <3A2FB558.C4C13106@intel.com> from "Randy Dunlap" at Dec 07, 2000 08:05:44 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129708AbQLGQ75>; Thu, 7 Dec 2000 11:59:57 -0500
+Received: from Morgoth.esiway.net ([193.194.16.157]:27146 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S129632AbQLGQ73>; Thu, 7 Dec 2000 11:59:29 -0500
+Date: Thu, 7 Dec 2000 17:28:59 +0100 (CET)
+From: Marco Colombo <marco@esi.it>
+To: James Bourne <jbourne@MtRoyal.AB.CA>
+cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: D-LINK DFE-530-TX
+In-Reply-To: <Pine.LNX.4.30.0012070705050.13857-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0012071722040.17276-100000@Megathlon.ESI>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1443wL-0002dX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think that Linus's patch is correct and that
-> pci/setup_res.c::pdev_enable_device() shouldn't be doing this:
+On Thu, 7 Dec 2000, James Bourne wrote:
+
+> On Wed, 6 Dec 2000, Mike A. Harris wrote:
 > 
-> 	/* ??? Always turn on bus mastering.  If the device doesn't support
-> 	   it, the bit will go into the bucket. */
-> 	cmd |= PCI_COMMAND_MASTER;
+> > Which ethernet module works with this card?  2.2.17 kernel
 > 
-> First, the ??? makes it iffy.
+> Should be the rtl8139 driver.
 
-I would agree. There is hardware you need to enable, reset, configure and
-then enable the master bit on otherwise it simply starts spraying random
-memory addresses with bus master transfers from uninitialised hardware
-registers
+AFAIK, it uses the via-rhine driver. The DFE-538TX is rtl8139 based.
+Mike, if you have problems, search list archives: a few people (including
+me) reported problems under load. I've never solved them.
 
-> by a soft boot), then the device still knows some memory addresses
-> to DMA into, but it shouldn't be using those.  This is addressed
+> 
+> Regards,
+> Jim
+> 
+> > ----------------------------------------------------------------------
+> >       Mike A. Harris  -  Linux advocate  -  Open source advocate
+> >           This message is copyright 2000, all rights reserved.
+> >   Views expressed are my own, not necessarily shared by my employer.
+> > ----------------------------------------------------------------------
+> 
+> 
 
-Yep. Seen that happen with amd pcnet32 stuff when net booting. The net
-booter left the chip prattling into main memory, not pretty
+.TM.
+-- 
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279355AbRJWKe2>; Tue, 23 Oct 2001 06:34:28 -0400
+	id <S279364AbRJWKuk>; Tue, 23 Oct 2001 06:50:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279358AbRJWKeT>; Tue, 23 Oct 2001 06:34:19 -0400
-Received: from mail-01.med.umich.edu ([141.214.93.149]:9074 "EHLO
-	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
-	id <S279355AbRJWKeH> convert rfc822-to-8bit; Tue, 23 Oct 2001 06:34:07 -0400
-Message-Id: <sbd50fac.000@mail-01.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0
-Date: Tue, 23 Oct 2001 06:35:09 -0400
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <typo@netcabo.pt>, <linux-kernel@vger.kernel.org>
-Subject: Re: UDP binding
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S279363AbRJWKub>; Tue, 23 Oct 2001 06:50:31 -0400
+Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:50414 "EHLO
+	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S279362AbRJWKuQ>; Tue, 23 Oct 2001 06:50:16 -0400
+Date: Tue, 23 Oct 2001 16:20:35 +0530 (IST)
+From: Manik Raina <manik@cisco.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <azu@sysgo.de>
+Subject: [PATCH] : preventing multiple includes of the same header file
+Message-ID: <Pine.GSO.4.33.0110231618100.29108-100000@cbin2-view1.cisco.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is correct behaviour for Samba. It's not a security issue, since Samba isn't listening in any useable sense to interfaces other than those you request. You'll get 'connection refused' if you try to contact another interface.
+Hi,
 
-Nik
+This patch should prevent multiple inclusions of some header
+files in include/asm-ppc/
 
+thanks
+Manik
 
->>> Pedro Corte-Real <typo@netcabo.pt> 10/22/01 02:23PM >>>
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+Index: serial.h
+===================================================================
+RCS file: /vger/linux/include/asm-ppc/serial.h,v
+retrieving revision 1.14
+diff -u -r1.14 serial.h
+--- serial.h	23 May 2001 03:53:37 -0000	1.14
++++ serial.h	23 Oct 2001 10:45:31 -0000
+@@ -6,6 +6,9 @@
+  */
 
-> I am running samba on a machine with 2 outside interfaces. I want samba to
-> listen only to one of them so I put these lines on smb.conf:
+ #ifdef __KERNEL__
++#ifndef __PPC_SERIAL_H__
++#define __PPC_SERIAL_H__
++
+ #include <linux/config.h>
 
-> bind interfaces only = True
-> interfaces = 192.168.1.1 127.0.0.1
+ #ifdef CONFIG_GEMINI
+@@ -133,4 +136,5 @@
+ 	MCA_SERIAL_PORT_DFNS
 
-> These setings produce this in netstat -a:
+ #endif /* !CONFIG_GEMINI and others */
++#endif /* __PPC_SERIAL_H__ */
+ #endif /* __KERNEL__ */
+Index: smplock.h
+===================================================================
+RCS file: /vger/linux/include/asm-ppc/smplock.h,v
+retrieving revision 1.6
+diff -u -r1.6 smplock.h
+--- smplock.h	23 May 2001 03:53:37 -0000	1.6
++++ smplock.h	23 Oct 2001 10:45:31 -0000
+@@ -7,6 +7,9 @@
+  * Default SMP lock implementation
+  */
+ #ifdef __KERNEL__
++#ifndef __PPC_SMPLOCK_H__
++#define __PPC_SMPLOCK_H__
++
+ #include <linux/interrupt.h>
+ #include <linux/spinlock.h>
 
-> (...)
-> udp        0      0 192.168.1.1:138         0.0.0.0:*
-> udp        0      0 192.168.1.1:137         0.0.0.0:*
-> udp        0      0 0.0.0.0:138             0.0.0.0:*
-> udp        0      0 0.0.0.0:137             0.0.0.0:*
-> (...)
+@@ -53,4 +56,5 @@
+ 	if (--current->lock_depth < 0)
+ 		spin_unlock(&kernel_flag);
+ }
++#endif /* __PPC_SMPLOCK_H__ */
+ #endif /* __KERNEL__ */
+Index: time.h
+===================================================================
+RCS file: /vger/linux/include/asm-ppc/time.h,v
+retrieving revision 1.10
+diff -u -r1.10 time.h
+--- time.h	28 Aug 2001 21:33:28 -0000	1.10
++++ time.h	23 Oct 2001 10:45:31 -0000
+@@ -9,6 +9,9 @@
+  */
 
-> I was told this was because nmbd uses broadcast packets to do it's work and
-> for it to listen to broadcast packages it must listen to 0.0.0.0. Is this
-> true. Can't it bind to 192.168.1.0 instead?
+ #ifdef __KERNEL__
++#ifndef __PPC_TIME_H__
++#define __PPC_TIME_H__
++
+ #include <linux/config.h>
+ #include <linux/mc146818rtc.h>
+ #include <linux/threads.h>
+@@ -136,4 +139,5 @@
+ ({unsigned z; asm ("mulhwu %0,%1,%2" : "=r" (z) : "r" (x), "r" (y)); z;})
 
-> How does linux's interface binding API work? Is this really necessary?
+ unsigned mulhwu_scale_factor(unsigned, unsigned);
++#endif /* __PPC_TIME_H__ */
+ #endif /* __KERNEL__ */
+Index: uninorth.h
+===================================================================
+RCS file: /vger/linux/include/asm-ppc/uninorth.h,v
+retrieving revision 1.5
+diff -u -r1.5 uninorth.h
+--- uninorth.h	28 Aug 2001 21:33:28 -0000	1.5
++++ uninorth.h	23 Oct 2001 10:45:31 -0000
+@@ -7,7 +7,8 @@
+  *
+  */
+ #ifdef __KERNEL__
+-
++#ifndef __PPC_UNINORTH_H__
++#define __PPC_UNINORTH_H__
 
-> Greetings from Portugal,
+ /*
+  * Uni-N config space reg. definitions
+@@ -131,4 +132,5 @@
 
-> Pedro.
+ /* Uninorth 1.5 rev. has additional perf. monitor registers at 0xf00-0xf50 */
 
++#endif /* __PPC_UNINORTH_H__ */
+ #endif /* __KERNEL__ */
 

@@ -1,42 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262868AbRE0XbI>; Sun, 27 May 2001 19:31:08 -0400
+	id <S262866AbRE0X04>; Sun, 27 May 2001 19:26:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262869AbRE0Xa6>; Sun, 27 May 2001 19:30:58 -0400
-Received: from cg669454-a.adubn1.nj.home.com ([24.7.210.175]:9988 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262868AbRE0Xar>; Sun, 27 May 2001 19:30:47 -0400
-Message-ID: <3B118F2D.E3491F83@hotmail.com>
-Date: Sun, 27 May 2001 19:35:09 -0400
-From: Duane Ellis <dwayneisking@hotmail.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S262868AbRE0X0q>; Sun, 27 May 2001 19:26:46 -0400
+Received: from are.twiddle.net ([64.81.246.98]:16264 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S262866AbRE0X0b>;
+	Sun, 27 May 2001 19:26:31 -0400
+Date: Sun, 27 May 2001 16:26:29 -0700
+From: Richard Henderson <rth@twiddle.net>
 To: linux-kernel@vger.kernel.org
-Subject: cross compile alpha make bootpfile fails
+Cc: alan@redhat.com, torvalds@transmeta.com, geoffk@geoffk.org
+Subject: 2.4.5 alpha rawhide interrupt fix
+Message-ID: <20010527162629.A18891@twiddle.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, alan@redhat.com,
+	torvalds@transmeta.com, geoffk@geoffk.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cross compiling kernel (any recent version) on any non-64bit host (ie:
-x86) to 
-ALPHA the "make bootpfile" step fails. The problem is localized 
-to arch/alpha/boot/tools/objstrip.c
+PALcode will ack the interrupt in the normal interrupt return path,
+but 2.4 re-enables interrupts before that.  This means we re-enable
+interrupts without the hardware being acked, which results in nasty
+interrupt storms.
 
-Various 'elf' structure members are 64 bit, not 32bit and the wrong
-version of
-the structure is being choosen. (To bad you can't use the binutils
-library here!)
+Fixed thus.
 
-I have hand coded around this, and can easily produce bootp files.
-I would like to submit patches but my change/hack is not real pretty.
 
-There are other issues associated with cross compiling this file, who is
-an 
-appropriate person reguarding alpha specific items such as these?
+r~
 
-if you wish to disucuss this off-list, email duane_ellis _AT_
-franklin.com
 
--Duane
+--- linux/arch/alpha/kernel/sys_rawhide.c.orig	Sun May 27 15:51:03 2001
++++ linux/arch/alpha/kernel/sys_rawhide.c	Sun May 27 15:57:42 2001
+@@ -59,10 +59,11 @@ rawhide_enable_irq(unsigned int irq)
+ 	irq -= 16;
+ 	hose = irq / 24;
+ 	irq -= hose * 24;
++	mask = 1 << irq;
+ 
+ 	spin_lock(&rawhide_irq_lock);
+-	mask = cached_irq_masks[hose] |= 1 << irq;
+-	mask |= hose_irq_masks[hose];
++	mask |= cached_irq_masks[hose];
++	cached_irq_masks[hose] = mask;
+ 	rawhide_update_irq_hw(hose, mask);
+ 	spin_unlock(&rawhide_irq_lock);
+ }
+@@ -75,14 +76,37 @@ rawhide_disable_irq(unsigned int irq)
+ 	irq -= 16;
+ 	hose = irq / 24;
+ 	irq -= hose * 24;
++	mask = ~(1 << irq) | hose_irq_masks[hose];
+ 
+ 	spin_lock(&rawhide_irq_lock);
+-	mask = cached_irq_masks[hose] &= ~(1 << irq);
+-	mask |= hose_irq_masks[hose];
++	mask &= cached_irq_masks[hose];
++	cached_irq_masks[hose] = mask;
+ 	rawhide_update_irq_hw(hose, mask);
+ 	spin_unlock(&rawhide_irq_lock);
+ }
+ 
++static void
++rawhide_mask_and_ack_irq(unsigned int irq)
++{
++	unsigned int mask, mask1, hose;
++
++	irq -= 16;
++	hose = irq / 24;
++	irq -= hose * 24;
++	mask1 = 1 << irq;
++	mask = ~mask1 | hose_irq_masks[hose];
++
++	spin_lock(&rawhide_irq_lock);
++
++	mask &= cached_irq_masks[hose];
++	cached_irq_masks[hose] = mask;
++	rawhide_update_irq_hw(hose, mask);
++
++	/* Clear the interrupt.  */
++	*(vuip)MCPCIA_INT_REQ(MCPCIA_HOSE2MID(hose)) = mask1;
++
++	spin_unlock(&rawhide_irq_lock);
++}
+ 
+ static unsigned int
+ rawhide_startup_irq(unsigned int irq)
+@@ -104,7 +128,7 @@ static struct hw_interrupt_type rawhide_
+ 	shutdown:	rawhide_disable_irq,
+ 	enable:		rawhide_enable_irq,
+ 	disable:	rawhide_disable_irq,
+-	ack:		rawhide_disable_irq,
++	ack:		rawhide_mask_and_ack_irq,
+ 	end:		rawhide_end_irq,
+ };
+ 
+@@ -145,8 +169,12 @@ rawhide_init_irq(void)
+ 	mcpcia_init_hoses();
+ 
+ 	for (hose = hose_head; hose; hose = hose->next) {
+-		int h = hose->index;
+-		rawhide_update_irq_hw(h, hose_irq_masks[h]);
++		unsigned int h = hose->index;
++		unsigned int mask = hose_irq_masks[h];
++
++		cached_irq_masks[h] = mask;
++		*(vuip)MCPCIA_INT_MASK0(MCPCIA_HOSE2MID(h)) = mask;
++		*(vuip)MCPCIA_INT_MASK1(MCPCIA_HOSE2MID(h)) = 0;
+ 	}
+ 
+ 	for (i = 16; i < 128; ++i) {

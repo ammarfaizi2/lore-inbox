@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315191AbSEFVHO>; Mon, 6 May 2002 17:07:14 -0400
+	id <S315199AbSEFVME>; Mon, 6 May 2002 17:12:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315192AbSEFVHN>; Mon, 6 May 2002 17:07:13 -0400
-Received: from quechua.inka.de ([212.227.14.2]:45944 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S315191AbSEFVHM>;
-	Mon, 6 May 2002 17:07:12 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: modversion.h improvement suggestion
-In-Reply-To: <E174OQu-0007H2-00@smtp.web.de> <8447.1020642180@ocs3.intra.ocs.com.au>
-Organization: private Linux site, southern Germany
-Date: Mon, 06 May 2002 23:03:34 +0200
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E174pdv-0001rU-00@bigred.inka.de>
+	id <S315201AbSEFVMD>; Mon, 6 May 2002 17:12:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41231 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315199AbSEFVMC>;
+	Mon, 6 May 2002 17:12:02 -0400
+Message-ID: <3CD6F166.3853AF05@zip.com.au>
+Date: Mon, 06 May 2002 14:11:02 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Udo A. Steinberg" <reality@delusion.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ext3 errors with 2.4.18
+In-Reply-To: <3CD6AE7A.FBEB5726@delusion.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The build instructions for third party modules should say something
-> like
->
->   If your kernel was built with CONFIG_MODVERSIONS=y then add these
->   flags to the build for this module
->
->   -DMODVERSIONS -include kernel_source_tree/linux/modversions.h
+"Udo A. Steinberg" wrote:
+> 
+> Hi,
+> 
+> With Linux 2.4.18, I'm getting multiple of the following error:
+> 
+> EXT3-fs error (device ide0(3,2)): ext3_readdir: bad entry in directory #1966094:
+> rec_len % 4 != 0 - offset=0, inode=3180611420, rec_len=53134, name_len=138
+> 
+> Can someone decipher this?
+> 
 
-or even better, pick up the _complete_ compilation rule from the
-kernel Makefile, since this is (unfortunately) by now the only way to
-get all compiler options right.
+That's random junk.  Heaven knows.  It could have come
+from anywhere in the kernel.  Including ext3, of course.
 
-I do it this way (in a configure.in for an external module):
-KSRC is the kernel source location.
+When you see this sort of thing you should immediately
+take the machine down, because the corruption could be
+only in-memory. The longer the machine stays up, the
+better the chance that the corruption will go to disk.
 
-  cp $KSRC/Makefile conftest.make
-  echo -e "conftest.CC:" >>conftest.make
-  echo -e "\t@echo \$(CC)" >>conftest.make
-  echo -e "conftest.CFLAGS:" >>conftest.make
-  echo -e "\t@echo \$(CFLAGS) \$(MODFLAGS)" >>conftest.make
-  here=`pwd`
-  NKCC=`cd $KSRC; $MAKE -s -f $here/conftest.make conftest.CC`
-  NKCFLAGS=`cd $KSRC; $MAKE -s -f $here/conftest.make conftest.CFLAGS`
+And with ext3, the best way to take the machine down
+is to pull the power plug.  Normal shutdown tools will
+sync the disks, which you don't want to happen.
 
-i.e. copy the main Makefile, add a few rules to just echo the flags,
-and then invoke it in the original place (since it depends on that).
-We should really have a more elegant way to extract this info from the
-main Makefile.
+Then reboot with `init=/bin/sh' and force a fsck against
+all filesystems.
 
-> In any case, modversions.h will disappear in kbuild 2.5.
-
-which leaves hope this issue will be addressed...
-
-Olaf
-
-
-
+-

@@ -1,113 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVCANIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVCANLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbVCANIM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 08:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVCANIM
+	id S261896AbVCANLt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 08:11:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVCANLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 08:08:12 -0500
-Received: from web54610.mail.yahoo.com ([68.142.225.194]:3426 "HELO
-	web54610.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261894AbVCANID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 08:08:03 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=lhFfrKB3mx1DS6zTeFBT5zVW1JSLlek36JqW+c9vSRt/F17UCFnxmVkdgQYdlathNvVVaIJc/2dYAkUluHLcJvSu6UBAaPP0Rwb8btbRgKRS/VMQmCK6RSMV8MRnx0eL3rOc2eVTufcyVL6Dmk2aBMCTAhaf3GQZA/iK7+mXGpo=  ;
-Message-ID: <20050301130803.34688.qmail@web54610.mail.yahoo.com>
-Date: Tue, 1 Mar 2005 05:08:03 -0800 (PST)
-From: Prakash Bhurke <prakash_bhurke@yahoo.com>
-Subject: memory mapping of vmalloc
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 1 Mar 2005 08:11:49 -0500
+Received: from gprs215-241.eurotel.cz ([160.218.215.241]:38879 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261896AbVCANLH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 08:11:07 -0500
+Date: Tue, 1 Mar 2005 14:10:51 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@digitalimplant.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
+Message-ID: <20050301131051.GE1843@elf.ucw.cz>
+References: <20050228231721.GA1326@elf.ucw.cz> <20050301020722.6faffb69.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050301020722.6faffb69.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
+Hi!
 
-  I am facing a problem -- memory mapping of proc
-entry into user space using mmap syscall.
-  I have written a module which creates a proc entry &
-provides read, write, mmap, etc.
-  Normal read, write etc file operation works, but
-mmap is not working.
-  I am trying to map a vmalloc kernel buffer to user
-space using remap_page_range(). In my module, this
-function returns success if we call mmap() from user
-space, but i can not access content of vmalloc buffer
-from user space. Pointer returned by mmap() syscall
-seems pointing to other memory page which contains
-zeros. I am using linux 2.6.10 kernel on Pentium 4
-system.
+> btw, suspend is a bit messy.  The disk spins down.  Then up.  Then down
+> again.  And:
 
-here is code of module_mmap();
-static inline unsigned long kvirt_to_pa(unsigned long
-adr)
+Yes, this is going to be properly solved by switching pm_message_t to
+struct (preview patch attached, EVENT will become .event, this is just
+for me). I could do some hack to make disk not go up-down-up (and will
+need to do it for suse9.3, anyway), but I do not think that would
+belong to mainline.
+
+> Powering off system
+> Debug: sleeping function called from invalid context at include/linux/rwsem.h:66
+> in_atomic():0, irqs_disabled():1                                                
+>  [<c010318d>] dump_stack+0x19/0x20
+>  [<c0111731>] __might_sleep+0x91/0x9c
+>  [<c0285872>] device_shutdown+0x16/0x82
+>  [<c012aa97>] power_down+0x47/0x74     
+>  [<c012ac5a>] pm_suspend_disk+0x5a/0x74
+>  [<c01292ea>] enter_state+0x2e/0x70    
+>  [<c0129336>] software_suspend+0xa/0x10
+>  [<c024a8a7>] acpi_system_write_sleep+0x73/0x98
+>  [<c0149f1b>] vfs_write+0xaf/0x118             
+>  [<c014a028>] sys_write+0x3c/0x68 
+>  [<c0102c05>] sysenter_past_esp+0x52/0x75
+> Synchronizing SCSI cache for disk sda:   
+> Shutdown: hda                          
+> acpi_power_off called
+
+Hmm, device_shutdown is confused. Should it be called with interrupts
+enabled or disabled? It uses rwsem, that suggests interrupts enabled,
+but I do not think sysdev_shutdown with enabled interrupts is good
+idea (and comment suggests it should be called with interrupts disabled).
+
+								Pavel
+
+/**
+ * We handle system devices differently - we suspend and shut them
+ * down last and resume them first. That way, we don't do anything
+stupid like
+ * shutting down the interrupt controller before any devices..
+ *
+ * Note that there are not different stages for power management calls
+-
+ * they only get one called once when interrupts are disabled.
+ */
+
+extern int sysdev_shutdown(void);
+
+/**
+ * device_shutdown - call ->shutdown() on each device to shutdown.
+ */
+void device_shutdown(void)
 {
-	unsigned long kva, ret;
+        struct device * dev;
 
-	kva = (unsigned long)
-page_address(vmalloc_to_page((void *)adr));
-	kva |= adr & (PAGE_SIZE-1); /* restore the offset */
-	ret = __pa(kva);
-	return ret;
+        down_write(&devices_subsys.rwsem);
+        list_for_each_entry_reverse(dev, &devices_subsys.kset.list, kobj.entry) {
+                pr_debug("shutting down %s: ", dev->bus_id);
+                if (dev->driver && dev->driver->shutdown) {
+                        pr_debug("Ok\n");
+                        dev->driver->shutdown(dev);
+                } else
+                        pr_debug("Ignored.\n");
+        }
+        up_write(&devices_subsys.rwsem);
+
+        sysdev_shutdown();
 }
 
-static int module_mmap(struct file *file, struct
-vm_area_struct *vma)
-{
-	unsigned long offset = vma->vm_pgoff << PAGE_SHIFT;
-	unsigned long len = vma->vm_end - vma->vm_start;
-	unsigned long pos = (unsigned long) test_tsc +
-offset;
-
-	printk(KERN_INFO "PROCINFO : in mmap started, length
-= %ld\n", len);
-
-	if (!tscinfo)
-		return -ENODEV;
-
-	if ((offset + len) > PAGE_ALIGN(sizeof(sizeof(struct
-test_tsc_info)))))
-		return -ENXIO;
-
-	if ((vma->vm_flags & (VM_SHARED|VM_WRITE)) ==
-(VM_SHARED|VM_WRITE)) {
-		printk("PROCINFO : in mmap attempt to write to
-mapping\n");
-		return -EPERM;
-	}
-
-	vma->vm_flags |= VM_SHM | VM_LOCKED ;
-
-	if (remap_pfn_range(vma, vma->vm_start,
-kvirt_to_pa(pos) >> PAGE_SHIFT, \
-			     len, vma->vm_page_prot)) {
-		printk(KERN_INFO "PROCINFO : in mmap remap_pfn_range
-returns error\n");
-		return -EAGAIN;
-	}
-
-	printk(KERN_INFO "PROCINFO : in mmap ret 0 end\n");
-
-	return 0;
-}
-
->From user space program i mapping kernel memory like
-this
-proc_fd = open("/proc/"PROC_ENTRY_FILENAME, O_RDONLY);
-mem_base = mmap(NULL, sizeof(struct test_tsc_info),
-PROT_READ, MAP_SHARED, proc_fd, 0);
-
-Please let me know what wrong thing i m doing.
-
-Regards,
-Prakash.
 
 
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Sports - Sign up for Fantasy Baseball. 
-http://baseball.fantasysports.yahoo.com/
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

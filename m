@@ -1,68 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263017AbTDYFz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 01:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbTDYFz4
+	id S263055AbTDYGLa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 02:11:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbTDYGLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 01:55:56 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:7940 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S263017AbTDYFzz (ORCPT
+	Fri, 25 Apr 2003 02:11:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:32438 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263055AbTDYGL1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 01:55:55 -0400
-Date: Fri, 25 Apr 2003 08:08:05 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-Message-ID: <20030425060805.GL19139@lug-owl.de>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030424051510.GK8931@holomorphy.com> <20030424061500.GN8978@holomorphy.com> <20030424074400.GD28253@mail.jlokier.co.uk> <20030424185708.0D34912E79E@mx12.arcor-online.net> <20030424210846.GG30082@mail.jlokier.co.uk> <3EA85937.3050109@techsource.com>
+	Fri, 25 Apr 2003 02:11:27 -0400
+Date: Fri, 25 Apr 2003 08:23:29 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Badness in as-iosched:1210
+Message-ID: <20030425062329.GB1012@suse.de>
+References: <Pine.LNX.4.50.0304222259300.2085-100000@montezuma.mastecende.com> <3EA7A0CC.50005@cyberone.com.au> <20030424084717.GF8775@suse.de> <3EA81A3B.80800@cyberone.com.au> <20030424173228.GT8775@suse.de> <3EA8A5A7.3080003@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NXNllSbYJgZfvk8p"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3EA85937.3050109@techsource.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+In-Reply-To: <3EA8A5A7.3080003@cyberone.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 25 2003, Nick Piggin wrote:
+> Jens Axboe wrote:
+> 
+> >On Fri, Apr 25 2003, Nick Piggin wrote:
+> >
+> >>Jens Axboe wrote:
+> >>
+> >>
+> >>>On Thu, Apr 24 2003, Nick Piggin wrote:
+> >>>
+> >>>
+> >>>>Zwane Mwaikambo wrote:
+> >>>>
+> >>>>
+> >>>>
+> >>>>>I'm not sure wether you want this, it was during error handling from 
+> >>>>>the HBA driver (source was disk error).
+> >>>>>
+> >>>>>scsi1: ERROR on channel 0, id 3, lun 0, CDB: Read (10) 00 00 7f de 60 
+> >>>>>00 00 80 00 Info fld=0x7fdeb2, Current sdd: sense key Medium Error
+> >>>>>Additional sense: Unrecovered read error
+> >>>>>end_request: I/O error, dev sdd, sector 8380032
+> >>>>>Badness in as_add_request at drivers/block/as-iosched.c:1210
+> >>>>>
+> >>>>>
+> >>>>>
+> >>>>Thanks I'll have a look.
+> >>>>
+> >>>>
+> >>>The debug check looks broken, request could have come from somewhere
+> >>>else than the block pool.
+> >>>
+> >>>
+> >>Thats right. I thought these requests would all be
+> >>!blk_fs_request()s though. It should be only the debug
+> >>checks which are wrong.
+> >>
+> >
+> >Exactly, the rest looks ok, the debug trigger is wrong :). The
+> >add_request() strategy is the entry point for all types of requests, not
+> >just blk_fs_request()
+> >
+> No but it is as_insert_request which is that entry point. It
+> should only calls as_add_request for a blk_fs_request.
 
---NXNllSbYJgZfvk8p
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Oh I see, yes you are right, I should have looked closer (I just assumed
+it was your elevator_add_req_fn, your naming is a bit funny :)
 
-On Thu, 2003-04-24 17:37:59 -0400, Timothy Miller <miller@techsource.com>
-wrote in message <3EA85937.3050109@techsource.com>:
-> Jamie Lokier wrote:
+The debug check is still a bit silly, and there's nothing that stops it
+from being wrong. So I'd still suggest to kill it.
 
-> We could always consider wiring everything up with discrete logic.=20
-> Anyone got any spare 74138's?
+-- 
+Jens Axboe
 
-Erm, we'd try to get speeds about MHz, not Hz or kHz for the whole
-processor:)
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
-
---NXNllSbYJgZfvk8p
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+qNDEHb1edYOZ4bsRAlkGAJ4u+hf97aUx8Jm+PRfSB9csaRCncACeNJd1
-JgbP9pHzQR/7+blxWxoPaBI=
-=y4K1
------END PGP SIGNATURE-----
-
---NXNllSbYJgZfvk8p--

@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAKAG2>; Wed, 10 Jan 2001 19:06:28 -0500
+	id <S129511AbRAKAKJ>; Wed, 10 Jan 2001 19:10:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129593AbRAKAGT>; Wed, 10 Jan 2001 19:06:19 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:37552 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S129511AbRAKAGL>; Wed, 10 Jan 2001 19:06:11 -0500
-Date: Wed, 10 Jan 2001 15:46:57 -0800
-From: Dan Kegel <dank@alumni.caltech.edu>
-Subject: Re: Poll and Select not scaling
-To: angelcode@myrealbox.com, linux-kernel@vger.kernel.org
-Reply-to: dank@alumni.caltech.edu
-Message-id: <3A5CF471.17C03480@alumni.caltech.edu>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S129584AbRAKAJ7>; Wed, 10 Jan 2001 19:09:59 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:40465 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129511AbRAKAJq>; Wed, 10 Jan 2001 19:09:46 -0500
+Message-ID: <3A5CF9C2.CE5EFF42@transmeta.com>
+Date: Wed, 10 Jan 2001 16:09:38 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+CC: "'H. Peter Anvin'" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: The latest instance in the A20 farce
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDEF6@orsmsx31.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Micah wrote:
-> I have been trying to increase the scalabilty of
-> an email server that has been ported to Linux. It
-> was originally written for Netware, and there we
-> are able to provide over 30,000 connections at any
-> given time. On Linux however select stops working
-> after the first 1024 connections. I have changed
-> include/linux/fs.h and updated NR_FILE to be 81920. 
+"Dunlap, Randy" wrote:
+> 
+> a. The BIOS isn't required to have int. 0x15, AH=0x2401 [Appx. A],
+>    but that is handled by your patch.
 
-On modern kernels, you no longer need to change NR_FILE;
-all you need to do is increase ulimit -n and a few proc 
-entries; see 
-http://www.kegel.com/c10k.html#limits.filehandles
+Idiots.  This should be required and be a null function; likewise
+AH=0x2400.  The only thing that the current spec means is that 
 
-> In test applications I have been able to create well
-> over 30,000 connections but I am unable to do either
-> a select or a poll on them. 
+> b. The BIOS isn't required to have int. 0x15, AH=0x88 [Appx. A]
+>    (Ye Olde Traditional memory-size function).
 
-select() is usually limited to 1024 file descriptors, so
-poll() is a slightly better choice.  However, although
-it can handle 30000 file descriptors, the performance sucks;
-see http://www.kegel.com/dkftpbench/Poller_bench.html#results
+Incorrect; see page 226.
 
-You may wish to use an alternative to poll().
-See http://www.kegel.com/c10k.html#strategies for a list of possibilities.
+>    Hopefully the other memory-size methods will always have
+>    priority.
+> c. A20M# is always de-asserted at the processor [Ch. 3, item SYS-0047]
+> 
+> I bring these up because they may have some impact on SYSLINUX,
+> LILO, etc., and the data structures that they use (like the
+> memory_size item) and because some of these systems don't
+> have a "real mode," so loaders can't reliably assume that
+> they do (unless it's transparent to the loaders)...
+> and because you know something about SYSLINUX etc.
+> 
 
-The only one that performs well on Linux at 30000 fds would be
-the real time signal stuff.  That's a little tricky to use.
-Or you could recode your app to use one thread or process
-per 1000 fd's.
-Solaris and FreeBSD both offer friendlier poll alternatives
-that perform quite well.  You might consider using one of those
-operating systems if all else fails.
+URRRK.  I get a feeling these specs are either there to make life extra
+difficult for programmers, because the people that design them are too
+stupid to tie their own shoes, or because they want nothing but M$
+factory-installed to work.  
 
-- Dan
+A20M# always deasserted: this is all fine and good if we had nothing else
+to worry about, but they really have managed to fuck up when it comes to
+getting something to work *ACROSS THE BOARD*.  THEY DON'T GIVE ME A WAY
+TO DETECT THE FACT THAT A20M# IS FIXED!!!!!  This is particularly nasty
+when going back to real mode, since I don't have a way to figure out that
+I can't turn A20M# back to its old state.  
+
+I also really, really, *REALLY* hate them for killing serial ports.  It's
+a Bad Idea[TM].
+
+Worse, they define that port 92h, bit 1, is no longer A20M#... but they
+don't forbid the system from using it for other things.
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

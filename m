@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313537AbSDYQiS>; Thu, 25 Apr 2002 12:38:18 -0400
+	id <S313312AbSDYQsS>; Thu, 25 Apr 2002 12:48:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313555AbSDYQiR>; Thu, 25 Apr 2002 12:38:17 -0400
-Received: from um.es ([155.54.1.1]:55689 "EHLO unimur.um.es")
-	by vger.kernel.org with ESMTP id <S313537AbSDYQiQ>;
-	Thu, 25 Apr 2002 12:38:16 -0400
-Date: Thu, 25 Apr 2002 18:37:45 +0200 (CEST)
-From: Juan Piernas Canovas <piernas@ditec.um.es>
-To: "Neal D. Becker" <nbecker@hns.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Faster logging?
-In-Reply-To: <x88662frd4j.fsf@rpppc1.md.hns.com>
-Message-ID: <Pine.LNX.4.21.0204251835040.24216-100000@ditec.um.es>
+	id <S313330AbSDYQsR>; Thu, 25 Apr 2002 12:48:17 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:4827 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S313312AbSDYQsQ>;
+	Thu, 25 Apr 2002 12:48:16 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15560.13127.882861.459400@napali.hpl.hp.com>
+Date: Thu, 25 Apr 2002 09:48:07 -0700
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.9-dj1, move choice selection in arch/ia64/config.in.
+In-Reply-To: <1019751391.2540.26.camel@spc9.esa.lanl.gov>
+X-Mailer: VM 7.03 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Apr 2002, Neal D. Becker wrote:
+>>>>> On 25 Apr 2002 10:16:31 -0600, Steven Cole <elenstev@mesatop.com> said:
 
-> Trying to debug using printk, we are getting buffer overun.  I think
-> that setting klogd to flush faster would fix this.  Man klogd doesn't
-> show any option to control the time that klogd sleeps.  Seems to me
-> that's a simple option to add.
-Try this:
+  Steven> This patch moves the choice selection for Physical memory
+  Steven> granularity from the "Kernel hacking" section to the
+  Steven> "Processor type and features" section right after the
+  Steven> choices for IA-64 processor type, IA-64 system type, and
+  Steven> Kernel page size.  This seems to be a less obscure place for
+  Steven> this option.
 
-1.- /etc/rc.d/init.d/syslogd stop
-2.- klogd -c 1
-3.- killall -9 klogd
-4.- nice -n -20 cat /proc/kmsg > your_file
+Please don't move around stuff that you may not understand.  This
+option is *meant* to be in an obscure place, because, frankly, it's an
+obscure thing that most folks never have to worry about.  It's only
+needed for certain, very rare, machines and it's only a temporary
+thing.
 
-You should also increase the buffer size up to 1 MB (see kernel/prink.c).
+Thanks,
 
-Best regards.
-
-	Juan.
-
+	--david

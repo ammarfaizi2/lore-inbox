@@ -1,102 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275108AbTHRV0u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 17:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275110AbTHRV0u
+	id S275110AbTHRV3s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 17:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275125AbTHRV3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 17:26:50 -0400
-Received: from waste.org ([209.173.204.2]:57580 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S275108AbTHRV0f (ORCPT
+	Mon, 18 Aug 2003 17:29:47 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:55032 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S275110AbTHRV2G convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 17:26:35 -0400
-Date: Mon, 18 Aug 2003 16:26:01 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: davej@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Debug: sleeping function called from invalid context
-Message-ID: <20030818212601.GE16387@waste.org>
-References: <20030815101856.3eb1e15a.rddunlap@osdl.org> <20030815173246.GB9681@redhat.com> <20030815123053.2f81ec0a.rddunlap@osdl.org> <20030816070652.GG325@waste.org> <20030818140729.2e3b02f2.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030818140729.2e3b02f2.rddunlap@osdl.org>
-User-Agent: Mutt/1.3.28i
+	Mon, 18 Aug 2003 17:28:06 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: [2.{4,5} TRIVIAL PATCH] Change list_emtpy() to take a const pointer
+Date: Mon, 18 Aug 2003 14:28:03 -0700
+Message-ID: <A20D5638D741DD4DBAAB80A95012C0AE6B8AA3@orsmsx409.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.{4,5} TRIVIAL PATCH] Change list_emtpy() to take a const pointer
+Thread-Index: AcNlz5xXhNMJYIx4QKGg8YhIq1WO8Q==
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: <linux-kernel@vger.kernel.org>, <trivial@rustcorp.com.au>
+X-OriginalArrivalTime: 18 Aug 2003 21:28:03.0716 (UTC) FILETIME=[9B733440:01C365CF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 02:07:29PM -0700, Randy.Dunlap wrote:
-> On Sat, 16 Aug 2003 02:06:52 -0500 Matt Mackall <mpm@selenic.com> wrote:
-> 
-> | On Fri, Aug 15, 2003 at 12:30:53PM -0700, Randy.Dunlap wrote:
-> | > On Fri, 15 Aug 2003 18:32:47 +0100 Dave Jones <davej@redhat.com> wrote:
-> | > 
-> | > | On Fri, Aug 15, 2003 at 10:18:56AM -0700, Randy.Dunlap wrote:
-> | > | 
-> | > |  > Debug: sleeping function called from invalid context at include/asm/uaccess.h:473
-> | > |  > Call Trace:
-> | > |  >  [<c0120d94>] __might_sleep+0x54/0x5b
-> | > |  >  [<c010d001>] save_v86_state+0x71/0x1f0
-> | > |  >  [<c010dbd5>] handle_vm86_fault+0xc5/0xa90
-> | > |  >  [<c019cab8>] ext3_file_write+0x28/0xc0
-> | > |  >  [<c011cd96>] __change_page_attr+0x26/0x220
-> | > |  >  [<c010b310>] do_general_protection+0x0/0x90
-> | > |  >  [<c010a69d>] error_code+0x2d/0x40
-> | > |  >  [<c0109657>] syscall_call+0x7/0xb
-> | > | 
-> | > | That's one really wierd looking backtrace. What else was that
-> | > | machine up to at the time ?
-> | > 
-> | > Some parts of it are explainable (to me), some not.
-> | > I don't know what caused a GP fault or why ext3 shows up.
-> | > 
-> | > But I can follow from do_general_protection() to handle_vm86_fault()
-> | > to [inline] return_to_32bit() to save_v86_state() to __might_sleep().
-> | > 
-> | > And __might_sleep() is correct if change_page_attr() was called,
-> | > since it takes a spinlock.  I just can't connect quite all of the dots.
-> | 
-> | Ok, there's some stack noise here with the ext3_file_write and
-> | __change_page_attr.
-> | 
-> | Here's what I've figured out so far. You probably have something like
-> | X running with a driver that calls an image of its own 16-bit BIOS to
-> | get something done (I think Matrox does this) via sys_vm86. One of the
-> | arguments to sys_vm86 is a pointer to a vm86plus_struct in userspace
-> | that gets stashed away in tsk->thread.vm86_info.
-> | 
-> | When, for whatever reason, a fixup is needed in vm86 mode, we find
-> | ourselves in handle_vm86_fault and save_v86_state copied various junk
-> | out to this userspace struct we've kept a pointer to. Now as far as I
-> | can tell, there's nothing guaranteeing this struct is pinned down or
-> | in any way guaranteed to be around when the fault occurs. If the page
-> | with the struct _does_ get swapped out, we can be in trouble when we
-> | hit this fault.
-> | 
-> | If this is actually a valid analysis, we should probably just pin the
-> | page for the duration of vm86 as it's already bordering on magical.
-> | 
-> | If there's some reason this whole thing is safe, let me know and I'll
-> | try to get might_sleep to stop complaining about these.
-> | 
-> | I suppose we could test it by hacking a program guaranteed to fault in
-> | vm86 mode and hacking the syscall to force the page out before calling
-> | do_sys_vm86.
-> 
-> I had another occurrence of this yesterday.  It doesn't seem to be
-> an error condition AFAICT.
 
-No, it's only a warning (which I recently added to the copy_* path)
-that something is used in a suspicious context. The question is "is
-the warning bogus or is there something that can actually go wrong
-here?".
+Hi Rusty, list
 
-As far as I can tell, the answer is "yes, there's a good chance this
-could blow up under load". We need two things to happen: the caller's
-page containing the vm86plus_struct to get swapped out, and to take
-any sort of fault (including using virtualized instructions) in vm86
-mode. Result: you'll hit the double-fault handler and the system will
-loop forever with interrupts disabled after spitting out a few printks
-that you won't see because you're in X.
+Didn't know what was the best place to submit this one, I
+guessed trivial.
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+Just change the definition of list_empty() to take a const
+pointer. I have some upper layers of code that do all the
+const/non-const thing and list_empty() breaks it without
+this.
+
+--- linux/include/linux/list.h
++++ linux/include/linux/list.h
+@@ -203,7 +203,7 @@
+  * list_empty - tests whether a list is empty
+  * @head: the list to test.
+  */
+-static inline int list_empty(struct list_head *head)
++static inline int list_empty(const struct list_head *head)
+ {
+ 	return head->next == head;
+ }

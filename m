@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271712AbRHQRvu>; Fri, 17 Aug 2001 13:51:50 -0400
+	id <S268560AbRHQRzU>; Fri, 17 Aug 2001 13:55:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271707AbRHQRvk>; Fri, 17 Aug 2001 13:51:40 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:52214 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S269391AbRHQRv2>; Fri, 17 Aug 2001 13:51:28 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Fri, 17 Aug 2001 11:51:00 -0600
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: stelian.pop@fr.alcove.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.8-ac6] (Yet) Another Sony Vaio laptop with a broken APM...
-Message-ID: <20010817115100.E17372@turbolinux.com>
-Mail-Followup-To: Ray Lee <ray-lk@madrabbit.org>, stelian.pop@fr.alcove.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <998066618.31380.53.camel@orca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <998066618.31380.53.camel@orca>
-User-Agent: Mutt/1.3.20i
+	id <S269391AbRHQRzK>; Fri, 17 Aug 2001 13:55:10 -0400
+Received: from mhw.ulib.iupui.edu ([134.68.164.123]:64970 "EHLO
+	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
+	id <S268560AbRHQRy7>; Fri, 17 Aug 2001 13:54:59 -0400
+Date: Fri, 17 Aug 2001 12:55:13 -0500 (EST)
+From: "Mark H. Wood" <mwood@IUPUI.Edu>
+X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ext2 not NULLing deleted files?
+In-Reply-To: <20010817020241.C32617@turbolinux.com>
+Message-ID: <Pine.LNX.4.33.0108171243410.392-100000@mhw.ULib.IUPUI.Edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 17, 2001  09:43 -0700, Ray Lee wrote:
-> Huh, so *that's* what's going on. I normally just pay attention to the
-> percentage left, since the minutes display was horked. The patch against
-> 2.4.8-ac6 below fixes the same problem for my PCG-XG29. (It may fix it
-> for a few others as well, at least the XG29K, perhaps the XG19/19k as
-> well. IIRC, they just differ in the screen size and which version of
-> windows you have to blow away.)
-> 
-> It's looking more and more likely that they're all backwards. Hey, at
-> least they're consistent, right?
+Regarding the need to do more than just zero unwanted data, I note that
+there is a U.S. DOD MIL-SPEC (no, I do not know the number) which defines
+a sequence of patterns to be used for erasing magnetic media.  VMS has a
+hook on which one may hang one's own erasure pattern generator, and I
+think DEC provided an unsupported implementation of the MIL-SPEC patterns
+as an example of its use.  INITIALIZE /ERASE can use the patterns, but I
+don't recall whether DELETE /ERASE does.  If you don't provide a
+generator, I think erasure just uses zeros.
 
-Yes, I think the same is true with my PXG-XG9 (minutes being wrong),
-but I haven't actually tested if the patch works.  I always assumed
-it was because I have two batteries installed.
+I recall hearing that highly-classified data must be destroyed by
+physically shredding the medium.  Yes, throw your disk drive in the
+shredder!  (Just imagine the class of machinery required to digest an RA81
+HDA.)
 
-Cheers, Andreas
+Most of this goes way beyond the need to deter casual snooping.
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
+Make a good day.
 

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbTLXAAd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 19:00:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTLXAAd
+	id S262878AbTLWX6b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 18:58:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTLWX6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 19:00:33 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:13455 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S263014AbTLXAAc (ORCPT
+	Tue, 23 Dec 2003 18:58:31 -0500
+Received: from crisium.vnl.com ([194.46.8.33]:13573 "EHLO crisium.vnl.com")
+	by vger.kernel.org with ESMTP id S262878AbTLWX6a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 19:00:32 -0500
-Date: Tue, 23 Dec 2003 16:00:09 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Hua Zhong <hzhong@cisco.com>, "'Rob Love'" <rml@ximian.com>,
-       "'Jari Soderholm'" <Jari.Soderholm@edu.stadia.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: DEVFS is very good compared to UDEV
-Message-ID: <20031224000009.GX6438@matchmail.com>
-Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
-	Hua Zhong <hzhong@cisco.com>, 'Rob Love' <rml@ximian.com>,
-	'Jari Soderholm' <Jari.Soderholm@edu.stadia.fi>,
-	linux-kernel@vger.kernel.org
-References: <1072218603.6987.57.camel@fur> <008901c3c9a8$97ac5c50$ca41cb3f@amer.cisco.com> <20031223232627.GG4176@parcelfarce.linux.theplanet.co.uk>
+	Tue, 23 Dec 2003 18:58:30 -0500
+Date: Tue, 23 Dec 2003 23:58:27 +0000
+From: Dale Amon <amon@vnl.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
+Subject: Re: Question on LFS in Redhat
+Message-ID: <20031223235827.GK9089@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>,
+	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+References: <20031223151042.GE9089@vnl.com> <1072193917.5262.1.camel@laptop.fenrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031223232627.GG4176@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1072193917.5262.1.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 11:26:27PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> Why, thank you.  It's a bit early for New Year present, but it certainly
-> makes a good one ;-)
+On Tue, Dec 23, 2003 at 04:38:38PM +0100, Arjan van de Ven wrote:
+> On Tue, 2003-12-23 at 16:10, Dale Amon wrote:
+> > If there are any Redhat folk around... could you tell
+> > me if you've included the LFS patches in your:
+> > 
+> > 	2.4.16-9smp
+> 
+> Red Hat never released a 2.4.16 kernel for production use.
 
-It's not the 25th yet, so it's not too early for that day. ;)
+Hmmm, that's what is showing and the Raidzone guy here in
+the UK told me they are stock... 
+
+> However we also never released a 2.4 kernel with the large BLOCK patch.
+> All 2.4 kernels we shipped can do files > 2 Gb of course.
+
+But you wouldn't be able to handle file systems larger
+than 2TB then I presume?
+
+-- 
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------

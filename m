@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbUDJI77 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 04:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbUDJI77
+	id S261988AbUDJJQP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 05:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUDJJQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 04:59:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58275 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261952AbUDJI76 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 04:59:58 -0400
-Date: Sat, 10 Apr 2004 01:59:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: khali@linux-fr.org, linux-kernel@vger.kernel.org, aarnold@elsa.de
-Subject: Re: [BUG 2.2/2.4/2.6] broken memsets in net/sk_mca.c (multicast)
-Message-Id: <20040410015936.5ad35c73.akpm@osdl.org>
-In-Reply-To: <20040410094924.C32143@flint.arm.linux.org.uk>
-References: <20040410102040.022ffb3c.khali@linux-fr.org>
-	<20040410014040.48cb037b.akpm@osdl.org>
-	<20040410094924.C32143@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Apr 2004 05:16:15 -0400
+Received: from moutng.kundenserver.de ([212.227.126.185]:14790 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261988AbUDJJQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Apr 2004 05:16:14 -0400
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH, local root on 2.4, 2.6?] compute_creds race
+References: <4076F02E.1000809@myrealbox.com>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Sat, 10 Apr 2004 11:16:06 +0200
+Message-ID: <87fzbc19d5.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> Erm...
+Andy Lutomirski <luto@myrealbox.com> writes:
 
---- 25/drivers/net/sk_mca.c~sk_mca-multicast-fix	2004-04-10 01:42:29.464928112 -0700
-+++ 25-akpm/drivers/net/sk_mca.c	2004-04-10 01:57:20.106530008 -0700
-@@ -997,13 +997,13 @@ static void skmca_set_multicast_list(str
- 		block.Mode &= ~LANCE_INIT_PROM;
- 
- 	if (dev->flags & IFF_ALLMULTI) {	/* get all multicasts */
--		memset(block.LAdrF, 8, 0xff);
-+		memset(block.LAdrF, 0xff, sizeof(block.LAdrF));
- 	} else {		/* get selected/no multicasts */
- 
- 		struct dev_mc_list *mptr;
- 		int code;
- 
--		memset(block.LAdrF, 8, 0x00);
-+		memset(block.LAdrF, 0, sizeof(block.LAdrF));
- 		for (mptr = dev->mc_list; mptr != NULL; mptr = mptr->next) {
- 			code = GetHash(mptr->dmi_addr);
- 			block.LAdrF[(code >> 3) & 7] |= 1 << (code & 7);
+> The setuid program is now running with uid=euid=500 but full permitted
+> capabilities.  There are two (or three) ways to effectively get local
+> root now:
 
-_
+What about this slightly shorter fix?
 
+diff -urN a/fs/exec.c b/fs/exec.c
+--- a/fs/exec.c	Fri Mar 12 01:19:06 2004
++++ b/fs/exec.c	Sat Apr 10 10:54:20 2004
+@@ -942,6 +942,9 @@
+ 			if(!capable(CAP_SETUID)) {
+ 				bprm->e_uid = current->uid;
+ 				bprm->e_gid = current->gid;
++				cap_clear (bprm->cap_inheritable);
++				cap_clear (bprm->cap_permitted);
++				cap_clear (bprm->cap_effective);
+ 			}
+ 		}
+ 	}
+
+Regards, Olaf.

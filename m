@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316484AbSFALEB>; Sat, 1 Jun 2002 07:04:01 -0400
+	id <S316571AbSFALQr>; Sat, 1 Jun 2002 07:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316571AbSFALEA>; Sat, 1 Jun 2002 07:04:00 -0400
-Received: from kc.hitachisoftware.com ([205.158.62.105]:63648 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S316484AbSFALD7>; Sat, 1 Jun 2002 07:03:59 -0400
-Message-ID: <20020601110355.26944.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Anthony Spinillo" <tspinillo@linuxmail.org>
+	id <S316576AbSFALQq>; Sat, 1 Jun 2002 07:16:46 -0400
+Received: from mta11n.bluewin.ch ([195.186.1.211]:59195 "EHLO
+	mta11n.bluewin.ch") by vger.kernel.org with ESMTP
+	id <S316571AbSFALQq>; Sat, 1 Jun 2002 07:16:46 -0400
+Date: Sat, 1 Jun 2002 12:57:45 +0200
+From: Roger Luethi <rl@hellgate.ch>
 To: linux-kernel@vger.kernel.org
-Date: Sat, 01 Jun 2002 19:03:55 +0800
-Subject: INTEL 845G Chipset IDE Quandry
-X-Originating-Ip: 24.49.78.239
-X-Originating-Server: ws4-4.us4.outblaze.com
+Subject: [PATCH] fix VIA Rhine time outs (some)
+Message-ID: <20020601105745.GA2726@k3.hellgate.ch>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="EVF5PPMfhYS0aIcm"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.8-ac9 on i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having trouble enabling DMA on a recently
-installed motherboard. (Intel D845GBVL - 845g chipset). I am running a fresh RedHat7.3 install 
-and have tried the stock RH kernel, and I'm up to 2.4.19-pre9. I have a CD burner and DVD drive 
-attached which operated with DMA on an older 
-845 mobo. If I run hdparm -d1 /dev/hd(a or c),
-I now get:
 
-HDIO_SET_DMA failed: Operation not permitted
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Here is a snippet from dmesg:
+If you experience time outs with via-rhine (typically while copying large
+files over the network), this patch is for you.
 
-ide: Assuming 33MHz system bus speed for PIO modes;
-override with idebus=xx
-PCI_IDE: unknown IDE controller on PCI bus 00 device
-f9, VID=8086, DID=24cb
-PCI: Device 00:1f.1 not available because of resource
-collisions
-PCI_IDE: (ide_setup_pci_device:) Could not enable
-device.
+The problem with at least some of the Rhine chips is that they are skipping
+one frame when they stop the Tx engine. This means that every time an abort
+(due to excessive collisions) occurs, the driver will stall and need a
+reset via netdev timeout [1]. The patch addresses that by setting the Tx
+ring buffer pointer to where the driver thinks the chip should continue.
 
-Here is some lspci
+Note: this fix is not sufficient for all time out cases, but it should
+improve the situation without having negative side effects for anyone. I
+have a more comprehensive solution in my development tree, for now I am
+curious how many of the time outs people keep reporting persist after this
+one is fixed.
 
-00:00.0 Host bridge: Intel Corp.: Unknown device 2560 (rev 01)
-00:01.0 PCI bridge: Intel Corp.: Unknown device 2561 (rev 01)
-00:1d.0 USB Controller: Intel Corp.: Unknown device 24c2 (rev 01)
-00:1d.1 USB Controller: Intel Corp.: Unknown device 24c4 (rev 01)
-00:1d.2 USB Controller: Intel Corp.: Unknown device 24c7 (rev 01)
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA PCI Bridge (rev 81)
-00:1f.0 ISA bridge: Intel Corp.: Unknown device 24c0 (rev 01)
-00:1f.1 IDE interface: Intel Corp.: Unknown device 24cb (rev 01)
+Patch is against Jeff's via-rhine.c LK 1.1.14. It should work with the
+older version in 2.4.19-pre9 as well.
 
-I followed some recent threads, and tried fixes to similiar problems but I'm still locked out.
+Roger
 
-Aside from this glitch everything else seems to run fine. Could someone give my a hand? Am I missing something simple, is my bios borked, or do I need a patch to support the newer chipset?
+[1] The same problem will likely happen with any other Tx error (e.g.
+    underrun), abort is just the one I can easily produce here.
 
-Thanks,
+    It also seems that the interrupt status is not always reliable. I
+    have one report of very mysterious behavior with a VT86C100A which
+    seems to produce all kinds of obviously bogus errors. That's
+    unrelated though and easier to study once the restart problems
+    are fixed.
 
-Tony
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="via-rhine.c.7.patch"
 
--- 
-Get your free email from www.linuxmail.org 
+--- via-rhine.c.org	Sat Jun  1 11:23:33 2002
++++ via-rhine.c	Sat Jun  1 12:19:18 2002
+@@ -1502,7 +1502,12 @@ static void via_rhine_error(struct net_d
+ 		clear_tally_counters(ioaddr);
+ 	}
+ 	if (intr_status & IntrTxAbort) {
+-		/* Stats counted in Tx-done handler, just restart Tx. */
++		if (debug > 1)
++			printk(KERN_INFO "%s: Abort %4.4x, frame dropped.\n",
++				   dev->name, intr_status);
++		/* We know better than the chip where it should continue */
++		writel(virt_to_bus(&np->tx_ring[np->dirty_tx % TX_RING_SIZE]),
++			   dev->base_addr + TxRingPtr);
+ 		writew(CmdTxDemand | np->chip_cmd, dev->base_addr + ChipCmd);
+ 	}
+ 	if (intr_status & IntrTxUnderrun) {
 
-
-Powered by Outblaze
+--EVF5PPMfhYS0aIcm--

@@ -1,82 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273233AbRIWDTr>; Sat, 22 Sep 2001 23:19:47 -0400
+	id <S272764AbRIWDv4>; Sat, 22 Sep 2001 23:51:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273240AbRIWDTj>; Sat, 22 Sep 2001 23:19:39 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:22510 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S273233AbRIWDTY>; Sat, 22 Sep 2001 23:19:24 -0400
-Message-ID: <3BAD5493.EC4F845A@mvista.com>
-Date: Sat, 22 Sep 2001 20:18:43 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andre Pang <ozone@algorithm.com.au>
-CC: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
-        safemode@speakeasy.net, Dieter.Nuetzel@hamburg.de, iafilius@xs4all.nl,
-        ilsensine@inwind.it
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-In-Reply-To: <1000939458.3853.17.camel@phantasy> <1001131036.557760.4340.nullmailer@bozar.algorithm.com.au> <1001139027.1245.28.camel@phantasy> <1001143341.117502.5311.nullmailer@bozar.algorithm.com.au>
-Content-Type: text/plain; charset=us-ascii
+	id <S273240AbRIWDvt>; Sat, 22 Sep 2001 23:51:49 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:31039 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272764AbRIWDvk>; Sat, 22 Sep 2001 23:51:40 -0400
+Subject: [PATCH][RFC] preemptive kernel: ptrace fix
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: george@mvista.com
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Evolution-Format: text/plain
+X-Mailer: Evolution/0.13.99+cvs.2001.09.21.20.26 (Preview Release)
+Date: 22 Sep 2001 23:52:12 -0400
+Message-Id: <1001217135.1390.19.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Pang wrote:
-> 
-> On Sat, Sep 22, 2001 at 02:10:18AM -0400, Robert Love wrote:
-> 
-> > > i did a test of it on linux-2.4.10-pre13 with Benno Senoner's
-> > > lowlatency program, which i hacked up a bit to output
-> > > /proc/latencytimes after each of the graphs.  test results are at
-> > >
-> > >     http://www.algorithm.com.au/hacking/linux-lowlatency/2.4.10-pre13-pes/
-> > >
-> > > and since i stared at the results in disbelief, i won't even try
-> > > to guess what's going on :).  maybe you can make some sense of
-> > > it?
-> >
-> > Well, its not hard to decipher...and really, its actually fairly good.
-> > the latency test program is giving you a max latency of around 12ms in
-> > each test, which is OK.
-> 
-> arrgh!  i just realised my script buggered up and was producing the same
-> graph for all the results.  please have a look at the page again, sorry.
-> 
-> apart from that, i'm still confused.  compared to other graphs produced
-> by the latencytest program, my system seems to have huge latencies.
-> unless i'm reading it wrongly, the graph is saying that i'm getting
-> latencies of up to 30ms, and a lot of overruns.  compare this to
-> 
->     http://www.gardena.net/benno/linux/audio/2.4.0-test2/3x256.html
-> 
-> which shows latencytest on 2.4.0-test2, and
-> 
->     http://www.gardena.net/benno/linux/audio/2.2.10-p133-3x128/3x128.html
-> 
-> which are the results for latencytest on 2.2.10.  admittedly these
-> kernels are much older, but i'm consistently getting far more latency
-> than those kernels.  that's the bit i'm confused about :)  i've tried
-> Andrew Morton's low-latency patches as well, to no avail.  i've made
-> sure i've tuned my hard disks correctly, and i don't have any other
-> realtime processes running.
-> 
-> am i concerned with a different issue than the one you're addressing?
-> 
-> > the preemption-test patch is showing _MAX_ latencies of 0.8ms through
-> > 12ms.  this is fine, too.
-> 
-> yep, i agree with that ... so why is latencytest showing scheduling
-> latencies of > 30ms?  i get the feeling i'm confusing two different
-> issues here.  from what i understand, /proc/latencytimes shows the
-> how long it takes for various functions in the kernel to finish, and
-> the latencytest result shows how long it takes for it to be
-> re-scheduled (represented by the white line on the graph).
+I noticed (actually, I had a thought ptrace wouldnt work under
+preemption) that strace sometimes locks under the preemptible kernel,
+although is killable by CTRL-C.
 
-The one thing the latancytimes patch doesn't monitor is interrupt off
-time.  Maybe it should...
+The following is from arch/i386/kernel/ptrace.c :: syscall_trace:
+
+1	current->state = TASK_STOPPED;
+2	notify_parent(current, SIGCHLD);
+3	schedule();
+
+What if, between line one and two, preemption occurs?  Now the task
+state is TASK_STOPPED, and thus will never be rescheduled.  I presume
+this is the problem.  The attached patch fixes this.
+
+Running multiple straces in a tight loop for over an hour shows me the
+problem is fixed.  Its obvious the above is a problem anyhow.
+
+However, doing an `strace strace whatever' (ie, stracing strace), it
+still enters a stopped state about 20% of the time (before the patch, it
+locked almost 100%).  I can't figure out why.  Comments?
+
+Yes, stracing strace is contorted and I don't care, but something else
+is obviously wrong -- you can do so on a non-preemption machine.
 
 
-George
+diff -urN linux-2.4.9-ac14-preempt/arch/i386/kernel/ptrace.c linux/arch/i386/kernel/ptrace.c > patch-rml-2.4.9-ac14-preempt-strace-fix-1
+--- linux-2.4.9-ac14-preempt/arch/i386/kernel/ptrace.c	Sat Sep 22 23:20:41 2001+++ linux/arch/i386/kernel/ptrace.c	Sat Sep 22 23:42:11 2001
+@@ -455,9 +455,11 @@
+ 	   between a syscall stop and SIGTRAP delivery */
+ 	current->exit_code = SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
+ 					? 0x80 : 0);
++	ctx_sw_off();
+ 	current->state = TASK_STOPPED;
+ 	notify_parent(current, SIGCHLD);
+ 	schedule();
++	ctx_sw_on();
+ 	/*
+ 	 * this isn't the same as continuing with a signal, but it will do
+ 	 * for normal use.  strace only continues with a signal if the
+
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

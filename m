@@ -1,52 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135921AbRDZVBs>; Thu, 26 Apr 2001 17:01:48 -0400
+	id <S135917AbRDZVBp>; Thu, 26 Apr 2001 17:01:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135931AbRDZVAz>; Thu, 26 Apr 2001 17:00:55 -0400
+	id <S135933AbRDZVAx>; Thu, 26 Apr 2001 17:00:53 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:128 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S135940AbRDZU77>;
-	Thu, 26 Apr 2001 16:59:59 -0400
-Date: Thu, 26 Apr 2001 22:11:09 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-Message-ID: <20010426221109.E819@athlon.random>
-In-Reply-To: <20010426214444.B819@athlon.random> <Pine.GSO.4.21.0104261554050.15385-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0104261554050.15385-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Apr 26, 2001 at 03:55:19PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	by vger.kernel.org with ESMTP id <S135927AbRDZU7y>;
+	Thu, 26 Apr 2001 16:59:54 -0400
+X-Originating-IP: [12.19.166.64]
+From: "Dan Mann" <daniel_b_mann@hotmail.com>
+To: "Rik van Riel" <riel@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0104261529480.17635-100000@duckman.distro.conectiva>
+Subject: Re: #define HZ 1024 -- negative effects?
+Date: Thu, 26 Apr 2001 16:24:04 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Message-ID: <OE54ug1uBnF36bxQ3T100003b0d@hotmail.com>
+X-OriginalArrivalTime: 26 Apr 2001 20:24:09.0038 (UTC) FILETIME=[D928C6E0:01C0CE8E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 26, 2001 at 03:55:19PM -0400, Alexander Viro wrote:
-> 
-> 
-> On Thu, 26 Apr 2001, Andrea Arcangeli wrote:
-> 
-> > On Thu, Apr 26, 2001 at 03:34:00PM -0400, Alexander Viro wrote:
-> > > Same scenario, but with read-in-progress started before we do getblk(). BTW,
-> > 
-> > how can the read in progress see a branch that we didn't spliced yet? We
-> 
-> fd = open("/dev/hda1", O_RDONLY);
-> read(fd, buf, sizeof(buf));
+So, the kernel really doesn't have much of an effect on the interactivity of
+the gui?  I really don't think there is a problem right now at the
+console..but I am curious to help it at the gui level.  Does it have
+anything to do with the way the mouse is handled? I've applied the mvista
+preemptive + low latency patch, and my subjective experience is that it
+"feels" the same.  I'd just like to help and I'll patch the hell out of my
+kernel if you need someone to test it.  I don't really care if my hardrive
+catches on fire as long as it doesn't burn my house down :-)
 
-You misunderstood the context of what I said, I perfectly know the race
-you are talking about, I was answering Linus's question "the
-wait_on_buffer isn't even necessary to protect ext2 against ext2". You
-are talking about the other race that is "ext2" against "block_dev", and
-I obviously agree on that one since the first place as I immediatly
-answered you "correct".
+Dan
 
-What I'm saying above is that even without the wait_on_buffer ext2 can
-screwup itself because the splice happens after the buffer are just all
-uptodate so any "reader" (I mean any reader through ext2 not through
-block_dev) will never try to do a bread on that blocks before they're
-just zeroed and uptodate.
+----- Original Message -----
+From: "Rik van Riel" <riel@conectiva.com.br>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, April 26, 2001 2:31 PM
+Subject: Re: #define HZ 1024 -- negative effects?
 
-Andrea
+
+> On Thu, 26 Apr 2001, Adam J. Richter wrote:
+>
+> > I have not tried it, but I would think that setting HZ to 1024
+> > should make a big improvement in responsiveness.
+> >
+> > Currently, the time slice allocated to a standard Linux
+> > process is 5*HZ, or 50ms when HZ is 100.  That means that you
+> > will notice keystrokes being echoed slowly in X when you have
+> > just one or two running processes,
+>
+> Rubbish.  Whenever a higher-priority thread than the current
+> thread becomes runnable the current thread will get preempted,
+> regardless of whether its timeslices is over or not.
+>
+> And please, DO try things before proposing a radical change
+> to the kernel ;)
+>
+> regards,
+>
+> Rik
+> --
+> Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+>
+> Virtual memory is like a game you can't win;
+> However, without VM there's truly nothing to lose...
+>
+> http://www.surriel.com/
+> http://www.conectiva.com/ http://distro.conectiva.com/
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317054AbSHGKsW>; Wed, 7 Aug 2002 06:48:22 -0400
+	id <S316878AbSHGLhF>; Wed, 7 Aug 2002 07:37:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317110AbSHGKsW>; Wed, 7 Aug 2002 06:48:22 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:24825 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317054AbSHGKsV>; Wed, 7 Aug 2002 06:48:21 -0400
-Subject: Re: kernel thread exit race
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-In-Reply-To: <15696.61666.452460.264138@laputa.namesys.com>
-References: <15696.59115.395706.489896@laputa.namesys.com>
-	<1028719111.18156.227.camel@irongate.swansea.linux.org.uk> 
-	<15696.61666.452460.264138@laputa.namesys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 13:11:23 +0100
-Message-Id: <1028722283.18156.274.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S316886AbSHGLhF>; Wed, 7 Aug 2002 07:37:05 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:33540 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S316878AbSHGLhE>; Wed, 7 Aug 2002 07:37:04 -0400
+Date: Wed, 7 Aug 2002 13:40:43 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG at tg3.c:1557
+Message-ID: <Pine.LNX.4.44.0208071332110.3394-100000@pc40.e18.physik.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 11:05, Nikita Danilov wrote:
-> Ah I see, thank you and Russell. But this depends on no architecture
-> ever accessing spinlock data after letting waiters to run, otherwise
-> there still is (tiny) window for race at the end of complete() call,
-> right?
+Dear kernel hackers!
 
-complete() as opposed to spinlocks/semaphores is defined to be safe to
-free the object once the complete finishes
+I've been chasing this bug now for weeks without further ideas, so please 
+tell me your thoughts about it:
+
+On a dual Athlon MP with a 3ware-7850 RAID (640GB RAID-5) and 3C996B-T GE 
+NIC I can crash the machine with the above BUG message in virtually no 
+time simply by copying data both ways between the RAID and the NIC. The 
+BUG message shows that this can happen any time, it doesn't matter if the 
+interrupt is received in cpu_idle or something else. I tried noapic, but 
+to no avail.
+
+Does anybody know about this problem?
+How can I get more debugging information?
+Can the driver be patched to gracefully handle this situation, e.g. by 
+resetting the card and trying again?
+
+What I've found out till now is only that the kernel's and the NIC's view 
+of the world seem to be inconsistent :-(
+
+For our application stability is much more important than a few TCP 
+retransmits...
+
+Thanks in advance,
+					Roland
+
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
 

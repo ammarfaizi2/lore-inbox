@@ -1,66 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbUK1LBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbUK1LDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbUK1LBv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 06:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUK1LBv
+	id S261434AbUK1LDq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 06:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUK1LDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 06:01:51 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:34528 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261429AbUK1LBt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 06:01:49 -0500
-Date: Sun, 28 Nov 2004 11:01:26 +0000 (GMT)
+	Sun, 28 Nov 2004 06:03:46 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:58089 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261434AbUK1LDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 06:03:23 -0500
+Date: Sun, 28 Nov 2004 11:02:57 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@osdl.org>
 cc: Sami Farin <7atbggg02@sneakemail.com>, William Irwin <wli@holomorphy.com>,
        <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] VmLib wrapped: executable brk
-Message-ID: <Pine.LNX.4.44.0411281057160.11877-100000@localhost.localdomain>
+Subject: [PATCH 2/2] VmLib wrapped: mprotect flags
+In-Reply-To: <Pine.LNX.4.44.0411281057160.11877-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0411281101410.11877-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In some cases /proc/<pid>/status shows VmLib: 42949..... kB.
+Sometimes /proc/<pid>/status shows VmLib: 42949..... kB.
 
-If READ_IMPLIES_EXEC then the break area is VM_EXEC, but omitted from
-exec_vm since do_brk contains no __vm_stat_account call.  Later munmaps
-count its pages out of exec_vm, hence (exec_vm - VmExe) can go negative.
+mprotect_fixup must note oldflags on entry: if vma_merge is successful,
+vma->vm_flags afterwards may be either the oldflags or the newflags,
+and the extent of the change will be less than the extent of the vma.
 
-do_brk is right not to call __vm_stat_account, its pages shouldn't need
-to be counted.  What's wrong is that __vm_stat_account is counting all
-the VM_EXEC pages, whereas (to mimic 2.4 and earlier 2.6) it should be
-leaving VM_WRITE areas and non-vm_file areas out of exec_vm.
-
-VmLib may still appear larger than before - where a READ_IMPLIES_EXEC
-personality makes what was a readonly mapping of a file now executable
-e.g. /usr/lib/locale stuff.  And a program which mprotects its own text
-as writable will appear with wrapped VmLib: sorry, but while it's worth
-showing ordinary programs as ordinary, it's not worth much effort to
-avoid showing odd ones as odd.
+And let's use unsigned long for these flags throughout.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 Acked-by: William Lee Irwin III <wli@holomorphy.com>
 
---- 2.6.10-rc2-bk9/mm/mmap.c	2004-11-15 16:21:24.000000000 +0000
-+++ linux/mm/mmap.c	2004-11-25 15:58:55.710366040 +0000
-@@ -744,12 +744,12 @@ void __vm_stat_account(struct mm_struct 
- 	}
- #endif /* CONFIG_HUGETLB */
+--- 2.6.10-rc2-bk9/mm/mprotect.c	2004-11-15 16:21:24.000000000 +0000
++++ linux/mm/mprotect.c	2004-11-25 15:58:55.711365888 +0000
+@@ -111,15 +111,17 @@ change_protection(struct vm_area_struct 
  
--	if (file)
-+	if (file) {
- 		mm->shared_vm += pages;
--	else if (flags & stack_flags)
-+		if ((flags & (VM_EXEC|VM_WRITE)) == VM_EXEC)
-+			mm->exec_vm += pages;
-+	} else if (flags & stack_flags)
- 		mm->stack_vm += pages;
--	if (flags & VM_EXEC)
--		mm->exec_vm += pages;
- 	if (flags & (VM_RESERVED|VM_IO))
- 		mm->reserved_vm += pages;
- }
+ static int
+ mprotect_fixup(struct vm_area_struct *vma, struct vm_area_struct **pprev,
+-	unsigned long start, unsigned long end, unsigned int newflags)
++	unsigned long start, unsigned long end, unsigned long newflags)
+ {
+ 	struct mm_struct * mm = vma->vm_mm;
++	unsigned long oldflags = vma->vm_flags;
++	long nrpages = (end - start) >> PAGE_SHIFT;
+ 	unsigned long charged = 0;
+ 	pgprot_t newprot;
+ 	pgoff_t pgoff;
+ 	int error;
+ 
+-	if (newflags == vma->vm_flags) {
++	if (newflags == oldflags) {
+ 		*pprev = vma;
+ 		return 0;
+ 	}
+@@ -133,8 +135,8 @@ mprotect_fixup(struct vm_area_struct *vm
+ 	 * a MAP_NORESERVE private mapping to writable will now reserve.
+ 	 */
+ 	if (newflags & VM_WRITE) {
+-		if (!(vma->vm_flags & (VM_ACCOUNT|VM_WRITE|VM_SHARED|VM_HUGETLB))) {
+-			charged = (end - start) >> PAGE_SHIFT;
++		if (!(oldflags & (VM_ACCOUNT|VM_WRITE|VM_SHARED|VM_HUGETLB))) {
++			charged = nrpages;
+ 			if (security_vm_enough_memory(charged))
+ 				return -ENOMEM;
+ 			newflags |= VM_ACCOUNT;
+@@ -176,11 +178,11 @@ success:
+ 	 * vm_flags and vm_page_prot are protected by the mmap_sem
+ 	 * held in write mode.
+ 	 */
+-	vm_stat_unaccount(vma);
+ 	vma->vm_flags = newflags;
+ 	vma->vm_page_prot = newprot;
+ 	change_protection(vma, start, end, newprot);
+-	vm_stat_account(vma);
++	__vm_stat_account(mm, oldflags, vma->vm_file, -nrpages);
++	__vm_stat_account(mm, newflags, vma->vm_file, nrpages);
+ 	return 0;
+ 
+ fail:
+@@ -246,7 +248,7 @@ sys_mprotect(unsigned long start, size_t
+ 		prev = vma;
+ 
+ 	for (nstart = start ; ; ) {
+-		unsigned int newflags;
++		unsigned long newflags;
+ 
+ 		/* Here we know that  vma->vm_start <= nstart < vma->vm_end. */
+ 
 
 

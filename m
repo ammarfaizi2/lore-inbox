@@ -1,60 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264902AbTFCC5a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 22:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbTFCC5a
+	id S264906AbTFCC7u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 22:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264905AbTFCC7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 22:57:30 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:34759 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S264902AbTFCC53 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 22:57:29 -0400
-From: Andreas Hartmann <andihartmann@freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: [PATCH] rmap 15j for 2.4.21-rc6
-Date: Tue, 03 Jun 2003 05:16:36 +0200
-Organization: privat
-Message-ID: <bbh3uk$1a7$1@ID-44327.news.dfncis.de>
-References: <fa.hqlmaq3.1ck6lpl@ifi.uio.no> <fa.g746m1f.1u52e03@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: susi.maya.org 1054610196 1351 192.168.1.3 (3 Jun 2003 03:16:36 GMT)
-X-Complaints-To: abuse@fu-berlin.de
-User-Agent: KNode/0.7.2
-To: linux-kernel@vger.kernel.org
+	Mon, 2 Jun 2003 22:59:50 -0400
+Received: from cerafin.nivel5.cl ([200.73.9.74]:21420 "EHLO mail.inzignia.cl")
+	by vger.kernel.org with ESMTP id S264906AbTFCC7t convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 22:59:49 -0400
+From: Raimundo Bilbao <rbilbao@inzignia.cl>
+Organization: Inzignia S.A.
+To: "Lauro, John" <jlauro@umflint.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: SCO's claims seem empty
+Date: Mon, 2 Jun 2003 23:02:21 -0400
+User-Agent: KMail/1.5.2
+References: <37885B2630DF0C4CA95EFB47B30985FB0187FFE7@exchange-1.umflint.edu>
+In-Reply-To: <37885B2630DF0C4CA95EFB47B30985FB0187FFE7@exchange-1.umflint.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200306022302.21976.rbilbao@inzignia.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+El Lun 02 Jun 2003 22:18, Lauro, John escribió:
+> From what I read when SCO had more on their web site, it's more a
+> question of contract violation. IBM had a contract for their Unix, and
+> developed their code for that.  Then IBM ported some of their "own"
+> kernel mods that was written for AIX and released it into Linux for
+> free.  That violated some portion of the Unix contract. Thus, if IBM
+> wins, could have implications against some parts of GPL, and maybe
+> that is why Microsoft is backing SCO.
+>
+> I may be way off base, but SCO always stated it was contract issues
+> and not code or copyright.
+[...]
 
-Willy Tarreau wrote:
+Ok, but all this noise (AFAIK) was started from a sue against IBM not Linux, 
+however (pretty) soon was focused on some _mitical_ portions of the linux 
+kernel (I really want to read those ET codes, maybe I can learn alot from 
+those aliens's gurues  ;-D) and then toward GNU licenses and some others 
+wired implications. 
 
-> Hi !
-> 
-> On Mon, Jun 02, 2003 at 06:55:48PM +0200, Andreas Hartmann wrote:
->> Michael Frank wrote:
-> <...>
->> > GNU bash, version 2.05b.0(1)-release (i386-redhat-linux-gnu)
->> 
->> 2.02.1(1)-release
-> <...>
->> > -   while (( i-- )); do
->> > +   while (( i=`expr $i - 1` )); do
->> > 
->> > In your opinion are your changes more portable across a wide range of
->> > systems?
->> 
->> I didn't think at portability :-). I only made it working for me. Maybe
->> there are other persons out there who do have some old versions too - so
->> they can use this patch.
-> 
-> Well, I found that i--/i++ don't work with bash-2.03 (present about
-> everywhere) but i=i-1 or i=i+1 work well. So at least, for portability,
-> this could be rewritten as "while (( i=i-1 )); do".
+I really think SCO haven't a real case against Linux (maybe toward IBM, but 
+not linux), however everybody knows what a _special_ group of lawyers can do, 
+no?  ;-)
 
-Works fine with 2.02.1, too.
+Another think what ringing on mi (little) brain is the simple question : 
+somebody remember the surprise off know, sometime ago, that NT was include 
+zlib's code into this?, now I asking myself, what else they have _included_?, 
+the SCO sue has some implications against them?. Maybe I never know, but it's 
+an intersting question, maybe SCO (or anybody else) ending with a sue to 
+every operating system on this planet from now toward if they want (a really 
+nasty scenario).
 
+OK, enough of this, let's R&R and back to work...  ;-D
 
-Regards,
-Andreas Hartmann
+cheers
+mundo
+

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbTHUVBA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 17:01:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbTHUVBA
+	id S262895AbTHUVFT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 17:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbTHUVFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 17:01:00 -0400
-Received: from zero.aec.at ([193.170.194.10]:39952 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262912AbTHUVA6 (ORCPT
+	Thu, 21 Aug 2003 17:05:19 -0400
+Received: from holomorphy.com ([66.224.33.161]:2704 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262895AbTHUVFP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 17:00:58 -0400
-To: Chris Meadors <clubneon@hereintown.net>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: Hang when mounting XFS root in 2.6.0 tests on x86-64
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 21 Aug 2003 23:00:42 +0200
-In-Reply-To: <n4o5.8ga.21@gated-at.bofh.it> (Chris Meadors's message of
- "Thu, 21 Aug 2003 22:40:13 +0200")
-Message-ID: <m3r83en2th.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <n4o5.8ga.21@gated-at.bofh.it>
-MIME-Version: 1.0
+	Thu, 21 Aug 2003 17:05:15 -0400
+Date: Thu, 21 Aug 2003 14:04:49 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Theurer <habanero@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: CPU boot problem on 2.6.0-test3-bk8
+Message-ID: <20030821210449.GH4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Dave Hansen <haveblue@us.ibm.com>,
+	Andrew Theurer <habanero@us.ibm.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>,
+	"Martin J. Bligh" <mbligh@aracnet.com>
+References: <200308201658.05433.habanero@us.ibm.com> <200308202013.51702.habanero@us.ibm.com> <1061437329.15363.92.camel@nighthawk> <200308210910.07722.habanero@us.ibm.com> <1061479688.19036.1699.camel@nighthawk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1061479688.19036.1699.camel@nighthawk>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Meadors <clubneon@hereintown.net> writes:
+On Thu, Aug 21, 2003 at 08:28:08AM -0700, Dave Hansen wrote:
+> It looks like you booted 20 processors, successfully.  
+> You have 5 "Geniune" cpus and 16 "Xeon" cpus.  Are you using plain
+> summit, or generic arch support?
 
-Better report it to linux-xfs@oss.sgi.com (cc'ed) too.
+AFAICT the only way we can see that is if we kick the same ones twice.
+Using max_cpus= the exact number of cpus you have or CONFIG_NR_CPUS=
+the exact number of cpus you have will get testers able to boot until
+it's fixed.
 
-> I'm trying to get a 2.6.0-test kernel to boot on my Opteron system.  It
-> has SuSE's 2.4.19-SMP kernel on it now, and it boots with that, mounts
-> the XFS root just fine.  But I build a vanilla 2.6.0-test3 with no
-> module support, everything included that I would need.  The last line
-> that it prints during boot is the NET4.0
->
-> Repeated presses of Alt+SysRq+P seems to show RIP looping in xfs_xlatesb
-> and xfs_lowbit64.
->
-> I've tried -test3-bk9 and also went back to -test2 and -test1.
->
-> Earlier when playing with this machine I built 2.6.0-test3 with a 32 bit
-> only version of gcc, but still optimized for the Opteron.  This one had
-> no problem booting and mounting the XFS root.
->
-> This is easy to reproduce, so let me know if more information is needed.
+It shouldn't be too hard to find the faulty code; all 5 "Genuine"
+entries are bogus and alias the entries we actually want (the Xeons).
 
-I test XFS (but not as root) occasionally on x86-64 and seen no problems 
-so far. I haven't tested it with test2+ yet though.
 
-What compiler are you using?
-
--Andi
+-- wli

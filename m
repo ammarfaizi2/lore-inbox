@@ -1,96 +1,278 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268942AbTBSQNt>; Wed, 19 Feb 2003 11:13:49 -0500
+	id <S268948AbTBSQRo>; Wed, 19 Feb 2003 11:17:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268948AbTBSQNt>; Wed, 19 Feb 2003 11:13:49 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:47573 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268942AbTBSQNs>; Wed, 19 Feb 2003 11:13:48 -0500
-Date: Wed, 19 Feb 2003 08:23:44 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@digeo.com>
-Subject: Strange performance change 59 -> 61/62
-Message-ID: <32720000.1045671824@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S268950AbTBSQRW>; Wed, 19 Feb 2003 11:17:22 -0500
+Received: from ip64-48-93-2.z93-48-64.customer.algx.net ([64.48.93.2]:34786
+	"EHLO ns1.limegroup.com") by vger.kernel.org with ESMTP
+	id <S268948AbTBSQQg>; Wed, 19 Feb 2003 11:16:36 -0500
+Date: Wed, 19 Feb 2003 11:26:27 -0500 (EST)
+From: Ion Badulescu <ionut@badula.org>
+X-X-Sender: ion@guppy.limebrokerage.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] add new DMA_ADDR_T_SIZE define
+Message-ID: <Pine.LNX.4.44.0302191050290.29393-100000@guppy.limebrokerage.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm comparing 59-mjb6 to 61-mjb1 and notice some strange performance
-differences that I can't explain ... not a big drop, but odd.
-Only changes in -mjb during that switchover were to drop the merged stuff
-and add:
+Hi Linus,
 
-+ sighand_locking
-+ percpu_loadavg 
-+ irq_affinity
-+ kirq_clustered_fix
+This patch adds a new preprocessor define called DMA_ADDR_T_SIZE for all 
+architectures, for the benefit of those drivers who care about its size 
+(and yes, starfire is one of them).
 
-However, all but percpu_loadavg are just bugfixes, and I tested 
-percpu_loadavg seperately (see below). Moreover, the profile differences
-don't seem related.
+Alternatives are:
 
-Kernbench-2: (make -j N vmlinux, where N = 2 x num_cpus)
-                                   Elapsed        User      System         CPU
-                   2.5.59-mjb6       45.55      564.83      110.03     1481.00
-           2.5.59-mjb6-cpuload       45.72      563.63      110.80     1474.67
-                   2.5.61-mjb1       45.55      563.99      112.96     1485.50
-                   2.5.62-mjb1       45.81      564.41      112.76     1478.00
+1. a really ugly #ifdef in every single driver, which is error-prone and 
+likely to break (see drivers/net/starfire.c around line 274 and have a 
+barf bag ready).
 
-Kernbench-16: (make -j N vmlinux, where N = 16 x num_cpus)
-                                   Elapsed        User      System         CPU
-                   2.5.59-mjb6       46.59      568.81      131.97     1503.67
-           2.5.59-mjb6-cpuload       46.60      567.42      132.19     1502.67
-                   2.5.61-mjb1       46.91      568.71      138.26     1506.33
-                   2.5.62-mjb1       47.21      569.17      139.55     1500.67
+2. always cast it to u64, which adds unnecessary overhead to 32-bit 
+platforms.
 
-Note the increase in systime. Diffprofile shows:
+3. use run-time checks all over the place, of the 
+"sizeof(dma_addr_t)==sizeof(u64)" kind, which adds unnecessary overhead to 
+all platforms.
 
-Most of the changes kind of look dcache releated, but I have the same
-exact dcache patches in both trees (with sunrpc fixes) ... is anyone
-familiar with the pattern below, and might be able to see what's 
-causing this?
+4. use the results from pci_set_dma_mask(), which still amounts to 
+unnecessary run-time overhead on platforms which have a 32-bit dma_addr_t 
+to begin with.
+
+So I think a define in each architecture's types.h file is the cleanest 
+way to approach this, and that's what my patch does.
+
+Comments and/or suggestions are appreciated.
 
 Thanks,
+Ion
 
-M.
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+-------------------------------------------------------
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-alpha/types.h linux-2.5.62/include/asm-alpha/types.h
+--- linux-2.5.62.vanilla/include/asm-alpha/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-alpha/types.h	Wed Feb 19 10:19:57 2003
+@@ -53,6 +53,7 @@
+ typedef signed long s64;
+ typedef unsigned long u64;
+ 
++#define DMA_ADDR_T_SIZE 64
+ typedef u64 dma_addr_t;
+ typedef u64 dma64_addr_t;
+ 
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-arm/types.h linux-2.5.62/include/asm-arm/types.h
+--- linux-2.5.62.vanilla/include/asm-arm/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-arm/types.h	Wed Feb 19 10:19:40 2003
+@@ -48,7 +48,7 @@
+ typedef unsigned long long u64;
+ 
+ /* Dma addresses are 32-bits wide.  */
+-
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ typedef u32 dma64_addr_t;
+ 
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-cris/types.h linux-2.5.62/include/asm-cris/types.h
+--- linux-2.5.62.vanilla/include/asm-cris/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-cris/types.h	Wed Feb 19 10:19:24 2003
+@@ -48,7 +48,7 @@
+ typedef unsigned long long u64;
+ 
+ /* Dma addresses are 32-bits wide, just like our other addresses.  */
+- 
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ 
+ #endif /* __ASSEMBLY__ */
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-i386/types.h linux-2.5.62/include/asm-i386/types.h
+--- linux-2.5.62.vanilla/include/asm-i386/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-i386/types.h	Wed Feb 19 10:19:10 2003
+@@ -52,8 +52,10 @@
+ /* DMA addresses come in generic and 64-bit flavours.  */
+ 
+ #ifdef CONFIG_HIGHMEM
++#define DMA_ADDR_T_SIZE 64
+ typedef u64 dma_addr_t;
+ #else
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ #endif
+ typedef u64 dma64_addr_t;
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-ia64/types.h linux-2.5.62/include/asm-ia64/types.h
+--- linux-2.5.62.vanilla/include/asm-ia64/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-ia64/types.h	Wed Feb 19 10:18:31 2003
+@@ -62,7 +62,7 @@
+ #define BITS_PER_LONG 64
+ 
+ /* DMA addresses are 64-bits wide, in general.  */
+-
++#define DMA_ADDR_T_SIZE 64
+ typedef u64 dma_addr_t;
+ 
+ # endif /* __KERNEL__ */
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-m68k/types.h linux-2.5.62/include/asm-m68k/types.h
+--- linux-2.5.62.vanilla/include/asm-m68k/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-m68k/types.h	Wed Feb 19 10:18:20 2003
+@@ -56,7 +56,7 @@
+ typedef unsigned long long u64;
+ 
+ /* DMA addresses are always 32-bits wide */
+-
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ typedef u32 dma64_addr_t;
+ 
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-m68knommu/types.h linux-2.5.62/include/asm-m68knommu/types.h
+--- linux-2.5.62.vanilla/include/asm-m68knommu/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-m68knommu/types.h	Wed Feb 19 10:18:02 2003
+@@ -56,7 +56,7 @@
+ typedef unsigned long long u64;
+ 
+ /* Dma addresses are 32-bits wide.  */
+-
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ 
+ #endif /* __ASSEMBLY__ */
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-mips/types.h linux-2.5.62/include/asm-mips/types.h
+--- linux-2.5.62.vanilla/include/asm-mips/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-mips/types.h	Wed Feb 19 10:17:50 2003
+@@ -76,6 +76,7 @@
+ 
+ #endif
+ 
++#define DMA_ADDR_T_SIZE 32			/* XXX is this right? */
+ typedef unsigned long dma_addr_t;
+ 
+ #endif /* __ASSEMBLY__ */
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-mips64/types.h linux-2.5.62/include/asm-mips64/types.h
+--- linux-2.5.62.vanilla/include/asm-mips64/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-mips64/types.h	Wed Feb 19 10:17:05 2003
+@@ -75,6 +75,7 @@
+ 
+ #endif
+ 
++#define DMA_ADDR_T_SIZE 64			/* XXX is this right? */
+ typedef unsigned long dma_addr_t;
+ 
+ #endif /* __ASSEMBLY__ */
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-parisc/types.h linux-2.5.62/include/asm-parisc/types.h
+--- linux-2.5.62.vanilla/include/asm-parisc/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-parisc/types.h	Wed Feb 19 10:16:22 2003
+@@ -52,7 +52,7 @@
+ typedef unsigned long long u64;
+ 
+ /* Dma addresses are 32-bits wide.  */
+-
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ typedef u64 dma64_addr_t;
+ 
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-ppc/types.h linux-2.5.62/include/asm-ppc/types.h
+--- linux-2.5.62.vanilla/include/asm-ppc/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-ppc/types.h	Wed Feb 19 10:16:10 2003
+@@ -52,6 +52,7 @@
+ typedef __vector128 vector128;
+ 
+ /* DMA addresses are 32-bits wide */
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ typedef u64 dma64_addr_t;
+ 
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-ppc64/types.h linux-2.5.62/include/asm-ppc64/types.h
+--- linux-2.5.62.vanilla/include/asm-ppc64/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-ppc64/types.h	Wed Feb 19 10:15:43 2003
+@@ -63,6 +63,7 @@
+ 
+ typedef __vector128 vector128;
+ 
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ typedef u64 dma64_addr_t;
+ 
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-s390/types.h linux-2.5.62/include/asm-s390/types.h
+--- linux-2.5.62.vanilla/include/asm-s390/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-s390/types.h	Wed Feb 19 10:15:32 2003
+@@ -60,6 +60,7 @@
+ typedef signed long long s64;
+ typedef unsigned long long u64;
+ 
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ 
+ typedef union {
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-s390x/types.h linux-2.5.62/include/asm-s390x/types.h
+--- linux-2.5.62.vanilla/include/asm-s390x/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-s390x/types.h	Wed Feb 19 10:15:18 2003
+@@ -61,6 +61,7 @@
+ typedef signed long s64;
+ typedef unsigned  long u64;
+ 
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ 
+ #endif /* __ASSEMBLY__ */
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-sh/types.h linux-2.5.62/include/asm-sh/types.h
+--- linux-2.5.62.vanilla/include/asm-sh/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-sh/types.h	Wed Feb 19 10:15:05 2003
+@@ -48,7 +48,7 @@
+ typedef unsigned long long u64;
+ 
+ /* Dma addresses are 32-bits wide.  */
+-
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ 
+ #endif /* __ASSEMBLY__ */
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-sparc/types.h linux-2.5.62/include/asm-sparc/types.h
+--- linux-2.5.62.vanilla/include/asm-sparc/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-sparc/types.h	Wed Feb 19 10:14:47 2003
+@@ -51,6 +51,7 @@
+ typedef __signed__ long long s64;
+ typedef unsigned long long u64;
+ 
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ typedef u32 dma64_addr_t;
+ 
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-sparc64/types.h linux-2.5.62/include/asm-sparc64/types.h
+--- linux-2.5.62.vanilla/include/asm-sparc64/types.h	Thu Feb 13 15:22:22 2003
++++ linux-2.5.62/include/asm-sparc64/types.h	Wed Feb 19 10:14:31 2003
+@@ -52,7 +52,7 @@
+ typedef unsigned long u64;
+ 
+ /* Dma addresses come in generic and 64-bit flavours.  */
+-
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ typedef u64 dma64_addr_t;
+ 
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-v850/types.h linux-2.5.62/include/asm-v850/types.h
+--- linux-2.5.62.vanilla/include/asm-v850/types.h	Thu Feb 13 15:22:23 2003
++++ linux-2.5.62/include/asm-v850/types.h	Wed Feb 19 10:13:34 2003
+@@ -56,7 +56,7 @@
+ typedef unsigned long long u64;
+ 
+ /* Dma addresses are 32-bits wide.  */
+-
++#define DMA_ADDR_T_SIZE 32
+ typedef u32 dma_addr_t;
+ 
+ #endif /* !__ASSEMBLY__ */
+diff -urX diff_kernel_excludes linux-2.5.62.vanilla/include/asm-x86_64/types.h linux-2.5.62/include/asm-x86_64/types.h
+--- linux-2.5.62.vanilla/include/asm-x86_64/types.h	Thu Feb 13 15:22:23 2003
++++ linux-2.5.62/include/asm-x86_64/types.h	Wed Feb 19 10:13:21 2003
+@@ -45,6 +45,7 @@
+ typedef signed long long s64;
+ typedef unsigned long long u64;
+ 
++#define DMA_ADDR_T_SIZE 64
+ typedef u64 dma64_addr_t;
+ typedef u64 dma_addr_t;
+ 
 
-2.5.59-mjb6 -> 2.5.61-mjb1 (+ worse in 61, - better)
-
-1562 .text.lock.file_table
-583 dentry_open
-551 get_empty_filp
-479 __mark_inode_dirty
-274 __down
-162 atomic_dec_and_lock
-162 __fput
-159 page_remove_rmap
-148 page_add_rmap
-122 vma_merge
-97 current_kernel_time
-93 file_move
-92 do_no_page
-81 do_schedule
-72 find_get_page
-68 dput
-62 can_vma_merge_after
-54 __copy_to_user_ll
-...
--58 sys_brk
--69 fd_install
--70 __copy_from_user_ll
--86 do_lookup
--205 do_generic_mapping_read
--219 do_anonymous_page
--248 file_ra_state_init
--256 vfs_read
--308 path_lookup
--309 d_lookup
--506 vm_enough_memory
--1796 total
--4472 default_idle
 

@@ -1,99 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266854AbUGVL7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264633AbUGVMpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266854AbUGVL7L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 07:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266855AbUGVL7L
+	id S264633AbUGVMpp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 08:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265199AbUGVMpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 07:59:11 -0400
-Received: from tag.witbe.net ([81.88.96.48]:7892 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S266854AbUGVL7F convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 07:59:05 -0400
-Message-Id: <200407221158.i6MBwlb16284@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'James Morris'" <jmorris@redhat.com>, <dpf-lkml@fountainbay.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Delete cryptoloop
-Date: Thu, 22 Jul 2004 13:58:41 +0200
-Organization: AS2917
+	Thu, 22 Jul 2004 08:45:45 -0400
+Received: from pxy1allmi.all.mi.charter.com ([24.247.15.38]:10423 "EHLO
+	proxy1.gha.chartermi.net") by vger.kernel.org with ESMTP
+	id S264633AbUGVMph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 08:45:37 -0400
+Message-ID: <40FFB6D4.30908@quark.didntduck.org>
+Date: Thu, 22 Jul 2004 08:45:08 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040625
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <Pine.LNX.4.58.0407220110290.20963@devserv.devel.redhat.com>
-Thread-Index: AcRvrAttK5CMh80FS3e9M9lB12To2AANvNDw
+To: Andrew Morton <akpm@osdl.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Move modpost files to a new subdir [2/2]
+Content-Type: multipart/mixed;
+ boundary="------------000903060602000601030602"
+X-Charter-Information: 
+X-Charter-Scan: 
+X-Charter-Score: s
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is a multi-part message in MIME format.
+--------------000903060602000601030602
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well, we have an option to be able to select EXPERIMENTAL code when
-making a configuration, why not adding on option for DEPRECATED code ?
-
-Then, you'd just have to migrate cryptoloop into this DEPRECATED
-area.
-
-Kconfig should be able to handle that very easily !
-
-Regards,
-Paul
-
-Paul Rolland, rol(at)as2917.net
-ex-AS2917 Network administrator and Peering Coordinator
+Fix up path names and Makefiles for modpost.
 
 --
+				Brian Gerst
 
-Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
+--------------000903060602000601030602
+Content-Type: text/plain;
+ name="modpost-1b"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="modpost-1b"
 
-"Some people dream of success... while others wake up and work hard at it" 
+diff -urN linux-mv/scripts/Makefile linux/scripts/Makefile
+--- linux-mv/scripts/Makefile	2004-07-18 12:27:55.937519106 -0400
++++ linux/scripts/Makefile	2004-07-18 12:37:24.735893892 -0400
+@@ -5,24 +5,11 @@
+ # docproc: 	 Preprocess .tmpl file in order to generate .sgml docs
+ # conmakehash:	 Create arrays for initializing the kernel console tables
+ 
+-host-progs	:= conmakehash kallsyms modpost mk_elfconfig pnmtologo bin2c
+-always		:= $(host-progs) empty.o
+-
+-modpost-objs	:= modpost.o file2alias.o sumversion.o
++host-progs	:= conmakehash kallsyms pnmtologo bin2c
++always		:= $(host-progs)
+ 
+ subdir-$(CONFIG_MODVERSIONS)	+= genksyms
++subdir-y	+= modpost
+ 
+ # Let clean descend into subdirs
+ subdir-	+= basic lxdialog kconfig package
+-
+-# dependencies on generated files need to be listed explicitly
+-
+-$(obj)/modpost.o $(obj)/file2alias.o $(obj)/sumversion.o: $(obj)/elfconfig.h
+-
+-quiet_cmd_elfconfig = MKELF   $@
+-      cmd_elfconfig = $(obj)/mk_elfconfig $(ARCH) < $< > $@
+-
+-$(obj)/elfconfig.h: $(obj)/empty.o $(obj)/mk_elfconfig FORCE
+-	$(call if_changed,elfconfig)
+-
+-targets += elfconfig.h
+diff -urN linux-mv/scripts/Makefile.modpost linux/scripts/Makefile.modpost
+--- linux-mv/scripts/Makefile.modpost	2004-07-18 12:27:55.937519106 -0400
++++ linux/scripts/Makefile.modpost	2004-07-18 12:45:50.139036800 -0400
+@@ -50,7 +50,7 @@
+ # Step 2), invoke modpost
+ #  Includes step 3,4
+ quiet_cmd_modpost = MODPOST
+-      cmd_modpost = scripts/modpost \
++      cmd_modpost = scripts/modpost/modpost \
+ 	$(if $(KBUILD_EXTMOD),-i,-o) $(symverfile) \
+ 	$(filter-out FORCE,$^)
+ 
+diff -urN linux-mv/scripts/modpost/file2alias.c linux/scripts/modpost/file2alias.c
+--- linux-mv/scripts/modpost/file2alias.c	2004-06-23 18:05:42.000000000 -0400
++++ linux/scripts/modpost/file2alias.c	2004-07-19 10:08:54.244446008 -0400
+@@ -27,7 +27,7 @@
+ /* Big exception to the "don't include kernel headers into userspace, which
+  * even potentially has different endianness and word sizes, since 
+  * we handle those differences explicitly below */
+-#include "../include/linux/mod_devicetable.h"
++#include "../../include/linux/mod_devicetable.h"
+ 
+ #define ADD(str, sep, cond, field)                              \
+ do {                                                            \
+diff -urN linux-mv/scripts/modpost/Makefile linux/scripts/modpost/Makefile
+--- linux-mv/scripts/modpost/Makefile	1969-12-31 19:00:00.000000000 -0500
++++ linux/scripts/modpost/Makefile	2004-07-19 10:09:08.304389355 -0400
+@@ -0,0 +1,16 @@
++host-progs	:= modpost mk_elfconfig
++always		:= $(host-progs) empty.o
++
++modpost-objs	:= modpost.o file2alias.o sumversion.o
++
++# dependencies on generated files need to be listed explicitly
++
++$(obj)/modpost.o $(obj)/file2alias.o $(obj)/sumversion.o: $(obj)/elfconfig.h
++
++quiet_cmd_elfconfig = MKELF   $@
++      cmd_elfconfig = $(obj)/mk_elfconfig $(ARCH) < $< > $@
++
++$(obj)/elfconfig.h: $(obj)/empty.o $(obj)/mk_elfconfig FORCE
++	$(call if_changed,elfconfig)
++
++targets += elfconfig.h
 
-  
-
-> -----Message d'origine-----
-> De : linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] De la part de James Morris
-> Envoyé : jeudi 22 juillet 2004 07:22
-> À : dpf-lkml@fountainbay.com
-> Cc : Andrew Morton; linux-kernel@vger.kernel.org
-> Objet : Re: [PATCH] Delete cryptoloop
-> 
-> On Wed, 21 Jul 2004 dpf-lkml@fountainbay.com wrote:
-> 
-> > Ditching cryptoloop completely in 2.7 after dm-crypt 
-> matures would be a
-> > better idea.
-> 
-> Part of the reason for dropping cryptoloop is to help 
-> dm-crypt mature more 
-> quickly.
-> 
-> I've had some off-list email on the security of dm-crypt, and it seems
-> that it does need some work.  We need to get the security 
-> right more than 
-> we need to worry about these other issues.
-> 
-> Let's drop the technically inferior of the two (cryptoloop) and
-> concentrate on fixing the other (dm-crypt).
-> 
-> There was a thread on redesigning the security a while back (subject:
-> "dm-crypt, new IV and standards"), but no code came out of 
-> it.  Anyone 
-> interested should probably have a look at that.
-> 
-> 
-> - James
-> -- 
-> James Morris
-> <jmorris@redhat.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
+--------------000903060602000601030602--

@@ -1,106 +1,291 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262722AbTC0Ae7>; Wed, 26 Mar 2003 19:34:59 -0500
+	id <S262728AbTC0Au5>; Wed, 26 Mar 2003 19:50:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262727AbTC0Ae7>; Wed, 26 Mar 2003 19:34:59 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:31504 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S262722AbTC0Ae5>; Wed, 26 Mar 2003 19:34:57 -0500
-Date: Wed, 26 Mar 2003 16:46:01 -0800
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BK-kernel-tools/shortlog update
-Message-ID: <20030327004601.GI27622@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20030326103036.064147C8DD@merlin.emma.line.org> <Pine.LNX.4.44.0303260917320.15530-100000@home.transmeta.com> <20030326201031.GA29746@merlin.emma.line.org> <20030326211508.GD16662@gtf.org> <Pine.LNX.4.50.0303261331540.1391-100000@twinlark.arctic.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0303261331540.1391-100000@twinlark.arctic.org>
-User-Agent: Mutt/1.3.27i
+	id <S262744AbTC0Au5>; Wed, 26 Mar 2003 19:50:57 -0500
+Received: from mail.casabyte.com ([209.63.254.226]:8723 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP
+	id <S262728AbTC0Aut>; Wed, 26 Mar 2003 19:50:49 -0500
+From: "Robert White" <rwhite@casabyte.com>
+To: <henrique.gobbi@cyclades.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Interpretation of termios flags on a serial driver
+Date: Wed, 26 Mar 2003 17:01:59 -0800
+Message-ID: <PEEPIDHAKMCGHDBJLHKGKEBOCFAA.rwhite@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3E81BE5C.400@cyclades.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 01:33:45PM -0800, Jauder Ho wrote:
-> 
-> one suggestion I would make would be to break out the regex into a
-> seperate file, that way you will no longer need to touch the script once
-> the core logic is correct.
-> 
-> got this working nicely to count users based upon patterns.
-> 
-> --jauder
+Ok, it's been a while... (this goes around the mulberry bush a few times
+BTW, I hope you are actually interested... 8-)
 
-Second that.
+First I will seed your mental cache with a few thoughts.
 
-Should definitely be split between fixed (quick hash lookup)
-and regex.  Regexes for dns entries get ugly fast (. as
-wildcard).  The split could be done while slurping the file
-(check for /\*\[\]\+/).
+Take a side-trip back to the manual page to appreciate the PARMRK (mark
+parity and framing errors or not) and ISTRIP (ASCII is 7-bit unless it is
+"Extended ASCII" etc.) bits.  Ah...  How pretty.... 8-)  We'll be back.
 
-> 
-> On Wed, 26 Mar 2003, Jeff Garzik wrote:
-> 
-> > On Wed, Mar 26, 2003 at 09:10:31PM +0100, Matthias Andree wrote:
-> > > On Wed, 26 Mar 2003, Linus Torvalds wrote:
-> > >
-> > > > Btw, one feature I'd like to see in shortlog is the ability to use
-> > > > regexps for email address matching, ie something like
-> > > >
-> > > > 	'torvalds@.*transmeta.com' => 'Linus Torvalds'
-> > > > 	...
-> > > > 	'alan@.*swansea.linux.org.uk' => 'Alan Cox'
-> > > > 	...
-> > > > 	'bcrl@redhat.com' => 'Benjamin LaHaise',
-> > > > 	'bcrl@.*' => '?? Benjamin LaHaise',
-> > > > 	..
-> > > >
-> > > > I don't know whether you can force perl to do something like this, but if
-> > > > somebody were to try...
-> >
-> > Perl is very regex-friendly.  Sure it can do this :)
-> >
-> >
-> > > I'd like to keep the hash for all those addresses that aren't wildcards
-> > > and that aren't regexps -- we have fast, that is O(1) to O(log n),
-> > > access to the hash (depending on Perl's implementation) and we have
-> > > worse than O(n) for regexp, where n is the count of address strings or
-> > > regexps.
-> > >
-> > > Would you agree to a version that has a set of fixed addresses and a
-> > > separate list of regexps, tries the hash first and then a list of
-> > > regexps?  That sounds like a) easy addition, b) good performance to me
-> > > (before implementing it). If so, I could add some code for that feature.
-> >
-> > Do we really care about performance here?
-> >
-> > I think maintain-ability is probably more important.
-> >
-> > In any case, splitting the lists into "fixed" and "regex" doesn't seem
-> > like a bad idea, provided that the change was fairly easy and
-> > self-contained.
-> >
-> > 	Jeff
-> >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Now we must take a moment to appreciate the difference between a framing
+error at the character level and at some protocol level.  Ah... pretty
+again... 8-)
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+And a quick side trip back into the days of extremely noisy modem
+communications and such.  Individual character errors were really common,
+and there were no error correcting modems and such to smooth over the gaps.
+/nostalgia... 8-)
 
-		Remember Cernan and Schmitt
+RS232 and previous serial communications standards span back into the days
+when the electricity sent on the serial line was expected to actually move
+real physical devices.  The first teletypes were really "remote print heads"
+and the keyboard of one would encode the exact electrical impulses to start
+motors and trigger solenoids (sp?).  This is where the "newsroom
+clackity-clackity noise" comes from.  /Super-Nostalgia...  8-)
+
+OK.  Now for the meat.
+
+Er... wait... lets do a quick pass at framing a single serial character.
+Regardless of any other signals (and the signal ground connection to
+complete the circuit so electricity can flow.) there is a single wire
+stretching from the transmitter of one device to the receive of another.  In
+the idle state the transmitter just asserts a continuous voltage (the "mark
+state") on the wire, and everybody is happy.  During a character event, the
+transmitter drops that voltage (to the "space state") for "one bit time",
+this is the start bit.  Then it sends N bits, with mark being 1 and space
+being 0.  The parity bit comes immediately after the character data.  If you
+are using "even" parity, and there were an odd number of mark-bits then the
+parity bit will be a mark to so that the total number of mark bits was
+"even" (guess how "odd" parity works 8-).  Finally there is the stop-bit.
+The stop bit is real just the transmitter going back to the mark (voltage
+present) state for "at least" so many bit time intervals. (1, 1.5 or 2 bits
+worth depending on your stop-bits settings.)  One of the real purposes for
+the stop bit was to let the teletype head drop back and prepare for the next
+character.
+
+[NOTE: (Part of?) What makes Async communications "asynchronous" is that the
+character can start at any time, and is only presaged by that start-bit
+transition into the space-state.  This is double-plus good when you are just
+putting a keyboard and a print-head together across a large distance.  You
+don't need to synchronize the two with any side-band clock information, and
+that made the whole thing cheaply possible 60+ years ago...]
+
+So the error and exceptional states are:
+
+Parity Error:  The number of mark-state bit count in the character+parity
+bits wasn't "odd" or "even.
+
+Framing Error:  The start or stop bit times weren't long enough or placed
+far enough apart.  The most common cause of a framing error is a momentary
+electrical disturbance (noise) in the line (acoustic noise on a modem) that
+bridges two characters together by not letting the line stabilize into the
+mark state.  The second character is thus consumed (kind of... some receive
+shift registers will give you the first N bits of an error character, others
+will give you the last N bits...  Since this isn't a legal character the
+standard is somewhat silent on what might be returned.)
+
+"Break":  PC People are used to thinking about a "break" as being a key
+press, and indeed a break used to be generated by a key press just like
+everything else.  A "break" at the serial level happens when the transmitter
+goes to the space state for something like a character and a half (don't
+remember exactly) [via the magic of a limited-latching relay 8-)].  It is a
+special case of the framing error that represents a real event, and not an
+error per-se.
+
+and finally
+
+"space disconnect" or "long break":  originally generated by holding down
+the break key "for a while" the space disconnect would do literally that,
+disconnect (surrender) the line, hang up modems, etc.  You'd push and hold
+the break key "for a bit" and that was the end of that...
+
+Ok, so we continue...
+
+Inside a serial UART the register that tells you about parity and framing
+errors (The Line Status Register [LSR] if I recall correctly) only has a
+lifetime of "one read".  If you read that register once you essentially take
+"now you know" responsibility for the fact that some zero-or-more previous
+characters were bad or was dropped outright.  It is zero or more, not one or
+more, because a framing error could be a noise even between characters.  If
+it is a noise event happened and there was a full character time after the
+noise event ended before a character was actually sent, you would get a
+framing or parity error that consumed no actual data characters.  This in
+turn infers that the receive shift register didn't actually receive a
+character... maybe...
+
+So after an LSR event (which I will, going forward, use in place of "parity
+or framing error etc.") your data stream may have zero-or-more additional or
+missing characters.  This is particularly ugly if you were doing any kind of
+length-encoded protocol.  If your code is blocked waiting for 100
+characters, and two of them were munged into one error, and there are not
+going to be any more receive events until your code does something, then you
+program has just hung because the receive register only shifted out 99
+characters.  (if we presume every event did trigger at least some character
+to be shifted, the two damaged characters become only one.)  [This soft-hang
+would be a protocol-level framing error, PARMRK, when set, by padding in an
+extra character, tends to prevent this hang for short disruptions.]
+
+Now, the first thing you will notice about a parity error (if you think
+about it) is that it *is* a well-formed character.  That is, it was N-bits
+plus a parity bit between a one-bit-wide start-bit space-state and at least
+your-stop-bits-wide mark-state trailer.
+
+So a parity error still represents a "reasonably good" character.  That
+means that for quick and dirty work, or for suspect equipment, or for "who
+knows who is going to call me" circumstances on a text line, it becomes
+convenient to configure the device as: Seven data bits, whatever parity,
+ignore parity.  (or eight data bits, no parity, strip off high bit using
+ISTRIP).  Such a configuration will let you (at say 9600 baud) usefully
+communicate with a typing human who configured their terminal in any of the
+following ways:
+
+9600-8-N-1
+9600-7-E-1 (even parity)
+9600-7-O-1 (odd parity)
+9600-7-M-1 (mark parity)
+9600-7-S-1 (space parity)
+
+You see, as long as there are ten-bits in the frame (1 start, 1 stop, and
+either 8 data with no parity, or 7 data with any kind of parity) you will be
+able to (by stripping off and ignoring that high bit, or sacrificing it to
+the parity detect machinery) communicate in ASCII text while only
+considering the textual parts.
+
+In the world of auto-bauding (c.f. getty's "keep pressing enter until you
+can read the login prompt" interactive behavior that let you call a
+multi-speed modem with any other modem) collapsing five different possible
+parity setting per-baud-rate into the one was a SUPER WIN.
+
+Now, if we toss out the framing errors too, then a good number of UARTs will
+even let you get away with "9600-7-N-1".  yech...  The REAL(tm) programmatic
+reason this setting does both was probably that all this stuff just comes in
+on the LSR so you can, if you "turn off" LSR interrupt service, kind of get
+"ignore parity" for free.  In pseudo code: "if (termios.setting & IGNPAR)
+interrupt_mask |= Disable_LSR_bit;"
+
+So think about it:
+
+PARENB Adds a bit to the character frame.  8-N-1 is one bit wider than
+7-N-1, but is the same width as 7-E-1.  This is the job of that bit.  It has
+to be there, or not, to make the whole frame the correct length regardless
+of whether you actually need to check parity.
+
+IGNPAR Says "don't treat a parity error as any kind of error, I don't care."
+The fact that it tosses out framing errors is "something of a bug" as it
+kind of threw the baby out with the bath water.
+
+If you don't have parity enabled at all, that bit never happens
+electrically, so we can "regain" the framing error check if IGNPAR is itself
+ignored if PARENB (parity) is not enabled.
+
+INPCK comes along later to retrieve the metaphorical baby.  The standard
+already has INPAR but the guy using it wants to have his parity enabled (so
+his transmit/receive frame is the right size) he wants to receive and
+process Framing Errors, but he still wants to be able to fold 8-N-1 into the
+set-of-five (e.g. 7-(E|O|M|S)-1) for his interactive behaviors.   INPCK
+leaves the interrupt serviced but it *DOES* *NOT* do the PARMRK stuff.
+
+Oh look, PARMRK showed up again...
+
+Recall ASCII is Seven Bit.  Also recall that in the case of an LSR error you
+don't know what you might get in the receive holding register (e.g. exactly
+what gets out of the receive shift register to be seen by the public).
+
+That ISN'T _exactly_ true.  See, the more variables you try to put into the
+silicon, the more complex (read "expensive" and "hot") the silicon has to
+become.  Its easiest to make the silicon deterministic.  So most UART chips
+give you the "last" bits (4, 5, 6, 7, or 8) received as part of the
+character part of the frame.  This can be expressed by a "see a bit-shift a
+bit" logic that is great for hardware design.  So if you *don't* have a
+framing error, then you *do* have the right number of bits to make a
+character.  If you do a parity bit and seven data bits you will have a seven
+bit character (high bit off), if you do an 8-data-bit frame, the high order
+bit is the parity bit (which you can discard automatically with ISTRIP) so
+it is a win either way.
+
+But pesky PARMRK is hunting us.  PARMRK gives you two alternatives.  An
+erroneous character *WILL* be a 0x00.  If PARMRK is set, there will be a
+0xFF put in front of that 0x00.  This makes sense as a "bad things happened
+here" marker in the data stream because there was no way to send any
+character larger than an 0x7F  back when seven-data-plus-parity was king.
+And regardless, there was originally no control key sequence to send a 0x00.
+This meant that you could have the driver whisper (just the 0x00) or shout
+(0xFF + 0x00) that something went wrong.
+
+I can't guarantee that this is exactly how the current serial driver code is
+implemented, but I can guarantee that this is (what) the practical effect
+(should be 8-):
+
+INPCK, when clear, means don't do either of the PARMRK alternatives, just
+return the received "bad parity" character *for parity errors* but leaves it
+intact for framing errors.
+
+IGNPAR turns off the parity and framing error detect mechanism completely
+(probably at the ISR level).
+
+
+Of course, this is from memory, and if I am wrong I am sure we will be
+hearing about it presently... 8-)
+
+Rob.
+
+
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Henrique Gobbi
+Sent: Wednesday, March 26, 2003 6:51 AM
+To: linux-kernel@vger.kernel.org
+Subject: Interpretation of termios flags on a serial driver
+
+
+Hi,
+
+If this is not the right forum to discuss this matter, excuse me. Please
+point me to the right place.
+
+I'm having some problems understanding three flags on the termios
+struct: PARENB, INPCK, IGNPAR. After reading the termios manual a couple
+of times I'm still not able to understand the different purposes of
+these flags.
+
+What I understood:
+
+1 - PARENB: if this flag is set the serial chip must generate parity
+(odd or even depending on the flag PARODD). If this flag is not set, use
+parity none.
+
+2 - IGNPAR: two cases here:
+    	2.1 - PARENB is set: if IGNPAR is set the driver should ignore 			all
+parity and framing errors and send the problematic bytes to 		tty flip
+buffer as normal data. If this flag is not set the 			driver must send the
+problematic data to the tty as problematic 		data.
+
+	2.2 - PARENB is not set: disregard IGNPAR
+
+What I don't understand:
+
+3 - Did I really understand the items 1 and 2 ?
+
+4 - INPCK flag: What's the purpose of this flag. What's the diference in
+relation to IGNPAR;
+
+5 - If the TTY knows the data status (PARITY, FRAMING, OVERRUN, NORMAL),
+why the driver has to deal with the flag IGNPAR. Shouldn't the TTY being
+doing it ?
+
+Thanks in advance
+Henrique
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264544AbTFKWk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 18:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264590AbTFKWkZ
+	id S264592AbTFKWlW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 18:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264590AbTFKWk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 18:40:25 -0400
-Received: from aneto.able.es ([212.97.163.22]:60651 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S264544AbTFKWkU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 18:40:29 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:30088 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S264582AbTFKWkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 11 Jun 2003 18:40:20 -0400
-Date: Thu, 12 Jun 2003 00:54:01 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Artemio <artemio@artemio.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SMP question
-Message-ID: <20030611225401.GE2712@werewolf.able.es>
-References: <MDEHLPKNGKAHNMBLJOLKMEJLDJAA.davids@webmaster.com> <200306112313.30903.artemio@artemio.net>
+Date: Wed, 11 Jun 2003 23:53:50 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Toplica Tanaskovi?? <toptan@sezampro.yu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Via KT400 and AGP 8x Support
+Message-ID: <20030611225350.GA522@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Toplica Tanaskovi?? <toptan@sezampro.yu>,
+	linux-kernel@vger.kernel.org
+References: <20030611212654.61150.qmail@web11307.mail.yahoo.com> <200306120036.21691.toptan@sezampro.yu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200306112313.30903.artemio@artemio.net>; from artemio@artemio.net on Wed, Jun 11, 2003 at 22:13:30 +0200
-X-Mailer: Balsa 2.0.11
+In-Reply-To: <200306120036.21691.toptan@sezampro.yu>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 12, 2003 at 12:36:21AM +0200, Toplica Tanaskovi?? wrote:
+ > Dana sreda 11. jun 2003. 23:26, Alex Deucher je napisao/la:
+ > > Although I don't know that anyone has actually tried it in 8x mode.
+ > > does anyone know if the radeon driver even has an AGPMode "8x" option?
+ > > I haven't looked myself...
+ > 
+ > 	Nope, 4x max.
 
-On 06.11, Artemio wrote:
-> Hello!
-> 
-> > > How much performance will I loose this way? Is SMP *THAT* critical?
-> >
-> > 	You will lose about half your CPU power.
-> 
-> Hmmm... So, you mean uni-processor Linux kernel can't see two processors as 
-> one "big" processor? 
-> 
+That's likely an X limitation. Someone with X-fu needs to hack that up
+so it passes the right things through to agpgart. Would be nice to have
+that in place for the next X release, so that when distros come to start
+shipping 2.6, userspace is up to speed.
 
-No, but it will work as if it does...explain below.
+		Dave
 
-You have 2 processor packages, each one is HyperThreading capable. This
-means you have two 'CPUs' inside each package, so that sums up your 4 CPUs.
-But there is a flaw. The 2 'CPUs' inside each processor package are not
-full real CPUs, just two register sets that share cache, FP units, integer
-units and so on. So let's say your Xeon has 8 FP units, and you want to
-run a FPU intensive task with low or null disk IO. If you activate
-hyperthreading each of the 2 'cpus' has 4 FP units, so half the computation
-power. If you deactivate HT, you have 1 CPU with 8 FP units.
-
-In short, for FP intensive tasks, hyperthreading is a big lie...
-You can't run 2 computations in parallel.
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.21-rc7-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-1mdk))

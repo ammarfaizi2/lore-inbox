@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318861AbSG0XyK>; Sat, 27 Jul 2002 19:54:10 -0400
+	id <S318864AbSG1AgC>; Sat, 27 Jul 2002 20:36:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318863AbSG0XyK>; Sat, 27 Jul 2002 19:54:10 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:58532 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S318861AbSG0XyK>;
-	Sat, 27 Jul 2002 19:54:10 -0400
-Date: Sun, 28 Jul 2002 01:57:26 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Egger <degger@fhm.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: Linux-2.5.28
-Message-ID: <20020727235726.GB26742@win.tue.nl>
-References: <1027553482.11881.5.camel@sonja.de.interearth.com> <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.25i
+	id <S318867AbSG1AgC>; Sat, 27 Jul 2002 20:36:02 -0400
+Received: from dsl-213-023-021-146.arcor-ip.net ([213.23.21.146]:25729 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318864AbSG1AgB>;
+	Sat, 27 Jul 2002 20:36:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Russell Lewis <spamhole-2001-07-16@deming-os.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
+Date: Sun, 28 Jul 2002 02:40:05 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <3D418DFD.8000007@deming-os.org>
+In-Reply-To: <3D418DFD.8000007@deming-os.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Yc6Q-0001yA-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 24, 2002 at 06:08:48PM -0700, Linus Torvalds wrote:
+On Friday 26 July 2002 19:59, Russell Lewis wrote:
+> I have spent some time working on AIX, which pages its kernel memory. 
+> It pins the interrupt handler functions, and any data that they access, 
+> but does not pin the other code.
+> 
+> I'm looking for links as to why (unless I'm mistaken) Linux doesn't do 
+> this, so I can better understand the system.
 
-> Most of the IDE stuff is FUD and misinformation. I've run every single
-> 2.5.x kernel on an IDE system ("penguin.transmeta.com" has everything on
-> IDE), and the main reported 2.5.27 corruption was actually from my BK tree
-> apparently due to the IRQ handling changes.
+You could say that most of the kernel memory is paged because it consists of 
+disk cache and pages that are handed out to be mapped into process memory.  
+Slab caches - The kernel's working memory - are not paged at all.  Instead, 
+certain 'well-known' caches (inode, dentry, quota) are scanned for 
+inactive/unused objects, which are evicted on the theory that they can be 
+readily reconstructed from the file store if needed again.  Buffer heads are 
+treated similarly, but with a different mechanism.
 
-Linus, Linus, how can you say something so naive?
-I need not tell you that one user without problems does not imply
-that nobody will have problems.
+That leaves quite a few bits and pieces of slab cache in the 'misc' category 
+(including all kmalloc'd memory) and I guess we just cross our fingers, try 
+not to be too wasteful with it, and hope for the best.
 
-A few people reported lost filesystems. Many more reported mild
-filesystem damage. And now you also report mild filesystem damage.
+There are two elephants in the bathtub: the mem_map array, which holds a few 
+bytes of state information for each physical page in the system, and page 
+tables, neither of which are swapped or pruned in any way.  We are now 
+beginning to suffer pretty badly because of this, on certain high end 
+configurations.  The problem is, these structures have to keep track of much 
+more than just the kernel memory.  The former has to have entries for all of 
+the high memory pages (not addressable within the kernel's normal virtual 
+address space) and the latter has to keep track of pages mapped into every 
+task in the system, in other words, a virtually unlimited amount of memory 
+(pun intended).  Solutions are being pursued.  Paging page tables to swap is 
+one of the solutions being considered, though nobody has gone so far as to 
+try it yet.  An easier solution is to place page tables in high memory, and a 
+patch for this exists.  There is also work being done on page table sharing.
 
-FUD? Fear? Yes, the fear is justified for whoever does not have backups.
-Uncertainty? Yes, when the filesystem is damaged again, it is not quite
-clear what causes it. Doubt? Yes, many people doubt whether they can
-afford to run 2.5.recent.
+Hmm, that was more than I intended to write, but you have to be aware of all 
+of this to be able to think seriously about the question of why kernel memory 
+isn't paged.  Besides the complexity, the real reason is performance.  It 
+would be slower to take faults on all the different flavors of pages the 
+kernel deals with than to check explicitly for the presence of objects the 
+kernel needs to work with, such as file cache and inodes.  This would also 
+conflict with the large (4 meg) pages used to map the kernel itself.  There 
+would be extra costs for memory cache reloading (some architectures) and tlb 
+shootdowns (all architectures).  Finally, on 32 bit processors, where will 
+you get all the virtual memory space you need to map hundreds or thousands of 
+cached files?
 
-This evening I ran vanilla 2.5.29 and was rewarded with mild filesystem damage.
-91 files in /lost+found. Nothing. A few kernel versions ago it was three
-orders of magnitude worse.
+So there you are, a once-over-lightly of a simple question that has a 
+not-so-simple answer.  We sort-of page some kernel memory, but not with the 
+hardware faulting mechanism.  Some kernel memory isn't paged or pruned and 
+perhaps needs to be.  We wave our hands at the rest as small change.
 
-IDE? 2.4.17 and 2.5.27+Jens are stable for me in ordinary use.
-IRQ? Quite possible.
-My third candidate is USB. Systems without USB are clearly more stable.
-
-Andries
+-- 
+Daniel

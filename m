@@ -1,71 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292408AbSBPQcQ>; Sat, 16 Feb 2002 11:32:16 -0500
+	id <S292422AbSBPQfG>; Sat, 16 Feb 2002 11:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292405AbSBPQcH>; Sat, 16 Feb 2002 11:32:07 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12806 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292413AbSBPQcB>; Sat, 16 Feb 2002 11:32:01 -0500
-Subject: Re: Missed jiffies
-To: tyson@rwii.com (Tyson D Sawyer)
-Date: Sat, 16 Feb 2002 16:46:03 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C6E77DE.70FE49DF@rwii.com> from "Tyson D Sawyer" at Feb 16, 2002 10:16:46 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S292424AbSBPQe5>; Sat, 16 Feb 2002 11:34:57 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:38664
+	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S292422AbSBPQej>; Sat, 16 Feb 2002 11:34:39 -0500
+Date: Sat, 16 Feb 2002 11:08:57 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        That Linux Guy <thatlinuxguy@hotmail.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020216110857.B32129@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Nicolas Pitre <nico@cam.org>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	That Linux Guy <thatlinuxguy@hotmail.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020216095039.L23546@thyrsus.com> <Pine.LNX.4.44.0202161055030.16872-100000@xanadu.home>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16c7yN-0006a2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0202161055030.16872-100000@xanadu.home>; from nico@cam.org on Sat, Feb 16, 2002 at 11:06:49AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My system looses about 8 seconds every 20 minutes.  This is reported
-> by ntp and verified by comparing 'date' to 'hwclock --show' and a wall
-> clock.
+Nicolas Pitre <nico@cam.org>:
+> Make the whole thing ___***IDENTICAL***___ to CML1.
+> Do a formal translation of CML1 into CML2.
 > 
-> My system is a x86 Dell laptop with HZ=1024.
+> Show us that you are clever enough to do so, even if it's not particularly 
+> interesting and challenging to you.
 > 
-> I am quite certain that the issue is the System Management Interrupt
-> (SMI).
+> Show us that you can listen to this simple feedback.
+> 
+> Acknoledge that the feedback went through.
+> 
+> Don't tell us that's not doable.  Do it and show us that you can do a 
+> perfect translation of CML1 into CML2 with all CML1 structural flaws.
+> 
+> Submit that, and only that.
+> 
+> Do you copy?  Please acknoledge that you listened to this very feedback.
 
-Possibly and if it is you can't really do much about it.
+I listened.
 
-> I don't know that there is a solution for all systems, however, at
-> least on pentium systems it seems possible to use the TSC to catch
+Would you ask someone designing a new VM to make it crash and hang exactly
+the same way the old one did?
 
-Most vendor systems don't have SMI problems that bad, you can normally hit
-the 100Hz or 1Khz tick quite reliably.
+Do you demand that a rewrite of a disk driver have the same data-corruption
+bugs as the original before it can go into the tree, and tell the developer
+to add fixes later?
 
-> tsc_remainder += last_tsc_low-tsc_low;
+Pragmatically, the point of rewriting a system is to *fix bugs*.
 
-The tsc is not a constant on some laptops, and may not be present, or not
-be reliable.
+Let's suppose we ignored this point for a moment.  Let's also suppose
+that what you were demanding were not rendered horribly painful and
+perhaps impossible by the difference between CML1's imperative style
+and CML2's declarative one.
 
-> What strategies might be employed to prevent degraded system
-> performance since this code is in a criticle path?
-
-Adding a time slew is a well understood problem - the NTP code and papers
-cover some very efficient implementation techniques. If you can work out
-the drift then drifting back is extremely efficient and the kernel already
-implements the needed PLL.
-
-> Have I competely missed something, the kernel already takes care of
-> this and I have the problem all wrong?
-
-You have it pretty much right. We have several time sources on a PC -
-the rtc (variable rate, not always present), the cmos clock (low res and
-on many modern machines horribly inaccurate due to the use of low grade
-components), the acpi timers (on newer machines only, high resolution
-constant rate, unknown accuracy). 
-
-ACPI may help here but lots of vendors implement their ACPI subsystem using
-I/O cycles to jump into SMM mode so its game over again.
-
-> This problem also comes up with IDE access with dma off and I've
-> seen reports of it when using frame buffers.
-
-The frame buffer one is fixed for newer kernels. The IDE one is a physical
-constraint on some older IDE controllers. See man hdparm.
-
-Alan
+How the hell do you possibly think I could possibly stay motivated under
+that constraint?  Nobody is paying me to do this.  I'm a volunteer; I
+need to produce good art, not waste time slavishly recreating old errors
+just because a few people are unreasonably fearful of change.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

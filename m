@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277359AbRJJSjZ>; Wed, 10 Oct 2001 14:39:25 -0400
+	id <S277365AbRJJSjP>; Wed, 10 Oct 2001 14:39:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277363AbRJJSjQ>; Wed, 10 Oct 2001 14:39:16 -0400
-Received: from mk-smarthost-2.mail.uk.worldonline.com ([212.74.112.72]:5640
-	"EHLO mk-smarthost-2.mail.uk.worldonline.com") by vger.kernel.org
-	with ESMTP id <S277361AbRJJSjA>; Wed, 10 Oct 2001 14:39:00 -0400
-To: linux-kernel@vger.kernel.org
-From: <jonathan@daria.co.uk (Jonathan R. Hudson)>
+	id <S277363AbRJJSjH>; Wed, 10 Oct 2001 14:39:07 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:20241 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S277359AbRJJSis>;
+	Wed, 10 Oct 2001 14:38:48 -0400
+Date: Wed, 10 Oct 2001 11:31:45 -0700
+From: Greg KH <greg@kroah.com>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB SMP race in 2.4.11
+Message-ID: <20011010113145.E7782@kroah.com>
+In-Reply-To: <20011010222223.A1223@linuxhacker.ru>
 Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-x-no-productlinks: yes
-Subject: usb:raced timeout in 2.4.11
-X-Newsgroups: fa.linux.kernel
-Content-Type: text/plain; charset=iso-8859-1
-NNTP-Posting-Host: daria.co.uk
-Message-ID: <58a.3bc495e0.d0ec3@trespassersw.daria.co.uk>
-Date: Wed, 10 Oct 2001 18:39:28 GMT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011010222223.A1223@linuxhacker.ru>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following the last USB changes, the uhci modules emits a lot of
-messages:
+On Wed, Oct 10, 2001 at 10:22:23PM +0400, Oleg Drokin wrote:
+> Hello!
+> 
+>    I have caught kernel oops that is related to SMP race on usb modules
+>    deregistering.
+>    2.4.10 was fine with the same setup.
+>    USB core is compiled-in, hub driver is uhci (as module).
+>    Here is the decoded oops:
 
-kernel: usb: raced timeout, pipe 0x80000180 status 0 time left 0
-kernel: usb: raced timeout, pipe 0x80000100 status 0 time left 0
+Can you try the attached patch and let us know if the oops still
+happens?
 
-approx 50 on one box, and around 20 on another.
+thanks,
 
-This message does not occur with the usb-uhci module.
+greg k-h
 
-Someone disconcerting. Systems still talk to the camera ...
 
+diff --minimal -Nru a/drivers/usb/uhci.c b/drivers/usb/uhci.c
+--- a/drivers/usb/uhci.c	Wed Oct 10 07:32:38 2001
++++ b/drivers/usb/uhci.c	Wed Oct 10 07:32:38 2001
+@@ -1594,9 +1594,7 @@
+ 	}
+ 
+ 	uhci_unlink_generic(uhci, urb);
+-	uhci_destroy_urb_priv(urb);
+-
+-	usb_dec_dev_use(urb->dev);
++	uhci_call_completion(urb);
+ 
+ 	return ret;
+ }

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbUFBKzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbUFBK6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbUFBKzO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 06:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUFBKy5
+	id S261745AbUFBK6V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 06:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUFBK6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 06:54:57 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:51850 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261832AbUFBKxE
+	Wed, 2 Jun 2004 06:58:20 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:37770 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261745AbUFBKwl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 06:53:04 -0400
-Date: Wed, 2 Jun 2004 12:53:05 +0200
+	Wed, 2 Jun 2004 06:52:41 -0400
+Date: Wed, 2 Jun 2004 12:52:44 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (3/4): block device driver.
-Message-ID: <20040602105305.GD7108@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (2/4): common i/o layer.
+Message-ID: <20040602105244.GC7108@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,452 +21,687 @@ User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: block device driver.
+[PATCH] s390: common i/o layer.
 
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-block device driver changes:
- - dasd: Fix diag discipline if it is loaded as a module.
- - dcssblk: Replace r/w lock with r/w semaphore to be able to call
-   device_register inside a critical section.
- - dcssblk: Fix error handling in write function for dcss "add" attribute.
- - xpram & dcssblk: Fix sanity check for sector number.
+Common i/o layer changes:
+ - qdio: Lose the adapter lock for thin interrupts to improve performance
+   and do unregister of the adapter interrupt handler with rcu.
+ - ccwgroup: Fix error handling when creating a ccwgroup device.
+ - Convert the slow crw kernel thread to a single threaded workqueue.
+ - Use the slow crw workqueue to unregister a subchannel after it was
+   found not operational to serialize it with other possible unregister/
+   register events coming in via machine checks.
+ - Trigger a rescan of the css via the slow path if a missing channel path
+   is found in __recover_lost_chpids.
+ - Use saner default levels for the debug feature, add some debugging code.
+ - Remove request_irq and free_irq stubs.
+ - Remove bogus inlines.
 
 diffstat:
- drivers/s390/block/dasd.c      |    6 +-
- drivers/s390/block/dasd_diag.c |    8 ++
- drivers/s390/block/dasd_int.h  |    9 ---
- drivers/s390/block/dcssblk.c   |  114 +++++++++++++++++++----------------------
- drivers/s390/block/xpram.c     |    2 
- 5 files changed, 68 insertions(+), 71 deletions(-)
+ drivers/s390/cio/airq.c       |   38 +++++----------------
+ drivers/s390/cio/ccwgroup.c   |   24 ++++++++-----
+ drivers/s390/cio/chsc.c       |   39 +++++++++++----------
+ drivers/s390/cio/cio.c        |    8 ++--
+ drivers/s390/cio/css.c        |   75 +++++++++++++++++++++---------------------
+ drivers/s390/cio/css.h        |    4 +-
+ drivers/s390/cio/device.c     |   15 +++++---
+ drivers/s390/cio/device_fsm.c |   14 -------
+ drivers/s390/cio/requestirq.c |   17 ---------
+ drivers/s390/s390mach.c       |   25 ++------------
+ 10 files changed, 109 insertions(+), 150 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/block/dasd.c linux-2.6-s390/drivers/s390/block/dasd.c
---- linux-2.6/drivers/s390/block/dasd.c	Wed Jun  2 11:29:04 2004
-+++ linux-2.6-s390/drivers/s390/block/dasd.c	Wed Jun  2 11:29:39 2004
-@@ -7,7 +7,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
+diff -urN linux-2.6/drivers/s390/cio/airq.c linux-2.6-s390/drivers/s390/cio/airq.c
+--- linux-2.6/drivers/s390/cio/airq.c	Mon May 10 04:33:10 2004
++++ linux-2.6-s390/drivers/s390/cio/airq.c	Wed Jun  2 11:29:35 2004
+@@ -2,7 +2,7 @@
+  *  drivers/s390/cio/airq.c
+  *   S/390 common I/O routines -- support for adapter interruptions
   *
-- * $Revision: 1.141 $
-+ * $Revision: 1.142 $
-  */
- 
- #include <linux/config.h>
-@@ -37,6 +37,7 @@
-  * SECTION: exported variables of dasd.c
-  */
- debug_info_t *dasd_debug_area;
-+struct dasd_discipline *dasd_diag_discipline_pointer;
- 
- MODULE_AUTHOR("Holger Smolinski <Holger.Smolinski@de.ibm.com>");
- MODULE_DESCRIPTION("Linux on S/390 DASD device driver,"
-@@ -1990,6 +1991,8 @@
- 
- 	DBF_EVENT(DBF_EMERG, "%s", "debug area created");
- 
-+	dasd_diag_discipline_pointer = NULL;
-+
- 	rc = devfs_mk_dir("dasd");
- 	if (rc)
- 		goto failed;
-@@ -2022,6 +2025,7 @@
- module_exit(dasd_exit);
- 
- EXPORT_SYMBOL(dasd_debug_area);
-+EXPORT_SYMBOL(dasd_diag_discipline_pointer);
- 
- EXPORT_SYMBOL(dasd_add_request_head);
- EXPORT_SYMBOL(dasd_add_request_tail);
-diff -urN linux-2.6/drivers/s390/block/dasd_diag.c linux-2.6-s390/drivers/s390/block/dasd_diag.c
---- linux-2.6/drivers/s390/block/dasd_diag.c	Mon May 10 04:31:58 2004
-+++ linux-2.6-s390/drivers/s390/block/dasd_diag.c	Wed Jun  2 11:29:39 2004
-@@ -6,7 +6,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
+- *   $Revision: 1.11 $
++ *   $Revision: 1.12 $
   *
-- * $Revision: 1.34 $
-+ * $Revision: 1.36 $
-  */
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *			      IBM Corporation
+@@ -14,11 +14,11 @@
+ #include <linux/init.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
++#include <linux/rcupdate.h>
  
- #include <linux/config.h>
-@@ -35,6 +35,8 @@
+ #include "cio_debug.h"
+ #include "airq.h"
  
- MODULE_LICENSE("GPL");
- 
-+struct dasd_discipline dasd_diag_discipline;
-+
- struct dasd_diag_private {
- 	struct dasd_diag_characteristics rdc_data;
- 	struct dasd_diag_rw_io iob;
-@@ -292,7 +294,7 @@
- 		mdsk_term_io(device);
- 	}
- 	if (bsize <= PAGE_SIZE && label[3] == bsize &&
--	    label[0] == 0xc3d4e2f1 && label[13] != 0) {
-+	    label[0] == 0xc3d4e2f1) {
- 		device->blocks = label[7];
- 		device->bp_block = bsize;
- 		device->s2b_shift = 0;	/* bits to shift 512 to get a block */
-@@ -489,6 +491,7 @@
- 
- 	ctl_set_bit(0, 9);
- 	register_external_interrupt(0x2603, dasd_ext_handler);
-+	dasd_diag_discipline_pointer = &dasd_diag_discipline;
- 	return 0;
- }
- 
-@@ -503,6 +506,7 @@
- 	}
- 	unregister_external_interrupt(0x2603, dasd_ext_handler);
- 	ctl_clear_bit(0, 9);
-+	dasd_diag_discipline_pointer = NULL;
- }
- 
- module_init(dasd_diag_init);
-diff -urN linux-2.6/drivers/s390/block/dasd_int.h linux-2.6-s390/drivers/s390/block/dasd_int.h
---- linux-2.6/drivers/s390/block/dasd_int.h	Mon May 10 04:32:54 2004
-+++ linux-2.6-s390/drivers/s390/block/dasd_int.h	Wed Jun  2 11:29:39 2004
-@@ -6,7 +6,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
-  *
-- * $Revision: 1.57 $
-+ * $Revision: 1.58 $
-  */
- 
- #ifndef DASD_INT_H
-@@ -260,12 +260,7 @@
- 	int (*fill_info) (struct dasd_device *, struct dasd_information2_t *);
- };
- 
--extern struct dasd_discipline dasd_diag_discipline;
--#ifdef CONFIG_DASD_DIAG
--#define dasd_diag_discipline_pointer (&dasd_diag_discipline)
--#else
--#define dasd_diag_discipline_pointer (0)
--#endif
-+extern struct dasd_discipline *dasd_diag_discipline_pointer;
- 
- struct dasd_device {
- 	/* Block device stuff. */
-diff -urN linux-2.6/drivers/s390/block/dcssblk.c linux-2.6-s390/drivers/s390/block/dcssblk.c
---- linux-2.6/drivers/s390/block/dcssblk.c	Mon May 10 04:32:25 2004
-+++ linux-2.6-s390/drivers/s390/block/dcssblk.c	Wed Jun  2 11:29:39 2004
-@@ -76,8 +76,7 @@
- };
- 
- static struct list_head dcssblk_devices = LIST_HEAD_INIT(dcssblk_devices);
--static rwlock_t dcssblk_devices_lock = RW_LOCK_UNLOCKED;
--
-+static struct rw_semaphore dcssblk_devices_sem;
+-static spinlock_t adapter_lock = SPIN_LOCK_UNLOCKED;
+ static adapter_int_handler_t adapter_handler;
  
  /*
-  * release function for segment device.
-@@ -92,8 +91,8 @@
+@@ -40,23 +40,17 @@
  
- /*
-  * get a minor number. needs to be called with
-- * write_lock(&dcssblk_devices_lock) and the
-- * device needs to be enqueued before the lock is
-+ * down_write(&dcssblk_devices_sem) and the
-+ * device needs to be enqueued before the semaphore is
-  * freed.
-  */
- static inline int
-@@ -121,7 +120,7 @@
- /*
-  * get the struct dcssblk_dev_info from dcssblk_devices
-  * for the given name.
-- * read_lock(&dcssblk_devices_lock) must be held.
-+ * down_read(&dcssblk_devices_sem) must be held.
-  */
- static struct dcssblk_dev_info *
- dcssblk_get_device_by_name(char *name)
-@@ -137,31 +136,6 @@
- }
+ 	CIO_TRACE_EVENT (4, "rgaint");
  
- /*
-- * register the device that represents a segment in sysfs,
-- * also add the attributes for the device
-- */
--static inline int
--dcssblk_register_segment_device(struct device *dev)
--{
--	int rc;
+-	spin_lock (&adapter_lock);
 -
--	rc = device_register(dev);
--	if (rc)
--		return rc;
--	rc = device_create_file(dev, &dev_attr_shared);
--	if (rc)
--		goto unregister_dev;
--	rc = device_create_file(dev, &dev_attr_save);
--	if (rc)
--		goto unregister_dev;
--	return rc;
--
--unregister_dev:
--	device_unregister(dev);
--	return rc;
--}
--
--/*
-  * device attribute for switching shared/nonshared (exclusive)
-  * operation (show + store)
-  */
-@@ -184,24 +158,24 @@
- 		PRINT_WARN("Invalid value, must be 0 or 1\n");
- 		return -EINVAL;
- 	}
--	write_lock(&dcssblk_devices_lock);
-+	down_write(&dcssblk_devices_sem);
- 	dev_info = container_of(dev, struct dcssblk_dev_info, dev);
- 	if (atomic_read(&dev_info->use_count)) {
- 		PRINT_ERR("share: segment %s is busy!\n",
- 			  dev_info->segment_name);
--		write_unlock(&dcssblk_devices_lock);
-+		up_write(&dcssblk_devices_sem);
- 		return -EBUSY;
- 	}
- 	if ((inbuf[0] == '1') && (dev_info->is_shared == 1)) {
- 		PRINT_WARN("Segment %s already loaded in shared mode!\n",
- 			   dev_info->segment_name);
--		write_unlock(&dcssblk_devices_lock);
-+		up_write(&dcssblk_devices_sem);
- 		return count;
- 	}
- 	if ((inbuf[0] == '0') && (dev_info->is_shared == 0)) {
- 		PRINT_WARN("Segment %s already loaded in exclusive mode!\n",
- 			   dev_info->segment_name);
--		write_unlock(&dcssblk_devices_lock);
-+		up_write(&dcssblk_devices_sem);
- 		return count;
- 	}
- 	if (inbuf[0] == '1') {
-@@ -231,7 +205,7 @@
- 		PRINT_INFO("Segment %s reloaded, exclusive (read-write) mode.\n",
- 			   dev_info->segment_name);
- 	} else {
--		write_unlock(&dcssblk_devices_lock);
-+		up_write(&dcssblk_devices_sem);
- 		PRINT_WARN("Invalid value, must be 0 or 1\n");
- 		return -EINVAL;
- 	}
-@@ -262,14 +236,13 @@
- 				dev_info->segment_name);
- 		rc = -EPERM;
- 	}
--	write_unlock(&dcssblk_devices_lock);
-+	up_write(&dcssblk_devices_sem);
- 	goto out;
- 
- removeseg:
- 	PRINT_ERR("Could not reload segment %s, removing it now!\n",
- 			dev_info->segment_name);
- 	list_del(&dev_info->lh);
--	write_unlock(&dcssblk_devices_lock);
- 
- 	del_gendisk(dev_info->gd);
- 	blk_put_queue(dev_info->dcssblk_queue);
-@@ -277,6 +250,7 @@
- 	put_disk(dev_info->gd);
- 	device_unregister(dev);
- 	put_device(dev);
-+	up_write(&dcssblk_devices_sem);
- out:
- 	return rc;
- }
-@@ -308,7 +282,7 @@
- 	}
- 	dev_info = container_of(dev, struct dcssblk_dev_info, dev);
- 
--	write_lock(&dcssblk_devices_lock);
-+	down_write(&dcssblk_devices_sem);
- 	if (inbuf[0] == '1') {
- 		if (atomic_read(&dev_info->use_count) == 0) {
- 			// device is idle => we save immediately
-@@ -332,11 +306,11 @@
- 					dev_info->segment_name);
- 		}
- 	} else {
--		write_unlock(&dcssblk_devices_lock);
-+		up_write(&dcssblk_devices_sem);
- 		PRINT_WARN("Invalid value, must be 0 or 1\n");
- 		return -EINVAL;
- 	}
--	write_unlock(&dcssblk_devices_lock);
-+	up_write(&dcssblk_devices_sem);
- 	return count;
- }
- 
-@@ -375,9 +349,9 @@
- 	/*
- 	 * already loaded?
- 	 */
--	read_lock(&dcssblk_devices_lock);
-+	down_read(&dcssblk_devices_sem);
- 	dev_info = dcssblk_get_device_by_name(local_buf);
--	read_unlock(&dcssblk_devices_lock);
-+	up_read(&dcssblk_devices_sem);
- 	if (dev_info != NULL) {
- 		PRINT_WARN("Segment %s already loaded!\n", local_buf);
- 		rc = -EEXIST;
-@@ -433,10 +407,10 @@
- 	/*
- 	 * get minor, add to list
- 	 */
--	write_lock(&dcssblk_devices_lock);
-+	down_write(&dcssblk_devices_sem);
- 	rc = dcssblk_assign_free_minor(dev_info);
- 	if (rc) {
--		write_unlock(&dcssblk_devices_lock);
-+		up_write(&dcssblk_devices_sem);
- 		PRINT_ERR("No free minor number available! "
- 			  "Unloading segment...\n");
- 		goto unload_seg;
-@@ -444,22 +418,29 @@
- 	sprintf(dev_info->gd->disk_name, "dcssblk%d",
- 		dev_info->gd->first_minor);
- 	list_add_tail(&dev_info->lh, &dcssblk_devices);
-+
-+	if (!try_module_get(THIS_MODULE)) {
-+		rc = -ENODEV;
-+		goto list_del;
-+	}
- 	/*
- 	 * register the device
- 	 */
--	rc = dcssblk_register_segment_device(&dev_info->dev);
-+	rc = device_register(&dev_info->dev);
- 	if (rc) {
- 		PRINT_ERR("Segment %s could not be registered RC=%d\n",
- 				local_buf, rc);
-+		module_put(THIS_MODULE);
- 		goto list_del;
- 	}
--
--	if (!try_module_get(THIS_MODULE)) {
--		rc = -ENODEV;
--		goto list_del;
+ 	if (handler == NULL)
+ 		ret = -EINVAL;
+-	else if (adapter_handler)
+-		ret = -EBUSY;
+-	else {
+-		adapter_handler = handler;
+-		ret = 0;
 -	}
 -
- 	get_device(&dev_info->dev);
-+	rc = device_create_file(&dev_info->dev, &dev_attr_shared);
-+	if (rc)
-+		goto unregister_dev;
-+	rc = device_create_file(&dev_info->dev, &dev_attr_save);
-+	if (rc)
-+		goto unregister_dev;
-+
- 	add_disk(dev_info->gd);
+-	spin_unlock (&adapter_lock);
++	else
++		ret = (cmpxchg(&adapter_handler, NULL, handler) ? -EBUSY : 0);
++	if (!ret)
++		synchronize_kernel();
  
- 	blk_queue_make_request(dev_info->dcssblk_queue, dcssblk_make_request);
-@@ -476,13 +457,24 @@
- 			break;
- 	}
- 	PRINT_DEBUG("Segment %s loaded successfully\n", local_buf);
--	write_unlock(&dcssblk_devices_lock);
-+	up_write(&dcssblk_devices_sem);
- 	rc = count;
- 	goto out;
+ 	sprintf (dbf_txt, "ret:%d", ret);
+ 	CIO_TRACE_EVENT (4, dbf_txt);
  
-+unregister_dev:
-+	PRINT_ERR("device_create_file() failed!\n");
-+	list_del(&dev_info->lh);
-+	blk_put_queue(dev_info->dcssblk_queue);
-+	dev_info->gd->queue = NULL;
-+	put_disk(dev_info->gd);
-+	device_unregister(&dev_info->dev);
-+	segment_unload(dev_info->segment_name);
-+	put_device(&dev_info->dev);
-+	up_write(&dcssblk_devices_sem);
-+	goto out;
- list_del:
- 	list_del(&dev_info->lh);
--	write_unlock(&dcssblk_devices_lock);
-+	up_write(&dcssblk_devices_sem);
- unload_seg:
- 	segment_unload(local_buf);
- dealloc_gendisk:
-@@ -526,22 +518,21 @@
- 		goto out_buf;
+-	return (ret);
++	return ret;
+ }
+ 
+ int
+@@ -67,38 +61,26 @@
+ 
+ 	CIO_TRACE_EVENT (4, "urgaint");
+ 
+-	spin_lock (&adapter_lock);
+-
+ 	if (handler == NULL)
+ 		ret = -EINVAL;
+-	else if (handler != adapter_handler)
+-		ret = -EINVAL;
+ 	else {
+ 		adapter_handler = NULL;
++		synchronize_kernel();
+ 		ret = 0;
+ 	}
+-
+-	spin_unlock (&adapter_lock);
+-
+ 	sprintf (dbf_txt, "ret:%d", ret);
+ 	CIO_TRACE_EVENT (4, dbf_txt);
+ 
+-	return (ret);
++	return ret;
+ }
+ 
+ void
+ do_adapter_IO (void)
+ {
+-	CIO_TRACE_EVENT (4, "doaio");
+-
+-	spin_lock (&adapter_lock);
++	CIO_TRACE_EVENT (6, "doaio");
+ 
+ 	if (adapter_handler)
+ 		(*adapter_handler) ();
+-
+-	spin_unlock (&adapter_lock);
+-
+-	return;
+ }
+ 
+ EXPORT_SYMBOL (s390_register_adapter_interrupt);
+diff -urN linux-2.6/drivers/s390/cio/ccwgroup.c linux-2.6-s390/drivers/s390/cio/ccwgroup.c
+--- linux-2.6/drivers/s390/cio/ccwgroup.c	Mon May 10 04:32:38 2004
++++ linux-2.6-s390/drivers/s390/cio/ccwgroup.c	Wed Jun  2 11:29:35 2004
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/ccwgroup.c
+  *  bus driver for ccwgroup
+- *   $Revision: 1.27 $
++ *   $Revision: 1.28 $
+  *
+  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
+  *                       IBM Corporation
+@@ -179,12 +179,12 @@
+ 		    || gdev->cdev[i]->id.driver_info !=
+ 		    gdev->cdev[0]->id.driver_info) {
+ 			rc = -EINVAL;
+-			goto error;
++			goto free_dev;
+ 		}
+ 		/* Don't allow a device to belong to more than one group. */
+ 		if (gdev->cdev[i]->dev.driver_data) {
+ 			rc = -EINVAL;
+-			goto error;
++			goto free_dev;
+ 		}
+ 	}
+ 	for (i = 0; i < argc; i++)
+@@ -207,8 +207,8 @@
+ 	rc = device_register(&gdev->dev);
+ 	
+ 	if (rc)
+-		goto error;
+-
++		goto free_dev;
++	get_device(&gdev->dev);
+ 	rc = device_create_file(&gdev->dev, &dev_attr_ungroup);
+ 
+ 	if (rc) {
+@@ -217,20 +217,28 @@
  	}
  
--	write_lock(&dcssblk_devices_lock);
-+	down_write(&dcssblk_devices_sem);
- 	dev_info = dcssblk_get_device_by_name(local_buf);
- 	if (dev_info == NULL) {
--		write_unlock(&dcssblk_devices_lock);
-+		up_write(&dcssblk_devices_sem);
- 		PRINT_WARN("Segment %s is not loaded!\n", local_buf);
- 		rc = -ENODEV;
- 		goto out_buf;
- 	}
- 	if (atomic_read(&dev_info->use_count) != 0) {
--		write_unlock(&dcssblk_devices_lock);
-+		up_write(&dcssblk_devices_sem);
- 		PRINT_WARN("Segment %s is in use!\n", local_buf);
- 		rc = -EBUSY;
- 		goto out_buf;
- 	}
- 	list_del(&dev_info->lh);
--	write_unlock(&dcssblk_devices_lock);
- 
- 	del_gendisk(dev_info->gd);
- 	blk_put_queue(dev_info->dcssblk_queue);
-@@ -552,6 +543,8 @@
- 	PRINT_DEBUG("Segment %s unloaded successfully\n",
- 			dev_info->segment_name);
- 	put_device(&dev_info->dev);
-+	up_write(&dcssblk_devices_sem);
-+
- 	rc = count;
- out_buf:
- 	kfree(local_buf);
-@@ -587,7 +580,7 @@
- 		rc = -ENODEV;
- 		goto out;
- 	}
--	write_lock(&dcssblk_devices_lock);
-+	down_write(&dcssblk_devices_sem);
- 	if (atomic_dec_and_test(&dev_info->use_count)
- 	    && (dev_info->save_pending)) {
- 		PRINT_INFO("Segment %s became idle and is being saved now\n",
-@@ -595,7 +588,7 @@
- 		segment_replace(dev_info->segment_name);
- 		dev_info->save_pending = 0;
- 	}
--	write_unlock(&dcssblk_devices_lock);
-+	up_write(&dcssblk_devices_sem);
- 	rc = 0;
- out:
+ 	rc = __ccwgroup_create_symlinks(gdev);
+-	if (!rc)
++	if (!rc) {
++		put_device(&gdev->dev);
+ 		return 0;
+-
++	}
+ 	device_remove_file(&gdev->dev, &dev_attr_ungroup);
+ 	device_unregister(&gdev->dev);
+ error:
+ 	for (i = 0; i < argc; i++)
+ 		if (gdev->cdev[i]) {
+ 			put_device(&gdev->cdev[i]->dev);
++			gdev->cdev[i]->dev.driver_data = NULL;
++		}
++	put_device(&gdev->dev);
++	return rc;
++free_dev:
++	for (i = 0; i < argc; i++)
++		if (gdev->cdev[i]) {
++			put_device(&gdev->cdev[i]->dev);
+ 			if (del_drvdata)
+ 				gdev->cdev[i]->dev.driver_data = NULL;
+ 		}
+ 	kfree(gdev);
+-
  	return rc;
-@@ -616,7 +609,7 @@
- 	dev_info = bio->bi_bdev->bd_disk->private_data;
- 	if (dev_info == NULL)
- 		goto fail;
--	if ((bio->bi_sector & 3) != 0 || (bio->bi_size & 4095) != 0)
-+	if ((bio->bi_sector & 7) != 0 || (bio->bi_size & 4095) != 0)
- 		/* Request is not page-aligned. */
- 		goto fail;
- 	if (((bio->bi_size >> 9) + bio->bi_sector)
-@@ -695,6 +688,7 @@
- 		return rc;
- 	}
- 	dcssblk_major = rc;
-+	init_rwsem(&dcssblk_devices_sem);
- 	PRINT_DEBUG("...finished!\n");
+ }
+ 
+diff -urN linux-2.6/drivers/s390/cio/chsc.c linux-2.6-s390/drivers/s390/cio/chsc.c
+--- linux-2.6/drivers/s390/cio/chsc.c	Mon May 10 04:32:38 2004
++++ linux-2.6-s390/drivers/s390/cio/chsc.c	Wed Jun  2 11:29:35 2004
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/chsc.c
+  *   S/390 common I/O routines -- channel subsystem call
+- *   $Revision: 1.110 $
++ *   $Revision: 1.111 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *			      IBM Corporation
+@@ -62,11 +62,11 @@
+ 	int state;
+ 
+ 	state = get_chp_status(chp);
+-	if (state < 0)
+-		new_channel_path(chp);
+-	else
++	if (state < 0) {
++		need_rescan = 1;
++		queue_work(slow_path_wq, &slow_path_work);
++	} else
+ 		WARN_ON(!state);
+-	/* FIXME: should notify other subchannels here */
+ }
+ 
+ /* FIXME: this is _always_ called for every subchannel. shouldn't we
+@@ -285,8 +285,10 @@
+ out_unreg:
+ 	spin_unlock(&sch->lock);
+ 	sch->lpm = 0;
+-	/* We can't block here. */
+-	device_call_nopath_notify(sch);
++	if (css_enqueue_subchannel_slow(sch->irq)) {
++		css_clear_subchannel_slow_list();
++		need_rescan = 1;
++	}
  	return 0;
  }
-diff -urN linux-2.6/drivers/s390/block/xpram.c linux-2.6-s390/drivers/s390/block/xpram.c
---- linux-2.6/drivers/s390/block/xpram.c	Mon May 10 04:32:54 2004
-+++ linux-2.6-s390/drivers/s390/block/xpram.c	Wed Jun  2 11:29:39 2004
-@@ -290,7 +290,7 @@
- 	unsigned long bytes;
- 	int i;
  
--	if ((bio->bi_sector & 3) != 0 || (bio->bi_size & 4095) != 0)
-+	if ((bio->bi_sector & 7) != 0 || (bio->bi_size & 4095) != 0)
- 		/* Request is not page-aligned. */
- 		goto fail;
- 	if ((bio->bi_size >> 12) > xdev->size)
+@@ -303,6 +305,9 @@
+ 
+ 	bus_for_each_dev(&css_bus_type, NULL, &chpid,
+ 			 s390_subchannel_remove_chpid);
++
++	if (need_rescan || css_slow_subchannels_exist())
++		queue_work(slow_path_wq, &slow_path_work);
+ }
+ 
+ static int
+@@ -737,10 +742,12 @@
+ 			 * can successfully terminate, even using the
+ 			 * just varied off path. Then kill it.
+ 			 */
+-			if (!__check_for_io_and_kill(sch, chp) && !sch->lpm)
+-				/* Get over with it now. */
+-				device_call_nopath_notify(sch);
+-			else if (sch->driver && sch->driver->verify)
++			if (!__check_for_io_and_kill(sch, chp) && !sch->lpm) {
++				if (css_enqueue_subchannel_slow(sch->irq)) {
++					css_clear_subchannel_slow_list();
++					need_rescan = 1;
++				}
++			} else if (sch->driver && sch->driver->verify)
+ 				sch->driver->verify(&sch->dev);
+ 		}
+ 		break;
+@@ -773,11 +780,6 @@
+ 	return 0;
+ }
+ 
+-extern void css_trigger_slow_path(void);
+-typedef void (*workfunc)(void *);
+-static DECLARE_WORK(varyonoff_work, (workfunc)css_trigger_slow_path,
+-		    NULL);
+-
+ /*
+  * Function: s390_vary_chpid
+  * Varies the specified chpid online or offline
+@@ -813,7 +815,7 @@
+ 			 s390_subchannel_vary_chpid_on :
+ 			 s390_subchannel_vary_chpid_off);
+ 	if (!on)
+-		return 0;
++		goto out;
+ 	/* Scan for new devices on varied on path. */
+ 	for (irq = 0; irq < __MAX_SUBCHANNELS; irq++) {
+ 		struct schib schib;
+@@ -835,8 +837,9 @@
+ 			need_rescan = 1;
+ 		}
+ 	}
++out:
+ 	if (need_rescan || css_slow_subchannels_exist())
+-		schedule_work(&varyonoff_work);
++		queue_work(slow_path_wq, &slow_path_work);
+ 	return 0;
+ }
+ 
+diff -urN linux-2.6/drivers/s390/cio/cio.c linux-2.6-s390/drivers/s390/cio/cio.c
+--- linux-2.6/drivers/s390/cio/cio.c	Mon May 10 04:33:21 2004
++++ linux-2.6-s390/drivers/s390/cio/cio.c	Wed Jun  2 11:29:35 2004
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/cio.c
+  *   S/390 common I/O routines -- low level i/o calls
+- *   $Revision: 1.121 $
++ *   $Revision: 1.123 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *			      IBM Corporation
+@@ -67,17 +67,17 @@
+ 	if (!cio_debug_msg_id)
+ 		goto out_unregister;
+ 	debug_register_view (cio_debug_msg_id, &debug_sprintf_view);
+-	debug_set_level (cio_debug_msg_id, 6);
++	debug_set_level (cio_debug_msg_id, 2);
+ 	cio_debug_trace_id = debug_register ("cio_trace", 4, 4, 8);
+ 	if (!cio_debug_trace_id)
+ 		goto out_unregister;
+ 	debug_register_view (cio_debug_trace_id, &debug_hex_ascii_view);
+-	debug_set_level (cio_debug_trace_id, 6);
++	debug_set_level (cio_debug_trace_id, 2);
+ 	cio_debug_crw_id = debug_register ("cio_crw", 2, 4, 16*sizeof (long));
+ 	if (!cio_debug_crw_id)
+ 		goto out_unregister;
+ 	debug_register_view (cio_debug_crw_id, &debug_sprintf_view);
+-	debug_set_level (cio_debug_crw_id, 6);
++	debug_set_level (cio_debug_crw_id, 2);
+ 	pr_debug("debugging initialized\n");
+ 	return 0;
+ 
+diff -urN linux-2.6/drivers/s390/cio/css.c linux-2.6-s390/drivers/s390/cio/css.c
+--- linux-2.6/drivers/s390/cio/css.c	Wed Jun  2 11:29:04 2004
++++ linux-2.6-s390/drivers/s390/cio/css.c	Wed Jun  2 11:29:35 2004
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/css.c
+  *  driver for channel subsystem
+- *   $Revision: 1.74 $
++ *   $Revision: 1.77 $
+  *
+  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
+  *			 IBM Corporation
+@@ -166,10 +166,12 @@
+ 	if (sch && sch->schib.pmcw.dnv &&
+ 	    (schib.pmcw.dev != sch->schib.pmcw.dev))
+ 		return CIO_REVALIDATE;
++	if (sch && !sch->lpm)
++		return CIO_NO_PATH;
+ 	return CIO_OPER;
+ }
+ 	
+-static inline int
++static int
+ css_evaluate_subchannel(int irq, int slow)
+ {
+ 	int event, ret, disc;
+@@ -188,7 +190,11 @@
+ 		return -EAGAIN; /* Will be done on the slow path. */
+ 	}
+ 	event = css_get_subchannel_status(sch, irq);
++	CIO_MSG_EVENT(4, "Evaluating schid %04x, event %d, %s, %s path.\n",
++		      irq, event, sch?(disc?"disconnected":"normal"):"unknown",
++		      slow?"slow":"fast");
+ 	switch (event) {
++	case CIO_NO_PATH:
+ 	case CIO_GONE:
+ 		if (!sch) {
+ 			/* Never used this subchannel. Ignore. */
+@@ -196,7 +202,8 @@
+ 			break;
+ 		}
+ 		if (sch->driver && sch->driver->notify &&
+-		    sch->driver->notify(&sch->dev, CIO_GONE)) {
++		    sch->driver->notify(&sch->dev, event)) {
++			cio_disable_subchannel(sch);
+ 			device_set_disconnected(sch);
+ 			ret = 0;
+ 			break;
+@@ -205,6 +212,7 @@
+ 		 * Unregister subchannel.
+ 		 * The device will be killed automatically.
+ 		 */
++		cio_disable_subchannel(sch);
+ 		device_unregister(&sch->dev);
+ 		/* Reset intparm to zeroes. */
+ 		sch->schib.pmcw.intparm = 0;
+@@ -266,23 +274,44 @@
+ 	}
+ }
+ 
+-static void
+-css_evaluate_slow_subchannel(unsigned long schid)
+-{
+-	css_evaluate_subchannel(schid, 1);
+-}
++struct slow_subchannel {
++	struct list_head slow_list;
++	unsigned long schid;
++};
+ 
+-void
++static LIST_HEAD(slow_subchannels_head);
++static spinlock_t slow_subchannel_lock = SPIN_LOCK_UNLOCKED;
++
++static void
+ css_trigger_slow_path(void)
+ {
++	CIO_TRACE_EVENT(4, "slowpath");
++
+ 	if (need_rescan) {
+ 		need_rescan = 0;
+ 		css_rescan_devices();
+ 		return;
+ 	}
+-	css_walk_subchannel_slow_list(css_evaluate_slow_subchannel);
++
++	spin_lock_irq(&slow_subchannel_lock);
++	while (!list_empty(&slow_subchannels_head)) {
++		struct slow_subchannel *slow_sch =
++			list_entry(slow_subchannels_head.next,
++				   struct slow_subchannel, slow_list);
++
++		list_del_init(slow_subchannels_head.next);
++		spin_unlock_irq(&slow_subchannel_lock);
++		css_evaluate_subchannel(slow_sch->schid, 1);
++		spin_lock_irq(&slow_subchannel_lock);
++		kfree(slow_sch);
++	}
++	spin_unlock_irq(&slow_subchannel_lock);
+ }
+ 
++typedef void (*workfunc)(void *);
++DECLARE_WORK(slow_path_work, (workfunc)css_trigger_slow_path, NULL);
++struct workqueue_struct *slow_path_wq;
++
+ /*
+  * Rescan for new devices. FIXME: This is slow.
+  * This function is called when we have lost CRWs due to overflows and we have
+@@ -443,14 +472,6 @@
+ 		device_unregister(dev);
+ }
+ 
+-struct slow_subchannel {
+-	struct list_head slow_list;
+-	unsigned long schid;
+-};
+-
+-static LIST_HEAD(slow_subchannels_head);
+-static spinlock_t slow_subchannel_lock = SPIN_LOCK_UNLOCKED;
+-
+ int
+ css_enqueue_subchannel_slow(unsigned long schid)
+ {
+@@ -484,25 +505,7 @@
+ 	spin_unlock_irqrestore(&slow_subchannel_lock, flags);
+ }
+ 
+-void
+-css_walk_subchannel_slow_list(void (*fn)(unsigned long))
+-{
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&slow_subchannel_lock, flags);
+-	while (!list_empty(&slow_subchannels_head)) {
+-		struct slow_subchannel *slow_sch =
+-			list_entry(slow_subchannels_head.next,
+-				   struct slow_subchannel, slow_list);
+-
+-		list_del_init(slow_subchannels_head.next);
+-		spin_unlock_irqrestore(&slow_subchannel_lock, flags);
+-		fn(slow_sch->schid);
+-		spin_lock_irqsave(&slow_subchannel_lock, flags);
+-		kfree(slow_sch);
+-	}
+-	spin_unlock_irqrestore(&slow_subchannel_lock, flags);
+-}
+ 
+ int
+ css_slow_subchannels_exist(void)
+diff -urN linux-2.6/drivers/s390/cio/css.h linux-2.6-s390/drivers/s390/cio/css.h
+--- linux-2.6/drivers/s390/cio/css.h	Mon May 10 04:33:22 2004
++++ linux-2.6-s390/drivers/s390/cio/css.h	Wed Jun  2 11:29:35 2004
+@@ -136,7 +136,6 @@
+ 
+ /* Helper functions for vary on/off. */
+ void device_set_waiting(struct subchannel *);
+-void device_call_nopath_notify(struct subchannel *);
+ 
+ /* Helper functions to build lists for the slow path. */
+ int css_enqueue_subchannel_slow(unsigned long schid);
+@@ -144,4 +143,7 @@
+ void css_clear_subchannel_slow_list(void);
+ int css_slow_subchannels_exist(void);
+ extern int need_rescan;
++
++extern struct workqueue_struct *slow_path_wq;
++extern struct work_struct slow_path_work;
+ #endif
+diff -urN linux-2.6/drivers/s390/cio/device.c linux-2.6-s390/drivers/s390/cio/device.c
+--- linux-2.6/drivers/s390/cio/device.c	Wed Jun  2 11:29:04 2004
++++ linux-2.6-s390/drivers/s390/cio/device.c	Wed Jun  2 11:29:35 2004
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/device.c
+  *  bus driver for ccw devices
+- *   $Revision: 1.117 $
++ *   $Revision: 1.119 $
+  *
+  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
+  *			 IBM Corporation
+@@ -159,6 +159,11 @@
+ 		ret = -ENOMEM; /* FIXME: better errno ? */
+ 		goto out_err;
+ 	}
++	slow_path_wq = create_singlethread_workqueue("kslowcrw");
++	if (!slow_path_wq) {
++		ret = -ENOMEM; /* FIXME: better errno ? */
++		goto out_err;
++	}
+ 	if ((ret = bus_register (&ccw_bus_type)))
+ 		goto out_err;
+ 
+@@ -174,6 +179,8 @@
+ 		destroy_workqueue(ccw_device_work);
+ 	if (ccw_device_notify_work)
+ 		destroy_workqueue(ccw_device_notify_work);
++	if (slow_path_wq)
++		destroy_workqueue(slow_path_wq);
+ 	return ret;
+ }
+ 
+@@ -646,9 +653,7 @@
+ 	struct subchannel *sch;
+ 
+ 	sch = to_subchannel(cdev->dev.parent);
+-	/* Check if device is registered. */
+-	if (!list_empty(&sch->dev.node))
+-		device_unregister(&sch->dev);
++	device_unregister(&sch->dev);
+ 	/* Reset intparm to zeroes. */
+ 	sch->schib.pmcw.intparm = 0;
+ 	cio_modify(sch);
+@@ -677,7 +682,7 @@
+ 		sch = to_subchannel(cdev->dev.parent);
+ 		INIT_WORK(&cdev->private->kick_work,
+ 			  ccw_device_call_sch_unregister, (void *) cdev);
+-		queue_work(ccw_device_work, &cdev->private->kick_work);
++		queue_work(slow_path_wq, &cdev->private->kick_work);
+ 		break;
+ 	case DEV_STATE_BOXED:
+ 		/* Device did not respond in time. */
+diff -urN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-s390/drivers/s390/cio/device_fsm.c
+--- linux-2.6/drivers/s390/cio/device_fsm.c	Wed Jun  2 11:29:04 2004
++++ linux-2.6-s390/drivers/s390/cio/device_fsm.c	Wed Jun  2 11:29:35 2004
+@@ -459,20 +459,6 @@
+ }
+ 
+ void
+-device_call_nopath_notify(struct subchannel *sch)
+-{
+-	struct ccw_device *cdev;
+-
+-	if (!sch->dev.driver_data)
+-		return;
+-	cdev = sch->dev.driver_data;
+-	PREPARE_WORK(&cdev->private->kick_work,
+-		     ccw_device_nopath_notify, (void *)cdev);
+-	queue_work(ccw_device_notify_work, &cdev->private->kick_work);
+-}
+-
+-
+-void
+ ccw_device_verify_done(struct ccw_device *cdev, int err)
+ {
+ 	cdev->private->flags.doverify = 0;
+diff -urN linux-2.6/drivers/s390/cio/requestirq.c linux-2.6-s390/drivers/s390/cio/requestirq.c
+--- linux-2.6/drivers/s390/cio/requestirq.c	Mon May 10 04:32:54 2004
++++ linux-2.6-s390/drivers/s390/cio/requestirq.c	Wed Jun  2 11:29:35 2004
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/requestirq.c
+  *   S/390 common I/O routines -- enabling and disabling of devices
+- *   $Revision: 1.45 $
++ *   $Revision: 1.46 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *			      IBM Corporation
+@@ -18,21 +18,6 @@
+ 
+ #include "css.h"
+ 
+-/* for compatiblity only... */
+-int
+-request_irq (unsigned int irq,
+-	     void (*handler) (int, void *, struct pt_regs *),
+-	     unsigned long irqflags, const char *devname, void *dev_id)
+-{
+-	return -EINVAL;
+-}
+-
+-/* for compatiblity only... */
+-void
+-free_irq (unsigned int irq, void *dev_id)
+-{
+-}
+-
+ struct pgid global_pgid;
+ EXPORT_SYMBOL_GPL(global_pgid);
+ 
+diff -urN linux-2.6/drivers/s390/s390mach.c linux-2.6-s390/drivers/s390/s390mach.c
+--- linux-2.6/drivers/s390/s390mach.c	Mon May 10 04:33:21 2004
++++ linux-2.6-s390/drivers/s390/s390mach.c	Wed Jun  2 11:29:35 2004
+@@ -12,6 +12,7 @@
+ #include <linux/init.h>
+ #include <linux/sched.h>
+ #include <linux/errno.h>
++#include <linux/workqueue.h>
+ 
+ #include <asm/lowcore.h>
+ 
+@@ -21,13 +22,14 @@
+ // #define DBG(args,...) do {} while (0);
+ 
+ static struct semaphore m_sem;
+-static struct semaphore s_sem;
+ 
+ extern int css_process_crw(int);
+ extern int chsc_process_crw(void);
+ extern int chp_process_crw(int, int);
+ extern void css_reiterate_subchannels(void);
+-extern void css_trigger_slow_path(void);
++
++extern struct workqueue_struct *slow_path_wq;
++extern struct work_struct slow_path_work;
+ 
+ static void
+ s390_handle_damage(char *msg)
+@@ -39,21 +41,6 @@
+ 	disabled_wait((unsigned long) __builtin_return_address(0));
+ }
+ 
+-static int
+-s390_mchk_slow_path(void *param)
+-{
+-	struct semaphore *sem;
+-
+-	sem = (struct semaphore *)param;
+-	/* Set a nice name. */
+-	daemonize("kslowcrw");
+-repeat:
+-	down_interruptible(sem);
+-	css_trigger_slow_path();
+-	goto repeat;
+-	return 0;
+-}
+-
+ /*
+  * Retrieve CRWs and call function to handle event.
+  *
+@@ -130,7 +117,7 @@
+ 		}
+ 	}
+ 	if (slow)
+-		up(&s_sem);
++		queue_work(slow_path_wq, &slow_path_work);
+ 	goto repeat;
+ 	return 0;
+ }
+@@ -202,7 +189,6 @@
+ machine_check_init(void)
+ {
+ 	init_MUTEX_LOCKED(&m_sem);
+-	init_MUTEX_LOCKED( &s_sem );
+ 	ctl_clear_bit(14, 25);	/* disable damage MCH */
+ 	ctl_set_bit(14, 26);	/* enable degradation MCH */
+ 	ctl_set_bit(14, 27);	/* enable system recovery MCH */
+@@ -226,7 +212,6 @@
+ machine_check_crw_init (void)
+ {
+ 	kernel_thread(s390_collect_crw_info, &m_sem, CLONE_FS|CLONE_FILES);
+-	kernel_thread(s390_mchk_slow_path, &s_sem, CLONE_FS|CLONE_FILES);
+ 	ctl_set_bit(14, 28);	/* enable channel report MCH */
+ 	return 0;
+ }

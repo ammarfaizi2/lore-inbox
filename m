@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268111AbTB1T4y>; Fri, 28 Feb 2003 14:56:54 -0500
+	id <S268131AbTB1UA0>; Fri, 28 Feb 2003 15:00:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268112AbTB1T4y>; Fri, 28 Feb 2003 14:56:54 -0500
-Received: from adsl-63-195-13-67.dsl.chic01.pacbell.net ([63.195.13.67]:39433
-	"EHLO mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id <S268111AbTB1T4x>; Fri, 28 Feb 2003 14:56:53 -0500
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: linux-kernel@vger.kernel.org
-Date: Fri, 28 Feb 2003 12:07:06 -0800
+	id <S268140AbTB1UA0>; Fri, 28 Feb 2003 15:00:26 -0500
+Received: from scrye.com ([216.17.180.1]:65261 "EHLO scrye.com")
+	by vger.kernel.org with ESMTP id <S268131AbTB1UAX>;
+	Fri, 28 Feb 2003 15:00:23 -0500
+Message-ID: <20030228201041.8334.qmail@scrye.com>
 MIME-Version: 1.0
-Subject: Kernel 2.5 input layer info?
-Message-ID: <3E5F50EA.13587.3FA4953@localhost>
-In-reply-to: <1786144585.20030228074127@wlink.com.np>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Fri, 28 Feb 2003 13:10:38 -0700
+From: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: SCSI check sense bit not getting back to st driver
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Guys,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I have heard about the new 2.5 input layer work that is being done in the 
-kernel, and I am interested in using this for a userland mouse/keyboard 
-daemon I am looking at building. The intention of the daemon is to 
-provide a common interface for event driven mouse and keyboard 
-applications (ie: XFree86, Qt/E, SDL, MGL, SVGALib etc) on Linux. Since 
-it appears that a lot of work is already being done on a new set of event 
-driven input layers in the kernel, what I would like to do is build this 
-daemon such that it will use the new 2.5 kernel interfaces when they are 
-available, but fall back on the old compatible methods when not. 
-Essentially I am planning on taking the existing XFree86 code and using 
-it to make a common user land input daemon.
 
-Anyway, let me know if you think this is a good idea, bad idea or if 
-there is a better way to do it. The new input interfaces sound like a 
-great idea, but we are looking for something that will work on as many 
-versions of Linux as possible.
+[ reposted under this subject instead of the old one about end of tape
+handling]
 
-Finally where can I find more information on the new input interfaces in 
-the 2.5 kernel? I just downloaded the latest 2.5.63 release and will take 
-a look at it, but if there are any external docs on this I would like to 
-peruse them first.
+I (and several others at least) have been seeing a problem with end of
+tape error handling under linux. Instead of getting a ENOSPC, you get
+a EIO error when you hit the end of the tape. This makes multivolume
+backups kinda difficult.
 
-Thanks!
+Some more information on this problem was discovered by Tim Jones
+<tjones@tolisgroup.com>:
 
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
+Tim> Additional news.
 
-~ SciTech SNAP - The future of device driver technology! ~
+Tim> This is actually related to the check sense bit not being
+Tim> propagated up to the ST driver.  A simpler test (beats writing
+Tim> 40GB to a tape ...):
 
+Tim> use a 2.2.19/20/21 or 22 kernel, or a 2.4.9-34 kernel Remove the
+Tim> tape from the tape device execute:
+
+Tim>   tar -cvvf /dev/nst0 /etc
+
+Tim> You will receive a "No medium found" message
+
+Tim> Replace the kernel with 2.4.11+ and repeat the tar write test.
+Tim> This time, you will receive a write failure.
+
+Tim> This is caused by the check sense not being set and the ST driver
+Tim> sending up a EIO instead of the ENOMEDIUM.
+
+So, it looks like this problem is _not_ in the st driver itself, but
+somewhere in the SCSI layer. 
+
+Anyone have any ideas how to better track it down?
+
+Happy to run debug code/test cases here. 
+
+kevin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQE+X8JA3imCezTjY0ERAjvaAJ91SmJHXQ/d3xHZ70qDsdIFCkHQtwCeJ7rB
+MGmw0pHOE0t6WfH+NC1B8W8=
+=PLfR
+-----END PGP SIGNATURE-----

@@ -1,89 +1,253 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129187AbQKTRDa>; Mon, 20 Nov 2000 12:03:30 -0500
+	id <S129165AbQKTRFu>; Mon, 20 Nov 2000 12:05:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQKTRDU>; Mon, 20 Nov 2000 12:03:20 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:7172 "EHLO
+	id <S129345AbQKTRFk>; Mon, 20 Nov 2000 12:05:40 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:7684 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129187AbQKTRDK>; Mon, 20 Nov 2000 12:03:10 -0500
-Date: Mon, 20 Nov 2000 10:29:24 -0700
+	id <S129165AbQKTRFZ> convert rfc822-to-8bit; Mon, 20 Nov 2000 12:05:25 -0500
+Date: Mon, 20 Nov 2000 10:31:11 -0700
 From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jmerkey@timpanogas.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18pre22
-Message-ID: <20001120102924.B30798@vger.timpanogas.org>
-In-Reply-To: <20001119225041.C29253@vger.timpanogas.org> <Pine.LNX.4.10.10011201103390.31651-100000@chaos.thphy.uni-duesseldorf.de>
+To: "Charles Turner, Ph.D." <cturner@quark.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Defective Red Hat Distribution poorly represents Linux
+Message-ID: <20001120103111.C30798@vger.timpanogas.org>
+In-Reply-To: <Pine.LNX.3.95.1001120084920.580A-100000@quark.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10011201103390.31651-100000@chaos.thphy.uni-duesseldorf.de>; from kai@thphy.uni-duesseldorf.de on Mon, Nov 20, 2000 at 11:10:21AM +0100
+In-Reply-To: <Pine.LNX.3.95.1001120084920.580A-100000@quark.analogic.com>; from cturner@quark.analogic.com on Mon, Nov 20, 2000 at 08:53:19AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 20, 2000 at 11:10:21AM +0100, Kai Germaschewski wrote:
-> 
-> On Sun, 19 Nov 2000, Jeff V. Merkey wrote:
-> 
-> > ISDN_MODEM_ANZREG undefined on 2.4.0-10(11) and 2.2.18-22, rpm.spec is 
-> > attached.
-> 
-> This has been fixed 2000/03/03, see below. Just use the latest version,
-> ftp.isdn4linux.de/pub/isdn4linux/utils/isdn4k-utils.v3.1pre1.tar.gz
-> 
-> --Kai
+On Mon, Nov 20, 2000 at 08:53:19AM -0500, Charles Turner, Ph.D. wrote:
 
-This patch was not included in the pre1.tar.gz I downloaded last week.
-You may want to check the binary and make certain it's got the later file.
-I will check our archives as well.  You will note the rpm.spec file I sent
-you was pulling the pre1.tar.gz off your site directly during the build,
-(RPM is a studly tool).
+Charles,
+
+6.2 is one of te better distributions.  You should also go talk to RedHat 
+directly.  
 
 Jeff
 
-
+> 
+> I tried to help a friend this weekend convert to Linux.
+> He lives in Upstate New York, so it was a long trip from
+> Cambridge, Massachusetts.
+> 
+> He has a Dual Pentium III, 600 MHz TYAN "Thunderbolt".
+> It has a built-in Adaptec SCSI controller and Intel
+> 100-base-T Ethernet controller. It also has 1/2 Gbytes
+> of RAM. It's a superb machine.
+> 
+> It had been running Windows 2000 "Professional". Several months
+> ago, he purchased Red Hat "DELUXE" version 6.2. He was unable to
+> install it. I convinced him that installation was easy.
+> 
+> I was terribly wrong. This Red Hat version is irrevocably defective.
+> 
+> (1)	It will not create a bootable disk because it forgets
+> 	to load scsi_mod.o, and sd_mod.o  before it loads
+> 	aic7xxx.o 
+> 	/etc/conf.modules was found to contain only aic7xxx
+> 	as an alias for scsi_hostadapter.
+> 
+> (2)	Once I made a bootable diskette from a working machine
+> 	at home (200 miles round-trip distance), I was able to
+> 	install its supplied kernel version 2.2.14-5.0, and
+> 	2.2.14-5.0smp into the LILO boot sequence.
+> 
+> (3)	It "sort of" worked. However, network daemons kept
+> 	dropping core. X would eventually crash, leaving the
+> 	terminal in an unusable state, etc.
+> 
+> (4)	It is impossible to build a known working kernel on the
+> 	machine because the linker, `ld` crashes:
+> 
+> Script started on Sun Nov 19 19:11:55 2000
+> [root@merrimac linux-2.2.17]# make dep
+> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o scripts/mkdep scripts/mkdep.c
+> collect2: ld terminated with signal 11 [Segmentation fault], core dumped
+> make: *** [scripts/mkdep] Error 1
+> [root@merrimac linux-2.2.17]# ld --version
+> GNU ld 2.9.5
+> Copyright 1997 Free Software Foundation, Inc.
+> This program is free software; you may redistribute it under the terms of
+> the GNU General Public License.  This program has absolutely no warranty.
+>   Supported emulations:
+>    elf_i386
+>    i386linux
+> [root@merrimac linux-2.2.17]# cd scripts
+> [root@merrimac scripts]# gcc -o mkdep.o mkdep.c
+> collect2: ld terminated with signal 11 [Segmentation fault], core dumped
+> [root@merrimac scripts]# gcc -c -o mkdep.o mkdep.c
+> [root@merrimac scripts]# ld -o mkdep mkdep.o
+> Segmentation fault (core dumped)
+> 
+> [root@merrimac scripts]# strace ld -o mkdep mkdep.c 
+> execve("/usr/bin/ld", ["ld", "-o", "mkdep", "mkdep.o"], [/* 20 vars */]) = 0
+> brk(0)                                  = 0x807bb84
+> old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40014000
+> open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
+> open("/etc/ld.so.cache", O_RDONLY)      = 3
+> fstat(3, {st_mode=S_IFREG|0644, st_size=16290, ...}) = 0
+> old_mmap(NULL, 16290, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40015000
+> close(3)                                = 0
+> open("/usr/lib/libbfd-2.9.5.0.22.so", O_RDONLY) = 3
+> fstat(3, {st_mode=S_IFREG|0755, st_size=314936, ...}) = 0
+> read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\320\242"..., 4096) = 4096
+> old_mmap(NULL, 279260, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40019000
+> mprotect(0x40059000, 17116, PROT_NONE)  = 0
+> old_mmap(0x40059000, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x3f000) = 0x40059000
+> old_mmap(0x4005d000, 732, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4005d000
+> close(3)                                = 0
+> open("/lib/libdl.so.2", O_RDONLY)       = 3
+> fstat(3, {st_mode=S_IFREG|0755, st_size=75131, ...}) = 0
+> read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\340\34"..., 4096) = 4096
+> old_mmap(NULL, 12428, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x4005e000
+> mprotect(0x40060000, 4236, PROT_NONE)   = 0
+> old_mmap(0x40060000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x1000) = 0x40060000
+> close(3)                                = 0
+> open("/lib/libc.so.6", O_RDONLY)        = 3
+> fstat(3, {st_mode=S_IFREG|0755, st_size=4101324, ...}) = 0
+> read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\210\212"..., 4096) = 4096
+> old_mmap(NULL, 1001564, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40062000
+> mprotect(0x4014f000, 30812, PROT_NONE)  = 0
+> old_mmap(0x4014f000, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0xec000) = 0x4014f000
+> old_mmap(0x40153000, 14428, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x40153000
+> close(3)                                = 0
+> mprotect(0x40062000, 970752, PROT_READ|PROT_WRITE) = 0
+> mprotect(0x40062000, 970752, PROT_READ|PROT_EXEC) = 0
+> munmap(0x40015000, 16290)               = 0
+> personality(PER_LINUX)                  = 0
+> getpid()                                = 763
+> getrusage(RUSAGE_SELF, {ru_utime={0, 0}, ru_stime={0, 0}, ...}) = 0
+> brk(0)                                  = 0x807bb84
+> brk(0x807bbbc)                          = 0x807bbbc
+> brk(0x807c000)                          = 0x807c000
+> open("/usr/share/locale/locale.alias", O_RDONLY) = 3
+> fstat64(0x3, 0xbfffb84c)                = -1 ENOSYS (Function not implemented)
+> fstat(3, {st_mode=S_IFREG|0644, st_size=2265, ...}) = 0
+> old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40015000
+> read(3, "# Locale name alias data base.\n#"..., 4096) = 2265
+> brk(0x807d000)                          = 0x807d000
+> read(3, "", 4096)                       = 0
+> close(3)                                = 0
+> munmap(0x40015000, 4096)                = 0
+> open("/usr/share/i18n/locale.alias", O_RDONLY) = -1 ENOENT (No such file or directory)
+> open("/usr/share/locale/en_US/LC_MESSAGES", O_RDONLY) = 3
+> fstat(3, {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+> close(3)                                = 0
+> open("/usr/share/locale/en_US/LC_MESSAGES/SYS_LC_MESSAGES", O_RDONLY) = 3
+> fstat(3, {st_mode=S_IFREG|0644, st_size=44, ...}) = 0
+> old_mmap(NULL, 44, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40015000
+> close(3)                                = 0
+> stat("/usrusr/lib/ldscripts", 0xbffffa7c) = -1 ENOENT (No such file or directory)
+> brk(0x807f000)                          = 0x807f000
+> brk(0x8080000)                          = 0x8080000
+> brk(0x8081000)                          = 0x8081000
+> brk(0x8082000)                          = 0x8082000
+> brk(0x8083000)                          = 0x8083000
+> unlink("mkdep")                         = -1 ENOENT (No such file or directory)
+> open("mkdep", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+> brk(0x8084000)                          = 0x8084000
+> brk(0x8088000)                          = 0x8088000
+> brk(0x8089000)                          = 0x8089000
+> brk(0x808a000)                          = 0x808a000
+> open("mkdep.o", O_RDONLY)               = 4
+> fstat(4, {st_mode=S_IFREG|0644, st_size=9716, ...}) = 0
+> old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40016000
+> _llseek(4, 0, [0], SEEK_SET)            = 0
+> read(4, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\1\0\3\0\1\0\0\0\0\0\0\0"..., 4096) = 4096
+> _llseek(4, 4096, [4096], SEEK_SET)      = 0
+> _llseek(4, 4096, [4096], SEEK_SET)      = 0
+> _llseek(4, 4096, [4096], SEEK_SET)      = 0
+> _llseek(4, 4096, [4096], SEEK_SET)      = 0
+> _llseek(4, 4096, [4096], SEEK_SET)      = 0
+> _llseek(4, 4096, [4096], SEEK_SET)      = 0
+> _llseek(4, 4096, [4096], SEEK_SET)      = 0
+> _llseek(4, 4096, [4096], SEEK_SET)      = 0
+> _llseek(4, 4096, [4096], SEEK_SET)      = 0
+> _llseek(4, 4096, [4096], SEEK_SET)      = 0
+> read(4, "E\364\215\24E\0\0\0\0\241\0\0\0\0f\213\24\20\203\342\10"..., 4096) = 4096
+> _llseek(4, 8192, [8192], SEEK_SET)      = 0
+> --- SIGSEGV (Segmentation fault) ---
+> +++ killed by SIGSEGV +++
+> [root@merrimac scripts]# exit
+> exit
+> 
+> Script done on Sun Nov 19 19:14:35 2000
+> 
+> I can even see obvious bugs in the trace, i.e., :
+> 
+> stat("/usrusr/lib/ldscripts", 0xbffffa7c) = -1 ENOENT (No such file or directory)
+> ----------^^^
+> 
+> Although this was not the reason for the seg-fault.
 > 
 > 
-> Index: iprofd.c
-> ===================================================================
-> RCS file: /i4ldev/isdn4k-utils/iprofd/iprofd.c,v
-> retrieving revision 1.7
-> retrieving revision 1.8
-> diff -u -r1.7 -r1.8
-> --- iprofd.c	1999/09/06 08:03:25	1.7
-> +++ iprofd.c	2000/03/03 12:45:53	1.8
-> @@ -1,4 +1,4 @@
-> -/* $Id: iprofd.c,v 1.7 1999/09/06 08:03:25 fritz Exp $
-> +/* $Id: iprofd.c,v 1.8 2000/03/03 12:45:53 calle Exp $
->  
->   * Daemon for saving ttyIx-profiles to a file.
->   *
-> @@ -22,6 +22,9 @@
->   * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
->   *
->   * $Log: iprofd.c,v $
-> + * Revision 1.8  2000/03/03 12:45:53  calle
-> + * Make compile with newer versions of kernel drivers.
-> + *
->   * Revision 1.7  1999/09/06 08:03:25  fritz
->   * Changed my mail-address.
->   *
-> @@ -67,8 +70,12 @@
->  #ifndef ISDN_LMSNLEN
->  #define ISDN_LMSNLEN 0
->  #endif
-> +
-> +#ifndef ISDN_MODEM_NUMREG
-> +#define ISDN_MODEM_NUMREG ISDN_MODEM_ANZREG
-> +#endif
->  
-> -#define BUFSZ ((ISDN_MODEM_ANZREG+ISDN_MSNLEN+ISDN_LMSNLEN)*ISDN_MAX_CHANNELS)
-> +#define BUFSZ ((ISDN_MODEM_NUMREG+ISDN_MSNLEN+ISDN_LMSNLEN)*ISDN_MAX_CHANNELS)
->  
->  void
->  dumpModem(int dummy)
+> (5)	I returned home (200 mile round trip), removed my
+> 	SCSI disks from my home machine, and then returned
+> 	and installed them in my friend's machine. The
+> 	machine worked perfectly with Linux version 2.2.17,
+> 	and gcc-2.7.2.3, Binutils-2.8.1.0, etc., the standard
+> 	stuff.
+> 
+> 	This shows that the problems are not because of a
+> 	defective machine.
+> 
+> 	I cloned my disks to his disks and, he's running.
+> 	however, I don't have all the GUI stuff installed that
+> 	he likes (needs).  My disks had been built up over
+> 	over several years by Richard Johnson, a frequent
+> 	contributor to Linux.
+> 
+> (6)	I have been told that I could get a statically-linked
+> 	version of `ld`, plus another 'C' compiler statically-
+> 	linked so that these don't use the possibly defective
+> 	dynamic libraries. I could then build a decent working
+> 	system using sources available on the Internet.
+> 
+> 	From a customer's perspective, this is absurd. When
+> 	a customer purchases a "shrink-wrapped" operating
+> 	system he expects it to work.
+> 
+> (7)	This fiasco is an example of why Linux is in big trouble.
+> 	Once Linux obtained visibility, it became necessary for
+> 	the most visible distributors and VARs to provide a high
+> 	quality product.
+> 
+> 	Red Hat, provably does not. Red Hat employees dominate
+> 	Linux kernel development, even moderating (read controlling)
+> 	what will be and what will not be done within this operating
+> 	system.
+> 
+> 	As repeatably demonstrated on this list, Red Hat employees
+> 	spend much time denigrating others at the expense of providing
+> 	a useful product.
+> 
+> (8)	Now I'm pretty sure that this email will generate a lot of
+> 	flames. So be it. Linux, as an operating system to replace
+> 	windows,  has gone to hell because of at least one distributor's
+> 	selling of garbage. There may be more such defective distributions
+> 	out there. I certainly don't know what to purchase for my
+> 	next attempt at a "shrink-wrap" installation.
 > 
 > 
+>    Very Truly Yours,
+> 
+>    Charles Turner
+> 
+> Member(s) IEEE, IEEE Computer Society, AIAA  
+> 
+>           I speak only for myself, which is enough of a problem.
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,31 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263362AbVBCVdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263461AbVBCVjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263362AbVBCVdn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 16:33:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262672AbVBCV3A
+	id S263461AbVBCVjD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 16:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263248AbVBCVhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 16:29:00 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:11984 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262962AbVBCV2W (ORCPT
+	Thu, 3 Feb 2005 16:37:39 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:48850 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261574AbVBCVhJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 16:28:22 -0500
-Date: Thu, 3 Feb 2005 22:28:05 +0100
+	Thu, 3 Feb 2005 16:37:09 -0500
+Date: Thu, 3 Feb 2005 22:36:45 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: Con Kolivas <kernel@kolivas.org>, "Bill Huey (hui)" <bhuey@lnxw.com>,
-       "Jack O'Quin" <joq@io.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+Cc: Peter Williams <pwil3058@bigpond.net.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, "Jack O'Quin" <joq@io.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
        linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
        CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
        Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
        Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
        Arjan van de Ven <arjanv@redhat.com>
 Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-Message-ID: <20050203212805.GA27255@elte.hu>
-References: <20050203204711.GB25018@elte.hu> <200502032115.j13LFWFY009703@localhost.localdomain>
+Message-ID: <20050203213645.GB27255@elte.hu>
+References: <42014C10.60407@bigpond.net.au> <200502022303.j12N3nZa002055@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200502032115.j13LFWFY009703@localhost.localdomain>
+In-Reply-To: <200502022303.j12N3nZa002055@localhost.localdomain>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -40,42 +41,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Paul Davis <paul@linuxaudiosystems.com> wrote:
 
-> however, i don't agree that futexes are conceptually superior. they
-> don't express the intended operation nearly as accurately as
-> yield_to(tid) would. the operation is "i have nothing else to do, and
-> i want <tid> to run next". a futex says "this particular condition is
-> satisfied, which might wake one or more tasks". [...]
+> Just a reminder: setuid root is precisely what we are attempting to
+> avoid. 
+> 
+> >If you have the source code for the programs then they could be modified 
+> >to drop the root euid after they've changed policy.  Or even do the 
+> 
+> This is insufficient, since they need to be able to drop RT scheduling
+> and then reacquire it again later.
 
-what i suggested was to use one of the pthread APIs - not to use raw
-futexes.
+i believe RT-LSM provides a way to solve this cleanly: you can make your
+audio app setguid-audio (note: NOT setuid), and make the audio group
+have CAP_SYS_NICE-equivalent privilege via the RT-LSM, and then you
+could have a finegrained per-app way of enabling SCHED_FIFO scheduling,
+without giving _users_ the blanket permission to SCHED_FIFO. Ok?
 
-so the basic model is that you have a processing dependency between
-threads, correct? If one thread finishes, you know which one should come
-next - based on the graph. The first thread is triggered by some
-external event. (timer or audio event.)
+this way if jackd (or a client) gets run by _any_ user, all jackd
+processes will be part of the audio group and can do SCHED_FIFO - but
+users are not automatically trusted with SCHED_FIFO.
 
-this can be cleanly implemented by attaching a pthread spinlock to each
-node of the graph, and initializing the lock to a locked state. The
-threads go sleeping by 'taking the lock'. The one that does processing,
-wakes up the next one by unlocking that graph node, and then it goes to
-sleep by locking its own node.
-
-(it would be cleaner to use POSIX semaphores for this, but you mentioned
-the requirement for the mechanism to work on 2.4 kernels too - pthread
-spinlocks will work inter-process on 2.4 too, and will schedule nicely.)
-
-> [...] its still necessary for the caller to go to sleep explicitly,
-> its still necessary for the tasks involved to know about the futexes,
-> which actually are really irrelevant - there are no conditions to
-> satisfy, just a series of tasks we want to run.
-
-well, no. Unless i misunderstood your application model, you want
-threads to sleep until they are woken up. So you want a very basic
-sleep/wake mechanism. But yield_to() does not achieve that! yield_to()
-will yield to _already running_ (i.e. in the runqueue) threads. Using
-yield() (or yield_to()) for this is really suboptimal. By using a futex
-based mechanism you get a very nice schedule/sleep pattern.
-
-(you could also use kill()/sigwait(), but that is slower than futexes.)
+you are currently using RT-LSM to enable a user to do SCHED_FIFO, right? 
+I think the above mechanism is more secure and more finegrained than
+that.
 
 	Ingo

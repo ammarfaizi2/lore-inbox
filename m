@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263134AbTJEPgz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 11:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbTJEPgz
+	id S263135AbTJEP7c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 11:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbTJEP7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 11:36:55 -0400
-Received: from colin2.muc.de ([193.149.48.15]:63492 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S263134AbTJEPgy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 11:36:54 -0400
-Date: 5 Oct 2003 17:37:07 +0200
-Date: Sun, 5 Oct 2003 17:37:07 +0200
-From: Andi Kleen <ak@colin2.muc.de>
-To: Tony Hoyle <tmh@nodomain.org>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
-       marcelo.tosatti@cyclades.com.br
-Subject: Re: Oops linux 2.4.23-pre6 on amd64
-Message-ID: <20031005153707.GB30792@colin2.muc.de>
-References: <CYRo.18k.9@gated-at.bofh.it> <m3smm8q22o.fsf@averell.firstfloor.org> <3F7F1D21.1070503@nodomain.org> <20031004205545.GB71123@colin2.muc.de> <3F7F4AFC.7000700@nodomain.org> <20031005092052.GC12880@colin2.muc.de> <3F802AD2.9010108@nodomain.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F802AD2.9010108@nodomain.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 5 Oct 2003 11:59:32 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:32412
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263135AbTJEP7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 11:59:31 -0400
+Message-ID: <3F803FB4.6050900@redhat.com>
+Date: Sun, 05 Oct 2003 08:58:44 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-15?Q?Peter_W=E4chtler?= <pwaechtler@mac.com>
+CC: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, torvalds@osdl.org, bo.z.li@intel.com
+Subject: Re: [PATCH] [2/2] posix message queues
+References: <1065196646.3682.54.camel@picklock.adams.family>	 <3F7DBCF6.3050407@colorfullife.com> <1065282666.2448.57.camel@picklock.adams.family>
+In-Reply-To: <1065282666.2448.57.camel@picklock.adams.family>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 05, 2003 at 03:29:38PM +0100, Tony Hoyle wrote:
-> Andi Kleen wrote:
-> 
-> >To rule out the compiler you can use the compiler/binutils from
-> >
-> >ftp.suse.com:/pub/suse/x86-64/supplementary/CrossTools/8.1-i386/
-> >
-> OK I built with that and here are the results:
-> 
-> 1. The ehci-hcd driver fails in exactly the same place.
-> 2. It was still v. unstable, which led me to investigate why (since I'm 
-> pretty sure the hardware is good & the suse compiler is supposed to be a 
-> good one).  I started stripping out options until eventually I found 
-> that it's devfs that's the culprit - with that enabled I get random 
-> compile errors every few seconds.  With it disabled the compile works 
-> perfectly, even with the debian compiler (tried -j20 and -j255 and both 
-> passed).
+Peter Wächtler wrote:
 
-Thanks for tracking this down. I would have never noticed
-because I don't use devfs.
+> Userspace translates SIGEV_THREAD to something that uses SIGEV_SIGNAL.
+> Ulrich made a suggestion to use a futex, but I think of something even
+> more lightweight. Just put the requestor right to sleep.
 
-Marcelo, any ideas? Do you get broken devfs reports for other
-64bit architectures too?
+This has the disadvantage that it codifies the requirement of creating
+the thread for the userlevel signaling ahead of time.  While this is a
+valid implementation it is not the best (resource-wise) and doesn't
+allow for optimizations.  Using a futex will allow to implement a scheme
+where one single thread does the waiting for possibly many requests.
+Imagine the benefits in case there are dozens of outstanding requests.
+The additional system exit+entry isn't that expensive to justify
+removing the flexibility.
 
-AFAIK devfs is unmaintained and I don't really plan to maintain
-it myself. My proposal is to just disable it in the configuration
-for x86-64 for now.
+-- 
+--------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
 
-> My first guess was you can't use a 32bit devfsd with a 64bit kernel, but 
-> stopping devfsd didn't seem to make a whole lot of difference to the 
-> stability... only compiling out the entire devfs system solved it.
-
-Very likely the devfs code in the kernel is buggy. It is known
-to be race hell, I wouldn't be surprised if it has 64bit bugs too.
-
--Andi

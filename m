@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262764AbTDGGzi (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 02:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTDGGzi (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 02:55:38 -0400
-Received: from dp.samba.org ([66.70.73.150]:12505 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262764AbTDGGzh (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 02:55:37 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S263298AbTDGHGM (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 03:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263299AbTDGHGM (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 03:06:12 -0400
+Received: from desnol.ru ([217.150.58.11]:17416 "EHLO desnol.ru")
+	by vger.kernel.org with ESMTP id S263298AbTDGHGL (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 03:06:11 -0400
+Date: Mon, 7 Apr 2003 10:21:56 +0400
+From: Vitaly <manushkinvv@desnol.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new syscall: flink
+Message-Id: <20030407102156.1ab8546c.manushkinvv@desnol.ru>
+In-Reply-To: <b6r6ms$tuj$1@abraham.cs.berkeley.edu>
+References: <3E907A94.9000305@kegel.com>
+	<1049663559.1602.46.camel@dhcp22.swansea.linux.org.uk>
+	<b6qo2a$ecl$1@cesium.transmeta.com>
+	<b6r24v$f50$1@cesium.transmeta.com>
+	<b6r6ms$tuj$1@abraham.cs.berkeley.edu>
+Organization: Desnol, grp
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.9; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16017.5444.941131.275543@argo.ozlabs.ibm.com>
-Date: Mon, 7 Apr 2003 16:05:56 +1000
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Fabrice Bellard <fabrice.bellard@free.fr>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Qemu support for PPC
-In-Reply-To: <20030407072144.A28096@infradead.org>
-References: <20030407024858.C32422C014@lists.samba.org>
-	<20030407065813.A27933@infradead.org>
-	<16017.2065.635724.992168@argo.ozlabs.ibm.com>
-	<20030407072144.A28096@infradead.org>
-X-Mailer: VM 7.14 under Emacs 21.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
+On 7 Apr 2003 06:43:40 GMT
+daw@mozart.cs.berkeley.edu (David Wagner) wrote:
 
-> On Mon, Apr 07, 2003 at 03:09:37PM +1000, Paul Mackerras wrote:
-> > sys_personality will fail if there isn't an exec_domain registered for
-> > the personality you want.
+> H. Peter Anvin wrote:
+> >Here is a better piece of sample code that actually shows a
+> >permissions violation happening:
+> >
+> >[...]
+> >mkdir("testdir", 0700)                  = 0
+> >open("testdir/testfile", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+> >write(3, "Ansiktsburk\n", 12)           = 12
+> >close(3)                                = 0
+> >open("testdir/testfile", O_RDONLY)      = 3
+> >chmod("testdir", 0)                     = 0
+> >open("/proc/self/fd/3", O_RDWR)         = 4
+> >write(4, "Tjo fidelittan hatt!\n", 21)  = 21
 > 
-> But there already is one registered :)  Okay, you\re right.
+> You're right!  Good point. I retract the comments in my previous email.
+> (I did try an experiment like this, but apparently not the right one.)
 > 
-> > Why?  It's a well-contained patch that affects very little outside its
-> > own area, and is quite similar to other things that have been there
-> > for ages.
+> My conclusion: /proc/*/fd is a security hole.  It should be fixed.
+> Do you agree?
+open("/proc/self/fd/3", O_RDWR) -- i thought, it just makes a copy for fd/3, and fd/3 should have the same permissions as it was opened.
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> Because stuff should go into 2.5 first.    And even if it looks trivial
-> there's an important policy decision here:  do we want to clutter up
-> our personality system for userspace emulators?   If you look at the
-> current list of personalities they all have kernel implementations, even
-> if not all of them are currently merged, qemu OTOH is a purely userspace
-> thing (and still very new!).  Personally I'd rather prefer qemu doing
-> pathname translation in userspace instead of bloating the kernel.  This
-> gets even more important when we get qemu-style emulators for other
-> architectures - the number of personalities needed just for this ugly
-> pathname-translation scheme will get very high.
-
-Well, all we really want is a way to set emul_prefix.  Which I could
-do with a PPC-specific syscall if I had to, I guess.  Doing it in
-userspace is possible but ugly, because you have to handle several
-different syscalls, plus keep track of the current directory, plus
-handle symlinks, etc., etc., in the emulator.  The kernel has all that
-information readily to hand plus the data structures to keep track of
-it all.
-
-> > Anyway, it's not your call.
-> 
-> if you look at MAINTAINERS I'm responsible for personality handling, so
-> maybe it actually _is_ my call?
-
-Oh.  Ah.  I didn't realize it was a subsystem with a maintainer.
-
-Paul.

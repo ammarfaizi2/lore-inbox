@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVCNXdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVCNXn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbVCNXdf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 18:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVCNXdf
+	id S262092AbVCNXn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 18:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVCNXn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 18:33:35 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:7040
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262123AbVCNXdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 18:33:21 -0500
-Date: Mon, 14 Mar 2005 15:31:56 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: tony.luck@intel.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, hugh@veritas.com
-Subject: Re: bad pgd/pmd in latest BK on ia64
-Message-Id: <20050314153156.159d4bb3.davem@davemloft.net>
-In-Reply-To: <20050314151142.716903cb.davem@davemloft.net>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F031272AF@scsmsx401.amr.corp.intel.com>
-	<20050314143442.2ab086c9.davem@davemloft.net>
-	<20050314151142.716903cb.davem@davemloft.net>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 14 Mar 2005 18:43:26 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:56316 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262092AbVCNXnT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 18:43:19 -0500
+Message-ID: <423620EA.3040205@mvista.com>
+Date: Mon, 14 Mar 2005 15:40:26 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+CC: Matt Mackall <mpm@selenic.com>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
+References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>	 <20050313004902.GD3163@waste.org> <1110825765.30498.370.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1110825765.30498.370.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Mar 2005 15:11:42 -0800
-"David S. Miller" <davem@davemloft.net> wrote:
+john stultz wrote:
+> On Sat, 2005-03-12 at 16:49 -0800, Matt Mackall wrote:
+>
+~
 
-> I therefore suspect the pgwalk patches.
+>> 
+> 
+>>>+	/* finally, update legacy time values */
+>>>+	write_seqlock_irqsave(&xtime_lock, x_flags);
+>>>+	xtime = ns2timespec(system_time + wall_time_offset);
+>>>+	wall_to_monotonic = ns2timespec(wall_time_offset);
+>>>+	wall_to_monotonic.tv_sec = -wall_to_monotonic.tv_sec;
+>>>+	wall_to_monotonic.tv_nsec = -wall_to_monotonic.tv_nsec;
+>>>+	/* XXX - should jiffies be updated here? */
+>>
+>>Excellent question. 
+> 
+> 
+> Indeed.  Currently jiffies is used as both a interrupt counter and a
+> time unit, and I'm trying make it just the former. If I emulate it then
+> it stops functioning as a interrupt counter, and if I don't then I'll
+> probably break assumptions about jiffies being a time unit. So I'm not
+> sure which is the easiest path to go until all the users of jiffies are
+> audited for intent. 
 
-I just noticed something else while reviewing this stuff.
-The PTRS_PER_PMD macros aren't used anymore, so my hacks
-to get 32-bit process VM operations optimized on sparc64
-aren't even being used any more, ho hum... :-)  There are
-better ways to do this.
+Really?  Who counts interrupts???  The timer code treats jiffies as a unit of 
+time.  You will need to rewrite that to make it otherwise.  But then you have 
+another problem.  To correctly function, times need to expire on time (hay how 
+bout that) not some time later.  To do this we need an interrupt source.  To 
+this point in time, the jiffies interrupt has been the indication that one or 
+more timer may have expired.  While we don't need to "count" the interrupts, we 
+DO need them to expire the timers AND they need to be on time.
+> 
+~
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 
-(For the interested, see {REAL_}PTRS_PER_PMD in
- include/asm-sparc64/pgtable.h)
-
-Come to think of it, this may be related somehow to whatever
-is causing the problems.

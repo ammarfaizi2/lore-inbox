@@ -1,75 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266666AbUF3NRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUF3NXN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266666AbUF3NRW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 09:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266665AbUF3NRW
+	id S266663AbUF3NXN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 09:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266667AbUF3NXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 09:17:22 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:44209 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266669AbUF3NRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 09:17:02 -0400
-Subject: Re: [RFC] Buggy e100.c on ARM / DMA sync interfaces
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <20040630104900.A11109@flint.arm.linux.org.uk>
-References: <20040630104900.A11109@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 30 Jun 2004 08:16:48 -0500
-Message-Id: <1088601411.2084.9.camel@mulgrave>
-Mime-Version: 1.0
+	Wed, 30 Jun 2004 09:23:13 -0400
+Received: from web81306.mail.yahoo.com ([206.190.37.81]:11691 "HELO
+	web81306.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266663AbUF3NXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 09:23:05 -0400
+Message-ID: <20040630132305.98864.qmail@web81306.mail.yahoo.com>
+Date: Wed, 30 Jun 2004 06:23:05 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: RE: Continue: psmouse.c - synaptics touchpad driver sync problem
+To: Marc Waeckerlin <marc.waeckerlin@siemens.com>
+Cc: laflipas@telefonica.net, linux-kernel@vger.kernel.org, t.hirsch@web.de,
+       Vojtech Pavlik <vojtech@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This can't work - and I suspect anyone using the *dma_sync* functions
-> will be in for the same problem.  Why?
+> Am Mittwoch, 30. Juni 2004 08.02 schrieb Dmitry Torokhov unter "Re:
+> Continue:
+> psmouse.c - synaptics touchpad driver sync problem":
+> > The mux got confused as to where the byte came from. They byte itself
+> > seems to be in line with other data in the stream. At this moment your
+> > mouse has probably started jumping around. The patch I send earlier
+> > should help with this kind of problem.
 > 
-> Cache lines.  They have a defined size and are not merely a single byte
-> or a single word.  If you modify even one single bit, you stand the
-> chance of writing back the whole cache line, possibly overwriting data
-> which the device has updated since the cache line was read.
+> Well, there are several things:
+>  1) Cursor hangs on system load with internal mousepad
+>     (no external mouse connected)
 
-Hang on, the PCI (and DMA) API explicitly states that to call sync on a
-dma mapped area, you must do it for the *whole* of the area.  The API's
-also transfer ownership of the area (i.e. only the device *or* the
-driver may touch it depending on who has the ownership). This is
-designedly to get us out of cache line interference problems.
+You mean when the system load is high? Yes, that can happen.. 
 
-So the particular problem here is an incorrect *abuse* of the API. 
-There is a section in the black magic part of the DMA API that allows
-you partially to sync a mapped area (dma_sync_single_range).  However,
-it's in the experts only section and it explains that if you do this,
-you're responsible for preventing cache line interference and provides
-another API (dma_get_cache_alignment) explicitly so the driver knows
-what the cache line boundaries are.
+>  2) Cursor jumps a bit with internal mousepad
+>     (no external mouse connected)
+>  3) Cursor jumps like crazy when moving external mouse
+>  4) Cursor randomly clicks when moving external mouse
 
-> Therefore, if you're going to use the dma_sync functions to modify data
-> owned by the remote device, you _must_ stop the remote device accessing
-> the surrounding data _before_ touching it.
+Has the external mouse ever worked in 2.6? Or is it always
+just randomly clickng stuff? Have you tried connecting another
+mouse?
 
-Precisely, hence the ownership concept.
+>  5) Hitting the mouse pad does not do a button1-click
 
-> With the above code on ARM, it effectively means that we will read the
-> whole struct rfd and some other data into cache, modify the command
-> field, and then write _at least_ the whole struct rfd back out, all
-> with the chip's DMA still running.
+I gather you do not have the X Synaptis driver installed?
+Check out http://w1.894.telia.com/~u89404340/touchpad/index.html
+
+>  6) Sometimes the keyboard does not work anymore or
+>     sends neverending random events - even with no
+>     external mouse/keyboard
 > 
-> _That_ can't be good.
+> I did not recognize that the previous patch helped in any of these
+> problems, but No. 2 is the hardest to check, because I have to work
+> for a while until it occurs.
 > 
-> Note - I'm not saying that this is the cause of the above problem, but
-> that this is something I have spotted while reading through the driver
-> to ascertain why it possibly could not be working.
+> The second patch does not help either.
 > 
-> Comments?
+> The i8042.nodemux option only "resolved" No. 3 and No. 4, because the
+> external mouse was no more available. Until now, nothing makes anything
+> better.
+>
 
-Clearly the e100 needs fixing.  Either by migrating it to the expert
-API. Or, in this case, could we not just pad the structure with
-appropriate L1_CACHE_ALIGNMENT tags?
+Just to confirm - you are saying that the touchpad + external mouse
+worked together fine in 2.4 but in 2.6 with i8042.nomux the external
+mouse does not work, correct?
+ 
+> 
+> > > drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux3, 12)
+> [181878]
+> > > Jun 28 16:01:20 qingwa kernel: drivers/input/serio/i8042.c: 00 <-
+> i8042
+> > > (interrupt, aux3, 12) [181880]
+> 
+> > Not quite sure what all this is about... Did you plug external keyboard
+> > here?
+> 
+> Possible.
+> 
+> 
+> > > [184574] Jun 28 16:01:22 qingwa kernel: drivers/input/serio/i8042.c:
+> 00
+> > > <- i8042 (interrupt, aux3, 12) [184576] Jun 28 16:01:22 qingwa kernel:
+> > > drivers/input/serio/i8042.c: 18 <- i8042 (interrupt, aux3, 12)
+> [184585]
+> 
+> > It seems that we are missing a byte between ff and 18, delay between 2
+> > bytes is about a second... Where did the byte go? Do you have DMA turned
+> > on on your hard driver? Anything polling battery status? Can't do
+> > anything here...
+> 
+> Do you mean hard disk DMA? Then Yes for DMA and yes for polling.
+>
 
-James
+Ok, what program does the polling? What is the polling interval? Does
+it help if you stop the program?
 
+> 
+> > Could you change drivers/input/mouse/psmouse-base.c - psmouse_interrupt()
+> > in call to time time_after HZ/2 to HZ/4. You may see more "lost x bytes"
+> > messages but I bet touchpad handling will feel much better.
+> 
+> I'll try if I can find out what you mean...
+> ...ok, did the change.
+> 
+> As far as I understand, it has only effect on internal touchpad. I will
+> therefore need some time for long time check. You'll hear from me later,
+> but this surely won't resolve problems No. 2 - 6.
+> 
+> It is now together with your second patch, you first patch is no more in
+> my sources. Is this good? (I understand that by "Vanilla" you mean the
+> original source without your first patch?)
 
+Yes.
+
+--
+Dmitry

@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263071AbTDYGnU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 02:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbTDYGnU
+	id S263050AbTDYGr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 02:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbTDYGr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 02:43:20 -0400
-Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:52871 "EHLO
-	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id S263071AbTDYGnT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 02:43:19 -0400
-From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: [Patch?] SiS 746 AGP-Support
-Date: Fri, 25 Apr 2003 08:55:25 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200304250224.50431.volker.hemmann@heim9.tu-clausthal.de> <200304250302.26791.volker.hemmann@heim9.tu-clausthal.de> <20030425020530.GA18673@suse.de>
-In-Reply-To: <20030425020530.GA18673@suse.de>
+	Fri, 25 Apr 2003 02:47:26 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2944 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263050AbTDYGrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 02:47:25 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304250702.h3P72FZF000352@81-2-122-30.bradfords.org.uk>
+Subject: Re: Flame Linus to a crisp!
+To: jamie@shareable.org (Jamie Lokier)
+Date: Fri, 25 Apr 2003 08:02:15 +0100 (BST)
+Cc: core@enodev.com (Shawn), john@grabjohn.com (John Bradford),
+       miller@techsource.com (Timothy Miller),
+       phillips@arcor.de (Daniel Phillips),
+       wli@holomorphy.com (William Lee Irwin III),
+       torvalds@transmeta.com (Linus Torvalds),
+       linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <20030425054759.GA32431@mail.jlokier.co.uk> from "Jamie Lokier" at Apr 25, 2003 06:47:59 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200304250855.25655.volker.hemmann@heim9.tu-clausthal.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 April 2003 04:05, Dave Jones wrote:
-> On Fri, Apr 25, 2003 at 03:02:26AM +0200, Hemmann, Volker Armin wrote:
->  > I have only a AGP 2 (geforce 4-mx) card, so I missed that(and with one I
->  > would only to be able to say 'it doesn't work' so thanks for your
->  > explanation). But without this changes I won't even able to use dga,
->  > because the first dga-enabled app completely locks up my box.
->  > And to have working AGP2 and non working APG3 looks a lot better for me
->  > than no AGP-support at all.
->
-> Sure, I wasn't objecting per'se to the patch, but people should be made
-> aware it's not going to help them a tiny bit if they have an AGP3 card.
-> It may just abort nicely, it may take down the machine in horrible ways
-> depending on how well SiS handles reads/writes to disabled registers.
->
-> 		Dave
+> > I'd like to see an x86 completely in perf board. I thought my high
+> > school digital electronics type stuff looked bad...
+> 
+> You could do it nowadays using dynamic binary translation, and an
+> absurdly simple CPU capable of accessing a large memory.  You'd need a
+> DIMM for the large memory, but get away with discrete logic for the
+> CPU if you really wanted to.
+> 
+> At perf board sizes using discrete logic, expect it run run quite slow :)
 
-Enabling FastWrites with the nvidia-module kills X and the box instantly at 
-boot, but is ok when X was running without FastWirties, is shut down, 
-reloading the modules with FastWrites and starting X. So there are even some 
-odd things with APG2
+Could we not take this idea to it's logical extreme, and simply
+calculate the results of every opcode, on every value, for every state
+of all of the registers, and store them in an array of DIMMs, and
+simply look up the necessary results?  I.E. a cpu which is one _huge_
+look up table :-).
 
-I am sorry that I can't help very much, despite of testing,  I am not afraid 
-of building a lot of kernels, because my knowledge of C tends to zero. I came 
-to the first mentioned changes by grepping for SiS stuff in the kernel 
-sources, meditating about the stuff, and than simple copied what seems to be 
-ok for me.
-
-If you or somebody else wants me to test SiS related stuff, I am quite happy 
-to help, except of that I am just an user with too little knowledge about C 
-or kernel stuff. 
-
-Glück Auf,
-Volker
+John.

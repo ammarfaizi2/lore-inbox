@@ -1,45 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268588AbUJKArP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268590AbUJKA7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268588AbUJKArP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 20:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268589AbUJKArP
+	id S268590AbUJKA7u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 20:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268591AbUJKA7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 20:47:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18079 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268588AbUJKArL (ORCPT
+	Sun, 10 Oct 2004 20:59:50 -0400
+Received: from nef.ens.fr ([129.199.96.32]:48654 "EHLO nef.ens.fr")
+	by vger.kernel.org with ESMTP id S268590AbUJKA7q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 20:47:11 -0400
-Date: Sun, 10 Oct 2004 17:47:05 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-cc: Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [BKPATCH] LAPIC fix for 2.6
-In-Reply-To: <Pine.LNX.4.58L.0410102000160.4217@blysk.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.58.0410101744110.3897@ppc970.osdl.org>
-References: <1097429707.30734.21.camel@d845pe> <Pine.LNX.4.58.0410101044200.3897@ppc970.osdl.org>
- <Pine.LNX.4.58L.0410102000160.4217@blysk.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Oct 2004 20:59:46 -0400
+Subject: Re: possible GPL violation by Free
+From: Eric Rannaud <eric.rannaud@ens.fr>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org, okuji@gnu.org
+In-Reply-To: <20041010102802.GH19761@alpha.home.local>
+References: <200410091958.25251.okuji@gnu.org>
+	 <20041010102802.GH19761@alpha.home.local>
+Content-Type: text/plain
+Date: Mon, 11 Oct 2004 02:59:39 +0200
+Message-Id: <1097456379.27877.51.camel@frenchenigma>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Mon, 11 Oct 2004 02:59:42 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+
+On Sun, 2004-10-10 at 12:28 +0200, Willy Tarreau wrote:
+> (at least provide the
+> result of an nmap -O). For most end-users, "linux" is the word for "a
+> reliable embedded OS with IP support".
+
+Here it is, on a Freebox v1 (the Freebox distributed now is version 3,
+but version 1 was still distributed less than one year ago (i.e. under
+the 3 years limit in the GPL)).
+Disclaimer: this scan output should be taken carefully. Please do not
+jump to conclusions.
+(IP and MAC hidden)
+
+--------------------------------
+Starting nmap 3.70 ( http://www.insecure.org/nmap/ ) at 2004-10-10 20:23
+CEST
+Initiating SYN Stealth Scan against XX.XX.XX.254 [1660 ports] at 20:23
+Discovered open port 22/tcp on XX.XX.XX.254
+Discovered open port 199/tcp on XX.XX.XX.254
+The SYN Stealth Scan took 5.12s to scan 1660 total ports.
+For OSScan assuming that port 22 is open and port 1 is closed and
+neither are firewalled
+Host XX.XX.XX.254 appears to be up ... good.
+Interesting ports on XX.XX.XX.254:
+(The 1658 ports scanned but not shown below are in state: closed)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+199/tcp open  smux
+MAC Address: 00:07:XX:XX:XX:XX (Freebox SA)
+Device type: general purpose
+Running: Linux 2.4.X|2.5.X
+OS details: Linux 2.4.0 - 2.5.20
+OS Fingerprint:
+TSeq(Class=RI%gcd=1%SI=40A886%IPID=Z%TS=100HZ)
+T1(Resp=Y%DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
+T2(Resp=N)
+T3(Resp=Y%DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
+T4(Resp=Y%DF=Y%W=0%ACK=O%Flags=R%Ops=)
+T5(Resp=Y%DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
+T6(Resp=Y%DF=Y%W=0%ACK=O%Flags=R%Ops=)
+T7(Resp=Y%DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
+PU(Resp=Y%DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%
+DAT=E)
+
+Uptime 41.944 days (since Sun Aug 29 21:XX:XX 2004)
+TCP Sequence Prediction: Class=random positive increments
+                         Difficulty=4237446 (Good luck!)
+TCP ISN Seq. Numbers: 99D03998 9A7D22DF 9A644725 9A6FDD72 9A0BEAA0
+IPID Sequence Generation: All zeros
+
+Nmap run completed -- 1 IP address (1 host up) scanned in 8.556 seconds
+-------------------------------
 
 
-On Sun, 10 Oct 2004, Maciej W. Rozycki wrote:
-> 
->  Hmm, any particular reason to keep the local APIC disabled by default?  
+If I remember correctly my contract, after 36 months, I become the owner
+of the freebox. The argument about renting does not seem to hold,
+anyway.
 
-Yes. It changes interrupt handling, so any SMM stuff tends to break on
-BIOSes that don't know about APICs. Things like the magic keys etc. It
-apparently also breaks some ACPI stuff (likely AML code that "knows" that
-interrupts are done with the legacy controller).
+I will contact Free to ask for more information.
 
-Mostly a laptop issue, I suspect - simply because desktops don't do 
-anything strange these days.
+Best,
 
-So the default is the "safe" settings. And if you care, and your machine
-works with the APIC, the command line thing is available.
+     /er.
 
-		Linus
+
+
+-- 
+Eric Rannaud <eric.rannaud@ens.fr>
+http://www.eleves.ens.fr/home/rannaud/
+

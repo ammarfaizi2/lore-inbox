@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271823AbRHUS4u>; Tue, 21 Aug 2001 14:56:50 -0400
+	id <S271825AbRHUS7L>; Tue, 21 Aug 2001 14:59:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271824AbRHUS4a>; Tue, 21 Aug 2001 14:56:30 -0400
-Received: from beppo.feral.com ([192.67.166.79]:524 "EHLO beppo.feral.com")
-	by vger.kernel.org with ESMTP id <S271823AbRHUS4X>;
-	Tue, 21 Aug 2001 14:56:23 -0400
-Date: Tue, 21 Aug 2001 11:56:12 -0700 (PDT)
-From: Matthew Jacob <mjacob@feral.com>
-Reply-To: <mjacob@feral.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jes Sorensen <jes@sunsite.dk>, "David S. Miller" <davem@redhat.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Qlogic/FC firmware
-In-Reply-To: <20010821115155.X23686-100000@wonky.feral.com>
-Message-ID: <20010821115450.U23686-100000@wonky.feral.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271824AbRHUS7A>; Tue, 21 Aug 2001 14:59:00 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:56727 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S271825AbRHUS6w>; Tue, 21 Aug 2001 14:58:52 -0400
+Date: Tue, 21 Aug 2001 14:59:08 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200108211859.f7LIx8A18707@devserv.devel.redhat.com>
+To: bcrl@redhat.com
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: FYI  PS/2 Mouse problems -- userland issue
+In-Reply-To: <mailman.998417940.18388.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.998417940.18388.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> [...] it needs a few improvements during 2.5: I plan to submit a
+> patch that replaces much of the existing pc keyboard/mouse code with state
+> machine driven code that doesn't block interrupts out for long periods of
+> time, as well as fixing a few of the lockup issues the current driver has.
+> 
+> 		-ben
 
->
-> Interesting- I should have checked- they didn't use to have GPL on the f/w.
-> Earlier driver versions didn't! Oops!
->
+Interesting. BTW, there is a request to introduce the mouse
+into the Input/HID framework in the way PS/2 keyboard is now.
+It does not overlap too much with a fix to hardware access,
+but it may help to remove the multitude of broken code from
+userland and direct it at your super-duper-state-machine code.
 
-Actually, it's not quite. The 2200 f/w has:
+ http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=50921
 
-/************************************************************************
- *                                                                      *
- *               --- ISP2200 Initiator/Target Firmware ---              *
- *             with Fabric (Public Loop), Point-point, and              *
- *             expanded LUN addressing for FCTAPE                       *
- *                                                                      *
- ************************************************************************
-  Copyright (C) 2000 and 2100 Qlogic Corporation
-  (www.qlogic.com)
-
-  This program is distributed in the hope that it will be useful, but
-  WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  General Public License for more details.
-*******************************************************************
-/*
- *      Firmware Version 2.01.27 (11:07 Dec 18, 2000)
- */
-
-(you should  note, btw, that the f/w that's on the internal QLogic website for
-OEMS is 2.1.26)
-
-So, it's *sort of* GPLd....
-
--matt
-
-
+-- Pete

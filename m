@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317643AbSHHQN1>; Thu, 8 Aug 2002 12:13:27 -0400
+	id <S317633AbSHHQP4>; Thu, 8 Aug 2002 12:15:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317648AbSHHQN1>; Thu, 8 Aug 2002 12:13:27 -0400
-Received: from firewall.citel.com ([62.190.107.60]:64946 "EHLO cad.citel.com")
-	by vger.kernel.org with ESMTP id <S317643AbSHHQNM>;
-	Thu, 8 Aug 2002 12:13:12 -0400
-Date: Thu, 8 Aug 2002 17:15:24 +0100
-From: Michael Procter <lkml@procter-collective.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Unix-domain sockets - abstract addresses
-Message-ID: <20020808171524.A2469@cad.citel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317636AbSHHQP4>; Thu, 8 Aug 2002 12:15:56 -0400
+Received: from daimi.au.dk ([130.225.16.1]:58068 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S317633AbSHHQPz>;
+	Thu, 8 Aug 2002 12:15:55 -0400
+Message-ID: <3D529A0E.F1C0E5FB@daimi.au.dk>
+Date: Thu, 08 Aug 2002 18:19:26 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Bryan K. Walton" <thisisnotmyid@tds.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: problems with 1gb ddr memory sticks on linux
+References: <20020808160456.GI16225@weccusa.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been trying to use unix domain datagram sockets in an application,
-but have found what appears to be an inconsistency between the kernel and
-the manpage unix(7).
+"Bryan K. Walton" wrote:
+> 
+> I have a box running Debian 3.0 with a Via C3 800mhz processor
+> that slows to a crawl when I put in a 1GB stick of PC2100 DDR memory.
+> 
+> The board, a Gigabyte GA-6RX, supports this memory stick.
 
-I have a server, which creates a socket, binds it to an address and then
-does a recvfrom().  When it gets a packet, it tries to respond with
-sendto(), supplying the address information from the recvfrom() call.
+Could it be the case, that it really doesn't support that
+memory eventhough it claims to?
 
-All this works fine when the client binds it's socket to an address in the
-filesystem before issuing the connect().  But I don't want another
-filesystem entity, so I am trying to use an address in the abstract
-namespace.
+> My 2.4.18 kernel is compiled with High Memory support and linux and the
+> bios see all of the memory.
 
-Abstract addresses work fine when the client calls bind() with an address
-length of 2, and also if it sets the socket option SO_PASSCRED before
-connect().  But if the client does neither and simply calls connect(),
-the server gets an invalid 'from' address (address family usually zero,
-but I have seen 0x0BA5, 0x7FA8, 0x1FA8 and others).
+Did you try without High Memory support?
 
-According to the man page 'unix(7)':
-When a socket is connected and it doesn't already have a local address a
-unique address in the abstract namespace will be generated automatically.
+> However, the box is VERY slow.  It takes
+> about 5 minutes to install .deb binary.  It took me 12 hours to compile
+> the 2.4.18 kernel!
+> 
+> Here is what I have done to rule things out . . .
+> 
+> 1) The box runs FAST with M$ Windows 2000.
+> 2) The box runs FAST when using identical kinds of memory but in
+> quantities of 512MB or less.
 
-So, the question is:  which is right?  The man page, or af_unix.c?
+Did you try with a total of 1024MB on two 512MB modules?
 
-I have been doing my tests on 2.4.9-34 (RedHat 7.2), but looking at 2.4.19
-from kernel.org, the results should be the same.
+> 3) The box runs slow with other linux distos also. (I tried Redhat 7.2)
+> 
+> It seems to me that the problem has something to do with the linux
+> kernel and 1GB memory sticks.  Am I off base?
 
-Regards,
+Try the "slow" memory and use a mem= boot option to tell the
+Linux kernel not to use all of it.
 
-Michael Procter
+> 
+> Anyone have any ideas?
+
+I wonder if it could be the case, that it for some reason doesn't
+use cache for all the memory.
+
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razrep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk

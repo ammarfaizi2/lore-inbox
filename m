@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261314AbTC2XMG>; Sat, 29 Mar 2003 18:12:06 -0500
+	id <S261349AbTC2XsK>; Sat, 29 Mar 2003 18:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261349AbTC2XMG>; Sat, 29 Mar 2003 18:12:06 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:48650
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261314AbTC2XMF>; Sat, 29 Mar 2003 18:12:05 -0500
-Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
-From: Robert Love <rml@tech9.net>
-To: Peter Lundkvist <p.lundkvist@telia.com>, akpm@digeo.com, mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3E8610EA.8080309@telia.com>
-References: <3E8610EA.8080309@telia.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048980204.13757.17.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 29 Mar 2003 18:23:24 -0500
+	id <S261364AbTC2XsK>; Sat, 29 Mar 2003 18:48:10 -0500
+Received: from [200.43.253.26] ([200.43.253.26]:61616 "EHLO smtp.bensa.ar")
+	by vger.kernel.org with ESMTP id <S261349AbTC2XsI>;
+	Sat, 29 Mar 2003 18:48:08 -0500
+From: Norberto BENSA <nbensa@gmx.net>
+Reply-To: nbensa@yahoo.com
+Organization: BENSA.ar
+To: Hermann Himmelbauer <dusty@violin.dyndns.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Problem burning with ATAPI cd-rw
+Date: Sat, 29 Mar 2003 20:59:13 -0300
+User-Agent: KMail/1.5
+References: <200303291907.38188.nbensa@gmx.net> <200303300007.58371.dusty@violin.dyndns.org>
+In-Reply-To: <200303300007.58371.dusty@violin.dyndns.org>
+X-GPG-KEY: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x49664BBE
+X-OS: Gentoo GNU/Linux 1.4
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_UNjh+eTWy2ZQddU";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200303292059.16456.nbensa@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-29 at 16:32, Peter Lundkvist wrote:
 
-> I have seen long delays when starting e.g. xterm from my
-> window manager (sawfish) either by keyboard-shortcut or by
-> menu command (by mouse) starting from 2.5.65. Sometimes it
-> starts immediately, sometimes after up to 2 seconds (idle
-> system). If I start a new xterm from xterm it always start
-> immediately. 2.5.64 always behaved OK.
+--Boundary-02=_UNjh+eTWy2ZQddU
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Description: signed data
+Content-Disposition: inline
 
-You are not alone...
+On Saturday 29 March 2003 08:07 pm, Hermann Himmelbauer wrote:
+> When do these errors occur while burning? At the start or somewhere in the
+> middle?
 
-> My first try to solve this problem  was to use some
-> scheduler parameters from 2.6.64:
->     #define MAX_TIMESLICE         (300 * HZ / 1000)
->     #define CHILD_PENALTY         95
->     #define MAX_SLEEP_AVG         (2*HZ)
->     #define STARVATION_LIMIT      (2*HZ)
-> 
-> but got the same behaviour.
+At start. It wants to burn but instead it inmediately fixates the CD.
 
-Expected.
+> I had LOTS of troubles writing CD's, but every time it was due to
+> incompatible Media. So - did you besides changing the glibc also change
+> your CD-Media?
 
-> 2nd try was to use sched.c, sched.h from 2.5.64 in a
-> 2.5.66 build + one line patch in fork.c:
-> -       p->last_run = jiffies;
-> +       p->sleep_timestamp = jiffies;
-> 
-> Now the system behaves as it should!
+Yes, but I've tried old media too: same result.
 
-This seems to confirm it was one of the interactivity changes that went
-into 2.5.65.  I figured as much but it is nice to get confirmation. 
-Thank you for trying this.
 
-Now to figure out which one...
+> Moreover I somehow wonder - don't you use the ide-scsi module? Which
+> program are you using for writing your CDs?
 
-> My system is a P-III 700 (Inspiron 4000),
-> and Debian (X is running at nice = -10).
+cdrecord 2.0 does atapi.
 
-I wonder if the reniced X is a factor?
 
-	Robert Love
+Regards,
+Norberto
+
+--Boundary-02=_UNjh+eTWy2ZQddU
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+hjNUFXVF50lmS74RAoqJAJ9rYcq7f+C9x4I4UrVxVGYIWOeM5wCfRVNJ
+O1mY8hX/el/qXWVtQ7t1Duw=
+=AAbA
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_UNjh+eTWy2ZQddU--
 

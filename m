@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbUCIBSl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 20:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbUCIBSl
+	id S261440AbUCIBRw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 20:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbUCIBRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 20:18:41 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:40728 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261439AbUCIBSA
+	Mon, 8 Mar 2004 20:17:52 -0500
+Received: from smtp01.web.de ([217.72.192.180]:48905 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S261440AbUCIBRv convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 20:18:00 -0500
-Subject: Re: 2.6.4-rc2-mm1
-From: Redeeman <redeeman@redeeman.linux.dk>
-To: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040308201049.GK23525@suse.de>
-References: <20040308174109.GA784@balram.gotdns.org>
-	 <20040308194749.GJ23525@suse.de> <20040308195600.GA3155@balram.gotdns.org>
-	 <20040308200639.GA3397@balram.gotdns.org>  <20040308201049.GK23525@suse.de>
-Content-Type: text/plain
-Message-Id: <1078795077.5730.33.camel@redeeman.linux.dk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 09 Mar 2004 02:17:57 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Mar 2004 20:17:51 -0500
+From: Thomas Schlichter <thomas.schlichter@web.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] fix warning about duplicate 'const'
+Date: Tue, 9 Mar 2004 02:17:37 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200403090043.21043.thomas.schlichter@web.de> <20040308161410.49127bdf.akpm@osdl.org> <Pine.LNX.4.58.0403081627450.9575@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0403081627450.9575@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200403090217.40867.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-08 at 21:10, Jens Axboe wrote:
-> On Tue, Mar 09 2004, Balram Adlakha wrote:
-> > I can't figure out why my ripping speed is so slow though, I'm getting
-> > a 3x speed with paranoia, around 6x without jitter correction. Any
-> > ideas where the problem might be?
-> 
-> Probably the drive, not all drives are happy with reading cdda really
-> fast...
-i believe this too, as i had that problem with my old drive
+Am Dienstag, 9. März 2004 01:32 schrieb Linus Torvalds:
 
--- 
-Regards, Redeeman
-redeeman@metanurb.dk
+~~ snip ~~
+
+> The warnings the extra "const" fixes is something like:
+>
+> 	int a;
+> 	const int b;
+>
+> 	min(a,b)
+>
+> where otherwise it would complain about pointers to different types when
+> comparing the type of the pointer. Or something.
+
+OK, I tested it and gcc 3.3.1 does not complain about this. So with my patch, 
+the duplicate 'const' warning goes away here and no other warning occours...
+
+But I don't know how other versions of gcc behave...
+
+   Thomas
 

@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263891AbUAaIJw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 03:09:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUAaIJw
+	id S263937AbUAaIOY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 03:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbUAaIOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 03:09:52 -0500
-Received: from [64.218.206.163] ([64.218.206.163]:36263 "HELO
-	arumekun.no-ip.com") by vger.kernel.org with SMTP id S263891AbUAaIJu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 03:09:50 -0500
-From: Luke-Jr <luke7jr@yahoo.com>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [Swsusp-devel] Software Suspend 2.0
-Date: Sat, 31 Jan 2004 08:09:39 +0000
-User-Agent: KMail/1.5.94
-Cc: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1075436665.2086.3.camel@laptop-linux> <200401310722.51472.luke7jr@yahoo.com> <1075534274.17730.65.camel@laptop-linux>
-In-Reply-To: <1075534274.17730.65.camel@laptop-linux>
-MIME-Version: 1.0
+	Sat, 31 Jan 2004 03:14:24 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:54656 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263937AbUAaIOW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 03:14:22 -0500
+Date: Sat, 31 Jan 2004 09:14:39 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: backblue <backblue@netcabo.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1 Speaker
+Message-ID: <20040131081439.GA440@ucw.cz>
+References: <20040131022540.04278a4a.backblue@netcabo.pt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200401310809.46256.luke7jr@yahoo.com>
+In-Reply-To: <20040131022540.04278a4a.backblue@netcabo.pt>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Jan 31, 2004 at 02:25:40AM +0000, backblue wrote:
 
-On Saturday 31 January 2004 07:31 am, Nigel Cunningham wrote:
-> http://prdownloads.sourceforge.net/swsusp/software-suspend-linux-2.6.1-rev6
->-whole.bz2?download
-> http://prdownloads.sourceforge.net/swsusp/software-suspend-core-2.0-whole.b
->z2?download
-> and (as the instructions on http://swsusp.sf.net say), apply them in
-> that order.
-After merging drivers/char/keyboard.c by hand (patch didn't like something):
-  CC      init/do_mounts.o
-init/do_mounts.c:6:27: linux/suspend.h: No such file or directory
-In file included from include/linux/nfs_fs.h:15,
-                 from init/do_mounts.c:10:
-include/linux/pagemap.h:13:27: linux/suspend.h: No such file or directory
-In file included from include/linux/nfs_fs.h:15,
-                 from init/do_mounts.c:10:
-include/linux/pagemap.h: In function `___add_to_page_cache':
-include/linux/pagemap.h:150: error: `suspend_task' undeclared (first use in 
-this function)
-include/linux/pagemap.h:150: error: (Each undeclared identifier is reported 
-only once
-include/linux/pagemap.h:150: error: for each function it appears in.)
-include/linux/pagemap.h:151: error: `last_suspend_cache_page' undeclared 
-(first use in this function)
-make[1]: *** [init/do_mounts.o] Error 1
-make: *** [init] Error 2
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+> I'm using 2.6.1 kernel, and my speakers stop's working with 2.6.1,
+> anyone know why? this dont append to me, a couple of friends have the
+> same problem, how can i solve this... 
 
-iD8DBQFAG2LIZl/BHdU+lYMRAsUrAKCYq15FX/pRdIi7OAH1IwEtUn5+eQCfdWp2
-zFd+CIqpePi4+S54x1DIHPM=
-=0QIi
------END PGP SIGNATURE-----
+You need to enable it. Drivers->Input->Misc->PC-Speaker
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

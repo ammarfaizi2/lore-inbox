@@ -1,126 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318851AbSHETLx>; Mon, 5 Aug 2002 15:11:53 -0400
+	id <S318852AbSHETN0>; Mon, 5 Aug 2002 15:13:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318850AbSHETLv>; Mon, 5 Aug 2002 15:11:51 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:6058 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S318847AbSHETLm>;
-	Mon, 5 Aug 2002 15:11:42 -0400
-Date: Mon, 5 Aug 2002 12:17:13 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: linux-kernel@vger.kernel.org
-Subject: driverfs API Updates
-Message-ID: <Pine.LNX.4.44.0208051216090.1241-100000@cherise.pdx.osdl.net>
+	id <S318853AbSHETN0>; Mon, 5 Aug 2002 15:13:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57611 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318852AbSHETNZ>;
+	Mon, 5 Aug 2002 15:13:25 -0400
+Message-ID: <3D4ECF2B.2070000@mandrakesoft.com>
+Date: Mon, 05 Aug 2002 15:16:59 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tim Hockin <thockin@hockin.org>
+CC: Abraham vd Merwe <abraham@2d3d.co.za>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: ethtool documentation
+References: <200208051906.g75J6d122986@www.hockin.org>
+X-Enigmail-Version: 0.65.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-A series of driverfs changes went into Linus' tree last Friday. This is a 
-short summary of those changes, and some notes on how to use them. 
-
-Firstly, I changed the name of the structure that must be declared
-from struct driver_file_entry to struct device_attribute. This more
-accurately represents what is going on. 
-
-
-I've also created a macro[1] for defining device attributes, that goes
-like this:
-
-DEVICE_ATTR(name,"strname",mode,show,store);
-
-This will create a structure by the name of 'dev_attr_##name', where
-##name is the first parameter, which can then be passed to
-device_create_file(). [2]
-
-
-The definition of device_remove_file has changed to:
-
-void device_remove_file(struct device * dev, struct device_attribute * 
-attr);
-
-(The second parameter is now the same type as what is passed to
-device_create_file, for consistency's sake (instead of a char *)).
+Tim Hockin wrote:
+>>>Is there a document describing the ethtool ioctl's which need to be
+>>>implemented in each ethernet driver?
+>>
+>>
+>>Unfortunately not.  There is a distinct lack of network driver docs at 
+>>the moment...  The best documentation is looking at source code of 
+>>drivers that implement the most ioctls.
+> 
+> 
+> 
+> I've got a draft of a quick overview doc.  I need to add docs for a few of
+> the newer commands, still, and I want to get into the structs for each call
+> in more detail, too.  I want to re-examine a few of recent additions,
+> before they become too ubiquitous - am I too late to pipe up for my own
+> aesthetics?
 
 
-I've added support for bus and device driver attributes. The mechanism
-for manipulating them is analogous to that of device attributes. To
-declare them, you do:
+Sure, comments are always welcome.
 
-BUS_ATTR(name,"strname",mode,show,store);
-DRIVER_ATTR(name,"strname",mode,show,store);
-
-which create the objects 
-
-struct bus_attribute bus_attr_##name;
-
-and 
-
-struct driver_attribute driver_attr_##name;
-
-respectively.
-
-You can then use 
-
-int bus_create_file(struct bus_type *, struct bus_attribute *);
-void bus_remove_file(struct bus_type *, struct bus_attribute *);
-
-int driver_create_file(struct device_driver *, struct driver_attribute *);
-void driver_remove_file(struct device_driver *, struct driver_attribute 
-*);
-
-To add and remove them.
-
-Bus attribute files appear in the bus's directory (bus/<bus>/ under
-the driverfs mountpoint).
-
-Driver attributes appear in the driver's directory
-(bus/<bus>/<driver>/ under the driverfs mountpoint).
-
-
-The bus show and store routines are identical to the device show and
-store routines, though they take a pointer of type struct bus_type as
-the first parameter.
-
-Similarly for drivers; they take a struct device_driver * as the first
-parameter. 
-
-Please see include/linux/device.h for the structure definitions, and
-drivers/base/fs/*.c for implementation details. 
-
-
-driverfs now has the ability to support attributes for any object
-type. I've updated the documentation
-(Documentation/filesystems/driverfs.txt) to hopefully include enough
-information to hack on it. I'm also open to all questions and
-suggestions, so please feel free to ask. 
-
-
-
-Thanks,
-
-	-pat
-
-
-
-
-[1]: The reason for the macro is because the driverfs internals
-have changed enough to be able to support attributes of any type. In
-order to do this in a type-safe manner, we have a generic object type
-(struct attribute) that we use. We pass this to an intermediate layer
-that does a container_of() on that object to obtain the specific
-attribute type. 
-
-This means the specific attribute types have an embedded struct
-attribute in them, making the initializers kinda ugly. I played with
-anonymous structs and unions to have something that could
-theoretically work, but they apparently don't like named
-initializers. 
-
-
-[2]: I wanted to consolidate the first two parameters, but I couldn't
-find a way to stringify ##name (or un-stringify "strname"). Is that
-even possible? 
+And if you're bored, IMO putting the docs into Documentation/DocBook is 
+preferred :)
 

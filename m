@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317344AbSFCKBR>; Mon, 3 Jun 2002 06:01:17 -0400
+	id <S317345AbSFCKGI>; Mon, 3 Jun 2002 06:06:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317345AbSFCKBQ>; Mon, 3 Jun 2002 06:01:16 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:927 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317344AbSFCKBP>;
-	Mon, 3 Jun 2002 06:01:15 -0400
-Date: Mon, 3 Jun 2002 11:55:08 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: suspend.c: This is broken, fixme
-Message-ID: <20020603095507.GA3030@elf.ucw.cz>
+	id <S317347AbSFCKGH>; Mon, 3 Jun 2002 06:06:07 -0400
+Received: from adsl-203-134.38-151.net24.it ([151.38.134.203]:7931 "EHLO
+	morgana.systemy.it") by vger.kernel.org with ESMTP
+	id <S317345AbSFCKGH>; Mon, 3 Jun 2002 06:06:07 -0400
+Date: Mon, 3 Jun 2002 12:05:58 +0200
+From: Alessandro Rubini <rubini@gnu.org>
+To: andersen@codepoet.org, karim@opersys.com, linux-kernel@vger.kernel.org,
+        rpm@idealx.com
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+Message-ID: <20020603120558.A29441@morgana.systemy.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+Organization: Free Lance in Pavia, Italy.
+In-Reply-To: <20020603095202.GA16392@codepoet.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I found this in 2.5.20...
+> It still looks to me like a real time operating system
+> (Adeos) running real time and non-real time tasks with a general
+> purpose operating system as one of the non-real time tasks...
 
---- a/kernel/suspend.c  Sun Jun  2 18:44:56 2002
-+++ b/kernel/suspend.c  Sun Jun  2 18:44:56 2002
-@@ -64,6 +64,7 @@
- #include <asm/mmu_context.h>
- #include <asm/pgtable.h>
- #include <asm/io.h>
-+#include <linux/swapops.h>
+But the point is exactly that adeos is not a real-time operating
+system.  It is not an operating system at all.
 
- unsigned char software_suspend_enabled = 0;
+Besides, adeos is not a "circumvention device" to run RT-and-non-RT at
+the same time.  It's a nano-kernel meant to run several independent OS's
+at once, as well as kernel debuggers and a lot of other stuff. Did you
+notice Karim is the author and maintainer of the linux trace toolkit?
 
-@@ -300,7 +301,8 @@
- static void do_suspend_sync(void)
- {
-        while (1) {
--               run_task_queue(&tq_disk);
-+               blk_run_queues();
-+#error this is broken, FIXME
-                if (!TQ_ACTIVE(tq_disk))
-                        break;
+> Could you summarize (for non-lawyers such as myself) how this
+> bypasses the claims in the patent?  
 
-. Why is it broken?
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+I'll quote the patent for you:
+
+   A process for [...]  providing a general purpose operating system as
+   one of the non-real time tasks; preempting the general purpose
+   operating system as needed for the real time tasks; and preventing the
+   general purpose operating system from blocking preemption of the
+   non-real time tasks.
+
+Nothing of this is in adeos. And nothing of this will be in the
+adeosized RTAI.
+
+/alessandro, living in a swpat-free country (with other problems, though :)

@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbUKMUmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbUKMUvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbUKMUmk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 15:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbUKMUmk
+	id S261167AbUKMUvs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 15:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbUKMUvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 15:42:40 -0500
-Received: from ktv31-205-71.catv-pool.axelero.hu ([62.201.71.205]:47506 "EHLO
-	melkor.bonehunter.rulez.org") by vger.kernel.org with ESMTP
-	id S261166AbUKMUmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 15:42:38 -0500
-Subject: Re: pwc driver status?
-From: Gergely Nagy <algernon@boszorka.mad.hu>
-To: Jan De Luyck <lkml@kcore.org>
-Cc: Gergely Nagy <algernon@bonehunter.rulez.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200411132134.52872.lkml@kcore.org>
-References: <200411132134.52872.lkml@kcore.org>
-Content-Type: text/plain
-Date: Sat, 13 Nov 2004 21:42:36 +0100
-Message-Id: <1100378556.16772.18.camel@melkor>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Nov 2004 15:51:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47783 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261167AbUKMUvp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 15:51:45 -0500
+Date: Sat, 13 Nov 2004 12:51:41 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <greg@kroah.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] More Driver Core patches for 2.6.10-rc1
+In-Reply-To: <20041112225850.GA6550@kroah.com>
+Message-ID: <Pine.LNX.4.58.0411131249340.12386@ppc970.osdl.org>
+References: <20041112225850.GA6550@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There seems to be an 'official' driver, but that has been discontinued, and 
-> now there seems to be an 'unofficial' one.
+
+
+On Fri, 12 Nov 2004, Greg KH wrote:
 > 
-> Is there still a working driver for 2.4/2.6? What does it support? 
+> David Brownell:
+>   o driver core: shrink struct device a bit
+> 
+> Greg Kroah-Hartman:
+>   o driver core: fix up some missed power_state changes from David's patch
 
-Luc Saillards driver for 2.6 supports all the official and now
-discontinued driver did, and some more. It's also licensed under the GPL
-so won't taint your kernel. For 2.4... I'd upgrade to 2.6 >;)
+Hmm. Apparently drivers/ide/ppc/pmac.c wasn't among those fixed up:
 
-Works For Me(tm).
+	drivers/ide/ppc/pmac.c: In function `pmac_ide_macio_suspend':
+	drivers/ide/ppc/pmac.c:1363: error: structure has no member named `power_state'
+	drivers/ide/ppc/pmac.c:1366: error: structure has no member named `power_state'
+	...
 
--- 
-Gergely Nagy
+Is it always valid to just replace
 
+	dev->dev.power_state
+
+with
+
+	dev->dev.power.power_state
+
+or is there anything subtler going on?
+
+		Linus

@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131833AbRAOXsd>; Mon, 15 Jan 2001 18:48:33 -0500
+	id <S129704AbRAOX76>; Mon, 15 Jan 2001 18:59:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130463AbRAOXsX>; Mon, 15 Jan 2001 18:48:23 -0500
-Received: from mailgate2.zdv.Uni-Mainz.DE ([134.93.8.57]:30340 "EHLO
-	mailgate2.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S131936AbRAOXsP>; Mon, 15 Jan 2001 18:48:15 -0500
-Date: Tue, 16 Jan 2001 00:47:54 +0100
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Jack Hammer <jhammer@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Slot Number Question
-Message-ID: <20010116004754.A14902@uni-mainz.de>
-Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Jack Hammer <jhammer@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <OF164CE1E4.54391C01-ON852569D5.0067049B@raleigh.ibm.com> <Pine.LNX.3.95.1010115145101.2779A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.3.95.1010115145101.2779A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Jan 15, 2001 at 03:22:58PM -0500
-X-No-Archive: yes
-Restrict: no-external-archive
+	id <S129745AbRAOX7t>; Mon, 15 Jan 2001 18:59:49 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:38161 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129704AbRAOX7f>; Mon, 15 Jan 2001 18:59:35 -0500
+Date: Mon, 15 Jan 2001 20:09:14 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rainer Mager <rmager@vgkk.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: Oops with 4GB memory setting in 2.4.0 stable
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGKENHCMAA.rmager@vgkk.com>
+Message-ID: <Pine.LNX.4.21.0101152003520.834-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 15, 2001 at 03:22:58PM -0500, Richard B. Johnson wrote:
-> 
-> In any case, there is no way to correlate the device number with a
-> PC connector slot just as there is no way to find out which of the
-> 4 INT lines go to these connectors. The BIOS vendor only knows for
-> sure, and since BIOSes are not updated as often as boards, even the
-> BIOS is often incorrect.
 
-Well actually there seems to be a way to do this. Quoting "System Management
-BIOS Reference Specification" v2.3.1 (p.51):
 
-   3.3.10 System Slots (Type 9)
+On Tue, 16 Jan 2001, Rainer Mager wrote:
 
-   The information in this structure defines the attributes of a system
-   slot. One structure is provided for each slot in the system.
+> I knew that, I was just testing you all.  ;-)
 
-And later in table 3.3.10.5 (p.53):
+>>EIP; f889e044 <END_OF_CODE+385bfe34/????>   <=====
+Trace; f889d966 <END_OF_CODE+385bf756/????>
+Trace; c0140c10 <vfs_readdir+90/ec>
+Trace; c0140e7c <filldir+0/d8>
+Trace; c0140f9e <sys_getdents+4a/98>
+Trace; c0140e7c <filldir+0/d8>
 
-   Identifies the value present in the Slot Number field of the PCI Interrupt
-   Routing Table entry that is associated with this slot, in offset 09h [...]
+It seems the oops is happening in a module's function.
 
-   Software can determine the PCI bus number and device associated with the
-   slot by matching the "Slot ID" to an entry in the routing table... and
-   ultimately determine what device is present in that slot.
+You have to make ksymoops parse the oops output against a System.map which
+has all modules symbols. Load each module by hand with the insmod -m
+option ("insmod -m module.o") and _append_ the outputs to System.map.
 
-Right now Linux' SMBIOS implementation use only the first 3 tables to determine
-the manufacturer of system and BIOS to blacklist known buggy APM/ACPI
-implementations.  Since i have the SMBIOS specs at hand i will have a lot.
-Is there a PCI spec available on the net? www.pcisig.org asks for a password
-when you try to download the specs... (don't you just love "secret" standards?)
+After that you can run ksymoops against this new System.map. 
 
-Yours,
-  Dominik Kubla
--- 
-  Sign me!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

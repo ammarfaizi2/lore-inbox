@@ -1,94 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265743AbRFXMHQ>; Sun, 24 Jun 2001 08:07:16 -0400
+	id <S265747AbRFXMMG>; Sun, 24 Jun 2001 08:12:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265744AbRFXMHG>; Sun, 24 Jun 2001 08:07:06 -0400
-Received: from ACaen-101-2-1-162.abo.wanadoo.fr ([193.251.7.162]:21494 "EHLO
-	serianet.com") by vger.kernel.org with ESMTP id <S265743AbRFXMGz>;
-	Sun, 24 Jun 2001 08:06:55 -0400
-X-Spam-Filter: check_local@serianet.com by digitalanswers.org
-Date: Sun, 24 Jun 2001 14:06:47 +0200 (CEST)
-From: Xavier ROCHE <roche@serianet.com>
-To: linux-kernel@vger.kernel.org
-Subject: bad block locks IDE on 2.2.18?
-Message-ID: <Pine.LNX.4.10.10106241358510.21802-100000@gate.serianet.com>
+	id <S265745AbRFXML5>; Sun, 24 Jun 2001 08:11:57 -0400
+Received: from scfdns02.sc.intel.com ([143.183.152.26]:33257 "EHLO
+	crotus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S265744AbRFXMLi>; Sun, 24 Jun 2001 08:11:38 -0400
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27266@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: "'LKML'" <linux-kernel@vger.kernel.org>,
+        "'LNML'" <linux-net@vger.kernel.org>, netdev@oss.sgi.com
+Subject: [OT] ethtool MII helpers (actually two OT's)
+Date: Sun, 24 Jun 2001 15:11:23 +0300
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+MII
+---
+Is there any support in the MII standard for 1000Mbps (GbE Fiber/Copper) ?
+Perhaps an extension to the standard ?
+I could see that some of the Gigabit adapters supported by the kernel
+provide the MII IOCTLs
+interface, but couldn't figure out how to extract the correct speed
+information from the registers
+I can read. I know it's a bit of a hassle and I have to get the local
+capabilities and match them against the partner's capabilities and find the
+highest common speed etc. etc. but I'm sure that if the driver can do it I
+can reproduce it in userland too.
 
-I have a bad drive, with many bad blocks, as many other people have.
-But my problem is not bad blocks, but system crash when detecting one of
-these bad blocks.
-
-The drive is hdb(1), an ide 3.8gb disk. The kernel used is a regular
-2.2.18 kernel. I didn't see any hints on the kernel ChangeLog, so
-I'm posting here.
-
-When I try to run "e2fsck -f -c -v /dev/hdb1" or even "badblocks -b 4096
--s /dev/hdb1 938448", I get many "end_request: I/O error" errors (this is
-perfectly normal, ad the drive is really bad)
-
-But unfortunalely, at approx. sector 7459480, the system just hangs
-without any syslog message.
-It seems that the bad block reached just crashed the IDE subsystem (!),
-even if the kernel is still running (I can ping the machine, I can type
-the ENTER key in the console with an echo, until I launch a systemcommand,
-which hangs the console. All IDE I/O seems frozen.)
-
-Jun 25 11:46:26 linux kernel: end_request: I/O error, dev 03:41 (hdb),
-sector 7459440
-Jun 25 11:46:26 linux kernel: hdb: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jun 25 11:46:29 linux kernel: hdb: read_intr: error=0x40 {
-UncorrectableError }, LBAsect=7491696, sector=7459440
-Jun 25 11:46:31 linux kernel: end_request: I/O error, dev 03:41 (hdb),
-sector 7459440
-Jun 25 11:46:32 linux kernel: hdb: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jun 25 11:46:32 linux kernel: hdb: read_intr: error=0x40 {
-UncorrectableError }, LBAsect=7491736, sector=7459480
-Jun 25 11:46:33 linux kernel: end_request: I/O error, dev 03:41 (hdb),
-sector 7459480
-Jun 25 11:46:38 linux kernel: hdb: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jun 25 11:46:39 linux kernel: hdb: read_intr: error=0x40 {
-UncorrectableError }, LBAsect=7491736, sector=7459480
-
-And of course, I have to reboot (power off/on)
-Jun 25 11:59:42 linux syslogd 1.3-3: restart.
-
-I know that the drive is bad, and can not be repaired, and I only use it
-as "garbage store". 
-But the strange thing here is that once the bad block has been reached on
-this drive, the 3 other IDE drives are unreachable, "frozen"
+EthTool
+-------
+Is there a way that I can extract the link status information out of the
+ethtool struct ?
+I could see that at least one Gigabit adapter driver (bcm5700.c), provides
+the EthTool interface
+and reports the correct speed and duplex mode but not the link status.
+Is there a place that defines how a driver is supposed to implement the
+support for EthTool ?
+I figured that since there is no separate field for link status (at least in
+version 1.2), a driver is supposed to report speed=0 or something like that
+when the link is down. I know this driver detects link status changes for
+sure because it prints messages every time, but the speed and duplex are
+always reported the same.
 
 
-Model: QUANTUM FIREBALL_TM3840A
-Geometry: physical 7480/16/63, logical 935/128/63
-Capacity: 7539840 (3.8Gb)
-Details on settings:
-bios_cyl                935             0               65535           rw
-bios_head               128             0               255             rw
-bios_sect               63              0               63              rw
-breada_readahead        4               0               127             rw
-bswap                   0               0               1               r
-file_readahead          124             0               2097151         rw
-io_32bit                0               0               3               rw
-keepsettings            0               0               1               rw
-max_kb_per_request      64              1               127             rw
-multcount               0               0               8               rw
-nice1                   1               0               1               rw
-nowerr                  0               0               1               rw
-pio_mode                write-only      0               255             w
-slow                    0               0               1               rw
-unmaskirq               0               0               1               rw
-using_dma               0               0               1               rw
+	Thanks,
+	Shmulik Hen      
+      Software Engineer
+	Linux Advanced Networking Services
+	Intel Network Communications Group
+	Jerusalem, Israel
+
+-----Original Message-----
+From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
+Sent: Friday, June 22, 2001 8:59 AM
+To: Chris Wedgwood
+Cc: Linux Kernel Mailing List; netdev@oss.sgi.com; David S. Miller
+Subject: Re: PATCH: ethtool MII helpers
+
+
+Chris Wedgwood wrote:
+> 
+> On Fri, Jun 22, 2001 at 01:24:36AM -0400, Jeff Garzik wrote:
+> 
+>     Sure, and that's planned.  Wanna send me a patch for it?  :)
+> 
+> Possibly, but I wonder if this is a kernel-space problem or not. Why
+> not put all the smarts into userland for it?
+
+I meant, send me a patch for userland ethtool, to do exactly what you
+described.
+
+
+>     It will definitely fall back on the MII ioctls if ethtool media
+>     support for the desired command doesn't exist.
+> 
+> Well, that is more or less as much as needs to be done. That, and
+> some kind of super-set API to be defined for all new stuff, having
+> two slightly different APIs for the same things sucks.
+
+Both APIs do different things but have a common subset, yes.
+
+The MII ioctls only do their thing for MII-like hardware.  ethtool can
+be applied to any hardware.  Old ISA drivers that don't do MII, or do it
+in a really nonstandard way.  For example I have ethtool code locally
+which allows ne2k-pci to do media selection via ioctl, for two popular
+ne2k cards, something its never been able to do before.  Emulating media
+selection support for things like 10base2<->10baseT<->AUI just isn't
+possible with the MII ioctls.
+
+MII is a standard and incredibly popular, thus mii-tool works most
+popular PCI NICs, for the most popular media types.  But it's still
+basically a hardware interface.  I am not convinced its a good idea for
+make the [G]MII ioctls the Linux software media interface for all
+network hardware.
+
+I see ethtool as the interface for tuning your NIC, that works across
+all hardware.
+I see mii-diag as the way to do advance MII-specific hardware stuff,
+like next page or HA monitoring or whatever.
+
+	Jeff
 
 
 -- 
-Xavier Roche
-
-
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

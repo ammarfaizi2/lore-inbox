@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbUC1HqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 02:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUC1HqQ
+	id S262122AbUC1HsG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 02:48:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUC1HsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 02:46:16 -0500
-Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:48307 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262113AbUC1HqO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 02:46:14 -0500
-Message-ID: <406682B6.4030505@stesmi.com>
-Date: Sun, 28 Mar 2004 09:45:58 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
+	Sun, 28 Mar 2004 02:48:06 -0500
+Received: from ns.clanhk.org ([69.93.101.154]:40623 "EHLO mail.clanhk.org")
+	by vger.kernel.org with ESMTP id S262119AbUC1HsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 02:48:01 -0500
+Message-ID: <4066833B.4080004@clanhk.org>
+Date: Sun, 28 Mar 2004 01:48:11 -0600
+From: "J. Ryan Earl" <heretic@clanhk.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: Andries Brouwer <aebr@win.tue.nl>, Vojtech Pavlik <vojtech@suze.cz>,
-       torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 24/44] Workaround i8042 chips with broken MUX mode
-References: <20040316182409.54329.qmail@web80508.mail.yahoo.com> <20040328002938.GA11657@wsdw14.win.tue.nl> <200403271940.39940.dtor_core@ameritech.net>
-In-Reply-To: <200403271940.39940.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: Status of the sata_sil driver for the VT8237
+References: <4066342B.4080105@clanhk.org> <406643A8.2050808@pobox.com> <40664AE4.8010003@clanhk.org> <406680AB.8090204@stesmi.com>
+In-Reply-To: <406680AB.8090204@stesmi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Stefan Smietanowski wrote:
 
-> linked to broken legacy emulation implementations, Vojtech mentioned
-> that PCI quirk to turn legacy emulation off may be appropriate.
+> Many A64 boards today come with a Promise SATA controller as well -
+> works like a charm for me on an ASUS K8V Deluxe board here.
 
-Is there any code available that can do that as it is now?
+That's an option, as is just using the sii3112 that's been working so 
+well, but that still puts the disks on the PCI bus.  The whole point is 
+to get 300MB/sec of burstable I/O off the 133MB/s bus that's shared with 
+the dual gigE controllers and a firewire camera.
 
-This would be useful especially right now under x86-64.
-
-As it is right now I either have the keyboard plugged into
-both ps/2 and usb, plug it in only into usb (can't operate
-grub) or plug it only into usb (enable emulation, can't
-run linux ... ) and if the kernel could have a way of
-disabling the emulation that would be good at least in
-my case.
-
-// Stefan
+-ryan

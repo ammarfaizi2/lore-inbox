@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268001AbTB1Ps0>; Fri, 28 Feb 2003 10:48:26 -0500
+	id <S267972AbTB1Ppn>; Fri, 28 Feb 2003 10:45:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268003AbTB1Ps0>; Fri, 28 Feb 2003 10:48:26 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:24501 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S268001AbTB1PsZ>;
-	Fri, 28 Feb 2003 10:48:25 -0500
-Date: Fri, 28 Feb 2003 10:58:41 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Proposal: Eliminate GFP_DMA
-Message-ID: <20030228155841.GA4678@gtf.org>
-References: <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <Pine.SGI.4.10.10302282138180.244855-100000@Sky.inp.nsk.su>
+	id <S267975AbTB1Ppn>; Fri, 28 Feb 2003 10:45:43 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:11922
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267972AbTB1Ppm>; Fri, 28 Feb 2003 10:45:42 -0500
+Subject: Re: Bug report bounced + bug report
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Han Holl <han.holl@prismant.nl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200302281628.46969.han.holl@prismant.nl>
+References: <200302281628.46969.han.holl@prismant.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046451519.16598.135.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SGI.4.10.10302282138180.244855-100000@Sky.inp.nsk.su>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 28 Feb 2003 16:58:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 09:44:14PM +0600, Dmitry A. Fedorov wrote:
-> On 28 Feb 2003, Alan Cox wrote:
-> > On Fri, 2003-02-28 at 14:12, Matthew Wilcox wrote:
-> > > i'm not the kind of person who just changes the header file and breaks all
-> > > the drivers.  plan:
-> > > 
-> > >  - Add the GFP_ATOMIC_DMA & GFP_KERNEL_DMA definitions
-> > >  - Change the drivers
-> > >  - Delete the GFP_DMA definition
-> > 
-> > Needless pain for people maintaining cross release drivers. Save it for
-> > 2.7 where we should finally do the honourable deed given x86-64 may well
-> > be mainstream, and simply remove GFP_DMA and expect people to use 
-> > pci_*
+On Fri, 2003-02-28 at 15:28, Han Holl wrote:
+> Well, subject says it all really. Here is a (minimal) patch:
+>  
+> --- main.c.orig Fri Feb 28 15:56:54 2003
+> +++ main.c      Fri Feb 28 15:40:37 2003
+> @@ -495,6 +495,8 @@
+>         { "sdn",     0x08d0 },
+>         { "sdo",     0x08e0 },
+>         { "sdp",     0x08f0 },
+> +       { "cciss/c0d0p",0x6800 },
+> +       { "cciss/c0d1p",0x6810 },
+>         { "rd/c0d0p",0x3000 },
+>         { "rd/c0d1p",0x3008 },
+>         { "rd/c0d2p",0x3010 },
 > 
-> But why drivers of ISA bus devices with DMA should use pci_* functions?
-> 
-> I'm personally wouldn't have too much pain with GFP_DMA because I have
-> compatibility headers and proposed change for them is tiny.
 
-Do not let the name "pci_" distract, it works for ISA too :)
-
-We can #define pci_xxx isa_xxx if you like :)
-
-	Jeff
-
-
+Nothing wrong with it, but the kernel nowdays really expects the translation
+to be done by the bootloader. Lilo gets this right, Grub it seems does not
+know about it.
 

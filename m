@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272327AbTGYVXE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 17:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272311AbTGYVXD
+	id S272332AbTGYVVl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 17:21:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272327AbTGYVUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 17:23:03 -0400
-Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:39584
-	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S272309AbTGYVWY (ORCPT
+	Fri, 25 Jul 2003 17:20:07 -0400
+Received: from mailc.telia.com ([194.22.190.4]:63184 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id S272332AbTGYVSi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 17:22:24 -0400
-Message-ID: <3F21A5AE.3020802@rogers.com>
-Date: Fri, 25 Jul 2003 17:48:30 -0400
-From: gaxt <gaxt@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
-X-Accept-Language: en-us, en
+	Fri, 25 Jul 2003 17:18:38 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: David Benfell <benfell@greybeard95a.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: touchpad doesn't work under 2.6.0-test1-ac2
+References: <bXg8.4Wg.1@gated-at.bofh.it>
+	<S270097AbTGXUNM/20030724201313Z+7864@vger.kernel.org>
+	<20030724212416.GA18141@vana.vc.cvut.cz>
+	<20030725070806.GB15819@parts-unknown.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 25 Jul 2003 23:32:30 +0200
+In-Reply-To: <20030725070806.GB15819@parts-unknown.org>
+Message-ID: <m2ispq47ip.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Ben Collins <bcollins@debian.org>
-CC: Torrey Hoffman <thoffman@arnor.net>, Sam Bromley <sbromley@cogeco.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: Firewire
-References: <20030725154009.GF1512@phunnypharm.org> <20030725160706.GK23196@ruvolo.net> <20030725161803.GJ1512@phunnypharm.org> <1059155483.2525.16.camel@torrey.et.myrio.com> <20030725181303.GO23196@ruvolo.net> <20030725181252.GA607@phunnypharm.org> <3F217A39.2020803@rogers.com> <20030725182642.GD607@phunnypharm.org> <20030725184506.GE607@phunnypharm.org> <20030725193515.GQ23196@ruvolo.net> <20030725201128.GA535@phunnypharm.org>
-In-Reply-To: <20030725201128.GA535@phunnypharm.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.157.78.60] using ID <dw2price@rogers.com> at Fri, 25 Jul 2003 17:37:34 -0400
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben. Firewire is working here too- iPod is running again :-) Pleasure 
-working with you on the testing. I'm using the tarballed ieee1394 code 
-from www.linux1394.org's viewcvs
+David Benfell <benfell@greybeard95a.com> writes:
 
-Ben Collins wrote:
-> On Fri, Jul 25, 2003 at 12:35:15PM -0700, Chris Ruvolo wrote:
+> First someone pointed me at the driver available through
 > 
->>On Fri, Jul 25, 2003 at 02:45:06PM -0400, Ben Collins wrote:
->>
->>>Maybe it wont. Try reverting back to stock, and apply this patch. I am
->>>pretty sure this will fix the problem for anyone having this issue.
->>
->>Yes, I think this did it!  One change: needed to change HSBP_VERBOSE to
->>HSBP_DEBUG in csr.c.  
->>
->>I will try turning on my DV camera tonight (I'm remote now) and I'll let you
->>know how that goes.
+> http://w1.894.telia.com/~u89404340/touchpad/index.html
 > 
+> I hadn't known about this, but I implemented it.  It does not work
+> for me under either the 2.6.0-test1-ac2 kernel or the kernel I was
+> using before (2.4.21-pre6).
 > 
-> Kick ass. I've commited this change to the 1394 repo. Linus will get the
-> fix soon. I'll also send it to Marcelo for 2.4.22.
+> Output from the startx is:
 > 
-> Please, if you are testing, use the code at www.linux1394.org's viewcvs
-> (trunk tarball will replace drivers/ieee1394 in 2.6, branches/linux-2.4
-> will do the same for 2.4).
-> 
-> 
-> Thanks for help in tracking this down.
-> 
+> auto-dev: Found Synaptics in /proc/bus/input/devices
+> auto-dev: Found its handler entry
+> auto-dev: cannot find the event-device in the handlers-entry for the Synaptics touchpad hardware. Falling back to psaux protocol and the Device Option from XF86Config.
+> Query no Synaptics: 6003C8
 
+It looks like the problem is that the evdev module is not loaded.
 
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbULTRAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbULTRCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbULTRAr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 12:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbULTRAr
+	id S261576AbULTRCy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 12:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbULTRCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 12:00:47 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38101 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261571AbULTRAo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 12:00:44 -0500
-Date: Mon, 20 Dec 2004 09:00:32 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Roland McGrath <roland@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] back out CPU clock additions to posix-timers
-In-Reply-To: <200412200347.iBK3lg3X007599@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0412200857480.6297@schroedinger.engr.sgi.com>
-References: <200412200347.iBK3lg3X007599@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Dec 2004 12:02:53 -0500
+Received: from bristol.swissdisk.com ([65.207.35.130]:5597 "EHLO
+	bristol.swissdisk.com") by vger.kernel.org with ESMTP
+	id S261576AbULTRCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 12:02:38 -0500
+Date: Mon, 20 Dec 2004 10:46:38 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Arne Caspari <arnem@informatik.uni-bremen.de>,
+       Adrian Bunk <bunk@stusta.de>, linux1394-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+Message-ID: <20041220154638.GE457@phunnypharm.org>
+References: <20041220015320.GO21288@stusta.de> <41C694E0.8010609@informatik.uni-bremen.de> <20041220143901.GD457@phunnypharm.org> <1103555716.29968.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103555716.29968.27.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Dec 2004, Roland McGrath wrote:
+On Mon, Dec 20, 2004 at 03:15:18PM +0000, Alan Cox wrote:
+> On Llu, 2004-12-20 at 14:39, Ben Collins wrote:
+> > How about adding those exports into an config option ifdef that says
+> > "Export extra IEEE-1394 symbols" and in the help explains that the symbols
+> > may be needed for some third party modules. Give video-2-1394 as an
+> > example.
+> 
+> You might as well remove the ifdef if you do that since vendors will
+> have to guess what the right answer is an will probably uniformly say
+> "Y". At that point its basically a non-option. Far better to submit the
+> driver
 
-> Since Andrew is taking the conservative line, I think it's more prudent to
-> omit the whole thing from 2.6.10 rather than have a tentative definition of
-> what those two clock IDs mean that changes later.
+You are missing the point though. Lots of these are part of our API, and
+may be used at anytime. Lots of college kids are emailing me about
+projects they are working on, and quite a few of them are using this API.
+None of those projects will ever get out of the classroom, much less get
+into the kernel mainline. But that API is needed, none-the-less, to expose
+the internals of the system.
 
-The conservative line is to keep a consistent definition of the interface
-following posix as closely as possible. The definition of the 4 clockids
-CLOCK_*_CPUTIME_ID, CLOCK_REALTIME and CLOCK_MONOTONIC should stay
-constant and be implemented in a consistent way by the kernel. That is
-the case now and should not be changed by any future patches.
+I'd hate to think that our "license" worries outweigh the small hacker
+community for some projects.
 
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264110AbTLUVIn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 16:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbTLUVIm
+	id S264127AbTLUVLE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 16:11:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264128AbTLUVLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 16:08:42 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:20707 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264110AbTLUVIl (ORCPT
+	Sun, 21 Dec 2003 16:11:04 -0500
+Received: from ping.ovh.net ([213.186.33.13]:34989 "EHLO ping.ovh.net")
+	by vger.kernel.org with ESMTP id S264127AbTLUVLA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 16:08:41 -0500
-Message-ID: <3FE60BCC.5090305@colorfullife.com>
-Date: Sun, 21 Dec 2003 22:08:28 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] use rcu for fasync_lock
-References: <3FE492EF.2090202@colorfullife.com> <8765ga6moe.fsf@devron.myhome.or.jp> <3FE5F116.9020608@colorfullife.com> <Pine.LNX.4.58.0312211250370.13039@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0312211250370.13039@home.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Dec 2003 16:11:00 -0500
+Date: Sun, 21 Dec 2003 22:09:17 +0100
+From: Octave <oles@ovh.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: lot of VM problem with 2.4.23
+Message-ID: <20031221210917.GB4897@ovh.net>
+References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local> <Pine.LNX.4.58L.0312211235010.6632@logos.cnet> <20031221150312.GJ25043@ovh.net> <20031221154227.GB1323@alpha.home.local> <20031221161324.GN25043@ovh.net> <Pine.LNX.4.58L.0312211643470.6632@logos.cnet> <20031221191431.GP25043@ovh.net> <Pine.LNX.4.58L.0312211832320.6632@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0312211832320.6632@logos.cnet>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+> This is not a kernel panic, its the VM debugging output.
+> 
+> Can you please apply the attached patch on top of 2.4.23 and rerun the
+> test with "echo 1 > /proc/sys/vm_gfp_debug" ?
+> 
+> It will printout the number of available swap pages when processes get
+> killed.
 
->On Sun, 21 Dec 2003, Manfred Spraul wrote:
->  
->
->>Initially I tried to keep the patch as tiny as possible, thus I avoided 
->>adding an inline function. But Stephen Hemminger convinced me to update 
->>the network code, and thus it didn't matter and I've switched to an 
->>inline function.
->>What do you think about the attached patch?
->>    
->>
->
->Please, NO!
->
->Stuff like this
->
->	-       write_lock_irq(&fasync_lock);
->	+       if (s)
->	+               lock_sock(s);
->	+       else
->	+               spin_lock(&fasync_lock);
->	+
->
->should not be allowed. That's especially true since the choice really is a 
->static one depending on the caller.
->
->Just make the caller do the locking.
->  
->
-It's not that simple: the function does
-    kmalloc();
-    spin_lock();
-    use_allocation.
-If the caller does the locking, then the kmalloc would have to use 
-GFP_ATOMIC, or the caller would have to do the alloc.
-But: as far as I can see, these lines usually run under lock_kernel(). 
-If this is true, then the spin_lock(&fasync_lock) won't cause any 
-scalability regression, and I'll use that lock instead of lock_sock, 
-even for network sockets.
+Marcelo,
 
---
-    Manfred
+How about this ?
 
+Dec 21 22:08:44 stock kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Dec 21 22:08:44 stock kernel: OOM: nr_swap_pages=0cd865e6c c012e1e8 c0262e3c 00000000 000001d2 00000000 00000001 cd863c00 
+Dec 21 22:08:44 stock kernel:        0000040e 00000000 00000018 00000002 c029e9d8 c029ead4 00000000 000001d2 
+Dec 21 22:08:44 stock kernel:        00000000 c012dd80 c11d3db0 c0121fe8 e0b12220 bffffb20 00000001 cd863c00 
+Dec 21 22:08:44 stock kernel: Call Trace:    [__get_free_pages+4/24] [_alloc_pages+24/28] [do_wp_page+168/736] [handle_mm_fault+135/184] [do_page_fault+395/1229]
+Dec 21 22:08:44 stock kernel: Call Trace:    [<c012e1e8>] [<c012dd80>] [<c0121fe8>] [<c0122913>] [<c0111707>]
+Dec 21 22:08:44 stock kernel:   [do_page_fault+0/1229] [error_code+52/60]
+Dec 21 22:08:44 stock kernel:   [<c011157c>] [<c0106fa0>]
+Dec 21 22:08:44 stock kernel: VM: killing process watchdog
+Dec 21 22:08:44 stock kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Dec 21 22:08:44 stock kernel: OOM: nr_swap_pages=0f7767e6c c012e1e8 c0262e3c 00000000 000001d2 00000000 00000001 f79bf6e0 
+Dec 21 22:08:44 stock kernel:        0000040e 00000000 00000018 00000002 c029e9d8 c029ead4 00000000 000001d2 
+Dec 21 22:08:44 stock kernel:        00000000 c012dd80 c11d3db0 c0121fe8 f7be36c0 bffffb20 00000001 f79bf6e0 
+Dec 21 22:08:44 stock kernel: Call Trace:    [__get_free_pages+4/24] [_alloc_pages+24/28] [do_wp_page+168/736] [_alloc_pages+24/28] [handle_mm_fault+135/184]
+Dec 21 22:08:44 stock kernel: Call Trace:    [<c012e1e8>] [<c012dd80>] [<c0121fe8>] [<c012dd80>] [<c0122913>]
+Dec 21 22:08:45 stock kernel:   [do_page_fault+395/1229] [do_page_fault+0/1229] [do_fork+1719/2028] [sys_fork+20/28] [error_code+52/60]
+Dec 21 22:08:45 stock kernel:   [<c0111707>] [<c011157c>] [<c01150eb>] [<c0105a44>] [<c0106fa0>]
+Dec 21 22:08:45 stock kernel: VM: killing process watchdog
+
+Octave

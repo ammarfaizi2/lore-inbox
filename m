@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271229AbTHHFqd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 01:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271236AbTHHFqd
+	id S271231AbTHHF6N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 01:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271235AbTHHF6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 01:46:33 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:39756 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S271229AbTHHFqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 01:46:30 -0400
-Date: Thu, 7 Aug 2003 22:45:45 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: =?iso-8859-1?Q?Mathias_Fr=F6hlich?= <Mathias.Froehlich@web.de>,
-       Jerry Cooperstein <coop@axian.com>
-Cc: linux-kernel@vger.kernel.org, Luke Howard <lukeh@PADL.COM>
-Subject: Re: NPTL v userland v LT (RH9+custom kernel problem)
-Message-ID: <20030807224545.A29285@google.com>
-References: <20030807013930.A26426@google.com> <1060267356.1604.10.camel@p3.coop.hom> <200308071506.04890.Mathias.Froehlich@web.de>
+	Fri, 8 Aug 2003 01:58:13 -0400
+Received: from xs4all.vs19.net ([213.84.236.198]:15035 "EHLO spaans.vs19.net")
+	by vger.kernel.org with ESMTP id S271231AbTHHF6L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 01:58:11 -0400
+Date: Fri, 8 Aug 2003 07:58:09 +0200
+From: Jasper Spaans <jasper@vs19.net>
+To: "J.C. Wren" <jcwren@jcwren.com>
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <20030808055809.GA3832@spaans.vs19.net>
+References: <20030807180032.GA16957@spaans.vs19.net> <1060295842.3169.83.camel@dhcp22.swansea.linux.org.uk> <20030808054604.GA1905@spaans.vs19.net> <200308080153.22495.jcwren@jcwren.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200308071506.04890.Mathias.Froehlich@web.de>; from Mathias.Froehlich@web.de on Thu, Aug 07, 2003 at 03:06:04PM +0200
+In-Reply-To: <200308080153.22495.jcwren@jcwren.com>
+Attach: /home/spaans/JasperSpaans.vcf
+Organization: http://www.insultant.nl/
+X-Copyright: Copyright 2003 C. Jasper Spaans - All Rights Reserved
+X-message-flag: Warning! The sender of this mail thinks you should use a more secure email client!
+User-Agent: Mutt/1.5.4i
+X-SA-Exim-Mail-From: spaans@spaans.vs19.net
+Subject: [ot] Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
+Content-Type: text/plain; charset=iso-8859-15
+X-SA-Exim-Version: 3.0+cvs (built Mon Jul 28 22:52:54 EDT 2003)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 03:06:04PM +0200, Mathias Fröhlich wrote:
-> I think you can try out the nss_ldap rpm at
-> 
-> http://na.uni-tuebingen.de/~frohlich/nss_ldap/
+On Fri, Aug 08, 2003 at 01:53:22AM -0400, J.C. Wren wrote:
 
-Didn't fix my problem.  I'll dig in and narrow this down further.
+> Can we make this a menuconfig option? :)  ALTERNATE_FLAVOR_SPELLING=y.  As you 
+> type 'make', it'll just preprocess all the source files.
 
-On Thu, Aug 07, 2003 at 09:42:36AM -0500, Jerry Cooperstein wrote:
-> If you read the release notes for RH9 you'll see you can adjust what
-> thread library gets used with the environmental variable
-> LD_ASSUME_KERNEL.  So for instance you can do:
-> 
-> LD_ASSUME_KERNEL=2.2.5 rpm ....
-> LD_ASSUME_KERNEL=2.2.5 up2date 
-> 
-> (I've mentioned these two because I've noted these fail when you are
-> root...)
+Uhm, and what about the spelling of that option? ;)
 
-Interesting.  Something these have in common is that they all use
-Berkeley db4 (up2date by virtue of using rpm).  I don't understand why
-nss_ldap or pam_ldap would, but it's one of the sources in the srpm.
+(And no, I did not mark this subthread [OT] by accident)
 
-But, rpm works for me (both RH and unpatched kernels).
-
-/fc
+VrGr,
+-- 
+Jasper Spaans               http://jsp.vs19.net/contact/

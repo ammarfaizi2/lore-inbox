@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263274AbTDLNjP (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 09:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTDLNjP (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 09:39:15 -0400
-Received: from codeblau.walledcity.de ([212.84.209.34]:38406 "EHLO codeblau.de")
-	by vger.kernel.org with ESMTP id S263274AbTDLNjP (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 09:39:15 -0400
-Date: Sat, 12 Apr 2003 15:51:05 +0200
+	id S263098AbTDLNnI (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 09:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbTDLNnH (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 09:43:07 -0400
+Received: from codeblau.walledcity.de ([212.84.209.34]:39174 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id S263098AbTDLNnH (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 09:43:07 -0400
+Date: Sat, 12 Apr 2003 15:54:57 +0200
 From: Felix von Leitner <felix-kernel@fefe.de>
 To: linux-kernel@vger.kernel.org
-Subject: anyone working on nvnet for 2.5?
-Message-ID: <20030412135105.GA19869@codeblau.de>
+Subject: sysenter on x86
+Message-ID: <20030412135457.GB19869@codeblau.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -18,7 +18,15 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a project to port the nvidia graphics driver to 2.5, but I
-didn't find one for the nvnet.  Is someone working on this?
+I just added sysenter support for linux-2.5 on x86 to the diet libc, but
+I noted that the original patch said user space should jump to
+0xfffff000, which segfaults.  Jumping to 0xffffe000 works.
+
+I suggest adding a comment somewhere in the kernel about the proper
+calling convention, because the glibc code is frankly not readable in
+this regard.
+
+Also, I suggest adding this interface to kernel 2.4 to easy binary
+compatibility.
 
 Felix

@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbTJ2WmV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 17:42:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTJ2WmV
+	id S261959AbTJ2XAG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 18:00:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJ2XAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 17:42:21 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:59851 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261873AbTJ2WmT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 17:42:19 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Timothy Miller" <miller@techsource.com>
-Cc: "Pascal Schmidt" <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: People, not GPL  [was: Re: Driver Model]
-Date: Wed, 29 Oct 2003 14:42:13 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKIEOCHIAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <3F62335B.9050202@techsource.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Wed, 29 Oct 2003 18:00:06 -0500
+Received: from mail.kroah.org ([65.200.24.183]:42898 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261959AbTJ2XAD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 18:00:03 -0500
+Date: Wed, 29 Oct 2003 14:59:22 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Missing kobject release methods?
+Message-ID: <20031029225922.GB1513@kroah.com>
+References: <Pine.LNX.4.44L0.0310271121350.679-100000@ida.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0310271121350.679-100000@ida.rowland.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 27, 2003 at 11:31:44AM -0500, Alan Stern wrote:
+> Greg:
+> 
+> For a long time, I've been getting debug warnings about missing release()  
+> methods in various kobjects.  They come up because your usb-2.5 tree has
+> DEBUG defined in a number of driver-model source files.
 
-> David Schwartz wrote:
+And because I have a "test for .release in a kobject" patch in my tree
+to help me debug.  That's what you are seeing.
 
-> But beyond this, there are some social issues.  If someone finds a way
-> to work around this mechanism, they are breaking things to everyone
-> else's detriment.  For a commercial entity to violate the GPL_ONLY
-> barrier is an insult to kernel developers AND to their customers who
-> will have trouble getting problems solved.
+> It's not easy to track down exactly what the objects in question are;
 
-	While I understand this point of view, I do not share it. People
-contributed to the Linux kernel project largely because it *was* an open
-process. Nobody has the right to take offense when it's used for a different
-reason than they had intended. If you want control over how your code is
-used and modified, *don't* GPL it. If you're going to take offense when
-people remove restrictions you impose, regardless of how much you like the
-restrictions, *don't*' GPL it. It's that simple.
+Don't worry about these, they are all for things that are only
+directories, and don't have release functions because they do not need
+to at this time.  Pat is aware of these and someday we will divorce
+kobjects from beeing needed just to create a subdirectory in sysfs.
 
-> So, if a company works around GPL_ONLY, are they violating the GPL
-> license?  Probably not.  Does that make it OKAY?  Probably not.
+These false warnings are the reason that patch never made it into the
+main kernel tree, unlike the other .release checks in the driver model
+code.
 
-	What's not okay is trying to inject your own rules on how GPL'd software
-can be used. That's perhaps tolerable if you're the sole author. It's
-condemnable when you're one among many.
+You can just disable that change in your copy of my tree if it's really
+annoying you :)
 
-> This is like finding a way to give a user space program access to kernel
-> resources.  There are barriers put in place for a REASON because people
-> make mistakes when they write software.  If no one did, we wouldn't have
-> any need for memory protection, would we.
+thanks,
 
-	Yet there is a project that removes all of these boundaries in the name of
-improved performance for trusted applications. These are engineering
-trade-offs and one of the good things about the GPL is that I'm not stuck,
-by law or custom, when your engineering trade-offs if I don't think they
-apply to me.
-
-	DS
-
-
+greg k-h

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271041AbTGVXKg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 19:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271042AbTGVXKf
+	id S271045AbTGVXOh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 19:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271050AbTGVXOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 19:10:35 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:12463
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S271041AbTGVXKf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 19:10:35 -0400
-Date: Tue, 22 Jul 2003 19:25:39 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Erik Andersen <andersen@codepoet.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-Message-ID: <20030722232539.GA18075@gtf.org>
-References: <20030722184532.GA2321@codepoet.org> <20030722185443.GB6004@gtf.org> <20030722190705.GA2500@codepoet.org> <20030722205629.GA27179@gtf.org> <20030722213926.GA4295@codepoet.org>
+	Tue, 22 Jul 2003 19:14:37 -0400
+Received: from straightnochaser.mr.itd.umich.edu ([141.211.125.39]:46025 "EHLO
+	straightnochaser.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S271045AbTGVXOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 19:14:31 -0400
+Subject: Very High Latency
+From: Mohamed El Ayouty <melayout@umich.edu>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1058916330.4012.5.camel@syKr0n.mine.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030722213926.GA4295@codepoet.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 22 Jul 2003 19:25:30 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 03:39:26PM -0600, Erik Andersen wrote:
-> By that I assume you mean osl-1.1 like libata.c, rather than GPL
-> like ata_piix.c....
+Using the latest Gnome, 2.3.4 with Mozilla and Xmms, and 2.6.0-test1 I
+experience hangups and very high latency when Mozilla is retrieving a
+page and XMMS is playing, which is evident from the pauses in music.
+This gets worse when I'm compiling something in the background.
 
-Yep :)
+But once I switch back to 2.4.20-ck6, everything runs normal even under
+5 minute compiles.
 
+Also, I have low latency on in 2.6.0-test1.
 
-> I expect I may be copying bits and pieces
-> from the Promise driver though.  Certainly I'd like to use as
-> much of their header files as seems practical.  So it may very
-> well need to stay GPL'd.  But I'll see what I can do.
+Am I missing a setting or is the scheduler still buggy?
 
-Thanks.  If you are so motivated, I tend to think it can work without
-the Promise headers.  For example, there is a distinct naming scheme in
-libata, and also intentional use of enums rather than macros as
-constants.
+If you need more info, email me.
 
-However, that said, you're doing the work, so I'll let you make the call :)
+-- 
+Mohamed El Ayouty
 
-	Jeff
-
+***********************
+* melayout@umich.edu  *
+***********************
 
 

@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290184AbSBXVmI>; Sun, 24 Feb 2002 16:42:08 -0500
+	id <S291401AbSBXVnK>; Sun, 24 Feb 2002 16:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291397AbSBXVls>; Sun, 24 Feb 2002 16:41:48 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:52484 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S290184AbSBXVlj>; Sun, 24 Feb 2002 16:41:39 -0500
-Date: Sun, 24 Feb 2002 22:41:35 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Troy Benjegerdes <hozer@drgw.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andre Hedrick <andre@linuxdiskcert.org>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flash Back -- kernel 2.1.111
-Message-ID: <20020224224135.B1949@ucw.cz>
-In-Reply-To: <3C7956EC.5000706@evision-ventures.com> <E16f6F7-0002kv-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16f6F7-0002kv-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Feb 24, 2002 at 09:31:37PM +0000
+	id <S291397AbSBXVnB>; Sun, 24 Feb 2002 16:43:01 -0500
+Received: from lsanca1-ar27-4-63-184-089.lsanca1.vz.dsl.gtei.net ([4.63.184.89]:10112
+	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
+	id <S291401AbSBXVmp>; Sun, 24 Feb 2002 16:42:45 -0500
+Date: Sun, 24 Feb 2002 13:42:34 -0800 (PST)
+From: Ben Clifford <benc@hawaga.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.5-dj1 - problem with /dev/input/mice
+In-Reply-To: <20020224222708.A1814@ucw.cz>
+Message-ID: <Pine.LNX.4.33.0202241338490.11220-100000@barbarella.hawaga.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 24, 2002 at 09:31:37PM +0000, Alan Cox wrote:
-> > (Do you remmeber about 4 years ago there *was* already a lengthy
-> > discussion about bus speed detection, without any proper resolution at
-> > all...I remember myself having even provided some code for this
-> > purpose...which was basicually just measuring RAM transfer rates...)
-> 
-> I guess we register an isa and a vlb bus - anyone have two vlb busses ?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I think having two VLBs is quite impossible - they were wired right to
-the CPU. Maybe in some early weird multiprocessor 486 or p5 machine?
+On Sun, 24 Feb 2002, Vojtech Pavlik wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> That's interesting. It almost looks like if the Xserver messed with the
+> mouse hardware somehow, which I hope it can't.
+
+> Does 'dmesg' say anything relevant?
+
+I don't think so.
+
+All that appears is an mtrr message about alignment, that I think I has
+appeared for several kernel versions.
+
+> I can help you find the cause - if you enable I8042_DEBUG_IO in
+> drivers/input/serio/i8042.h, you'll see all the data coming in and out
+> to the keyboard/aux controller.
+
+Compiling now...
+
+- -- 
+Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
+Job Required in Los Angeles - Will do most things unix or IP for money.
+http://www.hawaga.org.uk/resume/resume001.pdf
+Live Ben-cam: http://barbarella.hawaga.org.uk/benc-cgi/watchers.cgi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8eV5OsYXoezDwaVARAsvZAJsGbZrxboqXmRmipPM0cScR+StzuACfVE5P
+cwlgu22wLd09O8onA1iv/Dw=
+=rnUz
+-----END PGP SIGNATURE-----
+

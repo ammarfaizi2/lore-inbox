@@ -1,194 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272287AbTHNKtN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 06:49:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272289AbTHNKtN
+	id S272305AbTHNKwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 06:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272307AbTHNKwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 06:49:13 -0400
-Received: from out001pub.verizon.net ([206.46.170.140]:48326 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S272287AbTHNKtB convert rfc822-to-8bit
+	Thu, 14 Aug 2003 06:52:25 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:4873 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S272305AbTHNKwW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 06:49:01 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Andrew McGregor <andrew@indranet.co.nz>
-Subject: Re: [PATCH] O13int for interactivity
-Date: Thu, 14 Aug 2003 06:48:59 -0400
-User-Agent: KMail/1.5.1
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200308050207.18096.kernel@kolivas.org> <200308130833.43362.gene.heskett@verizon.net> <1800000.1060837436@ijir>
-In-Reply-To: <1800000.1060837436@ijir>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+	Thu, 14 Aug 2003 06:52:22 -0400
+Date: Thu, 14 Aug 2003 03:52:16 -0700
+From: jw schultz <jw@pegasys.ws>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: C99 Initialisers
+Message-ID: <20030814105216.GA26892@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <3F3A9FA1.8000708@pobox.com> <Pine.GSO.4.21.0308141202410.12289-100000@vervain.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308140648.59547.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.63.243] at Thu, 14 Aug 2003 05:49:00 -0500
+In-Reply-To: <Pine.GSO.4.21.0308141202410.12289-100000@vervain.sonytel.be>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may contain content offensive to Atheists and servants of false gods.  Read at your own risk.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 August 2003 01:03, Andrew McGregor wrote:
->Ah.  I see you have framebuffer console on, whereas I have plain VGA
->console only.  Try turning framebuffer off; two drivers for the same
->hardware may well fight over it.  My X isn't patched, it just has
-> their driver modules and the libraries installed.
->
->Andrew
+On Thu, Aug 14, 2003 at 12:05:28PM +0200, Geert Uytterhoeven wrote:
+> On Wed, 13 Aug 2003, Jeff Garzik wrote:
+> > > On Wed, Aug 13, 2003 at 03:44:44PM -0400, Jeff Garzik wrote:
+> > >>enums are easy  putting direct references would be annoying, but I also 
+> > >>argue it's potentially broken and wrong to store and export that 
+> > >>information publicly anyway.  The use of enums instead of pointers is 
+> > >>practically required because there is a many-to-one relationship of ids 
+> > >>to board information structs.
+> > > 
+> > > The hard part is that it's actually many-to-many.  The same card can have
+> > > multiple drivers.  one driver can support many cards.
+> > 
+> > pci_device_tables are (and must be) at per-driver granularity.  Sure the 
+> > same card can have multiple drivers, but that doesn't really matter in 
+> > this context, simply because I/we cannot break that per-driver 
+> > granularity.  Any solution must maintain per-driver granularity.
+> 
+> Aren't there any `hidden multi-function in single-function' PCI devices out
+> there? E.g. cards with a serial and a parallel port?
+> 
+> At least for the Zorro bus, these exist. E.g. the Ariadne card contains both
+> Ethernet and 2 parallel ports, so the Ariadne Ethernet driver and the (still to
+> be written) Ariadne parallel port driver are both drivers for the same Zorro
+> device.
 
-Currently I booted to test3-mm2 with the bugoff patch, and using the x 
-nv drivers and everything in the video dept is cool.  I see by dmesg 
-that the vesafb isn't being used so I'll take that out in addition 
-the next time I switch to the nvidia drivers.
+I'm not sure but i think most of those look like multiple
+pci devices rather than one device with multiple functions.
+I've got an Initio 9520UW: One PCI card with two ini9x00 UW
+SCSI HBAs sharing one interrupt and one EEPro100 on another
+interrupt.  During scan it seems to me to be three devices
+sitting behind a bridge.
 
-I might add that test3-mm2 appeared to handle this mornings amanda run 
-more like it would have run under 2.4, a pretty nice improvement over 
-the bare test3, which appeared to shove amanda to the back of the 
-queue most of the time.
+This is on 2.4.18 so 2.6 may look a little different.
 
->From dmesg, snippets:
+$ lspci -tvv
+-[00]-+-00.0  Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge
+[snip +- a bunch of devices]
+      \-0c.0-[02]--+-04.0  Initio Corporation 360P
+                   +-08.0  Initio Corporation 360P
+                   \-09.0  Intel Corp. 82557/8/9 [Ethernet Pro 100]
 
-Kernel command line: ro root=/dev/hda3 hdc=ide-scsi noapic vga=791
-ide_setup: hdc=ide-scsi
-Found and enabled local APIC!
-current: c03c59c0
-current->thread_info: c0454000
-[...]
-Initializing RT netlink socket
-spurious 8259A interrupt: IRQ7.
-PCI: PCI BIOS revision 2.10 entry at 0xfb4e0, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-PCI: Probing PCI hardware (bus 00)
-PCI: Using IRQ router default [1106/3099] at 0000:00:00.0
-rivafb: nVidia device/chipset 10DE0111
-rivafb: Detected CRTC controller 0 being used
-rivafb: RIVA MTRR set to ON
-rivafb: PCI nVidia NV10 framebuffer ver 0.9.5b (nVidiaGeForce2-M, 32MB 
-@ 0xE0000000)
-Console: switching to colour frame buffer device 80x30
-[...]
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with 
-idebus=xx
-VP_IDE: IDE controller at PCI slot 0000:00:11.1
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci0000:00:11.1
-    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:DMA
-hda: Maxtor 54610H6, ATA DISK drive
-hda: IRQ probe failed (0xffffffba)
-hdb: IRQ probe failed (0xffffffba)
-hdb: IRQ probe failed (0xffffffba)
+$ lspci -vv
+[snip]
+00:0c.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 02) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
+        I/O behind bridge: 0000c000-0000cfff
+        Memory behind bridge: de800000-dfffffff
+        Prefetchable memory behind bridge: 00000000e2f00000-00000000e3e00000
+        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
 
-those last 3 lines are new to 2.6.
+02:04.0 SCSI storage controller: Initio Corporation 360P (rev 01)
+        Subsystem: Unknown device 9292:0202
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin A routed to IRQ 9
+        Region 0: I/O ports at c800 [size=256]
+        Region 1: Memory at df800000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=32K]
 
-Comments?
+02:08.0 SCSI storage controller: Initio Corporation 360P (rev 01)
+        Subsystem: Unknown device 9292:0202
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin A routed to IRQ 9
+        Region 0: I/O ports at c400 [size=256]
+        Region 1: Memory at df000000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=32K]
 
->--On Wednesday, August 13, 2003 08:33:43 AM -0400 Gene Heskett
->
-><gene.heskett@verizon.net> wrote:
->> On Wednesday 13 August 2003 01:43, Andrew McGregor wrote:
->>> --On Wednesday, August 13, 2003 01:24:31 AM -0400 Gene Heskett
->>>
->>> <gene.heskett@verizon.net> wrote:
->>>> Unrelated question:  I've applied the 2.6 patches someone
->>>> pointed me at to the nvidia-linux-4496-pkg2 after figuring out
->>>> how to get it to unpack and leave itself behind, so x can be run
->>>> on 2.6 now. But its a 100% total crash to exit x by any method
->>>> when using it that way.
->>>>
->>>> Has the patch been updated in the last couple of weeks to
->>>> prevent that now?  It takes nearly half an hour to e2fsck a
->>>> hundred gigs worth of drives, and its going to bite me if I
->>>> don't let the system settle before I crash it to reboot,
->>>> finishing the reboot with the hardware reset button.
->>>>
->>>> Better yet, a fresh pointer to that site.
->>>
->>> http://www.minion.de/
->>>
->>> Works fine for me, as of 2.6.0-test1 (which is when I downloaded
->>> the patch).  I don't get the crash on either of my systems
->>> (GeForce2Go P3 laptop and GeForce4 Athlon desktop).
->>>
->>> Andrew
->>
->> I see some notes about patching X, which I haven't done.  That
->> might be it.  I also doublechecked that I'm running the correct
->> makefile, and get this:
->>
->> [root@coyote NVIDIA-Linux-x86-1.0-4496-pkg2]# ls -lR * |grep
->> Makefile -rw-r--r--    1 root     root         3623 Jul 16 22:56
->> Makefile -rw-r--r--    1 root     root         7629 Aug  5 22:24
->> Makefile -rw-r--r--    1 root     root         7629 Aug  5 21:46
->> Makefile.kbuild -rw-r--r--    1 root     root         4865 Aug  5
->> 21:46 Makefile.nvidia [root@coyote
->> NVIDIA-Linux-x86-1.0-4496-pkg2]# cd
->> ../NVIDIA-Linux-x86-1.0-4496-pkg2-4-2.4/ [root@coyote
->> NVIDIA-Linux-x86-1.0-4496-pkg2-4-2.4]# ls -lR * |grep Makefile
->> -rw-r--r-- 1 root     root         3623 Jul 16 22:56 Makefile
->> -rw-r--r--    1 root     root         5665 Jul 16 22:56 Makefile
->> [root@coyote NVIDIA-Linux-x86-1.0-4496-pkg2-4-2.4]#
->>
->> My video card, from an lspci:
->> 01:00.0 VGA compatible controller: nVidia Corporation NV11
->> [GeForce2 MX DDR] (rev b2)
->>
->> And the XFree86 version is:
->> 3.2.1-21
->>
->> Interesting to note that the 'nv' driver that comes with X
->> does not do this.  But it also has no openGL and such.
->> We are instructed to remove agp support from the kernel, and
->> use that which is in the nvidia kit, and I just checked the
->> .config, and its off, so thats theoreticly correct.  A grep
->> for FB stuff returns this:
->>
->> CONFIG_FB=y
->># CONFIG_FB_CIRRUS is not set
->># CONFIG_FB_PM2 is not set
->># CONFIG_FB_CYBER2000 is not set
->># CONFIG_FB_IMSTT is not set
->># CONFIG_FB_VGA16 is not set
->> CONFIG_FB_VESA=y
->># CONFIG_FB_HGA is not set
->> CONFIG_FB_RIVA=y
->># CONFIG_FB_MATROX is not set
->># CONFIG_FB_RADEON is not set
->># CONFIG_FB_ATY128 is not set
->># CONFIG_FB_ATY is not set
->># CONFIG_FB_SIS is not set
->># CONFIG_FB_NEOMAGIC is not set
->># CONFIG_FB_3DFX is not set
->># CONFIG_FB_VOODOO1 is not set
->># CONFIG_FB_TRIDENT is not set
->># CONFIG_FB_PM3 is not set
->># CONFIG_FB_VIRTUAL is not set
->>
->> I'd assume the 'RIVA' fb is the correct one, its working in
->> 2.4, although I can induce a crash there by switching from X
->> to a virtual console, and then attempting to switch back to X.
->> That will generally bring the machine down.  It is perfectly ok
->> to do that, repeatedly, when running the nv driver from X.
->>
->> --
->> Cheers, Gene
->> AMD K6-III@500mhz 320M
->> Athlon1600XP@1400mhz  512M
->> 99.27% setiathome rank, not too shabby for a WV hillbilly
->> Yahoo.com attornies please note, additions to this message
->> by Gene Heskett are:
->> Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+02:09.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 02)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort
+- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min, 14000ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at e3000000 (32-bit, prefetchable) [size=4K]
+        Region 1: I/O ports at c000 [size=32]
+        Region 2: Memory at de800000 (32-bit, non-prefetchable) [size=1M]
+        Expansion ROM at <unassigned> [disabled] [size=1M]
+
 
 -- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
+		Remember Cernan and Schmitt

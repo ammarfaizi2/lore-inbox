@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264950AbTBASl7>; Sat, 1 Feb 2003 13:41:59 -0500
+	id <S264954AbTBATHT>; Sat, 1 Feb 2003 14:07:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264954AbTBASl7>; Sat, 1 Feb 2003 13:41:59 -0500
-Received: from ip-161-71-171-238.corp-eur.3com.com ([161.71.171.238]:24314
-	"EHLO columba.www.eur.3com.com") by vger.kernel.org with ESMTP
-	id <S264950AbTBASl6>; Sat, 1 Feb 2003 13:41:58 -0500
-X-Lotus-FromDomain: 3COM
-From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
-To: linux-kernel@vger.kernel.org
-Message-ID: <80256CC0.0067A8CA.00@notesmta.eur.3com.com>
-Date: Sat, 1 Feb 2003 18:51:17 +0000
-Subject: [RFC] Little endian Cramfs on big endian machines?
+	id <S264956AbTBATHT>; Sat, 1 Feb 2003 14:07:19 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:23562 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id <S264954AbTBATHT>;
+	Sat, 1 Feb 2003 14:07:19 -0500
+Date: Sat, 1 Feb 2003 20:16:27 +0100
+From: romieu@fr.zoreil.com
+To: Joakim Tjernlund <Joakim.Tjernlund@lumentis.se>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: NETIF_F_SG question
+Message-ID: <20030201201627.A25670@electric-eye.fr.zoreil.com>
+References: <004701c2ca03$cb467460$020120b0@jockeXP> <3E3C0684.4010806@pobox.com> <005701c2ca21$9c1d90b0$020120b0@jockeXP>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <005701c2ca21$9c1d90b0$020120b0@jockeXP>; from Joakim.Tjernlund@lumentis.se on Sat, Feb 01, 2003 at 07:42:01PM +0100
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joakim Tjernlund <Joakim.Tjernlund@lumentis.se> :
+[...]
+> Surley the copy operation will cost something?   
 
+Cost is hidden while checksumming.
 
-At the moment the cramfs code in 2.4 & 2.5 uses the native machine endianness
-for the filesystem layout. I believe this behaviour has been considered a bug
-and that the code changed such that the filsystem is always little endian.
-
-There is some code in CVS at http://sourceforge.net/projects/cramfs which
-implements this for 2.4. I tried it a couple of months ago and it seemed OK, but
-it breaks backwards compatibility with old filesystems on big endian systems so
-I suspect it would never be done in a stable kernel series like 2.4. Should
-these changes be merged into 2.5?
-
-     Jon
-
-
+--
+Ueimor

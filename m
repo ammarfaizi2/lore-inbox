@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbTLVS3C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 13:29:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTLVS3B
+	id S261775AbTLVS2D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 13:28:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTLVS2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 13:29:01 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37352 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262228AbTLVS26 (ORCPT
+	Mon, 22 Dec 2003 13:28:03 -0500
+Received: from users.ccur.com ([208.248.32.211]:33717 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S261775AbTLVS1u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 13:28:58 -0500
-Date: Mon, 22 Dec 2003 10:27:18 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] {doc} add SpeedStep zero-page usage
-Message-Id: <20031222102718.3f792b35.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 22 Dec 2003 13:27:50 -0500
+Date: Mon, 22 Dec 2003 13:26:37 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Albert Cahalan <albert@users.sf.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: atomic copy_from_user?
+Message-ID: <20031222182637.GA2659@rudolph.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
+References: <1072054100.1742.156.camel@cube> <20031222150026.GD27687@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031222150026.GD27687@holomorphy.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 22, 2003 at 07:00:26AM -0800, William Lee Irwin III wrote:
+> c.f. kmap_atomic() usage in mm/filemap.c
 
-Please queue with 2.6.0++ patches.
+Shouldn't the dec_prempt_count() in kunmap_atomic() be followed
+by a preempt_check_resched()???
 
-
-description:	add Intel SpeedStep zero-page memory usage doc.
-product_versions: Linux 2.6.0
-
-diffstat:=
- Documentation/i386/zero-page.txt |    1 +
- 1 files changed, 1 insertion(+)
-
-diff -Naurp ./Documentation/i386/zero-page.txt~ist-reserve ./Documentation/i386/zero-page.txt
---- ./Documentation/i386/zero-page.txt~ist-reserve	2003-12-17 18:58:40.000000000 -0800
-+++ ./Documentation/i386/zero-page.txt	2003-12-22 10:16:45.000000000 -0800
-@@ -22,6 +22,7 @@ Offset	Type		Description
- 			  0x90000 + contents of CL_OFFSET
- 			(only taken, when CL_MAGIC = 0xA33F)
-  0x40	20 bytes	struct apm_bios_info, APM_BIOS_INFO
-+ 0x60	16 bytes	Intel SpeedStep (IST) BIOS support information
-  0x80	16 bytes	hd0-disk-parameter from intvector 0x41
-  0x90	16 bytes	hd1-disk-parameter from intvector 0x46
- 
-
-
-
---
-~Randy
+Joe

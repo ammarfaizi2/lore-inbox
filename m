@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319203AbSHUUs5>; Wed, 21 Aug 2002 16:48:57 -0400
+	id <S319215AbSHUVEv>; Wed, 21 Aug 2002 17:04:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319212AbSHUUs5>; Wed, 21 Aug 2002 16:48:57 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:3052 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S319203AbSHUUs4>;
-	Wed, 21 Aug 2002 16:48:56 -0400
-Message-ID: <3D63FDAD.6000009@acm.org>
-Date: Wed, 21 Aug 2002 15:53:01 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
+	id <S319217AbSHUVEv>; Wed, 21 Aug 2002 17:04:51 -0400
+Received: from stargazer.compendium-tech.com ([64.156.208.76]:44560 "EHLO
+	stargazer.compendium.us") by vger.kernel.org with ESMTP
+	id <S319215AbSHUVEv>; Wed, 21 Aug 2002 17:04:51 -0400
+Date: Wed, 21 Aug 2002 14:06:28 -0700 (PDT)
+From: Kelsey Hudson <khudson@compendium.us>
+X-X-Sender: khudson@betelgeuse.compendium-tech.com
+To: Nagy Tibor <nagyt@otpbank.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem determining number of CPUs
+In-Reply-To: <3D63A180.C663294E@otpbank.hu>
+Message-ID: <Pine.LNX.4.44.0208211402390.6621-100000@betelgeuse.compendium-tech.com>
 MIME-Version: 1.0
-To: Larry Butler <larry_butler@hp.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] IPMI driver for Linux
-References: <200208211441.40195.larry_butler@hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tie into the highres timer code for short sleeps.  It does require 
-that you have highres timers installed in your kernel and enabled. 
- Otherwise you are right, it is very slow.
+On Wed, 21 Aug 2002, Nagy Tibor wrote:
 
-Since I had access to highres timers, that was a lot easier than hooking 
-into and configuring the timer interrupt, and a lot more portable, too.
-
-If you want to post your code or modify mine to add the timer interrupt 
-support, that would be great.
-
--Corey
-
-Larry Butler wrote:
-
->Corey,
+> Hi,
+> 
+> Linux kernel versions 2.4.18, 2.4.19, 2.4.20pre4 do not determine
+> correctly the number of CPUs on our system. We see 8 CPUs instead of 4,
+> however the system works.
 >
->I've been working on a driver too because the busy waits in the drivers that 
->are out there can hold a CPU for too long.  I've measured as much as 120ms.
->
->First I tried sleeping in the driver until the very next jiffy.  I found that 
->my driver became unreliable under high CPU load because the scheduling delays 
->were too long.  I even managed wedge the BMC on one of my test systems in a 
->way I can't seem to fix. :)
->
->What I finally settled on was using the timer interrupt.  This seems to work 
->well both in terms of being nice to the rest of the system (I register a 
->shared irq handler only while I need it) and being reliable even under high 
->load.   So, just consider it a suggestion.  I'd like to see your driver 
->included too.  It's certainly more complete than mine.  You must have access 
->to more documentation than I do.
->
->Larry
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+> Our machine: Dell PowerEdge 6600, 4 Xeon 1400 Mhz, 4GB RAM
 
+Perfectly normal on that machine; newer Xeon CPUs have a feature called 
+hyperthreading, which makes each physical CPU show up as two. If you have 
+many threads running, or a bunch of processes, you should see a 
+performance increase. but keep in mind that for each physical CPU you 
+still only have one CPU core, so you can't expect to run 8 tasks at full 
+speed. Hyperthreading uses idle cycles on one task to perform active 
+cycles on another task, in its most basic sense. I'm not going to delve 
+into great detail here as it's off-scope for this list, but if you read 
+the datasheets and product specification for the Intel Xeon processor 
+(available at Intel's developer site) you can learn more about this nifty 
+feature of these processors.
 
+Hope this cleared up some questions you may have had.
+-Kelsey
 

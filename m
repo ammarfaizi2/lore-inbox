@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbTJTNXN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 09:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbTJTNXN
+	id S262291AbTJTNUE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 09:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbTJTNUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 09:23:13 -0400
-Received: from mta06-svc.ntlworld.com ([62.253.162.46]:10487 "EHLO
-	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S262564AbTJTNXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 09:23:12 -0400
-Subject: Re: 2.6.0-test8-mm1
-From: Jonathan Brown <jbrown@emergence.uk.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031020020558.16d2a776.akpm@osdl.org>
-References: <20031020020558.16d2a776.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1066656160.4180.3.camel@localhost>
+	Mon, 20 Oct 2003 09:20:04 -0400
+Received: from viriato2.servicios.retecal.es ([212.89.0.45]:5810 "EHLO
+	viriato2.servicios.retecal.es") by vger.kernel.org with ESMTP
+	id S262291AbTJTNUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 09:20:00 -0400
+Subject: Re: bkcvs and bksvn out of sync (Was: Re: [2.6.0-test7-bk]
+	undefined reference to `NEW_TO_OLD_GID')
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
+To: Manuel Estrada Sainz <ranty@debian.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Ben Collins <bcollins@debian.org>
+In-Reply-To: <20031020002246.GA14808@ranty.pantax.net>
+References: <1065702589.2234.3.camel@debian>
+	 <20031020002246.GA14808@ranty.pantax.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-T8RfGjg3q78AxQEZ3S0u"
+Organization: Hispalinux - http://www.hispalinux.es
+Message-Id: <1066655998.1522.7.camel@debian>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 20 Oct 2003 14:22:40 +0100
-Content-Transfer-Encoding: 7bit
+Date: Mon, 20 Oct 2003 15:19:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-10-20 at 10:05, Andrew Morton wrote: 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test8/2.6.0-test8-mm1
-> 
-> 
-> . Included a much updated fbdev patch.  Anyone who is using framebuffers,
->   please test this.
 
-radeon fb is completely broken. Previously I would get multicoloured
-garbled text under the penguin over all characters that were visible
-before radeon fb loaded, but this would scroll away. Now i still get the
-garbled screen, but every character on the screen has an extra white
-pixel on producing a grid effect. The kernel then oppses.
+--=-T8RfGjg3q78AxQEZ3S0u
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-This is with a Radeon Mobility M6 LY.
+El lun, 20-10-2003 a las 02:22, Manuel Estrada Sainz escribi=F3:
 
+>  Ram=F3n is probably using the bksvn gateway, after investication, it
+>  seams that this changeset was not completely commited to bksvn:
 
--- 
-Jonathan Brown
-http://emergence.uk.net/
+Mmm, I think you are right ;), but it seams was two o more patches in
+this changeset and all of them related to the new NEW_TO_OLD_GID macro.
+--=20
+Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
+
+--=-T8RfGjg3q78AxQEZ3S0u
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/k+D+RGk68b69cdURArtDAJ9ILp5tlUdHBlkjKUjSTXRQjdsMPwCeOFBX
+zs3jkzUy4ceXve7v4hmz/jE=
+=aYuW
+-----END PGP SIGNATURE-----
+
+--=-T8RfGjg3q78AxQEZ3S0u--
 

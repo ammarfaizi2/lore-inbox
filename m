@@ -1,155 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262492AbSKRNtb>; Mon, 18 Nov 2002 08:49:31 -0500
+	id <S262648AbSKRN7c>; Mon, 18 Nov 2002 08:59:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262486AbSKRNtb>; Mon, 18 Nov 2002 08:49:31 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:15255 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262472AbSKRNt1>;
-	Mon, 18 Nov 2002 08:49:27 -0500
-Date: Mon, 18 Nov 2002 14:56:14 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: scsi in 2.5.48
-Message-ID: <20021118135614.GA834@suse.de>
-References: <3DD8AF65.BF2EF851@digeo.com> <3DD8B6B9.E9EAD230@digeo.com>
+	id <S262662AbSKRN7b>; Mon, 18 Nov 2002 08:59:31 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10964 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262648AbSKRN7a>; Mon, 18 Nov 2002 08:59:30 -0500
+Date: Mon, 18 Nov 2002 15:06:27 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.5 patch] don't include non-existant NCR53c406a.h
+Message-ID: <20021118140626.GF11952@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DD8B6B9.E9EAD230@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 18 2002, Andrew Morton wrote:
-> Andrew Morton wrote:
-> > 
-> > Appears to be DOA.  Just a simple mke2fs hangs in get_request_wait().
-> 
-> This makes it work again.
-> 
-> 
-> --- 25/drivers/scsi/scsi_lib.c~scsi-plug	Mon Nov 18 01:42:40 2002
-> +++ 25-akpm/drivers/scsi/scsi_lib.c	Mon Nov 18 01:42:44 2002
-> @@ -1024,7 +1024,6 @@ void scsi_request_fn(request_queue_t * q
->  			/* can happen if the prep fails 
->  			 * FIXME: elv_next_request() should be plugging the
->  			 * queue */
-> -			blk_plug_device(q);
->  			break;
->  		}
 
-Right fix would be something ala:
+The trivial patch I sent in the mail below is still needed in 2.5.48.
 
-===== drivers/block/ll_rw_blk.c 1.143 vs edited =====
---- 1.143/drivers/block/ll_rw_blk.c	Mon Nov 18 08:28:08 2002
-+++ edited/drivers/block/ll_rw_blk.c	Mon Nov 18 14:45:55 2002
-@@ -1038,6 +1038,16 @@
- }
- 
- /**
-+ * blk_run_queue - run a single device queue
-+ * @q	The queue to run
-+ */
-+void __blk_run_queue(request_queue_t *q)
-+{
-+	blk_remove_plug(q);
-+	q->request_fn(q);
-+}
-+
-+/**
-  * blk_run_queues - fire all plugged queues
-  *
-  * Description:
-@@ -2198,4 +2211,5 @@
- EXPORT_SYMBOL(blk_start_queue);
- EXPORT_SYMBOL(blk_stop_queue);
- EXPORT_SYMBOL(__blk_stop_queue);
-+EXPORT_SYMBOL(__blk_run_queue);
- EXPORT_SYMBOL(blk_run_queues);
-===== drivers/scsi/scsi_lib.c 1.46 vs edited =====
---- 1.46/drivers/scsi/scsi_lib.c	Mon Nov 18 08:28:09 2002
-+++ edited/drivers/scsi/scsi_lib.c	Mon Nov 18 14:49:15 2002
-@@ -259,7 +259,7 @@
- 	/*
- 	 * Just hit the requeue function for the queue.
- 	 */
--	q->request_fn(q);
-+	__blk_run_queue(q);
- 
- 	SDpnt = (Scsi_Device *) q->queuedata;
- 	SHpnt = SDpnt->host;
-@@ -272,8 +272,6 @@
- 	 * use function pointers to pick the right one.
- 	 */
- 	if (SDpnt->single_lun && blk_queue_empty(q) && SDpnt->device_busy ==0) {
--		request_queue_t *q;
--
- 		for (SDpnt = SHpnt->host_queue; SDpnt; SDpnt = SDpnt->next) {
- 			if (((SHpnt->can_queue > 0)
- 			     && (SHpnt->host_busy >= SHpnt->can_queue))
-@@ -283,8 +281,7 @@
- 				break;
- 			}
- 
--			q = &SDpnt->request_queue;
--			q->request_fn(q);
-+			__blk_run_queue(&SDpnt->request_queue);
- 		}
- 	}
- 
-@@ -299,7 +296,6 @@
- 	all_clear = 1;
- 	if (SHpnt->some_device_starved) {
- 		for (SDpnt = SHpnt->host_queue; SDpnt; SDpnt = SDpnt->next) {
--			request_queue_t *q;
- 			if ((SHpnt->can_queue > 0 && (SHpnt->host_busy >= SHpnt->can_queue))
- 			    || (SHpnt->host_blocked) 
- 			    || (SHpnt->host_self_blocked)) {
-@@ -308,8 +304,7 @@
- 			if (SDpnt->device_blocked || !SDpnt->starved) {
- 				continue;
- 			}
--			q = &SDpnt->request_queue;
--			q->request_fn(q);
-+			__blk_run_queue(&SDpnt->request_queue);
- 			all_clear = 0;
- 		}
- 		if (SDpnt == NULL && all_clear) {
-===== drivers/scsi/scsi_error.c 1.21 vs edited =====
---- 1.21/drivers/scsi/scsi_error.c	Sat Nov 16 20:54:08 2002
-+++ edited/drivers/scsi/scsi_error.c	Mon Nov 18 14:47:49 2002
-@@ -1479,8 +1479,6 @@
- 	 */
- 	spin_lock_irqsave(shost->host_lock, flags);
- 	for (sdev = shost->host_queue; sdev; sdev = sdev->next) {
--		request_queue_t *q = &sdev->request_queue;
--
- 		if ((shost->can_queue > 0 &&
- 		     (shost->host_busy >= shost->can_queue))
- 		    || (shost->host_blocked)
-@@ -1488,7 +1486,7 @@
- 			break;
- 		}
- 
--		q->request_fn(q);
-+		__blk_run_queue(&sdev->request_queue);
- 	}
- 	spin_unlock_irqrestore(shost->host_lock, flags);
- }
-===== include/linux/blkdev.h 1.93 vs edited =====
---- 1.93/include/linux/blkdev.h	Mon Nov 18 08:28:09 2002
-+++ edited/include/linux/blkdev.h	Mon Nov 18 14:46:29 2002
-@@ -321,6 +321,7 @@
- extern void blk_start_queue(request_queue_t *q);
- extern void blk_stop_queue(request_queue_t *q);
- extern void __blk_stop_queue(request_queue_t *q);
-+extern void __blk_run_queue(request_queue_t *q);
- 
- static inline request_queue_t *bdev_get_queue(struct block_device *bdev)
- {
+Please apply
+Adrian
 
+
+----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+
+Date:	Tue, 12 Nov 2002 00:32:23 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+    Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.47
+
+On Sun, Nov 10, 2002 at 07:46:06PM -0800, Linus Torvalds wrote:
+
+>...
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+>...
+>   o tidy the 53c406, kill off old header
+>...
+
+This patch removed the header file but not the #include in the .c file
+resulting in the following compile error:
+
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,drivers/scsi/.NCR53c406a.o.d -D__KERNEL__ -Iinclude -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
+-Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=NCR53c406a   -c -o
+drivers/scsi/NCR53c406a.o drivers/scsi/NCR53c406a.c
+drivers/scsi/NCR53c406a.c:58: NCR53c406a.h: No such file or directory
+...
+make[2]: *** [drivers/scsi/NCR53c406a.o] Error 1
+
+<--  snip  -->
+
+
+The following simple fix is needed:
+
+--- linux-2.5.47/drivers/scsi/NCR53c406a.c.old	2002-11-12 00:21:27.000000000 +0100
++++ linux-2.5.47/drivers/scsi/NCR53c406a.c	2002-11-12 00:21:51.000000000 +0100
+@@ -55,7 +55,6 @@
+ #include <linux/spinlock.h>
+ #include "scsi.h"
+ #include "hosts.h"
+-#include "NCR53c406a.h"
+ 
+ /* ============================================================= */
+ 
+
+
+cu
+Adrian
 
 -- 
-Jens Axboe
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----

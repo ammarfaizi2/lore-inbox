@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVCVFgt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVCVFlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262483AbVCVFgt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 00:36:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbVCVFeL
+	id S262520AbVCVFlg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 00:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVCVFhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 00:34:11 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:20203 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262387AbVCVFa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 00:30:56 -0500
-Subject: Re: kernel bug: futex_wait hang
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, Chris Morgan <cmorgan@alum.wpi.edu>,
-       paul@linuxaudiosystems.com, seto.hidetoshi@jp.fujitsu.com
-In-Reply-To: <20050321210802.14be70cc.akpm@osdl.org>
-References: <1111463950.3058.20.camel@mindpipe>
-	 <20050321202051.2796660e.akpm@osdl.org>
-	 <20050322044838.GB32432@mail.shareable.org>
-	 <20050321210802.14be70cc.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 22 Mar 2005 00:30:53 -0500
-Message-Id: <1111469453.3563.0.camel@mindpipe>
+	Tue, 22 Mar 2005 00:37:42 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:31961 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262518AbVCVFc4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 00:32:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=n2HTpBBmIk2eJQre6ddsTp7BdSKOfjri1ol/EMfE4lvIXp+lUEgbct7jRGdw6wwqKfBqq4K4I12pHJhLuQ+nQ7WaF/k6RInI1Va+oHNQU+M9ZR5N4eUSy7MNOMGKfh4Ug7wIG87qETD0bmNNisr1ZofnPz+i3zx47Jec39VpecQ=
+Message-ID: <cb57165a050321213210961749@mail.gmail.com>
+Date: Mon, 21 Mar 2005 21:32:50 -0800
+From: All Linux <allinux@gmail.com>
+Reply-To: All Linux <allinux@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.12-rc1, ./drivers/base/platform.c
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-21 at 21:08 -0800, Andrew Morton wrote:
-> Jamie Lokier <jamie@shareable.org> wrote:
-> > 
-> > The most recent messages under "Futex queue_me/get_user ordering",
-> > with a patch from Jakub Jelinek will fix this problem by changing the
-> > kernel.  Yes, you should apply Jakub's most recent patch, message-ID
-> > "<20050318165326.GB32746@devserv.devel.redhat.com>".
-> > 
-> > I have not tested the patch, but it looks convincing.
-> 
-> OK, thanks.  Lee && Paul, that's at
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm1/broken-out/futex-queue_me-get_user-ordering-fix.patch
-> 
+The latest prepatch, 2.6.12-rc1, introduced the following change.
 
-Does not fix the problem.
+--- a/drivers/base/platform.c   2005-03-17 17:35:04 -08:00
++++ b/drivers/base/platform.c   2005-03-17 17:35:04 -08:00
+@@ -131,7 +131,7 @@
+         pdev->dev.bus = &platform_bus_type;
+ 
+         if (pdev->id != -1)
+-                snprintf(pdev->dev.bus_id, BUS_ID_SIZE, "%s%u",
+pdev->name, pdev->id);
++                snprintf(pdev->dev.bus_id, BUS_ID_SIZE, "%s.%u",
+pdev->name, pdev->id);
+         else
+                 strlcpy(pdev->dev.bus_id, pdev->name, BUS_ID_SIZE);
+
+It causes problem, as most platform files, for example,
+arch/ppc/platforms/katana.c, still use the old name without ".". I do
+not understand why bus_id "mpsc.0" is better than "mpsc0".
+Please explain what is the benefit of introducing such a change,
+before I can submit a patch for all those platform files to work with
+this change.
+Please CC me, as I am currently not in the list.
+
+Thanks,
 
 Lee
-

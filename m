@@ -1,63 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319561AbSIMIlK>; Fri, 13 Sep 2002 04:41:10 -0400
+	id <S319562AbSIMIoa>; Fri, 13 Sep 2002 04:44:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319562AbSIMIlK>; Fri, 13 Sep 2002 04:41:10 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:37251 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S319561AbSIMIlJ>; Fri, 13 Sep 2002 04:41:09 -0400
-Subject: Re: building a very basic minimal LINUX.
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-To: Vishal <vishal@naturesoft.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1031904489.2888.138.camel@vishal.naturesoft.com>
-References: <1031904489.2888.138.camel@vishal.naturesoft.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 13 Sep 2002 11:46:20 +0300
-Message-Id: <1031906780.7507.31.camel@gby.benyossef.com>
+	id <S319563AbSIMIoa>; Fri, 13 Sep 2002 04:44:30 -0400
+Received: from rrcs-se-65-34-21-74.biz.rr.com ([65.34.21.74]:56465 "HELO
+	rich-paul.net") by vger.kernel.org with SMTP id <S319562AbSIMIoa>;
+	Fri, 13 Sep 2002 04:44:30 -0400
+Date: Fri, 13 Sep 2002 04:32:16 -0400
+From: linguist-linux@rich-paul.net
+To: linux-kernel@vger.kernel.org
+Subject: -ac patch:  Which release notes?
+Message-ID: <20020913043216.A5854@monster.rich-paul.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+X-Operating-System: Linux monster 2.4.17-SMPs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-13 at 11:08, Vishal wrote:
-> Hi all,
->   i want to start work on building a base linux system(i386 machine,32MB
-> flash,with networking support) to be installed on flash for an embedded
-> system. Can anyone direct me to any information\docs\ideas for starting
-> off with such work?.
->   Thanks in advance.
-> regards,
-> Vishal
+The ac series of patches adds a config question "Have you read the
+release notes?" in the IDE/ATA section.  I have read linux/README,
+which identifies itself as the release notes, but found no reason for
+the the warning there.
 
-The Linux Router Project
-Embedded Debian project,
-Freesco
-Linux on a floppy (LOAF)
+Two things:
+	1)	Is there something specific I should know?
+	2)	Would a patch that adds the results of question 1
+		to Documentation/Configure.help be acceptable.
 
-<Shameless plug>
-You might want to check out
-http://benyossef.com/presentations/linux_inside/ as well
-</Shameless plug>
-
-Gilad
-
-> 
-> 
->   
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-Gilad Ben-Yossef <gilad@benyossef.com>
-http://benyossef.com
- 
- "We don't need kernel hackers or geniuses, we need good developers who
-  will do what they're told". Famous last words, the collection.
-
+Got freedom?  Vote Libertarian:  http://www.lp.org

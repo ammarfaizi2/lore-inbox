@@ -1,75 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268035AbUJVVw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUJVVw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268035AbUJVVw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 17:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUJVVvr
+	id S267921AbUJVVw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 17:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUJVVvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 17:51:47 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:10965 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S268035AbUJVVr1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 17:47:27 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10
-Date: Fri, 22 Oct 2004 17:47:26 -0400
-User-Agent: KMail/1.7
-Cc: "Jeff V. Merkey" <jmerkey@drdos.com>, Ingo Molnar <mingo@elte.hu>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-References: <20041014143131.GA20258@elte.hu> <20041022165113.GA26097@elte.hu> <41793318.5060009@drdos.com>
-In-Reply-To: <41793318.5060009@drdos.com>
+	Fri, 22 Oct 2004 17:51:50 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:60545 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267921AbUJVVqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 17:46:33 -0400
+Message-ID: <41797FB2.4000300@nortelnetworks.com>
+Date: Fri, 22 Oct 2004 15:46:26 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>
+Subject: Re: How is user space notified of CPU speed changes?
+References: <1098399709.4131.23.camel@krustophenia.net>	 <1098444170.19459.7.camel@localhost.localdomain>	 <1098468316.5580.18.camel@krustophenia.net>	 <4179623C.9050807@nortelnetworks.com> <1098476905.19435.43.camel@localhost.localdomain>
+In-Reply-To: <1098476905.19435.43.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410221747.26583.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.58.180] at Fri, 22 Oct 2004 16:47:27 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 October 2004 12:19, Jeff V. Merkey wrote:
->Ingo Molnar wrote:
->>* Gene Heskett <gene.heskett@verizon.net> wrote:
->>>As sort of the ultimate dummy test, I'm building this right now. 
->>> The only oddments so far are a bunch of deprecated variable
->>> warnings, quite a few but many are dups.
->>
->>these warnings are present in -mm1 too.
->>
->> Ingo
->>-
->>To unsubscribe from this list: send the line "unsubscribe
->> linux-kernel" in the body of a message to
->> majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->
->Hey Ingo,
->
->Bite Me.
->
->:-)
->
->Jeff
+Alan Cox wrote:
+> On Gwe, 2004-10-22 at 20:40, Chris Friesen wrote:
+> 
+>>x86 really could use an on-die register that increments at 1GHz independent of 
+>>clock speed and is synchronized across all CPUs in an SMP box.
 
-Frankly Jeff, we'd best be afraid of food poisoning if we got that 
-hungry.
+> HPET sort of is this but at chipset level
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Right.  So you still have to go across the cpu bus to get it.
+
+Chris

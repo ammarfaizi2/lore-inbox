@@ -1,96 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315746AbSEJAql>; Thu, 9 May 2002 20:46:41 -0400
+	id <S315747AbSEJAtT>; Thu, 9 May 2002 20:49:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315750AbSEJAqk>; Thu, 9 May 2002 20:46:40 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:22518 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315746AbSEJAqi>; Thu, 9 May 2002 20:46:38 -0400
-Date: Thu, 9 May 2002 17:46:32 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: "Tom 'spot' Callaway" <tcallawa@redhat.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, Doug Ledford <dledford@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix scsi.c kmod noise
-Message-ID: <20020509174632.A13819@eng2.beaverton.ibm.com>
-In-Reply-To: <mailman.1020966481.25371.linux-kernel2news@redhat.com> <200205092033.g49KXxG06486@devserv.devel.redhat.com> <20020509164109.F11386@redhat.com> <1020984118.1847.7.camel@zorak.rdu.redhat.com>
-Mime-Version: 1.0
+	id <S315748AbSEJAtS>; Thu, 9 May 2002 20:49:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62225 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315747AbSEJAtR>;
+	Thu, 9 May 2002 20:49:17 -0400
+Message-ID: <3CDB18CF.82DD6D6B@zip.com.au>
+Date: Thu, 09 May 2002 17:48:15 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.14 IDE 56
+In-Reply-To: <3CD9E8A7.D524671D@zip.com.au> <5.1.0.14.2.20020509193347.02ff6dc8@mira-sjcm-3.cisco.com> <3CDAC4EB.FC4FE5CF@zip.com.au> <m31yck9700.fsf@averell.firstfloor.org>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 09, 2002 at 06:41:58PM -0400, Tom 'spot' Callaway wrote:
+Andi Kleen wrote:
+> 
+> Andrew Morton <akpm@zip.com.au> writes:
+> 
+> > For bulk read() and write() I/O the best sized buffer is 8 kbytes.  4k is
+> > pretty good, too.  Anything larger blows the user-side buffer out of L1.
+> > This is for x86.
+> 
+> Modern x86 support prefetch hints for the CPU to tell it to not
+> pollute the caches with "streaming data". I bet using them would
+> be a big win.
 
-> I agree, but I didn't want to make any sort of drastic changes to scsi.c
-> in Aurora (I'm still getting my feet wet here!). 
-> 
-> As to the claim that this is broken solely due to Aurora being broken, I
-> can dispell that simply by pointing to the fact that Red Hat Linux 7.3
-> exhibits this behavior as shipped, on machines where the scsi drivers
-> are modular. dmesg log from 2.4.18-3smp is attached to this email.
-> 
-> In fact, sunesp is modular in Aurora, which is how this issue came to
-> light. When I made the change from compiled in to modular (and started
-> using an initrd), several testers reported this as a bug. 
-> 
-> Feel free to correct me (and Doug) if I'm wrong, because I cede that you
-> know a HELL of a lot more about this than I do. My Aurora kernels use
-> this, the scsi subsystem works (the modules all load as they should),
-> and I don't have a kmod error message in dmesg. 
-> 
-> For reference, Aurora builds kernels with the following relevant
-> options: 
-> 
-> CONFIG_MODULES=y 
-> CONFIG_MODVERSIONS=y 
-> CONFIG_KMOD=y 
-> 
-> CONFIG_SCSI=y 
-> CONFIG_BLK_DEV_SD=y 
-> 
-> CONFIG_SCSI_SUNESP=m 
-> 
-> 
-> The Red Hat Linux 7.3 i686 config builds kernels with the following
-> relevant options: 
-> 
-> CONFIG_MODULES=y 
-> CONFIG_MODVERSIONS=y 
-> CONFIG_KMOD=y 
-> 
-> CONFIG_SCSI=m 
-> CONFIG_BLK_DEV_SD=m 
-> 
-> CONFIG_SCSI_AIC7XXX=m 
-> 
-> As a result of further testing and thought, I definitely agree with
-> Doug. The patch that I originally submitted will only get rid of the
-> kmod error noise when BLK_DEV_SD is compiled into the kernel. Perhaps
-> this block of code should die? I'll leave that to the experts to decide.
-> 
-> ~spot
+Maybe.  For your basic:
 
-It is the upper level device init/insmod that is driving the load of the
-scsi adapter (in scsi.c), not the init/insmod of scsi.o. I can't think of
-a good reason to just load the scsi adapter if you want it, rather than
-having the init of sd.o load it.
+	for (many) {
+		read(fd1, buf, 8192);
+		write(fd2, buf, 8192);
+	}
 
-IMO, it should go away or always happen - not conditionally on whether another
-adapter is already available, or whether sd.o is loading.
+you want `buf' cached, but not the pagecache for fd1 and fd2.
+If the prefetch hints can express that then yes, nice.
 
-If you are booting without initrd, aren't there lines in /etc/modules.conf
-for scsi_hostadapter?
+> The rep ; movsl loop used in copy*user isn't
+> very good on modern x86 anyways (it is ok on PPro, but loses on Athlon
+> and P4)
 
-If you are booting with initrd, my RH 7.2 mkinitrd shows:
+On PII and PIII, rep;movsl is slower than an open-coded
+duff-device copy for all src/dest alignments except for
+the case where both are eight-byte-aligned.  By up to
+20%, iirc.  four-byte-aligned to four-byte-aligned isn't
+too bad.
 
-ln -s /bin/nash $MNTIMAGE/sbin/modprobe
+Of course, a lot of copy_*_users are well-aligned.  But
+a lot are not.  I ended up deciding that switching to
+the duff-device copy would be a very small overall win, when
+you weight it by the alignment patterns of normal kernel
+usage.
 
-man nash says:
+But making a runtime slection of which copy function to
+use (based on src/dest alignment) could speed up the
+kernel's most expensive function by maybe 10-15% overall.
 
-	Additionally,  if  nash  is  invoked  as modprobe, it will
-	immediately exit with a return code of zero.  This  is  to
-	allow  initrd's  to  prevent  some extraneous kernel error
-	messages during startup.
+The test proggy is in http://www.zip.com.au/~akpm/linux/cptimer.tar.gz
 
--- Patrick
+
+-

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262297AbRERLlP>; Fri, 18 May 2001 07:41:15 -0400
+	id <S262302AbRERL5K>; Fri, 18 May 2001 07:57:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262298AbRERLk4>; Fri, 18 May 2001 07:40:56 -0400
-Received: from mail.muc.eurocyber.net ([195.143.108.5]:55291 "EHLO
-	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
-	id <S262297AbRERLkq>; Fri, 18 May 2001 07:40:46 -0400
-Message-ID: <3B0506C9.25966BCC@TeraPort.de>
-Date: Fri, 18 May 2001 13:26:01 +0200
-From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac11 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFs: Cosmetic problem in linux/Documentation/Changes [2.4.x]
-In-Reply-To: <3B04E9E4.16ED592B@TeraPort.de> <3B04ED94.9F42C17D@TeraPort.de>
-Content-Type: text/plain; charset=us-ascii
+	id <S262303AbRERL5A>; Fri, 18 May 2001 07:57:00 -0400
+Received: from [195.6.125.97] ([195.6.125.97]:3082 "EHLO looping.sycomore.fr")
+	by vger.kernel.org with ESMTP id <S262302AbRERL4l>;
+	Fri, 18 May 2001 07:56:41 -0400
+Date: Fri, 18 May 2001 13:54:41 +0200
+From: sebastien person <sebastien.person@sycomore.fr>
+To: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: [newbie] timer in module
+Message-Id: <20010518135441.59bab0ce.sebastien.person@sycomore.fr>
+X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin.Knoblauch" wrote:
-> 
-> Hi,
-> 
->  I submitted this a short while ago, only to realize later that the
-> subject line was not very informative. Sorry.
-> 
->  As a suggestion: maybe the reiser-tools should support the common
-> -V/--version flag
-> 
-> Martin
-> 
+Hi,
 
- just forget it. Bad day probably. SuSe 7.1 installed a pretty old
-version of the tools that were not called "reiserfsprogs". And
-apparently I did not see that version string....
+I have a network module that need to regularly get data from network
+adaptater.
+But I don't know if it safe to do a loop with a timer in the module.
+e.g. I want to do something like that after ifconfig call :
 
-<-----------MKREISERFS, 2000----------->
-ReiserFS version 3.5.29
+while(1)
+{
+	timer call()
+	get data()	//	these datas are specific to device
+}
 
+but I'm scared that will block the driver.
+I've no experience of a regularly call that let the hand to the module.
+My aim is to do a get data call every x seconds (x is variable).
 
- Still, there should be a more convenient way to extract the version :-)
+Is it better to let an external program executing timer call and get data
+call
+via ioctl ?
 
-Sorry
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-IT Services              |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+In the case of a network module wich is able to send and receive data,
+whats happen if the driver is sollicited when he received or send data ?
+the tbusy bit is it designed to avoid this case ?
+
+The module is it able to execute two different parts of the module code
+at the same time ? (receiving data and handle a higher layer request)
+
+thanks for any comments.
+
+sebastien person

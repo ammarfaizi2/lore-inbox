@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267976AbUHEVPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268001AbUHEVSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267976AbUHEVPg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 17:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267973AbUHEVOf
+	id S268001AbUHEVSC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 17:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267973AbUHEVPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 17:14:35 -0400
-Received: from cantor.suse.de ([195.135.220.2]:58253 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267994AbUHEVMV (ORCPT
+	Thu, 5 Aug 2004 17:15:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:11658 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267977AbUHEVPZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 17:12:21 -0400
-Date: Thu, 5 Aug 2004 23:12:14 +0200
-From: Andi Kleen <ak@suse.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: tduffy@sun.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix x86_64 build of mmconfig.c
-Message-Id: <20040805231214.090463d9.ak@suse.de>
-In-Reply-To: <20040805205401.GB22342@mars.ravnborg.org>
-References: <1091728096.10131.16.camel@duffman>
-	<20040805223205.3dd2ee1a.ak@suse.de>
-	<20040805205401.GB22342@mars.ravnborg.org>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 5 Aug 2004 17:15:25 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+Date: Thu, 5 Aug 2004 14:12:06 -0700
+User-Agent: KMail/1.6.2
+Cc: Martin Mares <mj@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+References: <20040805204518.21243.qmail@web14921.mail.yahoo.com>
+In-Reply-To: <20040805204518.21243.qmail@web14921.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408051412.06169.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Aug 2004 22:54:01 +0200
-Sam Ravnborg <sam@ravnborg.org> wrote:
+On Thursday, August 5, 2004 1:45 pm, Jon Smirl wrote:
+> If you follow the code path of pci_assign_resource() it will program
+> the ROM to appear at the newly assigned address in
+> pci_update_resource(). I'd check these code paths and see if they are
+> 64 bit broken. This process does work on ia32.
 
-> On Thu, Aug 05, 2004 at 10:32:05PM +0200, Andi Kleen wrote:
-> > On Thu, 05 Aug 2004 10:48:16 -0700
-> > Tom Duffy <tduffy@sun.com> wrote:
-> > 
-> > > Signed-by: Tom Duffy <tduffy@sun.com>
-> > > 
-> > >   gcc -Wp,-MD,arch/x86_64/pci/.mmconfig.o.d -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude -Iinclude2 -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/include -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci -Iarch/x86_64/pci -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -mno-red-zone -mcmodel=kernel -pipe -fno-reorder-blocks -Wno-sign-compare -fno-asynchronous-unwind-tables -O2 -fomit-frame-pointer -Wdeclaration-after-statement -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/ -I arch/i386/pci  -DKBUILD_BASENAME=mmconfig -DKBUILD_MODNAME=mmconfig -c -o arch/x86_64/pci/mmconfig.o /build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci/mmconfig.c
-> > > /build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci/mmconfig.c:10:17: pci.h: No such file or directory
-> > > 
-> > > --- arch/x86_64/pci/Makefile.orig	2004-08-05 09:54:24.932007000 -0700
-> > > +++ arch/x86_64/pci/Makefile	2004-08-05 09:53:53.171006000 -0700
-> > > @@ -3,7 +3,7 @@
-> > >  #
-> > >  # Reuse the i386 PCI subsystem
-> > >  #
-> > > -CFLAGS += -I arch/i386/pci
-> > > +CFLAGS += -Iarch/i386/pci
-> > 
-> > It never failed this way for me in hundreds of builds. Why is it failing for you? 
-> > What gcc version do you use? 
-> > 
-> > Normally -Ifoo and -I foo should be really equivalent.
-> 
-> Notice the originally poster uses the make O=dir syntax - visible from the include2
-> directory being present on the commandline.
-> 
-> This issue is kbuild related. When using 'make O=dir' syntax kbuild process
-> options passed to gcc, and all -Isomething are processed.
+I think just my platform is broken (i.e. pci_assign_resource doesn't do the 
+right thing on sn2).  I'll take a look.
 
-[...]
+> If you can read the ROM without a resource assigned it is just luck
+> that everything is still in the same place as boot. If you start
+> hotpluging the original ROM address could get used by another card
+> since is is not actively assigned.
 
-Thanks for the explanation, Sam. I don't use O=, so this would explain it.
-I added the change for now.
+Right.
 
--Andi
+Thanks,
+Jesse

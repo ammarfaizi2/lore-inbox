@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262183AbSJASdc>; Tue, 1 Oct 2002 14:33:32 -0400
+	id <S262176AbSJASRL>; Tue, 1 Oct 2002 14:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262188AbSJASdc>; Tue, 1 Oct 2002 14:33:32 -0400
-Received: from angband.namesys.com ([212.16.7.85]:64162 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S262183AbSJASdb>; Tue, 1 Oct 2002 14:33:31 -0400
-Date: Tue, 1 Oct 2002 22:38:53 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Jeff Dike <jdike@karaya.com>
-Cc: James Stevenson <james@stev.org>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] uml-patch-2.5.39
-Message-ID: <20021001223853.B10665@namesys.com>
-References: <20021001114454.A27039@namesys.com> <200210011819.NAA02853@ccure.karaya.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200210011819.NAA02853@ccure.karaya.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S262177AbSJASRL>; Tue, 1 Oct 2002 14:17:11 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:47012 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S262176AbSJASRJ>; Tue, 1 Oct 2002 14:17:09 -0400
+Date: Tue, 1 Oct 2002 15:22:14 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Jens Axboe <axboe@suse.de>,
+       <Richard.Zidlicky@stud.informatik.uni-erlangen.de>,
+       <zippel@linux-m68k.org>, <linux-m68k@lists.linux-m68k.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 mm trouble [possible lru race]
+In-Reply-To: <E17wRXo-0005vk-00@starship>
+Message-ID: <Pine.LNX.4.44L.0210011520360.653-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, 1 Oct 2002, Daniel Phillips wrote:
 
-On Tue, Oct 01, 2002 at 01:19:36PM -0500, Jeff Dike wrote:
-> > @@ -863,6 +863,7 @@
-> >  			return(-EFAULT);
-> >  		return(0);
-> >  	}
-> > +	return -ENOTTY;
-> >  }
-> I did a check of some of the other block drivers, and they mostly seem to
-> do -EINVAL rather than -ENOTTY.  There was an oddball -ENOSYS, but I guess
-> I'll stick with -EINVAL.
+> The horse isn't dead yet, it's still twitching a little.  At this
+> point we still need to speculate about wny anyone would want an
+> SMP Dragonball machine ;-)
 
-Well, it can be both ways (EINVAL and ENOTTY).
-Probably EINVAL is more close in this case, though.
-I'll send the stacktraces tomorrow, when I'll get to work.
+I've seen an SMP 68k box, a DIAB DATA machine. I think
+Bull shipped them, too.
 
-Bye,
-    Oleg
+What is that coloured spot on the pavement ?
+Could it be a horse died there, long ago ?
+Now, stop beating the pavement.
+
+cheers,
+
+Rik
+-- 
+A: No.
+Q: Should I include quotations after my reply?
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

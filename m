@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267313AbUBSBIX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 20:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUBSBIX
+	id S268174AbUBRWDE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 17:03:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268232AbUBRWDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 20:08:23 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:65177 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S267313AbUBSBIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 20:08:22 -0500
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: <tridge@samba.org>, "'Pascal Schmidt'" <der.eremit@email.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: UTF-8 and case-insensitivity
-Date: Wed, 18 Feb 2004 17:08:10 -0800
-Organization: Cisco Systems
-Message-ID: <011d01c3f684$d74539a0$613a47ab@amer.cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <16436.2817.900018.285167@samba.org>
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-Importance: Normal
+	Wed, 18 Feb 2004 17:03:03 -0500
+Received: from [202.65.75.150] ([202.65.75.150]:60038 "EHLO
+	pythia.bakeyournoodle.com.") by vger.kernel.org with ESMTP
+	id S268174AbUBRWDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 17:03:00 -0500
+From: Tony Breeds <tony@bakeyournoodle.com>
+Date: Thu, 19 Feb 2004 05:58:46 +0800
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.2: "-" or "_", thats the question
+Message-ID: <20040218215846.GI2681@bakeyournoodle.com>
+Mail-Followup-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+References: <1o903-5d8-7@gated-at.bofh.it> <1pkw6-3BU-3@gated-at.bofh.it> <1prnS-4x8-1@gated-at.bofh.it> <402F8A00.8030501@uchicago.edu> <40306F65.8060702@t-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40306F65.8060702@t-online.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem is that Samba isn't the only program to be accessing these
-> directories. Multi-protocol file servers and file servers where users
-> also have local access are common. That means we can't assume that
-> some other filesystem user hasn't created a file which matches in a
-> case-insensitive manner. That means we need to do an awful lot of
-> directory scans.
+On Mon, Feb 16, 2004 at 08:21:09AM +0100, Harald Dunkel wrote:
 
-Do you also require NFSD or other file daemons to do the same
-case-insensitivity check? Say you create a foo, how do you prevent NFSD
-from creating FOO? What could you do about that?
+> I know. But this requires some very ugly workarounds outside
+> of module-init-tools. For example, if you want to check
+> whether a module $module_name has already been loaded, you
+> cannot use
+> 
+>     grep -q "^${module_name} " /proc/modules
+>
+> Instead you have to use a workaround like
+> 
+>     x="`echo $module_name | sed -e 's/-/_/g'`"
+>     cat /proc/modules | sed -e 's/-/_/g' | grep -q "^${x} "
+> 
+> This is inefficient and error-prone.
+> 
+> Maybe somebody has another idea for the workaround,
+> but I like the first version.
 
+just run modprobe?  Then you don't have to care.
+
+IN_KERNEL=$(/sbin/modprobe -vn "${module_name}")
+if [ -z "${IN_KERNEL}" ; then
+	/bin/echo "Module: ${module_name} is in the kernel"
+else
+	/bin/echo "Module: ${module_name} would need to be loaded"
+	/bin/echo "${IN_KERNEL}"
+fi
+
+Or similar.  Yeah it's a little ugly but only as prone to failure as
+module-init-tools
+
+Yours Tony
+
+        linux.conf.au       http://lca2005.linux.org.au/
+	Apr 18-23 2005      The Australian Linux Technical Conference!
 

@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313505AbSDGXQj>; Sun, 7 Apr 2002 19:16:39 -0400
+	id <S313508AbSDGXUA>; Sun, 7 Apr 2002 19:20:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313507AbSDGXQj>; Sun, 7 Apr 2002 19:16:39 -0400
-Received: from zork.zork.net ([66.92.188.166]:40200 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S313505AbSDGXQi>;
-	Sun, 7 Apr 2002 19:16:38 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Urgent Assistance Needed
-In-Reply-To: <20020407231011.AAA13684@shell.webmaster.com@whenever>
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Message-Flag: Message text advisory: NON-SEQUITUR, IMPROPER FORETHOUGHT
-X-Mailer: Norman
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Mon, 08 Apr 2002 00:16:37 +0100
-Message-ID: <6uzo0fw14a.fsf@zork.zork.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2
- (i386-debian-linux-gnu)
+	id <S313509AbSDGXT7>; Sun, 7 Apr 2002 19:19:59 -0400
+Received: from [213.56.52.14] ([213.56.52.14]:19729 "EHLO
+	ca-ol-bordeaux-9-14.abo.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S313508AbSDGXT6>; Sun, 7 Apr 2002 19:19:58 -0400
+Message-ID: <3CB0D419.F785C6D0@openwide.fr>
+Date: Mon, 08 Apr 2002 01:19:53 +0200
+From: Pierre Ficheux <pierre.ficheux@openwide.fr>
+Organization: OpenWide, France
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18-new_i2c i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18 AND Geode GX1/200Mhz problem
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  David Schwartz quotation:
+	Hi all,
 
->>THIS TRANSACTION IS 100% RISK FREE, FOR WE HAVE CONCLUDED EVERY ARRANGEMENT
->>TO SAFEGUARD YOU IN THIS TRANSACTION.
->
-> 	This was the best laugh I've had all week. It almost makes it worth enduring 
-> the spam.
+	I have a strange problem with a Geode/GX1 200Mhz based system. My
+kernel is compiled  with 586 as processor type but the system stops just
+after the 'Uncompressing Linux...Ok, booting the kernel' message. It's
+strange as GX1 is claimed to work fine with 2.4.18. The same system
+works fine with 2.2.18 kernel.
 
-apt-get install spamassassin
+	Is there any new patch to test? Any idea?
+
+	Thx a lot by advance.
 
 -- 
- /////////////////  |                  | The spark of a pin
-<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
- \\\\\\\\\\\\\\\\\  |                  | There is too much noise.
+Pierre FICHEUX -/- CTO OpenWide, France -\- pierre.ficheux@openwide.fr
+				         http://www.ficheux.com
+					 http://www.emulateur-xtel.org
+More fun, more freedom, less Micro$oft

@@ -1,42 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263157AbUKBF1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263480AbUKBFcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263157AbUKBF1s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 00:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274946AbUKBF1s
+	id S263480AbUKBFcn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 00:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S773903AbUKBFcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 00:27:48 -0500
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:31248 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S376785AbUKAW2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 17:28:42 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@taverner.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: Fchown on unix domain sockets?
-Date: Mon, 1 Nov 2004 22:27:51 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <cm6d97$uts$1@abraham.cs.berkeley.edu>
-References: <200410312255.00621.jmc@xisl.com> <Pine.LNX.4.53.0411011517570.29275@yvahk01.tjqt.qr> <200411011441.56524.jmc@xisl.com> <Pine.LNX.4.53.0411011546050.30106@yvahk01.tjqt.qr>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1099348071 31676 128.32.168.222 (1 Nov 2004 22:27:51 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Mon, 1 Nov 2004 22:27:51 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Tue, 2 Nov 2004 00:32:42 -0500
+Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:42145 "EHLO
+	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S321288AbUKBFbr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 00:31:47 -0500
+Message-ID: <41871BB1.6020001@kolivas.org>
+Date: Tue, 02 Nov 2004 16:31:29 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: [PATCH] remove sleep-avg stats
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig2C97E84FB5B272A83D0D42D6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt  wrote:
->How about setting the permissions beforehand?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig2C97E84FB5B272A83D0D42D6
+Content-Type: multipart/mixed;
+ boundary="------------080205080209040102070004"
 
-This makes you susceptible to TOCTTOU (race condition) attacks in some
-cases.  Often, the only way to change ownership or permissions of a file
-you want to operate on securely is to use fchown()/fchmod() etc.
+This is a multi-part message in MIME format.
+--------------080205080209040102070004
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-It came as a surprise to me that open() + fchown()/fchmod() does not
-work in some cases that chown()/chmod() do.  I wonder whether this has
-any effect on applications.  Could this result in security holes in
-applications that are unaware of this property?
+remove sleep-avg stats
+
+
+
+--------------080205080209040102070004
+Content-Type: text/x-patch;
+ name="sched-remove_sleep-avg_stats.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sched-remove_sleep-avg_stats.diff"
+
+sleep_avg is a non linear value which is only useful for debugging purposes
+in the development of the interactivity estimator. 
+
+Remove sleep_avg reporting from /proc.
+
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+Index: linux-2.6.10-rc1-mm2/fs/proc/array.c
+===================================================================
+--- linux-2.6.10-rc1-mm2.orig/fs/proc/array.c	2004-11-02 13:19:18.000000000 +1100
++++ linux-2.6.10-rc1-mm2/fs/proc/array.c	2004-11-02 16:15:37.709154456 +1100
+@@ -162,7 +162,6 @@ static inline char * task_state(struct t
+ 	read_lock(&tasklist_lock);
+ 	buffer += sprintf(buffer,
+ 		"State:\t%s\n"
+-		"SleepAVG:\t%lu%%\n"
+ 		"Tgid:\t%d\n"
+ 		"Pid:\t%d\n"
+ 		"PPid:\t%d\n"
+@@ -170,7 +169,6 @@ static inline char * task_state(struct t
+ 		"Uid:\t%d\t%d\t%d\t%d\n"
+ 		"Gid:\t%d\t%d\t%d\t%d\n",
+ 		get_task_state(p),
+-		(p->sleep_avg/1024)*100/(1020000000/1024),
+ 	       	p->tgid,
+ 		p->pid, p->pid ? p->group_leader->real_parent->tgid : 0,
+ 		p->pid && p->ptrace ? p->parent->pid : 0,
+
+
+--------------080205080209040102070004--
+
+--------------enig2C97E84FB5B272A83D0D42D6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBhxuxZUg7+tp6mRURAjvmAJ94p3hX8N49QCjAuj5ak3x+zcl+kQCeMKey
+tnD+tlOEI5+1cPltEoWN40c=
+=1Umh
+-----END PGP SIGNATURE-----
+
+--------------enig2C97E84FB5B272A83D0D42D6--

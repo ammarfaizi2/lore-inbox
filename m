@@ -1,55 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268460AbTBYXgd>; Tue, 25 Feb 2003 18:36:33 -0500
+	id <S268452AbTBYXf6>; Tue, 25 Feb 2003 18:35:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268461AbTBYXgd>; Tue, 25 Feb 2003 18:36:33 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:9914 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id <S268460AbTBYXgb>;
-	Tue, 25 Feb 2003 18:36:31 -0500
-Date: Tue, 25 Feb 2003 15:46:46 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Invalid compilation without -fno-strict-aliasing
-Message-ID: <20030225234646.GB30611@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S268454AbTBYXf6>; Tue, 25 Feb 2003 18:35:58 -0500
+Received: from [65.39.167.210] ([65.39.167.210]:35850 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S268452AbTBYXf4>;
+	Tue, 25 Feb 2003 18:35:56 -0500
+Date: Tue, 25 Feb 2003 18:46:11 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Larry McVoy <lm@bitmover.com>
+cc: Gerrit Huizenga <gh@us.ibm.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Server shipments [was Re: Minutes from Feb 21 LSE Call]
+In-Reply-To: <20030225231926.GB9317@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0302251844560.7307-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+On Tue, 25 Feb 2003, Larry McVoy wrote:
 
-	It looks like a compiler bug to me...
-	Some users have complained that when the following code is
-compiled without the -fno-strict-aliasing, the order of the write and
-memcpy is inverted (which mean a bogus len is mem-copied into the
-stream).
-	Code (from linux/include/net/iw_handler.h) :
---------------------------------------------
-static inline char *
-iwe_stream_add_event(char *	stream,		/* Stream of events */
-		     char *	ends,		/* End of stream */
-		     struct iw_event *iwe,	/* Payload */
-		     int	event_len)	/* Real size of payload */
-{
-	/* Check if it's possible */
-	if((stream + event_len) < ends) {
-		iwe->len = event_len;
-		memcpy(stream, (char *) iwe, event_len);
-		stream += event_len;
-	}
-	return stream;
-}
---------------------------------------------
-	IMHO, the compiler should have enough context to know that the
-reordering is dangerous. Any suggestion to make this simple code more
-bullet proof is welcomed.
+> Date: Tue, 25 Feb 2003 15:19:26 -0800
+> From: Larry McVoy <lm@bitmover.com>
+> To: Gerrit Huizenga <gh@us.ibm.com>
+> Cc: Larry McVoy <lm@bitmover.com>, Martin J. Bligh <mbligh@aracnet.com>,
+>      linux-kernel@vger.kernel.org
+> Subject: Re: Server shipments [was Re: Minutes from Feb 21 LSE Call]
+>
+> On Tue, Feb 25, 2003 at 02:02:28PM -0800, Gerrit Huizenga wrote:
+> > On Mon, 24 Feb 2003 20:17:01 PST, Larry McVoy wrote:
+> > > On Mon, Feb 24, 2003 at 08:11:21PM -0800, Martin J. Bligh wrote:
+> > > > > What part of "all servers from all companies" did you not understand?
+> > > >
+> > > > Average price from Dell: $2495
+> > > > Average price overall:   $9347
+> > > >
+> > > > Conclusion ... Dell makes cheaper servers than average, presumably smaller.
+> > >
+> > > So how many CPUs do you think you get in a $9K server?
+> >
+> > Did the numbers track add-on prices, as opposed to base server?  Most
+> > servers are sold with one CPU and lots of extra slots.  Need to dig
+> > down to the add-on data to find upgrades to more CPUs and more memory
+> > in the field (and more disk drives).
+>
+> I included the URL's so you could check for yourself but I arrived at
+> those numbers by taking the world wide revenue associated with servers
+> and dividing by the number of units shipped.  I would expect that would
+> include the add on stuff.
+>
+> I'm sure IBM makes money on their high end stuff but I'd suspect that
+> it is more bragging rights than what keeps the lights on.
+>
+> I think the point which was missed in this whole thread is that even if
+> IBM has fantastic margins today on big iron, it's unlikely to stay that
+> way.  The world is catching up.  I can by a dual 1.8Ghz AMD box for
+> about $1500.  4 ways are more, maybe $10K or so.  So you have the cheapo
+> white boxes coming at you from the low end.
+>
+> On the high end, go look at what customers want.  They are mostly taking
+> those big boxes and partitioning them.  Sooner or later some bright boy
+> is going to realize that they could put 4 4 way boxes in one rack and
+> call it a 16 way box with 4 way partitioning "pre-installed".
 
-	Have fun...
+er you mean like what racksaver.com does with their 2 dual CPU servers in
+a box?
 
-	Jean
+	Gerhard
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

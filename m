@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264982AbTF1Ah6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 20:37:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265013AbTF1Ah4
+	id S265030AbTF1Af1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 20:35:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbTF1Af1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 20:37:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37818 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264982AbTF1Agl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 20:36:41 -0400
-Date: Fri, 27 Jun 2003 17:44:40 -0700 (PDT)
-Message-Id: <20030627.174440.59660428.davem@redhat.com>
-To: lm@bitmover.com
-Cc: mbligh@aracnet.com, greearb@candelatech.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: networking bugs and bugme.osdl.org
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030627225305.GA13785@work.bitmover.com>
-References: <20030627.144426.71096593.davem@redhat.com>
-	<1230000.1056754041@[10.10.2.4]>
-	<20030627225305.GA13785@work.bitmover.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 27 Jun 2003 20:35:27 -0400
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:43181 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S265054AbTF1AcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 20:32:09 -0400
+From: Frank.Schmischke@t-online.de (frank.schmischke)
+To: linux-kernel@vger.kernel.org
+Subject: bug (?) in mounting disk
+Date: Thu, 26 Jun 2003 02:42:40 +0200
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306260242.40215.frank.schmischke@t-online.de>
+X-Seen: false
+X-ID: V8LUY2ZBweVWebhPYHY2qgfyZo8TQ91elJbiKy9LitTruMpoZ51PEX@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Larry McVoy <lm@bitmover.com>
-   Date: Fri, 27 Jun 2003 15:53:05 -0700
+Hallo,
 
-       - one key observation: let bugs "expire" much like news expires.  If
-         nobody has been whining enough that it gets into the high signal 
-         bug db then it probably isn't real.  We really want a way where no
-         activity means let it expire.
+I have a big problem with kernel 2.4.21. I've installed 2.4.21 at 3 computers, 
+where root-partition is on /dev/hda. There, the kernel is working fine.
 
-I want more than time based expiry, I want expiry for me that
-is controlled by me.  When I delete the notification email in
-my mailbox, I never want to see that bug again unless I want to.
+But on my athlon 1000MHz, there I have a via-chipset for UDMA100. So I have a 
+cdrom at /dev/hda and my disk is at /dev/hdc. Until kernel 2.4.20, everything 
+works fine. But with kernel 2.4.21, the kernel will load module 
+block-major-22, so that kernel will crash at fsck (no filesystem is mounted 
+at this time). But ide-disk is compiled in kernel, not as a modul.
+I have have also tried patch -ac2, but this will not help.
 
-This effectively degrades into list posting based bug reports and my
-current email inbox, which is what I'm advocating to use :-)
+I'm using:
+gcc-3.3
+reiserfs-3.6.8
+modutils-2.4.25
+util-linux-2.11z
+pciutils-2.1.11
+binutils-2.14
 
-When I see the "me too, heres some more info" response to the list
-posting, then I'm interested and I'll reread the list thread to
-digest all the information to see what I can make of it.  When this
-happens bugs basically fix themselves, and this occurs only because
-of the acts taken on by the reporters of the bug not me.
+Thanks
+Frank
+

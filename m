@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279981AbRLRLQE>; Tue, 18 Dec 2001 06:16:04 -0500
+	id <S280975AbRLRLsi>; Tue, 18 Dec 2001 06:48:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280002AbRLRLPy>; Tue, 18 Dec 2001 06:15:54 -0500
-Received: from pcow028o.blueyonder.co.uk ([195.188.53.124]:22541 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S279981AbRLRLPu>;
-	Tue, 18 Dec 2001 06:15:50 -0500
-Message-ID: <T57e612d0dbac1785e6169@pcow028o.blueyonder.co.uk>
-Content-Type: text/plain; charset=US-ASCII
-From: James A Sutherland <james@sutherland.net>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Date: Tue, 18 Dec 2001 11:16:05 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0112180350550.6100-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0112180350550.6100-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S280771AbRLRLsS>; Tue, 18 Dec 2001 06:48:18 -0500
+Received: from chello212186127068.14.vie.surfer.at ([212.186.127.68]:41481
+	"EHLO server.home.at") by vger.kernel.org with ESMTP
+	id <S280725AbRLRLsF>; Tue, 18 Dec 2001 06:48:05 -0500
+Subject: cpuid on SMP
+From: Christian Thalinger <e9625286@student.tuwien.ac.at>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 18 Dec 2001 12:46:35 +0100
+Message-Id: <1008675995.13737.2.camel@twisti.home.at>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 18 December 2001 8:55 am, Alexander Viro wrote:
-> On Tue, 18 Dec 2001, James A Sutherland wrote:
-> > Not necessarily. You could, say, put the modules in a small filesystem
-> > image - say, Minix, or maybe ext2. Then just have the loader put that
-> > disk image into RAM, and have the kernel able to read disk images from
-> > RAM initially.
-> >
-> > Of course, this revolutionary new features needs a name. Something like
-> > initrd, perhaps?
->
-> Had you actually looked at initrd-related code?  I had and "bloody mess"
-> is the kindest description I've been able to come up with.  Even after
-> cleanups and boy, were they painful...
+Just wanted to try Dave Jones' x86info. It complained about missing
+/dev/cpu/0/... So i inserted cpuid and started it again. Now it
+complains about /dev/cpu/1/...
 
-With a choice between that, or teaching lilo, grub etc how to link modules - 
-and how to read NTFS and XFS, and losing the ability to boot from fat, minix 
-etc floppies, tftp or nfs servers - almost any level of existing nastiness 
-would be preferable to that sort of insane codebloat!
+And there is no /dev/cpu/1/.
 
+So, kernel is compiled with SMP, but cpuid is not working on both cpus.
 
-James.
+Known bug?
+
+Regards.
+

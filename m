@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130802AbRABOgt>; Tue, 2 Jan 2001 09:36:49 -0500
+	id <S130216AbRABOzM>; Tue, 2 Jan 2001 09:55:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130882AbRABOgj>; Tue, 2 Jan 2001 09:36:39 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:45067 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S130802AbRABOgU>; Tue, 2 Jan 2001 09:36:20 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Wed, 3 Jan 2001 01:01:03 +1100
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: scheduling problem?
-Message-ID: <20010103010103.D18056@linuxcare.com>
-In-Reply-To: <Pine.Linu.4.10.10101020857530.1024-100000@mikeg.weiden.de>
+	id <S130645AbRABOzD>; Tue, 2 Jan 2001 09:55:03 -0500
+Received: from renata.irb.hr ([161.53.129.148]:8708 "EHLO renata.irb.hr")
+	by vger.kernel.org with ESMTP id <S130216AbRABOy5>;
+	Tue, 2 Jan 2001 09:54:57 -0500
+From: Vedran Rodic <vedran@renata.irb.hr>
+Date: Tue, 2 Jan 2001 15:24:09 +0100
+To: Daniel Phillips <phillips@innominate.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-prerelease problems (it corrupted my ext2 filesystem)
+Message-ID: <20010102152409.A10863@renata.irb.hr>
+In-Reply-To: <20010102131507.A7573@renata.irb.hr> <3A51D9BF.23C42DFE@innominate.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.Linu.4.10.10101020857530.1024-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Tue, Jan 02, 2001 at 09:27:43AM +0100
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A51D9BF.23C42DFE@innominate.de>; from phillips@innominate.de on Tue, Jan 02, 2001 at 02:38:07PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi Mike,
+On Tue, Jan 02, 2001 at 02:38:07PM +0100, Daniel Phillips wrote:
+> Could you provide details of your configuration?
+> 
 
-> I am seeing (what I believe is;) severe process CPU starvation in
-> 2.4.0-prerelease.  At first, I attributed it to semaphore troubles
-> as when I enable semaphore deadlock detection in IKD and set it to
-> 5 seconds, it triggers 100% of the time on nscd when I do sequential
-> I/O (iozone eg).  In the meantime, I've done a slew of tracing, and
-> I think the holder of the semaphore I'm timing out on just flat isn't
-> being scheduled so it can release it.  In the usual case of nscd, I
-> _think_ it's another nscd holding the semaphore.  In no trace can I
-> go back far enough to catch the taker of the semaphore or any user
-> task other than iozone running between __down() time and timeout 5
-> seconds later.  (trace buffer covers ~8 seconds of kernel time)
+I put the complete kernel log of that session at http://quark.fsb.hr/~vrodic/kern.log
 
-Did this just appear in recent kernels? Maybe bdflush was hiding the
-situation in earlier kernels as it would cause io hogs to block when
-things got only mildly interesting.
+I scanned my swap device several times today with badblocks -w, and
+it didn't show any errors. I also did some RAM tests with memtest86, 
+again with no errors.
 
-You might be able to get some useful information with ps axl and checking
-the WCHAN value. Of course it wont be possible if like nscd you cant get
-ps to schedule :)
+If you need more details, just ask.
 
-Anton
+> Vedran Rodic wrote:
+> > I was using 2.4.0-prerelease without extra patches and I experienced some
+> > heavy (ext2) file system corruption. I was grabbing some video using bttv at
+> > the time. Kernel didn't oops, but processess just started terminating.
+> > 
+> > Here is a the interesting part from my logs:
+> > 
+> > Bad swap file entry 5c5b6256
+> > VM: killing process qtvidcap
+> > swap_free: Trying to free nonexistent swap-page
+> > last message repeated 23 times
+> > swap_free: Trying to free swap from unused swap-device
+> > swap_free: Trying to free nonexistent swap-page
+> > last message repeated 266 times
+> > Bad swap file entry 272c2e24
+> > VM: killing process pppd
+> > swap_free: Trying to free nonexistent swap-page
+> > last message repeated 30 times
+> 
+> --
+> Daniel
+
+Vedran
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

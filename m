@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276330AbRJPPVv>; Tue, 16 Oct 2001 11:21:51 -0400
+	id <S276347AbRJPPo3>; Tue, 16 Oct 2001 11:44:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276347AbRJPPVl>; Tue, 16 Oct 2001 11:21:41 -0400
-Received: from smtp.seznam.cz ([195.119.180.43]:7955 "HELO email.seznam.cz")
-	by vger.kernel.org with SMTP id <S276330AbRJPPVW>;
-	Tue, 16 Oct 2001 11:21:22 -0400
-Message-ID: <000b01c15656$8fd3c080$5365060a@franta>
-From: "Frantisek Dufka" <dufkaf@seznam.cz>
-To: "Xavier Bestel" <xavier.bestel@free.fr>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <001101c15652$5dadc1e0$5365060a@franta> <1003244878.2424.23.camel@nomade>
-Subject: Re: Wake-up from APM suspend state by /dev/rtc ?
-Date: Tue, 16 Oct 2001 17:23:51 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S276364AbRJPPoI>; Tue, 16 Oct 2001 11:44:08 -0400
+Received: from access-35.98.rev.fr.colt.net ([213.41.98.35]:25098 "HELO
+	phoenix.linuxatbusiness.com") by vger.kernel.org with SMTP
+	id <S276350AbRJPPoE> convert rfc822-to-8bit; Tue, 16 Oct 2001 11:44:04 -0400
+Subject: parport compilation problem with 2.4.13-pre3
+From: Philippe Amelant <philippe.amelant@free.fr>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 16 Oct 2001 16:39:38 +0200
+Message-Id: <1003243178.21984.9.camel@avior>
+Mime-Version: 1.0
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> I remember a little prog called apmsleep, written by Peter Englmaier
-> <ppe@pa.uky.edu> which did exactely that. I don't remember seeing it
-> working on my laptop though.
->
-> Xav
->
 
-Thank you for the info. I will search the web for the source. I think there
-is a better chance with laptop than normal ATX box for this to work. If it's
-fault of the bios I probably can't do anything about it. But thanks anyway.
-At least I know that it can work for someone.
-
-Frantisek
-
-
-
+ieee1284_ops.c: In function `ecp_forward_to_reverse':
+ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in
+this function)
+ieee1284_ops.c:365: (Each undeclared identifier is reported only once
+ieee1284_ops.c:365: for each function it appears in.)
+ieee1284_ops.c: In function `ecp_reverse_to_forward':
+ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in
+this function)
+make[2]: *** [ieee1284_ops.o] Erreur 1
+make[2]: Quitte le répertoire
+`/usr/src/linux-2.4.13-pre3/drivers/parport'
+make[1]: *** [_modsubdir_parport] Erreur 2
+make[1]: Quitte le répertoire `/usr/src/linux-2.4.13-pre3/drivers'
+make: *** [_mod_drivers] Erreur 2
 

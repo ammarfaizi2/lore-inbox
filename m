@@ -1,87 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265629AbUA0USE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 15:18:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbUA0USE
+	id S265673AbUA0UYU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:24:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265677AbUA0UYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 15:18:04 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:54799 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S265629AbUA0URz
+	Tue, 27 Jan 2004 15:24:20 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:64395 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265673AbUA0UYL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 15:17:55 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Frodo Looijaard <frodol@dds.nl>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH to access old-style FAT fs
-References: <20040126173949.GA788@frodo.local>
-	<bv3qb3$4lh$1@terminus.zytor.com> <87n0898sah.fsf@devron.myhome.or.jp>
-	<4016B316.4060304@zytor.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 28 Jan 2004 05:17:45 +0900
-In-Reply-To: <4016B316.4060304@zytor.com>
-Message-ID: <87ad4987ti.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 27 Jan 2004 15:24:11 -0500
+Date: Tue, 27 Jan 2004 17:46:58 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.25-pre7
+In-Reply-To: <20040126165421.679327f0.rusty@rustcorp.com.au>
+Message-ID: <Pine.LNX.4.58L.0401271745490.11421@logos.cnet>
+References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
+ <20040126165421.679327f0.rusty@rustcorp.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
 
-> OGAWA Hirofumi wrote:
-> > 
-> > The new cluster for directory entries must be initialized by 0x00.
-> > And, when the directory entry is deleted, the name[0] is updated by
-> > 0xe5 not 0x00.
-> > 
-> > So, if the name[0] is 0x00, it after, all bytes in cluster is 0x00.
-> > 
-> > The fat driver can stop at name[0] == 0x00, but this is just optimization.
-> > The behavior shouldn't change by this.
-> 
-> I looked at the spec, and yes, that is how the spec reads:
-> 
-> If DIR_Name[0] == 0x00, then the directory entry is free (same as for
-> 0xE5), and there are no allocated directory entries after this one (all
-> of the DIR_Name[0] bytes in all of the entries after this one are also
-> set to 0). The special 0 value, rather than the 0xE5 value, indicates to
-> FAT file system driver code that the rest of the entries in this
-> directory do not need to be examined because they are all free.
-> 
-> I guess the original poster has found filesystems which have a 0
-> followed by garbage.  In cases like that, the cardinal rule for FAT is
-> WWDD (What Would DOS Do)... since I'm pretty sure DOS stops examining at
-> that point, we should do the same.
-> 
-> It's the same thing as with using 0xF8 for ending clusters; it's correct
-> according to spec, but WWDD says 0xFF is the right thing.
 
-The new cluster for directory entries must be initialized by 0x00.
-This is required by spec.
+On Mon, 26 Jan 2004, Rusty Russell wrote:
 
-If cluster has garbage, the fat driver needs to do such the following
-part. Stop at DIR_Name[0] == 0 is not enough, and I don't think DOS
-does this.
+> On Fri, 23 Jan 2004 16:58:24 -0200 (BRST)
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> > Here goes -pre number 7 of 2.4.25 series.
+>
+> Any chance of the forward-compatible module_param patch?
+>
+> Name: 2.4 module_param Forward Compatibility Macros
+> Author: Rusty Russell
+> Status: Tested on 2.5.24-pre6
+> Version: 2.4
+>
+> D: Simple uses of module_param() (implemented in 2.6) can be mapped
+> D: onto the old MODULE_PARM macros.
+> D:
+> D: New code should use module_param() because:
+> D: 1) Types are checked,
+> D: 2) Existence of parameters are checked,
+> D: 3) Customized types are possible [1]
+> D: 4) Customized set/get routines are possible [1]
+> D: 5) Parameters appear as boot params with prefix "<modname>." [1]
+> D: 6) Optional viewing and control through sysfs [2]
+> D:
+> D: [1] Not for 2.4 compatibility macros
+> D: [2] Not in 2.6.1 or 2.4, and only if third arg non-zero.
+>
+> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25425-linux-2.4.25-pre6/include/linux/moduleparam.h .25425-linux-2.4.25-pre6.updated/include/linux/moduleparam.h
+> --- .25425-linux-2.4.25-pre6/include/linux/moduleparam.h	1970-01-01 10:00:00.000000000 +1000
+> +++ .25425-linux-2.4.25-pre6.updated/include/linux/moduleparam.h	2004-01-21 14:24:41.000000000 +1100
+> @@ -0,0 +1,25 @@
+> +#ifndef _LINUX_MODULE_PARAMS_H
+> +#define _LINUX_MODULE_PARAMS_H
+> +/* Macros for (very simple) module parameter compatibility with 2.6. */
+> +#include <linux/module.h>
+> +
+> +/* type is byte, short, ushort, int, uint, long, ulong, bool. (2.6
+> +   has more, but they are not supported).  perm is permissions when
+> +   it appears in sysfs: 0 means doens't appear, 0444 means read-only
+> +   by everyone, 0644 means changable dynamically by root, etc.  name
+> +   must be in scope (unlike MODULE_PARM).
+> +*/
+> +#define module_param(name, type, perm)					     \
+> +	static inline void *__check_existence_##name(void) { return &name; } \
+> +	MODULE_PARM(name, _MODULE_PARM_STRING_ ## type)
+> +
+> +#define _MODULE_PARM_STRING_byte "b"
+> +#define _MODULE_PARM_STRING_short "h"
+> +#define _MODULE_PARM_STRING_ushort "h"
+> +#define _MODULE_PARM_STRING_int "i"
+> +#define _MODULE_PARM_STRING_uint "i"
+> +#define _MODULE_PARM_STRING_long "l"
+> +#define _MODULE_PARM_STRING_ulong "l"
+> +#define _MODULE_PARM_STRING_bool "i"
+> +
+> +#endif /* _LINUX_MODULE_PARAM_TYPES_H */
 
-@@ -709,7 +731,20 @@
- 		}
- 
--		if (IS_FREE((*de)->name)) {
--			if (++row == slots)
-+		if ((oldfat && ((*de)->name[0] == EOD_FLAG)))
-+			last_entry = 1;
-+		if (last_entry || IS_FREE((*de)->name)) {
-+			if (++row == slots) {
-+				if (last_entry) {
-+					/* If we encounter a last_entry, we
-+					 * need to mark the entry after the
-+					 * one to be inserted as last_entry
-+					 * now! */
-+					if (fat_get_entry(dir,&curr,bh,de,i_pos) > -1) {
-+						(*de)->name[0] = 0;
-+						mark_inode_dirty(dir);
-+					}
-+				}
- 				return offset;
-+			}
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Hi Rusty,
+
+I think it is suitable. Will apply.
+
+Thank you.

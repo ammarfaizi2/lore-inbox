@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265466AbRGCFLB>; Tue, 3 Jul 2001 01:11:01 -0400
+	id <S266433AbRGCFLb>; Tue, 3 Jul 2001 01:11:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265473AbRGCFKw>; Tue, 3 Jul 2001 01:10:52 -0400
-Received: from 35.roland.net ([65.112.177.35]:63247 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S265466AbRGCFKr>;
-	Tue, 3 Jul 2001 01:10:47 -0400
-Message-ID: <000201c1037e$95403420$bb1cfa18@JimWS>
+	id <S266414AbRGCFLV>; Tue, 3 Jul 2001 01:11:21 -0400
+Received: from 35.roland.net ([65.112.177.35]:1296 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S265473AbRGCFLE>;
+	Tue, 3 Jul 2001 01:11:04 -0400
+Message-ID: <000301c1037e$95897220$bb1cfa18@JimWS>
 From: "Jim Roland" <jroland@roland.net>
-To: <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>
-In-Reply-To: <200107021509.KAA52993@tomcat.admin.navo.hpc.mil> <Pine.LNX.4.21.0107021307160.3665-100000@benatar.snurgle.org> <9hqc7h$b7f$1@cesium.transmeta.com>
-Subject: Re: Uncle Sam Wants YOU!
-Date: Mon, 2 Jul 2001 13:35:14 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>, "Hua Zhong" <huaz@cs.columbia.edu>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200107021756.NAA24717@razor.cs.columbia.edu>
+Subject: Re: Uncle Sam Wants YOU! 
+Date: Mon, 2 Jul 2001 13:36:24 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -23,59 +24,29 @@ X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-@Home tells you the same thing.  Although they portscanned me frequently,
-they were checking for specific servers and actually deny traffic on ports
-135-139 (Winblows traffic).  Unless they change over to non-routables (which
-would kill things like ICQ, etc) they will not be able to stop me from using
-ssh or others for remote access.  @Home and other providers get around the
-"server" issue by capping your maximum outbound bandwidth.  This is
-something I have had to live with when upload FTP files to some off-site
-game servers I own.
-
-
+I confronted @Home's tech support, and they're programmed to say "server"
+but even tier-2 had no idea what it actually meant that I could and could
+not do.  Go figure.
 
 ----- Original Message -----
-From: "H. Peter Anvin" <hpa@zytor.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Monday, July 02, 2001 12:49 PM
+From: "Hua Zhong" <huaz@cs.columbia.edu>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, July 02, 2001 12:56 PM
 Subject: Re: Uncle Sam Wants YOU!
 
 
-> Followup to:
-<Pine.LNX.4.21.0107021307160.3665-100000@benatar.snurgle.org>
-> By author:    William T Wilson <fluffy@snurgle.org>
-> In newsgroup: linux.dev.kernel
-> >
-> > On Mon, 2 Jul 2001, Jesse Pollard wrote:
-> >
-> > > Better re-read the fine print on the "fair-use" statement. BOTH DSL
-> > > and Cable, or dialup (New Orleans at least) will disconnect you if you
-> > > run ANY unattended operation (if they determine it IS unattended). No
-> >
-> > This would take a lot of watching on their part.
-> >
-> > My cable company occasionally portscans me, so I blackholed the
-> > portscanning machine.  Even before I had done that, though, they never
-> > complained about my remote logins.  They only complain if you use
-> > excessive bandwidth or if you do anything commercial.
-> >
-> > The DSL provider here, when it was still US West, explicitly stated to
-me
-> > (over the phone) that they absolutely did not care what I did with it as
-> > long as it was not illegal.  However they would still not give you a
-> > static IP address unless you paid them extra money. :}
-> >
+> -> From "H. Peter Anvin" <hpa@zytor.com> :
+> > When I got Pac*Smell DSL, the installer guy (who seemed to be a
+> > relatively clueful type) said "and [the contract] says you're not
+> > allowed to run a server... but who'd know?"
 >
-> When I got Pac*Smell DSL, the installer guy (who seemed to be a
-> relatively clueful type) said "and [the contract] says you're not
-> allowed to run a server... but who'd know?"
+> ..and please define "server".  Does it mean that you can not run any
+programs
+> listening on a port and accepting incoming connections or datagrams? :-)
 >
-> -hpa
 >
-> --
-> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-> "Unix gives you enough rope to shoot yourself in the foot."
-> http://www.zytor.com/~hpa/puzzle.txt
+>
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

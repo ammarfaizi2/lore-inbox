@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbUKEAzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbUKEBDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbUKEAzI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 19:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUKEAxw
+	id S262546AbUKEBDM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 20:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbUKEBAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 19:53:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5087 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262530AbUKEAtZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 19:49:25 -0500
-X-Donotread: and you are reading this why?
-Subject: [PATCH] More Driver Core patches for 2.6.10-rc1
-In-Reply-To: <20041105003542.GA31842@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Thu, 4 Nov 2004 16:48:24 -0800
-Message-Id: <10996157042090@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Thu, 4 Nov 2004 20:00:37 -0500
+Received: from ozlabs.org ([203.10.76.45]:23451 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262529AbUKEA66 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 19:58:58 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16778.51715.549626.146658@cargo.ozlabs.ibm.com>
+Date: Fri, 5 Nov 2004 11:32:03 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.10-rc1] Add __KERNEL__ to <linux/crc-ccitt.h>
+In-Reply-To: <20041104173712.GA13456@smtp.west.cox.net>
+References: <20041104173712.GA13456@smtp.west.cox.net>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2449.2.1, 2004/11/03 13:50:35-08:00, maneesh@in.ibm.com
+Tom Rini writes:
 
-[PATCH] sysfs: fix sysfs backing store error path confusion
+> Hello.  The following adds a __KERNEL__ check to <linux/crc-ccitt.h>.
+> The problem is that the ppp package includes <linux/ppp_defs.h> via
+> <net/ppp_defs.h>, which in turn gets <linux/crc-ccitt.h>.
 
-o sysfs_new_dirent to retrun 0 if kmalloc fails. Thanks to Milton Miller
-  for spotting this.
+By "the ppp package" do you mean my pppd or someone else's package?  I
+though I had my version using a local copy of the necessary headers.
 
-Signed-off-by: Maneesh Soni <maneesh@in.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- fs/sysfs/dir.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/fs/sysfs/dir.c b/fs/sysfs/dir.c
---- a/fs/sysfs/dir.c	2004-11-04 16:31:16 -08:00
-+++ b/fs/sysfs/dir.c	2004-11-04 16:31:16 -08:00
-@@ -56,7 +56,7 @@
- 
- 	sd = sysfs_new_dirent(parent_sd, element);
- 	if (!sd)
--		return -ENOMEM;
-+		return 0;
- 
- 	sd->s_mode = mode;
- 	sd->s_type = type;
-
+Paul.

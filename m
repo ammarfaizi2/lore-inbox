@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbTD1WbY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 18:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTD1WbY
+	id S261359AbTD1WfH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 18:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTD1WfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 18:31:24 -0400
-Received: from holomorphy.com ([66.224.33.161]:29384 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261365AbTD1WbX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 18:31:23 -0400
-Date: Mon, 28 Apr 2003 15:43:33 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Henti Smith <bain@tcsn.co.za>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, Riley Williams <Riley@Williams.Name>
-Subject: Re: [Lse-tech] Re: maximum possible memory limit ..
-Message-ID: <20030428224333.GY30441@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-	Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
-	Henti Smith <bain@tcsn.co.za>, linux-kernel@vger.kernel.org,
-	lse-tech@lists.sourceforge.net,
-	Riley Williams <Riley@Williams.Name>
-References: <20030424200524.5030a86b.bain@tcsn.co.za> <3EAD27B2.9010807@gmx.net> <20030428141023.GC4525@Wotan.suse.de> <3EAD5AC1.7090003@us.ibm.com> <3EAD5D90.7010101@gmx.net> <3EAD61FB.30907@us.ibm.com> <3EAD6688.7060809@gmx.net>
+	Mon, 28 Apr 2003 18:35:07 -0400
+Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:26247 "HELO
+	mail.keyresearch.com") by vger.kernel.org with SMTP id S261359AbTD1WfF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 18:35:05 -0400
+Subject: [PATCH] Make struct alt_instr acceptable to userland
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Andrew Morton <akpm@digeo.com>, ak@suse.de
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051570042.12949.67.camel@serpentine.internal.keyresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EAD6688.7060809@gmx.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 28 Apr 2003 15:47:22 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
->> Unless, of course, someone gets even more perverse than PAE. :)
+Andi's new struct alt_instr is visible to klibc.  The attached patch
+changes the types it uses, so that klibc becomes happy.
 
-On Mon, Apr 28, 2003 at 07:36:08PM +0200, Carl-Daniel Hailfinger wrote:
-> hehe ;-) Can you say PAE in userspace?
+	<b
 
-In a sense, already done; c.f. sys_remap_file_pages().
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1142  -> 1.1143 
+#	include/asm-i386/system.h	1.27    -> 1.28   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/04/28	bos@serpentine.com	1.1143
+# struct alt_instr is visible to userland, so change the types it uses
+# --------------------------------------------
+#
+diff -Nru a/include/asm-i386/system.h b/include/asm-i386/system.h
+--- a/include/asm-i386/system.h	Mon Apr 28 15:43:42 2003
++++ b/include/asm-i386/system.h	Mon Apr 28 15:43:42 2003
+@@ -278,11 +278,11 @@
+ #endif
+ 
+ struct alt_instr { 
+-	u8 *instr; 		/* original instruction */
+-	u8  cpuid;		/* cpuid bit set for replacement */
+-	u8  instrlen;		/* length of original instruction */
+-	u8  replacementlen; 	/* length of new instruction, <= instrlen */ 
+-	u8  replacement[0];   	/* new instruction */
++	__u8 *instr; 		/* original instruction */
++	__u8  cpuid;		/* cpuid bit set for replacement */
++	__u8  instrlen;		/* length of original instruction */
++	__u8  replacementlen; 	/* length of new instruction, <= instrlen */ 
++	__u8  replacement[0];	/* new instruction */
+ }; 
+ 
+ /* 
 
 
--- wli
+

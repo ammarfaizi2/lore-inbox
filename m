@@ -1,190 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316705AbSFJHBz>; Mon, 10 Jun 2002 03:01:55 -0400
+	id <S316712AbSFJHFw>; Mon, 10 Jun 2002 03:05:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316709AbSFJHBz>; Mon, 10 Jun 2002 03:01:55 -0400
-Received: from mta06ps.bigpond.com ([144.135.25.138]:48356 "EHLO
-	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S316705AbSFJHBs> convert rfc822-to-8bit; Mon, 10 Jun 2002 03:01:48 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Dawson Engler <engler@csl.Stanford.EDU>, linux-kernel@vger.kernel.org
+	id <S316709AbSFJHFv>; Mon, 10 Jun 2002 03:05:51 -0400
+Received: from csl.Stanford.EDU ([171.64.66.149]:37780 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S316712AbSFJHFu>;
+	Mon, 10 Jun 2002 03:05:50 -0400
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200206100705.AAA19208@csl.Stanford.EDU>
 Subject: Re: [CHECKER] 54 missing null pointer checks in 2.4.17
-Date: Mon, 10 Jun 2002 17:03:13 +1000
-User-Agent: KMail/1.4.5
-Cc: mc@cs.Stanford.EDU
-In-Reply-To: <200206100355.UAA17040@csl.Stanford.EDU>
+To: adilger@clusterfs.com (Andreas Dilger)
+Date: Mon, 10 Jun 2002 00:05:48 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
+In-Reply-To: <20020610063510.GG20388@turbolinux.com> from "Andreas Dilger" at Jun 10, 2002 12:35:10 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200206101703.13780.bhards@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jun 2002 13:55, Dawson Engler wrote:
-Thanks for these. Patch for 2.4.19-pre10 to fix catc and se401 bugs currently 
-compile testing :)
+> Ah, but the checker is still (subtly) wrong in this case.  The difference
+> is that "jbd_kmalloc()" (a macro calling __jbd_kmalloc in the 5 functions
+> which check the return code) depends on the "journal_oom_retry" variable
+> to determine whether or not it is "allowed" to return NULL.  In contrast,
+> the one call to "jbd_rep_kmalloc()" flagged above is a macro which
+> calls __jbd_kmalloc() with "retry = 1" so it is never allowed to fail
+> and return NULL.
 
-But I think that you have a problem identifying the errors in these cases.
+Ah.  Got it.  Yeah, we're not doing much inter-procedural false path
+pruning.  Hopefully within a month or so --- Andy Chou and Yichen Xie
+are building an analysis pass that uses a SAT solver to suppress such
+things.  It discovers some pretty crazy relationships and is actually
+pretty fast.
 
+> in most cases the checker is correct.  
 
-> [BUG]
-> /u2/engler/mc/oses/linux/2.4.17/drivers/usb/se401.c:1430:se401_init:
-> ERROR:NULL:1427:1430:Using ptr "(*se401).width" illegally! set by
-> 'kmalloc_Rsmp_93d4cfe6':1427 [COUNTER=kmalloc_Rsmp_93d4cfe6:1427] [fit=46]
-> [fit_fn=4] [fn_ex=0] [fn_counter=3] [ex=59] [counter=9] [z =
-> -3.11592335081808] [fn-z = -7.54983443527075] return 1;
-> 	}
-> 	sprintf (temp, "ExtraFeatures: %d", cp[3]);
->
-> 	se401->sizes=cp[4]+cp[5]*256;
-> Start --->
-> 	se401->width=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> 	se401->height=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> 	for (i=0; i<se401->sizes; i++) {
-> Error --->
-> 		    se401->width[i]=cp[6+i*4+0]+cp[6+i*4+1]*256;
-> 		    se401->height[i]=cp[6+i*4+2]+cp[6+i*4+3]*256;
-> 	}
-> 	sprintf (temp, "%s Sizes:", temp);
-> ---------------------------------------------------------
-bradh: this one is right.
+To be fair, it's the checker + our inspection that is mostly correct
+;-) Though the uninspected false pos rate is pretty low.
 
-> [BUG]
-> /u2/engler/mc/oses/linux/2.4.17/drivers/usb/se401.c:1435:se401_init:
-> ERROR:NULL:1427:1435:Using ptr "(*se401).width" illegally! set by
-> 'kmalloc_Rsmp_93d4cfe6':1427 [COUNTER=kmalloc_Rsmp_93d4cfe6:1427] [fit=46]
-> [fit_fn=4] [fn_ex=0] [fn_counter=3] [ex=59] [counter=9] [z =
-> -3.11592335081808] [fn-z = -7.54983443527075] return 1;
-> 	}
-> 	sprintf (temp, "ExtraFeatures: %d", cp[3]);
->
-> 	se401->sizes=cp[4]+cp[5]*256;
-> Start --->
-> 	se401->width=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> 	se401->height=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> 	for (i=0; i<se401->sizes; i++) {
-> 		    se401->width[i]=cp[6+i*4+0]+cp[6+i*4+1]*256;
-> 		    se401->height[i]=cp[6+i*4+2]+cp[6+i*4+3]*256;
-> 	}
-> 	sprintf (temp, "%s Sizes:", temp);
-> 	for (i=0; i<se401->sizes; i++) {
-> Error --->
-> 		sprintf(temp, "%s %dx%d", temp, se401->width[i], se401->height[i]);
-> 	}
-> 	info("%s", temp);
-> 	se401->maxframesize=se401->width[se401->sizes-1]*se401->height[se401->size
->s-1]*3; ---------------------------------------------------------
-bradh: this one is wrong. If it didn't oops on the previous one, it won't oops 
-here :)
+> Have you thought about supporting
+> "checker meta comments" (like lint did) to allow one to flag a piece of
+> code as being "correct" for a certain check so that it doesn't always
+> show up on your test runs?
 
-> [BUG]
-> /u2/engler/mc/oses/linux/2.4.17/drivers/usb/se401.c:1438:se401_init:
-> ERROR:NULL:1427:1438:Using ptr "(*se401).width" illegally! set by
-> 'kmalloc_Rsmp_93d4cfe6':1427 [COUNTER=kmalloc_Rsmp_93d4cfe6:1427] [fit=46]
-> [fit_fn=4] [fn_ex=0] [fn_counter=3] [ex=59] [counter=9] [z =
-> -3.11592335081808] [fn-z = -7.54983443527075] return 1;
-> 	}
-> 	sprintf (temp, "ExtraFeatures: %d", cp[3]);
->
-> 	se401->sizes=cp[4]+cp[5]*256;
-> Start --->
-> 	se401->width=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> 	se401->height=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> 	for (i=0; i<se401->sizes; i++) {
-> 		    se401->width[i]=cp[6+i*4+0]+cp[6+i*4+1]*256;
-> 		    se401->height[i]=cp[6+i*4+2]+cp[6+i*4+3]*256;
-> 	}
-> 	sprintf (temp, "%s Sizes:", temp);
-> 	for (i=0; i<se401->sizes; i++) {
-> 		sprintf(temp, "%s %dx%d", temp, se401->width[i], se401->height[i]);
-> 	}
-> 	info("%s", temp);
-> Error --->
-> 	se401->maxframesize=se401->width[se401->sizes-1]*se401->height[se401->size
->s-1]*3;
->
-> 	rc=se401_sndctrl(0, se401, SE401_REQ_GET_WIDTH, 0, cp, sizeof(cp));
-> 	se401->cwidth=cp[0]+cp[1]*256;
-> ---------------------------------------------------------
-bradh: this can't be the error, see above.
+I wasn't that optimistic that people would be willing to annotate their
+code.  It is pretty easy to add such annotations with distinguished
+function calls.  E.g.,
+	/* shut up checker null pointer warnings */
+	mc_no_null_bug(p);
+where p is a pointer var --- it can be #define'd to nothing when the
+checker isn't being used.  Also, the checker can turn the annot into
+a sort of checkable comment by warning when the annotation is not
+needed.
 
-> [BUG]
-> /u2/engler/mc/oses/linux/2.4.17/drivers/usb/se401.c:1431:se401_init:
-> ERROR:NULL:1428:1431:Using ptr "(*se401).height" illegally! set by
-> 'kmalloc_Rsmp_93d4cfe6':1428 [COUNTER=kmalloc_Rsmp_93d4cfe6:1428] [fit=46]
-> [fit_fn=5] [fn_ex=0] [fn_counter=3] [ex=59] [counter=9] [z =
-> -3.11592335081808] [fn-z = -7.54983443527075] }
-> 	sprintf (temp, "ExtraFeatures: %d", cp[3]);
->
-> 	se401->sizes=cp[4]+cp[5]*256;
-> 	se401->width=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> Start --->
-> 	se401->height=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> 	for (i=0; i<se401->sizes; i++) {
-> 		    se401->width[i]=cp[6+i*4+0]+cp[6+i*4+1]*256;
-> Error --->
-> 		    se401->height[i]=cp[6+i*4+2]+cp[6+i*4+3]*256;
-> 	}
-> 	sprintf (temp, "%s Sizes:", temp);
-> 	for (i=0; i<se401->sizes; i++) {
-> ---------------------------------------------------------
-This is the true bug.
+Instead we use a history-based approach: both false positives and bugs
+are stuffed into a file which subsequent runs use to relabel messages
+as old false positives or unfixed bugs.  The messages are canonicalized
+so that most source edits don't make them invalid.  E.g., we keep file,
+function, variable names and such but strip line numbers and other
+things.  The advantage is that you don't have to modify your source for
+checkers to go over it.  Which is good, given the current patch
+process.
 
-> [BUG]
-> /u2/engler/mc/oses/linux/2.4.17/drivers/usb/se401.c:1435:se401_init:
-> ERROR:NULL:1428:1435:Using ptr "(*se401).height" illegally! set by
-> 'kmalloc_Rsmp_93d4cfe6':1428 [COUNTER=kmalloc_Rsmp_93d4cfe6:1428] [fit=46]
-> [fit_fn=5] [fn_ex=0] [fn_counter=3] [ex=59] [counter=9] [z =
-> -3.11592335081808] [fn-z = -7.54983443527075] }
-> 	sprintf (temp, "ExtraFeatures: %d", cp[3]);
->
-> 	se401->sizes=cp[4]+cp[5]*256;
-> 	se401->width=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> Start --->
-> 	se401->height=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> 	for (i=0; i<se401->sizes; i++) {
-> 		    se401->width[i]=cp[6+i*4+0]+cp[6+i*4+1]*256;
-> 		    se401->height[i]=cp[6+i*4+2]+cp[6+i*4+3]*256;
-> 	}
-> 	sprintf (temp, "%s Sizes:", temp);
-> 	for (i=0; i<se401->sizes; i++) {
-> Error --->
-> 		sprintf(temp, "%s %dx%d", temp, se401->width[i], se401->height[i]);
-> 	}
-> 	info("%s", temp);
-> 	se401->maxframesize=se401->width[se401->sizes-1]*se401->height[se401->size
->s-1]*3; ---------------------------------------------------------
-This can't be.
+If you're interested, there are a bunch of papers on this and other things
+at
+	www.stanford.edu/~engler
 
-> [BUG]
-> /u2/engler/mc/oses/linux/2.4.17/drivers/usb/se401.c:1438:se401_init:
-> ERROR:NULL:1428:1438:Using ptr "(*se401).height" illegally! set by
-> 'kmalloc_Rsmp_93d4cfe6':1428 [COUNTER=kmalloc_Rsmp_93d4cfe6:1428] [fit=46]
-> [fit_fn=5] [fn_ex=0] [fn_counter=3] [ex=59] [counter=9] [z =
-> -3.11592335081808] [fn-z = -7.54983443527075] }
-> 	sprintf (temp, "ExtraFeatures: %d", cp[3]);
->
-> 	se401->sizes=cp[4]+cp[5]*256;
-> 	se401->width=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> Start --->
-> 	se401->height=kmalloc(se401->sizes*sizeof(int), GFP_KERNEL);
-> 	for (i=0; i<se401->sizes; i++) {
-> 		    se401->width[i]=cp[6+i*4+0]+cp[6+i*4+1]*256;
-> 		    se401->height[i]=cp[6+i*4+2]+cp[6+i*4+3]*256;
-> 	}
-> 	sprintf (temp, "%s Sizes:", temp);
-> 	for (i=0; i<se401->sizes; i++) {
-> 		sprintf(temp, "%s %dx%d", temp, se401->width[i], se401->height[i]);
-> 	}
-> 	info("%s", temp);
-> Error --->
-> 	se401->maxframesize=se401->width[se401->sizes-1]*se401->height[se401->size
->s-1]*3;
->
-> 	rc=se401_sndctrl(0, se401, SE401_REQ_GET_WIDTH, 0, cp, sizeof(cp));
-> 	se401->cwidth=cp[0]+cp[1]*256;
-> ---------------------------------------------------------
-This can't be.
-
-
+Thanks for your feedback!
+Dawson

@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266702AbSL3FN2>; Mon, 30 Dec 2002 00:13:28 -0500
+	id <S266643AbSL3FWa>; Mon, 30 Dec 2002 00:22:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266708AbSL3FN2>; Mon, 30 Dec 2002 00:13:28 -0500
-Received: from packet.digeo.com ([12.110.80.53]:25595 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266702AbSL3FN2>;
-	Mon, 30 Dec 2002 00:13:28 -0500
-Message-ID: <3E0FD7E4.A3EB612D@digeo.com>
-Date: Sun, 29 Dec 2002 21:21:40 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: khromy <khromy@lnuxlab.ath.cx>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.53-mm2 timing problems
-References: <20021230045335.GA26066@lnuxlab.ath.cx>
-Content-Type: text/plain; charset=us-ascii
+	id <S266708AbSL3FWa>; Mon, 30 Dec 2002 00:22:30 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:29968 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S266643AbSL3FW3>;
+	Mon, 30 Dec 2002 00:22:29 -0500
+Subject: nfsservctl documentation?
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041226244.17074.56.camel@zaphod>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 30 Dec 2002 00:30:45 -0500
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Dec 2002 05:21:43.0706 (UTC) FILETIME=[573F87A0:01C2AFC3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-khromy wrote:
-> 
-> When playing netris, the shapes fall a lot faster in 2.5.53-mm2 than in
-> 2.4.20 and in 2.5.53.  Also, the login prompt says "login timed out
-> after 60 seconds" when only about 10-15 have passed.
+is there any real documentation on this syscall anywhere?  i.e. if one
+wanted to write a daemon that dynamically dealt with nfs exports
+(creating/removing/changing) this syscall would seem very appropriate
+(at least as I understand), but I can't find any documentation besides
+the skimpy man page on how to use it.
 
-Seems that this is because different parts of the kernel are using
-different values of HZ (!).
+am I not supposed to use it? :)
 
-In include/asm-i386/param.h, please add:
+thanks,
 
- #ifdef __KERNEL__
+shaya
 
-+#include <linux/config.h>
-
- #ifdef CONFIG_1000HZ

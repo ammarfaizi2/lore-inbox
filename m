@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287048AbSA1WP1>; Mon, 28 Jan 2002 17:15:27 -0500
+	id <S286942AbSA1WQQ>; Mon, 28 Jan 2002 17:16:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286959AbSA1WPR>; Mon, 28 Jan 2002 17:15:17 -0500
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:32702 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S286942AbSA1WPC>; Mon, 28 Jan 2002 17:15:02 -0500
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Daniel Jacobowitz <dan@debian.org>, Andrew Morton <akpm@zip.com.au>
-Cc: <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH?] Crash in 2.4.17/ptrace
-Date: Mon, 28 Jan 2002 23:15:28 +0100
-Message-Id: <20020128221529.24108@smtp.wanadoo.fr>
-In-Reply-To: <3C55C2AB.AE73A75D@zip.com.au>
-In-Reply-To: <3C55C2AB.AE73A75D@zip.com.au>
-X-Mailer: CTM PowerMail 3.1.1 <http://www.ctmdev.com>
-MIME-Version: 1.0
+	id <S286959AbSA1WP5>; Mon, 28 Jan 2002 17:15:57 -0500
+Received: from dsl-213-023-039-090.arcor-ip.net ([213.23.39.90]:2439 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286942AbSA1WPz>;
+	Mon, 28 Jan 2002 17:15:55 -0500
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Momchil Velikov <velco@fadata.bg>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+Date: Mon, 28 Jan 2002 23:19:46 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>, <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+In-Reply-To: <Pine.LNX.4.33.0201281005480.1609-100000@penguin.transmeta.com> <E16VHy5-0000Bz-00@starship.berlin> <87u1t6f83i.fsf@fadata.bg>
+In-Reply-To: <87u1t6f83i.fsf@fadata.bg>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VK7z-0000D6-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Well, get_user_pages is used by several parts of the kernel.
->In the O_DIRECT/map_user_kiobuf case, we could end up asking
->the disk controller to perform busmastering against the video
->PCI device, which will probably explode somewhere down the chain.
+On January 28, 2002 11:01 pm, Momchil Velikov wrote:
+> >>>>> "Daniel" == Daniel Phillips <phillips@bonn-fries.net> writes:
+> 
+> Daniel> I'd cheerfully hand this coding effort off to someone more familiar with this 
+> Daniel> particular neck of the kernel woods - you, Davem and Marcelo come to mind, 
+> Daniel> but if nobody bites I'll just continue working on it at my own pace.  I 
+> 
+> BTW, I'm doing just this, working on it at my own pace. 
 
-Well... not sure. I'd like this to be doable. I have worked
-on some high-end broadcast video stuffs in the past, and we
-did intensive use of direct bus master from the disk controller
-to the framebuffer linear aperture. Actually, we even controlled
-the scatter gather list to "sort" lines ;)
+Right, well in a couple of days we can compare notes.  I'm a little
+embarrassed at the state of the code as of today, I think I'm interpreting
+some of those ulongs as things they shouldn't be.
 
-If the HW cause a fault, the disk controller should stop and
-report an error, and the process should be signaled instead
-of getting an oops, but I don't know these code path in linux
-at all so...
+This would be a whole lot easier if those ugly macros in pgtable.h were inlines
+with pagetable_t etc. parameters instead.
 
->Also, just because the hardware is mapped into the process
->virtual address space, it's not necessarily all accessible.
->It is possible to get a bus fault against part of the mapping.
->And the kernel doesn't expect to get bus faults on the source
->of copy_to_user, I think.
-
-Well. My point of view here is fix copy_to_user, but well...
-
->I'm sure Andrea will have a better notion than I.  Sometimes I
->just fling out random patches to get people thinking about
->things ;)
-
-Ben.
-
-
-
+-- 
+Daniel

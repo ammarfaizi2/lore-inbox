@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVASAHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVASALQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVASAHT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 19:07:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVASAHS
+	id S261496AbVASALQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 19:11:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVASALP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 19:07:18 -0500
-Received: from ozlabs.org ([203.10.76.45]:27293 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261488AbVASAGp (ORCPT
+	Tue, 18 Jan 2005 19:11:15 -0500
+Received: from mail.kroah.org ([69.55.234.183]:46220 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261496AbVASAK4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 19:06:45 -0500
-Subject: Re: [patch 2/2] mm: Reimplementation of alloc_percpu
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-In-Reply-To: <20050118151534.GA2126@impedimenta.in.ibm.com>
-References: <20050117183014.GB2322@impedimenta.in.ibm.com>
-	 <20050117183617.GC2322@impedimenta.in.ibm.com>
-	 <1106011832.30801.5.camel@localhost.localdomain>
-	 <20050118151534.GA2126@impedimenta.in.ibm.com>
-Content-Type: text/plain
-Date: Wed, 19 Jan 2005 10:30:05 +1100
-Message-Id: <1106091005.21033.6.camel@localhost.localdomain>
+	Tue, 18 Jan 2005 19:10:56 -0500
+Date: Tue, 18 Jan 2005 16:09:36 -0800
+From: Greg KH <greg@kroah.com>
+To: Ed L Cashin <ecashin@coraid.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] AOE: fix up the block device registration so that it actually works now.
+Message-ID: <20050119000935.GA22454@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-18 at 20:45 +0530, Ravikiran G Thirumalai wrote:
-> On Tue, Jan 18, 2005 at 12:30:32PM +1100, Rusty Russell wrote:
-> > On Tue, 2005-01-18 at 00:06 +0530, Ravikiran G Thirumalai wrote:
-> > > ...
-> > > The allocator can be easily modified to use __per_cpu_offset[] table at a later
-> > > stage by: 
-> > > 1. Allocating ALIGN(__per_cpu_end - __per_cpu_start, PAGE_SIZE) for the
-> > >    static percpu areas and populating __per_cpu_offset[] offset table
-> > > 2. Making PCPU_BLKSIZE same as the static per cpu area size above
-> > > 3. Serving dynamic percpu requests from modules etc from blocks by
-> > >    returning ret -= __per_cpu_offset[0] from a percpu block.  This way
-> > >    modules need not have a limit on static percpu areas.
-> > 
-> > Unfortunately ia64 breaks (3).  They have pinned TLB entries covering
-> > 64k, which they put the static per-cpu data into.  This is used for
-> > local_inc, etc, and David Mosberger loved that trick (this is why my
-> > version allocated from that first reserved block for modules' static
-> > per-cpu vars).
-> 
-> Hmmm... then if we change (1) to allocate PERCPU_ENOUGH_ROOM, then the math
-> will work out?  We will still have a limit on static per-cpu areas in
-> modules, but alloc_percpu can use the same __per_cpu_offset table[].
-> Will this work?
+Ed, I need the following patch against the latest -bk tree in order to
+get the aoe code to load and work properly.  Does it look good to you?
 
-I think so.
+thanks,
 
-> But, what I am concerned is about arches like x86_64 which currently
-> do not maintain the relation:
-> __per_cpu_offset[n] = __per_cpu_offset[0] + static_percpu_size * n  ---> (A)
-> correct me if I am wrong, but both our methods for alloc_percpu to use
-> per_cpu_offset depend on the static per-cpu areas being virtually
-> contiguous (with relation (A) above being maintained).
-> If arches cannot sew up node local pages to form a virtually contiguous
-> block, maybe because setup_per_cpu_areas happens early during boot, 
-> then we will have a problem.
+greg k-h
 
-They don't actually have to be contiguous, although that makes it
-easier.  They can reserve virtual address space to extend their per-cpu
-areas.  I think this is a worthwhile tradeoff if they want to do this.
+-------------
 
-Cheers,
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+AOE: fix up the block device registration so that it actually works now.
 
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+diff -Nru a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
+--- a/drivers/block/aoe/aoeblk.c	2005-01-18 16:06:57 -08:00
++++ b/drivers/block/aoe/aoeblk.c	2005-01-18 16:06:57 -08:00
+@@ -249,6 +249,7 @@
+ aoeblk_exit(void)
+ {
+ 	kmem_cache_destroy(buf_pool_cache);
++	unregister_blkdev(AOE_MAJOR, DEVICE_NAME);
+ }
+ 
+ int __init
+diff -Nru a/drivers/block/aoe/aoemain.c b/drivers/block/aoe/aoemain.c
+--- a/drivers/block/aoe/aoemain.c	2005-01-18 16:06:57 -08:00
++++ b/drivers/block/aoe/aoemain.c	2005-01-18 16:06:57 -08:00
+@@ -82,11 +82,6 @@
+ 	ret = aoenet_init();
+ 	if (ret)
+ 		goto net_fail;
+-	ret = register_blkdev(AOE_MAJOR, DEVICE_NAME);
+-	if (ret < 0) {
+-		printk(KERN_ERR "aoe: aoeblk_init: can't register major\n");
+-		goto blkreg_fail;
+-	}
+ 
+ 	printk(KERN_INFO
+ 	       "aoe: aoe_init: AoE v2.6-%s initialised.\n",

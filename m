@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbULBSRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbULBSUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbULBSRw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 13:17:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbULBSRi
+	id S261710AbULBSUo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 13:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbULBSUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 13:17:38 -0500
-Received: from pakastelohi.cypherpunks.to ([82.94.251.194]:32981 "EHLO
-	mail.cypherpunks.to") by vger.kernel.org with ESMTP id S261685AbULBSRa
+	Thu, 2 Dec 2004 13:20:44 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:37341 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261702AbULBSUe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 13:17:30 -0500
-From: Anonymous via the Cypherpunks Tonga Remailer 
-	<nobody@cypherpunks.to>
-Comments: This message did not originate from the Sender address above.
-	It was remailed automatically by anonymizing remailer software.
-	Please report problems or inappropriate use to the
-	remailer administrator at <abuse@cypherpunks.to>.
-To: linux-kernel@vger.kernel.org
-Subject: ext3 on encrypted device mapper
-Message-Id: <20041202181727.5B50011643@mail.cypherpunks.to>
-Date: Thu,  2 Dec 2004 19:17:27 +0100 (CET)
+	Thu, 2 Dec 2004 13:20:34 -0500
+To: cliff white <cliffw@osdl.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, mbligh@aracnet.com, akpm@osdl.org,
+       torvalds@osdl.org, clameter@sgi.com, hugh@veritas.com,
+       benh@kernel.crashing.org, nickpiggin@yahoo.com.au, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance tests 
+In-reply-to: Your message of Thu, 02 Dec 2004 10:10:29 PST.
+             <20041202101029.7fe8b303.cliffw@osdl.org> 
+Date: Thu, 02 Dec 2004 10:17:55 -0800
+Message-Id: <E1CZvWd-0001hv-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+On Thu, 02 Dec 2004 10:10:29 PST, cliff white wrote:
+> On Thu, 02 Dec 2004 02:31:35 -0500
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+> > Martin J. Bligh wrote:
+> > > Yeah, probably. Though the stress tests catch a lot more than the 
+> > > functionality ones. The big pain in the ass is drivers, because I don't
+> > > have a hope in hell of testing more than 1% of them.
+> > 
+> > My dream is that hardware vendors rotate their current machines through 
+> > a test shop :)  It would be nice to make sure that the popular drivers 
+> > get daily test coverage.
+> > 
+> > 	Jeff, dreaming on
+> 
+> OSDL has recently re-done the donation policy, and we're much better positioned
+> to support that sort of thing now - Contact Tom Hanrahan at OSDL if you 
+> are a vendor, or know a vendor. ( Or you can become a vendor ) 
 
-i'm using a linux debian sarge on an encrypted root filesystem with linux 2.6.10-rc2 kernel.
+Specifically Tom Hanrahan == hanrahat@osdl.org
 
-Filesystem is encrypted using dmcrypt, the encryption framework working on top of the device mapper.
-
-I deleted a file and immediatelly i attempted to recover it using debugfs.
-
-Linux aaa 2.6.10-rc2 #1 Wed Dec 1 09:52:37 CET 2004 i686 GNU/Linux
-
-aaa:~# df -k .
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/mapper/rootfs     8676440   5278584   2957108  65% /
-
-aaa:~# debugfs /dev/mapper/rootfs
-debugfs 1.35 (28-Feb-2004)
-debugfs:  lsdel
-
-aaa:~# strings /dev/mapper/rootfs
-strings: Warning: '/dev/mapper/rootfs' is not an ordinary file
-
-Unfortunatelly neither with debugfs neither with a rogue strings i can access data on the encrypted filesystem.
-
-I think that device mapper should be modified to allow debugfs checking and to allow access on it like a tradional hard drive.
-
-Regards
-
---aaa
+gerrit

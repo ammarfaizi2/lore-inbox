@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316863AbSFKJGn>; Tue, 11 Jun 2002 05:06:43 -0400
+	id <S316958AbSFKJJT>; Tue, 11 Jun 2002 05:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316958AbSFKJGm>; Tue, 11 Jun 2002 05:06:42 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1295 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316863AbSFKJGl>; Tue, 11 Jun 2002 05:06:41 -0400
-Date: Tue, 11 Jun 2002 10:06:34 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
-Message-ID: <20020611100634.D1346@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D048CFD.2090201@evision-ventures.com> <20020611004000.GH5202@kroah.com> <3D0599AE.7080809@evision-ventures.com> <20020611092637.C1346@flint.arm.linux.org.uk> <3D05B61F.4010609@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+	id <S316961AbSFKJJS>; Tue, 11 Jun 2002 05:09:18 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:7138 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S316958AbSFKJJS>; Tue, 11 Jun 2002 05:09:18 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        k-suganuma@mvj.biglobe.ne.jp
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support 
+In-Reply-To: Your message of "Tue, 11 Jun 2002 00:42:32 MST."
+             <3D05A9E8.FF0DA223@zip.com.au> 
+Date: Tue, 11 Jun 2002 19:09:44 +1000
+Message-Id: <E17Hheq-0007r7-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 10:34:39AM +0200, Martin Dalecki wrote:
-> U¿ytkownik Russell King napisa³:
-> > On Tue, Jun 11, 2002 at 08:33:18AM +0200, Martin Dalecki wrote:
-> > 
-> >>6. In esp. ARM seems to be much better off with GCC 3.1 then anything else.
-> > 
-> > 
-> > Not yet proven.  Only a minority of people are using gcc 3.1 compared
-> 
-> Few +1. However this was the first "official" release which
-> was "working out of the box". Well at least for me.
+In message <3D05A9E8.FF0DA223@zip.com.au> you write:
+> and slowdown:
 
-GCC 2.95.3, +4 both work with a patch from Phil Blundell, as detailed
-in the build instructions for these versions.
+ARGH!  STOP IT!  I realize it's 'leet to be continually worrying about
+possible microoptimizations, but I challenge you to *measure* the
+slowdown between:
 
-GCC 3.x introduces the dodgy practice of removing the frame pointer
-from every function despite telling the compiler not to with
--fno-omit-frame-pointer.  It's also contary to the GCC documentation
-when it interferes with debugging.
+> > -       for (i = 0; i < smp_num_cpus; i++) {
+> > -               int logical = cpu_logical_map(i);
 
-Overall, using gcc 3.1 causes the following problems in _any_ kernel:
+and
 
-1. crashes when things like knfsd and other kernel daemons exit.
-2. you can't get a call trace from the kernel.
+> > +       for (i = 0; i < NR_CPUS; i++) {
+> > +               if (!cpu_online(i))
+> > +                       continue;
 
-For anyone, I'd recommend using gcc 2.95.[34] for building a kernel that
-should be stable and can be trusted.  gcc 3.x is still very experimental
-afaiac.  We're still finding its quirks.
+*Especially* in this context.  Sure, a new "max_cpu_number" or
+"cpu_for_each(i)" macro would fix this, but at the expense of using up
+additional stack in the reader's brain.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Let's not perpetuate the myth that everything in the kernel needs to
+be tuned to the last cycle at all costs, hm?
 
+Yes, you stepped on a sore point 8)
+Rusty.
+PS.  Of course, you know the correct answer, anyway.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

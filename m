@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272789AbTG3Ha1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 03:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272794AbTG3Ha0
+	id S272683AbTG3Heo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 03:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272795AbTG3Heo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 03:30:26 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:9996 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id S272789AbTG3HaV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 03:30:21 -0400
-Date: Wed, 30 Jul 2003 09:29:19 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.22-pre9 : ACPI poweroff fix
-Message-ID: <20030730072919.GA5773@alpha.home.local>
-References: <F760B14C9561B941B89469F59BA3A847E97074@orsmsx401.jf.intel.com> <Pine.LNX.4.55L.0307241801260.7875@freak.distro.conectiva>
-Mime-Version: 1.0
+	Wed, 30 Jul 2003 03:34:44 -0400
+Received: from web20506.mail.yahoo.com ([216.136.226.141]:46184 "HELO
+	web20506.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S272683AbTG3Hem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 03:34:42 -0400
+Message-ID: <20030730073441.61933.qmail@web20506.mail.yahoo.com>
+Date: Wed, 30 Jul 2003 00:34:41 -0700 (PDT)
+From: Studying MTD <studying_mtd@yahoo.com>
+Subject: Re: linux-2.6.0-test1 : modules not working
+To: Alex Goddard <agoddard@purdue.edu>
+Cc: Joshua Kwan <joshk@triplehelix.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.56.0307300223300.4665@dust>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0307241801260.7875@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 24, 2003 at 06:02:15PM -0300, Marcelo Tosatti wrote:
+I am curious that linux-2.6.0-test1 supports external
+modules yet or not ?
+
+Thanks.
+
+--- Alex Goddard <agoddard@purdue.edu> wrote:
+> On Tue, 29 Jul 2003, Studying MTD wrote:
 > 
-> Great. I`ll apply it to the 2.4 tree later and it will be present in
-> -pre9.
+> > I tried hello world example from
+> > http://lwn.net/Articles/21817/
+> > 
+> > but i am still getting :-
+> > 
+> > #insmod hello_module.o
+> > No module found in object
+> > Error inserting 'hello_module.o': -1 Invalid
+> module
+> > format
+> 
+> [Snip]
+> 
+> 'kay.  So modules are enabled and everything.  More
+> specifically, I was 
+> after information such as the gcc options and stuff
+> you used to compile 
+> hello_module.o
+> 
+> Check the second article at that URL, and try
+> building your hello_module
+> with the basic Makefile it gives.  That uses the
+> best way for building
+> external modules.  After building your kernel that
+> way, try inserting the
+> hello_module.ko.
+> 
+> -- 
+> Alex Goddard
+> agoddard@purdue.edu
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Hi Marcelo,
 
-it seems you forgot the patch in -pre9. Never mind, I've just rediffed it,
-here it is.
-
-Cheers,
-Willy
-
-
-diff -urN linux-2.4.22-pre9/drivers/acpi/system.c linux-2.4.22-pre9-fix/drivers/acpi/system.c
---- linux-2.4.22-pre9/drivers/acpi/system.c	Wed Jul 30 09:18:40 2003
-+++ linux-2.4.22-pre9-fix/drivers/acpi/system.c	Wed Jul 30 09:21:56 2003
-@@ -90,9 +90,7 @@
- static void
- acpi_power_off (void)
- {
--	acpi_enter_sleep_state_prep(ACPI_STATE_S5);
--	ACPI_DISABLE_IRQS();
--	acpi_enter_sleep_state(ACPI_STATE_S5);
-+	acpi_suspend(ACPI_STATE_S5);
- }
- 
- #endif /*CONFIG_PM*/
-@@ -180,7 +178,7 @@
- 			return AE_ERROR;
- 	}
- 
--	if (state < ACPI_STATE_S5) {
-+	if (state <= ACPI_STATE_S5) {
- 		/* Tell devices to stop I/O and actually save their state.
- 		 * It is theoretically possible that something could fail,
- 		 * so handle that gracefully..
-
-
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

@@ -1,46 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbUJZLEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbUJZLGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbUJZLEK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 07:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbUJZLEK
+	id S262221AbUJZLGa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 07:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbUJZLGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 07:04:10 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36113 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262219AbUJZLEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 07:04:07 -0400
-Date: Tue, 26 Oct 2004 12:04:02 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: George Anzinger <george@mvista.com>
-Cc: Benjamin LaHaise <bcrl@kvack.org>, john stultz <johnstul@us.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kernel/timer.c: xtime lock missing
-Message-ID: <20041026120402.B31632@flint.arm.linux.org.uk>
-Mail-Followup-To: George Anzinger <george@mvista.com>,
-	Benjamin LaHaise <bcrl@kvack.org>,
-	john stultz <johnstul@us.ibm.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20041021190312.GA30847@kvack.org> <1098390198.20778.226.camel@cog.beaverton.ibm.com> <20041021202904.GB30847@kvack.org> <417D87BF.6060803@mvista.com>
+	Tue, 26 Oct 2004 07:06:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34763 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262221AbUJZLGM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 07:06:12 -0400
+Date: Tue, 26 Oct 2004 06:32:54 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "Andrei A. Voropaev" <av@simcon-mt.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cyclades.h in 2.6.9 use __iomem but don't include compiler.h
+Message-ID: <20041026083254.GB24462@logos.cnet>
+References: <20041025154645.GB1105@avorop.local> <20041025195342.GC23133@logos.cnet> <20041026063233.GA7598@avorop.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <417D87BF.6060803@mvista.com>; from george@mvista.com on Mon, Oct 25, 2004 at 04:09:51PM -0700
+In-Reply-To: <20041026063233.GA7598@avorop.local>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 04:09:51PM -0700, George Anzinger wrote:
-> If memory serves, there is a problem here in that the lock is taken in arch
-> code and not all archs are taking it.  I think a check of the several arch
-> time.c callers might be in order.
+On Tue, Oct 26, 2004 at 08:32:33AM +0200, Andrei A. Voropaev wrote:
+> On Mon, Oct 25, 2004 at 05:53:43PM -0200, Marcelo Tosatti wrote:
+> > On Mon, Oct 25, 2004 at 05:46:45PM +0200, Andrei A. Voropaev wrote:
+> > > Hi!
+> > > 
+> > > I'm not sure if this is a bug or a feature. But in 2.6.9 cyclades.h have
+> > > different definition for struct cyclades_card. This definition uses
+> > > __iomem attribute which is defined in linux/compiler.h. This is not
+> > > included in cyclades.h, which leads to compilation problems for
+> > > util-linux package.
+> > 
+> > Hi Andrei,
+> > 
+> > cyclades.h should not do business with util-linux, only
+> > the driver itself (cyclades.c) and the userspace configuration 
+> > utility (which now includes should linux/compiler.h accordingly 
+> > to define __iomem to NULL).
+> 
+> Well. All I know is that util-linux has cytune utility that does not
+> compile with 2.6.9 kernel headers. But compiles with older ones.
 
-Certainly absolutely none of the ARM timer implementations were taking
-the lock.  They do now because its rather necessary to ensure working
-gettimeofday().
+Ah, that was news to me! 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+I didnt knew the existant of such tool. Pardon me.
+
+> > What is the complete error message, and why is util-linux 
+> > including cyclades.h?
+> > 
+> 
+> Here's the error message.
+> 
+> cc -O2 -fomit-frame-pointer -I../lib -Wall  -Wstrict-prototypes -DNCH=1   -D_FILE_OFFSET_BITS=64 -DSBINDIR=\"/sbin\" -DUSRSBINDIR=\"/usr/sbin\" -DLOGDIR=\"/var/log\" -DVARPATH=\"/var\" -DLOCALEDIR=\"/usr/share/locale\" -O2 -c cytune.c -o cytune.o
+> cytune.c:58:86: linux/tqueue.h: No such file or directory
+> In file included from cytune.c:61:
+> /usr/include/linux/cyclades.h:514: error: variable or field `__iomem' declared void
+> /usr/include/linux/cyclades.h:514: error: parse error before '*' token
+> /usr/include/linux/cyclades.h:515: error: parse error before '*' token
+> /usr/include/linux/cyclades.h:528: error: parse error before '}' token
+> make[1]: *** [cytune.o] Error 1
+> make[1]: Leaving directory `/tools/src/util-linux-2.12b/sys-utils'
+> make: *** [all] Error 1
+> 
+> The first problem with linux/tqueue.h happens because during config it
+> tries to do it with only cyclades.h and fails on __iomem. So it decides
+> to include tqueue.h. Only to make things worse.
+> 
+> Here's the patch that I had to apply.
+
+That works.
+
+Can you send this patch to the util-linux maintainer?
+
+> diff -ur util-linux-2.12b/configure util-linux-2.12b-adj/configure
+> --- util-linux-2.12b/configure  2004-08-25 02:32:19.000000000 +0200
+> +++ util-linux-2.12b-adj/configure      2004-10-25 19:43:29.259856848 +0200
+> @@ -367,6 +367,7 @@
+>  #
+>  echo "
+>  #include <sys/types.h>
+> +#include <linux/compiler.h>
+>  #include <linux/cyclades.h>
+>  int main(){ exit(0); }
+>  " > conftest.c
+> diff -ur util-linux-2.12b/sys-utils/cytune.c util-linux-2.12b-adj/sys-utils/cytune.c
+> --- util-linux-2.12b/sys-utils/cytune.c 2002-03-09 00:04:30.000000000 +0100
+> +++ util-linux-2.12b-adj/sys-utils/cytune.c     2004-10-25 19:44:27.892943264 +0200
+> @@ -58,6 +58,7 @@
+>  #include <linux/tqueue.h>      /* required for old kernels (for struct tq_struct) */
+>                                 /* compilation errors on other kernels */
+>  #endif
+> +#include <linux/compiler.h>
+>  #include <linux/cyclades.h>
+>  
+>  #if 0

@@ -1,108 +1,182 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286067AbRLHXbp>; Sat, 8 Dec 2001 18:31:45 -0500
+	id <S286071AbRLHXkz>; Sat, 8 Dec 2001 18:40:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286068AbRLHXbf>; Sat, 8 Dec 2001 18:31:35 -0500
-Received: from yuha.menta.net ([212.78.128.42]:2208 "EHLO yuha.menta.net")
-	by vger.kernel.org with ESMTP id <S286067AbRLHXbW>;
-	Sat, 8 Dec 2001 18:31:22 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ivanovich <ivanovich@menta.net>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: Impact of HIGHMEM?
-Date: Sun, 9 Dec 2001 00:30:51 +0100
-X-Mailer: KMail [version 1.2]
-Cc: war <war@starband.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C1263FE.EBD973FA@starband.net> <01120820485101.01267@localhost.localdomain> <20011208200529.GA11567@suse.de>
-In-Reply-To: <20011208200529.GA11567@suse.de>
+	id <S286073AbRLHXkq>; Sat, 8 Dec 2001 18:40:46 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:46599 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S286072AbRLHXke>; Sat, 8 Dec 2001 18:40:34 -0500
+Date: Sat, 8 Dec 2001 15:42:19 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Mike Kravetz <kravetz@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] 2.5.0 Multi-Queue Scheduler
+In-Reply-To: <E16Cg7a-0001CR-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0112081414270.1658-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Message-Id: <01120900305100.01329@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A Dissabte 08 Desembre 2001 21:05, Jens Axboe va escriure:
-> On Sat, Dec 08 2001, Ivanovich wrote:
-> > A Dissabte 08 Desembre 2001 20:03, war va escriure:
-> > > Does anyone have any benchmarks as to how much HIGHMEM affects
-> > > performance in Linux?
-> You don't need lots of mem to test highmem impact, just grab the highmem
-> debug patch from Andrea:
+On Sat, 8 Dec 2001, Alan Cox wrote:
+
+> > maintain the behavior of the existing scheduler.  This was both
+> > good and bad.  The good is that we did not need to be concerned
+> > with load balancing like traditional multi-queue schedulers.
 >
-> kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17pre4aa1/20_hig
->hmem-debug-7
+> Which version of the scheduler do you behave like ?
+>
+> > balancing.  This is what Davide Libenzi is working on and
+> > something I plan to tackle next.  If you have any ideas on
+> > areas where our time would be better spent, I would be happy
+> > to hear them.
+>
+> I've played with your code, and some other ideas too. I don't think the
+> Linus scheduler is salvagable. Its based upon assumptions about access to
+> data and scaling that broke when the pentium came out let alone the quad
+> xeon.
+>
+> I have the core bits of a scheduler that behaves roughly like Linux 2.4 with
+> the recent Ingo cache change [in fact that came from working out what the
+> Linus scheduler does].
+>
+> Uniprocessor scheduling is working fine (I've not tackled the RT stuff tho)
+> SMP I'm pondering bits still.
+>
+> Currently I do the following
+>
+> Two sets of 8 queues per processor, and a bitmask of non empty queues.
+>
+> Picking a new task to run is as simple as
+> 	new = cpu->run_queue[fastffz[cpu->runnable]];
 
-ok, i made my homeworks, have tested highmem effect in my computer but i get 
-some STRANGE results
+I believe that by simply having a per-cpu runqueue, together with a decent
+load balancing, is sufficent to get a good behavior.
+I remember when i was working with my old scheduler patch ( the one that
+had priority queues, in '98 i think ) that the break point where the cost
+of the selection loop matched the main schedule() path ( with rqlen == 1 )
+was about 7-8.
+And if you look at the scheduler, running a cycle counter, when it does
+switch mm and when it does not, you understand what i'm saying.
+Looking at the cycle sampling here :
 
-kernel: 2.4.17-pre6 + preempt-kernel-rml-2.4.17-pre6-1.patch + 
-lock-break-rml-2.4.17-pre6-1.patch (+ highmem for lowmem machines patch)
-micro: pIII @ 935 Mhz
-mem: 256Mb
-L2 cache: 256Kb
+http://www.xmailserver.org/linux-patches/mss.html
 
-i run cachebench (llcbench suite) Read/Modify/Write benchmark
+you can see that the difference between a warm cache + no-mm-switch and a
+real-world is about 1/3.
+With this in mind, maybe it will be useful to try higher values of switch
+mm penalties ( i did not try ).
+The current scheduler is not that bad when working on UP systems but it
+becomes critical on SMP systems, for different reasons ( common locking,
+long rq selection, etc... ).
+I'm currently working at the multi queue scheduler described inside the
+above link and i did a number of changes to it.
+The first is about RT tasks that now have a separate run queue that is
+checked w/out held locks before the std selection :
 
-results WITHOUT highmem:
-size - Mb/sec
-32768 - 4290.175472
-49152 - 4277.256065
-65536 - 4293.230743
-98304 - 4294.457415
-131072 - 4291.695324 <-
-196608 - 2327.512263 <- 
-262144 - 1177.041779 <-
-393216 - 709.747398 <-
-524288 - 591.464925 <-
-786432 - 558.824848
-1048576 - 573.862697
-1572864 - 584.174573
-2097152 - 575.021368
-3145728 - 580.856111
-4194304 - 581.096127
-6291456 - 587.200702
-8388608 - 583.293192
-12582912 - 583.264028
-16777216 584.326629
+    /*
+     * check global rt queue first without held locks and if it's not empty
+     * try to pickup the rt task first. despite to the new "unlikely" feature
+     * the code for rt task selection is kept out.
+     */
+    if (!list_empty(&runqueue_head(RT_QID)))
+        goto rt_queue_select;
+rt_queue_select_back:
 
-results WITH highmem:
-size - Mb/sec
-32768 - 4290.283522 <- all small values 
-49152 - 4277.199336 <- similar to no-highmem
-65536 - 4293.282408 <- due to cache
-98304 - 4294.589967
-131072 - 4291.831538 <- strange...
-196608 - 4295.502217 <- 
-262144 - 2020.226275 <- 
-393216 - 605.011875 <-
-524288 - 454.203301 <-
-786432 - 438.363738
-1048576 - 438.401140
-1572864 - 438.595614
-2097152 - 438.794817
-3145728 - 439.164867
-4194304 - 439.566675
-6291456 - 440.364513
-8388608 - 441.159194
-12582912 - 442.724326
-16777216 - 444.301898
+I have two kind of RT tasks, local cpu ones and global ones.
+Local cpu ones live inside the cpu runqueue and do not have global
+preemption capabilities ( only inside their cpu ) while global one live
+inside the special queue RT_QID and have global preemption capabilities,
+that means that when one of these guys is woken up, it could preempt tasks
+on different cpus.
+The local/global selection is done inside setscheduler() by the mean of a
+new flag SCHED_RTGLOBAL ( or'ed ) that, when is set, forces the task to be
+moved inside the global RT queue RT_QID.
+The other change respect to the scheduler described inside the above link
+is the partial adoption of the Ingo's idea of counter decay.
+For each task i keep the average run time in jiffies by doing :
 
-aprox. 24% throughput drop with highmem in the read/modify/write bench when 
-cache have no effect. of course this is a synthetic
+A(i+1) = (A(i) + T(i+1)) >> 1
 
-but quite strange (for me) behaviour in the lines marked with "???":
-no-highmem
-131072 - 4291.695324 <-
-196608 - 2327.512263 <- ???
-262144 - 1177.041779 <- ???
-393216 - 709.747398 <-
-524288 - 591.464925 <-
-highmem
-131072 - 4291.831538 <-
-196608 - 4295.502217 <- ???
-262144 - 2020.226275 <- ???
-393216 - 605.011875 <- 
-524288 - 454.203301 <-
+and i use this time inside kernel/timer.c :
 
-can anyone explain me why this happen? himem seems to be faster sometimes, 
-and cache have something to do.... i have 256Kb L2
+        if (p->counter > p->avg_jrun)
+            --p->counter;
+        else if (++p->timer_ticks >= p->counter) {
+            p->counter = 0;
+            p->timer_ticks = 0;
+            p->need_resched = 1;
+        }
+
+in this way the counter decay behave like the old scheduler for I/O bound
+tasks, while it'll have the desired behavior for CPU bound ones ( this is
+what we need, no priority inversion due I/O bound tasks interruption ).
+The balance point has been moved from arch/??/kernel/process.c to
+kernel/sched.c, to have a more localized scheduler code.
+The reschedule_idle() ( for SMP ) has been split to handle global RT tasks
+wakeup, since these will have a different wakeup policy compared standard
+tasks.
+More, reschedule_idle() can now trigger a idle wakeup if the target cpu of
+the fresh woken up task has a load() that trigger such behavior.
+Another change is a simple way to detect idles by having an idle counter
+and a last cpu idle index.
+This is light and help deciding what kind of wakeup policy to adopt.
+The sys_sched_yield() has been changed to give up a time slice tick for
+each invocation :
+
+asmlinkage long sys_sched_yield(void)
+{
+    struct task_struct *ctsk = current;
+
+    if (qnr_running(ctsk->task_qid) > 1) {
+        /*
+         * This process can only be rescheduled by us,
+         * so this is safe without any locking.
+         */
+        if (ctsk->policy == SCHED_OTHER)
+            ctsk->policy |= SCHED_YIELD;
+        local_irq_disable();
+        if (ctsk->counter > 0)
+            --ctsk->counter;
+        local_irq_enable();
+        ctsk->need_resched = 1;
+    }
+    return 0;
+}
+
+This way is more effective than the current code that moves tasks at the
+end of the run queue because if you've three tasks A, B and C with A and B
+yielding and having a dynamic priority great than C ( not yielding ),
+we'll have the scheduler to make a HUGE number of switches between A and B
+until the priority of A or B reaches the one of C.
+If we've even more tasks yielding, the situation is even worse.
+With this method, only a very few loops are performed before C will have
+the opportunity to execute.
+The last part is the more important, that is the cpu balance code.
+Right now i've a couple of implementations and i'm trying to have a
+tunable ( trimmer like ) value that will enable to select different
+balancing policies that will better fit different task move costs (
+architecture, cache size, etc... dependent ).
+My policy is to have the idle cpus to make the tasks move selections
+instead of having that code inside reschedule_idle(), since doing it
+inside reschedule_idle() will slow a running cpu.
+The current code is working fine with pretty/very good latencies even if
+my current focus is more on the balancer code.
+
+
+
+
+PS: Mike, if you're planning to blend into a classical multi queue
+scheduler maybe we should meet to have a single implementation.
+Obviously IBM should pay the lunch :)
+The other reason is that i'll probably spend the next two/three months
+between Tokio and Chicago, so i won't have time to work on it :(
+
+
+
+- Davide
+
+
+

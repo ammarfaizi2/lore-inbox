@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264836AbTBTE2j>; Wed, 19 Feb 2003 23:28:39 -0500
+	id <S264838AbTBTEil>; Wed, 19 Feb 2003 23:38:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264838AbTBTE2j>; Wed, 19 Feb 2003 23:28:39 -0500
-Received: from ns.cinet.co.jp ([61.197.228.218]:3090 "EHLO multi.cinet.co.jp")
-	by vger.kernel.org with ESMTP id <S264836AbTBTE2i>;
-	Wed, 19 Feb 2003 23:28:38 -0500
-Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A33C@ns.cinet.co.jp>
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: "'Christoph Hellwig '" <hch@infradead.org>
-Cc: "'Linux Kernel Mailing List '" <linux-kernel@vger.kernel.org>,
-       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>
-Subject: RE: [PATCHSET] PC-9800 subarch. support for 2.5.61 (3/26) mach-pc
-	9800
-Date: Thu, 20 Feb 2003 13:38:36 +0900
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+	id <S264844AbTBTEil>; Wed, 19 Feb 2003 23:38:41 -0500
+Received: from holomorphy.com ([66.224.33.161]:9373 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264838AbTBTEik>;
+	Wed, 19 Feb 2003 23:38:40 -0500
+Date: Wed, 19 Feb 2003 20:47:48 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: Performance of partial object-based rmap
+Message-ID: <20030220044748.GE22687@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	lse-tech <lse-tech@lists.sourceforge.net>
+References: <7490000.1045715152@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7490000.1045715152@[10.10.2.4]>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----
-From: Christoph Hellwig
-To: Osamu Tomita
-Cc: Linux Kernel Mailing List; Alan Cox
-Sent: 2003/02/18 19:39
-Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (3/26)
-mach-pc9800
+On Wed, Feb 19, 2003 at 08:25:52PM -0800, Martin J. Bligh wrote:
+> Profile comparison:
+> before
+> 	15525 page_remove_rmap
+> 	6415 page_add_rmap
+> after
+> 	2055 page_add_rmap
+> 	1983 page_remove_rmap
 
-> > +#ifdef CONFIG_NUMA
-> > +#include <linux/mmzone.h>
-> > +#include <asm/node.h>
-> > +#include <asm/memblk.h>
-> 
-> Are there NUMA PC98 machines?
-No. I'll remove it from next patch.
+Could I get a larger, multiplicative differential profile?
+i.e. ratios of the fractions of profile hits?
 
-Thanks,
-Osamu Tomita
+If you have trouble generating such I can do so myself from
+fuller profile results.
 
+
+Thanks.
+
+
+-- wli

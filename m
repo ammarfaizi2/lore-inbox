@@ -1,180 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263841AbUDZOCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263946AbUDZOF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263841AbUDZOCu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 10:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263995AbUDZOCu
+	id S263946AbUDZOF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 10:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbUDZOFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 10:02:50 -0400
-Received: from mail.convergence.de ([212.84.236.4]:51076 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S263841AbUDZNmV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 09:42:21 -0400
-To: hunold@linuxtv.org, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-From: Michael Hunold <hunold@linuxtv.org>
-Subject: [PATCH 9/9] DVB: Follow saa7146 changes in affected V4L drivers
-In-Reply-To: <10829869142261@convergence.de>
-Message-Id: <10829869172486@convergence.de>
-X-Mailer: gregkh_patchbomb_levon_offspring_mihu_extended
-Date: Mon, 26 Apr 2004 09:42:21 -0400
+	Mon, 26 Apr 2004 10:05:17 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56554 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263881AbUDZNvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 09:51:43 -0400
+Date: Mon, 26 Apr 2004 15:08:07 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Roland Stigge <stigge@antcom.de>, 234976@bugs.debian.org,
+       Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
+Message-ID: <20040426130807.GL2595@openzaurus.ucw.cz>
+References: <E1B6on4-0005EW-00@gondolin.me.apana.org.au> <1080310299.2108.10.camel@atari.stigge.org> <20040326142617.GA291@elf.ucw.cz> <1080315725.2951.10.camel@atari.stigge.org> <20040326155315.GD291@elf.ucw.cz> <1080317555.12244.5.camel@atari.stigge.org> <20040326161717.GE291@elf.ucw.cz> <1080325072.2112.89.camel@atari.stigge.org> <20040426094834.GA4901@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040426094834.GA4901@gondor.apana.org.au>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- [V4L] follow changes in saa7146 driver: mxb, dpc7146, hexium_orion, hexium_gemini
-diff -ura linux-2.6.5.q/drivers/media/video/dpc7146.c linux-2.6.5.p/drivers/media/video/dpc7146.c
---- linux-2.6.5.q/drivers/media/video/dpc7146.c	2004-04-24 18:01:00.000000000 +0200
-+++ linux-2.6.5.p/drivers/media/video/dpc7146.c	2004-04-24 18:02:26.000000000 +0200
-@@ -106,7 +106,7 @@
- 	   video port pins should be enabled here ?! */
- 	saa7146_write(dev, MC1, (MASK_08 | MASK_24 | MASK_10 | MASK_26));
- 
--	saa7146_i2c_adapter_prepare(dev, &dpc->i2c_adapter, SAA7146_I2C_BUS_BIT_RATE_480);
-+	saa7146_i2c_adapter_prepare(dev, &dpc->i2c_adapter, I2C_ADAP_CLASS_TV_ANALOG, SAA7146_I2C_BUS_BIT_RATE_480);
- 	if(i2c_add_adapter(&dpc->i2c_adapter) < 0) {
- 		DEB_S(("cannot register i2c-device. skipping.\n"));
- 		kfree(dpc);
-@@ -312,18 +312,18 @@
- static struct saa7146_standard standard[] = {
- 	{
- 		.name	= "PAL", 	.id	= V4L2_STD_PAL,
--		.v_offset	= 0x17,	.v_field 	= 288,	.v_calc		= 576,
--		.h_offset	= 0x14,	.h_pixels 	= 680,	.h_calc		= 680+1,
-+		.v_offset	= 0x17,	.v_field 	= 288,
-+		.h_offset	= 0x14,	.h_pixels 	= 680,
- 		.v_max_out	= 576,	.h_max_out	= 768,
- 	}, {
- 		.name	= "NTSC", 	.id	= V4L2_STD_NTSC,
--		.v_offset	= 0x16,	.v_field 	= 240,	.v_calc		= 480,
--		.h_offset	= 0x06,	.h_pixels 	= 708,	.h_calc		= 708+1,
-+		.v_offset	= 0x16,	.v_field 	= 240,
-+		.h_offset	= 0x06,	.h_pixels 	= 708,
- 		.v_max_out	= 480,	.h_max_out	= 640,
- 	}, {
- 		.name	= "SECAM", 	.id	= V4L2_STD_SECAM,
--		.v_offset	= 0x14,	.v_field 	= 288,	.v_calc		= 576,
--		.h_offset	= 0x14,	.h_pixels 	= 720,	.h_calc		= 720+1,
-+		.v_offset	= 0x14,	.v_field 	= 288,
-+		.h_offset	= 0x14,	.h_pixels 	= 720,
- 		.v_max_out	= 576,	.h_max_out	= 768,
- 	}
- };
-diff -ura linux-2.6.5.q/drivers/media/video/hexium_gemini.c linux-2.6.5.p/drivers/media/video/hexium_gemini.c
---- linux-2.6.5.q/drivers/media/video/hexium_gemini.c	2004-04-24 18:00:54.000000000 +0200
-+++ linux-2.6.5.p/drivers/media/video/hexium_gemini.c	2004-04-24 18:02:34.000000000 +0200
-@@ -159,18 +159,18 @@
- static struct saa7146_standard hexium_standards[] = {
- 	{
- 		.name	= "PAL", 	.id	= V4L2_STD_PAL,
--		.v_offset	= 28,	.v_field 	= 288,	.v_calc		= 576,
--		.h_offset	= 1,	.h_pixels 	= 680,	.h_calc		= 680+1,
-+		.v_offset	= 28,	.v_field 	= 288,
-+		.h_offset	= 1,	.h_pixels 	= 680,
- 		.v_max_out	= 576,	.h_max_out	= 768,
- 	}, {
- 		.name	= "NTSC", 	.id	= V4L2_STD_NTSC,
--		.v_offset	= 28,	.v_field 	= 240,	.v_calc		= 480,
--		.h_offset	= 1,	.h_pixels 	= 640,	.h_calc		= 641+1,
-+		.v_offset	= 28,	.v_field 	= 240,
-+		.h_offset	= 1,	.h_pixels 	= 640,
- 		.v_max_out	= 480,	.h_max_out	= 640,
- 	}, {
- 		.name	= "SECAM", 	.id	= V4L2_STD_SECAM,
--		.v_offset	= 28,	.v_field 	= 288,	.v_calc		= 576,
--		.h_offset	= 1,	.h_pixels 	= 720,	.h_calc		= 720+1,
-+		.v_offset	= 28,	.v_field 	= 288,
-+		.h_offset	= 1,	.h_pixels 	= 720,
- 		.v_max_out	= 576,	.h_max_out	= 768,
- 	}
- };		
-@@ -250,7 +250,7 @@
- 	/* enable i2c-port pins */
- 	saa7146_write(dev, MC1, (MASK_08 | MASK_24 | MASK_10 | MASK_26));
- 
--	saa7146_i2c_adapter_prepare(dev, &hexium->i2c_adapter, SAA7146_I2C_BUS_BIT_RATE_480);
-+	saa7146_i2c_adapter_prepare(dev, &hexium->i2c_adapter, I2C_ADAP_CLASS_TV_ANALOG, SAA7146_I2C_BUS_BIT_RATE_480);
- 	if (i2c_add_adapter(&hexium->i2c_adapter) < 0) {
- 		DEB_S(("cannot register i2c-device. skipping.\n"));
- 		kfree(hexium);
-diff -ura linux-2.6.5.q/drivers/media/video/hexium_orion.c linux-2.6.5.p/drivers/media/video/hexium_orion.c
---- linux-2.6.5.q/drivers/media/video/hexium_orion.c	2004-04-24 18:00:51.000000000 +0200
-+++ linux-2.6.5.p/drivers/media/video/hexium_orion.c	2004-04-24 18:03:09.000000000 +0200
-@@ -192,18 +192,18 @@
- static struct saa7146_standard hexium_standards[] = {
- 	{
- 		.name	= "PAL", 	.id	= V4L2_STD_PAL,
--		.v_offset	= 16,	.v_field 	= 288,	.v_calc		= 576,
--		.h_offset	= 1,	.h_pixels 	= 680,	.h_calc		= 680+1,
-+		.v_offset	= 16,	.v_field 	= 288,
-+		.h_offset	= 1,	.h_pixels 	= 680,
- 		.v_max_out	= 576,	.h_max_out	= 768,
- 	}, {
- 		.name	= "NTSC", 	.id	= V4L2_STD_NTSC,
--		.v_offset	= 16,	.v_field 	= 240,	.v_calc		= 480,
--		.h_offset	= 1,	.h_pixels 	= 640,	.h_calc		= 641+1,
-+		.v_offset	= 16,	.v_field 	= 240,
-+		.h_offset	= 1,	.h_pixels 	= 640,
- 		.v_max_out	= 480,	.h_max_out	= 640,
- 	}, {
- 		.name	= "SECAM", 	.id	= V4L2_STD_SECAM,
--		.v_offset	= 16,	.v_field 	= 288,	.v_calc		= 576,
--		.h_offset	= 1,	.h_pixels 	= 720,	.h_calc		= 720+1,
-+		.v_offset	= 16,	.v_field 	= 288,
-+		.h_offset	= 1,	.h_pixels 	= 720,
- 		.v_max_out	= 576,	.h_max_out	= 768,
- 	}
- };		
-@@ -237,7 +237,7 @@
- 	saa7146_write(dev, DD1_STREAM_B, 0x00000000);
- 	saa7146_write(dev, MC2, (MASK_09 | MASK_25 | MASK_10 | MASK_26));
- 
--	saa7146_i2c_adapter_prepare(dev, &hexium->i2c_adapter, SAA7146_I2C_BUS_BIT_RATE_480);
-+	saa7146_i2c_adapter_prepare(dev, &hexium->i2c_adapter, I2C_ADAP_CLASS_TV_ANALOG, SAA7146_I2C_BUS_BIT_RATE_480);
- 	if (i2c_add_adapter(&hexium->i2c_adapter) < 0) {
- 		DEB_S(("cannot register i2c-device. skipping.\n"));
- 		kfree(hexium);
-diff -ura linux-2.6.5.q/drivers/media/video/mxb.c linux-2.6.5.p/drivers/media/video/mxb.c
---- linux-2.6.5.q/drivers/media/video/mxb.c	2004-04-24 17:57:34.000000000 +0200
-+++ linux-2.6.5.p/drivers/media/video/mxb.c	2004-04-24 17:58:44.000000000 +0200
-@@ -183,7 +183,7 @@
- 	}
- 	memset(mxb, 0x0, sizeof(struct mxb));	
- 
--	saa7146_i2c_adapter_prepare(dev, &mxb->i2c_adapter, SAA7146_I2C_BUS_BIT_RATE_480);
-+	saa7146_i2c_adapter_prepare(dev, &mxb->i2c_adapter, I2C_ADAP_CLASS_TV_ANALOG, SAA7146_I2C_BUS_BIT_RATE_480);
- 	if(i2c_add_adapter(&mxb->i2c_adapter) < 0) {
- 		DEB_S(("cannot register i2c-device. skipping.\n"));
- 		kfree(mxb);
-@@ -942,23 +942,23 @@
- static struct saa7146_standard standard[] = {
- 	{
- 		.name	= "PAL-BG", 	.id	= V4L2_STD_PAL_BG,
--		.v_offset	= 0x17,	.v_field 	= 288,	.v_calc		= 576,
--		.h_offset	= 0x14,	.h_pixels 	= 680,	.h_calc		= 680+1,
-+		.v_offset	= 0x17,	.v_field 	= 288,
-+		.h_offset	= 0x14,	.h_pixels 	= 680,
- 		.v_max_out	= 576,	.h_max_out	= 768,
- 	}, {
- 		.name	= "PAL-I", 	.id	= V4L2_STD_PAL_I,
--		.v_offset	= 0x17,	.v_field 	= 288,	.v_calc		= 576,
--		.h_offset	= 0x14,	.h_pixels 	= 680,	.h_calc		= 680+1,
-+		.v_offset	= 0x17,	.v_field 	= 288,
-+		.h_offset	= 0x14,	.h_pixels 	= 680,
- 		.v_max_out	= 576,	.h_max_out	= 768,
- 	}, {
- 		.name	= "NTSC", 	.id	= V4L2_STD_NTSC,
--		.v_offset	= 0x16,	.v_field 	= 240,	.v_calc		= 480,
--		.h_offset	= 0x06,	.h_pixels 	= 708,	.h_calc		= 708+1,
-+		.v_offset	= 0x16,	.v_field 	= 240,
-+		.h_offset	= 0x06,	.h_pixels 	= 708,
- 		.v_max_out	= 480,	.h_max_out	= 640,
- 	}, {
- 		.name	= "SECAM", 	.id	= V4L2_STD_SECAM,
--		.v_offset	= 0x14,	.v_field 	= 288,	.v_calc		= 576,
--		.h_offset	= 0x14,	.h_pixels 	= 720,	.h_calc		= 720+1,
-+		.v_offset	= 0x14,	.v_field 	= 288,
-+		.h_offset	= 0x14,	.h_pixels 	= 720,
- 		.v_max_out	= 576,	.h_max_out	= 768,
- 	}
- };
+Hi!
+On Mon 26-04-04 19:48:34, Herbert Xu wrote:
+> > Yes, but as I wrote, only on one of the machines in question.
+> 
+> OK, I've finally found out why agpgart locks up the machine upon
+> resuming from swsusp/pmdisk.
+> 
+> The reason is that the gatt table is remapped with ioremap_nocache,
+> which on i386 machines capable of PSE will result in 4M pages being
+> split.
+> 
+> When swsusp/pmdisk copies the pages back, the top page table is
+> written before the entries that it points to are filled in.
+> Depending on whether the second-level table lies before or after
+> the 4M-page in question, this will result in a page fault.
+> 
+> A simple solution is to copy the pages in reverse.  This way the
+> top page table is filled in last which should resolve this particular
+> issue.  The following patch does exactly that and fixes the problem
+> for me.
 
+Thanks a lot for figuring this out!
+
+But... I do not like the fix. It does depend on memory layout on
+very subtle way.
+
+What about switching to temporary, PSE-enabled pagetables
+in nosave area for suspend? Copying pagetables soon after boot
+should do the trick.
+
+				Pavel
+
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

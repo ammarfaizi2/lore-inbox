@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271961AbRH2NOc>; Wed, 29 Aug 2001 09:14:32 -0400
+	id <S271962AbRH2NSM>; Wed, 29 Aug 2001 09:18:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271962AbRH2NON>; Wed, 29 Aug 2001 09:14:13 -0400
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:52656 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S271961AbRH2NOI> convert rfc822-to-8bit; Wed, 29 Aug 2001 09:14:08 -0400
-Importance: Normal
-Subject: Re: VM: Bad swap entry 0044cb00
-To: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
-Cc: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF189FBE02.DCD70B2A-ONC1256AB7.0046D3BE@de.ibm.com>
-From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
-Date: Wed, 29 Aug 2001 15:14:43 +0200
-X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
- 29/08/2001 15:14:14
-MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+	id <S271964AbRH2NSD>; Wed, 29 Aug 2001 09:18:03 -0400
+Received: from erm1.u-strasbg.fr ([130.79.74.61]:23815 "HELO erm1.u-strasbg.fr")
+	by vger.kernel.org with SMTP id <S271962AbRH2NRr>;
+	Wed, 29 Aug 2001 09:17:47 -0400
+Date: Wed, 29 Aug 2001 15:29:25 +0200
+To: linux-kernel@vger.kernel.org
+Subject: [AMD] 79c970 ethernet card problems.....
+Message-ID: <20010829152925.H1357@erm1.u-strasbg.fr>
+Mail-Followup-To: bboett@erm1.u-strasbg.fr,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+From: bboett@erm1.u-strasbg.fr (Bruno Boettcher)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello!
+my motherboard assigns it IRQ without any distinction, i have several
+cards on the same interrupt, e.g. the 2 ethernet cards are on irq 10 at
+the moment .... so maybe this is the real problem ... anyways i have:
+lspci:
+00:0c.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet
+LANCE] (rev 02)
+  Flags: stepping, medium devsel, IRQ 10
+  I/O ports at e000 [size=32]
+
+/etc/modutils/network:
+options lance io=0xe000 irq=10
+alias eth1 lance  irq=10
+
+in /var/log/messages:
+Aug 29 12:25:16 kalman kernel: eth0: Lite-On PNIC-II rev 37 at 0xdc00,
+00:C0:F0:7B:E2:D6, IRQ 10.
+Aug 29 12:25:16 kalman kernel: lance.c: No PCnet/LANCE card found (i/o =
+0xe000).
+
+same when i try to insmod it by hand:
+ modprobe eth1
+ /lib/modules/2.4.9/kernel/drivers/net/lance.o: init_module: No such
+ device or address
+ Hint: insmod errors can be caused by incorrect module parameters,
+ including invalid IO or IRQ parameters
+ /lib/modules/2.4.9/kernel/drivers/net/lance.o: insmod
+ /lib/modules/2.4.9/kernel/drivers/net/lance.o failed
+ /lib/modules/2.4.9/kernel/drivers/net/lance.o: insmod eth1 failed
 
 
-After some debug if think that the function which was called is:
+ayahhh, for a short time this second card responded to pings.... no it
+wont even load.... what's going wrong? and is there any way i can change
+the IRQ's of those damn cards? the module options need the iorq settings
+but are completely ignoring them!
 
-zap_page_range
+(and i have currently 4 cards on irq9 and 2 on irq10....)
 
-which inlines: zap_pmd_range
-which inlines: zap_pte_range
-which inlines: free_pte
-which calls: swap_free
-Adress 30d00 is part of the call to swap_free.
-
-
-
---
-Mit freundlichen Grüßen / Best Regards
-
-Christian Bornträger
-IBM Deutschland Entwicklung GmbH
-eServer SW  System Evaluation + Test
-email: CBORNTRA@de.ibm.com
-Tel +49 7031-16-3507
-
-
+-- 
+ciao bboett
+==============================================================
+bboett@earthling.net
+http://inforezo.u-strasbg.fr/~bboett http://erm1.u-strasbg.fr/~bboett
+===============================================================
+the total amount of intelligence on earth is constant.
+human population is growing....

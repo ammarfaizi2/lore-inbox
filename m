@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317499AbSFRREX>; Tue, 18 Jun 2002 13:04:23 -0400
+	id <S317496AbSFRRCB>; Tue, 18 Jun 2002 13:02:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317500AbSFRREW>; Tue, 18 Jun 2002 13:04:22 -0400
-Received: from robur.slu.se ([130.238.98.12]:17414 "EHLO robur.slu.se")
-	by vger.kernel.org with ESMTP id <S317498AbSFRREU>;
-	Tue, 18 Jun 2002 13:04:20 -0400
-From: Robert Olsson <Robert.Olsson@data.slu.se>
+	id <S317497AbSFRRCA>; Tue, 18 Jun 2002 13:02:00 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:26863 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S317496AbSFRRB7>;
+	Tue, 18 Jun 2002 13:01:59 -0400
+Message-ID: <3D0F675F.54B87C38@mvista.com>
+Date: Tue, 18 Jun 2002 10:01:19 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: willy@debian.org, rml@mvista.com, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Replace timer_bh with tasklet
+References: <3D0EACCA.3290139@mvista.com> <20020617.211548.63484157.davem@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15631.26842.867674.437939@robur.slu.se>
-Date: Tue, 18 Jun 2002 19:07:38 +0200
-To: Zhang Fuxin <fxzhang@ict.ac.cn>
-Cc: Robert Olsson <Robert.Olsson@data.slu.se>, Paul <xerox@foonet.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: NAPI eepro100 bug fixed
-In-Reply-To: <3D0EA83A.50606@ict.ac.cn>
-References: <15624.57000.928651.530593@robur.slu.se>
-	<JBEKKKICLLIJKLIGCCKLCEAJCCAA.xerox@foonet.net>
-	<15624.63280.379421.369909@robur.slu.se>
-	<3D0EA83A.50606@ict.ac.cn>
-X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David S. Miller" wrote:
+> 
+>    From: george anzinger <george@mvista.com>
+>    Date: Mon, 17 Jun 2002 20:45:14 -0700
+> 
+>    This patch replaces the timer_bh with a tasklet.
+> 
+> This is going to break a lot of stuff.
+> 
+> For one thing, the net/core/dev.c:deliver_to_old_ones() code to
+> disable timers no longer will work.
 
-Zhang Fuxin writes:
+Could you elaborate on the reason for the above bit of
+code?  Is it to cover some thing from the past or is this an
+on going issue?  I.e. will this disappear soon?  Is its
+usage dependent on a particular driver?
 
- >       My first NAPI eepro100 contains a subtle but fatal race,which will 
- > lead
- > to lockup(of the whole machine here,but of ether interface for paul). This
- > version should be ok, Paul, would you like to have a try? I've tested it 
- > in my
+Mostly I am interested in this because it may be at the
+bottom of a VERY elusive bug (4 systems, heavy network load,
+crash at 22 hours into the test).  Please help.
 
+-g
+> 
+> If you had deleted TIMER_BH you would have noticed this breakage.
+> 
+> Also, aren't there some dependencies on HI_SOFTIRQ being first in
+> that enumeration?  This needs to be answered before going further
+> with this patch.
 
- > will meet it,so it is listed here.
- >      /* disable interrupts here is necessary!
- >          * We need to ensure Rx/RxNobuf ints are disabled if in poll
- >          * flag is set. If interrupt comes bwteen netif_rx_complete
- >          * and enable_rx_and_rxnobuf_ints, the following will happen:
- >          *         netif_rx_complete --> clear RX_SCHED flag
- >          *           -> ints(e.g. TxDone)
- >          *                  speedo_interrupt
- >          *                       if (netif_rx_schedule_prep(dev))
- >          *                          disable_rx_and_rxnobuf_ints
- >          *                  return
- >          *           <-
- >          *         enable_rx_and_rxnobuf_ints
- >          *  then we will have Rx&RxNoBuf ints enable while in polling!
- >          *  it may lead to endless interrupts and effective lockup of
- >          *  the whole machine.
- >          */
- >         spin_lock_irqsave(&sp->lock,flags);
- >         netif_rx_complete(dev);
- >         enable_rx_and_rxnobuf_ints(dev);
- >         spin_unlock_irqrestore(&sp->lock,flags);
-
- Thanks!
-
- Yes as far as I see this correct... and this race and others is mentioned
- in NAPI_HOWTO.txt and yes the spinlock can help for the drivers that uses
- this type interrupt acking. And tulip is a candidate for this as well. Let 
- see if it solves Paul's problem to start with.
-
- Cheers.
-						--ro
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbTI3IAU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 04:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbTI3IAU
+	id S261216AbTI3ITv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 04:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbTI3ITv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 04:00:20 -0400
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:34502 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S261203AbTI3IAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 04:00:18 -0400
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Jamie Lokier <jamie@shareable.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] document optimizing macro for translating PROT_ to VM_
- bits
-References: <20030929090629.GF29313@actcom.co.il>
-	<20030929153437.GB21798@mail.jlokier.co.uk>
-	<20030930071005.GY729@actcom.co.il>
-	<buohe2u3f20.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<20030930074138.GG729@actcom.co.il>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 30 Sep 2003 16:59:56 +0900
-In-Reply-To: <20030930074138.GG729@actcom.co.il>
-Message-ID: <buoad8m3dvn.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	Tue, 30 Sep 2003 04:19:51 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:16902 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261216AbTI3ITt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 04:19:49 -0400
+Message-ID: <3F793EB8.7010605@aitel.hist.no>
+Date: Tue, 30 Sep 2003 10:28:40 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Valdis.Kletnieks@vt.edu
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: -mregparm=3 (was  Re: [PATCH] i386 do_machine_check() is redundant.
+References: <Pine.LNX.4.44.0309291142430.3626-100000@home.osdl.org> <200309291954.h8TJsm6p002210@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda <mulix@mulix.org> writes:
-> Ok, that's a pretty convincing argument for scraping that
-> version. I'll rewrite it to evaluate the arguments at compile time if
-> they're constants, which they are, in our case. Unless someone else
-> beats me to it, of course ;-) 
+Valdis.Kletnieks@vt.edu wrote:
 
-What's wrong with the macro version?  The presence of a __ prefix
-suggests that it's only used in controlled circumstances anyway, so is
-validity-checking on the bit arguments really worthwhile?
+> Quite correct - even after recompiling the sourced portions of the NVidia
+> driver, it dies a horrid death on 'insmod' when the closed-source portion
+> passes a parameter on the stack and the open side expects the value in a
+> register, and follows the register value to a quick death....
+> 
+Nvidia can fix this easily. Either by having several versions of
+their closed-source thing, or by having a open "interface" that
+uses nvidia's calling convention for talking to their proprietary
+binary code, and whatever the kernel uses for talking to the kernel.
+That's the price of binary modules -
+One extra level of indirection, or a bunch of different modules.
+Of course there are plenty of other cards without
+such problems.
 
--miles
--- 
-The secret to creativity is knowing how to hide your sources.
-  --Albert Einstein
+Helge Hafting
+

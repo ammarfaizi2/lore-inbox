@@ -1,88 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263074AbUJ2Cpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263148AbUJ2Cna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263074AbUJ2Cpw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 22:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbUJ2CpL
+	id S263148AbUJ2Cna (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 22:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbUJ2CdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 22:45:11 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50962 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263074AbUJ1XVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:21:33 -0400
-Date: Fri, 29 Oct 2004 01:21:01 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] scsi/qla2xxx/qla_rscn.c: remove unused functions
-Message-ID: <20041028232101.GH3207@stusta.de>
+	Thu, 28 Oct 2004 22:33:05 -0400
+Received: from colin2.muc.de ([193.149.48.15]:11026 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S263147AbUJ1XmS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:42:18 -0400
+Date: 29 Oct 2004 01:42:17 +0200
+Date: Fri, 29 Oct 2004 01:42:17 +0200
+From: Andi Kleen <ak@muc.de>
+To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com,
+       dprobes@www-124.southbury.usf.ibm.com
+Subject: Re: [0/3] PATCH Kprobes for x86_64- 2.6.9-final
+Message-ID: <20041028234217.GC80511@muc.de>
+References: <20041028113208.GA11182@in.ibm.com> <20041028113744.GA82042@muc.de> <20041028155359.GB11182@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041028155359.GB11182@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Oct 28, 2004 at 09:23:59PM +0530, Prasanna S Panchamukhi wrote:
+> 
+> On Thu, Oct 28, 2004 at 01:37:44PM +0200, Andi Kleen wrote:
+> > 
+> > Like I still would like to have the page fault notifier
+> > completely moved out of the fast path into no_context 
+> > (that i386 has it there is also wrong). Adding kprobe_runn 
+> > doesn't make a difference.
+> 
+>     The kprobes fault handler is called if an exception is 
+> generated for any instruction within the fault-handler or when 
+> Kprobes single-steps the probed instruction.
+> AFAIK kprobes does not handle page faults in the above case and just returns
+> immediately resuming the normal execution. 
 
-The patch below removes two unused functions from 
-drivers/scsi/qla2xxx/qla_rscn.c
+Ok. It's ugly, but ok. Can you remove the bogus kprobes_running()
+then please, it's unnecessary?  
 
+With that change it would be ok to merge from my side.
 
-diffstat output:
- drivers/scsi/qla2xxx/qla_rscn.c |   26 --------------------------
- 1 files changed, 26 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
-- --- linux-2.6.10-rc1-mm1-full/drivers/scsi/qla2xxx/qla_rscn.c.old	2004-10-28 23:26:04.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/scsi/qla2xxx/qla_rscn.c	2004-10-28 23:26:32.000000000 +0200
-@@ -47,8 +47,6 @@
- /* Local Prototypes. */
- static inline uint32_t qla2x00_to_handle(uint16_t, uint16_t, uint16_t);
- static inline uint16_t qla2x00_handle_to_idx(uint32_t);
-- -static inline uint16_t qla2x00_handle_to_iter(uint32_t);
-- -static inline uint16_t qla2x00_handle_to_type(uint32_t);
- static inline uint32_t qla2x00_iodesc_to_handle(struct io_descriptor *);
- static inline struct io_descriptor *qla2x00_handle_to_iodesc(scsi_qla_host_t *,
-     uint32_t);
-@@ -130,30 +128,6 @@
- }
- 
- /**
-- - * qla2x00_handle_to_type() - Retrive the descriptor type for a given handle.
-- - * @handle: descriptor handle
-- - *
-- - * Returns the descriptor type specified by the @handle.
-- - */
-- -static inline uint16_t
-- -qla2x00_handle_to_type(uint32_t handle)
-- -{
-- -	return ((uint16_t)(((handle) >> HDL_TYPE_SHIFT) & HDL_TYPE_MASK));
-- -}
-- -
-- -/**
-- - * qla2x00_handle_to_iter() - Retrive the rolling signature for a given handle.
-- - * @handle: descriptor handle
-- - *
-- - * Returns the signature specified by the @handle.
-- - */
-- -static inline uint16_t
-- -qla2x00_handle_to_iter(uint32_t handle)
-- -{
-- -	return ((uint16_t)(((handle) >> HDL_ITER_SHIFT) & HDL_ITER_MASK));
-- -}
-- -
-- -/**
-  * qla2x00_iodesc_to_handle() - Convert an IO descriptor to a unique handle.
-  * @iodesc: io descriptor
-  *
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBgX7dmfzqmE8StAARAgxaAJ9Dfe3RvoSoRrTNJJxpxPtJrQtOoACgpNAf
-HL/CEy6+CDimbi/8xQdU+pI=
-=dSBj
------END PGP SIGNATURE-----
+-Andi

@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315986AbSEGVwK>; Tue, 7 May 2002 17:52:10 -0400
+	id <S315987AbSEGVxG>; Tue, 7 May 2002 17:53:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315987AbSEGVwJ>; Tue, 7 May 2002 17:52:09 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1551 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315986AbSEGVwI>; Tue, 7 May 2002 17:52:08 -0400
-Date: Tue, 7 May 2002 14:50:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Patrick Mochel <mochel@osdl.org>
-cc: Greg KH <greg@kroah.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] PCI reorg changes for 2.5.14
-In-Reply-To: <Pine.LNX.4.33.0205071420140.6307-100000@segfault.osdl.org>
-Message-ID: <Pine.LNX.4.33.0205071433570.9905-100000@penguin.transmeta.com>
+	id <S315988AbSEGVxF>; Tue, 7 May 2002 17:53:05 -0400
+Received: from pD9E23EE2.dip.t-dialin.net ([217.226.62.226]:27042 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315987AbSEGVxE>; Tue, 7 May 2002 17:53:04 -0400
+Date: Tue, 7 May 2002 15:52:59 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: "David S. Miller" <davem@redhat.com>
+cc: zippel@linux-m68k.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pfn-Functionset out of order for sparc64 in current Bk tree?
+In-Reply-To: <20020507.140848.29493830.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0205071548290.15559-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Tue, 7 May 2002, Patrick Mochel wrote:
-> 
-> Actually, there was an ordering problem, which was causing an oops on 
-> boot. But, that doesn't help with IRQ routing.
-> 
-> The problem is that ACPI IRQ routing doesn't work at all in 2.5.14 if you 
-> have support for APICs enabled in any way. 
+On Tue, 7 May 2002, David S. Miller wrote:
+> I have the correct fixes for sparc64 in my tree and I'll merge it
+> all to Linus.
 
-Hmm.. That may be true, but at least 2.5.14 gets the interrupt routing 
-right.
+That's good. Where do I find a patch, or is it already merged?
 
-Which may be because it knows to fall back on the MP table parsing if it 
-can't work out the ACPI stuff, and you probably broke that part.
-
-The whole notion of having just _one_ PCI interrupt routing function is 
-definitely _broken_. The rule in 2.5.14 is "try ACPI if it's enabled, and 
-if that works, we're fine. If it doesn't work, let's try the legacy 
-stuff".
-
-In contrast, your PCI irq changes seem to say "if we found ACPI tables, we 
-use ACPI routing", which is just stupid.
-
-Please fix it to work at _least_ as well as 2.5.14 does (and yes, my home 
-machine works fine with APIC and ACPI enabled on 2.5.14, and since it's a 
-dual P4 HT machine it _cannot_ work any other way - and the PCI BK changes 
-break it to the point of not booting).
-
-		Linus
+Regards,
+Thunder
+-- 
+if (errno == ENOTAVAIL)
+    fprintf(stderr, "Error: Talking to Microsoft server!\n");
 

@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291547AbSBZRJB>; Tue, 26 Feb 2002 12:09:01 -0500
+	id <S291625AbSBZRNB>; Tue, 26 Feb 2002 12:13:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291484AbSBZRIl>; Tue, 26 Feb 2002 12:08:41 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:39942 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S291314AbSBZRId>; Tue, 26 Feb 2002 12:08:33 -0500
-Message-ID: <3C7BC0E5.3060300@evision-ventures.com>
-Date: Tue, 26 Feb 2002 18:07:49 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S291624AbSBZRMw>; Tue, 26 Feb 2002 12:12:52 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:3295 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S291625AbSBZRMh>; Tue, 26 Feb 2002 12:12:37 -0500
+Message-Id: <200202261624.JAA22808@tstac.esa.lanl.gov>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: "David S. Miller" <davem@redhat.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: [PATCH] 2.5.5-dj1, add 1 help text to net/Config.help
+Date: Tue, 26 Feb 2002 10:10:45 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: ext3 and undeletion
-In-Reply-To: <fa.n4lfl6v.h4chor@ifi.uio.no> <05cb01c1be1e$c490ba00$1a01a8c0@allyourbase> <20020225172048.GV20060@matchmail.com> <02022518330103.01161@grumpersII> <a5f7s4$2o1$1@cesium.transmeta.com> <20020226160544.GD4393@matchmail.com> <3C7BB9A3.30408@evision-ventures.com> <20020226164316.GH4393@matchmail.com> <3C7BBDE2.8050207@evision-ventures.com> <20020226170520.GJ4393@matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>For the educated user it was always a pain
->>in the you know where, to constantly run out of quota space due to
->>file versioning.
->>
-> 
-> Ahh, so we'd need to chown the files to root (or a configurable user and
-> group) to get around the quota issue.
+This patch adds a help text for CONFIG_VLAN_8021Q to net/Config.help.
 
-Welcome to my kill-file. This just shows that you don't even have basic
-background.
+The text was obtained from 2.4.18, modified by adding <> around the URL.
+There was an entry in Eric's Configure.help 2.97, but this version
+appears to be more recent.
 
+Steven
 
+--- linux-2.5.5-dj1/net/Config.help.orig        Tue Feb 26 09:30:49 2002
++++ linux-2.5.5-dj1/net/Config.help     Tue Feb 26 09:32:59 2002
+@@ -136,6 +136,15 @@
+
+   It is safe to say N here for now.
+
++CONFIG_VLAN_8021Q
++  Select this and you will be able to create 802.1Q VLAN interfaces on your
++  ethernet interfaces.  802.1Q VLAN supports almost everything a regular
++  ethernet interface does, including firewalling, bridging, and of course
++  IP traffic.  You will need the 'vconfig' tool from the VLAN project in
++  order to effectively use VLANs.  See the VLAN web page for more
++  information:  <http://www.candelatech.com/~greear/vlan.html>.  If unsure,
++  you can safely say 'N'.
++
+ CONFIG_IPX
+   This is support for the Novell networking protocol, IPX, commonly
+   used for local networks of Windows machines.  You need it if you

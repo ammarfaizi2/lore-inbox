@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131577AbRBLWIe>; Mon, 12 Feb 2001 17:08:34 -0500
+	id <S131013AbRBLWLy>; Mon, 12 Feb 2001 17:11:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131450AbRBLWIY>; Mon, 12 Feb 2001 17:08:24 -0500
-Received: from mailman.techspan.com ([4.21.76.5]:64004 "EHLO
-	mailman.techspan.com") by vger.kernel.org with ESMTP
-	id <S130736AbRBLWIH>; Mon, 12 Feb 2001 17:08:07 -0500
-Message-ID: <3A885EC5.7080706@techspan.com>
-Date: Mon, 12 Feb 2001 17:08:05 -0500
-From: Mark Swanson <Mark.Swanson@techspan.com>
-Organization: Techspan
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.14-win4lin i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
+	id <S131453AbRBLWLo>; Mon, 12 Feb 2001 17:11:44 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:28166 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131013AbRBLWL0>; Mon, 12 Feb 2001 17:11:26 -0500
+Message-ID: <3A885F72.ED9ADAE8@transmeta.com>
+Date: Mon, 12 Feb 2001 14:10:58 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: PS/2 Mouse/Keyboard conflict and lockup
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: James Sutherland <jas88@cam.ac.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: LILO and serial speeds over 9600
+In-Reply-To: <E14SQtT-0008C5-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >I'm also seeing a ps/2 mouse bug, with 2.4.0-pre5 (I think) on a 
- >CS433 (486/33 laptop) 
- >Freezes after some time in X, killing keyboard.
- >Is there a generic approach to finding where this sort of problem lies?
+Alan Cox wrote:
+> 
+> Sounds like MOP on the old Vaxen. TCP btw isnt as heavyweight as people
+> sometimes think. You can (and people have) implemented a simple TCP client
+> and IP and SLIP in 8K of EPROM on a 6502. There is a common misconception
+> that a TCP must be complex.
+> 
+> All you actually _have_ to support is receiving frames in order, sending one
+> frame at a time when the last data is acked and basic backoff. You dont have
+> to parse tcp options, you dont have to support out of order reassembly.
+> 
 
-The exact same thing happens to me too. Winbook XL2 laptop.
-I can ssh to the box and kill X, and then I can use the keyboard/PS2 
-mouse again!
+This is true, but one thing I'd really like to have is controlled buffer
+overrun, which TCP *doesn't* have.  I really think an ad hoc UDP protocol
+(I've already begun sketching on the details) is more appropriate in this
+particular case.
 
-The same thing happens in console mode. Keyboard/mouse lock up, I ssh, 
-do the reverse of above (startx) and I can use my mouse and keyboard again!
+	-hpa
 
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

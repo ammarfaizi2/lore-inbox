@@ -1,108 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282907AbRLOR51>; Sat, 15 Dec 2001 12:57:27 -0500
+	id <S283055AbRLOR71>; Sat, 15 Dec 2001 12:59:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283055AbRLOR5L>; Sat, 15 Dec 2001 12:57:11 -0500
-Received: from pop.gmx.net ([213.165.64.20]:48676 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S282907AbRLOR4w>;
-	Sat, 15 Dec 2001 12:56:52 -0500
-Date: Sat, 15 Dec 2001 18:56:43 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: Jurij Smakov <jurij.smakov@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PDC20265 IDE controller trouble
-Message-Id: <20011215185643.252d5547.rene.rebe@gmx.net>
-In-Reply-To: <Pine.GHP.4.43.0112151828220.9103-100000@bobcat>
-In-Reply-To: <Pine.GHP.4.43.0112151828220.9103-100000@bobcat>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S283057AbRLOR7T>; Sat, 15 Dec 2001 12:59:19 -0500
+Received: from www.wen-online.de ([212.223.88.39]:44038 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S283055AbRLOR7J>;
+	Sat, 15 Dec 2001 12:59:09 -0500
+Date: Sat, 15 Dec 2001 19:03:28 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pivot_root and initrd kernel panic woes
+In-Reply-To: <01121514553501.01834@manta>
+Message-ID: <Pine.LNX.4.33.0112151859250.381-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sat, 15 Dec 2001, vda wrote:
 
-This is on a AMD K6-2 350Mhz, 128MB RAM, on a Ali Aladin5 based Gigabyte board
-3x IBM DTLA 40GB discs on a Promisse TX2 Ultra 100 in a PCI slot.
+> On Saturday 15 December 2001 10:14, Mike Galbraith wrote:
+> > On Thu, 13 Dec 2001, vda wrote:
+> > > On Thursday 13 December 2001 06:19, Alexander Viro wrote:
+> > > > On Thu, 13 Dec 2001, vda wrote:
+> > > > > BTW, don't go for 2.4x, x>10. initrd is broken there and is still
+> > > > > unfixed.
+> > > >
+> > > > Bullshit.
+> > >
+> > > I have a slackware initrd (minix) which is booting fine with 2.4.10
+> > > but fails to boot with 2.4.12 and later (same .config, same bootloader,
+> > > same hardware, same AC voltage in the wall outlet, time of day differs by
+> > > 1 minute), so it might be true :-)
+> >
+> > Hmm.. works here with 2.5.1-pre8.
+> >
+> > 	-Mike
+> > ...
+> > RAMDISK driver initialized: 16 RAM disks of 12288K size 1024 blocksize
+> > ...
+> > RAMDISK: Compressed image found at block 0
+> > Freeing initrd memory: 5161k freed
+> > MINIX-fs: mounting unchecked file system, running fsck is recommended.
+> > VFS: Mounted root (minix filesystem).
+> > Freeing unused kernel memory: 236k freed
+>
+> Have you tried it with minix initrd from
+>
+> http://port.imtp.ilyichevsk.odessa.ua/linux/vda/minix.gz
 
-Single transfer to one disk:
-server1:~ # hdparm -tT /dev/ide/host2/bus0/target0/lun0/disc
+No, I converted my 'fire department' initrd to minix and booted that.
 
-/dev/ide/host2/bus0/target0/lun0/disc:
- Timing buffer-cache reads:   128 MB in  2.12 seconds = 60.38 MB/sec
- Timing buffered disk reads:  64 MB in  2.86 seconds = 22.38 MB/sec
+	-Mike
 
-Dual transfer to disks on sperated channels (values per disk):
-server1:~ # hdparm -tT /dev/ide/host2/bus0/target0/lun0/disc
-
-/dev/ide/host2/bus0/target0/lun0/disc:
- Timing buffer-cache reads:   128 MB in  4.13 seconds = 30.99 MB/sec
- Timing buffered disk reads:  64 MB in  4.66 seconds = 13.73 MB/sec
-
-Dual transfer to disks on the same channel (values per dics):
-server1:~ # hdparm -tT /dev/ide/host2/bus0/target1/lun0/disc
-
-/dev/ide/host2/bus0/target1/lun0/disc:
- Timing buffer-cache reads:   128 MB in  4.44 seconds = 28.83 MB/sec
- Timing buffered disk reads:  64 MB in  8.36 seconds =  7.66 MB/sec
-
-Hey! This might be the cause for the slowdown I reported in another
-Raid5 / ReiserFS thread!!
-
-Is this an general IDE issue or is some queueing code in the kernel
-rather bad/slow for this task???
-
-On Sat, 15 Dec 2001 18:35:29 +0100 (MET)
-Jurij Smakov <jurij.smakov@telia.com> wrote:
-
-> Hi!
-> 
-> Recently I've got an Asus TUSL2 motherboard, which has an extra Promise
-> IDE RAID controller with a PDC20265 chip. I've connected two IBM 60 GB
-> disks to it (one disk per channel). I am using kernel 2.4.17-pre8
-> (with CONFIG_BLK_DEV_PDC202XX=y and with/without CONFIG_PDC202XX_BURST=y),
-> which nicely detects the extra controller and both disks, hde and hdg. If
-> I test the writing and reading speed (hdparm -t, dd if=/dev/zero of=test
-> ...) separately for each disk, I get the expected figures, like 36-37
-> MB/sec for reading, about 30 MB/sec for writing. If, however, I try to
-> write simultaneously to both disks, the performance drops drastically. The
-> rate for writing is then something like 3.5 MB/sec (!). I wonder if anyone
-> have seen anything like that or might have any ideas on how to solve the
-> problem.
-> 
-> Suspecting the hardware, I've posted this message to
-> comp.os.linux.hardware first, but no one have seen such a behaviour. I
-> have also tried different sets of IDE cables.
-> 
-> Best regards and TIA,
-> 
-> 
-> Jurij.
-> 
-> P.S. Please cc responses to me, because I'm not on the list.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-
-k33p h4ck1n6
-  René
-
--- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
-
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

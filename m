@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbTD3L6P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 07:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbTD3L6P
+	id S262138AbTD3MHk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 08:07:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbTD3MHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 07:58:15 -0400
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:44038 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S262145AbTD3L6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 07:58:13 -0400
-Message-Id: <200304301201.h3UC19u23911@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: James Courtier-Dutton <James@superbug.demon.co.uk>
-Subject: Re: Bug in linux kernel when playing DVDs.
-Date: Wed, 30 Apr 2003 15:08:39 +0300
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <3EABB532.5000101@superbug.demon.co.uk> <200304290538.h3T5cLu16097@Port.imtp.ilyichevsk.odessa.ua> <3EAE5DF5.1040209@superbug.demon.co.uk>
-In-Reply-To: <3EAE5DF5.1040209@superbug.demon.co.uk>
+	Wed, 30 Apr 2003 08:07:40 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:18831 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262138AbTD3MHj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 08:07:39 -0400
+Date: Wed, 30 Apr 2003 08:21:28 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: John Bradford <john@grabjohn.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Bootable CD idea
+In-Reply-To: <200304301154.h3UBs0ob000471@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.53.0304300811300.12971@chaos>
+References: <200304301154.h3UBs0ob000471@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 April 2003 14:11, James Courtier-Dutton wrote:
-> >See? Sector # is increasing... Linux retries the read several times,
-> >then reports EIO to userspace and goes to next sectors.
-> > Unfortunately, they are bad too, so the loop repeats. Eventually it
-> > will pass by all bad sectors (if not, it's a bug) but it can take
-> > longish time.
-> >
-> >Apart of making max retry # settable by the user, I don't see how
-> >this can be made better. Pity. This is common problem on CDs...
+On Wed, 30 Apr 2003, John Bradford wrote:
+
+> Just a random idea that occurred to me...
 >
-> What is this EIO report. The CPU is never returned to user space
-> apps, so the app never sees any error.
+> Since the El-Torito bootable CD standard supports multiple floppy
+> images on a single CD, it would be possible to write a script that
+> takes a .config file, and the source to, say all the -pre and -rc
+> versions of a particular kernel, compiles multiple kernels with the
+> same .config, and writes a CD with them all on, set to boot from an
+> arbitrary disk partition.
+>
+> It would make:
+>
+> > > > Foo doesn't work in -rc2
+> > > Did it work in -rc1
+> > Not sure
+>
+> E-Mail exchanges a thing of the past.
+>
+> Note, that as each floppy image is separate, it's not the same as
+> trying to cram multiple kernels on a 2.88 MB floppy image, and is
+> therefore actually do-able :-).
+>
+> John.
 
-Are you sure that CPU never returned to the app?
-(strace is your friend...)
+Well, it's a boot-loader problem that has to be solved in one
+of the boot-loader programs like grub or lilo. When booting a
+CD, the BIOS is made to 'think' that a CD is a floppy. It
+loads the boot-record and jumps to its code. From that point
+on, whatever happens is based upon how, what, and where the
+boot record and subsequent code executes. With the large
+data space available, you could certainly have multiple
+operating systems. It's simply a coding problem. If you
+want to modify one of the existing boot-loader programs
+let me know. I may be able to help, and certainly can test.
 
-> As for retries, for DVD playing we do not want the Linux kernel to do
-> any retries, because during DVD playback, we just want a very quick
-> response saying there was an error.
+FYI I have a bootable CR/ROM (who doesn't), that contains
+a limited root file-system with ramdisks that mount on
+/tmp and /var. I use this to boot any linux machine and
+repair it. It would be nice to be able to select different
+operating system versions as well.
 
-Kernel is not yet telepathic.
 
-> The DVD playing application can
-> then skip forward 0.5 seconds and continue. If one sector fails on a
-> DVD, there is little or not point in reading the next sector. One has
-> to start reading from the next VOBU. (i.e. about 0.5 seconds skip.)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-You need a way to tell kernel that you want such behavior.
-"skip 0.5 sec on error" requirement is rather hard
-to describe to the kernel.
---
-vda

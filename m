@@ -1,219 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263475AbUE3Mkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263544AbUE3Mnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUE3Mkn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 08:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263484AbUE3Mkn
+	id S263544AbUE3Mnh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 08:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUE3Mnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 08:40:43 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:29163 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S263475AbUE3Mkd convert rfc822-to-8bit (ORCPT
+	Sun, 30 May 2004 08:43:37 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:56192 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263544AbUE3Mnb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 08:40:33 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org,
-       Tuukka Toivonen <tuukkat@ee.oulu.fi>
+	Sun, 30 May 2004 08:43:31 -0400
+Date: Sun, 30 May 2004 14:43:53 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: keyboard problem with 2.6.6
-References: <MPG.1b2111558bc2d299896a2@news.gmane.org>
-	<20040525201616.GE6512@gucio>
-	<xb7hdu3fwsj.fsf@savona.informatik.uni-freiburg.de>
-	<xb7aczscv0q.fsf@savona.informatik.uni-freiburg.de>
-	<20040529131233.GA6185@ucw.cz>
-	<xb7y8nab65d.fsf@savona.informatik.uni-freiburg.de>
-	<20040530101914.GA1226@ucw.cz>
-	<xb765aeb1i3.fsf@savona.informatik.uni-freiburg.de>
-	<20040530121606.GA1496@ucw.cz>
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 30 May 2004 14:40:31 +0200
-In-Reply-To: <20040530121606.GA1496@ucw.cz>
-Message-ID: <xb7ekp29jgg.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
-Organization: Universitaet Freiburg, Institut fuer Informatik
+Message-ID: <20040530124353.GB1496@ucw.cz>
+References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de> <20040530111847.GA1377@ucw.cz> <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Vojtech" == Vojtech Pavlik <vojtech@suse.cz> writes:
-
-    >> Where it is now possible to move it out of kernel space WITHOUT
-    >> performance problems, why not move it out?
-
-    Vojtech> Because it just works.
-
-    Vojtech> 1) Upgrading the kernel will make your keyboard stop
-    Vojtech> working. Noone has installed your userspace daemons on
-    Vojtech> the system.
-
-Many people has already fallen  into this trap with YOUR input system:
-they didn't know they had  to enable the 'i8042' and 'atkbd' features,
-or they did  but made them modules and didn't have  any clue to insmod
-them in the bootup scripts.
-
-Most package  maintainers put dependencies  in their 2.6  kernel image
-packages to force the user to also install module-init-tools.  I can't
-see why that couldn't be done for userspace daemons.
-
-
-    Vojtech> 2) The keyboard (and other input devices, so that you
-    Vojtech> don't complain about limiting this to the keyboard)
-    Vojtech> should work without requiring userspace to be running.
-
-Is a network interface an input device?  Or do you just mean HID?
-
-USB devices  (including USB keyboards  and mice) require  hot-plug (or
-similar mechanisms) to load  the corresponding modules before they can
-work.   Both  /sbin/hotplug  and   /sbin/modprobe  on  my  system  are
-userspace programs.
-
-
-    Vojtech> And, it works just fine in the kernel, doesn't take up
-    Vojtech> any more space than as a program, so why to move it out?
-
-To leave more *swappable* RAM to userspace.
-
-
-
-    Vojtech> This is getting really annoying. Let me rephrase it
-    Vojtech> again:
-
-    Vojtech> I don't have a keyboard on every of my systems. But when
-    Vojtech> I have it and I have the driver running, I expect it to
-    Vojtech> work.
-
-So, you  need to have a  DRIVER running.  How does  putting the driver
-into kernel space make it different (for this argument)?
-
-
-    Vojtech> Regardless of what happened to the system. Regardless of
-    Vojtech> userspace programs dying. Just work.
-
-Userspace  programs can  die.  Kernelspace  code can  Oops.   Which is
-easier to recover?   What happens when getty dies  and how to recover?
-What happens  when some kernel code  oops?  Do you lose  data (held in
-RAM by other apps) in these cases?
-
-
-    Vojtech> Yes. The system doesn't need the keyboard drivers to
-    Vojtech> function. The user does.
-
-I don't, when I'm accessing via means other than a keyboard.
-
-
-    >> Are you aware of the i8042_shutdown bug, which I discovered and
-    >> fixed?  How could I have found such a bug, if "keyboard has to
-    >> always work"?
-
-    Vojtech> Thanks for the fix.
-
-I've been  reporting this  bug for 2.6.6  and 2.6.7-rc1, and  it still
-hasn't been included in 2.6.7-rc2.  What's happening?  Should I report
-it again for 2.6.7-rc2?
-
-
-    >> And how about mouse drivers?  They used to be in userland (gpm,
-    >> XFree86 3.x -- 4.x, etc.)  Why move it into the kernel?
-
-    Vojtech> You wanted to use a mouse click to dump registers?
-
-GPM can be  configured to do it, given that the  SysRq feature can now
-be triggered from userland.
-
-
-    Vojtech> I'd have an interesting idea for you, though: If you want
-    Vojtech> moving stuff to userspace, move the whole console
-    Vojtech> there. The font handling, the keymap handling, colors,
-    Vojtech> resolution, all that.
-
-    Vojtech> Just a simple program that uses the evdev interface to
-    Vojtech> get the keyboard data for input, the fbdev interface for
-    Vojtech> output, and the pty interface to communicate with the
-    Vojtech> system.
-
-I've  never  used fbdev.   I  don't  plan to  use  it  on any  PC-type
-machines.   It's  so  slow.   I  prefer  the  (S)VGA  text  modes  and
-accelerated X11 drivers.
-
-
-
-    Vojtech> Now *that* would be a great project moving stuff to
-    Vojtech> userspace.
-
-But that restricts to fbdev.
-
-
-    Vojtech> It's in userspace. It's not running in the kernel
-    Vojtech> space. It's subject to the scheduler and swapping. It
-    Vojtech> doesn't react to interrupts immediately.  I think that's
-    Vojtech> quite clear.
-
-Swappable is one of the features that I want.  I often use my machines
-via X11  from one desktop computer.   If the keyboard  driver has been
-dormant for  a long time, I'd  prefer it to  be swapped out, so  as to
-free up some RAM for other programs.
-
-If you don't want it to  be swappable, you can add some mlock() calls.
-You don't have this *choice* for the kernel-space drivers.
-
-
-    Vojtech> Of course it's possible. There is not much that'd be
-    Vojtech> impossible in operating systems. It's not convenient,
-    Vojtech> that's all.
-
-Now, it becomes a convenience issue, rather than a necessity issue.
-
-
-
-    Vojtech> It IS an option, not a requirement. But I WANT THE
-    Vojtech> OPTION. If the keyboard handling is in userspace, I don't
-    Vojtech> have the option of pressing a key combination and getting
-    Vojtech> a register dump,
-
-Why not?
-
-
-    Vojtech> because the daemon doing the processing may be dead
-    Vojtech> already.
-
-"may be".  So, it's not always.
-
-
-    >>  I don't understand this.  The slower a device is, the lesser
-    >> is the need to handle the incoming data in kernel space.  I
-    >> can't understand how 1200baud is fast enough to cause
-    >> significant delays.  Maybe, you can enlighten me on that?
-
-    >> Yeah.  At what rate are they arriving?  1200baud.  Let's say
-    >> that' 9600bps.  So, 1200 bytes per second.  1 byte in every 833
-    >> microseconds.  How come a processor at 33MHz (0.030
-    >> microseconds per clock cycle) cannot cope with that?  Assuming
-    >> that the processing of the data plus context switching plus
-    >> other overhead taks 1000 microseconds, that still shouldn't be
-    >> felt by a HUMAN user.  Who has a reaction time of less than 100
-    >> _milli_seconds?
-
-    Vojtech> Can you say swap?
-
-Can you say mlock()?
-
-
-
-    Vojtech> The keyboard and mouse drivers don't handle
-    Vojtech> keymaps. Those are handled in the console. The
-    Vojtech> keyboard/mouse drivers are not necessarily _time_
-    Vojtech> critical, but they're critical. When your keyboard stops
-    Vojtech> working, this often means your system is dead. (Think a
-    Vojtech> laptop on an airplane.)
-
-I've used  my laptop  in an airplane,  and it works  without problems.
-What would make the keyboard stop working in an airplane?
-
-
+On Sun, May 30, 2004 at 01:40:03PM +0200, Sau Dan Lee wrote:
+> >>>>> "Vojtech" == Vojtech Pavlik <vojtech@suse.cz> writes:
+> 
+>     Vojtech> Q2: What application should be looking at the raw data
+>     Vojtech> outside the kernel and why?
+>     >>  What application should be looking at the raw data from an
+>     >> RS232 port outside the kernel and why?
+> 
+>     Vojtech> Terminal. Terminals use the data directly.
+> 
+> Now, what prevents people from  connecting terminals to a computer via
+> the PS/2 mouse port?
+
+Their sanity.
+
+Anyway, I don't oppose having the raw data available.
+
+> There are  mice which can be attached  to both the RS232  port AND the
+> PS/2 mouse port, needing only  an adaptor.  It should also be possible
+> to use  a similar technique  to connect a  terminal to the  PS/2 mouse
+> port.  This would be useful when you run out of RS232 ports.
+
+Go ahead and try it. You'll fry your KBD port.
+
+> Your  approach   in  the  input  system  completely   rules  out  this
+> possibility.
+
+Not such a big loss.
+
+>     Vojtech> Anyway, the RS232 port is a multi purpose port, where you
+>     Vojtech> can attach many different devices to it. For the keyboard
+>     Vojtech> port, there is only one option, the keyboard. 
+> 
+> What a big assumption.  Yes, I admit that I don't know of any hardware
+> implementations  that use  the PS/2  (or AT)  keyboard port  for other
+> purposes.  Maybe there are POS systems like that?
+
+No. The KBD interface is asymetric, only works on short distances, is
+slow, cannot pass arbitrary data through, as it's by default translated
+by the keyboard contoller, already assuming it's sending keyboard data,
+all in all, it's completely unsuitable for anything else than a
+keyboard.
+
+You even cannot connect a mouse over it in the default mode of the port.
+
+>     Vojtech> Of course, unless you create a device that can use it,
+>     Vojtech> but in that case you can easily write a kernel driver for
+>     Vojtech> it.
+> 
+> How about  the PS/2 mouse  port?  It's not  just for mice.   There ARE
+> implementations using it for other things: touchpad, touchscreen, etc.
+
+All simulate a mouse. Some have somewhat extended protocols, but those
+protocols are still bound by mouse packet constraints, because the
+controllers tend to do nasty things to the data passing through, like
+merging input from multiple devices together into one stream by summing
+the packets, etc.
+
+> Your input  driver places that  stupid assumption that there  can't be
+> other devices  outside your support list  that may use  the PS/2 mouse
+> port, and  you make the  stupid assumption on  HOW the port  should be
+> used.  That's within your  imaginations.  You're limiting other people
+> to  your own  imaginations.   Worse still,  there  are ALREADY  things
+> beyond your imaginations.
+
+No. I'm just saying - if you want something that's not in the kernel
+drivers, just write a driver for it. But the driver must be able to
+coexist with the other drivers.
+
+Your psaux/userspace serio driver is fine, except it cannot coexist with
+the other drivers.
+
+> Not everyone using  Linux is patient enough to  explore the Wonderland
+> of kernel hacking.  Many immigrants from 2.4 are highly disappointed
+> by the new but incompatible mouse/keyboard behaviours.  Some of them
+> returned to their 2.4 homeland because of this.
+
+Life's a change.
+
+Anyway, at least 99% setups just keep working in 2.6.
+
+> Not every new immigrant are that devoted to make the new country good.
+> Many simply hop  back to the original country, or  hop to another that
+> _may_ suit them better.
+
+That's their freedom to do.
+
+>     >> Raw keyboard data, for instance, can be captured for analyzing
+>     >> how people use the keyboard and coming up with a more efficient
+>     >> keyboard layout (c.f. Dvorak).  That's already beyond your
+>     >> imaginations.
+> 
+>     Vojtech> The raw data not what you want to use there. You want the
+>     Vojtech> keystroke data,
+> 
+> No.   I want  the  raw bytes.   (That's  also useful  for debugging  a
+> hardware,  in  case  people  are  making  or  experimenting  with  new
+> hardware.)
+
+Sure. For debugging purposes, yes. But for analyzing the typing
+behavior, the abstract data is better.
+
+>     Vojtech>  and for that you can use the /dev/input/event interface,
+> 
+> But that's polluted  with some (0,0,0) events.  In  some situations, I
+> NEED the raw, uninterpreted bytes,  much like people liking to watch a
+> film or read  a book in the *original* language  version, not a dubbed
+> or translated version.
+
+Polluted. ;) Sorry, they're intentional. They're EV_SYN, SYN_REPORT
+events, as you can find in input.h. They inform you that this is the end
+of the whole report, which is useful for example for mice, where you
+have more than one event (REL_X, REL_Y) per a report. 
+
+The application reading the device is supposed to queue all events up to
+the SYN_REPORT event, and then process them, so that a mouse pointer
+will move diagonally instead of following the sides of a rectangle,
+which would be very annoying.
+
+> 
+>     Vojtech> where you get them in a sane format (as opposed to the
+>     Vojtech> PS/2 rawmode, which can send up ot 8 bytes for a single
+>     Vojtech> keystroke).
+> 
+> Sane != helpful or more useful.
+> 
+> I could study the  I-Ching in English, but I would prefer  to do it in
+> Chinese.  Now, your  approach is forcing me to do  it in English.  And
+> you believe that's a good idea.
+
+In your example, you wanted to study the frequency of keypresses, and
+their relations. For that, it's best to ask the kernel to report
+keypresses to you.
+
+Should you want to analyze the keyboard protocol, the raw data is the
+way to go. But that's been done many times before anyway.
+
+>     Vojtech> Then your statistic analyser will work just fine even on
+>     Vojtech> a Sun, Mac, or with an USB keyboard.
+> 
+> But it will not be able  to handle the specifics.  (That's the problem
+> with  generic tools  in  general.  But  you  shouldn't be  restricting
+> people to only those tools.  Some people have specific needs, and they
+> should not be ignored.)
 
 -- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,100 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286198AbRLJId0>; Mon, 10 Dec 2001 03:33:26 -0500
+	id <S286202AbRLJIgg>; Mon, 10 Dec 2001 03:36:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286202AbRLJIdR>; Mon, 10 Dec 2001 03:33:17 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:4615 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S286198AbRLJIdD>; Mon, 10 Dec 2001 03:33:03 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Robert Love <rml@tech9.net>
-Subject: Re: [PATCH] fully preemptible kernel
-Date: Mon, 10 Dec 2001 10:29:51 -0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, kpreempt-tech@lists.sourceforge.net
-In-Reply-To: <1007930466.11789.2.camel@phantasy> <01121008545000.01013@manta> <1007967834.878.30.camel@phantasy>
-In-Reply-To: <1007967834.878.30.camel@phantasy>
+	id <S286199AbRLJIgS>; Mon, 10 Dec 2001 03:36:18 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32782
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S286196AbRLJIf5>; Mon, 10 Dec 2001 03:35:57 -0500
+Date: Mon, 10 Dec 2001 00:31:22 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+cc: linux-raid@vger.kernel.org
+Subject: Re: IDE-DMA woes
+In-Reply-To: <00fa01c1804e$0428ed40$140ba8c0@mistral>
+Message-ID: <Pine.LNX.4.10.10112091910400.23503-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Message-Id: <01121010295102.01013@manta>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 December 2001 05:03, Robert Love wrote:
-> On Mon, 2001-12-10 at 05:54, vda wrote:
-> > I reported a problem with preemptible 2.4.13 and Samba server (oops,
-> > problems with creation of files from win clients).
-> > Is this issue addressed?
->
-> No, because I could not reproduce it.  Could you see if it occurs on the
-> current kernel with the current patch?  If so, send me the relevant
-> information.
->
-> 	Robert Love
+On Sun, 9 Dec 2001, Simon Turvey wrote:
 
-This is my report dating back to 2.4.10.
-Since getting oops is not easy (actually, oops is rare, but buggy behavios 
-described below is consistent) I don't have newer oops.
-I have ksymoops compiled from sources and it does not work right
-("Error (Oops_bfd_perror): set_section_contents Section has no contents").
-Can you enlighten me why I'm getting ths message?
-Or just send me working ksymoops binary, we can sort out this later.
+> 
+> >Like I told you in the other forum.  I have the solutions just my work is
+> >being refused.  Don't know if I have absolutely pissed off the
+> >king-penguin or what but there is no reason to submit when I know it is
+> >not going to be accepted
+> 
+> Andre,
+>     Any chance of some further details on this work.  AFAIKT you've been the
+> foremost contributor of cutting-edge IDE updates for quite some time now.  I
+> find it astonishing that Linus would have inexplicably started refusing your
+> code.  At least point us in the right direction so we can try the new stuff
+> out.
+> 
+> Simon
 
-Ok, I'll compile and install 2.4.17-pre6-pr now.
+I am working on a final update right now.  This is after fixing the driver
+to perform correct data-transport layers.  This is linux soft-raid 0 w/
+four drives.  The are 4-20GB drives partitioned to make two md devices to
+isolate peformance boundaries.
 
---------------------------------------------------------------------------
-On first attempt to create/copy files from win box to linux samba server it 
-says that "file/dir already exists" or that "connection terminated". File/dir 
-is indeed exists, in case of a file it is of zero length. Subsequent copy with
-overwrite succeeds.
+Writing superblocks and filesystem accounting information: done
+No size specified, using 510 MB
+Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/sec
 
-It seems that smbd dies after it has created file/dir but before
-reporting this fact to the client. New smbd gets spawned by inetd
-then and it see that file/dir is already there.
+         File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
+  Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
+------- ------ ------- --- ----------- ----------- ----------- -----------
+   .     510    4096    1  84.75 57.1% 1.081 1.17% 79.80 43.9% 4.285 2.46%
+   .     510    4096    2  78.88 52.8% 1.171 0.97% 73.64 48.8% 4.411 3.67%
+   .     510    4096    4  74.04 51.3% 1.402 1.16% 73.77 51.9% 4.391 3.65%
+   .     510    4096    8  67.93 47.9% 1.623 1.42% 71.43 52.1% 4.360 3.62%
 
-It might be related to newer kernel.
-I am willing to track it further.
+File './Bonnie.943', size: 1073741824, volumes: 1
+Writing with putc()...  done:   9709 kB/s  98.9 %CPU
+Rewriting...            done:  49883 kB/s  41.4 %CPU
+Writing intelligently...done:  99026 kB/s  50.0 %CPU
+Reading with getc()...  done:   9663 kB/s  99.1 %CPU
+Reading intelligently...done:  89632 kB/s  55.0 %CPU
+Seeker 1...Seeker 2...Seeker 3...start 'em...done...done...done...
+              ---Sequential Output (nosync)--- ---Sequential Input-- --Rnd Seek-
+              -Per Char- --Block--- -Rewrite-- -Per Char- --Block--- --04k (03)-
+Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU   /sec %CPU
+       1*1024  9709 98.9 99026 50.0 49883 41.4  9663 99.1 89632 55.0  344.2  4.0
 
-Samba: 2.2.1a
-Kernel: 2.4.10
 
-Also I've got two oopses so far. One of them decoded below
-(my first ksymoops, I don't know is it done right on not)
+Wrote 38184 Meg / 78201343 blocks 0 Meg / 0 blocks
+Device length: 40038825984 Bytes / 38184 Meg / 37 Gig
+Total Diameter Sequential Pattern Write Test = 96.10 MB/Sec (397.35 Seconds)
+Read 38183Meg (78198784 blocks)
+Read failed on block number 78200832 at offset 40038825984 ( 0 / 512 )
+  Error: Input/output error
+Could not find block: 78200833 for reading.
+  Error: Invalid argument
+Read 38184Meg (78200833 blocks)
+Device length: 40038825984 Bytes / 38184 Meg / 37 Gig
+Total Diameter Sequential Pattern Read Test  = 75.68 MB/Sec (504.53 Seconds)
+Device passed! Seek OverRun!
 
---------------------------------------------
-ksymoops 2.4.3 on i686 2.4.10.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.10/ (default)
-     -m /usr/src/linux/System.map (default)
+The test has an overrun on the last request under lseek, working on fixing.
 
-Warning: You did not tell me where to find symbol information....
-<snip>
+The slower read rate is a direct result of using a pattern buffer check
+and comparison (write/read/verify/compare/contest-errors).  Details later
+but the drive(s) are faster than reported.  These rates are using EXT2 for
+the FS.
 
-Unable to handle kernel paging request at virtual address 4008e6ed
-*pde = 01100067
-Oops: 0003
-CPU:    0
-EIP:    0010:[<c010655b>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00000000   ebx: 4008e76d   ecx: 4008e6cd   edx: 0000e865
-esi: 00000000   edi: 00000128   ebp: 4008e6c9   esp: c1c5bf74
-ds: 0018   es: 0018   ss: 0018
-Process smbd (pid: 213, stackpage=c1c5b000)
-Stack: 5650faf0 c1c5a000 c029afd0 00000128 c01068d0 4008e6cd 4008e76d c1c5bf94
-       c02a23b2 55c3c85e ec83e589 4000bcd9 40015f67 4000bcd9 40015f67 c1c5a000
-       00000000 00000000 bfffea74 c0107603 00000000 bfffe6a3 00000001 00000000
-Call Trace: [<c01068d0>] [<c0107603>]
-Code: 89 51 20 31 c0 66 8b 53 0c 81 e2 ff ff 00 00 09 c6 89 51 1c
-Error (Oops_bfd_perror): set_section_contents Section has no contents
+Regards,
 
->>EIP; c010655a <restore_sigcontext+3a/140>   <=====
-Trace; c01068d0 <sys_rt_sigreturn+110/180>
-Trace; c0107602 <system_call+32/40>
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
 
-1 warning and 1 error issued.  Results may not be reliable.
---
-vda
+

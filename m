@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131832AbRA3SQz>; Tue, 30 Jan 2001 13:16:55 -0500
+	id <S131810AbRA3SSp>; Tue, 30 Jan 2001 13:18:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131959AbRA3SQq>; Tue, 30 Jan 2001 13:16:46 -0500
-Received: from www.topmail.de ([212.255.16.226]:48578 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S131957AbRA3SQi> convert rfc822-to-8bit;
-	Tue, 30 Jan 2001 13:16:38 -0500
-Message-ID: <009801c08ae8$c839a280$0100a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>,
-        "Mark H. Wood" <mwood@IUPUI.Edu>
-In-Reply-To: <Pine.LNX.4.21.0101301241250.11300-100000@mhw.ULib.IUPUI.Edu>
-Subject: Re: Linux Post codes during runtime, possibly OT
-Date: Tue, 30 Jan 2001 18:16:29 -0000
-Organization: eccesys.net Linux Distribution Development
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131870AbRA3SSf>; Tue, 30 Jan 2001 13:18:35 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:7186 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S131810AbRA3SS2>;
+	Tue, 30 Jan 2001 13:18:28 -0500
+Date: Tue, 30 Jan 2001 20:18:18 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Pekka Pietikainen <pp@evil.netppl.fi>
+Cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
+Message-ID: <20010130201818.X25659@mea-ext.zmailer.org>
+In-Reply-To: <20010129164953.A15219@vger.timpanogas.org> <Pine.A41.4.31.0101292123270.54650-100000@aix06.unm.edu> <20010130101958.A18047@vger.timpanogas.org> <20010130192248.A3684@netppl.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010130192248.A3684@netppl.fi>; from pp@evil.netppl.fi on Tue, Jan 30, 2001 at 07:22:48PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
+On Tue, Jan 30, 2001 at 07:22:48PM +0200, Pekka Pietikainen wrote:
+> On Tue, Jan 30, 2001 at 10:19:58AM -0700, Jeff V. Merkey wrote:
+> > On Mon, Jan 29, 2001 at 09:41:21PM -0700, Todd wrote:
 > > 
-> > Now, we've found that small delays are reasonably well generated with
-> > an "outb" to 0x80. So, indeed changing that to something else is going
-> > to be tricky. 
-> 
-> So how bad would it be to give these people a place to leave the value
-> that they want to have displayed, and have the delay code write *that*
-> instead of garbage?
+> > Sparc servers.  The adapters these drivers I posted support are a bi-CMOS 
+> > implementation of the SCI LC3 chipsets, and even though they are 
+> > bi-CMOS, the Link speed on the back end is still 500 MB/S --
+> > very respectable.
+> Sounds impressive (and expensive)
 
-Because Port &h80 is _not_ decoded by the standard PC hardware.
-There are some ISA and nowadays even PCI cards that convert the value
-OUTted to that port into two 7-segment-digit-LCDisplays, buffered so
-you can read it from the card, but normally no chipset actually
-cares about that port. (I speak of Desktop PCs.)
+  Impressive yes, expensive ?  Everything is relative.
 
-I repeat: Any OUT to port &h80 is, as long as there are no special
-extensions, just as well as any OUT to port &h1234 or &h4711 or
-whateveryouwant as long as nothing uses it.
-Since Port &h80 is now "reserved" for that POST code usage,
-and it is the safest port one can use in order to delay,
-Linux uses it.
-If you don't want this, change it in your kernel or define
-SLOW_BY_JUMPING.
+  Well, you can propably buy a truck-load of cheap 100BaseT cards
+  with the price of Sun UPA connected SCI interface, but there is
+  no point at connecting SCI anywhere but into the system core bus.
 
--mirabilos
+  PCI is "mediocre speed" IO-bus, never forget that.
+  (But there is nothing better yet!  66+MHz 64bit PCI-X gives some
+   hope for faster IO-busses, but is still quite inadequate..)
 
+  People who want to use SCI have serious nonccNUMA PVM programs
+  (Beowulf-like) where interconnect message latency may well be
+  the difference in between a successfull system, and failure.
+  (Even when all optimization is pushed into extreme and as little,
+  and infrequent interconnect messages are needed as possible with
+  given problem.  Reminds me of solving partial differential equations
+  via FFT method in parallel system -- interconnect memory access speeds
+  ruled the result.  Nothing beats Cray T3E there yet.)
 
+  Giga-Ethernet has 9.9 Gbit/sec mode, as well as something close
+  to 40 Gbit/sec.  Those may yet be superior interconnects - or
+  maybe not.  Throwing around Ethernet frames is non-trivial task
+  compared to SCI.   But what may yet emerge are chipsets and system
+  busses able to sustain that kind of traffics, and optimize operation
+  for SCI.   40GE uses bits serial optical transmission at 40+ GHz ...
+  (E.g. 18/16 encoded codewords, or some such.  FE uses 5/4 encoding,
+   if I remember correctly.)
+
+> -- 
+> Pekka Pietikainen
+
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbTKCMZt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 07:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbTKCMZt
+	id S261743AbTKCMmP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 07:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbTKCMmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 07:25:49 -0500
-Received: from ns.suse.de ([195.135.220.2]:18086 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261336AbTKCMZr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 07:25:47 -0500
-Date: Mon, 3 Nov 2003 13:25:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BIO] Bounce queue in bio_add_page
-Message-ID: <20031103122500.GA6963@suse.de>
-References: <20031101044619.GA15628@gondor.apana.org.au> <20031101100543.GA16682@gondor.apana.org.au>
-Mime-Version: 1.0
+	Mon, 3 Nov 2003 07:42:15 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:64186 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261743AbTKCMmN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 07:42:13 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031101100543.GA16682@gondor.apana.org.au>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16294.19747.640052.782753@laputa.namesys.com>
+Date: Mon, 3 Nov 2003 15:42:11 +0300
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Hans Reiser <reiser@namesys.com>, Erik Andersen <andersen@codepoet.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Things that Longhorn seems to be doing right
+In-Reply-To: <20031031193016.GA1546@thunk.org>
+References: <3F9F7F66.9060008@namesys.com>
+	<20031029224230.GA32463@codepoet.org>
+	<20031030015212.GD8689@thunk.org>
+	<3FA0C631.6030905@namesys.com>
+	<20031030174809.GA10209@thunk.org>
+	<3FA16545.6070704@namesys.com>
+	<20031030203146.GA10653@thunk.org>
+	<3FA211D3.2020008@namesys.com>
+	<20031031193016.GA1546@thunk.org>
+X-Mailer: VM 7.17 under 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 01 2003, Herbert Xu wrote:
-> On Sat, Nov 01, 2003 at 03:46:19PM +1100, herbert wrote:
-> > 
-> > Currently bio_add_page will allow segments to be counted as merged
-> > before they've been bounced.  This can create bio's that exceed
-> > limits set by the driver/hardware.  This bug can be triggered on
-> > HIGHMEM machines as well as ISA block devices such as AHA1542.
-> > 
-> > Here is a hack that works around it by bouncing the queue before
-> > recounting the segments.
-> 
-> That patch chained bio's together which is prone to deadlock.  I've
-> modified __blk_queue_bounce to only allocate a new bio if it hasn't
-> been bounced already.  Unfortunately it has to allocate one with the
-> maximum number of bvecs so it's even more of a hack.
-> 
-> Hopefully someone else can come up with a better fix.
+Theodore Ts'o writes:
 
-I think the best fix would be to simply not allow more than one page
-that needs to be bounced to a bio. The problem is that the whole bio and
-bio_vec allocations needs to be duplicated for highmem bouncing, and
-that really doesn't thrill me. So a single mempool for bio, and single
-entry bio_vec would be a lot leaner. I'll see if I can squeeze out a
-prototype today.
+[...]
 
-I totally agree with your analysis of the problem, though.
+ > 
+ > I believe that there is a big difference between, "I want the file
+ > named /home/tytso/src/e2fsprogs/e2fsck/e2fsck.c", and "I remember
+ > vaguely that 5 years ago, I read a paper about the effects of high-fat
+ > diets on akida's, where the first name of the author was Tom".  The
+ > first is a filename lookup.  The second is a search.  I would like
+ > better search tools for files in a filesystem, no doubt.  But I would
+ > never, ever put a search that might return an ambiguous number of
+ > responses (that might change over time as more files are added to the
+ > filesystem) in a Makefile as a source file.  
 
--- 
-Jens Axboe
+It is called "a directory". :) There is no crime in putting
 
+cc src/*.c
+
+into Makefile. I think that Hans' query-result-object denoting multiple
+objects is more like directory than single regular file.
+
+[...]
+
+ > 
+ > 
+ > 						- Ted
+
+Nikita.

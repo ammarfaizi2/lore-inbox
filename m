@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264433AbUAOBjY (ORCPT <rfc822;willy@w.ods.org>);
+	id S264292AbUAOBjY (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 14 Jan 2004 20:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbUAOBhf
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUAOBhj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 20:37:35 -0500
-Received: from dp.samba.org ([66.70.73.150]:19847 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264538AbUAOBh0 (ORCPT
+	Wed, 14 Jan 2004 20:37:39 -0500
+Received: from dp.samba.org ([66.70.73.150]:20871 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264539AbUAOBh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 14 Jan 2004 20:37:26 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Tom Rini <trini@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] 2.6 && module + -g && kernel w/o -g 
-In-reply-to: Your message of "Wed, 14 Jan 2004 14:09:37 PDT."
-             <20040114210937.GA983@stop.crashing.org> 
-Date: Thu, 15 Jan 2004 10:00:11 +1100
-Message-Id: <20040115013723.29B912C0DC@lists.samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Cc: Horacio de Oro <hgdeoro@yahoo.com>, mingo@redhat.com
+Subject: Re: [2.6.1-mm2] Badness in futex_wait at kernel/futex.c:509 
+In-reply-to: Your message of "Tue, 13 Jan 2004 22:36:12 -0800."
+             <20040113223612.4fe709d9.akpm@osdl.org> 
+Date: Thu, 15 Jan 2004 09:46:45 +1100
+Message-Id: <20040115013723.33EF22C21C@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040114210937.GA983@stop.crashing.org> you write:
-> Okay.  I've been looking at stock 2.6.1 noticed  that the fix for this
-> issue that Rusty proposed, and that ultimately made it into 2.6.1-rc3
-> (or so) is not correct.  The problem is that we do:
+In message <20040113223612.4fe709d9.akpm@osdl.org> you write:
+> Horacio de Oro <hgdeoro@yahoo.com> wrote:
+> >
+> > Hi!
+> > 
+> > This happen every time I switch from X to console:
+> > 
+> > Badness in futex_wait at kernel/futex.c:509
+> > Call Trace:
+> >  [futex_wait+434/448] futex_wait+0x1b2/0x1c0
+> >  [default_wake_function+0/32] default_wake_function+0x0/0x20
+> >  [default_wake_function+0/32] default_wake_function+0x0/0x20
+> >  [do_futex+112/128] do_futex+0x70/0x80
+> >  [sys_futex+292/320] sys_futex+0x124/0x140
+> >  [syscall_call+7/11] syscall_call+0x7/0xb
+> > 
 > 
-> err = module_frob_arch_sections(hdr, sechdrs, secstrings, mod);
-> /* Which goes over every .debug section and can take _ages_ on something
->  * like ipv6 */
+> 	/* A spurious wakeup should never happen. */
+> 	WARN_ON(!signal_pending(current));
+> 
+> (looks at Rusty)
 
-Right.  So the arch-specific module_frob_arch_sections() can be slow.
-Logically, the fix should be in those module_frob_arch_sections(), not
-in the generic code.
+You were the one who said spurious wakeups shouldn't happen 8)
 
-> +		/* If we find any debug RELAs, frob these away now. */
-> +		if (sechdrs[i].sh_type == SHT_RELA &&
-> +				(strstr(secstrings+sechdrs[i].sh_name, ".debug")
-> +				 != 0))
-> +			sechdrs[i].sh_type = SHT_NULL;
-> +
+This implies that the console code decided to do wake_up_process() on
+us.  We returned -EINTR to userspace, but there was no signal, which
+is odd.
 
-Doesn't cover SHT_REL, and I really dislike name matches: they've bitten
-us before.
-
-Really, I prefer the arch-specific optimization.
+Anyone have any ideas *why*?
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

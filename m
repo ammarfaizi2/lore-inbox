@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbTINOwu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 10:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbTINOwu
+	id S261165AbTINOqt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 10:46:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbTINOqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 10:52:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2834 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261167AbTINOws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 10:52:48 -0400
-Date: Sun, 14 Sep 2003 15:52:45 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-Message-ID: <20030914155245.A675@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20030914121655.GS27368@fs.tum.de> <20030914133349.A27870@flint.arm.linux.org.uk> <20030914132143.GT27368@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 14 Sep 2003 10:46:49 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:39691 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S261165AbTINOqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 10:46:47 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Alex Riesen <fork0@users.sf.net>
+Subject: Re: 2.6.0-test5-mm1
+Date: Sun, 14 Sep 2003 18:01:55 +0400
+User-Agent: KMail/1.5
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <20030913091306.GA3658@steel.home> <200309141246.01341.arvidjaar@mail.ru> <20030914135248.GA9729@steel.home>
+In-Reply-To: <20030914135248.GA9729@steel.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030914132143.GT27368@fs.tum.de>; from bunk@fs.tum.de on Sun, Sep 14, 2003 at 03:21:43PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Message-Id: <200309141801.55700.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 14, 2003 at 03:21:43PM +0200, Adrian Bunk wrote:
-> On Sun, Sep 14, 2003 at 01:33:49PM +0100, Russell King wrote:
-> > On Sun, Sep 14, 2003 at 02:16:56PM +0200, Adrian Bunk wrote:
-> > > The patch below adds a config option OPTIMIZE_FOR_SIZE for telling gcc 
-> > > to use -Os instead of -O2. Besides this, it removes constructs on 
-> > > architectures that had a -Os hardcoded in their Makefiles.
-> > 
-> > I'd rather retain the -Os default for ARM please.  (The init/Kconfig
-> > defaults it to 'n' for everything.)
-> 
-> Below is the patch with the ARM part omitted.
+On Sunday 14 September 2003 17:52, Alex Riesen wrote:
+> Andrey Borzenkov, Sun, Sep 14, 2003 10:46:01 +0200:
+> > On Saturday 13 September 2003 13:13, Alex Riesen wrote:
+> > > > really-use-english-date-in-version-string.patch
+> > > >  really use english date in version string
+> > >
+> > > -  echo \#define LINUX_COMPILE_TIME \"`LANG=C date +%T`\"
+> > > +  echo \#define LINUX_COMPILE_TIME \"`LC_ALL=C LANG=C date +%T`\"
+> > >
+> > > LC_ALL overrides everything, so LANG is not needed anymore. Should be:
+> > >
+> > > +  echo \#define LINUX_COMPILE_TIME \"`LC_ALL=C date +%T`\"
+> >
+> > I need to set three! variables to make man display manpage in english not
+> > in russian. I have no idea which variables all versions of date out there
+> > respect and which one wins. If you are sure LC_ALL is enough for everyone
+> > - so be it.
+>
+> $ info libc
+> ...
+> Categories of Activities that Locales Affect
+> ...
+> `LC_ALL'
+>      This is not an environment variable;
 
-But it doesn't make sense - you include a generic configuration option
-which people will see, yet it makes no effect on ARM - seems to be rather
-silly putting it there in the first place.
+please quote the correct part of documentation. LC_ALL is environment 
+variable; usually it should win over separate LC_* variables that in turn win 
+over LANG. But I repeat - I have no way to verify it for all combinations of 
+date/libc/glibc out there; autoconf sets all variables it needs to be on safe 
+side so actually instead of removing LANG I'd rather add LC_TIME.
 
-Also, do users particularly care what -Os and -O2 mean?
+-andrey
 
-Maybe you need to change init/Kconfig to be something like the following,
-and reinstate the change to the ARM makefile:
+ it is only a macro that you
+>      can use with `setlocale' to set a single locale for all purposes.
+>      Setting this environment variable overwrites all selections by the
+>      other `LC_*' variables or `LANG'.
 
-config OPTIMIZE_FOR_SIZE
-	bool "Optimize for size" if EXPERIMENTAL
-	default n if !ARM
-	default y if ARM
-	help
-	  Enabling this option will cause the compiler to reduce the code
-	  size of the kernel by disabling certain optimisations.  However,
-	  the resulting kernel may run faster due to more efficient
-	  cache utilisation.
-
-	  If unsure, say N.
-
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core

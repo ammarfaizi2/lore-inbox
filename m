@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262646AbSJWQmT>; Wed, 23 Oct 2002 12:42:19 -0400
+	id <S265067AbSJWQrQ>; Wed, 23 Oct 2002 12:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262800AbSJWQmT>; Wed, 23 Oct 2002 12:42:19 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:42204 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S262646AbSJWQmS>;
-	Wed, 23 Oct 2002 12:42:18 -0400
-Date: Wed, 23 Oct 2002 09:48:08 -0700
-To: Slavcho Nikolov <snikolov@okena.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: feature request - why not make netif_rx() a pointer?
-Message-ID: <20021023164808.GG24123@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20021023003959.GA23155@bougret.hpl.hp.com> <004c01c27a99$927b8a30$800a140a@SLNW2K>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <004c01c27a99$927b8a30$800a140a@SLNW2K>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S265077AbSJWQrP>; Wed, 23 Oct 2002 12:47:15 -0400
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:63934 "EHLO
+	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
+	id <S265067AbSJWQrO>; Wed, 23 Oct 2002 12:47:14 -0400
+Subject: Re: 2.4 Ready list - Kernel Hooks
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
+       S Vamsikrishna <vamsi_krishna@in.ibm.com>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF4A3346AB.B9CBFE3E-ON80256C5B.005B118D@portsmouth.uk.ibm.com>
+From: "Richard J Moore" <richardj_moore@uk.ibm.com>
+Date: Wed, 23 Oct 2002 17:47:11 +0100
+X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 23/10/2002 17:53:22
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 09:39:12AM -0400, Slavcho Nikolov wrote:
-> Unfortunately, I cannot assume that every L2 (or maybe I can, we'll see) is
-> ethernet and I definitely cannot know in advance that every L3 is IP.
-> Nor can the assumption be made that netfilter has been built into the
-> kernel.
 
-	So, you thing assuming a modified netif_rx is different than
-assuming netfilter support ?
-	Your idea is just too dangerous.
+> Is the idea that people would deploy hooks locally, i.e. while
+> profiling or debugging, or that some hooks would be put permanently
+> in the kernel ?
 
-> If I define my own private protocol handler (to catch all), I see cloned
-> skb's
-> which is not what I want. I tried that and dropped each one of them in the
-> handler, yet traffic continued to flow unimpeded (so I must have dropped
-> clones).
+Our principle reasons for using hooks is:
 
-	For this to work, you need to modify the driver. The driver
-generates a private packet type or protocol, and you will be the only
-to to catch it.
+1) We simplify the integration of related facilities that would share a
+number of common hook points, e.g. kdb, dprobes, ltt etc
+2) We don't bloat the kernel with these feature but still have the ability
+to turn them on dynamically when the need (or the pain) is sufficient for
+us to do something about it.
+2a) we can reduce the overhead of the extra function when dormant to almost
+nil if it can be unhooked from the kernel.
+3) We used them during development to extricate a function from the kernel
+into a loadable module. This avoided many reboots and kernel builds.
 
-> As for GPL, I hope that commercial enterprises be allowed to utilize
-> business models
-> which do not necessarily consist in providing services around free software.
-> The more replaceable hooks you provide to filesystems and network stacks,
-> the better.
 
-	You can still use *BSD, Windows, VxWorks or else, which are
-very capable OSes. Nobody forces you to use Linux.
+>By the way, those hooks look like an excellent mechanism for
+>circumventing the GPL, so you might want to export them with
+>EXPORT_SYMBOL_GPL.
 
-> S.N.
+We already do that.
 
-	Jean
+I don't envisage having an arbitrary set of hook points scattered
+throughout the kernel. It's only when, for example, dprobes needed certain
+hooks that we added them.
+
+
+
+Richard
+

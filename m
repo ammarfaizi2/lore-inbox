@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130552AbQL0BnV>; Tue, 26 Dec 2000 20:43:21 -0500
+	id <S130530AbQL0Bwo>; Tue, 26 Dec 2000 20:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130530AbQL0BnL>; Tue, 26 Dec 2000 20:43:11 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:57871 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130552AbQL0Bmy>; Tue, 26 Dec 2000 20:42:54 -0500
-Date: Tue, 26 Dec 2000 21:18:19 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Chris Mason <mason@suse.com>
-cc: Andreas Dilger <adilger@turbolinux.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Russell Cattelan <cattelan@thebarn.com>, ananth@sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
-In-Reply-To: <37610000.977878627@coffee>
-Message-ID: <Pine.LNX.4.21.0012262114410.1045-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131075AbQL0Bwe>; Tue, 26 Dec 2000 20:52:34 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:52719 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S130530AbQL0BwW>;
+	Tue, 26 Dec 2000 20:52:22 -0500
+Date: Tue, 26 Dec 2000 17:22:57 -0800
+From: Greg KH <greg@wirex.com>
+To: Giuliano Pochini <pochini@denise.shiny.it>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: USB related crashes
+Message-ID: <20001226172257.G30876@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+	Giuliano Pochini <pochini@denise.shiny.it>,
+	linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+In-Reply-To: <3A4930FA.7C8E9F7C@denise.shiny.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A4930FA.7C8E9F7C@denise.shiny.it>; from pochini@denise.shiny.it on Tue, Dec 26, 2000 at 06:59:54PM -0500
+X-Operating-System: Linux 2.2.18-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 26 Dec 2000, Chris Mason wrote:
-
+On Tue, Dec 26, 2000 at 06:59:54PM -0500, Giuliano Pochini wrote:
 > 
-> Hi guys,
+> How to crash kernel 2.2.17-18:
 > 
-> Here's my latest code, which uses ll_rw_block for anon pages (or
-> pages without a writepage func) when flush_dirty_buffers, 
-> sync_buffers, or fsync_inode_buffers are flushing things.  This
-> seems to have fixed my slowdown on 1k buffer sizes, but I
-> haven't done extensive benchmarks yet.
-
-Great.
-
-I'll run some benchmarks around here too and let you know. 
-
-> Other changes:  After freeing a page with buffers, page_launder
-> now stops if (!free_shortage()).  This is a mod of the check where 
-> page_launder checked free_shortage after freeing a buffer cache 
-> page.  Code outside buffer.c can't detect buffer cache pages with 
-> this patch, so the old check doesn't apply.  
+> Turn on the USB printer without paper and try
+> to print something. Wait for the "printer.c: usblp0:
+> out of paper" message and turn off the printer.
+> Ok, now "killall gs" will freeze the system.
 > 
-> My change doesn't seem quite right though, if page_launder wants 
-> to stop when there isn't a shortage, it should do that regardless of
-> if the page it just freed had buffers.  It looks like this was added
-> so bdflush could call page_launder, and get an early out after
-> freeing some buffer heads, but I'm not sure.
-> 
-> In test13-pre4, invalidate_buffers skips buffers on a page
-> with a mapping.  I changed that to skip mappings other than the
-> anon space mapping.
-> 
-> Comments and/or suggestions on how to make better use of this stuff
-> are more than welcome ;-)
+> (kernel 2.2.17-18, I did't try 2.4, GCC 2.95.3, PowerPC750)
 
-Well, the best use of this patch seems to be the ability to do write
-clustering in the ->writepage() operation for normal filesystems.
+What USB code does 2.2.17-18 have in it?  Is this a vendor specific
+backport?
 
-I'll try to do a lightweight write clustering patch for
-block_write_full_page soon.
+Anyway, try 2.2.18 and/or 2.4.0-test13-pre4 and let me / the list know
+if you still have this same problem.
 
+thanks,
 
+greg k-h
+
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

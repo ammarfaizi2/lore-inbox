@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272249AbRH3Oa7>; Thu, 30 Aug 2001 10:30:59 -0400
+	id <S272253AbRH3Orv>; Thu, 30 Aug 2001 10:47:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272246AbRH3Oax>; Thu, 30 Aug 2001 10:30:53 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:32267 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S272247AbRH3Oam>; Thu, 30 Aug 2001 10:30:42 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S272248AbRH3Orl>; Thu, 30 Aug 2001 10:47:41 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:4882 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S272245AbRH3Or2>;
+	Thu, 30 Aug 2001 10:47:28 -0400
+Date: Thu, 30 Aug 2001 16:46:34 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
+Message-Id: <20010830164634.3706d8f8.skraw@ithnet.com>
+In-Reply-To: <20010829232929Z16206-32383+2351@humbolt.nl.linux.org>
+In-Reply-To: <20010829140706.3fcb735c.skraw@ithnet.com>
+	<20010829232929Z16206-32383+2351@humbolt.nl.linux.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <15246.19931.916062.854564@gargle.gargle.HOWL>
-Date: Thu, 30 Aug 2001 18:29:47 +0400
-To: Linus Torvalds <Torvalds@Transmeta.COM>
-Cc: Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: [PATCH]: reiserfs: G-blockalloc-for-disk-90%full.patch
-X-Mailer: VM 6.89 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Linus,
+On Thu, 30 Aug 2001 01:36:10 +0200
+Daniel Phillips <phillips@bonn-fries.net> wrote:
 
-   This patch improves behavior of reiserfs block allocator when free
-   space is low. By default reiserfs uses so called "border algorithm"
-   that reserves first 10% of disk for "formatted nodes" that is,
-   nodes of reiserfs tree. With this patch this distinction is dropped
-   when free space goes below 10% of total disk space. This has been
-   found to improve performance.
+> > Aug 29 13:43:34 admin kernel: __alloc_pages: 1-order allocation failed (gfp=0x20/0).
+> > Aug 29 13:43:34 admin kernel: pid=1207; __alloc_pages(gfp=0x20, order=1, ...)
+> > Aug 29 13:43:34 admin kernel: Call Trace: [_alloc_pages+22/24] [__get_free_pages+10/24] [<fdcec845>] [<fdcec913>] [<fdceb7d7>] 
+> > Aug 29 13:43:34 admin kernel:    [<fdcec0f5>] [<fdcea589>] [ip_local_deliver_finish+0/368] [nf_hook_slow+272/404] [ip_rcv_finish+0/480] [ip_local_deliver+436/444] 
+> > Aug 29 13:43:34 admin kernel:    [ip_local_deliver_finish+0/368] [ip_rcv_finish+0/480] [ip_rcv_finish+413/480] [ip_rcv_finish+0/480] [nf_hook_slow+272/404] [ip_rcv+870/944] 
+> > Aug 29 13:43:34 admin kernel:    [ip_rcv_finish+0/480] [net_rx_action+362/628] [do_softirq+111/204] [do_IRQ+219/236] [ret_from_intr+0/7] [sys_ioctl+443/532] 
+> > Aug 29 13:43:34 admin kernel:    [system_call+51/56] 
+> 
+> OK, I see what the problem is.  Regular memory users are consuming memory
+> right down to the emergency reserve limit, beyond which only PF_MEMALLOC
+> users can go.  Unfortunately, since atomic memory allocators can't wait,
+> they tend to fail with high frequency in this state.  Duh.
 
-This patch is against 2.4.10-pre2.
-Please apply.
+Aehm, excuse my ignorance, but why is a "regular memory user" effectively _consuming_ the memory? I mean how does CD reading and NFS writing _consume_ memory (to such an extent)? Where _is_ this memory gone? If I stop I/O the memory is still gone. I can make at least quite a bit appear again as free, if I delete all the files I have copied via NFS before. After that I receive lots of free mem right away. Why? I would not expect the memory as validly consumed by knfsd during writing files. I mean what for? I guess from "Inact_dirty" list being _huge_, that the mem is in fact already freed again by the original allocator, but the vm holds it, until ... well I don't know. Or am I wrong?
 
-Nikita.
-diff -rup linux/fs/reiserfs/bitmap.c linux.patched/fs/reiserfs/bitmap.c
---- linux/fs/reiserfs/bitmap.c	Wed May  2 14:04:15 2001
-+++ linux.patched/fs/reiserfs/bitmap.c	Thu Aug 30 17:19:09 2001
-@@ -499,6 +499,7 @@ int reiserfs_new_unf_blocknrs2 (struct r
-   unsigned long border = 0;
-   unsigned long bstart = 0;
-   unsigned long hash_in, hash_out;
-+  unsigned long saved_search_start=search_start;
-   int allocated[PREALLOCATION_SIZE];
-   int blks;
- 
-@@ -604,7 +605,15 @@ int reiserfs_new_unf_blocknrs2 (struct r
-   ** and should probably be removed
-   */
-   if ( search_start < border ) search_start=border; 
--  
-+
-+  /* If the disk free space is already below 10% we should 
-+  ** start looking for the free blocks from the beginning 
-+  ** of the partition, before the border line.
-+  */
-+  if ( SB_FREE_BLOCKS(th->t_super) <= (SB_BLOCK_COUNT(th->t_super) / 10) ) {
-+    search_start=saved_search_start;
-+  }
-+
-   *free_blocknrs = 0;
-   blks = PREALLOCATION_SIZE-1;
-   for (blks_gotten=0; blks_gotten<PREALLOCATION_SIZE; blks_gotten++) {
+> First, there's an effective way to make these particular atomic failures
+> go away almost entirely.  The atomic memory user (in this case a network
+> interrupt handler) keeps a list of pages for its private use, starting with
+> an empty list.  Each time it needs a page it gets it from its private list,
+> but if that list is empty it gets it from alloc_pages, and when done with
+> it, returns it to its private list.  The alloc_pages call can still fail of
+> course, but now it will only fail a few times as it expands its list up to
+> the size required for normal traffic.  The effect on throughput should be
+> roughly nothing.
+
+Uh, I would not do that. To a shared memory pool system this is really contra-productive (is this english?). You simply let the mem vanish in some private pools, so only _one_ process (or whatever) can use it. To tell the full truth, you do not even know, if he really uses it. If he allocated it in a heavy load situation and does not give it back (or has his own weird strategy of returning it) you run out of mem only because of one flaky driver. It will not be easy as external spectator of a driver to find out if it performs well or has some memory leakage inside. You simply can't tell.
+In fact I do trust kernel mem management more :-), even if it isn't performing very well currently.
+
+> Let's try another way of dealing with it.  What I'm trying to do with the
+> patch below is leave a small reserve of 1/12 of pages->min, above the
+> emergency reserve, to be consumed by non-PF_MEMALLOC atomic allocators.
+> Please bear in mind this is completely untested, but would you try it
+> please and see if the failure frequency goes down?
+
+Well, I will try. But must honestly mention, that the whole idea looks like a patch to patch a patch. Especially because nobody can tell what the right reserve may be. I guess this may very much depend on host layout. How do you want to make an acceptable kernel-patch for all the world out of this idea? The idea sounds obvious, but looks not very helpful for solving the basic problem.
+
+Regards,
+Stephan
+

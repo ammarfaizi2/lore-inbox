@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbUKQKnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262260AbUKQKok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbUKQKnc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 05:43:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbUKQKnc
+	id S262260AbUKQKok (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 05:44:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbUKQKok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 05:43:32 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25281 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261946AbUKQKnR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 05:43:17 -0500
-Date: Wed, 17 Nov 2004 04:38:32 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Ross <chris@tebibyte.org>, andrea@novell.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       piggin@cyberone.com.au, riel@redhat.com,
-       mmokrejs@ribosome.natur.cuni.cz, tglx@linutronix.de
-Subject: Re: [PATCH] fix spurious OOM kills
-Message-ID: <20041117063832.GC19107@logos.cnet>
-References: <4194EA45.90800@tebibyte.org> <20041113233740.GA4121@x30.random> <20041114094417.GC29267@logos.cnet> <20041114170339.GB13733@dualathlon.random> <20041114202155.GB2764@logos.cnet> <419A2B3A.80702@tebibyte.org> <419B14F9.7080204@tebibyte.org> <20041117012346.5bfdf7bc.akpm@osdl.org> <20041117060648.GA19107@logos.cnet> <20041117060852.GB19107@logos.cnet>
-Mime-Version: 1.0
+	Wed, 17 Nov 2004 05:44:40 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:34031 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262260AbUKQKnn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 05:43:43 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041117060852.GB19107@logos.cnet>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16795.11086.38315.444645@alkaid.it.uu.se>
+Date: Wed, 17 Nov 2004 11:43:26 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] prefer TSC over PM Timer
+In-Reply-To: <Pine.LNX.4.61.0411161738370.13681@twinlark.arctic.org>
+References: <88056F38E9E48644A0F562A38C64FB60035C613D@scsmsx403.amr.corp.intel.com>
+	<Pine.LNX.4.61.0411161738370.13681@twinlark.arctic.org>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 04:08:52AM -0200, Marcelo Tosatti wrote:
-> On Wed, Nov 17, 2004 at 04:06:48AM -0200, Marcelo Tosatti wrote:
-> > On Wed, Nov 17, 2004 at 01:23:46AM -0800, Andrew Morton wrote:
-> > > Chris Ross <chris@tebibyte.org> wrote:
-> > > >
-> > > > As I suspected, like a recalcitrant teenager it was sneakily waiting 
-> > > >  until everyone was out then it threw a wild party with several ooms and 
-> > > >  an oops. See below...
-> > > 
-> > > That's not an oops - it's just a stack trace.
-> > > 
-> > > >  This, obviously is still without Kame's patch, just the same tree as 
-> > > >  before with the one change you asked for.
-> > > 
-> > > Please ignore the previous patch and try the below.  It looks like Rik's
-> > > analysis is correct: when the caller doesn't have the swap token it just
-> > > cannot reclaim referenced pages and scans its way into an oom.  Defeating
-> > > that logic when we've hit the highest scanning priority does seem to fix
-> > > the problem and those nice qsbench numbers which the thrashing control gave
-> > > us appear to be unaffected.
-> > 
-> > Oh, this fixes my testcase, and was the reason for the hog slow speed.
-> > 
-> > Excellent, wasted several days in vain. :(
-> 
-> Before the swap token patches went in you remember spurious OOM reports  
-> or things were working fine then?
+dean gaudet writes:
+ > On Tue, 16 Nov 2004, Pallipadi, Venkatesh wrote:
+ > 
+ > > I think trying to remove repeated inl()'s in read_pmtmr is a better 
+ > > fix for this issue. As John mentioned in other thread, we should do 
+ > > repeated reads only when something looks broken. Not always.
+ > 
+ > that would be a nice improvement... then timer_pm will only be 3x as slow 
+ > as timer_tsc instead of 10x slower :)  it's still a lot of unnecessary 
+ > overhead for many systems, and unfortunately this is a real performance 
+ > problem (albeit exaggerated by code which is overzealous in its use of 
+ > gettimeofday()).
+ > 
+ > on a tangent... has the local apic timer ever been considered?  it's fixed 
+ > rate, and my measurements show it in the same performance ballpark as TSC.
+ > 
+ > i know that all p3, p-m, p4, k8 and efficeon have local APIC, but i'm not 
+ > sure if k7 (other than k7 smp parts of course) have local apics... so i'm 
+ > not sure how widespread it is compared to pm-timer.
 
-Just went on through the archives and indeed the spurious OOM kills started
-happening when the swap token code was added to the tree.
+All K7/K8s except the very first K7 Model 1 have local APICs.
+There is no difference between UP and MP parts in this respect.
 
-Next time I should be looking into the easy stuff before trying miraculous 
-solutions. :(
+/Mikael

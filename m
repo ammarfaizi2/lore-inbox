@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263199AbUELXmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbUELXr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263199AbUELXmB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 19:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263232AbUELXmA
+	id S263366AbUELXr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 19:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbUELXr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 19:42:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64969 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263199AbUELXl6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 19:41:58 -0400
-Date: Wed, 12 May 2004 16:41:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: chrisw@osdl.org, linux-kernel@vger.kernel.org, luto@myrealbox.com
-Subject: Re: [PATCH 0/2] capabilities
-Message-Id: <20040512164132.2d30dac2.akpm@osdl.org>
-In-Reply-To: <200405112024.22097.luto@myrealbox.com>
-References: <200405112024.22097.luto@myrealbox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 12 May 2004 19:47:29 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15060 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263366AbUELXr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 19:47:27 -0400
+Date: Thu, 13 May 2004 01:47:24 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fix cyclades compile with !PCI
+Message-ID: <20040512234724.GD21408@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski <luto@myrealbox.com> wrote:
->
-> This reintroduces useful capabilities.
-> 
+I got the following compile error in 2.6.6-mm1 (but not specific to -mm) 
+with CONFIG_PCI=n:
 
-What if there are existing applications which are deliberately or
-inadvertently relying upon the current behaviour?  That seems unlikely, but
-the consequences are gruesome.
+<--  snip  -->
 
-If I'm right in this concern, the fixed behaviour should be opt-in.  That
-could be via a new prctl() thingy but I think it would be better to do it
-via a kernel boot parameter.  Because long-term we should have the fixed
-semantics and we should not be making people change userspace for some
-transient 2.6-only kernel behaviour.
+...
+  CC      drivers/char/cyclades.o
+drivers/char/cyclades.c: In function `cy_cleanup_module':
+drivers/char/cyclades.c:5638: warning: implicit declaration of function `pci_release_regions'
+...
+  LD      .tmp_vmlinux1
+make: *** [.tmp_vmlinux1] Error 1
 
-> Andrew- is this sufficiently non-scary for -mm?
+<--  snip  -->
 
-Scares the shit out of me, frankly ;)
+The patch below fixes this issue.
 
+Please apply
+Adrian
+
+--- linux-2.6.6-mm1-full/drivers/char/cyclades.c.old	2004-05-13 01:18:09.000000000 +0200
++++ linux-2.6.6-mm1-full/drivers/char/cyclades.c	2004-05-13 01:18:34.000000000 +0200
+@@ -5634,8 +5634,10 @@
+ #endif /* CONFIG_CYZ_INTR */
+ 	    )
+ 		free_irq(cy_card[i].irq, &cy_card[i]);
++#ifdef CONFIG_PCI
+ 		if (cy_card[i].pdev)
+ 			pci_release_regions(cy_card[i].pdev);
++#endif
+         }
+     }
+     if (tmp_buf) {

@@ -1,73 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271906AbRJCJaJ>; Wed, 3 Oct 2001 05:30:09 -0400
+	id <S271708AbRJCJlB>; Wed, 3 Oct 2001 05:41:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271847AbRJCJaA>; Wed, 3 Oct 2001 05:30:00 -0400
-Received: from edu.joroinen.fi ([195.156.135.125]:22791 "HELO edu.joroinen.fi")
-	by vger.kernel.org with SMTP id <S271906AbRJCJ3p> convert rfc822-to-8bit;
-	Wed, 3 Oct 2001 05:29:45 -0400
-Date: Wed, 3 Oct 2001 12:30:06 +0300 (EEST)
-From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
-X-X-Sender: <pk@edu.joroinen.fi>
-To: <linux-kernel@vger.kernel.org>
-Subject: usb ov511 problem (kernel crash)
-Message-ID: <Pine.LNX.4.33.0110031227510.4235-100000@edu.joroinen.fi>
+	id <S272265AbRJCJkw>; Wed, 3 Oct 2001 05:40:52 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:50183 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S271708AbRJCJkn>;
+	Wed, 3 Oct 2001 05:40:43 -0400
+Date: Wed, 3 Oct 2001 11:38:39 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: jamal <hadi@cyberus.ca>
+Cc: <linux-kernel@vger.kernel.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.GSO.4.30.0110021739160.2323-100000@shell.cyberus.ca>
+Message-ID: <Pine.LNX.4.33.0110031108550.2679-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello!
+On Tue, 2 Oct 2001, jamal wrote:
 
-I have an HP Omnibook 6000 laptop. When I plug in the D-LINK DRU-100C
-(Ver. B2) usb-camera, and load the ov511 driver, the camera is detected
-just fine. But, when I try to use the /dev/video0, the whole kernel
-crashes! The same happens when I do "cat /dev/video0". There's nothing in
-the syslog. Sysrq wont work.
+> This already is done in the current NAPI patch which you should have
+> seen by now. [...]
 
-I'm using Linux 2.4.10 and driver that comes with the kernel. I've also
-tried the 1.42 ov511 driver from linux-usb.org. I use Debian GNU/Linux
-(sid).
+(i searched the web and mailing list archives and havent found it (in fact
+this is the first mention i saw) - could you give me a link so i can take
+a look at it? I just found your slides but no link to actual code.
+Thanks!)
 
-Any ideas?
+but the objectives, judging from the description you gave, are i think
+largely orthogonal, with some overlapping in the polling part. The polling
+part of my patch is just a few quick lines here and there and it's not
+intrusive at all. I needed it to make sure all problems are solved and
+that the system & network is actually usable in overload situations.
 
+you i think are concentrating on router performance (i'd add dedicated
+networking appliances to the list), using cooperative drivers. I trying to
+solve a DoS attack against 2.4 boxes, and i'm trying to guarantee the
+uninterrupted (pun unintended) functioning of the system from the point of
+the IRQ handler code.
 
-usb.c: registered new driver hub
-usb-uhci.c: $Revision: 1.268 $ time 14:27:13 Oct  2 2001
-usb-uhci.c: High bandwidth mode enabled
-PCI: Found IRQ 10 for device 00:07.2
-usb-uhci.c: USB UHCI at I/O 0x1880, IRQ 10
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 1
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: v1.268:USB Universal Host Controller Interface driver
-
-
-
-Linux video capture interface: v1.00
-usb.c: registered new driver ov511
-ov511.c: OV511 USB Camera Driver v1.42
-hub.c: USB new device connect on bus1/1, assigned device number 2
-ov511.c: USB OV511+ camera found
-ov511.c: camera: Generic OV511 Camera (no ID)
-ov511.c: i2c write retries exhausted
-ov511.c: i2c write: error -1
-ov511.c: Sensor is an OV6620
-
-
-Thanks for your help.
-
-
-- Pasi Kärkkäinen
-
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
-
+	Ingo
 

@@ -1,91 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267397AbSKSVuk>; Tue, 19 Nov 2002 16:50:40 -0500
+	id <S267504AbSKSWAl>; Tue, 19 Nov 2002 17:00:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267399AbSKSVuk>; Tue, 19 Nov 2002 16:50:40 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:12563 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267397AbSKSVui>;
-	Tue, 19 Nov 2002 16:50:38 -0500
-Date: Tue, 19 Nov 2002 22:57:41 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-Cc: Larry McVoy <lm@bitmover.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [RFC/CFT] Separate obj/src dir
-Message-ID: <20021119215741.GA4308@mars.ravnborg.org>
-Mail-Followup-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-	Larry McVoy <lm@bitmover.com>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net
-References: <20021119123115.C16028@work.bitmover.com> <Pine.LNX.4.44.0211191444400.24137-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211191444400.24137-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.4i
+	id <S267506AbSKSWAl>; Tue, 19 Nov 2002 17:00:41 -0500
+Received: from p0137.as-l043.contactel.cz ([194.108.242.137]:17392 "EHLO
+	SnowWhite.SuSE.cz") by vger.kernel.org with ESMTP
+	id <S267504AbSKSWAk> convert rfc822-to-8bit; Tue, 19 Nov 2002 17:00:40 -0500
+To: linux-kernel@vger.kernel.org
+Subject: PCI serial card with PCI 9052?
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Tue, 19 Nov 2002 23:09:44 +0100
+Message-ID: <m3smxx1aaf.fsf@Janik.cz>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i386-suse-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 02:48:09PM -0600, Kai Germaschewski wrote:
-> Wrt the original patch, I like it, one preliminary comment is that I think
-> symlinks are nicer than copying. They are faster, shouldn't cause any
-> trouble on NFS, make uses "stat" and not "lstat", so it gets the
-> timestamps right, too. And if you edit a Makefile/Kconfig in the source
-> tree, you rather want that to take effect immediately, I guess ;)
+Hi,
 
-Second try on the script.
-Create symlinks as suggested, and optimised find a liitle.
+I have a PCI card with two serial ports on it. It has PLX Technology
+PCI9052 and HOLTEK HT6552IR chips. Pictures of that card are at
+http://www.janik.cz/tmp/pci9052/.
 
-	Sam
+lspci:
 
-#!/bin/sh
-#
-# This script is used to build a kernel from a separate directory.
-# The location of this script is assumed to be the root of
-# the kernel tree.
-# Usage:
-# kernel src located in:
-# ~/kernelsrc
-# compile in:
-# ~/compile
-# cd ~/compile   <= Change to the directory where the compile shall take place
-# ../kernelsrc/kbuild
-#
-# Arguments to kbuild is the same as used to make in the kernel build
-# kbuild prints out SRCTREE and OBJTREE when started, and then makes a mirror
-# of relevant files from the kernelsrc.
+00:08.0 Network controller: PLX Technology, Inc. PCI <-> IOBus Bridge (rev 02)
+	Subsystem: Unknown device d841:0200
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at e400b000 (32-bit, non-prefetchable) [size=128]
+	Region 1: I/O ports at d400 [size=128]
+	Region 2: I/O ports at d800 [size=8]
+	Region 3: I/O ports at dc00 [size=8]
+00: b5 10 50 90 03 00 80 02 02 00 80 02 08 00 00 00
+10: 00 b0 00 e4 01 d4 00 00 01 d8 00 00 01 dc 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 41 d8 00 02
+30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 01 00 00
 
-# files we do not care about in the kernel src
-RCS_FIND_IGNORE="-name SCCS -o -name BitKeeper -o -name .svn -o -name CVS"
+Is this card supported? Tim?
+-- 
+Pavel Janík
 
-OBJTREE=$PWD
-cd `dirname $0`
-SRCTREE=$PWD
-cd $OBJTREE
-echo OBJTREE $OBJTREE
-echo SRCTREE $SRCTREE
-if [ "$SRCTREE" != "$OBJTREE" ]; then
-  if [ -f $SRCTREE/.config -o -d $SRCTREE/include/asm ]; then
-    echo '$SRCTREE contains generated files, please run "make mrproper" in the SRCTREE'
-  else
-    for a in `cd $SRCTREE; \
-      find \( $RCS_FIND_IGNORE \) -prune -o -name Makefile\* -o -name Kconfig\* -o -name defconfig`; do
-      if [ ! -d `dirname $a` ]; then
-        mkdir -p $a
-      fi
-      ln -fs $SRCTREE/$a $a
-    done
-
-    ( echo "srctree := $SRCTREE";
-      echo "objtree := $OBJTREE";
-    ) > .tmp_make_config
-    touch Rules.make
-  make $*
-  fi
-else
-  rm -f .tmp_make_config
-  make $*
-fi
+/* After several hours of tedious analysis, the following hash
+ * function won.  Do not mess with it... -DaveM
+ */
+                  -- 2.2.16 fs/buffer.c

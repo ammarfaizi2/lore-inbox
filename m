@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVCaPJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVCaPL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVCaPJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 10:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVCaPHK
+	id S261429AbVCaPL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 10:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVCaPJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 10:07:10 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:43203 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261429AbVCaPFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 10:05:47 -0500
-Date: Thu, 31 Mar 2005 17:05:48 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Yum Rayan <yum.rayan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, mvw@planets.elm.net
-Subject: Re: [PATCH] Reduce stack usage in acct.c
-Message-ID: <20050331150548.GC19294@wohnheim.fh-wedel.de>
-References: <df35dfeb05033023394170d6cc@mail.gmail.com>
+	Thu, 31 Mar 2005 10:09:42 -0500
+Received: from pat.uio.no ([129.240.130.16]:15818 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261429AbVCaPHN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 10:07:13 -0500
+Subject: Re: NFS client latencies
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050331145825.GA5107@elte.hu>
+References: <1112240918.10975.4.camel@lade.trondhjem.org>
+	 <20050331065942.GA14952@elte.hu> <20050330231801.129b0715.akpm@osdl.org>
+	 <20050331073017.GA16577@elte.hu>
+	 <1112270304.10975.41.camel@lade.trondhjem.org>
+	 <1112272451.10975.72.camel@lade.trondhjem.org>
+	 <20050331135825.GA2214@elte.hu>
+	 <1112279522.20211.8.camel@lade.trondhjem.org>
+	 <20050331143930.GA4032@elte.hu>
+	 <1112280891.20211.29.camel@lade.trondhjem.org>
+	 <20050331145825.GA5107@elte.hu>
+Content-Type: text/plain
+Date: Thu, 31 Mar 2005 10:06:56 -0500
+Message-Id: <1112281616.20211.40.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <df35dfeb05033023394170d6cc@mail.gmail.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.498, required 12,
+	autolearn=disabled, AWL 1.45, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 March 2005 23:39:40 -0800, Yum Rayan wrote:
-> 
-> Before patch
-> ------------
-> check_free_space - 128
-> do_acct_process - 105
-> 
-> After patch
-> -----------
-> check_free_space - 36
-> do_acct_process - 44
+to den 31.03.2005 Klokka 16:58 (+0200) skreiv Ingo Molnar:
 
-It is always nice to see enthusiams, but in your case it might be a
-bit misguided.  None of the functions you worked on appear to be real
-problems wrt. stack usage.
 
-But if you have time to tackle some of these functions, that may make
-a real difference:
+> would it be safe to collect locked entries into a separate, local list, 
+> so that the restart would only see newly added entries? Then once the 
+> moving of all entries has been done, all the locked entries could be 
+> added back to the commit_list via one list_add. (can anything happen to 
+> those locked entries that would break this method?)
 
-http://wh.fh-wedel.de/~joern/stackcheck.2.6.11
+You are not allowed to remove an entry from the list if it is locked by
+someone else. Locking grants temporary ownership of the entry.
 
-In principle, all recursive paths should consume as little stack as
-possible.  Or the recursion itself could be avoided, even better.  And
-some of the call chains with ~3k of stack consumption may be
-problematic on other platforms, like the x86-64.  Taking care of those
-could result in smaller stacks for the respective platform.
-
-Jörn
-
+Cheers,
+  Trond
 -- 
-When I am working on a problem I never think about beauty.  I think
-only how to solve the problem.  But when I have finished, if the
-solution is not beautiful, I know it is wrong.
--- R. Buckminster Fuller
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

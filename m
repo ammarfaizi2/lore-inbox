@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276940AbRJHPaf>; Mon, 8 Oct 2001 11:30:35 -0400
+	id <S276956AbRJHPdp>; Mon, 8 Oct 2001 11:33:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276946AbRJHPa0>; Mon, 8 Oct 2001 11:30:26 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6670 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276940AbRJHPaP>; Mon, 8 Oct 2001 11:30:15 -0400
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Mon, 8 Oct 2001 16:35:50 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jgarzik@mandrakesoft.com (Jeff Garzik), mingo@elte.hu (Ingo Molnar),
-        hadi@cyberus.ca (jamal), linux-kernel@vger.kernel.org (Linux-Kernel),
-        netdev@oss.sgi.com, torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <20011008172450.A726@athlon.random> from "Andrea Arcangeli" at Oct 08, 2001 05:24:50 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S276946AbRJHPdZ>; Mon, 8 Oct 2001 11:33:25 -0400
+Received: from t2.redhat.com ([199.183.24.243]:5872 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S276945AbRJHPdW>; Mon, 8 Oct 2001 11:33:22 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <25078.1002465565@ocs3.intra.ocs.com.au> 
+In-Reply-To: <25078.1002465565@ocs3.intra.ocs.com.au> 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: pcg@goof.com ( Marc A. Lehmann ), linux-kernel@vger.kernel.org,
+        hpa@transmeta.com
+Subject: Re: zisofs doesn't compile in 2.4.10-ac7 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15qcRa-0000uS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 08 Oct 2001 16:32:48 +0100
+Message-ID: <18514.1002555168@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Another thing I said recently is that the hardirq airbag have nothing to
-> do with softirqs, and that's right. Patch messing the softirq logic in
-> function of the hardirq airbag are just totally broken or at least
-> confusing because incidentally merged together by mistake.
 
-Agreed
+kaos@ocs.com.au said:
+>  Against 2.4.10-ac7.
+
+> +CFLAGS_uncompress.o := -I $(TOPDIR)/fs/inflate_fs
+
+> +CFLAGS_compress.o := -I $(TOPDIR)/fs/inflate_fs
+
+> +EXTRA_CFLAGS += -I $(TOPDIR)/fs/inflate_fs
+
+Why not just move the offending file into $(TOPDIR)/include/linux instead?
+
+While we're at it, why not move $(TOPDIR)/fs/inflate_fs/ to $(TOPDIR)/lib/zlib
+too? It's not really a filesystem-specific piece of library code, is it?
+
+--
+dwmw2
+
+

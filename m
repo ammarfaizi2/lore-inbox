@@ -1,49 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262934AbVCWVKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262923AbVCWVKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262934AbVCWVKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 16:10:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVCWVIy
+	id S262923AbVCWVKk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 16:10:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbVCWVKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 16:08:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15764 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262918AbVCWUmw (ORCPT
+	Wed, 23 Mar 2005 16:10:17 -0500
+Received: from fire.osdl.org ([65.172.181.4]:59569 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262923AbVCWVHv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 15:42:52 -0500
-Subject: Re: [CHECKER] ext3 bug in ftruncate() with O_SYNC?
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stephen Tweedie <sct@redhat.com>, blp@cs.stanford.edu, mc@cs.stanford.edu,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
-In-Reply-To: <20050321195128.60839eea.akpm@osdl.org>
-References: <87y8chft5j.fsf@benpfaff.org>
-	 <20050321195128.60839eea.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1111610558.1998.193.camel@sisko.sctweedie.blueyonder.co.uk>
+	Wed, 23 Mar 2005 16:07:51 -0500
+Date: Wed, 23 Mar 2005 13:07:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, mahalcro@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] Keys: Use RCU to manage session keyring pointer
+Message-Id: <20050323130724.1aacfcf3.akpm@osdl.org>
+In-Reply-To: <29285.1111609185@redhat.com>
+References: <29204.1111608899@redhat.com>
+	<29285.1111609185@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 23 Mar 2005 20:42:38 +0000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David Howells <dhowells@redhat.com> wrote:
+>
+> The attached patch uses RCU to manage the session keyring pointer in struct
+>  signal_struct.
 
-On Tue, 2005-03-22 at 03:51, Andrew Morton wrote:
-
-> The spec says "Write I/O operations on the file descriptor shall complete
-> as defined by synchronized I/O file integrity completion".
-> 
-> Is ftruncate a "write I/O operation"?  No.
-
-SUS seems to be pretty clear on this.  The syscall descriptions for
-write(2) and pwrite(2) explicitly describe O_SYNC as requiring
-synchronized I/O file integrity completion.  ftruncate() has no such
-requirement.
-
-It would certainly be a reasonable thing to do, but I don't think it
-strictly counts as a bug that we're not honouring O_SYNC here.
-
---Stephen
-
-
+So are these patches dependent upon the
+keys-use-rcu-to-manage-session-keyring-pointer work?

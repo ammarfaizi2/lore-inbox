@@ -1,48 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261859AbSLBJ3V>; Mon, 2 Dec 2002 04:29:21 -0500
+	id <S261872AbSLBJj2>; Mon, 2 Dec 2002 04:39:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261872AbSLBJ3V>; Mon, 2 Dec 2002 04:29:21 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34977 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261859AbSLBJ3U>; Mon, 2 Dec 2002 04:29:20 -0500
-Date: Mon, 2 Dec 2002 04:36:45 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Start of compat32.h (again)
-Message-ID: <20021202043645.Q27455@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <Pine.LNX.4.44.0212011047440.12964-100000@home.transmeta.com.suse.lists.linux.kernel> <1038804400.4411.4.camel@rth.ninka.net.suse.lists.linux.kernel> <p737kesu9bt.fsf@oldwotan.suse.de> <20021202.002815.58826951.davem@redhat.com> <20021202090756.GA26034@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021202090756.GA26034@wotan.suse.de>; from ak@suse.de on Mon, Dec 02, 2002 at 10:07:56AM +0100
+	id <S261900AbSLBJj2>; Mon, 2 Dec 2002 04:39:28 -0500
+Received: from 24.213.60.109.up.mi.chartermi.net ([24.213.60.109]:12713 "EHLO
+	front3.chartermi.net") by vger.kernel.org with ESMTP
+	id <S261872AbSLBJj1>; Mon, 2 Dec 2002 04:39:27 -0500
+Date: Mon, 2 Dec 2002 04:46:27 -0500 (EST)
+From: Nathaniel Russell <root@chartermi.net>
+X-X-Sender: root@reddog.example.net
+To: reddog83@chartermi.net
+cc: linux-kernel@vger.kernel.org
+Subject: Help with Via 8233 AC'97 Audio 
+Message-ID: <Pine.LNX.4.44.0212020441180.1347-300000@reddog.example.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1905388979-1038822387=:1347"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 02, 2002 at 10:07:56AM +0100, Andi Kleen wrote:
-> > The data is where I'd say the bloat would be, and lo and behold is a
-> > nearly 7-fold increase for the sample you give us _only_ in the .data
-> > section.
-> 
-> .data is normally not a significant part of programs, because few programs
-> use global variables that heavily (yes, there are exceptions, like that emacs 
-> thing, but it's not common) 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-.data is significant, that is e.g. something that cannot be shared
-between processes.
-The fastest model on x86-64 would IMHO be a 32-bit model using all
-registers, rip relative addressing and register passing conventions
-(ie. a 3rd ABI).
+--8323328-1905388979-1038822387=:1347
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> > BTW, I bet your dynamic relocation tables are a bit larger too.
-> 
-> Somewhat, but does it matter?  They are not kept in memory anyways.
+I was woundering if you could help me get my Via AC'97 Sound Card to work
+in 2.4.20+ it would be most appreciated because that is the only sound
+card my computer has in it. I've googled around but i keep coming out with
+a binary only driver for a RedHat System and i don't run RedHat I run
+Slackware-9.0-beta1. So if possible would you please help me out.
+Thank you inadavnce.
+Nathaniel
 
-Surely it does, for startup time (unless prelinking) the 3 times bigger .rel*
-sections mean significantly more data needs to be loaded into RAM and
-caches, for short-lived processes it matters a lot.
+--8323328-1905388979-1038822387=:1347
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=t
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0212020446270.1347@reddog.example.net>
+Content-Description: lspci output
+Content-Disposition: attachment; filename=t
 
-	Jakub
+MDA6MDAuMCBIb3N0IGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLiBW
+VDg2MzMgW0Fwb2xsbyBQcm8yNjZdIChyZXYgMDEpDQowMDowMS4wIFBDSSBi
+cmlkZ2U6IFZJQSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4NjMzIFtBcG9sbG8g
+UHJvMjY2IEFHUF0NCjAwOjA4LjAgTXVsdGltZWRpYSBhdWRpbyBjb250cm9s
+bGVyOiBFbnNvbmlxIEVTMTM3MCBbQXVkaW9QQ0ldDQowMDowOS4wIEV0aGVy
+bmV0IGNvbnRyb2xsZXI6IEQtTGluayBTeXN0ZW0gSW5jIFJUTDgxMzkgRXRo
+ZXJuZXQgKHJldiAxMCkNCjAwOjBhLjAgVVNCIENvbnRyb2xsZXI6IE5FQyBD
+b3Jwb3JhdGlvbiBVU0IgKHJldiA0MSkNCjAwOjBhLjEgVVNCIENvbnRyb2xs
+ZXI6IE5FQyBDb3Jwb3JhdGlvbiBVU0IgKHJldiA0MSkNCjAwOjBhLjIgVVNC
+IENvbnRyb2xsZXI6IE5FQyBDb3Jwb3JhdGlvbiBVU0IgMi4wIChyZXYgMDIp
+DQowMDoxMS4wIElTQSBicmlkZ2U6IFZJQSBUZWNobm9sb2dpZXMsIEluYy4g
+VlQ4MjMzIFBDSSB0byBJU0EgQnJpZGdlDQowMDoxMS4xIElERSBpbnRlcmZh
+Y2U6IFZJQSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4MkM1ODZCIFBJUEMgQnVz
+IE1hc3RlciBJREUgKHJldiAwNikNCjAwOjExLjIgVVNCIENvbnRyb2xsZXI6
+IFZJQSBUZWNobm9sb2dpZXMsIEluYy4gVVNCIChyZXYgMTgpDQowMDoxMS4z
+IFVTQiBDb250cm9sbGVyOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIFVTQiAo
+cmV2IDE4KQ0KMDA6MTEuNCBVU0IgQ29udHJvbGxlcjogVklBIFRlY2hub2xv
+Z2llcywgSW5jLiBVU0IgKHJldiAxOCkNCjAwOjExLjUgTXVsdGltZWRpYSBh
+dWRpbyBjb250cm9sbGVyOiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIFZUODIz
+MyBBQzk3IEF1ZGlvIENvbnRyb2xsZXIgKHJldiAxMCkNCjAxOjAwLjAgVkdB
+IGNvbXBhdGlibGUgY29udHJvbGxlcjogblZpZGlhIENvcnBvcmF0aW9uIE5W
+NiBbVmFudGFdIChyZXYgMTUpDQo=
+--8323328-1905388979-1038822387=:1347
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=t1
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0212020446271.1347@reddog.example.net>
+Content-Description: lspci -n output
+Content-Disposition: attachment; filename=t1
+
+MDA6MDAuMCBDbGFzcyAwNjAwOiAxMTA2OjMwOTEgKHJldiAwMSkNCjAwOjAx
+LjAgQ2xhc3MgMDYwNDogMTEwNjpiMDkxDQowMDowOC4wIENsYXNzIDA0MDE6
+IDEyNzQ6NTAwMA0KMDA6MDkuMCBDbGFzcyAwMjAwOiAxMTg2OjEzMDAgKHJl
+diAxMCkNCjAwOjBhLjAgQ2xhc3MgMGMwMzogMTAzMzowMDM1IChyZXYgNDEp
+DQowMDowYS4xIENsYXNzIDBjMDM6IDEwMzM6MDAzNSAocmV2IDQxKQ0KMDA6
+MGEuMiBDbGFzcyAwYzAzOiAxMDMzOjAwZTAgKHJldiAwMikNCjAwOjExLjAg
+Q2xhc3MgMDYwMTogMTEwNjozMDc0DQowMDoxMS4xIENsYXNzIDAxMDE6IDEx
+MDY6MDU3MSAocmV2IDA2KQ0KMDA6MTEuMiBDbGFzcyAwYzAzOiAxMTA2OjMw
+MzggKHJldiAxOCkNCjAwOjExLjMgQ2xhc3MgMGMwMzogMTEwNjozMDM4IChy
+ZXYgMTgpDQowMDoxMS40IENsYXNzIDBjMDM6IDExMDY6MzAzOCAocmV2IDE4
+KQ0KMDA6MTEuNSBDbGFzcyAwNDAxOiAxMTA2OjMwNTkgKHJldiAxMCkNCjAx
+OjAwLjAgQ2xhc3MgMDMwMDogMTBkZTowMDJjIChyZXYgMTUpDQo=
+--8323328-1905388979-1038822387=:1347--

@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285399AbRLNPni>; Fri, 14 Dec 2001 10:43:38 -0500
+	id <S285400AbRLNPq3>; Fri, 14 Dec 2001 10:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285398AbRLNPn3>; Fri, 14 Dec 2001 10:43:29 -0500
-Received: from eos.telenet-ops.be ([195.130.132.40]:16323 "EHLO
-	eos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S285399AbRLNPnI>; Fri, 14 Dec 2001 10:43:08 -0500
-Date: Fri, 14 Dec 2001 16:43:01 +0100
-From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
-To: Linux-Kernel Development Mailinglist 
-	<linux-kernel@vger.kernel.org>
-Subject: 2.4.17-rc1 doesn't boot (on K6-II)
-Message-ID: <20011214164301.A512@Zenith.starcenter>
-Mail-Followup-To: Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	id <S285404AbRLNPqT>; Fri, 14 Dec 2001 10:46:19 -0500
+Received: from [209.1.214.221] ([209.1.214.221]:21255 "EHLO
+	smtparch.vistocorporation.com") by vger.kernel.org with ESMTP
+	id <S285403AbRLNPqM> convert rfc822-to-8bit; Fri, 14 Dec 2001 10:46:12 -0500
+Message-ID: <3C091F55000A3632@smtparch.vistocorporation.com> (added by
+	    postmaster@smtparch.vistocorporation.com)
+Reply-To: linuxlist@visto.com
+From: "rohit prasad" <linuxlist@visto.com>
+Subject: how to register an interrupt handler 
+Date: Fri, 14 Dec 2001 06:42:03 -0800
+X-Mailer: Visto
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+X-Mailer: Visto Server
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.4.17-pre8
-X-Telephone: +32 486 460306
-X-Requested: Beautiful, smart and Linux-lovin' girlfriend
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
+ How can I register or bind or install a ISR at a particular I386 / Pentium - 4 Interrupt Table Vector.
 
-When booting 2.4.17-rc1, the following text appears:
+ Is  there any service present in linux where I can specify the IVT location.
 
--------------------------------------------- BEGIN --
-Loading 2.4.17-rc1............. 
-Uncompressing Linux...
+Thanks
+Rohit
+___________________________________________________________________________
+Visit http://www.visto.com.
+Find out  how companies are linking mobile users to the 
+enterprise with Visto.
 
-ran out of input data
-
-  -- System halted
---------------------------------------------- END ---
-
-This has never occured to me before. I'm compiling -rc1 now on another box
-(with a different gcc - mine is 2.96-85 - yes, RedHat packaged it) to make
-sure this isn't due to gcc.
-
-	Sven Vermeulen
-
--- 
-I would rather spend 10 hours reading someone else's source code than
-10 minutes listening to Musak waiting for technical support which 
-isn't. ~(Wettstein)

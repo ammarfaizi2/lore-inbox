@@ -1,64 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136792AbREBCXI>; Tue, 1 May 2001 22:23:08 -0400
+	id <S136737AbREBCPs>; Tue, 1 May 2001 22:15:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136788AbREBCW6>; Tue, 1 May 2001 22:22:58 -0400
-Received: from femail2.sdc1.sfba.home.com ([24.0.95.82]:47096 "EHLO
-	femail2.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S136590AbREBCWs>; Tue, 1 May 2001 22:22:48 -0400
-Message-ID: <3AEF6F71.A75D478F@home.com>
-Date: Tue, 01 May 2001 19:22:41 -0700
-From: Seth Goldberg <bergsoft@home.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: DISCOVERED! Cause of Athlon/VIA KX133 Instability
-In-Reply-To: <Pine.LNX.4.10.10105011558310.17091-100000@coffee.psychology.mcmaster.ca>
+	id <S136788AbREBCPi>; Tue, 1 May 2001 22:15:38 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:10009 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S136737AbREBCPW>; Tue, 1 May 2001 22:15:22 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Miles Lane <miles@megapathdsl.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac3 
+In-Reply-To: Your message of "Tue, 01 May 2001 18:42:01 MST."
+             <3AEF65E9.8EAFA4A0@megapathdsl.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 02 May 2001 12:15:09 +1000
+Message-ID: <10272.988769709@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
-> 
-> >   And that's exactly what I did :)...  I found that ONLY the combination
-> > of USE_3DNOW and forcing the athlon mmx stuff in (by doing #if 1 in
-> > results in this wackiness.  I should alos repeat that I *DO* see that
-> 
-> I doubt that USE_3DNOW is causing the problem, but rather when you
-> USE_3DNOW, the kernel streams through your northbridge at roughly
-> twice the bandwidth.  if your dram settings are flakey, this could
-> eaily trigger a problem.
-> 
-> this has nothing to do with the very specific disk corruption
-> being discussed (which has to do with the ide controller, according
-> to the most recent rumors.).
+On Tue, 01 May 2001 18:42:01 -0700, 
+Miles Lane <miles@megapathdsl.net> wrote:
+>This patch is not showing up on ftp.kernel.org.
 
-  Actually, I think there are 2 problems that have been discussed -- the
-disk corruption and a general instability resulting in oops'es at
-various points shortly after boot up.
+hpa says it is a bandwidth problem in kernel.org, have patience.
 
-  My memory system jas been set up very conservitavely and has been
-rock solid in my other board (ka7), so I doubt it's that, but I
-sure am happy to try a few more cominations of bios settings.  Anything
-I should look for in particular?
-
-  Thanks,
-   Seth
-
-> 
-> >   The other thing i was gunna try is to dump my chipset registers using
-> > WPCREDIT and WPCRSET and compare them with other people on this list
-> 
-> why resort to silly windows tools, when lspci under Linux does it for you?
-> 
-> regards, mark hahn.
-> 
-
-  Because lspci does not display all 256 bytes of pci configuration
-information.
-
-
-  --S

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272546AbRIPQyi>; Sun, 16 Sep 2001 12:54:38 -0400
+	id <S272540AbRIPRAS>; Sun, 16 Sep 2001 13:00:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272537AbRIPQy2>; Sun, 16 Sep 2001 12:54:28 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:55305 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S272546AbRIPQyL>;
-	Sun, 16 Sep 2001 12:54:11 -0400
-Message-ID: <XFMail.20010916185020.ast@domdv.de>
-X-Mailer: XFMail 1.4.6-3 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S272547AbRIPRAJ>; Sun, 16 Sep 2001 13:00:09 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:64009 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S272560AbRIPQ76>;
+	Sun, 16 Sep 2001 12:59:58 -0400
+Date: Sun, 16 Sep 2001 14:00:10 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Christoph Hellwig <hch@caldera.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10pre7aa1
+In-Reply-To: <20010910210607.C715@athlon.random>
+Message-ID: <Pine.LNX.4.33L.0109161359040.9536-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-In-Reply-To: <Pine.LNX.4.33L.0109161330000.9536-100000@imladris.rielhome.conectiva>
-Date: Sun, 16 Sep 2001 18:50:20 +0200 (CEST)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: broken VM in 2.4.10-pre9
-Cc: linux-kernel@vger.kernel.org, Ricardo Galli <gallir@m3d.uib.es>,
-        Michael Rothwell <rothwell@holly-springs.nc.us>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 10 Sep 2001, Andrea Arcangeli wrote:
 
-On 16-Sep-2001 Rik van Riel wrote:
-> On 16 Sep 2001, Michael Rothwell wrote:
-> 
->> Is there a way to tell the VM to prune its cache? Or a way to limit
->> the amount of cache it uses?
-> 
-> Not yet, I'll make a quick hack for this when I get back next
-> week. It's pretty obvious now that the 2.4 kernel cannot get
-> enough information to select the right pages to evict from
-> memory.
-> 
-In my experience you should try to run aide
-(ftp://ftp.cs.tut.fi/pub/src/gnu/aide-0.7.tar.gz) for tests. This is a case of
-one single process doing a file system consistency check and stopping all other
-processes cold due to swapout due to heavy cacheing. While aide runs the system
-just becomes unusable.
+> > My problem with this appropech is just that we use kernel threads for
+> > more and more stuff - always creating new ones.  I think at some point
+> > they will sum up badly.
+>
+> They almost only costs memory. I also don't like unnecessary kernel
+> threads but I can see usefulness for this one, OTOH as you said the
+> latency of the wait_for_rcu isn't very critical but usually I prefer to
+> save cycles with memory where I can and where it's even cleaner to do so.
+
+I can't quite remember if it was Linus or Larry who said:
+
+"Threads are for people who don't understand state machines"
 
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+If you cannot make your code clean without adding another
+thread, it's probably a bad sign ;)
+
+cheers,
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

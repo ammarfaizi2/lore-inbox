@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbUBNRF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 12:05:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUBNRF6
+	id S262425AbUBNRCU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 12:02:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUBNRCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 12:05:58 -0500
-Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:5308 "HELO
-	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262564AbUBNRF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 12:05:57 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Emmeran Seehuber <rototor@rototor.de>
-Subject: Re: PS/2 Mouse does no longer work with kernel 2.6 on a laptop
-Date: Sat, 14 Feb 2004 12:05:52 -0500
-User-Agent: KMail/1.6
-Cc: linux-kernel@vger.kernel.org
-References: <200402112344.23378.rototor@rototor.de> <200402130223.00339.dtor_core@ameritech.net> <200402140928.18473.rototor@rototor.de>
-In-Reply-To: <200402140928.18473.rototor@rototor.de>
+	Sat, 14 Feb 2004 12:02:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32696 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262425AbUBNRCT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 12:02:19 -0500
+Date: Sat, 14 Feb 2004 09:02:12 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christoph Hellwig <hch@lst.de>
+cc: jsimmons@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] back out fbdev sysfs support
+In-Reply-To: <20040214165037.GA15985@lst.de>
+Message-ID: <Pine.LNX.4.58.0402140857520.13436@home.osdl.org>
+References: <20040214165037.GA15985@lst.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402141205.52316.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 14 February 2004 04:28 am, Emmeran Seehuber wrote:
-> On Friday 13 February 2004 07:23, Dmitry Torokhov wrote:
-> [...]
-> >
-> > Do you have an active multiplexing controller and does passing i8042.nomux
-> > option help?
-> It seems so. At least passing this kernel option makes my PS/2 trackball work 
-> again :)
-> 
-> Thank you!
-> 
-> cu,
->   Emmy
-> 
 
-Could you please #define DEBUG in drivers/input/serio/i8042.c and post your
-dmesg? Also, what kind of PC is that (manufacturer/model)?
 
-Thank you.
+On Sat, 14 Feb 2004, Christoph Hellwig wrote:
+> 
+> <rant>
+> James, what about pushing the 2GB worth of fbdev driver fixes in your
+> tree to Linus so people actually get working fb support again instead
+> of adding new holes?
 
---
-Dmitry
+Sorry, but at this point I WOULD NOT EVEN TAKE IT ANY MORE.
+
+That's just how I work: if somebody maintains his own tree and builds up a 
+lot of patches, that's _his_ problem. I'm not going to replace things 
+totally unless there is some really fundamental reason I would have to. 
+And quite frankly, the most common "fundamental reason" is that the 
+maintainer has not done his job.
+
+I want controlled patches that do one thing at a time. Not a 2GB untested 
+dump.
+
+>  A maintainers job can't be to apply patches to
+> his personal CVS repository and sitting on them forever
+> </rant>
+
+.. and once he has patches, he can't just "dump" them out, either.
+
+These things need to be done in a timely fashion, incrementally, one thing 
+at a time. Anything else does not work.
+
+And btw, for anybody who is impacted by this: you are encouraged to help. 
+If you have a machine that works with some out-of-tree code but does 
+_not_ work with the in-tree code, send a patch that fixes JUST THAT BUG.
+
+Because if James can't trickle them in, somebody else will have to. That's 
+what happened with the new radeon driver.
+
+		Linus

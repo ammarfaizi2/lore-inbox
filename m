@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbSKYR6U>; Mon, 25 Nov 2002 12:58:20 -0500
+	id <S262779AbSKYSFs>; Mon, 25 Nov 2002 13:05:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbSKYR6U>; Mon, 25 Nov 2002 12:58:20 -0500
-Received: from bgp996345bgs.nanarb01.mi.comcast.net ([68.40.49.89]:23174 "EHLO
-	syKr0n.mine.nu") by vger.kernel.org with ESMTP id <S261868AbSKYR6T>;
-	Mon, 25 Nov 2002 12:58:19 -0500
-Subject: Re: [PATCH] make 2.5.49 mount root again for devfs users
-From: Mohamed El Ayouty <melayout@umich.edu>
-To: helgehaf@aitel.hist.no
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu, rgooch@ras.ucalgary.ca
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 25 Nov 2002 13:06:01 -0500
-Message-Id: <1038247561.4883.280.camel@syKr0n.mine.nu>
+	id <S262780AbSKYSFr>; Mon, 25 Nov 2002 13:05:47 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14858 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262779AbSKYSFq>; Mon, 25 Nov 2002 13:05:46 -0500
+Date: Mon, 25 Nov 2002 19:12:59 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Adrian Bunk <bunk@fs.tum.de>,
+       Ducrot Bruno <poup@poupinou.org>,
+       Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20 ACPI
+Message-ID: <20021125181259.GB5302@atrey.karlin.mff.cuni.cz>
+References: <20021125121545.GA22915@suse.de> <4.3.2.7.2.20021119134830.00b53680@mail.dns-host.com> <20021119130728.GA28759@suse.de> <20021119142731.GF27595@poup.poupinou.org> <20021119164550.GQ11952@fs.tum.de> <20021123195720.GA310@elf.ucw.cz> <4020.1038240431@passion.cambridge.redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4020.1038240431@passion.cambridge.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, what I experienced is if I configured the kernel with:
+Hi!
 
-CONFIG_UNIX98_PTYS = Y
-CONFIG_DEVFS_FS = Y
-CONFIG_DEVFS_MOUNT = Y
+> >  Nice. Shame about all those boxes that won't boot without ACPI. 
+> 
+> I've heard a lot about such beasts but have never actually _met_ one. 
+> 
+> If I accidentally bought a box which wouldn't boot without ACPI, it would 
+> go immediately back from whence it came -- just as it would if it turned up 
+> with an nVidia graphics card.
 
-everything works correctly, but if I configure with only:
+I have omnibook xe3, will boot without ACPI but USB will not work due
+to interrupt routing problems. It has buggy PIR$ table, acpi tables
+are okay. Of course it is HP bug.
 
-CONFIG_UNIX98_PTYS = N
-CONFIG_DEVFS_FS = Y
-CONFIG_DEVFS_MOUNT = Y
-
-it gives me a panic:
-
-VFS: Cannot open root device "hda2" or 03:02
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on 03:02
-
-Hope this helps
-
-Mohamed
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,60 +1,145 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278625AbRLDQro>; Tue, 4 Dec 2001 11:47:44 -0500
+	id <S280984AbRLDQuy>; Tue, 4 Dec 2001 11:50:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281199AbRLDQqv>; Tue, 4 Dec 2001 11:46:51 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:49846 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S281184AbRLDQqX>; Tue, 4 Dec 2001 11:46:23 -0500
-Message-ID: <3C0CFDDE.40805@redhat.com>
-Date: Tue, 04 Dec 2001 11:46:22 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nathan Bryant <nbryant@optonline.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <3C0C765D.8040304@optonline.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S281228AbRLDQuB>; Tue, 4 Dec 2001 11:50:01 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:39438 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S281116AbRLDQsr>;
+	Tue, 4 Dec 2001 11:48:47 -0500
+Date: Tue, 4 Dec 2001 17:48:36 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: kkeil@suse.de, kai.germaschewski@gmx.de,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] hisax fix MAX_CARD setup and potential buffer overflow
+Message-Id: <20011204174836.0ab6f5de.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Bryant wrote:
+Hello Karsten,
+Hello Kai,
 
-> Doug Ledford wrote:
-> 
->> Well, your second version of the file had the merge done right (my 
->> code didn't include S/PDIF support or PM support, so those parts were 
->> different, but the parts that were the same as my code were done 
->> correctly).  I'm attaching a patch that bumps the code from your 0.05b 
->> to a unified 0.06 and I'm also placing the 0.06 i810_audio.c.gz file 
->> on my web site in the same place that I put the 0.05 version.  If 
->> people could please test this and report problems back, I would like 
->> to get this one off my plate (aka, I don't want to hear any more about 
->> artsd not working ever again so I want testers to tell me that it's 
->> fixed ;-)
-> 
-> 
-> Ok, fixed the divide by zero but artsd doesn't quite work with 0.06. 
-> almost but not quite.. sound works normally with non-artsd stuff but 
-> artsd decides to stop writing because select() never signals that the fd 
-> is writeable. it just times out.
+attached is a patch for ISDN-Driver HiSax for kernel-inclusion that does the
+following:
 
+1) Fix usage of HISAX_MAX_CARDS definition so one can _really_ create more (or
+less) cards by simply editing HISAX_MAX_CARDS to an appropriate value. In the
+original code the idea was visible, only implementation was broken in this
+respect.
 
-I fixed the clocking issue in my source.  I need more details on the 
-artsd problem though.  Does artsd start to work and then stop, or does 
-it never get around to outputting any sound?  Also, do you have any of 
-the debugging output turned on (it *drastically* changes the timings in 
-the driver and can make things that normally work fail and vice versa)?
+2) Fix a potential buffer overflow (strcpy) which can be triggered by adding
+too long IDs during insmod.
 
+Thanks to Henning Schmiedehausen for support.
 
+Hopefully coming soon:
 
+Patch to edit HISAX_MAX_CARDS during make menuconfig (configurable for joe
+user)
 
--- 
+Regards,
+Stephan
 
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
+PS: skraw back to the roots ;-)
 
+hisax-max-patch:
+
+--- linux/drivers/isdn/hisax/config.c-orig	Tue Dec  4 02:09:59 2001
++++ linux/drivers/isdn/hisax/config.c	Tue Dec  4 17:30:29 2001
+@@ -338,7 +338,7 @@
+ 
+ #define EMPTY_CARD	{0, DEFAULT_PROTO, {0, 0, 0, 0}, NULL}
+ 
+-struct IsdnCard cards[] = {
++struct IsdnCard cards[HISAX_MAX_CARDS] = {
+ 	FIRST_CARD,
+ 	EMPTY_CARD,
+ 	EMPTY_CARD,
+@@ -349,14 +349,15 @@
+ 	EMPTY_CARD,
+ };
+ 
+-static char HiSaxID[64] __devinitdata = { 0, };
++#define HISAX_IDSIZE (HISAX_MAX_CARDS*8)
++static char HiSaxID[HISAX_IDSIZE] __devinitdata = { 0, };
+ 
+ char *HiSax_id __devinitdata = HiSaxID;
+ #ifdef MODULE
+ /* Variables for insmod */
+-static int type[8] __devinitdata = { 0, };
+-static int protocol[8] __devinitdata = { 0, };
+-static int io[8] __devinitdata = { 0, };
++static int type[HISAX_MAX_CARDS] __devinitdata = { 0, };
++static int protocol[HISAX_MAX_CARDS] __devinitdata = { 0, };
++static int io[HISAX_MAX_CARDS] __devinitdata = { 0, };
+ #undef IO0_IO1
+ #ifdef CONFIG_HISAX_16_3
+ #define IO0_IO1
+@@ -366,25 +367,30 @@
+ #define IO0_IO1
+ #endif
+ #ifdef IO0_IO1
+-static int io0[8] __devinitdata = { 0, };
+-static int io1[8] __devinitdata = { 0, };
++static int io0[HISAX_MAX_CARDS] __devinitdata = { 0, };
++static int io1[HISAX_MAX_CARDS] __devinitdata = { 0, };
+ #endif
+-static int irq[8] __devinitdata = { 0, };
+-static int mem[8] __devinitdata = { 0, };
++static int irq[HISAX_MAX_CARDS] __devinitdata = { 0, };
++static int mem[HISAX_MAX_CARDS] __devinitdata = { 0, };
+ static char *id __devinitdata = HiSaxID;
+ 
++/* string magic */
++#define h1(s) h2(s)
++#define h2(s) #s
++#define PARM_PARA "1-"h1(HISAX_MAX_CARDS)"i"
++
+ MODULE_DESCRIPTION("ISDN4Linux: Driver for passive ISDN cards");
+ MODULE_AUTHOR("Karsten Keil");
+ MODULE_LICENSE("GPL");
+-MODULE_PARM(type, "1-8i");
+-MODULE_PARM(protocol, "1-8i");
+-MODULE_PARM(io, "1-8i");
+-MODULE_PARM(irq, "1-8i");
+-MODULE_PARM(mem, "1-8i");
++MODULE_PARM(type, PARM_PARA);
++MODULE_PARM(protocol, PARM_PARA);
++MODULE_PARM(io, PARM_PARA);
++MODULE_PARM(irq, PARM_PARA);
++MODULE_PARM(mem, PARM_PARA);
+ MODULE_PARM(id, "s");
+ #ifdef IO0_IO1
+-MODULE_PARM(io0, "1-8i");
+-MODULE_PARM(io1, "1-8i");
++MODULE_PARM(io0, PARM_PARA);
++MODULE_PARM(io1, PARM_PARA);
+ #endif
+ #endif /* MODULE */
+ 
+@@ -476,12 +482,14 @@
+ 		i++;
+ 	}
+ 	if (str && *str) {
+-		strcpy(HiSaxID, str);
+-		HiSax_id = HiSaxID;
+-	} else {
++		if (strlen(str) < HISAX_IDSIZE)
++			strcpy(HiSaxID, str);
++		else
++			printk(KERN_WARNING "HiSax: ID too long!")
++	} else
+ 		strcpy(HiSaxID, "HiSax");
+-		HiSax_id = HiSaxID;
+-	}
++
++	HiSax_id = HiSaxID;
+ 	return 1;
+ }
+ 

@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318028AbSHVW4H>; Thu, 22 Aug 2002 18:56:07 -0400
+	id <S318007AbSHVXEI>; Thu, 22 Aug 2002 19:04:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318031AbSHVW4H>; Thu, 22 Aug 2002 18:56:07 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:14061 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S318028AbSHVW4G>; Thu, 22 Aug 2002 18:56:06 -0400
-Date: Thu, 22 Aug 2002 18:59:58 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MAX_PID changes in 2.5.31
-Message-ID: <20020822225957.GA11837@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0208200033400.5253-100000@localhost.localdomain> <1029799751.21212.0.camel@irongate.swansea.linux.org.uk> <20020820003346.GA4592@win.tue.nl> <1029804092.21242.18.camel@irongate.swansea.linux.org.uk> <20020822221106.GB5471@win.tue.nl> <1030055266.3151.72.camel@irongate.swansea.linux.org.uk>
+	id <S318016AbSHVXEI>; Thu, 22 Aug 2002 19:04:08 -0400
+Received: from splat.lanl.gov ([128.165.17.254]:29868 "EHLO
+	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
+	id <S318007AbSHVXEH>; Thu, 22 Aug 2002 19:04:07 -0400
+Date: Thu, 22 Aug 2002 17:08:16 -0600
+From: Eric Weigle <ehw@lanl.gov>
+To: rwhron@earthlink.net
+Cc: "Linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.31 qlogic error "this should not happen"
+Message-ID: <20020822230816.GC21548@lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="c3bfwLpm8qysLVxt"
 Content-Disposition: inline
-In-Reply-To: <1030055266.3151.72.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+User-Agent: Mutt/1.3.28i
+X-Eric-Conspiracy: There is no conspiracy
+X-Editor: Vim, http://www.vim.org
+X-GnuPG-fingerprint: 112E F8CA 12A9 771E DB10  6514 D4B0 D758 59EA 9C4F
+X-GnuPG-key: http://public.lanl.gov/ehw/ehw.gpg.key
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 22, 2002 at 11:27:46PM +0100, Alan Cox wrote:
-> On the kernel side I found a ushort pid in coda, but I can't actually
-> easily tell if thats a process id or a coda thingy. We have some other
-> sloppy pid users but they all appear to be int (eg vt_kern.h)
 
-It's both a process id and a Coda thingy :) It should have been pid_t,
-but if you change it in the kernel it will break precompiled binaries in
-userspace which still assume it is a 16-bit value. It is not used too
-often, only when a process is forked off for conflict resolution.
+--c3bfwLpm8qysLVxt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Luckily, I'm getting close to finalizing a new version of Coda's
-userspace which has support for realms (or cells, or whatever other
-distributed filesystems like to name it) that already has to break
-the kernel-venus interface. So I'll add this to my list of incompatible
-changes that can go into the patch.
+FWIW-
 
-Jan
+I occasionally saw that error on our 2.4 RAID system; it went away when I
+increased the size of the handles array in qlogicfc.h:
 
+-#define QLOGICFC_REQ_QUEUE_LEN  127 /* must be power of two - 1 */
++#define QLOGICFC_REQ_QUEUE_LEN  255 /* must be power of two - 1 */
+
+
+I know this probably isn't the ``right'' solution, but it worked for me...
+your mileage may vary.
+
+-Eric
+
+--=20
+------------------------------------------------
+ Eric H. Weigle -- http://public.lanl.gov/ehw/=20
+------------------------------------------------
+
+--c3bfwLpm8qysLVxt
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9ZW7g1LDXWFnqnE8RAgFDAJ9TUsDntY84E8wQobv50b2sx7JPVgCgrEGi
+Sa052MlhF2Z0kbfuYd89oeU=
+=DJ9+
+-----END PGP SIGNATURE-----
+
+--c3bfwLpm8qysLVxt--

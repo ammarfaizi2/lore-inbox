@@ -1,93 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVAYPe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVAYPfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVAYPe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 10:34:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVAYPe4
+	id S261986AbVAYPfN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 10:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVAYPfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 10:34:56 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:15587 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261983AbVAYPew (ORCPT
+	Tue, 25 Jan 2005 10:35:13 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:4501 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261986AbVAYPfF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 10:34:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=KoR03hc2ooKqG5BtczUwtjyEW979QuVLIED5FnbSsGajKu1k9lofggAoEsCT7GAzGdgB6w+tjvucYCF7tZWOIeDtVRYTUgufFezrDN88teCM/W87GxdHj2KUDxn0a2FYqhn4DOqK4D36DYj3AnC+kLODHE4rf5H45adixR/8EjM=
-Message-ID: <58cb370e050125073464befe4@mail.gmail.com>
-Date: Tue, 25 Jan 2005 16:34:52 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: johnpol@2ka.mipt.ru
-Subject: Re: 2.6.11-rc2-mm1
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1106666690.5257.97.camel@uganda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	 <20050125125323.GA19055@infradead.org>
-	 <1106662284.5257.53.camel@uganda>
-	 <20050125142356.GA20206@infradead.org>
-	 <1106666690.5257.97.camel@uganda>
+	Tue, 25 Jan 2005 10:35:05 -0500
+Date: Tue, 25 Jan 2005 16:34:57 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Pavel Fedin <sonic_amiga@rambler.ru>
+cc: Alex Riesen <raa.lkml@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Russian encoding support for MacHFS
+In-Reply-To: <20050125123516.7f40a397.sonic_amiga@rambler.ru>
+Message-ID: <Pine.LNX.4.61.0501251545540.6118@scrub.home>
+References: <20050124125756.60c5ae01.sonic_amiga@rambler.ru>
+ <81b0412b05012410463c7fd842@mail.gmail.com> <20050125123516.7f40a397.sonic_amiga@rambler.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005 18:24:50 +0300, Evgeniy Polyakov
-<johnpol@2ka.mipt.ru> wrote:
-> On Tue, 2005-01-25 at 14:23 +0000, Christoph Hellwig wrote:
-> > > > Also your locking is broken.  sdev_lock sometimes nests outside
-> > > > sdev->lock and sometimes inside.  Similarly dev->chain_lock nests
-> > > > inside dev->lock sometimes and sometimes outside.  You really need
-> > > > a locking hiearchy document and the lockign should probably be
-> > > > simplified a lot.
-> > >
-> > > It is almost the same like after hand waving say that there is a wind.
-> > >
-> > > Each lock protect it's own data, sometimes it happens when other data is
-> > > locked,
-> > > sometimes not. Yes, probably interrupt handling can race, it requires
-> > > more review,
-> > > I will take a look.
-> >
-> > The thing I mention is called lock order reversal, which means a deadlock
-> > in most cases.  I don't have the time to actual walk through all codepathes
-> > to tell you whether it can really happen and where, but it's a really
-> > big warning sign.
-> 
-> No, it is not called lock order reversal.
-> 
-> There are no places like
-> lock a
-> lock b
-> unlock a
-> unlock b
-> 
-> and if they are, then I'm completely wrong.
-> 
-> What you see is only following:
-> 
-> place 1:
-> lock a
-> lock b
-> unlock b
-> lock c
-> unlock c
-> unlock a
-> 
-> place 2:
-> lock b
-> lock a
-> unlock a
-> lock c
-> unlock c
-> unlock b
+Hi,
 
-Ugh, now think about that:
+On Tue, 25 Jan 2005, Pavel Fedin wrote:
 
-CPU0     CPU1
-place1:   place2:
-lock a      lock b
-< guess what happens here :-) >
-lock b      lock a
-...             ...
+> > how about just leave the characters unchanged? (remap them to the same
+> > codes in Unicode).
+> 
+>  But what to do when i convert then from unicode to 8-bit iocharset? 
+> This can lead to that several characters in Mac charset will be 
+> converted to the same character in Linux charset. This will lead to 
+> information loss and name will not be reverse-translatable.
+>  To describe the thing better: i have 8-bit Mac encoding and 8-bit 
+> target encoding (iocharset). I need to convert from (1) to (2) and be 
+> able to convert back. I tried to perform a one-way conversion like in 
+> other filesystems but this didn't work.
+>  Probably NLS tables can be used when iocharset is UTF8. If you wish i 
+> can try to implement it after some time.
+
+I'm not quite sure, what problem you're trying to solve here. NLS is used 
+to convert from a local encoding to unicode, HFS has only 8bit 
+characters, so there isn't much space to store the unicode characters in. 
+If you want to use utf-8, you can do so without changing hfs. All 
+filesystem which don't use nls (that includes e.g. ext3) store the 
+filename in the local encoding.
+If you want to store unicode characters use HFS+, I plan to implement nls 
+support real soon for it (especially because to also fix the missing 
+decomposition support). 
+
+bye, Roman

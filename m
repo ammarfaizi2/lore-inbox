@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135254AbRDLS7W>; Thu, 12 Apr 2001 14:59:22 -0400
+	id <S135256AbRDLTCM>; Thu, 12 Apr 2001 15:02:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135256AbRDLS7M>; Thu, 12 Apr 2001 14:59:12 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:63981 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S135254AbRDLS67>; Thu, 12 Apr 2001 14:58:59 -0400
-Message-ID: <3AD5F9FE.9A49374D@uow.edu.au>
-Date: Thu, 12 Apr 2001 11:54:54 -0700
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18-0.22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rod Stewart <stewart@dystopia.lab43.org>
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: 8139too: defunct threads
-In-Reply-To: <Pine.LNX.4.33.0104121336040.31024-100000@dystopia.lab43.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135259AbRDLTCD>; Thu, 12 Apr 2001 15:02:03 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:21390 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S135258AbRDLTB6>; Thu, 12 Apr 2001 15:01:58 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 12 Apr 2001 12:01:55 -0700
+Message-Id: <200104121901.MAA04011@adam.yggdrasil.com>
+To: johan.adolfsson@axis.com
+Subject: Re: List of all-zero .data variables in linux-2.4.3 available
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rod Stewart wrote:
-> 
-> Hello,
-> 
-> Using the 8139too driver, 0.9.15c, we have noticed that we get a defunct
-> thread for each device we have; if the driver is built into the kernel.
-> If the driver is built as a module, no defunct threads appear.
+johan.adolfsson@axis.com writes:
+>Shouldn't a compiler be able to deal with this instead?
 
-What is the parent PID for the defunct tasks?  zero?
+	Yes.  I sent some email to bug-gcc about this a couple of
+months ago and even posted some (probably horribly incorrect) code
+showing roughly the change I had in mind in the gcc source code
+for the simple case of scalar variables.  I was told that some code
+to this was put in and then removed from gcc a long time ago, and
+nobody seemed interested in putting it back in.  I would think that this
+would be a basic optimization that I would expect the compiler to make,
+just like deleting "if(0) {......}" code, but gcc does not currently
+do that.  If somebody would like to fix gcc and do the necessary
+lobbying to get such a change integrated, that would be great.  However,
+until that actually happens, I hope the file that I posted to
+ftp://ftp.yggdrasil.com/private/adam/linux/zerovars/ will be useful
+to individual maintainers and in identifying the largest arrays of
+zeroes that can fix fixed in a few lines.
 
-<slaps head> swapper doesn't know how to reap children, and
-AFAIK there's no way for a kernel thread to fully clean itself
-up.  This is always done by the parent.
-
-ho-hum.  Jeff, I think the best fix here is to bite the
-bullet and write kernel_daemon(), which will delegate
-thread creation to keventd, which is the only thing
-we have which reaps zombies.  Any better ideas?
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

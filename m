@@ -1,56 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293553AbSBRCbD>; Sun, 17 Feb 2002 21:31:03 -0500
+	id <S292889AbSBQJ2N>; Sun, 17 Feb 2002 04:28:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293549AbSBRCax>; Sun, 17 Feb 2002 21:30:53 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:7689 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S293548AbSBRCak>; Sun, 17 Feb 2002 21:30:40 -0500
-Date: Sun, 17 Feb 2002 21:29:01 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sys_sync livelock fix
-In-Reply-To: <3C69FB14.167B899E@zip.com.au>
-Message-ID: <Pine.LNX.3.96.1020217212146.32237A-100000@gatekeeper.tmr.com>
+	id <S292893AbSBQJ2D>; Sun, 17 Feb 2002 04:28:03 -0500
+Received: from gate.perex.cz ([194.212.165.105]:32785 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S292889AbSBQJ14>;
+	Sun, 17 Feb 2002 04:27:56 -0500
+Date: Sun, 17 Feb 2002 10:27:41 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Miles Lane <miles@megapathdsl.net>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: How do I get the ALSA code in 2.5.5-pre1 working?
+In-Reply-To: <3C6ED744.9010504@megapathdsl.net>
+Message-ID: <Pine.LNX.4.31.0202171017530.513-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Feb 2002, Andrew Morton wrote:
+On Sat, 16 Feb 2002, Miles Lane wrote:
 
-> Thing is, at shutdown all the tasks which are generating write
-> traffic should have been killed off, and the filesystems unmounted
-> or set readonly.    There's no obvious way in which this shutdown
-> sequence can be indefinitely stalled by the problem we're discussing here.
-> 
-> If the shutdown scripts are calling sys_sync() *before* killing
-> everything then yes, the scripts could hang indefinitely.  Is
-> this the case?
-> 
-> If "yes" then the scripts are dumb.  Just remove the `sync' call.
-> 
-> If "no" then something else is causing the hang.
+> Hello,
+>
+> I have the linux hotplug scripts installed.  When I built
+> the drivers as modules, they did not autoload, as they should
+> have.  Are you working to make the drivers register themselves
+> during the boot process so that they are autoloaded without
+> having to hack the modules.conf file?
 
-I recently had the Linux version of Cyclone (usenet transit server) get
-unhappy and start growing load without bounds. At L.A. 60 I issued a
-killall the the application (which ran on happily), then a killall (-9)
-which also didn't kill the processes (there is a problems there, a process
-shouldNOT keep running after ill -9!). There a "reboot" which hung, and
-finally a "reboot -n" which actually rebooted the machine.
+I'm not sure, if hotplug should take care about automatic module loading
+for static devices. Currently, only cardbus manager uses the PCI hotplug
+routines. I could be wrong, of course.
 
-Since -n only means "do sync but don't wait" I have to think that the
-problem is not that the script doesn't issue a kill, but that the kill
-doesn't work. I think making the sync(2) a single pass write of current
-dirty buffers is the only way to avoid stuff like this. making kill -9
-work would be great too, there seems to be a long term problem with
-threaded programs which are hard to kill.
+> I have applied the patch the gets /proc/asound working.
+> In my most recent attempt, I have compiled the ALSA drivers
+> into the kernel.  I would like to use the native ALSA drivers,
+> but am not sure how to configure my devices to make this
+> happen.  I use esound on GNOME and play CDs.
+>
+> One question I have is how to go about getting the ALSA
+> utilities and tools to build.  They require alsa-lib, which
+> appears to require alsa-drivers.  This is a problem, because
+> I don't want to install the out-of-kernel ALSA drivers in
+> addition to the in-kernel ones.
 
-Just another data point, the bug in this case is not in shutdown.
+I just added a simplified support for ALSA kernel code for alsa-lib.
+We have '--with-kernel' and '--with-soundbase' options for the configure
+script allowing specification of ALSA kernel header files
+(linux/include/sound directory). The other packages uses only alsa-lib and
+are not dependent on kernel sources.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+> It seems to me that there is a need for several things to happen,
+> now that ALSA is in the development kernel:
+>
+> 1)  You need to update your web documentation to guide users
+> in configuring ALSA who are testing the ALSA support in
+> the development kernel.
+>
+> 2)  You need to include updated ALSA configuration and usage
+> information into the linux/Documentation tree in the 2.5 kernel
+> tree.
+>
+> 3)  You need to update documentation in the utils and tools
+> packages to include information about how to build and use
+> there utilies when using the 2.5 kernel drivers.
+
+Documentation for users will be definitely next step in our kernel
+integration process, although there are minimal usage differences
+(only compilation) with the standalone ALSA distribution.
+
+> 4)  You may need to overhaul your tools and utilities build
+> processes so that alsa-drivers is not required.
+
+Already finished.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 

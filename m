@@ -1,62 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262808AbUBZQIm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 11:08:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbUBZQFY
+	id S262842AbUBZQMO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 11:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbUBZQI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 11:05:24 -0500
-Received: from ns0.eris.qinetiq.com ([128.98.1.1]:57133 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S262816AbUBZQDx convert rfc822-to-8bit (ORCPT
+	Thu, 26 Feb 2004 11:08:56 -0500
+Received: from nevyn.them.org ([66.93.172.17]:12173 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S262812AbUBZQFb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 11:03:53 -0500
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: Terje Kvernes <terjekv@math.uio.no>
-Subject: Re: Serial ATA (SATA) status report
-Date: Thu, 26 Feb 2004 15:55:46 +0000
-User-Agent: KMail/1.5.3
-Cc: Andre Tomt <andre@tomt.net>, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <403D5B3D.6060804@pobox.com> <200402261423.56448.m.watts@eris.qinetiq.com> <wxxbrnl3lfe.fsf@nommo.uio.no>
-In-Reply-To: <wxxbrnl3lfe.fsf@nommo.uio.no>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Thu, 26 Feb 2004 11:05:31 -0500
+Date: Thu, 26 Feb 2004 11:05:23 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect / detach
+Message-ID: <20040226160523.GB28873@nevyn.them.org>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	"Amit S. Kale" <amitkale@emsyssoft.com>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
+References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net> <20040225215309.GI1052@smtp.west.cox.net> <200402261344.49261.amitkale@emsyssoft.com> <20040226144155.GQ1052@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402261555.46630.m.watts@eris.qinetiq.com>
+In-Reply-To: <20040226144155.GQ1052@smtp.west.cox.net>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Feb 26, 2004 at 07:41:55AM -0700, Tom Rini wrote:
+> On Thu, Feb 26, 2004 at 01:44:49PM +0530, Amit S. Kale wrote:
+> 
+> > On Thursday 26 Feb 2004 3:23 am, Tom Rini wrote:
+> > > The following patch fixes a number of little issues here and there, and
+> > > ends up making things more robust.
+> > > - We don't need kgdb_might_be_resumed or kgdb_killed_or_detached.
+> > >   GDB attaching is GDB attaching, we haven't preserved any of the
+> > >   previous context anyhow.
+> > 
+> > If gdb is restarted, kgdb has to remove all breakpoints. Present kgdb does 
+> > that in the code this patch removes:
+> > 
+> > -		if (remcom_in_buffer[0] == 'H' && remcom_in_buffer[1] == 'c') {
+> > -			remove_all_break();
+> > -			atomic_set(&kgdb_killed_or_detached, 0);
+> > -			ok_packet(remcom_out_buffer);
+> > 
+> > If we don't remove breakpoints, they stay in kgdb without gdb not knowing it 
+> > and causes consistency problems.
+> 
+> Er, what do you mean 'restarted' ?  If gdb somehow disconnects 'detach'
+> or ^D^D, remove_all_break() gets called.  Is there another way for gdb
+> to somehow disconnect that I don't know of?
 
+Yes.  See the disconnect command in recent GDB versions.
 
->   the 3w-xxxx-module works well enough in 32bit mode on AMD64.  sadly
->   enough, we have had some other issues with 64bit mode, but the
->   _driver_ seems to load there as well.
+> 
+> > > - Don't try and look for a connection in put_packet, after we've tried
+> > >   to put a packet.  Instead, when we receive a packet, GDB has
+> > >   connected.
+> > 
+> > We have to check for gdb connection in putpacket or else following problem 
+> > occurs.
+> > 
+> > 1. kgdb console messages are to be put.
+> > 2. gdb dies
+> 
+> As in doesn't cleanly remove itself?
 
-Do these 'issues' prevent the cards from being used at all in 64bit mode on 
-AMD-64?
+Seg faults, for instance.
 
-We'd really like to use the 4-port SATA 3Ware card on a Tyan Thunder K8W 
-(S2885) but it'd be a bit of a waste if we can only use it in 32bit mode. (I 
-assume 32bit mode means you compile for i686 instead of AMD-64 ?)
-
-Mark.
-
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ TIM
-St Andrews Road, Malvern
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAPhcCBn4EFUVUIO0RAgYlAKCIdWX36mkFko8kdlyhCtzTcpAgsQCeOCc4
-hZYOYnuFKuZLa5v4KJ7XGjI=
-=M/Ej
------END PGP SIGNATURE-----
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

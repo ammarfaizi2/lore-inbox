@@ -1,90 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317457AbSIIQDE>; Mon, 9 Sep 2002 12:03:04 -0400
+	id <S317468AbSIIQI4>; Mon, 9 Sep 2002 12:08:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317462AbSIIQDE>; Mon, 9 Sep 2002 12:03:04 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:774 "EHLO neon-gw.transmeta.com")
-	by vger.kernel.org with ESMTP id <S317457AbSIIQDD>;
-	Mon, 9 Sep 2002 12:03:03 -0400
-Date: Mon, 9 Sep 2002 09:07:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: pwaechtler@mac.com
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 10/10 sound/oss/dmasound/dmasound_q40.c
-In-Reply-To: <200209091007.g89A7dZH010390@smtp-relay02.mac.com>
-Message-ID: <Pine.LNX.4.44.0209090841400.1641-100000@home.transmeta.com>
+	id <S317463AbSIIQI4>; Mon, 9 Sep 2002 12:08:56 -0400
+Received: from dsl-213-023-039-209.arcor-ip.net ([213.23.39.209]:56253 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317468AbSIIQIz>;
+	Mon, 9 Sep 2002 12:08:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: LMbench2.0 results
+Date: Mon, 9 Sep 2002 18:16:11 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@digeo.com>,
+       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L.0209091035470.1857-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.44L.0209091035470.1857-100000@imladris.surriel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17oRCu-0006pL-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 09 September 2002 15:37, Rik van Riel wrote:
+> On Sun, 8 Sep 2002, Daniel Phillips wrote:
+> 
+> > I suspect the overall performance loss on the laptop has more to do with
+> > several months of focussing exclusively on the needs of 4-way and higher
+> > smp machines.
+> 
+> Probably true, we're pulling off an indecent number of tricks
+> for 4-way and 8-way SMP performance. This overhead shouldn't
+> be too bad on UP and 2-way machines, but might easily be a
+> percent or so.
 
-[ More examples of emails that didn't make it to me, with a public warning 
-  to the kernel list. I'm going through my last 1000 received emails to 
-  see which ones were incorrectly marked spam: that seems to have happened
-  to exactly 2 of them right now, your 5/10 and Hans' 3/3.
+Though to be fair, it's smart to concentrate on the high end with a
+view to achieving world domination sooner.  And it's a stretch to call
+the low end performance 'slow'.
 
-  On the whole I'm pretty happy, since it automatically deleted 150+ real
-  spam emails over the last two days alone, so the few false positives
-  aren't going to make me switch - I'll just try to convince people to 
-  fix their mailers instead. ]
+An idea that's looking more and more attractive as time goes by is to
+have a global config option that specifies that we want to choose the
+simple way of doing things wherever possible, over the enterprise way.
+We want this especially for embedded.  On low end processors, it's even
+possible that the small way will be faster in some cases than the
+enterprise way, due to cache effects.
 
-Peter,
- your emails tend to be marked as spam for me. This one, for example, came 
-_really_ close to my not-very-aggressive filter limit, and since I never 
-received PATCH 5/10 I suspect that got eaten.
-
-The reasons your emails seem to be considered spammish by spamassassing 
-is:
-
-	tests=MSG_ID_ADDED_BY_MTA_2,NO_REAL_NAME,DATE_IN_FUTURE
-
-because of this:
-
- (a) your email software is broken and does not add a message ID, so the 
-     ID gets added by one of the _relaying_ stations instead of your own 
-     mailer:
-
-	Message-Id: <200209091005.g89A5SVw025550@smtp-relay01.mac.com>
-	Received: from picmac.adams.family ([145.254.143.74]) by
-	          asmtp02.mac.com (Netscape Messaging Server 4.15) with ESMTP id
-	          H261D300.AEV; Mon, 9 Sep 2002 03:05:27 -0700 
-
-     Spam detectors consider emails without original message ID's to be
-     likely bulk output.
-
- (b) Your email From address is
-
-	From: pwaechtler@mac.com
-
-     which looks more automated than a named person (ie it _likes_ seeing 
-     something like this:
-
-	From: pwaechtler@mac.com (Peter Waechtler)
-
-     instead, which looks more like a real person than an automated 
-     address - and also allows the quoted reply to look a lot more 
-     natural)
-
- (c) your date is bogus:
-
-	Date: Thu, 29 Aug 2002 21:56:27 +0200
-
-     even though the mail was received "Mon, 9 Sep 2002". Again, this 
-     tends to make spam detectors _think_ that the email body was 
-     auto-generated rather than generated by a real mail client.
-
-Your mailer seems to be
-
-	X-Mailer: Apple Mail (2.482)
-
-which is apparently a total piece of cr*p software. 
-
-NOTE! This email actually got past the spam filter despite all these 
-problems. But the problems get it "close enough" to be considered spam 
-that any additional issues (if you were to send an all-caps subject line, 
-for example) would take it over the line. That seems to have happened with 
-patch 5/10, for example.
-
-			Linus
-
+-- 
+Daniel

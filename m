@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbULXR3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbULXRf3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbULXR3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 12:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbULXR3k
+	id S261245AbULXRf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 12:35:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbULXRf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 12:29:40 -0500
-Received: from 8f.7b.d1c4.cidr.airmail.net ([209.196.123.143]:36360 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id S261418AbULXR3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 12:29:38 -0500
-From: "Art Haas" <ahaas@airmail.net>
-Date: Fri, 24 Dec 2004 11:29:37 -0600
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Trivial Makefile patch
-Message-ID: <20041224172937.GG19022@artsapartment.org>
-Mime-Version: 1.0
+	Fri, 24 Dec 2004 12:35:29 -0500
+Received: from darkside.froggycorp.com ([213.41.129.184]:14721 "HELO
+	froggycorp.com") by vger.kernel.org with SMTP id S261245AbULXRfY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 12:35:24 -0500
+Message-ID: <41CC5348.BE6C1B1@froggycorp.com>
+Date: Fri, 24 Dec 2004 18:35:04 +0100
+From: "Froggy / Froggy Corp." <froggy@froggycorp.com>
+Organization: .oO Froggy Corporation Oo.
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+X-Accept-Language: fr,en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RAID1 Software and SII3114 trouble
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi,
 
-The comment doesn't match the function name.
+	I install a debian with kernel 2.6.9 and two HD using raid 1 software.
+All partition are under raid software.
+	I getting trouble when i reboot the linux with error of read/write :
 
-Art Haas
+ata4: command 0x35 timeout, stat 0xd8 host_stat 0x1
+ata4: status=0xd8 { Busy }
+SCSI error : <4 0 0 0> return code = 0x8000002
+Current sdb: sense 70 10
+Raw sens data :0x70 0x00 0x10 0X00 0X00 0X00 0X00 0X0a 0X00 0X00 0X00
+0X00 0X00 0X00 0X00 0X00 0X00 0X00
+end_request: I/O error, dev sdb, sector 226864909
+ATA: abnormal status 0xD8 on port 0XF88022C7
+ATA: abnormal status 0xD8 on port 0XF88022C7
+ATA: abnormal status 0xD8 on port 0XF88022C7
+	
+	The server will not freeze, but no disk access can be made.
 
-===== Makefile 1.550 vs edited =====
---- 1.550/Makefile	2004-12-03 14:56:59 -06:00
-+++ edited/Makefile	2004-12-24 11:24:28 -06:00
- # See documentation in Documentation/kbuild/makefiles.txt
- 
- # cc-option
--# Usage: cflags-y += $(call gcc-option, -march=winchip-c6, -march=i586)
-+# Usage: cflags-y += $(call cc-option, -march=winchip-c6, -march=i586)
- 
- cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-              > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
-@@ -291,7 +291,7 @@
-             $(call cc-option, $(1),$(2))
- 
- # cc-option-yn
--# Usage: flag := $(call gcc-option-yn, -march=winchip-c6)
-+# Usage: flag := $(call cc-option-yn, -march=winchip-c6)
- cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-                 > /dev/null 2>&1; then echo "y"; else echo "n"; fi;)
- 
--- 
-Man once surrendering his reason, has no remaining guard against absurdities
-the most monstrous, and like a ship without rudder, is the sport of every wind.
+	I scan sdb with mkfs to search bad sector but find nothing. I dont get
+any message when i am under degraded array and i think that if a HD have
+some problem, dmadm will put it under fault.
 
--Thomas Jefferson to James Smith, 1822
+	My configuration is a Tyan i7210 with SII3114 SATA RAID Chipset and the
+two HD are both  Seage SATA 120Go.
+
+
+Thx in advance for support,
+Regards,

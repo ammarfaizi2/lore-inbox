@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271421AbRIVOkB>; Sat, 22 Sep 2001 10:40:01 -0400
+	id <S271333AbRIVPNA>; Sat, 22 Sep 2001 11:13:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271333AbRIVOjv>; Sat, 22 Sep 2001 10:39:51 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:59914 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S271329AbRIVOjc>; Sat, 22 Sep 2001 10:39:32 -0400
-Date: Sat, 22 Sep 2001 15:39:50 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spurious interrupt with ac kernel but not with vanilla 2.4.9
-Message-ID: <20010922153950.A48207@compsoc.man.ac.uk>
-In-Reply-To: <Pine.LNX.4.33.0109211905530.31425-100000@Expansa.sns.it> <E15kU6U-0000cK-00@the-village.bc.nu>
+	id <S271486AbRIVPMt>; Sat, 22 Sep 2001 11:12:49 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:54802 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S271333AbRIVPMj>;
+	Sat, 22 Sep 2001 11:12:39 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Crutcher Dunnavant <crutcher@datastacks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Whats in the wings for 2.5 (when it opens) 
+In-Reply-To: Your message of "Sat, 22 Sep 2001 10:31:00 -0400."
+             <20010922103100.C9352@mueller.datastacks.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15kU6U-0000cK-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+Date: Sun, 23 Sep 2001 00:44:53 +1000
+Message-ID: <28866.1001169893@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 21, 2001 at 06:28:42PM +0100, Alan Cox wrote:
+On Sat, 22 Sep 2001 10:31:00 -0400, 
+Crutcher Dunnavant <crutcher@datastacks.com> wrote:
+>++ 22/09/01 12:59 +1000 - Keith Owens:
+>> Post kbuild 2.5 I will be writing a generic parameter/command line
+>> interface so you can insmod foo bar=99 or boot with foo.bar=99.  You
+>> will even be able to boot with foo.bar=99 when foo is a module, insmod
+>> will use the command line as a default set of values.
+>
+>Well, that certainly is clean. How deep does it go?
 
-> > yes, i was using a non SMP kernel with both apic and io_apic support
-> > enabled.
-> 
-> Ok.
-> Oh your configuration options should have worked. Its more a case of working
-> out now why the didnt. Knowing that it is uniprocessor apic triggered is a
-> help there
+One level, flat.  Module names must be unique, -DKBUILD_OBJECT runs off
+module names.
 
-I have been getting these spurious interrupt messages for a long time now with
-the UP_APIC option enabled. Using interrupt-heavy things like catting logs on a vesafb
-console are a pretty reliable way to trigger it.
-
-This is on a bog-standard UP box with no IO-APIC.
-
-It doesn't seem to affect stability at all.
-
-regards
-john
-
-p.s. what's going on with the config options ? linus pre12 seems to get rid of the
-APIC fake zero page thing and enable the local APIC on UP properly, but the config options
-don't seem to have changed like in the ac tree
-
--- 
-"If you're not part of the problem, you're part of the problem space." 

@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbTIZMqF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 08:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTIZMqF
+	id S261829AbTIZMkw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 08:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTIZMkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 08:46:05 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:61609 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S261780AbTIZMqD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 08:46:03 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: mru@users.sourceforge.net (Mons Rullgord)
-Date: Fri, 26 Sep 2003 14:45:42 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: vmware in Linux 2.6
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <14D30F86678@vcnet.vc.cvut.cz>
+	Fri, 26 Sep 2003 08:40:52 -0400
+Received: from c180121.adsl.hansenet.de ([213.39.180.121]:56996 "EHLO
+	sfhq.hn.org") by vger.kernel.org with ESMTP id S261829AbTIZMkv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 08:40:51 -0400
+Date: Fri, 26 Sep 2003 14:34:52 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: yoh@onerussian.com, linux-kernel@vger.kernel.org
+Subject: Re: [yoh@onerussian.com: Re: USB problem. 'irq 9: nobody cared!']
+Message-ID: <20030926123452.GA8452@ppp0.net>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>, yoh@onerussian.com,
+	linux-kernel@vger.kernel.org
+References: <20030926033306.GA27234@washoe.rutgers.edu> <20030925204841.4c6812ec.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030925204841.4c6812ec.rddunlap@osdl.org>
+I-love-doing-this: really
+X-Modeline: vim:set ts=8 sw=4 smarttab tw=72 si noic notitle:
+X-Operating-System: Linux/2.4.22aa1 (i686)
+X-Uptime: 13:56:02 up 24 days,  3:53, 12 users,  load average: 0.15, 0.11, 0.09
+Accept-Languages: de, en, fr
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Sep 03 at 12:50, Mons Rullgord wrote:
-> "Petr Vandrovec" <VANDROVE@vc.cvut.cz> writes:
+Randy.Dunlap <rddunlap@osdl.org> wrote on 2003-09-25 20:48:41
+> On Thu, 25 Sep 2003 23:33:06 -0400 Yaroslav Halchenko <yoh@onerussian.com> wrote:
 > 
-> >> Is it possible to use vmware with Linux 2.6?  The kernel modules
-> >> (obviously) fail to compile.
-> >
-> > Do you know Google?... And best for such type of questions are newsgroups
-> > at news.vmware.com, especially one named vmware.for-linux.experimental.
+> | Sorry guys - probably I'm tired now not yesterday - that time I booted
+> | in old good test4-bk3 (I didn't run lilo before boot).
+> | 
+> | In recent test5-bk12 with that patch I still get the same problem
+> | irq 9: nobody cared!
+ 
+> I don't know the entire history here.
+> Have you posted the full call trace instead of one that was cut short
+> (as the one above is)?
 > 
-> I already tried google.  It only turned up a solution that involved
-> editing something in the vmnet module.  In my case, the vmmon module
-> failed rather miserably, and I couldn't find anything about that.
+See
 
-Failed rather miserably == no 'prev' member in linuxState.misc? Then
-it is fixed in vmware-any-any-update40... 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=106431078301884&w=2
 
-And except that this patch makes thing compilable, it also makes driver 
-a bit friendlier to the MM subsystem, it allows you to use VMware on 
-4G/4G host, and it properly handles bridged networking on adapters using 
-hardware (or pseudohardware...) Tx checksumming (although only for IPv4 
-due to features of dev_queue_xmit_nit).
-                                                Petr Vandrovec
-                                                
+Also note the strange /proc/interrupts count on irq 9.
+Yaroslav, are you seeing this also?
 
+Thanks,
+
+  Jan
+
+--
+Jan Dittmer - jdittmer@ppp0.net

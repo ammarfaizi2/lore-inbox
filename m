@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314281AbSDRRYU>; Thu, 18 Apr 2002 13:24:20 -0400
+	id <S314347AbSDRRfg>; Thu, 18 Apr 2002 13:35:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314347AbSDRRYT>; Thu, 18 Apr 2002 13:24:19 -0400
-Received: from florin.dsl.visi.com ([209.98.146.184]:28237 "EHLO
-	bird.iucha.org") by vger.kernel.org with ESMTP id <S314281AbSDRRYT>;
-	Thu, 18 Apr 2002 13:24:19 -0400
-Date: Thu, 18 Apr 2002 12:24:19 -0500
-To: "Kerl, John" <John.Kerl@Avnet.com>
-Cc: "'Lars Marowsky-Bree'" <lmb@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Versioning File Systems?
-Message-ID: <20020418172419.GA433@iucha.net>
-Mail-Followup-To: "Kerl, John" <John.Kerl@Avnet.com>,
-	'Lars Marowsky-Bree' <lmb@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <C08678384BE7D311B4D70004ACA371050B7633CA@amer22.avnet.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-message-flag: Outlook: Where do you want [your files] to go today?
-From: florin@iucha.net (Florin Iucha)
+	id <S314377AbSDRRff>; Thu, 18 Apr 2002 13:35:35 -0400
+Received: from mail.myrio.com ([63.109.146.2]:28145 "HELO mail.myrio.com")
+	by vger.kernel.org with SMTP id <S314347AbSDRRfe> convert rfc822-to-8bit;
+	Thu, 18 Apr 2002 13:35:34 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: VM Related question
+Date: Thu, 18 Apr 2002 10:35:04 -0700
+Message-ID: <A015F722AB845E4B8458CBABDFFE63420FE3D7@mail0.myrio.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: VM Related question
+Thread-Index: AcHmuryv7OX9yNE4Sdy8yebHu2vYyQAQ7m4Q
+From: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
+To: "Tony Clarke" <sam@palamon.ie>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Apr 2002 17:34:19.0279 (UTC) FILETIME=[450FB1F0:01C1E6FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tony Clarke wrote:
 
---sdtB3X0nJg68CQEu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I have noticed with my current kernel that after the system 
+> is idle for 
+> a while, say 10 hours or
+> so, that everything seems to be swapped out to disk. So when 
+> I come in 
+> the next morning
+> it starts swapping everything like crazy in from disk. 
 
-http://www.netcraft.com.au/geoffrey/katie/
+Probably what is happening is that in the middle of the night,
+your distribution runs a cron job like "slocate" or "medusa"
+which scans through your hard drive.  Other distros do security
+checks for world-writable files and many other things...
 
-florin
+This heavy read activity fills up a lot of buffers and causes 
+your apps to be swapped out. 
 
-On Thu, Apr 18, 2002 at 09:51:13AM -0700, Kerl, John wrote:
->=20
-> {SNIP}
-> Is the idea being discussed to open-source
-> something of that nature, and make it into
-> a filesystem?
+Torrey
 
---=20
+thoffman@arnor.net
 
-"If it's not broken, let's fix it till it is."
-
-41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-
---sdtB3X0nJg68CQEu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8vwFDNLPgdTuQ3+QRAvLgAJ9+V3boWfP4vGwwMNeztMk+IWnWiwCeICTC
-rode19imLiSXwWHo8AlUIsw=
-=JwJy
------END PGP SIGNATURE-----
-
---sdtB3X0nJg68CQEu--

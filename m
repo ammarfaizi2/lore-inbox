@@ -1,68 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317031AbSEWWEp>; Thu, 23 May 2002 18:04:45 -0400
+	id <S317032AbSEWWH2>; Thu, 23 May 2002 18:07:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317034AbSEWWEo>; Thu, 23 May 2002 18:04:44 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24583 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317031AbSEWWEm>; Thu, 23 May 2002 18:04:42 -0400
-Date: Thu, 23 May 2002 15:04:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: backport of the free_pgtables tlb fixes to 2.4
-In-Reply-To: <20020523204101.GY21164@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0205231459230.29160-100000@home.transmeta.com>
+	id <S317033AbSEWWH1>; Thu, 23 May 2002 18:07:27 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:3591 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S317032AbSEWWH0>;
+	Thu, 23 May 2002 18:07:26 -0400
+Message-ID: <3CED593D.5070903@evision-ventures.com>
+Date: Thu, 23 May 2002 23:03:57 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@suse.cz>
+CC: Mark Gross <mgross@unix-os.sc.intel.com>,
+        "Vamsi Krishna S." <vamsi_krishna@in.ibm.com>,
+        "Gross, Mark" <mark.gross@intel.com>, linux-kernel@vger.kernel.org,
+        r1vamsi@in.ibm.com
+Subject: Re: PATCH Multithreaded core dumps for the 2.5.17 kernel  was ....RE:
+    PATCH Multithreaded core dump support for the 2.5.14 (and 15) kernel.
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C057B489B@orsmsx111.jf.intel.com> <200205220748.g4M7mc2157646@northrelay01.pok.ibm.com> <20020522141747.G37@toy.ucw.cz> <200205222043.g4MKhsw06808@unix-os.sc.intel.com> <20020522192202.D229@toy.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> swsusp definitely is usable on SMP system. Take server with not-hotpluggable
+> pci andpci card you want to add. How do you add it with minimum impact on
+> users?
+> 
+> suspend/add card/resume
+> 									Pavel
+> PS: I did not yet test swsusp on SMP, through. But I'd like it to work.
 
-
-On Thu, 23 May 2002, Andrea Arcangeli wrote:
->
-> If the userspace tlb lookup is started during munmap the tlb can contain
-> garabge before invalidate_tlb.
-
-No.
-
-If we wait until after the TLB fill to actually free the page tables
-pages, there is _no_ way the TLB can contain garbage, because the page
-directories will never have had garbage in it while any TLB lookup could
-be active.
-
-Which is the whole _point_ of the patches.
-
-> What I don't understand is how the BTB can invoke random userspace tlb
-> fills when we are running do_munmap, there's no point at all in doing
-> that. If the cpu see a read of an user address after invalidate_tlb,
-> the tlb must not be started because it's before an invalidate_tlb.
-
-Take a course in CPU design if you want to understand why a CPU front-end
-might speculatively start accessing something before the back-end has
-actually told it what the "something" actually is.
-
-But don't argue with the patch.
-
-> And if it's true not even irq are barriers for the tlb fills invoked by
-> this p4-BTB thing
-
-It has nothing to do with the BTB - the BTB is just a source of
-speculative addresses to start looking at.
-
-But yes, Intel tells me that the only thing that is guaranteed to
-serialize a TLB lookup is a TLB invalidate. NOTHING else.
-
->	so if leave_mm is really necessary, then 2.5 is as
-> well wrong in UP, because the pagetable can be scribbled by irqs in a UP
-> machine, and so the fastmode must go away even in 1 cpu systems.
-
-Yes. Except I will make the 2.5.x code use the pmd quicklists instead
-(both fast and slow mode), since that actually ends up being "nicer" from
-a cross-architecture standpoint (right now the i386 careful mode depends
-on the fact that page directories are regular pages - which is not true on
-other CPU's).
-
-		Linus
+And BOFH type system admins can use it to never ever make changes to the
+systems configuration by duplicating them in boot scripts...
+route add ... and ifconfig eth0 come first to my mind :-).
 

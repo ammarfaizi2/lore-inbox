@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292372AbSBYWip>; Mon, 25 Feb 2002 17:38:45 -0500
+	id <S292373AbSBYWli>; Mon, 25 Feb 2002 17:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292363AbSBYWha>; Mon, 25 Feb 2002 17:37:30 -0500
-Received: from web21303.mail.yahoo.com ([216.136.129.192]:7297 "HELO
-	web21303.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292370AbSBYWgB>; Mon, 25 Feb 2002 17:36:01 -0500
-Message-ID: <20020225223600.88950.qmail@web21303.mail.yahoo.com>
-Date: Mon, 25 Feb 2002 14:36:00 -0800 (PST)
-From: Christine Ames <clgisotti@yahoo.com>
-Subject: RE: [PATCH] block_dev.c: fsync() on close() considered harmful
-To: post linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S292368AbSBYWkW>; Mon, 25 Feb 2002 17:40:22 -0500
+Received: from zero.tech9.net ([209.61.188.187]:23558 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292370AbSBYWjn>;
+	Mon, 25 Feb 2002 17:39:43 -0500
+Subject: Re: Linux 2.4.18 - the missing patch issue
+From: Robert Love <rml@tech9.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Jesper Juhl <jju@dif.dk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020225223415.GA4393@matchmail.com>
+In-Reply-To: <3C7AB9D5.9080906@dif.dk>  <20020225223415.GA4393@matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 25 Feb 2002 17:39:45 -0500
+Message-Id: <1014676785.846.1318.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig [hch@caldera.de] wrote:
-> Hi Alan,
+On Mon, 2002-02-25 at 17:34, Mike Fedyk wrote:
+
+> Does anyone know how long this bug has been in the kernel?
+
+For a very short time -- it was introduced around pre6.
+
+> If it's an old bug, 2.4.19-pre1 already has the fix, just like rc4 did...
 > 
-> I don't see any standard specifying that fsync should be done on
-> every blockdevice close.
-> 
-> Any chance you could add the below patch to the next -ac release?
-> 
-> 	Christoph
+> This *one* bug isn't big enough to hurry, IMO.
 
-I am writing a partitionable block device driver for the 2.4 kernel.
-Once the driver is loaded and the device mounted, reading, writing,
-and ioctls work properly.
+Agreed.
 
-The driver becomes unstable after many mounts/unmounts, and I have
-come to suspect that I am not calling fsync_dev() correctly.
+	Robert Love
 
-I do call fsync_dev() on release as well as on remove.
-Is this incorrect?  Can it lead to instability?  I've counted four
-different ways in which the driver dies, including a call to 
-BUG() in buffer.c...
-
-Thank you,
-
-Christine
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - Coverage of the 2002 Olympic Games
-http://sports.yahoo.com

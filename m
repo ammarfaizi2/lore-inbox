@@ -1,90 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263853AbTICRei (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 13:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263829AbTICRdN
+	id S264136AbTICRp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 13:45:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264172AbTICRp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 13:33:13 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:22770 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264146AbTICRcr
+	Wed, 3 Sep 2003 13:45:28 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:37646 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264136AbTICRpV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 13:32:47 -0400
-Message-ID: <3F5625BC.3C347696@mvista.com>
-Date: Wed, 03 Sep 2003 11:32:44 -0600
-From: Michael Pruznick <michael_pruznick@mvista.com>
-Reply-To: michael_pruznick@mvista.com
-Organization: MontaVista
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Wed, 3 Sep 2003 13:45:21 -0400
 To: linux-kernel@vger.kernel.org
-Subject: PATCH:2.4:2.6:compile hermes.h fails with outw_p() in :?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Date: 3 Sep 2003 17:36:41 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bj58r9$85p$1@gatekeeper.tmr.com>
+References: <20030901082911.GA1638@mail.jlokier.co.uk> <20030901020203.1779efe8.davem@redhat.com>
+X-Trace: gatekeeper.tmr.com 1062610601 8377 192.168.12.62 (3 Sep 2003 17:36:41 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-build errors:
-  hermes.h: In function `hermes_set_irqmask':
-  hermes.h:337: parse error before "do"
-  hermes.h:337: parse error before ';' token
-  hermes.h: In function `hermes_write_words':
+In article <20030901020203.1779efe8.davem@redhat.com>,
+David S. Miller <davem@redhat.com> wrote:
 
-In mips, outw_p() is a #define do...while(0) which, in the
-case of ?:, results in a statement being used where an
-expression is required. 
+| > This is my strategy:
+| > 
+| > 	mmap MAP_ANON without MAP_FIXED to find a free area
+| > 	mmap MAP_FIXED over the anon area at same address
+| > 	mmap MAP_FIXED over the anon area at larger address
+| > 
+| > I don't see any strategy that lets me establish this kind of circular
+| > mapping on Sparc without either (a) knowing the value of SHMLBA, or
+| > (b) risking clobbering another thread's mmap.
+| 
+| Why do you need the same piece of data mapped to multiple places
+| in the first place, and why at specific addresses?  It's purely an
+| optimization of some sort, right?
 
-Here are my proposed (identical) patches for 2.4 and 2.6.
+I think he said he was doing DSP... there's a trick of double mapping
+the same memory to save one subscript calculation in FFT (or maybe DFT)
+inner loop. The only reason I know this is that a friend did a master's
+thesis on DSP about 20 years ago, and I absorbed some info I hope to
+never need. He also coded an FFT instruction in the LCS (programmable
+firmware) of a VAX.
 
-
-
---- linux-2.4.23-pre2/drivers/net/wireless/hermes.h     Mon Aug 25 05:44:42 2003
-+++ linux-2.4.23-pre2.hermes/drivers/net/wireless/hermes.h      Wed Sep  3 11:05:05 2003
-@@ -302,12 +302,14 @@
- #define hermes_read_reg(hw, off) ((hw)->io_space ? \
-        inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
-        readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
--#define hermes_write_reg(hw, off, val) ((hw)->io_space ? \
--       outw_p((val), (hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
--       writew((val), (hw)->iobase + ( (off) << (hw)->reg_spacing )))
--
--#define hermes_read_regn(hw, name) (hermes_read_reg((hw), HERMES_##name))
--#define hermes_write_regn(hw, name, val) (hermes_write_reg((hw), HERMES_##name, (val)))
-+#define hermes_write_reg(hw, off, val) do { \
-+       if ( (hw)->io_space ) \
-+               outw_p((val), (hw)->iobase + ( (off) << (hw)->reg_spacing )); \
-+       else \
-+               writew((val), (hw)->iobase + ( (off) << (hw)->reg_spacing )); \
-+       } while (0)
-+#define hermes_read_regn(hw, name) hermes_read_reg((hw), HERMES_##name)
-+#define hermes_write_regn(hw, name, val) hermes_write_reg((hw), HERMES_##name, (val))
- 
- /* Function prototypes */
- void hermes_struct_init(hermes_t *hw, ulong address, int io_space, int reg_spacing);
-
-
-
-
---- linux-2.6.00-test4/drivers/net/wireless/hermes.h    Fri Aug 22 17:51:39 2003
-+++ linux-2.6.00-test4.hermes/drivers/net/wireless/hermes.h     Wed Sep  3 11:05:09 2003
-@@ -302,12 +302,14 @@
- #define hermes_read_reg(hw, off) ((hw)->io_space ? \
-        inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
-        readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
--#define hermes_write_reg(hw, off, val) ((hw)->io_space ? \
--       outw_p((val), (hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
--       writew((val), (hw)->iobase + ( (off) << (hw)->reg_spacing )))
--
--#define hermes_read_regn(hw, name) (hermes_read_reg((hw), HERMES_##name))
--#define hermes_write_regn(hw, name, val) (hermes_write_reg((hw), HERMES_##name, (val)))
-+#define hermes_write_reg(hw, off, val) do { \
-+       if ( (hw)->io_space ) \
-+               outw_p((val), (hw)->iobase + ( (off) << (hw)->reg_spacing )); \
-+       else \
-+               writew((val), (hw)->iobase + ( (off) << (hw)->reg_spacing )); \
-+       } while (0)
-+#define hermes_read_regn(hw, name) hermes_read_reg((hw), HERMES_##name)
-+#define hermes_write_regn(hw, name, val) hermes_write_reg((hw), HERMES_##name, (val))
- 
- /* Function prototypes */
- void hermes_struct_init(hermes_t *hw, ulong address, int io_space, int reg_spacing);
+I am only speculating, of course.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

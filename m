@@ -1,51 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267657AbRGPSqn>; Mon, 16 Jul 2001 14:46:43 -0400
+	id <S267669AbRGPTAr>; Mon, 16 Jul 2001 15:00:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267654AbRGPSqQ>; Mon, 16 Jul 2001 14:46:16 -0400
-Received: from mail.kdt.de ([195.8.224.4]:27146 "EHLO mail.kdt.de")
-	by vger.kernel.org with ESMTP id <S267657AbRGPSoz>;
-	Mon, 16 Jul 2001 14:44:55 -0400
-Mail-Copies-To: never
-To: Rolf Fokkens <FokkensR@vertis.nl>
-Cc: "'drepper@cygnus.com'" <drepper@cygnus.com>,
-        "'alan@lxorguk.ukuu.org.uk'" <alan@lxorguk.ukuu.org.uk>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: /proc/sys/kernel/hz
-In-Reply-To: <938F7F15145BD311AECE00508B7152DB034C48DB@vts007.vertis.nl>
-From: Andreas Jaeger <aj@suse.de>
-Date: Mon, 16 Jul 2001 20:34:23 +0200
-In-Reply-To: <938F7F15145BD311AECE00508B7152DB034C48DB@vts007.vertis.nl>
- (Rolf Fokkens's message of "Mon, 16 Jul 2001 20:00:19 +0200")
-Message-ID: <u8snfwoh8w.fsf@gromit.moeb>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Academic Rigor)
+	id <S267670AbRGPTAh>; Mon, 16 Jul 2001 15:00:37 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:3846 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S267669AbRGPTAT>;
+	Mon, 16 Jul 2001 15:00:19 -0400
+Date: Mon, 16 Jul 2001 16:00:16 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Kanoj Sarcar <kanojsarcar@yahoo.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>, Dirk Wetter <dirkw@rentec.com>,
+        Mike Galbraith <mikeg@wen-online.de>, <linux-mm@kvack.org>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [PATCH] Separate global/perzone inactive/free shortage 
+In-Reply-To: <20010716155126.37887.qmail@web14306.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.33L.0107161553090.5738-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rolf Fokkens <FokkensR@vertis.nl> writes:
+On Mon, 16 Jul 2001, Kanoj Sarcar wrote:
 
-> Ulrich Drepper <drepper@redhat.com> writes:
-> 
->>> Some software (like procps) needs the HZ constant in the kernel. It's
->>> sometimes determined by counting jiffies during a second. The attached
-> patch
->>> just "publishes" the HZ constant in /proc/sys/kernel/hz.
->>
->>And what is wrong with
->>  getconf CLK_TCK
->>or programmatically
->>  hz = sysconf (_SC_CLK_TCK);
-> 
-> In short: it doesn't work: it reads 100 while I changed it to 1024 in my
-> kernel.
+> Just a quick note. A per-zone page reclamation
+> method like this was what I had advocated and sent
+> patches to Linus for in the 2.3.43 time frame or so.
+> I think later performance work ripped out that work.
 
-Then your kernel is broken, check AT_CLKTCK,
+Yes, the system ended up swapping as soon as the first zone
+was filled up and after that would fill up the other zones;
+the way the system stabilised was cycling through the pages
+of one zone and leaving the lower zones alone.
 
-Andreas
--- 
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
+This reduced the amount of available VM of a 1GB system
+to 128MB, which is somewhat suboptimal ;)
+
+What we learned from that is that we need to have some
+way to auto-balance the reclaiming, keeping the objective
+of evicting the least used page from RAM in mind.
+
+> I guess the problem is that a lot of the different
+> page reclamation schemes first of all do not know
+> how to reclaim pages for a specific zone,
+
+> try_to_swap_out is a good example, which can be solved
+> by rmaps.
+
+Indeed. Most of the time things go right, but the current
+system cannot cope at all when things go wrong. I think we
+really want things like rmaps and more sturdy reclaiming
+mechanisms to cope with these worst cases (and also to make
+the common case easier to get right).
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

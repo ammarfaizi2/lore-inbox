@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261757AbSJAPkS>; Tue, 1 Oct 2002 11:40:18 -0400
+	id <S261955AbSJAP77>; Tue, 1 Oct 2002 11:59:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261791AbSJAPkS>; Tue, 1 Oct 2002 11:40:18 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:49540 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261757AbSJAPkR>;
-	Tue, 1 Oct 2002 11:40:17 -0400
-Date: Tue, 1 Oct 2002 16:48:08 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: venom@sns.it
-Cc: Alexander Viro <viro@math.psu.edu>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-Message-ID: <20021001154808.GD126@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>, venom@sns.it,
-	Alexander Viro <viro@math.psu.edu>,
-	Joe Thornber <joe@fib011235813.fsnet.co.uk>,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu> <Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it>
-Mime-Version: 1.0
+	id <S261698AbSJAP76>; Tue, 1 Oct 2002 11:59:58 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:5851 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262128AbSJAP7x>; Tue, 1 Oct 2002 11:59:53 -0400
+X-Face: >Q)4Pn.JVfRz{G(G_eIkykbZGG\)2mk8:5a"{^Mk07iC#F.t2L7h<Sa|7Zr1_L8[nbiq:8F
+ %o\(7>|]{*cFg$GEPDdun~+UTjG(^4z<_Ksw%L-\w0xDmUR~<zsnGH]&sK=M\Y=;U4XZ"z)[CX6I6d
+ _p
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Jochen Friedrich <jochen@scram.de>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.3.39 LLC on Alpha broken?
+References: <Pine.LNX.4.44.0209301000260.1068-100000@alpha.bocc.de>
+	<Pine.SGI.4.44.0209302302160.1085-100000@seray.bocc.de>
+	<20021001184627.B3726@jurassic.park.msu.ru>
+From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Date: 01 Oct 2002 18:05:15 +0200
+In-Reply-To: <20021001184627.B3726@jurassic.park.msu.ru>
+Message-ID: <87heg6ta9w.fsf@student.uni-tuebingen.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (broccoli)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 04:52:44PM +0200, venom@sns.it wrote:
- > A Logical Volume Manager is needed on Unix servers, and so it is needed
- > also on Linux.
- > If this LVM is obsoleted, then when will LVM2 be merged?
- > really we cannot have a 2.6 or 3.0 tree without a Volume Manager, it would
- > be a big fault.
+Ivan Kokshaysky <ink@jurassic.park.msu.ru> writes:
 
-No-one suggested 2.6.0 shipping without /something/, but having a dead
-LVM1 in _2.5_ doesn't help anyone. We've gone 6 months with it being in
-a broken/uncompilable state, going another month without it isn't a big
-deal. Getting something in before halloween is however a goal the
-Sistina folks should be aiming for.
+> On Mon, Sep 30, 2002 at 11:04:17PM +0200, Jochen Friedrich wrote:
+> >  - After shutting down the Alpha with a "reboot" command, the last message
+> > on the console was "Rebooting...". After that... nothing. Not even a
+> > power-off - power-on helped, anymore. I just get 4 beeps from my Alpha
+> > now, indicating an invalid firmware checksum... So 2.5.39 seems to be an
+> > alpha2brick release :-(
+> 
+> Strange. It works fine for me on sx164 and nautilus.  I could guess
+> either a) some driver bug that accidentally hit the flash-ROM area
+> or b) just a terrible coincidence.
 
-Consider it patch 1/2 of the device mapper merge 8-)
-
-		Dave
+Hmm, shutting down didn't work on my Nautilus with 2.5.39+Ivan's
+Nautilus patches, either. It did not nuke the firmware, though...
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
+	Falk

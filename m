@@ -1,46 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267209AbTAKNlk>; Sat, 11 Jan 2003 08:41:40 -0500
+	id <S267217AbTAKNpV>; Sat, 11 Jan 2003 08:45:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267218AbTAKNlk>; Sat, 11 Jan 2003 08:41:40 -0500
-Received: from uranus.lan-ks.de ([194.45.71.1]:27409 "EHLO uranus.lan-ks.de")
-	by vger.kernel.org with ESMTP id <S267209AbTAKNlj>;
-	Sat, 11 Jan 2003 08:41:39 -0500
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch][2.5] setup default dma_mask for cardbus devices
-References: <20030110235010$4659@gated-at.bofh.it>
-X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
-X-Message-Flag: This space is intentionally left blank
-X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
-X-Note: sending SPAM is a violation of both german and US law and will
-	at least trigger a complaint at your provider's postmaster.
-X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
-     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
-X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
-X-No-Archive: yes
-From: Jochen Hein <jochen@jochen.org>
-Date: Sat, 11 Jan 2003 14:17:36 +0100
-In-Reply-To: <20030110235010$4659@gated-at.bofh.it> (Zwane Mwaikambo's
- message of "Sat, 11 Jan 2003 00:50:10 +0100")
-Message-ID: <87k7hbsu4v.fsf@jupiter.jochen.org>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267218AbTAKNpV>; Sat, 11 Jan 2003 08:45:21 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:21140
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267217AbTAKNpU>; Sat, 11 Jan 2003 08:45:20 -0500
+Subject: Re: any chance of 2.6.0-test*?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m3iswv27o3.fsf@averell.firstfloor.org>
+References: <20030110165441$1a8a@gated-at.bofh.it>
+	 <20030110165505$38d9@gated-at.bofh.it>
+	 <m3iswv27o3.fsf@averell.firstfloor.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042295999.2517.10.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 11 Jan 2003 14:39:59 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@holomorphy.com> writes:
+On Sat, 2003-01-11 at 12:27, Andi Kleen wrote:
+> Can you quickly summarize what is broken with IDE ?
+> Are just some low level drivers broken or are there some generic
+> nasty problems.
+> 
+> If it is just some broken low level drivers I guess they can 
+> be marked dangerous or CONFIG_EXPERIMENTAL.
 
-> Devices hanging off a cardbus bridge don't get a default dma mask which
-> causes problems later when doing pci_alloc_consistent. Patch has been
-> tested with tulip based ethernet.
+Low level drivers are basically sorted.
 
-A kernel patched with this patch and the one from bugzilla #134 works
-for me.  Your patch is already in -bk, thanks.
+The main problems are
+  - Incorrect locking all over the place
+  - Incorrect timings on some phases
+  - Some ioctls can cause crashes due to locking
+  - ISAPnP IDE doesn't work right now
+  - Flaws in error recovery paths in certain situations
+  - Lots of random oopses on boot/remove that were apparently
+    introduced by the kobject/sysfs people and need chasing
+    down. (There are some non sysfs ones mostly fixed)
+  - ide-scsi needs some cleanup to fix switchover ide-cd/scsi
+    (We can't dump ide-scsi)
+  - Unregister path has races which cause all the long
+    standing problems with pcmcia and prevents pci unreg
+  - PCI IDE driver registration needs busy checks
+  - PCI layer needs some stuff from 2.4
+  - PCI layer in 2.4/2.5 needs an IRQ bug fixing
+  - ACPI doesn't seem to handle compatibility IRQ mode
+  - We don't handle a few errata (MWDMA on 450NX for example)
+  - IDE raid hasn't been ported to 2.5 at all yet
 
-Jochen
+Thats off the top of my head right now.
 
--- 
-#include <~/.signature>: permission denied
+> How does it differ from the code that was just merged into 2.4.21pre3
+> (has the later all the problems fixed?)
+
+No, although some don't show up in the same ways in 2.4 - eg the pcmcia
+unload race is rare in 2.4 for other reasons. Endianism should all
+be cured in 2.4, and I sent that to Linus. The PCI i/o assignment code
+in 2.4 is done. I hope to have some of the locking and also the timing
+path work Ross Biro has done in for 2.4.22 proper
+
+> > broken and nobody has even started fixing it. Just try a mass of parallel
+> > tty/pty activity . It was problematic before, pre-empt has taken it  to dead, 
+> > defunct and buried. 
+> 
+> Can someone shortly describe what is the main problem with TTY?
+> 
+> >From what I can see the high level tty code mostly takes lock_kernel
+> before doing anything.
+
+Which works really well with all the IRQ paths on it
+
+> On reads access to file->private_data is not serialized, but it at 
+> least shouldn't go away because VFS takes care of struct file
+> reference counting.
+
+The refcounting bugs are/were in the ldisc stuff. I thought the
+bluetooth folks (Max and co) fixed that one
+
+If we can lock_kernel the tty layer for now (I'm bothered about
+the ldisc end of tht which is IRQ context) then great, tty scaling
+is suddenelly a 2.7 problem.
+

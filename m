@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311506AbSCNFKy>; Thu, 14 Mar 2002 00:10:54 -0500
+	id <S311509AbSCNFXR>; Thu, 14 Mar 2002 00:23:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311507AbSCNFKo>; Thu, 14 Mar 2002 00:10:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18191 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311506AbSCNFK2>;
-	Thu, 14 Mar 2002 00:10:28 -0500
-Message-ID: <3C9030B8.1010300@mandrakesoft.com>
-Date: Thu, 14 Mar 2002 00:10:16 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
+	id <S311519AbSCNFXH>; Thu, 14 Mar 2002 00:23:07 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:53514
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S311509AbSCNFW4>; Thu, 14 Mar 2002 00:22:56 -0500
+Date: Wed, 13 Mar 2002 21:21:28 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.5.6: ide driver broken in PIO mode
+In-Reply-To: <E16lHNF-0007eO-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10203132108100.21396-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: gone@us.ibm.com
-CC: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [RFC] discontigmem support for ia32 NUMA box in 2.4.18
-In-Reply-To: <200203140427.g2E4RPq23092@w-gaughen.des.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patricia Gaughen wrote:
+On Wed, 13 Mar 2002, Alan Cox wrote:
 
->This patch depends on the patch I sent last week (Subject: [RFC]
->modularization of i386 setup_arch and mem_init in 2.4.18 -
->http://marc.theaimsgroup.com/?l=linux-kernel&m=101562204614563&w=2) to
->lkml.  It is available for download at
->http://lse.sf.net/numa/discontig/memalloc-setup-2.4.18
->
+> > b) The block layer needs to be extended so the driver can walk
+> >    all the request's segments prior to signalling completion
+> >    against any of them.
+> 
+> This would be good - batching blocks by peeking down the queue is good
+> for raid cards which tend to want stripe sized chunks
+> 
 
-Your "prep" patch for discontigmem seems pretty sane... but it's also a 
-[relatively] big patch involving a pretty key piece of code.
+Thank you Alan for the kind words.
 
-I wonder if you could split the memalloc-setup patch into multiple 
-steps, eventually arriving at your goal?
+Would you agree having the ablity to mark various BIOS' in process but not
+retrun them back to the upper layers until the device driver can be
+positive of a successful transfer?
 
-IMO it would be better to split up the memalloc-setup patch, apply it to 
-2.5.x initially...
+The suggestion I put forward over many nights with the brillant Suparna,
+was to create an in process marker on the a BIO handed to the driver.
+She had enough guts to try out the idea but there still was a piece
+missing.  We determined the needed part is an second path the do the
+update delays and another function to clear any hold on the BIO for
+release back to the top layers.
 
-(sorry, no comments on your actual discontigmem patch :))
+This has been my request from the beginning of BIO but not in the exact
+words.  BIO does not address the granularity of the the hardware segment.
+It does address all DMA transfers, but then again there are no partial
+completions for the most part.  DMA speed is vastly quicker than PIO and
+it is not possible to do partial updates in any sane way.
 
-    Jeff
+So what I am gathering from Alan is other hardware would benefit from this
+feature/requirement.  Maybe now something will move forward.
 
+Cheers,
 
-
+Andre
 

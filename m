@@ -1,75 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbTHWNMr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 09:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264230AbTHWNMr
+	id S265395AbTHWNXv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 09:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265451AbTHWNXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 09:12:47 -0400
-Received: from modemcable009.53-202-24.mtl.mc.videotron.ca ([24.202.53.9]:31360
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263975AbTHWNMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 09:12:37 -0400
-Date: Sat, 23 Aug 2003 07:41:03 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andrew Morton <akpm@osdl.org>
-cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz
-Subject: Re: [PATCH 2.6] 2/3 Serio: possible race in handle_events
-In-Reply-To: <20030823003447.24aa1efc.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.53.0308230739290.15935@montezuma.fsmlabs.com>
-References: <200308230131.45474.dtor_core@ameritech.net>
- <200308230206.25142.dtor_core@ameritech.net> <20030823001922.487f83f5.akpm@osdl.org>
- <200308230225.10308.dtor_core@ameritech.net> <20030823003447.24aa1efc.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 23 Aug 2003 09:23:50 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:27147 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S265395AbTHWNXj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 09:23:39 -0400
+Subject: Re: [PATCH 2.6.0-test4][NET] sk_mca.c: fix linker error
+From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+To: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+Cc: netdev@oss.sgi.com, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1061644938.2787.22.camel@lima.royalchallenge.com>
+References: <1061644938.2787.22.camel@lima.royalchallenge.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 23 Aug 2003 19:15:15 +0530
+Message-Id: <1061646315.1141.26.camel@lima.royalchallenge.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Aug 2003, Andrew Morton wrote:
-
-> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> >
-> > Do you think we should introduce allocate_serio/free_serio pair for dynamically 
-> >  allocated serios; free_serio would scan event_list and invalidate events that 
-> >  refer to freed serio?
+On Sat, 2003-08-23 at 18:52, Vinay K Nallamothu wrote:
+> Hi,
 > 
-> I don't understand the subsystem well enough to say.  But if we are
-> receiving events which refer to an already-freed serio then something is
-> very broken.  We should be draining all those events before allowing the
-> original object to be freed up.
+> This patch fixes the following linker error due to a typo:
 > 
-> Let's wait for Vojtech's comments.
+> *** Warning: "spin_lock_irqrestore" [drivers/net/sk_mca.ko] undefined!
+Oops. missed out few more. Here is the updated patch.
 
-This sounds somewhat like;
+--- linux-2.6.0-test4/drivers/net/sk_mca.c	2003-07-28 10:43:57.000000000 +0530
++++ linux-2.6.0-test4-nvk/drivers/net/sk_mca.c	2003-08-23 19:12:16.000000000 +0530
+@@ -280,7 +280,7 @@
+ 
+ 	/* reenable interrupts */
+ 
+-	spin_lock_irqrestore(&priv->lock, flags);
++	spin_unlock_irqrestore(&priv->lock, flags);
+ }
+ 
+ /* get LANCE register */
+@@ -319,7 +319,7 @@
+ 
+ 	/* reenable interrupts */
+ 
+-	spin_lock_irqrestore(&priv->lock, flags);
++	spin_unlock_irqrestore(&priv->lock, flags);
+ 
+ 	return res;
+ }
+@@ -993,7 +993,7 @@
+ 	if (priv->txbusy == 0)
+ 		SetLANCE(dev, LANCE_CSR0, CSR0_INEA | CSR0_TDMD);
+ 
+-	spin_lock_irqrestore(&priv->lock, flags);
++	spin_unlock_irqrestore(&priv->lock, flags);
+ 
+       tx_done:
+ 
 
-http://bugzilla.kernel.org/show_bug.cgi?id=973
-
-Jul 25 04:54:24 lap kernel: slab error in cache_free_debugcheck(): cache 
-`size-32': double free, or memory before object was overwritten
-Jul 25 04:54:24 lap kernel: Call Trace:
-Jul 25 04:54:24 lap kernel:  [<c014f130>] kfree+0xf0/0x310
-Jul 25 04:54:24 lap kernel:  [<c02540fc>] psmouse_disconnect+0x2c/0x40
-Jul 25 04:54:24 lap kernel:  [<c02540fc>] psmouse_disconnect+0x2c/0x40
-Jul 25 04:54:24 lap kernel:  [<c025560d>] serio_handle_events+0xad/0xc0
-Jul 25 04:54:24 lap kernel:  [<c0255620>] serio_thread+0x0/0x100
-Jul 25 04:54:24 lap kernel:  [<c0255665>] serio_thread+0x45/0x100
-Jul 25 04:54:24 lap kernel:  [<c010a126>] work_resched+0x5/0x16
-Jul 25 04:54:24 lap kernel:  [<c0255620>] serio_thread+0x0/0x100
-Jul 25 04:54:24 lap kernel:  [<c0255620>] serio_thread+0x0/0x100
-Jul 25 04:54:24 lap kernel:  [<c01073b9>] kernel_thread_helper+0x5/0xc
-Jul 25 04:54:24 lap kernel:
-Jul 25 04:54:24 lap kernel: slab error in cache_free_debugcheck(): cache 
-`size-32': double free, or memory after  object was overwritten
-
-Jul 25 04:54:24 lap kernel: Call Trace:
-Jul 25 04:54:24 lap kernel:  [<c014f15e>] kfree+0x11e/0x310
-Jul 25 04:54:24 lap kernel:  [<c02540fc>] psmouse_disconnect+0x2c/0x40
-Jul 25 04:54:24 lap kernel:  [<c02540fc>] psmouse_disconnect+0x2c/0x40
-Jul 25 04:54:24 lap kernel:  [<c025560d>] serio_handle_events+0xad/0xc0
-Jul 25 04:54:24 lap kernel:  [<c0255620>] serio_thread+0x0/0x100
-Jul 25 04:54:24 lap kernel:  [<c0255665>] serio_thread+0x45/0x100
-Jul 25 04:54:24 lap kernel:  [<c010a126>] work_resched+0x5/0x16
-Jul 25 04:54:24 lap kernel:  [<c0255620>] serio_thread+0x0/0x100
-Jul 25 04:54:24 lap kernel:  [<c0255620>] serio_thread+0x0/0x100
-Jul 25 04:54:24 lap kernel:  [<c01073b9>] kernel_thread_helper+0x5/0xc
-Jul 25 04:54:24 lap kernel:

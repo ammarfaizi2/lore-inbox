@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263025AbTGARGr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 13:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTGARGe
+	id S263023AbTGAREj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 13:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbTGAREj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 13:06:34 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:55450 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263103AbTGARFO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 13:05:14 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 1 Jul 2003 10:11:41 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Diego Zuccato <diego@otello.alma.unibo.it>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SIS IO-APIC troubles
-In-Reply-To: <3F014378.6D3F598C@otello.alma.unibo.it>
-Message-ID: <Pine.LNX.4.55.0307011009540.4730@bigblue.dev.mcafeelabs.com>
-References: <3F014378.6D3F598C@otello.alma.unibo.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Jul 2003 13:04:39 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:37613 "EHLO
+	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
+	id S262955AbTGAREh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 13:04:37 -0400
+Date: Tue, 1 Jul 2003 19:18:58 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: chaffee@cs.berkeley.edu, urban@teststation.com
+Subject: [bug?] How to stuff 21 bits in __u16
+Message-ID: <20030701171858.GB9668@vagabond>
+Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, chaffee@cs.berkeley.edu,
+	urban@teststation.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jul 2003, Diego Zuccato wrote:
+Hello All,
 
-> Hello.
->
-> I'm trying to install Linux on an Acer Aspire 1700. To be able to boot,
-> I've had to use "noapic" parameter. But, then, many peripherals won't
-> work (like USB2) or they'll be sluggish (like nic that reaches about
-> 80KB/s in a direct 100Mbps link).
-> I've put all the info I could gather at
-> http://otello.alma.unibo.it/~diego/Aspire1700/ .
-> Since it's not my machine, but a friend lets me experiment with it, it's
-> better if I have a list of tests to try.
+I have a question to definition from nls.h (both 2.4.21 and 2.5.56):
 
-You have a SiS650 chipset and this will help the IRQ routing :
+The utf-8 decoding stuff seems to handle all characters up to
+0x7fff_ffff. But then it supposes to store them in wchar_t and it is
+defined as __u16. To me it seems like a bug (which should moreover be
+trivial to fix with something like:)
 
-http://www.xmailserver.org/linux-patches/misc.html#SiSRt
+--- linux-2.4.21/include/linux/nls.h.orig	2003-06-30 10:12:37.000000000 +0200
++++ linux-2.4.21/include/linux/nls.h	2003-07-01 19:07:17.000000000 +0200
+@@ -4,7 +4,7 @@
+ #include <linux/init.h>
+ 
+ /* unicode character */
+-typedef __u16 wchar_t;
++typedef __u32 wchar_t;
+ 
+ struct nls_table {
+ 	char *charset;
 
-
-
-- Davide
-
+-------------------------------------------------------------------------------
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>

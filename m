@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289789AbSBNFnf>; Thu, 14 Feb 2002 00:43:35 -0500
+	id <S289762AbSBNFrP>; Thu, 14 Feb 2002 00:47:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289775AbSBNFnQ>; Thu, 14 Feb 2002 00:43:16 -0500
-Received: from defiant.secureone.com.au ([203.55.158.195]:65190 "EHLO
-	defiant.secureone.com.au") by vger.kernel.org with ESMTP
-	id <S289762AbSBNFnF>; Thu, 14 Feb 2002 00:43:05 -0500
-Posted-Date: Thu, 14 Feb 2002 15:43:34 +1000
-X-URL: SecureONE SecureSentry - http://www.secureone.com.au/
-Message-ID: <046e01c1b51b$01a50160$0f01000a@brisbane.hatfields.com.au>
-Reply-To: "Andrew Hatfield" <lkml@secureone.com.au>
-From: "Andrew Hatfield" <lkml@secureone.com.au>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1013662709.6671.16.camel@ohdarn.net>
-Subject: Re: Linux 2.4.18-pre9-mjc2
-Date: Thu, 14 Feb 2002 15:46:53 +1000
-Organization: SecureONE
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S289775AbSBNFrF>; Thu, 14 Feb 2002 00:47:05 -0500
+Received: from angband.namesys.com ([212.16.7.85]:36483 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S289762AbSBNFqz>; Thu, 14 Feb 2002 00:46:55 -0500
+Date: Thu, 14 Feb 2002 08:46:49 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Alex Riesen <fork0@users.sourceforge.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Luigi Genoni <kernel@Expansa.sns.it>
+Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
+Message-ID: <20020214084649.A5605@namesys.com>
+In-Reply-To: <20020213085653.A5957@namesys.com> <Pine.LNX.4.44.0202131206190.19885-100000@Expansa.sns.it> <20020213160851.A894@namesys.com> <20020213210156.A506@steel>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020213210156.A506@steel>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-got this problem when applying 2.4.18-pre8-mjc to 2.4.18-pre8 to 2.4.17 as
-well as newly released 2.4.18-pre8-mjc2
+Hello!
 
-filemap.c: In function `__find_page_nolock':
-filemap.c:404: structure has no member named `next_hash'
+On Wed, Feb 13, 2002 at 09:01:56PM +0100, Alex Riesen wrote:
 
-Not sure if this is related to Rik's rmap patch or Ingo's O(1) Scheduler
-patch (or again, something else entirely)
+> > There was flaky hardware on the other report. And I think Alex Riesen
+> > cannot reproduce zero files anymore.
+> Correct. After applying your patch, indeed.
+> I'm really sorry, i hado no much time to experiment and try
+> again without the patch. Should i try, btw?
+Why do you think I will ask you to to risk your data and run without
+a necessary fix?
+Or course it is not recommended to run kernel without fixes for known bugs
+applied.
 
-your mjc2 patch contains....
-patch-2.4.18-pre9-mjc2:-        struct page *next_hash;         /* Next page
-sharing our hash bucket in
-patch-2.4.18-pre9-mjc2:-        struct page **pprev_hash;       /*
-Complement to *next_hash. */
-
-which modifes linux/include/linux/mm.h
-
-
-if i comment out the line in filemap.c it continues to compile... until
-problems with ip.h (more to come)
-
-  --
-
-  Andrew Hatfield
-  SecureONE - http://www.secureone.com.au/
-  President - South East Brisbane Linux Users Group  http://www.seblug.org/
-
-  Kernel work available at http://development.secureone.com.au/kernel/
-
-
+Bye,
+    Oleg

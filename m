@@ -1,73 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261771AbTCaSS2>; Mon, 31 Mar 2003 13:18:28 -0500
+	id <S261764AbTCaSXq>; Mon, 31 Mar 2003 13:23:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261773AbTCaSS2>; Mon, 31 Mar 2003 13:18:28 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:17613 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S261771AbTCaSS0>; Mon, 31 Mar 2003 13:18:26 -0500
-Message-ID: <3E888913.3090906@tmsusa.com>
-Date: Mon, 31 Mar 2003 10:29:39 -0800
-From: jjs <jjs@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: dean.mcewan@eudoramail.com, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: I compiled the kernel but it doesn't do any thing, its a bit
- like typing "halt".
-References: <CJMOJMHEJLJPPBAA@whowhere.com> <1049132716.600.0.camel@teapot>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261765AbTCaSXq>; Mon, 31 Mar 2003 13:23:46 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:59010
+	"EHLO x30.random") by vger.kernel.org with ESMTP id <S261764AbTCaSXp>;
+	Mon, 31 Mar 2003 13:23:45 -0500
+Date: Mon, 31 Mar 2003 20:35:06 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: 64GB NUMA-Q after pgcl
+Message-ID: <20030331183506.GC11026@x30.random>
+References: <20030328040038.GO1350@holomorphy.com> <20030330231945.GH2318@x30.local> <20030331042729.GQ30140@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030331042729.GQ30140@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-He's saying the 2.5 kernel won't come up
-on his system -
+On Sun, Mar 30, 2003 at 08:27:29PM -0800, William Lee Irwin III wrote:
+> On Mon, Mar 31, 2003 at 01:19:45AM +0200, Andrea Arcangeli wrote:
+> > Didn't you break the linux x86 ABI in mmap? the file offset must be a
+> > multiple of the softpagesize and binary apps can break with -EINVAL with
+> > pgcl. The workaround is to allocate it in anon mem but it's not coherent
+> > if somebody does a change to the binary with MAP_SHARED, so still broken
+> > semantics. In theory we could also have aliasing in the cache, but it
+> > doesn't seem a good idea.
+> 
+> No, that's why it's nontrivial. Otherwise it'd be something like
 
-Dean it'd be good to see your .config and
-probably lspci and lsmod from the box when
-it's running 2.4 - be sure and send those to
-the list when asking such an open ended
-question -
+I didn't expect that, I'm quite impressed now, I will check your
+explanation thanks.
 
-BTW have you compiled a 2.4 kernel, or
-have you been running vendor kernels
-until trying 2.5?
+> On Mon, Mar 31, 2003 at 01:19:45AM +0200, Andrea Arcangeli wrote:
+> > Since you have access to such a machine, can you please try to boot
+> > 2.4.21pre5aa2 on such a machine? That must boot just fine too according
 
-Joe
+could you try 2.4.21pre5aa2 too if you have some time, I'd love to have
+a confirm that it boots strightforward on such a machine (sure the
+normal zone will be pretty small, not enough for AIM7 probably but still
+ok for doing a large shmfs allocation and have smp_num_cpus tasks
+attaching in large chunks to work on it) I really expect it to boot, if
+not it must be a silly bug and I'll fix it, because it should definitely
+boot on such x86 64G hardware (despite the normal zone will be so
+small).
 
-Felipe Alfaro Solana wrote:
+About you not caring anymore about the mem_map array size, that still
+matters on the embedded usage, infact rmap on the embedded usage is the
+biggest waste there, normally they don't even have swap so if something
+you should use the rmap provided for truncate, rather than wasting
+memory in the mem_map array.
 
->On Mon, 2003-03-31 at 17:58, Dean McEwan wrote:
->  
->
->>Of course its probably something to do with init,
->>but does anyone know whats going wrong? whats system.map
->>actually for, Im using a vanilla 2.5.54 and MDK9.0.
->>:(
->>Of course im probably opening my self up to lines like
->>"thick twat wouldn't know a devel kernel if he was electrocuted from pissing on the pc that held one.."
->>
->>Now i know why I preferred 2.4, I could get it working.
->>:)
->>    
->>
->
->I don't understand a thing of what you're saying...
->
->________________________________________________________________________
->        Felipe Alfaro Solana
->   Linux Registered User #287198
->http://counter.li.org
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
-
+Andrea

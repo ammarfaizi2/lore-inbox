@@ -1,181 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264103AbTFIAwB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 20:52:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbTFIAwB
+	id S264134AbTFIA6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 20:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264135AbTFIA6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 20:52:01 -0400
-Received: from pcp01184054pcs.strl301.mi.comcast.net ([68.60.186.73]:42959
-	"EHLO michonline.com") by vger.kernel.org with ESMTP
-	id S264103AbTFIAv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 20:51:58 -0400
-Date: Sun, 8 Jun 2003 21:11:28 -0400
-From: Ryan Anderson <ryan@michonline.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
-Subject: [PATCH][SPARSE] Runtime detection of gcc include paths
-Message-ID: <20030609011128.GI20872@michonline.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org,
-	kernel-janitor-discuss@lists.sourceforge.net
+	Sun, 8 Jun 2003 20:58:24 -0400
+Received: from codepoet.org ([166.70.99.138]:39382 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S264134AbTFIA6N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 20:58:13 -0400
+Date: Sun, 8 Jun 2003 19:11:53 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Paul Jakma <paul@clubi.ie>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linksys WRT54G and the GPL
+Message-ID: <20030609011153.GA11362@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Paul Jakma <paul@clubi.ie>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030608233546.GA11064@codepoet.org> <Pine.LNX.4.44.0306090105320.15572-100000@fogarty.jakma.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.44.0306090105320.15572-100000@fogarty.jakma.org>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update pre-process.c to do runtime detection of gcc's internal include
-paths.
+On Mon Jun 09, 2003 at 01:09:45AM +0100, Paul Jakma wrote:
+> On Sun, 8 Jun 2003, Erik Andersen wrote:
+> 
+> > BTW, this is what I did to open up the Linksys rom...
+> 
+> interesting.. what do you make of:
+> 
+> 	http://download.qlogic.com/sf/10215/fullimage_1.5.1.04.zip
+> 
+> which is the firmware that runs on QLogic SANBox2 2Gbit fibre-channel
+> switches (Cyrix MediaGX iirc). Looking at strings it includes
+> software such as glib (LGPL), Linux and GRUB.
+> 
+> QLogic did not answer my request for source to the (L)GPL 
+> parts of the firmware when i asked them.
 
-This uses the same method as previously was used, it just performs the
-lookup at runtime.
+gzip magic at 0x4110 for a compressed 1.7 MB, i386, 
+2.4.18-xfs linux kernel
 
-I do not believe this will work for cross-compiles, though, I believe
-the fix will be fairly trivial.  (Given that I don't cross-compile, I'm
-not quite sure what the exact mechanisms to do so are.)
+x86 boot sector with GRUB at 0xE3ACB6
 
-This should set things up to be able to provide packaged versions.  My
-next patch will (probably) be everything necessary to build a Debian
-package.
+gzip magic at 0xFA0E4 for file named "image" that contains 
+a compressed 24 MB ext2 filesystem
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: TSCT - The Silly C Tokenizer
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.355   -> 1.356  
-#	            Makefile	1.23    -> 1.24   
-#	       pre-process.c	1.65    -> 1.67   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/06/08	ryan@mythryan2.(none)	1.356
-# Rework the way gcc internal includes are found to be done entirely at run-time.
-# --------------------------------------------
-#
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	Sun Jun  8 21:04:32 2003
-+++ b/Makefile	Sun Jun  8 21:04:32 2003
-@@ -32,7 +32,7 @@
- expression.o: $(LIB_H)
- lib.o: $(LIB_H)
- parse.o: $(LIB_H)
--pre-process.o: $(LIB_H) pre-process.h
-+pre-process.o: $(LIB_H) 
- scope.o: $(LIB_H)
- show-parse.o: $(LIB_H)
- symbol.o: $(LIB_H)
-@@ -40,8 +40,6 @@
- test-parsing.o: $(LIB_H)
- tokenize.o: $(LIB_H)
- 
--pre-process.h:
--	echo "#define GCC_INTERNAL_INCLUDE \"`$(CC) -print-file-name=include`\"" > pre-process.h
- 
- clean:
--	rm -f *.[oasi] core core.[0-9]* $(PROGRAMS) pre-process.h
-+	rm -f *.[oasi] core core.[0-9]* $(PROGRAMS)
-diff -Nru a/pre-process.c b/pre-process.c
---- a/pre-process.c	Sun Jun  8 21:04:32 2003
-+++ b/pre-process.c	Sun Jun  8 21:04:32 2003
-@@ -18,7 +18,6 @@
- #include <fcntl.h>
- #include <limits.h>
- 
--#include "pre-process.h"
- #include "lib.h"
- #include "parse.h"
- #include "token.h"
-@@ -45,8 +44,7 @@
- 	NULL,
- };
- 
--const char *gcc_includepath[] = {
--	GCC_INTERNAL_INCLUDE,
-+const char *gcc_includepath[INCLUDEPATHS+1] = {
- 	NULL
- };
- 
-@@ -531,6 +529,68 @@
- 	}
- 	return 0;
- }
-+
-+static int init_gcc_include_path()
-+{
-+	char cc[128];
-+	char cmd[256];
-+	char *s;
-+	char buffer[128];;
-+	FILE *p;
-+
-+	s = getenv("CC");
-+	if (s) {
-+		strncpy(cc,s,127);
-+		cc[127]='\0';
-+
-+	} else {
-+		strcpy(cc,"gcc");
-+	}
-+
-+	snprintf(cmd,256,"%s --print-file-name=include",cc);
-+
-+	p = popen(cmd,"r");
-+	if (!p) {
-+		perror("ERROR: failed to find gcc-include-path");
-+		return 0;
-+	}
-+
-+	/* The format of each line is simply "pathname\n".
-+	 * So we simply need to strip the last character off the
-+	 * line before storing it.
-+	 */
-+
-+	int includes = 0;
-+	do {
-+		s = fgets(buffer,127,p);
-+		if (s) {
-+			buffer[strlen(buffer)-1] = '\0';
-+			gcc_includepath[includes] = strdup(buffer); 
-+			includes++;
-+		}
-+
-+	} while (includes < INCLUDEPATHS - 1 && !feof(p));
-+
-+	gcc_includepath[includes] = NULL;
-+
-+	pclose(p);
-+
-+	return 1;
-+
-+
-+}
-+
-+
-+static int do_gcc_include_path(struct token *head, struct token *token, const char *filename, int flen)
-+{
-+	static int initialized = 0;
-+	if (!initialized) {
-+		if (!init_gcc_include_path())
-+			return 0;
-+		initialized = 1;
-+	}
-+	return do_include_path(gcc_includepath,head,token,filename,flen);
-+}
- 	
- 
- static void do_include(int local, struct stream *stream, struct token *head, struct token *token, const char *filename)
-@@ -556,7 +616,7 @@
- 		return;
- 	if (do_include_path(sys_includepath, head, token, filename, flen))
- 		return;
--	if (do_include_path(gcc_includepath, head, token, filename, flen))
-+	if (do_gcc_include_path(head,token,filename,flen))
- 		return;
- 
- 	error(token->pos, "unable to open '%s'", filename);
+gzip magic at 0x80D278 for a compressed 1.7 MB, i386,
+2.4.18-xfs linux kernel (apparently a backup)
 
--- 
+gzip magic at 0x90324Ci for a file name "fl_image" that
+also contains a compressed 24 MB ext2 filesystem
 
-Ryan Anderson
-  sometimes Pug Majere
+A quick look through their filesystem shows plenty of GPL'd
+stuff.  Mostly looks lika RedHat ripoff, with a bunch of
+apparently proprietary junk under /itasca,
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

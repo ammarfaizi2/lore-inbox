@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262866AbVCWIVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVCWIXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262866AbVCWIVk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 03:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbVCWIVk
+	id S262869AbVCWIXD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 03:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbVCWIXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 03:21:40 -0500
-Received: from main.gmane.org ([80.91.229.2]:61911 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262866AbVCWIVg (ORCPT
+	Wed, 23 Mar 2005 03:23:03 -0500
+Received: from main.gmane.org ([80.91.229.2]:8664 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262869AbVCWIWq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 03:21:36 -0500
+	Wed, 23 Mar 2005 03:22:46 -0500
 X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
 From: Giuseppe Bilotta <bilotta78@hotpop.com>
 Subject: Re: dmesg verbosity [was Re: AGP bogosities]
-Date: Wed, 23 Mar 2005 09:21:22 +0100
-Message-ID: <MPG.1cab456fb7b20f93989718@news.gmane.org>
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz> <20050314083717.GA19337@elf.ucw.cz> <200503140855.18446.jbarnes@engr.sgi.com> <20050314191230.3eb09c37.diegocg@gmail.com> <1110827273.14842.3.camel@mindpipe> <20050323013729.0f5cd319.diegocg@gmail.com> <1111539217.4691.57.camel@mindpipe> <20050323011313.GL15879@redhat.com>
+Date: Wed, 23 Mar 2005 09:19:11 +0100
+Message-ID: <MPG.1cab44ebc4a058a3989717@news.gmane.org>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz> <20050314083717.GA19337@elf.ucw.cz> <200503140855.18446.jbarnes@engr.sgi.com> <20050314191230.3eb09c37.diegocg@gmail.com> <1110827273.14842.3.camel@mindpipe> <20050323013729.0f5cd319.diegocg@gmail.com> <1111539217.4691.57.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
@@ -29,14 +29,28 @@ X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> Some of the folks on our desktop team have been doing a bunch of experiments
-> at getting boot times down, including laying out the blocks in a more
-> optimal manner, allowing /sbin/readahead to slurp the data off the disk
-> in one big chunk, and run almost entirely from cache.
+Lee Revell wrote:
+> Yup, many people on this list seem unaware but read the XP white papers,
+> then try booting it side by side with Linux.  They put some serious,
+> serious engineering into that problem and came out with a big win.
+> Screw Longhorn, we need improve by 50% to catch up to what they can do
+> NOW.
+> 
+> The solution is fairly well known.  Rather than treating the zillions of
+> disk seeks during the boot process as random unconnected events, you
+> analyze the I/O done during the boot process, then lay out those disk
+> blocks optimally based on this information so on the next boot you just
+> do one big streaming read.  The patent side has been discussed and there
+> seems to be plenty of prior art.
+> 
+> Someone needs to just do it.  All the required information is right
+> there.
 
-What are the cons of using "all of" the RAM at boot time to 
-cache the boot disk?
+Hm. My previous WinXP box (this same machine, different hard 
+disk) was VERY fast in booting WinXP, out of the box. After two 
+years of usage, installations, uninstallations and whatnot it 
+had become slow as molasses. The Linux installation on the SAME 
+machine was not affected.
 
 -- 
 Giuseppe "Oblomov" Bilotta

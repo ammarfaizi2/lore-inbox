@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262773AbSJCHZh>; Thu, 3 Oct 2002 03:25:37 -0400
+	id <S262772AbSJCHZ2>; Thu, 3 Oct 2002 03:25:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262775AbSJCHZh>; Thu, 3 Oct 2002 03:25:37 -0400
-Received: from nl-ams-slo-l4-02-pip-6.chellonetwork.com ([213.46.243.24]:13853
-	"EHLO amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S262773AbSJCHZf>; Thu, 3 Oct 2002 03:25:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jos Hulzink <josh@stack.nl>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       Eriksson Stig <stig.eriksson@sweco.se>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: aic7xxx problems?
-Date: Thu, 3 Oct 2002 09:31:00 +0200
-X-Mailer: KMail [version 1.3.1]
-References: <E50A0EFD91DBD211B9E40008C75B6CCA01497EDD@ES-STH-012> <20021002225057.TYEL1314.amsfep11-int.chello.nl@there> <4119940000.1033601617@aslan.btc.adaptec.com>
-In-Reply-To: <4119940000.1033601617@aslan.btc.adaptec.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20021003073101.IJMM2173.amsfep13-int.chello.nl@there>
+	id <S262773AbSJCHZ2>; Thu, 3 Oct 2002 03:25:28 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:52491 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262772AbSJCHZ1>;
+	Thu, 3 Oct 2002 03:25:27 -0400
+Date: Thu, 3 Oct 2002 00:28:16 -0700
+From: Greg KH <greg@kroah.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       george anzinger <george@mvista.com>
+Subject: Re: [PATCH] linux-2.5.40_timer-changes_A3 (3/3 - integration)
+Message-ID: <20021003072816.GA18846@kroah.com>
+References: <1033625380.28783.60.camel@cog> <1033625479.28783.63.camel@cog> <1033625554.28783.66.camel@cog> <20021003065900.GB18481@kroah.com> <1033629234.13095.81.camel@cog>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1033629234.13095.81.camel@cog>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 October 2002 01:33, Justin T. Gibbs wrote:
-> > On Wednesday 02 October 2002 19:10, Justin T. Gibbs wrote:
-> >
-> > I guess there is something seriously wrong in the driver then: my SCSI
-> > cdrom  writers have the same problem. Result: lots of bad CDs.
-> >
-> > Jos
->
-> I would have to see the messages to say.
+On Thu, Oct 03, 2002 at 12:13:54AM -0700, john stultz wrote:
+> On Wed, 2002-10-02 at 23:59, Greg KH wrote:
+> > > +/* fwd declarations */
+> > 
+> > These don't have to be forward declarations, do they?
+> > And can they be static?
+> 
+> Ummm. I could just be wrong, but since I'm setting structure elements to
+> equal the functions before they are declared, I need the fwds (unless,
+> of course I put the "struct timer_opts timer_pit" section below all the
+> functions, which is doable).
 
-Unfortunately all 2.5 log files are gone since the improved IDE driver did 
-some non-deterministic sector destruction. I'm compiling 2.5.40 at the 
-moment. I'll try to reproduce the errors.
+That's a bit nicer, that way you don't have to declare it twice, but
+it's not a big deal either way (no style rule here :)
 
-Jos
+> Also, since external functions are going to be calling these functions
+> via the structure's function pointers, I believe they can't be static.
+> Although, maybe they can, as long as the timer_pit value isn't static.
+> I'm not that much of a C guru, so I'm really sure.
 
+No, they can be static, and they should, to keep the namespace a bit
+cleaner.  The pointer itself isn't static, and all references to the
+function goes through it, so the functions do not need to be global.
+
+> > Shouldn't these 3 lines be above the "/* fwd declarations */" line?
+> 
+> They could be, but I'm not sure about the necessity. Is this a coding
+> style sorta' thing, or a C properness sort of thing? Either way is fine,
+> I just don't follow the logic. 
+
+Just a "keep all #includes at the top of the file" type of thing, unless
+it's absolutely necessary.
+
+Hope this helps,
+
+greg k-h

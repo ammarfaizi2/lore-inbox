@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288624AbSAIAKT>; Tue, 8 Jan 2002 19:10:19 -0500
+	id <S288623AbSAIAJ7>; Tue, 8 Jan 2002 19:09:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288627AbSAIAKL>; Tue, 8 Jan 2002 19:10:11 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:36740 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S288624AbSAIAKE>;
-	Tue, 8 Jan 2002 19:10:04 -0500
-Date: Wed, 9 Jan 2002 02:09:47 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: David Weinehall <tao@acc.umu.se>
-Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Announcement] linux-2.0.40-rc1
-Message-ID: <20020109020947.S1914@mea-ext.zmailer.org>
-In-Reply-To: <20020109003424.S5235@khan.acc.umu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020109003424.S5235@khan.acc.umu.se>; from tao@acc.umu.se on Wed, Jan 09, 2002 at 12:34:24AM +0100
+	id <S288624AbSAIAJt>; Tue, 8 Jan 2002 19:09:49 -0500
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:48032 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S288623AbSAIAJd>; Tue, 8 Jan 2002 19:09:33 -0500
+Date: Tue, 8 Jan 2002 19:10:22 -0500 (EST)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
+To: Ricky Beam <jfbeam@bluetronic.net>
+cc: Andre Hedrick <andre@linux-ide.org>,
+        Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: Two hdds on one channel - why so slow?
+In-Reply-To: <Pine.GSO.4.33.0201081855280.28783-100000@sweetums.bluetronic.net>
+Message-ID: <Pine.LNX.4.33.0201081902400.19859-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 12:34:24AM +0100, David Weinehall wrote:
-> o	Fix some missing includes		(me)
-> o	Change array-size from 0 to 1 for	(me)
-> 	two arrays in the symbol-table
-> 	in include/linux/module.h
-....
+> >Please consider picking up a modern drive and see it has a "THREE" (3)
+> >Year warranty period which is about the length of service for a continuous
+> >run device on the MTBF.
+> 
+> 3years is ~27k hours.  The MTBF on modern drives is more like 57years.
+> (500k hours.)  100k hours is 11+ years.  No ide drive ever manufactured
+> will last that long. (Maybe if it's sitting on a shelf for 90% of its life.)
 
-   My comment is about these author attributions, this "(me)" seems
-   to refer to 5-10 people who make different patch collections.
+just say what you mean: IDE condemns your soul to eternal damnation!
 
-   Could you folks consider instead using your own name ?
-   (And allow Linus to be "me", if he so desires.)
-
-> Regards: David Weinehall
->   _                                                                 _
->  // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-
-/Matti Aarnio

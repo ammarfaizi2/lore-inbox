@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQK3XI4>; Thu, 30 Nov 2000 18:08:56 -0500
+	id <S129572AbQK3XRF>; Thu, 30 Nov 2000 18:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129572AbQK3XIg>; Thu, 30 Nov 2000 18:08:36 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:2633 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129257AbQK3XI3>; Thu, 30 Nov 2000 18:08:29 -0500
-Date: Thu, 30 Nov 2000 23:37:42 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Phillip Ezolt <ezolt@perf.zko.dec.com>
-Cc: axp-list@redhat.com, rth@twiddle.net, Jay.Estabrook@compaq.com,
-        linux-kernel@vger.kernel.org, clinux@zk3.dec.com,
-        wcarr@perf.zko.dec.com
-Subject: Re: Alpha SCSI error on 2.4.0-test11
-Message-ID: <20001130233742.A21823@athlon.random>
-In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru> <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com>
+	id <S130144AbQK3XQz>; Thu, 30 Nov 2000 18:16:55 -0500
+Received: from groupwise.hlyw.com ([207.115.234.141]:59658 "HELO hlyw.com")
+	by vger.kernel.org with SMTP id <S129572AbQK3XQl> convert rfc822-to-8bit;
+	Thu, 30 Nov 2000 18:16:41 -0500
+Message-Id: <sa26679d.082@hlyw.com>
+X-Mailer: Novell GroupWise 5.5.2
+Date: Thu, 30 Nov 2000 14:43:15 -0800
+From: "Richard Pries" <PriesRx@hlyw.com>
+To: <axboe@suse.de>
+Cc: "Glen Gerber" <GlenG.CORP.HLYW@hlyw.com>, <linux-kernel@vger.kernel.org>
+Subject: [Patch] Correct cdrom.h comments.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com>; from ezolt@perf.zko.dec.com on Thu, Nov 30, 2000 at 05:26:58PM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 05:26:58PM -0500, Phillip Ezolt wrote:
-> I'll give test12-pre3 a try and see if it fixes things.
+Jens,
 
-test12-pre2 crashes at boot on my DS20. This patch workaround the problem
-but I would be _very_ surprised if this is the right fix :) It's obviously not
-meant for inclusion.
+The following patch corrects the comments in cdrom.h for CDROMREADRAW, CDROMREADMODE1, and CDROMREADMODE2 that erroneously refer to the cdrom_read structure.  With this patch, they refer to the cdrom_msf structure.
 
---- 2.4.0-test12-pre2-alpha/drivers/pci/setup-res.c.~1~	Tue Nov 28 18:40:29 2000
-+++ 2.4.0-test12-pre2-alpha/drivers/pci/setup-res.c	Wed Nov 29 03:15:45 2000
-@@ -148,8 +148,11 @@
- 			continue;
- 		for (list = head; ; list = list->next) {
- 			unsigned long size = 0;
--			struct resource_list *ln = list->next;
-+			struct resource_list *ln;
+--- /usr/src/linux-2.2.17/include/linux/cdrom.h	Wed Nov 29 10:34:29 2000
++++ /usr/src/linux-2.2.17rap/include/linux/cdrom.h	Thu Nov 30 14:23:32 2000
+@@ -66,9 +66,9 @@
+ #define CDROMSUBCHNL		0x530b /* Read subchannel data 
+                                            (struct cdrom_subchnl) */
+ #define CDROMREADMODE2		0x530c /* Read CDROM mode 2 data (2336 Bytes) 
+-                                           (struct cdrom_read) */
++                                           (struct cdrom_msf) */
+ #define CDROMREADMODE1		0x530d /* Read CDROM mode 1 data (2048 Bytes)
+-                                           (struct cdrom_read) */
++                                           (struct cdrom_msf) */
+ #define CDROMREADAUDIO		0x530e /* (struct cdrom_read_audio) */
+ #define CDROMEJECT_SW		0x530f /* enable(1)/disable(0) auto-ejecting */
+ #define CDROMMULTISESSION	0x5310 /* Obtain the start-of-last-session 
+@@ -82,7 +82,7 @@
+ #define CDROMVOLREAD		0x5313 /* Get the drive's volume setting 
+                                           (struct cdrom_volctrl) */
+ #define CDROMREADRAW		0x5314	/* read data in raw mode (2352 Bytes)
+-                                           (struct cdrom_read) */
++                                           (struct cdrom_msf) */
+ /* 
+  * These ioctls are used only used in aztcd.c and optcd.c
+  */
+@@ -159,7 +159,9 @@
+ 	int			lba;
+ };
  
-+			if (!list)
-+				return;
-+			ln = list->next;
- 			if (ln)
- 				size = ln->res->end - ln->res->start;
- 			if (r->end - r->start > size) {
+-/* This struct is used by the CDROMPLAYMSF ioctl */ 
++/* This struct is used by the CDROMPLAYMSF, CDROMREADRAW, CDROMREADMODE1, 
++ * and CDROMREADMODE2 ioctls.
++ */
+ struct cdrom_msf 
+ {
+ 	__u8	cdmsf_min0;	/* start minute */
+@@ -219,8 +221,7 @@
+ 	union cdrom_addr cdte_addr;
+ 	__u8	cdte_datamode;
+ };
+-
+-/* This struct is used by the CDROMREADMODE1, and CDROMREADMODE2 ioctls */
++ 
+ struct cdrom_read      
+ {
+ 	int	cdread_lba;
 
 
-I prefer to finish the ASN SMP rework before looking into this.
-
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

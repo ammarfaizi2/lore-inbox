@@ -1,38 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271600AbRIOAKN>; Fri, 14 Sep 2001 20:10:13 -0400
+	id <S271614AbRIOALX>; Fri, 14 Sep 2001 20:11:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271598AbRIOAKD>; Fri, 14 Sep 2001 20:10:03 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:9484 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S271597AbRIOAJs>; Fri, 14 Sep 2001 20:09:48 -0400
-Date: Fri, 14 Sep 2001 20:09:54 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2 IDE cd-roms + ide-scsi = 4 scsi cdroms ???
-In-Reply-To: <3BA299D7.55F6C2D6@torque.net>
-Message-ID: <Pine.LNX.4.33.0109142008390.398-100000@terbidium.openservices.net>
+	id <S271613AbRIOALN>; Fri, 14 Sep 2001 20:11:13 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:43424 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S271597AbRIOAKz>; Fri, 14 Sep 2001 20:10:55 -0400
+Date: Sat, 15 Sep 2001 01:12:43 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
+In-Reply-To: <Pine.LNX.4.21.0109141747210.4708-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0109150050060.1151-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Sep 2001, Douglas Gilbert wrote:
+On Fri, 14 Sep 2001, Marcelo Tosatti wrote:
+> 
+> I would prefer to make get_swap_page() not lock the swap lock anymore,
+> making it necessary to its callers to do the locking themselves. So:
+> 
+> try_to_swap_out() {
+> 	swap_device_lock()
+> 	get_swap_page()
+> 	add_to_swap_cache()
+> 	swap_device_unlock()
+> }
+> 
+> read_swap_cache_async() {
+> 	page = alloc_page(page)
+> 	swap_device_lock()
+> 	if(!swap_map[offset]) {
+> 		page_cache_release(page)
+> 		swap_device_unlock()
+> 		return 1;
+> 	}
+> 	alias = __find_page()
+> 	if (!alias) {
+> 		swap_map[offset]++;
+> 		add_to_swap_cache(page)
+> 	}
+> 	swap_device_unlock()
+> 	rw_swap_page(page)
+> }
 
-> Joseph,
-> Try turning off CONFIG_SCSI_MULTI_LUN in your kernel
-> config and recompile your kernel (or modules in your case
-> because lsmod shows all your scsi components are modules).
->
-> This will stop 2 luns being seen for each actual
-> device.
+This does gloss over the distinction between the swap_list_lock()
+and the swap_device_lock(si).  The latter is the more crucial here,
+but difficult to use in this way.  Though if you were to throw it
+away and convert to swap_list_lock() throughout, I wonder if we'd
+lose much (only gain on systems with just one swap area).  But I
+wasn't daring to combine them myself.
 
-So then here's a question:
+> If you don't have that one already done, I can write it as soon as you
+> answer me.
 
-Why does the ide-scsi driver provide 2 LUN's? I can understand in the case of
-changers/jukeboxes, but why for single-disc drives?
+Don't wait on me: I'm not ready with my implementation yet, and
+you think a lot faster than I do.  If you find you can resolve
+the details, go ahead.  Beware shmem_writepage, where the one
+page metamorphoses from being a file page to being a swap page.
+Do you intend to scrap the BKL bracketing now?
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+I hope to resume tomorrow, unless you've sewn it up by then.
+
+Hugh
 

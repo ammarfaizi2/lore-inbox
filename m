@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVAKU7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVAKU71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262691AbVAKU7s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 15:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVAKU7r
+	id S262407AbVAKU71 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 15:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVAKU70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 15:59:47 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:56049 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262691AbVAKU73
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 15:59:29 -0500
-Message-ID: <41E43E26.2060303@mvista.com>
-Date: Tue, 11 Jan 2005 12:59:18 -0800
-From: Steve Longerbeam <stevel@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ray Bryant <raybry@sgi.com>
-CC: Andi Kleen <ak@muc.de>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: page migration patchset
-References: <41DB35B8.1090803@sgi.com> <m1wtusd3y0.fsf@muc.de> <41DB5CE9.6090505@sgi.com> <41DC34EF.7010507@mvista.com> <41E3F2DA.5030900@sgi.com> <41E42268.5090404@mvista.com> <41E4295F.1010909@sgi.com>
-In-Reply-To: <41E4295F.1010909@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Jan 2005 15:59:26 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:19872 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262407AbVAKU7L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 15:59:11 -0500
+Date: Tue, 11 Jan 2005 21:58:09 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Matt Mackall <mpm@selenic.com>, Paul Davis <paul@linuxaudiosystems.com>,
+       "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050111205809.GB21308@elte.hu>
+References: <20050110212019.GG2995@waste.org> <200501111305.j0BD58U2000483@localhost.localdomain> <20050111191701.GT2940@waste.org> <20050111125008.K10567@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050111125008.K10567@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ray Bryant wrote:
 
-> Steve Longerbeam wrote:
->
->
->>
->> isn't this already taken care of? read_swap_cache_async() is given
->> a vma, and passes it to alloc_page_vma(). So if you have earlier
->> changed the policy for that vma, the new policy will be used
->> when allocating the page during the swap in.
->>
->> Steve
->>
->
-> What if the policy associated with a vma is the default policy?
+* Chris Wright <chrisw@osdl.org> wrote:
 
+> > We have not established that at all. In principle, because SCHED_OTHER
+> > tasks running at full priority lie on the boundary between SCHED_OTHER
+> > and SCHED_FIFO, they can be made to run arbitrarily close to the
+> > performance of tasks in SCHED_FIFO. With the upside that they won't be
+> > able to deadlock the machine.
+> 
+> I don't think they lie quite so neatly on this boundary.  There's one
+> fundamental difference which is how the dynamic priority is adjusted
+> which alters the basic preemptibility rules.
 
-then read_swap_cache_async() would probably allocate pages for
-the swap readin from the wrong nodes, but then migrate_process_pages
-would move those to the correct nodes later. But if migrate_process_pages
-is called *before* swap readin, the policies will be changed and
-read_swap_cache_async() would allocate from the correct nodes.
+but at nice level -20 this adjustment is at most +5 priority levels -
+i.e. down to an equivalent of nice -15. Consider that a nice 0 task can
+at most get a -5 priority boost gives a nice -5 task worst-case - so the
+nice -20 task still preempts the lower prio task.
 
-Maybe I'm missing something, but let me rephrase my argument.
-If read_swap_cache_async() is called *before* the vma policies are
-changed, they will most likely be allocated from the wrong nodes but
-will then be migrated to the correct nodes during the
-policy-change-and-page-migrate syscall, and if the swap readin happens
-*after* the syscall, the page allocations will use the new policies.
+so this could work in theory. But practice shows it doesnt work at the
+moment, and nobody has analyzed why, yet.
 
-Steve
+(There are some other differences in scheduling like starvation
+prevention adding potential delays, but those should in theory not
+affect the basic tests that were done so far. There are also some
+differences in timeslice management, but with the huge timeslices that
+nice -20 tasks get this shouldnt be causing problems either. So my
+current thinking is that there's an unknown scheduling effect causing
+latency regression of nice -20 tasks, compared to the latencies of
+RT-prio-1 tasks.)
 
-
-
+	Ingo

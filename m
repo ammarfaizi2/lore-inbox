@@ -1,153 +1,248 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272043AbTHHWRu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 18:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272012AbTHHWQE
+	id S272074AbTHHWYn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 18:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272121AbTHHWYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 18:16:04 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:47108 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S272130AbTHHWPE
+	Fri, 8 Aug 2003 18:24:43 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:59396 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S272074AbTHHWYH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 18:15:04 -0400
-Date: Sat, 9 Aug 2003 00:11:39 +0200
+	Fri, 8 Aug 2003 18:24:07 -0400
+Date: Sat, 9 Aug 2003 00:22:27 +0200
 From: Francois Romieu <romieu@fr.zoreil.com>
 To: chas@locutus.cmf.nrl.navy.mil
 Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: [PATCH 4/8] 2.6.0-test2-bk8 - seq_file conversion of /proc/net/atm (svc)
-Message-ID: <20030809001139.E2699@electric-eye.fr.zoreil.com>
-References: <20030809000303.A2699@electric-eye.fr.zoreil.com> <20030809000633.B2699@electric-eye.fr.zoreil.com> <20030809000841.C2699@electric-eye.fr.zoreil.com> <20030809001013.D2699@electric-eye.fr.zoreil.com>
+Subject: [PATCH 8/8] 2.6.0-test2-bk8 - seq_file conversion of /proc/net/atm (cleanup)
+Message-ID: <20030809002227.I2699@electric-eye.fr.zoreil.com>
+References: <20030809000303.A2699@electric-eye.fr.zoreil.com> <20030809000633.B2699@electric-eye.fr.zoreil.com> <20030809000841.C2699@electric-eye.fr.zoreil.com> <20030809001013.D2699@electric-eye.fr.zoreil.com> <20030809001139.E2699@electric-eye.fr.zoreil.com> <20030809001321.F2699@electric-eye.fr.zoreil.com> <20030809001541.G2699@electric-eye.fr.zoreil.com> <20030809001903.H2699@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030809001013.D2699@electric-eye.fr.zoreil.com>; from romieu@fr.zoreil.com on Sat, Aug 09, 2003 at 12:10:13AM +0200
+In-Reply-To: <20030809001903.H2699@electric-eye.fr.zoreil.com>; from romieu@fr.zoreil.com on Sat, Aug 09, 2003 at 12:19:03AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-seq_file support for /proc/net/atm/svc:
+- introduction of the struct array 'atm_proc_ents':
+  - removal of code duplication in atm_proc_cleanup();
+  - removal of code duplication in atm_proc_init();
+  - removal of the macros CREATE_SEQ_ENTRY() and CREATE_ENTRY();
+- credits at the top of the file.
 
-Same comments as pvc. Just s/p/s/
 
+ net/atm/proc.c |  156 +++++++++++++++++++++------------------------------------
+ 1 files changed, 58 insertions(+), 98 deletions(-)
 
- net/atm/proc.c |   81 ++++++++++++++++++++++++++++++---------------------------
- 1 files changed, 44 insertions(+), 37 deletions(-)
-
-diff -puN net/atm/proc.c~atm-proc-seq-svc-conversion net/atm/proc.c
---- linux-2.6.0-test2-bk8/net/atm/proc.c~atm-proc-seq-svc-conversion	Fri Aug  8 20:29:28 2003
-+++ linux-2.6.0-test2-bk8-fr/net/atm/proc.c	Fri Aug  8 20:29:28 2003
-@@ -323,29 +323,26 @@ static void vc_info(struct atm_vcc *vcc,
- 	    atomic_read(&vcc->sk->sk_rmem_alloc), vcc->sk->sk_rcvbuf);
- }
+diff -puN net/atm/proc.c~atm-proc-seq-post-conversion-removal net/atm/proc.c
+--- linux-2.6.0-test2-bk8/net/atm/proc.c~atm-proc-seq-post-conversion-removal	Fri Aug  8 20:29:33 2003
++++ linux-2.6.0-test2-bk8-fr/net/atm/proc.c	Fri Aug  8 20:29:33 2003
+@@ -1,21 +1,13 @@
+-/* net/atm/proc.c - ATM /proc interface */
+-
+-/* Written 1995-2000 by Werner Almesberger, EPFL LRC/ICA */
+-
+-/*
+- * The mechanism used here isn't designed for speed but rather for convenience
+- * of implementation. We only return one entry per read system call, so we can
+- * be reasonably sure not to overrun the page and race conditions may lead to
+- * the addition or omission of some lines but never to any corruption of a
+- * line's internal structure.
++/* net/atm/proc.c - ATM /proc interface
++ *
++ * Written 1995-2000 by Werner Almesberger, EPFL LRC/ICA
+  *
+- * Making the whole thing slightly more efficient is left as an exercise to the
+- * reader. (Suggestions: wrapper which loops to get several entries per system
+- * call; or make --left slightly more clever to avoid O(n^2) characteristics.)
+- * I find it fast enough on my unloaded 266 MHz Pentium 2 :-)
++ * seq_file api usage by romieu@fr.zoreil.com
++ *
++ * Evaluating the efficiency of the whole thing if left as an exercise to
++ * the reader.
+  */
  
 -
--static void svc_info(struct atm_vcc *vcc,char *buf)
-+static void svc_info(struct seq_file *seq, struct atm_vcc *vcc)
+ #include <linux/config.h>
+ #include <linux/module.h> /* for EXPORT_SYMBOL */
+ #include <linux/string.h>
+@@ -52,19 +44,12 @@
+ 
+ static ssize_t proc_dev_atm_read(struct file *file,char *buf,size_t count,
+     loff_t *pos);
+-static ssize_t proc_spec_atm_read(struct file *file,char *buf,size_t count,
+-    loff_t *pos);
+ 
+ static struct file_operations proc_dev_atm_operations = {
+ 	.owner =	THIS_MODULE,
+ 	.read =		proc_dev_atm_read,
+ };
+ 
+-static struct file_operations proc_spec_atm_operations = {
+-	.owner =	THIS_MODULE,
+-	.read =		proc_spec_atm_read,
+-};
+-
+ static void add_stats(struct seq_file *seq, const char *aal,
+   const struct k_atm_aal_stats *stats)
  {
--	char *here;
--	int i;
--
- 	if (!vcc->dev)
--		sprintf(buf,sizeof(void *) == 4 ? "N/A@%p%10s" : "N/A@%p%2s",
--		    vcc,"");
--	else sprintf(buf,"%3d %3d %5d         ",vcc->dev->number,vcc->vpi,
--		    vcc->vci);
--	here = strchr(buf,0);
--	here += sprintf(here,"%-10s ",vcc_state(vcc));
--	here += sprintf(here,"%s%s",vcc->remote.sas_addr.pub,
-+		seq_printf(seq, sizeof(void *) == 4 ?
-+			   "N/A@%p%10s" : "N/A@%p%2s", vcc, "");
-+	else
-+		seq_printf(seq, "%3d %3d %5d         ",
-+			   vcc->dev->number, vcc->vpi, vcc->vci);
-+	seq_printf(seq, "%-10s ", vcc_state(vcc));
-+	seq_printf(seq, "%s%s", vcc->remote.sas_addr.pub,
- 	    *vcc->remote.sas_addr.pub && *vcc->remote.sas_addr.prv ? "+" : "");
--	if (*vcc->remote.sas_addr.prv)
-+	if (*vcc->remote.sas_addr.prv) {
-+		int i;
-+
- 		for (i = 0; i < ATM_ESA_LEN; i++)
--			here += sprintf(here,"%02x",
--			    vcc->remote.sas_addr.prv[i]);
--	strcat(here,"\n");
-+			seq_printf(seq, "%02x", vcc->remote.sas_addr.prv[i]);
-+	}
-+	seq_putc(seq, '\n');
+@@ -927,33 +912,9 @@ static ssize_t proc_dev_atm_read(struct 
+ 	return length;
  }
  
 -
- #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
- 
- static char*
-@@ -522,31 +519,41 @@ static int atm_vc_info(loff_t pos,char *
- 	return 0;
- }
- 
+-static ssize_t proc_spec_atm_read(struct file *file,char *buf,size_t count,
+-    loff_t *pos)
+-{
+-	unsigned long page;
+-	int length;
+-	int (*info)(loff_t,char *);
+-	info = PDE(file->f_dentry->d_inode)->data;
 -
--static int atm_svc_info(loff_t pos,char *buf)
-+static int atm_svc_seq_show(struct seq_file *seq, void *v)
- {
--	struct hlist_node *node;
--	struct sock *s;
--	struct atm_vcc *vcc;
--	int left;
-+	static char atm_svc_banner[] = 
-+		"Itf VPI VCI           State      Remote\n";
- 
--	if (!pos)
--		return sprintf(buf,"Itf VPI VCI           State      Remote\n");
--	left = pos-1;
--	read_lock(&vcc_sklist_lock);
--	sk_for_each(s, node, &vcc_sklist) {
--		vcc = atm_sk(s);
--		if (vcc->sk->sk_family == PF_ATMSVC && !left--) {
--			svc_info(vcc,buf);
--			read_unlock(&vcc_sklist_lock);
--			return strlen(buf);
--		}
+-	if (count == 0) return 0;
+-	page = get_zeroed_page(GFP_KERNEL);
+-	if (!page) return -ENOMEM;
+-	length = (*info)(*pos,(char *) page);
+-	if (length > count) length = -EINVAL;
+-	if (length >= 0) {
+-		if (copy_to_user(buf,(char *) page,length)) length = -EFAULT;
+-		(*pos)++;
 -	}
--	read_unlock(&vcc_sklist_lock);
-+	if (v == (void *)1)
-+		seq_puts(seq, atm_svc_banner);
-+	else {
-+		struct atm_vc_state *state = seq->private;
-+		struct atm_vcc *vcc = atm_sk(state->sk);
+-	free_page(page);
+-	return length;
+-}
+-
+-
+ struct proc_dir_entry *atm_proc_root;
+ EXPORT_SYMBOL(atm_proc_root);
  
-+		svc_info(seq, vcc);
-+	}
- 	return 0;
+-
+ int atm_proc_dev_register(struct atm_dev *dev)
+ {
+ 	int digits,num;
+@@ -982,72 +943,71 @@ fail1:
+ 	return error;
  }
  
-+static struct seq_operations atm_svc_seq_ops = {
-+	.start	= atm_vc_common_seq_start,
-+	.next	= atm_vc_common_seq_next,
-+	.stop	= atm_vc_common_seq_stop,
-+	.show	= atm_svc_seq_show,
-+};
-+
-+static int atm_svc_seq_open(struct inode *inode, struct file *file)
-+{
-+	return atm_vc_common_seq_open(inode, file, PF_ATMSVC, &atm_svc_seq_ops);
-+}
-+
-+static struct file_operations atm_seq_svc_fops = {
-+	.open		= atm_svc_seq_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= atm_vc_common_seq_release,
-+};
-+
- #if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
- static int atm_arp_info(loff_t pos,char *buf)
+-
+ void atm_proc_dev_deregister(struct atm_dev *dev)
  {
-@@ -792,7 +799,7 @@ int __init atm_proc_init(void)
- 		return -ENOMEM;
- 	CREATE_SEQ_ENTRY(devices);
- 	CREATE_SEQ_ENTRY(pvc);
--	CREATE_ENTRY(svc);
-+	CREATE_SEQ_ENTRY(svc);
- 	CREATE_ENTRY(vc);
- #if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
- 	CREATE_ENTRY(arp);
+ 	remove_proc_entry(dev->proc_name, atm_proc_root);
+ 	kfree(dev->proc_name);
+ }
+ 
+-#define CREATE_SEQ_ENTRY(name) \
+-	do { \
+-		name = create_proc_entry(#name, S_IRUGO, atm_proc_root); \
+-		if (!name) \
+-			goto cleanup; \
+-		name->proc_fops = &atm_seq_##name##_fops; \
+-		name->owner = THIS_MODULE; \
+-	} while (0)
+-
+-#define CREATE_ENTRY(name) \
+-    name = create_proc_entry(#name,0,atm_proc_root); \
+-    if (!name) goto cleanup; \
+-    name->data = atm_##name##_info; \
+-    name->proc_fops = &proc_spec_atm_operations; \
+-    name->owner = THIS_MODULE
+-
+-static struct proc_dir_entry *devices = NULL, *pvc = NULL,
+-		*svc = NULL, *arp = NULL, *lec = NULL, *vc = NULL;
+-
+-static void atm_proc_cleanup(void)
+-{
+-	if (devices)
+-		remove_proc_entry("devices",atm_proc_root);
+-	if (pvc)
+-		remove_proc_entry("pvc",atm_proc_root);
+-	if (svc)
+-		remove_proc_entry("svc",atm_proc_root);
+-	if (arp)
+-		remove_proc_entry("arp",atm_proc_root);
+-	if (lec)
+-		remove_proc_entry("lec",atm_proc_root);
+-	if (vc)
+-		remove_proc_entry("vc",atm_proc_root);
+-	remove_proc_entry("net/atm",NULL);
++static struct atm_proc_entry {
++	char *name;
++	struct file_operations *proc_fops;
++	struct proc_dir_entry *dirent;
++} atm_proc_ents[] = {
++	{ .name = "devices",	.proc_fops = &atm_seq_devices_fops },
++	{ .name = "pvc",	.proc_fops = &atm_seq_pvc_fops },
++	{ .name = "svc",	.proc_fops = &atm_seq_svc_fops },
++	{ .name = "vc",		.proc_fops = &atm_seq_vc_fops },
++#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
++	{ .name = "arp",	.proc_fops = &atm_seq_arp_fops },
++#endif
++#if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
++	{ .name = "lec",	.proc_fops = &atm_seq_lec_fops },
++#endif
++	{ .name = NULL,		.proc_fops = NULL }
++};
++
++static void atm_proc_dirs_remove(void)
++{
++	static struct atm_proc_entry *e;
++
++	for (e = atm_proc_ents; e->name; e++) {
++		if (e->dirent) 
++			remove_proc_entry(e->name, atm_proc_root);
++	}
++	remove_proc_entry("net/atm", NULL);
+ }
+ 
+ int __init atm_proc_init(void)
+ {
++	static struct atm_proc_entry *e;
++	int ret;
++
+ 	atm_proc_root = proc_mkdir("net/atm",NULL);
+ 	if (!atm_proc_root)
+-		return -ENOMEM;
+-	CREATE_SEQ_ENTRY(devices);
+-	CREATE_SEQ_ENTRY(pvc);
+-	CREATE_SEQ_ENTRY(svc);
+-	CREATE_SEQ_ENTRY(vc);
+-#if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
+-	CREATE_SEQ_ENTRY(arp);
+-#endif
+-#if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
+-	CREATE_SEQ_ENTRY(lec);
+-#endif
+-	return 0;
++		goto err_out;
++	for (e = atm_proc_ents; e->name; e++) {
++		struct proc_dir_entry *dirent;
++
++		dirent = create_proc_entry(e->name, S_IRUGO, atm_proc_root);
++		if (!dirent)
++			goto err_out_remove;
++		dirent->proc_fops = e->proc_fops;
++		dirent->owner = THIS_MODULE;
++		e->dirent = dirent;
++	}
++	ret = 0;
++out:
++	return ret;
+ 
+-cleanup:
+-	atm_proc_cleanup();
+-	return -ENOMEM;
++err_out_remove:
++	atm_proc_dirs_remove();
++err_out:
++	ret = -ENOMEM;
++	goto out;
+ }
+ 
+-void atm_proc_exit(void)
++void __exit atm_proc_exit(void)
+ {
+-	atm_proc_cleanup();
++	atm_proc_dirs_remove();
+ }
 
 _

@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbUKQAI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbUKQANv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbUKQAI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 19:08:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUKQAGq
+	id S261912AbUKQANv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 19:13:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbUKQALp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 19:06:46 -0500
-Received: from gizmo10bw.bigpond.com ([144.140.70.20]:32915 "HELO
-	gizmo10bw.bigpond.com") by vger.kernel.org with SMTP
-	id S262135AbUKPXso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 18:48:44 -0500
-Message-ID: <419A91D6.60606@bigpond.net.au>
-Date: Wed, 17 Nov 2004 10:48:38 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
+	Tue, 16 Nov 2004 19:11:45 -0500
+Received: from mail.timesys.com ([65.117.135.102]:17538 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261912AbUKQAJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 19:09:10 -0500
+Message-ID: <419A961A.2070005@timesys.com>
+Date: Tue, 16 Nov 2004 19:06:50 -0500
+From: john cooper <john.cooper@timesys.com>
 User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch, 2.6.10-rc2] sched: fix ->nr_uninterruptible handling
- bugs
-References: <20041116113209.GA1890@elte.hu> <419A7D09.4080001@bigpond.net.au> <20041116232827.GA842@elte.hu>
-In-Reply-To: <20041116232827.GA842@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Florian Schmidt <mista.tapas@gmx.net>
+CC: Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
+       Mark_H_Johnson@raytheon.com, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Stefan Schweizer <sschweizer@gmail.com>,
+       john cooper <john.cooper@timesys.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
+References: <OFE5FC77BB.DA8F1FAE-ON86256F4E.0058C5CF-86256F4E.0058C604@raytheon.com>	<20041116184315.GA5492@elte.hu>	<419A5A53.6050100@cybsft.com>	<20041116212401.GA16845@elte.hu>	<20041116222039.662f41ac@mango.fruits.de>	<20041116223243.43feddf4@mango.fruits.de>	<20041116224257.GB27550@elte.hu>	<20041116230443.452497b9@mango.fruits.de>	<20041116231145.GC31529@elte.hu>	<20041116235535.6867290d@mango.fruits.de> <20041117002926.32a4b26f@mango.fruits.de>
+In-Reply-To: <20041117002926.32a4b26f@mango.fruits.de>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Nov 2004 00:02:47.0156 (UTC) FILETIME=[C52DBB40:01C4CC38]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Peter Williams <pwil3058@bigpond.net.au> wrote:
+Florian Schmidt wrote:
+> On Tue, 16 Nov 2004 23:55:35 +0100
+> Florian Schmidt <mista.tapas@gmx.net> wrote:
 > 
 > 
->>Couldn't this part of the problem have been solved by using an
->>atomic_t for nr_uninterruptible as for nr_iowait?  It would also
->>remove the need for migrate_nr_uninterruptible().
+>>yes, this seems to fix it. no more extra jitter or large latencies on
+>>console switches. 
+>>
+>>Now, on to trying to lock up the machine ;)
+>>
 > 
 > 
-> maybe, but why? Atomic ops are still a tad slower than normal ops and
-> every cycle counts in the wakeup path. Also, the solution is still not
-> correct, because it does not take other migration paths into account, so
+> Arr, it did lock up again. This time i was in X, so i couldn't use any sysrq
+> stuff to see something. Will try tomorrow again..
 
-Oops.
+Was this random or under some particular stress/load?
 
-> we could end up with a sleeping task showing up on another CPU just as
-> well. The most robust solution is to simply not care about migration and
-> to care about the total count only.
 
-Yes and, with the new comment above its declaration, if anybody (in the 
-future) wants to use the per cpu data they will be aware that they need 
-to modify the code if they need it to be always accurate.
-
-Peter
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+john.cooper@timesys.com

@@ -1,91 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbTE0S7t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTE0S7t
+	id S263407AbTE0TAl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 15:00:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTE0TAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 14:59:49 -0400
-Received: from adsl-67-122-203-155.dsl.pltn13.pacbell.net ([67.122.203.155]:6847
-	"EHLO ext.storadinc.com") by vger.kernel.org with ESMTP
-	id S263315AbTE0S7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 14:59:47 -0400
-Message-ID: <3ED3B899.6070804@storadinc.com>
-Date: Tue, 27 May 2003 12:12:25 -0700
-From: manish <manish@storadinc.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-References: <3ED2DE86.2070406@storadinc.com> <20030527182547.GG3767@dualathlon.random> <Pine.LNX.4.55L.0305271530580.2100@freak.distro.conectiva> <200305272039.18330.m.c.p@wolk-project.de> <3ED3B5CA.7050001@storadinc.com> <Pine.LNX.4.55L.0305271601370.2100@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 May 2003 15:00:40 -0400
+Received: from pop.gmx.de ([213.165.64.20]:14783 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263407AbTE0TAh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 15:00:37 -0400
+Date: Tue, 27 May 2003 21:13:46 +0200
+From: Hanno =?ISO-8859-15?Q?B=F6ck?= <hanno@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: laptopkernel-2.4.21-rc4-laptop1 released
+Message-Id: <20030527211346.11bed9c1.hanno@gmx.de>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="_O3+Pog=.7B294Ks"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+--_O3+Pog=.7B294Ks
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
->
->On Tue, 27 May 2003, manish wrote:
->
->>Marc-Christian Petersen wrote:
->>
->>>On Tuesday 27 May 2003 20:33, Marcelo Tosatti wrote:
->>>
->>>Hi Marcelo,
->>>
->>>>It seems your "fix-pausing" patch is fixing a potential wakeup
->>>>miss, right? (I looked quickly throught it). Could you explain me the
->>>>problem its trying to fix and how?
->>>>
->>>Please have also a look here:
->>>
->>>http://hypermail.idiosynkrasia.net/linux-kernel/archived/2002/week45/0305.html
->>>
->>>ciao, Marc
->>>
->>Hello !
->>
->>I applied the fix-pausing-2 patch to the 2.4.20 kernel. This time on,
->>the stack trace:
->>
->>sys_write
->>generic_file_write
->>ext2_get_group_desc
->>bread
->>__wait_on_buffer
->>schedule
->>
->
->Huh? You mean bonnie still deadlocks or ?
->
-At the time the processes get stuck:
+Hello,
+
+I have started a project to create a kernel-patch containing various
+laptop-specific things.
+Especially it contains acpi, software suspend, supermount and some
+hardware compatibility patches.
+
+Our goal is to create a kernel that runs all hardware found in current
+laptops.
+If you have laptop-specific patches you think that should be in
+laptopkernel, contact us or submit them through savannahs patch-tracker.
+
+Full list of patches below, it can be downloaded at
+http://savannah.nongnu.org/projects/laptopkernel/
 
 
-[root@dyn-10-123-130-235 vm]# more /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  3709870080 3699126272 10743808        0 18313216 3531255808
-Swap: 1077501952        0 1077501952
-MemTotal:      3622920 kB
-MemFree:         10492 kB
-MemShared:           0 kB
-Buffers:         17884 kB
-Cached:        3448492 kB
-SwapCached:          0 kB
-Active:          25252 kB
-Inactive:      3445344 kB
-HighTotal:     2752512 kB
-HighFree:         2120 kB
-LowTotal:       870408 kB
-LowFree:          8372 kB
-SwapTotal:     1052248 kB
-SwapFree:      1052248 kB
+laptopkernel-2.4.21-rc4-laptop1 contains the following patches:
 
+Patch: acpi-20030523 (www.sf.net/projects/acpi)
+The ACPI in current kernels is very outdated. Most laptops won't have
+any Powermanagement without the ACPI-Patch and some even won't boot.
 
+Patch: swsusp 19-27 (www.sf.net/projects/swsusp)
+Software Suspend makes hibernation possible in linux, which is a very
+important feature for laptops.
 
+Patch: agpgart from 2.4.21-rc2-ac3 (www.kernel.org)
+Laptops with the Centrino chipset need this for working agpgart, which
+is needed for hardware graphics acceleration (dri).
 
+Patch: drm modules from 2.4.21-rc2-ac3 (www.kernel.org)
+This update is needed for proper working dri in XFree 4.3.
+
+Patch: radeonfb from Benjamin Herrenschmidt (rsync -avz
+rsync.penguinppc.org::benh-devel/) Radeon 9000 won't work with radeonfb
+found in the current kernel.
+
+Patch: bcm440+bcm5700 driver (from Gentoo-Sources)
+Needed for Broadcom Network cards found in many laptops.
+
+Patch: vivicam usb mass storage support (from Lycoris-Kernel)
+Needed for Vivicam 355 (working as USB mass storage).
+
+Patch: supermount-1.2.6 (http://supermount-ng.sf.net)
+Supermount is a useful feature for desktop-pcs.
+
+Patch: Optimization for pentium3/4 (trivial)
+Makes gcc3-optimizations for pentium3/4 possible.
+(Note: pentium4-optimizations should only be used with gcc 3.2.3 and
+above. If you have an older gcc, please use pentium3.) 
+
+--_O3+Pog=.7B294Ks
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+07jur2QksT29OyARAhjLAJ92OO7rJKm+/YEbDG24Elj9RHWhYwCeI60K
+pZGuNjFC+paYaqFYoqaZWTI=
+=daKm
+-----END PGP SIGNATURE-----
+
+--_O3+Pog=.7B294Ks--

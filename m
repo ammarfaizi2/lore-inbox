@@ -1,26 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263289AbSJJHXa>; Thu, 10 Oct 2002 03:23:30 -0400
+	id <S263280AbSJJHbJ>; Thu, 10 Oct 2002 03:31:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263281AbSJJHX3>; Thu, 10 Oct 2002 03:23:29 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:2052 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263289AbSJJHWP>;
-	Thu, 10 Oct 2002 03:22:15 -0400
-Message-Id: <200210100725.JAA00149@bug.ucw.cz>
-From: Pavel Machek <pavel@ucw.cz>
-To: <sfr@canb.auug.org.au>
-Cc: Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>,
-       Jeff Dike <jdike@karaya.com>
-Date: Thu, 10 Oct 2002 09:23:40 +0200
-Subject: Re: [PATCH] make do_signal static on i386
+	id <S263304AbSJJHbI>; Thu, 10 Oct 2002 03:31:08 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:18337 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263280AbSJJHbI>;
+	Thu, 10 Oct 2002 03:31:08 -0400
+Date: Thu, 10 Oct 2002 09:36:31 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: vojtech@suse.cz, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Input - Make i8042.c less picky about AUX ports [1/3]
+Message-ID: <20021010093631.A7994@ucw.cz>
+References: <200210100725.JAA00155@bug.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200210100725.JAA00155@bug.ucw.cz>; from pavel@ucw.cz on Thu, Oct 10, 2002 at 09:23:40AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Oct 10, 2002 at 09:23:40AM +0200, Pavel Machek wrote:
+> > ChangeSet@1.597.3.1, 2002-10-08 17:36:32+02:00, vojtech@suse.cz
+> >   Make i8042.c even less picky about detecting an AUX port because of
+> >   broken chipsets that don't support the LOOP command or report failure
+> >   on the TEST command. Hopefully this won't screw any old 386/486
+> >   systems without the AUX port.
+> 
+> would it make sense to at least printk() on such
+> broken chipsets? 
 
-> I am not sure whether we need the FASTCALL() or whether the change
-> in the comment in asm-um/signal.h makes sense.  (Does UML work on
-> x86_64, yet?)
->
+Maybe. But if we wanted to printk() on every chipset which doesn't
+follow the i8042 spec in some way, we'd keep the logs full ...
 
-I dont think it does... 
+-- 
+Vojtech Pavlik
+SuSE Labs

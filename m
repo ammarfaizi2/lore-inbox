@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268872AbTBZTmD>; Wed, 26 Feb 2003 14:42:03 -0500
+	id <S268869AbTBZTpW>; Wed, 26 Feb 2003 14:45:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268876AbTBZTmD>; Wed, 26 Feb 2003 14:42:03 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:34762 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S268872AbTBZTmC>; Wed, 26 Feb 2003 14:42:02 -0500
-Subject: Re: [2.5.63 PATCH][TRIVIAL]Change rtc.c ioport extend from 10h to 8h
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: root@chaos.analogic.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, p_gortmaker@yahoo.com,
-       lkml <linux-kernel@vger.kernel.org>, rddunlap@osdl.org
-In-Reply-To: <Pine.LNX.3.95.1030226142828.5091A-100000@chaos>
-References: <Pine.LNX.3.95.1030226142828.5091A-100000@chaos>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Feb 2003 11:42:30 -0800
-Message-Id: <1046288552.4450.13.camel@vmhack>
+	id <S268876AbTBZTpW>; Wed, 26 Feb 2003 14:45:22 -0500
+Received: from mail2.linuxis.net ([64.71.140.142]:48583 "HELO
+	moria.linuxis.net") by vger.kernel.org with SMTP id <S268869AbTBZTpU>;
+	Wed, 26 Feb 2003 14:45:20 -0500
+Date: Wed, 26 Feb 2003 11:40:44 -0800
+From: Adam McKenna <adam@flounder.net>
+To: linux-kernel@vger.kernel.org
+Subject: VM problems in 2.4.20
+Message-ID: <20030226194043.GA14293@flounder.net>
+Mail-Followup-To: Adam McKenna <adam@flounder.net>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-26 at 11:35, Richard B. Johnson wrote:
-> On 26 Feb 2003, Rusty Lynch wrote:
-> 
-> > The real time clock only needs 8 bytes, but rtc.c is reserving 10h bytes.
-> [SNIPPED...]
-> 
-> It only needs two bytes port 0x70 and port 0x71 in ix86. Since the Sparc
-> gets addressed differently and can only read/write words, it needs 8
-> bytes.  Please, if you are going to fix it, please fix it only once by
-> setting a different length for the different machines!
-> Cheers,
-> Dick Johnson
+I'm having a VM issue on one of my servers running 2.4.20.
 
-Actually, it's finer grain then x86, it's a chipset issue.  As Randy
-pointed out in the original thread ==>
-> Some Intel chipset specs list RTC as using 0x70 - 0x77, probably with
-> some aliasing in there, so it looks to me like an EXTENT of 8 would be
-> safer and still allow you access to 0x79.
-> 
-> I'm looking at 82801BA-ICH2, 82801-ICH3, and 82801AA-ICH0 specs.
-> 
-> -- 
-> ~Randy
-> 
+The box reports the following:
 
-Any suggestions on the right way of doing this?
+adam@foxy:~$ cat /proc/meminfo 
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  4041986048 3968524288 73461760        0 619249664 1551077376
+Swap: 2001215488 171663360 1829552128
+MemTotal:      3947252 kB
+MemFree:         71740 kB
+MemShared:           0 kB
+Buffers:        604736 kB
+Cached:        1494600 kB
+SwapCached:      20124 kB
+Active:        1632528 kB
+Inactive:      2006628 kB
+HighTotal:     3080176 kB
+HighFree:        67324 kB
+LowTotal:       867076 kB
+LowFree:          4416 kB
+SwapTotal:     1954312 kB
+SwapFree:      1786672 kB
 
-   --rustyl
+As you can see there is plenty of memory sitting in buffers/cache.  The
+problem is that when our daily cronjobs run, the box starts swapping and the
+load goes up to 30.  The cronjobs are just the normal system cronjobs like
+updatedb, checksecurity, etc.
 
+I had this problem a while ago with 2.4.6-xfs and 2.4.14-xfs, but this is 
+stock 2.4.20 and I was under the impression that the VM was relatively OK by
+now.
+
+adam@foxy:~$ grep -i mem /boot/config-2.4.20
+# CONFIG_NOHIGHMEM is not set
+# CONFIG_HIGHMEM4G is not set
+CONFIG_HIGHMEM64G=y
+CONFIG_HIGHMEM=y
+# Memory Technology Devices (MTD)
+# CONFIG_BLK_DEV_UMEM is not set
+# CONFIG_DEBUG_HIGHMEM is not set
+
+Any suggestions?
+
+Thanks,
+
+--Adam

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278962AbRKFKyU>; Tue, 6 Nov 2001 05:54:20 -0500
+	id <S278985AbRKFK6u>; Tue, 6 Nov 2001 05:58:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278968AbRKFKyK>; Tue, 6 Nov 2001 05:54:10 -0500
-Received: from pat.uio.no ([129.240.130.16]:48377 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S278962AbRKFKyF>;
-	Tue, 6 Nov 2001 05:54:05 -0500
+	id <S278968AbRKFK6m>; Tue, 6 Nov 2001 05:58:42 -0500
+Received: from web13106.mail.yahoo.com ([216.136.174.151]:40903 "HELO
+	web13106.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S278961AbRKFK6b>; Tue, 6 Nov 2001 05:58:31 -0500
+Message-ID: <20011106105830.85031.qmail@web13106.mail.yahoo.com>
+Date: Tue, 6 Nov 2001 02:58:30 -0800 (PST)
+From: szonyi calin <caszonyi@yahoo.com>
+Subject: Re: Limited RAM - how to save it?
+To: Matt Bernstein <matt@theBachChoir.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111051259400.28836-100000@nick.dcs.qmul.ac.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15335.49462.641480.482777@charged.uio.no>
-Date: Tue, 6 Nov 2001 11:53:42 +0100
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Bob Smart <smart@hpc.CSIRO.AU>, Pete Wyckoff <pw@osc.edu>,
-        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: Red Hat needs this patch (was Re: handling NFSERR_JUKEBOX)
-In-Reply-To: <Pine.LNX.4.21.0111060709380.9597-100000@freak.distro.conectiva>
-In-Reply-To: <shswv14w9ps.fsf@charged.uio.no>
-	<Pine.LNX.4.21.0111060709380.9597-100000@freak.distro.conectiva>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Marcelo Tosatti <marcelo@conectiva.com.br> writes:
 
-     > Trond,
+--- Matt Bernstein <matt@theBachChoir.org.uk> wrote:
+> You might like to patch an older Linux than 2.2 :)
+> dietlibc might help userspace, too.. (though I don't
+> know if you can link
+> against it)
 
-     > Should'nt we make Linux retry on NFSERR_JUKEBOX _by default_ ?
+Kernel 2.4 is better at speed than 2.2. (and at mm)
 
-Normally we probably should. The thing that worries me is the fact
-that we may be holding the VFS semaphores for long periods of
-time. In particular that will greatly slow down lookups...
-This is the reason why I'd prefer a lot of these things to be done in
-the VFS layer or above.
+> 
+> At 12:52 +0100 Jan-Benedict Glaw wrote:
+> 
+> >I'm working on a 4MB linux system (for a customer)
+> which has quite
+> >limited resources at all:
+> >
+> >	- 4MB RAM
+> >	- 386 or 486 like processor (9..16 BogoMIPS)
+> >	- < 100MB HDD
+> >	- Quite a lot user space running:-(
+> 
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Cheers,
-  Trond
+
+__________________________________________________
+Do You Yahoo!?
+Find a job, post your resume.
+http://careers.yahoo.com

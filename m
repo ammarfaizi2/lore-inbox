@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUD0Wn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264384AbUD0WpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbUD0Wn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 18:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264384AbUD0Wn3
+	id S264384AbUD0WpA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 18:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbUD0WpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 18:43:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63426 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264382AbUD0WnW (ORCPT
+	Tue, 27 Apr 2004 18:45:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3779 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264384AbUD0Wo5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 18:43:22 -0400
-Date: Tue, 27 Apr 2004 15:45:30 -0700
+	Tue, 27 Apr 2004 18:44:57 -0400
+Date: Tue, 27 Apr 2004 15:47:11 -0700
 From: Dave Olien <dmo@osdl.org>
-To: thornber@redhat.com
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] trivial patch to dm-io.c
-Message-ID: <20040427224530.GA16850@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] trivial patch to dm-snap.c
+Message-ID: <20040427224711.GA16883@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,111 +22,59 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Here's trivial patches to dm-io.c.  Just adds static declarations, and adds
-dm_io_sync_bvec() to the list of EXPORT_SYMBOL functions.
+Just added to function declarations to make them static, and fixed up
+an unused function declaration.
 
-
-diff -ur linux-2.6.6-rc2-udm1-original/drivers/md/dm-io.c linux-2.6.6-rc2-udm1-patched/drivers/md/dm-io.c
---- linux-2.6.6-rc2-udm1-original/drivers/md/dm-io.c	2004-04-27 15:36:39.000000000 -0700
-+++ linux-2.6.6-rc2-udm1-patched/drivers/md/dm-io.c	2004-04-27 15:36:04.000000000 -0700
-@@ -369,7 +369,7 @@
+diff -ur linux-2.6.6-rc2-mm1-udm1-original/drivers/md/dm-snap.c linux-2.6.6-rc2-mm1-udm1-patched/drivers/md/dm-snap.c
+--- linux-2.6.6-rc2-mm1-udm1-original/drivers/md/dm-snap.c	2004-04-27 15:10:27.000000000 -0700
++++ linux-2.6.6-rc2-mm1-udm1-patched/drivers/md/dm-snap.c	2004-04-27 14:53:54.000000000 -0700
+@@ -608,9 +608,9 @@
+ 	return NULL;
+ }
+ 
++#if 0
+ static void check_free_space(struct dm_snapshot *s)
+ {
+-#if 0
+ 	sector_t numerator, denominator;
+ 	double n, d;
+ 	unsigned pc;
+@@ -628,8 +628,8 @@
+ 		dm_table_event(s->table);
+ 		s->last_percent = pc - pc % WAKE_UP_PERCENT;
+ 	}
+-#endif
+ }
++#endif
+ 
+ static void pending_complete(struct pending_exception *pe, int success)
+ {
+@@ -667,8 +667,10 @@
+ 		flush_bios(bio_list_get(&pe->snapshot_bios));
+ 		DMDEBUG("Exception completed successfully.");
+ 
++#if 0
+ 		/* Notify any interested parties */
+ 		//check_free_space(s);
++#endif
+ 
+ 	} else {
+ 		/* Read/write error - snapshot is unusable */
+@@ -889,7 +891,7 @@
+ 	return r;
+ }
+ 
+-void snapshot_resume(struct dm_target *ti)
++static void snapshot_resume(struct dm_target *ti)
+ {
+ 	struct dm_snapshot *s = (struct dm_snapshot *) ti->private;
+ 
+@@ -1040,7 +1042,7 @@
  /*
-  * Functions for getting the pages from a list.
+  * Called on a write from the origin driver.
   */
--void list_get_page(struct dpages *dp,
-+static void list_get_page(struct dpages *dp,
- 		  struct page **p, unsigned long *len, unsigned *offset)
+-int do_origin(struct dm_dev *origin, struct bio *bio)
++static int do_origin(struct dm_dev *origin, struct bio *bio)
  {
- 	unsigned o = dp->context_u;
-@@ -380,14 +380,14 @@
- 	*offset = o;
- }
- 
--void list_next_page(struct dpages *dp)
-+static void list_next_page(struct dpages *dp)
- {
- 	struct page_list *pl = (struct page_list *) dp->context_ptr;
- 	dp->context_ptr = pl->next;
- 	dp->context_u = 0;
- }
- 
--void list_dp_init(struct dpages *dp, struct page_list *pl, unsigned offset)
-+static void list_dp_init(struct dpages *dp, struct page_list *pl, unsigned offset)
- {
- 	dp->get_page = list_get_page;
- 	dp->next_page = list_next_page;
-@@ -398,7 +398,7 @@
- /*
-  * Functions for getting the pages from a bvec.
-  */
--void bvec_get_page(struct dpages *dp,
-+static void bvec_get_page(struct dpages *dp,
- 		  struct page **p, unsigned long *len, unsigned *offset)
- {
- 	struct bio_vec *bvec = (struct bio_vec *) dp->context_ptr;
-@@ -407,20 +407,20 @@
- 	*offset = bvec->bv_offset;
- }
- 
--void bvec_next_page(struct dpages *dp)
-+static void bvec_next_page(struct dpages *dp)
- {
- 	struct bio_vec *bvec = (struct bio_vec *) dp->context_ptr;
- 	dp->context_ptr = bvec + 1;
- }
- 
--void bvec_dp_init(struct dpages *dp, struct bio_vec *bvec)
-+static void bvec_dp_init(struct dpages *dp, struct bio_vec *bvec)
- {
- 	dp->get_page = bvec_get_page;
- 	dp->next_page = bvec_next_page;
- 	dp->context_ptr = bvec;
- }
- 
--void vm_get_page(struct dpages *dp,
-+static void vm_get_page(struct dpages *dp,
- 		 struct page **p, unsigned long *len, unsigned *offset)
- {
- 	*p = vmalloc_to_page(dp->context_ptr);
-@@ -428,13 +428,13 @@
- 	*len = PAGE_SIZE - dp->context_u;
- }
- 
--void vm_next_page(struct dpages *dp)
-+static void vm_next_page(struct dpages *dp)
- {
- 	dp->context_ptr += PAGE_SIZE - dp->context_u;
- 	dp->context_u = 0;
- }
- 
--void vm_dp_init(struct dpages *dp, void *data)
-+static void vm_dp_init(struct dpages *dp, void *data)
- {
- 	dp->get_page = vm_get_page;
- 	dp->next_page = vm_next_page;
-@@ -516,7 +516,7 @@
- 	dec_count(io, 0, 0);
- }
- 
--int sync_io(unsigned int num_regions, struct io_region *where,
-+static int sync_io(unsigned int num_regions, struct io_region *where,
- 	    int rw, struct dpages *dp, unsigned long *error_bits)
- {
- 	struct io io;
-@@ -546,7 +546,7 @@
- 	return io.error ? -EIO : 0;
- }
- 
--int async_io(unsigned int num_regions, struct io_region *where, int rw,
-+static int async_io(unsigned int num_regions, struct io_region *where, int rw,
- 	     struct dpages *dp, io_notify_fn fn, void *context)
- {
- 	struct io *io = mempool_alloc(_io_pool, GFP_NOIO);
-@@ -615,6 +615,7 @@
- EXPORT_SYMBOL(dm_io_put);
- EXPORT_SYMBOL(dm_io_sync);
- EXPORT_SYMBOL(dm_io_async);
-+EXPORT_SYMBOL(dm_io_sync_bvec);
- EXPORT_SYMBOL(dm_io_async_bvec);
- EXPORT_SYMBOL(dm_io_sync_vm);
- EXPORT_SYMBOL(dm_io_async_vm);
+ 	struct origin *o;
+ 	int r;

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261691AbTCOXrT>; Sat, 15 Mar 2003 18:47:19 -0500
+	id <S261628AbTCOXp7>; Sat, 15 Mar 2003 18:45:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261692AbTCOXrT>; Sat, 15 Mar 2003 18:47:19 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10204
+	id <S261634AbTCOXp7>; Sat, 15 Mar 2003 18:45:59 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7900
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261691AbTCOXrS>; Sat, 15 Mar 2003 18:47:18 -0500
-Subject: Re: [patch] NUMAQ subarchification
+	id <S261628AbTCOXp6>; Sat, 15 Mar 2003 18:45:58 -0500
+Subject: Re: Any hope for ide-scsi (error handling)?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: colpatch@us.ibm.com, James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <247240000.1047693951@flay>
-References: <1047676332.5409.374.camel@mulgrave>
-	 <3E7284CA.6010907@us.ibm.com> <3E7285E7.8080802@us.ibm.com>
-	 <247240000.1047693951@flay>
+To: dan carpenter <d_carpenter@sbcglobal.net>
+Cc: Zwane Mwaikambo <zwane@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       wrlk@riede.org
+In-Reply-To: <200303152012.h2FKCulK283698@pimout2-ext.prodigy.net>
+References: <Pine.LNX.4.50.0303151343140.9158-100000@montezuma.mastecende.com>
+	 <200303151926.h2FJQLnB103490@pimout1-ext.prodigy.net>
+	 <Pine.LNX.4.50.0303151453010.9158-100000@montezuma.mastecende.com>
+	 <200303152012.h2FKCulK283698@pimout2-ext.prodigy.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1047776836.1327.11.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1047776751.1330.9.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 16 Mar 2003 01:07:17 +0000
+Date: 16 Mar 2003 01:05:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-15 at 02:05, Martin J. Bligh wrote:
-> No, *please* don't do this. Subarch for .c files is *broken*.
-> Last time I looked (and I don't think anyone has fixed it since) 
-> it requires copying files all over the place, making an unmaintainable
-> nightmare. Either subarch needs fixing first, or we don't use it.
+On Sat, 2003-03-15 at 02:52, dan carpenter wrote:
+> > > Here is at least one bad call to schedule() in
+> > > static int idescsi_reset (Scsi_Cmnd *cmd)
+> >
+> > Apart from the schedule with the ide_lock held, what is that code actually
+> > doing?
+> >
+> > 	Zwane
+> 
+> Hm...  Good question.  I have no idea what the while loop is for.
 
-It was fixed in about 2.5.50-ac. I thought Linus had picked up the 
-improved version of mach-default* too. Its used extensively for stuff
-like PC9800 which is deeply un-PC
+See 2.4.21-pre5-ac2 or later. You are discussing obsolete and known
+broken code otherwise. The -ac code is closer to working and has most
+but alas it seems not all the reset stuff fixed. While this works for
+2.4 the 2.5 ide-scsi error handling has been rewritten by someone for
+the scsi changes and so differs from both the 2.4 style scsi error
+handling and reality by some margin. Once the reset code settles down
+in 2.4.21-pre5-ac and 2.5.64-ac I'll take a crack at ide-scsi again.
 

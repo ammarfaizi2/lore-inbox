@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263561AbUAPA2f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 19:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbUAPA2e
+	id S264934AbUAPAni (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 19:43:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUAPAnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 19:28:34 -0500
-Received: from smtp2.fre.skanova.net ([195.67.227.95]:29160 "EHLO
-	smtp2.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S263561AbUAPA0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 19:26:22 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@colin2.muc.de>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, jh@suse.cz,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add noinline attribute
-References: <20040114083114.GA1784@averell>
-	<Pine.LNX.4.58.0401141519260.4500@evo.osdl.org>
-	<20040115074834.GA38796@colin2.muc.de>
-	<Pine.LNX.4.58.0401151448200.2597@evo.osdl.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 16 Jan 2004 01:26:10 +0100
-In-Reply-To: <Pine.LNX.4.58.0401151448200.2597@evo.osdl.org>
-Message-ID: <m2u12wn3h9.fsf@p4.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Thu, 15 Jan 2004 19:43:37 -0500
+Received: from greendale.ukc.ac.uk ([129.12.21.13]:29927 "EHLO
+	greendale.ukc.ac.uk") by vger.kernel.org with ESMTP id S264934AbUAPAng
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 19:43:36 -0500
+To: Wes Janzen <superchkn@sbcglobal.net>
+Cc: David Sanders <linux@sandersweb.net>,
+       Haakon Riiser <haakon.riiser@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: NTFS disk usage on Linux 2.6
+References: <20040115010210.GA570@s.chello.no>
+	<200401151401.1764@sandersweb.net> <40071589.3070409@sbcglobal.net>
+From: Adam Sampson <azz@us-lot.org>
+Organization: Things I did not know at first I learned by doing twice.
+Date: Fri, 16 Jan 2004 00:43:23 +0000
+In-Reply-To: <40071589.3070409@sbcglobal.net> (Wes Janzen's message of "Thu,
+ 15 Jan 2004 16:34:49 -0600")
+Message-ID: <y2a3cagoh90.fsf@cartman.at.fivegeeks.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-UKC-Mail-System: No virus detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Wes Janzen <superchkn@sbcglobal.net> writes:
 
-> On Wed, 15 Jan 2004, Andi Kleen wrote:
-> > 
-> > That's fine for me. In fact I did this some time ago on x86-64 when I 
-> > ran into similar problems. Here's a port of the x86-64 sort function.
-> 
-> Ugh. Can't we just make this be generic code (and that means calling it in
-> the module loading code too..)?
-> 
-> As to bubble sort (which is fine for something that is 99% sorted anyway),
-> isn't it better to continue pushing the entry down when you find something 
-> out of order? That way you don't have to repeat the whole scan, you just 
-> continue with the next entry once the unsorted entry has percolated to its 
-> place (ie keep entries "0..n-1" sorted at all times). That should make the 
-> code cleaner too.
+> I'm having the same issue on 2.6.0, this is with an 8.4G partition.
 
-Yes, that algorithm is called insertion sort and is already
-implemented in the ppc arch.
+A similar problem shows up on 2.6.1 with smbfs, owing to silly block
+counts:
+
+$ ls -l 5glogo.avi 
+-rw-rw-r--    1 1000     500        148640 2002-09-01 13:38 5glogo.avi
+$ du -h 5glogo.avi 
+512M    5glogo.avi
+$ stat 5glogo.avi 
+  File: `5glogo.avi'
+  Size: 148640          Blocks: 1048576    IO Block: 4096   regular file
+...
+
+Reported to the smbfs maintainer a while back.
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Adam Sampson <azz@us-lot.org>                        <http://offog.org/>

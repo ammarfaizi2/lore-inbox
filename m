@@ -1,148 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277196AbRJQUxh>; Wed, 17 Oct 2001 16:53:37 -0400
+	id <S277203AbRJQU40>; Wed, 17 Oct 2001 16:56:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277192AbRJQUx1>; Wed, 17 Oct 2001 16:53:27 -0400
-Received: from fe040.worldonline.dk ([212.54.64.205]:20241 "HELO
-	fe040.worldonline.dk") by vger.kernel.org with SMTP
-	id <S277196AbRJQUxL>; Wed, 17 Oct 2001 16:53:11 -0400
-Message-ID: <3BCDEFCC.35FCFB69@eisenstein.dk>
-Date: Wed, 17 Oct 2001 22:53:32 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-pre3 i686)
+	id <S277199AbRJQU4Q>; Wed, 17 Oct 2001 16:56:16 -0400
+Received: from doorbell.lineo.com ([204.246.147.253]:25060 "EHLO
+	thor.lineo.com") by vger.kernel.org with ESMTP id <S277192AbRJQU4D>;
+	Wed, 17 Oct 2001 16:56:03 -0400
+Message-ID: <3BCDFFE8.3DDB2591@lineo.com>
+Date: Wed, 17 Oct 2001 15:02:16 -0700
+From: pierre@lineo.com
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Keith Owens <kaos@ocs.com.au>, "Randy.Dunlap" <rddunlap@osdl.org>,
-        linux-ia64@linuxia64.org
-Subject: [PATCH] console_loglevel broken on ia64 - please test and comment
-Content-Type: multipart/mixed;
- boundary="------------C6348075EA1E0BDD31E2351F"
+To: arjanv@redhat.com
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: GPLONLY kernel symbols???
+In-Reply-To: <Pine.LNX.4.10.10110171126480.5821-100000@innerfire.net> <3BCDE77F.D1B164A@lineo.com> <200110171934.f9HJY8w01260@adsl-209-76-109-63.dsl.snfc21.pacbell.net> <3BCDF89C.32916516@lineo.com> <3BCDEAD9.DEC2415F@redhat.com>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------C6348075EA1E0BDD31E2351F
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Arjan van de Ven wrote:
+> 
+> It's not legal issues.
 
+Of course it is, this is code that deals with
+whether or not the kernel has loaded something
+that's not covered under the GPL license.
 
-This is an attempt to fix the broken console_loglevel in kernel/printk.c
-that Keith Owens reported to the list some hours ago.
+> It's 1 integer and 1 sysctl variable that allow
+> easy filtering of nvidia and other bugreports.
+> THAT is the purpose of "tainted". Show in the oops
+> that binary only modules are used.
 
-Instead of the four different _loglevel variables it adds a
-console_printk array to hold the four values - that should be safe.
+Then that's the wrong purpose : instead, oops
+posters should be made aware that they should
+post the list of loaded modules as well. If you
+really insist on having the kernel deal with this,
+make the kernel print the list of modules as well
+as the oops.
 
-I have tested this as far as
+(this assumes all gpl modules to have a
+MODULE_LICENSE() line which doesn't result in code
+and isn't loaded into kernel memory;
 
-a) it compiles
-b) it boots
-c) it has not exploded yet after more than an hour of use
-d) "cat /proc/sys/kernel/printk" output looks sane both with and without
-the patch
-e) changing console_loglevel with "ALT-Sysrq-<number>" works and is
-correctly reflected in /proc/sys/kernel/printk
+Yes it is : what about the code that allows me
+to cat /proc/sys/kernel/tainted and echo an integer
+into it ? and the code that's not loaded into kernel
+memory sure takes storage space, even if it's not
+much.
 
-Randy Dunlap was kind enough to take a look at the patch and thought it
-looked ok, so I'm now submitting it to a broader audience to get some
-more feedback before I try to send this off to Linux and/or Alan.
+But that's not the point : the point is, the kernel
+should contain as much non-kernel junk as possible.
+Kernel code, even a small amount of it, that deals
+with licensing is junk code. It's silly enough to
+have "sponsored by" strings in the kernel as it is.
 
-If nobody seems to screams at it too badly, then I'll make a version
-against -ac as well and send it off to Linus and Alan for them to look
-at and hopefully include in the next kernel.
+                ////\
+                (@ @)
+------------oOOo-(_)-oOOo-------------
+Pierre-Philippe Coupard
+Senior Software Engineer, Lineo, Inc.
+(801) 426-5001 x 208
+--------------------------------------
 
-The patch is against 2.4.13-pre3  and is attached as
-"2.4.13-pre3-console_loglevel.patch".
-
-
-Best regards,
-Jesper Juhl
-juhl@eisenstein.dk
---------------C6348075EA1E0BDD31E2351F
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.13-pre3-console_loglevel.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.13-pre3-console_loglevel.patch"
-
-diff -ur linux-2.4.13-pre3-orig/arch/i386/mm/fault.c linux-2.4.13-pre3/arch/i386/mm/fault.c
---- linux-2.4.13-pre3-orig/arch/i386/mm/fault.c	Wed Oct 10 00:13:03 2001
-+++ linux-2.4.13-pre3/arch/i386/mm/fault.c	Wed Oct 17 20:04:33 2001
-@@ -27,8 +27,6 @@
- 
- extern void die(const char *,struct pt_regs *,long);
- 
--extern int console_loglevel;
--
- /*
-  * Ugly, ugly, but the goto's result in better assembly..
-  */
-diff -ur linux-2.4.13-pre3-orig/arch/parisc/kernel/traps.c linux-2.4.13-pre3/arch/parisc/kernel/traps.c
---- linux-2.4.13-pre3-orig/arch/parisc/kernel/traps.c	Sun Sep 30 21:26:08 2001
-+++ linux-2.4.13-pre3/arch/parisc/kernel/traps.c	Wed Oct 17 20:05:21 2001
-@@ -43,7 +43,6 @@
- 
- static inline void console_verbose(void)
- {
--	extern int console_loglevel;
- 	console_loglevel = 15;
- }
- 
-diff -ur linux-2.4.13-pre3-orig/include/linux/kernel.h linux-2.4.13-pre3/include/linux/kernel.h
---- linux-2.4.13-pre3-orig/include/linux/kernel.h	Thu Oct 11 08:44:33 2001
-+++ linux-2.4.13-pre3/include/linux/kernel.h	Wed Oct 17 22:05:00 2001
-@@ -36,6 +36,13 @@
- #define	KERN_INFO	"<6>"	/* informational			*/
- #define	KERN_DEBUG	"<7>"	/* debug-level messages			*/
- 
-+extern int console_printk[];
-+
-+#define console_loglevel (console_printk[0])
-+#define default_message_loglevel (console_printk[1])
-+#define minimum_console_loglevel (console_printk[2])
-+#define default_console_loglevel (console_printk[3])
-+
- # define NORET_TYPE    /**/
- # define ATTRIB_NORET  __attribute__((noreturn))
- # define NORET_AND     noreturn,
-@@ -79,8 +86,6 @@
- 
- asmlinkage int printk(const char * fmt, ...)
- 	__attribute__ ((format (printf, 1, 2)));
--
--extern int console_loglevel;
- 
- static inline void console_silent(void)
- {
-diff -ur linux-2.4.13-pre3-orig/kernel/printk.c linux-2.4.13-pre3/kernel/printk.c
---- linux-2.4.13-pre3-orig/kernel/printk.c	Mon Sep 17 22:16:30 2001
-+++ linux-2.4.13-pre3/kernel/printk.c	Wed Oct 17 22:21:51 2001
-@@ -16,6 +16,7 @@
-  *	01Mar01 Andrew Morton <andrewm@uow.edu.au>
-  */
- 
-+#include <linux/kernel.h>
- #include <linux/mm.h>
- #include <linux/tty.h>
- #include <linux/tty_driver.h>
-@@ -39,11 +40,12 @@
- 
- DECLARE_WAIT_QUEUE_HEAD(log_wait);
- 
--/* Keep together for sysctl support */
--int console_loglevel = DEFAULT_CONSOLE_LOGLEVEL;
--int default_message_loglevel = DEFAULT_MESSAGE_LOGLEVEL;
--int minimum_console_loglevel = MINIMUM_CONSOLE_LOGLEVEL;
--int default_console_loglevel = DEFAULT_CONSOLE_LOGLEVEL;
-+int console_printk[4] = {
-+	DEFAULT_CONSOLE_LOGLEVEL,	/* console_loglevel */
-+	DEFAULT_MESSAGE_LOGLEVEL,	/* default_message_loglevel */
-+	MINIMUM_CONSOLE_LOGLEVEL,	/* minimum_console_loglevel */
-+	DEFAULT_CONSOLE_LOGLEVEL,	/* default_console_loglevel */
-+};
- 
- int oops_in_progress;
- 
-
---------------C6348075EA1E0BDD31E2351F--
-
+There are many intelligent species in the universe, and they all own
+cats.

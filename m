@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285186AbRLSKYq>; Wed, 19 Dec 2001 05:24:46 -0500
+	id <S285233AbRLSKjj>; Wed, 19 Dec 2001 05:39:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285207AbRLSKYf>; Wed, 19 Dec 2001 05:24:35 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:42502 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S285186AbRLSKYa>; Wed, 19 Dec 2001 05:24:30 -0500
-Date: Wed, 19 Dec 2001 10:23:39 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>
-Cc: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org
-Subject: Re: APM driver patch summary
-Message-ID: <20011219102339.A21861@flint.arm.linux.org.uk>
-In-Reply-To: <1008710648.21102.1.camel@thanatos> <20011218214235.I13126@flint.arm.linux.org.uk> <E16GYl6-0000nz-00@phalynx>
-Mime-Version: 1.0
+	id <S285236AbRLSKj3>; Wed, 19 Dec 2001 05:39:29 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:64527 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S285233AbRLSKjN>; Wed, 19 Dec 2001 05:39:13 -0500
+Message-ID: <3C206E53.50AA457B@idb.hist.no>
+Date: Wed, 19 Dec 2001 11:39:15 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.1-pre10 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] DRM OS
+In-Reply-To: <Pine.LNX.4.33.0112182116070.29077-100000@Appserv.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16GYl6-0000nz-00@phalynx>; from bodnar42@phalynx.dhs.org on Tue, Dec 18, 2001 at 08:55:11PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18, 2001 at 08:55:11PM -0800, Ryan Cumming wrote:
-> Just a quick recap for those of use who haven't picked up an x86 manual 
-> recently:
+Dave Jones wrote:
+> 
+> On Tue, 18 Dec 2001, Aaron Lehmann wrote:
+> 
+> > > Remember DMCA ? Remember SSSCA ?
+> > I watch DVD's with DeCSS. Come and get me.
 
-OR for those who don't have such a thing. 8)
+> I suggest you reread what happened to the implementor of
+> DeCSS since you've obviously forgotten.
+> 
+> Whilst it's not practical for authorities to go 'get' every user
+> of such things, there are several real world examples where
+> they've gone after implementors, and distributors of such
+> technology.
 
-Yes, it was a thinko.  Just like not attaching the patch which was supposed
-to be there according to the same email.
+There will simply be a lot of implementors that either
+don't take credit for their work "Look at this cool
+bypassing sw I found!..." or use nicknames.  
+Implementors can't be stopped, merely driven underground.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Helge Hafting

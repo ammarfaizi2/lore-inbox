@@ -1,83 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265602AbUBFUAo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 15:00:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265665AbUBFUAo
+	id S265597AbUBFTzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 14:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265602AbUBFTzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 15:00:44 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:37035 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265602AbUBFUAl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 15:00:41 -0500
-Date: Fri, 06 Feb 2004 11:59:50 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Keith Mannthey <kmannth@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, Andi Kleen <ak@muc.de>
-Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm	subsystem	involving X  (fwd)
-Message-ID: <218650000.1076097590@flay>
-In-Reply-To: <1076088169.29478.2928.camel@nighthawk>
-References: <51080000.1075936626@flay> <Pine.LNX.4.58.0402041539470.2086@home.osdl.org><60330000.1075939958@flay> <64260000.1075941399@flay><Pine.LNX.4.58.0402041639420.2086@home.osdl.org> <20040204165620.3d608798.akpm@osdl.org> <Pine.LNX.4.58.0402041719300.2086@home.osdl.org> <1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com> <Pine.LNX.4.58.0402041800320.2086@home.osdl.org> <98220000.1076051821@[10.10.2.4]> <1076061476.27855.1144.camel@nighthawk> <5450000.1076082574@[10.10.2.4]> <1076088169.29478.2928.camel@nighthawk>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 6 Feb 2004 14:55:08 -0500
+Received: from almesberger.net ([63.105.73.238]:30731 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S265597AbUBFTzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 14:55:03 -0500
+Date: Fri, 6 Feb 2004 16:54:58 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Matthias Urlichs <smurf@smurf.noris.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VFS locking: f_pos thread-safe ?
+Message-ID: <20040206165458.D18820@almesberger.net>
+References: <402359E1.6000007@ntlworld.com> <20040206011630.42ed5de1.akpm@osdl.org> <40235DCC.2060606@ntlworld.com> <20040206013523.394d89f1.akpm@osdl.org> <pan.2004.02.06.10.19.57.885433@smurf.noris.de> <20040206111853.GE21151@parcelfarce.linux.theplanet.co.uk> <pan.2004.02.06.18.59.44.936432@smurf.noris.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <pan.2004.02.06.18.59.44.936432@smurf.noris.de>; from smurf@smurf.noris.de on Fri, Feb 06, 2004 at 07:59:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Friday, February 06, 2004 09:22:49 -0800 Dave Hansen <haveblue@us.ibm.com> wrote:
+Matthias Urlichs wrote:
+> but it's NOT AT ALL obvious to a "normal" application programmer.
 
-> On Fri, 2004-02-06 at 07:49, Martin J. Bligh wrote:
->> >> +#ifdef CONFIG_NUMA
->> >> +	#ifdef CONFIG_X86_NUMAQ
->> >> +		#include <asm/numaq.h>
->> >> +	#else	/* summit or generic arch */
->> >> +		#include <asm/srat.h>
->> >> +	#endif
->> >> +#else /* !CONFIG_NUMA */
->> >> +	#define get_memcfg_numa get_memcfg_numa_flat
->> >> +	#define get_zholes_size(n) (0)
->> >> +#endif /* CONFIG_NUMA */
->> > 
->> > We ran into a bug with #ifdefs like this before.  It was fixed in some
->> > of the code that you're trying to remove.
->> 
->> What bug?
-> 
-> With a regular PC config, plus CONFIG_NUMA turned on:
+It gets worse. From the same draft (perhaps someone who has the final
+version could comment ?), in the rationale for read():
 
-Ah ... that's the problem. That's not a valid config - the correct way
-to do that is with generic arch, not the PC one. Somehow we ended up
-leaving that as allowable ... I think that was just a communiciation
-breakdown somewhere between you, Andi, and myself (or quite possibly
-between myself and myself ;-)).
+| The standard developers considered adding atomicity requirements to a
+| pipe or FIFO, but recognized that due to the nature of pipes and FIFOs
+| there could be no guarantee of atomicity of reads of {PIPE_BUF} or any
+| other size that would be an aid to applications portability.
 
-So ... I still think my original patch is correct (there's some stylistic
-stuff we could debate, but it's not a functional problem). Here's an
-additional patch that stops people from turning on NUMA for the PC
-subarch, which it wasn't designed to work with.
+But then
 
-Thanks,
+| I/O is intended to be atomic to ordinary files and pipes and FIFOs.
 
-M.
+Now, what exactly does "intended" mean ?
 
--------------------------------------------------------------
+Of course, in this part, they only talk about data staying together,
+not whether it can get duplicated, or effects on f_pos.
 
-Disallow NUMA on the i386 PC subarch (it doesn't work, nor was it intended to).
+- Werner
 
-diff -purN -X /home/mbligh/.diff.exclude pfn_to_nid/arch/i386/Kconfig pc_numa/arch/i386/Kconfig
---- pfn_to_nid/arch/i386/Kconfig	2004-02-04 16:23:49.000000000 -0800
-+++ pc_numa/arch/i386/Kconfig	2004-02-06 11:16:19.000000000 -0800
-@@ -701,7 +701,7 @@ config X86_PAE
- # Common NUMA Features
- config NUMA
- 	bool "Numa Memory Allocation Support"
--	depends on SMP && HIGHMEM64G && (X86_PC || X86_NUMAQ || X86_GENERICARCH || (X86_SUMMIT && ACPI && !ACPI_HT_ONLY))
-+	depends on SMP && HIGHMEM64G && (X86_NUMAQ || X86_GENERICARCH || (X86_SUMMIT && ACPI && !ACPI_HT_ONLY))
- 	default n if X86_PC
- 	default y if (X86_NUMAQ || X86_SUMMIT)
- 
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

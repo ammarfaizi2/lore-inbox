@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263787AbTDXSSl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 14:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTDXSST
+	id S263817AbTDXSYA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 14:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbTDXSYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 14:18:19 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:28800 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263787AbTDXSSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 14:18:12 -0400
-Subject: Re: [dcl_discussion] [ANNOUNCE] OSDL Whitepaper: "Reducing System
-	Reboot Time With Kexec"
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: fastboot@osdl.org, cgl_discussion@osdl.org, dcl_discussion@osdl.org,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051204164.4840.17.camel@andyp.pdx.osdl.net>
-References: <1051204164.4840.17.camel@andyp.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Open Source Development Lab, Inc.
-Message-Id: <1051208689.1787.326.camel@localhost.localdomain>
+	Thu, 24 Apr 2003 14:24:00 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:23681 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263817AbTDXSX6 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 14:23:58 -0400
+Message-Id: <200304241835.h3OIZxvj006418@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Henti Smith <bain@tcsn.co.za>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: maximum possible memory limit .. 
+In-Reply-To: Your message of "Thu, 24 Apr 2003 20:05:24 +0200."
+             <20030424200524.5030a86b.bain@tcsn.co.za> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030424200524.5030a86b.bain@tcsn.co.za>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 24 Apr 2003 11:24:50 -0700
+Content-Type: multipart/signed; boundary="==_Exmh_-1095087500P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 24 Apr 2003 14:35:59 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  So questions and comments are being accepted?
+--==_Exmh_-1095087500P
+Content-Type: text/plain; charset=us-ascii
 
-     The actual values from the measurements in an appendix 
-     would be helpful.  Including the boot time breakdown
-     for the 8 way.
+On Thu, 24 Apr 2003 20:05:24 +0200, Henti Smith <bain@tcsn.co.za>  said:
+> I had a discussion with somebody watching the whole M$ server launch and
+> mentioned then new systems supports up to a terabyte of ram. 
 
-     On your chart, the time saved column is distracting to
-     me as it is extra data.  On the relative percentage column
-     if it could be kexec/full boot that would make it so that
-     I wouldn't have to go back to the text to understand the
-     column.  Also on the kernel boot time, I think that you 
-     are talking about the kernel init time.  So why not call
-     it that?
+Well.. sure.. it's easy enough to write something that supports plugging in
+a terabyte.  The *tricky* part is supporting it well - you have page table
+issues, you have swapping/thrashing issues (if you *do* have to page something
+out, you're in trouble.. ;), you have process scheduling issues (how many
+Apache processes does it take to use up a terabyte?  What's your load average
+at that point?), you have multi-processor scaling issues (you're gonna want
+to have 64+ processors, etc..)
 
-  On future and ongoing work.
-     The crash dump seems to be orthogonal to fast booting.  I 
-     would like to see future and ongoing work that applies to
-     fast booting. 
- 
+Consider - the number of machines with over a terabyte of RAM is limited:
 
-Tim
+http://www.llnl.gov/asci/platforms/platforms.html
 
-On Thu, 2003-04-24 at 10:09, Andy Pfiffer wrote:
-> URL: http://www.osdl.org/docs/reducing_system_reboot_time_with_kexec.pdf
-> 
-> Title:
-> Reducing System Reboot Time With kexec
-> 
-> Abstract:
-> kexec is a developing feature for Linux 2.5.x that allows an x86 Linux
-> kernel to load and run another kernel instead of the platform BIOS and
-> bootloader. By skipping the platform BIOS during a reboot, kexec can
-> reduce downtime in enterprise class systems, and reduce turn-around time
-> for Linux kernel developers. This paper presents measurements of boot
-> time reduction through the use of kexec.
-> 
-> 
-> 
-> _______________________________________________
-> dcl_discussion mailing list
-> dcl_discussion@lists.osdl.org
-> http://lists.osdl.org/mailman/listinfo/dcl_discussion
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+That's the sort of box that has a terabyte.  Do you *really* think that
+M$ 2003 has all the stuff needed to scale to THAT size?
 
+
+
+--==_Exmh_-1095087500P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+qC6OcC3lWbTT17ARAiTKAJ0dW8tQewctUVkGYWKkgUv/DHRQBQCgjwpi
+W4LsmUb6JnjdbMvfI3Kob+Q=
+=WdO8
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1095087500P--

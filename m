@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbUAANxu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 08:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUAANxt
+	id S263544AbUAAOKe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 09:10:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbUAAOKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 08:53:49 -0500
-Received: from cm6.gamma186.maxonline.com.sg ([202.156.186.6]:13462 "EHLO
-	alphaworks.anomalistic.org") by vger.kernel.org with ESMTP
-	id S261613AbUAANxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 08:53:48 -0500
-Date: Thu, 1 Jan 2004 21:53:46 +0800
-From: Eugene Teo <eugene.teo@eugeneteo.net>
-To: Andrew Morton <akpm@osdl.org>, levon@movementarian.org
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-rc1-mm1
-Message-ID: <20040101135346.GA17781@eugeneteo.net>
-Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
-References: <20031231004725.535a89e4.akpm@osdl.org>
+	Thu, 1 Jan 2004 09:10:34 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:62468 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S263544AbUAAOKd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 09:10:33 -0500
+Date: Thu, 1 Jan 2004 15:10:27 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Neale Banks <neale@lowendale.com.au>, paul@clubi.ie,
+       linux-kernel@vger.kernel.org
+Subject: Re: chmod of active swap file blocks
+Message-ID: <20040101151027.A2411@pclin040.win.tue.nl>
+References: <Pine.LNX.4.56.0312291719160.16956@fogarty.jakma.org> <Pine.LNX.4.05.10401011905310.31562-100000@marina.lowendale.com.au> <20040101021241.31830e30.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031231004725.535a89e4.akpm@osdl.org>
-X-Operating-System: Linux 2.6.1-rc1-mm1
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040101021241.31830e30.akpm@osdl.org>; from akpm@osdl.org on Thu, Jan 01, 2004 at 02:12:41AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<quote sender="Andrew Morton">
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-rc1/2.6.0-rc1-mm1/
+On Thu, Jan 01, 2004 at 02:12:41AM -0800, Andrew Morton wrote:
+> Neale Banks <neale@lowendale.com.au> wrote:
+> >
+> > How much of the original problem goes away if swapon(8) were to refuse to
+> >  activate a file/device which has ownership/mode which it doesn't like?
+> 
+> I think swapon(8) should at least warn when the swapfile has inappropriate
+> permissions.  It's an obvious and outright security hole.
 
-[snip]
-
-> +make-for_each_cpu-iterator-more-friendly.patch
-
-Trivial patch.
-
-http://www.anomalistic.org/patches/oprofile-cpu_possible-fix-2.6.1-rc1-mm1.patch
-
-diff -Naur -X /home/amnesia/w/dontdiff 2.6.1-rc1-mm1/drivers/oprofile/oprofile_stats.c 2.6.1-rc1-mm1-fix/drivers/oprofile/oprofile_stats.c
---- 2.6.1-rc1-mm1/drivers/oprofile/oprofile_stats.c	2004-01-01 20:29:19.000000000 +0800
-+++ 2.6.1-rc1-mm1-fix/drivers/oprofile/oprofile_stats.c	2004-01-01 21:34:48.000000000 +0800
-@@ -8,7 +8,7 @@
-  */
- 
- #include <linux/oprofile.h>
--#include <linux/smp.h>
-+#include <linux/cpumask.h>
- #include <linux/threads.h>
-  
- #include "oprofile_stats.h"
-
--- 
-Eugene TEO   <eugeneteo@eugeneteo.net>   <http://www.anomalistic.org/>
-1024D/14A0DDE5 print D851 4574 E357 469C D308  A01E 7321 A38A 14A0 DDE5
-main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
+swapon had this warning for a while, but that generated lots of complaints.
+Now this message is printed only when the -v (verbose) flag is given.
 

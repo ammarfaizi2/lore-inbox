@@ -1,56 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbTJKMU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 08:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbTJKMU4
+	id S263282AbTJKMij (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 08:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTJKMij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 08:20:56 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:18879 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S263279AbTJKMUz (ORCPT
+	Sat, 11 Oct 2003 08:38:39 -0400
+Received: from gprs147-20.eurotel.cz ([160.218.147.20]:52096 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263282AbTJKMig (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 08:20:55 -0400
-Subject: Re: Weird stuff with USB and Bluetooth
-From: Stian Jordet <liste@jordet.nu>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031011023158.GE19749@kroah.com>
-References: <1065744760.1344.2.camel@chevrolet.hybel>
-	 <20031011023158.GE19749@kroah.com>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1065874877.1066.0.camel@chevrolet.hybel>
+	Sat, 11 Oct 2003 08:38:36 -0400
+Date: Sat, 11 Oct 2003 14:38:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: [x86-64] cpus are not properly registered with sysfs (=> cpufreq fails)
+Message-ID: <20031011123815.GA1201@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 11 Oct 2003 14:21:18 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lør, 11.10.2003 kl. 04.31 skrev Greg KH:
-> On Fri, Oct 10, 2003 at 02:12:40AM +0200, Stian Jordet wrote:
-> > Hi,
-> > 
-> > I get these lines in my dmesg at boot-time:
-> > 
-> > usb 1-2: device not accepting address 3, error -110
-> > hci_usb: probe of 1-2:1.1 failed with error -5
-> > hci_usb: probe of 1-2:1.2 failed with error -5
-> > usb 1-2: USB disconnect, address 4
-> > usb 1-2: device not accepting address 5, error -110
-> > hci_usb: probe of 1-2:1.1 failed with error -5
-> > hci_usb: probe of 1-2:1.2 failed with error -5
-> > 
-> > Which often means that the usb-hc can't get an interrupt, I have read.
-> > The "problem" is that I have several usb devices (scanner, printer,
-> > usbserial, hid) and I get no such error with them, only the Bluetooth.
-> > And even weirder, the BT-dongle works just perfect.
-> > 
-> > So my question is; what does this messages means?
-> 
-> You have a broken device, sorry.
+Hi!
 
-Stupid 3com. But thanks :-) Since the device (at least for now) works
-perfectly, I will just shut up :-)
+I found why cpufreq fails on x86-64: cpus are not properly
+registered. Fix is trivial, but invoves adding 2 files from i386.
 
-Best regards,
-Stian
+Cpufreq actually works with this fix. [It is possible to piggyback
+cpu-registering code to some existing source file, making for smaller
+diff. If you want me to do that, let me know, ideally also tell me
+what file to piggyback at. But I think that would be too ugly.]
+
+Not sure what to do with CONFIG_NUMA there. It might be safer to make
+it #if 0 for now.
+
+							Pavel
+
+Index: arch/x86_64/kernel/Makefile
+===================================================================
+RCS file: /home/pavel/sf/bitbucket/bkcvs/linux-2.5/arch/x86_64/kernel/Makefile,v
+retrieving revision 1.27
+diff -u -r1.27 Makefile
+--- arch/x86_64/kernel/Makefile	6 Oct 2003 22:15:45 -0000	1.27
++++ arch/x86_64/kernel/Makefile	11 Oct 2003 12:20:16 -0000
+@@ -10,6 +10,7 @@
+ 		setup64.o bluesmoke.o bootflag.o e820.o reboot.o warmreboot.o
+ 
+ obj-$(CONFIG_MTRR)		+= ../../i386/kernel/cpu/mtrr/
++obj-$(CONFIG_CPU_FREQ)		+= cpufreq/
+ obj-$(CONFIG_ACPI)		+= acpi/
+ obj-$(CONFIG_X86_MSR)		+= msr.o
+ obj-$(CONFIG_X86_CPUID)		+= cpuid.o
+@@ -23,8 +24,8 @@
+ obj-$(CONFIG_DUMMY_IOMMU)	+= pci-nommu.o pci-dma.o
+ 
+ obj-$(CONFIG_MODULES)		+= module.o
++obj-y				+= topology.o
+ 
+ bootflag-y			+= ../../i386/kernel/bootflag.o
+ cpuid-$(CONFIG_X86_CPUID)	+= ../../i386/kernel/cpuid.o
+ 
+-obj-$(CONFIG_CPU_FREQ)	+=	cpufreq/
+
+
+--- /dev/null	2003-03-23 07:08:21.000000000 +0100
++++ arch/x86_64/kernel/topology.c	2003-10-13 09:58:20.000000000 +0200
+@@ -0,0 +1,43 @@
++/*
++ * arch/i386/mach-generic/topology.c - Populate driverfs with topology information
++ *
++ * Written by: Matthew Dobson, IBM Corporation
++ * Original Code: Paul Dorwin, IBM Corporation, Patrick Mochel, OSDL
++ *
++ * Copyright (C) 2002, IBM Corp.
++ *
++ * All rights reserved.          
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <colpatch@us.ibm.com>
++ */
++#include <linux/init.h>
++#include <linux/smp.h>
++#include <asm/cpu.h>
++
++struct i386_cpu cpu_devices[NR_CPUS];
++
++static int __init topology_init(void)
++{
++  int i;
++
++  for (i = 0; i < NR_CPUS; i++)
++    if (cpu_possible(i)) arch_register_cpu(i);
++  return 0;
++}
++
++subsys_initcall(topology_init);
+--- /dev/null	2003-03-23 07:08:21.000000000 +0100
++++ include/asm-x86_64/cpu.h	2003-10-13 09:57:54.000000000 +0200
+@@ -0,0 +1,24 @@
++#ifndef _ASM_I386_CPU_H_
++#define _ASM_I386_CPU_H_
++
++#include <linux/device.h>
++#include <linux/cpu.h>
++#include <linux/topology.h>
++
++struct i386_cpu {
++	struct cpu cpu;
++};
++extern struct i386_cpu cpu_devices[NR_CPUS];
++
++
++static inline int arch_register_cpu(int num){
++	struct node *parent = NULL;
++	
++#ifdef CONFIG_NUMA
++	parent = &node_devices[cpu_to_node(num)].node;
++#endif /* CONFIG_NUMA */
++
++	return register_cpu(&cpu_devices[num].cpu, num, parent);
++}
++
++#endif /* _ASM_I386_CPU_H_ */
+
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]
 

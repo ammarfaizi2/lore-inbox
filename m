@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317690AbSFLMLy>; Wed, 12 Jun 2002 08:11:54 -0400
+	id <S317691AbSFLMPj>; Wed, 12 Jun 2002 08:15:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317691AbSFLMLx>; Wed, 12 Jun 2002 08:11:53 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:34823 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S317690AbSFLMLw>; Wed, 12 Jun 2002 08:11:52 -0400
-Message-Id: <200206121211.g5CCBjZt030139@pincoya.inf.utfsm.cl>
-To: Ben Greear <greearb@candelatech.com>
-cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: RFC: per-socket statistics on received/dropped packets 
-In-Reply-To: Message from Ben Greear <greearb@candelatech.com> 
-   of "Tue, 11 Jun 2002 23:26:40 MST." <3D06E9A0.5060801@candelatech.com> 
-Date: Wed, 12 Jun 2002 08:11:45 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S317692AbSFLMPi>; Wed, 12 Jun 2002 08:15:38 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:62980 "HELO
+	s2.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S317691AbSFLMPh>; Wed, 12 Jun 2002 08:15:37 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Oliver Neukum <oliver@neukum.name>, Roland Dreier <roland@topspin.com>,
+        "David S. Miller" <davem@redhat.com>
+Cc: <wjhun@ayrnetworks.com>, <paulus@samba.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+Date: Tue, 11 Jun 2002 22:06:12 +0200
+Message-Id: <20020611200612.9251@smtp.adsl.oleane.com>
+In-Reply-To: <200206121402.53622.oliver@neukum.name>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Cc:'s stripped]
+>If I understand both Davids correctly this is the solution.
+>Buffers for dma must be allocated seperately using a special allocation
+>function which is given the device so it can allocate correctly.
+>David B wants a bus specific pointer to a function in the generic
+>driver structure, right ?
 
-Ben Greear <greearb@candelatech.com> said:
-> Pekka Savola wrote:
-> > Just to chime in my support (not that I don't think anyone needs it), I 
-> > think socket-based counters are An Extremely Bad Idea.  
+Then let's have those as part of the generic device struct, with
+the default ones pointing to the parent bus ones.
 
-[...]
+That way, a couple of generic ones could be set at the root of the
+device tree for fully coherent or fully incoherent archs, and
+bus drivers would have the ability to affect their child devices
+ones.
 
-> If they are useful to some people, and have zero performance affect on others
-> (due to being a configurable kernel feature), then what is your
-> complaint?
+Ben.
 
-That it adds code, which impacts _everybody_ futzing around in that area,
-specially if it is a configurable option (this means multiplying the
-possible configurations to be tested).
 
-> I see two reasons left to dislike this feature:
-> 
-> 1)  General increase in #ifdef'd code.  This actually seems like
->     a pretty good argument, but I haven't seen anyone mention it
->     specifically.
-
-Right.
-
-> 2)  General dislike for a feature that one personally has no use for.
->     Seems to be Dave's main (professed) excuse.
-
-General dislike for adding features of _extremely_ limited (debugging!) use?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

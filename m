@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263952AbTFIDdR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 23:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263986AbTFIDdR
+	id S263990AbTFIDiL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 23:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264046AbTFIDiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 23:33:17 -0400
-Received: from mailout.fastq.com ([204.62.193.66]:40720 "EHLO
-	mailout.fastq.com") by vger.kernel.org with ESMTP id S263952AbTFIDdQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 23:33:16 -0400
-Subject: Re: Linksys WRT54G and the GPL
-From: Russ Dill <Russ.Dill@asu.edu>
-Reply-To: Russ.Dill@asu.edu
+	Sun, 8 Jun 2003 23:38:10 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45319 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263990AbTFIDiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 23:38:09 -0400
 To: linux-kernel@vger.kernel.org
-Cc: andersen@codepoet.org
-Message-Id: <1055130436.1042.7.camel@russ.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 08 Jun 2003 20:47:16 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH][SPARSE] Runtime detection of gcc include paths
+Date: 8 Jun 2003 20:51:18 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bc107m$ue3$1@cesium.transmeta.com>
+References: <20030609011128.GI20872@michonline.com> <Pine.LNX.4.44.0306081807500.1849-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<udhcp maintainer hat on>
+Followup to:  <Pine.LNX.4.44.0306081807500.1849-100000@home.transmeta.com>
+By author:    Linus Torvalds <torvalds@transmeta.com>
+In newsgroup: linux.dev.kernel
+> 
+> On Sun, 8 Jun 2003, Ryan Anderson wrote:
+> >
+> > This uses the same method as previously was used, it just performs the
+> > lookup at runtime.
+> 
+> I much prefer a compile-time thing.
+> 
+> Performance is, to me, paramount for "checker". I don't want to slow it 
+> down, I'm hoping that some day we can just enable C=1 by default in the 
+> kernel build (this is a _long_ time off, though, don't you all start 
+> worrying now).
+> 
+> I don't see anything wrong with a compile/install time thing, that is, 
+> after all, how gcc too works.
+> 
 
-> <BusyBox maintainer hat on>
+Both of these seem a little unnecessary.  Why not pass this stuff on
+the command line, and have the top-level Makefile extract the paths
+into a command-line argument?
 
-> I went through a similar exercise several weeks ago when I saw
-> the thread on the l-k mailing list.  It took just a fix minutes
-> to extract the linux kernel and cramfs filesystem from their
-> firmware.  Linksys is indeed shipping BusyBox and the Linux
-> kernel without releasing source in violation of the GPL.  I had
-> my lawyer (it helps to have a lawyer for a Dad) send them a
-> rather polite but firm letter about 3 weeks ago.  No response.
-> So he has now sent them a second letter...  Assuming we again get
-> no response, Linksys is going to find themselves in court in the
-> very near future.
-
-<udhcp maintainer hat on>
-
-While a company including udhcp is a really exciting thing for me, its
-mostly exciting because I get the additional resources of anyone at
-linksys working on the code, and they get a low cost of ownership dhcp
-server. Of course, if they don't send me the code, it doesn't help me at
-all, and I get pissed off.
-
-By downloading the firmware, and looking at the output of strings
-usr/sbin/udhcpd makes it pretty clear that they have made modifications.
-Anyway, sign me on for whatever legal actions you are making, caus I
-want my code back.
-
+	-hpa
 -- 
-Russ Dill
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,101 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268868AbUJMP1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269102AbUJMPaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268868AbUJMP1i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 11:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269102AbUJMP1i
+	id S269102AbUJMPaO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 11:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269103AbUJMPaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 11:27:38 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:49865 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268868AbUJMP1W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 11:27:22 -0400
-Subject: PATCH: IDE generic tweak
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@linux.kernel.org
-Content-Type: text/plain
+	Wed, 13 Oct 2004 11:30:14 -0400
+Received: from blanca.radiantdata.com ([64.207.39.196]:41042 "EHLO
+	blanca.peakdata.loc") by vger.kernel.org with ESMTP id S269146AbUJMP3q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 11:29:46 -0400
+Message-ID: <416D49FF.10003@radiantdata.com>
+Date: Wed, 13 Oct 2004 09:30:07 -0600
+From: "Peter W. Morreale" <morreale@radiantdata.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martijn Sipkema <martijn@entmoot.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: waiting on a condition
+References: <02bb01c4b138$8a786f10$161b14ac@boromir>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1097677476.4764.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 13 Oct 2004 15:24:48 +0100
+X-OriginalArrivalTime: 13 Oct 2004 15:31:47.0578 (UTC) FILETIME=[C099E5A0:01C4B139]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This allows the user to force ide-generic to claim any remaining
-IDE_STORAGE_CLASS devices. It isnt a good default to turn on because of
-loadable driver modules and confusion with SATA however it is very
-useful faced with a mainboard device that isn't supported any other way.
-Note that the entry has to come last - if it looks OK I'll comment that
-a bit more and update the option docs.
+Have you looked at the wait_event() family yet?       Adapting that 
+methodolgy might
+suit your needs.
 
-Comments ?
+I don't know much about preemption yet, however I suspect it would be a 
+bug to allow
+preemption while the spinlock was held.  In other words, you might need 
+to do something like
 
---- linux.vanilla-2.6.9rc3/drivers/ide/pci/generic.c	2004-09-30 16:13:08.000000000 +0100
-+++ linux-2.6.9rc3/drivers/ide/pci/generic.c	2004-10-13 15:08:49.586093152 +0100
-@@ -41,6 +41,17 @@
- 
- #include "generic.h"
- 
-+static int ide_generic_all;		/* Set to claim all devices */
-+
-+static int __init ide_generic_all_on(char *unused)
-+{
-+	ide_generic_all = 1;
-+	printk(KERN_INFO "IDE generic will claim all unknown PCI IDE storage controllers.\n");
-+	return 1;
-+}
-+
-+__setup("all-generic-ide", ide_generic_all_on);
-+
- static unsigned int __init init_chipset_generic (struct pci_dev *dev, const char *name)
- {
- 	return 0;
-@@ -96,6 +107,11 @@
- {
- 	ide_pci_device_t *d = &generic_chipsets[id->driver_data];
- 	u16 command;
-+	
-+	/* Don't use the generic entry unless instructed to do so */
-+	if (id->driver_data == 13)
-+		if(ide_generic_all == 0)
-+			return 1;
- 
- 	if (dev->vendor == PCI_VENDOR_ID_UMC &&
- 	    dev->device == PCI_DEVICE_ID_UMC_UM8886A &&
-@@ -108,8 +124,7 @@
- 		return 1;
- 
- 	pci_read_config_word(dev, PCI_COMMAND, &command);
--	if(!(command & PCI_COMMAND_IO))
--	{
-+	if(!(command & PCI_COMMAND_IO)) {
- 		printk(KERN_INFO "Skipping disabled %s IDE controller.\n", d->name);
- 		return 1; 
- 	}
-@@ -133,6 +148,8 @@
- 	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO,     PCI_ANY_ID, PCI_ANY_ID, 0, 0, 10},
- 	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_1,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 11},
- 	{ PCI_VENDOR_ID_TOSHIBA,PCI_DEVICE_ID_TOSHIBA_PICCOLO_2,   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 12},
-+
-+	{ PCI_ANY_ID,		PCI_ANY_ID,			   PCI_ANY_ID, PCI_ANY_ID, PCI_CLASS_STORAGE_IDE << 8, 0xFFFFFF00UL, 13},
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, generic_pci_tbl);
---- linux.vanilla-2.6.9rc3/drivers/ide/pci/generic.h	2004-09-30 15:35:49.000000000 +0100
-+++ linux-2.6.9rc3/drivers/ide/pci/generic.h	2004-10-13 15:10:54.061170064 +0100
-@@ -101,6 +101,13 @@
- 		.channels	= 2,
- 		.autodma	= NOAUTODMA,
- 		.bootable	= ON_BOARD,
-+	},{ /* 13 */
-+		.name 		= "Unknown",
-+		.init_chipset	= init_chipset_generic,
-+		.init_hwif	= init_hwif_generic,
-+		.channels	= 2,
-+		.autodma	= NOAUTODMA,
-+		.bootable	= ON_BOARD,
- 	}
- };
- 
+disable preemption
+spinlock
+rc = condition
+spin_unlock
+enable preemption
+if (rc)
+...
+
+In other words, perform the test on the condition outside of the 
+critical region protected by the spin lock.
+
+-PWM
+
+
+Martijn Sipkema wrote:
+
+>L.S.
+>
+>I'd like to do something similar as can be done using a POSIX condition
+>variable in the kernel, i.e. wait for some condition to become true. The
+>pthread_cond_wait() function allows atomically unlocking a mutex and
+>waiting on a condition. I think I should do something like:
+>(the condition is updated from an interrupt handler)
+>
+>disable interrupts
+>acquire spinlock
+>if condition not satisfied
+>    add task to wait queue
+>    set task to sleep
+>release spinlock
+>restore interrupts
+>schedule
+>
+>Now, this will only work with preemption disabled within the critical
+>section. How would something like this be done whith preemption
+>enabled?
+>
+>
+>--ms
+>
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+
+-- 
+Peter W. Morreale                            email: morreale@radiantdata.com
+Director of Engineering                      Niwot, Colorado, USA
+Radiant Data Corporation                     voice: (303) 652-0870 x108 
+-----------------------------------------------------------------------------
+This transmission may contain information that is privileged, confidential
+and/or exempt from disclosure under applicable law. If you are not the
+intended recipient, you are hereby notified that any disclosure, copying,
+distribution, or use of the information contained herein (including any
+reliance thereon) is STRICTLY PROHIBITED. If you received this transmission
+in error, please immediately contact the sender and destroy the material in
+its entirety, whether in electronic or hard copy format. Thank you.
+
+
 

@@ -1,74 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265209AbTFZAOj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 20:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbTFZAOj
+	id S265215AbTFZAP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 20:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265219AbTFZAP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 20:14:39 -0400
-Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:37343
-	"EHLO efix.biz") by vger.kernel.org with ESMTP id S265209AbTFZAOh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 20:14:37 -0400
-Subject: Re: AMD MP, SMP, Tyan 2466
-From: Edward Tandi <ed@efix.biz>
-To: Timothy Miller <miller@techsource.com>
-Cc: joe briggs <jbriggs@briggsmedia.com>,
-       Artur Jasowicz <kernel@mousebusiness.com>,
-       Brian Jackson <brian@brianandsara.net>,
-       Bart SCHELSTRAETE <Bart.SCHELSTRAETE@dhl.com>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EFA32C6.5030303@techsource.com>
-References: <BB1F47F5.17533%kernel@mousebusiness.com>
-	 <200306251501.14207.jbriggs@briggsmedia.com>
-	 <1056567378.31260.9.camel@wires.home.biz> <3EFA2939.2060005@techsource.com>
-	 <1056583075.31265.22.camel@wires.home.biz>
-	 <3EFA2F97.5000705@techsource.com>  <3EFA32C6.5030303@techsource.com>
-Content-Type: text/plain
-Message-Id: <1056587355.10295.52.camel@wires.home.biz>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 26 Jun 2003 01:29:16 +0100
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Jun 2003 20:15:28 -0400
+Received: from warden3-p.diginsite.com ([208.147.64.186]:48362 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id S265215AbTFZAPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 20:15:16 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Robert White <rwhite@casabyte.com>
+Cc: Timothy Miller <miller@techsource.com>,
+       David Woodhouse <dwmw2@infradead.org>, Larry McVoy <lm@bitmover.com>,
+       Werner Almesberger <wa@almesberger.net>,
+       Stephan von Krawczynski <skraw@ithnet.com>, miquels@cistron-office.nl,
+       linux-kernel@vger.kernel.org
+Date: Wed, 25 Jun 2003 17:27:42 -0700 (PDT)
+Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+In-Reply-To: <PEEPIDHAKMCGHDBJLHKGGEEJDBAA.rwhite@casabyte.com>
+Message-ID: <Pine.LNX.4.44.0306251718120.1870-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-26 at 00:39, Timothy Miller wrote:
-> Timothy Miller wrote:
-> 
-> > It is my understanding that the registered memory requirement has 
-> > nothing to do with SMP but instead with the amount of memory you have. 
-> > The more memory chips you have, the greater the signal loading on the 
-> > memory bus.  More input drivers means more capacitance which means you 
-> > need your output drivers to put out data sooner (relative to the clock 
-> > edge, so registered delays by one clock) and stronger (greater drive 
-> > strength).
-> >
-> > In an SMP system (besides NUMA), multiple processors will talk to the 
-> > same memory through a shared memory controller (like in a Northbridge), 
-> > so although there are multiple processors, there is still only one 
-> > memory bus.  Pulling off one CPU isn't going to change that situation.
-> > 
-> Here's a URL:
-> 
-> http://www.simmtester.com/PAGE/memory/memfaq.asp?cat=6&subcat=&tableView=detail&faqId=15
+Robert, nobody is disagreeing with this part of the discussion, that I
+hear Larry saying is that this process isn't producing innovations, it is
+almost exclusivly producing copies.
 
-It does seem a bit out of date talking about PC100. But I found another
-source of information:
+the companies doing propriatatry work are doing the innovation and the
+fact that their ideas get copied quickly is reducing/eliminating their
+return on investment and is killing them (some slowly some quickly)
 
-http://www.memorysuppliers.com/memoryterms.html
+one big reason why innovation is so much more expensive then copying is
+that when you are innovating you spend a lot of time going down dead-ends,
+you have to cover all that time spent and thrown away in the cost of the
+product that you produce. when you are copying you get to avoid a lot of
+these dead-ends becouse you know what the final product looks like, it's
+much easier to work towards a known goal then to work towards something
+that you think will work.
 
-Registered Memory
-        SDRAM memory that contains registers directly on the module. The
-        registers re-drive the signals through the memory chips and
-        allow the module to be built with more memory chips. Registered
-        and unbuffered memory cannot be mixed. The design of the
-        computer memory controller dictates which type of memory the
-        computer requires. 
+Then Larry asks the question 'what will we do if we kill off the companies
+that are paying people to do this innovation and there isn't any more
+software to copy'
 
-Regarding the last sentence, the Tyan 2466 appears to be able to support
-unbuffered memory in slots 1 and 2 only (and the type cannot be mixed of
-course). The earlier 2460 doesn't allow anything but registered.
-
-Ed-T.
+David Lang
 
 
+ On Wed, 25 Jun 2003, Robert White
+wrote:
+
+> Date: Wed, 25 Jun 2003 17:07:31 -0700
+> From: Robert White <rwhite@casabyte.com>
+> To: Timothy Miller <miller@techsource.com>,
+>      David Woodhouse <dwmw2@infradead.org>
+> Cc: Larry McVoy <lm@bitmover.com>, Werner Almesberger <wa@almesberger.net>,
+>      Stephan von Krawczynski <skraw@ithnet.com>, miquels@cistron-office.nl,
+>      linux-kernel@vger.kernel.org
+> Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+>
+> People want to receive "payment" for "work".
+>
+> Fine, true, and desirable.
+>
+> But the missing piece in the capitalist mindset WRT/software is that those
+> self-same capitalists don't want to pay for the work of others.
+>
+> In point of fact, the common intellectual domain, in particular the great
+> source/sink of free software *doest* fit the pay-for-value model.
+>
+> The problem is that the current business people don't understand that the
+> "free software" "costs" the promise to return contributions.  The system is
+> resilient enough to withstand a huge percentage of parasitism, so each
+> business wants to say that they might as well a parasite too.
+>
+> The simple fact is that when you return your modifications to the pool, the
+> "lost cost" of the man hours and mental effort spent to make that
+> modification, insignificant to the value you took from the pool.
+>
+> When you return value to the pool, you have not "given away valuable
+> property" you are paying (long due) bills for the larger type and number of
+> works you have already taken possession of "on credit".
+>
+> Once you take that single step back you realize two things.
+>
+> 1) The total value you harvest dwarfs the total value you return (even in
+> simple man hour payroll terms) so even if you spend a substantial outlay it
+> is still a return on investment of remarkable proportions.
+>
+> 2) If software is the only thing you do, you are screwed because that
+> immense return on investment is payment in kind so there is no "cash margin"
+> from which to draw profit.
+>
+> The final conclusion is that "free software" works for every business model
+> *EXCEPT* pure software sales.  Absolutely every other model (e.g.
+> "<anything> and no software at all" and "<anything> plus software") lets you
+> "buy" ninety-plus percent of your "software part" for pennies.  The fact
+> that "nothing but software" times "free software" nets zero excess cash
+> should surprise nobody.  Yet it did surprise the entire 1990's economy...
+>
+> Irony can be so damn Ironic sometimes... 8-)
+>
+> There is no rational argument that this model "should somehow", in and of
+> itself, with no further effort on your part, support you financially.
+> Especially if you have decided that said support will come while you only
+> fulfill the parasite role of taking what you will and returning nothing.
+>
+> Rob.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

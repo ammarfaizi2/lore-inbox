@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267751AbUHEPLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267748AbUHEPVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267751AbUHEPLn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 11:11:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267752AbUHEPLn
+	id S267748AbUHEPVv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 11:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267753AbUHEPVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 11:11:43 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:19718 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S267751AbUHEPLc
+	Thu, 5 Aug 2004 11:21:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51120 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267748AbUHEPVu convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 11:11:32 -0400
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.8-rc3
-References: <Pine.LNX.4.58.0408031505470.24588@ppc970.osdl.org>
-	<200408041407.39871.lkml@kcore.org>
-	<20040804124042.GA25969@harddisk-recovery.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 06 Aug 2004 00:10:00 +0900
-In-Reply-To: <20040804124042.GA25969@harddisk-recovery.com>
-Message-ID: <87657xtyd3.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Aug 2004 11:21:50 -0400
+Date: Thu, 5 Aug 2004 08:21:30 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: =?ISO-8859-1?B?UGF3ZV9f?= Sikora <pluto@pld-linux.org>
+Cc: linux-kernel@vger.kernel.org, spot@redhat.com, akpm@osdl.org
+Subject: Re: Make MAX_INIT_ARGS 25
+Message-Id: <20040805082130.354fac9f@lembas.zaitcev.lan>
+In-Reply-To: <200408050752.46409.pluto@pld-linux.org>
+References: <20040804193243.36009baa@lembas.zaitcev.lan>
+	<200408050752.46409.pluto@pld-linux.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw <erik@harddisk-recovery.com> writes:
+On Thu, 5 Aug 2004 07:52:46 +0200
+Pawe__ Sikora <pluto@pld-linux.org> wrote:
 
-> >        iocharset=value
-> >               Character set to use for converting between 8 bit characters and
-> >               16 bit Unicode characters. The default is iso8859-1.  Long file-
-> >               names are stored on disk in Unicode format.
-> > 
-> > the default is iso8859-1. Has this default gone haywire somewhere?
+> > -#define MAX_INIT_ARGS 8
+> > -#define MAX_INIT_ENVS 8
+> > +#define MAX_INIT_ARGS 25
+> > +#define MAX_INIT_ENVS 25
 > 
-> Yes, it's in the hidden in the ChangeLog. You can find it if you know
-> iocharset is the same as nls:
-> 
->   Hirofumi Ogawa:
->     o FAT: kill nls default
+> You should also increase the COMMAND_LINE_SIZE.
 
-Or Documentation/filesystems/vfat.txt
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+I'm not doing it because I have nothing better to do, but because we
+have a specific requirement. Our software works fine with the current
+maximum buffer size. If you have different requirement, please let
+me know what kind of situation it is in detail, it might help advocacy.
+
+-- Pete

@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262065AbTCLVg3>; Wed, 12 Mar 2003 16:36:29 -0500
+	id <S261791AbTCLVuW>; Wed, 12 Mar 2003 16:50:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262067AbTCLVg2>; Wed, 12 Mar 2003 16:36:28 -0500
-Received: from [213.171.53.133] ([213.171.53.133]:44294 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id <S262065AbTCLVfd>;
-	Wed, 12 Mar 2003 16:35:33 -0500
-Date: Thu, 13 Mar 2003 00:46:03 +0300 (MSK)
-From: "Ruslan U. Zakirov" <cubic@miee.ru>
-To: ambx1@neo.rr.com
-cc: linux-kernel@vger.kernel.org
-Subject: Comments on latest PNP changes.
-Message-ID: <Pine.BSF.4.05.10303130031450.82559-100000@wildrose.miee.ru>
+	id <S261876AbTCLVuW>; Wed, 12 Mar 2003 16:50:22 -0500
+Received: from divine.city.tvnet.hu ([195.38.100.154]:65344 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S261791AbTCLVuV>; Wed, 12 Mar 2003 16:50:21 -0500
+Date: Wed, 12 Mar 2003 22:54:05 +0100 (MET)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+In-Reply-To: <Pine.LNX.4.44.0303121032001.15671-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0303122242180.18833-100000@divine.city.tvnet.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Adam and other.
-2.5.64-bk6
-1) Mem leak in your rewrite of als100
-+       err = pnp_activate_dev(pdev);
-+       if (err < 0) {
-+               printk(KERN_ERR PFX "AUDIO pnp configure failure\n");
-+               return err;
-+       }
-Here you've forgot add "kfree(cfg);"
-2) And here
-+MODULE_DEVICE_TABLE(pnp_card, snd_als100_pnpids);
-type must of entries must end with "device_id", but you've changed type
-from "pnp_card_device_id" to "pnp_card_id". This changes broke
-compilation.
-3) When I need to activate(dev)?
-	Thanks, Ruslan.
+
+On Wed, 12 Mar 2003, Linus Torvalds wrote:
+>
+> The difficulty is finidng the right instruction boundary. It's basically
+> impossible.
+
+If I understand you correctly, no. We have the boundary at EIP.
+Decoding what's before is max 7-8 tries by a human and one can figure
+out the real code from the context (with high probability). 2-3 times
+more code before EIP then after could significantly help of course.
+
+> If you want to get the instructions before that point, just use
+>
+> 	gdb vmlinux
+
+This approach frequently fails because vmlinux is on a users computer
+far away and he
+
+  1) doesn't bother answering anymore
+  2) recompiled with different .config
+  3) reinstalled another distro
+  4) etc
+
+> and disassemble it by hand. Because the kernel _cannot_ do it reliably.
+
+The kernel shouldn't do it, it's not disassembler. It should just give
+enough data for a human and disassembler. Nothing lost but much can be
+gain.
+
+	Szaka
 

@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266003AbUA1Xj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 18:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbUA1Xj1
+	id S266208AbUA1Xhz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 18:37:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUA1Xhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 18:39:27 -0500
-Received: from mail.kroah.org ([65.200.24.183]:7105 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266003AbUA1Xj0 (ORCPT
+	Wed, 28 Jan 2004 18:37:55 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:46268 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S266208AbUA1Xhy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 18:39:26 -0500
-Date: Wed, 28 Jan 2004 15:28:44 -0800
-From: Greg KH <greg@kroah.com>
-To: "Wiran, Francis" <francis.wiran@hp.com>
-Cc: Hollis Blanchard <hollisb@us.ibm.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cpqarray update
-Message-ID: <20040128232844.GB10657@kroah.com>
-References: <CBD6B29E2DA6954FABAC137771769D6504E1596D@cceexc19.americas.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CBD6B29E2DA6954FABAC137771769D6504E1596D@cceexc19.americas.cpqcorp.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 28 Jan 2004 18:37:54 -0500
+Date: Thu, 29 Jan 2004 01:37:37 +0200 (EET)
+From: =?iso-8859-1?Q?Markus_H=E4stbacka?= <midian@ihme.org>
+X-X-Sender: midian@midi
+To: David Weinehall <david@southpole.se>
+cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [2.0.40-rc8] Works well
+In-Reply-To: <20040128151727.GD16675@khan.acc.umu.se>
+Message-ID: <Pine.LNX.4.44.0401290135070.29405-100000@midi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 28, 2004 at 05:10:29PM -0600, Wiran, Francis wrote:
-> 
-> Ok. Here's the patch for that. At least until vio_module_init comes :)
+Btw - Are you going to announce the release of 2.0.40 (whenever it's
+coming) or just put it on kernel.org?
 
-Heh, you didn't actually try that patch, did you?
+	Markus
 
-(hint, you need to check for a negative value...)
-
-greg k-h

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316997AbSFWIdQ>; Sun, 23 Jun 2002 04:33:16 -0400
+	id <S316999AbSFWIed>; Sun, 23 Jun 2002 04:34:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316999AbSFWIdP>; Sun, 23 Jun 2002 04:33:15 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:35262 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316997AbSFWIdO>;
-	Sun, 23 Jun 2002 04:33:14 -0400
-Message-ID: <3D158767.6050709@us.ibm.com>
-Date: Sun, 23 Jun 2002 01:31:35 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Christopher E. Brown" <cbrown@woods.net>
-CC: William Lee Irwin III <wli@holomorphy.com>,
-       Andreas Dilger <adilger@clusterfs.com>,
-       "Griffiths, Richard A" <richard.a.griffiths@intel.com>,
-       "'Andrew Morton'" <akpm@zip.com.au>, mgross@unix-os.sc.intel.com,
-       "'Jens Axboe'" <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: ext3 performance bottleneck as the number of spindles
- gets large
-References: <Pine.LNX.4.44.0206230145000.30350-100000@spruce.woods.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317002AbSFWIec>; Sun, 23 Jun 2002 04:34:32 -0400
+Received: from [62.40.73.125] ([62.40.73.125]:17090 "HELO Router")
+	by vger.kernel.org with SMTP id <S316999AbSFWIeb>;
+	Sun, 23 Jun 2002 04:34:31 -0400
+Date: Sun, 23 Jun 2002 10:40:12 +0200
+From: clock@atrey.karlin.mff.cuni.cz
+To: linux-kernel@vger.kernel.org
+Subject: kmalloc size too large
+Message-ID: <20020623104012.B532@ghost.cybernet.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher E. Brown wrote:
-> Do you mean independent in that there are 2 sets of 4 slots each
-> detected as a seperate PCI bus, or independent in that each set of 4
-> had *direct* access to the cpu side, and *does not* access via a
-> PCI:PCI bridge?
+Hello
 
-No PCI:PCI bridges, at least for NUMA-Q.
-http://telia.dl.sourceforge.net/sourceforge/lse/linux_on_numaq.pdf
+when dumping tracks from an IDE CD using cdda2wav I sometimes get this kernel
+message:
+
+Jun 23 10:34:18 ghost kernel: kmalloc: Size (4294852048) too large
+Jun 23 10:34:18 ghost kernel: kmalloc: Size (4294852048) too large
+Jun 23 10:37:55 ghost last message repeated 29 times
+Jun 23 10:37:55 ghost last message repeated 29 times
+
+It is not deterministic but looks like some tracks cause it often and some not.
+
+Kernel 2.2.20
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+Karel 'Clock' Kulhavy

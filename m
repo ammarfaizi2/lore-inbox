@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267367AbTBIQzG>; Sun, 9 Feb 2003 11:55:06 -0500
+	id <S267374AbTBIRFE>; Sun, 9 Feb 2003 12:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267371AbTBIQzG>; Sun, 9 Feb 2003 11:55:06 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:38284 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267342AbTBIQxR>;
-	Sun, 9 Feb 2003 11:53:17 -0500
-Date: Sun, 9 Feb 2003 12:03:48 +0000
+	id <S267405AbTBIRFE>; Sun, 9 Feb 2003 12:05:04 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:47756 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S267374AbTBIQzd>;
+	Sun, 9 Feb 2003 11:55:33 -0500
+Date: Sun, 9 Feb 2003 12:06:11 +0000
 From: Adam Belay <ambx1@neo.rr.com>
 To: Linus Torvalds <torvalds@transmeta.com>, Greg KH <greg@kroah.com>
 Cc: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] pnp - Interface Improvements (4/12) 2.5.59-bk3
-Message-ID: <20030209120347.GA20005@neo.rr.com>
+Subject: [PATCH] pnp - Convert IDE driver (10/12) 2.5.59-bk3
+Message-ID: <20030209120611.GA20040@neo.rr.com>
 Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
 	Linus Torvalds <torvalds@transmeta.com>, Greg KH <greg@kroah.com>,
 	"Grover, Andrew" <andrew.grover@intel.com>,
@@ -23,417 +23,253 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch will allow the user to see exactly where a resource conflict is
-occuring.  It also adds a manual set resource capability but I recommend only
-advanced users use it at this point.  These interface changes will be documented
-in pnp.txt soon.
+This patch converts the ide pnp driver to the new pnp api.
 
 Please apply,
+
 Adam
 
 
-diff -urN a/drivers/pnp/interface.c b/drivers/pnp/interface.c
---- a/drivers/pnp/interface.c	Tue Jan 14 05:58:11 2003
-+++ b/drivers/pnp/interface.c	Sun Feb  9 09:21:36 2003
-@@ -1,7 +1,7 @@
- /*
-  * interface.c - contains everything related to the user interface
-  *
-- * Some code is based on isapnp_proc.c (c) Jaroslav Kysela <perex@suse.cz>
-+ * Some code, especially possible resource dumping is based on isapnp_proc.c (c) Jaroslav Kysela <perex@suse.cz>
-  * Copyright 2002 Adam Belay <ambx1@neo.rr.com>
-  *
-  */
-@@ -12,6 +12,8 @@
- #include <linux/list.h>
- #include <linux/types.h>
- #include <linux/stat.h>
-+#include <linux/ctype.h>
-+#include <asm/uaccess.h>
+diff -ur a/drivers/ide/Kconfig b/drivers/ide/Kconfig
+--- a/drivers/ide/Kconfig	Tue Jan 14 05:58:40 2003
++++ b/drivers/ide/Kconfig	Thu Jan 16 13:32:21 2003
+@@ -232,14 +232,13 @@
+ 	  and your BIOS does not already do this for you, then say Y here.
+ 	  Otherwise say N.
  
- #include "base.h"
+-config BLK_DEV_ISAPNP
+-	bool "ISA-PNP EIDE support"
+-	depends on BLK_DEV_IDE && ISAPNP
++config BLK_DEV_IDEPNP
++	bool "PNP EIDE support"
++	depends on BLK_DEV_IDE && PNP
+ 	help
+-	  If you have an ISA EIDE card that is PnP (Plug and Play) and
+-	  requires setup first before scanning for devices, say Y here.
+-
+-	  If unsure, say N.
++	  If you have a PnP (Plug and Play) compatible EIDE card and
++	  would like the kernel to automatically detect and activate
++	  it, say Y here.
  
-@@ -158,27 +160,15 @@
- 	case IORESOURCE_MEM_8AND16BIT:
- 		s = "8-bit&16-bit";
- 		break;
-+	case IORESOURCE_MEM_32BIT:
-+		s = "32-bit";
-+		break;
- 	default:
- 		s = "16-bit";
+ config BLK_DEV_IDEPCI
+ 	bool "PCI IDE chipset support" if PCI
+diff -ur a/drivers/ide/Makefile b/drivers/ide/Makefile
+--- a/drivers/ide/Makefile	Tue Jan 14 05:58:42 2003
++++ b/drivers/ide/Makefile	Thu Jan 16 13:31:55 2003
+@@ -23,7 +23,7 @@
+ obj-$(CONFIG_BLK_DEV_IDEPCI)		+= setup-pci.o
+ obj-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
+ obj-$(CONFIG_BLK_DEV_IDE_TCQ)		+= ide-tcq.o
+-obj-$(CONFIG_BLK_DEV_ISAPNP)		+= ide-pnp.o
++obj-$(CONFIG_BLK_DEV_IDEPNP)		+= ide-pnp.o
+ 
+ ifeq ($(CONFIG_BLK_DEV_IDE),y)
+ obj-$(CONFIG_PROC_FS)			+= ide-proc.o
+diff -ur a/drivers/ide/ide-pnp.c b/drivers/ide/ide-pnp.c
+--- a/drivers/ide/ide-pnp.c	Tue Jan 14 05:58:59 2003
++++ b/drivers/ide/ide-pnp.c	Thu Jan 16 15:32:36 2003
+@@ -19,9 +19,7 @@
+ #include <linux/ide.h>
+ #include <linux/init.h>
+ 
+-#include <linux/isapnp.h>
+-
+-#define DEV_NAME(dev) (dev->name)
++#include <linux/pnp.h>
+ 
+ #define GENERIC_HD_DATA		0
+ #define GENERIC_HD_ERROR	1
+@@ -32,31 +30,27 @@
+ #define GENERIC_HD_SELECT	6
+ #define GENERIC_HD_STATUS	7
+ 
+-static int generic_ide_offsets[IDE_NR_PORTS] __initdata = {
++static int generic_ide_offsets[IDE_NR_PORTS] = {
+ 	GENERIC_HD_DATA, GENERIC_HD_ERROR, GENERIC_HD_NSECTOR, 
+ 	GENERIC_HD_SECTOR, GENERIC_HD_LCYL, GENERIC_HD_HCYL,
+ 	GENERIC_HD_SELECT, GENERIC_HD_STATUS, -1, -1
+ };
+ 
+-/* ISA PnP device table entry */
+-struct pnp_dev_t {
+-	unsigned short card_vendor, card_device, vendor, device;
+-	int (*init_fn)(struct pnp_dev *dev, int enable);
++/* Add your devices here :)) */
++struct pnp_device_id idepnp_devices[] = {
++  	/* Generic ESDI/IDE/ATA compatible hard disk controller */
++	{.id = "PNP0600", .driver_data = 0},
++	{.id = ""}
+ };
+ 
+-/* Generic initialisation function for ISA PnP IDE interface */
+-
+-static int __init pnpide_generic_init(struct pnp_dev *dev, int enable)
++static int idepnp_probe(struct pnp_dev * dev, const struct pnp_device_id *dev_id)
+ {
+ 	hw_regs_t hw;
+ 	ide_hwif_t *hwif;
+ 	int index;
+ 
+-	if (!enable)
+-		return 0;
+-
+ 	if (!(pnp_port_valid(dev, 0) && pnp_port_valid(dev, 1) && pnp_irq_valid(dev, 0)))
+-		return 1;
++		return -1;
+ 
+ 	ide_setup_ports(&hw, (ide_ioreg_t) pnp_port_start(dev, 0),
+ 			generic_ide_offsets,
+@@ -68,82 +62,36 @@
+ 	index = ide_register_hw(&hw, &hwif);
+ 
+ 	if (index != -1) {
+-	    	printk(KERN_INFO "ide%d: %s IDE interface\n", index, DEV_NAME(dev));
++	    	printk(KERN_INFO "ide%d: generic PnP IDE interface\n", index);
++		pnp_set_drvdata(dev,hwif);
+ 		hwif->pnp_dev = dev;
+ 		return 0;
  	}
- 	pnp_printf(buffer, ", %s\n", s);
+ 
+-	return 1;
++	return -1;
  }
  
--static void pnp_print_mem32(pnp_info_buffer_t *buffer, char *space, struct pnp_mem32 *mem32)
--{
--	int first = 1, i;
+-/* Add your devices here :)) */
+-struct pnp_dev_t idepnp_devices[] __initdata = {
+-  	/* Generic ESDI/IDE/ATA compatible hard disk controller */
+-	{	ISAPNP_ANY_ID, ISAPNP_ANY_ID,
+-		ISAPNP_VENDOR('P', 'N', 'P'), ISAPNP_DEVICE(0x0600),
+-		pnpide_generic_init },
+-	{	0 }
+-};
++static void idepnp_remove(struct pnp_dev * dev)
++{
++	ide_hwif_t *hwif = pnp_get_drvdata(dev);
++	if (hwif) {
++		ide_unregister(hwif->index);
++	} else
++		printk(KERN_ERR "idepnp: Unable to remove device, please report.\n");
++}
+ 
+-#define NR_PNP_DEVICES 8
+-struct pnp_dev_inst {
+-	struct pnp_dev *dev;
+-	struct pnp_dev_t *dev_type;
++static struct pnp_driver idepnp_driver = {
++	.name		= "ide",
++	.id_table	= idepnp_devices,
++	.probe		= idepnp_probe,
++	.remove		= idepnp_remove,
+ };
+-static struct pnp_dev_inst devices[NR_PNP_DEVICES];
+-static int pnp_ide_dev_idx = 0;
+ 
+-/*
+- * Probe for ISA PnP IDE interfaces.
+- */
+ 
+-void __init pnpide_init(int enable)
++void pnpide_init(int enable)
+ {
+-	struct pnp_dev *dev = NULL;
+-	struct pnp_dev_t *dev_type;
 -
--	pnp_printf(buffer, "%s32-bit memory ", space);
--	for (i = 0; i < 17; i++) {
--		if (first) {
--			first = 0;
--		} else {
--			pnp_printf(buffer, ":");
+-	if (!isapnp_present())
+-		return;
+-
+-	/* Module unload, deactivate all registered devices. */
+-	if (!enable) {
+-		int i;
+-		for (i = 0; i < pnp_ide_dev_idx; i++) {
+-			dev = devices[i].dev;
+-			devices[i].dev_type->init_fn(dev, 0);
+-			pnp_device_detach(dev);
 -		}
--		pnp_printf(buffer, "%02x", mem32->data[i]);
+-		return;
 -	}
--}
 -
- static void pnp_print_resources(pnp_info_buffer_t *buffer, char *space, struct pnp_resources *res, int dep)
- {
- 	char *s;
-@@ -186,7 +176,6 @@
- 	struct pnp_irq *irq;
- 	struct pnp_dma *dma;
- 	struct pnp_mem *mem;
--	struct pnp_mem32 *mem32;
- 
- 	switch (res->priority) {
- 	case PNP_RES_PRIORITY_PREFERRED:
-@@ -211,18 +200,15 @@
- 		pnp_print_dma(buffer, space, dma);
- 	for (mem = res->mem; mem; mem = mem->next)
- 		pnp_print_mem(buffer, space, mem);
--	for (mem32 = res->mem32; mem32; mem32 = mem32->next)
--		pnp_print_mem32(buffer, space, mem32);
- }
- 
- static ssize_t pnp_show_possible_resources(struct device *dmdev, char *buf)
- {
- 	struct pnp_dev *dev = to_pnp_dev(dmdev);
--	struct pnp_resources * res = dev->res;
--	int dep = 0;
--	pnp_info_buffer_t *buffer;
+-	for (dev_type = idepnp_devices; dev_type->vendor; dev_type++) {
+-		while ((dev = pnp_find_dev(NULL, dev_type->vendor,
+-			dev_type->device, dev))) {
+-			
+-			if (pnp_device_attach(dev) < 0)
+-				continue;
+-				
+-			if (pnp_activate_dev(dev, NULL) < 0) {
+-				printk(KERN_ERR"ide: %s activate failed\n", DEV_NAME(dev));
+-				continue;
+-			}
 -
--	buffer = (pnp_info_buffer_t *) pnp_alloc(sizeof(pnp_info_buffer_t));
-+	struct pnp_resources * res = dev->possible;
-+	int ret, dep = 0;
-+	pnp_info_buffer_t *buffer = (pnp_info_buffer_t *)
-+				 pnp_alloc(sizeof(pnp_info_buffer_t));
- 	if (!buffer)
- 		return -ENOMEM;
- 	buffer->len = PAGE_SIZE;
-@@ -236,97 +222,272 @@
- 		res = res->dep;
- 		dep++;
- 	}
--	return (buffer->curr - buf);
-+	ret = (buffer->curr - buf);
-+	kfree(buffer);
-+	return ret;
- }
- 
- static DEVICE_ATTR(possible,S_IRUGO,pnp_show_possible_resources,NULL);
- 
-+static void pnp_print_conflict_desc(pnp_info_buffer_t *buffer, int conflict)
-+{
-+	if (!conflict)
-+		return;
-+	pnp_printf(buffer, "  Conflict Detected: %2x - ", conflict);
-+	switch (conflict) {
-+	case CONFLICT_TYPE_RESERVED:
-+		pnp_printf(buffer, "This resource was manually reserved.\n");
-+		break;
-+
-+	case CONFLICT_TYPE_IN_USE:
-+		pnp_printf(buffer, "This resource resource is currently in use.\n");
-+		break;
-+
-+	case CONFLICT_TYPE_PCI:
-+		pnp_printf(buffer, "This resource conflicts with a PCI device.\n");
-+		break;
-+
-+	case CONFLICT_TYPE_INVALID:
-+		pnp_printf(buffer, "This resource is invalid.\n");
-+		break;
-+
-+	case CONFLICT_TYPE_INTERNAL:
-+		pnp_printf(buffer, "This resource conflicts with another resource on this device.\n");
-+		break;
-+
-+	case CONFLICT_TYPE_PNP_WARM:
-+		pnp_printf(buffer, "This resource conflicts with the active PnP device ");
-+		break;
-+
-+	case CONFLICT_TYPE_PNP_COLD:
-+		pnp_printf(buffer, "This resource conflicts with the resources that PnP plans to assign to the device ");
-+		break;
-+	default:
-+		pnp_printf(buffer, "Unknown conflict.\n");
-+		break;
-+	}
-+}
-+
-+static void pnp_print_conflict_node(pnp_info_buffer_t *buffer, struct pnp_dev * dev)
-+{
-+	if (!dev)
-+		return;
-+	pnp_printf(buffer, "%s.\n", dev->dev.bus_id);
-+}
-+
-+static void pnp_print_conflict(pnp_info_buffer_t *buffer, struct pnp_dev * dev, int idx, int type)
-+{
-+	struct pnp_dev * cdev, * wdev;
-+	int conflict;
-+	switch (type) {
-+	case IORESOURCE_IO:
-+		conflict = pnp_check_port(dev, idx);
-+		if (conflict == CONFLICT_TYPE_PNP_WARM)
-+			wdev = pnp_check_port_conflicts(dev, idx, SEARCH_WARM);
-+		cdev = pnp_check_port_conflicts(dev, idx, SEARCH_COLD);
-+		break;
-+	case IORESOURCE_MEM:
-+		conflict = pnp_check_mem(dev, idx);
-+		if (conflict == CONFLICT_TYPE_PNP_WARM)
-+			wdev = pnp_check_mem_conflicts(dev, idx, SEARCH_WARM);
-+		cdev = pnp_check_mem_conflicts(dev, idx, SEARCH_COLD);
-+		break;
-+	case IORESOURCE_IRQ:
-+		conflict = pnp_check_irq(dev, idx);
-+		if (conflict == CONFLICT_TYPE_PNP_WARM)
-+			wdev = pnp_check_irq_conflicts(dev, idx, SEARCH_WARM);
-+		cdev = pnp_check_irq_conflicts(dev, idx, SEARCH_COLD);
-+		break;
-+	case IORESOURCE_DMA:
-+		conflict = pnp_check_dma(dev, idx);
-+		if (conflict == CONFLICT_TYPE_PNP_WARM)
-+			wdev = pnp_check_dma_conflicts(dev, idx, SEARCH_WARM);
-+		cdev = pnp_check_dma_conflicts(dev, idx, SEARCH_COLD);
-+		break;
-+	default:
-+		return;
-+	}
-+
-+	pnp_print_conflict_desc(buffer, conflict);
-+
-+
-+	if (cdev) {
-+		pnp_print_conflict_desc(buffer, CONFLICT_TYPE_PNP_COLD);
-+		pnp_print_conflict_node(buffer, cdev);
-+	}
-+}
-+
- static ssize_t pnp_show_current_resources(struct device *dmdev, char *buf)
- {
- 	struct pnp_dev *dev = to_pnp_dev(dmdev);
--	char *str = buf;
--	int i;
-+	int i, ret;
-+	pnp_info_buffer_t *buffer = (pnp_info_buffer_t *)
-+				pnp_alloc(sizeof(pnp_info_buffer_t));
-+	if (!buffer)
-+		return -ENOMEM;
-+	if (!dev)
-+		return -EINVAL;
-+	buffer->len = PAGE_SIZE;
-+	buffer->buffer = buf;
-+	buffer->curr = buffer->buffer;
- 
--	if (!dev->active){
--		str += sprintf(str,"DISABLED\n");
--		goto done;
+-			/* Call device initialization function */
+-			if (dev_type->init_fn(dev, 1)) {
+-				pnp_device_detach(dev);
+-			} else {
+-#ifdef MODULE
+-				/*
+-				 * Register device in the array to
+-				 * deactivate it on a module unload.
+-				 */
+-				if (pnp_ide_dev_idx >= NR_PNP_DEVICES)
+-					return;
+-				devices[pnp_ide_dev_idx].dev = dev;
+-				devices[pnp_ide_dev_idx].dev_type = dev_type;
+-				pnp_ide_dev_idx++;
+-#endif
+-			}
+-		}
 -	}
--	for (i = 0; i < DEVICE_COUNT_IO; i++) {
-+	pnp_printf(buffer,"state = ");
-+	if (dev->active)
-+		pnp_printf(buffer,"active\n");
++	if(enable)
++		pnp_register_driver(&idepnp_driver);
 +	else
-+		pnp_printf(buffer,"disabled\n");
-+	for (i = 0; i < PNP_MAX_PORT; i++) {
- 		if (pnp_port_valid(dev, i)) {
--			str += sprintf(str,"io");
--			str += sprintf(str," 0x%lx-0x%lx \n",
-+			pnp_printf(buffer,"io");
-+			pnp_printf(buffer," 0x%lx-0x%lx \n",
- 						pnp_port_start(dev, i),
- 						pnp_port_end(dev, i));
-+			pnp_print_conflict(buffer, dev, i, IORESOURCE_IO);
- 		}
- 	}
--	for (i = 0; i < DEVICE_COUNT_MEM; i++) {
-+	for (i = 0; i < PNP_MAX_MEM; i++) {
- 		if (pnp_mem_valid(dev, i)) {
--			str += sprintf(str,"mem");
--			str += sprintf(str," 0x%lx-0x%lx \n",
-+			pnp_printf(buffer,"mem");
-+			pnp_printf(buffer," 0x%lx-0x%lx \n",
- 						pnp_mem_start(dev, i),
- 						pnp_mem_end(dev, i));
-+			pnp_print_conflict(buffer, dev, i, IORESOURCE_MEM);
- 		}
- 	}
--	for (i = 0; i < DEVICE_COUNT_IRQ; i++) {
-+	for (i = 0; i < PNP_MAX_IRQ; i++) {
- 		if (pnp_irq_valid(dev, i)) {
--			str += sprintf(str,"irq");
--			str += sprintf(str," %ld \n", pnp_irq(dev, i));
-+			pnp_printf(buffer,"irq");
-+			pnp_printf(buffer," %ld \n", pnp_irq(dev, i));
-+			pnp_print_conflict(buffer, dev, i, IORESOURCE_IRQ);
- 		}
- 	}
--	for (i = 0; i < DEVICE_COUNT_DMA; i++) {
-+	for (i = 0; i < PNP_MAX_DMA; i++) {
- 		if (pnp_dma_valid(dev, i)) {
--			str += sprintf(str,"dma");
--			str += sprintf(str," %ld \n", pnp_dma(dev, i));
-+			pnp_printf(buffer,"dma");
-+			pnp_printf(buffer," %ld \n", pnp_dma(dev, i));
-+			pnp_print_conflict(buffer, dev, i, IORESOURCE_DMA);
- 		}
- 	}
--	done:
--	return (str - buf);
-+	ret = (buffer->curr - buf);
-+	kfree(buffer);
-+	return ret;
++		pnp_unregister_driver(&idepnp_driver);
  }
+diff -ur a/drivers/ide/ide.c b/drivers/ide/ide.c
+--- a/drivers/ide/ide.c	Tue Jan 14 05:58:26 2003
++++ b/drivers/ide/ide.c	Thu Jan 16 15:08:55 2003
+@@ -817,6 +817,7 @@
  
-+extern int pnp_resolve_conflicts(struct pnp_dev *dev);
+ EXPORT_SYMBOL(ide_unregister);
+ 
 +
- static ssize_t
--pnp_set_current_resources(struct device * dmdev, const char * buf, size_t count)
-+pnp_set_current_resources(struct device * dmdev, const char * ubuf, size_t count)
- {
- 	struct pnp_dev *dev = to_pnp_dev(dmdev);
--	char	command[20];
--	int	num_args;
--	int	error = 0;
--	int	depnum;
-+	char	*buf = (void *)ubuf;
-+	int	retval = 0;
- 
--	num_args = sscanf(buf,"%10s %i",command,&depnum);
--	if (!num_args)
--		goto done;
--	if (!strnicmp(command,"lock",4)) {
--		if (dev->active) {
--			dev->lock_resources = 1;
--		} else {
--			error = -EINVAL;
--		}
-+	while (isspace(*buf))
-+		++buf;
-+	if (!strnicmp(buf,"disable",7)) {
-+		retval = pnp_disable_dev(dev);
- 		goto done;
+ /**
+  *	ide_setup_ports 	-	set up IDE interface ports
+  *	@hw: register descriptions
+@@ -2071,12 +2072,12 @@
+ 		buddha_init();
  	}
--	if (!strnicmp(command,"unlock",6)) {
--		if (dev->lock_resources) {
--			dev->lock_resources = 0;
--		} else {
--			error = -EINVAL;
--		}
-+	if (!strnicmp(buf,"activate",8)) {
-+		retval = pnp_activate_dev(dev);
- 		goto done;
+ #endif /* CONFIG_BLK_DEV_BUDDHA */
+-#if defined(CONFIG_BLK_DEV_ISAPNP) && defined(CONFIG_ISAPNP)
++#if defined(CONFIG_BLK_DEV_IDEPNP) && defined(CONFIG_PNP)
+ 	{
+ 		extern void pnpide_init(int enable);
+ 		pnpide_init(1);
  	}
--	if (!strnicmp(command,"disable",7)) {
--		error = pnp_disable_dev(dev);
-+	if (!strnicmp(buf,"auto-config",11)) {
-+		if (dev->active)
-+			goto done;
-+		retval = pnp_auto_config_dev(dev);
- 		goto done;
- 	}
--	if (!strnicmp(command,"auto",4)) {
--		error = pnp_activate_dev(dev,NULL);
-+	if (!strnicmp(buf,"resolve",7)) {
-+		retval = pnp_resolve_conflicts(dev);
- 		goto done;
- 	}
--	if (!strnicmp(command,"manual",6)) {
--		if (num_args != 2)
-+	if (!strnicmp(buf,"set",3)) {
-+		if (dev->active)
- 			goto done;
--		error = pnp_raw_set_dev(dev,depnum,NULL);
-+		buf += 3;
-+		struct pnp_resource_table res;
-+		int nport = 0, nmem = 0, nirq = 0, ndma = 0;
-+		pnp_init_resource_table(&res);
-+		while (1) {
-+			while (isspace(*buf))
-+				++buf;
-+			if (!strnicmp(buf,"io",2)) {
-+				buf += 2;
-+				while (isspace(*buf))
-+					++buf;
-+				res.port_resource[nport].start = simple_strtoul(buf,&buf,0);
-+				while (isspace(*buf))
-+					++buf;
-+				if(*buf == '-') {
-+					buf += 1;
-+					while (isspace(*buf))
-+						++buf;
-+					res.port_resource[nport].end = simple_strtoul(buf,&buf,0);
-+				} else
-+					res.port_resource[nport].end = res.port_resource[nport].start;
-+				res.port_resource[nport].flags = IORESOURCE_IO;
-+				nport++;
-+				if (nport >= PNP_MAX_PORT)
-+					break;
-+				continue;
-+			}
-+			if (!strnicmp(buf,"mem",3)) {
-+				buf += 3;
-+				while (isspace(*buf))
-+					++buf;
-+				res.mem_resource[nmem].start = simple_strtoul(buf,&buf,0);
-+				while (isspace(*buf))
-+					++buf;
-+				if(*buf == '-') {
-+					buf += 1;
-+					while (isspace(*buf))
-+						++buf;
-+					res.mem_resource[nmem].end = simple_strtoul(buf,&buf,0);
-+				} else
-+					res.mem_resource[nmem].end = res.mem_resource[nmem].start;
-+				res.mem_resource[nmem].flags = IORESOURCE_MEM;
-+				nmem++;
-+				if (nmem >= PNP_MAX_MEM)
-+					break;
-+				continue;
-+			}
-+			if (!strnicmp(buf,"irq",3)) {
-+				buf += 3;
-+				while (isspace(*buf))
-+					++buf;
-+				res.irq_resource[nirq].start =
-+				res.irq_resource[nirq].end = simple_strtoul(buf,&buf,0);
-+				res.irq_resource[nirq].flags = IORESOURCE_IRQ;
-+				nirq++;
-+				if (nirq >= PNP_MAX_IRQ)
-+					break;
-+				continue;
-+			}
-+			if (!strnicmp(buf,"dma",3)) {
-+				buf += 3;
-+				while (isspace(*buf))
-+					++buf;
-+				res.dma_resource[ndma].start =
-+				res.dma_resource[ndma].end = simple_strtoul(buf,&buf,0);
-+				res.dma_resource[ndma].flags = IORESOURCE_DMA;
-+				ndma++;
-+				if (ndma >= PNP_MAX_DMA)
-+					break;
-+				continue;
-+			}
-+			break;
-+		}
-+		spin_lock(&pnp_lock);
-+		dev->config_mode = PNP_CONFIG_MANUAL;
-+		dev->res = res;
-+		spin_unlock(&pnp_lock);
- 		goto done;
- 	}
-  done:
--	return error < 0 ? error : count;
-+	if (retval)
-+		return retval;
-+	return count;
+-#endif /* CONFIG_BLK_DEV_ISAPNP */
++#endif /* CONFIG_BLK_DEV_IDEPNP */
  }
-
- static DEVICE_ATTR(resources,S_IRUGO | S_IWUSR,
+ 
+ void __init ide_init_builtin_drivers (void)
+@@ -2247,9 +2248,9 @@
+ 		spin_unlock_irqrestore(&ide_lock, flags);
+ 		return 1;
+ 	}
+-#if defined(CONFIG_BLK_DEV_ISAPNP) && defined(CONFIG_ISAPNP) && defined(MODULE)
++#if defined(CONFIG_BLK_DEV_IDEPNP) && defined(CONFIG_PNP) && defined(MODULE)
+ 	pnpide_init(0);
+-#endif /* CONFIG_BLK_DEV_ISAPNP */
++#endif /* CONFIG_BLK_DEV_IDEPNP */
+ #ifdef CONFIG_PROC_FS
+ 	ide_remove_proc_entries(drive->proc, DRIVER(drive)->proc);
+ 	ide_remove_proc_entries(drive->proc, generic_subdriver_entries);
+diff -ur a/include/linux/ide.h b/include/linux/ide.h
+--- a/include/linux/ide.h	Tue Jan 14 05:58:33 2003
++++ b/include/linux/ide.h	Thu Jan 16 15:32:03 2003
+@@ -1721,6 +1721,7 @@
+ #endif
+ 
+ extern void hwif_unregister(ide_hwif_t *);
++extern void ide_unregister (unsigned int index);
+ 
+ extern void export_ide_init_queue(ide_drive_t *);
+ extern u8 export_probe_for_drive(ide_drive_t *);

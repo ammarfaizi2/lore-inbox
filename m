@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135283AbRDLTmG>; Thu, 12 Apr 2001 15:42:06 -0400
+	id <S135271AbRDLTm7>; Thu, 12 Apr 2001 15:42:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135278AbRDLTjq>; Thu, 12 Apr 2001 15:39:46 -0400
-Received: from dystopia.lab43.org ([209.217.122.210]:31422 "EHLO
-	dystopia.lab43.org") by vger.kernel.org with ESMTP
-	id <S135271AbRDLTjO>; Thu, 12 Apr 2001 15:39:14 -0400
-Date: Thu, 12 Apr 2001 15:37:11 -0400 (EDT)
-From: Rod Stewart <stewart@dystopia.lab43.org>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: 8139too: defunct threads
-In-Reply-To: <3AD5F9FE.9A49374D@uow.edu.au>
-Message-ID: <Pine.LNX.4.33.0104121530470.31525-100000@dystopia.lab43.org>
+	id <S135281AbRDLTmZ>; Thu, 12 Apr 2001 15:42:25 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:28076 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S135279AbRDLTkc>;
+	Thu, 12 Apr 2001 15:40:32 -0400
+Message-ID: <3AD604B0.2713F08B@mandrakesoft.com>
+Date: Thu, 12 Apr 2001 15:40:32 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: modica@sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Proposal for a new PCI function call
+In-Reply-To: <3AD601B4.7E0B14E4@sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steve Modica wrote:
+> 
+> Hi All,
+> 
+> We found recently that the acenic driver for the 3com gigabit ethernet card does
+> not enable 64 bit DMAs.  (this is done by setting the appropriate mask in
+> pci_dev->dma_mask).
+> 
+> Jes suggested that the appropriate way to fix this would be to create a function
+> like pci_enable_dma64 and then have the driver call that, rather than directly
+> setting this value (a small handful of drivers do this now).
+> 
+> I think the function idea would let us do some sanity checking to make sure
+> drivers weren't setting this to 64bit on non-64 bit busses and stuff.
 
-On Thu, 12 Apr 2001, Andrew Morton wrote:
-> Rod Stewart wrote:
-> >
-> > Hello,
-> >
-> > Using the 8139too driver, 0.9.15c, we have noticed that we get a defunct
-> > thread for each device we have; if the driver is built into the kernel.
-> > If the driver is built as a module, no defunct threads appear.
->
-> What is the parent PID for the defunct tasks?  zero?
+pci_set_dma_mask.  Modify that to do the additional checks you need.
 
-According to ps, 1
+Nobody should be setting dma_mask directly anymore, it should be done
+through this function.
 
-[root@stewart-nw34 networking]# ps alexw
-  F   UID PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY TIME  COMMAND
-044     0  14     1   9   0     0    0 do_exi Z    ?  0:00 [eth0 <defunct>]
-044     0  15     1   9   0     0    0 do_exi Z    ?  0:00 [eth1 <defunct>]
-044     0  16     1   9   0     0    0 do_exi Z    ?  0:00 [eth2 <defunct>]
-040     0 240     1   9   0     0    0 rtl813 SW   ?  0:00 [eth0]
+	Jeff
 
--Rms
 
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbUEQQa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUEQQeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbUEQQa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 12:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbUEQQa0
+	id S261880AbUEQQeB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 12:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUEQQeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 12:30:26 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:7184 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S261879AbUEQQaU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 12:30:20 -0400
-Message-ID: <40A8E8A1.2090404@hp.com>
-Date: Mon, 17 May 2004 12:30:25 -0400
-From: Robert Picco <Robert.Picco@hp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
+	Mon, 17 May 2004 12:34:00 -0400
+Received: from mail.kroah.org ([65.200.24.183]:61584 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261880AbUEQQd7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 12:33:59 -0400
+Date: Mon, 17 May 2004 09:32:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@fs.tum.de>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm3
-References: <20040516025514.3fe93f0c.akpm@osdl.org> <20040517161432.GG6763@smtp.west.cox.net>
-In-Reply-To: <20040517161432.GG6763@smtp.west.cox.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6.6-mm3: USB console.c doesn't compile
+Message-ID: <20040517163207.GB28629@kroah.com>
+References: <20040516025514.3fe93f0c.akpm@osdl.org> <20040516183849.GO22742@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040516183849.GO22742@fs.tum.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
+On Sun, May 16, 2004 at 08:38:49PM +0200, Adrian Bunk wrote:
+> The following compile error comes from Linus' tree:
+> 
+> <--  snip  -->
+> 
+> ...
+>   CC      drivers/usb/serial/console.o
+> drivers/usb/serial/console.c: In function `usb_console_setup':
+> drivers/usb/serial/console.c:140: warning: implicit declaration of function `serial_paranoia_check'
+> ...
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o(.init.text+0x698c8): In function `usb_console_setup':
+> : undefined reference to `serial_paranoia_check'
+> make: *** [.tmp_vmlinux1] Error 1
 
->On Sun, May 16, 2004 at 02:55:14AM -0700, Andrew Morton wrote:
->
->  
->
->>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm3/
->>
->>- A few VM changes, getting things synced up better with Andrea's work.
->>
->>- A new kgdb stub, for ia64 (what happened to the grand unified kgdb
->>  project?)
->>    
->>
->
->No one asked the ia64 folks who did that work "Hey, have you looked at
->the grand unified kgdb project on kgdb.sf.net ?" would be my guess.
->
->Having said that, if you're willing to go with a slightly late
->initalizing (I saw part of the early_param work get dropped again I
->think, so I'm gonna guess you don't wanna deal with that again yet) KGDB
->for i386 and PPC32, I can whip something up vs 2.6.6 in a day or so.
->  
->
+Oops, forgot that one, sorry.  Here's a patch that fixes it, and I'll
+forward it on to Linus later today.
 
-I did the ia64 port and started with Andrew's 2.6.4-mm2 i386 sources.  
-I'm assuming the long term strategy is to move to a unified kgdb being 
-done on sourceforge?  If so, I'll take a look at this.
+thanks,
 
-thanks
+greg k-h
 
-Bob
 
+diff -Nru a/drivers/usb/serial/console.c b/drivers/usb/serial/console.c
+--- a/drivers/usb/serial/console.c	Mon May 17 09:31:11 2004
++++ b/drivers/usb/serial/console.c	Mon May 17 09:31:11 2004
+@@ -137,7 +137,7 @@
+ 
+ 	/* grab the first serial port that happens to be connected */
+ 	serial = usb_serial_get_by_index(0);
+-	if (serial_paranoia_check (serial, __FUNCTION__)) {
++	if (serial == NULL) {
+ 		/* no device is connected yet, sorry :( */
+ 		err ("No USB device connected to ttyUSB0");
+ 		return -ENODEV;

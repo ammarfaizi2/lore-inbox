@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSGMUFq>; Sat, 13 Jul 2002 16:05:46 -0400
+	id <S315417AbSGMUMY>; Sat, 13 Jul 2002 16:12:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315417AbSGMUFp>; Sat, 13 Jul 2002 16:05:45 -0400
-Received: from ns.suse.de ([213.95.15.193]:58122 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315416AbSGMUFp>;
-	Sat, 13 Jul 2002 16:05:45 -0400
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Martin Bligh <mjbligh@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch[ Simple Topology API
-References: <3D2F75D7.3060105@us.ibm.com.suse.lists.linux.kernel> <3D2F9521.96D7080B@zip.com.au.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 13 Jul 2002 22:08:35 +0200
-In-Reply-To: Andrew Morton's message of "13 Jul 2002 04:45:16 +0200"
-Message-ID: <p73ofdbv1a4.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S315420AbSGMUMX>; Sat, 13 Jul 2002 16:12:23 -0400
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:29683 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S315417AbSGMUMX>; Sat, 13 Jul 2002 16:12:23 -0400
+Message-ID: <3D308A30.7070702@wanadoo.fr>
+Date: Sat, 13 Jul 2002 22:14:40 +0200
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020704
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+CC: Greg KH <greg@kroah.com>
+Subject: 2.5.25  uhci-hcd  very bad
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
+usb inboard Abit BE6, ADSL modem Speedtouch usb.
 
+I used to use satisfactorily usb-uhci-hcd before 2.5.25, switching to 
+uhci-hcd halts the adsl modem after a few minutes with this message:
 
-> AFAIK, the interested parties with this and the memory binding API are
-> ia32-NUMA, ia64, PPC, some MIPS and x86-64-soon.  It would be helpful
-> if the owners of those platforms could review this work and say "yes,
-> this is something we can use and build upon".  Have they done that?
+kernel: uhci-hcd.c: c000: host controller process error. something bad 
+happened
+kernel: uhci-hcd.c: c000: host controller halted. very bad
 
-Comment from the x86-64 side: 
+2.5.24 is not happy too with uhci-hcd.
 
-Current x86-64 NUMA essentially has no 'nodes', just each CPU has
-local memory that is slightly faster than remote memory. This means
-the node number would be always identical to the CPU number. As long
-as the API provides it's ok for me. Just the node concept will not be
-very useful on that platform. memblk will also be identity mapped to
-node/cpu.
+What should I look at ?
 
-Some way to tell user space about memory affinity seems to be useful,
-but...
-
-General comment:
-
-I don't see what the application should do with the memblk concept
-currently. Just knowing about it doesn't seem too useful. 
-Surely it needs some way to allocate memory in a specific memblk to be useful?
-Also doesn't it need to know how much memory is available in each memblk?
-(otherwise I don't see how it could do any useful partitioning)
-
--Andi
+Pierre
+-- 
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
 

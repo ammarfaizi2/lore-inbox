@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUF0KF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUF0KXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUF0KF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 06:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUF0KF0
+	id S261602AbUF0KXy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 06:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUF0KXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 06:05:26 -0400
-Received: from stud.fbi.fh-darmstadt.de ([141.100.40.65]:58820 "EHLO
-	stud1.fbihome.de") by vger.kernel.org with ESMTP id S261405AbUF0KFO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 06:05:14 -0400
-From: Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
-To: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-Subject: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
-Date: Sun, 27 Jun 2004 00:32:00 +0200
-User-Agent: KMail/1.6.2
+	Sun, 27 Jun 2004 06:23:54 -0400
+Received: from mailsrv3.tranzpeer.net ([202.180.66.209]:36069 "EHLO
+	mailsrv3.tranzpeer.net") by vger.kernel.org with ESMTP
+	id S261602AbUF0KXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 06:23:52 -0400
+Message-ID: <40DE9228.2080401@flying-brick.caverock.net.nz>
+Date: Sun, 27 Jun 2004 10:23:52 +0100
+From: The Viking <viking@flying-brick.caverock.net.nz>
+Organization: The Flying Brick System
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406270032.12897.vergata@stud.fbi.fh-darmstadt.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: viking@flying-brick.caverock.net.nz
+Subject: Re: [PATCH] save kernel version in .config file
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Hi all,
-
-I have an IBM t40P. 
-Starting testing since i got my Laptop, Now starting with 2.6.7 and -mm1 i 
-Switched from APM to ACPI  and use SwSusp.
-
-Now i trying to get the system working reliable with ACPI, suspending to RAM 
-will not work as ist should it switch of Display Fan HDD this ist what i see 
-and hear, but it will not suspend DVDRom an for sure it leave the CPU 
-powered. I see that cpu i on because the system heats itself up. The time for 
-the suspended system is round about 10 hours after that the system powers of 
-and the battery is empty. 
-
-Problem number 2 is the problem that of suspending to ram will not reawake the 
-interrupts of nvram and the acpi interrupts IRQ 9. 
-
-Now to the Suspend to Disk problem. Hibernating writes the image to disk 
-works, but only with disabled apic it poweroff the system in the right way, 
-with apic the Fan will not shut down don't know if something else isn't 
-poweredoff. 
-
-So i don't use Apic and so acpi works now after powering on the machine and 
-booting with acpi resume kernel all get to work again. Only sometimes, don't 
-know why and in witch circumstances, the system boots the kernel and find the 
-Image in Swapspace, but reading that image says that this is an corruptet 
-image and stop booting, now if I power the system whith resume=noresume the 
-kernel boots up find the Image in swap (why that) and restore this found 
-image back to an running system at the last state. Strange ! After the system 
-boots everything goes back to work. Only the IRQ problem remains and 
-hibernating and resuming again will work. 
-
-Finaly I have an request: could the acpi_wakeup_devices be addet to some patch 
-set ? Or preferable to kerneltree it self?! 
 
 
-So i hope someone will read this, and maybe report the same problems, or 
-better an hint what it could be :-) 
+-------- Original Message --------
+References: <28jXg-7Hw-3@gated-at.bofh.it> <28lmp-jo-9@gated-at.bofh.it>
 
-CU Sergio
+On Fri, 18 Jun 2004 08:38:58 +0200 Paul Rolland wrote:
 
-- -- 
-Microsoft is to operating systems & security ....
-             .... what McDonalds is to gourmet cooking
+| Hello,
+|
+| >
+| > Is this interesting to anyone besides me?
+| >
+| Is it also possible to have this version being displayed during
+| a make config/make menuconfig/... so that we know we are reading a
+| config file that may have been generated for another kernel version,
+| and not yet saved ?
+|
+| You would have, for make menuconfig :
+|
+|  Linux Kernel v2.2.13 Configuration, Configuration file version 2.4.20
 
-PGP-Key http://vergata.it/GPG/F17FDB2F.asc
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+ >Sure, it's possible.  I just don't want to add the kitchen sink.
 
-iD8DBQFA3fllVP5w5vF/2y8RAiPlAKC4pA4mg4Pi2UtNLl+qW+lK1SJbIQCfWjnv
-9/G8l8GRh7z3h2CzXFIcUs4=
-=xEU+
------END PGP SIGNATURE-----
+ >IOW, I'm not convinced that it's useful most of the time...
+ >only a little bit of the time.
+
+My two cents worth:
+I'd show it if it differed in kernel version, otherwise not. If this code is 
+all relatively self contained, such as all being within the menuconfig/xconfig 
+code, then it won't affect the running of the kernel. And yes, it would mean a 
+little more code in place, but we're waiting for keyboard strokes in this 
+code, or viewing its output. It's not timing-critical.
+
+Sorry I took so long to get to this, but I've only caught up to this point.
+
+-- 
+2,313 messages to read, 2,313 messages to read - damn, Thunderbird just 
+refreshed, 2,847 messages to read, ... (ad nauseum vibrum kernel)
+
+The Viking of the Flying Brick System

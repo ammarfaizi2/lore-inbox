@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262624AbUCOR2x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 12:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbUCOR2x
+	id S262626AbUCORlY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 12:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUCORlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 12:28:53 -0500
-Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:4818 "EHLO
-	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S262624AbUCOR2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 12:28:50 -0500
-Message-Id: <200403151728.i2FHSHgu021955@ginger.cmf.nrl.navy.mil>
-To: Peter Daum <gator@cs.tu-berlin.de>
-cc: linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
-       davem@redhat.com
-Subject: Re: [Linux-ATM-General] NICSTAR_USE_SUNI broken in 2.6.3+ 
-In-Reply-To: Message from Peter Daum <gator@cs.tu-berlin.de> 
-   of "Sat, 13 Mar 2004 10:54:29 +0100." <Pine.LNX.4.30.0403131045040.3568-100000@swamp.bayern.net> 
-Date: Mon, 15 Mar 2004 12:28:19 -0500
-From: "chas williams (contractor)" <chas@cmf.nrl.navy.mil>
-X-Spam-Score: () hits=-2.9
+	Mon, 15 Mar 2004 12:41:24 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:31562 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262626AbUCORlW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 12:41:22 -0500
+Date: Mon, 15 Mar 2004 18:41:48 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Fabian Fenaut <fabian.fenaut@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1 and -mm2: include/linux/version.h missing (vanilla ok)
+Message-ID: <20040315174148.GA2163@mars.ravnborg.org>
+Mail-Followup-To: Fabian Fenaut <fabian.fenaut@free.fr>,
+	linux-kernel@vger.kernel.org
+References: <S262583AbUCOOfF/20040315143505Z+146@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <S262583AbUCOOfF/20040315143505Z+146@vger.kernel.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.30.0403131045040.3568-100000@swamp.bayern.net>,Peter Dau
-m writes:
->I have a bunch of machines with Forerunner LE ATM NICs.
->Starting with kernel version 2.6.3 the kernel crashes at
->boot time (see dump below) when CONFIG_ATM_NICSTAR_USE_SUNI
->
->EIP; c0252650 <suni_start+35/17d>   <=====
+On Mon, Mar 15, 2004 at 03:35:01PM +0100, Fabian Fenaut wrote:
+> Hi,
+> 
+> Why is there no include/linux/version.h after having compiled -mm1 and -mm2 
+> ?
+> Compilation of kernel is fine, but because of this, my nvidia modules won't
+> compile.
+> 
+> As said in the subject, 2.6.4 vanilla is ok, version.h is here after
+> compilation.
+> 
+> I use debian woody, and I type
+> 
+> make-kpkg --append-to-version -ff --revision 1 binary-arch
+> make-kpkg --append-to-version -ff --revision 1 modules_image
 
-this points directly to suni.c:236, in particular the PRIV(dev)->dev
-bit.  it looks like gcc3 fixups from akpm inadvertently converted PRIV()
-to dev_data instead of phy_data.
+I dunno make-kpkg, but 'make clean' became a bit more effective in mm1.
+So now 'make clean' deletes version.h - maybe that's your problem?
 
-the following patch should get things running again.
+In that case, why are a make clean executed?
 
-dave, can you apply to 2.6?  thanks!
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1603  -> 1.1604 
-#	  drivers/atm/suni.c	1.9     -> 1.10   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 04/03/15	chas@relax.cmf.nrl.navy.mil	1.1604
-# [ATM]: [suni] dev_data should really by phy_data
-# --------------------------------------------
-#
-diff -Nru a/drivers/atm/suni.c b/drivers/atm/suni.c
---- a/drivers/atm/suni.c	Mon Mar 15 12:23:09 2004
-+++ b/drivers/atm/suni.c	Mon Mar 15 12:23:09 2004
-@@ -230,7 +230,7 @@
- 	unsigned long flags;
- 	int first;
- 
--	if (!(dev->dev_data = kmalloc(sizeof(struct suni_priv),GFP_KERNEL)))
-+	if (!(dev->phy_data = kmalloc(sizeof(struct suni_priv),GFP_KERNEL)))
- 		return -ENOMEM;
- 
- 	PRIV(dev)->dev = dev;
-
+	Sam

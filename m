@@ -1,87 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266859AbUBQXUl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 18:20:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266866AbUBQXUk
+	id S266866AbUBQXYP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 18:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266826AbUBQXYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 18:20:40 -0500
-Received: from dp.samba.org ([66.70.73.150]:50614 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266859AbUBQXUQ (ORCPT
+	Tue, 17 Feb 2004 18:24:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:20661 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266866AbUBQXXC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 18:20:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Feb 2004 18:23:02 -0500
+Date: Tue, 17 Feb 2004 15:24:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Limit hash table size
+Message-Id: <20040217152451.7e1796d9.akpm@osdl.org>
+In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB501F2AADF@scsmsx401.sc.intel.com>
+References: <B05667366EE6204181EABE9C1B1C0EB501F2AADF@scsmsx401.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16434.41376.453823.260362@samba.org>
-Date: Wed, 18 Feb 2004 10:20:00 +1100
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: UTF-8 and case-insensitivity
-In-Reply-To: <Pine.LNX.4.58.0402170704210.2154@home.osdl.org>
-References: <16433.38038.881005.468116@samba.org>
-	<Pine.LNX.4.58.0402162034280.30742@home.osdl.org>
-	<16433.47753.192288.493315@samba.org>
-	<Pine.LNX.4.58.0402170704210.2154@home.osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>
+> OK, here is another revision on top of what has been discussed.  It adds
+> 4 boot time parameters so user can override default size as needed to
+> suite special needs.
 
- > Yes, we could add context sensitivity to the dcache with a context 
- > bitmask.
- > 
- > However, it's _not_ correct.
- > 
- > It assumes that there is only one way to do lower/upper case, which just 
- > isn't true. What about different locales that have different case rules? 
- > Your "one bit per dentry" becomes "one bit per locale per dentry". That's 
- > just horribly hard to do.
+You've set the default to 2M entries, with an option for this to be
+increased via a boot parameter.  This means that people whose machines have
+lots of memory and a sane number of zones may suddenly wonder why their
+app-which-uses-a-zillion-files is running like crap.
 
-I think you're making it sound much harder than it really is.
+I think it would be better to leave things as they are, with a boot option
+to scale the tables down.  The below patch addresses the inode and dentry
+caches.  Need to think a bit more about the networking ones.
 
-We just add a VFS hook in the filesystems. The filesystem chooses the
-encoding specific comparison function. If the filesystem doesn't
-provide one then don't do case insensitivity. If the filesystem does
-provide one (for example NTFS, JFS) then use it. Then all I need to do
-is convince one of the filesystem maintainers to add a mount time
-option to specify the case table (for example by specifying the name
-of a file in the filesystem that holds it).
+> I will sent a separate patch for
+> kernel-parameters.txt if everyone is OK with this one.
 
-So, all the really ugly stuff is then in the per-filesystem code, and
-all the VFS and dcache has to do is know about a single context bit
-per dentry. 
+Yes please.
 
- > I don't know how Windows does it, so maybe this thing is hardcoded, and 
- > you don't even want "true" case insensitivity. 
 
-NTFS has a 128k table on disk, created at mkfs time and indexed by the
-UCS2 character. The interesting thing about this table is that it
-doesn't seem to vary between different locales as one might expect. I
-have checked 3 locales so far (Swedish, Japanese and English) and all
-have the same 128k table. I should check a few more locales to see if
-it really is the same everywhere. Contact me off-list if you have a
-NTFS filesystem created in a different locale and would be willing to
-run a test program against it to see if the table is different from
-the one we have in Samba.
+diff -puN fs/dcache.c~limit-hash-table-sizes-boot-options-restore-defaults fs/dcache.c
+--- 25/fs/dcache.c~limit-hash-table-sizes-boot-options-restore-defaults	Tue Feb 17 15:11:09 2004
++++ 25-akpm/fs/dcache.c	Tue Feb 17 15:11:29 2004
+@@ -49,7 +49,6 @@ static kmem_cache_t *dentry_cache; 
+  */
+ #define D_HASHBITS     d_hash_shift
+ #define D_HASHMASK     d_hash_mask
+-#define D_HASHMAX	(2*1024*1024UL)	/* max number of entries */
+ 
+ static unsigned int d_hash_mask;
+ static unsigned int d_hash_shift;
+@@ -1567,12 +1566,11 @@ static void __init dcache_init(unsigned 
+ 	
+ 	set_shrinker(DEFAULT_SEEKS, shrink_dcache_memory);
+ 
+-	if (!dhash_entries) {
++	if (!dhash_entries)
+ 		dhash_entries = PAGE_SHIFT < 13 ?
+ 				mempages >> (13 - PAGE_SHIFT) :
+ 				mempages << (PAGE_SHIFT - 13);
+-		dhash_entries = min(D_HASHMAX, dhash_entries);
+-	}
++
+ 	dhash_entries *= sizeof(struct hlist_head);
+ 	for (order = 0; ((1UL << order) << PAGE_SHIFT) < dhash_entries; order++)
+ 		;
+diff -puN fs/inode.c~limit-hash-table-sizes-boot-options-restore-defaults fs/inode.c
+--- 25/fs/inode.c~limit-hash-table-sizes-boot-options-restore-defaults	Tue Feb 17 15:11:09 2004
++++ 25-akpm/fs/inode.c	Tue Feb 17 15:11:47 2004
+@@ -53,7 +53,6 @@
+  */
+ #define I_HASHBITS	i_hash_shift
+ #define I_HASHMASK	i_hash_mask
+-#define I_HASHMAX	(2*1024*1024UL)	/* max number of entries */
+ 
+ static unsigned int i_hash_mask;
+ static unsigned int i_hash_shift;
+@@ -1336,12 +1335,11 @@ void __init inode_init(unsigned long mem
+ 	for (i = 0; i < ARRAY_SIZE(i_wait_queue_heads); i++)
+ 		init_waitqueue_head(&i_wait_queue_heads[i].wqh);
+ 
+-	if (!ihash_entries) {
++	if (!ihash_entries)
+ 		ihash_entries = PAGE_SHIFT < 14 ?
+ 				mempages >> (14 - PAGE_SHIFT) :
+ 				mempages << (PAGE_SHIFT - 14);
+-		ihash_entries = min(I_HASHMAX, ihash_entries);
+-	}
++
+ 	ihash_entries *= sizeof(struct hlist_head);
+ 	for (order = 0; ((1UL << order) << PAGE_SHIFT) < ihash_entries; order++)
+ 		;
 
-There is stuff in the charset handling of every locale that does vary
-in windows, but it isn't the case table, its the "valid characters"
-map used to determine what characters are allowed when converting
-strings into legacy multi-byte encodings. Even I don't think that the
-kernel will ever have to deal with that crap unless someone is foolish
-enough to port Samba into the kernel (several people have actually
-done that despite the insanity of the idea, but they all did an
-absolutely terrible job of it and certainly didn't take care to get
-all the charset handling right).
 
-> How "correct" is Windows?
-
-from my rather limited point of view I always have to assume that
-windows is "correct", unless I can show that its behaviour leads to
-data loss, a security hole or something equally extreme.
-
-Cheers, Tridge

@@ -1,61 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262857AbUKXVZD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262863AbUKXVaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262857AbUKXVZD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 16:25:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbUKXVWQ
+	id S262863AbUKXVaK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 16:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbUKXV3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 16:22:16 -0500
-Received: from fallback.mail.elte.hu ([157.181.151.13]:19693 "EHLO
-	fallback.mail.elte.hu") by vger.kernel.org with ESMTP
-	id S261295AbUKXVVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 16:21:32 -0500
-Date: Wed, 24 Nov 2004 23:17:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-9
-Message-ID: <20041124221754.GA31512@elte.hu>
-References: <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <1101324238.29045.62.camel@cmn37.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101324238.29045.62.camel@cmn37.stanford.edu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 24 Nov 2004 16:29:06 -0500
+Received: from mail.gmx.de ([213.165.64.20]:25049 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261295AbUKXV26 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 16:28:58 -0500
+X-Authenticated: #20450766
+Date: Wed, 24 Nov 2004 22:28:13 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Len Brown <len.brown@intel.com>
+cc: linux-kernel@vger.kernel.org,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       sensors@stimpy.netroedge.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [sensors] system slow since ~ 2.6.7
+In-Reply-To: <1101186291.20008.247.camel@d845pe>
+Message-ID: <Pine.LNX.4.60.0411242139090.2319@poirot.grange>
+References: <Pine.LNX.4.60.0411180115490.941@poirot.grange>
+ <1101186291.20008.247.camel@d845pe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(added Andrew to CC as he also answered my original email. Don't know if 
+sensors@stimpy.netroedge.com allows non-subscribers)
 
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+On Tue, 23 Nov 2004, Len Brown wrote:
 
-> Using PREEMPT_DESKTOP I see a irq related problem with my network
-> interface:
+> On Wed, 2004-11-17 at 19:25, Guennadi Liakhovetski wrote:
+> > "Slow" means just running top alone in a vt it takes 1.6% CPU. Under
+> > 2.6.3 it takes 0.2% (Duron 900MHz). Another peculiarity with 2.6.7 and
+> > 2.6.9 is that the power LED is blinking with about 1Hz frequency. It's
+> > an ASUS A7VI-VM motherboard. In the manual there's nothing about
+> 
+> PCI: Disabling Via external APIC routing
+> 
+> Curiously, this line appears in 2.6.3, but not in 2.6.7 or 2.6.9 dmesg
+> -- even though all the configs build in IOAPIC support.
+> 
+> Can you forward the /proc/interrupts from 2.6.3, and from 2.6.9 with and
+> without acpi=off?  do you see a significant change in /proc/interrupts
+> before and after the sensor-provoked slowness starts?
+> 
+> if you build 2.6.9 w/o the CONFIG_ACPI_PROCESSOR and boot w/o cmdline
+> params, do you still see slowness?
+> 
+> if you boot 2.6.9 with these parameters, do you see any additional dmesg
+> lines?
+> 
+> acpi_dbg_level=0xF acpi_dbg_layer=0xFFFF3FFF
 
-> IRQ#11 thread RT prio: 38.
-> irq 16: nobody cared!
->  [<c0104173>] dump_stack+0x23/0x30 (20)
->  [<c0147970>] __report_bad_irq+0x30/0xa0 (24)
->  [<c0147a80>] note_interrupt+0x70/0xb0 (32)
->  [<c01477dc>] do_hardirq+0x13c/0x150 (40)
->  [<c0147889>] do_irqd+0x99/0xd0 (32)
->  [<c0139fda>] kthread+0xaa/0xb0 (48)
->  [<c0101335>] kernel_thread_helper+0x5/0x10 (153083924)
+Ok, I started debugging the problem closely, and after booting into 2.6.9 
+with acpi=off I still could reproduce the problem by starting sensors... 
+So, I guess, there's no need to do all the acpi debugging you are 
+suggesting above, right? As for /proc/interrupts with / without acpi and 
+before / after sensors I don't see any difference. Notice also, that the 
+slowness doesn't necessarily start immediately after starting sensors, it 
+can start later, and it can spontaneously stop later. Just now while 
+typing this email I saw the power LED stopped blinking and the speed went 
+back to normal.
 
-does it otherwise get detected and does it work fine afterwards?
+This reminds me: about a year ago my CPU fan burnt down. Then too, shortly 
+after booting the PC, it slowed down. Then by accident I noticed in BIOS 
+CPU temperature 98 deg C. With a new fan problem disappeared.
 
-	Ingo
+So, can it be, that the BIOS automatically slows down (throttles) the CPU 
+at high temperature. And after ~ 2.6.7 sensors program the sensor 
+interface with some (wrong) coefficient, and then it throttles the CPU 
+wrongly? Yes, some coefficients are definitely wrong. Here are a couple of 
+snapshots:
+
+via686a-isa-e200
+Adapter: ISA adapter
+CPU core:  +1.09 V  (min =  +2.00 V, max =  +2.50 V)   ALARM
++2.5V:     +1.16 V  (min =  +3.10 V, max =  +1.57 V)   ALARM
+I/O:       +3.40 V  (min =  +4.13 V, max =  +4.13 V)   ALARM
++5V:       +5.55 V  (min =  +6.44 V, max =  +6.44 V)   ALARM
++12V:      +4.81 V  (min = +15.60 V, max = +15.60 V)   ALARM
+CPU Fan:  5443 RPM  (min =    0 RPM, div = 2)          
+P/S Fan:     0 RPM  (min =    0 RPM, div = 2)          
+SYS Temp:  +45.4 C  (high =   +45 C, hyst =   +40 C)   ALARM
+CPU Temp:  +34.5 C  (high =   +60 C, hyst =   +55 C)   
+SBr Temp:  +28.4 C  (high =   +65 C, hyst =   +60 C)   
+
+via686a-isa-e200
+Adapter: ISA adapter
+CPU core:  +1.09 V  (min =  +2.00 V, max =  +2.50 V)   ALARM
++2.5V:     +1.16 V  (min =  +3.10 V, max =  +1.57 V)   ALARM
+I/O:       +3.40 V  (min =  +4.13 V, max =  +4.13 V)   ALARM
++5V:       +5.55 V  (min =  +6.44 V, max =  +6.44 V)   ALARM
++12V:      +4.81 V  (min = +15.60 V, max = +15.60 V)   ALARM
+CPU Fan:  5487 RPM  (min =    0 RPM, div = 2)          
+P/S Fan:     0 RPM  (min =    0 RPM, div = 2)          
+SYS Temp:  +45.2 C  (high =   +91 C, hyst =   +40 C)   ALARM
+CPU Temp:  +34.4 C  (high =   +60 C, hyst =   +55 C)   
+SBr Temp:  +28.4 C  (high =   +65 C, hyst =   +60 C)   
+
+Notice how SYS Temp high changed... Can my guesses be correct and how 
+can the situation be fixed? Again - no problems with 2.6.3.
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+

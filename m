@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261476AbSJDEdW>; Fri, 4 Oct 2002 00:33:22 -0400
+	id <S261477AbSJDEoN>; Fri, 4 Oct 2002 00:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261477AbSJDEdW>; Fri, 4 Oct 2002 00:33:22 -0400
-Received: from lightning.adam.com.au ([203.2.124.20]:61193 "HELO
-	lightning.adam.com.au") by vger.kernel.org with SMTP
-	id <S261476AbSJDEdW>; Fri, 4 Oct 2002 00:33:22 -0400
-Message-ID: <3D9D1E8C.AE3423B@adam.com.au>
-Date: Fri, 04 Oct 2002 14:22:28 +0930
-From: David Lloyd <lloy0076@adam.com.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-SGI_XFS_1.1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: immortal1015 <immortal1015@hotpop.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: How to replace the network cards
-References: <20021004042315.9F1AF1B84FF@smtp-2.hotpop.com>
+	id <S261478AbSJDEoN>; Fri, 4 Oct 2002 00:44:13 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:2830 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261477AbSJDEoM>;
+	Fri, 4 Oct 2002 00:44:12 -0400
+Date: Thu, 3 Oct 2002 21:46:53 -0700
+From: Greg KH <greg@kroah.com>
+To: Muli Ben-Yehuda <mulix@actcom.co.il>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: export of sys_call_table
+Message-ID: <20021004044652.GA3556@kroah.com>
+References: <20021003153943.E22418@openss7.org> <20021003221525.GA2221@kroah.com> <20021003222716.GB14919@suse.de> <1033684027.1247.43.camel@phantasy> <20021003225842.GA79989@compsoc.man.ac.uk> <20021004040503.GH15215@actcom.co.il>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20021004040503.GH15215@actcom.co.il>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 04, 2002 at 07:05:03AM +0300, Muli Ben-Yehuda wrote:
+> 
+> http://marc.theaimsgroup.com/?l=kernelnewbies&m=102267164910800&w=2, 
 
-Hi There,
+You didn't read my post to that same thread did you:
+	http://marc.theaimsgroup.com/?l=kernelnewbies&m=102130770415962
 
-> Hi, all. Sorry for my stupid problems.
+And for the most part, the people on kernelnewbies have given up on
+trying to explain to new people why this does not work.  I know I sure
+have :)
 
-If you weren't called "immortal" I'd forgive you, but if you are a god
-surely you would know all!
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=101821127019203&w=2
+> 
+> [2] Can the LSM hooks be used for notification and modification on
+> every system call's entry and exit?  
 
-> I installed Redhat7.2 on my computer and netcard was installed properly.
-> I used 'lsmod' and find my network card driver module is 'pcnet32'. Now
-> I have modified the source code in pcnet32.c and compile it. How can I
-> make my modifications work?
+No.  See the LSM mailing list archives for why we did not decide to do
+this.  (hint, you don't really achieve what you want to by doing this.)
 
-make modules
-make modules_install
+If you _really_ want to hook things like this, look at LTT or dprobes.
+They should work just fine for you.
 
-...should do it unless you've got your pcnet32.c not in its usual place
-in the kernel tree.
+thanks,
 
-[ I hope that made sense :-) ]
-
-DSL
--- 
-Qualcuno no mi basta.
-  Vivere cercando il grande amore.
-  Vivere come se mai dovessimo morire.
-(Anastasio, Valli e Travato)
+greg k-h

@@ -1,550 +1,661 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264439AbTKMWGV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 17:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbTKMWGU
+	id S264436AbTKMWHD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 17:07:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264434AbTKMWHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 17:06:20 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:2439 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264439AbTKMWE4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 17:04:56 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: stuart_hayes@lycos.com
-Subject: [PATCH] ide-tape update for 2.6 (Was: PATCH:  gets ide-tape working on 2.6)
-Date: Thu, 13 Nov 2003 23:04:51 +0100
-User-Agent: KMail/1.5.4
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <DPMCCJOJLIGDCEAA@mailcity.com>
-In-Reply-To: <DPMCCJOJLIGDCEAA@mailcity.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Thu, 13 Nov 2003 17:07:03 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30353 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264441AbTKMWF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 17:05:57 -0500
+Subject: Re: 2.6.0-test9-mm3 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031112233002.436f5d0c.akpm@osdl.org>
+References: <20031112233002.436f5d0c.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1068761075.12351.19.camel@cherrytest.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 13 Nov 2003 14:04:35 -0800
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311132304.51538.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-[ with changed subject because ide-tape _is_ already working in 2.6 ]
+Kernel             bzImage   bzImage  bzImage  modules  bzImage  
+modules
+                 (defconfig) (allno)  (allyes) (allyes) (allmod)
+(allmod)
+---------------  ---------- -------- -------- -------- --------
+---------
+2.6.0-test9-mm3    0w/0e     0w/0e   172w/ 0e  12w/0e   3w/0e    211w/0e
+2.6.0-test9-mm2    0w/0e     0w/0e   172w/ 0e  12w/0e   3w/0e    211w/1e
+2.6.0-test9-mm1    0w/0e     0w/0e   179w/ 1e  12w/0e   3w/0e    213w/1e
+2.6.0-test8-mm1    0w/0e     0w/0e   183w/ 1e  13w/0e   3w/0e    223w/1e
+2.6.0-test7-mm1    0w/0e     1w/0e   176w/ 1e   9w/0e   3w/0e    231w/1e
+2.6.0-test6-mm4    0w/0e     1w/0e   179w/ 1e   9w/0e   3w/0e    234w/1e
+2.6.0-test6-mm3    0w/0e     1w/0e   178w/ 1e   9w/0e   3w/0e    252w/2e
+2.6.0-test6-mm2    0w/0e     1w/0e   179w/ 1e   9w/0e   3w/0e    252w/2e
+2.6.0-test6-mm1    0w/0e     1w/0e   179w/ 1e   9w/0e   3w/0e    252w/2e
 
-On Thursday 13 of November 2003 16:54, stuart hayes wrote:
-> Here's the patch in plain text.
->
-> --
->
-> Bart (et al),
->
-> Here's a patch for ide-tape.c that gets ide-tape working on the 2.6 kernel.
->
-> This should be applied after your recent patch that fixed the rq->flags
-> stuff in ide-tape.
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
 
-Current 2.6 -bk tree already contains corrected version of my patch
-and fix for ide-tape character device (so no need to use iminor(inode)).
+Version information for host [ cherrypit.pdx.osdl.net ]
+ gcc:    3.2.2
+ patch:  2.5.4
 
--bk snapshots are at http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/
+Kernel version: 2.6.0-test9-mm3
+Kernel build: 
+   Making bzImage (defconfig): 0 warnings, 0 errors
+   Making modules (defconfig): 0 warnings, 0 errors
+   Making bzImage (allnoconfig): 0 warnings, 0 errors
+   Making bzImage (allyesconfig): 172 warnings, 0 errors
+   Making modules (allyesconfig): 12 warnings, 0 errors
+   Making bzImage (allmodconfig): 3 warnings, 0 errors
+   Making modules (allmodconfig): 211 warnings, 0 errors
 
-I've updated your patch accordingly.
+Building directories:
+   Building fs/adfs: clean
+   Building fs/affs: clean
+   Building fs/afs: clean
+   Building fs/autofs: clean
+   Building fs/autofs4: clean
+   Building fs/befs: clean
+   Building fs/bfs: clean
+   Building fs/cifs: clean
+   Building fs/coda: clean
+   Building fs/cramfs: clean
+   Building fs/devfs: clean
+   Building fs/devpts: clean
+   Building fs/efs: clean
+   Building fs/exportfs: clean
+   Building fs/ext2: clean
+   Building fs/ext3: clean
+   Building fs/fat: clean
+   Building fs/freevxfs: clean
+   Building fs/hfs: clean
+   Building fs/hpfs: clean
+   Building fs/hugetlbfs: clean
+   Building fs/intermezzo: clean
+   Building fs/isofs: clean
+   Building fs/jbd: clean
+   Building fs/jffs: clean
+   Building fs/jffs2: clean
+   Building fs/jfs: clean
+   Building fs/lockd: clean
+   Building fs/minix: clean
+   Building fs/msdos: clean
+   Building fs/ncpfs: clean
+   Building fs/nfs: clean
+   Building fs/nfsd: clean
+   Building fs/nls: clean
+   Building fs/ntfs: clean
+   Building fs/partitions: clean
+   Building fs/proc: clean
+   Building fs/qnx4: clean
+   Building fs/ramfs: clean
+   Building fs/reiserfs: clean
+   Building fs/romfs: clean
+   Building fs/smbfs: clean
+   Building fs/sysfs: clean
+   Building fs/sysv: clean
+   Building fs/udf: clean
+   Building fs/ufs: clean
+   Building fs/vfat: clean
+   Building fs/xfs: clean
+   Building drivers/i2c: clean
+   Building drivers/net: 31 warnings, 0 errors
+   Building drivers/media: 1 warnings, 0 errors
+   Building drivers/base: clean
+   Building drivers/pci: clean
+   Building drivers/eisa: clean
+   Building drivers/isdn: clean
+   Building drivers/char: 1 warnings, 0 errors
+   Building drivers/acpi: clean
+   Building drivers/serial: 1 warnings, 0 errors
+   Building drivers/fc4: clean
+   Building drivers/parport: clean
+   Building drivers/mtd: 23 warnings, 0 errors
+   Building drivers/usb: clean
+   Building drivers/block: 1 warnings, 0 errors
+   Building drivers/pcmcia: 3 warnings, 0 errors
+   Building drivers/input: clean
+   Building drivers/atm: clean
+   Building drivers/ide: 30 warnings, 0 errors
+   Building drivers/pnp: clean
+   Building drivers/oprofile: clean
+   Building drivers/ieee1394: clean
+   Building drivers/cdrom: 3 warnings, 0 errors
+   Building drivers/md: clean
+   Building drivers/message: 1 warnings, 0 errors
+   Building drivers/cpufreq: clean
+   Building drivers/sbus: clean
+   Building drivers/bluetooth: clean
+   Building drivers/telephony: 5 warnings, 0 errors
+   Building drivers/zorro: clean
+   Building drivers/acorn: clean
+   Building drivers/tc: clean
+   Building drivers/mca: clean
+   Building drivers/nubus: clean
+   Building drivers/misc: clean
+   Building drivers/dio: clean
+   Building drivers/scsi/aacraid: clean
+   Building drivers/scsi/aic7xxx: clean
+   Building drivers/scsi/pcmcia: 4 warnings, 0 errors
+   Building drivers/scsi/sym53c8xx_2: clean
+   Building drivers/video/aty: 3 warnings, 0 errors
+   Building drivers/video/console: 2 warnings, 0 errors
+   Building drivers/video/i810: clean
+   Building drivers/video/logo: clean
+   Building drivers/video/matrox: 5 warnings, 0 errors
+   Building drivers/video/riva: clean
+   Building drivers/video/sis: 1 warnings, 0 errors
+   Building sound/core: clean
+   Building sound/drivers: clean
+   Building sound/i2c: clean
+   Building sound/isa: 3 warnings, 0 errors
+   Building sound/oss: 33 warnings, 0 errors
+   Building sound/pci: clean
+   Building sound/pcmcia: clean
+   Building sound/synth: clean
+   Building sound/usb: clean
+   Building arch/i386: clean
+   Building crypto: clean
+   Building lib: clean
+   Building net: 9 warnings, 0 errors
+   Building security: clean
+   Building sound: clean
+   Building usr: clean
+   Building fs: clean
+   Building drivers/video: 8 warnings, 0 errors
+   Building drivers/scsi: 44 warnings, 0 errors
+   Building drivers/net: 0 warnings, 1 errors
 
-> There's nothing in here that will make it more difficult to change the
-> rq->flags stuff later if necessary--this will just tweak a few things to
-> get the driver functional.
->
-> Most of this stuff is just stuff to get the Seagate STT3401A Travan tape
-> drive working, as I already submitted for the 2.4 kernel.
 
-I dropped tape->spinlock changes.  They are racy, you can't use spin_lock()
-for tape->spinlock because this lock can be taken from IRQ context
-(i.e. through idetape_pc_intr() -> pc->callback() -> idetape_end_request()).
-I moved check for Travan drives outside CONFIG_BLK_DEV_IDEPCI.
-I also removed code depending on NO_LONGER_NEEDED define to match 2.4.x
-kernel (it was removed in 2.4.21 kernel) and made some cosmetics.
+Error Summary (individual module builds):
 
-Thanks,
---bartlomiej
+   drivers/net: 0 warnings, 1 errors
 
 
-[IDE] ide-tape update
+Warning Summary (individual module builds):
 
-From: Stuart Hayes <stuart_hayes@dell.com>
+   drivers/block: 1 warnings, 0 errors
+   drivers/cdrom: 3 warnings, 0 errors
+   drivers/char: 1 warnings, 0 errors
+   drivers/ide: 30 warnings, 0 errors
+   drivers/media: 1 warnings, 0 errors
+   drivers/message: 1 warnings, 0 errors
+   drivers/mtd: 23 warnings, 0 errors
+   drivers/net: 31 warnings, 0 errors
+   drivers/pcmcia: 3 warnings, 0 errors
+   drivers/scsi/pcmcia: 4 warnings, 0 errors
+   drivers/scsi: 44 warnings, 0 errors
+   drivers/serial: 1 warnings, 0 errors
+   drivers/telephony: 5 warnings, 0 errors
+   drivers/video/aty: 3 warnings, 0 errors
+   drivers/video/console: 2 warnings, 0 errors
+   drivers/video/matrox: 5 warnings, 0 errors
+   drivers/video/sis: 1 warnings, 0 errors
+   drivers/video: 8 warnings, 0 errors
+   net: 9 warnings, 0 errors
+   sound/isa: 3 warnings, 0 errors
+   sound/oss: 33 warnings, 0 errors
 
-- Check drive's write protect bit, try to return appropriate
-  errors when attempting to write a write-protected tape.
 
-- Moved "idetape_read_position" call in idetape_chrdev_open
-  after the "wait_ready" call.
+Error List:
 
-- Added IDETAPE_MEDIUM_PRESENT flag so driver would know
-  not to rewind tape after ejecting it.
+make[1]: [arch/i386/boot/bzImage] Error 1 (ignored)
+make[2]: [drivers/net/wan/wanxlfw.inc] Error 127 (ignored)
 
-- Fixed bug with ide_abort_pipeline (it was deleting stages
-  from tape->next_stage to end, instead of from
-  new_last_stage->next (tape->next_stage was set to NULL
-  by idetape_discard_read_pipeline before calling!).
 
-- Made improvements to idetape_wait_ready.
+Warning List:
 
-- Added a few comments here and there.
+arch/i386/kernel/cpu/cpufreq/powernow-k8.c:38:2: warning: #warning this
+driver has not been tested on a preempt system
+arch/i386/kernel/cpu/cpufreq/powernow-k8.c:938:2: warning: #warning
+pol->policy is in undefined state here
+drivers/cdrom/aztcd.c:379: warning: `pa_ok' defined but not used
+drivers/cdrom/isp16.c:124: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/cdrom/mcdx.h:180:2: warning: #warning You have not edited mcdx.h
+drivers/cdrom/mcdx.h:181:2: warning: #warning Perhaps irq and i/o
+settings are wrong.
+drivers/cdrom/sjcd.c:1700: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/char/applicom.c:522:2: warning: #warning "Je suis stupide. DW. -
+copy*user in cli"
+drivers/char/applicom.c:67: warning: `applicom_pci_tbl' defined but not
+used
+drivers/char/watchdog/alim1535_wdt.c:320: warning: `ali_pci_tbl' defined
+but not used
+drivers/ide/ide-probe.c:1326: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+drivers/ide/ide-probe.c:1353: warning: `MOD_DEC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:494)
+drivers/ide/ide-tape.c:6213: warning: duplicate `const'
+drivers/ide/ide.c:2470: warning: implicit declaration of function
+`pnpide_init'
+drivers/ide/legacy/ide-cs.c:365: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/legacy/ide-cs.c:411: warning: `MOD_DEC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:494)
+drivers/ide/pci/aec62xx.c:533: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/alim15x3.c:871: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/amd74xx.c:451: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/cmd64x.c:755: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+drivers/ide/pci/cs5520.c:294: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+drivers/ide/pci/cs5530.c:416: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+drivers/ide/pci/cy82c693.c:437: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/hpt34x.c:334: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+drivers/ide/pci/hpt366.c:1223: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/ns87415.c:228: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/opti621.c:364: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/pdc202xx_new.c:631: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/pdc202xx_old.c:925: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/piix.c:746: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+drivers/ide/pci/rz1000.c:65: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+drivers/ide/pci/sc1200.c:557: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+drivers/ide/pci/serverworks.c:804: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/siimage.c:1174: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/sis5513.c:956: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/slc90e66.c:376: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/triflex.c:227: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/ide/pci/trm290.c:378: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/ide/pci/trm290.c:406: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+drivers/ide/pci/via82cxxx.c:618: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/input/gameport/ns558.c:121: warning: `check_region' is
+deprecated (declared at include/linux/ioport.h:119)
+drivers/input/gameport/ns558.c:80: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/media/common/saa7146_vbi.c:6: warning: `vbi_workaround' defined
+but not used
+drivers/media/video/zoran_card.c:149: warning: `zr36067_pci_tbl' defined
+but not used
+drivers/message/fusion/mptscsih.c:6922: warning: `mptscsih_setup'
+defined but not used
+drivers/message/i2o/i2o_block.c:1506: warning: `MOD_DEC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:494)
+drivers/mtd/chips/amd_flash.c:783: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/mtd/chips/cfi_cmdset_0001.c:381: warning: unsigned int format,
+different type arg (arg 2)
+drivers/mtd/chips/cfi_cmdset_0001.c:965: warning: unsigned int format,
+different type arg (arg 2)
+drivers/mtd/chips/cfi_cmdset_0002.c:1157: warning: unsigned int format,
+different type arg (arg 4)
+drivers/mtd/chips/cfi_cmdset_0002.c:513: warning: unsigned int format,
+different type arg (arg 4)
+drivers/mtd/chips/cfi_cmdset_0002.c:651: warning: unsigned int format,
+different type arg (arg 4)
+drivers/mtd/chips/cfi_cmdset_0002.c:977: warning: unsigned int format,
+different type arg (arg 4)
+drivers/mtd/chips/cfi_cmdset_0020.c:1139: warning: unsigned int format,
+different type arg (arg 3)
+drivers/mtd/chips/cfi_cmdset_0020.c:1288: warning: unsigned int format,
+different type arg (arg 3)
+drivers/mtd/chips/cfi_cmdset_0020.c:493: warning: unsigned int format,
+different type arg (arg 3)
+drivers/mtd/chips/cfi_cmdset_0020.c:853: warning: unsigned int format,
+different type arg (arg 3)
+drivers/mtd/chips/sharp.c:157: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/mtd/cmdlinepart.c:344: warning: `mtdpart_setup' defined but not
+used
+drivers/mtd/devices/doc2000.c:567: warning: assignment from incompatible
+pointer type
+drivers/mtd/devices/doc2000.c:568: warning: assignment from incompatible
+pointer type
+drivers/mtd/devices/doc2001.c:376: warning: assignment from incompatible
+pointer type
+drivers/mtd/devices/doc2001.c:377: warning: assignment from incompatible
+pointer type
+drivers/mtd/nftlcore.c:354: warning: passing arg 7 of pointer to
+function makes pointer from integer without a cast
+drivers/mtd/nftlcore.c:358: warning: passing arg 7 of pointer to
+function makes pointer from integer without a cast
+drivers/mtd/nftlcore.c:363: warning: passing arg 7 of pointer to
+function makes pointer from integer without a cast
+drivers/mtd/nftlcore.c:632: warning: passing arg 7 of pointer to
+function makes pointer from integer without a cast
+drivers/mtd/nftlcore.c:696: warning: passing arg 7 of pointer to
+function makes pointer from integer without a cast
+drivers/mtd/nftlmount.c:220: warning: passing arg 7 of pointer to
+function makes pointer from integer without a cast
+drivers/net/3c515.c:529: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+drivers/net/acenic.c:135: warning: `acenic_pci_tbl' defined but not used
+drivers/net/arcnet/arc-rimi.c:319: warning: `dev_alloc' is deprecated
+(declared at include/linux/netdevice.h:525)
+drivers/net/arcnet/com20020-isa.c:152: warning: `dev_alloc' is
+deprecated (declared at include/linux/netdevice.h:525)
+drivers/net/arcnet/com20020-pci.c:71: warning: `dev_alloc' is deprecated
+(declared at include/linux/netdevice.h:525)
+drivers/net/arcnet/com90io.c:385: warning: `dev_alloc' is deprecated
+(declared at include/linux/netdevice.h:525)
+drivers/net/arcnet/com90xx.c:146: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/net/arcnet/com90xx.c:412: warning: `dev_alloc' is deprecated
+(declared at include/linux/netdevice.h:525)
+drivers/net/arcnet/com90xx.c:609: warning: `dev_alloc' is deprecated
+(declared at include/linux/netdevice.h:525)
+drivers/net/dgrs.c:124: warning: `dgrs_pci_tbl' defined but not used
+drivers/net/eepro.c:575: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+drivers/net/ewrk3.c:1291: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/net/ewrk3.c:1335: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/net/hp100.c:288: warning: `hp100_pci_tbl' defined but not used
+drivers/net/hp100.c:385: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+drivers/net/hp100.c:432: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+drivers/net/hp100.c:463: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+drivers/net/hp100.c:471: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+drivers/net/sk98lin/skaddr.c:1092: warning: `ReturnCode' might be used
+uninitialized in this function
+drivers/net/sk98lin/skaddr.c:1624: warning: `ReturnCode' might be used
+uninitialized in this function
+drivers/net/skfp/skfddi.c:185: warning: `skfddi_pci_tbl' defined but not
+used
+drivers/net/tokenring/smctr.c:3494: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/net/tokenring/smctr.c:733: warning: `MOD_DEC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:494)
+drivers/net/tulip/winbond-840.c:149: warning: `version' defined but not
+used
+drivers/net/wan/cycx_drv.c:430: warning: long unsigned int format, u32
+arg (arg 2)
+drivers/net/wan/farsync.c:1316: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/net/wan/farsync.c:1329: warning: `MOD_DEC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:494)
+drivers/net/wan/hostess_sv11.c:125: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/net/wan/hostess_sv11.c:157: warning: `MOD_DEC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:494)
+drivers/net/wan/lmc/lmc_main.c:1063: warning: `check_region' is
+deprecated (declared at include/linux/ioport.h:119)
+drivers/net/wan/lmc/lmc_main.c:1184: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/net/wan/lmc/lmc_main.c:1355: warning: `MOD_DEC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:494)
+drivers/net/wan/pc300_drv.c:3168: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/net/wan/pc300_drv.c:3204: warning: `MOD_DEC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:494)
+drivers/net/wan/sbni.c:308: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/pcmcia/i82365.c:680: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/pcmcia/i82365.c:817: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/pcmcia/tcic.c:340: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:1003: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:1008: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:700: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:704: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:708: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:712: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:716: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:720: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:973: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:988: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:993: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/BusLogic.c:998: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/NCR5380.c:396: warning: `phases' defined but not used
+drivers/scsi/NCR5380.c:699: warning: `NCR5380_probe_irq' defined but not
+used
+drivers/scsi/NCR5380.c:756: warning: `NCR5380_print_options' defined but
+not used
+drivers/scsi/NCR53c406a.c:611: warning: `NCR53c406a_setup' defined but
+not used
+drivers/scsi/NCR53c406a.c:660: warning: initialization from incompatible
+pointer type
+drivers/scsi/NCR53c406a.c:669: warning: `wait_intr' defined but not used
+drivers/scsi/advansys.c:10006: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/advansys.c:4622: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/aha152x.c:396: warning: `id_table' defined but not used
+drivers/scsi/aha152x.c:793: warning: `aha152x_setup' defined but not
+used
+drivers/scsi/aha152x.c:852: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/aha152x.c:870: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/atp870u.c:2350: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/atp870u.c:2422: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/cpqfcTSinit.c:1583: warning: unused variable `timeout'
+drivers/scsi/cpqfcTSinit.c:1584: warning: unused variable `retries'
+drivers/scsi/cpqfcTSinit.c:1585: warning: unused variable `scsi_cdb'
+drivers/scsi/cpqfcTSinit.c:471: warning: `my_ioctl_done' defined but not
+used
+drivers/scsi/dtc.c:187: warning: `dtc_setup' defined but not used
+drivers/scsi/eata_pio.c:596: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/fd_mcs.c:300: warning: `fd_mcs_setup' defined but not used
+drivers/scsi/fd_mcs.c:311: warning: initialization from incompatible
+pointer type
+drivers/scsi/fd_mcs.h:27: warning: `fd_mcs_command' declared `static'
+but never defined
+drivers/scsi/fdomain.c:763: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/g_NCR5380.c:926: warning: `id_table' defined but not used
+drivers/scsi/gdth.c:881: warning: `gdthtable' defined but not used
+drivers/scsi/inia100.h:70: warning: `inia100_detect' declared `static'
+but never defined
+drivers/scsi/inia100.h:71: warning: `inia100_release' declared `static'
+but never defined
+drivers/scsi/inia100.h:72: warning: `inia100_queue' declared `static'
+but never defined
+drivers/scsi/inia100.h:73: warning: `inia100_abort' declared `static'
+but never defined
+drivers/scsi/inia100.h:74: warning: `inia100_device_reset' declared
+`static' but never defined
+drivers/scsi/inia100.h:75: warning: `inia100_bus_reset' declared
+`static' but never defined
+drivers/scsi/libata-core.c:2133: warning: `ata_qc_push' defined but not
+used
+drivers/scsi/psi240i.c:713: warning: initialization from incompatible
+pointer type
+drivers/scsi/psi240i.c:714: warning: initialization from incompatible
+pointer type
+drivers/scsi/sym53c416.c:627: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/sym53c416.c:715: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/scsi/wd7000.c:1611: warning: `wd7000_abort' defined but not used
+drivers/serial/8250.c:693: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/telephony/ixj.c:7737: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/telephony/ixj.c:7799: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/telephony/ixj.c:7835: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+drivers/telephony/ixj.h:41: warning: `ixj_h_rcsid' defined but not used
+drivers/usb/class/usb-midi.h:150: warning: `usb_midi_ids' defined but
+not used
+drivers/video/aty/aty128fb.c:2335: warning: `aty128fb_exit' defined but
+not used
+drivers/video/aty/aty128fb.c:254: warning: `mode' defined but not used
+drivers/video/aty/aty128fb.c:256: warning: `nomtrr' defined but not used
+drivers/video/console/mdacon.c:374: warning: `MOD_INC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:482)
+drivers/video/console/mdacon.c:384: warning: `MOD_DEC_USE_COUNT' is
+deprecated (declared at include/linux/module.h:494)
+drivers/video/hgafb.c:452: warning: `hgafb_fillrect' defined but not
+used
+drivers/video/hgafb.c:472: warning: `hgafb_copyarea' defined but not
+used
+drivers/video/hgafb.c:502: warning: `hgafb_imageblit' defined but not
+used
+drivers/video/imsttfb.c:1089: warning: `imsttfb_load_cursor_image'
+defined but not used
+drivers/video/imsttfb.c:1159: warning: `imstt_set_cursor' defined but
+not used
+drivers/video/matrox/matroxfb_base.c:1250: warning: `inverse' defined
+but not used
+drivers/video/matrox/matroxfb_g450.c:129: warning: duplicate `const'
+drivers/video/matrox/matroxfb_g450.c:130: warning: duplicate `const'
+drivers/video/matrox/matroxfb_maven.c:347: warning: duplicate `const'
+drivers/video/matrox/matroxfb_maven.c:348: warning: duplicate `const'
+drivers/video/sis/sis_main.c:622: warning: unused variable `reg'
+drivers/video/tdfxfb.c:1005: warning: `tdfxfb_cursor' defined but not
+used
+drivers/video/tdfxfb.c:198: warning: `inverse' defined but not used
+drivers/video/tdfxfb.c:199: warning: `mode_option' defined but not used
+drivers/video/tridentfb.c:455: warning: `tridentfb_fillrect' defined but
+not used
+drivers/video/tridentfb.c:473: warning: `tridentfb_copyarea' defined but
+not used
+include/linux/ixjuser.h:45: warning: `ixjuser_h_rcsid' defined but not
+used
+include/linux/mca-legacy.h:12:2: warning: #warning "MCA legacy - please
+move your driver to the new sysfs api"
+net/decnet/dn_nsp_in.c:805: warning: `skb_linearize' is deprecated
+(declared at include/linux/skbuff.h:1136)
+net/decnet/dn_route.c:639: warning: `skb_linearize' is deprecated
+(declared at include/linux/skbuff.h:1136)
+net/ipv4/ipcomp.c:189: warning: `skb_linearize' is deprecated (declared
+at include/linux/skbuff.h:1136)
+net/ipv4/ipcomp.c:72: warning: `skb_linearize' is deprecated (declared
+at include/linux/skbuff.h:1136)
+net/ipv6/ipcomp6.c:174: warning: `skb_linearize' is deprecated (declared
+at include/linux/skbuff.h:1136)
+net/ipv6/ipcomp6.c:61: warning: `skb_linearize' is deprecated (declared
+at include/linux/skbuff.h:1136)
+net/ipv6/netfilter/ip6_tables.c:349: warning: `skb_linearize' is
+deprecated (declared at include/linux/skbuff.h:1136)
+net/ipv6/netfilter/ip6table_mangle.c:162: warning: `skb_linearize' is
+deprecated (declared at include/linux/skbuff.h:1136)
+net/wanrouter/wanmain.c:729: warning: `dev_get' is deprecated (declared
+at include/linux/netdevice.h:514)
+sound/isa/opti9xx/opti92x-ad1848.c:1670: warning: `check_region' is
+deprecated (declared at include/linux/ioport.h:119)
+sound/isa/opti9xx/opti92x-ad1848.c:1686: warning: `check_region' is
+deprecated (declared at include/linux/ioport.h:119)
+sound/isa/opti9xx/opti92x-ad1848.c:314: warning: `check_region' is
+deprecated (declared at include/linux/ioport.h:119)
+sound/oss/ad1848.c:1580: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/ad1848.c:2530: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/ad1848.c:2967: warning: `id_table' defined but not used
+sound/oss/cmpci.c:1465: warning: unused variable `s'
+sound/oss/cmpci.c:2865: warning: `cmpci_pci_tbl' defined but not used
+sound/oss/cs4232.c:141: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/cs4232.c:193: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/gus_card.c:76: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/gus_card.c:78: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/gus_card.c:93: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/gus_card.c:94: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/mad16.c:322: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/maui.c:307: warning: `check_region' is deprecated (declared at
+include/linux/ioport.h:119)
+sound/oss/mpu401.c:1217: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/msnd.c:74: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:482)
+sound/oss/msnd.c:95: warning: `MOD_DEC_USE_COUNT' is deprecated
+(declared at include/linux/module.h:494)
+sound/oss/msnd_pinnacle.c:1123: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+sound/oss/msnd_pinnacle.c:1811: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+sound/oss/opl3sa.c:114: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/opl3sa.c:122: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/pss.c:1004: warning: `check_region' is deprecated (declared at
+include/linux/ioport.h:119)
+sound/oss/pss.c:191: warning: `check_region' is deprecated (declared at
+include/linux/ioport.h:119)
+sound/oss/pss.c:640: warning: `check_region' is deprecated (declared at
+include/linux/ioport.h:119)
+sound/oss/pss.c:710: warning: `check_region' is deprecated (declared at
+include/linux/ioport.h:119)
+sound/oss/sb_common.c:1224: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+sound/oss/sb_common.c:523: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+sound/oss/sgalaxy.c:89: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/sgalaxy.c:97: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/sscape.c:1113: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/sscape.c:1132: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/sscape.c:1137: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/sscape.c:737: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
+sound/oss/trix.c:147: warning: `check_region' is deprecated (declared at
+include/linux/ioport.h:119)
+sound/oss/trix.c:292: warning: `check_region' is deprecated (declared at
+include/linux/ioport.h:119)
+sound/oss/trix.c:85: warning: `check_region' is deprecated (declared at
+include/linux/ioport.h:119)
+sound/oss/wavfront.c:2426: warning: `check_region' is deprecated
+(declared at include/linux/ioport.h:119)
+sound/oss/wf_midi.c:788: warning: `check_region' is deprecated (declared
+at include/linux/ioport.h:119)
 
-- Made MTOFFL unlock tape drive door before attempting to eject.
 
-- Added fixes to get Seagate STT3401A Travan working:
-  Handle drives that don't support 0-length reads/writes increased timeout
-  (retension takes ~10 minutes before irq is returned).
-  Fixed request mode page packet command byte 3.
-
-Also remove code depending on NO_LONGER_REQUIRED to match 2.4.x (me).
-
- drivers/ide/ide-tape.c |  211 ++++++++++++++++++++++++++++++++++---------------
- 1 files changed, 147 insertions(+), 64 deletions(-)
-
-diff -puN drivers/ide/ide-tape.c~ide-tape-update drivers/ide/ide-tape.c
---- linux-2.6.0-test9-bk17/drivers/ide/ide-tape.c~ide-tape-update	2003-11-13 18:25:52.537457360 +0100
-+++ linux-2.6.0-test9-bk17-root/drivers/ide/ide-tape.c	2003-11-13 22:37:06.768825864 +0100
-@@ -1,5 +1,5 @@
- /*
-- * linux/drivers/ide/ide-tape.c		Version 1.17b	Oct, 2002
-+ * linux/drivers/ide/ide-tape.c		Version 1.18	Nov, 2003
-  *
-  * Copyright (C) 1995 - 1999 Gadi Oxman <gadio@netvision.net.il>
-  *
-@@ -422,7 +422,7 @@
-  *		sharing a (fast) ATA-2 disk with any (slow) new ATAPI device.
-  */
- 
--#define IDETAPE_VERSION "1.17b-ac1"
-+#define IDETAPE_VERSION "1.18"
- 
- #include <linux/config.h>
- #include <linux/module.h>
-@@ -450,9 +450,6 @@
- #include <asm/unaligned.h>
- #include <asm/bitops.h>
- 
--
--#define NO_LONGER_REQUIRED	(1)
--
- /*
-  *	OnStream support
-  */
-@@ -652,9 +649,11 @@ typedef struct {
- #define IDETAPE_PC_STACK		(10 + IDETAPE_MAX_PC_RETRIES)
- 
- /*
-- *	Some tape drives require a long irq timeout
-+ * Some drives (for example, Seagate STT3401A Travan) require a very long
-+ * timeout, because they don't return an interrupt or clear their busy bit
-+ * until after the command completes (even retension commands).
-  */
--#define IDETAPE_WAIT_CMD		(60*HZ)
-+#define IDETAPE_WAIT_CMD		(900*HZ)
- 
- /*
-  *	The following parameter is used to select the point in the internal
-@@ -1032,6 +1031,10 @@ typedef struct {
- 
- 	/* the door is currently locked */
- 	int door_locked;
-+	/* the tape hardware is write protected */
-+	char drv_write_prot;
-+	/* the tape is write protected (hardware or opened as read-only) */
-+	char write_prot;
- 
- 	/*
- 	 * OnStream flags
-@@ -1164,6 +1167,8 @@ typedef struct {
- #define IDETAPE_DRQ_INTERRUPT		6	/* DRQ interrupt device */
- #define IDETAPE_READ_ERROR		7
- #define IDETAPE_PIPELINE_ACTIVE		8	/* pipeline active */
-+/* 0 = no tape is loaded, so we don't rewind after ejecting */
-+#define IDETAPE_MEDIUM_PRESENT		9
- 
- /*
-  *	Supported ATAPI tape drives packet commands
-@@ -1665,6 +1670,20 @@ static void idetape_analyze_error (ide_d
- 		idetape_update_buffers(pc);
- 	}
- 
-+	/*
-+	 * If error was the result of a zero-length read or write command,
-+	 * with sense key=5, asc=0x22, ascq=0, let it slide.  Some drives
-+	 * (i.e. Seagate STT3401A Travan) don't support 0-length read/writes.
-+	 */
-+	if ((pc->c[0] == IDETAPE_READ_CMD || pc->c[0] == IDETAPE_WRITE_CMD)
-+	    && pc->c[4] == 0 && pc->c[3] == 0 && pc->c[2] == 0) { /* length==0 */
-+		if (result->sense_key == 5) {
-+			/* don't report an error, everything's ok */
-+			pc->error = 0;
-+			/* don't retry read/write */
-+			set_bit(PC_ABORT, &pc->flags);
-+		}
-+	}
- 	if (pc->c[0] == IDETAPE_READ_CMD && result->filemark) {
- 		pc->error = IDETAPE_ERROR_FILEMARK;
- 		set_bit(PC_ABORT, &pc->flags);
-@@ -1805,10 +1824,15 @@ static void idetape_remove_stage_head (i
- 	}
- }
- 
--static void idetape_abort_pipeline (ide_drive_t *drive, idetape_stage_t *last_stage)
-+/*
-+ * This will free all the pipeline stages starting from new_last_stage->next
-+ * to the end of the list, and point tape->last_stage to new_last_stage.
-+ */
-+static void idetape_abort_pipeline(ide_drive_t *drive,
-+				   idetape_stage_t *new_last_stage)
- {
- 	idetape_tape_t *tape = drive->driver_data;
--	idetape_stage_t *stage = tape->next_stage;
-+	idetape_stage_t *stage = new_last_stage->next;
- 	idetape_stage_t *nstage;
- 
- #if IDETAPE_DEBUG_LOG
-@@ -1822,9 +1846,9 @@ static void idetape_abort_pipeline (ide_
- 		--tape->nr_pending_stages;
- 		stage = nstage;
- 	}
--	tape->last_stage = last_stage;
--	if (last_stage)
--		last_stage->next = NULL;
-+	if (new_last_stage)
-+		new_last_stage->next = NULL;
-+	tape->last_stage = new_last_stage;
- 	tape->next_stage = NULL;
- }
- 
-@@ -2430,7 +2454,14 @@ static void idetape_create_mode_sense_cm
- 	if (page_code != IDETAPE_BLOCK_DESCRIPTOR)
- 		pc->c[1] = 8;	/* DBD = 1 - Don't return block descriptors */
- 	pc->c[2] = page_code;
--	pc->c[3] = 255;		/* Don't limit the returned information */
-+	/*
-+	 * Changed pc->c[3] to 0 (255 will at best return unused info).
-+	 *
-+	 * For SCSI this byte is defined as subpage instead of high byte
-+	 * of length and some IDE drives seem to interpret it this way
-+	 * and return an error when 255 is used.
-+	 */
-+	pc->c[3] = 0;
- 	pc->c[4] = 255;		/* (We will just discard data in that case) */
- 	if (page_code == IDETAPE_BLOCK_DESCRIPTOR)
- 		pc->request_transfer = 12;
-@@ -2544,8 +2575,9 @@ static ide_startstop_t idetape_media_acc
- 	if (status.b.dsc) {
- 		if (status.b.check) {
- 			/* Error detected */
--			printk(KERN_ERR "ide-tape: %s: I/O error, ",tape->name);
--
-+			if (pc->c[0] != IDETAPE_TEST_UNIT_READY_CMD)
-+				printk(KERN_ERR "ide-tape: %s: I/O error, ",
-+						tape->name);
- 			/* Retry operation */
- 			return idetape_retry_pc(drive);
- 		}
-@@ -3295,25 +3327,28 @@ static int idetape_wait_ready(ide_drive_
- {
- 	idetape_tape_t *tape = drive->driver_data;
- 	idetape_pc_t pc;
-+	int load_attempted = 0;
- 
- 	/*
- 	 * Wait for the tape to become ready
- 	 */
-+	set_bit(IDETAPE_MEDIUM_PRESENT, &tape->flags);
- 	timeout += jiffies;
- 	while (time_before(jiffies, timeout)) {
- 		idetape_create_test_unit_ready_cmd(&pc);
- 		if (!__idetape_queue_pc_tail(drive, &pc))
- 			return 0;
--		if (tape->sense_key == 2 && tape->asc == 4 && tape->ascq == 2) {
-+		if ((tape->sense_key == 2 && tape->asc == 4 && tape->ascq == 2)
-+		    || (tape->asc == 0x3A)) {	/* no media */
-+			if (load_attempted)
-+				return -ENOMEDIUM;
- 			idetape_create_load_unload_cmd(drive, &pc, IDETAPE_LU_LOAD_MASK);
- 			__idetape_queue_pc_tail(drive, &pc);
--			idetape_create_test_unit_ready_cmd(&pc);
--			if (!__idetape_queue_pc_tail(drive, &pc))
--				return 0;
--		}
--		if (!(tape->sense_key == 2 && tape->asc == 4 &&
--		      (tape->ascq == 1 || tape->ascq == 8)))
--			break;
-+			load_attempted = 1;
-+		/* not about to be ready */
-+		} else if (!(tape->sense_key == 2 && tape->asc == 4 &&
-+			     (tape->ascq == 1 || tape->ascq == 8)))
-+			return -EIO;
- 		current->state = TASK_INTERRUPTIBLE;
-   		schedule_timeout(HZ / 10);
- 	}
-@@ -3369,25 +3404,10 @@ static int idetape_read_position (ide_dr
- 		printk(KERN_INFO "ide-tape: Reached idetape_read_position\n");
- #endif /* IDETAPE_DEBUG_LOG */
- 
--#ifdef NO_LONGER_REQUIRED
--	idetape_flush_tape_buffers(drive);
--#endif
- 	idetape_create_read_position_cmd(&pc);
- 	if (idetape_queue_pc_tail(drive, &pc))
- 		return -1;
- 	position = tape->first_frame_position;
--#ifdef NO_LONGER_REQUIRED
--	if (tape->onstream) {
--		if ((position != tape->last_frame_position - tape->blocks_in_buffer) &&
--		    (position != tape->last_frame_position + tape->blocks_in_buffer)) {
--			if (tape->blocks_in_buffer == 0) {
--				printk("ide-tape: %s: correcting read position %d, %d, %d\n", tape->name, position, tape->last_frame_position, tape->blocks_in_buffer);
--				position = tape->last_frame_position;
--				tape->first_frame_position = position;
--			}
--		}
--	}
--#endif
- 	return position;
- }
- 
-@@ -3436,6 +3456,8 @@ static int __idetape_discard_read_pipeli
- 
- 	if (tape->chrdev_direction != idetape_direction_read)
- 		return 0;
-+
-+	/* Remove merge stage. */
- 	cnt = tape->merge_stage_size / tape->tape_block_size;
- 	if (test_and_clear_bit(IDETAPE_FILEMARK, &tape->flags))
- 		++cnt;		/* Filemarks count as 1 sector */
-@@ -3444,9 +3466,12 @@ static int __idetape_discard_read_pipeli
- 		__idetape_kfree_stage(tape->merge_stage);
- 		tape->merge_stage = NULL;
- 	}
-+
-+	/* Clear pipeline flags. */
- 	clear_bit(IDETAPE_PIPELINE_ERROR, &tape->flags);
- 	tape->chrdev_direction = idetape_direction_none;
--	
-+
-+	/* Remove pipeline stages. */
- 	if (tape->first_stage == NULL)
- 		return 0;
- 
-@@ -4059,13 +4084,17 @@ static int idetape_initiate_read (ide_dr
- 		 *	Issue a read 0 command to ensure that DSC handshake
- 		 *	is switched from completion mode to buffer available
- 		 *	mode.
-+		 *	No point in issuing this if DSC overlap isn't supported,
-+		 *	some drives (Seagate STT3401A) will return an error.
- 		 */
--		bytes_read = idetape_queue_rw_tail(drive, REQ_IDETAPE_READ, 0, tape->merge_stage->bh);
--		if (bytes_read < 0) {
--			__idetape_kfree_stage(tape->merge_stage);
--			tape->merge_stage = NULL;
--			tape->chrdev_direction = idetape_direction_none;
--			return bytes_read;
-+		if (drive->dsc_overlap) {
-+			bytes_read = idetape_queue_rw_tail(drive, REQ_IDETAPE_READ, 0, tape->merge_stage->bh);
-+			if (bytes_read < 0) {
-+				__idetape_kfree_stage(tape->merge_stage);
-+				tape->merge_stage = NULL;
-+				tape->chrdev_direction = idetape_direction_none;
-+				return bytes_read;
-+			}
- 		}
- 	}
- 	if (tape->restart_speed_control_req)
-@@ -4898,6 +4927,10 @@ static ssize_t idetape_chrdev_write (str
- 		return -ENXIO;
- 	}
- 
-+	/* The drive is write protected. */
-+	if (tape->write_prot)
-+		return -EACCES;
-+
- #if IDETAPE_DEBUG_LOG
- 	if (tape->debug_level >= 3)
- 		printk(KERN_INFO "ide-tape: Reached idetape_chrdev_write, "
-@@ -4979,13 +5012,17 @@ static ssize_t idetape_chrdev_write (str
- 		 *	Issue a write 0 command to ensure that DSC handshake
- 		 *	is switched from completion mode to buffer available
- 		 *	mode.
-+		 *	No point in issuing this if DSC overlap isn't supported,
-+		 *	some drives (Seagate STT3401A) will return an error.
- 		 */
--		retval = idetape_queue_rw_tail(drive, REQ_IDETAPE_WRITE, 0, tape->merge_stage->bh);
--		if (retval < 0) {
--			__idetape_kfree_stage(tape->merge_stage);
--			tape->merge_stage = NULL;
--			tape->chrdev_direction = idetape_direction_none;
--			return retval;
-+		if (drive->dsc_overlap) {
-+			retval = idetape_queue_rw_tail(drive, REQ_IDETAPE_WRITE, 0, tape->merge_stage->bh);
-+			if (retval < 0) {
-+				__idetape_kfree_stage(tape->merge_stage);
-+				tape->merge_stage = NULL;
-+				tape->chrdev_direction = idetape_direction_none;
-+				return retval;
-+			}
- 		}
- #if ONSTREAM_DEBUG
- 		if (tape->debug_level >= 2)
-@@ -5141,7 +5178,7 @@ ok:
-  *	Note:
-  *
-  *		MTBSF and MTBSFM are not supported when the tape doesn't
-- *		supports spacing over filemarks in the reverse direction.
-+ *		support spacing over filemarks in the reverse direction.
-  *		In this case, MTFSFM is also usually not supported (it is
-  *		supported in the rare case in which we crossed the filemark
-  *		during our read-ahead pipelined operation mode).
-@@ -5211,6 +5248,8 @@ static int idetape_mtioctop (ide_drive_t
- 	}
- 	switch (mt_op) {
- 		case MTWEOF:
-+			if (tape->write_prot)
-+				return -EACCES;
- 			idetape_discard_read_pipeline(drive, 1);
- 			for (i = 0; i < mt_count; i++) {
- 				retval = idetape_write_filemark(drive);
-@@ -5231,9 +5270,21 @@ static int idetape_mtioctop (ide_drive_t
- 			return (idetape_queue_pc_tail(drive, &pc));
- 		case MTUNLOAD:
- 		case MTOFFL:
-+			/*
-+			 * If door is locked, attempt to unlock before
-+			 * attempting to eject.
-+			 */
-+			if (tape->door_locked) {
-+				if (idetape_create_prevent_cmd(drive, &pc, 0))
-+					if (!idetape_queue_pc_tail(drive, &pc))
-+						tape->door_locked = DOOR_UNLOCKED;
-+			}
- 			idetape_discard_read_pipeline(drive, 0);
- 			idetape_create_load_unload_cmd(drive, &pc,!IDETAPE_LU_LOAD_MASK);
--			return (idetape_queue_pc_tail(drive, &pc));
-+			retval = idetape_queue_pc_tail(drive, &pc);
-+			if (!retval)
-+				clear_bit(IDETAPE_MEDIUM_PRESENT, &tape->flags);
-+			return retval;
- 		case MTNOP:
- 			idetape_discard_read_pipeline(drive, 0);
- 			return (idetape_flush_tape_buffers(drive));
-@@ -5409,6 +5460,8 @@ static int idetape_chrdev_ioctl (struct 
- 					mtget.mt_gstat |= GMT_EOD(0xffffffff);
- 				if (position <= OS_DATA_STARTFRAME1)
- 					mtget.mt_gstat |= GMT_BOT(0xffffffff);
-+			} else if (tape->drv_write_prot) {
-+				mtget.mt_gstat |= GMT_WR_PROT(0xffffffff);
- 			}
- 			if (copy_to_user((char *) arg,(char *) &mtget, sizeof(struct mtget)))
- 				return -EFAULT;
-@@ -5530,6 +5583,8 @@ ok:
- 	return 1;
- }
- 
-+static void idetape_get_blocksize_from_block_descriptor(ide_drive_t *drive);
-+
- /*
-  *	Our character device open function.
-  */
-@@ -5539,7 +5594,8 @@ static int idetape_chrdev_open (struct i
- 	ide_drive_t *drive;
- 	idetape_tape_t *tape;
- 	idetape_pc_t pc;
--			
-+	int retval;
-+
- #if IDETAPE_DEBUG_LOG
- 	printk(KERN_INFO "ide-tape: Reached idetape_chrdev_open\n");
- #endif /* IDETAPE_DEBUG_LOG */
-@@ -5552,11 +5608,7 @@ static int idetape_chrdev_open (struct i
- 
- 	if (test_and_set_bit(IDETAPE_BUSY, &tape->flags))
- 		return -EBUSY;
--	if (!tape->onstream) {	
--		idetape_read_position(drive);
--		if (!test_bit(IDETAPE_ADDRESS_VALID, &tape->flags))
--			(void) idetape_rewind_tape(drive);
--	} else {
-+	if (tape->onstream) {
- 		if (minor & 64) {
- 			tape->tape_block_size = tape->stage_size = 32768 + 512;
- 			tape->raw = 1;
-@@ -5566,16 +5618,42 @@ static int idetape_chrdev_open (struct i
- 		}
-                 idetape_onstream_mode_sense_tape_parameter_page(drive, tape->debug_level);
- 	}
--	if (idetape_wait_ready(drive, 60 * HZ)) {
-+	retval = idetape_wait_ready(drive, 60 * HZ);
-+	if (retval) {
- 		clear_bit(IDETAPE_BUSY, &tape->flags);
- 		printk(KERN_ERR "ide-tape: %s: drive not ready\n", tape->name);
--		return -EBUSY;
-+		return retval;
- 	}
--	if (tape->onstream)
--		idetape_read_position(drive);
-+
-+	idetape_read_position(drive);
-+	if (!test_bit(IDETAPE_ADDRESS_VALID, &tape->flags))
-+		(void)idetape_rewind_tape(drive);
-+
- 	if (tape->chrdev_direction != idetape_direction_read)
- 		clear_bit(IDETAPE_PIPELINE_ERROR, &tape->flags);
- 
-+	/* Read block size and write protect status from drive. */
-+	idetape_get_blocksize_from_block_descriptor(drive);
-+
-+	/* Set write protect flag if device is opened as read-only. */
-+	if ((filp->f_flags & O_ACCMODE) == O_RDONLY)
-+		tape->write_prot = 1;
-+	else
-+		tape->write_prot = tape->drv_write_prot;
-+
-+	/* Make sure drive isn't write protected if user wants to write. */
-+	if (tape->write_prot) {
-+		if ((filp->f_flags & O_ACCMODE) == O_WRONLY ||
-+		    (filp->f_flags & O_ACCMODE) == O_RDWR) {
-+			clear_bit(IDETAPE_BUSY, &tape->flags);
-+			return -EROFS;
-+		}
-+	}
-+
-+	/*
-+	 * Lock the tape drive door so user can't eject.
-+	 * Analyze headers for OnStream drives.
-+	 */
- 	if (tape->chrdev_direction == idetape_direction_none) {
- 		if (idetape_create_prevent_cmd(drive, &pc, 1)) {
- 			if (!idetape_queue_pc_tail(drive, &pc)) {
-@@ -5638,7 +5716,7 @@ static int idetape_chrdev_release (struc
- 		__idetape_kfree_stage(tape->cache_stage);
- 		tape->cache_stage = NULL;
- 	}
--	if (minor < 128)
-+	if (minor < 128 && test_bit(IDETAPE_MEDIUM_PRESENT, &tape->flags))
- 		(void) idetape_rewind_tape(drive);
- 	if (tape->chrdev_direction == idetape_direction_none) {
- 		if (tape->door_locked == DOOR_LOCKED) {
-@@ -6059,6 +6137,8 @@ static void idetape_get_blocksize_from_b
- 	header = (idetape_mode_parameter_header_t *) pc.buffer;
- 	block_descrp = (idetape_parameter_block_descriptor_t *) (pc.buffer + sizeof(idetape_mode_parameter_header_t));
- 	tape->tape_block_size =( block_descrp->length[0]<<16) + (block_descrp->length[1]<<8) + block_descrp->length[2];
-+	tape->drv_write_prot = (header->dsp & 0x80) >> 7;
-+
- #if IDETAPE_DEBUG_INFO
- 	printk(KERN_INFO "ide-tape: Adjusted block size - %d\n", tape->tape_block_size);
- #endif /* IDETAPE_DEBUG_INFO */
-@@ -6139,6 +6219,9 @@ static void idetape_setup (ide_drive_t *
- 		}
- 	}
- #endif /* CONFIG_BLK_DEV_IDEPCI */
-+	/* Seagate Travan drives do not support DSC overlap. */
-+	if (strstr(drive->id->model, "Seagate STT3401"))
-+		drive->dsc_overlap = 0;
- 	tape->drive = drive;
- 	tape->minor = minor;
- 	tape->name[0] = 'h';
-
-_
 

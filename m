@@ -1,70 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVCHSEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVCHSHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbVCHSEa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 13:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVCHSEa
+	id S261458AbVCHSHr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 13:07:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVCHSHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 13:04:30 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41949 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261460AbVCHSDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 13:03:10 -0500
-To: vivek goyal <vgoyal@in.ibm.com>
-Cc: fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       anderson@redhat.com, haren myneni <hbabu@us.ibm.com>,
-       Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Query: Kdump: Core Image ELF Format
-References: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 08 Mar 2005 11:00:08 -0700
-In-Reply-To: <1110286210.4195.27.camel@wks126478wss.in.ibm.com>
-Message-ID: <m1br9um313.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Mar 2005 13:07:47 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:13980 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261458AbVCHSEb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 13:04:31 -0500
+Subject: Re: Question regarding thread_struct
+From: Robert Love <rml@novell.com>
+To: Imanpreet Arora <imanpreet@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <c26b959205030809551b3e9670@mail.gmail.com>
+References: <c26b959205030809044364b923@mail.gmail.com>
+	 <1110302000.23923.14.camel@betsy.boston.ximian.com>
+	 <c26b959205030809271b8a5886@mail.gmail.com>
+	 <1110302922.28921.3.camel@betsy.boston.ximian.com>
+	 <c26b959205030809551b3e9670@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 08 Mar 2005 12:58:13 -0500
+Message-Id: <1110304693.28921.11.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vivek goyal <vgoyal@in.ibm.com> writes:
+On Tue, 2005-03-08 at 23:25 +0530, Imanpreet Arora wrote:
 
-> Hi,
+> Thanks again, but if the whole of the kernel is restricted to couple of pages.
+
+NO.  I did not say this.  EACH PROCESS'S KERNEL STACK IS A PAGE OR TWO.
+That is all I said.
+
+The kernel can consume hundreds of megabytes of data if it wants.  And
+it does.
+
+> Does this mean
 > 
-> Kdump (A kexec based crash dumping mechanism) is going to export the
-> kernel core image in ELF format. ELF was chosen as a format, keeping in
-> mind that gdb can be used for limited debugging and "Crash" can be used
-> for advanced debugging.
+> a) the whole of the kernel including drivers is restricted to couple of pages.
 
-When I suggested ELF for this purpose it was not so much that it was
-directly usable.  But rather it was an existing file format that could
-do the job, was well understood, and had enough extensibility
-through the PT_NOTES segment to handle the weird cases.
+No.  Each process's stack is a page or two.  The rest of the kernel is
+free to use a lot of memory.
 
-> Core image ELF headers are prepared before crash and stored at a safe
-> place in memory. These headers are retrieved over a kexec boot and final
-> elf core image is prepared for analysis. 
-> 
-> Given the fact physical memory can be dis-contiguous, One program header
-> of type PT_LOAD is created for every contiguous memory chunk present in
-> the system. Other information like register states etc. is captured in
-> notes section.
-> 
-> Now the issue is, on i386, whether to prepare core headers in ELF32 or
-> ELF64 format. gdb can not analyze ELF64 core image for i386 system. I
-> don't know about "crash". Can "crash" support ELF64 core image file for
-> i386 system?
-> 
-> Given the limitation of analysis tools, if core headers are prepared in
-> ELF32 format then how to handle PAE systems? 
-> 
-> Any thoughts or suggestions on this?
+> b) Or with a more probability, I think what you actually mean is that
+> whenever there is an interrupt by any driver it runs in either context
+> of the current process or depending upon CONFIG_IRQSTACKS.
 
-Generate it ELF64.  We also have the problem that the kernels virtual
-addresses are not used in the core dump either.   Which a post-processing
-tool will also have to address as well. 
+Yes, the interrupt runs in the stack of the current process or (given
+CONFIG_IRQSTACKS) its own stack.  Dynamic memory is free to come from
+all over.
 
-What I aimed at was a simple picture of memory decorated with the
-register state.  We should be able to derive everything beyond that.
-And the fact that it is all in user space should make it straight
-forward to change if needed.
+> If you could just quote the chapter, in your book which contains
+> information  about this, that would be more than sufficient.
 
-Eric
+That explains what, exactly?  Kernel stacks are in Ch2 (1ed) and Ch3
+(2ed), I think.
+
+> > > b)        Or does it mean that a particular stack for a particular
+> > > process, can't be resized?
+
+Yes, a process's kernel stack cannot be resized.
+
+> Actually what I asked above was "how exactly does one define and
+> differentiate kernel stack", as against "user-stack". I think I always
+> knew it but couple of clouds were coming over after reading your first
+> mail. Also if each thread has a kernel stack how is it allocated at
+> first place (alloc_thread_info)(?)
+
+The user-space stack is handled by user-space.  It is tracked by
+mm_struct->start_stack.
+
+The kernel stack is handled by user-space.  It is stored in esp,
+obviously, while inside of the kernel.  And, yes, alloc_thread_info()
+allocates the stack.
+
+	Robert Love
+
+

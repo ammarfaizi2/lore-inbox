@@ -1,29 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261349AbSIZPAf>; Thu, 26 Sep 2002 11:00:35 -0400
+	id <S261367AbSIZPIy>; Thu, 26 Sep 2002 11:08:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261352AbSIZPAf>; Thu, 26 Sep 2002 11:00:35 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:16889
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261349AbSIZPAe>; Thu, 26 Sep 2002 11:00:34 -0400
-Subject: Re: AMD 768 erratum 10 (solved: AMD 760MPX DMA lockup)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: 20020912161258.A9056@informatics.muni.cz
-Cc: linux-kernel@vger.kernel.org, Mark Hahn <hahn@physics.mcmaster.ca>,
-       kernel@street-vision.com, Petr Konecny <pekon@informatics.muni.cz>,
-       "Bruno A. Crespo" <bruno@conectatv.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <20020925132422.GC14381@fi.muni.cz>
-References: <20020925132422.GC14381@fi.muni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Sep 2002 16:08:10 +0100
-Message-Id: <1033052890.1269.28.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261369AbSIZPIy>; Thu, 26 Sep 2002 11:08:54 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:49675 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S261367AbSIZPIx>; Thu, 26 Sep 2002 11:08:53 -0400
+Date: Fri, 27 Sep 2002 01:13:37 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Roberto Nibali <ratz@drugphish.ch>
+cc: "David S. Miller" <davem@redhat.com>, Andi Kleen <ak@suse.de>,
+       <niv@us.ibm.com>, <linux-kernel@vger.kernel.org>,
+       jamal <hadi@cyberus.ca>
+Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
+In-Reply-To: <3D92D243.6060808@drugphish.ch>
+Message-ID: <Mutt.LNX.4.44.0209270051180.12285-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like the obvious fix is to simply disable the APIC on all such
-systems
+On Thu, 26 Sep 2002, Roberto Nibali wrote:
+
+> Yes, we're doing tests in this field now (as with evlog) but as it seems 
+> from preliminary testing netlink transportation of binary data is not 
+> 100% reliable either.
+
+Non-blocking netlink delivery is reliable, although you can overrun the 
+userspace socket buffer (this can be detected, however).  The fundamental 
+issue remains: sending more data to userspace than can be handled.
+
+A truly reliable transport would also involve an ack based protocol .  
+Under certain circumstances (e.g. log every forwarded packet for audit
+purposes), packets would need to be dropped if the logging mechanism
+became overloaded.  This would in turn involve some kind of queuing
+mechanism and introduce a new set of performance problems.  Reliable
+logging is a challenging problem area in general, probably better suited
+to dedicated hardware environments where the software can be tuned to
+known system capabilities.
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
 

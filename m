@@ -1,93 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316655AbSGBGpg>; Tue, 2 Jul 2002 02:45:36 -0400
+	id <S316659AbSGBHKU>; Tue, 2 Jul 2002 03:10:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSGBGpf>; Tue, 2 Jul 2002 02:45:35 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:31945 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S316655AbSGBGpf>;
-	Tue, 2 Jul 2002 02:45:35 -0400
-Date: Tue, 2 Jul 2002 09:48:02 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Dax Kelson <dax@GuruLabs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is ff:00:00:00:00:00 a broadcast frame?
-Message-ID: <20020702094802.Y28720@mea-ext.zmailer.org>
-References: <Pine.LNX.4.33.0206291000060.23706-100000@w-nivedita2.des.beaverton.ibm.com> <1025566031.5129.179.camel@porthos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1025566031.5129.179.camel@porthos>; from dax@GuruLabs.com on Mon, Jul 01, 2002 at 05:27:11PM -0600
+	id <S316663AbSGBHKT>; Tue, 2 Jul 2002 03:10:19 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:54187 "EHLO
+	postfix1-2.free.fr") by vger.kernel.org with ESMTP
+	id <S316659AbSGBHKS>; Tue, 2 Jul 2002 03:10:18 -0400
+Message-Id: <200207020643.g626hZO09162@colombe.home.perso>
+Date: Tue, 2 Jul 2002 08:43:32 +0200 (CEST)
+From: fchabaud@free.fr
+Reply-To: fchabaud@free.fr
+Subject: Re: [PATCH][swsusp] 2.4.19-pre10-ac2
+To: pavel@ucw.cz
+Cc: alan@lxorguk.ukuu.org.uk, swsusp@lister.fornax.hu,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020630224307.GA147@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 01, 2002 at 05:27:11PM -0600, Dax Kelson wrote:
-> In the "earlier" 2.4 kernels (those that shipped/errata with RHL 7.1
-> ~2.4.6), an ethernet frame destined to ff:00:00:00:00:00 were not
-> processed and passed up the stack.
+
+Hi!
+
+Le  1 Jul, Pavel Machek a écrit :
+> +                       name_resume, cur->swh.magic.magic); /* even with a noresume option, it is better
+> +                                                              to panic here, because that means that the
+> +                                                              resume device is not a proper swap one. It
+> +                                                              is perhaps a linux or dos partition and we
+> +                                                              don't want to risk damaging it. */
 > 
-> Now, with "current" 2.4 kernels (RHL 7.2 errata, and RHL 7.3
-> 2.4.9-2.4.18), the same frame IS processed and passed up the stack.
+> Swapon seems to do its own checks, so this is red herring.
 
-  That IEEE 802 MAC address is NOT a broadcast address.
-  Broadcast would be one with all bits set:  ff:ff:ff:ff:ff:ff
+I think we need it anyway, because if we're not on a swap partition and
+we have a noresume option, we may force a swap signature just after. The
+point is thta this is a misconfiguration of kernel. So I think panic is
+a good warning :-)
 
-  The above mentioned MAC address is a multicast frame, because
-  bit  0x01 in the first octet is set.  (All broadcast-frames are
-  also multicast.)
-
-> The hardware is identical, the NICs are 3c905C.
 > 
-> Is this an intentional optimization/bug?
 > 
-> Here is an ARP request encapsulated in a "bogus" ethernet frame (look at
-> the layer 2 destination). A RHL 7.3 (2.4.18) system will respond (see
-> Frame 2 below) to this frame, an older RHL 7.1 (2.4.6) system will not
-> respond.
-
-  Neither should respond.  IPv4 ARP is defined using only broadcast
-  frames.
-
-> Frame 1 (42 on wire, 42 captured)
->     Arrival Time: Jul  1, 2002 17:16:35.565996000
->     Time delta from previous packet: 1.009672000 seconds
->     Time relative to first packet: 1.009833000 seconds
->     Frame Number: 3
->     Packet Length: 42 bytes
->     Capture Length: 42 bytes
-> Ethernet II
->     Destination: ff:00:00:00:00:00 (ff:00:00:00:00:00)
->     Source: ff:00:00:00:00:00 (ff:00:00:00:00:00)
->     Type: ARP (0x0806)
-> Address Resolution Protocol (request)
->     Hardware type: Ethernet (0x0001)
->     Protocol type: IP (0x0800)
->     Hardware size: 6
->     Protocol size: 4
->     Opcode: request (0x0001)
->     Sender MAC address: 00:01:03:de:56:a4 (00:01:03:de:56:a4)
->     Sender IP address: 10.100.0.8 (10.100.0.8)
->     Target MAC address: 00:00:00:00:00:00 (00:00:00:00:00:00)
->     Target IP address: 10.100.0.10 (10.100.0.10)
 > 
-> Frame 2 (60 on wire, 60 captured)
->     Arrival Time: Jul  1, 2002 17:16:35.566146000
->     Time delta from previous packet: 0.000150000 seconds
->     Time relative to first packet: 1.009983000 seconds
->     Frame Number: 4
->     Packet Length: 60 bytes
->     Capture Length: 60 bytes
-> Ethernet II
->     Destination: 00:01:03:de:56:a4 (00:01:03:de:56:a4)
->     Source: 00:01:03:de:57:37 (00:01:03:de:57:37)
->     Type: ARP (0x0806)
->     Trailer: 00000000000000000000000000000000...
-> Address Resolution Protocol (reply)
->     Hardware type: Ethernet (0x0001)
->     Protocol type: IP (0x0800)
->     Hardware size: 6
->     Protocol size: 4
->     Opcode: reply (0x0002)
->     Sender MAC address: 00:01:03:de:57:37 (00:01:03:de:57:37)
->     Sender IP address: 10.100.0.10 (10.100.0.10)
->     Target MAC address: 00:01:03:de:56:a4 (00:01:03:de:56:a4)
->     Target IP address: 10.100.0.8 (10.100.0.8)
+> 
+>> 3/6	Fix possible endless loop in ide-suspend stuff when using
+>>  	removable devices
+>> 4/6	Fix swap signature in case of noresume option
+>> 5/6	Use memeat to make suspension of *big* sessions possible
+>> 6/6	Clean SysRq stuff.
+>>     	Clean obsolete PF_KERNTHREAD flag.
+>>     	Manage kernel threads: bdflush, khubd, nfs shares (lockd,
+>> rpciod), kjournald, kreiserfsd.
+> 
+>         sprintf(current->comm, "lockd");
+> -
+> +       current->flags |= PF_IOTHREAD;
+> 
+> Lockd does not seem any io needed for suspend-to-disk. I guess it
+> would be better to freeze it.
+> 
+>         strcpy(current->comm, "rpciod");
+> -
+> +       current->flags |= PF_IOTHREAD;
+> +
+> 
+> No, this is incorrect. I believe rpciod could submit packet for io in
+> time we are freezing devices. If it does that... bye bye to your data.
+
+
+I think so. At first I did freeze those two tasks but someone post a much simpler patch and... I think you're right. I'll fix that.
+
+
+> 
+> Fixing swap signatures should really be done in separate function.
+> 
+> 									Pavel
+> PS: This is what I did in response to your patch (it compiles,
+> otherwise untested). I'll try to fix noresume fixing signatures
+> somehow.
+
+For 2.5 tree ?
+
+> @@ -604,13 +595,12 @@
+>  
+>  static int prepare_suspend_processes(void)
+>  {
+> -	PRINTS( "Stopping processes\n" );
+> -	MDELAY(1000);
+>  	if (freeze_processes()) {
+> -		PRINTS( "Not all processes stopped!\n" );
+> +		printk( KERN_ERR "Suspend failed: Not all processes
+stopped!\n"
+> );
+>  		thaw_processes();
+>  		return 1;
+>  	}
+> 
+> +	MDELAY(1000);
+>  	do_suspend_sync();
+>  	return 0;
+>  }
+
+
+Where does this MDELAY come from ?
+
+> @@ -1029,11 +1019,13 @@
+>  static int resume_try_to_read(const char * specialfile, int noresume)
+>  {
+>  	union diskpage *cur;
+> +	unsigned long scratch_page = 0;
+>  	swp_entry_t next;
+>  	int i, nr_pgdir_pages, error;
+>  
+>  	resume_device = name_to_kdev_t(specialfile);
+> -	cur = (void *) get_free_page(GFP_ATOMIC);
+> +	scratch_page = get_free_page(GFP_ATOMIC);
+> +	cur = (void *) scratch_page;
+
+Why doing that in two steps ?
+
+
+
+> +	if(noresume) {
+> +#if 0
+
+I believe this is for 2.5 reasons ;-)
+
+> +		struct buffer_head *bh;
+> +		/* We don't do a sanity check here: we want to restore the swap
+> +		   whatever version of kernel made the suspend image */
+> +		printk("%s: Fixing swap signatures %s...\n", name_resume, resume_file);
+> +		/* We need to write swap, but swap is *not* enabled so
+> +		   we must write the device directly */
+> +		bh = bread(resume_device, 0, PAGE_SIZE);
+> +		if (!bh || (!bh->b_data)) {
+
+
+
+--
+Florent Chabaud 
+

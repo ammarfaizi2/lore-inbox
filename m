@@ -1,92 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVA0PmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVA0Plx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262643AbVA0PmU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 10:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262646AbVA0PmU
+	id S262640AbVA0Plx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 10:41:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVA0Plx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 10:42:20 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:35806 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262643AbVA0Plq
+	Thu, 27 Jan 2005 10:41:53 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:30604 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262640AbVA0Plq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 27 Jan 2005 10:41:46 -0500
-Message-ID: <41F927DC.50003@tiscali.de>
-Date: Thu, 27 Jan 2005 17:41:48 +0000
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+Message-ID: <41F90C85.5090705@tmr.com>
+Date: Thu, 27 Jan 2005 10:45:09 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Steve Lord <lord@xfs.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Preempt & Xfs Question
-References: <41F91470.6040204@tiscali.de> <41F908C4.4080608@xfs.org>
-In-Reply-To: <41F908C4.4080608@xfs.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: fuse patch needs new libs
+References: <20050124021516.5d1ee686.akpm@osdl.org><20050124021516.5d1ee686.akpm@osdl.org> <20050125000339.GA610@speedy.student.utwente.nl>
+In-Reply-To: <20050125000339.GA610@speedy.student.utwente.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Lord wrote:
+Sytse Wielinga wrote:
+> Hi Andrew,
+> 
+> On Mon, Jan 24, 2005 at 02:15:16AM -0800, Andrew Morton wrote:
+> 
+>>fuse-transfer-readdir-data-through-device.patch
+>>  fuse: transfer readdir data through device
+> 
+> It is great that this is fixed, don't remove it, but it does require the fuse
+> libs to be updated at the same time, or opening dirs for listings will break
+> like this:
+> 
+> open(".", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = -1 ENOSYS (Function
+> not implemented)
+> 
+> As I personally like for my ls to keep on working, and I assume others will,
+> too, I would appreciate it if you could add a warning to your announcements the
+> following one or two weeks or so, so that people can remove this patch if they
+> don't want to update their libs.
 
-> Matthias-Christian Ott wrote:
->
->> Hi!
->> I have a question: Why do I get such debug messages:
->>
->> BUG: using smp_processor_id() in preemptible [00000001] code: 
->> khelper/892
->> caller is _pagebuf_lookup_pages+0x11b/0x362
->> [<c03119c7>] smp_processor_id+0xa3/0xb4
->> [<c02ef802>] _pagebuf_lookup_pages+0x11b/0x362
->> [<c02ef802>] _pagebuf_lookup_pages+0x11b/0x362
->
->
-> .....
->
->>
->> Does the XFS Module avoid preemption rules? If so, why?
->
->
-> It is probably coming from these macros which keep various statistics
-> inside xfs as per cpu variables.
->
-> in fs//xfs/linux-2.6/xfs_stats.h:
->
-> DECLARE_PER_CPU(struct xfsstats, xfsstats);
->
-> /* We don't disable preempt, not too worried about poking the
->  * wrong cpu's stat for now */
-> #define XFS_STATS_INC(count)            (__get_cpu_var(xfsstats).count++)
-> #define XFS_STATS_DEC(count)            (__get_cpu_var(xfsstats).count--)
-> #define XFS_STATS_ADD(count, inc)       (__get_cpu_var(xfsstats).count 
-> += (inc))
->
-> So it knows about the fact that preemption can mess up the result of 
-> this,
-> but it does not really matter for the purpose it is used for here. The
-> stats are just informational but very handy for working out what is going
-> on inside xfs. Using a global instead of a per cpu variable would
-> lead to cache line contention.
->
-> If you want to make it go away on a preemptable kernel, then use the
-> alternate definition of the stat macros which is just below the
-> above code.
->
-> Steve
->
-> p.s. try running xfs_stats.pl -f which comes with the xfs-cmds source to
-> watch the stats.
->
->
-Hi!
-It happens to all functions -- not only to the stat functions -- because 
-of this macro:
-#define current_cpu()           smp_processor_id()
-
-But this it not my problem (setting it 0 fixes it or get_cpu()). I just 
-wanted to know why it breaks the preemption rules.
-
-Matthias-Christian
+By any chance would this also break perl programs which readdir?
 
 -- 
-http://unixforge.org/~matthias-christian-ott/
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

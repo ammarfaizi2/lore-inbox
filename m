@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265915AbSKBJz7>; Sat, 2 Nov 2002 04:55:59 -0500
+	id <S265913AbSKBKCP>; Sat, 2 Nov 2002 05:02:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265916AbSKBJz7>; Sat, 2 Nov 2002 04:55:59 -0500
-Received: from packet.digeo.com ([12.110.80.53]:49323 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265915AbSKBJz6>;
-	Sat, 2 Nov 2002 04:55:58 -0500
-Message-ID: <3DC3A2AD.69775F06@digeo.com>
-Date: Sat, 02 Nov 2002 02:02:21 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Dave Jones <davej@codemonkey.org.uk>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [announce] swap mini-howto
-References: <Pine.LNX.4.33L2.0211011540140.28320-100000@dragon.pdx.osdl.net> <20021102000907.GA9229@suse.de> <3DC3207A.450402B3@zip.com.au> <3DC38C43.6020103@pobox.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Nov 2002 10:02:21.0935 (UTC) FILETIME=[EFA7DFF0:01C28256]
+	id <S265916AbSKBKCP>; Sat, 2 Nov 2002 05:02:15 -0500
+Received: from ns.suse.de ([213.95.15.193]:39181 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S265913AbSKBKCO>;
+	Sat, 2 Nov 2002 05:02:14 -0500
+To: Dipankar Sarma <woofwoof@hathway.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dcache_rcu [performance results]
+References: <20021030161912.E2613@in.ibm.com.suse.lists.linux.kernel> <20021031162330.B12797@in.ibm.com.suse.lists.linux.kernel> <3DC32C03.C3910128@digeo.com.suse.lists.linux.kernel> <20021102144306.A6736@dikhow.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 02 Nov 2002 11:08:44 +0100
+In-Reply-To: Dipankar Sarma's message of "2 Nov 2002 10:21:23 +0100"
+Message-ID: <p734rb0s2qb.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Dipankar Sarma <woofwoof@hathway.com> writes:
 > 
-> ...
-> That said, I would like to again point out that using sparse swapfiles
-> should still be discouraged.  It may be supported, but it's much better
-> for system performance and stability, IMO, if the sysadmin makes certain
-> all swapfiles are 100% allocated before they are mentioned to the swap
-> subsystem.
-> 
+> I should add that this is a general trend we see in all workloads
+> that do a lot of open/closes and so much so that performance is very
+> sensitive to how close to / your application's working directory
+> is. You would get much better system time if you compile a kernel
+> in /linux as compared to say /home/fs01/users/akpm/kernel/linux ;-)
 
-That got stamped out.  swapon will fail if the file isn't fully
-instantiated on disk:
+That's interesting. Perhaps it would make sense to have a fast path
+that just does a string match of the to be looked up path to a cached copy 
+of cwd and if it matches works as if cwd was the root. Would need to be 
+careful with chroot where cwd could be outside the root and clear the
+cached copy in this case. Then you could avoid all the locking overhead
+for directories above your cwd if you stay in there.
 
-
-static int setup_swap_extents(struct swap_info_struct *sis)
-{
-	...
-                        block = bmap(inode, probe_block + block_in_page);
-                        if (block == 0)
-                                goto bad_bmap;
-	...
-
-bad_bmap:
-        printk(KERN_ERR "swapon: swapfile has holes\n");
-        ret = -EINVAL;
-}
+-Andi

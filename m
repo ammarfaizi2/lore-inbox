@@ -1,43 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266964AbTAZSs3>; Sun, 26 Jan 2003 13:48:29 -0500
+	id <S266965AbTAZTZJ>; Sun, 26 Jan 2003 14:25:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266965AbTAZSs3>; Sun, 26 Jan 2003 13:48:29 -0500
-Received: from mxzilla1.xs4all.nl ([194.109.6.54]:44305 "EHLO
-	mxzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S266964AbTAZSs2>; Sun, 26 Jan 2003 13:48:28 -0500
-Date: Sun, 26 Jan 2003 19:57:39 +0100 (CET)
-From: Yuri van Oers <yvanoers@xs4all.nl>
-To: RivaTV devel list <rivatv-devel@lists.sourceforge.net>
-cc: linux-kernel@vger.kernel.org, <video4linux-list@redhat.com>
-Subject: Announce: RivaTV 0.8.2 released
-Message-ID: <20030126193546.K93859-100000@xs1.xs4all.nl>
+	id <S266967AbTAZTZJ>; Sun, 26 Jan 2003 14:25:09 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:62159 "EHLO
+	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id <S266965AbTAZTZH>; Sun, 26 Jan 2003 14:25:07 -0500
+To: Richard Henderson <rth@twiddle.net>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] isa_virt_to_bus and co on Alpha
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 26 Jan 2003 20:33:27 +0100
+Message-ID: <wrpznpnln94.fsf@hina.wild-wind.fr.eu.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
 
-Greetings!
+Richard, Linus, lklm,
 
-Version 0.8.2 of the RivaTV package has finally been released.
+The following trivial patchlet (against 2.5.59) adds the missing
+isa_virt_to_bus/isa_bus_to_virt API to the Alpha architecture.
 
-!!Users of a recent CVS version of RivaTV are advised to keep using CVS!!
+This is at least needed by the aha1740 driver. With this patch, the
+ol' good Jensen is back running 2.5 ;-).
 
-0.8.2 is already greatly outdated by CVS, expect 0.8.3 soon.
-
-http://rivatv.sourceforge.net/
+        M.
 
 
-On behalf of the RivaTV team,
-Best regards,
-Yuri van Oers
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=io.h-patch
+Content-Description: isa_vtb patch
 
----
-RivaTV is a V4L driver for nVidia based cards featuring video-in.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.879.82.8 -> 1.879.82.9
+#	include/asm-alpha/io.h	1.9     -> 1.9.1.1
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/01/26	maz@hina.wild-wind.fr.eu.org	1.879.82.9
+# Add isa_virt_to_bus/isa_bus_to_virt API.
+# aha1740 driver wants it, so we can run 2.5 on the Jensen... :-)
+# --------------------------------------------
+#
+diff -Nru a/include/asm-alpha/io.h b/include/asm-alpha/io.h
+--- a/include/asm-alpha/io.h	Sun Jan 26 20:30:26 2003
++++ b/include/asm-alpha/io.h	Sun Jan 26 20:30:26 2003
+@@ -84,6 +84,8 @@
+ 	return phys <= __direct_map_size ? bus : 0;
+ }
+ 
++#define isa_virt_to_bus(a) virt_to_bus(a)
++
+ static inline void *bus_to_virt(unsigned long address)
+ {
+ 	void *virt;
+@@ -95,6 +97,8 @@
+ 	virt = phys_to_virt(address);
+ 	return (long)address <= 0 ? NULL : virt;
+ }
++
++#define isa_bus_to_virt(a) bus_to_virt(a)
+ 
+ #else /* !__KERNEL__ */
+ 
 
-Main improvements in this release are in the field of stability, colour
-conversion, scaling and speed.
-This package comes with 3 modules from the bttv driverset, to provide
-support for cards with a tuner option.
+--=-=-=
 
+
+-- 
+Places change, faces change. Life is so very strange.
+
+--=-=-=--

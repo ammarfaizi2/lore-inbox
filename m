@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266564AbUHINVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266566AbUHINYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266564AbUHINVX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 09:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266565AbUHINVX
+	id S266566AbUHINYU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 09:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266565AbUHINYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 09:21:23 -0400
-Received: from omx2-ext.SGI.COM ([192.48.171.19]:62642 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266564AbUHINVT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 09:21:19 -0400
-Date: Mon, 9 Aug 2004 06:21:27 -0700
-From: Paul Jackson <pj@sgi.com>
-To: =?ISO-8859-1?Q?Mari=E1n?= Tomko <macros@lmxmail.sk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: howto apply supermount patch only....
-Message-Id: <20040809062127.46acc804.pj@sgi.com>
-In-Reply-To: <411734E1.5070508@lmxmail.sk>
-References: <411734E1.5070508@lmxmail.sk>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 9 Aug 2004 09:24:20 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:56970 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S266566AbUHINYO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 09:24:14 -0400
+Subject: Re: 2.6.8-rc2-mm1: bluetooth broken?
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Stephane Jourdois <stephane@rubis.org>
+Cc: Filip Van Raemdonck <filipvr@xs4all.be>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040809120705.GA23073@diamant.rubis.org>
+References: <20040808191912.GA620@elf.ucw.cz>
+	 <1092003277.2773.45.camel@pegasus> <20040809095425.GA12667@debian>
+	 <1092046959.21815.15.camel@pegasus>
+	 <20040809120705.GA23073@diamant.rubis.org>
+Content-Type: text/plain
+Message-Id: <1092057843.21815.21.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 09 Aug 2004 15:24:03 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> patch: **** Only garbage was found in the patch input.
+Hi Stephane,
 
-Usually this means that your patch file, supermount-ng204.diff in the
-case you describe, doesn't contain an actual, correctly formatted,
-patch.
+> > this is what I was thinking, because I always run the latest stuff from
+> > the Bitkeeper repository directly. Seems that there is something in the
+> > -mm patches that broke it. Can someone test the latest -mm and report if
+> > the Bluetooth subsystem is working or not?
+> 
+> Not working here since 2.6.8-rc2-mm2.
+> Works in 2.6.8-rc2-mm1.
 
-The most common format for patch files has some commentary in free form
-text, followed by one or more patches, which are the output of a diff
-command such as "diff -Naurp".  If you look on this lkml email list for
-posts that have a Subject starting with "[PATCH]" or "[patch]", you will
-find many examples of such.
+I never used a -mm patch, so you must be a little bit more specific what
+is not working. What Bluetooth hardware are you using? Do the logfiles
+or dmesg include anything helpful?
 
-If your supermount-ng204.diff file is not of this format, then the
-'patch' command will complain in ways such as you report.  When that
-happens, you have to figure out why your patch file is bad - perhaps it
-got mangled during your download and copy operations, or perhaps it
-isn't a proper patch to begin with.  You will have to trace that down.
+Regards
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Marcel
+
+

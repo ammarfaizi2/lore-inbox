@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbVCOKsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbVCOKux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262375AbVCOKsq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 05:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVCOKsq
+	id S262377AbVCOKux (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 05:50:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVCOKux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 05:48:46 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:60095 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262375AbVCOKso
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 05:48:44 -0500
-Message-ID: <4236BD87.6000408@cosmosbay.com>
-Date: Tue, 15 Mar 2005 11:48:39 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: fr, en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org, vda@port.imtp.ilyichevsk.odessa.ua
-Subject: x86: spin_unlock(), spin_unlock_irq() & others are out of line ?
-References: <42348474.7040808@aknet.ru>	<20050313201020.GB8231@elf.ucw.cz>	<4234A8DD.9080305@aknet.ru>	<Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org>	<4234B96C.9080901@aknet.ru>	<20050314192943.GG18826@devserv.devel.redhat.com>	<4235ED35.1000405@aknet.ru> <20050314193447.47ca6754.akpm@osdl.org>
-In-Reply-To: <20050314193447.47ca6754.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 15 Mar 2005 05:50:53 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:29330 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262377AbVCOKua (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 05:50:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=dl3A1iyvh6COZnvpwsHUS444Lcx2Z5bqx3bGTaFWBB6mWjPSZrjBUjbSxTFc+qAeek5ytglmJessLr8KZDDIs9GTMnu1BulnnmrYD2MjhcPWMjox1F+07S9SFhP+5VIHcTKpvYe7nYWgIeq3QgBoqoG4e9k7FPkM63BMRDSnZQo=
+Message-ID: <21d7e99705031502507704f50f@mail.gmail.com>
+Date: Tue, 15 Mar 2005 10:50:28 +0000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Andrew Clayton <andrew@digital-domain.net>
+Subject: Re: Problem with 2.6.11-bk[3456]
+Cc: lkml <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1110492499.2666.8.camel@alpha.digital-domain.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Tue, 15 Mar 2005 11:48:34 +0100 (CET)
-To: unlisted-recipients:; (no To-header on input)
+References: <1110492499.2666.8.camel@alpha.digital-domain.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+> Got a problem here with the last few Linus -bk releases.
+> 
+> 2.6.11-bk2 is running fine.
+> 
+> 2.6.11-bk3 - 2.6.11-bk6 has the following problem:
+> 
+> Everything is fine while the machine is booting. However as soon as X
+> starts up the screen goes blank as normal but stays blank, no gdm login
+> screen and the hard disk and floppy drive lights are on continuously.
+> The machine is now locked up solid and needs a hard reset.
+> 
+> I tried a serial console but get nothing after the kernel messages and
+> the agetty login.
+> 
+> The machine is question is an UP Athlon 1800+ XP with 768MB RAM, the
+> graphics card is an AGP ATI Radeon 9200SE using the kernel AGP/DRM
+> drivers and the Xorg radeon driver.
+> 
+> It's running FC3.
+> 
+> I've put 2.6.11-bk2 and 2.6.11-bk6 config's, dmesg's and an lspc -vv up
+> on the web.
+> 
+> http://digital-domain.net/kernel/2.6.11-bk2.config
+> http://digital-domain.net/kernel/2.6.11-bk6.config
+> http://digital-domain.net/kernel/2.6.11-bk2.dmesg
+> http://digital-domain.net/kernel/2.6.11-bk6.dmesg
+> http://digital-domain.net/kernel/lspci-vv
+> 
+> When looking at this the other day I did get a message on the serial
+> console after X started and the machine locked, about uhci host
+> controller being disabled or something. Unfortunately I didn't make a
+> note of it and didn't get it today for when I was preparing this report.
+> 
+> Looking at the two dmesg's there is some difference in the usb messages.
+> 
+> Anyway, thanks for your time and if you need any more info just let me
+> know.
 
-I noticed that in current linux kernel versions (2.6.11), some basic 
-functions are out of line (not inlined)
+This is the same problem as i just mailed everyone about.. more
+information here...
 
-Example of a call to spin_unlock(&somelock)
-c01069fa:   b8 e8 7b 35 c0          mov    $0xc0357be8,%eax
-c01069ff:   e8 3c e4 1f 00          call   c0304e40 <_spin_unlock>
-
-
-c0304e40 <_spin_unlock>:
-c0304e40:   c6 00 01                movb   $0x1,(%eax)
-c0304e43:   c3                      ret
-
-
-Same problem for _write_unlock(), _read_unlock(), _spin_unlock_irq(), ...
-
-That seems odd, and I fail to see the reason for that. (It's OK for 
-complex functions, but not for very short ones...)
-
-Is it a regression, or is it needed ?
-
-configuration :
-	- SMP
-	- Processor family (Pentium-4/Celeron(P4-based)/Pentium-4 M/Xeon)
-	- No "Generic x86 support"
-
-Thank you
-Eric Dumazet
-
+Dave.

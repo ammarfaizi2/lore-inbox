@@ -1,143 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286413AbRL0SIS>; Thu, 27 Dec 2001 13:08:18 -0500
+	id <S286424AbRL0SIS>; Thu, 27 Dec 2001 13:08:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286411AbRL0SID>; Thu, 27 Dec 2001 13:08:03 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57606
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S286413AbRL0SHx>; Thu, 27 Dec 2001 13:07:53 -0500
-Date: Thu, 27 Dec 2001 10:06:29 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Guolin Cheng <Guolin@alexa.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'adam@yggdrasil.com'" <adam@yggdrasil.com>
-Subject: Re: where is the patch  ide.2.4.14.11062001.patch, for supporting
- EID E ata133 ??
-In-Reply-To: <A6CFEF730CCE38449F1774A6B5D62B0C031905@shockG.archive.alexa.com>
-Message-ID: <Pine.LNX.4.10.10112271005550.24428-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S286415AbRL0SIB>; Thu, 27 Dec 2001 13:08:01 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13575 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286411AbRL0SHr>; Thu, 27 Dec 2001 13:07:47 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: The direction linux is taking
+Date: Thu, 27 Dec 2001 18:05:40 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a0fntk$ukm$1@penguin.transmeta.com>
+In-Reply-To: <20011227165752.A19618@flint.arm.linux.org.uk> <Pine.LNX.4.33L.0112271509570.12225-100000@duckman.distro.conectiva>
+X-Trace: palladium.transmeta.com 1009476464 8958 127.0.0.1 (27 Dec 2001 18:07:44 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 27 Dec 2001 18:07:44 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.33L.0112271509570.12225-100000@duckman.distro.conectiva>,
+Rik van Riel  <riel@conectiva.com.br> wrote:
+>On Thu, 27 Dec 2001, Russell King wrote:
+>
+>> I envy Alan, Linus, and Marcelo for having the ability to silently
+>> drop patches and wait for resends.
 
-NO
+This is absolutely true - it's a _very_ powerful thing. Old patches
+simply grow stale: keeping track of them is not necessarily at all
+useful, and can add more work than anything else. 
 
-I will not merge until I can DOMAIN VALIDATE the pile of SHIT called 2.5.X
+One of the problems I had with jitterbug was that after a while the
+thing just grew a lot, and I spent a lot of time with a cumbersome web
+interface just acknowledging the patches.  And that was despite the fact
+that not very many people actually actively used jitterbug to submit
+patches to me, so I could see it just getting a _lot_ worse. 
 
-On Mon, 3 Dec 2001, Guolin Cheng wrote:
+>I'm not going to resend more than twice. If after that
+>a critical bugfix isn't applied, I'll put it in our
+>kernel RPM and the rest of the world has tough luck.
 
-> Hi, all,
-> 
->  I tried to search the file ide.2.4.14.11062001.patch on internet, but I can
-> not find it, The search results on google can not help, it disappears:
-> 
->  
-> www.jp.kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.14/readme.48bit.ul
-> tra133
-> The latest patch release can be found on:: http://www.linuxdiskcert.org/
-> ide.2.4.14.11062001.patch
-> Fresh Release. Regards, Linux ATA Development Linux Disk ... 
-> 1k - Cached - Similar pages
-> 
->  Another question is: anyone know whether this patch is merged into 2.4.15
-> and 2.4.16 versions?
-> 
-> 
->  Yours sincerely,
->  Guolin Cheng
-> 
->  
-> 
-> -----Original Message-----
-> From: Guolin Cheng [mailto:Guolin@alexa.com]
-> Sent: Monday, December 03, 2001 6:00 PM
-> To: 'Adam J. Richter'; andre@linux-ide.org
-> Cc: 'linux-kernel@vger.kernel.org'
-> Subject: RE: Notes on ATA/133 patch (ide.2.4.14.11062001.patch)
-> 
-> 
-> Hi, Adam,
-> 
->  Thanks a lot that you have tested Maxtor 160G drives under Linux, Could you
-> tell me which former version linux kernel are you using? can we use the
-> newest 2.4.16 downloaded from www.kernel.org?
-> 
->  Do we need to check some special options in the configuration file for
-> version 2.4.16 to support Promise ata133 card and Maxtor 160G drive? Because
-> from the kernel configuration file for 2.4.16, only ata33/ata66/ata100 are
-> supported for Promise card. 
-> 
->  The last question, do we need to manually change any files beside
-> downloading the former newest kernel?
-> 
->  Thanks a lot. 
-> 
-> 
->  Yours sincerely,
->  Guolin Cheng
->  
-> 
-> -----Original Message-----
-> From: Adam J. Richter [mailto:adam@yggdrasil.com]
-> Sent: Saturday, November 17, 2001 4:59 AM
-> To: andre@linux-ide.org
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Notes on ATA/133 patch (ide.2.4.14.11062001.patch)
-> 
-> 
-> Hello Andre,
-> 
-> 	Thank you very much for implementing the 48-bit ATA controller
-> support in your recent IDE kernel patches (ide.2.4.14.11062001.patch).
-> I am using a Maxtor 160GB hard disk with your patches on linux-2.4.15-pre5,
-> and it seems to be working well so far (two hours).
-> 
-> 	I do have a couple of minor notes about your patch.  I could
-> generate some diffs, but they're simple and I'm not completely sure
-> about the right solution.
-> 
-> 	1. Your patch creates a circular dependency between the ide-mod.o
-> and ide-probe-mod.o modules, which is only noticible when IDE support
-> is compiled as a module.  The problem is that ide.c has the
-> EXPORT_SYMBOL declarations for export_ide_init_queue and
-> export_probe_for_drive in ide-probe.c.  At the moment, I have
-> moved the two EXPORT_SYMBOL declarations to the ide-probe.c, but I
-> believe the correct solution is just to remove the two routines
-> from your patch, since it appears that nothing uses them yet.
-> 
-> 	2. A while ago, I posted a change that modularizes partition
-> support (in reality, I never use the kernel-based partition code, but
-> that's another matter).  Your declaration of ide_xlate_1024_hook to
-> fs/partitions/msdos.c creates a circular dependency in my kernel (but
-> not in Linus's), which I fixed by moving the declatation to
-> fs/partitions/check.c.  I do not yet understand the purpose of
-> ide_xlate_1024 to understand whether it really is specific to the
-> MSDOS style of partition labeling.
-> 
-> 	Anyhow, I hope this information is helpful.  Please let me know
-> if you want me to geneate a patch or test anything.  So far, your patch
-> seems to be working very well.  Thank you very much for developing it.
-> 
-> Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite
-> 104
-> adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-> +1 408 261-6630         | g g d r a s i l   United States of America
-> fax +1 408 261-6631      "Free Software For The Rest Of Us."
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Which, btw, explains why I don't consider you a kernel maintainer, Rik,
+and I don't tend to apply any patches at all from you.  It's just not
+worth my time to worry about people who aren't willing to sustain their
+patches.
 
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+When Al Viro sends me a patch that I apply, and later sends me a fix to
+it that I miss for whatever reason, I can feel comfortable in the
+knowledge that he _will_ follow up, not just whine.  This makes me very
+willing to apply his patches in the first place.
 
+Replace "Al Viro" with Jeff Garzik, David Miller, Alan Cox, etc etc. See
+my point?
+
+This is not about technology.  This is about sustainable development. 
+The most important part to that is the developers themselves - I refuse
+to put myself in a situation where _I_ need to scale, because that would
+be stupid - people simply do not scale.  So I require others to do more
+of the work. Think distributed development.
+
+Note that things like CVS do not help the fundamental problem at all. 
+They allow automatic acceptance of patches, and positively _encourage_
+people to "dump" their patches on other people, and not act as real
+maintainers. 
+
+We've seen this several times in Linux - David, for example, used to
+maintain his CVS tree, and he ended up being rather frustrated about
+having to then maintain it all and clean up the bad parts because I
+didn't want to apply them (and he didn't really want me to) and he
+couldn't make people clean up themselves because "once it was in, it was
+in". 
+
+I know that source control advocates say that using source control makes
+it easy to revert bad stuff, but that's simply not TRUE.  It's _not_
+easy to revert bad stuff.  The only way to handle bad stuff is to make
+people _responsible_ for their own sh*t, and have them maintain it
+themselves. 
+
+And you refuse to do that, and then you complain when others do not want
+to maintain your code for you. 
+
+		Linus

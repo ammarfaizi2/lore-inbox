@@ -1,25 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbUKOXxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbUKOXyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbUKOXxE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 18:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbUKOXxE
+	id S261639AbUKOXyV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 18:54:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbUKOXxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 18:53:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:40390 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261655AbUKOXtJ (ORCPT
+	Mon, 15 Nov 2004 18:53:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:23498 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261658AbUKOXwe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 18:49:09 -0500
-Date: Mon, 15 Nov 2004 15:53:11 -0800
+	Mon, 15 Nov 2004 18:52:34 -0500
+Date: Mon, 15 Nov 2004 15:56:39 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: stsp@aknet.ru, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc1-mm5
-Message-Id: <20041115155311.64ae2150.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58L.0411151821050.3265@blysk.ds.pg.gda.pl>
-References: <41967669.3070707@aknet.ru>
-	<Pine.LNX.4.58L.0411150112520.22313@blysk.ds.pg.gda.pl>
-	<4198EFE5.5010003@aknet.ru>
-	<Pine.LNX.4.58L.0411151821050.3265@blysk.ds.pg.gda.pl>
+To: Sami Farin <7atbggg02@sneakemail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vm-pageout-throttling.patch: hanging in
+ throttle_vm_writeout/blk_congestion_wait
+Message-Id: <20041115155639.744bfc67.akpm@osdl.org>
+In-Reply-To: <20041115231705.GE6654@m.safari.iki.fi>
+References: <20041115012620.GA5750@m.safari.iki.fi>
+	<Pine.LNX.4.44.0411152140030.4171-100000@localhost.localdomain>
+	<20041115223709.GD6654@m.safari.iki.fi>
+	<200411151451.21671.ryan@spitfire.gotdns.org>
+	<20041115231705.GE6654@m.safari.iki.fi>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,18 +29,20 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" <macro@linux-mips.org> wrote:
+
+Please always do reply-to-all when working with kernel people.
+
+Sami Farin <7atbggg02@sneakemail.com> wrote:
 >
->  And btw, dmesg is still silent about a
-> > LAPIC. This makes me nervous when I am
-> > trying to figure out whether it works or
-> > not:) Would be nice to get those prominent
-> > messages back, as per 2.6.8.
+> > swapon /path/to/file/on/reiserfs
+> > 
+> > This allows the kernel to perform certain optimizations and removes the 
+> > overhead of the loopback device.
 > 
->  Someone wasn't as much fond of them as you are and they were removed by
-> default.  I'm pissed off, too
+> It also removes encryption, which I wish to have.
 
-Don't be pissed off - please send a patch which puts in whatever debugging
-you think we need to have to be able to properly support the APIC code.
+The dm-crypt driver should be able to do this, and it doesn't have
+low-on-memory deadlock problems.
 
-Stuff happens.
+(Not that I'm convinced that this was a low-on-memory deadlock - that
+wasn't obvious from the traces).

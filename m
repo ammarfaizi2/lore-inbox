@@ -1,80 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLPJoq>; Sat, 16 Dec 2000 04:44:46 -0500
+	id <S129485AbQLPKCR>; Sat, 16 Dec 2000 05:02:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129485AbQLPJog>; Sat, 16 Dec 2000 04:44:36 -0500
-Received: from SPYLOG-TCNET.tcnet.ru ([195.230.65.66]:40198 "HELO gate.local")
-	by vger.kernel.org with SMTP id <S129345AbQLPJo1>;
-	Sat, 16 Dec 2000 04:44:27 -0500
-From: "Max Shaposhnikov" <shapa@spylog.ru>
-To: <linux-kernel@vger.kernel.org>
-Subject: softraid5 bug on ALL 2.4 kernels
-Date: Fri, 15 Dec 2000 23:48:24 +0300
-Message-ID: <AOEJJKJLFPBGFHPGKHAFCEJDCBAA.shapa@spylog.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S129716AbQLPKCH>; Sat, 16 Dec 2000 05:02:07 -0500
+Received: from 165-LASP-X3.red.retevision.es ([62.174.193.165]:50816 "HELO
+	jaya.dyndns.org") by vger.kernel.org with SMTP id <S129485AbQLPKBz>;
+	Sat, 16 Dec 2000 05:01:55 -0500
+Date: Sat, 16 Dec 2000 09:27:48 +0000
+From: linuxx <linuxx@eresmas.net>
+To: bfennma@users.sourceforge.net
+Cc: torvalds@transmeta.com
+Subject: udf and kernel
+Message-ID: <20001216092748.A428@eresmas.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4test10 - mke2fs work fine, but dd if=/dev/zero of=/mnt/testfile
-count=2000000 gor kernel error
-2.4test11 - mke2fs result kernel error immideatly.
-2.4test12 - mke2fs result kernel error immideatly.
 
-kernels- SMP&UP with apic (SCSI drivers don't work good without enabled APIC
-on SMP motherboard in UP kernel)
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Mother Intel GX
-2xPIII-850
-1Gb and 2Gb
-Adaptec 7860 SCSI (but on IDE soft RAID got the same error)
+I like to Know why linus torvals have a kernel 2.4.0-test12 that think have=
+nt any bug and have a udf 0.9.1 version in it
+that have an error in the read of DVD. Especially when this error is resolv=
+ed in udf 0.9.2.1 .But patch for udf=20
+is only for kernel 2.2 and 2.3 ....a long time ago .. Im not a kernel hacke=
+r but  need the 2.4 for diferents reason
+and i cant see DVD in linux for this bug.Can you tell me if you are going t=
+o migrate the current patch 0.9.2.1 to kernel 2.4
+or notificated linus torvalds with this bug to linus upgrade .... It not ni=
+ce have a stable and nice kernel with a bug .
+specially when this bug is resolved
+--=20
 
-raid1 work fine.
+Lee y algo aprenderas:
 
-dmesg:
+#----------------------------------------------------------------------
+640 K seran suficientes para todos! (Guillermo Puertas)
+#----------------------------------------------------------------------
 
- disk 25, s:0, o:0, n:0 rd:0 us:0 dev:[dev 00:00]
- disk 26, s:0, o:0, n:0 rd:0 us:0 dev:[dev 00:00]
-md: updating md0 RAID superblock on device
-hdd [events: 00000001](write) hdd's sb offset: 45034816
-md: syncing RAID array md0
-md: minimum _guaranteed_ reconstruction speed: 100 KB/sec/disc.
-md: using maximum available idle IO bandwith (but not more than 100000
-KB/sec) for reconstruction.
-md: using 124k window, over a total of 45034816 blocks.
-hdc [events: 00000001](write) hdc's sb offset: 45034816
-hda [events: 00000001](write) hda's sb offset: 45034816
-.
-kernel BUG at buffer.c:765!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c012d852>]
-EFLAGS: 00010286
-eax: 0000001c   ebx: f7f89d08   ecx: c027c508   edx: 00000001
-esi: f6f04160   edi: f6f04000   ebp: f7f89cc0   esp: f7001e8c
-ds: 0018   es: 0018   ss: 0018
-Process raid5d (pid: 284, stackpage=f7001000)
-Stack: c022ad45 c022affa 000002fd 00000004 c01d9788 f7f89cc0 00000001
-00000004
-       f6f04000 00000001 00000000 c01da299 f6f04000 00000001 00000001
-f6f04000
-       f7003000 f6f04000 00000003 00000003 f7003000 c01dadf2 f6f04000
-f6f04000
-Call Trace: [<c022ad45>] [<c022affa>] [<c01d9788>] [<c01da299>] [<c01dadf2>]
-[<c010a92e>] [<c010a94c>]
-       [<c01149b6>] [<c01db326>] [<c01e2046>] [<c0107c34>]
-Code: 0f 0b 83 c4 0c 5b c3 8d 76 00 55 57 56 53 8b 74 24 14 8b 54
 
-Max Shaposhnikov,
-SpyLog UNIX administrator (www.spylog.ru)
+ Luis Toro Teijeiro                                                        =
+         THANKS FOR YOUR TIME.
+A=D1O 3021 de la era del pinguino :-) tux rules.
+ICQ : 42466380
+pasate por http://www.gulic.org  y veras Canarias y los linuxeros
+http://jaya.dyndns.org  ------pagina personal
+Firma gnupg disponible en http://jaya.dyndns.org/linuxx/gnupg/
+GnupgFingerprint: 8F06 3E9A F610 89BF 0B09  3DEB 0C7E 9AE1 6CE0 B251=20
+                              Windows Where do you want to go today?
+                              MacOS   Where do you want to be tomorrow?
+                              Linux           Are you coming, or what?
+   =20
 
+   =20
+
+--pWyiEgJYm5f9v55/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6OzWTDH6a4WzgslERAgZgAKCm/58KjomY6d84NBlDU4qKYDiGcwCgkZXA
+bA92C/wUiTjj2CgeApBS2Gs=
+=Gdaz
+-----END PGP SIGNATURE-----
+
+--pWyiEgJYm5f9v55/--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

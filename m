@@ -1,75 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264699AbSJUCsm>; Sun, 20 Oct 2002 22:48:42 -0400
+	id <S264701AbSJUC5b>; Sun, 20 Oct 2002 22:57:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264700AbSJUCsl>; Sun, 20 Oct 2002 22:48:41 -0400
-Received: from packet.digeo.com ([12.110.80.53]:57342 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264699AbSJUCsl>;
-	Sun, 20 Oct 2002 22:48:41 -0400
-Message-ID: <3DB36C70.DFB52831@digeo.com>
-Date: Sun, 20 Oct 2002 19:54:40 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: patch management scripts
-References: <3DB30283.5CEEE032@digeo.com> <20021021023546.GK26443@waste.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2002 02:54:40.0511 (UTC) FILETIME=[334C50F0:01C278AD]
+	id <S264704AbSJUC5b>; Sun, 20 Oct 2002 22:57:31 -0400
+Received: from pmesmtp01.wcom.com ([199.249.20.1]:15291 "EHLO
+	pmesmtp01.wcom.com") by vger.kernel.org with ESMTP
+	id <S264701AbSJUC53>; Sun, 20 Oct 2002 22:57:29 -0400
+Date: Sun, 20 Oct 2002 22:03:27 -0500
+From: steve roemen <steve.roemen@wcom.com>
+Subject: RE: 2.5.44/2.5.44-mm1 PIIX4 ide oops on boot
+In-reply-to: 
+To: steve.roemen@wcom.com, "'Thomas Molina'" <tmolina@cox.net>
+Cc: linux-kernel@vger.kernel.org
+Reply-to: steve.roemen@wcom.com
+Message-id: <005a01c278ae$6e1d93f0$e70a7aa5@WSXA7NCC106.wcomnet.com>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V4.72.3719.2500
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7bit
+Importance: Normal
+X-Priority: 3 (Normal)
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
-> 
-> On Sun, Oct 20, 2002 at 12:22:43PM -0700, Andrew Morton wrote:
-> >
-> > I finally got around to documenting the scripts which I use
-> > for managing kernel patches.  See
-> >
-> > http://www.zip.com.au/~akpm/linux/patches/patch-scripts-0.1/
-> >
-> > These scripts are designed for managing a "stack" of patches against
-> > a rapidly-changing base tree. Because that's what I use them for.
-> >
-> > I've been using and evolving them over about six months.  They're
-> > pretty fast, and simple to use.  They can be used for non-kernel
-> > source trees.
-> 
-> Thanks for posting these - hopefully it will generate some discussion.
-> 
-> My own personal scripts (while obviously not getting nearly the
-> workout yours are) make at least one part noticeably simpler - I use a
-> complete 'cp -al' for the current "top of the applied stack" rather
-> than your foo.c~bar files.
+i get the same results with Andrew Morton's 2.5.44-mm1 patch
 
-That has always seemed unnatural to me.  By keeping everything
-in the one tree you can easily:
+-----Original Message-----
+From: steve roemen [mailto:steve.roemen@wcom.com]
+Sent: Sunday, October 20, 2002 6:54 PM
+To: 'Thomas Molina'
+Cc: 'linux-kernel@vger.kernel.org'
+Subject: RE: 2.5.44 PIIX4 ide oops on boot
 
-- collapse patches together:
 
-	pushpatch first-patch
-	for i in $(cat pc/second-patch.pc)
-		fpatch $i
-	done
-	patch -p1 < patches/second-patch.patch
-	refpatch
+thanks for the tip on ide-cd, but i get a similar oops.
 
-- Reorder patches (edit series file, poppatch 10; pushpatch 10)
+-steve
 
-- Remove a patch which is partway down the stack:
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Thomas Molina
+Sent: Sunday, October 20, 2002 5:59 PM
+To: steve roemen
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.44 PIIX4 ide oops on boot
 
-	rpatch patch-7-out-of-10
 
-- make changes to a not-topmost patch without having to do
-  anything special.
+On Sun, 20 Oct 2002, steve roemen wrote:
 
-Dunno.  There are probably ways of doing all these things with a
-whole-tree copy, but I haven't tried to plot it all out.
+>
+> attached is the oops, the config,  and some info on the box.
+>
+> ide is only used for the cdrom.
+>
+> it oopes during bootup.  also, if i remove ide from this kernel, it'll
+boot
+> on the scsi drive just fine.
+>
+> 2.4.19 works just fine on this box.
 
-Changelog tracking is fairly important to me also.
+Your config says you have ide-cd configured.  Try taking just ide-cd out
+and reboot.  I've found a problem with 2.5.44 and ide-cd on my system
+also.  I have a similar oops on boot or module insertion.
 
-mnm:/usr/src/25> ls -l txt|wc -l
-    560
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267774AbUIDMcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267793AbUIDMfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267774AbUIDMcp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 08:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267793AbUIDMco
+	id S267793AbUIDMfU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 08:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUIDMfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 08:32:44 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:11735 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267774AbUIDMcm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 08:32:42 -0400
-Date: Sat, 4 Sep 2004 13:32:41 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Keith Whitwell <keith@tungstengraphics.com>, Dave Jones <davej@redhat.com>,
+	Sat, 4 Sep 2004 08:35:19 -0400
+Received: from pengo.systems.pipex.net ([62.241.160.193]:44249 "EHLO
+	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S267793AbUIDMfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 08:35:07 -0400
+Message-ID: <4139B675.9030202@tungstengraphics.com>
+Date: Sat, 04 Sep 2004 13:35:01 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+Cc: Dave Airlie <airlied@linux.ie>, Christoph Hellwig <hch@infradead.org>,
        Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
 Subject: Re: New proposed DRM interface design
-In-Reply-To: <20040904132142.A14904@infradead.org>
-Message-ID: <Pine.LNX.4.58.0409041324170.25475@skynet>
-References: <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org>
- <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org>
- <4139995E.5030505@tungstengraphics.com> <20040904112930.GB2785@redhat.com>
- <4139A9F4.4040702@tungstengraphics.com> <20040904115442.GD2785@redhat.com>
- <4139B03A.6040706@tungstengraphics.com> <Pine.LNX.4.58.0409041311020.25475@skynet>
- <20040904132142.A14904@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <20040904102914.B13149@infradead.org> <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org> <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org> <4139995E.5030505@tungstengraphics.com> <20040904112930.GB2785@redhat.com> <4139A9F4.4040702@tungstengraphics.com> <20040904124658.A14628@infradead.org> <Pine.LNX.4.58.0409041253390.25475@skynet> <20040904121039.GB26419@redhat.com>
+In-Reply-To: <20040904121039.GB26419@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Again, how is drm different from scsi or net or whatever drivers except
-> that you need a big userlevel component aswell?
+Dave Jones wrote:
+> On Sat, Sep 04, 2004 at 01:04:17PM +0100, Dave Airlie wrote:
+> 
+>  > releases, I would like to give those people a chance to use their graphics
+>  > cards, and the snapshots are not the only way, Intel have i915 Linux
+>  > drivers on their site from TG, they work on most kernels/distros, I get a
+>  > machine with i915 install Debian go to Intels website and download their
+>  > drivers, it all works, now why do I have to compile a kernel again?
+> 
+> Then a month later, Debian issues a kernel security errata.
+> You download and install it, and your 3d stops working.
+> (worse case, maybe even your 2d breaks).
+> The 'download third party drivers' thing is not a silver bullet.
+> It will screw end users over, just as equally as it claims to help them.
 
-Well I've always wondered why I couldn't download drivers for my i845 on
-board soundcard for Redhat 9 (back when it was a supported distro), why
-the hell did I need to go install FC1 or upgrade my kernel to a non-RH
-kernel, same with X on the i845, it was crap on RH9 by the time FC1 came
-out the i865 was out, the distros play catchup the whole time with new
-hardware, why not allow people to download external drivers and use em?
+Dave,
 
-I do take your point that a vendor supplied kernel update will break
-everything anyways, but we do have a lot of proprietary driver users that
-deal with this and get support for their hardware why should people
-supplying open source drivers be worse off.. and that is my view with the
-drm at the moment, companies wanting to do the right things are in a worse
-position than companies just releasing binary drivers, and that is just
-wrong :-), telling your users to get a new kernel isn't a nice way of
-doing things, and maybe Fedora is doing things right, but not many other
-distros are...
+There's no real disagreement that the best way to do things would be have 
+everything come down nicely packaged from the distro vendor.  (Certainly with 
+my TG hat on, that is how we'd like to see things work - it's obviously easier 
+for us.)  Historically it just didn't work though, and even into the future, 
+no matter what changes, I can still see a requirement for binary snapshots or 
+downloadable drivers.
 
-Dave.
+With the new LK "always stable" development model, one barrier to this ideal 
+of fast distribution of drivers seems to have fallen.   This is perhaps the 
+biggest change, and I admit the implications have only just started to sink in.
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+Dave Airlie taking a pro-active role as DRM maintainer is also a recent change 
+- for a long time that code was a neglected corner of the XFree86 tree, now 
+it's starting to look like a first-class project in its own right and is 
+getting more of the attention it needs to beat it into shape.
 
+The remaining question mark is the process of pushing the userspace drivers 
+out.  I floated a proposal recently to loosely synchronize Xorg and Mesa 
+release schedules which might help a little, but there is still a potentially 
+long delay affecting the userspace parts of a driver in their progress to 
+vendors & ultimately users.  Ultimately you're right that splitting that tree 
+up & letting the parts evolve independently might address the problems there, 
+though that's at least two X releases away.
+
+In the meantime, though, downloadable binary drivers continue to be a useful 
+testing aid for the DRI project (their original intent), and a convenient 
+bandaid for working around a distribution channel which I think will probably 
+be pretty slow for a year or more to come.
+
+Keith

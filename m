@@ -1,61 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264222AbTFBX50 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 19:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264223AbTFBX50
+	id S264223AbTFBX5h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 19:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbTFBX5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 19:57:26 -0400
-Received: from dyn-ctb-210-9-244-45.webone.com.au ([210.9.244.45]:4613 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S264222AbTFBX5Z
+	Mon, 2 Jun 2003 19:57:37 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:9601 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S264223AbTFBX5e
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 19:57:25 -0400
-Message-ID: <3EDBE776.2020806@cyberone.com.au>
-Date: Tue, 03 Jun 2003 10:10:30 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
+	Mon, 2 Jun 2003 19:57:34 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Grover, Andrew" <andrew.grover@intel.com>,
+       "Zwane Mwaikambo" <zwane@linuxpower.ca>
+Subject: Re: ACPI interrupt storm (was Re: Linux 2.4.21rc6-ac1)
+Date: Tue, 3 Jun 2003 10:12:07 +1000
+User-Agent: KMail/1.5.1
+Cc: "Paul P Komkoff Jr" <i@stingr.net>, <linux-kernel@vger.kernel.org>
+References: <F760B14C9561B941B89469F59BA3A84725A2CC@orsmsx401.jf.intel.com>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A2CC@orsmsx401.jf.intel.com>
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>
-Subject: Re: [PATCH][CFT] blk-fair-batches vs 2.4.20-rc6
-References: <Pine.LNX.4.44.0306020919530.29823-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0306020919530.29823-100000@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306031012.07832.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 3 Jun 2003 07:01, Grover, Andrew wrote:
+> I suspect this machine should be falling into one of the cases before
+> this last one, thus making ACPI not use C3, or check for bus-mastering.
+> I especially think this is the case because this appears to be a desktop
+> system. It should not have a C3 address or a plvl3_lat less than 1000,
+> yet it appears to, yes?
 
+Sorry Andy I have no idea what you're talking about. Are there some details 
+specifically about this machine you want me to provide?
 
-Rik van Riel wrote:
-
-> On Mon, 2 Jun 2003, Nick Piggin wrote:
->
->> Previously:
->> * request queue fills up
->> * process 1 calls get_request, sleeps
->> * a couple of requests are freed
->> * process 2 calls get_request, proceeds
->> * a couple of requests are freed
->> * process 2 calls get_request, proceeds
->> ...
->
->
-> In an early 2.4 kernel I've caught a few processes sleeping
-> in get_request_wait for 5 minutes or so, while other processes
-> were allocating new requests at exactly the speed they were
-> processed.
->
-> Of course, a patch to fix the problem was shot down due to
-> lower dbench performance ... good thing Andrew Morton has
-> more sense than that.
-
-Mmm... unfortunately nearly everywhere >1 threads compete for
-a resource, it comes down to throughput vs latency.
-
-I think this patch is valid. It does not seem to be the sole
-cause of the hangs though... err, and its against 21-rc6,
-sorry :P
+Con
+> > -----Original Message-----
+> > From: Zwane Mwaikambo [mailto:zwane@linuxpower.ca]
+> > On Sun, 1 Jun 2003, Con Kolivas wrote:
+> > > I get the same problem here with acpi-20030522 applied to rc6
+> > > P4 2.53 on an i845 mobo (P4PE).
+> >
+> > I think it could be the Bus Mastering event monitoring thing, can you
+> > shoehorn this (HACK HACK) patch into 2.4?
+> >
+> > Index: linux-2.5.70-mm1/drivers/acpi/processor.c
+> > ===================================================================
+> > RCS file: /build/cvsroot/linux-2.5.70/drivers/acpi/processor.c,v
+> > retrieving revision 1.1.1.1
+> > diff -u -p -B -r1.1.1.1 processor.c
+> > --- linux-2.5.70-mm1/drivers/acpi/processor.c	27 May 2003
+> > 02:19:28 -0000	1.1.1.1
+> > +++ linux-2.5.70-mm1/drivers/acpi/processor.c	29 May 2003
+> > 11:32:00 -0000
+> > @@ -711,11 +711,13 @@ acpi_processor_get_power_info (
+> >  		 * use this in our C3 policy.
+> >  		 */
+> >  		else {
+> > +			goto done;
+> >  			pr->power.states[ACPI_STATE_C3].valid = 1;
+> >  			pr->power.states[ACPI_STATE_C3].latency_ticks =
+> >
+> > US_TO_PM_TIMER_TICKS(acpi_fadt.plvl3_lat);
+> >  			pr->flags.bm_check = 1;
+> >  		}
+> > +		done:
+> >  	}
+> >
+> >  	/*
 

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264771AbRFXViJ>; Sun, 24 Jun 2001 17:38:09 -0400
+	id <S264780AbRFXVj7>; Sun, 24 Jun 2001 17:39:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264772AbRFXViD>; Sun, 24 Jun 2001 17:38:03 -0400
-Received: from jalon.able.es ([212.97.163.2]:49033 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S264771AbRFXVhr>;
-	Sun, 24 Jun 2001 17:37:47 -0400
-Date: Sun, 24 Jun 2001 23:41:01 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: landley@webofficenow.com
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Timur Tabi <ttabi@interactivesi.com>,
-        "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010624234101.A1619@werewolf.able.es>
-In-Reply-To: <Pine.LNX.3.96.1010622162213.32091B-100000@artax.karlin.mff.cuni.cz> <0106220929490F.00692@localhost.localdomain>
+	id <S264779AbRFXVjt>; Sun, 24 Jun 2001 17:39:49 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:52584
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S264772AbRFXVji>; Sun, 24 Jun 2001 17:39:38 -0400
+Date: Sun, 24 Jun 2001 23:39:32 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] add create_proc_entry check to videodev.c (245ac16)
+Message-ID: <20010624233932.J847@jaquet.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <0106220929490F.00692@localhost.localdomain>; from landley@webofficenow.com on Fri, Jun 22, 2001 at 15:29:49 +0200
-X-Mailer: Balsa 1.1.6-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-On 20010622 Rob Landley wrote:
->
->I still consider the difference between threads and processes with shared 
->resources (memory, fds, etc) to be largely semantic.
->
+The patch below adds a check for create_proc_entry return code
+in drivers/media/video/videodev.c. It applies against 245-ac16
+and 246p6.
 
-They should not be the same. Processes are processes, and threads were designed
-for situations where processes are too heavy. Other thing is that in new
-kernels (for example, Linux) processes are being optimized (ie, vm fast
-'cloning' via copy-on-write) or expanded with new features (Linux' clone+
-CLONE_VM). But they are different beasts.
 
-This remembers on other question I read in this thread (I tried to answer then
-but I had broke balsa...). Somebody posted some benchmarks of linux
-fork()+exec() vs Solaris fork()+exec(). That is comparing apples and
-oranges. The clean battle should be linux fork-exec vs vfork-exec in Solaris,
-because for in linux is really a vfork in solaris.
-
+--- linux-245-ac16-clean/drivers/media/video/videodev.c	Sun May 27 22:15:23 2001
++++ linux-245-ac16/drivers/media/video/videodev.c	Sun Jun 24 23:33:36 2001
+@@ -373,6 +373,8 @@
+ 		return;
+ 
+ 	p = create_proc_entry(name, S_IFREG|S_IRUGO|S_IWUSR, video_dev_proc_entry);
++	if (!p)
++		return;
+ 	p->data = vfd;
+ 	p->read_proc = videodev_proc_read;
+ 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.1 (Cooker) for i586
-Linux werewolf 2.4.5-ac17 #2 SMP Fri Jun 22 01:36:07 CEST 2001 i686
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+Genius may have its limitations, but stupidity is not thus handicapped. 
+  -- Elbert Hubbard 

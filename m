@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269836AbRHGA7U>; Mon, 6 Aug 2001 20:59:20 -0400
+	id <S270020AbRHGBK3>; Mon, 6 Aug 2001 21:10:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270019AbRHGA7K>; Mon, 6 Aug 2001 20:59:10 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:65114 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S269836AbRHGA66>;
-	Mon, 6 Aug 2001 20:58:58 -0400
-Message-ID: <20010807025913.A13266@win.tue.nl>
-Date: Tue, 7 Aug 2001 02:59:13 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: "C. Linus Hicks" <lhicks@nc.rr.com>, <Remy.Card@linux.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: mkfs wrote to wrong partition
-In-Reply-To: <006a01c11dce$b4338bb0$0a0a0a0a@k-6_iii-400.mindspring.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <006a01c11dce$b4338bb0$0a0a0a0a@k-6_iii-400.mindspring.com>; from C. Linus Hicks on Sun, Aug 05, 2001 at 12:50:16PM -0400
+	id <S270021AbRHGBKT>; Mon, 6 Aug 2001 21:10:19 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:5033 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S270020AbRHGBKD>;
+	Mon, 6 Aug 2001 21:10:03 -0400
+Date: Mon, 6 Aug 2001 21:10:11 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] one of $BIGNUM devfs races
+In-Reply-To: <200108070051.f770pji27036@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.GSO.4.21.0108062053220.16817-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 05, 2001 at 12:50:16PM -0400, C. Linus Hicks wrote:
 
-> The point of the following exercise was to move from a single CPU 400Mhz
-> system to a dual 600Mhz and from an IDE disk to SCSI. I already had Redhat
-> 7.1 with a 2.4.6 kernel running on the dual 600 and was replacing it with
-> the system from the 400Mhz IDE system. All operations were performed on the
-> dual 600.
+
+On Mon, 6 Aug 2001, Richard Gooch wrote:
+
+> More importantly, the loop you used doesn't protect insertions into
+> the table. So it's not safe on SMP.
+
+Nope.  Allocation of entry itself is moved ahead of the loop, so
+we insert immediately after expanding the thing.
+
+> > PS: ObYourPropertyManager: karmic retribution?
 > 
-> While running the system booted with root=/dev/sda2 I made partitions on
-> /dev/sdb just like on /dev/sda, then copied all files over. I modified the
-> lilo.conf in /etc on /dev/sda2 to have boot=/dev/sdb and set the
-> root=/dev/sdb2 for each image. I ran lilo then booted the system.
-> 
-> The system looked like I expected it to: mount showed /dev/sdb2 mounted as
-> the root filesystem.
+> Um, retribution for putting in an awful lot of time developing devfs
+> (despite extreme hostility), at considerable personal sacrifice, and
+> being patient and civilised to those who flamed against it? My, how
+> I've been such a horrible person.
 
-Note that this does not mean a thing:
-If /etc/mtab is a link to /proc/mounts (bad idea) then the root fs is
-usually just called /dev/root. Otherwise, mount will guess at the
-appropriate name for the root filesystem by taking the one in /etc/fstab.
+<tongue-in-cheek>
+Nah, not that. Not plugging the holes that need to be plugged. Admit
+it, there is some poetic justice in the situation.
+</tongue-in-cheek>
 
-So, when mount showed /dev/sdb2 as root, this meant that you had
-changed the root entry in /etc/fstab.
+As for the repugnant comments - IMO your "On the top of that, I have
+a life" used in the context it was used in counts pretty high on that
+scale. You know, you are _not_ unique in that respect.
 
-Probably you forgot to run lilo and booted the old kernel.
+Whatever.  I just hope that this time all that mess will be fixed and by
+now I really don't care who does it and what does it take.
+

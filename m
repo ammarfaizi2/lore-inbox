@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268008AbRG0RVt>; Fri, 27 Jul 2001 13:21:49 -0400
+	id <S268883AbRG0RYj>; Fri, 27 Jul 2001 13:24:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268883AbRG0RVj>; Fri, 27 Jul 2001 13:21:39 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:16139 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S268008AbRG0RVc>; Fri, 27 Jul 2001 13:21:32 -0400
-Message-ID: <3B61A4A5.41E7B891@zip.com.au>
-Date: Sat, 28 Jul 2001 03:28:05 +1000
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S268894AbRG0RY3>; Fri, 27 Jul 2001 13:24:29 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8714 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268883AbRG0RYL>; Fri, 27 Jul 2001 13:24:11 -0400
+Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
+To: samudrala@us.ibm.com (Sridhar Samudrala)
+Date: Fri, 27 Jul 2001 18:25:29 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        lartc@mailman.ds9a.nl, diffserv-general@lists.sourceforge.net,
+        kuznet@ms2.inr.ac.ru, rusty@rustcorp.com.au, samudrala@us.ibm.com
+In-Reply-To: <Pine.LNX.4.21.0107270946420.14246-100000@w-sridhar2.des.sequent.com> from "Sridhar Samudrala" at Jul 27, 2001 10:10:22 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Joshua Schmidlkofer <menion@srci.iwpsd.org>,
-        kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>,
-        "Gryaznova E." <grev@namesys.botik.ru>,
-        "Vladimir V. Saveliev" <monstr@namesys.com>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl>,
-					<Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl> <0107270818120A.06707@widmers.oce.srci.oce.int> <3B619956.6AA072F9@zip.com.au> <3B619D63.9989F9F@namesys.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15QBMf-00066p-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hans Reiser wrote:
+> The documentation on HOWTO use this patch and the test results which show an
+> improvement in connection rate for higher priority classes can be found at our
+> project website.
+>         http://oss.software.ibm.com/qos
 > 
-> Andrew, can you do this such that there is no disruption of our
-> disk format, and make a mount option
-> out of it, and probably we should use this patch....
+> We would appreciate any comments or suggestions.
 
-I'll defer to Chris :)
+Simple question.
 
-There's no disruption to disk format - it just simulates
-the user typing `sync' at the right time.  I think the
-concept is sound, and I'm sure Chris can find a more efficient
-way...
+How is this different from having a single userspace thread in your
+application which accepts connections as they come in and then hands them
+out in an order it chooses, if need be erorring and closing some ?
 
-
-> After you make a mount option out of it, grev will benchmark
-> it for us using the usual suite of benchmarks.
-> 
-
-Ordered-data is a funny thing.  Under heavy loads it tends
-to make a significant throughput difference - on ext3 it 
-almost halves throughput wrt writeback mode.
-
-But this by no means indicates that writes are half as slow;
-what happens is that metadata-intensive workloads fill the
-journal up quickly, so the `sync' happens more frequently.
-Under normal workloads, or less metadata-intense workloads
-the difference is very small.
-
-During testing of that little patch I noted that the 
-disk went crunch every thirty seconds or so, which is good.
-Presumably the reiserfs journal is larger, or more space-efficient.
-
--
+Alan

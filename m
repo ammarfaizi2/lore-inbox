@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317345AbSFLWgE>; Wed, 12 Jun 2002 18:36:04 -0400
+	id <S317346AbSFLWiz>; Wed, 12 Jun 2002 18:38:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317346AbSFLWgD>; Wed, 12 Jun 2002 18:36:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:44501 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317345AbSFLWgC>;
-	Wed, 12 Jun 2002 18:36:02 -0400
-Date: Wed, 12 Jun 2002 15:31:37 -0700 (PDT)
-Message-Id: <20020612.153137.28764566.davem@redhat.com>
-To: mingo@elte.hu
-Cc: torvalds@transmeta.com, kravetz@us.ibm.com, rml@tech9.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] switch_mm()'s desire to run without the rq lock
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0206121551190.10732-100000@elte.hu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S317351AbSFLWiy>; Wed, 12 Jun 2002 18:38:54 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:757 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S317346AbSFLWix>; Wed, 12 Jun 2002 18:38:53 -0400
+Date: Wed, 12 Jun 2002 18:38:54 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Dawson Engler <engler@csl.Stanford.EDU>, linux-kernel@vger.kernel.org,
+        mc@cs.Stanford.EDU
+Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
+Message-ID: <20020612183854.B4081@redhat.com>
+In-Reply-To: <20020612175127.A4081@redhat.com> <Pine.GSO.4.21.0206121824140.16357-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 12, 2002 at 06:26:55PM -0400, Alexander Viro wrote:
+> Not realistic - we have a recursion through the ->follow_link(), and
+> a lot of stuff can be called from ->follow_link().  We _do_ have a
+> limit on depth of recursion here, but it won't be fun to deal with.
 
-Yikes!!! I just noticed a problem.
+Perfection isn't what I'm looking for, rather just an approximation.  
+Any tool would have to give up on non-trivial recursion, or have 
+additional rules imposed on the system.  Checker seems to be growing 
+functionality in this area, so it seems like a useful feature request.
 
-You can't just delete prepare_to_switch(), that is where we do
-the register window flush on Sparc and it has the be at that
-exact location.
-
-Can you redo your diffs, preserving prepare_to_switch()?
+		-ben
+-- 
+"You will be reincarnated as a toad; and you will be much happier."

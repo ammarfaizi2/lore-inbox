@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269515AbUJLIPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269516AbUJLIUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269515AbUJLIPk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 04:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269516AbUJLIPk
+	id S269516AbUJLIUu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 04:20:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269517AbUJLIUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 04:15:40 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:2215 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S269515AbUJLIL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 04:11:58 -0400
-Message-ID: <416B91C4.7050905@t-online.de>
-Date: Tue, 12 Oct 2004 10:11:48 +0200
-From: "Harald Dunkel" <harald.dunkel@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: "J.A. Magallon" <jamagallon@able.es>,
-       Lista Mdk-Cooker <cooker@linux-mandrake.com>,
-       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: udev: what's up with old /dev ?
-References: <1097446129l.5815l.0l@werewolf.able.es> <20041012001901.GA23831@kroah.com>
-In-Reply-To: <20041012001901.GA23831@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ID: r3OL2oZDoeW9zsPPcR1MG6SsSW+AbyFWyd+KEfJyhMfDnDY-6G92EA
-X-TOI-MSGID: 003c5f9e-f64d-43a6-9369-511a47b2c8d5
+	Tue, 12 Oct 2004 04:20:49 -0400
+Received: from swszl.szkp.uni-miskolc.hu ([193.6.2.24]:58752 "EHLO
+	swszl.szkp.uni-miskolc.hu") by vger.kernel.org with ESMTP
+	id S269516AbUJLIUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 04:20:48 -0400
+Date: Tue, 12 Oct 2004 10:20:47 +0200
+From: Vitez Gabor <vitezg@niif.hu>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Vincent Hanquez <tab@snarc.org>, linux-kernel@vger.kernel.org
+Subject: Re: forcedeth: "received irq with unknown events 0x1"
+Message-ID: <20041012082047.GA17313@swszl.szkp.uni-miskolc.hu>
+References: <20041011145104.GA9494@swszl.szkp.uni-miskolc.hu> <20041011154950.GA22553@snarc.org> <416AB99E.1020407@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <416AB99E.1020407@colorfullife.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Sun, Oct 10, 2004 at 10:08:49PM +0000, J.A. Magallon wrote:
-> 
->>Hi all...
->>
->>I have just remembered that udev mounts /dev as a tmpfs filesystem, _on top_
->>of the old /dev directory.
-> 
-> 
-> Well, that's the way _your_ distro does it.  Mine has an empty /dev on
-> the root filesystem, and the init scripts create a ramfs on top of /dev
-> at boot time, which udev fills up.
-> 
+On Mon, Oct 11, 2004 at 06:49:34PM +0200, Manfred Spraul wrote:
+> Vincent, could you try the attached patch? The critical change is the 
+> media detection: Test that the nic handles booting without a network 
+> cable and then attaching the network cable when the interface is already 
+> up correctly.
 
-I don't like this "my distro is better than yours".
-Any pointer to some code online?
+I patched my kernel, and I'm still baffled: when I connect the E1000 and the
+nvidia card, both of them say the link is down. The E1000 and the 3Com card
+works well. The E1000 is supposed to do polarity detection, so it should
+work with the nvidia card, too. ??
 
+Not really a problem, but I find it pretty strange.
 
-Thanx very much
-
-Harri
+	Gabor

@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132402AbRAQFOC>; Wed, 17 Jan 2001 00:14:02 -0500
+	id <S132555AbRAQFRp>; Wed, 17 Jan 2001 00:17:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132555AbRAQFNw>; Wed, 17 Jan 2001 00:13:52 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:47375 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S132402AbRAQFNo>; Wed, 17 Jan 2001 00:13:44 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Wed, 17 Jan 2001 15:36:47 +1100
-To: Ralf Baechle <ralf@uni-koblenz.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-        linux-mm@frodo.biederman.org
-Subject: Re: Caches, page coloring, virtual indexed caches, and more
-Message-ID: <20010117153647.A7525@linuxcare.com>
-In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> <E14GR38-0000nM-00@the-village.bc.nu> <20010111005657.B2243@khan.acc.umu.se> <20010112035620.B1254@bacchus.dhis.org> <m17l40hhtd.fsf@frodo.biederman.org> <20010115005315.D1656@bacchus.dhis.org> <m1snmlfbrx.fsf_-_@frodo.biederman.org> <20010115095432.A14351@bacchus.dhis.org> <20010115235340.B31461@linuxcare.com> <20010115154124.A17336@bacchus.dhis.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010115154124.A17336@bacchus.dhis.org>; from ralf@uni-koblenz.de on Mon, Jan 15, 2001 at 03:41:24PM -0200
+	id <S132518AbRAQFRg>; Wed, 17 Jan 2001 00:17:36 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:242 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S132555AbRAQFRW>; Wed, 17 Jan 2001 00:17:22 -0500
+Date: Wed, 17 Jan 2001 16:16:35 +1100 (EST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@localhost.localdomain>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>, Jens Axboe <axboe@suse.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Christoph Hellwig <hch@caldera.de>,
+        "David S. Miller" <davem@redhat.com>, <netdev@oss.sgi.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <20010109205420.H29904@athlon.random>
+Message-ID: <Pine.LNX.4.31.0101171616100.5464-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Did you find any software that breaks due to the additional restriction
-> on the virtual addresses of mappings?
+On Tue, 9 Jan 2001, Andrea Arcangeli wrote:
 
-Not yet. A good test of shared mmap coherency is a recent samba
-(2.2 and above) that uses tdb. Tdb relies on shared mmaps heavily and
-uncovered the bug when running on a dual ultrasparc pretty quickly.
+> BTW, I noticed what is left in blk-13B seems to be my work
 
-Anton
+Yeah yeah, we'll buy you beer at the next conference... ;)
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

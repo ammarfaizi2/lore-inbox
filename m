@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132769AbRC2QwX>; Thu, 29 Mar 2001 11:52:23 -0500
+	id <S132789AbRC2RMd>; Thu, 29 Mar 2001 12:12:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132795AbRC2QwO>; Thu, 29 Mar 2001 11:52:14 -0500
-Received: from mx2out.umbc.edu ([130.85.253.52]:9143 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S132769AbRC2QwI>;
-	Thu, 29 Mar 2001 11:52:08 -0500
-Date: Thu, 29 Mar 2001 11:51:26 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: "Richard B. Johnson" <root@quark.analogic.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux connectivity trashed.
-In-Reply-To: <000701c0b854$f2cf4f10$1428b2cc@DJLAPTOP>
-Message-ID: <Pine.SGI.4.31L.02.0103291144580.1722949-100000@irix2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132790AbRC2RMX>; Thu, 29 Mar 2001 12:12:23 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:26711 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S132789AbRC2RMO>; Thu, 29 Mar 2001 12:12:14 -0500
+Date: Thu, 29 Mar 2001 11:10:05 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103291710.LAA69167@tomcat.admin.navo.hpc.mil>
+To: snwahofm@mi.uni-erlangen.de,
+   Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+cc: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
+Subject: Re: Disturbing news..
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Mar 2001, Richard B. Johnson wrote:
+Walter Hofmann <snwahofm@mi.uni-erlangen.de>:
+> On Wed, 28 Mar 2001, Jesse Pollard wrote:
+[snip]
+> > Now, if ELF were to be modified, I'd just add a segment checksum
+> > for each segment, then put the checksum in the ELF header as well as
+> > in the/a segment header just to make things harder. At exec time a checksum
+> > verify could (expensive) be done on each segment. A reduced level could be
+> > done only on the data segment or text segment. This would at least force
+> > the virus to completly read the file to regenerate the checksum.
+> 
+> So? The virus will just redo the checksum. Sooner or later their will be a
+> routine to do this in libbfd and this all reduces to a single additional
+> line of code. 
 
->snipped<
+true.
 
-First mistake:
-	your security administrator relied on the firewall for protection.
-It is an _aid_ to security; not the 'be all and end all'. IOW, the hosts
-weren't hardened to resist penetration in case the firewall didn't cover
-it.
+> > That change would even allow for signature checks of the checksum if the
+> > signature was stored somewhere else (system binaries/setuid binaries...).
+> > But only in a high risk environment. This could even be used for a scanner
+> > to detect ANY change to binaries (and fast too - signature check of checksums
+> > wouldn't require reading the entire file).
+> 
+> One sane way to do this is to store the sig on a ro medium and make the
+> kernel check the sig of every binary before it is run.
 
-Second mistake:
-	your security administrator didn't make known the changes taking
-place, so that clueful users could have taken some preventative steps on
-their UNIX boxes.
+Only for trusted binaries. (extreme paranoia now).
+ 
+> HOWEVER, this means no compilers will work, and you have to delete all
+> script languages like perl or python (or make all of them check the
+> signature).
 
-Third mistake:
-	your security administrator either didn't know about; didn't care
-about; or didn't act on security problems for linux and solaris -- which
-have been posted, discussed, and addressed on many general or OS-specific
-security lists.
+Compilers should work normally, the link phase is what would generate
+the checksums, though if each object file contained a checksum for the
+segment then the interpreters/dynamic loaders would have the choice.
 
-Fourth mistake:
-	your security administrator, rather than address the problems, is
-sticking his head in the sand and mumbling 'Windows' -- which, as an OS,
-is a christmas tree where every bauble says 'please hack me!'.
+The only applications I see as really needing to check such signatures
+are those using PAM. These should do it anyway. The dynamic linking programs
+should do so only if they are configured to do so.
 
-In short, your security administrator needs to be dragged out, shot, and
-left hanging by the front door as a warning to his replacement.
+> Useless again, IMO.
+> 
+> > In any case, the problem is limited to one user, even if nothing is done.
+> 
+> Your best bet is to educate your users.
 
-Or, at least fired.
+User eduation is a reasonable substitute as long as they can be directed
+to follow the rules.
 
--- 
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
+Any opinions expressed are solely my own.

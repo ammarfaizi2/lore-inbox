@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268057AbRGVUpS>; Sun, 22 Jul 2001 16:45:18 -0400
+	id <S268060AbRGVVA3>; Sun, 22 Jul 2001 17:00:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268059AbRGVUpI>; Sun, 22 Jul 2001 16:45:08 -0400
-Received: from mailgate3.cinetic.de ([212.227.116.80]:39335 "EHLO
-	mailgate3.cinetic.de") by vger.kernel.org with ESMTP
-	id <S268057AbRGVUpA>; Sun, 22 Jul 2001 16:45:00 -0400
-Date: Sun, 22 Jul 2001 22:33:54 +0200
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: loopback mount doesn't work with files on shm filesystem
-Message-ID: <20010722223354.A10830@lithium.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux lithium 2.4.7 
-From: Jonathan Picht <jonathan.picht@web.de>
+	id <S268061AbRGVVAS>; Sun, 22 Jul 2001 17:00:18 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15626 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268060AbRGVVAK>; Sun, 22 Jul 2001 17:00:10 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Sun, 22 Jul 2001 13:59:02 -0700
+Message-Id: <200107222059.f6MKx2212465@penguin.transmeta.com>
+To: greearb@candelatech.com, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: [BUG REPORT]  Sony VAIO, 2.4.7:  CardBus failures with Tulip & 3c575 
+ cards.
+Newsgroups: linux.dev.kernel
+In-Reply-To: <3B5B1F77.D8B45FFA@candelatech.com>
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello,
+In article <3B5B1F77.D8B45FFA@candelatech.com> you write:
+>
+>This report contains information about my failure to get my
+>CardBus NICs working correctly.  Hardware involved is:
+>
+>Sony VAIO PCG-FX210 laptop (800Mhz Duron...)
+>DFE-650 16-bit PCMCIA NIC x2
+>3Com Megahertz 32-bit 3CCFE575BT NIC x2
+>AmbiCom 32-bit 8100 NIC  (tulip) x2
 
-if I try to mount a file which resides on shm with '-o loop',
-I get this output:
+This looks suspiciously like your slot #1 gets the PCI interrupt routing
+wrong.
 
-ioctl: LOOP_SET_FD: Invalid argument
+Note especially the kernel reports:
 
-cat /proc/version:
-Linux version 2.4.7 (root@lithium) (gcc version 2.95.4 20010703 (Debian prerelease)) #1 Sam Jul 21 19:23:47 CEST 2001
+	Linux Kernel Card Services 3.1.22
+	  options:  [pci] [cardbus] [pm]
+	PCI: Assigned IRQ 9 for device 00:0a.0
+	PCI: Assigned IRQ 10 for device 00:0a.1
+	IRQ routing conflict for 00:07.5, have irq 5, want irq 10
+	IRQ routing conflict for 00:07.6, have irq 5, want irq 10
+	PCI: Sharing IRQ 10 with 00:10.0
 
-sh scripts/ver_linux:
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
+it really looks like your slot 1 controller (00:0a.1) really wants irq5,
+based on the fact that other devices are reported to have irq5.
 
-Linux lithium 2.4.7 #1 Sam Jul 21 19:23:47 CEST 2001 i686 unknown
+However, if they _really_ have irq5 already routed, I'm surprised that
+the PCI irq router "r->get()" function didn't pick up on that fact, and
+that the "set" function apparently didn't work correctly.
 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-binutils               2.11.90.0.24
-util-linux             2.11g
-mount                  2.11g
-modutils               2.4.6
-e2fsprogs              1.22
-reiserfsprogs          3.x.0j
-PPP                    2.4.1
-Linux C Library        2.2.3
-Dynamic linker (ldd)   2.2.3
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded
+So I'd guess that when you insert a card in slot #1, you get a constant
+stream of interrupts on irq5, which is not where the kernel is expecting
+them, so your machine locks up. 
 
-I'm running Debian/unstable on a Athlon 600 with 192MB ram.
-If you need more information, don't hesitate to ask.
+Can you do the following:
+ - run dump_pirq on your machine (attached)
+ - run "lspci -vvxxx" as root
 
-Thank you,
+send me and Jeff the output. Jeff also suggested enabling debugging in
+yenta.c and that might be useful too.
 
-Jonathan
-
-ps: Please cc to me in replies, since I'm not subscribed to the list.
+		Linus

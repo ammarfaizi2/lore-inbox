@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264519AbTK0Njp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 08:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264520AbTK0Njp
+	id S264496AbTK0NeN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 08:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbTK0NeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 08:39:45 -0500
-Received: from holomorphy.com ([199.26.172.102]:55232 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264519AbTK0Njo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 08:39:44 -0500
-Date: Thu, 27 Nov 2003 05:39:29 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: amanda vs 2.6
-Message-ID: <20031127133929.GX8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	Nick Piggin <piggin@cyberone.com.au>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-References: <200311261212.10166.gene.heskett@verizon.net> <Pine.LNX.4.58.0311261202050.1524@home.osdl.org> <3FC5B8B2.7000702@cyberone.com.au> <200311270505.50242.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311270505.50242.gene.heskett@verizon.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 27 Nov 2003 08:34:13 -0500
+Received: from oort.uva.nl ([146.50.97.204]:22356 "EHLO oort.uva.nl")
+	by vger.kernel.org with ESMTP id S264496AbTK0NeL convert rfc822-to-8bit
+	(ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 08:34:11 -0500
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Bug in tun driver with devfs
+Date: Thu, 27 Nov 2003 14:34:10 +0100
+Message-ID: <05AB1317EF6EED4DBF540147C451596B4B7C66@oort.uva.nl>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Bug in tun driver with devfs
+Thread-Index: AcO06yMlTx4xJOh0RBaNOP6uI0rFHQ==
+From: "Hoogervorst, J.W." <J.W.Hoogervorst@uva.nl>
+To: <Linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 27, 2003 at 05:05:50AM -0500, Gene Heskett wrote:
-> My $0.02, but performance like that would scare a new user right back 
-> to winderz.
-> Around here, its thanksgiving day, and we traditionally eat way too 
-> much turkey (or something like that :)  And then complain about the 
-> weight we've gained of course...
+Hello, list!
 
-This isn't a performance problem. This is a bug. It vaguely sounds like
-a missed wakeup or missing setting of TIF_NEED_RESCHED, but could be a
-number of other things too.
+I found a bug with the tun device: when it auto-registers with devfs,
+the softlink is set to "misc/net/tun", but the softlink itself is in
+/dev/net, so this link points to /dev/net/misc/... which, ofcourse,
+does not exist. This then results in a dead link.
 
-(The missing setting of TIF_NEED_RESCHED theory is right if it's
-possible to clean up after it by ignoring need_resched() in the
-scheduler and always rescheduling.)
+Can anyone think of a clean fix for this?
+(I haven't done any serious programming for some time and thus can
+only think of some VERY dirty fixes atm)
 
-
--- wli
+Regards,
+Jeroen

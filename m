@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbTFDJVC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 05:21:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTFDJVC
+	id S261222AbTFDJYe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 05:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTFDJYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 05:21:02 -0400
-Received: from smtp3.cwidc.net ([154.33.63.113]:34517 "EHLO smtp3.cwidc.net")
-	by vger.kernel.org with ESMTP id S261216AbTFDJVB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 05:21:01 -0400
-Message-ID: <3EDDBD16.9050301@tequila.co.jp>
-Date: Wed, 04 Jun 2003 18:34:14 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030528
-X-Accept-Language: en-us, en, ja
-MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: Daniel.A.Christian@NASA.gov, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc7 SMP module unresolved symbols
-References: <200306031728.41982.Daniel.A.Christian@NASA.gov> <20030604083150.GA2770@werewolf.able.es>
-In-Reply-To: <20030604083150.GA2770@werewolf.able.es>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Wed, 4 Jun 2003 05:24:34 -0400
+Received: from benzin.geggus.net ([213.146.112.23]:15884 "EHLO
+	benzin.geggus.net") by vger.kernel.org with ESMTP id S261222AbTFDJYd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 05:24:33 -0400
+Date: Wed, 4 Jun 2003 11:38:02 +0200
+From: Sven Geggus <sven@gegg.us>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-rc2: frequent autofs hangs
+Message-ID: <20030604093801.GA7094@benzin.geggus.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-giggls-priority: very high :P
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi there,
 
-J.A. Magallon wrote:
+since updating from Kernel 2.4.20 to 2.4.21-rc2 my machine suffers from
+frequent autofs hangs (delayed /usr/sbin/automount processes which can not
+be killed).
 
-> You're missing a make install, I think ( at least this is what I do,
-> perhaps something is redundant:
+The Userland stufff I use is the plain version from debian woody
+(3.9.99-4.0.0pre10).
 
-make install only works if you have something like "install_kernel.sh"
-script available in your system. not all systems have that. so it might
-just fail. and there is no problem by copying the System.map and bzImage
-by hand to the /boot directory
+Any hints on how to debug this?
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Sven
 
-iD8DBQE+3b0WjBz/yQjBxz8RAj+3AKDJj10rIQqgCSlBJbqUbp4GImoU5QCdFswF
-z+rzMeBmzsWZOxscKODMNNg=
-=AmJW
------END PGP SIGNATURE-----
-
+-- 
+Why are there so many Unix-haters-handbooks and not even one
+Microsoft-Windows-haters handbook?
+Gurer vf ab arrq sbe n unaqobbx gb ungr Zvpebfbsg Jvaqbjf!
+/me is giggls@ircnet, http://sven.gegg.us/ on the Web

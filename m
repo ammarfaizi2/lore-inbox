@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269129AbUJKQJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269081AbUJKQPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269129AbUJKQJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 12:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269150AbUJKPyH
+	id S269081AbUJKQPE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 12:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269043AbUJKQKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 11:54:07 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:64168 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S269048AbUJKPv7
+	Mon, 11 Oct 2004 12:10:49 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:32641 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S269048AbUJKQIU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 11:51:59 -0400
-Subject: 2.6.9-rc4-mm1 HPET compile problems on AMD64
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-i2O5+SHrvLSBLkjV7v1Z"
-Organization: 
-Message-Id: <1097509362.12861.334.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Oct 2004 08:42:42 -0700
+	Mon, 11 Oct 2004 12:08:20 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Linux 2.6.9-rc4 - pls test (and no more patches)
+Date: Tue, 12 Oct 2004 00:07:48 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8405C29CF8@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Linux 2.6.9-rc4 - pls test (and no more patches)
+Thread-Index: AcSvpt5DddFq/9QJQBeJfIFYoiRj6gAA9uVQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Linus Torvalds" <torvalds@osdl.org>, <Brice.Goglin@ens-lyon.org>
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Moore, Robert" <robert.moore@intel.com>,
+       "Brown, Len" <len.brown@intel.com>
+X-OriginalArrivalTime: 11 Oct 2004 16:07:58.0757 (UTC) FILETIME=[79E60550:01C4AFAC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+>
+>but yours are different:
+>
+>> By the way, I still see these errors during the boot, don't 
+>know if it's
+>> supposed to be fixed :
+>> 
+>>   psparse-1133: *** Error: Method execution failed 
+>[\_SB_.C03E.C053.C0D1.C12E] (Node e7f9a3a8), AE_AML_UNINITIALIZED_LOCAL
+>>   psparse-1133: *** Error: Method execution failed 
+>[\_SB_.C03E.C053.C0D1.C13D] (Node e7f9bd68), AE_AML_UNINITIALIZED_LOCAL
+>>   psparse-1133: *** Error: Method execution failed 
+>[\_SB_.C19F._BTP] (Node e7fa3348), AE_AML_UNINITIALIZED_LOCAL
+>
 
---=-i2O5+SHrvLSBLkjV7v1Z
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+..snippets from ASL language spec.(defined in ACPI spec).
 
-Hi Andrew,
+17.5.69   Localx (Method Local Data Objects)
+...
+On entry to a control method, these objects are uninitialized 
+and cannot be used until some value or reference is stored
+into the object....
 
-I get following error while linking kernel on 2.6.9-rc4-mm1.
-x86_64/kernel/time.c seems to have a dependency on char/hpet.c
-driver. Its forcing me to use CONFIG_HPET. 
-
- LD      .tmp_vmlinux1
-arch/x86_64/kernel/built-in.o(.init.text+0x2071): In function
-`late_hpet_init':
-arch/x86_64/kernel/entry.S:259: undefined reference to `hpet_alloc'
-make: *** [.tmp_vmlinux1] Error 1
-
-I used following fix to compile. I have no idea, if its right
-or not.
+I guess AML interpreter successfully catch a bug violating 
+the rule above.  Please attach /proc/acpi/dsdt in bug report.
 
 Thanks,
-Badari
+Luming
 
-
-
---=-i2O5+SHrvLSBLkjV7v1Z
-Content-Disposition: attachment; filename=hpet_alloc_fix.patch
-Content-Type: text/plain; name=hpet_alloc_fix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- linux.org/arch/x86_64/kernel/time.c	2004-10-11 09:17:15.613107488 -0700
-+++ linux/arch/x86_64/kernel/time.c	2004-10-11 09:14:05.983935504 -0700
-@@ -727,6 +727,7 @@ static unsigned int __init pit_calibrate
- 	return (end - start) / 50;
- }
- 
-+#ifdef	CONFIG_HPET
- static __init int late_hpet_init(void)
- {
- 	struct hpet_data	hd;
-@@ -773,6 +774,7 @@ static __init int late_hpet_init(void)
- 	return 0;
- }
- fs_initcall(late_hpet_init);
-+#endif
- 
- static int hpet_init(void)
- {
-
---=-i2O5+SHrvLSBLkjV7v1Z--
 

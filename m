@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262850AbSJaQEd>; Thu, 31 Oct 2002 11:04:33 -0500
+	id <S262835AbSJaQVW>; Thu, 31 Oct 2002 11:21:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262828AbSJaQCi>; Thu, 31 Oct 2002 11:02:38 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:21777 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S262825AbSJaQCY>; Thu, 31 Oct 2002 11:02:24 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262828AbSJaQVV>; Thu, 31 Oct 2002 11:21:21 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:22150 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262812AbSJaQVN>; Thu, 31 Oct 2002 11:21:13 -0500
+Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
+       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>
+In-Reply-To: <20021031154112.GB27801@bjl1.asuk.net>
+References: <20021031005259.GA25651@bjl1.asuk.net>
+	<Pine.LNX.4.44.0210301924190.1452-100000@blue1.dev.mcafeelabs.com> 
+	<20021031154112.GB27801@bjl1.asuk.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15809.21557.995835.880171@laputa.namesys.com>
-Date: Thu, 31 Oct 2002 19:03:01 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Linus Torvalds <Torvalds@Transmeta.COM>
-Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: [PATCH]: reiser4 [2/8] export generic_forget_inode()
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Emacs-Acronym: Exceptionally Mediocre Algorithm for Computer Scientists
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Oct 2002 16:45:58 +0000
+Message-Id: <1036082758.8575.81.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Linus,
+On Thu, 2002-10-31 at 15:41, Jamie Lokier wrote:
+> 	- network accept()
+> 	- read/write/exception on sockets and pipes
+> 	- timers
+> 	- aio
+> 	- futexes
+> 	- dnotify events 
+> 
+> See how epoll only helps with the first two?  And this is the very
+> application space that epoll could _almost_ be perfect for.
+>
+> ps. Alan, you mentioned something about futexes being suitable.
+> Was that a vague notion, or do you have a clear idea in mind?
+> 
+> (A nice way to collect events from a _set_ of futexes might be just the thing.)
 
-    Following patch exports fs/inode.c:generic_forget_inode(). 
+The futexes do all the high performance stuff you actually need. One way
+to do it is to do user space signal delivery setting futexes off but
+that means user space switches and is just wrong. Setting a list of
+futexes instead of signal delivery in kernel space is fast. Letting the
+user pick what futexes get set allows you to do neat stuff like trees of
+wakeup without having to handle t kernel side.
 
-    Without this, file system that needs ->drop_inode() super block method
-    would have to duplicate manipulations with &inode_unused, inodes_stat, and
-    &inode_lock.
+What is hard is multiple futex waits and livelock for that. I think it
+can be done properly but I've not sat down and designed it all out - I
+wonder what Rusty thinks.
 
-Please apply.
-Nikita.
-diff -rup -X dontdiff linus-bk-2.5/fs/inode.c linux-2.5-reiser4/fs/inode.c
---- linus-bk-2.5/fs/inode.c	Tue Oct 15 20:56:58 2002
-+++ linux-2.5-reiser4/fs/inode.c	Mon Oct 21 13:43:49 2002
-@@ -938,7 +938,7 @@ void generic_delete_inode(struct inode *
- }
- EXPORT_SYMBOL(generic_delete_inode);
- 
--static void generic_forget_inode(struct inode *inode)
-+void generic_forget_inode(struct inode *inode)
- {
- 	struct super_block *sb = inode->i_sb;
- 
-@@ -965,6 +965,7 @@ static void generic_forget_inode(struct 
- 	clear_inode(inode);
- 	destroy_inode(inode);
- }
-+EXPORT_SYMBOL(generic_forget_inode);
- 
- /*
-  * Normal UNIX filesystem behaviour: delete the
-diff -rup -X dontdiff linus-bk-2.5/include/linux/fs.h linux-2.5-reiser4/include/linux/fs.h
---- linus-bk-2.5/include/linux/fs.h	Sat Oct 19 03:01:12 2002
-+++ linux-2.5-reiser4/include/linux/fs.h	Tue Oct 29 12:41:00 2002
-@@ -1200,7 +1200,7 @@ extern struct inode * igrab(struct inode
- extern ino_t iunique(struct super_block *, ino_t);
- extern int inode_needs_sync(struct inode *inode);
- extern void generic_delete_inode(struct inode *inode);
--
-+extern void generic_forget_inode(struct inode *inode);
- extern struct inode *ilookup5(struct super_block *sb, unsigned long hashval,
- 		int (*test)(struct inode *, void *), void *data);
- extern struct inode *ilookup(struct super_block *sb, unsigned long ino);
+Alan
+

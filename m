@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263583AbTJWOxo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 10:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTJWOxo
+	id S263582AbTJWOxR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 10:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263583AbTJWOxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 10:53:44 -0400
-Received: from [63.161.72.3] ([63.161.72.3]:49536 "HELO
-	mail.standardbeverage.com") by vger.kernel.org with SMTP
-	id S263583AbTJWOxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 10:53:41 -0400
-Message-ID: <0683fa04294bcbb820b3719af9c56cb7@stdbev.com>
-Date: Thu, 23 Oct 2003 09:52:33 -0500
-From: "Jason Munro" <jason@stdbev.com>
-Subject: Unkown key pressed 2.6.0-test8
-To: linux-kernel@vger.kernel.org
-Reply-to: <jason@stdbev.com>
-X-Mailer: Hastymail 0.7
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Thu, 23 Oct 2003 10:53:17 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:29905 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S263582AbTJWOxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 10:53:13 -0400
+Date: Thu, 23 Oct 2003 10:43:15 -0400
+From: Ben Collins <bcollins@debian.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [FBDEV UPDATE] Newer patch.
+Message-ID: <20031023144315.GA667@phunnypharm.org>
+References: <Pine.LNX.4.44.0310221814290.25125-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310221814290.25125-100000@phoenix.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-   I'm having trouble with the keyboard on my Toshiba Satellite 1410-S173
-with 2.6.0-test8. It frequently locks the keyboard for 5-10 seconds and
-produces these messages:
+On Wed, Oct 22, 2003 at 06:31:22PM +0100, James Simmons wrote:
+> 
+> Hi folks. 
+> 
+>   I have a new patch against 2.6.0-test8. This patch is a few fixes and I 
+> added back in functionality for switching the video mode for fbcon via 
+> fbset again. Give it a try and let me know the results.
+> 
+> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
-atkbd.c: Unknown key pressed (translated set 0, code 0x2, data 0x41, on
-isa0060/serio0).
-atkbd.c: Unknown key pressed (translated set 2, code 0x66, data 0xe, on
-isa0060/serio0).
+The changes to mach64_cursor.c really bork things up somehow. The cursor
+has changed from a nice underline to a solid white block. Not only that,
+but the block is bigger than the font it is over (if I am on top of
+adjacent letters, it covers the entire letter I am on, plus a couple of
+pixels of the letter to the right).
 
-This is during normal typing (this email for example). Looking at atkbd.c I
-see that there is a "Workaround Toshiba laptop multiple keypress" in
-atkbd_interrupt(), line #262, however this does not seem to fix my problem.
-I remember this came up on the list in the past but searching the archive
-provided no definitive resolution (or I missed it!). I can provide any
-other needed info or testing.
+In additition, the cursor now disappears while typing, and navigating
+around (on the command line left and right, or even in an editor when
+moving the cursor up and down). This disappearing while typing or
+navigating is _really_ annoying. If I go left or right a lot, I have to
+keep stopping to see where the cursor actually is.
 
-Any suggestions?
+FYI, this is on an UltraSPARC Blade 100, Mach64. Atleast things didn't
+break completely :) Definitely need this fixed though.
 
-Thanks
-
-\_____ Jason Munro ________________________
- \_____ jason@stdbev.com ___________________
-  \_____ #hastymail at irc.freenode.net _____
-   \_____ http://hastymail.sourceforge.net ___
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

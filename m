@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbTIHNYF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 09:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTIHNYF
+	id S262399AbTIHNlk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 09:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbTIHNlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 09:24:05 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46301 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261901AbTIHNYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 09:24:00 -0400
-Date: Tue, 2 Sep 2003 16:37:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Karol Kozimor <sziwan@hell.org.pl>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       "Brown, Len" <len.brown@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, acpi-devel@sourceforge.net
-Subject: Re: [ACPI] RE: [patch] 2.4.x ACPI updates
-Message-ID: <20030902143756.GH1358@openzaurus.ucw.cz>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCCA@hdsmsx402.hd.intel.com> <Pine.LNX.4.55L.0308231826470.5824@freak.distro.conectiva> <20030823223340.GA7129@hell.org.pl>
+	Mon, 8 Sep 2003 09:41:35 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:45186 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262399AbTIHNkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 09:40:05 -0400
+Subject: Re: Scaling noise
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Larry McVoy <lm@work.bitmover.com>, CaT <cat@zip.com.au>,
+       Larry McVoy <lm@bitmover.com>, Anton Blanchard <anton@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030906150817.GB3944@openzaurus.ucw.cz>
+References: <20030903040327.GA10257@work.bitmover.com>
+	 <20030903041850.GA2978@krispykreme>
+	 <20030903042953.GC10257@work.bitmover.com>
+	 <20030903043355.GC2019@zip.com.au>
+	 <20030903050859.GD10257@work.bitmover.com>
+	 <20030906150817.GB3944@openzaurus.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063028321.21050.28.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030823223340.GA7129@hell.org.pl>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Mon, 08 Sep 2003 14:38:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > ACPI kernel crash with 2.4.22-pre7 on ASUS L3800C
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=106146576326309&w=2
+On Sad, 2003-09-06 at 16:08, Pavel Machek wrote:
+> Hi!
 > 
-> Hi,
-> This is probably a BIOS / hardware bug, a rare occurence actually.
-> The logs show:
-> #v+
-> acpi_power-0363 [64] acpi_power_transition : Error transitioning device [CFAN] to D0
-> acpi_bus-0496 [63] acpi_bus_set_power    : Error transitioning device [CFAN] to D0
-> acpi_thermal-0549 [62] acpi_thermal_active   : Unable to turn cooling device [c12d2528] 'on'
-> Unable to handle kernel paging request at virtual address 876c33c4
-> [...]
-> #v-
-> (sometimes there's D3 in place of D0, depending on the trip points /
-> temperature readings), and then the oops follows. Unfortunately, I
-> can't provide the ksymoops output, as the kernel which the oops was logged
-> on has been gone long since.
+> > Maybe this is a better way to get my point across.  Think about more CPUs
+> > on the same memory subsystem.  I've been trying to make this scaling point
 > 
-> Anyway, this is by no means reproducible, occurs quasi-randomly (more often
+> The point of hyperthreading is that more virtual CPUs on same memory
+> subsystem can actually help stuff.
 
-You should be able to do echo ? > /proc/acpi/*/fan/state to stress this manually...
-				Pavel
+Its a way of exposing asynchronicity keeping the old instruction set.
+Its trying to make better use of the bandwidth available by having
+something else to schedule into stalls. Thats why HT is really good for
+code which is full of polling I/O, badly coded memory accesses but is
+worthless on perfectly tuned hand coded stuff which doesnt stall.
 
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+Its great feature is that HT gets *more* not less useful as the CPU gets
+faster..
 

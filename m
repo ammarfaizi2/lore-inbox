@@ -1,63 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVCNWE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVCNWy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbVCNWE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 17:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVCNWDX
+	id S262075AbVCNWy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 17:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVCNWT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 17:03:23 -0500
-Received: from imap.gmx.net ([213.165.64.20]:11954 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261967AbVCNWA1 (ORCPT
+	Mon, 14 Mar 2005 17:19:59 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:23455 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262034AbVCNWR6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 17:00:27 -0500
-X-Authenticated: #20450766
-Date: Mon, 14 Mar 2005 22:33:02 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: 20050217125028.GK21077@m.safari.iki.fi
-cc: linux-kernel@vger.kernel.org
-Subject: [lockup] no NMI (was Re: [OOPS] 2.6.10, ReiserFS errors, preempt)
-In-Reply-To: <Pine.LNX.4.60.0502172211510.6851@poirot.grange>
-Message-ID: <Pine.LNX.4.60.0503142228160.2354@poirot.grange>
-References: <20050217134623.GA2236@linux.ensimag.fr>
- <Pine.LNX.4.60.0502172211510.6851@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Mon, 14 Mar 2005 17:17:58 -0500
+Subject: Re: [Ext2-devel] Re: inode cache, dentry cache, buffer heads usage
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ext2-devel <ext2-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050314141128.7da95c34.akpm@osdl.org>
+References: <1110394558.24286.203.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050310174751.522c5420.akpm@osdl.org>
+	 <1110835692.24286.288.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050314141128.7da95c34.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1110838395.24286.297.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Mar 2005 14:13:15 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Feb 2005, Guennadi Liakhovetski wrote:
-
-> Hello
+On Mon, 2005-03-14 at 14:11, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > On Thu, 2005-03-10 at 17:47, Andrew Morton wrote:
+> > > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > > >
+> > > > So, why is these slab cache are not getting purged/shrinked even
+> > > >  under memory pressure ? (I have seen lowmem as low as 6MB). What
+> > > >  can I do to keep the machine healthy ?
+> > > 
+> > > Tried increasing /proc/sys/vm/vfs_cache_pressure?  (That might not be in
+> > > 2.6.8 though).
+> > > 
+> > > 
+> > 
+> > Yep. This helped shrink the slabs, but we end up eating up lots of
+> > the lowmem in Buffers. Is there a way to shrink buffers ?
 > 
-> On Thu, 17 Feb 2005 castet.matthieu@free.fr wrote:
+> It would require some patchwork.  Why is it a problem?  That memory is
+> reclaimable.
 > 
-> > > I believe there's unresolved memory corruption bug in bttv...
-> > yes I think so, other have also similar problem :
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=110820804010204&w=2
-> > http://marc.theaimsgroup.com/?t=110531543900002&r=1&w=2
-> > http://www.ussg.iu.edu/hypermail/linux/kernel/0412.3/0881.html
+
+Well, machine pauses for 5-30 seconds for each vi,cscope, write() etc.
+There is 7.5 GB of highmem free, but only 6MB of lowmem.
+
+Just trying to free "lowmem" as much as possible.
+
+> > $ cat /proc/meminfo
+> > MemTotal:     16377076 kB
+> > MemFree:       7495824 kB
+> > Buffers:       1081708 kB
+> > Cached:        4162492 kB
+> > SwapCached:          0 kB
+> > Active:        3660756 kB
+> > Inactive:      4473476 kB
+> > HighTotal:    14548952 kB
+> > HighFree:      7489600 kB
+> > LowTotal:      1828124 kB
+> > LowFree:          6224 kB
+> > 
 > 
-> Ahh... /me stops the memory test after 18 hours without a single error, 
-> pulls the card out of my desktop and inserts it back into the experimantal 
-> machine. Unfortunately, unlike in other posts you quoted above, I cannot 
-> reproduce my Oops. Is anybody working on this?
+> How'd you get 1.8gig of lowmem?
 
-Well, I did remove the tv-card - and today got a hard lockup. It's a VIA 
-A7VI-VM motherboard with a 900MHz Duron, lapic explicitely re-enabled on 
-the command-line:
+2:2 split
 
-Kernel command line: BOOT_IMAGE=2.6.10 ro root=308 3 lapic nmi_watchdog=2 
-console=tty1 console=ttyS0,38400
-
-/proc/interrupts:
-
-NMI:         59
-
-and still it didn't trigger. Why? Going to get 2.6.11.latest now... Was 
-2.6.10.
-
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+- Badari
 

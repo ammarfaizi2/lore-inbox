@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVCWNsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbVCWNxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbVCWNsq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 08:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVCWNqW
+	id S262499AbVCWNxT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 08:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVCWNxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 08:46:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32388 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262399AbVCWNoF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 08:44:05 -0500
-From: Jeff Moyer <jmoyer@redhat.com>
+	Wed, 23 Mar 2005 08:53:17 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:12229 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262499AbVCWNvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 08:51:22 -0500
+Message-ID: <42417457.9020008@acm.org>
+Date: Wed, 23 Mar 2005 07:51:19 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040804
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Pawe__ Sikora <pluto@pld-linux.org>, linux-kernel@vger.kernel.org,
+       Richard Henderson <rth@twiddle.net>
+Subject: Re: [PATCH][alpha] "pm_power_off" [drivers/char/ipmi/ipmi_poweroff.ko]
+ undefined!
+References: <200503152335.48995.pluto@pld-linux.org> <20050322130657.7502418d.akpm@osdl.org> <424093C8.400@pobox.com> <20050323113858.A4941@jurassic.park.msu.ru>
+In-Reply-To: <20050323113858.A4941@jurassic.park.msu.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16961.29363.691868.785104@segfault.boston.redhat.com>
-Date: Wed, 23 Mar 2005 08:44:19 -0500
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: unused 'size' assignment in filemap_nopage
-In-Reply-To: <E1DE3jC-0001Lq-00@gondolin.me.apana.org.au>
-References: <16960.37814.651437.634849@segfault.boston.redhat.com>
-	<E1DE3jC-0001Lq-00@gondolin.me.apana.org.au>
-X-Mailer: VM 7.19 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: unused 'size' assignment in filemap_nopage; Herbert Xu <herbert@gondor.apana.org.au> adds:
+This is not the right fix.  I know of IPMI hardware on ppc and xscale 
+systems.  There should be nothing general in the driver that limits it 
+to x86/ia64.
 
-herbert> Jeff Moyer <jmoyer@redhat.com> wrote:
->> After this, size is not referenced.  So, either this potential
->> reassignment of size is superfluous, or we are missing some other code
->> later on in the function.  If it is the former, I've attached a patch
->> which will remove the code.
+pm_power_off is defined in linux/pm.h.  Shouldn't it be available 
+everywhere?
 
-herbert> Yes it's obsolete.  You can remove endoff as well.
+-Corey
 
-Okay, here's the patch.
+Ivan Kokshaysky wrote:
 
-Thanks,
+>On Tue, Mar 22, 2005 at 04:53:12PM -0500, Jeff Garzik wrote:
+>  
+>
+>>Although I suppose its possible that some alpha machines have SMI 
+>>hardware, I don't think I've ever seen ACPI or IPMI on any alpha.
+>>    
+>>
+>
+>Yes, this stuff doesn't exist. I think it would be correct to add
+>the following to drivers/char/ipmi/Kconfig, like it's done for ACPI:
+>
+>menu "IPMI"
+>+	depends on IA64 || X86
+>
+>config IPMI_HANDLER
+>       tristate 'IPMI top-level message handler'
+>+	depends on IA64 || X86
+>
+>
+>Ivan.
+>  
+>
 
-Jeff
-
---- linux-2.6.11/mm/filemap.c.orig	2005-03-23 08:32:38.182822976 -0500
-+++ linux-2.6.11/mm/filemap.c	2005-03-23 08:33:34.966190592 -0500
-@@ -1175,11 +1175,10 @@ struct page * filemap_nopage(struct vm_a
- 	struct file_ra_state *ra = &file->f_ra;
- 	struct inode *inode = mapping->host;
- 	struct page *page;
--	unsigned long size, pgoff, endoff;
-+	unsigned long size, pgoff;
- 	int did_readaround = 0, majmin = VM_FAULT_MINOR;
- 
- 	pgoff = ((address - area->vm_start) >> PAGE_CACHE_SHIFT) + area->vm_pgoff;
--	endoff = ((area->vm_end - area->vm_start) >> PAGE_CACHE_SHIFT) + area->vm_pgoff;
- 
- retry_all:
- 	size = (i_size_read(inode) + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
-@@ -1191,13 +1190,6 @@ retry_all:
- 		goto no_cached_page;
- 
- 	/*
--	 * The "size" of the file, as far as mmap is concerned, isn't bigger
--	 * than the mapping
--	 */
--	if (size > endoff)
--		size = endoff;
--
--	/*
- 	 * The readahead code wants to be told about each and every page
- 	 * so it can build and shrink its windows appropriately
- 	 *

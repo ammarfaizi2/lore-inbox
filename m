@@ -1,43 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263577AbUECCsC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263576AbUECCve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263577AbUECCsC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 22:48:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbUECCqV
+	id S263576AbUECCve (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 22:51:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUECCvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 22:46:21 -0400
-Received: from holomorphy.com ([207.189.100.168]:21892 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263567AbUECCqI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 22:46:08 -0400
-Date: Sun, 2 May 2004 19:46:06 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [0/2] filtered wakeups
-Message-ID: <20040503024606.GJ1397@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20040503021709.GF1397@holomorphy.com>
+	Sun, 2 May 2004 22:51:32 -0400
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:37106 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id S263578AbUECCvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 22:51:15 -0400
+Date: Sun, 2 May 2004 19:51:09 -0700
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Numdimmies MUST DIE!
+Message-Id: <20040502195109.3897ee2e@laptop.delusion.de>
+In-Reply-To: <1083551201.25582.149.camel@bach>
+References: <1083551201.25582.149.camel@bach>
+Organization: Fiasco Core Team
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Mailer: X-Mailer 5.0 Gold
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040503021709.GF1397@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Sun__2_May_2004_19_51_09_-0700_tJ+HAWAf/K9v4VUi"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 02, 2004 at 07:17:09PM -0700, William Lee Irwin III wrote:
-> before:
-> Tiotest results for 512 concurrent io threads:
+--Signature=_Sun__2_May_2004_19_51_09_-0700_tJ+HAWAf/K9v4VUi
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Parting shot: I also used time(1):
+On Mon, 03 May 2004 12:26:42 +1000 Rusty Russell (RR) wrote:
 
-before:
-tiotest -t 512 -f 32 -b 4096 -d .  14337.17s user 3931.52s system 301% cpu 1:40:51.08 total
+RR> Status: Vitally Important
+RR> 
+RR> I'm sure this is violating the trademark of a pre-schooler's TV show
+RR> somewhere in the world.
 
-after:
-tiotest -t 512 -f 32 -b 4096 -d .  10985.23s user 3524.50s system 266% cpu 1:30:48.80 total
+While you're at it, there's more (revised patch below):
 
-i.e. it sped up the run by 10 minutes, or 10% of the total execution time.
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c
+--- .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c	2004-04-29 17:29:43.000000000 +1000
++++ .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c	2004-05-03 12:25:11.000000000 +1000
+@@ -104,7 +104,7 @@ static struct net_device **dummies;
+ 
+ /* Number of dummy devices to be set up by this module. */
+ module_param(numdummies, int, 0);
+-MODULE_PARM_DESC(numdimmies, "Number of dummy psuedo devices");
++MODULE_PARM_DESC(numdummies, "Number of dummy pseudo devices");
+ 
+ static int __init dummy_init_one(int index)
+ {
 
+-Udo.
 
--- wli
+--Signature=_Sun__2_May_2004_19_51_09_-0700_tJ+HAWAf/K9v4VUi
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAlbOdnhRzXSM7nSkRAtW9AJ0cv/yF01tM3eRd6tQZyI4K9eAMigCeP4qt
+5SmrSXDra8FrcKEw0Me8ebY=
+=PYhA
+-----END PGP SIGNATURE-----
+
+--Signature=_Sun__2_May_2004_19_51_09_-0700_tJ+HAWAf/K9v4VUi--

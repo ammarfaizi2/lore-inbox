@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267647AbTAXNHa>; Fri, 24 Jan 2003 08:07:30 -0500
+	id <S267644AbTAXNGp>; Fri, 24 Jan 2003 08:06:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267650AbTAXNHa>; Fri, 24 Jan 2003 08:07:30 -0500
-Received: from [193.137.96.140] ([193.137.96.140]:65468 "EHLO dwarf.utad.pt")
-	by vger.kernel.org with ESMTP id <S267647AbTAXNH2>;
-	Fri, 24 Jan 2003 08:07:28 -0500
-Message-ID: <3E313AF3.60109@alvie.com>
-Date: Fri, 24 Jan 2003 13:09:07 +0000
-From: Alvaro Lopes <alvieboy@alvie.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en
+	id <S267646AbTAXNGp>; Fri, 24 Jan 2003 08:06:45 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:22484 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267644AbTAXNGp>; Fri, 24 Jan 2003 08:06:45 -0500
+Date: Fri, 24 Jan 2003 11:15:28 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Josef El-Rayes <j.el-rayes@godskitchen.org>
+cc: arief@bna.telkomsel.co.id, "" <linux-kernel@vger.kernel.org>,
+       "" <tech@openbsd.org>, "" <freebsd-hackers@freebsd.org>,
+       "" <tech-kern@netbsd.org>, "" <kernelnewbies@kernelnewbies.org>
+Subject: Re: Technical Differences of *BSD and Linux
+In-Reply-To: <20030124110022.GA56181@satanii.enemy.org>
+Message-ID: <Pine.LNX.4.50L.0301241110020.18171-100000@imladris.surriel.com>
+References: <20030124110022.GA56181@satanii.enemy.org>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ACPI update (20030122)
-References: <F760B14C9561B941B89469F59BA3A84725A131@orsmsx401.jf.intel.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A131@orsmsx401.jf.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grover, Andrew wrote:
+[follow-ups to kernelnewbies@kernelnewbies.org, please]
 
->Hi all,
+On Fri, 24 Jan 2003, Josef El-Rayes wrote:
+
+> as you can see your questions are not very welcome on the mailinglists,
+> therefore i advice you to have a look at this book if you are interested
+> in BSD's technical background
+
+There is one mailing list where this kind of discussion probably
+would be welcome, the kernelnewbies mailing list. Personally I'd
+really like more things related to BSD, Hurd and other freely
+available systems on the kernelnewbies mailing list, irc channel,
+etc.  I might have founded #kernelnewbies to help people with Linux
+questions, but it was never my intention to limit it to Linux
+kernel stuff only.
+
+> Title: The Design and Implementation of the 4.4BSD Operating System
 >
->The latest ACPI patch is now available at http://sf.net/projects/acpi .
->Non-Linux packages will be available within 24 hours from
->http://developer.intel.com/technology/iapc/acpi/downloads.htm .
->  
+> Authors: McKusick, Bostic, Karels and Quarterman
+> Publisher: Addison-Wesley
 >
-Still not working properly :/
+> 4.4BSD is what NetBSD, OpenBSD and FreeBSD are basing on.
+>
+> For Linux i cant help you.
 
-Right now with 2.4.21-pre3 keventd 'eats' all my cpu.
+I can recommend Understanding the Linux Kernel, 2nd edition.
 
-Perhaps same problem I got with 2.5.59 (kernel does nothing but handle 
-IRQ's from acpi), but at least with 2.4 it gets to boot.
+Other people have recommended various other kernel related
+books, you can find a small list on:
 
+	http://kernelnewbies.org/books.php3
+
+cheers,
+
+Rik
 -- 
-
-Álvaro Lopes 
----------------------
-A .sig is just a .sig
-
-
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

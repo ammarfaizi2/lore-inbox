@@ -1,60 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266250AbSLIWRf>; Mon, 9 Dec 2002 17:17:35 -0500
+	id <S266285AbSLIWVJ>; Mon, 9 Dec 2002 17:21:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266256AbSLIWRf>; Mon, 9 Dec 2002 17:17:35 -0500
-Received: from packet.digeo.com ([12.110.80.53]:18062 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266250AbSLIWRe>;
-	Mon, 9 Dec 2002 17:17:34 -0500
-Message-ID: <3DF4EEC8.716AF196@digeo.com>
-Date: Mon, 09 Dec 2002 11:28:08 -0800
+	id <S266295AbSLIWVI>; Mon, 9 Dec 2002 17:21:08 -0500
+Received: from packet.digeo.com ([12.110.80.53]:57998 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266285AbSLIWU6>;
+	Mon, 9 Dec 2002 17:20:58 -0500
+Message-ID: <3DF4F1C1.43E1B5AF@digeo.com>
+Date: Mon, 09 Dec 2002 11:40:49 -0800
 From: Andrew Morton <akpm@digeo.com>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.50 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-CC: dipankar@in.ibm.com, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] kmalloc_percpu  -- 2 of 2
-References: <20021204174209.A17375@in.ibm.com> <20021204174550.B17375@in.ibm.com> <3DEE58CB.737259DB@digeo.com> <20021205091217.A11438@in.ibm.com> <3DEED6FA.B179FAFD@digeo.com> <20021205162329.A12588@in.ibm.com> <3DEFB0EB.9893DB9@digeo.com> <20021209110029.F17375@in.ibm.com>
+To: george anzinger <george@mvista.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/3] High-res-timers part 3 (posix to hrposix) take 20
+References: <3DB9A314.6CECA1AC@mvista.com> <3DF2F965.59D7CD84@mvista.com> <3DF3D706.977AC5BB@digeo.com> <3DF4487C.67FD90EF@mvista.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Dec 2002 19:28:08.0554 (UTC) FILETIME=[1AB39CA0:01C29FB9]
+X-OriginalArrivalTime: 09 Dec 2002 19:40:49.0420 (UTC) FILETIME=[E0368CC0:01C29FBA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai wrote:
+george anzinger wrote:
 > 
 > ...
-> As for the object sizes
-> 1. We are assuming 32 bytes cachelines in this thread I suppose
-> But ppc64 has a 128 byte cacheline and s390 a 256 byte Jumbo cacheline.
-> I guess with larger cacheline sizes you have lesser no of cachelines --
-> makes cachelines all the more precious.  (Right now, I am speaking
-> in ignorance of the ppc64 and s390 cache architectures .. I
-> can just see L1_CACHE_SHIFT in the kernel sources).  So wouldn't
-> interlaced allocations help these archs .. even when you have 64
-> bytes big objects?
+> 
+> Hm... This whole thing came up to solve and issue related to
+> having a finite number of timers.  The ID layer is just a
+> way of saving a pointer to a given "thing" (a timer
+> structure in this case) in a way that it can be recovered
+> quickly.  It is really just a tree structure with 32
+> branches (or is it sizeof long branches) at each node.
+> There is a bit map to indicate if any free slots are
+> available and if so under which branch.  This makes
+> allocation of a new ID quite fast.  The "reuse" thing is
+> there to separate it from the original code which
+> "attempted" to not reuse and ID for some time.
 
-You're assuming that the slab allocator always returns cachesize-padded
-objects.  It does not have to do that.  It can return 4-byte-sized and
--aligned objects if you ask it to.
+Is the "don't reuse an ID for some time" requirement still there?
+
+I think you can use radix trees for this.  Just put the pointer
+to your "thing" direct into the tree.  The space overhead will
+be about the same.
+
+radix-trees do not currently have a "find next empty slot from this
+offset" function but that is quite straightforward.  Not quite
+as fast, unless an occupancy bitmap is added to the radix-tree
+node.  That's something whcih I have done before - in fact it was
+an array of occupancy maps so I could do an efficient in-order
+gang lookup of "all dirty pages from this offset" and "all locked
+pages from this offset".  It was before its time, and mouldered.
 
 > ...
-> Does this make a reasonable case for interlaced allocator now?
-> (Of course, blklist init in the patch has to be modified to create
-> blklists for objects of size 4, 8 .... SMP_CACHE_BYTES/2)
+> > A lot of the functions in this header are too large to be inlined.
+> 
+> Hm...  What is "too large", i.e. how much code.
 
-Oh I can see the benefits, but they appear to be rather theoretical.
+A few lines, I suspect.
 
-I'm just applying some pressure here against adding another allocator
-unless it is really needed.  On principle.
+>  Also, is it used more than once?
 
-A slab cache of 4-byte objects will tend to give you what you want
-anyway, due to the batch filling and freeing of the head arrays.
-If that is proven to be insufficient then it would be better to
-put development effort into strengthening slab, rather than competely
-bypassing it.
+Don't trust the compiler too much ;)  Uninlining mpage_writepage()
+saved a couple of hundred bytes of code, even though it has only
+one call site.
 
-(And a really simple solution would be to create a separate slab cache
-per cpu...)
+> ...
+> > Please, just open-code the locking.  This simply makes it harder to follow the
+> > main code.
+> 
+> But makes it easy to change the lock method, to, for
+> example, use irq or irqsave or "shudder" RCU.
+
+A diligent programmer would visit all sites as part of that conversion
+anyway.
+
+> >
+> > > +
+> > > +static struct idr_layer *id_free;
+> > > +static int id_free_cnt;
+> >
+> > hm.  We seem to have a global private freelist here.  Is the more SMP-friendly
+> > slab not suitable?
+> 
+> There is a short local free list to avoid calling slab with
+> a spinlock held.  Only enough entries are kept to allocate a
+> new node at each branch from the root to leaf, and only for
+> this reason.
+
+Fair enough. There are similar requirements elsewhere and the plan
+there is to create a page reservation API, so you can ensure that
+the page allocator will be able to provide at least N pages.  Then
+take the lock and go for it.
+
+I have code for that which is about to bite the bit bucket.   But the
+new version should be in place soon.   Other users will be radix tree
+nodes, pte_chains and mm_chains (shared pagetable patch).
+
+> ...
+> >
+> > Recursion!
+> 
+> Yes, it is a tree after all.
+
+lib/radix_tree.c does everything iteratively.
+
+> >
+> > > +void idr_init(struct idr *idp)
+> >
+> > Please tell us a bit about this id layer: what problems it solves, how it
+> > solves them, why it is needed and why existing kernel facilities are
+> > unsuitable.
+> >
+> The prior version of the code had a CONFIG option to set the
+> maximum number of timers.  This caused enough memory to be
+> "compiled" in to keep pointers to this many timers.  The ID
+> layer was invented (by Jim Houston, by the way) to eliminate
+> this CONFIG thing.  If I were to ask for a capability from
+> slab that would eliminate the need for this it would be the
+> ability to, given an address and a slab pool, to validate
+> that the address was "live" and from that pool.  I.e. that
+> the address is a pointer to currently allocated block from
+> that memory pool.  With this, I could just pass the address
+> to the user as the timer_id.
+
+That might cause problems with 64-bit kernel/32-bit userspace.
+Passing out kernel addresses in this way may have other problems..
+
+>  As it is, I need a way to give
+> the user a handle that he can pass back that will allow me
+> to quickly find his timer and, along the way, validate that
+> he was not spoofing, or just plain confused.
+> 
+> So what the ID layer does is pass back an available <id>
+> (which I can pass to the user) while storing a pointer to
+> the timer which is <id>ed.  Later, given the <id>, it passes
+> back the pointer, or NULL if the id is not in use.
+
+OK.
+ 
+> As I said above, the pointers are kept in "nodes" of 32
+> along with a few bits of overhead, and these are arranged in
+> a dynamic tree which grows as the number of allocated timers
+> increases.  The depth of the tree is 1 for up to 32 , 2 for
+> up to 1024, and so on.  The depth can never get beyond 5, by
+> which time the system will, long since, be out of memory.
+> At this time the leaf nodes are release when empty but the
+> branch nodes are not.  (This is an enhancement saved for
+> later, if it seems useful.)
+> 
+> I am open to a better method that solves the problem...
+
+It seems reasonable.  It would be nice to be able to use radix trees,
+but that's a lot of work if the patch isn't going anywhere.
+
+If radix trees are unsuitable then yes, dressing this up as a
+new core kernel capability (documentation!  separate patch!)
+would be appropriate.
+
+But I suspect the radix-tree _will_ suit, and it would be nice to grow
+the usefulness of radix-trees rather than creating similar-but-different
+trees.  We can do whizzy things with radix-trees; more than at present.
+
+Of course, that was only a teeny part of your patch. I just happened
+to spy it as it flew past.  Given that you're at rev 20, perhaps a
+splitup and more accessible presentation would help.

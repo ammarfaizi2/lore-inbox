@@ -1,35 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268755AbUJPPR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268753AbUJPPRC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268755AbUJPPR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 11:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268756AbUJPPR2
+	id S268753AbUJPPRC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 11:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268755AbUJPPRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 11:17:28 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:13449 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S268755AbUJPPR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 11:17:26 -0400
-Date: Sat, 16 Oct 2004 19:17:04 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Erwin Schoenmakers <esc-solutions@planet.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: while building kernel 2.6.8.1. for Alpha (Miata)
-Message-ID: <20041016191704.A20686@jurassic.park.msu.ru>
-References: <417139A2.5090705@planet.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <417139A2.5090705@planet.nl>; from esc-solutions@planet.nl on Sat, Oct 16, 2004 at 05:09:22PM +0200
+	Sat, 16 Oct 2004 11:17:02 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:37274 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268753AbUJPPRA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 11:17:00 -0400
+Message-ID: <41713B79.3080406@drzeus.cx>
+Date: Sat, 16 Oct 2004 17:17:13 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: nhorman@redhat.com, hancockr@shaw.ca
+Subject: Re: Tasklet usage?
+References: <416FCD3E.8010605@drzeus.cx>
+In-Reply-To: <416FCD3E.8010605@drzeus.cx>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 16, 2004 at 05:09:22PM +0200, Erwin Schoenmakers wrote:
-> Do I need to install another version of the gnu compiler/assembler?
-> I have installed:
->    gcc version 2.95.4
->    as version 2.12.90.0.1 using BFD version 2.12.90.0.1
+As I was digging through the functions there was one thing that struck 
+me. The parameter for the tasklet is of type unsigned long, not void*. 
+Since the parameter in most cases is a pointer this might cause problems 
+on 64-bit systems. Or does the kernel do some magic to map kernel memory 
+in the first 4 GB?
 
-Yes. Your toolchain is way too old.
+Rgds
+Pierre
 
-Ivan.

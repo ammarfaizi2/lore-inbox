@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263370AbRFKDY4>; Sun, 10 Jun 2001 23:24:56 -0400
+	id <S263374AbRFKD0Q>; Sun, 10 Jun 2001 23:26:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263375AbRFKDYr>; Sun, 10 Jun 2001 23:24:47 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:30686 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263372AbRFKDYe>;
-	Sun, 10 Jun 2001 23:24:34 -0400
-Message-ID: <3B2439E5.493B0472@mandrakesoft.com>
-Date: Sun, 10 Jun 2001 23:24:21 -0400
+	id <S263375AbRFKD0G>; Sun, 10 Jun 2001 23:26:06 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:33246 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263374AbRFKDZw>;
+	Sun, 10 Jun 2001 23:25:52 -0400
+Message-ID: <3B243A33.8B32FCD6@mandrakesoft.com>
+Date: Sun, 10 Jun 2001 23:25:39 -0400
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Aron Lentsch <lentsch@nal.go.jp>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IRQ problems on new Toshiba Libretto
-In-Reply-To: <Pine.LNX.4.21.0106111107270.1065-100000@triton.nal.go.jp>
+To: ghofmann@pair.com
+Cc: "David S. Miller" <davem@redhat.com>, Russell King <rmk@arm.linux.org.uk>,
+        Ben LaHaise <bcrl@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
+In-Reply-To: <3B23A4BB.7B4567A3@mandrakesoft.com> <3B23F20A.22574.10AD93@localhost>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aron,
+"Glenn C. Hofmann" wrote:
+> 
+> I have, as was suggested, built as a module, and get unresolved symbol do_softirq, so
+> this appears to be another problem in this driver with 2.4.6-pre2.  If I can help in any
+> way, please let me know, although I am by no means a programmer, just a tester.
 
-Can you also include your kernel .config?
+edit kernel/ksyms.c:
 
-Looking at your dmesg output, there is no mention of a PCI BIOS at all. 
-That either implies there is no kernel support for PCI BIOS built in
-(ok) or your BIOS doesn't support PCI BIOS (ug).
+-EXPORT_SYMBOL(do_softirq);
++EXPORT_SYMBOL_NOVERS(do_softirq);
 
-Further, there is no PCI interrupt routing table found by direct scan of
-memory, so it looks like your BIOS is not providing interrupt routing
-info at all.  Without that, we can only route irqs on "a wing and a
-prayer"
+and see if that helps.
 
-
-Suggestions:
-* Build kernel with CONFIG_PCI_GOANY config option.
-* Do not build an SMP kernel (CONFIG_SMP) unless you are really using a
-multiprocessor machine.
-* Go through BIOS setup.  Check for and enable "PNP OS" setting, and
-similar settings which reflect an automatically assignment of machine
-resources.
-
-It is also possible that this machine's interrupt routing info is in
-ACPI tables..  though I do not believe the Linux ACPI can make use of
-this yet.
-
+Errors about do_softirq are unrelated to a specific driver.
 
 -- 
 Jeff Garzik      | Andre the Giant has a posse.

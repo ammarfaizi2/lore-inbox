@@ -1,132 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273741AbRIQWlD>; Mon, 17 Sep 2001 18:41:03 -0400
+	id <S273732AbRIQWnD>; Mon, 17 Sep 2001 18:43:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273736AbRIQWkt>; Mon, 17 Sep 2001 18:40:49 -0400
-Received: from ns.caldera.de ([212.34.180.1]:44722 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S273732AbRIQWkb>;
-	Mon, 17 Sep 2001 18:40:31 -0400
-Date: Tue, 18 Sep 2001 00:40:47 +0200
-Message-Id: <200109172240.f8HMel917969@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: andersen@codepoet.org (Erik Andersen)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/partitions hosed in 2.4.9-ac10
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010917151957.A26615@codepoet.org>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S273737AbRIQWmo>; Mon, 17 Sep 2001 18:42:44 -0400
+Received: from ezri.xs4all.nl ([194.109.253.9]:49378 "HELO ezri.xs4all.nl")
+	by vger.kernel.org with SMTP id <S273740AbRIQWk5>;
+	Mon, 17 Sep 2001 18:40:57 -0400
+Date: Tue, 18 Sep 2001 00:41:19 +0200 (CEST)
+From: Eric Lammerts <eric@lammerts.org>
+To: David Acklam <dackl@post.com>
+cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: compiled-in (non-modular) USB initialization bug
+In-Reply-To: <Pine.LNX.4.30.0109171430130.3275-100000@udcnet.dyn.dhs.org>
+Message-ID: <Pine.LNX.4.33.0109180025320.8401-100000@ally.lammerts.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010917151957.A26615@codepoet.org> you wrote:
-> [----------snip----------]
-> [----------snip----------]
 
-Could you please try the attached patch agains 2.4.10-pre10?
+On Mon, 17 Sep 2001, David Acklam wrote:
+> A few months ago I posted a bug report about the Pegasus driver not
+> initializing  (or not initializing fast enough to work with NFS-Root) when
+> compiled-in. I've found that this is not specific to the
+> pegasus, as I have recently noticed that the kernel 'driver-initialized'
+> messages for my USB mouse and keyboard (i.e. HID devices) come up AFTER
+> init has been started. These drivers are also 'compiled-in'
+>
+> The problem this poses is that some applications (like NFSRoot) need
+> access to USB devices BEFORE the kernel mounts filesystems/starts init.
 
---- ../master/linux-2.4.10-pre10/drivers/scsi/sd.c	Mon Sep 17 00:48:49 2001
-+++ linux/drivers/scsi/sd.c	Tue Sep 18 00:34:41 2001
-@@ -557,22 +557,7 @@
- 	revalidate:		fop_revalidate_scsidisk
- };
- 
--/*
-- *    If we need more than one SCSI disk major (i.e. more than
-- *      16 SCSI disks), we'll have to kmalloc() more gendisks later.
-- */
--
--static struct gendisk sd_gendisk =
--{
--	major:		SCSI_DISK0_MAJOR,
--	major_name:	"sd",
--	minor_shift:	4,
--	max_p:		1 << 4,
--	fops:		&sd_fops,
--};
--
--static struct gendisk *sd_gendisks = &sd_gendisk;
--
-+static struct gendisk *sd_gendisks;
- #define SD_GENDISK(i)    sd_gendisks[(i) / SCSI_DISKS_PER_MAJOR]
- 
- /*
-@@ -1132,33 +1117,34 @@
- 		goto cleanup_sd;
- 	memset(sd, 0, (sd_template.dev_max << 4) * sizeof(struct hd_struct));
- 
--	if (N_USED_SD_MAJORS > 1)
--		sd_gendisks = kmalloc(N_USED_SD_MAJORS * sizeof(struct gendisk), GFP_ATOMIC);
--		if (!sd_gendisks)
--			goto cleanup_sd_gendisks;
-+	sd_gendisks = kmalloc(N_USED_SD_MAJORS * sizeof(struct gendisk), GFP_ATOMIC);
-+	if (!sd_gendisks)
-+		goto cleanup_sd_gendisks;
+I had the same problem a while ago. I haven't really looked into the
+usb code, but it appears USB devices are detected from a kernel
+thread, i.e., asynchronously. When the USB thread has discovered the
+device, the dhcp/bootp code has already failed.
+
+The following patch adds the "ip=wait" option. It makes ipconfig.c
+retry forever until is has found a suitable device to do
+dhcp/bootp/rarp.
+
+This is untested! (I don't have a USB netdevice at home). But at least
+it boots ok with a PCI network card (and waits forever if I remove
+support for that card from the kernel).
+
+Of course, in the long run, a better solution is an initrd with
+dhcp/bootp/rarp client in userspace. But AFAIK there is no Debian
+package that does that yet ;-).
+
+Eric
+
+
+--- linux-2.4.9-ac7/net/ipv4/ipconfig.c.orig	Wed May  2 05:59:24 2001
++++ linux-2.4.9-ac7/net/ipv4/ipconfig.c	Tue Sep 18 00:19:03 2001
+@@ -102,6 +102,8 @@
+
+ int ic_enable __initdata = 0;			/* IP config enabled? */
+
++int ic_wait __initdata = 0;			/* wait until a device appears? */
 +
- 	for (i = 0; i < N_USED_SD_MAJORS; i++) {
--		sd_gendisks[i] = sd_gendisk;
--		sd_gendisks[i].de_arr = kmalloc (SCSI_DISKS_PER_MAJOR * sizeof *sd_gendisks[i].de_arr,
--                                                 GFP_ATOMIC);
--		if (!sd_gendisks[i].de_arr)
-+		struct gendisk	*g = &sd_gendisks[i];
+ /* Protocol choice */
+ int ic_proto_enabled __initdata = 0
+ #ifdef IPCONFIG_BOOTP
+@@ -1105,8 +1107,12 @@
+ 		;
+
+ 	/* Setup all network devices */
+-	if (ic_open_devs() < 0)
+-		return -1;
++	if (ic_open_devs() < 0) {
++		if(!ic_wait) return -1;
 +
-+		g->de_arr = kmalloc(SCSI_DISKS_PER_MAJOR * sizeof(*g->de_arr),
-+				GFP_ATOMIC);
-+		if (!g->de_arr)
- 			goto cleanup_gendisks_de_arr;
--                memset (sd_gendisks[i].de_arr, 0,
--                        SCSI_DISKS_PER_MAJOR * sizeof *sd_gendisks[i].de_arr);
--		sd_gendisks[i].flags = kmalloc (SCSI_DISKS_PER_MAJOR * sizeof *sd_gendisks[i].flags,
--                                                GFP_ATOMIC);
--		if (!sd_gendisks[i].flags)
-+		memset(g->de_arr, 0, SCSI_DISKS_PER_MAJOR * sizeof(*g->de_arr));
++		printk("IP-Config: Retrying forever...\n");
++		goto try_try_again;		// wait a while and try again
++	}
+
+ 	/* Give drivers a chance to settle */
+ 	jiff = jiffies + CONF_POST_OPEN;
+@@ -1281,6 +1287,8 @@
+ 		(strcmp(addrs, "none") != 0));
+ 	if (!ic_enable)
+ 		return 1;
 +
-+		g->flags = kmalloc(SCSI_DISKS_PER_MAJOR *
-+				sizeof(*g->flags), GFP_ATOMIC);
-+		if (!g->flags)
- 			goto cleanup_gendisks_flags;
--                memset (sd_gendisks[i].flags, 0,
--                        SCSI_DISKS_PER_MAJOR * sizeof *sd_gendisks[i].flags);
--		sd_gendisks[i].major = SD_MAJOR(i);
--		sd_gendisks[i].major_name = "sd";
--		sd_gendisks[i].minor_shift = 4;
--		sd_gendisks[i].max_p = 1 << 4;
--		sd_gendisks[i].part = sd + (i * SCSI_DISKS_PER_MAJOR << 4);
--		sd_gendisks[i].sizes = sd_sizes + (i * SCSI_DISKS_PER_MAJOR << 4);
--		sd_gendisks[i].nr_real = 0;
--		sd_gendisks[i].real_devices =
--		    (void *) (rscsi_disks + i * SCSI_DISKS_PER_MAJOR);
-+		memset(g->flags, 0, SCSI_DISKS_PER_MAJOR * sizeof(*g->flags));
-+
-+		g->major = SD_MAJOR(i);
-+		g->major_name = "sd";
-+		g->minor_shift = 4;
-+		g->max_p = 1 << g->minor_shift;
-+		g->part = sd + (i * SCSI_DISKS_PER_MAJOR << 4);
-+		g->sizes = sd_sizes + (i * SCSI_DISKS_PER_MAJOR << 4);
-+		g->nr_real = 0;
-+		g->real_devices = (rscsi_disks + i * SCSI_DISKS_PER_MAJOR);
-+		g->fops = &sd_fops;
- 	}
- 
- 	return 0;
-@@ -1348,8 +1334,8 @@
- 
- 			/* If we are disconnecting a disk driver, sync and invalidate
- 			 * everything */
--			max_p = sd_gendisk.max_p;
--			start = i << sd_gendisk.minor_shift;
-+			max_p = sd_gendisks->max_p;
-+			start = i << sd_gendisks->minor_shift;
- 
- 			for (j = max_p - 1; j >= 0; j--) {
- 				int index = start + j;
-@@ -1403,8 +1389,7 @@
- 		read_ahead[SD_MAJOR(i)] = 0;
- 	}
- 	sd_template.dev_max = 0;
--	if (sd_gendisks != &sd_gendisk)
--		kfree(sd_gendisks);
-+	kfree(sd_gendisks);
- }
- 
- module_init(init_sd);
++	ic_wait = *addrs && (strcmp(addrs, "wait") == 0);
+
+ 	if (ic_proto_name(addrs))
+ 		return 1;
+

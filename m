@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265117AbUELQLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265120AbUELQUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265117AbUELQLe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 12:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUELQLc
+	id S265120AbUELQUf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 12:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265122AbUELQUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 12:11:32 -0400
-Received: from mail.tmr.com ([216.238.38.203]:20232 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S265117AbUELQLI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 12:11:08 -0400
-Date: Wed, 12 May 2004 12:07:52 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-In-Reply-To: <20040511165013.08ef86cd.akpm@osdl.org>
-Message-ID: <Pine.LNX.3.96.1040512115750.23213A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 May 2004 12:20:34 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:54668 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265119AbUELQUa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 12:20:30 -0400
+Subject: RE: [2.6.6 PATCH] Exposing EFI memory map
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Sourav Sen <souravs@india.hp.com>
+Cc: "'Greg KH'" <greg@kroah.com>, Matt_Domsch@dell.com,
+       "'Matthew E Tolentino'" <matthew.e.tolentino@intel.com>,
+       linux-ia64@vger.kernel.org,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <00cb01c4380b$55c97bc0$39624c0f@india.hp.com>
+References: <00cb01c4380b$55c97bc0$39624c0f@india.hp.com>
+Content-Type: text/plain
+Message-Id: <1084378516.14581.56.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 12 May 2004 09:15:16 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 May 2004, Andrew Morton wrote:
+On Wed, 2004-05-12 at 03:24, Sourav Sen wrote:
+> Maybe. But the point I had in mind is, say for example
+> memory diagnostics applications/exercisers which reads (Blind
+> reads, without caring about contents) memory
+> to uncover errors (single bit errors) can use
+> this to know the usable ranges and map them thru /dev/mem and
+> read those ranges.
 
-> Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
-> >
-> > There was some evidence from AKPM (and Arjan AFAIR).
-> > [ BTW wasn't the corruption only seen with nvidia module? ]
-> > I think we can prevent it by adding something ala 4kstack flag
-> > to the module.
-> 
-> "4KSTACKS" already is present in the module version string.
-> 
-> And RHL is shipping now with 4k stacks, so presumably any disasters
-> are relatively uncommon...
+If you expose the EFI memory map, then you'll be able to write memory
+diagnostics that will work on any EFI-based machine.
 
-RHL and kernel.org have a lot of unshared bugs and features,
-unfortunately. I take that information as an encouraging proof of concept,
-not a waranty that the kernel.org code will behave in a similar way.
+If you expose the EFI memory map in an architecture-independent fashion,
+then you'll be able to write diagnostics that will work on any *Linux*
+machine, plus all of the EFI machines.  Plus, by doing it first, you get
+to greatly influence how the arch-independent stuff is done to make your
+life the easiest.  
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Think /sys/system/devices/memory, not /sys/firmware/efi.
+
+We're planning on doing this anyway for memory hotplug, so some of the
+work and ideas are already there.  I'd be happy to point you to some
+past discussions and code on the subject.  
+
+-- Dave
 

@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264720AbTFLEAK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 00:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbTFLEAK
+	id S264728AbTFLEBp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 00:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264731AbTFLEBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 00:00:10 -0400
-Received: from main.gmane.org ([80.91.224.249]:50389 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264720AbTFLEAG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 00:00:06 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: John Goerzen <jgoerzen@complete.org>
-Subject: cpufreq on Pentium M
-Date: Wed, 11 Jun 2003 23:13:26 -0500
-Organization: Complete.Org
-Message-ID: <87n0go3pcp.fsf@complete.org>
-Mime-Version: 1.0
+	Thu, 12 Jun 2003 00:01:45 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:38411
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S264728AbTFLEBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 00:01:43 -0400
+Date: Wed, 11 Jun 2003 21:02:45 -0700 (PDT)
+From: Andre Hedrick <andre@pyxtechnologies.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: James Washer <washer@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Is there a maintainer for serverworks.c
+In-Reply-To: <1055281381.32662.42.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10306112053400.30142-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@complete.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:gosYgdp95NQY91k6KdjxFWlUBW4=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I am running on a Thinkpad T40p laptop, which has a 1.6GHz Intel
-Pentium M CPU (this is their "Centrino" CPU; *NOT* the same thing as
-the Pentium 4 M).
+I authored the mess.
 
-I have tried 2.4.21-rc7-ac1, but it reports:
+The GPL extra names are because back in the Andrew Balsa days of the
+2.0.33,4,5-Jumbo patch series Aubry, Andrzey, et al, we all worked
+togather.
 
-cpufreq: Intel(R) SpeedStep(TM) for this chipset not (yet) available.
+Only Sun (osb4,csb5a) and I (osb4,csb5,csb6,csb6a) are the true authors.
 
-Yet my BIOS lets me configure SpeedStep for it by name.  Are there any
-plans in the works for this?
+I am just lazy and do not delete people's names.
 
-While we're at it, I'm concerned that Linux is ignoring the sizable
-cache available on this platform:
+What is wrong with it all now?
 
-$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 9
-model name      : Intel(R) Pentium(R) M processor 1600MHz
-stepping        : 5
-cpu MHz         : 1598.686
-cache size      : 0 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov pat clflush dts acpi mmx fxsr sse sse2 tm
-bogomips        : 3191.60
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On 10 Jun 2003, Alan Cox wrote:
+
+> On Maw, 2003-06-10 at 20:18, James Washer wrote:
+> > 
+> > 
+> > I see the 2.4.20 kernel ships with serverworks.c version 0.3, which
+> > is GPL'd,  RH9.0 ships with version 0.7 ( with no mention of GPL)
+> > 
+> > Does anyone know the story on this?  Who authored 0.7? Is it GPL'd??
+> 
+> 0.7 is based on 0.3. Its by Michel Aubry, Andrzey, Sun and Red Hat. Not
+> sure where the usual 4 line GPL blurb went. 2.4.21rc has 0.8 btw.
+> 
+> Alan
+> 
 

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbTDKXS7 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 19:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262478AbTDKXS7 (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 19:18:59 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:36089 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262406AbTDKXS4 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 19:18:56 -0400
-Date: Fri, 11 Apr 2003 16:32:48 -0700
-From: Greg KH <greg@kroah.com>
-To: Steven Dake <sdake@mvista.com>
-Cc: David Lang <david.lang@digitalinsight.com>,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       "'Jeremy Jackson'" <jerj@coplanar.net>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-hotplug-devel@lists.sourceforge.net'" 
-	<linux-hotplug-devel@lists.sourceforge.net>
+	id S262482AbTDKXTl (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 19:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbTDKXTk (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 19:19:40 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:32722 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S262482AbTDKXT3 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 19:19:29 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Greg KH <greg@kroah.com>, Steven Dake <sdake@mvista.com>
 Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-ID: <20030411233248.GB4539@kroah.com>
-References: <A46BBDB345A7D5118EC90002A5072C780BEBAA44@orsmsx116.jf.intel.com> <Pine.LNX.4.44.0304111347370.8422-100000@dlang.diginsite.com> <20030411205948.GV1821@kroah.com> <3E974299.3030701@mvista.com> <20030411225137.GB3786@kroah.com> <3E974F68.5020106@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Sat, 12 Apr 2003 01:30:28 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <20030411173018$2695@gated-at.bofh.it> <3E974348.7080104@mvista.com> <20030411230533.GH3786@kroah.com>
+In-Reply-To: <20030411230533.GH3786@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3E974F68.5020106@mvista.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200304120130.28640.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 04:27:36PM -0700, Steven Dake wrote:
-> Hmm, I thought you were creating a tmpfs in /dev.  I think that 
-> particular case would allow dnotify to tell you when permissions and 
-> owners changed?
+On Saturday 12 April 2003 01:05, Greg KH wrote:
 
-My bad, you are correct.  Sorry, got confused there.
+> Multi-threaded device discovery is a good thing, it solves a lot of
+> real-life problems that we have today.  But it's a 2.7 thing, not on the
+> near horizon.
 
-Hm, does dnotify show events on a ramfs or tmpfs partition?  Haven't
-tried that out before.
+At least the device detection in drivers/s390/cio/ is already multi-threaded
+in 2.5 and it significantly speeds up the boot process, so I don't want
+to revert this.
 
-thanks,
-
-greg k-h
+	Arnd <><

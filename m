@@ -1,36 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261557AbSJIKUP>; Wed, 9 Oct 2002 06:20:15 -0400
+	id <S261531AbSJIKQh>; Wed, 9 Oct 2002 06:16:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261556AbSJIKUO>; Wed, 9 Oct 2002 06:20:14 -0400
-Received: from mnh-1-17.mv.com ([207.22.10.49]:24324 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S261557AbSJIKUO>;
-	Wed, 9 Oct 2002 06:20:14 -0400
-Message-Id: <200210091130.GAA01533@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: Linus <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make do_signal static on i386 
-In-Reply-To: Your message of "Wed, 09 Oct 2002 18:10:03 +1000."
-             <20021009181003.022da660.sfr@canb.auug.org.au> 
+	id <S261532AbSJIKQh>; Wed, 9 Oct 2002 06:16:37 -0400
+Received: from host213-121-105-39.in-addr.btopenworld.com ([213.121.105.39]:38540
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S261531AbSJIKQg>; Wed, 9 Oct 2002 06:16:36 -0400
+Subject: RE: 2.4.9/2.4.18 max kernel allocation size
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+Cc: "'Ofer Raz'" <oraz@checkpoint.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <008b01c26ee0$5ee52380$9d893841@joe>
+References: <008b01c26ee0$5ee52380$9d893841@joe>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YHiIfvGDYsyMXFbN77sx"
+Organization: 
+Message-Id: <1034158957.30384.8.camel@lemsip>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 09 Oct 2002 06:30:19 -0500
-From: Jeff Dike <jdike@karaya.com>
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 09 Oct 2002 11:22:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sfr@canb.auug.org.au said:
-> This patch makes do_signal static in arch/i386/kernel/signal.c which
-> means its declaration can be removed from asm-i386/signal.h which may
-> help Jeff out with UML. 
 
-Cool, anything which makes the other arch headers more UML-friendly is
-good.
+--=-YHiIfvGDYsyMXFbN77sx
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> (Does UML work on x86_64, yet?)
+On Tue, 2002-10-08 at 16:35, Joseph D. Wagner wrote:
+> I might be thinking of something totally different than what you're
+> talking about, but here it goes:
+>=20
+> Change line 18 of mmzone.h from:
+> 	#define MAX_ORDER 10
+> 	to
+> 	#define MAX_ORDER 24
+>=20
+> This allows larger contiguous chunks of memory to be allocated, up to
+> 32GB.
 
-Not yet.
+He's using vmalloc, so I assume he doesn't need physically contiguous
+memory, rather virtually contigous. This code won't change a thing for
+his vmalloc() calls AFAICS.
 
-				Jeff
+--=20
+// Gianni Tedesco (gianni at ecsc dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+
+--=-YHiIfvGDYsyMXFbN77sx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA9pANtkbV2aYZGvn0RArzEAJoCKsyoJp3+GYtfHFIMJxVYycctMwCcCEpH
+s61bn3lGGzUoJg7TsPJRgwY=
+=sNpK
+-----END PGP SIGNATURE-----
+
+--=-YHiIfvGDYsyMXFbN77sx--
 

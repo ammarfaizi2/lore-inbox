@@ -1,88 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVBQJ1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVBQJ3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbVBQJ1W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 04:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbVBQJ1V
+	id S262279AbVBQJ3t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 04:29:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbVBQJ3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 04:27:21 -0500
-Received: from hamlet.e18.physik.tu-muenchen.de ([129.187.154.223]:15063 "EHLO
-	hamlet.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id S262180AbVBQJ1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 04:27:14 -0500
-In-Reply-To: <42145128.4030202@tequila.co.jp>
-References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <7579f7fb0502141017f5738d1@mail.gmail.com> <20050214185624.GA16029@bitmover.com> <1108469967.3862.21.camel@crazytrain> <42131637.2070801@tequila.co.jp> <20050216154321.GB34621@dspnet.fr.eu.org> <4213E141.5040407@tequila.co.jp> <e9d587a22ff0b23ccbb6fa112377dbee@e18.physik.tu-muenchen.de> <42145128.4030202@tequila.co.jp>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-37--671269379"
-Message-Id: <e030fd01c5625a80b90382e69843213f@e18.physik.tu-muenchen.de>
+	Thu, 17 Feb 2005 04:29:49 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:32177 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262279AbVBQJ3i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 04:29:38 -0500
+X-Qmail-Scanner-Toxic-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-Qmail-Scanner-Toxic-Rcpt-To: linux-kernel@vger.kernel.org
+X-Qmail-Scanner-Toxic: 1.24st (Clear:RC:1(213.238.99.204):. Processed in 0.043074 secs Process 29941)
+Date: Thu, 17 Feb 2005 10:29:38 +0100
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Mailer: The Bat! (v3.0.1.33) UNREG / CD5BF9353B3B7091
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <1433055775.20050217102938@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: Re: possible leak in kernel 2.6.10-ac12
+In-Reply-To: <4213D70F.20104@arrakis.dhis.org>
+References: <4213D70F.20104@arrakis.dhis.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Cc: Olivier Galibert <galibert@pobox.com>, kernel@crazytrain.com,
-       linux-kernel@vger.kernel.org
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-Subject: Re: [BK] upgrade will be needed
-Date: Thu, 17 Feb 2005 10:27:13 +0100
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Pedro,
 
---Apple-Mail-37--671269379
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Thursday, February 17, 2005, 12:28:15 AM, you wrote:
 
-Hi Clemens!
+> boot. It came to a point that it started swapping and the swap usage too
+> started to grow linearly.
+I had the same with swap being eaten especially by perl apps like qmail-scanner
 
-On Feb 17, 2005, at 9:09 AM, Clemens Schwaighofer wrote:
+I think this helps:
+--- a/mm/vmscan.c       2004-12-24 13:36:18 -08:00
++++ b/mm/vmscan.c       2004-12-24 13:36:18 -08:00
+@@ -675,6 +674,7 @@
+                 }
+                 pgscanned++;
+         }
++        zone->pages_scanned += pgscanned;
+         zone->nr_active -= pgmoved;
+         spin_unlock_irq(&zone->lru_lock);
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> On 02/17/2005 04:55 PM, Roland Kuhn wrote:
->
->> That said, it would of course be possible to improve the internal
->> workflow of our emperor penguin if he used subversion, but the
->> collaboration with others could not benefit the way it does with a
->> changeset-based approach.
->
-> Question is then, what about keeping a main trunk with the vanialle
-> release, and each dev has its own branch. now at a certain point you
-> have to merge them. Now where is the difference between a central rep
-> and a de-central one.
-> At day X, patches from Andrew's tree have to go to Linus tree and from
-> his tree into the new vanialla kernel. right?
-> Somehow I can't see the difference here.
->
-The difference comes after the merge. Suppose Andrew didn't push 
-everything to Linus. Then new patches come in, both trees change. In 
-this situation it is very time consuming with subversion to work out 
-the changes which still have to go from Andrew's tree to Linus' tree.
+This patchlet is at:
+http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fpatch-2.6.10.bz2;z=4918
+This changeset contains other patches, you need only one.
 
-Ciao,
-					Roland
+2.6.11 will have it fixed.
 
---
-TU Muenchen, Physik-Department E18, James-Franck-Str. 85747 Garching
-Telefon 089/289-12592; Telefax 089/289-12570
---
-A mouse is a device used to point at
-the xterm you want to type in.
-Kim Alm on a.s.r.
+Regards,
+Maciej Soltysiak
 
---Apple-Mail-37--671269379
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iD8DBQFCFGNxI4MWO8QIRP0RAlHfAKC9XrKQ6QUJyXbMn+/7wU4vxSerewCbB8jM
-D/Xt2jQHRXoxb9dz/I85fbE=
-=SnFt
------END PGP SIGNATURE-----
-
---Apple-Mail-37--671269379--
 

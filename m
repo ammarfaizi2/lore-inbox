@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTLSKuj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 05:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTLSKuj
+	id S262546AbTLSK4x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 05:56:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbTLSK4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 05:50:39 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:12686 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S262352AbTLSKuh
+	Fri, 19 Dec 2003 05:56:53 -0500
+Received: from mail.actcom.net.il ([192.114.47.15]:56539 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S262546AbTLSK4u
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 05:50:37 -0500
-Message-ID: <3FE2D7F6.6030504@softhome.net>
-Date: Fri, 19 Dec 2003 11:50:30 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Fri, 19 Dec 2003 05:56:50 -0500
+Date: Fri, 19 Dec 2003 12:56:35 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       "Ihar 'Philips' Filipau" <filia@softhome.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [OT] linux.bkbits.net
+Message-ID: <20031219105634.GH845@actcom.co.il>
 References: <3FE2D4D5.2050103@softhome.net> <20031219104050.GK31393@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BzCohdixPhurzSK4"
+Content-Disposition: inline
 In-Reply-To: <20031219104050.GK31393@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+
+--BzCohdixPhurzSK4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Dec 19, 2003 at 02:40:50AM -0800, William Lee Irwin III wrote:
 > On Fri, Dec 19, 2003 at 11:37:09AM +0100, Ihar 'Philips' Filipau wrote:
-> 
->>  It is rather strange to 'bk pull http://linux.bkbits.net/linux-2.5' 
->>and to find in Makefile:
->>VERSION = 2
->>PATCHLEVEL = 6
->>SUBLEVEL = 0
->>EXTRAVERSION =
->>  Or it is only me who finds this strange?
->>  When transition from 2.5 to 2.6 is planned?
->>  After all stable branch deserve to have NOT odd version number :)
-> 
-> 
+> >   It is rather strange to 'bk pull http://linux.bkbits.net/linux-2.5'=
+=20
+> > and to find in Makefile:
+> > VERSION =3D 2
+> > PATCHLEVEL =3D 6
+> > SUBLEVEL =3D 0
+> > EXTRAVERSION =3D
+> >   Or it is only me who finds this strange?
+> >   When transition from 2.5 to 2.6 is planned?
+> >   After all stable branch deserve to have NOT odd version number :)
+>=20
 > You may have missed Linus' announcement: 2.6.0 has been released.
-> 
 
-   Yes. No. Br-r-r-r.
-   I'm not about Linux kernel version.
+It's not entirely clear, but I parsed the original message as "isn't
+it strange that the *repository* is named linux-2.5? when will it be
+switched to being named linux-2.6?"
 
-   I'm about its name in BK :-)
+Cheers,=20
+Muli=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  Because the kernel depends on it existing. "init"          |_|*|_|
-  literally _is_ special from a kernel standpoint,           |_|_|*|
-  because its' the "reaper of zombies" (and, may I add,      |*|*|*|
-  that would be a great name for a rock band).
-                                 -- Linus Torvalds
+"the nucleus of linux oscillates my world" - gccbot@#offtopic
+
+
+--BzCohdixPhurzSK4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/4tliKRs727/VN8sRAhESAKCBlN+MoAjGsFBiG0Izll2+FdHY8wCgqe1u
+HUctz6sFTBq15h71JYWL0xI=
+=tu4e
+-----END PGP SIGNATURE-----
+
+--BzCohdixPhurzSK4--

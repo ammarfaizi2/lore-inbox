@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbUD1Tez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUD1Tio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbUD1Tez (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 15:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUD1TeE
+	id S261712AbUD1Tio (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 15:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUD1Ti3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 15:34:04 -0400
-Received: from gonzo.one-2-one.net ([217.115.142.69]:15499 "EHLO
-	gonzo.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S265014AbUD1Rlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 13:41:40 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-Date: Wed, 28 Apr 2004 19:41:26 +0200
-From: stefan.eletzhofer@eletztrick.de
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] add RTC 8564 I2C chip support
-Message-ID: <20040428174125.GB23534@gonzo.local>
-Reply-To: stefan.eletzhofer@eletztrick.de
-Mail-Followup-To: stefan.eletzhofer@eletztrick.de,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1083164773.408fc86533f29@imp.gcu.info>
+	Wed, 28 Apr 2004 15:38:29 -0400
+Received: from mail.kroah.org ([65.200.24.183]:58593 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265020AbUD1RpW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 13:45:22 -0400
+Date: Wed, 28 Apr 2004 10:44:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael_E_Brown@Dell.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] add SMBIOS tables to sysfs
+Message-ID: <20040428174458.GH32040@kroah.com>
+References: <0960978B185D2848BF5BBAE1BFB343E104F581@ausx2kmps315.aus.amer.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1083164773.408fc86533f29@imp.gcu.info>
-User-Agent: Mutt/1.3.27i
-Organization: Eletztrick Computing
-X-HE-MXrcvd: no
+In-Reply-To: <0960978B185D2848BF5BBAE1BFB343E104F581@ausx2kmps315.aus.amer.dell.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 05:06:13PM +0200, Jean Delvare wrote:
-> Hi Stefan,
+On Wed, Apr 28, 2004 at 12:37:19PM -0500, Michael_E_Brown@Dell.com wrote:
+> Looks good. You can go ahead and add it to your tree. 
+
+Ok, will do, thanks for testing.
+
+> I do have one question, though. Here:
 > 
-> Just a quick comment about your patch: it's a common habit of the
-> sensors folks to prefix i2c bus drivers with i2c-, but not chip
-> drivers. So I would suggest that you name your driver rtc8564, not
-> i2c-rtc8564.
-
-Ok, I'll fix that.
-
+> > +static struct kobj_type ktype_smbios = {
+> > +	.sysfs_ops	= &smbios_attr_ops,
+> > +	.default_attrs	= def_attrs,
+> > +	/* statically allocated, no release method necessary */
+> > +};
 > 
-> Also, please keep the lines in drivers/i2c/chips/Makefile in the
-> alphabetic order.
+> I have no .release method because I have not kmalloc'ed any 
+> instances of this struct. Do I need to re-add a release
+> method here?
 
-... and that one
+No, you are ok here.  Static kobj_type structures are ok for 2.6.  For
+2.7 we will probably fix up all of this properly, we've learned a lot in
+the past few years :)
 
-> And your header states
-> "linux/drivers/system3/rtc8564.c" while the driver will be in a
-> different location. Please correct.
+thanks,
 
-And that too.
-
-> I've not read your code otherwise, I don't know anything about RTCs.
-> 
-> Thanks.
-> 
-> -- 
-> Jean Delvare
-> http://www.ensicaen.ismra.fr/~delvare/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Eletztrick Computing - Customized Linux Development
-Stefan Eletzhofer, Marktstrasse 43, DE-88214 Ravensburg
-http://www.eletztrick.de
+greg k-h

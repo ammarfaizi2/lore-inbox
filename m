@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269239AbUISNH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269240AbUISNKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269239AbUISNH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 09:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269240AbUISNH4
+	id S269240AbUISNKs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 09:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269245AbUISNKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 09:07:56 -0400
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:47633 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S269239AbUISNHz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 09:07:55 -0400
-From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-To: Leandro Santi <lesanti@sinectis.com.ar>
-Subject: Re: [PATCH 2.4] fix dcache nr_dentry race
-Date: Sun, 19 Sep 2004 15:07:24 +0200
-User-Agent: KMail/1.7
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-References: <20040919075057.GA2445@lesanti.hq.sinectis.com.ar>
-In-Reply-To: <20040919075057.GA2445@lesanti.hq.sinectis.com.ar>
-Organization: Linux-Systeme GmbH
-X-Operating-System: Linux 2.4.20-wolk4.16 i686 GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 19 Sep 2004 09:10:47 -0400
+Received: from gate.crashing.org ([63.228.1.57]:34233 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269240AbUISNKf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 09:10:35 -0400
+Subject: Re: [PATCH] Fix bound checking in do_mmap_pgoff()
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Segher Boessenkool <segher@kernel.crashing.org>
+In-Reply-To: <Pine.LNX.4.44.0409191330420.13231-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0409191330420.13231-100000@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1095599362.18430.4.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 19 Sep 2004 23:09:22 +1000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409191507.24579@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 September 2004 09:50, Leandro Santi wrote:
+On Sun, 2004-09-19 at 22:59, Hugh Dickins wrote:
+> On Sun, 19 Sep 2004, Benjamin Herrenschmidt wrote:
+> > 
+> > A small issue has been forever in do_mmap_pgoff() in the boundary checking
+> > in the sense that it won't let you mmap with offset+len enclosing the last
+> > page of the "address space". For example, an mmap of /dev/mem won't let you
+> > map the last page of the physical address space (which I need for a ROM dump
+> > tool on pmac). This fixes it:
+> > -	if ((pgoff + (len >> PAGE_SHIFT)) < pgoff)
+> > +	if ((pgoff + (len >> PAGE_SHIFT) - 1) < pgoff)
+> 
+> Your physical address space happens to be 16TB?  Okay...
 
-Hi Leandro,
+hrm... nope... my bad, the problem comes from elsewhere, sorry. I need
+to look at it again.
 
-> The dentry_stat.nr_dentry counter isn't being properly protected against
-> concurrent access. We've been observing a drift of about 8000 units per
-> day on some large MP Maildir++ mailstore nodes.
-> The following (trivial) patch is pretty much a backport from 2.6.
+> I think you need to add in the patch below, to prevent mismerging of vmas.
+> There might be other places which would get confused by an end pgoff of 0.
 
-Almost the same fix was posted in August 2003.
+Ok, that's becoming more tricky then, Andrew, of course drop the bogus
+patch for now, I'll look into more details later if I find time. In the
+meantime, we'll continue use a special kernel module for doing the
+ROM dump.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106203778320540&w=2
+Ben.
+ 
 
-
-ciao, Marc

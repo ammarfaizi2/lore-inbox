@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262523AbVBCUAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263856AbVBCUEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262523AbVBCUAi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 15:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbVBCUAg
+	id S263856AbVBCUEL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 15:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbVBCUCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 15:00:36 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:18825 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S263018AbVBCTs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 14:48:59 -0500
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH] InfiniBand: remove unbalance refcnt decrement
-X-Message-Flag: Warning: May contain useful information
-References: <52y8e65hhb.fsf@topspin.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 03 Feb 2005 11:48:52 -0800
-In-Reply-To: <52y8e65hhb.fsf@topspin.com> (Roland Dreier's message of "Wed,
- 02 Feb 2005 21:40:16 -0800")
-Message-ID: <526519ifvf.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Thu, 3 Feb 2005 15:02:32 -0500
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:2694 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263834AbVBCTxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 14:53:02 -0500
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [PATCH] UML - compile fixes for 2.6.11-rc3
+Date: Thu, 3 Feb 2005 20:52:16 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <200502032056.j13KuLRn004424@ccure.user-mode-linux.org>
+In-Reply-To: <200502032056.j13KuLRn004424@ccure.user-mode-linux.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 03 Feb 2005 19:48:52.0511 (UTC) FILETIME=[6341A2F0:01C50A29]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502032052.17102.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@mellanox.co.il>
+On Thursday 03 February 2005 21:56, Jeff Dike wrote:
+> This fixes UML's sys_call_table to delete some entries for system calls
+> which have not yet made it into mainline from -mm.
+>
+> I also delete UML's __pud_alloc implementation since the memory.c one is
+> now enabled.
+Ok, thanks.... might you also merge a good fix (either your complete, and 
+possibly compilation one, or the one I sent you) about sys/ptrace.h? I've 
+seen the complete patch into your tree, however it is not that easy to apply 
+- and might maybe (I dunno) give some problems to users with strange 
+configurations.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 
-Fix unbalanced QP reference count decrement (introduced with QP lock
-optimization patch)
-
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <roland@topspin.com>
-
---- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_cq.c	2005-01-28 11:11:03.000000000 -0800
-+++ linux-bk/drivers/infiniband/hw/mthca/mthca_cq.c	2005-02-03 11:47:39.300426349 -0800
-@@ -422,8 +422,6 @@
- 				*freed = 0;
- 			}
- 			spin_unlock(&(*cur_qp)->lock);
--			if (atomic_dec_and_test(&(*cur_qp)->refcount))
--				wake_up(&(*cur_qp)->wait);
- 		}
- 
- 		spin_lock(&dev->qp_table.lock);

@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267630AbUHELTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267640AbUHELWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267630AbUHELTK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 07:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUHELTJ
+	id S267640AbUHELWL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 07:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUHELWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 07:19:09 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14803 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267630AbUHELSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 07:18:43 -0400
-Date: Thu, 5 Aug 2004 13:18:35 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Rick Lindsley <ricklind@us.ibm.com>
+	Thu, 5 Aug 2004 07:22:11 -0400
+Received: from zork.zork.net ([64.81.246.102]:12522 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S267640AbUHELUD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 07:20:03 -0400
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.8-rc3-mm1: SCHEDSTATS compile error
-Message-ID: <20040805111835.GB2746@fs.tum.de>
+Subject: Re: 2.6.8-rc3-mm1
 References: <20040805031918.08790a82.akpm@osdl.org>
-Mime-Version: 1.0
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+ linux-kernel@vger.kernel.org
+Date: Thu, 05 Aug 2004 12:20:02 +0100
+In-Reply-To: <20040805031918.08790a82.akpm@osdl.org> (Andrew Morton's
+ message
+	of "Thu, 5 Aug 2004 03:19:18 -0700")
+Message-ID: <6u4qnhzva5.fsf@zork.zork.net>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040805031918.08790a82.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 03:19:18AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.8-rc2-mm2:
->...
-> +schedstats-2.patch
->...
->  CPU scheduler statitics
->...
+Built successfully with SMP=y, but with SMP=n I got the following:
 
-<--  snip  -->
-
-...
   CC      kernel/sched.o
 kernel/sched.c: In function `show_schedstat':
 kernel/sched.c:372: error: structure has no member named `sd'
@@ -51,16 +47,5 @@ kernel/sched.c:387: error: dereferencing pointer to incomplete type
 kernel/sched.c:388: error: dereferencing pointer to incomplete type
 kernel/sched.c:388: error: dereferencing pointer to incomplete type
 make[1]: *** [kernel/sched.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+make: *** [kernel] Error 2
 

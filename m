@@ -1,91 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbUBBXgz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 18:36:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUBBXgz
+	id S261950AbUBBXsj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 18:48:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbUBBXsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 18:36:55 -0500
-Received: from mail-07.iinet.net.au ([203.59.3.39]:4489 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262048AbUBBXgw
+	Mon, 2 Feb 2004 18:48:39 -0500
+Received: from mail5.speakeasy.net ([216.254.0.205]:62697 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S261950AbUBBXsg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 18:36:52 -0500
-Message-ID: <401EDEF2.6090802@cyberone.com.au>
-Date: Tue, 03 Feb 2004 10:36:18 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Mon, 2 Feb 2004 18:48:36 -0500
+Date: Mon, 2 Feb 2004 15:48:32 -0800
+Message-Id: <200402022348.i12NmWcK016232@magilla.sf.frob.com>
 MIME-Version: 1.0
-To: Philip Martin <philip@codematters.co.uk>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
-References: <87oesieb75.fsf@codematters.co.uk>	<20040201151111.4a6b64c3.akpm@osdl.org>	<401D9154.9060903@cyberone.com.au> <87llnm482q.fsf@codematters.co.uk>	<401DDCD7.3010902@cyberone.com.au> <401E1131.6030608@cyberone.com.au> <87d68xcoqi.fsf@codematters.co.uk>
-In-Reply-To: <87d68xcoqi.fsf@codematters.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] restore protections after forced fault in get_user_pages
+In-Reply-To: Andrew Morton's message of  Monday, 2 February 2004 14:46:42 -0800 <20040202144642.50ea0468.akpm@osdl.org>
+X-Windows: even your dog won't like it.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> That's a bit ugly, isn't it?  We don't want to modify the pte permissions
+> in this case.  We just want the page frame.  But we do still want to call
+> handle_mm_fault() if the page isn't there at all, or to COW it.
+
+I quite agree.  My first crack was ugliness in isolation, because I
+anticipated resistance to changing the function signatures in the fault
+path and it seemed like a fair bit of twiddling would be required.
+
+> One way to handle that would be to give the `write' arg to
+> handle_mm_fault() a third value which means "give us a writeable page, but
+> don't make the pte writeable".  Maybe that isn't warranted for this special
+> case.  But it would be better, really.
+
+It would be ideal.  However, it would also require changing the interfaces
+further.  Currently handle_mm_fault just says what happened, and doesn't
+give back the page directly.  get_user_pages then retakes
+mm->page_table_lock and calls follow_page to look up the page.
+So either handle_mm_fault would need to be able to return the page
+directly, or else follow_page would need to be changed to do "force"
+lookups that don't bail out when the pte is unwritable.  i.e.:
+
+--- memory.c	20 Jan 2004 05:12:38 -0000	1.141
++++ memory.c	2 Feb 2004 23:38:57 -0000
+@@ -621,7 +621,7 @@ void zap_page_range(struct vm_area_struc
+  * mm->page_table_lock must be held.
+  */
+ struct page *
+-follow_page(struct mm_struct *mm, unsigned long address, int write) 
++follow_page(struct mm_struct *mm, unsigned long address, int write, int force)
+ {
+ 	pgd_t *pgd;
+ 	pmd_t *pmd;
+@@ -652,7 +652,7 @@ follow_page(struct mm_struct *mm, unsign
+ 	pte = *ptep;
+ 	pte_unmap(ptep);
+ 	if (pte_present(pte)) {
+-		if (write && !pte_write(pte))
++		if (write && !force && !pte_write(pte))
+ 			goto out;
+ 		if (write && !pte_dirty(pte)) {
+ 			struct page *page = pte_page(pte);
 
 
-Philip Martin wrote:
+Off hand I'm not positive that is sufficient to get all the cases right
+once the fault installs the proper permissions, though perhaps it is.
+Remember, there is not only the writing unreadable case, but the case of
+reading and writing unreadable (PROT_NONE) as well.
 
->Nick Piggin <piggin@cyberone.com.au> writes:
->
->
->>Another thing I just saw - you've got quite a lot of memory in
->>buffers which might be something going wrong.
->>
->>When the build finishes and there is no other activity, can you
->>try applying anonymous memory pressure until it starts swapping
->>to see if everything gets reclaimed properly?
->>
->
->How do I apply anonymous memory pressure?
->
->
+Then there is the issue of not making the pte writable in the first place.
+pte_mkwrite is used to construct the pte in a variety of places I can see
+off hand in memory.c (break_cow, do_wp_page, do_swap_page,
+do_anonymous_page, do_no_page), and I haven't traced all the hugetlbpage
+code paths that are also written this way.  Perhaps it would be sufficient
+to change all these pte_mkwrite(pte) into pte_modify(pte, vma->vm_page_prot).
+But I am not really confident right off that I know everything that's going
+on here.
 
-Well just run something that uses a lot of memory and doesn't
-do much else. Run a few of these if you like:
+I've outlined the changes that I think would be sufficient (plus figuring
+out the analogous changes to hugetlb stuff).  I'd be happy to give it a
+try.  But I'm not at all confident to begin with that I'm aware of all the
+pitfalls.
 
-#include <stdlib.h>
-#include <unistd.h>
-#define MEMSZ (64 * 1024 * 1024)
-int main(void)
-{
-    int i;
-    char *mem = malloc(MEMSZ);
-    for (i = 0; i < MEMSZ; i+=4096)
-       mem[i] = i;
-    sleep(60);
-    return 0;
-}
 
->>Was each kernel freshly booted and without background activity
->>before each compile?
->>
->
->Each kernel was freshly booted.  There were a number of daemons
->running, and I was running X, but these don't appear to use much
->memory or CPU and the network was disconnected.  Just after a boot
->there is lots of free memory, but in normal operation the machine uses
->its memory, so to make it more like normal I ran "find | grep" before
->doing the build.  Then I ran make clean, make, make clean, make and
->took numbers for the second make.
->
->You can have the numbers straight after a boot as well.  In this case
->I rebooted, logged in, ran make clean and make -j4.
->
->I can hear disk activity on this machine. During a 2.4.24 build the
->activity happens in short bursts a few seconds apart.  During a 2.6.1
->build it sounds as if there is more activity, with each burst of
->activity being a little longer.  However that just the impression I
->get, I haven't tried timing anything, I may be imagining it.
->
->
-
-Thanks. Much the same, isn't it?
-Can you try booting with the kernel argument: elevator=deadline
-and see how 2.6 goes?
-
-Andrew, any other ideas?
-
+Thanks,
+Roland

@@ -1,38 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUKPWR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbUKPWUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUKPWR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 17:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUKPWR6
+	id S261839AbUKPWUT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 17:20:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbUKPWUS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 17:17:58 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:33975 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261839AbUKPWB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 17:01:28 -0500
-Message-ID: <419A78A5.1060800@nortelnetworks.com>
-Date: Tue, 16 Nov 2004 16:01:09 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+	Tue, 16 Nov 2004 17:20:18 -0500
+Received: from gizmo09ps.bigpond.com ([144.140.71.19]:17117 "HELO
+	gizmo09ps.bigpond.com") by vger.kernel.org with SMTP
+	id S261839AbUKPWT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 17:19:58 -0500
+Message-ID: <419A7D09.4080001@bigpond.net.au>
+Date: Wed, 17 Nov 2004 09:19:53 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Ingo Molnar <mingo@elte.hu>
-CC: Dean Nelson <dcn@sgi.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [Patch] export sched_setscheduler() for kernel module use
-References: <4198F70D.mailxMSZ11J00J@aqua.americas.sgi.com> <20041115105801.T14339@build.pdx.osdl.net> <20041115203343.GA32173@sgi.com> <20041116104821.GA31395@elte.hu> <20041116201841.GA29687@sgi.com> <20041116223608.GA27550@elte.hu>
-In-Reply-To: <20041116223608.GA27550@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Re: [patch, 2.6.10-rc2] sched: fix ->nr_uninterruptible handling
+ bugs
+References: <20041116113209.GA1890@elte.hu>
+In-Reply-To: <20041116113209.GA1890@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Ingo Molnar wrote:
-> Using the linear priority has the
-> advantage of not having to pass any policy value - priorities between 0
-> and 99 implicitly mean SCHED_FIFO, priorities above that would mean
-> SCHED_NORMAL, a pretty natural and compact interface.
+> PREEMPT_RT on SMP systems triggered weird (very high) load average
+> values rather easily, which turned out to be a mainline kernel
+> ->nr_uninterruptible handling bug in try_to_wake_up().
+> 
+> the following code:
+> 
+>         if (old_state == TASK_UNINTERRUPTIBLE) {
+>                 old_rq->nr_uninterruptible--;
+> 
+> potentially executes with old_rq potentially being != rq, and hence
+> updating ->nr_uninterruptible without the lock held. Given a
+> sufficiently concurrent preemption workload the count can get out of
+> whack and updates might get lost, permanently skewing the global count. 
+> Nothing except the load-average uses nr_uninterruptible() so this
+> condition can go unnoticed quite easily.
+> 
+> the fix is to update ->nr_uninterruptible always on the runqueue where
+> the task currently is. (this is also a tiny performance plus for
+> try_to_wake_up() as a stackslot gets freed up.)
 
-Just curious--why FIFO and not RR?
+Couldn't this part of the problem have been solved by using an atomic_t 
+for nr_uninterruptible as for nr_iowait?  It would also remove the need 
+for migrate_nr_uninterruptible().
 
-Chris
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

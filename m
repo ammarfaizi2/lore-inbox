@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbUCIThY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 14:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbUCITed
+	id S262158AbUCIToc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 14:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbUCIThm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:34:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:33477 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262135AbUCITaw (ORCPT
+	Tue, 9 Mar 2004 14:37:42 -0500
+Received: from pop.gmx.net ([213.165.64.20]:35295 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262135AbUCITef (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:30:52 -0500
-Date: Tue, 9 Mar 2004 11:30:46 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: "Viorel Canja, Softwin" <vcanja@bitdefender.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem in tcp_v4_synq_add ?
-Message-Id: <20040309113046.40271dc8.davem@redhat.com>
-In-Reply-To: <684501482.20040309132741@bitdefender.com>
-References: <684501482.20040309132741@bitdefender.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 9 Mar 2004 14:34:35 -0500
+X-Authenticated: #7370606
+Message-ID: <404E1C42.8040707@gmx.at>
+Date: Tue, 09 Mar 2004 20:34:26 +0100
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sergey Vlasov <vsu@altlinux.ru>, evms-devel@lists.sourceforge.net
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Evms-devel] Re: evms plugin for hptraid support <<<pre-alpha>>>
+References: <403FB3B1.7050600@gmx.at> <20040309143131.098c1033.vsu@altlinux.ru>
+In-Reply-To: <20040309143131.098c1033.vsu@altlinux.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Mar 2004 13:27:41 +0200
-"Viorel Canja, Softwin" <vcanja@bitdefender.com> wrote:
+Sergey Vlasov wrote:
+> On Fri, 27 Feb 2004 22:16:33 +0100 Wilfried Weissmann wrote:
+> 
+> 
+>>this is my attempt to add support for the ataraid devices to the 2.6 
+>>kernel. the code is as far as possible from being mature and useable as 
+>>one could imagine (i have not even requested any plugin-ids for the evms 
+>>engine). for now it only detects the HPT370A controller, because of i am 
+>>  checking the pci-ids of the controller to prevent that any non-raid 
+>>disks are stolen by the raid module. this would happen with the current 
+>>ataraid code from the kernel v2.4.
+> 
+> 
+> I'm not sure if this PCI ID checking is a good thing.  With ataraid
+> drivers, if your FakeRAID controller gets broken for some reason, you
+> can just attach the disks to any available IDE controller and get
+> access to your data.  With the proposed PCI ID check this ability will
+> be lost.
+> 
+> The problem with stale RAID superblocks on disks may be solved by
+> adding a command to clear the RAID superblocks without touching the
+> rest of data.
 
-> Shouldn't  "write_lock(&tp->syn_wait_lock);" be moved before
-> "req->dl_next = lopt->syn_table[h];" to avoid a race condition ?
+I can create a configuration option that controls or disables the PCI 
+check. Claiming all disks that have raid signatures is a great feature 
+for debugging and disaster recovery, but I think that if this is the 
+default then it is more trouble than it is worth.
 
-Nope, the listening socket's socket lock is held, and all things that
-add members to these hash chains hold that lock.
+Regards,
+Wilfried

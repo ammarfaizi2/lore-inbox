@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267732AbRGPX01>; Mon, 16 Jul 2001 19:26:27 -0400
+	id <S267738AbRGPXds>; Mon, 16 Jul 2001 19:33:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267733AbRGPX0R>; Mon, 16 Jul 2001 19:26:17 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:23727 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S267732AbRGPX0J>;
-	Mon, 16 Jul 2001 19:26:09 -0400
-Message-ID: <3B5379A9.6A9B11BE@sun.com>
-Date: Mon, 16 Jul 2001 16:32:57 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: NGROUP increase - thoughts
+	id <S267737AbRGPXdh>; Mon, 16 Jul 2001 19:33:37 -0400
+Received: from adsl-63-196-157-142.dsl.lsan03.pacbell.net ([63.196.157.142]:6924
+	"HELO adsl-63-196-157-142.dsl.lsan03.pacbell.net") by vger.kernel.org
+	with SMTP id <S267736AbRGPXdZ>; Mon, 16 Jul 2001 19:33:25 -0400
+Date: Mon, 16 Jul 2001 16:30:04 -0700
+From: "Tim R. Young" <try@lyang.net>
+To: Dave Jones <davej@suse.de>
+Cc: Ignacio Vazquez-Abrams <ignacio@openservices.net>,
+        "Tim R. Young" <try@lyang.net>, linux-kernel@vger.kernel.org
+Subject: Re: cpu id?
+Message-ID: <20010716163004.A1103@box.lyang.net>
+Reply-To: try@lyang.net
+In-Reply-To: <Pine.LNX.4.33.0107161741470.14084-100000@terbidium.openservices.net> <Pine.LNX.4.30.0107162349050.21512-100000@Appserv.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0107162349050.21512-100000@Appserv.suse.de>; from davej@suse.de on Mon, Jul 16, 2001 at 11:51:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sure this has been given thought, so I want to probe teh collective
-resources.  We need to have users in more than 32 groups.  In fact, they
-may need to be a member of MANY more groups than that.
+Dave,
 
-What is the current thinking on this problem?  Would it be desirable to
-replace current->groups[NGROUPS] with a poibnter to an array?  Thus
-allowing (with libc changes) many more groups?
+Thanks for the tool.
+Do I need kernel support to read out intel processor serial number?
+And how it is reported by x86info?
 
-Comments, please.
-Tim
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
+- T.
+
+Is it possible to use it read out
+On Mon, Jul 16, 2001 at 11:51:01PM +0200, Dave Jones wrote:
+> On Mon, 16 Jul 2001, Ignacio Vazquez-Abrams wrote:
+> 
+> > > I need a user space tool to read out cpu id.
+> > > Or documnent that specifies the interface in kernel.
+> > > Thanks in advance.
+> > cat /proc/cpuinfo
+> 
+> ftp://ftp.suse.com/pub/people/davej/x86info/
+> 
+> regards
+> 
+> Dave
+> 
+> -- 
+> | Dave Jones.        http://www.suse.de/~davej
+> | SuSE Labs
+> 
+> 

@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262252AbTFJUSt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 16:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTFJUPu
+	id S262259AbTFJT4K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 15:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTFJTy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 16:15:50 -0400
-Received: from [212.18.235.100] ([212.18.235.100]:42512 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id S262318AbTFJUPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 16:15:23 -0400
-Subject: Re: siI3112 crash on enabling dma
-From: Justin Cormack <justin@street-vision.com>
-To: apeeters@lashout.net
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1055261120.28365.40.camel@localhost>
-References: <1054929160.1793.121.camel@localhost> 
-	<1055261120.28365.40.camel@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 10 Jun 2003 21:29:10 +0100
-Message-Id: <1055276951.2046.5.camel@lotte>
+	Tue, 10 Jun 2003 15:54:59 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:52130 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262547AbTFJSh0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 14:37:26 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10552709681203@kroah.com>
+Subject: Re: [PATCH] Yet more PCI fixes for 2.5.70
+In-Reply-To: <10552709682643@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 10 Jun 2003 11:49:28 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-10 at 17:05, Adriaan Peeters wrote:
-> On Fri, 2003-06-06 at 21:52, Adriaan Peeters wrote:
-> > Hello,
-> > 
-> > I'm using 2.4.20-ac2, when I boot the system, SATA disks on a sil3112
-> > controller (IWill IS150-R) are detected, but dma is not enabled.
-> > The disks work perfectly in raid 1 mode, and I can enable dma using 
-> > hdparm -X66 -d1 /dev/hda
-> > hdparm -X66 -d1 /dev/hdc
-> > 
-> > But sometimes this fails and the entire system hangs. I suspect it
-> > happens when I enable dma mode while there is some harddisk activity.
-> 
-> The system seemed to be stable for a few days, but then the following
-> happened:
-> - First I got read-only filesystem messages
-> - a few seconds later I/O errors
-> - After rebooting, the root filesystem (ext3) could not be mounted
-> - After fscking and a lot of deleted inodes, large portions of the
-> filesystem were gone to lost+found (/etc, /bin, ...)
-> 
-> I can only relate this to the driver, it seems very unstable :(
-> 
-> Some info: 2.4.20-ac2, asus a7v8x motherboard (onboard promise raid not
-> used), iwill IS150-R raid controler, 2 Maxtor 6Y080M0 SATA disks in
-> raid1.
+ChangeSet 1.1358, 2003/06/09 16:05:08-07:00, greg@kroah.com
 
-I got severe filesystem corruption on an Sii3112 system (Supermicro
-E7505 with 2 onboard SiI3112) but I later memtested the machine and
-found bad ram, so I dont think it is a valid example of corruption.
-However I am still slightly suspicious. Did you have 
-echo "max_kb_per_request:15" > /proc/ide/hdXX/settings
-set for the relevant drives? This is a known bug (I didnt have this
-either, another reason why this is not a valid datapoint...)
+PCI: remove pci_present() from drivers/scsi/inia100.c
 
 
-Justin
+ drivers/scsi/inia100.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
+
+diff -Nru a/drivers/scsi/inia100.c b/drivers/scsi/inia100.c
+--- a/drivers/scsi/inia100.c	Tue Jun 10 11:19:09 2003
++++ b/drivers/scsi/inia100.c	Tue Jun 10 11:19:09 2003
+@@ -218,7 +218,7 @@
+ 	/*
+ 	 * PCI-bus probe.
+ 	 */
+-	if (pci_present()) {
++	{
+ 		/*
+ 		 * Note: I removed the struct pci_device_list stuff since this
+ 		 * driver only cares about one device ID.  If that changes in
 

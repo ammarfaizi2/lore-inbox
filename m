@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbTJSVUl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 17:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTJSVUl
+	id S262228AbTJSVMm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 17:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTJSVMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 17:20:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42968 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262251AbTJSVUj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 17:20:39 -0400
-Date: Sun, 19 Oct 2003 14:20:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: axboe@suse.de, piggin@cyberone.com.au, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test8, DEBUG_SLAB, oops in as_latter_request()
-Message-Id: <20031019142042.2f41eb68.akpm@osdl.org>
-In-Reply-To: <m2ismlovep.fsf@p4.localdomain>
-References: <m2ismlovep.fsf@p4.localdomain>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 19 Oct 2003 17:12:42 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:29834 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262228AbTJSVMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 17:12:40 -0400
+Subject: Re: HighPoint 374
+From: Joel Smith <joelsmith17@comcast.net>
+To: Tomi Orava <Tomi.Orava@ncircle.nullnet.fi>, linux-kernel@vger.kernel.org
+In-Reply-To: <41102.192.168.9.10.1066584247.squirrel@ncircle.nullnet.fi>
+References: <00b801c3955c$7e623100$0514a8c0@HUSH>
+	 <1066579176.7363.3.camel@milo.comcast.net>
+	 <41102.192.168.9.10.1066584247.squirrel@ncircle.nullnet.fi>
+Content-Type: text/plain
+Message-Id: <1066597959.7576.11.camel@milo.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 19 Oct 2003 14:12:40 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
->
-> I was running 2.6.0-test8 compiled with CONFIG_DEBUG_SLAB=y. When
->  testing the CDRW packet writing driver, I got an oops in
->  as_latter_request. (Full oops at the end of this message.) It is
->  repeatable and happens because arq->rb_node.rb_right is uninitialized.
 
-deadline seems to have the same problem.
 
-We may as well squish this with the big hammer?
+> > In 2.4.21 and 2.4.22 it's working great for me.  I'm using the
+> > "experimental" IDE Raid with two disks on a HPT 374 controller with the
+> > drivers that come with the kernel.
+> 
+> I have tried these versions in the past as well without success.
+> However, I don't use HPT-raid features at all ie. I'm using the
+> disks as JBOD. What hardware do you have and have you enabled
+> ACPI/local-apic/io-apic ? What brand & model of disk-drives you
+> are using with HPT374 controller ? And finally what does
+> the /proc/interrupts show for you ?
 
- drivers/block/as-iosched.c       |    1 +
- drivers/block/deadline-iosched.c |    1 +
- 2 files changed, 2 insertions(+)
+The disks are both 80 GB Western Digital 7200RPM/8 MB cache (WD800JB). 
+FWIW, the motherboard is an Abit IT7-Max 2 v. 2.0, and I'm currently
+using 2.4.22-ck2.  The HPT374 chip is on the motherboard.  I don't have
+any ACPI stuff enabled, and I'm not sure what apic is.
 
-diff -puN drivers/block/as-iosched.c~iosched-oops-fixes drivers/block/as-iosched.c
---- 25/drivers/block/as-iosched.c~iosched-oops-fixes	2003-10-19 14:17:39.000000000 -0700
-+++ 25-akpm/drivers/block/as-iosched.c	2003-10-19 14:18:09.000000000 -0700
-@@ -1718,6 +1718,7 @@ static int as_set_request(request_queue_
- 	struct as_rq *arq = mempool_alloc(ad->arq_pool, gfp_mask);
- 
- 	if (arq) {
-+		memset(arq, 0, sizeof(*arq));
- 		RB_CLEAR(&arq->rb_node);
- 		arq->request = rq;
- 		arq->state = AS_RQ_NEW;
-diff -puN drivers/block/deadline-iosched.c~iosched-oops-fixes drivers/block/deadline-iosched.c
---- 25/drivers/block/deadline-iosched.c~iosched-oops-fixes	2003-10-19 14:17:39.000000000 -0700
-+++ 25-akpm/drivers/block/deadline-iosched.c	2003-10-19 14:17:39.000000000 -0700
-@@ -775,6 +775,7 @@ deadline_set_request(request_queue_t *q,
- 
- 	drq = mempool_alloc(dd->drq_pool, gfp_mask);
- 	if (drq) {
-+		memset(drq, 0, sizeof(*drq));
- 		RB_CLEAR(&drq->rb_node);
- 		drq->request = rq;
- 
+Here's my /proc/interrupts:
 
-_
+           CPU0
+  0:  490407020          XT-PIC  timer
+  1:     160679          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  4:          0          XT-PIC  usb-uhci
+  5:   31664356          XT-PIC  eth1, Intel 82801DB-ICH4
+  7:   35088687          XT-PIC  usb-uhci, nvidia
+  9:          0          XT-PIC  usb-uhci
+ 11:    1895235          XT-PIC  ide2, ide3
+ 12:    4340909          XT-PIC  PS/2 Mouse
+ 15:     117429          XT-PIC  ide1
+NMI:          0
+ERR:          0
+
+HTH,
+
+Joel Smith
 

@@ -1,93 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264145AbUANSny (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 13:43:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUANSny
+	id S263861AbUANSmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 13:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUANSmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 13:43:54 -0500
-Received: from 195-23-16-24.nr.ip.pt ([195.23.16.24]:163 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S264145AbUANSnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 13:43:45 -0500
-Message-ID: <40058DAB.30802@grupopie.com>
-Date: Wed, 14 Jan 2004 18:42:51 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Wed, 14 Jan 2004 13:42:08 -0500
+Received: from pop.gmx.net ([213.165.64.20]:60290 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263861AbUANSmD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 13:42:03 -0500
+X-Authenticated: #7370606
+Message-ID: <40058D6E.3050409@gmx.at>
+Date: Wed, 14 Jan 2004 19:41:50 +0100
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: John Lash <jkl@sarvega.com>, s0095670@sms.ed.ac.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: Catch 22
-References: <400554C3.4060600@sms.ed.ac.uk>	<20040114090137.5586a08c.jkl@sarvega.com> <20040114091456.752ad02d.rddunlap@osdl.org>
+To: Ian Leonard <ian@smallworld.cx>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Highpoint hpt370 raid and spanning of disks
+References: <1dUvz-1JH-23@gated-at.bofh.it>
+In-Reply-To: <1dUvz-1JH-23@gated-at.bofh.it>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-
-> On Wed, 14 Jan 2004 09:01:37 -0600 John Lash <jkl@sarvega.com> wrote:
+Ian Leonard wrote:
+> Greetings,
 > 
-> | On Wed, 14 Jan 2004 14:40:03 +0000
-> | Michael Lothian <s0095670@sms.ed.ac.uk> wrote:
-> | 
-> | > Just thaought I'd let you know about my experiences with Mandrake using
-> | > the 2.4 and 2.6 kernels on my new hardware which is primaraly a Asus
-> | > A7V600 (KT600) Motherboard and Radeon 9600XT
-> | > 
-> | > Under 2.4 my ATA hard drak is mounted under /dev/hda where as under 2.6
-> | > is /dev/hde so there is no wasy way to switch between them with lilo and
-> | > /etc/fstab needing to be changed
-> | > 
-> | 
-> | At least in this case, you should be able to use volume labels for the
-> | filesystems instead of the actual device names. Check out tune2fs -L. You then
-> | reference the volume label in your fstab.
-> | 
-> | With lilo, you can specify that boot disk and root disk on the command line.
-> | Also you can point lilo to a different config file using lilo -C. Not seamless
-> | but should allow you to bounce back and forth w/o editing files....
+> I have tried to get the htpraid.o module working with spanned raid  
+> disks with a hpt370 chip (it is a slightly older version). I did this:
 > 
-> Does anyone know the reason for this (ATA ident/naming change)?
+> 1. Setup the raid in the hpt bios
+> 2. loaded the hptraid.o module (kernel: 2.4.24)
+> 3. fdisk /dev/ataraid/d0 and create /dev/ataraid/d0p1
+> I note that fdisk shows one partition of 80GB (which is correct because  
+> I         have 2x40GB disks).
+> 4. mke2fs -j /dev/ataraid/d0p1
+> 5. mount the partition and df shows 80GB.
+> 6. run a test program that fills up the disk with many 1GB files. At  
+> about the 32nd file I see errors from ext3 and also i/0 errors ide  
+> controller. The error messages list the hdg device and indicate that  
+> they can't find sectors in the second disk.
 > 
-> I do *not* see this and I'm also using Mandrake (v9.0, not later).
+> After a reboot, the raid bios marks the 2nd disk with 'broken span'.
 > 
+> I then tried a Promise FastTrak2000 card with very similar results. It  
+> looks like once data is written to the second disk, something goes  
+> wrong. Unlike the Highpoint (which produces large numbers of errors)  
+> the Promise produces a few here and there.
 
+this sounds like a broken disk or a bad cable. please try to delete the 
+span array on the hpt370 controller and then recreate the volume by 
+selecting the disks in reversed order. so that the second disk comes 
+first. if it there are still errors at about the 32 file then send me 
+the geometry data and the first 16 sectors of your disks.
 
-I guess the problem is that, by default, Mandrake creates an extended partition 
-when installed, where all the other partitions go.
+> 
+> I see from a previous posting that spanning is supported, so I maybe  
+> missing something. Any help appreciated.
+> 
+> 
+> (BTW, this is cross-posted from linux-ide, which doesn't seem to be  
+> working for me).
 
-Whenever I install Mandrake, I'm always careful to switch to "Expert" mode and 
-configure the partitions to be primary by hand to avoid this kind of problems.
-
-If you are a corageous hacker, you can always:
-
-  - boot from a CD distribution (knoppix, etc.)
-  - run fdisk on your hard drive
-  - take note on the cylinders being used by the partitions,
-  - delete the partitions on the extended partition, and the extended partition 
-itself
-  - create the partitions again as primary using the *exact* same cylinders
-  - write the partition to disk
-  - reboot
-
-Probably you'll have to adjust fstab to use the new partitions, but at least 2.4 
-and 2.6 should both agree that you have an hda :)
-
-I don't know if you'll need to run lilo again before rebooting, but I would do 
-that just to be on the safe side. To do that:
-
-  - mount /dev/hda somewhere (/mnt/disk or something)
-  - # cd /mnt/disk
-  - edit etc/lilo.conf to always use /dev/hda
-  - # chroot . lilo
-
-I hope this helps,
-
--- 
-Paulo Marques - www.grupopie.com
-
-"In a world without walls and fences who needs windows and gates?"
-
+bye,
+wilfried

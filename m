@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262600AbTCIUdT>; Sun, 9 Mar 2003 15:33:19 -0500
+	id <S262603AbTCIUj1>; Sun, 9 Mar 2003 15:39:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262603AbTCIUdT>; Sun, 9 Mar 2003 15:33:19 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:1417 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S262600AbTCIUdR>;
-	Sun, 9 Mar 2003 15:33:17 -0500
-Date: Sun, 9 Mar 2003 21:43:27 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: torvalds@transmeta.com, marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk
-Cc: Oleg Drokin <green@linuxhacker.ru>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: NCPFS memleak/crazyness?
-Message-ID: <20030309204327.GB16578@vana.vc.cvut.cz>
-References: <20030309203048.GA31393@linuxhacker.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262608AbTCIUj1>; Sun, 9 Mar 2003 15:39:27 -0500
+Received: from gjs.xs4all.nl ([80.126.25.16]:19624 "EHLO mail.gjs.cc")
+	by vger.kernel.org with ESMTP id <S262603AbTCIUj0>;
+	Sun, 9 Mar 2003 15:39:26 -0500
+From: GertJan Spoelman <kl@gjs.cc>
+To: Bill Davidsen <davidsen@tmr.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Module XXX can not be unloaded
+Date: Sun, 9 Mar 2003 21:49:03 +0100
+User-Agent: KMail/1.6
+References: <Pine.LNX.4.44.0303091500250.4012-100000@bilbo.tmr.com>
+In-Reply-To: <Pine.LNX.4.44.0303091500250.4012-100000@bilbo.tmr.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030309203048.GA31393@linuxhacker.ru>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200303092149.03634.kl@gjs.cc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 09, 2003 at 11:30:48PM +0300, Oleg Drokin wrote:
-> Hello!
-> 
->    Looking at fs/ncpfs/ioctl.c (latest 2.4 bk tree), I seem to see a place
->    where we use userspace-pointers directly (And eventually doing kfree on
->    these). In NCP_IOC_SETOBJECTNAME handler, we allocated space (newname
->    pointer), copy stuff from userspace to there and then assign userspace
->    pointer to our internal structure, whoops! Or am I missing something?
-> 
->    Seems that following patch is needed. (Same problem is present in 2.5
->    and same patch should apply)
+On Sunday 09 March 2003 21:19, davidsen wrote:
+> My logs are filled with this message, in spite of:
+>  1 - nothing is trying to unload these modules
 
-Definitely. Alan, Linus, Marcelo (alphabetically) please apply...
-2.2.x should not be affected as it does not support this ioctl.
-						Petr Vandrovec
+Are you sure?, some distro's have a default cronjob which do a rmmod -as every 
+hour or maybe even more frequent.
+The -s logs the message to syslog instead of the terminal.
 
-    From Oleg Drokin:
+>  2 - my kernels are built w/o module unloading because I have never yet
+>      found any module which *could* be unloaded by the new code.
+>
+> I presume this should be replaced by a message saying that module
+> unloading is not configured, and that it should only happen when a program
+> tries to unload a module, rather than generating many lines of meaningless
+> log babble.
+-- 
 
-    In NCP_IOC_SETOBJECTNAME handler, we allocated space (newname pointer), 
-    copy stuff from userspace to there and then assign userspace
-    pointer to our internal structure, whoops!
-
-===== fs/ncpfs/ioctl.c 1.3 vs edited =====
---- 1.3/fs/ncpfs/ioctl.c	Mon Sep  9 22:36:07 2002
-+++ edited/fs/ncpfs/ioctl.c	Sun Mar  9 23:23:12 2003
-@@ -434,7 +434,7 @@
- 			oldprivatelen = server->priv.len;
- 			server->auth.auth_type = user.auth_type;
- 			server->auth.object_name_len = user.object_name_len;
--			server->auth.object_name = user.object_name;
-+			server->auth.object_name = newname;
- 			server->priv.len = 0;
- 			server->priv.data = NULL;
- 			/* leave critical section */
+    GertJan

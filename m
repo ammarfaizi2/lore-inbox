@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266876AbSKOW3W>; Fri, 15 Nov 2002 17:29:22 -0500
+	id <S266841AbSKOWYq>; Fri, 15 Nov 2002 17:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266865AbSKOW26>; Fri, 15 Nov 2002 17:28:58 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:11676 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266859AbSKOW2H>;
-	Fri, 15 Nov 2002 17:28:07 -0500
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org,
-       linux-kernel-owner@vger.kernel.org, mbligh@aracnet.com
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFD55E09AF.09FEF8A7-ON85256C72.007B18B9@pok.ibm.com>
-From: "Khoa Huynh" <khoa@us.ibm.com>
-Date: Fri, 15 Nov 2002 16:34:45 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 11/15/2002 05:34:48 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S266851AbSKOWYe>; Fri, 15 Nov 2002 17:24:34 -0500
+Received: from dp.samba.org ([66.70.73.150]:10914 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266841AbSKOWXe>;
+	Fri, 15 Nov 2002 17:23:34 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] PARAM 3/4: PARAM() support in modules.
+Date: Sat, 16 Nov 2002 09:27:32 +1100
+Message-Id: <20021115223029.2A0072C052@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"One-liner" to enable PARAM() support in modules.
 
-David Miller wrote:
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-> mozilla handles it this way: the bug starts as unconfirmed. they have a
->   volunteer group of pre screeners. Only when one of these people sets
->   it to valid or similar then the owners of the module get mail.
->
->This sounds like a good idea.
+Name: Parameter Implementation for modules
+Author: Rusty Russell
+Status: Tested on 2.5.38
+Depends: Module/param.patch.gz
 
-Currently in the kernel bugzilla, after a bug is filed, it is initially
-in the OPEN state -- this is similar to the Unconfirmed state mentioned
-above.  The screeners (my team and others who volunteer) can get rid of
-many invalid bugs and dups.  Only valid bugs then go to the ASSIGNED state
-with correct owners.  Of course, we do not expect to get rid 100% of all
-the invalids and dups, but at least that should reduce the work of
-the owners who should only work with bugs in the ASSIGNED state.
+D: This activates parameter parsing for PARAM() declarations in modules.
 
-Also, the bug owner can close MULTIPLE bugs at the same time
-on Bugzilla.  A bug owner can query all of his bugs which will
-then be displayed in a list, click the option "Change several bugs
-at once" at the bottom of the list, select the bugs that he wants
-to close, and then hit Commit button.  It's pretty simple.  Besides
-closing the bugs, the owner can make similar changes to several bugs
-at the same time using the same mechanism.
-
-Regards,
-Khoa
-_________________________________________
-Khoa Huynh, Ph.D.
-IBM Linux Technology Center
-(512) 838-4903; T/L 678-4903; khoa@us.ibm.com
-
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31807-linux-2.5.43/kernel/module.c .31807-linux-2.5.43.updated/kernel/module.c
+--- .31807-linux-2.5.43/kernel/module.c	2002-10-18 17:17:25.000000000 +1000
++++ .31807-linux-2.5.43.updated/kernel/module.c	2002-10-18 17:17:57.000000000 +1000
+@@ -25,6 +25,7 @@
+ #include <linux/fcntl.h>
+ #include <linux/rcupdate.h>
+ #include <linux/cpu.h>
++#include <linux/params.h>
+ #include <asm/uaccess.h>
+ #include <asm/semaphore.h>
+ #include <asm/pgalloc.h>
+@@ -951,8 +952,7 @@ static struct module *load_module(void *
+ 	if (err < 0)
+ 		goto cleanup;
+ 
+-#if 0 /* Needs param support */
+-	/* Size of section 0 is 0, so this works well */
++	/* Size of section 0 is 0, so this works well if no params */
+ 	err = parse_args(mod->args,
+ 			 (struct kernel_param *)
+ 			 sechdrs[setupindex].sh_offset,
+@@ -961,7 +961,6 @@ static struct module *load_module(void *
+ 			 NULL);
+ 	if (err < 0)
+ 		goto cleanup;
+-#endif
+ 
+ 	/* Get rid of temporary copy */
+ 	vfree(hdr);
 

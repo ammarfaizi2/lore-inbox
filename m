@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265838AbUAEB06 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 20:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265839AbUAEB06
+	id S265840AbUAEBkv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 20:40:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265841AbUAEBkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 20:26:58 -0500
-Received: from cpe-68-118-249-48.ma.charter.com ([68.118.249.48]:12038 "EHLO
-	clu01.photonlinux.com") by vger.kernel.org with ESMTP
-	id S265838AbUAEB04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 20:26:56 -0500
-Date: Sun, 4 Jan 2004 22:42:08 -0500 (EST)
-From: online@clu01.photonlinux.com
+	Sun, 4 Jan 2004 20:40:51 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:38580 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265840AbUAEBkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 20:40:49 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Patch for scsi_scan.c Kernel Version 2.4.23
-Message-ID: <Pine.LNX.4.44.0401042239510.7754-100000@clu01.photonlinux.com>
+Subject: Re: udev and devfs - The final word
+References: <20040103040013.A3100@pclin040.win.tue.nl>
+	<Pine.LNX.4.58.0401022033010.10561@home.osdl.org>
+	<20040103141029.B3393@pclin040.win.tue.nl>
+	<Pine.LNX.4.58.0401031423180.2162@home.osdl.org>
+	<20040104000840.A3625@pclin040.win.tue.nl>
+	<Pine.LNX.4.58.0401031802420.2162@home.osdl.org>
+	<20040104034934.A3669@pclin040.win.tue.nl>
+	<Pine.LNX.4.58.0401031856130.2162@home.osdl.org>
+	<20040104142111.A11279@pclin040.win.tue.nl>
+	<Pine.LNX.4.58.0401041302080.2162@home.osdl.org>
+	<20040104230104.A11439@pclin040.win.tue.nl>
+	<200401042335.i04NZqQZ029910@turing-police.cc.vt.edu>
+From: Jeremy Maitin-Shepard <jbms@attbi.com>
+Date: Sun, 04 Jan 2004 20:43:27 -0500
+In-Reply-To: <200401042335.i04NZqQZ029910@turing-police.cc.vt.edu> (Valdis
+ Kletnieks's message of "Sun, 04 Jan 2004 18:35:51 -0500")
+Message-ID: <87k747w4ow.fsf@jbms.ath.cx>
+User-Agent: Gnus/5.1005 (Gnus v5.10.5) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Valdis.Kletnieks@vt.edu writes:
 
-I have a patch for scsi_scan.c to enable the proper scanning of tape
-devices behind a Compaq fibre channel FCTC II tape controller.
-I have tested this exhaustively using a Compaq FCTC and a Surestore DLT
-80.
+> On Sun, 04 Jan 2004 23:01:04 +0100, Andries Brouwer said:
+>> A common Unix idiom is testing for the identity
+>> of two files by comparing st_ino and st_dev.
+>> A broken idiom?
 
-This patch should work for older versions of the 2.4 Kernel and version
-2.6.
+> Comparing two of these obtained at the same time is *usually* a good
+> test, although racy even on current systems. (Consider the case of an
+> unlink()/creat() pair between the two stat() calls - there's been more than
+> one race condition resulting in a security hole based on THIS one).  It's
+> only safe if you actually have an open reference to both files before you
+> fstat() either one.  And yes, it has to be fstat(), as you can't guarantee
+> that the file referenced by path in stat() is the one you did an
+> open() on.
 
-Thanks
-Laurence Oberman
-online@photonlinux.com or Laurence.Oberman@hp.com
---------------------------
+Unfortunately, programs such as tar depend on inode numbers of distinct
+files being distinct even when the file is not open over a period of
+several minutes/seconds.  This is needed to avoid dumping hard links
+more than once.  Furthermore, there is no efficient way to write
+programs such as tar without depending on this capability.  Thus, if
+st_ino cannot be used reliably for this purpose, it would be useful for
+there to be a system call for retrieving a true
+unique-within-the-filesystem identifier for the file.
 
-Patch Notes:
-
-This patch will allow the proper scanning and attachment of tape devices
-which are located behind a Compaq F/C bridge FCTC II. If the firmware is
-upgraded, the text will need to be changed to match accordingly as per
-Model.
-
---- scsi_scan.c	2004-01-04 18:34:57.000000000 -0500
-+++ scsi_scan.c.orig	2004-01-04 18:33:54.000000000 -0500
-@@ -151,7 +151,7 @@
- 	{"DEC","HSG80","*", BLIST_FORCELUN | BLIST_NOSTARTONADD},
- 	{"COMPAQ","LOGICAL VOLUME","*", BLIST_FORCELUN},
- 	{"COMPAQ","CR3500","*", BLIST_FORCELUN},
--	{"COMPAQ","FCTC c9913a","*", BLIST_FORCELUN | BLIST_SPARSELUN |
-BLIST_LARGELUN},
-+
- 	{"NEC", "PD-1 ODX654P", "*", BLIST_FORCELUN | BLIST_SINGLELUN},
- 	{"MATSHITA", "PD-1", "*", BLIST_FORCELUN | BLIST_SINGLELUN},
- 	{"iomega", "jaz 1GB", "J.86", BLIST_NOTQ | BLIST_NOLUN},
-
-
+-- 
+Jeremy Maitin-Shepard

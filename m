@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAFBMn>; Fri, 5 Jan 2001 20:12:43 -0500
+	id <S130690AbRAFBNX>; Fri, 5 Jan 2001 20:13:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130690AbRAFBMd>; Fri, 5 Jan 2001 20:12:33 -0500
-Received: from diver.doc.ic.ac.uk ([146.169.1.47]:20230 "EHLO
-	diver.doc.ic.ac.uk") by vger.kernel.org with ESMTP
-	id <S129324AbRAFBM1>; Fri, 5 Jan 2001 20:12:27 -0500
-To: Chris Kloiber <ckloiber@rochester.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] VESA framebuffer w/ MTRR locks 2.4.0 on init
-In-Reply-To: <E14EZMf-0007vp-00@the-village.bc.nu>
-        <3A55F6DB.24041B4C@rochester.rr.com>
-From: David Wragg <dpw@doc.ic.ac.uk>
-Date: 06 Jan 2001 01:12:23 +0000
-Message-ID: <y7rofxlwkjs.fsf@sytry.doc.ic.ac.uk>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S132263AbRAFBNP>; Fri, 5 Jan 2001 20:13:15 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:17934 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S130690AbRAFBNH>; Fri, 5 Jan 2001 20:13:07 -0500
+Date: Sat, 6 Jan 2001 12:12:44 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Matthew Schumacher <schu@schu.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: 2.4.0 Kernel Fails to compile when CONFIG_IP_NF_FTP is
+ selected
+In-Reply-To: <3A56653C.BF55B6E0@schu.net>
+Message-ID: <Pine.LNX.4.31.0101061156360.15856-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Kloiber <ckloiber@rochester.rr.com> writes:
-> last 2 lines in dmesg output:
-> mtrr: 0xd8000000,0x2000000 overlaps existing 0xd8000000,0x1000000
-> mtrr: 0xd8000000,0x2000000 overlaps existing 0xd8000000,0x1000000
+On Fri, 5 Jan 2001, Matthew Schumacher wrote:
 
-Are you running XFree86-4.0.x?
+>
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.0/include -Wall
+> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+> -march=i686 -DMODULE -DMODVERSIONS -include
+> /usr/src/linux-2.4.0/include/linux/modversions.h   -c -o ip_nat_ftp.o
+> ip_nat_ftp.c
+> ip_nat_ftp.c: In function `help':
+> ip_nat_ftp.c:315: structure has no member named `nat'
+> make[2]: *** [ip_nat_ftp.o] Error 1
+> make[2]: Leaving directory `/usr/src/linux-2.4.0/net/ipv4/netfilter'
+> make[1]: *** [_modsubdir_ipv4/netfilter] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.4.0/net'
+> make: *** [_mod_net] Error 2
+>
+> This is the error I get if I try to compile in the kernel or as a
+> module.
+>
 
-> cat /proc/mtrr
-> reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
-> reg01: base=0xd8000000 (3456MB), size=  16MB: write-combining, count=1
-> reg05: base=0xd0000000 (3328MB), size=  64MB: write-combining, count=1
->  
-> 
-> My video card is Voodoo3/3000/AGP and my motherboard is an MSI-6330
-> (Athlon Tbird 800)
-> I am experiencing text console video corruption. In tdfxfb mode or
-> regular vesafb it looks like a horizontal line of color pixels that
-> grows, in 'regular' text mode I get flashing characters or the font
-> degrades into unreadable mess. X is fine.
+Did you configure the kernel with 'Full NAT'?
 
-What does "lspci -v" give?
+(CONFIG_IP_NF_NAT in the .config file).
+
+- James
+--
+James Morris
+<jmorris@intercode.com.au>
 
 
-David Wragg
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

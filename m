@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbTDIFnV (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 01:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbTDIFnV (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 01:43:21 -0400
-Received: from [12.47.58.221] ([12.47.58.221]:1043 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262784AbTDIFnT (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 01:43:19 -0400
-Date: Tue, 8 Apr 2003 22:55:14 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
+	id S262740AbTDIFlz (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 01:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbTDIFlz (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 01:41:55 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:39159 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S262740AbTDIFly (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 01:41:54 -0400
+Date: Tue, 8 Apr 2003 23:53:04 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Frank Davis <fdavis@si.rr.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Variable PTE_FILE_MAX_BITS
-Message-Id: <20030408225514.478469e0.akpm@digeo.com>
-In-Reply-To: <20030409011653.A9103@devserv.devel.redhat.com>
-References: <20030409011653.A9103@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Subject: Re: kernel support for non-english user messages
+Message-ID: <20030408235304.T1422@schatzie.adilger.int>
+Mail-Followup-To: Frank Davis <fdavis@si.rr.com>,
+	linux-kernel@vger.kernel.org
+References: <3E93A958.80107@si.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Apr 2003 05:54:51.0400 (UTC) FILETIME=[89509080:01C2FE5C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E93A958.80107@si.rr.com>; from fdavis@si.rr.com on Wed, Apr 09, 2003 at 01:02:16AM -0400
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev <zaitcev@redhat.com> wrote:
->
-> Andrew,
+On Apr 09, 2003  01:02 -0400, Frank Davis wrote:
+> I wish to suggest a possible 2.6 or 2.7 feature (too late for 2.4.x and 
+> 2.5.x, I believe) that I believe would be helpful. Currently, printk 
+> messages are all in english, and I was wondering if printk could be 
+> modified to print out user messages that are in the default language of 
+> the machine. For example,
 > 
-> would you be so kind to take this and forward to Linus?
-> I think this segment of the code is your brainchild.
-
-y'know, as I was writing that code I thought "no architecture could be dumb
-enough to make PTE_FILE_MAX_BITS variable".
-
-> On sparc
-
-Ah.  That architecture.
-
+> printk(KERN_WARN "This driver is messed up!\n", 'en'); //Prints the 
+> english text .
 > 
-> --- linux-2.5.66-bk11/mm/fremap.c	2003-04-05 13:26:24.000000000 -0800
-> +++ linux-2.5.66-bk11-sparc/mm/fremap.c	2003-04-05 13:28:22.000000000 -0800
-> @@ -136,10 +136,10 @@
->  		return err;
->  
->  	/* Can we represent this offset inside this architecture's pte's? */
-> -#if PTE_FILE_MAX_BITS < BITS_PER_LONG
-> -	if (pgoff + (size >> PAGE_SHIFT) >= (1UL << PTE_FILE_MAX_BITS))
-> -		return err;
-> -#endif
-> +	/* This needs to be evaluated at runtime on some platforms */
-> +	if (PTE_FILE_MAX_BITS < BITS_PER_LONG)
-> +		if (pgoff + (size >> PAGE_SHIFT) >= (1UL << PTE_FILE_MAX_BITS))
-> +			return err;
->  
+> printk(KERN_WARN "This driver is messed up!\n", 'wel'); //Prints the 
+> welsh translation of the english text.
+> 
+> printk(KERN_WARN "This driver is messed up!\n", getdefaultlanguage());
+> 
+> I'm looking for a possible uniform design to make this happen, short of 
+> adding a complete machine translation module to the kernel. :) Userland 
+> internationalization support is already provided(I haven't personally 
+> used other languages besides English, but I've seen the options), but a 
+> kernel module or printk addition that handles localized kernel messages 
+> seems reasonable.
+> 
+> Thoughts, comments?
 
-The reason I didn't do this in the first place is that if PTE_FILE_MAX_BITS
-is 32 (as it is for ia32 PAE), the compiler generates a warning about the
-(1<<32).  I guess it generates a bug, too.
+I don't think you will get support from anyone for non-english messages
+in the kernel.  Some people think there is already too much text segment
+in the kernel (c.f. tests that show kernel size shrinks by 200kB or whatever
+when printk is defined to a no-op).
 
-Ho hum.  I shall make it "1ULL".
+There was a proposal to make printks be more generic/consistent by someone
+at IBM, but I don't know what happened to it.
+
+My suggestion would be to add the required i18n support to klogd, so that
+kernel messages are translated as they are removed from dmesg into syslog.
+Then, like any i18n support, you build a message catalog from the printk
+strings in the kernel and have klogd do the lookups/translation in user
+space.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

@@ -1,109 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129223AbQKFXiF>; Mon, 6 Nov 2000 18:38:05 -0500
+	id <S130293AbQKFXkP>; Mon, 6 Nov 2000 18:40:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129531AbQKFXhz>; Mon, 6 Nov 2000 18:37:55 -0500
-Received: from mail.tripledental.com ([208.129.192.28]:55557 "EHLO
-	imail.ipns.com") by vger.kernel.org with ESMTP id <S129223AbQKFXhj>;
-	Mon, 6 Nov 2000 18:37:39 -0500
-From: "Dan Browning" <danb@cyclonecomputers.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <mingo@redhat.com>
-Subject: 2.2.18pre19 + raid-2.2.18-AX?
-Date: Mon, 6 Nov 2000 15:37:32 -0800
-Message-ID: <002601c0484a$894eda80$6700000a@danb>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S130294AbQKFXkF>; Mon, 6 Nov 2000 18:40:05 -0500
+Received: from smtp-fwd.valinux.com ([198.186.202.196]:14852 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S130293AbQKFXj4>;
+	Mon, 6 Nov 2000 18:39:56 -0500
+Date: Mon, 6 Nov 2000 15:40:39 -0800
+From: David Hinds <dhinds@valinux.com>
+To: David Ford <david@linux.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: current snapshots of pcmcia
+Message-ID: <20001106154039.A19860@valinux.com>
+In-Reply-To: <3A06757F.3C63F1A8@linux.com> <20001106104927.A19573@valinux.com> <3A073C8D.B6511746@linux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <3A073C8D.B6511746@linux.com>; from David Ford on Mon, Nov 06, 2000 at 03:19:41PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can't get raid-2.2.18-A2 to apply cleanly on 2.2.18pre19.  Does
-anyone know of a newer raid-2.2.18preX patch?  (pre18 or pre19 would
-be great).
+On Mon, Nov 06, 2000 at 03:19:41PM -0800, David Ford wrote:
+> 
+> Undoubtedly :(  But it used to work when I used your i82365 module instead of
+> the kernel's yenta module.  The i82365 module now gives the same failure
+> output as the yenta module.
 
-Here's the output I get...
+How long ago was this?  I would need to know what kernel versions and
+what PCMCIA driver versions were involved.  It has been months since I
+changed any of the PCI bridge setup code in the PCMCIA modules.
 
-[root@server linux]# patch -p1 < raid-2.2.18-A2
-patching file init/main.c
-Hunk #4 succeeded at 1631 (offset 4 lines).
-patching file include/linux/raid/hsm.h
-patching file include/linux/raid/hsm_p.h
-patching file include/linux/raid/linear.h
-patching file include/linux/raid/md.h
-patching file include/linux/raid/md_compatible.h
-patching file include/linux/raid/md_k.h
-patching file include/linux/raid/md_p.h
-patching file include/linux/raid/md_u.h
-patching file include/linux/raid/raid0.h
-patching file include/linux/raid/raid1.h
-patching file include/linux/raid/raid5.h
-patching file include/linux/raid/translucent.h
-patching file include/linux/raid/xor.h
-patching file include/linux/blkdev.h
-Hunk #1 succeeded at 91 (offset -2 lines).
-patching file include/linux/fs.h
-Hunk #2 succeeded at 781 (offset 9 lines).
-Hunk #4 succeeded at 828 (offset 9 lines).
-Hunk #6 succeeded at 938 (offset 9 lines).
-patching file include/linux/md.h
-patching file include/linux/raid0.h
-patching file include/linux/raid1.h
-patching file include/linux/raid5.h
-patching file include/linux/sysctl.h
-Hunk #1 succeeded at 433 (offset 2 lines).
-patching file include/asm-i386/md.h
-patching file include/asm-alpha/md.h
-patching file include/asm-m68k/md.h
-patching file include/asm-sparc/md.h
-patching file include/asm-ppc/md.h
-patching file include/asm-sparc64/md.h
-patching file drivers/block/Config.in
-patching file drivers/block/Makefile
-patching file drivers/block/genhd.c
-patching file drivers/block/hsm.c
-patching file drivers/block/linear.c
-patching file drivers/block/linear.h
-patching file drivers/block/ll_rw_blk.c
-Hunk #3 succeeded at 589 (offset -68 lines).
-Hunk #4 succeeded at 908 (offset -2 lines).
-Hunk #5 succeeded at 862 (offset -68 lines).
-patching file drivers/block/md.c
-patching file drivers/block/raid0.c
-patching file drivers/block/raid1.c
-Hunk #7 FAILED at 146.
-Hunk #10 FAILED at 287.
-2 out of 15 hunks FAILED -- saving rejects to file
-drivers/block/raid1.c.rej
-patching file drivers/block/raid5.c
-patching file drivers/block/translucent.c
-patching file drivers/block/xor.c
-patching file arch/i386/defconfig
-patching file arch/sparc/config.in
-patching file arch/sparc/defconfig
-Hunk #1 succeeded at 88 with fuzz 2.
-patching file arch/sparc64/config.in
-patching file arch/sparc64/defconfig
-Hunk #1 succeeded at 107 with fuzz 2 (offset 1 line).
-patching file Documentation/Configure.help
-Hunk #1 succeeded at 1017 (offset 44 lines).
-patching file Makefile
-Hunk #1 FAILED at 1.
-1 out of 1 hunk FAILED -- saving rejects to file Makefile.rej
+> I modprobed the following to get things up and running, (all your pkg)
+> pcmcia_core, i82365, and ds.  Then ran cardmgr.  All was well.  Now when I
+> load i82365, it yields the pci irq failure and the irq type is changed.
+> 
+> 2nd sentc: What changed in the last two-three weeks?  I notice that the
+> current pcmcia (yours) code loads a new module called pci_fixup.
 
+There is no module called pci_fixup.  There is an object file called
+pci_fixup that is linked into pcmcia_core.  This has been there since
+PCMCIA release 3.1.11.
 
-Best regards,
+> Intel PCIC probe: <4>PCI: No IRQ known for interrupt pin A of device 00:03.0.
+> PCI: No IRQ known for interrupt pin B of device 00:03.1.
 
-Dan Browning
-Network/DB Admin
-Cyclone Computer Systems
+This is a PCI subsystem issue; the PCMCIA code asks the PCI subsystem
+to activate the bridge device and isn't working.
 
+>   Ricoh RL5C478 rev 03 PCI-to-CardBus at slot 00:03, mem 0x10000000
+>     host opts [0]: [isa irq] [io 3/6/1] [mem 3/6/1] [no pci irq] [lat
+> 168/176] [bus 2/5]
+>     host opts [1]: [serial irq] [io 3/6/1] [mem 3/6/1] [no pci irq] [lat
+> 168/176] [bus 6/9]
+>     ISA irqs (default) = 3,4,7,11 polling interval = 1000 ms
+> 
+> Previous output was:
+>   Ricoh RL5C478 rev 03 PCI-to-CardBus at slot 00:03, mem 0x10000000
+>     host opts [0]: [serial irq] [io 3/6/1] [mem 3/6/1] [no pci irq] [lat
+> 168/176] [bus 2/5]
+>     host opts [1]: [serial irq] [io 3/6/1] [mem 3/6/1] [no pci irq] [lat
+> 168/176] [bus 6/9]
+>     ISA irqs (default) = 3,4,7,11 polling interval = 1000 ms
+> 
+> Notice the change from serial irq to isa irq.
+
+This is odd.  I don't have an explanation for this, especially without
+knowing what PCMCIA driver releases were involved.  Unless you specify
+otherwise, the i82365 driver just reports the bridge settings that it
+finds; it won't change the interrupt delivery mode unless told to do
+so.  So something else has caused your two sockets to be set up in
+different ways; there isn't any way to tell the i82365 module to do
+that.
+
+-- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

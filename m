@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289862AbSAWXEl>; Wed, 23 Jan 2002 18:04:41 -0500
+	id <S289970AbSAWXGL>; Wed, 23 Jan 2002 18:06:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290184AbSAWXEb>; Wed, 23 Jan 2002 18:04:31 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:6224 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S289970AbSAWXEW>; Wed, 23 Jan 2002 18:04:22 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-Organization: LISA GmbH
-To: Denis Oliver Kropp <dok@directfb.org>
-Subject: Re: [PATCH] NeoMagic Framebuffer Driver
-Date: Thu, 24 Jan 2002 00:04:19 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020110161922.GA27357@skunk.convergence.de> <20020123114357.A29331@wierzbowski.devel.redhat.com> <20020123165741.GA30860@skunk.convergence.de>
-In-Reply-To: <20020123165741.GA30860@skunk.convergence.de>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020123230419.CA8731472@shrek.lisa.de>
+	id <S290184AbSAWXGB>; Wed, 23 Jan 2002 18:06:01 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:6149 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S289970AbSAWXFq>;
+	Wed, 23 Jan 2002 18:05:46 -0500
+Date: Wed, 23 Jan 2002 15:00:47 -0800
+From: Greg KH <greg@kroah.com>
+To: Vojtech Pavlik <vojtech@ucw.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: depmod problem for 2.5.2-dj4
+Message-ID: <20020123230047.GF15259@kroah.com>
+In-Reply-To: <1011744752.2440.0.camel@shire.arnor.net> <20020123045405.GA12060@kroah.com> <20020123094414.D5170@suse.cz> <20020123212435.GB15259@kroah.com> <20020123222251.GE15259@kroah.com> <20020123234714.A7536@suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020123234714.A7536@suse.cz>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 26 Dec 2001 18:49:38 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 23. January 2002 17:57, Denis Oliver Kropp wrote:
-> Quoting Bill Nottingham (notting@redhat.com):
-> > Denis Oliver Kropp (dok@directfb.org) said:
-> > > this version has a MODULE_LICENSE, applies fine to linux-2.4.18-pre6.
-> >
-> > This seems to react rather badly when loaded from within X; I managed
-> > to lock the machine trying to switch VCs after doing so (for example,
-> > when I tried with matroxfb, it only screwed up the display.)
->
-> The Matrox graphics cards are quite resistant when being programmed
-> by two drivers simultaneously.
+On Wed, Jan 23, 2002 at 11:47:14PM +0100, Vojtech Pavlik wrote:
+> 
+> Yes, this is perfect. *shiver* I can't believe I made the code so leaky.
+> Sorry for that, it's a copy-paste problem.
+> Thanks for fixing it.
 
-I'm quite happy since the latest 2.4.1* and X 4.1.0, switching between 
-console framebuffers and X with my MGA G450, it didn't result in a color 
-screw anymore, although it worked somehow before...
+No problem, I'll send it out in my next round of patches.
 
-> > Yes, I know this falls into the 'don't *DO* that' category. :)
-
-> Definitely ;)
-
-No, but if you did, your eyes bled category :)
-
-A small glitch remains: 1 of 4 X(dm) (re)starts the screen is 3 cm 
-discentered. Switching back and forth fixes it always. 
-
-Cheers,
-  Hans-Peter
+greg k-h

@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTDIDN7 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 23:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTDIDN6 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 23:13:58 -0400
-Received: from dp.samba.org ([66.70.73.150]:24231 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262001AbTDIDN6 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 23:13:58 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: SET_MODULE_OWNER? 
-Cc: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, hch@infradead.org,
-       Kai Germaschewski <kai.germaschewski@gmx.de>, sfr@canb.auug.org.au,
-       "Nemosoft Unv." <nemosoft@smcc.demon.nl>, davem@redhat.com
-In-reply-to: Your message of "Tue, 08 Apr 2003 21:03:00 -0400."
-             <3E937144.9090105@pobox.com> 
-Date: Wed, 09 Apr 2003 13:23:33 +1000
-Message-Id: <20030409032537.547E32C06F@lists.samba.org>
+	id S262005AbTDIDUk (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 23:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTDIDUk (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 23:20:40 -0400
+Received: from [12.47.58.221] ([12.47.58.221]:64777 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262005AbTDIDUk (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 23:20:40 -0400
+Date: Tue, 8 Apr 2003 20:32:35 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: opost_block sleeping in illegal context.
+Message-Id: <20030408203235.60103051.akpm@digeo.com>
+In-Reply-To: <20030409011212.GB25834@suse.de>
+References: <20030409011212.GB25834@suse.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Apr 2003 03:32:13.0830 (UTC) FILETIME=[9C9B0260:01C2FE48]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3E937144.9090105@pobox.com> you write:
-> Why don't you just let the maintainers apply the driver "cleanups" if 
-> they wish, or do not wish, like DaveM did.  Only when that is 
-> accomplished is it reasonable to consider moving SET_MODULE_OWNER -- and 
-> only then if other people do not need it's obvious utility.
+Dave Jones <davej@codemonkey.org.uk> wrote:
+>
+> Not seen this one before.. 2.5.67
+> 
+> 		Dave
+> 
+> 
+> Debug: sleeping function called from illegal context at include/linux/rwsem.h:43
+> Call Trace:
+>  [<c0120d61>] __might_sleep+0x61/0x80
+>  [<c011c3af>] do_page_fault+0x19f/0x4e4
+>  [<c013104b>] specific_send_sig_info+0xeb/0x160
+>  [<c03291f5>] opost_block+0xf5/0x1c0
+>  [<c011c66d>] do_page_fault+0x45d/0x4e4
+>  [<c011c210>] do_page_fault+0x0/0x4e4
+>  [<c010b41d>] error_code+0x2d/0x40
+>  [<c02e66d6>] __copy_to_user_ll+0x26/0x50
+>  [<c010e967>] save_v86_state+0x1a7/0x1c0
+>  [<c011c210>] do_page_fault+0x0/0x4e4
+>  [<c010a4b6>] work_notifysig_v86+0x6/0x20
+>  [<c010a457>] syscall_call+0x7/0xb
 
-The please define when it should and should not be used, so everyone
-knows.
+No, this isn't opost_block().  It's the vm86 stuff, but I can't see why.
 
-Currently it seems to be:
+Is do_page_fault+0x19f/0x4e4 a down_read()?  Which one?
 
-/* This macro should be used on structures which had the owner field
-   added between 2.2 and 2.4, and not others. */
-
-Is that correct?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+If it's repeatable, please change __might_sleep() to display preempt_count()
+and irqs_disabled().

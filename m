@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbVCSFP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVCSFz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262417AbVCSFP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 00:15:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbVCSFP0
+	id S262410AbVCSFz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 00:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbVCSFz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 00:15:26 -0500
-Received: from lyle.provo.novell.com ([137.65.81.174]:59484 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S262412AbVCSFPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 00:15:01 -0500
-Date: Fri, 18 Mar 2005 21:14:46 -0800
-From: Greg KH <gregkh@suse.de>
-To: Rajesh Shah <rajesh.shah@intel.com>
-Cc: tony.luck@intel.com, len.brown@intel.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [patch 07/12] Make the PCI remove routines safe for failed hot-plug
-Message-ID: <20050319051446.GD21485@suse.de>
-References: <20050318133856.A878@unix-os.sc.intel.com> <20050318141143.G1145@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050318141143.G1145@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.8i
+	Sat, 19 Mar 2005 00:55:29 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:14667 "EHLO
+	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262410AbVCSFzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 00:55:21 -0500
+Date: Fri, 18 Mar 2005 23:53:56 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: PROBLEM: Buffer I/O error on device hdg1, system freeze.
+In-reply-to: <3JuoL-3Mm-3@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <423BBE74.1060902@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3JrTL-1C4-23@gated-at.bofh.it> <3JtCc-35h-21@gated-at.bofh.it>
+ <3JuoL-3Mm-3@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 02:11:44PM -0800, Rajesh Shah wrote:
-> diff -puN drivers/pci/remove.c~pci-remove-device-hotplug-safe drivers/pci/remove.c
-> --- linux-2.6.11-mm4-iohp/drivers/pci/remove.c~pci-remove-device-hotplug-safe	2005-03-16 13:07:22.667319764 -0800
-> +++ linux-2.6.11-mm4-iohp-rshah1/drivers/pci/remove.c	2005-03-16 13:07:22.775718200 -0800
-> @@ -26,17 +26,21 @@ static void pci_free_resources(struct pc
->  
->  static void pci_destroy_dev(struct pci_dev *dev)
->  {
-> -	pci_proc_detach_device(dev);
-> -	pci_remove_sysfs_dev_files(dev);
-> -	device_unregister(&dev->dev);
-> +	if (!list_empty(&dev->global_list)) {
-> +		pci_proc_detach_device(dev);
-> +		pci_remove_sysfs_dev_files(dev);
-> +		device_unregister(&dev->dev);
-> +		spin_lock(&pci_bus_lock);
-> +		list_del(&dev->global_list);
-> +		dev->global_list.next = dev->global_list.prev = NULL;
-> +		spin_unlock(&pci_bus_lock);
-> +	}
->  
->  	/* Remove the device from the device lists, and prevent any further
->  	 * list accesses from this device */
->  	spin_lock(&pci_bus_lock);
->  	list_del(&dev->bus_list);
-> -	list_del(&dev->global_list);
->  	dev->bus_list.next = dev->bus_list.prev = NULL;
-> -	dev->global_list.next = dev->global_list.prev = NULL;
->  	spin_unlock(&pci_bus_lock);
->  
->  	pci_free_resources(dev);
+Nils Radtke wrote:
+> Error 14 occurred at disk power-on lifetime: 2249 hours (93 days + 17
+> hours)
+>   When the command that caused the error occurred, the device was doing
+> SMART Offline or Self-test.
+> 
+>   After command completion occurred, registers were:
+>   ER ST SC SN CL CH DH
+>   -- -- -- -- -- -- --
+>   40 51 f8 23 3e 56 e0  Error: UNC at LBA = 0x00563e23 = 5652003
+> 
+>   Commands leading to the command that caused the error were:
+>   CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+>   -- -- -- -- -- -- -- --  ----------------  --------------------
+>   24 00 f8 07 3e 56 10 00      00:36:28.850  READ SECTOR(S) EXT
+>   25 00 00 ff 3d 56 10 00      00:36:28.850  READ DMA EXT
+>   25 00 00 ff 3c 56 10 00      00:36:28.850  READ DMA EXT
+>   25 00 00 ff 3b 56 10 00      00:36:28.850  READ DMA EXT
+>   25 00 00 ff 3a 56 10 00      00:36:28.850  READ DMA EXT
+> 
+> 
+> Could you please explain what these errors mean exactly and what may
+> have caused them?
+> 
+> Might it be possible that these transmission/xxx errors be caused 
+> by a bad card and/or driver?
+> 
+> I'm asking this as the disk never showed errors on onboard IDE ports.
+> 
+>         Nils
+> 
 
-I did have a comment about this code at first glance, but in reviewing
-it again, nevermind, it looks fine...
+This error is reported by the drive itself, indicating uncorrectable 
+errors when attempting to read data from the media. It is quite unlikely 
+that the controller or driver is responsible for this sort of error, as 
+can occasionally be the case for DMA timeout errors. Almost certainly 
+the hard drive is failing.
 
-thanks,
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-greg k-h

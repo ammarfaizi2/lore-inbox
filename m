@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262589AbREZEZ0>; Sat, 26 May 2001 00:25:26 -0400
+	id <S262593AbREZEc1>; Sat, 26 May 2001 00:32:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262593AbREZEZQ>; Sat, 26 May 2001 00:25:16 -0400
-Received: from mail.alphalink.com.au ([203.24.205.7]:13632 "EHLO
-	mail.alphalink.com.au") by vger.kernel.org with ESMTP
-	id <S262589AbREZEZF>; Sat, 26 May 2001 00:25:05 -0400
-Message-ID: <3B0F3268.A671BC7A@pocketpenguins.com>
-Date: Sat, 26 May 2001 14:34:48 +1000
-From: Greg Banks <gbanks@pocketpenguins.com>
-Organization: Pocket Penguins Inc
-X-Mailer: Mozilla 4.07 [en] (X11; I; Linux 2.2.1 i586)
+	id <S262594AbREZEcR>; Sat, 26 May 2001 00:32:17 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:60945 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S262593AbREZEcD>;
+	Sat, 26 May 2001 00:32:03 -0400
+Date: Sat, 26 May 2001 01:31:51 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Ben LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.5
+In-Reply-To: <Pine.LNX.4.21.0105252107010.1520-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105260129390.30264-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Configure.help entries wanted
-In-Reply-To: <20010525012200.A5259@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond wrote:
+On Fri, 25 May 2001, Linus Torvalds wrote:
+
+> This is why we always leave a few pages free, exactly to allow nested
+> page allocators to steal the reserved pages that we keep around. If
+> that deadlocks, then that's a separate issue altogether.
 > 
-> CONFIG_SH_SCI
-> CONFIG_SH_STANDARD_BIOS
-> CONFIG_DEBUG_KERNEL_WITH_GDB_STUB
+> If people are able to trigger the "we run out of reserved pages"
+> behaviour under any load, that indicates that we either have too few
+> reserved pages per zone, or that we have a real thinko somewhere that
+> allows eating up the reserves we're supposed to have.
 
-  From the LinuxSH CVS (I can write new ones if these are inadequate):
+This is exactly what gets fixed in the patch I sent you.
+Feel free to reimplement it in a complex way if you want ;)
 
-SuperH SCI (serial) support
-CONFIG_SH_SCI
-  Selecting this option will allow the Linux kernel to transfer
-  data over SCI (Serial Communication Interface) and/or SCIF
-  which are built into the Hitachi SuperH processor.
+> But sometimes the right solution is just to have more reserves.
 
-  If in doubt, press "y".
+Won't work if the ethernet card is allocating memory
+at gigabit speed. And no, my patch won't protect against
+this thing either, only memory reservations can.
 
-Use LinuxSH standard BIOS
-CONFIG_SH_STANDARD_BIOS
-  Say Y here if your target has the gdb-sh-stub package from
-  www.m17n.org (or any conforming standard LinuxSH BIOS) in FLASH
-  or EPROM.  The kernel will use standard BIOS calls during boot
-  for various housekeeping tasks.  Note this does not work with
-  WindowsCE machines.  If unsure, say N.
+All my patch does is give us a 2.4 kernel now which
+doesn't hang immediately as soon as you run on highmem
+machines with a heavy swapping load.
 
-GDB Stub kernel debug
-CONFIG_DEBUG_KERNEL_WITH_GDB_STUB
-  If you say Y here, it will be possible to remotely debug the SuperH
-  kernel using gdb, if you have the gdb-sh-stub package from
-  www.m17n.org (or any conforming standard LinuxSH BIOS) in FLASH or
-  EPROM.  This enlarges your kernel image disk size by several megabytes
-  but allows you to load, run and debug the kernel image remotely using
-  gdb.  This is only useful for kernel hackers.  If unsure, say N.
+regards,
 
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-Greg.
--- 
-These are my opinions not PPIs.
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

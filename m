@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUF3V70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUF3WYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbUF3V70 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 17:59:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbUF3V7Z
+	id S263024AbUF3WYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 18:24:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUF3WYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 17:59:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57748 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263003AbUF3V7Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 17:59:24 -0400
-Date: Wed, 30 Jun 2004 14:55:06 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Joshua <jhudson@cyberspace.org>
-Cc: miller@techsource.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore floppy boot image
-Message-Id: <20040630145506.46d3af16.rddunlap@osdl.org>
-In-Reply-To: <Pine.SUN.3.96.1040630174704.20503A-100000@grex.cyberspace.org>
-References: <40E3319D.3050100@techsource.com>
-	<Pine.SUN.3.96.1040630174704.20503A-100000@grex.cyberspace.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Wed, 30 Jun 2004 18:24:25 -0400
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:54178 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S263024AbUF3WYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 18:24:24 -0400
+Date: Thu, 1 Jul 2004 00:24:01 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Multisession CD incompatibility 2.4 <-> 2.6?
+Message-ID: <20040630222400.GA3843@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jun 2004 17:52:30 -0400 (EDT) Joshua wrote:
+Hi,
 
-| Thanks for the time in reading the patch.
-| 
-| Hmm. pop %ax after the jmp is a clear bug. Must have been a zero
-| on the stack when I tested it. <g>
-| 
-| For the clobbering of al just before kernel entry, that is badly arranged
-| code although it doesn't matter (mov $0, %al turns out to be no-op).
+I recently got a CD back from a photo lab with Fuji Frontier minilabs.
+It had five films scanned and written in one film per session. Linux
+2.4.27-mumble shows all the data of the CD right away, Linux 2.6.7
+required mount -o session=4 for me to see all directories, without that
+option, I'd only see the oldest session.
 
-No-op should be some form/variant of xchg %ax,%ax 
-(not mov to %al -- the latter needs to do something.)
+Has anyone else observed such behaviour?
 
-| I'll fix the bugs if anybody still wants the patch.
-| I'll fix it anyway for myself <g>.
+-- 
+Matthias Andree
 
---
-~Randy
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)

@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262543AbREZCjQ>; Fri, 25 May 2001 22:39:16 -0400
+	id <S262550AbREZCl0>; Fri, 25 May 2001 22:41:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262550AbREZCjG>; Fri, 25 May 2001 22:39:06 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:5738
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S262543AbREZCi6>; Fri, 25 May 2001 22:38:58 -0400
-Date: Fri, 25 May 2001 19:38:56 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: lm@bitmover.com, aaronl@vitelus.com, acahalan@cs.uml.edu,
-        dledford@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
-Message-ID: <20010525193856.B27975@work.bitmover.com>
-Mail-Followup-To: "Adam J. Richter" <adam@yggdrasil.com>, lm@bitmover.com,
-	aaronl@vitelus.com, acahalan@cs.uml.edu, dledford@redhat.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200105260234.TAA15586@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200105260234.TAA15586@baldur.yggdrasil.com>; from adam@yggdrasil.com on Fri, May 25, 2001 at 07:34:57PM -0700
+	id <S262552AbREZClQ>; Fri, 25 May 2001 22:41:16 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:45677 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S262550AbREZClK>; Fri, 25 May 2001 22:41:10 -0400
+Date: Fri, 25 May 2001 22:40:52 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: [with-PATCH-really] highmem deadlock removal, balancing & cleanup
+In-Reply-To: <20010526042623.Q9634@athlon.random>
+Message-ID: <Pine.LNX.4.33.0105252229110.3806-100000@toomuch.toronto.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 25, 2001 at 07:34:57PM -0700, Adam J. Richter wrote:
-> 	Contracts for slavery are specifically not enforceable due to
-> the 13th Amendment, and there is also a stronger question of formation
+On Sat, 26 May 2001, Andrea Arcangeli wrote:
 
-Completely misses the point.  THe point isn't about slavery, come on, Adam,
-it's about putting unenforceable things into contracts.
+> It does, but only for the create_bounces. As said if you want to "fix",
+> not to "hide" you need to address every single case, a generic reserved
+> pool is just useless. Now try to get a dealdock in 2.4.5 with tasks
+> locked up in create_bounces() if you say it does not protect against
+> irqs. see?
 
-It's also about the concept of boundaries - if you think that that 
-concept is not a legal one then why aren't all programs which are run
-on top of a GPLed kernel then GPLed?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+So?  It just deadlocks in create_buffers/alloc_pages.  We finished
+debugging that weeks ago, and I'm not interested in repeating that.
+
+> What I said is that instead of handling the pool by hand in every single
+> place one could write an API to generalize it, but very often a simple
+> API hooked into the page allocator may not be flexible enough to
+> guarantee the kind of allocations we need, highmem is just one example
+> where we need more flexibility not just for the pages but also for the
+> bh (but ok that's mostly an implementation issue, if you do the math
+> right, it's harder but you can still use a generic API).
+
+Well, this is the infrastructure for guaranteeing atomic allocations.  The
+only beautifying it really needs is in adding an alloc_pages variant that
+takes the reservation pool as a parameter instead of the current mucking
+with current->page_reservation.
+
+> > Re-read the above and reconsider.  The reservation doesn't need to be
+> > permitted until after page_alloc has blocked.  Heck, do a schedule before
+>
+> I don't see what you mean here, could you elaborate?
+
+I simply meant that the reservation code wasn't bent on providing atomic
+allocations for non-atomic allocators.  IIRC, I hooked into __alloc_pages
+after the normal mechanism of allocating pages failed, but where it may
+have already slept, but I think that was part of the other patch I posted
+in the last email.  Our tree contains a lot of patches, and some of the
+effects like this are built on top of each other, so I'm not surprised
+that a critical piece like that was missing.
+
+		-ben
+

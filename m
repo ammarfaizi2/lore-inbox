@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263752AbUDWBYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264263AbUDWBsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263752AbUDWBYY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 21:24:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUDWBYY
+	id S264263AbUDWBsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 21:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264347AbUDWBsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 21:24:24 -0400
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:39696 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S263752AbUDWBYX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 21:24:23 -0400
-Content-class: urn:content-classes:message
+	Thu, 22 Apr 2004 21:48:15 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:48216 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264263AbUDWBsP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 21:48:15 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Graphics Mode Woes
+Date: Thu, 22 Apr 2004 20:48:12 -0500
+User-Agent: KMail/1.6.1
+Cc: "Bobby Hitt" <Bob.Hitt@bscnet.com>
+References: <01b801c428cb$737005d0$0900a8c0@bobhitt>
+In-Reply-To: <01b801c428cb$737005d0$0900a8c0@bobhitt>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Subject: RE: IO-APIC on nforce2 [PATCH]
-Date: Thu, 22 Apr 2004 18:23:34 -0700
-Message-ID: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FBD4@mail-sc-6-bk.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: IO-APIC on nforce2 [PATCH]
-Thread-Index: AcQobPLpOC7syq6yQMSsQ8SM+tl3jQAZFWkg
-From: "Allen Martin" <AMartin@nvidia.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       "Len Brown" <len.brown@intel.com>
-Cc: "Jamie Lokier" <jamie@shareable.org>, <ross@datscreative.com.au>,
-       =?iso-8859-1?Q?Christian_Kr=F6ner?= 
-	<christian.kroener@tu-harburg.de>,
-       "Linux-Nforce-Bugs" <Linux-Nforce-Bugs@exchange.nvidia.com>,
-       <linux-kernel@vger.kernel.org>
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404222048.12839.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Allen, is there a possibility to get a clarification from 
-> Nvidia on that?  
-> Specifically, assuming both an 8254 and an I/O APIC core are 
-> integrated
-> into the chip, whether OUT0 of the 8254 is unconditionally routed to
-> INTIN0 of the I/O APIC or is it configurable somehow.
+On Thursday 22 April 2004 07:39 pm, Bobby Hitt wrote:
 
-The 8254 PIT is hardwared to IRQ0 on all nForce chipsets, it can't be routed.
+> CONFIG_FB_VGA16=y
+> CONFIG_FB_VESA=y
+> CONFIG_VIDEO_SELECT=y
+> # CONFIG_FB_HGA is not set
+> CONFIG_FB_RIVA=y
+^^^^^^^^^^^^^^^^^^^^
 
--Allen
+If you want vesa framebuffer why even select rivabf (NVidia)?
+
+-- 
+Dmitry

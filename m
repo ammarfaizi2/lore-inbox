@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbQLKV0t>; Mon, 11 Dec 2000 16:26:49 -0500
+	id <S129387AbQLKVoR>; Mon, 11 Dec 2000 16:44:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130307AbQLKV0j>; Mon, 11 Dec 2000 16:26:39 -0500
-Received: from jabberwock.ucw.cz ([62.168.0.131]:57092 "EHLO jabberwock.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129383AbQLKV01>;
-	Mon, 11 Dec 2000 16:26:27 -0500
-Date: Mon, 11 Dec 2000 21:55:51 +0100
-From: Martin Mares <mj@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Matthew Galgoci <mgalgoci@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: cardbus pirq conflict
-Message-ID: <20001211215551.B390@albireo.ucw.cz>
-In-Reply-To: <20001211150323.C16986@redhat.com> <Pine.LNX.4.10.10012111225010.1458-100000@penguin.transmeta.com>
+	id <S129614AbQLKVoH>; Mon, 11 Dec 2000 16:44:07 -0500
+Received: from smtp-fwd.valinux.com ([198.186.202.196]:29197 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129387AbQLKVnz>;
+	Mon, 11 Dec 2000 16:43:55 -0500
+Date: Mon, 11 Dec 2000 13:14:54 -0800
+From: David Hinds <dhinds@valinux.com>
+To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+Cc: Linus Torvalds <torvalds@transmeta.com>, rgooch@ras.ucalgary.ca,
+        jgarzik@mandrakesoft.mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: Re: Serial cardbus code.... for testing, please.....
+Message-ID: <20001211131454.B31098@valinux.com>
+In-Reply-To: <Pine.LNX.4.10.10012081319010.11626-100000@penguin.transmeta.com> <200012090541.AAA17863@tsx-prime.MIT.EDU>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10012111225010.1458-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Dec 11, 2000 at 12:30:59PM -0800
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <200012090541.AAA17863@tsx-prime.MIT.EDU>; from Theodore Y. Ts'o on Sat, Dec 09, 2000 at 12:41:24AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus!
+On Sat, Dec 09, 2000 at 12:41:24AM -0500, Theodore Y. Ts'o wrote:
+> 
+> There was is usual with these sorts of things, multiple problems I was
+> dealing with.  The first was that I was trying to use cardmgr, and my
+> pcmcia config file was still trying to load epic_cb.  Oops.  David, you
+> might want to mention of this caveat in the README-2.4 file in the
+> pcmcia-cs package.
 
-> My tentative fix for this would be to make Linux never assign bus #1 or #2
-> to a cardbus bridge, and start cardbus bridges at bus #8 or something like
-> that.  That way we'd still catch any strangeness in the pirq table, but we
-> wouldn't get the message for this case which seems to be very common.
+I'm aware of the problem but I'm not actually sure what to present as
+the appropriate solution yet; in the new scheme, cardmgr should just
+ignore these cards and not load any module at all (as /sbin/hotplug 
+should do that).  But I haven't decided how cardmgr will deduce that.
 
-Agreed.
+By the way, in my hands, PCMCIA serial cards do work ok with the 2.4
+PCMCIA modules as of test12-pre7.  So I'm not sure what's going on in
+Ted's situation, if the non-kernel PCMCIA is working: there should
+not be much different for 16-bit cards.  I do seem to have some new
+problems with Cardbus cards that I wasn't having with earlier 2.4
+releases but I haven't made any attempt to figure that out yet.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
-CChheecckk yyoouurr dduupplleexx sswwiittcchh..
+-- Dave
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

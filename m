@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267194AbSK3AhF>; Fri, 29 Nov 2002 19:37:05 -0500
+	id <S267202AbSK3Aj5>; Fri, 29 Nov 2002 19:39:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267195AbSK3AhF>; Fri, 29 Nov 2002 19:37:05 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:34176 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S267194AbSK3AhE>; Fri, 29 Nov 2002 19:37:04 -0500
-Date: Sat, 30 Nov 2002 11:44:13 +1100
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.50 / compiling with frame pointers doesn't
-Message-ID: <20021130004413.GB3831@zip.com.au>
-Mime-Version: 1.0
+	id <S267203AbSK3Aj5>; Fri, 29 Nov 2002 19:39:57 -0500
+Received: from s2.org ([195.197.64.39]:25063 "EHLO kalahari.s2.org")
+	by vger.kernel.org with ESMTP id <S267202AbSK3Aj4>;
+	Fri, 29 Nov 2002 19:39:56 -0500
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-ac1
+References: <200211292324.gATNOQO26672@devserv.devel.redhat.com>
+From: Jarno Paananen <jpaana@s2.org>
+Date: Sat, 30 Nov 2002 02:47:16 +0200
+In-Reply-To: <200211292324.gATNOQO26672@devserv.devel.redhat.com> (Alan
+ Cox's message of "Fri, 29 Nov 2002 18:24:26 -0500 (EST)")
+Message-ID: <m3d6onx4rv.fsf@kalahari.s2.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Military
+ Intelligence, i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As near as I can tell, compiling with frame pointers turned on doesn't
-do anything. I had a quick look around in the Makefiles and found that
-the test for CONFIG_FRAME_POINTER happens -before- the .config is
-actually loaded, thereby resulting in it never being defined and so
--fomit-frame-pointer is always included.
+Alan Cox <alan@redhat.com> writes:
 
-Now I'm not too sure as the whole Makefile structure in the linux kernel
-but the way I fixed this was by moving the test block down to be below
-.config getting loaded rather then moving the .config load section up.
-Not sure which is preferrable but here's my patch.
+> Linux 2.4.20-ac1
+> o	VIA KT400 AGP support				(Nicolas Mailhot)
 
---- Makefile.old	Sat Nov 30 11:43:08 2002
-+++ Makefile	Thu Nov 28 22:56:02 2002
-@@ -169,9 +169,6 @@
- CPPFLAGS	:= -D__KERNEL__ -Iinclude
- CFLAGS 		:= $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
- 	  	   -fno-strict-aliasing -fno-common
--ifndef CONFIG_FRAME_POINTER
--CFLAGS		+= -fomit-frame-pointer
--endif
- AFLAGS		:= -D__ASSEMBLY__ $(CPPFLAGS)
- 
- export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
-@@ -221,6 +218,10 @@
- 
- -include .config
- 
-+endif
-+
-+ifndef CONFIG_FRAME_POINTER
-+CFLAGS		+= -fomit-frame-pointer
- endif
- 
- include arch/$(ARCH)/Makefile
+This doesn't seem to work on my setup, dmesg says:
 
--- 
-        All people are equal,
-        But some are more equal then others.
-            - George W. Bush Jr, President of the United States
-              September 21, 2002 (Abridged version of security speech)
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 439M
+agpgart: Detected Via Apollo Pro KT400 chipset
+agpgart: unable to determine aperture size.
+
+My machine has A7V8X motherboard with KT400 chipset and Radeon 9700
+Pro running AGP 8X with sidebanding and fast-writes in Windows XP
+so the setup itself should be ok.
+
+AGP aperture is set to 64 megs in BIOS, other settings on auto.
+
+I checked the code out a bit and the register supposed to be
+containing the aperture size contains 0x1b while the values in the
+array it is tested against are 0, 128, 192, 224, 240, 248 and 252
+(192 being 64 megs)... Could this be caused by AGP 3.0 or something
+that VIA handles differently than before? Anything else I could
+test or help get it to work?
+
+// Jarno

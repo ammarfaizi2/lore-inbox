@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129480AbQLJFaD>; Sun, 10 Dec 2000 00:30:03 -0500
+	id <S129324AbQLJF5X>; Sun, 10 Dec 2000 00:57:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129521AbQLJF3y>; Sun, 10 Dec 2000 00:29:54 -0500
-Received: from otter.mbay.net ([206.40.79.2]:27396 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S129480AbQLJF3h> convert rfc822-to-8bit;
-	Sun, 10 Dec 2000 00:29:37 -0500
-From: jalvo@mbay.net (John Alvord)
-To: David Feuer <David_Feuer@brown.edu>
-Cc: linux-kernel@vger.kernel.org
+	id <S129464AbQLJF5N>; Sun, 10 Dec 2000 00:57:13 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:12295
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129324AbQLJF46>; Sun, 10 Dec 2000 00:56:58 -0500
+Date: Sat, 9 Dec 2000 21:26:19 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ren Haddock <renec-kernel@zorro.pangea.ca>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: [Fwd: NTFS repair tools]
-Date: Sun, 10 Dec 2000 05:00:53 GMT
-Message-ID: <3a330d39.53732447@mail.mbay.net>
-In-Reply-To: <E144O4d-0003vd-00@the-village.bc.nu> <3A3066EC.3B657570@timpanogas.org> <E144O4d-0003vd-00@the-village.bc.nu> <4.3.2.7.2.20001209213353.00b8bef0@postoffice.brown.edu>
-In-Reply-To: <4.3.2.7.2.20001209213353.00b8bef0@postoffice.brown.edu>
-X-Mailer: Forte Agent 1.5/32.451
+In-Reply-To: <20001209201238.A12452@zorro.pangea.ca>
+Message-ID: <Pine.LNX.4.10.10012092114110.7455-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 09 Dec 2000 21:34:59 -0500, David Feuer
-<David_Feuer@brown.edu> wrote:
+On Sat, 9 Dec 2000, Ren Haddock wrote:
 
->At 08:12 PM 12/9/2000 -0600, Rene wrote:
->>I think part of the problem is that there are other things labeled
->>DANGEROUS that actually do work fairly reliably (offhand, I'm thinking
->>off the IDE config stuff..). Perhaps it needs to explicitely say
->>'This is broken and is gauranteed to destroy your data. Do not use it'
->>
->>The 'DANGEROUS' label seems to suggest that it -may- destroy data, which
->>leads to the 'it won't happen to me' mentality.
->
->For what it's worth, I absolutely agree with this.  I have the same 
->impression when I just see the word "dangerous".
+> I think part of the problem is that there are other things labeled 
+> DANGEROUS that actually do work fairly reliably (offhand, I'm thinking
+> off the IDE config stuff..). Perhaps it needs to explicitely say
+> 'This is broken and is gauranteed to destroy your data. Do not use it'
 
-If this was a business, and we were knowingly distributing software
-that was known to be dangerous, we would probably be risking legal
-action.
+DANGEROUS == GO_FOR_IT_DUMB_ARSE_SCREW_YOURSELF_WILDLY
 
-Why are we distributing such severely broken software? Heck, we seem
-reluctant to include reiserfs, a pretty high quality, supported file
-system. And we continue to distribute this !@#$%... There must be some
-strange agenda going on to limit the use of Linux.
+This is the intent, when I put and started the DANGEROUS settings.
+Because the volitale nature of extreme alpha code in the beginning.
+However as time passed, people did not think it had meaning, but that is
+what it orginally was defined by me.
 
-john alvord
+This is UNIX, and to quote one of HPA's signatures,
+"unix gives you enough rope to hang yourself"
+
+My personal favorite:
+	You are going to shoot yourself in the head, aim carefully!
+	How well you aim determines if you get a second chance!
+
+Cheers,
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
+
+PS: for the pc language crowd, note that I use "arse"!!!
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVC3MVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVC3MX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbVC3MVh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 07:21:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbVC3MVe
+	id S261878AbVC3MX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 07:23:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVC3MX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 07:21:34 -0500
-Received: from general.keba.co.at ([193.154.24.243]:8085 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S261849AbVC3MVZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 07:21:25 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 30 Mar 2005 07:23:27 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:49340 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261878AbVC3MXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 07:23:13 -0500
+Date: Wed, 30 Mar 2005 13:22:53 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: David Howells <dhowells@redhat.com>
+cc: "David S. Miller" <davem@davemloft.net>, Ian Molton <spyro@f2s.com>,
+       nickpiggin@yahoo.com.au, akpm@osdl.org, tony.luck@intel.com,
+       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
+In-Reply-To: <22627.1112179577@redhat.com>
+Message-ID: <Pine.LNX.4.61.0503301317370.20171@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503292223090.18131@goblin.wat.veritas.com> 
+    <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> 
+    <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com> 
+    <4243A257.8070805@yahoo.com.au> 
+    <20050325092312.4ae2bd32.davem@davemloft.net> 
+    <20050325162926.6d28448b.davem@davemloft.net> 
+    <22627.1112179577@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.11, IDE: Strange scheduling behaviour: high-pri RT process not scheduled?
-Date: Wed, 30 Mar 2005 14:21:17 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F3673231C3@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.11, IDE: Strange scheduling behaviour: high-pri RT process not scheduled?
-Thread-Index: AcU1IPK07vDtlzz1ROObvAqATFUagwAABZ+Q
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Bartlomiej Zolnierkiewicz [mailto:bzolnier@gmail.com] 
->
-> On Wed, 30 Mar 2005 13:52:05 +0200, kus Kusche Klaus 
-> <kus@keba.com> wrote:
-> > However, things break seriously when exercising the CF card 
-> in parallel
-> > (e.g. with a dd if=/dev/hda of=/dev/null):
+On Wed, 30 Mar 2005, David Howells wrote:
+> Hugh Dickins <hugh@veritas.com> wrote:
+> > On Fri, 25 Mar 2005, David S. Miller wrote:
 > > 
-> > * The rtc *interrupt handler* is delayed for up to 250 
-> *micro*seconds.
-> > This is very bad for my purpose, but easy to explain: It is 
-> roughly the
-> > time needed to transfer 512 Bytes from a CF card which can 
-> transfer 2
-> > Mbyte/sec, and obviously, the CPU blocks all interrupts 
-> while making pio
+> > [ of flush_tlb_pgtables ]
+> 
+> > > Let's make it so that the flush can be queued up
+> > > at pmd_clear() time, as that's what we really want.
+> > > 
+> > > Something like:
+> > > 
+> > > 	pmd_clear(mm, vaddr, pmdp);
+> > > 
+> > > I'll try to play with something like this later.
 > > 
-> > transfers. (Why? Is this really necessary?)
-> >  
-> > (I know because I instrumented the rtc irq handler with 
-> rdtscl(), too)
+> > Depends really on what DavidH wants there, not clear to me.
+> > I suspect Ian can live without his printk!
 > 
-> hdparm -u1 /dev/hda
-> 
-> should help
+> I could do the zapping in pmd_clear() instead, I suppose. It's just that it
+> only needs to be done once when tearing down the page tables; not for every
+> PMD.
 
-Hmmm, thanks, that sounds very reasonable, and I didn't know that flag.
+Sounds like we should leave flush_tlb_pgtables as it is
+(apart from the issue in its frv implementation that you noticed).
 
-Unfortunately, it doesn't help. The bad timings stay the same (still
-delays in the 30-300 ms range), the number of context switches stays the
-same, ...
-
-The only thing which changes is the CPU load shown by vmstat:
-* With -u0, I have 1 % user, ~50 % sys, ~50 % wa
-* With -u1, I have 1 % user, ~98 % sys, 1 % wa
-
-P.S.: Apologies for my badly formatted mails. The company forces us to
-use outlook, we may not even change the settings... 
-
-Klaus Kusche
->Entwicklung Software - Steuerung
->Software Development - Control
->
->KEBA AG
->A-4041 Linz
->Gewerbepark Urfahr
->Tel +43 / 732 / 7090-3120
->Fax +43 / 732 / 7090-8919
->E-Mail: kus@keba.com
->www.keba.com
->
+Hugh

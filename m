@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263456AbTJLLuc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 07:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbTJLLuc
+	id S263453AbTJLLvT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 07:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263454AbTJLLvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 07:50:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24022 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263456AbTJLLub (ORCPT
+	Sun, 12 Oct 2003 07:51:18 -0400
+Received: from gprs145-73.eurotel.cz ([160.218.145.73]:3968 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263453AbTJLLvM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 07:50:31 -0400
-Date: Sun, 12 Oct 2003 04:53:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] invalidate_mmap_range() misses
- remap_file_pages()-affected targets
-Message-Id: <20031012045332.4a8ac459.akpm@osdl.org>
-In-Reply-To: <20031012084842.GB765@holomorphy.com>
-References: <20031012084842.GB765@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 12 Oct 2003 07:51:12 -0400
+Date: Sun, 12 Oct 2003 13:50:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>, Patrick Mochel <mochel@osdl.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test6 APM/IDE double-suspend weirdness
+Message-ID: <20031012115057.GB378@elf.ucw.cz>
+References: <2c8a01c390a2$cee80640$5cee4ca5@DIAMONDLX60>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2c8a01c390a2$cee80640$5cee4ca5@DIAMONDLX60>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> invalidate_mmap_range(), and hence vmtruncate(), can miss its targets
->  due to remap_file_pages() disturbing the former invariant of file
->  offsets only being mapped within vmas tagged as mapping file offset
->  ranges containing them.
+Hi!
 
-I was going to just not bother about this wart.  After all, we get to write
-the standard on remap_file_pages(), and we can say "the
-truncate-causes-SIGBUS thing doesn't work".  After all, it is not very
-useful.
+[Disk is going up/down/up/down when doing apm -s].
 
-But I wonder if this effect could be used maliciously.  Say, user A has
-read-only access to user B's file, and uses that access to set up a
-nonlinear mapping thereby causing user B's truncate to not behave
-correctly.  But this example is OK, isn't it?  User A will just receive an
-anonymous page for his troubles.
+> >  > Try removing pm_send_all from apm.c
+> >
+> > Ok I tried removing all pm_send_all from apm.c.
+> > I made no difference at all.
+> 
+> I am not surprised.  2.4.20 has the same pm_send_all but does not
+> >have
 
-Can you think of any stability or security scenario which says that we
-_should_ implement the conventional truncate behaviour?
+Well, 2.4.20 does not have driver model, either.
 
+> What is the intended effect of device_suspend(3)?  Am I asking for trouble
+> by removing it?
+
+Notebook bios is expected to handle apm -s itself. But most notebooks
+get it wrong (and fail to save state of audio or something),
+device_suspend() should help that. If it works without that, thats
+fine.
+
+Try doing without syslogd.
+
+apm really should stop all processes before going to driver model, or
+spinup/spindown/spinup weirdness is well possible. Anyway, this is
+driver model, Patrick should know more.
+									Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

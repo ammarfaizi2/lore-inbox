@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUKXIwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbUKXJBM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbUKXIwi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 03:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbUKXIwi
+	id S262537AbUKXJBM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 04:01:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262554AbUKXJBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 03:52:38 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:14048 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261300AbUKXIwg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 03:52:36 -0500
-Date: Wed, 24 Nov 2004 10:55:07 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Priority Inheritance Test (Real-Time Preemption)
-Message-ID: <20041124095507.GA27705@elte.hu>
-References: <20041124080710.GA20755@elte.hu> <Pine.OSF.4.05.10411240932230.9066-100000@da410.ifa.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10411240932230.9066-100000@da410.ifa.au.dk>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 24 Nov 2004 04:01:11 -0500
+Received: from inet-tsb.toshiba.co.jp ([202.33.96.40]:55968 "EHLO
+	inet-tsb.toshiba.co.jp") by vger.kernel.org with ESMTP
+	id S262537AbUKXJBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 04:01:07 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-2022-jp"
+Content-Transfer-Encoding: 7bit
+Subject: RE: linux-2.4.28 released
+Date: Wed, 24 Nov 2004 17:57:46 +0900
+Message-ID: <BF571719A4041A478005EF3F08EA6DF062D0B5@pcsmail03.pcs.pc.ome.toshiba.co.jp>
+Thread-Topic: linux-2.4.28 released
+Thread-Index: AcTORf1Om5KXjiueTn+DtNvOdn2SeQDi041w
+From: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
+To: "Jeff Garzik" <jgarzik@pobox.com>, "Alan Cox" <alan@redhat.com>
+Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       "Marcelo Tosatti" <marcelo@hera.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>,
+       "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry for not writing you soon.
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+Jeff Garzik wrote:
 
-> Sorry. Is it allowed to send the patch as an attachment instead? That
-> is easier.
+> >>PATA and SATA (DMA doesn't work for PATA, in split-driver 
+> configuration),
+> >>and there is no split-driver to worry about.
+> >>
+> >>I think there may need to be some code to prevent the IDE 
+> driver from
+> >>claiming the legacy ISA ports.
+> > 
+> > 
+> > Its called "request_resource". If you want the resource 
+> claim it. IDE will
+> > be a good citizen.
+> 
+> That's what the quirk does.  libata still needs to find out 
+> who obtained the resource, not blindly grab it (and fail).
 
-sure, that's perfectly fine to me - i'll apply any format that applies.
+I also think so. 
 
-generally, upstream submission is much stricter, the rules can be found
-at:
-
-  http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
-
-but for -RT the number of patches isnt that high - just send anything
-that applies cleanly.
-
-	Ingo
+It may be unavoidable one that ata_piix does not work. 
+But, it is a problem that a DMA transfer does not enable by piix. 
+Don't you think so?
+--
+Haruo

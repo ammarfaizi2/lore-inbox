@@ -1,153 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267722AbTACXtQ>; Fri, 3 Jan 2003 18:49:16 -0500
+	id <S267728AbTACXy2>; Fri, 3 Jan 2003 18:54:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267723AbTACXtP>; Fri, 3 Jan 2003 18:49:15 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:40132 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S267722AbTACXtM>; Fri, 3 Jan 2003 18:49:12 -0500
-Date: Sat, 04 Jan 2003 12:56:53 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Andre Hedrick <andre@linux-ide.org>, Richard Stallman <rms@gnu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Gauntlet Set NOW!
-Message-ID: <15900000.1041638213@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.10.10301031425590.421-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10301031425590.421-100000@master.linux-ide.org>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+	id <S267730AbTACXy2>; Fri, 3 Jan 2003 18:54:28 -0500
+Received: from smtp-101.noc.nerim.net ([62.4.17.101]:15109 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id <S267728AbTACXyX>; Fri, 3 Jan 2003 18:54:23 -0500
+Message-ID: <3E1624AD.7000805@inet6.fr>
+Date: Sat, 04 Jan 2003 01:02:53 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Ranjeet Shetye <ranjeet.shetye@zultys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+References: <005001c2b374$d4f88430$0100a8c0@zultys.com>
+In-Reply-To: <005001c2b374$d4f88430$0100a8c0@zultys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hear hear!
+Ranjeet Shetye wrote:
 
-RMS, I've heckled you in person on this subject, so now I'm going to do it 
-online too.
-
-One aspect of freedom you carefully ignore is that of the writers of code 
-to do what they will with it.  Now, in general I and my company do place 
-our code under whichever free license makes sense for the particular 
-project, as a matter of principle.  So we have produced code under GPL 
-(linux kernel and emacs variants), BSD licenses (network protocols, BSD 
-kernel, python libraries), patches to both python and perl under their own 
-licenses, and even MPL code with the 'original developer' rights 
-deliberately given to another company to maintain and distribute.  We are 
-not hostile to free software, but neither are we to the right of original 
-authors to make their own decisions.
-
-But sometimes we can't make things free, either because it comes to close 
-to core IP which we are legally bound to protect, or because it's a derived 
-work of something we bought and don't ourselves have the right to 
-redistribute.  Often this is hardware support code, sometimes it compiles 
-into hardware (embedded FPGAs).  Even so, if we can we make it open-source, 
-closed-distribution (in other words, to get the code you must have bought 
-the license to the original IP).  This preserves as much freedom as we 
-ourselves have been given the option to.
-
-Linus has made it quite clear in the past that his position on binary 
-modules is that they are explicitly allowed, but that the maintainers of 
-such a thing 'get everything they deserve' in terms of maintenance hassle. 
-Which is fair enough, the developers of the GPL kernel don't need the 
-hassle of maintaining APIs to the degree that would guarantee backwards 
-compatibility for pure binary modules.  To keep the kernel as good as it is 
-and continue improving it, that is necessary.
-
-To explicitly allow binary modules implies that the module loading process 
-is not linking in the terms of the GPL.  The *only* grey area is the status 
-of inline functions and assembler in the hearder files, and clever 
-construction of a module's shim driver can deal with that one.
-
-Andre, what I see you doing here is exactly what NVIDIA already did, which 
-is (L)GPL the interface to the kernel and keep the core algorithms 
-proprietary.  I don't know what your constraints are, but it doesn't 
-matter, you are entitled to do that.  Even if it is simply that you want to 
-make money off the code.  I take it that it's an iSCSI target for the Linux 
-VFS or block device layer?  That would be very cool, and certainly worth 
-basing a company on.
-
-I understand from a former NVIDIA employee that NVIDIA are not able to GPL 
-the whole driver since some of it is not their code; I suspect that some of 
-the non-NVIDIA code actually belongs to Microsoft.  So they have opened it 
-up to the extent possible for them.
-
-Nowhere in any of this do I see anyone doing anything that is actually 
-wrong.  By sueing either Andre or NVIDIA, Richard, you'd be the one 
-committing the wrong, by taking away either Andre's freedom to decide on 
-his business plans, or the communities access to NVIDIAs hardware, which 
-they have provided with considerable goodwill.  And both Andre's goodwill 
-and NVIDIAs are of considerable value to the community.
-
-Neither of these are good test cases for the spirit of the GPL; the past 
-events of, for instance, vendors refusing to release source for betas of a 
-Linux distribution, are far more to the point.
-
-And a test case based on kernel binary modules would be very destructive to 
-the free software community.  First because it is likely to cause a mass 
-exodus of vendors from Linux.  Where would they go?  BSD, of course, where 
-no such issue can arise, as well as a variety of purely proprietary 
-systems.  But more importantly, it would reinforce the whole concept of 
-intellectual property in a manner that, in the end, will result in an even 
-more hostile to freedom environment.  I think it is important for the free 
-software community to remember that the freedom of all creators of ideas is 
-vitally important, and for us not to contribute to the shackles being 
-placed on music, literature, and science.  For ultimately, they are more 
-important than software alone.
-
-Andrew
-
---On Friday, January 03, 2003 15:01:51 -0800 Andre Hedrick 
-<andre@linux-ide.org> wrote:
-
+>Hi RMS,
 >
-> Richard,
->
-> I am going to sell and ship binary only models which is solely a protocol.
-> One which is in a working group and is not an offical document but will be
-> ratified soon.
->
-> I will not release the source code period.  It is not a derived work.
-> It can and will be capable of running it on other unixs as well has have a
-> version for microsoft and maybe apple.
->
-> The API and boundary will execute all kernel operations and calls outside
-> of the core protocol.  There is no hardware period.  It is pure software.
-> I am prepared to show the the source of the API callers; however, given
-> the anal nature of the review I expect.  I need a few more days to extract
-> every damn possible kernel function or caller that is even close to my
-> property.  The object generated from that file will then be linked with a
-> private closed source library, which may or may not be setup under LGPL.
->
-> This would be the Library GPL and not the updated Lesser GPL.
-> But I am not prepared to set this position yet.
->
-> Are you prepared to SUE me ?
-> Are you prepared to SUE others like me ?
-> Are you prepared to SUE every company in Silicon Valley for embedded ?
-> Are you prepared to SUE every settop box vendor ?
->
-> Either, put up or walk on this issue.
->
-> Fear, Threats, and Intimidation resulting from a willful grey zone so
-> clearly and cleverly designed by yourself is not acceptable.
->
-> Since I am in a position of loosing revenue today because of this silly
-> issue of usage of headers and not any inline code inside them, I will seek
-> counter damages if I am forced into litigation.
->
-> Regards,
->
-> Andre Hedrick
-> LAD Storage Consulting Group
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+>Saw you here and thought I'd remind you. I got under your skin quite a
+>few years back cos I wrote this perl-based cscope which I released for
+>free - with a modified BSD licence stating that no one in pakistan or no
+>person of pakistani nationality could use it and that this licence could
+>not be modified to allow pakis to use it. You might ask why I did that ?
+>Well, I am an Indian and I thought I'd just needle some pakis cos they
+>are such nincompoops. Anyways, 9/11 proved me right that pakis (+
+>saudis) suck ass big time.
 >
 
+Please reread your last sentence. An isolated event caused by the wills 
+and actions of a limited group (terrorists, terrorist backers) amongst a 
+larger group (pakistanese people as a whole including children that 
+don't even know the meaning of the word terrorist) is definitely nowhere 
+near a proof of something concerning the larger group.
+Stating otherwise to promote segregation is pure racism.
+
+>
+>Getting back to open-licence software, if you hadn't been such a
+>nitpicking ideologue, the free s/w world would have had a cscope at
+>least 2 years earlier than it did. I gave you my version of a "free"
+>licence, and you didn't like it one bit!
+>
+
+So do I if I understand the following correctly. You could call it 
+narrow-sighted but I'm very reluctent to increase the market share (and 
+by that overall influence) of software excluding people for no other 
+reason that their nationality.
+Segregating groups of people nearly always help sustain violence between 
+people. Please verify this statement on past and current conflicts.
+
+> That was the OTHER reason I did
+>it. To prove a point to you, that EVEN in a Free software world, there
+>might be some other price to be paid.
+>  
+>
+>A full-freedom software world might turn out to be a grey tasteless
+>odourless flavourless communist world.
+>
+
+As long as proprietary software is not made unlawful where's the problem ?
+You may link full-freesoftware inclination with communism if proprietary 
+software was forbiden (and competition between free software projects is 
+proved to be flawed) but I've never seen Richard state something like 
+this. If I missed something feel free to point me where to look.
+
+Free software evolves in a different way than proprietary software. This 
+is true that most innovative products come with proprietary licenses 
+now. But I'm not sure this fact comes from the license differences.
+Free software and proprietary software don't yet play on an even field. 
+There are huge inertial effects slowing Free Software market penetration 
+now. When the field will be even and some time will have passed we'll 
+know what places the two kinds will have and if the proprietary one 
+really lies in "innovative products" land.
+Until then, enjoy the ride...
+
+> Even free s/w needs competition
+>to keep it on its toes, and money is the best damned motivation for
+>normal people!
+>
+
+Depends on the amount of cash you have in the bank and your income. If 
+your current situation suits you, more won't motivate you as much as 
+something you desire and money can't buy (and there's a lot of this kind 
+out there).
+What motivates me the most now (that the cash comes in regularly) is the 
+ability to learn and interact with various people. I've not yet had 
+enough of both. Most people spend their whole life pursuing various 
+ideals, relatively few want to be the richest person on Earth...
+
+> While everyone, including me, appreciates what you've
+>achieved in the past, your intransigence over your untenable extreme
+>views on software freedom is the primary reason why you are losing
+>ground everyday with your own supporters. Think about it.
+>  
+>
+
+Richard is an idealist. He can be annoying when you have your own feet 
+on the ground but setting your goals too high isn't a bad motivation for 
+making yourself better (unless you become an extremist of course)...
+
+
+
+To come back on the Nvidia subject :
+
+Considering the top performance mainstream 3D market now (ATI vs 
+Nvidia), seeing that:
+- both ATI and Nvidia have efficient proprietary drivers for their 
+latest products (ATI ones are young and may still have problems I've not 
+heard of yet),
+- at least ATI 8500 cards have an efficient OSS driver in the works 
+indicating ATI didn't make hiding *all* specs their internal policy.
+
+Nvidia won't be an option for me and for every people that rely on my 
+advices unless they open their specs or the market reverts back to a 
+Nvidia monopol.
+
+For the record, SiS lost directly at least tens and maybe hundreds of 
+chipset sells when I was forced to tell potential customers contacting 
+me directly that racks full of 645DX based systems might have to use PIO 
+modes for all IDE transfers until SiS moved to help on sis5513.c ...
+Since then every other potential customer was directed to appropriate 
+kernel versions or kindly provided patches for their exotic 
+patched-kernel configurations (some don't even know how lucky they are 
+that I love to study new stuff)...
+
+Remember : the fittest survives...
+
+LB.
 

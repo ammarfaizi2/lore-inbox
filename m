@@ -1,96 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265998AbSLST3j>; Thu, 19 Dec 2002 14:29:39 -0500
+	id <S266091AbSLSTdw>; Thu, 19 Dec 2002 14:33:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266038AbSLST3j>; Thu, 19 Dec 2002 14:29:39 -0500
-Received: from h-64-105-34-78.SNVACAID.covad.net ([64.105.34.78]:41164 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265998AbSLST3h>; Thu, 19 Dec 2002 14:29:37 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 19 Dec 2002 11:36:10 -0800
-Message-Id: <200212191936.LAA06204@adam.yggdrasil.com>
-To: mochel@osdl.org
-Subject: RFC: bus_type and device_class merge (or partial merge)
-Cc: linux-kernel@vger.kernel.org
+	id <S266081AbSLSTdw>; Thu, 19 Dec 2002 14:33:52 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:19208 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266069AbSLSTdu>;
+	Thu, 19 Dec 2002 14:33:50 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212191952.gBJJqTb3002477@darkstar.example.net>
+Subject: Re: Dedicated kernel bug database
+To: davej@codemonkey.org.uk (Dave Jones)
+Date: Thu, 19 Dec 2002 19:52:29 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, lm@bitmover.com,
+       lm@work.bitmover.com, torvalds@transmeta.com, vonbrand@inf.utfsm.cl,
+       akpm@digeo.com
+In-Reply-To: <20021219184958.GA6837@suse.de> from "Dave Jones" at Dec 19, 2002 06:49:58 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	If there is a more specific mailing list than lkml for discussing
-the generic driver model, please feel free to redirect me.
+>  > >It could warn the user if they attach an un-decoded oops that their
+>  > >bug report isn't as useful as it could be, and if they mention a
+>  > >distribution kernel version, that it's not a tree that the developers
+>  > >will necessarily be familiar with
+>  > Perhaps a more generalized hook into bugzilla for 'validating' a bug 
+>  > report, then code specific validators for kernel work?
+> 
+> Its a nice idea, but I think it's a lot of effort to get it right,
+> when a human can look at the dump, realise its not decoded, and
+> send a request back in hardly any time at all.
 
-	I'm thinking about trying to embed struct device_class into
-struct bus_type or perhaps just eliminate the separate struct
-bus_type.  The two structures are almost identical, especially
-considering that device_class.devnum appears not to be used by
-anything.
+Somebody still has to answer it - loads of mails to LKML go unanswered
+because people are spending their time coding instead of reading the
+list, (which is good).
 
-struct bus_type {
-	char			* name;
+> I also don't trust things like this where if something goes wrong,
+> we could lose the bug report.
 
-	struct subsystem	subsys;
-	struct subsystem	drvsubsys;
-	struct subsystem	devsubsys;
-	struct list_head	devices;
-	struct list_head	drivers;
+How?  I don't see as that is more likely than with Bugzilla.  Anyway,
+loads of LKML posts get ignored, and nobody seems to worry about it :-).
 
-	int		(*match)(struct device * dev, struct device_driver * drv);
-	struct device * (*add)	(struct device * parent, char * bus_id);
-	int		(*hotplug) (struct device *dev, char **envp, 
-				    int num_envp, char *buffer, int buffer_size);
-};
+> People are also more likely to ping-pong ,argue or "how do I..."
+> with a human than they are with an automated robot.
 
-struct device_class {
-	char			* name;
-	u32			devnum;
+The idea is that the bug database does a sanity check on their bug
+report.  It still gets entered in to the database, but it would return
+something like:
 
-	struct subsystem	subsys;
-	struct subsystem	devsubsys;
-	struct subsystem	drvsubsys;
-	struct list_head	drivers;
-	struct list_head	devices;
+"
+Hi,
 
-	int	(*add_device)(struct device *);
-	void	(*remove_device)(struct device *);
-	int	(*hotplug)(struct device *dev, char **envp, 
-			   int num_envp, char *buffer, int buffer_size);
-};
+You submitted a bug to the bug database.  Please note the following:
 
+* You mentioned kernel version foobar.  This appears to be a vendor
+kernel, not an official kernel tree.  Your distribution maintainers
+might be more appropriate people to contact
 
-	At first appearance, a bus_type (PCI, USB, etc.) and a
-device_class (network devices, input, block devices), may seem like
-opposite ends of the device driver abstraction, but really I think
-these are basically the same, and, more importantly, there can be many
-layers of these interfaces, and the decision about which are bus_types
-and which are device_classes is causing unnecessary coplexity.  For
-example, SCSI defines both.  SCSI can be a hardware bus, bus it also
-needs device_class so that scsi_debug (and eventually scsi generic) can
-use the struct interface mechanism.
+* You included an undecoded oops - this is probably useless.  Please
+read the FAQ.
 
-	If you look at the five places where a struct device_class is
-actually defined in 2.5.52, you'll see that either the device_class is
-not referenced by anything else or it has no bus type.  So, there
-seems to be little use of the distinction.
+Thanks for using the bug database.  Your bug has been assigned to
+[whoever].
+"
 
-device_class variable   Referenced elsewhere?           bus_type?
+I don't see any way of making Bugzilla do all the things I described
+originally, specifically the advanced tracking of versions tested.
+That could help to find duplicates, which is a big problem when you
+have 1000+ bugs.
 
-cpu_devclass            No                              system_bus_type
-memblk_devclass         No                              system_bus_type
-node_devclass           No                              system_bus_type
-input_devclass          Yes (mousedev, tsdev)           (None)
-shost_devclass          Yes (scsi_debug)                (None)
-
-
-	Also, merging device_class and bus_type could also enable a
-little more consolidation between struct device_interface and struct
-device_driver (as with device_class.devnum, device_interface.devnum
-does not appear to be used currently).
-
-	Anyhow, I think this could shrink the drivers/base a bit and
-make it slightly more understandable.  I'd be interested in knowing if
-anyone else is contemplating or developing this or wants to point out
-issues to watch out for.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+John.

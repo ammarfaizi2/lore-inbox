@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265037AbUFWRqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265263AbUFWRtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265037AbUFWRqV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 13:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbUFWRqV
+	id S265263AbUFWRtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 13:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265678AbUFWRtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 13:46:21 -0400
-Received: from smtp2.eldosales.com ([63.78.12.18]:48389 "EHLO
+	Wed, 23 Jun 2004 13:49:25 -0400
+Received: from smtp2.eldosales.com ([63.78.12.18]:5638 "EHLO
 	tweeter.eldosales.com") by vger.kernel.org with ESMTP
-	id S265037AbUFWRqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 13:46:19 -0400
-Posted-Date: Wed, 23 Jun 2004 10:46:19 -0700
+	id S265263AbUFWRtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 13:49:24 -0400
+Posted-Date: Wed, 23 Jun 2004 10:49:23 -0700
 Subject: I/O Confirmation/Problem under 2.6/2.4
 From: Ben <ben@easynews.com>
 Reply-To: ben@easynews.com
 To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Organization: Easynews, Inc.
-Message-Id: <1088012783.1311.20.camel@solaris.skunkware.org>
+Message-Id: <1088012966.1347.28.camel@solaris.skunkware.org>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 23 Jun 2004 10:46:23 -0700
+Date: Wed, 23 Jun 2004 10:49:27 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org

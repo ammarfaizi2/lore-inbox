@@ -1,114 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266337AbSKGEgW>; Wed, 6 Nov 2002 23:36:22 -0500
+	id <S266343AbSKGEkW>; Wed, 6 Nov 2002 23:40:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266343AbSKGEgW>; Wed, 6 Nov 2002 23:36:22 -0500
-Received: from mail.mtroyal.ab.ca ([142.109.10.24]:26518 "EHLO
-	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S266337AbSKGEgV>; Wed, 6 Nov 2002 23:36:21 -0500
-Date: Wed, 6 Nov 2002 21:42:58 -0700 (MST)
-From: James Bourne <jbourne@mtroyal.ab.ca>
-To: Matt Simonsen <matt_lists@careercast.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: build kernel for server farm
-In-Reply-To: <1036620009.1332.12.camel@mattsworkstation>
-Message-ID: <Pine.LNX.4.44.0211062136280.10755-100000@skuld.mtroyal.ab.ca>
+	id <S266345AbSKGEkW>; Wed, 6 Nov 2002 23:40:22 -0500
+Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:18866 "HELO
+	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S266343AbSKGEkW> convert rfc822-to-8bit; Wed, 6 Nov 2002 23:40:22 -0500
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Andrew Morton <akpm@digeo.com>
+Subject: 2.5.46-mm1: CONFIG_SHAREPTE do not work with KDE 3
+Date: Thu, 7 Nov 2002 05:47:00 +0100
+User-Agent: KMail/1.4.7
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200211070547.00387.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Nov 2002, Matt Simonsen wrote:
+When I enable shared 3rd-level pagetables between processes KDE 3.0.x and KDE 
+3.1 beta2 at least do not work.
 
-> I am pretty familiar with the build process and kernel install for a
-> single Linux box, but I wanted to confirm I'm doing things in a sane way
-> for a large deployment. All the machines are the same hardware and
-> running standard setups.
-> 
-> First, I plan on compiling the kernel on a development box. From there
-> my plan is basically tar /usr/src/linux, copy to each box, untar, copy
-> bzImage and System.map to /boot, run make modules_install, edit
-> lilo.conf, run lilo.
+Especially "ksmserver" do not start anylonger.
+Taken from my root's .xsession-errors file:
 
-If all of your systems are *identical*, try something like rsync
-or rdist (both can be told to use ssh too).  
+Mutex destroy failure: Device or resource busy
+Mutex destroy failure: Device or resource busy
+kdeinit: Pipe closed unexpectedly: No such file or directory
+kdeinit: Pipe closed unexpectedly: Success
+KInit could not launch 'ksmserver'.
+kdeinit: Fatal IO error: client killed
+ICE default IO error handler doing an exit(), pid = 4489, errno = 2
+ICE default IO error handler doing an exit(), pid = 4497, errno = 0
+kdeinit: Communication error with launcher. Exiting!
+kdeinit: sending SIGHUP to children.
+kdeinit: sending SIGTERM to children.
+kdeinit: Exit.
+DCOPClient::attachInternal. Attach failed Could not open network socket
+DCOPClient::attachInternal. Attach failed Could not open network socket
+DCOPClient::attachInternal. Attach failed Could not open network socket
+DCOPClient::attachInternal. Attach failed Could not open network socket
+DCOPClient::attachInternal. Attach failed Could not open network socket
+DCOPClient::attachInternal. Attach failed Could not open network socket
+DCOPClient::attachInternal. Attach failed Could not open network socket
+DCOPClient::attachInternal. Attach failed Could not open network socket
+DCOPClient::attachInternal. Attach failed Could not open network socket
+DCOPClient::attachInternal. Attach failed Could not open network socket
+DCOPClient::attachInternal. Attach failed Could not open network socket
 
-1) build your kernel and install it on your development box
-2) do a test boot.  Ensure everything is there for you as needed
-3) build a Distfile like so:
-##################
-HOSTS = (
-host1
-host2
-host3
-)
+Any ideas?
 
-KERNEL = (
-/boot
-/etc/lilo.conf
-/etc/grub.conf
-)
-
-kernel:
-${KERNEL} -> ${HOSTS}
-	install ;
-# could use a cmdspecial after this to run lilo if needed
-
-modules:
-/lib/modules -> ${HOSTS}
-	install ;
-
-################
-
-Now, run rdist -P/usr/bin/ssh -overify -f Distfile
-
-You should see it verify what will be updated on hosts[1234...]
-
-Once that's done run a shell loop to reboot the systems as required
-
-for i in host1 host2 host3 host4 ; do
-	ssh $i "shutdown -r now"
-done
-
-If they are not identical, you can do the same thing, only different /boot
-and /lib/module directories to each host would be required as well
-as seperate Distfile rules for each host or group of hosts.
-
-Hope that helps.
-
-Regards
-James Bourne
-
-> 
-> Tips? Comments?
-> 
-> Thanks 
-> Matt
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
-
-
-"There are only 10 types of people in this world: those who
-understand binary and those who don't."
-
+Thanks,
+	Dieter
 

@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132835AbRDPCIr>; Sun, 15 Apr 2001 22:08:47 -0400
+	id <S132838AbRDPCPi>; Sun, 15 Apr 2001 22:15:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132836AbRDPCIi>; Sun, 15 Apr 2001 22:08:38 -0400
-Received: from relay1.pair.com ([209.68.1.20]:35854 "HELO relay1.pair.com")
-	by vger.kernel.org with SMTP id <S132835AbRDPCI3>;
-	Sun, 15 Apr 2001 22:08:29 -0400
-X-pair-Authenticated: 203.164.4.223
-From: "Manfred Bartz" <md-linux-kernel@logi.cc>
-Message-ID: <20010416020732.30431.qmail@logi.cc>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IP Acounting Idea for 2.5
-In-Reply-To: <Pine.LNX.4.33.0104152039130.1616-100000@asdf.capslock.lan> <01041708461209.00352@workshop>
-X-Subversion: anarchy bomb crypto drug explosive fission gun nuclear sex terror
-In-Reply-To: David Findlay's message of "Tue, 17 Apr 2001 08:46:12 +1000"
-Organization: rows-n-columns
-Date: 16 Apr 2001 12:07:31 +1000
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Bryce Canyon)
+	id <S132837AbRDPCP3>; Sun, 15 Apr 2001 22:15:29 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:19464 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S132830AbRDPCPO>;
+	Sun, 15 Apr 2001 22:15:14 -0400
+Message-ID: <3ADA5BE4.367741CA@candelatech.com>
+Date: Sun, 15 Apr 2001 19:41:40 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: george anzinger <george@mvista.com>
+CC: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        linux-kernel@vger.kernel.org,
+        high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: No 100 HZ timer!
+In-Reply-To: <200104131205.f3DC5KV11393@sleipnir.valparaiso.cl> <3AD77540.42BF138E@mvista.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Findlay <david_j_findlay@yahoo.com.au> writes:
-
-> On Monday 16 April 2001 10:40, you wrote:
-
-> > Perhaps I misunderstand what it is exactly you are trying to do,
-> > but I would think that this could be done entirely in userland by
-> > software that just adds rules for you instead of you having to do
-> > it manually.
+george anzinger wrote:
 > 
-> I suppose, but it would be so much easier if the kernel did it
-> automatically. 
+> Horst von Brand wrote:
+> >
+> > Ben Greear <greearb@candelatech.com> said:
+> >
+> > [...]
+> >
+> > > Wouldn't a heap be a good data structure for a list of timers?  Insertion
+> > > is log(n) and finding the one with the least time is O(1), ie pop off the
+> > > front....  It can be implemented in an array which should help cache
+> > > coherency and all those other things they talked about in school :)
+> >
+> > Insertion and deleting the first are both O(log N). Plus the array is fixed
+> > size (bad idea) and the jumping around in the array thrashes the caches.
 
-Yes, but by what criteria?  You want to log on a per host basis.
-Someone else wants to log by service (www, ftp, mail, news), or
-any number of other criteria.
+Jumping around an array can't be much worse than jumping around
+a linked list, can it?
 
-> Having a rule to go through for each IP address to be logged would
-> be slower than implementing one rule that would log all of
-> them. Doing this in the kernel would improve preformance.
+It does not have to be fixed length, though it wouldn't be log(n) to
+grow the array, it can still be done...and once you reach maximal
+size, you won't be growing it any more...
 
-If there really is a performance issue with a few hundred rules, then
-it can be overcome by grouping rules in separate custom chains.  F.e.
-if you have 1024 rules create 32 custom chains with 32 rules each.
-Then have 32 rules in your main table which jump to the appropriate
-custom chain --> maximum rules traversed by each packet = 64.
+I had forgotten about the log(n) to delete, though log(n) is
+still pretty good.  As others have suggested, it might be good
+to have a linked list for very-soon-to-expire timers.  However,
+they would have to be few enough that your linear insert was
+not worse than a log(n) instert and a log(n) delete...
 
-There is another issue with logging in general:
+> > --
+> And your solution is?
 
-                *COUNTERS MUST NOT BE RESETABLE!!!*
 
-Resetable counters guarantee that no two programs can co-exists if
-they happen to reset the same counters.
-
-All logging counters should be implemented with 32bit or 64bit
-unsigned integers.  Any software using correct unsigned integer
-arithmetic can then simply subtract a previous value from the current
-value to get the difference.  This works reliably across counter
-wrap-arounds.  There is absolutely *no need for reset* !
+> 
+> George
 
 -- 
-Manfred Bartz
----------------------------------------------------------------
-ipchainsLogAnalyzer, NetCalc, whois at: <http://logi.cc/linux/>
-     NEW: <http://logi.cc/linux/NetfilterLogAnalyzer.php3>
-
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear

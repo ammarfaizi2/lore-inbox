@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267749AbUG3RSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267758AbUG3RYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267749AbUG3RSK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 13:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267748AbUG3RSK
+	id S267758AbUG3RYT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 13:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267756AbUG3RYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 13:18:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39386 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267749AbUG3RQo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 13:16:44 -0400
-Message-ID: <410A826C.4000508@pobox.com>
-Date: Fri, 30 Jul 2004 13:16:28 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       James.Bottomley@HansenPartnership.com
-Subject: Re: [PATCH] Improve pci_alloc_consistent wrapper on preemptive kernels
-References: <20040730190227.29913e23.ak@suse.de>
-In-Reply-To: <20040730190227.29913e23.ak@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 30 Jul 2004 13:24:19 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:11785 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267753AbUG3RYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 13:24:14 -0400
+Date: Fri, 30 Jul 2004 18:24:10 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Exposing ROM's though sysfs
+Message-ID: <20040730182410.A12171@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Jon Smirl <jonsmirl@yahoo.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <20040730165339.76945.qmail@web14929.mail.yahoo.com> <200407301010.29807.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200407301010.29807.jbarnes@engr.sgi.com>; from jbarnes@engr.sgi.com on Fri, Jul 30, 2004 at 10:10:29AM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> This is a minor optimization for the pci_alloc_consistent wrapper for
-> the generic dma API. When the kernel is compiled preemptive the caller
-> can decide if the allocation needs to be GFP_KERNEL or GFP_ATOMIC.
-[...]
-> +/* Would be better to move this out of line. It's already quite big. */
->  static inline void *
->  pci_alloc_consistent(struct pci_dev *hwdev, size_t size,
->  		     dma_addr_t *dma_handle)
->  {
-> -	return dma_alloc_coherent(hwdev == NULL ? NULL : &hwdev->dev, size, dma_handle, GFP_ATOMIC);
-> +	return dma_alloc_coherent(hwdev == NULL ? NULL : &hwdev->dev, size, dma_handle, preempt_atomic() ? GFP_ATOMIC : GFP_KERNEL);
->  }
+On Fri, Jul 30, 2004 at 10:10:29AM -0700, Jesse Barnes wrote:
+> +	unsigned long start = dev->resource[PCI_ROM_RESOURCE].start;
+> +	int size = dev->resource[PCI_ROM_RESOURCE].end -
+> +		dev->resource[PCI_ROM_RESOURCE].start;
 
+pci_resource_start and pci_resource_len please.
 
-I do agree with the patch, but I have two worries:
+> +		.name = "rom",
+> +		.mode = S_IRUGO | S_IWUSR,
 
-1) Changing from GFP_ATOMIC to <something else> may break code
-2) Conversely from #1, I also worry why GFP_ATOMIC would be needed at 
-all.  I code all my drivers to require that pci_alloc_consistent() be 
-called from somewhere that is allowed to sleep.
+do we really want it world readable if a read messes with pci config
+space?
 
-	Jeff
+> +	if (pdev->resource[PCI_ROM_RESOURCE].start) {
+> +		pci_rom_attr.size = pdev->resource[PCI_ROM_RESOURCE].end -
+> +			pdev->resource[PCI_ROM_RESOURCE].start;
 
+as above.
 

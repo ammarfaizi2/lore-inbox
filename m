@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314680AbSGAKZ0>; Mon, 1 Jul 2002 06:25:26 -0400
+	id <S314702AbSGAKnT>; Mon, 1 Jul 2002 06:43:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314702AbSGAKZZ>; Mon, 1 Jul 2002 06:25:25 -0400
-Received: from mail.eunet.ch ([146.228.10.7]:44303 "EHLO mail.kpnqwest.ch")
-	by vger.kernel.org with ESMTP id <S314680AbSGAKZZ>;
-	Mon, 1 Jul 2002 06:25:25 -0400
-Subject: hopefully solved (was: 2.4.17 freezes)
-From: Robin Farine <robin.farine@acn-group.ch>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 01 Jul 2002 12:23:07 +0200
-Message-Id: <1025518987.5498.69.camel@halftrack>
-Mime-Version: 1.0
+	id <S314811AbSGAKnS>; Mon, 1 Jul 2002 06:43:18 -0400
+Received: from [193.14.93.89] ([193.14.93.89]:34052 "HELO acolyte.hack.org")
+	by vger.kernel.org with SMTP id <S314702AbSGAKnR>;
+	Mon, 1 Jul 2002 06:43:17 -0400
+From: Christer Weinigel <wingel@nano-system.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCx200 patches, updated for 2.4.19-rc1
+References: <m3sn347ugu.fsf@acolyte.hack.org>
+Date: 01 Jul 2002 12:45:41 +0200
+In-Reply-To: Christer Weinigel's message of "30 Jun 2002 15:43:29 +0200"
+Message-ID: <m3adpb7mlm.fsf@acolyte.hack.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+Hi,
 
-On February, I reported some problems with my office PCs running 2.4.17.
-I tried 2.4.18 with the PC on my desk and observed the same problem.
-But, comparing interrupts mapping with the machines running 2.2.20, I
-noticed that my machine (2.4.18) mapped the Ethernet NICs interrupts to
-interrupt 9, a high priority vector also shared by ACPI and USB, instead
-of 10 like the other PCs (2.2.20).
+of course I managed to miss that you had released a 2.4.19-rc1 patch.
+I have updated the patches to match and they are available as:
 
->From the BIOS setup, I forced the PCI slot with the NIC to use interrupt
-7 (low priority) and since then my machine runs without problem.
+http://basselope.nano-system.com/~wingel/scx200/p1-watchdog-2.4.19-rc1.diff
+http://basselope.nano-system.com/~wingel/scx200/p2-docflash-2.4.19-rc1.diff
+http://basselope.nano-system.com/~wingel/scx200/p3-i2c-2.4.19-rc1.diff
 
-Since these 3 PCs have DEC chips based NICs, I suspect a possible
-problem with the tulip driver, something like a status bit not cleared
-before re-enabling the chip's interrupt, which only results into a
-catastrophic situation when the associated interrupt vector has a very
-high priority (4)? However, these are just speculations and I don't have
-the knowledge required to quickly verify them.
+It might be better to wait with these patches until the final 2.4.19
+is released, I'll do a new set of patches then.  
 
-Robin
+   /Christer
 
-P.S. I'm not subscribed to the lkml ...
-
-
+-- 
+"Just how much can I get away with and still go to heaven?"

@@ -1,61 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVAWDh6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVAWENn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbVAWDh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 22:37:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVAWDh6
+	id S261203AbVAWENn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 23:13:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVAWENn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 22:37:58 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:53612 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261200AbVAWDhw (ORCPT
+	Sat, 22 Jan 2005 23:13:43 -0500
+Received: from waste.org ([216.27.176.166]:13971 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261203AbVAWENk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 22:37:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Xli+fYlOvYnnt6Un12AzJuZtuyAO0hDHLuK8BWWervLP4FGDtR2kXBdjHi6lbd6nbrco0zb7idvlNXoNxxJYdpEV7depaSpgwQX+gpa/FwHMVHPQZSTh/y2R7q8IlM5hVLS+yw0Y70+FH3r/TVotjH+EdnyLHuTNJ+vyi0nCVsg=
-Message-ID: <5a4c581d050122193751fdcb71@mail.gmail.com>
-Date: Sun, 23 Jan 2005 04:37:51 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [Bug 4081] New: OpenOffice crashes while starting due to a threading error
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <5a4c581d050122091829a64f29@mail.gmail.com>
+	Sat, 22 Jan 2005 23:13:40 -0500
+Date: Sat, 22 Jan 2005 20:13:24 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, "Theodore Ts'o" <tytso@mit.edu>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/12] random pt4: Create new rol32/ror32 bitops
+Message-ID: <20050123041324.GS12076@waste.org>
+References: <200501222113_MC3-1-940A-5393@compuserve.com> <20050123031921.GA1660@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <217740000.1106412985@10.10.2.4>
-	 <5a4c581d050122091829a64f29@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050123031921.GA1660@wotan.suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Jan 2005 18:18:55 +0100, Alessandro Suardi
-<alessandro.suardi@gmail.com> wrote:
-> On Sat, 22 Jan 2005 08:56:25 -0800, Martin J. Bligh <mbligh@aracnet.com> wrote:
-> > Please contact bug submitter for more info, not myself.
-> >
-> > ---------------------------------------------
-> >
-> > http://bugme.osdl.org/show_bug.cgi?id=4081
-
-[snip]
-
-> Doesn't happen here:
+On Sun, Jan 23, 2005 at 04:19:21AM +0100, Andi Kleen wrote:
+> On Sat, Jan 22, 2005 at 09:10:40PM -0500, Chuck Ebbert wrote:
+> > On Fri, 21 Jan 2005 at 15:41:06 -0600 Matt Mackall wrote:
+> > 
+> > > Add rol32 and ror32 bitops to bitops.h
+> > 
+> > Can you test this patch on top of yours?  I did it on 2.6.10-ac10 but it
+> > should apply OK.  Compile tested and booted, but only random.c is using it
+> > in my kernel.
 > 
-> [asuardi@incident asuardi]$ grep openoffice /var/log/rpmpkgs
-> openoffice.org-1.1.2-11.4.fc2.i386.rpm
-> openoffice.org-i18n-1.1.2-11.4.fc2.i386.rpm
-> openoffice.org-libs-1.1.2-11.4.fc2.i386.rpm
-> [asuardi@incident asuardi]$ cat /proc/version
-> Linux version 2.6.11-rc1-bk9 (asuardi@incident) (gcc version 3.4.3) #1
-> Fri Jan 21 15:46:16 CET 2005
-> 
-> Will try -rc2 later...
+> Does random really use variable rotates? For constant rotates 
+> gcc detects the usual C idiom and turns it transparently into
+> the right machine instruction.
 
-The above OO RPMs are also okay with -rc2 under FC2.
+Nope, random doesn't. The only thing I converted in my sweep that did
+were CAST5 and CAST6, which are fairly unique in doing key-based
+rotations. On the other hand:
 
---alessandro
- 
- "And every dream, every, is just a dream after all"
-  
-    (Heather Nova, "Paper Cup")
+typedef unsigned int __u32;
+
+static inline __u32 rol32(__u32 word, int shift)
+{
+        return (word << shift) | (word >> (32 - shift));
+}
+
+int foo(int val, int rot)
+{
+        return rol32(val, rot);
+}
+
+With 2.95:
+
+   0:   55                      push   %ebp
+   1:   89 e5                   mov    %esp,%ebp
+   3:   8b 4d 0c                mov    0xc(%ebp),%ecx
+   6:   8b 45 08                mov    0x8(%ebp),%eax
+   9:   d3 c0                   rol    %cl,%eax
+   b:   c9                      leave
+   c:   c3                      ret
+
+With 3.3.5:
+
+   0:   55                      push   %ebp
+   1:   89 e5                   mov    %esp,%ebp
+   3:   8b 45 08                mov    0x8(%ebp),%eax
+   6:   8b 4d 0c                mov    0xc(%ebp),%ecx
+   9:   5d                      pop    %ebp
+   a:   d3 c0                   rol    %cl,%eax
+   c:   c3                      ret
+
+With gcc-snapshot:
+
+   0:   55                      push   %ebp
+   1:   89 e5                   mov    %esp,%ebp
+   3:   8b 45 08                mov    0x8(%ebp),%eax
+   6:   8b 4d 0c                mov    0xc(%ebp),%ecx
+   9:   d3 c0                   rol    %cl,%eax
+   b:   5d                      pop    %ebp
+   c:   c3                      ret
+
+So I think tweaks for x86 at least are unnecessary. 
+
+-- 
+Mathematics is the supreme nostalgia of our time.

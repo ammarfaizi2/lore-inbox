@@ -1,65 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135671AbRDSNgi>; Thu, 19 Apr 2001 09:36:38 -0400
+	id <S135669AbRDSNou>; Thu, 19 Apr 2001 09:44:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135672AbRDSNg2>; Thu, 19 Apr 2001 09:36:28 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:26127 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S135671AbRDSNgJ>; Thu, 19 Apr 2001 09:36:09 -0400
-Date: Thu, 19 Apr 2001 15:33:58 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: "Robert G. Brown" <rgb@phy.duke.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FPE's
-Message-ID: <20010419153358.E22869@garloff.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	"Robert G. Brown" <rgb@phy.duke.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0104181920140.32745-100000@ganesh.phy.duke.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Dzs2zDY0zgkG72+7"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0104181920140.32745-100000@ganesh.phy.duke.edu>; from rgb@phy.duke.edu on Wed, Apr 18, 2001 at 07:23:52PM -0400
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+	id <S135670AbRDSNok>; Thu, 19 Apr 2001 09:44:40 -0400
+Received: from mailhost.mipsys.com ([62.161.177.33]:21495 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S135669AbRDSNob>; Thu, 19 Apr 2001 09:44:31 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-pm-devel@lists.sourceforge.net>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCI power management
+Date: Thu, 19 Apr 2001 15:43:33 +0200
+Message-Id: <20010419134333.31606@mailhost.mipsys.com>
+In-Reply-To: <E14qEYX-0007Cl-00@the-village.bc.nu>
+In-Reply-To: <E14qEYX-0007Cl-00@the-village.bc.nu>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>null = 'do absolutely nothing'
+>generic = 'do D3 as per the specification'
+>
+>The idea being the PM layer would go around calling
+>
+>	dev->power_off(dev);
+>
+>as a default notifier for PCI devices.
 
---Dzs2zDY0zgkG72+7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok, I see. I didn't understand that the functions you were talking about
+would be defaults to put directly in the pci_dev structure.
 
-On Wed, Apr 18, 2001 at 07:23:52PM -0400, Robert G. Brown wrote:
-> A question recently arose on the beowulf list about determining the
-> largest possible float or double (or the smallest) that would not
-> overflow (or underflow) on a general system, which on the beowulf list
-> is not unreasonably a general linux/gnu system.
+>And in the case of the cards like that you would need a custom mask. So you'd
+>do
+>	pci_set_power_handler(dev, atyfb_power_on, atyfb_power_off)
+>
+>to get a custom function. For most authors however they can call the power
+>handler setup just using prerolled functions that do the right thing and know
+>about any architecture horrors they dont.
 
-less /usr/lib/gcc-lib/i?86-*-linux/2.95.3/include/float.h
-and look for FLT_MIN/MAX and DBL_MIN/MAX.
+Right. However, rare are the drivers that don't need at least to know
+that a power management sequence is going on. All bus mastering drivers,
+at least, must stop bus mastering (and clearing the bit in the command
+register is not enough on a bunch of them). Most drivers have to cleanly
+stop ongoing operations, refuse (or block) requests while the driver is
+sleeping, etc... and finally configure things back once waking up. I
+don't see much cases where a simple "default" function would work. 
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, FRG                               SCSI, Security
+My current scheme on powerbook don't do half of that... it still sorta
+works since I manage to stop all scheduling and shut things down in the
+proper order, but it's neither a clean nor a safe way to do things.
 
---Dzs2zDY0zgkG72+7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+>I'd rather
+>
+>	pci_dev->powerstate
+>
+>or similar as a set of flags in the device.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4g (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Ok, agree with that one.
 
-iD8DBQE63ulFxmLh6hyYd04RAvQoAJ9dhSY0CiOSltH+FhPPR1nNaGIaSgCg0zEX
-Iir3NeiCh/W03dWX9x6eZ3Y=
-=rD7U
------END PGP SIGNATURE-----
+I sill consider, however, that the current suspend/resume callbacks in
+the pci_dev structure are not the best way to do things. I would have
+really prefered that each pci_dev embed a pm notifier structure. In some
+cases, we want to pass more than simple suspend/resume messages (suspend
+request, suspend now, suspend cancel, and resume are the 4 messages I use
+on powerbooks). 
 
---Dzs2zDY0zgkG72+7--
+Also, this can be generalized to other type of drivers (USB, IEEE1394,
+..), eventually passing bus-specific messages
+
+Ben.
+
+
+

@@ -1,73 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287200AbSAZWhV>; Sat, 26 Jan 2002 17:37:21 -0500
+	id <S287208AbSAZWoL>; Sat, 26 Jan 2002 17:44:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287193AbSAZWhM>; Sat, 26 Jan 2002 17:37:12 -0500
-Received: from sm10.texas.rr.com ([24.93.35.222]:37259 "EHLO sm10.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S287163AbSAZWg6>;
-	Sat, 26 Jan 2002 17:36:58 -0500
-Date: Sat, 26 Jan 2002 16:35:22 -0600 (CST)
-From: Jeff Meininger <jeffm@boxybutgood.com>
-X-X-Sender: <jeffm@mangonel.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: loopback anomaly?
-Message-ID: <Pine.LNX.4.33.0201261611400.836-100000@mangonel.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287212AbSAZWoB>; Sat, 26 Jan 2002 17:44:01 -0500
+Received: from ns.suse.de ([213.95.15.193]:32775 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287208AbSAZWns>;
+	Sat, 26 Jan 2002 17:43:48 -0500
+To: "Martin Eriksson" <nitrax@giron.wox.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
+In-Reply-To: <200201251550.g0PFoIPa002738@tigger.cs.uni-dortmund.de.suse.lists.linux.kernel> <200201250802.32508.bodnar42@phalynx.dhs.org.suse.lists.linux.kernel> <jeelkes8y5.fsf@sykes.suse.de.suse.lists.linux.kernel> <a2sv2s$ge3$1@penguin.transmeta.com.suse.lists.linux.kernel> <20020126034106.F5730@kushida.apsleyroad.org.suse.lists.linux.kernel> <012d01c1a687$faa11120$0201a8c0@HOMER.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 26 Jan 2002 23:43:42 +0100
+In-Reply-To: "Martin Eriksson"'s message of "26 Jan 2002 17:43:03 +0100"
+Message-ID: <p737kq420o1.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Martin Eriksson" <nitrax@giron.wox.org> writes:
 
-I've found some undesirable behavior when trying to use the loop block
-driver with files with strange byte counts.  The files I'd like to setup
-as loopback devices are on read-only media, and they're all different byte
-counts... not necessarily even an integral multiple of 512.  I can't just
-pad them to work with losetup.
+> -CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
+> +CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -Os \
+>           -fomit-frame-pointer -fno-strict-aliasing -fno-common
+>  AFLAGS := -D__ASSEMBLY__ $(CPPFLAGS)
 
-Here's the scoop on strange filesizes.
+You should remove the -malign-* options in arch/i386/Makefile too.
+Most of -Os win normally comes from doing less aggressive padding,
+but the kernel overrides this.
 
-Sometimes, the loopback driver takes a file, and calculates the greatest
-number of blocks that will fit in the file, and uses that.  It
-understandably chops off the remaining bytes that don't quite add up to a
-full block.  The amount of data you get when reading the device and the
-return from BLKGETSIZE are the same.  This is good.
+Also gcc 3.0 and gcc 3.1-snapshots should be somewhat better at 
+implementing -Os. 
 
-Other times, the loopback driver will do something kinda funky... it will
-once again figure out block counts that will fit in the file, but it
-reports one thing in BLKGETSIZE, but provides less data than you actually
-get when you try to read (dd, md5sum, whatever) the /dev/loopN device.
-This is bad.  I get an I/O error when I try to read such a loopback
-device.
-
-Which of the two above paths is taken seems to be a rounding issue, as far
-as I can tell.
-
-If you have a 1048576-byte file (exactly 1M), losetup works perfectly.
-You get every byte.  BLKGETSIZE says 2048.
-
-If you have a 1048577-byte file (1 byte more than 1M), the loopback device
-skips the last byte, which is what I believe it should do.  BLKGETSIZE
-says 2048.
-
-If you have a 1048575-byte file (1 byte less than 1M), the loopback device
-reports 2046 for it's BLKGETSIZE.  This sounds correct, since it has to
-use one less 1024-block to get an integral multiple.  However, when you
-examine the contents of the loopback device, you'll find that there are
-only 2040 sectors... there are 3072 more bytes missing than you'd expect.
-
-So what is the block size we're dealing with here?  1024 or 4096?  I don't
-really care how much gets chopped off the end of the loopback device...
-just so long as the results are predictable, and that BLKGETSIZE matches
-the actual amount of data that can be read from the loopback device.
-
-I'd love to help solve this problem by myself... in fact I've spent the
-last several hours trying.  I think I need the aid of a more experienced
-kernel hacker, though.  :)
-
-BTW...
-I'm not a subscriber to this list, so I'd greatly appreciate any replies
-being cc'ed to me.
-
-Thanks!
--Jeff Meininger
-
+-Andi

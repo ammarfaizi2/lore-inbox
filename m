@@ -1,84 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263111AbUKTFCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263054AbUKTFCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263111AbUKTFCI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 00:02:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262869AbUKTCj7
+	id S263054AbUKTFCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 00:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbUKTCjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 21:39:59 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:24272 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S263055AbUKTCby
+	Fri, 19 Nov 2004 21:39:36 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:38320 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S263054AbUKTCbs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 21:31:54 -0500
-Subject: [patch 4/9]  list_for_each_entry: 	fs-jffs-intrep.c
+	Fri, 19 Nov 2004 21:31:48 -0500
+Subject: [patch 2/9]  list_for_each_entry: 	drivers-macintosh-via-pmu.c
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org
 From: janitor@sternwelten.at
-Date: Sat, 20 Nov 2004 03:31:51 +0100
-Message-ID: <E1CVL2W-0000pp-2r@sputnik>
+Date: Sat, 20 Nov 2004 03:31:45 +0100
+Message-ID: <E1CVL2P-0000lQ-RB@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
 
-Use list_for_each_entry to make code more readable.
-Compile tested.
+
+
+
+Make code more readable with list_for_each_entry.
 
 Signed-off-by: Domen Puncer <domen@coderock.org>
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 ---
 
- linux-2.6.10-rc2-bk4-max/fs/jffs/intrep.c |   22 +++++++++-------------
- 1 files changed, 9 insertions(+), 13 deletions(-)
+ linux-2.6.10-rc2-bk4-max/drivers/macintosh/via-pmu.c |   18 ++++--------------
+ 1 files changed, 4 insertions(+), 14 deletions(-)
 
-diff -puN fs/jffs/intrep.c~list-for-each-entry-fs_jffs_intrep fs/jffs/intrep.c
---- linux-2.6.10-rc2-bk4/fs/jffs/intrep.c~list-for-each-entry-fs_jffs_intrep	2004-11-19 17:14:55.000000000 +0100
-+++ linux-2.6.10-rc2-bk4-max/fs/jffs/intrep.c	2004-11-19 17:14:55.000000000 +0100
-@@ -1619,12 +1619,10 @@ jffs_find_file(struct jffs_control *c, _
+diff -puN drivers/macintosh/via-pmu.c~list-for-each-entry-drivers_macintosh_via-pmu drivers/macintosh/via-pmu.c
+--- linux-2.6.10-rc2-bk4/drivers/macintosh/via-pmu.c~list-for-each-entry-drivers_macintosh_via-pmu	2004-11-19 17:14:49.000000000 +0100
++++ linux-2.6.10-rc2-bk4-max/drivers/macintosh/via-pmu.c	2004-11-19 17:14:49.000000000 +0100
+@@ -2054,12 +2054,9 @@ static LIST_HEAD(sleep_notifiers);
+ int
+ pmu_register_sleep_notifier(struct pmu_sleep_notifier *n)
  {
- 	struct jffs_file *f;
- 	int i = ino % c->hash_len;
--	struct list_head *tmp;
+-	struct list_head *list;
+ 	struct pmu_sleep_notifier *notifier;
  
- 	D3(printk("jffs_find_file(): ino: %u\n", ino));
+-	for (list = sleep_notifiers.next; list != &sleep_notifiers;
+-	     list = list->next) {
+-		notifier = list_entry(list, struct pmu_sleep_notifier, list);
++	list_for_each_entry(notifier, &sleep_notifiers, list) {
+ 		if (n->priority > notifier->priority)
+ 			break;
+ 	}
+@@ -2085,8 +2082,7 @@ broadcast_sleep(int when, int fallback)
+ 	struct list_head *list;
+ 	struct pmu_sleep_notifier *notifier;
  
--	for (tmp = c->hash[i].next; tmp != &c->hash[i]; tmp = tmp->next) {
--		f = list_entry(tmp, struct jffs_file, hash);
-+	list_for_each_entry(f, &c->hash[i], hash) {
- 		if (ino != f->ino)
- 			continue;
- 		D3(printk("jffs_find_file(): Found file with ino "
-@@ -2020,13 +2018,12 @@ jffs_foreach_file(struct jffs_control *c
- 	int result = 0;
+-	for (list = sleep_notifiers.prev; list != &sleep_notifiers;
+-	     list = list->prev) {
++	list_for_each_prev(list, &sleep_notifiers) {
+ 		notifier = list_entry(list, struct pmu_sleep_notifier, list);
+ 		ret = notifier->notifier_call(notifier, when);
+ 		if (ret != PBOOK_SLEEP_OK) {
+@@ -2107,14 +2103,10 @@ static int __pmac
+ broadcast_wake(void)
+ {
+ 	int ret = PBOOK_SLEEP_OK;
+-	struct list_head *list;
+ 	struct pmu_sleep_notifier *notifier;
  
- 	for (pos = 0; pos < c->hash_len; pos++) {
--		struct list_head *p, *next;
--		for (p = c->hash[pos].next; p != &c->hash[pos]; p = next) {
--			/* We need a reference to the next file in the
--			   list because `func' might remove the current
--			   file `f'.  */
--			next = p->next;
--			r = func(list_entry(p, struct jffs_file, hash));
-+		struct jffs_file *f, *next;
-+
-+		/* We must do _safe, because 'func' might remove the
-+		   current file 'f' from the list.  */
-+		list_for_each_entry_safe(f, next, &c->hash[pos], hash) {
-+			r = func(f);
- 			if (r < 0)
- 				return r;
- 			result += r;
-@@ -2589,9 +2586,8 @@ jffs_print_hash_table(struct jffs_contro
+-	for (list = sleep_notifiers.next; list != &sleep_notifiers;
+-	     list = list->next) {
+-		notifier = list_entry(list, struct pmu_sleep_notifier, list);
++	list_for_each_entry(notifier, &sleep_notifiers, list)
+ 		notifier->notifier_call(notifier, PBOOK_WAKE);
+-	}
+ 	return ret;
+ }
  
- 	printk("JFFS: Dumping the file system's hash table...\n");
- 	for (i = 0; i < c->hash_len; i++) {
--		struct list_head *p;
--		for (p = c->hash[i].next; p != &c->hash[i]; p = p->next) {
--			struct jffs_file *f=list_entry(p,struct jffs_file,hash);
-+		struct jffs_file *f;
-+		list_for_each_entry(f, &c->hash[i], hash) {
- 			printk("*** c->hash[%u]: \"%s\" "
- 			       "(ino: %u, pino: %u)\n",
- 			       i, (f->name ? f->name : ""),
+@@ -2727,15 +2719,13 @@ static void __pmac
+ pmu_pass_intr(unsigned char *data, int len)
+ {
+ 	struct pmu_private *pp;
+-	struct list_head *list;
+ 	int i;
+ 	unsigned long flags;
+ 
+ 	if (len > sizeof(pp->rb_buf[0].data))
+ 		len = sizeof(pp->rb_buf[0].data);
+ 	spin_lock_irqsave(&all_pvt_lock, flags);
+-	for (list = &all_pmu_pvt; (list = list->next) != &all_pmu_pvt; ) {
+-		pp = list_entry(list, struct pmu_private, list);
++	list_for_each_entry(pp, &all_pmu_pvt, list) {
+ 		spin_lock(&pp->lock);
+ 		i = pp->rb_put + 1;
+ 		if (i >= RB_SIZE)
 _

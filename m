@@ -1,79 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268970AbUJKOBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268995AbUJKOE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268970AbUJKOBU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 10:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268971AbUJKOBT
+	id S268995AbUJKOE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 10:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268982AbUJKOD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 10:01:19 -0400
-Received: from main.gmane.org ([80.91.229.2]:9643 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268970AbUJKOBL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 10:01:11 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jack Byer <ojbyer@usa.net>
-Subject: Re: 2.6.9-rc4-mm1
-Date: Mon, 11 Oct 2004 09:43:12 -0400
-Message-ID: <cke3fj$eoh$1@sea.gmane.org>
-References: <20041011032502.299dc88d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 11 Oct 2004 10:03:58 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:17060 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S268980AbUJKODt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 10:03:49 -0400
+Subject: Re: [BUG] 2.6.9-rc2 scsi and elevator oops when I/O error
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Pedro Larroy <piotr@larroy.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20041011095035.GE2290@suse.de>
+References: <20041011050320.GA28703@larroy.com>
+	<416A3FF2.3000206@yahoo.com.au>  <20041011095035.GE2290@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 69.37.187.166.adsl.snet.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040927
-X-Accept-Language: en-us, en
-In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 11 Oct 2004 09:03:31 -0500
+Message-Id: <1097503418.2031.14.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I try to compile this kernel, I get the following error:
+On Mon, 2004-10-11 at 04:50, Jens Axboe wrote:
+> It's not, it clearly looks like SCSI trying to kill off the queue
+> with pending commands.
 
-   Using /usr/src/linux-2.6.9-rc4-mm1 as source for kernel
-   CHK     include/linux/version.h
-make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
-   CHK     include/asm-i386/asm_offsets.h
-   CHK     include/linux/compile.h
-   GEN_INITRAMFS_LIST usr/initramfs_list
-Using shipped usr/initramfs_list
-   CPIO    usr/initramfs_data.cpio
-ERROR: unable to open 'usr/initramfs_list': No such file or directory
+That's what it looks like to me too ... there should be a fix for this
+in the scsi-misc-2.6 tree.
 
-Usage:
-         ./usr/gen_init_cpio <cpio_list>
+James
 
-<cpio_list> is a file containing newline separated entries that
-describe the files to be included in the initramfs archive:
-
-# a comment
-file <name> <location> <mode> <uid> <gid>
-dir <name> <mode> <uid> <gid>
-nod <name> <mode> <uid> <gid> <dev_type> <maj> <min>
-
-<name>      name of the file/dir/nod in the archive
-<location>  location of the file in the current filesystem
-<mode>      mode/permissions of the file
-<uid>       user id (0=root)
-<gid>       group id (0=root)
-<dev_type>  device type (b=block, c=character)
-<maj>       major number of nod
-<min>       minor number of nod
-
-example:
-# A simple initramfs
-dir /dev 0755 0 0
-nod /dev/console 0600 0 0 c 5 1
-dir /root 0700 0 0
-dir /sbin 0755 0 0
-file /sbin/kinit /usr/src/klibc/kinit/kinit 0755 0 0
-make[2]: *** [usr/initramfs_data.cpio] Error 1
-make[1]: *** [usr] Error 2
-make: *** [bzImage] Error 2
-
-My .config has:
-
-# CONFIG_BLK_DEV_RAM is not set
-CONFIG_INITRAMFS_SOURCE=""
 

@@ -1,50 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316358AbSEOGxX>; Wed, 15 May 2002 02:53:23 -0400
+	id <S316005AbSEOH1b>; Wed, 15 May 2002 03:27:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316359AbSEOGxW>; Wed, 15 May 2002 02:53:22 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:38572 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S316358AbSEOGxV>;
-	Wed, 15 May 2002 02:53:21 -0400
-Date: Wed, 15 May 2002 16:52:40 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix for sigio delivery
-Message-Id: <20020515165240.7bf90b58.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S316010AbSEOH1a>; Wed, 15 May 2002 03:27:30 -0400
+Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:50692
+	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S316005AbSEOH13>; Wed, 15 May 2002 03:27:29 -0400
+Date: Wed, 15 May 2002 09:27:20 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+To: Andre LeBlanc <ap.leblanc@shaw.ca>
+Cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+Subject: Re: No Network after Compiling, 2.4.19-pre8 under Debian Woody (Long Message)
+Message-ID: <20020515092720.A13317@bouton.inet6-interne.fr>
+Mail-Followup-To: Andre LeBlanc <ap.leblanc@shaw.ca>,
+	bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <003c01c1fb9d$345e0a20$2000a8c0@metalbox> <20020514202912.GA18544@outpost.ds9a.nl> <000c01c1fba2$1779da60$2000a8c0@metalbox>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tue, May 14, 2002 at 04:50:13PM -0700, Andre LeBlanc wrote:
+> [...]
+> hda: 60046560 sectors (30744 MB) w/2048KiB Cache, CHS=3971/240/63, UDMA(100)
+> 
+> hdb: ATAPI 32X CD-ROM CD-R/RW drive, 4096kB Cache, DMA
+> 
+> Uniform CD-ROM driver Revision: 3.12
+> 
+> hdc: ATAPI 48X DVD-ROM drive, 128kB Cache, UDMA(33)
+> 
+> [...]
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> 
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> 
+> apm: BIOS version 1.2 Flags 0x07 (Driver version 1.16)
+> 
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> 
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> 
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> 
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> 
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> 
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> 
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> 
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> 
+> hdb: DMA disabled
+> 
+> ide0: reset: success
+> 
 
-This patch means that we keep the upper 16 bits of the si_code
-field of the siginfo structure that is delivered with and SIGIOs.
-We need this so that the code that actually copies the siginfo_t
-out to user mode knows which part of the union to copy.  We currently
-get away with out this information because we always copy at least
-two ints worth of the union, but this s an ugly hack and I would
-like to tidy it up.
+Your CDROM drive doesn't play well with your hard drive with 2.4 kernels.
+2.4 enables UDMA (which 2.2 doesn't) for your hard drive transfers and CRC
+errors show up.
 
-Comments?
+When your network will be sorted out, I'd be interested by the result of the
+following commands after the above errors and channel reset:
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+hdparm /dev/hda
+hdparm -i /dev/hda
+hdparm /dev/hdb
+hdparm -i /dev/hdb
 
-diff -ruN 2.5.15/fs/fcntl.c 2.5.15-si.3/fs/fcntl.c
---- 2.5.15/fs/fcntl.c	Tue Apr 23 10:42:27 2002
-+++ 2.5.15-si.3/fs/fcntl.c	Wed May 15 16:46:48 2002
-@@ -435,7 +435,7 @@
- 			   back to SIGIO in that case. --sct */
- 			si.si_signo = fown->signum;
- 			si.si_errno = 0;
--		        si.si_code  = reason & ~__SI_MASK;
-+		        si.si_code  = reason;
- 			/* Make sure we are called with one of the POLL_*
- 			   reasons, otherwise we could leak kernel stack into
- 			   userspace.  */
+Then put your CDROM drive on the secondary channel with your DVD and see if the
+error messages go away or focus on the DVDROM drive instead.
+
+LB.

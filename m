@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbTEMVUC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:20:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbTEMVUC
+	id S263429AbTEMVVg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:21:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263437AbTEMVVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:20:02 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:10765 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263415AbTEMVUA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:20:00 -0400
-Date: Tue, 13 May 2003 23:31:10 +0200
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, alexh@ihatent.com
-Subject: Re: [PATCH] Re: 2.5.69-mm4 undefined active_load_balance
-Message-ID: <20030513213110.GA655@hh.idb.hist.no>
-References: <20030512225504.4baca409.akpm@digeo.com> <87vfwf8h2n.fsf@lapper.ihatent.com> <20030513001135.2395860a.akpm@digeo.com> <87n0hr8edh.fsf@lapper.ihatent.com> <20030513085525.GA7730@hh.idb.hist.no> <20030513020414.5ca41817.akpm@digeo.com> <3EC0FB9E.8030305@aitel.hist.no> <20030513162711.GA30804@hh.idb.hist.no> <20030513193847.GP8978@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030513193847.GP8978@holomorphy.com>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Tue, 13 May 2003 17:21:34 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:46211 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263429AbTEMVUZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 17:20:25 -0400
+Date: Tue, 13 May 2003 14:33:25 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Matt Domsch <Matt_Domsch@Dell.com>
+cc: Greg KH <greg@kroah.com>, <alan@redhat.com>,
+       <linux-kernel@vger.kernel.org>, <jgarzik@redhat.com>
+Subject: Re: [RFC][PATCH] Dynamic PCI Device IDs
+In-Reply-To: <Pine.LNX.4.44.0305131428050.9816-100000@cherise>
+Message-ID: <Pine.LNX.4.44.0305131432410.9816-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 12:38:47PM -0700, William Lee Irwin III wrote:
-> On Tue, May 13, 2003 at 06:27:11PM +0200, Helge Hafting wrote:
-> > --- sched.h.orig        2003-05-13 15:45:17.000000000 +0200
-> > +++ sched.h     2003-05-13 18:07:01.000000000 +0200
-> > @@ -158,10 +158,8 @@
-> >  # define CONFIG_NR_SIBLINGS 0
-> >  #endif
-> > -#ifdef CONFIG_NR_SIBLINGS
-> > +#if CONFIG_NR_SIBLINGS
-> >  # define CONFIG_SHARE_RUNQUEUE 1
-> > -#else
-> > -# define CONFIG_SHARE_RUNQUEUE 0
-> >  #endif
-> >  extern void sched_map_runqueue(int cpu1, int cpu2);
+
+On Tue, 13 May 2003, Patrick Mochel wrote:
+
 > 
-> Linus just committed a patch to eliminate such offenders.
+> On Tue, 6 May 2003, Matt Domsch wrote:
 > 
-> Do you mean #if CONFIG_NR_SIBLINGS != 0 or #ifdef CONFIG_NR_SIBLINGS?
+> > > You can't just call driver_attach(), as the bus semaphore needs to be
+> > > locked before doing so.  In short, you almost need to duplicate
+> > > bus_add_driver(), but not quite :)
+> > 
+> > Right, and it seems to work. I made driver_attach non-static, declared
+> > it extern in pci.h, and call it in pci-driver.c while holding the bus
+> > semaphore and references to the driver and the bus.  This also let me
+> > delete my probe_each_pci_dev() function and let the driver core
+> > handle it.
+> > 
+> > Pat, can you ack the changes to bus.c and device.h please?
+> 
+> ACK. I'll add them to my tree.
 
-I don't know this code well, I'm just guessing the rigth way
-to make it compile.  I don't know what's the "clean" way
-to do #if/#ifdefs either - I could probably do better if I knew.
+I take that back, since it's already checked into your BK tree. Go forth 
+and merge. 
 
-The problem was that CONFIG_SHARE_RUNQUEUE gets set even with
-configs where it doesn't make sense, (i.e. uniprocessor without HT)
-so I guessed it was some sort of misunderstanding about
-how #ifdef works.  I hope whoever wrote that code will
-take a look and either say "yes - that's what I meant"
-or fix it in a better way.
 
-Helge Hafting
+	-pat
 

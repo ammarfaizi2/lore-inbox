@@ -1,70 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbUJZRoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbUJZRqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbUJZRoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 13:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUJZRoZ
+	id S261365AbUJZRqF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 13:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbUJZRqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 13:44:25 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:48045 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261357AbUJZRnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 13:43:35 -0400
-Message-ID: <417E8CC4.4010706@comcast.net>
-Date: Tue, 26 Oct 2004 13:43:32 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
+	Tue, 26 Oct 2004 13:46:05 -0400
+Received: from mailbox.surfeu.se ([213.173.154.11]:24528 "EHLO surfeu.fi")
+	by vger.kernel.org with ESMTP id S261358AbUJZRof (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 13:44:35 -0400
+Message-ID: <417E8D6A.E187A858@users.sourceforge.net>
+Date: Tue, 26 Oct 2004 20:46:18 +0300
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jason Baron <jbaron@redhat.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix altsysrq deadlock
-References: <Pine.LNX.4.44.0410261325120.12088-100000@dhcp83-105.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0410261325120.12088-100000@dhcp83-105.boston.redhat.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-crypto@nl.linux.org
+CC: linux-kernel@vger.kernel.org
+Subject: Announce loop-AES-v2.2d file/swap crypto package
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+loop-AES changes since previous release:
+- Fixed mount so that it can set desired initial permissions for loop
+  mounted encrypted file system root directory with random keys. This fix
+  corrects README example 4 unwritable encrypted /tmp problem of
+  loop-AES-v2.2c.
 
+bzip2 compressed tarball is here:
 
+    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.2d.tar.bz2
+    md5sum 1de89f3967b8fa74b5f98bc0fb099de2
 
-Jason Baron wrote:
-| hi,
-|
+    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.2d.tar.bz2.sign
 
-HI!  ^_^
-
-[...]
-
-|  An
-| altsyrq that produces no output might seem troublesome, but it is
-| primarily used as a debugging tool, so trying it again seems reasonable.
-
-Actually, I use sysrq as if it's just another feature.  It should (I
-think it does. . . not sure) only work on the console directly, for
-security reasons; but it's great when things like X misbehave, or when
-I've damaged something and the system doesn't want to shut down.  AS-E
-AS-I AS-U AS-S AS-O.  :)  I actually tried making an N sysrq, for
-"semi-Normal shutdown."  It would send TERM, wait 5S, send KILL, wait
-5S, unmount, sync, reboot.
-
-Just thought it might be interesting to point out that magic-sysrq can
-be a helpful feature for someone not hacking the kernel.
-
-[...]
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBfozEhDd4aOud5P8RAo/xAJ9sumPFUpGkwIf4ipR2+6g0bmwUYQCdGQ+U
-SPvEFbVzUCx+8zdNQqnT8F8=
-=OQrV
------END PGP SIGNATURE-----
+-- 
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

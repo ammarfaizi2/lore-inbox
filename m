@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266841AbSLDCaF>; Tue, 3 Dec 2002 21:30:05 -0500
+	id <S266842AbSLDCmf>; Tue, 3 Dec 2002 21:42:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266842AbSLDCaF>; Tue, 3 Dec 2002 21:30:05 -0500
-Received: from jstevenson.plus.com ([212.159.71.212]:47234 "EHLO
-	alpha.stev.org") by vger.kernel.org with ESMTP id <S266841AbSLDCaE>;
-	Tue, 3 Dec 2002 21:30:04 -0500
-Subject: Re: Reserving physical memory at boot time
-From: James Stevenson <james@stev.org>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200212031303.16487.baldrick@wanadoo.fr>
-References: <200212031303.16487.baldrick@wanadoo.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 03 Dec 2002 23:23:21 +0000
-Message-Id: <1038957801.13490.5.camel@god.stev.org>
-Mime-Version: 1.0
+	id <S266846AbSLDCme>; Tue, 3 Dec 2002 21:42:34 -0500
+Received: from pcp103897pcs.glstrt01.nj.comcast.net ([68.45.109.175]:1664 "EHLO
+	sorrow.ashke.com") by vger.kernel.org with ESMTP id <S266842AbSLDCme>;
+	Tue, 3 Dec 2002 21:42:34 -0500
+Date: Tue, 3 Dec 2002 21:50:04 -0500 (EST)
+From: Adam K Kirchhoff <adamk@voicenet.com>
+X-X-Sender: adamk@sorrow.ashke.com
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.20 - hangs when rebooting...
+Message-ID: <Pine.LNX.4.44.0212032146020.2089-100000@sorrow.ashke.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-03 at 12:03, Duncan Sands wrote:
-> I would like to reserve a particular page of physical memory when
-> the kernel boots.  By reserving I mean that no one else gets to read
-> from it or write to it: it is mine.  Any suggestions for the best way
-> to go about this with a 2.5 kernel?
 
-try having a look for the linux badmem patches i belive they might do
-the same sort of thing.
+Hello all,
 
-	James
+	I've encountered a new problem since upgrading from 2.4.19 to 
+2.4.20.  Basically, when I go to reboot my machine, it hangs imeddiate 
+after it says "Restarting system".  Then nothing.  I have to hit the reset 
+button.  Thankfully, though, everything has already been unmounted.  I 
+never had this problem with 2.4.19, nor do I have it now if I reboot into 
+2.4.19.  After it says "Restarting system", the screen blanks and the 
+computer reboots :-)
+
+	My kernel configuration between the two is the exact same.  The
+only reason why I upgraded was for better support of my ICH4 IDE
+controller on a fairly new motherboard.  This is an Intel i845 with a 2
+Gig P4 processor, 512 Megs RAM.  Happens with both apm disabled and 
+enabled.  
+
+	Any ideas? :-) Thanks.
+
+Adam
 
 

@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263294AbTJZQfd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 11:35:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263299AbTJZQfd
+	id S263303AbTJZQu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 11:50:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbTJZQu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 11:35:33 -0500
-Received: from cambridge.merl.com ([137.203.190.1]:8928 "EHLO
-	cambridge.merl.com") by vger.kernel.org with ESMTP id S263294AbTJZQfa
+	Sun, 26 Oct 2003 11:50:58 -0500
+Received: from m77.net81-65-140.noos.fr ([81.65.140.77]:20905 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S263303AbTJZQuz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 11:35:30 -0500
-Date: Sun, 26 Oct 2003 11:35:29 -0500
-Message-Id: <200310261635.h9QGZTe13121@localhost.localdomain>
-From: <wsy@merl.com>
-To: marco.roeland@xs4all.nl
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <20031026162422.GB23792@localhost> (message from Marco Roeland on
-	Sun, 26 Oct 2003 17:24:22 +0100)
-Subject: Re: compile-time error in 2.6.0-test9
-References: <200310261553.h9QFrb513039@localhost.localdomain> <20031026162422.GB23792@localhost>
+	Sun, 26 Oct 2003 11:50:55 -0500
+Date: Sun, 26 Oct 2003 17:50:18 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: marcelo.tosatti@cyclades.com
+Subject: [PATCH 2.4.23-pre8] compile mii when using usbnet
+Message-ID: <20031026165018.GT4013@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	marcelo.tosatti@cyclades.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-OK, I will put that patch in.
+This patch is necessary in order to select the compilation of mii.o
+when selecting usbnet.o.
 
-Thanks!  
+Marcelo, please apply.
 
-(and hmmm... maybe it _is_ time to upgrade gcc.  Looking at the
-problems with long long unsigneds, that looks awfully familiar with a
-mailfiltering app I am coding that got GCC very wierded out.  I
-thought it was just my l33t ex-FORTRAN-hack coding style that was the
-bug cause.  :-) ).
+Thanks,
 
-What's the recommended version of GCC these days?
+Stelian.
 
-       -Bill Yerazunis
+
+===== drivers/net/Makefile 1.39 vs edited =====
+--- 1.39/drivers/net/Makefile	Wed Sep  3 18:45:33 2003
++++ edited/drivers/net/Makefile	Fri Oct 24 18:22:50 2003
+@@ -242,6 +242,7 @@
+ 
+ # non-drivers/net drivers who want mii lib
+ obj-$(CONFIG_PCMCIA_SMC91C92) += mii.o
++obj-$(CONFIG_USB_USBNET) += mii.o
+ 
+ ifeq ($(CONFIG_ARCH_ACORN),y)
+ mod-subdirs	+= ../acorn/net
+-- 
+Stelian Pop <stelian@popies.net>

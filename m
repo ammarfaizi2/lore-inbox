@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288960AbSANTzF>; Mon, 14 Jan 2002 14:55:05 -0500
+	id <S288952AbSANT5O>; Mon, 14 Jan 2002 14:57:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288952AbSANTyC>; Mon, 14 Jan 2002 14:54:02 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:11764 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S288982AbSANTxU>; Mon, 14 Jan 2002 14:53:20 -0500
-Message-ID: <3C4336FC.DE812038@mvista.com>
-Date: Mon, 14 Jan 2002 11:52:28 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S288954AbSANT40>; Mon, 14 Jan 2002 14:56:26 -0500
+Received: from [208.29.163.248] ([208.29.163.248]:49315 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S288952AbSANTzH>; Mon, 14 Jan 2002 14:55:07 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: babydr@baby-dragons.com, linux-kernel@vger.kernel.org
+Date: Mon, 14 Jan 2002 11:54:27 -0800 (PST)
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <E16QCc6-0002bb-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0201141152570.22904-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: Robert Lowery <Robert.Lowery@colorbus.com.au>
-CC: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <370747DEFD89D2119AFD00C0F017E66156A8AE@cbus613-server4.colorbus.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Lowery wrote:
-> 
-> >I question this because it is too risky to apply. There is no way any
-> >distribution or production system could ever consider applying the
-> >preempt kernel and ship it in its next kernel update 2.4. You never know
-> >if a driver will deadlock because it is doing a test and set bit busy
-> >loop by hand instead of using spin_lock and you cannot audit all the
-> >device drivers out there.
-> 
-> Quick question from a kernel newbie.
-> 
-> Could this audit be partially automated by the Stanford Checker? or would
-> there
-> be too many false positives from other similar looping code?
-> 
-> -Robert
-Sounds like a REALLY good thing (tm) to me.  How do we get them
-interested?
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+note: this discussion has moved away from autoconfig to requiring
+everything to be modules.
+
+autoconfig is a useful tool in some cases, but is not going to be used
+everywhere.
+
+I view modules as being in the same catagory.
+
+David Lang
+
+
+On Mon, 14 Jan 2002, Alan Cox wrote:
+
+> Date: Mon, 14 Jan 2002 19:17:46 +0000 (GMT)
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> To: babydr@baby-dragons.com
+> Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+> Subject: Re: Hardwired drivers are going away?
+>
+> > > Urban legend.
+> > 	I do not agree .  Got proof ?  Yes that is a valid question .
+>
+> Most of the rootkit type stuff I see nowdays includes code for loading
+> patches into module free kernels. Its a real no win. The better ones support
+> regexp scanning so they can patch kernels where the sysadmin thinks he/she
+> is cool and has hidden or crapped in System.map
+>
+> > > > case becouse the system can't know where the module will be located IIRC)
+> > > I defy you to measure it on x86
+> > 	OK ,How about sparc-64/alpha/ia64/... ?
+>
+> Not generally found in your grandmothers PC
+>
+> > > > 3. simplicity in building kernels for other machines. with a monolithic
+> > > > kernel you have one file to move (and a bootloader to run) with modules
+> > > > you have to move quite a few more files.
+> > > tar or nfs mount; make modules_install.
+> > 	Please my laugh'o meter is stuck already .  Sorry .  JimL
+>
+> Then fix it, because the above works well. Also remember that autoconfig
+> tools won't be able to guess remote machines very well 8)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,122 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318082AbSGPUbY>; Tue, 16 Jul 2002 16:31:24 -0400
+	id <S317955AbSGPUiA>; Tue, 16 Jul 2002 16:38:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318134AbSGPUbX>; Tue, 16 Jul 2002 16:31:23 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:60653 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S318082AbSGPUbV>; Tue, 16 Jul 2002 16:31:21 -0400
-Date: Tue, 16 Jul 2002 21:34:08 +0100
+	id <S317954AbSGPUh7>; Tue, 16 Jul 2002 16:37:59 -0400
+Received: from server1.mvpsoft.com ([64.105.236.213]:4531 "HELO
+	server1.mvpsoft.com") by vger.kernel.org with SMTP
+	id <S317955AbSGPUh5>; Tue, 16 Jul 2002 16:37:57 -0400
+Message-ID: <3D345AD7.1010509@mvpsoft.com>
+Date: Tue, 16 Jul 2002 13:41:43 -0400
+From: Chris Snyder <csnyder@mvpsoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.0) Gecko/20020714
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [2.4.18 maestro] intermittently repeatable Solid hang..
-Message-ID: <20020716213408.A14626@computer-surgery.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: Roger Gammans <roger@computer-surgery.co.uk>
+Subject: PROBLEM: Kernel panics on bootup
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+I can't get my Intergraph dual-P133 to boot.  The model number, 
+according to the back of the case, is JHIF60H70.  Here's the error 
+messages that are being displayed:
 
-I saw this on 2.2.x too, and was much more repeatable there ;-).
+Intel Pentium with F0 0F bug - workaround enabled.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+CPU0: Intel Pentium 75 - 200 stepping 0b
+per-CPU timeslice cutoff: 160.14 usecs.
+SMP motherboard not detected.
+Local APIC not detected.  Using dummy APIC emulation.
+Waiting on wait_init_idle (map=0x0)
+All processors have done init_idle
+general protection fault: 6d60
+CPU: 
+0
+EIP: 
+0010:[<c00f6e1e>] 
+Not tainted
+EFLAGS: 
+00016757
+eax: 49435024	ebx: 00000000	ecx: 00000000	edx: 00000010
+esi: c02d7fc0	edi: c02bee74	ebp: 49435024	esp: c1415f84
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=c1415000)
+Stack: 00000010 c00f6d60 c02d7fc0 00000000 0008e000 00000292 00000079 
+c02dc291
+49435024 c000f6d60 c02d7fc0 00000000 0008e000 00000018 ffffff00 c02dc450
+00000010 c02dc443 c1414000 c02dcaf 2 c02dcb76 c02effbe c1414000 c02d88de
+Call Trace: [<c0105295>] [<c01057cc>]
 
-Sometimes, my system will solid hang if playing PCM audio
-(mp3/realplayer etc) at the same time the console bell
-is invoked (Normally through XFree 3.6).
+Code: cb 66 9d f9 eb fa e8 27 04 00 00 b4 00 f8 c3 e8 1e 04 00 00\
+  <0>Kernel panic: Attempted to kill init!
 
-I guess this is somre sort of race but couldn't see anyhting
-obvious in the maestro driver by inspection, unless sharing
-the irq with the cardbus controller is a clue.. Hmm.
+(note: I typed these in by hand, on a teeny notebook keyboard.  If 
+anything seems outrageous, let me know, and I'll verify it)
+Kernel version is 2.4.18.  I noticed that it doesn't notice that there's 
+an SMP motherboard - perhaps that has something to do with it?  This 
+system has 256 MB EDO RAM (72 pin), a Mylex DAC960 RAID controller, a 
+built-in SCSI controller (not sure what chipset, but supported by 
+generic SCSI), and a tulip-based net card.  I'm attempting to boot it 
+off of a SCSI Zip drive connected to the built-in SCSI (no bootable CD 
+support).  This system was previously running NT4 SMP with no problems 
+(well, other than the normal NT problems<g>).  Thanks in advance.
 
-Cardbus handling changed in 2.4 hasn't it.., could this
-be spending to long with the irq masked.., 
-Interestingly I also saw errorenous PCMCIA ejects under
-2.2.x which seem to gone away under 2.4...
-
-
-
-lspci -vvv , report these devices (amongst others - rest of Intel chipset PIIX4, inc 
-          AGP bridge and USB , and PCI1250 cardbis brigde , cyberblade 9397 video card)
-
-00:09.0 Multimedia audio controller: ESS Technology ES1978 Maestro Audiodrive (rev 10)
-	Subsystem: ESS Technology: Unknown device 1978
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 2 min, 24 max, 128 set
-	Interrupt: pin A routed to IRQ 10
-	Region 0: I/O ports at 3000 [size=256]
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- AuxPwr- DSI+ D1+ D2+ PME-
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0 set
-
-00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 64 set
-	Region 0: Memory at c0000000 (32-bit, prefetchable) [size=64M]
-	Capabilities: [a0] AGP version 1.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=21
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=1
-
-
-/proc/interrupts ->
-        CPU0       
-  0:     515873          XT-PIC  timer
-  1:      19131          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  3:      45413          XT-PIC  pcnet_cs
-  8:          1          XT-PIC  rtc
- 10:          0          XT-PIC  ESS Maestro 2E, Texas Instruments PCI1250, Texas Instruments PCI1250 (#2)
- 12:       8329          XT-PIC  PS/2 Mouse
- 14:     199333          XT-PIC  ide0
-NMI:          0 
-LOC:          0 
-ERR:          0
-MIS:          0
-
-
-
-cat /proc/modules -->
-Module                  Size  Used by    Not tainted
-nfs                    69500   1  (autoclean)
-lockd                  46656   1  (autoclean) [nfs]
-sunrpc                 58196   1  (autoclean) [nfs lockd]
-ide-cd                 26176   1  (autoclean)
-cdrom                  27136   0  (autoclean) [ide-cd]
-parport_pc             21960   1  (autoclean)
-lp                      5952   1  (autoclean)
-parport                22944   1  (autoclean) [parport_pc lp]
-pcnet_cs               10180   1 
-8390                    5888   0  [pcnet_cs]
-ds                      6464   2  [pcnet_cs]
-yenta_socket            8384   2 
-pcmcia_core            38656   0  [pcnet_cs ds yenta_socket]
-rtc                     5368   0  (autoclean)
-apm                     8892   1 
-maestro                25664   1 
-soundcore               3556   2  [maestro]
-unix                   13316 147  (autoclean)
-ide-disk                6592   2  (autoclean)
-ide-probe-mod           7968   0  (autoclean)
-ide-mod               129420   3  (autoclean) [ide-cd ide-disk ide-probe-mod]
-ext3                   56544   1  (autoclean)
-jbd                    34968   1  (autoclean) [ext3]
-
-
-More details of system avail on request etc,..
-
-Hints appreciated while I go off and read the yenta and
-maestro (again) sources.
-
-
-TTFN
--- 
-Roger.
-Master of Peng Shui.  (Ancient oriental art of Penguin Arranging)

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266436AbRGCFOL>; Tue, 3 Jul 2001 01:14:11 -0400
+	id <S266440AbRGCFwP>; Tue, 3 Jul 2001 01:52:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266414AbRGCFOB>; Tue, 3 Jul 2001 01:14:01 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28070 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265473AbRGCFNv>;
-	Tue, 3 Jul 2001 01:13:51 -0400
-Message-ID: <3B415489.77425364@mandrakesoft.com>
-Date: Tue, 03 Jul 2001 01:13:45 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kaos@ocs.com.au, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RFC: modules and 2.5
-Content-Type: text/plain; charset=us-ascii
+	id <S266441AbRGCFvz>; Tue, 3 Jul 2001 01:51:55 -0400
+Received: from 205-158-62-57.outblaze.com ([205.158.62.57]:12295 "HELO
+	ws1-7.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S266440AbRGCFvv>; Tue, 3 Jul 2001 01:51:51 -0400
+Message-ID: <20010703055145.29712.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Tha Phlash" <phlash4ce@techie.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 03 Jul 2001 13:51:44 +0800
+Subject: Re: [Re: gcc: internal compiler error: program cc1 got fatal
+    signal 11]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple things that would be nice for 2.5 is
-- let MOD_INC_USE_COUNT work even when module is built into kernel, and
-- let THIS_MODULE exist and be valid even when module is built into
-kernel
+Ive also had a problem with signal 11, heres a great page explaining the aspects of signal 11 error from gcc (http://www.bitwizard.nl/sig11/).
 
-This introduces bloat into the static kernel for modules which do not
-take advantage of this, so perhaps we can make this new behavior
-conditional on CONFIG_xxx option.  Individual drivers which make use of
-the behavior can do something like
+Signal 11 is usually a hardware problem, as the article points out. I found a sloppy soulution playing with my BIOS settings, turns out there was an option called "Memory Hole at 15Mb Addr." I enabled it and i got no more sig11, however when I boot up, Linux only recognizes like 13Mb of my 64Mb of RAM. 
 
-	dep_tristate 'my driver' CONFIG_MYDRIVER $CONFIG_PCI
-	if [ "$CONFIG_MYDRIVER" != "n" -a \
-	     "$CONFIG_STATIC_MODULES" != "y" ]; then
-	   define_bool CONFIG_STATIC_MODULES y
-	fi
+Anyway, there are my 2 cents.
 
-
-
-The reasoning behind this is that module use counts are useful sometimes
-even when the driver is built into the kernel.  Other facilities like
-inter_xxx are [obviously] useful when built into the kernel, so it makes
-sense to at least optionally support homogenous module treatment across
-static or modular builds.
-
+Luis <phlash>
 -- 
-Jeff Garzik      | "I respect faith, but doubt is
-Building 1024    |  what gives you an education."
-MandrakeSoft     |           -- Wilson Mizner
+
+_______________________________________________
+FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+
+FREE PC-to-Phone calls with Net2Phone
+http://www.net2phone.com/cgi-bin/link.cgi?121
+
+
+
+
+

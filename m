@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263372AbREXFAG>; Thu, 24 May 2001 01:00:06 -0400
+	id <S263381AbREXFVk>; Thu, 24 May 2001 01:21:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263373AbREXE74>; Thu, 24 May 2001 00:59:56 -0400
-Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:14351 "EHLO
-	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
-	id <S263372AbREXE7q>; Thu, 24 May 2001 00:59:46 -0400
-Message-ID: <001e01c0e40e$51244360$f55355c2@microsoft>
-From: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>
-To: "Blesson Paul" <blessonpaul@usa.net>
+	id <S263379AbREXFVa>; Thu, 24 May 2001 01:21:30 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22290 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S263384AbREXFVS>; Thu, 24 May 2001 01:21:18 -0400
+Date: Thu, 24 May 2001 02:21:13 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: null <null@null.com>
 Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010524045508.23675.qmail@nwcst280.netaddress.usa.net>
-Subject: Re: no ntfs support
-Date: Thu, 24 May 2001 08:59:30 +0400
+Subject: Re: bdflush/mm performance drop-out defect (more info)
+In-Reply-To: <Pine.LNX.4.21.0105221114120.32238-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0105240216060.311-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2469.0002
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2469.0002
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recompile new kernel (2.4.4 +) but write support for NTFS 5.0 is still down.
------ Original Message -----
-From: "Blesson Paul" <blessonpaul@usa.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, May 24, 2001 8:55 AM
-Subject: no ntfs support
+On Tue, 22 May 2001, null wrote:
 
+> Here is some additional info about the 2.4 performance defect.
+>
+> Only one person offered a suggestion about the use of HIGHMEM.
+> I tried with and without HIGHMEM enabled with the same results.
+> However, it does appear to take a bit longer to reach
+> performance drop-out condition when HIGHMEM is disabled.
 
-> Hi all
->                      Thanks for the reply David. I have done the full
-> installation of redhat6.2. But there is no support for mounting for ntfs
-file
-> system. When ever we write mount -t ntfs /dev..... it shows "ntfs not
-> supported by kernel". But when I went through the kernel source codes,
-there
-> is source code for ntfs. How to add the ntfs file driver to my kernel.
-Should
-> it need the full recompilation of the kernel codes
->
-> Thanks in advance
->                            by
->                                  Blesson
->
-> ____________________________________________________________________
-> Get free email and a permanent address at http://www.netaddress.com/?N=1
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+I'm seeing this same thing whenever kswapd and bdflush
+are gobbling up CPU time at full speed without doing
+anything useful.
+
+At the moment I've only managed a really slight reduction
+in the phenomenon by just not waking up bdflush when it
+can't do any work.
+
+The real solution probably will consist of some "everybody
+wait on IO for a moment" thing which will take some time
+to develop.  Stay on the lookout for patches on:
+
+	http://www.surriel.com/patches/
+
+cheers,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

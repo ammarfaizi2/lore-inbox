@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264624AbTE1JYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 05:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264633AbTE1JYf
+	id S264635AbTE1Jc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 05:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264637AbTE1Jc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 05:24:35 -0400
-Received: from 19.Red-213-97-251.pooles.rima-tde.net ([213.97.251.19]:17333
-	"EHLO linalco.com") by vger.kernel.org with ESMTP id S264624AbTE1JYe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 05:24:34 -0400
-Date: Wed, 28 May 2003 11:36:54 +0200
-From: Ragnar Hojland Espinosa <ragnar@linalco.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: manish <manish@storadinc.com>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030528093654.GA20687@linalco.com>
-References: <3ED2DE86.2070406@storadinc.com> <3ED3A2AB.3030907@gmx.net> <3ED3A55E.8080807@storadinc.com> <200305271954.11635.m.c.p@wolk-project.de>
+	Wed, 28 May 2003 05:32:56 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:60432 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264635AbTE1Jcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 05:32:55 -0400
+Date: Wed, 28 May 2003 10:46:03 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Pavel Roskin <proski@gnu.org>
+Cc: devfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Graceful failure in devfs_remove() in 2.5.x
+Message-ID: <20030528104603.A27503@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pavel Roskin <proski@gnu.org>, devfs@oss.sgi.com,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.55.0305271105110.1412@marabou.research.att.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305271954.11635.m.c.p@wolk-project.de>
-X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.55.0305271105110.1412@marabou.research.att.com>; from proski@gnu.org on Tue, May 27, 2003 at 11:29:53AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 08:04:49PM +0200, Marc-Christian Petersen wrote:
-> 
-> ALL: Anyone who has this kind of pauses/stops/mouse is dead/keyboard is dead/:
->      speak _NOW_ please, doesn't matter who you are!
+On Tue, May 27, 2003 at 11:29:53AM -0400, Pavel Roskin wrote:
+> This patch makes devfs_remove() print an error to the kernel log and
+> continue.  PRINTK is defined in fs/devfs/base.c to report errors in the
+> cases like this one:
 
-FWIW, me too.
-
-Actually it just happens in the fixing stage when burning prebuilt iso
-images from the hard disk (same IDE channel as the burner, 2.4.20)
-Having a completely frozen machine under X was quite panic inducing ;)
-
-A friend told me they also get regular "pauses" when quitting from
-vmware.
--- 
-Ragnar Hojland - Project Manager
-Linalco "Especialistas Linux y en Software Libre"
-http://www.linalco.com Tel: +34-91-5970074 Fax: +34-91-5970083
+Patch looks okay _except_ for use of this gross macro.  Just
+ise plain printk instead.

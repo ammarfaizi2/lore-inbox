@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273261AbRJNB4Z>; Sat, 13 Oct 2001 21:56:25 -0400
+	id <S273345AbRJNCBF>; Sat, 13 Oct 2001 22:01:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273269AbRJNB4P>; Sat, 13 Oct 2001 21:56:15 -0400
-Received: from cogito.cam.org ([198.168.100.2]:41735 "EHLO cogito.cam.org")
-	by vger.kernel.org with ESMTP id <S273261AbRJNB4G>;
-	Sat, 13 Oct 2001 21:56:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@CAM.ORG>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: Re: mount hanging 2.4.12
-Date: Sat, 13 Oct 2001 21:51:15 -0400
-X-Mailer: KMail [version 1.3.2]
-Cc: Alexander Viro <viro@math.psu.edu>
+	id <S273364AbRJNCAp>; Sat, 13 Oct 2001 22:00:45 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:465 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S273345AbRJNCAf>;
+	Sat, 13 Oct 2001 22:00:35 -0400
+Date: Sat, 13 Oct 2001 22:01:06 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ed Tomlinson <tomlins@CAM.ORG>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mount hanging 2.4.12 
+In-Reply-To: <20011013234121.31B3B24D64@oscar.casa.dyndns.org>
+Message-ID: <Pine.GSO.4.21.0110132157160.3903-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011014015115.E894D11718@oscar.casa.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->On Sun, 14 Oct 2001, Riley Williams wrote:
 
->> He said in his original email that it was a USB SmartMedia reader,
->> which reads the SmartMedia cards used with FujiFilm digital cameras
->> (amongst others). The actual file system is determined by the cards
->> themselves and can't be changed.
+On Sat, 13 Oct 2001, Ed Tomlinson wrote:
 
->Ahem.  Which fs driver is used when it's successfully mounted?
+> Oct 13 19:28:31 oscar kernel: usb-uhci.c: interrupt, status 2, frame# 1147
+> Oct 13 19:28:31 oscar kernel:  I/O error: dev 08:01, sector 0
+> Oct 13 19:28:31 oscar kernel: FAT: unable to read boot sector
+> Oct 13 19:28:31 oscar kernel: VFS: Disk change detected on device sd(8,1)
+> Oct 13 19:28:31 oscar kernel: SCSI device sda: 131072 512-byte hdwr sectors (67 MB)
+> Oct 13 19:28:31 oscar kernel: sda: Write Protect is on
+> Oct 13 19:28:31 oscar kernel:  sda: sda1
+> 
+> The device is a usb smartmedia reader using the sddr-09 support.
 
-fat.  Would an strace help?
+OK, looks like:
+	a) ->check_media_change() is screwed for that device.
+	b) we are hanging on something interesting.  It isn't ->s_umount
+and it's very unlikely to be ->s_lock or mount_sem.  What it might be,
+though... I suspect that ->bd_sem is screwed.
 
-TIA
-Ed Tomlinson
+	Could you reproduce the hang and then do Alt-Sysrq-T?  That should
+give you stack traces.  I'm especially interested in stack trace of hung
+mount(8).  It's nice to know that it ends on down(), but knowing what had
+called that down() would help big way.
 

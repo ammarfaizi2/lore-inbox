@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317893AbSGPPbY>; Tue, 16 Jul 2002 11:31:24 -0400
+	id <S317904AbSGPPgo>; Tue, 16 Jul 2002 11:36:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317894AbSGPPbY>; Tue, 16 Jul 2002 11:31:24 -0400
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:5011 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id <S317893AbSGPPbW>; Tue, 16 Jul 2002 11:31:22 -0400
-Message-ID: <180577A42806D61189D30008C7E632E8793998@boca213a.boca.ssc.siemens.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: linux-kernel@vger.kernel.org
-Subject: Networking question
-Date: Tue, 16 Jul 2002 11:34:18 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S317905AbSGPPgn>; Tue, 16 Jul 2002 11:36:43 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:747 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S317904AbSGPPgm>; Tue, 16 Jul 2002 11:36:42 -0400
+Date: Tue, 16 Jul 2002 17:39:26 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Gerhard Mack <gmack@innerfire.net>
+Cc: Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020716153926.GR7955@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Gerhard Mack <gmack@innerfire.net>,
+	Mathieu Chouquet-Stringer <mathieu@newview.com>,
+	linux-kernel@vger.kernel.org
+References: <20020716124956.GK7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an application which uses a device driver which I wrote to receive
-UDP/IP messages. This driver does not use interrupts but polls to see if
-messages are available. Once a message is detected I call netif_rx to pass
-it up the stack. The application running from user space knows that a
-message was received and does a recvfrom on my socket. On a 2.2 Kernel, this
-works every time. i.e. I see a message and pass it up the stack and the
-recvfrom does indeed get the message from the socket. In a 2.4 environment I
-see that netif_rx is using softirq to handle the message as opposed to a BH.
-There seems to be a latency introduced because of this. The ksoftirqd runs
-at a low priority and my application runs at a high priority (nice value of
--10), Now it seems that the message is not waiting for me when I do a
-recvfrom. I do not want to yield my program for too long since the
-application is real-time intensive (i.e it must process 30 000msgs/second
-which it has been able to do on a 2.2 Kernel). Is there any way to increasy
-the priority of the softirq daemon or ensure that it is always awoken when a
-netif_rx is called? Please CC me directly on any responses.
+On Tue, Jul 16, 2002 at 11:11:20AM -0400, Gerhard Mack wrote:
 
-Jack Bloch
-Siemens Carrier Networks
-e-mail    : jack.bloch@icn.siemens.com
-phone     : (561) 923-6550
+> In other words you have a backup system that works some of the time or
+> even most of the time... brilliant!
 
+Dump is a backup system that works 100% of the time when used as 
+it was designed to: on unmounted filesystems (or mounted R/O).
+
+It is indeed brilliant to have it work, even most of the time,
+in conditions it wasn't designed for.
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266514AbUFVBfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUFVBk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266514AbUFVBfP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 21:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266515AbUFVBfP
+	id S266517AbUFVBk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 21:40:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266515AbUFVBk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 21:35:15 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:64958 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S266514AbUFVBfG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 21:35:06 -0400
-Date: Tue, 22 Jun 2004 03:34:59 +0200 (MEST)
-From: <Andries.Brouwer@cwi.nl>
-Message-Id: <UTC200406220134.i5M1YxJ20330.aeb@smtp.cwi.nl>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: CAP_DAC_OVERRIDE
+	Mon, 21 Jun 2004 21:40:27 -0400
+Received: from mail016.syd.optusnet.com.au ([211.29.132.167]:30345 "EHLO
+	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266517AbUFVBkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 21:40:12 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16599.36319.269156.432040@wombat.chubb.wattle.id.au>
+Date: Tue, 22 Jun 2004 11:39:43 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: s0348365@sms.ed.ac.uk
+Cc: Martin Schlemmer <azarah@nosferatu.za.org>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/2] kbuild updates
+In-Reply-To: <539000871@toto.iv>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that CAP_DAC_OVERRIDE is treated inconsistently.
-In fs/namei.c:vfs_permission() it allows one to search in
-a directory with zero permissions:
+>>>>> "Alistair" == Alistair John Strachan <s0348365@sms.ed.ac.uk> writes:
 
-        if (!(mask & MAY_EXEC) ||
-            (inode->i_mode & S_IXUGO) || S_ISDIR(inode->i_mode))
-                if (capable(CAP_DAC_OVERRIDE))
-                        return 0;
 
-while in fs/namei.c:exec_permission_lite() it does not.
-Maybe the patch below would be appropriate.
+Alistair> Sam, maybe if there was a way to easily detect whether a
+Alistair> kernel had been build with or without a different output
+Alistair> directory, it would be easier to have vendors take this
+Alistair> change on board. For example, I imagine in the typical case
+Alistair> whereby no change in build directory is made, you will have
+Alistair> something like this:
 
-Andries
 
---- /linux/2.6/linux-2.6.6/linux/fs/namei.c     2004-05-28 20:53
-+++ ./namei.c   2004-06-22 03:33
-@@ -316,7 +316,7 @@
- {
-        umode_t mode = inode->i_mode;
- 
--       if ((inode->i_op && inode->i_op->permission))
-+       if (inode->i_op && inode->i_op->permission)
-                return -EAGAIN;
- 
-        if (current->fsuid == inode->i_uid)
-@@ -330,6 +330,9 @@
-        if ((inode->i_mode & S_IXUGO) && capable(CAP_DAC_OVERRIDE))
-                goto ok;
- 
-+       if (S_ISDIR(inode->i_mode) && capable(CAP_DAC_OVERRIDE))
-+               goto ok;
-+
-        if (S_ISDIR(inode->i_mode) && capable(CAP_DAC_READ_SEARCH))
-                goto ok;
- 
+You can do this without any changes:
 
-[not compiled, not tested, whitespace damaged]
+     if [ -d /lib/modules/`uname -r`/build/include2 ]; then
+       kerndir=`cd  /lib/modules/`uname -r`/build/include2/asm; cd -P../..;/bin/pwd`
+     else
+       kerndir=`cd /lib/modules/`uname -r`/build; /bin/pwd`
+    fi
+
+
+But can the include2/asm symlink be made a relative one, please?  I frequently
+build on one machine, then NFS-mount the build tree and run make
+modules_install somewhere else; I always at present have to convert
+that link to a relative symlink before doing so.
+
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

@@ -1,132 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbTJARyu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 13:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbTJARyt
+	id S262070AbTJARoh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 13:44:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbTJARog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 13:54:49 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:28645 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262440AbTJARyq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 13:54:46 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
+	Wed, 1 Oct 2003 13:44:36 -0400
+Received: from mail.zrz.TU-Berlin.DE ([130.149.4.15]:14726 "EHLO
+	mail.zrz.tu-berlin.de") by vger.kernel.org with ESMTP
+	id S262015AbTJARo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 13:44:27 -0400
+X-Mailer: exmh 2.3 [17-Jan-2001] with nmh-1.0.4
+To: isdn4linux@listserv.isdn4linux.de
+Cc: linux-kernel@vger.kernel.org
+Comment: Software is like sex - it's better when it's free. --Linus Torvalds
+Subject: 2.4.22 PPP filtering for ISDN
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16251.5348.570797.101912@laputa.namesys.com>
-Date: Wed, 1 Oct 2003 21:54:44 +0400
-To: Zan Lynx <zlynx@acm.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: 2.6.0-test6 crash while reading files in /proc/fs/reiserfs/sda1
-In-Reply-To: <1065019441.4226.1.camel@localhost.localdomain>
-References: <1064936688.4222.14.camel@localhost.localdomain>
-	<200309302006.32584.vitaly@namesys.com>
-	<1065019441.4226.1.camel@localhost.localdomain>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
+Date: Wed, 01 Oct 2003 19:44:20 +0200
+From: Frank Elsner <Elsner@zrz.TU-Berlin.DE>
+Message-Id: <E1A4l1Q-0001GC-FD@bronto.zrz.TU-Berlin.DE>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zan Lynx writes:
- > On Tue, 2003-09-30 at 10:06, Vitaly Fertman wrote:
- > > Hi
- > > 
- > > On Tuesday 30 September 2003 19:44, Zan Lynx wrote:
- > > > I was interested in the contents of the files in /proc/fs/reiserfs/sda1,
- > > > so I did these commands:
- > > >
- > > > cd /proc/fs/reiserfs/sda1
- > > > grep . *
- > > >
- > > > (I like using the grep . * because it labels the contents of each file
- > > > with the filename.)
- > > >
- > > > I did this as a regular user and also as root.  Both times the system
- > > > crashed and immediately rebooted.  I tried it again as root and the
- > > > system froze instead.
- > > 
- > > which kernel do you use? some patches? could you look into syslog and
- > > send us all relevant information.
- > > 
- > > would you also run cat on all files there separately to detect the fault one.
- > > 
- > 
- > The kernel is 2.6.0-test6 from kernel.org.  No other patches.
- > 
- > Okay, I did cat file > /dev/null on each one.  It looks like the problem
- > is with oidmap.  The other files do not crash.
 
-Below is a patch, please test.
+When trying to compile kernel 2.4.22 (from kernel.org) with 
+PPP filtering for ISDN enabled by "CONFIG_IPPP_FILTER=y" I get 
 
-Seems that while seq_file-ing fs/reiserfs/procfs.c, Alexander got lost
-in a maze of little pointers and iterators all alike.
+    ld -m elf_i386 -T /usr/src/linux-2.4.22/arch/i386/vmlinux.lds -e stext arch/i386
+/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_m
+ounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/f
+s.o ipc/ipc.o \
+         drivers/parport/driver.o drivers/char/char.o drivers/block/block.o driv
+ers/misc/misc.o drivers/net/net.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o
+ drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/media
+/media.o drivers/isdn/vmlinux-obj.o \
+        net/network.o \
+        /usr/src/linux-2.4.22/arch/i386/lib/lib.a /usr/src/linux-2.4.22/lib/lib.
+a /usr/src/linux-2.4.22/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+drivers/isdn/vmlinux-obj.o: In function `isdn_ppp_ioctl':
+drivers/isdn/vmlinux-obj.o(.text+0xe64e): undefined reference to `sk_chk_filter'
+drivers/isdn/vmlinux-obj.o: In function `isdn_ppp_push_higher':
+drivers/isdn/vmlinux-obj.o(.text+0xf2e5): undefined reference to `sk_run_filter'
+drivers/isdn/vmlinux-obj.o(.text+0xf32d): undefined reference to `sk_run_filter'
+drivers/isdn/vmlinux-obj.o: In function `isdn_ppp_xmit':
+drivers/isdn/vmlinux-obj.o(.text+0xf729): undefined reference to `sk_run_filter'
+drivers/isdn/vmlinux-obj.o(.text+0xf78e): undefined reference to `sk_run_filter'
+drivers/isdn/vmlinux-obj.o: In function `isdn_ppp_autodial_filter':
+drivers/isdn/vmlinux-obj.o(.text+0xfcba): undefined reference to `sk_run_filter'
+drivers/isdn/vmlinux-obj.o(.text+0xfce4): more undefined references to `sk_run_f
+ilter' follow
+make: *** [vmlinux] Error 1
 
-Cannot help but describe a little detail: r_stop() erroneously thought
-that de->data contains a pointer to the super block, while in reality
-address of some fs/reiserfs/procfs.c:show_* function was stored
-there. As a result, deactivate_super() danced fine fandango on core, in
-particular, in the case of show_oidmap() it modified first assignment
-within loop to reset loop counter back to zero.
+Relevant config options are set as follows:
 
-Nikita.
-----------------------------------------------------------------------
---- bk-linux-2.5/fs/reiserfs/procfs.c	Wed Sep 24 03:00:43 2003
-+++ procfs.c	Wed Oct  1 21:37:43 2003
-@@ -453,24 +453,25 @@ static int set_sb(struct super_block *sb
- 	return -ENOENT;
- }
- 
-+extern struct file_system_type reiserfs_fs_type;
-+
- static void *r_start(struct seq_file *m, loff_t *pos)
- {
- 	struct proc_dir_entry *de = m->private;
- 	struct super_block *s = de->parent->data;
--	loff_t l = *pos;
-+	void *ret;
- 
--	if (l)
--		return NULL;
--
--	if (IS_ERR(sget(&reiserfs_fs_type, test_sb, set_sb, s)))
--		return NULL;
-+	ret = sget(&reiserfs_fs_type, test_sb, set_sb, s);
-+	if (IS_ERR(ret))
-+		return ret;
- 
- 	up_write(&s->s_umount);
- 
--	if (de->deleted) {
--		deactivate_super(s);
-+	if (*pos)
-+		return NULL;
-+
-+	if (de->deleted)
- 		return NULL;
--	}
- 
- 	return s;
- }
-@@ -484,15 +485,16 @@ static void *r_next(struct seq_file *m, 
- static void r_stop(struct seq_file *m, void *v)
- {
- 	struct proc_dir_entry *de = m->private;
--	struct super_block *s = de->data;
--	deactivate_super(s);
-+	struct super_block *s = de->parent->data;
-+	if (v == NULL || !IS_ERR(v))
-+		deactivate_super(s);
- }
- 
- static int r_show(struct seq_file *m, void *v)
- {
- 	struct proc_dir_entry *de = m->private;
- 	int (*show)(struct seq_file *, struct super_block *) = de->data;
--	return show(m, v);
-+	return show(m, de->parent->data);
- }
- 
- static struct seq_operations r_ops = {
-----------------------------------------------------------------------
- > -- 
- > Zan Lynx <zlynx@acm.org>
+# ISDN subsystem
+CONFIG_ISDN=y
+CONFIG_ISDN_BOOL=y
+CONFIG_ISDN_PPP=y
+CONFIG_ISDN_PPP_VJ=y
+CONFIG_ISDN_MPP=y
+CONFIG_ISDN_PPP_BSDCOMP=m
+CONFIG_ISDN_PPP_LZSCOMP=m          
+
+Where is the problem located ?          
+
+
+Regards        _______________________________________________________________ 
+Frank Elsner  /                         c/o  Technische Universitaet Berlin   |
+ ____________/                               ZRZ, Sekr. E-N 50                |
+|                                            Einsteinufer 17                  |
+| Voice: +49 30 314 23897                    D-10587 Berlin                   |
+| SMTP : Elsner@zrz.TU-Berlin.DE             Germany    ______________________|
+|_______________________________________________________| Momentan ist richtig
+
+
+

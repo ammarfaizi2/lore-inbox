@@ -1,74 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVANXDT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVANXDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVANXDT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 18:03:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVANXCo
+	id S261343AbVANXDS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 18:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVANXCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 18:02:44 -0500
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:56979 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S261917AbVANXA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 18:00:28 -0500
-Message-ID: <41E84E9E.1000907@am.sony.com>
-Date: Fri, 14 Jan 2005 14:58:38 -0800
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: karim@opersys.com
-CC: Roman Zippel <zippel@linux-m68k.org>, Andi Kleen <ak@muc.de>,
-       Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev <ltt-dev@listserv.shafik.org>
-Subject: Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com>
-In-Reply-To: <41E8358A.4030908@opersys.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Jan 2005 18:02:54 -0500
+Received: from orb.pobox.com ([207.8.226.5]:22958 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261416AbVANXAX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 18:00:23 -0500
+Date: Fri, 14 Jan 2005 15:00:01 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: David Jacoby <dj@outpost24.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel 2.4.20-18.7smp bug
+Message-ID: <20050114230001.GB4841@ip68-4-98-123.oc.oc.cox.net>
+References: <200501140901.j0E91Lk07957@adf141.allyes.com> <1105695993.6080.25.camel@laptopd505.fenrus.org> <41E7E008.7040603@outpost24.com> <1105708214.6042.12.camel@laptopd505.fenrus.org> <41E7E308.2080504@outpost24.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E7E308.2080504@outpost24.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour wrote:
-> Roman Zippel wrote: 
->>You don't think that's a little overkill?
->
->Based on the descriptions below, I think Roman is right.  There's
-too much going on here for the average user.  I haven't looked closely,
-but some of the stuff seems to be for esoteric use cases.  There are
-two ways to approach it:
- - add a simplified API for the most common usage
- - strip out the stuff that's not really needed, and figure out
- workarounds for things (like tracing initialization) that need
- special assistance.
-
-Some of these options (e.g. bufsize) are available to the user
-via tracedaemon. I can honestly say I haven't got a clue what
-to use for some of them, and so always leave them at defaults.
-
-> I can see why you'd say this as a first impression, but really it isn't.
+On Fri, Jan 14, 2005 at 04:19:36PM +0100, David Jacoby wrote:
+> Well sorry for not making me clear, i forgot to say that
+> im not using 2.4.20 or any other default kernel. Im using
+> 2.6.10 from kernel.org.
 > 
-> Here's a simple primer to this call's parameters:
-> channel_path, mode:
-> 	Where does this appear in relayfs and what rights do
-> 	user-space apps have over it (rwx).
-> bufsize, nbufs:
-> 	Usually things have to be subdivided in sub-buffers to make
-> 	both writing and reading simple. LTT uses this to allow,
-> 	among other things, random trace access.
-Could these be simplified to a few enumerated modes?
+> the "vulnerability" im talking about is the following:
+> 
+> http://www.isec.pl/vulnerabilities/isec-0022-pagefault.txt
 
-> channel_flags, channel_callbacks:
-> start_reserve, end_reserve, rchan_start_reserve:
-> resize_min, resize_max:
-> init_buf, init_buf_size:
+Try running a 2.6-ac kernel (the one that fixes this vulnerability is
+2.6.10-ac9). The patch from 2.6.10 to 2.6.10-ac9 is linked on the
+kernel.org web site. Here's the URL anyway:
 
-It seems like you could remove these from relay_open() and move them to
-get()/set() operations if you wanted to simplify the open API.
-Or, you could create other (separate) APIs to pre-fill the buffer or
-reserve space.  Do you want me to take a look at this and propose
-some specific changes?  (I won't get to this until Monday, though).
+http://kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.10/patch-2.6.10-ac9.bz2
 
-=============================
-Tim Bird
-Architecture Group Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-=============================
+-Barry K. Nathan <barryn@pobox.com>
+

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266415AbTGJS2q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 14:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269528AbTGJS2q
+	id S269512AbTGJSeL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 14:34:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269530AbTGJSeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 14:28:46 -0400
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:10971 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S266415AbTGJS2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 14:28:44 -0400
-Date: Thu, 10 Jul 2003 14:42:44 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: finger.kernel.org
-In-reply-to: <3F0DA7A6.6070606@triphoenix.de>
-To: linux-kernel@vger.kernel.org
-Message-id: <200307101442.58578.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.2
-References: <5cDp.1BP.3@gated-at.bofh.it> <7JES.d3.3@gated-at.bofh.it>
- <3F0DA7A6.6070606@triphoenix.de>
+	Thu, 10 Jul 2003 14:34:11 -0400
+Received: from cerebus.immunix.com ([198.145.28.33]:29432 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id S269512AbTGJSeG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 14:34:06 -0400
+Date: Thu, 10 Jul 2003 11:45:58 -0700
+From: Chris Wright <chris@wirex.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>,
+       Jeff Muizelaar <kernel@infidigm.net>
+Subject: Re: [PATCH] add seq file helpers from 2.5 (fwd)
+Message-ID: <20030710114558.B29562@figure1.int.wirex.com>
+References: <Pine.LNX.4.55L.0307100000100.6316@freak.distro.conectiva> <20030710112807.A29562@figure1.int.wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030710112807.A29562@figure1.int.wirex.com>; from chris@wirex.com on Thu, Jul 10, 2003 at 11:28:07AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+* Chris Wright (chris@wirex.com) wrote:
+> * Marcelo Tosatti (marcelo@conectiva.com.br) wrote:
+> > +int single_open(struct file *file, int (*show)(struct seq_file *, void*), void *data)
+> > +{
+> > +	struct seq_operations *op = kmalloc(sizeof(*op), GFP_KERNEL);
+> > +	int res = -ENOMEM;
+> > +
+> > +	if (op) {
+> > +		op->start = single_start;
+> > +		op->next = single_next;
+> > +		op->stop = single_stop;
+> > +		op->show = show;
+> > +		res = seq_open(file, op);
+> 
+> Any reason not to simply allocate static ops struct?  As in:
 
-On Thursday 10 July 2003 13:51, Dennis Bliefernicht wrote:
-> Kurt Wall wrote:
->  > Works over here (right now):
->
-> Same here, not only kernel.org, but also finger.kernel.org:
+Bah, nevermind, I didn't look closely enough to see that show is
+dynamic here (not to mention it is simple straight backport).  Sorry for
+senseless noise ;-)
 
-Not, here, sometimes it works sometimes it doesn't.
-
-Jeff.
-
-- -- 
-Trust me, you don't want me doing _anything_ first thing in the morning.
-		- Linus Torvalds
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/DbOuwFP0+seVj/4RAu2jAJoD5Dd9ExFRiIGYepIdSWxS1IcOmACgso5C
-R6IUWQfYaWBBwg1bvspyLkY=
-=me3l
------END PGP SIGNATURE-----
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

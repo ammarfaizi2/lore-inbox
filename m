@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbUKQKrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262269AbUKQKtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbUKQKrK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 05:47:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbUKQKrJ
+	id S262269AbUKQKtm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 05:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbUKQKtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 05:47:09 -0500
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:61709 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id S262261AbUKQKp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 05:45:56 -0500
-Message-ID: <419B4451.3010104@gentoo.org>
-Date: Wed, 17 Nov 2004 12:30:09 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel@vger.kernel.org, bcollins@debian.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH 3/3] raw1394: sysfs support via class_simple
-References: <4196D308.60801@gentoo.org> <200411140142.56071.dtor_core@ameritech.net>
-In-Reply-To: <200411140142.56071.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Wed, 17 Nov 2004 05:49:41 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:16617 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262269AbUKQKse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 05:48:34 -0500
+Subject: Re: Slab corruption with 2.6.9 + swsusp2.1
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Ake <Ake.Sandgren@hpc2n.umu.se>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041117064403.GB26723@hpc2n.umu.se>
+References: <20041116115917.GN4344@hpc2n.umu.se>
+	 <1100635759.4362.4.camel@desktop.cunninghams>
+	 <20041117064403.GB26723@hpc2n.umu.se>
+Content-Type: text/plain
+Message-Id: <1100688279.4040.4.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 17 Nov 2004 21:44:40 +1100
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -5.9 (-----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CUNJy-000GVY-Dr*khPLZWXbgXQ*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Hmm, with the exception of raw1394, the rest of ieee1394 subsystem does
-> not need its own classes as 1394 devices hook up into other subsystems
-> (SCSI, NET) and are classified with the rest of the devices in those
-> systems. After all userspace does not really care whether eth0 is on
-> PCI, ISA or IEEE1394, all it needs to know that it is just another network
-> interface. Am I missing something?
+Hi.
 
-No, I think I was. I was trying to follow the way that USB does it (e.g. usblp 
-linking into the usb sysfs class) but I think you are right - IEEE1394 is in a 
-different situation. raw1394 is the only ieee1394 driver (as far as I can see) 
-that might benefit fitting into a generic class. I think we should stick with 
-class_simple and possibly consider a generic class if more drivers might 
-require it in the future.
+On Wed, 2004-11-17 at 17:44, Ake wrote:
+> On Wed, Nov 17, 2004 at 07:09:19AM +1100, Nigel Cunningham wrote:
+> > On Tue, 2004-11-16 at 22:59, Ake wrote:
+> > > I got a slab corruption message running 2.6.9 + swsusp2.1 and
+> > > nvidia_compat.patch + vm-pages_scanned-active_list.patch from -ck3.
+> > 
+> > Just so I'm clear, why do you think it's suspending that's causing the
+> > corruption?
+> 
+> I don't. I was just making clear exactly what kernel source i was using.
 
-Daniel
+Oh, okay. I was going off the subject :>
+
+Had you suspended prior to this? If not, you can rule the suspend code
+out. If you had, I wouldn't rule it out because I am trying to identify
+the cause of some occasional slab corruption at the moment. Haven't got
+it reproducible yet.
+
+> It probably haven't got anything to do with the swsusp code, but since
+> those patches are applied i though i better let you know.
+> 
+> The machine was basically doing nothing since i was out for lunch.
+> X was running screensaver and it was playing some mp3's.
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267986AbUJDUCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268203AbUJDUDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267986AbUJDUCO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 16:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268203AbUJDUCO
+	id S268203AbUJDUDq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 16:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268260AbUJDUDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 16:02:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34268 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267986AbUJDUCN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 16:02:13 -0400
-Date: Mon, 4 Oct 2004 12:59:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: eyal@eyal.emu.id.au, linux-kernel@vger.kernel.org,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: 2.6.9-rc3-mm2: error: `u64' used prior to declaration
-Message-Id: <20041004125937.7836e605.akpm@osdl.org>
-In-Reply-To: <20041004153515.GB12736@stusta.de>
-References: <416160FE.2090107@eyal.emu.id.au>
-	<20041004153515.GB12736@stusta.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 4 Oct 2004 16:03:45 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:37686 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268203AbUJDUDg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 16:03:36 -0400
+Date: Tue, 5 Oct 2004 00:04:00 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>, sam@ravnborg.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make gcc -align options .config-settable
+Message-ID: <20041004220400.GA16028@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	sam@ravnborg.org, linux-kernel@vger.kernel.org
+References: <200410012226.23565.vda@port.imtp.ilyichevsk.odessa.ua> <20041001151751.3917d9d5.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041001151751.3917d9d5.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
->  Would you accept a patch that changes all #include <asm/bitops.h> to
->  #include <linux/bitops.h> ?
+On Fri, Oct 01, 2004 at 03:17:51PM -0700, Andrew Morton wrote:
+> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+> >
+> > With all alignment options set to 1 (minimum alignment),
+> > I've got 5% smaller vmlinux compared to one built with
+> > default code alignment.
+> > 
+> 
+> Sam, can you process this one?
 
-I have an easier solution - I'll drop
+I will do so in a week or so.
+Travelling (and busy) these days.
 
-add-rotate-left-right-ops-to-bitopsh.patch
-add-rotate-left-right-ops-to-bitopsh-build-fix.patch
-sha512-use-asm-optimized-bit-rotation.patch
+	Sam

@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288801AbSCSSKe>; Tue, 19 Mar 2002 13:10:34 -0500
+	id <S288071AbSCSSLE>; Tue, 19 Mar 2002 13:11:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288748AbSCSSKY>; Tue, 19 Mar 2002 13:10:24 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:25076
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S287862AbSCSSKL>; Tue, 19 Mar 2002 13:10:11 -0500
-Date: Tue, 19 Mar 2002 10:11:30 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: John Jasen <jjasen1@umbc.edu>
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reading your email via tcpdump
-Message-ID: <20020319181130.GQ2254@matchmail.com>
-Mail-Followup-To: John Jasen <jjasen1@umbc.edu>,
-	Mike Galbraith <mikeg@wen-online.de>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10203191009290.5694-100000@mikeg.wen-online.de> <Pine.SGI.4.31L.02.0203190915250.7550126-100000@irix2.gl.umbc.edu>
+	id <S287862AbSCSSKz>; Tue, 19 Mar 2002 13:10:55 -0500
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:504 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S288019AbSCSSKh>; Tue, 19 Mar 2002 13:10:37 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 19 Mar 2002 07:15:54 -0700
+To: Peter Hartley <pdh@utter.chaos.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: setrlimit and RLIM_INFINITY causing fsck failure, 2.4.18
+Message-ID: <20020319141554.GL470@turbolinux.com>
+Mail-Followup-To: Peter Hartley <pdh@utter.chaos.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <006701c1cf6d$d9701230$2701230a@electronic>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 09:20:25AM -0500, John Jasen wrote:
-> > > 16:42:49.412862 10.0.0.101.netbios-dgm > 10.255.255.255.netbios-dgm:
-> > > >>> NBT UDP PACKET(138) Res=0x1102 ID=0x54 IP=10.0.0.101 Port=138 Length=193
-> > > Res2=0x0
-> > > SourceName=T1H6I3          NameType=0x00 (Workstation)
-> > > DestName=
-> > > SMB PACKET: SMBunknown (REQUEST)
-> > > SMB Command   =  0x43
-> > > Error class   =  0x46
-> > > Error code    =  20550
-> > > Flags1        =  0x45
-> > > Flags2        =  0x4E
-> > > Tree ID       =  17990
-> > > Proc ID       =  18000
-> > > UID           =  16720
-> > > MID           =  16707
-> > > Word Count    =  66
-> > > SMBError = ERROR: Unknown error (70,20550)
+On Mar 19, 2002  17:45 -0000, Peter Hartley wrote:
+> In particular, this means that an e2fsck 1.27 built against such a glibc
+> will fail with SIGXFS every time on any block device bigger than 2Gbytes.
+> This is because:
 > 
-> This looks like standard SMB garbage. It probably repeats on a regular
-> basis. From what I remember, I think it is a Windows box browsing
-> the network trying to discover other SMB boxes, finding a 'master
-> browser', and other such stuff.
-> 
-> I see it all the time when there are Windows machines about, and I'm
-> running tcpdump.
-> 
-> I imagine that someone who knows better, such as the Samba guys, would be
-> able to tell you exactly whats going on, and maybe some other interesting
-> tidbits of information.
-> 
-> (I hate SMB ... its really chatty ...)
+>  * e2fsck calls setrlimit(RLIMIT_FSIZE, RLIM_INFINITY) in
+>    an attempt to unset the limit. RLIM_INFINITY here is
+>    0xFFFFFFFF. This is IMO the Right Thing.
 
-That's not the problem part of the tcpdump output.  The problem is that part
-of an email previously read on the linux box (with no samba runing. (also,
-no smbfs MikeG?)) showed up in the tcpdump output...
+It is only the right thing if the original limit was not 0xFFFFFFFF.
+Otherwise, it is just adding to the problem, because the problem only
+happens when you try to SET the limit.
+
+> Surely the only Right Things to do in the kernel are (a) invent a new
+> setrlimit call that corrects the RLIM_INFINITY value, or (b) have the
+> current setrlimit call correct the RLIM_INFINITY value unconditionally.
+
+(c) rlimit should not apply to block devices.
+
+There were patches for this floating around, and I thought they made it
+into 2.4.18, but they did not.
+
+I do agree that we should also fix "setrlimit" to do the 0x7FFFFFFF to
+0xFFFFFFFF correction.
+
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

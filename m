@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263002AbRFGTcF>; Thu, 7 Jun 2001 15:32:05 -0400
+	id <S263003AbRFGTeZ>; Thu, 7 Jun 2001 15:34:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263003AbRFGTbz>; Thu, 7 Jun 2001 15:31:55 -0400
-Received: from penguins-world.pcsystems.de ([212.63.44.200]:61422 "HELO
-	schottelius.org") by vger.kernel.org with SMTP id <S263002AbRFGTbm>;
-	Thu, 7 Jun 2001 15:31:42 -0400
-Message-ID: <3B1FD67D.8DFDAE58@pcsystems.de>
-Date: Thu, 07 Jun 2001 21:31:09 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: scsi disk defect or kernel driver defect ?
-In-Reply-To: <3B1FAA63.130E556A@pcsystems.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263012AbRFGTeP>; Thu, 7 Jun 2001 15:34:15 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:243 "EHLO
+	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id <S263003AbRFGTeF>; Thu, 7 Jun 2001 15:34:05 -0400
+Message-Id: <l0313031db7458697459b@[192.168.239.105]>
+In-Reply-To: <Pine.LNX.4.21.0106071435580.1156-100000@freak.distro.conectiva>
+In-Reply-To: <l0313031cb745811cfc17@[192.168.239.105]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Thu, 7 Jun 2001 20:31:53 +0100
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: [PATCH] Reap dead swap cache earlier v2
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all!
+>> >As suggested by Linus, I've cleaned the reapswap code to be contained
+>> >inside an inline function. (yes, the if statement is really ugly)
+>>
+>> I can't seem to find the patch which adds this behaviour to the background
+>> scanning.
+>
+>I've just sent Linus a patch to free swap cache pages at the time we free
+>the last pte. (requested by himself)
+>
+>With it applied we should get the old behaviour back again.
+>
+>I can put it on my webpage if you wish.
 
-The problem is solved, if I disconnect the hp streamer
-from the bus. I wonder why there is a problem.
-The aic7880 has two busses:
+Just copy it to me so I can replace the dead-swap hacks you introduced earlier.
 
-ultra/ ultrawide.
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
 
-The ibm hard disk is connected to the uw port and is terminated.
-No other uw device is attached.
+The key to knowledge is not to rely on people to teach you it.
 
-The hp streamer is also lonely on the ultra bus. I have
-no documentation for that device, so I don't know
-whether it is terminated nor if it is using parity.
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
 
-Btw, can somebody explain what the parity bit does to me ?
-
-Or does anybody have a hp c1536 streamer and can help me ?
-
-
-Regards,
-
-Nico
 

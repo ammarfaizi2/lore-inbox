@@ -1,125 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVATRaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVATRdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbVATRaN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 12:30:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbVATR14
+	id S262264AbVATRdv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 12:33:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVATRcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 12:27:56 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:3774 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262789AbVATRZT (ORCPT
+	Thu, 20 Jan 2005 12:32:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:53391 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262220AbVATRax (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 12:25:19 -0500
-Date: Thu, 20 Jan 2005 18:25:06 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
-Message-ID: <20050120172506.GA20295@elte.hu>
-References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87y8eo9hed.fsf@sulphur.joq.us>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 20 Jan 2005 12:30:53 -0500
+Date: Thu, 20 Jan 2005 09:30:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Chris Wedgwood <cw@f00f.org>, Paul Mackerras <paulus@samba.org>,
+       linux-kernel@vger.kernel.org, Peter Chubb <peterc@gelato.unsw.edu.au>,
+       Tony Luck <tony.luck@intel.com>,
+       Darren Williams <dsw@gelato.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Ia64 Linux <linux-ia64@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jesse Barnes <jbarnes@sgi.com>
+Subject: Re: [PATCH RFC] 'spinlock/rwlock fixes' V3 [1/1]
+In-Reply-To: <20050120162309.GB14002@elte.hu>
+Message-ID: <Pine.LNX.4.58.0501200926510.8178@ppc970.osdl.org>
+References: <20050116230922.7274f9a2.akpm@osdl.org> <20050117143301.GA10341@elte.hu>
+ <20050118014752.GA14709@cse.unsw.EDU.AU> <16877.42598.336096.561224@wombat.chubb.wattle.id.au>
+ <20050119080403.GB29037@elte.hu> <16878.9678.73202.771962@wombat.chubb.wattle.id.au>
+ <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com>
+ <20050120023445.GA3475@taniwha.stupidest.org> <Pine.LNX.4.58.0501200812300.8178@ppc970.osdl.org>
+ <20050120162309.GB14002@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-just finished a short testrun with nice--20 compared to SCHED_FIFO, on a
-relatively slow 466 MHz box:
 
- SCHED_FIFO:
- ************* SUMMARY RESULT ****************
- Total seconds ran . . . . . . :   120
- Number of clients . . . . . . :     4
- Ports per client  . . . . . . :     4
- *********************************************
- Timeout Count . . . . . . . . :(    0)
- XRUN Count  . . . . . . . . . :    10
- Delay Count (>spare time) . . :     0
- Delay Count (>1000 usecs) . . :     0
- Delay Maximum . . . . . . . . : 27879   usecs
- Cycle Maximum . . . . . . . . :   732   usecs
- Average DSP Load. . . . . . . :    38.8 %
- Average CPU System Load . . . :    10.9 %
- Average CPU User Load . . . . :    26.4 %
- Average CPU Nice Load . . . . :     0.0 %
- Average CPU I/O Wait Load . . :     0.1 %
- Average CPU IRQ Load  . . . . :     0.0 %
- Average CPU Soft-IRQ Load . . :     0.0 %
- Average Interrupt Rate  . . . :  1709.6 /sec
- Average Context-Switch Rate . :  6359.9 /sec
- *********************************************
+On Thu, 20 Jan 2005, Ingo Molnar wrote:
+> 
+> right. Replace patch #4 with:
+>  
+>  /**
+>   * read_can_lock - would read_trylock() succeed?
+>   * @lock: the rwlock in question.
+>   */
+> -#define read_can_lock(x) (atomic_read((atomic_t *)&(x)->lock) > 0)
+> +static inline int read_can_lock(rwlock_t *rw)
+> +{
+> +	return rw->lock > 0;
+> +}
 
-nice--20-hack:
+No, it does need the cast to signed, otherwise it will return true for the 
+case where somebody holds the write-lock _and_ there's a pending reader 
+waiting too (the write-lock will make it zero, the pending reader will 
+wrap around and make it negative, but since "lock" is "unsigned", it will 
+look like a large value to "read_can_lock".
 
- ************* SUMMARY RESULT ****************
- Total seconds ran . . . . . . :   120
- Number of clients . . . . . . :     4
- Ports per client  . . . . . . :     4
- *********************************************
- Timeout Count . . . . . . . . :(    0)
- XRUN Count  . . . . . . . . . :    10
- Delay Count (>spare time) . . :     0
- Delay Count (>1000 usecs) . . :     0
- Delay Maximum . . . . . . . . :  6807   usecs
- Cycle Maximum . . . . . . . . :  1059   usecs
- Average DSP Load. . . . . . . :    39.9 %
- Average CPU System Load . . . :    10.9 %
- Average CPU User Load . . . . :    26.0 %
- Average CPU Nice Load . . . . :     0.0 %
- Average CPU I/O Wait Load . . :     0.1 %
- Average CPU IRQ Load  . . . . :     0.0 %
- Average CPU Soft-IRQ Load . . :     0.0 %
- Average Interrupt Rate  . . . :  1712.8 /sec
- Average Context-Switch Rate . :  5113.0 /sec
- *********************************************
+I also think I'd prefer to do the things as macros, and do the type-safety 
+by just renaming the "lock" field like Chris did. We had an issue with gcc 
+being very slow recently, and that was due to some inline functions in 
+header files: gcc does a lot of work on an inline function regardless of
+whether it is used or not, and the spinlock header file is included pretty 
+much _everywhere_...
 
-this shows the surprising result that putting all RT tasks on nice--20
-reduced context-switch rate by 20% and the Delay Maximum is lower as
-well. (although the Delay Maximum is quite unreliable so this could be a
-fluke.) But the XRUN count is the same.
+Clearly inline functions are "nicer", but they do come with a cost.
 
-can anyone else reproduce this, with the test-patch below applied?
-
-	Ingo
-
---- linux/kernel/sched.c.orig
-+++ linux/kernel/sched.c
-@@ -2245,10 +2245,10 @@ EXPORT_PER_CPU_SYMBOL(kstat);
-  * if a better static_prio task has expired:
-  */
- #define EXPIRED_STARVING(rq) \
--	((STARVATION_LIMIT && ((rq)->expired_timestamp && \
-+	((task_nice(current) > -20) && ((STARVATION_LIMIT && ((rq)->expired_timestamp && \
- 		(jiffies - (rq)->expired_timestamp >= \
- 			STARVATION_LIMIT * ((rq)->nr_running) + 1))) || \
--			((rq)->curr->static_prio > (rq)->best_expired_prio))
-+			((rq)->curr->static_prio > (rq)->best_expired_prio)))
- 
- /*
-  * Do the virtual cpu time signal calculations.
-@@ -3211,6 +3211,12 @@ static inline task_t *find_process_by_pi
- static void __setscheduler(struct task_struct *p, int policy, int prio)
- {
- 	BUG_ON(p->array);
-+	if (policy != SCHED_NORMAL) {
-+		p->policy = SCHED_NORMAL;
-+		p->static_prio = NICE_TO_PRIO(-20);
-+		p->prio = p->static_prio;
-+		return;
-+	}
- 	p->policy = policy;
- 	p->rt_priority = prio;
- 	if (policy != SCHED_NORMAL)
+		Linus

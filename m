@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270615AbRICOyX>; Mon, 3 Sep 2001 10:54:23 -0400
+	id <S271723AbRICOvx>; Mon, 3 Sep 2001 10:51:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271656AbRICOyN>; Mon, 3 Sep 2001 10:54:13 -0400
-Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:25062 "EHLO
-	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S270615AbRICOyE>; Mon, 3 Sep 2001 10:54:04 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Phillip Susi <psusi@cfl.rr.com>
-Reply-To: psusi@cfl.rr.com
-To: linux-kernel@vger.kernel.org
-Subject: [bug report] NFS and uninterruptable wait states
-Date: Mon, 3 Sep 2001 10:48:31 +0000
-X-Mailer: KMail [version 1.2]
+	id <S271728AbRICOvn>; Mon, 3 Sep 2001 10:51:43 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35090 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271723AbRICOv2>; Mon, 3 Sep 2001 10:51:28 -0400
+Subject: Re: Editing-in-place of a large file
+To: mcelrath+linux@draal.physics.wisc.edu (Bob McElrath)
+Date: Mon, 3 Sep 2001 15:54:28 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010903094636.V23180@draal.physics.wisc.edu> from "Bob McElrath" at Sep 03, 2001 09:46:36 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Message-Id: <01090310483100.26387@faldara>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15dv7M-0001po-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The other day I was trying to set up an NFS mount to my room mate's system, 
-and ran into what I at least, call a bug.  When I tried to mount his NFS 
-export, the mount command locked up, and would not die.  Not even a SIGKILL 
-would do any good.  According to ps, the mount process was in the 'D' - 
-uninterruptable wait state.  It also looked like the WCHAN was rpc_ 
-something.  I think it was waiting for an rpc call to return in the D state, 
-and it never did return.  The bug here is that it should NOT be waiting in 
-the D state for something that could never happen.  For that matter, why 
-should anything ever need to wait in an uninterruptable state?  Whenever you 
-wait, you should expect the possibility of being interrupted, check for that 
-when you wake up, and if you were, clean up and return so the signal can be 
-processed.
+> Sounds like a possibility for the kernel to me.  As with most things,
 
-Anyhow, about an hour later ( the mount process still stuck ) I figured out 
-that the other machine was not running rpc.nfsd, though it was running 
-rpc.mountd.  Once I started rpc.nfsd on the machine, the mount on my box 
-finally returned ( and was terminated by the SIGKILL that I sent it an hour 
-before ).
+But you have it backwards - things are not "could go in the kernel" things
+are "could avoid being in kernel"
 
-Could someone confirm that this is a bug, and explain why anything should 
-ever need to wait in that state?
+> passed around as a target for the video device, a source for a userspace
+> program, and a source for DMA to disk)  They also have some special
+> flags:
+>     fcentl(fd, F_SETFL, FDIRECT); /* enables direct disk access */
+>     open(filename, O_DIRECT);     /* likewise */
+> See this page for details:
+>     http://reality.sgi.com/cpirazzi_engr/lg/uv/disk.html
+
+Andrea has this working on 2.4 + patches
 

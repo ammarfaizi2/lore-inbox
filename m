@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310348AbSCBIFT>; Sat, 2 Mar 2002 03:05:19 -0500
+	id <S310352AbSCBInB>; Sat, 2 Mar 2002 03:43:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310349AbSCBIFJ>; Sat, 2 Mar 2002 03:05:09 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:28691 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S310348AbSCBIE4>;
-	Sat, 2 Mar 2002 03:04:56 -0500
-Date: Fri, 1 Mar 2002 23:57:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Nathan Walp <faceprint@faceprint.com>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] 2.5.5-dj2
-Message-ID: <20020302075755.GD20536@kroah.com>
-In-Reply-To: <20020228221845.GA6682@faceprint.com>
-Mime-Version: 1.0
+	id <S310353AbSCBImw>; Sat, 2 Mar 2002 03:42:52 -0500
+Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:18101 "HELO
+	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
+	id <S310352AbSCBImi>; Sat, 2 Mar 2002 03:42:38 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: SSSCA: We're in trouble now
+In-Reply-To: <1015028463.2276.231.camel@thanatos>
+From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Date: Sat, 02 Mar 2002 09:35:43 +0100
+In-Reply-To: <1015028463.2276.231.camel@thanatos> (Thomas Hood's message of
+ "01 Mar 2002 19:21:01 -0500")
+Message-ID: <87bse7nz8g.fsf@CERT.Uni-Stuttgart.DE>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020228221845.GA6682@faceprint.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sat, 02 Feb 2002 05:03:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 28, 2002 at 05:18:48PM -0500, Nathan Walp wrote:
-> got this either unplugging and plugging my usb printer from the hub, or
-> turning it on and off (don't remember the exact timing).  
+Thomas Hood <jdthood@mail.com> writes:
 
-Were you sending data to the printer at the time?
+>> The solution is simple: go and create your own content, and share it
+>> with your friends. But you won't get Hollywood movies this way.
+>
+> The problem is that copy-protection will only be effective
+> if you impose Soviet style restrictions on the use of computers.
 
-And does this also happen on 2.5.6-pre2?
+That's not necessarily true.  Most people cannot circumvent even basic
+obstacles when it comes to computers, and both industry and
+legislative might be content with that.
 
-thanks,
-
-greg k-h
+-- 
+Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

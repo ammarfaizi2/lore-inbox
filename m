@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280647AbRKFWlI>; Tue, 6 Nov 2001 17:41:08 -0500
+	id <S280659AbRKFWmS>; Tue, 6 Nov 2001 17:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280653AbRKFWk7>; Tue, 6 Nov 2001 17:40:59 -0500
-Received: from t2.redhat.com ([199.183.24.243]:31737 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S280647AbRKFWkv>; Tue, 6 Nov 2001 17:40:51 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20011106123427.A11351@hazard.jcu.cz> 
-In-Reply-To: <20011106123427.A11351@hazard.jcu.cz>  <3BE2D37A.D32C6DB1@zip.com.au> <20011105112900.C5919@hazard.jcu.cz> 
-To: Jan Marek <linux@hazard.jcu.cz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Cannot unlock spinlock... Was: Problem in yenta.c, 2nd edition 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Nov 2001 22:40:49 +0000
-Message-ID: <23001.1005086449@redhat.com>
+	id <S280658AbRKFWmD>; Tue, 6 Nov 2001 17:42:03 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28167 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280653AbRKFWlw>; Tue, 6 Nov 2001 17:41:52 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Using %cr2 to reference "current"
+Date: Tue, 6 Nov 2001 22:38:27 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9s9op3$2m3$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0111061006150.2222-100000@penguin.transmeta.com> <E161B0f-0001Io-00@the-village.bc.nu>
+X-Trace: palladium.transmeta.com 1005086488 8979 127.0.0.1 (6 Nov 2001 22:41:28 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 6 Nov 2001 22:41:28 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <E161B0f-0001Io-00@the-village.bc.nu>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>
+>> That should work fairly well, and has the advantage that you can hide more
+>> state there if you want (ie it allows us, on demand, to move hot state of
+>> "struct task_struct" up there).
+>
+>Sweet. Now that I'd completely missed. Task private state and task
+>public state splitting
 
-linux@hazard.jcu.cz said:
->  The last message I got from kernel is:  request_irq: desc->handler->
-> startup(irq)
+Yes. It would be a waste to have to bring in a cache-line into the L1
+cache, and then only use 4 bytes of it. So it should make sense to set
+this up somewhat like:
 
-> Then problem is in the spin_unlock_irqrestore()???
+	struct local_task_struct {
+		struct task_struct *tsk;
+		.. other fields ..
+	};
 
-> Any ideas, recomendations, suggestions?
+and then use the _exact_ existing infrastructure to get
+"local_task_struct" instead of "task_struct", and let the compiler do
+all the rest at a higher level. So we'd just rename "get_current()" to
+"get_local_current()", and then do
 
-It's dying in an IRQ storm. Something is permanently asserting IRQ 11, and 
-unless you can work out what's doing it and make it stop, the machine will 
-die whenever you enable that IRQ.
+	#define get_current()	(get_local_current()->tsk)
 
-Try this hack, just to make sure:
+and people who want to know about the local task struct can use that.
 
-Index: arch/i386/kernel/irq.c
-===================================================================
-RCS file: /inst/cvs/linux/arch/i386/kernel/irq.c,v
-retrieving revision 1.4.2.29
-diff -u -r1.4.2.29 irq.c
---- arch/i386/kernel/irq.c	2001/06/21 09:33:54	1.4.2.29
-+++ arch/i386/kernel/irq.c	2001/08/15 16:50:01
-@@ -552,6 +552,8 @@
- 	spin_unlock_irqrestore(&desc->lock, flags);
- }
- 
-+static unsigned int stormcount[NR_IRQS];
-+
- /*
-  * do_IRQ handles all normal device IRQ's (the special
-  * SMP cross-CPU interrupts have their own specific
-@@ -576,6 +578,15 @@
- 	unsigned int status;
- 
- 	kstat.irqs[cpu][irq]++;
-+	if (++stormcount[irq] > 200) {
-+		printk(KERN_CRIT "IRQ storm detected on IRQ %d. Disabling\n", irq);
-+		disable_irq(irq);
-+	}
-+	if(irq==0) {
-+		int i; 
-+		for (i=0; i<NR_IRQS; i++)
-+			stormcount[i] = 0;
-+	}
- 	spin_lock(&desc->lock);
- 	desc->handler->ack(irq);
- 	/*
-
-
-
-
---
-dwmw2
-
-
+		Linus

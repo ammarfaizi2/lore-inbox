@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUHTOGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267431AbUHTOME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267170AbUHTOGe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 10:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUHTOGd
+	id S267431AbUHTOME (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 10:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267439AbUHTOME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 10:06:33 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:44253 "EHLO
+	Fri, 20 Aug 2004 10:12:04 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:4576 "EHLO
 	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S268005AbUHTOGZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 10:06:25 -0400
+	id S267431AbUHTOMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 10:12:00 -0400
 From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 20 Aug 2004 16:05:11 +0200
-To: fsteiner-mail@bio.ifi.lmu.de, diablod3@gmail.com
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
-       kernel@wildsau.enemy.org, alan@lxorguk.ukuu.org.uk
+Date: Fri, 20 Aug 2004 16:11:01 +0200
+To: schilling@fokus.fraunhofer.de, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org, kernel@wildsau.enemy.org,
+       fsteiner-mail@bio.ifi.lmu.de, diablod3@gmail.com
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <41260517.nail8LDD105P5@burner>
+Message-ID: <41260675.nail8LDG1UIJL@burner>
 References: <200408041233.i74CX93f009939@wildsau.enemy.org>
  <d577e5690408190004368536e9@mail.gmail.com>
- <4124A024.nail7X62HZNBB@burner>
- <1092919260.28141.30.camel@localhost.localdomain>
- <4124BA65.7010509@bio.ifi.lmu.de>
- <d577e56904082001023b2faad9@mail.gmail.com>
-In-Reply-To: <d577e56904082001023b2faad9@mail.gmail.com>
+ <4124A024.nail7X62HZNBB@burner> <4124BA10.6060602@bio.ifi.lmu.de>
+ <1092925942.28353.5.camel@localhost.localdomain>
+ <4125E5B9.nail8LD2EG3NM@burner>
+ <1093001143.30940.23.camel@localhost.localdomain>
+In-Reply-To: <1093001143.30940.23.camel@localhost.localdomain>
 User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -30,24 +30,17 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland <diablod3@gmail.com> wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> On Thu, 19 Aug 2004 16:34:13 +0200, Frank Steiner
-> <fsteiner-mail@bio.ifi.lmu.de> wrote:
-> > Here's what I see when I call cdrecord on SuSE 9.1:
-> > 
-> > Cdrecord-Clone-dvd 2.01a27 (i686-suse-linux) Copyright (C) 1995-2004 JÃ¶rg Schilling
-> > Note: This version is an unofficial (modified) version with DVD support
-> > Note: and therefore may have bugs that are not present in the original.
-> > Note: Please send bug reports or support requests to http://www.suse.de/feedback
-> > Note: The author of cdrecord should not be bothered with problems in this version.
+> > On a decently administrated Linux system, only root is able to send SCSI 
+> > commands because only root is able to open the apropriate /dev/* entries.
 >
-> And debian does:
+> Wrong (as usual)
 
-bla bla bla.... you nicely ignored:
+Useless as usual :-(
 
-Message-ID: <4124C46B.nail83H31GJ2S@burner> 
-
+If you like to make useful contributions to a discussion, try to be serious and
+either explain what you mean or just asume that nobody will believe you.
 
 Jörg
 

@@ -1,85 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbULaME5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbULaMIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261866AbULaME5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 07:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbULaME5
+	id S261872AbULaMIG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 07:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbULaMHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 07:04:57 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:16622 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S261866AbULaMEu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 07:04:50 -0500
-Message-ID: <007e01c4ef30$f23ba3c0$0f01a8c0@max>
-From: "Richard Purdie" <rpurdie@rpsys.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Flaw in ide_unregister()
-Date: Fri, 31 Dec 2004 12:04:54 -0000
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+	Fri, 31 Dec 2004 07:07:47 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58530 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261872AbULaMGH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 07:06:07 -0500
+Date: Fri, 31 Dec 2004 07:16:01 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Felipe Erias <charles.swann@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Queues when accessing disks
+Message-ID: <20041231091601.GB10834@logos.cnet>
+References: <169c13c404123019322a766f64@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <169c13c404123019322a766f64@mail.gmail.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been having some problems with calls to ide_unregister() (in ide.c).
+On Fri, Dec 31, 2004 at 04:32:59AM +0100, Felipe Erias wrote:
+> Hi,
 
-This function is declared void which should mean it always succeeds and yet 
-it can fail *silently* under the following condition:
+Hi Felipe,
 
-if (drive->usage || DRIVER(drive)->busy) goto abort;
+> I'm trying to apply queuing theory to the study of the GNU/Linux kernel.
+> Right now, I'm focusing in the queue of processes that appears when they
+> try to access an I/O device (specifically, an IDE HD).
 
-(it also fails if (!hwif->present) although that is not a problem)
+Interesting!
 
-The driver I've been having problems with is ide-cs.c. Specifically if a CF 
-card is removed without ejecting and unmounting the card first. In this 
-case, the hardware is gone so we want the ide_unregister call to succeed and 
-yet the above code aborts the unregister (silently). This makes it an ide 
-problem rather than an ide-cs/pcmcia problem.
+> When they want to read data, it behaves as a usual queue: several clients (processes) that
+> require attention from a server (disk / driver / ...). The case when they want
+> to write data is a bit more tricky, because of the cache buffers used by the OS,
+> and maybe could be modelized by a network of queues. 
 
-There are several solutions:
+Well read's also go through the pagecache, so you "suffer" from the same caching 
+issue.
 
-1. Fix ide_unregister so it always succeeds. (Preferred Solution)
-2. Add parameter to ide_unregister to state whether it should abort on 
-busy/usage or not. (ugly)
-3. Add a return value. What does ide-cs.c do with it though? The hardware is 
-gone. (doesn't help)
+> Both cases are
+> interesting for my work, but I'll take the reading one first, just
+> because it seems
+> a bit more simple 'a priori'.
+> 
+> To modelize the queue, I need to get some information:
+>  - what processes claim attention from the disk
+>  - when they do it
+>  - when they begin to be served
+>  - when they finish being served
 
-Only a limited number of drivers use ide_unregister():
+Its a bit more complicated than that because requests will be often shared, and 
+its not always the process who initiates the request who actually perform it.
 
-drivers/ide/ide-pnp.c
-drivers/ide/arm/rapide.c
-drivers/ide/legacy/ide-cs.c
-drivers/macintosh/mediabay.c
+For example writes are often performed by pdflush (the flushing daemon) and not 
+the process(es) which initiated them.
 
-Of these, I can't see anything that would break if we make ide_unregister 
-always succeed.
+Another thing is that on a real system you will have a _huge_ amount of statistical data.
 
-I've tried removing the if statement above and just letting ide_unregister 
-succeed but the call then just deadlocks. I had to make some small changes 
-to ide.c and ide-disk.c to stop it using interfaces we've marked as dead and 
-allow deregistration of dead devices.
+> To get all this information, maybe I could hack my kernel a bit to write
+> a line to a log on every access to the HD, or account the IRQs from
+> the IDE channels... I also have the feeling that this queuing problem could
+> dissappear o became more hidden if DMA were enabled.
+> 
+> To be true, I'm a bit lost and that's why I ask for your help.
 
-The bare minimum of code I needed to make ide_unregister succeed when called 
-from ide-cs.c is in the following patch: 
-http://www.rpsys.net/openzaurus/ide.patch
+Linux Trace Toolkit can give you detailed per-process statistics. You should
+take a look at it 
 
-There are probably other places checks are needed. I would appreciate it if 
-someone could comment on whether these changes can be made to the ide 
-drivers, what else may need to be done or if there is an alternative 
-solution I've overlooked.
+http://www.opersys.com/LTT/
 
-Thanks,
-
-Richard
-
-
+Good luck!
 
 
--- 
-No virus found in this outgoing message.
-Checked by AVG Anti-Virus.
-Version: 7.0.298 / Virus Database: 265.6.7 - Release Date: 30/12/2004
 

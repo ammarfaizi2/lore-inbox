@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266346AbUFQBrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264650AbUFQCBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266346AbUFQBrn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 21:47:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266356AbUFQBrn
+	id S264650AbUFQCBy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 22:01:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266356AbUFQCBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 21:47:43 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48583 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266346AbUFQBrj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 21:47:39 -0400
-Message-ID: <40D0F824.8010108@pobox.com>
-Date: Wed, 16 Jun 2004 21:47:16 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Chew <achew@nvidia.com>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2.6.7] new NVIDIA libata SATA driver
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF043984B6@mail-sc-6-bk.nvidia.com>
-In-Reply-To: <DCB9B7AA2CAB7F418919D7B59EE45BAF043984B6@mail-sc-6-bk.nvidia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 16 Jun 2004 22:01:54 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:13996 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S264650AbUFQCBw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 22:01:52 -0400
+Subject: Broken CREDITS file.
+From: Plaz McMan <PlazMcMan@Softhome.net>
+To: linux-kernel@vger.kernel.org
+Message-Id: <1087437489.798.4.camel@ansel.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 16 Jun 2004 19:03:24 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Chew wrote:
->>From: Jeff Garzik [mailto:jgarzik@pobox.com] 
-> 
-> 
->>If silicon isn't available yet, let's just remove those PCI 
->>IDs.  That way we can ensure that these are libata only, 
->>without two drivers sharing the same PCI ids.
-> 
-> 
-> If that's the case, I'd rather the CK804 and MCP04 SATA device IDs be
-> added to sata_nv, since we want distributions to support these SATA
-> controllers when silicon does become available.
+>From CREDITS file:
 
-OK
+----------------------------
+N: Leonard N. Zubkoff
+W: http://www.dandelion.com/Linux/
+D: BusLogic SCSI driver
+D: Mylex DAC960 PCI RAID driver
+D: Miscellaneous kernel fixes
+ 
+N: Alessandro Zummo
+E: azummo@ita.flashnet.it
+W: http://freepage.logicom.it/azummo/
+D: CMI8330 support is sb_card.c
+D: ISAPnP fixes in sb_card.c
+S: Italy
+ 
+N: Marc Zyngier
+E: maz@wild-wind.fr.eu.org
+W: http://www.misterjones.org
+D: MD driver
+D: EISA/sysfs subsystem
+S: France
+ 
+# Don't add your name here, unless you really _are_ after Marc
+# alphabetically. Leonard used to be very proud of being the
+# last entry, and he'll get positively pissed if he can't even
+# be second-to-last.  (and this file really _is_ supposed to be
+# in alphabetic order)
+----------------------------
 
+Sorry Leonard, but it looks like you're no longer second-to-last.
+Pissed?
 
->>>>Removing IDs from amd74xx.c is a bad idea,
->>>>it breaks boot on systems already using these IDs.
->>>
->>>I assume these systems will be able to boot using the libata 
->>>subsystem. Is that a bad assumption?
->>
->>They can, but consider a system that uses 2.6.7 (IDE driver) 
->>then boots into 2.6.8 (libata driver):  the drives move from 
->>/dev/hdX to /dev/sdX. That breaks stuff not using LABEL= in 
->>bootloader config and fstab.
-> 
-> 
-> That's true.  I kinda chalk this up as an inevitable kernel upgrade
-> issue (they'll be getting support for NVIDIA SATA under libata with
-> eventual device hotplug support, at the cost of some system
-> reconfiguration).  Is there a good solution?
+Well, I guess I'll have to be in the CREDITS, as I pointed out something
+so vital to the survival of Linux. Hackers schmackers, it's the editors
+that get things done! ;)
 
-None really, other than trying to make sure we only add new SATA 
-hardware support under libata.
-
-Most users with Red Hat or SuSE or whatever don't know enough other than 
-"I booted the new Fedora 2.6.x kernel, and it panic'd when it tried to 
-mount root filesystem"
-
-Your patch represented the _ideal_, but unfortunately once added to the 
-IDE driver, those PCI ids should not be removed in the middle of a 
-stable kernel series.  If both drivers were /dev/sdX, or /dev/hdX, 
-moving the PCI ids to another driver wouldn't be as big of a deal.
-
-
-Overall... no worries.  I have to deal with this issue for a couple 
-other chipsets, so I'll handle them all at the same time.
-
-	Jeff
+-Brannon Klopfer
 

@@ -1,36 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbRFYHHO>; Mon, 25 Jun 2001 03:07:14 -0400
+	id <S264849AbRFYHFy>; Mon, 25 Jun 2001 03:05:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265405AbRFYHHE>; Mon, 25 Jun 2001 03:07:04 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29707 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265402AbRFYHG4>; Mon, 25 Jun 2001 03:06:56 -0400
-Subject: Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))
-To: srwalter@yahoo.com (Steven Walter)
-Date: Mon, 25 Jun 2001 08:06:30 +0100 (BST)
-Cc: andyw@edafio.com (Andy Ward), linux-kernel@vger.kernel.org
-In-Reply-To: <20010625013241.A23425@hapablap.dyn.dhs.org> from "Steven Walter" at Jun 25, 2001 01:32:41 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265402AbRFYHFo>; Mon, 25 Jun 2001 03:05:44 -0400
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:42770 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id <S264849AbRFYHFc>; Mon, 25 Jun 2001 03:05:32 -0400
+Message-ID: <000d01c0fd45$35022e40$d55355c2@microsoft>
+From: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>
+To: <linux-kernel@vger.kernel.org>
+Cc: <joeja@mindspring.com>
+In-Reply-To: <E15EQHP-0001ET-00@the-village.bc.nu>
+Subject: Re: AMD thunderbird oops
+Date: Mon, 25 Jun 2001 11:05:24 +0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15EQS6-0001Ft-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2488.0001
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2488.0001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Great, glad to here it.  Who (if anyone) is still attempting to unravel
-> the puzzle of the Via southbridge bug?  You, Andy, should try and get in
-> touch with them and help debug this thing, if you're up to it.
+Athlon TB CPUs >= 1000mhz potentially not stable at all because of great
+heat-production, without correct hardware maintence - try to check whether
+Your cpu overheating or cpu cooler make mighty vibration.
 
-The IWILL problem seems unrelated. Its the board that more than others people
-report fails totally when streaming memory copies using movntq instructions.
+Best regards,
+Alexander         mailto:dmor@7ka.mipt.ru
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: <joeja@mindspring.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Monday, June 25, 2001 10:55 AM
+Subject: Re: AMD thunderbird oops
 
-The Athlon optimised kernel places pretty much the absolute maximum load 
-possible on the memory bus. Several people have reported that machines that
-are otherwise stable on the bios fast options require  the proper conservative
-settings to be stable with the Athlon optimisations
 
-Alan
+> > I just upgradede my system to an 1200Mhz AMD Athlon Thundirbird (266Mhz
+FSB) processor  / 512Meg of RAM, and an Asus kt7a motherboard.
+> >
+> > It is oppsing left and right.  I recompiled the kernel with Athelon as
+the CPU but keep getting these oopses..
+> >
+> > I also get these same problems while trying to install RH 7.1
+> >
+> > Anyone know is this a supported processor / MB and has anyone had these
+problems?
+>
+> Random oopses normally indicate faulty board cpu or ram (and the fault may
+> even just be overheating or dimms not in the sockets cleanly). I doubt its
+> the board design or model that is the problem, you probably jut have a
+faulty
+> component somewhere if its oopsing randomly even during installs and stuff
+>
+> memtest86, and heatsink compound may be your best friends
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

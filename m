@@ -1,33 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261756AbTCQQQD>; Mon, 17 Mar 2003 11:16:03 -0500
+	id <S261750AbTCQQPw>; Mon, 17 Mar 2003 11:15:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261760AbTCQQQD>; Mon, 17 Mar 2003 11:16:03 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:63641 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S261756AbTCQQQC>; Mon, 17 Mar 2003 11:16:02 -0500
-Date: Mon, 17 Mar 2003 16:24:21 -0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Philippe De Muyter <phdm@macqel.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sundance DFE-580TX DL10050B patch
-Message-ID: <20030317172416.GA3366@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Philippe De Muyter <phdm@macqel.be>, linux-kernel@vger.kernel.org
-References: <200303171356.h2HDu9U30575@mail.macqel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303171356.h2HDu9U30575@mail.macqel.be>
-User-Agent: Mutt/1.5.3i
+	id <S261756AbTCQQPv>; Mon, 17 Mar 2003 11:15:51 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:10751 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S261750AbTCQQPu>; Mon, 17 Mar 2003 11:15:50 -0500
+Message-ID: <A5974D8E5F98D511BB910002A50A66470580D6D1@hdsmsx103.hd.intel.com>
+From: "Cress, Andrew R" <andrew.r.cress@intel.com>
+To: "'Ingo Oeser'" <ingo.oeser@informatik.tu-chemnitz.de>,
+       Terry Barnaby <terry@beam.ltd.uk>
+Cc: Michael Madore <mmadore@aslab.com>, "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       linux-kernel@vger.kernel.org
+Subject: RE: Reproducible SCSI Error with Adaptec 7902
+Date: Mon, 17 Mar 2003 08:30:18 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 02:56:09PM +0100, Philippe De Muyter wrote:
+Ingo,
 
- > +		writew((dev->dev_addr[i + 1] << 8) + dev->dev_addr[i],
+Our testing with that drive (same firmware, using same aic7902 chipset) has
+not shown any problems like this.  However, we were using a later aic79xx
+driver versions (1.3.x).  That upgrade should be the first step.
 
-Don't you want to OR those together instead of add them ?
+I wouldn't get too excited about the statement by a level-1 Seagate support
+guy, probably just a blanket statement when they want to disclaim
+responsibility.  
 
-		Dave
+Andy
 
+-----Original Message-----
+From: Ingo Oeser [mailto:ingo.oeser@informatik.tu-chemnitz.de] 
+Sent: Saturday, March 15, 2003 8:12 AM
+To: Terry Barnaby
+Cc: Michael Madore; Justin T. Gibbs; linux-kernel@vger.kernel.org
+Subject: Re: Reproducible SCSI Error with Adaptec 7902
+
+
+On Fri, Mar 14, 2003 at 04:17:59PM +0000, Terry Barnaby wrote:
+> The Seagate ST336607LW has firmware: 0004.
+> Seagate have stated to me that this is the latest.
+> They have also stated to me:
+> 
+>   Issuing an unrecognized or illegal command to the drive can cause the
+>   drive to go into a hardware fault mode where it will no longer respond,
+>   and may or may not respond to a SCSI BUS reset. It seems, in this case,
+>   the drive will no longer respond to any commands issued by the
+>   controller.
+> 
+> Is this "feature" now common on SCSI drives ????
+
+Could we add a KERN_WARNING printk in sd.c quoting/referencing
+this message on inquiry detecting this device? 
+
+So sysadmins who are used to SCSI being robust could return the
+drive to their vendors in exchange to a drive working along the
+SCSI specs after reading this message.
+
+Thanks in the name of the sysadmins.
+
+Regards
+
+Ingo Oeser
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

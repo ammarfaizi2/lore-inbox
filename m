@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVBAQ5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVBARB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbVBAQ5c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 11:57:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbVBAQ5c
+	id S262071AbVBARB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 12:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbVBARB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 11:57:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:50590 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262070AbVBAQ5M (ORCPT
+	Tue, 1 Feb 2005 12:01:26 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:48084 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262071AbVBARBV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 11:57:12 -0500
-Date: Tue, 1 Feb 2005 08:54:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Aurelien Jarno <aurelien@aurel32.net>, Alexey Dobriyan <adobriyan@mail.ru>,
-       linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: Re: [PATCH 2.6] I2C: New chip driver: sis5595
-Message-ID: <20050201165434.GD23118@kroah.com>
-References: <200502011420.17466.adobriyan@mail.ru> <20050201121414.GA15219@bode.aurel32.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050201121414.GA15219@bode.aurel32.net>
-User-Agent: Mutt/1.5.6i
+	Tue, 1 Feb 2005 12:01:21 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 3/3] change sematics of read flag
+Date: Tue, 1 Feb 2005 09:01:17 -0800
+Message-ID: <F3EE2A9EB4576F40AFE238EC0AC04BC50496CAFD@orsmsx402.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 3/3] change sematics of read flag
+thread-index: AcUIPLkQs+S00+zgRrueRhZpe4B1/QAQrxFQ
+From: "Williams, Mitch A" <mitch.a.williams@intel.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 01 Feb 2005 17:01:19.0059 (UTC) FILETIME=[A61B1A30:01C5087F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 01, 2005 at 01:14:14PM +0100, Aurelien Jarno wrote:
-> +/* Locate SiS bridge and correct base address for SIS5595 */
-> +static int sis5595_find_sis(int *address)
-> +{
-> +	u16 val;
-> +	int *i;
-> +
-> +	if (!(s_bridge =
-> +	    pci_get_device(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_503, NULL)))
-> +		return -ENODEV;
 
-You never free the reference you grabbed on the pci_dev here.  Please
-read the docs on how pci_get_device() is to be used, it isn't just a
-drop in replacement for pci_find_device(), sorry.
+>On Tue, Feb 01, 2005 at 12:38:00AM -0800, Greg KH wrote:
 
-> +	/* Look for imposters */
-> +	for(i = blacklist; *i != 0; i++) {
-> +		if (pci_get_device(PCI_VENDOR_ID_SI, *i, NULL)) {
+>Ick, no.  Pulled back out, as it doesn't even compile :(
+>
 
-Same here, you are leaking a reference count.
+Agreed.  Ick.  Not necessary at all, so please drop this one on the
+floor.  
 
-Why are you not using the pci driver interface instead?
-
-thanks,
-
-greg k-h
+-Mitch

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277104AbRJLAE2>; Thu, 11 Oct 2001 20:04:28 -0400
+	id <S277117AbRJLAHI>; Thu, 11 Oct 2001 20:07:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277103AbRJLAES>; Thu, 11 Oct 2001 20:04:18 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:31755 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S277104AbRJLAEF>;
-	Thu, 11 Oct 2001 20:04:05 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Over <ajo@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops on removing via-rhine [2.4.10-ac11] 
-In-Reply-To: Your message of "Thu, 11 Oct 2001 14:09:43 MST."
-             <20011011140943.A10576@yeah.cx> 
+	id <S277115AbRJLAG6>; Thu, 11 Oct 2001 20:06:58 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:42113 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277111AbRJLAGx>;
+	Thu, 11 Oct 2001 20:06:53 -0400
+Date: Thu, 11 Oct 2001 17:07:19 -0700 (PDT)
+Message-Id: <20011011.170719.48535224.davem@redhat.com>
+To: lsawyer@gci.com
+Cc: linux-kernel@vger.kernel.org, jhartmann@valinux.com, gareth.hughes@acm.org
+Subject: Re: [BUG] Linux-2.4.12 does not build (Sparc-64 & DRM)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA31506146916@berkeley.gci.com>
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA31506146916@berkeley.gci.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 12 Oct 2001 10:04:26 +1000
-Message-ID: <32326.1002845066@ocs3.intra.ocs.com.au>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001 14:09:43 -0700, 
-Andrew Over <ajo@acm.org> wrote:
->This oops is reasonably easy to reproduce (reinsert and remove
->via-rhine enough times and it happens)
->>>EIP; c0129840 <__free_pages_ok+10/1c0>   <=====
->Trace; c01acd3e <pci_release_regions+6e/80>
->Trace; c0129f1a <__free_pages+1a/20>
->Trace; c0129f44 <free_pages+24/30>
->Trace; c010b6bc <pci_free_consistent+1c/20>
->Trace; e08fdbaa <_end+2066e636/20670a8c>
->Trace; e08fe860 <_end+2066f2ec/20670a8c>
->Trace; c01ad01e <pci_unregister_driver+3e/60>
->Trace; e08fdc0a <_end+2066e696/20670a8c>
->Trace; e08fe860 <_end+2066f2ec/20670a8c>
+   From: Leif Sawyer <lsawyer@gci.com>
+   Date: Thu, 11 Oct 2001 15:52:01 -0800
 
-Oops in module delete may not get the symbol tables for the deleted
-module if they have already been removed from /proc/ksyms.  I suggest
-you create /var/log/ksymoops, man insmod.  Then insmod and rmmod will
-save the symbol tables after each module load or unload, you can point
-ksymoops at the saved symbols from before the failing rmmod.  That will
-give a better ksymoops decode.
+   Just a quick bug report -- I haven't had time
+   to track this one down yet.
+   
+   Enabling DRM/DRI support on a Sparc64 kernel
+   with Creator/Creator3D graphics does not build
+   correctly:
+   
+I've tried to contact the DRM folks (specifically Jeff Hartman) on
+many occaisions (at least 3 times) about the fact that using
+virt_to_bus/bus_to_virt generically in the DRM broke the build on
+several platforms.
 
+As stated often, virt_to_bus/bus_to_virt are deprecated interfaces.
+Yet, it is use explicitly in the debugging macros.
+
+Not only has it not been fixed, all of my queries to Jeff have fallen
+on deaf ears and I get no response whatsoever.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

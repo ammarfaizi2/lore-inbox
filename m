@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266797AbSK1WiL>; Thu, 28 Nov 2002 17:38:11 -0500
+	id <S266805AbSK1Wlt>; Thu, 28 Nov 2002 17:41:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266795AbSK1WiK>; Thu, 28 Nov 2002 17:38:10 -0500
-Received: from dial-ctb03115.webone.com.au ([210.9.243.115]:8708 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S266804AbSK1WiJ>;
-	Thu, 28 Nov 2002 17:38:09 -0500
-Message-ID: <3DE69CA7.5070601@cyberone.com.au>
-Date: Fri, 29 Nov 2002 09:45:59 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-rc1,2 + ext3 data=journal: data loss on unmount
-References: <C1126026D9293645B970FB72C66907961F53EE@rdmail.cit.act.edu.au> <1038502327.10021.17.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266809AbSK1Wlt>; Thu, 28 Nov 2002 17:41:49 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:45319 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S266805AbSK1Wls>;
+	Thu, 28 Nov 2002 17:41:48 -0500
+Date: Thu, 28 Nov 2002 23:49:09 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RELEASE] module-init-tools 0.8
+Message-ID: <20021128224909.GD951@lug-owl.de>
+Mail-Followup-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200211281616.gASGGOE6012229@bytesex.org> <Pine.LNX.3.96.1021128115833.12997A-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZNveOOYjKturpEFp"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1021128115833.12997A-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+x-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
->On Thu, 2002-07-18 at 07:12, Piggin, Nick wrote:
->
->>mount /mnt/backup
->>tar cvf $FILENAME directory
->>bzip2 $FILENAME
->>umount /mnt/backup
->>
->>Upon remounting and inspection, the resulting bzip2 file is corrupted every
->>time. Adding a sync after bzip2 corrects the problem.
->>
->
->That sounds like a bug in the core code somewhere since the flush should
->have happened automatically on umount. Does 2.4.19 proper show this on
->your box (or 2.4.20-rc) ? [I'd suspect yes but would like to be sure]
->
->
-For those that don't remember, $FILENAME is in /mnt/backup and
-it was 100% repeatable (ie. a data corruption bug). Alan,
-unfortunately I can't do a lot of testing with the box now. I
-might be able to give it a try when 2.4.20 comes out, or someone
-else might be able to. Directory was only a meg or two IIRC
-so it shouldn't be much hasstle for someone with a spare ext3
-partition.
+--ZNveOOYjKturpEFp
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Nick
+On Thu, 2002-11-28 12:09:51 -0500, Bill Davidsen <davidsen@tmr.com>
+wrote in message <Pine.LNX.3.96.1021128115833.12997A-100000@gatekeeper.tmr.=
+com>:
+> On Thu, 28 Nov 2002, Gerd Knorr wrote:
+> The new module stuff has been in for about three weeks now, many people
+> are having problems with it, and I have yet to see a single post praising
+> the *actual* benefits. Will there be a time when this is reverted and
+> rescheduled for a future release (2.7?) or is this a do-or-die feature?
 
+It's not only that i386 is b0rked to some degree. Ever looked at some
+other architectures? Again, most (if not all) won't compile again. Eg.
+last Alpha kernel which worked for me (TM) was 2.5.44...
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet!
+   Shell Script APT-Proxy: http://lug-owl.de/~jbglaw/software/ap2/
+
+--ZNveOOYjKturpEFp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE95p1lHb1edYOZ4bsRAhEOAKCHBhAIXaggGBRUsbKraI/1WkEvngCeI5Bz
+KZ9b0NsleaPDIBauitQi+vM=
+=6bMG
+-----END PGP SIGNATURE-----
+
+--ZNveOOYjKturpEFp--

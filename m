@@ -1,41 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269954AbRHMH5b>; Mon, 13 Aug 2001 03:57:31 -0400
+	id <S261289AbRHMIRa>; Mon, 13 Aug 2001 04:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269968AbRHMH5V>; Mon, 13 Aug 2001 03:57:21 -0400
-Received: from ns.ooc.de ([213.144.20.2]:12045 "HELO mail.ooc.de")
-	by vger.kernel.org with SMTP id <S269954AbRHMH5M>;
-	Mon, 13 Aug 2001 03:57:12 -0400
-Date: Mon, 13 Aug 2001 09:53:36 +0200
-From: Uwe Seimet <us@orbacus.com>
-To: linux-kernel@vger.kernel.org
-Subject: Bug in esssolo1.c, kernel 2.4.7 and 2.4.8
-Message-ID: <20010813095336.A934@duplo.ooc.de>
-Reply-To: us@ooc.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S267743AbRHMIRJ>; Mon, 13 Aug 2001 04:17:09 -0400
+Received: from [194.30.80.67] ([194.30.80.67]:52495 "EHLO
+	serv_correo.ingecom.net") by vger.kernel.org with ESMTP
+	id <S261289AbRHMIRB>; Mon, 13 Aug 2001 04:17:01 -0400
+Message-ID: <006b01c123d0$aef36140$66011ec0@frank>
+From: "Frank Torres" <frank@ingecom.net>
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+Cc: "Linux-Kernel \(Lista Correo\)" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108101416550.9874-100000@sol.compendium-tech.com>
+Subject: Re: Can I have a serial display output and a kbd PS/2 input?
+Date: Mon, 13 Aug 2001 10:19:27 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.3018.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Just to say thanks all folks. I was insisting on the same point you
+explained to me. In spite of that I needed confirmation; any. It would be
+interesting anyway to develop a console which could have the input and the
+output from/to diferent devices.
+Now I'll have to make one of the consoles to login automatically (I'm trying
+the qlogin program) and then my next step will be to develop a small set of
+functions to give aplications programmers an easy way to control some
+devices like this display. So far I've been writing some modules with the
+archiknown vi, but know I'll have to write a lot of code. Any IDE suggested?
+I downloaded the RHIDE. Is it good? I haven't tested it yet.
 
-with kernel 2.4.7 and 2.4.8 you get this error message when running make
-modules_install:
+Thanks all again.
+Frank
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.8; fi
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.8/kernel/drivers/sound/esssolo1.o
-depmod:         gameport_register_port
-depmod:         gameport_unregister_port
+----- Original Message -----
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Friday, August 10, 2001 11:22 PM
+Subject: Re: Can I have a serial display output and a kbd PS/2 input?
 
-These symbols seem to be missing in esssolo1.c. With kernel 2.4.6 and older
-I did not get this error.
 
-Best regards,   Uwe
+> On Fri, 10 Aug 2001, Miquel van Smoorenburg wrote:
+>
+> > In article <001b01c12194$a34a3370$66011ec0@frank>,
+> > Frank Torres <frank@ingecom.net> wrote:
+> > >Sorry to be insistent in this point, but perhaps requesting the problem
+this
+> > >way someone figures out what I am trying to do.
+> > >The display is already configured and sending getty line from inittab
+waits
+> > >for an input from serial so it doesn't work.
+> > >Any other ideas? This is my last try.
+> >
+> > If you want /dev/console to behave so that it sends output to the
+> > serial device yet takes input from the PC keyboard, no, that cannot
+> > be done. Right now /dev/console can be associated with only one
+> > device for both input and output at the same time.
+> >
+> > Output from kernel printk's does go to all console devices though.
+>
+> Well, as a sleightly more expensive solution, you could build a Sun
+> keyboard to serial adapter. Somewhere on the SuSE webpage there is
+> instructions on how to do this. IIRC, the keyboard only uses the RxD pin
+> on the serial port so you would be free to use the TxD pin for your serial
+> LCD.
+>
+> The schematic can be had here:
+> http://www.suse.cz/development/input/adapters
 
--- 
-----------------------------------------------------------------------------
- Dr. Uwe Seimet                                    mailto:us@iona.com
- IONA - Total Business Integration(tm)             http://www.orbacus.com
+
+

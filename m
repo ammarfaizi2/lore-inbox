@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129187AbQKORQN>; Wed, 15 Nov 2000 12:16:13 -0500
+	id <S130604AbQKORSd>; Wed, 15 Nov 2000 12:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129994AbQKORQD>; Wed, 15 Nov 2000 12:16:03 -0500
-Received: from modemcable248.137-200-24.mtl.mc.videotron.ca ([24.200.137.248]:12530
-	"EHLO xanadu.gn.com") by vger.kernel.org with ESMTP
-	id <S129187AbQKORP4>; Wed, 15 Nov 2000 12:15:56 -0500
-Date: Wed, 15 Nov 2000 11:58:17 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Andreas Osterburg <alanos@first.gmd.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Swapping over NFS in Linux 2.4?
-In-Reply-To: <Pine.LNX.4.21.0011151421580.5584-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.30.0011151156300.22936-100000@xanadu.gn.com>
+	id <S130607AbQKORSX>; Wed, 15 Nov 2000 12:18:23 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:1043 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S130604AbQKORSP>;
+	Wed, 15 Nov 2000 12:18:15 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Tigran Aivazian <tigran@veritas.com>
+Date: Wed, 15 Nov 2000 17:47:28 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: test11-pre5 breaks vmware
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <CF021B54DF0@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 15 Nov 00 at 1:59, Tigran Aivazian wrote:
 
+> You probably noticed this already but I just wanted to bring it to your
+> attention that /usr/bin/vmware-config.pl script needs updating since the
+> flags in /proc/cpuinfo is now called "features" so it otherwise fails
+> complaining that my 2xP6 has no tsc. Trivial change but still worthy of
+> propagating into your latest .tar.gz file for 2.4.x
 
-On Wed, 15 Nov 2000, Rik van Riel wrote:
-
-> On Wed, 15 Nov 2000, Andreas Osterburg wrote:
->
-> > Because I set up a diskless Linux-workstation, I want to swap
-> > over NFS. For this purpose I found only patches for "older"
-> > Linux-versions (2.0, 2.1, 2.2?).
->
-> > Does anyone know wheter there are patches for 2.4 or does anyone
-> > know another solution for this problem?
->
-> 1. you can swap over NBD
-> 2. if you point me to the swap-over-nfs patches you
->    have found, I can try to make them work on 2.4 ;)
-
-Swap on the loop block device attached to a file over NFS seemed to work
-too.
-
-
-Nicolas
-
+Oh. I did not compiled 11-test5, as G450 finally arrived ;-) OK,
+I'll release patch for vmware, as I cannot stop kernel developers
+from changing field names :-)
+                                       Thanks for reporting,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVBLUdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVBLUrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVBLUdn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 15:33:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVBLUdn
+	id S261196AbVBLUrV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 15:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVBLUrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 15:33:43 -0500
-Received: from main.gmane.org ([80.91.229.2]:19939 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261195AbVBLUdH (ORCPT
+	Sat, 12 Feb 2005 15:47:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:406 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261196AbVBLUrS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 15:33:07 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-Subject: Re: bttv: tuner: i2c i/o error: rc == -121 (should be 4)
-Date: Sat, 12 Feb 2005 21:22:17 +0100
-Message-ID: <culodt$u8s$2@sea.gmane.org>
-References: <f396da08050212112363a4b5cf@mail.gmail.com>
+	Sat, 12 Feb 2005 15:47:18 -0500
+Date: Sat, 12 Feb 2005 15:47:07 -0500
+From: Dave Jones <davej@redhat.com>
+To: Marcus Hartig <m.f.h@web.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: How to disable slow agpgart in kernel config?
+Message-ID: <20050212204707.GC18180@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Marcus Hartig <m.f.h@web.de>,
+	Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org
+References: <420E4812.7000006@web.de> <1108232773.4056.120.camel@localhost.localdomain> <420E5AAD.7080206@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 195.70.138.133
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-In-Reply-To: <f396da08050212112363a4b5cf@mail.gmail.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <420E5AAD.7080206@web.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Margus Eha wrote:
-> Tv card works but i can't change channel. Something goes wrong in tuner.c
-> when tvtime program tries to change frequency. In /var/log/messages i can find
-> tuner: i2c i/o error: rc == -121 (should be 4). 
-> 
-> Las working version i tried was 2.6.11-rc2
-> Both 2.6.11-rc3-mm1 and Both 2.6.11-rc3-mm2 are not working.
-> 
-> If kernel conf is needed i can send.
+On Sat, Feb 12, 2005 at 08:36:13PM +0100, Marcus Hartig wrote:
+ > Arjan van de Ven wrote:
+ > 
+ > >hmm I wonder.. .could you collect lspci -vxxx settings for the AGP
+ > >device (lspci -vxxx gives you lots of devices, but only one is relevant)
+ > >in both cases, maybe the difference between the two shows something
+ > >useful...
+ > 
+ > Hmmm...only the latency at the VGA card.
 
-http://bugme.osdl.org/show_bug.cgi?id=4171
+Was there any differnces in the devices at 00:00.0 and 00:01.0 ?
+(host & pci bridges)
 
--- 
-JM
+		Dave
 

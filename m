@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261319AbSI0HjN>; Fri, 27 Sep 2002 03:39:13 -0400
+	id <S261636AbSI0Hui>; Fri, 27 Sep 2002 03:50:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261438AbSI0HjN>; Fri, 27 Sep 2002 03:39:13 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:53988 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261319AbSI0HjM>;
-	Fri, 27 Sep 2002 03:39:12 -0400
-Date: Fri, 27 Sep 2002 09:53:40 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@digeo.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
-In-Reply-To: <Pine.LNX.4.33.0209261530150.1345-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209270939330.3174-100000@localhost.localdomain>
+	id <S261648AbSI0Huh>; Fri, 27 Sep 2002 03:50:37 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:64384 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S261636AbSI0Huh>;
+	Fri, 27 Sep 2002 03:50:37 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Date: Fri, 27 Sep 2002 00:55:49 -0700
+User-Agent: KMail/1.4.7-cool
+References: <E17uINs-0003bG-00@think.thunk.org> <20020926235741.GC10551@think.thunk.org> <20020927041234.GS22795@clusterfs.com>
+In-Reply-To: <20020927041234.GS22795@clusterfs.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209270055.52378.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Thu, 26 Sep 2002, Linus Torvalds wrote:
+On September 26, 2002 21:12, Andreas Dilger wrote:
+> After that, we'd be happy if you could test with a loopback filesystem:
+>
+> touch /tmp/foo
+> mke2fs -j -F /tmp/foo 100000
+> mkdir /mnt/tmp
+> mount -o loop /tmp/foo /mnt/tmp
+>
+> and run tests on /mnt/tmp instead of your root filesystem.
 
-> Well, we have two situations:
->  - the page is shared. In which case we don't need to put it on any 
->    pinning list, since the very sharedness of the page means that we won't
->    be COW'ing it in this address space.
->  - the page is private. In which case we can (and should) pre-COW it and 
->    make it anonymous at futex time.
-> 
-> So yeah, it should be doable.
+Okay, I followed those steps, and gave /mnt a fairly good fsstress'ing. No FS 
+errors were encountered during the run. Upon umount and fsck, I got the 
+following error:
+"Problem in HTREE directory inode 2 (/): bad block number 3617593."
 
-well, 4 fields: ->mapping, ->list.next, ->list.prev, ->index and ->private
-is *alot* of space to do something smart in struct page itself.
+fsck then "optimized" inode 2 in pass 3A. Will beat up the filesystem some 
+more ;)
 
-(hm, dont we have named anonymous mappings? (ie. mmap()-ing of a file via
-MAP_PRIVATE?) And if a futex is put there it can be COW-ed, right, while
-it's also in the pagecache?)
+- -Ryan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-assuming those 4 fields are available, it should be easy for the futex
-code to detect such mappings - the ->mapping field should be a good test,
-if it's NULL then it's a COW-able page, if it's non-NULL then not.
-
-then eg. the ->private field could be used as a simple PG_sticky counter.
-
-or, to implement real lazy COW, the ->private field could be used as an
-'owner MM' pointer, and if the COW handler sees current->mm == owner_mm,
-then the ->list has a queue of pending page_change_struct's, which would
-trigger a rehashing of the futexes. Then PG_sticky is cleared.
-
-this would work fine as long as the pin_page code guarantees to never put
-a hash on an already COW-ed page. (which can be guaranteed by using the
-'writable' flag to get_user_pages())
-
-no additional hashes. Is there any danger in going into this direction?
-
-	Ingo
-
+iD8DBQE9lA8ILGMzRzbJfbQRAtSnAJwNp9um7iTwK2cEpQo4OlGOGjTp4ACgj5lo
+8JPvFW0jS18DOPFN5bBccUg=
+=XzaF
+-----END PGP SIGNATURE-----

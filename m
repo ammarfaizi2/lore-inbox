@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265856AbTFVTs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 15:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265863AbTFVTs6
+	id S265839AbTFVTru (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 15:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265837AbTFVTru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 15:48:58 -0400
-Received: from p68.rivermarket.wintek.com ([208.13.56.68]:4992 "EHLO
-	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
-	id S265856AbTFVTsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 15:48:55 -0400
-Date: Sun, 22 Jun 2003 15:06:17 -0500 (EST)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.73
-In-Reply-To: <Pine.LNX.4.44.0306221150440.17823-100000@old-penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.56.0306221453010.1455@dust>
-References: <Pine.LNX.4.44.0306221150440.17823-100000@old-penguin.transmeta.com>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+	Sun, 22 Jun 2003 15:47:50 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:14220 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265842AbTFVTrr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 15:47:47 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 22 Jun 2003 13:00:11 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: O(1) scheduler & interactivity improvements
+In-Reply-To: <1056298069.601.18.camel@teapot.felipe-alfaro.com>
+Message-ID: <Pine.LNX.4.55.0306221238230.15064@bigblue.dev.mcafeelabs.com>
+References: <1056298069.601.18.camel@teapot.felipe-alfaro.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Jun 2003, Linus Torvalds wrote:
+On Sun, 22 Jun 2003, Felipe Alfaro Solana wrote:
 
-> 
-> Various updates all over the map here. Lots of ia64 updates, and Andrew 
-> merged the ext3 locking cleanups/fixes that have been in the -mm tree for 
-> a while.
+> Hi all,
+>
+> I must say I'm a little bit disappointed with the interactive feeling of
+> latest kernels. From what I have read, it seems the scheduler decides on
+> the "interactive" behavior of a process based on its CPU usage and
+> sleeping times. I am no kernel expert, so I will assume this is how it
+> works, more or less, behind the scenes.
+>
+> I think that marking a process as "interactive" based on the previous
+> premise is quite unreal. Let's take, for example, a real application
+> like a word processor which performs background spell checking. The word
+> processor should be considered interactive, even when it may be hogging
+> the CPU a lot to perform the background spell check and the rest of its
+> threads are sleeping waiting for user input.
 
-The ehci-hid compile error from .72 is still there.  A fix was posted by 
-akpm in the lkml thread [patch] ehci_hcd.c linkage fix.
+I'm sorry to disagree. A word processor that waited 24 hours to receive an
+input should be *gradually* migrated to lower priorities (CPU hogs) when
+it starts eating all its timeslice. You can tune how *gradually* (negative
+feedback) you move the process, but you can't bolt in explicit rules into
+the scheduler. If your word processor that was waiting by 24 hours will
+start eating all its timeslice, it must be migrated down in priority. When
+the spell check will be over, it'll re-gain its status of interactive task.
+One suggestion for Ingo would be to use the previous task history to
+compute how gradually to migrate the task, with a factor for each direction.
+Processes with a long history of interactive tasks should have a brake
+when migrating towards lower priorities, like the ones that showed CPU
+hogs properties repeatedly should have a brake when moving to higher
+priorities. The value of this "brake" should be made function of the
+previous history.
 
-Death of compilation output:
 
-CC      drivers/usb/host/ehci-hcd.o
-drivers/usb/host/ehci-hcd.c:977: error: pci_ids causes a section type 
-conflict
-make[3]: *** [drivers/usb/host/ehci-hcd.o] Error 1
-make[2]: *** [drivers/usb/host] Error 2
-make[1]: *** [drivers/usb] Error 2
-make: *** [drivers] Error 2
 
--- 
-Alex Goddard
-agoddard@purdue.edu
+- Davide
+

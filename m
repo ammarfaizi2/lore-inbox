@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263988AbSIUAHf>; Fri, 20 Sep 2002 20:07:35 -0400
+	id <S275224AbSIUAYU>; Fri, 20 Sep 2002 20:24:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275172AbSIUAHf>; Fri, 20 Sep 2002 20:07:35 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:50596 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S263988AbSIUAHe> convert rfc822-to-8bit; Fri, 20 Sep 2002 20:07:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.20-pre7-ac3{-rmap14b|-preempt}
-Date: Sat, 21 Sep 2002 02:12:19 +0200
-X-Mailer: KMail [version 1.4]
-References: <200209210125.01953.m.c.p@wolk-project.de>
-In-Reply-To: <200209210125.01953.m.c.p@wolk-project.de>
+	id <S275270AbSIUAYU>; Fri, 20 Sep 2002 20:24:20 -0400
+Received: from p50887F27.dip.t-dialin.net ([80.136.127.39]:32446 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S275224AbSIUAYT>; Fri, 20 Sep 2002 20:24:19 -0400
+Date: Fri, 20 Sep 2002 18:29:56 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Zach Brown <zab@zabbo.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] list_head debugging?
+In-Reply-To: <20020920165304.A4588@bitchcake.off.net>
+Message-ID: <Pine.LNX.4.44.0209201825330.342-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209210212.19775.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 21 September 2002 02:02, you wrote:
+Hi,
 
-Hi there,
+Before Fri, 20 Sep 2002, Zach Brown wrote:
 
-> -----------------------------------------------------------
-> NOTE: Apply the rmap14b patch first and then preempt ontop!
-> -----------------------------------------------------------
-totally bullshit ;( ... Sorry. Ok, follow like this:
+--- ./list.h.debug	Thu Sep 19 15:58:47 2002
++++ ./list.h	Fri Sep 20 13:43:21 2002
+@@ -21,6 +21,25 @@
+ 
+ typedef struct list_head list_t;
+ 
++#define LIST_HEAD_DEBUGGING
++#ifdef LIST_HEAD_DEBUGGING
++
++static inline void __list_valid(struct list_head *list)
++{
++	BUG_ON(list == NULL);
++	BUG_ON(list->next == NULL);
++	BUG_ON(list->prev == NULL);
++	BUG_ON(list->next->prev != list);
++	BUG_ON(list->prev->next != list);
++	BUG_ON((list->next == list) && (list->prev != list));
++	BUG_ON((list->prev == list) && (list->next != list));
++}
++#else 
 
-1. if you only want rmap14b, apply rmap14b patch
-2. if you want both, rmap14b and preempt, apply rmap14b-preempt patch
+It's all cool, but I'm not entirely convinced why it must be a BUG macro. 
+I'd rather have something said via printk here. If whatever we did was 
+bad, it will show up with a BUG() just too soon.
 
-Now it's right :) ... Sorry!
+I'd describe a macro.
 
+#define list_assert(cond)				\
+	if (cond) printk(KERN_ERR "%s failed!\n", #cond)
+
+Or the like. BTW, I'd define LIST_HEAD_DEBUGGING as 1.
+
+			Thunder
 -- 
-Kind regards
-        Marc-Christian Petersen
+assert(typeof((fool)->next) == typeof(fool));	/* wrong */
 
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.

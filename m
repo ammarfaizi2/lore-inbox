@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275053AbTHGBAY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 21:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275054AbTHGBAY
+	id S275055AbTHGBSq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 21:18:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275057AbTHGBSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 21:00:24 -0400
-Received: from ns.suse.de ([213.95.15.193]:11268 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S275053AbTHGBAU (ORCPT
+	Wed, 6 Aug 2003 21:18:45 -0400
+Received: from sngrel7.hp.com ([192.6.86.111]:23279 "EHLO sngrel7.hp.com")
+	by vger.kernel.org with ESMTP id S275055AbTHGBSo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 21:00:20 -0400
-To: Dave Jones <davej@redhat.com>
-Cc: richard.brunner@amd.com, linux-kernel@vger.kernel.org, kwijibo@zianet.com
-Subject: Re: Machine check expection panic
-References: <3F3182B5.3040301@zianet.com.suse.lists.linux.kernel>
-	<20030807002722.GA3579@suse.de.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 07 Aug 2003 03:00:14 +0200
-In-Reply-To: <20030807002722.GA3579@suse.de.suse.lists.linux.kernel>
-Message-ID: <p73ekzynuxt.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Wed, 6 Aug 2003 21:18:44 -0400
+From: Martin Pool <mbp@sourcefrog.net>
+Subject: Re: [patch] [Kconfig] disable GEN_RTC on ia-64
+Date: Thu, 07 Aug 2003 11:18:25 +1000
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+Message-Id: <pan.2003.08.07.01.18.20.270606@sourcefrog.net>
+References: <20030806074312.GT22302@vexed.ozlabs.hp.com> <20030806163753.GB579@ip68-0-152-218.tc.ph.cox.net>
+To: Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> writes:
-> #
-> diff -Nru a/arch/i386/kernel/cpu/mcheck/k7.c b/arch/i386/kernel/cpu/mcheck/k7.c
-> --- a/arch/i386/kernel/cpu/mcheck/k7.c	Wed Aug  6 23:33:40 2003
-> +++ b/arch/i386/kernel/cpu/mcheck/k7.c	Wed Aug  6 23:33:40 2003
-> @@ -81,7 +81,7 @@
->  		wrmsr (MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
->  	nr_mce_banks = l & 0xff;
->  
-> -	for (i=0; i<nr_mce_banks; i++) {
-> +	for (i=1; i<nr_mce_banks; i++) {
+On Wed, 06 Aug 2003 09:37:53 -0700, Tom Rini wrote:
 
-The change looks rather suspicious to me.
+> I think that this is the wrong approach.  genrtc allows the platform to
+> specify how the rtc is to be accessed.  Therefore, efirtc.c could quite
+> probably be removed in favor of genrtc.c, if the proper read/write
+> functions are provided, and if genrtc gets alarm code, which is something
+> others (rmk at least) have asked for.
 
-Bank 0 is the data cache unit (DC)
+Yes, since EFI is the only method for this platform it should probably
+be the platform's only implementation of genrtc.
 
-Do you have an errata that says that the DC bank is bad on all Athlons?
+At the moment it is a bit confusing because "generic RTC" sounds like
+something that ought to work on any platform, when of course it does
+not.  So if the changes to genrtc would be large, perhaps it would be
+better to just fix Kconfig for now...
 
-Normally BIOS or microcode are supposed to turn off bad MCEs by 
-masking them in another register. Maybe the person's CPU has a 
-real problem that is just masked now, e.g. it could be overclocked
-and stress the cache too much.
+Do you think a patch to refactor efirtc into genrtc would be accepted?
 
-The original MCE was:
+-- 
+Martin
 
-Status: (4) Machine Check in progress.
-Restart IP invalid.
-parsebank(0): f606200000000833 @ 4040
-        External tag parity error
-        Uncorrectable ECC error
-        CPU state corrupt. Restart not possible
-        Address in addr register valid
-        Error enabled in control register
-        Error not corrected.
-        Error overflow
-        Bus and interconnect error
-        Participation: Local processor originated request
-        Timeout: Request did not timeout
-        Request: Generic error
-        Transaction type : Instruction
-        Memory/IO : Other
 
-Tyan 2466 motherboard
-2 Athon MP 1200 processors  (1200?) 
-
--Andi

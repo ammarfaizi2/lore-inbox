@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbTIUVCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 17:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTIUVCY
+	id S262569AbTIUVIS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 17:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbTIUVIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 17:02:24 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:1677 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262562AbTIUVCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 17:02:24 -0400
-Subject: x86-64 and PA-RISC have broken WCHAN
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1064177339.746.94.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 21 Sep 2003 16:49:00 -0400
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Sep 2003 17:08:18 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:26294 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262569AbTIUVIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 17:08:17 -0400
+Date: Sun, 21 Sep 2003 17:07:58 -0400 (EDT)
+From: Matt Hahnfeld <matth@everysoft.com>
+X-X-Sender: hahnfld@sotec
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SLOW machine when HIGHMEM enabled (1gb memory, kernel 2.4.22)
+In-Reply-To: <16238.2932.99763.591328@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.44.0309211657470.12232-100000@sotec>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The PA-RISC port (2.4.xx) returns 0xdeadbeef.
-The x86-64 port (2.6.0-test5) returns a 0.
+Mikael --
 
-i386, alpha, ppc, and IA-64 all work fine.
-I think ARM works, but I didn't have a
-System.map file on the system I was using.
-I didn't check zSeries, ppc64, MIPS, or SPARC.
+Thanks for the help!
 
-The following command is supposed to report
-an instruction pointer ("nip" or "pc" or "rip"
-or whatever), a stack pointer ("r2" or "sp" or
-whatever), the kernel address where a process
-is waiting, and the kernel function name where
-a process is waiting:
+I have posted my /proc/mtrr and /proc/meminfo to
+http://www.layover.com/matt/kernel/ .
 
-ps -eo eip,esp,nwchan,wchan
+The "lowmem" ones are when HIGHMEM was disabled, the "highmem" ones are
+2.4.22 with CONF_HIGHMEM4G.  /proc/mtrr looks exatly the same whether or
+not highmem is enabled.
+
+I have the newest stable bios from Asus as of yesterday.
+
+What should I see if the high memory isn't cachable?
+
+On Sun, 21 Sep 2003, Mikael Pettersson wrote:
+
+> Matt Hahnfeld writes:
+>  > I have an ASUS P4P800-VM motherboard with 2 sticks of 512mb PC3200 and
+>  > a single 2.4 ghz P4 processor.  The kernel is vanilla 2.4.22 configured
+>  > for SMP (hyperthreading).
+>  >
+>  > When I use a kernel with high memory support off, I get good
+>  > performance (despite not being able to use some of my memory).  When I
+>  > enable CONFIG_HIGHMEM4G the remaining memory is detected, but the
+>  > machine takes a big performance hit and starts running very slow --
+>  > ie. kernel compilation looks like it would take 5 days instead of 5
+>  > minutes.  /proc/meminfo doesn't look particularly strange and no
+>  > strange log messages show up -- everything just runs slow...
+>  >
+>  > CONFIG_HIGHMEM64G produces the same results...
+>  >
+>  > Any suggestions?
+>
+> Sounds like maybe the high RAM isn't cacheable.
+> What does /proc/mtrr and dmesg look like?
+>
+> Have you verified that you're running the latest BIOS?
+>
 
 

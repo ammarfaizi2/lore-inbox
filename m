@@ -1,131 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273176AbRI3JEb>; Sun, 30 Sep 2001 05:04:31 -0400
+	id <S273213AbRI3JKL>; Sun, 30 Sep 2001 05:10:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273233AbRI3JEX>; Sun, 30 Sep 2001 05:04:23 -0400
-Received: from sitebco-home-5-17.urbanet.ch ([194.38.85.209]:50963 "EHLO
-	vulcan.alphanet.ch") by vger.kernel.org with ESMTP
-	id <S273176AbRI3JEK>; Sun, 30 Sep 2001 05:04:10 -0400
-Date: Sun, 30 Sep 2001 11:04:06 +0200
-From: Marc SCHAEFER <schaefer@alphanet.ch>
-Message-Id: <200109300904.f8U946H11487@vulcan.alphanet.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Athlon motherboards
-Newsgroups: alphanet.ml.linux.kernel
-In-Reply-To: <20010930091838.A761@localhost.localdomain>
-Organization: ALPHANET NF -- Not for profit telecom research
-X-Newsreader: TIN [UNIX 1.3 unoff BETA 970705; i586 Linux 2.0.38]
+	id <S273204AbRI3JKB>; Sun, 30 Sep 2001 05:10:01 -0400
+Received: from ix.meyering.net ([212.234.50.122]:28043 "EHLO
+	pixie.eng.ascend.com") by vger.kernel.org with ESMTP
+	id <S273230AbRI3JJv>; Sun, 30 Sep 2001 05:09:51 -0400
+To: Nilmoni Deb <ndeb@ece.cmu.edu>, viro@math.psu.edu
+Cc: bug-fileutils@gnu.org, Remy.Card@linux.org, linux-kernel@vger.kernel.org
+Subject: fs/ext2/namei.c: dir link/unlink bug? [Re: mv changes dir timestamp
+In-Reply-To: <Pine.LNX.3.96L.1010929125713.27868A-100000@d-alg.ece.cmu.edu>
+In-Reply-To: <Pine.LNX.3.96L.1010929125713.27868A-100000@d-alg.ece.cmu.edu>
+ (Nilmoni Deb's message of "Sat, 29 Sep 2001 13:09:30 -0400 (EDT)")
+From: Jim Meyering <jim@meyering.net>
+Date: Sun, 30 Sep 2001 11:10:16 +0200
+Message-ID: <87bsjt59jb.fsf@pixie.eng.ascend.com>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.0.106
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010930091838.A761@localhost.localdomain> you wrote:
-> Is anyone creating list of Athlon motherboards working without any errors (when
+Nilmoni Deb <ndeb@ece.cmu.edu> wrote:
+> When I move a directory its time stamp gets changed.
+> I am using mv version 4.1 (with mandrake-8.1).
 
-2.4.9 + LVM patch + ext3 patch + bttv patch
-Compiled for:
+Thanks a lot for reporting that!
+This appears to be a bug not in GNU mv, nor even in GNU libc, but
+rather in the underlying implementation in the kernel ext2 file system
+support.  The offending change seems to have come in with a rewrite
+of fs/ext2/namei.c that happened sometime between 2.4.4 and 2.4.9.
 
-   CONFIG_MK7=y
+That file begins with this new comment:
 
-is a Duron 700, 640 MB of memory at 133, using three of the 4 IDE buses
-(also the ATA100).
+ * Rewrite to pagecache. Almost all code had been changed, so blame me
+ * if the things go wrong. Please, send bug reports to viro@math.psu.edu
 
-This machine is used for heavy data computations (CPU with dnetc, I/O
-and memory for a search engine, see http://search.alphanet.ch/, also
-has linux-kernel).
+This demonstrates that the problem affects ext2, but not tmpfs
+using a 2.4.10 kernel (notice that the timestamp doesn't change
+in /t, but does in the ext2 /tmp):
 
-I never had any data integrity problem with it, nor crashes (ok, well,
-I just switched to ext3 and LVM recently). Previously it ran 2.4.0, 2.4.3
-and 2.4.4, and before 2.2.18pre21 (this is a Debian 2.2r3, except it has
-XFree 4.0.2, 2.4 modules and stuff, PostgreSQL7). It also has an AGP
-videocard, a PCTV video card, sound, two network cards, etc. It's not
-only used as a server but also as a video editing station.
+  $ df -T /tmp /t
+  Filesystem    Type    Size  Used Avail Use% Mounted on
+  /dev/sda1     ext2    942M   52M  842M   6% /tmp
+  tmpfs        tmpfs    250M  4.0k  250M   1% /t
 
-I have used the SCSI card with some SuSE driver and a SDT-10000 tape drive,
-with --compare (and gzip -t). I however have systematic crash with
-a Plextor 12x writer that I need to investigate: apparently the Plextor
-does a reconnect unlinked to any previous nexus, and the SuSE driver
-hates this.
+  $ cd /t && bash /tmp/ext2-link-bug
+  drwxr-xr-x    2        0 2001-09-30 10:49:38.000000000 +0200 a
+  drwxr-xr-x    2        0 2001-09-30 10:49:38.000000000 +0200 b
+  $ cd /tmp && bash /tmp/ext2-link-bug
+  drwxr-xr-x    2     4096 2001-09-30 10:49:43.000000000 +0200 a
+  drwxr-xr-x    2     4096 2001-09-30 10:49:45.000000000 +0200 b
 
-A friend has a slightly different motherboard (different revisions on chips),
-and had the PC100 vs PC133 bug, then upgraded to 2.4.9 and doesn't have it
-anymore.
+  $ cat /tmp/ext2-link-bug
+  #!/bin/sh
+  t=rb-$$
+  mkdir $t
+  cd $t
+  mkdir a
+  ls -gold --full-time a
+  sleep 2
+  mv a b
+  ls -gold --full-time b
+  cd ..
+  rm -rf $t
 
-schaefer@search:/data/home/schaefer$ uname -a
-Linux search 2.4.9 #1 Wed Sep 12 21:30:55 CEST 2001 i686 unknown
+Jim
 
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 2).
-      Prefetchable 32 bit memory at 0xe4000000 [0xe7ffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] (rev 0).
-      Master Capable.  No bursts.  Min Gnt=8.
-  Bus  0, device   4, function  0:
-    ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 34).
-  Bus  0, device   4, function  1:
-    IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 16).
-      Master Capable.  Latency=32.  
-      I/O at 0xb800 [0xb80f].
-  Bus  0, device   4, function  2:
-    USB Controller: VIA Technologies, Inc. UHCI USB (rev 16).
-      IRQ 9.
-      Master Capable.  Latency=32.  
-      I/O at 0xb400 [0xb41f].
-  Bus  0, device   4, function  3:
-    USB Controller: VIA Technologies, Inc. UHCI USB (#2) (rev 16).
-      IRQ 9.
-      Master Capable.  Latency=32.  
-      I/O at 0xb000 [0xb01f].
-  Bus  0, device   4, function  4:
-    Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 48).
-      IRQ 9.
-  Bus  0, device   9, function  0:
-    Multimedia video controller: Brooktree Corporation Bt878 (rev 17).
-      IRQ 9.
-      Master Capable.  Latency=32.  Min Gnt=16.Max Lat=40.
-      Prefetchable 32 bit memory at 0xe3000000 [0xe3000fff].
-  Bus  0, device   9, function  1:
-    Multimedia controller: Brooktree Corporation Bt878 (rev 17).
-      IRQ 9.
-      Master Capable.  Latency=32.  Min Gnt=4.Max Lat=255.
-      Prefetchable 32 bit memory at 0xe2800000 [0xe2800fff].
-  Bus  0, device  10, function  0:
-    Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 16).
-      IRQ 5.
-      Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
-      I/O at 0x9400 [0x94ff].
-      Non-prefetchable 32 bit memory at 0xe0000000 [0xe00000ff].
-  Bus  0, device  11, function  0:
-    Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 6).
-      IRQ 10.
-      Master Capable.  Latency=32.  Min Gnt=12.Max Lat=128.
-      I/O at 0x9000 [0x903f].
-  Bus  0, device  12, function  0:
-    SCSI storage controller: Tekram Technology Co.,Ltd. TRM-S1040 (rev 1).
-      IRQ 11.
-      Master Capable.  Latency=32.  
-      I/O at 0x8800 [0x88ff].
-      Non-prefetchable 32 bit memory at 0xdf800000 [0xdf800fff].
-  Bus  0, device  13, function  0:
-    Ethernet controller: 3Com Corporation 3c595 100BaseTX [Vortex] (rev 0).
-      IRQ 9.
-      Master Capable.  Latency=248.  Min Gnt=3.Max Lat=8.
-      I/O at 0x8400 [0x841f].
-  Bus  0, device  17, function  0:
-    Unknown mass storage controller: Promise Technology, Inc. 20265 (rev 2).
-      IRQ 10.
-      Master Capable.  Latency=32.  
-      I/O at 0x8000 [0x8007].
-      I/O at 0x7800 [0x7803].
-      I/O at 0x7400 [0x7407].
-      I/O at 0x7000 [0x7003].
-      I/O at 0x6800 [0x683f].
-      Non-prefetchable 32 bit memory at 0xdf000000 [0xdf01ffff].
-  Bus  1, device   0, function  0:
-    VGA compatible controller: ATI Technologies Inc Rage XL AGP (rev 101).
-      IRQ 11.
-      Master Capable.  Latency=64.  Min Gnt=8.
-      Non-prefetchable 32 bit memory at 0xe1000000 [0xe1ffffff].
-      I/O at 0xd800 [0xd8ff].
-      Non-prefetchable 32 bit memory at 0xe0800000 [0xe0800fff].
+--------------------------------
+Linux pixie 2.4.10 #1 SMP Fri Sep 28 11:50:55 CEST 2001 i686 unknown
 
+Gnu C                  2.95.4
+Gnu make               3.79.1
+binutils               2.11.90.0.31
+util-linux             2.11h
+mount                  2.11h
+modutils               2.4.8
+e2fsprogs              1.25
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         ppp_deflate ppp_async ppp_generic slhc parport_pc lp parport 3c59x

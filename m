@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131216AbRABX3r>; Tue, 2 Jan 2001 18:29:47 -0500
+	id <S131253AbRABXbR>; Tue, 2 Jan 2001 18:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131133AbRABX32>; Tue, 2 Jan 2001 18:29:28 -0500
-Received: from anime.net ([63.172.78.150]:22285 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S131081AbRABX30>;
-	Tue, 2 Jan 2001 18:29:26 -0500
-Date: Tue, 2 Jan 2001 14:56:26 -0800 (PST)
+	id <S131133AbRABXa5>; Tue, 2 Jan 2001 18:30:57 -0500
+Received: from anime.net ([63.172.78.150]:23309 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S131081AbRABXaq>;
+	Tue, 2 Jan 2001 18:30:46 -0500
+Date: Tue, 2 Jan 2001 14:59:04 -0800 (PST)
 From: Dan Hollis <goemon@anime.net>
-To: Linus Torvalds <torvalds@transmeta.com>
+To: Jens Axboe <axboe@suse.de>
 cc: David Woodhouse <dwmw2@infradead.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
         Hakan Lennestal <hakanl@cdt.luth.se>,
         Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Chipsets, DVD-RAM, and timeouts.... 
-In-Reply-To: <Pine.LNX.4.10.10101021444010.1037-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0101021450320.15782-100000@anime.net>
+Subject: Re: Chipsets, DVD-RAM, and timeouts....
+In-Reply-To: <20010102235037.B17330@suse.de>
+Message-ID: <Pine.LNX.4.30.0101021458510.15782-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2001, Linus Torvalds wrote:
-> On Tue, 2 Jan 2001, Dan Hollis wrote:
-> > Too bad Maxtor is still broken with hpt366...
+On Tue, 2 Jan 2001, Jens Axboe wrote:
+> On Tue, Jan 02 2001, Dan Hollis wrote:
 > > Also, using CDROM on hpt366 is recipe for disaster...
-> Does the Maxtor and/or CDROM problems have anything to do with udma66? Ie
-> if you can test, can you please check whether it's ok when they are added
-> to the blacklists (or if udma66 is just disabled by default)?
+> ATAPI in general actually, and as I understand it only with DMA.
 
-Its maxtor with dma-anything on hpt366, whether it's "classic dma", udma33
-or udma66.
-
-It's harder, but you can even lock the system using pio mode on hpt366
-with cdrom... evil.
-
-Andre has told me that the hpt366 timing is just plain wrong for CDROM
-devices, and timing with maxtors is off enough to cause problems.
-
-In the end, I gave up on hpt366 and bought a pdc20262 instead... works
-fine with udma maxtors and cdroms...
+Nope I can blow it up with PIO also...
 
 -Dan
 

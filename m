@@ -1,87 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318252AbSG3MzA>; Tue, 30 Jul 2002 08:55:00 -0400
+	id <S318254AbSG3NDe>; Tue, 30 Jul 2002 09:03:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318255AbSG3MzA>; Tue, 30 Jul 2002 08:55:00 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:60932 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S318252AbSG3My7>; Tue, 30 Jul 2002 08:54:59 -0400
-From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Message-Id: <200207301257.OAA02813@green.mif.pg.gda.pl>
-Subject: Re: Patch for xconfig
-To: zaitcev@redhat.com
-Date: Tue, 30 Jul 2002 14:57:30 +0200 (CEST)
-Cc: linux-kernel@vger.kernel.org (kernel list), gnb@alphalink.com.au,
-       mec@shout.net
-In-Reply-To: <200207301001.g6UA1hN14567@sunrise.pg.gda.pl> from "Andrzej Krzysztofowicz" at Jul 30, 2002 12:02:31 PM
-X-Mailer: ELM [version 2.5 PL0pre8]
+	id <S318255AbSG3NDe>; Tue, 30 Jul 2002 09:03:34 -0400
+Received: from pc2-oxfd3-5-cust41.oxf.cable.ntl.com ([213.107.67.41]:31239
+	"EHLO noetbook.telent.net") by vger.kernel.org with ESMTP
+	id <S318254AbSG3NDd>; Tue, 30 Jul 2002 09:03:33 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4, arch-dependent floating point exception and trap handling 
+From: Daniel Barlow <dan@telent.net>
+Date: Tue, 30 Jul 2002 14:06:57 +0100
+Message-ID: <873cu1nz4e.fsf@noetbook.telent.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> BTW, what I sent was a low hanged fruit that I picked.
-> The main bug is worse, and I have no idea how to fix it.
-> This is what we have in configuration:
-> 
-> tristate 'ISO ...' CONFIG_ISO9660_FS
-> dep_bool ' Tranparent ...' CONFIG_ZISOFS $CONFIG_ISO9660_FS
-> if [ "$CONFIG_ZISOFS" = "y" ]; then
->    define_tristate CONFIG_ZISOFS_FS $CONFIG_ISO9660_FS
-> else
->    define_tristate CONFIG_ZISOFS_FS n
-> fi
-> 
-> if [ "$CONFIG_CRAMFS" = "y" -o \
->      "$CONFIG_PPP_DEFLATE" = "y" -o \
->      "$CONFIG_JFFS2_FS" = "y" -o \
->      "$CONFIG_ZISOFS_FS" = "y" ]; then
->    define_tristate CONFIG_ZLIB_INFLATE y
-> else
->   if [ "$CONFIG_CRAMFS" = "m" -o \
->        "$CONFIG_PPP_DEFLATE" = "m" -o \
->        "$CONFIG_JFFS2_FS" = "m" -o \
->        "$CONFIG_ZISOFS_FS" = "m" ]; then
->      define_tristate CONFIG_ZLIB_INFLATE m
->   else
->      tristate 'zlib decompression support' CONFIG_ZLIB_INFLATE
->   fi
-> fi
+I'm seeing discrepancies between the way that floating point
+exceptions are handled on different architectures.  Briefly, I have a
+program that uses the glibc function feenableexcept() to enable SIGFPE
+on divide-by-zero errors, then installs a SIGFPE handler that uses
+sigsetjmp/siglongjmp, then divides 1.0 by 0.0 twice.
 
-IMO, the simpliest fix is to make change like replacing:
-      tristate 'zlib decompression support' CONFIG_ZLIB_INFLATE
-with:
-      tristate 'zlib decompression support' CONFIG_ZLIB_INFLATE_X
-      define_tristate CONFIG_ZLIB_INFLATE $CONFIG_ZLIB_INFLATE_X
-+ rename the option in a help file (if it exist)
+What I expect to happen is for my signal handler to be called twice.
+What actually happens varies:
 
-(not tested, but should work)
+On Alpha: 2.4.19-pre1-ac2, gcc version 2.95.4 20011002, PCA56 (SX164)
 
-> As far as I can tell, tkgen.c does an acceptable job on the
-> second part; though it refuses to generate "else" and uses
-> de Morgan transformation instead. However, it seems that tkparse
-> chokes on the very innocently looking first part. The result
-> is that xconfig insist on zlib to be a module when it should
-> be compiled into the kernel; it all ends with undefined symbols.
-> Naturally, "make oldconfig" works correctly.
+:; cc -o foo foo.c -lm -mieee
+foo.c: In function `main':
+foo.c:23: warning: assignment from incompatible pointer type
+:; ./foo
+exceptions enabled: 0
+exceptions enabled: 40000
+hello
+in handler
+abort
+in handler
+abort
+terminating
 
-No. The problem is that variales associated with eg. "tristate" clauses
-are always modified (even if its condition is false) during configuration 
-refreshment - to store the previous value for the option.
-Not good, but it is just bad project. Nobody wanted to rewrite xconfig
-as CML2 was assumed to come soon...
+- exactly as expected
 
-> The code in the menu part of kconfig.tk fixes the problem.
-> In other words, the bug is only visible if someone does "make xconfig",
-> loads a canned configuration which we ship, then does "save
-> and exit" immediately. If he visits any menus, everything is ok.
+On x86: 2.4.19-rc1, gcc version 2.95.4 20011002 , Pentium III (Coppermine)
 
-I'm not sure it is so simple...
+my signal handler is called the first time, and then the second
+attempt gets "inf".  I've run this under gdb as well; the second SIGFPE is 
+not received by the process
+
+:; gcc -o foo foo.c -lm
+foo.c: In function `main':
+foo.c:23: warning: assignment from incompatible pointer type
+:; ./foo
+exceptions enabled: 0
+exceptions enabled: 4
+hello
+in handler
+abort
+a/b=inf
+terminating
+
+
+On PPC: 2.4.19-pre8, gcc version 2.95.4 20011002,  266MHz 740/750 rev 2.2
+(tangerine iMac) I have x86-like behaviour
+
+:; cc -o foo foo.c -lm
+foo.c: In function `main':
+foo.c:23: warning: assignment from incompatible pointer type
+:; ./foo
+exceptions enabled: 0
+exceptions enabled: 4000000
+hello
+in handler
+abort
+a/b=inf
+terminating
+
+All of these are uniprocessor machines running uniprocessor kernels.
+The behaviour I'd like _most_ is for the pre-signal environment to be
+restored, but at least to get the same behaviour everywhere would be a
+good thing.
+
+I append the test program I've been using so you can tell me whether
+my whole approach is misguided
+
+---cut here---
+#include <signal.h>
+#include <stdio.h>
+#include <sys/signal.h>
+#include <ucontext.h>
+#include <fenv.h>
+#include <setjmp.h>
+
+sigjmp_buf env;
+double a=1.0,b=0.0;
+
+int handler(int signal, struct siginfo *info, struct ucontext *context) {
+    printf("in handler\n");
+    siglongjmp(env,signal);
+}
+
+main() {
+    struct sigaction sa;
+
+    a=1.0;
+    printf("exceptions enabled: %x\n", fegetexcept());
+    feenableexcept(FE_DIVBYZERO);   
+    printf("exceptions enabled: %x\n", fegetexcept());
+    sa.sa_sigaction = handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_SIGINFO | SA_RESTART;
+    sigaction(SIGFPE, &sa, NULL); 
+    printf("hello\n");
+    /* first time */
+    if(sigsetjmp(env,1)) printf("abort\n");
+    else                 printf("a/b=%f\n", a/b);
+
+    /* now try again, see if things were restored */
+    if(sigsetjmp(env,1)) printf("abort\n");
+    else                 printf("a/b=%f\n", a/b);
+    printf("terminating\n");
+}
+
+--- cut here ---
+
+If this message should have been sent elsewhere (e.g. to port-specific
+lists or maintainers) please feel free to tell me where and/or to
+forward it.
+
+Thanks!
+
+
+-dan
 
 -- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Gdansk University of Technology
+
+  http://ww.telent.net/cliki/ - Link farm for free CL-on-Unix resources 

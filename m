@@ -1,69 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287408AbSBRVSc>; Mon, 18 Feb 2002 16:18:32 -0500
+	id <S287596AbSBRVTc>; Mon, 18 Feb 2002 16:19:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286590AbSBRVSW>; Mon, 18 Feb 2002 16:18:22 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:57287 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S287306AbSBRVSQ>;
-	Mon, 18 Feb 2002 16:18:16 -0500
-Message-ID: <3C716F8F.7060705@candelatech.com>
-Date: Mon, 18 Feb 2002 14:18:07 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Petro <petro@auctionwatch.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Eepro100 driver.
-In-Reply-To: <20020213211639.GB2742@auctionwatch.com> <3C6B2277.CA9A0BF8@mandrakesoft.com> <3C6B406E.1010706@candelatech.com> <3C6B4B20.FE4AE960@mandrakesoft.com> <20020218015234.GA6113@auctionwatch.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287306AbSBRVTN>; Mon, 18 Feb 2002 16:19:13 -0500
+Received: from quechua.inka.de ([212.227.14.2]:13084 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S286590AbSBRVTK>;
+	Mon, 18 Feb 2002 16:19:10 -0500
+From: Bernd Eckenfels <ecki-news2002-02@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ARP timeout value, why 1 minute ?
+In-Reply-To: <E16ckba-0001mi-00@mcclure.tinet.ie>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E16cvBl-0007ul-00@sites.inka.de>
+Date: Mon, 18 Feb 2002 22:19:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <E16ckba-0001mi-00@mcclure.tinet.ie> you wrote:
+> and early version of Linux. But from a certain point, Linux(only?) changed from 20 minutes to one minute. This changes the system configuration to shorten the ARP expiration timer to one minute instead of the default 20 minutes. 
 
+> Why was it changed to 1 minute ? 
 
-Petro wrote:
+Thei neighbouring subsystem of Linux 2.4 is a bit more "complex" than a simple
+timeout:
 
-> On Thu, Feb 14, 2002 at 12:29:04AM -0500, Jeff Garzik wrote:
-> 
->>Ben Greear wrote:
->>
->>>Jeff Garzik wrote:
->>>
->>>>Long term, it is going to be replaced with e100 from Intel, as soon as
->>>>that driver is in good shape.
->>>>
->>>Any ETA on that?  (Make them really support the ethtool IOCTLs first :))
->>>
->>Soon but not terribly soon.  Intel has been responsive to feedback from
->>Andrew Morton and myself.  Once it passes our review and Intel's
->>testing, it will go in.  eepro100 will live on for a while, until we are
->>certain e100 is stable, though.  (and eepro100 won't disappear from 2.4
->>at all)
->>
-> 
->     So what do you suggest people like Mr. Greear and I do in the mean
->     time?
+/proc/sys/net/ipv4/neigh/default/anycast_delay:100
+/proc/sys/net/ipv4/neigh/default/app_solicit:0
+/proc/sys/net/ipv4/neigh/default/base_reachable_time:30
+/proc/sys/net/ipv4/neigh/default/delay_first_probe_time:5
+/proc/sys/net/ipv4/neigh/default/gc_interval:30
+/proc/sys/net/ipv4/neigh/default/gc_stale_time:60
+/proc/sys/net/ipv4/neigh/default/gc_thresh1:128
+/proc/sys/net/ipv4/neigh/default/gc_thresh2:512
+/proc/sys/net/ipv4/neigh/default/gc_thresh3:1024
+/proc/sys/net/ipv4/neigh/default/locktime:100
+/proc/sys/net/ipv4/neigh/default/mcast_solicit:3
+/proc/sys/net/ipv4/neigh/default/proxy_delay:80
+/proc/sys/net/ipv4/neigh/default/proxy_qlen:64
+/proc/sys/net/ipv4/neigh/default/retrans_time:100
+/proc/sys/net/ipv4/neigh/default/ucast_solicit:3
+/proc/sys/net/ipv4/neigh/default/unres_qlen:3
 
+It is actually probing hosts on a regularbut random time. Multiple retries are
+done until a neighbour is marked as not reachable.
 
-It's easy enough to download the e100 from Intel's site if you
-want to use it.  I will continue to try to use the eepro100 unless
-I find problems with my particular hardware NICS.  The eepro100
-still supports MII-IOCTLS better than the e100 supports ethtool
-interfaces, and I like to know all those twisty little bits!
+If the kernel sends any payload packet to a host, a neighbour is in delay
+state, if the delay timer expires, it will suspect that something is not ok.
+It will send an arp request and go into probe state.
 
-Ben
+This has the advantage, that as long as the system is up and used, the entry
+will never be expired, and as soon as it fails to respond, it will marked dead
+quickly. This will also affect all queued packets and all routes, so it can
+recover from an unreachable router. It is also not spamming the network with
+unneeded unicast or multicast arp requests, because normal payload ip packets
+are accounted.
 
+If you are curious what is going on try "/sbin/ip -s neigh"
 
-> 
-> 
+The times for an entry show "last used"/"last confirmed"/"last updated"
 
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+Greetings
+Bernd
 

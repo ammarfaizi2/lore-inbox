@@ -1,115 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132255AbRCVXja>; Thu, 22 Mar 2001 18:39:30 -0500
+	id <S132256AbRCVXfj>; Thu, 22 Mar 2001 18:35:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132257AbRCVXhm>; Thu, 22 Mar 2001 18:37:42 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:26621 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S132260AbRCVXhY>;
-	Thu, 22 Mar 2001 18:37:24 -0500
-Date: Thu, 22 Mar 2001 15:36:41 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Junfeng Yang <yjf@stanford.edu>
-Subject: Re : [CHECKER] 28 potential interrupt errors
-Message-ID: <20010322153641.B13162@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S132255AbRCVXfV>; Thu, 22 Mar 2001 18:35:21 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:31683 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S132251AbRCVXfC>; Thu, 22 Mar 2001 18:35:02 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: <frey@cxau.zko.dec.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: kernel_thread vs. zombie
+Date: Fri, 23 Mar 2001 00:33:55 +0100
+Message-Id: <20010322233355.8870@mailhost.mipsys.com>
+In-Reply-To: <007801c0b309$5bca3530$90600410@SCHLEPPDOWN>
+In-Reply-To: <007801c0b309$5bca3530$90600410@SCHLEPPDOWN>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junfeng Yang wrote :
-> Hi,
-> 
-> Here are yet more results from the MC project.  This checker looks for
-> inconsistent usage of interrupt functions.
-[...]
-> ---------------------------------------------------------
-> [BUG] error path
-> 
-> /u2/acc/oses/linux/2.4.1/drivers/net/irda/irport.c:943:irport_net_ioctl: ERROR:INTR:947:997: Interrupts inconsistent, severity `20':997
-> 
->         /* Disable interrupts & save flags */
->         save_flags(flags);
-> Start --->
->         cli();
-> 
->         switch (cmd) {
->         case SIOCSBANDWIDTH: /* Set bandwidth */
->                 if (!capable(CAP_NET_ADMIN))
->                         return -EPERM;
->                 irda_task_execute(self, __irport_change_speed, NULL, NULL,
-> 
->         ... DELETED 40 lines ...
-> 
->         }
-> 
->         restore_flags(flags);
-> 
-> Error --->
->         return ret;
-> }
-> 
-> static struct net_device_stats *irport_net_get_stats(struct net_device *dev)
-> {
-> ---------------------------------------------------------
+>daemonize() makes calls that are all protected with the
+>big kernel lock in do_exit(). All usages of daemonize have
+>the big kernel lock held. So I guess it just needs it.
+>
+>Please let me know whether you have success if it makes
+>a difference with having it held.
 
-	I agree that the IrDA stack is full of irq/locking bugs (there
-is a patch of mine waiting in Dag's mailbox), but this one is not a
-bug, it's a false positive.
-	The restore_flags(flags); will restore the state of the
-interrupt register before the cli happened, so will automatically
-reenable interrupts. The exact same code was used all over the kernel
-before spinlock were introduced.
+With a bit more experiments, I have this behaviour:
 
-	So, if you see :
-	        save_flags(flags);
-	        cli();
-		...
-	        restore_flags(flags);
-	It's correct (but a bit outdated).
+(I hold the kerne lock, daemonize(), and release the kernel lock, then do
+my probe thing which takes a few seconds, and let the thread die by itself)
+
+ - When started during boot (low PID (9)) It becomes a zombie
+ - When started from a process that quits after sending the ioctl,
+   it is correctly "garbage collected".
+ - When started from a process that stays around, it becomes a zombie too
+
+So something is not working, or I'm missing something obvious, or whatever...
+
+Any clue ?
+
+Ben.
 
 
-> ---------------------------------------------------------
-> [BUG] error path. this bug is interesting
-> 
-> /u2/acc/oses/linux/2.4.1/drivers/net/pcmcia/wavelan_cs.c:2561:wavelan_get_wireless_stats: ERROR:INTR:2528:2561: Interrupts inconsistent, severity `20':2561
-> 
-> 
->   /* Disable interrupts & save flags */
-> Start --->
->   spin_lock_irqsave (&lp->lock, flags);
-> 
->   if(lp == (net_local *) NULL)
->     return (iw_stats *) NULL;
->   wstats = &lp->wstats;
-> 
->   /* Get data from the mmc */
-> 
->         ... DELETED 23 lines ...
-> 
-> 
-> #ifdef DEBUG_IOCTL_TRACE
->   printk(KERN_DEBUG "%s: <-wavelan_get_wireless_stats()\n", dev->name);
-> #endif
-> Error --->
->   return &lp->wstats;
-> }
-> #endif  /* WIRELESS_EXT */
-> 
-> ---------------------------------------------------------
 
-	Didn't look into 2.4.1, but in 2.4.2 the irq_restore is just
-above the printk, in the part that is "DELETED". It even has a nice
-comments to that effect. Check the code by yourself.
-	So, I guess it's another false positive and a bug in your
-parser. That's why it's so "interesting" ;-)
 
-	Good luck...
-
-	Jean

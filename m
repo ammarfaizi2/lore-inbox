@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262991AbSJGLwU>; Mon, 7 Oct 2002 07:52:20 -0400
+	id <S262992AbSJGLzP>; Mon, 7 Oct 2002 07:55:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262992AbSJGLwU>; Mon, 7 Oct 2002 07:52:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53255 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262991AbSJGLwT>; Mon, 7 Oct 2002 07:52:19 -0400
-Date: Mon, 7 Oct 2002 12:57:55 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: simon@baydel.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: The end of embedded Linux?
-Message-ID: <20021007125755.A5381@flint.arm.linux.org.uk>
-References: <20021005.212832.102579077.davem@redhat.com> <1033923206.21282.28.camel@irongate.swansea.linux.org.uk> <3DA16A9B.7624.4B0397@localhost> <20021007.033644.85392050.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021007.033644.85392050.davem@redhat.com>; from davem@redhat.com on Mon, Oct 07, 2002 at 03:36:44AM -0700
+	id <S262993AbSJGLzP>; Mon, 7 Oct 2002 07:55:15 -0400
+Received: from mail.cyberus.ca ([216.191.240.111]:57986 "EHLO cyberus.ca")
+	by vger.kernel.org with ESMTP id <S262992AbSJGLzO>;
+	Mon, 7 Oct 2002 07:55:14 -0400
+Date: Mon, 7 Oct 2002 07:53:26 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Ben Greear <greearb@candelatech.com>
+cc: Andre Hedrick <andre@pyxtechnologies.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
+Subject: Re: Update on e1000 troubles (over-heating!)
+In-Reply-To: <3DA103A2.1060901@candelatech.com>
+Message-ID: <Pine.GSO.4.30.0210070749430.1861-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 03:36:44AM -0700, David S. Miller wrote:
->    No one else can run these drivers so 
->    how could I expect someone else to maintain them ?
-> 
-> This is a common misconception.
 
-Double that.  There are lots of drivers for embedded ARM stuff that
-should probably be in the tree, but because they typically add
-architecture specific crap to drivers to modify the IO support
-the weird and wonderful way the hardware designer has come up with
-to connect the device.  Examples of this are cs89x0.c and smc9192.c.
 
-I've tried to coerce people in Alans suggested direction (hiding
-the architecture specific stuff behind inb and friends) but That
-Doesn't Work because embedded people will not do this.
+On Sun, 6 Oct 2002, Ben Greear wrote:
 
-They'd rather keep their changes external.  And thus, they stay
-external.
+> I can reproduce my crash using mtu sized pkts running only 50Mbps
+> send + receive on 2 nics.  It took over-night to do it though.  Running
+> as hard as I can with MTU packets will crash it as well, and much
+>quicker.
+>
 
-The conventional "you will do it this way or else your patch will
-not be merged" approach taken by Alan and others just doesn't bite
-in the embedded world I'm afraid.  Experience has proven this over
-and over again.
+So is there a correlation with packet count then?
 
-And as final proof, the solution taken by two embedded companies is
-to develop two completely separate cs89x0 driver from the existing one
-(and then pick one/merge them) rather than fixing stuff in the way
-suggested by Alan.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+> Interestingly enough, the tg3 NIC (netgear 302t), registered 57 deg C between
+> the fins of it's heat sink in the 32-bit slots.  Makes me wonder if my PCI bus
+> is running too hot :P
+
+Does the problem happen with the tg3?
+
+cheers,
+jamal
+
 

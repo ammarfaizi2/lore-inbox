@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131720AbQLLBqo>; Mon, 11 Dec 2000 20:46:44 -0500
+	id <S131748AbQLLBry>; Mon, 11 Dec 2000 20:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131719AbQLLBqe>; Mon, 11 Dec 2000 20:46:34 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:32529 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131714AbQLLBqV>; Mon, 11 Dec 2000 20:46:21 -0500
-Date: Mon, 11 Dec 2000 17:15:22 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Mares <mj@ucw.cz>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI irq routing..
-In-Reply-To: <20001130093428.A6326@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.10.10012111710290.1107-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131719AbQLLBre>; Mon, 11 Dec 2000 20:47:34 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:63242 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S131714AbQLLBrb>;
+	Mon, 11 Dec 2000 20:47:31 -0500
+Date: Mon, 11 Dec 2000 18:15:17 -0700
+From: Cort Dougan <cort@fsmlabs.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: PATCH: linux-2.4.0-test12pre8/include/linux/module.h breaks sysklogd compilation
+Message-ID: <20001211181517.N4528@hq.fsmlabs.com>
+In-Reply-To: <20001211145901.A8047@baldur.yggdrasil.com> <3241.976583143@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <3241.976583143@kao2.melbourne.sgi.com>; from Keith Owens on Tue, Dec 12, 2000 at 12:05:43PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+} User space applications _must_ not include kernel headers.  Even
+} modutils does not include linux/module.h, it has its own portable
+} (kernels 2.0 - 2.4) version.
 
-
-Martin,
- I finally got access to a machine that truly has multiple PCI buses and
-bridges in between them, and at least for that machine the x86 IRQ lookup
-does not work at all.
-
-The problem seems to be the "pci_get_interrupt_pin()" call. We should not
-do that. The pirq table has the unmodified device information - and when
-we try to swizzle the pins and find the bridge that the device is behind,
-we're trying to be way too clever.
-
-Instead of doing
-
-	pin = pci_get_interrupt_pin(dev, &d);
-	if (pin < 0) {
-		DBG(" -> no interrupt pin\n");
-		return 0;
-	}
-
-I think we should be doing:
-
-	u8 pin;
-	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
-	if (!pin) {
-		DBG(" -> no interrupt pin\n");
-		return 0;
-	}
-	pin--;
-	d = dev;
-
-and be done with it. No swizzling, no nothing.
-
-On the machine I just saw, this would have given the right end result.
-
-On machines with just one bus, we'd never see the difference.
-
-Comments?
-
-		Linus
-
+There are cases where a user-program _must_ include kernel headers.  Some
+glibc versions have incorrect values for MCL_* and asm/mman.h has correct
+versions.  If you want your mlock call to do anything, you need the kernel
+header.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261605AbSIXHlt>; Tue, 24 Sep 2002 03:41:49 -0400
+	id <S261608AbSIXIDo>; Tue, 24 Sep 2002 04:03:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261607AbSIXHlt>; Tue, 24 Sep 2002 03:41:49 -0400
-Received: from AMarseille-201-1-5-7.abo.wanadoo.fr ([217.128.250.7]:3184 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S261605AbSIXHls>;
-	Tue, 24 Sep 2002 03:41:48 -0400
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-To: "Richard Zidlicky" <rz@linux-m68k.org>
-Cc: "Andre Hedrick" <andre@linux-ide.org>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: IDE janitoring comments
-Date: Mon, 23 Sep 2002 09:29:42 +0200
-Message-Id: <20020923072942.21213@192.168.4.1>
-In-Reply-To: <20020924000134.A210@linux-m68k.org>
-References: <20020924000134.A210@linux-m68k.org>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+	id <S261609AbSIXIDo>; Tue, 24 Sep 2002 04:03:44 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:33796 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S261608AbSIXIDm>; Tue, 24 Sep 2002 04:03:42 -0400
+Message-Id: <200209240804.g8O84Kp24759@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Larry Kessler <kessler@us.ibm.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-RFC] README 1ST - New problem logging macros (2.5.38)
+Date: Tue, 24 Sep 2002 10:58:45 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <3D8FEEBE.F471CA10@us.ibm.com>
+In-Reply-To: <3D8FEEBE.F471CA10@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->we have one special problem on m68k, on some machines the IDE
->bus is byteswapped (unrelated to cpu endianness). For historical 
->and performance reasons data to the HD is by default read and 
->written in this "wrong" order (thus the bswap/swapdata option)
->and special fixup code is used in ide_fix_driveid (see 
->M68K_IDE_SWAPW). However data returned by IDE_DRIVE_CMD is not 
->treated in any way, so that eg WIN_SMART data end up in the 
->wrong order on those machines and this is something I would 
->like to fix properly.
->I figure I would define ata_*_{control,data} to handle special
->data resp raw HD data and modify ide_handler_parser to return
->specialised interrupt handlers or set some additional flag.
+On 24 September 2002 02:49, Larry Kessler wrote:
+> Jeff Garzik wrote:
+> > >       }
+> > >       if (!request_mem_region(pci_resource_start(pdev, 0),
+> > >                       pci_resource_len(pdev, 0), "eepro100")) {
+> > > -             printk (KERN_ERR "eepro100: cannot reserve MMIO
+> > > region\n"); +             pci_problem(LOG_ERR, pdev, "eepro100: cannot
+> > > reserve MMIO region");
+> >
+> > bloat, no advantage over printk
 >
->Any thoughts?
+> the advantage is that the string, which means plenty to the developer, but
+> possibly much less to a Sys Admin, can be replaced with a more descriptive
+> message, in the local language, by editing the formatting template in
+> user-space.  Since the printk messages were mapped directly over to the
+> problem macros, then the issue here I think is how useful (or not) the
+> info. is more so than what interface is used.
 
-You just need to provide your own ide-ops doing the right
-thing, I don't think you need to touch ata_*_data if you
-properly implement "s" ops {in,out}s{b,w,l} for your hwif.
+The problem is that printks are very easy, people won't easily switch
+to any other thing if it is hard to understand/use. If you can provide
+such easy interface, then ok.
 
-Ben.
+Regarding translation problem: it makes life easier to admins, i.e. you
+enable Linux to be used by more stupid admins :-).
 
+This race could not be won: Universe can always produce more remarkable
+idiots. Next time they will ask you "what is eepro100?" and if you say
+"it's a NIC, if you have intermittent link indicator problem try to reseat
+network cord..." they will ask "what is NIC and how to reseat the cord?"
+(btw, they will ask that in their native language). 8-(
 
+Maybe requiring admins to know basic English is not that bad?
+--
+vda

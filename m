@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264700AbTGGXh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 19:37:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264753AbTGGXh3
+	id S264924AbTGGXjv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 19:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264939AbTGGXjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 19:37:29 -0400
-Received: from ns.suse.de ([213.95.15.193]:42765 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264700AbTGGXh2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 19:37:28 -0400
-Date: Tue, 8 Jul 2003 01:52:01 +0200
-From: Andi Kleen <ak@suse.de>
-To: Doug McNaught <doug@mcnaught.org>
-Cc: palbrecht@qwest.net, niv@us.ibm.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: question about linux tcp request queue handling
-Message-Id: <20030708015201.4a5ad7e6.ak@suse.de>
-In-Reply-To: <m3brw6rn3m.fsf@varsoon.wireboard.com>
-References: <3F08858E.8000907@us.ibm.com.suse.lists.linux.kernel>
-	<001a01c3441c$6fe111a0$6801a8c0@oemcomputer.suse.lists.linux.kernel>
-	<3F08B7E2.7040208@us.ibm.com.suse.lists.linux.kernel>
-	<000d01c3444f$e6439600$6801a8c0@oemcomputer.suse.lists.linux.kernel>
-	<3F090A4F.10004@us.ibm.com.suse.lists.linux.kernel>
-	<001401c344df$ccbc63c0$6801a8c0@oemcomputer.suse.lists.linux.kernel>
-	<p73fzliqa91.fsf@oldwotan.suse.de>
-	<m3brw6rn3m.fsf@varsoon.wireboard.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 7 Jul 2003 19:39:51 -0400
+Received: from L1028P03.dipool.highway.telekom.at ([62.46.192.99]:64150 "EHLO
+	bld.ods.org") by vger.kernel.org with ESMTP id S264924AbTGGXju
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 19:39:50 -0400
+Date: Tue, 8 Jul 2003 01:54:23 +0200
+From: Hans-Peter Schadler <blade.runner@gmx.at>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.22-pre3-ac1: bcm4400 transfer problems
+Message-Id: <20030708015423.35f59b47.blade.runner@gmx.at>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07 Jul 2003 18:25:17 -0400
-Doug McNaught <doug@mcnaught.org> wrote:
+Hello
 
-> And furthermore, IIRC, the current Linux networking code is not
-> Berkeley-derived, though an earlier version was.
+I have some strange problems with the bcm4400 driver
+Bigger transfers from any other PC to my PC doesnt work (so receiving seams to be the problem)
 
-The linux network stack was never BSD derived in any way.
+Very easy to reproduce this problem is, to ping a other pc with packages greater then  approximatly 3000byte (ping -s 3000)
 
-[there are two header files that came from net2, but they do not 
-contain any code]
+The Other thing is nfs. This also shows this problem very fast. I couldnt copy a file bigger then some bytes from server to my PC. From my PC to the server works without any problems.
 
--Andi
+I don't know what infos i should give you, and what infos could be usefull. There are no errors or messages in /var/log/messages or /var/log/syslog.
+
+I have activated acpi, but i also have the problem, without it.
+
+Best regards
+Hans-Peter Schadler

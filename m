@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318357AbSHPNdl>; Fri, 16 Aug 2002 09:33:41 -0400
+	id <S318361AbSHPNlB>; Fri, 16 Aug 2002 09:41:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318360AbSHPNdl>; Fri, 16 Aug 2002 09:33:41 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:31754 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318357AbSHPNdk>; Fri, 16 Aug 2002 09:33:40 -0400
-Date: Fri, 16 Aug 2002 10:37:15 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre2-ac3 stops responding
-In-Reply-To: <3D5CFE83.136D81FC@wanadoo.fr>
-Message-ID: <Pine.LNX.4.44L.0208161036170.1430-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318367AbSHPNlB>; Fri, 16 Aug 2002 09:41:01 -0400
+Received: from relay1.pair.com ([209.68.1.20]:32781 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S318361AbSHPNlA>;
+	Fri, 16 Aug 2002 09:41:00 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <3D5D0306.21A73C36@kegel.com>
+Date: Fri, 16 Aug 2002 06:49:58 -0700
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: suparna@in.ibm.com
+CC: Andrea Arcangeli <andrea@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: 
+ async-io API registration for 2.5.29)]
+References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com> <20020801140112.G21032@redhat.com> <20020815235459.GG14394@dualathlon.random> <20020815214225.H29874@redhat.com> <20020816150945.A1832@in.ibm.com> <20020816100334.GP14394@dualathlon.random> <20020816165306.A2055@in.ibm.com> <20020816165831.A2104@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Aug 2002, Jean-Luc Coulon wrote:
+Suparna Bhattacharya wrote:
+> 
+> On Fri, Aug 16, 2002 at 04:53:06PM +0530, Suparna Bhattacharya wrote:
+> > On Fri, Aug 16, 2002 at 12:03:34PM +0200, Andrea Arcangeli wrote:
+> > > On Fri, Aug 16, 2002 at 03:09:46PM +0530, Suparna Bhattacharya wrote:
+> > > > Also, wasn't the fact that the API was designed to support both POSIX
+> > > > and completion port style semantics, another reason for a different
+> > > > (lightweight) in-kernel api? The c10k users of aio are likely to find
+> > > > the latter model (i.e.  completion ports) more efficient.
+> > >
+> > > if it's handy for you, can you post a link to the API defined by
+> > > POSIX and completion ports so I can read them too and not only SuS?
+> >
+> > Don't have anything handy atm that's any better than what you could
+> > get through doing a google on "IO Completion ports". (See section at
+> > the end of this note for some info)
+> 
+> Oh sorry, I should have mentioned Dan Kegel's site which actually
+> has all the pointers you need. See http://www.kegel.com/c10k.html
+> (It has pointers to links to both NT and OS/400 completion ports)
 
-> 2nd while running:
-> ------------------
-> If I have high disk activity, the system stops responding for a while,
-> it does not accepts any key action nor mouse movement. It starts running
-> normally after few seconds.
-
-I've got a patch that might help improve this situation:
-
-http://surriel.com/patches/2.4/2.4.20-p2ac3-rmap14
-
-Could you please try this patch ?
-
-kind regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+but not yet the DAFS stuff, thanks, I'll link to that.
+- Dan

@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbUKCNoS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbUKCNqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbUKCNoS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 08:44:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbUKCNoS
+	id S261598AbUKCNqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 08:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbUKCNqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 08:44:18 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:49602 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261595AbUKCNoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 08:44:13 -0500
-From: Lorenzo Allegrucci <l_allegrucci@yahoo.it>
-Organization: -ENOENT
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
-Date: Wed, 3 Nov 2004 14:44:10 +0100
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20041018145008.GA25707@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu>
-In-Reply-To: <20041103105840.GA3992@elte.hu>
+	Wed, 3 Nov 2004 08:46:08 -0500
+Received: from knserv.hostunreachable.de ([212.72.163.70]:10138 "EHLO
+	mail.hostunreachable.de") by vger.kernel.org with ESMTP
+	id S261598AbUKCNp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 08:45:57 -0500
+Message-ID: <33093.192.35.17.30.1099489553.squirrel@config.hostunreachable.de>
+Date: Wed, 3 Nov 2004 14:45:53 +0100 (CET)
+Subject: IP Layer on VME-Bus
+From: "H. Wiese" <7.e.Q@syncro-community.de>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Reply-To: 7.e.Q@syncro-community.de
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411031444.10570.l_allegrucci@yahoo.it>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 November 2004 11:58, Ingo Molnar wrote:
-> 
-> i have released the -V0.7.1 Real-Time Preemption patch, which can be
-> downloaded from:
-> 
->     http://redhat.com/~mingo/realtime-preempt/
-> 
-> this release is mainly a merge of -V0.6.9 to 2.6.10-rc2-mm2.
+Hello,
 
-  AS      arch/i386/lib/checksum.o
-  CC      arch/i386/lib/dec_and_lock.o
-  CC      arch/i386/lib/delay.o
-  AS      arch/i386/lib/getuser.o
-  CC      arch/i386/lib/memcpy.o
-  CC      arch/i386/lib/mmx.o
-  CC      arch/i386/lib/strstr.o
-  CC      arch/i386/lib/usercopy.o
-  AR      arch/i386/lib/lib.a
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/mounts.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-net/built-in.o(.text+0x1887f): In function `netpoll_setup':
-: undefined reference to `rcu_read_lock_up_read'
-net/built-in.o(.text+0x188ed): In function `netpoll_setup':
-: undefined reference to `rcu_read_lock_up_read'
-make: *** [.tmp_vmlinux1] Error 1
+we develop a driver which enables us to use an ip layer on top of the vme-bus
+technology. Now we got some problems with coding the driver. We already have
+an old version of this driver (called "dpn") which works well but has no use
+for us anymore since we upgraded our system from kernel 2.2.14 to 2.6.7. So
+now we have to create a new driver.
 
-CONFIG_NETPOLL=y
-# CONFIG_NETPOLL_RX is not set
-# CONFIG_NETPOLL_TRAP is not set
-CONFIG_NET_POLL_CONTROLLER=y
+The old driver established the ip layer by accessing the dual port ram of
+the VME bus, which is based on a Tundra Universe II Chipset. This enables
+us to transfer data, ping etc. between active VME-modules using the
+VME-bus. Very useful.
 
--- 
-I route therefore you are
+Well, the problem we will surely run into is: will the driver work as fine as
+the old one if we only recreate the initialization functions working with the
+new kernel function set (e.g. wait_event_interruptible instead of
+interruptible_sleep_on etc.), copy the essential functions from the old
+driver
+to the new one and alter them a little to work with the new kernel functions?
+Or is there anything else to put an eye on?
+
+
+Thankx a lot
+
+kind regards
+Hendrik

@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265264AbSIWJfY>; Mon, 23 Sep 2002 05:35:24 -0400
+	id <S265267AbSIWJfa>; Mon, 23 Sep 2002 05:35:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265267AbSIWJfY>; Mon, 23 Sep 2002 05:35:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:19593 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265264AbSIWJfY>;
-	Mon, 23 Sep 2002 05:35:24 -0400
-Date: Mon, 23 Sep 2002 11:40:20 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Witek Krecicki <adasi@kernel.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.38] IDE oopses on vmware
-Message-ID: <20020923094020.GD15479@suse.de>
-References: <Pine.LNX.4.44L.0209221225180.3713-100000@ep09.kernel.pl> <000a01c26223$90b2ce90$0201a8c0@witek>
+	id <S265272AbSIWJf3>; Mon, 23 Sep 2002 05:35:29 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:49141 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265267AbSIWJf2>; Mon, 23 Sep 2002 05:35:28 -0400
+Date: Mon, 23 Sep 2002 15:15:59 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm2 [PATCH]
+Message-ID: <20020923151559.B29900@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <3D8E96AA.C2FA7D8@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <000a01c26223$90b2ce90$0201a8c0@witek>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D8E96AA.C2FA7D8@digeo.com>; from akpm@digeo.com on Mon, Sep 23, 2002 at 04:22:28AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 22 2002, Witek Krecicki wrote:
-> ----- Original Message -----
-> From: "Witek Krecicki" <adasi@kernel.pl>
-> > Oops happens after:
-> > Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> > ide: Assuming 33MHz system bus speed for PIO modes; override with
-> idebus=xx
-> > hda: VMware Virtual IDE Hard Drive, ATA DISK drive
-> > hdc: VMware Virtual IDE CDROM Drive, ATAPI CD/DVD-ROM drive
-> > ide2: ports already in use, skipping probe
-> {cut}
-> Just checked: the same oops happens on 'physical' Asus A7M266
+On Mon, Sep 23, 2002 at 04:22:28AM +0000, Andrew Morton wrote:
+> url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.38/2.5.38-mm2/
+> read_barrier_depends.patch
+>   extended barrier primitives
+> 
+> rcu_ltimer.patch
+>   RCU core
+> 
+> dcache_rcu.patch
+>   Use RCU for dcache
+> 
 
-The patch from Andries should fix this, did you check? It's in current
-BK, I've attached it for you as well. Note that it has white space
-damage, so needs to be applied manually.
+Hi Andrew,
 
---- linux-2.5.37/linux/drivers/ide/ide-lib.c    Sat Sep 21 11:39:48 2002
-+++ linux-2.5.37a/linux/drivers/ide/ide-lib.c   Sat Sep 21 14:06:45 2002
-@@ -394,7 +394,7 @@
-        if (on && drive->media == ide_disk) {
-                if (!PCI_DMA_BUS_IS_PHYS)
-                        addr = BLK_BOUNCE_ANY;
--               else
-+               else if (HWIF(drive)->pci_dev)
-                        addr = HWIF(drive)->pci_dev->dma_mask;
-        }
+The following patch fixes a typo for preemptive kernels.
 
+Later I will submit a full rcu_ltimer patch that contains
+the call_rcu_preempt() interface which can be useful for
+module unloading and the likes. This doesn't affect
+the non-preemption path.
+
+Thanks
 -- 
-Jens Axboe
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
 
+
+--- include/linux/rcupdate.h	Mon Sep 23 11:47:26 2002
++++ /tmp/rcupdate.h	Mon Sep 23 12:45:21 2002
+@@ -116,7 +116,7 @@
+ 		return 0;
+ }
+ 
+-#ifdef CONFIG_PREEMPTION
++#ifdef CONFIG_PREEMPT
+ #define rcu_read_lock()		preempt_disable()
+ #define rcu_read_unlock()	preempt_enable()
+ #else

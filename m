@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267782AbRGUSX0>; Sat, 21 Jul 2001 14:23:26 -0400
+	id <S267786AbRGUTPi>; Sat, 21 Jul 2001 15:15:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267783AbRGUSXP>; Sat, 21 Jul 2001 14:23:15 -0400
-Received: from uucp.gnuu.de ([151.189.0.84]:17675 "EHLO uucp.gnuu.de")
-	by vger.kernel.org with ESMTP id <S267782AbRGUSXE>;
-	Sat, 21 Jul 2001 14:23:04 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.6, reiserfs] kernel BUG at prints.c:332!
-From: Andreas Muck <ml@chapulin.de>
-Date: 21 Jul 2001 19:43:46 +0200
-Message-ID: <m37kx218kt.fsf@mantuzo.chapulin.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Academic Rigor)
+	id <S267787AbRGUTP2>; Sat, 21 Jul 2001 15:15:28 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:39885 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S267786AbRGUTPK>;
+	Sat, 21 Jul 2001 15:15:10 -0400
+Date: Sat, 21 Jul 2001 20:16:34 +0100 (BST)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+To: "Michael S. Miles" <mmiles@alacritech.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kgdb and/or kdb for RH7.1
+In-Reply-To: <KIEKJCGPOOADIOGPDJJLOEPGEFAA.mmiles@alacritech.com>
+Message-ID: <Pine.LNX.4.21.0107212015220.612-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+just in case you are wondering where to download kgdb from, there is one
+maintained at sourceforge by Amit Kale
 
-I recently converted most of my filesystems from ext2 to reiserfs and
-noticed regulary oopses (?) on recovered SCSI errors. I'm not sure if
-it's really a kernel issue, or compiler related, but I thought I'd
-report it anyway.
+http://kgdb.sourceforge.net/
 
-The kernel/compiler is: Linux version 2.4.6 (root@mantuzo) (gcc
-version 2.95.4 20010703 (Debian prerelease)) #1 Thu Jul 12 13:32:47
-CEST 2001
+On Sat, 21 Jul 2001, Michael S. Miles wrote:
 
-Here's the messages I get when a recovered SCSI error occurs on the
-reiserfs:
+> Does anyone know if patches exist against the stock RedHat 7.1
+> kernel(2.4.2-2) to support remote kernel debugging(kgdb).  I would also be
+> interested in the same for kdb, but I'm primarily interested in kgdb.
+> 
+> If it doesn't exist I guess I will have to try to port the patches over
+> myself, I just didn't want to reinvent the wheel.
+> 
+> hopefully TIA,
+> michael
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-SCSI disk error : host 0 channel 0 id 6 lun 0 return code = 8000002
-Info fld=0xed07, Deferred sd08:31: sense key Recovered Error
-Additional sense indicates Record not found
- I/O error: dev 08:31, sector 65680
-journal-712: buffer write failed
-kernel BUG at prints.c:332!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c016ddf5>]
-EFLAGS: 00010282
-eax: 0000001c   ebx: c02a8120   ecx: 00000001   edx: c025c5a4
-esi: c1241ee8   edi: c1241ed8   ebp: 00000000   esp: c1241eac
-ds: 0018   es: 0018   ss: 0018
-Process kupdated (pid: 6, stackpage=c1241000)
-Stack: c0223eed c02241f8 0000014c c7da0c00 000018d0 00001d35 c8c488c0 c02a8520 
-       c1241ed4 c1241ed8 c1240000 00000000 c0177f9c c7da0c00 c0226560 00000002 
-       000008c0 000008c0 c0178468 c7da0c00 00001d35 000018d0 00000804 000008c0 
-Call Trace: [<c0177f9c>] [<c0178468>] [<c017b9ce>] [<c017a67f>] [<c016bd65>] [<c0130df2>] [<c012ff1f>] 
-       [<c013019b>] [<c0105424>] 
 
-Code: 0f 0b 83 c4 0c 83 7c 24 28 00 74 0f 8b 7c 24 28 80 4f 28 01 
-
-The processes accessing the reiserfs (or maybe only the affected file)
-will hang in IO wait forever, even SysRq-sync fails on the partition.
-
-I haven't had any more problems since converting the disk back to
-ext2.
-
-andi

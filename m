@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264922AbRFUG55>; Thu, 21 Jun 2001 02:57:57 -0400
+	id <S264924AbRFUHE2>; Thu, 21 Jun 2001 03:04:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264923AbRFUG5s>; Thu, 21 Jun 2001 02:57:48 -0400
-Received: from www.wen-online.de ([212.223.88.39]:35337 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S264922AbRFUG5e>;
-	Thu, 21 Jun 2001 02:57:34 -0400
-Date: Thu, 21 Jun 2001 08:56:53 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac15
-In-Reply-To: <Pine.LNX.4.21.0106210127150.14247-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0106210836340.1043-100000@mikeg.weiden.de>
+	id <S264926AbRFUHEH>; Thu, 21 Jun 2001 03:04:07 -0400
+Received: from infortrend.com.tw ([203.67.221.1]:21765 "EHLO infortrend.com.tw")
+	by vger.kernel.org with ESMTP id <S264924AbRFUHEG>;
+	Thu, 21 Jun 2001 03:04:06 -0400
+Reply-To: <warren@infortrend.com.tw>
+From: "warren" <warren@infortrend.com.tw>
+To: <linux-kernel@vger.kernel.org>
+Cc: <warren@infortrend.com.tw>
+Subject: Cannot complie aic7xxx_mod.o
+Date: Thu, 21 Jun 2001 15:06:27 +0800
+Message-ID: <001d01c0fa20$b1574d40$321ea8c0@saturn>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jun 2001, Marcelo Tosatti wrote:
+Hi,
+    I get the source code of aic7xxx  untar it in my Linux Kernel directory
+and go to the directory "/usr/src/linux/drivers/scsi/aic7xxx" to make
+aic7xxx_mod.o.
+  But i cannot make the modules. The error is as follows:
+  My Linux is RedHat 6.2 and kernel version is 2.2.14-5.0 .
 
-> >  2  4  2  77084   1524  18396  66904   0 1876   108  2220 2464 66079   198   1
-                                                                   ^^^^^
-> Ok, I suspect that GFP_BUFFER allocations are fucking up here (they can't
-> block on IO, so they loop insanely).
+   Please give me some instructions to achieve it.
 
-Why doesn't the VM hang the syncing of queued IO on these guys via
-wait_event or such instead of trying to just let the allocation fail?
-(which seems to me will only cause the allocation to be resubmitted,
-effectively changing nothing but adding overhead)  Does failing the
-allocation in fact accomplish more than what I'm (uhoh:) assuming?
+    Best Regards
 
-	-Mike
+    Warren
+
+
+
 

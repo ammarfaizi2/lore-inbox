@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289043AbSAOLit>; Tue, 15 Jan 2002 06:38:49 -0500
+	id <S289042AbSAOLks>; Tue, 15 Jan 2002 06:40:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289042AbSAOLij>; Tue, 15 Jan 2002 06:38:39 -0500
-Received: from [62.245.135.174] ([62.245.135.174]:24508 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S289080AbSAOLiW>;
-	Tue, 15 Jan 2002 06:38:22 -0500
-Message-ID: <3C4414A7.8A3FF2FE@TeraPort.de>
-Date: Tue, 15 Jan 2002 12:38:15 +0100
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: russ@elegant-software.com
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 01/15/2002 12:38:15 PM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 01/15/2002 12:38:22 PM,
-	Serialize complete at 01/15/2002 12:38:22 PM
-Content-Transfer-Encoding: 7bit
+	id <S289080AbSAOLkj>; Tue, 15 Jan 2002 06:40:39 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:25330 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S289042AbSAOLkW>; Tue, 15 Jan 2002 06:40:22 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020114151942.A20309@thyrsus.com> 
+In-Reply-To: <20020114151942.A20309@thyrsus.com>  <20020114132618.G14747@thyrsus.com> <m16QCNJ-000OVeC@amadeus.home.nl> <20020114145035.E17522@thyrsus.com> <20020114142605.A4702@twoflower.internal.do> 
+To: esr@thyrsus.com
+Cc: Charles Cazabon <linux@discworld.dyndns.org>, linux-kernel@vger.kernel.org,
+        arjan@fenrus.demon.nl
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution) 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Tue, 15 Jan 2002 11:40:05 +0000
+Message-ID: <26116.1011094805@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: [2.4.17/18pre] VM and swap - it's really unusable
-> 
-> 
-> This is getting silly ... feeback like "ll is better than PK", "feels
-> smooth", "is reponsive", "my kernel
-> compile is faster than yours", etc. is not getting us any closer to the
-> "how" of making a better kernel.
-> 
-> What's the goal? How should SMP and NUMA behave? How is success measured?
-> 
-> It would be good to be very clear on the ultimate purpose before making
-> radical changes. All of
-> these changes are dancing around some vague concept of
-> reponsiveness...so define it!
->
 
- OK, just my set of goals/requirements for a usable/production kernel:
+esr@thyrsus.com said:
+>  He hard-compiled in that driver.  lsmod(1) can't see it.
 
-- working VM under a broad set of loads. Working means fair/fitting
-treatment of cache vs. process memory, no OOM killing processes when
-there is plenty memory in "free+buffer+cache", no unnecessary swapping
-out of processes if there is plenty of "free+buffer+cache" memory.
-- good/great interactive feel. This means no loss of interactivity due
-to cache vs. process memory issues. This means no loss of interactivity
-due to heavy IO.
-- Good enough worst case latency for "amateur" audio/DVD playback.
+man dmesg.
 
- What *I* do not need it "hard real-time" with 101% guaranteed response
-times.
+Others have asserted that this kind of autoconfigure facility for 
+non-technical people isn't necessary.
 
- What *I* want is to see my goals in the stock kernel, without needing
-to apply a weird set of patches :-)
+I assert that it is actually harmful, and will make their life more 
+difficult.
 
- How we get there I do not care to much. If -aa can solve the VM
-problems, fine. If rmap solves them, great. Just bring a working,
-maintainable solution in.
+My father's computer runs Linux. He doesn't need to recompile his kernels 
+or do any maintenance - I don't even trust him to run up2date for himself. 
+It's all he can manage to dial up and look at a web page so I can grab his 
+current IP address out of my logs, log in and do the rest.
 
- Ditto for LL vs. preempt.
+If I get a bug report from him, it's not particularly coherent or useful. 
+Yet because he has a kernel binary which is identical to the one used by
+many other more technical users out there, I can often match what he 
+complains about with the more useful bugreports in Bugzilla.
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+If he (or even I) compiled a custom kernel for him rather than using the 
+distro one, I wouldn't have a whelk's chance in a supernova of working out 
+WTF he was on about.
+
+--
+dwmw2
+
+

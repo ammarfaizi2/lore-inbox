@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262307AbVBKS7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVBKTTh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262307AbVBKS7h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 13:59:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVBKS41
+	id S262314AbVBKTTh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 14:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVBKTQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 13:56:27 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:32018 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262309AbVBKSyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 13:54:31 -0500
-Date: Fri, 11 Feb 2005 19:54:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386 io_apic.c: make two variables static
-Message-ID: <20050211185426.GE3736@stusta.de>
+	Fri, 11 Feb 2005 14:16:33 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1714 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262300AbVBKTLw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 14:11:52 -0500
+Date: Fri, 11 Feb 2005 11:11:12 -0800
+From: Greg KH <greg@kroah.com>
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       Jay Lan <jlan@engr.sgi.com>
+Subject: Re: [RFC][PATCH 2.6.11-rc3-mm2] Relay Fork Module
+Message-ID: <20050211191112.GB19139@kroah.com>
+References: <1107786245.9582.27.camel@frecb000711.frec.bull.fr> <20050207154623.33333cda.akpm@osdl.org> <1108109504.30559.43.camel@frecb000711.frec.bull.fr> <20050211005446.081aa075.akpm@osdl.org> <1108134520.14068.66.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1108134520.14068.66.camel@frecb000711.frec.bull.fr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes two needlessly global variables static.
+On Fri, Feb 11, 2005 at 04:08:40PM +0100, Guillaume Thouvenin wrote:
+> +void kobject_fork(struct kobject *kobj, pid_t parent, pid_t child)
+> +{
+> +#ifdef CONFIG_KOBJECT_UEVENT
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+No, provide two different functions.  In a header file make it a static
+inline function that does nothing if this option is not selected, so as
+to make the code just go away, and the call is never made.
 
----
 
-This patch was already sent on:
-- 16 Jan 2005
+> +	char *kobj_path = NULL;
+> +	char *action_string = NULL;
+> +	char **envp = NULL;
+> +	char ppid_string[FORK_BUFFER_SIZE];
+> +	char cpid_string[FORK_BUFFER_SIZE];
+> +
+> +	if (!uevent_sock)
+> +		return;
+> +	
+> +	action_string = action_to_string(KOBJ_FORK);
+> +	if (!action_string)
+> +		return;
+> +	
+> +	kobj_path = kobject_get_path(kobj, GFP_KERNEL);
+> +	if (!kobj_path)
+> +		return;
 
---- linux-2.6.11-rc1-mm1-full/arch/i386/kernel/io_apic.c.old	2005-01-16 04:38:36.000000000 +0100
-+++ linux-2.6.11-rc1-mm1-full/arch/i386/kernel/io_apic.c	2005-01-16 04:38:57.000000000 +0100
-@@ -264,7 +264,7 @@
- static int irqbalance_disabled = IRQBALANCE_CHECK_ARCH;
- static int physical_balance = 0;
- 
--struct irq_cpu_info {
-+static struct irq_cpu_info {
- 	unsigned long * last_irq;
- 	unsigned long * irq_delta;
- 	unsigned long irq;
-@@ -286,7 +286,7 @@
- #define BALANCED_IRQ_MORE_DELTA		(HZ/10)
- #define BALANCED_IRQ_LESS_DELTA		(HZ)
- 
--long balanced_irq_interval = MAX_BALANCED_IRQ_INTERVAL;
-+static long balanced_irq_interval = MAX_BALANCED_IRQ_INTERVAL;
- 
- static unsigned long move(int curr_cpu, cpumask_t allowed_mask,
- 			unsigned long now, int direction)
+How is there a path for a kobject that is never registered with sysfs?
 
+I agree with Andrew, why are you using a kobject for this?  Have you
+looked at the "connector" code that is in the -mm tree?  That might be a
+better solution for this, and it will be going into the kernel tree
+after 2.6.11 is released.
+
+> +EXPORT_SYMBOL(kobject_fork);
+
+EXPORT_SYMBOL_GPL() for something like this please.
+
+thanks,
+
+greg k-h

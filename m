@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262706AbREVSZJ>; Tue, 22 May 2001 14:25:09 -0400
+	id <S262712AbREVS3T>; Tue, 22 May 2001 14:29:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262710AbREVSYt>; Tue, 22 May 2001 14:24:49 -0400
-Received: from draco.macsch.com ([192.73.8.1]:11732 "EHLO draco.macsch.com")
-	by vger.kernel.org with ESMTP id <S262706AbREVSYr>;
-	Tue, 22 May 2001 14:24:47 -0400
-Message-ID: <3B0AAEED.ED8A115F@mscsoftware.com>
-Date: Tue, 22 May 2001 11:24:45 -0700
-From: "David N. Lombard" <david.lombard@mscsoftware.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-8.msc-up i686)
-X-Accept-Language: en
+	id <S262709AbREVS3K>; Tue, 22 May 2001 14:29:10 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34565 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262711AbREVS24>; Tue, 22 May 2001 14:28:56 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Changes in Kernel
+Date: 22 May 2001 11:28:44 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9eeb4s$m81$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0105230000330.1601-100000@gdit.iiit.net> <E152GlV-0002Hh-00@the-village.bc.nu>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] s_maxbytes handling
-In-Reply-To: <3B0A7C0F.C824FDB5@uow.edu.au> <E152Dik-00021y-00@the-village.bc.nu> <9ee8qo$jgk$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Followup to:  <E152GlV-0002Hh-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
+>
+> >   We are interested in making some changes to the linux kernel so that it
+> > supports some indian type fonts on the console... so what are the special
+> > things that we sould take care of so that our work would be included in
+> > the kernel-distribution, and how do we proceed about getting it included
+> > in the distributions?
 > 
-[deletia]
+> Are there specific reasons you cannot just use the existing ioctls to load
+> fonts ? The console driver already supports Klingon for example.
 > 
-> So returning 0 for write() is usually a bad idea - exactly because it
-> does not have very well-defined semantics.  So -EFBIG is certainly the
-> preferable return value, and seems to be what SuS wants, too.
+> What are the issues - writing right - left ?
+> 
 
-And what LFS wants too:
+Indian languages have complicated character/glyph mappings, similar to
+Arabic but worse.
 
-2.2.1.27 write() and writev()
+In general, these kinds of things is much better handled in user
+space, similar to the way Asian languages are handled using the user
+space console program "kon".  You would typically use the frame buffer
+driver in the kernel and maintain the complicated state machines and
+glyph sets in user space.
 
-DESCRIPTION
-
-     For regular files, no data transfer will occur past the offset
-     maximum established in the open file description associated with
-     fildes.
-
-ERRORS
-
-     These functions will fail if:
-
-     [EFBIG]
-          The file is a regular file, nbyte is greater than 0 and the
-          starting position is greater than or equal to the offset
-          maximum established in the open file description associated
-          with fildes.
-
-     Note: This is an additional EFBIG error condition.
-
+	-hpa
 -- 
-David N. Lombard
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

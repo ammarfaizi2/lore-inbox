@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129272AbRBWImc>; Fri, 23 Feb 2001 03:42:32 -0500
+	id <S129222AbRBWI4r>; Fri, 23 Feb 2001 03:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129350AbRBWImX>; Fri, 23 Feb 2001 03:42:23 -0500
-Received: from c1262263-a.grapid1.mi.home.com ([24.183.135.182]:62724 "EHLO
-	mail.neruo.com") by vger.kernel.org with ESMTP id <S129272AbRBWImQ>;
-	Fri, 23 Feb 2001 03:42:16 -0500
-Subject: Re: PCI oddities on Dell Inspiron 5000e w/ 2.4.x
-From: Brad Douglas <brad@neruo.com>
-To: barryn@pobox.com
-Cc: Tom Sightler <ttsig@tuxyturvy.com>, Jeff Lessem <Jeff.Lessem@Colorado.EDU>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200102230701.XAA02164@cx518206-b.irvn1.occa.home.com>
-Content-Type: text/plain
-X-Mailer: Evolution 0.8 (Developer Preview)
-Date: 23 Feb 2001 00:40:27 -0800
+	id <S129315AbRBWI4i>; Fri, 23 Feb 2001 03:56:38 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:3332 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129222AbRBWI4c>;
+	Fri, 23 Feb 2001 03:56:32 -0500
+Message-ID: <20010222214308.B14395@bug.ucw.cz>
+Date: Thu, 22 Feb 2001 21:43:08 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Shawn Starr <spstarr@sh0n.net>, lkm <linux-kernel@vger.kernel.org>
+Subject: Re: [WISHLIST] Addition of suspend patch into 2.5?
+In-Reply-To: <3A91E54C.ED8D084C@sh0n.net>
 Mime-Version: 1.0
-Message-Id: <20010223084216Z129272-30605+335@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3A91E54C.ED8D084C@sh0n.net>; from Shawn Starr on Mon, Feb 19, 2001 at 10:32:28PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Feb 2001 23:01:14 -0800, Barry K. Nathan wrote:
-> Tom Sightler wrote:
-> > What's strange is that I have the exact same type of machine and I don't see
-> > this problem, could you forward me your kernel config as well?  I'll compare
-> > that, and your info from your previous message to mine and see if we can
-> > find a difference.
-> 
-> Another variable, perhaps, is the BIOS version. (If you have Quick Boot or
-> whatever it's called enabled (which is the factory default), you'll have
-> to hit F2 when the "Dell" screen appears at startup, to try to enter the
-> BIOS setup (before Setup starts, it will show the BIOS version number and
-> a bunch of other stuff).)
-> 
-> I have a working machine, with BIOS A04. (Strangely enough, my Inspiron
-> 5000e came with BIOS A03, and a floppy disk with A04, along with
-> instructions with a "do not use this BIOS flasher unless you have [some
-> werid video-related problem]" type of disclaimer. Since I was having those
-> APM oopses under Linux, I decided to try upgrading. It didn't fix the
-> oopses, though.)
+Hi!
 
-I have a BIOS that'll fix your APM problems, at a minimum.  Anyone who
-wants it can email me privately, since the site I put it up on no longer
-exists...
+> Any idea if suspend/hybernation will be in future kernels?
 
-Brad Douglas
-brad@neruo.com
-http://www.linux-fbdev.org
+I'd like it included, too. Some toshiba laptops support sleep but not
+suspend, and battery runs out within few hours if it was low before
+suspend. That's bad.
 
-
+And the patch was pretty clean last time I checked.
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

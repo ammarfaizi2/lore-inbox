@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275046AbTHQGPN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 02:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275470AbTHQGOe
+	id S275201AbTHQGS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 02:18:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275639AbTHQGQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 02:14:34 -0400
-Received: from codepoet.org ([166.70.99.138]:57999 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S275046AbTHQGNh (ORCPT
+	Sun, 17 Aug 2003 02:16:57 -0400
+Received: from codepoet.org ([166.70.99.138]:61583 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S275279AbTHQGOI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 02:13:37 -0400
-Date: Sun, 17 Aug 2003 00:13:39 -0600
+	Sun, 17 Aug 2003 02:14:08 -0400
+Date: Sun, 17 Aug 2003 00:14:10 -0600
 From: Erik Andersen <andersen@codepoet.org>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries Brouwer <aebr@win.tue.nl>,
        Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 5/8 Backport recent 2.6 IDE updates to 2.4.x
-Message-ID: <20030817061338.GF17621@codepoet.org>
+Subject: [PATCH] 8/8 Backport recent 2.6 IDE updates to 2.4.x
+Message-ID: <20030817061410.GI17621@codepoet.org>
 Reply-To: andersen@codepoet.org
 Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
 	Marcelo Tosatti <marcelo@conectiva.com.br>,
@@ -33,10 +33,14 @@ X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch continues the massive simplification of IDE drive
-capacity detection.  This also implements the final version of my
-patch to fix CONFIG_IDEDISK_STROKE, which is currently broken in
-2.4.x.
+This patch limits drive capacity to 137GB if host doesn't support
+LBA48.  This fixes some serious problems (see the recent thread on
+"uncorrectable ext2 errors").
+
+This also kills the probe_lba_addressing() wrapper, and renames
+"hwif->addressing" to "hwif->no_lba48".  This is because
+"hwif->addressing" is way too similar to "drive->addressing"
+which has a totally different meaning.
 
  -Erik
 
@@ -44,157 +48,163 @@ patch to fix CONFIG_IDEDISK_STROKE, which is currently broken in
 Erik B. Andersen             http://codepoet-consulting.com/
 --This message was written using 73% post-consumer electrons--
 
-
---- linux/drivers/ide/ide-disk.c.orig	2003-08-16 20:45:14.000000000 -0600
-+++ linux/drivers/ide/ide-disk.c	2003-08-16 20:51:58.000000000 -0600
-@@ -1139,16 +1139,56 @@
- 	return n;
+--- orig/drivers/ide/ide-disk.c	2003-08-16 21:37:43.000000000 -0600
++++ linux-2.4.21/drivers/ide/ide-disk.c	2003-08-16 21:37:43.000000000 -0600
+@@ -1545,11 +1545,17 @@
+ 	return 0;
  }
  
--/*
-- * Tests if the drive supports Host Protected Area feature.
-- * Returns true if supported, false otherwise.
-- */
--static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
-+static inline void idedisk_check_hpa_lba28(ide_drive_t *drive)
+-static int probe_lba_addressing (ide_drive_t *drive, int arg)
++/*
++ * drive->addressing:
++ *	0: 28-bit
++ *	1: 48-bit
++ *	2: 48-bit capable doing 28-bit
++ */
++static int set_lba_addressing(ide_drive_t *drive, int arg)
  {
--	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
--	if (flag)
--		printk("%s: host protected area => %d\n", drive->name, flag);
--	return flag;
-+	unsigned long capacity, set_max;
-+
-+	capacity = drive->id->lba_capacity;
-+	set_max = idedisk_read_native_max_address(drive);
-+
-+	if (set_max <= capacity)
-+		return;
-+
-+	printk(KERN_INFO "%s: Host Protected Area detected.\n"
-+			 "\tcurrent capacity is %ld sectors (%ld MB)\n"
-+			 "\tnative  capacity is %ld sectors (%ld MB)\n",
-+			 drive->name,
-+			 capacity, (capacity - capacity/625 + 974)/1950,
-+			 set_max, (set_max - set_max/625 + 974)/1950);
-+#ifdef CONFIG_IDEDISK_STROKE
-+	set_max = idedisk_set_max_address(drive, set_max);
-+	if (set_max) {
-+		drive->id->lba_capacity = set_max;
-+		printk(KERN_INFO "%s: Host Protected Area disabled.\n",
-+				 drive->name);
-+	}
-+#endif
-+}
-+
-+static inline void idedisk_check_hpa_lba48(ide_drive_t *drive)
-+{
-+	unsigned long long capacity_2, set_max_ext;
-+
-+	capacity_2 = drive->id->lba_capacity_2;
-+	set_max_ext = idedisk_read_native_max_address_ext(drive);
-+
-+	if (set_max_ext <= capacity_2)
-+		return;
-+
-+	printk(KERN_INFO "%s: Host Protected Area detected.\n"
-+			 "\tcurrent capacity is %lld sectors (%lld MB)\n"
-+			 "\tnative  capacity is %lld sectors (%lld MB)\n",
-+			 drive->name,
-+			 capacity_2, sectors_to_MB(capacity_2),
-+			 set_max_ext, sectors_to_MB(set_max_ext));
-+#ifdef CONFIG_IDEDISK_STROKE
-+	set_max_ext = idedisk_set_max_address_ext(drive, set_max_ext);
-+	if (set_max_ext) {
-+		drive->id->lba_capacity_2 = set_max_ext;
-+		printk(KERN_INFO "%s: Host Protected Area disabled.\n",
-+				 drive->name);
-+	}
-+#endif
+ 	drive->addressing =  0;
+ 
+-	if (HWIF(drive)->addressing)
++	if (HWIF(drive)->no_lba48)
+ 		return 0;
+ 
+ 	if (!idedisk_supports_lba48(drive->id))
+@@ -1558,11 +1564,6 @@
+ 	return 0;
  }
  
- /*
-@@ -1165,64 +1205,43 @@
-  * in above order (i.e., if value of higher priority is available,
-  * reset will be ignored).
-  */
--#define IDE_STROKE_LIMIT	(32000*1024*2)
- static void init_idedisk_capacity (ide_drive_t  *drive)
+-static int set_lba_addressing (ide_drive_t *drive, int arg)
+-{
+-	return (probe_lba_addressing(drive, arg));
+-}
+-
+ static void idedisk_add_settings(ide_drive_t *drive)
  {
  	struct hd_driveid *id = drive->id;
--	unsigned long capacity, set_max;
--	unsigned long long capacity_2, set_max_ext;
--
--	capacity_2 = capacity = drive->cyl * drive->head * drive->sect;
-+	/*
-+	 * If this drive supports the Host Protected Area feature set,
-+	 * then we may need to change our opinion about the drive's capacity.
-+	 */
-+	int hpa = (id->command_set_1 & 0x0400) && (id->cfs_enable_1 & 0x0400);
- 
--	(void) idedisk_supports_host_protected_area(drive);
-+	if ((id->command_set_2 & 0x0400) && (id->cfs_enable_2 & 0x0400)) {
-+		/* drive speaks 48-bit LBA */
-+		unsigned long long capacity_2;
- 
--	if (id->cfs_enable_2 & 0x0400) {
-+		drive->select.b.lba = 1;
-+		if (hpa)
-+			idedisk_check_hpa_lba48(drive);
- 		capacity_2 = id->lba_capacity_2;
- 		drive->head		= drive->bios_head = 255;
- 		drive->sect		= drive->bios_sect = 63;
--		drive->select.b.lba	= 1;
--		set_max_ext = idedisk_read_native_max_address_ext(drive);
--		if (set_max_ext > capacity_2 && capacity_2 > IDE_STROKE_LIMIT) {
--#ifdef CONFIG_IDEDISK_STROKE
--			set_max_ext = idedisk_set_max_address_ext(drive, set_max_ext);
--			if (set_max_ext)
--				id->lba_capacity_2 = capacity_2 = set_max_ext;
--#else /* !CONFIG_IDEDISK_STROKE */
--			printk(KERN_INFO "%s: setmax_ext LBA %llu, native  %llu\n",
--				drive->name, set_max_ext, capacity_2);
--#endif /* CONFIG_IDEDISK_STROKE */
--		}
- 		drive->cyl = (unsigned int) capacity_2 / (drive->head * drive->sect);
- 		drive->bios_cyl		= drive->cyl;
- 		drive->capacity48	= capacity_2;
- 		drive->capacity		= (unsigned long) capacity_2;
--		return;
--	/* Determine capacity, and use LBA if the drive properly supports it */
- 	} else if ((id->capability & 2) && lba_capacity_is_ok(id)) {
-+		/* drive speaks 28-bit LBA */
-+		unsigned long capacity;
-+
-+		drive->select.b.lba = 1;
-+		if (hpa)
-+			idedisk_check_hpa_lba28(drive);
- 		capacity = id->lba_capacity;
- 		drive->cyl = capacity / (drive->head * drive->sect);
--		drive->select.b.lba = 1;
--	} else {
- 		drive->capacity = capacity;
--		return;
--	}
--
--	set_max = idedisk_read_native_max_address(drive);
--	if (set_max > capacity && capacity > IDE_STROKE_LIMIT) {
--#ifdef CONFIG_IDEDISK_STROKE
--		set_max = idedisk_set_max_address(drive, set_max);
--		if (set_max) {
--			drive->capacity = capacity = set_max;
--			drive->cyl = set_max / (drive->head * drive->sect);
--			drive->select.b.lba = 1;
--			drive->id->lba_capacity = capacity;
--		}
--#else /* !CONFIG_IDEDISK_STROKE */
--		printk(KERN_INFO "%s: setmax LBA %lu, native  %lu\n",
--			drive->name, set_max, capacity);
--#endif /* CONFIG_IDEDISK_STROKE */
-+	} else {
-+		/* drive speaks boring old 28-bit CHS */
-+		drive->capacity = drive->cyl * drive->head * drive->sect;
+@@ -1638,13 +1639,7 @@
+ 		break;
  	}
--	drive->capacity = capacity;
- }
  
- static u64 idedisk_capacity (ide_drive_t *drive)
+-#if 1
+-	(void) probe_lba_addressing(drive, 1);
+-#else
+-	/* if using 48-bit addressing bump the request size up */
+-	if (probe_lba_addressing(drive, 1))
+-		blk_queue_max_sectors(&drive->queue, 2048);
+-#endif
++	(void)set_lba_addressing(drive, 1);
+ 
+ 	/* Extract geometry if we did not already have one for the drive */
+ 	if (!drive->cyl || !drive->head || !drive->sect) {
+@@ -1671,6 +1666,15 @@
+ 	/* calculate drive capacity, and select LBA if possible */
+ 	init_idedisk_capacity (drive);
+ 
++	/* limit drive capacity to 137GB if LBA48 cannot be used */
++	if (drive->addressing == 0 && drive->capacity64 > 1ULL << 28) {
++		printk("%s: cannot use LBA48 - full capacity "
++		       "%llu sectors (%llu MB)\n",
++		       drive->name,
++		       drive->capacity64, sectors_to_MB(drive->capacity64));
++		drive->capacity64 = 1ULL << 28;
++	}
++
+ 	/*
+ 	 * if possible, give fdisk access to more of the drive,
+ 	 * by correcting bios_cyls:
+--- orig/drivers/ide/ide-probe.c	2003-08-16 21:37:43.000000000 -0600
++++ linux-2.4.21/drivers/ide/ide-probe.c	2003-08-16 21:37:43.000000000 -0600
+@@ -1196,6 +1196,8 @@
+ 		*bs++ = BLOCK_SIZE;
+ 		/*
+ 		 * IDE can do up to 128K per request == 256
++		 * TODO: should this change depending on the value
++		 * of hwif->no_lba48?
+ 		 */
+ 		*max_sect++ = ((hwif->rqsize) ? hwif->rqsize : 128);
+ 		*max_ra++ = vm_max_readahead;
+--- orig/drivers/ide/ide.c	2003-08-16 21:37:43.000000000 -0600
++++ linux-2.4.21/drivers/ide/ide.c	2003-08-16 21:37:43.000000000 -0600
+@@ -872,7 +872,7 @@
+ 
+ 	hwif->mmio			= old_hwif.mmio;
+ 	hwif->rqsize			= old_hwif.rqsize;
+-	hwif->addressing		= old_hwif.addressing;
++	hwif->no_lba48			= old_hwif.no_lba48;
+ #ifndef CONFIG_BLK_DEV_IDECS
+ 	hwif->irq			= old_hwif.irq;
+ #endif /* CONFIG_BLK_DEV_IDECS */
+--- orig/drivers/ide/legacy/pdc4030.c	2003-08-16 21:37:43.000000000 -0600
++++ linux-2.4.21/drivers/ide/legacy/pdc4030.c	2003-08-16 21:37:43.000000000 -0600
+@@ -225,7 +225,7 @@
+ 	hwif2->mate	= hwif;
+ 	hwif2->channel	= 1;
+ 	hwif->rqsize	= hwif2->rqsize = 127;
+-	hwif->addressing = hwif2->addressing = 1;
++	hwif->no_lba48 = hwif2->no_lba48 = 1;
+ 	hwif->selectproc = hwif2->selectproc = &promise_selectproc;
+ 	hwif->serialized = hwif2->serialized = 1;
+ 	/* DC4030 hosted drives need their own identify... */
+--- orig/drivers/ide/pci/alim15x3.c	2003-08-16 21:37:43.000000000 -0600
++++ linux-2.4.21/drivers/ide/pci/alim15x3.c	2003-08-16 21:37:43.000000000 -0600
+@@ -760,7 +760,7 @@
+ 	hwif->speedproc = &ali15x3_tune_chipset;
+ 
+ 	/* Don't use LBA48 on ALi devices before rev 0xC5 */
+-	hwif->addressing = (m5229_revision <= 0xC4) ? 1 : 0;
++	hwif->no_lba48 = (m5229_revision <= 0xC4) ? 1 : 0;
+ 
+ 	if (!hwif->dma_base) {
+ 		hwif->drives[0].autotune = 1;
+--- orig/drivers/ide/pci/pdc202xx_old.c	2003-08-16 21:37:43.000000000 -0600
++++ linux-2.4.21/drivers/ide/pci/pdc202xx_old.c	2003-08-16 21:37:43.000000000 -0600
+@@ -698,7 +698,7 @@
+ 	hwif->quirkproc = &pdc202xx_quirkproc;
+ 
+ 	if (hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20265)
+-		hwif->addressing = (hwif->channel) ? 0 : 1;
++		hwif->no_lba48 = (hwif->channel) ? 0 : 1;
+ 
+ 	if (hwif->pci_dev->device != PCI_DEVICE_ID_PROMISE_20246) {
+ 		hwif->busproc   = &pdc202xx_tristate;
+--- orig/drivers/ide/pci/siimage.c	2003-08-16 21:37:43.000000000 -0600
++++ linux-2.4.21/drivers/ide/pci/siimage.c	2003-08-16 21:37:43.000000000 -0600
+@@ -992,7 +992,7 @@
+ 	 *	use LBA48 mode.
+ 	 */	
+ //	base += 0x10;
+-//      hwif->addressing = 1;
++//	hwif->no_lba48 = 1;
+ 
+ 	hw.io_ports[IDE_DATA_OFFSET]	= base;
+ 	hw.io_ports[IDE_ERROR_OFFSET]	= base + 1;
+--- orig/drivers/ide/pci/trm290.c	2003-08-16 21:37:43.000000000 -0600
++++ linux-2.4.21/drivers/ide/pci/trm290.c	2003-08-16 21:37:43.000000000 -0600
+@@ -309,7 +309,7 @@
+ 	u8 reg = 0;
+ 	struct pci_dev *dev = hwif->pci_dev;
+ 
+-	hwif->addressing = 1;
++	hwif->no_lba48 = 1;
+ 	hwif->chipset = ide_trm290;
+ 	cfgbase = pci_resource_start(dev, 4);
+ 	if ((dev->class & 5) && cfgbase) {
+--- orig/include/linux/ide.h	2003-08-16 21:37:43.000000000 -0600
++++ linux-2.4.21/include/linux/ide.h	2003-08-16 21:37:43.000000000 -0600
+@@ -971,7 +971,6 @@
+ 
+ 	int		mmio;		/* hosts iomio (0), mmio (1) or custom (2) select */
+ 	int		rqsize;		/* max sectors per request */
+-	int		addressing;	/* hosts addressing */
+ 	int		irq;		/* our irq number */
+ 	int		initializing;	/* set while initializing self */
+ 
+@@ -1000,6 +999,7 @@
+ 	unsigned	reset      : 1;	/* reset after probe */
+ 	unsigned	autodma    : 1;	/* auto-attempt using DMA at boot */
+ 	unsigned	udma_four  : 1;	/* 1=ATA-66 capable, 0=default */
++	unsigned	no_lba48   : 1; /* 1 = cannot do LBA48 */
+ 	unsigned	highmem    : 1;	/* can do full 32-bit dma */
+ 	unsigned	no_dsc     : 1;	/* 0 default, 1 dsc_overlap disabled */
+ 

@@ -1,25 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317701AbSGZNwl>; Fri, 26 Jul 2002 09:52:41 -0400
+	id <S317716AbSGZNzM>; Fri, 26 Jul 2002 09:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317712AbSGZNwl>; Fri, 26 Jul 2002 09:52:41 -0400
-Received: from mailctr.it.atos-group.com ([195.68.44.135]:2310 "EHLO
-	mailctr.it.atos-group.com") by vger.kernel.org with ESMTP
-	id <S317701AbSGZNwl>; Fri, 26 Jul 2002 09:52:41 -0400
-Message-ID: <3D415648.2010003@atosorigin.com>
-Date: Fri, 26 Jul 2002 16:01:44 +0200
-From: Alexis Deruelle <alexis.deruelle@atosorigin.com>
-Organization: Atos Origin
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en
+	id <S317717AbSGZNzM>; Fri, 26 Jul 2002 09:55:12 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62475 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317716AbSGZNzI>; Fri, 26 Jul 2002 09:55:08 -0400
+Date: Fri, 26 Jul 2002 09:50:58 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Daniel Phillips <phillips@arcor.de>
+cc: jdow <jdow@earthlink.net>, Andrew Rodland <arodland@noln.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -ac] Panicking in morse code
+In-Reply-To: <E17XxPT-0005N0-00@starship>
+Message-ID: <Pine.LNX.3.96.1020726093946.16487B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: (no subject)
-References: <8765zazv5r.fsf@CERT.Uni-Stuttgart.DE> <Pine.LNX.4.44.0207200936160.2342-100000@home.transmeta.com> <20020726000642.GA512@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-unsubscribe linux-kernel
+On Fri, 26 Jul 2002, Daniel Phillips wrote:
+
+> Need I point out that we are now perfectly positioned to invent the additional
+> morse codes needed to represent all the remaining ascii characters?  We could
+> call the revised code... err... "remorse" ;-)
+
+Were you planning on an RFC for that?
+
+Instead of lights we might include a controller driver for those
+"invisible fence"  dog collars, insuring that the administrator didn't
+miss the message.
+
+Actually, the only change I would add to the original idea is an interface
+to the sound driver, since a lot of folks listen to audio via computer
+during
+the work day.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265907AbUAFFHs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 00:07:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbUAFFHr
+	id S265855AbUAFFHN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 00:07:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265907AbUAFFHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 00:07:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2532 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265907AbUAFFHp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 00:07:45 -0500
-Date: Mon, 5 Jan 2004 21:07:30 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Andries Brouwer <aebr@win.tue.nl>, Daniel Jacobowitz <dan@debian.org>,
-       Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-In-Reply-To: <20040106042831.GI4176@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0401052106030.2653@home.osdl.org>
-References: <20040105030737.GA29964@nevyn.them.org>
- <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <20040106001326.A1128@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401051522390.5737@home.osdl.org>
- <20040106005944.GH4176@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0401051714420.2170@home.osdl.org>
- <20040106042831.GI4176@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Jan 2004 00:07:13 -0500
+Received: from audible.transient.net ([66.93.40.125]:37903 "HELO
+	audible.transient.net") by vger.kernel.org with SMTP
+	id S265855AbUAFFHK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 00:07:10 -0500
+Date: Mon, 5 Jan 2004 20:57:45 -0800
+From: Jamie Heilman <jamie@audible.transient.net>
+To: linux-kernel@vger.kernel.org
+Cc: Jakub Bogusz <qboosh@pld-linux.org>
+Subject: Re: [PATCH 2.6][RESEND] fix for oopses in some OSS drivers
+Message-ID: <20040106045745.GG13581@audible.transient.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Jakub Bogusz <qboosh@pld-linux.org>
+References: <20040105222940.GC1555@satan.blackhosts> <20040105201751.428aa871.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040105201751.428aa871.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 6 Jan 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > 
-> > Oh, don't look too closely at some pseudo-code, it's not like the code
-> > would actually do that for a minor number. But for things like major
-> > number allocation for disk devices, it might not be too far off. And we 
-> > migth even want to start off the minors at some "random" offset (obviously 
-> > while keeping the alignment right for the partition handling)
+Andrew Morton wrote:
+> Jakub Bogusz <qboosh@pld-linux.org> wrote:
+> >
+> > The patch was made against 2.6.0-test11, but I checked 2.6.1-rc1-bk and
+> >  2.6.1-rc1-mm2 - they're still not fixed.
 > 
-> True, but...  Let me put it that way - entire area is a minefield and
-> I would really like to avoid nasty surprises from "obvious" patches,
-> what with having just spent 4 months dealing with the fallout from one
-> such beast.
+> Patch seem fine, thanks.
+> 
+> >  Or should I just click-click this into bugzilla and wait?
+> 
+> bugzilla is a bit of a black hole, sorry.  Sending (and resending) to the
+> mailing list is appropriate.
 
-Hey, it's entirely possible that we won't be able to do it at _all_ during 
-2.7.x, since it would require that all the distributions have started 
-using udev or equivalent. Which is by no means certain at all. It's 
-possible that just lack of ubiqutous infrastructure will mean that it 
-would be too painful to even try this in a few months..
+Hmm, in that case, can we add to that patch the use-after-free
+oops fix for the MultiSound OSS driver too?  Its a one-liner:
+just remove __init from the msnd_register() declaration on line 60 of
+sound/oss/msnd.c
 
-Do don't worry too much.
+its #1709 in bugzilla
 
-		Linus
+-- 
+Jamie Heilman                     http://audible.transient.net/~jamie/
+"You came all this way, without saying squat, and now you're trying
+ to tell me a '56 Chevy can beat a '47 Buick in a dead quarter mile?
+ I liked you better when you weren't saying squat kid." -Buddy

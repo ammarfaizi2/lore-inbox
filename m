@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130507AbQLFDY6>; Tue, 5 Dec 2000 22:24:58 -0500
+	id <S129908AbQLFDiW>; Tue, 5 Dec 2000 22:38:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130746AbQLFDYt>; Tue, 5 Dec 2000 22:24:49 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:2549 "HELO
-	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
-	id <S130507AbQLFDYd>; Tue, 5 Dec 2000 22:24:33 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipchains log will show all flags 
-In-Reply-To: Your message of "Tue, 05 Dec 2000 11:00:02 EDT."
-             <Pine.LNX.4.30.0012051058090.620-100000@asdf.capslock.lan> 
-Date: Wed, 06 Dec 2000 11:40:12 +1100
-Message-Id: <20001206004022.B8AAC813F@halfway.linuxcare.com.au>
+	id <S130507AbQLFDiM>; Tue, 5 Dec 2000 22:38:12 -0500
+Received: from stud.alakhawayn.ma ([193.194.63.94]:40844 "EHLO
+	stud.alakhawayn.ma") by vger.kernel.org with ESMTP
+	id <S129908AbQLFDiD>; Tue, 5 Dec 2000 22:38:03 -0500
+Date: Wed, 6 Dec 2000 03:01:45 +0000 (GMT)
+From: Mourad Lakhdar <992C396651@stud.alakhawayn.ma>
+To: linux-kernel@vger.kernel.org
+Subject: to compile the kernel
+Message-ID: <Pine.SOL.3.96.1001206025107.13995A-100000@stud.alakhawayn.ma>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.30.0012051058090.620-100000@asdf.capslock.lan> you write
-:
-> Personally, I'd like to see the rule number stay on the end,and
-> have the new display just before it.  The rule number in the
-> middle looks messy.
 
-But what will break people's perl scripts?
+hi :
 
-I think leaving the rule number at the end is probably the Right Thing
-from this point of view, so that would be a nice change.
+i wanna recompile the kernel , but what i have:
+is that i found in the boot folder these directories:
+vmlinuz-2.2.14-100smp
+vmlinuz-2.2.14-100
+vmlinuz-2.2.14-15BOOT
+and other ones ..
 
-But I prefer the compressed form of `-----' (with the old `SYN' kept
-there) to the "SYN FIN RST" alternative.
+so depending on the lilo.config content , it appears that is the
+vmlinuz-2.2.14-100 kernel that is running .
 
-Cheers,
-Rusty.
---
-Hacking time.
+in the boot reportory , i have these repertories:
+
+linux
+linux-2.2-14 
+linux-2.2.5
+redhat
+
+	so , having these parameters, what is please the detailed andexact
+steps to make and recompile a new kernel.
+
+best regards,
+mourad
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

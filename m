@@ -1,57 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262665AbUBZETV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 23:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbUBZETV
+	id S262679AbUBZEZf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 23:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbUBZEZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 23:19:21 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:45300 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262679AbUBZETO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 23:19:14 -0500
-Message-ID: <403D73B4.4060600@matchmail.com>
-Date: Wed, 25 Feb 2004 20:19:00 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+	Wed, 25 Feb 2004 23:25:35 -0500
+Received: from alt.aurema.com ([203.217.18.57]:16256 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S262679AbUBZEZ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 23:25:29 -0500
+Message-ID: <403D7531.5060309@aurema.com>
+Date: Thu, 26 Feb 2004 15:25:21 +1100
+From: Peter Williams <peterw@aurema.com>
+Organization: Aurema Pty Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Peter Williams <peterw@aurema.com>
-CC: Timothy Miller <miller@techsource.com>, linux-kernel@vger.kernel.org
+To: Nuno Silva <nuno.silva@vgertech.com>
+CC: Timothy Miller <miller@techsource.com>, John Lee <johnl@aurema.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <Pine.GSO.4.03.10402260834530.27582-100000@swag.sw.oz.au> <403D3E47.4080501@techsource.com> <403D576A.6030900@aurema.com> <403D5D32.4010007@matchmail.com> <403D71AB.9060609@aurema.com>
-In-Reply-To: <403D71AB.9060609@aurema.com>
+References: <Pine.GSO.4.03.10402260834530.27582-100000@swag.sw.oz.au>	<403D3E47.4080501@techsource.com> <403D5E7F.1080700@vgertech.com>
+In-Reply-To: <403D5E7F.1080700@vgertech.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Mike Fedyk wrote:
-> 
->> Peter Williams wrote:
->>
->>> 2. have a user space daemon poll running tasks periodically and 
->>> renice them if they are running specified binaries
->>>
->>> Both of these solutions have their advantages and disadvantages, are 
->>> (obviously) complicated than I've made them sound and would require a 
->>> great deal of care to be taken during their implementation.  However, 
->>> I think that they are both doable.  My personal preference would be 
->>> for the in kernel solution on the grounds of efficiency.
->>
->>
->>
->> Better would be to have the kernel tell the daemon whenever a process 
->> in exec-ed, and you have simplicity in the kernel, and policy in user 
->> space.
+Nuno Silva wrote:
 > 
 > 
-> Yes.  That would be a good solution.  Does a mechanism that allows the 
-> kernel to notify specific programs about specific events like this exist?
+> Timothy Miller wrote:
+> 
+> [..]
+> 
+>>
+>>
+>> It's a security concern to have to login as root unnecessarily.  It's 
+>> bad enough we have to do that to change X11 configuration, but we 
+>> shouldn't have to do that every time we want to start xmms.  And just 
+>> suid root is also a security concern.
+>>
+> 
+> Maybe I'm missing something, but xmms run OK with zero load, right? The 
+> problem is that, when building the kernel and the entire kde tree, each 
+> with make -j 16, xmms skips a few times? Well, tough luck...
+> 
+> And the user *can* do something about it, just nice -n 19 the builds and 
+> left xmms alone. (Or you can use other player... :-)
+> 
+> With this patch you can even say that each of the build processes can 
+> only hog 5% (at the most!) of the CPU (maybe the build is not a good 
+> example for mandatory CPU time caps, but it is usefull).
+> 
+> Besides, this implements a true run-only-when-noone-else-wants-to-run 
+> nice mode wich, combined with the absolut cpu time caps, hits some of my 
+> wish list for a complete scheduler :-) so I can't wait to test it :-)
 
-I'm sure DaveM would suggest Netlink, but there are probably several 
-implementations for Linux.
+Another idea that we are playing with for handling programs like xmms 
+(i.e. programs that require gauranteed CPU bandwidth to perform well) is 
+the complement of caps namely per task CPU reservations.  The 
+availability of CPU usage rate statistics for each task makes this 
+possible but the question is "Is the functionality worth the extra 
+overhead?".
 
-I'll let other more knowledgeable people fill in the list.
+Of course, this won't solve the "need to be root" problem as this is 
+obviously the sort of control that should be reserved for root but it is 
+arguably better than having to guess how many shares a task needs to 
+ensure that it gets the required CPU bandwidth.
 
-Mike
+Peter
+-- 
+Dr Peter Williams, Chief Scientist                peterw@aurema.com
+Aurema Pty Limited                                Tel:+61 2 9698 2322
+PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
+79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+
+

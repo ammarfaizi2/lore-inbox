@@ -1,30 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291280AbSBMA62>; Tue, 12 Feb 2002 19:58:28 -0500
+	id <S291224AbSBMBPQ>; Tue, 12 Feb 2002 20:15:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291282AbSBMA6S>; Tue, 12 Feb 2002 19:58:18 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4612 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291280AbSBMA6G>; Tue, 12 Feb 2002 19:58:06 -0500
-Subject: Re: [patch] sys_sync livelock fix
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Wed, 13 Feb 2002 00:25:54 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), akpm@zip.com.au (Andrew Morton),
-        linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <Pine.LNX.4.33L.0202122128151.12554-100000@imladris.surriel.com> from "Rik van Riel" at Feb 12, 2002 09:29:06 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291226AbSBMBPD>; Tue, 12 Feb 2002 20:15:03 -0500
+Received: from gear.torque.net ([204.138.244.1]:54029 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S291224AbSBMBOv>;
+	Tue, 12 Feb 2002 20:14:51 -0500
+Message-ID: <3C69BDFD.B9D6AA22@torque.net>
+Date: Tue, 12 Feb 2002 20:14:37 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: new aic7xxx 6.2.5 extra hunks
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16anFC-0003bD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Its seems preferably to suprise data loss
-> 
-> The data isn't lost, it'll simply get written out to
-> disk later.
+J.A. Magallon wrote:
 
-Allow me to introduce you to the off button, and the scripts at shutdown
-which use sync
+> I was trying the new 6.2.5 version of AIC driver from 
+> Justin Gibss, and as always it includes changes to the 
+> generic SCSI layer. Are this really needed ????? (some 
+> look just cosmetic if -> switch...)
+
+Yes.
+
+The patch to the mid level code is addressing the current
+incorrect treatment of RECOVERED_ERROR. It is _not_ an
+error but an advisory that a command (typically a READ)
+need to be retried (or some other recovery technique) before
+the data was obtained.
+
+It is a "thought you might like to know your disk could
+be failing (or why I took a long time to read that)" message
+that the current scsi mid level interpretes as a command
+failure.
+
+While we are more than happy to have Justin Gibbs maintain
+the aic7xxx driver (and Doug Ledford the older one), when
+he tries to patch the mid-level he has to compete with
+lots of other "cooks" (myself included). So his patches to
+the mid level become harder to apply as time elapses from
+when he did his patch generation.
+
+Please persevere.
+
+Doug Gilbert

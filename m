@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313120AbSELNME>; Sun, 12 May 2002 09:12:04 -0400
+	id <S313132AbSELNNN>; Sun, 12 May 2002 09:13:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313128AbSELNMD>; Sun, 12 May 2002 09:12:03 -0400
-Received: from freesurfmta05.sunrise.ch ([194.230.0.18]:27043 "EHLO
-	freesurfmail.sunrise.ch") by vger.kernel.org with ESMTP
-	id <S313120AbSELNMC>; Sun, 12 May 2002 09:12:02 -0400
-Message-ID: <3CD0FA8C0010E0A9@freesurfmta05.sunrise.ch> (added by
-	    postmaster@freesurf.ch)
-From: "Per Jessen" <per@computer.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Sun, 12 May 2002 15:18:26 +0200
-Reply-To: "Per Jessen" <per@computer.org>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
+	id <S313128AbSELNNM>; Sun, 12 May 2002 09:13:12 -0400
+Received: from samar.sasken.com ([164.164.56.2]:63966 "EHLO samar.sasken.com")
+	by vger.kernel.org with ESMTP id <S313132AbSELNNJ>;
+	Sun, 12 May 2002 09:13:09 -0400
+Date: Sun, 12 May 2002 18:44:16 +0530 (IST)
+From: Madhavi <madhavis@sasken.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel panic Problem 
+In-Reply-To: <20020512125546Z313120-22652+4161@vger.kernel.org>
+Message-ID: <Pine.LNX.4.33.0205121836420.11151-100000@pcz-madhavis.sasken.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: Re: IRQ > 15 for Athlon SMP boards
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 May 2002 12:31:09 +0100, Dr. David Alan Gilbert wrote:
 
->* Hugh (hugh@nospam.com) wrote:
->
->> /proc/pci on my computer reports the following, which is definitely
->> abnormal:
->
->No, it is definitely normal - my happily working dual Athlon also has
->IRQs above 15.  I think this is a consequence of the APICs and stuff on
->newer x86 architectures (?) - but it is nothing to worry about.
+Hi
 
-Not quite - IRQs > 15 are supported by the PCI spec/bus. I guess the x86 
-architecture plays into it too, but it is really a PCI matter.
+I am trying to add a few new sytem calls to my linux kernel through
+modules.
 
+After I install the module using insmod, some times, the kernel panics
+with the message -
 
-/Per
+	"Attempted to kill idle task - not syncing"
 
-regards,
-Per Jessen, Zurich
-http://www.enidan.com - home of the J1 serial console.
+Some times, I am getting the message -
 
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+	"Attempted to kill Interrupt handler - not syncing"
 
+Could someone tell me what kind of problem this is??
+
+I am wondering if this is a problem with synchronization in kernel. I am
+disabling and enabling interrupts before updating the sys_call_table as
+follows:
+
+	save_flags();
+	cli();
+	.
+	.
+	.
+	sti();
+	restore_flags();
+
+Could there be some problem with the above sequence? Could some one
+suggest me the correct way of disabling interrupts before updating
+sys_call_table.
+
+Thank you in advance.
+
+regards
+Madhavi.
 

@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312385AbSCUQD3>; Thu, 21 Mar 2002 11:03:29 -0500
+	id <S312381AbSCUQDj>; Thu, 21 Mar 2002 11:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312383AbSCUQDT>; Thu, 21 Mar 2002 11:03:19 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:4337 "EHLO
-	host140.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S312381AbSCUQDE>; Thu, 21 Mar 2002 11:03:04 -0500
-Date: Thu, 21 Mar 2002 16:02:41 +0000 (GMT)
-From: Bernd Schmidt <bernds@redhat.com>
-X-X-Sender: <bernds@host140.cambridge.redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: last write to drive issued with write cache off?
-In-Reply-To: <E16o5EB-0005aS-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0203211601460.20748-100000@host140.cambridge.redhat.com>
+	id <S312383AbSCUQDa>; Thu, 21 Mar 2002 11:03:30 -0500
+Received: from lightning.hereintown.net ([207.196.96.3]:24535 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S312381AbSCUQDW>; Thu, 21 Mar 2002 11:03:22 -0500
+Date: Thu, 21 Mar 2002 11:20:50 -0500 (EST)
+From: Chris Meadors <clubneon@hereintown.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: When was sched_task_migrated removed?
+Message-ID: <Pine.LNX.4.40.0203211112020.7618-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Mar 2002, Alan Cox wrote:
+Does anyone know off hand what patch removed sched_task_migrated from
+<linux/sched.h>?
 
-> > "To prevent loss of customer data, it is recommended that the last write access
-> > before power off be issued after setting the write cache off."
-> 
-> Standard 2.4 doesn't do this. 2.4.19-ac issues cache flushes.
+It didn't apply the needed changes to the Alpha, PPC64, or x86_64
+platforms.
 
-Is this what's been causing my harddrives to make funny noises on shutdown
-recently?
-
-
-Bernd
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 

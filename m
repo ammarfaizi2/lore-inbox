@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129159AbQJaG7U>; Tue, 31 Oct 2000 01:59:20 -0500
+	id <S129646AbQJaHGM>; Tue, 31 Oct 2000 02:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129273AbQJaG7K>; Tue, 31 Oct 2000 01:59:10 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:21511 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S129159AbQJaG7A>;
-	Tue, 31 Oct 2000 01:59:00 -0500
-Date: Tue, 31 Oct 2000 09:08:47 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <39FDB6ED.FAFDBEEB@timpanogas.org>
-Message-ID: <Pine.LNX.4.21.0010310847430.1075-100000@elte.hu>
+	id <S129623AbQJaHGC>; Tue, 31 Oct 2000 02:06:02 -0500
+Received: from www.wen-online.de ([212.223.88.39]:28165 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129219AbQJaHFs>;
+	Tue, 31 Oct 2000 02:05:48 -0500
+Date: Tue, 31 Oct 2000 08:03:57 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kmalloc() allocation.
+In-Reply-To: <Pine.LNX.4.21.0010301439080.16609-100000@duckman.distro.conectiva>
+Message-ID: <Pine.Linu.4.10.10010310800490.951-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 30 Oct 2000, Rik van Riel wrote:
 
-On Mon, 30 Oct 2000, Jeff V. Merkey wrote:
+> On Mon, 30 Oct 2000, Richard B. Johnson wrote:
+> 
+> > How much memory would it be reasonable for kmalloc() to be able
+> > to allocate to a module?
+> 
+> > There are 256 megabytes of SDRAM available. I don't think it's
+> > reasonable that a 1/2 megabyte allocation would fail, especially
+> > since it's the first module being installed.
+> 
+> If you write the defragmentation code for the VM, I'll
+> be happy to bump up the limit a bit ...
 
-> Ingo's helping me get the info together on this for putting a MARS-NWE
-> tux module in the kernel. [...]
+Hmm.. Bill Hawes wrote a memory defragger a long time ago.  I have a
+copy of it lying around if you want to take a look at it.
 
-TUX modules are user-space, so i certainly cannot help you in 'putting
-MARS-NWE in the kernel'. While you (apparently) are trying to move server
-applications into ring0, i agree with Andrea and i'm trying to move kernel
-functionality out to user-space.
-
-> He had to go do some things this week he told me before he would be
-> ready to look at it. He did point me over to the info, and I agreed we
-> would attempt to implement it as something to look at. If it performs
-> well enough, I will have something reasonable to send out to Novell
-> Resellers (CNEs) and Cutomers.
-
-All i did was to inform you that the next release of TUX is imminent and
-that you might want to take a look at the new code. You interpreted that
-in a very interesting way. You are certainly free and welcome to take a
-look at any code and documentation released, but as visible in the past
-couple of email exchanges, our technical views about Linux networking
-scalability differ in fundamental ways.
-
-	Ingo
+	-Mike
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVAKTGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVAKTLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbVAKTGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 14:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVAKTGF
+	id S262328AbVAKTLU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 14:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVAKTLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 14:06:05 -0500
-Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:129 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262045AbVAKTFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 14:05:48 -0500
-To: Michael.Waychison@Sun.COM
-CC: akpm@osdl.org, torvalds@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <41E40D19.8010806@sun.com> (message from Mike Waychison on Tue,
-	11 Jan 2005 12:30:01 -0500)
-Subject: Re: [PATCH 3/11] FUSE - device functions
-References: <E1Co4mF-00045N-00@dorka.pomaz.szeredi.hu> <41E40D19.8010806@sun.com>
-Message-Id: <E1CoRKX-0003YT-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 11 Jan 2005 20:05:25 +0100
+	Tue, 11 Jan 2005 14:11:19 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:54163 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262328AbVAKTLD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 14:11:03 -0500
+Date: Tue, 11 Jan 2005 20:10:58 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Unable to burn DVDs
+In-Reply-To: <Pine.LNX.4.60.0501111943500.8024@alpha.polcom.net>
+Message-ID: <Pine.LNX.4.61.0501112008080.7967@yvahk01.tjqt.qr>
+References: <41E2F823.1070608@apartia.fr> <Pine.LNX.4.61.0501110802180.8535@yvahk01.tjqt.qr>
+ <41E41B32.9070206@apartia.fr> <Pine.LNX.4.60.0501111943500.8024@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Also there is packet cdrw/dvd+-rw driver in kernel now (2.6.10?) that permits
 
-> > +	sigset_t sigmask;
-> > +
-> > +	siginitsetinv(&sigmask, sigmask(SIGKILL));
-> > +	sigprocmask(SIG_BLOCK, &sigmask, oldset);
-> 
-> sigmask shadows sigmask.  I'm surprised this works actually. (I see that
-> sigmask() is a macro..)
+I've got susekotd-2.6.8-0, which is a 2.6.9-rc2 if I'm not mistaken. 
 
-Ugly.  Though, I think I copied the code from some place, so it's not
-such a big wonder that it works.
+> you to mount normal filesystem (for example UDF, but FAT or ISO - readonly of
 
-Thanks,
-Miklos
+No, it's all read-write, see 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110297545900945&w=2
+(It's really readwrite, no "-o ro" done by user- or kernelspace)
+
+> course or EXT2 or any other but better for your media without journal) on such
+> device.
+
+
+
+Jan Engelhardt
+-- 
+ENOSPC

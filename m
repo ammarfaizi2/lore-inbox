@@ -1,28 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272484AbRIKOoq>; Tue, 11 Sep 2001 10:44:46 -0400
+	id <S272451AbRIKOpQ>; Tue, 11 Sep 2001 10:45:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268071AbRIKOoh>; Tue, 11 Sep 2001 10:44:37 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36357 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266827AbRIKOoS>; Tue, 11 Sep 2001 10:44:18 -0400
-Subject: Re: Resource starvation on a 2.2.19 web server
-To: mbrennen@fni.com (Michael Brennen)
-Date: Tue, 11 Sep 2001 15:48:58 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0109101920160.9125-100000@henry.fni.com> from "Michael Brennen" at Sep 10, 2001 08:01:23 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15goqQ-0002lq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S272510AbRIKOpL>; Tue, 11 Sep 2001 10:45:11 -0400
+Received: from inetc.connecttech.com ([64.7.140.42]:7184 "EHLO
+	inetc.connecttech.com") by vger.kernel.org with ESMTP
+	id <S272460AbRIKOoo>; Tue, 11 Sep 2001 10:44:44 -0400
+Message-ID: <004d01c13ad0$86cbdb40$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "John Levon" <moz@compsoc.man.ac.uk>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010911020808.B88440@compsoc.man.ac.uk>
+Subject: Re: serial overruns
+Date: Tue, 11 Sep 2001 10:46:23 -0400
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> servers.  If I USR1 warm start apache, nslookup immediately works
-> again.  Some system resource is being freed up when apache is
-> restarted, but I've been unable to isolate what it is or fix it.
+From: "John Levon" <moz@compsoc.man.ac.uk>
+> I'm getting input overruns on a serial console with rates from 9600-38400
+>
+> The serial HOWTO suggests irqtune might be able to help with this problem
+(which
+> I really need to solve). Is there a 2.4 version available ? If not, would
+updating
+> irqtune and using it be likely to help ?
 
-How old is your C library ? Im wondering if its old enough that some 
-stuff only works for 256 file handles. That might explain DNS failing.
+If you have an ide hard drive you may want to use hdparm to
+make sure that it doesn't interfere too much. Please check
+the archive for previous discussions on this.
+
+..Stu
+
+

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265383AbTFRQ6n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 12:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265386AbTFRQ6n
+	id S265404AbTFRRCs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 13:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265405AbTFRRCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 12:58:43 -0400
-Received: from imap.gmx.net ([213.165.64.20]:33665 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265383AbTFRQ6l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 12:58:41 -0400
-Message-Id: <5.2.0.9.2.20030618190128.02763980@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Wed, 18 Jun 2003 19:17:00 +0200
-To: William Lee Irwin III <wli@holomorphy.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: O(1) scheduler starvation
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>, davidm@hpl.hp.com,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030618165227.GK26348@holomorphy.com>
-References: <5.2.0.9.2.20030618113653.0277d780@pop.gmx.net>
- <1055922807.585.5.camel@teapot.felipe-alfaro.com>
- <5.2.0.9.2.20030618113653.0277d780@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 18 Jun 2003 13:02:48 -0400
+Received: from terminus.zytor.com ([63.209.29.3]:40930 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S265404AbTFRRCp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 13:02:45 -0400
+Message-ID: <3EF09E71.8020406@zytor.com>
+Date: Wed, 18 Jun 2003 10:16:33 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: David Howells <dhowells@warthog.cambridge.redhat.com>
+CC: David Howells <dhowells@cambridge.redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VFS autmounter support
+References: <18943.1055925426@warthog.warthog>
+In-Reply-To: <18943.1055925426@warthog.warthog>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:52 AM 6/18/2003 -0700, William Lee Irwin III wrote:
->On Wed, Jun 18, 2003 at 02:04:45PM +0200, Mike Galbraith wrote:
-> > I've got thud licked (without the restricting sleep to time_slice),
-> > test-starve works right as well, and interactivity is up.  Tasks waking
-> > each other in a loop is a bitch and a half though, and need to be beaten
-> > about the head and shoulders.  Going to a synchronous wakeup for pipes
-> > (talking stock kernel now) cures irman process_load's ability to starve...
-> > IFF you're running it from a vt.  If you're in an xterm, it'll still climb
-> > up from the bottom (only place where it can't starve anybody) and starve
-> > via pass-the-baton wakeup DoS.  That will/does take the joy out of using
-> > xmms.  If xmms didn't use multiple threads, it'd be much worse... right
-> > now, you'll lose eye-candy [cpu hungry visualization stuff] before you 
-> lose
-> > sound [at next song].
->
->That's great. I'd love to see the patch.
+David Howells wrote:
+>>
+>>That's actually not true.  It's lstat() that mustn't cause the automount
+>>point to mount -- stat() only comes into play if lstat() resolves to a
+>>symlink.  However, lstat() never invokes follow_link, so creating a
+>>dentry with a follow_link method resolving to itself, and an associated
+>>dummy directory inode, does what's required.
+> 
+> That _is_ actually true. Doing "ls -l" in that directory would otherwise cause
+> a mount storm.
+> 
 
-If I can get the kinks worked out and still have something left.  I'm 
-gaining on the darn thing, but only a net millimeter at a time... with much 
-cha-cha-cha action in between ;-)
+It's not.  ls -l and all the GUI tools do lstat(), not stat().
 
-         -Mike 
+> follow_link resolving to itself? Surely that'll cause ELOOP very quickly? And
+> where does this "dummy directory inode" live?
+
+Nope.  You can follow_link() nonrecursively.  You need a dummy directory 
+inode to mount upon anyway.
+
+	-hpa
 

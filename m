@@ -1,79 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267680AbTATBay>; Sun, 19 Jan 2003 20:30:54 -0500
+	id <S265198AbTATB2w>; Sun, 19 Jan 2003 20:28:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267674AbTATBax>; Sun, 19 Jan 2003 20:30:53 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:23308 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S267680AbTATBaw>; Sun, 19 Jan 2003 20:30:52 -0500
-Subject: Re: [Linux-fbdev-devel] fbcon scrolling + initialisation oddity
-From: Antonino Daplas <adaplas@pol.net>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       James Simmons <jsimmons@infradead.org>
-In-Reply-To: <20030119200340.A13758@flint.arm.linux.org.uk>
-References: <20030119200340.A13758@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1043026112.988.4.camel@localhost.localdomain>
+	id <S267673AbTATB2w>; Sun, 19 Jan 2003 20:28:52 -0500
+Received: from h80ad248b.async.vt.edu ([128.173.36.139]:24194 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S265198AbTATB2v>; Sun, 19 Jan 2003 20:28:51 -0500
+Message-Id: <200301200137.h0K1bmIJ012718@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: David Schwartz <davids@webmaster.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is the BitKeeper network protocol documented? 
+In-Reply-To: Your message of "Sun, 19 Jan 2003 17:05:02 PST."
+             <20030120010504.AAA18836%shell.webmaster.com@whenever> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030120010504.AAA18836%shell.webmaster.com@whenever>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Jan 2003 09:29:38 +0800
+Content-Type: multipart/signed; boundary="==_Exmh_-43454828P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 19 Jan 2003 20:37:47 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-20 at 04:03, Russell King wrote:
-> 1. YWRAP scrolling.
-> 
-> There appears to be something weird going on with fbcon scrolling in 2.5.59
-> when using YWRAP.  The best example is what happens when scrolling a large
-> file (say, /etc/termcap) in less.
-> 
-> While scrolling down in the file, the screen scrolls correctly for the
-> most part.  At some point, the screen stops scrolling and the last line
-> which normally displays the less prompt character ":" is replaced by
-> the next line of text.  Continuing to scroll down produces no visible
-> changes.
-> 
-> Once enough scrolling has occurred, suddenly the screen jumps and we get
-> the proper text displayed.
-> 
-> Also, if you scroll line by line until the ":" is replaced by text as
-> above, scrolling back up one line replaces the ":" and scrolling upwards
-> scrolls the screen up correctly.
-> 
-> As an additional behaviour point, if you scroll down until the ":" just
-> disappears and then some extra lines, hit 'q' to exit less, followed by
-> ^L, most of the screen is cleared, except for the very top few lines.
-> I haven't checked, but I suspect the number of lines left at the top of
-> the screen is equal to the number of lines we're off the bottom of the
-> screen.
-> 
+--==_Exmh_-43454828P
+Content-Type: text/plain; charset=us-ascii
 
-fb_pan_display() does not test for YWRAP.  Can you try this?
+On Sun, 19 Jan 2003 17:05:02 PST, David Schwartz said:
+> 	Don't blame me. The GPL just says the "preferred" form and leaves us 
+> to wonder. As I understand it, however, you cannot ship binaries of a 
+> GPL'd project unless you can distribute the source code in the 
+> "preferred form .. for making modifications to it".
 
-Tony
+Hmm... <ponders a bit>
 
-diff -Naur linux-2.5.59/drivers/video/fbmem.c linux/drivers/video/fbmem.c
---- linux-2.5.59/drivers/video/fbmem.c	2003-01-20 01:10:12.000000000 +0000
-+++ linux/drivers/video/fbmem.c	2003-01-20 01:14:27.000000000 +0000
-@@ -724,11 +724,15 @@
- {
-         int xoffset = var->xoffset;
-         int yoffset = var->yoffset;
-+	int ybottom = var->yoffset;
-         int err;
- 
-+	if (!(var->vmode & FB_VMODE_YWRAP))
-+		ybottom += info->var.yres;
-+
-         if (xoffset < 0 || yoffset < 0 || !info->fbops->fb_pan_display ||
-             xoffset + info->var.xres > info->var.xres_virtual ||
--            yoffset + info->var.yres > info->var.yres_virtual)
-+            ybottom > info->var.yres_virtual)
-                 return -EINVAL;
- 	if ((err = info->fbops->fb_pan_display(var, info)))
- 		return err;
+> 	I'm still perplexed what you do if the preferred modification form 
+> for a work requires consent to a license more restrictive than the 
+> GPL in order to make modifications to it. As I see it, you just can't 
+> GPL such a project.
 
+<ponders a bit more>
+
+It's a red herring, folks.
+
+The preferred form for *MAKING* modifications is a /usr/src/linux source
+tree.  The form that's in  BitKeeper is in the preferred format for *tracking*
+and *managing* changes.  Remember - you have to check the source out of
+the repository to do the edit/compile/test loop, and then commit it back
+when you're done.  So the BK repository isn't where actual development happens,
+because gcc and make can't read the repository.
+
+Of course, having written this, some damn fool will prove me wrong by writing
+a  'bkfs' file system (similar to the various 'pgfs' front-ends for Postgres)
+so you actually *CAN* do a 'make' of the repository :)
+
+/Valdis
+
+
+--==_Exmh_-43454828P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+K1LrcC3lWbTT17ARAuz4AJ4+BjDV0P6+3HeUEHfHSykXImpAowCdFOm6
+w8yoBgiczSeedCUPLC0jNz8=
+=Vd42
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-43454828P--

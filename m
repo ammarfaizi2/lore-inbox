@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265350AbTFFGc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 02:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265352AbTFFGc2
+	id S265349AbTFFGf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 02:35:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265352AbTFFGf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 02:32:28 -0400
-Received: from gw.foursticks.com ([150.101.16.181]:51113 "EHLO
-	ponder.foursticks.com.au") by vger.kernel.org with ESMTP
-	id S265350AbTFFGc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 02:32:27 -0400
-Date: Fri, 6 Jun 2003 16:44:57 +0930
-From: Chee Kent Lam <cklam@foursticks.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Call for interest: linux.conf.au kernel miniconf
-Message-ID: <20030606164457.A21301@ponder.foursticks.com.au>
-Reply-To: cklam@foursticks.com
+	Fri, 6 Jun 2003 02:35:27 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:38376 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265349AbTFFGf1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 02:35:27 -0400
+Date: Thu, 05 Jun 2003 23:45:26 -0700 (PDT)
+Message-Id: <20030605.234526.23012957.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: manfred@colorfullife.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: problem with blk_queue_bounce_limit()
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <16096.14281.621282.67906@napali.hpl.hp.com>
+References: <16094.58952.941468.221985@napali.hpl.hp.com>
+	<1054797653.18294.1.camel@rth.ninka.net>
+	<16096.14281.621282.67906@napali.hpl.hp.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-This is a call for interest to gauge the Linux kernel community
-interest in a Kernel miniconf for the next Australian Linux 
-conference.
-
-Linux.conf.au is the annual Australian Linux conference. The 2004
-conference will be held in Adelaide, South Australia in January. The 
-two days preceding the conference, the facilities are available to run 
-mini conferences.  People who pay to attend the main conference can
-also attend the miniconfs for no extra charge.
-
-If you are interested in presenting a paper, giving a talk or want
-more information, please email me.  There is more information about
-the conference at the conference web site http://lca2004.linux.org.au
-
-
-Thanks
-Chee Kent Lam
-
--- 
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Thu, 5 Jun 2003 23:42:17 -0700
+   
+   Manfred, I'm readdressed this mail to you because according to google,
+   you're the original author of the patch
+   (http://www.cs.helsinki.fi/linux/linux-kernel/2002-02/0032.html).
+   
+   Like I stated earlier, I think this code simply makes no sense on a
+   platform with I/O MMU.  Hence my suggestion to deal with this via
+   dma_supported().
+   
+David, what is blk_max_low_pfn set to on your ia64 systems?

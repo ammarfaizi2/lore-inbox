@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262750AbUDAGuW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 01:50:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUDAGuW
+	id S262754AbUDAGtx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 01:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbUDAGtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 01:50:22 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:56795 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S262750AbUDAGuP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 01:50:15 -0500
-Date: Thu, 1 Apr 2004 08:50:13 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] multiple namespaces
-Message-ID: <20040401065013.GA16648@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Albert Cahalan <albert@users.sf.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1080800087.1490.14.camel@cube>
+	Thu, 1 Apr 2004 01:49:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37864 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262750AbUDAGtu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 01:49:50 -0500
+Date: Wed, 31 Mar 2004 22:49:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "C.L. Tien - =?ISO-8859-1?B?X19fX19fX19f?=" <cltien@cmedia.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-audio-dev@music.columbia.edu,
+       support@cmedia.com.tw
+Subject: Re: ANN: cmpci 6.67 released
+Message-Id: <20040331224943.2362ce4e.akpm@osdl.org>
+In-Reply-To: <92C0412E07F63549B2A2F2345D3DB515F7D403@cm-msg-02.cmedia.com.tw>
+References: <92C0412E07F63549B2A2F2345D3DB515F7D403@cm-msg-02.cmedia.com.tw>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1080800087.1490.14.camel@cube>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 01:14:47AM -0500, Albert Cahalan wrote:
+C.L. Tien - _________ <cltien@cmedia.com.tw> wrote:
+>
+> 
+> Hi,
+> 
+> I made serveral changes for 6.64, the change are as following:
 
-> root 0 ~# PS1='\D:\w> '
-> C:~> subst D: /mnt/cdrom
-> C:~> D
-> D:~> ls -og
-> total 38292
-> -rw-r--r--    1  2557952 Apr  1  2004 ADrives-Abort_Retry_Fail.mp3
+To what kernel do these patches apply?  Certainly not current 2.6.
 
-Very good, now I can do away with mdir and friends, I've been longing to
-just type 'A' again and know that I'm on my trusty floppy drive.
+If you intend to raise 2.6 patches, please ensure that they are against the
+latest kernel.org kernel.  And please ensure that the patches are in `patch
+-p1' form.  The headers should look like:
 
-Perhaps I'll whip up something that monitors /dev/log and can return the
-sanity of Abort/Retry/Ignore to Linux. This should be integrated with bash
-but as your namespace patches need some work in that area too, that should
-not be a problem.
+--- a/sound/oss/cmpci.c 22 Mar 2004 17:07:02 -0000      6.64
++++ a/sound/oss/cmpci.c 29 Mar 2004 22:58:49 -0000      6.65
 
-Thanks Albert!
+Also, a single patch per email is preferred.
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Thanks.

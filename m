@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129867AbQLCL6x>; Sun, 3 Dec 2000 06:58:53 -0500
+	id <S129909AbQLCL7e>; Sun, 3 Dec 2000 06:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129909AbQLCL6n>; Sun, 3 Dec 2000 06:58:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62726 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129867AbQLCL6g>;
-	Sun, 3 Dec 2000 06:58:36 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200012031127.eB3BRm531079@flint.arm.linux.org.uk>
-Subject: Re: [RFC] Configuring synchronous interfaces in Linux
-To: philb@gnu.org (Philip Blundell)
-Date: Sun, 3 Dec 2000 11:27:47 +0000 (GMT)
-Cc: cw@f00f.org (Chris Wedgwood), linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-In-Reply-To: <E142X2p-0003Kc-00@kings-cross.london.uk.eu.org> from "Philip Blundell" at Dec 03, 2000 11:10:59 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130356AbQLCL7P>; Sun, 3 Dec 2000 06:59:15 -0500
+Received: from r109m245.cybercable.tm.fr ([195.132.109.245]:61703 "HELO alph")
+	by vger.kernel.org with SMTP id <S129909AbQLCL64>;
+	Sun, 3 Dec 2000 06:58:56 -0500
+To: rusty@linuxcare.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch-2.4.0-test12-pre3] ip_conntrack_proto_tcp.c compilation fix.
+In-Reply-To: <87sno6gwsy.fsf@mandrakesoft.com>
+From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
+Date: 03 Dec 2000 12:28:27 +0100
+In-Reply-To: Yoann Vandoorselaere's message of "03 Dec 2000 01:42:21 +0100"
+Message-ID: <87ofytyc9w.fsf@mandrakesoft.com>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(CC list trimmed)
+Yoann Vandoorselaere <yoann@mandrakesoft.com> writes:
 
-Philip Blundell writes:
-> >Does it? At which point? To me it looks like it calls dev->do_ioctl
-> >or am I missing something?
-> 
-> It uses SIOCSIFMAP, which (I think) winds up in dev.c here:
-> 
-> 	case SIOCSIFMAP:
-> 			if (dev->set_config) {
-> 				if (!netif_device_present(dev))
-> 					return -ENODEV;
-> 				return dev->set_config(dev,&ifr->ifr_map);
-> 			}
-> 			return -EOPNOTSUPP;
+> --- linux/net/ipv4/netfilter/ip_conntrack_proto_tcp.c.orig	Sat Dec  2 16:18:05 2000
+> +++ linux/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	Sat Dec  2 16:19:04 2000
+> @@ -228,6 +228,6 @@
+>  }
+>  
+>  struct ip_conntrack_protocol ip_conntrack_protocol_tcp
+> -= { { NULL, NULLpkt_IPPROTO_TCP, "tcp",
+> -    tcp_ableto_tuple, tcp_invert_tuple, tcp_print_tuple, tcp_print_conntrack,
+> += { { NULL, NULL }, IPPROTO_TCP, "tcp",
+> +    tcp_pkt_to_tuple, tcp_invert_tuple, tcp_print_tuple, tcp_print_conntrack,
+>      tcp_packet, tcp_new, NULL };
 
-It definitely does end up there.  However, the ethtool ioctls end up
-in dev->do_ioctl.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Just ignore this patch, it seem this file got corrupted on my FS...
+
+-- 
+		-- Yoann http://www.mandrakesoft.com/~yoann/
+   An engineer from NVidia, while asking him to release cards specs said :
+	"Actually, we do write our drivers without documentation."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

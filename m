@@ -1,88 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265607AbTFXBXX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 21:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265611AbTFXBXX
+	id S265611AbTFXB3X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 21:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265612AbTFXB3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 21:23:23 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:12467 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S265607AbTFXBXT
+	Mon, 23 Jun 2003 21:29:23 -0400
+Received: from twinlark.arctic.org ([168.75.98.6]:43664 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S265611AbTFXB3V
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 21:23:19 -0400
-Date: Mon, 23 Jun 2003 18:37:01 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, dmccr@us.ibm.com, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix vmtruncate race and distributed filesystem race
-Message-ID: <20030624013701.GA2239@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20030612140014.32b7244d.akpm@digeo.com> <150040000.1055452098@baldur.austin.ibm.com> <20030612144418.49f75066.akpm@digeo.com> <184910000.1055458610@baldur.austin.ibm.com> <20030620001743.GI18317@dualathlon.random> <20030623032842.GA1167@us.ibm.com> <20030622233235.0924364d.akpm@digeo.com> <20030623074353.GE19940@dualathlon.random> <20030623005623.5fe1ab30.akpm@digeo.com> <20030623081016.GI19940@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030623081016.GI19940@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+	Mon, 23 Jun 2003 21:29:21 -0400
+Date: Mon, 23 Jun 2003 18:43:28 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Samphan Raruenrom <samphan@thai.com>
+cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Crusoe's performance on linux?
+In-Reply-To: <3EF74DBF.6000703@thai.com>
+Message-ID: <Pine.LNX.4.53.0306231821480.17484@twinlark.arctic.org>
+References: <3EF1E6CD.4040800@thai.com> <20030619200308.A2135@ucw.cz>
+ <3EF2144D.5060902@thai.com> <20030619221126.B3287@ucw.cz> <3EF67AD4.4040601@thai.com>
+ <20030623102623.A18000@ucw.cz> <3EF74DBF.6000703@thai.com>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 10:10:16AM +0200, Andrea Arcangeli wrote:
-> On Mon, Jun 23, 2003 at 12:56:23AM -0700, Andrew Morton wrote:
-> > Andrea Arcangeli <andrea@suse.de> wrote:
-> > >
-> > > that will finally close the race
-> > 
-> > Could someone please convince me that we really _need_ to close it?
-> > 
-> > The VM handles the whacky pages OK (on slowpaths), and when this first came
-> > up two years ago it was argued that the application was racy/buggy
-> > anyway.  So as long as we're secure and stable, we don't care.  Certainly
-> > not to the point of adding more atomic ops on the fastpath.
-> > 
-> > So...   what bug are we actually fixing here?
-> 
-> we're fixing userspace data corruption with an app trapping SIGBUS.
+On Mon, 23 Jun 2003, Samphan Raruenrom wrote:
 
-This handling of wacky pages apparently does not carry over into some
-of the rmap optimizations, but I will let dmccr speak to that.
+> Desktop - Pentium III 1 G Hz 754 MB	->	10.x min.
+> Tablet PC - Crusoe TM5800 1 GHz 731 MB	->	17.x min.
 
-> > (I'd also like to see a clearer description of the distributed fs problem,
-> > and how this fixes it).
-> 
-> I certainly would like discussions about it too.
+how much real memory are in these boxes?  the above don't look like any
+real memory sizes i'm aware of (even if i try to guess if your M=10^6
+or M=2^20).
 
-The race is as follows:
 
-	Node 0				Node 1
+>  From freshdiagnos benchmack, the TPC has about 2x faster RAM.
 
-	mmap()s file f1
-					writes to f1
-					sends msg to Node 0 requesting data
-	pgflt on mmap
-	do_no_page() invokes ->nopage
-	->nopage hands page up
-	<some interrupt or other delay>
+you're mistaken if you believe marketing doodoo which says that DDR is
+"twice as fast" as SDR -- only data transfer is clocked at twice the
+bus speed.  there's command bus costs which are identical between SDR
+and DDR -- and its these costs which dominate the bus in non-sequential
+benchmarks such as compilation (as opposed to excessively sequential
+benchmarks which are used for marketing purposes).
 
-	receives message from Node 1
-	invokes invalidate_mmap_range()
-	returns data to Node 1
+expansion memory for the tablet PC is PC133 -- you can verify this
+by reading the part numbers off the SODIMM and doing a lookup on the
+manufacturer's website...
 
-					receives data from Node 0
-					does write
+if you don't have any expansion memory in your tablet PC then you've
+got only 256MB of RAM and i really don't think you should be using tmpfs.
 
-	<return from interrupt or whatever>
-	do_no_page() installs now-stale mapping
-	return from page fault
-	application scribbles on page, violating DFS's consistency!!!
 
-Now Node 0 and Node 1 have inconsistent versions of the page being
-written to.  Note that this problem occurs regardless of the mechanism
-that Node 1 does to accomplish the write -- mmap(), write(), whatever.
+> Shouldn't TM5800 with 4-wide VLIW engine and 64 registers,
+> working on a single task, run as fast as a Pentium III?
 
-This race is a problem only in distributed filesystems that provide
-the same consistency guarantees normally found on local filesystems.
-Things like NFS or AFS would not be bothered, since they do not offer
-such consistency guarantees.  For example, with AFS, the last guy
-to close the file wins.
+nope.
 
-						Thanx, Paul
+you're assuming that the VLIW has 4 completely orthogonal processing
+units -- it doesn't.  try measuring code sequences such as:
+
+	add %eax,%ebx
+	add %eax,%ecx
+	add %eax,%edx
+	add %eax,%edi
+	add %eax,%ebx
+	add %eax,%ecx
+	add %eax,%edx
+	add %eax,%edi
+	...
+
+you'll quickly figure out how many ALUs the machine has, plus you can
+figure out their latencies and throughputs (by increasing or decreasing
+the number of independent additions).  if you do this you'll find
+that p3 and tm5800 are essentially just as "wide" as each other for
+ALU operations:  a pair of 32-bit ALUs with single-cycle latency and
+single-cycle throughput.
+
+similar microarchitctural analysis of other aspects of the cores can
+help explain the differences you see.
+
+traditionally VLIW have been used for DSP and other such related tasks
+in which there are a large number of orthogonal units.  in tm5800 you
+can think of the VLIW as a set of up to 4 micro-ops which feed the front
+of up to 4 pipelines in each cycle -- much like the decoded micro-ops
+in the p3 feed one of several pipelines in each cycle.
+
+but i'm really guessing you're causing excessive disk i/o by having a
+small memory system use a huge tmpfs... get rid of the tmpfs and
+see what happens.  and also consider doing i/o benchmarks while
+running something which soaks up idle cycles (i.e. a tight loop
+incrementing a counter) to see how the two architectures differ.
+
+-dean

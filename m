@@ -1,71 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265139AbTAWMoO>; Thu, 23 Jan 2003 07:44:14 -0500
+	id <S265140AbTAWMtC>; Thu, 23 Jan 2003 07:49:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265140AbTAWMoO>; Thu, 23 Jan 2003 07:44:14 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:54159 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265139AbTAWMoN>; Thu, 23 Jan 2003 07:44:13 -0500
-Date: Thu, 23 Jan 2003 07:53:25 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Yao Minfeng <yaomf@gdufs.edu.cn>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: new kernel fail
-In-Reply-To: <005101c2c2d1$3a5b2380$81df74ca@hammer>
-Message-ID: <Pine.LNX.3.95.1030123075021.31010A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265171AbTAWMtC>; Thu, 23 Jan 2003 07:49:02 -0500
+Received: from 12-222-92-50.client.insightBB.com ([12.222.92.50]:28547 "EHLO
+	lucky") by vger.kernel.org with ESMTP id <S265140AbTAWMtB>;
+	Thu, 23 Jan 2003 07:49:01 -0500
+Date: Thu, 23 Jan 2003 07:57:48 -0500
+To: Jacek Radajewski <jacek@usq.edu.au>
+Cc: linux-poweredge@dell.com, linux-kernel@vger.kernel.org
+Subject: Re: 2650 - tg3 on 2.4.18-19.7.xsmp rh7.3 ... OOPS YET AGAIN
+Message-ID: <20030123125748.GB3285@lucky>
+Reply-To: shuey@purdue.edu
+References: <08D7835AE15D6F4BABB5C46427F018DF0E608E@babbage.usq.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <08D7835AE15D6F4BABB5C46427F018DF0E608E@babbage.usq.edu.au>
+User-Agent: Mutt/1.5.3i
+From: Michael Shuey <shuey@fmepnet.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jan 2003, Yao Minfeng wrote:
+On Thu, Jan 23, 2003 at 09:27:40AM +1000, Jacek Radajewski wrote:
+> is the network card really the problem ?  I don't want to be replacing all my network cards if the problem is elsewhere .... if you can understand the oops message please, please, please let me know where the problem is ...
 
-> Dear friends,
-> 
-> I am rather new to Linux, but really want to have a try. I am running RedHat
-> 7.2 with the kernel of
-> 2.4.7-10. I just compiled the 2.4.12 and 2.4.16 Kernel, however, when I
-> login to the system, I found that
-> 
-> 1)
-> 
-> Login: root
-> Passwd:
-> 
-> bash: id: Command not found
-> bash: id: Command not found
-> bash: id: Command not found
-> 
-> [: Too many arguments
-> 
-> ...
-> 
-> 
-> 2) all the files under /home, /usr are missing, this happens both for 2.4.12
-> and 2.4.16, but when I login back to 2.4.7-10, the files are there again, I
-> can't figure it out.
-> 
-> Any help is welcome.
-> 
-> Thanks.
-> 
-Looks like the order of your file partitions (or labels) got
-changed between kernel versions so that your 'slices' are not
-being mounted.
+You get oops messages?  You're lucky - our PE 2650s would just lock up solid.
+No oops message, no crash dumps (if we used a kernel with that patch), no
+console messages, nothing.  It would happen every 4-6 hours (and much sooner
+when we tried a production-level amount of IO to the machine).  At the time
+we were using 2.4.18-18.7.x from RedHat 7.3.
 
-do `df` to see what got mounted. Try to mount the other paritions,
-first under /mnt, then later at there correct place after to
-inspect them under /mnt to see which is which.
+Not sure if it was the network card (tg3) or the RAID adapter (aacraid).  We
+switched to 2.4.20, built with the same options (well, all that apply at any
+rate) as the RedHat kernel.  We haven't had a single problem since.  You might
+want to give that a try before replacing a pile of gigabit NICs....
 
-After you have it all sorted out, change the entries in
-/etc/fstab to be correct for the next boot.
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+-- 
+Mike Shuey

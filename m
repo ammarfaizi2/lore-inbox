@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289985AbSAWTXf>; Wed, 23 Jan 2002 14:23:35 -0500
+	id <S289977AbSAWTVo>; Wed, 23 Jan 2002 14:21:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289988AbSAWTXa>; Wed, 23 Jan 2002 14:23:30 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:53517 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289985AbSAWTWv>;
-	Wed, 23 Jan 2002 14:22:51 -0500
-Date: Wed, 23 Jan 2002 17:22:30 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH *] rmap VM, version 12
-In-Reply-To: <20020123.110624.93021436.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33L.0201231720460.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S289989AbSAWTVf>; Wed, 23 Jan 2002 14:21:35 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:2011 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S289977AbSAWTVb>; Wed, 23 Jan 2002 14:21:31 -0500
+Date: Wed, 23 Jan 2002 20:21:18 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: Martin Eriksson <nitrax@giron.wox.org>
+cc: Ed Sweetman <ed.sweetman@wmich.edu>, Vojtech Pavlik <vojtech@suse.cz>,
+        Timothy Covell <timothy.covell@ashavan.org>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>, Dave Jones <davej@suse.de>,
+        Andreas Jaeger <aj@suse.de>, Martin Peters <mpet@bigfoot.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+In-Reply-To: <000701c1a42c$8c6f8680$0201a8c0@HOMER>
+Message-ID: <Pine.LNX.4.40.0201232018530.2202-100000@infcip10.uni-trier.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, David S. Miller wrote:
+On Wed, 23 Jan 2002, Martin Eriksson wrote:
 
->    Actually, this is just using the pte_free_fast() and
->    {get,free}_pgd_fast() functions on non-pae machines.
->
-> Rofl, you can't just do that.  The page tables cache caches the kernel
-> mappings and if you don't update them properly on SMP you die.
+> Problems (in Windows, with similar patches) have mostly been sound skips and
+> general "skippy" behaviour (not the peanut butter). My VIA KT133 based mobo
+> with Athlon 1000 had major sound skips, both with onboard VIA sound and
+> SB512. Also the graphics in most 3D games stuttered badly.
 
-Umm, this list just contains _freed_ page tables without
-any mappings, right ?
+this is the first time i hear about such problems ...
+i have no problems at all and it works great under linux and win 2k
+(vcool) ... there are no sound skips or skippy behaviors ...
 
-If there is some specific magic I'm missing, could you
-please point me to the code I'm overlooking ? ;)
+daniel
 
-> I am seeing reports of SMP failing with rmap12 but not previous
-> patches.  You need to revert this I think.
 
-Actually, the cause for Badari's bugreport is much more
-stupid.  If it wasn't so stupid I bet I'd have found it
-earlier...
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
 

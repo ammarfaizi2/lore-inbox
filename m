@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUG2GpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266409AbUG2Gs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbUG2GpR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 02:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUG2GpQ
+	id S266409AbUG2Gs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 02:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbUG2Gs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 02:45:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8888 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264382AbUG2Gnt (ORCPT
+	Thu, 29 Jul 2004 02:48:58 -0400
+Received: from cantor.suse.de ([195.135.220.2]:35762 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264492AbUG2Gsz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 02:43:49 -0400
-Date: Wed, 28 Jul 2004 23:42:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Johannes Stezenbach <js@convergence.de>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2-mm1
-Message-Id: <20040728234214.7121e70d.akpm@osdl.org>
-In-Reply-To: <20040729000837.GA6579@convergence.de>
-References: <20040728020444.4dca7e23.akpm@osdl.org>
-	<20040728222455.GC5878@convergence.de>
-	<20040728224423.GJ12308@parcelfarce.linux.theplanet.co.uk>
-	<20040728232453.GA6377@convergence.de>
-	<20040728163440.395b22e0.akpm@osdl.org>
-	<20040729000837.GA6579@convergence.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 29 Jul 2004 02:48:55 -0400
+Date: Thu, 29 Jul 2004 08:48:13 +0200
+From: Olaf Hering <olh@suse.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] fix zlib debug in ppc boot header
+Message-ID: <20040729064813.GB17282@suse.de>
+References: <20040728112222.GA7670@suse.de> <1091014495.2795.25.camel@laptop.fenrus.com> <20040728150145.GK10891@smtp.west.cox.net> <20040728153633.GA21105@suse.de> <20040728230635.GC16468@smtp.west.cox.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040728230635.GC16468@smtp.west.cox.net>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Stezenbach <js@convergence.de> wrote:
->
-> Andrew Morton wrote:
-> > Johannes Stezenbach <js@convergence.de> wrote:
-> > >
-> > > This is a hack introduced by someone years ago. The "pointer" is
-> > > actually an integer argument, e.g. in include/linux/dvb/audio.h:
-> > > 
-> > > #define AUDIO_SET_MUTE             _IO('o', 6)
-> > > 
-> > > actually takes an integer argument (!0 mute, 0 unmute), so one can write
-> > > 
-> > > 	if (ioctl(fd, AUDIO_SET_MUTE, 1) == -1)
-> > > 		perror("mute");
-> > 
-> > Is it a boolean argument?
-> > 
-> > If so, we could change the code to do
-> > 
-> > 	parg = (void *)(arg ? 1 : 0);
-> > 
-> > so if someone dereferences it they'll get a nice oops.
+ On Wed, Jul 28, Tom Rini wrote:
+
+> On Wed, Jul 28, 2004 at 05:36:33PM +0200, Olaf Hering wrote:
 > 
-> Unfortunately there are a few more ioctls which use enums,
-> e.g. AUDIO_CHANNEL_SELECT has an argument of type
-> audio_channel_select_t etc. (yes, I know, those typedefs
-> should go). Or even DMX_SET_BUFFER_SIZE...
+> > 
+> >  On Wed, Jul 28, Tom Rini wrote:
+> > 
+> > > Olaf, has having this code work for you ever been useful?  Thanks.
+> > 
+> > The debug stuff? Sure. Now I know we have to improve the memcpy
+> > alignment handling. But thats a different story.
+> 
+> Can you please elaborate?  Thanks.
 
-OK.  Well how's about we add a fifth argument to that callback function, of
-type `int'?  Stick this integer in there and leave the fourth argument NULL
-for this class of ioctl?
+ppc 601 barfs on unaligned string instructions. we can handle the
+exceptions when the kernel runs, but not when OF is still in charge.
 
+
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

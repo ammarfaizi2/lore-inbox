@@ -1,81 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbTLTCzV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 21:55:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTLTCzV
+	id S263768AbTLTDHT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 22:07:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTLTDHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 21:55:21 -0500
-Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:5090
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263014AbTLTCzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 21:55:15 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>,
-       Christian Meder <chris@onestepahead.de>
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-Date: Sat, 20 Dec 2003 13:55:08 +1100
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-References: <1071864709.1044.172.camel@localhost> <1071885178.1044.227.camel@localhost> <3FE3B61C.4070204@cyberone.com.au>
-In-Reply-To: <3FE3B61C.4070204@cyberone.com.au>
+	Fri, 19 Dec 2003 22:07:18 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:1550 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263768AbTLTDHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 22:07:14 -0500
+Date: Fri, 19 Dec 2003 18:59:36 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>, khc@pm.waw.pl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] ide.c as a module
+In-Reply-To: <20031219090541.10fae126.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.10.10312191857550.7879-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312201355.08116.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Dec 2003 13:38, Nick Piggin wrote:
-> Christian Meder wrote:
-> >On Sat, 2003-12-20 at 02:26, Nick Piggin wrote:
-> >>Christian Meder wrote:
-> >>>On Sat, 2003-12-20 at 01:48, Nick Piggin wrote:
-> >>>>Sounds reasonable. Maybe its large interrupt or scheduling latency
-> >>>>caused somewhere else. Does disk activity alone cause a problem?
-> >>>>find / -type f | xargs cat > /dev/null
-> >>>>how about
-> >>>>dd if=/dev/zero of=./deleteme bs=1M count=256
-> >>>
-> >>>Ok. I've attached the logs from a run with a call with only an
-> >>>additional dd. The quality was almost undisturbed only very slightly
-> >>>worse than the unloaded case.
 
-Since so many things have actually changed it's going to be hard to extract 
-what role the cpu scheduler has in this setting, but lets do our best.
+Bartlomiej,
 
-Is there a reason you're running gnomemeeting niced -10? It is hardly using 
-any cpu and the problem is actually audio in your case, not the cpu 
-gnomemeeting is getting. Running dependant things (gnomemeeting, audio 
-server, gnome etc) at different nice levels is not a great idea as it can 
-lead to priority inversion scenarios if those apps aren't coded carefully. 
+There is a way, you just need to use a bigger hammer.
+But if you are going to rootwad ./drivers/ide, I want the satisfaction of
+MAD (mutual assured destruction!)
 
-What happens if you run gnomemeeting at nice 0?
+Cheers,
 
-How is your dma working on your disks?
+Andre Hedrick
+LAD Storage Consulting Group
 
-What happens if you don't use an audio server (I'm not sure what the audio 
-server is in gnome); or if you're not using one what happens when you do?
+On Fri, 19 Dec 2003, Randy.Dunlap wrote:
 
-Renice the audio server instead?
-
-You've already tried different audio drivers right?
-
-Nice the compile instead of -nicing the other stuff.
-
-Try the minor interactivity fix I posted only yesterday for different nice 
-level latencies:
-http://ck.kolivas.org/patches/2.6/2.6.0/patch-2.6.0-O21int
-
-Is your network responsible and the audio unrelated? Some have reported 
-strange problems with ppp or certain network card drivers?
-
-As you see it's not a straight forward problem but there's some things for you 
-to get your teeth stuck into. As it stands the cpu scheduler from your top 
-output appears to be giving appropriate priorities to the different factors 
-in your equation.
-
-Con
+> On Fri, 19 Dec 2003 17:26:46 +0100 Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+> 
+> | On Thursday 18 of December 2003 01:29, Krzysztof Halasa wrote:
+> | > BTW: modular IDE in 2.4.23 is still problematic - you can't unload the
+> | > chipset driver (piix.o or something like) which in turn references the
+> | > core IDE module.
+> | 
+> | It is probably too much work to fix it (properly) in 2.4.x and 2.6.x...
+> | 
+> | Please note that there is no refcounting in IDE drivers,
+> | there is no host object type, also table of IDE ports (ide_hwifs[]) is static.
+> | 
+> | I hope 2.7 will obsolete drivers/ide...
+> 
+> in favor of libata or what?
+> 
+> --
+> ~Randy
+> MOTD:  Always include version info.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

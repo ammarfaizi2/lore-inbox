@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261246AbREOSnI>; Tue, 15 May 2001 14:43:08 -0400
+	id <S261262AbREOTAj>; Tue, 15 May 2001 15:00:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261247AbREOSm6>; Tue, 15 May 2001 14:42:58 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:53669 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261246AbREOSmr>;
-	Tue, 15 May 2001 14:42:47 -0400
-Date: Tue, 15 May 2001 14:42:42 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.10.10105151036490.22038-100000@www.transvirtual.com>
-Message-ID: <Pine.GSO.4.21.0105151419040.21081-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261272AbREOTA3>; Tue, 15 May 2001 15:00:29 -0400
+Received: from fep04-svc.mail.telepac.pt ([194.65.5.203]:23267 "EHLO
+	fep04-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
+	id <S261262AbREOTAV>; Tue, 15 May 2001 15:00:21 -0400
+From: skinbits@substancia.com
+Date: Tue, 15 May 2001 19:53:33 +0100
+To: linux-kernel@vger.kernel.org
+Subject: TCP/IP receive packet problem
+Message-ID: <20010515195333.B1095@substancia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We are doing the project to implement IP communication over a SCSI bus.
+ 
+So far we have a working communication between the to computers, we can
+ping from both computers. Traceroute only works from one computer to
+the other and we can't understand why. We are thinking a lot on the 
+issue but we haven't found the solution and worst, we haven't found the 
+problem.
+  
+The problem, readingthe ipgrab logs, is that a UDP packet is sent to the
+other host with TTL of 1. It passes all our system (is received by the
+sym53c8xx driver, send to snh driver, then scsinet and then we
+use netif_rx to send the packet to the TCP/IP stack). Now the TCP/IP
+should response with a ICMP packet of host unreachebla. But, this packet
+is never sent.
 
+Another strange thing is that we change the SCSI ID's, in the computer
+were traceroute works, it stop working, and starts working in the
+other...
 
-On Tue, 15 May 2001, James Simmons wrote:
+We have checked all parts of the system to see if the packet is correct
+(it is), if the TCP/IP dosen't drop because of congestion (It dosen't).
 
-> Well creating a new device wouldn't make linus happen right now. I do
-> agree ioctl calls are evil!!!! You only have X amount of them. With write
-> you can have infinte amounts of different functions to perform on a
-> device. I didn't design fbdev :-( If I did it would have been far
-> different. I do plan on some day merging drm and fbdev into one interface. So
-> I plan to change this behavior. I like to see this interface ioctl-less
-> (is their such a word ???). You mmap to alter buffers. Mmap is much more
-> flexiable than write for graphics buffers anyways. You use write to pass
-> "data" to the driver.
+If we use only ICMP (ping) there is no problem. If we use anything else
+(UDP,TCP) it dosen't work...
 
-For data - maybe (but you lose any semblance of network transparency).
-For commands? No fscking way in hell.
+We are using kernel 2.4.4 with a modified sym53c8xx target mode
+driver from kernel 2.4.0 and some drivers made by us.
+     
+If you need more info check http://www.ccjfaro.org/~skinbits/ipoverscsi.
+The code is in there and you can download it. There is also some ipgrab
+(http://ipgrab.sourceforge.net) traces that shows what I tryed to
+explain. You can also send me mail...
 
-Look, we used to live in the world where every bloody action with
-every bloody device required a special application (or macro, or
-special library or equivalent abortion). It sucked. It _still_
-sucks that way in CP/M and VMS lands.
-
-The only reason for such suckitude is laziness. We shouldn't need to
-do fscking voodoo to change modem speed. We shouldn't need it to change
-font. We shouldn't need it to rewind tape or format disk. We _have_ to
-do it because "ioctls are good enough and allow to do it fast, dirty and
-without thinking about good APIs".
-
-But guess what? mmap() also means that you need special applications.
-mmap() also doesn't work over the network. You may need it as a performance
-hack for massive data transfers, but if you hit memory bandwidth limitiations
-on stuff like changing palette... Well, maybe you should spend time doing
-something more productive. Like picking nose or masturbating.
-
+Pedro Semeano

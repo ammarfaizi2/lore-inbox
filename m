@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUEGXOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263862AbUEGXW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263865AbUEGXOT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 19:14:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbUEGXOT
+	id S263862AbUEGXW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 19:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbUEGXW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 19:14:19 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:6019 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S263865AbUEGXOR
+	Fri, 7 May 2004 19:22:26 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:56053 "EHLO
+	orion.mvista.com") by vger.kernel.org with ESMTP id S263862AbUEGXWZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 19:14:17 -0400
-Date: Sat, 8 May 2004 00:13:19 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Florian Weimer <fw@deneb.enyo.de>
-cc: Jeff Garzik <jgarzik@pobox.com>, Stephen Hemminger <shemminger@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Distributions vs kernel development
-In-Reply-To: <87smecgcix.fsf@deneb.enyo.de>
-Message-ID: <Pine.LNX.4.58.0405080012300.1979@fogarty.jakma.org>
-References: <20040507085312.3247d70d@dell_ss3.pdx.osdl.net> <409BB334.7080305@pobox.com>
- <87smecgcix.fsf@deneb.enyo.de>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 7 May 2004 19:22:25 -0400
+Date: Fri, 7 May 2004 16:22:23 -0700
+From: Jun Sun <jsun@mvista.com>
+To: linux-kernel@vger.kernel.org
+Cc: jsun@mvista.com
+Subject: [ANNOUNCE] Xplore CVS! (xcvs) - a web-based CVS tracking tool
+Message-ID: <20040507162223.E9702@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 May 2004, Florian Weimer wrote:
 
-> * Jeff Garzik:
-> 
-> > Fedora Core runs stock 2.4 and 2.6 kernels just fine...   :)
-> 
-> Have the problems with 2.4 kernels and Berkeley DB been fixed?
+I am pleased to announce that xcvs has reached its late beta
+release v0.2.1.
 
-And for i586, with either 2.4 nptl or 2.6, and BDB.
+http://xcvs.sourceforge.net
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-All new:
-	Parts not interchangeable with previous model.
+Xcvs is a web-based CVS tracking tool. Each commit (check-in) to a CVS
+repository is viewed as one logical, coherent change.  The web interface
+allows one to query the changes by branch, author, date/time, and etc.,
+and view each change as a patch file.
+
+Please redirect future discussions about xcvs to the xcvs mailing list, 
+xcvs public forum or directly to me.
+
+Thanks for your attention.
+
+Jun

@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262997AbTIRHJL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 03:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbTIRHJL
+	id S262991AbTIRHFh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 03:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbTIRHFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 03:09:11 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:44441 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262997AbTIRHJI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 03:09:08 -0400
-Date: Thu, 18 Sep 2003 09:08:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Olivier Galibert <galibert@limsi.fr>,
-       Stephan von Krawczynski <skraw@ithnet.com>, neilb@cse.unsw.edu.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-Message-ID: <20030918070845.GS906@suse.de>
-References: <20030917191946.GQ906@suse.de> <Pine.LNX.4.44.0309171629520.3994-100000@logos.cnet>
+	Thu, 18 Sep 2003 03:05:37 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:5903 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262991AbTIRHFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 03:05:37 -0400
+Date: Thu, 18 Sep 2003 08:05:34 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jesse Barnes <jbarnes@sgi.com>, pfg@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Altix console driver
+Message-ID: <20030918080533.A12519@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, Jesse Barnes <jbarnes@sgi.com>,
+	pfg@sgi.com, linux-kernel@vger.kernel.org
+References: <20030917222414.GA25931@sgi.com> <20030917152139.42a1ce20.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309171629520.3994-100000@logos.cnet>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030917152139.42a1ce20.akpm@osdl.org>; from akpm@osdl.org on Wed, Sep 17, 2003 at 03:21:39PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 17 2003, Marcelo Tosatti wrote:
-> 
-> 
-> On Wed, 17 Sep 2003, Jens Axboe wrote:
-> 
-> > On Wed, Sep 17 2003, Alan Cox wrote:
-> > > On Maw, 2003-09-16 at 20:58, Olivier Galibert wrote:
-> > > > On Tue, Sep 16, 2003 at 04:29:02PM +0100, Alan Cox wrote:
-> > > > > The kernel has no idea what you will do with given ram. It does try to
-> > > > > make some guesses but you are basically trying to paper over hardware
-> > > > > limits.
-> > > > 
-> > > > Is there a way to specifically turn that ram into a tmpfs though?
-> > > 
-> > > 
-> > > Something like z2ram copied and hacked a little to kmap the blocks it
-> > > wants would give you a block device you could use for swap or for /tmp.
-> > > Im not sure tmpfs would work here
-> > 
-> > Aditionally, you need GFP_DMA32 or similar. Would also alleviate the
-> > nasty pressure on ZONE_NORMAL which is often quite stressed.
-> 
-> IMO such GFP_DMA32 flag is a bit intrusive for 2.4, isnt it?
+On Wed, Sep 17, 2003 at 03:21:39PM -0700, Andrew Morton wrote:
+> Would it be more appropriate to place this under arch/ia64?
 
-Not really, it's just an extra zone. Maybe I can dig such a patch up, I
-had one for 2.4.2-pre something...
-
-> What has been done in 2.6 in respect to the excessive normal zone 
-> pressure and bounce buffering problems? 
-
-Nothing, afaic. 2.6 isn't even completely deadlock free when it comes to
-bounce buffering.
-
--- 
-Jens Axboe
+arch/ drivers are evil.  Also the driver could possibly used on mips
+if someone does the port to this hardware..
 

@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317743AbSHCUvX>; Sat, 3 Aug 2002 16:51:23 -0400
+	id <S317762AbSHCUyV>; Sat, 3 Aug 2002 16:54:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317750AbSHCUvX>; Sat, 3 Aug 2002 16:51:23 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:31388 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S317743AbSHCUvX>;
-	Sat, 3 Aug 2002 16:51:23 -0400
-Date: Sat, 3 Aug 2002 22:54:53 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200208032054.WAA25022@harpo.it.uu.se>
-To: nico-mutt@schottelius.org
-Subject: Re: 2.5.29 / 2.5.31 floppy/apm support
-Cc: linux-kernel@vger.kernel.org
+	id <S317750AbSHCUyV>; Sat, 3 Aug 2002 16:54:21 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:24527 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S317759AbSHCUyT> convert rfc822-to-8bit; Sat, 3 Aug 2002 16:54:19 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <fferreres@ojf.com>, Pavel Machek <pavel@ucw.cz>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1055) - Licensed Version
+Date: Sat, 3 Aug 2002 13:57:49 -0700
+In-Reply-To: <1028262585.391.115.camel@fede>
+Subject: Re: Funding GPL projects or funding the GPL?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20020803205750.AAA16052@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Aug 2002 07:07:52 +0200, Nico Schottelius wrote:
->I am currently trying to find a kernel, which supports wifi, floppy,apm.
->As you can see in my header I downgraded to 2.5.24 right now, but floppy
->is broken herein, too.
->Now I am trying 2.5.20, perhaps this works ...
 
-For 100% working floppy you'd need to downgrade to 2.5.12 or earlier.
+>But something is wrong with this. If I donate then it's no longer free.
+>And only if you never donate then you can call it free. Efectively, that
+>means that to get to a certain level of funding donators have pay 99
+>times the amount that would otherwise be needed if everyone contributed.
 
->I am still hoping that in 2.5.31/32 floppy and apm will work again.
+	The GPL explains your misunderstanding:
 
-Floppy working soon? Only if a miracle happens.
+When we speak of free software, we are referring to freedom, not
+price.  Our General Public Licenses are designed to make sure that you
+have the freedom to distribute copies of free software (and charge for
+this service if you wish), that you receive source code or can get it
+if you want it, that you can change the software or use pieces of it
+in new free programs; and that you know you can do these things.
 
-I'd recommend that you backport this "wifi" thing (whatever it is)
-to 2.4.19 and run that instead of 2.5.
+	Free software is about freedom, not about pricing.
 
-/Mikael
+	DS
+
+

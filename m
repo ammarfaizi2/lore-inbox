@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTENGN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 02:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTENGN6
+	id S262160AbTENGPz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 02:15:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTENGPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 02:13:58 -0400
-Received: from tantale.fifi.org ([216.27.190.146]:14464 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S262033AbTENGN5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 02:13:57 -0400
-To: linux-kernel@vger.kernel.org
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: Cryptic SCSI error messages
-References: <87el325o2x.fsf@ceramic.fifi.org>
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 13 May 2003 23:26:42 -0700
-In-Reply-To: <87el325o2x.fsf@ceramic.fifi.org>
-Message-ID: <87of26xcv1.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 14 May 2003 02:15:50 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:26127 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262117AbTENGPT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 02:15:19 -0400
+Date: Wed, 14 May 2003 07:28:02 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Miles Bader <miles@gnu.org>
+Cc: Christopher Hoover <ch@murgatroid.com>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
+Message-ID: <20030514072802.A2787@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Miles Bader <miles@gnu.org>, Christopher Hoover <ch@murgatroid.com>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <20030513213157.A1063@heavens.murgatroid.com> <20030514071446.A2647@infradead.org> <buofzniujzt.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <buofzniujzt.fsf@mcspd15.ucom.lsi.nec.co.jp>; from miles@lsi.nec.co.jp on Wed, May 14, 2003 at 03:20:54PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Troin <phil@fifi.org> writes:
+On Wed, May 14, 2003 at 03:20:54PM +0900, Miles Bader wrote:
+> Are futexes unusable without an MMU (I don't know anything about the
+> implementation)?
 
->   * The problem.
-> 
->       1. The SCSI subsystem craps out a cryptic message:
-> 
->           SCSI disk error : host 0 channel 0 id 2 lun 0 return code = 10000
->           I/O error: dev 08:20, sector 32932328
-> 
->          It's always "return code = 10000" and the problem always
->          happens with disk 0/0/2/0.
-
-Update: The disk died tonight, it does not answer anymore at all at
-the bus reset. I guess that explains it all.
-
-Sorry for the noise,
-Phil.
+The futex implementation relies heavily on follow_page() which is stubbed out
+for nommu builds.
 

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131094AbRCGONx>; Wed, 7 Mar 2001 09:13:53 -0500
+	id <S131097AbRCGONx>; Wed, 7 Mar 2001 09:13:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131097AbRCGONo>; Wed, 7 Mar 2001 09:13:44 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:16395 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S131094AbRCGON3>;
-	Wed, 7 Mar 2001 09:13:29 -0500
-Date: Wed, 7 Mar 2001 15:12:41 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: David Balazic <david.balazic@uni-mb.si>, torvalds@transmeta.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: scsi vs ide performance on fsync's
-Message-ID: <20010307151241.E526@suse.de>
-In-Reply-To: <3AA53DC0.C6E2F308@uni-mb.si> <20010306213720.U2803@suse.de> <20010307135135.B3715@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010307135135.B3715@redhat.com>; from sct@redhat.com on Wed, Mar 07, 2001 at 01:51:35PM +0000
+	id <S131098AbRCGONn>; Wed, 7 Mar 2001 09:13:43 -0500
+Received: from pucc.Princeton.EDU ([128.112.129.99]:56344 "EHLO
+	pucc.Princeton.EDU") by vger.kernel.org with ESMTP
+	id <S131097AbRCGONd>; Wed, 7 Mar 2001 09:13:33 -0500
+To: linux-kernel@vger.kernel.org
+From: Neale.Ferguson@softwareAG-usa.com
+Date: Wed, 7 Mar 2001 09:04:31 +0200
+Subject: 2.4.0-s390x progress
+Message-Id: <20010307141337Z131097-407+2208@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
-> > SCSI has ordered tag, which fit the model Alan described quite nicely.
-> > I've been meaning to implement this for some time, it would be handy
-> > for journalled fs to use such a barrier. Since ATA doesn't do queueing
-> > (at least not in current Linux), a synchronize cache is probably the
-> > only way to go there.
-> 
-> Note that you also have to preserve the position of the barrier in the
-> elevator queue, and you need to prevent LVM and soft raid from
-> violating the barrier if different commands end up being sent to
-> different disks.
+I've been using the "Linux from Scratch" (LFS) document as a guide for building
+a basic Linux system. The only things I've done outside the instructions
+include:
 
-Yep, it's much harder than it seems. Especially because for the barrier
-to be really useful, having inter-request dependencies becomes a
-requirement. So you can say something like 'flush X and Y, but don't
-flush Y before X is done'.
+1. Built 32 bit version of binutils, gcc, glibc for s390x
+2. Built kernel
+3. Created /root64 and populated it with /usr /bin etc.
+4. Built 64-bit libncurses
 
--- 
-Jens Axboe
+I've now built statically linked 64-bit versions of:
+1. bash
+2. bzip2
+3. diffutils
+4. fileutils
 
+These are all installed in the /root64 tree.
+
+According to the LFS instructions I should now build grep, gzip, make,
+sed, shellutils, tar, and textutils, before going onto the next phase.
+However, I cannot find grep, sed, or tar srpms on the SuSE CDs.
+
+In any event, progress is being made.
+
+Neale

@@ -1,28 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284519AbRLRShn>; Tue, 18 Dec 2001 13:37:43 -0500
+	id <S284497AbRLRShn>; Tue, 18 Dec 2001 13:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284497AbRLRShg>; Tue, 18 Dec 2001 13:37:36 -0500
-Received: from m851-mp1-cvx1c.edi.ntl.com ([62.253.15.83]:19950 "EHLO
-	pinkpanther.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S284491AbRLRSgg>; Tue, 18 Dec 2001 13:36:36 -0500
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200112181551.fBIFpZk16458@pinkpanther.swansea.linux.org.uk>
-Subject: Re: CONFIG_SOUND_DMAP: Confusing Configure.help entry.
-To: nkbj@image.dk (Niels Kristian Bech Jensen)
-Date: Tue, 18 Dec 2001 15:51:35 +0000 (GMT)
-Cc: crimsun@email.unc.edu (Daniel T. Chen),
-        linux-kernel@vger.kernel.org (Linux kernel developer's mailing list)
-In-Reply-To: <Pine.LNX.4.33.0112160358590.4516-100000@hafnium.nkbj.dk> from "Niels Kristian Bech Jensen" at Dec 16, 2001 04:00:31 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284491AbRLRShi>; Tue, 18 Dec 2001 13:37:38 -0500
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:9968 "EHLO outside")
+	by vger.kernel.org with ESMTP id <S284467AbRLRSgk>;
+	Tue, 18 Dec 2001 13:36:40 -0500
+Date: Tue, 18 Dec 2001 10:35:47 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: degger@fhm.edu
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Scheduler ( was: Just a second ) ...
+Message-ID: <20011218103547.B1176@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <E16GKvk-0007Sc-00@the-village.bc.nu> <20011218164152.1E4835A3E@Nicole.fhm.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011218164152.1E4835A3E@Nicole.fhm.edu>; from degger@fhm.edu on Tue, Dec 18, 2001 at 04:34:57PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "Say Y unless you have less than 16MB of RAM or a PCI sound card."
-> 
-> That would also remove the contradiction.
+On Tue, Dec 18, 2001 at 04:34:57PM +0100, degger@fhm.edu wrote:
+> What about a CONFIG_8WAY which, if set, activates a scheduler that
+> performs better on such nontypical machines?
 
-The rule is if > 16Mb RAM set dmap. PCI doesnt matter. 
+I'm pretty sure that we can create a scheduler that works well on
+an 8-way, and works just as well as the current scheduler on a UP
+machine.  There is already a CONFIG_SMP which is all that should
+be necessary to distinguish between the two.
+
+What may be of more concern is support for different architectures
+such as HMT and NUMA.  What about better scheduler support for
+people working in the RT embedded space?  Each of these seem to
+have different scheduling requirements.  Do people working on these
+'non-typical' machines need to create their own scheduler patches?
+OR is there some 'clean' way to incorporate them into the source
+tree?
+
+-- 
+Mike

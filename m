@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292926AbSCEL4e>; Tue, 5 Mar 2002 06:56:34 -0500
+	id <S292907AbSCEMBo>; Tue, 5 Mar 2002 07:01:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292911AbSCEL4Z>; Tue, 5 Mar 2002 06:56:25 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:32780 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292907AbSCEL4N>; Tue, 5 Mar 2002 06:56:13 -0500
-Message-ID: <3C84B1FB.2050003@evision-ventures.com>
-Date: Tue, 05 Mar 2002 12:54:35 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
-In-Reply-To: <3C84A34E.6060708@evision-ventures.com> <Pine.LNX.4.44.0203051307080.12437-100000@netfinity.realnet.co.sz> <20020305112843.GE716@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S292914AbSCEMBe>; Tue, 5 Mar 2002 07:01:34 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:47232 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S292907AbSCEMB0>;
+	Tue, 5 Mar 2002 07:01:26 -0500
+Date: Tue, 05 Mar 2002 03:59:14 -0800 (PST)
+Message-Id: <20020305.035914.55508499.davem@redhat.com>
+To: adam@yggdrasil.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Does kmalloc always return address below 4GB?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200203051152.DAA05010@adam.yggdrasil.com>
+In-Reply-To: <200203051152.DAA05010@adam.yggdrasil.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Tue, Mar 05 2002, Zwane Mwaikambo wrote:
-> 
->>On Tue, 5 Mar 2002, Martin Dalecki wrote:
->>
->>
->>>- Disable configuration of the task file stuff. It is going to go away
->>>   and will be replaced by a truly abstract interface based on
->>>   functionality and *not* direct mess-up of hardware.
->>>
->>Could you elaborate just a tad on that.
->>
-> 
-> While the taskfile interface is very down-to-basics and a bit extreme
-> in one end, it's also very useful for eg vendors doing testing and
-> certification. So in that respect it's pretty powerful, I hope Martin
-> isn't just planning a stripped down interface akin to what we have in
-> 2.4 and earlier.
+   From: "Adam J. Richter" <adam@yggdrasil.com>
+   Date: Tue, 5 Mar 2002 03:52:14 -0800
+   
+   | If you acquired your memory via the page allocator
+   | (i.e. __get_free_page*()) or the generic memory allocators
+   | (i.e. kmalloc() or kmem_cache_alloc()) then you may DMA to/from
+   | that memory using the addresses returned from those routines.
+   
+   	It might be a good idea to rephrase it.  If I knew what that
+   sentence I would propose a patch to the DMA-mapping.txt file, but I
+   honestly don't know what proposition that sentence is supposed
+   to convey.  If there really is no guarantee that this sentence is
+   conveying, then I guess the sentence should be deleted.
 
-No quite my plan is:
+Probably it should qualify what it means with "and you used
+GFP_KERNEL".  Because that was the intention.
 
-1. Rip it off.
-2. Reimplement stuff if and only if someone really shows pressure
-for using it.
+I'll fix that.
 
-The "command parsing" excess is certainly going to go.
+However, you can use GFP_HIGH memory with pci_map_page _iff_
+you set your DMA mask to allow 64-bits.
 
+The original impetus for that quoted bit of DMA-mapping.txt
+was to make sure nobody used vmalloc() or kmap() pointers.

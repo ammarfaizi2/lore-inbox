@@ -1,247 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263792AbTJ1ApV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 19:45:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTJ1ApV
+	id S263791AbTJ1Azk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 19:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTJ1Azk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 19:45:21 -0500
-Received: from cc15467-a.groni1.gr.home.nl ([217.120.147.78]:32552 "HELO
-	cc15467-a.groni1.gr.home.nl") by vger.kernel.org with SMTP
-	id S263792AbTJ1ApA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 19:45:00 -0500
-Date: Tue, 28 Oct 2003 01:44:58 +0059
-From: Han Boetes <han@mijncomputer.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][TRIVIAL] menuconfig alternate theme
-Message-ID: <20031028004520.GG13373@boetes.org>
+	Mon, 27 Oct 2003 19:55:40 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:33669 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263791AbTJ1Azh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 19:55:37 -0500
+Date: Tue, 28 Oct 2003 01:55:25 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andi Kleen <ak@muc.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, vojtech@suse.cz, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PS/2 mouse rate setting
+Message-ID: <20031028005525.GC2886@ucw.cz>
+References: <20031027183856.GA1461@averell> <Pine.LNX.4.44.0310271054120.1636-100000@home.osdl.org> <20031027192950.GA2192@averell>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="wzJLGUyc3ArbnUjN"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-GPG-Key: http://www.xs4all.nl/~hanb/keys/Han_pubkey.gpg
-X-GPG-Fingerprint: EB66 D194 AB3F 4C57 49EF 6795 44AE E0D8 3F38 7301
+In-Reply-To: <20031027192950.GA2192@averell>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 27, 2003 at 08:29:50PM +0100, Andi Kleen wrote:
 
---wzJLGUyc3ArbnUjN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> jOn Mon, Oct 27, 2003 at 10:56:16AM -0800, Linus Torvalds wrote:
+> > 
+> > Which makes no sense.
+> 
+> Ok new patch with this fixed.
 
-Hi,
+Thanks, this one is good.
 
-To react on this thread somewhat:
+> 
+> ---------------------------
+> 
+> Only set PS/2 mouse rate when the user specified a value.
+> 
+> Allow specifying it from the command line when the driver is compiled in.
+> 
+> Make rates[] static.
+> 
+> diff -u linux-2.6.0test9-averell/drivers/input/mouse/psmouse-base.c-o linux-2.6.0test9-averell/drivers/input/mouse/psmouse-base.c
+> --- linux-2.6.0test9-averell/drivers/input/mouse/psmouse-base.c-o	2003-09-28 10:53:17.000000000 +0200
+> +++ linux-2.6.0test9-averell/drivers/input/mouse/psmouse-base.c	2003-10-27 20:16:25.000000000 +0100
+> @@ -40,7 +40,7 @@
+>  
+>  static int psmouse_noext;
+>  int psmouse_resolution;
+> -unsigned int psmouse_rate = 60;
+> +unsigned int psmouse_rate = 0;
+>  int psmouse_smartscroll = PSMOUSE_LOGITECH_SMARTSCROLL;
+>  unsigned int psmouse_resetafter;
+>  
+> @@ -451,9 +451,12 @@
+>  
+>  static void psmouse_set_rate(struct psmouse *psmouse)
+>  {
+> -	unsigned char rates[] = { 200, 100, 80, 60, 40, 20, 10, 0 };
+> +	static unsigned char rates[] = { 200, 100, 80, 60, 40, 20, 10, 0 };
+>  	int i = 0;
+>  
+> +	if (!psmouse_rate)
+> +		return; 
+> +
+>  	while (rates[i] > psmouse_rate) i++;
+>  	psmouse_command(psmouse, rates + i, PSMOUSE_CMD_SETRATE);
+>  }
+> @@ -651,10 +654,17 @@
+>  	return 1;
+>  }
+>  
+> +static int __init psmouse_rate_setup(char *str)
+> +{
+> +	get_option(&str, &psmouse_rate);
+> +	return 1;
+> +}
+> +
+>  __setup("psmouse_noext", psmouse_noext_setup);
+>  __setup("psmouse_resolution=", psmouse_resolution_setup);
+>  __setup("psmouse_smartscroll=", psmouse_smartscroll_setup);
+>  __setup("psmouse_resetafter=", psmouse_resetafter_setup);
+> +__setup("psmouse_rate=", psmouse_rate_setup);
+>  
+>  #endif
+>  
 
-  http://marc.theaimsgroup.com/?l=linux-kernel&m=104202311306008&w=2
-
-I made an alternative theme for menuconfig with a black background and
-white/yellow/red/grey text which I find more readable. Of course it's
-way to late to be included and I don't expect that at all. Just
-something I wanted to share with the one or two people that share my
-problem with reading the current settings.
-
-
-
-
-# Han
 -- 
- _/| VK                                                        |\_
-// o\   Sooner or later you must pay for your sins. (Those    /o \\
-|| ._)  who have already paid may disregard this fortune).   (_. ||
-//__\                                                         /__\\
-)___(                                                         )___(
-
---wzJLGUyc3ArbnUjN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="menuconfig_colors.diff"
-
---- scripts/lxdialog/colors.h.orig	2003-10-25 20:42:50.000000000 +0200
-+++ scripts/lxdialog/colors.h	2003-10-28 00:46:28.618862592 +0100
-@@ -24,123 +24,123 @@
-  *
-  *   *_FG = foreground
-  *   *_BG = background
-- *   *_HL = highlight?
-+ *   *_HL = highlight
-  */
--#define SCREEN_FG                    COLOR_CYAN
--#define SCREEN_BG                    COLOR_BLUE
-+#define SCREEN_FG                    COLOR_BLACK
-+#define SCREEN_BG                    COLOR_BLACK
- #define SCREEN_HL                    TRUE
- 
- #define SHADOW_FG                    COLOR_BLACK
- #define SHADOW_BG                    COLOR_BLACK
--#define SHADOW_HL                    TRUE
-+#define SHADOW_HL                    FALSE
- 
--#define DIALOG_FG                    COLOR_BLACK
--#define DIALOG_BG                    COLOR_WHITE
-+#define DIALOG_FG                    COLOR_WHITE
-+#define DIALOG_BG                    COLOR_BLACK
- #define DIALOG_HL                    FALSE
- 
--#define TITLE_FG                     COLOR_YELLOW
--#define TITLE_BG                     COLOR_WHITE
--#define TITLE_HL                     TRUE
-+#define TITLE_FG                     COLOR_RED
-+#define TITLE_BG                     COLOR_BLACK
-+#define TITLE_HL                     FALSE
- 
--#define BORDER_FG                    COLOR_WHITE
--#define BORDER_BG                    COLOR_WHITE
-+#define BORDER_FG                    COLOR_BLACK
-+#define BORDER_BG                    COLOR_BLACK
- #define BORDER_HL                    TRUE
- 
--#define BUTTON_ACTIVE_FG             COLOR_WHITE
--#define BUTTON_ACTIVE_BG             COLOR_BLUE
--#define BUTTON_ACTIVE_HL             TRUE
-+#define BUTTON_ACTIVE_FG             COLOR_YELLOW
-+#define BUTTON_ACTIVE_BG             COLOR_RED
-+#define BUTTON_ACTIVE_HL             FALSE
- 
--#define BUTTON_INACTIVE_FG           COLOR_BLACK
--#define BUTTON_INACTIVE_BG           COLOR_WHITE
-+#define BUTTON_INACTIVE_FG           COLOR_YELLOW
-+#define BUTTON_INACTIVE_BG           COLOR_BLACK
- #define BUTTON_INACTIVE_HL           FALSE
- 
--#define BUTTON_KEY_ACTIVE_FG         COLOR_WHITE
--#define BUTTON_KEY_ACTIVE_BG         COLOR_BLUE
-+#define BUTTON_KEY_ACTIVE_FG         COLOR_YELLOW
-+#define BUTTON_KEY_ACTIVE_BG         COLOR_RED
- #define BUTTON_KEY_ACTIVE_HL         TRUE
- 
- #define BUTTON_KEY_INACTIVE_FG       COLOR_RED
--#define BUTTON_KEY_INACTIVE_BG       COLOR_WHITE
-+#define BUTTON_KEY_INACTIVE_BG       COLOR_BLACK
- #define BUTTON_KEY_INACTIVE_HL       FALSE
- 
--#define BUTTON_LABEL_ACTIVE_FG       COLOR_YELLOW
--#define BUTTON_LABEL_ACTIVE_BG       COLOR_BLUE
--#define BUTTON_LABEL_ACTIVE_HL       TRUE
-+#define BUTTON_LABEL_ACTIVE_FG       COLOR_WHITE
-+#define BUTTON_LABEL_ACTIVE_BG       COLOR_RED
-+#define BUTTON_LABEL_ACTIVE_HL       FALSE
- 
- #define BUTTON_LABEL_INACTIVE_FG     COLOR_BLACK
--#define BUTTON_LABEL_INACTIVE_BG     COLOR_WHITE
-+#define BUTTON_LABEL_INACTIVE_BG     COLOR_BLACK
- #define BUTTON_LABEL_INACTIVE_HL     TRUE
- 
--#define INPUTBOX_FG                  COLOR_BLACK
--#define INPUTBOX_BG                  COLOR_WHITE
-+#define INPUTBOX_FG                  COLOR_YELLOW
-+#define INPUTBOX_BG                  COLOR_BLACK
- #define INPUTBOX_HL                  FALSE
- 
--#define INPUTBOX_BORDER_FG           COLOR_BLACK
--#define INPUTBOX_BORDER_BG           COLOR_WHITE
-+#define INPUTBOX_BORDER_FG           COLOR_YELLOW
-+#define INPUTBOX_BORDER_BG           COLOR_BLACK
- #define INPUTBOX_BORDER_HL           FALSE
- 
--#define SEARCHBOX_FG                 COLOR_BLACK
--#define SEARCHBOX_BG                 COLOR_WHITE
-+#define SEARCHBOX_FG                 COLOR_YELLOW
-+#define SEARCHBOX_BG                 COLOR_BLACK
- #define SEARCHBOX_HL                 FALSE
- 
- #define SEARCHBOX_TITLE_FG           COLOR_YELLOW
--#define SEARCHBOX_TITLE_BG           COLOR_WHITE
-+#define SEARCHBOX_TITLE_BG           COLOR_BLACK
- #define SEARCHBOX_TITLE_HL           TRUE
- 
--#define SEARCHBOX_BORDER_FG          COLOR_WHITE
--#define SEARCHBOX_BORDER_BG          COLOR_WHITE
-+#define SEARCHBOX_BORDER_FG          COLOR_BLACK
-+#define SEARCHBOX_BORDER_BG          COLOR_BLACK
- #define SEARCHBOX_BORDER_HL          TRUE
- 
--#define POSITION_INDICATOR_FG        COLOR_YELLOW
--#define POSITION_INDICATOR_BG        COLOR_WHITE
--#define POSITION_INDICATOR_HL        TRUE
-+#define POSITION_INDICATOR_FG        COLOR_RED
-+#define POSITION_INDICATOR_BG        COLOR_BLACK
-+#define POSITION_INDICATOR_HL        FALSE
- 
--#define MENUBOX_FG                   COLOR_BLACK
--#define MENUBOX_BG                   COLOR_WHITE
-+#define MENUBOX_FG                   COLOR_YELLOW
-+#define MENUBOX_BG                   COLOR_BLACK
- #define MENUBOX_HL                   FALSE
- 
--#define MENUBOX_BORDER_FG            COLOR_WHITE
--#define MENUBOX_BORDER_BG            COLOR_WHITE
-+#define MENUBOX_BORDER_FG            COLOR_BLACK
-+#define MENUBOX_BORDER_BG            COLOR_BLACK
- #define MENUBOX_BORDER_HL            TRUE
- 
--#define ITEM_FG                      COLOR_BLACK
--#define ITEM_BG                      COLOR_WHITE
-+#define ITEM_FG                      COLOR_WHITE
-+#define ITEM_BG                      COLOR_BLACK
- #define ITEM_HL                      FALSE
- 
- #define ITEM_SELECTED_FG             COLOR_WHITE
--#define ITEM_SELECTED_BG             COLOR_BLUE
--#define ITEM_SELECTED_HL             TRUE
-+#define ITEM_SELECTED_BG             COLOR_RED
-+#define ITEM_SELECTED_HL             FALSE
- 
--#define TAG_FG                       COLOR_YELLOW
--#define TAG_BG                       COLOR_WHITE
--#define TAG_HL                       TRUE
-+#define TAG_FG                       COLOR_RED
-+#define TAG_BG                       COLOR_BLACK
-+#define TAG_HL                       FALSE
- 
- #define TAG_SELECTED_FG              COLOR_YELLOW
--#define TAG_SELECTED_BG              COLOR_BLUE
-+#define TAG_SELECTED_BG              COLOR_RED
- #define TAG_SELECTED_HL              TRUE
- 
--#define TAG_KEY_FG                   COLOR_YELLOW
--#define TAG_KEY_BG                   COLOR_WHITE
--#define TAG_KEY_HL                   TRUE
-+#define TAG_KEY_FG                   COLOR_RED
-+#define TAG_KEY_BG                   COLOR_BLACK
-+#define TAG_KEY_HL                   FALSE
- 
- #define TAG_KEY_SELECTED_FG          COLOR_YELLOW
--#define TAG_KEY_SELECTED_BG          COLOR_BLUE
-+#define TAG_KEY_SELECTED_BG          COLOR_RED
- #define TAG_KEY_SELECTED_HL          TRUE
- 
--#define CHECK_FG                     COLOR_BLACK
--#define CHECK_BG                     COLOR_WHITE
-+#define CHECK_FG                     COLOR_YELLOW
-+#define CHECK_BG                     COLOR_BLACK
- #define CHECK_HL                     FALSE
- 
--#define CHECK_SELECTED_FG            COLOR_WHITE
--#define CHECK_SELECTED_BG            COLOR_BLUE
-+#define CHECK_SELECTED_FG            COLOR_YELLOW
-+#define CHECK_SELECTED_BG            COLOR_RED
- #define CHECK_SELECTED_HL            TRUE
- 
--#define UARROW_FG                    COLOR_GREEN
--#define UARROW_BG                    COLOR_WHITE
--#define UARROW_HL                    TRUE
--
--#define DARROW_FG                    COLOR_GREEN
--#define DARROW_BG                    COLOR_WHITE
--#define DARROW_HL                    TRUE
-+#define UARROW_FG                    COLOR_RED
-+#define UARROW_BG                    COLOR_BLACK
-+#define UARROW_HL                    FALSE
-+
-+#define DARROW_FG                    COLOR_RED
-+#define DARROW_BG                    COLOR_BLACK
-+#define DARROW_HL                    FALSE
- 
- /* End of default color definitions */
- 
-
---wzJLGUyc3ArbnUjN--
+Vojtech Pavlik
+SuSE Labs, SuSE CR

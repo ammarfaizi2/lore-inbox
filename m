@@ -1,69 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266849AbUGVLuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266854AbUGVL7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266849AbUGVLuE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 07:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266853AbUGVLuE
+	id S266854AbUGVL7L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 07:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266855AbUGVL7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 07:50:04 -0400
-Received: from web21105.mail.yahoo.com ([216.136.227.107]:35215 "HELO
-	web21105.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266849AbUGVLt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 07:49:59 -0400
-Message-ID: <20040722114958.37392.qmail@web21105.mail.yahoo.com>
-Date: Thu, 22 Jul 2004 13:49:58 +0200 (CEST)
-From: =?iso-8859-1?q?Eva=20Dominguez?= <evadom2002@yahoo.es>
-Subject: Re: aditional parallel port problems
-To: DervishD <raul@pleyades.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040722112056.GD6148@DervishD>
+	Thu, 22 Jul 2004 07:59:11 -0400
+Received: from tag.witbe.net ([81.88.96.48]:7892 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S266854AbUGVL7F convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 07:59:05 -0400
+Message-Id: <200407221158.i6MBwlb16284@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: "'James Morris'" <jmorris@redhat.com>, <dpf-lkml@fountainbay.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Delete cryptoloop
+Date: Thu, 22 Jul 2004 13:58:41 +0200
+Organization: AS2917
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <Pine.LNX.4.58.0407220110290.20963@devserv.devel.redhat.com>
+Thread-Index: AcRvrAttK5CMh80FS3e9M9lB12To2AANvNDw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks! you have helped me a lot! I havent solved my
-problem yet, but I am not so lost than before :)
+Hello,
 
-> 
->     I cannot help you (by now...), but I'm trying to
-> isolate and
-> solve my problem with the help of Dino Klein, and as
-> soon as I have
-> something, I can contact you.
+Well, we have an option to be able to select EXPERIMENTAL code when
+making a configuration, why not adding on option for DEPRECATED code ?
 
- i would like it so much.
+Then, you'd just have to migrate cryptoloop into this DEPRECATED
+area.
 
-> 
->     Anyway, your card seems to be 'moded' through
-> software, am I
-> wrong?, so maybe it should work providing in the
-> module options the
-> io_hi value for the card,
-> so the ECR registers are
-> accessed and you
-> get ECP.
+Kconfig should be able to handle that very easily !
 
- Reading the documentation of the chip NM9835 I have
-seen that bits 7,6,5 of ERP has to be 0 to get a SPP
-mode. But ... i dont know the values for the rest of
-bits..so I suppose you are saying that i have to write
-it:
+Regards,
+Paul
+
+Paul Rolland, rol(at)as2917.net
+ex-AS2917 Network administrator and Peering Coordinator
+
+--
+
+Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
+
+"Some people dream of success... while others wake up and work hard at it" 
+
   
- options parport_pc io=0x378,0x8800 io_hi=0x778,0xNNN
-irq=7,5
 
- NNN: io_hi value for the card....how can I get this
-value? you know?
+> -----Message d'origine-----
+> De : linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] De la part de James Morris
+> Envoyé : jeudi 22 juillet 2004 07:22
+> À : dpf-lkml@fountainbay.com
+> Cc : Andrew Morton; linux-kernel@vger.kernel.org
+> Objet : Re: [PATCH] Delete cryptoloop
+> 
+> On Wed, 21 Jul 2004 dpf-lkml@fountainbay.com wrote:
+> 
+> > Ditching cryptoloop completely in 2.7 after dm-crypt 
+> matures would be a
+> > better idea.
+> 
+> Part of the reason for dropping cryptoloop is to help 
+> dm-crypt mature more 
+> quickly.
+> 
+> I've had some off-list email on the security of dm-crypt, and it seems
+> that it does need some work.  We need to get the security 
+> right more than 
+> we need to worry about these other issues.
+> 
+> Let's drop the technically inferior of the two (cryptoloop) and
+> concentrate on fixing the other (dm-crypt).
+> 
+> There was a thread on redesigning the security a while back (subject:
+> "dm-crypt, new IV and standards"), but no code came out of 
+> it.  Anyone 
+> interested should probably have a look at that.
+> 
+> 
+> - James
+> -- 
+> James Morris
+> <jmorris@redhat.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-
-  Thanks a lot again!
-  Eva
-
-
-
-		
-______________________________________________
-Yahoo! lanza su nueva tecnología de búsquedas
-¿te atreves a comparar?
-http://busquedas.yahoo.es

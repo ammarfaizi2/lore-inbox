@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbTI2IZq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 04:25:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbTI2IZq
+	id S262881AbTI2I14 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 04:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbTI2I14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 04:25:46 -0400
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:9441 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262878AbTI2IZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 04:25:45 -0400
-Subject: Re: [PATCH] s390 (2/19): common i/o layer.
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OFA73D5DE7.2CE6ABA5-ONC1256DB0.002D7A05-C1256DB0.002E2AB4@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 29 Sep 2003 10:24:15 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 29/09/2003 10:24:55
+	Mon, 29 Sep 2003 04:27:56 -0400
+Received: from pat.uio.no ([129.240.130.16]:27809 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262881AbTI2I1z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 04:27:55 -0400
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16247.60679.415937.295532@charged.uio.no>
+Date: Mon, 29 Sep 2003 01:27:51 -0700
+To: Frank Cusack <fcusack@fcusack.com>
+Cc: torvalds@osld.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: effect of nfs blocksize on I/O ?
+In-Reply-To: <20030929005250.A9110@google.com>
+References: <20030928234236.A16924@google.com>
+	<16247.56578.861224.328086@charged.uio.no>
+	<20030929005250.A9110@google.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
 
-Hi Christoph,
+    >> OTOH, bsize is of informational interest to programs that wish
+    >> to optimize I/O throughput by grouping their data into
+    >> appropriately sized records.
 
-> > +static inline void
-> > +__ccwgroup_remove_symlinks(struct ccwgroup_device *gdev)
-> > +{
-> > +        int i;
-> > +        char str[8];
-> > +
-> > +        for (i = 0; i < gdev->count; i++) {
-> > +                    sprintf(str, "cdev%d", i);
-> > +                    sysfs_remove_link(&gdev->dev.kobj, str);
-> > +                    /* Hack: Make sure we act on still valid subdirs. */
-> > +                    if (atomic_read(&gdev->cdev[i]->dev.kobj.dentry->d_count))
-> > +                                sysfs_remove_link(&gdev->cdev[i]->dev.kobj,
-> > +                                                          "group_device");
-> > +        }
->
-> This looks like you have a bad refcounting problem somewhere.  I'd rather
-> see it fixed than hacked around..
+     > So then isn't the optimal record size 8192 for r/wsize=8192?
+     > Since the data is going to be grouped into 8192-byte reads and
+     > writes over the wire, shouldn't bsize match that?  Why should I
+     > make 16x 512-byte write() syscalls (if "optimal" I/O size is
+     > bsize=512) instead of 1x 8192-byte syscall?
 
-Conny and I looked at the code paths and we came to the conclusion that it should
-work as is but without the atomic_read hack. The remove function of groupable
-ccw devices points to ccwgroup_remove_ccwdev. This function ungroups the ccw devices
-if one of them is deleted. This is done prior to the removal of the sysfs directory
-for the ccw device. So the atomic_read is superflous, d_count has to be > 0.
-Conny once saw a crash due to an already deleted dentry but we couldn't recreate the
-problem. We decided to remove the hack and to see what happens. If we get another
-crash we'll have to find the real cause of it.
+Yes. It is already on my list of bugs.
 
-blue skies,
-   Martin
+We basically need to feed 'wtpref' (a.k.a. 'wsize') into the f_bsize,
+and 'wtmult' into f_frsize.
 
+OTOH, the s_blocksize (and inode->i_blkbits) might well want to stay
+with wtmult.
 
+Cheers,
+  Trond

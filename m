@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268430AbUIPXV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268323AbUIPXV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268430AbUIPXV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 19:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUIPXVO
+	id S268323AbUIPXV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 19:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268435AbUIPXUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 19:21:14 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:17843 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268439AbUIPXQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 19:16:39 -0400
-Date: Thu, 16 Sep 2004 16:16:38 -0700
-From: "H. J. Lu" <hjl@lucon.org>
-To: linux kernel <linux-kernel@vger.kernel.org>,
-       linux ia64 kernel <linux-ia64@vger.kernel.org>
-Subject: Unaligned kernel access in crypto/sha1.c
-Message-ID: <20040916231638.GA32514@lucon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 16 Sep 2004 19:20:33 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:37581 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S268337AbUIPXUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 19:20:11 -0400
+Date: Thu, 16 Sep 2004 19:20:09 +0000 (UTC)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Ray Bryant <raybry@austin.rr.com>, Andrew Morton <akpm@osdl.org>,
+       lse-tech@lists.sourceforge.net, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] lockmeter: lockmeter fix for generic_read_trylock
+In-Reply-To: <20040916230402.23023.89478.83475@tomahawk.engr.sgi.com>
+Message-ID: <Pine.LNX.4.53.0409161918520.2897@musoma.fsmlabs.com>
+References: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com>
+ <20040916230402.23023.89478.83475@tomahawk.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got
+On Thu, 16 Sep 2004, Ray Bryant wrote:
 
-Sep 16 15:45:32 gnu-2 kernel: kernel unaligned access to
-0xa0000002001c008e, ip=0xa0000001002135e0
-Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
-0xa0000002002d005e, ip=0xa0000001002135e0
-Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
-0xa0000002002d006e, ip=0xa0000001002135e0
-Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
-0xa0000002002d007e, ip=0xa0000001002135e0
-Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
-0xa0000002002d008e, ip=0xa0000001002135e0
+> Update lockmeter.c with generic_raw_read_trylock fix.
+>
+> + * Generic declaration of the raw read_trylock() function,
+> + * architectures are supposed to optimize this:
+> + */
+> +int __lockfunc generic_raw_read_trylock(rwlock_t *lock)
+> +{
+> +	_metered_read_lock(lock, __builtin_return_address(0));
+> +	return 1;
+> +}
 
-on ia64 from sha1_transform in crypto/sha1.c:
+What's really going on here? I'm slightly confused by the 
+_metered_read_lock usage.
 
-/* Hash a single 512-bit block. This is the core of the algorithm. */
-static void sha1_transform(u32 *state, const u8 *in)
-{
-        u32 a, b, c, d, e;
-        u32 block32[16];
-                                                                                
-        /* convert/copy data to workspace */
-        for (a = 0; a < sizeof(block32)/sizeof(u32); a++)
-          block32[a] = be32_to_cpu (((const u32 *)in)[a]);
-				     ^^^^^^^^^^^^^^^^
-				 This may not be aligned for u32 on ia64.
-
-
-H.J.
+Thanks,
+	Zwane
 

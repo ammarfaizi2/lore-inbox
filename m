@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281670AbRKZNcr>; Mon, 26 Nov 2001 08:32:47 -0500
+	id <S281681AbRKZNtd>; Mon, 26 Nov 2001 08:49:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281671AbRKZNch>; Mon, 26 Nov 2001 08:32:37 -0500
-Received: from ns.caldera.de ([212.34.180.1]:23996 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S281670AbRKZNcc>;
-	Mon, 26 Nov 2001 08:32:32 -0500
-Date: Mon, 26 Nov 2001 14:32:26 +0100
-Message-Id: <200111261332.fAQDWQF17920@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: olh@suse.de (Olaf Hering)
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net/802/Makefile
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20011126142425.B27554@suse.de>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S281684AbRKZNtX>; Mon, 26 Nov 2001 08:49:23 -0500
+Received: from AGrenoble-101-1-5-3.abo.wanadoo.fr ([80.11.136.3]:10886 "EHLO
+	strider.virtualdomain.net") by vger.kernel.org with ESMTP
+	id <S281681AbRKZNtE> convert rfc822-to-8bit; Mon, 26 Nov 2001 08:49:04 -0500
+Message-ID: <3C024933.3090408@wanadoo.fr>
+Date: Mon, 26 Nov 2001 14:52:51 +0100
+From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, fr
+MIME-Version: 1.0
+To: Ward Vandewege <ward@pong.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in kernel 2.4.x with x>=12
+In-Reply-To: <20011126145505.A3783@countzero.vandewege.net> <3C023E74.8090303@wanadoo.fr> <20011126154626.A4119@countzero.vandewege.net>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011126142425.B27554@suse.de> you wrote:
-> On Mon, Nov 26, Olaf Hering wrote:
->> 
->> the build stops when cl2llc.c has no write permissions.
->
-> Here is a better version, suggested by Rik:
+Ward Vandewege wrote:
 
-What about just removing cl2llc.c from the tarball?
+> On Mon, Nov 26, 2001 at 02:07:00PM +0100, François Cami wrote:
+> 
+>>Maybe that will sound funny but... Could you try
+>>compiling the kernel for an i386 processor and
+>>report the results ?
+>>
+> 
+> I've compiled 2.4.16-pre1 optimized for i386 instead of Athlon/Duron, and had no problem whatsoever booting. I'm now beating it a bit, compiling a kernel etc, but it appears to be rock solid.
+> 
+> This seems to suggest there is a problem in the Athlon/Duron optimization code.
 
-	Christoph
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+As I thought.
+
+
+> Thanks François!
+
+
+You're welcome.
+
+François
+

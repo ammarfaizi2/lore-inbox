@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318026AbSHZJso>; Mon, 26 Aug 2002 05:48:44 -0400
+	id <S318016AbSHZJrl>; Mon, 26 Aug 2002 05:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318027AbSHZJso>; Mon, 26 Aug 2002 05:48:44 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:5371 "EHLO
+	id <S318017AbSHZJrl>; Mon, 26 Aug 2002 05:47:41 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:3323 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318026AbSHZJsn>; Mon, 26 Aug 2002 05:48:43 -0400
-Subject: Re: [BUG] initrd >24MB corruption
+	id <S318016AbSHZJrk>; Mon, 26 Aug 2002 05:47:40 -0400
+Subject: Re: ATA err with 2.4.20-ac1
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Chua <jchua@fedex.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0208261621190.2610-100000@boston.corp.fedex.com>
-References: <Pine.LNX.4.44.0208261621190.2610-100000@boston.corp.fedex.com>
+To: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020826103525.7817bb4e.Gregor.Fajdiga@telemach.net>
+References: <20020826103525.7817bb4e.Gregor.Fajdiga@telemach.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 26 Aug 2002 10:54:16 +0100
-Message-Id: <1030355656.16618.32.camel@irongate.swansea.linux.org.uk>
+Date: 26 Aug 2002 10:53:50 +0100
+Message-Id: <1030355630.16767.30.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-26 at 09:34, Jeff Chua wrote:
+On Mon, 2002-08-26 at 09:35, Grega Fajdiga wrote:
+> Good day,
 > 
-> I posted a similar message last week. No response, but that was on
-> Gcc3.2, but when I tried out on gcc2.95.3, it failed too.
+> I get these errors with 2.4.20-ac1:
 > 
-> Symptons:
-> 	create 28MB ramdisk, fill up to 18MB, system boots ok.
-> 
-> 	create 28MB ramdisk, fill up to 24MB, system can't boot, fail at
-> 
-> 	RAMDISK: Compressed image found at block 0 ... then stuck!
-> 
-> 
-> What's the next step to debug this?
+> hdb: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+> hdb: task_no_data_intr: error=0x04 { DriveStatusError }
 
-Force a 1K block size when you make the fs
+If people report IDE stuff I need to know the context, dmesg, controller
+and drives. 
+
 

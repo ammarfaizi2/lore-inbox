@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbVCOXlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVCOXkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262143AbVCOXlm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 18:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVCOXlV
+	id S262124AbVCOXkf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 18:40:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVCOXke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 18:41:21 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13990 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262127AbVCOXj7 (ORCPT
+	Tue, 15 Mar 2005 18:40:34 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12966 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262126AbVCOXh4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 18:39:59 -0500
-Date: Wed, 16 Mar 2005 00:39:45 +0100
+	Tue, 15 Mar 2005 18:37:56 -0500
+Date: Wed, 16 Mar 2005 00:37:40 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: swsusp_restore crap
-Message-ID: <20050315233945.GF21292@elf.ucw.cz>
-References: <1110857069.29123.5.camel@gaston> <200503151555.44523.rjw@sisk.pl> <20050315204652.GA20521@elf.ucw.cz> <200503152323.27793.rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add freezer call in
+Message-ID: <20050315233740.GE21292@elf.ucw.cz>
+References: <1110925280.6454.143.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503152323.27793.rjw@sisk.pl>
+In-Reply-To: <1110925280.6454.143.camel@desktop.cunningham.myip.net.au>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,75 +29,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> > 
-> > > diff -Nrup linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend_asm.S linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend_asm.S
-> > > --- linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend_asm.S	2005-03-15 09:20:53.000000000 +0100
-> > > +++ linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend_asm.S	2005-03-15 15:36:29.000000000 +0100
-> > > @@ -69,6 +69,14 @@ loop:
-> > >  	movq	pbe_next(%rdx), %rdx
-> > >  	jmp	loop
-> > >  done:
-> > > +	/* Flush TLB, including "global" things (vmalloc) */
-> > > +	movq	%rax, %rdx;  # mmu_cr4_features(%rip)
-> > 
-> > I somehow don't think %rax contains mmu_cr4_features at this
-> > point. Otherwise it seems to look ok.
-> 
-> Yes, it does, because on x86-64 the TLBs are flushed before the loop,
-> right after %cr3 is loaded with init_level4_pgt.  %rax is not touched
-> afterwards, so it contains the right value.  Here's the relevant code
-> from suspend_asm.S (with the patch applied):
+> This patch adds a freezer call to the slow path in __alloc_pages. It
+> thus avoids freezing failures in low memory situations. Like the other
+> patches, it has been in Suspend2 for longer than I can remember.
 
-Well, it is mmu_cr4_features from "old" kernel, while you are flushing
-tlb in "new" kernel. It is probably same anyway, but.... %rax is
-commonly-used scratch register, and memory load is not that
-expensive. Can you just load it from memory?
+This one seems wrong.
+
+What if someone does
+
+	down(&some_lock_needed_during_suspend);
+	kmalloc()
+
+? If you freeze him during that allocation, you'll deadlock later...
+
 								Pavel
 
-> ENTRY(swsusp_arch_resume)
-> 	/* set up cr3 */	
-> 	leaq	init_level4_pgt(%rip),%rax
-> 	subq	$__START_KERNEL_map,%rax
-> 	movq	%rax,%cr3
+
+> Signed-of-by: Nigel Cunningham <ncunningham@cyclades.com>
 > 
-> 	movq	mmu_cr4_features(%rip), %rax
-> 	movq	%rax, %rdx
-> 	andq	$~(1<<7), %rdx	# PGE
-> 	movq	%rdx, %cr4;  # turn off PGE
-> 	movq	%cr3, %rcx;  # flush TLB
-> 	movq	%rcx, %cr3;
-> 	movq	%rax, %cr4;  # turn PGE back on
-> 
-> 	movq	pagedir_nosave(%rip), %rdx
-> loop:
-> 	testq	%rdx, %rdx
-> 	jz	done
-> 
-> 	/* get addresses from the pbe and copy the page */
-> 	movq	pbe_address(%rdx), %rsi
-> 	movq	pbe_orig_address(%rdx), %rdi
-> 	movq	$512, %rcx
-> 	rep
-> 	movsq
-> 
-> 	/* progress to the next pbe */
-> 	movq	pbe_next(%rdx), %rdx
-> 	jmp	loop
-> done:
-> 	/* Flush TLB, including "global" things (vmalloc) */
-> 	movq	%rax, %rdx;  # mmu_cr4_features(%rip)
-> 	andq	$~(1<<7), %rdx;  # PGE
-> 	movq	%rdx, %cr4;  # turn off PGE
-> 	movq	%cr3, %rcx;  # flush TLB
-> 	movq	%rcx, %cr3
-> 	movq	%rax, %cr4;  # turn PGE back on
-> 
-> 
-> Greets,
-> Rafael
-> 
-> 
+> diff -ruNp 213-missing-refrigerator-calls-old/mm/page_alloc.c 213-missing-refrigerator-calls-new/mm/page_alloc.c
+> --- 213-missing-refrigerator-calls-old/mm/page_alloc.c	2005-02-03 22:33:50.000000000 +1100
+> +++ 213-missing-refrigerator-calls-new/mm/page_alloc.c	2005-03-16 09:01:28.000000000 +1100
+> @@ -838,6 +838,7 @@ rebalance:
+>  			do_retry = 1;
+>  	}
+>  	if (do_retry) {
+> +		try_to_freeze(0);
+>  		blk_congestion_wait(WRITE, HZ/50);
+>  		goto rebalance;
+>  	}
+
 
 -- 
 People were complaining that M$ turns users into beta-testers...

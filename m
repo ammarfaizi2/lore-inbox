@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136483AbRECJws>; Thu, 3 May 2001 05:52:48 -0400
+	id <S136515AbRECJxt>; Thu, 3 May 2001 05:53:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136515AbRECJwi>; Thu, 3 May 2001 05:52:38 -0400
-Received: from styx.suse.cz ([213.210.157.162]:46326 "EHLO monk.suse.cz")
-	by vger.kernel.org with ESMTP id <S136483AbRECJwb>;
-	Thu, 3 May 2001 05:52:31 -0400
-Date: Thu, 3 May 2001 11:52:20 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: i386/kernel/traps.c: doing udelay by hand is ugly
-Message-ID: <20010503115220.A30507@monk.suse.cz>
-Mime-Version: 1.0
+	id <S136601AbRECJx3>; Thu, 3 May 2001 05:53:29 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58117 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136542AbRECJxY>; Thu, 3 May 2001 05:53:24 -0400
+Subject: Re: Why recovering from broken configs is too hard
+To: esr@thyrsus.com
+Date: Thu, 3 May 2001 10:56:07 +0100 (BST)
+Cc: viro@math.psu.edu (Alexander Viro),
+        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010503054349.C28728@thyrsus.com> from "Eric S. Raymond" at May 03, 2001 05:43:49 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14vFqD-0005Hb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Unfortunately....there are a huge bunch of implicit constraints
+> created by dependency relationships in the menu tree.  For example,
+> all SCSI cards are dependents of the SCSI symbol.  Set SCSI to N
+> and all the card symbols get turned off; set any card symbol to Y or M
+> and the value of SCSI goes to Y or M correspondingly.
 
-Tiny cleanup in kernel/traps.c: doing mdelay by hand is ugly. Please apply.
+For any given option you have a tree of options that tell you what to change.
+This means you can allow the user to set any conflicting variable either
+way and ripple the changes into the tree then start again
 
-							      Pavel
+For real world cases that will terminate pretty fast. 
 
-Index: arch/i386/kernel/traps.c
-===================================================================
-RCS file: /home/cvs/Repository/linux/arch/i386/kernel/traps.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 traps.c
---- arch/i386/kernel/traps.c	2001/04/19 20:02:45	1.1.1.2
-+++ arch/i386/kernel/traps.c	2001/05/03 08:46:37
-@@ -357,16 +350,13 @@
- 
- static void io_check_error(unsigned char reason, struct pt_regs * regs)
- {
--	unsigned long i;
--
- 	printk("NMI: IOCK error (debug interrupt?)\n");
- 	show_registers(regs);
- 
- 	/* Re-enable the IOCK line, wait for a few seconds */
- 	reason = (reason & 0xf) | 8;
- 	outb(reason, 0x61);
--	i = 2000;
--	while (--i) udelay(1000);
-+	mdelay(2000);
- 	reason &= ~8;
- 	outb(reason, 0x61);
- }
+Alan
+

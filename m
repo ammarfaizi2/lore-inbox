@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316857AbSH0TJ0>; Tue, 27 Aug 2002 15:09:26 -0400
+	id <S317035AbSH0TMp>; Tue, 27 Aug 2002 15:12:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316897AbSH0TJ0>; Tue, 27 Aug 2002 15:09:26 -0400
-Received: from pD9E23A01.dip.t-dialin.net ([217.226.58.1]:2235 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316857AbSH0TJZ>; Tue, 27 Aug 2002 15:09:25 -0400
-Date: Tue, 27 Aug 2002 13:13:37 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: block device/VM question
-In-Reply-To: <200208271804.g7RI4mc05751@oboe.it.uc3m.es>
-Message-ID: <Pine.LNX.4.44.0208271308190.3234-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+	id <S317066AbSH0TMo>; Tue, 27 Aug 2002 15:12:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58629 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317035AbSH0TMn>; Tue, 27 Aug 2002 15:12:43 -0400
+Date: Tue, 27 Aug 2002 12:22:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Dave Jones <davej@suse.de>,
+       Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] M386 flush_one_tlb invlpg
+In-Reply-To: <Pine.LNX.4.44.0208271635050.2362-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0208271216440.1419-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, 27 Aug 2002, Peter T. Breuer wrote:
-> Yecch. I have the inode of the sepecial device file. I don't want to
-> know the name. I even have a file pointer.
+On Tue, 27 Aug 2002, Hugh Dickins wrote:
+> 
+> I just sent the 2.4.20-pre4 asm-i386/pgtable.h patch to Marcelo:
+> here's patch against 2.5.31 or current BK: please apply.
 
-Then you're obviously for the wrong stuff.
+This test is senseless, in my opinion:
 
-> In dentry_open(), we get a struct file f = get_empty_filp(), and then
-> fill out various of its fields with enormously obscure things.
+> +		if (cpu_has_pge)					\
+> +			__flush_tlb_single(addr);			\
 
-For a good reason: we always need to fill in the values somewhere, they 
-don't quite come from heaven.
+The test _should_ be for something like
 
-> And for the O_DIRECT flag we seem to do alloc_kiovec(1, &f->f_iobuf).
+	if (cpu_has_invlpg)
+		__flush_tlb_single(addr);
 
-Perhaps we should go biovec here?
+since we want to use the invlpg instruction regardless of any PGE issues 
+if it is available.
 
-For you, if you can stand it you can even go directly into the dio stuff 
-from direct-io.c. You'll just need to know what to do. Or you fill your 
-information into some underway function.
+There's another issue, which is the fact that I do not believe that invlpg 
+is even guaranteed to invalidate a G page at all - although obviously all 
+current CPU's seem to work that way. However, I don't see that documented 
+anywhere. It might make sense to mark the places that expect to invalidate 
+a global page explicitly, and call that function "flush_one_global_rlb()" 
+(even if it - at least for now - does the same thing as the regular single 
+invalidate).
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+		Linus
 

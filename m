@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284174AbRLPAsL>; Sat, 15 Dec 2001 19:48:11 -0500
+	id <S284175AbRLPA4V>; Sat, 15 Dec 2001 19:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284175AbRLPAsB>; Sat, 15 Dec 2001 19:48:01 -0500
-Received: from aramis.rutgers.edu ([128.6.4.2]:28413 "EHLO aramis.rutgers.edu")
-	by vger.kernel.org with ESMTP id <S284174AbRLPArr>;
-	Sat, 15 Dec 2001 19:47:47 -0500
-Date: Sat, 15 Dec 2001 19:47:46 -0500 (EST)
-From: Suresh Gopalakrishnan <gsuresh@cs.rutgers.edu>
+	id <S284171AbRLPA4M>; Sat, 15 Dec 2001 19:56:12 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:16296 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S284175AbRLPAz7>; Sat, 15 Dec 2001 19:55:59 -0500
+Date: Sat, 15 Dec 2001 17:56:31 -0700
+Message-Id: <200112160056.fBG0uVW21900@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
 To: linux-kernel@vger.kernel.org
-Subject: O_DIRECT wierd behavior..
-Message-ID: <Pine.GSO.4.02A.10112151947010.14453-100000@aramis.rutgers.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: es1371 damaged after 2.2.x
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hi, all. I've finally sat down and looked at a problem that's been
+annoying me for a long time: the es1371 driver in 2.4.x does not allow
+me to set the mic recording gain as high as the 2.2.x driver does.
 
-I tried this small piece of code from an old post in the archive:
+With 2.2.20, the mixer channels SOUND_MIXER_MIC (7) and
+SOUND_MIXER_RECLEV (11) can both be adjusted to control the recoding
+level. The default levels are sufficient for my needs, and I can
+adjust them to a much higher level.
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
+With 2.4.17-rc1, I can only control the recording level with
+SOUND_MIXER_IGAIN (12), and even setting it to the maximum 0x6464
+value does not yield a satisfactory recording level. Changing
+SOUND_MIXER_MIC (7) does not affect the recording level (unlike
+2.2.x). Further, SOUND_MIXER_RECLEV (11) is not available for reading
+or writing.
 
-#define O_DIRECT	 040000	/* direct disk access hint */
+My guess is that the change in 2.3.x to use the ac97_codec driver for
+es1371 is the cause of this damage. Under 2.4.x, the maximum available
+recording level is barely usable for my application. Does anyone have
+a fix for this?
 
-int main()
-{
-	char buf[16384];
-	int fd;
-	char *p;
+Note that when I say "recording level", I do mean recording. For later
+processing. I don't mean "gain from mic to headphones".
 
-	p = (char *)((((unsigned long)buf) + 8191) & ~8191L);
-	fd = open("/tmp/blah", O_CREAT | O_RDWR | O_DIRECT);
+				Regards,
 
-	printf("write returns %i\n", write(fd, buf, 8192));
-	printf("write returns %i\n", write(fd, p, 1));
-
-	return 0;
-}
-
-Output is:
-
-write returns -1
-Filesize limit exceeded (core dumped)
-
-$ ls -l /tmp/blah
-----------    1 gsuresh  users    4294967274 Dec 15 19:15 /tmp/blah
-
-The kernel is 2.4.16 and /tmp is ext2. (It runs fine on 2.4.2).
-
-Any idea why this happens and how to fix this?
-
-Thanks
---suresh
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

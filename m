@@ -1,76 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263298AbTECMel (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 08:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbTECMel
+	id S263301AbTECMgR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 08:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbTECMgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 08:34:41 -0400
-Received: from mbox2.netikka.net ([213.250.81.203]:151 "EHLO mbox2.netikka.net")
-	by vger.kernel.org with ESMTP id S263298AbTECMek convert rfc822-to-8bit
+	Sat, 3 May 2003 08:36:16 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:63216 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263301AbTECMgO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 08:34:40 -0400
-From: Thomas Backlund <tmb@iki.fi>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
-Date: Sat, 3 May 2003 15:46:57 +0300
-User-Agent: KMail/1.5.1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3EB0413D.2050200@superonline.com> <200305020314.01875.tmb@iki.fi> <20030502130331.GA1803@alpha.home.local>
-In-Reply-To: <20030502130331.GA1803@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200305031546.57631.tmb@iki.fi>
+	Sat, 3 May 2003 08:36:14 -0400
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3EB3925F.8050801@gmx.net>
+References: <Pine.LNX.4.44.0305030249280.30960-100000@devserv.devel.redhat.com>
+	 <3EB3925F.8050801@gmx.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5xU796SBeykNKZR+MoBR"
+Organization: Red Hat, Inc.
+Message-Id: <1051966115.1429.2.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 03 May 2003 14:48:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Viestissä Perjantai 2. Toukokuuta 2003 16:03, Willy Tarreau kirjoitti:
-> On Fri, May 02, 2003 at 03:14:01AM +0300, Thomas Backlund wrote:
-> > And here are the results...
->
-> [snip]
->
-> Hi Thomas,
->
-> With this patch, vesafb doesn't work anymore on my vaio notebook in
-> 1400x1050 nor 1280x1024, because scree_info.lfb_size is reported to be
-> 127, while it should be 175 and 160 instead ! So I modified your patch a
-> little bit to get it right :
->
-> - video_size          = screen_info.lfb_size * screen_info.lfb_height *
-> video_bpp; + video_size          = screen_info.lfb_width/8 *
-> screen_info.lfb_height * video_bpp;
->
-> and it now works again.
-> Maybe I have a broken bios, but other people might have the problem too.
->
-> Cheers,
-> Willy
 
-Oh man...
-I must have been sleeping when I posted that patch...
+--=-5xU796SBeykNKZR+MoBR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-the correct line should AFAIK be:
-video_size = screen_info.lfb_width * screen_info.lfb_height * video_bpp;
+On Sat, 2003-05-03 at 11:56, Carl-Daniel Hailfinger wrote:
+> Ingo Molnar wrote:
+> > On Fri, 2 May 2003, Carl-Daniel Hailfinger wrote:
+> >=20
+> >=20
+> >>Ingo Molnar wrote:
+> >>
+> >>>Furthermore, the kernel also remaps all PROT_EXEC mappings to the
+> >>>so-called ASCII-armor area, which on x86 is the addresses 0-16MB. Thes=
+e
+>=20
+> What happens if the ASCII-armor area is full, i.e. sum(PROT_EXEC sizes)
+>  >16MB for a given binary (Mozilla comes to mind)? Does loading fail or
+> does the binary run without any errors, giving the user a false sense of
+> security?
 
-(AFAIK we are calculating bits here, not bytes so the '/8' you used is 
-wrong... could you try without it, and let me know...)
+the binary will run without errors. And all the libs are still below the
+main binary (the space for that is much bigger, like 128Mb) so the
+executable limit is still the end of the main binary.
+> =20
+> > the ASCII-armor, more precisely, is between addresses 0x00000000 and
+> > 0x0100ffff. Ie. 16 MB + 64K. [in the remaining 64K the \0 character is =
+in
+> > the second byte of the address.] So the 0x01003fff address is still ins=
+ide=20
+> > the ASCII-armor.
+>=20
+> Thanks. However, that brings me to the next question:
+>=20
+> 01000000-01004000 r-xp 00000000 16:01 2036120    /home/mingo/cat-lowaddr
+>=20
+> I was wondering why the executable parts of the binary start at the 16
+> MB boundary. Is this always the case or just something that happens with
+> cat? In the first case, that would be bad for any binary with a
+> contiguous executable area bigger than 64K.
 
-or even shorter:
+the start address of the binary is determined by ld at link time. This
+cat binary was forced to go at exactly this address.
+The patch to binutils in Ingo's directory will add the linker option to
+move apps in this area; it will actually use a lower address than
+01000000 to allow for bigger binaries. Obviously this 16Mb zone won't
+fit all apps, but daemons like sendmail and sshd etc all just fit.
 
-video_size = video_width * video_height * video_bpp;
 
+--=-5xU796SBeykNKZR+MoBR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-I'll be rebuilding and retesting my system today or tommorrow,
-but I wuold like to hear if it works for you...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQA+s7qjxULwo51rQBIRAiV6AJ9DWMBHGXey/ZNG5oDW5Dn5x39cAgCfTDzD
+EwhxVx+dPHa3r9+qe9yUu7I=
+=uf5+
+-----END PGP SIGNATURE-----
 
--- 
-Thomas Backlund
-
-tmb@iki.fi
-www.iki.fi/tmb
-
+--=-5xU796SBeykNKZR+MoBR--

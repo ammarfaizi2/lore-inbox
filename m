@@ -1,76 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbUKEUKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbUKEUWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbUKEUKt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 15:10:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbUKEUKt
+	id S261200AbUKEUWS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 15:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUKEUWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 15:10:49 -0500
-Received: from soundwarez.org ([217.160.171.123]:43467 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261199AbUKEUKM (ORCPT
+	Fri, 5 Nov 2004 15:22:18 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:9679 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S261200AbUKEUWG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 15:10:12 -0500
-Date: Fri, 5 Nov 2004 21:10:12 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg KH <greg@kroah.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       rml@novell.com, linux-kernel@vger.kernel.org, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
-Message-ID: <20041105201012.GA24063@vrfy.org>
-References: <20041105001328.3ba97e08.akpm@osdl.org> <20041105164523.GC1295@stusta.de> <20041105180513.GA32007@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041105180513.GA32007@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 5 Nov 2004 15:22:06 -0500
+Message-ID: <418BE156.4020400@eurodev.net>
+Date: Fri, 05 Nov 2004 21:23:50 +0100
+From: Pablo Neira <pablo@eurodev.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Patrick McHardy <kaber@trash.net>
+CC: Matthias Andree <matthias.andree@gmx.de>, linux-net@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks
+ amanda dumps
+References: <20041104121522.GA16547@merlin.emma.line.org>	<418A7B0B.7040803@trash.net>	<20041104231734.GA30029@merlin.emma.line.org> <418AC0F2.7020508@trash.net>
+In-Reply-To: <418AC0F2.7020508@trash.net>
+Content-Type: multipart/mixed;
+ boundary="------------000507040806000704000409"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 10:05:13AM -0800, Greg KH wrote:
-> On Fri, Nov 05, 2004 at 05:45:23PM +0100, Adrian Bunk wrote:
-> > The following error (compin from Linus' tree) is caused by the fact that 
-> > hotplug_path is no longer EXPORT_SYMBOL'ed:
-> > 
-> > 
-> > <--  snip  -->
-> > 
-> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.10-rc1-mm3; fi
-> > WARNING: /lib/modules/2.6.10-rc1-mm3/kernel/drivers/acpi/container.ko needs unknown symbol hotplug_path
-> > 
-> > <--  snip  -->
-> 
-> Hm, must be an -mm specific change that is causing this.  I don't see
-> this in the current tree.
-> 
-> Len, why would any ACPI code be wanting to get access to hotplug_path
-> directly?
+This is a multi-part message in MIME format.
+--------------000507040806000704000409
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Patrick McHardy wrote:
+
+> Matthias Andree wrote:
+>
+>> On Thu, 04 Nov 2004, Patrick McHardy wrote:
+>>
+>>> The data that is changed is only a copy, the actual packet is not 
+>>> touched.
+>>>   
+>>
+>>
+>> Why then does the application not see the packets as long as
+>> ip_conntrack_amanda is loaded and starts seeing them again as soon as
+>> "rmmod ip_conntrack_amanda" has completed?
+>>  
+>>
+>
+> Your observation and your patch were correct, thanks. It is supposed
+> to be just a copy, I missed that it wasn't anymore. While your patch
+> works too, and is even faster with non-linear skbs, I don't like the
+> idea of using the skb as a scratch-area, so I sent this patch to Dave
+> instead.
 
 
-I've found it. This wants to introduce a new direct /sbin/hotplug call,
-with "add" and "remove" events, without sysfs support.
+Patrick, what about this? this way we save a copy to a buffer for linear 
+skbs.
 
-It should use class support or kobject_hotplug() instead.  Nobody should
-fake hotplug events anymore, cause every other notification transport
-will not get called (currently uevent over netlink).
-  http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm3/broken-out/bk-acpi.patch
+Signed-off-by: Pablo Neira Ayuso <pablo@eurodev.net>
 
-+static int
-+container_run_sbin_hotplug(struct acpi_device *device, char *action)
-+{
-...
-+	argv[i++] = hotplug_path;
-+	argv[i++] = "container";
-+	argv[i] = NULL;
-...
-+	i = 0;
-+	envp[i++] = "HOME=/";
-+	envp[i++] = "PATH=/sbin;/bin;/usr/sbin;/usr/bin";
-+	envp[i++] = action_str;
-+	envp[i++] = container_str;
-+	envp[i++] = "PLATFORM=ACPI";
-+	envp[i] = NULL;
-...
+--------------000507040806000704000409
+Content-Type: text/plain;
+ name="xxx"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="xxx"
 
+===== net/ipv4/netfilter/ip_conntrack_amanda.c 1.10 vs edited =====
+--- 1.10/net/ipv4/netfilter/ip_conntrack_amanda.c	2004-08-19 02:14:53 +02:00
++++ edited/net/ipv4/netfilter/ip_conntrack_amanda.c	2004-11-05 17:32:04 +01:00
+@@ -49,9 +49,10 @@
+ {
+ 	struct ip_conntrack_expect *exp;
+ 	struct ip_ct_amanda_expect *exp_amanda_info;
+-	char *amp, *data, *data_limit, *tmp;
++	char *amp, *data, *tmp;
+ 	unsigned int dataoff, i;
+ 	u_int16_t port, len;
++	int found = 0;
+ 
+ 	/* Only look at packets from the Amanda server */
+ 	if (CTINFO2DIR(ctinfo) == IP_CT_DIR_ORIGINAL)
+@@ -74,12 +75,17 @@
+ 				 skb->len - dataoff, amanda_buffer);
+ 	BUG_ON(amp == NULL);
+ 	data = amp;
+-	data_limit = amp + skb->len - dataoff;
+-	*data_limit = '\0';
+ 
+ 	/* Search for the CONNECT string */
+-	data = strstr(data, "CONNECT ");
+-	if (!data)
++	while((data = memchr(data, 'C', skb->len - dataoff)) != NULL) {
++		if (strncmp(data, "CONNECT ", 8) == 0) {
++			found = 1;
++			break;
++		}
++		data++;
++	}
++
++	if (!found)
+ 		goto out;
+ 	data += strlen("CONNECT ");
+ 
 
-Thanks,
-Kay
+--------------000507040806000704000409--

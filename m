@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266224AbTBQKHE>; Mon, 17 Feb 2003 05:07:04 -0500
+	id <S266969AbTBQKOz>; Mon, 17 Feb 2003 05:14:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266257AbTBQKHE>; Mon, 17 Feb 2003 05:07:04 -0500
-Received: from kestrel.vispa.uk.net ([62.24.228.12]:36106 "EHLO
-	kestrel.vispa.uk.net") by vger.kernel.org with ESMTP
-	id <S266224AbTBQKHD>; Mon, 17 Feb 2003 05:07:03 -0500
-Message-ID: <3E50B5D1.9010808@walrond.org>
-Date: Mon, 17 Feb 2003 10:13:37 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
+	id <S266964AbTBQKOz>; Mon, 17 Feb 2003 05:14:55 -0500
+Received: from node181b.a2000.nl ([62.108.24.27]:39564 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S266257AbTBQKOy>;
+	Mon, 17 Feb 2003 05:14:54 -0500
+Date: Mon, 17 Feb 2003 11:24:23 +0100 (CET)
+From: Stephan van Hienen <raid@a2000.nu>
+To: kernel@ddx.a2000.nu
+cc: Mike Black <mblack@csi-inc.com>, Peter Chubb <peter@chubb.wattle.id.au>,
+       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
+       bernard@biesterbos.nl, ext2-devel@lists.sourceforge.net
+Subject: Re: raid5 2TB+ NO GO ?
+In-Reply-To: <Pine.LNX.4.53.0302141120230.19336@ddx.a2000.nu>
+Message-ID: <Pine.LNX.4.53.0302171123480.2464@ddx.a2000.nu>
+References: <Pine.LNX.4.53.0302060059210.6169@ddx.a2000.nu>
+ <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu> <Pine.LNX.4.53.0302060211030.6169@ddx.a2000.nu>
+ <15937.50001.367258.485512@wombat.chubb.wattle.id.au>
+ <Pine.LNX.4.53.0302061915390.17629@ddx.a2000.nu>
+ <15945.31516.492846.870265@wombat.chubb.wattle.id.au>
+ <Pine.LNX.4.53.0302121129480.13462@ddx.a2000.nu> <044101c2d2a9$4fcdf980$f6de11cc@black>
+ <Pine.LNX.4.53.0302141120230.19336@ddx.a2000.nu>
 MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: ADSL vs Leased line (was: Re: openbkweb-0.0)
-References: <200302162148.h1GLmHCF003341@darkstar.example.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 14 Feb 2003 kernel@ddx.a2000.nu wrote:
 
-John Bradford wrote:
-> In the U.K., you can get 2 Mbit/256 Kbit ADSL with no bandwidth
-> limitations to you, for about 300 pounds/month.  However, that that is
+> On Wed, 12 Feb 2003, Mike Black wrote:
+>
+> > I did a 12x180G and as I recall was unable to do 13x180G as it overflowed during mke2fs.  This was a year ago though so I don't know
+> > if that's been improved since then.
+> >
+>
+> does anyone know for sure what is the limit for md raid5 ?
+>
+> can i use 13*180GB in raid5 ?
+> or should i go for 12*180GB in raid5 ?
 
-Even that is not entirely true. Just try using the bandwidth 
-continuously for a few days and see how unpopular you become ;)
-
-Several of the larger adsl providers in the UK have now introduced "Fair 
-Usage" policies to curb these "rogue users"  (direct quote btw)
-
-No such thing as a free lunch. Never was, never will be.
-
-Andrew Walrond
+I really want to create this raid this week
+so is there anyone with info what will be the limit ?
 

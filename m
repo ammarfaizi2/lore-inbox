@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268497AbRHKQM6>; Sat, 11 Aug 2001 12:12:58 -0400
+	id <S268511AbRHKQO1>; Sat, 11 Aug 2001 12:14:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268503AbRHKQMs>; Sat, 11 Aug 2001 12:12:48 -0400
-Received: from storm.ca ([209.87.239.69]:42888 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id <S268497AbRHKQMd>;
-	Sat, 11 Aug 2001 12:12:33 -0400
-Message-ID: <3B755995.E876230C@storm.ca>
-Date: Sat, 11 Aug 2001 12:13:09 -0400
-From: Sandy Harris <sandy@storm.ca>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en,fr
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: struct page to 36 (or 64) bit bus address?
-In-Reply-To: <20010809151022.C1575@sventech.com> <E15UvLO-0007tH-00@the-village.bc.nu> <15218.61869.424038.30544@pizda.ninka.net> <20010809163531.D1575@sventech.com> <20010811175626.O19169@athlon.random>
+	id <S268514AbRHKQOT>; Sat, 11 Aug 2001 12:14:19 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:24212 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S268511AbRHKQOI>; Sat, 11 Aug 2001 12:14:08 -0400
+Date: Sat, 11 Aug 2001 17:14:16 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Philip Blundell <philb@gnu.org>
+Cc: Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available.
+Message-ID: <20010811171416.C2732@flint.arm.linux.org.uk>
+In-Reply-To: <1904.997542180@ocs3.ocs-net> <20010811162028.A2732@flint.arm.linux.org.uk> <rmk@arm.linux.org.uk> <E15VbJ2-0000y8-00@kings-cross.london.uk.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15VbJ2-0000y8-00@kings-cross.london.uk.eu.org>; from philb@gnu.org on Sat, Aug 11, 2001 at 05:08:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Sat, Aug 11, 2001 at 05:08:08PM +0100, Philip Blundell wrote:
+> I should think it can be made to work in 2.95.4.
 
-> ... (the API says that if you get null out of the map call you
-> should fallback, but no driver checks for this null retval and so in
-> turn they're all prone to crash, not going to be fixed in 2.4 I guess).
+Amazing response to the problem here. ;)
 
-That strikes me as a pretty basic programming error. Why on Earth is
-it not considered a problem urgently needing a fix?
+> Did you try the patch I sent you a few months ago?
+
+No - I've not had a need to rebuild gcc yet, and the patch is low priority
+since the kernel has to build with the compilers that people already have,
+not the bleeding edge.
+
+Sorry, I don't do gcc, as I've explained before.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

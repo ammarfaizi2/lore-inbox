@@ -1,77 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbULPOAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbULPOLC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbULPOAp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 09:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbULPOAp
+	id S262660AbULPOLC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 09:11:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbULPOLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 09:00:45 -0500
-Received: from almesberger.net ([63.105.73.238]:31243 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262660AbULPN55 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 08:57:57 -0500
-Date: Thu, 16 Dec 2004 10:57:47 -0300
-From: Werner Almesberger <werner@almesberger.net>
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-Cc: linux-kernel@vger.kernel.org, kernel@kolivas.org
-Subject: Re: [RFC] Generalized prio_tree, revisited
-Message-ID: <20041216105747.T1229@almesberger.net>
-References: <20041216053118.M1229@almesberger.net> <41C16D8D.7020702@umich.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C16D8D.7020702@umich.edu>; from vrajesh@umich.edu on Thu, Dec 16, 2004 at 06:12:13AM -0500
+	Thu, 16 Dec 2004 09:11:02 -0500
+Received: from ngate.noida.hcltech.com ([202.54.110.230]:51081 "EHLO
+	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
+	id S262660AbULPOKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 09:10:38 -0500
+Message-ID: <267988DEACEC5A4D86D5FCD780313FBB02A6B7A9@exch-03.noida.hcltech.com>
+From: "Rajat  Jain, Noida" <rajatj@noida.hcltech.com>
+To: linux-kernel@vger.kernel.org
+Cc: "Sanjay Kumar, Noida" <sanjayku@hcltech.com>,
+       "Deepak Kumar Gupta, Noida" <dkumar@hcltech.com>
+Subject: RE: zero copy issue while receiving the data (counter part of sen
+	dfile)
+Date: Thu, 16 Dec 2004 19:37:48 +0530
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajesh Venkatasubramanian wrote:
-> The "raw" prio_tree can only handle unique intervals, i.e., we cannot
-> insert two intervals with the same indices.
+ 
+Hi,
 
-Yes, I admit that I found it convenient (laziness is a survival
-trait :-) to preserve this property of the underlying code.
+I'm experimenting on stock kernel 2.6.8
 
-In fact, I'm not so sure if we should really offer alternatives at
-that level, since it seems that adding a conflict resolution layer
-on top of prio_tree (or including it in the user) is about as much
-work as including one inside, and the former could be tailored to
-the specific needs of the user, e.g.
+I was looking for an interface that could directly receive data from a
+network socket, WITHOUT coying from kernel space to user space. (Like for
+sending data, "sendfile" provides to send data to network socket without
+copying it to kernel space). I came across tcp_read_sock() interface in
+net/ipv4/tcp.c.
 
- - new entry is rejected
- - new entry replaces old entry
- - entries are somehow merged (reference count, add partial
-   content, etc.)
- - entries neutralize each other
- - both entries are kept, in a list (like VMA and the ABISS
-   elevator do)
- - both entries are kept, ordered by some other key
- - action depends on context
+Has anybody tried tcp_read_sock()?? Is there any known issue with it ?? If
+somebody has some idea, I would appreciate if you can share.
 
-and so on. So it seems to me that we're just at the level of
-abstraction that gives us the most narrow interface and that
-doesn't hide any information we need to implement the other
-cases. And it's just the "engine" that would be used in all
-cases anyway.
+I might be wrong, but what I perceive is that I will pass a pointer to this
+function. And when the function returns, I expect it to be set to the kernel
+buffer (corresponding to socket).
 
-Besides, handling of non-unique entries shouldn't such a big
-deal that the user whould be seriously inconvenienced by having
-to do it. E.g. in the case of red-black trees, we also expect
-the user to do a lot for us.
+1) To fulfill this objective, I expect to pass a pointer to pointer & only
+then it can be done. (If we have to modify a pointer's value, we have to
+pass its address ... Right??). However, this function expects a char * buf
+(in read_descriptor_t argument). Any ideas ?????????
 
-> Maybe in your case you don't have to worry about storing multiple
-> identical intervals.
+2) This code also frees the space allocated to sk_buffs etc using
+sk_eat_skb(sk, skb) and cleanup_rbuf(sk, copied) etc. But this function is
+supposed to return these locations to the calling code ... Right???
 
-I just build a list that's usually read in FIFO order. In
-my case, any kind of overlap needs special handling, so
-non-unique entries aren't much extra work.
+Any pointers are more than welcome. I have provided the code for reference.
+Please cc the reply to me as I'm not on the list.
 
-If I was really ambitious, I could try to combine non-unique
-requests if they all are writes (but then, having a lot of
-these is probably an indication of problems elsewhere).
+Thanks & regards,
 
-Thanks,
-- Werner
+Rajat Jain
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+-----------------------------------------------------------------------
+/* net/ipv4/tcp.c
+ * This routine provides an alternative to tcp_recvmsg() for routines
+ * that would like to handle copying from skbuffs directly in 'sendfile'
+ * fashion.
+ * Note:
+ *      - It is assumed that the socket was locked by the caller.
+ *      - The routine does not block.
+ *      - At present, there is no support for reading OOB data
+ *        or for 'peeking' the socket using this routine
+ *        (although both would be easy to implement).
+ */
+int tcp_read_sock(struct sock *sk, read_descriptor_t *desc,
+                  sk_read_actor_t recv_actor) {
+        struct sk_buff *skb;
+        struct tcp_opt *tp = tcp_sk(sk);
+        u32 seq = tp->copied_seq;
+        u32 offset;
+        int copied = 0;
+
+        if (sk->sk_state == TCP_LISTEN)
+                return -ENOTCONN;
+        while ((skb = tcp_recv_skb(sk, seq, &offset)) != NULL) {
+                if (offset < skb->len) {
+                        size_t used, len;
+
+                        len = skb->len - offset;
+                        /* Stop reading if we hit a patch of urgent data */
+                        if (tp->urg_data) {
+                                u32 urg_offset = tp->urg_seq - seq;
+                                if (urg_offset < len)
+                                        len = urg_offset;
+                                if (!len)
+                                        break;
+                        }
+                        used = recv_actor(desc, skb, offset, len);
+                        if (used <= len) {
+                                seq += used;
+                                copied += used;
+                                offset += used;
+                        }
+                        if (offset != skb->len)
+                                break;
+                }
+                if (skb->h.th->fin) {
+                        sk_eat_skb(sk, skb);
+                        ++seq;
+                        break;
+                }
+                sk_eat_skb(sk, skb);
+                if (!desc->count)
+                        break;
+        }
+        tp->copied_seq = seq;
+
+        tcp_rcv_space_adjust(sk);
+
+        /* Clean up data we have read: This will do ACK frames. */
+        if (copied)
+                cleanup_rbuf(sk, copied);
+        return copied;
+}-----------------------------------------------------------------------
+
+read_descriptor_t is defined as:
+
+/*
+ * include/linux/fs.h
+ */
+typedef struct {
+        size_t written;
+        size_t count;
+        union {
+                char __user * buf;
+                void *data;
+        } arg;
+        int error;
+} read_descriptor_t;
+-----------------------------------------------------------------------
+

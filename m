@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbUCEVHS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 16:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbUCEVHS
+	id S262704AbUCEVNf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 16:13:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbUCEVNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 16:07:18 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:55824
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262704AbUCEVHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 16:07:15 -0500
-Date: Fri, 5 Mar 2004 22:07:55 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mbligh@aracnet.com, mingo@elte.hu, peter@mysql.com, riel@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040305210755.GW4922@dualathlon.random>
-References: <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143210.GA11897@elte.hu> <20040305145837.GZ4922@dualathlon.random> <39960000.1078512175@flay> <20040305191329.GR4922@dualathlon.random> <56050000.1078516505@flay> <20040305202941.GT4922@dualathlon.random> <20040305124119.756aab4c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040305124119.756aab4c.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Fri, 5 Mar 2004 16:13:35 -0500
+Received: from ida.rowland.org ([192.131.102.52]:2052 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S262704AbUCEVNd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 16:13:33 -0500
+Date: Fri, 5 Mar 2004 16:13:31 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Jamie Lokier <jamie@shareable.org>
+cc: walt <wa1ter@myrealbox.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] Re: [2.6.x]  USB Zip drive kills ps2 mouse.
+In-Reply-To: <20040305204916.GC7254@mail.shareable.org>
+Message-ID: <Pine.LNX.4.44L0.0403051609100.719-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 05, 2004 at 12:41:19PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > > > The main thing you didn't mention is the overhead in the per-cpu data
-> >  > > structures, that alone generates an overhead of several dozen mbytes
-> >  > > only in the page allocator, without accounting the slab caches,
-> >  > > pagetable caches etc.. putting an high limit to the per-cpu caches
-> >  > > should make a 32-way 32G work fine with 3:1 too though. 8-way is
-> >  > > fine with 32G currently.
-> >  > 
-> >  > Humpf. Do you have a hard figure on how much it actually is per cpu?
-> > 
-> >  not a definitive one, but it's sure more than 2m per cpu, could be 3m
-> >  per cpu.
-> 
-> It'll average out to 68 pages per cpu.  (4 in ZONE_DMA, 64 in ZONE_NORMAL).
+On Fri, 5 Mar 2004, Jamie Lokier wrote:
 
-3m per cpu with all 3m in zone normal.
+> > I've narrowed it down to the uhci_hcd module -- all the rest can
+> > be compiled in or as modules, doesn't matter.
+> > 
+> > Just in case I was vague:  the Zip drive works great regardless --
+> > it's only the ps2 mouse which is affected by this weird problem.
+> > No cursor movement at all if the Zip is plugged in during boot.
+> 
+> I don't know if it's related, but whenever I load the uhci_hcd module
+> on my laptop, or whenever I plug in a USB device while that module is
+> loaded (sorry, I forget which and can't test it now) - the floppy disk
+> motor and light are turned on for a couple of seconds!
+> 
+> Now, why would a USB event trigger the floppy disk motor?  It doesn't
+> happen with 2.4, and it doesn't happen on my desktop machine which is
+> OHCI+EHCI.
+> 
+> Perhaps the uhci_hcd driver is trampling on some ISA I/O port that it
+> shouldn't be, which is causing both my floppy motor oddity and your
+> mouse problem?
+> 
+> -- Jamie
+
+No, the uhci-hcd driver isn't stepping on any extraneous ISA I/O ports.
+
+Walt's problem was the result of a buggy BIOS, and turning off legacy USB 
+support in the BIOS fixed it.  Maybe your problem is similar, though it's 
+hard to imagine how.
+
+I've got 3 computers with UHCI controllers.  On none of them does a USB 
+event cause the floppy disk drive to do anything.
+
+Alan Stern
+

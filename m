@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130873AbQLPXu2>; Sat, 16 Dec 2000 18:50:28 -0500
+	id <S130810AbQLPXw2>; Sat, 16 Dec 2000 18:52:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129733AbQLPXuS>; Sat, 16 Dec 2000 18:50:18 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:10564 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S130873AbQLPXuC>; Sat, 16 Dec 2000 18:50:02 -0500
-Date: Sun, 17 Dec 2000 00:19:20 +0100 (MET)
-From: Armin Schindler <mac@melware.de>
-To: Gunther Mayer <Gunther.Mayer@t-online.de>
-cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Patch: test13-pre2 fails "make xconfig" in isdn/Config.in
-In-Reply-To: <3A3B53BE.41C31B99@t-online.de>
-Message-ID: <Pine.LNX.4.31.0012170016050.31429-100000@phoenix.melware.de>
-Organization: Cytronics & Melware
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129733AbQLPXwS>; Sat, 16 Dec 2000 18:52:18 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:4192 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S130984AbQLPXwB>; Sat, 16 Dec 2000 18:52:01 -0500
+Date: Sat, 16 Dec 2000 23:21:13 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, tytso@valinux.com
+Subject: Re: [patch] 2.2.18 PCI_DEVICE_ID_OXSEMI_16PCI954
+Message-ID: <20001216232113.B12112@redhat.com>
+In-Reply-To: <Pine.LNX.4.30.0012152140350.3740-100000@lt.wsisiz.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0012152140350.3740-100000@lt.wsisiz.edu.pl>; from lukasz@lt.wsisiz.edu.pl on Fri, Dec 15, 2000 at 09:57:42PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Dec 2000, Gunther Mayer wrote:
+On Fri, Dec 15, 2000 at 09:57:42PM +0100, Lukasz Trabinski wrote:
 
-This patch does not fix all problems in isdn/eicon.
+> In serial dirver from Theodore Ts'o we have:
+> 
+>         {       PCI_VENDOR_ID_SPECIALIX, PCI_DEVICE_ID_OXSEMI_16PCI954,
 
-A bigger patch is on the way.
+This is for a serial port device.
 
-Thanx,
-Armin
+> (IMHO that is correct), but in kernel 2.2.18 we have:
+> (include/kernel/pci.h)
+> #define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
+>                                      ^^
 
-> Hi Linus,
-> apply this patch if like to fix this obvious error
-> with "make xconfig" on plain tree:
-> 	./tkparse < ../arch/i386/config.in >> kconfig.tk
-> 	drivers/isdn/Config.in: 98: can't handle dep_bool/dep_mbool/dep_tristate condition
-> 	make[1]: *** [kconfig.tk] Error 1
-> 	make[1]: Leaving directory `/usr/src/linux/scripts'
->
-> -
-> Gunther
->
->
->
->
-> --- linux/drivers/isdn/Config.in-240t13pre2-orig        Sat Dec 16 12:20:59 2000
-> +++ linux/drivers/isdn/Config.in        Sat Dec 16 12:21:48 2000
-> @@ -95,7 +95,7 @@
->        dep_bool  '    Eicon PCI DIVA Server BRI/PRI/4BRI support' CONFIG_ISDN_DRV_EICON_PCI $CONFIG_PCI
->        bool      '    Eicon S,SX,SCOM,Quadro,S2M support' CONFIG_ISDN_DRV_EICON_ISA
->     fi
-> -   dep_tristate '  Build Eicon driver type standalone' CONFIG_ISDN_DRV_EICON_DIVAS
-> +   bool '  Build Eicon driver type standalone' CONFIG_ISDN_DRV_EICON_DIVAS
->  fi
->
->  # CAPI subsystem
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
+This is for a parallel port device.  They are two logically different
+things, have two distinct PCI bus entries, and so have two distinct
+PCI device IDs and consequently different names.
 
+> -#define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
+> +#define PCI_DEVICE_ID_OXSEMI_16PCI954  0x9513
 
+Alan, do not apply, this will break the parport code.
 
+If the OXSEMI_16PCI954 is _missing_, it probably ought to be _added_,
+but it does not have 0x9513 as its ID and so the existing name should
+not be changed.
+
+Tim.
+*/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

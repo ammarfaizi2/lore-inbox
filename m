@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264328AbTF0OIK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 10:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTF0OIK
+	id S264368AbTF0OUl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 10:20:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264362AbTF0OUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 10:08:10 -0400
-Received: from aneto.able.es ([212.97.163.22]:38309 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S264328AbTF0OIH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 10:08:07 -0400
-Date: Fri, 27 Jun 2003 16:22:20 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix inlining with gcc3
-Message-ID: <20030627142220.GC3242@werewolf.able.es>
-References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva> <20030626230824.GM3827@werewolf.able.es> <1056711001.4348.20.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 27 Jun 2003 10:20:41 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:15286 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264358AbTF0OUi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 10:20:38 -0400
+Date: Fri, 27 Jun 2003 07:34:19 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+Message-ID: <21740000.1056724453@[10.10.2.4]>
+In-Reply-To: <20030626.224739.88478624.davem@redhat.com>
+References: <20030626.223002.21926109.davem@redhat.com><18330000.1056692768@[10.10.2.4]> <20030626.224739.88478624.davem@redhat.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1056711001.4348.20.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Jun 27, 2003 at 12:50:02 +0200
-X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 06.27, Alan Cox wrote:
-> On Gwe, 2003-06-27 at 00:08, J.A. Magallon wrote:
-> > This fixes inlining (really, not-inlining) with gcc3. How about next -pre ?
+>    If people choose to file bugs in bugzilla as well, they'll still be
+>    processed by someone.
 > 
-> Benchmark that before you blindly assume its right. Gcc not inlining large
-> stuff actually appears to be _smarter_ than the authors of the code
+> Just so that someone can post them to the lists?
+> That sounds like a completely silly way to operate.
 > 
+> I'd rather they get posted to the lists _ONLY_.
+> 
+> This way not that "someone", but "everyone" on the lists
+> can participate and contribute to responding to the bug.
+> 
+> The only way you can make things scale is if you throw a group
+> of people into the collective of folks able to respond to a problem.
 
-Let's be clear, I just collect patches that I think are interesting. The
-original post by Andrew Morton <akpm@digeo.com> is here:
+We can do that. The owner of a category can be a mailing list 
+(eg the bugme-janitors list for some of the categories).
+ 
+> If it all gets filtered through by one guy, THAT DOES NOT WORK.
+> That one guy limits what can be done, and when he's busy one day
+> or he goes away on vacation for a while, the whole assembly
+> line stops.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104695003008386&w=2
+The idea is to spread it across categories (one person for each (or a few)
+categories), but if you want to spread it around within a category that's 
+possible too.
+ 
+> Therefore, please eliminate the networking category on bugme.osdl.org
+> and we'll process bug reports on the lists so that not _ONE_ but the
+> whole community of networking developers can look at the bug.
 
-Quoting it:
+No. If you don't want to participate, that's fine, but I'm not going
+to prevent other people from doing so. 
 
-shrinks my 3.2.1-compiled kernel text by about 64 kbytes:
+If you want me to forward the bugs to any given list, I'll do that. 
+If you want to just tell people to file them to a list, that's fine too.
+But I won't destroy the generic model just because you don't like it.
 
-   text    data     bss     dec     hex filename
-3316138  574844  726816 4617798  467646 vmlinux-before
-3249255  555436  727204 4531895  4526b7 vmlinux-after
+M.
 
-mnm:/tmp> nm vmlinux-before|grep __constant_c_and_count_memset | wc
-    233     699    9553
-mnm:/tmp> nm vmlinux-after|grep __constant_c_and_count_memset | wc
-     13      39     533
-
-And I also remember other posts, by other author of a similar patch, that
-claimed some critical functions not being inlined due to size (memcpys..).
-Will try to look original info about that...
-...here it is:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103632312702693&w=2
-
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.21-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-2mdk))

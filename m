@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262784AbVA1VJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262799AbVA1VJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbVA1VJN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 16:09:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbVA1U4m
+	id S262799AbVA1VJG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 16:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbVA1VFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:56:42 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:46318 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262766AbVA1Us0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:48:26 -0500
-Message-ID: <41FAA51E.10000@comcast.net>
-Date: Fri, 28 Jan 2005 15:48:30 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Josh Boyer <jdub@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Why does the kernel need a gig of VM?
-References: <41FA9B37.1020100@comcast.net> <1106944969.7542.13.camel@windu.rchland.ibm.com>
-In-Reply-To: <1106944969.7542.13.camel@windu.rchland.ibm.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+	Fri, 28 Jan 2005 16:05:22 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:12725 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262766AbVA1VAl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 16:00:41 -0500
+Subject: Re: journaled filesystems -- known instability; Was:
+	XFS:	inode	with st_mode == 0
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jakob Oestergaard <jakob@unthought.net>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Greaves <david@dgreaves.com>, Jan Kasprzak <kas@fi.muni.cz>,
+       linux-kernel <linux-kernel@vger.kernel.org>, kruty@fi.muni.cz,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <41FA9D72.2080303@mnsu.edu>
+References: <20041209125918.GO9994@fi.muni.cz>
+	 <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org>
+	 <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net>
+	 <20041222182344.GB14586@infradead.org> <41E80C1F.3070905@dgreaves.com>
+	 <20050114182308.GE347@unthought.net> <20050116135112.GA24814@infradead.org>
+	 <20050117100746.GI347@unthought.net>  <41EC2ECF.6010701@mnsu.edu>
+	 <1106657254.1985.294.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <41F6613F.6030509@mnsu.edu>
+	 <1106667472.1985.644.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <41FA9D72.2080303@mnsu.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1106946002.1988.88.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 28 Jan 2005 21:00:02 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Wow.
+On Fri, 2005-01-28 at 20:15, Jeffrey E. Hundstad wrote:
 
-I'd heard that there was a way to set 3.5/0.5 GiB split, and that there
-was a patch that removed the split and isolated the kernel (but that was
-slow), so I was just curious about all this stuff with people screaming
-about how tight 4G of VM is vs a half gig or a gig that can be freed up.
+> >>Does linux-2.6.11-rc2 have both the linux-2.6.10-ac10 fix and the xattr 
+> >>problem fixed?
 
-Josh Boyer wrote:
-> On Fri, 2005-01-28 at 15:06 -0500, John Richard Moser wrote:
-> 
->>-----BEGIN PGP SIGNED MESSAGE-----
->>Hash: SHA1
->>
->>Can someone give me a layout of what exactly is up there?  I got the
->>basic idea
->>
->>K 4G
->>A 3G
->>A 2G
->>A 1G
->>
->>App has 3G, kernel has 1G at the top of VM on x86 (dunno about x86_64).
->>
->>So what's the layout of that top 1G?  What's it all used for?  Is there
->>some obscene restriction of 1G of shared memory or something that gets
->>mapped up there?
->>
->>How much does it need, and why?  What, if anything, is variable and
->>likely to do more than 10 or 15 megs of variation?
-> 
-> 
-> Because of various reasons.  Normal kernel space virtual addresses
-> usually start at 0xc0000000, which is where the 3GiB userspace
-> restriction comes from.  
-> 
-> Then there is the vmalloc virtual address space, which usually starts at
-> a higher address than a normal kernel address.  Along the same lines are
-> ioremap addresses, etc.
-> 
-> Poke around in the header files.  I bet you'll find lots of reasons.
-> 
-> josh
-> 
-> 
+> >Not sure about how much of -ac went in, but it has the xattr fix.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+> I've had my machine that would crash daily if not hourly stay up for 10 
+> days now.  This is with the linux-2.6.10-ac10 kernel. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Good to know.  Are you using xattrs extensively (eg. for ACLs, SELinux
+or Samba 4)?
 
-iD8DBQFB+qUdhDd4aOud5P8RAmU8AJ9fRQi4A+yIVaXdv/oWlPIqObROPQCfUgvU
-KAsRKxYgSTWVecLsZZCvXgE=
-=v+fM
------END PGP SIGNATURE-----
+--Stephen
+

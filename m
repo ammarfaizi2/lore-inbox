@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316935AbSIIKlV>; Mon, 9 Sep 2002 06:41:21 -0400
+	id <S316898AbSIIKji>; Mon, 9 Sep 2002 06:39:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317005AbSIIKlV>; Mon, 9 Sep 2002 06:41:21 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:39943 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316935AbSIIKlU>; Mon, 9 Sep 2002 06:41:20 -0400
-Date: Mon, 9 Sep 2002 12:46:04 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-Cc: venom@sns.it, ahu@ds9a.nl, linux-kernel@vger.kernel.org
-Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
-Message-ID: <20020909104604.GA26989@atrey.karlin.mff.cuni.cz>
-References: <20020908225645.21341.qmail@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020908225645.21341.qmail@linuxmail.org>
-User-Agent: Mutt/1.3.28i
+	id <S316935AbSIIKji>; Mon, 9 Sep 2002 06:39:38 -0400
+Received: from ipx.zarz.agh.edu.pl ([149.156.125.1]:34052 "EHLO
+	zarz.agh.edu.pl") by vger.kernel.org with ESMTP id <S316898AbSIIKjh>;
+	Mon, 9 Sep 2002 06:39:37 -0400
+Date: Mon, 9 Sep 2002 12:30:08 +0200 (CEST)
+From: "Wojciech \"Sas\" Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, <mingo@elte.hu>
+Subject: Re: [long] 2.4.19 and O(1) Scheduler [PPC]
+In-Reply-To: <20020906142644.GR761@opus.bloom.county>
+Message-ID: <Pine.LNX.4.44L.0209091140470.17064-100000@alpha.zarz.agh.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > APM, and I pressed the shift key every few minutes,
-> > > therefore no powersafe.
-> > 
-> > That still means APM bios calls when idle, right?
+On Fri, 6 Sep 2002, Tom Rini wrote:
+[...]
 > 
-> Yes, you are rigth.
-> But again, with Byte Unix version 4.1 I got much
-> more intersting result with no "strange" numbers,
-> I tried that test few hours ago,.
-> I know I can disable APM from both the kernel and the BIOS but I'd
-> > > like to test the kernel I use in "daily" usage. What do you
-> > > think about it? Do you suggest me to use a different
-> > > configuration when I run the test?
+> You've got some incomplete PPC patch somewhere,  or you're trying to
+> compile for an IBM 40x board, which isn't supported by the kernel.org
+> trees yet.
 
-Disable power managment. What you are doing is test of power managment
-subsystem, I believe; that's okay but you did not label it as such.
+Maybe, patch is from http://people.redhat.com/mingo/O(1)-scheduler/
+When I replace PPC405_ERR77(x, y) to dcbt x,y [I found this in 2.5]
+This part passed correctly, but I found next error in O(1) scheduler source.
 
-								Pavel
+[...]
+mk_defs.c: In function `main':
+mk_defs.c:40: structure has no member named `counter'
+mk_defs.c:41: structure has no member named `processor'
+
+When I change this:
+from:
+	DEFINE(COUNTER, offsetof(struct task_struct, counter));
+	DEFINE(PROCESSOR, offsetof(struct task_struct, processor));
+to:
+	DEFINE(COUNTER, offsetof(struct task_struct, time_slice));
+	DEFINE(PROCESSOR, offsetof(struct task_struct, cpu));
+
+I hope this is correct, I found last error :
+
+[...]
+	arch/ppc/kernel/kernel.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+	 drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/drm/drm.o drivers/net/fc/fc.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o drivers/macintosh/macintosh.o drivers/video/video.o drivers/net/hamradio/hamradio.o drivers/usb/usbdrv.o drivers/input/inputdrv.o drivers/md/mddev.o drivers/isdn/vmlinux-obj.o \
+	net/network.o \
+	/home/users/cieciwa/rpm/BUILD/linux-2.4.19/lib/lib.a \
+	--end-group \
+	-o vmlinux
+arch/ppc/kernel/kernel.o: In function `ret_from_fork':
+arch/ppc/kernel/kernel.o(.text+0x27c): undefined reference to `schedule_tail'
+arch/ppc/kernel/kernel.o(.text+0x27c): relocation truncated to fit: R_PPC_REL24 schedule_tail
+kernel/kernel.o: In function `schedule':
+kernel/kernel.o(.text+0x1054): undefined reference to `_sched_find_first_bit'
+kernel/kernel.o(.text+0x1054): relocation truncated to fit: R_PPC_REL24 _sched_find_first_bit
+make: *** [vmlinux] Error 1
+ 
+And I don't know how to solve this problem.
+I don't have PPC machine in home, this error I take when I work via 
+internet.
+
+Thanx.
+					Sas.
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+{Wojciech 'Sas' Cieciwa}  {Member of PLD Team                               }
+{e-mail: cieciwa@alpha.zarz.agh.edu.pl, http://www2.zarz.agh.edu.pl/~cieciwa}
+

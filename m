@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263364AbUDPPzT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 11:55:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbUDPPzS
+	id S263269AbUDPP5X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 11:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbUDPP5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 11:55:18 -0400
-Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:641
-	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
-	id S263364AbUDPPzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 11:55:11 -0400
-Subject: Re: NFS and kernel 2.6.x
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Andrew Morton <akpm@osdl.org>, shannon@widomaker.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040416090331.GC22226@mail.shareable.org>
-References: <20040416011401.GD18329@widomaker.com>
-	 <1082079061.7141.85.camel@lade.trondhjem.org>
-	 <20040415185355.1674115b.akpm@osdl.org>
-	 <20040416090331.GC22226@mail.shareable.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1082130906.2581.10.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 16 Apr 2004 08:55:06 -0700
+	Fri, 16 Apr 2004 11:57:23 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1152 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263269AbUDPPzY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 11:55:24 -0400
+Date: Fri, 16 Apr 2004 11:55:28 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Kernel writes to RAM it doesn't own on 2.4.24
+Message-ID: <Pine.LNX.4.53.0404161150450.542@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-04-16 at 02:03, Jamie Lokier wrote:
 
-> Perhaps because 2.6 changes the UDP retransmit model for NFS, to
-> estimate the round-trip time and thus retransmit faster than 2.4
-> would.  Sometimes _much_ faster: I observed retransmits within a few
-> hundred microseconds.
+Hello again,
 
-Retransmits within a few 100 microsecond should no longer be occurring.
-Have you redone those measurements with a more recent kernel?
-2.6.x and 2.4.x should have pretty much the same code for RTO
-estimation.
+If I start a system that has 1 Gb of memory with mem=500m,
+the value of the kernel's num_physpages is 0x20000 as would
+be expected. If I multiply that by PAGE_SIZE, I get 0x20000000,
+also as expected. If I observe that memory region, I note
+that somebody has written something there!
 
-In fact pretty much all the 2.4.x and 2.6.x RPC code is shared. The one
-difference is that 2.6.x uses zero copy writes.
+This is not good. The kernel touches RAM it doesn't own. I have
+booted the system with only the internal floppy controller
+and no other modules installed. I see the same thing.
 
+Script started on Fri Apr 16 11:33:39 2004
+# monitor
+                  TMD Platinum(tm) Control System Version 2.0
+                 Copyright(c) 1999-2003, Analogic Corporation
 
-> There was also a problem with late 2.5 clients and "soft" NFS mounts.
-> Requests would timeout after a fixed number of retransmits, which on a
-> LAN could be after a few milliseconds due to round-trip estimation and
-> fast server response.  Then when an I/O on the server took longer,
-> e.g. due to a disk seek or contention, the client would timeout and
-> abort requests.  2.4 doesn't have this problem with "soft" due to the
-> longer, fixed retransmit timeout.  I don't know if it is fixed in
-> current 2.6 kernels - but you can avoid it by not using "soft" anyway.
+  Enter "help" for commands
 
-Or changing the default value of "retrans" to something more sane. As
-usual, Linux has a default that is lower than on any other platform.
+PLATINUM> dump=20000000
+20000000  78 56 34 12 21 43 65 87-FF FF FF FF FF FF FF FF   xV4.!Ce.........
+20000010  FF FF FF FF FF FF FF FD-FF FF FF FF FF FF FF FF   ................
+20000020  FF FF FF FF FF FE FF FF-FF FF FE FF FF FF FF FF   ................
+[SNIPPED...]
+
+My temporary work around for the kernel's destroying a
+precious DMA buffer is to start one page higher. However,
+whomever is writing to that RAM is likely writing other
+places it doesn't belong also. This could lead to some
+very interesting bugs.
+
+Note that the value written there is 0x12345678, twice, once
+in little endian and another in swap-nibble big endian, like
+a mirror. This is evil.
 
 Cheers,
-  Trond
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (5596.77 BogoMips).
+            Note 96.31% of all statistics are fiction.

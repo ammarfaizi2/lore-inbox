@@ -1,65 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbTFKNoX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 09:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTFKNoP
+	id S261845AbTFKNqm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 09:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTFKNqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 09:44:15 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:14722 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261300AbTFKNn2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 09:43:28 -0400
-Date: Wed, 11 Jun 2003 09:59:06 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Steve French <smfrench@austin.rr.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Compiling kernel with SuSE 8.2/gcc 3.3
-In-Reply-To: <Pine.LNX.4.53.0306110713580.8991@chaos>
-Message-ID: <Pine.LNX.4.53.0306110951580.9828@chaos>
-References: <3EE6B7A2.3000606@austin.rr.com> <Pine.LNX.4.53.0306110713580.8991@chaos>
+	Wed, 11 Jun 2003 09:46:33 -0400
+Received: from oe-mp1pub.managedmail.com ([206.46.164.22]:60313 "EHLO
+	oe-mp1.bizmailsrvcs.net") by vger.kernel.org with ESMTP
+	id S261323AbTFKNpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 09:45:35 -0400
+Message-ID: <11e901c33021$9a8928c0$6301a8c0@DLETHE>
+From: "David A. Lethe" <david@santools.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <linux-scsi@vger.kernel.org>
+Subject: Patch to scsi_scan.c to look for LUNs on XYRATEX RAID subsystems
+Date: Wed, 11 Jun 2003 08:58:56 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jun 2003, Richard B. Johnson wrote:
+To all:
 
-> On Wed, 11 Jun 2003, Steve French wrote:
->
-> > Stephan von Krawczynski <skraw@ithnet.com> writes:
-> >
-> > > during tests with latest SuSE distro 8.2 compiling 2.4.21-pre6 showed a lot of
-> > > "comparison between signed and unsigned" warnings. It looks like SuSE ships gcc
-> >
-> > I also noticed lots of compiler warnings with gcc 3.3, now default in SuSE,
-> > and cleaned up most of them for the cifs vfs but there are a few that just
-> > look wrong for gcc to spit out warnings on.   For example the following
-> > local variable definition and the similar ones in the same file
-> > (fs/cifs/inode.c):
-> >
-> > 	__u64 uid = 0xFFFFFFFFFFFFFFFF;
-> >
-> > generates a warning saying the value is too long for a long on
-> > x86 SuSE 8.2 with gcc 3.3 - which makes no sense.  Any value
-> > above 0xFFFFFFFFF generates the same warning (intuitively
-> > 36 bits should fit in an unsigned 64 bit local variable).
-> [SNIPPED...]
->
-> I think the compiler doesn't have a default type for something
-> that long. Therefore you have to define is as:
->
->  	__u64 uid = 0xFFFFFFFFFFFFFFFFULL;
->
-> Seems dumb, but it even works.
->
+This contains a patch that must be made to the scsi_scan.c file which
+instructs the O/S to scan
+for LUNS on XYRATEX family RAID subsystems.
 
-FYI some Spanish-language mailer is set up for an automatic response.
-Please don't auto-respond to a mail-list!
+I created the patch against the 2.4.20 kernel, but all things considered, I
+would like to get this single
+line of new text added to all 2.4 kernels, and all future kernels.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Note that I only tested against the "RS" string. This is by design, as we
+have 12 different productID strings
+depending on the RAID engine and enclosure model. Just testing against RS
+will work for us as well as save
+valuable CPU cycles and kernel space for all.
+
+Any questions, comments, concerns should be addressed to me,
+david_lethe@us.xyratex.com
+or david@santools.com
+
+Phone number: 972-618-2265
+
+P.S. Acknowledgement that this have been incorporated will be appreciated.
+
+
+
+========================================================
+--- linux-2.4/drivers/scsi/scsi_scan.c  2003-05-29 05:41:09.000000000 -0500
++++ linux/drivers/scsi/scsi_scan.c      2003-06-11 08:00:50.000000000 -0500
+@@ -194,6 +194,7 @@
+        {"SGI", "TP9400", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+        {"SGI", "TP9500", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+        {"MYLEX", "DACARMRB", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
++       {"XYRATEX", "RS", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+
+        /*
+         * Must be at end of list...
 

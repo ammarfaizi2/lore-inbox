@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbTDQOgx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 10:36:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbTDQOgx
+	id S261605AbTDQOhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 10:37:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTDQOhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 10:36:53 -0400
-Received: from havoc.daloft.com ([64.213.145.173]:50318 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261570AbTDQOgt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 10:36:49 -0400
-Date: Thu, 17 Apr 2003 10:48:44 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Patrick Mochel <mochel@osdl.org>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Subtle semantic issue with sleep callbacks in drivers
-Message-ID: <20030417144844.GC18749@gtf.org>
-References: <Pine.LNX.4.44.0304161133110.912-100000@cherise> <1050586549.31414.41.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 17 Apr 2003 10:37:16 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:9735 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261595AbTDQOhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 10:37:12 -0400
+Subject: Re: [ANNOUNCE]: version 2.00.3 megaraid driver for 2.4.x and 2.5.67
+	kernels
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "Mukker, Atul" <atulm@lsil.com>, "'alan@redhat.com'" <alan@redhat.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>,
+       "'linux-megaraid-announce@dell.com'" 
+	<linux-megaraid-announce@dell.com>
+In-Reply-To: <20030417133820.A12503@infradead.org>
+References: <0E3FA95632D6D047BA649F95DAB60E570185F10F@EXA-ATLANTA.se.lsil.com> 
+	<20030417133820.A12503@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 17 Apr 2003 09:41:59 -0500
+Message-Id: <1050590521.2026.76.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1050586549.31414.41.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 17, 2003 at 02:35:50PM +0100, Alan Cox wrote:
-> On Mer, 2003-04-16 at 19:39, Patrick Mochel wrote:
-> > I completely agree with Andy. We should not re-POST the video hardware, no
-> > matter what. The idea behind ACPI is that the OS takes care of everything, 
-> > including video save/restore. 
-> 
-> Outside of happyville ivory towers you probably have no choice. Only the
-> BIOS knows stuff like the RAM timings, and some windows drivers just use
-> the BIOS, others rely on being shipped compiled for the right variant of
-> card they came with.
+On Thu, 2003-04-17 at 07:38, Christoph Hellwig wrote:
+> On Wed, Apr 16, 2003 at 04:34:22PM -0400, Mukker, Atul wrote:
+> > New megaraid driver 2.00.3 is now available at
+> > ftp://ftp.lsil.com/pub/linux-megaraid For this driver, a patch is also
+> > available for 2.5.67 kernel.
+[...]
 
-You are exactly right.
+I'm not inclined to force style changes in any drivers with active
+maintainers on the grounds that we already have much worse offenders in
+the tree (and style changes do make merging a pain).
 
-The video BIOS on a card often contains information that is found
--nowhere- else.  Not in the chip docs.  Not in a device driver.
-Such information can and does vary from board-to-board, such as RAM
-timings, while the chip remains unchanged.
+I counted one serious issue:
 
-You mention "windows drivers" above... even some Linux X drivers
-depend on video BIOS.  The S3 Savage XFree86 driver, for example,
-uses video BIOS quite heavily unless you tell it not to (or are on
-a platform that prevents such).
+The try_module_get problem
 
-WRT save and restore, it is certainly possible without video re-POST...
+One future compatibility issue:
 
-However, support such will require a monumental effort of testing and
-debugging for each video board.  This monumental effort _will_ include
-XFree86 hacking and possibly the additional of some save-n-restore
-video drivers, if we do not wish to simply require CONFIG_FBDEV if
-CONFIG_SUSPEND is set.
+->detect moved to scsi_add_host (for the device model).
 
-Video re-POST is simply a Real Life(tm) shortcut to that monumental effort.
+One issue that would improve the driver internally:
 
-	Jeff, originally an fbdev hacker back in the day...
+move hba_soft_state array to dynamic ->hostdata
 
+plus a list of other more style related issues.
+
+I'll fix up the first one, Atul, can you take the other two for a future
+patch (the others Christoph mentions might be nice, too...)?
+
+James
 
 

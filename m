@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268975AbUINFJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268972AbUINFIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268975AbUINFJt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 01:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268999AbUINFIs
+	id S268972AbUINFIg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 01:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268999AbUINFIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 01:08:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7906 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268975AbUINFHl (ORCPT
+	Tue, 14 Sep 2004 01:08:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25535 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268972AbUINFH1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 01:07:41 -0400
-Date: Tue, 14 Sep 2004 01:07:29 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: Herbert Xu <herbert@gondor.apana.org.au>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: 2.6.9-rc1-mm5: TCP oopses
-In-Reply-To: <20040913215556.73026adf.davem@davemloft.net>
-Message-ID: <Xine.LNX.4.44.0409140107140.23093-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Sep 2004 01:07:27 -0400
+Date: Mon, 13 Sep 2004 22:05:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: raybry@sgi.com, jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [profile] amortize atomic hit count increments
+Message-Id: <20040913220521.03d0e539.akpm@osdl.org>
+In-Reply-To: <20040914044748.GZ9106@holomorphy.com>
+References: <20040913015003.5406abae.akpm@osdl.org>
+	<20040914044748.GZ9106@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Sep 2004, David S. Miller wrote:
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> read_proc_profile()
+>  does not flush the per-cpu hashtables because flushing may cause
+>  timeslice overrun on the systems where prof_buffer cacheline bounces
+>  are so problematic as to livelock the timer interrupt.
 
-> James, does this make your problem go away?
+That's a bit of a problem, isn't it?  As we can accumulate an arbitrarily
+large number of hits within the hash table is it not possible that the
+/proc/profile results could be grossly inaccurate?
 
-Looks like it.
+If you had two front-ends per cpu to the profiling buffer then the CPU
+which is running the /proc/profile read could tell all the other CPUs to
+flip to their alternate buffer and can then perform accumulation at its
+leisure.
 
+How does oprofile get around this?  I guess in most modes the CPUs are not
+synchronised.
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+One wonders how long we should keep flogging the /prof/profile profiling
+code.  What systems are seeing this livelock?

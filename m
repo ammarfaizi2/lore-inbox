@@ -1,63 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263991AbTA2VaF>; Wed, 29 Jan 2003 16:30:05 -0500
+	id <S265126AbTA2Vpl>; Wed, 29 Jan 2003 16:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264665AbTA2VaE>; Wed, 29 Jan 2003 16:30:04 -0500
-Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:15889 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP
-	id <S263991AbTA2VaE>; Wed, 29 Jan 2003 16:30:04 -0500
-Message-ID: <3E384882.6020703@ixiacom.com>
-Date: Wed, 29 Jan 2003 13:32:50 -0800
-From: Dan Kegel <dkegel@ixiacom.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
+	id <S266100AbTA2Vpk>; Wed, 29 Jan 2003 16:45:40 -0500
+Received: from newmail.somanetworks.com ([216.126.67.42]:46011 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id <S265126AbTA2Vpi>; Wed, 29 Jan 2003 16:45:38 -0500
+Date: Wed, 29 Jan 2003 16:54:56 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Stanley Wang <stanley.wang@linux.co.intel.com>
+cc: Rusty Lynch <rusty@linux.co.intel.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: [Pcihpd-discuss] Questions about CPCI Hot Swap driver.
+In-Reply-To: <1043743493.10695.14.camel@vmhack>
+Message-ID: <Pine.LNX.4.44.0301291321270.17194-100000@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: debate on 700 threads vs asynchronous code
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Chin wrote:
- > Terje Eggestad <terje.eggestad@scali.com> wrote:
- >> Apart from the argument already given on other replies, you should
- >> keep in mind that you probably need to give priority to doing receive.
- >> THat include your clients, but if you don't you run into the risk of
- >> significantly limiting your bandwidth since the send queues around your
- >> system fill up.
- >>
- >> Try doing that with threads.
- >>
- >> Actually I would recommend the approach c)
- >>
- >> c)  Write an asynchronous system with only 2 or three threads where I
- >> manage the connections and keep the state of each connection in a data
- >> structure.
- >
-> Today I do method (C)... but many people seem to say that, hey, pthreads does almost
-> just that with a constant memory overhead of remembering the stack per blocking
-> thread... so there is no time difference, just that pthreads consumes slightly more
-> memory.  That is the issue I am trying to get my head around.
+On 28 Jan 2003, Rusty Lynch wrote:
 
-The best way to get your head around it is to
-benchmark both approaches, and spend some time
-refining your implementation of each so you
-understand where the bottlenecks are.
+> On Wed, 2003-01-29 at 00:06, Stanley Wang wrote:
+> > Hi, Scott
+> > I have some questions about your CPCI Hot Swap driver.
+> > Would you mind helping me to clarify them ?
+> > 1. Why need we clear the EXT bit in the HS_CSR in "disable_slot()"?
+> > I think the EXT bit has not been set at this point.
+> 
+> Wouldn't the EXT bit be set if the operator flips the ejector, and is
+> waiting for the system to respond?
 
-> That particular question, no one has answered... in Linux, the scheduler will not go 
-> around crazy trying to schedule prcosses that are all waiting on IO.  NOw the only 
-> time I see a degrade in threads would be if all are runnable.... in that case a async
-> scheme with two threads would let each task run to completion, not thrashing the
-> kernel.  Is that correct to say?
+Yes, that's the case.
 
-There are lots of other issues, too.
-Talk is cheap and fun, but only coding will give the real answer.
-Go forth and code...
+> > 2. I wonder why we could not receive the #ENUM interrupt when we unpluged
+> > the board after disabling the corresponding slot("echo 0 > power")? It 
+> > seems that the cpci_led_on has some mysterious side effect, but I could 
+> > not find any hints in the spec.
+> > Could you help me?
 
-- Dan
+With most hardware and the current driver, you will still receive an ENUM#
+signal if you flip a card's toggle open after echoing 0 into its power 
+file.  Since the write to the slot's power file triggers unconfiguration 
+of the driver for the attached device and removal of the kernel's PCI 
+representation, pulling the card out then triggers the improper removal 
+detection logic.  I should probably only honor the write of 0 to the 
+power file for devices that are in extracting state via a toggle flip, 
+I'll experiment a bit to see if that model works.
+
+However, if the peripheral card in question is a ZT5541, all bets are off,
+since in my experiments here it seems to completely shut down when its
+hotswap LED is toggled.  I'm pretty sure this makes it non-compliant with
+PICMG 2.1, but have not decided yet if disabling the attention file is 
+worthwhile.  We could probably live without the attention file to toggle
+the LED, and theoretically disable_slot should not need to call cpci_led_on
+since clearing EXT is supposed to turn on the LED, but I've not seen 
+enough peripheral hardware yet to have a feel for how safe it would be to
+rely on things working correctly on all boards.
+
+Scott
 
 
-
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com
 
 
 

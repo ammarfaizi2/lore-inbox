@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267554AbUG2STY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267626AbUG2O4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267554AbUG2STY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 14:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbUG2SRH
+	id S267626AbUG2O4y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 10:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267609AbUG2Ox7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 14:17:07 -0400
-Received: from ozlabs.org ([203.10.76.45]:3532 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264936AbUG2SQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 14:16:27 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16649.16040.106272.54705@cargo.ozlabs.ibm.com>
-Date: Thu, 29 Jul 2004 13:15:04 -0500
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org
-Subject: PPC8xx Maintainer patch
-X-Mailer: VM 7.18 under Emacs 21.3.1
+	Thu, 29 Jul 2004 10:53:59 -0400
+Received: from styx.suse.cz ([82.119.242.94]:60821 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S264770AbUG2OIG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 10:08:06 -0400
+To: torvalds@osdl.org, vojtech@suse.cz, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH 3/47] Fix an oops in poll() on uinput.
+Content-Transfer-Encoding: 7BIT
+Date: Thu, 29 Jul 2004 16:09:54 +0200
+X-Mailer: gregkh_patchbomb_levon_offspring
+In-Reply-To: <10911101942422@twilight.ucw.cz>
+From: Vojtech Pavlik <vojtech@suse.cz>
+Message-Id: <1091110194564@twilight.ucw.cz>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom is looking after PPC8xx and the PPC boot code.
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/input
 
-Please apply.
+===================================================================
 
-Thanks,
-Paul.
+ChangeSet@1.1612.1.22, 2004-05-28 22:57:43+02:00, vojtech@suse.cz
+  input: Fix an oops in poll() on uinput.  Thanks to Dmitry Torokhov
+         for suggesting the fix.
 
-===== MAINTAINERS 1.229 vs edited =====
---- 1.229/MAINTAINERS	2004-07-24 22:00:59 -07:00
-+++ edited/MAINTAINERS	2004-07-26 12:30:21 -07:00
-@@ -1283,6 +1283,13 @@
- L:	linuxppc-embedded@lists.linuxppc.org
- S:	Maintained
+
+ uinput.c |    3 +++
+ 1 files changed, 3 insertions(+)
+
+===================================================================
+
+diff -Nru a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+--- a/drivers/input/misc/uinput.c	Thu Jul 29 14:42:19 2004
++++ b/drivers/input/misc/uinput.c	Thu Jul 29 14:42:19 2004
+@@ -279,6 +279,9 @@
+ {
+ 	struct uinput_device *udev = file->private_data;
  
-+LINUX FOR POWERPC EMBEDDED PPC8XX AND BOOT CODE
-+P:	Tom Rini
-+M:	trini@kernel.crashing.org
-+W:	http://www.penguinppc.org/
-+L:	linuxppc-embedded@lists.linuxppc.org
-+S:	Maintained
++	if (!test_bit(UIST_CREATED, &(udev->state)))
++		return -ENODEV;
 +
- LINUX FOR POWERPC EMBEDDED PPC85XX
- P:     Kumar Gala
- M:     kumar.gala@freescale.com
+ 	poll_wait(file, &udev->waitq, wait);
+ 
+ 	if (udev->head != udev->tail)
 

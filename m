@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293425AbSB1VxP>; Thu, 28 Feb 2002 16:53:15 -0500
+	id <S293187AbSB1Vcx>; Thu, 28 Feb 2002 16:32:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310143AbSB1Vvl>; Thu, 28 Feb 2002 16:51:41 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:23433 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S310127AbSB1Vt1>;
-	Thu, 28 Feb 2002 16:49:27 -0500
-Date: Thu, 28 Feb 2002 23:50:59 +0200 (EET)
-From: Teodor Iacob <theo@astral.kappa.ro>
-X-X-Sender: <theo@linux.kappa.ro>
-Reply-To: <Teodor.Iacob@astral.kappa.ro>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Chris Rankin <cj.rankin@ntlworld.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.18 : lots of "state D" processes (more)
-In-Reply-To: <20020228183120.C1705@inspiron.school.suse.de>
-Message-ID: <Pine.LNX.4.31.0202282350070.5438-100000@linux.kappa.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
+	id <S310201AbSB1VbE>; Thu, 28 Feb 2002 16:31:04 -0500
+Received: from thufir.bluecom.no ([217.118.32.12]:23304 "EHLO
+	thufir.bluecom.no") by vger.kernel.org with ESMTP
+	id <S310170AbSB1V1i>; Thu, 28 Feb 2002 16:27:38 -0500
+Subject: Re: [PATCH] 2.4.18 Eicon ISDN driver fix.
+From: petter wahlman <petter@bluezone.no>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Armin Schindler <mac@melware.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+        info@melware.de
+In-Reply-To: <Pine.LNX.4.21.0202281441330.2182-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0202281441330.2182-100000@freak.distro.conectiva>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 28 Feb 2002 22:14:08 +0100
+Message-Id: <1014930851.26536.0.camel@BadEip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The process who gets "hunged" is:
-  889 ?        D      0:00 /usr/bin/perl
-/usr/share/printconf/util/printconf_mfomatic.pl -d epl5800-633554.foo
+On Thu, 2002-02-28 at 18:41, Marcelo Tosatti wrote:
+> 
+> 
+> On Wed, 27 Feb 2002, Armin Schindler wrote:
+> 
+> > The patch below fixes the race condition with copy_to_user and will
+> > not introduce a new race. What can happen is that two reader-processes
+> > may get mixed-up messages, but more than one reader isn't allowed here
+> > anyway.
+> > 
+> > Please apply this patch to 2.4 and 2.2, it works for both.
+> 
+> Armin, 
+> 
+> Your patch does not apply cleanly against my tree.
+> 
+> Please regenerate it.
+> 
 
-And this doesn't happen with your patch, it does happen with rmap12g,
-hadn't test simple 2.4.19-pre1
+--- linux/drivers/isdn/eicon/eicon_mod.c        Fri Dec 21 18:41:54 2001
++++ linux-2.4.18-pw/drivers/isdn/eicon/eicon_mod.c      Thu Feb 28
+21:48:32 2002
+@@ -665,8 +665,11 @@
+                        else
+                                cnt = skb->len;
 
-..
+-                       if (user)
++                       if (user) {
++                               spin_unlock_irqrestore(&eicon_lock,
+flags);
+                                copy_to_user(p, skb->data, cnt);
++                               spin_lock_irqsave(&eicon_lock, flags);
++                       }
+                        else
+                                memcpy(p, skb->data, cnt);
 
 
-On Thu, 28 Feb 2002, Andrea Arcangeli wrote:
 
-> On Thu, Feb 28, 2002 at 12:38:13PM +0200, Teodor Iacob wrote:
-> > Hello,
-> >
-> > I got a few stats "D" process also with 2.4.19-pre1-rmap12g, the processes
-> > were using my usb printer, which actually I never got it to work anyway
-> > because this was the first kernel to try to make it work, and ofc I
-> > couldn't kill the processes, but the reboot went cleanly.
->
-> Can you reproduce on 2.4.19pre1aa1?
->
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre1aa1.bz2
->
-> Andrea
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 

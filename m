@@ -1,80 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262486AbSLBLF5>; Mon, 2 Dec 2002 06:05:57 -0500
+	id <S262500AbSLBLWH>; Mon, 2 Dec 2002 06:22:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262500AbSLBLF5>; Mon, 2 Dec 2002 06:05:57 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:4552 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S262486AbSLBLFz>; Mon, 2 Dec 2002 06:05:55 -0500
-Date: Mon, 2 Dec 2002 12:13:18 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4.20] CREDITS update
-Message-ID: <20021202121318.E17187@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S262604AbSLBLWH>; Mon, 2 Dec 2002 06:22:07 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:15 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S262500AbSLBLWG>; Mon, 2 Dec 2002 06:22:06 -0500
+Date: Mon, 2 Dec 2002 09:29:25 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: sk@deeptown.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arp: fix seq_file handling bug
+Message-ID: <20021202112925.GB5924@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, sk@deeptown.org,
+	linux-kernel@vger.kernel.org
+References: <20021130153600.GF30931@conectiva.com.br> <20021201.234128.13598110.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021201.234128.13598110.davem@redhat.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Em Sun, Dec 01, 2002 at 11:41:28PM -0800, David S. Miller escreveu:
+>    From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+ 
+>    	Now there is just this outstanding changeset. Now I have
+>    some time to devote to fixing /proc/net/tcp seq_file handling.
+    
+> Please let me know once you have this fixed, as it is
+> holding up my net merges :-)
 
-This patch updates my contact information in CREDITS and MAINTAINERS.
+I'll do, I was quite busy with Real Life(tm), but I'm back trying
+to reproduce this one here at home, but failed to do so, I telnetted
+to another machine and the ESTABLISHED connection was correctly shown,
+so I'll be testing on a busier machine at the office, not on vmware.
 
-Marcelo, please apply.
-
-===== CREDITS 1.57 vs edited =====
---- 1.57/CREDITS	Mon Oct 21 11:27:34 2002
-+++ edited/CREDITS	Mon Dec  2 11:55:43 2002
-@@ -2397,13 +2397,10 @@
- D: CDROM driver "sonycd535" (Sony CDU-535/531)
- 
- N: Stelian Pop
--E: stelian.pop@fr.alcove.com
-+E: stelian@popies.net
- P: 1024D/EDBB6147 7B36 0E07 04BC 11DC A7A0  D3F7 7185 9E7A EDBB 6147
- D: sonypi, meye drivers, mct_u232 usb serial hacks
--S: Alcôve
--S: 153, bd. Anatole France 
--S: 93200 Saint Denis
--S: France
-+S: Paris, France
- 
- N: Frederic Potter 
- E: fpotter@cirpack.com
-===== MAINTAINERS 1.86 vs edited =====
---- 1.86/MAINTAINERS	Sun Nov 24 18:06:45 2002
-+++ edited/MAINTAINERS	Mon Dec  2 12:00:08 2002
-@@ -1041,6 +1041,12 @@
- L:	linux-kernel@vger.kernel.org
- S:	Maintained
- 
-+MOTION EYE VAIO PICTUREBOOK CAMERA DRIVER
-+P:	Stelian Pop
-+M:	stelian@popies.net
-+W:	http://popies.net/meye/
-+S:	Maintained
-+
- MOUSE AND MISC DEVICES [GENERAL]
- P:	Alessandro Rubini
- M:	rubini@ipvvis.unipv.it
-@@ -1485,6 +1491,12 @@
- P:	Thomas Bogendoerfer
- M:	tsbogend@alpha.franken.de
- L:	linux-net@vger.kernel.org
-+S:	Maintained
-+
-+SONY VAIO CONTROL DEVICE DRIVER
-+P:	Stelian Pop
-+M:	stelian@popies.net
-+W:	http://popies.net/sonypi/
- S:	Maintained
- 
- SOUND
--- 
-Stelian Pop <stelian@popies.net>
+- Arnaldo

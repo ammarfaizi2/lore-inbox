@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264787AbSJOSi7>; Tue, 15 Oct 2002 14:38:59 -0400
+	id <S264781AbSJOSmt>; Tue, 15 Oct 2002 14:42:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264788AbSJOSi7>; Tue, 15 Oct 2002 14:38:59 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:45979 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S264787AbSJOSi7>;
-	Tue, 15 Oct 2002 14:38:59 -0400
-Date: Tue, 15 Oct 2002 11:47:35 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Pavel Machek <pavel@ucw.cz>
-cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [bk/patch] IDE driver model update
-In-Reply-To: <20021014183010.A585@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0210151147180.1038-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264827AbSJOSmt>; Tue, 15 Oct 2002 14:42:49 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:23773 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264781AbSJOSms>;
+	Tue, 15 Oct 2002 14:42:48 -0400
+Subject: [PATCH] compile fix for dmi_scan.c in 2.4.bk-current
+From: john stultz <johnstul@us.ibm.com>
+To: marcelo <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 15 Oct 2002 11:40:53 -0700
+Message-Id: <1034707253.19093.174.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo, 
+	Saw you've inc'ed the EXTRAVERSION in bk, so I figured I should send
+this fix to you before you mailed out pre11.
 
-On Mon, 14 Oct 2002, Pavel Machek wrote:
+I'm not sure if its the "proper" fix, but solves:
 
-> Hi!
-> 
-> >    The suspend/resume callbacks in ide-disk.c have been temporarily
-> >    disabled until the ide core implements generic methods which forward
-> >    the calls to the drive drivers. 
-> 
-> Do you have patches to implement this?
+arch/i386/kernel/kernel.o: In function `fix_broken_hp_bios_irq9':
+arch/i386/kernel/kernel.o(.text.init+0x3601): undefined reference to
+`broken_hp_bios_irq9'
+arch/i386/kernel/kernel.o(.text.init+0x3614): undefined reference to
+`broken_hp_bios_irq9'
 
-Not yet. Expect them in the next day or so..
+thanks
+-john
+
+PS: agpgart seems broken as well, but I don't normally build w/ it, so
+I'll leave the fix to someone who knows what they're doing.
 
 
-	-pat
+--- 1.26/arch/i386/kernel/dmi_scan.c    Thu Oct 10 16:12:50 2002
++++ edited/arch/i386/kernel/dmi_scan.c  Tue Oct 15 00:55:36 2002
+@@ -492,7 +492,7 @@
+ static __init int fix_broken_hp_bios_irq9(struct dmi_blacklist *d)
+ {
+ #ifdef CONFIG_PCI
+-       extern int broken_hp_bios_irq9;
++       int broken_hp_bios_irq9;
+        if (broken_hp_bios_irq9 == 0)
+        {
+                broken_hp_bios_irq9 = 1;
+
 

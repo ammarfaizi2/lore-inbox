@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276502AbRI2OQ2>; Sat, 29 Sep 2001 10:16:28 -0400
+	id <S276503AbRI2OSs>; Sat, 29 Sep 2001 10:18:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276503AbRI2OQS>; Sat, 29 Sep 2001 10:16:18 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32271 "EHLO
+	id <S276504AbRI2OSi>; Sat, 29 Sep 2001 10:18:38 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34319 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276502AbRI2OP7>; Sat, 29 Sep 2001 10:15:59 -0400
-Subject: Re: Binary only module overview
-To: jmjones@jmjones.com
-Date: Sat, 29 Sep 2001 15:20:10 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), greg@kroah.com (Greg KH),
-        linux-kernel@vger.kernel.org, crispin@wirex.com,
-        linux-security-module@wirex.com
-In-Reply-To: <Pine.LNX.3.96.1010928213737.2854A-100000@dixie> from "jmjones@jmjones.com" at Sep 28, 2001 10:05:25 PM
+	id <S276503AbRI2OSa>; Sat, 29 Sep 2001 10:18:30 -0400
+Subject: Re: Linux 2.4.9-ac17
+To: mfedyk@matchmail.com (Mike Fedyk)
+Date: Sat, 29 Sep 2001 15:23:17 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, laughing@shared-source.org (Alan Cox)
+In-Reply-To: <20010928180102.C23261@mikef-linux.matchmail.com> from "Mike Fedyk" at Sep 28, 2001 06:01:02 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15nKyQ-00023t-00@the-village.bc.nu>
+Message-Id: <E15nL1R-00024V-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you can't sleep at night because somebody else can use your code for
-> purposes OTHER than you envisioned... you shouldn't be writing Open
-> Software.  Isn't that the real purpose... to let the next guy stand on
-> your shoulders?
+> > *	I want to get these in before I import the Linus changes
+> > 	beyond 2.4.10pre9 which is where the merge currently sits
+> > 
+> > 2.4.9-ac17
+> > o	Fix vfree error on swap off			(Hugh Dickins)
+> 
+> Can you give a approx. version no. when ext3 0.9.9 will be merged?
 
-Thats the BSD license. The GPL is where you get to stand on each others
-shoulders and goon style climb over any future walls together
+When the ext3 folk ask me to merge it
 
-
-Alan

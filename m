@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313168AbSDTW5U>; Sat, 20 Apr 2002 18:57:20 -0400
+	id <S313190AbSDTXOG>; Sat, 20 Apr 2002 19:14:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313190AbSDTW5T>; Sat, 20 Apr 2002 18:57:19 -0400
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:47519 "EHLO
-	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S313168AbSDTW5T>; Sat, 20 Apr 2002 18:57:19 -0400
-Message-ID: <0d6901c1e8be$acfe6cf0$1125a8c0@wednesday>
-From: "J. Dow" <jdow@earthlink.net>
-To: "Ruth Ivimey-Cook" <Ruth.Ivimey-Cook@ivimey.org>,
-        "Andrew Morton" <akpm@zip.com.au>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0204202310360.21635-100000@sharra.ivimey.org>
-Subject: Re: 2.4.19pre7aa1
-Date: Sat, 20 Apr 2002 15:56:58 -0700
+	id <S313205AbSDTXOF>; Sat, 20 Apr 2002 19:14:05 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17931 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313190AbSDTXOE>; Sat, 20 Apr 2002 19:14:04 -0400
+Date: Sat, 20 Apr 2002 16:13:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andi Kleen <ak@suse.de>
+cc: Andrea Arcangeli <andrea@suse.de>, Brian Gerst <bgerst@didntduck.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>,
+        <jh@suse.cz>
+Subject: Re: [PATCH] Re: SSE related security hole
+In-Reply-To: <20020420214114.A11894@wotan.suse.de>
+Message-ID: <Pine.LNX.4.44.0204201611320.3643-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Ruth Ivimey-Cook" <Ruth.Ivimey-Cook@ivimey.org>
 
-> On Sat, 20 Apr 2002, Andrew Morton wrote:
->
-> >[1] Can we please not that term?  A "flush" is something which you
-> >    do to a "dunny" after taking a "crap". [2]
+
+On Sat, 20 Apr 2002, Andi Kleen wrote:
+
+> > Besides, I seriously doubt it is any faster than what is there already.
 > >
-> >    Caches are either "written back" or are "invalidated".  Nothing
-> >    else.
+> > Time it, and notice how:
+> >
+> >  - fninit takes about 200 cycles
+> >  - fxrstor takes about 215 cycles
 >
-> I would agree with this: until a couple of years ago, I wasn't even aware that
-> there were two options here: now I know, but I'm sure others don't.
+> On what CPU?
+
+Sorry, should have mentioned. That's a P4.
+
+> I checked the Athlon4 optimization manual and fxrstor is listed as 68/108
+> cycles (i guess depending on whether there is XMM state or not so 68 cycles
+> probably apply here) and fninit as 91 cycles. It doesn't list the SSE1
+> timings, but i guess the instructions don't take more than 3 cycles
+> (MMX instructions take that long). So Andrea's way should be
+> 91+16*3=139+some cycles for emms (or 107 if sse ops take only a single cycle)
+> vs 68 or 108.  So the fxrstor wins well.
+
+The athlon should be able to do two MMX / cycle (the throughput is much
+lower, but there are no data dependencies here).
+
+> > In short, your "fast" code isn't actually any faster than doing it right.
 >
-> >[2] And a "sync" is something which you wash your hands in after the
-> >    "flush".
->
-> Well, actually the thing you wash in is a "sink". The term "sync" comes from
-> synchronise (or -ize in American).
+> At least on Athlon it should be slower.
 
-And I presume anyday now some twit will attempt to get the "fork" the
-fork out of there, too. (I actually experienced this attempt once on a
-DoD project I supported. The incompetent source code reviewers in DC
-objected to "fork" as profanity thinly cloaked. It took a several page
-letter citing the term's use in the art and related literature to get
-the anal retentive creep to back down.)
+I suspect that the real answer is "the speed difference is _way_ in the
+noise".
 
-"Flush" is a well known term of art. And as you note, Ruth, "sync" is
-short for synchronize. Is cleaning up the use of language in the computer
-arts the purpose we are all here?
-
-{O.O}    A rather bemused and astonished Joanne Dow.
+		Linus
 

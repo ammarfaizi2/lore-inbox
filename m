@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbVCIXrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVCIXQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbVCIXrz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:47:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVCIXos
+	id S261590AbVCIXQs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVCIXQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:44:48 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:56468 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S262118AbVCIXm1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:42:27 -0500
-Date: Thu, 10 Mar 2005 00:42:23 +0100
-From: maximilian attems <janitor@sternwelten.at>
-To: lmkl <linux-kernel@vger.kernel.org>
-Cc: Jens Axboe <axboe@suse.de>
-Subject: [patch trivial] as-iosched fix path to Documentation
-Message-ID: <20050309234223.GD10685@sputnik.stro.at>
-References: <20041208174401.GC2237@stro.at> <20041209190721.GA15918@ai.wu-wien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041209190721.GA15918@ai.wu-wien.ac.at>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 9 Mar 2005 18:16:15 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34949 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262536AbVCIXGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 18:06:40 -0500
+Date: Wed, 9 Mar 2005 15:06:27 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andi Kleen <ak@muc.de>
+cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Page Fault Scalability patch V19 [1/4]: pte_cmpxchg and
+ CONFIG_ATOMIC_TABLE_OPS
+In-Reply-To: <m1y8cwv2yl.fsf@muc.de>
+Message-ID: <Pine.LNX.4.58.0503091503140.30604@schroedinger.engr.sgi.com>
+References: <20050309201324.29721.28956.sendpatchset@schroedinger.engr.sgi.com>
+ <20050309201329.29721.1860.sendpatchset@schroedinger.engr.sgi.com>
+ <m1y8cwv2yl.fsf@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Klaus Ita <klaus@worstofall.com>
+On Thu, 10 Mar 2005, Andi Kleen wrote:
 
-subject says all, patch still applies.
+> Christoph Lameter <clameter@sgi.com> writes:
+> >
+> > Atomic operations may be enabled in the kernel configuration on
+> > i386, ia64 and x86_64 if a suitable CPU is configured in SMP mode.
+> > Generic atomic definitions for ptep_xchg and ptep_cmpxchg
+> > have been provided based on the existing xchg() and cmpxchg() functions
+> > that already work atomically on many platforms. It is very
+>
+> I'm curious - do you have any micro benchmarks on i386 or x86-64 systems
+> about the difference between spin_lock(ptl) access; spin_unlock(ptl);
+> and cmpxchg ?
 
-#signed-off-by: maximilian attems <janitor@sternwelten.at>
+There is a benchmark for UP on
+http://oss.sgi.com/projects/page_fault_performance.
 
-diff --unified --recursive --new-file linux-2.6.9/drivers/block/as-iosched.c linux-2.6.9_klaus/drivers/block/as-iosched.c
---- linux-2.6.9/drivers/block/as-iosched.c	2004-10-18 23:53:06.000000000 +0200
-+++ linux-2.6.9_klaus/drivers/block/as-iosched.c	2004-12-09 20:00:34.000000000 +0100
-@@ -25,7 +25,7 @@
- #define REQ_ASYNC	0
- 
- /*
-- * See Documentation/as-iosched.txt
-+ * See Documentation/block/as-iosched.txt
-  */
- 
- /*
+> cmpxchg can be quite slow, with bad luck it could be slower than
+> the spinlocks.
 
+Spinlocks also require atomic operations like a lock decb on i386 in order
+to acquire the locks. And the page_table_lock is acquired two
+times in the page fault handler. In order for this to be faster
 
+2*spinlock acquisition and release would have to be faster than a cmpxchg.
+
+> A P4 would be good to benchmark this because it seems to be the worst
+> case.
+
+The numbers on the webpage are for an AMD64. But I can try
+to get some testing done on a P4 too.

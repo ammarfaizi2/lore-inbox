@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262507AbTJAUa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 16:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbTJAUa6
+	id S262360AbTJAUrA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 16:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTJAUrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 16:30:58 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34057 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262507AbTJAUa4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 16:30:56 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
-Date: 1 Oct 2003 20:21:25 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <blfd05$ipr$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <16250.38688.152166.875893@gargle.gargle.HOWL> <20031001115248.GC23819@compsoc.man.ac.uk>
-X-Trace: gatekeeper.tmr.com 1065039685 19259 192.168.12.62 (1 Oct 2003 20:21:25 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 1 Oct 2003 16:47:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54713 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262360AbTJAUq7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 16:46:59 -0400
+Date: Wed, 1 Oct 2003 13:46:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Tim Hockin <thockin@hockin.org>
+cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Many groups patch.
+In-Reply-To: <20031001202910.GA30014@hockin.org>
+Message-ID: <Pine.LNX.4.44.0310011344070.838-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031001115248.GC23819@compsoc.man.ac.uk>,
-John Levon  <levon@movementarian.org> wrote:
-| On Wed, Oct 01, 2003 at 10:58:08AM +0200, Mikael Pettersson wrote:
-| 
-| > Linus' 2.6.0-test6 announcement doesn't seem to mention the
-| > fact that 2.6.0-test5-bk9 fundamentally changed the semantics
-| > of /proc/self and the /proc/<pid> name space. These used to
-| 
-| Are these Albert Calahan's changes ?
-| 
-| For some reason I can't fathom they were sent privately to Linus without
-| them first being posted publicly anywhere ...
 
-I thought there had been discussion a while ago, but I can't put my
-finger on it. In any case, I think the OP was noting that it was a
-fairly impactful (is that a word?) change not to get a line in the
-changelog. That's directed to whoever actually prepares the CL, not the
-author of the patch.
+On Wed, 1 Oct 2003, Tim Hockin wrote:
+> 
+> I'd love to put it in uid16.c, but uid16.c is not used by the 64-bit
+> architectures.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+How about just putting it in "gid16.c" and then adding a CONFIG_GID16
+config variable. Then architectures that want it (pretty much all, no?)  
+can then obviously just do the
+
+	config GID16
+		bool
+		default y
+
+in their Kconfig files and be happy. Add the obvious
+
+	obj-$(CONFIG_GID16) += gid16.o
+
+to the kernel makefile and you're done. Looks surgically clean, and 
+follows existing practice wrt uid16.
+
+Ok?
+
+		Linus
+

@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265101AbUFGWue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265097AbUFGWwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265101AbUFGWue (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 18:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265104AbUFGWue
+	id S265097AbUFGWwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 18:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbUFGWwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 18:50:34 -0400
-Received: from mailgate.uni-paderborn.de ([131.234.22.32]:35258 "EHLO
-	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S265101AbUFGWud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 18:50:33 -0400
-Message-ID: <40C4F131.3060304@uni-paderborn.de>
-Date: Tue, 08 Jun 2004 00:50:25 +0200
-From: Bjoern Schmidt <bj-schmidt@uni-paderborn.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Flushing the swap
-References: <200406072234.SAA07853@grex.cyberspace.org>
-In-Reply-To: <200406072234.SAA07853@grex.cyberspace.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Jun 2004 18:52:24 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:33546 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S265097AbUFGWwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 18:52:15 -0400
+Subject: 2.6.7-rc3: waiting for eth0 to become free
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 08 Jun 2004 00:52:21 +0200
+Message-Id: <1086648742.1740.1.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 (1.5.9.1-1) 
 Content-Transfer-Encoding: 7bit
-X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
-X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
-X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.275,
-	required 4, AUTH_EIM_USER -5.00, RCVD_IN_NJABL 0.10,
-	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
-X-MailScanner-From: bj-schmidt@uni-paderborn.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hal Nine wrote:
-> Is there any way of making linux flush out all pages out of swap
-> space?  I want to have 0K of used swap space.
+Hi!
 
-swapoff -a
-swapon -a
+On my laptop, when using a CardBus 3c59x-based NIC, I need to run
+"cardctl eject" so the system won't freeze when resuming. "cardctl
+eject" worked fine in 2.6.7-rc2-mm2, even when there were programs with
+network sockets opened (for example, Evolution mantaining a connection
+against an IMAP server): the card is ejected (well, not physically),
+even when there are ESTABLISHED connections.
 
+However, starting with 2.6.7-rc3, "cardctl eject" hangs if a program
+holds any socket open. After a while the "unregister_netdevice: waiting
+for eth0 to become free" message starts appearing on the kernel message
+ring. The only apparent solution is killing that program, ejecting the
+card from its slot and wait until 3c59x.o usage count reaches zero.
 
--- 
-Greetings
-Bjoern Schmidt
+Can someone tell me what's going on here?
+Thank you very much.
+
 

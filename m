@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbUKVPAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbUKVPFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbUKVPAF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 10:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbUKVO7J
+	id S261463AbUKVPFT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 10:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbUKVPDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 09:59:09 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:22020 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261451AbUKVO5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 09:57:44 -0500
-Message-ID: <41A1FFFC.70507@hist.no>
-Date: Mon, 22 Nov 2004 16:04:28 +0100
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Amit Gud <amitgud1@gmail.com>
-CC: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: file as a directory
-References: <2c59f00304112205546349e88e@mail.gmail.com>
-In-Reply-To: <2c59f00304112205546349e88e@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Nov 2004 10:03:52 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:41113 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261470AbUKVPBC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 10:01:02 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 22 Nov 2004 15:44:33 +0100
+From: Gerd Knorr <kraxel@suse.de>
+To: Johannes Stezenbach <js@linuxtv.org>, Gerd Knorr <kraxel@suse.de>,
+       Rusty Russell <rusty@rustcorp.com.au>, Takashi Iwai <tiwai@suse.de>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: modprobe + request_module() deadlock
+Message-ID: <20041122144432.GB575@bytesex>
+References: <20041122102502.GF29305@bytesex> <20041122141607.GA21184@linuxtv.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041122141607.GA21184@linuxtv.org>
+X-GPG-Fingerprint: 79C4 EE94 CC44 6DD4 58C6  3088 DBB7 EC73 8750 D2C4  [1024D/8750D2C4]
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit Gud wrote:
+> > They can't actually probe themself.  It's _one_ PCI device (driven by
+> > the saa7134 module) which can handle (among other v4l-related things)
+> > the DMA transfer of mpeg streams.  That can be used in different ways
+> > (or not at all) and the different use cases are handled by the
+> > sub-modules.
+> > 
+> > So the way it is intended to work is that saa7134 has the pci table and
+> > gets autoloaded by hotplug, it will have a look at the hardware and then
+> > load either saa7134-empress or saa7134-dvb or none of them, so you'll
+> > get everything nicely autoloaded.
+> 
+> The saa7146 driver seems to have a working solution for this
+> problem: The PCI ids are registered to the subdrivers (e.g. dvb-ttpci
+> or mxb)  so that these are loaded via hotplug. They then register to the
+> saa7146 core as an "extension" module, and the core then does the probing.
+> Grep for saa7146_register_extension().
 
->Hi people,
->
-> A straight forward question. Wouldn't adding a "file as a directory"
->mechanism more logical in VFS itself, rather than having each fs (like
->reiser4) to implement it seperately? My vision is to give archive-file
->  
->
-Such support may happen for a few fs'es - people who
-want this will then use those fses.  Those who don't
-like the ideas will use others.
+That would be kida ugly because I'd need a dummy module then for the
+cards which need neither saa7134-empress nor saa7134-dvb (which is true
+for most of the existing cards btw).
 
->(.tar, .tar.gz, ...) support in the VFS itself, and of course
->transparent to any fs and any user-land application. There are many
->archive FSs around, but how feasible would it be to implement the
->archive file support in the VFS at dentry-level? I'd be happy to share
->my proposal.
->
->  
->
-You won't get .tar or .tar.gz support in the VFS, for a few simple reasons:
-1. .tar and .tar.gz are complicated formats, and are therefore better
-   left to userland.  You can get some of the same effect by using a shared
-   library that redefines fopen() and fread() though.  It'll work fine for
-   the vast majority of apps that happens to use the C library.
+I can fix that in the driver, by delaying the request_module() somehow
+until the saa7134 module initialization is finished.  I don't think that
+this is a good idea through as it looks like I'm not the only one with
+that problem ...
 
-   It is hard to make a guaranteed bug-free decompressor that
-   is efficient and works with a finite amount of memory.  The kernel
-   needs all that - userland doesn't.
+  Gerd
 
-2. Both .tar and .gz  file formats may improve with time.  Getting a new
-    version of tar og gunzip is easy enough - getting another compression
-    algorithm into the kernel won't be that easy.
-
-3. Writing into a tar.gz file is surprisingly difficult from the kernel 
-side.
-    Userland may create a new temp file when you add to a .tar.gz.
-    Userland may assume that other processes aren't reading or writing
-    the .tar.gz as it isupdated.  The kernel have no such luxuries.
-
-I recommend looking at archived threads about file as directory,
-you'll find many more arguments.  Currently there is one kind
-of support for archive files - loop mounts over files containing
-filesystem images.  These are not compressed though.
-
-Helge Hafting

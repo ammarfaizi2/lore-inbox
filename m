@@ -1,79 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131730AbRCaACl>; Fri, 30 Mar 2001 19:02:41 -0500
+	id <S131750AbRCaAVL>; Fri, 30 Mar 2001 19:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131756AbRCaACb>; Fri, 30 Mar 2001 19:02:31 -0500
-Received: from snorkel.uits.indiana.edu ([129.79.6.186]:2058 "EHLO
-	snorkel.uits.indiana.edu") by vger.kernel.org with ESMTP
-	id <S131730AbRCaACT>; Fri, 30 Mar 2001 19:02:19 -0500
-Date: Fri, 30 Mar 2001 19:01:37 -0500
+	id <S131756AbRCaAVB>; Fri, 30 Mar 2001 19:21:01 -0500
+Received: from imo-m01.mx.aol.com ([64.12.136.4]:37844 "EHLO
+	imo-m01.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S131750AbRCaAUs>; Fri, 30 Mar 2001 19:20:48 -0500
+Date: Fri, 30 Mar 2001 19:17:35 -0500
+From: puifunlau@cs.com
 To: linux-kernel@vger.kernel.org
-Subject: pcnet32 (maybe more) hosed in 2.4.3 
-Message-ID: <20010330190137.A426@indiana.edu>
+Subject: oops during kfree_skbmem
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-From: "Scott G. Miller" <scgmille@indiana.edu>
+Message-ID: <52736207.12E4E41C.03465211@cs.com>
+X-Mailer: Franklin Webmailer 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am reposting... the oops call stack didn't show up correctly.
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ >>EIP; c012c504 <free_block+84/d8>   <=====
+ Trace; c011b77a <do_softirq+5a/88>
+ Trace; c012c82a <kfree+72/98>
+ Trace; c01d00fd <kfree_skbmem+25/80>
+ Trace; c01d024b <__kfree_skb+f3/f8>
+ Trace; c01d0d1d <skb_free_datagram+1d/24>
+ Trace; c0203a61 <packet_recvmsg+139/148>
+ Trace; c01cd441 <sock_recvmsg+41/b0>
+ Trace; c0203928 <packet_recvmsg+0/148>
+ Trace; c01ce2fd <sys_recvfrom+ad/108>
 
-Linux 2.4.3, Debian Woody.  2.4.2 works without problems.  However, in
-2.4.3, pcnet32 loads, gives an error message:
+The oops happened on a box running Linux 2.4.0 and libpcap-0.6.2 (which uses
+AF_PACKET socket). The packet received was an arp request. I have syslog indicating
+the kernel received the arp request. My pcap application captures arp packet as well.
+ The calls leading to the oops :
+    pcap_dispatch  ...
+      sys_recvfrom ...
+        kfree_skbmem ...free_block.
 
-Mar 30 18:45:09 obsidian kernel: pcnet32_probe_pci: found device
-0x001022.0x002000
-Mar 30 18:45:09 obsidian kernel:     ioaddr=3D0x00b800
-resource_flags=3D0x000101
-Mar 30 18:45:09 obsidian kernel: <
-Mar 30 18:45:09 obsidian kernel: 6>eth0: PCnet/FAST 79C971 at 0xb800,
-warning: PROM address does not match CSR address 00 00 00 00 00 00
-Mar 30 18:45:09 obsidian kernel:     tx_start_pt(0x0c00):~220 bytes,
-BCR18(9861):BurstWrEn BurstRdEn NoUFlow
-Mar 30 18:45:09 obsidian kernel:     SRAMSIZE=3D0x7f00, SRAM_BND=3D0x3f00,
-Mar 30 18:45:09 obsidian kernel: pcnet32: pcnet32_private lp=3Dc3173000
-lp_dma_addr=3D0x3173000 assigned IRQ 5.
-Mar 30 18:45:09 obsidian kernel: pcnet32.c:v1.25kf 26.9.1999
-tsbogend@alpha.franken.de
+The oops is not recreatable on demand.  However, on another box running 2.4.0-test7,
+there is a memory leak. Top reports memory used by my application stable at 0.3%,
+but system memory usage keeps going up (reaching 250M used, 4M free before staying there).
 
+Allen Lau
 
-Though it does still load.
-
-However, the interface does not come up.  (DHCP doesn't work, can't even
-assign a manual address).=20
-
-Worse, I get multiple entries for the driver in /proc/interrupts.  Each=20
-time I attempt to bring the interface up another is added so I have:
-
-  5:      11276      11416   IO-APIC-level  aic7xxx, PCnet/FAST 79C971,
-PCnet/FAST 79C971, PCnet/FAST 79C971
-
-When I attempt to rmmod the driver, even if there is only one, I get a
-Kernel OOPS (in the interrupt handler, so it wasn't written
-anywhere).  I'll attempt to copy it down by hand and post to the list in a
-bit.  =20
-
-	Scott
-
-
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6xR5hr9IW4v3mHtQRAqskAJ4krJiQLKiBXSf3/ENi7T6DudfHcACgkD+4
-14T45OSJbpdBhlclpUvNsPM=
-=+43b
------END PGP SIGNATURE-----
-
---J/dobhs11T7y2rNN--

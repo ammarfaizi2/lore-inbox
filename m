@@ -1,80 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131352AbRBLTGG>; Mon, 12 Feb 2001 14:06:06 -0500
+	id <S130893AbRBLTGq>; Mon, 12 Feb 2001 14:06:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130931AbRBLTF4>; Mon, 12 Feb 2001 14:05:56 -0500
-Received: from server1.cosmoslink.net ([208.179.167.101]:14941 "EHLO
-	server1.cosmoslink.net") by vger.kernel.org with ESMTP
-	id <S130893AbRBLTFo>; Mon, 12 Feb 2001 14:05:44 -0500
-Message-ID: <015001c09527$84dfda60$bba6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-In-Reply-To: <000901c094cc$880a75c0$bba6b3d0@Toshiba>
-Subject: Re: Problem with Ramdisk in linux-2.4.1 
-Date: Mon, 12 Feb 2001 11:10:50 -0800
+	id <S130251AbRBLTGh>; Mon, 12 Feb 2001 14:06:37 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:16 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S130893AbRBLTGE>;
+	Mon, 12 Feb 2001 14:06:04 -0500
+To: Gérard Roudier <groudier@club-internet.fr>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ion Badulescu <ionut@cs.columbia.edu>,
+        Alan Cox <alan@redhat.com>, Donald Becker <becker@scyld.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+In-Reply-To: <Pine.LNX.4.10.10102100932360.1117-100000@linux.local>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 12 Feb 2001 20:01:48 +0100
+In-Reply-To: Gérard Roudier's message of "Sat, 10 Feb 2001 09:48:41 +0100 (CET)"
+Message-ID: <d3n1brafoj.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear linux-kernel mailing list,
+>>>>> "Gérard" == Gérard Roudier <groudier@club-internet.fr> writes:
 
-Is there there any change in latest kernel 2.4.1 and old kernels like 2.2.12
-with respect to Ramdisk or not .
+Gérard> On Fri, 9 Feb 2001, Alan Cox wrote:
 
-I mean is there any change in rd.c and or lib/inflate.c .
+>> DMA to main memory normally invalidates those lines in the CPU
+>> cache rather than the cache snooping and updating its view of them.
 
-Thanks for your help.
+Gérard> In PCI, it is the Memory Write and Invalidate PCI transaction
+Gérard> that is intended to allow core-logics to optimize DMA this
+Gérard> way. For normal Memory Write PCI transactions or when the
+Gérard> core-logic is aliasing MWI to MW, the snooping may well
+Gérard> happen. All that stuff, very probably, varies a lot depending
+Gérard> on the core-logic.
 
-Best Regards,
+In fact one has to look out for this and disable the feature in some
+cases. On the acenic not disabling Memory Write and Invalidate costs
+~20% on performance on some systems.
 
-Jaswinder.
---
-These are my opinions not 3Di.
-
------ Original Message -----
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-Sent: Monday, February 12, 2001 12:19 AM
-Subject: Problem with Ramdisk in linux-2.4.1
-
-
-> Dear linux-kernel mailing list,
->
-> I am facing this problem in linux-2.4.1 :-
->
-> RAMDISK driver initialized: 16 RAM disks of 8192K size
-> 1024 blocksize
-> RAMDISK: Compressed image found at block 0
->  incomplete distance tree
-> invalid compressed format (err=1)Freeing initrd
-> memory: 4096k freed
->
-> Is any body seen this problem earlier , any hint .
->
-> But this ramdisk works fine with linux-2.2.12 .
->
-> Thanks ,
->
-> Best Regards,
->
-> Jaswinder.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
-
+Jes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

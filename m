@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVAYQVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVAYQWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbVAYQVK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 11:21:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbVAYQVK
+	id S262001AbVAYQWO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 11:22:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbVAYQWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 11:21:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:15291 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261999AbVAYQVE (ORCPT
+	Tue, 25 Jan 2005 11:22:14 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45696 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262001AbVAYQWC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 11:21:04 -0500
-Date: Tue, 25 Jan 2005 17:21:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Elias da Silva <silva@aurigatec.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] drivers/block/scsi_ioctl.c, Video DVD playback support
-Message-ID: <20050125162102.GS2751@suse.de>
-References: <200501220327.38236.silva@aurigatec.de> <200501251029.22646.silva@aurigatec.de> <20050125124512.GM2751@suse.de> <200501251713.27402.silva@aurigatec.de>
+	Tue, 25 Jan 2005 11:22:02 -0500
+Subject: Re: [Ext2-devel] [PATCH] JBD: journal_release_buffer()
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alex Tomas <alex@clusterfs.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <m3sm4p8tk7.fsf@bzzz.home.net>
+References: <m3wtu9v3il.fsf@bzzz.home.net>
+	 <1106604342.2103.395.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <m3brbebh43.fsf@bzzz.home.net>
+	 <1106609725.2103.616.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <m3sm4p8tk7.fsf@bzzz.home.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1106670089.1985.766.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501251713.27402.silva@aurigatec.de>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Tue, 25 Jan 2005 16:21:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25 2005, Elias da Silva wrote:
-> On Tuesday 25 January 2005 13:45, you wrote:
-> [snip]
-> : If I'm not mistaken, Peter Jones has posted a few iterations of such an
-> : fs some months ago.
-> 
-> Thank you. I will check this...
-> 
-> : > Do we have a clear understanding that this fs would only
-> : > be a benefit if *All* the different ways to access the device would
-> : > use the same policy enforcement and consistently allow or
-> : > disallow certain operations regardless of the access method?
-> : 
-> : The command restriction table _only_ works through the SG_IO path, which
-> : does include CDROM_SEND_PACKET as well since it is layered on top of
-> : SG_IO. It doesn't control various driver ioctl exported interfaces, they
-> : would need to add a callback to verify_command() for permission checks.
-> 
-> Hmm... what exactly does that mean? Who is ment by "_they_ would need..."?
+Hi,
 
-It refers back to 'various driver ioctl' earlier, so it refers to the
-driver itself.
+On Tue, 2005-01-25 at 14:36, Alex Tomas wrote:
+> Hi, could you review the following solution?
+> 
+> 
+>  t_outstanding_credits - number of _modified_ blocks in the transaction
+>  t_reserved - number of blocks all running handle reserved
+>  transaction size = t_outstanding_credits + t_reserved;
 
--- 
-Jens Axboe
+Ah, a work of genius.
+
+Yes, this appears to cover all of the cases.  It changes the semantics
+of the jbd layer subtly: a handle isn't "charged" for its use of bh's
+until it actually dirties them.  But the handle is required to reserve
+enough space up front in any case, so it shouldn't matter much exactly
+when it gets charged.  It _would_ affect journal_extend(), if that were
+called between a journal_get_write_access() and a
+journal_dirty_metadata(), but I don't think we do that anywhere, and the
+change in behaviour ought to be merely a slight difference in when it's
+legal to extend --- it shouldn't break the rules.
+
+> journal_dirty_metadata(handle, bh)
+> {
+> 	transaction->t_reserved--;
+> 	handle->h_buffer_credits--;
+> 	if (jh->b_tcount > 0) {
+>                 /* modifed, no need to track it any more */
+> 		transaction->t_outstanding_credits++;
+> 		jh->b_tcount = -1;
+> 	}
+> }
+
+Actually, the whole thing can be wrapped in if (jh->b_tcount > 0) {}, I
+think.  If we have already charged the transaction for this buffer, then
+there's no need to charge the handle for it again.  That's going to be
+particularly important for truncate(), where we are continually updating
+the same blocks (eg. bitmap, indirect blocks), so we want to make sure
+that after the first journal_dirty_metadata() call, no further charge is
+made.
+
+If we do that, do we in fact need t_reserved at all?
+
+Very nice!
+
+Cheers,
+ Stephen
 

@@ -1,27 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317517AbSG2QyZ>; Mon, 29 Jul 2002 12:54:25 -0400
+	id <S317508AbSG2RBJ>; Mon, 29 Jul 2002 13:01:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317520AbSG2QyZ>; Mon, 29 Jul 2002 12:54:25 -0400
-Received: from dns1.arrancar.com ([209.92.187.33]:58248 "EHLO
+	id <S317520AbSG2RBJ>; Mon, 29 Jul 2002 13:01:09 -0400
+Received: from dns1.arrancar.com ([209.92.187.33]:22921 "EHLO
 	core.arrancar.com") by vger.kernel.org with ESMTP
-	id <S317517AbSG2QyY>; Mon, 29 Jul 2002 12:54:24 -0400
+	id <S317508AbSG2RBI>; Mon, 29 Jul 2002 13:01:08 -0400
 Subject: Re: Funding GPL projects or funding the GPL?
 From: Federico Ferreres <fferreres@ojf.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Daniel Mose <imcol@unicyclist.com>,
-       Larry McVoy <lm@work.bitmover.com>,
-       Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org, openpatentfunds@home.se
-In-Reply-To: <3D453F1F.3010701@namesys.com>
-References: <Pine.GSO.4.21.0207280601260.27010-100000@weyl.math.psu.edu>
-	<3D44F136.8060202@namesys.com> <1027933632.4472.88.camel@fede> 
-	<3D453F1F.3010701@namesys.com>
+To: linux-kernel@vger.kernel.org
+Cc: viro@math.psu.edu
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.5 
-Date: 29 Jul 2002 13:53:34 -0300
-Message-Id: <1027961626.4747.120.camel@fede>
+Date: 29 Jul 2002 14:00:28 -0300
+Message-Id: <1027962034.4745.130.camel@fede>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -80,5 +73,7 @@ and Larry can think differently, as you are involved in developement.
 > 
 
 Federico
+
+
 
 

@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278808AbRLDEVq>; Mon, 3 Dec 2001 23:21:46 -0500
+	id <S280638AbRLDE1G>; Mon, 3 Dec 2001 23:27:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280678AbRLDEVg>; Mon, 3 Dec 2001 23:21:36 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:60828 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S278808AbRLDEVd>;
-	Mon, 3 Dec 2001 23:21:33 -0500
-Date: Mon, 03 Dec 2001 20:21:30 -0800 (PST)
-Message-Id: <20011203.202130.118628301.davem@redhat.com>
-To: manfred@colorfullife.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] improve spinlock debugging
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3C0BDC33.6E18C815@colorfullife.com>
-In-Reply-To: <3C0BDC33.6E18C815@colorfullife.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S280592AbRLDE04>; Mon, 3 Dec 2001 23:26:56 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:17794 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S280434AbRLDE0x>; Mon, 3 Dec 2001 23:26:53 -0500
+Message-ID: <3C0C508C.40407@redhat.com>
+Date: Mon, 03 Dec 2001 23:26:52 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nathan Bryant <nbryant@optonline.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Manfred Spraul <manfred@colorfullife.com>
-   Date: Mon, 03 Dec 2001 21:10:27 +0100
-   
-   Which other runtime checks are possible?
-   Tests for correct _irq usage are not possible, several drivers use
-   disable_irq().
+Nathan Bryant wrote:
 
-Keep track of how many locks are being held at once, and check if it
-is zero at switch_to() time.  You can also do this to measure things
-like max number of locks held at once and other statistics.
+> this patch is slightly differerent from the last one i posted.
+> 
+> it's still diffed against 2.4.17pre1. one obvious thinko is fixed, and a 
+> couple lines that looked bad to me have been changed (goto end in 
+> i810_read seems to be necessary to clean up the wait queue unless I'm 
+> mistaken), and I'm no longer reproducing any OOPSes.
+> 
+> however, i am seeing artsd segfault occasionally. this also seems to 
+> happen with the 4Front driver, however, at least if I load 4Front's 
+> module after unloading this patched driver. I'm not sure if this is a 
+> bug in artsd or specific to my setup or something nasty i've done to my 
+> kernel's data structures ;) so maybe somebody else who's still having 
+> problems with 2.4.17pre1 and KDE can take a look and see how it works 
+> for them.
 
-I added the first bit to sparc64 while hunting down a bug.
+
+Nathan, thanks for taking the time to merge these.  I've got some more 
+stuff here that I've done just recently for ANK, and a few moments of 
+spare time.  If you'll send me the last version of the .c file you had, 
+I can probably do a pretty quick merge of everthing together (I need the 
+.c file instead of the patch because I'm not starting from the same 
+source you are).  Hopefully, between your efforts and the feedback I've 
+gotten in the last few days, we can send a final version to Marcello for 
+the 2.4 kernel series that actually works well.
+
+
+
+
+-- 
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 

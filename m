@@ -1,84 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVCGXd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVCGXdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbVCGXd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 18:33:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVCGWzV
+	id S261970AbVCGXdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 18:33:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVCGWxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 17:55:21 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:63431 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261254AbVCGWFY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 17:05:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=SuxuVRkNEyCVNw4SZVVtRKwMK14Y7KRg5lVDzWLSLUCsMic14MOOC/o5YKoYdu+FNvBIYNljLwpP2NFM70PS9mg5FyVHAxC8txjKVlAfL85KvV76jcgVkkE7Vb5GZ1MCRec6yuK3R0dYuOWlZUKp1jRaxCA4i1MCXCtVnHEWKpY=
-Message-ID: <d120d50005030714056511c214@mail.gmail.com>
-Date: Mon, 7 Mar 2005 17:05:17 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.11-mm1: sound <-> GAMEPORT problems
-Cc: Borislav Petkov <petkov@uni-muenster.de>, perex@suse.cz, vojtech@suse.cz,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, linux-input@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20050307215206.GH3170@stusta.de>
+	Mon, 7 Mar 2005 17:53:40 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44295 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261344AbVCGWBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 17:01:25 -0500
+Date: Mon, 7 Mar 2005 23:01:23 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 23/29] FAT: Remove the multiple MSDOS_SB() call
+Message-ID: <20050307220123.GI3170@stusta.de>
+References: <87wtsmorii.fsf_-_@devron.myhome.or.jp> <87sm3aorho.fsf_-_@devron.myhome.or.jp> <87oedyorgu.fsf_-_@devron.myhome.or.jp> <87k6olq60a.fsf_-_@devron.myhome.or.jp> <87fyz9q5z7.fsf_-_@devron.myhome.or.jp> <87br9xq5y8.fsf_-_@devron.myhome.or.jp> <877jklq5x7.fsf_-_@devron.myhome.or.jp> <873bv9q5vx.fsf_-_@devron.myhome.or.jp> <87y8d1orah.fsf_-_@devron.myhome.or.jp> <87u0npor9o.fsf_-_@devron.myhome.or.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050304033215.1ffa8fec.akpm@osdl.org>
-	 <200503070941.59365.petkov@uni-muenster.de>
-	 <20050307215206.GH3170@stusta.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87u0npor9o.fsf_-_@devron.myhome.or.jp>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Mar 2005 22:52:06 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> On Mon, Mar 07, 2005 at 09:41:59AM +0100, Borislav Petkov wrote:
-> > On Friday 04 March 2005 12:32, Andrew Morton wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11
-> > >-mm1/
-> > >
-> > <snip>
-> >
-> > Hi,
-> >
-> > the ymfpci sound driver wouldn't compile without gameport support selected
-> > since the sound card has a gameport on it:
-> >
-> > Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
-> >
-> > --- sound/pci/ymfpci/ymfpci.c.orig 2005-03-07 09:07:10.000000000 +0100
-> > +++ sound/pci/ymfpci/ymfpci.c 2005-03-07 09:08:02.000000000 +0100
-> > @@ -332,7 +332,9 @@ static int __devinit snd_card_ymfpci_pro
-> >    }
-> >   }
-> >
-> > +#ifdef SUPPORT_JOYSTICK
-> >   snd_ymfpci_create_gameport(chip, dev, legacy_ctrl, legacy_ctrl2);
-> > +#endif /* SUPPORT_JOYSTICK */
-> >
-> >   if ((err = snd_card_register(card)) < 0) {
-> >    snd_card_free(card);
+On Sun, Mar 06, 2005 at 03:56:51AM +0900, OGAWA Hirofumi wrote:
 > 
-> Nice catch (but I had to apply the patch manually due to some
-> whitespace damage).
+> Since MSDOS_SB() is inline function, it increases text size at each calls.
+> I don't know whether there is __attribute__ for avoiding this.
 > 
-> After a quick look, it seems there are a dozen other sound drivers (most
-> OSS but also ALSA) with similar problems.
-> 
-> There are two possibilities:
-> 1. continue to #ifdef all GAMEPORT support in sound drivers
-> 2. remove all #ifdef's for GAMEPORT and let drivers that can use the
->   gameport (including the sound drivers) simply select GAMEPORT
->   As far as I can see, in this case GAMEPORT does no longer have to be
->   user-visible?
-> 
-> I can send patches for both, but I'd prefer the second solution.
-> 
+> This removes the multiple call.
+>...
 
-Not everyone wants gameport. I think say very small percentage of
-people using sound cards that can support gameports actually uses
-them.
+"inline" in the kernel is (for recent gcc's) mapped to 
+__attribute__((always_inline)), and therefore the
+"static inline struct msdos_sb_info *MSDOS_SB" does exactly the opposite 
+of what you want.
+
+You'd have to move this into a .c file to remove the "inline".
+
+But considering that the whole function is
+
+static inline struct msdos_sb_info *MSDOS_SB(struct super_block *sb)
+{
+        return sb->s_fs_info;
+}
+
+I'm quite surprised that there's any problem with it.
+
+cu
+Adrian
 
 -- 
-Dmitry
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288605AbSADLkU>; Fri, 4 Jan 2002 06:40:20 -0500
+	id <S288481AbSADLoU>; Fri, 4 Jan 2002 06:44:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288603AbSADLkL>; Fri, 4 Jan 2002 06:40:11 -0500
-Received: from navy.csi.cam.ac.uk ([131.111.8.49]:37601 "EHLO
-	navy.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S288481AbSADLj4>; Fri, 4 Jan 2002 06:39:56 -0500
-Date: Fri, 4 Jan 2002 11:35:44 +0000 (GMT)
-From: "Joseph S. Myers" <jsm28@cam.ac.uk>
-X-X-Sender: <jsm28@kern.srcf.societies.cam.ac.uk>
-To: Florian Weimer <fw@deneb.enyo.de>
-cc: <dewar@gnat.com>, <Dautrevaux@microprocess.com>, <paulus@samba.org>,
-        <Franz.Sirl-kernel@lauterbach.com>, <benh@kernel.crashing.org>,
-        <gcc@gcc.gnu.org>, <jtv@xs4all.nl>, <linux-kernel@vger.kernel.org>,
-        <linuxppc-dev@lists.linuxppc.org>, <minyard@acm.org>, <rth@redhat.com>,
-        <trini@kernel.crashing.org>, <velco@fadata.bg>
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <87wuyy33zo.fsf@deneb.enyo.de>
-Message-ID: <Pine.LNX.4.33.0201041132140.19767-100000@kern.srcf.societies.cam.ac.uk>
+	id <S288603AbSADLoK>; Fri, 4 Jan 2002 06:44:10 -0500
+Received: from mons.uio.no ([129.240.130.14]:35713 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S288481AbSADLoA>;
+	Fri, 4 Jan 2002 06:44:00 -0500
+To: Urban Widmark <urban@teststation.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] smbfs fsx'ed
+In-Reply-To: <Pine.LNX.4.33.0201032257300.28529-100000@cola.teststation.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 04 Jan 2002 12:43:50 +0100
+In-Reply-To: <Pine.LNX.4.33.0201032257300.28529-100000@cola.teststation.com>
+Message-ID: <shsu1u2l4sp.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002, Florian Weimer wrote:
+>>>>> " " == Urban Widmark <urban@teststation.com> writes:
 
-> C99 includes a list of additional guarantees made by many C
-> implementations (in an informative index).  I think we really should
-> check this list (and the list of implementation-defined behavior) and
-> document the choices made by GCC.  In fact, this documentation is
-> required by the standard.
+     > The current code synchronizes all threads on the same mount
+     > since all threads use "server->packet" as a buffer for send and
+     > receive. I have some code where I have tried to copy how I
+     > believe nfs does things with a "struct request" for each
+     > caller.
 
-The list of implementation-defined behavior is already in the manual (in
-extend.texi).  However, the actual documentation isn't yet there, only the
-headings - except for the preprocessor, where it is covered in cpp.texi,
-and the conversion between pointers and integers:
+All NFS does is to wrap the pages to read/write with a struct
+'nfs_page' that allows us to string them together in a list. When
+somebody calls sync_page() or decides to flush out the pending writes,
+we collate these 'nfs_page' things into appropriately sized private
+lists (NFS has a server-provided upper limit on the number of bytes
+you can send) and generate an RPC call.
+In addition, there is code to limit the total number of pending
+nfs_page structs (in order to avoid trouble due to flooding memory
+with cached requests), and for managing request timeouts.
 
-@item
-@cite{The result of converting a pointer to an integer or
-vice versa (6.3.2.3).}
+See the files include/linux/nfs_page.h, and fs/nfs/pagelist.c for details.
 
-A cast from pointer to integer discards most-significant bits if the
-pointer representation is larger than the integer type,
-sign-extends@footnote{Future versions of GCC may zero-extend, or use
-a target-defined @code{ptr_extend} pattern.  Do not rely on sign extension.}
-if the pointer representation is smaller than the integer type, otherwise
-the bits are unchanged.
-@c ??? We've always claimed that pointers were unsigned entities.
-@c Shouldn't we therefore be doing zero-extension?  If so, the bug
-@c is in convert_to_integer, where we call type_for_size and request
-@c a signed integral type.  On the other hand, it might be most useful
-@c for the target if we extend according to POINTERS_EXTEND_UNSIGNED.
 
-A cast from integer to pointer discards most-significant bits if the
-pointer representation is smaller than the integer type, extends according
-to the signedness of the integer type if the pointer representation
-is larger than the integer type, otherwise the bits are unchanged.
 
-When casting from pointer to integer and back again, the resulting
-pointer must reference the same object as the original pointer, otherwise
-the behavior is undefined.  That is, one may not use integer arithmetic to
-avoid the undefined behavior of pointer arithmetic as proscribed in 6.5.6/8.
+The struct nfs_page does contain one or 2 entries which are
+NFS-specific (the RPC credential and commit cookie), but if you ignore
+them, the rest of the machinery should be fairly easily adaptable for
+reuse in the SMB code. One would perhaps have to rip out the
+NFS_SERVER() stuff in pagelist.c (which is used to maintain a couple
+of mount-global lists), and replace it with a slightly more generic
+interface, but that's all trivial stuff.
 
--- 
-Joseph S. Myers
-jsm28@cam.ac.uk
-
+Cheers,
+   Trond

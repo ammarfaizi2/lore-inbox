@@ -1,97 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269744AbUJAKi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269751AbUJAKnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269744AbUJAKi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 06:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269751AbUJAKi2
+	id S269751AbUJAKnT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 06:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269754AbUJAKnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 06:38:28 -0400
-Received: from asplinux.ru ([195.133.213.194]:31501 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S269744AbUJAKiY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 06:38:24 -0400
-Message-ID: <415D36AA.3000907@sw.ru>
-Date: Fri, 01 Oct 2004 14:51:22 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Fri, 1 Oct 2004 06:43:19 -0400
+Received: from corb.mc.mpls.visi.com ([208.42.156.1]:7124 "EHLO
+	corb.mc.mpls.visi.com") by vger.kernel.org with ESMTP
+	id S269751AbUJAKnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 06:43:17 -0400
+Message-ID: <415D3408.8070201@steinerpoint.com>
+Date: Fri, 01 Oct 2004 05:40:08 -0500
+From: Al Borchers <alborchers@steinerpoint.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Fix of stack dump in {SOFT|HARD}IRQs
-Content-Type: multipart/mixed;
- boundary="------------050702060803020203030609"
+To: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: new locking in change_termios breaks USB serial drivers
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050702060803020203030609
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+2.6.9-rc3 changes the locking in the tty_ioctl.c function
+change_termios().  It gets a spin_lock_irqsave(&tty_termios_lock,...)
+before calling the tty driver's set_termios function.
 
-This patch fixes incorrect check for stack ptr in 
-show_trace()->valid_stack_ptr(). When called from hardirq/softirq 
-show_trace() prints "Stack pointer is garbage, not printing trace" 
-message instead of call traces.
+This means that the drivers' set_termios functions cannot sleep.
 
-Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+Unfortunately, many USB serial drivers' set_termios functions
+send an urb to change the termios settings and sleep waiting for
+it to complete.
 
-Kirill
+I just looked quickly, but it seems belkin_sa.c, digi_acceleport.c,
+ftdi_sio.c, io_ti.c, kl5usb105.c, mct_u232.c, pl2303.c, and whiteheat.c
+all sleep in their set_termios functions.
 
---------------050702060803020203030609
-Content-Type: text/plain;
- name="diff-dumpstack"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-dumpstack"
+If this locking in change_termios() stays, we are going to have to
+fix set_termios in all of these drivers.  I am updating io_ti.c right
+now.
 
---- ./arch/i386/kernel/traps.c.dumpstack	2004-10-01 14:21:40.000000000 +0400
-+++ ./arch/i386/kernel/traps.c	2004-10-01 14:30:10.109733400 +0400
-@@ -95,11 +95,16 @@ static int kstack_depth_to_print = 24;
- 
- static int valid_stack_ptr(struct task_struct *task, void *p)
- {
--	if (p <= (void *)task->thread_info)
--		return 0;
--	if (kstack_end(p))
--		return 0;
--	return 1;
-+	extern int is_irq_stack_ptr(struct task_struct *, void *);
-+
-+	if (is_irq_stack_ptr(task, p))
-+		return 1;
-+	if (p >= (void *)task->thread_info &&
-+	    p < (void *)task->thread_info + THREAD_SIZE &&
-+	    !kstack_end(p))
-+		return 1;
-+
-+	return 0;
- }
- 
- #ifdef CONFIG_FRAME_POINTER
---- ./arch/i386/kernel/irq.c.dumpstack	2004-09-20 14:14:58.000000000 +0400
-+++ ./arch/i386/kernel/irq.c	2004-10-01 14:28:15.806110192 +0400
-@@ -1126,6 +1126,21 @@ void init_irq_proc (void)
- static char softirq_stack[NR_CPUS * THREAD_SIZE]  __attribute__((__aligned__(THREAD_SIZE)));
- static char hardirq_stack[NR_CPUS * THREAD_SIZE]  __attribute__((__aligned__(THREAD_SIZE)));
- 
-+int is_irq_stack_ptr(struct task_struct *task, void *p)
-+{
-+	unsigned long off;
-+
-+	off = task->thread_info->cpu * THREAD_SIZE;
-+	if (p >= (void *)hardirq_stack + off &&
-+	    p < (void *)hardirq_stack + off + THREAD_SIZE)
-+		return 1;
-+	if (p >= (void *)softirq_stack + off &&
-+	    p < (void *)softirq_stack + off + THREAD_SIZE)
-+		return 1;
-+
-+	return 0;
-+}
-+
- /*
-  * allocate per-cpu stacks for hardirq and for softirq processing
-  */
-
---------------050702060803020203030609--
+-- Al
 

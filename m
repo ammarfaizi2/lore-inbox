@@ -1,41 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263910AbTCUXad>; Fri, 21 Mar 2003 18:30:33 -0500
+	id <S264257AbTCUXh3>; Fri, 21 Mar 2003 18:37:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264126AbTCUXad>; Fri, 21 Mar 2003 18:30:33 -0500
-Received: from fed1mtao06.cox.net ([68.6.19.125]:62615 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP
-	id <S263910AbTCUXad>; Fri, 21 Mar 2003 18:30:33 -0500
-Message-ID: <3E7BA329.2060806@cox.net>
-Date: Fri, 21 Mar 2003 16:41:29 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4a) Gecko/20030311
-X-Accept-Language: en-us, en
+	id <S264267AbTCUXh3>; Fri, 21 Mar 2003 18:37:29 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:19253
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S264257AbTCUXh1>; Fri, 21 Mar 2003 18:37:27 -0500
+Date: Fri, 21 Mar 2003 18:44:55 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: aic7(censored) dying horribly in 2.5.65-mm2
+In-Reply-To: <411800000.1048276482@aslan.btc.adaptec.com>
+Message-ID: <Pine.LNX.4.50.0303211842370.28519-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303210202080.2133-100000@montezuma.mastecende.com>
+ <411800000.1048276482@aslan.btc.adaptec.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: small devfs patch for 2.5.65, plan to replace /sbin/hotplug
-References: <20030321014048.A19537@baldur.yggdrasil.com> <3E7B79D5.3060903@cox.net> <20030321232131.GA18010@kroah.com>
-In-Reply-To: <20030321232131.GA18010@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
->>Are you still considering smalldevfs for 2.6 inclusion? If not, then I'd 
->>like to discuss with you (and Greg KH) the possibility of just eliminating 
->>devfs entirely, and moving to a userspace version that is driven entirely 
->>by /sbin/hotplug.
-> 
-> 
-> You mean with something like this:
-> 	http://www.linuxsymposium.org/2003/view_abstract.php?talk=94
-> :)
-> 
+On Fri, 21 Mar 2003, Justin T. Gibbs wrote:
 
-Yep, that's the one. Sounds very simple and straightforward to me. The most 
-complex part will be defining some file structure to define the user's desired 
-naming policy to the agent that handles the hotplug events.
+> > Hi Justin i got this booting 2.5.65-mm2, 2.5.65 was fine there is an oops 
+> > right at the end. Is there anything specific you want?
+> 
+> It would be nice to know the devices that are attached to the controller.
+> Could you also use the latest driver from here:
 
+This is from a 2.4.18-RH kernel
+
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.5
+        <Adaptec aic7870 SCSI adapter>
+        aic7870: Wide Channel A, SCSI Id=7, 16/253 SCBs
+
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.5
+        <Adaptec aic7870 SCSI adapter>
+        aic7870: Wide Channel A, SCSI Id=7, 16/253 SCBs
+
+  Vendor: DEC       Model: DLT2000           Rev: 830A
+  Type:   Sequential-Access                  ANSI SCSI revision: 02
+  Vendor: TOSHIBA   Model: CD-ROM XM-5401TA  Rev: 3605
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+  Vendor: SEAGATE   Model: ST15150W          Rev: 9103
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+scsi1:A:0:0: Tagged Queuing enabled.  Depth 253
+scsi1:A:1:0: Tagged Queuing enabled.  Depth 253
+scsi1:A:2:0: Tagged Queuing enabled.  Depth 253
+scsi1:A:3:0: Tagged Queuing enabled.  Depth 253
+scsi1:A:4:0: Tagged Queuing enabled.  Depth 253
+scsi1:A:5:0: Tagged Queuing enabled.  Depth 253
+Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
+Attached scsi disk sdb at scsi1, channel 0, id 1, lun 0
+Attached scsi disk sdc at scsi1, channel 0, id 2, lun 0
+Attached scsi disk sdd at scsi1, channel 0, id 3, lun 0
+Attached scsi disk sde at scsi1, channel 0, id 4, lun 0
+Attached scsi disk sdf at scsi1, channel 0, id 5, lun 0
+(scsi1:A:0): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
+SCSI device sda: 8388315 512-byte hdwr sectors (4295 MB)
+Partition check:
+ sda: sda1
+(scsi1:A:1): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
+SCSI device sdb: 8388315 512-byte hdwr sectors (4295 MB)
+ sdb: sdb1 sdb2
+(scsi1:A:2): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
+SCSI device sdc: 8388315 512-byte hdwr sectors (4295 MB)
+ sdc: sdc1
+(scsi1:A:3): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
+SCSI device sdd: 8388315 512-byte hdwr sectors (4295 MB)
+ sdd: sdd1
+(scsi1:A:4): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
+SCSI device sde: 8388315 512-byte hdwr sectors (4295 MB)
+ sde: sde1
+(scsi1:A:5): 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
+SCSI device sdf: 8388315 512-byte hdwr sectors (4295 MB)
+ sdf: sdf1
+
+
+> http://people.FreeBSD.org/~gibbs/linux/SRC/
+
+I'll try that driver this evening.
+
+> the driver and send me the output you get.
+
+Thanks,
+	Zwane
+
+-- 
+function.linuxpower.ca

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130162AbRBVALm>; Wed, 21 Feb 2001 19:11:42 -0500
+	id <S130194AbRBVALm>; Wed, 21 Feb 2001 19:11:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130171AbRBVALc>; Wed, 21 Feb 2001 19:11:32 -0500
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:61939 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S130162AbRBVALY>; Wed, 21 Feb 2001 19:11:24 -0500
-Date: Wed, 21 Feb 2001 16:11:21 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: Linux stifles innovation...
-In-Reply-To: <4461B4112BDB2A4FB5635DE199587432022423@mail0.myrio.com>
-Message-ID: <Pine.LNX.4.21.0102211607430.31651-100000@sol.compendium-tech.com>
+	id <S130162AbRBVALd>; Wed, 21 Feb 2001 19:11:33 -0500
+Received: from foobar.napster.com ([64.124.41.10]:60421 "EHLO
+	foobar.napster.com") by vger.kernel.org with ESMTP
+	id <S129243AbRBVALS>; Wed, 21 Feb 2001 19:11:18 -0500
+Message-ID: <3A9458FD.A87205FC@napster.com>
+Date: Wed, 21 Feb 2001 16:10:37 -0800
+From: Jordan Mendelson <jordy@napster.com>
+Organization: Napster, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: ookhoi@dds.nl, Vibol Hou <vibol@khmer.cc>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>, sim@stormix.com,
+        netdev@oss.sgi.com
+Subject: Re: 2.4 tcp very slow under certain circumstances (Re: netdev issues 
+ (3c905B))
+In-Reply-To: <HDEBKHLDKIDOBMHPKDDKMEGDEFAA.vibol@khmer.cc>
+		<20010221104723.C1714@humilis>
+		<14995.40701.818777.181432@pizda.ninka.net>
+		<3A9453F4.993A9A74@napster.com> <14996.21701.542448.49413@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Feb 2001, Torrey Hoffman wrote:
-> On the other hand, they make excellent mice.  The mouse wheel and
-> the new optical mice are truly innovative and Microsoft should be
-> commended for them. 
+"David S. Miller" wrote:
+> 
+> Jordan Mendelson writes:
+>  > Now, if it didn't have the side effect of dropping packets left and
+>  > right after ~4000 open connections (simultaneously), I could finally
+>  > move our production system to 2.4.x.
+> 
+> There is no reason my patch should have this effect.
 
-The idea of an optical mouse is nothing new: I've got an optical mouse
-sitting to the side of my keyboard as we speak, dated ::turns mouse
-over:: 1987. Produced for Sun Microsystems by Mouse Systems. Microsoft
-being innovative? Hell no... They stole that idea from someone else, as
-they have for decades (and will undoubtedly continue to do). It also
-wouldn't surprise me if MS is mimicing someone else's idea with the
-wheel... I can remember purchasing a Logitech mouse with that wheel long
-before I had seen a Micros~1 equivalent.
-
+My guess is that the fast path prevented the need for looking up the
+destination in some structure which is limited to ~4K entries (route
+table?).
 
 
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
-
+Jordan

@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267295AbUBMXL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 18:11:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUBMXL4
+	id S267284AbUBMW4u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 17:56:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267277AbUBMW4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 18:11:56 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:60708 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S267295AbUBMXLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 18:11:54 -0500
-Date: Fri, 13 Feb 2004 18:11:52 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: RANDAZZO@ddc-web.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: spinlocks dont work
-In-Reply-To: <89760D3F308BD41183B000508BAFAC4104B16F6F@DDCNYNTD>
-Message-ID: <Pine.LNX.4.44.0402131810450.26101-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Feb 2004 17:56:49 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:59660 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S267284AbUBMW4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 17:56:36 -0500
+Date: Sat, 14 Feb 2004 09:56:21 +1100
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: [2.4] off-by-one kmalloc in ntfs
+Message-ID: <20040213225621.GA16550@gondor.apana.org.au>
+References: <20040131045812.GA19629@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="u3/rZRmxL6MmkK24"
+Content-Disposition: inline
+In-Reply-To: <20040131045812.GA19629@gondor.apana.org.au>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Feb 2004 RANDAZZO@ddc-web.com wrote:
 
-> On my uniprocessor system, I have two LKM's
-        ^^^^^^^^^^^^
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> how come spin locks don't work?????
+This patch fixes an off-by-one kmalloc bug in ntfs in 2.4.24.
 
-The spinlock code is compiled to NOPs on uniprocessor
-systems.  That is ok because the second driver cannot
-run while the first driver is holding the lock.
-
-You cannot reschedule while holding a spinlock.
-
+Cheers,
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: kernel-2.4/fs/ntfs/support.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/fs/ntfs/support.c,v
+retrieving revision 1.1.1.9
+diff -u -r1.1.1.9 support.c
+--- kernel-2.4/fs/ntfs/support.c	25 Feb 2002 19:38:09 -0000	1.1.1.9
++++ kernel-2.4/fs/ntfs/support.c	12 Feb 2004 11:13:29 -0000
+@@ -240,7 +240,7 @@
+ 				NLS_MAX_CHARSET_SIZE)) > 0) {
+ 			/* Adjust result buffer. */
+ 			if (chl > 1) {
+-				buf = ntfs_malloc(*out_len + chl - 1);
++				buf = ntfs_malloc(*out_len + chl);
+ 				if (!buf) {
+ 					i = -ENOMEM;
+ 					goto err_ret;
+
+--u3/rZRmxL6MmkK24--

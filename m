@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262648AbSKIU77>; Sat, 9 Nov 2002 15:59:59 -0500
+	id <S262670AbSKIVHs>; Sat, 9 Nov 2002 16:07:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262665AbSKIU77>; Sat, 9 Nov 2002 15:59:59 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:34468 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S262648AbSKIU76>;
-	Sat, 9 Nov 2002 15:59:58 -0500
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Sat, 9 Nov 2002 14:03:09 -0700
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: George France <france@handhelds.org>,
-       Thorsten Kranzkowski <dl8bcu@dl8bcu.de>,
-       axp-list mailing list <axp-list@redhat.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] eliminate compile warnings
-Message-ID: <20021109140309.I15128@duath.fsmlabs.com>
-References: <02110709222600.14483@shadowfax.middleearth> <Pine.GSO.4.21.0211092154230.20360-100000@vervain.sonytel.be>
+	id <S262679AbSKIVHs>; Sat, 9 Nov 2002 16:07:48 -0500
+Received: from smtp.terra.es ([213.4.129.129]:55483 "EHLO tsmtp10.mail.isp")
+	by vger.kernel.org with ESMTP id <S262670AbSKIVHs>;
+	Sat, 9 Nov 2002 16:07:48 -0500
+Date: Sat, 9 Nov 2002 22:12:06 +0100
+From: Arador <diegocg@teleline.es>
+To: Jens Axboe <axboe@suse.de>
+Cc: conman@kolivas.net, akpm@digeo.com, linux-kernel@vger.kernel.org,
+       marcelo@conectiva.com.br, andrea@suse.de
+Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
+Message-Id: <20021109221206.72d46e49.diegocg@teleline.es>
+In-Reply-To: <20021109135446.GA2551@suse.de>
+References: <200211091300.32127.conman@kolivas.net>
+	<200211091612.08718.conman@kolivas.net>
+	<20021109112135.GB31134@suse.de>
+	<200211100009.55844.conman@kolivas.net>
+	<20021109135446.GA2551@suse.de>
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0211092154230.20360-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Sat, Nov 09, 2002 at 09:55:52PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some very long, and pointless, arguments can be had about which was
-_first_.  Lets talk about something more interesting - which ones are still
-usable :)  I do recall that Motorola Computer Group was very very unhappy
-that an Alpha from DEC arrived for Linus before their PowerStack.  Maybe
-you can compare who shipped a machine to Linus first, then compare which
-was powered on and so on.
+On Sat, 9 Nov 2002 14:54:46 +0100
+Jens Axboe <axboe@suse.de> wrote:
 
-I believe Linus only re-did the Alpha port.  It was first done inside DEC.
-They should get credit for getting on the Linux bandwagon early on.
+> The default is 2048. How long does the io_load test take, or rather how
+
+then, shouldn't the default be changed?. There's a big performance drop (/2)
+(in that case of course)
 
 
-} > If there is no entry in the MAINTAINERS file, then it is Linus.  He did the Alpha port.
-} > The first foray of Linux outside of the Intel architecture was to the Alpha processor.
-} 
-} *beep* The m68k port is older, and IIRC the MIPS port is older as well. Those
-} weren't started by Linus, though.
+Diego Calleja

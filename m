@@ -1,115 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261495AbTATIJz>; Mon, 20 Jan 2003 03:09:55 -0500
+	id <S262326AbTATIv7>; Mon, 20 Jan 2003 03:51:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261523AbTATIJz>; Mon, 20 Jan 2003 03:09:55 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:59547 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S261495AbTATIJy>; Mon, 20 Jan 2003 03:09:54 -0500
-Date: Mon, 20 Jan 2003 08:18:50 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-X-X-Sender: dwmw2@imladris.demon.co.uk
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030119115647.GD10647@fs.tum.de>
-Message-ID: <Pine.LNX.4.44.0301200759270.29823-100000@imladris.demon.co.uk>
+	id <S262038AbTATIv7>; Mon, 20 Jan 2003 03:51:59 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:24024 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S262838AbTATIv5> convert rfc822-to-8bit; Mon, 20 Jan 2003 03:51:57 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Subject: Re: [2.5 patch] mics cleanups for mtd
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [BENCHMARK] 2.5.59 Lmbench performance
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Date: Mon, 20 Jan 2003 14:30:48 +0530
+Message-ID: <94F20261551DC141B6B559DC491086720AEA36@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BENCHMARK] 2.5.59 Lmbench performance
+Thread-Index: AcLAYmxy9heI6oIZTqW77JwLSZoMlA==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Jan 2003 09:00:48.0659 (UTC) FILETIME=[6CECEE30:01C2C062]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Jan 2003, Adrian Bunk wrote:
+Since 2.5.56, the results are not varying much. Almost all the changes are less than 5%. Here are the results of 2.5.59
 
-> On Sun, Jan 19, 2003 at 11:32:33AM +0000, David Woodhouse wrote:
-> > For most of the other code, the pain of maintaining two separate versions
-> > just isn't justified by the marginal cleanup which this affords -- 
-> > especially for the drivers where the _only_ difference between building 
-> > out-of-the-box in 2.4 and not doing so is a #include <linux/mtd/compatmac.h>
-> 
-> The #include <linux/mtd/compatmac.h> has _no_ effect for building on 2.4
-> kernels, it only affects 2.0 and 2.2 kernels.
 
-The mtd/compatmac.h in the 2.5 kernel tree has no effect for building on 
-2.4 kernels, true. That's because I haven't bothered to update the version 
-in Linus' tree -- as you observed, it has no effect there.
+********************************************************************
+				Kernel 2.5.59
+				Lmbench results
+********************************************************************
 
-To take a random example -- when I changed the JFFS2 code to use 
-PageUptodate() instead of Page_Uptodate(), I also added this to 
-mtd/compatmac.h in CVS:
+                 L M B E N C H  2 . 0   S U M M A R Y
+                 ------------------------------------
+		 (Alpha software, do not distribute)
 
-	#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,12)
-	#define PageUptodate(x) Page_Uptodate(x)
-	#endif
+Basic system parameters
+----------------------------------------------------
+Host                 OS Description              Mhz
+                                                    
+--------- ------------- ----------------------- ----
+benchtest  Linux 2.5.59       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.59       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.59       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.59       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.59       i686-pc-linux-gnu  790
 
-However, there was no point in sending that part of the change to Linus 
-for the 2.5 kernel -- it's pointless there. That's why you see no 
-compatibility code _IN THE 2.5 TREE_ for older trees. 
+Processor, Processes - times in microseconds - smaller is better
+----------------------------------------------------------------
+Host                 OS  Mhz null null      open selct sig  sig  fork exec sh  
+                             call  I/O stat clos TCP   inst hndl proc proc proc
+--------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
+benchtest  Linux 2.5.59  790 0.46 0.85 7.22 8.74       1.31 4.09  257 1311 6794
+benchtest  Linux 2.5.59  790 0.46 0.84 7.24 8.78    34 1.25 3.66  266 1305 6708
+benchtest  Linux 2.5.59  790 0.46 0.87 7.22 8.78    35 1.26 3.66  254 1314 6763
+benchtest  Linux 2.5.59  790 0.46 0.87 7.26 8.84    36 1.26 3.66  261 1303 6770
+benchtest  Linux 2.5.59  790 0.46 0.83 7.19 8.72    34 1.25 3.67  290 1319 6796
 
-The mtd/compatmac.h in the CVS tree, however, makes the 2.5-specific code
-actually build and work on 2.4 and earlier kernels -- and removing the
-#include of it is not helpful.
+Context switching - times in microseconds - smaller is better
+-------------------------------------------------------------
+Host                 OS 2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
+                        ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
+--------- ------------- ----- ------ ------ ------ ------ ------- -------
+benchtest  Linux 2.5.59 1.690 5.0400     14 7.5800    175      38     178
+benchtest  Linux 2.5.59 1.580 5.3700     14     10    178      44     181
+benchtest  Linux 2.5.59 1.740 5.3500     14 8.8300    179      46     180
+benchtest  Linux 2.5.59 1.750 5.4000     15     11    180      43     181
+benchtest  Linux 2.5.59 1.660 5.3500     15 8.4100    180      41     180
 
-> The only reason why I said kernels < 2.4.4 is that I removed some
->   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,4)
-> from drivers/mtd/devices/blkmtd.c.
+*Local* Communication latencies in microseconds - smaller is better
+-------------------------------------------------------------------
+Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+                        ctxsw       UNIX         UDP         TCP conn
+--------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+benchtest  Linux 2.5.59 1.690 8.813   14    25    48    31    59  110
+benchtest  Linux 2.5.59 1.580 8.769   14    25    48    32    59  110
+benchtest  Linux 2.5.59 1.740 8.759   14    25    48    31    59  110
+benchtest  Linux 2.5.59 1.750 8.717   14    24    48    31    59  111
+benchtest  Linux 2.5.59 1.660 8.894   14    25    48    32    60  110
 
-The author of blkmtd.c recently rewrote it completely for 2.5 -- the 
-ifdefs in there were getting so ugly it was worth forking it. 
+File & VM system latencies in microseconds - smaller is better
+--------------------------------------------------------------
+Host                 OS   0K File      10K File      Mmap    Prot    Page	
+                        Create Delete Create Delete  Latency Fault   Fault 
+--------- ------------- ------ ------ ------ ------  ------- -----   ----- 
+benchtest  Linux 2.5.59     92     31    332     82      642 1.035 4.00000
+benchtest  Linux 2.5.59     94     31    331     84      641 1.029 4.00000
+benchtest  Linux 2.5.59     92     32    335     86      632 1.059 4.00000
+benchtest  Linux 2.5.59     91     31    332     83      638 1.061 4.00000
+benchtest  Linux 2.5.59     94     31    346     85      631 1.022 4.00000
 
-The same treatment is appropriate for the block device drivers too -- 
-mtdblock is done, and once ftl and nftl are also done I'll be sending them 
-to Linus. If you really want to help, your assistance would be very much 
-appreciated in forking those drivers in the CVS tree into 2.5-specific and 
-older versions.
+*Local* Communication bandwidths in MB/s - bigger is better
+-----------------------------------------------------------
+Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                             UNIX      reread reread (libc) (hand) read write
+--------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
+benchtest  Linux 2.5.59  323  426   48    298    356    124    113  356   170
+benchtest  Linux 2.5.59  375  563   48    294    353    123    112  353   169
+benchtest  Linux 2.5.59  395  559   47    294    353    123    112  353   169
+benchtest  Linux 2.5.59  397  538   47    293    352    123    112  353   169
+benchtest  Linux 2.5.59  292  543   48    294    352    123    112  354   170
 
-> I can send whatever patch you want.
+Memory latencies in nanoseconds - smaller is better
+    (WARNING - may not be correct, check graphs)
+---------------------------------------------------
+Host                 OS   Mhz  L1 $   L2 $    Main mem    Guesses
+--------- -------------  ---- ----- ------    --------    -------
+benchtest  Linux 2.5.59   790 3.802 8.8820    174
+benchtest  Linux 2.5.59   790 3.807 8.8820    175
+benchtest  Linux 2.5.59   790 3.799     55    175
+benchtest  Linux 2.5.59   790 3.798     56    175
+benchtest  Linux 2.5.59   790 3.808     54    175
 
-Thanks -- your help is welcome :)
-
-> What is the minimum kernel version you want to support:
-> - 2.0.0
-> - 2.2.0
-> - 2.4.0
-> - 2.4.4
-
-Check out the CVS tree, using the cvsroot/password given at 
-http://www.linux-mtd.infradead.org/ 
-
-Observe that it contains 2.5-specific code, but builds for the 2.4 kernel
-too because of compatmac.h. It may, in fact, not build against 2.5 de jour
-because I may be slightly behind in my merging of 2.5-specific changes,
-but it shouldn't be far behind.
-
-1. Observe that in some cases, _all_ that was required was to include that 
-   file in order to make the code work in 2.4. 
-
-2. Observe that in other cases we need a little bit of #ifdef to make it
-   work, but that it's not _too_ ugly.
-
-3. Observe that in further cases the ifdefs are getting _really_ ugly.
-
-4. Observe that occasionally the ifdefs have got so ugly that we've split
-   a driver into separate files for different versions of the kernel. Note
-   the extra maintenance burden of having two separate copies of 
-   essentially the same driver.
-
-The most helpful thing you can do is find drivers in state (3) and convert
-them to state (4). But please _do_ build and test against both 2.4 and 2.5
-when doing so, and it's probably best to ask before spending your time on
-doing them -- the block device drivers are fine because they don't get
-much attention, so the extra cost of maintaining two versions instead of
-one is negligible. If, on the other hand, you suggest splitting
-fs/jffs2/dir.c into two separate files; one for <=2.4 and one for >=2.5,
-I'll ignore you :)
-
-> I haven't checked older kernels but at least kernel 2.2.20 includes all 
-> header files I've added (init.h, sched.h, vmalloc.h).
-
-Sorry, I meant uClinux 2.0 -- as Greg pointed out, there was no uClinux 
-2.2. But to be honest I'm not _really_ bothered about anything earlier 
-than about 2.4.14.
-
--- 
-dwmw2
-
+Aniruddha Marathe
+WIPRO Technologies, India

@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271399AbTGQK2e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 06:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271401AbTGQK2e
+	id S271398AbTGQK2C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 06:28:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271399AbTGQK2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 06:28:34 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:43787 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S271399AbTGQK2a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 06:28:30 -0400
-Date: Thu, 17 Jul 2003 12:43:23 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-Message-ID: <20030717124323.B2302@pclin040.win.tue.nl>
-References: <20030716184609.GA1913@kroah.com> <20030716213451.GA1964@win.tue.nl> <20030716143902.4b26be70.akpm@osdl.org> <20030716222015.GB1964@win.tue.nl> <200307170300.UAA24096@cesium.transmeta.com>
+	Thu, 17 Jul 2003 06:28:01 -0400
+Received: from wing.tritech.co.jp ([202.33.12.153]:12240 "HELO
+	wing.tritech.co.jp") by vger.kernel.org with SMTP id S271398AbTGQK17
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 06:27:59 -0400
+Date: Thu, 17 Jul 2003 19:42:51 +0900 (JST)
+Message-Id: <20030717.194251.129335401.ooyama@tritech.co.jp>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22pre6aa1
+From: ooyama eiichi <ooyama@tritech.co.jp>
+In-Reply-To: <20030717102857.GA1855@dualathlon.random>
+References: <20030717102857.GA1855@dualathlon.random>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200307170300.UAA24096@cesium.transmeta.com>; from hpa@zytor.com on Wed, Jul 16, 2003 at 07:54:36PM -0700
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 07:54:36PM -0700, H. Peter Anvin wrote:
+Hi Andrea.
 
-> > 16-bit only: 8:8, otherwise 32-bit only: 16:16, otherwise 32:32.
+I am sorry, I couldn't find this file.
+Maybe, I have to wait ?
+ 
+From: Andrea Arcangeli <andrea@suse.de>
+Subject: 2.4.22pre6aa1
+Date: Thu, 17 Jul 2003 12:28:57 +0200
+
+> URL:
 > 
-> I would still recommend the arrangement for 64-bit dev_t that I posted
-> a while ago:
+> 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.22pre6aa1.gz
 > 
-> dev_t<63:40> := major<31:8>
-> dev_t<39:16> := minor<31:8>
-> dev_t<15:8>  := major<7:0>
-> dev_t<7:0>   := minor<7:0>
-
-Yes, but we we also need to handle 32-bit dev_t incarnations.
-
-> If you want, you can even make it 32-bit-friendly, although it makes
-> it more complex; for example, this version would implement 32-bit with
-> a 12:20 split:
+> changelog diff between 2.4.21rc8aa1 and 2.4.22pre6aa1:
 > 
-> dev_t<63:44> := major<31:12>
-> dev_t<43:32> := minor<31:20>
-> dev_t<31:28> := major<11:8>
-> dev_t<27:16> := minor<19:8>
-> dev_t<15:8>  := major<7:0>
-> dev_t<7:0>   := minor<7:0>
-
-Too messy. But you are right - no conditionals involved.
-
+> Only in 2.4.21rc8aa1: 00_01_cciss-1
+> Only in 2.4.21rc8aa1: 00_02_cciss-1
+> Only in 2.4.21rc8aa1: 00_03_cciss-1
+> 
+> 	Updates are in mainline.
+> 
+> Only in 2.4.21rc8aa1: 00_backout-irda-trivial-1
+> 
+> 	Somebody acknowledged and fixed the breakage properly.
+> 	I hadn't a chance to test it myself yet on my cellphone,
+> 	but I will shortly.

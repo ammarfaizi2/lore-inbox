@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281730AbRKULVb>; Wed, 21 Nov 2001 06:21:31 -0500
+	id <S281727AbRKULVV>; Wed, 21 Nov 2001 06:21:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281726AbRKULVW>; Wed, 21 Nov 2001 06:21:22 -0500
-Received: from [62.58.73.254] ([62.58.73.254]:22512 "EHLO
-	ats-core-0.atos-group.nl") by vger.kernel.org with ESMTP
-	id <S281724AbRKULVM>; Wed, 21 Nov 2001 06:21:12 -0500
-Date: Wed, 21 Nov 2001 12:14:18 +0100 (CET)
-From: Ryan Sweet <rsweet@atos-group.nl>
-To: Roberto Fichera <kernel@tekno-soft.it>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: SDK for iPAQ
-In-Reply-To: <5.1.0.14.2.20011121114716.034e7a60@mail.tekno-soft.it>
-Message-ID: <Pine.LNX.4.30.0111211211080.15627-100000@core-0>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281726AbRKULVN>; Wed, 21 Nov 2001 06:21:13 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:22033 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S281294AbRKULUy>;
+	Wed, 21 Nov 2001 06:20:54 -0500
+Date: Wed, 21 Nov 2001 12:20:34 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Athlon /proc/cpuinfo anomaly [minor]
+Message-ID: <20011121122034.B9978@suse.de>
+In-Reply-To: <Pine.GSO.4.33.0111210945590.795-100000@gurney> <E166VOz-0004kH-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E166VOz-0004kH-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 21 2001, Alan Cox wrote:
+> > CPU0 is labelled as an "AMD Athlon(tm) MP Processor 1800+", as expected.
+> > CPU1 is instead labelled just "AMD Athlon(tm) Processor".
+> 
+> Those strings are read directly out of the CPU. Mine for example says
+> 
+> cpu family      : 6
+> model           : 1
+> model name      : AMD-K7(tm) Processor
+> stepping        : 1
 
-On Wed, 21 Nov 2001, Roberto Fichera wrote:
-
-> I need to know where can I download a complete native SDK for iPAQ (not a
-> cross-compiler).
-> I need to get a native development tools because I want recompile
-> some applications that perform some gcc tests like configure.
-
-See http://www.handhelds.org.
-
-> This development tools should be mounted from an external share like nfs or
-> smbfs
-> because there isn't enough space on the iPAQ, right ?
-
-nfs is used typically, though if you only want to compile, and don't have
-easy access to an ipaq, you can use the skiff cluster, from compaq; see
-handhelds.org (as above) and search for skiff cluster.
-
-> And finally, does anyone know if smbfs works well on iPAQ ?
-
-yes, it does.  You will have to install the samba ipkg.
+No there is a bug there, I can confirm that mine does the same (ie
+second athlon is not reported with correct model name)
 
 -- 
-Ryan Sweet <ryan.sweet@atosorigin.com>
-Atos Origin Engineering Services
-http://www.aoes.nl
+Jens Axboe
 

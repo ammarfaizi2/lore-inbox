@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268098AbTBYRIy>; Tue, 25 Feb 2003 12:08:54 -0500
+	id <S267937AbTBYRU5>; Tue, 25 Feb 2003 12:20:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268099AbTBYRIy>; Tue, 25 Feb 2003 12:08:54 -0500
-Received: from holomorphy.com ([66.224.33.161]:46518 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268098AbTBYRIw>;
-	Tue, 25 Feb 2003 12:08:52 -0500
-Date: Tue, 25 Feb 2003 09:17:58 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Cliff White <cliffw@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Chris Wedgwood <cw@f00f.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225171758.GZ10411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Cliff White <cliffw@osdl.org>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Chris Wedgwood <cw@f00f.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Larry McVoy <lm@bitmover.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <13760000.1046153824@[10.10.2.4]> <200302251711.h1PHBct16624@mail.osdl.org>
+	id <S268093AbTBYRU5>; Tue, 25 Feb 2003 12:20:57 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:3716
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267937AbTBYRU4>; Tue, 25 Feb 2003 12:20:56 -0500
+Subject: Re: check cpu_online() in nr_running()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030225163335.GD10396@holomorphy.com>
+References: <20030225163335.GD10396@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046197963.4055.15.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302251711.h1PHBct16624@mail.osdl.org>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 25 Feb 2003 18:32:43 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 09:11:38AM -0800, Cliff White wrote:
-> Interesting items for me are the fork/exec/sh times and some of the file + VM 
-> numbers
-> LMBench 2.0 Data ( items selected from total of five runs )
+On Tue, 2003-02-25 at 16:33, William Lee Irwin III wrote:
+>  	for (i = 0; i < NR_CPUS; i++)
+> +		if (!cpu_online(i))
+> +			continue;
+>  		sum += cpu_rq(i)->nr_running;
 
-Okay, got profiles for the individual tests you're interested in?
+I smell donkey poo 8)
 
-Also, what are the statistical significance cutoffs?
+If the change is right, which seems reasonable then I think you
+need some { } 's too. Its also a hot path so it may be a lot
+cleaner to keep the jump out of this by just letting
+nr_running be zero for other processors ?
 
-
--- wli

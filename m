@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265366AbRGBRjS>; Mon, 2 Jul 2001 13:39:18 -0400
+	id <S265356AbRGBRms>; Mon, 2 Jul 2001 13:42:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265363AbRGBRjI>; Mon, 2 Jul 2001 13:39:08 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26629 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S265355AbRGBRiz>; Mon, 2 Jul 2001 13:38:55 -0400
-Date: Mon, 2 Jul 2001 19:38:47 +0200
-From: Jan Kara <jack@suse.cz>
-To: Cliff Albert <cliff@oisec.net>
-Cc: linux-kernel@vger.kernel.org, meskes@debian.org, mvw@planets.elm.net,
-        Alan.Cox@linux.org
-Subject: Re: quotaoff OOPS (2.4.5-ac22)
-Message-ID: <20010702193847.A31821@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20010702093202.A26673@oisec.net>
+	id <S265360AbRGBRmj>; Mon, 2 Jul 2001 13:42:39 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:28177 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S265356AbRGBRmT>;
+	Mon, 2 Jul 2001 13:42:19 -0400
+Message-ID: <20010702194212.A400@win.tue.nl>
+Date: Mon, 2 Jul 2001 19:42:12 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, kernel@ddx.a2000.nu
+Cc: linux-kernel@vger.kernel.org, enforcer@ddx.a2000.nu (Enforcer)
+Subject: Re: Strange errors in /var/log/messages
+In-Reply-To: <Pine.LNX.4.30.0107021800410.5490-100000@ddx.a2000.nu> <E15H6N5-000663-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6c2NcOVqGQ03X4Wi"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010702093202.A26673@oisec.net>; from cliff@oisec.net on Mon, Jul 02, 2001 at 09:32:02AM +0200
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <E15H6N5-000663-00@the-village.bc.nu>; from Alan Cox on Mon, Jul 02, 2001 at 05:16:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 02, 2001 at 05:16:23PM +0100, Alan Cox wrote:
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> > I'm running RedHat 7.0 with all official RH patches applied. The kernel I
+> > currently run fow a few days is 2.2.19-7.0.8
+> > I run the pre-compiled kernel of RH. Suddenly I the following messages:
+> > 
+> > Jul  2 15:12:16 gateway SERVER[1240]: Dispatch_input: bad request line
+> > 'BBXXXXXXXXXXXXXXXXXX%.176u%3
+> > 00$nsecurity.%301$n%302$n%.192u%303$n\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\220\22
 
-  Hello,
+> These are for an application.  Not sure which or why 
 
-> After issuing quotaoff -a the kernel oopses. All filesystems which have quotas are ext2 and are using the new quota system.
-> 
-  Seems like missing part of patch from Al Viro.. Attached patch should fix
-it.
+See CERT Advisory CA-2000-22
+	http://www.infowar.com/iwftp/cert/advisories/CA-2000-22.html
 
-								Honza
-
---
-Jan Kara <jack@suse.cz>
-SuSE Labs
-
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dquot.c.diff"
-
---- linux/fs/dquot.c	Mon Jul  2 19:29:31 2001
-+++ linux/fs/dquot.c	Mon Jul  2 19:30:37 2001
-@@ -1889,7 +1889,7 @@
- }
- 
- /* Function in inode.c - remove pointers to dquots in icache */
--extern void remove_dquot_ref(kdev_t, short);
-+extern void remove_dquot_ref(struct super_block *, short);
- 
- /*
-  * Turn quota off on a device. type == -1 ==> quotaoff for all types (umount)
-@@ -1913,7 +1913,7 @@
- 		reset_enable_flags(dqopt, cnt);
- 
- 		/* Note: these are blocking operations */
--		remove_dquot_ref(sb->s_dev, cnt);
-+		remove_dquot_ref(sb, cnt);
- 		invalidate_dquots(sb->s_dev, cnt);
- 		/* When invalidate is finished there are no users of any dquot of our interest... */
- 		if (quotafile_info_dirty(sb_dqopt(sb)->info+cnt))
-
---6c2NcOVqGQ03X4Wi--
+  "A popular replacement software package to the BSD lpd printing service
+   called LPRng contains at least one software defect, known as a "format string
+   vulnerability," which may allow remote users to execute arbitrary code on
+   vulnerable systems."

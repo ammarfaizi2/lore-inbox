@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291531AbSBYQGL>; Mon, 25 Feb 2002 11:06:11 -0500
+	id <S291148AbSBYQIb>; Mon, 25 Feb 2002 11:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291148AbSBYQFv>; Mon, 25 Feb 2002 11:05:51 -0500
-Received: from adsl-217-220.38-151.net24.it ([151.38.220.217]:3510 "EHLO
-	valeria.casa") by vger.kernel.org with ESMTP id <S293288AbSBYQFm>;
-	Mon, 25 Feb 2002 11:05:42 -0500
-Date: Mon, 25 Feb 2002 17:05:41 +0100 (CET)
-From: marco <marco@tux.dynu.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: suparna@in.ibm.com, linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Kernel support of socket async I/O
-Message-ID: <Pine.LNX.4.21.0202251521440.27334-100000@valeria.casa>
+	id <S293288AbSBYQIV>; Mon, 25 Feb 2002 11:08:21 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:9387 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S291148AbSBYQIC>; Mon, 25 Feb 2002 11:08:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Christian Armingeon <linux.johnny@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: knfsd not working in 2.4.18-rc4
+Date: Mon, 25 Feb 2002 16:05:26 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <16fLiV-0OqAvgC@fmrl03.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Benjamin and all of the guys on the lists,
-I'm pretty much interested in socket async I/O for a project at work. I
-read the document at 
+Hi folks,
+kernel nfsd in 2.4.18-rc4 isn't working when started via the distribution's boot scripts, and I don't know, how to set it up manually. I don't blame the distro's script, but it is a SuSE 7.3.
+I think, it is a kernel issue.
+2.4.17 worked, 2.4.18-rc4 was the first, who showed this misbehaviour.
+Maybe, it is final relevant?
 
-http://lse.sourceforge.net/io/aionotes.txt
+Thanks in advance,
 
-and I saw that patches are available at
+Johnny
 
-http://kanga.kvack.org/~blah/aio/
+I get the following errors:
+RPC: Unable to receive; errno = Connection refused
+startproc:  exit status of parent of /usr/sbin/rpc.mountd: 1
 
-I also searched linux-kernel archives for some status information, but
-couldn't gain much info (other than a couple of discussion threads back in
-late 1999).
-What we need is a standard aio/thread-pool-in-sigwaitinfo architecture and
-we wouldn't like to use select/poll.
-
-I would also like to contribute on this project if it could somehow help 
-(if my boss lets me, of course ...)
-
-I promise to narrow the distribution as long as I know who to talk to!
-Thanks,
-Marco.
-
-
-
----------------------------------------------------
-
-      ~
-     . .
-     /V\     Computers are like air conditioners.
-    // \\   They stop working when you open Windows.
-   /(   )\
-    ^`~'^
-
-
+In dmesg, I see:
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).

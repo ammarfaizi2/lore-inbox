@@ -1,102 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267656AbTBFWmN>; Thu, 6 Feb 2003 17:42:13 -0500
+	id <S267683AbTBFWoe>; Thu, 6 Feb 2003 17:44:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267671AbTBFWmN>; Thu, 6 Feb 2003 17:42:13 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:27547 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267656AbTBFWmL>; Thu, 6 Feb 2003 17:42:11 -0500
-Message-ID: <3E42E543.20306@us.ibm.com>
-Date: Thu, 06 Feb 2003 14:44:19 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+	id <S267686AbTBFWoe>; Thu, 6 Feb 2003 17:44:34 -0500
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:40109 "EHLO
+	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S267683AbTBFWoc>; Thu, 6 Feb 2003 17:44:32 -0500
+Message-ID: <3E42E7B7.2080900@blue-labs.org>
+Date: Thu, 06 Feb 2003 17:54:47 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030131
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@zip.com.au>
-CC: Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [patch] Broken CLEAR_BITMAP() macro
-Content-Type: multipart/mixed;
- boundary="------------090200050803090100010802"
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, "Adam J. Richter" <adam@yggdrasil.com>
+Subject: Re: 2.5.59 OOPS w/ fdisk & devfs
+References: <3E42D05E.8080907@blue-labs.org> <20030206135138.3c083007.akpm@digeo.com>
+In-Reply-To: <20030206135138.3c083007.akpm@digeo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090200050803090100010802
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Well, don't jump too fast :)
 
-Hello all,
-	It appears that the CLEAR_BITMAP() macro in include/linux/types.h is 
-broken.
+I have been having extreme hardware issues with this box for the past 
+several hours.  I thought it was 2.5.59 giving me grief but an old 
+kernel I had laying around presented similar issues.  I'm busy swapping 
+cables, memory, etc to see who is being the bad guy.
 
-(Examples done with BITS_PER_LONG == 32, but would work with == 64, or 
-anything but 8 for that matter! :)
+So far, I've had issues with reiserfs, raw dd, mkreiserfs, tar, cp, mv 
+(insert a lot of shell commands), interpreters, you name it.  Nothing 
+seems common except that it all occurs when hda data is going somewhere 
+else.  I just swapped my udma66 cable on hda and I'm trying to stress 
+test hda now.
 
- >#define DECLARE_BITMAP(name,bits) \
- >	unsigned long name[((bits)+BITS_PER_LONG-1)/BITS_PER_LONG]
- >#define CLEAR_BITMAP(name,bits) \
- >	memset(name, 0, ((bits)+BITS_PER_LONG-1)/8)
+David
 
-If, for example, we DECLARE_BITMAP(foo, 64), we're going to get:
-	unsigned long foo[((64)+32-1)/32] =>
-	unsigned long foo[95/32] =>
-	unsigned long foo[2]
+Andrew Morton wrote:
 
-Now, that's all well and good (and correct! ;)  But, look at what 
-happens if we do a CLEAR_BITMAP(foo, 64):
-	memset(foo, 0, ((64)+32-1)/8) =>
-	memset(foo, 0, 95/8) =>
-	memset(foo, 0, 11)
-
-So the memset is going to try and clear 11 bytes starting at foo, which 
-will overflow the foo array by 3 bytes.  This is bad.
-
-What CLEAR_BITMAP wants to be doing is this:
-  #define CLEAR_BITMAP(name,bits) \
-  	memset(name, 0, 
-(((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)*sizeof(unsigned long))
-
-Attatched is a patch that creates a macro BITS_TO_LONGS that just rounds 
-a number of bits up to the closest number of unsigned longs.  This makes 
-the DECLARE & CLEAR _BITMAP macros more readable.  I also modify the 
-CLEAR_BITMAP macro to work correctly.
-
-Cheers!
-
--Matt
-
---------------090200050803090100010802
-Content-Type: text/plain;
- name="clear_bitmap_fix-2.5.59.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="clear_bitmap_fix-2.5.59.patch"
-
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.59-vanilla/include/linux/types.h linux-2.5.59-bitmap_fix/include/linux/types.h
---- linux-2.5.59-vanilla/include/linux/types.h	Thu Jan 16 18:22:41 2003
-+++ linux-2.5.59-bitmap_fix/include/linux/types.h	Thu Feb  6 13:51:23 2003
-@@ -4,10 +4,12 @@
- #ifdef	__KERNEL__
- #include <linux/config.h>
- 
-+#define BITS_TO_LONGS(bits) \
-+	(((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
- #define DECLARE_BITMAP(name,bits) \
--	unsigned long name[((bits)+BITS_PER_LONG-1)/BITS_PER_LONG]
-+	unsigned long name[BITS_TO_LONGS(bits)]
- #define CLEAR_BITMAP(name,bits) \
--	memset(name, 0, ((bits)+BITS_PER_LONG-1)/8)
-+	memset(name, 0, BITS_TO_LONGS(bits)*sizeof(unsigned long))
- #endif
- 
- #include <linux/posix_types.h>
-
---------------090200050803090100010802--
+>David Ford <david+cert@blue-labs.org> wrote:
+>  
+>
+>>Unable to handle kernel paging request at virtual address 6b6b6b87
+>>...
+>>EIP is at _devfs_unhook+0x2b/0x70
+>>    
+>>
+>
+>
+>Look.  devfs is sick.  Richard has disappeared.  Al did some work on it and
+>also disappeared.  Adam laid it on the ground and drove a truck over it, and
+>I had that patch in -mm for two or three weeks and had one single, sole, sad,
+>sorry report from a tester.
+>  
+>
 

@@ -1,42 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316481AbSEUBTl>; Mon, 20 May 2002 21:19:41 -0400
+	id <S316485AbSEUB3F>; Mon, 20 May 2002 21:29:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316484AbSEUBTk>; Mon, 20 May 2002 21:19:40 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:37882 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S316481AbSEUBTj>; Mon, 20 May 2002 21:19:39 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15593.41128.652928.573561@wombat.chubb.wattle.id.au>
-Date: Tue, 21 May 2002 11:19:36 +1000
-To: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Allow aic7xx firmware to be built from BK tree.
-X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
+	id <S316484AbSEUB3E>; Mon, 20 May 2002 21:29:04 -0400
+Received: from bitmover.com ([192.132.92.2]:689 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S316483AbSEUB3D>;
+	Mon, 20 May 2002 21:29:03 -0400
+From: Larry McVoy <lm@bitmover.com>
+Date: Mon, 20 May 2002 18:29:04 -0700
+Message-Id: <200205210129.g4L1T4a16023@work.bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: OLS & BitKeeper BOF?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey, OLS is coming up and I'm wondering if there are people out here who
+would be interested in me showing up and answering BK questions, technical
+or licensing or otherwise.  Richard Gooch pinged me about the license and
+I explained our reasons for why it is the way it is and he urged me to
+show up and explain it to a wider audience, I apparently explained things
+that weren't well known.  I'm happy to do that, you can bring tomatoes :)
 
-This patch removes the two generate files (that are also in the
-distributed kernel) before attempting to regenerate them.
+Anyway, I'm reasonably busy so if nobody cares one way or the other, I'll
+pass, but if it would to have someone to ask questions of or whatever, it
+would be fun.  I could use a break and I enjoyed hanging out with kernel
+folks, this SCM stuff gets old after a while...
 
-The real question is, why are there generated files distributed with
-the kernel source?
-
-(Patch against 2.5.16)
-
-
-===== drivers/scsi/aic7xxx/Makefile 1.8 vs edited =====
---- 1.8/drivers/scsi/aic7xxx/Makefile   Thu Apr 25 05:16:44 2002
-+++ edited/drivers/scsi/aic7xxx/Makefile        Tue May 14 10:04:50 2002
-@@ -26,6 +26,7 @@
- 
- ifeq ($(CONFIG_AIC7XXX_BUILD_FIRMWARE),y)
- aic7xxx_seq.h aic7xxx_reg.h: aic7xxx.seq aic7xxx.reg aicasm/aicasm
-+       -rm -f aic7xx_seq.h aic7xx_reg.h
-        aicasm/aicasm -I. -r aic7xxx_reg.h -o aic7xxx_seq.h aic7xxx.seq
- endif
- 
+--lm

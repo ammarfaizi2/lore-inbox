@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266569AbUA3Di7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 22:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUA3Di7
+	id S266553AbUA3EBs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 23:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUA3EBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 22:38:59 -0500
-Received: from smtp-relay.dca.net ([216.158.48.66]:37820 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S266569AbUA3Di4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 22:38:56 -0500
-Date: Thu, 29 Jan 2004 22:38:53 -0500
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: Re: [BK PATCH] i2c driver fixes for 2.6.2-rc2
-Message-ID: <20040130033853.GG992@earth.solarsys.private>
-Reply-To: Sensors <sensors@stimpy.netroedge.com>
-References: <20040127233242.GA28891@kroah.com> <20040129004402.GC5830@werewolf.able.es> <1075365845.4018c7d5353d7@imp.gcu.info> <20040129222135.GC5768@werewolf.able.es> <20040129225659.GA11872@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040129225659.GA11872@werewolf.able.es>
-User-Agent: Mutt/1.4.1i
+	Thu, 29 Jan 2004 23:01:47 -0500
+Received: from dp.samba.org ([66.70.73.150]:61116 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266553AbUA3EBo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 23:01:44 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Rik van Riel <riel@redhat.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: David Woodhouse <dwmw2@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] some more fixes for inode.c 
+In-reply-to: Your message of "Tue, 20 Jan 2004 08:06:32 CDT."
+             <Pine.LNX.4.44.0401200803150.15071-100000@chimarrao.boston.redhat.com> 
+Date: Fri, 30 Jan 2004 14:55:12 +1100
+Message-Id: <20040130040158.63DA42C107@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* J.A. Magallon <jamagallon@able.es> [2004-01-29 23:56:59 +0100]:
-> 
-> On 2004.01.29, J.A. Magallon wrote:
-> > 
-> > werewolf:~# sensors
-> > w83781d-isa-0290
-> > Adapter: ISA adapter
-> > VCore 1:   +1.97 V  (min =  +1.90 V, max =  +2.10 V)              
-> > VCore 2:   +2.02 V  (min =  +1.90 V, max =  +2.10 V)              
-> > +3.3V:     +3.23 V  (min =  +3.14 V, max =  +3.46 V)              
-> > +5V:       +4.97 V  (min =  +4.73 V, max =  +5.24 V)              
-> > +12V:     +12.04 V  (min = +11.37 V, max = +12.59 V)    
-> 
-> Oops, not so good:
->           
-> > -12V:     -12.18 V  (min = -12.57 V, max = -11.35 V)       ALARM  
-> > -5V:       -4.96 V  (min =  -5.25 V, max =  -4.74 V)       ALARM  
-> 
-> Why ALARM ?
+In message <Pine.LNX.4.44.0401200803150.15071-100000@chimarrao.boston.redhat.com> you write:
+>  	}
+>  	list_for_each(act_head, &inode_unused) {
+> +		inode = list_entry(act_head, struct inode, i_list);
+> +		if (inode->i_sb == sb && IS_QUOTAINIT(inode))
+> +			remove_inode_dquot_ref(inode, type, &tofree_head);
+> +	}
+> +	list_for_each(act_head, &inode_unused_pagecache) {
+>  		inode = list_entry(act_head, struct inode, i_list);
 
-The alarm indicator is "sticky".  Even though the present
-readings are within limits, the alarm says that the voltage
-moved outside its limit since the last time you ran sensors.
+list_for_each_entry() perhaps?
 
-Trying running sensors 5 times, at 2 second intervals.  If
-the voltage always stays within the limits but the alarm
-is not cleared, then maybe there is a problem with the
-driver.  If that's the case, please follow up on the sensors
-mailing list.
+It's in 2.4, as well.
 
-Regards,
-
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
-
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129138AbQJ0HNy>; Fri, 27 Oct 2000 03:13:54 -0400
+	id <S129180AbQJ0HfQ>; Fri, 27 Oct 2000 03:35:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129308AbQJ0HNo>; Fri, 27 Oct 2000 03:13:44 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62682 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129138AbQJ0HNg>;
-	Fri, 27 Oct 2000 03:13:36 -0400
-Date: Fri, 27 Oct 2000 03:13:33 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-cc: kumon@flab.fujitsu.co.jp, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Negative scalability by removal of lock_kernel()?(Was: Strange
-  performance behavior of 2.4.0-test9)
-In-Reply-To: <39F92187.A7621A09@timpanogas.org>
-Message-ID: <Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129128AbQJ0HfG>; Fri, 27 Oct 2000 03:35:06 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:8456 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129226AbQJ0Hex>; Fri, 27 Oct 2000 03:34:53 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: missing mxcsr initialization
+Date: 27 Oct 2000 00:34:47 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8tbb6n$85r$1@cesium.transmeta.com>
+In-Reply-To: <20001026021731.B23895@athlon.random> <E13oy7T-00043v-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Comment-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 
+Followup to:  <E13oy7T-00043v-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
+>
+> > > corrected for include the facts that the XMM feature bit is an Intel specific
+> > > bit that other vendors may use for other things, so you need to test vendor ==
+> > 			 ^^^
+> > Note that they shouldn't do that! I would consider a very bad thing if they
+> > goes out of sync on those bits.
+> 
+> CPUID is vendor specific. Every bit in those fields is vendor specific. Every
+> piece of documentation tells you to check the CPU vendor.  Every time we didnt 
+> bother we got burned.
+> 
+> I keep hearing people saying things like 'bad thing' 'assume standards'. Well
+> all I can say is cite a vendor issued document which says 'dont bother checking
+> the vendor'. 
+> 
 
-On Fri, 27 Oct 2000, Jeff V. Merkey wrote:
+Intel does it because they want every other chip out there to act like
+a 486.
 
 > 
-> Linux has lots of n-sqared linear list searches all over the place, and
-> there's a ton of spots I've seen it go linear by doing fine grained
-> manipulation of lock_kernel() [like in BLOCK.C in NWFS for sending async
-> IO to ll_rw_block()].   I could see where there would be many spots
-> where playing with this would cause problems.  
+> And when you can't find that document, put the checks in so we dont crash on
+> an Athlon or when using MTRR on a Cyrix III etc
 > 
-> 2.5 will be better.
 
-fs/locks.c is one hell of a sick puppy. Nothing new about that. I'm kinda
-curious about "n-squared" searches in other places, though - mind showing
-them?
+Chips that don't implement what they claim to implement are buggy and
+should be treated as such.  SPECIAL-CASE THE BUGGY CHIPS, NOT THE
+PROPERLY FUNCTIONING ONES.
 
-BTW, what spinlocks get contention in variant without BKL? And what about
-comparison between the BKL and non-BKL versions? If it's something like
-	BKL	no BKL
-4-way	50	20
-8-way	30	30
-- something is certainly wrong, but restoring the BKL is _not_ a win.
+	-hpa
 
-I didn't look into recent changes in fs/locks.c, but I have quite problem
-inventing a scenario when _adding_ BKL (without reverting other changes)
-might give an absolute improvement. Well, I see a couple of really perverted
-scenarios, but... Seriously, folks, could you compare the 4 variants above
-and gather the contention data for the -test9 on your loads? That would help
-a lot.
 
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVATXqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVATXpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbVATXqB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 18:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVATXpx
+	id S261807AbVATXpt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 18:45:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVATXps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 18:45:53 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11724 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262215AbVATXpr (ORCPT
+	Thu, 20 Jan 2005 18:45:48 -0500
+Received: from tux.linux.ee ([195.222.16.153]:18873 "EHLO tux.linux.ee")
+	by vger.kernel.org with ESMTP id S261807AbVATXpZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 18:45:47 -0500
-Date: Thu, 20 Jan 2005 15:45:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
-       Andrew Morton <akpm@osdl.org>, paulus@samba.org,
-       linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
-       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
-       jbarnes@sgi.com
-Subject: Re: [patch, BK-curr] nonintrusive spin-polling loop in kernel/spinlock.c
-In-Reply-To: <20050120182227.GA26985@elte.hu>
-Message-ID: <Pine.LNX.4.58.0501201538320.8178@ppc970.osdl.org>
-References: <20050120023445.GA3475@taniwha.stupidest.org>
- <20050119190104.71f0a76f.akpm@osdl.org> <20050120031854.GA8538@taniwha.stupidest.org>
- <16879.29449.734172.893834@wombat.chubb.wattle.id.au>
- <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu>
- <Pine.LNX.4.58.0501200823010.8178@ppc970.osdl.org> <20050120164038.GA15874@elte.hu>
- <Pine.LNX.4.58.0501200947440.8178@ppc970.osdl.org> <20050120175313.GA22782@elte.hu>
- <20050120182227.GA26985@elte.hu>
+	Thu, 20 Jan 2005 18:45:25 -0500
+Date: Fri, 21 Jan 2005 01:45:23 +0200 (EET)
+From: Kaupo Arulo <kaups@linux.ee>
+To: linux-kernel@vger.kernel.org
+Cc: Kaupo Arulo <kaups@linux.ee>
+Subject: [PATCH] drivers/usb/devio.c, against ioctl bug in 2.4.28 & 2.4.29
+Message-ID: <Pine.LNX.4.61.0501210049230.21617@tux.linux.ee>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-557606640-1540414193-1106264723=:21617"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
+---557606640-1540414193-1106264723=:21617
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-Btw, I think I've now merged everything to bring us back to where we 
-wanted to be - can people verify that the architecture they care about has 
-all the right "read_can_lock()" etc infrastructure (and preferably that it 
-_works_ too ;), and that I've not missed of incorrectly ignored some 
-patches in this thread?
+Hi!
+Here is the tested patch against modem_run and eciadsl hang since 2.4.28.
+Longer discussion about it is in:
+http://sourceforge.net/mailarchive/forum.php?thread_id=6054671&forum_id=5398
+and feedback from users is in:
+http://www.mail-archive.com/speedtouch%40ml.free.fr/msg06848.html
+The patch itself is also located in:
+http://linux.ee/~kaups/devio.patch
 
-		Linus
+It:
+- prevent grabbing exclusive_access mutex for ioctls that doesn't need it
+- prevent grabbing exclusive_access mutex for non existing ioctls
+- use interruptible sleep instead uninterruptible
+
+PS. keep me in CC since I'm not subscribed...
+--
+best regards,
+Kaupo Arulo
+---557606640-1540414193-1106264723=:21617
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="devio.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.61.0501210145231.21617@tux.linux.ee>
+Content-Description: 
+Content-Disposition: attachment; filename="devio.patch"
+
+LS0tIGRldmlvLmMub3JpZwkyMDA0LTExLTI4IDIyOjI0OjQ5LjAwMDAwMDAw
+MCArMDIwMA0KKysrIGRldmlvLmMJMjAwNC0xMi0wMSAxMjo0NzowMi4wMDAw
+MDAwMDAgKzAyMDANCkBAIC0xMTUzLDQ1ICsxMTUzLDYyIEBAIHN0YXRpYyBp
+bnQgdXNiZGV2X2lvY3RsKHN0cnVjdCBpbm9kZSAqaW4NCiANCiAJaWYgKCEo
+ZmlsZS0+Zl9tb2RlICYgRk1PREVfV1JJVEUpKQ0KIAkJcmV0dXJuIC1FUEVS
+TTsNCi0JZG93bl9yZWFkKCZwcy0+ZGV2c2VtKTsNCisJZG93bl9yZWFkKCZw
+cy0+ZGV2c2VtKTsgLyogRklYTUU6IHNob3VsZCB3ZSBzZXQgZGV2c2VtIGFs
+c28gcGVyICJjYXNlIiANCisJCQkJICAgbGlrZSBleGNsdXNpdmVfYWNjZXNz
+IHRvIGF2b2lkDQorCQkJCSAgIGJsb2NraW5nIG5vbmV4aXN0ZW50IGlvY3Rs
+cyA/ICovDQogCWlmICghcHMtPmRldikgew0KIAkJdXBfcmVhZCgmcHMtPmRl
+dnNlbSk7DQogCQlyZXR1cm4gLUVOT0RFVjsNCiAJfQ0KLQ0KLQkvKg0KLQkg
+KiBncmFiIGRldmljZSdzIGV4Y2x1c2l2ZV9hY2Nlc3MgbXV0ZXggdG8gcHJl
+dmVudCBpdHMgZHJpdmVyIGZyb20NCi0JICogdXNpbmcgdGhpcyBkZXZpY2Ug
+d2hpbGUgaXQgaXMgYmVpbmcgYWNjZXNzZWQgYnkgdXMuDQorICAgICAgICAv
+Kg0KKyAgICAgICAgICogU29tZSBpb2N0bHMgZG9uJ3QgdG91Y2ggdGhlIGRl
+dmljZSBhbmQgY2FuIGJlIGNhbGxlZCB3aXRob3V0DQorICAgICAgICAgKiBn
+cmFiYmluZyBpdHMgZXhjbHVzaXZlX2FjY2VzcyBtdXRleDsgdGhleSBhcmUg
+aGFuZGxlZCB0b2dldGhlciANCisJICAqIGluIHNhbWUgc3dpdGNoIHdpdGgg
+aW9jdGxzIHdoaWNoIG5lZWQgaXQuIEV4Y2x1c2l2ZV9hY2Nlc3MgaXMgaGFu
+ZGxlZCBpbg0KKyAgICAgICAgICogcGFydGljdWxhciBzd2l0Y2ggYnJhbmNo
+ZXMsIHNvIHdlIGdyYWIgZGV2aWNlJ3MgZXhjbHVzaXZlX2FjY2VzcyANCisJ
+ICogbXV0ZXggT05MWSBpZiBuZWVkZWQgYW5kIFdIRU4gYWN0dWFsbHkgbmVl
+ZGVkISEhIA0KIAkgKi8NCi0JZG93bigmcHMtPmRldi0+ZXhjbHVzaXZlX2Fj
+Y2Vzcyk7DQotDQogCXN3aXRjaCAoY21kKSB7DQogCWNhc2UgVVNCREVWRlNf
+Q09OVFJPTDoNCi0JCXJldCA9IHByb2NfY29udHJvbChwcywgKHZvaWQgKilh
+cmcpOw0KLQkJaWYgKHJldCA+PSAwKQ0KLQkJCWlub2RlLT5pX210aW1lID0g
+Q1VSUkVOVF9USU1FOw0KKwkJaWYgKGRvd25faW50ZXJydXB0aWJsZSgmcHMt
+PmRldi0+ZXhjbHVzaXZlX2FjY2VzcykgPT0gMCkgew0KKwkJCXJldCA9IHBy
+b2NfY29udHJvbChwcywgKHZvaWQgKilhcmcpOw0KKwkJCXVwKCZwcy0+ZGV2
+LT5leGNsdXNpdmVfYWNjZXNzKTsNCisJCQlpZiAocmV0ID49IDApDQorCQkJ
+CWlub2RlLT5pX210aW1lID0gQ1VSUkVOVF9USU1FOw0KKwkJfSBlbHNlIHJl
+dCA9IC1FUkVTVEFSVFNZUzsNCiAJCWJyZWFrOw0KIA0KIAljYXNlIFVTQkRF
+VkZTX0JVTEs6DQotCQlyZXQgPSBwcm9jX2J1bGsocHMsICh2b2lkICopYXJn
+KTsNCi0JCWlmIChyZXQgPj0gMCkNCi0JCQlpbm9kZS0+aV9tdGltZSA9IENV
+UlJFTlRfVElNRTsNCisJCWlmIChkb3duX2ludGVycnVwdGlibGUoJnBzLT5k
+ZXYtPmV4Y2x1c2l2ZV9hY2Nlc3MpID09IDApIHsNCisJCQlyZXQgPSBwcm9j
+X2J1bGsocHMsICh2b2lkICopYXJnKTsNCisJCQl1cCgmcHMtPmRldi0+ZXhj
+bHVzaXZlX2FjY2Vzcyk7DQorCQkJaWYgKHJldCA+PSAwKQ0KKwkJCQlpbm9k
+ZS0+aV9tdGltZSA9IENVUlJFTlRfVElNRTsNCisJCX0gZWxzZSByZXQgPSAt
+RVJFU1RBUlRTWVM7DQogCQlicmVhazsNCiANCiAJY2FzZSBVU0JERVZGU19S
+RVNFVEVQOg0KLQkJcmV0ID0gcHJvY19yZXNldGVwKHBzLCAodm9pZCAqKWFy
+Zyk7DQotCQlpZiAocmV0ID49IDApDQotCQkJaW5vZGUtPmlfbXRpbWUgPSBD
+VVJSRU5UX1RJTUU7DQorCQlpZiAoZG93bl9pbnRlcnJ1cHRpYmxlKCZwcy0+
+ZGV2LT5leGNsdXNpdmVfYWNjZXNzKSA9PSAwKSB7DQorCQkJcmV0ID0gcHJv
+Y19yZXNldGVwKHBzLCAodm9pZCAqKWFyZyk7DQorCQkJdXAoJnBzLT5kZXYt
+PmV4Y2x1c2l2ZV9hY2Nlc3MpOw0KKwkJCWlmIChyZXQgPj0gMCkNCisJCQkJ
+aW5vZGUtPmlfbXRpbWUgPSBDVVJSRU5UX1RJTUU7DQorCQl9IGVsc2UgcmV0
+ID0gLUVSRVNUQVJUU1lTOw0KIAkJYnJlYWs7DQogDQogCWNhc2UgVVNCREVW
+RlNfUkVTRVQ6DQotCQlyZXQgPSBwcm9jX3Jlc2V0ZGV2aWNlKHBzKTsNCisJ
+CWlmIChkb3duX2ludGVycnVwdGlibGUoJnBzLT5kZXYtPmV4Y2x1c2l2ZV9h
+Y2Nlc3MpID09IDApIHsNCisJCQlyZXQgPSBwcm9jX3Jlc2V0ZGV2aWNlKHBz
+KTsNCisJCQl1cCgmcHMtPmRldi0+ZXhjbHVzaXZlX2FjY2Vzcyk7DQorCQl9
+IGVsc2UgcmV0ID0gLUVSRVNUQVJUU1lTOw0KIAkJYnJlYWs7DQogCQ0KIAlj
+YXNlIFVTQkRFVkZTX0NMRUFSX0hBTFQ6DQotCQlyZXQgPSBwcm9jX2NsZWFy
+aGFsdChwcywgKHZvaWQgKilhcmcpOw0KLQkJaWYgKHJldCA+PSAwKQ0KLQkJ
+CWlub2RlLT5pX210aW1lID0gQ1VSUkVOVF9USU1FOw0KKwkJaWYgKGRvd25f
+aW50ZXJydXB0aWJsZSgmcHMtPmRldi0+ZXhjbHVzaXZlX2FjY2VzcykgPT0g
+MCkgew0KKwkJCXJldCA9IHByb2NfY2xlYXJoYWx0KHBzLCAodm9pZCAqKWFy
+Zyk7DQorCQkJdXAoJnBzLT5kZXYtPmV4Y2x1c2l2ZV9hY2Nlc3MpOw0KKwkJ
+CWlmIChyZXQgPj0gMCkNCisJCQkJaW5vZGUtPmlfbXRpbWUgPSBDVVJSRU5U
+X1RJTUU7DQorCQl9IGVsc2UgcmV0ID0gLUVSRVNUQVJUU1lTOw0KIAkJYnJl
+YWs7DQogDQogCWNhc2UgVVNCREVWRlNfR0VURFJJVkVSOg0KQEAgLTEyMDMs
+MjEgKzEyMjAsMzMgQEAgc3RhdGljIGludCB1c2JkZXZfaW9jdGwoc3RydWN0
+IGlub2RlICppbg0KIAkJYnJlYWs7DQogDQogCWNhc2UgVVNCREVWRlNfU0VU
+SU5URVJGQUNFOg0KLQkJcmV0ID0gcHJvY19zZXRpbnRmKHBzLCAodm9pZCAq
+KWFyZyk7DQorCQlpZiAoZG93bl9pbnRlcnJ1cHRpYmxlKCZwcy0+ZGV2LT5l
+eGNsdXNpdmVfYWNjZXNzKSA9PSAwKSB7DQorCQkJcmV0ID0gcHJvY19zZXRp
+bnRmKHBzLCAodm9pZCAqKWFyZyk7DQorCQkJdXAoJnBzLT5kZXYtPmV4Y2x1
+c2l2ZV9hY2Nlc3MpOw0KKwkJfSBlbHNlIHJldCA9IC1FUkVTVEFSVFNZUzsN
+CiAJCWJyZWFrOw0KIA0KIAljYXNlIFVTQkRFVkZTX1NFVENPTkZJR1VSQVRJ
+T046DQotCQlyZXQgPSBwcm9jX3NldGNvbmZpZyhwcywgKHZvaWQgKilhcmcp
+Ow0KKwkJaWYgKGRvd25faW50ZXJydXB0aWJsZSgmcHMtPmRldi0+ZXhjbHVz
+aXZlX2FjY2VzcykgPT0gMCkgew0KKwkJCXJldCA9IHByb2Nfc2V0Y29uZmln
+KHBzLCAodm9pZCAqKWFyZyk7DQorCQkJdXAoJnBzLT5kZXYtPmV4Y2x1c2l2
+ZV9hY2Nlc3MpOw0KKwkJfSBlbHNlIHJldCA9IC1FUkVTVEFSVFNZUzsNCiAJ
+CWJyZWFrOw0KIA0KIAljYXNlIFVTQkRFVkZTX1NVQk1JVFVSQjoNCi0JCXJl
+dCA9IHByb2Nfc3VibWl0dXJiKHBzLCAodm9pZCAqKWFyZyk7DQotCQlpZiAo
+cmV0ID49IDApDQotCQkJaW5vZGUtPmlfbXRpbWUgPSBDVVJSRU5UX1RJTUU7
+DQorCQlpZiAoZG93bl9pbnRlcnJ1cHRpYmxlKCZwcy0+ZGV2LT5leGNsdXNp
+dmVfYWNjZXNzKSA9PSAwKSB7DQorCQkJcmV0ID0gcHJvY19zdWJtaXR1cmIo
+cHMsICh2b2lkICopYXJnKTsNCisJCQl1cCgmcHMtPmRldi0+ZXhjbHVzaXZl
+X2FjY2Vzcyk7DQorCQkJaWYgKHJldCA+PSAwKQ0KKwkJCQlpbm9kZS0+aV9t
+dGltZSA9IENVUlJFTlRfVElNRTsNCisJCX0gZWxzZSByZXQgPSAtRVJFU1RB
+UlRTWVM7DQogCQlicmVhazsNCiANCiAJY2FzZSBVU0JERVZGU19ESVNDQVJE
+VVJCOg0KLQkJcmV0ID0gcHJvY191bmxpbmt1cmIocHMsICh2b2lkICopYXJn
+KTsNCisJCWlmIChkb3duX2ludGVycnVwdGlibGUoJnBzLT5kZXYtPmV4Y2x1
+c2l2ZV9hY2Nlc3MpID09IDApIHsNCisJCQlyZXQgPSBwcm9jX3VubGlua3Vy
+YihwcywgKHZvaWQgKilhcmcpOw0KKwkJCXVwKCZwcy0+ZGV2LT5leGNsdXNp
+dmVfYWNjZXNzKTsNCisJCX0gZWxzZSByZXQgPSAtRVJFU1RBUlRTWVM7DQog
+CQlicmVhazsNCiANCiAJY2FzZSBVU0JERVZGU19SRUFQVVJCOg0KQEAgLTEy
+MzMsMTggKzEyNjIsMjYgQEAgc3RhdGljIGludCB1c2JkZXZfaW9jdGwoc3Ry
+dWN0IGlub2RlICppbg0KIAkJYnJlYWs7DQogDQogCWNhc2UgVVNCREVWRlNf
+Q0xBSU1JTlRFUkZBQ0U6DQotCQlyZXQgPSBwcm9jX2NsYWltaW50ZXJmYWNl
+KHBzLCAodm9pZCAqKWFyZyk7DQorCQlpZiAoZG93bl9pbnRlcnJ1cHRpYmxl
+KCZwcy0+ZGV2LT5leGNsdXNpdmVfYWNjZXNzKSA9PSAwKSB7DQorCQkJcmV0
+ID0gcHJvY19jbGFpbWludGVyZmFjZShwcywgKHZvaWQgKilhcmcpOw0KKwkJ
+CXVwKCZwcy0+ZGV2LT5leGNsdXNpdmVfYWNjZXNzKTsNCisJCX0gZWxzZSBy
+ZXQgPSAtRVJFU1RBUlRTWVM7DQogCQlicmVhazsNCiANCiAJY2FzZSBVU0JE
+RVZGU19SRUxFQVNFSU5URVJGQUNFOg0KLQkJcmV0ID0gcHJvY19yZWxlYXNl
+aW50ZXJmYWNlKHBzLCAodm9pZCAqKWFyZyk7DQorCQlpZiAoZG93bl9pbnRl
+cnJ1cHRpYmxlKCZwcy0+ZGV2LT5leGNsdXNpdmVfYWNjZXNzKSA9PSAwKSB7
+DQorCQkJcmV0ID0gcHJvY19yZWxlYXNlaW50ZXJmYWNlKHBzLCAodm9pZCAq
+KWFyZyk7DQorCQkJdXAoJnBzLT5kZXYtPmV4Y2x1c2l2ZV9hY2Nlc3MpOw0K
+KwkJfSBlbHNlIHJldCA9IC1FUkVTVEFSVFNZUzsNCiAJCWJyZWFrOw0KIA0K
+IAljYXNlIFVTQkRFVkZTX0lPQ1RMOg0KLQkJcmV0ID0gcHJvY19pb2N0bChw
+cywgKHZvaWQgKikgYXJnKTsNCisJCWlmIChkb3duX2ludGVycnVwdGlibGUo
+JnBzLT5kZXYtPmV4Y2x1c2l2ZV9hY2Nlc3MpID09IDApIHsNCisJCQlyZXQg
+PSBwcm9jX2lvY3RsKHBzLCAodm9pZCAqKSBhcmcpOw0KKwkJCXVwKCZwcy0+
+ZGV2LT5leGNsdXNpdmVfYWNjZXNzKTsNCisJCX0gZWxzZSByZXQgPSAtRVJF
+U1RBUlRTWVM7DQogCQlicmVhazsNCiAJfQ0KLQl1cCgmcHMtPmRldi0+ZXhj
+bHVzaXZlX2FjY2Vzcyk7DQogCXVwX3JlYWQoJnBzLT5kZXZzZW0pOw0KIAlp
+ZiAocmV0ID49IDApDQogCQlpbm9kZS0+aV9hdGltZSA9IENVUlJFTlRfVElN
+RTsNCg==
+
+---557606640-1540414193-1106264723=:21617--

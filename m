@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbTEESQE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 14:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbTEESQE
+	id S261195AbTEESUm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 14:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbTEESUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 14:16:04 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:19106 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261201AbTEESQC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 14:16:02 -0400
-Date: Mon, 5 May 2003 11:28:27 -0700
-From: Greg KH <greg@kroah.com>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: linux-i2c@pelican.tk.uni-linz.ac.at, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69: Tyans S2460 hang with i2c
-Message-ID: <20030505182827.GB1826@kroah.com>
-References: <20030505114246.GA673@gallifrey> <20030505175030.GB1713@kroah.com> <20030505181831.GF673@gallifrey>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 5 May 2003 14:20:41 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:33041 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261195AbTEESUj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 14:20:39 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Jochen Hein <jochen@jochen.org>
+Subject: Re: [2.5.69, TR] compile error
+Date: Mon, 5 May 2003 20:32:55 +0200
+User-Agent: KMail/1.5.1
+References: <87bryh9ue3.fsf@echidna.jochen.org>
+In-Reply-To: <87bryh9ue3.fsf@echidna.jochen.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20030505181831.GF673@gallifrey>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200305052033.10592.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 07:18:31PM +0100, Dr. David Alan Gilbert wrote:
-> * Greg KH (greg@kroah.com) wrote:
-> > On Mon, May 05, 2003 at 12:42:46PM +0100, Dr. David Alan Gilbert wrote:
-> > > Kernel: 2.5.69
-> > > Motherboard: Tyan S2460 (Dual Athlon 760MP chipset)
-> > > 
-> > > It works fine without i2c, with i2c we hang directly after:
-> > > 
-> > > i2c /dev entries module version 2.7.0 (20021208)
-> > > registering 0-0048
-> > 
-> > What i2c drivers are you trying to load?  Are you sure you have the
-> > hardware for them?  Some of the i2c sensor drivers can hang your box if
-> > you load them and you don't have the hardware for them.
-> 
-> Looking back at the objects that were built they are:
-> 
-> ./busses/i2c-amd756.o
-> ./chips/adm1021.o
-> ./chips/lm75.o
-> 
-> I guess its a bad thing if they hang if the hardware isn't present - I'd
-> presumed it was possible to build them all and they'd just use which
-> ever are actually present. (How do I know which I've got?)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'd recommend running 2.4 and getting the latest i2c and lmsensors code
-from the lmsensors web site.  Then run the sensors-detect script which
-will try to safely determine what kind of hardware you have, and what
-drivers you need.
+On Monday 05 May 2003 19:27, Jochen Hein wrote:
+> This seems to be a fallout from the irq-type changes:
+>
+>   gcc -Wp,-MD,drivers/net/pcmcia/.ibmtr_cs.o.d -D__KERNEL__ -Iinclude
+>   -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
+>   -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium2
+>   -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
+>   -DMODULE   -DKBUILD_BASENAME=ibmtr_cs -DKBUILD_MODNAME=ibmtr_cs -c
+>   -o drivers/net/pcmcia/ibmtr_cs.o drivers/net/pcmcia/ibmtr_cs.c
+> In file included from drivers/net/pcmcia/ibmtr_cs.c:71:
+> drivers/net/tokenring/ibmtr.c: In function `tok_open':
+> drivers/net/tokenring/ibmtr.c:903: warning: `MOD_INC_USE_COUNT' is
+>   deprecated (declared at include/linux/module.h:456)
+> In file included from drivers/net/pcmcia/ibmtr_cs.c:71:
+> drivers/net/tokenring/ibmtr.c: In function `tok_close':
+> drivers/net/tokenring/ibmtr.c:1068: warning: `MOD_DEC_USE_COUNT' is
+>   deprecated (declared at include/linux/module.h:468)
+> drivers/net/pcmcia/ibmtr_cs.c: At top level:
+> drivers/net/pcmcia/ibmtr_cs.c:130: conflicting types for
+>   `tok_interrupt'
+> drivers/net/tokenring/ibmtr.c:1170: previous declaration of
+>   `tok_interrupt'
+> make[3]: *** [drivers/net/pcmcia/ibmtr_cs.o] Fehler 1
+> make[2]: *** [drivers/net/pcmcia] Fehler 2
+> make[1]: *** [drivers/net] Fehler 2
+> make: *** [drivers] Fehler 2
 
-If after doing that, it says you have the adm1021 and lm75 chips and
-they work properly on 2.4, please let me know and I'll try to track down
-what's changed on 2.5.
+Can you please post your .config, as I'm not able to reproduce it.
+thanks.
 
-Hope this helps,
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 20:32:19 up  2:57,  1 user,  load average: 1.17, 1.06, 1.14
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-greg k-h
+iD8DBQE+tq5moxoigfggmSgRAghNAJ0UOjfMe+00LE5Rfo4zMOFKZMwJvACeOtWg
+Vcf0mH80oXgwedcBrDk/NsE=
+=7vUk
+-----END PGP SIGNATURE-----
+

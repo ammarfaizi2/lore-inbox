@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289370AbSAOMGj>; Tue, 15 Jan 2002 07:06:39 -0500
+	id <S289504AbSAOMQV>; Tue, 15 Jan 2002 07:16:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289504AbSAOMG3>; Tue, 15 Jan 2002 07:06:29 -0500
-Received: from mons.uio.no ([129.240.130.14]:9928 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S289370AbSAOMGO>;
-	Tue, 15 Jan 2002 07:06:14 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15428.6953.453942.415989@charged.uio.no>
-Date: Tue, 15 Jan 2002 13:06:01 +0100
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Hans-Peter Jansen <hpj@urpla.net>, linux-kernel@vger.kernel.org
-Subject: [BUG] symlink problem with knfsd and reiserfs 
-In-Reply-To: <20020115115019.89B55143B@shrek.lisa.de>
-In-Reply-To: <20020115115019.89B55143B@shrek.lisa.de>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	id <S289507AbSAOMQL>; Tue, 15 Jan 2002 07:16:11 -0500
+Received: from ns.suse.de ([213.95.15.193]:56840 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289504AbSAOMQG>;
+	Tue, 15 Jan 2002 07:16:06 -0500
+To: peter@horizon.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <20020115025840.11509.qmail@science.horizon.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 15 Jan 2002 13:16:04 +0100
+In-Reply-To: peter@horizon.com's message of "15 Jan 2002 04:04:19 +0100"
+Message-ID: <p736663kdx7.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Hans-Peter Jansen <hpj@urpla.net> writes:
+peter@horizon.com writes:
 
-     > In syslog, this message appears: Jan 15 00:21:03 elfe kernel:
-     > nfs_refresh_inode: inode 50066 mode changed, 0100664 to 0120777
+> 1) The main kernel is contiguous in physical memory and is mapped with
+>    large (4 MB) pages.  This reduces pressure on the TLB.  Modules are
+>    loaded in vmalloc memory, which uses small pages, and therefore
+>    competes for TLB space.  This is a performance penalty, especially
+>    as most current machines have undersized TLBs already.  (A 64-entry
+>    TLB with 4K pages maps 256K at a time.  On-chip L2 caches are this
+>    large or larger.  Thus, as a crude approximation, every L2 miss also
+>    causes a TLB miss.)
 
-The error is basically telling you that ReiserFS filehandles are being
-reused by the server. Doesn't Reiser provide a generation count to
-guard against this sort of thing?
+-aa tries to load modules into the linear mapping when possible.
+That usually works when you load the modules early when the memory 
+isn't that fragmented yet.
 
-My 'fix' just solves the immediate problem of the wrong file mode. It
-does not solve the problems of data corruption that can occur when the
-client is incapable of distinguishing the 'old' and 'new' files that
-share the same filehandle.
+I agree on that trying to put everything into modules isn't a good idea,
+especially because of your second point.
 
-Cheers,
-  Trond
+-Andi

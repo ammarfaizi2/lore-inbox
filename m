@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280994AbRKCUYF>; Sat, 3 Nov 2001 15:24:05 -0500
+	id <S281032AbRKCUbp>; Sat, 3 Nov 2001 15:31:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281031AbRKCUX4>; Sat, 3 Nov 2001 15:23:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56325 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280994AbRKCUXp>; Sat, 3 Nov 2001 15:23:45 -0500
-Date: Sat, 3 Nov 2001 12:20:53 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Richard Henderson <rth@twiddle.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Juergen Doelle <jdoelle@de.ibm.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Pls apply this spinlock patch to the kernel
-In-Reply-To: <20011103115556.A5984@twiddle.net>
-Message-ID: <Pine.LNX.4.33.0111031215490.2026-100000@penguin.transmeta.com>
+	id <S281034AbRKCUbf>; Sat, 3 Nov 2001 15:31:35 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:16068 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S281032AbRKCUb1>;
+	Sat, 3 Nov 2001 15:31:27 -0500
+Date: Sat, 3 Nov 2001 15:31:25 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Simon Kirby <sim@netnation.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Something broken in sys_swapon
+In-Reply-To: <20011103122344.A12059@netnation.com>
+Message-ID: <Pine.GSO.4.21.0111031529490.18001-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 3 Nov 2001, Richard Henderson wrote:
->
-> The "cache_line_pad" is useless.  The __attribute__((aligned(N)))
-> is completely sufficient.
 
-I think you missed the important part: there must be no false sharing with
-ANYTHING ELSE.
+On Sat, 3 Nov 2001, Simon Kirby wrote:
 
-If you have a 4-byte entry that is aligned to 128 bytes, you have 124
-bytes of stuff that the linker _will_ fill up with other things.
+>                 kdev_t dev = swap_inode->i_rdev;
+>                 struct block_device_operations *bdops;
+> 
+>                 p->swap_device = dev;
+>                 set_blocksize(dev, PAGE_SIZE);
+> 
+> I don't know much at all about the inode structure, but doesn't this set
+> the block size of the originating filesystem containing the inode rather
+> than the block device that inode happens to be pointing to?  That would
 
-And if you don't want false sharing, that MUST NOT HAPPEN.
+man 2 stat
 
-Try it. You'll see.
-
-> Separate sections are also not needed.  While you can't guarantee
-> adjacency, the object file *does* record the required alignment
-> and that must be honored by the linker.
-
-It's not just alignment: it wants an exclusive cacheline. Thus the
-padding.
-
-And I'm claiming, based on past experiences with the linker, that the
-padding won't guarantee anything, because the linker can re-order things
-to "pack" them tighter. So the padding either has to be inside a structure
-or a union (which implies a new type, and thus that the users care about
-whether the spinlock is padded or not), or it needs a separate section, so
-that it doesn't _matter_ if the linker re-orders anything, because
-everything in that section is aligned, and as such you cannot get false
-sharing even with reordering.
-
-		Linus
+i_rdev is equivalent of st_rdev, i_dev - of st_dev.
 

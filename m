@@ -1,111 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271064AbTGWAw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 20:52:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271069AbTGWAw2
+	id S271065AbTGWAsy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 20:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271064AbTGWAsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 20:52:28 -0400
-Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:18885 "EHLO
-	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S271064AbTGWAwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 20:52:25 -0400
-Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D55221@axcs03.cos.agilent.com>
-From: yiding_wang@agilent.com
-To: yiding_wang@agilent.com, linux-kernel@vger.kernel.org
-Subject: 2.5.72 module issue
-Date: Tue, 22 Jul 2003 19:07:14 -0600
+	Tue, 22 Jul 2003 20:48:54 -0400
+Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:4254 "EHLO server")
+	by vger.kernel.org with ESMTP id S271065AbTGWAsw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 20:48:52 -0400
+Message-ID: <001f01c350b6$4b19ae30$3400a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: "Andrea Arcangeli" <andrea@suse.de>, "lkml" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva> <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva> <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva> <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva> <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva> <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02> <20030719172103.GA1971@x30.local> <018101c34f4d$430d5850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307210943160.25565@freak.distro.conectiva> <005a01c34fed$fea51120$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307220852470.10991@freak.distro.conectiva> <012d01c35066$2c56d400$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307221358440.23424@freak.distro.conectiva>
+Subject: Re: 2.4.22-pre5 deadlock
+Date: Tue, 22 Jul 2003 18:03:56 -0700
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am thinking the problem could be caused by environmental change from 2.4.x to 2.5.72.  
+----- Original Message ----- 
+From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+To: "Jim Gifford" <maillist@jg555.com>
+Cc: "Andrea Arcangeli" <andrea@suse.de>; "lkml"
+<linux-kernel@vger.kernel.org>
+Sent: Tuesday, July 22, 2003 10:00 AM
+Subject: Re: 2.4.22-pre5 deadlock
 
-What module make rules need to be included from scripts directory in order to make module has needed kernel environmental variables?  I used to use Rules.make on 2.4.x systems to get all kernel related cariable to be set.
 
-Thanks!
+>
+>
+> On Tue, 22 Jul 2003, Jim Gifford wrote:
+>
+> > ----- Original Message -----
+> > From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+> > To: "Jim Gifford" <maillist@jg555.com>
+> > Cc: "Andrea Arcangeli" <andrea@suse.de>; "lkml"
+> > <linux-kernel@vger.kernel.org>
+> > Sent: Tuesday, July 22, 2003 4:53 AM
+> > Subject: Re: 2.4.22-pre5 deadlock
+> >
+> >
+> > >
+> > >
+> > > On Mon, 21 Jul 2003, Jim Gifford wrote:
+> > >
+> > > > > Lets wait and see what happens without the iptables and dazuko
+> > modules.
+> > > > >
+> > > > Marcelo,
+> > > >     -pre7 seems to be working ok. Do you want me to enable the
+dazuko
+> > thing
+> > > > again to see if it's the cause, or do you want me to wait a little
+> > longer to
+> > > > see what happens.
+> > >
+> > > Jim,
+> > >
+> > > I prefer if you leave -pre7 running for a while to confirm its stable.
+> > >
+> > >
+> > >
+> > top - 08:29:37 up 2 days, 13:41,  2 users,  load average: 2.33, 2.12,
+2.03
+> > Tasks: 109 total,   3 running, 106 sleeping,   0 stopped,   0 zombie
+> >  Cpu0 :   0.3% user,   3.9% system,  95.8% nice,   0.0% idle
+> >  Cpu1 :   1.3% user,   0.6% system,  98.1% nice,   0.0% idle
+> > Mem:   1033672k total,   639904k used,   393768k free,   160764k buffers
+> > Swap:   265060k total,        0k used,   265060k free,   187444k cached
+> >
+> > Do you want me to do something intensive. I have a compile that I can do
+> > that takes over 8 hours.
+>
+> Jim,
+>
+> I guess most of us is already convinced that the lockups were caused by
+> the non-stock code.
+>
+> How long it usually took to lockup before?
+>
+I removed the modules and dazuko no pre6 and it locked up. But pre7 seems to
+be running great, I'll try adding the dazuko module first, and see what
+happens.
 
-Eddie
+Latest Info
+top - 18:03:30 up 2 days, 23:15,  2 users,  load average: 2.14, 2.15, 2.05
+Tasks: 108 total,   3 running, 105 sleeping,   0 stopped,   0 zombie
+ Cpu0 :   0.0% user,   1.3% system,  98.4% nice,   0.3% idle
+ Cpu1 :   1.9% user,   2.9% system,  95.2% nice,   0.0% idle
+Mem:   1033672k total,   688872k used,   344800k free,   164496k buffers
+Swap:   265060k total,        0k used,   265060k free,   211988k cached
 
-> -----Original Message-----
-> From: yiding_wang@agilent.com [mailto:yiding_wang@agilent.com]
-> Sent: Tuesday, July 22, 2003 3:27 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: 2.5.72 module loading issue
-> 
-> 
-> I am still struggling on the fc driver module working on new 
-> 2.5.72/2.6 kernel and wish someone can shed some lights here.
-> 
-> The driver is working great for 2.4.x Linux and is modified 
-> to reflect all SCSI layer change in 2.5.72.  I have RH9.0 and 
-> installed 2.5.72 on the same system.  Driver compiled under 
-> 2.5.72 OK.  The module utilities are upgraded to 0.9.13-pre.
-> 
-> Now first problem I have is to module loading fails on 
-> "insmod mymodule.o".  Message:
->  
-> "No module found in object"
-> "Error inserting 'mymodule.o': -1 Invalid module format"
-> 
-> By checking the trace, following are the failed part: 
-> ... ...
-> open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such 
-> file or directory)
-> open("/etc/ld.so.cache", O_RDONLY)      = 3
-> fstat64(3, {st_mode=S_IFREG|0644, st_size=49530, ...}) = 0
-> ... ...
-> brk(0)                                  = 0x804a000
-> brk(0x804b000)                          = 0x804b000
-> brk(0)                                  = 0x804b000
-> create_module(umovestr: Input/output error 0, 0)              
->        = -1 ENOSYS (Function not implemented)
-> open("mymodule.o", O_RDONLY)             = 3
-> fstat64(3, {st_mode=S_IFREG|0644, st_size=345047, ...}) = 0
-> mmap2(NULL, 345047, PROT_READ, MAP_SHARED, 3, 0) = 0x40017000
-> vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-> vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv - something is wrong here
-> init_module("ELF", 0x543d7No module found in object) = -1  
-> ENOEXEC (Exec format error))         = -1 ENOEXEC (Exec format error)
-> ... ...
-> exit_group(1)                           = ?
-> 
-> Noticed that kernel build module has *.mod.c file created, I 
-> tried to include those part in but the result is the same.  
-> 
-> This is a SCSI HBA driver and init_module() is not required 
-> (ref. to qlogic, adaptec and buslogic drivers).
-> 
-> Also I tried to load kernel build driver module BusLogic.o 
-> and qla1280.o with "insmod", it gives error almost the same 
-> except the message are different.  
-> "BusLogic: no version message, tainting kernel"
-> "Error inserting 'BusLogic.o': -1  No such device
-> 
-> In init_module call, it has init_module("ELF". 
-> 0x1a5b4BusLogic" no version magic, tainting kernel.) = -1  
-> ENODEV (No such device).
-> 
-> It looks like something is missing from migrating my driver 
-> module from 2.4.x to 2.5.x.
-> 
-> What is new requirement for module building and loading with 
-> "insmod" on 2.5.72 compare with the requirement in 2.4.x?  
-> 
-> Many thanks!
-> 
-> Eddie
-> 
-> 
-> 
-> Also the init_module call 
->  
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I will add dazuko in and report back.
+

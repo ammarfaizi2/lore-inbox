@@ -1,72 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbTEQEB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 00:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbTEQEB0
+	id S261218AbTEQElf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 00:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbTEQEkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 00:01:26 -0400
-Received: from marcie.netcarrier.net ([216.178.72.21]:57348 "HELO
-	marcie.netcarrier.net") by vger.kernel.org with SMTP
-	id S261196AbTEQEBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 00:01:24 -0400
-Message-ID: <3EC5B70E.F7284909@compuserve.com>
-Date: Sat, 17 May 2003 00:14:06 -0400
-From: Kevin Brosius <cobra@compuserve.com>
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.5.69 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: dmo@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: DAC960 breakage, 2.5 bk current
-References: <3EC5AD4A.B6C18A1C@compuserve.com> <20030516204920.25b8e951.akpm@digeo.com>
+	Sat, 17 May 2003 00:40:40 -0400
+Received: from dp.samba.org ([66.70.73.150]:51153 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261218AbTEQEkg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 00:40:36 -0400
+Date: Sat, 17 May 2003 14:44:59 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Greg KH <greg@kroah.com>
+Cc: Oliver Neukum <oliver@neukum.org>, Manuel Estrada Sainz <ranty@debian.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Downing, Thomas" <Thomas.Downing@ipc.com>, jt@hpl.hp.com,
+       Pavel Roskin <proski@gnu.org>
+Subject: Re: request_firmware() hotplug interface, third round.
+Message-ID: <20030517044459.GB13827@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Greg KH <greg@kroah.com>, Oliver Neukum <oliver@neukum.org>,
+	Manuel Estrada Sainz <ranty@debian.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Simon Kelley <simon@thekelleys.org.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Downing, Thomas" <Thomas.Downing@ipc.com>, jt@hpl.hp.com,
+	Pavel Roskin <proski@gnu.org>
+References: <200305170155.15295.oliver@neukum.org> <20030517000338.GA17466@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030517000338.GA17466@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Fri, May 16, 2003 at 05:03:38PM -0700, Greg Kroah-Hartman wrote:
+> On Sat, May 17, 2003 at 01:55:15AM +0200, Oliver Neukum wrote:
+> > 
+> > > > 	- echo 1 > /sysfs/class/firmware/dev_name/loading
+> > > > 	- cat whatever_fw > /sysfs/class/firmware/dev_name/data
+> > > > 	- echo 0 > /sysfs/class/firmware/dev_name/loading
+> > >
+> > > Nice, but can't you get rid of the loading file by just relying on
+> > > open() and close()?  Oh wait, sysfs doesn't pass that down to you, hm,
+> > > looks like you need that info.  But does the new binary interface in
+> > > sysfs that just got merged into the tree provide that info for you?
+> > 
+> > But what if the close() is due to irregular termination?
+> > If the script is killed, do you download half a firmware?
 > 
+> Good point.  Actually I don't think that the binary interface for sysfs
+> passes open and close down to the lower levels, so it's a moot point.
 > 
-> Kevin Brosius <cobra@compuserve.com> wrote:
-> >
-> > kernel NULL pointer deref - virt 00000019
-> >  Oops: 0000 [#1]
-> >  CPU: 0
-> >  EIP: 0060:[<c02774d3>]  Not tainted
-> >  EFLAGS: 00010286
-> >  EIP is at DAC960_ioctl+0x33/0x190
-> >
-> >  Process swapper (pid: 1, ...)
-> >
-> >  Call Trace:
-> >  ] blkdev_ioctl+0xa5/0x466
-> >  ] ioctl_by_dev+0x41/0x50
-> 
-> You tricking me.  That's "ioctl_by_bdev".  It passes in a null file*, and
-> we have to handle it.
+> echo... works for me.
 
-Yes, sorry.  Missed a letter in that typing.
+I think we'd be better off checking for this case by requiring the
+firmware to include a length field and adapting the binary interface
+so that we can see the open/close boundary.  The "loading" thing is
+pretty damn ugly.
 
-> 
-> Does this fix?
+Plus with the "loading" file, a interrupted load will just appear to
+be unterminated - and if the scripts run again they'll have to check
+that the loading file was 0 to start with - and if it isn't there's
+nothing they can do except wait for the dead load to time out.
 
-Yes, works great!  No further panic.  Thank you.
-
-> 
-> diff -puN drivers/block/DAC960.c~DAC960-oops-fix drivers/block/DAC960.c
-> --- 25/drivers/block/DAC960.c~DAC960-oops-fix   2003-05-16 20:44:52.000000000 -0700
-> +++ 25-akpm/drivers/block/DAC960.c      2003-05-16 20:45:16.000000000 -0700
-> @@ -102,7 +102,7 @@ static int DAC960_ioctl(struct inode *in
->         int drive_nr = (int)disk->private_data;
->         struct hd_geometry g, *loc = (struct hd_geometry *)arg;
-> 
-> -       if (file->f_flags & O_NONBLOCK)
-> +       if (file && file->f_flags & O_NONBLOCK)
->                 return DAC960_UserIOCTL(inode, file, cmd, arg);
-> 
->         if (cmd != HDIO_GETGEO || !loc)
-> 
-> _
+Better to catch the close, check the length, then return the firmware
+or throw the junk image away as appropriate.
 
 -- 
-Kevin
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

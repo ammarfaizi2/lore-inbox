@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263735AbTDNUu4 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263737AbTDNUu4 (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 16:50:56 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:39362 "EHLO
+	id S263698AbTDNUsz (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTDNUsz (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 16:48:55 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:30402 "EHLO
 	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263735AbTDNUuz (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 16:50:55 -0400
-Date: Mon, 14 Apr 2003 22:02:16 +0100
+	id S263698AbTDNUsy (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 16:48:54 -0400
+Date: Mon, 14 Apr 2003 22:00:14 +0100
 From: Dave Jones <davej@codemonkey.org.uk>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@digeo.com>,
        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: BUGed to death
-Message-ID: <20030414210211.GB7831@suse.de>
+Message-ID: <20030414210006.GA7831@suse.de>
 Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Duncan Sands <baldrick@wanadoo.fr>,
 	"Martin J. Bligh" <mbligh@aracnet.com>,
 	Andrew Morton <akpm@digeo.com>,
 	linux-kernel <linux-kernel@vger.kernel.org>
-References: <80690000.1050351598@flay> <200304142240.41999.baldrick@wanadoo.fr>
+References: <80690000.1050351598@flay>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200304142240.41999.baldrick@wanadoo.fr>
+In-Reply-To: <80690000.1050351598@flay>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 10:40:41PM +0200, Duncan Sands wrote:
+On Mon, Apr 14, 2003 at 01:19:58PM -0700, Martin J. Bligh wrote:
+ > Seems all these bug checks are fairly expensive. I can get 1%
+ > back on system time for kernel compiles by changing BUG to 
+ > "do {} while (0)" to make them all compile away. Profiles aren't
+ > very revealing though ... seems to be within experimental error ;-(
+ > 
+ > I was pondering CONFIG_RUN_WILD_NAKED_AND_FREE
 
- > You would think that the compiler would consider a branch leading to
- > ud2 (i.e. BUG()) to be "unlikely", but it doesn't seem to.  Maybe some
- > improvement can be made there.
+The sort of folks who would worry about that very last 1% are the
+sort of people that would more than likely hit these BUGs as they're
+really stressing things.
 
-BUG_ON is already marked unlikely.
-See include/linux/kernel.h
-
-The costs here are doing the actual checks, nothing to do with
-the branch prediction.
+Losing a bunch of potential reports (and possibly doing bad things),
+in the name of a 1% performance boost doesn't sound too productive to me.
 
 		Dave
 

@@ -1,28 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131832AbRDNK1D>; Sat, 14 Apr 2001 06:27:03 -0400
+	id <S131949AbRDNKdr>; Sat, 14 Apr 2001 06:33:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131949AbRDNK0x>; Sat, 14 Apr 2001 06:26:53 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:37824 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S131832AbRDNK0l>;
-	Sat, 14 Apr 2001 06:26:41 -0400
-Date: Sat, 14 Apr 2001 12:26:40 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200104141026.MAA22602@harpo.it.uu.se>
+	id <S131974AbRDNKdh>; Sat, 14 Apr 2001 06:33:37 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:59145 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S131949AbRDNKd1>; Sat, 14 Apr 2001 06:33:27 -0400
+From: Fabien CHEVALIER <fabchev2@free.fr>
+Reply-To: fabchev2@free.fr
+Date: Sat, 14 Apr 2001 12:30:26 +0000
+X-Mailer: KMail [version 1.1.99]
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_Q28S97QONW82L3U7AZ17"
 To: linux-kernel@vger.kernel.org
-Subject: module load/unload race protection?
+Subject: [PATCH- new driver] Maxi Radio FM 2 driver (GemTek) (2)
+MIME-Version: 1.0
+Message-Id: <01041412302602.00723@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does the kernel's module loader (kernel/module.c, not kmod)
-protect adequately against concurrent load/load or load/unload
-requests? The question applies to both 2.2 and 2.4 kernels.
 
-I'm trying to track down a problem where a user using a
-RedHat 2.2.17-14 SMP kernel managed to trigger a situation where
-a driver module had been unloaded while still being in use
-(as in "the kernel has pointers into it", not USE_COUNT != 0).
-I'm reviewing the driver's internal INC/DEC_USE_COUNT usage,
-but so far I've not found any obvious errors.
+--------------Boundary-00=_Q28S97QONW82L3U7AZ17
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 
-/Mikael
+>Hi,
+
+>I've wrote this driver for my Maxi Radio Fm 2 card.
+> i hope it can be usefull for somebody.
+>This card uses a GemTek chip, but the GemTek driver wasn't working very well 
+>:
+>the card was left uninitialized, and so it didn't mute.
+
+>I didn't wrote a patch for the GemTek driver because the protocol to change 
+>frequency is different.
+
+>This patch is for 2.4.3 kernel - nobody but me tested it yet...
+
+>Please CC your answers as my 56 k modem can't bear the list!
+
+
+Ooops, something went wrong with the attached patch, I hope this time there 
+won't be any problem...
+--------------Boundary-00=_Q28S97QONW82L3U7AZ17
+Content-Type: text/plain;
+  name="patch-maxifm2-v0.12-2.4.3.gz"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="patch-maxifm2-v0.12-2.4.3.gz"
+
+‹‚X×:
+--------------Boundary-00=_Q28S97QONW82L3U7AZ17--

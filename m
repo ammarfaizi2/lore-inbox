@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269923AbUJTGmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268425AbUJTGxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269923AbUJTGmh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 02:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269904AbUJSXMA
+	id S268425AbUJTGxy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 02:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270084AbUJTGs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:12:00 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:6122 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S270069AbUJSWpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:45:16 -0400
-Subject: Re: tun.c patch to fix "smp_processor_id() in preemptible code"
-From: Lee Revell <rlrevell@joe-job.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: herbert@gondor.apana.org.au, vda@port.imtp.ilyichevsk.odessa.ua,
-       Linux Network Development <netdev@oss.sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, maxk@qualcomm.com,
-       irda-users@lists.sourceforge.net
-In-Reply-To: <20041019153308.488d34c1.davem@davemloft.net>
-References: <E1CK1e6-0004F3-00@gondolin.me.apana.org.au>
-	 <1098222676.23367.18.camel@krustophenia.net>
-	 <20041019215401.GA16427@gondor.apana.org.au>
-	 <1098223857.23367.35.camel@krustophenia.net>
-	 <20041019153308.488d34c1.davem@davemloft.net>
-Content-Type: text/plain
-Message-Id: <1098225729.23628.2.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 19 Oct 2004 18:42:11 -0400
+	Wed, 20 Oct 2004 02:48:26 -0400
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:55220 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268425AbUJTGpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 02:45:32 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] Fw: X is killed when trying to suspend with USB Mouse plugged in
+Date: Wed, 20 Oct 2004 01:45:27 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Nils Rennebarth <Nils.Rennebarth@web.de>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0410191134090.1023-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0410191134090.1023-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410200145.27952.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-19 at 18:33, David S. Miller wrote:
-> On Tue, 19 Oct 2004 18:10:58 -0400
-> Lee Revell <rlrevell@joe-job.com> wrote:
+On Tuesday 19 October 2004 10:35 am, Alan Stern wrote:
+> On Mon, 18 Oct 2004, Dmitry Torokhov wrote:
 > 
-> >   /*
-> >    * Since receiving is always initiated from a tasklet (in iucv.c),
-> >    * we must use netif_rx_ni() instead of netif_rx()
-> >    */
+> > > I don't know about /dev/input/mouse1.  But the oops isn't a bug... it's a 
+> > > weakness in the way Linux implements loadable kernel modules.
+> > > 
 > > 
-> > This implies that the author thought it was a matter of correctness to
-> > use netif_rx_ni vs. netif_rx.  But it looks like the only difference is
-> > that the former sacrifices preempt-safety for performance.
+> > Ugh, it is not module implementation weakness, it looks like refcounting
+> > problem in USB.
 > 
-> You can't really delete netif_rx_ni(), so if there is a preemptability
-> issue, just add the necessary preemption protection around the softirq
-> checks.
+> Could you explain that more fully?  Are you talking about a particular 
+> refcounting problem in the usbhid subsystem or do you mean a more 
+> pervasive problem in the whole USB system?  And why do you say it's a 
+> refcounting problem in the first place?
 > 
 
-Why not?  AIUI the only valid reason to use preempt_disable/enable is in
-the case of per-CPU data.  This is not "real" per-CPU data, it's a
-performance hack.  Therefore it would be incorrect to add the preemption
-protection, the fix is not to manually call do_softirq but to let the
-softirq run by the normal mechanism.
+I am not sure it it is HID-specific problem or a wider one but it looks
+like usbhid can be unloaded while there are references to objects produced
+by this module - hence refcounting problem. You either have to disallow
+unloading while there are references (but this path leads to potential
+deadlocks) or have a generic release function registered with the core that
+pretty much always stays there. Then you can free all device-specific data
+at unload time and mark the object as a zombie so anything that tries to
+touch it releases it quickly and then the core routine will free skeleton
+data at last.
 
-Am I missing something?
+The patch that I sent should hide the problem somewhat as at disconnect
+time it will unregister corresponsing class devices thus dropping the
+reference that was pinning usbhid structures.
 
-Lee
-
+-- 
+Dmitry

@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318443AbSGSCja>; Thu, 18 Jul 2002 22:39:30 -0400
+	id <S318301AbSGSDDG>; Thu, 18 Jul 2002 23:03:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318444AbSGSCj3>; Thu, 18 Jul 2002 22:39:29 -0400
-Received: from pD9E23646.dip.t-dialin.net ([217.226.54.70]:22400 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318443AbSGSCj3>; Thu, 18 Jul 2002 22:39:29 -0400
-Date: Thu, 18 Jul 2002 20:41:19 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@suse.de>, <rwhron@earthlink.net>
-Subject: Re: [PATCHSET] Linux 2.4.19-rc1-jam1
-In-Reply-To: <20020719021538.GA1734@werewolf.able.es>
-Message-ID: <Pine.LNX.4.44.0207182040560.3525-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S318429AbSGSDDG>; Thu, 18 Jul 2002 23:03:06 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:2830 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S318301AbSGSDDG>;
+	Thu, 18 Jul 2002 23:03:06 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200207190306.g6J366956014@saturn.cs.uml.edu>
+Subject: Re: more thoughts on a new jail() system call
+To: daw@mozart.cs.berkeley.edu (David Wagner)
+Date: Thu, 18 Jul 2002 23:06:06 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <ah7m2r$3cr$1@abraham.cs.berkeley.edu> from "David Wagner" at Jul 19, 2002 12:21:47 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>> sys_olduname) - P
+>
+> I'd argue that this should be restricted, on general
+> principles.  (General principle: A jailed process shouldn't
+> be able to learn anything about the host it's running on.)
 
-On Fri, 19 Jul 2002, J.A. Magallon wrote:
-> The idea is to easy the way for Randy Hron to compare:
-> - rc2
-> - rc2-aa1
-> - rc2-jam1 minus irqrate == rc2-aa1 plus smptimers (that I think will not
->   make a big difference)
-> - rc2-jam1 full == rc2-aa1 + smptimers + irqrate (if you don't rmmod anything...)
+Learning this info is easy enough without a syscall.
+You only cause trouble for legit usage.
 
-So the heading is inaccurate.
+>> sys_getcwd) C
+>> sys_ustat) J - Do we want a jailed process getting this info?
+>> sys_statfs) NOT SURE - should a jail process be able to get info on system?
+>> sys_fstatfs) same as statfs
+>> sys_sysfs) J - info on local system?
+>
+> It's probably not critical, but I'd argue that these should
+> be denied, on general principles, unless there is some
+> reason to think it will be very useful.  getcwd() is probably
+> the most critical to deny, as it can give away detailed
+> information in some cases.
+>
+> (General principle: If you're in a jail, you shouldn't be
+> able to learn any information about where that jail resides
+> on the filesystem.)
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+No, sys_getcwd will return info based on your current root.
+After chroot and all, your "/" is the top of your jail.
 
+>> sys_setsid) NOT SURE - no clue what this really does
+>
+> I think it's probably ok, but I'm not 100% sure, either.
+
+Yes it's OK. It's needed for job control.
+
+>> sys_syslog) NOT SURE (probably jailed away)
+>
+> sys_syslog touches a global shared resource, hence
+> should probably be denied to jailed processes.
+
+It's got to be redirected.
+
+>> sys_vhangup) NOT SURE -  Should be fine, right?
+>
+> Seems ok to me.
+
+Have fun with devpts.
+
+>> sys_getsid) NOT SURE - whats it for?
+>
+> You shouldn't be able to call getsid() on some other
+> process outside the jail.  Also, calling getsid() on
+> yourself might reveal information about your parent,
+> like getppid() or getpgid() (minor).
+
+Your parent ought to be 1.

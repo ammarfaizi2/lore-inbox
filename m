@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264656AbSJTWxZ>; Sun, 20 Oct 2002 18:53:25 -0400
+	id <S264658AbSJTWx0>; Sun, 20 Oct 2002 18:53:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264660AbSJTWxY>; Sun, 20 Oct 2002 18:53:24 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:16000 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S264656AbSJTWxY>;
-	Sun, 20 Oct 2002 18:53:24 -0400
-Date: Sun, 20 Oct 2002 17:58:54 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: steve roemen <steve.roemen@wcom.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44 PIIX4 ide oops on boot
-In-Reply-To: <005201c27887$e95f7320$e70a7aa5@WSXA7NCC106.wcomnet.com>
-Message-ID: <Pine.LNX.4.44.0210201757470.860-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264660AbSJTWx0>; Sun, 20 Oct 2002 18:53:26 -0400
+Received: from blowme.phunnypharm.org ([65.207.35.140]:3855 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S264658AbSJTWxY>; Sun, 20 Oct 2002 18:53:24 -0400
+Date: Sun, 20 Oct 2002 18:59:28 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Daniel Berlin <dberlin@dberlin.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper outrage, old and new
+Message-ID: <20021020225928.GN696@phunnypharm.org>
+References: <1035150671.16888.300.camel@phantasy> <ADAD8FB8-E47E-11D6-8E08-000393575BCC@dberlin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ADAD8FB8-E47E-11D6-8E08-000393575BCC@dberlin.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Oct 2002, steve roemen wrote:
+On Sun, Oct 20, 2002 at 06:52:58PM -0400, Daniel Berlin wrote:
+> 
+> On Sunday, October 20, 2002, at 05:51  PM, Robert Love wrote:
+> 
+> >On Sun, 2002-10-20 at 17:42, Xavier Bestel wrote:
+> >
+> >>You're plain wrong.
+> >>
+> >>You both have the copyright on your work.
+> >
+> >It is called copyright _assignment_ for a reason.  How the hell are two
+> >people supposed to simultaneously own a copyright on the same work?
+> >
+> Joint authorship.
+> "The authors of a joint work are co-owners of copyright in the work" 
+> (17 USC ?201(a)).
+> IOW They each own a 100% copyright in the work.
+> Leads to odd situations of course, since one author can do whatever 
+> they like with the work without any permission from the other authors, 
+> etc.
 
-> 
-> attached is the oops, the config,  and some info on the box.
-> 
-> ide is only used for the cdrom.
-> 
-> it oopes during bootup.  also, if i remove ide from this kernel, it'll boot
-> on the scsi drive just fine.
-> 
-> 2.4.19 works just fine on this box.
+Think of this, if you pay $1,000,000 to the OpenGroup, you can purchase
+the source to DCE/DFS and do whatever the hell you want with it.
 
-Your config says you have ide-cd configured.  Try taking just ide-cd out 
-and reboot.  I've found a problem with 2.5.44 and ide-cd on my system 
-also.  I have a similar oops on boot or module insertion.
+That doesn't relinquish the OpenGroup's copyright, so they can sell as
+many copies of the source as they want, nor would it relinquish IBM's
+copyright to Transarc's source (who also purchased it from the
+opengroup).
 
+
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

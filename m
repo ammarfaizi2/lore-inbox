@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264889AbTFYRqv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 13:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbTFYRqv
+	id S264876AbTFYRpa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 13:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbTFYRpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 13:46:51 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:15865 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264889AbTFYRqX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 13:46:23 -0400
-Subject: Re: [Must-fix] Keyboard occasionally endlessly repeating keys
-From: john stultz <johnstul@us.ibm.com>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030625090723.GA10864@wohnheim.fh-wedel.de>
-References: <20030620202444.GD22732@wohnheim.fh-wedel.de>
-	 <1056495483.1027.260.camel@w-jstultz2.beaverton.ibm.com>
-	 <20030625090723.GA10864@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1056563557.1033.278.camel@w-jstultz2.beaverton.ibm.com>
+	Wed, 25 Jun 2003 13:45:23 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:35806 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S264860AbTFYRpL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 13:45:11 -0400
+Date: Wed, 25 Jun 2003 19:58:49 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Lou Langholtz <ldl@aros.net>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org, pavel@ucw.cz
+Subject: Anyone for NBD maintainer [was Re: [RFC][PATCH] nbd driver for 2.5+: fix locking issues with ioctl UI]
+Message-ID: <20030625175849.GB4988@elf.ucw.cz>
+References: <3EF94672.3030201@aros.net> <20030625001950.16bbb688.akpm@digeo.com> <3EF9C192.7000206@aros.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 25 Jun 2003 10:52:37 -0700
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EF9C192.7000206@aros.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-25 at 02:07, Jörn Engel wrote:
-> On Tue, 24 June 2003 15:58:04 -0700, john stultz wrote:
-> > Assuming you're still seeing this, does booting w/ "clock=pit" resolve
-> > the problem? If so could you send me more info about the system? (is
-> > speed step enabled, etc?)
-> 
-> Problem appears to be from hardware, Vojtech Pavlik helped me a bit to
-> track it down.  Hardware occasionally doesn't send the key release
-> signal after a key pressed signel.
-> 
-> System is IBM Thinkpad R30, CPU permanently running on low speed
-> (700MHz), no speed step (unsupported chipset).
-> 
-> Should I still test w/ clock=pit?
+Hi!
 
-Not if its resolved for you. I was just seeing a number of time related
-keyboard problems on laptops (kbd repeat rates too fast)and wanted to
-see if you were affected as well. 
+> >>That said, this seems like an opportunistic time to further break 
+> >>compatibility with the existing nbd-client user tool and  do away with 
+> >>the problematic components of the ioctl user interface.
+> >>   
+> >>
+> >Is a suitably modified userspace tool available?
 
-thanks
--john
+> Here is an updated patch 6 (I called it 6.1) that fixes some additional 
+> locking issues as well as fixing the header file so it can be used
+> by 
 
+...
 
+BTW Anyone wanting to become nbd maintainer? I'm not much interested
+in nbd these days...
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

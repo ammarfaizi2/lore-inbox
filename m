@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263761AbUHVAZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUHVArT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263761AbUHVAZG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 20:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUHVAZG
+	id S263962AbUHVArT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 20:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUHVArT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 20:25:06 -0400
-Received: from mylinuxtime.de ([217.160.170.124]:32169 "EHLO solar.linuxob.de")
-	by vger.kernel.org with ESMTP id S263761AbUHVAY7 (ORCPT
+	Sat, 21 Aug 2004 20:47:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30142 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263962AbUHVArR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 20:24:59 -0400
-From: Christian Hesse <mail@earthworm.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: v2.6.8.1 breaks tspc
-Date: Sun, 22 Aug 2004 02:21:34 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200408212303.05143.mail@earthworm.de> <200408220116.42490.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200408220116.42490.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1476472.CyV98zaydD";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sat, 21 Aug 2004 20:47:17 -0400
+Date: Sat, 21 Aug 2004 17:36:54 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: bero@arklinux.org, Thomas.Duffy.99@alumni.brown.edu
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: [PATCH] 2.6.8.1 modprobe tg3 oopses
+Message-Id: <20040821173654.6e5b9982.rddunlap@osdl.org>
+In-Reply-To: <20040820161141.28043ee8.rddunlap@osdl.org>
+References: <20040820161141.28043ee8.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408220221.39178.mail@earthworm.de>
-X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.6; VDF 6.27.0.23
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1476472.CyV98zaydD
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Sunday 22 August 2004 00:16, Denis Vlasenko wrote:
-> On Sunday 22 August 2004 00:02, Christian Hesse wrote:
-> > Hello!
-> >
-> > Kernel version 2.6.8.1 breaks tspc (Freenet6's Tunnel Server Protocol
-> > Client). It tries to connect to the server but waits forever. No proble=
-ms
-> > with 2.6.7, booted the old kernel and it worked perfectly.
-> >
-> > Any ideas?
->
-> What do you see with tcpdump on both 2.6.7 and 2.6.8.1?
+| Subject: 2.6.8.1 "modprobe tg3" oopses with gcc 3.4.1
+| 
+| 
+| I get this when trying to modprobe tg3 on an Acer Aspire 1500 notebook (32bit 
+| mode) when the kernel [tried 2.6.8.1 and 2.6.8.1-mm1] is compiled with gcc 
+| 3.4.1 (3.3.4 works):
 
-In the config file I've changed template from linux to checktunnel. With=20
-kernel 2.6.7 it shows all the options it receives from the server. With=20
-2.6.8.1:
+I wouldn't expect this to be compiler-dependent.  There's an obvious
+problem with add_pin_to_irq().  It shouldn't be __init.  Patch below.
+(I thought that I had already mailed this one time, but I don't
+see it anywhere.)
 
-root@noname:~# tspc -f /etc/freenet6/tspc.conf -vvv
-tspc - Tunnel Server Protocol Client
+| CPU:    0
+| EIP:    0060:[<c03ba270>]    Not tainted VLI
+| EFLAGS: 00210216   (2.6.8-1ark)
+| EIP is at add_pin_to_irq+0x0/0x60     <<<<< code is gone
 
-Loading configuration file
+--
 
-Connecting to server
+add_pin_to_irq() should not be __init; it is used after init code.
 
-[now waits until Ctrl-c]
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-A log of strace can be found at
-http://linux.eworm.net/tspc_strace.log
-=2D-=20
-Christian
+diffstat:=
+ arch/i386/kernel/io_apic.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
---nextPart1476472.CyV98zaydD
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBJ+cTlZfG2c8gdSURAhNWAKDbR5PWjzzrwJrZpqIW6vU5xIGjbgCdH1WZ
-Z1it52bR1P4yzmwmIoR2uiw=
-=dvHD
------END PGP SIGNATURE-----
-
---nextPart1476472.CyV98zaydD--
+diff -Naurp ./arch/i386/kernel/io_apic.c~ioapic_non_init ./arch/i386/kernel/io_apic.c
+--- ./arch/i386/kernel/io_apic.c~ioapic_non_init	2004-08-14 03:55:10.000000000 -0700
++++ ./arch/i386/kernel/io_apic.c	2004-08-21 17:26:52.695599728 -0700
+@@ -85,7 +85,7 @@ int vector_irq[NR_VECTORS] = { [0 ... NR
+  * shared ISA-space IRQs, so we have to support them. We are super
+  * fast in the common case, and fast for shared ISA-space IRQs.
+  */
+-static void __init add_pin_to_irq(unsigned int irq, int apic, int pin)
++static void add_pin_to_irq(unsigned int irq, int apic, int pin)
+ {
+ 	static int first_free_entry = NR_IRQS;
+ 	struct irq_pin_list *entry = irq_2_pin + irq;

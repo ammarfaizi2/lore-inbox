@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263022AbVBCPTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbVBCPVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263022AbVBCPTY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 10:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbVBCPTX
+	id S263366AbVBCPVt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 10:21:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbVBCPTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 10:19:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26757 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263860AbVBCPSH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 10:18:07 -0500
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, Peter Osterlund <petero2@telia.com>,
-       linux-kernel@vger.kernel.org, dtor_core@ameritech.net
-Subject: Re: Touchpad problems with 2.6.11-rc2
-References: <20050123190109.3d082021@localhost.localdomain>
-	<m3acqr895h.fsf@telia.com>
-	<20050201234148.4d5eac55@localhost.localdomain>
-	<20050202102033.GA2420@ucw.cz>
-	<20050202085628.49f809a0@localhost.localdomain>
-	<20050202170727.GA2731@ucw.cz>
-	<20050202095851.27321bcf@localhost.localdomain>
-	<or4qgurqp5.fsf@livre.redhat.lsd.ic.unicamp.br>
-	<20050203084900.GA2594@ucw.cz>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 03 Feb 2005 13:17:53 -0200
-In-Reply-To: <20050203084900.GA2594@ucw.cz>
-Message-ID: <orwttpad0e.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Feb 2005 10:19:53 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:48133 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S263098AbVBCPRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 10:17:18 -0500
+Subject: Re: dm-crypt crypt_status reports key?
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: Christopher Warner <chris@servertogo.com>
+Cc: Matt Mackall <mpm@selenic.com>, Christophe Saout <christophe@saout.de>,
+       christopher@kernelcode.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       dm-crypt@saout.de, Alasdair G Kergon <agk@redhat.com>
+In-Reply-To: <1107425749.9294.56.camel@linux-cw>
+References: <20050202211916.GJ2493@waste.org>
+	 <1107394381.10497.16.camel@server.cs.pocnet.net>
+	 <20050203015236.GO2493@waste.org>
+	 <1107398069.11826.16.camel@server.cs.pocnet.net>
+	 <20050203040542.GQ2493@waste.org>  <1107440300.15236.58.camel@ghanima>
+	 <1107425749.9294.56.camel@linux-cw>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-47064DXugM5iVy3HeBW0"
+Date: Thu, 03 Feb 2005 16:17:16 +0100
+Message-Id: <1107443836.15236.65.camel@ghanima>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb  3, 2005, Vojtech Pavlik <vojtech@suse.cz> wrote:
 
-> On Thu, Feb 03, 2005 at 06:30:14AM -0200, Alexandre Oliva wrote:
->> On Feb  2, 2005, Pete Zaitcev <zaitcev@redhat.com> wrote:
->> 
->> > On Wed, 2 Feb 2005 18:07:27 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
->> 
->> >> With a Synaptics I suppose? You wouldn't like it with an ALPS.
->> 
->> > No, it's a Dualpoint, and so ALPS.
->> 
->> Err...  That doesn't follow.  My Dell Inspiron 8000 has a Synaptics
->> touchpad as part of the Dualpoint pointing devices.
- 
-> Dualpoint (tm) is a trademark of ALPS,
+--=-47064DXugM5iVy3HeBW0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Interesting...  Dell DualPoint is the way the pointing devices are
-described in that notebook's documentation, and I remember all the way
-from back when I purchased the notebook: I really wanted the two
-pointing devices.  If you search the web for Dell Inspiron 8000
-DualPoint, you'll get a number of hits referring to `Dell's DualPoint
-technology'.  I don't see them referred to as DualPoint(TM), but I
-vaguely remember having seen something like that in Dell's web site
-back then.
+On Thu, 2005-02-03 at 05:15 -0500, Christopher Warner wrote:
+> On Thu, 2005-02-03 at 15:18 +0100, Fruhwirth Clemens wrote:
+> >=20
+> > Keys are handed to dm-crypt regularly the first time. But when dm-crypt
+> > hands keys back to user space, it uses some sort of blinding to make th=
+e
+> > keys meaningless for user space.=20
 
-Maybe ALPS bought the trademark from Dell, or Dell hadn't actually
-registered the trademark, or they somehow managed to get the
-trademarks registered with a case difference (DualPoint vs Dualpoint)?
+> I've been following this thread and i'm clearly at a loss as to how any
+> of this will prevent someone from writing a util to get the key?
 
-> so in your case you have both a touchpoint and a touchpad, but it's
-> not called a Dualpoint in this case, because it's two separate
-> devices.
+This is not about trying to hide something which cannot be hidden.
 
-Indeed, it's called Dell DualPoint.  Sorry about the confusion.  Not
-really my fault, I think :-) :-)
+See http://lkml.org/lkml/2005/2/2/256 . It's about a design that can
+cope with unintentional program/user errors. Think of it as a trigger
+safety.=20
 
--- 
-Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+
+--=-47064DXugM5iVy3HeBW0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCAkB8W7sr9DEJLk4RAjV7AJ0YTqJ1AuF2E4a7XriWXPUVlSIWgQCfQ+7G
+aAyLZ6P1SnlOdgYykpuZ9c8=
+=FHaz
+-----END PGP SIGNATURE-----
+
+--=-47064DXugM5iVy3HeBW0--

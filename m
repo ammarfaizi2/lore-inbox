@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264856AbSLBREk>; Mon, 2 Dec 2002 12:04:40 -0500
+	id <S264766AbSLBRCj>; Mon, 2 Dec 2002 12:02:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264867AbSLBREk>; Mon, 2 Dec 2002 12:04:40 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:2758 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S264856AbSLBREj>;
-	Mon, 2 Dec 2002 12:04:39 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S264856AbSLBRCj>; Mon, 2 Dec 2002 12:02:39 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:9150 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S264766AbSLBRCj>;
+	Mon, 2 Dec 2002 12:02:39 -0500
+Date: Mon, 2 Dec 2002 09:06:59 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG]2.5.49-ac1 - more info on make error
+In-Reply-To: <Pine.LNX.4.44.0211271540270.7715-201000@bilbo.tmr.com>
+Message-ID: <Pine.LNX.4.33L2.0212020904210.27194-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15851.37989.723028.614451@harpo.it.uu.se>
-Date: Mon, 2 Dec 2002 18:12:05 +0100
-To: Christoph Hellwig <hch@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-In-Reply-To: <20021104223725.A23168@sgi.com>
-References: <1033513407.12959.91.camel@phantasy>
-	<20021104223725.A23168@sgi.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 4, Christoph Hellwig wrote:
- > +void set_cpus_allowed(struct task_struct *p, unsigned long new_mask)
- > +{
- > +	new_mask &= cpu_online_map;
- > +	BUG_ON(!new_mask);
- > +
- > +	p->cpus_allowed = new_mask;
- > +
- > +	/*
- > +	 * If the task is on a no-longer-allowed processor, we need to move
- > +	 * it.  If the task is not current, then set need_resched and send
- > +	 * its processor an IPI to reschedule.
- > +	 */
- > +	if (!(p->cpus_runnable & p->cpus_allowed)) {
- > +		if (p != current) {
- > +			p->need_resched = 1;
- > +			smp_send_reschedule(p->processor);
- > +		}
- > +		/*
- > +		 * Wait until we are on a legal processor.  If the task is
- > +		 * current, then we should be on a legal processor the next
- > +		 * time we reschedule.  Otherwise, we need to wait for the IPI.
- > +		 */
- > +		while (!(p->cpus_runnable & p->cpus_allowed))
- > +			schedule();
- > +	}
- > +}
+On Wed, 27 Nov 2002, Bill Davidsen wrote:
 
-Is this implementation of set_cpus_allowed() Ok for all 2.4 kernels,
-even if they (like RH8.0's) use a non-vanilla scheduler?
+| Knowing that modules are still broken, I changed all modules to be
+| built-in and dropped all support for modules and retried the compile. I
+| have disabled all but the features I really want to test on the new
+| kernel, so I will not be reducing the features any more.
 
-I'm asking because I need to put a set_cpus_allowed() implementation
-in my performance counters driver's compat layer. If it makes any
-difference, I'll only use set_cpus_allowed(p, new_mask) when p == current
-or p is stopped and under ptrace() control by current.
+I haven't seen any replies or fixes for this.  Have you?
 
-/Mikael
+drivers/built-in.o(.data+0x31e14): undefined reference to `local symbols
+in discarded section .exit.text'
+
+Please visit http://www.kernelnewbies.org/scripts/ and download
+the 'reference-discarded.pl' script, run it, and let us know where the
+problem is.
+
+-- 
+~Randy
+

@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263156AbTDWMKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 08:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264011AbTDWMKY
+	id S264009AbTDWMJV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 08:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264011AbTDWMJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 08:10:24 -0400
-Received: from smtp.actcom.co.il ([192.114.47.13]:2738 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263156AbTDWMKX
+	Wed, 23 Apr 2003 08:09:21 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:59527 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264009AbTDWMJU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 08:10:23 -0400
-Date: Wed, 23 Apr 2003 15:22:26 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Nir Livni <nir_l3@netvision.net.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FileSystem Filter Driver
-Message-ID: <20030423122226.GL11931@actcom.co.il>
-References: <000501c30983$1ffb8950$ade1db3e@pinguin> <20030423010518.GA6009@wind.cocodriloo.com> <000d01c30992$c35e7ad0$4ee1db3e@pinguin>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tDYGg60iReQ7u8wj"
-Content-Disposition: inline
-In-Reply-To: <000d01c30992$c35e7ad0$4ee1db3e@pinguin>
-User-Agent: Mutt/1.5.4i
+	Wed, 23 Apr 2003 08:09:20 -0400
+Date: Wed, 23 Apr 2003 08:22:58 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Andrew Kirilenko <icedank@gmx.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Data storing
+In-Reply-To: <200304231459.37955.icedank@gmx.net>
+Message-ID: <Pine.LNX.4.53.0304230817340.22823@chaos>
+References: <200304231459.37955.icedank@gmx.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 23 Apr 2003, Andrew Kirilenko wrote:
 
---tDYGg60iReQ7u8wj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Hello!
+>
+> I need to make some checks (search for particular BIOS version) in the
+> very start of the kernel. I need to store this data (zero page is pretty good
+> for this, I think) and access it from arch/i386/boot/setup.S,
+> arch/i386/boot/compressed/misc.c and in some other places. Can somebody
+> suggest me good place to put check procedure and how to pass data?
+>
+> Best regards,
+> Andrew.
 
-On Wed, Apr 23, 2003 at 02:20:38PM +0200, Nir Livni wrote:
+I use 0x000001f0 (absolute) for relocating virtual disk code
+for booting embedded systems. After Linux is up, the code remains
+untouched. This might be a good location because the BIOS doesn't
+use it during POST/boot and Linux (currently) leaves it alone.
+Of course, this doesn't mean that somebody will not destroy this
+area in the future (probably to spite you and me!!!).
 
-> My goal is to write a driver that runs above the filesystem driver, and
-> filters calls to this driver.
-> Actually, it should pass all calls to the filesystem driver, except very =
-few
-> that it should fail for "Access Denied". Are there any simple examples for
-> that matter ?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
-A. Sounds like it could be implemented using the LSM (linux security
-modules) framework, assuming the appropriate hooks are in place.=20
-
-B. The May 2003 Linux Journal issue has an article on "Writing
-Stackable Filesystems" by Erez Zadok, which might fit your needs
-better.
-
-Hope this helps,=20
-Muli.=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
-
-
---tDYGg60iReQ7u8wj
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+poWBKRs727/VN8sRAsDIAJ9phsaklpa53TXZI2Ky4+y5fqjvvQCeLGEl
-hJQoojHVnmdMD4wEg7fvPLo=
-=qlG2
------END PGP SIGNATURE-----
-
---tDYGg60iReQ7u8wj--

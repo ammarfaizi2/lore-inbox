@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261336AbRE0Ja5>; Sun, 27 May 2001 05:30:57 -0400
+	id <S261400AbRE0KHI>; Sun, 27 May 2001 06:07:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261357AbRE0Jas>; Sun, 27 May 2001 05:30:48 -0400
-Received: from line59.dialup.graz.inode.at ([195.58.172.63]:47849 "HELO
+	id <S261421AbRE0KGt>; Sun, 27 May 2001 06:06:49 -0400
+Received: from line58.dialup.graz.inode.at ([195.58.172.62]:48866 "HELO
 	wuffi.grazforyou.at") by vger.kernel.org with SMTP
-	id <S261336AbRE0Ja3>; Sun, 27 May 2001 05:30:29 -0400
-Message-ID: <3B10C922.2060504@grazforyou.at>
-Date: Sun, 27 May 2001 11:30:10 +0200
+	id <S261400AbRE0KGg>; Sun, 27 May 2001 06:06:36 -0400
+Message-ID: <3B10D1A6.9070804@grazforyou.at>
+Date: Sun, 27 May 2001 12:06:30 +0200
 From: Fritz Ganter <ganter@grazforyou.at>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-pre1 i686; de-AT; rv:0.9) Gecko/20010505
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; de-AT; rv:0.9) Gecko/20010505
 X-Accept-Language: de, en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: OV511 in 2.4.5 doesn't compile
+Subject: ov511 in 2.4.5 doesn't compile
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org

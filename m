@@ -1,117 +1,210 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267450AbSIRQnG>; Wed, 18 Sep 2002 12:43:06 -0400
+	id <S267605AbSIRQv3>; Wed, 18 Sep 2002 12:51:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267505AbSIRQnG>; Wed, 18 Sep 2002 12:43:06 -0400
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:12416 "EHLO
-	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S267450AbSIRQnC>; Wed, 18 Sep 2002 12:43:02 -0400
-Date: Wed, 18 Sep 2002 09:42:38 -0700 (PDT)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
+	id <S267911AbSIRQuh>; Wed, 18 Sep 2002 12:50:37 -0400
+Received: from dexter.citi.umich.edu ([141.211.133.33]:1408 "EHLO
+	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
+	id <S267605AbSIRQtw>; Wed, 18 Sep 2002 12:49:52 -0400
+Date: Wed, 18 Sep 2002 12:54:54 -0400 (EDT)
+From: Chuck Lever <cel@citi.umich.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: [BK PATCH] The rest of the handle_sysrq bugs
-Message-ID: <Pine.LNX.4.33.0209180941190.24031-100000@maxwell.earthlink.net>
+       Linux NFS List <nfs@lists.sourceforge.net>
+Subject: [PATCH] (2/2) clean up RPC over TCP transport socket connect
+Message-ID: <Pine.LNX.4.44.0209181253550.1495-100000@dexter.citi.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi Linus-
 
-Hi!
+this patch is a resubmission against 2.5.36 of the TCP transport socket 
+patch i sent last week against 2.5.34.
 
-  I found more handle_sysrq bugs. I scanned the entire tree and this is it
-now.
-
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
-
-James Simmons  [jsimmons@users.sf.net] 	                ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
-
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
+this patch renames *reconn* to *conn* since the same code now handles both
+initial TCP connect, and TCP reconnection, and corrects some comments.
+against 2.5.36, requires earlier patch (1/1).
 
 
-ChangeSet@1.546, 2002-09-18 09:28:18-07:00, jsimmons@maxwell.earthlink.net
-  More handle_sysrq fixes. That is all of them now.
-
-
- arch/um/kernel/um_arch.c     |    2 +-
- drivers/s390/char/ctrlchar.c |    2 +-
- drivers/tc/zs.c              |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
-
-
-diff -Nru a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
---- a/arch/um/kernel/um_arch.c	Wed Sep 18 09:39:01 2002
-+++ b/arch/um/kernel/um_arch.c	Wed Sep 18 09:39:01 2002
-@@ -336,7 +336,7 @@
- 		      void *unused2)
- {
- #ifdef CONFIG_SYSRQ
--	handle_sysrq('p', &current->thread.regs, NULL, NULL);
-+	handle_sysrq('p', &current->thread.regs, NULL);
- #endif
- 	machine_halt();
- 	return(0);
-diff -Nru a/drivers/s390/char/ctrlchar.c b/drivers/s390/char/ctrlchar.c
---- a/drivers/s390/char/ctrlchar.c	Wed Sep 18 09:39:01 2002
-+++ b/drivers/s390/char/ctrlchar.c	Wed Sep 18 09:39:01 2002
-@@ -26,7 +26,7 @@
-
+diff -drN -U2 02-connect1/include/linux/sunrpc/xprt.h 03-connect2/include/linux/sunrpc/xprt.h
+--- 02-connect1/include/linux/sunrpc/xprt.h	Wed Sep 18 10:02:23 2002
++++ 03-connect2/include/linux/sunrpc/xprt.h	Wed Sep 18 10:03:45 2002
+@@ -191,5 +191,5 @@
+ int			xprt_adjust_timeout(struct rpc_timeout *);
+ void			xprt_release(struct rpc_task *);
+-void			xprt_reconnect(struct rpc_task *);
++void			xprt_connect(struct rpc_task *);
+ int			xprt_clear_backlog(struct rpc_xprt *);
+ void			xprt_sock_setbufsize(struct rpc_xprt *);
+diff -drN -U2 02-connect1/net/sunrpc/clnt.c 03-connect2/net/sunrpc/clnt.c
+--- 02-connect1/net/sunrpc/clnt.c	Wed Sep 18 10:02:23 2002
++++ 03-connect2/net/sunrpc/clnt.c	Wed Sep 18 10:03:45 2002
+@@ -8,5 +8,5 @@
+  *  -	RPC header generation and argument serialization.
+  *  -	Credential refresh.
+- *  -	TCP reconnect handling (when finished).
++ *  -	TCP connect handling.
+  *  -	Retry of operation when it is suspected the operation failed because
+  *	of uid squashing on the server, or when the credentials were stale
+@@ -56,7 +56,7 @@
+ static void	call_refreshresult(struct rpc_task *task);
+ static void	call_timeout(struct rpc_task *task);
+-static void	call_reconnect(struct rpc_task *task);
+-static void	child_reconnect(struct rpc_task *);
+-static void	child_reconnect_status(struct rpc_task *);
++static void	call_connect(struct rpc_task *task);
++static void	child_connect(struct rpc_task *task);
++static void	child_connect_status(struct rpc_task *task);
+ static u32 *	call_header(struct rpc_task *task);
+ static u32 *	call_verify(struct rpc_task *task);
+@@ -562,8 +562,8 @@
+ 			xprt, (xprt_connected(xprt) ? "is" : "is not"));
+ 
+-	task->tk_action = (xprt_connected(xprt)) ? call_transmit : call_reconnect;
++	task->tk_action = (xprt_connected(xprt)) ? call_transmit : call_connect;
+ 
+ 	if (!clnt->cl_port) {
+-		task->tk_action = call_reconnect;
++		task->tk_action = call_connect;
+ 		task->tk_timeout = RPC_CONNECT_TIMEOUT;
+ 		rpc_getport(task, clnt);
+@@ -572,13 +572,13 @@
+ 
+ /*
+- * 4a.	Reconnect to the RPC server (TCP case)
++ * 4a.	Connect to the RPC server (TCP case)
+  */
  static void
- ctrlchar_handle_sysrq(struct tty_struct *tty) {
--	handle_sysrq(ctrlchar_sysrq_key, NULL, NULL, tty);
-+	handle_sysrq(ctrlchar_sysrq_key, NULL, tty);
+-call_reconnect(struct rpc_task *task)
++call_connect(struct rpc_task *task)
+ {
+ 	struct rpc_clnt *clnt = task->tk_client;
+ 	struct rpc_task *child;
+ 
+-	dprintk("RPC: %4d call_reconnect status %d\n",
++	dprintk("RPC: %4d call_connect status %d\n",
+ 				task->tk_pid, task->tk_status);
+ 
+@@ -587,24 +587,27 @@
+ 		return;
+ 
+-	/* Run as a child to ensure it runs as an rpciod task */
++	/* Run as a child to ensure it runs as an rpciod task.  Rpciod
++	 * guarantees we have the correct capabilities for socket bind
++	 * to succeed. */
+ 	child = rpc_new_child(clnt, task);
+ 	if (child) {
+-		child->tk_action = child_reconnect;
++		child->tk_action = child_connect;
+ 		rpc_run_child(task, child, NULL);
+ 	}
  }
- #endif
+ 
+-static void child_reconnect(struct rpc_task *task)
++static void
++child_connect(struct rpc_task *task)
+ {
+-	task->tk_client->cl_stats->netreconn++;
+ 	task->tk_status = 0;
+-	task->tk_action = child_reconnect_status;
+-	xprt_reconnect(task);
++	task->tk_action = child_connect_status;
++	xprt_connect(task);
+ }
+ 
+-static void child_reconnect_status(struct rpc_task *task)
++static void
++child_connect_status(struct rpc_task *task)
+ {
+ 	if (task->tk_status == -EAGAIN)
+-		task->tk_action = child_reconnect;
++		task->tk_action = child_connect;
+ 	else
+ 		task->tk_action = NULL;
+diff -drN -U2 02-connect1/net/sunrpc/xprt.c 03-connect2/net/sunrpc/xprt.c
+--- 02-connect1/net/sunrpc/xprt.c	Wed Sep 18 10:02:23 2002
++++ 03-connect2/net/sunrpc/xprt.c	Wed Sep 18 10:03:45 2002
+@@ -87,5 +87,5 @@
+ static inline void	do_xprt_reserve(struct rpc_task *);
+ static void	xprt_disconnect(struct rpc_xprt *);
+-static void	xprt_reconn_status(struct rpc_task *task);
++static void	xprt_conn_status(struct rpc_task *task);
+ static struct rpc_xprt * xprt_setup(int proto, struct sockaddr_in *ap,
+ 						struct rpc_timeout *to);
+@@ -137,5 +137,5 @@
+  * Serialize write access to sockets, in order to prevent different
+  * requests from interfering with each other.
+- * Also prevents TCP socket reconnections from colliding with writes.
++ * Also prevents TCP socket connects from colliding with writes.
+  */
+ static int
+@@ -410,10 +410,10 @@
+ 
+ /*
+- * Reconnect a broken TCP connection.
++ * Attempt to connect a TCP socket.
+  *
+- * Note: This cannot collide with the TCP reads, as both run from rpciod
++ * NB: This never collides with TCP reads, as both run from rpciod
+  */
+ void
+-xprt_reconnect(struct rpc_task *task)
++xprt_connect(struct rpc_task *task)
+ {
+ 	struct rpc_xprt	*xprt = task->tk_xprt;
+@@ -422,5 +422,5 @@
+ 	int		status;
+ 
+-	dprintk("RPC: %4d xprt_reconnect xprt %p %s connected\n", task->tk_pid,
++	dprintk("RPC: %4d xprt_connect xprt %p %s connected\n", task->tk_pid,
+ 			xprt, (xprt_connected(xprt) ? "is" : "is not"));
+ 
+@@ -472,5 +472,5 @@
+ 			if ((1 << inet->state) & ~(TCPF_SYN_SENT|TCPF_SYN_RECV))
+ 				task->tk_timeout = RPC_REESTABLISH_TIMEOUT;
+-			rpc_sleep_on(&xprt->pending, task, xprt_reconn_status,
++			rpc_sleep_on(&xprt->pending, task, xprt_conn_status,
+ 									NULL);
+ 			release_sock(inet);
+@@ -524,9 +524,8 @@
+ 
+ /*
+- * Reconnect timeout. We just mark the transport as not being in the
+- * process of reconnecting, and leave the rest to the upper layers.
++ * We arrive here when awoken from waiting on connection establishment.
+  */
+ static void
+-xprt_reconn_status(struct rpc_task *task)
++xprt_conn_status(struct rpc_task *task)
+ {
+ 	struct rpc_xprt	*xprt = task->tk_xprt;
+@@ -534,9 +533,9 @@
+ 	switch (task->tk_status) {
+ 	case 0:
+-		dprintk("RPC: %4d xprt_reconn_status: connection established\n",
++		dprintk("RPC: %4d xprt_conn_status: connection established\n",
+ 				task->tk_pid);
+ 		goto out;
+ 	case -ETIMEDOUT:
+-		dprintk("RPC: %4d xprt_reconn_status: timed out\n",
++		dprintk("RPC: %4d xprt_conn_status: timed out\n",
+ 				task->tk_pid);
+ 		/* prevent TCP from continuing to retry SYNs */
+@@ -1488,5 +1487,6 @@
+ 
+ /*
+- * Create a client socket given the protocol and peer address.
++ * Datastream sockets are created here, but xprt_connect will create
++ * and connect stream sockets.
+  */
+ static struct socket *
 
-diff -Nru a/drivers/tc/zs.c b/drivers/tc/zs.c
---- a/drivers/tc/zs.c	Wed Sep 18 09:39:01 2002
-+++ b/drivers/tc/zs.c	Wed Sep 18 09:39:01 2002
-@@ -443,7 +443,7 @@
- 		if (break_pressed && info->line == sercons.index) {
- 			if (ch != 0 &&
- 			    time_before(jiffies, break_pressed + HZ*5)) {
--				handle_sysrq(ch, regs, NULL, NULL);
-+				handle_sysrq(ch, regs, NULL);
- 				break_pressed = 0;
- 				goto ignore_char;
- 			}
+-- 
 
-===================================================================
+corporate:	<cel at netapp dot com>
+personal:	<chucklever at bigfoot dot com>
 
 
-This BitKeeper patch contains the following changesets:
-+
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch24129
-M'XL(`"6LB#T``]U674_;,!1]KG^%):2Q:6WB:SM?G8K88-JFL0VQ\8R,8TAI
-MFC#;!3KEQ\])*8526M8Q:5M:U6EBGYQ[[SG7V<"'1NENZ\STA\.R,&@#OR^-
-M[;:&XNI2Y;FGA+99WB\&7J&LNWM0ENZN/S+:-UKZTJTI<]4Q5ASG"KD)^\+*
-M#%\H;;HM\-C-%3L^5]W6P=MWAWNO#Q#J]?!.)HI3]559W.LA6^H+D:=F6[C'
-ME85GM2C,4%GAR7)8W4RM*"'4?0*(&`G""D+"HTI""B`XJ)10'H<<3</97AC&
-M/%P",7#&`E8Q&L<)VL7@!3S$A/HD\2'&).G2N`MQAT1=0O!R=/R2X0Y!;_#3
-MAK2#)/Y4:H7=NC171V9L]'=\TK]2QL/?,F%QWV"1Y[@\P3930UR4EQ[ZB%D8
-M`47[LVRCSB\>"!%!T!8^K^NX.)A4]^N*^X8EQ)>9T+ZT.J]//#F++P9"H((D
-M"J/J).2IC!BH*$Z(8[@BJ8]X0EW%D,8DJ!A+@IKP\@),$:WT?YC;-"-.(*X`
-M"`\JARF(A("ID,@@7E7[Q:`S9B3A$#EF9VE_H+8'0HOQA(S0,O-'0W^@=*%R
-M=W947YD!4(AHQ'E%(TJADHJQ])B`C'GH)D2K6*U"G]+C";"P\>9#*VJK/C'Y
-M=?%JN@&-&K?2>:^2X)%>!=R!O\:KD_Q_P1U]V7R=]_8?+,4:/MYUSL"`/DR&
-MUFUVSS?/-]OXF1QIK0K;V;*95B+UM#HU;?SY<&_OQ:M&&,M\6(OCCS:)WT:O
-M?P`JQAF'1CC\_Q#.I./-"6=91M81#VVT0^]+9PH[^7LT4..)9-K8VO&<;JX;
-MX^HM?ZWVC%)QH<ZVS<@H+U6+,3AA;@02NVX<D[B1P;V]_M^40;.[/*""ZQRL
-L4WCNWH5<Y2=#RQUWJY^U\=TV,7WEDYF2`S,:]ICBJ4NV0C\!T=?@@6\*````
-`
-end
 

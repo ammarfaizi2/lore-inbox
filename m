@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbUKSCFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbUKSCAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261257AbUKSCFF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 21:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbUKSCD1
+	id S261224AbUKSCAm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 21:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbUKSB6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 21:03:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3035 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261193AbUKSCAu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 21:00:50 -0500
-Date: Thu, 18 Nov 2004 18:00:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
+	Thu, 18 Nov 2004 20:58:24 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:45579 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261221AbUKSBzW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 20:55:22 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: pluto@pld-linux.org (Pawel Sikora)
+Subject: Re: [oops] tcp_set_skb_tso_segs
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.10-rc2 cannot boot system.
-Message-Id: <20041118180035.1e1f87a3.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0411180557030.31405@p500>
-References: <Pine.LNX.4.61.0411180557030.31405@p500>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Organization: Core
+In-Reply-To: <Pine.LNX.4.60.0411181835010.594@plus.ds14.agh.edu.pl>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1CUxzD-0002wq-00@gondolin.me.apana.org.au>
+Date: Fri, 19 Nov 2004 12:54:55 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
->
-> System: Dell Optiplex GX1p (500MHZ)
->  When I boot the 2.6.10-rc2 kernel from LILO, the machine reboots.
+Pawel Sikora <pluto@pld-linux.org> wrote:
+> 
+> I have two machines:
+> 
+> A: (at home) 2.6.10rc1+cset20041025_0606+pom_ng_snap20040609+ADSL
+> B: (at work) winxp+putty+DSL
+> 
+> Step 1: I connect from windows system to my PLD-Linux box using putty.
+> Step 2: I'm getting an oops after random time.
+> 
+> The ooops is caused by divide by zero (line 443: factor /= mss_std;)
 
-Does anything at all come out on the console first?
-
-If so, it'd be interesting to add `initcall_debug' to the kernel boot
-parameters and capture the output.
-
-Also, double-check your .config.  Doing things like selecting the wrong CPU
-type can cause unpleasant things to happen.
-
+This should be fixed in 2.6.10-rc2.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

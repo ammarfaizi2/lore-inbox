@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273728AbRIQW3Z>; Mon, 17 Sep 2001 18:29:25 -0400
+	id <S273733AbRIQWaI>; Mon, 17 Sep 2001 18:30:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273726AbRIQW3O>; Mon, 17 Sep 2001 18:29:14 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:516 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S273722AbRIQW3F>;
-	Mon, 17 Sep 2001 18:29:05 -0400
-Message-ID: <20010918000014.A197@bug.ucw.cz>
-Date: Tue, 18 Sep 2001 00:00:14 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Panic report -- fs corruption with kwintv under 2.2.18-suse
+	id <S273726AbRIQW31>; Mon, 17 Sep 2001 18:29:27 -0400
+Received: from mail.courier-mta.com ([66.92.103.29]:47779 "EHLO
+	mail.courier-mta.com") by vger.kernel.org with ESMTP
+	id <S273722AbRIQW3S>; Mon, 17 Sep 2001 18:29:18 -0400
+In-Reply-To: <Pine.LNX.4.10.10109171434550.9815-100000@forge.redmondlinux.org>
+In-Reply-To: <Pine.LNX.4.10.10109171434550.9815-100000@forge.redmondlinux.org> 
+From: "Sam Varshavchik" <mrsam@courier-mta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide zip 100 won't mount
+Date: Mon, 17 Sep 2001 22:29:42 GMT
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-ID: <courier.3BA67956.000049CF@ny.email-scan.com>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Joseph Cheek writes: 
 
-I bought TVPhone98w/VCR TV tuner card today. I tried it with suse
-2.2.18 kernel, and kwintv. It worked beatifully (given that wire I
-sticked in to simulate antena, grin). I did cut in kwintv, it
-segfaulted and kwintv binary was _gone_.
 
-Reboot, fsck reported "special device/socket/fifo inode 900553 has
-non-zero size. FIXED... and kwintv was lost. So I reinstalled it and
-retried. On exit kwintv got segfault... And this time kv4lsetup
-disappeared. Ouch. (Anyone knows what package kv4lsetup is so I can
-reinstall?). I guess I do not want to try kwintv again :-(.
+> looks good, right?  but i put a disk in and i get: 
+> 
+> Sep 17 14:36:23 seattle kernel: ide-floppy: hdd: I/O error, pc =  0, key =
+> 2, asc = 30, ascq =  0
+> Sep 17 14:36:23 seattle kernel: ide-floppy: hdd: I/O error, pc = 1b, key =
+> 2, asc = 30, ascq =  0
+> Sep 17 14:36:23 seattle kernel: hdd: No disk in drive 
+> 
+> not hardware, as it works in windows on the same machine. 
+> 
+> any ideas?
 
-Are similar problems known with 2.2.18? This was really scary.
-								Pavel
+The first packet is TEST_UNIT_READY, the second packet is START_STOP_UNIT. 
+asc 30/asq 0 decodes to "Incompatible medium installed".  Doesn't sound too 
+promising... 
+
+Looking through the driver, it will not fail to open if either of these 
+packets fail.  The driver open will fail if it can't decode the subsequent 
+READ_FORMAT_CAPACITIES packet.  Try to enabling debugging by initializing 
+the IDEFLOPPY_DEBUG macro.  Also, the output of hdparm -i would be useful. 
+
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Sam 
+

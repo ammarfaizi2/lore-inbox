@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266115AbRF2Qkm>; Fri, 29 Jun 2001 12:40:42 -0400
+	id <S266117AbRF2Qro>; Fri, 29 Jun 2001 12:47:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266119AbRF2Qkc>; Fri, 29 Jun 2001 12:40:32 -0400
-Received: from biglinux.tccw.wku.edu ([161.6.10.206]:60354 "EHLO
-	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
-	id <S266115AbRF2QkX>; Fri, 29 Jun 2001 12:40:23 -0400
-Date: Fri, 29 Jun 2001 11:40:15 -0500 (CDT)
-From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
-To: Dan Podeanu <pdan@spiral.extreme.ro>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: A Possible 2.5 Idea, maybe?
-In-Reply-To: <Pine.LNX.4.33L2.0106291901550.14545-100000@spiral.extreme.ro>
-Message-ID: <Pine.LNX.4.33.0106291124490.26820-100000@biglinux.tccw.wku.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266119AbRF2Qre>; Fri, 29 Jun 2001 12:47:34 -0400
+Received: from isdn305.s.netic.de ([212.9.163.49]:8452 "EHLO solfire")
+	by vger.kernel.org with ESMTP id <S266117AbRF2QrR>;
+	Fri, 29 Jun 2001 12:47:17 -0400
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with 2.4.5ac21
+From: Meino Christian Cramer <mccramer@s.netic.de>
+X-Mailer: Mew version 1.94.2 on XEmacs 21.4 (Academic Rigor)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010629182645R.mccramer@s.netic.de>
+Date: Fri, 29 Jun 2001 18:26:45 +0200
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thats why we have /proc/... To echo things into it.
+Hi,
 
-I don't know of a proc entry that lets the user tell the VM not to cache
-as much or use swap in a different manner.
+ with the newest kernel linux-2.4.5ac21 I am not able to activate
+ the ppp network device an dits options. Regardless what I am doing,
+ the setting will not be stored into .config...
 
-> Several kernel threads are hard to maintain, hard to evolve, hard to
-> bugfix, modify patches, etc. Mainly, we should have a single kernel that
-> can be tuned to fit people's needs.
+ Any trick to avoid this ?
 
-I agree that keeping several threads would be difficult, but is there not
-a way to have certain values plugged into the code for something like
-cache pressure before swapping, or extended boot messages instead of a
-quiet boot?  These values would be dependant on the config options that
-were selected in the config.  I am not talking about forking the kernel.
-I am instead talking about a process to select a different concept that
-the same kernel runs under and have this concept selected at compile time.
+ Thanks for any help in advance!
 
-> IMO, the Linux distributions out there should configure the kernel based
-> on the type of system the (l[inux])user wants. Those who have the balls to
-> compile their own system should know such things anyway. The rest, better
-> rely on the distribution default and/or ask around and get some more
-> info [the kernel configuration help is explicit enough anyway, given a
-> decent level of common sense is used].
+ (PS: I am currently not on the kernel list, please answer also to my
+  email address. Thank you!)
 
-This leaves several people out in the rain though.  First how would a
-distro make a system that works well for the desktop users if the kernel
-is designed to work well on servers?  Also I should be able to run debian
-on my desktop if I want without having to suffer through interactivity
-issues, because debian builds their distros for servers and has most of
-the hard drives cached.  Also I know several people that recompile kernels
-and such, but have no clue as the process to go through to optimize it for
-their particular setup.  If people are hoping that linux will move into
-other markets besides servers then you cannot have the attitude that
-everyone has to suffer with a) what the distros give them or b) be come
-fluent enought in kernel programming and desgin to be able to edit the
-code so that it works better for them.
-
-Brent Norris
-
-Executive Advisor -- WKU-Linux
+  keep hacking the right site of life ! :-)
+  Meino  
 

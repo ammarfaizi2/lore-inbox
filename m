@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288047AbSACAOe>; Wed, 2 Jan 2002 19:14:34 -0500
+	id <S288051AbSACA2I>; Wed, 2 Jan 2002 19:28:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288060AbSACANA>; Wed, 2 Jan 2002 19:13:00 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:44049 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S288052AbSACAMf>;
-	Wed, 2 Jan 2002 19:12:35 -0500
-Message-ID: <3C33A1A2.60701@free.fr>
-Date: Thu, 03 Jan 2002 01:11:14 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020101
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <3C338DCC.3020707@free.fr> <Pine.LNX.4.33.0201022349200.427-100000@Appserv.suse.de> <20020102174824.A21408@thyrsus.com> <3C339681.3080100@free.fr> <20020102234447.GD29462@thune.mrc-home.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288049AbSACARV>; Wed, 2 Jan 2002 19:17:21 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:55940
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S288033AbSACAQU>; Wed, 2 Jan 2002 19:16:20 -0500
+Date: Wed, 2 Jan 2002 17:16:05 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Richard Henderson <rth@redhat.com>, jtv <jtv@xs4all.nl>,
+        Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
+        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
+        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Corey Minyard <minyard@acm.org>
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020103001605.GS1803@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102133632.C10362@redhat.com> <20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102232320.A19933@xs4all.nl> <20020102231243.GO1803@cpe-24-221-152-185.az.sprintbbd.net> <20020103004514.B19933@xs4all.nl> <20020103000118.GR1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102160739.A10659@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020102160739.A10659@redhat.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Castle wrote:
-
-> On Thu, Jan 03, 2002 at 12:23:45AM +0100, Lionel Bouton wrote:
+On Wed, Jan 02, 2002 at 04:07:39PM -0800, Richard Henderson wrote:
+> On Wed, Jan 02, 2002 at 05:01:18PM -0700, Tom Rini wrote:
+> > Yes, but doesn't -ffreestanding imply that gcc _can't_ assume this is
+> > the standard library...
 > 
->>Your whole point here is not to avoid several su instead of 1?
->>
-> 
-> Seems like the point is being able to do ``make autoconfig'' as a normal
-> user, then su and make install modules_install.
-> 
+> Ignore strcpy.  Yes, that's what visibly causing a failure here,
+> but the bug is in the funny pointer arithmetic.  Leave that in
+> there and the compiler _will_ bite your ass sooner or later.
 
-Didn't thought this point enough. One identified stupid post on my side.
+Er, which part of the 'funny pointer arithmetic' ?  I take it you aren't
+a fan of the 'change to
+memcpy(namep,RELOC("linux,phandle"),sizeof("linux,phandle"));' fix.
+We need to do funny things here, and thus need a way to tell gcc to just
+do what we're saying.
 
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

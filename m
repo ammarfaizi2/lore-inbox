@@ -1,174 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131874AbRC1PWW>; Wed, 28 Mar 2001 10:22:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131882AbRC1PWM>; Wed, 28 Mar 2001 10:22:12 -0500
-Received: from scaup.prod.itd.earthlink.net ([207.217.121.49]:16525 "EHLO scaup.prod.itd.earthlink.net") by vger.kernel.org with ESMTP id <S131874AbRC1PVz>; Wed, 28 Mar 2001 10:21:55 -0500
-Date: Wed, 28 Mar 2001 07:22:06 -0800 (PST)
-From: James Simmons <jsimmons@linux-fbdev.org>
-X-X-Sender: <jsimmons@linux.local>
-To: <linas@linas.org>
-cc: Gunther Mayer <Gunther.Mayer@t-online.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mouse problems in 2.4.2 -> lost byte
-Message-ID: <Pine.LNX.4.31.0103280716090.948-200000@linux.local>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323584-1956227703-985792926=:948"
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132033AbRC1PcW>; Wed, 28 Mar 2001 10:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132044AbRC1PcM>; Wed, 28 Mar 2001 10:32:12 -0500
+Received: from elektra.higherplane.net ([203.37.52.137]:48852 "EHLO elektra.higherplane.net") by vger.kernel.org with ESMTP id <S132042AbRC1Pb6>; Wed, 28 Mar 2001 10:31:58 -0500
+Date: Thu, 29 Mar 2001 01:36:03 +1000
+From: john slee <indigoid@higherplane.net>
+To: Sean Hunter <sean@dev.sportingbet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Disturbing news..
+Message-ID: <20010329013602.I10910@higherplane.net>
+References: <Pine.LNX.4.30.0103280225460.8046-100000@coredump.sh0n.net> <01032806093901.11349@tabby> <20010328151008.D8235@dev.sportingbet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010328151008.D8235@dev.sportingbet.com>; from sean@dev.sportingbet.com on Wed, Mar 28, 2001 at 03:10:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+[cc list trimmed]
 
---8323584-1956227703-985792926=:948
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On Wed, Mar 28, 2001 at 03:10:08PM +0100, Sean Hunter wrote:
+> On Wed, Mar 28, 2001 at 06:08:15AM -0600, Jesse Pollard wrote:
+> > Sure - very simple. If the execute bit is set on a file, don't allow
+> > ANY write to the file. This does modify the permission bits slightly
+> > but I don't think it is an unreasonable thing to have.
+> >
+> 
+> Are we not then in the somewhat zen-like state of having an "rm" which can't
+> "rm" itself without needing to be made non-executable so that it can't execute?
 
+aiiiieee, my head hurts now, thanks :(
 
+j.
 
->logitech trackman marble wheel.
->
->send me the driver.
-
-Attached :-) I'm assuming you use the logitech busmouse driver. Logitech
-makes many kinds of mice.
-
->Are you working on getting the thing incorporated
->into xf86? should I pester someone over there about it?  should I assume
->that 'everything will be OK', if I wait long enough?
-
-This is a kernel driver so it is independent of XFree86. Use the
-configuration I told you about with X and it will work. Well as long as
-XFree86 doesn't break its PS/2 driver.
-
-If you have any problems setting it up let me know.
-
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
-
-James Simmons  [jsimmons@linux-fbdev.org]               ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
-
---8323584-1956227703-985792926=:948
-Content-Type: TEXT/plain; name="logibm.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.31.0103280722060.948@linux.local>
-Content-Description: 
-Content-Disposition: attachment; filename="logibm.c"
-
-LyoNCiAqICRJZDogbG9naWJtLmMsdiAxLjcgMjAwMC8wNS8yOSAxMToxOTo1
-MSB2b2p0ZWNoIEV4cCAkDQogKg0KICogIENvcHlyaWdodCAoYykgMTk5OS0y
-MDAwIFZvanRlY2ggUGF2bGlrDQogKg0KICogIEJhc2VkIG9uIHRoZSB3b3Jr
-IG9mOg0KICoJSmFtZXMgQmFua3MJCU1hdHRoZXcgRGlsbG9uDQogKglEYXZp
-ZCBHaWxsZXIJCU5hdGhhbiBMYXJlZG8NCiAqCUxpbnVzIFRvcnZhbGRzCQlK
-b2hhbiBNeXJlZW4NCiAqCUNsaWZmIE1hdHRoZXdzCQlQaGlsaXAgQmx1bmRl
-bGwNCiAqCVJ1c3NlbGwgS2luZw0KICoNCiAqICBTcG9uc29yZWQgYnkgU3VT
-RQ0KICovDQoNCi8qDQogKiBMb2dpdGVjaCBCdXMgTW91c2UgRHJpdmVyIGZv
-ciBMaW51eA0KICovDQoNCi8qDQogKiBUaGlzIHByb2dyYW0gaXMgZnJlZSBz
-b2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yIG1vZGlm
-eQ0KICogaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQ
-dWJsaWMgTGljZW5zZSBhcyBwdWJsaXNoZWQgYnkNCiAqIHRoZSBGcmVlIFNv
-ZnR3YXJlIEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9uIDIgb2YgdGhlIExp
-Y2Vuc2UsIG9yIA0KICogKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVy
-c2lvbi4NCiAqIA0KICogVGhpcyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGlu
-IHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1c2VmdWwsDQogKiBidXQgV0lU
-SE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3
-YXJyYW50eSBvZg0KICogTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1MgRk9S
-IEEgUEFSVElDVUxBUiBQVVJQT1NFLiAgU2VlIHRoZQ0KICogR05VIEdlbmVy
-YWwgUHVibGljIExpY2Vuc2UgZm9yIG1vcmUgZGV0YWlscy4NCiAqIA0KICog
-WW91IHNob3VsZCBoYXZlIHJlY2VpdmVkIGEgY29weSBvZiB0aGUgR05VIEdl
-bmVyYWwgUHVibGljIExpY2Vuc2UNCiAqIGFsb25nIHdpdGggdGhpcyBwcm9n
-cmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBGcmVlIFNvZnR3YXJlDQogKiBG
-b3VuZGF0aW9uLCBJbmMuLCA1OSBUZW1wbGUgUGxhY2UsIFN1aXRlIDMzMCwg
-Qm9zdG9uLCBNQSAwMjExMS0xMzA3IFVTQQ0KICogDQogKiBTaG91bGQgeW91
-IG5lZWQgdG8gY29udGFjdCBtZSwgdGhlIGF1dGhvciwgeW91IGNhbiBkbyBz
-byBlaXRoZXIgYnkNCiAqIGUtbWFpbCAtIG1haWwgeW91ciBtZXNzYWdlIHRv
-IDx2b2p0ZWNoQHVjdy5jej4sIG9yIGJ5IHBhcGVyIG1haWw6DQogKiBWb2p0
-ZWNoIFBhdmxpaywgVWNpdGVsc2thIDE1NzYsIFByYWd1ZSA4LCAxODIgMDAg
-Q3plY2ggUmVwdWJsaWMNCiAqLw0KDQojaW5jbHVkZSA8YXNtL2lvLmg+DQoj
-aW5jbHVkZSA8YXNtL2lycS5oPg0KDQojaW5jbHVkZSA8bGludXgvbW9kdWxl
-Lmg+DQojaW5jbHVkZSA8bGludXgvZGVsYXkuaD4NCiNpbmNsdWRlIDxsaW51
-eC9pb3BvcnQuaD4NCiNpbmNsdWRlIDxsaW51eC9pbml0Lmg+DQojaW5jbHVk
-ZSA8bGludXgvaW5wdXQuaD4NCg0KI2RlZmluZQlMT0dJQk1fQkFTRQkJMHgy
-M2MNCiNkZWZpbmUJTE9HSUJNX0VYVEVOVAkJNA0KDQojZGVmaW5lCUxPR0lC
-TV9EQVRBX1BPUlQJTE9HSUJNX0JBU0UgKyAwDQojZGVmaW5lCUxPR0lCTV9T
-SUdOQVRVUkVfUE9SVAlMT0dJQk1fQkFTRSArIDENCiNkZWZpbmUJTE9HSUJN
-X0NPTlRST0xfUE9SVAlMT0dJQk1fQkFTRSArIDINCiNkZWZpbmUJTE9HSUJN
-X0NPTkZJR19QT1JUCUxPR0lCTV9CQVNFICsgMw0KDQojZGVmaW5lCUxPR0lC
-TV9FTkFCTEVfSVJRCTB4MDANCiNkZWZpbmUJTE9HSUJNX0RJU0FCTEVfSVJR
-CTB4MTANCiNkZWZpbmUJTE9HSUJNX1JFQURfWF9MT1cJMHg4MA0KI2RlZmlu
-ZQlMT0dJQk1fUkVBRF9YX0hJR0gJMHhhMA0KI2RlZmluZQlMT0dJQk1fUkVB
-RF9ZX0xPVwkweGMwDQojZGVmaW5lCUxPR0lCTV9SRUFEX1lfSElHSAkweGUw
-DQoNCiNkZWZpbmUgTE9HSUJNX0RFRkFVTFRfTU9ERQkweDkwDQojZGVmaW5l
-IExPR0lCTV9DT05GSUdfQllURQkweDkxDQojZGVmaW5lIExPR0lCTV9TSUdO
-QVRVUkVfQllURQkweGE1DQoNCiNkZWZpbmUgTE9HSUJNX0lSUQkJNQ0KDQpN
-T0RVTEVfUEFSTShsb2dpYm1faXJxLCAiaSIpOw0KDQpzdGF0aWMgaW50IGxv
-Z2libV9pcnEgPSBMT0dJQk1fSVJROw0Kc3RhdGljIGludCBsb2dpYm1fdXNl
-ZCA9IDA7DQoNCnN0YXRpYyB2b2lkIGxvZ2libV9pbnRlcnJ1cHQoaW50IGly
-cSwgdm9pZCAqZGV2X2lkLCBzdHJ1Y3QgcHRfcmVncyAqcmVncyk7DQoNCnN0
-YXRpYyBpbnQgbG9naWJtX29wZW4oc3RydWN0IGlucHV0X2RldiAqZGV2KQ0K
-ew0KCWlmIChsb2dpYm1fdXNlZCsrKQ0KCQlyZXR1cm4gMDsNCglpZiAocmVx
-dWVzdF9pcnEobG9naWJtX2lycSwgbG9naWJtX2ludGVycnVwdCwgMCwgImxv
-Z2libSIsIE5VTEwpKSB7DQoJCWxvZ2libV91c2VkLS07DQoJCXByaW50ayhL
-RVJOX0VSUiAibG9naWJtLmM6IENhbid0IGFsbG9jYXRlIGlycSAlZFxuIiwg
-bG9naWJtX2lycSk7DQoJCXJldHVybiAtRUJVU1k7DQoJfQ0KCW91dGIoTE9H
-SUJNX0VOQUJMRV9JUlEsIExPR0lCTV9DT05UUk9MX1BPUlQpOw0KCXJldHVy
-biAwOw0KfQ0KDQpzdGF0aWMgdm9pZCBsb2dpYm1fY2xvc2Uoc3RydWN0IGlu
-cHV0X2RldiAqZGV2KQ0Kew0KCWlmICgtLWxvZ2libV91c2VkKQ0KCQlyZXR1
-cm47DQoJb3V0YihMT0dJQk1fRElTQUJMRV9JUlEsIExPR0lCTV9DT05UUk9M
-X1BPUlQpOw0KCWZyZWVfaXJxKGxvZ2libV9pcnEsIE5VTEwpOw0KfQ0KDQpz
-dGF0aWMgc3RydWN0IGlucHV0X2RldiBsb2dpYm1fZGV2ID0gew0KCWV2Yml0
-OgkJeyBCSVQoRVZfS0VZKSB8IEJJVChFVl9SRUwpIH0sDQoJa2V5Yml0OiAJ
-eyBbTE9ORyhCVE5fTEVGVCldID0gQklUKEJUTl9MRUZUKSB8IEJJVChCVE5f
-TUlERExFKSB8IEJJVChCVE5fUklHSFQpIH0sDQoJcmVsYml0OgkJeyBCSVQo
-UkVMX1gpIHwgQklUKFJFTF9ZKSB9LA0KCW9wZW46CQlsb2dpYm1fb3BlbiwN
-CgljbG9zZToJCWxvZ2libV9jbG9zZSwNCgluYW1lOgkJIkxvZ2l0ZWNoIGJ1
-cyBtb3VzZSIsDQoJaWRidXM6CQlCVVNfSVNBLA0KCWlkdmVuZG9yOgkweDAw
-MDIsDQoJaWRwcm9kdWN0OgkweDAwMDEsDQoJaWR2ZXJzaW9uOgkweDAxMDAs
-DQp9Ow0KDQpzdGF0aWMgdm9pZCBsb2dpYm1faW50ZXJydXB0KGludCBpcnEs
-IHZvaWQgKmRldl9pZCwgc3RydWN0IHB0X3JlZ3MgKnJlZ3MpDQp7DQoJY2hh
-ciBkeCwgZHk7DQoJdW5zaWduZWQgY2hhciBidXR0b25zOw0KDQoJb3V0YihM
-T0dJQk1fUkVBRF9YX0xPVywgTE9HSUJNX0NPTlRST0xfUE9SVCk7DQoJZHgg
-PSAoaW5iKExPR0lCTV9EQVRBX1BPUlQpICYgMHhmKTsNCglvdXRiKExPR0lC
-TV9SRUFEX1hfSElHSCwgTE9HSUJNX0NPTlRST0xfUE9SVCk7DQoJZHggfD0g
-KGluYihMT0dJQk1fREFUQV9QT1JUKSAmIDB4ZikgPDwgNDsNCglvdXRiKExP
-R0lCTV9SRUFEX1lfTE9XLCBMT0dJQk1fQ09OVFJPTF9QT1JUKTsNCglkeSA9
-IChpbmIoTE9HSUJNX0RBVEFfUE9SVCkgJiAweGYpOw0KCW91dGIoTE9HSUJN
-X1JFQURfWV9ISUdILCBMT0dJQk1fQ09OVFJPTF9QT1JUKTsNCglidXR0b25z
-ID0gaW5iKExPR0lCTV9EQVRBX1BPUlQpOw0KCWR5IHw9IChidXR0b25zICYg
-MHhmKSA8PCA0Ow0KCWJ1dHRvbnMgPSB+YnV0dG9uczsNCg0KCWlucHV0X3Jl
-cG9ydF9yZWwoJmxvZ2libV9kZXYsIFJFTF9YLCBkeCk7DQoJaW5wdXRfcmVw
-b3J0X3JlbCgmbG9naWJtX2RldiwgUkVMX1ksIDI1NSAtIGR5KTsNCglpbnB1
-dF9yZXBvcnRfa2V5KCZsb2dpYm1fZGV2LCBCVE5fTUlERExFLCBidXR0b25z
-ICYgMSk7DQoJaW5wdXRfcmVwb3J0X2tleSgmbG9naWJtX2RldiwgQlROX0xF
-RlQsICAgYnV0dG9ucyAmIDIpOw0KCWlucHV0X3JlcG9ydF9rZXkoJmxvZ2li
-bV9kZXYsIEJUTl9SSUdIVCwgIGJ1dHRvbnMgJiA0KTsNCn0NCg0KI2lmbmRl
-ZiBNT0RVTEUNCnN0YXRpYyBpbnQgX19pbml0IGxvZ2libV9zZXR1cChjaGFy
-ICpzdHIpDQp7DQogICAgICAgIGludCBpbnRzWzRdOw0KICAgICAgICBzdHIg
-PSBnZXRfb3B0aW9ucyhzdHIsIEFSUkFZX1NJWkUoaW50cyksIGludHMpOw0K
-ICAgICAgICBpZiAoaW50c1swXSA+IDApIGxvZ2libV9pcnEgPSBpbnRzWzFd
-Ow0KICAgICAgICByZXR1cm4gMTsNCn0NCl9fc2V0dXAoImxvZ2libV9pcnE9
-IiwgbG9naWJtX3NldHVwKTsNCiNlbmRpZg0KDQpzdGF0aWMgaW50IF9faW5p
-dCBsb2dpYm1faW5pdCh2b2lkKQ0Kew0KCWlmIChyZXF1ZXN0X3JlZ2lvbihM
-T0dJQk1fQkFTRSwgTE9HSUJNX0VYVEVOVCwgImxvZ2libSIpKSB7DQoJCXBy
-aW50ayhLRVJOX0VSUiAibG9naWJtLmM6IENhbid0IGFsbG9jYXRlIHBvcnRz
-IGF0ICUjeFxuIiwgTE9HSUJNX0JBU0UpOw0KCQlyZXR1cm4gLUVCVVNZOw0K
-CX0NCg0KCW91dGIoTE9HSUJNX0NPTkZJR19CWVRFLCBMT0dJQk1fQ09ORklH
-X1BPUlQpOw0KCW91dGIoTE9HSUJNX1NJR05BVFVSRV9CWVRFLCBMT0dJQk1f
-U0lHTkFUVVJFX1BPUlQpOw0KCXVkZWxheSgxMDApOw0KDQoJaWYgKGluYihM
-T0dJQk1fU0lHTkFUVVJFX1BPUlQpICE9IExPR0lCTV9TSUdOQVRVUkVfQllU
-RSkgew0KCQlyZWxlYXNlX3JlZ2lvbihMT0dJQk1fQkFTRSwgTE9HSUJNX0VY
-VEVOVCk7DQoJCXByaW50ayhLRVJOX0VSUiAibG9naWJtLmM6IERpZG4ndCBm
-aW5kIExvZ2l0ZWNoIGJ1c21vdXNlIGF0ICUjeFxuIiwgTE9HSUJNX0JBU0Up
-Ow0KCQlyZXR1cm4gLUVOT0RFVjsNCgl9DQoNCglvdXRiKExPR0lCTV9ERUZB
-VUxUX01PREUsIExPR0lCTV9DT05GSUdfUE9SVCk7DQoJb3V0YihMT0dJQk1f
-RElTQUJMRV9JUlEsIExPR0lCTV9DT05UUk9MX1BPUlQpOw0KDQoJaW5wdXRf
-cmVnaXN0ZXJfZGV2aWNlKCZsb2dpYm1fZGV2KTsNCg0KCXByaW50ayhLRVJO
-X0lORk8gImlucHV0JWQ6IExvZ2l0ZWNoIGJ1cyBtb3VzZSBhdCAlI3ggaXJx
-ICVkXG4iLA0KCQlsb2dpYm1fZGV2Lm51bWJlciwgTE9HSUJNX0JBU0UsIGxv
-Z2libV9pcnEpOw0KDQoJcmV0dXJuIDA7DQp9DQoNCnN0YXRpYyB2b2lkIF9f
-ZXhpdCBsb2dpYm1fZXhpdCh2b2lkKQ0Kew0KCWlucHV0X3VucmVnaXN0ZXJf
-ZGV2aWNlKCZsb2dpYm1fZGV2KTsNCglyZWxlYXNlX3JlZ2lvbihMT0dJQk1f
-QkFTRSwgTE9HSUJNX0VYVEVOVCk7DQp9DQoNCm1vZHVsZV9pbml0KGxvZ2li
-bV9pbml0KTsNCm1vZHVsZV9leGl0KGxvZ2libV9leGl0KTsNCg==
---8323584-1956227703-985792926=:948--
+-- 
+"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

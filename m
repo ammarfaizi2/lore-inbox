@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317790AbSHOXm5>; Thu, 15 Aug 2002 19:42:57 -0400
+	id <S317861AbSHOXvW>; Thu, 15 Aug 2002 19:51:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317799AbSHOXm5>; Thu, 15 Aug 2002 19:42:57 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:44720 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S317790AbSHOXm4>;
-	Thu, 15 Aug 2002 19:42:56 -0400
-Date: Fri, 16 Aug 2002 01:47:19 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <linux-kernel@vger.kernel.org>
+	id <S317862AbSHOXvW>; Thu, 15 Aug 2002 19:51:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58893 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317861AbSHOXvV>; Thu, 15 Aug 2002 19:51:21 -0400
+Date: Thu, 15 Aug 2002 16:58:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] user-vm-unlock-2.5.31-A2
-In-Reply-To: <Pine.LNX.4.44.0208151643380.15744-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208160146480.6252-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0208160145150.6252-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0208151653420.15744-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 15 Aug 2002, Linus Torvalds wrote:
+On Fri, 16 Aug 2002, Ingo Molnar wrote:
+> 
+> okay. And it also makes sense for a newly forked task to know (and cache)
+> its own PID, without having to call getpid() again.
 
-> A thread library - maybe not. But the SETTID thing makes sense even for
-> a fork() user to avoid the fork/SIGCHLD race condition. In contrast, a
-> CLRTID does _not_ make sense in that situation, so I actually think they
-> are two separate issues (and should thus be two separate bits).
+Well, it won't. The pid write is _after_ we've done the copy_mm(), so the 
+child will never see it.
 
-we could skip the 'clear' bit if this is the last release of the mm.
+That looks like a potential mistake, though - it causes extra COW-faults
+and it also means that this particular optimization (which I kind of like)
+won't work.
 
-	Ingo
+However, if you want to fix it, you'd need to either move the
+clone_thread() earlier, or you'd need to move the CLONE_SETTID logic up to
+the generic layer (that latter path may make more sense, since if glibc
+starts using this interface, you obviously need to do this in all
+architectures anyway)
+
+		Linus
 

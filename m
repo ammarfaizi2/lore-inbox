@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265897AbUGAP0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265930AbUGAP1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265897AbUGAP0k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 11:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbUGAP03
+	id S265930AbUGAP1z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 11:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUGAP1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 11:26:29 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:54427 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S265897AbUGAP01
+	Thu, 1 Jul 2004 11:27:55 -0400
+Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:18638 "EHLO
+	yoda.timesys") by vger.kernel.org with ESMTP id S265930AbUGAP1r
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 11:26:27 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [Linux-usb-users] linux 2.6.6, bttv and usb2 data corruption & lockups & poor performance
-Date: Thu, 1 Jul 2004 17:26:24 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-usb-users@lists.sourceforge.net, janne <sniff@xxx.ath.cx>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0407011107270.1083-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0407011107270.1083-100000@ida.rowland.org>
-MIME-Version: 1.0
+	Thu, 1 Jul 2004 11:27:47 -0400
+Date: Thu, 1 Jul 2004 11:27:28 -0400
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Jamie Lokier <jamie@shareable.org>, Ian Molton <spyro@f2s.com>,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on ARM and ARM26
+Message-ID: <20040701152728.GA20634@yoda.timesys>
+References: <20040630024434.GA25064@mail.shareable.org> <20040630091621.A8576@flint.arm.linux.org.uk> <20040630145942.GH29285@mail.shareable.org> <20040630192654.B21104@flint.arm.linux.org.uk> <20040630191428.GC31064@mail.shareable.org> <20040630202313.A1496@flint.arm.linux.org.uk> <20040630201546.GD31064@mail.shareable.org> <20040630235921.C1496@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407011726.24592.baldrick@free.fr>
+In-Reply-To: <20040630235921.C1496@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.4i
+From: Scott Wood <scott@timesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
-
-> > I get hard hangs with a Bt878 + disk activity (every time it hangs,
-> > the disk activity LED is on).  But I don't have usb2.  However I have
-> > a similar processor, Athlon XP 2100+, and motherboard, VIA KT333.
-> > I'm also using reiserfs (where an OOPS occurred in your system logs).
-> > I also have a realtek 8139 ethernet card.  We both have VIA usb 1.1
-> > controllers.  My hangs happen with both 2.4 and 2.6 kernels.  I only
-> > get hangs if I'm using the bttv card.
+On Wed, Jun 30, 2004 at 11:59:22PM +0100, Russell King wrote:
+> Ok, to fill in for just this bit, the domain covering user space mappings
+> always remains in "client" mode, so page protections are always checked.
+> PAGE_NONE does not have the "user" bit set, so both user space accesses
+> and ldrt/strt instructions will be unable to access the pages, which is
+> the desired behaviour.
 > 
-> Is it possible that you are exceeding the capacity of your PCI bus?
+> However, plain ldr and str instructions will access the page, but
+> get_user/put_user doesn't use them, and copy_from_user/copy_to_user
+> are carefully crafted to ensure that we hit the necessary permission
+> checks for each page it touches on the first access.
 
-I guess so, but that's no reason to hang...  Or is overloading the PCI
-bus somehow problematic?
+What if CONFIG_PREEMPT is enabled, and you get preempted after that
+first access, and another thread unmaps the page before you're
+finished with it?
 
-Ciao,
-
-Duncan.
+-Scott

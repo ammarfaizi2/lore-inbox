@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263192AbTC1XFO>; Fri, 28 Mar 2003 18:05:14 -0500
+	id <S263194AbTC1XJN>; Fri, 28 Mar 2003 18:09:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263194AbTC1XFO>; Fri, 28 Mar 2003 18:05:14 -0500
-Received: from [12.47.58.223] ([12.47.58.223]:17540 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id <S263192AbTC1XFN>; Fri, 28 Mar 2003 18:05:13 -0500
-Date: Fri, 28 Mar 2003 15:16:24 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 3c59x gives HWaddr FF:FF:...
-Message-Id: <20030328151624.67a3c8c5.akpm@digeo.com>
-In-Reply-To: <20030328230510.GA5124@werewolf.able.es>
-References: <20030328145159.GA4265@werewolf.able.es>
-	<20030328124832.44243f83.akpm@digeo.com>
-	<20030328230510.GA5124@werewolf.able.es>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S263198AbTC1XJN>; Fri, 28 Mar 2003 18:09:13 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:4879 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S263194AbTC1XJM>;
+	Fri, 28 Mar 2003 18:09:12 -0500
+Date: Sat, 29 Mar 2003 00:20:22 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Andrew Morton <akpm@digeo.com>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       aeb@cwi.nl
+Subject: Re: NICs trading places ?
+Message-ID: <20030328232022.GA12005@win.tue.nl>
+References: <20030328221037.GB25846@suse.de> <20030328224843.GA11980@win.tue.nl> <20030328150234.7f73d916.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Mar 2003 23:16:25.0284 (UTC) FILETIME=[0D9D8040:01C2F580]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030328150234.7f73d916.akpm@digeo.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
+On Fri, Mar 28, 2003 at 03:02:34PM -0800, Andrew Morton wrote:
+> Andries Brouwer <aebr@win.tue.nl> wrote:
 >
-> > Please take the 2.4.20 3c59x.c and place that into the 2.5 tree and confirm
-> > that it does the same thing (it will).
-> > 
+> > +	if (retval == 0) {
+> > +		int i;
+> > +		printk("%s: 3c59x, address", dev->name);
+> > +		for (i = 0; i < 6; i++)
+> > +			printk("%c%2.2x", i ? ':' : ' ', dev->dev_addr[i]);
+> > +		printk("\n");
+> >  		return 0;
+> > +	}
 > 
-> Hum, I suppose you want to say take the _2.5_ one and put into my _2.4_ tree ?
+> hm.  typing `ifconfig' shows this information.
 
-No, I didn't mean that.  But you can do that too.
+I like uniformity.
+Either all eth cards should have their address in dmesg, or none.
+Almost all do.
 
-> Some previous answer also talked about a more recent version in -ac.
-> (btw, can 2.5 be useful for something ? does not the driver depend on a new
-> arch of, for example, the PCI layer ? )
+And: ifconfig does not give the card types.
+So presently one needs both boot messages and ifconfig.
 
-The netdevice interface hasn't been broken yet ;) 2.4 drivers (or at least
-3c59x.c) still work OK in the 2.5 tree.
+And: in some situations the system does not boot because of
+eth numbering mixup, and one never gets the opportunity to
+ask ifconfig.
 
-
-> > Then try disabling APCI and/or otherwise fiddling with your power management
-> > options (maybe in BIOS too).
-> > 
-> 
-> I don't build ACPI, just APM power-off (SMP box).
-
-Oh, OK.
-
-As I say, it it probably power-management related.  Try enabling ACPI.  Try
-disabling APM.  Try altering the BIOS settings.
+Andries
 

@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269687AbRHIHD4>; Thu, 9 Aug 2001 03:03:56 -0400
+	id <S269709AbRHIHIg>; Thu, 9 Aug 2001 03:08:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269707AbRHIHDr>; Thu, 9 Aug 2001 03:03:47 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:7935 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S269687AbRHIHDh>;
-	Thu, 9 Aug 2001 03:03:37 -0400
-Date: Thu, 9 Aug 2001 17:02:46 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: David Monniaux <monniaux@di.ens.fr>
-Cc: linux-kernel@vger.kernel.org, sfr@canb.auug.org.au
-Subject: Re: APM poweroff under Linux 2.4.7 / 2.4.2 RH 7.1
-Message-Id: <20010809170246.04c44c35.sfr@canb.auug.org.au>
-In-Reply-To: <20010806230335.A2473@picsou.chatons>
-In-Reply-To: <20010806230335.A2473@picsou.chatons>
-X-Mailer: Sylpheed version 0.5.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S269712AbRHIHI0>; Thu, 9 Aug 2001 03:08:26 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:7947 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S269709AbRHIHIM>;
+	Thu, 9 Aug 2001 03:08:12 -0400
+Date: Thu, 9 Aug 2001 08:08:15 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Helge Hafting <helgehaf@idb.hist.no>
+cc: Ivan Kalvatchev <iive@yahoo.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Thoughts on tmpfs and swapfs
+In-Reply-To: <3B722DE4.96DA5711@idb.hist.no>
+Message-ID: <Pine.LNX.4.33.0108090754170.10432-100000@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Hi Helge.
 
-On 6 Aug 2001 23:03:35 +0200 David Monniaux wrote:
-> 
-> I have an Athlon on an ASUS A7V133.
-> This machine powers off perfectly using a stock RedHat 7.1 kernel (2.4.2).
-> However, it refuses to power off with 2.4.7, with all APM options set
-> correctly (including power off in real mode).
-> 
-> Now for the funny part: copying the 2.4.2 apm.c to the 2.4.7 and
-> recompiling yielded a working poweroff. So *something* has been broken
-> between 2.4.2 and 2.4.7 with APM poweroff. :-)
+ >> I didn't look at the chages but i will say this one more time.
+ >> Limiting tmpfs size at fixed amount of space will make the bug
+ >> harder to reproduce but won't fix it. The right hack is to limit
+ >> tmpfs to be with freepages.high less than available
+ >> memory(swap+ram). It won't be hard to code.
 
-So, is this a pristine 2.4.2?  Or is it a RH patched one?  I have just
-looked at the differences in arch/i386/kernel/apm.c between 2.4.2 and
-2.4.7.  The only differences are in comments and to allow one more
-kernel command line option. i.e. there is nothing that should make APM
-behave differently.
+ > The problem with this is that tmpfs may be mounted before swap
+ > is initialized, so a little less than swap+ram will become "a
+ > little less than just RAM" anyway.
 
-Could you send me a diff between the two versions of apm.c, please?
+ > Or do you propose a dynamic limit, changing as swap is
+ > added/removed? This has problems if some swap is removed, and
+ > suddenly tmpfs usage exceeds its quota.
 
-Cheers,
-Stephen Rothwell
-IBM Linux Technology Centre, Canberra
+I have to admit that tmpfs is new to me, but I would assume it's a
+filing system for temporary files, that works along the lines of a
+ramdisk?
+
+If so, I would see the following issues with this idea:
+
+ 1. If the idea is to keep temporary files off the hard disk,
+    it makes no sense to use swap for them, so any limit on
+    the size of tmpfs would need to be limited to the size
+    of physical ram.
+
+ 2. If the idea is to ensure that temporary files are deleted
+    as soon as they are finished with, it makes no sense to
+    use physical ram for them, and this effectively becomes
+    what I would refer to as swapfs - a filing system where
+    the objects within it are stored in swap until such time
+    as the last reference is freed, and are then auto-deleted,
+    possibly with a short delay to allow for programs run one
+    after the other where the first creates a file that is
+    read by the second.
+
+ 3. If the idea is to do both of the above at the same time,
+    any limit on the size of tmpfs would need to be linked to
+    the amount of swap present, and the link would need to be
+    such that it was not possible to release swap if doing so
+    would leave tmpfs over-committed. I can see serious bugs
+    with this idea in a hotplug environment.
+
+Comments, anybody?
+
+Best wishes from Riley.
+

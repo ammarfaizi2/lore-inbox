@@ -1,131 +1,209 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbUCAVob (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 16:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbUCAVob
+	id S261445AbUCAVn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 16:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbUCAVn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 16:44:31 -0500
-Received: from everest.2mbit.com ([24.123.221.2]:14317 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S261446AbUCAVoX (ORCPT
+	Mon, 1 Mar 2004 16:43:58 -0500
+Received: from fmr09.intel.com ([192.52.57.35]:35469 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S261445AbUCAVnt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 16:44:23 -0500
-Date: Mon, 1 Mar 2004 16:44:35 -0500
-From: Andrew D Kirch <trelane@trelane.net>
-To: Andreas Boman <aboman@eiwaz.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Message-Id: <20040301164435.70fd0a13.trelane@trelane.net>
-In-Reply-To: <1078175250.2663.17.camel@asgaard.midgaard.us>
-References: <20040301152357.0431ce83.trelane@trelane.net>
-	<1078175250.2663.17.camel@asgaard.midgaard.us>
-Organization: SOSDG
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-X-Scan-Signature: 74277e0eb54549721ca9ed9cad0ed133
-X-SA-Exim-Connect-IP: 24.123.221.4
-X-SA-Exim-Mail-From: trelane@trelane.net
-Subject: Re: ALSA Issues in 2.6.3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  0.0 AWL AWL: Auto-whitelist adjustment
-X-SA-Exim-Version: 3.1+cvs (built Wed, 25 Feb 2004 14:12:50 -0500)
+	Mon, 1 Mar 2004 16:43:49 -0500
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C3FFD2.C4ACBE65"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: per-cpu blk_plug_list
+Date: Mon, 1 Mar 2004 13:18:40 -0800
+Message-ID: <B05667366EE6204181EABE9C1B1C0EB501F2AB4C@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: per-cpu blk_plug_list
+Thread-Index: AcP/0sSU4QS9NX+lTcastR9Zr4cWlA==
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 01 Mar 2004 21:18:41.0147 (UTC) FILETIME=[C518FCB0:01C3FFD2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 01 Mar 2004 16:07:30 -0500
-Andreas Boman <aboman@eiwaz.com> wrote:
+This is a multi-part message in MIME format.
 
-Aumix reflects the same mixer information as alsamixergui does.  
-Both show main and pcm as 100% and unmuted.  XMMS which supports both
-ALSA and OSS, functions with the same behavior, no audio output but the 
-spectrum analyzer functions as it should.
+------_=_NextPart_001_01C3FFD2.C4ACBE65
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
+We were surprised to find global lock in I/O path still exists on 2.6
+kernel.  This global lock triggers unacceptable lock contention and
+prevents 2.6 kernel to scale on the I/O side.
 
-> Do you have oss emulation compiled in (or loaded modules)? If so make
-> sure that the oss pcm and master volumes are not muted.  
-> 
-> 
-> 	Andreas
-> 
-> 
-> 
-> On Mon, 2004-03-01 at 15:23 -0500, Andrew D Kirch wrote:
-> > I've noted repeated issues being discussed in #ALSA on freenode regarding the upgraded 1.0.2 alsa drivers in 2.6.3.  The general symptoms appear to be that the card refuses to play sound.  My configuration (Though i8x0 and emu10k1 have also been blaimed) is a via 8237 southbridge with integrated realtek sound.  The modules load without error and the speakers give an audible pop as if the card is unmuting, the speakers pop again, and no other sound is to be heard.  Playback of audio fails in mplayer, alsaplayer, esd, artsd, mpg123, all of which were compiled against alsa, of interest is that xmms will also "play" without sound.  The spectrum analyzer functions properly showing that audio is being processed, however with the already mentioned lack of actual sound.  I'm utterly befuddled to explain the cause of this, so I won't call it a bug, more an issue (I'd also assume it's been discussed already today or recently, but I just subscribed.)  I would be grateful for an answer in advance as to what might be causing this, I fully believe all settings are correct (MAIN and PCM are unmuted and at 75%, speakers are plugged in correctly, chip is enabled in bios, and detected in lspci)  For sanity reasons I am including pastes of /proc/modules, and lspci.  All other complaints are from upgrades to 2.6.3.  Alsa-libs and alsa-utils 1.0.2 are installed.
-> > 
-> > My system is as follows:
-> > Gigabyte GA-K8VNXP
-> > AMD Athlon 64 3200+ 1mb L2
-> > 1gb Corsair XMS PRO series memory
-> > pny Geforce 4 ti 4200
-> > 40gb maxtor harddrive
-> > via_rhine eth0
-> > rtl8169 eth1
-> > 8237 southbridge
-> > 
-> > gentoo64 root # lspci
-> > 00:00.0 Host bridge: VIA Technologies, Inc. VT8385 [K8T800 AGP] Host Bridge (rev 01)
-> > 00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge [K8T800 South]
-> > 00:0f.0 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev 06)
-> > 00:10.0 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 81)
-> > 00:10.1 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 81)
-> > 00:10.2 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 81)
-> > 00:10.3 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 81)
-> > 00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
-> > 00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [K8T800 South]
-> > 00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
-> > 00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 78)
-> > 00:13.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 (rev 10)
-> > 00:14.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8025 (rev 01)
-> > 00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > 00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > 00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > 00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > 01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti 4200] (rev a3)
-> > 
-> > gentoo64 root # cat /proc/modules
-> > nvidia 2564596 0 - Live 0xffffffffa00c9000
-> > parport_pc 36696 0 - Live 0xffffffffa00bf000
-> > parport 39532 1 parport_pc, Live 0xffffffffa00b4000
-> > r8169 10692 0 - Live 0xffffffffa00b0000
-> > via_rhine 18888 0 - Live 0xffffffffa00aa000
-> > mii 4544 1 via_rhine, Live 0xffffffffa00a7000
-> > snd_via82xx 23392 3 - Live 0xffffffffa00a0000
-> > snd_ac97_codec 63044 1 snd_via82xx, Live 0xffffffffa008f000
-> > gameport 4032 1 snd_via82xx, Live 0xffffffffa008d000
-> > snd_mpu401_uart 6400 1 snd_via82xx, Live 0xffffffffa008a000
-> > snd_rawmidi 21024 1 snd_mpu401_uart, Live 0xffffffffa0083000
-> > uhci_hcd 28960 0 - Live 0xffffffffa007a000
-> > ohci_hcd 17220 0 - Live 0xffffffffa0074000
-> > ide_tape 51232 0 - Live 0xffffffffa0066000
-> > st 35484 0 - Live 0xffffffffa005c000
-> > sbp2 22088 0 - Live 0xffffffffa0055000
-> > ohci1394 30852 0 - Live 0xffffffffa004c000
-> > ieee1394 72200 2 sbp2,ohci1394, Live 0xffffffffa0039000
-> > usb_storage 67008 0 - Live 0xffffffffa0027000
-> > hid 23744 0 - Live 0xffffffffa0020000
-> > ehci_hcd 23364 0 - Live 0xffffffffa0019000
-> > usbcore 96240 7 uhci_hcd,ohci_hcd,usb_storage,hid,ehci_hcd, Live 0xffffffffa0000000
-> > 
-> > Thanks of course doubly if this is a stupid question.
-> > 
-> > 
-> > Andrew Kirch
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+blk_plug_list/blk_plug_lock manages plug/unplug action.  When you have
+lots of cpu simultaneously submits I/O, there are lots of movement with
+the device queue on and off that global list.  Our measurement showed
+that blk_plug_lock contention prevents linux-2.6.3 kernel to scale pass
+beyond 40 thousand I/O per second in the I/O submit path.
 
+Looking at the vmstat and readprofile output with vanilla 2.6.3 kernel:
 
--- 
-Andrew D Kirch  |       Abusive Hosts Blocking List      | www.ahbl.org
-Security Admin  |  Summit Open Source Development Group  | www.sosdg.org
-Key At http://www.2mbit.com/~trelane/trelane.key
-Key fingerprint = B4C2 8083 648B 37A2 4CCE  61D3 16D6 995D 026F 20CF
+procs -----------memory---------- -----io---- -system-- ----cpu----
+ r  b  swpd   free   buff  cache    bi    bo   in    cs   us sy id wa
+409 484  0 22470560  10160 181792  89456  5867 46899 26383 7 93  0  0
+427 488  0 22466176  10160 181792  90307  6057 46818 26155 7 93  0  0
+448 469  0 22462208  10160 181792  84076  5769 48217 26782 7 93  0  0
+
+575324 total                                      0.0818
+225342 blk_run_queues                           391.2188
+140164 __make_request                            38.4221
+131765 scsi_request_fn                           55.6440
+ 21566 generic_unplug_device                     61.2670
+  6050 get_request                                3.7812
+
+All cpus are pegged at 93% kernel time spinning on the lock.
+blk_plug_device() and blk_remove_plug() didn't show up in readprofile
+because they spin with irq disabled and readprofile is based on timer
+interrupt.  Nevertheless, it's obvious from blk_run_queues().
+
+The plug management need to be converted into per-cpu.  The idea here
+is to manage device queue on per-cpu plug list.  This would also allows
+optimal queue kick-off since submit/kick-off typically occurs within
+same system call. With our proof-of-concept patch, here are the results,
+again vmstat and readprofile output:
+
+procs -----------memory---------- -----io----   -system--    ----cpu----
+ r  b  swpd   free   buff  cache    bi    bo     in    cs    us sy id wa
+30 503  0 22506176   9536 172096  212849 20251 102537 177093 27 20  0 53
+11 532  0 22505792   9536 172096  209073 21235 103374 177183 29 20  0 51
+27 499  0 22505408   9536 172096  205334 21943 103883 176649 30 20  0 50
+
+1988800 total                                      0.2828
+1174759 cpu_idle                                2447.4146
+156385 default_idle                             4887.0312
+ 72586 do_softirq                                108.0149
+ 62463 schedule                                   12.0492
+ 51913 scsi_request_fn                            21.9227
+ 34351 __make_request                              9.4164
+ 24370 dio_bio_end_io                             63.4635
+ 22652 scsi_end_request                           44.2422
+
+It clearly relieves the global lock contention and the kernel time is
+now in the expected range.  I/O has been improved to 110K random I/O
+per second and is now only limited by the disks instead of kernel.
+
+The workload that triggers this scalability issue is an I/O intensive
+database workload running on a 32P system.
+
+Comments on the patch are welcome, I'm sure there will be a couple of
+iterations on the solution.
+
+- Ken
+
+------_=_NextPart_001_01C3FFD2.C4ACBE65
+Content-Type: application/octet-stream;
+	name="percpu_blk_plug.patch"
+Content-Transfer-Encoding: base64
+Content-Description: percpu_blk_plug.patch
+Content-Disposition: attachment;
+	filename="percpu_blk_plug.patch"
+
+ZGlmZiAtTnVycCBsaW51eC0yLjYuMy9kcml2ZXJzL2Jsb2NrL2xsX3J3X2Jsay5jIGxpbnV4LTIu
+Ni4zLmJsay9kcml2ZXJzL2Jsb2NrL2xsX3J3X2Jsay5jCi0tLSBsaW51eC0yLjYuMy9kcml2ZXJz
+L2Jsb2NrL2xsX3J3X2Jsay5jCTIwMDQtMDItMTcgMTk6NTc6MTYuMDAwMDAwMDAwIC0wODAwCisr
+KyBsaW51eC0yLjYuMy5ibGsvZHJpdmVycy9ibG9jay9sbF9yd19ibGsuYwkyMDA0LTAzLTAxIDEx
+OjM2OjA5LjAwMDAwMDAwMCAtMDgwMApAQCAtMzksOCArMzksNyBAQCBzdGF0aWMga21lbV9jYWNo
+ZV90ICpyZXF1ZXN0X2NhY2hlcDsKIC8qCiAgKiBwbHVnIG1hbmFnZW1lbnQKICAqLwotc3RhdGlj
+IExJU1RfSEVBRChibGtfcGx1Z19saXN0KTsKLXN0YXRpYyBzcGlubG9ja190IGJsa19wbHVnX2xv
+Y2sgX19jYWNoZWxpbmVfYWxpZ25lZF9pbl9zbXAgPSBTUElOX0xPQ0tfVU5MT0NLRUQ7CitzdGF0
+aWMgc3RydWN0IGJsa19wbHVnX3N0cnVjdCBibGtfcGx1Z19hcnJheVtOUl9DUFVTXTsKIAogc3Rh
+dGljIHdhaXRfcXVldWVfaGVhZF90IGNvbmdlc3Rpb25fd3FoWzJdOwogCkBAIC0xMDk2LDEwICsx
+MDk1LDE0IEBAIHZvaWQgYmxrX3BsdWdfZGV2aWNlKHJlcXVlc3RfcXVldWVfdCAqcSkKIAkgKi8K
+IAlpZiAoIWJsa19xdWV1ZV9wbHVnZ2VkKHEpCiAJICAgICYmICF0ZXN0X2JpdChRVUVVRV9GTEFH
+X1NUT1BQRUQsICZxLT5xdWV1ZV9mbGFncykpIHsKLQkJc3Bpbl9sb2NrKCZibGtfcGx1Z19sb2Nr
+KTsKLQkJbGlzdF9hZGRfdGFpbCgmcS0+cGx1Z19saXN0LCAmYmxrX3BsdWdfbGlzdCk7CisJCXN0
+cnVjdCBibGtfcGx1Z19zdHJ1Y3QgKiBsb2NhbF9ibGtfcGx1ZyA9CisJCQkJCSAmYmxrX3BsdWdf
+YXJyYXlbc21wX3Byb2Nlc3Nvcl9pZCgpXTsKKworCQlzcGluX2xvY2soJmxvY2FsX2Jsa19wbHVn
+LT5ibGtfcGx1Z19sb2NrKTsKKwkJbGlzdF9hZGRfdGFpbCgmcS0+cGx1Z19saXN0LCAmbG9jYWxf
+YmxrX3BsdWctPmJsa19wbHVnX2hlYWQpOworCQlxLT5ibGtfcGx1ZyA9IGxvY2FsX2Jsa19wbHVn
+OwogCQltb2RfdGltZXIoJnEtPnVucGx1Z190aW1lciwgamlmZmllcyArIHEtPnVucGx1Z19kZWxh
+eSk7Ci0JCXNwaW5fdW5sb2NrKCZibGtfcGx1Z19sb2NrKTsKKwkJc3Bpbl91bmxvY2soJmxvY2Fs
+X2Jsa19wbHVnLT5ibGtfcGx1Z19sb2NrKTsKIAl9CiB9CiAKQEAgLTExMTMsMTAgKzExMTYsMTEg
+QEAgaW50IGJsa19yZW1vdmVfcGx1ZyhyZXF1ZXN0X3F1ZXVlX3QgKnEpCiB7CiAJV0FSTl9PTigh
+aXJxc19kaXNhYmxlZCgpKTsKIAlpZiAoYmxrX3F1ZXVlX3BsdWdnZWQocSkpIHsKLQkJc3Bpbl9s
+b2NrKCZibGtfcGx1Z19sb2NrKTsKKwkJc3RydWN0IGJsa19wbHVnX3N0cnVjdCAqIGJsa19wbHVn
+ID0gcS0+YmxrX3BsdWc7CisJCXNwaW5fbG9jaygmYmxrX3BsdWctPmJsa19wbHVnX2xvY2spOwog
+CQlsaXN0X2RlbF9pbml0KCZxLT5wbHVnX2xpc3QpOwogCQlkZWxfdGltZXIoJnEtPnVucGx1Z190
+aW1lcik7Ci0JCXNwaW5fdW5sb2NrKCZibGtfcGx1Z19sb2NrKTsKKwkJc3Bpbl91bmxvY2soJmJs
+a19wbHVnLT5ibGtfcGx1Z19sb2NrKTsKIAkJcmV0dXJuIDE7CiAJfQogCkBAIC0xMjM3LDYgKzEy
+NDEsMjYgQEAgdm9pZCBibGtfcnVuX3F1ZXVlKHN0cnVjdCByZXF1ZXN0X3F1ZXVlIAogCiBFWFBP
+UlRfU1lNQk9MKGJsa19ydW5fcXVldWUpOwogCisvKgorICogYmxrX3J1bl9xdWV1ZXNfY3B1IC0g
+ZmlyZSBhbGwgcGx1Z2dlZCBxdWV1ZXMgb24gdGhpcyBjcHUKKyAqLworI2RlZmluZSBibGtfcGx1
+Z19lbnRyeShlbnRyeSkgbGlzdF9lbnRyeSgoZW50cnkpLCByZXF1ZXN0X3F1ZXVlX3QsIHBsdWdf
+bGlzdCkKK3ZvaWQgYmxrX3J1bl9xdWV1ZXNfY3B1KGludCBjcHUpCit7CisJc3RydWN0IGJsa19w
+bHVnX3N0cnVjdCAqIGN1cl9ibGtfcGx1ZyA9ICZibGtfcGx1Z19hcnJheVtjcHVdOworCXN0cnVj
+dCBsaXN0X2hlYWQgKiBoZWFkID0gJmN1cl9ibGtfcGx1Zy0+YmxrX3BsdWdfaGVhZDsKKwlzcGlu
+bG9ja190ICpsb2NrID0gJmN1cl9ibGtfcGx1Zy0+YmxrX3BsdWdfbG9jazsKKworCXNwaW5fbG9j
+a19pcnEobG9jayk7CisJd2hpbGUgKCFsaXN0X2VtcHR5KGhlYWQpKSB7CisJCXJlcXVlc3RfcXVl
+dWVfdCAqcSA9IGJsa19wbHVnX2VudHJ5KGhlYWQtPm5leHQpOworCQlzcGluX3VubG9ja19pcnEo
+bG9jayk7CisJCXEtPnVucGx1Z19mbihxKTsKKwkJc3Bpbl9sb2NrX2lycShsb2NrKTsKKwl9CisJ
+c3Bpbl91bmxvY2tfaXJxKGxvY2spOworfQorCiAvKioKICAqIGJsa19ydW5fcXVldWVzIC0gZmly
+ZSBhbGwgcGx1Z2dlZCBxdWV1ZXMKICAqCkBAIC0xMjQ1LDMwICsxMjY5LDEyIEBAIEVYUE9SVF9T
+WU1CT0woYmxrX3J1bl9xdWV1ZSk7CiAgKiAgIGFyZSBjdXJyZW50bHkgc3RvcHBlZCBhcmUgaWdu
+b3JlZC4gVGhpcyBpcyBlcXVpdmFsZW50IHRvIHRoZSBvbGRlcgogICogICB0cV9kaXNrIHRhc2sg
+cXVldWUgcnVuLgogICoqLwotI2RlZmluZSBibGtfcGx1Z19lbnRyeShlbnRyeSkgbGlzdF9lbnRy
+eSgoZW50cnkpLCByZXF1ZXN0X3F1ZXVlX3QsIHBsdWdfbGlzdCkKIHZvaWQgYmxrX3J1bl9xdWV1
+ZXModm9pZCkKIHsKLQlMSVNUX0hFQUQobG9jYWxfcGx1Z19saXN0KTsKLQotCXNwaW5fbG9ja19p
+cnEoJmJsa19wbHVnX2xvY2spOwotCi0JLyoKLQkgKiB0aGlzIHdpbGwgaGFwcGVuIGZhaXJseSBv
+ZnRlbgotCSAqLwotCWlmIChsaXN0X2VtcHR5KCZibGtfcGx1Z19saXN0KSkKLQkJZ290byBvdXQ7
+Ci0KLQlsaXN0X3NwbGljZV9pbml0KCZibGtfcGx1Z19saXN0LCAmbG9jYWxfcGx1Z19saXN0KTsK
+LQkKLQl3aGlsZSAoIWxpc3RfZW1wdHkoJmxvY2FsX3BsdWdfbGlzdCkpIHsKLQkJcmVxdWVzdF9x
+dWV1ZV90ICpxID0gYmxrX3BsdWdfZW50cnkobG9jYWxfcGx1Z19saXN0Lm5leHQpOworCWludCBp
+OwogCi0JCXNwaW5fdW5sb2NrX2lycSgmYmxrX3BsdWdfbG9jayk7Ci0JCXEtPnVucGx1Z19mbihx
+KTsKLQkJc3Bpbl9sb2NrX2lycSgmYmxrX3BsdWdfbG9jayk7Ci0JfQotb3V0OgotCXNwaW5fdW5s
+b2NrX2lycSgmYmxrX3BsdWdfbG9jayk7CisJZm9yX2VhY2hfY3B1KGkpCisJCWJsa19ydW5fcXVl
+dWVzX2NwdShpKTsKIH0KIAogRVhQT1JUX1NZTUJPTChibGtfcnVuX3F1ZXVlcyk7CkBAIC0yNjg3
+LDYgKzI2OTMsMTEgQEAgaW50IF9faW5pdCBibGtfZGV2X2luaXQodm9pZCkKIAogCWZvciAoaSA9
+IDA7IGkgPCBBUlJBWV9TSVpFKGNvbmdlc3Rpb25fd3FoKTsgaSsrKQogCQlpbml0X3dhaXRxdWV1
+ZV9oZWFkKCZjb25nZXN0aW9uX3dxaFtpXSk7CisKKwlmb3IgKGkgPSAwOyBpIDwgTlJfQ1BVUzsg
+aSsrKSB7CisJCUlOSVRfTElTVF9IRUFEKCZibGtfcGx1Z19hcnJheVtpXS5ibGtfcGx1Z19oZWFk
+KTsKKwkJc3Bpbl9sb2NrX2luaXQoJmJsa19wbHVnX2FycmF5W2ldLmJsa19wbHVnX2xvY2spOwor
+CX0KIAlyZXR1cm4gMDsKIH0KIApkaWZmIC1OdXJwIGxpbnV4LTIuNi4zL2ZzL2RpcmVjdC1pby5j
+IGxpbnV4LTIuNi4zLmJsay9mcy9kaXJlY3QtaW8uYwotLS0gbGludXgtMi42LjMvZnMvZGlyZWN0
+LWlvLmMJMjAwNC0wMi0xNyAxOTo1ODoxNi4wMDAwMDAwMDAgLTA4MDAKKysrIGxpbnV4LTIuNi4z
+LmJsay9mcy9kaXJlY3QtaW8uYwkyMDA0LTAzLTAxIDExOjM2OjA5LjAwMDAwMDAwMCAtMDgwMApA
+QCAtMzI5LDcgKzMyOSw3IEBAIHN0YXRpYyBzdHJ1Y3QgYmlvICpkaW9fYXdhaXRfb25lKHN0cnVj
+dCAKIAkJaWYgKGRpby0+YmlvX2xpc3QgPT0gTlVMTCkgewogCQkJZGlvLT53YWl0ZXIgPSBjdXJy
+ZW50OwogCQkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmZGlvLT5iaW9fbGlzdF9sb2NrLCBmbGFn
+cyk7Ci0JCQlibGtfcnVuX3F1ZXVlcygpOworCQkJYmxrX3J1bl9xdWV1ZXNfY3B1KHNtcF9wcm9j
+ZXNzb3JfaWQoKSk7CiAJCQlpb19zY2hlZHVsZSgpOwogCQkJc3Bpbl9sb2NrX2lycXNhdmUoJmRp
+by0+YmlvX2xpc3RfbG9jaywgZmxhZ3MpOwogCQkJZGlvLT53YWl0ZXIgPSBOVUxMOwpAQCAtOTYw
+LDcgKzk2MCw3IEBAIGRpcmVjdF9pb193b3JrZXIoaW50IHJ3LCBzdHJ1Y3Qga2lvY2IgKmkKIAkJ
+aWYgKHJldCA9PSAwKQogCQkJcmV0ID0gZGlvLT5yZXN1bHQ7CS8qIEJ5dGVzIHdyaXR0ZW4gKi8K
+IAkJZmluaXNoZWRfb25lX2JpbyhkaW8pOwkJLyogVGhpcyBjYW4gZnJlZSB0aGUgZGlvICovCi0J
+CWJsa19ydW5fcXVldWVzKCk7CisJCWJsa19ydW5fcXVldWVzX2NwdShzbXBfcHJvY2Vzc29yX2lk
+KCkpOwogCX0gZWxzZSB7CiAJCWZpbmlzaGVkX29uZV9iaW8oZGlvKTsKIAkJcmV0MiA9IGRpb19h
+d2FpdF9jb21wbGV0aW9uKGRpbyk7CmRpZmYgLU51cnAgbGludXgtMi42LjMvaW5jbHVkZS9saW51
+eC9ibGtkZXYuaCBsaW51eC0yLjYuMy5ibGsvaW5jbHVkZS9saW51eC9ibGtkZXYuaAotLS0gbGlu
+dXgtMi42LjMvaW5jbHVkZS9saW51eC9ibGtkZXYuaAkyMDA0LTAyLTE3IDE5OjU3OjIwLjAwMDAw
+MDAwMCAtMDgwMAorKysgbGludXgtMi42LjMuYmxrL2luY2x1ZGUvbGludXgvYmxrZGV2LmgJMjAw
+NC0wMy0wMSAxMTozNjowOS4wMDAwMDAwMDAgLTA4MDAKQEAgLTI2Nyw2ICsyNjcsMTEgQEAgc3Ry
+dWN0IGJsa19xdWV1ZV90YWcgewogCWF0b21pY190IHJlZmNudDsJCS8qIG1hcCBjYW4gYmUgc2hh
+cmVkICovCiB9OwogCitzdHJ1Y3QgYmxrX3BsdWdfc3RydWN0IHsKKwlzdHJ1Y3QgbGlzdF9oZWFk
+CWJsa19wbHVnX2hlYWQ7CisJc3BpbmxvY2tfdAkJYmxrX3BsdWdfbG9jazsKK30gX19fX2NhY2hl
+bGluZV9hbGlnbmVkOworCiBzdHJ1Y3QgcmVxdWVzdF9xdWV1ZQogewogCS8qCkBAIC0zMTYsNiAr
+MzIxLDcgQEAgc3RydWN0IHJlcXVlc3RfcXVldWUKIAlpbnQJCQlib3VuY2VfZ2ZwOwogCiAJc3Ry
+dWN0IGxpc3RfaGVhZAlwbHVnX2xpc3Q7CisJc3RydWN0IGJsa19wbHVnX3N0cnVjdAkqYmxrX3Bs
+dWc7CS8qIGJsa19wbHVnIGl0IGJlbG9uZ3MgdG8gKi8KIAogCS8qCiAJICogdmFyaW91cyBxdWV1
+ZSBmbGFncywgc2VlIFFVRVVFXyogYmVsb3cKZGlmZiAtTnVycCBsaW51eC0yLjYuMy9pbmNsdWRl
+L2xpbnV4L2ZzLmggbGludXgtMi42LjMuYmxrL2luY2x1ZGUvbGludXgvZnMuaAotLS0gbGludXgt
+Mi42LjMvaW5jbHVkZS9saW51eC9mcy5oCTIwMDQtMDItMTcgMTk6NTc6MjAuMDAwMDAwMDAwIC0w
+ODAwCisrKyBsaW51eC0yLjYuMy5ibGsvaW5jbHVkZS9saW51eC9mcy5oCTIwMDQtMDMtMDEgMTE6
+MzY6MDkuMDAwMDAwMDAwIC0wODAwCkBAIC0xMTUyLDYgKzExNTIsNyBAQCBleHRlcm4gaW50IGJs
+a2Rldl9wdXQoc3RydWN0IGJsb2NrX2RldmljCiBleHRlcm4gaW50IGJkX2NsYWltKHN0cnVjdCBi
+bG9ja19kZXZpY2UgKiwgdm9pZCAqKTsKIGV4dGVybiB2b2lkIGJkX3JlbGVhc2Uoc3RydWN0IGJs
+b2NrX2RldmljZSAqKTsKIGV4dGVybiB2b2lkIGJsa19ydW5fcXVldWVzKHZvaWQpOworZXh0ZXJu
+IHZvaWQgYmxrX3J1bl9xdWV1ZXNfY3B1KGludCk7CiAKIC8qIGZzL2NoYXJfZGV2LmMgKi8KIGV4
+dGVybiBpbnQgYWxsb2NfY2hyZGV2X3JlZ2lvbihkZXZfdCAqLCB1bnNpZ25lZCwgdW5zaWduZWQs
+IGNoYXIgKik7Cg==
+
+------_=_NextPart_001_01C3FFD2.C4ACBE65--

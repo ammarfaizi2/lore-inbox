@@ -1,44 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132934AbRDUVYy>; Sat, 21 Apr 2001 17:24:54 -0400
+	id <S132936AbRDUVe3>; Sat, 21 Apr 2001 17:34:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132935AbRDUVYo>; Sat, 21 Apr 2001 17:24:44 -0400
-Received: from www.teaparty.net ([216.235.253.180]:38927 "EHLO
-	www.teaparty.net") by vger.kernel.org with ESMTP id <S132934AbRDUVY2>;
-	Sat, 21 Apr 2001 17:24:28 -0400
-Date: Sat, 21 Apr 2001 22:24:25 +0100 (BST)
-From: Vivek Dasmohapatra <vivek@etla.org>
-To: Meelis Roos <mroos@linux.ee>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: XFree4/gdm problems with 2.4.4-pre5
-In-Reply-To: <Pine.GSO.4.32.0104212250410.29571-100000@romulus.cs.ut.ee>
-Message-ID: <Pine.LNX.4.10.10104212217530.24186-100000@www.teaparty.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132937AbRDUVeJ>; Sat, 21 Apr 2001 17:34:09 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:9743 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S132936AbRDUVdw>;
+	Sat, 21 Apr 2001 17:33:52 -0400
+Date: Sat, 21 Apr 2001 15:34:32 -0600
+From: Cort Dougan <cort@fsmlabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux/PPC patches on kernel.org
+Message-ID: <20010421153432.N10314@ftsoj.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Apr 2001, Meelis Roos wrote:
+Linux/PPC snapshots and patches against Linus' trees are available from:
 
-> The latest XFree4 (4.0.99.33 current cvs snapshot) and gdm
-> 2.0-0.beta4-helix12 have problems with kernel 2.4.4-pre5. gdm has been
-> the same version for long time, kerne and XFree have changed almost
-> together. After logging the user out, no new gdm login appears. Tracing
-> then is hard because ptraced x server runs very slowly. It may be either
-> XFree or kernel.
+ftp://ftp.fsmlabs.com/pub/linuxppc/
 
-Actually, I have seen this symptom [albeit intermittently: may be a
-different cause] w. kernel 2.2.18/Xfree86-3 2.4.3/Xfree86-4 - gdm doesn't
-say much, except to log one message long the lines of 'client auth
-rejected' or 'connection rejected' or something like that. Haven't been
-able to pin it down, except that when it happens once, it seems to happen
-slightly more often for a while, and then the problem unpredictably goes
-away after/for a while, sometimes for an extended period of time. [weeks
-at a time, sometimes]. So it may not be possible to rule out gdm. [I'm
-using the same version, but the problem occurred w. the previous version
-too]
+ftp://ftp.kernel.org/pub/linux/kernel/people/cort and its mirrors
 
--- 
-"I don't want to go to the movies to be horrified and depressed."
-"No, I suppose you've got real life to do that."
-
+I'll be keeping the 2.2 and 2.4 snapshots and patches up-to-date on both
+sites.  Please use the kernel.org (and mirror) sites first.

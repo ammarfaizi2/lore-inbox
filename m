@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289341AbSBNBuv>; Wed, 13 Feb 2002 20:50:51 -0500
+	id <S289338AbSBNBxb>; Wed, 13 Feb 2002 20:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289340AbSBNBum>; Wed, 13 Feb 2002 20:50:42 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:40970 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S289338AbSBNBuW>;
-	Wed, 13 Feb 2002 20:50:22 -0500
-Date: Wed, 13 Feb 2002 17:46:23 -0800
-From: Greg KH <greg@kroah.com>
-To: Sanjeev Lakshmanan <survivor_eagles@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB device driver
-Message-ID: <20020214014623.GA26045@kroah.com>
-In-Reply-To: <20020213081956.12896.qmail@web14407.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020213081956.12896.qmail@web14407.mail.yahoo.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 16 Jan 2002 23:41:28 -0800
+	id <S289342AbSBNBxV>; Wed, 13 Feb 2002 20:53:21 -0500
+Received: from mgr2.xmission.com ([198.60.22.202]:12036 "EHLO
+	mgr2.xmission.com") by vger.kernel.org with ESMTP
+	id <S289338AbSBNBxI>; Wed, 13 Feb 2002 20:53:08 -0500
+Message-ID: <3C6B1883.8080105@xmission.com>
+Date: Wed, 13 Feb 2002 18:53:07 -0700
+From: Frank Jacobberger <f1j@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.5-pre1 and rd.c
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 12:19:56AM -0800, Sanjeev Lakshmanan wrote:
->  Hi all
->  
->  I need to develop a USB device driver for a custom
->  made switch. I shall give a brief description.
->  
->  The switch has four RJ 45 connectors for ethernet
->  cables and it needs to exchange data packets of size
->  8 bytes every .5 seconds. The Transmit ethernet
->  port(1,2,3,4) and Receive ethernet port(1,2,3,4)
->  need to be selected for each transfer and the data   
->   packet which is to be sent out and received on those
->    ports changes accordingly.
+Trying a make bzImage netted this nice little problem:
+------------------------------------------------------------------------------------------------------------------------------
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.4/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe
+-mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=rd  -c -o 
+rd.o rd.c
+rd.c: In function `rd_make_request':
+rd.c:271: too many arguments to function
+make[3]: *** [rd.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5.4/drivers/block'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5.4/drivers/block'
+make[1]: *** [_subdir_block] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.4/drivers'
+make: *** [_dir_drivers] Error 2
 
-I don't see why you need a USB driver for a switch.  Where is USB in the
-above description of your device?
+Any ideas?
 
->  Please let me know how I can start off writing the
->  code for  this driver.
->  Also please let me know if there are any SIMILAR
->  device drivers already developed and available.
->  
->  I am aware of the files
->  usr/src/linux/drivers/usb/usb.*
->  but as I have no prior experience with device
-> drivers,  I am unable to start off.
+Thanks,
 
-I think your company needs to hire some people with device driver
-experience :)
+Frank
 
->  I have not yet subscribed to the list. PLease reply
-> to  survivor_eagles@yahoo.com
-> 
->  Regards,
->  Sanjeev.
-
-Why did you post this to lkml and the linux-usb-users mailing lists from
-two different accounts, using two different names?
-
-Good luck,
-
-greg k-h

@@ -1,72 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVBYEO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVBYE0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbVBYEO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 23:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVBYEO4
+	id S262432AbVBYE0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 23:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbVBYE0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 23:14:56 -0500
-Received: from ozlabs.org ([203.10.76.45]:36256 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262430AbVBYEOx (ORCPT
+	Thu, 24 Feb 2005 23:26:23 -0500
+Received: from imap.gmx.net ([213.165.64.20]:13544 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262432AbVBYE0R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 23:14:53 -0500
-Date: Fri, 25 Feb 2005 15:14:46 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Adam Litke <agl@us.ibm.com>, Paul Mackerras <paulus@samba.org>,
-       Anton Blanchard <anton@samba.org>, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org
-Subject: [PPC64] Hugepage hash flushing bugfix
-Message-ID: <20050225041446.GC10725@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	Adam Litke <agl@us.ibm.com>, Paul Mackerras <paulus@samba.org>,
-	Anton Blanchard <anton@samba.org>, linuxppc64-dev@lists.linuxppc.org,
-	linux-kernel@vger.kernel.org
+	Thu, 24 Feb 2005 23:26:17 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20050225042226.00c3eea0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Fri, 25 Feb 2005 05:25:18 +0100
+To: "Chad N. Tindel" <chad@tindel.net>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: Xterm Hangs - Possible scheduler defect?
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050224175331.GA18723@calma.pair.com>
+References: <30111.1109237503@www1.gmx.net>
+ <20050224075756.GA18639@calma.pair.com>
+ <30111.1109237503@www1.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0507-4, 02/18/2005), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, Linus, please apply:
+At 12:53 PM 2/24/2005 -0500, Chad N. Tindel wrote:
+> > > Hmmm... Are you suggesting it is OK for a kernel to get nearly completely
+> > > hosed and for not fully utilize all the processors in the system because
+> > > of one SCHED_FIFO thread?
+> >
+> > Sure.  You specifically directed the scheduler to run your thread at a
+> > higher priority than anything else.  The way I see it, you used root's
+> > perogative to shoot himself in the foot.  You could also have used root's
+> > perogative to don steel toed shoes(set important kernel threads to a higher
+> > priority) before pulling the trigger.
+>
+>No, I specifically directed the scheduler to run my thread at a higher
+>priority than any other userspace application.  The fact that I wrote it
+>in userspace and not in kernel space implies that I am OK with the kernel
+>stopping me sometimes when _it_ has work to do.  If I wanted something
+>higher priority than the kernel I would have written something in kernel
+>space instead.
 
-Fix a potentially bad (although very rarely triggered) bug in the
-ppc64 hugepage code.  hpte_update() did not correctly calculate the
-address for hugepages, so pte_clear() (which we use for hugepage ptes
-as well as normal ones) would not correctly flush the hash page table
-entry.  Under the right circumstances this could potentially lead to
-duplicate hash entries, which is very bad.
+Nope.  You may have _thought_ you told it that, but the reality is as I 
+described it.
 
-davem's upcoming patch to pass the virtual address directly to
-set_pte() and its ilk will obsolete this, but this is bad enough it
-should probably be fixed in the meantime.
+> >   SCHED_FIFO thread are supposed to preempt
+> > > all other userspace threads... not the kernel itself.
+> >
+> > Not so.  The scheduler makes do distinction between user and kernel threads
+> > of execution.
+>
+>That is SOOOO broken it isn't even funny.
 
-Signed-off-by: David Gibson <dwg@au1.ibm.com>
+I heartily disagree.  I call it flexible/powerful.
 
-Index: working-2.6/arch/ppc64/mm/tlb.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/tlb.c	2004-09-09 09:59:49.000000000 +1000
-+++ working-2.6/arch/ppc64/mm/tlb.c	2005-02-25 14:56:47.000000000 +1100
-@@ -85,8 +85,12 @@
- 
- 	ptepage = virt_to_page(ptep);
- 	mm = (struct mm_struct *) ptepage->mapping;
--	addr = ptepage->index +
--		(((unsigned long)ptep & ~PAGE_MASK) * PTRS_PER_PTE);
-+	addr = ptepage->index;
-+	if (pte_huge(pte))
-+		addr +=  ((unsigned long)ptep & ~PAGE_MASK)
-+			/ sizeof(*ptep) * HPAGE_SIZE;
-+	else
-+		addr += ((unsigned long)ptep & ~PAGE_MASK) * PTRS_PER_PTE;
- 
- 	if (REGION_ID(addr) == USER_REGION_ID)
- 		context = mm->context.id;
+> > If you think that's broken, you'll _love_ Ingo's IRQ threads...
+>
+>Yeah, thats broken too.
 
+(You're not noticing the added power it gives you.)
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
-				| _around_!
-http://www.ozlabs.org/people/dgibson
+>Perhaps I don't understand this philosophy you have where the kernel
+>isn't more important than everything else.  It seems to me like there needs
+>to be a rigid hierarchy for scheduling, lest you get into deadlock problems:
+
+Some kernel thread flushing buffers should be more important than my 
+userland trigger-pacemaker thread?
+
+>Under no circumstances should any single CPU-bound userspace thread 
+>completely
+>hose a 64-way SMP box.
+
+I can certainly agree that any service which is required across processor 
+borders wants to be very high priority indeed, and I can further agree that 
+this crossing of borders would not exist in a perfect world.
+
+         -Mike 
+

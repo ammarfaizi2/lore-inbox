@@ -1,70 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267512AbTBLQ4q>; Wed, 12 Feb 2003 11:56:46 -0500
+	id <S267183AbTBLRMW>; Wed, 12 Feb 2003 12:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267524AbTBLQ4q>; Wed, 12 Feb 2003 11:56:46 -0500
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:59870 "EHLO
-	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S267512AbTBLQ4p>; Wed, 12 Feb 2003 11:56:45 -0500
-Date: Wed, 12 Feb 2003 18:06:34 +0100
-From: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rl@hellgate.ch, linux-kernel@vger.kernel.org
-Subject: Re: via rhine bug? (timeouts and resets)
-Message-ID: <20030212180634.A5019@pc9391.uni-regensburg.de>
-References: <20030212155836.A797@pc9391.uni-regensburg.de> <1045068074.2166.18.camel@irongate.swansea.linux.org.uk>
+	id <S267185AbTBLRMW>; Wed, 12 Feb 2003 12:12:22 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:30150 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267183AbTBLRMU>;
+	Wed, 12 Feb 2003 12:12:20 -0500
+Date: Wed, 12 Feb 2003 09:19:16 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: bgerst@didntduck.org, ambx1@neo.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for i8042?
+Message-Id: <20030212091916.1989c531.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0302121110570.211-100000@coredump.sh0n.net>
+References: <3E4A6BF0.1000004@didntduck.org>
+	<Pine.LNX.4.44.0302121110570.211-100000@coredump.sh0n.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1045068074.2166.18.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 12, 2003 at 17:41:15 +0100
-X-Mailer: Balsa 1.2.4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12.02.2003   17:41 Alan Cox wrote:
-> On Wed, 2003-02-12 at 14:58, Christian Guggenberger wrote:
-> > > o       Always set interrupt line with VIA northbridge  (me)
-> > >        | Should fix apic mode problems with USB/audio/net on VIA boards
-> > >
-> > Can you please send a patch against 2.5.60, cause I would like to test
-> these
-> > IO APIC things on my via board. 2.4-ac is no choice for me, since patching
-> xfs
-> > into 2.4-ac is a little bit too painful for me;-)
-> 
-> At the moment I can't even get 2.5.60 to boot so its a bit hard to do any
-> work
-> on it.
-Of course;-)
+(see an answer at bottom)
 
-> Just run via boxes with "noapic" and dont enable the apic stuff on
-> single
-> cpu systems. Thats as good if not a better test
-> 
-That's what I'm almost doing since I have this mobo. I have APICs enabled in 
-both kernel and bios, but IO-APICs disabled. 2.5.60 seems to work for me.
-The only thing I'd like to get rid off, are those Interrupt errors in 
-/proc/interrupts (maybe they are harmless anyway):
+On Wed, 12 Feb 2003 11:12:02 -0500 (EST)
+Shawn Starr <spstarr@sh0n.net> wrote:
 
-            CPU0
-   0:     941032   XT-PIC  timer
-   1:       1927   XT-PIC  i8042
-   2:          0   XT-PIC  cascade
-   5:          0   XT-PIC  VIA8233
-   8:          4   XT-PIC  rtc
-  10:      14946   XT-PIC  ide2, eth0
-  12:      29425   XT-PIC  i8042
-  14:       7525   XT-PIC  ide0
-  15:         36   XT-PIC  ide1
-NMI:          0
-LOC:     940979
-ERR:        914
+| 
+| Right, but this wasn't a problem in 2.4? I had a PS/2 mouse before in 2.4
+| and this didnt have the problem.
+| 
+| 
+| On Wed, 12 Feb 2003, Brian Gerst wrote:
+| 
+| > Shawn Starr wrote:
+| > > 2.4:
+| > >            CPU0
+| > >   0:    2576292          XT-PIC  timer
+| > >   1:        661          XT-PIC  keyboard
+| > >   2:          0          XT-PIC  cascade
+| > >   3:         10          XT-PIC  serial
+| > >   5:    1104824          XT-PIC  soundblaster
+| > >   8:          1          XT-PIC  rtc
+| > >   9:          0          XT-PIC  acpi
+| > >  10:          7          XT-PIC  aic7xxx
+| > >  11:      15167          XT-PIC  usb-uhci, eth0
+| > >  14:       7554          XT-PIC  ide0
+| > >  15:          3          XT-PIC  ide1
+| > >
+| > > 2.5:
+| > >
+| > >            CPU0
+| > >   0:      36281          XT-PIC  timer
+| > >   1:         15          XT-PIC  i8042
+| > >   2:          0          XT-PIC  cascade
+| > >   3:        149          XT-PIC  serial
+| > >   5:          0          XT-PIC  soundblaster
+| > >   8:          1          XT-PIC  rtc
+| > >   9:          0          XT-PIC  acpi
+| > >  10:         20          XT-PIC  aic7xxx
+| > >  11:        324          XT-PIC  uhci-hcd, eth0
+| > >  12:         60          XT-PIC  i8042 <--???
+| > >  14:        723          XT-PIC  ide0
+| > >  15:          9          XT-PIC  ide1
+| > > NMI:          0
+| > > LOC:      35547
+| > > ERR:          0
+| > > MIS:          0
+| > >
+| > > Interesting, why are we using two interrupts for the i8042 (keyboard).
+| >
+| > IRQ12 is for the PS/2 mouse port.
+| >
+| > --
+| > 				Brian Gerst
 
-They won't go away with noapic, too.
+Do you have a PS/2 mouse enabled/configured in 2.4?
+I do, and it shows this on 2.4.20:
 
-With IO-APICs the ERR count would stay at 0. (but then most onboard devices 
-wouldn't work)
-That's why i asked for that APIC patch in my previous mail.
+  0:   78505022          XT-PIC  timer
+  1:     305438          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  3:    2013477          XT-PIC  xirc2ps_cs
+  5:          0          XT-PIC  usb-uhci
+  8:          1          XT-PIC  rtc
+ 10:          4          XT-PIC  i82365
+ 11:    2188569          XT-PIC  i82365, cs46xx
+ 12:    1555382          XT-PIC  PS/2 Mouse
+ 14:     872963          XT-PIC  ide0
+ 15:          3          XT-PIC  ide1
 
-Christian
+and the driver code certainly requests IRQ 12 for the PS/2 mouse
+when it's configured.
+
+--
+~Randy

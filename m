@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266924AbTGKWJP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 18:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266925AbTGKWJP
+	id S266897AbTGKWHU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 18:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266899AbTGKWHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 18:09:15 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:20669 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266924AbTGKWJN (ORCPT
+	Fri, 11 Jul 2003 18:07:19 -0400
+Received: from www.13thfloor.AT ([212.16.59.250]:5800 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S266897AbTGKWHT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 18:09:13 -0400
-Date: Fri, 11 Jul 2003 18:22:05 -0400 (EDT)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre5
-In-Reply-To: <Pine.LNX.4.55L.0307111705090.5422@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.56.0307111821080.7464@onqynaqf.yrkvatgba.voz.pbz>
-References: <Pine.LNX.4.55L.0307111705090.5422@freak.distro.conectiva>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 11 Jul 2003 18:07:19 -0400
+Date: Sat, 12 Jul 2003 00:22:07 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.4.22 devfs/zlib outstanding updates ...
+Message-ID: <20030711222207.GB415@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jul 2003, Marcelo Tosatti wrote:
 
-> Here goes -pre5.
-[...]
->
-> Benjamin Herrenschmidt:
->   o radeonfb 0.1.8 + my stuffs
+just wanted to remind/state that the final? v199.17 devfs 
+patch and the 1.1.4 zlib update are not in 2.4.22-pre5.
 
-radeonfb.c:168:28: linux/radeonfb.h: No such file or directory
+best,
+Herbert
 
--- 
-Rick Nelson
-I still maintain the point that designing a monolithic kernel in 1991 is a
-fundamental error.  Be thankful you are not my student.  You would not get a
-high grade for such a design :-)
-(Andrew Tanenbaum to Linus Torvalds)

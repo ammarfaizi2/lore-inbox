@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbRBGXaU>; Wed, 7 Feb 2001 18:30:20 -0500
+	id <S129027AbRBGXjm>; Wed, 7 Feb 2001 18:39:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129256AbRBGXaL>; Wed, 7 Feb 2001 18:30:11 -0500
-Received: from jalon.able.es ([212.97.163.2]:676 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129032AbRBGX36>;
-	Wed, 7 Feb 2001 18:29:58 -0500
-Date: Thu, 8 Feb 2001 00:29:50 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        dledford@redhat.com
-Subject: Re: [bug] aic7xxx panic Re: Linux 2.4.1-ac5
-Message-ID: <20010208002950.A1254@werewolf.able.es>
-In-Reply-To: <E14QbMw-0001JD-00@the-village.bc.nu> <Pine.LNX.4.21.0102072113080.1699-100000@penguin.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.21.0102072113080.1699-100000@penguin.homenet>; from tigran@veritas.com on Wed, Feb 07, 2001 at 23:13:29 +0100
-X-Mailer: Balsa 1.1.1
+	id <S129032AbRBGXjd>; Wed, 7 Feb 2001 18:39:33 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:57562 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S129027AbRBGXjX>; Wed, 7 Feb 2001 18:39:23 -0500
+Date: Thu, 8 Feb 2001 00:39:16 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: <JShaw@jbwere.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x and oops on 'mount -t smbfs'
+In-Reply-To: <974A613A43EED311ACBD00508B5EF8C1D66DEF@meexc04.jbwere.com.au>
+Message-ID: <Pine.LNX.4.30.0102080036110.4033-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 Feb 2001 JShaw@jbwere.com.au wrote:
 
-On 02.07 Tigran Aivazian wrote:
-> Alan, Doug,
-> 
-> If this is a known problem -- ignore. Otherwise, I will gladly assist as
-> much as you need.
-> 
-> Just tried ac5 kernel and, behold (btw, why does serial console not work
-> anymore, I had to copy these by hand):
-> 
-> (scsi0) BRKADRINT error(0x44):
->   Illegal Opcode in sequencer program
->   PCI Error detected
-> (scsi0)  SEQADDR=0x58
-> Kernel panic: aic7xxx: unrecoverable BRKADRINT
-> 
-> The Linux 2.4.2-pre1 works fine. Next thing I was thinking was to try ac4
-> and also to try on a different machine which has a different revision of
-> the same type of aic7xxx HBA.
-> 
+> I've compiled a number of 2.4.1 and 2.4.0 kernels (actually supports the 4GB
+> RAM!!!  Yay!!!!), and I have only one more problem to sort out.  Under
+> 2.4.x, the mount completes successfully, but 'ls /net' causes an OOPS: 0000.
 
-I am running ac5 on a  AHA-2940U2/W, no problem.
+Try http://www.hojdpunkten.ac.se/054/samba/smbfs-2.4.1-pre10-cache-2.patch
 
-I patched the kernel with a patch from Doug Ledford posted in the list.
+Let me know if it works for you or not.
+(patch should be ok with 2.4.0 or 2.4.1)
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.1-ac5 #1 SMP Wed Feb 7 22:15:19 CET 2001 i686
+/Urban
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

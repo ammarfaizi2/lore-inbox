@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268001AbTBYPti>; Tue, 25 Feb 2003 10:49:38 -0500
+	id <S268005AbTBYP4Y>; Tue, 25 Feb 2003 10:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268011AbTBYPth>; Tue, 25 Feb 2003 10:49:37 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:41138 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S268001AbTBYPtg> convert rfc822-to-8bit; Tue, 25 Feb 2003 10:49:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-       Valdis.Kletnieks@vt.edu
-Subject: Re: Minutes from Feb 21 LSE Call
-Date: Tue, 25 Feb 2003 09:59:46 -0600
-User-Agent: KMail/1.4.1
-Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-References: <33350000.1046043468@[10.10.2.4]> <200302250246.h1P2kYtk024120@turing-police.cc.vt.edu> <Pine.LNX.4.53.0302250944470.8334@filesrv1.baby-dragons.com>
-In-Reply-To: <Pine.LNX.4.53.0302250944470.8334@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302250959.46235.pollard@admin.navo.hpc.mil>
+	id <S268006AbTBYP4Y>; Tue, 25 Feb 2003 10:56:24 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:18195 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S268005AbTBYP4X>; Tue, 25 Feb 2003 10:56:23 -0500
+Date: Tue, 25 Feb 2003 16:06:34 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Privacy Extensions for Stateless Address Autoconfiguration in IPv6
+Message-ID: <20030225160634.A4525@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
+	davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+	kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, usagi@linux-ipv6.org
+References: <20030223.223114.65976206.davem@redhat.com> <20030224.155852.611429637.yoshfuji@linux-ipv6.org> <20030223.225251.119557134.davem@redhat.com> <20030226.003625.90530451.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030226.003625.90530451.yoshfuji@linux-ipv6.org>; from yoshfuji@linux-ipv6.org on Wed, Feb 26, 2003 at 12:36:25AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 February 2003 08:47 am, Mr. James W. Laferriere wrote:
-> Hello Valdis ,  One in those days there were no RL05's (never were
-> 	if my memory serves) .  They were RL02's 10mb packs .  Maybe RM05 ?
-> 	*nix definately was NOT known as BSD then .  JimL
+On Wed, Feb 26, 2003 at 12:36:25AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
+> +#
+> +if [ "$CONFIG_IPV6_PRIVACY" = "y" ]; then
+> +  if [ "$CONFIG_IPV6" = "y" ]; then
+> +    define_tristate CONFIG_MD5 y
+> +  else
+> +    define_tristate CONFIG_MD5 m
+> +  fi
+> +else
+> +  tristate 'MD5 digest support' CONFIG_MD5
+> +fi
 
-nope - it was RK05 (2.5 MB disk). The distribution was on tape, not disk. (9 
-track tapes were only 20 bucks, RKs were several thousand).
+Config.in files use three-space indents.
 
-RLs did not show up for almost 10 years.
+> +obj-$(CONFIG_MD5) += md5.o
+> +ifeq ($(CONFIG_MD5),y)
+> +  export-objs += md5.o
+> +endif
 
-RM05 was a 600 MB disk, and didn't show up until after the PDP11/70 and VAX/11 
-existed (it was a relabled CDC9766 disk I believe).
+this is wrong, objects are added to export-objs unconditional.
 
-And it was UNIX v x, where x varied from null (not labeled) and 1 .. 7.
+> +
+> +#ifdef CONFIG_MD5
+> +EXPORT_SYMBOL(MD5Init);
+> +EXPORT_SYMBOL(MD5Update);
+> +EXPORT_SYMBOL(MD5Final);
+> +EXPORT_SYMBOL(MD5Transform);
+> +#endif
 
-RL distributions did not come from AT&T (Yourden, Inc. was where I got one)
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Please remove the ifdef, it doesn't make any sense.
 
-Any opinions expressed are solely my own.
+
+Also I really wonder whether we want to add just md5.c to 2.4 or
+backport the cryptoapi core with md5 as the only algorithm so far..

@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264258AbUEICUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUEIC4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264258AbUEICUr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 22:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUEICUr
+	id S264260AbUEIC4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 22:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264263AbUEIC4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 22:20:47 -0400
-Received: from vinc17.net1.nerim.net ([62.4.18.82]:49257 "EHLO ay.vinc17.org")
-	by vger.kernel.org with ESMTP id S264258AbUEICUp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 22:20:45 -0400
-Date: Sun, 9 May 2004 04:20:43 +0200
-From: Vincent Lefevre <vincent@vinc17.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.26] overcommit_memory documentation clarification
-Message-ID: <20040509022043.GE23263@ay.vinc17.org>
-Mail-Followup-To: Vincent Lefevre <vincent@vinc17.org>,
-	linux-kernel@vger.kernel.org
-References: <20040509001045.GA23263@ay.vinc17.org> <Pine.LNX.4.53.0405082142100.25076@chaos>
+	Sat, 8 May 2004 22:56:25 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:62418 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S264260AbUEIC4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 22:56:19 -0400
+Subject: Re: hdc: lost interrupt ide-cd: cmd 0x3 timed out ...
+From: Len Brown <len.brown@intel.com>
+To: Bob Gill <gillb4@telusplanet.net>
+Cc: Alex Riesen <fork0@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FAE21@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FAE21@hdsmsx403.hd.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1084071367.2326.62.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 08 May 2004 22:56:07 -0400
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0405082142100.25076@chaos>
-X-Mailer-Info: http://www.vinc17.org/mutt/
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-05-08 22:04:30 -0400, Richard B. Johnson wrote:
-> What made you think that malloc would return 0 if the system
-> was "out of memory??" Malloc will return NULL, which is not 0 BTW,
-> if you are out of address-space or have corrupted it by writing
-> past a previous allocation. Malloc's return value is a void *. It
-> should be compared against NULL, not zero.
+On Fri, 2004-05-07 at 15:41, Bob Gill wrote:
+> OK, great!  Adding acpi=noirq to the kernel line made the lost
+> interrupt problem go away.
 
-You are wrong. They are the same value (this is required by the ISO C
-standard), i.e. both NULL == (void *) 0 and NULL == 0 must be true.
+Bob, Alex,
+(or anybody else with a SIS-961 that now requires acpi=noirq),
 
-> When malloc() needs new "memory". It just asks the kernel to
-> set the new break address or, in the case of mmap() mallocs, asks
-> to extend a mapped region. Until somebody actually uses those
-> regions, you haven't used any memory. So there is no way for
-> malloc() to "know" ahead of time.
+I need some info to find out why your system recently broke.
 
-Again, you are wrong. The goal of malloc is to reserve memory.
-This can be seen as used memory. If the implementation behaves
-differently, then it is broken.
+Please open a bug here and attach the info,
+http://bugzilla.kernel.org/enter_bug.cgi?product=ACPI
+or just e-mail it to me and I'll open a bug for you.
 
-> If you run a malloc() bomb from the root account you should
-> end up killing off a lot of processes. If you run it from
-> a normal user account, and you have set the user's resource
-> quotas properly, only the user should get into trouble.
+Need the complete dmesg and /proc/interrupt from the most recent ACPI
+enabled kernel that worked properly -- I guess -bk6 worked okay?
 
-The quotas are set properly (i.e. there are no quotas).
+Any chance you can boot with "debug" and capture the console messages
+from the failure?  If no, then the complete dmesg of the latest kernel
+with "acpi=noirq" is the next best thing.
 
--- 
-Vincent Lefèvre <vincent@vinc17.org> - Web: <http://www.vinc17.org/>
-100% validated (X)HTML - Acorn / RISC OS / ARM, free software, YP17,
-Championnat International des Jeux Mathématiques et Logiques, etc.
-Work: CR INRIA - computer arithmetic / SPACES project at LORIA
+output from lspci -vv
+
+output acpidmp available in /usr/sbin/, or in pmtools:
+http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
+
+thanks,
+-Len
+
+ps. would also be good to verify you're running an up-to-date BIOS.
+
+pps. taking a wild guess, can you try backing out this patch?
+
+#   ACPI: No IRQ known ... - using IRQ 255 (Bjarni Rúnar Einarsson)
+#   http://bugzilla.kernel.org/show_bug.cgi?id=2148
+
+http://linux.bkbits.net:8080/linux-2.5/gnupatch@408a06a6JHD43KPCLW3tDIYGowoxvg
+
+

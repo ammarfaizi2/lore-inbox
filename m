@@ -1,30 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264880AbSKEQQD>; Tue, 5 Nov 2002 11:16:03 -0500
+	id <S264886AbSKEQXq>; Tue, 5 Nov 2002 11:23:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264886AbSKEQQD>; Tue, 5 Nov 2002 11:16:03 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:41229 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S264880AbSKEQQC>;
-	Tue, 5 Nov 2002 11:16:02 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: 2.5.46: buffer layer error at fs/buffer.c:1623
-Date: Tue, 5 Nov 2002 16:22:00 +0000 (UTC)
-Organization: Cistron
-Message-ID: <aq8r78$v1m$1@ncc1701.cistron.net>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1036513320 31798 62.216.29.67 (5 Nov 2002 16:22:00 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S264887AbSKEQXq>; Tue, 5 Nov 2002 11:23:46 -0500
+Received: from NEUROSIS.MIT.EDU ([18.243.0.82]:53994 "EHLO neurosis.mit.edu")
+	by vger.kernel.org with ESMTP id <S264886AbSKEQXp>;
+	Tue, 5 Nov 2002 11:23:45 -0500
+Date: Tue, 5 Nov 2002 11:30:20 -0500
+From: Jim Paris <jim@jtan.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: time() glitch on 2.4.18: solved
+Message-ID: <20021105113020.A5210@neurosis.mit.edu>
+References: <20021102013704.A24684@neurosis.mit.edu> <20021103143216.A27147@neurosis.mit.edu> <1036355418.30679.28.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1036355418.30679.28.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sun, Nov 03, 2002 at 08:30:18PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI, I just saw this:
+> > Any comments?
+> 
+> Have a play with it, if your idea works when you deliberately disturb it
+> then send in a patch
 
-Nov  5 17:09:10 enterprise kernel: buffer layer error at fs/buffer.c:1623
-Nov  5 17:09:10 enterprise kernel: Pass this trace through ksymoops for reporting
-Nov  5 17:09:10 enterprise kernel: Call Trace: [__buffer_error+51/64]  [__block_write_full_page+127/880]  [block_write_full_page+45/160]  [blkdev_get_block+0/80]  [blkdev_writepage+15/32]  [blkdev_get_block+0/80]  [mpage_writepages+478/816]  [blkdev_writepage+0/32]  [__set_page_dirty_buffers+205/224]  [try_to_unmap_one+198/256]  [generic_writepages+17/21]  [do_writepages+24/48]  [generic_vm_writeback+50/64]  [shrink_list+564/960]  [__pagevec_release+21/32]  [__pagevec_lru_add_active+131/144]  [__pagevec_release+21/32]  [shrink_cache+333/560]  [shrink_zone+108/128]  [balance_pgdat+155/256]  [kswapd+257/267]  [kswapd+0/267]  [autoremove_wake_function+0/64]  [autoremove_wake_function+0/64]  [kernel_thread_helper+5/16] 
+This works well.
 
-Mike.
+-jim
 
+diff -urN linux-2.4.18/arch/i386/kernel/time.c linux-2.4.18-jim/arch/i386/kernel/time.c
+--- linux-2.4.18/arch/i386/kernel/time.c	Fri Mar 15 18:28:53 2002
++++ linux-2.4.18-jim/arch/i386/kernel/time.c	Tue Nov  5 11:22:02 2002
+@@ -501,6 +501,16 @@
+ 
+ 		count = inb_p(0x40);    /* read the latched count */
+ 		count |= inb(0x40) << 8;
++
++		/* Any unpaired read will cause the above to swap MSB/LSB
++		   forever.  Try to detect this and reset the counter. */
++		if (count > LATCH) {
++			outb_p(0x34, 0x43);
++			outb_p(LATCH & 0xff, 0x40);
++			outb(LATCH >> 8, 0x40);
++			count = LATCH - 1;
++		}
++
+ 		spin_unlock(&i8253_lock);
+ 
+ 		count = ((LATCH-1) - count) * TICK_SIZE;

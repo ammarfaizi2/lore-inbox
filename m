@@ -1,70 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263939AbTH1MBp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 08:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263940AbTH1MBp
+	id S263923AbTH1Lzg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 07:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263939AbTH1Lzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 08:01:45 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:64134 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263939AbTH1MBn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 08:01:43 -0400
-Date: Thu, 28 Aug 2003 13:01:35 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Timo Sirainen <tss@iki.fi>
-Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-Subject: Re: Lockless file reading
-Message-ID: <20030828120135.GA6800@mail.jlokier.co.uk>
-References: <MDEHLPKNGKAHNMBLJOLKEEJEFLAA.davids@webmaster.com> <1062066411.1451.319.camel@hurina>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1062066411.1451.319.camel@hurina>
-User-Agent: Mutt/1.4.1i
+	Thu, 28 Aug 2003 07:55:36 -0400
+Received: from 11.ylenurme.ee ([193.40.6.11]:31437 "EHLO linking.ee")
+	by vger.kernel.org with ESMTP id S263923AbTH1Lze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 07:55:34 -0400
+Message-ID: <3F4DFB44.2080802@linking.ee>
+Date: Thu, 28 Aug 2003 14:53:24 +0200
+From: Valmar Joandi <valmar@linking.ee>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: hugo-lkml@carfax.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-ac4 Adaptec 1210SA lost interrupt , Seagate 120G
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timo Sirainen wrote:
-> Reorder on per-byte basis? Per-page/block would still be acceptable.
+Hi.
 
-The _CPUs_ can reorder on a per-byte basis, on a multiprocessor.  It
-has nothing to do with the kernel.
+Has there been any changes recently? I search with google for that patch 
+but could'nt find anything, maybe I missed something?
+And how about 2.6 kernel + 1210sa + sata seagate 120G?
 
-> Anyway, the alternative would be shared mmap()ed file. You can trust
-> 32bit memory updates to be atomic, right?
 
-Atomic yes (if aligned), weakly ordered though.
+-----------------------------FWD 
+MESSAGE--------------------------------------------------
+Re: 2.4.21-ac4 Adaptec 1210SA lost interrupt , Seagate 120G
+From: Hugo Mills (hugo-lkml@carfax.org.uk)
+Date: Mon Jul 07 2003 - 17:44:01 EST
 
-> Or what about: write("12"), fsync(), write("12")? Is it still possible
-> for read() to return "1x1x"?
+    * Next message: Dmitry Torokhov: "Re: [PATCH] Synaptics: support for 
+pass-through port (stick)"
+    * Previous message: Doug McNaught: "Re: question about linux tcp 
+request queue handling"
+    * In reply to: Elmer: "2.4.21-ac4 Adaptec 1210SA lost interrupt , 
+Seagate 120G"
+    * Messages sorted by: [ date ] [ thread ] [ subject ] [ author ]
 
-Yes it is possible, in principle.
+On Tue, Jul 08, 2003 at 12:42:32AM +0300, Elmer wrote:
+ > Tried them on every imaginable way:
+ >
+ > 1. 2.4.21 + my own siimage slight patch, 2.4.21 + simage from ac4,
+ > pure 2.4.21-ac4
+ > 2. apic, noapic, localapic
+ > 3. uni,smp motherboards, 4 of them
+ > 4. modules, compiled in,
+ > 5. all of options from cards bios
+ >
+ > /proc/interrupts reports 0 interrupts for ide2,3 , whatever I do.
+ >
+ > after bootup, after attacking ide-disk driver, there are lost interrupts.
+ > it recognises disk as correct type, but no communication except:
+ >
+ > 1. under XP it works (but there was no linux at that mb)
+ > 2. hdparm lets change few flags under linux, but no -X succeeds
+ > 3. after waiting for minute those timeouts and booting up, then
+ > /proc/ide/ide2/hde/* reports sensible correct information
+ >
+ > I have the card for few more days, anything to try ?
 
-This is what happens: the writing CPU writes "1", "2" in order.  The
-reading CPU reads bytes 1, 3 before the writes are
-observed and bytes 0, 2 after.  The CPU can do this.
+   I've tried this card with all of the hdparm options that I could
+think of. I got no success either. However, Andre Hedrick claims[1] to
+have got the SiI3112 and 3114 working in his tree (a couple of weeks
+ago). He's testing it[2] before release.
 
-The kernel doesn't prevent this, because it doesn't hold any exclusive
-lock between the writer and reader during the data transfers.
-Furthermore the kernel transfers a byte at a time, on some
-architecture (including x86), if any buffer is not aligned.
+   Hugo.
 
-It is very unlikely to return "1x1x", but you should know it is not
-architecturally impossible.  Given your incomplete knowledge of every
-architectural quirk, it is more likely to occur than an MD5 collision.
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=105622034606015&w=2
 
-On 32-bit aligned atomicity: if the block of 4 bytes is aligned in
-memory, then with shared mmap you will only see whole words
-transferred because all (current) Linux SMP-capable architectures
-offer 32 bit atomicity.  It is not a very nice assumption: it doesn't
-hold for 16 bits or 64 bits, and may not hold for a future 64 bit
-architecture.  Keep in mind the words stay whole, but multiple words
-are read out of order.
+[2] I believe that one of the tests is whether he's got paid for the
+work by the people who contracted him to do it, which is where I
+suspect the real delay is.
 
-With read() and write(), even aligned 32-bit words don't work.  On
-some 64-bit architectures, a 32-bit word read() will be issued as 4
-byte reads at the machine level, with weak memory ordering.  (I'm
-reading Alpha and IA64 __copy_user right now, and they both do that).
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+                --- If it ain't broke,  hit it again. ---                
 
-Enjoy :)
--- Jamie
+

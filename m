@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267693AbRGUQI3>; Sat, 21 Jul 2001 12:08:29 -0400
+	id <S267701AbRGUQQi>; Sat, 21 Jul 2001 12:16:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267697AbRGUQIT>; Sat, 21 Jul 2001 12:08:19 -0400
-Received: from jdi.jdimedia.nl ([212.204.192.51]:6354 "EHLO jdi.jdimedia.nl")
-	by vger.kernel.org with ESMTP id <S267695AbRGUQIH>;
-	Sat, 21 Jul 2001 12:08:07 -0400
-Date: Sat, 21 Jul 2001 18:07:49 +0200 (CEST)
-From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
-X-X-Sender: <igmar@jdi.jdimedia.nl>
+	id <S267706AbRGUQQ3>; Sat, 21 Jul 2001 12:16:29 -0400
+Received: from pop.gmx.net ([194.221.183.20]:6883 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267701AbRGUQQZ>;
+	Sat, 21 Jul 2001 12:16:25 -0400
+Message-ID: <001901c11200$7e16adc0$c20e9c3e@host1>
+From: "peter k." <spam-goes-to-dev-null@gmx.net>
 To: <linux-kernel@vger.kernel.org>
-cc: Martin Mares <pci-ids@ucw.cz>
-Subject: Re: New PCI device
-In-Reply-To: <Pine.LNX.4.33.0107211732080.28026-100000@jdi.jdimedia.nl>
-Message-ID: <Pine.LNX.4.33.0107211805490.28223-100000@jdi.jdimedia.nl>
+In-Reply-To: <000f01c111ff$73602ce0$c20e9c3e@host1>
+Subject: Re: 2.4.7: wtf is "ksoftirqd_CPU0"
+Date: Sat, 21 Jul 2001 18:15:35 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+i knew that i forgot to say something: i was using 2.4.6 before and i never
+saw that process with 2.4.6 or any other 2.4.x version
 
 
-> 02:09.0 Network controller: Unknown device 1638:1100 (rev 02)
->         Subsystem: Unknown device 1638:1100
->         Flags: medium devsel, IRQ 9
->         I/O ports at d800 [disabled] [size=128]
->         Memory at d5800000 (32-bit, non-prefetchable) [disabled] [size=4K]
->         I/O ports at d400 [disabled] [size=64]
->
+> i just installed 2.4.7, now a new process called "ksoftirqd_CPU0" is
+started
+> automatically when booting (by the kernel obviously)? why? what does it
+do?
+> i didnt find any useful information on it in linuxdoc / linux-kernel
+> archives
 
-Vendor : Eumitcom Technology Inc
-Device : WL11000P
-         Remark : Actually a PLX Tech PCI9052 wires to 802.11 PCICIA card
-                  controller
-
-	Igmar
-
--- 
-
-Igmar Palsenberg
-JDI Media Solutions
-
-Boulevard Heuvelink 102
-6828 KT Arnhem
-The Netherlands
-
-mailto: i.palsenberg@jdimedia.nl
-PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
 

@@ -1,83 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268892AbUJKMmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268920AbUJKMov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268892AbUJKMmV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 08:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268890AbUJKMlc
+	id S268920AbUJKMov (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 08:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268916AbUJKMmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 08:41:32 -0400
-Received: from zero.aec.at ([193.170.194.10]:63247 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S268894AbUJKMkr (ORCPT
+	Mon, 11 Oct 2004 08:42:45 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:42945 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S268902AbUJKMlQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 08:40:47 -0400
-To: Tim Cambrant <cambrant@acc.umu.se>
-cc: linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: Re: 2.6.9-rc4-mm1
-References: <2O5L3-5Jq-11@gated-at.bofh.it> <2O6Ho-6ra-51@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 11 Oct 2004 14:40:35 +0200
-In-Reply-To: <2O6Ho-6ra-51@gated-at.bofh.it> (Tim Cambrant's message of
- "Mon, 11 Oct 2004 13:40:26 +0200")
-Message-ID: <m3zn2tv35o.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Mon, 11 Oct 2004 08:41:16 -0400
+Message-ID: <416A7F6D.EAF071CB@tv-sign.ru>
+Date: Mon, 11 Oct 2004 16:41:17 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc4-mm1
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Cambrant <cambrant@acc.umu.se> writes:
+Hello.
 
-> On Mon, Oct 11, 2004 at 03:25:02AM -0700, Andrew Morton wrote:
->>
->> optimize-profile-path-slightly.patch
->>   Optimize profile path slightly
->>
->
-> I'm still getting an oops at startup with this patch. After reversing
-> it, everything is fine. Weren't you supposed to remove that from your
-> tree until it was fixed?
+arch/i386/kernel/traps.c damaged. CONFIG_KGDB stuff
+inside print_context_stack().
 
-There's a fixed version around. I thought Andrew had merged that one?
+Oleg.
 
--Andi
-
--------------------------------------
-
-Fixed version of profile optimization
-
-
-Index: linux/kernel/profile.c
-===================================================================
---- linux.orig/kernel/profile.c	2004-09-30 10:35:51.%N +0200
-+++ linux/kernel/profile.c	2004-10-07 13:22:33.%N +0200
-@@ -181,20 +181,27 @@
- EXPORT_SYMBOL_GPL(profile_event_register);
- EXPORT_SYMBOL_GPL(profile_event_unregister);
- 
--void profile_hit(int type, void *__pc)
-+static inline void __profile_hit(int type, void *__pc)
- {
- 	unsigned long pc;
- 
--	if (prof_on != type || !prof_buffer)
--		return;
- 	pc = ((unsigned long)__pc - (unsigned long)_stext) >> prof_shift;
- 	atomic_inc(&prof_buffer[min(pc, prof_len - 1)]);
+--- 2.6.9-rc4-mm1/arch/i386/kernel/traps.c~	Mon Oct 11 16:32:07 2004
++++ 2.6.9-rc4-mm1/arch/i386/kernel/traps.c	Mon Oct 11 16:32:55 2004
+@@ -105,17 +105,6 @@ int register_die_notifier(struct notifie
+ 	return err;
  }
  
-+void profile_hit(int type, void *pc)
+-static inline int valid_stack_ptr(struct thread_info *tinfo, void *p)
+-{
+-	return	p > (void *)tinfo &&
+-		p < (void *)tinfo + THREAD_SIZE - 3;
+-}
+-
+-static inline unsigned long print_context_stack(struct thread_info *tinfo,
+-				unsigned long *stack, unsigned long ebp)
+-{
+-	unsigned long addr;
+-
+ #ifdef CONFIG_KGDB
+ extern void sysenter_past_esp(void);
+ #include <asm/kgdb.h>
+@@ -149,6 +138,16 @@ void breakpoint(void)
+ #define	CHK_REMOTE_DEBUG(trapnr,signr,error_code,regs,after)
+ #endif
+ 
++static inline int valid_stack_ptr(struct thread_info *tinfo, void *p)
 +{
-+	if (prof_on != type || !prof_buffer)
-+		return;
-+	__profile_hit(type, pc);
++	return	p > (void *)tinfo &&
++		p < (void *)tinfo + THREAD_SIZE - 3;
 +}
 +
- void profile_tick(int type, struct pt_regs *regs)
- {
- 	if (type == CPU_PROFILING)
- 		profile_hook(regs);
-+	if (prof_on != type || !prof_buffer)
-+		return;
- 	if (!user_mode(regs) && cpu_isset(smp_processor_id(), prof_cpu_mask))
- 		profile_hit(type, (void *)profile_pc(regs));
- }
-
++static inline unsigned long print_context_stack(struct thread_info *tinfo,
++				unsigned long *stack, unsigned long ebp)
++{
++	unsigned long addr;
+ 
+ #ifdef	CONFIG_FRAME_POINTER
+ 	while (valid_stack_ptr(tinfo, (void *)ebp)) {

@@ -1,29 +1,368 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267256AbUGNAIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267238AbUGNARr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267256AbUGNAIm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 20:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267257AbUGNAIm
+	id S267238AbUGNARr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 20:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267258AbUGNARr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 20:08:42 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:5385 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S267256AbUGNAI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 20:08:26 -0400
-Message-ID: <40F479C9.6050705@zero10.demon.co.uk>
-Date: Wed, 14 Jul 2004 01:09:45 +0100
-From: DaMouse <damouse@zero10.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.6+ (Windows/20040706)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 13 Jul 2004 20:17:47 -0400
+Received: from av3-1-sn4.m-sp.skanova.net ([81.228.10.114]:52120 "EHLO
+	av3-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S267238AbUGNARd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 20:17:33 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: SATA disk device naming ?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Christoph Hellwig <hch@infradead.org>, Arnd Bergmann <arnd@arndb.de>,
+       Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] Control pktcdvd with an auxiliary character device
+References: <m2lli36ec9.fsf@telia.com> <m2llhz5o4o.fsf@telia.com>
+	<m2fz875nkv.fsf@telia.com> <200407110120.47256.arnd@arndb.de>
+	<20040710232714.GA21633@infradead.org> <m2r7rjpd24.fsf@telia.com>
+	<m2vfgro3k6.fsf_-_@telia.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 14 Jul 2004 02:17:27 +0200
+In-Reply-To: <m2vfgro3k6.fsf_-_@telia.com>
+Message-ID: <m2oemjo31k.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is why you need to keep a rescue disk of something like gentoo 
-(normally up to date with driver imho) which you can edit fstab with 
-instead of getting stuck...
+Peter Osterlund <petero2@telia.com> writes:
 
--DaMouse
+> Peter Osterlund <petero2@telia.com> writes:
+> 
+> > Christoph Hellwig <hch@infradead.org> writes:
+> > 
+> > > On Sun, Jul 11, 2004 at 01:20:45AM +0200, Arnd Bergmann wrote:
+> > > > These are actually incorrect definitions since the ioctl argument is
+> > > > not a pointer to unsigned int but instead just an int. However, that's
+> > > > too late to fix without breaking the existing tools.
+> > > 
+> > > The tools need to change anyway to get away from the broken behaviour to
+> > > issue in ioctl on the actual block device to bind it..
+> > 
+> > OK, I'll create a patch that gets rid of the ioctl interface and uses
+> > an auxiliary character device instead to control device bindings.
+> 
+> Here is a patch for 2.6.7-mm7 that does that. The driver creates a
+> misc character device and bind/unbind of the block devices are
+> controlled by ioctl commands on the char device.
+> 
+> This patch needs corresponding changes in the pktsetup user space
+> program. I'll post a patch for pktsetup as a separate message.
+
+And here is a patch for udftools-1.0.0b3 that updates the pktsetup
+program to make it able to use the character device for block device
+setup/teardown.
+
+---
+
+ udftools-1.0.0b3-petero/pktsetup/pktsetup.c |  245 +++++++++++++++++++++++++++-
+ 1 files changed, 238 insertions(+), 7 deletions(-)
+
+diff -puN pktsetup/pktsetup.c~pktsetup-char-dev pktsetup/pktsetup.c
+--- udftools-1.0.0b3/pktsetup/pktsetup.c~pktsetup-char-dev	2004-07-12 19:57:51.000000000 +0200
++++ udftools-1.0.0b3-petero/pktsetup/pktsetup.c	2004-07-14 00:34:02.471317888 +0200
+@@ -1,5 +1,6 @@
+ /*
+  * Copyright (c) 1999,2000	Jens Axboe <axboe@suse.de>
++ * Copyright (c) 2004		Peter Osterlund <petero2@telia.com>
+  *
+  *   This program is free software; you can redistribute it and/or modify
+  *   it under the terms of the GNU General Public License as published by
+@@ -19,6 +20,7 @@
+ #include <stdio.h>
+ #include <fcntl.h>
+ #include <sys/ioctl.h>
++#include <sys/stat.h>
+ #include <unistd.h>
+ #include <getopt.h>
+ #include <bits/types.h>
+@@ -33,8 +35,33 @@
+ #define PACKET_SETUP_DEV	_IOW('X', 1, unsigned int)
+ #define PACKET_TEARDOWN_DEV	_IOW('X', 2, unsigned int)
+ #endif
++#ifndef PACKET_CTRL_CMD
++#define PACKET_CTRL_CMD		_IOWR('X', 1, struct pkt_ctrl_command)
++#endif
++
++#define MAJOR(dev)      ((dev & 0xfff00) >> 8)
++#define MINOR(dev)      ((dev & 0xff) | ((dev >> 12) & 0xfff00))
++#define MKDEV(ma,mi)    ((mi & 0xff) | (ma << 8) | ((mi & ~0xff) << 12))
++
++#define MISC_MAJOR		10
++#define CTL_DIR "/dev/pktcdvd"
++#define CTL_DEV "control"
++
++#define PKT_CTRL_CMD_SETUP	0
++#define PKT_CTRL_CMD_TEARDOWN	1
++#define PKT_CTRL_CMD_STATUS	2
++
++struct pkt_ctrl_command {
++	__u32 command;				/* in: Setup, teardown, status */
++	__u32 dev_index;			/* in/out: Device index */
++	__u32 dev;				/* in/out: Device nr for cdrw device */
++	__u32 pkt_dev;				/* out: Device nr for packet device */
++	__u32 num_devices;			/* out: Largest device index + 1 */
++	__u32 padding;
++};
++
+ 
+-int init_cdrom(int fd)
++static int init_cdrom(int fd)
+ {
+ 	if (ioctl(fd, CDROM_DRIVE_STATUS, CDSL_CURRENT) < 0) {
+ 		perror("drive not ready\n");
+@@ -54,7 +81,7 @@ int init_cdrom(int fd)
+ 	return 0;
+ }
+ 
+-void setup_dev(char *pkt_device, char *device, int rem)
++static void setup_dev(char *pkt_device, char *device, int rem)
+ {
+ 	int pkt_fd, dev_fd, cmd;
+ 
+@@ -88,29 +115,233 @@ void setup_dev(char *pkt_device, char *d
+ 	close(pkt_fd);
+ }
+ 
+-int usage(void)
++static int usage(void)
+ {
+-	printf("pktsetup /dev/pktcdvd0 /dev/cdrom\tsetup device\n");
+-	printf("pktsetup -d /dev/pktcdvd0\t\ttear down device\n");
++	printf("For pktcdvd < 0.2.0:\n");
++	printf("  pktsetup /dev/pktcdvd0 /dev/cdrom  setup device\n");
++	printf("  pktsetup -d /dev/pktcdvd0          tear down device\n");
++	printf("For pktcdvd >= 0.2.0:\n");
++	printf("  pktsetup dev_name /dev/cdrom       setup device\n");
++	printf("  pktsetup -d dev_name               tear down device\n");
++	printf("  pktsetup -d major:minor            tear down device\n");
++	printf("  pktsetup -s                        show device mappings\n");
+ 	return 1;
+ }
+ 
++/*
++ * Find the minor device number for the pktcdvd control device.
++ */
++static int get_misc_minor(void)
++{
++	int minor;
++	char name[64];
++	FILE *f;
++
++	if ((f = fopen("/proc/misc", "r")) == NULL)
++		return -1;
++	while (fscanf(f, " %d %64s", &minor, name) == 2) {
++		if (strcmp(name, "pktcdvd") == 0) {
++			fclose(f);
++			return minor;
++		}
++	}
++	fclose(f);
++	return -1;
++}
++
++static const char *pkt_dev_name(const char *dev)
++{
++	static char buf[128];
++	snprintf(buf, sizeof(buf), "%s/%s", CTL_DIR, dev);
++	return buf;
++}
++
++static void create_ctl_dev(void)
++{
++	int misc_minor;
++	struct stat stat_buf;
++	int dev;
++
++	if ((misc_minor = get_misc_minor()) < 0) {
++		system("/sbin/modprobe pktcdvd");
++		misc_minor = get_misc_minor();
++	}
++	if (misc_minor < 0) {
++		fprintf(stderr, "Can't find pktcdvd character device\n");
++		return;
++	}
++	dev = MKDEV(MISC_MAJOR, misc_minor);
++
++	if ((stat(pkt_dev_name(CTL_DEV), &stat_buf) >= 0) &&
++	    S_ISCHR(stat_buf.st_mode) && (stat_buf.st_rdev == dev))
++		return;			    /* Already set up */
++
++	mkdir(CTL_DIR, 0755);
++	unlink(pkt_dev_name(CTL_DEV));
++	mknod(pkt_dev_name(CTL_DEV), S_IFCHR | 0644, dev);
++}
++
++static int remove_stale_dev_node(int ctl_fd, char *devname)
++{
++	struct stat stat_buf;
++	int i, dev;
++	struct pkt_ctrl_command c;
++
++	if (stat(pkt_dev_name(devname), &stat_buf) < 0)
++		return 0;
++	if (!S_ISBLK(stat_buf.st_mode))
++		return 1;
++	dev = stat_buf.st_rdev;
++	memset(&c, 0, sizeof(struct pkt_ctrl_command));
++	for (i = 0; ; i++) {
++		c.command = PKT_CTRL_CMD_STATUS;
++		c.dev_index = i;
++		if (ioctl(ctl_fd, PACKET_CTRL_CMD, &c) < 0) {
++			perror("ioctl");
++			return 1;
++		}
++		if (i >= c.num_devices)
++			break;
++		if (c.pkt_dev == dev)
++			return 1;	    /* busy */
++	}
++	unlink(pkt_dev_name(devname));
++	return 0;
++}
++
++static void setup_dev_chardev(char *pkt_device, char *device, int rem)
++{
++	struct pkt_ctrl_command c;
++	struct stat stat_buf;
++	int ctl_fd, dev_fd;
++
++	memset(&c, 0, sizeof(struct pkt_ctrl_command));
++
++	create_ctl_dev();
++	if ((ctl_fd = open(pkt_dev_name(CTL_DEV), O_RDONLY)) < 0) {
++		perror("ctl open");
++		return;
++	}
++
++	if (!rem) {
++		if ((dev_fd = open(device, O_RDONLY | O_NONBLOCK)) == -1) {
++			perror("open cd-rom");
++			goto out_close;
++		}
++		if (init_cdrom(dev_fd)) {
++			close(dev_fd);
++			goto out_close;
++		}
++		close(dev_fd);
++
++		if (stat(device, &stat_buf) < 0) {
++			perror("stat cd-rom");
++			goto out_close;
++		}
++		if (!S_ISBLK(stat_buf.st_mode)) {
++			fprintf(stderr, "Not a block device\n");
++			goto out_close;
++		}
++		c.command = PKT_CTRL_CMD_SETUP;
++		c.dev = stat_buf.st_rdev;
++
++		if (remove_stale_dev_node(ctl_fd, pkt_device) != 0) {
++			fprintf(stderr, "Device node '%s' already in use\n", pkt_device);
++			goto out_close;
++		}
++		if (ioctl(ctl_fd, PACKET_CTRL_CMD, &c) < 0) {
++			perror("ioctl");
++			goto out_close;
++		}
++		mknod(pkt_dev_name(pkt_device), S_IFBLK | 0640, c.pkt_dev);
++	} else {
++		int major, minor, remove_node;
++
++		if ((stat(pkt_dev_name(pkt_device), &stat_buf) >= 0) &&
++		    S_ISBLK(stat_buf.st_mode)) {
++			major = MAJOR(stat_buf.st_rdev);
++			minor = MINOR(stat_buf.st_rdev);
++			remove_node = 1;
++		} else if (sscanf(pkt_device, "%d:%d", &major, &minor) == 2) {
++			remove_node = 0;
++		} else {
++			fprintf(stderr, "Can't find major/minor numbers\n");
++			goto out_close;
++		}
++
++		c.command = PKT_CTRL_CMD_TEARDOWN;
++		c.pkt_dev = MKDEV(major, minor);
++		if (ioctl(ctl_fd, PACKET_CTRL_CMD, &c) < 0) {
++			perror("ioctl");
++			goto out_close;
++		}
++		if (remove_node)
++			unlink(pkt_dev_name(pkt_device));
++	}
++
++out_close:
++	close(ctl_fd);
++}
++
++static void show_mappings(void)
++{
++	struct pkt_ctrl_command c;
++	int ctl_fd, i;
++
++	memset(&c, 0, sizeof(struct pkt_ctrl_command));
++
++	create_ctl_dev();
++	if ((ctl_fd = open(pkt_dev_name(CTL_DEV), O_RDONLY)) < 0) {
++		perror("ctl open");
++		return;
++	}
++
++	for (i = 0; ; i++) {
++		c.command = PKT_CTRL_CMD_STATUS;
++		c.dev_index = i;
++		if (ioctl(ctl_fd, PACKET_CTRL_CMD, &c) < 0) {
++			perror("ioctl");
++			goto out_close;
++		}
++		if (i >= c.num_devices)
++			break;
++		if (c.dev) {
++			printf("%2d : %d:%d -> %d:%d\n",
++			       i, MAJOR(c.pkt_dev), MINOR(c.pkt_dev),
++			       MAJOR(c.dev), MINOR(c.dev));
++		}
++	}
++
++out_close:
++	close(ctl_fd);
++}
++
+ int main(int argc, char **argv)
+ {
+ 	int rem = 0, c;
++	char *pkt_device;
++	char *device;
+ 
+ 	if (argc == 1)
+ 		return usage();
+ 
+-	while ((c = getopt(argc, argv, "d")) != EOF) {
++	while ((c = getopt(argc, argv, "ds?")) != EOF) {
+ 		switch (c) {
+ 			case 'd':
+ 				rem = 1;
+ 				break;
++			case 's':
++				show_mappings();
++				return 0;
+ 			default:
+ 				return usage();
+ 		}
+ 	}
+-	setup_dev(argv[optind], argv[optind + 1], rem);
++	pkt_device = argv[optind];
++	device = argv[optind + 1];
++	if (strchr(pkt_device, '/'))
++		setup_dev(pkt_device, device, rem);
++	else
++		setup_dev_chardev(pkt_device, device, rem);
+ 	return 0;
+ }
+_
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

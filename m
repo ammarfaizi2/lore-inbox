@@ -1,93 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318333AbSHKT2k>; Sun, 11 Aug 2002 15:28:40 -0400
+	id <S318319AbSHKTiL>; Sun, 11 Aug 2002 15:38:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318334AbSHKT2k>; Sun, 11 Aug 2002 15:28:40 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:274 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S318333AbSHKT2j>;
-	Sun, 11 Aug 2002 15:28:39 -0400
-From: <Hell.Surfers@cwctv.net>
-To: Devilkin-LKML@blindguardian.org, linux-kernel@vger.kernel.org
-Date: Sun, 11 Aug 2002 20:32:02 +0100
-Subject: RE:Re: Re: 2.4.19 IDE Partition Check issue (again)
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1029094322136"
-Message-ID: <00b752231190b82DTVMAIL8@smtp.cwctv.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-
---1029094322136
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-first thing i did...
-
-
-
-On 	Sun, 11 Aug 2002 21:25:41 +0200 	Devilkin <Devilkin-LKML@blindguardian.org> wrote:
-
---1029094322136
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sun, 11 Aug 2002 20:24:02 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318237AbSHKTTF>; Sun, 11 Aug 2002 15:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318238AbSHKTTF>; Sun, 11 Aug 2002 15:19:05 -0400
-Received: from horkos.telenet-ops.be ([195.130.132.45]:48583 "EHLO
-	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S318237AbSHKTTE> convert rfc822-to-8bit; Sun, 11 Aug 2002 15:19:04 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by horkos.telenet-ops.be (Postfix) with SMTP id 827F183D46
-	for <linux-kernel@vger.kernel.org>; Sun, 11 Aug 2002 21:22:47 +0200 (CEST)
-Received: from whocares.fcbs.net (D5E0EE8C.kabel.telenet.be [213.224.238.140])
-	by horkos.telenet-ops.be (Postfix) with SMTP id 566B28455A
-	for <linux-kernel@vger.kernel.org>; Sun, 11 Aug 2002 21:22:47 +0200 (CEST)
-Received: (qmail 919 invoked by uid 1005); 11 Aug 2002 19:25:41 -0000
-Received: from Devilkin-LKML@blindguardian.org by whocares
-	 by uid 1002 with qmail-scanner-1.10 (F-PROT: 3.12. Clear:0. Processed in 0.066724 secs); 11 Aug 2002 19:25:41 -0000
-X-Qmail-Scanner-Mail-From: Devilkin-LKML@blindguardian.org via whocares
-X-Qmail-Scanner: 1.10 (Clear:0. Processed in 0.066724 secs)
-Received: from localhost (HELO whocares) (devilkin@127.0.0.1)
-  by localhost with SMTP; 11 Aug 2002 19:25:41 -0000
+	id <S318334AbSHKTiL>; Sun, 11 Aug 2002 15:38:11 -0400
+Received: from dsl-213-023-020-163.arcor-ip.net ([213.23.20.163]:52384 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318319AbSHKTiK>;
+	Sun, 11 Aug 2002 15:38:10 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Devilkin <Devilkin-LKML@blindguardian.org>
-To: <Hell.Surfers@cwctv.net>
-Subject: Re: Re: 2.4.19 IDE Partition Check issue (again)
-Date: Sun, 11 Aug 2002 21:25:41 +0200
-User-Agent: KMail/1.4.1
-References: <09e824508190b82DTVMAIL1@smtp.cwctv.net>
-In-Reply-To: <09e824508190b82DTVMAIL1@smtp.cwctv.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Daniel Phillips <phillips@arcor.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+Date: Sun, 11 Aug 2002 21:43:21 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0208111155460.9930-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0208111155460.9930-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200208112125.41416.Devilkin-LKML@blindguardian.org>
+Message-Id: <E17dycT-0001hv-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-On Sunday 11 August 2002 21:08, Hell.Surfers@cwctv.net wrote:
-> i have a liveEVAL cd (SuSE 7.3) and a maxtor hard disk et 686, it freezes
-> on writing bootloader, hangs with a constantbeep.. I wonder if this is
-> related...
+On Sunday 11 August 2002 21:00, Linus Torvalds wrote:
+> On Sun, 11 Aug 2002, Daniel Phillips wrote:
+> 
+> > On Sunday 11 August 2002 00:42, Linus Torvalds wrote:
+> > > For example, what do you do when somebody has a COW-page mapped into it's
+> > > VM space and you want to start paging stuff out?
+> > 
+> > Clearly it requires a CoW break and swapping out that page won't free any 
+> > memory directly, but it will in turn allow the cache page to be dropped.
+> 
+> Well, that's the point. Is it really "clearly"?
+> 
+> One alternative is to just instead remove it from the page cache, and add 
+> it to the swap cache directly (and unmapping it). In fact, I _think_ that 
+> is the right thing to do (yes, it only works if the page count is 2 (one 
+> for page cache, one for the VM mapping), but that's very different from 
+> breaking the COW and generating two separate pages.
 
-Have you disabled you BIOS' bootsector virus protection?
+Far clearer ;-)
 
-This often causes such beeps...
+With reverse mapping it works for any page count.
 
-DK
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1029094322136--
+> The "move directly to swap cache" is nice in that it doesn't add any new
+> pages. But it's nasty in that it steals pages from the file cache, so that
+> it basically turns a potentially sharable cache into a private cache that
+> nobody else will see.
 
+But you got it right the first time: we're evicting the page because it's
+inactive and we want the memory for something else.  We don't need to give
+that page more second chances, it already had its share of chances before
+it got this far in the eviction process.  If the file page gets reloaded
+before the swap-out completes it just means we chose the victim poorly
+in the first place, or we're unlucky.  The latter is supposed to be the
+exception, not the rule.
 
+> See? You actually _do_ have choices on what to do.
+
+Yes, in this case, the correct thing and the dumb thing.
+
+-- 
+Daniel

@@ -1,50 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276032AbRI1MtE>; Fri, 28 Sep 2001 08:49:04 -0400
+	id <S276037AbRI1NCR>; Fri, 28 Sep 2001 09:02:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276037AbRI1Msy>; Fri, 28 Sep 2001 08:48:54 -0400
-Received: from hal.grips.com ([62.144.214.40]:28865 "EHLO hal.grips.com")
-	by vger.kernel.org with ESMTP id <S276032AbRI1Msm>;
-	Fri, 28 Sep 2001 08:48:42 -0400
-Message-Id: <200109281248.f8SCmaT29893@hal.grips.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Gerold Jury <gjury@hal.grips.com>
-To: Andrey Nekrasov <andy@spylog.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [BENCH] Problems with IO throughput and fairness with 2.4.10 and  2.4.9-ac15
-Date: Fri, 28 Sep 2001 14:48:36 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <3BB31F99.941813DD@anu.edu.au> <200109280851.f8S8pKL29417@hal.grips.com> <20010928142740.A3678@spylog.ru>
-In-Reply-To: <20010928142740.A3678@spylog.ru>
+	id <S276038AbRI1NCI>; Fri, 28 Sep 2001 09:02:08 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:16651 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S276037AbRI1NBs>; Fri, 28 Sep 2001 09:01:48 -0400
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: "Bobby Hitt" <bobhitt@bscnet.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: 2GB File limitation
+Date: Fri, 28 Sep 2001 06:02:11 -0700
+Message-ID: <HBEHIIBBKKNOBLMPKCBBAEIIDNAA.znmeb@aracnet.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <013801c147e5$3330bec0$092cdb3f@bobathome>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, nice to hear.
+Do you know if they ever fixed this same issue in Microsoft Access? :-) Does
+Linux support tape drives? :-)
 
-So it needs to be something stupid on my side or xfs with the new VM.
+Sure, Linux needs to be able to handle files > 2 GB, but I wonder if backups
+over a network to a hard drive are giving you a false sense of "security".
+In the "enterprise" world, you have to be *religious* about backups.
+Incrementals at least daily, fulls at least weekly, all backups verified and
+*off-site secure storage of backup media*. Dang! The soap company wants
+their &$^%&$# box back :-).
 
-By the way. It is an Atlon 1.1 (kernel compiled with Atlon optimisation)
-IDE controller ATA66, disk IBM 15 GB ATA33
-The machine is solid with and without VIA pci bit 7 byte 55 zero/one
-swapspace 256MB
+--
+M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
+http://www.borasky-research.net  http://www.aracnet.com/~znmeb
+mailto:znmeb@borasky-research.net mailto:znmeb@aracnet.com
 
-preempable patch does not help with my D state problem
-i have not tried 2.4.10.aa1
-but i will try with ext2 instead of xfs next time
+If there's nothing to astrology, how come so many famous men were born on
+holidays?
 
-Gerold
-
-On Friday 28 September 2001 12:27, Andrey Nekrasov wrote:
-> Hello Gerold Jury,
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Bobby Hitt
+> Sent: Thursday, September 27, 2001 11:17 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: 2GB File limitation
 >
 >
-> I am run "dbench 32", all test ok.
-> Kernel 2.4.10-xfs + 2.4.10.aa1 + preempteble patch.
-> File system on test partition ext2.
+> Hello,
 >
-> Compiled with no highmem support.
+> Is someone working on a way to overcome the 2GB file limitation
+> in Linux? I
+> currently backup several servers using a dedicated hard drive for the
+> backups. Recently I saw one backup die saying the the file size had been
+> exceeded. I've never had good luck with tape backups, yes they backup, but
+> whenever I really need a file, it can't be retrieved.
 >
-> Hardware configuration:
+> TIA,
 >
-> Dell Optiplex G1 (P2-350/256RAM/IDE disk 1Gb)
+> Bobby
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+

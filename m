@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292975AbSCFBhI>; Tue, 5 Mar 2002 20:37:08 -0500
+	id <S292983AbSCFBk2>; Tue, 5 Mar 2002 20:40:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292983AbSCFBg7>; Tue, 5 Mar 2002 20:36:59 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:24744 "EHLO
-	phalynx") by vger.kernel.org with ESMTP id <S292975AbSCFBgo>;
-	Tue, 5 Mar 2002 20:36:44 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: arjan@fenrus.demon.nl, Brian S Queen <bqueen@nas.nasa.gov>
-Subject: Re: dnotify for kernel 2.2
-Date: Tue, 5 Mar 2002 17:36:24 -0800
-X-Mailer: KMail [version 1.3.99]
+	id <S292989AbSCFBkS>; Tue, 5 Mar 2002 20:40:18 -0500
+Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:43528
+	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S292983AbSCFBkI>; Tue, 5 Mar 2002 20:40:08 -0500
+Date: Wed, 6 Mar 2002 02:40:01 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+To: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200203051857.g25Ivl627158@fenrus.demon.nl>
-In-Reply-To: <200203051857.g25Ivl627158@fenrus.demon.nl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200203051736.24446.bodnar42@phalynx.dhs.org>
+Subject: Re: Kernel panic
+Message-ID: <20020306024001.A9217@bouton.inet6-interne.fr>
+Mail-Followup-To: =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020305233141.3f438954.hanno@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020305233141.3f438954.hanno@gmx.de>; from hanno@gmx.de on Tue, Mar 05, 2002 at 11:31:41PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 5, 2002 10:57, arjan@fenrus.demon.nl wrote:
-> Does the 2.4 version actually work ?
+On Tue, Mar 05, 2002 at 11:31:41PM +0100, Hanno Böck wrote:
+> I have a PC with an Athlon CPU, which has problems with newer kernel-versions. (see lspci-output below)
+> 
+> If I want to boot current Knoppix or Mandrake 8.2beta3 install cds (both based on kernel 2.4.17), it says:
+> 
+> Kernel panic: VFS: Unable to mount root fs on 03:05
+> 
+> It worked fine with the older mandrake 8.1 with kernel 2.4.8.
+> 
+> Any ideas? How can I help to fix this?
+> 
 
-If you have KDE installed:
+Try passing ide=nodma during install and following reboot(s) then fetch a patch
+at:
+http://inet6.dyn.dhs.org/sponsoring/sis5513/index.html
+, apply, recompile, install.
 
-1) Open a file manager window
-2) From a console, 'touch foo'
-3) Watch 'foo' appear in the file manager window
-4) From a console, 'rm foo'
-5) Watch 'foo' disppear again
+SiS730 support should be OK with latest patches.
 
-Unless you have FAM running, that's dnotify at work.
-
--Ryan
+LB.

@@ -1,41 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292530AbSCNHXF>; Thu, 14 Mar 2002 02:23:05 -0500
+	id <S292535AbSCNHZP>; Thu, 14 Mar 2002 02:25:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292535AbSCNHWz>; Thu, 14 Mar 2002 02:22:55 -0500
-Received: from mail.medav.de ([213.95.12.190]:14345 "HELO mail.medav.de")
-	by vger.kernel.org with SMTP id <S292530AbSCNHWo> convert rfc822-to-8bit;
-	Thu, 14 Mar 2002 02:22:44 -0500
-From: "Daniela Engert" <dani@ngrt.de>
-To: "Shawn Starr" <spstarr@sh0n.net>, "Vojtech Pavlik" <vojtech@suse.cz>
-Cc: "LKML" <linux-kernel@vger.kernel.org>,
-        "Martin Dalecki" <martin@dalecki.de>,
-        "Vojtech Pavlik" <vojtech@suse.cz>
-Date: Thu, 14 Mar 2002 08:24:02 +0100 (CET)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.05
-In-Reply-To: <20020314075258.A31815@ucw.cz>
+	id <S310743AbSCNHZF>; Thu, 14 Mar 2002 02:25:05 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:11162 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S292535AbSCNHYt>; Thu, 14 Mar 2002 02:24:49 -0500
+Date: Thu, 14 Mar 2002 09:08:23 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: =?ISO-8859-1?Q?Romain_Li=E9vin?= <rlievin@free.fr>
+Cc: Kernel List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Tim Waugh <tim@cyberelk.net>
+Subject: Re: your mail
+In-Reply-To: <1016047267.3c8fa6a3660e3@imp3-1.free.fr>
+Message-ID: <Pine.LNX.4.44.0203140906330.3868-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: [patch] PIIX rewrite patch, pre-final
-Message-Id: <20020314061803.EDF56E415@mail.medav.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Mar 2002 07:52:58 +0100, Vojtech Pavlik wrote:
+Firstly, thanks for doing this =) secondly i'll give your driver a try 
+when you release the serial version (i have a serial cable + TI-83)
 
->> This will benifit PIIX3 chipsets? :)
->It should.
-
-Are you aware of the batches of broken PIIX3 chips ?
-
-Ciao,
-  Dani
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Daniela Engert, systems engineer at MEDAV GmbH
-Gräfenberger Str. 34, 91080 Uttenreuth, Germany
-Phone ++49-9131-583-348, Fax ++49-9131-583-11
+Cheers,
+	Zwane
 
 

@@ -1,53 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbTDHQjO (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 12:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbTDHQjO (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 12:39:14 -0400
-Received: from tomts25-srv.bellnexxia.net ([209.226.175.188]:19121 "EHLO
-	tomts25-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261521AbTDHQjK (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 12:39:10 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.67-mm1
-Date: Tue, 8 Apr 2003 12:50:55 -0400
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030408042239.053e1d23.akpm@digeo.com> <200304080917.15648.tomlins@cam.org> <20030408091048.002a2e08.akpm@digeo.com>
-In-Reply-To: <20030408091048.002a2e08.akpm@digeo.com>
+	id S261488AbTDHQkZ (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 12:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTDHQkZ (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 12:40:25 -0400
+Received: from ns2.ypf.com.ar ([200.32.103.4]:58250 "EHLO ns2.ypf.com.ar")
+	by vger.kernel.org with ESMTP id S261488AbTDHQjo convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 12:39:44 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200304081250.55925.tomlins@cam.org>
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: Uncompressing Linux... Ok, booting the kernel.
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Date: Tue, 8 Apr 2003 13:51:16 -0300
+Message-ID: <B93FC7A08A0B954C9590761383E59C9F4951A9@dti.ypf.com.ar>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Uncompressing Linux... Ok, booting the kernel.
+Thread-Index: AcL97xI+1B9QtmSDQySM/Hvl5gnmOA==
+From: <FRODRIGUEZC@REPSOLYPF.COM>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Apr 2003 16:51:04.0546 (UTC) FILETIME=[0B201C20:01C2FDEF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On April 8, 2003 12:10 pm, Andrew Morton wrote:
-> Does the below patch help?
 
-Yes.  With it 67-mm1 boots.  I do find the following in dmesg though: 
+Please, if someone can help me... the problem is, that all I see is:
 
-CPU: AMD-K6(tm) 3D+ Processor stepping 01
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-Initializing RT netlink socket
-mtrr: v2.0 (20020519)
-pty: 256 Unix98 ptys configured
-Bad boy: i8042 (at 0xc0320738) called us without a dev_id!
-Bad boy: i8042 (at 0xc0320852) called us without a dev_id!
-Bad boy: i8042 (at 0xc020a9e8) called us without a dev_id!
-serio: i8042 AUX port at 0x60,0x64 irq 12
-Bad boy: i8042 (at 0xc020a9e8) called us without a dev_id!
-input: AT Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-PCI: PCI BIOS revision 2.10 entry at 0xfb520, last bus=1
-PCI: Using configuration type 1
-BIO: pool of 256 setup, 14Kb (56 bytes/bio)
+Uncompressing Linux... Ok, booting the kernel. 
 
-Box seems to work fine.  There is nothing plugged onto AUX
-as my mouse is USB.  The keyboard is plugged into the other
-PS2 port...
+The kernel type is OK, because the same kernel is happily running on another Pentium III Xeon.
+Actually this kernel was compiled by the people at SAP and I am supposed to make it run without
+making any changes. Actually I do not have the info on how this kernel was compiled
+(or with what patches).
 
-Ed
+I read an Alan Cox message stating it could be that the kernel would be running, but not
+showing it on a terminal. This is not the case though because I have pinged the machine
+several minutes after the above message appears on screen an nothing, the machine is dead.
 
+I also tried disabling the serial consoles with no results.
+
+The machine is a Compaq Proliant DL580 with 4 Pentium Xeon 700mhz processors and
+4 GBs of RAM. It has installed linux RedHat 7.1 (the release certified by SAP).
+
+This is the ls of the non working kernel:
+
+-rw-r--r--    1 root     root      1052022 Feb 26  2002 vmlinuz-2.4.9-31enterprise
+-rw-r--r--    1 root     root       237352 Apr  8 12:55 initrd-2.4.9-31enterprise.reiserfs.img
+
+I rebuilt the initrd file like this:
+mkinitrd -f --with=reiserfs  --fstab=/etc/fstab /boot/initrd-2.4.9-31enterprise.reiserfs.img 2.4.9-31enterprise
+
+The original SMP kernel included in RedHat boots fine on this hardware. It is somewhat smaller
+though:
+
+-rw-r--r--    1 root     root       840884 Apr  8  2001 vmlinuz-2.4.2-2smp
+
+This same SAP kernel I have already running on an 8 PIII Xeon with 8 GBs RAM, without problems.
+The server is a Hewlett Packard, instead of a Compaq.
+
+I also tried to check the servers base memory settings, but there is no such thing in the
+Compaq BIOS setup program. Only param shown is the memory size.
+
+I did an md5sum on the kernel image and compared to the one running on the HP server. Both
+images are identical.
+
+
+
+Thanks in advance.
+
+--------------------------------------------------
+Fernán Rodríguez Céspedes
+.--. .- ... - .. - --- 

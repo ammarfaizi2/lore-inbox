@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266445AbUHBKNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266451AbUHBKPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266445AbUHBKNh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 06:13:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266434AbUHBKNh
+	id S266451AbUHBKPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 06:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266434AbUHBKNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 06:13:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48603 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266425AbUHBKL0 (ORCPT
+	Mon, 2 Aug 2004 06:13:43 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:35049 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266442AbUHBKM2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 06:11:26 -0400
-Date: Mon, 2 Aug 2004 12:10:37 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in register_chrdev, what did I do?
-Message-ID: <20040802101037.GA14477@devserv.devel.redhat.com>
-References: <yw1xwu0i1vcp.fsf@kth.se> <yw1xllgxg9v4.fsf@kth.se> <1091439574.2826.3.camel@laptop.fenrus.com> <yw1xd629g8bc.fsf@kth.se>
+	Mon, 2 Aug 2004 06:12:28 -0400
+Date: Mon, 2 Aug 2004 15:40:55 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       dipankar@in.ibm.com, viro@parcelfarce.linux.theplanet.co.uk
+Subject: [patchset] Lockfree fd lookup 0 of 5
+Message-ID: <20040802101053.GB4385@vitalstatistix.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <yw1xd629g8bc.fsf@kth.se>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is a patchset to eliminate taking struct files_struct.file_lock on 
+reader side using rcu and rcu based refcounting.  These patches
+extend the kref api to include kref_lf_xxx api and kref_lf_get_rcu to
+do lockfree refcounting, and use the same.  As posted earlier, since fd
+lookups (struct files_struct.fd[]) will be lock free with these patches, 
+threaded workloads doing lots of io should see performance benefits 
+due to this patchset.  I have observed 13-15% improvement with tiobench 
+on a 4 way xeon with this patchset.
 
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The patchset contains:
+1. kref-merged-2.6.7.patch -- kref shrinkage patch which GregKH has applied to
+   his tree.
+2. kref-drivers-2.6.7.patch -- existing users of kref modified to use the
+   'shrunk' krefs.  GregKH has applied this to his tree too
+3. kref-lf-2.6.7.patch -- kref api additions for lock free refcounting.  
+   This patch relocates kref api to kref.h as static inlines since they
+   are mostly wrappers around atomic_xxx operations
+4. files_struct-kref-s-2.6.7.patch -- change struct file.f_count to a kref
+   and use kref api for refcounting.  This does not add any performance
+   benefit and is just an intermediate patch
+5. files_struct-rcu-kref-2.6.7.patch -- Make fd lookups lock free by using
+   rcu and kref_lf_xxx api for lockfree refcounting
 
-On Mon, Aug 02, 2004 at 12:09:43PM +0200, M=E5ns Rullg=E5rd wrote:
-> Arjan van de Ven <arjanv@redhat.com> writes:
->=20
-> >> OTOH, wouldn't it be a good idea to refuse loading modules not
-> >> matching the running kernel?
-> >
-> > we do that already... provided you use the kbuild infrastructure instead
-> > of a broken self-made makefile hack....
->=20
-> I used "make -C /lib/modules/`uname -r` SUBDIRS=3D$PWD modules".  Is
-> that not correct?  The breakage was my fault, though.
+The patchset will follow this post.
 
-that is correct
+Thanks,
+Kiran
 
->=20
-> The problem I see is that a modules contain information about certain
-> compiler flags used, e.g. -mregparm, but insmod still attempts to load
-> them even they do not match the kernel.  This is independent of what
-> build system you used.
-
-that is odd, which modutils is that ? Afaik insmod is supposed to just
-refuse (and I've seen it do that as well)
-
---xHFwDpU9dbj6ez1V
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBDhMcxULwo51rQBIRApEKAJ42AHslo7LfWwrdfaCLncvw5coPpwCeI32a
-wVdLqGK9jvCIldfUROtqvGU=
-=xHII
------END PGP SIGNATURE-----
-
---xHFwDpU9dbj6ez1V--

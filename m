@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263857AbTLELnA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 06:43:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbTLELnA
+	id S263866AbTLELoE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 06:44:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTLELoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 06:43:00 -0500
-Received: from f19.mail.ru ([194.67.57.49]:28945 "EHLO f19.mail.ru")
-	by vger.kernel.org with ESMTP id S263857AbTLELm7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 06:42:59 -0500
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=watermodem=?koi8-r?Q?=22=20?= 
-	<aquamodem@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs_mk_cdev  question
+	Fri, 5 Dec 2003 06:44:04 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35225 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263866AbTLELoC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 06:44:02 -0500
+Date: Fri, 5 Dec 2003 11:44:00 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Andy Isaacson <adi@hexapodia.org>, Rob Landley <rob@landley.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+Message-ID: <20031205114400.GD10421@parcelfarce.linux.theplanet.co.uk>
+References: <200312041432.23907.rob@landley.net> <20031204172348.A14054@hexapodia.org> <Pine.SOL.4.58.0312051119240.9902@green.csi.cam.ac.uk>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Fri, 05 Dec 2003 14:42:57 +0300
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1ASEML-000P1A-00.arvidjaar-mail-ru@f19.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.58.0312051119240.9902@green.csi.cam.ac.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 05, 2003 at 11:22:01AM +0000, Anton Altaparmakov wrote:
+> On Thu, 4 Dec 2003, Andy Isaacson wrote:
+> > On Thu, Dec 04, 2003 at 02:32:23PM -0600, Rob Landley wrote:
+> > I'm curious -- does NTFS implement sparse files?  Does the Win32 API
+> > provide any way to manipulate them?  Does the NT kernel have any sparse
+> > file handling?
+> 
+> Yes it does.  The new NTFS Linux driver has full support for sparse files
+> as does Windows of course.
+> 
+> Windows does provide a function which is just "make hole".  It takes
+> starting offset and length (or was it ending offset instead of length,
+> can't remember) and makes this sparse (obviously aligning to cluster
+> boundaries, etc).
 
-> I am a litte perplexed.  Is this error message important?
-
-> I am running linux-2.6.0-test11 on a modified Mandrake 9.2 rc2 release.
-
-You may have any issues here, esp. with initscripts. You may try
-current cooker.
-
-> The sound card is playing as I type but on boot I saw:
-> [
-> Dec  4 16:44:27 dali kernel: Advanced Linux Sound Architecture Driver Version 0.9.7 (Thu Sep 25 19:16:36 20 03 UTC).
-> Dec  4 16:44:27 dali kernel: request_module: failed /sbin/modprobe -- snd-card-0. error = -16
-
-EBUSY but no idea why it is reported; probably by driver?
-
-> As I slowly work my way through the problems I see this:
-> [
-> Dec  4 16:45:29 dali kernel: devfs_mk_cdev: could not append to parent for snd/hwC0D0
-
-check that /dev/snd is not a file or link or whatever. Remove it,
-remove /lib/dev-state/snd and try again. If it persists (i.e. you
-have non-directory /dev/snd appearing every time on boot) try
-to find out why it is created. ALSA initscript in Mandrake creates
-/dev/snd as link to /proc/whatever if it believes devfs is not present. It may be one possible reason.
-
--andrey
-
+Have fun getting it to play nice with mmap()...

@@ -1,73 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUHABO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264770AbUHABhc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264702AbUHABO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 21:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbUHABO0
+	id S264770AbUHABhc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 21:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUHABhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 21:14:26 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:33028 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264702AbUHABOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 21:14:23 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2 PS2 keyboard gone south
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Shane Shrybman <shrybman@aei.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1091321213.20819.85.camel@mindpipe>
-References: <1091196403.2401.10.camel@mars> <20040730152040.GA13030@elte.hu>
-	 <1091209106.2356.3.camel@mars>
-	 <1091229695.2410.1.camel@teapot.felipe-alfaro.com>
-	 <1091232345.1677.20.camel@mindpipe>  <1091246064.2389.9.camel@mars>
-	 <1091246621.1677.71.camel@mindpipe>
-	 <1091267282.1768.8.camel@teapot.felipe-alfaro.com>
-	 <1091296615.1677.283.camel@mindpipe>
-	 <1091320571.2445.6.camel@teapot.felipe-alfaro.com>
-	 <1091321213.20819.85.camel@mindpipe>
+	Sat, 31 Jul 2004 21:37:32 -0400
+Received: from gate.crashing.org ([63.228.1.57]:35468 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264770AbUHABh3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 21:37:29 -0400
+Subject: Re: Solving suspend-level confusion
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+In-Reply-To: <200407311741.12406.david-b@pacbell.net>
+References: <20040730164413.GB4672@elf.ucw.cz>
+	 <200407310723.12137.david-b@pacbell.net>
+	 <200407311901.17390.oliver@neukum.org>
+	 <200407311741.12406.david-b@pacbell.net>
 Content-Type: text/plain
-Date: Sun, 01 Aug 2004 03:14:01 +0200
-Message-Id: <1091322842.1860.8.camel@teapot.felipe-alfaro.com>
+Message-Id: <1091324075.7389.41.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 01 Aug 2004 11:34:36 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-31 at 20:46 -0400, Lee Revell wrote:
-
-> > OK, OK :-) I've been running 2.6.8-rc2-mm1-M5 with ACPI but without APIC
-> > for more than ten minutes), compiling kernels, sending mails with
-> > Evolution and it hasn't locked up yet. Crossfingers. Should we report
-> > this to Ingo and Andrew?
+On Sun, 2004-08-01 at 10:41, David Brownell wrote:
+> On Saturday 31 July 2004 10:01, Oliver Neukum wrote:
 > > 
-> > Anyways, I'll keep on running this puppy to see if this behavior is
-> > consistent.
-> > 
-> > # grep . /proc/irq/*/*/threaded
-> > /proc/irq/11/eth0/threaded:1
-> > /proc/irq/12/Intel 82801BA-ICH2/threaded:1
-> > /proc/irq/14/ide0/threaded:1
-> > /proc/irq/15/ide1/threaded:1
-> > /proc/irq/1/i8042/threaded:1
-> > /proc/irq/5/uhci_hcd/threaded:1
-> > /proc/irq/8/rtc/threaded:1
-> > /proc/irq/9/acpi/threaded:1
-> > /proc/irq/9/uhci_hcd/threaded:!
-> > 
-> > # grep . /proc/sys/kernel/*_preemption
-> > /proc/sys/kernel/voluntary_preemption:3
-> > /proc/sys/kernel/preemption:1
+> > Maybe a better approach would be to describe the required features to
+> > the drivers rather than encoding them in a single integer. Rather
+> > like passing a request that states "lowest power level with device state
+> > retained, must not do DMA, enable remote wake up"
 > 
-> The next thing I was going to suggest was the software RAID.  You appear
-> to have a RAID 0 or 1 with one disk on irq14 and one on irq15.  I am not
-> sure how interrupts are handled by Linux IDE RAID, but it seems like
-> this would be tricky.  I bet the threading is screwing up the
-> synchronization between the devices, and you end up with one waiting
-> forever for the other - the possibilities for lockup are endless.
+> A pointer to some sort of struct could be generic and typesafe;
+> better than an integer or enum.
 
-No, I'm not using any kind of RAID (eiher HW or SW) at all. Simply, two
-identical, independent 120GB drives that only have one thing in common:
-they are attached to the same IDE channel (the primary IDE channel). The
-CD/RW and DVD are attached to the secondary IDE channel.
+Well... if it gets that complicated, drivers will get it wrong...
+
+I'm pretty sure that in real life, drivers only care about 2 states
+at this point, which is the ones needed for suspend to disk and suspend
+to RAM, the later doing a D3. An assitional "standby" state could be
+added later if we want.
+
+If we really want to separate the system "target" state from the device
+state, then we could indeed define a structure, but I doubt this is necessary,
+I think we can get everything working with the current scheme by just slightly
+adjusting the constants to properly differenciate the 2 above defined system
+states.
+
+The only thing we need to make sure of at this point is that drivers ignore
+states they don't understand so we keep some flexibility to extending the list
+of states.
+
+Part of the confusion at this point is that we are playing with 2 different
+concepts, which are the driver operating state and the device power state.
+
+System suspend wants all drivers to suspend (freeze activity so that a
+consistent state of the driver is kept in memory). It may or may not
+be followed by a device power down.
+
+Dynamic per-device power management would alter the device power state,
+but without putting the driver into a suspended state (actually, the driver
+itself would be responsible to turning the device back on as soon as some kind
+of request comes in).
+
+I think we don't need at this point to provide hooks or abstractions to
+represent these. Doing so would break everything, we don't need to do it
+at this point, we can at least get something reasonably working with our
+current scheme. The device power state policy can remain under driver
+control imho and don't need to be abstracted. At least not now. Let's get
+things working with what we have, for system suspend, and drivers who want
+to do dynamic PM can implement it locally.
+
+Ben.
+
 

@@ -1,120 +1,202 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264342AbTLBUGo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:06:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264345AbTLBUGo
+	id S264372AbTLBUWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:22:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbTLBUUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:06:44 -0500
-Received: from jimknopf.rz.uni-frankfurt.de ([141.2.22.56]:42400 "EHLO
-	jimknopf.rz.uni-frankfurt.de") by vger.kernel.org with ESMTP
-	id S264342AbTLBUGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:06:37 -0500
-Message-ID: <3FCCF0C8.6090809@slit.de>
-Date: Tue, 02 Dec 2003 21:06:32 +0100
-From: Alexander Achenbach <xela@slit.de>
-Reply-To: xela@slit.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-1.backports.org.1
-X-Accept-Language: en
+	Tue, 2 Dec 2003 15:20:55 -0500
+Received: from uirapuru.fua.br ([200.129.163.1]:14819 "EHLO uirapuru.fua.br")
+	by vger.kernel.org with ESMTP id S264358AbTLBUQv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:16:51 -0500
+Message-ID: <56090.200.212.156.130.1070392710.squirrel@webmail.ufam.edu.br>
+Date: Tue, 2 Dec 2003 17:18:30 -0200 (BRST)
+Subject: [PATCH 2.6.0-test11] Resident memory info in fs/proc/task_mmu.c
+From: edjard@ufam.edu.br
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+User-Agent: SquirrelMail/1.4.1
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>, andre@linuxdiskcert.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] IDE modules + cmd640 (2.4.22)
-Content-Type: multipart/mixed;
- boundary="------------030705070607020002010504"
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+Content-Type: multipart/mixed;boundary="----=_20031202171830_77718"
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030705070607020002010504
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+------=_20031202171830_77718
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Hi again.
+Hi,
 
-This should fix IDE module dependency problems with CMD640 support.
+Thanks to Christian who helped us pointing some text mistyping.
+We attached the file just in case.
 
-I have sent this same patch before (on September 22nd) for kernel
-2.4.22, to the same recipients. While it bounced for one recipient
-('andre@linux-ide.org'), it reached the mailing list, but I never got
-any answers.
+>
+> Why are you breaking the Coding style? Can you keep the standard
+indentation
+> please? This will make your patch much smaller and easier to see what
+you actually changed.
+>
+> cheers
+>
+> Christian
+>
 
-Anyway, as I'm right back in the middle of kernel compilation (do_brk,
-*sigh*), I've just noticed that the IDE modules and CMD640 problem
-/still/ persists. So please read on (reading '2.4.22' as '2.4.23'):
+We would appreciate any comments.
 
------------------------------------------------------------------------
+BR,
 
-This patch intends to fix an unresolved symbol 'init_cmd640_vlb' error
-when compiling kernel 2.4.22 using
+Edjard
 
-     CONFIG_IDE=m
-     CONFIG_BLK_DEV_IDE=m
+--- linux-2.6.0-test11/fs/proc/task_mmu.c	2003-11-26 18:43:07.000000000
+-0200 +++ linux/fs/proc/task_mmu.c	2003-12-02 13:58:10.000000000 -0200
+@@ -3,42 +3,83 @@
+ #include <linux/seq_file.h>
+ #include <asm/uaccess.h>
 
-and an enabled 'CONFIG_BLK_DEV_CMD640' option. The problem would show up
-on the first attempt to run 'depmod' or otherwise deal with IDE modules.
++/**
++* Allan Bezerra (ajsb@dcc.fua.br) &
++* Bruna Moreira (brunampm@bol.com.br) &
++* Edjard Mota (edjard@ufam.edu.br) &
++* Mauricio Lin (mauriciolin@bol.com.br) &
++* Include a process PID physical memory size info in the /proc/PID/status
++*/
++
++void resident_mem_size(struct mm_struct *mm, unsigned long start_address,
+unsigned long end_address, unsigned long *size)
++{
++	pgd_t *my_pgd;
++	pmd_t *my_pmd;
++	pte_t *my_pte;
++	unsigned long page;
++
++	for (page = start_address; page < end_address; page += PAGE_SIZE) {
++		my_pgd = pgd_offset(mm, page);
++		if (pgd_none(*my_pgd) || pgd_bad(*my_pgd)) continue;
++		my_pmd = pmd_offset(my_pgd, page);
++		if (pmd_none(*my_pmd) || pmd_bad(*my_pmd)) continue;
++		my_pte = pte_offset_map(my_pmd, page);
++		if (pte_present(*my_pte))
++			*size += PAGE_SIZE;
++	}
++}
++
+ char *task_mem(struct mm_struct *mm, char *buffer)
+ {
+ 	unsigned long data = 0, stack = 0, exec = 0, lib = 0;
+ 	struct vm_area_struct *vma;
+-
++	unsigned long phys_data = 0, phys_stack = 0, phys_exec = 0, phys_lib =
+0, phys_brk = 0;
+ 	down_read(&mm->mmap_sem);
+ 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 		unsigned long len = (vma->vm_end - vma->vm_start) >> 10;
+ 		if (!vma->vm_file) {
+ 			data += len;
+-			if (vma->vm_flags & VM_GROWSDOWN)
++			resident_mem_size(mm, vma->vm_start, vma->vm_end, &phys_data); +			if
+(vma->vm_flags & VM_GROWSDOWN){
+ 				stack += len;
++				resident_mem_size(mm, vma->vm_start, vma->vm_end, &phys_stack); +			}
+ 			continue;
+ 		}
+ 		if (vma->vm_flags & VM_WRITE)
+ 			continue;
+ 		if (vma->vm_flags & VM_EXEC) {
+ 			exec += len;
++			resident_mem_size(mm, vma->vm_start, vma->vm_end, &phys_exec);
+ 			if (vma->vm_flags & VM_EXECUTABLE)
+ 				continue;
+ 			lib += len;
++			resident_mem_size(mm, vma->vm_start, vma->vm_end, &phys_lib);
+ 		}
+ 	}
++	resident_mem_size(mm, mm->start_brk, mm->brk, &phys_brk);
+ 	buffer += sprintf(buffer,
+ 		"VmSize:\t%8lu kB\n"
+ 		"VmLck:\t%8lu kB\n"
+ 		"VmRSS:\t%8lu kB\n"
+ 		"VmData:\t%8lu kB\n"
++		"RssData:\t%8lu kB\n"
+ 		"VmStk:\t%8lu kB\n"
++		"RssStk:\t%8lu kB\n"
+ 		"VmExe:\t%8lu kB\n"
+-		"VmLib:\t%8lu kB\n",
++		"RssExe:\t%8lu kB\n"
++		"VmLib:\t%8lu kB\n"
++		"RssLib:\t%8lu kB\n"
++		"VmHeap:\t%8lu KB\n"
++		"RssHeap:\t%8lu KB\n",
+ 		mm->total_vm << (PAGE_SHIFT-10),
+ 		mm->locked_vm << (PAGE_SHIFT-10),
+ 		mm->rss << (PAGE_SHIFT-10),
+-		data - stack, stack,
+-		exec - lib, lib);
++		data - stack, (phys_data - phys_stack) >> 10,
++		stack, phys_stack >> 10,
++		exec - lib, (phys_exec - phys_lib) >> 10,
++		lib,  phys_lib >> 10,
++		(mm->brk - mm->start_brk) >> 10, phys_brk >> 10);
+ 	up_read(&mm->mmap_sem);
+ 	return buffer;
+ }
 
-I've not seen any fix for this in any recent prerelease.
 
-The problem is caused by the way 'cmd640' is made part of the kernel. If
+------=_20031202171830_77718
+Content-Type: application/octet-stream; name="physical_mem_status.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="physical_mem_status.patch"
 
-     CONFIG_BLK_DEV_CMD640=y
-
-(which is the only answer offered besides 'n' for a stock 2.4.22), the
-'cmd640' code will be put into the kernel statically. As 'ide-core.o'
-will be a module and it will contain a reference to the (unexported)
-function 'init_cmd640_vlb' of 'cmd640.c', symbol resolution will fail.
-
-The following patch assumes that 'cmd640' is meant to be an independent
-module now (as all other IDE drivers in 'drivers/ide/pci') if IDE core is
-modular. The patch only adds the required configuration option changes to
-allow an additional answer 'm' for 'CONFIG_BLK_DEV_CMD640' (and disabling
-'y' completely if IDE is modular). Boolean 'CONFIG_BLK_DEV_CMD640_ENHANCED'
-may now be set to 'y' if 'CONFIG_BLK_DEV_CMD640' is either 'y' or 'm'.
-
-With
-
-     CONFIG_BLK_DEV_CMD640=m'
-
-the reference to 'init_cmd640_vlb' from 'ide.c' will be omitted, leaving
-VLB handling to the respective module parameter of 'cmd640.o', so there's
-no longer any unresolved symbol.
-
-NB: While I have verified that symbols resolve cleanly and 'cmd640.o' loads
-     without problems, I currently have no hardware to actually test any
-     CMD640 chipsets on (I only added the driver to my configuration for
-     completeness), so I cannot tell whether the modular driver actually
-     works as it should. At least it doesn't break IDE module loading now.
-
-Best regards,
-Alex
-
-[ Please send answers to my From address.
-   I'm not subscribed to the kernel mailing list. ]
-
---------------030705070607020002010504
-Content-Type: text/plain;
- name="cmd640fix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cmd640fix.diff"
-
-diff -ur linux-2.4.22/drivers/ide/Config.in linux-2.4.22-cmd640fix/drivers/ide/Config.in
---- linux-2.4.22/drivers/ide/Config.in	Mon Aug 25 13:44:41 2003
-+++ linux-2.4.22-cmd640fix/drivers/ide/Config.in	Sun Sep 21 17:03:19 2003
-@@ -27,8 +27,8 @@
- 
-    comment 'IDE chipset support/bugfixes'
-    if [ "$CONFIG_BLK_DEV_IDE" != "n" ]; then
--      dep_bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86
--      dep_bool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
-+      dep_tristate '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86 $CONFIG_BLK_DEV_IDE
-+      dep_mbool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
-       dep_bool '  ISA-PNP EIDE support' CONFIG_BLK_DEV_ISAPNP $CONFIG_ISAPNP
-       if [ "$CONFIG_PCI" = "y" ]; then
- 	 bool '  PCI IDE chipset support' CONFIG_BLK_DEV_IDEPCI
-
-
---------------030705070607020002010504--
+LS0tIGxpbnV4LTIuNi4wLXRlc3QxMS9mcy9wcm9jL3Rhc2tfbW11LmMJMjAwMy0xMS0yNiAxODo0
+MzowNy4wMDAwMDAwMDAgLTAyMDAKKysrIGxpbnV4L2ZzL3Byb2MvdGFza19tbXUuYwkyMDAzLTEy
+LTAyIDEzOjU4OjEwLjAwMDAwMDAwMCAtMDIwMApAQCAtMyw0MiArMyw4MyBAQAogI2luY2x1ZGUg
+PGxpbnV4L3NlcV9maWxlLmg+CiAjaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4KIAorLyoqCisqIEFs
+bGFuIEJlemVycmEgKGFqc2JAZGNjLmZ1YS5icikgJgorKiBCcnVuYSBNb3JlaXJhIChicnVuYW1w
+bUBib2wuY29tLmJyKSAmCisqIEVkamFyZCBNb3RhIChlZGphcmRAdWZhbS5lZHUuYnIpICYKKyog
+TWF1cmljaW8gTGluIChtYXVyaWNpb2xpbkBib2wuY29tLmJyKSAmCisqIEluY2x1ZGUgYSBwcm9j
+ZXNzIFBJRCBwaHlzaWNhbCBtZW1vcnkgc2l6ZSBpbmZvIGluIHRoZSAvcHJvYy9QSUQvc3RhdHVz
+CisqLworCit2b2lkIHJlc2lkZW50X21lbV9zaXplKHN0cnVjdCBtbV9zdHJ1Y3QgKm1tLCB1bnNp
+Z25lZCBsb25nIHN0YXJ0X2FkZHJlc3MsIHVuc2lnbmVkIGxvbmcgZW5kX2FkZHJlc3MsIHVuc2ln
+bmVkIGxvbmcgKnNpemUpIAoreworCXBnZF90ICpteV9wZ2Q7CisJcG1kX3QgKm15X3BtZDsKKwlw
+dGVfdCAqbXlfcHRlOworCXVuc2lnbmVkIGxvbmcgcGFnZTsKKyAKKwlmb3IgKHBhZ2UgPSBzdGFy
+dF9hZGRyZXNzOyBwYWdlIDwgZW5kX2FkZHJlc3M7IHBhZ2UgKz0gUEFHRV9TSVpFKSB7CisJCW15
+X3BnZCA9IHBnZF9vZmZzZXQobW0sIHBhZ2UpOworCQlpZiAocGdkX25vbmUoKm15X3BnZCkgfHwg
+cGdkX2JhZCgqbXlfcGdkKSkgY29udGludWU7CisJCW15X3BtZCA9IHBtZF9vZmZzZXQobXlfcGdk
+LCBwYWdlKTsKKwkJaWYgKHBtZF9ub25lKCpteV9wbWQpIHx8IHBtZF9iYWQoKm15X3BtZCkpIGNv
+bnRpbnVlOworCQlteV9wdGUgPSBwdGVfb2Zmc2V0X21hcChteV9wbWQsIHBhZ2UpOworCQlpZiAo
+cHRlX3ByZXNlbnQoKm15X3B0ZSkpCisJCQkqc2l6ZSArPSBQQUdFX1NJWkU7CisJfQorfQorCiBj
+aGFyICp0YXNrX21lbShzdHJ1Y3QgbW1fc3RydWN0ICptbSwgY2hhciAqYnVmZmVyKQogewogCXVu
+c2lnbmVkIGxvbmcgZGF0YSA9IDAsIHN0YWNrID0gMCwgZXhlYyA9IDAsIGxpYiA9IDA7CiAJc3Ry
+dWN0IHZtX2FyZWFfc3RydWN0ICp2bWE7Ci0KKwl1bnNpZ25lZCBsb25nIHBoeXNfZGF0YSA9IDAs
+IHBoeXNfc3RhY2sgPSAwLCBwaHlzX2V4ZWMgPSAwLCBwaHlzX2xpYiA9IDAsIHBoeXNfYnJrID0g
+MDsKIAlkb3duX3JlYWQoJm1tLT5tbWFwX3NlbSk7CiAJZm9yICh2bWEgPSBtbS0+bW1hcDsgdm1h
+OyB2bWEgPSB2bWEtPnZtX25leHQpIHsKIAkJdW5zaWduZWQgbG9uZyBsZW4gPSAodm1hLT52bV9l
+bmQgLSB2bWEtPnZtX3N0YXJ0KSA+PiAxMDsKIAkJaWYgKCF2bWEtPnZtX2ZpbGUpIHsKIAkJCWRh
+dGEgKz0gbGVuOwotCQkJaWYgKHZtYS0+dm1fZmxhZ3MgJiBWTV9HUk9XU0RPV04pCisJCQlyZXNp
+ZGVudF9tZW1fc2l6ZShtbSwgdm1hLT52bV9zdGFydCwgdm1hLT52bV9lbmQsICZwaHlzX2RhdGEp
+OworCQkJaWYgKHZtYS0+dm1fZmxhZ3MgJiBWTV9HUk9XU0RPV04pewogCQkJCXN0YWNrICs9IGxl
+bjsKKwkJCQlyZXNpZGVudF9tZW1fc2l6ZShtbSwgdm1hLT52bV9zdGFydCwgdm1hLT52bV9lbmQs
+ICZwaHlzX3N0YWNrKTsKKwkJCX0JCiAJCQljb250aW51ZTsKIAkJfQogCQlpZiAodm1hLT52bV9m
+bGFncyAmIFZNX1dSSVRFKQogCQkJY29udGludWU7CiAJCWlmICh2bWEtPnZtX2ZsYWdzICYgVk1f
+RVhFQykgewogCQkJZXhlYyArPSBsZW47CisJCQlyZXNpZGVudF9tZW1fc2l6ZShtbSwgdm1hLT52
+bV9zdGFydCwgdm1hLT52bV9lbmQsICZwaHlzX2V4ZWMpOwogCQkJaWYgKHZtYS0+dm1fZmxhZ3Mg
+JiBWTV9FWEVDVVRBQkxFKQogCQkJCWNvbnRpbnVlOwogCQkJbGliICs9IGxlbjsKKwkJCXJlc2lk
+ZW50X21lbV9zaXplKG1tLCB2bWEtPnZtX3N0YXJ0LCB2bWEtPnZtX2VuZCwgJnBoeXNfbGliKTsK
+IAkJfQogCX0KKwlyZXNpZGVudF9tZW1fc2l6ZShtbSwgbW0tPnN0YXJ0X2JyaywgbW0tPmJyaywg
+JnBoeXNfYnJrKTsKIAlidWZmZXIgKz0gc3ByaW50ZihidWZmZXIsCiAJCSJWbVNpemU6XHQlOGx1
+IGtCXG4iCiAJCSJWbUxjazpcdCU4bHUga0JcbiIKIAkJIlZtUlNTOlx0JThsdSBrQlxuIgogCQki
+Vm1EYXRhOlx0JThsdSBrQlxuIgorCQkiUnNzRGF0YTpcdCU4bHUga0JcbiIKIAkJIlZtU3RrOlx0
+JThsdSBrQlxuIgorCQkiUnNzU3RrOlx0JThsdSBrQlxuIgogCQkiVm1FeGU6XHQlOGx1IGtCXG4i
+Ci0JCSJWbUxpYjpcdCU4bHUga0JcbiIsCisJCSJSc3NFeGU6XHQlOGx1IGtCXG4iCisJCSJWbUxp
+YjpcdCU4bHUga0JcbiIKKwkJIlJzc0xpYjpcdCU4bHUga0JcbiIKKwkJIlZtSGVhcDpcdCU4bHUg
+S0JcbiIKKwkJIlJzc0hlYXA6XHQlOGx1IEtCXG4iLAogCQltbS0+dG90YWxfdm0gPDwgKFBBR0Vf
+U0hJRlQtMTApLAogCQltbS0+bG9ja2VkX3ZtIDw8IChQQUdFX1NISUZULTEwKSwKIAkJbW0tPnJz
+cyA8PCAoUEFHRV9TSElGVC0xMCksCi0JCWRhdGEgLSBzdGFjaywgc3RhY2ssCi0JCWV4ZWMgLSBs
+aWIsIGxpYik7CisJCWRhdGEgLSBzdGFjaywgKHBoeXNfZGF0YSAtIHBoeXNfc3RhY2spID4+IDEw
+LCAKKwkJc3RhY2ssIHBoeXNfc3RhY2sgPj4gMTAsCisJCWV4ZWMgLSBsaWIsIChwaHlzX2V4ZWMg
+LSBwaHlzX2xpYikgPj4gMTAsCisJCWxpYiwgIHBoeXNfbGliID4+IDEwLAorCQkobW0tPmJyayAt
+IG1tLT5zdGFydF9icmspID4+IDEwLCBwaHlzX2JyayA+PiAxMCk7CiAJdXBfcmVhZCgmbW0tPm1t
+YXBfc2VtKTsKIAlyZXR1cm4gYnVmZmVyOwogfQo=
+------=_20031202171830_77718--
 

@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267490AbUHDWi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267485AbUHDWnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267490AbUHDWi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 18:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267485AbUHDWiZ
+	id S267485AbUHDWnY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 18:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267491AbUHDWnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 18:38:25 -0400
-Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:17793
-	"EHLO bastard.smallmerchant.com") by vger.kernel.org with ESMTP
-	id S267488AbUHDWhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 18:37:20 -0400
-Message-ID: <4111651E.1040406@tupshin.com>
-Date: Wed, 04 Aug 2004 15:37:18 -0700
-From: Tupshin Harper1 <tupshin@tupshin.com>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: /dev/hdl not showing up because of fix-ide-probe-double-detection
- patch
-References: <411013F7.7080800@tupshin.com>
-In-Reply-To: <411013F7.7080800@tupshin.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 4 Aug 2004 18:43:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3553 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267485AbUHDWnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 18:43:21 -0400
+Date: Wed, 4 Aug 2004 15:46:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Zou, Nanhai" <nanhai.zou@intel.com>
+Cc: linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com,
+       tony.luck@intel.com
+Subject: Re: [Patch 2.6.7]might-sleep-in-atomic while dumping elf
+Message-Id: <20040804154644.211c5ae5.akpm@osdl.org>
+In-Reply-To: <C0ECD887E2CBE349ACF9C483510BF8381C22DD@pdsmsx401.ccr.corp.intel.com>
+References: <C0ECD887E2CBE349ACF9C483510BF8381C22DD@pdsmsx401.ccr.corp.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tupshin Harper1 wrote:
-
-> I have an x86 setup with a large(9) number of ide hard drives. With 
-> 2.6.8-rc2, all of them show up (as a,b,d,e,f,g,h,i,j,k, and l), but on 
-> 2.6.8-rc2-mm1, the last one (hdl) does not show up, even though it's a 
-> slave on the same controller as hdk. Everything about the config is 
-> identical between the two. Is there some default limit or other 
-> restriction in the current mm kernels that's preventing that drive 
-> from showing up? I haven't tried any other recent mm kernels, so I 
-> don't know when this was introduced.
+"Zou, Nanhai" <nanhai.zou@intel.com> wrote:
 >
-> -Tupshin
+> Here is a patch to fix a problem of might-sleep-in-atomic which
+> David Mosberger mentioned at
+> http://www.gelato.unsw.edu.au/linux-ia64/0407/10526.html
+> 
+> On IA64 platform, a might-sleep-in-atomic warning raise while dumping a
+> multi-thread process.
+> That is because elf_cord_dump hold the tasklist_lock before kernel doing
+> a access_process_vm in elf_core_copy_task_regs, 
+> 
+> This patch detached elf_core_copy_task_regs function from inside
+> tasklist_lock to remove the warning.
 
-Well, I found the source of the problem. Dmesg gives a "ignoring 
-undecoded slave" message, which is coming from the 
-fix-ide-probe-double-detection patch.
+hm, OK, no worse than what we had there before :(
 
-Both /dev/hdk and /dev/hdl are the same model of hard drive, and 
-unfortunately, they both report that they are Model 
-M0000000000000000000, which triggers the double detection removal.
+That GFP_ATOMIC allocation of one 824-byte-on-x86 structure for each
+thread looks really, really nasty.  It could easily chew up 100% of the page
+reserves and fail.  I wonder if it is safe to drop the tasklist_lock while we 
+allocate the memory?
 
-Does anybody have a suggestion (besides maintaining my own kernel 
-without this patch)? Is the serial number settable? Is there a boot 
-param I can use?
+You're still testing for a zero return from elf_dump_thread_status().  I
+think that with your changes, that is no longer possible, is it?
 
-Also, what is in /proc/ide/hd?/identity besides serial number. The two 
-drives have very similar identity files, but they are slightly 
-different. Could that additional info be used to check for duplicates?
+Please edit in 80-col xterms.  You'll find that a layout such as the below
+becomes more agreeable.
 
--Tupshin
 
----snippet from dmesg---
-PDC20276: IDE controller at PCI slot 0000:00:0c.0
-ACPI: PCI interrupt 0000:00:0c.0[A] -> GSI 19 (level, low) -> IRQ 19
-PDC20276: chipset revision 1
-PDC20276: 100% native mode on irq 19
-    ide4: BM-DMA at 0xdc00-0xdc07, BIOS settings: hdi:pio, hdj:pio
-    ide5: BM-DMA at 0xdc08-0xdc0f, BIOS settings: hdk:pio, hdl:pio
-hdi: SAMSUNG SV8004H, ATA DISK drive
-hdj: Maxtor 6Y250P0, ATA DISK drive
-ide4 at 0xec00-0xec07,0xe802 on irq 19
-hdk: Maxtor 4R120L0, ATA DISK drive
-hdl: Maxtor 4R120L0, ATA DISK drive
-ide-probe: ignoring undecoded slave
-ide5 at 0xe400-0xe407,0xe002 on irq 19
++		list_for_each(t, &thread_list) {
++			struct elf_thread_status *tmp;
++			int sz;
++
++			tmp = list_entry(t, struct elf_thread_status, list);
++			sz = elf_dump_thread_status(signr, tmp);
+
 

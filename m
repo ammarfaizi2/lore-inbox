@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317387AbSGXQMh>; Wed, 24 Jul 2002 12:12:37 -0400
+	id <S317378AbSGXQHi>; Wed, 24 Jul 2002 12:07:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317388AbSGXQMg>; Wed, 24 Jul 2002 12:12:36 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:13843 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S317387AbSGXQMg>;
-	Wed, 24 Jul 2002 12:12:36 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Date: Wed, 24 Jul 2002 18:15:19 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: PATCH - mark 2: type safe(r) list_entry repacement: con
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <86E5A7A57@vcnet.vc.cvut.cz>
+	id <S317388AbSGXQHi>; Wed, 24 Jul 2002 12:07:38 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:2954
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S317378AbSGXQHg>; Wed, 24 Jul 2002 12:07:36 -0400
+Date: Wed, 24 Jul 2002 12:19:53 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DAC960 Bitrot
+Message-ID: <20020724121953.B20482@animx.eu.org>
+References: <Pine.LNX.4.44L.0207101741380.14432-100000@imladris.surriel.com> <E17Sai1-0002T7-00@starship> <20020711100828.GE808@suse.de> <E17WlGV-00052g-00@starship> <20020724143931.GG5159@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <20020724143931.GG5159@suse.de>; from Jens Axboe on Wed, Jul 24, 2002 at 04:39:31PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Jul 02 at 22:38, Neil Brown wrote:
-> 
-> With the "typeof" suggestion from Kevin, I could just change
-> list_entry and not woory about the fact that lots of people use
-> "list_entry" for things that aren't lists.... but I didn't.
+> Well not really, DAC960 is still using the default per-major queues. But
+> switching to per-device queue would definitely be a Really Good Idea.
+> The only changes I did to this driver where trivial conversions in the
+> 2.5.1-pre days, in fact even before multi-page bio's existed. This,
 
-Hello,
-  is list_entry name really that bad? We have well established 
-list_entry name since at least 2.2.0, and having two same functions 
-with two different names will (IMHO) cause more damage than benefit 
-from "clearer" name is.
-                                        Thanks,
-                                            Petr Vandrovec
-                                            
-P.S.: I converted whole matroxfb to use
-list_entry(xxx, struct matrox_fb_info, fbcon) instead of
-(struct matrox_fb_info*)xxx so that I can move fbcon field from 
-first position in matrox_fb_info - so I'm personally interested
-in backward source compatibility.
+I'd like to make a suggestion which actually doesn't pertain to the original
+thread, but since this is being read, I thought it would be a good place.
+
+Why not add a configure option to disable firmware checking?  I have a few
+cards here with firmware 2.x x < 73 and they work fine (disabled the check).
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

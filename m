@@ -1,60 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUGOUuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUGOUzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266319AbUGOUuO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 16:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266322AbUGOUuO
+	id S266304AbUGOUzS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 16:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266322AbUGOUzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 16:50:14 -0400
-Received: from colin2.muc.de ([193.149.48.15]:22794 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S266319AbUGOUuE (ORCPT
+	Thu, 15 Jul 2004 16:55:17 -0400
+Received: from scrye.com ([216.17.180.1]:6375 "EHLO mail.scrye.com")
+	by vger.kernel.org with ESMTP id S266304AbUGOUzD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 16:50:04 -0400
-Date: 15 Jul 2004 22:50:01 +0200
-Date: Thu, 15 Jul 2004 22:50:01 +0200
-From: Andi Kleen <ak@muc.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: netdev@oss.sgi.com, irda-users@lists.sourceforge.net, jt@hpl.hp.com,
-       the_nihilant@autistici.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Drop ISA dependencies from IRDA drivers
-Message-ID: <20040715205001.GA2527@muc.de>
-References: <m34qo96x8m.fsf@averell.firstfloor.org> <40F6B547.7050800@pobox.com>
-Mime-Version: 1.0
+	Thu, 15 Jul 2004 16:55:03 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40F6B547.7050800@pobox.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Date: Thu, 15 Jul 2004 14:54:55 -0600
+From: Kevin Fenzi <kevin-kernel@scrye.com>
+To: linux-kernel@vger.kernel.org
+Subject: psmouse as module with suspend/resume
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Message-Id: <20040715205459.197177253D@voldemort.scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 15, 2004 at 12:48:07PM -0400, Jeff Garzik wrote:
-> Andi Kleen wrote:
-> >http://bugme.osdl.org/show_bug.cgi?id=3077
-> >
-> >Some IRDA chipsets currently don't work on x86-64, because
-> >they're dependent on CONFIG_ISA and x86-64 doesn't set this.
-> >CONFIG_ISA means real ISA slots, and I doubt these chips
-> >come on real ISA cards, so I just removed the bogus 
-> >dependency.
-> 
-> Honestly, the issue and patch need more thought, IMO.
-> 
-> Regardless of theory, CONFIG_ISA is currently also used to indicate 
-> legacy ISA devices that are today integrated into southbridges.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I don't think so. I did most of the original CONFIG_ISA annotations
-and I only added it to real ISA devices.
 
-And the LPC devices in southbridges are normally not marked
-CONFIG_ISA. 
+Greetings. 
 
-> 
-> And with legacy ISA devices still around, I don't see a whole lot of 
-> value in differentiating between "I have ISA slots" and "I have ISA 
-> devices".
+I am having a bit of an issue with psmouse and suspend/resume. 
+I am using the swsusp2, which is working great... (Thanks Nigel!)
 
-There is great value. Basically most ISA drivers are not 64bit 
-clean (if they even still work on i386 which is also often doubtful
-in 2.6) and it is a great way for 64bit archs to get rid of a lot 
-of not working code.
+However: 
 
--Andi
+If I compile psmouse as a module and leave it in and suspend/resume
+when the laptop comes back the mouse doesn't work at all. 
+
+If I compile psmouse as a module and unload before suspend, and reload
+after resume, the mouse works for simple movement, but all the
+advanced synaptics features no longer work. No tap for mouse button,
+no scolling, etc. 
+
+If I compile psmouse in everything works after a suspend/resume cycle.
+
+I would like to be able to compile psmouse as a module. Does anyone
+see any reason the synaptics stuff wouldn't work after a
+unload/reload? 
+
+Before a suspend/resume: 
+
+kernel: Synaptics Touchpad, model: 1
+kernel:  Firmware: 5.9
+kernel:  Sensor: 51
+kernel:  new absolute packet format
+kernel:  Touchpad has extended capability bits
+kernel:  -> 4 multi-buttons, i.e. besides standard buttons
+kernel:  -> multifinger detection
+kernel:  -> palm detection
+kernel: input: SynPS/2 Synaptics TouchPad on isa0060/serio4
+
+Afer a unload and reload:
+
+kernel: Synaptics Touchpad, model: 1
+kernel:  Firmware: 5.9
+kernel:  Sensor: 51
+kernel:  new absolute packet format
+kernel:  Touchpad has extended capability bits
+kernel:  -> 4 multi-buttons, i.e. besides standard buttons
+kernel:  -> multifinger detection
+kernel:  -> palm detection
+kernel: input: SynPS/2 Synaptics TouchPad on isa0060/serio4
+
+So, it all looks the same there. 
+I wonder if it's not something with the input layer not reconnecting
+right on reload with what the synaptics driver in X is expecting... 
+
+In the X log after a resume/reload: 
+
+(II) DevInputMice: ps2EnableDataReporting: succeeded
+Synaptics DeviceOn called
+(EE) xf86OpenSerial: Cannot open device /dev/input/event2
+        No such device.
+(WW) Mouse0: cannot open input device
+
+Any ideas?
+Happy to provde more information on versions, etc...
+
+thanks,
+
+kevin
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+
+iD8DBQFA9u8i3imCezTjY0ERAmWnAJ9uKMauJAfSMKgz9VBB6Z5o7/66vACffKg5
+8Imj27a19cu4OtVuhaszXOM=
+=6i7m
+-----END PGP SIGNATURE-----

@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289328AbSCGBXP>; Wed, 6 Mar 2002 20:23:15 -0500
+	id <S289556AbSCGB0p>; Wed, 6 Mar 2002 20:26:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289307AbSCGBXG>; Wed, 6 Mar 2002 20:23:06 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:17600 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S289306AbSCGBWw> convert rfc822-to-8bit; Wed, 6 Mar 2002 20:22:52 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <jgarzik@mandrakesoft.com>, Colin Walters <walters@debian.org>
-CC: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        <linux-kernel@vger.kernel.org>, <opensource@cis.ohio-state.edu>
-X-Mailer: PocoMail 2.51 (1003) - Registered Version
-Date: Wed, 6 Mar 2002 17:22:48 -0800
-In-Reply-To: <3C854C94.8A2C72A4@mandrakesoft.com>
-Subject: Re: [opensource] Re: Petition Against Official Endorsement ofBitKeeper by Linux Maintainers
+	id <S289366AbSCGB0f>; Wed, 6 Mar 2002 20:26:35 -0500
+Received: from mnh-1-01.mv.com ([207.22.10.33]:36620 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S289556AbSCGB00>;
+	Wed, 6 Mar 2002 20:26:26 -0500
+Message-Id: <200203070127.UAA05891@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+In-Reply-To: Your message of "Wed, 06 Mar 2002 18:20:27 EST."
+             <20020306182026.F866@redhat.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20020307012249.AAA20153@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 06 Mar 2002 20:27:51 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+bcrl@redhat.com said:
+> Go back in the thread: I suggested making it an option that the user
+> has to  turn on to allow his foot to be shot.
 
-On Tue, 05 Mar 2002 17:54:12 -0500, Jeff Garzik wrote:
+OK, this seems to be the relevant quote (and you seem to be referring to the
+kernel build segfaults - correct me if I'm wrong):
 
->Colin Walters wrote:
+bcrl@redhat.com said:
+> a UML failing at startup  with out of memory is better than random
+> segvs at some later point when the  system is under load.
 
->>You apparently missed the fact that the the petition was not against the
->>*use* of proprietary software at all.  In fact, we explicitly mentioned
->>that everyone is free to make that choice individually.  What the
->>petition is against is the *advocacy* of the proprietary BitKeeper
->>software by the kernel maintainers.
+I showed the kernel build segfaulting as an improvement over UML hanging, 
+which is the alternative behavior.
 
->How do they have any business telling me what to advocate?
+The segfaults were caused by me implementing the simplest possible response
+to alloc_pages returning unbacked pages, which is to return NULL to the 
+caller.  This is actually wrong because in this failure case, it effectively
+changes the semantics of GFP_USER, GFP_KERNEL, and the other blocking GFP_* 
+allocations to GFP_ATOMIC.  And that's what forced UML to segfault the 
+compilations.
 
-	There is no difference between advocating something and advocating 
-advocating something. So if you ask how they have any business telling you 
-what to advocate, you ask how they have any business engaging in any advocacy 
-at all.
+A slightly fancier recovery would loop calling alloc_pages until it got a set
+of already-backed pages (with some possible sleeping in alloc_pages in there).
+That would preserve the blocking semantics of GFP_USER, GFP_KERNEL, et al,
+and would have allowed the UML userspace (the kernel build) to continue working
+as it should.
 
-	So what's your position? Do you believe that only you have the right to 
-advocate?
+So, a slightly improved version of the patch (which I can write up if you're
+interested in seeing it) would have allowed UML and its userspace to continue
+running fine (albeit in less memory than it expected) in the presence of an
+overcommited tmpfs.
 
->That doesn't sound like free speech nor free thought to me.
-
-	So when someone says something you don't agree with, that's not free speech? 
-If someone expresses a thought you don't agree with, that's not free thought? 
-Nobody is trying to compel you to do anything, they're just advocating what 
-they believe in and explaining the reasons why.
-
-	DS
-
+				Jeff
 

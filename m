@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbTJNJIP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 05:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTJNJIP
+	id S262314AbTJNJOn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 05:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbTJNJOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 05:08:15 -0400
-Received: from dirac.phys.uwm.edu ([129.89.57.19]:36265 "EHLO
-	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S262268AbTJNJIM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 05:08:12 -0400
-Date: Tue, 14 Oct 2003 04:08:09 -0500 (CDT)
-From: Bruce Allen <ballen@gravity.phys.uwm.edu>
-To: zipa24@suomi24.fi
-cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: SiI 3112 SATA problem with nForce2
-In-Reply-To: <3F78555B0000EE1A@webmail-fi2.sol.no1.asap-asp.net>
-Message-ID: <Pine.GSO.4.21.0310140402000.3234-100000@dirac.phys.uwm.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Oct 2003 05:14:43 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:50816 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S262314AbTJNJOj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 05:14:39 -0400
+Date: Mon, 13 Oct 2003 18:55:39 +0200
+From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: make htmldocs
+Message-ID: <20031013185539.B1832@beton.cybernet.src>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Has anyone tried to use SiI 3112 SATA controller (as in Asus A7N8X
-> board) with Maxtor discs?
-> 
-> I'm using it with Maxtor 6Y160M0 and recent kernel (mostly 2.6.0-test5-mm4
-> but I did try 2.6.0-test7, too) but I have problem if I torture with high
-> I/O load the whole computer hangs. Sometimes it is as little has running
-> "hdparm -t" on the disc but once I copied >50GB from /dev/zero to it
-> without problems.
+root@beton:/usr/src/linux-2.4.22$ make htmldocs
+chmod 755 /usr/src/linux-2.4.22/scripts/docgen
+chmod 755 /usr/src/linux-2.4.22/scripts/gen-all-syms
+chmod 755 /usr/src/linux-2.4.22/scripts/kernel-doc
+make -C /usr/src/linux-2.4.22/Documentation/DocBook books
+make[1]: Entering directory `/usr/src/linux-2.4.22/Documentation/DocBook'
+make[1]: Nothing to be done for `books'.
+make[1]: Leaving directory `/usr/src/linux-2.4.22/Documentation/DocBook'
+make -C Documentation/DocBook html
+make[1]: Entering directory `/usr/src/linux-2.4.22/Documentation/DocBook'
+*** You need to install DocBook stylesheets ***
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-===cut
+1) What is DocBook stylesheets?
+2) How do I install DocBook stylesheets?
+3) Bugreport: there should be written
+"Linux kernel depends on DocBook stylesheets. You may download DocBook
+stylesheets here-and-there." in README
 
-> smartctl output (the weird Error log entries happened during some of the
-> hangs)
-
-===cut
-
-> 199 UDMA_CRC_Error_Count    0x0008   199   198   000    Old_age   Offline
->      -       3
-
-This can be caused by cabling problems (CRC errors)
-
-> When the command that caused the error occurred, the device was in an unknown
-> state.
-> 
->   After command completion occurred, registers were:
->   ER ST SC SN CL CH DH
->   -- -- -- -- -- -- --
->   84 51 00 dc ed 95 e0
-===cut
- 
->   Commands leading to the command that caused the error were:
->   CR FR SC SN CL CH DH DC   Timestamp  Command/Feature_Name
->   -- -- -- -- -- -- -- --   ---------  --------------------
->   25 00 08 dc ed 95 e0 00  120262.720  READ DMA EXT
-
-The Error Register (ER) values 0x84=10000100 indicates a UDMA CRC error
-and command abort.  Again, this *could* be a cabling problem.
-
-Bruce
-
-PS: please don't include kernel config files -- see lkml FAQ.
+Cl<
 

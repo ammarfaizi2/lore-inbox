@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314758AbSECQv7>; Fri, 3 May 2002 12:51:59 -0400
+	id <S314769AbSECQ4G>; Fri, 3 May 2002 12:56:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314761AbSECQv6>; Fri, 3 May 2002 12:51:58 -0400
-Received: from ep09.kernel.pl ([212.87.11.162]:33851 "EHLO ep09.kernel.pl")
-	by vger.kernel.org with ESMTP id <S314758AbSECQv5>;
-	Fri, 3 May 2002 12:51:57 -0400
-Date: Fri, 3 May 2002 18:51:56 +0200 (CEST)
-From: Krzysiek Taraszka <dzimi@ep09.kernel.pl>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PPC and 2.2.21rc3 with modular ide subsystem
-In-Reply-To: <20020503164358.GC894@opus.bloom.county>
-Message-ID: <Pine.LNX.4.44.0205031851010.29050-100000@ep09.kernel.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S314787AbSECQ4F>; Fri, 3 May 2002 12:56:05 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:64128 "EHLO
+	wookie-laptop.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S314769AbSECQ4E>; Fri, 3 May 2002 12:56:04 -0400
+Subject: Re: [PATCH] percpu updates
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Randy Dunlap <rddunlap@osdl.org>, Brian Gerst <bgerst@didntduck.org>,
+        Andrew Morton <akpm@zip.com.au>, Dave Jones <davej@suse.de>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1733dM-0002pA-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3.99 
+Date: 03 May 2002 07:59:53 -0700
+Message-Id: <1020437993.3567.1.camel@wookie-laptop.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 May 2002, Tom Rini wrote:
+  But the machines at the OSDL cost him $0 and he can go up to 16 way
+for his testing. 
 
-> Date: Fri, 3 May 2002 09:43:58 -0700
-> From: Tom Rini <trini@kernel.crashing.org>
-> To: Krzysiek Taraszka <dzimi@ep09.kernel.pl>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: PPC and 2.2.21rc3 with modular ide subsystem
-> 
-> On Fri, May 03, 2002 at 06:05:34PM +0200, Krzysiek Taraszka wrote:
-> > On Fri, 3 May 2002, Tom Rini wrote:
+Tim
+
+On Wed, 2002-05-01 at 16:35, Alan Cox wrote:
+> > | machine.  I did check the disassembly of vmlinux, and it looked like it
+> > | would work as advertised.
 > > 
-> > > Date: Fri, 3 May 2002 08:53:13 -0700
-> > > From: Tom Rini <trini@kernel.crashing.org>
-> > > To: Krzysiek Taraszka <dzimi@ep09.kernel.pl>
-> > > Cc: linux-kernel@vger.kernel.org
-> > > Subject: Re: PPC and 2.2.21rc3 with modular ide subsystem
-> > > 
-> > > On Fri, May 03, 2002 at 01:58:49PM +0200, Krzysiek Taraszka wrote:
-> > > 
-> > > > I tried compile 2.2.21rc3 with modular ide subsystem and i got that 
-> > > > messages:
-> > > 
-> > > Pmac IDE is not able to be built as a module.  If you just have a PCI
-> > > IDE card you want to use, you should be able to if you set
-> > > CONFIG_BLK_DEV_IDE_PMAC to n.  Otherwise you must compile it in.
-> > 
-> > What about 2.4/2.5 kernels ? 
+> > uh, do you know where you could find/use some SMP machines,
+> > gratis ?  maybe OSDL ?  hint hint.
 > 
-> The same restrictions apply to 2.4 as well.  It's planned to try and fix
-> this issue in 2.5 at some point.
-
-Thank you very much.
-
-Krzysiek Taraszka			(dzimi@pld.org.pl)
+> Dual pentium boxes are < $100 on ebay 8)
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

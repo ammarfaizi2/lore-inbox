@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261595AbSI0Qr2>; Fri, 27 Sep 2002 12:47:28 -0400
+	id <S261714AbSI0Q5S>; Fri, 27 Sep 2002 12:57:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbSI0Qr2>; Fri, 27 Sep 2002 12:47:28 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:38313 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S261595AbSI0Qr0>;
-	Fri, 27 Sep 2002 12:47:26 -0400
-Date: Fri, 27 Sep 2002 19:01:48 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Rusty Russell <rusty@rustcorp.com.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 'virtual => physical page mapping cache', vcache-2.5.38-B8
-In-Reply-To: <Pine.LNX.4.44.0209270940380.2013-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209271856480.15791-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262149AbSI0Q5R>; Fri, 27 Sep 2002 12:57:17 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:49861 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261714AbSI0Q5N>; Fri, 27 Sep 2002 12:57:13 -0400
+Date: Fri, 27 Sep 2002 09:58:12 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Vasquez <praka@san.rr.com>,
+       Michael Clark <michael@metaparadigm.com>,
+       "David S. Miller" <davem@redhat.com>, wli@holomorphy.com, axboe@suse.de,
+       akpm@digeo.com, linux-kernel@vger.kernel.org, patmans@us.ibm.com,
+       andrew.vasquez@qlogic.com
+Subject: Re: [PATCH] deadline io scheduler
+Message-ID: <20020927165812.GB1366@beaverton.ibm.com>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Andrew Vasquez <praka@san.rr.com>,
+	Michael Clark <michael@metaparadigm.com>,
+	"David S. Miller" <davem@redhat.com>, wli@holomorphy.com,
+	axboe@suse.de, akpm@digeo.com, linux-kernel@vger.kernel.org,
+	patmans@us.ibm.com, andrew.vasquez@qlogic.com
+References: <3D92B450.2090805@pobox.com> <20020926.001343.57159108.davem@redhat.com> <3D92B83E.3080405@pobox.com> <20020926.003503.35357667.davem@redhat.com> <3D92C206.2050905@metaparadigm.com> <20020926174148.GB1843@beaverton.ibm.com> <3D934BE7.8010907@pobox.com> <20020926192106.GD1843@beaverton.ibm.com> <20020927054153.GA27698@praka.local.home> <3D93F363.4070306@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D93F363.4070306@pobox.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik [jgarzik@pobox.com] wrote:
+> Wow, thanks for all that information, and it's great that you've 
+> integrated Arjan's work and feedback.
+> 
+> There is one big question left unanswered...  Where can the source for 
+> the latest version with all this wonderful stuff be found?  :)  I don't 
+> see a URL even for 6.01b5.
 
-On Fri, 27 Sep 2002, Linus Torvalds wrote:
+I case you already did not get the url.
 
-> You may want to do something clever to avoid taking the vcache lock in
-> the COW path unless there is real reason to believe that you have to,
-> but as far as I can tell, you can do that by simply adding a memory
-> barrier to the end of the "insert vcache entry" thing.
+	http://download.qlogic.com/drivers/5642/qla2x00-v6.1b5-dist.tgz
 
-the COW path lookup code already avoids taking the vcache lock - unless
-the hash-head is non-empty.
-
-> Because once you do that, and you make sure that the COW thing does the 
-> vcache callback _after_ changing the page tables, the COW code can 
->
->  - do the hash (which is invariant and has no races, since it depends 
->    solely on the virtual address and the VM)
->  - check if the hash queue is empty
->  - only if the hash queue is non-empty does the COW code need to get the 
->    vcache lock (and obviously it needs to re-load the hash entry from the 
->    queue after it got the lock, but the hash is still valid)
-
-yeah, this is the optimization i have described in the previous mail, and
-which is in the patch.
-
-> Maybe I'm missing something, but the locking really doesn't look all
-> that problematic if we just do things in the obvious order..
-
-i agree, first hashing the vcache should work. There are some details:  
-if we first hash the vcache then we have to set up the queue in a way for
-the callback function to notice that this queue is not futex-hashed (ie.  
-not live) yet. Otherwise the callback function might attempt to rehash it.  
-This means one more branch in the callback function, not a problem.
-
-	Ingo
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

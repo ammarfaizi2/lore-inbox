@@ -1,67 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273305AbRKNScI>; Wed, 14 Nov 2001 13:32:08 -0500
+	id <S273261AbRKNSe7>; Wed, 14 Nov 2001 13:34:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274789AbRKNSb6>; Wed, 14 Nov 2001 13:31:58 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:27140
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S273305AbRKNSbs> convert rfc822-to-8bit; Wed, 14 Nov 2001 13:31:48 -0500
-Date: Wed, 14 Nov 2001 10:31:23 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: linux readahead setting?
-In-Reply-To: <200111140038.fAE0ctq11703@mailg.telia.com>
-Message-ID: <Pine.LNX.4.10.10111141026320.1247-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	id <S274789AbRKNSej>; Wed, 14 Nov 2001 13:34:39 -0500
+Received: from 208-58-239-45.s45.tnt1.atnnj.pa.dialup.rcn.com ([208.58.239.45]:50158
+	"EHLO trianna.2y.net") by vger.kernel.org with ESMTP
+	id <S273261AbRKNSe3>; Wed, 14 Nov 2001 13:34:29 -0500
+Date: Wed, 14 Nov 2001 13:32:36 -0500
+From: Malcolm Mallardi <magamo@ranka.2y.net>
+To: Wayne Whitney <whitney@math.berkeley.edu>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] pdc202xx.c, adds another quirk drive to the list
+Message-ID: <20011114133236.A440@trianna.upcommand.net>
+In-Reply-To: <20011113105543.A392@trianna.upcommand.net> <200111141724.fAEHO5102013@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="wRRV7LY7NUeQGEoC"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200111141724.fAEHO5102013@adsl-209-76-109-63.dsl.snfc21.pacbell.net>; from whitney@math.berkeley.edu on Wed, Nov 14, 2001 at 09:24:05AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Nov 2001, Roger Larsson wrote:
 
-> On Tuesday 13 November 2001 16:21, Roy Sigurd Karlsbakk wrote:
-> > Hi
-> >
-> > I heard linux does <= 32 page readahead from block devices
-> > (scsi/ide/que?). Is there a way to double this? I want to read 256kB
-> > chunks from the SCSI drives, as to get the best speed. These numbers are
-> > based on some testing and information I've got from Compaq's storage guys.
-> >
-> > roy
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, Nov 14, 2001 at 09:24:05AM -0800, Wayne Whitney wrote:
+> In mailing-lists.linux-kernel, you wrote:
 > 
-> Note that the interface to /proc/ide/hdX/settings still is buggy...
+> > I seem to recall when I once looked at the promise driver that there
+> > was what appeared to be some form of exclusion list which included
+> > several models of Quantum FireballP harddrives, but mine was not on
+> > the list.
+> >  
+> > I suspected then (I think that was sometime around 2.4.9) that if I
+> > added the drive to that list that it would work, but I never tried it,
+> > due to the fact that I don't know C, and was afraid of breaking it
+> > more. :)
 > 
-> i.e you should be able to do (in pages):
-> echo "file_readahead:64" > /proc/ide/hdX/settings
-> but the result will be a readahead of 128*1024 PAGES... and that
-> is too much... (even 1024 PAGES is too much)
+> OK, I'll help you try this, it is really dead easy:
 > 
-> (after patch, in kB)
-> echo "file_readahead:256" > /proc/ide/hdX/settings
+> In the kernel tree of your choice, go the directory drivers/ide.
 > 
-> It is likely that there are more settings in the ide subsystem that is
-> has this fault... (Andre, I keep repeating myself...)
+> Load pdc202xx.c in the editor of your choice.
 > 
-> /RogerL
-> -- 
-> Roger Larsson
-> Skellefteå
-> Sweden
+> 
+> Recompile your kernel, try it out, and let us know if it works now.
+> If it does, submit a patch.  See Documentation/SubmittingPatches, and
+> ask me if that is not clear.
+> 
+> 
 
-It is hard to reply when your ISP rotates/changes its total block of
-assigned IP address, while still not being able to update or fix dns
-records at netsol to operate correctly.
+First off, I'd like to thank you, Wayne.  You've been a big help.
+Attached is a patch that adds the Quantum FireballP KX27.3 harddrive to
+the quirk_drives list in the Promise 202xx driver (pdc202xx.c) patches
+is based off 2.4.15-pre1
 
-And if you set the value of any given settings value large than its top
-boundary it would most likely wrap.  Right now it appears that a readahead
-patch that I was looking may have borked performance.
+Thanks folks, things work wonderfully now.
 
-Regards,
+--
+Malcolm D. Mallardi - Dark Freak At Large
+"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
+AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
+http://ranka.2y.net/~magamo/index.htm
 
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch
 
+--- drivers/ide/pdc202xx.c.orig	Fri Nov  9 09:55:38 2001
++++ drivers/ide/pdc202xx.c	Wed Nov 14 12:52:05 2001
+@@ -230,6 +230,7 @@
+ 	"QUANTUM FIREBALLP KA6.4",
+ 	"QUANTUM FIREBALLP LM20.4",
+ 	"QUANTUM FIREBALLP KX20.5",
++	"QUANTUM FIREBALLP KX27.3",
+ 	"QUANTUM FIREBALLP LM20.5",
+ 	NULL
+ };
+
+--wRRV7LY7NUeQGEoC--

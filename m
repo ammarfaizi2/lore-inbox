@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbVCaXcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVCaXck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbVCaXcl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 18:32:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVCaXbv
+	id S262070AbVCaXck (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 18:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVCaXcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 18:31:51 -0500
-Received: from mail.kroah.org ([69.55.234.183]:25824 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262063AbVCaXYF convert rfc822-to-8bit
+	Thu, 31 Mar 2005 18:32:01 -0500
+Received: from mail.kroah.org ([69.55.234.183]:27872 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262071AbVCaXYG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 18:24:05 -0500
-Cc: domen@coderock.org
-Subject: [PATCH] i2c/i2c-elektor: remove interruptible_sleep_on_timeout() usage
-In-Reply-To: <11123113891852@kroah.com>
+	Thu, 31 Mar 2005 18:24:06 -0500
+Cc: mgreer@mvista.com
+Subject: [PATCH] I2C: Fix breakage in m41t00 i2c rtc driver
+In-Reply-To: <11123113922923@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 31 Mar 2005 15:23:09 -0800
-Message-Id: <11123113893610@kroah.com>
+Date: Thu, 31 Mar 2005 15:23:12 -0800
+Message-Id: <11123113924150@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,50 +24,33 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2323, 2005/03/31 14:05:31-08:00, domen@coderock.org
+ChangeSet 1.2334, 2005/03/31 14:09:00-08:00, mgreer@mvista.com
 
-[PATCH] i2c/i2c-elektor: remove interruptible_sleep_on_timeout() usage
+[PATCH] I2C: Fix breakage in m41t00 i2c rtc driver
 
-Replace deprecated interruptible_sleep_on_timeout() with direct
-wait-queue usage. Patch is compile-tested.
+Remove setting of deleted i2c_client structure member.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
+The latest include/linux/i2c.h:i2c_client structure no longer has an
+'id' member.  This patch removes the setting of that no longer existing
+member.
+
+Signed-off-by: Mark A. Greer <mgreer@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/i2c/busses/i2c-elektor.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/i2c/chips/m41t00.c |    1 -
+ 1 files changed, 1 deletion(-)
 
 
-diff -Nru a/drivers/i2c/busses/i2c-elektor.c b/drivers/i2c/busses/i2c-elektor.c
---- a/drivers/i2c/busses/i2c-elektor.c	2005-03-31 15:19:14 -08:00
-+++ b/drivers/i2c/busses/i2c-elektor.c	2005-03-31 15:19:14 -08:00
-@@ -110,7 +110,7 @@
- }
+diff -Nru a/drivers/i2c/chips/m41t00.c b/drivers/i2c/chips/m41t00.c
+--- a/drivers/i2c/chips/m41t00.c	2005-03-31 15:17:53 -08:00
++++ b/drivers/i2c/chips/m41t00.c	2005-03-31 15:17:53 -08:00
+@@ -184,7 +184,6 @@
  
- static void pcf_isa_waitforpin(void) {
--
-+	DEFINE_WAIT(wait);
- 	int timeout = 2;
- 	long flags;
- 
-@@ -118,14 +118,15 @@
- 		spin_lock_irqsave(&lock, flags);
- 		if (pcf_pending == 0) {
- 			spin_unlock_irqrestore(&lock, flags);
--			if (interruptible_sleep_on_timeout(&pcf_wait,
--								timeout*HZ)) {
-+			prepare_to_wait(&pcf_wait, &wait, TASK_INTERRUPTIBLE);
-+			if (schedule_timeout(timeout*HZ)) {
- 				spin_lock_irqsave(&lock, flags);
- 				if (pcf_pending == 1) {
- 					pcf_pending = 0;
- 				}
- 				spin_unlock_irqrestore(&lock, flags);
- 			}
-+			finish_wait(&pcf_wait, &wait);
- 		} else {
- 			pcf_pending = 0;
- 			spin_unlock_irqrestore(&lock, flags);
+ 	memset(client, 0, sizeof(struct i2c_client));
+ 	strncpy(client->name, M41T00_DRV_NAME, I2C_NAME_SIZE);
+-	client->id = m41t00_driver.id;
+ 	client->flags = I2C_DF_NOTIFY;
+ 	client->addr = addr;
+ 	client->adapter = adap;
 

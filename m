@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129375AbRAXHpC>; Wed, 24 Jan 2001 02:45:02 -0500
+	id <S129534AbRAXHqY>; Wed, 24 Jan 2001 02:46:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129534AbRAXHox>; Wed, 24 Jan 2001 02:44:53 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:18188 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129375AbRAXHoj>; Wed, 24 Jan 2001 02:44:39 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: stripping symbols from modules
-Date: 23 Jan 2001 23:42:54 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <94m11u$3re$1@cesium.transmeta.com>
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797188095D@xsj02.sjs.agilent.com>
+	id <S129953AbRAXHqO>; Wed, 24 Jan 2001 02:46:14 -0500
+Received: from dial-pool33.vega.bg ([62.176.76.33]:260 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S129534AbRAXHqH>;
+	Wed, 24 Jan 2001 02:46:07 -0500
+Date: Wed, 24 Jan 2001 09:21:02 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+To: Pete Elton <elton@iqs.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Turning off ARP in linux-2.4.0
+Message-ID: <Pine.LNX.4.30.0101240857420.1024-100000@u.domain.uli>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <FEEBE78C8360D411ACFD00D0B747797188095D@xsj02.sjs.agilent.com>
-By author:    hiren_mehta@agilent.com
-In newsgroup: linux.dev.kernel
+
+	Hello,
+
+On 22 Jan 2001, Pete Elton wrote:
+
+> In the 2.2 kernel, I could do the following:
+> echo 1 > /proc/sys/net/ipv4/conf/all/hidden
+> echo 1 > /proc/sys/net/ipv4/conf/lo/hidden
 >
-> That is what I was guessing. But insmod does not need all symbols
-> present in the .o. 
-> 
-> I need to do this because when I release the driver to the customer,
-> I don't want them to be aware of some of the symbols. I understand
-> that this is against the open source policy. But that's how it is
-> and it is beyond my control. Is there any way to export only
-> selected symbols as required by insmod ? As of now I am not worried
-> about ksymoops.
-> 
+> The 2.4 kernel does not have these sysctl files any more.  Why was
+> this functionality taken out?  or was it simply moved to another place
+> in the proc filesystem?  How can I accomplish the same thing I was
+> doing in the 2.2 kernel in the 2.4 kernel?
 
-I think "strip --strip-unneeded" is what you want.
+	You can use this temporary solution (the same patch ported to
+2.3.41+):
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+http://www.linuxvirtualserver.org/arp.html
+http://www.linuxvirtualserver.org/hidden-2.3.41-1.diff
+
+	It is not ported to 2.4 because it touches code in the
+IP address autoselection that is in the fast path. This
+autoselection code is going to be changed and the required support
+can't be ported.
+
+	The problem is complex and can't be solved with ifconfig -arp
+
+	The needs for clusters with shared addresses include:
+
+1. block ARP replies for such addresses
+2. don't announce these addresses in the ARP probes (can be achieved
+using ip addr add IP brd + dev lo scope host)
+3. don't autoselect such addresses (for source addresses)
+
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313661AbSEEVW4>; Sun, 5 May 2002 17:22:56 -0400
+	id <S313680AbSEEVvw>; Sun, 5 May 2002 17:51:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313675AbSEEVWz>; Sun, 5 May 2002 17:22:55 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:26264 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S313661AbSEEVWy>;
-	Sun, 5 May 2002 17:22:54 -0400
-Date: Sun, 5 May 2002 17:22:53 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] do_mounts.c printk fix
-Message-ID: <Pine.GSO.4.21.0205051719010.26532-100000@weyl.math.psu.edu>
+	id <S313682AbSEEVvv>; Sun, 5 May 2002 17:51:51 -0400
+Received: from dsl-213-023-038-176.arcor-ip.net ([213.23.38.176]:41915 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S313680AbSEEVvv>;
+	Sun, 5 May 2002 17:51:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch 1/10] suppress allocation warnings for radix-tree allocations
+Date: Sun, 5 May 2002 23:51:00 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CD59BAD.37BD6A51@zip.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E174TuG-0004As-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	D'uh.  Linus, 2.5 also needs that one.
+On Sunday 05 May 2002 22:53, Andrew Morton wrote:
+> The recently-added page allocation failure warning generates a lot of
+> noise due to radix-tree node allocation failures.  Those messages are
+> not interesting.
+> 
+> But I think the warning is otherwise useful - "I got an allocation
+> failure and then it crashed" is better than "it crashed".
+> 
+> The patch suppresses the message for ratnode allocation failures.
+> 
+> =====================================
+> 
+> --- 2.5.13/mm/vmscan.c~radix-tree-warning	Sun May  5 13:31:59 2002
+> +++ 2.5.13-akpm/mm/vmscan.c	Sun May  5 13:31:59 2002
+> @@ -58,6 +58,7 @@ swap_out_add_to_swap_cache(struct page *
+>  	int ret;
+>  
+>  	current->flags &= ~PF_MEMALLOC;
+> +	current->flags |= PF_RADIX_TREE;
 
-BTW, folks - whoever had submitted "fixes" replacing /dev/root.old with
-/old/dev/root.old several lines above that one are welcome to think
-about the reasons why their patches removed "failed" from boot log.
 
-diff -urN S19-pre8-change_floppy/init/do_mounts.c S19-pre8-current/init/do_mounts.c
---- S19-pre8-change_floppy/init/do_mounts.c	Fri May  3 19:41:09 2002
-+++ S19-pre8-current/init/do_mounts.c	Sun May  5 16:35:44 2002
-@@ -807,7 +807,7 @@
- 			error = sys_ioctl(fd, BLKFLSBUF, 0);
- 			close(fd);
- 		}
--		printk(error ? "okay\n" : "failed\n");
-+		printk(!error ? "okay\n" : "failed\n");
- 	}
- #endif
- }
+Isn't that really 'PF_NO_WARN_ALLOC'?
 
+-- 
+Daniel

@@ -1,119 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266488AbUAIKQH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 05:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266489AbUAIKQH
+	id S266491AbUAIKSe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 05:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUAIKSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 05:16:07 -0500
-Received: from mail1.drkw.com ([62.129.121.35]:2298 "EHLO mail1.drkw.com")
-	by vger.kernel.org with ESMTP id S266488AbUAIKQA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 05:16:00 -0500
-From: "Heilmann, Oliver" <Oliver.Heilmann@drkw.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: SIS 648FX AGP fixed - but clarification needed
-In-Reply-To: <20040108155753.GB20616@redhat.com>
-References: <1073563512.502.66.camel@cobra> 
-    <20040108155753.GB20616@redhat.com>
-Content-Type: text/plain
-Message-Id: <1073643356.501.1.camel@cobra>
-Mime-Version: 1.0
-Date: Fri, 09 Jan 2004 10:15:56 +0000
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: Oliver.Heilmann@drkw.com
+	Fri, 9 Jan 2004 05:18:33 -0500
+Received: from moutng.kundenserver.de ([212.227.126.185]:41685 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S266491AbUAIKRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 05:17:49 -0500
+Date: Fri, 9 Jan 2004 11:17:09 +0100 (CET)
+From: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter@peterpall.de>
+Reply-To: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter.koenigsmann@gmx.de>
+To: rubini@ipvvis.unipv.it
+cc: linux-kernel@vger.kernel.org
+Subject: Synaptics Touchpad workaround for strange behavior after Sync loss
+ (With Patch).
+Message-ID: <Pine.LNX.4.53.0401091101170.1050@calcula.uni-erlangen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:6f0b4d165b4faec4675b8267e0f72da4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-08 at 15:57, Dave Jones wrote:
-> On Thu, Jan 08, 2004 at 12:05:12PM +0000, Heilmann, Oliver wrote:
-> 
->  > 1. According to sis_agp_device_ids the 648 chipset is supported. Does
->  > this mean that the "plain" 648 is actually supported and my "FX"
->  > iteration is so fundamentally different (even thought is has the same
->  > device id).
-> 
-> Some of the agpgart submissions go along the lines of..
-> - agpgart complains when I load it.
-> - running with try_unsupported makes the error go away
-> - ID of chipset gets added.
-> 
-> In quite a few cases in the past, no, or little actual testing to see
-> whether the device works correctly, or doesn't corrupt mappings through
-> the GART.  In some cases, folks actually have thought everything was working
-> fine, and then later found out they had misconfigured their X setup, and
-> were running unaccelerated software GL.
-> 
-> These days when recieving ID updates, I usually ask folks
-> to at least give it a run through testgart to make sure.
-> 
-So before I change the 648 setup I'd still better check with someone
-who's got the plain version?
 
-> It's not the be all and end all of test apps, but it catches the really
-> stupid cases.
-> 
->  > 2. Once the agpEnable bit is set in the bridge's cmd register the config
->  > space of the master is completely screwed up for a while. Trying to
->  > configure/enable the master during that period mostly crashes the
->  > system. Waiting does the trick. (Annoyingly, simply waiting for the
->  > master to become readable again is not good enough, one still needs to
->  > wait longer for things to become stable). None of the other chipsets
->  > seem to need this. Can anybody explain? Perhaps I missed something? If
->  > there is no other way and I do have to stick with the delay, then I
->  > suppose it would not be a good idea to polute the generic agp_enable
->  > with it?!
->  
-> This sounds very odd. How long a delay are we talking here?
-~5ms. At around 4ms it sometimes doesn't die before a few windows have
-been opened (mutilated requests?).
+Don't know if I'm supposed to the list or to the maintainer, mailing tho
+both.
 
-> It sounds to me like we should be waiting on some other event.
-Hmm, like what? Any idea what I could check/wait for?
+PROBLEM: My Touchpad generates rapid movements, random clicks and even
+keypress events on the keyboard connected to the same BUS. Resetting the
+Touchpad after bad syncs doesn't help.
 
-> I'll see if I can dig out the 648 datasheet later.
-Thanks.
-> 
-> I'd rather not add it to agp_enable. Better would be to add a sis specific
-> .enable function (which mostly just calls the agp_generic_enable() function
-> and does the wait), so the other drivers don't need to worry about this.
-> 
-> I'd rather get to the bottom of why the delay is needed though.
-> 
-> 		Dave
+Throwing away two packets after a bad sync loss fixed the whole problem.
+One packet is not sufficient.
 
-Here's some additional info:
+TODO:
+        Don't know If I also should throw away packages we are supposed to
+        pass through. Didn't touch this part of the driver.
 
-The bridge claims AGP V3.5, master says 3.0
-Interestingly, the bridge's status register has the isoch bit OFF.
-bridge:
-Capabilities: [c0] AGP version 3.5  
-Status: RQ=32 Iso- ArqSz=2 Cal=3 SBA+ ITACoh- GART64- HTrans- 64bit- FW-
-AGP3+ Rate=x4,x8
-Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x8
-
-card:
-Capabilities: [58] AGP version 3.0
-Status: RQ=256 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit-
-FW+ AGP3+ Rate=x4,x8
-Command: RQ=32 ArqSz=2 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x8
-
-The machine is basically a notebook with a desktop chipset/cpu(P4 3.2).
-The gpu is not on board but on a separate module connected through what
-looks to me like a non-standard connector.
-
-Thanks,
-
-Oliver
+        Perhaps we need a better resync algorithm anyway or --- even better
+        --- find the reason of the sync losses.
+        Meanwhile this patch shouldn't hurt anyone not suffering from
+	sync losses on a regular base. This patch might discard a vital
+	click but ---at least on my system--- prevents the system from
+	generating them by itself.
 
 
 
---------------------------------------------------------------------------------
-The information contained herein is confidential and is intended solely for the
-addressee. Access by any other party is unauthorised without the express
-written permission of the sender. If you are not the intended recipient, please
-contact the sender either via the company switchboard on +44 (0)20 7623 8000, or
-via e-mail return. If you have received this e-mail in error or wish to read our
-e-mail disclaimer statement and monitoring policy, please refer to 
-http://www.drkw.com/disc/email/ or contact the sender.
---------------------------------------------------------------------------------
+
+PATCH:
+diff -r -u linux-2.6.0/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+--- linux-2.6.0/drivers/input/mouse/synaptics.c	2003-11-24 02:31:44.000000000 +0100
++++ b/drivers/input/mouse/synaptics.c	2004-01-09 11:06:55.359149432 +0100
+@@ -1,6 +1,9 @@
+ /*
+  * Synaptics TouchPad PS/2 mouse driver
+  *
++ *   2003 Gunter K\"onigsmann <gunter.koenigsmann@gmx.de>
++ *     Experimental fix for strange behaviour after resync.
++ *
+  *   2003 Dmitry Torokhov <dtor@mail.ru>
+  *     Added support for pass-through port
+  *
+@@ -607,16 +610,23 @@
+ 	default:
+ 		if (psmouse->pktcnt < 6)
+ 			break;		    /* Wait for full packet */
+-
++
+ 		if (priv->out_of_sync) {
+ 			priv->out_of_sync = 0;
+ 			printk(KERN_NOTICE "Synaptics driver resynced.\n");
+ 		}
+-
++
+ 		if (priv->ptport && synaptics_is_pt_packet(psmouse->packet))
+-			synaptics_pass_pt_packet(priv->ptport, psmouse->packet);
++		        synaptics_pass_pt_packet(priv->ptport, psmouse->packet);
+ 		else
+-			synaptics_process_packet(psmouse);
++			if((priv->throwaway--)>0) /* When sync was
++			lost --- should we throw away packets we are
++		        supposed to pass through as well? If yes move
++		        this line three lines higher. */
++			{
++				priv->throwaway=0;
++				synaptics_process_packet(psmouse);
++			}
+
+ 		psmouse->pktcnt = 0;
+ 		break;
+@@ -625,6 +635,9 @@
+
+  bad_sync:
+ 	priv->out_of_sync++;
++	priv->throwaway=2;    /* Throw away the next 2 packets after a
++				 bad sync. Seems like at least one of
++				 them *will* be bad.*/
+ 	psmouse->pktcnt = 0;
+ 	if (psmouse_resetafter > 0 && priv->out_of_sync	== psmouse_resetafter) {
+ 		psmouse->state = PSMOUSE_IGNORE;
+diff -r -u linux-2.6.0/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+--- linux-2.6.0/drivers/input/mouse/synaptics.h	2003-11-24 02:31:54.000000000 +0100
++++ b/drivers/input/mouse/synaptics.h	2004-01-09 11:07:01.838164472 +0100
+@@ -104,6 +104,10 @@
+
+ 	/* Data for normal processing */
+ 	unsigned int out_of_sync;		/* # of packets out of sync */
++	unsigned int throwaway;                 /* Packet was out of */
++						/* sync. Throw away */
++						/* N packets.*/
++
+ 	int old_w;				/* Previous w value */
+
+ 	struct serio *ptport;			/* pass-through port */
+
+System:
+
+Siemens-Amilo M Notebook
+
+Linux labtop 2.6.0 #14 Fri Jan 9 09:45:26 CET 2004 i686 unknown unknown
+GNU/Linux
+
+Gnu C                  3.3
+Gnu make               3.80
+util-linux             2.11z
+mount                  2.11z
+module-init-tools      0.9.8
+e2fsprogs              1.28
+jfsutils               1.1.1
+xfsprogs               2.3.9
+pcmcia-cs              3.2.3
+PPP                    2.4.1
+isdn4k-utils           3.2p3
+nfs-utils              1.0.1
+Linux C Library        x    1 root     root      1491599 Mar 14  2003
+/lib/libc.so.6
+Dynamic linker (ldd)   2.3.2
+Linux C++ Library      5.0.3
+Procps                 3.1.6
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               4.5.8
+Modules Loaded         raw1394
+
+Touchpad:
+<6>i8042.c: Detected active multiplexing controller, rev 1.1.
+<6>serio: i8042 AUX0 port at 0x60,0x64 irq 12
+<6>serio: i8042 AUX1 port at 0x60,0x64 irq 12
+<6>serio: i8042 AUX2 port at 0x60,0x64 irq 12
+<6>Synaptics Touchpad, model: 1
+<6> Firmware: 5.8
+<6> 180 degree mounted touchpad
+<6> Sensor: 18
+<6> new absolute packet format
+<6> Touchpad has extended capability bits
+<6> -> 4 multi-buttons, i.e. besides standard buttons
+<6> -> multifinger detection
+<6> -> palm detection
+<6>input: SynPS/2 Synaptics TouchPad on isa0060/serio4
+<6>serio: i8042 AUX3 port at 0x60,0x64 irq 12
+<6>input: AT Translated Set 2 keyboard on isa0060/serio0
+<6>serio: i8042 KBD port at 0x60,0x64 irq 1
+--
+The parents of young organic lifeforms be warned: The swallowing of towels
+in great quantities may be harmful.
+        --Douglas Adams.
 

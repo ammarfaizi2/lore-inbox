@@ -1,86 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272339AbTG3Xnu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 19:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272340AbTG3Xnu
+	id S272335AbTG3Xc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 19:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272339AbTG3Xc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 19:43:50 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:6290 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272339AbTG3Xns (ORCPT
+	Wed, 30 Jul 2003 19:32:56 -0400
+Received: from waste.org ([209.173.204.2]:46250 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S272335AbTG3Xbo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 19:43:48 -0400
-Date: Wed, 30 Jul 2003 18:43:18 -0500
-From: linas@austin.ibm.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, olh@suse.de, olof@austin.bim.com,
-       linas@austin.ibm.com
-Subject: Re: PATCH: Race in 2.6.0-test2 timer code
-Message-ID: <20030730184317.B23750@forte.austin.ibm.com>
-References: <20030730082848.GC23835@dualathlon.random> <Pine.LNX.4.44.0307301223450.13299-100000@localhost.localdomain>
+	Wed, 30 Jul 2003 19:31:44 -0400
+Date: Wed, 30 Jul 2003 18:31:29 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Alan Cox <alan@redhat.com>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Warn about taskfile?
+Message-ID: <20030730233129.GL6049@waste.org>
+References: <20030730205935.GA238@elf.ucw.cz> <200307302111.h6ULBci06803@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0307301223450.13299-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Jul 30, 2003 at 12:31:23PM +0200
+In-Reply-To: <200307302111.h6ULBci06803@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-OK, I finally spent some time studying the timer code and am starting 
-to grasp it.  I think I finally understand the bug.  Andrea's timer->lock 
-patch will fix it for 2.4 and everybody says it can't happen in 2.6 so
-ok.
-
-
-On Thu, Jul 31, 2003 at 12:17:17AM +0200, Andrea Arcangeli wrote:
-> So the best fix would be to nuke the run_all_timers thing from 2.4 too.
-
-Yes.
-
->and to keep the timer->lock everywhere to make run_all_timers safe.
-
-Or do that instead, yes.
-
-> In short the stack traces I described today were all right but only for
-> 2.4, and not for 2.6.
-
-I see the bug in 2.4.  
-
-On Wed, Jul 30, 2003 at 12:31:23PM +0200, Ingo Molnar wrote:
+On Wed, Jul 30, 2003 at 05:11:38PM -0400, Alan Cox wrote:
+> > I had some strange fs corruption, and andi suggested that it probably
+> > is TASKFILE-related. Perhaps this is good idea?
 > 
-> On Wed, 30 Jul 2003, Andrea Arcangeli wrote:
+> Well without taskfile multimode may corrupt your disks, so pick one.
+> This needs debugging not paranoia.
 > 
-> > 
-> > 	cpu0			cpu1
-> > 	------------		--------------------
-> > 
-> > 	do_setitimer
-> > 				it_real_fn
-> > 	del_timer_sync		add_timer	-> crash
+> > +	  It is safe to say Y to this question, but you should attach
+> > +	  scratch monkey, first.
 > 
-> would you mind to elaborate the precise race? I cannot see how the above
-> sequence could crash on current 2.6:
+> "a scratch monkey" - also a lot of people won't get the reference
+
+And some that do might not appreciate it.
  
-I don't know enough about how 2.6 works to say, 
-but here's more detail on what happened in 2.4:
-
-
-cpu 0                                              cpu 3
--------                                          ---------
-                                      previously,  timer->base = cpu 3 base
-                                          (its task-struct->real_timer)
-bh_action() {
-__run_timers() {                          sys_setitimer() {
-  it_real_fn() // called as fn()              del_timer_sync() {
-    add_timer() {                               spinlock (cpu3 base)
-      spinlock (cpu0 base)
-        timer->base = cpu0 base                    detach_timer (timer)
-          list_add(&timer->list)
-                                                   timer->list.next = NULL;
-  and now timer is vectored in but can't be unlinked.
-
-And so either of Andrea's fixes should fix this race.
-
---linas
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

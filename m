@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264379AbTLBU4S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbTLBU4S
+	id S264384AbTLBUpN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:45:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbTLBUpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:56:18 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:13725 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S264379AbTLBU4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:56:15 -0500
-Subject: Re: PROBLEM: 2.6.0-test11 missing acpi-performance interface
-	on	centrino
-From: Christophe Saout <christophe@saout.de>
-To: Robert Freund <robert.freund@gmx.de>
+	Tue, 2 Dec 2003 15:45:13 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:50326 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S264384AbTLBUpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:45:08 -0500
+X-Sender-Authentication: net64
+Date: Tue, 2 Dec 2003 21:45:04 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5332.1070389142@www60.gmx.net>
-References: <1070384429.21490.4.camel@leto.cs.pocnet.net>
-	 <5332.1070389142@www60.gmx.net>
-Content-Type: text/plain
-Message-Id: <1070398575.10571.4.camel@leto.cs.pocnet.net>
+Subject: Re: Linux 2.4 future
+Message-Id: <20031202214504.713c8a45.skraw@ithnet.com>
+In-Reply-To: <20031202202435.GS15165@conectiva.com.br>
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet>
+	<200312011226.04750.nbensa@gmx.net>
+	<20031202115436.GA10288@physik.tu-cottbus.de>
+	<20031202120315.GK13388@conectiva.com.br>
+	<20031202210904.48706476.skraw@ithnet.com>
+	<20031202202435.GS15165@conectiva.com.br>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 02 Dec 2003 21:56:16 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Di, den 02.12.2003 schrieb Robert Freund um 19:19:
+On Tue, 2 Dec 2003 18:24:35 -0200
+Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
 
-> > > [1.] One line summary of the problem:
-> > > In 2.6.0-test11 the acpi/performance interface is missing on centrino.
-> > 
-> > I would say this is simply because ACPI is not used within the centrino
-> > cpufreq interface driver. You should use the sysfs interface anyway.
-> 
-> The latter is certainly right... but since there is a kernel config option
-> that lets you add the /proc/acpi/.../performance interface explicitly and it
-> doesn't work, I consider it a bug. 
+> And I was on this list _way_ before 2.4.11, 2.6 has, IMHO, a different story.
 
-This is only a suboption to the acpi cpufreq driver.
+A story can only be judged _after_ it is history.
 
---
-Christophe Saout <christophe@saout.de>
-Please avoid sending me Word or PowerPoint attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
-
+Regards,
+Stephan

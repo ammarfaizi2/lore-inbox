@@ -1,53 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275061AbRJJVMw>; Wed, 10 Oct 2001 17:12:52 -0400
+	id <S277005AbRJJVQW>; Wed, 10 Oct 2001 17:16:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276075AbRJJVMm>; Wed, 10 Oct 2001 17:12:42 -0400
-Received: from citd-ppp.paderlinx.de ([193.189.252.149]:6675 "EHLO
-	mail.citd.de") by vger.kernel.org with ESMTP id <S275061AbRJJVM3>;
-	Wed, 10 Oct 2001 17:12:29 -0400
-Date: Wed, 10 Oct 2001 23:12:58 +0200 (MEST)
-From: Matthias Schniedermeyer <ms@citd.de>
+	id <S277410AbRJJVQM>; Wed, 10 Oct 2001 17:16:12 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:22738 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S277005AbRJJVP5>; Wed, 10 Oct 2001 17:15:57 -0400
+Subject: Re: Changes to ide-cd for 2.4.1 are broken?
+Date: 10 Oct 2001 23:16:24 +0200
+Organization: Chemnitz University of Technology
+Message-ID: <87d73vb3h3.fsf@kosh.ultra.csn.tu-chemnitz.de>
+In-Reply-To: <001801c09e3a$4a189270$653b090a@sulaco> <m27l29tj87.fsf@boreas.yi.org.> <m28zj05j7y.fsf@boreas.yi.org.> <008401c0f20f$4458dec0$643b090a@sulaco> <87het7b428.fsf@kosh.ultra.csn.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 To: linux-kernel@vger.kernel.org
-Subject: VM-Problems in 2.4.11
-Message-ID: <Pine.LNX.4.20.0110102302170.15834-100000@citd.owl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#include <hallo.h>
+enrico.scholz@informatik.tu-chemnitz.de (Enrico Scholz) writes:
+
+> | [kernel >=2.4.1; open tray]
+> | $ rmmod cdrom
+> | $ modprobe cdrom autoclose=0
+                               ^ oops, should be a '1' obviously
 
 
-
-I have a system with 3GB RAM and no Swap at all.
-
-Before the test "free" showed about 2GB for "cached" and about 800MB was
-free. ("Fresh"-System after boot up. Only copied some files before)
-
-Then i wanted to copy about 1.5GB to a "tmpfs" mount.
-
-After about 800MB the copying stopped. On another console, where i wanted
-to run "free" again, i just got a "out of memory"-type of warning.
-(No errors showed up in syslog)
-
-I had to abort the copy and umount the tmpfs-partition.
-
-
-With 2.4.9 this scenario works without problems.
-
-
-If any more informations is needed, i will provide them.
-
-
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
-
+Enrico
 

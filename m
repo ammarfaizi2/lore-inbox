@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbTJAH4C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 03:56:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTJAH4C
+	id S261305AbTJAIKj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 04:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJAIKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 03:56:02 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:44934 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261967AbTJAH4A
+	Wed, 1 Oct 2003 04:10:39 -0400
+Received: from babyruth.hotpop.com ([204.57.55.14]:20186 "EHLO
+	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S261305AbTJAIKi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 03:56:00 -0400
-Date: Wed, 1 Oct 2003 08:55:51 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
-Message-ID: <20031001075551.GL1131@mail.shareable.org>
-References: <7F740D512C7C1046AB53446D3720017304AFCF@scsmsx402.sc.intel.com.suse.lists.linux.kernel> <20031001053833.GB1131@mail.shareable.org.suse.lists.linux.kernel> <20030930224853.15073447.akpm@osdl.org.suse.lists.linux.kernel> <20031001061348.GE1131@mail.shareable.org.suse.lists.linux.kernel> <20030930233258.37ed9f7f.akpm@osdl.org.suse.lists.linux.kernel> <20031001065705.GI1131@mail.shareable.org.suse.lists.linux.kernel> <p73brt1zahk.fsf@oldwotan.suse.de>
+	Wed, 1 Oct 2003 04:10:38 -0400
+Subject: Re: [PATCH] 2.6: joydev is too eager claiming input devices
+From: Dan <overridex@punkass.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <20030924232912.7e41d9f9.akpm@osdl.org>
+References: <1064459037.19555.3.camel@nazgul.overridex.net>
+	 <200309250012.48522.dtor_core@ameritech.net>
+	 <20030924232912.7e41d9f9.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1064995829.14483.8.camel@nazgul.overridex.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73brt1zahk.fsf@oldwotan.suse.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 01 Oct 2003 04:10:29 -0400
+Content-Transfer-Encoding: 7bit
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Jamie Lokier <jamie@shareable.org> writes:
-> > It is easy enough to fix by making the fault handler not take
-> > mmap_sem if the fault's in the kernel address range.  (With apologies
-> > to the folk running kernel mode userspace...)
+On Thu, 2003-09-25 at 02:29, Andrew Morton wrote:
+> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> >
+> > Could you please try the following patch (it is incremental against the 
+> >  previous one and should apply to the -mm)
 > 
-> It won't work because kernel can cause user space faults
-> (think get_user). And handling these must be protected.
+> I ran that patch[1] past Vojtech yesterday and he then fixed the problem
+> which it was addressing by other means within his tree.
+> 
+> So what we should do is to ask Vojtech to share that change with us so Dan
+> can test it, please.
+> 
+> 
+> [1] ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5/2.6.0-test5-mm4/broken-out/joydev-exclusions.patch
+> 
 
-Are we mis-communicating?  By "fault in the kernel address range", I
-mean that the faulting address is in that range, not where the
-instruction is located.
+Hi again,
 
-get_user faults are obviously not in the kernel address range (except
-when set_fs has been used, which is rare and not a problem here).
+I'm using 2.6.0-test6 right now with Dmitry's fix and it works fine,
+still waiting for Vojtech's code to test out -Dan
 
-When __get_user faults in __is_prefetch, while decoding an instruction
-in kernel space, it is good for do_page_fault to take the short-cut I
-suggested, skip locks, and reach the exception table fixup.  It will
-turn out to be a bad address, __is_prefetch will report that it isn't
-a prefetch, and carry on to bust_spinlocks(), oops etc.
 
-When __get_user faults in __is_prefetch, while decoding a userspace
-instruction, then it won't take that short-cut because the (inner)
-faulting address won't be in the kernel address range.  The normal vma
-lookup will take place, install a user page, and the userspace
-instruction is decoded just fine.
-
-What have I missed?
-
--- Jamie

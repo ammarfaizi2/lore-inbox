@@ -1,91 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265250AbUGZMnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265255AbUGZMpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265250AbUGZMnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 08:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbUGZMnQ
+	id S265255AbUGZMpm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 08:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUGZMpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 08:43:16 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:30346 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265250AbUGZMnN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 08:43:13 -0400
-Date: Mon, 26 Jul 2004 14:40:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Lenar L?hmus <lenar@vision.ee>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-J3
-Message-ID: <20040726124059.GA14005@elte.hu>
-References: <20040713122805.GZ21066@holomorphy.com> <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe>
+	Mon, 26 Jul 2004 08:45:42 -0400
+Received: from irulan.endorphin.org ([212.13.208.107]:59656 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S265255AbUGZMp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 08:45:29 -0400
+Subject: Re: [PATCH] Delete cryptoloop
+To: Jari Ruusu <jariruusu@users.sourceforge.net>,
+       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4104E2CC.D8CBA56@users.sourceforge.net>
+References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com>
+	<1090672906.8587.66.camel@ghanima>
+	<41039CAC.965AB0AA@users.sourceforge.net>
+	<1090761870.10988.71.camel@ghanima>
+	<4103ED18.FF2BC217@users.sourceforge.net>
+	<1090778567.10988.375.camel@ghanima>
+	<4104E2CC.D8CBA56@users.sourceforge.net>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="=-0roL3SOQhYe0FWY5LWr7"
+Message-Id: <1090845926.13338.98.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1090832436.6936.105.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 26 Jul 2004 14:45:26 +0200
+From: Fruhwirth Clemens <clemens-dated-1091709927.ed82@endorphin.org>
+X-Delivery-Agent: TMDA/0.92 (Kauai King)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+--=-0roL3SOQhYe0FWY5LWr7
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > > Yes, jackd does exactly this, mlockall then opens the ALSA driver with
-> > > mmap.
-> > 
-> > ok, i fixed this in -J3:
-> > 
-> >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-J3
-> > 
-> > -J3 also includes a number of softirq latency fixes for the networking
-> > layer.
-> 
-> OK, I will try this.  I have not seen any latency issues with softirqs
-> with -I4. [...]
+On Mon, 2004-07-26 at 12:54, Jari Ruusu wrote:
+> Fruhwirth Clemens wrote:
+> > On Sun, 2004-07-25 at 19:25, Jari Ruusu wrote:
+> > > In short: exploit encodes watermark patterns as sequences of identica=
+l
+> > > ciphertexts.
+> >=20
+> > Probably I'm missing the point, but at the moment this looks like a
+> > chosen plain text attack. As you know for sure, this is trivial. For
+> > instance, AES asserts to be secure against this kind of attack. (See th=
+e
+> > author's definition of K-secure..).
+>=20
+> > I'm suggesting it doesn't work at all.
+>=20
+> Fruhwirth, your incompetence has always amazed me. And this time is no
+> exception. What is conserning is that some mainline folks seem to listeni=
+ng
+> to your ill opinions. No wonder that both mainline device crypto
+> implementations are such a joke.
 
-i'm going through the subsystems systematically and i'm stressing them
-beyond normal use. These networking latencies need a high number of in
-flight packets, multiple TCP sockets, and a 100 mbit link or faster. 
-(this is a more common workload on a corporate desktop, but not typical
-on a home desktop.)
+Please don't resort to personal defamations.=20
 
-> [...]  Other than the few remaining hot spots, the only thing that
-> triggers latencies over 100 usecs during normal operation is the IDE
-> I/O completion, which can be easily controlled by lowering the max SG
-> size.
+To summarize for an innocent bystander:
 
-ok, i'll take a look whether there's a way to control this without
-having to artificially impact the IO patterns.
+- The attacks you brought forward are in the best case a starting point
+for known plain text attacks. Even DES is secure against this attack,
+since an attacker would need 2^47 chosen plain texts to break the cipher
+via differential cryptanalysis. (Table 12.14 Applied Cryptography,
+Schneier). First, the watermark attack can only distinguish 32
+watermarks. Second, you'd need a ~2.000.000 GB to store 2^47 chosen
+plain texts. Third, I'm talking about DES (designed 1977!), no chance
+against AES.
 
-> Here is one that I think happens when deleting a large number of
-> files, or a directory that had a large number of files.  Specifically,
-> this happens when bonnie exits.
-> 
-> Jul 25 20:25:36 mindpipe kernel:
->
-> [...] 16ms non-preemptible critical section violated 1 ms preempt 
-> threshold starting at select_parent+0x18/0xd0 and ending at
-> select_parent+0x94/0xd0
+- The weaknesses brought forward by me are summarized  at
+http://clemens.endorphin.org/OnTheProblemsOfCryptoloop . Thanks goes to
+Pascal Brisset, who pointed out that cryptoloop is actually more secure
+than I assumed.
 
-ok, this should be the dcache/icache zapping. I've done some latency
-reduction in this area but apparently not enough.
+If you, Jari, have any arguments left, it's time to state them now.
+Otherwise, have a nice day,
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
 
-> I am also seeing a lot of shorter timing violations that involve
-> unmap_vmas.  Not sure what triggers this one.
+--=-0roL3SOQhYe0FWY5LWr7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-it might just be a common operation, being hit by the IDE hardirq
-latency. (which thus is added to the 'scheduling' latency.) Although
-none of the traces show IDE hardirq leftovers [but they might be cleared
-from the stack by the time we notice the latency.]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Can you see these 1-2 msec latencies even if you reduce the IDE sg-size
-drastically via the max_sectors tunable? (just for testing purposes, to
-eliminate hardirq latencies as much as possible)
+iD8DBQBBBPzlW7sr9DEJLk4RAnqnAJ9ghY6VldsZUgRTH6a1vqGNYdQnmQCeMEKV
+k1jfeeyoSStDsctUH5qyO6E=
+=Virw
+-----END PGP SIGNATURE-----
 
-	Ingo
+--=-0roL3SOQhYe0FWY5LWr7--

@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284037AbRLOWdq>; Sat, 15 Dec 2001 17:33:46 -0500
+	id <S284088AbRLOXJy>; Sat, 15 Dec 2001 18:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284079AbRLOWdh>; Sat, 15 Dec 2001 17:33:37 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:13320 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S284037AbRLOWd0>; Sat, 15 Dec 2001 17:33:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Mike Galbraith <mikeg@wen-online.de>
-Subject: Re: pivot_root and initrd kernel panic woes
-Date: Sun, 16 Dec 2001 00:32:31 -0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0112151856190.381-100000@mikeg.weiden.de>
-In-Reply-To: <Pine.LNX.4.33.0112151856190.381-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Message-Id: <01121600323100.01820@manta>
-Content-Transfer-Encoding: 7BIT
+	id <S284117AbRLOXJo>; Sat, 15 Dec 2001 18:09:44 -0500
+Received: from peace.netnation.com ([204.174.223.2]:27561 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S284088AbRLOXJm>; Sat, 15 Dec 2001 18:09:42 -0500
+Date: Sat, 15 Dec 2001 15:09:40 -0800
+From: Simon Kirby <sim@netnation.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kill(-1,sig)
+Message-ID: <20011215150940.A9612@netnation.com>
+In-Reply-To: <Pine.LNX.4.33.0112141237470.3063-100000@penguin.transmeta.com> <200112151019.fBFAJgS235075@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <200112151019.fBFAJgS235075@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Sat, Dec 15, 2001 at 05:19:42AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 December 2001 15:59, Mike Galbraith wrote:
-> > > > I have a slackware initrd (minix) which is booting fine with 2.4.10
-> > > > but fails to boot with 2.4.12 and later (same .config, same
-> > > > bootloader, same hardware, same AC voltage in the wall outlet, time
-> > > > of day differs by 1 minute), so it might be true :-)
-> > >
-> > > Hmm.. works here with 2.5.1-pre8.
-> > >
-> > > 	-Mike
-> > > ...
-> > > RAMDISK driver initialized: 16 RAM disks of 12288K size 1024 blocksize
-> > > ...
-> > > RAMDISK: Compressed image found at block 0
-> > > Freeing initrd memory: 5161k freed
-> > > MINIX-fs: mounting unchecked file system, running fsck is recommended.
-> > > VFS: Mounted root (minix filesystem).
-> > > Freeing unused kernel memory: 236k freed
-> >
-> > I'd like to try it, can you send a .config?
->
-> .config?.. normal config with initrd+ramdisk+minix in kernel.
+On Sat, Dec 15, 2001 at 05:19:42AM -0500, Albert D. Cahalan wrote:
 
-Yes. I want to take .config file from your kernel tree
-for testing.
+> > I do agree, I've used "kill -9 -1" myself.
+> 
+> This means: EVERYTHING DIE DIE DIE!!!!
+> 
+> On a Digital UNIX system, I do "/bin/kill -9 -1" often. I expect it to
+> kill the shell. This is a nice way to quickly log out and wipe out any
+> background processes that might try to save state or continue running.
 
-> > Have you tried it with minix initrd from
-> >
-> > http://port.imtp.ilyichevsk.odessa.ua/linux/vda/minix.gz
->
-> No, I converted my 'fire department' initrd to minix and booted that.
+Exactly.
 
-I'll compile 2.5.1-pre8 here and try to boot my initrd.
-If it boots ok, it would mean there is no problem with kernel
-(i.e. my fault), if it won't, that will imply that _some_ minix initrds
-are affected. Hope you got the idea...
+And then init spawns your getty again, and you log in again, and you
+continue doing what you were doing.
 
-BTW, is it possible for you to place your initrd on some publicly accessible 
-ftp/http server?
---
-vda
+Or you could just let it not kill the process doing the killing, and
+you'd be more productive.
+
+My point is that I can't see a valid case where we _actually want_ -1 to
+send to itself also.  Yes, I know the standards don't mention this.  They
+also don't explicity disallow not sending to the originating process, so
+I don't see what the big problem is.
+
+Does anybody have a case where including itself is actually useful?
+
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

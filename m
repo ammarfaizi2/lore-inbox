@@ -1,95 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264860AbTFCJqn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 05:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264875AbTFCJqn
+	id S264872AbTFCJvR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 05:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbTFCJvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 05:46:43 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:27218 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264860AbTFCJqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 05:46:40 -0400
-Date: Tue, 3 Jun 2003 03:00:23 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: adam@yggdrasil.com, linux-kernel@vger.kernel.org
-Subject: Re: Counter-kludge for 2.5.x hanging when writing to block device
-Message-Id: <20030603030023.69d39d6e.akpm@digeo.com>
-In-Reply-To: <20030603091018.GI482@suse.de>
-References: <200306030848.h538mwE22282@freya.yggdrasil.com>
-	<20030603091018.GI482@suse.de>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 3 Jun 2003 05:51:17 -0400
+Received: from camus.xss.co.at ([194.152.162.19]:17934 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id S264872AbTFCJvN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 05:51:13 -0400
+Message-ID: <3EDC72B3.9040109@xss.co.at>
+Date: Tue, 03 Jun 2003 12:04:35 +0200
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: george anzinger <george@mvista.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: system clock speed too high?
+References: <3EDBA83B.5050406@xss.co.at> <3EDBB4B0.6070601@mvista.com>
+In-Reply-To: <3EDBB4B0.6070601@mvista.com>
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Jun 2003 10:00:07.0413 (UTC) FILETIME=[E9763250:01C329B6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Hi!
+
+george anzinger wrote:
+> Andreas Haumer wrote:
 >
-> On Tue, Jun 03 2003, Adam J. Richter wrote:
-> > 	For at least the past few months, the Linux 2.5 kernels have
-> > hung when I try to write a large amount of data to a block device.
+[...]
+>> I have a quite strange phenomenon here: I see a ~2.5 times
+>> speed up of system time on a Asus AP1700-S5 server with
+>> Linux-2.4.21-rc6-ac1.
+>> Simple proof: a "sleep 300" command terminates after exactly
+>> 120 seconds of wall clock time.
+>
+>
+> Just as a wild shot in the dark, what speed does the kernel think the
+> cpu is running at and does this match what the BIOS thinks?
+>
+> It sounds like the CLOCK_TICK_RATE is wrong.  This would show up as the
+> kernel thinking the cpu was fast also.
+>
+Hm, I don't think this is the case.
+BIOS reports (correctly) a single, hyperthreaded Xeon CPU
+with 2.4GHz
 
-Well ytf is this the first time I've heard about it?
+Kernel reports the same:
+root@setup:~ {503} $ uname -a
+Linux setup 2.4.21-rc6-ac1 #2 SMP Tue Jun 3 09:45:13 CEST 2003 i686 unknown
 
-> > I most commonly notice this when trying to clear a disk with a command
-> > like "dd if=/dev/zero of=/dev/discs/disc1/disc".  Sometimes doing
-> > an mkfs on a big file system is enough to cause the hang.
-> > I wrote a little program to repeatedly write a 4kB block of zeroes
-> > to the kernel so I could track how far it got before hanging, and it
-> > would write 210-215MB of zeroes to the disk on a computer that had
-> > 512MB of RAM before hanging.  When these hangs occur, other processes
-> > continue to run fine, and I can do syncs, which return, but the
-> > hung process never resumes.  In the past, I've verified with a
-> > printk that it is looping in balance_dirty_pages, repeatedly
-> > calling blk_congestion_wait, and never leaving the loop.
-> > 
+root@setup:~ {504} $ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Xeon(TM) CPU 2.40GHz
+stepping        : 7
+cpu MHz         : 2392.065
+cache size      : 512 KB
+physical id     : 0
+siblings        : 2
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 4771.02
 
-Please debug it further.  Something may have gone wrong with the arithmetic
-in balance_dirty_pages().
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Xeon(TM) CPU 2.40GHz
+stepping        : 7
+cpu MHz         : 2392.065
+cache size      : 512 KB
+physical id     : 0
+siblings        : 2
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 4771.02
 
-> > 	Here is a counter-kludge that seems to stop the problem.
-> > This is certainly not the "right" fix.  It just illustrates a way
-> > to stop the problem.
-> > 
-> > 	By the way, I say "counter-kludge", because I get the impression
-> > that blk_congestion_wait is itself a kludge, since it calls
-> > blk_run_queues and waits a fixed amount of time, 100ms in this case,
-> > potentially a big waste of time, rather than awaiting some more
-> > accurate criterion.
+root@setup:~ {505} $ ntpdate ntp.xss.co.at; sleep 500; ntpdate ntp.xss.co.at
+ 3 Jun 11:58:16 ntpdate[1118]: step time server 194.152.162.17 offset -177.268071 sec
+ 3 Jun 12:01:36 ntpdate[1120]: step time server 194.152.162.17 offset -300.106769 sec
 
-The sleep in blk_congestion_wait() terminates when a request is returned to
-the queue.  The timeout is only really there for non-request-based backing
-devices.
+(Sleeping 500 "system seconds" takes 200 "wall clock seconds")
 
-> Does something like this work? Andrew, what's the point of doing the
-> wait if the queue isn't congested?!
+> You pin this to a particular kernel version.  Do other kernel versions
+> do a better job?
+>
+So far I tried with:
 
-We need to wait until the amount of dirty memory in the machine is below
-the designated limits.  This is unrelated to queue congestion.  The way the
-logic is now we can have 256 megs worth of requests queues on a 32M machine
-and everything throttles and clamps as intended.
+2.4.21-rc2-ac2 (ACPI compiled as module)
+2.4.21-rc4 (ACPI compiled as module)
+2.4.21-rc6-ac1 (ACPI compiled as module)
+2.4.21-rc6-ac1 (no ACPI comiled at all)
 
+Time acceleration is the same for all kernels.
 
-There are several things wrong with blk_congestion_wait(), including:
+I'll try it with some older kernels, too.
 
-a) it should be called throttle_on_io()
+- - andreas
 
-b) it should check that there are still requests in flight after parking
-   itself on the waitqueue rather than relying on the timeout.
+- --
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-c) for memory reclaim we should terminate the sleep on a certain number
-   of pages coming unreclaimable, not on write requests being returned or
-   timeout.
-
-d) network filesystems should be delivering wakeups to throttled
-   processes rather than relying on the timeout.
-
-But none of these have proven sufficiently problematic to justify futzing
-with it.  I expect d) will eventually need to be implemented.
-
-As for Adam's hang: dunno.  I and many others have run mkfs and dd an
-unbelievable number of times.  He needs to debug it more.
+iD8DBQE+3HKxxJmyeGcXPhERAkZ/AJ9tjgI6K2HtM/tL15nKDFIKzdcvQgCfYOGY
+i96/o6Nyxlem5yOp1A2Q//s=
+=plFh
+-----END PGP SIGNATURE-----
 

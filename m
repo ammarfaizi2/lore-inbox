@@ -1,90 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265139AbUADDSa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 22:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbUADDSa
+	id S265100AbUADDcT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 22:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbUADDcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 22:18:30 -0500
-Received: from esperance.ozonline.com.au ([203.23.159.248]:52168 "EHLO
-	ozonline.com.au") by vger.kernel.org with ESMTP id S265130AbUADDSZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 22:18:25 -0500
-Date: Sun, 4 Jan 2004 14:21:41 +1100
-From: Davin McCall <davmac@ozonline.com.au>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] fix issues with loading PCI ide drivers as modules
- (linux 2.6.0)
-Message-Id: <20040104142141.2bf4f230.davmac@ozonline.com.au>
-In-Reply-To: <200401040256.57419.bzolnier@elka.pw.edu.pl>
-References: <20040103152802.6e27f5c5.davmac@ozonline.com.au>
-	<200401040256.57419.bzolnier@elka.pw.edu.pl>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Jan 2004 22:32:19 -0500
+Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:54534 "EHLO swin.edu.au")
+	by vger.kernel.org with ESMTP id S265100AbUADDcR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 22:32:17 -0500
+To: linux-kernel@vger.kernel.org
+From: Tim Connors <tconnors+linuxkernel1073186591@astro.swin.edu.au>
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+In-reply-to: <200401041242.47410.kernel@kolivas.org>
+References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <200401040815.54655.kernel@kolivas.org> <20040103233518.GE3728@alpha.home.local> <200401041242.47410.kernel@kolivas.org>
+X-Face: "$j_Mi4]y1OBC/&z_^bNEN.b2?Nq4#6U/FiE}PPag?w3'vo79[]J_w+gQ7}d4emsX+`'Uh*.GPj}6jr\XLj|R^AI,5On^QZm2xlEnt4Xj]Ia">r37r<@S.qQKK;Y,oKBl<1.sP8r,umBRH';vjULF^fydLBbHJ"tP?/1@iDFsKkXRq`]Jl51PWN0D0%rty(`3Jx3nYg!
+Message-ID: <slrn-0.9.7.4-25573-3125-200401041423-tc@hexane.ssi.swin.edu.au>
+Date: Sun, 4 Jan 2004 14:32:13 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jan 2004 02:56:57 +0100
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+Con Kolivas <kernel@kolivas.org> said on Sun, 4 Jan 2004 12:42:47 +1100:
+> On Sun, 4 Jan 2004 10:35, Willy Tarreau wrote:
+> > 6) Conclusion
+> > =============
+> >
+> > Under 2.4, xterm uses jump scrolling which it does not use by default under
+> > 2.6 if X responds fast enough. The first dirty solution which comes to mind
+> > is to renice X to >+10 to slow it a bit so that xterm hits the high water
+> > level and jumps.
+> >
+> > But it's not an effect of the scheduler alone, but a side effect of the
+> > scheduler and xterm both trying to automatically adjust their behaviour in
+> > a different manner. 
+> 
+> Not quite. The scheduler retains high priority for X for longer so it's no new 
+> dynamic adjustment of any sort, just better cpu usage by X (which is why it's 
+> smoother now at nice 0 than previously). 
+> 
+> > If either the scheduler or xterm was a bit smarter or 
+> > used different thresholds, the problem would go away. It would also explain
+> > why there are people who cannot reproduce it. Perhaps a somewhat faster or
+> > slower system makes the problem go away. Honnestly, it's the first time
+> > that I notice that my xterms are jump-scrolling, it was so much fluid
+> > anyway.
+> 
+> Very thorough but not a scheduler problem as far as I'm concerned. Can you not 
+> disable smooth scrolling and force jump scrolling?
 
-> Are you aware that your change brakes "idex=base", "idex=base,ctl"
-> and "idex=base,ctl,irq" kernel parameters?  If these parameters are used
-> hwif->chipset is also set to ide_generic.  Now if controller is a PCI one
-> and PCI IDE support is compiled in hwif->chipset will be set to
-> ide_pci_takeover and drives won't be probed.
+AFAIK the definition of jump scrolling is that if xterm is falling
+behind, it jumps. Jump scrolling is enabled by default.
 
-Ok. I see the problem.
+What this slowness means is that xterm is getting CPU at just the
+right moments that it isn't falling behind, so it doesn't jump - which
+means X gets all the CPU to redraw, which means your ls/dmesg anything
+else that reads from disk[1] doesn't get any CPU. 
 
-> When it fails controller+drives are not being programmed correctly
-> (because probe_hwif() returns early).  "takeover" is not supported because
-> you need to reprogram controller/drive to do DMA, but probing code
-> (which does also reprogramming) can race with actual data transfer.
+Xterm is already functioning as designed - you can't force jump
+scrolling to jump more - it is at the mercy of how it gets
+scheduled. If there is nothing more in the pipe to draw, it has to
+draw.
 
-... So basically, it's not nearly as simple as I had hoped.
-
-However, there are still two genuine but easily solveable problems that I can see:
-
-1) unless "idex=base,ctl,irq" is used, the hwif->chipset is left as "ide_unknown"
-   (this means for that the hwif can get re-allocated in setup-pci.c - ide_match_hwif() -
-    and clobbered)
-2) if "idex=base,ctl,irq" IS used, the hwif structure will still get clobbered when a PCI
-   chipset module is loaded.
-
-What about this is a solution to these problems:
- - set hwif->chipset to "ide_generic" instead of leaving it as "ide_unknown" (ide-probe.c);
- - if ide_match_hwif() returns an already allocated hwif, do not clobber it in ide_hwif_configure() (setup-pci.c)
-
-Two individual patches below; again any comments appreciated!
-
-Davin
-
-
-
---- ide-probe.c.orig	Sun Jan  4 14:17:22 2004
-+++ ide-probe.c	Sun Jan  4 13:58:44 2004
-@@ -1343,6 +1343,7 @@
- 			int unit;
- 			if (!hwif->present)
- 				continue;
-+			if (hwif->chipset == ide_unknown) hwif_chipset = ide_generic;
- 			for (unit = 0; unit < MAX_DRIVES; ++unit)
- 				if (hwif->drives[unit].present)
- 					ata_attach(&hwif->drives[unit]);
+These bloody interactive changes to make X more responsive are at the
+expense of anything that does *real* work.
 
 
---- setup-pci.c.orig	Sun Jan  4 14:17:30 2004
-+++ setup-pci.c	Sun Jan  4 14:12:23 2004
-@@ -441,6 +441,9 @@
- 	}
- 	if ((hwif = ide_match_hwif(base, d->bootable, d->name)) == NULL)
- 		return NULL;	/* no room in ide_hwifs[] */
-+	if (hwif->chipset != ide_unknown)
-+		return NULL;  /* clash with already allocated hwif */
-+
- 	if (hwif->io_ports[IDE_DATA_OFFSET] != base) {
- fixup_address:
- 		ide_init_hwif_ports(&hwif->hw, base, (ctl | 2), NULL);
+[1] Others say that it only affects them first time through - after
+something is cached, it goes back to normal speed. For me - it is slow
+*all* the time. If I pipe it to cat or tail or something, it is a
+*lot* quicker.
 
 
+
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+Beware of Programmers who carry screwdrivers.

@@ -1,61 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265182AbTFRMOM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 08:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265188AbTFRMOM
+	id S265181AbTFRMWv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 08:22:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265192AbTFRMWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 08:14:12 -0400
-Received: from pop.gmx.de ([213.165.64.20]:22725 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265182AbTFRMOH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 08:14:07 -0400
-Message-Id: <5.2.0.9.2.20030618141902.02773c18@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Wed, 18 Jun 2003 14:32:14 +0200
-To: Helge Hafting <helgehaf@aitel.hist.no>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: O(1) scheduler starvation
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>, davidm@hpl.hp.com,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EF05816.6050307@aitel.hist.no>
-References: <5.2.0.9.2.20030618113653.0277d780@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 18 Jun 2003 08:22:51 -0400
+Received: from host81-134-138-64.in-addr.btopenworld.com ([81.134.138.64]:32905
+	"HELO factotum.office.bytemark.co.uk") by vger.kernel.org with SMTP
+	id S265181AbTFRMWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 08:22:50 -0400
+From: Pete Taphouse <pete@bytemark.co.uk>
+Organization: Bytemark Computer Consulting Ltd
+To: Andre Tomt <andre@tomt.net>
+Subject: Re: ptrace/kmod exploit still works in 2.4.21?
+Date: Wed, 18 Jun 2003 13:36:07 +0100
+User-Agent: KMail/1.5.2
+References: <200306181222.11691.pete@bytemark.co.uk> <1055936287.7480.136.camel@slurv.ws.pasop.tomt.net>
+In-Reply-To: <1055936287.7480.136.camel@slurv.ws.pasop.tomt.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_6yF8+4DA2su/0LT";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200306181336.10601.pete@bytemark.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:16 PM 6/18/2003 +0200, Helge Hafting wrote:
->Mike Galbraith wrote:
->>At 09:53 AM 6/18/2003 +0200, Felipe Alfaro Solana wrote:
->>
->>>Hi!
->>>
->>>I've been poking around and found the following link on O(1) scheduler
->>>starvation problems:
->>>
->>>http://www.hpl.hp.com/research/linux/kernel/o1-starve.php
->>>
->>>The web page contains a small test program which supposedly is able to
->>>make two processes starvate. However, I've been unable to reproduce what
->>>is described in the above link. In fact, the CPU usage ratio ranges
->>>between 60-40% or 70-30% in the worst cases.
->>
->>(you're talking about with my monotinic_clock() diff in your kernel right?)
->>If you examine the priorities vs cpu usage, therein lies a big fat bug.
->>I think the fundamental problem is that you can only execute in series, 
->>but can sleep in parallel, which makes for more sleep time existing than 
->>all execution time combined.
+
+--Boundary-02=_6yF8+4DA2su/0LT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
+
+On Wednesday 18 June 2003 12:38, you wrote:
+> On ons, 2003-06-18 at 13:22, Pete Taphouse wrote:
+> <snip FAQ>
 >
->Would dividing the sleep time by the number of sleepers fix this?
->Or is division a too heavy operation here?
+> Check your exploit binary for the suid flag. If run successfully once on
+> a older kernel, it cheats by setting suid root.
+Doh!  Apologies for time/space wastage.
 
-That won't work.  You'd have to plunk it all into a pot, and divvy it up by 
-%cpu usage or something.  I solved it the simple way.  I keep a smoothed 
-run_avg (%cpu * 100), and use that as a sleep_avg limit... ie if you're 
-run_avg is 9000 (you're eating 10% cpu), no sleep will push you into 
-insanity land.  I still have the problem that tasks will seek their 
-appropriate priority level and _stick_ there, so I probably need to add 
-some decay. (which will no doubt open the next can-O-worms)
+Cheers,
+=2D-=20
+Peter Taphouse
 
-         -Mike 
+Bytemark Hosting
+http://www.bytemark-hosting.co.uk
+tel. +44 (0) 8707 455 026
+
+--Boundary-02=_6yF8+4DA2su/0LT
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+8Fy6IAZ7OKeBB58RApCwAJ99dd4ZNTXqqADQqydiM73ZzAiQLQCeKjeW
+4/7KK+GAf3TjLYHrjQ7Gs5Q=
+=e87H
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_6yF8+4DA2su/0LT--
 

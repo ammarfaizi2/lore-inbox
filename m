@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289597AbSAWAzz>; Tue, 22 Jan 2002 19:55:55 -0500
+	id <S289595AbSAWA5y>; Tue, 22 Jan 2002 19:57:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289600AbSAWAzn>; Tue, 22 Jan 2002 19:55:43 -0500
-Received: from smtp013.mail.yahoo.com ([216.136.173.57]:41738 "HELO
-	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S289595AbSAWAzb>; Tue, 22 Jan 2002 19:55:31 -0500
-From: "Rajeev Bector" <rajeev_bector@yahoo.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: bootimg vs lobos vs two kernel monte
-Date: Tue, 22 Jan 2002 16:49:11 -0800
-Message-ID: <GIEMIEJKPLDGHDJKJELAKEDCDOAA.rajeev_bector@yahoo.com>
+	id <S289605AbSAWA5n>; Tue, 22 Jan 2002 19:57:43 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:31760 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S289600AbSAWA5a>;
+	Tue, 22 Jan 2002 19:57:30 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-ID: <15438.2595.750370.978428@argo.ozlabs.ibm.com>
+Date: Wed, 23 Jan 2002 11:56:03 +1100 (EST)
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: pte-highmem-5
+In-Reply-To: <20020123003449.F1547@athlon.random>
+In-Reply-To: <20020122201002.E1547@athlon.random>
+	<Pine.LNX.4.21.0201222045450.1352-100000@localhost.localdomain>
+	<20020123003449.F1547@athlon.random>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone tell me which one of these works well
-for 2.4 series ? I tried two kernel monte and 
-it reboot system from scratch (using the BIOS).
+Andrea Arcangeli writes:
 
-Am I missing something.
+> Let's speak about this later. We should ring a bell as soon as we know
+> what's really faster (invlpg at every kmap or global tlb flush once
+> every 1024 kmaps?).
 
-Thanks
-Rajeev
+It would be really good if we could have whatever hooks are necessary
+for each architecture to decide this issue in its own way.  On PPC for
+example a global tlb flush is really expensive, it would be quicker
+for us to either flush each kmap page individually or to flush the
+range of addresses used for kmaps when we wrap.  At the very least I
+would like to have a flush_tlb_kernel_range function which would get
+called at the end of flush_all_zero_pkmaps instead of flush_tlb_all.
 
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+Regards,
+Paul.

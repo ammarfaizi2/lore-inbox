@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbTIOJNO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 05:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbTIOJNO
+	id S261698AbTIOJZp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 05:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbTIOJZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 05:13:14 -0400
-Received: from imo-d02.mx.aol.com ([205.188.157.34]:5537 "EHLO
-	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP id S261596AbTIOJNN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 05:13:13 -0400
-Date: Mon, 15 Sep 2003 05:12:59 -0400
-From: jpo234@netscape.net
-To: remi.colinet@wanadoo.fr
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 1:1 M:N threading
-MIME-Version: 1.0
-Message-ID: <1717A06D.56EB198A.00065BAA@netscape.net>
-X-Mailer: Atlas Mailer 2.0
-X-AOL-IP: 62.96.207.14
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 15 Sep 2003 05:25:45 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:63872 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261698AbTIOJZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 05:25:43 -0400
+Date: Mon, 15 Sep 2003 10:39:01 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309150939.h8F9d13D000943@81-2-122-30.bradfords.org.uk>
+To: john@grabjohn.com, piggin@cyberone.com.au
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Cc: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, linux-kernel@vger.kernel.org,
+       zwane@linuxpower.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-remi.colinet@wanadoo.fr wrote:
- > For 2.6, the default is NGPT (see 
- > http://www-124.ibm.com/developerworks/oss/pthreads/) which is 1:1.
+> >>>That's a non-issue.  300 bytes matters a lot on some systems.  The
+> >>>fact that there are drivers that are bloated is nothing to do with
+> >>>it.
+> >>>
+> >>Its kind of irrelevant when by saying "Athlon" you've added 128 byte
+> >>alignment to all the cache friendly structure padding.
+> >>
+> >
+> >My intention is that we won't have done 128 byte alignments just by
+> >'supporting' Athlons, only if we want to run fast on Athlons.  A
+> >distribution kernel that is intended to boot on all CPUs needs
+> >workarounds for Athlon bugs, but it doesn't need 128 byte alignment.
+> >
+> >Obviously using such a kernel for anything other than getting a system
+> >up and running to compile a better kernel is a Bad Thing, but the
+> >distributions could supply separate Athlon, PIV, and 386 _optimised_
+> >kernels.
+> >
+>
+> Why bother with that complexity? Just use 128 byte lines. This allows
+> a decent generic kernel. The people who have space requirements would
+> only compile what they need anyway.
 
-NGPT is frozen and in maintenance mode (which is a different
-wording for "dead"). See
-http://www-124.ibm.com/pthreads/docs/announcement
-The new default Linux pthread implementation is RedHats NPTL. See
-http://people.redhat.com/~drepper/nptl-design.pdf
-for details, which btw. is 1:1 as well.
+So, basically, if you compile a kernel for a 386, but think that maybe
+one day you might need to run it on an Athlon for debugging purposes,
+you use 128 byte padding, because it's not too bad on the 386?  Seems
+pretty wasteful to me when the obvious, simple, elegant solution is to
+allow independent selection of workaround inclusion and optimisation.
+Especially since half of the work has already been done.
 
-Regards
-  jpo
-
-__________________________________________________________________
-McAfee VirusScan Online from the Netscape Network.
-Comprehensive protection for your entire computer. Get your free trial today!
-http://channels.netscape.com/ns/computing/mcafee/index.jsp?promo=393397
-
-Get AOL Instant Messenger 5.1 free of charge.  Download Now!
-http://aim.aol.com/aimnew/Aim/register.adp?promo=380455
+John.

@@ -1,74 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264035AbRFYLcS>; Mon, 25 Jun 2001 07:32:18 -0400
+	id <S264062AbRFYLdh>; Mon, 25 Jun 2001 07:33:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264062AbRFYLcI>; Mon, 25 Jun 2001 07:32:08 -0400
-Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:60166 "EHLO
-	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
-	id <S264035AbRFYLb4>; Mon, 25 Jun 2001 07:31:56 -0400
-Message-ID: <00c901c0fd6a$5f973680$d55355c2@microsoft>
-From: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>
-To: "Matthias Andree" <matthias.andree@stud.uni-dortmund.de>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <001301c0fcff$47c05160$d55355c2@microsoft> <20010625111657.C13348@emma1.emma.line.org>
-Subject: Re: GCC3.0 Produce REALLY slower code!
-Date: Mon, 25 Jun 2001 15:31:27 +0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2488.0001
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2488.0001
+	id <S264272AbRFYLdS>; Mon, 25 Jun 2001 07:33:18 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48655 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S264090AbRFYLdI>; Mon, 25 Jun 2001 07:33:08 -0400
+Date: Mon, 25 Jun 2001 13:31:22 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Mike Galbraith <mikeg@wen-online.de>,
+        Rik van Riel <riel@conectiva.com.br>, Pavel Machek <pavel@suse.cz>,
+        John Stoffel <stoffel@casc.com>,
+        Roger Larsson <roger.larsson@norran.net>, thunder7@xs4all.nl,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Early flush (was: spindown)
+Message-ID: <20010625133122.A21253@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de> <01062003503300.00439@starship> <200106200439.f5K4d4501462@vindaloo.ras.ucalgary.ca> <01062016294903.00439@starship> <200106201612.f5KGCca06372@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <200106201612.f5KGCca06372@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Wed, Jun 20, 2001 at 10:12:38AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Although I just wanna say that there is no reason trying compile kernel with
-new shiny GCC 3.0 ;-). The result will be in kernel slowdown.
+Hi!
 
-Maybe, we can try to use Intel C compiler for some important ;-) (beta
-version work with linux).
+> > You know about this project no doubt:
+> > 
+> >    http://noflushd.sourceforge.net/
+> 
+> Only vaguely. It's huge. Over 2300 lines of C code and >560 lines in
+> .h files! As you say, not really lightweight. There must be a better
+> way. Also, I suspect (without having looked at the code) that it
+> doesn't handle memory pressure well. Things may get nasty when we run
+> low on free pages.
 
-Best regards,
-Alexander                  mailto:www@2ka.mipt.ru
-------------------------------------------------------
-Let start the war, said Meggy
-------------------------------------------------------
------ Original Message -----
-From: "Matthias Andree" <matthias.andree@stud.uni-dortmund.de>
-To: "Alexander V. Bilichenko" <dmor@7ka.mipt.ru>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, June 25, 2001 1:16 PM
-Subject: Re: GCC3.0 Produce REALLY slower code!
-
-
-> On Mon, 25 Jun 2001, Alexander V. Bilichenko wrote:
->
-> > Hello All!
-> > Some tests that I have recently check out.
-> > kernel compiled with 3.0 (2.4.5) function call: 1000000 iteration. 3%
-slower
-> > than 2.95.
-> > test example - hash table add/remove - 4% slower (compiled both
-> > with -O2 -march=i686).
-> > Why have this version been released?
->
-> Because it comes with various other improvements, among them better
-> error detection, better C++ support, integrated GCJ (but regretfully
-> still without Ada 95), to name a few reasons.
->
-> 3% to 4% loss in a first release of a new major release is not a big
-> deal, although I found similar results on leafnode's texpire.
-> However, 3% do not warrant me spending my time complaining. Maybe some
-> optimization is missing, maybe other operations than the ones you
-> checked are faster. So there.
->
-> You might run an entire benchmark suite and report back, tough. :-)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Noflushd *is* lightweight. It is complicated because it has to know
+about different kernel versions etc. It is "easy stuff". If you add
+kernel support, it will only *add* lines to noflushd.
+								Pavel
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264388AbTLGJnU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 04:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbTLGJnU
+	id S264389AbTLGJo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 04:44:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTLGJo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 04:43:20 -0500
-Received: from postal.usc.edu ([128.125.253.6]:3270 "EHLO postal.usc.edu")
-	by vger.kernel.org with ESMTP id S264388AbTLGJnN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 04:43:13 -0500
-Date: Sun, 07 Dec 2003 01:43:08 -0800
-From: Lee <weifeil@usc.edu>
-Subject: PROBLEM: Can't use mkintrd to make a image file
-To: linux-kernel@vger.kernel.org
-Message-id: <003101c3bca6$89d7f350$0300a8c0@tiger>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-Content-type: text/plain; charset=gb2312
-Content-transfer-encoding: 7BIT
+	Sun, 7 Dec 2003 04:44:29 -0500
+Received: from law15-dav57.law15.hotmail.com ([64.4.22.192]:30472 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264389AbTLGJn6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 04:43:58 -0500
+X-Originating-IP: [128.125.228.24]
+X-Originating-Email: [windfly_77@hotmail.com]
+From: "Lee" <windfly_77@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: PROBLEM:can't load module "ide-cd" automatically
+Date: Sun, 7 Dec 2003 01:43:53 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
 X-Priority: 3
-X-MSMail-priority: Normal
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Message-ID: <Law15-DAV57w4pUniTw00003e57@hotmail.com>
+X-OriginalArrivalTime: 07 Dec 2003 09:43:55.0677 (UTC) FILETIME=[A1824CD0:01C3BCA6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1. Under kernel 2.6.0-test10, I can't use mkintrd to make a image file.
-2. Unlike under 2.4.x kernel, when I use mkintrd to make a file, it always
-tells me that:"All of your loopback devices are in use" . So I have to
-switch to 2.4.x kernel to make .img file.
-3. Keyword: mkinitrd, loopback devices
+1. Under kernel 2.6.0-test10, I can't load module "ide-cd" automatically.
+2. Unlike under 2.4.x kernel, I must load "cdrom" and "ide-cd" module by
+hand or use shell scripts to do it under 2.6.0-test10 kernel, although I
+didn't change  .config file. If I want to mount my cdrom disk without
+loading these modules, it always tells me that " mount:/dev/cdrom is not a
+valid block device".
+3. Keyword: module, ide-cd
 4.Kernel Version:Linux version 2.6.0-test10 (root@king) (gcc version 3.2
 20020903 (Red Hat Linux 8.0 3.2-7)) #1 Wed Nov 26 21:40:32 PST 2003
-5. Oops output: No
-6. Script: "mkintrd 2.6.0  2.6.0-test10"
+5.
+6. Script: mount  /dev/cdrom
 
 7.Environment:
 
@@ -261,4 +267,3 @@ Stepping+ SERR- FastB2B-
 That's   all,
 Thanks a lot!
 Weifei
-

@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129714AbRBVXIs>; Thu, 22 Feb 2001 18:08:48 -0500
+	id <S129250AbRBVXKI>; Thu, 22 Feb 2001 18:10:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129738AbRBVXIj>; Thu, 22 Feb 2001 18:08:39 -0500
-Received: from mail0.netcom.net.uk ([194.42.236.2]:35533 "EHLO
-	mail0.netcom.net.uk") by vger.kernel.org with ESMTP
-	id <S129250AbRBVXIY>; Thu, 22 Feb 2001 18:08:24 -0500
-Message-ID: <3A959BFD.B18F833@netcomuk.co.uk>
-Date: Thu, 22 Feb 2001 23:08:45 +0000
-From: Bill Crawford <billc@netcomuk.co.uk>
-Organization: Netcom Internet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac13 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: "H. Peter Anvin" <hpa@transmeta.com>,
-        Daniel Phillips <phillips@innominate.de>
-Subject: Hashing and directories
+	id <S129281AbRBVXJ6>; Thu, 22 Feb 2001 18:09:58 -0500
+Received: from phoenix.nanospace.com ([209.213.199.19]:40201 "HELO
+	phoenix.nanospace.com") by vger.kernel.org with SMTP
+	id <S129250AbRBVXJt>; Thu, 22 Feb 2001 18:09:49 -0500
+Date: Thu, 22 Feb 2001 15:09:46 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use correct include dir for build tools
+Message-ID: <20010222150946.D20997@thune.yy.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010222123940.A20319@tenchi.datarithm.net> <E14W4EP-00055G-00@the-village.bc.nu> <20010222144055.B20752@tenchi.datarithm.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.6i
+In-Reply-To: <20010222144055.B20752@tenchi.datarithm.net>; from rread@datarithm.net on Thu, Feb 22, 2001 at 02:40:55PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- I was hoping to point out that in real life, most systems that
-need to access large numbers of files are already designed to do
-some kind of hashing, or at least to divide-and-conquer by using
-multi-level directory structures.
+On Thu, Feb 22, 2001 at 02:40:55PM -0800, Robert Read wrote:
+> Ok, my bad, I forgot about cross-compiles. The problem was
+> scripts/split-include.c includes errno.h, which requires linux/errno.h
+> to exist, and I thought it would be better to use the current kernel's
+> version, rather than the system version. I guess not.
 
- A particular reason for this, apart from filesystem efficiency,
-is to make it easier for people to find things, as it is usually
-easier to spot what you want amongst a hundred things than among
-a thousand or ten thousand.
+Oh no.  Definitely not.
 
- A couple of practical examples from work here at Netcom UK (now
-Ebone :), would be say DNS zone files or user authentication data.
-We use Solaris and NFS a lot, too, so large directories are a bad
-thing in general for us, so we tend to subdivide things using a
-very simple scheme: taking the first letter and then sometimes
-the second letter or a pair of letters from the filename.  This
-actually works extremely well in practice, and as mentioned above
-provides some positive side-effects.
+Linus went on a tirade not too long ago about that.  You can search the
+kernel archives for the details and long heated threads.  But it comes down
+to this:
 
- So I don't think it would actually be sensible to encourage
-anyone to use massive directories for too many tasks.  It has a
-fairly unfortunate impact on applying human intervention to a
-broken system, for example, if it takes a long time to find a
-file you're looking for.
+For user space compiling, the kernel include files should be those that
+libc was built against.
 
- I guess what I really mean is that I think Linus' strategy of
-generally optimizing for the "usual case" is a good thing.  It
-is actually quite annoying in general to have that many files in
-a single directory (think \winnt\... here).  So maybe it would
-be better to focus on the normal situation of, say, a few hundred
-files in a directory rather than thousands ...
+For kernel space compiling, the kernel include files should be those that
+the components will link against (static or modules).
 
- I still think it's a good idea to do anything you can to speed
-up large directory operations on ext2 though :)
+So, theoretically, a package that has both components should take care to
+do the proper includes.  But that's it.
 
- On the plus side, hashes or anything resembling tree structures
-would tend to improve the characteristics of insertion and removal
-of entries on even moderately sized directories, which would
-probably provide a net gain for many folks.
+(libc does usually take care to be able to build against a later kernel
+version than you're running on, and determine at run time what features may
+or may not be there, so one could have a 2.4.2 kernel handy to build libc
+against while still running a 2.2.18 kernel.  Theoretically.)
 
+mrc
 -- 
-/* Bill Crawford, Unix Systems Developer, ebOne, formerly GTS Netcom */
-#include "stddiscl.h"
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen

@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129834AbRAKRKh>; Thu, 11 Jan 2001 12:10:37 -0500
+	id <S130335AbRAKRQ2>; Thu, 11 Jan 2001 12:16:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129842AbRAKRKS>; Thu, 11 Jan 2001 12:10:18 -0500
-Received: from dsl081-146-215-chi1.dsl-isp.net ([64.81.146.215]:516 "EHLO
-	manetheren.eigenray.com") by vger.kernel.org with ESMTP
-	id <S129834AbRAKRKJ>; Thu, 11 Jan 2001 12:10:09 -0500
-Date: Thu, 11 Jan 2001 10:45:13 -0600 (CST)
-From: Paul Cassella <pwc@speakeasy.net>
-To: Andrew Morton <andrewm@uow.edu.au>, Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: 2.4.0-ac3 write() to tcp socket returning errno of -3 (ESRCH:
- "No such process")
-In-Reply-To: <Pine.LNX.4.21.0101090727000.834-100000@localhost>
-Message-ID: <Pine.LNX.4.21.0101111023090.716-100000@localhost>
+	id <S130230AbRAKRQR>; Thu, 11 Jan 2001 12:16:17 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:18979 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S129842AbRAKRQG>;
+	Thu, 11 Jan 2001 12:16:06 -0500
+Message-ID: <3A5DEA5D.B783B323@student.ethz.ch>
+Date: Thu, 11 Jan 2001 18:16:13 +0100
+From: Giacomo Catenazzi <cate@student.ethz.ch>
+X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP22)
+X-Accept-Language: en, en-US, en-GB
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Compile error: DRM without AGP in 2.4.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Jan 2001 17:16:04.0287 (UTC) FILETIME=[2D8CACF0:01C07BF2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Paul Cassella wrote:
+Here a valid configuration (no AGP, but all DRM set)
+compiling [2.4.0]:
 
-> and mss_now seems to be less than skb->len when the printk happens.  My
-> copy of K&R is at work; could that comparison be being done unsigned
-> because of skb->len?  I wouldn't think so, but the alternative seems
-> somewhat worse...
-
-That'll teach me to post about integral promotions ...
-
-> +		printk(KERN_ERR "%s:%d:%s: err is unexpectedly %d.\n", file, line, func, ret);
-
-... and hand-edit patches before breakfast.
-
-
-I'm not familiar enough with the tcp code to know if this patch (against
--ac6) is a solution, band-aid, or, in fact, wrong, but I've run with it
-(on -ac3) and haven't seen the errors for over twelve hours, which is
-three times longer than it had been able to go without it coming up.
-
---- tcp.c.orig	Thu Jan 11 08:54:50 2001
-+++ tcp.c	Thu Jan 11 08:56:42 2001
-@@ -954,7 +954,7 @@
- 			 */
- 			skb = sk->write_queue.prev;
- 			if (tp->send_head &&
--			    (mss_now - skb->len) > 0) {
-+			    (signed int)(mss_now - skb->len) > 0) {
- 				copy = skb->len;
- 				if (skb_tailroom(skb) > 0) {
- 					int last_byte_was_odd = (copy % 4);
+r128_cce.c: In function `r128_cce_init_ring_buffer':
+r128_cce.c:339: structure has no member named `agp'
+r128_cce.c:333: warning: `ring_start' might be used uninitialized in
+          this function
+r128_cce.c: In function `r128_cce_packet':
+r128_cce.c:1023: warning: unused variable `size'
+r128_cce.c:1021: warning: unused variable `buffer'
+r128_cce.c:1019: warning: unused variable `dev_priv'
 
 
-Or would this be better?
+	giacomo
 
-+			    (unsigned int)mss_now > skb->len) {
 
-Or making mss_now unsigned in the first place?
-
--- 
-Paul Cassella
-
+PS: This bug is not on my machine. It is reported via IRC,
+so I cannot include to much info...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

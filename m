@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbTFHHwo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 03:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTFHHwo
+	id S261168AbTFHILP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 04:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbTFHILP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 03:52:44 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:61907 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S261161AbTFHHwn (ORCPT
+	Sun, 8 Jun 2003 04:11:15 -0400
+Received: from ns.suse.de ([213.95.15.193]:38162 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261168AbTFHILO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 03:52:43 -0400
-Date: Sun, 8 Jun 2003 10:06:06 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: Pavel Machek <pavel@suse.cz>, dan carpenter <error27@email.com>,
-       chris@memtest86.com, linux-kernel@vger.kernel.org
-Subject: Re: memtest86 on the opteron
-Message-ID: <20030608080606.GB236@elf.ucw.cz>
-References: <20030607202725.22992.qmail@email.com> <20030607214356.GF667@elf.ucw.cz> <1055040745.27939.3.camel@camp4.serpentine.com>
+	Sun, 8 Jun 2003 04:11:14 -0400
+Date: Sun, 8 Jun 2003 10:24:51 +0200
+From: Andi Kleen <ak@suse.de>
+To: B.Zolnierkiewicz@elka.pw.edu.pl, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: taskfile merge breaking suse hwscan
+Message-ID: <20030608082451.GA21200@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1055040745.27939.3.camel@camp4.serpentine.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Well, as opteron is i386-compatible, you should be able to simply use
-> > i386 memtest...
-> 
-> It doesn't work.  Crashes and reboots the system shortly after it
-> starts.  The serial console support appears to have bit-rotted, too, so
-> I've not been able to capture an output screen to diagnose the problem.
+I just tried to boot a recent 2.5 amd64 kernel. Result is that it is 
+hanging at boot during SuSE 8.2 hwscan.
 
-Try asking AMD at discuss@x86-64.org.
+Backtrace points to the new IDE taskfile code:
 
-BTW I'm sure I've seen x86_64 machine running some kind of
-memtest.... There was mem-testing PCI card. I'm not sure if we ran
-memtest86, too...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+hwscan        D 0000000000000000 18446744073706259928   861    847                     (NOTLB)
+
+Call Trace:<ffffffff80136137>{wait_for_completion+439} <ffffffff802fca2d>{start_request+253} 
+       <ffffffff80135910>{default_wake_function+0} <ffffffff802fce94>{ide_do_request+996} 
+       <ffffffff80135910>{default_wake_function+0} <ffffffff802fdf36>{ide_do_drive_cmd+710} 
+       <ffffffff801cc440>{proc_alloc_inode+64} <ffffffff80303a4b>{ide_diag_taskfile+203} 
+       <ffffffff803023f1>{taskfile_lib_get_identify+97} <ffffffff80302e40>{task_in_intr+0} 
+       <ffffffff8031477f>{proc_ide_read_identify+111} <ffffffff801d128a>{proc_file_read+234} 
+       <ffffffff8018c1b6>{vfs_read+198} <ffffffff8018c3f9>{sys_read+73} 
+       <ffffffff80122f06>{ia32_do_syscall+30} 
+hdc: lost interrupt
+
+Followed by more lost interrupt messages.
+
+Any ideas?
+
+-Andi

@@ -1,76 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbTLDXgY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 18:36:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbTLDXgX
+	id S263680AbTLDXqU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 18:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbTLDXqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 18:36:23 -0500
-Received: from imap.gmx.net ([213.165.64.20]:24471 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263740AbTLDXgW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 18:36:22 -0500
-X-Authenticated: #4512188
-Message-ID: <3FCFC4F3.8030407@gmx.de>
-Date: Fri, 05 Dec 2003 00:36:19 +0100
-From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
-X-Accept-Language: de-de, de, en-us, en
-MIME-Version: 1.0
-To: Craig Bradney <cbradney@zip.com.au>
-CC: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>,
-       Jesse Allen <the3dfxdude@hotmail.com>, cheuche+lkml@free.fr,
-       linux-kernel@vger.kernel.org
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11) - IRQ
- flood related ?
-References: <3FCF25F2.6060008@netzentry.com>	 <1070551149.4063.8.camel@athlonxp.bradney.info>	 <20031204163243.GA10471@forming>	 <frodoid.frodo.87vfow33zm.fsf@usenet.frodoid.org>	 <20031204175548.GB10471@forming> <20031204200208.GA4167@localnet>	 <20031204230528.GA189@tesore.local>  <3FCFBFC3.5070403@gmx.de> <1070580108.4100.8.camel@athlonxp.bradney.info>
-In-Reply-To: <1070580108.4100.8.camel@athlonxp.bradney.info>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Dec 2003 18:46:20 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:12978 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263680AbTLDXqS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 18:46:18 -0500
+Date: Thu, 4 Dec 2003 15:44:54 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: cliff white <cliffw@osdl.org>
+Cc: Larry McVoy <lm@bitmover.com>, hannal@us.ibm.com,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: Minutes from OSDL talk at LSE call today
+Message-ID: <20031204234454.GA15799@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	cliff white <cliffw@osdl.org>, Larry McVoy <lm@bitmover.com>,
+	hannal@us.ibm.com, lse-tech@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <189470000.1070500829@w-hlinder> <20031204033535.GA2370@work.bitmover.com> <20031204134517.0c7a4ec4.cliffw@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031204134517.0c7a4ec4.cliffw@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig Bradney wrote:
-> Prakash,
+On Thu, Dec 04, 2003 at 01:45:17PM -0800, cliff white wrote:
+> On Wed, 3 Dec 2003 19:35:35 -0800
+> Larry McVoy <lm@bitmover.com> wrote:
 > 
-> try it without preempt.. just to see. As soon as I removed it today the
-> crashes went away (for 5 hours).. PC is now up for 2.5 hours and I'm
-> waiting to see if it will be 5 hrs or 5 days this time around :)
-
-Oh Ok, I did a mistake: Checking my kernel config again I noticed my 
-last experiment indeed was with preemp OFF, so it didn't help.
-
-Prakash
-
-
-> On Fri, 2003-12-05 at 00:14, Prakash K. Cheemplavam wrote:
+> > On Wed, Dec 03, 2003 at 05:20:29PM -0800, Hanna Linder wrote:
+> > > The Mozilla Tinderbox is based on CVS and can do fancy things with
+> > > triggers. The kernel one is not as fancy because they are still
+> > > working out issues with BK.
+> > 
+> > If we could get a list of these issues we'll try and see what we can do
+> > to help.  My response has been a bit spotty lately, I've needed to take
+> > some personal time, so pinging support@bitmover.com is more likely to
+> > get you help.
 > 
->>Jesse Allen wrote:
->>
->>>On Thu, Dec 04, 2003 at 09:02:08PM +0100, cheuche+lkml@free.fr wrote:
->>>
->>>
->>>>Hello,
->>>>
->>>>Along with the lockups already described here, I've noticed an
->>>>unidentified source of interrupts on IRQ7.
->>>
->>>...
->>>
->>>
->>>>I wonder if people experiencing lockup problems also have these
->>>>noise interrupts,
->>>
->>>
->>>I just took a look at this, by setting up parport_pc, and yes I get noise.
->>>
->>>This was my first sample with a kernel with APIC:
->>>  7:      29230    IO-APIC-edge  parport0
->>
->>I just did an experminent with a very light kernel, nearly nothing 
->>compiled inside, except apic acpi, preempt and needed stuff plus 
->>scsi+libata and no ide. IRQ 7 was not present and every device had its 
->>own irq. Nevertheless system locked up at second hdparm run...
->>
->>Prakash
+> We've exchanged some email with support@bitmover.com, and they've been
+> a great help.  Really, there are two things.
+> 
+> The first is triggers. The Mozilla tinderbox is driven by triggers from
+> CVS commits.  I believe that triggers are resevered for the commercial
+> version of BK.
 
+That's not true.  Trigger support is identical in both versions.
 
+> However, unlike CVS, BK has a nice way of asking the remote repository
+> if new changes exist, so we really don't need a trigger to tell us when
+> to start a build.  
+
+Right.  Your problem is deciding which trees you want to track.  There is 
+Linus/Marcelo trees but there are probably another 200+ trees of the kernel
+on bkbits.net and who knows how many elsewhere (we've counted over 10,000
+before we stopped counting).  Obviously you don't want to track all of those
+but some of them might be interesting.
+
+> The main issue here is finding the proper syntax for the bkweb url so
+> we get all of the changesets included in the commit. We've recieved a
+> few examples from your support people, and we're using one currently.
+
+So are there any open issues?  The call implied there were.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

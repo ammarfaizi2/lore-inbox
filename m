@@ -1,88 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285024AbRLKNSQ>; Tue, 11 Dec 2001 08:18:16 -0500
+	id <S285023AbRLKNdM>; Tue, 11 Dec 2001 08:33:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285023AbRLKNSH>; Tue, 11 Dec 2001 08:18:07 -0500
-Received: from nat.transgeek.com ([66.92.79.28]:24829 "HELO smtp.transgeek.com")
-	by vger.kernel.org with SMTP id <S285022AbRLKNR4>;
-	Tue, 11 Dec 2001 08:17:56 -0500
-From: Craig Christophel <merlin@transgeek.com>
-To: Olaf Kirch <okir@monad.swb.de>
-Subject: 2.5.1-pre8 -- fix to compile nfs as module
-Date: Tue, 11 Dec 2001 08:19:35 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
+	id <S285031AbRLKNdD>; Tue, 11 Dec 2001 08:33:03 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:37894 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S285030AbRLKNcq>;
+	Tue, 11 Dec 2001 08:32:46 -0500
+Date: Tue, 11 Dec 2001 11:32:25 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+In-Reply-To: <3C15B0B3.1399043B@zip.com.au>
+Message-ID: <Pine.LNX.4.33L.0112111130110.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_N0L6AQF5I4B7M934GSNM"
-Message-Id: <20011211091616.8AE46C7382@smtp.transgeek.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 10 Dec 2001, Andrew Morton wrote:
 
---------------Boundary-00=_N0L6AQF5I4B7M934GSNM
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+> This test on a 64 megabyte machine, on ext2:
+>
+> 	time (tar xfz /nfsserver/linux-2.4.16.tar.gz ; sync)
+>
+> On 2.4.17-pre7 it takes 21 seconds.  On -aa it is much slower: 36 seconds.
 
-Attached is a patch to allow nfs to compile as a module.  Please check it out 
-as I just:
+> Execution time for `make -j12 bzImage' on a 64meg RAM/512 meg swap
+> dual x86:
+>
+> -aa:					4 minutes 20 seconds
+> 2.4.7-pre8				4 minutes 8 seconds
+> 2.4.7-pre8 plus the below patch:	3 minutes 55 seconds
 
-exported symbols from fs/seq_file.c 
-added the seq_file.o to the obj-exports in the VFS Makefile and 
-added an ifdef for modversions in fs/nfs/inode.c.  
 
+Andrea, it seems -aa is not the holy grail VM-wise. If you want
+to merge your good stuff with marcelo, please do it in the
+"one patch with explanation per problem" style marcelo asked.
 
-	Craig.
---------------Boundary-00=_N0L6AQF5I4B7M934GSNM
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="nfs-module-2.5-unresolved-symbols.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="nfs-module-2.5-unresolved-symbols.diff"
+If nothing happens I'll take my chainsaw and remove the whole
+use-once stuff just so 2.4 will avoid the worst cases, even if
+it happens to remove some of the nice stuff you've been working
+on.
 
-ZGlmZiAtdXJOIGxpbnV4L2ZzL01ha2VmaWxlIGxpbnV4Lm10L2ZzL01ha2VmaWxlCi0tLSBsaW51
-eC9mcy9NYWtlZmlsZQlTdW4gRGVjICA5IDIzOjU3OjI0IDIwMDEKKysrIGxpbnV4Lm10L2ZzL01h
-a2VmaWxlCU1vbiBEZWMgMTAgMjI6MTg6MzEgMjAwMQpAQCAtNyw3ICs3LDcgQEAKIAogT19UQVJH
-RVQgOj0gZnMubwogCi1leHBvcnQtb2JqcyA6PQlmaWxlc3lzdGVtcy5vIG9wZW4ubyBkY2FjaGUu
-byBidWZmZXIubyBiaW8ubworZXhwb3J0LW9ianMgOj0JZmlsZXN5c3RlbXMubyBvcGVuLm8gZGNh
-Y2hlLm8gYnVmZmVyLm8gYmlvLm8gc2VxX2ZpbGUubwogbW9kLXN1YmRpcnMgOj0JbmxzCiAKIG9i
-ai15IDo9CW9wZW4ubyByZWFkX3dyaXRlLm8gZGV2aWNlcy5vIGZpbGVfdGFibGUubyBidWZmZXIu
-byBcCmRpZmYgLXVyTiBsaW51eC9mcy9uZnMvaW5vZGUuYyBsaW51eC5tdC9mcy9uZnMvaW5vZGUu
-YwotLS0gbGludXgvZnMvbmZzL2lub2RlLmMJU3VuIERlYyAgOSAyMzo1NzoyNCAyMDAxCisrKyBs
-aW51eC5tdC9mcy9uZnMvaW5vZGUuYwlUdWUgRGVjIDExIDA4OjExOjEwIDIwMDEKQEAgLTE1LDYg
-KzE1LDExIEBACiAKICNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KICNpbmNsdWRlIDxsaW51eC9t
-b2R1bGUuaD4KKworI2lmZGVmIE1PRFZFUlNJT05TCisjaW5jbHVkZSA8bGludXgvbW9kdmVyc2lv
-bnMuaD4KKyNlbmRpZgorCiAjaW5jbHVkZSA8bGludXgvaW5pdC5oPgogCiAjaW5jbHVkZSA8bGlu
-dXgvc2NoZWQuaD4KZGlmZiAtdXJOIGxpbnV4L2ZzL3NlcV9maWxlLmMgbGludXgubXQvZnMvc2Vx
-X2ZpbGUuYwotLS0gbGludXgvZnMvc2VxX2ZpbGUuYwlTYXQgTm92IDE3IDIxOjE2OjIyIDIwMDEK
-KysrIGxpbnV4Lm10L2ZzL3NlcV9maWxlLmMJVHVlIERlYyAxMSAwMDozOTowOSAyMDAxCkBAIC04
-LDYgKzgsNyBAQAogI2luY2x1ZGUgPGxpbnV4L2ZzLmg+CiAjaW5jbHVkZSA8bGludXgvc2VxX2Zp
-bGUuaD4KICNpbmNsdWRlIDxsaW51eC9zbGFiLmg+CisjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+
-CiAKICNpbmNsdWRlIDxhc20vdWFjY2Vzcy5oPgogCkBAIC0yOTMsMyArMjk0LDkgQEAKIAltLT5j
-b3VudCA9IG0tPnNpemU7CiAJcmV0dXJuIC0xOwogfQorRVhQT1JUX1NZTUJPTChzZXFfcHJpbnRm
-KTsKK0VYUE9SVF9TWU1CT0woc2VxX2VzY2FwZSk7CitFWFBPUlRfU1lNQk9MKHNlcV9yZWxlYXNl
-KTsKK0VYUE9SVF9TWU1CT0woc2VxX2xzZWVrKTsKK0VYUE9SVF9TWU1CT0woc2VxX29wZW4pOwor
-RVhQT1JUX1NZTUJPTChzZXFfcmVhZCk7CmRpZmYgLXVyTiBsaW51eC9pbmNsdWRlL2xpbnV4L3Nl
-cV9maWxlLmggbGludXgubXQvaW5jbHVkZS9saW51eC9zZXFfZmlsZS5oCi0tLSBsaW51eC9pbmNs
-dWRlL2xpbnV4L3NlcV9maWxlLmgJU3VuIERlYyAgOSAyMzo1NzoyNCAyMDAxCisrKyBsaW51eC5t
-dC9pbmNsdWRlL2xpbnV4L3NlcV9maWxlLmgJTW9uIERlYyAxMCAyMzo0NzoxNSAyMDAxCkBAIC0y
-NiwxMSArMjYsMTEgQEAKIAlpbnQgKCpzaG93KSAoc3RydWN0IHNlcV9maWxlICptLCB2b2lkICp2
-KTsKIH07CiAKLWludCBzZXFfb3BlbihzdHJ1Y3QgZmlsZSAqLCBzdHJ1Y3Qgc2VxX29wZXJhdGlv
-bnMgKik7Ci1zc2l6ZV90IHNlcV9yZWFkKHN0cnVjdCBmaWxlICosIGNoYXIgKiwgc2l6ZV90LCBs
-b2ZmX3QgKik7Ci1sb2ZmX3Qgc2VxX2xzZWVrKHN0cnVjdCBmaWxlICosIGxvZmZfdCwgaW50KTsK
-LWludCBzZXFfcmVsZWFzZShzdHJ1Y3QgaW5vZGUgKiwgc3RydWN0IGZpbGUgKik7Ci1pbnQgc2Vx
-X2VzY2FwZShzdHJ1Y3Qgc2VxX2ZpbGUgKiwgY29uc3QgY2hhciAqLCBjb25zdCBjaGFyICopOwor
-ZXh0ZXJuIGludCBzZXFfb3BlbihzdHJ1Y3QgZmlsZSAqLCBzdHJ1Y3Qgc2VxX29wZXJhdGlvbnMg
-Kik7CitleHRlcm4gc3NpemVfdCBzZXFfcmVhZChzdHJ1Y3QgZmlsZSAqLCBjaGFyICosIHNpemVf
-dCwgbG9mZl90ICopOworZXh0ZXJuIGxvZmZfdCBzZXFfbHNlZWsoc3RydWN0IGZpbGUgKiwgbG9m
-Zl90LCBpbnQpOworZXh0ZXJuIGludCBzZXFfcmVsZWFzZShzdHJ1Y3QgaW5vZGUgKiwgc3RydWN0
-IGZpbGUgKik7CitleHRlcm4gaW50IHNlcV9lc2NhcGUoc3RydWN0IHNlcV9maWxlICosIGNvbnN0
-IGNoYXIgKiwgY29uc3QgY2hhciAqKTsKIAogc3RhdGljIGlubGluZSBpbnQgc2VxX3B1dGMoc3Ry
-dWN0IHNlcV9maWxlICptLCBjaGFyIGMpCiB7CkBAIC01Myw3ICs1Myw3IEBACiAJcmV0dXJuIC0x
-OwogfQogCi1pbnQgc2VxX3ByaW50ZihzdHJ1Y3Qgc2VxX2ZpbGUgKiwgY29uc3QgY2hhciAqLCAu
-Li4pCitleHRlcm4gaW50IHNlcV9wcmludGYoc3RydWN0IHNlcV9maWxlICosIGNvbnN0IGNoYXIg
-KiwgLi4uKQogCV9fYXR0cmlidXRlX18gKChmb3JtYXQgKHByaW50ZiwyLDMpKSk7CiAKICNlbmRp
-Zgo=
+regards,
 
---------------Boundary-00=_N0L6AQF5I4B7M934GSNM--
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318378AbSGRVQC>; Thu, 18 Jul 2002 17:16:02 -0400
+	id <S318355AbSGRVXs>; Thu, 18 Jul 2002 17:23:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318379AbSGRVQC>; Thu, 18 Jul 2002 17:16:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39689 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318378AbSGRVQC>;
-	Thu, 18 Jul 2002 17:16:02 -0400
-Date: Thu, 18 Jul 2002 22:18:59 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Matthew Wilcox <willy@debian.org>, jsimmons@transvirtual.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.26 broken on headless boxes
-Message-ID: <20020718221859.Q13352@parcelfarce.linux.theplanet.co.uk>
-References: <B4822306FB3@vcnet.vc.cvut.cz>
+	id <S318359AbSGRVXs>; Thu, 18 Jul 2002 17:23:48 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:42665 "EHLO
+	postfix1-2.free.fr") by vger.kernel.org with ESMTP
+	id <S318355AbSGRVXr>; Thu, 18 Jul 2002 17:23:47 -0400
+Date: Thu, 18 Jul 2002 22:35:27 +0200
+To: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: cdrom driver report wrong number of used blocks on multisession cdr
+Message-ID: <20020718203527.GI19580@bylbo.nowhere.earth>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <B4822306FB3@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Thu, Jul 18, 2002 at 11:04:54PM +0200
+User-Agent: Mutt/1.4i
+From: Yann Dirson <ydirson@altern.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 11:04:54PM +0200, Petr Vandrovec wrote:
-> You have enabled CONFIG_VT without CONFIG_VGA_CONSOLE and 
-> CONFIG_DUMMY_CONSOLE. It is illegal configuration.
 
-Huh.  So CONFIG_VT_CONSOLE is not enough any more?  I really do think
-this should be documented in Config.help.
+I suppose it's an issue in the cdrom driver: df does not report the correct
+number of used blocks on a multisession CD/R, only the number of blocks
+used by the last session:
 
-> To fix oopses, either enable 'Framebuffer devices' under 'Console
-> drivers' section (you do not have to enable any fbdev driver, just
-> check this option...), or disable CONFIG_VT. See arch/*/kernel/setup.c
-> for explanation, no code in VT subsystem kernel expects conswitchp == NULL,
-> but couple of architectures leaves sometime conswitchp uninitialized.
+# df /cdrom/
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/cdrom                8022      8022         0 100% /cdrom
 
-well, this is on x86 ...
+# du -sk /cdrom/
+472679  /cdrom
+
+
+I got the same behaviour under 2.2.19 and 2.4.18.
 
 -- 
-Revolutions do not require corporate support.
+Yann Dirson    <ydirson@altern.org> |    Why make M$-Bill richer & richer ?
+Debian-related: <dirson@debian.org> |   Support Debian GNU/Linux:
+Pro:    <yann.dirson@fr.alcove.com> |  Freedom, Power, Stability, Gratuity
+     http://ydirson.free.fr/        | Check <http://www.debian.org/>

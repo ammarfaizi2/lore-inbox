@@ -1,21 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267041AbSLXGa0>; Tue, 24 Dec 2002 01:30:26 -0500
+	id <S267042AbSLXGc3>; Tue, 24 Dec 2002 01:32:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267042AbSLXGa0>; Tue, 24 Dec 2002 01:30:26 -0500
-Received: from samael.donpac.ru ([195.161.172.239]:8966 "EHLO samael.donpac.ru")
-	by vger.kernel.org with ESMTP id <S267041AbSLXGaT>;
-	Tue, 24 Dec 2002 01:30:19 -0500
+	id <S267043AbSLXGc3>; Tue, 24 Dec 2002 01:32:29 -0500
+Received: from samael.donpac.ru ([195.161.172.239]:9734 "EHLO samael.donpac.ru")
+	by vger.kernel.org with ESMTP id <S267042AbSLXGcV>;
+	Tue, 24 Dec 2002 01:32:21 -0500
 From: "Andrey Panin" <pazke@orbita1.ru>
-Date: Tue, 24 Dec 2002 09:33:52 +0300
+Date: Tue, 24 Dec 2002 09:35:55 +0300
 To: linux-kernel@vger.kernel.org
-Cc: miles@gnu.org
-Subject: [RFC] irq handling code consolidation (v850)
-Message-ID: <20021224063352.GE1222@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org, miles@gnu.org
+Subject: [RFC] irq handling code consolidation (x86_64)
+Message-ID: <20021224063555.GF1222@pazke>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 References: <20021224063036.GD1222@pazke>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="2/5bycvrmDh4d1IB"
+Content-Type: multipart/mixed; boundary="WChQLJJJfbwij+9x"
 Content-Disposition: inline
 In-Reply-To: <20021224063036.GD1222@pazke>
 User-Agent: Mutt/1.3.28i
@@ -24,41 +23,41 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---2/5bycvrmDh4d1IB
+--WChQLJJJfbwij+9x
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 
-v850 specific patch attached. Not compiled, not tested.
+x86_64 specific patch attached. Not tested, not compiled.
 
 -- 
 Andrey Panin		| Embedded systems software developer
 pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
 
---2/5bycvrmDh4d1IB
+--WChQLJJJfbwij+9x
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-irq-v850
+Content-Disposition: attachment; filename=patch-irq-x86_64
 
-diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/v850/Kconfig linux-2.5.52/arch/v850/Kconfig
---- linux-2.5.52.vanilla/arch/v850/Kconfig	Thu Dec 19 20:02:33 2002
-+++ linux-2.5.52/arch/v850/Kconfig	Tue Dec 24 21:50:45 2002
-@@ -23,6 +23,10 @@
- 	bool
- 	default n
+diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/x86_64/Kconfig linux-2.5.52/arch/x86_64/Kconfig
+--- linux-2.5.52.vanilla/arch/x86_64/Kconfig	Thu Dec 19 20:02:33 2002
++++ linux-2.5.52/arch/x86_64/Kconfig	Tue Dec 24 20:40:18 2002
+@@ -25,6 +25,10 @@
+ 	  486, 586, Pentiums, and various instruction-set-compatible chips by
+ 	  AMD, Cyrix, and others.
  
-+config CONFIG_GENERIC_IRQ
++config GENERIC_IRQ
 +	bool
 +	default y
 +
- # Turn off some random 386 crap that can affect device config
- config ISA
+ config MMU
  	bool
-diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/v850/kernel/irq.c linux-2.5.52/arch/v850/kernel/irq.c
---- linux-2.5.52.vanilla/arch/v850/kernel/irq.c	Thu Nov 28 01:36:17 2002
-+++ linux-2.5.52/arch/v850/kernel/irq.c	Tue Dec 24 21:49:19 2002
-@@ -26,50 +26,8 @@
- 
- #include <asm/system.h>
+ 	default y
+diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/x86_64/kernel/irq.c linux-2.5.52/arch/x86_64/kernel/irq.c
+--- linux-2.5.52.vanilla/arch/x86_64/kernel/irq.c	Thu Nov 28 01:35:59 2002
++++ linux-2.5.52/arch/x86_64/kernel/irq.c	Tue Dec 24 20:33:47 2002
+@@ -62,65 +62,9 @@
+  * interrupt controllers, without having to do assembly magic.
+  */
  
 -/*
 - * Controller mappings for all interrupt sources:
@@ -66,6 +65,8 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/v850/kernel
 -irq_desc_t irq_desc[NR_IRQS] __cacheline_aligned =
 -	{ [0 ... NR_IRQS-1] = { 0, &no_irq_type, NULL, 0, SPIN_LOCK_UNLOCKED}};
 -
+ static void register_irq_proc (unsigned int irq);
+ 
 -/*
 - * Special irq handlers.
 - */
@@ -75,18 +76,31 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/v850/kernel
 -/*
 - * Generic no controller code
 - */
--
+ 
 -static void enable_none(unsigned int irq) { }
 -static unsigned int startup_none(unsigned int irq) { return 0; }
 -static void disable_none(unsigned int irq) { }
 -static void ack_none(unsigned int irq)
 -{
+-/*
+- * 'what should we do if we get a hw irq event on an illegal vector'.
+- * each architecture has to answer this themselves, it doesnt deserve
+- * a generic callback i think.
+- */
+-#if CONFIG_X86
+-	printk("unexpected IRQ trap at vector %02x\n", irq);
+-#ifdef CONFIG_X86_LOCAL_APIC
 -	/*
--	 * 'what should we do if we get a hw irq event on an illegal vector'.
--	 * each architecture has to answer this themselves, it doesnt deserve
--	 * a generic callback i think.
+-	 * Currently unexpected vectors happen only on SMP and APIC.
+-	 * We _must_ ack these because every local APIC has only N
+-	 * irq slots per priority level, and a 'hanging, unacked' IRQ
+-	 * holds up an irq slot - in excessive cases (when multiple
+-	 * unexpected vectors occur) that might lock up the APIC
+-	 * completely.
 -	 */
--	printk("received IRQ %d with unknown interrupt type\n", irq);
+-	ack_APIC_irq();
+-#endif
+-#endif
 -}
 -
 -/* startup is the same as "enable", shutdown is same as "disable" */
@@ -102,16 +116,23 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/v850/kernel
 -	ack_none,
 -	end_none
 -};
- 
--volatile unsigned long irq_err_count, spurious_count;
-+volatile unsigned long spurious_count;
- 
- /*
-  * Generic, controller-independent functions:
-@@ -119,119 +77,6 @@
+-
+-atomic_t irq_err_count;
+ #ifdef CONFIG_X86_IO_APIC
+ #ifdef APIC_MISMATCH_DEBUG
+ atomic_t irq_mis_count;
+@@ -179,129 +123,6 @@
  	return 0;
  }
  
+-#ifdef CONFIG_SMP
+-inline void synchronize_irq(unsigned int irq)
+-{
+-	while (irq_desc[irq].status & IRQ_INPROGRESS)
+-		cpu_relax();
+-}
+-#endif
+-
 -/*
 - * This should really return information about whether
 - * we should do bottom half handling etc. Right now we
@@ -149,14 +170,15 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/v850/kernel
 - *	disable_irq_nosync - disable an irq without waiting
 - *	@irq: Interrupt to disable
 - *
-- *	Disable the selected interrupt line. Disables of an interrupt
-- *	stack. Unlike disable_irq(), this function does not ensure existing
+- *	Disable the selected interrupt line.  Disables and Enables are
+- *	nested.
+- *	Unlike disable_irq(), this function does not ensure existing
 - *	instances of the IRQ handler have completed before returning.
 - *
-- *	This function may be called from IRQ context.
+- *	This function must not be called from IRQ context.
 - */
 - 
--void inline disable_irq_nosync(unsigned int irq)
+-inline void disable_irq_nosync(unsigned int irq)
 -{
 -	irq_desc_t *desc = irq_desc + irq;
 -	unsigned long flags;
@@ -173,9 +195,9 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/v850/kernel
 - *	disable_irq - disable an irq and wait for completion
 - *	@irq: Interrupt to disable
 - *
-- *	Disable the selected interrupt line. Disables of an interrupt
-- *	stack. That is for two disables you need two enables. This
-- *	function waits for any pending IRQ handlers for this interrupt
+- *	Disable the selected interrupt line.  Enables and Disables are
+- *	nested.
+- *	This function waits for any pending IRQ handlers for this interrupt
 - *	to complete before returning. If you use this function while
 - *	holding a resource the IRQ handler may need you will deadlock.
 - *
@@ -189,11 +211,12 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/v850/kernel
 -}
 -
 -/**
-- *	enable_irq - enable interrupt handling on an irq
+- *	enable_irq - enable handling of an irq
 - *	@irq: Interrupt to enable
 - *
-- *	Re-enables the processing of interrupts on this IRQ line
-- *	providing no disable_irq calls are now in effect.
+- *	Undoes the effect of one call to disable_irq().  If this
+- *	matches the last disable, processing of interrupts on this
+- *	IRQ line is re-enabled.
 - *
 - *	This function may be called from IRQ context.
 - */
@@ -225,10 +248,10 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/v850/kernel
 -	spin_unlock_irqrestore(&desc->lock, flags);
 -}
 -
- /* Handle interrupt IRQ.  REGS are the registers at the time of ther
-    interrupt.  */
- unsigned int handle_irq (int irq, struct pt_regs *regs)
-@@ -448,197 +293,6 @@
+ /*
+  * do_IRQ handles all normal device IRQ's (the special
+  * SMP cross-CPU interrupts have their own specific
+@@ -523,197 +344,6 @@
  		spin_unlock_irqrestore(&desc->lock,flags);
  		return;
  	}
@@ -426,18 +449,30 @@ diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/arch/v850/kernel
  }
  
  /* this was setup_x86_irq but it seems pretty generic */
-diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/include/asm-v850/hw_irq.h linux-2.5.52/include/asm-v850/hw_irq.h
---- linux-2.5.52.vanilla/include/asm-v850/hw_irq.h	Tue Dec 24 21:55:02 2002
-+++ linux-2.5.52/include/asm-v850/hw_irq.h	Tue Dec 24 21:55:15 2002
-@@ -5,4 +5,9 @@
- {
- }
+diff --minimal -urN -X /usr/share/dontdiff linux-2.5.52.vanilla/include/asm-x86_64/hw_irq.h linux-2.5.52/include/asm-x86_64/hw_irq.h
+--- linux-2.5.52.vanilla/include/asm-x86_64/hw_irq.h	Thu Nov 28 01:36:22 2002
++++ linux-2.5.52/include/asm-x86_64/hw_irq.h	Tue Dec 24 21:56:04 2002
+@@ -182,4 +182,21 @@
  
-+#define ack_bad_irq(irq)
+ #endif
+ 
++/*
++ * Currently unexpected vectors happen only on SMP and APIC.
++ * We _must_ ack these because every local APIC has only N
++ * irq slots per priority level, and a 'hanging, unacked' IRQ
++ * holds up an irq slot - in excessive cases (when multiple
++ * unexpected vectors occur) that might lock up the APIC
++ * completely.
++ */
++#ifdef CONFIG_X86_LOCAL_APIC
++#define ack_bad_irq(irq) ack_APIC_irq()
++#else
++#define ack_bad_irq(irq) do { } while (0)
++#endif
 +
 +/* Return a pointer to the irq descriptor for IRQ.  */
 +#define irq_desc(irq) (irq_desc + (irq))
 +
- #endif /* __V850_HW_IRQ_H__ */
+ #endif /* _ASM_HW_IRQ_H */
 
---2/5bycvrmDh4d1IB--
+--WChQLJJJfbwij+9x--

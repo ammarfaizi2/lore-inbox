@@ -1,88 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264456AbTLCArM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 19:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264457AbTLCArM
+	id S264439AbTLCApX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 19:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTLCApX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 19:47:12 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:3715
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S264456AbTLCArH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 19:47:07 -0500
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
-From: Ian Kumlien <pomac@vapor.com>
-To: b@netzentry.com
-Cc: ross.alexander@uk.neceur.com, s0348365@sms.ed.ac.uk,
-       linux-kernel@vger.kernel.org, cbradney@zip.com.au, forming@charter.net
-In-Reply-To: <3FCD21E1.5080300@netzentry.com>
-References: <3FCD21E1.5080300@netzentry.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UPDlzzGfOlqRsr8hyUnK"
-Message-Id: <1070412425.1767.19.camel@big.pomac.com>
+	Tue, 2 Dec 2003 19:45:23 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:18826 "EHLO
+	catnet.kabel.utwente.nl") by vger.kernel.org with ESMTP
+	id S264439AbTLCApU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 19:45:20 -0500
+Date: Wed, 3 Dec 2003 01:45:19 +0100
+From: Wilmer van der Gaast <lintux@lintux.cx>
+To: Patrick McHardy <kaber@trash.net>
+Cc: linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: 2.4.23 masquerading broken?
+Message-ID: <20031203004518.GL615@gaast.net>
+References: <20031202165653.GJ615@gaast.net> <3FCCCB02.5070203@trash.net> <20031202173358.GK615@gaast.net> <3FCD20F1.6090800@trash.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 03 Dec 2003 01:47:05 +0100
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lHuqAdgBYNjQz/wy"
+Content-Disposition: inline
+In-Reply-To: <3FCD20F1.6090800@trash.net>
+X-Operating-System: Linux 2.4.23 on a i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-UPDlzzGfOlqRsr8hyUnK
-Content-Type: text/plain
+--lHuqAdgBYNjQz/wy
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2003-12-03 at 00:36, b@netzentry.com wrote:
-> Right now I can't even afford to test 2.6.0.test11 in terms
-> of time but very similar problems exist in 2.4, suggesting
-> something fundamental?
+Patrick McHardy (kaber@trash.net) wrote:
+> It may be related to using advances routing features ..
+> Can you give information about the specific IPs ? Is it local traffic ?
+>=20
+It happens when a packet to a host outside 130.89.*.* is routed through
+the eth1 (130.89.203.37) interface. That happens with any traffic not
+=66rom .9.11 or .9.13. .9.11 and .9.13 don't have any problems, their
+traffic is routed to the other Internet interface without any problems.
 
-2.6.0-test11 deadlocked after less than a hour here.
+Also, traffic to 130.89.*.* from any host is routed to eth1 correctly
+and "even" works.
 
-> About the IDE, it seems to be the easiest way to promote the
-> problem but time seems to be the biggest factor. Some have
-> suggested wrt this NFORCE2 problem that idle time makes it
-> worse, but I've seen the hang under both conditions.
+So, in short:
 
-Well, IDE is what i'd blame. My original experience about lost
-interrupts leads me to ide. Since i never loose interrupts without
-io-apic.
+192.168.9.10 -=3D> 130.89.1.1 works, through eth1
+192.168.9.11 -=3D> 130.89.1.1 works, through eth1
+192.168.9.10 -=3D> www.google.com doesn't work
+192.168.9.11 -=3D> www.google.com works, through hensema (which is what I w=
+ant)
 
-Also, i tried to get it running with the ide cable that came with the
-board but that caused my 60 gig Quantum and my 80 gig Seagate disks to
-show up as 8mb disks with garbled names so i skipped that =3D)
-(2.6 also mentions something about cable info bits not set properly)
+Also, trying to ping www.google.com through eth1 (hensema is the default
+interface) from the bugging machine directly works.
 
-I use USB 2.0 and 1.1. I have also disabled audio and lan.
-A7N8X-X Bios 1007 (Nforce2-400).
+I hope this clarifies something... If not, I can do some more testing
+tomorrow.
 
-> The Linux APIC code generically works on most other hardware. Something=20
-> specific to the NFORCE2 chips and its interaction with Linux's APIC code=20
-> causes the hard hangs. The Windows 2000's APIC code was made before the=20
-> NFORCE2 existed, and it seems to run fine there.
 
-Well, IO-APIC without the amd/nvidia driver works, although a lost
-interrupt stalls the machine for a annoying-ammount-of-time.
+Greetings,
 
-> - About that Uber BIOS bios for the Asus Deluxe board, Anyone running=20
-> this: a) do you really want to run a hacked bios when other OS run fine=20
-> on the unhacked BIOS b) do you believe that any of the un-hidden=20
-> settings the uber bios or settings you may have changed helps solve this=20
-> problem?
-
-Yeah, anyone that has checked the changes?
+Wilmer van der Gaast.
 
 --=20
-Ian Kumlien <pomac@vapor.com>
++-------- .''`.     - -- ---+  +        - -- --- ---- ----- ------+
+| lintux : :'  :  lintux.cx |  | OSS Programmer   www.bitlbee.org |
+|   at   `. `~'  debian.org |  | www.algoritme.nl   www.lintux.cx |
++--- -- -  ` ---------------+  +------ ----- ---- --- -- -        +
 
---=-UPDlzzGfOlqRsr8hyUnK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--lHuqAdgBYNjQz/wy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-iD8DBQA/zTKI7F3Euyc51N8RAgnxAJ9fL+ouP1gJ1dFvEKLMPPFhhS1AmgCfaBsQ
-4b8gyG3O6h7Of/X9R7Jk0zA=
-=tbjA
+iD8DBQE/zTIeeYWXmuMwQFERArivAKCQNREsKcLv/l31Oycd/IkZKXYGNACg4j5b
+CZf0WYfXAxYP25RLQOOQExY=
+=okAz
 -----END PGP SIGNATURE-----
 
---=-UPDlzzGfOlqRsr8hyUnK--
-
+--lHuqAdgBYNjQz/wy--

@@ -1,40 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVCHA1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVCHAcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbVCHA1X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 19:27:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbVCHA06
+	id S261996AbVCHAcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 19:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVCHAcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 19:26:58 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:25038 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S261994AbVCHAZf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 19:25:35 -0500
-Date: Mon, 7 Mar 2005 16:25:27 -0800 (PST)
-From: Junfeng Yang <yjf@stanford.edu>
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>, <mc@cs.Stanford.EDU>
-Subject: Re: [Ext2-devel] Re: [CHECKER] crash after fsync causing serious FS
- corruptions (ext2, 2.6.11)
-In-Reply-To: <20050307232221.GJ27352@schnapps.adilger.int>
-Message-ID: <Pine.GSO.4.44.0503071614170.8295-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Mar 2005 19:32:07 -0500
+Received: from quechua.inka.de ([193.197.184.2]:24462 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262002AbVCHAbk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 19:31:40 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [MC] [CHECKER] Do ext2, jfs and reiserfs respect mount -o sync/dirsync option?
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <Pine.GSO.4.44.0503041440030.17155-100000@elaine24.Stanford.EDU>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1D8SdK-0003B4-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Tue, 08 Mar 2005 01:31:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.GSO.4.44.0503041440030.17155-100000@elaine24.Stanford.EDU> you wrote:
+> 3. I open a file w/o O_SYNC, issue a bunch of writes, then call
+> ioctl(FIOASYNC) to set the fd sync, then issure a second set of writes.
+> Only the second set of writes are synchronous?
 
-Thanks a lot Andreas.  Your message clarifies everything.
+I also am curious if one can open a file, write to it, close it, open it and
+do fsync()/fdatasync() on it?
 
-> In ext3 this case is handled because the filesystem won't reallocate the
-> metadata blocks freed from file A before they have been committed to disk.
-> Also, the operations on file A are guaranteed to complete before or with
-> operations on file B so fsync(B) will also cause the changes from A to
-> be flushed to disk at the same time (this is guaranteed to complete before
-> fsync(B) returns).
-
-In order words, each fsync essentailly triggers a jbd commit, right?
-
--Junfeng
-
+Greetings
+Bernd

@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131675AbRAKVeN>; Thu, 11 Jan 2001 16:34:13 -0500
+	id <S129631AbRAKVhD>; Thu, 11 Jan 2001 16:37:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132957AbRAKVdx>; Thu, 11 Jan 2001 16:33:53 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23309 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131675AbRAKVdu>; Thu, 11 Jan 2001 16:33:50 -0500
-Subject: Re: Strange umount problem in latest 2.4.0 kernels
-To: sorisor@Hell.WH8.TU-Dresden.De (Udo A. Steinberg)
-Date: Thu, 11 Jan 2001 21:34:56 +0000 (GMT)
-Cc: viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
-In-Reply-To: <3A5E1E0D.B420A045@Hell.WH8.TU-Dresden.De> from "Udo A. Steinberg" at Jan 11, 2001 09:56:45 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135220AbRAKVgx>; Thu, 11 Jan 2001 16:36:53 -0500
+Received: from 24-216-78-5.hsacorp.net ([24.216.78.5]:46601 "EHLO
+	mccoy.penguinpowered.com") by vger.kernel.org with ESMTP
+	id <S129631AbRAKVgh>; Thu, 11 Jan 2001 16:36:37 -0500
+From: Jens Petersohn <jkp@mccoy.penguinpowered.com>
+Message-Id: <200101112136.PAA07626@mccoy.penguinpowered.com>
+Subject: Ingo's RAID patch for 2.2.18 final?
+To: linux-kernel@vger.kernel.org
+Date: Thu, 11 Jan 2001 15:36:13 -0600 (CST)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14GpN5-000369-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've checked a couple of other machines, different setups etc.
-> all with -ac6 and all show this behavior - also the umount stuff.
+My appologies if this has been asked before. I'm looking for
+Ingo Molnar's RAID patch for 2.2.18-final. I tried applying A2, but
+it has a number of conflicts in raid1.c which I cannot resolve in
+my meager spare time.
 
-Wait for -ac7 and see if that fixes it. I think I know whats up there
+Thanks in advance,
 
+--Jens Petersohn
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269094AbUHXWwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269095AbUHXWyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269094AbUHXWwl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 18:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269095AbUHXWwk
+	id S269095AbUHXWyk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 18:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269096AbUHXWyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 18:52:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:482 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269094AbUHXWwh (ORCPT
+	Tue, 24 Aug 2004 18:54:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13006 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269095AbUHXWxF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 18:52:37 -0400
-Date: Tue, 24 Aug 2004 15:47:53 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: "O.Sezer" <sezeroz@ttnet.net.tr>
-Cc: linux-kernel@vger.kernel.org, mdharm-usb@one-eyed-alien.net,
-       marcelo.tosatti@cyclades.com
-Subject: Re: PANIC [2.4.27] usb-storage
-Message-Id: <20040824154753.503d0fc9@lembas.zaitcev.lan>
-In-Reply-To: <4127AF46.6090908@ttnet.net.tr>
-References: <4127AF46.6090908@ttnet.net.tr>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 24 Aug 2004 18:53:05 -0400
+Date: Tue, 24 Aug 2004 15:56:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Osterlund <petero2@telia.com>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Speed up the cdrw packet writing driver
+Message-Id: <20040824155635.3d1a1dd6.akpm@osdl.org>
+In-Reply-To: <m3d61gchyb.fsf@telia.com>
+References: <m33c2py1m1.fsf@telia.com>
+	<20040823114329.GI2301@suse.de>
+	<m3llg5dein.fsf@telia.com>
+	<20040824202951.GA24280@suse.de>
+	<m3hdqsckoo.fsf@telia.com>
+	<20040824144707.100e0cfd.akpm@osdl.org>
+	<m3d61gchyb.fsf@telia.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Aug 2004 23:23:34 +0300
-"O.Sezer" <sezeroz@ttnet.net.tr> wrote:
+Peter Osterlund <petero2@telia.com> wrote:
+>
+> > Are you saying that your requests are so huge that each one has 1000 BIOs? 
+> > That would be odd, for an IDE interface.
+> 
+> No, the thing is that the packet driver doesn't create requests at
+> all. It stuffs incoming bio's in the rbtree, then the worker thread
+> collects bio's from the rbtree for the same "zone" on the disc (each
+> zone is 64kb on a CDRW and 32KB on a DVD). The driver then creates a
+> new bio with the same size as the zone size and submits it to the real
+> CD/DVD device.
 
-> Unable to handle kernel paging request at virtual address e0ce6d90
-
-> >>EIP; e0ce6d90 <[usb-storage]usb_stor_CBI_irq+0/70>   <=====
-
-Something unmapped a page where the module code resided. Are you sure
-you haven't tried to run rmmod? Bad idea.
-
--- Pete
+Good lord.  I assume there's a good reason for this?

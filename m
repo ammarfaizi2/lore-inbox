@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313679AbSDURsz>; Sun, 21 Apr 2002 13:48:55 -0400
+	id <S313681AbSDURt7>; Sun, 21 Apr 2002 13:49:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313680AbSDURsy>; Sun, 21 Apr 2002 13:48:54 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:11172 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S313679AbSDURsx>;
-	Sun, 21 Apr 2002 13:48:53 -0400
-Date: Sun, 21 Apr 2002 13:48:51 -0400
+	id <S313682AbSDURt6>; Sun, 21 Apr 2002 13:49:58 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:15012 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S313681AbSDURt4>;
+	Sun, 21 Apr 2002 13:49:56 -0400
+Date: Sun, 21 Apr 2002 13:49:55 -0400
 From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Larry McVoy <lm@work.bitmover.com>, CaT <cat@zip.com.au>,
-        Daniel Phillips <phillips@bonn-fries.net>,
+To: Larry McVoy <lm@work.bitmover.com>, Alexander Viro <viro@math.psu.edu>,
         Linus Torvalds <torvalds@transmeta.com>,
-        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
-Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421134851.B7828@havoc.gtf.org>
-In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16yfW9-0000aZ-00@starship> <20020421171629.GK4640@zip.com.au> <20020421104046.J10525@work.bitmover.com>
+        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org,
+        Wayne Scott <wscott@work.bitmover.com>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Message-ID: <20020421134955.C7828@havoc.gtf.org>
+In-Reply-To: <20020421044616.5beae559.spyro@armlinux.org> <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu> <20020421131354.C4479@havoc.gtf.org> <20020421102339.E10525@work.bitmover.com> <20020421133225.F4479@havoc.gtf.org> <20020421103923.I10525@work.bitmover.com> <20020421134500.A7828@havoc.gtf.org> <20020421104725.K10525@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,24 +22,18 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 21, 2002 at 10:40:46AM -0700, Larry McVoy wrote:
-[...]
+On Sun, Apr 21, 2002 at 10:47:25AM -0700, Larry McVoy wrote:
+> > Gnifty... I don't know that I would ever use the multiple-undo stack,
+> > but being able to see a single GNU-style patch for set of "what I just
+> > downloaded in the last bk pull" would definitely come in handy.
+> 
+> We have a graphical version of that already, sort of, do a "bk csets"
+> after doing a pull.
 
-That reminds me.
-
-Can you get the bkbits.net interface to spit out text/plain GNU-style
-patches?
-
-IIRC the web interface currently spits out HTML-ized per-cset patches,
-so I am hoping it would be trivial to get you guys to change that to
-text/plain, or offer text/plain in addition to HTML.
-
-That would IMO eliminate an objection or two about the opaqueness of BK,
-and also eliminate the need for any bkbits.net user to generate per-cset
-patches.  They would need only to give a URL to a CGI which spits out
-text/plain GNU-style patches.
+I know, but graphical is useless to me...
+Give me text/plain GNU-style patches, that I can spit out without
+requiring X. :)
 
 	Jeff
-
 
 

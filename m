@@ -1,53 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVBRMb2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVBRMpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVBRMb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 07:31:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVBRMb1
+	id S261354AbVBRMpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 07:45:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVBRMpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 07:31:27 -0500
-Received: from mail.aei.ca ([206.123.6.14]:7165 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261336AbVBRMbM (ORCPT
+	Fri, 18 Feb 2005 07:45:16 -0500
+Received: from soundwarez.org ([217.160.171.123]:49356 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261352AbVBRMpE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 07:31:12 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: "Sean" <seanlkml@sympatico.ca>
-Subject: Re: [BK] upgrade will be needed
-Date: Fri, 18 Feb 2005 07:31:01 -0500
-User-Agent: KMail/1.7.2
-Cc: "Theodore Ts'o" <tytso@mit.edu>, "Chris Friesen" <cfriesen@nortel.com>,
-       "Lee Revell" <rlrevell@joe-job.com>, "d.c" <aradorlinux@yahoo.es>,
-       cs@tequila.co.jp, galibert@pobox.com, kernel@crazytrain.com,
-       linux-kernel@vger.kernel.org
-References: <20050214020802.GA3047@bitmover.com> <20050218040010.GA6166@thunk.org> <3923.10.10.10.24.1108711618.squirrel@linux1>
-In-Reply-To: <3923.10.10.10.24.1108711618.squirrel@linux1>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Feb 2005 07:45:04 -0500
+Date: Fri, 18 Feb 2005 13:45:03 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, david@fubar.dk
+Subject: Re: [PATCH] add I/O error uevent for block devices
+Message-ID: <20050218124503.GA7705@vrfy.org>
+References: <20050218083316.GA6619@vrfy.org> <20050218014621.0b453232.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502180731.02563.tomlins@cam.org>
+In-Reply-To: <20050218014621.0b453232.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 February 2005 02:26, Sean wrote:
-> On Thu, February 17, 2005 11:00 pm, Theodore Ts'o said:
-> 
-> > If you think that, you truly do not understand the value of BK, and
-> > why Linus chose it.
-> 
-> Hey Ted,
-> 
-> No, I just disagree that it was an absolute requirement or worth its cost
-> that so many want to completely discount.   Andrew has pretty much shown
-> BK is not required, he's still using patches.
+On Fri, Feb 18, 2005 at 01:46:21AM -0800, Andrew Morton wrote:
+> Kay Sievers <kay.sievers@vrfy.org> wrote:
+> >
+> > For HAL we want to get notified about I/O errors of block devices.
+> >  This is especially useful for devices we are unable to poll and
+> >  therefore can't know if something goes wrong here.
 
-Andrew uses BK too.  He extends its function by maintaining a set of patches
-above and beyond the committed BK tree...  Ted made a really valid point.  The
-people at the top _are_ _very_ _very_ important.  
+> - buffer_io_error() is called from interrupt context, and
+>   kobject_uevent() does multiple GFP_KERNEL allocations.  You'll need to
+>   use kobject_uevent_atomic().
 
-There are several ways to get kernel source if _you_ do not want to use BK.  I 
-use BK.  There are enough projects around that I can avoid working on a SVM 
-for a year...  Thats my option though - you do not have to agree.
+Fixed.
 
-Ed 
+> - the prink_ratelimit() fix in end_buffer_async_read() should be a
+>   separate patch, really.  I'll fix that up.
+
+Removed that part.
+
+> - there are numerous other places where an I/O error can be detected:
+>   grep the tree for b_end_io and bio_end_io.
+
+You mean the mmap and direct-io stuff?
+
+Thanks,
+Kay
+
+-----
+For HAL we want to get notified about I/O errors of block devices.
+This is especially useful for devices we are unable to poll and
+therefore can't know if something goes wrong here.
+
+Signed-off-by: David Zeuthen <david@fubar.dk>
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+
+===== fs/buffer.c 1.270 vs edited =====
+--- 1.270/fs/buffer.c	2005-01-21 06:02:13 +01:00
++++ edited/fs/buffer.c	2005-02-18 13:00:18 +01:00
+@@ -105,6 +105,7 @@ static void buffer_io_error(struct buffe
+ 	printk(KERN_ERR "Buffer I/O error on device %s, logical block %Lu\n",
+ 			bdevname(bh->b_bdev, b),
+ 			(unsigned long long)bh->b_blocknr);
++	kobject_uevent_atomic(&bh->b_bdev->bd_disk->kobj, KOBJ_IO_ERROR, NULL);
+ }
+ 
+ /*
+===== include/linux/kobject_uevent.h 1.6 vs edited =====
+--- 1.6/include/linux/kobject_uevent.h	2004-11-08 20:43:30 +01:00
++++ edited/include/linux/kobject_uevent.h	2005-02-18 12:59:18 +01:00
+@@ -29,6 +29,7 @@ enum kobject_action {
+ 	KOBJ_UMOUNT	= (__force kobject_action_t) 0x05,	/* umount event for block devices */
+ 	KOBJ_OFFLINE	= (__force kobject_action_t) 0x06,	/* offline event for hotplug devices */
+ 	KOBJ_ONLINE	= (__force kobject_action_t) 0x07,	/* online event for hotplug devices */
++	KOBJ_IO_ERROR	= (__force kobject_action_t) 0x08,	/* I/O error for devices */
+ };
+ 
+ 
+===== lib/kobject_uevent.c 1.18 vs edited =====
+--- 1.18/lib/kobject_uevent.c	2005-01-08 06:44:13 +01:00
++++ edited/lib/kobject_uevent.c	2005-02-18 12:59:18 +01:00
+@@ -44,6 +44,8 @@ static char *action_to_string(enum kobje
+ 		return "offline";
+ 	case KOBJ_ONLINE:
+ 		return "online";
++	case KOBJ_IO_ERROR:
++		return "io_error";
+ 	default:
+ 		return NULL;
+ 	}
+

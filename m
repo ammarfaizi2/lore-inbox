@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUJZTj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbUJZTq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbUJZTj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 15:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbUJZTj1
+	id S261543AbUJZTq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 15:46:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUJZTq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 15:39:27 -0400
-Received: from holomorphy.com ([207.189.100.168]:13543 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262329AbUJZTjE (ORCPT
+	Tue, 26 Oct 2004 15:46:26 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:41910 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S261495AbUJZTqP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 15:39:04 -0400
-Date: Tue, 26 Oct 2004 12:38:51 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: remove itimer_ticks and itimer_next
-Message-ID: <20041026193851.GC15367@holomorphy.com>
+	Tue, 26 Oct 2004 15:46:15 -0400
+Date: Tue, 26 Oct 2004 14:45:51 -0500
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: marcelo.tosatti@cyclades.com, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [patch 1/2] cciss: cleans up warnings in the 32/64 bit conversions
+Message-ID: <20041026194551.GA21003@beardog.cca.cpqcorp.net>
+References: <20041021211718.GA10462@beardog.cca.cpqcorp.net> <1098633262.10824.35.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <1098633262.10824.35.camel@mulgrave>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These two variables are long, long dead. This patch removes them.
+On Sun, Oct 24, 2004 at 11:54:15AM -0400, James Bottomley wrote:
+> On Thu, 2004-10-21 at 17:17, mike.miller@hp.com wrote:
+> > Patch 1 of 2 for 20041021.
+> > This patch cleans up some warnings in the 32-bit to 64-bit conversions.
+> > Please consider this for inclusion. Built against 2.4.28-pre4.
+> > Please apply in order.
+> 
+> There's something wrong with this patch (it might be a missing prior
+> patch) that's causing it to reject comprehensively.
+> 
+> > -typedef long (*handler_type) (unsigned int, unsigned int, unsigned long,
+> > +typedef int (*handler_type) (unsigned int, unsigned int, unsigned long,
+> 
+> Things like this.  handler_type has always been int not long in the
+> source that's currently in the tree.
+> 
+> James
+> 
 
-Signed-off-by: William Irwin <wli@holomorphy.com>
+Which tree are you applying to? This was made from 2.4.28-pre4.
 
-Index: wli-2.6.10-rc1/include/linux/sched.h
-===================================================================
---- wli-2.6.10-rc1.orig/include/linux/sched.h	2004-10-22 14:38:20.000000000 -0700
-+++ wli-2.6.10-rc1/include/linux/sched.h	2004-10-26 12:17:13.000000000 -0700
-@@ -771,8 +771,6 @@
- 
- #include <asm/current.h>
- 
--extern unsigned long itimer_ticks;
--extern unsigned long itimer_next;
- extern void do_timer(struct pt_regs *);
- 
- extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned int state));
+mikem
+
+> 

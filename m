@@ -1,32 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276339AbRI1WDw>; Fri, 28 Sep 2001 18:03:52 -0400
+	id <S276338AbRI1WEw>; Fri, 28 Sep 2001 18:04:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276331AbRI1WDn>; Fri, 28 Sep 2001 18:03:43 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45835 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276338AbRI1WDc>; Fri, 28 Sep 2001 18:03:32 -0400
-Subject: Re: [patch] swsusp/mini for 2.4.10
-To: pavel@suse.cz (Pavel Machek)
-Date: Fri, 28 Sep 2001 23:05:03 +0100 (BST)
-Cc: detlefc@users.sourceforge.net,
-        acpi@phobos.fachschaften.tu-muenchen.de (ACPI mailing list),
-        linux-kernel@vger.kernel.org (kernel list), seasons@falcon.sch.bme.hu
-In-Reply-To: <20010928234708.A1294@bug.ucw.cz> from "Pavel Machek" at Sep 28, 2001 11:47:08 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S276331AbRI1WEn>; Fri, 28 Sep 2001 18:04:43 -0400
+Received: from gw-yyz.somanetworks.com ([216.126.67.39]:39562 "EHLO
+	somanetworks.com") by vger.kernel.org with ESMTP id <S276340AbRI1WEb>;
+	Fri, 28 Sep 2001 18:04:31 -0400
+Date: Fri, 28 Sep 2001 18:04:52 -0400
+From: Mark Frazer <mark@somanetworks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel changes
+Message-ID: <20010928180452.A6093@somanetworks.com>
+In-Reply-To: <20010928143205.B3669@md5.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15n5kl-0008VC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010928143205.B3669@md5.ca>; from pavel@md5.ca on Fri, Sep 28, 2001 at 02:32:05PM -0700
+Organization: Detectable, well, not really
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> PS: Gabor, this might be good candidate to put on webpage
-> somewhere. (But beware, I stripped everything non-essential out).
-> 
-> PPS: Alan, would you consider putting this to -ac somewhere?
+The answer is to treat all linus/ac/aa/... kernels as development
+kernels.  Don't treat anything as stable until it's been through
+a real QA cycle.  I've heard Suse, RedHat and the like don't do a
+bad job at this.
 
-Attach a copy and I'll certainly take a good look at it.
-
-Alan

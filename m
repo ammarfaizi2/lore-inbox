@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131990AbQKJX6S>; Fri, 10 Nov 2000 18:58:18 -0500
+	id <S129944AbQKJX6j>; Fri, 10 Nov 2000 18:58:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131750AbQKJX6J>; Fri, 10 Nov 2000 18:58:09 -0500
-Received: from pop.gmx.net ([194.221.183.20]:874 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S129944AbQKJX5v>;
-	Fri, 10 Nov 2000 18:57:51 -0500
-From: Gerald Haese <Gerald.Haese@gmx.de>
-Reply-To: Gerald.Haese@gmx.de
-Organization: GMX
-Date: Sat, 11 Nov 2000 01:01:20 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: USB mouse stops working
+	id <S131750AbQKJX6a>; Fri, 10 Nov 2000 18:58:30 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:4101 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129944AbQKJX6T>; Fri, 10 Nov 2000 18:58:19 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: John Jasen <jjasen1@umbc.edu>
+Date: Sat, 11 Nov 2000 10:57:52 +1100 (EST)
 MIME-Version: 1.0
-Message-Id: <00111101012003.01860@dose>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14860.35712.974904.824230@notabene.cse.unsw.edu.au>
+Cc: Richard Henderson <rth@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: compiling md/lvm on 2.4.0-test9-test11-pre2 for alpha
+In-Reply-To: message from John Jasen on Friday November 10
+In-Reply-To: <Pine.SGI.4.21L.01.0011101747510.502569-100000@irix2.gl.umbc.edu>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, ...
+On Friday November 10, jjasen1@umbc.edu wrote:
+> 
+> Any suggestions?
 
-the following problem is not a new one (for me):
+Yes, send the details to the author of the code, as detemined from
+ the comment above it:
+    Richard Henderson (rth@redhat.com)
 
-I'm using an SMP system. Everything works fine and (absolutely) stable - 
-exept my USB mouse :-( It's the USB version of the Wacom Graphire tablet. The 
-mouse works great for some minutes or up to half an hour and it generates a 
-lot of interrupts during this time ... And now the mouse stops working. No 
-interrupt is generated. The USB printer does not work any more. Unloading and 
-reloading of the USB related modules does not help :-( No interrupts are 
-registered for USB (seen in /proc/interrupts).
-
-I think it's not a problem of the wacom driver only, the USB is compleatly 
-blocked. In the past I had a lot of SMP related interrupt problems in other 
-kernel modules (e.g in the hisax). But this problems have gone away during 
-the last kernel releases. The USB problem is the last one for me in the 2.4 
-kernel ... :-)
-
-Gerald
-
+After having written:
+> 
+> I've tried this on -test9, test10, and test11-pre2, all with similar
+> results.
+> 
+> I've checked the kernel mailing list archives, and didn't see anything
+> pertinent.
+> 
+> I'm getting the following errors: (in this case, attempting to make them
+> as a module)
+> 
+> <snip>
+> make -C md modules
+> make[2]: Entering directory `/usr/src/linux-2.4.0-test11-pre2/drivers/md'
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test11-pre2/include -Wall
+> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+> -mno-fp-regs -ffixed-8 -mcpu=ev6 -Wa,-mev6 -DMODULE   -DEXPORT_SYMTAB -c 
+> xor.c
+> xor.c: In function `xor_block_alpha':
+> xor.c:1791: inconsistent operand constraints in an `asm'
+> xor.c: In function `xor_block_alpha_prefetch':
+> xor.c:2213: inconsistent operand constraints in an `asm'
+> make[2]: *** [xor.o] Error 1
+> make[2]: Leaving directory `/usr/src/linux-2.4.0-test11-pre2/drivers/md'
+> make[1]: *** [_modsubdir_md] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.4.0-test11-pre2/drivers'
+> make: *** [_mod_drivers] Error 2
+> </snip>
+> 
+> This is running Redhat 6.2, with updates, compiling 2.4.0-test11-pre2,
+> with gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release).
+> 
+> --
+> -- John E. Jasen (jjasen1@umbc.edu)
+> -- You can have it: right; cheap; now. Pick any two.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

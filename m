@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262289AbTEZXCj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 19:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTEZXCj
+	id S262284AbTEZXND (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 19:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTEZXNC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 19:02:39 -0400
-Received: from aneto.able.es ([212.97.163.22]:14276 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S262289AbTEZXCi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 19:02:38 -0400
-Date: Tue, 27 May 2003 01:15:48 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
+	Mon, 26 May 2003 19:13:02 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:9333 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262284AbTEZXNC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 19:13:02 -0400
+Date: Mon, 26 May 2003 16:26:16 -0700
+From: Andrew Morton <akpm@digeo.com>
 To: Andrea Arcangeli <andrea@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: AA's 00_backout_gcc_3-0-patch-1
-Message-ID: <20030526231548.GA14858@werewolf.able.es>
-References: <Pine.LNX.4.55L.0305261929460.30175@freak.distro.conectiva> <20030526225445.GV3767@dualathlon.random>
+Cc: davem@redhat.com, davidsen@tmr.com, haveblue@us.ibm.com,
+       habanero@us.ibm.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: userspace irq balancer
+Message-Id: <20030526162616.6ceacaba.akpm@digeo.com>
+In-Reply-To: <20030526222406.GU3767@dualathlon.random>
+References: <60830000.1053575867@[10.10.2.4]>
+	<Pine.LNX.3.96.1030522130544.19863B-100000@gatekeeper.tmr.com>
+	<20030522.154410.104047403.davem@redhat.com>
+	<20030526222406.GU3767@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030526225445.GV3767@dualathlon.random>; from andrea@suse.de on Tue, May 27, 2003 at 00:54:45 +0200
-X-Mailer: Balsa 2.0.11
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 May 2003 23:26:14.0451 (UTC) FILETIME=[33288030:01C323DE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+>  	if (IRQ_ALLOWED(phys_id, allowed_mask) && idle_cpu(phys_id))
+>  		return cpu;
 
-On 05.27, Andrea Arcangeli wrote:
-> On Mon, May 26, 2003 at 07:30:44PM -0300, Marcelo Tosatti wrote:
-[...]
-> 
-> Overall in kernel we disagreed to follow the MUST requrested by the gcc
-> developers, we often want to do comparisons of variables out of locks to
-> know if we need to take the lock and work on a garbage collection or
-> stuff like that and we for sure don't want to mark those variables
-> volatile since they must be cached and not spilled all the time, under
-> the locks. Linus as well was against using volatile for every piece of
-> memory that can change under gcc. The decision is been basically to
-> outsmart gcc in choosing if gcc has rights to generate kernel crashing
-> code or not. This makes kernel developement even more difficult since
-> you've to imagine whatever smart thing gcc can do with your not
-> serialized code to know if you're forced to mark the stuff volatile, but
-> it'll generate the very best performance.
-> 
+How hard would it be to make this HT-aware?
 
-So you are telling that you are allowed to do something like:
+	idle_cpu(phys_id) && idle_cpu_siblings(phys_id)
 
-int* a = 0x320;
+or whatever.
 
-for (i=1000 samples)
-	v[i] = *a;
-
-in kernel code and you trust gcc to not optimize the loop away ??
-What is volatile is volatile...
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.21-rc3-jam1 (gcc 3.2.3 (Mandrake Linux 9.2 3.2.3-1mdk))

@@ -1,39 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265510AbUBAXYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 18:24:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265514AbUBAXYi
+	id S265552AbUBAXjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 18:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265557AbUBAXjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 18:24:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42464 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265510AbUBAXYh (ORCPT
+	Sun, 1 Feb 2004 18:39:16 -0500
+Received: from sputnik.bioma.se ([212.112.42.34]:46984 "EHLO sputnik.bktv.se")
+	by vger.kernel.org with ESMTP id S265552AbUBAXjJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 18:24:37 -0500
-Date: Sun, 1 Feb 2004 15:22:41 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: jmorris@redhat.com, jakub@redhat.com, dparis@w3works.com,
-       linux-kernel@vger.kernel.org, rspchan@starhub.net.sg
-Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch  
- pentium3,4
-Message-Id: <20040201152241.485a6d8b.davem@redhat.com>
-In-Reply-To: <401D6D38.3020009@tmr.com>
-References: <Xine.LNX.4.44.0401301133350.16128-100000@thoron.boston.redhat.com>
-	<20040130131400.13190af5.davem@redhat.com>
-	<401D6D38.3020009@tmr.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 1 Feb 2004 18:39:09 -0500
+Message-ID: <401D8E17.1020805@lmpnet.se>
+Date: Mon, 02 Feb 2004 00:39:03 +0100
+From: Michael Jonsson <micke@lmpnet.se>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: smbfs build error kernel-2.6.1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 01 Feb 2004 16:18:48 -0500
-Bill Davidsen <davidsen@tmr.com> wrote:
+Hi,
 
-> What didn't you like about Jakob's patch which avoids the 64 byte size 
-> penalty?
+I get an error when I try to build kernel-2.6.1 with smbfs,
 
-Because it means memset'ing the thing every time the function is called.
-And this function is called for every transform.
+************************************************
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CHK     include/linux/compile.h
+  CC [M]  fs/smbfs/proc.o
+fs/smbfs/proc.c:33:19: proto.h: No such file or directory
+fs/smbfs/proc.c: In function `smb_request_ok':
+fs/smbfs/proc.c:826: warning: implicit declaration of function 
+`smb_add_request'
+fs/smbfs/proc.c: In function `smb_newconn':
+fs/smbfs/proc.c:874: warning: implicit declaration of function 
+`smb_valid_socket'
+fs/smbfs/proc.c:903: error: `smb_data_ready' undeclared (first use in 
+this function)
+fs/smbfs/proc.c:903: error: (Each undeclared identifier is reported only 
+once
+fs/smbfs/proc.c:903: error: for each function it appears in.)
+fs/smbfs/proc.c:968: error: `smb_dir_inode_operations_unix' undeclared 
+(first use in this function)
+fs/smbfs/proc.c:981: warning: implicit declaration of function 
+`smbiod_wake_up'
+fs/smbfs/proc.c: In function `smb_proc_seek':
+fs/smbfs/proc.c:1071: warning: implicit declaration of function 
+`smb_alloc_request'
+fs/smbfs/proc.c:1071: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c:1088: warning: implicit declaration of function `smb_rput'
+fs/smbfs/proc.c: In function `smb_proc_open':
+fs/smbfs/proc.c:1121: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_open':
+fs/smbfs/proc.c:1192: warning: implicit declaration of function 
+`smb_renew_times'
+fs/smbfs/proc.c: In function `smb_proc_close':
+fs/smbfs/proc.c:1215: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_close_inode':
+fs/smbfs/proc.c:1270: warning: implicit declaration of function 
+`smb_get_inode_attr'
+fs/smbfs/proc.c: In function `smb_proc_read':
+fs/smbfs/proc.c:1339: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_write':
+fs/smbfs/proc.c:1387: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_readX':
+fs/smbfs/proc.c:1461: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_writeX':
+fs/smbfs/proc.c:1507: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_create':
+fs/smbfs/proc.c:1551: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_mv':
+fs/smbfs/proc.c:1584: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_generic_command':
+fs/smbfs/proc.c:1619: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_unlink':
+fs/smbfs/proc.c:1690: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_flush':
+fs/smbfs/proc.c:1742: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_trunc64':
+fs/smbfs/proc.c:1776: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_readdir_short':
+fs/smbfs/proc.c:1978: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c:2065: warning: implicit declaration of function 
+`smb_fill_cache'
+fs/smbfs/proc.c: In function `smb_proc_readdir_long':
+fs/smbfs/proc.c:2308: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_getattr_ff':
+fs/smbfs/proc.c:2512: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_getattr_core':
+fs/smbfs/proc.c:2594: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_getattr_trans2_std':
+fs/smbfs/proc.c:2679: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_getattr_trans2_all':
+fs/smbfs/proc.c:2729: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_getattr_unix':
+fs/smbfs/proc.c:2760: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_setattr_core':
+fs/smbfs/proc.c:2846: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_setattr_ext':
+fs/smbfs/proc.c:2908: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_setattr_trans2':
+fs/smbfs/proc.c:2954: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_setattr_unix':
+fs/smbfs/proc.c:3028: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_dskattr':
+fs/smbfs/proc.c:3179: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_read_link':
+fs/smbfs/proc.c:3209: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_symlink':
+fs/smbfs/proc.c:3258: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_link':
+fs/smbfs/proc.c:3301: warning: assignment makes pointer from integer 
+without a cast
+fs/smbfs/proc.c: In function `smb_proc_query_cifsunix':
+fs/smbfs/proc.c:3346: warning: assignment makes pointer from integer 
+without a cast
+make[2]: *** [fs/smbfs/proc.o] Error 1
+make[1]: *** [fs/smbfs] Error 2
+make: *** [fs] Error 2
+***********************************************************
+
+Regards
+Micke
+
+

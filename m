@@ -1,57 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272575AbRHaBQ2>; Thu, 30 Aug 2001 21:16:28 -0400
+	id <S272576AbRHaBUI>; Thu, 30 Aug 2001 21:20:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272576AbRHaBQS>; Thu, 30 Aug 2001 21:16:18 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:7613 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S272575AbRHaBQG>;
-	Thu, 30 Aug 2001 21:16:06 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 31 Aug 2001 01:15:50 GMT
-Message-Id: <200108310115.BAA318386@vlet.cwi.nl>
-To: alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] blkgetsize64 ioctl
-Cc: bcrl@redhat.com, linux-kernel@vger.kernel.org, michael_e_brown@dell.com,
-        tytso@mit.edu
+	id <S272577AbRHaBT6>; Thu, 30 Aug 2001 21:19:58 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:60682 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S272576AbRHaBTr>;
+	Thu, 30 Aug 2001 21:19:47 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200108310119.f7V1Jws18144@oboe.it.uc3m.es>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <20010830174227.A10673@furble> from "Gordon Oliver" at "Aug 30,
+ 2001 05:42:27 pm"
+To: gordo@pincoya.com
+Date: Fri, 31 Aug 2001 03:19:58 +0200 (MET DST)
+CC: "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Ben LaHaise
-    ...
+"A month of sundays ago Gordon Oliver wrote:"
+[Charset ISO-8859-1 unsupported, filtering to ASCII...]
+> On 2001.08.30 16:27 Peter T. Breuer wrote:
+> > Possibly. I have little clue as to the real extent of the problem.
+> 
+>   You've missed the _vast_ majority of the real problems. And there is
+> no way to fix some of them...
+>     - if the sizeof the arguments is the same, it is a bug to have
+>       signed vs. unsigned.
 
-An interesting conversation, this.
-A is blamed for making the terrible mistake of shipping an unreserved ioctl,
-very stupid, because by accident B has made the minor mistake of shipping
-an unreserved ioctl.
-Maybe I misread something.
+That's caught by the solution proposed.
 
-    From: Michael E Brown <michael_e_brown@dell.com>
+>     - if the sizeof the arguments is different, it is a bug to have
+>       the _larger_ argument unsigned.
 
-    Alan,
-        Here is a patch that reserves the 108 and 109 ioctl numbers for
-    get/set last sector. This patch has already been merged into the ia64
-    tree, and is currently necessary in order to support the EFI GPT
-    partitioning scheme on ia64. It is also in the Red Hat kernel tree. I had
-    assumed that somebody at Red Hat would have forwarded it to you.
+This can't be caught at compile time.
 
-Marking the numbers not-to-be-used is certainly a good idea.
+>     - if one of the arguments is a constant, typeof will give you
+>       a mostly arbitrary value, making { unsigned int i,j; j = max(i,5);}
+>       return a bug.
 
-Concerning the need for this particular nonsense - we have had this
-discussion earlier this year, and also without any patches
-one can read the last sector.  (Using some bad kludge, but still..)
+?? I don't follow this at all. Typeof is deterministic, since the
+gcc computer program is deterministic. Typeof MUST return the type of 
+the expression to which it applies.  All expressions in C have 
+precisely computed types -I guess  what you are saying is that that
+the type of an expression may be context dependent, which I can easily
+imagine in a random computer language, but seriously doubt for C.
+C really does type calculations via narrowing :-o! Oh yeah!
 
-One of the patches I have at ftp.kernel.org removes the entire problem -
-one needs (1) a test in ll_rw_blk.c that uses not the size in 1024-byte blocks
-but in 512-byte sectors, and (2) a set-blocksize ioctl.
-And this latter is needed for other reasons as well.
+Show me an instance of an expression that two differnt types depending
+on context. I am prepared to be surprised, but dubious.
 
-Maybe I should resubmit some such patch fragments?
+(umm ... what type is the "5" in "(short)5" ?? Why, signed integer, I
+believe. It's truncated to short, modulo a language lawyer's second
+opinion).
 
-Andries
+>     - not forcing the person to actually set the type of the argument
+>       will allow things like
+>       {
+> 	int user_land_value, buffer_size;
+
+Nice integers.
+
+> 	user_land_value = magic_from_user_land();
+
+signed integer value.
+
+> 	buffer_size = min(user_land_value, 10);
+
+well, 10 is a signed integer constant. AFAIK you'd have to write "10u"
+to get an unsigned integer constant. And yes, the latter would be
+caught by my solution.
 
 
->   Content-Disposition: attachment; filename=patch-getlastsector-20010213
->
->   ZGlmZiAtcnVQIGxpbnV4L2luY2x1ZGUvbGludXgvZnMuaCBsaW51eC1pb2N0
+> 	buffer = memcpy(some_place, some_other_place, buffer_size); /* BOOM
+> */
+>       }
+>       to not show a bug at all (10 is signed).
 
-Yes, indeed.
+I see no bug.
+
+There would be a bug if 10u were used and user_land_value were negative,
+since then the result of min would be 10u (and this bug would be flagged
+by my solution).  But as things are, the result is user_land_value.
+
+I just checked.
+
+
+> Please, can we take this off of lkml... (btw, see the attached file
+> for the bugs).
+
+Are you SURE you can find the bugs! :-)
+
+Peter

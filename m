@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314294AbSD0Ru7>; Sat, 27 Apr 2002 13:50:59 -0400
+	id <S314303AbSD0R42>; Sat, 27 Apr 2002 13:56:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314303AbSD0Ru6>; Sat, 27 Apr 2002 13:50:58 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:62018 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S314294AbSD0Ru5>; Sat, 27 Apr 2002 13:50:57 -0400
-Message-Id: <5.1.0.14.2.20020427184542.04000cd0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 27 Apr 2002 18:50:56 +0100
-To: Christoph Lameter <christoph@lameter.com>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: 2.5.10-dj1 compilation failure
-Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204271033010.5612-100000@k2-400.lameter.com
- >
+	id <S314318AbSD0R41>; Sat, 27 Apr 2002 13:56:27 -0400
+Received: from kahuna.kalkatraz.de ([62.145.25.91]:15755 "EHLO
+	golem.home.local") by vger.kernel.org with ESMTP id <S314303AbSD0R41>;
+	Sat, 27 Apr 2002 13:56:27 -0400
+Date: Sat, 27 Apr 2002 19:56:09 +0200
+From: Lars Weitze <cd@kalkatraz.de>
+To: linux-kernel@vger.kernel.org
+Subject: 100 Mbit on slow machine
+Message-Id: <20020427195609.0a397df9.cd@kalkatraz.de>
+Organization: http://www.liquidsteel.net
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: "Add'HrsHhg}pA?6>_fl]8[PNFwpJTSTW?I_:}%1O}rQof)E5W:qQbr1i>J?[?W:9"~?}]; ,?}|UTr8Ww=d%HY}-ap:|nv&<Y?3}t~lcR9D/?<~c</0{]DzT-Oj[cU;XPiM\CR6FjHk)5'ztDGpD< j]qoHG:5[;Y!
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 18:35 27/04/02, Christoph Lameter wrote:
->That stuff might be useful in a CVS or BK() source code archive.
->What is the purpose of releasing a kernel tarball that does not compile?
->Kernel tarball are there to be compiled and tried out ....
+Hi,
 
-You have that slightly wrong.
+I am using a P200 MMX as an Fileserver. After i upgraded it to an 100
+Mbit/s NIC (tulip chip and 3Com "Vortex" tried) i am getting the follwing
+behaviour: The network stack seems to "block" when sending files to the
+machine with full 100 Mbit/s. There are -no- kernel messages. Doing a ping
+an the machine gives all ping packets back in "one bunch". Even after
+stopping accesing the machine at full speed (stopping the transfer) i am
+just getting this "packaged" ping reply (9000 ms and more).
 
-First, this is a development kernel, i.e. using it means it may not 
-compile, it may not work, or worse, it may destroy all your data.
+A ping -f -s 65000 will also lock up the machine. Doing an ifdown -a ;
+ifup -a resloves the problem until the next "flood".
 
-Second, the kernel compiles fine as long as you don't make use of any of 
-the currently broken features. A blank statement "the kernel doesn't 
-compile" is more often then not incorrect and should say "the kernel 
-doesn't compile with my .config" instead.
-
-The developmental kernel series is for that... Just as the block layer was 
-"flaky" while Jens was working on it in early 2.5.x and just as IDE is 
-"flaky" at the moment, now scsi is joining the club. (-;
-
-If you want kernels that will compile and work you should be using 2.4.x or 
-2.2.x kernels...
-
-Best regards,
-
-Anton
-
->On Sat, 27 Apr 2002, Dave Jones wrote:
->
-> > On Sat, Apr 27, 2002 at 10:18:20AM -0700, Christoph Lameter wrote:
-> >  > ide-scsi.c:837: unknown field `abort' specified in initializer
-> >  > ide-scsi.c:837: warning: initialization from incompatible pointer type
-> >  > ide-scsi.c:838: unknown field `reset' specified in initializer
-> >  > ide-scsi.c:838: warning: initialization from incompatible pointer type
-> >
-> > http://lwn.net/daily/2.5.10-dj1-scsi.php3
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
+Regards
+CD
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+    "Ihre Meinung ist mir zwar widerlich, aber ich werde mich
+     dafuer totschlagen lassen, dass sie sie sagen duerfen."
+                                                        Voltaire
 
+PGP-Key:          http://cd.kalkatraz.de
+PGP fingerprint:  4950 8576 778F DEDF 85D1  C04D 586F 2C45 E714 E13A

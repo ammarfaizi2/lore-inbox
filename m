@@ -1,152 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263909AbUA3VT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 16:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbUA3VT4
+	id S263942AbUA3VPj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 16:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbUA3VPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 16:19:56 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:40466 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263909AbUA3VTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 16:19:49 -0500
-Message-ID: <401ACB54.1060304@techsource.com>
-Date: Fri, 30 Jan 2004 16:23:32 -0500
-From: Timothy Miller <miller@techsource.com>
+	Fri, 30 Jan 2004 16:15:39 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2887 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S263942AbUA3VPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 16:15:30 -0500
+To: David Weinehall <tao@acc.umu.se>
+Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Lindent fixed to match reality
+References: <20040129193727.GJ21888@waste.org>
+	<20040129201556.GK16675@khan.acc.umu.se>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 30 Jan 2004 14:08:25 -0700
+In-Reply-To: <20040129201556.GK16675@khan.acc.umu.se>
+Message-ID: <m1n085xhyu.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       John Bradford <john@grabjohn.com>, chakkerz@optusnet.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
-References: <200401291629.i0TGTN7S001406@81-2-122-30.bradfords.org.uk> <40193A67.7080308@techsource.com> <200401291718.i0THIgbb001691@81-2-122-30.bradfords.org.uk> <4019472D.70604@techsource.com> <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk> <40195AE0.2010006@techsource.com> <401A33CA.4050104@aitel.hist.no> <401A8E0E.6090004@techsource.com> <Pine.LNX.4.55.0401301812380.10311@jurand.ds.pg.gda.pl> <401A9716.3040607@techsource.com> <20040130210915.GA4147@hh.idb.hist.no>
-In-Reply-To: <20040130210915.GA4147@hh.idb.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alright then, how about this:  Assuming opencores has a PCI interface 
-and a DDR memory controller, I could write a CRT controller.  We can put 
-that into an FPGA and see what happens.
+David Weinehall <tao@acc.umu.se> writes:
 
+> On Thu, Jan 29, 2004 at 01:37:28PM -0600, Matt Mackall wrote:
+> > I've been fiddling with cleaning up some old code here and suggest the
+> > following to make Lindent match actual practice more closely. This does:
+> > 
+> > a) (no -psl)
+> > 
+> > void *foo(void) {
+> > 
+> >  instead of
+> > 
+> > void *
+> > foo(void) {
+> > 
+> > b) (no -bs) "sizeof(foo)" rather than "sizeof (foo)"
+> 
+> I can't really see the logic in this, though I know a lot of people do
+> it.  I try to stay consistent, thus I do:
 
-Helge Hafting wrote:
-> On Fri, Jan 30, 2004 at 12:40:38PM -0500, Timothy Miller wrote:
-> 
->>
->>Maciej W. Rozycki wrote:
->>
->>>On Fri, 30 Jan 2004, Timothy Miller wrote:
->>>
->>>
->>>
->>>>>Another reason to drop VGA then - money.
->>>>
->>>>As soon as PC BIOS's don't require it, we can drop it.
->>>
-> PC bioses don't need VGA and never did!
-> They use the int 0x10 handler provided by the graphichs card bios.
-> When you make the card - you get to write that bios. No problem!
-> 
-> I once used a dec rainbow - a pc with an ibm-incompatible screen.
-> The display memory was organized as a linked list of lines instead
-> of an array of characters.  It came with its own special version
-> of msdos 2.11.  Few ordinary dos programs would run on it,
-> beause most tried to access the "standard" 80x25 array instead
-> of using msdos for io.  Those who did the right thing worked, though.
-> 
-> (An odd machine in other ways too - it had a z80 controlling the
-> floppies and a 8088 controlling the screen and harddisk.
-> Early 80's asymmetric multiprocessor :-)
-> 
-> 
-> 
->>>No PC BIOS recognizes a VGA.  The PC/AT firmware uses int 0x10 to
->>>communicate with the console and as long as there is a handler there,
->>>console output works.  Most systems will actually run without a handler,
->>>too, but they'll usually complain to the speaker.  The handler is provided
->>>by the ROM firmware of the primary graphics adapter.
->>>
->>>Old PC/AT firmware actually did recognize a few display adapters, namely
->>>the CGA and the MDA which had no own firmware.  These days support for
->>>these option is often absent, even though the setup program may provide an
->>>option to select between CGA40/CGA80/MDA/none (the latter being equivalent
->>>to an option such as an EGA or a VGA, providing its own firmware).
->>>
->>
->>You're not entirely correct here.  I attempted to write a VGA BIOS for a 
->>card which did not have hardware support for 80x25 text.
->>
->>I first tried intercepting int 0x10.  I quickly discovered that most DOS 
->>programs bypass int 0x10 and write directly to the display memory.  As a 
->>result, very little of what should have displayed actually did.
->>
-> 
-> Sure, but we're not interested in "most dos programs", are we?
-> The pc bios bootup will work, it uses int 0x10.
-> lilo output will work.
-> linux kernel console output will work
-> X will work, either with the generic framebuffer driver, or with
-> a proper driver written for the open hardware.
-> 
-> 
->>Next, I tried hanging off this timer interrupt.  I had two copies of the 
->>text display, "now" and "what it was before".  I would compare the 
->>characters and render any differences.  This worked quite well for DOS, 
->>but the instant ANY OS switched to protected mode, they took over the 
->>interrupt and all console messages stopped.  Actually, the same was true 
->>for int 0x10.
->>
-> 
-> If you want DOS application compatibility or windows compatibility
-> then you might need VGA.  But you started out talking about
-> open hardware for linux - and then you really don't need vga at all.
-> Not even an initial 80x25 character array. A kernel without vga
-> support (but some other console like fbcon) works fine.
-> 
-> 
->>Even just the DOS shell command-line tends to bypass int 0x10 and write 
->>directly to display memory.
->>
-> 
-> Depends on what version of dos, but you can always get freedos for which
-> source code is available - if dos matters to you. It is something
-> I only ever use for flashing bios upgrades.
-> 
-> 
->>Furthermore, 640x480x16 simply won't happen at all without direct 
->>hardware support.  Some things rely on that (or mode X or whatever) for 
->>initial splash screens.
->>
-> 
-> Not in linux.  Of course you can reserve the legacy vga memory region
-> and just live with the loss of splash screens in dos.
->  
-> 
->>In the PC world, too many assumptions are made about the hardware for 
->>any kind of software emulation to work.
->>
-> 
-> Not in the pc world.  The pc is only hardware.  
-> The problem is the microsoft os world, but supporting that _isn't
-> necessary_ when you don't plan on high volumes.  I guess you
-> could get windows going - it uses proper display drivers these days
-> even if the installer doesn't. Install with vga card, swap driver,
-> shutdown, swap cards, power-on or some such.
->  
-> 
->>The suggestion that a general-purpose CPU on the graphics card could be 
->>used to emulate it is correct, but the logic area of the general-purpose 
->>CPU is greater than that of the dedicated VGA hardware.  Furthermore, 
->>you can't just "stick a Z80 onto the board", because multi-chip 
->>solutions up the board cost too much.
-> 
-> 
-> Thanks for the information, seems I don't know enough about board 
-> manufacturing.
-> 
-> 
-> Helge Hafting
-> 
-> 
+If consistency was good in a language we would all be using
+an RPL or s-expr based language.  Communication is clearer
+with redundant information.  Making special cases of common
+cases is a good thing.
 
+Eric

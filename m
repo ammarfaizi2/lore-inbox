@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267383AbUHDTV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267387AbUHDTXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267383AbUHDTV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 15:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUHDTV0
+	id S267387AbUHDTXo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 15:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267389AbUHDTXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 15:21:26 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:7556 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S267383AbUHDTVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 15:21:25 -0400
-Subject: SCHED_BATCH and SCHED_BATCH numbering
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1091638227.1232.1750.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 04 Aug 2004 12:50:28 -0400
+	Wed, 4 Aug 2004 15:23:44 -0400
+Received: from 23-88.ipact.nl ([82.210.88.23]:12187 "EHLO vt.shuis.tudelft.nl")
+	by vger.kernel.org with ESMTP id S267387AbUHDTXm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 15:23:42 -0400
+From: Remon Sijrier <remon@vt.shuis.tudelft.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O3
+Date: Wed, 4 Aug 2004 21:24:36 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408042124.36537.remon@vt.shuis.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are these going to be numbered consecutively, or might
-they better be done like the task state? SCHED_FIFO is
-in fact already treated this way in one place. One might
-want to test values this way:
+Hello,
 
-if(foo & (SCHED_ISO|SCHED_RR|SCHED_FIFO))  ...
+The compilation went fine, but there are some problems I can't solve :-(
 
-(leaving aside SCHED_OTHER==0, or just translate
-that single value for the ABI)
+I had to disable both drm (dri) and acpi to get rid from warning messages but 
+still X doesn't start with the following message in it's log file:
 
-I'd like to see these get permenant allocations
-soon, even if the code doesn't go into the kernel.
-This is because user-space needs to know the values.
+xf86OpenSerial cannot open device /dev/psaux no such device
 
+This wasn't a problem before. Any help would be appreciated.
 
+Thanks,
+
+Remon
+
+P.S. 
+Please CC me, I'm not on the list

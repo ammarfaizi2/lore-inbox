@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbTEPXDU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 19:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTEPXDU
+	id S265028AbTEPXHL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 19:07:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbTEPXHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 19:03:20 -0400
-Received: from gw.enyo.de ([212.9.189.178]:39441 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S261383AbTEPXDT (ORCPT
+	Fri, 16 May 2003 19:07:11 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:59040 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265028AbTEPXHK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 19:03:19 -0400
-To: Simon Kirby <sim@netnation.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Route cache performance under stress
-References: <8765pshpd4.fsf@deneb.enyo.de>
-	<20030516222436.GA6620@netnation.com>
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: Simon Kirby <sim@netnation.org>,
- linux-kernel@vger.kernel.org
-Date: Sat, 17 May 2003 01:16:08 +0200
-In-Reply-To: <20030516222436.GA6620@netnation.com> (Simon Kirby's message of
- "Fri, 16 May 2003 15:24:36 -0700")
-Message-ID: <8765oaxz2f.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 16 May 2003 19:07:10 -0400
+Date: Fri, 16 May 2003 16:21:51 -0700
+From: Greg KH <greg@kroah.com>
+To: jt@hpl.hp.com
+Cc: Oliver Neukum <oliver@neukum.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: request_firmware() hotplug interface, third round.
+Message-ID: <20030516232151.GB17177@kroah.com>
+References: <20030515200324.GB12949@ranty.ddts.net> <200305161007.31335.oliver@neukum.org> <20030516095624.GA30397@ranty.ddts.net> <200305161753.17198.oliver@neukum.org> <20030516184920.GA26221@bougret.hpl.hp.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030516184920.GA26221@bougret.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Kirby <sim@netnation.org> writes:
+On Fri, May 16, 2003 at 11:49:20AM -0700, Jean Tourrilhes wrote:
+> 
+> Many high level kernel developpers (Jeff, Alan, Greg) have said 'niet'
+> to binary firmware linked with the kernel (unless there is source code
+> available).
 
-> I hate the way this works in iptables), particularly with the MSSQL
-> worm that burst out to the 'net that one Friday night several few
-> months ago.  Adding a single match udp port, DROP rule to PREROUTING
-> chain made the load go back down to normal levels.  The same rule in
-> the INPUT/FORWARD chain had no affect on the CPU utilization (still
-> saturated).
+Excuse me, but I never said such a thing.  I don't mind putting firmware
+blobs into kernel drivers, been doing it for years :)
 
-Yes, that's exactly the phenomenon, but operators traditionally
-attributed it to other things running on the router (such as
-accounting).
+I just stated that _if_ we want to move firmware to userspace, why not
+have a consistant interface that all kinds of drivers can use to
+accomplish this.  That is what has been done with this code.
 
-> Under normal operation, it looks like most load we are seeing is in fact
-> normal route lookups.  We run BGP peering, and so there is a lot of
-> routes in the table.
+thanks,
 
-You should aggregate the routes before you load them into the kernel.
-Hardly anybody seems to do this, but usually, you have much fewer
-interfaces than prefixes 8-), so this could result in a huge win.
-
-Anyway, using data structures tailored to the current Internet routing
-table, it's certainly possible to do destination-only routing using
-half a dozen memory lookups or so (or a few indirect calls, I'm not
-sure which option is cheaper).
-
-> I will try playing more with this code and look at your patch and paper.
-
-Well, I didn't write the paper, I found it after discovering the
-problem in the kernel.  This complexity attack has been resolved, but
-this won't help people like you who have to run Linux on an
-uncooperative network.
-
-The patch I posted won't help you as it increases the load
-considerably unless most of your flows consist of one packet.  (And
-there's no need for patching, you can go ahead and just change the
-value via /proc.)
+greg k-h

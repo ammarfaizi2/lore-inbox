@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315441AbSEBVl4>; Thu, 2 May 2002 17:41:56 -0400
+	id <S315442AbSEBVmH>; Thu, 2 May 2002 17:42:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315442AbSEBVlz>; Thu, 2 May 2002 17:41:55 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:3769 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315441AbSEBVlx>;
-	Thu, 2 May 2002 17:41:53 -0400
-Date: Thu, 02 May 2002 15:39:54 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <150570000.1020379194@flay>
-In-Reply-To: <20020502205741.O11414@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S315443AbSEBVmH>; Thu, 2 May 2002 17:42:07 -0400
+Received: from ns.suse.de ([213.95.15.193]:42256 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S315442AbSEBVmG>;
+	Thu, 2 May 2002 17:42:06 -0400
+Date: Thu, 2 May 2002 23:42:02 +0200
+From: Dave Jones <davej@suse.de>
+To: tomas szepe <kala@pinerecords.com>
+Cc: Keith Owens <kaos@ocs.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+Message-ID: <20020502234202.X16935@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	tomas szepe <kala@pinerecords.com>, Keith Owens <kaos@ocs.com.au>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020502103810.GA7937@louise.pinerecords.com> <28926.1020342106@ocs3.intra.ocs.com.au> <20020502213443.GA10617@louise.pinerecords.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The difference is that if you use discontigmem you don't clobber the
-> common code in any way, there is no "logical/ordinal" abstraction,
-> there is no special table, it's all hidden in the arch section, and the
-> pgdat you need them anyways to allocate from affine memory with numa.
+On Thu, May 02, 2002 at 11:34:44PM +0200, tomas szepe wrote:
+ > '/usr/include/asm' points to '/usr/src/linux/include/asm'
 
-I *want* the logical / ordinal abstraction. That's not a negative thing -
-it reduces the number of complicated things I have to think about,
-allowing me to think more clearly, and write correct code ;-)
+Therein lies your problem.
+/usr/include/asm should NOT be a symlink.  At least, not in this century.
 
-Not having a multitude of zones to balance in the normal discontigmem
-case also seems like a powerful argument to me ...
-
-M.
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

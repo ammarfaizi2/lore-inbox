@@ -1,74 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272782AbTG3Gfo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 02:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272785AbTG3Gfo
+	id S272788AbTG3GhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 02:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272785AbTG3Gfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 30 Jul 2003 02:35:48 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:21173 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S272783AbTG3Gfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 30 Jul 2003 02:35:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35972 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272782AbTG3Gfm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 02:35:42 -0400
-Date: Tue, 29 Jul 2003 23:36:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linas@austin.ibm.com, linux-kernel@vger.kernel.org,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: PATCH: Race in 2.6.0-test2 timer code
-Message-Id: <20030729233603.21ad2409.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0307300733200.25010-100000@localhost.localdomain>
-References: <20030729135643.2e9b74bc.akpm@osdl.org>
-	<Pine.LNX.4.44.0307300733200.25010-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Date: Wed, 30 Jul 2003 16:36:57 +1000
+From: CaT <cat@zip.com.au>
+To: Philip Graham Willoughby <pgw99@doc.ic.ac.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+Message-ID: <20030730063657.GH1395@zip.com.au>
+References: <20030729151701.GA6795@bodmin.doc.ic.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030729151701.GA6795@bodmin.doc.ic.ac.uk>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
+On Tue, Jul 29, 2003 at 04:17:03PM +0100, Philip Graham Willoughby wrote:
+> Hi all,
 > 
-> On Tue, 29 Jul 2003, Andrew Morton wrote:
-> 
-> > Andrea says that we need to take the per-timer lock in add_timer() and
-> > del_timer(), but I haven't yet got around to working out why.
-> 
-> this makes no sense - in 2.6 (and in 2.4) there's no safe add_timer() /
-> del_timer() use without using external SMP synchronization. (There's one
-> special timer use variant involving del_timer_sync() that was safe in 2.4
-> but is unsafe in 2.6, see below.)
-> 
+> This patch adds an abstraction layer for programmable LED devices,
 
-Well Andrea did mention a problem with the interval timers.  But I am not
-aware of the exact details of the race which he found, and I don't
-understand why del_timer() and add_timer() would be needing the per-timer
-locks.
+Would this (now or in the future) by any chance let one use the keyboard
+leds for stuff without activating their num lock, caps lock and scroll
+lock functionality? I'd like to use one of them (at least) as a network
+traffic indicator but so far I get the sideffects of the functionality
+being on also. Most annoying when typing. :/
 
-You need to export __mod_timer to modules btw.
-
---- 25/kernel/ksyms.c~timer-race-fixes	2003-07-29 23:27:05.000000000 -0700
-+++ 25-akpm/kernel/ksyms.c	2003-07-29 23:27:49.000000000 -0700
-@@ -405,8 +405,6 @@ EXPORT_SYMBOL(proc_doulongvec_ms_jiffies
- EXPORT_SYMBOL(proc_doulongvec_minmax);
- 
- /* interrupt handling */
--EXPORT_SYMBOL(add_timer);
--EXPORT_SYMBOL(del_timer);
- EXPORT_SYMBOL(request_irq);
- EXPORT_SYMBOL(free_irq);
- 
-@@ -433,7 +431,10 @@ EXPORT_SYMBOL(probe_irq_off);
- #ifdef CONFIG_SMP
- EXPORT_SYMBOL(del_timer_sync);
- #endif
-+EXPORT_SYMBOL(add_timer);
-+EXPORT_SYMBOL(del_timer);
- EXPORT_SYMBOL(mod_timer);
-+EXPORT_SYMBOL(__mod_timer);
- 
- #ifdef HAVE_DISABLE_HLT
- EXPORT_SYMBOL(disable_hlt);
-
-_
-
+-- 
+"How can I not love the Americans? They helped me with a flat tire the
+other day," he said.
+	- http://tinyurl.com/h6fo

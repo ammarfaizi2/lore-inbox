@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131098AbRAGVMM>; Sun, 7 Jan 2001 16:12:12 -0500
+	id <S129842AbRAGVNM>; Sun, 7 Jan 2001 16:13:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130573AbRAGVMC>; Sun, 7 Jan 2001 16:12:02 -0500
-Received: from magla.iskon.hr ([213.191.128.32]:520 "EHLO magla.iskon.hr")
-	by vger.kernel.org with ESMTP id <S130615AbRAGVLx>;
-	Sun, 7 Jan 2001 16:11:53 -0500
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] mm-cleanup-1 (2.4.0)
-In-Reply-To: <Pine.LNX.4.21.0101071701250.4416-100000@freak.distro.conectiva>
-Reply-To: zlatko@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko@iskon.hr>
-Date: 07 Jan 2001 22:11:45 +0100
-In-Reply-To: Marcelo Tosatti's message of "Sun, 7 Jan 2001 17:07:59 -0200 (BRST)"
-Message-ID: <dnitnrcbji.fsf@magla.iskon.hr>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Notus)
+	id <S129669AbRAGVNC>; Sun, 7 Jan 2001 16:13:02 -0500
+Received: from 209.102.21.2 ([209.102.21.2]:45835 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S131620AbRAGVM4>;
+	Sun, 7 Jan 2001 16:12:56 -0500
+Message-ID: <3A58AB67.185B64D7@goingware.com>
+Date: Sun, 07 Jan 2001 17:46:15 +0000
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-ac2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, nstraz@sgi.com
+Subject: Re: What test suites can you tell me about?
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+Nate Straz of the Linux Test Project at SGI (nstraz@sgi.com) said:
+> The Linux Test Project (http://oss.sgi.com/projects/ltp/) was set up to 
+> create a set of automated tests for Linux. 
 
-> On 7 Jan 2001, Zlatko Calusic wrote:
-> 
-> > The following patch cleans up some obsolete structures from the mm &
-> > proc code.
-> > 
-> > Beside that it also fixes what I think is a bug:
-> > 
-> >         if ((rw == WRITE) && atomic_read(&nr_async_pages) >
-> >                        pager_daemon.swap_cluster * (1 << page_cluster))
-> > 
-> > In that (swapout logic) it effectively says swap out 512KB at once (at
-> > least on my memory configuration). I think that is a little too much.
-> > I modified it to be a little bit more conservative and send only
-> > (1 << page_cluster) to the swap at a time. Same applies to the
-> > swapin_readahead() function. Comments welcome.
-> 
-> 512kb is the maximum limit for in-flight swap pages, not the cluster size 
-> for IO. 
-> 
-> swapin_readahead actually sends requests of (1 << page_cluster) to disk
-> at each run.
->  
+Nate,
 
-OK, maybe I was too fast in concluding with that change. I'm still
-trying to find out why is MM working bad in some circumstances (see my
-other email to the list).
+This is most excellent news!
 
-Anyway, I would than suggest to introduce another /proc entry and call
-it appropriately: max_async_pages. Because that is what we care about,
-anyway. I'll send another patch.
+I'd like you to look at http://linuxquality.sunsite.dk/
+
+The objectives of the Linux Quality Database are:
+
+- to get more people testing the new Linux kernels in a meaningful way
+- to give them tips on how to do it effectively, such as a link to your site and
+other test suites
+- in the long run, to provide an easy-to-use web interface to make it easier for
+people to log more meaningful bug reports, with a powerful search interface to
+make it easy to find the bugs a developer wants to know about
+- to improve the overall quality of free software in general through advocacy
+and education
+
+I'd be most interested in your comments about the site and what I'm trying to
+achieve.
+
+Also see "Why We Should All Test the New Linux Kernel" at:
+http://advogato.org/article/224.html
+
+Unfortunately, Advogato doesn't provide for editing an article once one presses
+the final "submit" button.  So I'm going to post an edited and updated version
+of that on the Linuxquality site.
+
+Regards,
 -- 
-Zlatko
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
+
+   Tilting at Windmills for a Better Tomorrow.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

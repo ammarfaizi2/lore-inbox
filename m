@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268116AbUHFJrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268107AbUHFJ5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268116AbUHFJrI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 05:47:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268113AbUHFJrI
+	id S268107AbUHFJ5j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 05:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268112AbUHFJ5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 05:47:08 -0400
-Received: from tarjoilu.luukku.com ([194.215.205.232]:7071 "EHLO
-	tarjoilu.luukku.com") by vger.kernel.org with ESMTP id S268116AbUHFJq4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 05:46:56 -0400
-Message-ID: <411353B3.B8748556@users.sourceforge.net>
-Date: Fri, 06 Aug 2004 12:47:31 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
-X-Accept-Language: en
+	Fri, 6 Aug 2004 05:57:39 -0400
+Received: from raven.ecs.soton.ac.uk ([152.78.70.1]:65011 "EHLO
+	raven.ecs.soton.ac.uk") by vger.kernel.org with ESMTP
+	id S268107AbUHFJ5g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 05:57:36 -0400
+Message-ID: <411355B9.9060304@ecs.soton.ac.uk>
+Date: Fri, 06 Aug 2004 10:56:09 +0100
+From: kwl02r <kwl02r@ecs.soton.ac.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Fruhwirth Clemens <clemens@endorphin.org>,
-       James Morris <jmorris@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: Linux 2.6.8-rc3 - BSD licensing
-References: <Xine.LNX.4.44.0408041156310.9291-100000@dhcp83-76.boston.redhat.com>
-		   <1091644663.21675.51.camel@ghanima> <Pine.LNX.4.58.0408041146070.24588@ppc970.osdl.org>
-		   <1091647612.24215.12.camel@ghanima> <Pine.LNX.4.58.0408041251060.24588@ppc970.osdl.org>
-		 <411228FF.485E4D07@users.sourceforge.net> <Pine.LNX.4.58.0408050941590.24588@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: strange new system call problems
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: Please contact helpdesk@ecs.soton.ac.uk for more information
+X-ECS-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> You're saying that you consider Gladman's original AES license to be
-> GPL-compatible (ie a subset of it)? That's fine - apparently the FSF
-> agrees.
+    Hiya,
 
-Yes, it is GPL-compatible.
+    I am running the Redhat9 with kernel-2.4.20-8. I added four new 
+system calls for my application program.
+    At file /asm/unistd.h, I added my system calls definition as following.
+   
+    #define __NR_set_tid_address    258 /* last system call defined by 
+system*/
 
-> However, that is incompatible with you then complaining when it gets
-> released under the GPL. If the original license was a proper subset of the
-> GPL, then it can _always_ be re-released under the GPL, and you don't have
-> anything to complain about.
+   #define __NR_mysystemcall1  259  /* my first system call*/
+   #define __NR_mysystemcall2  260  /* my second system call*/
+   #define __NR_mysystemcall3  261  /* my third system call*/
+   #define __NR_mysystemcall4  262  /* my forth system call*/
 
-Linus, you are mixing two completely different rights here; re-distribution
-right and re-licensing right. Original license grants you GPL-compatible
-re-distribution rights, which means that the code can be distributed and
-linked with GPL code just fine. To relicense the code under more restrictive
-license you need permission from all authors of the code. You clearly do not
-have such permission from all authors. Therefore, you can not re-license the
-code.
+   After this , I changed the linux/arch/i386/entry.S as following.
+  . long SYMBOL_NAME(sys_mysystemcall1)             /* 259 system call */
+  .long SYMBOL_NAME(sys_mysystemcall2)              /* 260 system call */
+  .long SYMBOL_NAME(sys_mysystemcall3)              /* 261 system call */
+  .long SYMBOL_NAME(sys_mysystemcall4)              /* 262 system call */
 
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+   When I compilered a new kernel, there was no any error messages.
+   But only the new system call 259 was working. The rest of three 
+(260-262) did not response
+   anything. If I changed the position of system calls (259->260 and 
+260->259), still the 259 had
+   response. Anyway, only the new system call at the 259 position was 
+working. What is wrong?
+   Other questions are:
+   (1) Is it correct that I add my new definitions at 
+/linux/asm/unistd.h? There is another file under
+         /linux/asm-i386/unistd.h
+   (2) At entry.S, do I need to change codes following for my new system 
+calls? How to change ?
+       
+       .rept NR_syscalls-(.-sys_call_table)/4
+               .long SYMBOL_NAME(sys_ni_syscall)
+        .endr
+
+Thanks
+
+
+
+   
+
+
+ 
+
+   
+

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279858AbRKNAGl>; Tue, 13 Nov 2001 19:06:41 -0500
+	id <S279860AbRKNAYf>; Tue, 13 Nov 2001 19:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279865AbRKNAGc>; Tue, 13 Nov 2001 19:06:32 -0500
-Received: from [212.98.85.178] ([212.98.85.178]:44298 "EHLO web1.luka.de")
-	by vger.kernel.org with ESMTP id <S279858AbRKNAGY>;
-	Tue, 13 Nov 2001 19:06:24 -0500
-Date: Wed, 14 Nov 2001 01:04:37 +0100
-From: Christoph Kampe <kernelml@kampe.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: usb-storage fails with datafab md2-usb (ide hdd on usb) on newer kernels >2.4.8
-Message-ID: <20011114010437.B1174@kampe.net>
-In-Reply-To: <20011114004123.A1174@kampe.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011114004123.A1174@kampe.net>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: greedy on Linux 2.4.8 i686 for kampe.net
-X-PGP-Key: http://www.kampe.net/pubkey.asc
-X-PGP-Fingerprint: 4286 CA6C AFD8 BD70 4B8F  78B8 733A 4B40 DFC5 1CF7
-X-PGP-ID: 0xDFC51CF7
+	id <S279829AbRKNAYZ>; Tue, 13 Nov 2001 19:24:25 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29971 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279860AbRKNAYI>; Tue, 13 Nov 2001 19:24:08 -0500
+Message-ID: <3BF1B997.5030908@zytor.com>
+Date: Tue, 13 Nov 2001 16:23:51 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Pascal Schmidt <pleasure.and.pain@web.de>
+CC: "Richard B. Johnson" <root@chaos.analogic.com>,
+        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: fdutils.
+In-Reply-To: <Pine.LNX.4.33.0111140119580.1217-100000@neptune.sol.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 14, 2001 at 12:41:23AM +0100, Christoph Kampe wrote:
-... very much, but not the Problemdescription.
+Pascal Schmidt wrote:
 
-Hi again,
-sorry i forget to write what went wrong with the DataFab Storage.
+> On Tue, 13 Nov 2001, Richard B. Johnson wrote:
+> 
+> 
+>>Without a floppy-based rescue system, you have to use bootable CDROM,
+>>usually supplied by a vendor, without the tools to truly rescue a
+>>system. You can only re-install. For instance some vendors don't
+>>provide a SCSI-tape module so you can't recover from a SCSI tape.
+>>
+> 
+> There are a few minimalistic distributions that can be burned onto CDROM 
+> for rescue operations. Just add your favourite kernel with all your 
+> required drivers and you are ready to go.
+> 
+> Shameless plug: I use my own distribtion
+> 	http://www.tzi.de/~pharao90/ttylinux/
+> for the same purpose. ;)
+> 
 
-Actually, with 2.4.8 when i connect the usb-storage it loads all
-necessary modules and a mount takes less then 1second.
 
-With 2.4.15-pre4 it loads the three modules too but, it gives 
-> kernel: usb-storage: *** thread sleeping.
-> kernel: scsi: device set offline - not ready or command retry failed after 
->   bus reset: host 0 channel 0 id 0 lun 0
-> kernel:  I/O error: dev 08:05, sector 0
-in my log.
-as i wrote in my last mail (last 10 lines)
-a mount won´t work, takes some time and breaks with 
-"I/O error:dev 08:05, sector 0"
+And some not-so-minimalistic systems... you can fit an awful lot on a CD.
 
-I dont´t know exactly if it fails because of the usb-storage or the 
-scsi_mod module.
+	http://www.kernel.org/pub/dist/superrescue/
 
-Regards 
-Christoph
+	-hpa
+
 

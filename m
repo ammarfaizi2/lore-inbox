@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285484AbRL2Uge>; Sat, 29 Dec 2001 15:36:34 -0500
+	id <S285472AbRL2UnO>; Sat, 29 Dec 2001 15:43:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285472AbRL2UgY>; Sat, 29 Dec 2001 15:36:24 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:34060 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285484AbRL2UgM>; Sat, 29 Dec 2001 15:36:12 -0500
-Message-ID: <3C2E2875.8E2EF36D@zip.com.au>
-Date: Sat, 29 Dec 2001 12:32:53 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Bernhard Rosenkraenzer <bero@redhat.de>, linux-kernel@vger.kernel.org
+	id <S285449AbRL2UnE>; Sat, 29 Dec 2001 15:43:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48902 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285453AbRL2Ums>; Sat, 29 Dec 2001 15:42:48 -0500
+Date: Sat, 29 Dec 2001 12:40:23 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Alexander Viro <viro@math.psu.edu>,
+        Bernhard Rosenkraenzer <bero@redhat.de>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] exporting seq_* stuff
-In-Reply-To: <Pine.LNX.4.42.0112291626430.23274-200000@bochum.stuttgart.redhat.com> <Pine.GSO.4.21.0112291328160.5671-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3C2E2875.8E2EF36D@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0112291237370.30790-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> [snip the attached horror]
 
-[ replace with a different one :-) ]
- 
-> diff -urN C2-pre3/kernel/ksyms.c C2-pre3-fix/kernel/ksyms.c
-> --- C2-pre3/kernel/ksyms.c      Thu Dec 27 19:48:04 2001
-> +++ C2-pre3-fix/kernel/ksyms.c  Sat Dec 29 13:48:12 2001
-> @@ -46,6 +46,7 @@
->  #include <linux/tty.h>
->  #include <linux/in6.h>
->  #include <linux/completion.h>
-> +#include <linux/seq_file.h>
->  #include <asm/checksum.h>
-> 
->  #if defined(CONFIG_PROC_FS)
-> @@ -480,6 +481,12 @@
->  EXPORT_SYMBOL(reparent_to_init);
->  EXPORT_SYMBOL(daemonize);
->  EXPORT_SYMBOL(csum_partial); /* for networking and md */
-> +EXPORT_SYMBOL(seq_escape);
-> +EXPORT_SYMBOL(seq_printf);
-> +EXPORT_SYMBOL(seq_open);
-> +EXPORT_SYMBOL(seq_release);
-> +EXPORT_SYMBOL(seq_read);
-> +EXPORT_SYMBOL(seq_lseek);
+On Sat, 29 Dec 2001, Andrew Morton wrote:
+>
+> Personally, I prefer to see the EXPORT_SYMBOL() near the
+> definition of the thing being exported.  For functions, the
+> convention I like is:
 
-Personally, I prefer to see the EXPORT_SYMBOL() near the
-definition of the thing being exported.  For functions, the
-convention I like is:
+I'd rather have them in the same source-file, but not spread around in the
+file. It's nice to see _what_ a file exports, without having to grep for
+them.
 
-void foo()
-{
-}
-EXPORT_SYMBOL(foo);
+HOWEVER, putting them in many different source-files makes compilation
+slower, so I personally avoid that unless one source-file is clearly
+important enough to do so. For core functionality where we clearly export
+the functions to the rest of the kernel through a header file anyway, we
+might as well keep the EXPORT_SYMBOL's central, and speed up kernel
+builds that way.
 
-It's nicer, and prevents patch conflicts.
+> I'd propose that we drop the concept of EXPORT_OBJ by making all
+> files eligible for exporting symbols, and that the janitors be given
+> a mandate to scrap the ksyms files.
+>
+> Is this acceptable?
 
-I'd propose that we drop the concept of EXPORT_OBJ by making all
-files eligible for exporting symbols, and that the janitors be given
-a mandate to scrap the ksyms files.
+No. Check the speed of "make dep" with every single file exporting
+objects. Not pretty.
 
-Is this acceptable?
+		Linus
 
--

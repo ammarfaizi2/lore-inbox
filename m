@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278366AbRJMTMR>; Sat, 13 Oct 2001 15:12:17 -0400
+	id <S278371AbRJMTPh>; Sat, 13 Oct 2001 15:15:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278367AbRJMTL5>; Sat, 13 Oct 2001 15:11:57 -0400
-Received: from mons.uio.no ([129.240.130.14]:44416 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S278366AbRJMTLt>;
-	Sat, 13 Oct 2001 15:11:49 -0400
-To: David Chow <davidchow@rcn.com.hk>
-Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org,
-        nfs@lists.sourceforge.net
-Subject: Re: [PATCH] NFSv3 symlink bug
-In-Reply-To: <jelmiuj7w2.fsf@sykes.suse.de> <3BC88B44.E461CB63@rcn.com.hk>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 13 Oct 2001 21:12:15 +0200
-In-Reply-To: David Chow's message of "Sun, 14 Oct 2001 02:43:16 +0800"
-Message-ID: <shsvghjuzg0.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S278368AbRJMTP1>; Sat, 13 Oct 2001 15:15:27 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:41362 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278367AbRJMTPX>;
+	Sat, 13 Oct 2001 15:15:23 -0400
+Date: Sat, 13 Oct 2001 15:15:39 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andi Kleen <ak@muc.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        lse-tech@sourceforge.net, Paul.McKenney@us.ibm.com,
+        rusty@rustcorp.com.au
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
+ with insertion
+In-Reply-To: <k23d4njs9x.fsf@zero.aec.at>
+Message-ID: <Pine.GSO.4.21.0110131507540.2021-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == David Chow <davidchow@rcn.com.hk> writes:
 
-     > Not just that. the call to vfs_symlink on an NFS v3 mounted
-     > filesystem, the dentry that passed to vfs_symlink did not
-     > result with an inode member it remains null. This also lead to
-     > problem in the dcache and didn't have a d_instantiate() and
-     > d_add() in the nfs_symlink() . I have proved this is a bug. in
 
-Wrong. Look again... We do instantiate NFSv3 symlinks.
+On 13 Oct 2001, Andi Kleen wrote:
 
-     > kernel version 2.4.0 up to 2.4.10 . Not tested with 2.4.12 and
-     > 2.4.11 . This will not affect most of the process context
+> In article <Pine.LNX.4.33.0110131015410.8707-100000@penguin.transmeta.com>,
+> Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+> >  - nobody has shown a case where existing normal locking ends up being
+> >    really a huge problem, and where RCU clearly helps.
+> 
+> The poster child of such a case is module unloading. Keeping reference
+> counts for every even non sleeping use of a module is very painful. 
+> The current "fix" -- putting module count increases in all possible module 
+> callers to fix the unload races is slow and ugly and far too subtle to 
+> get everything right. Waiting quiescent periods before unloading is a nice 
+> alternative.
 
-The only bug I can see is if nfs_fhget() fails to allocate a new
-inode. In that case we should drop the dentry. That should be a pretty
-rare bug though and would only happen under extremely low memory
-conditions.
-
-Cheers,
-   Trond
-
---- linux-2.4.12/fs/nfs/dir.c.orig	Tue Jun 12 20:15:08 2001
-+++ linux-2.4.12/fs/nfs/dir.c	Sat Oct 13 21:07:26 2001
-@@ -928,6 +928,8 @@
- 					  &attr, &sym_fh, &sym_attr);
- 	if (!error && sym_fh.size != 0 && (sym_attr.valid & NFS_ATTR_FATTR)) {
- 		error = nfs_instantiate(dentry, &sym_fh, &sym_attr);
-+		if (error)
-+			d_drop(dentry);
- 	} else {
- 		if (error == -EEXIST)
- 			printk("nfs_proc_symlink: %s/%s already exists??\n",
+... while quiescent stuff is _not_ subtle and not prone to breakage.  Right.
+In the same world where Vomit-Making System is elegant, SGI "designs" are
+and NT is The Wave Of Future(tm).  Pardon me, but I'll stay in our universe
+and away from the drugs of such power.
 

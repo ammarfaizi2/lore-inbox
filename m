@@ -1,67 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319531AbSIMFgS>; Fri, 13 Sep 2002 01:36:18 -0400
+	id <S316182AbSIMFd5>; Fri, 13 Sep 2002 01:33:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319532AbSIMFgS>; Fri, 13 Sep 2002 01:36:18 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:40348 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S319531AbSIMFgR>; Fri, 13 Sep 2002 01:36:17 -0400
-Date: Thu, 12 Sep 2002 22:38:58 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>, William Lee Irwin III <wli@holomorphy.com>
-cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH] per-zone kswapd process
-Message-ID: <619179322.1031870337@[10.10.2.3]>
-In-Reply-To: <3D817BC8.785F5C44@digeo.com>
-References: <3D817BC8.785F5C44@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S319525AbSIMFd4>; Fri, 13 Sep 2002 01:33:56 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:65252 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S316182AbSIMFd4>; Fri, 13 Sep 2002 01:33:56 -0400
+Message-ID: <005a01c25ae9$0a0bcae0$750806c0@rambha>
+From: "Hanumanthu. H" <hanumanthu.hanok@wipro.com>
+To: "Andries Brouwer" <aebr@win.tue.nl>, "Andrew Morton" <akpm@digeo.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.33.0209111428280.20725-100000@ccvsbarc.wipro.com> <20020911171934.GA12449@win.tue.nl> <3D7FF3E7.61772A26@digeo.com> <20020912202314.GA12775@win.tue.nl>
+Subject: Re: [PATCH] pid_max hang again...
+Date: Fri, 13 Sep 2002 11:17:25 +0530
+Organization: Wipro Technologies
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sorry, I don't buy that.
+> > > Again. We have 2^30 = 10^9 pids. In reality there are fewer than 10^4
+> > > processes. So once in 10^5 pid allocations do we make a scan over
+> > > these 10^4 processes,
+> > 
+> > Inside tasklist_lock?  That's pretty bad from a latency point of
+> > view.  A significant number of users would take the slower common
+> > case to avoid this.
 > 
-> a) It does not need to be architecture neutral.  
-> 
-> b) You surely need a way of communicating the discovered topology
->    to userspace anyway.
-> 
-> c) $EDITOR /etc/numa-layouf.conf
-> 
-> d) $EDITOR /etc/kswapd.conf
+> That would be unwise of all these users.
+> As soon as people have so many processes that this becomes a problem,
+> then instead of making things slower they should make things faster
+> still, at the cost of a little bit of extra code.
 
-I guess you could do that, but it seems overly complicated to me.
-  
->> I think mbligh recently got the long-needed arch code in
->> for cpu to node... But I'm just not able to make the leap of faith that
->> memory detection is something that can ever comfortably be given to
->> userspace.
+This was my initial impression. When Manfred clarified me that, a pid
+can be in use (as session for example) even if the process corresponding
+to that pid has died. The proposed approaches don't make things slower.
+It is not just targeted towards get_pid() avoiding re-scan. One of the main
+goals was to reduce contention for tasklist_lock.
+
+> Similarly, people that need real-time guarantees will probably add
+> that extra code.
+> Now that things are ten thousand times better than they were very
+> recently I find it a bit surprising that people worry. But yes, when
+> needed it is very easy to come with further improvements.
+> Once people stand up and say that they need Linux machines with 10^6
+> processes, or with 10^4 processes and real time guarantees, then we
+> must have a discussion about data structures, and a discussion about
+> standards.
+
+This doesn't sound good for me (I am sure for most of others too). 
+
 > 
-> A simple syscall which alows you to launch a kswapd instance against
-> a group of zones on any group of CPUs provides complete generality 
-> and flexibility to userspace.  And it is architecture neutral.
-> 
-> If it really is incredibly hard to divine the topology from userspace
-> then you need to fix that up.  Provide the topology to userspace.
-> Which has the added benefit of providing, umm, the topology to userspace ;)
+> The standards part is this: what values are allowed for p->pgrp,
+> p->tgid, p->session? Can these be arbitrary numbers? 
 
-Can we make a simple default of 1 per node, which is what 99% 
-of people want, and then make it more complicated later if people 
-complain? It's really pretty easy:
+They can't be arbitrary numbers. POSIX has defined what p->pgrp
+and p->session should be.
 
-for (node = 0; node < numnodes; ++node) {
-	kswapd = kick_off_kswapd_for_node(node);
-	kswapd->cpus_allowed = node_to_cpus(node);
-}
+> But these future discussions must not be about get_pid() but about
+> task list handling, scheduling, sending signals, all places that
+> today have for_each_task(p) ...
 
-Or whatever the current cpus_allowed method is. All we seem to need
-is node_to_cpus ... I can give that to you tommorow with no problem,
-it's trivial.
+Whatever approaches proposed don't stop at making get_pid() better.
+They improve/change stuff a lot ofcourse !!
 
-M.
+~Hanu
+
+
 

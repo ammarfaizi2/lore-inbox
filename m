@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318441AbSGZTjb>; Fri, 26 Jul 2002 15:39:31 -0400
+	id <S318458AbSGZTkp>; Fri, 26 Jul 2002 15:40:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318442AbSGZTjb>; Fri, 26 Jul 2002 15:39:31 -0400
-Received: from dns1.arrancar.com ([209.92.187.33]:19599 "EHLO
-	core.arrancar.com") by vger.kernel.org with ESMTP
-	id <S318441AbSGZTjb>; Fri, 26 Jul 2002 15:39:31 -0400
-Subject: Re: Funding GPL projects or funding the GPL?
-From: Federico Ferreres <fferreres@ojf.com>
-To: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0207261212020.30504-100000@alumno.inacap.cl>
-References: <Pine.LNX.4.44.0207261212020.30504-100000@alumno.inacap.cl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 26 Jul 2002 16:39:03 -0300
-Message-Id: <1027712347.902.25.camel@fede>
-Mime-Version: 1.0
+	id <S318459AbSGZTkp>; Fri, 26 Jul 2002 15:40:45 -0400
+Received: from a.smtp-out.sonic.net ([208.201.224.38]:12470 "HELO
+	a.smtp-out.sonic.net") by vger.kernel.org with SMTP
+	id <S318458AbSGZTko>; Fri, 26 Jul 2002 15:40:44 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Newsgroups: local.ml.linux.kernel
+From: dalgoda@ix.netcom.com (Mike Castle)
+Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
+References: <3D418DFD.8000007@deming-os.org> <1027712005.14773.12.camel@irongate.swansea.linux.org.uk>
+Organization: House of Linux
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Path: not-for-mail
+Originator: nexus@thune.mrc.org (Mike Castle)
+Date: Fri, 26 Jul 2002 12:43:56 -0700
+Message-ID: <sp8sha.h5s.ln@thune.mrc-home.org>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-26 at 13:15, Robinson Maureira Castillo wrote:
-> So, if I have a cheap/buggy motherboard and its faulty behavior is fixed 
-> with a new kernel release last week, I don't have those $20... I have to wait 
-> a year for a fix? I don't think so...
- 
-You can chose to assign your money _whenever_ you want (you have 1 year
-flexibility). 
+In article <1027712005.14773.12.camel@irongate.swansea.linux.org.uk>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>On Fri, 2002-07-26 at 18:59, Russell Lewis wrote:
+>>  It pins the interrupt handler functions, and any data that they access, 
+>> but does not pin the other code.
 
-Project could open a "feature requests" if they like. Some of these
-could work in a "reward" fashion. A reward could look like this:
-"whoever finishes a working driver for <insert card> gets <sum of funds
-offered by members>".
- 
-Federico
+>is huge (you have to pin down disk driver and I/O paths for example).
 
+After these, how much is left to page out, really?  Network drivers (unless
+paging over the wire)?  Video drivers (ok, might be nice to page out NVidia
+:-)?  Just about everything else can actually be removed using loadable
+modules, correct?
+
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

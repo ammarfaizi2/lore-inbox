@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265044AbSJRHUf>; Fri, 18 Oct 2002 03:20:35 -0400
+	id <S265055AbSJRHWR>; Fri, 18 Oct 2002 03:22:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265045AbSJRHUf>; Fri, 18 Oct 2002 03:20:35 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:59800 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S265044AbSJRHUf>; Fri, 18 Oct 2002 03:20:35 -0400
-From: "Laramie Leavitt" <laramie.leavitt@attbi.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Error compiling 2.5.43 Alpha.
-Date: Fri, 18 Oct 2002 00:26:40 -0700
-Message-ID: <OFEJKOGEKOCPKMCJDFCEKECGCAAA.laramie.leavitt@attbi.com>
+	id <S265056AbSJRHWQ>; Fri, 18 Oct 2002 03:22:16 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:25331 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265055AbSJRHWN>;
+	Fri, 18 Oct 2002 03:22:13 -0400
+Date: Fri, 18 Oct 2002 03:28:10 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Crispin Cowan <crispin@wirex.com>
+cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+In-Reply-To: <3DAFB260.5000206@wirex.com>
+Message-ID: <Pine.GSO.4.21.0210180309540.18575-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-I get the following error while attempting to compile 2.5.43 for Alpha.
-Are there any recent 2.5 releases that work on dual alpha?  gcc is 2.95.4.
+On Fri, 18 Oct 2002, Crispin Cowan wrote:
 
+>     * server users can choose a highly secure model
+>     * workstation users can choose something desktop oriented
+>     * embedded people can choose nothing at all, or the specific
+>       narrow-cast model that they need
+> 
+> On the other hand: what is the big cost here? One system call. Isn't 
+> that actually *lower* overhead than the (say) half dozen 
+> security-oriented syscalls we might convince you to accept if we drop 
+> the sys_security syscall as you suggest? Why the fierce desire to remove 
+> something so cheap?
 
+Because ugliness has its price.  As for "highly secure"...  Could we please
+see some proof?  Clearly stated properties with code audit to verify them
+would be nice.
 
-gcc -Wp,-MD,arch/alpha/kernel/.irq_alpha.o.d -D__KERNEL__ -Iinclude -Wall -W
-strict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasi
-ng -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6 -nostdinc -
-iwithprefix include    -DKBUILD_BASENAME=irq_alpha   -c -o
-arch/alpha/kernel/irq_alpha.o arch/alpha/kernel/irq_alpha.c
-In file included from arch/alpha/kernel/irq_alpha.c:15:
-arch/alpha/kernel/irq_impl.h: In function `alpha_do_profile':
-arch/alpha/kernel/irq_impl.h:50: `prof_buffer' undeclared (first use in this
-function)
-arch/alpha/kernel/irq_impl.h:50: (Each undeclared identifier is reported
-only once
-arch/alpha/kernel/irq_impl.h:50: for each function it appears in.)
-arch/alpha/kernel/irq_impl.h:61: `prof_shift' undeclared (first use in this
-function)
-arch/alpha/kernel/irq_impl.h:67: `prof_len' undeclared (first use in this
-function)
-make[1]: *** [arch/alpha/kernel/irq_alpha.o] Error 1
+I'm yet to see a single shred of evidence that so-called security improvements
+actually do improve security (as opposed to feeling of security - quite
+a different animal).  And in this case burden of proof is clearly on your
+side.
+
+What I _do_ see is a lucrative market for peddlers of feel-good "solutions"
+that do not make anything secure but have miles-long feature lists that
+can be used to impress PHBs.  Now, I have no particular problems with
+people who help suckers part with their money, but I don't see any reason
+to support them.
+
+3 or 4 patches that might be interesting would be better off without LSM.
+The rest...  care to give a hard evidence that it is worth any support?
 

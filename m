@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266151AbRF2Soo>; Fri, 29 Jun 2001 14:44:44 -0400
+	id <S266153AbRF2Sxf>; Fri, 29 Jun 2001 14:53:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266152AbRF2Soe>; Fri, 29 Jun 2001 14:44:34 -0400
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:61384 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S266151AbRF2SoX>; Fri, 29 Jun 2001 14:44:23 -0400
-Message-ID: <3B3CCCFF.2329FEDD@kegel.com>
-Date: Fri, 29 Jun 2001 11:46:23 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S266154AbRF2SxZ>; Fri, 29 Jun 2001 14:53:25 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:28430 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S266153AbRF2SxH>;
+	Fri, 29 Jun 2001 14:53:07 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106291853.f5TIr3Z499926@saturn.cs.uml.edu>
+Subject: Re: [Re: gcc: internal compiler error: program cc1 got fatal signal 11]
+To: caszonyi@yahoo.com (szonyi calin)
+Date: Fri, 29 Jun 2001 14:53:03 -0400 (EDT)
+Cc: pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010629142055.49246.qmail@web13907.mail.yahoo.com> from "szonyi calin" at Jun 29, 2001 07:20:55 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Christopher Smith <x@xman.org>,
-        "Daniel R. Kegel" <dank@alumni.caltech.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: A signal fairy tale
-In-Reply-To: <5.1.0.14.0.20010629011855.00a98098@imap.xman.org> <3B3C4A67.1D03A916@kegel.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel wrote:
-> Pseudocode:
-> 
->   sigemptyset(&s);
->   sigaddset(SIGUSR1, &s);
->   fd=sigopen(&s);
->   m=read(fd, buf, n*sizeof(siginfo_t))
->   close(fd);
-> 
-> should probably be equivalent to
-> 
->   sigemptyset(&s);
->   sigaddset(SIGUSR1, &s);
->   struct sigaction newaction, oldaction;
->   newaction.sa_handler = dummy_handler;
->   newaction.sa_flags = SA_SIGINFO;
->   newaction.sa_mask = 0;
->   sigaction(SIGUSR1, &newaction, &oldaction);
+> Almost always ?
+> It seems like gcc is THE ONLY program which gets
+> signal 11
+> Why the X server doesn't get signal 11 ?
+> Why others programs don't get signal 11 ?
+...
+> Some time ago I installed Linux (Redhat 6.0) on my 
+> pc (Cx486 8M RAM) and gcc had a lot of signal 11 (a
+> couple every hour) I was upgrading
+> the kernel every time there was a new kernel and
+> from 2.2.12(or 14) no more signal 11 (very rare)
+> Is this still a hardware problem ?
 
-I forgot to mask off the signal to avoid traditional delivery:
+It could be. One possible way:
 
-    sigprocmask(SIG_BLOCK, &s, &oldmask);
+1. your system is clogged with dust
+2. gcc runs the CPU hard, generating lots of heat
+3. the heat causes crashes
+4. a new Linux version that sets a Cyrix-specific power-saving mode
+5. your heat problems go away, and so do the crashes
 
->   for (i=0; i<n; i++)
->      if (sigwaitinfo(&s, buf+i))
->         break;
->   m = n * sizeof(siginfo_t);
->   sigaction(SIGUSR1, &oldaction, 0);
+Another possible way:
 
-    sigprocmask(SIG_UNBLOCK, &s);
- 
-> (apologies if any of the above is wrong)
+1. you have buggy motherboard or disk hardware
+2. when you swap, gcc gets corrupted by the hardware
+3. you get a new Linux kernel that has a bug work-around
+4. your problems go away
 
-- Dan
+Yet another way:
+
+1. your room is hot, your computer is near a huge motor...
+2. you upgrade to Linux 2.2.12 and move your computer
+3. soon you realize that the crashes are gone
+4. you credit the kernel, but location was the problem

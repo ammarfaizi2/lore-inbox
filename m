@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286262AbSAGUVv>; Mon, 7 Jan 2002 15:21:51 -0500
+	id <S286679AbSAGUXL>; Mon, 7 Jan 2002 15:23:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286381AbSAGUVm>; Mon, 7 Jan 2002 15:21:42 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:21520 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S286262AbSAGUV2>; Mon, 7 Jan 2002 15:21:28 -0500
-Message-ID: <3C3A020D.49865BB8@zip.com.au>
-Date: Mon, 07 Jan 2002 12:16:13 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Patrick Mochel <mochel@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
-In-Reply-To: <200201071904.g07J4Wf02751@vindaloo.ras.ucalgary.ca> <Pine.LNX.4.33.0201071119520.28000-100000@segfault.osdlab.org>
+	id <S286708AbSAGUWw>; Mon, 7 Jan 2002 15:22:52 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:11526 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S286381AbSAGUWj>;
+	Mon, 7 Jan 2002 15:22:39 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: pwd@mdtsoft.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Update to the make rpm system kernel 2.4.17 and 2.5.1 
+In-Reply-To: Your message of "Mon, 07 Jan 2002 13:07:10 CDT."
+             <200201071807.g07I7AL08968@mdtsoft.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 08 Jan 2002 07:22:27 +1100
+Message-ID: <433.1010434947@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
-> 
-> ...
-> "What do you mean, 'don't use proc'?" (Since I already had done it).
-> 
-> He pointed out that it was old and crufty, and already over-abused. He
-> suggested that I write my own fs to do it.
-> 
-> So I did. It was easy. I blatantly ripped off ramfs, and it worked.
-> 
+On Mon, 7 Jan 2002 13:07:10 -0500 (EST), 
+pwd@mdtsoft.com wrote:
+>That said it looks like the best thing for me to do might be to move the "make rpm"
+>function out of the Makefile and into a seperate script when kbuild 2.5 is 
+>made live in the main line. The rpm build does not use the make system to
+>build first phase and after that is under the control of RPM itself. 
+>I assume that the xconfig, oldconfig, config and mconfig are present in
+>kbuild 2.5?
 
-One little problem I have with driverfs (and with the whole "everything
-is a filesystem" idea) is that the infrastructure just isn't ready for
-it yet.
+Not mconfig, kbuild 2.4 contains the existing 2.4 CML1 targets plus the
+new targets from CML2.
 
-For example, driverfs_create_dir().  That has no driverfs-specific
-content at all.  It's 100% mucking with VFS internals.
+>What is the correct method to tell if 2.5 is live?
 
-The more cut-n-paste-filesystems we create, the harder it all gets
-to maintain.  We need a library layer which simplifies and abstracts
-these operations.  (Says me, looking at you-know-who :)
+grep CONFIG_KBUILD_2_5=y .config
 
--

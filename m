@@ -1,79 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVBJUDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVBJUFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVBJUDp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 15:03:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVBJUDp
+	id S261619AbVBJUFu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 15:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVBJUFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 15:03:45 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:28601 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S261614AbVBJUDN (ORCPT
+	Thu, 10 Feb 2005 15:05:50 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:5764 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261619AbVBJUFb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 15:03:13 -0500
-Date: Thu, 10 Feb 2005 21:03:00 +0100
-From: David Weinehall <tao@debian.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jakob Oestergaard <jakob@unthought.net>, pageexec@freemail.hu,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: the "Turing Attack" (was: Sabotaged PaXtest)
-Message-ID: <20050210200300.GE19998@khan.acc.umu.se>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Jakob Oestergaard <jakob@unthought.net>, pageexec@freemail.hu,
-	linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
-	Theodore Ts'o <tytso@mit.edu>
-References: <42080689.15768.1B0C5E5F@localhost> <42093CC7.5086.1FC83D3E@localhost> <20050208164815.GA9903@elte.hu> <20050208220851.GA23687@elte.hu> <20050210134314.GA4146@elte.hu> <20050210135845.GT347@unthought.net> <20050210152149.GA6697@elte.hu>
+	Thu, 10 Feb 2005 15:05:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=o1bbF1LeFemBQgrmWND5P35mrGuDJS9G8GYwwJvkBc9aVzSzuLWygSgG9qVLQFr5BFpFEtuZfxWWkYikqg7BFonJ4BQPbpJVTNLscR177arOWL2a/YGLmTn+SARiIbjC7/GXgAU1b6jPFF3Gk7T9eE9q4Ws5AEBNs/mBkBEmNeg=
+Message-ID: <58cb370e05021012051518e912@mail.gmail.com>
+Date: Thu, 10 Feb 2005 21:05:13 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [ANNOUNCE] "iswraid" (ICHxR ataraid sub-driver) for 2.4.29
+Cc: Jeff Garzik <jgarzik@pobox.com>, Arjan van de Ven <arjan@infradead.org>,
+       Martins Krikis <mkrikis@yahoo.com>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <420BB77B.3080508@tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050210152149.GA6697@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <420631BF.7060407@pobox.com> <420582C6.7060407@pobox.com>
+	 <58cb370e05020607197db9ecf4@mail.gmail.com> <420BB77B.3080508@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 04:21:49PM +0100, Ingo Molnar wrote:
+On Thu, 10 Feb 2005 14:35:23 -0500, Bill Davidsen <davidsen@tmr.com> wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > On Sun, 06 Feb 2005 10:03:27 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> >
+> >>Arjan van de Ven wrote:
+> >>
+> >>>>I consider it not a new feature, but a missing feature, since otherwise
+> >>>>user data cannot be accessed in the RAID setups.
+> >>>
+> >>>
+> >>>the same is true for all new hardware drivers and hardware support
+> >>>patches. And for new DRM (since new X may need it) and new .. and
+> >>>new ... where is the line?
+> >>>
+> >>>for me a deep maintenance mode is about keeping existing stuff working;
+> >>>all new hw support and derivative hardware support (such as this) can be
+> >>>pointed at the new stable series... which has been out for quite some
+> >>>time now..
+> >>
+> >>Red herring.
+> >>
+> >>2.4.x has ICH5/6 support -- but is missing the RAID support component.
+> >>
+> >>We are talking about hardware that is ALREADY supported by 2.4.x kernel,
+> >>not new hardware.
+> >>
+> >>We are also talking about inability to access data on hardware supported
+> >>by 2.4.x, not something that can easily be ignored or papered over with
+> >>a compatibility mode.
+> >
+> >
+> > the same arguments can be used for crypto support etc.,
+> > answer is - use 2.6.x or add extra patches to get 2.4.x working
 > 
-> * Jakob Oestergaard <jakob@unthought.net> wrote:
-> 
-> > On Thu, Feb 10, 2005 at 02:43:14PM +0100, Ingo Molnar wrote:
-> > > 
-> > > * pageexec@freemail.hu <pageexec@freemail.hu> wrote:
-> > > 
-> > > > the bigger problem is however that you're once again fixing the
-> > > > symptoms, instead of the underlying problem - not the correct
-> > > > approach/mindset.
-> > > 
-> > > i'll change my approach/mindset when it is proven that "the underlying
-> > > problem" can be solved. (in a deterministic fashion)
-> > 
-> > I know neither exec-shield nor PaX and therefore have no bias or
-> > preference - I thought I should chirp in on your comment here Ingo...
-> > 
-> > ...
-> > > PaX cannot be a 'little bit pregnant'. (you might argue that exec-shield
-> > > is in the 6th month, but that does not change the fundamental
-> > > end-result: a child will be born ;-)
-> > 
-> > Yes and no.  I would think that the chances of a child being born are
-> > greater if the pregnancy has lasted successfully up until the 6th month,
-> > compared to a first week pregnancy.
-> > 
-> > I assume you get my point  :)
-> 
-> the important point is: neither PaX nor exec-shield can claim _for sure_
-> that no child will be born, and neither can claim virginity ;-)
-> 
-> [ but i guess there's a point where a bad analogy must stop ;) ]
+> It's fix in a sense. The hardware is supported now, just not very well.
+> If an IDE chipset was capable of UDA4 and the driver only allowed UDA2
+> it would be a fix, in this case thehardware is supported partially, the
+> RAID conponent isn't working, and this is the fix.
 
-Yeah, sex is *usually* a much more pleasant experience than having your
-machine broken into, even if it results in a pregnancy. =)
+The so called "RAID component" is 100% *software* solution.
 
-
-Regards: David
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+BTW What is UDA?

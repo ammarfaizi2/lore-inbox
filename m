@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263280AbTKEXUE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 18:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTKEXUE
+	id S263290AbTKEXYm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 18:24:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbTKEXYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 18:20:04 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:22712 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263280AbTKEXUA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 18:20:00 -0500
-Message-ID: <3FA984C4.1030504@cyberone.com.au>
-Date: Thu, 06 Nov 2003 10:16:20 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: lmbench context switch regression
-References: <3FA8ECF0.8020800@cyberone.com.au>
-In-Reply-To: <3FA8ECF0.8020800@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Nov 2003 18:24:42 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:39057 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S263290AbTKEXYl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 18:24:41 -0500
+Date: Wed, 5 Nov 2003 15:24:38 -0800
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [DMESG] cpumask_t in action
+Message-ID: <20031105232438.GA24817@sgi.com>
+Mail-Followup-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	linux-kernel@vger.kernel.org
+References: <B05667366EE6204181EABE9C1B1C0EB58023A6@scsmsx401.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB58023A6@scsmsx401.sc.intel.com>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 05, 2003 at 03:18:29PM -0800, Chen, Kenneth W wrote:
+> > Dentry cache hash table entries: 33554432 (order: 14, 268435456 bytes)
+> > Inode-cache hash table entries: 33554432 (order: 14, 268435456 bytes)
+> > IP: routing cache hash table of 8388608 buckets, 131072Kbytes
+> > TCP: Hash tables configured (established 67108864 bind 65536)
+> > swapper: page allocation failure. order:17, mode:0x20
+> 
+> Does these hash tables really need to that big? 33 million dentry and
+> inode entry? Same thing with network, unless the machine is loaded
+> with several gigabit cards, these hash table seems to be exceedingly
+> large.
 
+This one only has two gige cards:
 
-Nick Piggin wrote:
+tg3.c:v2.2 (August 24, 2003)
+PCI: Found IRQ 54 for device 0000:01:04.0
+ACPI: No IRQ known for interrupt pin A of device 0000:01:04.0 - using IRQ 54
+eth0: Tigon3 [partno(030-1771-000) rev 0105 PHY(5701)] (PCI:66MHz:64-bit) 10/100/1000BaseT Ethernet 08:00:69:13:e6:a7
+PCI: Found IRQ 66 for device 0000:11:04.0
+ACPI: No IRQ known for interrupt pin A of device 0000:11:04.0 - using IRQ 66
+eth1: Tigon3 [partno(030-1771-000) rev 0105 PHY(5701)] (PCI:66MHz:64-bit) 10/100/1000BaseT Ethernet 08:00:69:13:e4:a4
+PCI: Found IRQ 53 for device 0000:01:03.0
+ACPI: No IRQ known for interrupt pin A of device 0000:01:03.0 - using IRQ 53
 
-> Hi,
-> I'm seeing quite a large context switch speed regression as reported
-> by lmbench when I patched from test9 to test9-mm2.
->
-> The obvious thing I can see from the patch is the PF_DEAD 
-> finish_task_switch
-> change. I don't have time to investigate further tonight though.
->
-> lmbench two 0 sized processes context switch times go from around 
-> 1.80us to
-> 2.60us on my PIII 650 (UP).
+As for the dentry and inode-cache tables, yes they're probably too big,
+and they're also allocated on node 0 rather than being spread out.
 
-
-The regression is smaller when going from test9 to test9-bk. About .2us 
-(10%).
-It does not go away when reverting the PF_DEAD change. Maybe its just lucky
-alignment?
-
-
+Jesse

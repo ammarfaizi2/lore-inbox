@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263554AbTDNQxv (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 12:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263563AbTDNQxv (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 12:53:51 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:59274 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263554AbTDNQxt (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 12:53:49 -0400
-Date: Mon, 14 Apr 2003 13:07:28 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: P4-CPU/NoBoot
-In-Reply-To: <1050336068.25353.74.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.53.0304141303170.26310@chaos>
-References: <Pine.LNX.4.53.0304140954420.25232@chaos>
- <1050336068.25353.74.camel@dhcp22.swansea.linux.org.uk>
+	id S263567AbTDNQ5l (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 12:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263566AbTDNQ5l (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 12:57:41 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:44018 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S263564AbTDNQ5j (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 12:57:39 -0400
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A260@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: RE: Subtle semantic issue with sleep callbacks in drivers
+Date: Mon, 14 Apr 2003 10:09:12 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Apr 2003, Alan Cox wrote:
+> From: Benjamin Herrenschmidt [mailto:benh@kernel.crashing.org] 
+> - On non-PPC machines, the slot will eventually go to D3, but 
+> the APM BIOS or ACPI will be able to re-POST the card 
+> properly on wakeup, so the driver only needs to restore the 
+> current display mode, at least I guess so since I don't know 
+> much about x86's. Similar will happen once I have an OF 
+> emulator ready on PPC to re-POST some cards, thus changing 
+> the previous example into this one. In this case, the driver 
+> can put the chip to D3 and can _accept_ the sleep request 
+> because it's explicitely told by the system (how ?) that the 
+> card will be re-POSTED prior to the
+> resume() callback.
 
-> On Llu, 2003-04-14 at 14:55, Richard B. Johnson wrote:
-> > I tried to install RH 7.0 on a new box this
-> > week-end:
-> >
-> > 	Motherboard MSI 648 Max
-> > 	CPU Intel P4 2.8 GHz
-> > 	Memory 1024 MB PC-333 DDR
->
-> 7.0 is an odd thing to install but ought to have
-> worked. 7.0 doesn't handle PIV feature stuff and
-> also doesn't support SMP or hyperthreaded PIV
-> (you'll get random segfaults). Intel provided fixes
-> for that specific kernel bug in later kernels
->
+Topic drift...
 
-Okay. Yes 7.0 and 7.1 are the CD/ROMs that I had at home.
-I know RH is at 8.0 now. I will try to install the
-stuff I have at work on the home CPU, I just brought
-my SCSI drive and cloned everything. I will boot
-from a floppy first, then LILO or grib the drive if
-it boots okay. I just wanted to check if I was going
-to have any other problems. Thanks.
+After asking around internally, it sounds like we should not be doing a
+video re-POST on wakeup. Windows only used to in order to workaround
+buggy video drivers, according to what I've heard.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Ben obviously PPC is ahead of the pack on this stuff (congrats) but I
+did just want to put forward the idea that when we're all done with this
+stuff on all archs, we will hopefully not be regularly re-POSTing the
+video bios.
 
+Regards -- Andy

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314454AbSDWWpr>; Tue, 23 Apr 2002 18:45:47 -0400
+	id <S314474AbSDWWs1>; Tue, 23 Apr 2002 18:48:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314474AbSDWWpq>; Tue, 23 Apr 2002 18:45:46 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:37387 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S314454AbSDWWpo>; Tue, 23 Apr 2002 18:45:44 -0400
-Date: Tue, 23 Apr 2002 18:42:47 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Kent Borg <kentborg@borg.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Versioning File Systems?
-In-Reply-To: <20020418110558.A16135@borg.org>
-Message-ID: <Pine.LNX.3.96.1020423183559.31248D-100000@gatekeeper.tmr.com>
+	id <S314479AbSDWWs0>; Tue, 23 Apr 2002 18:48:26 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:43177 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S314474AbSDWWsZ>;
+	Tue, 23 Apr 2002 18:48:25 -0400
+Date: Tue, 23 Apr 2002 22:44:51 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5: MAX_PRIO cleanup
+In-Reply-To: <1019601843.1469.257.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0204232241520.8215-100000@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Apr 2002, Kent Borg wrote:
 
-> I just read an article mentioned on Slashdot,
-> <http://www.sigmaxi.org/amsci/Issues/Comsci02/Compsci2002-05.html>.
-> 
-> It is a fascinating short summary of the history of hard disks (they
-> still use the same fundamental design as the very first one) and an
-> update on current technology (disks are no longer aluminum).  It also
-> looks at today's 120 gigabyte disk and muses over the question of how
-> we might ever put an imagined 120 terabyte disk to use.  And the got
-> me thinking various thoughts, one turns into a question for this list:
-> It there any work going on to make a versioning file system?
-> 
-> I remember in VMS that I could accumulate "myfile.txt;1",
-> "myfilw.txt;2", etc., until the local admin got pissed at me for using
-> up all the disk space with my several megabytes of redundant files.
+On 23 Apr 2002, Robert Love wrote:
 
-  I seem to remember that some CD filesystem does that, and you can see
-the versions with Linux if you mount with the right options.
+> Now that I am working on the configurable maximum RT value patch, I see
+> why I did this: we can't hardcode the values like "0 to 99" because that
+> 99 is set now via a compile-time define.  Even if it defaults to 100, it
+> can be a range of values so the comments should be specific and give the
+> exact define.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+i'm not so sure whether we want to make the last step to make the maximum
+RT priority value to be a .config option. Sure we can keep things flexible
+so that it's just a matter of a single redefine, but do we really want
+users to be able to change the API of Linux in such a way?
+
+the applications which need 1000 RT threads are i suspect specialized, and
+since it needs a kernel recompile anyway, it's not a big problem to change
+a single constant in the source code - we do that for many other things.  
+I'd very much suggest we keep the 0-99 range for RT tasks, it's been well
+established and not making it a .config doesnt make it any harder for 1000
+RT priority levels to be defined for specific applications.
+
+	Ingo
 

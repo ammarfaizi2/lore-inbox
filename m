@@ -1,108 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272146AbTG2VhU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 17:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272134AbTG2Vel
+	id S272149AbTG2Vie (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 17:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272137AbTG2Vht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 17:34:41 -0400
-Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:29682 "EHLO
-	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S272155AbTG2Vdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 17:33:50 -0400
-Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D5523A@axcs03.cos.agilent.com>
-From: yiding_wang@agilent.com
-To: sam@ravnborg.org, holt@sgi.com
-Cc: linux-kernel@vger.kernel.org, kai@tp1.ruhr-uni-bochum.de
-Subject: RE: 2.5.x module make questions
-Date: Tue, 29 Jul 2003 15:33:41 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 29 Jul 2003 17:37:49 -0400
+Received: from diver.doc.ic.ac.uk ([146.169.1.47]:8464 "EHLO
+	diver.doc.ic.ac.uk") by vger.kernel.org with ESMTP id S272133AbTG2VfA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 17:35:00 -0400
+Date: Tue, 29 Jul 2003 22:34:58 +0100
+From: Philip Graham Willoughby <pgw99@doc.ic.ac.uk>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+Message-ID: <20030729213458.GA21517@bodmin.doc.ic.ac.uk>
+References: <200307292038.h6TKcqlu000338@81-2-122-30.bradfords.org.uk> <20030729203745.GA2221@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030729203745.GA2221@win.tue.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Sam and Robin!  
-
-I read kbuild/makefile.txt several times and could not find the answer fit my need. It looks like I have to change my source tree structure.  I was refering to scsi/aic7xxx/ but not getting solution either.  Now I am going to look into arch/Makefiles.
-
-Appreciate your help, always!
-
-Eddie
-
-> -----Original Message-----
-> From: Sam Ravnborg [mailto:sam@ravnborg.org]
-> Sent: Tuesday, July 29, 2003 2:09 PM
-> To: yiding_wang@agilent.com
-> Cc: linux-kernel@vger.kernel.org; Kai Germaschewski
-> Subject: Re: 2.5.x module make questions
+On 2003-07-29 22:37:45 +0000, Andries Brouwer wrote:
+> On Tue, Jul 29, 2003 at 09:38:52PM +0100, John Bradford wrote:
 > 
-> 
-> On Tue, Jul 29, 2003 at 02:45:35PM -0600, 
-> yiding_wang@agilent.com wrote:
-> > Team,
+> > Ah, I just thought, for debugging purposes we could have LEDs for:
 > > 
-> > I have two questions regarding kbuild.
-> > 1, According to doc., makefile can do descending.  Could 
-> make carry ascending?
-> Kbuild is not designed to support ascending, and I do not think it is
-> possible to tweak it to do so. If you manage to tweak kbuild 
-> to support it
-> do not complain if it breakes. This is not intended neither supported.
+> > * BKL taken
+> > * Servicing interrupt
+> > * Kernel stack usage > 2K
 > 
-> > 2, Does old style of makefile still work (it should 
-> according to the article of "Driver porting: compiling 
-> external module")?
-> 
-> What Corbet suggest in the referenced doc is to have the following:
-> 
-> ifndef KERNELRELEASE
-> here goes old style Makefile
-> else
-> here goes Kbuild makefile
-> endif
-> 
-> And this is _only_ the topmost makefile. And the oldstyle part is only
-> to make it simple to do make -C kernelsrcdir SUBDIRS=$PWD modules
-> kbuild does not support old-style Makefiles, but fragments 
-> are supported.
-> 
-> May I request you to read Documentation/kbuild/makefiles.txt - this
-> is an up-to-date description of what kbuild supports, and 
-> what syntax to use.
-> 
-> The most complex examples of use in the kernel today is some of the
-> arch Makefiles. Maybe they can help you?
-> 
-> > export TOPDIR
-> > export CFLAGS
-> > 
-> > all : ag.o
-> > 
-> > ag.o: ../../../../t/s/ts.o ../../../f/c/fc.o 
-> ../../../f/i/fi.o  s/sl.o 
-> > 	ld -r -o ag.o ../../../../t/s/ts.o ../../../f/c/fc.o 
-> ../../../f/i/fi.o s/sl.o 
-> 
-> This looks really ugly. I do not expect kbuild to even get 
-> close to help
-> you here. kbuild is designed around the idea that objects are built
-> directory-by-directory, and in the upper level directory the 
-> are linked.
-> What you have surely does not follow that principle.
-> 
-> > Any suggestion is welcomed.  If the kbuild cannot do 
-> ascending, I have to change the source tree structure but 
-> that is the least I want to do.
-> 
-> This is my best suggestion. Follow the normal way of doing 
-> things in the
-> kernel make it easier/possible to use the infrastructure provided
-> by the kernel.
-> 
-> PS. Please also read the paper by Kai Germashewski from OLS -
-> see www.linuxsymposium.org - it provide good background info 
-> on kbuild.
-> 
-> 	Sam
-> 
+> Ever tried keyboard.c:register_leds() ?
+
+Nope -- I have just hacked together a driver to expose the keyboard leds
+vie my leds interface (see below), _but_ register_leds is not an exported
+symbol, not is it declared in <linux/keyboard.h> (on 2.4.21 anyway), so
+you'll need to make some modifications if you want to actually use it.
+
+Also, I'm not sure if there is a way of unregistering leds you register
+in this way -- I've done a bodge job thus far, but you take your life in
+your hands when you unload this module (in other words, don't). 
+
+Regards,
+
+Philip Willoughby
+
+Systems Programmer, Department of Computing, Imperial College, London, UK
+-- 
+echo bzidd@nfo.ho.co.se | tr "bizndfohces" "pwgd9ociaku"
+Why reinvent the wheel?                 Because we can make it rounder...
+
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/errno.h>
+#include <linux/leds.h>
+#include <linux/sched.h>
+#include <linux/keyboard.h>
+#include <linux/spinlock.h>
+#include <asm/current.h>
+
+static unsigned int keybleds;
+static spinlock_t keybleds_lock = SPIN_LOCK_UNLOCKED;
+
+static void
+release (void * ignored)
+{
+  MOD_DEC_USE_COUNT;
+}
+
+static void
+reserve (void * ignored)
+{
+  MOD_INC_USE_COUNT;
+}
+
+static void
+set_state (unsigned int idx, unsigned char state, void *ignored)
+{
+  spin_lock(&keybleds_lock);
+  keybleds &= ~(1 << idx);
+  keybleds |= state & (1<<idx);
+  spin_unlock(&keybleds_lock);
+}
+
+static unsigned char
+get_state (unsigned int idx, void * ignored)
+{
+  unsigned char rv;
+  spin_lock(&keybleds_lock);
+  rv = (unsigned char)(keybleds & (1 << idx));
+  spin_unlock(&keybleds_lock);
+  return rv;
+}
+
+static struct linux_leds_info kbleds = {
+get_state:get_state,
+set_state:set_state,
+reserve:reserve,
+release:release,
+count:3,
+data:NULL,
+drivername:THIS_MODULE,
+};
+
+static int __init
+init_keyb_leds (void)
+{
+  register_leds(0, 0, &keybleds, 1);
+  register_leds(0, 1, &keybleds, 2);
+  register_leds(0, 2, &keybleds, 4);
+  return leds_add (&kbleds);
+}
+
+static void __exit
+cleanup_keyb_leds (void)
+{
+  register_leds(0, 3, NULL, 0);
+  register_leds(0, 1, NULL, 0);
+  register_leds(0, 2, NULL, 0);
+  register_leds(0, 2, NULL, 0);
+}
+
+module_init(init_keyb_leds);
+module_exit(cleanup_keyb_leds);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Philip Graham Willoughby <pgw@alumni.doc.ic.ac.uk>");
+MODULE_DESCRIPTION("This module exposes the keyboard LEDs through the generic LEDs interface");
+MODULE_SUPPORTED_DEVICE("Keyboards");
+EXPORT_NO_SYMBOLS;
+

@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265198AbTAFMbz>; Mon, 6 Jan 2003 07:31:55 -0500
+	id <S265890AbTAFMuE>; Mon, 6 Jan 2003 07:50:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265890AbTAFMbz>; Mon, 6 Jan 2003 07:31:55 -0500
-Received: from host217-36-81-41.in-addr.btopenworld.com ([217.36.81.41]:37558
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S265198AbTAFMby>; Mon, 6 Jan 2003 07:31:54 -0500
-Subject: Re: PCI code:  why need  outb (0x01, 0xCFB); ?
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: fretre lewis <fretre3618@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <F87sTOHYNhMwqvbLaKL0001615a@hotmail.com>
-References: <F87sTOHYNhMwqvbLaKL0001615a@hotmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-SzWtlDDBusOlzXt/a+ps"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Jan 2003 12:41:01 +0000
-Message-Id: <1041856867.12900.1.camel@lemsip>
-Mime-Version: 1.0
+	id <S266116AbTAFMuE>; Mon, 6 Jan 2003 07:50:04 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:40654 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S265890AbTAFMuD>; Mon, 6 Jan 2003 07:50:03 -0500
+Date: Tue, 07 Jan 2003 01:58:04 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Andrew Morton <akpm@digeo.com>, "Grover, Andrew" <andrew.grover@intel.com>
+cc: Pavel Machek <pavel@ucw.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] acpi_os_queue_for_execution()
+Message-ID: <20150000.1041857884@localhost.localdomain>
+In-Reply-To: <3E196C17.7D318CAF@digeo.com>
+References: <F760B14C9561B941B89469F59BA3A84725A107@orsmsx401.jf.intel.com>
+ <3E196C17.7D318CAF@digeo.com>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-SzWtlDDBusOlzXt/a+ps
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2003-01-06 at 09:26, fretre lewis wrote:
-> 1. which device is at port address 0xCFB?
+--On Monday, January 06, 2003 03:44:23 -0800 Andrew Morton <akpm@digeo.com> 
+wrote:
 
-the PCI controller.
+> acpi_thermal_run is doing many sinful things.  Blocking memory
+> allocations as well as launching kernel threads from within a
+> timer handler.
+>
+> Converting it to use schedule_work() or schedule_delayed_work()
+> would fix that up.
 
-> 2. what is meaning of the writing operation "outb (0x01, 0xCFB);" for THI=
-S
-> device?, it'seem that PCI spec v2.0 not say anything about it?
-
-I think it selects PCI configuration mode 1. (I could be wrong).
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-SzWtlDDBusOlzXt/a+ps
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA+GXldkbV2aYZGvn0RAsZNAJ4zs7Wnu9fIMIoIzNILoJskl9Db3QCfU0fg
-MCLEtU3dS+clvOx6Psns1k8=
-=QDAV
------END PGP SIGNATURE-----
-
---=-SzWtlDDBusOlzXt/a+ps--
-
+So *that* is why ACPI kernels are so slow on my laptop (Dell i8k), and make 
+so much heat.  I bet one of those threads ends up busy looping because of 
+other brokenness.

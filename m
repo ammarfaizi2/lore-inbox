@@ -1,46 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269911AbUJGXGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269954AbUJGXrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269911AbUJGXGY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 19:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269910AbUJGXAi
+	id S269954AbUJGXrG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 19:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269939AbUJGXqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 19:00:38 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:24744
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S269891AbUJGWsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:48:41 -0400
-Date: Thu, 7 Oct 2004 15:47:22 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: msipkema@sipkema-digital.com, cfriesen@nortelnetworks.com,
-       hzhong@cisco.com, jst1@email.com, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, davem@redhat.com
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-Id: <20041007154722.2a09c4ab.davem@davemloft.net>
-In-Reply-To: <20041007224242.GA31430@mark.mielke.cc>
-References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com>
-	<41658C03.6000503@nortelnetworks.com>
-	<015f01c4acbe$cf70dae0$161b14ac@boromir>
-	<4165B9DD.7010603@nortelnetworks.com>
-	<20041007150035.6e9f0e09.davem@davemloft.net>
-	<000901c4acc4$26404450$161b14ac@boromir>
-	<20041007152400.17e8f475.davem@davemloft.net>
-	<20041007224242.GA31430@mark.mielke.cc>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Oct 2004 19:46:31 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:5565 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269938AbUJGXjp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 19:39:45 -0400
+Date: Thu, 07 Oct 2004 16:40:17 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+cc: kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com,
+       hannal@us.ibm.com, paulus@samba.org, benh@kernel.crashing.org
+Subject: [PATCH 2.6][10/12] prep_pci.c replace pci_find_device with pci_get_device
+Message-ID: <35460000.1097192417@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004 18:42:42 -0400
-Mark Mielke <mark@mark.mielke.cc> wrote:
 
-> Sure, it's nice to demand that people
-> upgrade to a later version of Perl. Guess what? It isn't happening. It
-> will be another year or two before we can guarantee people have Perl
-> 5.006 on their system.
+As pci_find_device is going away I've replaced it with pci_get_device.
+If someone with a PPC system could test it I would appreciate it.
 
-If those people are tepid about upgrading perl, I think it would
-be even less likely that they would upgrade their kernels.
+Thanks.
+
+Hanna Linder
+IBM Linux Technology Center
+
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+
+---
+diff -Nrup linux-2.6.9-rc3-mm3cln/arch/ppc/platforms/prep_pci.c linux-2.6.9-rc3-mm3patch/arch/ppc/platforms/prep_pci.c
+--- linux-2.6.9-rc3-mm3cln/arch/ppc/platforms/prep_pci.c	2004-09-29 20:05:51.000000000 -0700
++++ linux-2.6.9-rc3-mm3patch/arch/ppc/platforms/prep_pci.c	2004-10-07 16:29:09.995482096 -0700
+@@ -1069,7 +1069,7 @@ prep_pib_init(void)
+ 		 * Perform specific configuration for the Via Tech or
+ 		 * or Winbond PCI-ISA-Bridge part.
+ 		 */
+-		if ((dev = pci_find_device(PCI_VENDOR_ID_VIA,
++		if ((dev = pci_get_device(PCI_VENDOR_ID_VIA,
+ 					PCI_DEVICE_ID_VIA_82C586_1, dev))) {
+ 			/*
+ 			 * PPCBUG does not set the enable bits
+@@ -1080,7 +1080,7 @@ prep_pib_init(void)
+ 			reg |= 0x03; /* IDE: Chip Enable Bits */
+ 			pci_write_config_byte(dev, 0x40, reg);
+ 		}
+-		if ((dev = pci_find_device(PCI_VENDOR_ID_VIA,
++		if ((dev = pci_get_device(PCI_VENDOR_ID_VIA,
+ 						PCI_DEVICE_ID_VIA_82C586_2,
+ 						dev)) && (dev->devfn = 0x5a)) {
+ 			/* Force correct USB interrupt */
+@@ -1089,7 +1089,7 @@ prep_pib_init(void)
+ 					PCI_INTERRUPT_LINE,
+ 					dev->irq);
+ 		}
+-		if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
++		if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
+ 					PCI_DEVICE_ID_WINBOND_83C553, dev))) {
+ 			 /* Clear PCI Interrupt Routing Control Register. */
+ 			short_reg = 0x0000;
+@@ -1102,7 +1102,7 @@ prep_pib_init(void)
+ 		}
+ 	}
+ 
+-	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
++	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
+ 				   PCI_DEVICE_ID_WINBOND_82C105, dev))){
+ 		if (OpenPIC_Addr){
+ 			/*
+@@ -1207,7 +1207,7 @@ prep_pcibios_fixup(void)
+ 	printk("Setting PCI interrupts for a \"%s\"\n", Motherboard_map_name);
+ 
+ 	/* Iterate through all the PCI devices, setting the IRQ */
+-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++	for_each_pci_dev(dev) {
+ 		/*
+ 		 * If we have residual data, then this is easy: query the
+ 		 * residual data for the IRQ line allocated to the device.
+@@ -1260,12 +1260,13 @@ prep_pcibios_after_init(void)
+ 	 * instead of 0xc0000. vgacon.c (for example) is completely unaware of
+ 	 * this little quirk.
+ 	 */
+-	dev = pci_find_device(PCI_VENDOR_ID_WD, PCI_DEVICE_ID_WD_90C, NULL);
++	dev = pci_get_device(PCI_VENDOR_ID_WD, PCI_DEVICE_ID_WD_90C, NULL);
+ 	if (dev) {
+ 		dev->resource[1].end -= dev->resource[1].start;
+ 		dev->resource[1].start = 0;
+ 		/* tell the hardware */
+ 		pci_write_config_dword(dev, PCI_BASE_ADDRESS_1, 0x0);
++		pci_dev_put(dev);
+ 	}
+ #endif
+ }
+

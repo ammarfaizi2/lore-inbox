@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbTJXSeI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 14:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbTJXSeI
+	id S262441AbTJXSmO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 14:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbTJXSmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 14:34:08 -0400
-Received: from web14915.mail.yahoo.com ([216.136.225.228]:57761 "HELO
-	web14915.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262429AbTJXSeG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 14:34:06 -0400
-Message-ID: <20031024183405.36600.qmail@web14915.mail.yahoo.com>
-Date: Fri, 24 Oct 2003 11:34:04 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [Dri-devel] Re: [Linux-fbdev-devel] DRM and pci_driver conversion
-To: Linus Torvalds <torvalds@osdl.org>, Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Jon Smirl <jonsmirl@yahoo.com>,
-       Eric Anholt <eta@lclark.edu>, kronos@kronoz.cjb.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net,
-       dri-devel <dri-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44.0310241051450.8177-100000@home.osdl.org>
-MIME-Version: 1.0
+	Fri, 24 Oct 2003 14:42:14 -0400
+Received: from natsmtp01.rzone.de ([81.169.145.166]:63684 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S262441AbTJXSmN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 14:42:13 -0400
+Date: Fri, 24 Oct 2003 20:22:16 +0200
+From: Dominik Brodowski <linux@brodo.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: danielk@mrl.nyu.edu, cpufreq@www.linux.org.uk,
+       linux-kernel@vger.kernel.org, Mattia Dongili <dongili@supereva.it>
+Subject: Re: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPI P-state driver
+Message-ID: <20031024182216.GB28421@brodo.de>
+References: <88056F38E9E48644A0F562A38C64FB60077914@scsmsx403.sc.intel.com> <1066725533.5237.3.camel@laptop.fenrus.com> <20031021095925.GB893@inferi.kami.home> <20031021101737.GA31352@wiggy.net> <20031021105234.GF893@inferi.kami.home> <Pine.SOL.4.53.0310211057060.6187@graphics.cat.nyu.edu> <20031021203215.GE26971@brodo.de> <20031023143242.GH643@openzaurus.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031023143242.GH643@openzaurus.ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PCI ROM enabale/disable has come up before on LKML. Russell made this comment
-about making the code more portable.
+On Thu, Oct 23, 2003 at 04:32:43PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > Yes indeed. She wants to set a cpufreq policy which suits of her needs: 
+> > it consists of a
+> > - minimum frequency	=> not too low [she's plugged in]
+> 
+> I just hope minimum frequency is not going to be
+> honoured in case of overheat.
+>
+> Issue is what happens if user specifies range containing no
+> valid frequency. Kernel currently uses next _higher_
+> frequency, but going for next lower one seems to be
+> important (burning cpus, exploding batteries, ...)
 
---- Russell King <rmk@arm.linux.org.uk> wrote:
-> You should use pcibios_resource_to_bus() to convert a resource to a
-> representation suitable for a BAR.
+Yes, that's one bug my acpi patchset addresses.
 
-http://lkml.org/lkml/2003/8/19/279
-
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com
+	Dominik

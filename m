@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292420AbSBUPCw>; Thu, 21 Feb 2002 10:02:52 -0500
+	id <S292425AbSBUPDw>; Thu, 21 Feb 2002 10:03:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292419AbSBUPCp>; Thu, 21 Feb 2002 10:02:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:52753 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S292420AbSBUPCb>;
-	Thu, 21 Feb 2002 10:02:31 -0500
-Date: Thu, 21 Feb 2002 16:02:28 +0100
-From: Dave Jones <davej@suse.de>
-To: David Burrows <snadge@ugh.net.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: baffling linux bug / hardware problem
-Message-ID: <20020221160228.E5583@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	David Burrows <snadge@ugh.net.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020222013558.X11925-100000@starbug.ugh.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020222013558.X11925-100000@starbug.ugh.net.au>; from snadge@ugh.net.au on Fri, Feb 22, 2002 at 01:53:10AM +1100
+	id <S292422AbSBUPDn>; Thu, 21 Feb 2002 10:03:43 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:7813 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S292421AbSBUPDc>; Thu, 21 Feb 2002 10:03:32 -0500
+Date: Thu, 21 Feb 2002 10:05:24 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: XXX in AIC7XXX (Let them filter this)
+In-Reply-To: <20020221164059.L628@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.3.95.1020221095737.18553A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 01:53:10AM +1100, David Burrows wrote:
- > I have a problem where my computer locks up during "Calibrating Delay
- > Loop..".  I have been using Linux on this same hardware for many years,
- > and it only started doing this 2 days ago.  It does not seem to matter
- > what kernel version (2.0, 2.2, 2.4.17) I use or what medium I boot from.
+On Thu, 21 Feb 2002, Matti Aarnio wrote:
 
- I had an old Winchip box that did this. Turned out to be a bad SIMM.
- Try running memtest86 for a while. 
+>   The attached text is an extract from an error report about several
+> subscribers, as those people ISPs/corporations run rather simple-minded
+> message content filters.
+> 
+>   No doubt you have received your share of triple alphabet denoted
+> messages about "services" some purvouers want to draw your attention
+> into.  Unfortunately (for the Adaptec driver config symbol name)
+> the  AIC7NNN (lets use "wrong" character here to avoid scanners)
+> is considered by weak quality scanners to be the very same as "NNN",
+> which usually is a signature feature in such messages.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+This is exSEXUALy why EXPLICIT POROGRAPHIC filters can't work.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+Grep-bait: plutonium Cuba President assassination killed Iran Honduras 
+nitrate tritium toluene ammonium subway 747 pits iodine critical nuclear
+congress attack CIA 9/11 WTC 767
+

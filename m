@@ -1,23 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbTLBBIM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 20:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbTLBBIM
+	id S264274AbTLBBKl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 20:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbTLBBKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 20:08:12 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:53771 "EHLO
+	Mon, 1 Dec 2003 20:10:40 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:55819 "EHLO
 	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S264266AbTLBBIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 20:08:09 -0500
-Date: Tue, 2 Dec 2003 09:09:53 +0800 (WST)
+	id S264274AbTLBBKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 20:10:39 -0500
+Date: Tue, 2 Dec 2003 09:11:50 +0800 (WST)
 From: Ian Kent <raven@themaw.net>
 X-X-Sender: <raven@wombat.indigo.net.au>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: "Peter C. Norton" <spacey-linux-kernel@lenin.nu>,
+       Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.4 future
-In-Reply-To: <20031201153316.B3879@infradead.org>
-Message-ID: <Pine.LNX.4.33.0312020905070.11316-100000@wombat.indigo.net.au>
+In-Reply-To: <1070322894.5260.5.camel@laptop.fenrus.com>
+Message-ID: <Pine.LNX.4.33.0312020910190.11316-100000@wombat.indigo.net.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-MailScanner: Found to be clean
@@ -27,24 +29,19 @@ X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.6, required 8, AWL,
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Dec 2003, Christoph Hellwig wrote:
+On Tue, 2 Dec 2003, Arjan van de Ven wrote:
 
-> On Mon, Dec 01, 2003 at 11:04:21PM +0800, Ian Kent wrote:
-> > Would you be willing to consider autofs4 patches that I would like
-> > included in 2.4?
+> On Mon, 2003-12-01 at 22:36, Peter C. Norton wrote:
+> `
+> > encouraging the distros to get behind autofs4 (hint hint, redhat,
+> > hint).
 >
-> What autofs4 patches?  bugfixes, features?  if they aren't in
-> 2.6 yet I don't think it makes sense trying to get them into
-> 2.4 anymore at all.
+> I suspect you'll have a really hard time finding ANY distro that still
+> wants to actively develop new products on a 2.4 codebase.
 >
 
-Yep.
-
-I have just finished porting them to 2.6 and will be attempting to get
-the help of autofs list inhabitants for initail testing in the next few
-days. I have one volunteer so far.
-
-Anyone else got time, a 2.6 environment and willing to help?
+Do you feel that 2.6 will be stable enough, soon enough for us to not see
+another RedHat 2.4.x?
 
 -- 
 

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262583AbRFCK2y>; Sun, 3 Jun 2001 06:28:54 -0400
+	id <S262616AbRFCKlE>; Sun, 3 Jun 2001 06:41:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262616AbRFCK2o>; Sun, 3 Jun 2001 06:28:44 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:16144 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S262583AbRFCK2k>; Sun, 3 Jun 2001 06:28:40 -0400
-Date: Sun, 3 Jun 2001 12:24:09 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Compile problem with ov511.c (Kernel 2.4.5)
-Message-ID: <20010603122409.D27260@arthur.ubicom.tudelft.nl>
-In-Reply-To: <3B19E4D0.885C50CA@candelatech.com>
+	id <S262657AbRFCKky>; Sun, 3 Jun 2001 06:40:54 -0400
+Received: from lenka.ph.ipex.cz ([212.71.128.11]:29792 "EHLO lenka.ph.ipex.cz")
+	by vger.kernel.org with ESMTP id <S262616AbRFCKki>;
+	Sun, 3 Jun 2001 06:40:38 -0400
+Date: Sun, 3 Jun 2001 12:39:45 +0200
+From: Robert Vojta <vojta@ipex.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [bug] at slab.c ...
+Message-ID: <20010603123945.D771@ipex.cz>
+In-Reply-To: <E156EFq-0001ts-00@the-village.bc.nu> <20010602183718.A2310@ipex.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lMM8JwqTlfDpEaS6"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B19E4D0.885C50CA@candelatech.com>; from greearb@candelatech.com on Sun, Jun 03, 2001 at 12:18:40AM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+In-Reply-To: <20010602183718.A2310@ipex.cz>
+User-Agent: Mutt/1.3.18i
+X-Telephone: +420 603 167 911
+X-Company: IPEX, s.r.o.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 03, 2001 at 12:18:40AM -0700, Ben Greear wrote:
-> gcc -D__KERNEL__ -I/home/greear/kernel/2.4/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686
-> -DMODULE -DMODVERSIONS -include /home/greear/kernel/2.4/linux/include/linux/modversions.h   -c -o ov511.o ov511.c
-> ov511.c: In function `ov511_read_proc':
-> ov511.c:340: `version' undeclared (first use in this function)
-> ov511.c:340: (Each undeclared identifier is reported only once
-> ov511.c:340: for each function it appears in.)
-> make[2]: *** [ov511.o] Error 1
-> make[2]: Leaving directory `/home/greear/kernel/2.4/linux/drivers/usb'
-> make[1]: *** [_modsubdir_usb] Error 2
-> make[1]: Leaving directory `/home/greear/kernel/2.4/linux/drivers'
-> make: *** [_mod_drivers] Error 2
 
-Try this patch:
-
-    http://boudicca.tux.org/hypermail/linux-kernel/2001week21/1010.html
-
-Or use 2.4.5-ac*.
+--lMM8JwqTlfDpEaS6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-Erik
+  ... and yesterday my box completely lockups and magic keys didn't work too
+for me ... no messages in logs ...
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Best regards,
+  .R.V.
+
+--=20
+   _
+  |-|  __      Robert Vojta <vojta-at-ipex.cz>          -=3D Oo.oO =3D-
+  |=3D| [Ll]     IPEX, s.r.o.
+  "^" =3D=3D=3D=3D`o
+
+--lMM8JwqTlfDpEaS6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjsaE/EACgkQInNB3KDLeVMvpwCgiFAqZKTwPvuDufECkDl5T4Kw
+UncAoIz2s0RlTxkXGAMticlNMb18d4MJ
+=jA+m
+-----END PGP SIGNATURE-----
+
+--lMM8JwqTlfDpEaS6--

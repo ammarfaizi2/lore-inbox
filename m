@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293031AbSBVWpv>; Fri, 22 Feb 2002 17:45:51 -0500
+	id <S291172AbSBVWub>; Fri, 22 Feb 2002 17:50:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293032AbSBVWpl>; Fri, 22 Feb 2002 17:45:41 -0500
-Received: from smtp-2.llnl.gov ([128.115.250.82]:7073 "EHLO smtp-2.llnl.gov")
-	by vger.kernel.org with ESMTP id <S293031AbSBVWp3>;
-	Fri, 22 Feb 2002 17:45:29 -0500
-Date: Fri, 22 Feb 2002 14:45:22 -0800 (PST)
-From: "Tom Epperly" <tepperly@llnl.gov>
-X-X-Sender: epperly@tux06.llnl.gov
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RH7.2 running 2.4.9-21-SMP (dual Xeon's) yields "Illegal
-In-Reply-To: <E16dz1I-0007ys-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0202221444120.3017-100000@tux06.llnl.gov>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293036AbSBVWuV>; Fri, 22 Feb 2002 17:50:21 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27257 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S293033AbSBVWuJ>; Fri, 22 Feb 2002 17:50:09 -0500
+Date: Fri, 22 Feb 2002 17:49:59 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "Dave Rattay [ITeX]" <Dave.Rattay@itexinc.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, alan@lxorguk.ukuu.org.uk,
+        egberts@yahoo.com, lkml@secureone.com.au, linux-kernel@vger.kernel.org,
+        ITeX Tech Support <techsupport@itexinc.com>
+Subject: Re: Dlink DSL PCI Card
+Message-ID: <20020222174959.A16169@redhat.com>
+In-Reply-To: <E788BA1D236784409F3F7138F1EABFDDE4DF@iteusa-nt.itexinc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E788BA1D236784409F3F7138F1EABFDDE4DF@iteusa-nt.itexinc.com>; from Dave.Rattay@itexinc.com on Fri, Feb 22, 2002 at 02:33:48PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002, Alan Cox wrote:
+On Fri, Feb 22, 2002 at 02:33:48PM -0800, Dave Rattay [ITeX] wrote:
+> Stephan,
+> 
+>     I am not sure if you actually requesting anything but here are some
+> points on this matter.  First and foremost we do not make these cards.
+> They are made by our customers that we supply chips for.  We do make the
+> drivers for these boards but they can then be customized by our
+> customers.  The point is that we do support Linux for our customers and
+> our customers are not really end-users.  Now since end-users are
+> indirectly our customers we do supply Linux drivers on request.  Also if
+> we cannot meet a request for any reason that information is added to our
+> Marketing data for future driver development.  Due to previous licensing
+> agreements we cannot release our source code to anyone including our
+> direct customers and there is no way around that.  Sorry.  Now if you
+> have a request for a driver please let me know the kernel version being
+> used as well as the ADSL protocol that you have.  I will see what I can
+> do to get you a usable driver.
 
-> Possibly one hardware thing to try (depending on who and how the box is
-> maintained) is swapping the cpus over and seeing if it then works single
-> cpu..
+You're missing the point.  We as developers want the specifications for 
+the hardware as we're completely willing to write our own driver from 
+scratch.  Until Itex is able to provide this to developers, products 
+based on your chipsets will remain not recommended for Linux users as 
+it will continually result in a poor user experience.
 
-I tried swapping the cpus (i.e. swapping chips), and it still runs fine 
-non-SMP.
-
-Tom
-
---
-------------------------------------------------------------------------
-Tom Epperly
-Center for Applied Scientific Computing   Phone: 925-424-3159
-Lawrence Livermore National Laboratory      Fax: 925-424-2477
-L-661, P.O. Box 808, Livermore, CA 94551  Email: tepperly@llnl.gov
-------------------------------------------------------------------------
-
+		-ben

@@ -1,100 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312879AbSCYXmW>; Mon, 25 Mar 2002 18:42:22 -0500
+	id <S312880AbSCYXrc>; Mon, 25 Mar 2002 18:47:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312880AbSCYXmN>; Mon, 25 Mar 2002 18:42:13 -0500
-Received: from smcc-2.demon.nl ([212.238.194.110]:8211 "HELO smcc.demon.nl")
-	by vger.kernel.org with SMTP id <S312879AbSCYXmA>;
-	Mon, 25 Mar 2002 18:42:00 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
-Organization: I'm not organized
-Message-Id: <200203252338.04352@smcc.demon.nl>
-To: linux-kernel@vger.kernel.org
-Subject: ncr53c8xx SCSI controller hang with 2.5 (and a clue)
-Date: Tue, 26 Mar 2002 00:41:58 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S312881AbSCYXrN>; Mon, 25 Mar 2002 18:47:13 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:39643 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S312880AbSCYXrB>;
+	Mon, 25 Mar 2002 18:47:01 -0500
+Message-ID: <3C9FB40B.9060203@yahoo.com>
+Date: Tue, 26 Mar 2002 02:34:35 +0300
+From: Stas Sergeev <stssppnn@yahoo.com>
+Reply-To: stas.orel@mailcity.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Oops in 2.4.19-pre3-ac6
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Hello.
 
-I've had some trouble trying to boot my system with a 2.5 kernel recently, 
-but it would hang in the SCSI device detection routine; it would only find 
-the first 2 devices (my 2 disks), but stop there. The machine remains 
-responsive though (numlock works, ctrl-alt-del gives a clean reboot)
+Just got this Oops:
+---
+ksymoops 2.4.3 on i686 2.4.19-pre3-ac6.  Options used
+      -V (default)
+      -k /proc/ksyms (default)
+      -l /proc/modules (default)
+      -o /lib/modules/2.4.19-pre3-ac6/ (default)
+      -m /usr/src/linux/System.map (default)
 
-After some fiddling I could get it to boot, but the solution might elude 
-others. And I'm quite sure the fix is a one-line patch. Oh yeah, needless 
-to say, this system works flawlessly with 2.4.18 :-)
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-First, system parameters: PIIBX motherboard with a PII-400 Celeron, 
-a Diamond Fireport 40 SCSI controller with a ncr53c875J chip, with 2 
-(internal) harddisks and 2 (external) CD burners:
+Warning (compare_maps): ksyms_base symbol 
+GPLONLY_vmalloc_to_page not found in System.map.  Ignoring ksyms_base entry
+Mar 26 01:11:26 localhost kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Mar 26 01:11:26 localhost kernel: c0131fb3
+Mar 26 01:11:26 localhost kernel: *pde = 00000000
+Mar 26 01:11:26 localhost kernel: Oops: 0002
+Mar 26 01:11:26 localhost kernel: CPU:    0
+Mar 26 01:11:26 localhost kernel: EIP: 0010:[page_referenced+51/80]    Not tainted
+Mar 26 01:11:26 localhost kernel: EIP:    0010:[<c0131fb3>]     Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+Mar 26 01:11:26 localhost kernel: EFLAGS: 00210286
+Mar 26 01:11:26 localhost kernel: eax: 00000000   ebx: 00000005   ecx: c9211d48   edx: ffffffff
+Mar 26 01:11:26 localhost kernel: esi: 00000002   edi: c0267bdc   ebp: 00000222   esp: c1375fa0
+Mar 26 01:11:26 localhost kernel: ds: 0018   es: 0018   ss: 0018
+Mar 26 01:11:26 localhost kernel: Process kswapd (pid: 4, stackpage=c1375000)
+Mar 26 01:11:26 localhost kernel: Stack: c117601c c1176038 c012c5f7 ffffbd1e c1374000 c0267c04 00000000 000004aa
+Mar 26 01:11:26 localhost kernel:        00009a1b c0267bdc 000004aa 0008e000 c012cf2c c0267bdc 00000006 00000000
+Mar 26 01:11:26 localhost kernel:        00010f00 cffe7fb8 c0105000 0008e000 c0105596 00000000 c012ccc0 c027dfdc
+Mar 26 01:11:26 localhost kernel: Call Trace: [refill_inactive_zone+535/704] [kswapd+620/704] 
+[_stext+0/32] [kernel_thread+38/48] [kswapd+0/704]
+Mar 26 01:11:26 localhost kernel: Call Trace: [<c012c5f7>] [<c012cf2c>] [<c0105000>] [<c0105596>] [<c012ccc0>]
+Mar 26 01:11:27 localhost kernel: Code: 0f b3 18 19 d2 8b 09 85 d2 8d 46 01 0f 45 f0 85 c9 75 ea 5b
 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: IBM      Model: DCAS-34330W      Rev: S65A
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: IBM      Model: DCAS-34330W      Rev: S65A
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-  Vendor: GENERIC  Model: CRD-RW2          Rev: 1.12
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 04 Lun: 00
-  Vendor: JVC      Model: XR-W2010         Rev: 1.51
-  Type:   WORM                             ANSI SCSI revision: 02
-
-In addition there's an IDE disk and a CDROM attached (I boot from IDE).
-
-Normally, during the 2.4.18 boot, the following messages appear:
-
-ncr53c8xx: at PCI bus 0, device 9,function 0
-ncr53c8xx: 53c875J detected with Symbios NVRAM
-ncr53c875J-0: rev 0x4 on pci bus 0 device 9 function 0 irq 15
-ncr53c875J-0: Symbios format NVRAM, ID 7,Fast-20, Parity Checking
-ncr53c875J-0: on-chip RAM at 0xe3001000
-ncr53c875J-0: restart (scsi reset).
-ncr53c875J-0: Downloading SCSI SCRIPTS. scsi0 : ncr53c8xx-3.4.3b-20010512
-
-Followed by the detection of the disks and burners, followed by the MD 
-sublayer messages (I'm using mirroring and striping).
-
-I've tried kernel 2.5.5 and 2.5.6; 2.5.5 would stop with a mysterious 
-message about a block not found or out of bounds. 2.5.6 stops right after 
-the messages about the SCSI disks. I though that maybe the driver was 
-confused by the fact that I compiled the SCSI-CDROM part as a module, so I 
-un-moduled that and linked it in: no difference.
-
-Then, I unplugged the SCSI burners, thinking that might be the problem: 
-unfortunately, it still stops at the same spot. BTW: I can see the burners 
-react on some probing or resetting of the bus, since some of the LEDs go on 
-and off.
-
-Next, I tried the syn53c8xx driver instead of ncr53c8xx driver: again, no 
-difference.
-
-Then, I recalled that in a far, far away past I had poked around in the 
-BIOS of the SCSI controller; in there, you can specify for each of the 15 
-SCSI IDs (it supports wide SCSI) if it should probe the ID for a device. 
-Since each probe takes a second or so and I don't like waiting, I enabled 
-only those IDs which I knew had a SCSI device attached. And this is exactly 
-where the ncr53c8xx driver hangs.
-
-As it turns out, SCSI ID 2 is the first empty slot, and this is where the 
-driver stops scanning. After enabling "Scan Device...." in the SCSI BIOS 
-for this slot, it would boot finding the disks and the burners (ids 0,1, 3 
-and 4), but of course stop at ID 5. Only after enabling scanning of all 
-IDs, I'm able to boot properly into Linux.
-
-Since it worked fine in 2.4., I'm quite sure this is only a small goof-up 
-and easy to fix... I don't know enough about the SCSI drivers to do it 
-myself :-( But I can always test something if you want. Since it's not 
-clear who maintains this driver I'm sending this report to this list...
-
- - Nemosoft
+ >>EIP; c0131fb2 <page_referenced+32/50>   <=====
+Trace; c012c5f6 <refill_inactive_zone+216/2c0>
+Trace; c012cf2c <kswapd+26c/2c0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105596 <kernel_thread+26/30>
+Trace; c012ccc0 <kswapd+0/2c0>
+Code;  c0131fb2 <page_referenced+32/50>
+00000000 <_EIP>:
+Code;  c0131fb2 <page_referenced+32/50>   <=====
+    0:   0f b3 18                  btr    %ebx,(%eax)   <=====
+Code;  c0131fb4 <page_referenced+34/50>
+    3:   19 d2                     sbb    %edx,%edx
+Code;  c0131fb6 <page_referenced+36/50>
+    5:   8b 09                     mov    (%ecx),%ecx
+Code;  c0131fb8 <page_referenced+38/50>
+    7:   85 d2                     test   %edx,%edx
+Code;  c0131fba <page_referenced+3a/50>
+    9:   8d 46 01                  lea    0x1(%esi),%eax
+Code;  c0131fbe <page_referenced+3e/50>
+    c:   0f 45 f0                  cmovne %eax,%esi
+Code;  c0131fc0 <page_referenced+40/50>
+    f:   85 c9                     test   %ecx,%ecx
+Code;  c0131fc2 <page_referenced+42/50>
+   11:   75 ea                     jne    fffffffd 
+<_EIP+0xfffffffd> c0131fae <page_referenced+2e/50>
+Code;  c0131fc4 <page_referenced+44/50>
+   13:   5b                        pop    %ebx
 
 
+2 warnings issued.  Results may not be reliable.
+---
 
+page_referenced() is really very small
+function, so I beleive finding the faulting
+place would not be difficult:)
+The strange thing, however, that swap was
+completely empty and the load was about
+zero, so I don't have any ideas about what
+kswapd were doing at that moment.
+
+/proc/meminfo:
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  262750208 258428928  4321280        0 27529216 79020032
+Swap: 542826496        0 542826496
+MemTotal:       256592 kB
+MemFree:          4220 kB
+MemShared:           0 kB
+Buffers:         26884 kB
+Cached:          77168 kB
+SwapCached:          0 kB
+Active:         218456 kB
+Inact_dirty:      4384 kB
+Inact_clean:      6660 kB
+Inact_target:    45900 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       256592 kB
+LowFree:          4220 kB
+SwapTotal:      530104 kB
+SwapFree:       530104 kB
+Committed_AS:   205908 kB

@@ -1,29 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287371AbSAGXUo>; Mon, 7 Jan 2002 18:20:44 -0500
+	id <S287373AbSAGX0O>; Mon, 7 Jan 2002 18:26:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287372AbSAGXUe>; Mon, 7 Jan 2002 18:20:34 -0500
-Received: from nile.gnat.com ([205.232.38.5]:63178 "HELO nile.gnat.com")
-	by vger.kernel.org with SMTP id <S287371AbSAGXUV>;
-	Mon, 7 Jan 2002 18:20:21 -0500
-From: dewar@gnat.com
-To: Dautrevaux@microprocess.com, dewar@gnat.com, guerby@acm.org,
-        mrs@windriver.com
-Subject: RE: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, paulus@samba.org,
-        trini@kernel.crashing.org, velco@fadata.bg
-Message-Id: <20020107232020.A3CE3F28F1@nile.gnat.com>
-Date: Mon,  7 Jan 2002 18:20:20 -0500 (EST)
+	id <S287375AbSAGX0E>; Mon, 7 Jan 2002 18:26:04 -0500
+Received: from [194.162.148.63] ([194.162.148.63]:22766 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S287373AbSAGXZv>; Mon, 7 Jan 2002 18:25:51 -0500
+Date: Tue, 8 Jan 2002 00:25:03 +0100 (CET)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: Dave Jones <davej@suse.de>
+cc: Paul Jakma <paulj@alphyra.ie>, <knobi@knobisoft.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
+In-Reply-To: <Pine.LNX.4.33.0201051807160.27113-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.33.0201061705010.1407-100000@vaio>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>That is just broken and wrong
+On Sat, 5 Jan 2002, Dave Jones wrote:
 
-According to the gcc docs right? certainly not according to the standard!
+> devicefs is just a means of exporting this to userspace, be that for
+> usage with the userspace acpi tools, or for hinv like programs.
+> As I mentioned earlier, ACPI enumerates pretty much everything in the
+> system, even if theres no driver for it.
+> If there is a driver for it, it can register things like "I support
+> these power saving states" with driverfs for additional functionality.
+> 
+> It would be nice at some point to get some of the other (pre-ACPI)
+> busses registering stuff there too, for completeness.
 
-<<If you want/need the gcc doc to expound on this, write it up, and
-we'll add it.
->>
+I had a patch which showed ISAPnP devices within driverfs at one point. 
+Once the switch to struct device is in the kernel, I'll dig it out and 
+bring it up to date.
 
-I think we should add this, since this is the source of the rule, not the
-standard (as far as I can  tell)
+--Kai
+
+
+

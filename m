@@ -1,68 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129458AbQLWWDU>; Sat, 23 Dec 2000 17:03:20 -0500
+	id <S129458AbQLWXJS>; Sat, 23 Dec 2000 18:09:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbQLWWDK>; Sat, 23 Dec 2000 17:03:10 -0500
-Received: from innerfire.net ([208.181.73.33]:3079 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S129458AbQLWWC5>;
-	Sat, 23 Dec 2000 17:02:57 -0500
-Date: Sat, 23 Dec 2000 13:39:28 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Alex Belits <abelits@phobos.illtel.denver.co.us>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: OS & Games Software
-In-Reply-To: <Pine.LNX.4.20.0012230444590.18753-100000@phobos.illtel.denver.co.us>
-Message-ID: <Pine.LNX.4.10.10012231337001.11468-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129595AbQLWXJI>; Sat, 23 Dec 2000 18:09:08 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:9928 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129458AbQLWXIy>;
+	Sat, 23 Dec 2000 18:08:54 -0500
+Date: Sat, 23 Dec 2000 23:38:06 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Manfred <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, tytso@mit.edu, torvalds@transmeta.com
+Subject: Re: minor bugs around fork_init
+Message-ID: <20001223233806.A886@veritas.com>
+In-Reply-To: <3A44D3F3.522AD08A@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3A44D3F3.522AD08A@colorfullife.com>; from manfred@colorfullife.com on Sat, Dec 23, 2000 at 05:33:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Dec 2000, Alex Belits wrote:
+On Sat, Dec 23, 2000 at 05:33:55PM +0100, Manfred wrote:
 
-> On Sat, 23 Dec 2000 photon55@mail.com wrote:
-> 
-> > Subject: OS & Games Software
-> > 
-> > Are you still using an old operating system? Why not upgrade to a 
-> > newer and
-> > more reliable version? You'll enjoy greater features and more 
-> > stability. 
-> > 
-> > Microsoft Dos 6.22				$15
-> > Microsoft Windows 3.11				$15
-> > Microsoft Windows 95				$15
-> > Microsoft Windows 98 SE 			$20
-> > Microsoft Windows Millenium 			$20
-> > Microsoft Windows 2000 Pro 			$20
-> > Microsoft Windows 2000 Server			$50
-> > Microsoft Windows 2000 Advanced Server (25CAL)	$65
-> > 
-> 
->   Is this a desperate Microsoft's attempt to slow Linux development by
-> insulting developers? ;-))
-> 
->   I mean, what other purpose can this possibly have? Unless, of course,
-> some unintelligent person got linux-kernel address in a list of
-> prepackaged "n millions email addresses for sale" (and then he must be not
-> moron*2, or moron^2, but at least e^moron).
+> * get_pid causes a deadlock when all pid numbers are in use.
+> In the worst case, only 10900 threads are required to exhaust
+> the 15 bit pid space.
 
-I vote moron ... hes within a day's drive of MS though.
+Yes. I posted a patch for 31-bit pids once or twice.
+There is no great hurry, but on the other hand, it is always
+better to make these changes long before it is really urgent.
 
-ISP can be contacted at: 1-800-356-LOOK (5665) Considering it's been the
-same dork with no response to complaint emails the isp is looking spam
-friendly.  Lets cost them a bit and see if they hurry up and terminate
-this loser.
-	Gerhard
-
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

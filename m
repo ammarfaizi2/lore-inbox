@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318845AbSICRTf>; Tue, 3 Sep 2002 13:19:35 -0400
+	id <S318857AbSICRYo>; Tue, 3 Sep 2002 13:24:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318846AbSICRTe>; Tue, 3 Sep 2002 13:19:34 -0400
-Received: from mailgw.aecom.yu.edu ([129.98.1.16]:46792 "EHLO
-	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP
-	id <S318845AbSICRTd>; Tue, 3 Sep 2002 13:19:33 -0400
-Mime-Version: 1.0
-Message-Id: <a05111606b99a9fda24c5@[129.98.90.227]>
-In-Reply-To: <1030093049.5911.9.camel@irongate.swansea.linux.org.uk>
-References: <a05111608b98b96373cce@[129.98.90.227]>
- <1030090864.5932.5.camel@irongate.swansea.linux.org.uk> 
- <a05111609b98ba20903b0@[129.98.90.227]>
- <1030093049.5911.9.camel@irongate.swansea.linux.org.uk>
-Date: Tue, 3 Sep 2002 13:24:04 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: Re: SMP Netfinity 340 hangs under 2.4.19
-Cc: Martin.Bligh@us.ibm.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S318858AbSICRYn>; Tue, 3 Sep 2002 13:24:43 -0400
+Received: from dsl-213-023-043-116.arcor-ip.net ([213.23.43.116]:53396 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318856AbSICRYn>;
+	Tue, 3 Sep 2002 13:24:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: "Heiko Carstens" <Heiko.Carstens@de.ibm.com>
+Subject: Re: Kernel BUG at page_alloc.c:91! (2.4.19)
+Date: Tue, 3 Sep 2002 19:31:52 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <OF3A6E6F2C.2609CEE7-ONC1256C29.005E7DDC@de.ibm.com>
+In-Reply-To: <OF3A6E6F2C.2609CEE7-ONC1256C29.005E7DDC@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17mHWq-0005i3-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Regarding this hang issue, I just had the vanilla 2.4.19 lockup, so 
-it looks like the problem is not with the patches. Any ideas on how 
-troubleshoot it further?
+On Tuesday 03 September 2002 19:16, Heiko Carstens wrote:
+> Hi,
+> 
+> >> Thanks for the patch but unfortunately it doesn't change the behaviour 
+> at
+> >> all. This BUG is still 100% reproducible by just having 1 process which
+> >> allocates memory chunks of 256KB and after each allocation writes to 
+> each
+> >> of the pages in order to make them dirty.
+> >Um, no smp --> no free race anyway.  But try the following instead, to
+> >start narrowing down the possibilities:
+> 
+> Still the same BUG in __free_pages_ok happens, or in other words both of 
+> your
+> checks didn't catch the error...
 
->On Fri, 2002-08-23 at 09:47, Maurice Volaski wrote:
->  > I haven't tried plain 2.4.19 yet. Should I have reason to not trust
->>  these patches?
->
->In the sense that they are not tested by the majority of 2.4.19 users
->its always worth checking that.
->
->>  So could this be taken to mean the issue is most likely software
->>  (presumably kernel)-related?
->
->It normally points to a kernel locking error
+My intention was to verify which one of the two possible execution paths
+was taken, and also to verify that swap_duplicate doesn't see any problem
+(there's a missing error check here).  Note that we also definitively
+eliminated your original theory since we didn't arrive at the
+page_cache_release via the if (page->mapping) path.
 
+> Any other ideas?
+
+Have you trimmed your config down to the absolute minimum?
+
+Is there any such thing as kdb for S390?
 
 -- 
-
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University
+Daniel

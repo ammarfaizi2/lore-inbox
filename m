@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266903AbTADNiM>; Sat, 4 Jan 2003 08:38:12 -0500
+	id <S266908AbTADNpZ>; Sat, 4 Jan 2003 08:45:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266908AbTADNiM>; Sat, 4 Jan 2003 08:38:12 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:62917 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
-	id <S266903AbTADNiM>; Sat, 4 Jan 2003 08:38:12 -0500
-Date: Sat, 4 Jan 2003 14:46:44 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Ranjeet Shetye <ranjeet.shetye@zultys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [STUPID] Best looking code to transfer to a t-shirt
-In-Reply-To: <001901c2b387$1ea1eb00$0100a8c0@zultys.com>
-Message-ID: <Pine.LNX.4.44.0301041435320.18708-100000@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266924AbTADNpZ>; Sat, 4 Jan 2003 08:45:25 -0500
+Received: from B5242.pppool.de ([213.7.82.66]:52144 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S266908AbTADNpY>; Sat, 4 Jan 2003 08:45:24 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+From: Daniel Egger <degger@fhm.edu>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10301030933300.421-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10301030933300.421-100000@master.linux-ide.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4MhyUIM+STi0wTaBGet4"
+Organization: 
+Message-Id: <1041688417.4784.4.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 04 Jan 2003 14:53:37 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If only the Linux kernel had something as heart-warming as FreeBSD's
-> "diediedie ()". :D
-How about this:
 
-arch/m68k/mac/psc.c
+--=-4MhyUIM+STi0wTaBGet4
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-/*
- * Try to kill all DMA channels on the PSC. Not sure how this his
- * supposed to work; this is code lifted from macmace.c and then
- * expanded to cover what I think are the other 7 channels.
- */
+Am Fre, 2003-01-03 um 18.45 schrieb Andre Hedrick:
 
-void psc_dma_die_die_die(void)
-{
-        int i;
+> Thanks!  Look how much I have given away, gee it is nothing.
+> Only 80% or more of all IDE chipsets, I personally wrote.
+> I am not allowed to make money to feed my family, pay from the cost of
+> membership to standards, pay for the cost of joining working groups for
+> new technology, pay for the cost of travel to the fore mentioned.
 
-        printk("Killing all PSC DMA channels...");
-        for (i = 0 ; i < 9 ; i++) {
-                psc_write_word(PSC_CTL_BASE + (i << 4), 0x8800);
-                psc_write_word(PSC_CTL_BASE + (i << 4), 0x1000);
-                psc_write_word(PSC_CMD_BASE + (i << 5), 0x1100);
-                psc_write_word(PSC_CMD_BASE + (i << 5) + 0x10, 0x1100);
-        }
-        printk("done!\n");
-}
+Please don't jump on this train. Actually you're bitching about people
+whining; instead you should give people the possibility to pay you for
+your *really nice* (though a bit cryptic at times :)) work.
+
+Ok, I'd like to make a start: I'd like to donate, say =A420 for now, do
+you cash credit cards?
+
+--
+Servus,
+       Daniel
+
+--=-4MhyUIM+STi0wTaBGet4
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+Fudgchlzsq9KoIYRAnT0AKDMEIohOZUASONMKnOonPO2/ECjJwCgvMXb
+4hfDjcSwP9icLQG2p6vrDHM=
+=SIZs
+-----END PGP SIGNATURE-----
+
+--=-4MhyUIM+STi0wTaBGet4--
 

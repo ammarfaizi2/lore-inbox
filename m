@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262625AbUC2FXa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 00:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbUC2FX3
+	id S262662AbUC2Fcf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 00:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbUC2Fcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 00:23:29 -0500
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:51890 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S262625AbUC2FX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 00:23:27 -0500
-Date: Sun, 28 Mar 2004 22:24:05 -0700
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] speed up SATA
-Message-ID: <20040329052405.GG6405@bounceswoosh.org>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	"Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <20040328044029.GB1984@bounceswoosh.org> <40667734.8090203@yahoo.com.au> <20040328203357.GB6405@bounceswoosh.org> <20040328205917.GF6405@bounceswoosh.org> <40677C21.7070807@yahoo.com.au>
+	Mon, 29 Mar 2004 00:32:35 -0500
+Received: from ns.suse.de ([195.135.220.2]:693 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262662AbUC2Fce (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 00:32:34 -0500
+Date: Mon, 29 Mar 2004 02:09:57 +0200
+From: Andi Kleen <ak@suse.de>
+To: Len Brown <len.brown@intel.com>
+Cc: arekm@pld-linux.org, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
+Message-Id: <20040329020957.43a2ce5a.ak@suse.de>
+In-Reply-To: <1080535754.16221.188.camel@dhcppc4>
+References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com>
+	<1080535754.16221.188.camel@dhcppc4>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <40677C21.7070807@yahoo.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 29 at 11:30, Nick Piggin wrote:
->Well strictly, you send them one after the other. So unless you
->have something similar to our anticipatory scheduler or plugging
->mechanism, the drive should attack the first one first, shouldn't
->it?
+On 28 Mar 2004 23:49:15 -0500
+Len Brown <len.brown@intel.com> wrote:
 
-If you send 32 commands to our disk at once (TCQ/NCQ) we send 'em all
-to our back-end disk engine as fast as possible.
+> 
+> I'm open to suggestions on the right way to fix this.
+> 
+> 1. recommend CONFIG_ACPI=n for 80386 build.
+> 
+> 2. force CONFIG_ACPI=n for 80386 build.
+> 
+> 3. invoke cmpxchg from acpi even for 80386 build.
 
---eric
 
+I think (3) is best. Just define it always, even when the kernel is built for
+i386. I considered it always a bug that cmpxchg was not defined in i386 builds. 
+The users of it just have to ensure it won't actually run on an i386 (by cpuid 
+or implicitely like ACPI does) 
 
--- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
-
+-Andi

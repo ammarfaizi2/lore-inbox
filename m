@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbTICJti (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 05:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTICJti
+	id S261700AbTICJsa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 05:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbTICJsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 05:49:38 -0400
-Received: from lidskialf.net ([62.3.233.115]:8326 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S261725AbTICJth (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 05:49:37 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: Roger Luethi <rl@hellgate.ch>
-Subject: Re: [ACPI] Where do I send APIC victims?
-Date: Wed, 3 Sep 2003 11:48:03 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-References: <20030903080852.GA27649@k3.hellgate.ch> <200309031123.58713.adq_dvb@lidskialf.net> <20030903093808.GA28594@k3.hellgate.ch>
-In-Reply-To: <20030903093808.GA28594@k3.hellgate.ch>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 3 Sep 2003 05:48:30 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:64439 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261700AbTICJs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 05:48:28 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: yiding_wang@agilent.com
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <334DD5C2ADAB9245B60F213F49C5EBCD05D5528C@axcs03.cos.agilent.com>
+References: <334DD5C2ADAB9245B60F213F49C5EBCD05D5528C@axcs03.cos.agilent.com>
+Message-Id: <1062582476.1780.7.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 03 Sep 2003 11:47:56 +0200
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+Subject: Re: linux power pc kernel
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309031148.03941.adq_dvb@lidskialf.net>
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-09-02 at 22:29, yiding_wang@agilent.com wrote:
+> I am looking for Linux power pc kernel to download to support my power pc 440 processor box.  Some websites reject access and others takes very long time.  I am accessing Debian and found to download all 9 files, it may take a whole day to do so.
+> 
+> Does anyone knows a site where I can download installable linux ppc kernel or cd images faster?
+> 
+> Many thanks!
 
-> > with these chipsets. I'm waiting on some docs from VIA to fix this issue.
->
-> Which still leaves the question of why it used to work (or made the
-> impression it did) with older kernels.
+You should visit the PowerPC related mailing lists. Especially the
+linuxppc-embedded for things related to the 440
 
-I think on earlier kernels there was a bug in ACPI which prevented it from 
-being used for PCI IRQ routing. I know this was fixed somewhere in the 2.5.5X 
-series.
+(lists.linuxppc.org)
 
-When this bug was fixed, it unfortunately caused my nforce2 board to stop 
-working because of other IRQ issues, which is how I got into this. Its likely 
-the same thing causes older kernels to work with Via motherboards to work 
-'cos ACPI isn't being used for IRQ routing.
+Ben.
 
-2.4.22 has the ACPI from 2.6 backported into it, (which includes my patch for 
-nforce2 boards) so it will start having the same issue with the BIOS bug in 
-KT333/KT400  boards.
 

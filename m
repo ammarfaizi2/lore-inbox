@@ -1,47 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbTHVWKh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 18:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbTHVWKh
+	id S263263AbTHVWMm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 18:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbTHVWMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 18:10:37 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:30354 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S261158AbTHVWKd (ORCPT
+	Fri, 22 Aug 2003 18:12:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62420 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263263AbTHVWMb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 18:10:33 -0400
-Date: Sat, 23 Aug 2003 00:10:25 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: torvalds@osdl.org, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PM] Patrick: which part of "maintainer" and "peer review" needs explaining to you?
-Message-ID: <20030822221025.GE2306@elf.ucw.cz>
-References: <20030822210800.GA4403@elf.ucw.cz> <Pine.LNX.4.33.0308221411060.2310-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0308221411060.2310-100000@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Fri, 22 Aug 2003 18:12:31 -0400
+Date: Fri, 22 Aug 2003 15:05:15 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Pavel Machek <pavel@suse.cz>
+cc: <torvalds@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PM] Patrick: which part of "maintainer" and "peer review" needs
+ explaining to you?
+In-Reply-To: <20030822215315.GD2306@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0308221454420.2310-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> >  static int __init resume_setup(char *str)
-> >  {
-> > -	strncpy( resume_file, str, 255 );
-> > +	if (strlen(str))
-> > +		strncpy(resume_file, str, 255);
-> >  	return 1;
-> >  }
-> > 
-> > Why are you obfuscating the code?
+> This is stable series, and /proc/acpi/sleep was fine for at least
+> entering S3 and swsusp. Anyway, if you killed sleep, you should kill
+> alarm as well. Its only usefull for sleeping, and IIRC it never worked
+> properly, anyway.
+
+I will fix alarm. I will also update Nigel's suspend scripts (or release 
+others) that abstract the mechanism for entering sleep away from the user. 
+
+> If you want to help, take a look at drivers/pci/power.c. That file
+> should not need to exist, but if I kill it bad stuff happens after
+> resume. Killing pm_register() and friends would be nice.
+
+I'll get there. Give me a couple of weeks.. 
+
+> what about enum action { }; extern int (*pm_power_down)(enum action
+> state)?
+
+That's doable. 
+
+> > Secondly, you can actually remove the second command line parameter 
+> > ("noresume") by simply specifying a NULL partition to this parameter. It 
+> > requires about a 5-line change, and makes things simpler. 
 > 
-> Eh? First, why would you want to copy a NULL string? 
+> You'd better not. You are expected to have one "resume=/foo/bar"
+> specified as append in lilo. You want to able to say noresume and do
+> one boot without resuming. Turning resume with
+> "resume=/dev/nonexistent" would be playing roulete with command line
+> argument order.
 
-How is strlen(NULL) better than strncpy(_, NULL, _)?
-							Pavel
+AFAIK, you could have
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+resume=/dev/hda3 always appended to your command line. Should you suspend 
+and not want to resume, you should be able to manually add
+
+"resume=" on the command line after the above, and have the setup function 
+called again, which would reset it to NULL, thereby keeping the same 
+semantics as "noresume", but with less namespace pollution. Anyway, I'm 
+not going to do this now. I'll send you a patch if I do.
+
+> > -EAGAIN allows the drivers/devices that really need special care to 
+> > specify it. Otherwise, we'll end up calling ->suspend() twice for power 
+> > down for each device (those that can do w/ interrupts enabled and those 
+> > that need interrupts disabled), which also requires every single driver to 
+> > check whether or not interrupts are enabled, instead of just those that 
+> > need it. 
+> 
+> No, you should have simply let it alone and pass "level" parameter
+> telling driver if interrupts were disabled or not. No need to
+> constantly change API while trying to stabilise the code.
+
+...and modify each driver to check for it? 
+
+The decision to kill the level parameter came from extensive discussions
+with Benh, who convinced me that we only need to call ->suspend() once for
+any device; though we still need to somehow provide for those that need to
+power down with interrupts disabled. I suggested -EAGAIN, since it allows
+us to special case those that need it, with the minimum amount of impact.
+Ben agreed with me.
+
+
+
+	Pat
+

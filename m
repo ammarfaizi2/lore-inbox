@@ -1,29 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262742AbREOMTj>; Tue, 15 May 2001 08:19:39 -0400
+	id <S262746AbREONBT>; Tue, 15 May 2001 09:01:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262745AbREOMT3>; Tue, 15 May 2001 08:19:29 -0400
-Received: from www.topmail.de ([212.255.16.226]:34291 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S262742AbREOMTV>;
-	Tue, 15 May 2001 08:19:21 -0400
+	id <S262748AbREONBI>; Tue, 15 May 2001 09:01:08 -0400
+Received: from www.topmail.de ([212.255.16.226]:57301 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S262746AbREONAy>;
+	Tue, 15 May 2001 09:00:54 -0400
 From: mirabilos <eccesys@topmail.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Device Numbers, LILO
-Message-Id: <20010515121635.B5C402F84AC@www.topmail.de>
-Date: Tue, 15 May 2001 14:16:35 +0200 (MET DST)
+To: <linux-kernel@vger.kernel.org>
+Subject: rwsem, gcc3 again
+Message-Id: <20010515125759.19134A5ABC2@www.topmail.de>
+Date: Tue, 15 May 2001 14:57:59 +0200 (MET DST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->That's not the issue.  LILO takes whatever you pass to root= and converts
->it to a device number at /sbin/lilo time.  An idiotic practice on the
->part of LILO, in my opinion, that ought to have been fixed a long time
->ago.
+Hi,
+I have got that patch with "movl %2,%%edx" and removing the tmp
+and still cannot compile with the same error message I posted yesterday.
+The problem seems to be that, with or without "inline", it seems to
+put a reference into main.o of arch/i386/boot/compressed.
+So I cannot test -ac9 :(
 
-That's why you have to use append="root=blah" for devfs :)
-Really it should have been in IMO. Btw, is LBA support in?
-Last time I saw a LILO manpage it stated that "linear" still
-is restricted to 16bit (65535 sectors) which normally is much
-less than 1k cylinders...
+If anyone could find a (final or at least until gcc is fixed temporarily)
+solution please please could either post or mail me?
+Please no Cc: as I am on the list.
 
 -mirabilos
 -- 

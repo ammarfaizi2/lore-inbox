@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268090AbUJSJL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUJSJO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268090AbUJSJL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 05:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268092AbUJSJL3
+	id S268089AbUJSJO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 05:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268092AbUJSJO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 05:11:29 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:2535 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S268090AbUJSJL0 convert rfc822-to-8bit (ORCPT
+	Tue, 19 Oct 2004 05:14:58 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:11925 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268089AbUJSJOs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 05:11:26 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PATCH/RFC: driver model/pmcore wakeup hooks (1/4)
-Date: Tue, 19 Oct 2004 17:11:12 +0800
-Message-ID: <16A54BF5D6E14E4D916CE26C9AD3057559A042@pdsmsx402.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PATCH/RFC: driver model/pmcore wakeup hooks (1/4)
-Thread-Index: AcS1jenjibOno0l9QOiEjavtxWaFsQALIJiQ
-From: "Li, Shaohua" <shaohua.li@intel.com>
-To: "David Brownell" <david-b@pacbell.net>, "Brown, Len" <len.brown@intel.com>
-Cc: "Pavel Machek" <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>,
-       "ACPI Developers" <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 19 Oct 2004 09:11:12.0954 (UTC) FILETIME=[949549A0:01C4B5BB]
+	Tue, 19 Oct 2004 05:14:48 -0400
+Date: Tue, 19 Oct 2004 11:15:57 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] generic irq subsystem: ppc64 port
+Message-ID: <20041019091557.GA17473@elte.hu>
+References: <200410190714.i9J7Elnx027734@hera.kernel.org> <1098174500.11449.65.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098174500.11449.65.camel@gaston>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A final solution is device core adds an ACPI layer. That is we can link
-ACPI device and physical device. This way, the PCI device can know which
-ACPI is linked with it, so the PCI API can use specific ACPI method. 
-You are right, we currently haven't a method to reach the goal. To match
-a physical device and ACPI device, we need to know the ACPI device's
-_ADR and bus.
-I have a toy to link the PCI device and ACPI device, and some PCI
-function can use _SxD method and _PSx method to get some information for
-suspend/resume.
 
-Thanks,
-Shaohua
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
->owner@vger.kernel.org] On Behalf Of David Brownell
->Sent: Tuesday, October 19, 2004 11:41 AM
->To: Brown, Len
->Cc: Pavel Machek; linux-kernel@vger.kernel.org; ACPI Developers
->Subject: Re: PATCH/RFC: driver model/pmcore wakeup hooks (1/4)
->
->On Friday 15 October 2004 11:03 pm, Len Brown wrote:
->> > - ACPI (this should probably replace the new /proc/acpi/wakeup)
->>
->> Agreed.  That file is a temporary solution.
->> The right solution is for the devices to appear in the right
->> place in the device tree and to hang the wakeup capabilities
->> off of them there.
->
->So what would that patch need before ACPI could convert to use it?
->
->I didn't notice any obvious associations between the strings in
->the acpi/wakeup file and anything in sysfs.  Which of USB1..USB4
->was which of the three controllers shown by "lspci" (and which
->one was "extra"!), as one head-scratcher.
->
->For PCI, I'd kind of expect pci_enable_wake() to trigger the
->additional ACPI-specific work to make sure the device can
->actually wake that system.   Seems like dev->platform_data
->might need to combine with some platform-specific API hook.
->
->- Dave
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+
+> I still like the idea of the patch, so it would be useful if you added
+> the possibility for us to just change that behaviour, that is replace
+> all occursences of irq_descs + i with get_irq_desc() and provide a
+> generic one that just does that, with a #ifndef so that the
+> architecture can provide it's own. 
+
+sure, we could do that. But since there are other architectures with
+large irq-vector spaces too, you might want to try to move it into the
+generic IRQ code and just provide a way to switch between 1:1 mapped and
+sparse-mapped variants.
+
+(of course this still means all of the direct indexing in kernel/irq/*.c
+would have to change.)
+
+	Ingo

@@ -1,28 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266041AbTAJTmy>; Fri, 10 Jan 2003 14:42:54 -0500
+	id <S265657AbTAJTqo>; Fri, 10 Jan 2003 14:46:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266069AbTAJTmy>; Fri, 10 Jan 2003 14:42:54 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:60628 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S266041AbTAJTmy>;
-	Fri, 10 Jan 2003 14:42:54 -0500
-Date: Fri, 10 Jan 2003 14:51:34 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030110195134.GA1682@gtf.org>
-References: <Pine.LNX.4.44.0301100921460.12833-100000@home.transmeta.com> <20030110184739.GA1579@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030110184739.GA1579@werewolf.able.es>
-User-Agent: Mutt/1.3.28i
+	id <S265786AbTAJTqn>; Fri, 10 Jan 2003 14:46:43 -0500
+Received: from adsl-67-113-154-34.dsl.sntc01.pacbell.net ([67.113.154.34]:8948
+	"EHLO postbox.aslab.com") by vger.kernel.org with ESMTP
+	id <S265657AbTAJTqn>; Fri, 10 Jan 2003 14:46:43 -0500
+Message-ID: <3E1F2562.5040105@aslab.com>
+Date: Fri, 10 Jan 2003 11:56:18 -0800
+From: Michael Madore <mmadore@aslab.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-pre3-ac3 oops with himem 
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 07:47:39PM +0100, J.A. Magallon wrote:
-> As there is a CONFIG_EXPERIMENTAL, how about a CONFIG_DEPRECATED for the
-> opposite edge ?
+ > I received the following oops while running the Cerberus stress test 
+on 2.4.21-pre3-ac3.  The  hardware is an ASUS A7N8X  single AMD Athlon XP
+ > motherboard with the Nvidia nforce2 chipset.  The oops occurs as soon 
+as the system has used all the RAM and tries to use swap.  The total 
+amount of
+ > memory on the machine is 1GB, and himem is enabled.  If I turn off 
+himem support the kernel starts to use swap without oopsing.  I can 
+provide my
+ > kernel .config or more hardware details if that would be useful.
 
-CONFIG_OBSOLETE already exists for this.
+Sorry for a little misinformation.  I seem to get the oops with himem 
+disabled as well.  I must have just been lucky the first time.
+
+Mike
+

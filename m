@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262935AbVCDRuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbVCDR5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262935AbVCDRuv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 12:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbVCDRuv
+	id S262960AbVCDR5I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 12:57:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVCDRzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 12:50:51 -0500
-Received: from orb.pobox.com ([207.8.226.5]:19846 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262935AbVCDRuq (ORCPT
+	Fri, 4 Mar 2005 12:55:00 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:18098 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263009AbVCDRyI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 12:50:46 -0500
-Date: Fri, 4 Mar 2005 09:50:39 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-       mjg59@scrf.ucam.org, hare@suse.de
-Subject: Re: swsusp: allow resume from initramfs
-Message-ID: <20050304175038.GE9796@ip68-4-98-123.oc.oc.cox.net>
-References: <20050304101631.GA1824@elf.ucw.cz> <20050304030410.3bc5d4dc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Mar 2005 12:54:08 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+Date: Fri, 4 Mar 2005 09:50:03 -0800
+User-Agent: KMail/1.7.2
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, Matthew Wilcox <matthew@wil.cx>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linas Vepstas <linas@austin.ibm.com>,
+       "Luck, Tony" <tony.luck@intel.com>
+References: <422428EC.3090905@jp.fujitsu.com> <200503010910.29460.jbarnes@engr.sgi.com> <20050304135429.GC3485@openzaurus.ucw.cz>
+In-Reply-To: <20050304135429.GC3485@openzaurus.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050304030410.3bc5d4dc.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200503040950.03866.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 03:04:10AM -0800, Andrew Morton wrote:
-> I don't understand how this can be affected by the modularness of the
-> kernel.  Can you explain a little more?
-> 
-> Would it not be simpler to just add "resume=03:02" to the boot command line?
+On Friday, March 4, 2005 5:54 am, Pavel Machek wrote:
+> Hi!
+>
+> > > If there's no ->error method, at leat call ->remove so one device only
+> > > takes itself down.
+> > >
+> > > Does this make sense?
+> >
+> > This was my thought too last time we had this discussion.  A completely
+> > asynchronous call is probably needed in addition to Hidetoshi's proposed
+> > API, since as you point out, the driver may not be running when an error
+> > occurs (e.g. in the case of a DMA error or more general bus problem). 
+> > The async
+>
+> Hmm, before we go async way (nasty locking, no?) could driver simply
+> ask "did something bad happen while I was sleeping?" at begining of each
+> function?
 
-In addition to what others have mentioned, there's also the situation
-where swap is on a logical volume. In that case, the initramfs needs to
-get LVM up and running before you can even think about resuming.
+This is what Seto is proposing, aiui.  I.e. calls around I/O so you can 
+gracefully handle errors during that I/O.
 
-Swap on a logical volume is the default Fedora Core 3 partition layout,
-and I imagine it's the default for Red Hat Enterprise Linux 4 as well.
+> For DMA problems, driver probably has its own, timer-based,
+> "something is wrong" timer, anyway, no?
 
--Barry K. Nathan <barryn@pobox.com>
+The idea is to allow them to do something like that, or consolidate such 
+threads in a platform specific error handling thread or interrupt handler 
+that can call a driver's ->dma_error(dev) routine (or ->error(dev, ERROR_DMA) 
+or whatever) routine.
 
+Jesse

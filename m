@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbUB0CuY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 21:50:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbUB0CuY
+	id S261458AbUB0CvX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 21:51:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbUB0CvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 21:50:24 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28818 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261548AbUB0CuW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 21:50:22 -0500
-Message-ID: <403EB060.2020906@pobox.com>
-Date: Thu, 26 Feb 2004 21:50:08 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-CC: akpm@osdl.org, linus@osdl.org, anton@samba.org, paulus@samba.org,
-       axboe@suse.de, piggin@cyberone.com.au,
-       viro@parcelfarce.linux.theplanet.co.uk, hch@lst.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] iSeries virtual disk
-References: <20040123163504.36582570.sfr@canb.auug.org.au>	<20040122221136.174550c3.akpm@osdl.org>	<20040226172325.3a139f73.sfr@canb.auug.org.au>	<403DA056.8030007@pobox.com>	<20040227114240.6e26d870.sfr@canb.auug.org.au>	<403EA259.5050105@pobox.com> <20040227134510.520ec3d1.sfr@canb.auug.org.au>
-In-Reply-To: <20040227134510.520ec3d1.sfr@canb.auug.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 26 Feb 2004 21:51:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7558 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261458AbUB0CvS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 21:51:18 -0500
+Date: Thu, 26 Feb 2004 18:51:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ben Collins <bcollins@debian.org>
+Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] SCSI host num allocation improvement
+Message-Id: <20040226185154.5ec509ad.akpm@osdl.org>
+In-Reply-To: <20040227023200.GA617@phunnypharm.org>
+References: <20040226235412.GA819@phunnypharm.org>
+	<20040226171928.750f5f6f.akpm@osdl.org>
+	<20040226173743.2bf473b4.akpm@osdl.org>
+	<20040227023200.GA617@phunnypharm.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cool, OK with me at this point.
+Ben Collins <bcollins@debian.org> wrote:
+>
+> On Thu, Feb 26, 2004 at 05:37:43PM -0800, Andrew Morton wrote:
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > The lib/idr.c code is a bit clumsy but it does do the job relatively
+> > > efficiently.
+> > 
+> > hmm, not too bad actually.  It compiles, but I didn't test it.
+> 
+> Oh, this isn't any good. It does the same thing as the old way. Steadily
+> incrementing numbers.
 
-	Jeff
-
-
-
-
+In that case the idr_remove() was in the wrong place.  It was a wild guess.

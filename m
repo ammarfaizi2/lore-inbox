@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269777AbUJAMse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269781AbUJAMu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269777AbUJAMse (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 08:48:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269775AbUJAMse
+	id S269781AbUJAMu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 08:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269775AbUJAMso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 08:48:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31448 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269785AbUJAMpm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 08:45:42 -0400
-Date: Fri, 1 Oct 2004 13:45:41 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Stephen Tweedie <sct@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Andreas Dilger <adilger@clusterfs.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] [Patch 6/10]: ext3 online resize: remove on-stack bogus inode
-Message-ID: <20041001124541.GB16153@parcelfarce.linux.theplanet.co.uk>
-References: <200409301323.i8UDNjwG004790@sisko.scot.redhat.com>
+	Fri, 1 Oct 2004 08:48:44 -0400
+Received: from ioskeha.hittite.isp.9tel.net ([62.62.156.27]:46217 "EHLO
+	ioskeha.hittite.isp.9tel.net") by vger.kernel.org with ESMTP
+	id S269774AbUJAMsZ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 08:48:25 -0400
+From: "pconnors@anwod-usa.com" <pconnors@anwod-usa.com>
+Reply-To: "pconnors@anwod-usa.com" <pconnors@anwod-usa.com>
+Error-To: "pconnors@anwod-usa.com" <pconnors@anwod-usa.com>
+Subject: EAI Server NO Brasil
+Date: Fri, 01 Oct 2004 14:54:30 +0200
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: MailServer
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <200409301323.i8UDNjwG004790@sisko.scot.redhat.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <20041001130849.0F18D14B6CD@ioskeha.hittite.isp.9tel.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 02:23:45PM +0100, Stephen Tweedie wrote:
-> Remove the "bogus" on-stack inode.  It's only used as a marker for
-> indirectly passing the sb to various functions, so also add
-> ext3_journal_start_sb() which starts a transaction for a given
-> super_block rather than for an inode.
-> 
-> --- linux-2.6.9-rc2-mm4/fs/ext3/resize.c.=K0005=.orig
-> +++ linux-2.6.9-rc2-mm4/fs/ext3/resize.c
-> @@ -159,7 +159,7 @@ static void mark_bitmap_end(int start_bi
->   *
->   * We only pass inode because of the ext3 journal wrappers.
->   */
+Nós lhes propomos de descobrir em primeira mão as soluções de EAI Server.
+Devido as boas informações que obtive-mos a vosso respeito como um forte intermediario de soluções locais nos territorios brasileiros.
+Aproveite as condições  de lançamento de 40% de Anwod nas regiões brasileiras,concedidos aos nossos primeiros parceiros, que serão inscritos  no nosso site
 
-Should probably update the comment too ;-)
+http://www.anwod-usa.com/lbr/pgetpartner.htm
 
-(who was it said inline documentation gets updated when the code does?  ;-P)
+Então, nós procuramos cinco parceiros previlegiados para começar as vendas nos territorios brasileiros.
+Soluções software tecnologia parceiros.
+ANWOD é o lider de EAI tatico na Europa com mais de 1200 motores instalados em cinco paises, fundada em 1997, a sociedade franco-americana continua a se expandir
+mundialmente, e em 2004 sua direçao é a America do Sul.
+Hà anos, nossa politica é baseada em un grupo de parceiros ativos, distribuidos no mundo capazes de fornecer localmente o apoio logistico e técnico aos clientes,
+utilisando as soluções de EAI Server.
 
-> @@ -616,7 +616,7 @@ exit_free:
->   *
->   * We only pass inode because of the ext3 journal wrappers.
->   */
+As cinco razões que fazem de EAI server a solução preferida pelos nossos parceiros,
+revendedores e integradores:
+- Uma margem importante sobre a venda do software de 30 a 50%
+- Em um curto periodo de vendas: de 1 a 6 meses em media
+- Um beneficio a mais sobre o preço na prestação da diaria
+- Um pequeno custo no investimento, graças a uma simples técnologia
+- Uma valorização do vosso conhecimento em relação ao cliente final
 
-Same here.
+EAI Server é uma solução unica para unir e integrar as aplicações das empresas.
+EAI Server coloca a disposição modulos funcionais ETL, XML, Webservices, B2B,  Bases de informação, fichários, scripting, Biztalk, Sharepoint, EDI, Office...
+EAI Server inclui os consoles para seguir os tratamentos, uma referencia e uma gestão du “Load Balancing” dinamicos.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Descubra todas as nossas variedades pela Internet www.anwod-usa.com
+Recarregue a versào de evaluação no nosso site:
+
+Vanderlei Ferreira
+Business development manager
+E-mail: pconnors@anwod-usa.com

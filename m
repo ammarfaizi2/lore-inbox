@@ -1,83 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264340AbRFYWT7>; Mon, 25 Jun 2001 18:19:59 -0400
+	id <S264427AbRFYWWj>; Mon, 25 Jun 2001 18:22:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264376AbRFYWTu>; Mon, 25 Jun 2001 18:19:50 -0400
-Received: from 24.157.217.96.on.wave.home.com ([24.157.217.96]:36369 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S264340AbRFYWT3>;
-	Mon, 25 Jun 2001 18:19:29 -0400
-Date: Mon, 25 Jun 2001 18:20:23 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: EXT2 Filesystem permissions (bug)?
-In-Reply-To: <9h8b8q$s95$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0106251819580.20791-100000@coredump.sh0n.net>
+	id <S264497AbRFYWW3>; Mon, 25 Jun 2001 18:22:29 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:49937 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264427AbRFYWWY>; Mon, 25 Jun 2001 18:22:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andreas Dilger <adilger@turbolinux.com>
+Subject: Re: [Ext2-devel] Re: [UPDATE] Directory index for ext2
+Date: Tue, 26 Jun 2001 00:25:32 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Tony Gale <gale@syntax.dera.gov.uk>, Heusden@mail.bonn-fries.net,
+        Folkert van <f.v.heusden@ftr.nl>, linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net, Alexander Viro <viro@math.psu.edu>
+In-Reply-To: <200106251951.f5PJpOYN025503@webber.adilger.int>
+In-Reply-To: <200106251951.f5PJpOYN025503@webber.adilger.int>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01062600253207.01008@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-oh ;)
-
-I never noticed that info before, then again 2 hours of sleep might be the
-cause :)
-
-On 25 Jun 2001, H. Peter Anvin wrote:
-
-> Followup to:  <Pine.LNX.4.30.0106251729450.18996-100000@coredump.sh0n.net>
-> By author:    Shawn Starr <spstarr@sh0n.net>
-> In newsgroup: linux.dev.kernel
+On Monday 25 June 2001 21:51, Andreas Dilger wrote:
+> Daniel writes:
+> > > > On Wednesday 20 June 2001 16:59, Tony Gale wrote:
+> > > > > The main problem I have with this is that e2fsck doesn't know how
+> > > > > to deal with it - at least I haven't found a version that will.
+> > > > > This makes it rather difficult to use, especially for your root fs.
 > >
-> > Is this a bug or something thats undocumented somewhere?
-> >
-> > d--------T
-> > and
-> > drwSrwSrwT
-> >
-> > are these special bits? I'm not aware of +S and +T
-> >
+> > Sure, if your root partition is expendable, by all means go ahead.  Ted
+> > has already offered to start the required changes to e2fsck, which
+> > reminds me, I have to send the promised docs.  For now, just use normal
+> > fsck and it will (in theory) turn the directory indexes back into normal
+> > file blocks, and have no effect on inodes.
 >
-> It's neither a bug nor undocumented.
->
-> "info ls" would have told you the following:
->
->      The permissions listed are similar to symbolic mode
->      specifications
->      (*note Symbolic Modes::.).  But `ls' combines multiple bits into
->      the third character of each set of permissions as follows:
->     `s'
->           If the setuid or setgid bit and the corresponding executable
->           bit are both set.
->
->     `S'
->           If the setuid or setgid bit is set but the corresponding
->           executable bit is not set.
->
->     `t'
->           If the sticky bit and the other-executable bit are both set.
->
->     `T'
->           If the sticky bit is set but the other-executable bit is not
->           set.
->
->     `x'
->           If the executable bit is set and none of the above apply.
->
->     `-'
->           Otherwise.
->
-> 	-hpa
-> --
-> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-> "Unix gives you enough rope to shoot yourself in the foot."
-> http://www.zytor.com/~hpa/puzzle.txt
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+> This is only true without the COMPAT_DIR_INDEX flag.  Since e2fsck _needs_
+> to know about every filesystem feature, it will (correctly) refuse to touch
+> such a system for now.  You could "tune2fs -O ^FEATURE_C4 /dev/hdX" to
+> turn of the COMPAT_DIR_INDEX flag and let e2fsck go to town.  That will
+> break all of the directory indexes, I believe.
 
+This is what he wants, a workaround so he can fsck.  However, the above 
+command (on version 1.2-WIP) just gives me:
+
+   Invalid filesystem option set: ^FEATURE_C4
+
+Maybe he should just edit the source so it doesn't set the superblock flag 
+for now.
+
+BTW, there doesn't seem to be a --version command in tune2fs.
+
+--
+Daniel

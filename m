@@ -1,74 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129228AbQKYK4w>; Sat, 25 Nov 2000 05:56:52 -0500
+        id <S129295AbQKYK6b>; Sat, 25 Nov 2000 05:58:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129295AbQKYK4c>; Sat, 25 Nov 2000 05:56:32 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:61700 "EHLO saturn.cs.uml.edu")
-        by vger.kernel.org with ESMTP id <S129228AbQKYK4Y>;
-        Sat, 25 Nov 2000 05:56:24 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200011251026.eAPAQKG210983@saturn.cs.uml.edu>
-Subject: Re: silly [< >] and other excess
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Sat, 25 Nov 2000 05:26:20 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), Andries.Brouwer@cwi.nl,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200011250917.eAP9HGK18904@flint.arm.linux.org.uk> from "Russell King" at Nov 25, 2000 09:17:16 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+        id <S130464AbQKYK6V>; Sat, 25 Nov 2000 05:58:21 -0500
+Received: from nread2.inwind.it ([212.141.53.75]:28290 "EHLO relay4.inwind.it")
+        by vger.kernel.org with ESMTP id <S129295AbQKYK6P>;
+        Sat, 25 Nov 2000 05:58:15 -0500
+Date: Sat, 25 Nov 2000 11:28:03 +0100
+To: linux-kernel@vger.kernel.org
+Subject: PCI problem with an Olivetti M4
+Message-ID: <20001125112803.A365@dracula.home.intranet>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: root <g.anzolin@inwind.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
-> Albert D. Cahalan writes:
+Hello
+	I have an old PC, it's an Olivetti M4 (P166) and I tried to
+install linux on it. But I got a problem: just after LILO has loaded the
+kernel (after 'Loading......') the screen becomes black and I can't see
+anything. In other words the video card doesn't seem to work.
 
->> Symbols:
->> c000000a __start
->> c0105344 qfs_frob_directory
->> c01a4600 qfs_cleaner
->> c01a4b98 qfs_hash_file_record
-...
->> Well, that first symbol (__start) was really "jump +10", but the
->> extra noise doesn't hurt anyone. You get what you need, no matter
->> how mangled the oops is. It can be word-wrapped, missing chunks...
->> The tool doesn't need to care.
->
-> However, now rather than just reading the dump as you can with
-> ksymoops or whatever, you have to look at the raw data and try
-> to match it up with a symbol in the list.
+	I also tested tha same system with FreeBSD 4.1.1.1 and it works
+without problems.
 
-Yes. Don't you look at the raw data anyway?
 
-Um, maybe you just don't work the way I do. In response to one
-of your other messages, most of the time I have two PowerPC books
-open on my desk. I hadn't thought that was so odd.
+	I can boot the linux kernel and I can access the system with
+ssh. I found something interesting.
 
-If you are going to rely on a tool, you might as well add some
-error correction bits to the oops, base-32 encode it, and chop
-it up into 5-character words for ease of paper-and-pencil copy.
+The video card is a PCI Trident 9660 integrated on the mainboard but
+lspci doesn't show it:
 
-> So, with that ARM dump I gave you, we'd potentially end up with
-> about 100 lines of symbols, where about 90 of them are useless.
+fourier:~# lspci 
+00:00.0 Host bridge: Intel Corporation 430FX - 82437FX TSC [Triton I]
+(rev 02)
+00:07.0 ISA bridge: Intel Corporation 82371FB PIIX ISA [Triton I] (rev
+02)
+00:07.1 IDE interface: Intel Corporation 82371FB PIIX IDE [Triton I]
+(rev 02)
 
-In theory yes, but in practice no. Your kernel isn't a significant
-portion of your address space, so the chance of random data being
-looked up successfully is very low. Maybe a 1% chance on 32-bit
-hardware, and far less on 64-bit hardware.
+it doesn't find the PCI card. FreeBSD detects it with the pci id 00:09.0
 
->  That would be a backwards step in the development of Linux IMHO.
-> 
-> PS, you're not going to convince me unless you can come up with something
-> that produces ksymoops-like output, so there's no point continuing.
+I tried to boot either a 2.2.18pre17 kernel or a 2.4.0-test11 kernel.
+No kernel worked. I tried also to change the PCI access: pci access
+Direct, Any or BIOS... nothing changed...
 
-Damn.
+I tried also to compile the vesa framebuffer (as the card should be
+vesda compliant) but it didn't work.
 
-Somebody else posted a reasonable hack for the [<>] problem.
-His proposal involved letting multiple values share the same
-markers, something like this:
+On #kernelnewbies somebody told me to enable the DEBUG definition in the
+pci subsystem and this is what I get in the dmesg (kernel 2.4.0-test11):
 
-[<c19a5cb4 c180234c c1801134 c1706550 c1800248 c1603310 c1934878 c1840324>]
+PCI: BIOS32 Service Directory structure at 0xc00fdb50
+PCI: BIOS32 Service Directory entry at 0xfdb60
+PCI: BIOS probe returned s=00 hw=01 ver=02.10 l=00
+PCI: PCI BIOS revision 2.10 entry at 0xfdb81, last bus=0
+PCI: Probing PCI hardware
+PCI: IDE base address fixup for 00:07.1
+PCI: Scanning for ghost devices on bus 0
+PCI: IRQ init
+PCI: IRQ fixup
+PCI: Allocating resources
+PCI: Resource 0000ffa0-0000ffaf (f=101, d=0, p=0)
+PCI: Sorting device list...
+Limiting direct PCI/PCI transfers.                                                                            
+
+On http://www.gest.unipd.it/~iig0573/lspci.txt you'll find the output of
+lspci -xvv
+
+Thanks,
+
+	Gianluca
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130689AbRAIK0v>; Tue, 9 Jan 2001 05:26:51 -0500
+	id <S129431AbRAIK1L>; Tue, 9 Jan 2001 05:27:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131313AbRAIK0l>; Tue, 9 Jan 2001 05:26:41 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45066 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130689AbRAIK03>; Tue, 9 Jan 2001 05:26:29 -0500
-Subject: Re: Failure building 2.4 while running 2.4.  Success in building 2.4 while running 2.2.
-To: silviu@delrom.ro (Silviu Marin-Caea)
-Date: Tue, 9 Jan 2001 10:28:25 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, rlug@lug.ro
-In-Reply-To: <20010109111247.397581ea.silviu@delrom.ro> from "Silviu Marin-Caea" at Jan 09, 2001 11:12:47 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131184AbRAIK1D>; Tue, 9 Jan 2001 05:27:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4360 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131313AbRAIK0w>;
+	Tue, 9 Jan 2001 05:26:52 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101091002.f09A2El13844@flint.arm.linux.org.uk>
+Subject: Re: [PATCH] advansys.c: include missing restore_flags, etc
+To: acme@conectiva.com.br (Arnaldo Carvalho de Melo)
+Date: Tue, 9 Jan 2001 10:02:14 +0000 (GMT)
+Cc: linux@advansys.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010109001443.A20786@conectiva.com.br> from "Arnaldo Carvalho de Melo" at Jan 09, 2001 12:14:43 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14Fw0x-0006N5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have RedHat7, glibc-2.2-9, gcc-2.96-69.
+Arnaldo Carvalho de Melo writes:
+> 	Please consider applying, comments in the patch.
 
-Ditto
+Can't the following be fixed properly?
 
-> If I try to rebuild 2.4.0 while running the new kernel, I get random
-> compiler errors.
+> -STATIC int
+> +STATIC unsigned long
+>  DvcEnterCritical(void)
+>  {
+> -    int    flags;
+> +    unsigned long flags;
+>  
+>      save_flags(flags);
+>      cli();
 
-Now I don't. What hardware are you using ?
+Guess what happens here?
 
-> It happens on two machines.  One of them runs 2.4.0-test12, the other
-> 2.4.0.  Both of them with the updates above mentioned.
+    return flags;
 
-What hardware what errors ?
+> @@ -9965,7 +9972,7 @@
+>  }
+>  
+>  STATIC void
+> -DvcLeaveCritical(int flags)
+> +DvcLeaveCritical(unsigned long flags)
+>  {
+>      restore_flags(flags);
+>  }
 
-> I know this is a RedHat issue, but it may be useful to know for some.
+The above doesn't work on some architectures.  Its better to use a macro
+if you want to separate this out.  ie, something like (davem will have to
+okay it tho):
 
-It may well be compiler optimisation where the new gcc is optimising out 
-something someone forgot in a driver or miscompiling a specific driver. 
-One good way to test if its compiler or kernel triggered would be to rebuild
-2.4.0 with egcs (aka kgcc).
+#define DvcEnterCritical()				\
+ ({ unsigned long __flags; save_flags(__flags); cli(); __flags; })
 
-I'd like to know what drivers you are running so I can try and duplicate it
+#define DvcLeaveCritical(flags)				\
+ do { restore_flags(flags); } while (0)
 
+This should then ensure that you don't end up with problems associated
+with register windows on the sparc or whatever.  Even better would be
+to use a spinlock instead of Dvc?????Critical.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

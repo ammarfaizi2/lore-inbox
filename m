@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130356AbRCBIp6>; Fri, 2 Mar 2001 03:45:58 -0500
+	id <S130357AbRCBIuj>; Fri, 2 Mar 2001 03:50:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130368AbRCBIpt>; Fri, 2 Mar 2001 03:45:49 -0500
-Received: from mgw-x4.nokia.com ([131.228.20.27]:22013 "EHLO mgw-x4.nokia.com")
-	by vger.kernel.org with ESMTP id <S130356AbRCBIpc>;
-	Fri, 2 Mar 2001 03:45:32 -0500
-Date: Fri, 2 Mar 2001 10:44:58 +0200 (EET)
-From: Matilainen Panu <panu.matilainen@nokia.com>
-To: ext Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x very unstable on 8-way IBM 8500R
-In-Reply-To: <E14YeT4-0000ej-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0103021042360.984-100000@hed042-209.research.nokia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S130368AbRCBIu2>; Fri, 2 Mar 2001 03:50:28 -0500
+Received: from WARSL401PIP1.highway.telekom.at ([195.3.96.69]:3105 "HELO
+	email01.aon.at") by vger.kernel.org with SMTP id <S130357AbRCBIuP>;
+	Fri, 2 Mar 2001 03:50:15 -0500
+Date: Fri, 2 Mar 2001 09:48:54 +0100
+From: Eduard Hasenleithner <eduardh@aon.at>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to set hdparms for ide-scsi devices on devfs?
+Message-ID: <20010302094854.A19782@moserv.hasi>
+Mail-Followup-To: Eduard Hasenleithner <eduardh@aon.at>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010228224850.A10608@moserv.hasi> <Pine.LNX.4.10.10103010310070.6914-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10103010310070.6914-100000@master.linux-ide.org>; from andre@linux-ide.org on Thu, Mar 01, 2001 at 03:10:53AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Mar 2001, ext Alan Cox wrote:
+On Thu, Mar 01, 2001 at 03:10:53AM -0800, Andre Hedrick wrote:
+> 
+> procfs
+> 
+> echo unmaskirq:1 /proc/ide/hdx/settings
+> 
 
-> > > (from Red Hat 7) but very erratic on all 2.4-kernels I've tried it with
-> > > (2.4.[012], compiled both with egcs and RH7's gcc-2.96, both share the
->                                    ^^^^
->
-> > Under redhat 7 you should use kgcc to compile the kernel, since gcc2.96 is
->
-> So he was using egcs, and whether he had the pre-errata gcc 2.96
-> wouldnt matter
+Thank you, thats perfect. Is setting the parameters a relatively
+new feature? I searched for a possibiliy like this and found no
+references.
 
-Since this (once again) came up... I've been running 2.4.[012] on my home
-box compiled with 2.96-errata without a single problem so far.
-
-And yes I know it's not supported, consider this just a datapoint :)
-
-	- Panu -
-
->
-
+PS: Is there still a possibility for setting the IDE-sleep timeout
+	for a ide-scsi harddisk?  (I know, this doesnt make sense)
+-- 
+Eduard Hasenleithner
+student of
+Salzburg University of Applied Sciences and Technologies

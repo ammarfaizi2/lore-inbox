@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280047AbRJaDkJ>; Tue, 30 Oct 2001 22:40:09 -0500
+	id <S280061AbRJaD6M>; Tue, 30 Oct 2001 22:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280048AbRJaDkA>; Tue, 30 Oct 2001 22:40:00 -0500
-Received: from femail18.sdc1.sfba.home.com ([24.0.95.145]:52405 "EHLO
-	femail18.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S280047AbRJaDjl>; Tue, 30 Oct 2001 22:39:41 -0500
-Date: Tue, 30 Oct 2001 22:40:11 -0500
-From: Tom Vier <tmv5@home.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.13-ac2 weird vm stats
-Message-ID: <20011030224011.A32651@zero>
-Mime-Version: 1.0
+	id <S280050AbRJaD5w>; Tue, 30 Oct 2001 22:57:52 -0500
+Received: from [209.1.214.217] ([209.1.214.217]:2308 "EHLO
+	iso2.vistocorporation.com") by vger.kernel.org with ESMTP
+	id <S280049AbRJaD5n> convert rfc822-to-8bit; Tue, 30 Oct 2001 22:57:43 -0500
+Message-ID: <3BDBB21F0003A917@iso2.vistocorporation.com> (added by
+	    administrator@vistocorporation.com)
+Reply-To: linuxlist@visto.com
+From: "rohit prasad" <linuxlist@visto.com>
+Subject: Re: Linux Bared - Project
+Date: Tue, 30 Oct 2001 19:53:15 -0800
+X-Mailer: Visto
+To: alan@lxorguk.ukuu.org.uk
+cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+X-Mailer: Visto Server
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-noticed this while in x. shortly afterwards (less than a minute), the stats
-returned to normal, except it was reporting little to no, or possible still
-negative cache (couldn't tell at the time, was reading from xosview). the
-vmstat output below may have been generated just after it returned to
-normal.
+Hi,
 
- 10:20pm  up 4 days, 35 min,  1 user,  load average: 2.47, 2.18, 2.06
-51 processes: 49 sleeping, 2 running, 0 zombie, 0 stopped
-CPU states:  0.6% user,  0.2% system, 99.0% nice,  0.0% idle
-Mem:  510296K av, 506208K used,   4088K free,      0K shrd, 139728K buff
-Swap:  98272K av,      0K used,  98272K free                 -9552K cached
+ That may be quite right but. 
+This is a project itself that I am required to work on and get Linux up an working with the barest minimum / the only required modules.
+Any information about the way I could do that will be great
 
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 1  0  1      0 127368 131792   3248   0   0     1     6   11     8   3   0   0
+-----Original Message-----
+From:    Alan Cox alan@lxorguk.ukuu.org.uk
+Sent:    Tue, 30 Oct 2001 16:46:44 +0000 (GMT)
+To:      linuxlist@visto.com
+
+>  Eg: Could I have only the 
+> 1)Scheduler
+> 2)Boot -loader(via TFTP / Flash)
+> 3)Thread support
+> 4)Debugger 
+
+You might want to look at something like eCos if thats all you actually
+need.
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 
-Linux zero 2.4.13-ac2 #1 Fri Oct 26 22:24:29 EDT 2001 alpha unknown
 
--- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+___________________________________________________________________________
+Visit http://www.visto.com.
+Find out  how companies are linking mobile users to the 
+enterprise with Visto.
+

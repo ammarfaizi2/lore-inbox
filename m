@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130897AbRAIVlG>; Tue, 9 Jan 2001 16:41:06 -0500
+	id <S132133AbRAIVm0>; Tue, 9 Jan 2001 16:42:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131157AbRAIVk4>; Tue, 9 Jan 2001 16:40:56 -0500
-Received: from maild.telia.com ([194.22.190.3]:48647 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S130897AbRAIVko>;
-	Tue, 9 Jan 2001 16:40:44 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roger Larsson <roger.larsson@norran.net>
-To: Anton Blanchard <anton@linuxcare.com.au>,
-        Tobias Ringstrom <tori@tellus.mine.nu>
-Subject: Re: Benchmarking 2.2 and 2.4 using hdparm and dbench 1.1
-Date: Tue, 9 Jan 2001 22:36:21 +0100
-X-Mailer: KMail [version 1.2]
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010105004644.K13759@linuxcare.com> <Pine.LNX.4.21.0101041940490.5827-100000@svea.tellus> <20010109220810.K662@linuxcare.com>
-In-Reply-To: <20010109220810.K662@linuxcare.com>
+	id <S132090AbRAIVmQ>; Tue, 9 Jan 2001 16:42:16 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:45492 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S132203AbRAIVmC>;
+	Tue, 9 Jan 2001 16:42:02 -0500
+Date: Tue, 9 Jan 2001 16:42:00 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: Andrea Arcangeli <andrea@suse.de>, "Mohammad A. Haque" <mhaque@haque.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+In-Reply-To: <200101092059.f09Kx9J285829@saturn.cs.uml.edu>
+Message-ID: <Pine.GSO.4.21.0101091623370.9953-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Message-Id: <01010922362101.01377@dox>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 January 2001 12:08, Anton Blanchard wrote:
-> > Where is the size defined, and is it easy to modify?
->
-> Look in fs/buffer.c:buffer_init()
->
-> > I noticed that /proc/sys/vm/freepages is not writable any more.  Is there
-> > any reason for this?
->
-> I am not sure why.
->
 
-It can probably be made writeable, within limits (caused by zones...)
 
-But the interesting part is that 2.4 tries to estimate how much memory it 
-will need shortly (inactive_target) and try to keep that amount inactive 
-clean (inactive_clean) - clean inactive memory can be freed and reused very
-quickly.
+On Tue, 9 Jan 2001, Albert D. Cahalan wrote:
 
-cat /proc/meminfo
+> As long as nobody tried to remove ".", nothing is serialized.
+> You can do your lookups in parallel since they can all grab
+> the read lock at once.
 
-My feeling is that, for now, keeping it untuneable can help us in finding 
-fixable cases...
+Bzzzert. At which point do you take that lock for rmdir("foo/bar/barf/.")?
 
-/RogerL
+> Linux can tell where you got the "f" from in the first place.
+> Deleted files could cause an error, or turn frename() into flink()
+> and return success for funlink().
 
---
-Home page:
-  http://www.norran.net/nra02596/
+For crying out loud, rename() already got a Bastard Semantics From Hell,
+choke-full of special cases. Write the complete description of f* behaviour
+and let's see what you'll get. Then post it here, OK?
+
+> > 2.2 tried (without success) to make rmdir() and some cases of rename() act
+> > on files. Notice that if you have /foo as pwd, "." and "/foo" will evaluate
+> > to the same file, but to different links. That's what it's really about.
+> 
+> The whole "." and ".." mess is 100% special case to begin with,
+> so this argument doesn't make sense. The mess already gives
+> us a link that gets replaced when some other link is renamed,
+> and two links that get unlinked when something else is unlinked.
+
+Side effects. You've got to preserve fs consistency. Operation requested by
+caller requires to change the links in (re)moved directory. Which is done.
+
+Again, the main argument is Occam's Razor. I agree that in theory f*()
+give things that are not provided by current syscalls. No arguments here.
+However, unless you can show the real need to have them in the API they
+have no business being there. As an aside, for some filesystems they are
+simply impossible - try to implement frmdir() on NFS, for one thing.
+
+The only possible benefit is in atomicity of these guys. _If_ filesystems
+can provide it (local ones can do that) _and_ there is a real-world
+stuff that needs such atomicity warranties - fine, you've got a case for
+inclusion of that stuff. Otherwise presumption of uselessness[1] applies.
+
+[1] Useless until proven useful, aka. Thou Shalt Not Bloat Thy API.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318638AbSHAGIw>; Thu, 1 Aug 2002 02:08:52 -0400
+	id <S318643AbSHAHVL>; Thu, 1 Aug 2002 03:21:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318641AbSHAGIw>; Thu, 1 Aug 2002 02:08:52 -0400
-Received: from adsl-66-141-54-235.dsl.austtx.swbell.net ([66.141.54.235]:43919
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S318638AbSHAGIv>; Thu, 1 Aug 2002 02:08:51 -0400
-Subject: Re: [2.6] The List, pass #2
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <aiafop$fci$1@penguin.transmeta.com>
-References: <3D3761A9.23960.8EB1A2@localhost>
-	 <200208010156.g711uMc340112@saturn.cs.uml.edu>
-	 <aiafop$fci$1@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1028182217.16817.15.camel@UberGeek.digitalroadkill.net>
+	id <S318650AbSHAHVL>; Thu, 1 Aug 2002 03:21:11 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:45322 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id <S318643AbSHAHVK>;
+	Thu, 1 Aug 2002 03:21:10 -0400
+Date: Wed, 31 Jul 2002 23:58:06 +0200
+From: Nico Schottelius <nico-mutt@schottelius.org>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bugs in 2.5.28 [scsi/framebuffer/devfs/floppy/ntfs/trident]
+Message-ID: <20020731215806.GE3464@schottelius.org>
+References: <20020731175743.GB1249@schottelius.org> <Pine.LNX.4.44.0207311020420.13905-100000@www.transvirtual.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 01 Aug 2002 01:10:17 -0500
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wchHw8dVAp53YPj8"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207311020420.13905-100000@www.transvirtual.com>
+User-Agent: Mutt/1.4i
+X-MSMail-Priority: Is not really needed
+X-Mailer: Yam on Linux ?
+X-Operating-System: Linux flapp 2.5.29
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-01 at 00:08, Linus Torvalds wrote:
-> In article <200208010156.g711uMc340112@saturn.cs.uml.edu>,
-> Albert D. Cahalan <acahalan@cs.uml.edu> wrote:
-> >Guillaume Boissier writes:
+
+--wchHw8dVAp53YPj8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+James Simmons [Wed, Jul 31, 2002 at 10:22:05AM -0700]:
+> > Just wanted to report of the following problems:
 > >
-> >> Definitely 2.7:
-> >>
-> >> o InfiniBand support
-> >
-> >Why?
-> 
-> It's big, it's complex, and nobody seems to take it that seriously (the
-> only people who ever asked _me_ about it was Intel, and they seem to
-> have cancelled their own projects). 
+> > Compile Problems when selecting the following:
+> > - Selected PCMCIA-SCSI
+>=20
+> Been broken. A new driver is being worked on.
 
-True, and to second that with some facts, companies who were making this
-their mainstay, are in much pain, on top of their economic status,
-because of Intel seemingly cancelling their projects.
+good to know. I don't use it anyways, just wanted to report.
 
-Several companies in Austin, TX were chomping at the bit for people to
-come work on Infiniband technology, but there has been nothing new
-relating to this climate for a very long time...and probably won't be
-unless Intel, HP, IBM, someone with deep pockets and a marketing machine
-can show it's viable for consumer use. 
+> > - Selected Framebuffer -> Aty128fb
 
--- 
-Austin Gonyou <austin@digitalroadkill.net>
+btw, this fb driver seems to be really experimental or beta, as it does
+nothing when loading on a mobility chip.
+
+> > Other bugs:
+> > - devfs init is still missing -> /dev/vc/0 is the only console.
+>=20
+> Ug. That is partially fixed. I did get the other vc/X but only root can
+> access them. I have to talk to linus about the best solution here.
+
+What about the patch with con_init_devfs(); ? Isn't that simple and stupid
+enough to use ? [this is the only way I can work with those kernels right
+now..]
+
+Nico
+
+--=20
+Changing mail address: please forget all known @pcsystems.de addresses.
+
+Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
+ils
+to mailing list!). If you don't know what pgp is visit www.gnupg.org.
+(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+
+--wchHw8dVAp53YPj8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9SF1utnlUggLJsX0RAlYiAJ9Ycg5SakejZhwx50A02sun/JxKnACfQeXS
+RLTkaVG0S6UozN3tbVpiLM0=
+=LXM3
+-----END PGP SIGNATURE-----
+
+--wchHw8dVAp53YPj8--

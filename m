@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315735AbSECW2U>; Fri, 3 May 2002 18:28:20 -0400
+	id <S315736AbSECWlI>; Fri, 3 May 2002 18:41:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315736AbSECW2U>; Fri, 3 May 2002 18:28:20 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:60386 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315735AbSECW2T>; Fri, 3 May 2002 18:28:19 -0400
-To: Guest section DW <dwguest@win.tue.nl>
-cc: Jeff Dike <jdike@karaya.com>, linux-kernel@vger.kernel.org,
-        user-mode-linux-devel@lists.sourceforge.net,
-        user-mode-linux-user@lists.sourceforge.net
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: UML is now self-hosting! 
-In-Reply-To: Your message of Fri, 03 May 2002 23:51:02 +0200.
-             <20020503215102.GA24653@win.tue.nl> 
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <6695.1020464883.1@us.ibm.com>
-Date: Fri, 03 May 2002 15:28:03 -0700
-Message-Id: <E173lX2-0001k3-00@w-gerrit2>
+	id <S315738AbSECWlI>; Fri, 3 May 2002 18:41:08 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:20701 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S315736AbSECWlH>;
+	Fri, 3 May 2002 18:41:07 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 4 May 2002 00:40:56 +0200 (MEST)
+Message-Id: <UTC200205032240.g43Meuf15031.aeb@smtp.cwi.nl>
+To: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
+Subject: IDE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020503215102.GA24653@win.tue.nl>, > : Guest section DW writes:
-> Congratulations!
-> 
-> [Reminds me of the good old times 30 years ago -
-> had a tower of three virtual machines on top of a
-> real PDP 8/I. Now that you can run UML under UML,
-> can you run UML under UML under UML?]
+< Recap >
 
-Fun stuff!  With PTX we were doing something very similar near
-the end of our days with PTX:
+== I have had problems with 2.5.10 (first few blocks of the root
+== filesystem overwritten) and then went back to 2.5.8 that I had
+== used for a while already, but then also noticed corruption there.
+== Back at 2.4.17 today..
 
-PTX could run Linux Binaries
-PTX could run a System 390 emulator (Flex/ES ?)
-PTX could *almost* run VMWare (might be able to run Win4Lin or Boochs...)
-PTX could sever as a Citrix (Windows NT) server
+< Optimistic reply >
 
-Picture Windows running in VMWare, talking to an OS/390 emulator
-on the same hardware.  You might have been able to run Linux on
-390, as well as VM/SP or whatever...
+= It could very well be that the recent changes could have cured this.
 
-Add on all the other Linux emulators and you had quite a few applications
-you could run on a single platform, all able to talk to each other.  ;-)
+< Reality of today >
 
-Customers wanted to run legacy OS/390 apps that they had lost the
-binaries for, with a fast, modern database (Oracle or DB2) running
-at native speed, with either Linux or Windows applications.  Add
-UML and you can do development and client support like System 390
-can do with Linux and you have an interesting (if a bit perverted ;-)
-world.
+Booted a vanilla 2.5.12. It did not succeed in mounting the root
+filesystem, but instead wrote zeros over the superblock.
 
-Sick and twisted...
+	hdb: task_out_intr: error=0x04 { DriveStatusError }
 
-gerrit
+Will try 2.5.13 later.
+
+Andries
+
+
+[So, 2.5.8 causes very slow corruption, and can be used for
+several hours, sometimes days, before something bad happens.
+And bad things only happen to disks on HPT366.
+On the other hand, 2.5.10 and 2.5.12 fail directly at boot
+in precisely the same way and with a disk on the mb.]
+
+% grep _IDE .config | grep -v '#'
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_STROKE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_IDEDMA=y

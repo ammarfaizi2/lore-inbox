@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318240AbSHDVVx>; Sun, 4 Aug 2002 17:21:53 -0400
+	id <S318234AbSHDVVL>; Sun, 4 Aug 2002 17:21:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318237AbSHDVVv>; Sun, 4 Aug 2002 17:21:51 -0400
-Received: from dialin-145-254-149-035.arcor-ip.net ([145.254.149.35]:19182
-	"HELO schottelius.org") by vger.kernel.org with SMTP
-	id <S318238AbSHDVVo>; Sun, 4 Aug 2002 17:21:44 -0400
-Date: Sun, 4 Aug 2002 07:43:17 +0200
-From: Nico Schottelius <nico-mutt@schottelius.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.29 / 2.5.31 floppy/apm support
-Message-ID: <20020804054317.GB11639@schottelius.org>
-References: <200208032054.WAA25022@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KFztAG8eRSV9hGtP"
-Content-Disposition: inline
-In-Reply-To: <200208032054.WAA25022@harpo.it.uu.se>
-User-Agent: Mutt/1.4i
-X-MSMail-Priority: Is not really needed
-X-Mailer: Yam on Linux ?
-X-Operating-System: Linux flapp 2.4.18
+	id <S318237AbSHDVVL>; Sun, 4 Aug 2002 17:21:11 -0400
+Received: from web14006.mail.yahoo.com ([216.136.175.122]:61452 "HELO
+	web14006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S318234AbSHDVVK>; Sun, 4 Aug 2002 17:21:10 -0400
+Message-ID: <20020804212444.62360.qmail@web14006.mail.yahoo.com>
+Date: Sun, 4 Aug 2002 14:24:44 -0700 (PDT)
+From: Tony Spinillo <tspinillo@yahoo.com>
+Subject: Re: Linux 2.4.19-ac2
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just tried 2.4.19-ac2.
 
---KFztAG8eRSV9hGtP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On booting, when it hits the IDE stuff, I got:
 
-Mikael Pettersson [Sat, Aug 03, 2002 at 10:54:53PM +0200]:
-> For 100% working floppy you'd need to downgrade to 2.5.12 or earlier.
+hdc : Lost Interrupt
+hdc : Lost Interrupt
+hdc : Lost Interrupt
+hdc : ATAPI 48X DVD-ROM ....
 
-tried 2.5.10...which fails, too.
+Then it gets a bit further:
 
-Nico
+scsi : Aborting command due to timeout : pid 30, scsi2, id 0 lun
+0
+inquiry 00 00 00 ff 00
+(This looks to be my cd burner on hda - ide-scsi)
 
---=20
-Changing mail address: please forget all known @pcsystems.de addresses.
+Then it loops on this continuously. I had to write out the above
+by hand,
+because it never gets to the point where it mounts my scsi drive
+rw.
 
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+2.4.19-ac1 seems to work fine. (As well as all the ac series
+from the past
+4 weeks)
 
---KFztAG8eRSV9hGtP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+To avoid wrapping I stuck my lspci output and .config at the
+following urls:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+My .config file is here:
+http://ac.marywood.edu/tspin/www/dotconfig.txt
 
-iD8DBQE9TL71tnlUggLJsX0RAsOfAJ9uRYntEq2eONUPR5QQtxE+f4JrDQCdG9eq
-+L8V9CG4y4fUU3Qcb8/TgrM=
-=qBPt
------END PGP SIGNATURE-----
+My lspci -vvv is here:
+http://ac.marywood.edu/tspin/www/lspci.txt
 
---KFztAG8eRSV9hGtP--
+I am running a stock RedHat 7.3 system. 
+gcc version 2.96 20000731
+modutils 2.4.19
+make 3.79.1
+binutils  2.11.93.0.2
+util-linux 2.11n
+
+If I have done something stupid, let me know.
+
+Thanks!
+
+Tony
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Health - Feel better, live better
+http://health.yahoo.com

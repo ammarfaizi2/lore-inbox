@@ -1,74 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263157AbVCDXw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263275AbVCDXw1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263157AbVCDXw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbVCDXuc
+	id S263275AbVCDXw1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:52:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263332AbVCDXuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:50:32 -0500
-Received: from gate.crashing.org ([63.228.1.57]:18669 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263339AbVCDWlG (ORCPT
+	Fri, 4 Mar 2005 18:50:20 -0500
+Received: from fire.osdl.org ([65.172.181.4]:18859 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263337AbVCDWjx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 17:41:06 -0500
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, Linas Vepstas <linas@austin.ibm.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-In-Reply-To: <20050304135429.GC3485@openzaurus.ucw.cz>
-References: <422428EC.3090905@jp.fujitsu.com>
-	 <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org>
-	 <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk>
-	 <200503010910.29460.jbarnes@engr.sgi.com>
-	 <20050304135429.GC3485@openzaurus.ucw.cz>
-Content-Type: text/plain
-Date: Sat, 05 Mar 2005 09:37:25 +1100
-Message-Id: <1109975846.5680.305.camel@gaston>
+	Fri, 4 Mar 2005 17:39:53 -0500
+Date: Fri, 4 Mar 2005 14:39:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alexander Nyberg <alexn@dsv.su.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm1
+Message-Id: <20050304143947.4e1e1bc2.akpm@osdl.org>
+In-Reply-To: <1109974593.9696.11.camel@boxen>
+References: <20050304033215.1ffa8fec.akpm@osdl.org>
+	<1109974593.9696.11.camel@boxen>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 14:54 +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > If there's no ->error method, at leat call ->remove so one device only
-> > > takes itself down.
-> > >
-> > > Does this make sense?
+Alexander Nyberg <alexn@dsv.su.se> wrote:
+>
+> fre 2005-03-04 klockan 03:32 -0800 skrev Andrew Morton:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/
 > > 
-> > This was my thought too last time we had this discussion.  A completely 
-> > asynchronous call is probably needed in addition to Hidetoshi's proposed API, 
-> > since as you point out, the driver may not be running when an error occurs 
-> > (e.g. in the case of a DMA error or more general bus problem).  The async
+> > 
+> > - Added the new bk-audit tree.  Contains updates to the kernel's audit
+> >   feature.  Maintained by David Woodhouse.
+> > 
+> > - The Dell keyboard problems should be fixed.  Testing needed.
+> > 
+> > - Dmitry's bk-dtor-input tree is no longer active and has been dropped.
 > 
-> Hmm, before we go async way (nasty locking, no?) could driver simply
-> ask "did something bad happen while I was sleeping?" at begining of each
-> function?
-> 
-> For DMA problems, driver probably has its own, timer-based,
-> "something is wrong" timer, anyway, no?
+> Just booted up a box and tried to log onto ssh which didn't worked so I
+> looked at kernel log and behold, 128MB box with no swap, had just
+> booted. Couldn't get any access after this.
+> A few kernel debugging options were chosen notably CONFIG_DEBUG_SLAB &
+> CONFIG_DEBUG_PAGEALLOC
 
-No, there is no nasty locking, when the callback happens, pretty much
-all IOs have stopped anyway due to errors, and we aren't on a critical
-code path.
+So you're saying that the box has run out of memory?
 
-Polling for error might be possible, but async notification is the way
-to go because whatever does error management need to be able to
-separately: 
-
- - notify all drivers on the affected bus segment
- - one the above is done, and based on system/driver capabilities (API
-to be defined) eventually re-enable IO access and do a new round of
-notifications
- - based on system/driver capabilities, eventually reset the slot and
-notify drivers to re-initialize themselves.
-
-Ben.
-
+Please send me the .config then disable CONFIG_DEBUG_PAGEALLOC and retest,
+thanks.
 

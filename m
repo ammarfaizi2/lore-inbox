@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEH4d>; Fri, 5 Jan 2001 02:56:33 -0500
+	id <S129387AbRAEIAx>; Fri, 5 Jan 2001 03:00:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129387AbRAEH4Y>; Fri, 5 Jan 2001 02:56:24 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:20746 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129183AbRAEH4M>; Fri, 5 Jan 2001 02:56:12 -0500
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE573@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Michael D. Crawford'" <crawford@goingware.com>,
-        linux-kernel@vger.kernel.org
-Subject: RE: How to Power off with ACPI/APM?
-Date: Thu, 4 Jan 2001 23:56:07 -0800 
+	id <S129777AbRAEIAo>; Fri, 5 Jan 2001 03:00:44 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:65526 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S129387AbRAEIAd>;
+	Fri, 5 Jan 2001 03:00:33 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200101050800.f0580He12396@webber.adilger.net>
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+In-Reply-To: <3A5515D0.7F21E668@innominate.de> "from Daniel Phillips at Jan 5,
+ 2001 01:31:12 am"
+To: Daniel Phillips <phillips@innominate.de>
+Date: Fri, 5 Jan 2001 01:00:17 -0700 (MST)
+CC: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Michael D. Crawford [mailto:crawford@goingware.com]
-> > How is each of your setups, ie, what is compiled in kernel 
-> and what is 
-> > a module ? My guess is: 
-> > - ACPI+APM in kernel: ACPI wins 
-> > - APM in kernel, ACPI module; APM starts, blocks ACPI 
-> > - and so on.... 
+Daniel writes:
+> Yes, and so long as your journal is not on another partition/disk things
+> will eventually be set right.  The combination of a partially updated
+> filesystem and its journal is in some sense a complete, consistent
+> filesystem.
 > 
-> Nope.  If they're both in the kernel, APM wins.
- 
-> Many folks have given me tips on getting power off to work, 
-> I'll screw around to
-> see if I can get it to go.  But I guess the fact that ACPI 
-> exits if APM is
-> enabled is a real bug.
+> I'm curious - how does ext3 handle the possibility of a crash during
+> journal recovery?
 
-Hey, that's not a bug, that's a feature! ;) ACPI and APM cannot both be
-active, so we check on init. However, the fact that the help says ACPI
-always wins is incorrect, and will be fixed.
+Unless Stephen says otherwise, my understanding is that a crash during
+journal recovery will just mean the journal is replayed again at the next
+recovery.  Because the ext3 journal is just a series of data blocks to
+be copied into the filesystem (rather than "actions" to be done), it
+doesn't matter how many times it is done.  The recovery flags are not
+reset until after the journal replay is completed.
 
-Regards -- Andy
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

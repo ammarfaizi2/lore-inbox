@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261290AbSLHN0u>; Sun, 8 Dec 2002 08:26:50 -0500
+	id <S261349AbSLHNe6>; Sun, 8 Dec 2002 08:34:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261317AbSLHN0u>; Sun, 8 Dec 2002 08:26:50 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1920 "EHLO
-	bilbo.tmr.com") by vger.kernel.org with ESMTP id <S261290AbSLHN0t>;
-	Sun, 8 Dec 2002 08:26:49 -0500
-Date: Sun, 8 Dec 2002 08:34:27 -0500 (EST)
-From: davidsen <root@tmr.com>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] ctxbench 2.4.18 and 2.5.50
-In-Reply-To: <Pine.LNX.4.44.0212080810350.11404-300000@bilbo.tmr.com>
-Message-ID: <Pine.LNX.4.44.0212080830430.11459-100000@bilbo.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261353AbSLHNe6>; Sun, 8 Dec 2002 08:34:58 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:31671 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261349AbSLHNe5>; Sun, 8 Dec 2002 08:34:57 -0500
+Subject: Re: [PATCH][2.5][RFT] ide-pnp.c conversion to new PnP layer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Shawn Starr <spstarr@sh0n.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>
+In-Reply-To: <Pine.LNX.4.50.0212080518480.2139-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0212071511550.3130-100000@montezuma.mastecende.com>
+	<Pine.LNX.4.50.0212071936320.2139-100000@montezuma.mastecende.com>
+	<200212072245.56906.spstarr@sh0n.net> <200212072250.49687.spstarr@sh0n.net>
+	 <Pine.LNX.4.50.0212080518480.2139-100000@montezuma.mastecende.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 08 Dec 2002 14:17:26 +0000
+Message-Id: <1039357046.6942.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Dec 2002, Bill Davidsen wrote:
+On Sun, 2002-12-08 at 10:21, Zwane Mwaikambo wrote:
+> On Sat, 7 Dec 2002, Shawn Starr wrote:
+> 
+> > Things have been going on the background (this issue that is). The drive is
+> > detected with TCQ disabled (kernel panics when enabled).
+> 
+> Known issue, unsupported configuration, i hit that in my test runs ;)
 
-> As these results show, best results were from using a uni kernel, but an 
-> SMP kernel with "nosmp" was faster than running SMP. The problem is that 
-> with 2.5 kernels the SMP results for multiple runs vary by up to 2:1, and 
-> for uni kernels it's more like 5-10% max. I have tried longer runs, more 
-> runs, and gotten the same results even in single user mode.
-
-Oops, a note of clarification on test names:
-  2.5.50	uni kernel
-  2.5.50smp	smp kernel
-  2.5.50uni	smp kernel with "nosmp"
-
-Yes, I know that's not intuitive, but all my kernels are SMP, the uni 
-tests are an afterthought...
+The TCQ code is broken on lots of controllers, thats one reason I always
+tell people to disable it. Jens probably has more important block things
+to worry about first though
 

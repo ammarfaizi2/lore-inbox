@@ -1,98 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267175AbUGMWdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267179AbUGMWes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267175AbUGMWdB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 18:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267179AbUGMWdA
+	id S267179AbUGMWes (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 18:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267188AbUGMWem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 18:33:00 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:1753 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267175AbUGMWcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 18:32:42 -0400
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
-	Preemption Patch
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040713022919.67c991db.akpm@osdl.org>
-References: <20040709182638.GA11310@elte.hu>
-	 <20040710222510.0593f4a4.akpm@osdl.org>
-	 <1089673014.10777.42.camel@mindpipe>
-	 <20040712163141.31ef1ad6.akpm@osdl.org>
-	 <1089677823.10777.64.camel@mindpipe>
-	 <20040712174639.38c7cf48.akpm@osdl.org>
-	 <1089687168.10777.126.camel@mindpipe>
-	 <20040712205917.47d1d58b.akpm@osdl.org>
-	 <1089707483.20381.33.camel@mindpipe>
-	 <20040713014316.2ce9181d.akpm@osdl.org>
-	 <1089708818.20381.36.camel@mindpipe>
-	 <20040713020025.7400c648.akpm@osdl.org>
-	 <1089710638.20381.41.camel@mindpipe>
-	 <20040713022919.67c991db.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1089756594.3347.4.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 13 Jul 2004 18:32:41 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jul 2004 18:34:42 -0400
+Received: from smtp2.wanadoo.fr ([193.252.22.29]:55097 "EHLO
+	mwinf0201.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S267179AbUGMWeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 18:34:15 -0400
+Message-ID: <40F4635C.3090003@reolight.net>
+Date: Wed, 14 Jul 2004 00:34:04 +0200
+From: Auzanneau Gregory <greg@reolight.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: fr, fr-fr, en, en-gb, en-us
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.8-rc1 and before: IO-APIC + DRI + RTL8139 = Disabling Ethernet
+ IRQ
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-13 at 05:29, Andrew Morton wrote:
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> >
-> > On Tue, 2004-07-13 at 05:00, Andrew Morton wrote:
-> > > Lee Revell <rlrevell@joe-job.com> wrote:
-> > > >
-> > > > > framebuffer scrolling inside lock_kernel().  Tricky.  Suggest you use X or
-> > > >  > vgacon.  You can try removing the lock_kernel() calls from do_tty_write(),
-> > > >  > but make sure you're wearing ear protection.
-> > > >  > 
-> > > > 
-> > > >  OK, I figured this was not an easy one.  I can just not do that.
-> > > 
-> > > Why not?  You can certainly try removing those [un]lock_kernel() calls.
-> > > 
-> > 
-> > Maybe I missed something.  What exactly do you mean by 'make sure you're
-> > wearing ear protection'?
-> > 
-> 
-> It might go boom.  If it does screw up, it probably won't be very seriously
-> bad - maybe some display glitches.  Just an experiment.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
-Seems to work perfectly.  No visible display glitches.
+When loading as a module or into kernel, when DRM is loading, I cannot
+use my network.
 
-I would imagine that putting a modem on a tty, then stressing the system
-and watching for line errors would be a definitive test.
+Here is a part of the dmesg:
 
---- drivers/char/tty_io.c.orig  2004-07-13 16:55:28.000000000 -0400
-+++ drivers/char/tty_io.c       2004-07-13 16:55:51.000000000 -0400
-@@ -684,17 +684,13 @@
-                return -ERESTARTSYS;
-        }
-        if ( test_bit(TTY_NO_WRITE_SPLIT, &tty->flags) ) {
--               lock_kernel();
-                written = write(tty, file, buf, count);
--               unlock_kernel();
-        } else {
-                for (;;) {
-                        unsigned long size = max((unsigned long)PAGE_SIZE*2, 16384UL);
-                        if (size > count)
-                                size = count;
--                       lock_kernel();
-                        ret = write(tty, file, buf, size);
--                       unlock_kernel();
-                        if (ret <= 0)
-                                break;
-                        written += ret;
+[drm] Loading R200 Microcode
+irq 19: nobody cared!
+ [<c010732a>] __report_bad_irq+0x2a/0x8b
+ [<c0107414>] note_interrupt+0x6f/0x9f
+ [<c0107732>] do_IRQ+0x161/0x192
+ [<c0105a00>] common_interrupt+0x18/0x20
+handlers:
+[<c0245383>] (rtl8139_interrupt+0x0/0x207)
+Disabling IRQ #19
 
-Lee
+For the moment I can disabling IO-ACPI, but I'm thinking to change my
+processor with an processor w/HT. So IO-ACPI is enabling by default.
 
+How solve that ?
+
+Thanks in advance,
+
+-- 
+Auzanneau Grégory
+GPG 0x99137BEE

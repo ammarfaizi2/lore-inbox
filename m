@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273349AbRJDK1M>; Thu, 4 Oct 2001 06:27:12 -0400
+	id <S273358AbRJDKmR>; Thu, 4 Oct 2001 06:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273345AbRJDK1C>; Thu, 4 Oct 2001 06:27:02 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:53467 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S273305AbRJDK0y>; Thu, 4 Oct 2001 06:26:54 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Paul Menage <pmenage@ensim.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Pollable /proc/<pid>/ - avoid SIGCHLD/poll() races
-In-Reply-To: <E15p4qy-0000yf-00@pmenage-dt.ensim.com>
-Organisation: SAP LinuxLab
-In-Reply-To: <E15p4qy-0000yf-00@pmenage-dt.ensim.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-Message-ID: <m3snczogal.fsf@linux.local>
-Date: 04 Oct 2001 12:25:36 +0200
+	id <S273345AbRJDKmG>; Thu, 4 Oct 2001 06:42:06 -0400
+Received: from i212.netz.at ([194.152.163.212]:24840 "EHLO pixelwings.com")
+	by vger.kernel.org with ESMTP id <S273358AbRJDKlr>;
+	Thu, 4 Oct 2001 06:41:47 -0400
+Date: Thu, 04 Oct 2001 12:42:17 +0200
+From: Clemens Schwaighofer <cs@pixelwings.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [POT] Which journalised filesystem ?  (fwd)
+Message-ID: <746710000.1002192137@gullevek.piwi.intern>
+In-Reply-To: <E15oqKN-00058k-00@calista.inka.de>
+In-Reply-To: <E15oqKN-00058k-00@calista.inka.de>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul,
+Hello Bernd Eckenfels
 
-On Thu, 04 Oct 2001, Paul Menage wrote:
->>> The only real user-space solution to this is to have the SIGCHLD
->>> handler somehow cause the select() to return immediately
->>
->>... or implement pselect:
->>http://mesh.eecs.umich.edu/cgi-bin/man2html/usr/share/man/man2/select.2.gz
-> 
-> Agreed, althought that's not a user-space solution. Is there any
-> fundamental reason why no-one's implemented pselect()/ppoll() for
-> Linux yet?
+--On Wednesday, October 03, 2001 08:01:03 PM +0200 you wrote:
 
-Missing knowledge and/or demand? It should be pretty easy to
-implement.
+> In article <706340000.1002116485@gullevek.piwi.intern> you wrote:
+>> but to the point of that thread. we had reiser FS on a production server
+>> (Fileserver for NFS, Samba & Appletalk) and we nothing but troubles. It
+>> was an 2.2.16 kernel and i dunno witch reiserfs we used. But from this
+>> point forward I dun think I will use it again soon on a production
+>> server.
+>
+> Do you had NFS Problems or do you had filesystem problems?
 
->>or use sigsetjmp/siglongjmp
-> 
-> Yes, that would probably solve the situation in question, provided
-> that siglongjmp() is portably safe. (A comment on LKML in the past
-> suggested that it's not safe on cygwin, for example.)
+Filesystem Problems. Massive problems. It went so far, that the system was 
+so unstable, that I had to reboot it almost everyday.
 
-It should be at least portable between different U*X versions. I never
-used cygwin though.
+> Because NFS interaction with Journaled Filesystems is/was an issue with
+> those recent kernels, as far as i understand.
 
-Greetings
-		Christoph
+I might have came from NFS, AppleTalk, Samba, who knows. But I couldn't go 
+into detail testing, and I needed to fix it up. I might try ext3 one, cause 
+I work with it at home and I am quite happy with it, but it's just a home 
+system not a production enviroment ...
 
-
+--
+"Freiheit ist immer auch die Freiheit des Andersdenkenden"
+Rosa Luxemburg, 1871 - 1919
+mfg, Clemens Schwaighofer              PIXELWINGS Medien AG
+Kandlgasse 15/5, A-1070 Wien           T: [+43 1] 524 58 50
+JETZT NEU! MIT FEWA GEWASCHEN --> http://www.pixelwings.com

@@ -1,54 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280357AbRKSR1g>; Mon, 19 Nov 2001 12:27:36 -0500
+	id <S280361AbRKSR3Q>; Mon, 19 Nov 2001 12:29:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280328AbRKSRZ5>; Mon, 19 Nov 2001 12:25:57 -0500
-Received: from ids.big.univali.br ([200.169.51.11]:58241 "HELO
-	mail.big.univali.br") by vger.kernel.org with SMTP
-	id <S280364AbRKSRZo>; Mon, 19 Nov 2001 12:25:44 -0500
-Message-Id: <5.1.0.14.1.20011119151030.00aa7788@mail.big.univali.br>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 19 Nov 2001 15:25:52 -0200
-To: linux-kernel@vger.kernel.org
-From: Marcus Grando <marcus@big.univali.br>
-Subject: Re: remove_free_dquot: dquot not on the free list??
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S280365AbRKSR3G>; Mon, 19 Nov 2001 12:29:06 -0500
+Received: from 59dyn119.com21.casema.net ([213.17.63.119]:38554 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S280361AbRKSR27>; Mon, 19 Nov 2001 12:28:59 -0500
+Message-Id: <200111191728.SAA05962@cave.bitwizard.nl>
+Subject: Re: DD-ing from device to device.
+In-Reply-To: <20011119101340.I1308@lynx.no> from Andreas Dilger at "Nov 19, 2001
+ 10:13:40 am"
+To: Andreas Dilger <adilger@turbolabs.com>
+Date: Mon, 19 Nov 2001 18:28:55 +0100 (MET)
+CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        Hi,
+Andreas Dilger wrote:
+> On Nov 18, 2001  14:26 +0100, Rogier Wolff wrote:
+> > I should NOT get a "file too large" error when copying from a device
+> > to a device, right?
+> > 
+> > I should NOT get a "file too large" if the files are openeed using
+> > the "O_LARGEFILE" option, right?
+> > 
+> > read(4, ""..., 1048576) = 1048576
+> > write(5, ""..., 1048576) = 1048576
+> > read(4, ""..., 1048576) = 1048576
+> > write(5, ""..., 1048576) = 1048575
+> > write(5, ".", 1)                     = -1 EFBIG (File too large)
+> > 
+> > 
+> > 
+> > This is on 2.2.14. I Could swear we made a working copy of a disk 30
+> > minutes earlier....
+> 
+> Hmm, you mean 2.4.14 I take it?  
 
-        I apply this patch in kernel-2.4.15-pre6,
+Typo. Yes. 
 
-        I use the quota-tools 3.02, and kernel its compiled with SMP.
+> There is another report saying 2.4.14
+> also "Creating partitions under 2.4.14", and I have read several more
+> recently but am unsure of the exact kernel version.  What fs are you
+> using, just in case it matters?
 
-        Probably this patch solve this problem, but its occurred randomly
+ext2. 
 
-        So far this problem did not occur again.
+It first worked on one machine, then we moved the harddisk to another
+machine and it suddenly stopped working as described above.
 
-Tanks again,
-Regards,
+We since then moved back to the first machine, and it worked again. 
+Then we moved to the second machine, which now works great too. 
 
-Marcus Grando
+In short: Cannot reproduce anymore....
 
-At 14:16 19/11/2001 -0200, you wrote:
->Date: Mon, 19 Nov 2001 15:04:02 +0100
->From: Jan Kara <jack@suse.cz>
->To: Marcus Grando <marcus@big.univali.br>
->Cc: linux-kernel@vger.kernel.org
->Subject: Re: remove_free_dquot: dquot not on the free list??
->
->  Hi,
->
->>         This problem occours in 2.4.15-pre5.
->>
->>         Some ideas to solve this problem?
->  Any info about system? I suppose it's multiprocessor system. Can
->you please try attached patch? It adds a few forgotten lock_kernel()...
->Once I get at least one possitive report that it fixes the things I'll
->submit it to Linus :)
->
->                                                                Honza
+> I know for sure that 2.4.13+ext3 is working mostly OK, as I have been
+> playing with multi-TB file sizes (sparse of course) although there is
+> a minor bug in the case where you hit the fs size maximum.  I'm glad
+> my patch isn't in yet, or I would be getting flak over this I'm sure.
+
+> The only problem is that I can't see anything in the 2.4.14 patch which
+> would cause this problem.  All the previous reports had to do with
+> ulimit, caused by su'ing to root instead of logging into root, but I'm
+> not sure exactly where the problem lies.
+
+Gotcha!!!! 
+
+The "wouldn't work" case was tested by me, logged in as wolff, su-ing
+to root, and the "works just fine" cases were tested by a guy who logs
+in to the machine on the console (as root).
 
 
+Now, can someone tell me why "unlimited" is interpreted somehow as 2G
+or something thereabouts? :
+
+ /home/wolff> limit
+cputime         unlimited
+filesize        unlimited
+datasize        unlimited
+stacksize       unlimited
+coredumpsize    unlimited
+memoryuse       unlimited
+descriptors     1024 
+memorylocked    unlimited
+maxproc         4095 
+openfiles       1024 
+ /home/wolff> su
+Password: 
+ /home/wolff# limit
+cputime         unlimited
+filesize        unlimited
+datasize        unlimited
+stacksize       unlimited
+coredumpsize    unlimited
+memoryuse       unlimited
+descriptors     1024 
+memorylocked    unlimited
+maxproc         4095 
+openfiles       1024 
+ /home/wolff# cat /proc/version
+Linux version 2.4.9 (wolff@machine) (gcc version 2.95.2 19991024 (release)) #3 SMP
+ Mon Sep 10 09:17:17 BST 2001
+ /home/wolff# 
+
+(The machine was downgraded due to other problems. )
+
+			Roger.
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

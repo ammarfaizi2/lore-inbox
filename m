@@ -1,60 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316667AbSHFWxr>; Tue, 6 Aug 2002 18:53:47 -0400
+	id <S316499AbSHFWvg>; Tue, 6 Aug 2002 18:51:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316674AbSHFWxr>; Tue, 6 Aug 2002 18:53:47 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:225 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S316667AbSHFWxm>;
-	Tue, 6 Aug 2002 18:53:42 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15696.21218.406438.634687@argo.ozlabs.ibm.com>
-Date: Wed, 7 Aug 2002 08:51:14 +1000 (EST)
-To: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] USB root hub polling and suspend
-X-Mailer: VM 6.75 under Emacs 20.7.2
+	id <S316342AbSHFWu0>; Tue, 6 Aug 2002 18:50:26 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:42250 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316408AbSHFWsO>; Tue, 6 Aug 2002 18:48:14 -0400
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] module cleanup (3/5)
+Message-Id: <E17cDB7-0002v5-00@scrub.xs4all.nl>
+From: Roman Zippel <zippel@linux-m68k.org>
+Date: Wed, 07 Aug 2002 00:51:49 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently with 2.5, when I suspend and resume my powerbook, I find
-that the USB subsystem no longer sees root hub events, i.e. it doesn't
-notice when I plug in a new USB device (it doesn't notice when I
-unplug a device either but of course the driver for the device sees
-that it is no longer responding).
+Hi,
 
-It turns out that what happens is that the root hub timer goes off
-after the OHCI driver has done its suspend stuff.  The timer routine
-sees that the HCD is not running at the moment and doesn't schedule
-another timeout.  Hence the series of timeouts stops.
+This patch removes __MODULE_STRING() in favour of __stringify().
 
-The patch below fixes the problem for me.  Comments welcome.
-
-Paul.
-
-diff -urN linuxppc-2.5/drivers/usb/core/hcd.c pmac-2.5/drivers/usb/core/hcd.c
---- linuxppc-2.5/drivers/usb/core/hcd.c	Sun Jul 21 12:58:49 2002
-+++ pmac-2.5/drivers/usb/core/hcd.c	Tue Jul 23 22:21:25 2002
-@@ -454,7 +454,6 @@
- 	/* rh_timer protected by hcd_data_lock */
- 	if (timer_pending (&hcd->rh_timer)
- 			|| urb->status != -EINPROGRESS
--			|| !HCD_IS_RUNNING (hcd->state)
- 			|| urb->transfer_buffer_length < len) {
- 		dbg ("not queuing status urb, stat %d", urb->status);
- 		return -EINVAL;
-@@ -508,8 +507,12 @@
- 				BUG ();
- 			}
- 			spin_unlock_irqrestore (&hcd_data_lock, flags);
--		} else
-+		} else {
- 			spin_unlock_irqrestore (&urb->lock, flags);
-+			spin_lock_irqsave (&hcd_data_lock, flags);
-+			rh_status_urb (hcd, urb);
-+			spin_unlock_irqrestore (&hcd_data_lock, flags);
-+		}
- 	} else {
- 		/* this urb's been unlinked */
- 		urb->hcpriv = 0;
+diff -ur linux-2.5/include/linux/module.h linux-mod/include/linux/module.h
+--- linux-2.5/include/linux/module.h	Thu Aug  1 16:43:07 2002
++++ linux-mod/include/linux/module.h	Thu Aug  1 14:41:01 2002
+@@ -10,6 +10,7 @@
+ #include <linux/config.h>
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
++#include <linux/stringify.h>
+ 
+ #include <asm/atomic.h>
+ 
+@@ -147,11 +141,6 @@
+ 	(mod_member_present((mod), can_unload) && (mod)->can_unload	\
+ 	 ? (mod)->can_unload() : atomic_read(&(mod)->uc.usecount))
+ 
+-/* Indirect stringification.  */
+-
+-#define __MODULE_STRING_1(x)	#x
+-#define __MODULE_STRING(x)	__MODULE_STRING_1(x)
+-
+ /* Generic inter module communication.
+  *
+  * NOTE: This interface is intended for small amounts of data that are
+@@ -221,12 +210,12 @@
+ #define MODULE_PARM(var,type)			\
+ const char __module_parm_##var[]		\
+ __attribute__((section(".modinfo"))) =		\
+-"parm_" __MODULE_STRING(var) "=" type
++"parm_" __stringify(var) "=" type
+ 
+ #define MODULE_PARM_DESC(var,desc)		\
+ const char __module_parm_desc_##var[]		\
+ __attribute__((section(".modinfo"))) =		\
+-"parm_desc_" __MODULE_STRING(var) "=" desc
++"parm_desc_" __stringify(var) "=" desc
+ 
+ /*
+  * MODULE_DEVICE_TABLE exports information about devices
+@@ -392,7 +394,7 @@
+  *         #include <linux/modversions.h>
+  *         
+  *         #define EXPORT_SYMBOL(var) \
+- *          __EXPORT_SYMBOL(var, __MODULE_STRING(__VERSIONED_SYMBOL(var)))
++ *          __EXPORT_SYMBOL(var, __stringify(__VERSIONED_SYMBOL(var)))
+  *
+  *   The first two lines will in essence include
+  *
+@@ -468,17 +470,17 @@
+ #define _set_ver(sym) sym
+ #include <linux/modversions.h>
+ 
+-#define EXPORT_SYMBOL(var)  __EXPORT_SYMBOL(var, __MODULE_STRING(__VERSIONED_SYMBOL(var)))
+-#define EXPORT_SYMBOL_GPL(var)  __EXPORT_SYMBOL(var, __MODULE_STRING(__VERSIONED_SYMBOL(var)))
++#define EXPORT_SYMBOL(var)  __EXPORT_SYMBOL(var, __stringify(__VERSIONED_SYMBOL(var)))
++#define EXPORT_SYMBOL_GPL(var)  __EXPORT_SYMBOL(var, __stringify(__VERSIONED_SYMBOL(var)))
+ 
+ #else /* !defined (CONFIG_MODVERSIONS) || defined(MODULE) */
+ 
+-#define EXPORT_SYMBOL(var)  __EXPORT_SYMBOL(var, __MODULE_STRING(var))
+-#define EXPORT_SYMBOL_GPL(var)  __EXPORT_SYMBOL_GPL(var, __MODULE_STRING(var))
++#define EXPORT_SYMBOL(var)  __EXPORT_SYMBOL(var, __stringify(var))
++#define EXPORT_SYMBOL_GPL(var)  __EXPORT_SYMBOL_GPL(var, __stringify(var))
+ 
+ #endif /* defined(CONFIG_MODVERSIONS) && !defined(MODULE) */
+ 
+-#define EXPORT_SYMBOL_NOVERS(var)  __EXPORT_SYMBOL(var, __MODULE_STRING(var))
++#define EXPORT_SYMBOL_NOVERS(var)  __EXPORT_SYMBOL(var, __stringify(var))
+ 
+ #endif /* __GENKSYMS__ */
+ 

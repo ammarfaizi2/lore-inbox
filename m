@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265193AbUAORKg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 12:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbUAORKO
+	id S265160AbUAORIT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 12:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265179AbUAORHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 12:10:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:64485 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265191AbUAORKA (ORCPT
+	Thu, 15 Jan 2004 12:07:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:10908 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265176AbUAORGi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 12:10:00 -0500
-Date: Thu, 15 Jan 2004 18:09:40 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Doug Ledford <dledford@redhat.com>, Jens Axboe <axboe@suse.de>,
-       Peter Yao <peter@exavio.com.cn>, linux-kernel@vger.kernel.org,
-       linux-scsi mailing list <linux-scsi@vger.kernel.org>
-Subject: Re: smp dead lock of io_request_lock/queue_lock patch
-Message-ID: <20040115170938.GB18520@devserv.devel.redhat.com>
-References: <20040112092231.GG29177@suse.de> <1073914073.3114.263.camel@compaq.xsintricity.com> <4006C76B.3090206@tmr.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0ntfKIWw70PvrIHh"
-Content-Disposition: inline
-In-Reply-To: <4006C76B.3090206@tmr.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 15 Jan 2004 12:06:38 -0500
+Message-Id: <200401151706.i0FH6aW09886@mail.osdl.org>
+To: kernel-tinderbox@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: [Kernel-tinderbox] updated client released
+Date: Thu, 15 Jan 2004 09:06:36 -0800
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---0ntfKIWw70PvrIHh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
+Kernel-tinderbox is an automated build system that tracks the 
+current BK tree:
+http://tinderbox.osdl.org/showbuilds.pl?tree=linux2.5-bk
 
->=20
-> "not in a released kernel..." Do I read this right? That you have a fix=
-=20
-> for a critical bug and it hasn't been pushed to customers yet? How about=
-=20
-> security bugs, has the fix you pushed in RH-9.0 been push to EL customers?
+We are welcoming any new clients on non-Intel platforms, grab
+the client if you have a machine with spare cycles.
 
-RHL9 does not suffer this bug by virtue of not having the code in the first
-place.
+There is an updated version of the client here:
+http://developer.osdl.org/cliffw/kernel_tinderclient.tar.gz
 
-RHEL has the corner case fixed pushed already
+Mailing List:
+kernel-tinderclient@lists.osdl.org
+----
+Changes:
+	- updated compregress.sh from John Cherry
+	- client detects and cleans up failed bk pull
 
---0ntfKIWw70PvrIHh
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+-----------
+cliffw
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFABslRxULwo51rQBIRAkFVAJ4u1bRzXjxBdmBC1YRMyc7A+SunYgCglJ6H
-QBbCxwsqRRLe8Z3kHXQr9Qg=
-=r5Cn
------END PGP SIGNATURE-----
-
---0ntfKIWw70PvrIHh--

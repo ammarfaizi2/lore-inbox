@@ -1,65 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269209AbUISKQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269210AbUISKRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269209AbUISKQy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 06:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269210AbUISKQx
+	id S269210AbUISKRs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 06:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269212AbUISKRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 06:16:53 -0400
-Received: from cantor.suse.de ([195.135.220.2]:9963 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269209AbUISKQF (ORCPT
+	Sun, 19 Sep 2004 06:17:48 -0400
+Received: from verein.lst.de ([213.95.11.210]:57001 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S269210AbUISKRU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 06:16:05 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE Labs
-To: James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH 1/6] xattr consolidation v2 - generic xattr API
-Date: Sun, 19 Sep 2004 12:13:57 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>
-References: <Xine.LNX.4.44.0409181943030.12816-100000@thoron.boston.redhat.com>
-In-Reply-To: <Xine.LNX.4.44.0409181943030.12816-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
+	Sun, 19 Sep 2004 06:17:20 -0400
+Date: Sun, 19 Sep 2004 12:17:12 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] don't include <linux/sysctl.h> in <linux/security.h>
+Message-ID: <20040919101712.GA5949@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409191213.57977.agruen@suse.de>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 September 2004 01:47, James Morris wrote:
-> On Sun, 19 Sep 2004, Andreas Gruenbacher wrote:
-> > This currently is only relevant for the security attribute. Selinux
-> > always returns the same attribute name so it can't trigger this problem,
-> > but other LSMs might do something different.
-> >
-> > We can add a list_size parameter to xattr_handler->list to get this
-> > fixed. We should change the name_len parameter of xattr_handler->list
-> > from int to size_t:
->
-> Ahh, I thought we had the inode semaphore (never trust documentation).
-> Why don't we take that instead in listxattr() ?
+security.h gets pulled in in lots of places, so use forward
+declarations for struct ctl_table instead of pulling sysctl in
+everywhere.
 
-Documentation/filesystems/Locking seems to be accurate. Originally we were 
-taking inode->i_sem for all four xattr operations. It turned out that this 
-caused lock contention for acls. Selinux increases the frequency of xattr 
-operations, so always taking i_sem would be even worse now.
 
-> The name_len thing seems kludgy.
+--- 1.38/include/linux/security.h	2004-06-18 20:43:31 +02:00
++++ edited/include/linux/security.h	2004-09-19 11:54:22 +02:00
+@@ -27,13 +27,14 @@
+ #include <linux/signal.h>
+ #include <linux/resource.h>
+ #include <linux/sem.h>
+-#include <linux/sysctl.h>
+ #include <linux/shm.h>
+ #include <linux/msg.h>
+ #include <linux/sched.h>
+ #include <linux/skbuff.h>
+ #include <linux/netlink.h>
+ 
++struct ctl_table;
++
+ /*
+  * These functions are in security/capability.c and are used
+  * as the default capabilities functions
+@@ -1029,7 +1030,7 @@
+			    kernel_cap_t * inheritable,
+			    kernel_cap_t * permitted);
+	int (*acct) (struct file * file);
+-	int (*sysctl) (ctl_table * table, int op);
++	int (*sysctl) (struct ctl_table * table, int op);
+	int (*capable) (struct task_struct * tsk, int cap);
+	int (*quotactl) (int cmds, int type, int id, struct super_block * sb);
+	int (*quota_on) (struct file * f);
+@@ -1268,7 +1269,7 @@
+	return security_ops->acct (file);
+ }
+ 
+-static inline int security_sysctl(ctl_table * table, int op)
++static inline int security_sysctl(struct ctl_table *table, int op)
+ {
+	return security_ops->sysctl(table, op);
+ }
+@@ -1940,7 +1941,7 @@
+	return 0;
+ }
+ 
+-static inline int security_sysctl(ctl_table * table, int op)
++static inline int security_sysctl(struct ctl_table *table, int op)
+ {
+	return 0;
+ }
+===== security/selinux/hooks.c 1.60 vs edited =====
+--- 1.60/security/selinux/hooks.c	2004-08-24 21:43:46 +02:00
++++ edited/security/selinux/hooks.c	2004-09-19 11:55:21 +02:00
+@@ -64,6 +64,7 @@
+ #include <net/ipv6.h>
+ #include <linux/hugetlb.h>
+ #include <linux/personality.h>
++#include <linux/sysctl.h>
+ 
+ #include "avc.h"
+ #include "objsec.h"
 
-The old handler API was fine at the FS level where locking was guaranteed 
-anyways. At the VFS level we should do better. Passing in the buffer and the 
-buffer size at the same time gets us rid of the problem without requiring any 
-locking.
-
-> > I also noticed that your additions to fs/xattr.c use a slightly different
-> > coding style than the rest of the file. You might want to change that as
-> > well.
->
-> I was using Linus-recommended coding style, but it can be changed I guess.
-
-Both styles are being used in VFS. Choose one; I don't mind much.
-
--- Andreas.

@@ -1,68 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129230AbRBSVTA>; Mon, 19 Feb 2001 16:19:00 -0500
+	id <S129273AbRBSVTu>; Mon, 19 Feb 2001 16:19:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129273AbRBSVSv>; Mon, 19 Feb 2001 16:18:51 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:11012 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S129230AbRBSVSc>; Mon, 19 Feb 2001 16:18:32 -0500
-Date: Mon, 19 Feb 2001 22:18:28 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Reply-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The lack of specification (was Re: [LONG RANT] Re: Linux stifles innovation... )
-In-Reply-To: <200102192017.f1JKHO952286@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.3.96.1010219220603.16223B-100000@artax.karlin.mff.cuni.cz>
+	id <S129643AbRBSVTk>; Mon, 19 Feb 2001 16:19:40 -0500
+Received: from t2o61p25.telia.com ([195.67.228.85]:9255 "EHLO k-7.stesmi.com")
+	by vger.kernel.org with ESMTP id <S129273AbRBSVTa>;
+	Mon, 19 Feb 2001 16:19:30 -0500
+Message-ID: <3A918EAE.A3C96B4C@hanse.com>
+Date: Mon, 19 Feb 2001 22:22:54 +0100
+From: Stefan Smietanowski <stefan@hanse.com>
+Organization: Hanse Communication
+X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ansari <mike@khi.sdnpk.org>, linux-kernel@vger.kernel.org
+Subject: [OT] Re: Running Bind 9 on Redhat 7
+In-Reply-To: <3A913520.3011C7D6@khi.sdnpk.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One of these things must happen:
-> 
-> a. follow the specification, even if that makes code slow and contorted
-> b. change the specification
-> c. ignore the specification
-> d. get rid of the specification
-> 
-> Option "a" will not be accepted around here. Sorry.
+Hi.
 
-It should be followed in stable releases. (and usually is - except for few
-cases - and except that there is no specification, just unwritten rules).
+> I am configuring Bind 9 on Redhat 7 but unable to start the named.
+> Here is my /var/log message log:
 
-> The best you can
-> hope for is option "b". Since that is hard work (want to help?) we
-> often end up not using a specification... hopefully by just not
-> having one, instead of by ignoring one.
+<snip named start log>
 
+Read the documentation and you shall notice that you must set a ttl for
+each zone, which also your logs state that you have not done ...
 
-> > Now implementators of TCP will say: that driver is buggy. Everybody should
-> > set state=TASK_RUNNING before calling schedule to yield the process. 
-> > 
-> > Implementators of driver will say: TCP is buggy - no one should call my
-> > driver in TASK_[UN]INTERRUPTIBLE state.
-> > 
-> > Who is right? If there is no specification....
-> 
-> The driver is buggy, unless the TCP maintainer can be convinced
-> that TCP is buggy. TCP is a big chunk of code that most people use,
-> while the driver is not so huge or critical.
-> 
-> The TCP maintainers do not seem to be sadistic bastards hell-bent on
-> breaking your drivers. API changes usually have a good reason.
-
-Why should block device developers read TCP/IP code? And only after
-reading significant amount of it they realize that they can be called in
-TASK_INTERRUPTIBLE state. 
-
-They will most likely read other block drivers, find using schedule
-without setting state and use it also that way. 
-
-The only way to tell developers to always set state before using schedule
-is to write it to specification.
-
-Mikulas
-
-
+// Stefan

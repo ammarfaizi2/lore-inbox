@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268245AbTAMT3J>; Mon, 13 Jan 2003 14:29:09 -0500
+	id <S267841AbTAMT1d>; Mon, 13 Jan 2003 14:27:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268243AbTAMT3J>; Mon, 13 Jan 2003 14:29:09 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:32981 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S267847AbTAMT3H>;
-	Mon, 13 Jan 2003 14:29:07 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15907.5503.334066.50256@napali.hpl.hp.com>
-Date: Mon, 13 Jan 2003 11:37:35 -0800
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-       <ebiederm@xmission.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Consolidate vmlinux.lds.S files
-In-Reply-To: <Pine.LNX.4.44.0301131309240.24477-100000@chaos.physics.uiowa.edu>
-References: <20030113180450.GA1870@mars.ravnborg.org>
-	<Pine.LNX.4.44.0301131309240.24477-100000@chaos.physics.uiowa.edu>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	id <S267847AbTAMT1d>; Mon, 13 Jan 2003 14:27:33 -0500
+Received: from dialin-145-254-148-171.arcor-ip.net ([145.254.148.171]:52098
+	"HELO schottelius.net") by vger.kernel.org with SMTP
+	id <S267841AbTAMT11>; Mon, 13 Jan 2003 14:27:27 -0500
+Date: Mon, 13 Jan 2003 20:34:01 +0100
+From: Nico Schottelius <schottelius@wdt.de>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.56] (partial known) bugs/compile errors
+Message-ID: <20030113193401.GA330@schottelius.org>
+References: <20030113090200.GA1096@schottelius.org> <20030113190105.GA8394@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
+In-Reply-To: <20030113190105.GA8394@kroah.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux flapp 2.5.54
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  Kai> I would suggest an approach like the following, of course
-  Kai> showing only a first simple step. A series of steps like this
-  Kai> should allow for a serious reduction in size of
-  Kai> arch/*/vmlinux.lds.S already, while being obviously correct and
-  Kai> allowing archs to do their own special thing if necessary (in
-  Kai> particular, IA64 seems to differ from all the other archs).
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The only real difference for the ia64 vmlinux.lds.S is that it
-generates correct physical addressess, so that the boot loader doesn't
-have to know anything about the virtual layout of the kernel.
-Something that might be useful for other arches as well...
+Greg KH [Mon, Jan 13, 2003 at 11:01:06AM -0800]:
+> On Mon, Jan 13, 2003 at 10:02:00AM +0100, Nico Schottelius wrote:
+> > WARNING: /lib/modules/2.5.56/kernel/security/root_plug.ko needs unknown=
+ symbol usb_bus_list_lock
+> > WARNING: /lib/modules/2.5.56/kernel/security/root_plug.ko needs unknown=
+ symbol usb_bus_list
+>=20
+> Do you have CONFIG_USB selected in your .config?
 
-	--david
+yes, but all usb things are modularized
+
+Nico
+
+--=20
+Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
+ils
+to mailing list!). If you don't know what pgp is visit www.gnupg.org.
+(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE+IxSptnlUggLJsX0RAtrVAKCF9htXV26bjy1FeqSVBS4aTXX9cwCfSPo0
+rxXMGIlsKNElzqPEIyF2DYk=
+=km3g
+-----END PGP SIGNATURE-----
+
+--d6Gm4EdcadzBjdND--

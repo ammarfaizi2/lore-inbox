@@ -1,29 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317110AbSGNUkm>; Sun, 14 Jul 2002 16:40:42 -0400
+	id <S317112AbSGNUnz>; Sun, 14 Jul 2002 16:43:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317115AbSGNUkl>; Sun, 14 Jul 2002 16:40:41 -0400
-Received: from esteel10.client.dti.net ([209.73.14.10]:48069 "EHLO
-	nymail01.e-steel.com") by vger.kernel.org with ESMTP
-	id <S317110AbSGNUkk>; Sun, 14 Jul 2002 16:40:40 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Mathieu Chouquet-Stringer <mathieu@newview.com>
-Newsgroups: e-steel.mailing-lists.linux.linux-kernel
+	id <S317117AbSGNUny>; Sun, 14 Jul 2002 16:43:54 -0400
+Received: from esteel10.client.dti.net ([209.73.14.10]:54469 "EHLO
+	shookay.newview.com") by vger.kernel.org with ESMTP
+	id <S317112AbSGNUnx>; Sun, 14 Jul 2002 16:43:53 -0400
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
-Date: 14 Jul 2002 16:43:28 -0400
-Organization: e-STEEL Netops news server
-Message-ID: <xltn0sujb0v.fsf@shookay.newview.com>
-References: <200207142004.g6EK4LaV019433@burner.fokus.gmd.de> <1026683185.13886.81.camel@irongate.swansea.linux.org.uk>
-NNTP-Posting-Host: shookay.newview.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: nystorage01.e-steel.com 1026679408 12332 192.168.3.43 (14 Jul 2002 20:43:28 GMT)
-X-Complaints-To: news@nystorage01.e-steel.com
-NNTP-Posting-Date: Sun, 14 Jul 2002 20:43:28 +0000 (UTC)
+References: <200207142004.g6EK4LaV019433@burner.fokus.gmd.de>
+	<1026683185.13886.81.camel@irongate.swansea.linux.org.uk>
+From: Mathieu Chouquet-Stringer <mathieu@newview.com>
+Date: 14 Jul 2002 16:45:55 -0400
+In-Reply-To: <1026683185.13886.81.camel@irongate.swansea.linux.org.uk>
+Message-ID: <xltfzymjaws.fsf@shookay.newview.com>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Forgot to copy lkml... :-(
 
 alan@lxorguk.ukuu.org.uk (Alan Cox) writes:
 > On Sun, 2002-07-14 at 21:21, Mathieu Chouquet-Stringer wrote:
@@ -35,9 +33,7 @@ alan@lxorguk.ukuu.org.uk (Alan Cox) writes:
 > 
 > Why are using PIO mode devices ?
 
-I'm using SCSI :
-Jul 13 16:35:50 mcs kernel: SCSI subsystem driver Revision: 1.00
-Jul 13 16:35:50 mcs kernel: PCI: Found IRQ 10 for device 00:0b.0
+That's a scsi drive so I would guess it uses dma. The interface:
 Jul 13 16:35:50 mcs kernel: sym.0.11.0: setting PCI_COMMAND_PARITY...
 Jul 13 16:35:50 mcs kernel: sym0: <895> rev 0x1 on pci bus 0 device 11 function 0 irq 10
 Jul 13 16:35:50 mcs kernel: sym0: Tekram NVRAM, ID 7, Fast-40, LVD, parity checking
@@ -45,12 +41,13 @@ Jul 13 16:35:50 mcs kernel: sym0: SCSI BUS has been reset.
 Jul 13 16:35:50 mcs kernel: spurious 8259A interrupt: IRQ7.
 Jul 13 16:35:50 mcs kernel: scsi0 : sym-2.1.17a
 
-And the drive on which I'm running the test
-
-Jul 13 16:35:50 mcs kernel:   Vendor: IBM       Model: DDYS-T18350N Rev: S96H
-Jul 13 16:35:50 mcs kernel:   Type:   Direct-Access                 ANSI SCSI revision: 03
+And the drive:
+Jul 13 16:35:50 mcs kernel:   Vendor: IBM       Model: DDYS-T18350N     Rev: S96H
+Jul 13 16:35:50 mcs kernel:   Type:   Direct-Access                     ANSI SCSI revision: 03
 [...]
 Jul 13 16:35:51 mcs kernel: sym0:0:0: tagged command queuing enabled, command queue depth 32.
+[...]
+Jul 13 16:35:51 mcs kernel: Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
 [...]
 Jul 13 16:35:51 mcs kernel: sym0:0: FAST-40 WIDE SCSI 80.0 MB/s ST (25.0 ns, offset 31)
 -- 

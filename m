@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130454AbRA0OXW>; Sat, 27 Jan 2001 09:23:22 -0500
+	id <S131143AbRA0PAK>; Sat, 27 Jan 2001 10:00:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131560AbRA0OXM>; Sat, 27 Jan 2001 09:23:12 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:54029 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130454AbRA0OW4>;
-	Sat, 27 Jan 2001 09:22:56 -0500
-Message-ID: <3A72D9B5.941526CE@mandrakesoft.com>
-Date: Sat, 27 Jan 2001 09:22:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
+	id <S131341AbRA0PAA>; Sat, 27 Jan 2001 10:00:00 -0500
+Received: from tomts5.bellnexxia.net ([209.226.175.25]:48317 "EHLO
+	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S131143AbRA0O7x>; Sat, 27 Jan 2001 09:59:53 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: David Ford <david@linux.com>
+Subject: VM breakdown, 2.4.0 family
+Date: Sat, 27 Jan 2001 09:59:32 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: David Bustos <bustos@its.caltech.edu>
-CC: sailer@ife.ee.ethz.ch, linux-kernel@vger.kernel.org
-Subject: Re: es1371 freezes 2.4.0 hard
-In-Reply-To: <20010124154457.A491@alex.caltech.edu> <3A70451D.C599794A@mandrakesoft.com> <20010125120729.A516@alex.caltech.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01012709593200.27226@oscar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Bustos wrote:
-> Quoth Jeff Garzik on Thu, Jan 25, 2001 at 10:24:13AM -0500:
-> > What happens if you remove the call to pci_enable_device() in the source
-> > code, drivers/sound/es1371.c?
-> 
-> That seems to do it.
+David Ford Wrote:
 
-Ok.  For a temporary fix, there ya go.
+>Since the testN series and up through ac12, I experience total loss of
+>control when memory is nearly exhausted.
+>
+>I start with 256M and eat it up with programs until there is only about
+>7 megs left, no swap.  From that point all user processes stall and the
+>disk begins to grind nonstop.  It will continue to grind for about 25-30
+>minutes until it goes completely silent.  No processes get killed, no VM
+>messages are emitted.
+>
+>The only recourse is the magic key.  If I reboot before the disk goes
+>silent I can cleanly kill X with sysrq-E and restart.
+>
+>If I wait until it goes silent, all is lost.  I have to sysrq-SUB.
 
-But removing pci_enable_device is incorrect; it merely avoids what
-appears to be a bug with your Via irq routing.  Would it be possible for
-you to edit linux/arch/i386/kernel/pci-i386.h, and change the line near
-the top from
-	#undef DEBUG
-to
-	#define DEBUG 1
-and then send the output of 'dmesg -s 16384' to linux-kernel (and CC
-me)?  That will dump your PCI IRQ routing information, among other
-details.
+You might want to try:
 
-Step two, "modprobe es1371" with pci_enable_device -in- the code, and
-with debugging enabled as described above.  IIRC it should print out a
-few more lines of debugging information that will be helpful.  Since we
-are dealing with a hard lock, these last few lines of debugging info
-might have to be copied via a serial console, or by hand.
+http://bazar.conectiva.com.br/~marcelo/patches/v2.4/2.4.1pre10/bg_page_aging.patch
 
-One last question... is this an SMP machine?  If so, let me know if
-booting with "noapic" option on the command line fixes things.
+or
 
-Regards,
+ftp://ftp.cam.org/users/tomlins/pte_aging_limit_swaps.diff
 
-	Jeff
+The first patch from Marcelo fixes a problem with aging the wrong pages.  The 
+second patch is sort of a 'best of Marcelo' patch.  It contains the aging fix 
+and adds conditional bg pte aging (if with activate fast than we age 
+down...).  It also has code to trottle swapouts when under preasure - it only
+swaps out as much as we need now.
+
+I have fives days of uptime with it here (on test9 and test10).
+
+Feedback Welcome,
+
+Ed Tomlinson <tomlins@cam.org>
 
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

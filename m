@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUFYS5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUFYS5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266835AbUFYS5T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 14:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266832AbUFYS5T
+	id S262208AbUFYS5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 14:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266832AbUFYS5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 14:57:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:45031 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266835AbUFYSyw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 14:54:52 -0400
-Date: Fri, 25 Jun 2004 11:53:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: cieciwa@alpha.zarz.agh.edu.pl, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org
-Subject: Re: [SPARC64] kernel 2.6.7+cset-20040625_0611 = ERROR
-Message-Id: <20040625115348.371dcb0b.akpm@osdl.org>
-In-Reply-To: <20040625103020.25b37791.davem@redhat.com>
-References: <Pine.LNX.4.58L.0406251320310.6037@alpha.zarz.agh.edu.pl>
-	<20040625030502.40e25d42.akpm@osdl.org>
-	<20040625103020.25b37791.davem@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Jun 2004 14:57:25 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:36268 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262208AbUFYS4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 14:56:12 -0400
+Message-ID: <40DC7539.7000803@comcast.net>
+Date: Fri, 25 Jun 2004 14:55:53 -0400
+From: David van Hoose <david.vanhoose@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+CC: "Philip R. Auld" <pauld@egenera.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Helge Hafting <helge.hafting@hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Collapse ext2 and 3 please
+References: <Pine.LNX.4.44.0406251438420.15676-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0406251438420.15676-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> wrote:
->
-> On Fri, 25 Jun 2004 03:05:02 -0700
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl> wrote:
-> > >
-> > > make[1]: *** [arch/sparc64/kernel/process.o] Error 1
-> > >  make: *** [arch/sparc64/kernel] Error 2
-> > 
-> > here's t'other:
-> 
-> Ok, is it only gcc-3.4 and later that spit out these warnings?
-> I've been doing gcc-3.3 builds without incident... oh or maybe
-> only on SMP.  I haven't tried a uniprocessor build in a while.
+Thank you.
+It says ext2. Based on other messages, I look at /sbin/mkinitrd.
+It looks to me that RedHat/Fedora are pretty dumb making stupid 
+assumptions about the fs type instead of looking at the filesystem types 
+that root has setup in fstab.
+I've patched my mkinitrd script to check the fs type of the root 
+partition according to /proc/mounts. This should work unless someone is 
+overriding mkinitrd to build an initrd for a foreign system or changing 
+their root partition. To fix that, I've added an command-line option to 
+specify the fs type of the root partition.
 
-I'm using gcc-3.3.2, CONFIG_SMP=y and was able to reproduce the warnings.
+Thanks very very much.
+Sorry for the error. I assumed too much about RedHat.
+
+Thanks,
+David
+
+Tigran Aivazian wrote:
+> # gzip -dc /boot/initrd-2.4.21-15.EL.img | file -
+> standard input:              Linux rev 1.0 ext2 filesystem data
+> 
+> Make sure you use the correct filename for your initrd image (check 
+> /etc/grub.conf to find out which one is used).
+> 
+> Kind regards
+> Tigran
+> 

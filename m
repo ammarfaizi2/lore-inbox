@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264809AbSJVRlJ>; Tue, 22 Oct 2002 13:41:09 -0400
+	id <S264836AbSJVRp4>; Tue, 22 Oct 2002 13:45:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264790AbSJVRkg>; Tue, 22 Oct 2002 13:40:36 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:39927 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S264780AbSJVRiy>; Tue, 22 Oct 2002 13:38:54 -0400
-Date: Tue, 22 Oct 2002 13:45:01 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-Message-ID: <20021022134501.C20957@redhat.com>
-References: <2629464880.1035240956@[10.10.2.3]> <Pine.LNX.4.44L.0210221405260.1648-100000@duckman.distro.conectiva> <20021022131930.A20957@redhat.com> <396790000.1035308200@flay>
+	id <S264784AbSJVRpT>; Tue, 22 Oct 2002 13:45:19 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:24582 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S264818AbSJVRnd>; Tue, 22 Oct 2002 13:43:33 -0400
+Date: Tue, 22 Oct 2002 18:49:39 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
+Message-ID: <20021022184938.A2395@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@zip.com.au>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <Pine.LNX.4.44.0210221936010.18790-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <396790000.1035308200@flay>; from mbligh@aracnet.com on Tue, Oct 22, 2002 at 10:36:40AM -0700
+In-Reply-To: <Pine.LNX.4.44.0210221936010.18790-100000@localhost.localdomain>; from mingo@elte.hu on Tue, Oct 22, 2002 at 07:57:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 10:36:40AM -0700, Martin J. Bligh wrote:
-> Bear in mind that large pages are neither swap backed or file backed
-> (vetoed by Linus), for starters. There are other large app problem scenarios 
-> apart from Oracle ;-)
+On Tue, Oct 22, 2002 at 07:57:00PM +0200, Ingo Molnar wrote:
+> the attached patch (ontop of 2.5.44-mm2) implements generic (swappable!)
+> nonlinear mappings and sys_remap_file_pages() support. Ie. no more
+> MAP_LOCKED restrictions and strange pagefault semantics.
+> 
+> to implement this i added a new pte concept: "file pte's". This means that
+> upon swapout, shared-named mappings do not get cleared but get converted
+> into file pte's, which can then be decoded by the pagefault path and can
+> be looked up in the pagecache.
+> 
+> the normal linear pagefault path from now on does not assume linearity and
+> decodes the offset in the pte. This also tests pte encoding/decoding in
+> the pagecache case, and the ->populate functions.
 
-I think the fact that large page support doesn't support mmap for users 
-that need it is utterly appauling; there are numerous places where it is 
-needed.  The requirement for root-only access makes it useless for most 
-people, especially in HPC environments where it is most needed as such 
-machines are usually shared and accounts are non-priveledged.
+Ingo,
 
-		-ben
--- 
-"Do you seek knowledge in time travel?"
+what is the reason for that interface?  It looks like a gross performance
+hack for misdesigned applications to me, kindof windowsish..
+
+Is this for whoracle or something like that?

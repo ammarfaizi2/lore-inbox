@@ -1,53 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263985AbUDFUR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 16:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbUDFUR6
+	id S263989AbUDFUQi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 16:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263988AbUDFUQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 16:17:58 -0400
-Received: from p01m173.mxlogic.net ([66.179.109.173]:21397 "HELO
-	p01m173.mxlogic.net") by vger.kernel.org with SMTP id S263985AbUDFUR4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 16:17:56 -0400
-Message-ID: <4072C371.CFA9CA1E@amis.com>
-Date: Tue, 06 Apr 2004 08:49:21 -0600
-From: Eric Whiting <ewhiting@amis.com>
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.6.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrea Arcangeli <andrea@suse.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: -mmX 4G patches feedback [numbers: how much performance impact]
-References: <40718B2A.967D9467@amis.com> <20040405174616.GH2234@dualathlon.random> <4071D11B.1FEFD20A@amis.com> <20040405221641.GN2234@dualathlon.random> <20040406115539.GA31465@elte.hu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MX-Spam: exempt
-X-MX-MAIL-FROM: <ewhiting@amis.com>
-X-MX-SOURCE-IP: [207.141.5.253]
+	Tue, 6 Apr 2004 16:16:38 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:2757 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263989AbUDFUQd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 16:16:33 -0400
+Message-Id: <200404062016.i36KGV6d004291@eeyore.valparaiso.cl>
+To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel stack challenge 
+In-Reply-To: Your message of "Mon, 05 Apr 2004 14:30:26 MST."
+             <20040405213026.37258.qmail@web40512.mail.yahoo.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Tue, 06 Apr 2004 16:16:31 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
+> --- Timothy Miller <miller@techsource.com> wrote:
+> > 
+> > 
+> > Sergiy Lozovsky wrote:
+> > 
+> > > 
+> > > 
+> > > All LISP errors are incapsulated within LISP VM.
+> > >  
+> > 
+> > 
+> > A LISP VM is a big, giant, bloated.... *CHOKE*
+> > *COUGH* *SPUTTER* 
+> > *SUFFOCATE* ... thing which SHOULD NEVER be in the
+> > kernel.
 > 
-> [***] non-PAE 4:4 kernels are being used too - there are a fair number
->       of users who run simulation code using 4GB of physical RAM and a
->       pure 4:4 kernel with no highmem features required. For these 4:4
->       users the overhead on number-crunching is even smaller, only
->       0.03%.
+> It is a smallest interpreter (of all purpose language)
+> I was able to find. My guess is that you refer to the
+> Common Lisp. it is huge and I don't use it.
 
-Ingo, 
+Nope. Timothy was talking exactly of the same one as you. And I agree with
+him.
 
-What you describe above is a situation that matches our environment. 
+> > If you want to use a more abstract language for
+> > describing kernel 
+> > security policies, fine.  Just don't use LISP.
+> 
+> Point me to ANy langage with VM around 100K.
 
-We do have servers with more than 4G RAM that need PAE, but we have more
-workstations with 4G (or 3G) of RAM that do not need PAE, but do need the 4:4
-VM. In terms of a large simulation (> 3G of userspace VM) running to completion
--- a 3G RAM box with 4:4 VM is better than a 32G box with 3:1 VM -- even though
-the box with 3G RAM may swap a little/lot.
+Assembler. VM is exactly _zero_ overhead. Or C, for a tiny bit more. That
+one was already paid for, so you essentially get it for free. Might also
+hack FORTH, for a few KiB (dunno how much this days, but should be less
+than 10 for a stripped to the bone package).
 
-4:4 is not the 'real' long term solution, but it will let us run more jobs on
-32bit hardware until the x86_64 HW/SW support stabilizes a little more.  We
-currently run jobs on solaris when single process VM requirement exceeds 4G. 
+> > The right way to do it is this:
+> > 
+> > - A user space interpreter reads text-based config
+> > files and converts 
+> > them into a compact, easy-to-interpret code used by
+> > the kernel.
+> > 
+> > - A VERY TINY kernel component is fed the security
+> > policy and executes it.
 
-eric
+Nodz!
+
+> it is exactly the way it is implemented.
+
+And how does an _in kernel_ LISP interpreter fit into this picture? Lost me
+there...
+
+>                                          Not everyone
+> need to create their own security model (that VERY
+> TINY kernel component you refer to).
+
+Now we have common ground...
+
+>                                      But even for
+> those who want to modify or create their own VERY TINY
+> kernel component - they don't need to do that in C and
+> debug it in th kernel crashing it.
+
+... of sorts.
+
+Right, I don't want the security kernel inside the kernel crashing. But
+then again, I don't want the driver for the hard disk, or the mouse, or
+even the graphic card, scribbling over memory either. Guess you'd (re)write
+the whole kernel in some LISP dialect then? Good luck! But this is
+_certainly_ the worst list to discuss such a design.
+
+
+[...]
+
+> > Why do you choose LISP?  Don't you want to use a
+> > language that sysadmins 
+> > will actually KNOW?
+> 
+> It was is) the smallest VM I know of.
+
+You know little...
+
+> 99% of sysadmins don't need to create their own
+> security models. Security polices are created with web
+> interface very close to the way you described. So
+> sysadmin don't need to know anything about LISP (to
+> use predefined security models).
+
+OK, so you need the policy to be interpreted in-kernel (dunno why a
+largeish high-level general purpose language is needed for that, when a
+tiny interpreter for a specialized language will do very well, and has been
+shown to work fine), and written in a "high level language" so that your
+garden variety sysadmin _can_ write her own policy, but it really doesn't
+matter because she'll never have to do so...
+
+Completely lost me.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

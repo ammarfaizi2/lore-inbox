@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271934AbTG2RqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 13:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271940AbTG2RqZ
+	id S271969AbTG2SBg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 14:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271845AbTG2R6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 13:46:25 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:56837 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271934AbTG2RqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 13:46:20 -0400
-Date: Tue, 29 Jul 2003 18:46:18 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Sven Schnelle <schnelle@kabelleipzig.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Framebuffer Console
-In-Reply-To: <20030728201006.GA349@apollo.sven.bitebene.org>
-Message-ID: <Pine.LNX.4.44.0307291827090.5874-100000@phoenix.infradead.org>
+	Tue, 29 Jul 2003 13:58:47 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:27015 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S271939AbTG2R50 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 13:57:26 -0400
+Message-ID: <3F26B570.7020004@colorfullife.com>
+Date: Tue, 29 Jul 2003 19:57:04 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Andries.Brouwer@cwi.nl, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] select fix
+References: <UTC200307291412.h6TECwA17034.aeb@smtp.cwi.nl> <20030729103630.7fb415cb.akpm@osdl.org>
+In-Reply-To: <20030729103630.7fb415cb.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-> while testing linux-2.6.0-test2 I have some strange framebuffer(rivafb,
-> but maybe this appears on other card's too)
-> behaviour:
-> 
-> 1) Screen is not restored after switching from X11 back to textmode
-
-Try adding UseFBDev "true" to your XF86Config file. 
-
-> 2) Cursor shows wrong characters
-
-> This patch solve the problems for me:
-> 
-> -------------------------------------8<--------------------------------
-> diff -ur linux-2.6.0-test2/drivers/video/console/fbcon.c linux-2.6.0-test2-sv/drivers/video/console/fbcon.c
-> --- linux-2.6.0-test2/drivers/video/console/fbcon.c	2003-07-27 19:05:15.000000000 +0200
-> +++ linux-2.6.0-test2-sv/drivers/video/console/fbcon.c	2003-07-28 10:40:38.000000000 +0200
-> @@ -1056,7 +1056,7 @@
->  			cursor.set |= FB_CUR_SETHOT;
->  		}
+>Andries.Brouwer@cwi.nl wrote:
 >  
-> -		if ((cursor.set & FB_CUR_SETSIZE) || ((vc->vc_cursor_type & 0x0f) != p->cursor_shape)) {
-> +		if ((cursor.set & FB_CUR_SETSIZE) || (cursor.set & FB_CUR_SETCUR) || ((vc->vc_cursor_type & 0x0f) != p->cursor_shape)) {
->  			char *mask = kmalloc(w*vc->vc_font.height, GFP_ATOMIC);
->  			int cur_height, size, i = 0;
-
-This is wrong. FB_CUR_SETCUR is used only by the userland cursor 
-interface. We use it to turn the cursor on and off via userland this way.
-Internal to the kernel we just toggle the enable flag.
-
-> @@ -1704,8 +1704,13 @@
->  	if (blank < 0)		/* Entering graphics mode */
->  		return 0;
+>
+>>-	if (tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS)
+>>+	if (!tty->stopped && tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS)
+>> 		mask |= POLLOUT | POLLWRNORM;
+>>    
+>>
+>
+>Manfred sent a patch through esterday which addresses it this way:
+>
+>-	if (tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS)
+>+	if (tty->driver->chars_in_buffer(tty) < WAKEUP_CHARS &&
+>+			tty->driver->write_room(tty) > 0)
+>
+>Any preferences?
 >  
-> +	/* FIXME: Dirty Hack */
-> +	info->cursor.image.height = 0;	/* Need to set cursor size */
-> +	info->cursor.image.width = 0;
->  	fbcon_cursor(vc, blank ? CM_ERASE : CM_DRAW);
->  
-> +	fbcon_clear(vc, 0, 0, vc->vc_rows, vc->vc_cols);
-> +	update_screen(vc->vc_num);
->  	if (!info->fbops->fb_blank) {
->  		if (blank) {
->  			unsigned short oldc;
+>
+Who should implement tty->stopped? AFAICS tty->stopped is implemented in 
+the drivers right now, and my patch would leave that unchanged.
 
-This is a fluke that it helps. The cursor shows wrong characters because
-the code logic is wrong. I'm working on the new code.
+--
+    Manfred
 
 

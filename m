@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUD0Rjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264218AbUD0RnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264238AbUD0Rjr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 13:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264250AbUD0RjJ
+	id S264218AbUD0RnK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 13:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUD0RnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 13:39:09 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:62980 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264228AbUD0ReD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 13:34:03 -0400
-Date: Tue, 27 Apr 2004 18:34:00 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Chris Mason <mason@suse.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, akpm@osdl.org
-Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary additional namespace to ReiserFS
-Message-ID: <20040427183400.A20221@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Hans Reiser <reiser@namesys.com>, Chris Mason <mason@suse.com>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com, akpm@osdl.org
-References: <1082750045.12989.199.camel@watt.suse.com> <408D3FEE.1030603@namesys.com> <20040426203314.A6973@infradead.org> <408E986F.90506@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <408E986F.90506@namesys.com>; from reiser@namesys.com on Tue, Apr 27, 2004 at 10:29:19AM -0700
+	Tue, 27 Apr 2004 13:43:09 -0400
+Received: from FE-mail04.albacom.net ([213.217.149.84]:57490 "EHLO
+	FE-mail04.sfg.albacom.net") by vger.kernel.org with ESMTP
+	id S264248AbUD0RhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 13:37:11 -0400
+Message-ID: <001201c42c7e$4c60f2e0$0200a8c0@arrakis>
+Reply-To: "Marco Cavallini" <linux@koansoftware.com>
+From: "Marco Cavallini" <linux@koansoftware.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Cc: "Greg KH" <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+References: <005c01c42b82$60d82f60$0200a8c0@arrakis> <20040426185612.GB28530@kroah.com> <003501c42c24$06e87940$0200a8c0@arrakis> <20040427171737.GB2465@mars.ravnborg.org>
+Subject: Re: Problem with CONFIG_USB_SL811HS
+Date: Tue, 27 Apr 2004 19:37:21 +0200
+Organization: Koan s.a.s.
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Did you notice that V4 blows XFS and ReiserFS V3 away in benchmarks?    
-> That is what I have been doing for 3 years....
-> 
-> See www.namesys.com for details.
+In Linux-2.4.26 the problem is in 
+drivers/usb/host/Makefile
 
-see www.microsoft.com why Windows is much better than Linux.  Yeah, thanks.
+After this block....
+subdir-$(CONFIG_USB_OHCI_AT91) += host
+ifeq ($(CONFIG_USB_OHCI_AT91),y)
+ obj-y += host/usb-ohci.o
+endif
 
-still leaving every single non-rhetorical question unanswered of course..
+...I added this...
+######## Begin new code MCK ##########
+subdir-$(CONFIG_USB_SL811HS) += host
+ifeq ($(CONFIG_USB_SL811HS),y)
+ obj-y += host/hc_sl811.o
+endif
+subdir-$(CONFIG_USB_SL811HS_ALT) += host
+ifeq ($(CONFIG_USB_SL811HS_ALT),y)
+ obj-y += host/sl811.o
+endif
+######## End new code MCK ##########
+
+There are also minor modifications, but I'm still working on this driver.
+Marco Cavallini
+==============================================
+Koan s.a.s. - Software Engineering  (x86 and ARM)
+Linux solutions for Embedded and Real-Time Software
+  - Intel PCA Developer Network member
+Via Pascoli, 3  - 24121 Bergamo - ITALIA
+Tel./Fax (++39) +35 - 255.235 - www.koansoftware.com
+==============================================

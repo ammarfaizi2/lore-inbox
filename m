@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVCVCoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVCVCmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbVCVCoH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 21:44:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVCVCnx
+	id S262529AbVCVCmP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 21:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbVCVClg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:43:53 -0500
-Received: from bgo1smout1.broadpark.no ([217.13.4.94]:38892 "EHLO
-	bgo1smout1.broadpark.no") by vger.kernel.org with ESMTP
-	id S262283AbVCVB7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 20:59:41 -0500
-Date: Tue, 22 Mar 2005 03:01:01 +0100
-From: Daniel Andersen <anddan@linux-user.net>
-Subject: Re: Distinguish real vs. virtual CPUs?
-In-reply-to: <20050321202726.A7630@morpheus>
-To: Dan Maas <dmaas@maasdigital.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <423F7C5D.4000203@linux-user.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-References: <20050321202726.A7630@morpheus>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+	Mon, 21 Mar 2005 21:41:36 -0500
+Received: from fire.osdl.org ([65.172.181.4]:52379 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262208AbVCVBxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 20:53:10 -0500
+Date: Mon, 21 Mar 2005 17:52:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org, len.brown@intel.com
+Subject: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389
+Message-Id: <20050321175232.34d93a13.akpm@osdl.org>
+In-Reply-To: <20050322013535.GA1421@elf.ucw.cz>
+References: <20050321025159.1cabd62e.akpm@osdl.org>
+	<200503212343.31665.rjw@sisk.pl>
+	<20050321160306.2f7221ec.akpm@osdl.org>
+	<20050322004456.GB1372@elf.ucw.cz>
+	<20050321170623.4eabc7f8.akpm@osdl.org>
+	<20050322013535.GA1421@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Maas wrote:
-> Is there a canonical way for user-space software to determine how many
-> real CPUs are present in a system (as opposed to HyperThreaded or
-> otherwise virtual CPUs)?
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> > Could I suggest that you prepare a fixup against 2.6.12-rc1-mm1 and send
+>  > that to Len and myself?  If that fixup is not suitable for a 2.6.12-rc1
+>  > based tree then I can look after it until things get flushed out.
 > 
-> We have an application that for performance reasons wants to run one
-> process per CPU. However, on a HyperThreaded system /proc/cpuinfo
-> lists two CPUs, and running two processes in this case is the wrong
-> thing to do. (Hyperthreading ends up degrading our performance,
-> perhaps due to cache or bus contention).
-> 
-> Please CC replies.
-> 
-> Thanks,
-> Dan Maas
-> -
+>  Could you just revert those two patches? First one is very
+>  wrong. Second one might be fixed, but... See comments below.
 
-The simplest thing to do would be to boot with the "noht" parameter.
+I could revert them locally, but that wouldn't gain us much.
 
-Or you can use "schedtool" (google or freshmeat) to set the CPU-affinity 
-at runtime to avoid HyperThreading the processes.
+Greg hasn't taken the pm_message_t patches yet.  Perhaps that's for the best.
 
-Daniel Andersen
-
--- 
+Perhaps I should just jam everything-from-Pavel into Linus's tree as soon
+as he returns and then we can fix up the downstream fallout in the various
+bk trees?

@@ -1,75 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311180AbSDITxH>; Tue, 9 Apr 2002 15:53:07 -0400
+	id <S311211AbSDIUFQ>; Tue, 9 Apr 2002 16:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311206AbSDITxG>; Tue, 9 Apr 2002 15:53:06 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:53776 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S311180AbSDITxF>; Tue, 9 Apr 2002 15:53:05 -0400
-Message-ID: <3CB3380F.FA9456D8@zip.com.au>
-Date: Tue, 09 Apr 2002 11:50:55 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S311239AbSDIUFP>; Tue, 9 Apr 2002 16:05:15 -0400
+Received: from mailf.telia.com ([194.22.194.25]:32203 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S311211AbSDIUFP>;
+	Tue, 9 Apr 2002 16:05:15 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@norran.net> (by way of Roger Larsson
+	<roger.larsson@norran.net>)
+Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is enabled
+Date: Tue, 9 Apr 2002 22:06:02 +0200
+X-Mailer: KMail [version 1.4]
+To: Anssi Saari <as@sci.fi>
+Cc: linux-kernel@vger.kernel.org, Mark Mielke <mark@mark.mielke.cc>
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Andrey Nekrasov <andy@spylog.ru>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.4.19-pre6aa1
-In-Reply-To: <20020409084335.GA10890@spylog.ru> <3CB2B09C.DF1A0AC2@zip.com.au> <20020409182200.E15656@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <200204092206.02376.roger.larsson@norran.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> On Tue, Apr 09, 2002 at 02:13:00AM -0700, Andrew Morton wrote:
-> > Andrey Nekrasov wrote:
-> > >
-> > > ..
-> > > >>EIP; e0115c1c <out_of_line_bug+0/14>   <=====
-> > > Trace; e012069a <copy_page_range+1da/334>
-> > > Trace; e0114caa <copy_mm+222/2bc>
-> > > Trace; e01154b6 <do_fork+42e/744>
-> > > Trace; e0107270 <sys_fork+14/1c>
-> >
-> > hmm.  That out-of-line stuff has obfuscated the trace
-> > a bit.  It died in kunmap_atomic or kmap_atomic, part
-> > of Andrea's pte-highmem additions.
-> >
-> > I guess the out-of-line bug should be if !CONFIG_DEBUG_KERNEL.
-> 
-> I didn't complained yet but the whole point of the BUG() was to get such
-> a printk in the right place. Now the above report is trivial and the
-> debugging check triggered a false positive bugcheck due
-> CONFIG_DEBUG_HIGHMEM=y (I always compile with =n and that's why I didn't
-> triggered it here), but sometime it isn't that easy to find it out, in
-> particular when there are plenty of BUG()s in a row like in
-> page_alloc.c, so I disagree with the merger of the out_of_line_bug in
-> mainline.
+On tisdagen den 9 april 2002 12.01, Anssi Saari wrote:
+> On Mon, Apr 08, 2002 at 06:02:55PM -0400, Mark Hahn wrote:
+> > I think someone else already pointed out that doing
+> > a kernel profile would be good.  strace would also
+> > be quite useful, even just the -c form.
+>
+> Here it is:
+>
+> With unmaskirq=1 first:
+>
+>
+>     49 handle_IRQ_event                           0.5104
+>    239 file_read_actor                            2.4896
+>   3324 default_idle                              69.2500
+>  20097 ide_output_data                          104.6719
 
-No, you misunderstand.  All the BUG()s in .c files are unchanged.
+Hey, what is this?
 
-out_of_line_bug() is used in one place only:  in inline functions
-which appear in commonly-included header files.
+Comment of the function is:
+"This is used for most PIO data transfers *to* the IDE interface"
+(see /drivers/ide/ide.c:426)
+Has it reverted to PIO mode?
 
-There are only ten or fifteen out_of_line_bug()s.  We just happened
-to hit one here.  They were added by a process of peering at the 
-kernel image and asking "why does the same string appear 120 times?".
+Some information might be found with
+# more /proc/ide/hd*/settings
 
-Yeah, it's all a bit sad.  It's a workaround for a toolchain shortcoming,
-and it does save 100 to 200 kbytes.  If I'd been smarter I'd have
-passed __LINE__ into out_of_line_bug().  It's only the string which
-is a problem.
+This is how mine look like
+cat /proc/ide/hdc/settings
+name                    value           min             max             mode
+----                    -----           ---             ---             ----
+bios_cyl			0               0               1023            rw
+bios_head		0               0               255             rw
+bios_sect		0               0               63              rw
+current_speed	66              0               69              rw
+ide_scsi		0               0               1               rw
+init_speed		66              0               69              rw
+io_32bit			0               0               3               rw
+keepsettings	0               0               1               rw
+log				0               0               1               rw
+nice1			1               0               1               rw
+number			2               0               3               rw
+pio_mode		write-only      0               255             w
+slow			0               0               1               rw
+transform		1               0               3               rw
+unmaskirq		1               0               1               rw
+using_dma		1               0               1               rw
 
+>  23952 total                                      0.0236
+> Number of interrupts on ide1 during burn: 17531
+>
+> And then, unmaskirq=0:
+>
+> - - -
+>    168 do_softirq                                 0.9545
+>    234 file_read_actor                            2.4375
+>   1942 handle_IRQ_event                          20.2292
+>   2949 default_idle                              61.4375
+>   6808 ide_intr                                  18.5000
+>  12333 total                                      0.0122
+> Number of interrupts on ide1 during burn: 17532
 
-There is a sneaky new featurette, btw.  We sometimes see BUG
-reports where the reporter failed to report the file-and-line.
-But it's still available in the oops record:
+This looks like mine results. Quite some time spent in interrupt
+routines. (weighted 38%)
+Using or not using unmaskirq does not matter for me:
+It stays below 40%, but I do only run at 10x (40% is quite much
+for any disk bound operation...)
 
-Code: 0f 0b c2 05 d8 36 92 f0 83 c4 14 5b 5e 5f 5d c3 8d 76 00 8d
-            ^^^^^
-                 This is the line number
+I will attempt a profiling while unmasked too.
 
+I assume you also use ide_scsi, right?
 
--
+/RogerL
+
+--
+Roger Larsson
+Skellefteå
+Sweden
+

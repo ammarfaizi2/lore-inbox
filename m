@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265624AbRFWEyz>; Sat, 23 Jun 2001 00:54:55 -0400
+	id <S265629AbRFWEyN>; Sat, 23 Jun 2001 00:54:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265626AbRFWEyo>; Sat, 23 Jun 2001 00:54:44 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:33041 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S265624AbRFWEyc>;
-	Sat, 23 Jun 2001 00:54:32 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: stimits@idcomm.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Cleanup kbuild for aic7xxx 
-In-Reply-To: Your message of "Fri, 22 Jun 2001 22:17:12 CST."
-             <3B341848.1EF6DA3B@idcomm.com> 
+	id <S265626AbRFWEyE>; Sat, 23 Jun 2001 00:54:04 -0400
+Received: from apollo.cis.from.de ([194.162.209.12]:9346 "EHLO
+	apollo.cis.from.de") by vger.kernel.org with ESMTP
+	id <S265629AbRFWExv>; Sat, 23 Jun 2001 00:53:51 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 23 Jun 2001 14:54:22 +1000
-Message-ID: <13170.993272062@ocs3.ocs-net>
+Message-Id: <p05100323b759d0c24582@[194.162.209.20]>
+In-Reply-To: <014301c0fb94$217aee50$1a01a8c0@allyourbase>
+In-Reply-To: <fa.h2turhv.121c3bs@ifi.uio.no>
+ <014301c0fb94$217aee50$1a01a8c0@allyourbase>
+Date: Sat, 23 Jun 2001 06:53:33 +0200
+To: "Dan Maas" <dmaas@dcine.com>
+From: Ingo Ciechowski <ciechowski@cis-computer.com>
+Subject: Re: High system CPU% in dual CPU System
+Cc: linux-kernel@vger.kernel.org, stimits@idcomm.com
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Jun 2001 22:17:12 -0600, 
-"D. Stimits" <stimits@idcomm.com> wrote:
-> On Fri, 22 Jun 2001 13:39:45 -0600,
->> "Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
->> Users don't have to manually select "rebuild firmware".  They can
->> rely on the generated files already in the aic7xxx directory.  This
->> is why the option defaults to off.
+At 23:25 Uhr -0400 22.06.2001, Dan Maas wrote:
+>  > CPU0 states: 19.2% user, 32.0% system,  0.0% nice, 48.2% idle
+>>  CPU1 states: 20.4% user, 40.1% system,  0.0% nice, 38.3% idle
 >
->For the SGI patched kernels based on either 2.4.5 or 2.4.6-pre1, I have
->had to manually select this for a 7892 controller. Without manually
->selecting it, it guarantees boot failure. I don't know if this is due to
->the SGI modifications or not.
+>>  What can I do to find out what the CPUs are doing during "system" time?
+>
+>Try 'ps -ax' and see if any process has a large TIME (cumulative CPU time).
+>I suspect you may just be seeing a kernel idle process (e.g. kapm-idled),
+>which is nothing to worry about.
 
-It is a side effect of the SGI source control system.
 
+Hi Dan,
+
+thanx for the hint. I could identify one of my scripts as cause of 
+the problem and will now have a closer look at its periodic activity..
+
+Ingo

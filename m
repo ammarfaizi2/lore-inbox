@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263380AbTEVXSD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 19:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbTEVXSD
+	id S263390AbTEVXXM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 19:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTEVXXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 19:18:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:40672 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263380AbTEVXSD (ORCPT
+	Thu, 22 May 2003 19:23:12 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:6038 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S263390AbTEVXXM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 19:18:03 -0400
-Date: Thu, 22 May 2003 16:29:13 -0700 (PDT)
-Message-Id: <20030522.162913.115921853.davem@redhat.com>
-To: schlicht@uni-mannheim.de
-Cc: akpm@digeo.com, mfc@krycek.org, linux-kernel@vger.kernel.org
-Subject: Re: Error during compile of 2.5.69-mm8
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305230128.06412.schlicht@uni-mannheim.de>
-References: <20030522160218.57b828db.akpm@digeo.com>
-	<20030522.160531.59667592.davem@redhat.com>
-	<200305230128.06412.schlicht@uni-mannheim.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Thu, 22 May 2003 19:23:12 -0400
+Date: Thu, 22 May 2003 16:36:09 -0700
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: irtty_sir cannot be unloaded
+Message-ID: <20030522233609.GA11706@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Thomas Schlichter <schlicht@uni-mannheim.de>
-   Date: Fri, 23 May 2003 01:28:06 +0200
+Stian Jordet wrote :
+> 
+> Module irtty_sir cannot be unloaded due to unsafe usage in
+> include/linux/module.h:456
+> 
+> I get this message when trying to use irda with 2.5.x. I know it has
+> been there for a long time, but since nothing happens
 
-   On May 23, David S. Miller wrote:
-   > Yoshfuji posted a patch on linux-kernel to fix this already.
-   
-   Sorry, I must have missed this patch - that would have made my work
-   obsolete - 
-   but I'd like to see how that supports all the other
-   SET_MODULE_OWNER calls from all the other places...
-   
-They also should be converted to explicit ->owner references.
+	This is fixed in the patches I've send to Jeff :
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105286597418927&w=2
+	Just be patient ;-)
+
+	I guess that if it's the only complain, this means that the
+rest of the IrDA stack works for you in 2.5.X. At least, I'm not the
+only one testing it...
+
+	Jean

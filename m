@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTEERZE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 13:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbTEERZE
+	id S261329AbTEERUV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 13:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbTEERUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 13:25:04 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6467 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S261151AbTEERZD
+	Mon, 5 May 2003 13:20:21 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:63148 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261329AbTEERUT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 13:25:03 -0400
-To: Steven Cole <elenstev@mesatop.com>
-Cc: linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Kernel hot-swap using Kexec, BProc and CC/SMP Clusters.
-References: <1052140733.2163.93.camel@spc9.esa.lanl.gov>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 May 2003 11:34:24 -0600
-In-Reply-To: <1052140733.2163.93.camel@spc9.esa.lanl.gov>
-Message-ID: <m1d6ixb8m7.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	Mon, 5 May 2003 13:20:19 -0400
+Date: Mon, 5 May 2003 19:32:30 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 654] New: Floppy access locks system with endless stream
+ of errors
+In-Reply-To: <9950000.1052152383@[10.10.2.4]>
+Message-ID: <Pine.SOL.4.30.0305051932070.27113-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So summarize:
-1) Run multiple kernels (minimally kernels A and B)
-2) Migrate processes from kernel A to kernel B
-3) Use kexec to replace kernel A once all processes have left.
-4) Repeat for all other kernels.
 
-On two simple machines working in tandem (The most common variation
-used for high availability this should be easy to do).  And it is
-preferable to a reboot because of the additional control and speed.
+Fixed in 2.5.69
 
-Thank you for the perspective.  This looks like I line I can
-sell to get some official time to work on kexec and it's friends
-more actively.
+On Mon, 5 May 2003, Martin J. Bligh wrote:
 
->From what I have seen process migration/process check-pointing is
-currently the very rough area.
+> http://bugme.osdl.org/show_bug.cgi?id=654
+>
+>            Summary: Floppy access locks system with endless stream of errors
+>     Kernel Version: 2.5.68-bk11
+>             Status: NEW
+>           Severity: high
+>              Owner: bugme-janitors@lists.osdl.org
+>          Submitter: bwindle-kbt@fint.org
+>
+>
+> Distribution: Debian Testing
+> Hardware Environment: Dell Optiplex GXa
+> Problem Description:
+>
+> Trying to mount a floppy gives an endless stream of:
+> floppy0: disk absent or changed during operation
+> end_request: I/O error, dev fd0, sector 0
+> floppy0: disk absent or changed during operation
+> end_request: I/O error, dev fd0, sector 0
+> floppy0: disk absent or changed during operation
+> end_request: I/O error, dev fd0, sector 0
+>
+> The system is non-responsive to changes to VTs, it can't be pinged, but
+> alt+sysrq prints "SysRq: Show State" but never prints anything beyond that
+> (but  changing LogLevel via Sysrq works).
+>
+> Ctrl+alt+delete has no effect, numlock won't turn on/off numlock light.
+>
+> Steps to reproduce:
+> Insert floppy, try to mount it.
 
-The interesting thing becomes how do you measure system uptime.
-
-Eric

@@ -1,47 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265183AbUD3NGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265182AbUD3NKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265183AbUD3NGX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 09:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265182AbUD3NGX
+	id S265182AbUD3NKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 09:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265184AbUD3NKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 09:06:23 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:39941 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265183AbUD3NGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 09:06:19 -0400
-Date: Fri, 30 Apr 2004 14:06:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: Erik Jacobson <erikj@subway.americas.sgi.com>, Paul Jackson <pj@sgi.com>,
-       chrisw@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Process Aggregates (PAGG) support for the 2.6 kernel
-Message-ID: <20040430140611.A11636@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Rik van Riel <riel@redhat.com>,
-	Erik Jacobson <erikj@subway.americas.sgi.com>,
-	Paul Jackson <pj@sgi.com>, chrisw@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20040430071750.A8515@infradead.org> <Pine.LNX.4.44.0404300853230.6976-100000@chimarrao.boston.redhat.com>
+	Fri, 30 Apr 2004 09:10:25 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:45772 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265182AbUD3NJj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 09:09:39 -0400
+Date: Fri, 30 Apr 2004 18:41:07 +0530
+From: Raghavan <raghav@in.ibm.com>
+To: akpm@osdl.org, ak@suse.de
+Cc: linux-kernel@vger.kernel.org, raghav@in.ibm.com
+Subject: [PATCH] Fixes in 32 bit ioctl emulation code
+Message-ID: <20040430131107.GA13126@in.ibm.com>
+Reply-To: raghav@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0404300853230.6976-100000@chimarrao.boston.redhat.com>; from riel@redhat.com on Fri, Apr 30, 2004 at 08:54:08AM -0400
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 30, 2004 at 08:54:08AM -0400, Rik van Riel wrote:
-> What was the last time you looked at the CKRM source?
 
-the day before yesterday (the patch in SuSE's tree because there
-doesn't seem to be any official patch on their website)
+Hi Andi & Andrew,
 
-> Sure it's a bit bigger than PAGG, but that's also because
-> it includes the functionality to change the group a process
-> belongs to and other things that don't seem to be included
-> in the PAGG patch.
+I am submitting a patch that fixes 2 race conditions in the 32 bit ioctl
+emulation code.(fs/compat.c) Since the search is not locked; when a 
+ioctl_trans structure is deleted, corruption can occur.
 
-Again, pagg doesn't even play in that league.  It's really just a tiny
-meachnism to allow a kernel module keep per-process data.  Policies
-like process-groups can be implemented ontop of that.
+The following scenarios discuss the race conditions:
 
+1) When the search is hapenning, if any ioctl_trans structure gets deleted; then
+rather than searching the hash table, the code will start searching the free
+list.
+
+while (t && t->cmd != cmd)
+        ---->Deletion of t happens here; t->next points to ioctl_free_list
+        t = (struct ioctl_trans *)t->next;
+        ---->Now t will point to the ioctl_free_list
+
+2) Another race is when  the delete happens while the search holds the pointer
+ to ioctl_trans. In this case the ioctl_trans structure is added to head of
+the ioctl_free_list. In the meanwhile if another module is registering, then
+the ioctl_trans from the head of the queue is given. This causes corruption.
+
+if (t) {
+        -----> t gets deleted, added to free list and gets alloted again
+        if (t->handler) {
+        ------> t is corrupted
+
+
+The solution as I see it is to protect the search too. Since anyway the BKL
+needs to be used while calling the emulation handler, it can be pushed above
+to protect the searching. The fallout of this solution is that ioctl_free_list
+is not required any more.
+
+Thanks
+Raghav
+
+--- compat.c.old	2004-04-30 15:01:35.000000000 +0530
++++ compat.c	2004-04-30 14:33:34.000000000 +0530
+@@ -282,18 +282,6 @@
+ 
+ __initcall(init_sys32_ioctl);
+ 
+-static struct ioctl_trans *ioctl_free_list;
+-
+-/* Never free them really. This avoids SMP races. With a Read-Copy-Update
+-   enabled kernel we could just use the RCU infrastructure for this. */
+-static void free_ioctl(struct ioctl_trans *t) 
+-{ 
+-	t->cmd = 0; 
+-	mb();
+-	t->next = ioctl_free_list;
+-	ioctl_free_list = t;
+-} 
+-
+ int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *))
+ {
+ 	struct ioctl_trans *t;
+@@ -310,15 +298,10 @@
+ 		}
+ 	} 
+ 
+-	if (ioctl_free_list) { 
+-		t = ioctl_free_list; 
+-		ioctl_free_list = t->next; 
+-	} else { 
+-		t = kmalloc(sizeof(struct ioctl_trans), GFP_KERNEL); 
+-		if (!t) { 
+-			unlock_kernel();
+-			return -ENOMEM;
+-		}
++	t = kmalloc(sizeof(struct ioctl_trans), GFP_KERNEL); 
++	if (!t) { 
++		unlock_kernel();
++		return -ENOMEM;
+ 	}
+ 	
+ 	t->next = NULL;
+@@ -358,10 +341,10 @@
+ 			printk("%p tried to unregister builtin ioctl %x\n",
+ 			       __builtin_return_address(0), cmd);
+ 		} else { 
+-		ioctl32_hash_table[hash] = t->next;
+-			free_ioctl(t); 
++			ioctl32_hash_table[hash] = t->next;
+ 			unlock_kernel();
+-		return 0;
++			kfree(t);
++			return 0;
+ 		}
+ 	} 
+ 	while (t->next) {
+@@ -372,10 +355,10 @@
+ 				       __builtin_return_address(0), cmd);
+ 				goto out;
+ 			} else { 
+-			t->next = t1->next;
+-				free_ioctl(t1); 
++				t->next = t1->next;
+ 				unlock_kernel();
+-			return 0;
++				kfree(t1);
++				return 0;
+ 			}
+ 		}
+ 		t = t1;
+@@ -404,43 +387,50 @@
+ 		goto out;
+ 	}
+ 
++	lock_kernel();
++
+ 	t = (struct ioctl_trans *)ioctl32_hash_table [ioctl32_hash (cmd)];
+ 
+ 	while (t && t->cmd != cmd)
+ 		t = (struct ioctl_trans *)t->next;
+ 	if (t) {
+ 		if (t->handler) { 
+-			lock_kernel();
+ 			error = t->handler(fd, cmd, arg, filp);
+ 			unlock_kernel();
+-		} else
++		} else {
++			unlock_kernel();
+ 			error = sys_ioctl(fd, cmd, arg);
+-	} else if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
+-		error = siocdevprivate_ioctl(fd, cmd, arg);
+-	} else {
+-		static int count;
+-		if (++count <= 50) { 
+-			char buf[10];
+-			char *path = (char *)__get_free_page(GFP_KERNEL), *fn = "?"; 
+-
+-			/* find the name of the device. */
+-			if (path) {
+-		       		fn = d_path(filp->f_dentry, filp->f_vfsmnt, 
+-					    path, PAGE_SIZE);
++		}
++	} else
++	{
++		unlock_kernel();
++		if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
++			error = siocdevprivate_ioctl(fd, cmd, arg);
++		} else {
++			static int count;
++			if (++count <= 50) { 
++				char buf[10];
++				char *path = (char *)__get_free_page(GFP_KERNEL), *fn = "?"; 
++
++				/* find the name of the device. */
++				if (path) {
++			       		fn = d_path(filp->f_dentry, filp->f_vfsmnt, 
++						    path, PAGE_SIZE);
++				}
++	
++				sprintf(buf,"'%c'", (cmd>>24) & 0x3f); 
++				if (!isprint(buf[1]))
++				    sprintf(buf, "%02x", buf[1]);
++				printk("ioctl32(%s:%d): Unknown cmd fd(%d) "
++				       "cmd(%08x){%s} arg(%08x) on %s\n",
++				       current->comm, current->pid,
++				       (int)fd, (unsigned int)cmd, buf, (unsigned int)arg,
++				       fn);
++				if (path) 
++					free_page((unsigned long)path); 
+ 			}
+-
+-			sprintf(buf,"'%c'", (cmd>>24) & 0x3f); 
+-			if (!isprint(buf[1]))
+-			    sprintf(buf, "%02x", buf[1]);
+-			printk("ioctl32(%s:%d): Unknown cmd fd(%d) "
+-			       "cmd(%08x){%s} arg(%08x) on %s\n",
+-			       current->comm, current->pid,
+-			       (int)fd, (unsigned int)cmd, buf, (unsigned int)arg,
+-			       fn);
+-			if (path) 
+-				free_page((unsigned long)path); 
++			error = -EINVAL;
+ 		}
+-		error = -EINVAL;
+ 	}
+ out:
+ 	fput(filp);

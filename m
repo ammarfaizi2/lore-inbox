@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312456AbSCYQmx>; Mon, 25 Mar 2002 11:42:53 -0500
+	id <S312458AbSCYQ4L>; Mon, 25 Mar 2002 11:56:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312458AbSCYQmn>; Mon, 25 Mar 2002 11:42:43 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:33802 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S312456AbSCYQmb>; Mon, 25 Mar 2002 11:42:31 -0500
-Date: Mon, 25 Mar 2002 17:42:27 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Dieter =?iso-8859-15?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Dave Jones <davej@suse.de>,
-        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        jonathan@woaf.net
-Subject: Re: Possible problems with D-LINK DFE-550TX (stock sundance driver) under 2.4.18
-Message-ID: <20020325164227.GA19001@merlin.emma.line.org>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Dieter =?iso-8859-15?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-	Dave Jones <davej@suse.de>, jonathan@woaf.net
-In-Reply-To: <200203250336.08428.Dieter.Nuetzel@hamburg.de> <20020325123942.A23014@suse.de> <200203251540.37393.Dieter.Nuetzel@hamburg.de> <20020325163621.GA21260@woaf.net>
+	id <S312459AbSCYQ4B>; Mon, 25 Mar 2002 11:56:01 -0500
+Received: from bitmover.com ([192.132.92.2]:719 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S312458AbSCYQzq>;
+	Mon, 25 Mar 2002 11:55:46 -0500
+Date: Mon, 25 Mar 2002 08:55:34 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
+        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+        lm@bitmover.com
+Subject: Re: linux-2.4 bitkeeper repository not up to date
+Message-ID: <20020325085534.K4755@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	James Bottomley <James.Bottomley@HansenPartnership.com>,
+	linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+	lm@bitmover.com
+In-Reply-To: <200203251544.g2PFiaV02011@localhost.localdomain> <22088.1017071834@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Mar 2002, David Flynn wrote:
-
-> Please, do we have to go on about the merits of Athlon XP systems in MP
-> configurations ?? 1) your wrong about the bridges, it only affects iirc
-> the new XP2000+ chips, 2) is it /REALLY/ the issue ?? i do not think so.
+On Mon, Mar 25, 2002 at 03:57:14PM +0000, David Woodhouse wrote:
+> James.Bottomley@HansenPartnership.com said:
+> > The repository linux24.bkbits.net is only at 2.4.19-pre3; however, the
+> > kernel  test directory is at 2.4.19-pre4.  I seem to remember that
+> > when we had this  problem with the 2.5 repository it was a scripting
+> > issue.
 > 
-> However, I am very happy to report that the system has just done it
-> again.  I can't give any further details yet, although i am just going
-> over to pay a visit to the box and do some more investigations.
+> Use linux.bkbits.net/linux-2.4 instead. 
 > 
-> FYI, we have two of these boxes with the same hardware / kernel
-> configuration.  Two of them have now shown the same problem (eth0
-> timeouts).  Including having maxcpus=1 set.
-> 
-> Could this perhaps be a driver issue after all ?
+> We should probably remove linux24.bkbits.net. Marcelo? Larry?
 
-Of course, but you cannot tell if you run XPs in SMP configurations. If
-you bad things still happen in uniprocessor mode, you know where to
-look: at the driver.
+In general, we don't automatically clean out old repositories here though
+I suspect that will have to change as usage levels rise.  We are going to
+start insisting that we get a valid email address when you create a project
+on bkbits.net so we can send you mail to ask if you care about something
+we want to clean up.
 
+If you created stuff on bkbits.net that you no longer use/need, please log
+in as your_proj.adm and do a rm_proj on it.  
 -- 
-Matthias Andree
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,60 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266526AbUIOPxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUIOP5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266526AbUIOPxk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 11:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUIOPxh
+	id S262279AbUIOP5F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 11:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266534AbUIOP5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 11:53:37 -0400
-Received: from mta10-svc.ntlworld.com ([62.253.162.94]:26710 "EHLO
-	mta10-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S266526AbUIOPvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 11:51:44 -0400
-Subject: Re: [2.6.8.1/x86] The kernel is _always_ compiled with -msoft-float
-From: Ian Campbell <ijc@hellion.org.uk>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040915153528.GE24818@thundrix.ch>
-References: <20040915021418.A1621@natasha.ward.six>
-	 <20040915153528.GE24818@thundrix.ch>
-Content-Type: text/plain
-Message-Id: <1095263494.18800.47.camel@icampbell-debian>
+	Wed, 15 Sep 2004 11:57:01 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:45482 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262279AbUIOPyn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 11:54:43 -0400
+Date: Wed, 15 Sep 2004 17:55:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+Message-ID: <20040915155555.GA11019@elte.hu>
+References: <20040915151815.GA30138@elte.hu> <Pine.LNX.4.58.0409150826150.2333@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 15 Sep 2004 16:51:34 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409150826150.2333@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 16:35, Tonnerre wrote:
-> On Wed, Sep 15, 2004 at 02:14:18AM +0600, Denis Zaitsev wrote:
-> > Why this kernel is always compiled with the FP emulation for x86?
-> > This is the line from the beginning of arch/i386/Makefile:
-> > 
-> > CFLAGS += -pipe -msoft-float
-> > 
-> > And it's hardcoded, it does not depend on CONFIG_MATH_EMULATION.  So,
-> > is this just a typo or not?
-[snip]
-> Thus  we force gcc  to use  the library  functions for  floating point
-> arith, and  since we  don't link  against gcc's lib,  FPU users  get a
-> fancy linker error.
 
-It's a shame that gcc doesn't have -mno-float which could disable
-floating point completely and produce a more useful error message than a
-missing symbol at link time
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-I searched for ages just yesterday for the "float" in some kernel code I
-acquired recently... To be fair I was grepping for float and it was a
-double that was being used so if I'd had my brain turned on I would have
-found it quite quickly, but you get the point.
+> > the attached patch is a new approach to get rid of Linux's Big Kernel
+> > Lock as we know it today.
+> 
+> I really think this is wrong.
+> 
+> Maybe not from a conceptual standpoint, but that implementation with
+> the scheduler doing "reaquire_kernel_lock()" and doing a down() there
+> is just wrong, wrong, wrong.
+> 
+> If we're going to do a down() and block immediately after being
+> scheduled, I don't think we should have been picked in the first
+> place.
 
-Has anyone ever suggested such a flag to the gcc folks?
+agreed, and that codepath is only for correctness - the semaphore code
+will make sure most of the time that this doesnt happen. It's the same
+as the need_resched check - it doesnt happen in 99.9% of the cases but
+when it happens it must happen.
 
-Ian.
+> Yeah, yeah, you have all that magic to not recurse by setting
+> lock-depth negative before doing the down(), but it still feels
+> fundamentally wrong to me. There's also the question whether this
+> actually _helps_ anything, since it may well just replace the spinning
+> with lots of new scheduler activity. 
 
--- 
-Ian Campbell
-Current Noise: Megadeth - Pyschotron
+Rare activity that still runs under the BKL (e.g. mounting, or ioctls)
+can introduce many milliseconds of scheduling delays that hurt
+latencies. None of this is really performance-sensitive as it's almost
+always used for some big old piece of code. Anything that is frequently
+taken/dropped we've replaced with proper spinlocks already. So what's
+left is the code for which 1) everyone hurts most from it not being a
+real semaphore 2) no _user_ or maintainer of that code cares about the
+BKL because it's not performance-critical.
 
-Mind your own business, Spock.  I'm sick of your halfbreed interference.
+> And you make schedule() a lot more expensive for kernel lock holders
+> by copying the CPU map. [...]
 
+we dont really care about BKL _users_, other than correctness. We've got
+cpusets for the bitmap overhead reduction.
+
+> [...] You may have tested it on a machine where the CPU map is just a
+> single word, but what about the big machines?
+
+and it's not that bad - if it's .. 512 CPUs then _BKL users_ copy 64
+bytes. I dont think the 512-CPU guys will complain about this patch. If
+there are any frequent BKL users on such big boxes then they need
+serious and quick fixing anyway, because they are bouncing a global
+spinlock madly across 512 CPUs, 32 cross-connects and 4 backplanes! The
+64-byte copy within the CPU-local task structure really dwarves in
+comparison...
+
+> Spinlocks really _are_ cheaper. Wouldn't it be nice to just continue
+> removing kernel lock users and keeping a very _simple_ kernel lock for
+> legacy issues? 
+
+yes, but progress in this area seems to have slowed down, and people are
+hurting from the latencies introduced by the BKL meanwhile. Who cares if
+some rare big chunk of code runs under a semaphore, as long as it's
+preemptable?
+
+a global spinlock isnt all that much cheaper than a semaphore, even if
+it's not taken or lightly taken. If it's heavily taken then a semaphore
+wins. There is clearly an interim area where a spinlock will win - but
+only if the spinlock is well-localized to some resource or CPU - this is
+absolutely not true for the BKL which is as global as it gets.
+
+> In other words, I'd _really_ like to see some serious numbers for
+> this.
+
+fully agreed about that too!
+
+	Ingo

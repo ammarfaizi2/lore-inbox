@@ -1,57 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUFMVEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUFMVd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbUFMVEL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 17:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUFMVEL
+	id S261181AbUFMVd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 17:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUFMVd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 17:04:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5505 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261162AbUFMVEI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 17:04:08 -0400
-Date: Sun, 13 Jun 2004 18:04:00 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel@vger.kernel.org, Ryan Underwood <nemesis-lists@icequake.net>,
-       Willy Tarreau <willy@w.ods.org>
-Subject: Re: Request: Netmos support in parport_serial for 2.4.27
-Message-ID: <20040613210400.GA4684@logos.cnet>
-References: <20040613111949.GB6564@dbz.icequake.net> <20040613123950.GA3332@logos.cnet> <Pine.LNX.4.56.0406132225020.5930@jjulnx.backbone.dif.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0406132225020.5930@jjulnx.backbone.dif.dk>
-User-Agent: Mutt/1.5.5.1i
+	Sun, 13 Jun 2004 17:33:58 -0400
+Received: from quechua.inka.de ([193.197.184.2]:20435 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261181AbUFMVd5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 17:33:57 -0400
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: jff2 filesystem in vanilla
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <213F9E7F-BD15-11D8-AAF6-000A958E35DC@axiros.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
+Message-Id: <E1BZcbz-00018r-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sun, 13 Jun 2004 23:33:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 13, 2004 at 10:30:35PM +0200, Jesper Juhl wrote:
-> On Sun, 13 Jun 2004, Marcelo Tosatti wrote:
-> 
-> > n Sun, Jun 13, 2004 at 06:19:49AM -0500, Ryan Underwood wrote:
-> > >
-> > > Hi,
-> > >
-> > > There's been a patch floating around for a while now to add Netmos
-> > > support to parport_serial.  It has been submitted numerous times but it
-> > > seems that nobody notices it. :)
-> > >
-> > > Can it be reviewed for inclusion before 2.4.27?  I have a few systems
-> > > with these cards and it would be very nice to have them up to snuff.
-> > >
-> > > The patch against 2.4.20 can be found here:
-> > > http://winterwolf.co.uk/linuxsw
-> >
-> > Hi Ryan,
-> >
-> > Care to submit the patch inlined in another email message?
-> >
-> 
-> Here are the original patches from http://winterwolf.co.uk/linuxsw
-> An attempt of mine to update them for 2.4.27-pre5 can be found elsewhere
-> in this thread.
+In article <213F9E7F-BD15-11D8-AAF6-000A958E35DC@axiros.com> you wrote:
+> Although JFFS2 on CF seems like a kludge at first it works
+> much better than expected and never let us down so far
 
-Ok, someone sent me this patch already but did not I merge it,
-for no good reason. Even Tim ACked.
+Of course, using ramdisks is the preffered method if possible (i.e. if
+enough ram and if not much persistent info)
 
-I'll apply it, thanks.
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

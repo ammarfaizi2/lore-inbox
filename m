@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263647AbTLJPby (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 10:31:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTLJPby
+	id S263568AbTLJPdS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 10:33:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbTLJPdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 10:31:54 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:30594 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263647AbTLJPbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 10:31:53 -0500
-Message-ID: <3FD73C61.80708@earthlink.net>
-Date: Wed, 10 Dec 2003 08:31:45 -0700
-From: "Ian S. Nelson" <nelsonis@earthlink.net>
-Reply-To: nelsonis@earthlink.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031015
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Any known issues with MPT SCSI?
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig414F627D1298A5C3EEAFDA83"
+	Wed, 10 Dec 2003 10:33:17 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:59313 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263587AbTLJPdD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 10:33:03 -0500
+Date: Wed, 10 Dec 2003 07:32:54 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andre Hedrick <andre@linux-ide.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Valdis.Kletnieks@vt.edu, Kendall Bennett <KendallB@scitechsoft.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031210153254.GC6896@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Andre Hedrick <andre@linux-ide.org>,
+	Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+	Kendall Bennett <KendallB@scitechsoft.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org> <Pine.LNX.4.58.0312100714390.29676@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312100714390.29676@home.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig414F627D1298A5C3EEAFDA83
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Dec 10, 2003 at 07:18:12AM -0800, Linus Torvalds wrote:
+> Trust me, a federal judge couldn't care less about some very esoteric
+> technical detail. I don't know who brought up inline functions, but they
+> aren't what would force the GPL.
 
-I'm running some Dell 1750s with a moderately customized 2.4.20 kernel,  
-it has a couple of newer drivers but it's fairly standard.   I have 3 
-identical systems that are turning up ext3 corruption fairly regularly.  
-They are using the MPT/53c1030 SCSI.  2 of the 3 reported log corruption 
-on a boot and mounted the root filesystem in read only.  The other is 
-spitting
+They've certainly been brought up here over and over as an example of
+included work that forces the GPL.
 
-Dec  9 19:59:58 localhost Unexpected dirty buffer encountered at 
-do_get_write_access:616 (08:02 blocknr 0)
+> What has meaning for "derived work" is whether it stands on its own or
+> not, and how tightly integrated it is. If something works with just one
+> particular version of the kernel - or depends on things like whether the
+> kernel was compiled with certain options etc - then it pretty clearly is
+> very tightly integrated.
 
- From time to time, I haven't rebooted it yet.
-
-thanks,
-Ian
-
-
-
---------------enig414F627D1298A5C3EEAFDA83
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/1zxiV28blwDT2YMRApXxAKC8GBCMa/n1Io8J0KM2QM371NOxmgCgkEXC
-5pSkdfDjUyNjWPwPYO7gWs8=
-=8uNY
------END PGP SIGNATURE-----
-
---------------enig414F627D1298A5C3EEAFDA83--
-
+So what?  Plugins have a nasty tendency to have to be updated when the
+main program is updated.  That doesn't mean that the Netscape license
+is allowed to control the flash plugin license.  I think (and very
+much hope) that your idea of a derived work is flawed.  Otherwise you
+are helping make case law that is going to screw a lot people of over.
+If you think Microsoft won't use your expanded definition of what is a
+derived work, think again.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

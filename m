@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbUKKVaC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbUKKVdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbUKKVaC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 16:30:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUKKV3K
+	id S262392AbUKKVdR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 16:33:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262387AbUKKVdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 16:29:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:37850 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262386AbUKKV2j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 16:28:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=Ud9gaCV2/aPqVebKe/Au+qijQLqeCN432m6GIUxKfippTvFhttgH2yF1RSk98A90BKgNMco1f9MKgBudb3pvcPDOYKAPD/E2Aas9eEsMiOut3s2rhwotNIu7D8pdpC4ll3qyyLbOJ1W3UJci0t5ZBtd3vYHlfP2cv3NXgAmB750=
-Message-ID: <8874763604111113281b1cf9a5@mail.gmail.com>
-Date: Thu, 11 Nov 2004 16:28:35 -0500
-From: Anthony Samsung <anthony.samsung@gmail.com>
-Reply-To: Anthony Samsung <anthony.samsung@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: network interface to driver and pci slot mapping
+	Thu, 11 Nov 2004 16:33:16 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:63140 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262388AbUKKVdK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 16:33:10 -0500
+Date: Thu, 11 Nov 2004 22:31:30 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jason McMullan <jason.mcmullan@timesys.com>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] MII bus API for PHY devices
+Message-ID: <20041111213130.GA13327@electric-eye.fr.zoreil.com>
+References: <20041111194526.GA17735@jmcmullan.timesys>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041111194526.GA17735@jmcmullan.timesys>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Given an interface name (like eth0), how do I determine:
-The name of the driver (module) for this interface.
-The PCI address for this interface, if relevant.
+Jason McMullan <jason.mcmullan@timesys.com> :
+> First patch for consolidation of PHY handling into one location.
 
-?
+A little pass of polish could make it more cool imho:
+- macro abuse;
+- unchecked malloc;
+- use plain old style multi-lines C comments (/* ...\n * ... \n * ... \n */) ?
+- whitespace/tabulation damage (search for series of 2 or more spaces);
+- hidden return: please put them on a separate line;
+- no need to BUG_ON when there is an immediate dereference;
+- mixed case variables/names (pLEAse DO not dO tHAT);
+- unneeded checks ? How could VALID_BUS() in mii_bus_write() fail ?
+- use goto when locking primitives are used (btw the last check in
+  mii_bus_register is not needed and you can s/mii_bus[bus_id]/bus/ 
+  a few times in this function) ?
+- add a break in mii_bus_unregister() ?
+- I'd probably favor ternary operators here and there (your choice, really)
+- u32 and uint16_t in the same file: choose one style ?
 
-I need something that works non-destructively on a live system, that
-isn't broken by nameif, and has a strong chance of producing a correct
-result. In particular, parsing syslog is out. There's no consistency
-in the format of messages and there's no guarantee the logs from
-bootup will still be around. And the interface may have been renamed
-since then.
+--
+Ueimor

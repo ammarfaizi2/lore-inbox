@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274042AbRIXRDQ>; Mon, 24 Sep 2001 13:03:16 -0400
+	id <S274049AbRIXRI0>; Mon, 24 Sep 2001 13:08:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274044AbRIXRDH>; Mon, 24 Sep 2001 13:03:07 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:59654 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S274042AbRIXRDB>;
-	Mon, 24 Sep 2001 13:03:01 -0400
-Message-ID: <XFMail.20010924190242.ast@domdv.de>
-X-Mailer: XFMail 1.4.6-3 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S274050AbRIXRIQ>; Mon, 24 Sep 2001 13:08:16 -0400
+Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:53137
+	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
+	id <S274049AbRIXRID>; Mon, 24 Sep 2001 13:08:03 -0400
+Message-ID: <3BAF688B.5090508@fugmann.dhs.org>
+Date: Mon, 24 Sep 2001 19:08:27 +0200
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-In-Reply-To: <Pine.LNX.4.33.0109241851281.3698-100000@grignard.amagerkollegiet.dk>
-Date: Mon, 24 Sep 2001 19:02:42 +0200 (CEST)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: Rasmus =?ISO-8859-1?Q?B=F8g?= Hansen <moffe@amagerkollegiet.dk>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
 Subject: Re: Binary only module overview
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0109241851281.3698-100000@grignard.amagerkollegiet.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rasmus Bøg Hansen wrote:
+
+> On Mon, 24 Sep 2001, Arjan van de Ven wrote:
+> 
+> 
+>>I'm composing a list of all existing binary only modules, 
+>>and I got to a list of 26 different modules; I undoubtedly forgot a few, 
+>>so I hereby request feedback from people who know about modules I
+>>left out, so that I can complete the list. (I do not really care about
+>>modules that once existed for 2.0 or earlier and no longer exist for all
+>>intents and purposes)
+>>
+> 
 > IIRC, vmware includes one or more kernel modules.
+> 
+> Rasmus
+> 
+> 
+Yes, but the modules are not binary-only. 
 
-They come as tarballs, complete as source, in addition to some precompiled
-versions.
+The sourcecode is in the package, although it is not GPL.
+
+
+Regards
+Anders Fugman
 
 
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH

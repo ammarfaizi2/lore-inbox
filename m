@@ -1,62 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130552AbRDGTkh>; Sat, 7 Apr 2001 15:40:37 -0400
+	id <S130820AbRDGTpu>; Sat, 7 Apr 2001 15:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130820AbRDGTk1>; Sat, 7 Apr 2001 15:40:27 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:58801 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S130552AbRDGTkR>;
-	Sat, 7 Apr 2001 15:40:17 -0400
-Message-ID: <3ACF6D1D.63A2A2FE@mandrakesoft.com>
-Date: Sat, 07 Apr 2001 15:40:13 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
-X-Accept-Language: en
+	id <S131191AbRDGTpl>; Sat, 7 Apr 2001 15:45:41 -0400
+Received: from tomts14.bellnexxia.net ([209.226.175.35]:53720 "EHLO
+	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S130820AbRDGTpc>; Sat, 7 Apr 2001 15:45:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+Subject: [PATCH][RFC] appling pressure to icache and dcache - simplified
+Date: Sat, 7 Apr 2001 15:45:28 -0400
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: Tim Waugh <twaugh@redhat.com>
-Cc: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@club-internet.fr>,
-        Michael Reinelt <reinelt@eunet.at>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Multi-function PCI devices
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <Pine.LNX.4.10.10104071043360.1085-100000@linux.local> <20010407200053.B3280@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01040507463401.00699@oscar>
+Content-Transfer-Encoding: 7BIT
+To: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Waugh wrote:
-> If we have to do this, then Gunther's approach (multifunc_quirks or
-> whatever) looks a lot better than having a separate driver for every
-> single multi-IO card.
+Hi,
 
-Who said you have to have a separate driver for every single multi-IO
-card?  A single driver could support all serial+parallel multi-IO cards,
-for example.
+Rik asked, "Can it be made simpler?"
 
-Due to the differences in busses and hardware implementations and such,
-typically you want to provide two pieces of code for each common
-hardware subsystem (like "parport" or "serial"):  foo_lib.c and
-foo_card.c.
+So I went back to the basics, inserted a printk in kswapd and watched
+the dentry_stat and inodes_stat numbers for a while.   I observed
+the following pattern.  The dentry cache grows as does the number of 
+unused entries in it.  Unless we shrink this cache objects do not seem
+to be reused.  At the same time the inode cache usually kept about 15% 
+free.
 
-foo_lib.c is the guts of the hardware support, and it provides an
-[un]register_foodev() interface.  foo_card.c is totally separate, and it
-holds the PCI or ISAPNP or USB device ids.  foo_card does all the
-hardware detection, and calls register_foodev() for each hardware device
-it finds.
+At this point I starting to shrink the dcache.  The goal being to keep 
+the size of the cache as observed in /proc/slabinfo reasonable without 
+much overhead.  From experimenting, it turns out that if the shrink
+call is made when there is over 50% free space the cache stays small.
+Using 66% is not quite as aggressive but achieves its effect with about
+half the shrink calls.
 
-For small subsystems, this is obviously overkill.  But for common
-subsystems like serial or parport, this makes complete sense.  If an
-sbus device appears that acts just like a PC parallel port, all DaveM
-needs to do is write a parport_sbus.c shim which calls
-register_foodev().  No patching one central file necessary to add
-support for a new bus.
+With the pressure on the dcache, I looked at the icache numbers.  With  
+the dcache shrinking the amount of free space in the icache was much 
+higher.  It turns out that using the same logic as above with, 80% as 
+the amount of free space, it works well.
 
-Regards,
+Here are the results against 2.4.3-ac3
 
-	Jeff
+Thoughs?
 
+-----
+--- linux.ac3.orig/mm/vmscan.c	Sat Apr  7 15:20:49 2001
++++ linux/mm/vmscan.c	Sat Apr  7 12:37:27 2001
+@@ -997,6 +997,21 @@
+ 		 */
+ 		refill_inactive_scan(DEF_PRIORITY, 0);
+ 
++		/* 
++		 * Here we apply pressure to the dcache and icache.
++		 * The nr_inodes and nr_dentry track the used part of
++		 * the slab caches.  When there is more than X% objs free
++		 * in these lists, as reported by the nr_unused fields,
++		 * there is a very good chance that shrinking will free
++		 * pages from the slab caches.  For the dcache 66% works,
++		 * and 80% seems optimal for the icache.
++		 */
++
++		if ((dentry_stat.nr_unused+(dentry_stat.nr_unused>>1)) > dentry_stat.nr_dentry)
++			shrink_dcache_memory(DEF_PRIORITY, GFP_KSWAPD);
++		if ((inodes_stat.nr_unused+(inodes_stat.nr_unused>>2)) > inodes_stat.nr_inodes)
++			shrink_icache_memory(DEF_PRIORITY, GFP_KSWAPD);
++
+ 		/* Once a second, recalculate some VM stats. */
+ 		if (time_after(jiffies, recalc + HZ)) {
+ 			recalc = jiffies;
+-----
 
--- 
-Jeff Garzik       | Sam: "Mind if I drive?"
-Building 1024     | Max: "Not if you don't mind me clawing at the dash
-MandrakeSoft      |       and shrieking like a cheerleader."
+Ed Tomlinson <tomlins@cam.org>
+

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265795AbUJLPvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUJLPww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265795AbUJLPvn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 11:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUJLPvn
+	id S265910AbUJLPww (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 11:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265970AbUJLPwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 11:51:43 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61325 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265795AbUJLPvl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 11:51:41 -0400
-Message-ID: <416BFD79.1010306@pobox.com>
-Date: Tue, 12 Oct 2004 11:51:21 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Tue, 12 Oct 2004 11:52:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54967 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265910AbUJLPwn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 11:52:43 -0400
+Date: Tue, 12 Oct 2004 11:52:38 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Christoph Lameter <clameter@sgi.com>
+cc: linux-kernel@vger.kernel.org, <nickpiggin@yahoo.com.au>,
+       <linux-mm@kvack.org>
+Subject: Re: NUMA: Patch for node based swapping
+In-Reply-To: <Pine.LNX.4.58.0410120838570.12195@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.44.0410121151220.13693-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: Hirokazu Takata <takata@linux-m32r.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
-References: <20041012.195043.137811384.takata.hirokazu@renesas.com>
-In-Reply-To: <20041012.195043.137811384.takata.hirokazu@renesas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hirokazu Takata wrote:
-> Just fix compile error of drivers/net/smc91x.c for m32r.
-> 
-> It seems the previous patch (m32r-trivial-fix-of-smc91xh.patch) is too old. 
-> So I will send a new patch.
-> 
-> Please drop the previous patch
-> ( $ patch -R1 -p1 <m32r-trivial-fix-of-smc91xh.patch )
-> and apply the new one.
-> 
-> 	* drivers/net/smc91x.h:
-> 	- Add set_irq_type() macro to ignore it for m32r.
-> 	- Fix RPC_LSA_DEFAULT and RPC_LSB_DEFAULT for an M3T-M32700UT board.
-> 
-> Thanks.
-> 
-> Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+On Tue, 12 Oct 2004, Christoph Lameter wrote:
 
-Seems OK to me, I'll put it into my netdev queue.
+> Any other suggestions?
 
-For net driver patches, please always CC
-* netdev@oss.sgi.com, and
-* jgarzik@pobox.com
+Since this is meant as a stop gap patch, waiting for a real
+solution, and is only relevant for big (and rare) systems,
+it would be an idea to at least leave it off by default.
 
-	Jeff
+I think it would be safe to assume that a $100k system has
+a system administrator looking after it, while a $5k AMD64
+whitebox might not have somebody watching its performance.
 
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

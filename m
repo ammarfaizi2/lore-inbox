@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbUKWTZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbUKWUen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbUKWTZL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbUKWTWy
+	id S261490AbUKWUen (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 15:34:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbUKWUcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:22:54 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:47761 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261507AbUKWTWJ
+	Tue, 23 Nov 2004 15:32:36 -0500
+Received: from mail19.bluewin.ch ([195.186.18.65]:19926 "EHLO
+	mail19.bluewin.ch") by vger.kernel.org with ESMTP id S261232AbUKWUac
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 14:22:09 -0500
-Subject: SELinux performance issue with large systems (32 cpus)
-From: keith <kmannth@us.ibm.com>
-To: devnull@us.ibm.com, djwong <djwong@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1101237725.27848.301.camel@knk>
+	Tue, 23 Nov 2004 15:30:32 -0500
+Date: Tue, 23 Nov 2004 21:30:23 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Greg KH <greg@kroah.com>
+Cc: Simon Fowler <simon@himi.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 PATCH] visor: Don't count outstanding URBs twice
+Message-ID: <20041123203023.GA13663@k3.hellgate.ch>
+References: <20041116154943.GA13874@k3.hellgate.ch> <20041119174405.GE20162@kroah.com> <20041123193604.GA12605@k3.hellgate.ch> <20041123194557.GB1196@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 23 Nov 2004 11:22:05 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041123194557.GB1196@kroah.com>
+X-Operating-System: Linux 2.6.10-rc2 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I work with i386 16-way systems.  When hyperthreading is enabled they
-have 32 "cpus".  I recently did a quick performance check on with 2.6
-(as it turn out with a SElinux enabled) doing kernel builds.  
+On Tue, 23 Nov 2004 11:45:58 -0800, Greg KH wrote:
+> Your email client is putting headers in the messages that say not to do
+> this.  Please fix your client :)
 
-My basic test was timing kernel makes using -j16 and -j32.  I saw
-tremendous differences between these two times. 
+D'oh! Fixed (I think).
 
- for -j16  
-real	0m52.450s
-user	6m24.572s
-sys	2m25.331s
+> But I'm not seeing people actually hit the write limit, according to the
+> logs that people are posting.
 
- for -j32
-real	2m56.743s
-user	9m28.781s
-sys	73m50.536s 
-   
-This performance was not seen without hyperthreading.  I have only seen
-this on 16-way with HT.  2.6.10-rc1 was used to evaluate the problem. 
+What I found is bound to cause exactly the kind of problem Simon
+described, so I didn't check any further. _But_ comparing his log and
+the code, I can't help but notice that the missing "write limit hit"
+is the only instance of a dev_dbg in this driver. Coincidence?
 
-Notice the system time goes through the roof.  From 2.5 min to almost 74
-min!  We looked at schedstat data and tried various scheduler / numa
-options without much to point at.  We then did some oprofiling and saw 
-
-31999102 83.2007  _spin_lock_irqsave
-
-for make -j32.  
-
-After some lock profiling (keeping track of what locks were last used
-and how many cycles were spent waiting) it became quite clean the the
-avc_lock was to blame.  The avc_lock is a SELinux lock.  
-
-The theory was proved by booting with selinux=0.  The performance with
-make -j32 is now within an acceptable level (within 20%) when compared
-to a make -j16. 
-
-It appears that SELinux only scales to somewhere between 16 and 32
-cpus.  I now very little about SELinux and it's workings but I wanted to
-report what I have seen on my system.  I can't say I am really happy
-about this performance. 
-
-I would like to thank Derrick Wong and Rick Lindsley for helping to
-identify this issue.  
-
-Keith Mannthey 
-LTC xSeries 
-
-Please cc me as I am not a regular subscriber to this list. 
- 
-
+Roger

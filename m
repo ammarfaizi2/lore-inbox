@@ -1,57 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312797AbSDKTAQ>; Thu, 11 Apr 2002 15:00:16 -0400
+	id <S312799AbSDKTG1>; Thu, 11 Apr 2002 15:06:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312798AbSDKTAP>; Thu, 11 Apr 2002 15:00:15 -0400
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:27853 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S312797AbSDKTAO>; Thu, 11 Apr 2002 15:00:14 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: 2.5.8-pre3 & ext3: cannot chown
-Date: Thu, 11 Apr 2002 20:53:50 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
-In-Reply-To: <E16vYXu-0000HV-00@baldrick> <3CB538FE.B97F200E@zip.com.au>
+	id <S312828AbSDKTG0>; Thu, 11 Apr 2002 15:06:26 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:57872 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S312799AbSDKTGZ>; Thu, 11 Apr 2002 15:06:25 -0400
+Message-ID: <3CB5D030.D98A4626@zip.com.au>
+Date: Thu, 11 Apr 2002 11:04:32 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16vjhf-0000ad-00@baldrick>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [brokenpatch] page accounting
+In-Reply-To: <3CB41BA7.DAC3A785@zip.com.au> <3CB5A82B.80C942A0@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 April 2002 9:19 am, Andrew Morton wrote:
-> Duncan Sands wrote:
-> > The subject just about says it all.  After 12 hours
-> > of uptime running 2.5.8-pre3 on an ext3 partition,
-> > I noticed that changing the owner of a file had no
-> > effect.  Rebooting with 2.4.18, there was no problem
-> > in using chown.
->
-> How does this look?
+Suparna Bhattacharya wrote:
+> 
+> > +#define PG_slab                         8      /* kill me if needed: slab debug */
+> 
+> A little plea for mercy for this tiny bit :)
 
-It looks good: with this patch I can now chown and chgrp
-as usual.
+Sure, I'll update the comment.
 
-Thanks for fixing this,
+Things are getting a *little* squeezy in the page->flags
+department.  The zone takes eight, and of the remaining
+24, I'm showing 18 used up.  A couple of these can be
+recycled easily.  I added two to support delayed allocate:
 
-Duncan.
+PG_disk_reserved: page has a disk-reservation
+PG_space_reclaim: icky hack to avoid deadlocking when
+                  writeback is forced to collapse outstanding
+                  reservations.
 
-> --- linux-2.5.8-pre3/fs/open.c	Tue Apr  9 18:16:40 2002
-> +++ 25/fs/open.c	Thu Apr 11 00:15:09 2002
-> @@ -524,11 +524,11 @@ static int chown_common(struct dentry *
->  		goto out;
->  	newattrs.ia_valid =  ATTR_CTIME;
->  	if (user != (uid_t) -1) {
-> -		newattrs.ia_valid =  ATTR_UID;
-> +		newattrs.ia_valid |= ATTR_UID;
->  		newattrs.ia_uid = user;
->  	}
->  	if (group != (gid_t) -1) {
-> -		newattrs.ia_valid =  ATTR_GID;
-> +		newattrs.ia_valid |= ATTR_GID;
->  		newattrs.ia_gid = group;
->  	}
->  	if (!S_ISDIR(inode->i_mode))
->
-> -
+
+A number of the reasons for delalloc are going away now;
+we'll be able to do multipage bio-based writeback and
+readahead for the map-at-prepare_write buffer-based
+filesystems.   We'll see.
+
+Updated patchset is at
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8-pre3/
+It hasn't quite recovered from the changed buffer/page
+relationship yet - a heavy dbench run on 1k blocksize ext2
+dies after half an hour over a page which didn't come unlocked.
+
+- Went back to open-coded per-CPU page accumulators.  I
+  stared at the assembly for some time and it looked OK,
+  so I'm not sure what went wrong with the `percpu' version.
+  I'll have another shot later.
+
+- Split fs/fs-writeback.c out from fs/inode.c.  These are
+  all the functions related to sending bulk file data to
+  storage.  fs/inode.c contains the inode writeback code,
+  the hashing, all the other stuff involved with manipulating
+  the state of in-core inodes.
+
+  I think this is a reasonable splitup - it makes the diff
+  more readable too...
+
+- include/linux/writeback.h is for communication between
+  fs/fs-writeback.c, mm/page-writeback.c and fs/inode.c
+
+- Lots more changes to fs/buffer.c; many of them pointless
+  cleanups and shuffling functions around and documenting
+  stuff.
+
+- Documenting the VM/fs locking ordering rules, slowly.
+
+- The locking between __set_page_dirty_buffers(),
+  try_to_free_buffers() and the functions which attach
+  buffers to pages is coming together.  This exclusion
+  is needed to preserve the buffer-page relationship
+  which has been proposed.
+
+  It would be a ton easier and cleaner if set_page_dirty
+  was called under the page lock, but that's rather hard
+  to arrange.  Maybe that would be a better approach.
+
+- We need to talk wli into doing a hashed wakeup for the
+  buffer layer.  Then buffer_head will be:
+
+struct buffer_head {
+        sector_t b_blocknr;             /* block number */
+        unsigned short b_size;          /* block size */
+        kdev_t b_dev;                   /* device (B_FREE = free) */
+        struct block_device *b_bdev;
+        atomic_t b_count;               /* users using this block */
+        unsigned long b_state;          /* buffer state bitmap (see above) */
+        struct buffer_head *b_this_page;/* circular list of buffers in one page */
+        char * b_data;                  /* pointer to data block */
+        struct page *b_page;            /* the page this bh is mapped to */
+        void (*b_end_io)(struct buffer_head *bh, int uptodate); /* I/O completion */
+        void *b_private;                /* reserved for b_end_io */
+        struct list_head     b_inode_buffers;   /* doubly linked list of inode dirty buffers */
+};
+
+I suspect we can also remove b_dev, maybe b_size, conceivably
+b_data.
+
+-

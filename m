@@ -1,61 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315900AbSEGQv7>; Tue, 7 May 2002 12:51:59 -0400
+	id <S315901AbSEGQw2>; Tue, 7 May 2002 12:52:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315901AbSEGQv6>; Tue, 7 May 2002 12:51:58 -0400
-Received: from ns.suse.de ([213.95.15.193]:47378 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S315900AbSEGQv5>;
-	Tue, 7 May 2002 12:51:57 -0400
-Date: Tue, 7 May 2002 18:51:51 +0200
-From: Dave Jones <davej@suse.de>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
+	id <S315903AbSEGQw1>; Tue, 7 May 2002 12:52:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11532 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315901AbSEGQwZ>; Tue, 7 May 2002 12:52:25 -0400
+Date: Tue, 7 May 2002 09:51:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Padraig Brady <padraig@antefacto.com>
+cc: Anton Altaparmakov <aia21@cantab.net>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 57
-Message-ID: <20020507185151.A12134@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Anton Altaparmakov <aia21@cantab.net>,
-	Martin Dalecki <dalecki@evision-ventures.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <5.1.0.14.2.20020507144123.022ae2f0@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <5.1.0.14.2.20020507140736.022aed90@pop.cus.cam.ac.uk> <3CD7C9F1.2000407@evision-ventures.com> <5.1.0.14.2.20020507144123.022ae2f0@pop.cus.cam.ac.uk> <20020507160825.S22215@suse.de> <5.1.0.14.2.20020507151627.02390bd0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: Re: [PATCH] 2.5.14 IDE 56
+In-Reply-To: <3CD800FE.4050004@antefacto.com>
+Message-ID: <Pine.LNX.4.44.0205070944020.2509-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 07, 2002 at 03:29:28PM +0100, Anton Altaparmakov wrote:
- > [aia21@drop hda]$ ideinfo
- > bash: ideinfo: command not found
- > Obviously distros haven't caught up with this development. )-:
- > Care to give me a URL? A quick google for "ideinfo Linux download" didn't 
- > bring up anything looking relevant.
 
-Can't find where I got it from, and it seems to have fallen off google.
-I put up the last version I had (which I hacked up a bit) at
-http://www.codemonkey.org.uk/cruft/ide-info-0.0.5-dj.tar.gz
 
- > >The parsing gunk we have for /proc/ide is fugly, and should have been
- > >done with sysctls from day one imo.
- > 
- > I like text parsing.
+On Tue, 7 May 2002, Padraig Brady wrote:
+>
+> All the info I've ever needed is /proc/ide/hdx/capacity
+> which I could get from /proc/partitions with more a bit
+> more effort, so I vote for removing /proc/ide.
 
-must.. resist.. /proc ascii/bin... holywar..
-(besides, sysctl interface gives you ascii in /proc/sys/)
+Note that one thing that we might do is to leave the remnants of /proc/ide
+but _without_ the very verbose per-chipset reporting.
 
- > It is not performance critical and makes info human 
- > readable... Whether existing text parsers are any good or not, I don't 
- > care, write a better one if you don't like the existing one
+At least to me it looks like it's all the chipset reporting that causes
+the huge kernel bloat, and it shouldn't be impossible to reinstate a
+minimal /proc/ide without those parts - while still keeping most of the
+backwards compatibility.
 
-That's likely exactly the reason we ended up with the dungheap we have
-now. Rewriting the parser when we already have a usable sysctl interface
-seems to have no gain over the existing mess to me.
- 
-    Dave.
+However, since I really don't much like the idea of having special
+"ide-only" /proc files, I personally think any information people actually
+used should be either in truly generic files (/proc/partitions as an
+example), _or_ they should be in the generic device tree (talk to Pat
+Mochel about that).
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+So my personal reaction to removal of /proc/ide is: "good riddance, but if
+it turns out that we seriously need it for backwards compatibility, we can
+add back a skeleton without the bloat".
+
+(Side note: I'm afraid that don't think backwards compatibility weighs
+very heavily on an embedded setup - I'm more thinking about things like "a
+regular RedHat/SuSE/Debian/whatever install won't work any more".)
+
+As to existing binaries (your list is interesting), I don't see what they
+are doing about ide-specific stuff, since I sure hope those binaries are
+happy with a SCSI-only system.
+
+> For e.g. could the same arguments could be made for lspci only
+> interface to pci info rather than /proc/bus/pci? The following
+> references are made to /proc/bus/pci on my system:
+
+I personally do like ASCII /proc files, as long as they don't add
+maintainability problems etc.
+
+		Linus
+

@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129693AbRBAIPS>; Thu, 1 Feb 2001 03:15:18 -0500
+	id <S129108AbRBAIU6>; Thu, 1 Feb 2001 03:20:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129671AbRBAIPI>; Thu, 1 Feb 2001 03:15:08 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:26197 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S129580AbRBAIPB>; Thu, 1 Feb 2001 03:15:01 -0500
-Message-ID: <3A791A9D.1B2D0EEA@sgi.com>
-Date: Thu, 01 Feb 2001 00:13:17 -0800
-From: LA Walsh <law@sgi.com>
-Organization: Trust Technology, SGI
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.0 i686)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Power usage Q and parallel make question (separate issues)
-In-Reply-To: <11659.980998327@kao2.melbourne.sgi.com>
+	id <S129409AbRBAIUu>; Thu, 1 Feb 2001 03:20:50 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:15110 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S129108AbRBAIUk>; Thu, 1 Feb 2001 03:20:40 -0500
+Date: Thu, 1 Feb 2001 21:20:31 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Pau Aliagas <linux4u@wanadoo.es>
+Cc: "David S. Miller" <davem@redhat.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [UPDATE] Fresh zerocopy patch on kernel.org
+Message-ID: <20010201212030.A10256@metastasis.f00f.org>
+In-Reply-To: <Pine.LNX.4.30.0101301658160.2343-100000@pau.intranet.ct>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0101301658160.2343-100000@pau.intranet.ct>; from linux4u@wanadoo.es on Tue, Jan 30, 2001 at 04:58:38PM +0100
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> On Wed, 31 Jan 2001 19:02:03 -0800,
-> LA Walsh <law@sgi.com> wrote:
-> >This seems to serialize the delete, run the mod-installs in parallel, then run the
-> >depmod when they are done.
-> 
-> It works, until somebody does this
-> 
->  make -j 4 modules modules_install
----
-	But that doesn't work now.  
+On Tue, Jan 30, 2001 at 04:58:38PM +0100, Pau Aliagas wrote:
 
-> There is not, and never has been, any interlock between make modules
-> and make modules_install.  If you let modules_install run in parallel
-> then people will be tempted to issue the incorrect command above
-> instead of the required separate commands.
----
-	
-> 
->  make -j 4 modules
->  make -j 4 modules_install
-> 
-> You gain a few seconds on module_install but leave more room for user
-> error.
----
-	A bit of documentation at the beginning of the Makefile would do wonders
-for kernel-developer (not end user, please!) clarity.  I've oft'asked the question
-as to what really is supported.  I've tried things like make dep bzImage modules --
-I noticed it didn't work fairly quickly.  Same with modules/modules_install -- 
-people would probably figure that one out, but just a bit of documentation would
-help even that.  
+    Is it of any use testing it on a Xircom Tulip Cardbus card?
+
+NFS might seem an improvement because of delayed fragmentation; other
+than that -- no point
 
 
-	
--- 
-Linda A Walsh                    | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
+
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

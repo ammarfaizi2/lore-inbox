@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261396AbSIWTGb>; Mon, 23 Sep 2002 15:06:31 -0400
+	id <S261316AbSIWSlb>; Mon, 23 Sep 2002 14:41:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261404AbSIWTFl>; Mon, 23 Sep 2002 15:05:41 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:65218 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261396AbSIWTEr>;
-	Mon, 23 Sep 2002 15:04:47 -0400
-Date: Mon, 23 Sep 2002 15:09:53 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.37 broke the floppy driver
-In-Reply-To: <15759.25411.512115.64467@kim.it.uu.se>
-Message-ID: <Pine.GSO.4.21.0209231507370.3948-100000@weyl.math.psu.edu>
+	id <S261321AbSIWSlb>; Mon, 23 Sep 2002 14:41:31 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261304AbSIWSl0>;
+	Mon, 23 Sep 2002 14:41:26 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15759.17258.990642.379366@charged.uio.no>
+Date: Mon, 23 Sep 2002 18:38:02 +0200
+To: Andrew Morton <akpm@digeo.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       Urban Widmark <urban@teststation.com>, Chuck Lever <cel@citi.umich.edu>,
+       Daniel Phillips <phillips@arcor.de>, trond.myklebust@fys.uio.no,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+In-Reply-To: <3D811A6C.C73FEC37@digeo.com>
+References: <3D811363.70ABB50C@digeo.com>
+	<Pine.LNX.4.44L.0209121926310.1857-100000@imladris.surriel.com>
+	<3D811A6C.C73FEC37@digeo.com>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Andrew Morton <akpm@digeo.com> writes:
 
+     > Look, idunnoigiveup.  Like scsi and USB, NFS is a black hole
+     > where akpms fear to tread.  I think I'll sulk until someone
+     > explains why this work has to be performed in the context of a
+     > process which cannot do it.
 
-On Mon, 23 Sep 2002, Mikael Pettersson wrote:
+I'd be happy to move that work out of the RPC callbacks if you could
+point out which other processes actually can do it.
 
-> With O100-get_gendisk-C38 the oops is cured, but the floppy size is
-> still wrong. Freshly booted, dd if=/dev/fd0H1440 bs=72k of=/dev/null
-> reads only 720K instead of 1440K. Same thing on write: trying to
-> write more than 720K results in an ENOSPC error.
+The main problem is that the VFS/MM has no way of relabelling pages as
+being invalid or no longer up to date: I once proposed simply clearing
+PG_uptodate on those pages which cannot be cleared by
+invalidate_inode_pages(), but this was not to Linus' taste.
 
-
-Arrrgh.  O/O101-floppy_sizes-C38 and it's also my fsckup - missed the
-size in kilobytes/size in sectors.  Fortunately that kind of crap is
-over - blk_size[] is no more...
-
+Cheers,
+  Trond

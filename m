@@ -1,75 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264486AbTEJTnK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 15:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTEJTnK
+	id S264481AbTEJTlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 15:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbTEJTlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 15:43:10 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:30882 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264486AbTEJTnI
+	Sat, 10 May 2003 15:41:16 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:36257 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S264481AbTEJTlO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 15:43:08 -0400
-Date: Sat, 10 May 2003 12:55:45 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel.bkbits.net and BK->CVS gateway
-Message-ID: <20030510195545.GA26447@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20030510154352.GK679@phunnypharm.org> <20030510162207.GB24686@work.bitmover.com> <20030510192253.GA24276@delft.aura.cs.cmu.edu>
+	Sat, 10 May 2003 15:41:14 -0400
+Date: Sat, 10 May 2003 22:53:20 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Yoav Weiss <ml-lkml@unpatched.org>
+Cc: arjanv@redhat.com, masud@googgun.com, linux-kernel@vger.kernel.org
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <20030510195320.GG1053@actcom.co.il>
+References: <Pine.LNX.4.44.0305102217300.1163-100000@marcellos.corky.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="z9ECzHErBrwFF8sy"
 Content-Disposition: inline
-In-Reply-To: <20030510192253.GA24276@delft.aura.cs.cmu.edu>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+In-Reply-To: <Pine.LNX.4.44.0305102217300.1163-100000@marcellos.corky.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 10, 2003 at 03:23:03PM -0400, Jan Harkes wrote:
-> On Sat, May 10, 2003 at 09:22:07AM -0700, Larry McVoy wrote:
-> > In other words, I think you're safe.  Famous last words, we'll now discover
-> > that our friends in .cz have written the world's first BK virus and it 
-> > corrupts the CVS tree.  Or something.  Regardless, we've taken steps to
-> > make sure the CVS data is safe and restorable.
-> 
-> Could you please stop making random accusations? Pavel probably has
 
-Could you please stop whining about something that was clearly a joke?
-Jeeze, get a sense of humor already.
+--z9ECzHErBrwFF8sy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> better things to do than to write a 'BK virus'. And about that comment
-> 'taking steps to make sure CVS data is safe'...
-> 
-> On Sat, May 10, 2003 at 07:04:55AM -0700, Larry McVoy wrote:
-> > Dave, I put RH 7.3 on there but didn't install any security fixes, you get
-> > to do that fun job if you care.
-> 
-> Hmm, let's see https://rhn.redhat.com/errata/rh73-errata-security.html
+On Sat, May 10, 2003 at 10:18:34PM +0300, Yoav Weiss wrote:
 
-Well aren't we the do goody little sys admin.  For your information, those
-patches were applied before I opened up the box, turned on accounts, or
-turned on CVS.
+> Masud, your delay-based solutions won't work because an attack code can
+> just keep running in a loop until it gets the timing right.  Once is
+> enough.  Even if it could work, it would have impact on the whole system.
+> Afaik, you can't really yield the CPU for very short time slices so you'll
+> have to busy-loop instead, and its not acceptable.  I believe the below
+> solution is the right one.  Arjan, please correct me if I'm wrong.
+>=20
+> The solution is to have only ONE REAL copy, done by the wrapper.  The
+> original syscall will copy from a kernel ptr, unknowingly.  Consider
+> the following modified pseudo-code:
+>=20
+> long your_wrapped_syscall(char *userfilename)
+> {
+>     char kernelpointer[something];
+>     copy_from_user(kernelpointer, usefilename, ...);
+>     audit_log(kernelpointer);
+>     old_fs =3D get_fs();
+>     set_fs(KERNEL_DS);
+>     ret =3D original_syscall(kernelpointer);
+>     set_fs(old_fs);
+>     return ret;
+> }
+>=20
+> userfilename is only copied once.  original_syscall just copies
+> kernelpointer again, to another kernel pointer.  No race.
 
-    [root@kernel root]# up2date -u
-    ...
-    None of the packages you requested were found, or they are already updated.
+This approach, while it would solve this particular problem, has a
+grave flow. Consider the case where the first copy in the
+original_syscall is to copy a user space structure, which has embedded
+user space pointers... The set_fs() will cause future
+copy_from_user/copy_to_user in original_syscall() calls to succeed
+even if the user  supplied pointer is in kernel space.=20
 
-> I sure hope Dave cared, because I wouldn't even consider plugging an
-> unpatched anything into the network in the first place. Let alone
-> announce this fact to a widely distributed mailing list.
+> Removing this symbol will not really get in the way for the bad guys
+> because it'll always be possible to find and intercept it anyway (see my
+> previous post in this thread), but it'll increase the learning curve for
+> kernel newbies.  Do we really want that ?
 
-So are you volunteering to manage that machine?  Or just complaining?
+Hear hear.=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
 
-It *never* fails to amaze me.  I spend my friday night in a colo, spend
-saturday morning finishing the job, and some arm chair quarterback
-has to come along and rudely tell me that I'm not doing it right?!?
-Would it be any surprise if the next time there is a problem we just
-let it slide for a few weeks before it gets fixed?
 
-    "it's about being nice to people especially the ones that help you."
+--z9ECzHErBrwFF8sy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-What he said.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+vViwKRs727/VN8sRAoHjAJ9GCweHBvllLXvFZZk1l1tHCH3tnwCeP1UD
+LiRFJRq1EJ8nKUsMZbNNBeY=
+=Rfoo
+-----END PGP SIGNATURE-----
+
+--z9ECzHErBrwFF8sy--

@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315204AbSF3Ob7>; Sun, 30 Jun 2002 10:31:59 -0400
+	id <S315182AbSF3O2y>; Sun, 30 Jun 2002 10:28:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315210AbSF3Ob6>; Sun, 30 Jun 2002 10:31:58 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:56965 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S315204AbSF3Ob4> convert rfc822-to-8bit;
-	Sun, 30 Jun 2002 10:31:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Francois Romieu <romieu@cogenit.fr>
-Subject: Re: Can't boot from /dev/md0 (RAID-1)
-Date: Sun, 30 Jun 2002 16:34:23 +0200
-User-Agent: KMail/1.4.1
-References: <20020630124445.6E95B11979@a.mx.spoiled.org> <200206301602.10599.roy@karlsbakk.net> <20020630162005.A19347@fafner.intra.cogenit.fr>
-In-Reply-To: <20020630162005.A19347@fafner.intra.cogenit.fr>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206301634.23800.roy@karlsbakk.net>
+	id <S315198AbSF3O2x>; Sun, 30 Jun 2002 10:28:53 -0400
+Received: from dingo.clsp.jhu.edu ([128.220.34.67]:13487 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315182AbSF3O2w>;
+	Sun, 30 Jun 2002 10:28:52 -0400
+Date: Sat, 29 Jun 2002 16:05:29 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: suspend-to-disk documentation updates
+Message-ID: <20020629140529.GA576@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What about:
->
-> disk=/dev/hda
-> bios=0x80
-> boot=/dev/hda
->
-> map=/boot/map.hda
-> install=/boot/boot.b.hda
-> backup=/boot/boot.b.rs.hda
->
-> prompt
-> timeout=50
-> linear
->
-> image=/boot/bzImage-2.4.19-pre7
->         label=2.4.19-pre7
->         root=/dev/md1
->         read-only
+Hi!
 
-It doesn't work. Still LI only.
+Please apply,
+									Pavel
 
-Any other ideas
+--- linux-swsusp.test/Documentation/swsusp.txt	Sun May 26 19:31:41 2002
++++ linux-swsusp/Documentation/swsusp.txt	Sat Jun 29 15:56:37 2002
+@@ -122,11 +122,9 @@
+   interrupts AFAIK..
+ - We should only make a copy of data related to kernel segment, since any
+   process data won't be changed.
+-- By copying pages back to their original position, copy_page caused General
+-  Protection Fault. Why?
+ - Hardware state restoring.  Now there's support for notifying via the notify
+   chain, event handlers are welcome. Some devices may have microcodes loaded
+-  into them. We should have event handlers for them aswell.
++  into them. We should have event handlers for them as well.
+ - We should support other architectures (There are really only some arch
+   related functions..)
+ - We should also restore original state of swaps if the ``noresume'' kernel
+@@ -148,6 +146,15 @@
+   go there anyway..
+ - If X is active while suspending then by resuming calling svgatextmode
+   corrupts the virtual console of X.. (Maybe this has been fixed AFAIK).
++
++Drivers we support
++- IDE disks are okay
++- vesafb
++
++Drivers that need support
++- pc_keyb -- perhaps we can wait for vojtech's input patches
++- do IDE cdroms need some kind of support?
++- IDE CD-RW -- how to deal with that?
+ 
+ Any other idea you might have tell me!
+ 
 
 -- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

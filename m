@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281580AbRKMJ6w>; Tue, 13 Nov 2001 04:58:52 -0500
+	id <S281572AbRKMJ4V>; Tue, 13 Nov 2001 04:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281576AbRKMJ6o>; Tue, 13 Nov 2001 04:58:44 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:31922 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S281577AbRKMJ5i>; Tue, 13 Nov 2001 04:57:38 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: [OT] Coding Style (was: Re: GPLONLY kernel symbols???)
-Date: Tue, 13 Nov 2001 09:57:37 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9sqqqh$4a6$1@forge.intermeta.de>
-In-Reply-To: <200111130324.fAD3OE916102@vindaloo.ras.ucalgary.ca> <3BF09E44.58D138A6@mandrakesoft.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1005645457 27550 212.34.181.4 (13 Nov 2001 09:57:37 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 13 Nov 2001 09:57:37 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S281573AbRKMJ4N>; Tue, 13 Nov 2001 04:56:13 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:6411 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S281572AbRKMJ4D>;
+	Tue, 13 Nov 2001 04:56:03 -0500
+Message-ID: <3BF0FA93.54C056BF@evision-ventures.com>
+Date: Tue, 13 Nov 2001 11:48:51 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GPLONLY kernel symbols???
+In-Reply-To: <200111130324.fAD3OE916102@vindaloo.ras.ucalgary.ca>
+		<Pine.GSO.4.21.0111122249160.22925-100000@weyl.math.psu.edu>
+		<200111130358.fAD3wgb16617@vindaloo.ras.ucalgary.ca>
+		<3BF09E44.58D138A6@mandrakesoft.com> <200111130437.fAD4b2j17329@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+Richard Gooch wrote:
 
->He and davej still have a point.  Your code formatting is non-standard,
->and is difficult to read.  A document exists CodingStyle which explains
->a good style, and further -why- it is a good style.
+> If and when I step down as maintainer (if I do so, I'll publically
+> pass the baton to the new maintainer), the new maintainer can indent
+> to their preference. Until that time, *I'm* the maintainer, and *I*
+> need to be able to read the code efficiently. It's the part of the
+> kernel I spend the most time in, after all.
 
-Oh yes, words like
-
---- cut ---
-but all right-thinking people know that (a) K&R are _right_ and (b)
-K&R are right.  Besides, functions are special anyway (you can't nest
-them in C).
---- cut ---
-
-Is really a satisfing descrption _why_ it is a good style. :-)
-
-(I actually agree with 99% of the coding style but my braces will
-always be GNU. ;-) And K&R braces suck in Java. (ducks and runs)).
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Or you could reindent to your style befor making changes
+yourself as well. Consider this as an exercise in cooperation.

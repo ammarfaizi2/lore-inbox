@@ -1,96 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281922AbRKUQyK>; Wed, 21 Nov 2001 11:54:10 -0500
+	id <S281929AbRKUQxU>; Wed, 21 Nov 2001 11:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281917AbRKUQyC>; Wed, 21 Nov 2001 11:54:02 -0500
-Received: from mta.sara.nl ([145.100.16.144]:45463 "EHLO mta.sara.nl")
-	by vger.kernel.org with ESMTP id <S281904AbRKUQxo>;
-	Wed, 21 Nov 2001 11:53:44 -0500
-Message-Id: <200111211653.RAA26834@zhadum.sara.nl>
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Remco Post <r.post@sara.nl>
-To: Nick LeRoy <nleroy@cs.wisc.edu>, Steffen Persvold <sp@scali.no>,
-        Christopher Friesen <cfriesen@nortelnetworks.com>,
-        root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: Swap 
-In-Reply-To: Message from Mike Fedyk <mfedyk@matchmail.com> 
-   of "Tue, 20 Nov 2001 13:44:18 PST." <20011120134418.C4210@mikef-linux.matchmail.com> 
+	id <S281928AbRKUQxO>; Wed, 21 Nov 2001 11:53:14 -0500
+Received: from mcp.csh.rit.edu ([129.21.60.9]:40205 "EHLO mcp.csh.rit.edu")
+	by vger.kernel.org with ESMTP id <S281927AbRKUQw5>;
+	Wed, 21 Nov 2001 11:52:57 -0500
+Date: Wed, 21 Nov 2001 11:52:49 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+To: Nikita Danilov <Nikita@namesys.com>
+Cc: Dieter =?unknown-8bit?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        ReiserFS List <reiserfs-list@namesys.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-list] Re: [REISERFS TESTING] new patches on ftp.namesys.com: 2.4.15-pre7
+Message-ID: <20011121115249.D17894@fury.csh.rit.edu>
+In-Reply-To: <200111210110.fAL1Atc11275@beta.namesys.com> <20011121011655.M1308@lynx.no> <15355.31671.983925.611542@beta.reiserfs.com> <20011121102517Z281563-17408+16912@vger.kernel.org> <15355.39821.401925.96954@beta.reiserfs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 21 Nov 2001 17:53:32 +0100
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="3Gf/FFewwPeBMqCJ"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <15355.39821.401925.96954@beta.reiserfs.com>; from Nikita@namesys.com on Wed, Nov 21, 2001 at 03:18:21PM +0300
+X-Operating-System: SunOS 5.8 (sun4u)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Nov 20, 2001 at 03:33:28PM -0600, Nick LeRoy wrote:
-> > On Tuesday 20 November 2001 15:18, Mike Fedyk wrote:
-> > > On Tue, Nov 20, 2001 at 10:05:37PM +0100, Steffen Persvold wrote:
-> > > > Christopher Friesen wrote:
-> > > > > "Richard B. Johnson" wrote:
-> > > > > > On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
-> > > > > > > On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
-> > > > > > > > When a page is deleted for one executable (because we can re-read
-> > > > > > > > it from on-disk binary), it is discarded, not paged out.
-> > > > > > >
-> > > > > > > What happens if the on-disk binary has changed since loading the
-> > > > > > > program? -
-> > > > > >
-> > > > > > It can't. That's the reason for `install` and other methods of
-> > > > > > changing execututable files (mv exe-file exe-file.old ; cp newfile
-> > > > > > exe-file). The currently open, and possibly mapped file can be
-> > > > > > re-named, but it can't be overwritten.
-> > > > >
-> > > > > Actually, with NFS (and probably others) it can.  Suppose I change the
-> > > > > file on the server, and it's swapped out on a client that has it
-> > > > > mounted.  When it swaps back in, it can get the new information.
-> > > >
-> > > > This sounds really dangerous... What about shared libraries ??
-> > >
-> > > IIRC (if wrong flame...)
-> > >
-> > > When you delete an open file, the entry is removed from the directory, but
-> > > not unlinked until the file is closed.  This is a standard UNIX semantic.
-> > >
-> > > Now, if you have a set of processes with shared memory, and one closes, and
-> > > another is created to replace, the new process will get the new libraries,
-> > > or even new version of the process.  This could/will bring down the entire
-> > > set of processes.
-> > >
-> > > Apps like samba come to mind...
-> > 
-> > *Any* time that you write to an executing executable, all bets are off.  The 
-> > most likely outcome is a big 'ol crash & burn.  With a local FS, Unix 
-> > prevents you from shooting yourself in the foot, but with NFS, fire away..  
-> > I've done it.  It *does* let you, but...
-> > 
-> > Solution:  Don't do that.  Shut them all down, on all clients, upgrade the 
-> > binaries, then restart the processes on the clients.
-> > 
-> > As far as the scenerio that you've described, I *think* that it would 
-> > actually work.  When the new process is fork()ed, it gets a copy of the file 
-> > descriptors from it's parent, so the file is still open to it.  If it the 
-> > exec()s, the new image no longer has any real ties to it's parent (at least, 
-> > not that are relevant to this).
-> > 
-> 
-> What about processes with shared memory such as samba 2.0?
 
+--3Gf/FFewwPeBMqCJ
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cool, isn't it. Thinking of 1000 ways to crash apps. As long as the meaning of 
-the bits and bytes in the shm segment does not change with a newer version of 
-the app, you're safe. Upgrading in single-user modes makes things a lot safer 
-(yes I too usually like to live dangerous....)
+On Wed, Nov 21, 2001 at 03:18:21PM +0300, Nikita Danilov wrote:
+> Dieter N=FCtzel writes:
+>  > PS Have you read about the latest ACL discussion on LKML?
+>=20
+> Yes, but Hans thinks we shouldn't do ACL reiserfs 3.x and concentrate on
+> v4 in stead. You can try to persuade him though. Same for extended
+> attributes.
 
+    I started to write ACL support based on Andreas Gr=FCnbacher's patches =
+at
+    http://acl.bestbits.at a few months ago. Since there was no decided upon
+    format, I stopped development so that I wouldn't leave non-standard
+    filesystems in my wake. Once the ACL/EA format/API is finalized, I'll
+    probably continue development on it.
 
--- 
-Met vriendelijke groeten,
+    On a more technical note, adding a new item type, such as an
+    extended attribute item will cause problems for implementations that
+    don't know about them. An idea kicked around a few months ago was to
+    simply change the version string so that implementations that don't
+    know about ACL support can't mount the new version. "can't mount"
+    could conceivably be changed to "can only mount read-only", but certain=
+ly
+    not read-write, since non-solid items need special handling (every item
+    but stat data is non-solid).
 
-Remco Post
+    This creates the following scenario:
+    * Versions that don't know about the new version string will
+      refuse to mount the fs.
+    * Versions that know about the new version, but don't implement support
+      will be read-only. This is because items get moved during balancing, =
+even
+      to un-related items. Knowledge of the inside non-solid items is requi=
+red
+      to move them around. So, even if there is a single ACL on the system,=
+ in
+      some deep directory, it could affect balancing (cause a panic).
+    * Versions that know about the new version, and implement support will
+      be read-write.
 
-SARA - Stichting Academisch Rekencentrum Amsterdam
-High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+    I see something along the lines of EXT2's compatibility matrix happening
+    here, but due to the inherent incompatibilities, this may not be a prime
+    candidate for 2.4 inclusion.
 
-"I really didn't foresee the Internet. But then, neither did the computer
-industry. Not that that tells us very much of course - the computer industry
-didn't even foresee that the century was going to end." -- Douglas Adams
+    -Jeff
 
+--=20
+Jeff Mahoney           |   "Bill Gates is a monocle and a Persian cat away
+jeffm@suse.com         |    from being the villain in a James Bond movie."
+jeffm@csh.rit.edu      |                   -- Dennis Miller
 
+--3Gf/FFewwPeBMqCJ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (SunOS)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7+9vgLPWxlyuTD7IRAliVAJ9xadC9Cyr5oO38ZUSwIdjT9kIvwQCfbtY+
+XH6Ol06qXaFMZ0doiEJC5Aw=
+=ihFo
+-----END PGP SIGNATURE-----
+
+--3Gf/FFewwPeBMqCJ--

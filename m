@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280481AbRKLJMM>; Mon, 12 Nov 2001 04:12:12 -0500
+	id <S281051AbRKLJNm>; Mon, 12 Nov 2001 04:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280679AbRKLJMC>; Mon, 12 Nov 2001 04:12:02 -0500
-Received: from wallext.webflex.nl ([212.115.150.250]:47028 "EHLO
-	palm.webflex.nl") by vger.kernel.org with ESMTP id <S280481AbRKLJLz>;
-	Mon, 12 Nov 2001 04:11:55 -0500
-Message-ID: <XFMail.20011112101120.mathijs@webflex.nl>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <878zdcl8eb.fsf@fadata.bg>
-Date: Mon, 12 Nov 2001 10:11:20 +0100 (CET)
-From: Mathijs Mohlmann <mathijs@webflex.nl>
-To: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix loop with disabled tasklets
+	id <S281077AbRKLJNd>; Mon, 12 Nov 2001 04:13:33 -0500
+Received: from mario.gams.at ([194.42.96.10]:19792 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id <S281051AbRKLJNQ> convert rfc822-to-8bit;
+	Mon, 12 Nov 2001 04:13:16 -0500
+Message-Id: <200111120913.fAC9D7C20810@frodo.gams.co.at>
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.3
+From: Bernd Petrovitsch <bernd@gams.at>
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [Very-OT] Re: Nazi kernels 
+In-Reply-To: <Pine.SOL.3.96.1011111120107.21134C-100000@libra.cus.cam.ac.uk> 
+In-Reply-To: Your message of "Sun, 11 Nov 2001 12:07:20 GMT."
+             <Pine.SOL.3.96.1011111120107.21134C-100000@libra.cus.cam.ac.uk> 
+X-url: http://www.luga.at/~bernd/
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Mon, 12 Nov 2001 10:13:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <Pine.SOL.3.96.1011111120107.21134C-100000@libra.cus.cam.ac.uk>, Ant
+on Altaparmakov wrote:
+>I think we ought to do the same with closed source drivers. It's true
+>after all... The whole point of tainting the kernel is so we can just yell
+>at users to go and bug the vendor. So the modprobe executable could warn
+>the user "hey, you are loading a binary only module, it can break the
+>system, are you sure?". If the module is autoloaded we don't do jumping
+>through hoops asking questions so the systen runs smoothly.
 
-On 12-Nov-2001 Momchil Velikov wrote:
-> In this patch, the first thing is to deschedule the tasklet. So, the
-> changes to interrupt.h are needed in order to put back the tasklet in
-> the queue.
-I know, but Andrea suggested not to allow scheduling of disabled tasklets
-Also, enableing the tasklet will result in a scheduled tasklet, regardless
-whether it was scheduled. Plus, we are not sure if it is scheduled on the
-same cpu that did the tasklet_schedule (but i might be the only one who
-cares about this  ;)
+Un*x admins know what they are doing by definition. So this is not 
+necessary.
+Now you see what some Seattle area company think of admins of theirs
+(so called) OS.
 
-> Mathijs> thisone we should add some comments to interrupt.h warning
-> Mathijs> about deadlocks etc.
-> What deadlocks ? ;)
-well, loops. Dont use tasklet_kill on disabled tasklet or on not scheduled
-tasklets.
-
-        me
-
-
+	Bernd
 -- 
-        me
+Bernd Petrovitsch                              Email : bernd@gams.at
+g.a.m.s gmbh                                  Fax : +43 1 205255-900
+Prinz-Eugen-Straﬂe 8                    A-1040 Vienna/Austria/Europe
+                     LUGA : http://www.luga.at
+
+

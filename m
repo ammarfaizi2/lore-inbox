@@ -1,81 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265276AbUATIj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 03:39:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUATIj7
+	id S265275AbUATIkd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 03:40:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbUATIkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 03:39:59 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:45476 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265276AbUATIiW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 03:38:22 -0500
-Message-ID: <400CE8DC.70307@cyberone.com.au>
-Date: Tue, 20 Jan 2004 19:37:48 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tim Hockin <thockin@hockin.org>
-CC: Rusty Russell <rusty@au1.ibm.com>, vatsa@in.ibm.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       rml@tech9.net
-Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
-References: <20040116174446.A2820@in.ibm.com> <20040120060027.91CC717DE5@ozlabs.au.ibm.com> <20040120063316.GA9736@hockin.org> <400CCE2F.2060502@cyberone.com.au> <20040120065207.GA10993@hockin.org> <400CD4B5.6020507@cyberone.com.au> <20040120073032.GB12638@hockin.org> <400CDCA1.5070200@cyberone.com.au> <20040120075409.GA13897@hockin.org> <400CE354.8060300@cyberone.com.au> <20040120082943.GA15733@hockin.org>
-In-Reply-To: <20040120082943.GA15733@hockin.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jan 2004 03:40:33 -0500
+Received: from main.gmane.org ([80.91.224.249]:53192 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265275AbUATIk1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 03:40:27 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [BK PATCH] Driver Core update for 2.6.1
+Date: Tue, 20 Jan 2004 09:40:22 +0100
+Message-ID: <yw1xsmibovwp.fsf@ford.guide>
+References: <20040120011036.GA6162@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:TzhNPX3M4veV4IQaoiaxHiQLCn0=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH <greg@kroah.com> writes:
 
+>   o ALSA: add sysfs class support for ALSA sound devices
 
-Tim Hockin wrote:
+This is still only completed for the intel8x0 driver, right?
 
->On Tue, Jan 20, 2004 at 07:14:12PM +1100, Nick Piggin wrote:
->
->>>Under what conditions?  Not arbitrary entropy, surely.  If a hotplug script
->>>is present and does not blow up, it should be safe to assume it will be run
->>>upon an event being delivered.  If not, we have a WAY bigger problem :)
->>>
->>>
->>That assumption is not safe. The main problems are of course process limits
->>and memory allocation failure.
->>
->
->If root has a process limit that make hotplug scripts fail to run, then
->we're hosed in a lot of ways.  And if we fail to allocate memory, there
->really ought to be some retry or something.  It seems to me that a failure
->to run a hotplug script is a BAD THING.
->
-
-(or OOM killed being another that comes to mind)
-
-It is sometimes inevitable. With that knowledge we should be designing
-for graceful failure.
-
->
->>>Sending it a SIGPWR means you have to run it on a different CPU that it was
->>>affined to, which is already a violation.
->>>
->>At least the task has the option to handle the problem.
->>
->
->But it is a violation of the affinity.  As the kernel we CAN NOT know what
->the affinity really means.
->
-
-Not if the application is designed to handle it. How would hotplug
-scripts make this any different, anyway?
-
->  Maybe there is some way for a task to indicate
->it would like to receive SIGPWR in that case.  Or some other signal.  Can we
->invent new signals?
->
->That way a task that KNOWS about the CPU disappearing underneath it can be
->wise, while everything else will not just get killed.
->
-
-Rusty thought you just wouldn't send it unless the process was handling
-it.
-
+-- 
+Måns Rullgård
+mru@kth.se
 

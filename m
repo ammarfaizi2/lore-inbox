@@ -1,53 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVAUN1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVAUNqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbVAUN1t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 08:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVAUN1t
+	id S262363AbVAUNqo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 08:46:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbVAUNqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 08:27:49 -0500
-Received: from mail-gw1.york.ac.uk ([144.32.128.246]:49082 "EHLO
-	mail-gw1.york.ac.uk") by vger.kernel.org with ESMTP id S262360AbVAUN1l convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 08:27:41 -0500
-Date: Fri, 21 Jan 2005 13:18:16 +0000
-From: Alan Jenkins <aj504@student.cs.york.ac.uk>
-Subject: Re: 2.6.9 suspend-to-disk bug (during resume)
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-References: <1106210882.7975.9.camel@linux.site>
-	<1106210985l.8224l.0l@linux> <20050120145804.GJ476@openzaurus.ucw.cz>
-	<1106298500.10018.2.camel@linux.site> <20050121103921.GH18373@elf.ucw.cz>
-In-Reply-To: <20050121103921.GH18373@elf.ucw.cz> (from pavel@suse.cz on Fri
-	Jan 21 10:39:21 2005)
-X-Mailer: Balsa 2.2.4
-Message-Id: <1106313496l.7636l.0l@linux>
+	Fri, 21 Jan 2005 08:46:44 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30340 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262363AbVAUNqj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 08:46:39 -0500
+Date: Fri, 21 Jan 2005 08:46:30 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       npiggin@novell.com
+Subject: Re: writeback-highmem
+In-Reply-To: <20050120222630.6168a4cb.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0501210740590.11103@chimarrao.boston.redhat.com>
+References: <20050121054840.GA12647@dualathlon.random>
+ <20050121054916.GB12647@dualathlon.random> <20050121054945.GC12647@dualathlon.random>
+ <20050121055004.GD12647@dualathlon.random> <20050121055043.GE12647@dualathlon.random>
+ <20050121060135.GF12647@dualathlon.random> <20050120222630.6168a4cb.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	DelSp=Yes	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-York-MailScanner: Found to be clean
-X-York-MailScanner-From: aj504@student.cs.york.ac.uk
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Try without preempt for an ugly workaround.
-> > Check.
-> 
-> ??? Sorry, I do not understand.
+On Thu, 20 Jan 2005, Andrew Morton wrote:
 
-My fault.  I mean disabling preempt gets rid of the warnings.
+> I've held off on this one because the recent throttling fix should have
+> helped this problem.  Has anyone confirmed that this patch still actually
+> fixes something?  If so, what was the scenario?
 
-> Ok, looks like I should enable PREEMPT here.
-> 
-> But resume succeeds at the end, no? We'll probably need to fix those
-> warnings, but driver model has bigger priority just now.
+The throttling fix is not quite enough, a big mkfs can still
+completely paralyse the system.  Note that the previously
+posted patch wasn't quite complete, Larry Woodman spotted an
+additional 2 lines that needed changing.
 
-Yes, the warnings do not appear to cause a problem.
+The full patch is:
 
-I have some unrelated problems, one of which I have described on the
-list.
+This patch effectively lowers the dirty limit for mappings which cannot
+be cached in highmem, counting the dirty limit as a percentage of lowmem
+instead.  This should prevent heavy block device writers from pushing
+the VM over the edge and triggering OOM kills.
 
-Thanks
-Alan
+Signed-off-by: Rik van Riel <riel@redhat.com>
 
+===== mm/page-writeback.c 1.95 vs edited =====
+--- 1.95/mm/page-writeback.c	Thu Oct 21 04:39:27 2004
++++ edited/mm/page-writeback.c	Fri Jan 21 08:45:24 2005
+@@ -133,17 +133,27 @@
+   * clamping level.
+   */
+  static void
+-get_dirty_limits(struct writeback_state *wbs, long *pbackground, long *pdirty)
++get_dirty_limits(struct writeback_state *wbs, long *pbackground, long *pdirty, struct address_space *mapping)
+  {
+  	int background_ratio;		/* Percentages */
+  	int dirty_ratio;
+  	int unmapped_ratio;
+  	long background;
+  	long dirty;
++	unsigned long available_memory = total_pages;
+  	struct task_struct *tsk;
+
+  	get_writeback_state(wbs);
+
++#ifdef CONFIG_HIGHMEM
++	/*
++	 * If this mapping can only allocate from low memory,
++	 * we exclude high memory from our count.
++	 */
++	if (mapping && !(mapping_gfp_mask(mapping) & __GFP_HIGHMEM))
++		available_memory -= totalhigh_pages;
++#endif
++
+  	unmapped_ratio = 100 - (wbs->nr_mapped * 100) / total_pages;
+
+  	dirty_ratio = vm_dirty_ratio;
+@@ -157,8 +167,8 @@
+  	if (background_ratio >= dirty_ratio)
+  		background_ratio = dirty_ratio / 2;
+
+-	background = (background_ratio * total_pages) / 100;
+-	dirty = (dirty_ratio * total_pages) / 100;
++	background = (background_ratio * available_memory) / 100;
++	dirty = (dirty_ratio * available_memory) / 100;
+  	tsk = current;
+  	if (tsk->flags & PF_LESS_THROTTLE || rt_task(tsk)) {
+  		background += background / 4;
+@@ -194,7 +204,8 @@
+  			.nr_to_write	= write_chunk,
+  		};
+
+-		get_dirty_limits(&wbs, &background_thresh, &dirty_thresh);
++		get_dirty_limits(&wbs, &background_thresh,
++					&dirty_thresh, mapping);
+  		nr_reclaimable = wbs.nr_dirty + wbs.nr_unstable;
+  		if (nr_reclaimable + wbs.nr_writeback <= dirty_thresh)
+  			break;
+@@ -210,7 +221,7 @@
+  		if (nr_reclaimable) {
+  			writeback_inodes(&wbc);
+  			get_dirty_limits(&wbs, &background_thresh,
+-					&dirty_thresh);
++					&dirty_thresh, mapping);
+  			nr_reclaimable = wbs.nr_dirty + wbs.nr_unstable;
+  			if (nr_reclaimable + wbs.nr_writeback <= dirty_thresh)
+  				break;
+@@ -296,7 +307,7 @@
+  		long background_thresh;
+  		long dirty_thresh;
+
+-		get_dirty_limits(&wbs, &background_thresh, &dirty_thresh);
++		get_dirty_limits(&wbs, &background_thresh, &dirty_thresh, NULL);
+  		if (wbs.nr_dirty + wbs.nr_unstable < background_thresh
+  				&& min_pages <= 0)
+  			break;

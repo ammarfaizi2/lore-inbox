@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263283AbTDGGf4 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 02:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263284AbTDGGf4 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 02:35:56 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23567 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263283AbTDGGfy (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 02:35:54 -0400
-Date: Mon, 7 Apr 2003 07:47:22 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
-Subject: Re: correct to set -nostdinc and then include <stdarg.h> ?
-Message-ID: <20030407074722.A9367@flint.arm.linux.org.uk>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	Chris Friesen <cfriesen@nortelnetworks.com>,
-	linux-kernel@vger.kernel.org
-References: <3E910172.8030406@nortelnetworks.com> <23076.1049692512@kao2.melbourne.sgi.com>
+	id S263279AbTDGGhJ (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 02:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTDGGhJ (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 02:37:09 -0400
+Received: from granite.he.net ([216.218.226.66]:12044 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S263279AbTDGGhA (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 02:37:00 -0400
+Date: Sun, 6 Apr 2003 23:51:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Jens Ansorg <jens@ja-web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB devices in 2.5.xx do not show in /dev
+Message-ID: <20030407065101.GA20257@kroah.com>
+References: <1049632582.3405.0.camel@lisaserver> <20030406201638.GC18279@kroah.com> <1049696485.3321.16.camel@lisaserver>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <23076.1049692512@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Mon, Apr 07, 2003 at 03:15:12PM +1000
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <1049696485.3321.16.camel@lisaserver>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 07, 2003 at 03:15:12PM +1000, Keith Owens wrote:
-> On Mon, 07 Apr 2003 00:41:22 -0400, 
-> Chris Friesen <cfriesen@nortelnetworks.com> wrote:
-> >
-> >I was trying to compile 2.5.66 with gcc 3.2.2.  It dies as soon as it tries to 
-> >compile init/main.c because it is unable to find "stdarg.h" which is included by 
-> >"include/linux/kernel.h".
+On Mon, Apr 07, 2003 at 08:21:26AM +0200, Jens Ansorg wrote:
+> On Sun, 2003-04-06 at 22:16, Greg KH wrote:
+> > You have to have an actual device for the /dev node to show up.  Do you
+> > have any USB devices plugged in?  What does:
+> > 	tree /sys/bus/usb/
+> > show?
+> > 
+> 
+> yes, I have both, a scanner and a printer plugged into the computer
+> 
+> but there is nothing under /proc/bus/usb, it's empty
 
-stdarg.h is part of the compiler specific includes.  We want to pick
-up on these, so we use "-iwithprefix include" to add the compiler specific
-includes back.
+Please see:
+	http://www.linux-usb.org/FAQ.html#gs3
 
-Unfortunately, there seems to be something wrong with GCC's ability to
-determine where these includes really reside when GCC is installed in
-a different location to the one it was configured with.  In other words,
-don't do that.  Install GCC to the location where you told it to be
-installed.
+You probably have to mount usbfs yourself, as some distro's startup
+scripts seem to not like 2.5 and don't do it for you.
 
-For instance, on a Red Hat machine, try:
+> (there is no /sys/ on my PC?)
 
-# cp /usr/bin/gcc /usr/local/bin
-# hash -r
-# touch t.c
-# gcc -nostdinc -iwithprefix include -v t.c
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
- /usr/lib/gcc-lib/i386-redhat-linux/2.96/cpp0 -lang-c -nostdinc -v -iprefix
-  /usr/local/bin/../lib/gcc-lib/i386-redhat-linux/2.96/ -D__GNUC__=2
-  -D__GNUC_MINOR__=96 -D__GNUC_PATCHLEVEL__=0 -D__ELF__ -Dunix -Dlinux
-  -D__ELF__ -D__unix__ -D__linux__ -D__unix -D__linux -Asystem(posix)
-  -D__NO_INLINE__ -Acpu(i386) -Amachine(i386) -Di386 -D__i386 -D__i386__
-  -D__tune_i386__ -iwithprefix include t.c
-GNU CPP version 2.96 20000731 (Red Hat Linux 7.2 2.96-112.7.2) (cpplib)
-  (i386 Linux/ELF)
-ignoring nonexistent directory "/usr/local/lib/gcc-lib/i386-redhat-linux/2.96/include"
-#include "..." search starts here:
-End of search list.
-# rm /usr/local/bin/gcc
-# hash -r
+Make the directory:
+	mkdir /sys
+and then mount sysfs there:
+	mount -t sysfs none /sys
 
-and note that it fails.
+Edit your /etc/fstab to add it so that it is always mounted at startup.
 
-> Try this:
+> the usbview application also complains that there is no usbfs although
+> it gets registered by the core usb driver
 
->From a quick look at the patch, doesn't this mean that we re-evaluate
-the search directory each time we build the compiler?  Would it not
-be better to cache the result ?
+Sounds like you don't have a USB host controller driver getting loaded,
+right?  What does lsmod show?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+thanks,
 
+greg k-h

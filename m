@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130172AbRACPoE>; Wed, 3 Jan 2001 10:44:04 -0500
+	id <S131830AbRACPxS>; Wed, 3 Jan 2001 10:53:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131830AbRACPnn>; Wed, 3 Jan 2001 10:43:43 -0500
-Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:47866
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S130172AbRACPne>; Wed, 3 Jan 2001 10:43:34 -0500
-Date: Wed, 3 Jan 2001 08:11:52 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-fbdev@vuser.vu.union.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: [linux-fbdev] [PATCH] clgenfb on PPC
-Message-ID: <20010103081152.L26653@opus.bloom.county>
-In-Reply-To: <20010102095133.B26653@opus.bloom.county> <Pine.LNX.4.05.10101031349110.611-100000@callisto.of.borg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.05.10101031349110.611-100000@callisto.of.borg>; from geert@linux-m68k.org on Wed, Jan 03, 2001 at 01:50:46PM +0100
+	id <S132157AbRACPxI>; Wed, 3 Jan 2001 10:53:08 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:52209 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131830AbRACPwz>; Wed, 3 Jan 2001 10:52:55 -0500
+Date: Wed, 3 Jan 2001 13:21:57 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] drop-behind fix for generic_file_write
+In-Reply-To: <Pine.LNX.4.21.0101031256040.1403-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0101031321200.1403-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2001 at 01:50:46PM +0100, Geert Uytterhoeven wrote:
-> On Tue, 2 Jan 2001, Tom Rini wrote:
-> > Hey all.  While going through the 2.4 tree and removing dead CONFIG_xxx's for
-> > PPC stuff, I noticed clgenfb still had CONFIG_PREP stuff (which may have
-> > partily explained why it no longer worked here).  I've attached a patch, that
-> > with another patch to fix some PCI issues on certain machines, gives me a
-> > working (so far, can't test heavily yet tho) framebuffer on my powerstack.
-> > 
-> > Comments?
-> 
-> To me it looks like most of them depend on `big endian', not on `PReP'.
+On Wed, 3 Jan 2001, Rik van Riel wrote:
 
-Well, I was trying to base things off the prior logic.
+> the following (trivial) patch fixes drop-behind behaviour
+> in generic_file_write to only drop fully written pages.
 
-> BTW, doesn't the Cirrus Logic graphics chip have a big endian aperture? I 
-> don't like things like green.offset = -3, since it will probably break some
-> applications (did you run X?).
+OK, please ignore. It is already in  prerelease-diff
+in the testing/ directory .. ;)
 
-Nope, I still need to NFS root the machine to try.  I'm also wondering tho
-if on ppc anything other than Xbh (the Xserver writtten for these machines)
-will even work.
+regards,
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

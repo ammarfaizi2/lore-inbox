@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263938AbTEFRPK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 13:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263992AbTEFRPJ
+	id S263973AbTEFRUm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 13:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbTEFRUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 13:15:09 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:39058 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263938AbTEFRPI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 13:15:08 -0400
-Subject: Re: 2.5.69: Missing logo?
-From: Andy Pfiffer <andyp@osdl.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       James Simmons <jsimmons@transvirtual.com>
-In-Reply-To: <20030506180707.B15174@flint.arm.linux.org.uk>
-References: <20030506180707.B15174@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052241905.1238.3.camel@andyp.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 May 2003 10:25:05 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 6 May 2003 13:20:42 -0400
+Received: from iole.cs.brandeis.edu ([129.64.3.240]:16257 "EHLO
+	iole.cs.brandeis.edu") by vger.kernel.org with ESMTP
+	id S263973AbTEFRUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 13:20:41 -0400
+Date: Tue, 6 May 2003 13:33:16 -0400 (EDT)
+From: Mikhail Kruk <meshko@cs.brandeis.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: flock races causes E_NOLCK
+Message-ID: <Pine.LNX.4.33.0305061321310.7082-100000@iole.cs.brandeis.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-06 at 10:07, Russell King wrote:
-> Hi,
-> 
-> I seem to have a penguin missing in action, somewhere between 2.5.68 and
-> 2.5.69.  Has anyone else lost a penguin under similar circumstances?
+Hello,
+I'm having a problem with flock on 2.4.18 kernel. 
+The scenario is like this:
 
-Tux is AWOL for me, too.
+parent process:
+open file
+fcntl(file, FD_SETFD, 1) // set CLOEXEC bit
+flock file
+fork/exec child process
+close file
 
-bk/linux-2.5.69+kexec2> grep LOGO .config
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-bk/linux-2.5.69+kexec2> grep CONFIG_FB .config | grep =y
-CONFIG_FB=y
-CONFIG_FB_VESA=y
-CONFIG_FB_I810=y
-CONFIG_FB_I810_GTF=y
-bk/linux-2.5.69+kexec2> lspci | grep -i VGA
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP
-(rev 85)
-bk/linux-2.5.69+kexec2>
+child process
+open the same file
+flock this file
+close file
 
+This sometimes (often) results in child process being unable to do any 
+further locking with the error 37 (no locks available).
+Removing fcntl and doing an explicit close of all open file desciprotrs in 
+the beginning of child leads to the same problem.
 
-> $ grep LOGO linux-sa1100/.config
-> CONFIG_LOGO=y
-> # CONFIG_LOGO_LINUX_MONO is not set
-> CONFIG_LOGO_LINUX_VGA16=y
-> CONFIG_LOGO_LINUX_CLUT224=y
-> 
-> Other than the missing logo, the fb display looks as it did under 2.5.68.
+Here is a post from Pat Knight descirbing similar problem:
+http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=UTF-8&threadm=linux.fsdevel.sxr8lna7wp.fsf%40eurologic.com&rnum=4&prev=/groups%3Fhl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3DUTF-8%26q%3DRLIMIT_LOCKS%26btnG%3DGoogle%2BSearch
 
+I can't directly map his problem onto mine, but it's pretty clear that 
+somehow (usigned) current->locks is decremented when it is 0. 
+
+For some reason, however, simplistic test program doens't hit this 
+condition, so I suspect my analysis is not 100% correct. I'm sure, though, 
+that current->locks is getting messed up somehow.
 

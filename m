@@ -1,119 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131484AbRDWQME>; Mon, 23 Apr 2001 12:12:04 -0400
+	id <S131505AbRDWQMN>; Mon, 23 Apr 2001 12:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132616AbRDWQLz>; Mon, 23 Apr 2001 12:11:55 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:44472 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S131484AbRDWQLg>;
-	Mon, 23 Apr 2001 12:11:36 -0400
-Message-ID: <3AE45437.8A185AF4@mandrakesoft.com>
-Date: Mon, 23 Apr 2001 12:11:35 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcus Meissner <Marcus.Meissner@caldera.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] es1371 pci fix/cleanup
-In-Reply-To: <20010423175158.A15604@caldera.de> <3AE45121.926C4B51@mandrakesoft.com> <20010423180653.A16759@caldera.de>
+	id <S132616AbRDWQME>; Mon, 23 Apr 2001 12:12:04 -0400
+Received: from theseus.mathematik.uni-ulm.de ([134.60.166.2]:43142 "HELO
+	theseus.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
+	id <S131505AbRDWQLv>; Mon, 23 Apr 2001 12:11:51 -0400
+Message-ID: <20010423161148.6465.qmail@theseus.mathematik.uni-ulm.de>
+From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
+Date: Mon, 23 Apr 2001 18:11:48 +0200
+To: Victor Zandy <zandy@cs.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: Global FPU corruption in 2.2
+In-Reply-To: <cpx7l0g3mfk.fsf@goat.cs.wisc.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <cpx7l0g3mfk.fsf@goat.cs.wisc.edu>; from zandy@cs.wisc.edu on Thu, Apr 19, 2001 at 11:05:03AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcus Meissner wrote:
-> Hmm, I think I spotted all places in the probe function. I also return
-> -ENODEV in case we can't request_region() or request_irq().
+On Thu, Apr 19, 2001 at 11:05:03AM -0500, Victor Zandy wrote:
 > 
-> Some drivers use EBUSY, some ENOMEM, some ENODEV there, is there
-> any standard return value?
+> We have found that one of our programs can cause system-wide
+> corruption of the x86 FPU under 2.2.16 and 2.2.17.  That is, after we
+> run this program, the FPU gives bad results to all subsequent
+> processes.
 
-request_region/request_mem_region - EBUSY
-request_irq - return its return value
+A few comments, not sure if they will help very much:
 
-> Ciao, Marcus
-> 
-> Index: drivers/sound/es1371.c
-> ===================================================================
-> RCS file: /build/mm/work/repository/linux-mm/drivers/sound/es1371.c,v
-> retrieving revision 1.7
-> diff -u -r1.7 es1371.c
-> --- drivers/sound/es1371.c      2001/04/17 17:26:05     1.7
-> +++ drivers/sound/es1371.c      2001/04/23 16:03:34
-> @@ -2771,22 +2771,22 @@
->         { SOUND_MIXER_WRITE_IGAIN, 0x4040 }
->  };
-> 
-> -#define RSRCISIOREGION(dev,num) (pci_resource_start((dev), (num)) != 0 && \
-> -                                (pci_resource_flags((dev), (num)) & IORESOURCE_IO))
-> -
->  static int __devinit es1371_probe(struct pci_dev *pcidev, const struct pci_device_id *pciid)
->  {
->         struct es1371_state *s;
->         mm_segment_t fs;
-> -       int i, val;
-> +       int i, val, res = -1;
->         unsigned long tmo;
->         signed long tmo2;
->         unsigned int cssr;
-> +
-> +       if ((res=pci_enable_device(pcidev)))
-> +               return res;
-> 
-> -       if (!RSRCISIOREGION(pcidev, 0))
-> -               return -1;
-> +       if (!(pci_resource_flags(pcidev, 0) & IORESOURCE_IO))
-> +               return -ENODEV;
->         if (pcidev->irq == 0)
-> -               return -1;
-> +               return -ENODEV;
->         i = pci_set_dma_mask(pcidev, 0xffffffff);
->         if (i) {
->                 printk(KERN_WARNING "es1371: architecture does not support 32bit PCI busmaster DMA\n");
-> @@ -2794,7 +2794,7 @@
->         }
->         if (!(s = kmalloc(sizeof(struct es1371_state), GFP_KERNEL))) {
->                 printk(KERN_WARNING PFX "out of memory\n");
-> -               return -1;
-> +               return -ENOMEM;
->         }
->         memset(s, 0, sizeof(struct es1371_state));
->         init_waitqueue_head(&s->dma_adc.wait);
+1.) If I'm not mistaken switch_to changes current->flags without
+atomic operations and without any locks and sys_ptrace changes
+child->flags only protected by the big kernel lock.
+I could imagine that this causes local corruption on an SMP machine
+and this is something that changed in 2.4 kernels, but I don't see
+how this can corrupt FPU state globally. Maybe there is something else.
 
-this part looks ok
+2.) I guess a single finit (as proposed by someone else in this thread)
+won't assure that both FPUs are in a sane state.
 
-> @@ -2822,8 +2822,6 @@
->                 printk(KERN_ERR PFX "io ports %#lx-%#lx in use\n", s->io, s->io+ES1371_EXTENT-1);
->                 goto err_region;
->         }
-> -       if (pci_enable_device(pcidev))
-> -               goto err_irq;
->         if (request_irq(s->irq, es1371_interrupt, SA_SHIRQ, "es1371", s)) {
->                 printk(KERN_ERR PFX "irq %u in use\n", s->irq);
->                 goto err_irq;
-> @@ -2964,7 +2962,7 @@
->         release_region(s->io, ES1371_EXTENT);
->   err_region:
->         kfree(s);
-> -       return -1;
-> +       return -ENODEV;
->  }
-> 
->  static void __devinit es1371_remove(struct pci_dev *dev)
+3.) It might be interesting to know if the problem can be triggered:
+a) If pi doesn't fork, i.e. just one process calculating pi and
+another one doing the attach/detach.
+b) If pi doesn't do FPU Operations, i.e. only the children call do_pi.
 
-Since you need to propagate return values from different situations,
-have an 'err' variable.  Right before each goto err_foo statement, set
-err=Exxxxx.  Then, at the very end of the function, return the value of
-'err'.  For a request_region failure, set err to EBUSY before calling
-goto.  For a request_irq failure, have 'err' take the return value of
-request_irq.
-
-	Jeff
-
+    regards    Christian
 
 -- 
-Jeff Garzik      | The difference between America and England is that
-Building 1024    | the English think 100 miles is a long distance and
-MandrakeSoft     | the Americans think 100 years is a long time.
-                 |      (random fortune)
+THAT'S ALL FOLKS!

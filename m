@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266345AbSISLbp>; Thu, 19 Sep 2002 07:31:45 -0400
+	id <S266492AbSISMCi>; Thu, 19 Sep 2002 08:02:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266469AbSISLbp>; Thu, 19 Sep 2002 07:31:45 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:23771 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266345AbSISLbo>;
-	Thu, 19 Sep 2002 07:31:44 -0400
-Date: Thu, 19 Sep 2002 17:06:18 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: [RFC] [PATCH] 2.5.35 patch for making DIO async
-Message-ID: <20020919170618.B2285@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <200209181630.g8IGUGe15097@eng2.beaverton.ibm.com> <200209182047.g8IKl6T27992@eng2.beaverton.ibm.com> <20020919162214.A2285@in.ibm.com>
+	id <S266646AbSISMCi>; Thu, 19 Sep 2002 08:02:38 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:29193 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S266492AbSISMCh>; Thu, 19 Sep 2002 08:02:37 -0400
+Date: Thu, 19 Sep 2002 13:07:40 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: Jonathan Lundell <linux@lundell-bros.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NMI watchdog stability
+Message-ID: <20020919120740.GA42108@compsoc.man.ac.uk>
+References: <1032360386.3d8891c2bc3d3@kolivas.net> <3D88ACB6.6374E014@digeo.com> <1032383868.3d88ed7c4cf2d@kolivas.net> <3D88F2D7.DD8519E6@digeo.com> <p05111a08b9aec118552d@[10.2.2.25]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020919162214.A2285@in.ibm.com>; from suparna@in.ibm.com on Thu, Sep 19, 2002 at 04:22:14PM +0530
+In-Reply-To: <p05111a08b9aec118552d@[10.2.2.25]>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 04:22:14PM +0530, Suparna Bhattacharya wrote:
-> On Wed, Sep 18, 2002 at 01:47:06PM -0700, Badari Pulavarty wrote:
-> > Ben,
-> > 
-> > aio_read/aio_write() are now working with a minor fix to fs/aio.c
-> > 
-> > io_submit_one():
-> > 	
-> > 	if (likely(EIOCBQUEUED == ret))
-> > 
-> > 		needs to be changed to
-> > 
-> > 	if (likely(-EIOCBQUEUED == ret))
-> > 		  ^^^
-> > 
-> > 
-> > I was wondering what happens to following case (I think this
-> > happend in my test program).
-> > 
-> > Lets say, I did an sys_io_submit() and my test program did exit().
-> > When the IO complete happend, it tried to do following and got
-> > an OOPS in aio_complete().
-> > 
-> > 	if (ctx == &ctx->mm->default_kioctx) { 
-> > 
-> > I think "mm" is freed up, when process exited. Do you think this is
-> > possible ?  How do we handle this ?
+On Wed, Sep 18, 2002 at 04:55:13PM -0700, Jonathan Lundell wrote:
+
+> >It was causing SMP boxes to crash mysteriously after
+> >several hours or days. Quite a lot of them. Nobody
+> >was able to explain why, so it was turned off.
 > 
-> Do you see this only in the sync case ?
-> init_sync_iocb ought to increment ctx->reqs_active, so that
-> exit_aio waits for the iocb's to complete.
-
-Sorry, guess in the sync case, exit_aio shouldn't happen since 
-the current thread still has a reference to the mm. 
-
-And your problem is with the io_submit case ... have to look closely
-to find out why.
-
+> This was in the context of 2.4.2-ac21. More of the thread,with no 
+> conclusive result, can be found at 
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0103.2/0906.html
 > 
-> Regards
-> Suparna
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
+> Was there any resolution? Was the problem real, did it get fixed, and 
+
+Some machines corrupt %ecx on the way back from an NMI. Perhaps that was
+the factor all the people with problems saw.
+
+regards
+john
+
+-- 
+"Please crack down on the Chinaman's friends and Hitler's commander.  Mother is
+the best bet and don't let Satan draw you too fast.  A boy has never wept ...
+nor dashed a thousand kim. Did you hear me?"
+	- Dutch Schultz

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265083AbUBDXyz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 18:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265117AbUBDXyj
+	id S265081AbUBDXtV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 18:49:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUBDXrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 18:54:39 -0500
-Received: from fed1mtao03.cox.net ([68.6.19.242]:54423 "EHLO
-	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S265083AbUBDXwQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 18:52:16 -0500
-Date: Wed, 4 Feb 2004 16:52:15 -0700
-From: Tom Rini <trini@kernel.crashing.org>
+	Wed, 4 Feb 2004 18:47:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64966 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265059AbUBDXoY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 18:44:24 -0500
+Date: Wed, 4 Feb 2004 15:45:48 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: kgdb support in vanilla 2.6.2
-Message-ID: <20040204235215.GA1086@smtp.west.cox.net>
+Message-Id: <20040204154548.0521aef6.akpm@osdl.org>
+In-Reply-To: <20040204232447.GC256@elf.ucw.cz>
 References: <20040204230133.GA8702@elf.ucw.cz>
+	<20040204152137.500e8319.akpm@osdl.org>
+	<20040204232447.GC256@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040204230133.GA8702@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 12:01:33AM +0100, Pavel Machek wrote:
-
-> Hi!
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> > > It seems that some kgdb support is in 2.6.2-linus:
+> > 
+> > Lots of architectures have had in-kernel kgdb support for a long time. 
+> > Just none of the three which I use :(
+> > 
+> > I wouldn't support inclusion of i386 kgdb until it has had a lot of
+> > cleanup, possible de-featuritisification and some thought has been applied
+> > to splitting it into arch and generic bits.  It's quite a lot of work.
 > 
-> It seems that some kgdb support is in 2.6.2-linus:
+> What about Amit's kgdb?
 > 
-> +++ b/Documentation/sh/kgdb.txt Tue Feb  3 19:45:43 2004
-> @@ -0,0 +1,179 @@
-> +
-> +This file describes the configuration and behavior of KGDB for the SH
-> +kernel. Based on a description from Henry Bell <henry.bell@st.com>, it
-> +has been modified to account for quirks in the current implementation.
-> +
+> It's a *lot* cleaner. It does not have all the features (kgdb-eth is
+> not yet ready for prime time). Would you accept that?
 > 
-> That's great, can we get i386 kgdb, too? Or at least amd64 kgdb
-> ;-). [Or was it a mistake? It seems unlikely that kgdb could enter
-> Linus tree without major flamewar...]
+> Oh and it is already split into arch-dependend and arch-independend
+> parts, plus it has cleanly separated i/o methods...
 
-FWIW, there has been PPC32 KGDB support in kernel.org for ages.  OTOH,
-I'm quite happy that SH kgdb support came in (mental note made to talk
-to Henry about the KGDB merging stuffs).
+That all sounds positive.  I was waiting until that effort settles down a
+bit before taking it for a ride.  I have a bad habit of finding bugs in the
+gdb stub for some reason.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

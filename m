@@ -1,113 +1,338 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314529AbSEaMST>; Fri, 31 May 2002 08:18:19 -0400
+	id <S314451AbSEaMSZ>; Fri, 31 May 2002 08:18:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315042AbSEaMSS>; Fri, 31 May 2002 08:18:18 -0400
-Received: from smtp01.web.de ([194.45.170.210]:27680 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S314529AbSEaMSR>;
-	Fri, 31 May 2002 08:18:17 -0400
-Date: Fri, 31 May 2002 14:18:12 +0200
-From: Moritz Breit <moritz.breit@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Strange problems with 2.5.17-2.5.19
-Message-Id: <20020531141812.3515f2ac.moritz.breit@web.de>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S315042AbSEaMSY>; Fri, 31 May 2002 08:18:24 -0400
+Received: from point41.gts.donpac.ru ([213.59.116.41]:51717 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S314451AbSEaMST>;
+	Fri, 31 May 2002 08:18:19 -0400
+Date: Fri, 31 May 2002 16:23:18 +0400
+From: Andrey Panin <pazke@orbita1.ru>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] hpt366.c cosmetic cleanups
+Message-ID: <20020531122318.GA305@pazke.ipt>
+Mail-Followup-To: Martin Dalecki <dalecki@evision-ventures.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="24zk1gE8NUlDmwG9"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Uname: Linux pazke 2.5.19
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-I am having some problems when running 2.5.17/2.5.18/2.5.19.
-This never happend with any 2.4.x kernel.
-The problems appear when my computer has been running
-for a few hours and I compiled gnome2 or the kernel.
-It start with some strange display errors.
-Or one time, all qt3-applications did not start.
-Segfault. Yesterday, it was nedit which gave me
-a segfault everytime I wanted to start it.
 
-One time, with kernel 2.5.17, I got the following mail
-from my local scandetd:
-------8<--------
-From: Scandetd@localhost
-To: root@localhost
-Subject: Mail notification disabled for a minute.
-Date: Fri, 24 May 2002 22:01:58 +0200
-
-Possible TCP port scanning from 224.5.0.20 to 32.186.31.212,
-I've counted -736109024 connections.
-
-First connection was made to 52225 port at Wed Sep  4 06:58:40 1946
-Last connection was made to 32 port at Tue Oct  5 09:16:20 1982
-
-Probably it was a SYN scan (402653780 FIN flags and -736100864 SYN flags)
------->8--------
-This is very strange, because scandetd has nothing to do with
-"Mail notification" and I have no idea, where this subject
-comes from. Please also look to the number ob connections
-and the date of the first/last connection. VERY strange...
-
-A few seconds after that, I got an oops and nothing
-worked any more, even the SysRq-key was not usable.
-Here is the output of ksymoops:
-------8<--------
-May 24 22:03:41 moritz kernel: kernel BUG at page_alloc.c:103!
-May 24 22:03:41 moritz kernel: invalid operand: 0000
-May 24 22:03:41 moritz kernel: CPU: 0
-May 24 22:03:41 moritz kernel: EIP: 0010:[__free_pages_ok+19/624] Not tainted
-May 24 22:03:41 moritz kernel: EFLAGS: 00010202
-May 24 22:03:41 moritz kernel: eax: 0000100c ebx: c100ff44 ecx: c100ff44 edx: 00000000
-May 24 22:03:41 moritz kernel: esi: 00000000 edi: c100ff44 ebp: c6ecd228 esp: c1161eac
-May 24 22:03:41 moritz kernel: ds: 0018 es: 0018 ss: 0018
-May 24 22:03:41 moritz kernel: Stack: c100ff44 c100ff44 00850200 c6ecd228 c10198d4 c10198d4 c02a73c0 c012fca5
-May 24 22:03:41 moritz kernel: c02a7280 00000004 00000840 c10198d4 c0128985 c012a04c 00000001 c0128d40
-May 24 22:03:41 moritz kernel: c02a7534 c109f7f4 00000017 0000078e 08448000 c1161f48 0808b000 c6ecd22c
-May 24 22:03:41 moritz kernel: Call Trace: [__set_page_dirty_buffers+181/192] [lru_cache_del+5/16] [page_cache_release+44/48] [swap_out+944/1392] [shrink_cache+638/752]
-May 24 22:03:41 moritz kernel: Code: 0f 0b 67 00 41 53 25 c0 83 7f 08 00 74 08 0f 0b 69 00 41 53
-Using defaults from ksymoops -t elf32-i386 -a i386
+--24zk1gE8NUlDmwG9
+Content-Type: multipart/mixed; boundary="h31gzZEtNLTqOjlF"
+Content-Disposition: inline
 
 
->>eax; 0000100c Before first symbol
->>ebx; c100ff44 <_end+cdf390/851744c>
->>ecx; c100ff44 <_end+cdf390/851744c>
->>edi; c100ff44 <_end+cdf390/851744c>
->>ebp; c6ecd228 <_end+6b9c674/851744c>
->>esp; c1161eac <_end+e312f8/851744c>
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Code; 00000000 Before first symbol
-00000000 <_EIP>:
-Code; 00000000 Before first symbol
-0: 0f 0b ud2a
-Code; 00000002 Before first symbol
-2: 67 00 41 53 addr16 add %al,83(%bx,%di)
-Code; 00000006 Before first symbol
-6: 25 c0 83 7f 08 and $0x87f83c0,%eax
-Code; 0000000b Before first symbol
-b: 00 74 08 0f add %dh,0xf(%eax,%ecx,1)
-Code; 0000000f Before first symbol
-f: 0b 69 00 or 0x0(%ecx),%ebp
-Code; 00000012 Before first symbol
-12: 41 inc %ecx
-Code; 00000013 Before first symbol
-13: 53 push %ebx
------->8--------
+Hi,
 
-I am not getting these oops with 2.5.18 or 2.5.19,
-but the problems are still there.
+attached patch contains some cosmetic cleanups for hpt366.c driver:
+	- remove lots of unneeded initializations of local vars;
+	- get rid of byte type usage, we have kernelwide u8 type;
+	- s/unsigned int/u32/ where needed (args to pci_read_dword());
 
-If this could be helpful, I am using debian/woody
-with a few packages from sid,
-and I have one AMD Duron processor and a board with
-a VIA-chipset.
+Patch against 2.5.19, applies (with some offsets) on top IDE 76.=20
+Compiles and seems working (for me). Please take a look at it.
 
-I hope I didn't forget to mention something and
-that this can be helpful.
-Moritz
+Best regards.
 
--- 
-Moritz Breit          Jabber:  mo42@amessage.de       
-Karl-Wehrhan-Str. 17  Email:   moritz.breit@web.de
-32758 Detmold         WWW:     I'm working on it ;)
-Germany               Tel:     +49 5231 8785135
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-hpt366
+Content-Transfer-Encoding: quoted-printable
+
+diff -urN -X /usr/share/dontdiff linux.vanilla/drivers/ide/hpt366.c linux/d=
+rivers/ide/hpt366.c
+--- linux.vanilla/drivers/ide/hpt366.c	Fri May 31 03:38:52 2002
++++ linux/drivers/ide/hpt366.c	Fri May 31 04:03:00 2002
+@@ -598,7 +598,7 @@
+=20
+ static unsigned int hpt_revision(struct pci_dev *dev)
+ {
+-	unsigned int class_rev;
++	u32 class_rev;
+ 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
+ 	class_rev &=3D 0xff;
+=20
+@@ -654,7 +654,7 @@
+ }
+=20
+=20
+-static unsigned int pci_bus_clock_list(byte speed, struct chipset_bus_cloc=
+k_list_entry * chipset_table)
++static unsigned int pci_bus_clock_list(u8 speed, struct chipset_bus_clock_=
+list_entry * chipset_table)
+ {
+ 	for ( ; chipset_table->xfer_speed ; chipset_table++)
+ 		if (chipset_table->xfer_speed =3D=3D speed) {
+@@ -663,18 +663,17 @@
+ 	return chipset_table->chipset_settings;
+ }
+=20
+-static void hpt366_tune_chipset(struct ata_device *drive, byte speed)
++static void hpt366_tune_chipset(struct ata_device *drive, u8 speed)
+ {
+ 	struct pci_dev *dev	=3D drive->channel->pci_dev;
+-	byte regtime		=3D (drive->select.b.unit & 0x01) ? 0x44 : 0x40;
+-	byte regfast		=3D (drive->channel->unit) ? 0x55 : 0x51;
++	u8 regtime =3D (drive->select.b.unit & 0x01) ? 0x44 : 0x40;
++	u8 regfast =3D (drive->channel->unit) ? 0x55 : 0x51;
+ 			/*
+ 			 * since the channel is always 0 it does not matter.
+ 			 */
+=20
+-	unsigned int reg1	=3D 0;
+-	unsigned int reg2	=3D 0;
+-	byte drive_fast		=3D 0;
++	u32 reg1, reg2;
++	u8 drive_fast;
+=20
+ 	/*
+ 	 * Disable the "fast interrupt" prediction.
+@@ -699,19 +698,18 @@
+ 	pci_write_config_dword(dev, regtime, reg2);
+ }
+=20
+-static void hpt368_tune_chipset(struct ata_device *drive, byte speed)
++static void hpt368_tune_chipset(struct ata_device *drive, u8 speed)
+ {
+ 	hpt366_tune_chipset(drive, speed);
+ }
+=20
+-static void hpt370_tune_chipset(struct ata_device *drive, byte speed)
++static void hpt370_tune_chipset(struct ata_device *drive, u8 speed)
+ {
+-	byte regfast		=3D (drive->channel->unit) ? 0x55 : 0x51;
+-	unsigned int list_conf	=3D 0;
+-	unsigned int drive_conf =3D 0;
+-	unsigned int conf_mask	=3D (speed >=3D XFER_MW_DMA_0) ? 0xc0000000 : 0x30=
+070000;
+-	byte drive_pci		=3D 0x40 + (drive->dn * 4);
+-	byte new_fast, drive_fast		=3D 0;
++	u8 regfast =3D (drive->channel->unit) ? 0x55 : 0x51;
++	u32 list_conf, drive_conf;
++	u32 conf_mask =3D (speed >=3D XFER_MW_DMA_0) ? 0xc0000000 : 0x30070000;
++	u8 drive_pci =3D 0x40 + (drive->dn * 4);
++	u8 new_fast, drive_fast;
+ 	struct pci_dev *dev	=3D drive->channel->pci_dev;
+=20
+ 	/*
+@@ -747,14 +745,13 @@
+ 	pci_write_config_dword(dev, drive_pci, list_conf);
+ }
+=20
+-static void hpt372_tune_chipset(struct ata_device *drive, byte speed)
++static void hpt372_tune_chipset(struct ata_device *drive, u8 speed)
+ {
+-	byte regfast		=3D (drive->channel->unit) ? 0x55 : 0x51;
+-	unsigned int list_conf	=3D 0;
+-	unsigned int drive_conf	=3D 0;
+-	unsigned int conf_mask	=3D (speed >=3D XFER_MW_DMA_0) ? 0xc0000000 : 0x30=
+070000;
+-	byte drive_pci		=3D 0x40 + (drive->dn * 4);
+-	byte drive_fast		=3D 0;
++	u8 regfast =3D (drive->channel->unit) ? 0x55 : 0x51;
++	u32 list_conf, drive_conf;
++	u32 conf_mask =3D (speed >=3D XFER_MW_DMA_0) ? 0xc0000000 : 0x30070000;
++	u8 drive_pci =3D 0x40 + (drive->dn * 4);
++	u8 drive_fast;
+ 	struct pci_dev *dev	=3D drive->channel->pci_dev;
+=20
+ 	/*
+@@ -775,12 +772,12 @@
+ 	pci_write_config_dword(dev, drive_pci, list_conf);
+ }
+=20
+-static void hpt374_tune_chipset(struct ata_device *drive, byte speed)
++static void hpt374_tune_chipset(struct ata_device *drive, u8 speed)
+ {
+ 	hpt372_tune_chipset(drive, speed);
+ }
+=20
+-static int hpt3xx_tune_chipset(struct ata_device *drive, byte speed)
++static int hpt3xx_tune_chipset(struct ata_device *drive, u8 speed)
+ {
+ 	struct pci_dev *dev =3D drive->channel->pci_dev;
+=20
+@@ -804,9 +801,9 @@
+=20
+ static void config_chipset_for_pio(struct ata_device *drive)
+ {
+-	unsigned short eide_pio_timing[6] =3D {960, 480, 240, 180, 120, 90};
++	static unsigned short eide_pio_timing[6] =3D {960, 480, 240, 180, 120, 90=
+};
+ 	unsigned short xfer_pio =3D drive->id->eide_pio_modes;
+-	byte	timing, speed, pio;
++	u8 timing, speed, pio;
+=20
+ 	pio =3D ata_timing_mode(drive, XFER_PIO | XFER_EPIO) - XFER_PIO_0;
+=20
+@@ -837,12 +834,12 @@
+ 			speed =3D (!drive->id->tPIO) ? XFER_PIO_0 : XFER_PIO_SLOW;
+ 			break;
+ 	}
+-	(void) hpt3xx_tune_chipset(drive, speed);
++	hpt3xx_tune_chipset(drive, speed);
+ }
+=20
+-static void hpt3xx_tune_drive(struct ata_device *drive, byte pio)
++static void hpt3xx_tune_drive(struct ata_device *drive, u8 pio)
+ {
+-	byte speed;
++	u8 speed;
+ 	switch(pio) {
+ 		case 4:		speed =3D XFER_PIO_4;break;
+ 		case 3:		speed =3D XFER_PIO_3;break;
+@@ -858,7 +855,7 @@
+ {
+ 	struct pci_dev *dev =3D drive->channel->pci_dev;
+ 	int map;
+-	byte mode;
++	u8 mode;
+=20
+ 	if (drive->type !=3D ATA_DISK)
+ 		return 0;
+@@ -924,7 +921,7 @@
+=20
+ 	if (drive->quirk_list) {
+ 		if (hpt_min_rev(dev, 3)) {
+-			byte reg5a =3D 0;
++			u8 reg5a;
+ 			pci_read_config_byte(dev, 0x5a, &reg5a);
+ 			if (((reg5a & 0x10) >> 4) !=3D mask)
+ 				pci_write_config_byte(dev, 0x5a, mask ? (reg5a | 0x10) : (reg5a & ~0x1=
+0));
+@@ -997,7 +994,7 @@
+=20
+ static void hpt366_udma_irq_lost(struct ata_device *drive)
+ {
+-	u8 reg50h =3D 0, reg52h =3D 0, reg5ah =3D 0;
++	u8 reg50h, reg52h, reg5ah;
+=20
+ 	pci_read_config_byte(drive->channel->pci_dev, 0x50, &reg50h);
+ 	pci_read_config_byte(drive->channel->pci_dev, 0x52, &reg52h);
+@@ -1140,8 +1137,8 @@
+ {
+ #if 0
+ 	unsigned long high_16	=3D pci_resource_start(drive->channel->pci_dev, 4);
+-	byte reset		=3D (drive->channel->unit) ? 0x80 : 0x40;
+-	byte reg59h		=3D 0;
++	u8 reset		=3D (drive->channel->unit) ? 0x80 : 0x40;
++	u8 reg59h;
+=20
+ 	pci_read_config_byte(drive->channel->pci_dev, 0x59, &reg59h);
+ 	pci_write_config_byte(drive->channel->pci_dev, 0x59, reg59h|reset);
+@@ -1154,10 +1151,9 @@
+ {
+ 	struct ata_channel *ch	=3D drive->channel;
+ 	struct pci_dev *dev	=3D ch->pci_dev;
+-	byte reset		=3D (ch->unit) ? 0x80 : 0x40;
+-	byte state_reg		=3D (ch->unit) ? 0x57 : 0x53;
+-	byte reg59h		=3D 0;
+-	byte regXXh		=3D 0;
++	u8 reset =3D (ch->unit) ? 0x80 : 0x40;
++	u8 state_reg =3D (ch->unit) ? 0x57 : 0x53;
++	u8 reg59h, regXXh;
+=20
+ 	if (!ch)
+ 		return -EINVAL;
+@@ -1366,8 +1362,8 @@
+=20
+ static void __init hpt366_init(struct pci_dev *dev)
+ {
+-	unsigned int reg1	=3D 0;
+-	u8 drive_fast		=3D 0;
++	u32 reg1;
++	u8 drive_fast;
+=20
+ 	/*
+ 	 * Disable the "fast interrupt" prediction.
+@@ -1394,7 +1390,7 @@
+=20
+ static unsigned int __init hpt366_init_chipset(struct pci_dev *dev)
+ {
+-	u8 test =3D 0;
++	u8 test;
+=20
+ 	if (dev->resource[PCI_ROM_RESOURCE].start)
+ 		pci_write_config_byte(dev, PCI_ROM_ADDRESS, dev->resource[PCI_ROM_RESOUR=
+CE].start | PCI_ROM_ADDRESS_ENABLE);
+@@ -1435,8 +1431,8 @@
+=20
+ static unsigned int __init hpt366_ata66_check(struct ata_channel *ch)
+ {
+-	u8 ata66	=3D 0;
+-	u8 regmask	=3D (ch->unit) ? 0x01 : 0x02;
++	u8 ata66;
++	u8 regmask =3D (ch->unit) ? 0x01 : 0x02;
+=20
+ 	pci_read_config_byte(ch->pci_dev, 0x5a, &ata66);
+ #ifdef DEBUG
+@@ -1466,7 +1462,7 @@
+ #ifdef CONFIG_BLK_DEV_IDEDMA
+ 	if (ch->dma_base) {
+ 		if (hpt_min_rev(dev, 3)) {
+-			byte reg5ah =3D 0;
++			u8 reg5ah;
+ 			pci_read_config_byte(dev, 0x5a, &reg5ah);
+ 			if (reg5ah & 0x10)	/* interrupt force enable */
+ 				pci_write_config_byte(dev, 0x5a, reg5ah & ~0x10);
+@@ -1521,14 +1517,12 @@
+=20
+ static void __init hpt366_init_dma(struct ata_channel *ch, unsigned long d=
+mabase)
+ {
+-	u8 masterdma =3D 0;
+-	u8 slavedma =3D 0;
+-	u8 dma_new =3D 0;
+-	u8 dma_old =3D inb(dmabase+2);
+-	u8 primary	=3D ch->unit ? 0x4b : 0x43;
+-	u8 secondary	=3D ch->unit ? 0x4f : 0x47;
++	u8 masterdma, slavedma;
++	u8 dma_old =3D inb(dmabase + 2);
++	u8 dma_new =3D dma_old;
++	u8 primary =3D ch->unit ? 0x4b : 0x43;
++	u8 secondary =3D primary + 4;
+=20
+-	dma_new =3D dma_old;
+ 	pci_read_config_byte(ch->pci_dev, primary, &masterdma);
+ 	pci_read_config_byte(ch->pci_dev, secondary, &slavedma);
+=20
+@@ -1588,5 +1582,5 @@
+ 		ata_register_chipset(&chipsets[i]);
+ 	}
+=20
+-    return 0;
++	return 0;
+ }
+
+--h31gzZEtNLTqOjlF--
+
+--24zk1gE8NUlDmwG9
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE892s2Bm4rlNOo3YgRAgiEAJ9W795VfFwuvYlfBoWy/aNdy2iC0ACfduXZ
+MAqWs7aZtprlin+3RCXjl7A=
+=8bDc
+-----END PGP SIGNATURE-----
+
+--24zk1gE8NUlDmwG9--

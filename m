@@ -1,55 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289950AbSAPOa0>; Wed, 16 Jan 2002 09:30:26 -0500
+	id <S289952AbSAPOe0>; Wed, 16 Jan 2002 09:34:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289952AbSAPOaR>; Wed, 16 Jan 2002 09:30:17 -0500
-Received: from mail2.alcatel.fr ([212.208.74.132]:43500 "EHLO mel.alcatel.fr")
-	by vger.kernel.org with ESMTP id <S289950AbSAPOaA> convert rfc822-to-8bit;
-	Wed, 16 Jan 2002 09:30:00 -0500
-Message-ID: <3C458E61.DE349425@col.bsf.alcatel.fr>
-Date: Wed, 16 Jan 2002 15:29:53 +0100
-From: Eric Lamarque <eric.lamarque@col.bsf.alcatel.fr>
-Organization: Alcatel Business System France
-X-Mailer: Mozilla 4.7 [en] (X11; I; SunOS 5.8 sun4u)
-X-Accept-Language: fr, en
+	id <S290395AbSAPOeR>; Wed, 16 Jan 2002 09:34:17 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:6828 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S289952AbSAPOeK>;
+	Wed, 16 Jan 2002 09:34:10 -0500
+Date: Wed, 16 Jan 2002 14:33:28 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Rob Landley <landley@trommello.org>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Larry McVoy <lm@bitmover.com>, Dave Jones <davej@suse.de>,
+        "Eric S. Raymond" <esr@thyrsus.com>, Eli Carter <eli.carter@inet.com>,
+        "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
+ the elegant solution)
+Message-ID: <83880343.1011191608@[10.132.113.67]>
+In-Reply-To: <20020116074700.IUTL28557.femail14.sdc1.sfba.home.com@there>
+In-Reply-To: <20020116074700.IUTL28557.femail14.sdc1.sfba.home.com@there>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: serial console and kernel 2.4
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: christophe barbé (christophe.barbe@lineo.fr)
-Date: Mon Jul 30 2001 - 09:54:53 EST 
-> I recently upgraded a linux box to the kernel 2.4.4 .
-> Since the upgrade I can see the boot output on the remote console
-> but I can't use the keyboard
+Rob,
 
-It seems that I experiment the same problem: I've some Compaq machine
-that I control remotely with the serial console.
+>> Example: put in some wget based thingy, which goes to some (fixed) web
+>> site, searches for (some extracted or Tillie composed string) which
+>> describes the hardware (bound to have been bought as-is and never
+>> opened), pulls down a set of config files and heuristics to determine
+>> between them (look at BIOS, or 'that model will always show this or that
+>> in the PCI table') and guesses the correct (initial) config as tested by
+>> some other user.
+>
+> Meaning you'll continue to be six months behind the curve, and fail every
+> time Dell tweaks its laptop layout.  (Dell does things like switch sound
+> chips without switching model numbers ALL THE TIME.)
+>
+> Are you volunteering to maintain this database?
 
-It always runs 2.4.x kernel and all runs fine.
+No, noone 'maintains' it; I actually /meant/ search.
+So if you run it on a Redhat distribution, it goes queries
+redhat first, then lists
+  IBM T23 - Alex Bligh
+  IBM T23 new version - Rob Landley
+...
+etc.
 
-I just replace the machine by a newer one and experiment the same problem
-as you. It seems to me that Linux send CTRL-S on the serial line.
+IE is the minimum amount of automation to simulate typing the thing
+into google. (the advantage of doing this over using google
+alone is that X may not be working at this stage and lynx
+might daunt Aunt Tillie).
 
-To check that this is the real problem, I use rlogin to access the machine
-and send CTRL-Q to the Linux console: it does the trick.
-( # echo -e "\021" > /dev/console )
+Obviously you will need some magic tag at the top of a config
+file to make it easilly identifiable to search engines. And no
+doubt some fools will fill files with crap.
 
-I trace the problem to be the arch/i386/kernel/dmi_scan.c function:
-DMI is a set of structures to get information about the machine.
-It is the one that print "Board Version:.." at boot time.
+> So no-name assembled white boxes from e-machines and stuff wouldn't be
+> supported?
 
-I'll check at http://www.ibm.com/products/surepath/other/smbios.html to
-know the type of such data. "Board Version" must be a string (I assume with
-printable character).
+Correct; I'm sure the probing configurator has a place too.
 
-My problem is that "Board Version" is printed as "Board Version: 0x14 0x13 *."
-where 0x13 is CTRL-S.
+> Have you TRIED the current auto-configurator?
 
-Does the kernel contains a mechanism to avoid console printing of DMI information?
-(If not, we could maybe add it in function dmi_scan.c:dmi_save_ident()).
+No, to be honest. However, now you have set me the challenge, I'll
+report back on how well or otherwise it works.
 
-Eric.
+> Assuming every IBM T23 has the same hardware in it, which oddly enough is
+> a  bit of a gamble.  (OK, IBM is better at this than Dell, largely due to
+> inventory management reasons.)  And assuming the finite number of
+> database  maintainers has yet bought an IBM T23, and that the rest of the
+> world can  wait until then.
+
+Well, you'd wait until either your distro vendor had done one, or
+someone else had posted one and it had reached search-engine
+du-jour.
+
+> Requiring live network access for the autoconfigurator to work is one
+> heck of  an extra requirement, though.  Most of the world is still using
+> dialup, you  know...
+
+True.
+
+>> And Aunt Tillie (apart from the module changes whatever)
+>> can be using the kernel version etc. from their distro (recompiled),
+>> rather than the latest 2.[2468].xx with lots of new bugs^Wunwanted
+>> fixes in.
+>
+> You want to write some other tool.
+
+Perhaps you are right.
+
+> Giacamo and Eric started work on the autoprobe as a way to reduce the
+> number  of questions the configurator showed people by eliminating
+> hardware that they  provably do not have, and defaulting the stuff they
+> DO have to on.  But it  turns out that on any relatively recent machine,
+> it's an easy enough problem  that you can autoprobe EVERYTHING and build
+> straight from that.  So the Linux  kernel could finally do "configure;
+> make; make install".
+>
+> I consider that a neat hack.
+
+Sure I agree, if it works; my speculation is that it doesn't, if one
+boots with a default vendor kernel, on many machines. I would love
+to be proved wrong, so rather than debate further here, I have another
+T23 to set up so I'll boot it up from scratch, run the configurator,
+and see what happens.
+
+--
+Alex Bligh

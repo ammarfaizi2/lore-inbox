@@ -1,118 +1,163 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131769AbRACElV>; Tue, 2 Jan 2001 23:41:21 -0500
+	id <S132176AbRACEoL>; Tue, 2 Jan 2001 23:44:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132176AbRACElN>; Tue, 2 Jan 2001 23:41:13 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:18704 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S131771AbRACElH>; Tue, 2 Jan 2001 23:41:07 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Date: Wed, 3 Jan 2001 15:09:36 +1100 (EST)
+	id <S131771AbRACEoB>; Tue, 2 Jan 2001 23:44:01 -0500
+Received: from winds.org ([209.115.81.9]:36613 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id <S132176AbRACEnv>;
+	Tue, 2 Jan 2001 23:43:51 -0500
+Date: Tue, 2 Jan 2001 23:13:05 -0500 (EST)
+From: Byron Stanoszek <gandalf@winds.org>
+To: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] (2) Compile warning fixes for gcc 2.97
+Message-ID: <Pine.LNX.4.21.0101022306200.17456-300000@winds.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14930.42496.545862.426153@notabene.cse.unsw.edu.au>
-Cc: Frank.Olsen@stonesoft.com, linux-kernel@vger.kernel.org (kernel list)
-Subject: Re: Bugs in knfsd -- Problem re-exporting an NFS share
-In-Reply-To: message from Andrzej Krzysztofowicz on Saturday December 30
-In-Reply-To: <200012302043.VAA10260@green.mif.pg.gda.pl>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: MULTIPART/MIXED; BOUNDARY="1943079249-815385542-978495185=:17456"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday December 30, ankry@green.mif.pg.gda.pl wrote:
-> 
-> > On Friday December 29, Frank.Olsen@stonesoft.com wrote:
-> > > Hi -- could you please CC me if you reply to this mail.
-> > > 
-> > > A:     /exports/A                                 - Redhat 7.0
-> > > B1/B2: mount /exports/A on /export/A from A       - Redhat 6.2
-> > > C:     mount /exports/A on /mnt/A from B1 or B2   - Redhat 6.2
-> > > 
-> > > I use knfsd/nfs-utils on each machine.
-> > > 
-> > > bash# ls /mnt/A
-> > > /mnt/A/A.txt: No such file or directory
-> > 
-> > This is not a supported configuration.  You cannot export NFS mounted
-> > filesystems with NFS. The protocol does not cope, and it
-> > implementation doesn't even try.
-> > NFS is for export local filesystems only.
-> 
-> As I understand problem is somewhere else.
-> If this is intentionally unsupported configuration - OK. So why the error
-> appears ? The directory should be empty then.
-> 
-> If the configuration is unsupported at the moment and the  A.txt file is
-> located on A, some code that attempts to read re-exported files/directories
-> should be turned off (eg. #if 0).
-> 
-> If the A.txt file is local for B1/B2 hosts, it is (IMHO) an obvious bug.
-> Sucgh a file should be hidden at the act of mounting. For both local and
-> remote access.
-> 
-> Neil, could you tell us where the A.txt file is *really* located ?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Well.... its a long story.
+--1943079249-815385542-978495185=:17456
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-The interface between knfsd and filesystems is not (currently) a clean
-one.  The current interface to filesystems is dictated by the VFS
-layer, and it works primarily in terms of names.
-knfsd wants to work in terms of inode numbers (or something similar)
-and there is no such interface.
+Here's a set of patches that fix compile warnings using gcc 2.97. The first
+patch is purely a syntactical change (mainly removing default: statements that
+do nothing), the second is a change in code structure that "looks" correct but
+was brought on by the same type of warning where the case label has no effect.
 
-knfsd does manage to do its job, but only by abusing part of the VFS
-interface - the "iget" routine which calls s_op->read_inode.
-iget is meant to be an private interface, only ever called by the
-filesystem itself (typically in the lookup operation) but, for ext2 at
-least, it works for knfsd, so knfsd uses it.
+So I split up the patch into two parts so we cna decide to throw out the second
+if it is indeed incorrect. The 2nd patch (arp.patch) changes the following code
 
-Basically, knfsd assumes that is a filesystem has "read_inode"
-defined, then it can safely use iget.
-
-This works for ext2, but not for nfs.
-
-The nfs filesystem does define read_inode, but uses it quite
-differently to ext2.
-
-The net result is that when you try to map an inode number to an inode
-using iget with ext2 it always works, but if you do it with nfs it only
-works if the inode is already in the cache.
-
-So, when you:
-   ls /mnt/A
-from C, knfsd on  B1 (or B2) tries to find the directory  'A' and
-succeeds beause it is in cache.  It does a readdir on this directory
-and gets a list of files including "A.txt".
-But when it tries to access A.txt, iget doesn't work for it, and it
-cannot find it.
-
-So A.txt is really on A, not on B1 or B2.  But when you look at A.txt
-from C through B1 or B2 you only get a blurred image.  You can see
-that it is there, but not what it is.
-
-Does that help?
-
-NeilBrown
+                switch (dev->type) {
+                default:
+                        break;
+                case ARPHRD_ROSE:
+#if defined(CONFIG_AX25) || defined(CONFIG_AX25_MODULE)
+                case ARPHRD_AX25:
+#if defined(CONFIG_NETROM) || defined(CONFIG_NETROM_MODULE)
+                case ARPHRD_NETROM:
+#endif
+                        neigh->ops = &arp_broken_ops;
+                        neigh->output = neigh->ops->output;
+                        return 0;
+#endif
+                }
 
 
-> 
-> Regards 
->    Andrzej
-> 
-> BTW. AFAIR, I observed similar behaviour (files are visible but
->      inaccessible) while mounting a local filesystem at a busy directory
->      (eg.: mount /dev/fd0 .;ls -l) even in 2.2...
-> 
-> -- 
-> =======================================================================
->   Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
->   phone (48)(58) 347 14 61
-> Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+--to this:--
+
+
+                switch (dev->type) {
+                case ARPHRD_ROSE:
+#if defined(CONFIG_AX25) || defined(CONFIG_AX25_MODULE)
+                case ARPHRD_AX25:
+#endif
+#if defined(CONFIG_NETROM) || defined(CONFIG_NETROM_MODULE)
+                case ARPHRD_NETROM:
+#endif
+                        neigh->ops = &arp_broken_ops;
+                        neigh->output = neigh->ops->output;
+                        return 0;
+                }
+
+---
+Which I believe is really the correct flow for that switch statement.
+If someone disagrees, just toss it and apply the first patch. :-)
+
+Regards,
+ Byron
+
+-- 
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: bstanoszek@comtime.com
+
+--1943079249-815385542-978495185=:17456
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="gcc297.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0101022313050.17456@winds.org>
+Content-Description: 
+Content-Disposition: attachment; filename="gcc297.patch"
+
+LS0tIGxpbnV4L2RyaXZlcnMvc291bmQvc2VxdWVuY2VyLmMuYmFrCVR1ZSBK
+YW4gIDIgMjI6MzQ6NDQgMjAwMQ0KKysrIGxpbnV4L2RyaXZlcnMvc291bmQv
+c2VxdWVuY2VyLmMJVHVlIEphbiAgMiAyMjozNjozMiAyMDAxDQpAQCAtNTEw
+LDggKzUxMCw2IEBADQogCQkJCXZvaWNlID0gY2huOw0KIAkJCXN5bnRoX2Rl
+dnNbZGV2XS0+YWZ0ZXJ0b3VjaChkZXYsIHZvaWNlLCBwYXJtKTsNCiAJCQli
+cmVhazsNCi0NCi0JCWRlZmF1bHQ6DQogCX0NCiAjdW5kZWYgZGV2DQogI3Vu
+ZGVmIGNtZA0KQEAgLTYxMyw4ICs2MTEsNiBAQA0KIAkJCWVsc2UJLyogTU9E
+RSAxICovDQogCQkJCXN5bnRoX2RldnNbZGV2XS0+YmVuZGVyKGRldiwgY2hu
+LCB3MTQpOw0KIAkJCWJyZWFrOw0KLQ0KLQkJZGVmYXVsdDoNCiAJfQ0KIH0N
+CiANCkBAIC02ODMsOCArNjc5LDYgQEANCiAJCQkJc2VxX2NvcHlfdG9faW5w
+dXQoKHVuc2lnbmVkIGNoYXIgKikgJnBhcm0sIDQpOw0KIAkJCX0NCiAJCQli
+cmVhazsNCi0NCi0JCWRlZmF1bHQ6DQogCX0NCiANCiAJcmV0dXJuIFRJTUVS
+X05PVF9BUk1FRDsNCkBAIC03MDAsOCArNjk0LDYgQEANCiAJCWNhc2UgTE9D
+TF9TVEFSVEFVRElPOg0KIAkJCURNQWJ1Zl9zdGFydF9kZXZpY2VzKHBhcm0p
+Ow0KIAkJCWJyZWFrOw0KLQ0KLQkJZGVmYXVsdDoNCiAJfQ0KIH0NCiANCkBA
+IC04NTgsOCArODUwLDYgQEANCiAJCWNhc2UgRVZfU1lTRVg6DQogCQkJc2Vx
+X3N5c2V4X21lc3NhZ2UocSk7DQogCQkJYnJlYWs7DQotDQotCQlkZWZhdWx0
+Og0KIAl9DQogCXJldHVybiAwOw0KIH0NCi0tLSBsaW51eC9kcml2ZXJzL3Nv
+dW5kL3NiX2Vzcy5jLmJhawlUdWUgSmFuICAyIDIyOjQwOjAxIDIwMDENCisr
+KyBsaW51eC9kcml2ZXJzL3NvdW5kL3NiX2Vzcy5jCVR1ZSBKYW4gIDIgMjI6
+NDM6MDUgMjAwMQ0KQEAgLTc2NiwxMiArNzY2LDYgQEANCiAJCWNhc2UgSU1P
+REVfSU5QVVQ6DQogCQkJRE1BYnVmX2lucHV0aW50ciAoZGV2KTsNCiAJCQli
+cmVhazsNCi0NCi0JCWNhc2UgSU1PREVfSU5JVDoNCi0JCQlicmVhazsNCi0N
+Ci0JCWRlZmF1bHQ6DQotCQkJLyogcHJpbnRrKEtFUk5fV0FSTiAiRVNTOiBV
+bmV4cGVjdGVkIGludGVycnVwdFxuIik7ICovDQogCX0NCiB9DQogDQpAQCAt
+MTUyOSwxMyArMTUyMywxMSBAQA0KIA0KIHN0YXRpYyBpbnQgZXNzX2hhc19y
+ZWNfbWl4ZXIgKGludCBzdWJtb2RlbCkNCiB7DQotCXN3aXRjaCAoc3VibW9k
+ZWwpIHsNCi0JY2FzZSBTVUJNRExfRVMxODg3Og0KKwlpZihzdWJtb2RlbCA9
+PSBTVUJNRExfRVMxODg3KQ0KIAkJcmV0dXJuIDE7DQotCWRlZmF1bHQ6DQor
+CWVsc2UNCiAJCXJldHVybiAwOw0KLQl9Ow0KLX07DQorfQ0KIA0KICNpZmRl
+ZiBGS1NfTE9HR0lORw0KIHN0YXRpYyBpbnQgZXNzX21peGVyX21vbl9yZWdz
+W10NCi0tLSBsaW51eC9kcml2ZXJzL3NvdW5kL3NvdW5kX3RpbWVyLmMuYmFr
+CVR1ZSBKYW4gIDIgMjI6NDQ6NTYgMjAwMQ0KKysrIGxpbnV4L2RyaXZlcnMv
+c291bmQvc291bmRfdGltZXIuYwlUdWUgSmFuICAyIDIyOjQ1OjA2IDIwMDEN
+CkBAIC0xNjQsOCArMTY0LDYgQEANCiAJCWNhc2UgVE1SX0VDSE86DQogCQkJ
+c2VxX2NvcHlfdG9faW5wdXQoZXZlbnQsIDgpOw0KIAkJCWJyZWFrOw0KLQ0K
+LQkJZGVmYXVsdDoNCiAJfQ0KIAlyZXR1cm4gVElNRVJfTk9UX0FSTUVEOw0K
+IH0NCi0tLSBsaW51eC9mcy9pc29mcy9pbm9kZS5jLmJhawlUdWUgSmFuICAy
+IDIyOjQ2OjU1IDIwMDENCisrKyBsaW51eC9mcy9pc29mcy9pbm9kZS5jCVR1
+ZSBKYW4gIDIgMjI6NDc6MDEgMjAwMQ0KQEAgLTEyNjQsNyArMTI2NCw3IEBA
+DQogCSAgICAodm9sdW1lX3NlcV9ubyAhPSAwKSAmJiAodm9sdW1lX3NlcV9u
+byAhPSAxKSkgew0KIAkJcHJpbnRrKEtFUk5fV0FSTklORyAiTXVsdGktdm9s
+dW1lIENEIHNvbWVob3cgZ290IG1vdW50ZWQuXG4iKTsNCiAJfSBlbHNlDQot
+I2VuZGlmIElHTk9SRV9XUk9OR19NVUxUSV9WT0xVTUVfU1BFQ1MNCisjZW5k
+aWYgLyogSUdOT1JFX1dST05HX01VTFRJX1ZPTFVNRV9TUEVDUyAqLw0KIAl7
+DQogCQlpZiAoU19JU1JFRyhpbm9kZS0+aV9tb2RlKSkgew0KIAkJCWlub2Rl
+LT5pX2ZvcCA9ICZnZW5lcmljX3JvX2ZvcHM7DQo=
+--1943079249-815385542-978495185=:17456
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="arp.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0101022313051.17456@winds.org>
+Content-Description: 
+Content-Disposition: attachment; filename="arp.patch"
+
+LS0tIGxpbnV4L25ldC9pcHY0L2FycC5jLmJhawlUdWUgSmFuICAyIDIyOjUz
+OjMxIDIwMDENCisrKyBsaW51eC9uZXQvaXB2NC9hcnAuYwlUdWUgSmFuICAy
+IDIyOjU2OjEzIDIwMDENCkBAIC0yNjcsNyArMjY3LDYgQEANCiAJCSAgIGlu
+IG9sZCBwYXJhZGlnbS4NCiAJCSAqLw0KIA0KLSNpZiAxDQogCQkvKiBTby4u
+LiB0aGVzZSAiYW1hdGV1ciIgZGV2aWNlcyBhcmUgaG9wZWxlc3MuDQogCQkg
+ICBUaGUgb25seSB0aGluZywgdGhhdCBJIGNhbiBzYXkgbm93Og0KIAkJICAg
+SXQgaXMgdmVyeSBzYWQgdGhhdCB3ZSBuZWVkIHRvIGtlZXAgdWdseSBvYnNv
+bGV0ZQ0KQEAgLTI4MCwyMCArMjc5LDE4IEBADQogCQkgICBJIHdvbmRlciB3
+aHkgcGVvcGxlIGJlbGlldmUgdGhhdCB0aGV5IHdvcmsuDQogCQkgKi8NCiAJ
+CXN3aXRjaCAoZGV2LT50eXBlKSB7DQotCQlkZWZhdWx0Og0KLQkJCWJyZWFr
+Ow0KIAkJY2FzZSBBUlBIUkRfUk9TRToJDQogI2lmIGRlZmluZWQoQ09ORklH
+X0FYMjUpIHx8IGRlZmluZWQoQ09ORklHX0FYMjVfTU9EVUxFKQ0KIAkJY2Fz
+ZSBBUlBIUkRfQVgyNToNCisjZW5kaWYNCiAjaWYgZGVmaW5lZChDT05GSUdf
+TkVUUk9NKSB8fCBkZWZpbmVkKENPTkZJR19ORVRST01fTU9EVUxFKQ0KIAkJ
+Y2FzZSBBUlBIUkRfTkVUUk9NOg0KICNlbmRpZg0KIAkJCW5laWdoLT5vcHMg
+PSAmYXJwX2Jyb2tlbl9vcHM7DQogCQkJbmVpZ2gtPm91dHB1dCA9IG5laWdo
+LT5vcHMtPm91dHB1dDsNCiAJCQlyZXR1cm4gMDsNCi0jZW5kaWYNCiAJCX0N
+Ci0jZW5kaWYNCisNCiAJCWlmIChuZWlnaC0+dHlwZSA9PSBSVE5fTVVMVElD
+QVNUKSB7DQogCQkJbmVpZ2gtPm51ZF9zdGF0ZSA9IE5VRF9OT0FSUDsNCiAJ
+CQlhcnBfbWNfbWFwKGFkZHIsIG5laWdoLT5oYSwgZGV2LCAxKTsNCg==
+--1943079249-815385542-978495185=:17456--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

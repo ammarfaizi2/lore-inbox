@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbVCIU6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVCIU6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbVCIU6f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 15:58:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbVCIUzr
+	id S262469AbVCIU6e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 15:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbVCIUzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 15:55:47 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:47245 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262153AbVCIUnF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 15:43:05 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jason Lunz <lunz@falooley.org>
-Subject: Re: PATCH: 2.6.11-ac2
-Date: Wed, 9 Mar 2005 21:45:38 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, webmaster@kernel.org
-References: <1110392991.3072.222.camel@localhost.localdomain> <Pine.LNX.3.96.1050309134506.4483A-100000@gatekeeper.tmr.com> <d0niv7$ecg$1@sea.gmane.org>
-In-Reply-To: <d0niv7$ecg$1@sea.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Wed, 9 Mar 2005 15:55:23 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:40587 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262453AbVCIUw5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 15:52:57 -0500
+Subject: Re: [PATCH] make st seekable again
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200503081911.j28JBlxi016013@hera.kernel.org>
+References: <200503081911.j28JBlxi016013@hera.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503092145.38436.rjw@sisk.pl>
+Message-Id: <1110401474.3116.241.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 09 Mar 2005 20:51:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 9 of March 2005 20:31, Jason Lunz wrote:
-> davidsen@tmr.com said:
-> > You know what would be really useful... if www.kernel.org listed the
-> > "latest -ac" patch as something current instead of 2.6.10-ac12, which was
-> > a great patch in its day, but hasn't been current for a while.
-> >
-> > In fairness, the -mm is out of date, too. Perhaps a bit of automation
-> > would be appropriate here, so that no one would have to update this
-> > manually.
+On Maw, 2005-03-08 at 17:25, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2030, 2005/03/08 09:25:05-08:00, kai.makisara@kolumbus.fi
 > 
-> I could have sworn it showed 2.6.11-ac1 for a while. Maybe the 2.6.11.2
-> stuff broke it somehow?
+> 	[PATCH] make st seekable again
+> 	
+> 	Apparently `tar' errors out if it cannot perform lseek() against a tape.  Work
+> 	around that in-kernel.
 
-Surely it did.
+Unfortunately this isn't a good idea. Allowing tar to read the tape
+position makes sense, allowing it to zero the position might but you
+have to do major surgery on the driver first because
 
-Greets,
-Rafael
+1.	It doesn't use ppos
+2.	It doesn't do locking on the ppos at all
 
+Also allowing apps to randomly seek and report "ok" when they are
+backing up to tape and might really need to see the error is not what
+I'd call stable, professional or quality code.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+I oppose this change for 2.6.11.3, I think 2.6.12 needs to address the
+rest of the mess in that code to make it work (or implement a 'read
+only' llseek and
+use ppos right)
+
+And -ac won't carry this change.
+

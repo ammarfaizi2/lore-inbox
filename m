@@ -1,230 +1,363 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265283AbTLRIig (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 03:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265284AbTLRIig
+	id S264238AbTLRIzz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 03:55:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbTLRIzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 03:38:36 -0500
-Received: from smtp4.hy.skanova.net ([195.67.199.133]:13551 "EHLO
-	smtp4.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S265283AbTLRIi2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 03:38:28 -0500
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Stack usage for functions in kernel 2.4.21 [SuSE] (worst case 2.8kB !)
-Date: Thu, 18 Dec 2003 09:32:35 +0100
-User-Agent: KMail/1.5.94
-MIME-Version: 1.0
+	Thu, 18 Dec 2003 03:55:55 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:9680 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S264238AbTLRIzq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 03:55:46 -0500
+Date: Thu, 18 Dec 2003 09:56:21 +0100
+From: Arnaud Fontaine <arnaud@andesi.org>
+To: linux-kernel@vger.kernel.org
+Subject: Oops with 2.4.23
+Message-ID: <20031218085621.GA8283@scrappy>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200312180932.36365.roger.larsson@skelleftea.mail.telia.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi developers,
 
-Is your function among these? Do you really need that much stack?
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-(This is a follow up to my <<UPD: "do_IRQ: near stack overflow" when inserting 
-CF disk>> i since than learned about the checkstack tool by Jörn Engel)
+Hello,
 
-The reason for some functions to show up twice is probably due to 
-kernel/external pcmcia.
+I am using 2.4.23 kernel with no patchset. It was the first time i
+install a linux distribution on this PC, so i can't tell you if it have
+this Oops with an another version of the kernel. It looks to work fine=20
+during 1 or 2 days until i have an weird Oops. I have rebooted the machine=
+=20
+after this but it appears again few days later and despite some reboot.
 
-/RogerL
+I haven't include the support for module loadable. I am using Debian
+GNU/Linux Woody up to date.
 
-Please cc: currently not subscribed.
+Thanks for you help.
+Arnaud Fontaine
 
-vmlinux
-# objdump -d vmlinux | perl scripts/checkstack.pl i386 > vmlinux.stack
-0xc03282d4 sanitize_e820_map:                     sub    $0x744,%esp
-0xc01053ab huft_build:                          sub    $0x590,%esp
-0xc0106144 inflate_dynamic:                     sub    $0x514,%esp
-0xc01fa414 ide_unregister:                     sub    $0x4b0,%esp
-0xc0106002 inflate_fixed:                     sub    $0x490,%esp
-0xc0334e40 root_nfs_name:                     sub    $0x404,%esp
-0xc0111333 pcibios_fixup_peer_bridges:                sub    $0x324,%esp
-0xc01107b8 pci_sanity_check:                     sub    $0x324,%esp
-0xc019b484 semctl_main:                          sub    $0x244,%esp
-0xc01654eb elf_core_dump:                     sub    $0x240,%esp
-0xc01c48e4 do_kdgkb_ioctl:                     sub    $0x230,%esp
-0xc02438fb ip_setsockopt:                     sub    $0x218,%esp
-- - -
+-------------- ksymoops
+ <1>Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+c0138ff2
+*pde =3D 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[vfs_follow_link+26/332]    Not tainted
+EFLAGS: 00010217
+eax: 00000000   ebx: caaf5f8c   ecx: cba98288   edx: caaf5f8c
+esi: 00000000   edi: 00000000   ebp: cbafc0e0   esp: caaf5ee4
+ds: 0018   es: 0018   ss: 0018
+Process ps (pid: 800, stackpage=3Dcaaf5000)
+Stack: caa3dc40 caaf4000 caaf5f8c cbafc0e0 c014add7 caaf5f8c 00000000
+c0136dea=20
+       caa3dc40 caaf5f8c cbafc0e0 caaf5f8c cb57d000 00000000 00000001
+00000001=20
+       00000001 cb57d00d caa3dc40 cb57d006 00000007 08733bbe c0136f56
+c01370c7=20
+Call Trace:    [proc_follow_link+27/32] [link_path_walk+1794/2132]
+[path_walk+26/28] [path_lookup+27/36] [open_namei+101/1244]
+Code: 80 3e 2f 0f 85 a5 00 00 00 53 e8 b7 d4 ff ff ba 00 e0 ff ff=20
 
-modules
-# objdump -d `find /lib/modules/2.4.21-144-default/kernel/ -name "*.o"` | perl 
-scripts/checkstack.pl i386 > modules.stack
 
-0x     da4 i2o_proc_read_ddm_table:                sub    $0xb48,%esp
-0x    2259 cdromread:                          sub    $0xa70,%esp
-0x    1d63 intelfb_set_mode:                     sub    $0x960,%esp
-0x      26 adm1026_detect:                     sub    $0x850,%esp
-0x   295db ocfs_hash_stat:                     sub    $0x834,%esp
-0x    4164 ia_ioctl:                          sub    $0x820,%esp
-0x    3886 i2o_proc_read_lan_alt_addr:                sub    $0x818,%esp
-0x    3136 i2o_proc_read_lan_mcast_addr:           sub    $0x818,%esp
-0x    21b7 CpqTsProcessIMQEntry:                sub    $0x814,%esp
-0x    11e4 i2o_proc_read_groups:                sub    $0x810,%esp
-0x    7157 writerids:                          sub    $0x808,%esp
-0x   28dc3 ocfs_proc_hash_stats:                sub    $0x800,%esp
-0x    7003 readrids:                          sub    $0x800,%esp
-0x    2014 PeekIMQEntry:                     sub    $0x800,%esp
-0x    21b4 hfa384x_int_info:                     sub    $0x7d0,%esp
-0x    2114 hfa384x_int_info:                     sub    $0x7d0,%esp
-0x    20a4 hfa384x_int_info:                     sub    $0x7d0,%esp
-0x    7df4 SendAssocRequest:                     sub    $0x78c,%esp
-0x    7df4 SendAssocRequest:                     sub    $0x78c,%esp
-0x    7dd4 SendAssocRequest:                     sub    $0x78c,%esp
-0x    81a4 SendReAssocRequest:                     sub    $0x77c,%esp
-0x    81a4 SendReAssocRequest:                     sub    $0x77c,%esp
-0x    8184 SendReAssocRequest:                     sub    $0x77c,%esp
-0x     114 lm85_detect:                          sub    $0x728,%esp
-0x   28e69 ocfs_ioctl:                          sub    $0x710,%esp
-0x    1734 UMSDOS_ioctl_dir:                     sub    $0x6c4,%esp
-0x     f24 amd_flash_probe:                     sub    $0x654,%esp
-0x    7a74 SendAuthRequest:                     sub    $0x61c,%esp
-0x    7a74 SendAuthRequest:                     sub    $0x61c,%esp
-0x    7a54 SendAuthRequest:                     sub    $0x61c,%esp
-0x    3e94 SendReAssociationRequest:                sub    $0x61c,%esp
-0x    3cd4 SendAssociationRequest:                sub    $0x61c,%esp
-0x    3ac4 SendAuthenticationRequest:                sub    $0x61c,%esp
-0x   14dce exec_external_cgi:                     sub    $0x5c4,%esp
-0x    5163 em8300_ioctl_getstatus:                sub    $0x588,%esp
-0x   10394 dohash:                          sub    $0x57c,%esp
-0x    1be4 sc_ioctl:                          sub    $0x578,%esp
-0x    53f4 huft_build:                          sub    $0x574,%esp
-0x    1c04 ida_ioctl:                          sub    $0x550,%esp
-0x   68f89 xfs_dm_get_allocinfo_rvp:                sub    $0x50c,%esp
-0x    71d4 prism2_ioctl_giwaplist:                sub    $0x50c,%esp
-0x    6ef4 ieee80211_ioctl_iwaplist:                sub    $0x50c,%esp
-0x     ee8 device_new_if:                     sub    $0x504,%esp
-0x    3e04 presto_ioctl:                     sub    $0x4dc,%esp
-0x    5b42 inflate_trees_fixed:                     sub    $0x4c4,%esp
-0x     e64 wavelan_ioctl:                     sub    $0x4a0,%esp
-0x    556b sadb_msg_update_parse:                sub    $0x480,%esp
-0x    1849 br_ioctl_device:                     sub    $0x480,%esp
-0x   28c96 ocfs_proc_statistics:                sub    $0x474,%esp
-0x       e init_blk_dev_info:                     sub    $0x468,%esp
-0x     8a4 wavelan_ioctl:                     sub    $0x45c,%esp
-0x    1304 sw_connect:                          sub    $0x450,%esp
-0x    1d64 cdrom_ioctl_Rcd83e2a4:                sub    $0x434,%esp
-0x   3d4c4 osi_AssertFailK:                     sub    $0x420,%esp
-0x   14b94 handle_cgi_reply:                     sub    $0x41c,%esp
-0x   17f64 ciGetLeafPrefixKey:                     sub    $0x414,%esp
-0x    c514 print_request_stats:                     sub    $0x410,%esp
-0x     c52 cdrom_select_disc_R0ee73c30:                sub    $0x410,%esp
-0x     b07 cdrom_number_of_slots_Rd198fefc:           sub    $0x410,%esp
-0x     a91 cdrom_slot_status:                     sub    $0x410,%esp
-0x     88b rtime_compress:                     sub    $0x408,%esp
-0x      66 ath_hal_vprintf:                     sub    $0x408,%esp
-0x    2242 befs_warning:                     sub    $0x400,%esp
-0x    21e2 befs_error:                          sub    $0x400,%esp
-0x    1864 hex_dump:                          sub    $0x400,%esp
-0x     99b rtime_decompress:                     sub    $0x400,%esp
-0x    13d7 ray_dev_ioctl_R12eb3cea:                sub    $0x3fc,%esp
-0x     d74 bt3c_config:                          sub    $0x3f8,%esp
-0x     ca4 awc_i365_probe_once:                     sub    $0x3f8,%esp
-0x     bb4 btuart_config:                     sub    $0x3f8,%esp
-0x   10514 aic7xxx_detect:                     sub    $0x3f4,%esp
-0x     d24 dtl1_config:                          sub    $0x3f4,%esp
-0x    10e4 bluecard_config:                     sub    $0x3f0,%esp
-0x     374 snd_mixart_add_ref_pipe:                sub    $0x3ec,%esp
-0x   14a64 ndisc_redirect_rcv:                     sub    $0x3e4,%esp
-0x    1549 wavefront_load_gus_patch:                sub    $0x3d0,%esp
-0x    b5e4 Vpd:                               sub    $0x3c4,%esp
-0x    9c94 prism2sta_config:                     sub    $0x3c0,%esp
-0x    3926 do_zoran_ioctl:                     sub    $0x3bc,%esp
-0x     3f4 mgslpc_config:                     sub    $0x3b4,%esp
-0x      c4 dmascc_init:                          sub    $0x3a4,%esp
-0x    13cc gdth_get_info:                     sub    $0x394,%esp
-0x     234 arlan_sysctl_info:                     sub    $0x394,%esp
-0x       4 com90xx_probe:                     sub    $0x394,%esp
-0x    723e cs46xx_dsp_scb_and_task_init:           sub    $0x384,%esp
-0x    b024 e1000_ethtool_ioctl:                     sub    $0x37c,%esp
-0x    94a4 udf_add_entry:                     sub    $0x368,%esp
-0x    68c4 snd_pcm_hw_params_old_user:                sub    $0x360,%esp
-0x    6844 snd_pcm_hw_refine_old_user:                sub    $0x360,%esp
-0x    20a4 snd_ice1712_ac97_mixer:                sub    $0x360,%esp
-0x    33c4 hfsplus_readdir:                     sub    $0x348,%esp
-0x    1fcb setup_card:                          sub    $0x348,%esp
-0x    34c4 megadev_ioctl:                     sub    $0x340,%esp
-0x    1c53 bus_structure_fixup:                     sub    $0x324,%esp
-0x    85b6 cpqhp_set_irq:                     sub    $0x320,%esp
-0x    3244 sym53c8xx_detect:                     sub    $0x31c,%esp
-0x    8e94 sym53c8xx_detect:                     sub    $0x318,%esp
-0x    1d24 sym53c8xx__detect:                     sub    $0x314,%esp
-0x   10fa4 presto_journal_unlink:                sub    $0x30c,%esp
-0x    50b6 sadb_msg_getspi_parse:                sub    $0x308,%esp
-0x    e843 register_mimetype:                     sub    $0x304,%esp
-0x    1496 log_device_info:                     sub    $0x300,%esp
-0x   107e4 presto_journal_rename:                sub    $0x2fc,%esp
-0x    1eb4 netdev_ethtool_ioctl:                sub    $0x2f8,%esp
-0x    2f79 isapnp_config_activate:                sub    $0x2f0,%esp
-0x    d844 presto_journal_setattr:                sub    $0x2ec,%esp
-0x    f4b4 presto_journal_rmdir:                sub    $0x2e8,%esp
-0x    fa94 presto_journal_mknod:                sub    $0x2e4,%esp
-0x   11584 presto_journal_close:                sub    $0x2e0,%esp
-0x   10054 presto_journal_link:                     sub    $0x2dc,%esp
-0x    ef24 presto_journal_mkdir:                sub    $0x2dc,%esp
-0x    e979 presto_journal_symlink:                sub    $0x2dc,%esp
-0x    e3e4 presto_journal_create:                sub    $0x2dc,%esp
-0x    2576 bttv_ioctl:                          sub    $0x2d0,%esp
-0x    13b4 restore_mixer_state:                     sub    $0x2d0,%esp
-0x    12e4 save_mixer_state:                     sub    $0x2d0,%esp
-0x   28e84 ipsec6_input_check:                     sub    $0x2cc,%esp
-0x    cc94 presto_write_lml_close:                sub    $0x2cc,%esp
-0x    7729 cb_alloc:                          sub    $0x2c0,%esp
-0x     444 mhz_mfc_config:                     sub    $0x2c0,%esp
-0x    9484 SkPnmiGetStruct:                     sub    $0x2bc,%esp
-0x    1d4b ibm_configure_device:                sub    $0x2b8,%esp
-0x    82db cpqhp_configure_device:                sub    $0x2b4,%esp
-0x    74a6 cb_scan_new_bus:                     sub    $0x2b4,%esp
-0x    453b amdshpc_configure_device:                sub    $0x2b4,%esp
-0x    3234 build_snapshot_maps:                     sub    $0x2b4,%esp
-0x    5908 hp_AddDevice:                     sub    $0x2b0,%esp
-0x    1e16 enable_device:                     sub    $0x2a8,%esp
-0x     c24 ds_ioctl:                          sub    $0x2a8,%esp
-0x    5d38 sadb_msg_addflow_parse:                sub    $0x2a4,%esp
-0x     964 smc_setup:                          sub    $0x2a0,%esp
-0x     884 smc_config:                          sub    $0x2a0,%esp
-0x     841 has_ce2_string:                     sub    $0x2a0,%esp
-0x     634 mhz_setup:                          sub    $0x2a0,%esp
-0x   50c29 PSetVolumeStatus:                     sub    $0x29c,%esp
-0x   50879 PGetVolumeStatus:                     sub    $0x29c,%esp
-0x    d394 udf_load_pvoldesc:                     sub    $0x298,%esp
-0x    7754 prism2mib_priv:                     sub    $0x298,%esp
-0x    7754 prism2mib_priv:                     sub    $0x298,%esp
-0x    7034 prism2mib_priv:                     sub    $0x298,%esp
-0x    6f74 prism2mib_priv:                     sub    $0x298,%esp
-0x    6f14 prism2mib_priv:                     sub    $0x298,%esp
-0x    13b4 do_ida_request:                     sub    $0x298,%esp
-0x    4a94 do_cciss_request:                     sub    $0x294,%esp
-0x    3354 ncp_ioctl:                          sub    $0x28c,%esp
-0x     854 VLDB_Same:                          sub    $0x288,%esp
-0x    1d05 snd_pcm_oss_get_formats:                sub    $0x284,%esp
-0x     444 axnet_config:                     sub    $0x284,%esp
-0x     754 pcnet_config:                     sub    $0x280,%esp
-0x   4b554 afs_syscall_call:                     sub    $0x27c,%esp
-0x    2be4 UMSDOS_link:                          sub    $0x27c,%esp
-0x    3bd4 snd_pcm_oss_proc_write:                sub    $0x270,%esp
-0x    3196 hfsplus_lookup:                     sub    $0x270,%esp
-0x    2ee4 hfsplus_rename_cat:                     sub    $0x270,%esp
-0x     494 netwave_ioctl:                     sub    $0x26c,%esp
-0x     ea4 port_detect:                          sub    $0x268,%esp
-0x    69c3 reiserfs_rename:                     sub    $0x264,%esp
-0x    3699 wv_82586_start:                     sub    $0x264,%esp
-0x    2403 snd_pcm_hw_params_user:                sub    $0x260,%esp
-0x    20b3 snd_pcm_hw_refine_user:                sub    $0x260,%esp
-0x     b74 cpqfcTS_proc_info:                     sub    $0x25c,%esp
-0x     674 hfsplus_read_super:                     sub    $0x254,%esp
-0x    2844 umsdos_rename_f:                     sub    $0x250,%esp
-0x    3084 orinoco_ioctl_getiwrange:                sub    $0x24c,%esp
-- - -
+>>ebx; caaf5f8c <END_OF_CODE+a840894/????>
+>>ecx; cba98288 <END_OF_CODE+b7e2b90/????>
+>>edx; caaf5f8c <END_OF_CODE+a840894/????>
+>>ebp; cbafc0e0 <END_OF_CODE+b8469e8/????>
+>>esp; caaf5ee4 <END_OF_CODE+a8407ec/????>
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   80 3e 2f                  cmpb   $0x2f,(%esi)
+Code;  00000003 Before first symbol
+   3:   0f 85 a5 00 00 00         jne    ae <_EIP+0xae> 000000ae Before
+first symbol
+Code;  00000009 Before first symbol
+   9:   53                        push   %ebx
+Code;  0000000a Before first symbol
+   a:   e8 b7 d4 ff ff            call   ffffd4c6 <_EIP+0xffffd4c6>
+ffffd4c6 <END_OF_CODE+3fd47dce/????>
+Code;  0000000f Before first symbol
+   f:   ba 00 e0 ff ff            mov    $0xffffe000,%edx
+
+--------------
+
+# lspci -vvv
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1541 (rev 04)
+	Subsystem: Acer Laboratories Inc. [ALi] ALI M1541 Aladdin V/V+
+AGP System Controller
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 64
+	Region 0: Memory at e6000000 (32-bit, non-prefetchable)
+[size=3D16M]
+	Capabilities: [b0] AGP version 1.0
+		Status: RQ=3D28 SBA+ 64bit- FW- Rate=3Dx1,x2
+		Command: RQ=3D0 SBA- AGP- 64bit- FW- Rate=3D<none>
+	Capabilities: [e0] #00 [0000]
+
+00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5243 (rev 04) (prog-if
+00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D64
+	I/O behind bridge: 0000e000-0000dfff
+	Memory behind bridge: e6000000-e5ffffff
+	Prefetchable memory behind bridge: e8000000-e7ffffff
+	BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
+
+00:02.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03)
+(prog-if 10 [OHCI])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0 (20000ns max)
+	Interrupt: pin A routed to IRQ 5
+	Region 0: Memory at e5800000 (32-bit, non-prefetchable)
+[size=3D4K]
+
+00:03.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
+	Subsystem: Acer Laboratories Inc. [ALi] ALI M7101 Power
+Management Controller
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+
+00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge
+[Aladdin IV] (rev c3)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort-
+<TAbort+ <MAbort+ >SERR- <PERR-
+	Latency: 0
+
+00:0b.0 VGA compatible controller: Trident Microsystems TGUI 9440 (rev
+e3) (prog-if 00 [VGA])
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop+
+ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 12
+	Region 0: Memory at e5000000 (32-bit, non-prefetchable)
+[size=3D2M]
+	Region 1: Memory at e4800000 (32-bit, non-prefetchable)
+[size=3D64K]
+	Expansion ROM at 000c0000 [disabled] [size=3D64K]
+
+00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c1)
+(prog-if fa)
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (500ns min, 1000ns max)
+	Interrupt: pin A routed to IRQ 0
+	Region 4: I/O ports at d800 [size=3D16]
+
+-------------- dmesg
+
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000000f00000 (usable)
+ BIOS-e820: 0000000000f00000 - 0000000001000000 (reserved)
+ BIOS-e820: 0000000001000000 - 000000000bffc000 (usable)
+ BIOS-e820: 000000000bffc000 - 000000000bfff000 (ACPI data)
+ BIOS-e820: 000000000bfff000 - 000000000c000000 (ACPI NVS)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+191MB LOWMEM available.
+On node 0 totalpages: 49148
+zone(0): 4096 pages.
+zone(1): 45052 pages.
+zone(2): 0 pages.
+Kernel command line: BOOT_IMAGE=3D2.4.23 ro root=3D305 ether=3D0,0,eth0
+ether=3D0,0,eth1
+Initializing CPU#0
+Detected 200.457 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 399.76 BogoMIPS
+Memory: 191092k/196592k available (1049k kernel code, 4092k reserved,
+246k data, 260k init, 0k highmem)
+Checking if this processor honours the WP bit even in supervisor mode...
+Ok.
+Dentry cache hash table entries: 32768 (order: 6, 262144 bytes)
+Inode cache hash table entries: 16384 (order: 5, 131072 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 8192 (order: 3, 32768 bytes)
+Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
+CPU:     After generic, caps: 0080a135 00000000 00000000 00000004
+CPU:             Common caps: 0080a135 00000000 00000000 00000004
+CPU: Cyrix 6x86MX 3x Core/Bus Clock stepping 06
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Cyrix ARR
+PCI: PCI BIOS revision 2.10 entry at 0xf0560, last bus=3D1
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Probing PCI hardware (bus 00)
+PCI: Using IRQ router ALI [10b9/1533] at 00:07.0
+isapnp: Scanning for PnP cards...
+isapnp: Card '3Com 3C509B EtherLink III'
+isapnp: Card '3Com 3C509B EtherLink III'
+isapnp: 2 Plug & Play cards detected total
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+Journalled Block Device driver loaded
+parport0: PC-style at 0x378 (0x778) [PCSPP(,...)]
+parport0: irq 7 detected
+Detected PS/2 Mouse Port.
+pty: 256 Unix98 ptys configured
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
+SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq =3D 4) is a 16550A
+ttyS01 at 0x02f8 (irq =3D 3) is a 16550A
+lp0: using parport0 (polling).
+lp0: console ready
+FDC 0 is a post-1991 82077
+eth0: 3c5x9 at 0x220, 10baseT port, address  00 60 97 7e 7e 0b, IRQ 10.
+3c509.c:1.19 16Oct2002 becker@scyld.com
+http://www.scyld.com/network/3c509.html
+eth1: 3c5x9 at 0x230, 10baseT port, address  00 60 97 7e 92 55, IRQ 11.
+3c509.c:1.19 16Oct2002 becker@scyld.com
+http://www.scyld.com/network/3c509.html
+PPP generic driver version 2.4.2
+PPP Deflate Compression module registered
+PPP BSD Compression module registered
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=3Dxx
+ALI15X3: IDE controller at PCI slot 00:0f.0
+ALI15X3: chipset revision 193
+ALI15X3: not 100%% native mode: will probe irqs later
+    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
+hda: ST320413A, ATA DISK drive
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=3Dxx
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: attached ide-disk driver.
+hda: host protected area =3D> 1
+hda: 39102336 sectors (20020 MB) w/512KiB Cache, CHS=3D38792/16/63
+Partition check:
+ hda: hda1 hda3 < hda5 hda6 hda7 hda8 hda9 hda10 hda11 hda12 >
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 1024 buckets, 8Kbytes
+TCP: Hash tables configured (established 16384 bind 16384)
+ip_conntrack version 2.1 (1535 buckets, 12280 max) - 292 bytes per
+conntrack
+ip_tables: (C) 2000-2002 Netfilter core team
+ipt_recent v0.3.1: Stephen Frost <sfrost@snowman.net>.
+http://snowman.net/projects/ipt_recent/
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+
+--------------
+
+# cat /proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+01f0-01f7 : ide0
+0213-0213 : isapnp read
+0220-022f : 3c509 PnP
+0230-023f : 3c509 PnP
+02f8-02ff : serial(set)
+0378-037a : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial(set)
+0a79-0a79 : isapnp write
+0cf8-0cff : PCI conf1
+5c20-5c3f : ALi Corporation M7101 PMU
+d800-d80f : ALi Corporation M5229 IDE
+  d800-d807 : ide0
+  d808-d80f : ide1
+
+--------------
+
+# cat /proc/cpuinfo
+processor	: 0
+vendor_id	: CyrixInstead
+cpu family	: 6
+model		: 2
+model name	: 6x86MX 3x Core/Bus Clock
+stepping	: 6
+cpu MHz		: 200.458
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: yes
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu de tsc msr cx8 pge cmov mmx cyrix_arr ds_cpl est
+cid
+bogomips	: 399.76
+
+--------------
+
+# cat /proc/iomem
+00000000-0009ffff : System RAM
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-00efffff : System RAM
+  00100000-002066c9 : Kernel code
+  002066ca-002440c7 : Kernel data
+00f00000-00ffffff : reserved
+01000000-0bffbfff : System RAM
+0bffc000-0bffefff : ACPI Tables
+0bfff000-0bffffff : ACPI Non-volatile Storage
+e4800000-e480ffff : Trident Microsystems TGUI 9440
+e5000000-e51fffff : Trident Microsystems TGUI 9440
+e5800000-e5800fff : ALi Corporation USB 1.1 Controller
+e6000000-e6ffffff : ALi Corporation M1541
+ffff0000-ffffffff : reserved
+
+--------------
+
+--=20
+Arnaud Fontaine <arnaud@andesi.org> - http://www.andesi.org/
+GnuPG Public Key available on pgp.mit.edu
+Fingerprint: D792 B8A5 A567 B001 C342 2613 BDF2 A220 5E36 19D3
+
+--
+Future looks spotty.  You will spill soup in late evening.
+
+--/9DWx/yDrRhgMJTb
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/4Wu1vfKiIF42GdMRAjAcAKCElQ84y202UfLWceKCkw4ieZ2GCACfdQ3X
+a55yIfUW5NhC6ThBwAF/xIg=
+=Djtq
+-----END PGP SIGNATURE-----
+
+--/9DWx/yDrRhgMJTb--

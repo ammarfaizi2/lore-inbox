@@ -1,55 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281926AbRLFSZz>; Thu, 6 Dec 2001 13:25:55 -0500
+	id <S281916AbRLFSaF>; Thu, 6 Dec 2001 13:30:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281916AbRLFSZq>; Thu, 6 Dec 2001 13:25:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15375 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281921AbRLFSYW>; Thu, 6 Dec 2001 13:24:22 -0500
-Subject: Re: Linux/Pro  -- clusters
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Thu, 6 Dec 2001 18:33:25 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0112060958450.10625-100000@penguin.transmeta.com> from "Linus Torvalds" at Dec 06, 2001 10:07:01 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16C3Kn-0002XC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S282042AbRLFS36>; Thu, 6 Dec 2001 13:29:58 -0500
+Received: from toole.uol.com.br ([200.231.206.186]:6654 "EHLO toole.uol.com.br")
+	by vger.kernel.org with ESMTP id <S281916AbRLFS3o>;
+	Thu, 6 Dec 2001 13:29:44 -0500
+Date: Thu, 6 Dec 2001 16:28:51 -0200
+From: Pablo Borges <pablo.borges@uol.com.br>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.16 & Heavy I/O
+Message-Id: <20011206162851.41a06794.pablo.borges@uol.com.br>
+In-Reply-To: <Pine.LNX.4.30.0112061908220.17427-100000@mustard.heime.net>
+In-Reply-To: <20011206160630.1f4ab058.pablo.borges@uol.com.br>
+	<Pine.LNX.4.30.0112061908220.17427-100000@mustard.heime.net>
+Organization: UOL Inc
+X-Mailer: Sylpheed version 0.6.5claws17 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Some of them are effectively turned off - the format timeout was increased
-> to 2 hours to make sure that it basically never triggers.
 
-Thats scsi_generic which thankfully puts most of the logic in user space.
+So ppl, plz help-me find this problem.
 
-> > Those devices aren't SCSI controllers, and they don't want to appear as one.
+Once upon a time, I had 30/60 days uptime on my workstation, only rebooting for kernel updates or power faults. Nowadays, I've to reboot my machine every day because there's no physical memory available. I watch my disk burning in heavy I/O to open my X, browser, etc and stuff.
+
+Then, one day, I decided to init 1; umount all and I saw the amazing release of 70% for my physical memory. I assumed that the disk cache had it all.
+
+So, if this is correct, I want or to keep the cache under control or to flush it when I want. François Cami told me there is an option on aa's VM that helps me with that
+
+> easy.
+> echo 400 > /proc/sys/vm/vm_mapped_ratio
+> the higher the number, the smaller/less aggressive the disk cache.
+
+Tnx for your help,
+[]'s
+Pablo
+
+On Thu, 6 Dec 2001 19:10:56 +0100 (CET)
+Roy Sigurd Karlsbakk <roy@karlsbakk.net> wrote:
+
+> Is it really neccecary? Free memory's a waste! The cache will be
+> discarded the moment an application needs the memory.
 > 
-> Don't think "SCSI" as in SCSI controllers. Think SCSI as in "fairly
-> generic packet protocol that somehow infiltrated most things".
+> what's the problem? It speeds up disk I/O for recently used files
+> 
+> On Thu, 6 Dec 2001, Pablo Borges wrote:
+> 
+> >
+> > Don't we have a "dont't eat my whole memory, disk cache" option on
+> > linux ?
+> >
+> >
+> > On Wed, 5 Dec 2001 21:07:42 +0100 (CET)
+> > Roy Sigurd Karlsbakk <roy@karlsbakk.net> wrote:
+> >
+> > > > > Absolutely all free memory may be used for disk caching.  So
+> > > > > no, you can't get a bigger cache because it is already at
+> > > > > the highest possible setting.  You don't have more memory
+> > > > > for this - all is used already.
+> > > >
+> > > > May I limit this memory ? For a long time I'm working all day with
+> > > > no physical memory available.
+> > >
+> > > You can try rtlinux. In rtlinux (realtime linux), you tell linux how
+> > > much memory the kernel will have access to, and let specially
+> > > written apps to take the rest
+> > > --
+> > > Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+> > >
+> > > Computers are like air conditioners.
+> > > They stop working when you open Windows.
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe
+> > > linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> >
+> >
+> > =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+> > Pablo Borges                                pablo.borges@uol.com.br
+> > -------------------------------------------------------------------
+> >   ____                                               Tecnologia UOL
+> >  /    \    Debian:
+> >  |  =_/      The 100% suck free linux distro.
+> >   \
+> >     \      SETI is lame. http://www.distributed.net
+> >                                                      Dnetc is XNUG!
+> >
+> 
+> --
+> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+> 
+> Computers are like air conditioners.
+> They stop working when you open Windows.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-The scsi controller is akin to a network driver. The stuff that matters is
-stuff like the scsi disk, scsi cd and scsi tape drivers. Scsi disk and CD
-need to do a lot of error recovery (especially CD-ROM). Disk too has to 
-because older scsi devices don't have the same kind of "the host is clueless
-crap I'll have to try error recovery myself before reporting" mentality.
 
-It would be nice if a lot of the CD error/recovery logic could be in the
-cdrom libraries because the logic (close the door, lock the door, try
-half speed, ..) is the same in scsi and ide.
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Pablo Borges                                pablo.borges@uol.com.br
+-------------------------------------------------------------------
+  ____                                               Tecnologia UOL
+ /    \    Debian:
+ |  =_/      The 100% suck free linux distro.
+  \
+    \      SETI is lame. http://www.distributed.net
+                                                     Dnetc is XNUG!
 
-> It's called "struct block_device" and "struct genhd". The pointers will
-> have as many bits as pointers have on the architecture. Low-level drivers
-> will not even see anything else eventually, there will be no "numbers".
-
-For those of us who want to run a standards based operating system can
-you do the 32bit dev_t. Otherwise some slightly fundamental things don't
-work. You know boring stuff like ls, find, df, and other standard unix
-commands. Those export a dev_t cookie. 
-
-If you don't want to be able to run stuff like ls, just let me know and
-I'll start another kernel tree 8)
-
-Alan

@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291780AbSBTLjE>; Wed, 20 Feb 2002 06:39:04 -0500
+	id <S291781AbSBTLkY>; Wed, 20 Feb 2002 06:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291781AbSBTLiy>; Wed, 20 Feb 2002 06:38:54 -0500
-Received: from [12.237.133.3] ([12.237.133.3]:16771 "EHLO ledzep.dyndns.org")
-	by vger.kernel.org with ESMTP id <S291780AbSBTLik>;
-	Wed, 20 Feb 2002 06:38:40 -0500
-Message-ID: <3C738AA0.AC31A1BB@attbi.com>
-Date: Wed, 20 Feb 2002 05:38:08 -0600
-From: Jordan Breeding <ledzep37@attbi.com>
-Organization: University of Texas at Dallas - Student
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5-xfs i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Adaptec dpt_i20.c broken in 2.5?
-Content-Type: text/plain; charset=iso-8859-15
+	id <S291782AbSBTLkO>; Wed, 20 Feb 2002 06:40:14 -0500
+Received: from mail.gmx.net ([213.165.64.20]:39355 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S291781AbSBTLj7>;
+	Wed, 20 Feb 2002 06:39:59 -0500
+Date: Wed, 20 Feb 2002 12:39:31 +0100
+From: Hanno Boeck <hanno@gmx.de>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with Radeon Framebuffer
+Message-Id: <20020220123931.281e070a.hanno@gmx.de>
+In-Reply-To: <DF415341-25A3-11D6-B291-000393843900@metaparadigm.com>
+In-Reply-To: <20020219234939.0d8597fb.hanno@gmx.de>
+	<DF415341-25A3-11D6-B291-000393843900@metaparadigm.com>
+X-Mailer: Sylpheed version 0.7.2claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I will most likely be purchasing a system soon which will make use of an
-Adaptec Zero Channel raid card and so it will require the use of the
-dpt_i2o Adaptec driver.  However, currently in 2.5.5 if you select
-Adaptec i2o to be compiled it gives an error caused by this line:
+> Did you have vesafb compiled in also (can tell by looking at the entire 
+> dmesg)? This would explain why radeonfb can't map the framebuffer 
+> memory. If so, try again without vesafb compiled in.
 
-#error Please convert me to Documentation/DMA-mapping.txt
+If I do that, my console is completely black!
+I don't have a console any more. I can only run Xfree.
 
-Will this be fixed in a -pre version any time soon?  Thanks for any info
-on the situation with this scsi driver.
+So that doesn't help either.
 
-Jordan
+Btw, this is what lspci -v says about my graphics card:
+
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])
+	Subsystem: Sony Corporation: Unknown device 80e7
+	Flags: stepping, fast Back2Back, 66Mhz, medium devsel, IRQ 9
+	Memory at d8000000 (32-bit, prefetchable) [size=128M]
+	I/O ports at 3000 [size=256]
+	Memory at d0100000 (32-bit, non-prefetchable) [size=64K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [58] AGP version 2.0
+	Capabilities: [50] Power Management version 2

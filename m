@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267338AbUJRSmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267344AbUJRSmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267338AbUJRSmw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 14:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267304AbUJRSk6
+	id S267344AbUJRSmv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 14:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267338AbUJRSfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 14:40:58 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:60141 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267341AbUJRShk (ORCPT
+	Mon, 18 Oct 2004 14:35:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2184 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267254AbUJRScK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:37:40 -0400
-Date: Mon, 18 Oct 2004 20:38:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Robert Love <rml@novell.com>
-Cc: dwalker@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Voluntary Preempt additions
-Message-ID: <20041018183825.GA4142@elte.hu>
-References: <1098121769.26597.5.camel@dhcp153.mvista.com> <1098124252.1597.8.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
+	Mon, 18 Oct 2004 14:32:10 -0400
+To: Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: forcing PS/2 USB emulation off
+References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br>
+	<200410172248.16571.dtor_core@ameritech.net>
+	<20041018164539.GC18169@kroah.com>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 18 Oct 2004 15:31:55 -0300
+In-Reply-To: <20041018164539.GC18169@kroah.com>
+Message-ID: <orbrezdgis.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098124252.1597.8.camel@betsy.boston.ximian.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Oct 18, 2004, Greg KH <greg@kroah.com> wrote:
 
-* Robert Love <rml@novell.com> wrote:
+> Is there any consistancy with the type of hardware that you see being
+> reported for this issue?
 
-> On Mon, 2004-10-18 at 10:49 -0700, Daniel Walker wrote:
->                                                                                    
-> > - Modified latency tracer to trace non-preemptable mutex locking , in
-> > /proc/lock_trace
-> 
-> Why?
-> 
-> It is a bug to have preemption disabled when entering non-atomic
-> (schedulable) code, and a stack trace is dumped if that happens.
-> 
-> Isn't that sufficient?
+I've googled around and found a lot of reports of such issues on the
+HP Presario 3000Z series, as well as some other HP notebook series
+(nx5000?) that (kind of :-) supports Athlon64 processors.
 
-also, i improved that stackdump in the U4/U5 patches (PREEMPT_TRACE) to
-include a trace of critical sections held at that moment:
-
-  [<c0169dcb>] sys_unlink+0xdc/0x129
-  [<c01060b5>] sysenter_past_esp+0x52/0x71
- preempt count: 00000002
- . 2-level deep critical section nesting:
- .. entry 1: free_hot_cold_page+0x82/0x149 / (__pagevec_free+0x1f/0x28)
- .. entry 2: print_traces+0x1b/0x54 / (dump_stack+0x23/0x25)
-
-While the stackdump indeed is supposed to clearly identify the critical
-section, they can be quite large and opaque, sometimes they even lose
-the information of where the lock was acquired, and in practice it's
-much easier to use PREEMPT_TRACE.
-
-	Ingo
+-- 
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

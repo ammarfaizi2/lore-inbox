@@ -1,68 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264407AbTDWTY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 15:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264268AbTDWTW5
+	id S264449AbTDWTUo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 15:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTDWTUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 15:22:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9723 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264420AbTDWTV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 15:21:58 -0400
-Date: Wed, 23 Apr 2003 21:33:58 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Steven Whitehouse <steve@chygwyn.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.68: net/decnet/dn_route.c doesn't compile
-Message-ID: <20030423193358.GU15833@fs.tum.de>
-References: <Pine.LNX.4.44.0304192002580.9909-100000@penguin.transmeta.com>
+	Wed, 23 Apr 2003 15:20:44 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:47766 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264449AbTDWTUn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 15:20:43 -0400
+Date: Wed, 23 Apr 2003 12:34:47 -0700
+From: Greg KH <greg@kroah.com>
+To: Duncan Sands <baldrick@wanadoo.fr>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] USB speedtouch: compile fix
+Message-ID: <20030423193447.GC12674@kroah.com>
+References: <200304231654.55881.baldrick@wanadoo.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304192002580.9909-100000@penguin.transmeta.com>
+In-Reply-To: <200304231654.55881.baldrick@wanadoo.fr>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 19, 2003 at 08:11:40PM -0700, Linus Torvalds wrote:
->...
-> Summary of changes from v2.5.67 to v2.5.68
-> ============================================
->...
-> Steven Whitehouse:
->   o [DECNET]: DECnet routing fixes etc
->...
+On Wed, Apr 23, 2003 at 04:54:55PM +0200, Duncan Sands wrote:
+> The rx_inuse field no longer exists.
 
-This broke the compilation of net/decnet/dn_route.c
-#ifdef CONFIG_DECNET_ROUTE_FWMARK :
+Applied, thanks,
 
-<--  snip  -->
-
-...
-  gcc -Wp,-MD,net/decnet/.dn_route.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default -nostdinc 
--iwithprefix include    -DKBUILD_BASENAME=dn_route -DKBUILD_MODNAME=decnet -c -o 
-net/decnet/dn_route.o net/decnet/dn_route.c
-net/decnet/dn_route.c: In function `dn_route_output_slow':
-net/decnet/dn_route.c:896: warning: deprecated use of label at end of 
-compound statement
-net/decnet/dn_route.c:1057: `flp' undeclared (first use in this function)
-net/decnet/dn_route.c:1057: (Each undeclared identifier is reported only once
-net/decnet/dn_route.c:1057: for each function it appears in.)
-net/decnet/dn_route.c: In function `dn_route_input_slow':
-net/decnet/dn_route.c:1182: structure has no member named `fwmark'
-make[2]: *** [net/decnet/dn_route.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+greg k-h

@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbUKOXEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbUKOXKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbUKOXEl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 18:04:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbUKOXDZ
+	id S261597AbUKOXKF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 18:10:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUKOXKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 18:03:25 -0500
-Received: from almesberger.net ([63.105.73.238]:39436 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261528AbUKOW77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 17:59:59 -0500
-Date: Mon, 15 Nov 2004 19:59:46 -0300
-From: Werner Almesberger <werner@almesberger.net>
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Generalize prio_tree (1/3)
-Message-ID: <20041115195946.Z28802@almesberger.net>
-References: <20041114235646.K28802@almesberger.net> <Pine.LNX.4.58.0411151226010.20003@red.engin.umich.edu> <20041115175415.X28802@almesberger.net> <Pine.LNX.4.58.0411151559070.30860@red.engin.umich.edu> <20041115184240.Y28802@almesberger.net> <Pine.GSO.4.58.0411151705260.6691@lazuli.engin.umich.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0411151705260.6691@lazuli.engin.umich.edu>; from vrajesh@umich.edu on Mon, Nov 15, 2004 at 05:27:42PM -0500
+	Mon, 15 Nov 2004 18:10:05 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:15816 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261643AbUKOXJR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 18:09:17 -0500
+Message-ID: <4199371C.2010101@free.fr>
+Date: Tue, 16 Nov 2004 00:09:16 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: fr-fr, en, en-us
+MIME-Version: 1.0
+To: matthieu castet <castet.matthieu@free.fr>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
+       Adam Belay <ambx1@neo.rr.com>, bjorn.helgaas@hp.com, vojtech@suse.cz
+Subject: Re: [PATCH] PNP support for i8042 driver
+References: <41960AE9.8090409@free.fr>	 <200411140148.02811.dtor_core@ameritech.net>	 <41974DFD.5070603@free.fr> <d120d50004111506416237ff1b@mail.gmail.com>	 <419908B8.10202@free.fr> <d120d500041115122846b9f0fa@mail.gmail.com> <41993320.3010501@free.fr>
+In-Reply-To: <41993320.3010501@free.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajesh Venkatasubramanian wrote:
-> No, that's not possible. Whenever we change vm_pgoff, vm_start, or
-> vm_end, we reshuffle the prio_tree. Check mm/mmap.c:vma_adjust().
+matthieu castet wrote:
+> Hi,
+> 
 
-Excellent, that makes it a lot easier.
+>>
+>>
+>> I think you need to make an effort to make a PCI device use IRQ12
+>> but the idea is that if you don't have a mouse attached (but you do
+>> have i8042) and you are short on free interrupts and your HW can
+>> use IRQ12 for some other stuff let it have it. That is the reqson why
+>> i8042 requests IRQ only when corresponding port is open. No mouse -
+>> IRQ is free.
+>>
+> And what happen if you use irq12 for an other stuff and you plug your 
+> mouse and try to use it. The motherboard hasn't desalocated the irq12 
+> for mouse, so there will be a big conflict...
+> 
+In that case a boot param solve the problem, it says you could
+desactivate the resource in the bios/acpi for the mouse.
+So even if a mouse is plug, the other driver shouldn't receive others 
+interrupts (I don't know exactly what happen if for example irq12 is 
+used for pci and mouse in acpi config and if there are other protection 
+again that case...)
 
-> If you are thinking vm_set.head or vm_set.parent is free to use
-> for h_index, then it is incorrect. No field is free. If a vma
-> is a tree node (and in this discussion we care only about tree
-> nodes), then every field in vma->shared is used. We cannot reuse
-> them for storing h_index.
 
-Oh, I see. I thought it was that either vm_set or prio_tree_node
-was used. (Which I found somewhat confusing, but attributed my
-confusion to simply not understanding all the strange ways of MM.)
-Sorry about the confusion.
+Matthieu
 
-So yes, one more word then :-(
-
-> If we impose that there can be only 2 types of prio_tree, then
-> we can simply add an if-else condition in the GET_INDEX macro.
-> IMHO, that will not lead to any noticeable performance drop.
-
-Yes, that sounds better. It would also allow for a later transition
-of VMA_PRIO_TREE to GENERIC_PRIO_TREE.
-
-Now, if we want to prepare things already now for a later migration,
-it would be nice to call the generic one "struct prio_tree_node",
-since it would eventually become the only node type anyway.
-
-Perhaps something along these lines:
-
-struct prio_tree_node {
-	struct vma_prio_tree_node prio_tree_node;
-	unsigned long r_index, h_index;
-};
-
-Or would you consider this as premature optimization ?
-
-> But, I agree with you that changing the layout of vm_area_struct
-> is a better (but intrusive) approach.
-
-I also wonder how expensive the calculations in HEAP_INDEX are.
-Probably not very.
-
-To make the intrusive change a bit more palatable, vm_pgoff could
-become #define vm_pgoff(vma) ((vma)->shared.prio_tree_node.r_index)
-
-Okay, so now we only need someone who has meaningful MM tests to
-tell us how badly this would hurt performance :-)
-
-Thanks,
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

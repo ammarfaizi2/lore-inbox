@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbUCOSSf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 13:18:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbUCOSSf
+	id S262675AbUCOSWN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 13:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbUCOSWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 13:18:35 -0500
-Received: from relay-6m.club-internet.fr ([194.158.104.45]:63718 "EHLO
-	relay-6m.club-internet.fr") by vger.kernel.org with ESMTP
-	id S262655AbUCOSSe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 13:18:34 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Fabien R <the_edge123@club-internet.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel/libc function validation
-Date: Mon, 15 Mar 2004 19:18:33 +0100
-X-Mailer: KMail [version 1.3.2]
+	Mon, 15 Mar 2004 13:22:13 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:12040 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S262675AbUCOSWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 13:22:04 -0500
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Organization: Conectiva S/A
+To: Jochen Friedrich <jochen@scram.de>
+Subject: Re: [bug 2.6.4] llc2 oops
+Date: Mon, 15 Mar 2004 14:20:16 -0300
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+References: <Pine.LNX.4.58.0403141732350.25924@localhost>
+In-Reply-To: <Pine.LNX.4.58.0403141732350.25924@localhost>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20040315181832.C62D125619@relay-6m.club-internet.fr>
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403151420.19986.acme@conectiva.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sunday 14 March 2004 13:49, Jochen Friedrich wrote:
+> Hi,
 
-Here is what I want to do.
 
-I have to test all the functions used by a Linux binary, up to the libc 
-function calls.
+> fffffffc005831d4
+> 
+> So, apparently, llc_ui_wait_for_conn() and llc_ui_wait_for_disc() are
+> buggy, as well...
 
-Thus, I have to provide evidences that the libc (or kernel) function called 
-has been tested.
 
-1) I want to know if you are using an automated procedure to test and 
-validate a new kernel version.
+Oh well, yes, the code has lots of bugs as it is currently in the tree, I have 
+it rewritten in my net-experimental tree, that has lots of other changes 
+(mostly renames, moving buttloads of stuff from net/ipv4 to net/core, etc) to
+core code, tcp/ip v4/v6, sctp, etc, making most protocols use more and
+more common infrastructure, its solid, but I don't have time right now to
+work on chunk it to send to Dave, will do it, I hope, this month.
 
-2) Do you use test suites like osdl.org or ltp.sourceforge.net ?
+But hey, if you are really interested in llc2 let me know and I'll send you
+my latest patches (IIRC they are at my 
+www.kernel.org/pub/linux/kernel/people/acme area).
 
-3) If not, is it easy to test manually a libc function.
+FWIW I have patches for ncftp, vsftpd, openssh, etc making them use
+PF_LLC, mostly transparent, just not for vsftpd, that reivents the
+get{name,addr}info wheel for some reason 8)
 
-Thanks in advance,
-
-Fabien
-
-Note: Could you use "reply all" to answer because I've only subscribed to the 
- kernel-digest list ?
+- Arnaldo

@@ -1,120 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261386AbTCMAjl>; Wed, 12 Mar 2003 19:39:41 -0500
+	id <S261667AbTCMAqy>; Wed, 12 Mar 2003 19:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261403AbTCMAjl>; Wed, 12 Mar 2003 19:39:41 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:48352 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261386AbTCMAjj>; Wed, 12 Mar 2003 19:39:39 -0500
-Date: Wed, 12 Mar 2003 16:50:46 -0800
-From: Mike Anderson <andmike@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dougg@torque.net, Mark Haverkamp <markh@osdl.org>,
-       Christoffer Hall-Frederiksen <hall@jiffies.dk>,
-       linux-scsi@vger.kernel.org,
+	id <S261485AbTCMAqx>; Wed, 12 Mar 2003 19:46:53 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:9222
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261477AbTCMAqu>; Wed, 12 Mar 2003 19:46:50 -0500
+Date: Wed, 12 Mar 2003 19:54:28 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Paul McKenney <Paul.McKenney@us.ibm.com>
+cc: David Miller <davem@redhat.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux aacraid devel <linux-aacraid-devel@dell.com>
-Subject: Re: Problem with aacraid driver in 2.5.63-bk-latest
-Message-ID: <20030313005046.GB14373@beaverton.ibm.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	dougg@torque.net, Mark Haverkamp <markh@osdl.org>,
-	Christoffer Hall-Frederiksen <hall@jiffies.dk>,
-	linux-scsi@vger.kernel.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux aacraid devel <linux-aacraid-devel@dell.com>
-References: <20030228133037.GB7473@jiffies.dk> <1047510381.12193.28.camel@markh1.pdx.osdl.net> <1047514681.23725.35.camel@irongate.swansea.linux.org.uk> <3E6FC8D6.7090005@torque.net> <1047517604.23902.39.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047517604.23902.39.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+       "" <linux-kernel-owner@vger.kernel.org>, "" <linux-net@vger.kernel.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] (1/8) Eliminate brlock in psnap
+In-Reply-To: <OFBF5B58B4.EAFBC682-ON88256CE7.007043E7@us.ibm.com>
+Message-ID: <Pine.LNX.4.50.0303121840220.6957-100000@montezuma.mastecende.com>
+References: <OFBF5B58B4.EAFBC682-ON88256CE7.007043E7@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox [alan@lxorguk.ukuu.org.uk] wrote:
-> On Wed, 2003-03-12 at 23:55, Douglas Gilbert wrote:
-> >          /*
-> >           * Limit max queue depth on a single lun to 256 for now.  Remember,
-> >           * we allocate a struct scsi_command for each of these and keep it
-> >           * around forever.  Too deep of a depth just wastes memory.
-> >           */
-> >          if(tags > 256)
-> >                  return;
-> > ....
+On Wed, 12 Mar 2003, Paul McKenney wrote:
+
+> You are saying that we can omit locking because this is
+> called only from a module-exit function, and thus protected
+> by the module_mutex semaphore?  (I must defer to
+> others who have a better handle on modules...)
 > 
-> I can see the memory consideration. However the thing can really handle big
-> queues well. Possibly we should be setting the queue to 512 / somefunction(volumes)
-> though to avoid the worst case overcommit here
+> If in fact only one module-exit function can be
+> executing at a given time, then we should be able to
+> use the following approach:
 
-I agree with Doug that the previous comment is out of date and we could
-raise the value, but we also should never leave the function with the
-possibility that the queue_depth is 0.
-
-The patch below is something Patrick and I where discussing though I
-believe he indicated that I should print out the value we where setting
-the queue_depth to. It was only compiled and not tested on any devices.
-
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
-
- scsi.c |   32 +++++++++++++++++++++++---------
- 1 files changed, 23 insertions(+), 9 deletions(-)
-
-------
-
---- 1.96/drivers/scsi/scsi.c	Fri Feb 21 13:46:58 2003
-+++ edited/drivers/scsi/scsi.c	Wed Mar 12 16:05:42 2003
-@@ -926,15 +926,28 @@
- 	/*
- 	 * refuse to set tagged depth to an unworkable size
- 	 */
--	if(tags <= 0)
--		return;
-+	if(tags <= 0) {
-+			printk(KERN_WARNING "(scsi%d:%d:%d:%d) "
-+				"%s, tag value to small\n"
-+				"disabled\n", SDpnt->host->host_no,
-+				SDpnt->channel, SDpnt->id, SDpnt->lun,
-+				__FUNCTION__); 
-+
-+		SDpnt->queue_depth = 1;
-+	}
- 	/*
--	 * Limit max queue depth on a single lun to 256 for now.  Remember,
--	 * we allocate a struct scsi_command for each of these and keep it
--	 * around forever.  Too deep of a depth just wastes memory.
-+	 * Limit max queue depth on a single lun to 256 for now.
-+	 * Too deep of a depth just wastes memory.
- 	 */
--	if(tags > 256)
--		return;
-+	if(tags > 256) {
-+			printk(KERN_WARNING "(scsi%d:%d:%d:%d) "
-+				"%s, tag value to big\n"
-+				"disabled\n", SDpnt->host->host_no,
-+				SDpnt->channel, SDpnt->id, SDpnt->lun,
-+				__FUNCTION__); 
-+
-+		SDpnt->queue_depth = 256;
-+	}
+Yes the ->exit call is protected by module_mutex globally.
  
- 	spin_lock_irqsave(&device_request_lock, flags);
- 	SDpnt->queue_depth = tags;
-@@ -949,9 +962,10 @@
- 			break;
- 		default:
- 			printk(KERN_WARNING "(scsi%d:%d:%d:%d) "
--				"scsi_adjust_queue_depth, bad queue type, "
-+				"%s, bad queue type, "
- 				"disabled\n", SDpnt->host->host_no,
--				SDpnt->channel, SDpnt->id, SDpnt->lun); 
-+				SDpnt->channel, SDpnt->id, SDpnt->lun,
-+				__FUNCTION__); 
- 		case 0:
- 			SDpnt->ordered_tags = SDpnt->simple_tags = 0;
- 			SDpnt->queue_depth = tags;
+> Module unloading should be rare enough to tolerate
+> the grace period under the module_mutex, right?
+> 
+> Thoughts?
 
+I would agree. However can't unregister_snap_client be used in other paths 
+apart from module_unload? I wouldn't worry too much since if 
+register_snap_client and unregister_snap_client for the same protocol 
+races it's a bug in the caller's code. The safe RCU list removal and 
+synchronize_kernel should protect us from sane usage.
 
+	Zwane

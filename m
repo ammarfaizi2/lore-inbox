@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbTKHAGa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 19:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTKGWMI
+	id S261931AbTKHAAe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 19:00:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbTKGX6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:12:08 -0500
-Received: from ns.suse.de ([195.135.220.2]:17839 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264089AbTKGLdh (ORCPT
+	Fri, 7 Nov 2003 18:58:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63926 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261776AbTKGXzi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 06:33:37 -0500
-Date: Fri, 7 Nov 2003 12:32:35 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BIO] Bounce queue in bio_add_page
-Message-ID: <20031107113235.GD591@suse.de>
-References: <20031103122500.GA6963@suse.de> <20031103205234.GA17570@gondor.apana.org.au> <20031104084929.GH1477@suse.de> <20031104090325.GA21301@gondor.apana.org.au> <20031104090353.GM1477@suse.de> <20031105094855.GD1477@suse.de> <20031106210900.GA29000@gondor.apana.org.au> <20031107112346.GA5153@gondor.apana.org.au> <20031107112555.GC591@suse.de> <20031107112833.GA5239@gondor.apana.org.au>
+	Fri, 7 Nov 2003 18:55:38 -0500
+Date: Fri, 7 Nov 2003 15:51:47 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Beau E. Cox" <beau@beaucox.com>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.23-pre7,pre8,pre9 hang on starting squid
+Message-Id: <20031107155147.05671d94.rddunlap@osdl.org>
+In-Reply-To: <200311070600.02069.beau@beaucox.com>
+References: <Pine.LNX.4.44.0311061204510.8534-100000@logos.cnet>
+	<200311070600.02069.beau@beaucox.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031107112833.GA5239@gondor.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 07 2003, Herbert Xu wrote:
-> On Fri, Nov 07, 2003 at 12:25:55PM +0100, Jens Axboe wrote:
-> > 
-> > Could be related, someone is doing an unlock on an already unlocked
-> > page. Is this the same system that saw the bounce problem initially?
-> 
-> Yes, see http://bugs.debian.org/218566 for details.
+On Fri, 7 Nov 2003 06:00:01 -1000 "Beau E. Cox" <beau@beaucox.com> wrote:
 
-Then there's likely just some other bug wrt bouncing. Hmm, does this
-work?
+| On Thursday 06 November 2003 04:06 am, Marcelo Tosatti wrote:
+| > On Mon, 3 Nov 2003, Beau E. Cox wrote:
+| > > [1.] summary:
+| > >
+| > > 2.4.23-pre7,pre8,pre9 hang depending on when 'squid' is started.
+| > >
+| > > [snipped]
+| >
+| > Strange.
+| >
+| > Can you find out in which -pre the problem starts?
+| >
+| 
+| Hi - I want to track down the 'pre' where my problem started (I would
+| need 2.4.23-pre1 thru pre6), but I can't find them anywhere on the
+| kernel archaive site (mirros too). Where can I get these pre patches?
 
-===== mm/highmem.c 1.47 vs edited =====
---- 1.47/mm/highmem.c	Thu Oct  9 15:03:32 2003
-+++ edited/mm/highmem.c	Fri Nov  7 12:32:03 2003
-@@ -402,6 +402,8 @@
- 		to->bv_len = from->bv_len;
- 		to->bv_offset = from->bv_offset;
- 
-+		lock_page(to->bv_page);
-+
- 		if (rw == WRITE) {
- 			char *vto, *vfrom;
- 
 
--- 
-Jens Axboe
+They are in this directory:
+  http://www.kernel.org/pub/linux/kernel/v2.4/testing/
 
+--
+~Randy
+MOTD:  Always include version info.

@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292850AbSCOQHm>; Fri, 15 Mar 2002 11:07:42 -0500
+	id <S292842AbSCOQHb>; Fri, 15 Mar 2002 11:07:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292846AbSCOQHc>; Fri, 15 Mar 2002 11:07:32 -0500
-Received: from ausxc08.us.dell.com ([143.166.227.176]:14342 "EHLO
-	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
-	id <S292850AbSCOQHU>; Fri, 15 Mar 2002 11:07:20 -0500
-Message-ID: <71714C04806CD51193520090272892170452B462@ausxmrr502.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: dmarkh@cfl.rr.com, linux-kernel@vger.kernel.org
-Cc: markh@compro.net
-Subject: RE: Advanced Programmable Interrupt Controller (APIC)?
-Date: Fri, 15 Mar 2002 10:06:22 -0600
+	id <S292852AbSCOQHV>; Fri, 15 Mar 2002 11:07:21 -0500
+Received: from 213-98-126-44.uc.nombres.ttd.es ([213.98.126.44]:51077 "HELO
+	mitica.trasno.org") by vger.kernel.org with SMTP id <S292842AbSCOQHP>;
+	Fri, 15 Mar 2002 11:07:15 -0500
+To: Hanno =?iso-8859-1?q?B=F6ck?= <hanno@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where to get supermount??
+In-Reply-To: <20020314160256.16eda4b9.hanno@gmx.de>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <20020314160256.16eda4b9.hanno@gmx.de>
+Date: 15 Mar 2002 17:04:33 +0100
+Message-ID: <m2pu25lsvi.fsf@trasno.mitica>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now I've
-> also heard that DELL does not properly setup the APIC chip in
-> the bios because MS os's don't use it. Have no idea if this 
-> is true or not. 
+>>>>> "hanno" == Hanno Böck <hanno@gmx.de> writes:
 
-To the best of my knowledge, BIOS and Linux work together to set up the
-APICs properly on the PowerEdge 6400 (and all our other servers too).  If
-someone has proof that we don't, and what should be done instead, please let
-me know.
+hanno> Does anyone know where I can get supermount for current kernels?
 
-Thanks,
-Matt
+http://people.mandrakesoft.com/~quintela/
+
+version for 2.4.18.
+
+Will be a version for 2.4.19-preX next week.
+
+Later, Juan.
 
 -- 
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001! (IDC Mar 2002)
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

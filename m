@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266514AbRGLSvI>; Thu, 12 Jul 2001 14:51:08 -0400
+	id <S266507AbRGLSyS>; Thu, 12 Jul 2001 14:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266508AbRGLSu6>; Thu, 12 Jul 2001 14:50:58 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:6152 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S266507AbRGLSuh>;
-	Thu, 12 Jul 2001 14:50:37 -0400
-Date: Thu, 12 Jul 2001 11:47:29 -0700
-From: Greg KH <greg@kroah.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Hans Reiser <reiser@namesys.com>, LA Walsh <law@sgi.com>,
-        reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com
-Subject: Re: Security hooks, "standard linux security" & embedded use
-Message-ID: <20010712114729.B735@kroah.com>
-In-Reply-To: <3B49F602.DB39B3A@sgi.com> <3B4DDFD8.27C1C3D9@namesys.com> <5.1.0.14.2.20010712192608.0365e588@pop.cus.cam.ac.uk>
+	id <S266530AbRGLSyQ>; Thu, 12 Jul 2001 14:54:16 -0400
+Received: from ma-northadams1a-359.bur.adelphia.net ([24.52.175.103]:6660 "EHLO
+	ma-northadams1a-359.bur.adelphia.net") by vger.kernel.org with ESMTP
+	id <S266507AbRGLSwm>; Thu, 12 Jul 2001 14:52:42 -0400
+Date: Thu, 12 Jul 2001 14:53:11 -0400
+From: Eric Buddington <eric@ma-northadams1a-359.bur.adelphia.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.6: BUG at sched.c:709
+Message-ID: <20010712145311.A11888@ma-northadams1a-359.bur.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <5.1.0.14.2.20010712192608.0365e588@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Thu, Jul 12, 2001 at 07:37:36PM +0100
-X-Operating-System: Linux 2.2.19 (i586)
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 12, 2001 at 07:37:36PM +0100, Anton Altaparmakov wrote:
-> 
-> This seems very good in view of implementing ACL support for NTFS, too. - 
-> We have all the NTFS layout knowledge to do it now. We just lack the 
-> kernel/user space infrastructure.
-> 
-> When designing this modular security infrastructure it would be useful if 
-> it is made generic enough to allow callbacks into user space for permission 
-> checking.
+When booting 2.4.6 on my K62 with ALI chipset, I get the following:
 
-The current model lets you do whatever you want in your kernel module.
-It imposes no policy, that's up to you.
+ACPI: Core Subsystem version [20010615]
+Scheduling in interrupt
+kernel BUG at sched.c:709!
+invalid operand: 0000
+...
+Process swapper (pid:1, stackpage=c1219000)
 
-All the better to keep userspace callbacks for security out of my
-kernels, for that way is ripe for problems (for specific examples why,
-see the linux-security-module mailing list archives.)
+This is repeatable. I know you may want a ksymoops dump, but I'll only
+do that on request, since I don't want to waste my time copying it if
+this is an already-fixed bug. Let me know.
 
-thanks,
+-Eric
 
-greg k-h
+P.S. This bug brought to you courtesy of serial console support -
+Thanks to whoever got that working.

@@ -1,73 +1,130 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317311AbSFLC5i>; Tue, 11 Jun 2002 22:57:38 -0400
+	id <S317312AbSFLC7Q>; Tue, 11 Jun 2002 22:59:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317312AbSFLC5h>; Tue, 11 Jun 2002 22:57:37 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:31350 "EHLO
+	id <S317313AbSFLC7P>; Tue, 11 Jun 2002 22:59:15 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:55421 "EHLO
 	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S317311AbSFLC5g>; Tue, 11 Jun 2002 22:57:36 -0400
-Date: Wed, 12 Jun 2002 03:56:45 +0100 (BST)
+	id <S317312AbSFLC7M>; Tue, 11 Jun 2002 22:59:12 -0400
+Date: Wed, 12 Jun 2002 03:58:58 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Rohland <cr@sap.com>,
-        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH] tmpfs 3/4 partial truncate
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] tmpfs 4/4 swapoff tweaks
 In-Reply-To: <Pine.LNX.4.21.0206120348170.1036-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0206120354290.1036-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0206120357010.1036-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-shmem_truncate omitted to clear final partial page if that was on swap.
-Found by Andrew's fsx testing on 2.5, this fix already went into 2.5.20.
+Several simple speedups to tmpfs swapoff: without patch, swapoff of a
+kernel tree in tmpfs might take take 2 minutes, with patch 4 seconds.
+Inline search go no further than necessary; only search inode when it
+has swapped pages; start next search from same inode; list in order.
 
 --- 2.4.19-pre10/mm/shmem.c	Tue Jun 11 19:02:30 2002
 +++ linux/mm/shmem.c	Tue Jun 11 19:02:30 2002
-@@ -49,6 +49,8 @@
- static spinlock_t shmem_ilock = SPIN_LOCK_UNLOCKED;
- atomic_t shmem_nrpages = ATOMIC_INIT(0); /* Not used right now */
+@@ -372,28 +372,30 @@
+ 	clear_inode(inode);
+ }
  
-+static struct page *shmem_getpage_locked(struct shmem_inode_info *, struct inode *, unsigned long);
+-static int shmem_clear_swp (swp_entry_t entry, swp_entry_t *ptr, int size) {
++static inline int shmem_find_swp(swp_entry_t entry, swp_entry_t *ptr, swp_entry_t *eptr)
++{
+ 	swp_entry_t *test;
+ 
+-	for (test = ptr; test < ptr + size; test++) {
+-		if (test->val == entry.val) {
+-			swap_free (entry);
+-			*test = (swp_entry_t) {0};
++	for (test = ptr; test < eptr; test++) {
++		if (test->val == entry.val)
+ 			return test - ptr;
+-		}
+ 	}
+ 	return -1;
+ }
+ 
+-static int shmem_unuse_inode (struct shmem_inode_info *info, swp_entry_t entry, struct page *page)
++static int shmem_unuse_inode(struct shmem_inode_info *info, swp_entry_t entry, struct page *page)
+ {
+ 	swp_entry_t *ptr;
+ 	unsigned long idx;
+ 	int offset;
+-	
 +
- #define BLOCKS_PER_PAGE (PAGE_CACHE_SIZE/512)
+ 	idx = 0;
++	ptr = info->i_direct;
+ 	spin_lock (&info->lock);
+-	offset = shmem_clear_swp (entry, info->i_direct, SHMEM_NR_DIRECT);
++	offset = info->next_index;
++	if (offset > SHMEM_NR_DIRECT)
++		offset = SHMEM_NR_DIRECT;
++	offset = shmem_find_swp(entry, ptr, ptr + offset);
+ 	if (offset >= 0)
+ 		goto found;
+ 
+@@ -402,13 +404,18 @@
+ 		ptr = shmem_swp_entry(info, idx, 0);
+ 		if (IS_ERR(ptr))
+ 			continue;
+-		offset = shmem_clear_swp (entry, ptr, ENTRIES_PER_PAGE);
++		offset = info->next_index - idx;
++		if (offset > ENTRIES_PER_PAGE)
++			offset = ENTRIES_PER_PAGE;
++		offset = shmem_find_swp(entry, ptr, ptr + offset);
+ 		if (offset >= 0)
+ 			goto found;
+ 	}
+ 	spin_unlock (&info->lock);
+ 	return 0;
+ found:
++	swap_free(entry);
++	ptr[offset] = (swp_entry_t) {0};
+ 	delete_from_swap_cache(page);
+ 	add_to_page_cache(page, info->inode->i_mapping, offset + idx);
+ 	SetPageDirty(page);
+@@ -419,7 +426,7 @@
+ }
  
  /*
-@@ -313,6 +315,7 @@
- static void shmem_truncate (struct inode * inode)
+- * unuse_shmem() search for an eventually swapped out shmem page.
++ * shmem_unuse() search for an eventually swapped out shmem page.
+  */
+ void shmem_unuse(swp_entry_t entry, struct page *page)
  {
- 	unsigned long index;
-+	unsigned long partial;
- 	unsigned long freed = 0;
- 	struct shmem_inode_info * info = SHMEM_I(inode);
+@@ -430,8 +437,12 @@
+ 	list_for_each(p, &shmem_inodes) {
+ 		info = list_entry(p, struct shmem_inode_info, list);
  
-@@ -320,6 +323,28 @@
- 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
- 	spin_lock (&info->lock);
- 	index = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
-+	partial = inode->i_size & ~PAGE_CACHE_MASK;
-+
-+	if (partial) {
-+		swp_entry_t *entry = shmem_swp_entry(info, index-1, 0);
-+		struct page *page;
-+		/*
-+		 * This check is racy: it's faintly possible that page
-+		 * was assigned to swap during truncate_inode_pages,
-+		 * and now assigned to file; but better than nothing.
-+		 */
-+		if (!IS_ERR(entry) && entry->val) {
-+			spin_unlock(&info->lock);
-+			page = shmem_getpage_locked(info, inode, index-1);
-+			if (!IS_ERR(page)) {
-+				memclear_highpage_flush(page, partial,
-+					PAGE_CACHE_SIZE - partial);
-+				UnlockPage(page);
-+				page_cache_release(page);
-+			}
-+			spin_lock(&info->lock);
+-		if (shmem_unuse_inode(info, entry, page))
++		if (info->swapped && shmem_unuse_inode(info, entry, page)) {
++			/* move head to start search for next from here */
++			list_del(&shmem_inodes);
++			list_add_tail(&shmem_inodes, p);
+ 			break;
 +		}
-+	}
- 
- 	while (index < info->next_index) 
- 		freed += shmem_truncate_indirect(info, index);
+ 	}
+ 	spin_unlock (&shmem_ilock);
+ }
+@@ -721,7 +732,7 @@
+ 			inode->i_op = &shmem_inode_operations;
+ 			inode->i_fop = &shmem_file_operations;
+ 			spin_lock (&shmem_ilock);
+-			list_add (&SHMEM_I(inode)->list, &shmem_inodes);
++			list_add_tail(&SHMEM_I(inode)->list, &shmem_inodes);
+ 			spin_unlock (&shmem_ilock);
+ 			break;
+ 		case S_IFDIR:
+@@ -1163,7 +1174,7 @@
+ 		}
+ 		inode->i_op = &shmem_symlink_inode_operations;
+ 		spin_lock (&shmem_ilock);
+-		list_add (&info->list, &shmem_inodes);
++		list_add_tail(&info->list, &shmem_inodes);
+ 		spin_unlock (&shmem_ilock);
+ 		down(&info->sem);
+ 		page = shmem_getpage_locked(info, inode, 0);
 

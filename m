@@ -1,36 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291448AbSBAAUR>; Thu, 31 Jan 2002 19:20:17 -0500
+	id <S291451AbSBAAXr>; Thu, 31 Jan 2002 19:23:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291449AbSBAAUH>; Thu, 31 Jan 2002 19:20:07 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53778 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291448AbSBAAUB>; Thu, 31 Jan 2002 19:20:01 -0500
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
-To: davem@redhat.com (David S. Miller)
-Date: Fri, 1 Feb 2002 00:32:11 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, vandrove@vc.cvut.cz, torvalds@transmeta.com,
-        garzik@havoc.gtf.org, linux-kernel@vger.kernel.org, paulus@samba.org,
-        davidm@hpl.hp.com, ralf@gnu.org
-In-Reply-To: <20020131.154547.74749379.davem@redhat.com> from "David S. Miller" at Jan 31, 2002 03:45:47 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S291450AbSBAAXb>; Thu, 31 Jan 2002 19:23:31 -0500
+Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:51855 "EHLO
+	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id <S291451AbSBAAXN>; Thu, 31 Jan 2002 19:23:13 -0500
+Date: Fri, 1 Feb 2002 01:15:43 +0100
+From: Richard Zidlicky 
+	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: linux-m68k@lists.linux-m68k.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Q40 input api support.
+Message-ID: <20020201011543.A476@linux-m68k.org>
+In-Reply-To: <Pine.LNX.4.10.10201311009140.23385-100000@www.transvirtual.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16WRch-0003gh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10201311009140.23385-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Thu, Jan 31, 2002 at 10:19:46AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    Because 100 4K drivers suddenly becomes 0.5Mb.
+On Thu, Jan 31, 2002 at 10:19:46AM -0800, James Simmons wrote:
 > 
-> However this isn't a driver, the crc library stuff is more akin to
-> "strlen()".  Are you suggesting to provide a CONFIG_STRINGOPS=n
-> too?  I wish you luck building that kernel :-)
+> This patch ports q40 PS/2 controller support over to the input api. Please
+> try it out. It is against the latest dave jones tree.
 
-For a large number of systems you don't need the CRC library. There are no
-systems where you don't need memcpy, so your comparison is stupid to say
-the least.
+thanks, I will look at this over the weekend. Where do I get the DJ
+tree?
 
-"Gee making this link is hard" is not a good reason to simplify the
-config file, its a good reason to simplify the make file system
+> +static inline void q40kbd_write(unsigned char val)
+> +{
+> +	/* FIXME! We need a way how to write to the keyboard! */
+> +}
+
+absolutely no way to write to the keyboard.
+
+> +
+> +static struct serio q40kbd_port =
+> +{
+> +	type:   SERIO_8042,
+> +	write:  q40kbd_write,
+> +	name:	"Q40 PS/2 kbd port",
+> +	phys:	"isa0060/serio0",
+> +};
+> +
+> +static void q40kbd_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+> +{
+> +	unsigned long flags;
+> +
+> +	if (IRQ_KEYB_MASK & master_inb(INTERRUPT_REG))
+> +		if (q40kbd_port.dev)
+> +                         q40kbd_port.dev->interrupt(&q40kbd_port, master_inb(KEYCODE_REG), 0);
+                                             ^^^^^^^^^
+where is this defined?
+
+> +void __init q40kbd_init(void)
+> +{
+> +	int maxread = 100;
+> +
+> +	/* Get the keyboard controller registers (incomplete decode) */
+> +	request_region(0x60, 16, "q40kbd");
+> +
+> +	/* allocate the IRQ */
+> +	request_irq(Q40_IRQ_KEYBOARD, keyboard_interrupt, 0, "q40kbd", NULL);
+				      ^^^^^^^^^^^^^^^^^^
+should that be q40kbd_interrupt ?
+
+Bye
+Richard

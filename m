@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284693AbRLDAVH>; Mon, 3 Dec 2001 19:21:07 -0500
+	id <S280938AbRLDAqu>; Mon, 3 Dec 2001 19:46:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284684AbRLDAPM>; Mon, 3 Dec 2001 19:15:12 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:59520 "EHLO
-	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S285323AbRLCWu7>;
-	Mon, 3 Dec 2001 17:50:59 -0500
-Date: Mon, 3 Dec 2001 23:34:14 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Denis Zaitsev <zzz@cd-club.ru>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] mm/swapfile.c/get_swaparea_info - a cosmetic change
-Message-ID: <20011203233413.A125@elf.ucw.cz>
-In-Reply-To: <20011201023252.H23346@zzz.zzz.zzz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011201023252.H23346@zzz.zzz.zzz>
-User-Agent: Mutt/1.3.23i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S282151AbRLDAqM>; Mon, 3 Dec 2001 19:46:12 -0500
+Received: from rhenium.btinternet.com ([194.73.73.93]:2988 "EHLO rhenium")
+	by vger.kernel.org with ESMTP id <S282131AbRLDApc>;
+	Mon, 3 Dec 2001 19:45:32 -0500
+Message-ID: <00eb01c17c5c$deda04b0$0801a8c0@Stev.org>
+Reply-To: "James Stevenson" <mistral@stev.org>
+From: "James Stevenson" <mail-lists@stev.org>
+To: "Christopher Friesen" <cfriesen@nortelnetworks.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <200010131722.e9DHMwL17616@pincoya.inf.utfsm.cl> <39EC6F4E.8FC87501@nortelnetworks.com> <3C0BA20F.946E0F1B@nortelnetworks.com>
+Subject: Re: possible to do non-blocking write to NFS?
+Date: Tue, 4 Dec 2001 00:44:45 -0000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> The header line of /proc/swaps does not match the consequence ones in
-> case of devfs' names.  These names are too long in comparison with the
-> <Filename> header's part.  So, I've added one tab into the header and
-> made the path's part of other lines to be of length 40-1 vs. 32-1.
+> Is there any way to write to an NFS-mounted filesystem in a way that will
+avoid
+> all of the NFS retries?  Basically I want to try a write, and if the
+server is
+> not accessable I want to return immediately with an error code.
 
-This is unneccessary interface change in stable series. Don't do
-this. At least not in 2.4.X.
+see the mount options for nfs
+under the mount and nfs man pages
 
-								Pavel
--- 
-"I do not steal MS software. It is not worth it."
-                                -- Pavel Kankovsky
+> Would setting the O_NONBLOCK flag on opening the file give me this
+behaviour?
+>
+
+no it would not
+
+    James
+
+

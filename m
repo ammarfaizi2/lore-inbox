@@ -1,85 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVCNUtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVCNUuB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVCNUtN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 15:49:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVCNUtN
+	id S261894AbVCNUuB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 15:50:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVCNUuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 15:49:13 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:56597 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261877AbVCNUtH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 15:49:07 -0500
-Date: Mon, 14 Mar 2005 21:49:17 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] "PREEMPT" in UTS_VERSION
-Message-ID: <20050314204917.GB17925@mars.ravnborg.org>
-Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050209184011.GB2366@waste.org>
+	Mon, 14 Mar 2005 15:50:01 -0500
+Received: from host-212-158-219-180.bulldogdsl.com ([212.158.219.180]:8380
+	"EHLO aeryn.fluff.org.uk") by vger.kernel.org with ESMTP
+	id S261894AbVCNUtn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 15:49:43 -0500
+Date: Mon, 14 Mar 2005 20:49:42 +0000
+From: Ben Dooks <ben-linux@fluff.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [PATCH] fs/proc/base.c - fix sparse errors
+Message-ID: <20050314204942.GA32406@home.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="XsQoSWH+UP9D9v3l"
 Content-Disposition: inline
-In-Reply-To: <20050209184011.GB2366@waste.org>
-User-Agent: Mutt/1.5.6i
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 10:40:11AM -0800, Matt Mackall wrote:
-> Add PREEMPT to UTS_VERSION where enabled as is done for SMP to make
-> preempt kernels easily identifiable.
-I have the following patch in my tree now. It has the advantage that
-compile.h gets updated when you change the PREEMPT setting.
 
-How many scripts parsing the output of `uname -v` will break because of
-this?
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-	Sam
+Rewrite initialiser for proc_oom_adjust_operations,
+and add __user annotations to oom_adjust_{read|write}
 
-===== init/Makefile 1.28 vs edited =====
---- 1.28/init/Makefile	2005-01-05 03:48:07 +01:00
-+++ edited/init/Makefile	2005-03-14 21:30:13 +01:00
-@@ -25,4 +25,5 @@
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+
+diff -urN -X ../dontdiff linux-2.6.11-bk10/fs/proc/base.c linux-2.6.11-bk10-procfs/fs/proc/base.c
+--- linux-2.6.11-bk10/fs/proc/base.c	2005-03-14 14:45:00.000000000 +0000
++++ linux-2.6.11-bk10-procfs/fs/proc/base.c	2005-03-14 20:43:39.000000000 +0000
+@@ -715,7 +715,7 @@
+ 	.open		= mem_open,
+ };
  
- include/linux/compile.h: FORCE
- 	@echo '  CHK     $@'
--	@$(CONFIG_SHELL) $(srctree)/scripts/mkcompile_h $@ "$(UTS_MACHINE)" "$(CONFIG_SMP)" "$(CC) $(CFLAGS)"
-+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkcompile_h $@ \
-+	"$(UTS_MACHINE)" "$(CONFIG_SMP)" "$(CONFIG_PREEMPT)" "$(CC) $(CFLAGS)"
-===== scripts/mkcompile_h 1.17 vs edited =====
---- 1.17/scripts/mkcompile_h	2003-09-10 08:41:43 +02:00
-+++ edited/scripts/mkcompile_h	2005-03-14 21:43:50 +01:00
-@@ -1,7 +1,8 @@
- TARGET=$1
- ARCH=$2
- SMP=$3
--CC=$4
-+PREEMPT=$4
-+CC=$5
+-static ssize_t oom_adjust_read(struct file *file, char *buf,
++static ssize_t oom_adjust_read(struct file *file, char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+ 	struct task_struct *task = proc_task(file->f_dentry->d_inode);
+@@ -735,7 +735,7 @@
+ 	return count;
+ }
  
- # If compile.h exists already and we don't own autoconf.h
- # (i.e. we're not the same user who did make *config), don't
-@@ -26,8 +27,10 @@
+-static ssize_t oom_adjust_write(struct file *file, const char *buf,
++static ssize_t oom_adjust_write(struct file *file, const char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+ 	struct task_struct *task = proc_task(file->f_dentry->d_inode);
+@@ -761,8 +761,8 @@
+ }
  
+ static struct file_operations proc_oom_adjust_operations = {
+-	read:		oom_adjust_read,
+-	write:		oom_adjust_write,
++	.read		= oom_adjust_read,
++	.write		= oom_adjust_write,
+ };
  
- UTS_VERSION="#$VERSION"
--if [ -n "$SMP" ] ; then UTS_VERSION="$UTS_VERSION SMP"; fi
--UTS_VERSION="$UTS_VERSION `LC_ALL=C LANG=C date`"
-+CONFIG_FLAGS=""
-+if [ -n "$SMP" ] ; then CONFIG_FLAGS="SMP"; fi
-+if [ -n "$PREEMPT" ] ; then CONFIG_FLAGS="$CONFIG_FLAGS PREEMPT"; fi
-+UTS_VERSION="$UTS_VERSION $CONFIG_FLAGS `LC_ALL=C LANG=C date`"
+ static struct inode_operations proc_mem_inode_operations = {
+
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="fs-proc-base.patch"
+
+diff -urN -X ../dontdiff linux-2.6.11-bk10/fs/proc/base.c linux-2.6.11-bk10-procfs/fs/proc/base.c
+--- linux-2.6.11-bk10/fs/proc/base.c	2005-03-14 14:45:00.000000000 +0000
++++ linux-2.6.11-bk10-procfs/fs/proc/base.c	2005-03-14 20:43:39.000000000 +0000
+@@ -715,7 +715,7 @@
+ 	.open		= mem_open,
+ };
  
- # Truncate to maximum length
+-static ssize_t oom_adjust_read(struct file *file, char *buf,
++static ssize_t oom_adjust_read(struct file *file, char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+ 	struct task_struct *task = proc_task(file->f_dentry->d_inode);
+@@ -735,7 +735,7 @@
+ 	return count;
+ }
  
-@@ -37,7 +40,8 @@
- # Generate a temporary compile.h
+-static ssize_t oom_adjust_write(struct file *file, const char *buf,
++static ssize_t oom_adjust_write(struct file *file, const char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+ 	struct task_struct *task = proc_task(file->f_dentry->d_inode);
+@@ -761,8 +761,8 @@
+ }
  
- ( echo /\* This file is auto generated, version $VERSION \*/
--
-+  if [ -n "$CONFIG_FLAGS" ] ; then echo "/* $CONFIG_FLAGS */"; fi
-+  
-   echo \#define UTS_MACHINE \"$ARCH\"
+ static struct file_operations proc_oom_adjust_operations = {
+-	read:		oom_adjust_read,
+-	write:		oom_adjust_write,
++	.read		= oom_adjust_read,
++	.write		= oom_adjust_write,
+ };
  
-   echo \#define UTS_VERSION \"`echo $UTS_VERSION | $UTS_TRUNCATE`\"
+ static struct inode_operations proc_mem_inode_operations = {
+
+--XsQoSWH+UP9D9v3l--

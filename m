@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266494AbUGPHDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266496AbUGPHFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266494AbUGPHDA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 03:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUGPHDA
+	id S266496AbUGPHFi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 03:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUGPHFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 03:03:00 -0400
-Received: from santee.icann.org ([192.0.35.122]:7114 "EHLO santee.icann.org")
-	by vger.kernel.org with ESMTP id S266494AbUGPHC6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 03:02:58 -0400
-Date: Fri, 16 Jul 2004 00:02:57 -0700
-Message-Id: <200407160702.i6G72vD30378@santee.icann.org>
-From: iana@iana.org
-To: linux-kernel@vger.kernel.org
-Subject: ConfirmSystem: iana@icann.org [[795d041155f2929f0a9b8622236f67d5]]
-X-Loop: confirm-system
+	Fri, 16 Jul 2004 03:05:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19387 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266496AbUGPHFd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 03:05:33 -0400
+Date: Fri, 16 Jul 2004 08:05:31 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Ron House <house@usq.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug or Feature? Multiply mounted device
+Message-ID: <20040716070531.GA12308@parcelfarce.linux.theplanet.co.uk>
+References: <40F75738.4040601@usq.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40F75738.4040601@usq.edu.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for your message.
+On Fri, Jul 16, 2004 at 02:19:04PM +1000, Ron House wrote:
+> Hi all, apologies for posting here, but I need to ask the guys who know 
+> for sure. In my fstab, I have two entries for my DOS HD so I can mount 
+> it with or without CRLF mangling, as follows (sorry for the line splitting):
+> 
+> /dev/hda5   /d      vfat 
+> rw,suid,dev,async,users,umask=033,uid=1500,gid=1001,conv=b 0 0
+> /dev/hda5   /dc     vfat 
+> rw,suid,dev,async,users,umask=033,uid=1500,gid=1001,noauto,conv=a 0 0
+> 
+> I just noticed with my new Linux setup (kernel 2.4.20-8smp - don't know 
+> what all that means) that it will let me mount both at once, so I can 
+> see the partition as either /d or /dc at the same time. I may be going 
+> mad, but I seem to recall with my previous kernel that I couldn't do this.
+> 
+> My question: Bug or feature? If I write all sorts of stuff to both 
+> logical devices, will it correctly sort it all out on the same physical 
+> device, or will I wreck the partition? All help much appreciated!
 
-The iana@iana.org address collects a tremendous amount of spam, and we
-have been forced to implement protective measures.  In order to process
-your message we need to confirm that it came from a real email address. 
-To confirm your message, you can either:
+You will get both mountpoints as aliases to the tree.  Note that all
+fs-specific flags will be ignored on subsequent mounts right now.
+Eventually different flags will give you -EBUSY.
 
-  1) Reply to this message, without altering the subject line 
-    The "Re: " added by many mail clients is OK, but please note
-    that this method is *not* foolproof.  
-
-or
-
-  2) Visit the URL
-        <http://confirm.icann.org/?s=795d041155f2929f0a9b8622236f67d5&l=iana@icann.org>
-
-If you want to be very sure that your message gets through, do both steps
-above -- it does no harm to confirm more than once.
-
-For your reference, the subject of the message you sent was:
-
-  "Re: Delivery Protection"
-       
-and it arrived at IANA approximately at Fri Jul 16 00:02:57 2004.
-
----------------------------------------------------------------
-ConfirmSystem: iana@icann.org [[795d041155f2929f0a9b8622236f67d5]]
-1
-
+BTW, conv= is silently ignored by vfat, so your conv=a is a no-op - that
+stuff simply doesn't belong in kernel and CRLF mangling had been removed
+quite a while ago (try to make it play nice with mmap(2) and see how soon
+you'll run away screaming).
 

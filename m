@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264746AbTFLG2s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 02:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264747AbTFLG2s
+	id S264747AbTFLGio (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 02:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264754AbTFLGio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 02:28:48 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:10705 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264746AbTFLG2q (ORCPT
+	Thu, 12 Jun 2003 02:38:44 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:28332 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264747AbTFLGin (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 02:28:46 -0400
-Date: Thu, 12 Jun 2003 08:42:25 +0200
-From: Vojtech Pavlik <vojtech@ucw.cz>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: =?iso-8859-2?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>, ak@suse.de,
-       vojtech@suse.cz, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] New x86_64 time code for 2.5.70
-Message-ID: <20030612084225.C12126@ucw.cz>
-References: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com> <3EE79FD1.8060503@kolumbus.fi> <1055366925.17154.95.camel@serpentine.internal.keyresearch.com>
+	Thu, 12 Jun 2003 02:38:43 -0400
+Date: Wed, 11 Jun 2003 23:47:58 -0700 (PDT)
+Message-Id: <20030611.234758.13746130.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problem with blk_queue_bounce_limit()
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <16102.14617.25302.441894@napali.hpl.hp.com>
+References: <16097.36514.763047.738847@napali.hpl.hp.com>
+	<20030607.001140.08328499.davem@redhat.com>
+	<16102.14617.25302.441894@napali.hpl.hp.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1055366925.17154.95.camel@serpentine.internal.keyresearch.com>; from bos@serpentine.com on Wed, Jun 11, 2003 at 02:28:45PM -0700
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 02:28:45PM -0700, Bryan O'Sullivan wrote:
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Tue, 10 Jun 2003 13:01:29 -0700
 
-> On Wed, 2003-06-11 at 14:32, Mika Penttilä wrote:
-> 
-> > Line below seems to be wrong, given hpet period is in fsecs.
-> 
-> I don't believe the HPET code got much testing in 2.4, and my boxes
-> don't have ACPI table entries for the HPET, so it's troublesome to test
-> it on them.
-
-You can enable HPET_HACK_ENABLE_DANGEROUS, of course. That will enable
-the HPET even when the BIOS did not. But make sure you have a recent
-AMD-8111 stepping first. 
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+   How about the attached patch?
+   
+Looks "Obviously correct" ;-)  I'll apply this, thanks.

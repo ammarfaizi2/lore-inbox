@@ -1,75 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUIMGlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266183AbUIMG41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266188AbUIMGlv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 02:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266183AbUIMGlv
+	id S266183AbUIMG41 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 02:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUIMG41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 02:41:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45021 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266209AbUIMGlm (ORCPT
+	Mon, 13 Sep 2004 02:56:27 -0400
+Received: from cantor.suse.de ([195.135.220.2]:7111 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266183AbUIMG4W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 02:41:42 -0400
-Subject: Re: radeon-pre-2
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Dave Airlie <airlied@linux.ie>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
-       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0409122319550.20080@skynet>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
-	 <Pine.LNX.4.58.0409100209100.32064@skynet>
-	 <9e47339104090919015b5b5a4d@mail.gmail.com>
-	 <20040910153135.4310c13a.felix@trabant>
-	 <9e47339104091008115b821912@mail.gmail.com>
-	 <1094829278.17801.18.camel@localhost.localdomain>
-	 <9e4733910409100937126dc0e7@mail.gmail.com>
-	 <1094832031.17883.1.camel@localhost.localdomain>
-	 <9e47339104091010221f03ec06@mail.gmail.com>
-	 <1094835846.17932.11.camel@localhost.localdomain>
-	 <9e47339104091011402e8341d0@mail.gmail.com>
-	 <Pine.LNX.4.58.0409102254250.13921@skynet>
-	 <1094853588.18235.12.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0409110137590.26651@skynet>
-	 <1094912726.21157.52.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0409122319550.20080@skynet>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QBUjEhIfuf3e6g/Bdw8r"
-Organization: Red Hat UK
-Message-Id: <1095057662.2624.5.camel@laptop.fenrus.com>
+	Mon, 13 Sep 2004 02:56:22 -0400
+Date: Mon, 13 Sep 2004 08:56:21 +0200
+From: Andi Kleen <ak@suse.de>
+To: Paul Jackson <pj@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Brent Casavant <bcasavan@sgi.com>,
+       Andi Kleen <ak@suse.de>, Anton Blanchard <anton@samba.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: more numa maxnode confusions
+Message-ID: <20040913065621.GB12185@wotan.suse.de>
+References: <20040912200253.3d7a6ff5.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 13 Sep 2004 08:41:02 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040912200253.3d7a6ff5.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 12, 2004 at 08:02:53PM -0700, Paul Jackson wrote:
+>  2) About Aug 9, Brent Casavant sent in a patch changing the set (not get)
+>     side calls, sys_mbind and sys_set_mempolicy, to N64.  This patch
+>     removed the following line from the implementation of get_nodes() in
+>     mm/mempolicy.c:
+> 
+> 	--maxnode;
 
---=-QBUjEhIfuf3e6g/Bdw8r
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Ah, I wasn't aware that this patch got merged into mainline. 
+That was a bad thing, because it broke the ABI used by libnuma
+subtly.
 
-On Mon, 2004-09-13 at 00:42, Dave Airlie wrote:
-> works well, and the X team decide to do a decent X on mesa-solo on Jons
-> super-DRM, now the super-DRM gets pushed via the X tree and distributions
-> start relasing kernels with it merged into it and it never goes into the
-> main tree... it won't matter, RH/SuSE/whomever will want to pick up the
-> new features for the *enhanced user experience* and people will give out
+Please whoever merged it revert it.
 
-fwiw RH will ship the DRM that is in Linus' kernel not some weird
-oddball external one, so at least that portion of your argument is moot
-;)
+> Currently, by my reading, Linus' bk tree has the mixed N64/N65
+> interfaces, since it has Brent's patch, but not my cpuset patch.
+> Andrew's *-mm tree has the pure N65 interface, due to my cpuset patch
+> reversing Brent's patch.
+> 
+> My guess is that Andi wants this all N65, and that he didn't agree to
+> Brent's patch.  If Andi understands different, that's fine -- I'm not
+> trying to reopen that battle.
 
---=-QBUjEhIfuf3e6g/Bdw8r
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Correct.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBBRUD+xULwo51rQBIRAqOZAJ0RZusZgSnelvnlUKPqc+N/d4f9fQCfXADq
-dJoMm+/zJ7np9i1XCjgd8Ko=
-=6Cpl
------END PGP SIGNATURE-----
+> 
+> Andi:
+> 
+>  0) Are my above statements anywhere close to correct?
 
---=-QBUjEhIfuf3e6g/Bdw8r--
+Yes.
+
+> 
+>  1) Should the "--maxnode" be re-inserted in get_nodes()?
+
+Yes.
+
+> 
+>  2) Should it be re-inserted by a separate patch from you,
+>     rather than as a hidden side affect of my cpuset patch?
+>     I will gladly remove that line from my cpuset patch, in
+>     favor of a one-liner from you that re-inserts that line.
+
+Yes. I appended a patch. Linus or Andrew, please apply it.
+
+Thanks for catching this.
+
+-Andi
+
+
+----------------------------------------------------------------
+
+Fix ABI in set_mempolicy() that got broken by an earlier change.
+
+Add a check for very big input values and prevent excessive
+looping in the kernel.
+
+
+diff -u linux-2.6.9rc1-bk19/mm/mempolicy.c-o linux-2.6.9rc1-bk19/mm/mempolicy.c
+--- linux-2.6.9rc1-bk19/mm/mempolicy.c-o	2004-09-13 08:51:46.000000000 +0200
++++ linux-2.6.9rc1-bk19/mm/mempolicy.c	2004-09-13 08:53:58.000000000 +0200
+@@ -132,6 +132,7 @@
+ 	unsigned long nlongs;
+ 	unsigned long endmask;
+ 
++	--maxnode;
+ 	bitmap_zero(nodes, MAX_NUMNODES);
+ 	if (maxnode == 0 || !nmask)
+ 		return 0;
+@@ -145,6 +146,8 @@
+ 	/* When the user specified more nodes than supported just check
+ 	   if the non supported part is all zero. */
+ 	if (nlongs > BITS_TO_LONGS(MAX_NUMNODES)) {
++		if (nlongs > PAGE_SIZE/sizeof(long))
++			return -EINVAL;
+ 		for (k = BITS_TO_LONGS(MAX_NUMNODES); k < nlongs; k++) {
+ 			unsigned long t;
+ 			if (get_user(t,  nmask + k))
+
+
+
+
 

@@ -1,208 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVBALoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVBALrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbVBALoj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 06:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbVBALoj
+	id S261998AbVBALrP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 06:47:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbVBALrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 06:44:39 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:40108 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261992AbVBALo0 (ORCPT
+	Tue, 1 Feb 2005 06:47:15 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:31125 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261998AbVBALrM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 06:44:26 -0500
-Date: Tue, 1 Feb 2005 11:44:24 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [bk pull] drm tree 
-Message-ID: <Pine.LNX.4.58.0502011143260.5748@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Feb 2005 06:47:12 -0500
+Date: Tue, 1 Feb 2005 12:46:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Peter Busser <busser@m-privacy.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
+Message-ID: <20050201114659.GA30978@elte.hu>
+References: <200501311015.20964.arjan@infradead.org> <200501311357.59630.busser@m-privacy.de> <1107189699.4221.124.camel@laptopd505.fenrus.org> <200502011044.39259.busser@m-privacy.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502011044.39259.busser@m-privacy.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Linus,
+* Peter Busser <busser@m-privacy.de> wrote:
 
-The latest drm tree for 2.6 is ready, this stuff is all fairly trivial, it
-a) cleans up unneeded header files
-b) add drms specific sysfs support
-c) updates radeon driver to version 1.13
-d) fixes a problem in setversion ioctl (this is needed before 2.6.11...)
+> > ok the paxtest 0.9.5 I downloaded from a security site (not yours) had
+> > this gem in:
 
-The patch is large as the file removals are quite big: so the it is available
-at http://www.skynet.ie/~airlied/patches/lk_drm/bk_drm_010204.patch
+> > +               do_mprotect((unsigned long)argv & ~4095U, 4096, PROT_READ|PROT_WRITE|PROT_EXEC);
 
-If you don't trust this tree, let me know and I can generate a tree from a & d
-but I don't think there should be any issues with it. most of it has been
-in CVS for months..
+> > which is clearly there to sabotage any segmentation based approach (eg
+> > execshield and openwall etc); it cannot have any other possible use or
+> > meaning.
 
-Please do a
+> > the paxtest 0.9.6 that John Moser mailed to this list had this gem in
+> > it:
 
-	bk pull bk://drm.bkbits.net/drm-linus
+> > +       /* Dummy nested function */
+> > +       void dummy(void) {}
 
-This will include the latest DRM changes and will update the following files:
+> > which is clearly there with the only possible function of sabotaging the
+> > automatic PT_GNU_STACK setting by the toolchain (which btw is not fedora
+> > specific but happens by all new enough (3.3 or later) gcc compilers on
+> > all distros) since that requires an executable stack.
+[...]
 
- drivers/char/drm/ffb.h          |   12 -
- drivers/char/drm/gamma.h        |   77 -------
- drivers/char/drm/i810.h         |   77 -------
- drivers/char/drm/i830.h         |   83 --------
- drivers/char/drm/i915.h         |   53 -----
- drivers/char/drm/mga.h          |   63 ------
- drivers/char/drm/r128.h         |   75 -------
- drivers/char/drm/radeon.h       |  112 ----------
- drivers/char/drm/sis.h          |   61 -----
- drivers/char/drm/Makefile       |    3
- drivers/char/drm/drmP.h         |   22 +-
- drivers/char/drm/drm_drv.c      |    6
- drivers/char/drm/drm_ioctl.c    |   21 +-
- drivers/char/drm/drm_memory.h   |    2
- drivers/char/drm/drm_pci.c      |  140 +++++++++++++
- drivers/char/drm/drm_pciids.h   |  128 ++++++------
- drivers/char/drm/drm_stub.c     |   15 -
- drivers/char/drm/drm_sysfs.c    |  208 ++++++++++++++++++++
- drivers/char/drm/i810_dma.c     |   20 +
- drivers/char/drm/i810_drv.c     |   23 --
- drivers/char/drm/i830_dma.c     |   19 +
- drivers/char/drm/i830_drv.c     |   22 --
- drivers/char/drm/i915_dma.c     |   28 ++
- drivers/char/drm/i915_drv.c     |   20 -
- drivers/char/drm/mga_drv.c      |   18 -
- drivers/char/drm/mga_state.c    |   14 +
- drivers/char/drm/r128_drv.c     |   31 --
- drivers/char/drm/r128_drv.h     |    6
- drivers/char/drm/r128_state.c   |   21 ++
- drivers/char/drm/radeon_cp.c    |  388 ++++++++++++++++++++++++++++++++++---
- drivers/char/drm/radeon_drm.h   |   32 ++-
- drivers/char/drm/radeon_drv.c   |   68 ------
- drivers/char/drm/radeon_drv.h   |  122 +++++++++++
- drivers/char/drm/radeon_state.c |  414 +++++++++++++++++++++++++++++++++++++++-
- drivers/char/drm/sis_drv.c      |   14 -
- drivers/char/drm/sis_mm.c       |   11 +
- 36 files changed, 1519 insertions(+), 910 deletions(-)
+> No, these things are also in the officially released sources. I put
+> them in myself in fact.
 
-through these ChangeSets:
+*PLONK*
 
-<airlied@starflyer.(none)> (05/02/01 1.1966.87.16)
-   drm_memory.h doesn't need to #include tlbflush.h
-
-   The flush_tlb_kernel_range call in drm_memory.h was removed in 2003, so
-   there's no more reason for this #include.
-
-   Signed-off-by: Adrian Bunk <bunk@stusta.de>
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/02/01 1.1966.87.15)
-   drm: fix drm_sysfs lock initializer...
-
-   unify the initializer.
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/27 1.1966.87.14)
-   drm: update pci ids..
-
-   add missing radeon pci id
-   add i915gm pci ids.
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/27 1.1966.87.12)
-   drm: add radeon framebuffer tiling support and surface management
-
-   Add support to the radeon drm for framebuffer tiling, requires
-   a new DDX and 3D driver.
-
-   From: Stephane Marchesin <marchesin@icps.u-strasbg.fr> and
-   Roland Scheidegger <rscheidegger_lists@hispeed.sh>
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/27 1.1966.87.11)
-   drm: radeon hyperz support..
-
-   HyperZ is an undocumented feature (outside of ATI) of the radeon
-   chips, this is a reverse engineered implementation.
-
-   From: Roland Scheidegger <rscheidegger_lists@hispeed.ch> and
-   Stephane Marchesin <marchesin@icps.u-strasbg.fr>
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/27 1.1966.87.10)
-   drm: add R200_EMIT_TCL_POINT_SPRITE_CNTL
-
-   add support for new packet. won't be used until hyper-z version
-   number increase.
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/27 1.1966.87.9)
-   drm: fix minor bug on X recycling with freeing io buffer
-
-   The previous checkin missed an issue on X recycling.
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/27 1.1966.87.8)
-   drm: add support for radeon flags
-
-   Add flags to the radeon driver, needed for HyperZ patch.
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/27 1.1966.87.7)
-   drm: fix setversion in drm core model
-
-   Setversion ioctl was broken for drm core, fix this.
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/16 1.1966.66.5)
-   drm: add drm specific sysfs support
-
-   Switch the drm from using class simple to its own sysfs
-   interface.
-
-   From: Jon Smirl <jonsmirl@gmail.com>
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/16 1.1966.66.4)
-   drm: add drm_pci interface and make i915 use it
-
-   This adds the drm_pci interface, originally designed for mach64
-   but used by the i915 driver now for doing cross platform.
-
-   From: Jose Fonseca, Leif Delglass (drm_pci.c)
-   From: Eric Anholt (i915 changes).
-   Signed-off-by: Dave Airlie
-
-<airlied@starflyer.(none)> (05/01/16 1.1966.66.3)
-   drm: fix mga ioctls..
-
-   The mga cut-n-paste typo...
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/16 1.1966.66.2)
-   drm: move ioctls to shared file and move interface history to correct place
-
-   This patch moves the ioctls into a file which is shared with
-   the BSD drm, so we don't duplicate them across both trees,
-   it also fixes up the radeon/r128 interface histories so
-   they are with the driver version strings...
-
-   It also removes the old interface files that no longer needed.
-
-   From: Eric Anholt <anholt@freebsd.org> and Dave Airlie <airlied@linux.ie>
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-<airlied@starflyer.(none)> (05/01/16 1.1966.66.1)
-   drm: add r300 microcode support and radeon chip flags
-
-   This patch adds radeon chip families to the pci ids (they aren't used
-   by this patch - future work will), and also adds support for r300 microcode...
-
-   The r300 project has work for use the CP for 2D operations in Xorg
-   so this is useful even without 3D.
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
+	Ingo

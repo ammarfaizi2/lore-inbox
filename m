@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318253AbSHZUVD>; Mon, 26 Aug 2002 16:21:03 -0400
+	id <S318221AbSHZULv>; Mon, 26 Aug 2002 16:11:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318255AbSHZUVD>; Mon, 26 Aug 2002 16:21:03 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:53509
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318253AbSHZUVC>; Mon, 26 Aug 2002 16:21:02 -0400
-Subject: Re: [PATCH] hyperthreading scheduler improvement
-From: Robert Love <rml@tech9.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1030392908.2776.17.camel@irongate.swansea.linux.org.uk>
-References: <1030392337.15007.413.camel@phantasy> 
-	<1030392908.2776.17.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 26 Aug 2002 16:25:11 -0400
-Message-Id: <1030393512.15007.435.camel@phantasy>
+	id <S318230AbSHZULu>; Mon, 26 Aug 2002 16:11:50 -0400
+Received: from mnh-1-19.mv.com ([207.22.10.51]:20997 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S318221AbSHZULu>;
+	Mon, 26 Aug 2002 16:11:50 -0400
+Message-Id: <200208262119.QAA03617@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org
+Subject: copy_to_user to a kmapped address
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 26 Aug 2002 16:19:37 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-26 at 16:15, Alan Cox wrote:
+Is this (in file_read_actor) bogus or am I missing something?
 
-> This patch is disabled in -ac because it caused crashes for some users
+1621            kaddr = kmap(page);
+1622            left = __copy_to_user(desc->buf, kaddr + offset, size);
+1623            kunmap(page);
 
-I noticed - I actually got around to doing these patches because I was
-trying to find a solution to that problem. :)
+It seems to me that copy_to_user should be able to assume that the destination
+address is a user address.
 
-Do you think it could be some odd behavior on non-P4 x86 SMP systems? 
-Maybe sparse CPU ids?
+This is biting me because I'm moving the UML kernel into a separate address
+space, so there's no way, in general, to tell the difference between a kernel
+address and a userspace address.
 
-At least for now, this 2.5 patch is P4-only.
-
-	Robert Love
+				Jeff
 

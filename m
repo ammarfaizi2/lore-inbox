@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318898AbSG1D31>; Sat, 27 Jul 2002 23:29:27 -0400
+	id <S318897AbSG1D30>; Sat, 27 Jul 2002 23:29:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318899AbSG1D31>; Sat, 27 Jul 2002 23:29:27 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:37055 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318898AbSG1D30>;
-	Sat, 27 Jul 2002 23:29:26 -0400
+	id <S318899AbSG1D30>; Sat, 27 Jul 2002 23:29:26 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:36543 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318897AbSG1D3Z>;
+	Sat, 27 Jul 2002 23:29:25 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, torvalds@transmeta.com
-Subject: Re: [PATCH] automatic initcalls 
-In-reply-to: Your message of "Sat, 27 Jul 2002 22:22:59 +0200."
-             <3D430123.739CA34D@linux-m68k.org> 
-Date: Sun, 28 Jul 2002 13:31:20 +1000
-Message-Id: <20020728033359.7B2A2444C@lists.samba.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] scheduler, migration startup fixes, 2.5.29 
+In-reply-to: Your message of "Sat, 27 Jul 2002 12:54:33 +0200."
+             <Pine.LNX.4.44.0207271254200.13591-100000@localhost.localdomain> 
+Date: Sun, 28 Jul 2002 13:16:01 +1000
+Message-Id: <20020728033359.5D6D0442E@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3D430123.739CA34D@linux-m68k.org> you write:
-> - I only look at modules which contain an initcall
-> - I only order initcalls of level 6 and 7
+In message <Pine.LNX.4.44.0207271254200.13591-100000@localhost.localdomain> you
+ write:
+> 
+> the attached patch fixes the scheduler's migration thread startup bug that
+> got unearthed by Rusty's recent CPU-startup enhancements.
+> 
+> the fix is to let a startup-helper thread migrate the migration thread,
+> instead of the migration thread calling set_cpus_allowed() itself.  
+> Migrating a not running thread is a simple and robust thing, and needs no
+> cooperation from migration threads - thus the catch-22 problem of how to
+> migrate the migration threads is solved finally.
+> 
+> the patch is against Rusty's initcall fix/hack which calls
+> migration_init() before other CPUs are brought up - this ordering is
+> clearly the clean way of doing migration init. [the patch also fixes a UP
+> compiliation bug in Rusty's hack.]
+> 
+> tested on x86 SMP and UP.
 
-You don't seem to handle the ordering of initcalls within a module
-though: see net/ipv4/netfilter/ip_conntrack.o for an example of
-multiple inits which would be much better as separate initcalls.
+This is, AFAICT, overkill (the UP compilation fix appreciated though).
 
-The more I play with these magic approaches, the more I prefer an
-explicit "Must be done after this" and "must be done before this":
-otherwise we're going to need to keep adding new levels as we discover
-something that doesn't fit in the magic 7.
+When a new CPU comes up, there is a semaphore which is held through
+the notifier, so you can't have two CPUs come up at once.
 
-Especially since you don't cover any of the really interesting cases.
-Maybe if you could slowly extend it to cover the rest?  (Hah, I
-know!).
+Therefore, the new migration thread is either started on a completely
+active cpu (ie. there's a migration thread on that CPU to use), or
+it's already on the new cpu, in which case set_cpus_allowed is a noop.
 
-> +init/generated-initcalls.c: .allinit.defs
-> +	set -e; echo '#include <linux/init.h>' > $@; \
-> +	sed -n < $< "s,^T ,,p" | sort > .defined.all; \
-
-I think you mean something like:
-
-	sed -n "s,^T ,,p" < $<
-
-> -__initcall(spawn_ksoftirqd);
-> +fs_initcall(spawn_ksoftirqd);
-
-See, this is exacly the kind of thing that makes me doubt that the
-current "magic 7 initcall levels" are useful in the long term 8(
-
+What am I missing?
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbUKDBPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbUKDBSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbUKDBPe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 20:15:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbUKDBPI
+	id S261929AbUKDBSn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 20:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbUKDBSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 20:15:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8391 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262040AbUKDBNI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 20:13:08 -0500
-Message-ID: <41898215.4040809@pobox.com>
-Date: Wed, 03 Nov 2004 20:12:53 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Wed, 3 Nov 2004 20:18:43 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:46499 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S261929AbUKDBSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 20:18:21 -0500
+Message-ID: <4189838E.1030808@metaparadigm.com>
+Date: Thu, 04 Nov 2004 09:19:10 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] deprecate pci_module_init
-References: <20041103091039.GA22469@taniwha.stupidest.org> <41891980.6040009@pobox.com> <20041103190757.GA25451@taniwha.stupidest.org> <41892DE3.5040402@pobox.com> <20041104002138.GA32691@kroah.com> <20041104003734.GA17467@taniwha.stupidest.org> <20041104005107.GA15301@kroah.com>
-In-Reply-To: <20041104005107.GA15301@kroah.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org, DervishD <lkml@dervishd.net>,
+       Gene Heskett <gene.heskett@verizon.net>,
+       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: is killing zombies possible w/o a reboot?
+References: <200411031353.39468.gene.heskett@verizon.net><200411031353.39468.gene.heskett@verizon.net> <20041103192648.GA23274@DervishD> <418964A3.7030105@tmr.com>
+In-Reply-To: <418964A3.7030105@tmr.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> In short, pci_module_init() on 2.4 would return the number of pci
-> devices bound to the device, on 2.6, it just always returns 0 if the
-> driver was successfully registered, no knowledge of how many devices
-> bound are ever returned.
+On 11/04/04 07:07, Bill Davidsen wrote:
+> DervishD wrote:
+> 
+>>     Hi Gene :)
+>>
+>>  * Gene Heskett <gene.heskett@verizon.net> dixit:
+>>
+>>>>   Then the children are reparented to 'init' and 'init' gets rid
+>>>> of them. That's the way UNIX behaves.
+>>>
+>>>
+>>> Unforch, I've *never* had it work that way.  Any dead process I've 
+>>> ever had while running linux has only been disposable by a reboot.
+>>
+>>
+>>
+>>     Well, you know, shit happens... Anyway, could you define 'dead'?
+>> Because if you're talking about zombies whose parent dies, they're
+>> killable easily: just wait until init reaps them (usually in less
+>> than 5 minutes since they dead). If you are talking about zombies who
+>> has their parent alive, then it's a bug in the application, not the
+>> kernel. In fact I wouldn't like if the kernel reaps my children
+>> before I do, just in case I want to do something.
+>>
+>>     If you're talking about unkillable processes (those stuck in
+>> disk-sleep state), you're right: only rebooting can kill them
+>> (although sometimes they go out of D state and die normally). Bad
+>> luck for you if any dead process you've ever had while running linux
+>> has been of this kind :(
+> 
+> 
+> That often seems to be the case, the kernel thinks there's an i/o going 
+> on which isn't, and doesn't time it out. It would be nice if there were 
+> a way to get the kernel to abort all outstanding i/o on kill -9, but I'm 
+> sure if it were easy it would have happened. Timeouts in the application 
+> are useful, but in some cases I believe the process dies because it 
+> detects a long i/o time but has nothing to do but terminate, which 
+> creates the zombie.
 
+It could be any driver code that uses uninterruptible sleeps rather
+than interruptible sleeps I believe. If a process is doing a read or
+write to one of these devices and it stays stuck in kernel code with
+TASK_UNINTERRUPTIBLE and never gets it's expected wake up, then the
+signal will never be delivered and the process is stuck indefinately.
+The buggy driver code needs to be fixed (either to use interruptible
+sleeps and handle the signals or to imlement some sort of timeout).
 
-Incorrect.  pci_register_driver() is the inconsistent one, as I've 
-explained before (months ago).
-
-pci_module_init() always returns 0 or an errno-based value, in 2.4 or 
-2.6.  Thus is it the portable alternative.
-
-Thus, changing drivers -away from- pci_module_init() makes them less 
-portable, for zero apparent gain.  It's just a #define symbol at this 
-point, leave it be.
-
-The cost of "#define pci_module_init pci_register_driver" is zero, while 
-the cost and impact of changing tons of drivers to the non-portable 
-variant is non-zero.
-
-	Jeff
-
-
+~mc

@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316777AbSFQGyk>; Mon, 17 Jun 2002 02:54:40 -0400
+	id <S316776AbSFQGwB>; Mon, 17 Jun 2002 02:52:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316778AbSFQGws>; Mon, 17 Jun 2002 02:52:48 -0400
-Received: from david.siemens.de ([192.35.17.14]:42450 "EHLO david.siemens.de")
-	by vger.kernel.org with ESMTP id <S316827AbSFQGwL>;
-	Mon, 17 Jun 2002 02:52:11 -0400
-Message-ID: <6134254DE87BD411908B00A0C99B044F039645EB@mowd019a.mow.siemens.ru>
-From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-To: "'akpm@zip.com.au'" <akpm@zip.com.au>, "'drow@false.org'" <drow@false.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'devfs@oss.sgi.com'" <devfs@oss.sgi.com>
-Subject: Re: Inexplicable disk activity trying to load modules on devfs
-Date: Mon, 17 Jun 2002 10:59:26 +0400
+	id <S316804AbSFQGt1>; Mon, 17 Jun 2002 02:49:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20238 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316777AbSFQGsB>;
+	Mon, 17 Jun 2002 02:48:01 -0400
+Message-ID: <3D0D8710.32F05879@zip.com.au>
+Date: Sun, 16 Jun 2002 23:52:00 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch 7/19] mark_buffer_dirty_inode() speedup
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 
->> I just booted into 2.4.19-pre10-ac2 for the first time, and noticed 
->> something very odd: my disk activity light was flashing at about 
->> half-second intervals, very regularly, and I could hear the disk 
->> moving. I was only able to track it down to which disk controller, via 
->> /proc/interrupts (are there any tools for monitoring VFS activity? 
->> They'd be really useful). Eventually I hunted down the program causing 
->> it: xmms. 
->> 
->> The reason turned out to be that I hadn't remembered to build my sound 
->> driver for this kernel version. Every half-second xmms tried to open 
->> /dev/mixer (and failed, ENOENT). Every time it did that there was 
->> actual disk activity. Easily reproducible without xmms. Reproducible 
->> on any non-existant device in devfs, but not for nonexisting files on 
->> other filesystems. Is something bypassing the normal disk cache 
->> mechanisms here? That doesn't seem right at all. 
->> 
->
->
->syslog activity from a printk, perhaps? 
 
-No. It is most probably devfsd trying to load sound modules.
 
-This is exactly the reason Mandrake does not enable devfs in kernel-secure.
-You can badly hit your system by doing in a loop ls /dev/foo for some device
-foo that is configured for module autoloading.
+buffer_insert_list() is showing up on Anton's graphs.  It'll be via
+ext2's mark_buffer_dirty_inode() against indirect blocks.  If the
+buffer is already on an inode queue, we know that it is on the correct
+inode's queue so we don't need to re-add it.
 
-It is very fascist decision; the slightly more forgiving way is to disable
-devfsd module autoloading (or disable devfsd entirely, just run it once
-after all drivers are loaded to execute actions) but then you lose support
-for hot plugging and some people do use kernel-secure on desktops. 
 
--andrej
+
+--- 2.5.22/fs/buffer.c~mark_buffer_dirty_inode-speedup	Sun Jun 16 22:50:18 2002
++++ 2.5.22-akpm/fs/buffer.c	Sun Jun 16 23:22:47 2002
+@@ -856,8 +856,9 @@ void mark_buffer_dirty_inode(struct buff
+ 		if (mapping->assoc_mapping != buffer_mapping)
+ 			BUG();
+ 	}
+-	buffer_insert_list(&buffer_mapping->private_lock,
+-			bh, &mapping->private_list);
++	if (list_empty(&bh->b_assoc_buffers))
++		buffer_insert_list(&buffer_mapping->private_lock,
++				bh, &mapping->private_list);
+ }
+ EXPORT_SYMBOL(mark_buffer_dirty_inode);
+ 
+@@ -1243,10 +1244,17 @@ void __brelse(struct buffer_head * buf)
+  * bforget() is like brelse(), except it discards any
+  * potentially dirty data.
+  */
+-void __bforget(struct buffer_head * buf)
++void __bforget(struct buffer_head *bh)
+ {
+-	clear_buffer_dirty(buf);
+-	__brelse(buf);
++	clear_buffer_dirty(bh);
++	if (!list_empty(&bh->b_assoc_buffers)) {
++		struct address_space *buffer_mapping = bh->b_page->mapping;
++
++		spin_lock(&buffer_mapping->private_lock);
++		list_del_init(&bh->b_assoc_buffers);
++		spin_unlock(&buffer_mapping->private_lock);
++	}
++	__brelse(bh);
+ }
+ 
+ /**
+
+-

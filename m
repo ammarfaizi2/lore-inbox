@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbSIZTDo>; Thu, 26 Sep 2002 15:03:44 -0400
+	id <S261449AbSIZTPN>; Thu, 26 Sep 2002 15:15:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261449AbSIZTDn>; Thu, 26 Sep 2002 15:03:43 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:4480 "EHLO
-	completely") by vger.kernel.org with ESMTP id <S261448AbSIZTDn>;
-	Thu, 26 Sep 2002 15:03:43 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Date: Thu, 26 Sep 2002 12:08:54 -0700
-User-Agent: KMail/1.4.7-cool
-Cc: linux-kernel@vger.kernel.org
-References: <E17uINs-0003bG-00@think.thunk.org> <200209260041.59855.ryan@completely.kicks-ass.org> <20020926154217.GA10551@think.thunk.org>
-In-Reply-To: <20020926154217.GA10551@think.thunk.org>
-MIME-Version: 1.0
-Content-Description: clearsigned data
+	id <S261451AbSIZTPN>; Thu, 26 Sep 2002 15:15:13 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:46727 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261449AbSIZTPM>; Thu, 26 Sep 2002 15:15:12 -0400
+Date: Thu, 26 Sep 2002 12:21:06 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Michael Clark <michael@metaparadigm.com>,
+       "David S. Miller" <davem@redhat.com>, wli@holomorphy.com, axboe@suse.de,
+       akpm@digeo.com, linux-kernel@vger.kernel.org, patmans@us.ibm.com,
+       andrew.vasquez@qlogic.com
+Subject: Re: [PATCH] deadline io scheduler
+Message-ID: <20020926192106.GD1843@beaverton.ibm.com>
+References: <3D92B450.2090805@pobox.com> <20020926.001343.57159108.davem@redhat.com> <3D92B83E.3080405@pobox.com> <20020926.003503.35357667.davem@redhat.com> <3D92C206.2050905@metaparadigm.com> <20020926174148.GB1843@beaverton.ibm.com> <3D934BE7.8010907@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="big5"
-Content-Transfer-Encoding: 8bit
-Message-Id: <200209261208.59020.ryan@completely.kicks-ass.org>
+In-Reply-To: <3D934BE7.8010907@pobox.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Jeff Garzik [jgarzik@pobox.com] wrote:
+> Has anybody put work into cleaning this driver up?
+> 
+> The word from kernel hackers that work on it is, they would rather write 
+> a new driver than spend weeks cleaning it up :/
+> 
 
-On September 26, 2002 08:42, Theodore Ts'o wrote:
-> Hmm... I just tried biult 2.4.19 with the ext3 patch on my UP P3
-> machine, using GCC 3.2, and I wasn't able to replicate your problem.
-> (This was using Debian's gcc 3.2.1-0pre2 release from testing.)
-The whole GCC 3.2 thing was a red herring. Although it ran stable for a few 
-hours last night (cvs up, compiled a kernel, etc), the filesystem was once 
-again read-only when I came to check my mail this morning.
+Andrew Vasquez from Qlogic can provide more detailed comments on deltas
+between the versions of the driver.
 
-The interesting fsck errors this time were:
-245782 was part of the orphaned inode list FIXED
-245792 was part of the orphaned inode list FIXED
-245797...
+The v6.x driver is cleaner and supporting newer kernel interfaces than
+past versions.
 
-245782,245792 don't exist according to ncheck.
 
-- -Ryan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 
-iD8DBQE9k1tKLGMzRzbJfbQRAj/AAJ9/yPnuSPF3kUTlwFt2wF2JFSJlJwCfc39B
-ZKxRtt+hpDHQ7XuiyAYkpNM=
-=MHW8
------END PGP SIGNATURE-----

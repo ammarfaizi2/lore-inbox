@@ -1,114 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVAHKp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVAHHpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbVAHKp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 05:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVAHKok
+	id S261865AbVAHHpI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 02:45:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVAHHoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 05:44:40 -0500
-Received: from science.horizon.com ([192.35.100.1]:13120 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S261822AbVAHIZm
+	Sat, 8 Jan 2005 02:44:03 -0500
+Received: from mail.kroah.org ([69.55.234.183]:46469 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261865AbVAHFsS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 03:25:42 -0500
-Date: 8 Jan 2005 08:25:35 -0000
-Message-ID: <20050108082535.24141.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: Make pipe data structure be a circular list of pages, rather
+	Sat, 8 Jan 2005 00:48:18 -0500
+Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
+In-Reply-To: <11051632622393@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 7 Jan 2005 21:47:42 -0800
+Message-Id: <11051632623391@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  - add a "tee(in, out1, out2)" system call that duplicates the pages 
->    (again, incrementing their reference count, not copying the data) from 
->    one pipe to two other pipes.
+ChangeSet 1.1938.444.24, 2004/12/21 11:20:03-08:00, oliver@neukum.org
 
-H'm... the version that seemed natural to me was an asymmetrical one-way
-tee, such as "tee(in, out, len, flags)" might be better, where the next
-<len> bytes are *both* readable on fd "in" *and* copied to fd "out".
+[PATCH] USB: additional device id for kaweth driver
 
-You can make it a two-way tee with an additional "splice(in, out2, len)"
-call, so you haven't lost expressiveness, and it makes three-way and
-higher tees easier to construct.
+thanks to Magnus an additional device id.
+
+Signed-Off-By: Oliver Neukum <oliver@neukum.name>
 
 
-But then I realized that I might be thinking about a completely different
-implementation than you... I was thinking asynchronous, while perhaps
-you were thinking synchronous.
-
-A simple example of the difference:
-
-int
-main(void)
-{
-	fd *dest = open("/dev/null", O_WRONLY);
-	FILE *src = popen("/usr/bin/yes", "r");
-	splice(fileno(src), dest, SPLICE_INFINITY, 0);
-	return 0;
-}
-
-Will this process exit without being killed?  I was imagining yes,
-it would exit immediately, but perhaps "no" makes more sense.
-
-Ding!  Oh, of course, it couldn't exit, or cleaning up after the following
-mess would be far more difficult:
-
-int
-main(void)
-{
-	int fd[2];
-	pipe(fd);
-	write(fd[1], "Hello, world!\n", 14);
-	splice(fd[0], fd[1], SPLICE_INFINITY, 0);
-	return 0;
-}
-
-With the synchronous model, the two-output tee() call makes more sense, too.
-Still, it would be nice to be able to produce n identical output streams
-without needing n-1 processes to do it  Any ideas?  Perhaps
-
-int
-tee(int infd, int const *outfds, unsigned noutfds, loff_t size, unsigned flags)
-
-As for the issue of coalescing:
-> This is the main reason why I want to avoid coalescing if possible: if you
-> never coalesce, then each "pipe_buffer" is complete in itself, and that
-> simplifies locking enormously.
->
-> (The other reason to potentially avoid coalescing is that I think it might
-> be useful to allow the "sendmsg()/recvmsg()" interfaces that honour packet
-> boundaries. The new pipe code _is_ internally "packetized" after all).
-
-It is somewhat offensive that the minimum overhead for a 1-byte write
-is a struct pipe_buffer plus a full page.
-
-But yes, keeping a pipe_buffer simple is a BIG win.  So how about the
-following coalescing strategy, which complicates the reader not at all:
-
-- Each pipe writing fd holds a reference to a page and an offset within
-  that page.
-- When writing some data, see if the data will fit in the remaining
-  portion of the page.
-  - If it will not, then dump the page, allocate a fresh one, and set
-    the offset to 0.
-    - Possible optimization: If the page's refcount is 1 (nobody else
-      still has a reference to the page, and we would free it if we
-      dropped it), then just recycle it directly.
-- Copy the written data (up to a maximum of 1 page) to the current write page.
-- Bump the page's reference count (to account for the pipe_buffer pointer) and
-  queue an appropriate pipe_buffer.
-- Increment the offset by the amount of data written to the page.
-- Decrement the amount of data remaining to be written and repeat if necessary.
-
-This allocates one struct pipe_buffer (8 bytes) per write, but not a whole
-page.  And it does so by exploiting the exact "we don't care what the rest
-of the page is used for" semantics that make the abstraction useful.
-
-The only waste is that, as written, every pipe writing fd keeps a page
-allocated even if the pipe is empty.  Perhaps the vm could be taught to
-reclaim those references if necessary?
+ drivers/usb/net/kaweth.c |    1 +
+ 1 files changed, 1 insertion(+)
 
 
-It's also worth documenting atomicity guarantees and poll/select
-semantics.  The above algorithm is careful to always queue the first
-PAGE_SIZE bytes of any write atomically, which I believe is what is
-historically expected.  It would be possible to have writes larger than
-PIPE_BUF fill in the trailing end of any partial page as well.
+diff -Nru a/drivers/usb/net/kaweth.c b/drivers/usb/net/kaweth.c
+--- a/drivers/usb/net/kaweth.c	2005-01-07 15:41:01 -08:00
++++ b/drivers/usb/net/kaweth.c	2005-01-07 15:41:01 -08:00
+@@ -160,6 +160,7 @@
+ 	{ USB_DEVICE(0x1342, 0x0204) }, /* Mobility USB-Ethernet Adapter */
+ 	{ USB_DEVICE(0x13d2, 0x0400) }, /* Shark Pocket Adapter */
+ 	{ USB_DEVICE(0x1485, 0x0001) },	/* Silicom U2E */
++	{ USB_DEVICE(0x1485, 0x0002) }, /* Psion Dacom Gold Port Ethernet */
+ 	{ USB_DEVICE(0x1645, 0x0005) }, /* Entrega E45 */
+ 	{ USB_DEVICE(0x1645, 0x0008) }, /* Entrega USB Ethernet Adapter */
+ 	{ USB_DEVICE(0x1645, 0x8005) }, /* PortGear Ethernet Adapter */
+

@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266585AbTGKBrR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 21:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266584AbTGKBrQ
+	id S269759AbTGKBs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 21:48:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269760AbTGKBs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 21:47:16 -0400
-Received: from dp.samba.org ([66.70.73.150]:40664 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266585AbTGKBrG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 21:47:06 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: davidm@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, ak@suse.de
-Subject: Re: per_cpu fixes 
-In-reply-to: Your message of "Thu, 10 Jul 2003 10:55:06 MST."
-             <16141.43130.657025.952793@napali.hpl.hp.com> 
-Date: Fri, 11 Jul 2003 12:01:08 +1000
-Message-Id: <20030711020147.96A282C113@lists.samba.org>
+	Thu, 10 Jul 2003 21:48:57 -0400
+Received: from cs180094.pp.htv.fi ([213.243.180.94]:21893 "EHLO
+	hades.pp.htv.fi") by vger.kernel.org with ESMTP id S269759AbTGKBsy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 21:48:54 -0400
+Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling b0rked
+From: Mika Liljeberg <mika.liljeberg@welho.com>
+To: Andre Tomt <andre@tomt.net>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <1057888154.26854.324.camel@localhost>
+References: <20030710154302.GE1722@zip.com.au>
+	 <1057854432.3588.2.camel@hades>  <20030710233931.GG1722@zip.com.au>
+	 <1057881869.3588.10.camel@hades>  <1057888154.26854.324.camel@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1057889037.3589.42.camel@hades>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 11 Jul 2003 05:03:57 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <16141.43130.657025.952793@napali.hpl.hp.com> you write:
-> You mean there would be three primitives:
+On Fri, 2003-07-11 at 04:49, Andre Tomt wrote:
+> > Setting your tunnel prefix to /64 is certainly the right thing to do. 
 > 
->  (1) get value from a per-CPU variable
->  (2) set value of a per-CPU variable
->  (3) get the (canonical) address of a per-CPU variable
-> 
-> ?
+> If you don't have anything but one /64 for example.. I guess /126's
+> would be ok as you could rule out the the anycast address? It will
+> probably work with Linux - but is it wrong in any sense, other than
+> "breaking" with EUI-64/autoconfiguration?
 
-Almost, #3 would actually be "get lvalue", as now.
+It doesn't really make sense to use a prefix longer then /64. The last
+64 bits are generally reserved for interface ID.
 
-The only problem is that a quick audit of 2.5.75 reveals 16 places in
-generic code where set/get primitives would work without jumping
-through hoops, out of 43.
+What you can do, though, is not configure a link prefix for the tunnel
+at all. I.e. you can add the local tunnel end-point as a /128. This
+won't create an on-link route in the routing table, so you need to point
+the default route to the interface rather than the peer end-point. For
+example:
 
-New idea:
+ifconfig sit0 add 3ffe:dead:beef::dead:beef/128
+ip route add ::/0 dev sit0
 
-Provide cpu_local_inc(var)/cpu_local_dec(var) and __cpu_local_inc(var)
-and __cpu_local_dec(var).  Generic implementation:
+Cheers,
 
-  /* This is local.h */
-  typedef atomic_t local_t;
+	MikaL
 
-  #define local_inc(l) atomic_inc(l)
-  #define local_dec(l) atomic_dec(l)
-
-  /* l is a per-cpu local_t.  Increment it atomically. */
-  #define cpu_local_inc(l) local_inc(&__get_cpu_var(l))
-  #define cpu_local_dec(l) local_dec(&__get_cpu_var(l))
-
-  /* Increment non-atomically (must have preempt disabled) */
-  #define __cpu_local_inc(l) \
-	atomic_set(&__get_cpu_var(l), atomic_read(&__get_cpu_var(l)) + 1)
-  #define __cpu_local_dec(l) \
-	atomic_set(&__get_cpu_var(l), atomic_read(&__get_cpu_var(l)) - 1)
-
-This catches one common case for ia64 to use the magic pinned area,
-and also allows x86 to use its incl/decl instructions, which both
-networking stats and module refcounts have wanted for a while.
-
-Thoughts?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

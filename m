@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUGSDiD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUGSEzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbUGSDiD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 23:38:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUGSDiD
+	id S263772AbUGSEzz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 00:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbUGSEzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 23:38:03 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13460 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264668AbUGSDh4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 23:37:56 -0400
-Date: Sun, 18 Jul 2004 23:37:19 -0400
-From: Daniel Veillard <veillard@redhat.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org, nautilus-list@gnome.org
-Subject: Re: [PATCH] inotify 0.5
-Message-ID: <20040719033719.GA24114@redhat.com>
-Reply-To: veillard@redhat.com
-References: <1090180167.5079.21.camel@vertex>
+	Mon, 19 Jul 2004 00:55:55 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:40453 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S263772AbUGSEzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 00:55:54 -0400
+Date: Mon, 19 Jul 2004 06:54:03 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: solar@openwall.com, tigran@aivazian.fsnet.co.uk, alan@redhat.com,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: question about /proc/<PID>/mem in 2.4 (fwd)
+Message-ID: <20040719045403.GA8212@alpha.home.local>
+References: <20040707234852.GA8297@openwall.com> <Pine.LNX.4.44.0407181336040.2374-100000@einstein.homenet> <20040718125925.GA20133@openwall.com> <20040718212721.GC1545@alpha.home.local> <20040718161549.5c61d4a9.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1090180167.5079.21.camel@vertex>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040718161549.5c61d4a9.pj@sgi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 18, 2004 at 03:49:27PM -0400, John McCutchan wrote:
-[...]
-> I have attached a tarball, which includes the patch for linux 2.6.7 and
-> a small test app.
-> 
-> I have tested this on my system and AFAIK it is working. No doubt it has
-> plenty of bugs.
-> 
-> I plan on adding an inotify backend to gamin soon.
+On Sun, Jul 18, 2004 at 04:15:49PM -0700, Paul Jackson wrote:
+> That original shell's mem file will be read by whatever follows, exec or
+> not.  The 'exec' just stops the shell from forking before it exec's, and
+> certainly won't cause the path that was used earlier to open fd 0 to be
+> re-evaluated.
 
-  I take patches :-)
-But I think it misses the really good point of inotify as I see
-it, i.e. there is no need anymore of a daemon outside the application
-space, in practice I would rather see inotify plugged at the gnome-vfs
-level. The reason is that you will just need to monitor the inotify
-file descriptor, which is easy to do at the gnome-vfs level since you
-have glib and loop access, while in libgamin this would either require
-disabling dnotify if inotify is available (FAM has only one fd registered
-at the application layer), or use the daemon for inotify too.
-The only advantage of using the daemon would be for advanced features
-like congestion control, which are not available (yet ?) in gamin.
+I totally agree, of course, but...
 
-  inotify sounds good to me, I hope it won't be bounced by the kernels
-people.
+> The setuidapp will see the shell's memory.  In general, a app, setuid or
+> not, should make no assumption that any open fd's handed to it at birth
+> were opened using the same priviledges that the app itself has.
 
-Daniel
+how can you be sure it will be the shell's memory ? after an exec, the
+new process replaces the shell with the same pid. If it overwrites the
+same address space, there's a possibility that /proc/self/mem, once
+openned, still points to the same structure which will reflect the new
+process's space after exec(). I'm afraid I'll have to test it.
 
--- 
-Daniel Veillard      | Red Hat Desktop team http://redhat.com/
-veillard@redhat.com  | libxml GNOME XML XSLT toolkit  http://xmlsoft.org/
-http://veillard.com/ | Rpmfind RPM search engine http://rpmfind.net/
+Regards,
+Willy
+

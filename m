@@ -1,96 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbUCQVcW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 16:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbUCQVcW
+	id S262078AbUCQVf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 16:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbUCQVf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 16:32:22 -0500
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:25556 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262076AbUCQVcJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 16:32:09 -0500
-Date: Wed, 17 Mar 2004 22:32:01 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Cc: Matthias Andree <ma+lscsi@dt.e-technik.uni-dortmund.de>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.5-rc1 SCSI + st regressions (was: Linux 2.6.5-rc1)
-Message-ID: <20040317213201.GB5722@merlin.emma.line.org>
-Mail-Followup-To: Kai Makisara <Kai.Makisara@kolumbus.fi>,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Greg KH <greg@kroah.com>
-References: <Pine.LNX.4.58.0403152154070.19853@ppc970.osdl.org> <20040316211203.GA3679@merlin.emma.line.org> <20040316211700.GA25059@parcelfarce.linux.theplanet.co.uk> <20040316215659.GA3861@merlin.emma.line.org> <Pine.LNX.4.58.0403172145420.1093@kai.makisara.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0403172145420.1093@kai.makisara.local>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 17 Mar 2004 16:35:57 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3011 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262078AbUCQVfv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 16:35:51 -0500
+Message-ID: <4058C4A8.5040304@pobox.com>
+Date: Wed, 17 Mar 2004 16:35:36 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Scott Long <scott_long@adaptec.com>
+CC: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-raid@vger.kernel.org,
+       "Gibbs, Justin" <justin_gibbs@adaptec.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: "Enhanced" MD code avaible for review
+References: <459805408.1079547261@aslan.scsiguy.com> <4058A481.3020505@pobox.com> <4058C089.9060603@adaptec.com>
+In-Reply-To: <4058C089.9060603@adaptec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Mar 2004, Kai Makisara wrote:
-
-> # ChangeSet
-> #   2004/03/12 16:22:36-08:00 greg@kroah.com 
-> #   remove cdev_set_name completely as it is not needed.
+Scott Long wrote:
+> Jeff Garzik wrote:
+>> Modulo what I said above, about the chrdev userland interface, we want
+>> to avoid this.  You're already going down the wrong road by creating
+>> more untyped interfaces...
+>>
+>> static int raid0_raidop(mdk_member_t *member, int op, void *arg)
+>> {
+>>          switch (op) {
+>>          case MDK_RAID_OP_MSTATE_CHANGED:
+>>
+>> The preferred model is to create a single marshalling module (a la
+>> net/core/ethtool.c) that converts the ioctls we must support into a
+>> fully typed function call interface (a la struct ethtool_ops).
+>>
 > 
-> (and editing drivers/char/tty_io.c to get the kernel to compile) solved 
-> the problem for me. st.c is using the name put into kobj.name in making 
-> the class file names. I will make a patch that removes this dependency.
+> These OPS don't exist soley for the userland ap.  They also exist for
+> communicating between the raid transform and metadata modules.
 
-I had backed out that ChangeSet here as I was suspecting it (about the
-only one "new enough" to cause these problems) but bumped into tty_io.c
-compile failures and didn't have time to investigate.
+Nod -- kernel internal calls should _especially_ be type-explicit, not 
+typeless ioctl-like APIs.
 
-> While looking at this problem, I noticed that the naming changes already 
-> committed to BK had disappeared. Looking at st.c history revealed that the 
-> following change had been committed (sorry for wrapping) by greg@kroah.com 
-> 46 hours ago:
 
-This is how the change tree looks like in BitKeeper's histtool,
-the top line is the date in MM-DD format:
+>> One overall comment on merging into 2.6:  the patch will need to be
+>> broken up into pieces.  It's OK if each piece is dependent on the prior
+>> one, and it's OK if there are 20, 30, even 100 pieces.  It helps a lot
+>> for review to see the evolution, and it also helps flush out problems
+>> you might not have even noticed.  e.g.
+>>         - add concept of member, and related helper functions
+>>         - use member functions/structs in raid drivers raid0.c, etc.
+>>         - fix raid0 transform
+>>         - add ioctls needed in order for DDF to be useful
+>>         - add DDF format
+>>         etc.
+>>
+> 
+> We can provide our Perforce changelogs (just like we do for SCSI).
 
-02-22  02-24   03-03     03-13        03-13           03-15
-kai  -> axbø -> kai ------------------------------->  greg
-1.78    1.79\   1.80                                  1.81
-             \                                   /
-              `----------corbet-------greg------'
-                         1.79.1.1     1.79.1.2
+What I'm saying is, emd needs to be submitted to the kernel just like 
+Neil Brown submits patches to Andrew, etc.  This is how everybody else 
+submits and maintains Linux kernel code.  There needs to be N patches, 
+one patch per email, that successively introduces new code, or modifies 
+existing code.
 
-...
+Absent of all other issues, one huge patch that completely updates md 
+isn't going to be acceptable, no matter how nifty or well-tested it is...
 
-Logs:
+	Jeff
 
-======== st.c 1.1..1.81 ========
-D 1.81 04/03/15 15:02:26-08:00 greg@kroah.com 104 101 0/5/4363
-P drivers/scsi/st.c
-C merge
-------------------------------------------------
-D 1.79.1.2 04/03/12 08:22:11-08:00 greg@kroah.com[greg] 103 102 0/1/4350
-P drivers/scsi/st.c
-C remove cdev_set_name completely as it is not needed.
-------------------------------------------------
-D 1.79.1.1 04/03/13 00:47:18-08:00 corbet@lwn.net[greg] 102 100 2/3/4349
-P drivers/scsi/st.c
-C cdev 2/2: hide cdev->kobj
-------------------------------------------------
-D 1.80 04/02/26 05:24:19-06:00 Kai.Makisara@kolumbus.fi[jejb] 101 100 28/12/4340
-P drivers/scsi/st.c
-C SCSI tape sysfs name fixes
-------------------------------------------------
-D 1.79 04/02/23 06:23:46-08:00 axboe@suse.de[torvalds] 100 99 1/1/4351
-P drivers/scsi/st.c
-C fix SCSI non-sector bio backed IO
 
-> The change comment was "merge" and it resulted in st.c version 1.81. (I am 
-> not using Bitkeeper but trying to extract information from bkbits.net.)
 
-BitKeeper doesn't have more info and this doesn't look like an auto-generated
-comment of BitKeeper's, but seems to have been entered manually. Blame Greg?
-
--- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95

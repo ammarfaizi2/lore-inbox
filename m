@@ -1,46 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266560AbUIJKGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUIJKGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266560AbUIJKGP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 06:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUIJKGP
+	id S266611AbUIJKGR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 06:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUIJKGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 06:06:15 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:49319 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266560AbUIJKGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 06:06:13 -0400
-Subject: Re: linux-2.6.9-rc1-bk16 Still cdrom/DVD oops
-From: Lee Revell <rlrevell@joe-job.com>
-To: sboyce@blueyonder.co.uk
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4140FC70.1070101@blueyonder.co.uk>
-References: <4140F3A7.8040103@blueyonder.co.uk>
-	 <1094776333.1396.31.camel@krustophenia.net>
-	 <4140FC70.1070101@blueyonder.co.uk>
-Content-Type: text/plain
-Message-Id: <1094810774.15407.9.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 10 Sep 2004 06:06:15 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Sep 2004 06:06:16 -0400
+Received: from smtp.nildram.co.uk ([195.112.4.54]:24588 "EHLO
+	smtp.nildram.co.uk") by vger.kernel.org with ESMTP id S266611AbUIJKGO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 06:06:14 -0400
+Date: Fri, 10 Sep 2004 11:11:57 +0100
+To: linux-kernel@vger.kernel.org
+Subject: How do I stop make building all modules after reboot?
+From: "Bill Adair" <biotrace@nildram.co.uk>
+Organization: Biotrace
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opsd3vx7i3u7wa79@smtp.nildram.co.uk>
+User-Agent: Opera M2/7.54 (Linux, build 751)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-09 at 20:59, Sid Boyce wrote:
-> Lee Revell wrote:
-> >Your kernel is tainted.  Please reproduce with an untainted kernel and
-> >report.
-> >
-> The only tainted module is "nvidia", the results are the same without 
-> that module loaded in -bk15, i.e in runlevel 3. I've seen this problem 
-> on all kernels from 2.6.8.1 including -mm?. It's fine with 
-> 2.6.8-rc4-mm1, the earliest kernel I currently have around.
-
-Understood.  No one is suggesting the nvidia module caused the Oops,
-it's just that as long as there's a binary module loaded, the Oops can't
-be interpreted fully.
-
-If you can reproduce without nvidia loaded, then post one of these.
-
-Lee
-
+Quick question as above. I'm building an i2c module. If I don't reboot
+the machine "make modules" works as expected and just recompiles my  
+changes.
+After a reboot I have to wait 1 hour + (two smp P3 866s) while all modules  
+are built. I've had a look in the Makefile but can't spot the dependancy.
+TIA
+Bill

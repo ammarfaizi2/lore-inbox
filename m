@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316682AbSHVUS4>; Thu, 22 Aug 2002 16:18:56 -0400
+	id <S316683AbSHVUZe>; Thu, 22 Aug 2002 16:25:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316683AbSHVUS4>; Thu, 22 Aug 2002 16:18:56 -0400
-Received: from mail50-s.fg.online.no ([148.122.161.50]:4557 "EHLO
-	mail50.fg.online.no") by vger.kernel.org with ESMTP
-	id <S316682AbSHVUSz>; Thu, 22 Aug 2002 16:18:55 -0400
-From: "Ulf-Andre Gramstad" <j1@gramstad.org>
-To: "Andre Hedrick" <andre@linux-ide.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: hpt374 / BUG();
-Date: Thu, 22 Aug 2002 22:22:13 +0200
-Message-ID: <IOELJIHGBNLBJNBMHABBOEACCDAA.j1@gramstad.org>
+	id <S316684AbSHVUZe>; Thu, 22 Aug 2002 16:25:34 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:39396 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316683AbSHVUZd>;
+	Thu, 22 Aug 2002 16:25:33 -0400
+Subject: netperf3 results on 2.5.25 kernel
+To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       lse-tech-admin@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF6730039C.D83F58EB-ON87256C1D.005F8EC7@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Thu, 22 Aug 2002 15:28:54 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 08/22/2002 02:28:55 PM
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.10.10208201354260.3867-100000@master.linux-ide.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You have a system where it actually have the PLL already set and in
-> 66-clock base?  You are the first person to ever hit this BUG().
-> I will need to work with HighPoint to finish the timing table.
->
-> If you would have several device of various max transfer rate limits you
-> could attach without the driver being built it, it would give me a few
-> data point to verify if the table I have started is even close.
-
-My HPT374 controller works with the new 2.4.20-pre2-ac6 patch, running at
-ATA-66.
-/proc/ide/hpt366 shows only primary and secondary channel, so I guess thats
-why the hard drives on channel 3 and 4 is not working?
+I did a comparison test on 2.4.17, 2.5.25 stock kernels and on 2.5.25
+with NAPI enabled e1000 driver using netperf3, tcp_stream 1 adapter
+test using UNI kernels. The test setup/results can be found at:
+http://www-124.ibm.com/developerworks/opensource/linuxperf/netperf/results/july_02/netperf2.5.25results.htm
 
 
--
-UAG
+Regards,
+    Mala
+
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   http://www-124.ibm.com/developerworks/opensource/linuxperf
+   http://www-124.ibm.com/developerworks/projects/linuxperf
+   Phone:838-8088; Tie-line:678-8088
+
+
+
 

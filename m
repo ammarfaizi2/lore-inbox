@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315449AbSFEPED>; Wed, 5 Jun 2002 11:04:03 -0400
+	id <S315447AbSFEPFy>; Wed, 5 Jun 2002 11:05:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315454AbSFEPEC>; Wed, 5 Jun 2002 11:04:02 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:30729 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id <S315449AbSFEPEB>; Wed, 5 Jun 2002 11:04:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Henrique Gobbi <henrique@cyclades.com>
-Reply-To: henrique@cyclades.com
-Organization: Cyclades Corporation
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Conflicting symbols of zlib (jffs2 and ppp_deflate)
-Date: Wed, 5 Jun 2002 12:07:01 -0300
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <02060512070101.28263@henrique.cyclades.com.br>
-Content-Transfer-Encoding: 7BIT
+	id <S315454AbSFEPFx>; Wed, 5 Jun 2002 11:05:53 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:14092 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315447AbSFEPFw>; Wed, 5 Jun 2002 11:05:52 -0400
+Date: Wed, 5 Jun 2002 16:05:47 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Allow mpage.c to build
+Message-ID: <20020605160547.C10293@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !!!
+Linus,
 
-I've found out something that probably is a bug. I've tried to compile a 
-kernel using the generic ppp (and the ppp_deflate module) and the jffs2 file 
-system. 
+When trying to build mpage.c for ARM, I get errors from bio.h since kdev_t
+isn't defined.  The following fixes this.
 
-No problems at the compilation but when the linker started off it complained 
-about conflicting symbols in net.o and fs.o objects.
+(I fail to see how this can build for anyone as it currently stands; its
+probably something x86 specific buried in the asm-i386 includes.)
 
-Taking a more carefully look at the problem I discovered that the files 
-zlib.c and zlib.h are in two differents places in the kernel (fs/jffs2/ and 
-drivers/net/) and the diff of the files don't show any significant difference.
+--- orig/fs/mpage.c	Wed May 29 23:57:08 2002
++++ linux/fs/mpage.c	Thu May 30 00:34:44 2002
+@@ -12,6 +12,7 @@
+ 
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/kdev_t.h>
+ #include <linux/bio.h>
+ #include <linux/fs.h>
+ #include <linux/buffer_head.h>
 
-As a workaround for this problem I removed the zlib.o from fs/jffs2/Makefile 
-but it wouldn't work if I wasn't using the ppp stuff.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-I'd like to know if anyone (ppp and jffs2 guys) have a solution for this 
-problem or at least a suggestion. Any comment will be very welcomed.
-
-thanks
-henrique

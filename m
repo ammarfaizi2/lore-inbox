@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbTHYWtA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 18:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbTHYWtA
+	id S262361AbTHYXVc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 19:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbTHYXVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 18:49:00 -0400
-Received: from bolt.sonic.net ([208.201.242.18]:41100 "EHLO bolt.sonic.net")
-	by vger.kernel.org with ESMTP id S262357AbTHYWsz (ORCPT
+	Mon, 25 Aug 2003 19:21:32 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:14062 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262361AbTHYXVa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 18:48:55 -0400
-Date: Mon, 25 Aug 2003 15:48:29 -0700
-From: David Hinds <dhinds@sonic.net>
-To: damjan@bagra.net.mk
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
-       dahinds@users.sourceforge.net
-Subject: Re: Trivial patch for drivers/serial/8250_cs
-Message-ID: <20030825154829.B20096@sonic.net>
-References: <3F4A7F2C.7080205@bagra.net.mk>
-Mime-Version: 1.0
+	Mon, 25 Aug 2003 19:21:30 -0400
+Date: Mon, 25 Aug 2003 16:10:42 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4-mm1
+Message-ID: <30190000.1061853042@flay>
+In-Reply-To: <20030824171318.4acf1182.akpm@osdl.org>
+References: <20030824171318.4acf1182.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3F4A7F2C.7080205@bagra.net.mk>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 11:27:08PM +0200, ???????????? ?????????????????????? wrote:
-> This patch is against 2.6.0-test4.
-> It fixes the pcmcia serial driver to know its now called 8250_cs and not 
-> serial_cs...
-> 
-> Without this patch 8250_cs compiles but doesn't work.
+System time is still rather higher in kernbench, though maybe the
+elapsed time isn't degraded so much any more. Not sure if this is
+scheduler changes or not, but last time, we isolated a change of
+exactly this magnitude to one of those patches (Ingo's IIRC).
 
-What do you mean by "doesn't work", exactly?  The existing name should
-work if you have:
+I tried "set TIMESLICE_GRANULARITY to MAX_TIMESLICE in sched.c" as
+requested, makes no difference really (-max result below).
 
-  device "serial_cs" module "8250_cs"
+Kernbench: (make -j vmlinux, maximal tasks)
+                              Elapsed      System        User         CPU
+              2.6.0-test4       45.87      116.92      571.10     1499.00
+          2.6.0-test4-mm1       46.29      121.39      570.52     1494.75
+      2.6.0-test4-mm1-max       46.00      122.18      570.73     1505.75
 
-in /etc/pcmcia/config.  With your patch, it would work with:
+diffprofile:
 
-  device "8250_cs" module "8250_cs"
+      7763     4.8% total
+      2921     6.4% default_idle
+       949     0.0% direct_strnlen_user
+       719    20.6% __copy_from_user_ll
+       554    10.4% __copy_to_user_ll
+       544    33.5% kmem_cache_free
+       425     0.0% kpmd_ctor
+       372    26.1% schedule
+       349    18.7% atomic_dec_and_lock
+       322     4.1% __d_lookup
+       318     8.6% find_get_page
+       283   165.5% may_open
+       279     1.2% page_remove_rmap
+       275    16.0% buffered_rmqueue
+       263    42.4% __wake_up
+       212    15.3% free_hot_cold_page
+       119     6.4% path_lookup
+       117     3.7% zap_pte_range
+       114     0.0% direct_strncpy_from_user
+       107    17.3% generic_file_open
+...
+      -102    -1.6% page_add_rmap
+      -122  -100.0% strncpy_from_user
+      -288   -79.8% dentry_open
+      -305   -66.2% do_page_cache_readahead
+      -353  -100.0% pgd_ctor
+      -447   -80.4% file_ra_state_init
+      -558   -74.9% filp_close
+      -854  -100.0% strnlen_user
 
-(and also changing every instance of serial_cs to 8250_cs)
-
-> All the patch does is change several "serial_cs" occurences to "8250_cs".
->
-> PS.
-> another possible sollution is to change everything (including the file 
-> name) from "8250_cs" to "serial_cs" like it is in 2.4
-
-I would say that "serial_cs" is more accurate since this is the driver
-for cards that conform to the standard for PCMCIA serial interfaces.
-Renaming to "8250_cs" is obfuscatory and pointlessly breaks config
-files for previous kernel versions.  It is second in foolishness only
-to the genious who thought renaming "ide_cs" to "ide-cs" was a good
-idea.
-
--- Dave
-
-P.S. -- your email name ('???...') is a good way to target your email
-to the spam bucket; I almost discarded it myself.

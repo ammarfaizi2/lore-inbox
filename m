@@ -1,59 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262027AbSITJtM>; Fri, 20 Sep 2002 05:49:12 -0400
+	id <S261997AbSITJq6>; Fri, 20 Sep 2002 05:46:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262061AbSITJtM>; Fri, 20 Sep 2002 05:49:12 -0400
-Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:44816 "EHLO
-	corvil.com.") by vger.kernel.org with ESMTP id <S262027AbSITJtL>;
-	Fri, 20 Sep 2002 05:49:11 -0400
-Message-ID: <3D8AF01A.7070502@corvil.com>
-Date: Fri, 20 Sep 2002 10:53:30 +0100
-From: Padraig Brady <padraig.brady@corvil.com>
-Organization: Corvil Networks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-References: <3D8A6EC1.1010809@redhat.com>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S261998AbSITJq6>; Fri, 20 Sep 2002 05:46:58 -0400
+Received: from pc-80-195-34-180-ed.blueyonder.co.uk ([80.195.34.180]:45440
+	"EHLO sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S261997AbSITJq5>; Fri, 20 Sep 2002 05:46:57 -0400
+Date: Fri, 20 Sep 2002 10:51:53 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: Seaman Hu <seaman_hu@yahoo.com>, ext3-users@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: What will happen when disk(ext3) is full while i continue to operate files ?
+Message-ID: <20020920105153.H2585@redhat.com>
+References: <20020920091114.46162.qmail@web40502.mail.yahoo.com> <200209201125.09062.duncan.sands@math.u-psud.fr>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="nFreZHaLTZJo0R7j"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200209201125.09062.duncan.sands@math.u-psud.fr>; from duncan.sands@math.u-psud.fr on Fri, Sep 20, 2002 at 11:25:09AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> We are pleased to announce the first publically available source
-> release of a new POSIX thread library for Linux
-[snip]
-> called Native POSIX Thread Library, NPTL.
 
-Great! Where does this leave NGPT though? I had assumed that
-this was going to be the next pthread implementation in glibc.
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-also:
+Hi,
 
--------- Original Message --------
-Subject: glibc threading performance
-Date: Mon, 16 Sep 2002 10:42:42 +0100
-From: Padraig Brady <padraig.brady@corvil.com>
-To: Ingo Molnar <mingo@redhat.com>, Ulrich Drepper <drepper@redhat.com>
+On Fri, Sep 20, 2002 at 11:25:09AM +0200, Duncan Sands wrote:
 
-Hey guys,
+> The problem is that it is quite tricky to recover from this.
 
-I noticed you're looking at threading stuff lately,
-and was wondering about this thread:
-http://sources.redhat.com/ml/bug-glibc/2001-12/msg00048.html
+Actually, mounting with "errors=continue" should let the filesystem
+ignore the failure.
 
-In summary wouldn't it be better to have a per process
-flag that was only set when pthread_create() is called.
-If the flag is not set, then you don't need to do locking.
-This locking seems to have huge overhead. For e.g. I
-patched uniq in textutils to use getc_unlocked() rather
-than getc() and got a 300% performance increase!
+> What
+> you need to do is delete files on the disk in order to have some
+> free inodes.  Then you can apply a kernel patch to fix the bug
+> (Andrew Morton sent me this patch against 2.5.20:
 
-cheers,
-Pádraig.
+The official patch in 2.4 is attached.
 
+Cheers,
+ Stephen
+
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="0827-inode-enospc.patch"
+
+---------------------
+PatchSet 827
+Date: 2002/04/10 18:02:19
+Author: sct
+Log:
+Don't consider ENOSPC as a fatal error when allocating an inode.  Otherwise
+running out of inodes marks the fs as having an error, potentially taking
+the kernel down if we are in panic-on-error fs mode.
+
+Members: 
+	fs/ext3/ialloc.c:1.19.4.4->1.19.4.5 [ext3-1_0-branch]
+
+--- linux-ext3-2.4merge/fs/ext3/ialloc.c.=K0001=.orig	Sat Aug 17 20:09:51 2002
++++ linux-ext3-2.4merge/fs/ext3/ialloc.c	Mon Aug 19 18:48:50 2002
+@@ -392,7 +392,7 @@
+ 
+ 	err = -ENOSPC;
+ 	if (!gdp)
+-		goto fail;
++		goto out;
+ 
+ 	err = -EIO;
+ 	bitmap_nr = load_inode_bitmap (sb, i);
+@@ -523,9 +523,10 @@
+ 	return inode;
+ 
+ fail:
++	ext3_std_error(sb, err);
++out:
+ 	unlock_super(sb);
+ 	iput(inode);
+-	ext3_std_error(sb, err);
+ 	return ERR_PTR(err);
+ }
+ 
+
+--nFreZHaLTZJo0R7j--

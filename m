@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278941AbRJVVVu>; Mon, 22 Oct 2001 17:21:50 -0400
+	id <S278943AbRJVVWU>; Mon, 22 Oct 2001 17:22:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278943AbRJVVVl>; Mon, 22 Oct 2001 17:21:41 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:25354 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S278941AbRJVVV0>; Mon, 22 Oct 2001 17:21:26 -0400
-Message-ID: <3BD48CE9.C8F5FD60@zip.com.au>
-Date: Mon, 22 Oct 2001 14:17:29 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-pre6 i686)
-X-Accept-Language: en
+	id <S278948AbRJVVWL>; Mon, 22 Oct 2001 17:22:11 -0400
+Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:19 "EHLO
+	mail.communicationsboard.net") by vger.kernel.org with ESMTP
+	id <S278943AbRJVVVy>; Mon, 22 Oct 2001 17:21:54 -0400
+Message-ID: <018c01c15b3f$95801130$2a040a0a@zeusinc.com>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: "Rik van Riel" <riel@conectiva.com.br>, "Craig Dickson" <crdic@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0110221904490.22127-100000@duckman.distro.conectiva>
+Subject: Re: Linux 2.2.20pre10
+Date: Mon, 22 Oct 2001 17:21:55 -0400
 MIME-Version: 1.0
-To: Marcos Dione <mdione@hal.famaf.unc.edu.ar>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kjournald and disk sleeping
-In-Reply-To: <3BD4655E.82ED21CC@zip.com.au> <Pine.LNX.4.33.0110221424500.25281-100000@hp11.labcomp.famaf.unc.edu.ar>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcos Dione wrote:
-> 
-> On Mon, 22 Oct 2001, Andrew Morton wrote:
-> 
-> > Yes, this is a bit of a problem - it's probably atime updates,
-> > things which write to inodes, etc.  A commit will be forced within
-> > five seconds of this happening.
-> 
->         Reading journal.c I guessed that kjournald flushes thing *even if
-> it doesn't have things to flush*. I guess that from commit_timeout and
-> the comments on the thread process, but I can be wrong.
+> > From the statistics I've seen in the past, a high percentage of
+> > Linux users are US residents.
+>
+> If they're unhappy with the consequences of US law, they
+> should move.
 
-It's rather convoluted, but a commit fires if:
+Laws don't get changed by people moving, they get changed working to get
+them changed.
 
-1: more than approx 1/4 of the journal has been used by the
-   current transaction or
+> > Perhaps you should step down.
+>
+> Alan is doing an absolutely fantastic job of maintaining
+> the kernel, I see absolutely no reason why he should stop
+> doing that.
 
-2: this transaction has been open for >5 seconds.
+I agree with that, I wouldn't want to see this happen either.
 
-And a commit will close off the current transaction, but will *not*
-open a new one.  Opening a new transaction will only happen when
-new writes come in.
+> If you want the changelogs for the kernel published in
+> the US, why don't you publish them, under your name and
+> your full responsability ?
 
-So there should be no commit activity on an fs which isn't being
-written to.
+I would gladly publish them on my site, however, I'm unsure how I could get
+them, and I unfortunately don't have the skill to completely understand them
+from only the source.  If someone can help me with this I'll be glad to
+provide the space.
 
-You can watch all this happening by building with debug support and
-running
+Also, shouldn't some company with Linux interest be willing to take on this
+risk?  Say, Redhat or IBM.
 
-	echo 1 > /proc/sys/fs/jbd-debug
+Later,
+Tom
 
-You may want to stop syslogd first though - otherwise you get into
-this loop where commits create logs and logs create commits.  Tends
-to fill your logs up rather boringly.
 
--

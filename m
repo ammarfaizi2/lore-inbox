@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131794AbQKVQVI>; Wed, 22 Nov 2000 11:21:08 -0500
+        id <S129521AbQKVQ1T>; Wed, 22 Nov 2000 11:27:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132030AbQKVQUs>; Wed, 22 Nov 2000 11:20:48 -0500
-Received: from carbon.btinternet.com ([194.73.73.92]:5345 "EHLO
-        carbon.btinternet.com") by vger.kernel.org with ESMTP
-        id <S131794AbQKVQUo>; Wed, 22 Nov 2000 11:20:44 -0500
-Date: Wed, 22 Nov 2000 15:50:27 +0000 (GMT)
-From: davej@suse.de
-To: kumon@flab.fujitsu.co.jp
-cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH] livelock in elevator scheduling
-In-Reply-To: <200011221059.TAA03907@asami.proc.flab.fujitsu.co.jp>
-Message-ID: <Pine.LNX.4.21.0011221548080.6184-100000@neo.local>
+        id <S130355AbQKVQ1J>; Wed, 22 Nov 2000 11:27:09 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:38213 "EHLO
+        amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
+        id <S129521AbQKVQ04>; Wed, 22 Nov 2000 11:26:56 -0500
+Date: Wed, 22 Nov 2000 18:04:34 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Pauline Middelink <middelink@polyware.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.2.18-pre19 asm/delay.h problem?
+In-Reply-To: <20001122164842.A3420@polyware.nl>
+Message-ID: <Pine.LNX.4.21.0011221803520.27178-100000@server.serve.me.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000 kumon@flab.fujitsu.co.jp wrote:
 
-> The current Linux has a lot of difficult to set parameters in
-> /proc/sys.
->  Once a system goes beyond some settable limits, the system behavior
-> changes so sharp.  Bdf_prm.nrfract in fs/buffer.c is one of the
-> difficult parameters.  I hope a tool to monitor or set these value.
+> > #define __bad_udelay() panic("Udelay called with too large a constant")
 
-http://www.powertweak.org
-(See CVS version). Helpful(?) advice, profiles, and easy to use UI.
-If we missed anything, we take patches, and can always use extra hands :)
+Can't we change that to :
+#error "Udelay..."
 
-regards,
 
-Davej.
-
--- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

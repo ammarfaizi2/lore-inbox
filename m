@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbTIUOkK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 10:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbTIUOkK
+	id S262419AbTIUOu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 10:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTIUOu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 10:40:10 -0400
-Received: from mail-6.tiscali.it ([195.130.225.152]:51315 "EHLO
-	mail-6.tiscali.it") by vger.kernel.org with ESMTP id S261885AbTIUOkG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 10:40:06 -0400
-Date: Sun, 21 Sep 2003 16:39:34 +0200
-From: Kronos <kronos@kronoz.cjb.net>
-To: davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix Athlon MCA
-Message-ID: <20030921143934.GA1867@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 21 Sep 2003 10:50:26 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:27186 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262419AbTIUOuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 10:50:22 -0400
+From: Jos Hulzink <josh@stack.nl>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Roger Luethi <rl@hellgate.ch>
+Subject: Re: Vaio doesn't poweroff with 2.4.22
+Date: Sun, 21 Sep 2003 16:50:18 +0200
+User-Agent: KMail/1.5
+Cc: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.21.0309191053140.4488-100000@vervain.sonytel.be>
+In-Reply-To: <Pine.GSO.4.21.0309191053140.4488-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200309211650.18881.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-on boot I'm seeing a lot of messages like this:
+On Saturday 20 Sep 2003 15:17, Geert Uytterhoeven wrote:
+> If I turn off CONFIG_X86_UP_APIC I get:
+> | ACPI disabled because your bios is from 00 and too old
+> | You can enable it with acpi=force
+> | Sony Vaio laptop detected.
+>
+> and ACPI is disabled. Halt doesn't work.
+>
+> If I then pass `acpi=force' to explicitly enable ACPI, `halt' works again
+> and powers off the machine, but `reboot' causes a black screen with IDE
+> disk spun down, but no restart.
+>
+> Gr{oetje,eeting}s,
 
-MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
-Bank 0: d47fa0000000bfee
+My PIII 650 with 2000 BIOS boots linux with acpi disabled for the same reason, 
+unless force ACPI support. It reboots fine with ACPI forced. The ACPI support 
+of this Intel BX mobo is good, so this is a false negative IMHO. (I wonder if 
+the check is correct, shouldn't it say 2000 instead of 00 ?)
 
-This messages go away if I revert cset 1.1119.9.1. AFAIK you were trying
-to decrease the logging level. After reading IA32 Architecture Software 
-Developers Manual, vol3 - chapter 14.5 "Machine-Check Initialization" I 
-think that the right way to do it is this:
-
---- linux-2.6/arch/i386/kernel/cpu/mcheck/k7.c~	Sat Aug  9 06:37:27 2003
-+++ linux-2.6/arch/i386/kernel/cpu/mcheck/k7.c	Sun Sep 21 00:36:39 2003
-@@ -81,8 +81,9 @@
- 		wrmsr (MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
- 	nr_mce_banks = l & 0xff;
- 
--	for (i=1; i<nr_mce_banks; i++) {
--		wrmsr (MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
-+	for (i=0; i<nr_mce_banks; i++) {
-+		if (i)
-+			wrmsr (MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
- 		wrmsr (MSR_IA32_MC0_STATUS+4*i, 0x0, 0x0);
- 	}
- 
-
-We really want to clean all MC*_STATUS. I'm currently running linux 2.6.0-t5
-+ this patch and I don't see the MCE messages on boot anymore. 
-
-Luca
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-"L'abilita` politica e` l'abilita` di prevedere quello che
- accadra` domani, la prossima settimana, il prossimo mese e
- l'anno prossimo. E di essere cosi` abili, piu` tardi,
- da spiegare  perche' non e` accaduto."
+Jos

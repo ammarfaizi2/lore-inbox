@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264131AbRFDHIS>; Mon, 4 Jun 2001 03:08:18 -0400
+	id <S262693AbRFCVK2>; Sun, 3 Jun 2001 17:10:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264132AbRFDHIK>; Mon, 4 Jun 2001 03:08:10 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:32009 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S264131AbRFDHH7>; Mon, 4 Jun 2001 03:07:59 -0400
-Date: Mon, 4 Jun 2001 03:07:56 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@portland.hansa.lan>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.5-ac7 usb-uhci appears twice in /proc/interrupts
-Message-ID: <Pine.LNX.4.33.0106040258200.2088-100000@portland.hansa.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263760AbRFCUvs>; Sun, 3 Jun 2001 16:51:48 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:29538 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S263758AbRFCUvn>; Sun, 3 Jun 2001 16:51:43 -0400
+Date: Sun, 3 Jun 2001 16:51:42 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200106032051.f53Kpgg10681@devserv.devel.redhat.com>
+To: green@linuxhacker.ru, laughing@shared-source.org (Alan Cox),
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac7
+In-Reply-To: <mailman.991555081.25242.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.991555081.25242.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> AC> 2.4.5-ac7
+> AC> o       Make USB require PCI                            (me)
 
-I don't know, maybe it's Ok, but it looks confusing - usb-uhci is listed
-twice on the same IRQ 9.
+> How about people from StrongArm sa11x0 port, who have USB host controller
+> (in sa1111 companion chip) but do not have PCI?
+> Probably there are more such embedded architectures with USB controllers,
+> but not PCI bus.
 
-# cat /proc/interrupts
-           CPU0
-  0:      82287          XT-PIC  timer
-  1:       2624          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  8:          1          XT-PIC  rtc
-  9:          0          XT-PIC  usb-uhci, usb-uhci
- 10:        781          XT-PIC  eth0
- 11:          0          XT-PIC  eth1
- 12:        900          XT-PIC  PS/2 Mouse
- 14:      17434          XT-PIC  ide0
- 15:          9          XT-PIC  ide1
-NMI:          0
-LOC:      82250
-ERR:         15
+There is nothing that would bind USB to PCI architecturally.
+OHCI and UHCI are PCI based, but that's just a matter of
+implementation. I think that Alan was unwise at this point.
 
-.config is here: http://www.red-bean.com/~proski/linux/config
+I know that some small Motorola parts (relatives of 860, perhaps)
+do have USB controllers, but I have no idea if PCI is involved.
 
-In short, all USB stuff is compiled as modules.
+> How about ISA USB host controllers?
 
-# CONFIG_USB_UHCI is not set
-CONFIG_USB_UHCI_ALT=m
-# CONFIG_USB_OHCI is not set
+Those, unfortunately, do not exist. I was shopping for one
+in vain for a long time. One formiddable difficulty is that
+USB bandwidth is larger than ISA, so the only feasible way
+to make a HC is to have all TD's in its onboard memory,
+as in VGA.
 
-It's a brand new VIA motherboard, so I don't know whether the problem
-existed in the earlier kernels or not (if it's a problem).
+In other follow-up Alan argued in favor of CONFIG_PCI for
+a PCI-less machine. It may be a reasonable approach, for
+instance JavaStation-1 has no PCI but requires CONFIG_PCI.
+It adds a little of useless bloat, that I considered a
+necessary evil in the abovementioned case.
 
-It looks like that the motherboard has two USB controllers:
-
-00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 02)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 22)
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10)
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10)
-00:07.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10)
-00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-00:07.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio Controller (rev 20)
-00:08.0 Ethernet controller: 3Com Corporation 3c900 10BaseT [Boomerang]
-00:09.0 Ethernet controller: Bridgecom, Inc: Unknown device 0985 (rev 11)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c)
-
--- 
-Regards,
-Pavel Roskin
-
+-- Pete

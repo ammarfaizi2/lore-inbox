@@ -1,28 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130038AbRC0Asz>; Mon, 26 Mar 2001 19:48:55 -0500
+	id <S130129AbRC0BPU>; Mon, 26 Mar 2001 20:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130065AbRC0Asp>; Mon, 26 Mar 2001 19:48:45 -0500
-Received: from die-macht.oph.RWTH-Aachen.DE ([137.226.147.190]:30856 "EHLO
-	die-macht") by vger.kernel.org with ESMTP id <S130038AbRC0Asb>;
-	Mon, 26 Mar 2001 19:48:31 -0500
-Message-ID: <3ABFE328.A6A0FE70@die-macht.oph.rwth-aachen.de>
-Date: Tue, 27 Mar 2001 02:47:36 +0200
-From: Stefan Becker <stefan@die-macht.oph.rwth-aachen.de>
-Reply-To: stefan@oph.rwth-aachen.de
-Organization: OPH
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
-X-Accept-Language: en
+	id <S130253AbRC0BPA>; Mon, 26 Mar 2001 20:15:00 -0500
+Received: from adsl-216-102-91-127.dsl.snfc21.pacbell.net ([216.102.91.127]:8709
+	"EHLO ns1.serialhacker.net") by vger.kernel.org with ESMTP
+	id <S130129AbRC0BOz>; Mon, 26 Mar 2001 20:14:55 -0500
+From: Drew Bertola <drew@drewb.com>
 MIME-Version: 1.0
-To: Juha Saarinen <juha@saarinen.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ASSISTANCE
-In-Reply-To: <LNBBIBDBFFCDPLBLLLHFAEKOJIAA.juha@saarinen.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15039.59751.283360.973733@champ.serialhacker.net>
+Date: Tue, 27 Mar 2001 01:14:15 +0000 ()
+To: rct@gherkin.sa.wlk.com (Bob_Tracy)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux Worm (fwd)
+In-Reply-To: <m14hZSE-0005khC@gherkin.sa.wlk.com>
+In-Reply-To: <20010326102418.C18480@xi.linuxpower.cx>
+	<m14hZSE-0005khC@gherkin.sa.wlk.com>
+X-Mailer: VM 6.75 under Emacs 19.34.1
+Reply-To: drew@drewb.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juha Saarinen wrote:
-> This is a variant on the Nigerian Scam... avoid at all cost.
-This is very funny.
+Bob_Tracy writes: 
+> So let's quit covering for 'em.  Let's have the name(s) behind that
+> idiotic policy letter, because I would not knowingly allow any company
+> I work for to hire such people.
+> 
+>         Problem        Remedy
+> 	-------        ------
+> 	hangnail       amputate
+> 	headache       amputate
+> 	(etc.)
+
+you can add:
+        cancer         withdraw into complete denial
+
+-- 
+Drew Bertola  | Send a text message to my pager or cell ... 
+              |   http://jpager.com/Drew
+

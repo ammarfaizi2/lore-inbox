@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267961AbRGZNzn>; Thu, 26 Jul 2001 09:55:43 -0400
+	id <S267971AbRGZOED>; Thu, 26 Jul 2001 10:04:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267968AbRGZNze>; Thu, 26 Jul 2001 09:55:34 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45320 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S267961AbRGZNzW>; Thu, 26 Jul 2001 09:55:22 -0400
-Date: Thu, 26 Jul 2001 10:55:20 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-        "ext3-users@redhat.com" <ext3-users@redhat.com>
-Subject: Re: ext3-2.4-0.9.4
-In-Reply-To: <E15PlYr-0003mr-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0107261054070.20326-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267977AbRGZODx>; Thu, 26 Jul 2001 10:03:53 -0400
+Received: from mail.phpoint.net ([212.63.10.62]:21129 "EHLO smtp2.koti.soon.fi")
+	by vger.kernel.org with ESMTP id <S267971AbRGZODn>;
+	Thu, 26 Jul 2001 10:03:43 -0400
+From: "M. Tavasti" <tawz@nic.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Select with device and stdin not working
+In-Reply-To: <Pine.LNX.3.95.1010725114322.520A-100000@chaos.analogic.com> <m2u1zznbcv.fsf@akvavitix.vuovasti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+Date: 26 Jul 2001 16:20:31 +0300
+In-Reply-To: "M. Tavasti"'s message of "26 Jul 2001 15:06:24 +0300"
+Message-ID: <m2n15rn7xc.fsf@akvavitix.vuovasti.com>
+X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Capitol Reef"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 26 Jul 2001, Alan Cox wrote:
+"M. Tavasti" <tawz@nic.fi> writes:
 
-> > The competition is there and it has names: BSD + ufs + softupdates,
-> > Solaris + logging ufs. Read MTA mailing lists before obstructing.
->
-> All of which are - not unsuprisingly - using a log. In fact
-> Solaris logging ufs and ext3 are very similar ideas - adding a
-> log to an existing fs.
+> randomly makes select return. When looking from random.c, in 2.2.19
+> poll_wait is called once, like this:
+> 
+> 	poll_wait(file, &random_poll_wait, wait);
+> 
+> And in 2.4.5:
+> 
+> 	poll_wait(file, &random_read_wait, wait);
+> 	poll_wait(file, &random_write_wait, wait);
+> 
+> 
+> I think I got idea how to do it right, make one wait queue for poll,
+> which is woken up when read OR write queue is woken up. 
 
-Softupdates isn't using logging.  Furthermore, even
-the journaling filesystems won't all guarantee that
-the various parts of a rename() operation will all
-be in the same transaction.
+After testing with my own driver, using just one poll_wait doesn't
+make difference in 2.4.5.
 
-An MTA which relies on this is therefore Broken(tm).
-
-cheers,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+-- 
+M. Tavasti /  tavastixx@iki.fi  /   +358-40-5078254
+ Poista sähköpostiosoitteesta molemmat x-kirjaimet 
+     Remove x-letters from my e-mail address

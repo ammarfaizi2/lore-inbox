@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSGYNlx>; Thu, 25 Jul 2002 09:41:53 -0400
+	id <S314546AbSGYNlv>; Thu, 25 Jul 2002 09:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314096AbSGYNk5>; Thu, 25 Jul 2002 09:40:57 -0400
-Received: from purple.csi.cam.ac.uk ([131.111.8.4]:13738 "EHLO
-	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S314080AbSGYNia>; Thu, 25 Jul 2002 09:38:30 -0400
-Message-Id: <5.1.0.14.2.20020725144011.00ab3ec0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 25 Jul 2002 14:45:13 +0100
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: RE: 2.5.28 and partitions
-Cc: Linus Torvalds <torvalds@transmeta.com>, Matt_Domsch@Dell.com,
-       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <1D94527606@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S314596AbSGYNlG>; Thu, 25 Jul 2002 09:41:06 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:8701 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314546AbSGYNjK>; Thu, 25 Jul 2002 09:39:10 -0400
+From: Alan Cox <alan@irongate.swansea.linux.org.uk>
+Message-Id: <200207251456.g6PEuMuV010555@irongate.swansea.linux.org.uk>
+Subject: PATCH: 2.5.28 (resend #1) SuS/LSB compliance in readv/writev from 2.4
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Thu, 25 Jul 2002 15:56:22 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:24 25/07/02, Petr Vandrovec wrote:
->On 25 Jul 02 at 14:03, Anton Altaparmakov wrote:
-> > At 12:44 25/07/02, Alexander Viro wrote:
-> > >Al, still thinking that anybody who does mkfs.<whatever> on a multi-Tb
-> > >device should seek professional help of the kind they don't give on l-k...
-> >
-> > Why? What is wrong with large devices/file systems? Why do we have to 
-> break
-> > up everything into multiple devices? Just because the kernel is "too lazy"
-> > to implement support for large devices? Nobody cares if 64bit code is
-> > 10-20% slower than 32bit code on a storage server. The storage devices are
->
->But I care whether gcc barfs on code or not, and whether generated code
->is correct or not.
-
-Everyone cares about that! That has nothing to do with performance. It's 
-simply a broken compiler which needs fixing.
-
->I do very trivial 64bit computations in TV-Out portion of matroxfb,
->but I spent two days shifting code up/down, adding temporary variables
->and splitting expressions to simple ones to make code compilable at all
->with gcc-2.95.4 compiling module for PIII kernel (Debian bug #151196).
->So I personally cannot recommend doing any 64bit math without setting
->gcc-3.0 as minimal version for ia32 architecture.
-
-Thanks for the warning. I will keep an eye out for eventual "NTFS is broken 
-with gcc-2.95 reports"... Although I would make that gcc-2.96 and not 3.0 
-as minimum requirement. At least I haven't found anything wrong with the 
-current gcc-2.96...
-
-(Please let's not start another flamewar about whether gcc-2.96 exists or not.)
-
-Best regards,
-
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.28/fs/read_write.c linux-2.5.28-ac1/fs/read_write.c
+--- linux-2.5.28/fs/read_write.c	Thu Jul 25 10:51:25 2002
++++ linux-2.5.28-ac1/fs/read_write.c	Mon Jul 22 15:43:46 2002
+@@ -301,17 +301,23 @@
+ 	if (copy_from_user(iov, vector, count*sizeof(*vector)))
+ 		goto out;
+ 
+-	/* BSD readv/writev returns EINVAL if one of the iov_len
+-	   values < 0 or tot_len overflowed a 32-bit integer. -ink */
++	/*
++	 * Single unix specification:
++	 * We should -EINVAL if an element length is not >= 0 and fitting an ssize_t
++	 * The total length is fitting an ssize_t
++	 *
++	 * Be careful here because iov_len is a size_t not an ssize_t
++	 */
++	 
+ 	tot_len = 0;
+ 	ret = -EINVAL;
+ 	for (i = 0 ; i < count ; i++) {
+-		size_t tmp = tot_len;
+-		int len = iov[i].iov_len;
+-		if (len < 0)
++		ssize_t tmp = tot_len;
++		ssize_t len = (ssize_t)iov[i].iov_len;
++		if (len < 0)	/* size_t not fitting an ssize_t .. */
+ 			goto out;
+-		(u32)tot_len += len;
+-		if (tot_len < tmp || tot_len < (u32)len)
++		tot_len += len;
++		if (tot_len < tmp) /* maths overflow on the ssize_t */
+ 			goto out;
+ 	}
+ 

@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265670AbSJSUfp>; Sat, 19 Oct 2002 16:35:45 -0400
+	id <S265674AbSJSUsx>; Sat, 19 Oct 2002 16:48:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265671AbSJSUfp>; Sat, 19 Oct 2002 16:35:45 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:16140 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S265670AbSJSUfo>;
-	Sat, 19 Oct 2002 16:35:44 -0400
-Date: Sun, 20 Oct 2002 05:34:24 +0900 (JST)
-Message-Id: <20021020.053424.41629995.taka@valinux.co.jp>
-To: habanero@us.ibm.com
-Cc: trond.myklebust@fys.uio.no, neilb@cse.unsw.edu.au, davem@redhat.com,
-       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: Re: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <004d01c276bb$39b32980$2a060e09@beavis>
-References: <shs8z0w1f3k.fsf@charged.uio.no>
-	<20021018.161952.41628057.taka@valinux.co.jp>
-	<004d01c276bb$39b32980$2a060e09@beavis>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S265675AbSJSUsx>; Sat, 19 Oct 2002 16:48:53 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:44722 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S265674AbSJSUsx>; Sat, 19 Oct 2002 16:48:53 -0400
+Message-ID: <3DB1C9B2.3030500@kegel.com>
+Date: Sat, 19 Oct 2002 14:08:02 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: "Charles 'Buck' Krasic" <krasic@acm.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+References: <Pine.LNX.4.44.0210181241300.1537-100000@blue1.dev.mcafeelabs.com>	<3DB0AD79.30401@netscape.com> <20021019065916.GB17553@mark.mielke.cc>	<3DB19AE6.6020703@kegel.com> <xu4u1jitg5v.fsf@brittany.cse.ogi.edu> <xu4ptu6tc5t.fsf@brittany.cse.ogi.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Charles 'Buck' Krasic wrote:
+ >>In summary, a short count is every bit as reliable as EAGAIN to know
+ >>that it is safe to wait on epoll_getevents.
+ >
+> Whoops.  I just realized a flaw in my own argument.  
+> 
+> With read, a short count might precede EOF.  Indeed, in that case,
+> calling epoll_getevents would cause the connection to get stuck.
 
-> > Congestion avoidance mechanism of NFS clients might cause this
-> > situation.  I think the congestion window size is not enough
-> > for high end machines.  You can make the window be larger as a
-> > test.
+Maybe epoll should be extended with a specific EOF event.
+Then short reads would be fine.
+- Dan
 
-> Is this a concern on the client only?  I can run a test with just one client
-> and see if I can saturate the 100Mbit adapter.  If I can, would we need to
-> make any adjustments then?  FYI, at 115 MB/sec total throughput, that's only
-> 2.875 MB/sec for each of the 40 clients.  For the TCP result of 181 MB/sec,
-> that's 4.525 MB/sec, IMO, both of which are comfortable throughputs for a
-> 100Mbit client.
-
-I think it's a client issue. NFS servers don't care about cogestion of UDP
-traffic and they will try to response to all NFS requests as fast as they can.
-
-You can try to increase the number of clients or the number of mount points
-for a test. It's easy to mount the same directory of the server on some
-directries of the client so that each of them can work simultaneously.
-   # mount -t nfs server:/foo   /baa1
-   # mount -t nfs server:/foo   /baa2
-   # mount -t nfs server:/foo   /baa3
-
-Thank you,
-Hirokazu Takahashi.

@@ -1,85 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265659AbTGDCek (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 22:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbTGDCda
+	id S265649AbTGDB4x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 21:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbTGDBzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 22:33:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63203 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265755AbTGDCcl
+	Thu, 3 Jul 2003 21:55:46 -0400
+Received: from granite.he.net ([216.218.226.66]:24590 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S265653AbTGDByv convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 22:32:41 -0400
-Message-ID: <3F04EAA0.2050102@pobox.com>
-Date: Thu, 03 Jul 2003 22:46:56 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Sipek <jeffpc@optonline.net>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, netdev@oss.sgi.com
-Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
-References: <200307032231.39842.jeffpc@optonline.net>
-In-Reply-To: <200307032231.39842.jeffpc@optonline.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jul 2003 21:54:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10572845531561@kroah.com>
+Subject: Re: [PATCH] PCI and sysfs fixes for 2.5.74
+In-Reply-To: <10572845532660@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 3 Jul 2003 19:09:13 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Sipek wrote:
-> +	spinlock_t	rx_packets;
-> +	spinlock_t	tx_packets;
-> +	spinlock_t	rx_bytes;
-> +	spinlock_t	tx_bytes;
-> +	spinlock_t	rx_errors;
-> +	spinlock_t	tx_errors;
-> +	spinlock_t	rx_dropped;
-> +	spinlock_t	tx_dropped;
-> +	spinlock_t	multicast;
-> +	spinlock_t	collisions;
-> +	spinlock_t	rx_length_errors;
-> +	spinlock_t	rx_over_errors;
-> +	spinlock_t	rx_crc_errors;
-> +	spinlock_t	rx_frame_errors;
-> +	spinlock_t	rx_fifo_errors;
-> +	spinlock_t	rx_missed_errors;
-> +	spinlock_t	tx_aborted_errors;
-> +	spinlock_t	tx_carrier_errors;
-> +	spinlock_t	tx_fifo_errors;
-> +	spinlock_t	tx_heartbeat_errors;
-> +	spinlock_t	tx_window_errors;
-> +	spinlock_t	rx_compressed;
-> +	spinlock_t	tx_compressed;
+ChangeSet 1.1366, 2003/07/03 15:51:30-07:00, willy@debian.org
 
-That's a fat daddy list of locks you got there.
+[PATCH] PCI: Remove pci_bus_exists
+Convert all callers of pci_bus_exists() to call pci_find_bus() instead.
+Since all callers of pci_find_bus() are __init or __devinit, mark it as
+__devinit too.
 
 
-> +	NETSTAT_TYPE	_rx_packets;		/* total packets received	*/
-> +	NETSTAT_TYPE	_tx_packets;		/* total packets transmitted	*/
-> +	NETSTAT_TYPE	_rx_bytes;		/* total bytes received 	*/
-> +	NETSTAT_TYPE	_tx_bytes;		/* total bytes transmitted	*/
-> +	NETSTAT_TYPE	_rx_errors;		/* bad packets received		*/
-> +	NETSTAT_TYPE	_tx_errors;		/* packet transmit problems	*/
-> +	NETSTAT_TYPE	_rx_dropped;		/* no space in linux buffers	*/
-> +	NETSTAT_TYPE	_tx_dropped;		/* no space available in linux	*/
-> +	NETSTAT_TYPE	_multicast;		/* multicast packets received	*/
-> +	NETSTAT_TYPE	_collisions;
-
-Increasing user-visible sizes arbitrarily breaks stuff.  Having 
-config-dependent types like this increases complexity.
-
-Short term, just sample the stats more rapidly.
-
-Long term, I suppose with 10GbE we should start thinking about this. 
-Personally, I would prefer to make the standard net device stats 
-available in the format already exported by ETHTOOL_GSTATS -- which I 
-note uses u64's for its counters, and it's easily extensible.  I 
-received a request for this just today, even.
-
-	Jeff
+ arch/i386/pci/legacy.c              |    2 +-
+ arch/sh/kernel/cpu/sh4/pci-sh7751.c |    2 +-
+ drivers/pci/probe.c                 |   13 +------------
+ drivers/pci/search.c                |    5 +++--
+ include/linux/pci.h                 |    1 -
+ 5 files changed, 6 insertions(+), 17 deletions(-)
 
 
-P.S.  Please cc netdev@oss.sgi.com for networking discussions.
+diff -Nru a/arch/i386/pci/legacy.c b/arch/i386/pci/legacy.c
+--- a/arch/i386/pci/legacy.c	Thu Jul  3 18:16:55 2003
++++ b/arch/i386/pci/legacy.c	Thu Jul  3 18:16:55 2003
+@@ -28,7 +28,7 @@
+ 	}
+ 
+ 	for (n=0; n <= pcibios_last_bus; n++) {
+-		if (pci_bus_exists(&pci_root_buses, n))
++		if (pci_find_bus(0, n))
+ 			continue;
+ 		bus->number = n;
+ 		bus->ops = &pci_root_ops;
+diff -Nru a/arch/sh/kernel/cpu/sh4/pci-sh7751.c b/arch/sh/kernel/cpu/sh4/pci-sh7751.c
+--- a/arch/sh/kernel/cpu/sh4/pci-sh7751.c	Thu Jul  3 18:16:55 2003
++++ b/arch/sh/kernel/cpu/sh4/pci-sh7751.c	Thu Jul  3 18:16:55 2003
+@@ -200,7 +200,7 @@
+ 		return;
+ 	PCIDBG(2,"PCI: Peer bridge fixup\n");
+ 	for (n=0; n <= pcibios_last_bus; n++) {
+-		if (pci_bus_exists(&pci_root_buses, n))
++		if (pci_find_bus(0, n))
+ 			continue;
+ 		bus.number = n;
+ 		bus.ops = pci_root_ops;
+diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c	Thu Jul  3 18:16:55 2003
++++ b/drivers/pci/probe.c	Thu Jul  3 18:16:55 2003
+@@ -633,22 +633,11 @@
+ 	return max;
+ }
+ 
+-int __devinit pci_bus_exists(const struct list_head *list, int nr)
+-{
+-	const struct pci_bus *b;
+-
+-	list_for_each_entry(b, list, node) {
+-		if (b->number == nr || pci_bus_exists(&b->children, nr))
+-			return 1;
+-	}
+-	return 0;
+-}
+-
+ struct pci_bus * __devinit pci_scan_bus_parented(struct device *parent, int bus, struct pci_ops *ops, void *sysdata)
+ {
+ 	struct pci_bus *b;
+ 
+-	if (pci_bus_exists(&pci_root_buses, bus)) {
++	if (pci_find_bus(0, bus)) {
+ 		/* If we already got to this bus through a different bridge, ignore it */
+ 		DBG("PCI: Bus %02x already known\n", bus);
+ 		return NULL;
+diff -Nru a/drivers/pci/search.c b/drivers/pci/search.c
+--- a/drivers/pci/search.c	Thu Jul  3 18:16:55 2003
++++ b/drivers/pci/search.c	Thu Jul  3 18:16:55 2003
+@@ -7,13 +7,14 @@
+  *	Copyright 2003 -- Greg Kroah-Hartman <greg@kroah.com>
+  */
+ 
++#include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/module.h>
+ #include <linux/interrupt.h>
+ 
+ spinlock_t pci_bus_lock = SPIN_LOCK_UNLOCKED;
+ 
+-static struct pci_bus *
++static struct pci_bus * __devinit
+ pci_do_find_bus(struct pci_bus* bus, unsigned char busnr)
+ {
+ 	struct pci_bus* child;
+@@ -39,7 +40,7 @@
+  * in the global list of PCI buses.  If the bus is found, a pointer to its
+  * data structure is returned.  If no bus is found, %NULL is returned.
+  */
+-struct pci_bus * pci_find_bus(int domain, int busnr)
++struct pci_bus * __devinit pci_find_bus(int domain, int busnr)
+ {
+ 	struct pci_bus *bus = NULL;
+ 	struct pci_bus *tmp_bus;
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	Thu Jul  3 18:16:55 2003
++++ b/include/linux/pci.h	Thu Jul  3 18:16:55 2003
+@@ -544,7 +544,6 @@
+ /* Generic PCI functions used internally */
+ 
+ extern struct pci_bus *pci_find_bus(int domain, int busnr);
+-int pci_bus_exists(const struct list_head *list, int nr);
+ struct pci_bus *pci_scan_bus_parented(struct device *parent, int bus, struct pci_ops *ops, void *sysdata);
+ static inline struct pci_bus *pci_scan_bus(int bus, struct pci_ops *ops, void *sysdata)
+ {
 

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129273AbRBSVTu>; Mon, 19 Feb 2001 16:19:50 -0500
+	id <S129213AbRBSVYK>; Mon, 19 Feb 2001 16:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129643AbRBSVTk>; Mon, 19 Feb 2001 16:19:40 -0500
-Received: from t2o61p25.telia.com ([195.67.228.85]:9255 "EHLO k-7.stesmi.com")
-	by vger.kernel.org with ESMTP id <S129273AbRBSVTa>;
-	Mon, 19 Feb 2001 16:19:30 -0500
-Message-ID: <3A918EAE.A3C96B4C@hanse.com>
-Date: Mon, 19 Feb 2001 22:22:54 +0100
-From: Stefan Smietanowski <stefan@hanse.com>
-Organization: Hanse Communication
-X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S129108AbRBSVYA>; Mon, 19 Feb 2001 16:24:00 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32527 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129721AbRBSVXu>;
+	Mon, 19 Feb 2001 16:23:50 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200102192117.f1JLHU518764@flint.arm.linux.org.uk>
+Subject: Re: kernel_thread() & thread starting
+To: prumpf@mandrakesoft.com (Philipp Rumpf)
+Date: Mon, 19 Feb 2001 21:17:30 +0000 (GMT)
+Cc: andrewm@uow.edu.au (Andrew Morton), dwmw2@infradead.org (David Woodhouse),
+        kenn@linux.ie (Kenn Humborg),
+        linux-kernel@vger.kernel.org (Linux-Kernel)
+In-Reply-To: <Pine.LNX.3.96.1010219073717.16489K-100000@mandrakesoft.mandrakesoft.com> from "Philipp Rumpf" at Feb 19, 2001 07:50:54 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Ansari <mike@khi.sdnpk.org>, linux-kernel@vger.kernel.org
-Subject: [OT] Re: Running Bind 9 on Redhat 7
-In-Reply-To: <3A913520.3011C7D6@khi.sdnpk.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Philipp Rumpf writes:
+> That still won't catch keventd oopsing though - which I think might happen
+> quite easily in real life.
 
-> I am configuring Bind 9 on Redhat 7 but unable to start the named.
-> Here is my /var/log message log:
+Maybe we should panic in that case?  For example, what happens if kswapd
+oopses?  kreclaimd?  bdflush?  kupdate?  All these have the same problem,
+and should probably have the same "fix" applied, whatever that fix may
+be.
 
-<snip named start log>
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Read the documentation and you shall notice that you must set a ttl for
-each zone, which also your logs state that you have not done ...
-
-// Stefan

@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285210AbRL2Set>; Sat, 29 Dec 2001 13:34:49 -0500
+	id <S285193AbRL2SkT>; Sat, 29 Dec 2001 13:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285186AbRL2Sei>; Sat, 29 Dec 2001 13:34:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12562 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285193AbRL2Se1>; Sat, 29 Dec 2001 13:34:27 -0500
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-To: harald.holzer@eunet.at (Harald Holzer)
-Date: Sat, 29 Dec 2001 18:45:08 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <1009649897.12942.2.camel@hh2.hhhome.at> from "Harald Holzer" at Dec 29, 2001 07:18:17 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S285186AbRL2SkJ>; Sat, 29 Dec 2001 13:40:09 -0500
+Received: from cc192618-b.oakrdg1.tn.home.com ([65.8.221.188]:7090 "EHLO
+	rdb.linux-help.org") by vger.kernel.org with ESMTP
+	id <S285193AbRL2Sj7>; Sat, 29 Dec 2001 13:39:59 -0500
+Message-ID: <3C2E0E01.EE3D22D7@ardynet.com>
+Date: Sat, 29 Dec 2001 13:40:01 -0500
+From: rdicaire@ardynet.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: AWE64 Duplex not working with 2.4.17
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16KOTk-0005F3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are there some i686 SMP systems with more then 12 GB ram out there ?
+I have installed an SB AWE 64, kernel is 2.4.17, audio works fine, but I
+cannot play
+simultaneous multpile wav or mp3 files, errors reported that something
+else has the device open already.
 
-Very very few.
+Here's what syslog reports when the modules are loaded:
 
-> Is there a known problem with 2.4.x kernel and such systems ?
+Dec 29 13:21:13 ws kernel: Soundblaster audio driver Copyright (C) by
+Hannu Savolainen 1993-1996 
+Dec 29 13:21:14 ws kernel: sb: Creative SB AWE64  PnP detected 
+Dec 29 13:21:14 ws kernel: sb: ISAPnP reports 'Creative SB AWE64  PnP'
+at i/o 0x220, irq 5, dma 1, 5 
+Dec 29 13:21:14 ws kernel: SB 4.16 detected OK (220) 
+Dec 29 13:21:14 ws kernel: sb: 1 Soundblaster PnP card(s) found. 
 
-Several 8)
 
-Hardware limits:
-	-	36bit addressing mode on x86 processors is slower
-	-	Many device drivers cant handle > 32bit DMA
-	-	The CPU can't efficiently map all that memory at once
+Is there some module option to enable duplex operation?
 
-Software:
-	-	The block I/O layer doesn't cleanly handle large systems
-	-	The page struct is too big which puts undo loads on the
-		memory that the CPU can map
-	-	We don't discard page tables when we can and should
-	-	We should probably switch to a larger virtual page size
-		on big machines.
-
-The ones that actually bite hard are the block I/O layer and the page
-struct size. Making the block layer handle its part well is a 2.5 thing.
-
-> It looks like as the buffer_heads would fill the low memory up,
-> whether there is sufficient memory available or not, as long as
-> there is sufficient high memory for caching.
-
-That may well be happening. The Red Hat supplied 7.2 and 7.2 errata kernels
-were tested on 8Gb, I don't know what else larger.
-
-Because much of the memory cannot be used for kernel objects there is an
-imbalance in available resources and its very hard to balance them sanely.
-I'm not sure how many 8Gb+ machines Andrea has handy to tune the VM on
-either.
-
-Alan
+Please CC: me on replies as I am not on this mailing list, thanks.

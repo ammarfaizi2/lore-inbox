@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135673AbRDXPGJ>; Tue, 24 Apr 2001 11:06:09 -0400
+	id <S135669AbRDXPIj>; Tue, 24 Apr 2001 11:08:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135672AbRDXPF7>; Tue, 24 Apr 2001 11:05:59 -0400
-Received: from web1103.mail.yahoo.com ([128.11.23.123]:32516 "HELO
-	web1103.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S135673AbRDXPFs>; Tue, 24 Apr 2001 11:05:48 -0400
-Message-ID: <20010424150546.6917.qmail@web1103.mail.yahoo.com>
-Date: Tue, 24 Apr 2001 17:05:46 +0200 (CEST)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Re: capabilities carried over execve()
-To: eric@sparrow.nad.adelphia.net
-Cc: linux-kernel@vger.kernel.org
+	id <S135672AbRDXPI3>; Tue, 24 Apr 2001 11:08:29 -0400
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:10691 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S135669AbRDXPIQ>; Tue, 24 Apr 2001 11:08:16 -0400
+Message-ID: <3AE596CA.E7E06ACB@coplanar.net>
+Date: Tue, 24 Apr 2001 11:07:54 -0400
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: imel96@trustix.co.id, Alexander Viro <viro@math.psu.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Single user linux
+In-Reply-To: <E14s3PL-00027B-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I personnaly use this simple patch which allows me
-to keep caps over execve(). It allows me to give a
-few more rights to some trusted users, such as 
-kill, insmod... without risking unlink, chown or 
-so. I couldn't find any other way to achieve this.
+Alan Cox wrote:
 
-If needed, I can send you the complete prog which
-sets the requested capabilities upon login, 
-eventually asking for a password and limited in 
-time of day.
+> > so what the hell is transmeta doing with mobile linux (midori).
+> > is it going to teach multi-user thing to tablet owners?
+>
+> Thats you problem. Distinguish the OS from the user interface.
+>
+> > surely mortals expect midori to behave like their pc. lets say
+> > on redhat, they have to login as root to access their files,
+> > they don't even know what a root is!
+>
+> Even my digital tv box has multiple users. The fact you cannot figure out how
+> to make your UI present that to the end user in a suitable manner is not
+> the kernels problem. Get a real UI designer.
 
-Regards,
-Willy
+Quote of the day:
 
---- linux-2.2.18-wt11/fs/exec.c Fri Feb 16 23:11:52
-2001
-+++ linux-2.2.18-wt11+caps/fs/exec.c    Thu Feb 22
-20:45:33 2001
-@@ -702,7 +702,10 @@
-        cap_clear(bprm->cap_inheritable);
-        cap_clear(bprm->cap_permitted);
-        cap_clear(bprm->cap_effective);
--
-+/*** FIXME: just a test : keep permitted and
-effective ******/
-+bprm->cap_permitted =
-cap_intersect(current->cap_inheritable,current->cap_permitted);
-+bprm->cap_effective =
-cap_intersect(current->cap_inheritable,current->cap_effective);
-+/*** /FIXME ****/
-        /*  To support inheritance of root-permissions
-and suid-root
-          *  executables under compatibility mode, we
-raise all three
-          *  capability sets for the file.
+Never engage in a battle of wits with an idiot;  they will bring
+you down to their level, then beat you with experience.
+
+Cheers!
+
+Jeremy
 
 
-
-___________________________________________________________
-Do You Yahoo!? -- Pour faire vos courses sur le Net, 
-Yahoo! Shopping : http://fr.shopping.yahoo.com

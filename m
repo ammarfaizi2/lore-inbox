@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265237AbRF0Q4j>; Wed, 27 Jun 2001 12:56:39 -0400
+	id <S265323AbRF0RMw>; Wed, 27 Jun 2001 13:12:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265309AbRF0Q4a>; Wed, 27 Jun 2001 12:56:30 -0400
-Received: from mail.aslab.com ([205.219.89.194]:3699 "EHLO mail.aslab.com")
-	by vger.kernel.org with ESMTP id <S265237AbRF0Q4S>;
-	Wed, 27 Jun 2001 12:56:18 -0400
-Date: Wed, 27 Jun 2001 09:56:16 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: David Hinds <dhinds@sonic.net>
-cc: Gunther Mayer <Gunther.Mayer@t-online.de>, linux-kernel@vger.kernel.org,
-        dhinds@bolt.sonic.net
-Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
-In-Reply-To: <20010627090351.A7443@sonic.net>
-Message-ID: <Pine.LNX.4.04.10106270954500.21460-100000@mail.aslab.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265335AbRF0RMm>; Wed, 27 Jun 2001 13:12:42 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:43528 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265334AbRF0RMd>;
+	Wed, 27 Jun 2001 13:12:33 -0400
+Date: Wed, 27 Jun 2001 19:12:29 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+        "ZINKEVICIUS,MATT (HP-Loveland,ex1)" <matt_zinkevicius@hp.com>
+Subject: Re: patch: highmem zero-bounce
+Message-ID: <20010627191229.G17905@suse.de>
+In-Reply-To: <20010626182215.C14460@suse.de> <20010627114155.A31910@athlon.random> <20010627182745.D17905@suse.de> <20010627184908.E17905@suse.de> <20010627190626.E24623@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010627190626.E24623@athlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-It should be all devices that do not claim ATA-4/5 support.
-I have to go back and look to see what the cut-off was that CFA agreed to
-move forward off the dead docs.
-
-Cheers,
-
-Andre Hedrick
-ASL Kernel Development
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
-
-On Wed, 27 Jun 2001, David Hinds wrote:
-
-> On Wed, Jun 27, 2001 at 12:29:47AM -0700, Andre Hedrick wrote:
+On Wed, Jun 27 2001, Andrea Arcangeli wrote:
+> On Wed, Jun 27, 2001 at 06:49:08PM +0200, Jens Axboe wrote:
+> > On Wed, Jun 27 2001, Jens Axboe wrote:
+> > > > I can see one mm corruption race condition in the patch, you missed
+> > > > nested irq in the for kmap_irq_bh (PIO).  You must _always_
+> > > > __cli/__save_flags before accessing the KMAP_IRQ_BH slot, in case the
+> > > > remapping is required (so _only_ when the page is in the highmem zone).
+> 				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > > > Otherwise memory corruption will happen when the race triggers (for
+> > > > example two ide disks in PIO mode doing I/O at the same time connected
+> > > > to different irq sources).
+> > > 
+> > > Ah yes, my bad. This requires some moving around, I'll post an updated
+> > > patch later tonight. Thanks!
 > > 
-> > I can not help if you have a device that not compliant to the rules.
-> > ATA-2 is OBSOLETED thus we forced (the NCITS Standards Body) the CFA
-> > people to move to ATA-4 or ATA-5.
-> > 
-> > That device is enabling with its ablity to assert its device->host
-> > interrupt regardless of the HOST...that is a bad device.
-> > 
-> > Send me the manufacturer and I will tear them apart for making a
-> > non-compliant device.  Then figure out a way to de-assert the like
-> > regardless if it exists without hang the rest of the driver.
+> > A prelim and untested fix just whipped up
 > 
-> I don't understand the ATA spec issue, but *every* PCMCIA ATA device I
-> know of (including all SmartMedia, CompactFlash, etc) suffers from
-> this problem.  It is not an isolated manufacturer.  As far as I know,
-> the IDE driver has always had the problem that it may trigger
-> interrupts before it installs a handler.  Are you saying that is only
-> true of pre-ATA-4 devices, or only devices that deviate from the spec?
+> Thanks!
 > 
-> -- Dave
-> 
+> I'd prefer if the __cli;__save_flags is embedded in the bh_kmap_irq in
+> the slow path case where the remap is really required. We can avoid the
+> cli for all the memory below 1G. This way it should also be harder to
+> forget to cli ;). During PIO the irq should be enabled otherwise it
+> means either the driver or the hardware is silly.
+
+Humm yes, I agree. I'll redo it tonight and send an updated
+incremental. Hopefully I'll be able to upload a new full version too.
+
+> Plus adding a _fat_ warning in the bh_kmap_irq that nobody should
+> re-enable interupt in the middle.
+
+Agree :)
+
+-- 
+Jens Axboe
 

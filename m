@@ -1,87 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbUKUPEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbUKUPTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbUKUPEf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 10:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbUKUPEf
+	id S261312AbUKUPTI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 10:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbUKUPTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 10:04:35 -0500
-Received: from pop.gmx.net ([213.165.64.20]:28820 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261308AbUKUPE3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 10:04:29 -0500
-X-Authenticated: #4399952
-Date: Sun, 21 Nov 2004 16:05:25 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-Message-ID: <20041121160525.0b71c0de@mango.fruits.de>
-In-Reply-To: <20041121134354.GA17759@elte.hu>
-References: <20041118123521.GA29091@elte.hu>
-	<20041118164612.GA17040@elte.hu>
-	<1100920963.1424.1.camel@krustophenia.net>
-	<20041120125536.GC8091@elte.hu>
-	<1100971141.6879.18.camel@krustophenia.net>
-	<20041120191403.GA16262@elte.hu>
-	<1100975745.6879.35.camel@krustophenia.net>
-	<20041120201155.6dc43c39@mango.fruits.de>
-	<20041120214035.2deceaeb@mango.fruits.de>
-	<20041121125439.GA8224@elte.hu>
-	<20041121134354.GA17759@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Sun, 21 Nov 2004 10:19:08 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20740 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261312AbUKUPTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 10:19:04 -0500
+Date: Sun, 21 Nov 2004 16:18:58 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: ambx1@neo.rr.com, perex@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] misc ISAPNP cleanups
+Message-ID: <20041121151856.GM2829@stusta.de>
+References: <20041113030234.GX2249@stusta.de> <20041116050316.GC29574@neo.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041116050316.GC29574@neo.rr.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Nov 2004 14:43:54 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
-
-> on a 2 GHz UP box the worst-case max jitter i can trigger via rtc_wakeup
-> is 11 usecs, using the -5 kernel. The workload i used was 40 parallel
-> copies of LTP plus a few hackbench runs. This is how i started
-> rtc_wakeup:
+On Tue, Nov 16, 2004 at 12:03:16AM -0500, Adam Belay wrote:
+> On Sat, Nov 13, 2004 at 04:02:34AM +0100, Adrian Bunk wrote:
+> > The patch below removes some completely unused code and makes some 
+> > needlessly global code static in drivers/pnp/isapnp/core.c .
+> > 
+> > Please review whether this patch is correct or whether it conflicts with 
+> > pending ISAPNP updates/usages.
+> > 
+> > 
+> > diffstat output:
+> >  drivers/pnp/isapnp/core.c |   47 ++++++++------------------------------
+> >  include/linux/isapnp.h    |   20 ----------------
+> >  2 files changed, 11 insertions(+), 56 deletions(-)
+> > 
+> > 
+> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 
 > 
->  chrt -f 80 -p `pidof 'IRQ 0'`
->  chrt -f 98 -p `pidof 'IRQ 8'`
+> I have to check that this doesn't break any obscure isapnp drivers.  Otherwise
+
+Why are these "obscure isapnp drivers" not included in the kernel?
+
+> it looks good.  Some of them, like "isapnp_alloc", look obvious.
 > 
->  cd rtc_wakeup
->  ./rtc_wakeup -f 1024 -t 100000
-> 
-> i.e. IRQ0 is below IRQ8 and the rtc_wakeup threads, but above every
-> other IRQ thread. Here's the histogram of a short (~5 minutes) run:
+> Thanks,
+> Adam
 
-Ah, ok, this makes sense.. Will try the same. Btw: one more question wrt the
-IRQ prios:
+cu
+Adrian
 
-Let's assume i have IRQ 0 at 80, my soundcard and the rtc irq both at prio
-98 and all others around 40. Now the rtc handler should never get in the way
-of the soundcard irq if the rtc is simply not used right? And of course, the
-other way around, too. the soundcard irq should not get in the way of the
-rtc handler if the soundcard simply is not used and not generating IRQ's?
+-- 
 
-> 
->   1 247383
->   2 34842
->   3 1488
->   4 3188
->   5 125
->   6 1
-> 
-> so this a 6 usecs max delay measured by /dev/rtc. So on your box, if the
-> max histogram delay was 16 usecs, i'd not expect a worse than ~30 usecs
-> jitter measured by rtc_wakeup. Can you reproduce the 150 usecs jitter
-> with the above IRQ setup?
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-not yet.
-
-flo

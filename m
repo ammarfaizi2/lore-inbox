@@ -1,31 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265734AbSJTCEC>; Sat, 19 Oct 2002 22:04:02 -0400
+	id <S265735AbSJTCMU>; Sat, 19 Oct 2002 22:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265737AbSJTCEC>; Sat, 19 Oct 2002 22:04:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60172 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265734AbSJTCEB>;
-	Sat, 19 Oct 2002 22:04:01 -0400
-Message-ID: <3DB21088.9090003@pobox.com>
-Date: Sat, 19 Oct 2002 22:10:16 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] procps 3.0.4
-References: <200210191112.g9JBCFl288460@saturn.cs.uml.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265736AbSJTCMU>; Sat, 19 Oct 2002 22:12:20 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:19090 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S265735AbSJTCMT>; Sat, 19 Oct 2002 22:12:19 -0400
+Date: Sat, 19 Oct 2002 22:18:18 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper outrage, old and new
+Message-ID: <20021020021818.GA2085@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <aosvuf$scn$1@main.gmane.org> <Pine.LNX.4.44.0210192157001.14117-100000@cerberus.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210192157001.14117-100000@cerberus.localhost>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert D. Cahalan wrote:
-> The procps-2.x.x code silently gives bad output; it does NOT work.
+On Sat, Oct 19, 2002 at 10:00:08PM -0400, Jon Portnoy wrote:
+> 
+> 
+> On Sat, 19 Oct 2002, Nicholas Wourms wrote:
+> 
+> > Richard Stallman wrote:
+> > 
+> > [SNIP Usual RMS Rant]
+> > 
+> > +--------------+
+> > |  Don't feed  |
+> > |  the trolls  |
+> > |              |
+> > |  thank you   |
+> > +--------------+
+> >       | |
+> >       | |
+> >       | |
+> >       | |
+> >   ....\ /....
+> > 
+> > Cheers,
+> > Nicholas
+> > 
+> > 
+> 
+> Since RMS is a troll, I highly suggest you immediately uninstall all 
+> software with any code written by him, including the GNU C Compiler suite.
+> 
+That doesn't make sense. Just because he did a good thing we need to put up 
+with his ranting and raving if we want to use it? Sorry - he forgot to put
+that condition into the GPL so we aren't bound by it.
 
-
-Can you be more specific?  What bugs do you see?
-
-I am wondering if Red Hat should integrate your procps if this is so?
+-- 
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker 
 

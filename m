@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbTI3I0t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 04:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbTI3I0t
+	id S261196AbTI3I2G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 04:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbTI3I2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 04:26:49 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:18894 "EHLO
-	executor.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S261186AbTI3I0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 04:26:47 -0400
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-From: David Woodhouse <dwmw2@infradead.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: bunk@fs.tum.de, acme@conectiva.com.br, netdev@oss.sgi.com,
-       pekkas@netcore.fi, lksctp-developers@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030930010855.095c2c35.davem@redhat.com>
-References: <20030928225941.GW15338@fs.tum.de>
-	 <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de>
-	 <20030929220916.19c9c90d.davem@redhat.com>
-	 <1064903562.6154.160.camel@imladris.demon.co.uk>
-	 <20030930000302.3e1bf8bb.davem@redhat.com>
-	 <1064907572.21551.31.camel@hades.cambridge.redhat.com>
-	 <20030930010855.095c2c35.davem@redhat.com>
-Content-Type: text/plain
-Message-Id: <1064910398.21551.41.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Tue, 30 Sep 2003 09:26:38 +0100
+	Tue, 30 Sep 2003 04:28:06 -0400
+Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:11508 "EHLO
+	mailrelay02.tugraz.at") by vger.kernel.org with ESMTP
+	id S261196AbTI3I2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 04:28:04 -0400
+From: Thomas Winkler <tom@qwws.net>
+Reply-To: tom@qwws.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: BugReport (test6): USB (ACPI), SWSUSP, E100
+Date: Tue, 30 Sep 2003 10:27:37 +0200
+User-Agent: KMail/1.5.1
+References: <200309291551.00446.tom@qwws.net> <20030929164950.GA27226@ppp0.net>
+In-Reply-To: <20030929164950.GA27226@ppp0.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309301027.37763.tom@qwws.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-30 at 01:08 -0700, David S. Miller wrote:
-> If the user sets CONFIG_IPV6 to 'm' from 'n', and make then creates a
-> new kernel image for him (which it will if dependencies are working
-> correctly), if he can't figure out that he's gotta install that thing
-> maybe he should enable module symbol versions to protect him from
-> insmod'ing that ipv6 module by mistake.
+Hello,
 
-Why would he run 'make'? He'll only run 'make modules' since he only
-enabled one extra module, and then he expects to be able to load it
-without a reboot.
+I just tested to uhci-hsd one-line patch sent by Wim Van Sebroeck. USB works 
+fine again now.
 
-He expects this because it is intuitive ('just a new module') and
-because it is true for just about all other modular options in the tree.
+In addition to that the strange e100 problems are also gone now. I double 
+checked this by removing the patch once again. Without the patch e100 is 
+dead, with the patch everything works fine. Interesting what an USB patch can 
+do to a NIC (a side effect of irq problems?).
 
-> The suggestions I see do nothing to enhance the kernel tree as it currently
-> stands.  If you wish to prevent the kernel image from changing due to
-> out-of-tree modules being built, fine, but don't impose this restriction
-> upon in-kernel modules.
+This only leaves the SWSUP problem open. An 
+echo 4 > /proc/acpi/sleep
+still shows no effect at all (see also the original mail). Is SWSUP supposed 
+to work in test6?
 
-It's a matter of taste. As I said, it's your right to disagree.
-
-Some time during 2.7 I'm sure one of the many people who agree with
-Adrian and myself will send patches to Linus and he'll get to arbitrate.
-
+bye,
 -- 
-dwmw2
-
+Tom Winkler
+e-mail: tom@qwws.net

@@ -1,61 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUHSV5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUHSWAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263818AbUHSV5v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 17:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267445AbUHSV5u
+	id S267445AbUHSWAw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 18:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUHSWAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 17:57:50 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:32995 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263818AbUHSV5q (ORCPT
+	Thu, 19 Aug 2004 18:00:52 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23524 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267445AbUHSWAv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 17:57:46 -0400
-Date: Thu, 19 Aug 2004 14:56:39 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-cc: hawkes@sgi.com, linux-kernel@vger.kernel.org, wli@holomorphy.com
+	Thu, 19 Aug 2004 18:00:51 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Ray Bryant <raybry@sgi.com>
 Subject: Re: kernbench on 512p
-Message-ID: <270470000.1092952599@flay>
-In-Reply-To: <200408191724.04422.jbarnes@engr.sgi.com>
-References: <200408191216.33667.jbarnes@engr.sgi.com> <253460000.1092939952@flay> <200408191711.04776.jbarnes@engr.sgi.com> <200408191724.04422.jbarnes@engr.sgi.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+Date: Thu, 19 Aug 2004 18:00:41 -0400
+User-Agent: KMail/1.6.2
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, hawkes@sgi.com,
+       linux-kernel@vger.kernel.org, wli@holomorphy.com
+References: <200408191216.33667.jbarnes@engr.sgi.com> <200408191711.04776.jbarnes@engr.sgi.com> <4125208D.5070809@sgi.com>
+In-Reply-To: <4125208D.5070809@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408191800.41995.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Thursday, August 19, 2004 17:24:04 -0400 Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+On Thursday, August 19, 2004 5:50 pm, Ray Bryant wrote:
+> Anyway, the read lock handling is sufficiently busticated that we should
+> probably just remove it.  I have a patch someplace (years old) to fix this,
+> but it never seemed to be important to anyone, so it is still unapplied.
 
-> On Thursday, August 19, 2004 5:11 pm, Jesse Barnes wrote:
->> The output is attached (my mailer insists on wrapping it if I inline it). 
->> I used 'lockstat -w'.
-> 
-> The highlights:
-> 
->  nw   spin   rjct  lock & function
-> 19.0% 81.0%    0%  dcache_lock
->  3.3% 96.7%    0%    d_alloc+0x270
->  2.7% 97.3%    0%    d_delete+0x40
-> 18.3% 81.7%    0%    d_instantiate+0x90
->  4.7% 95.3%    0%    d_move+0x60
-> 34.6% 65.4%    0%    d_rehash+0xe0
-> 19.1% 80.9%    0%    dput+0x40
-> 10.5% 89.5%    0%    link_path_walk+0xef0
->    0%  100%    0%    sys_getcwd+0x210
-> 
-> 41.4% 58.6%    0%  rcu_state
-> 61.3% 38.7%    0%    __rcu_process_callbacks+0x260
-> 41.4% 58.6%    0%    rcu_check_quiescent_state+0xf0
-> 
-> So it looks like the dcache lock is the biggest problem on this system with 
-> this load.  And although the rcu stuff has improved tremendously for this 
-> system, it's still highly contended.
+It would be nice if you resurrected it and sent it along to Andrew.  He's had 
+the lockmeter patch in his tree for awhile now, so having a good version 
+there is probably a good idea.
 
-Hmmm. dcache_lock is known-fucked, though I'm suprised at d_rehash
-(file deletion)?
-
-RCU stuff is a bit sad.
-
-M.
-
+Thanks,
+Jesse

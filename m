@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274767AbRIZBnB>; Tue, 25 Sep 2001 21:43:01 -0400
+	id <S274768AbRIZBzC>; Tue, 25 Sep 2001 21:55:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274768AbRIZBmu>; Tue, 25 Sep 2001 21:42:50 -0400
-Received: from CPE-61-9-148-139.vic.bigpond.net.au ([61.9.148.139]:16882 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S274767AbRIZBmi>; Tue, 25 Sep 2001 21:42:38 -0400
-Message-ID: <3BB12FA3.96460B90@eyal.emu.id.au>
-Date: Wed, 26 Sep 2001 11:30:11 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre15 i686)
-X-Accept-Language: en
+	id <S274774AbRIZByw>; Tue, 25 Sep 2001 21:54:52 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:1036 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S274768AbRIZByn>;
+	Tue, 25 Sep 2001 21:54:43 -0400
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: "Cached" grows and grows and grows...
+Date: Tue, 25 Sep 2001 18:55:11 -0700
+Message-ID: <HBEHIIBBKKNOBLMPKCBBEECLDNAA.znmeb@aracnet.com>
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Announce: modutils 2.4.9 is available
-In-Reply-To: <765.1001404102@kao2.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just built and installed modutils-2.4.9.
-
-Building vanilla 2.4.10, while doing 'make modules_install':
-
-cd /lib/modules/2.4.10; \
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
-pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.10; fi
-depmod: Unexpected value (20) in
-'/lib/modules/2.4.10/kernel/drivers/ieee1394/sbp2.o' for
-ieee1394_device_size
-        It is likely that the kernel structure has changed, if so then
-        you probably need a new version of modutils to handle this
-kernel.
-        Check linux/Documentation/Changes.
-make: *** [_modinst_post] Error 255
-
-I can reproduce it with a simple
-# depmod -V -ae -F System.map 2.4.10
-depmod version 2.4.9
-depmod: Unexpected value (20) in
-'/lib/modules/2.4.10/kernel/drivers/ieee1394/sbp2.o' for
-ieee1394_device_size
-        It is likely that the kernel structure has changed, if so then
-        you probably need a new version of modutils to handle this
-kernel.
-        Check linux/Documentation/Changes.
-
-It always mentions the same module.
+Has this issue been resolved? If so, which of the many kernels has a
+confirmed fix?
 
 --
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
+http://www.borasky-research.net  http://www.aracnet.com/~znmeb
+mailto:znmeb@borasky-research.net mailto:znmeb@aracnet.com
+
+If there's nothing to astrology, how come so many famous men were born on
+holidays?
+
+> -----Original Message-----
+> > From: linux-kernel-owner@vger.kernel.org
+> > [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Alan Cox
+> > Sent: Friday, September 07, 2001 3:16 PM
+> > To: Stephan von Krawczynski
+> > Cc: Bob McElrath; linux-kernel@vger.kernel.org
+> > Subject: Re: "Cached" grows and grows and grows...
+> >
+> >
+> > > To tell you the honest truth: you are not alone in cosmos (with
+> > this problem)
+> > > ;-)
+> > > To give you that explicit hint for saving money: do not buy
+> > mem, it will be
+> > > eaten up by recent kernels without any performance gain or
+> > other positive
+> > > impact whatsoever.
+> >
+> > Pick up a 2.4.9-ac kernel, and you shouldnt be seeing the problem (I say
+> > shouldnt, I'm not 100% convinced its all under control)
+> >
+> > > Try using 2.4.4, if it doesn't succeed, forget 2.4 and use
+> > 2.2.19. That works.
+> > > Unfortunately you may have to completely reinstall your system
+> > when going back
+> > > to 2.2.
+> >
+> > That should not be needed at all.
+

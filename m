@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136049AbRAGQpz>; Sun, 7 Jan 2001 11:45:55 -0500
+	id <S136016AbRAGQsP>; Sun, 7 Jan 2001 11:48:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136034AbRAGQpU>; Sun, 7 Jan 2001 11:45:20 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32783 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135382AbRAGQpD>; Sun, 7 Jan 2001 11:45:03 -0500
-Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
-To: matti.aarnio@zmailer.org (Matti Aarnio)
-Date: Sun, 7 Jan 2001 16:46:14 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), greearb@candelatech.com (Ben Greear),
-        davem@redhat.com (David S. Miller), linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-In-Reply-To: <20010107173306.C25076@mea-ext.zmailer.org> from "Matti Aarnio" at Jan 07, 2001 05:33:06 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136066AbRAGQrz>; Sun, 7 Jan 2001 11:47:55 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:41989 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S136065AbRAGQrt>;
+	Sun, 7 Jan 2001 11:47:49 -0500
+Message-ID: <3A589D06.D65FDDA9@innominate.de>
+Date: Sun, 07 Jan 2001 17:44:54 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave <djdave@bigpond.net.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ftruncate returning EPERM on vfat filesystem
+In-Reply-To: <Pine.LNX.4.30.0101071613130.1132-100000@athlon.internal> <E14FGI2-0002fo-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14FIxT-0002ue-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	I just tried to pull data from another machine, which
-> 	is on normal port thru VLAN trunking port to receiving
-> 	machine, and got fast-ether at wire speed. (As near as
->	ncftp's 11.11 MB/sec is wirespeed..)
+Alan Cox wrote:
+> 
+> > +
+> > +       /* FAT cannot truncate to a longer file */
+> > +       if (attr->ia_valid & ATTR_SIZE) {
+> > +               if (attr->ia_size > inode->i_size)
+> > +                       return -EPERM;
+> > +       }
+> >
+> >         error = inode_change_ok(inode, attr);
+> >         if (error)
+> >
+> > Can someone tell me if this is the cause of my samba problems, and if
+> > so, why this was added and if this is safe to revert?
+> 
+> To stop a case where the fs gets corrupted otherwise. You can change that to
+> return 0 which is more correct but most not remove it.
+> 
+> (ftruncate is specified to make the file at most length bytes long, extending
+> the file is not a guaranteed side effect according to the docs I have)
 
-But talking between two vlans on the same physical lan you will go in and back
-out via the switch and you wont
+Speaking as an old time dos hacker, this is allowed and commonly done. 
+I wouldn't read too much into the fact that it's not documented.  :-) 
+As I recall, new clusters are allocated but not cleared.
+
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

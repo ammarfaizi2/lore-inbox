@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263323AbTEIQhY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 12:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263327AbTEIQhX
+	id S263320AbTEIQfg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 12:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263322AbTEIQfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 12:37:23 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4368 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263323AbTEIQfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 12:35:41 -0400
-Date: Fri, 9 May 2003 09:48:04 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Jamie Lokier <jamie@shareable.org>, Roland McGrath <roland@redhat.com>,
-       Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 uaccess to fixmap pages
-In-Reply-To: <3EBBD982.9070006@us.ibm.com>
-Message-ID: <Pine.LNX.4.44.0305090944420.9705-100000@home.transmeta.com>
+	Fri, 9 May 2003 12:35:36 -0400
+Received: from 217-126-36-165.uc.nombres.ttd.es ([217.126.36.165]:25313 "EHLO
+	pau.intranet.ct") by vger.kernel.org with ESMTP id S263320AbTEIQfe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 12:35:34 -0400
+Date: Fri, 9 May 2003 18:47:59 +0200 (CEST)
+From: Pau Aliagas <linuxnow@newtral.org>
+X-X-Sender: pau@pau.intranet.ct
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: no console found booting 2.5.69
+Message-ID: <Pine.LNX.4.44.0305091844370.1574-100000@pau.intranet.ct>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 9 May 2003, Dave Hansen wrote:
-> 
-> We've been playing with patches in the -mjb tree which make PAGE_OFFSET
-> and TASK_SIZE move to some weird values.  I have it to the point where I
-> could do a 3.875:0.125 user:kernel split.
+I still find no way to boot a 2.5.6x kernel.
+It reports (more or less) : "no console found, specify init= option"
 
-That's still not "weird" in the current sense.
+This is the relevant part of my config:
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_LP_CONSOLE is not set
+CONFIG_VGA_CONSOLE=y
+# CONFIG_MDA_CONSOLE is not set
+CONFIG_DUMMY_CONSOLE=y
 
-We've always (well, for a long time) been able to handle a TASK_SIZE that 
-has a 111..00000 pattern - and in fact we used to _depend_ on that kind of 
-pattern, because macros like "virt_to_phys()" were simple bitwise-and 
-operations. There may be some code in the kernel that still depends on 
-that kind of bitwise operation with TASK_SIZE.
+What am I missing?
 
-Your 3.875:0.125 split still fits that pattern, and thus doesn't create 
-any new cases.
+Another problem is the PCMCIA that I already reported for 2.5.68; it 
+stalls if I don't remove the Cardbus card.
 
-In contrast, a TASK_SIZE of 0xc1000000 can no longer just "mask off" the 
-kernel address bits. And _that_ is what I meant with "strange value".
-
-		Linus
+Pau
 

@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135490AbREHVhl>; Tue, 8 May 2001 17:37:41 -0400
+	id <S135491AbREHVwc>; Tue, 8 May 2001 17:52:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135404AbREHVhb>; Tue, 8 May 2001 17:37:31 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62213 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135490AbREHVh0>; Tue, 8 May 2001 17:37:26 -0400
-Subject: Re: pci_pool_free from IRQ
-To: acahalan@cs.uml.edu (Albert D. Cahalan)
-Date: Tue, 8 May 2001 22:39:56 +0100 (BST)
-Cc: zaitcev@redhat.com (Pete Zaitcev), david-b@pacbell.net,
-        johannes@erdfelt.com, rmk@arm.linux.org.uk,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200105082108.f48L8X1154536@saturn.cs.uml.edu> from "Albert D. Cahalan" at May 08, 2001 05:08:33 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135504AbREHVwW>; Tue, 8 May 2001 17:52:22 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:58118 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135491AbREHVwT>; Tue, 8 May 2001 17:52:19 -0400
+Date: Tue, 8 May 2001 14:51:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Rik van Riel <riel@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: oddity with page_launder() handling of dirty pages
+In-Reply-To: <Pine.LNX.4.21.0105081514420.7774-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.31.0105081449160.3375-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14xFD5-0000hh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This sure makes life difficult. Device removal events can be called
-> from interrupt context according to Documentation/pci.txt. This is
-> certainly a place where one might want to call pci_consistent_free.
 
-None of our device code supports interrupt based device removal. In fact
-many drivers use vmalloc directly so will hit the same problem the
-pci_consistent_free hits on the ARM.
 
-I suspect we should fix the documentation (and if need be the code) to reflect
-the fact that you have to be completely out of your tree to handle device 
-removal in the irq handler
+On Tue, 8 May 2001, Marcelo Tosatti wrote:
+>
+> Linus, since you wrote that part of the code, I ask you: do you have any
+> reason to not remove a page being writepage()'d from the
+> inactive_dirty_list to avoid this kind of problems ?
+>
+> (the page must be added back to the inactive_dirty_list again after the
+> writeout, yes).
+
+This is the reason. I think it is absolutely _wrong_ to add it back after
+the writeout - anything could have happened to the page, including the
+page moving to other lists or not being a page cache page AT ALL.
+
+We had tons of bugs in this area when the page lists were introduced.
+
+Leaving it on the list and letting anybody who changed the state of the
+page remove it cleanly fixed all the bugs. And I'm not going back to the
+old and broken code.
+
+You can move it to the "active_list" if you want to while it is being
+written out ("it's busy, so it's active"). As long as you move it _before_
+you start the write-out.
+
+		Linus
+

@@ -1,89 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270366AbUJTCJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270339AbUJTCQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270366AbUJTCJx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 22:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUJTCF7
+	id S270339AbUJTCQT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 22:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270373AbUJTCK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 22:05:59 -0400
-Received: from pxy6allmi.all.mi.charter.com ([24.247.15.57]:53671 "EHLO
-	proxy6-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
-	id S270288AbUJTCBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 22:01:36 -0400
-Message-ID: <4175C6E2.1080201@quark.didntduck.org>
-Date: Tue, 19 Oct 2004 22:01:06 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041012
-X-Accept-Language: en-us, en
+	Tue, 19 Oct 2004 22:10:57 -0400
+Received: from out006pub.verizon.net ([206.46.170.106]:38796 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S270288AbUJTCG3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 22:06:29 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ck] 2.6.9-ck1
+Date: Tue, 19 Oct 2004 22:06:26 -0400
+User-Agent: KMail/1.7
+Cc: Tero =?iso-8859-1?q?Grundstr=F6m?= <tero@vuosaari.hai.fi>,
+       Con Kolivas <kernel@kolivas.org>, CK Kernel <ck@vds.kolivas.org>
+References: <4174F6DB.3000304@kolivas.org> <Pine.LNX.4.58.0410191522331.8316@vuosaari.hai.fi>
+In-Reply-To: <Pine.LNX.4.58.0410191522331.8316@vuosaari.hai.fi>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Remove last reference to LDFLAGS_BLOB
-Content-Type: multipart/mixed;
- boundary="------------080005050008020202060506"
-X-Charter-Information: 
-X-Charter-Scan: 
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200410192206.26039.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.58.180] at Tue, 19 Oct 2004 21:06:26 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080005050008020202060506
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tuesday 19 October 2004 08:27, Tero Grundström wrote:
+>Hi,
+>
+>I just wonder, shouldn't this release be named 2.6.9-rc4-ck3? I
+> don't see 2.6.9 final released yet.
+>
+It tis indeed, I'm running it.
 
-Nothing uses LDFLAGS_BLOB anymore, now that the arm binutils are fixed.
+>--
+>T.G.
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
---
-				Brian Gerst
-
---------------080005050008020202060506
-Content-Type: text/plain;
- name="ldflags_blob"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ldflags_blob"
-
-diff -urN linux-2.6.9-bk/arch/m32r/Makefile linux/arch/m32r/Makefile
---- linux-2.6.9-bk/arch/m32r/Makefile	2004-10-18 20:34:14.000000000 -0400
-+++ linux/arch/m32r/Makefile	2004-10-19 17:40:55.614157644 -0400
-@@ -5,7 +5,6 @@
- LDFLAGS		:=
- OBJCOPYFLAGS	:= -O binary -R .note -R .comment -S
- LDFLAGS_vmlinux	:= -e startup_32
--LDFLAGS_BLOB	:= --format binary --oformat elf32-m32r
- 
- CFLAGS += -pipe -fno-schedule-insns
- CFLAGS_KERNEL += -mmodel=medium
-diff -urN linux-2.6.9-bk/usr/initramfs_data.S linux/usr/initramfs_data.S
---- linux-2.6.9-bk/usr/initramfs_data.S	2003-12-17 21:59:42.000000000 -0500
-+++ linux/usr/initramfs_data.S	2004-10-19 17:41:16.191659582 -0400
-@@ -1,28 +1,6 @@
- /*
-   initramfs_data includes the compressed binary that is the
-   filesystem used for early user space.
--  Note: Older versions of "as" (prior to binutils 2.11.90.0.23
--  released on 2001-07-14) dit not support .incbin.
--  If you are forced to use older binutils than that then the
--  following trick can be applied to create the resulting binary:
--
--
--  ld -m elf_i386  --format binary --oformat elf32-i386 -r \
--  -T initramfs_data.scr initramfs_data.cpio.gz -o initramfs_data.o
--   ld -m elf_i386  -r -o built-in.o initramfs_data.o
--
--  initramfs_data.scr looks like this:
--SECTIONS
--{
--       .init.ramfs : { *(.data) }
--}
--
--  The above example is for i386 - the parameters vary from architectures.
--  Eventually look up LDFLAGS_BLOB in an older version of the
--  arch/$(ARCH)/Makefile to see the flags used before .incbin was introduced.
--
--  Using .incbin has the advantage over ld that the correct flags are set
--  in the ELF header, as required by certain architectures.
- */
- 
- .section .init.ramfs,"a"
-
---------------080005050008020202060506--
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

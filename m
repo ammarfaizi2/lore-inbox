@@ -1,28 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbTC3P2A>; Sun, 30 Mar 2003 10:28:00 -0500
+	id <S261357AbTC3PlN>; Sun, 30 Mar 2003 10:41:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261357AbTC3P2A>; Sun, 30 Mar 2003 10:28:00 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:47548 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S261353AbTC3P2A>;
-	Sun, 30 Mar 2003 10:28:00 -0500
-Date: Sun, 30 Mar 2003 17:39:14 +0200 (MEST)
-Message-Id: <200303301539.h2UFdE0q012872@harpo.it.uu.se>
-From: mikpe@csd.uu.se
-To: felipe_alfaro@linuxmail.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5: Can't unmount fs after using NFS
+	id <S261389AbTC3PlN>; Sun, 30 Mar 2003 10:41:13 -0500
+Received: from [81.2.110.254] ([81.2.110.254]:43765 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id <S261357AbTC3PlN>;
+	Sun, 30 Mar 2003 10:41:13 -0500
+Subject: Re: 2.5.66-ac1  SCSI question for Alan
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: walt <wa1ter@myrealbox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E85E35C.3090107@myrealbox.com>
+References: <3E85E35C.3090107@myrealbox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049039644.14686.9.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 30 Mar 2003 16:54:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Mar 2003 17:03:07 +0200, Felipe Alfaro Solana wrote:
->Since I started testing 2.5 on my NFS server, I'm having problems
->unmounting filesystems that were exported by NFS (of course, before
->trying to unmount, I stopped NFS):
+I don't use devfs so those code paths are not tested in -ac
 
-I reported the same problem around 2.5.60 or so.
-Sadly, it's still present in 2.5.66.
-
-(RH8.0 user-space, nfs stopped with /etc/rc.d/init.d/nfs stop,
-exported ext2 partition remains non-umountable.)
-
-/Mikael

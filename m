@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268724AbTCCTF2>; Mon, 3 Mar 2003 14:05:28 -0500
+	id <S268725AbTCCTHY>; Mon, 3 Mar 2003 14:07:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268725AbTCCTF2>; Mon, 3 Mar 2003 14:05:28 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:1278 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id <S268724AbTCCTFW>;
-	Mon, 3 Mar 2003 14:05:22 -0500
-Subject: Re: [2.5.63-bk6 compile error] __crc_page_states__per_cpu not in
-	per-cpu section
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0303031306390.16397-100000@chaos.physics.uiowa.edu>
-References: <Pine.LNX.4.44.0303031306390.16397-100000@chaos.physics.uiowa.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Mar 2003 11:13:24 -0800
-Message-Id: <1046718805.2819.19.camel@vmhack>
-Mime-Version: 1.0
+	id <S268726AbTCCTHY>; Mon, 3 Mar 2003 14:07:24 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48389 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268725AbTCCTFg>; Mon, 3 Mar 2003 14:05:36 -0500
+Date: Mon, 3 Mar 2003 11:13:31 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Horrible L2 cache effects from kernel compile
+In-Reply-To: <20030303140356.G15363@redhat.com>
+Message-ID: <Pine.LNX.4.44.0303031108390.12011-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yes, this works for me.
 
-    --rustyl
+On Mon, 3 Mar 2003, Benjamin LaHaise wrote:
+> 
+> Part of it is that some of the dentry is simply just too bloated.  At 
+> 160 bytes, there must be something we can prune:
 
-On Mon, 2003-03-03 at 11:10, Kai Germaschewski wrote:
-> On 3 Mar 2003, Rusty Lynch wrote:
-> 
-> > After updating my bk tree this morning, I am getting the 
-> > following compile error:
-> > 
-> > 4d13d7e9 A __crc_page_states__per_cpu not in per-cpu section
-> > make: *** [vmlinux] Error 1
-> 
-> It's a false positive from the script which checks whether all per-cpu 
-> variables ended up in the correct section. __crc_page_states__per_cpu ends 
-> in __per_cpu, that's why the script thinks it's a per-cpu variable, but
-> it's not, it's just a checksum.
-> 
-> Could you try if this patch fixes it, I don't really speak awk ;)
-> 
-> You should be able to reproduce the error by just doing "rm vmlinux; make 
-> vmlinux", but not anymore after applying the patch below.
-> 
-> --Kai
-> 
-> 
-> ===== scripts/per-cpu-check.awk 1.3 vs edited =====
-> --- 1.3/scripts/per-cpu-check.awk	Fri Jan 24 14:27:01 2003
-> +++ edited/scripts/per-cpu-check.awk	Mon Mar  3 13:05:48 2003
-> @@ -6,7 +6,7 @@
->  	IN_PER_CPU=0
->  }
->  
-> -/__per_cpu$$/ && ! ( / __ksymtab_/ || / __kstrtab_/ || / __kcrctab_/ ) {
-> +/__per_cpu$$/ && ! ( / __ksymtab_/ || / __kstrtab_/ || / __kcrctab_/ || / __crc_/ ) {
->  	if (!IN_PER_CPU) {
->  		print $$3 " not in per-cpu section" > "/dev/stderr";
->  		FOUND=1;
-> 
+The thing is, the size of it doesn't really matter. The bad effects come 
+not from the size, but from the bad behaviour of the lookup algorithm, 
+which would be exactly the same even if the dentry was _half_ the size it 
+is now.
 
+In other words, the size of the dentry only matters from a memory usage
+standpoint, and I don't think we have any cause to believe that dentries
+really hurt our global memory usage (we've _often_ had the bug that we
+don't shrink the dentry cache quickly enough, which is a different
+problem, though - keeping too many of them around. That should be largely
+fixed in current kernels).
+
+So I don't think there is any real reason to worry about the size of the
+dentry itself. Yes, you could make it smaller (you could remove the inline
+string from it, for example, and you could avoid allocating it at
+cacheline boundaries - both of which makes it a _lot_ smaller than just
+trying to save few bits), but both of those bigger decisions look like 
+they are worthwhile tradeoffs.
+
+		Linus
 

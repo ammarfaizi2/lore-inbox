@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129378AbRBOSoY>; Thu, 15 Feb 2001 13:44:24 -0500
+	id <S129107AbRBOSse>; Thu, 15 Feb 2001 13:48:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129776AbRBOSoO>; Thu, 15 Feb 2001 13:44:14 -0500
-Received: from colorfullife.com ([216.156.138.34]:3853 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129378AbRBOSoE>;
-	Thu, 15 Feb 2001 13:44:04 -0500
-Message-ID: <3A8C2389.3957EA4B@colorfullife.com>
-Date: Thu, 15 Feb 2001 19:44:25 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
-X-Accept-Language: en
+	id <S129118AbRBOSsO>; Thu, 15 Feb 2001 13:48:14 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42504 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129143AbRBOSsK>; Thu, 15 Feb 2001 13:48:10 -0500
+Subject: Re: MTU and 2.4.x kernel
+To: kuznet@ms2.inr.ac.ru
+Date: Thu, 15 Feb 2001 18:47:31 +0000 (GMT)
+Cc: roger@kea.GRace.CRi.NZ, linux-kernel@vger.kernel.org
+In-Reply-To: <200102151821.VAA19711@ms2.inr.ac.ru> from "kuznet@ms2.inr.ac.ru" at Feb 15, 2001 09:21:28 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Nathan Walp <faceprint@faceprint.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-ac14 tulip woes
-In-Reply-To: <3A8C1D50.AB6F2E5A@faceprint.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14TTRF-0000Ul-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Walp wrote:
-> 
-> The fix in ac14 for the ac13 patch that killed the tulip driver doesn't
-> quite work either:
->
+> with bogus mtu values sort of 552 or even 296, but also jailed them
+> to some proxy or masquearding domain), but it is still right: IP
+> with mtu lower 576 is not full functional.
 
-I need more details:
-does it immediately time out (after a few seconds), or a after a few
-minutes.
+Please cite an exact RFC reference.
 
-Which network speed do you use? 100MBit half duplex?
+The 576 byte requirement is for reassembled packets handled by the host.
+That is if you send a 576 byte frame you know the other end will be able
+to put it back together. Our handling of DF on syn frames is also broken
+due to that misassumption, but fortunately only for crazy mtus like 70.
 
-Could you please run the tulip-diag program I send you yesterday?
-#tulip-diag -mm -aa -f
+Alan
 
-both before and after the hang.
-
-Thanks,
-	Manfred

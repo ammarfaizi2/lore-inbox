@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265073AbTGCRXC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 13:23:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbTGCRXC
+	id S265062AbTGCRW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 13:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265073AbTGCRW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 13:23:02 -0400
-Received: from va-leesburg1b-227.chvlva.adelphia.net ([68.64.41.227]:53128
-	"EHLO ccs.covici.com") by vger.kernel.org with ESMTP
-	id S265073AbTGCRXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 13:23:00 -0400
-To: linux-kernel@vger.kernel.org
-Subject: local nntp connections much slower in 2.5.73 than in 2.4.x
-From: John Covici <covici@ccs.covici.com>
-Date: Thu, 03 Jul 2003 13:37:26 -0400
-Message-ID: <m3znjvbjft.fsf@ccs.covici.com>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 3 Jul 2003 13:22:29 -0400
+Received: from zero.aec.at ([193.170.194.10]:29197 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S265062AbTGCRW2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 13:22:28 -0400
+Date: Thu, 3 Jul 2003 19:36:48 +0200
+From: Andi Kleen <ak@muc.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5.74] x86_64 apic/nmi driver model conversion cleanups
+Message-ID: <20030703173648.GB1143@averell>
+References: <200307031613.h63GDID8007098@harpo.it.uu.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307031613.h63GDID8007098@harpo.it.uu.se>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I have been noticing an nntp problem in my 2.5.73 kernel.  I
-have inn 2.3 set up on my machine and I use gnus to read mail and
-news.  Now what happens is that when gnus starts up it connects to
-the server (same box) and gets all the active newsgroups.  What I
-have noticed is a drastic slowdown in 2.5.73 (or other 7x) than in my
-2.4.20 kernel and I was wondering if anyone else has seen this or can
-tell me either a workaround or what is going on with this.
 
-Thanks.
+Thanks. I applied the two patches.
 
--- 
-         John Covici
-         covici@ccs.covici.com
+-Andi

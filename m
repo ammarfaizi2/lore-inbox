@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262572AbTJaBrY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 20:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTJaBrY
+	id S262772AbTJaCDp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 21:03:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbTJaCDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 20:47:24 -0500
-Received: from gemini.smart.net ([205.197.48.109]:28933 "EHLO gemini.smart.net")
-	by vger.kernel.org with ESMTP id S262572AbTJaBrX (ORCPT
+	Thu, 30 Oct 2003 21:03:45 -0500
+Received: from gemini.smart.net ([205.197.48.109]:59653 "EHLO gemini.smart.net")
+	by vger.kernel.org with ESMTP id S262772AbTJaCDo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 20:47:23 -0500
-Message-ID: <3FA1BF06.ED00123C@smart.net>
-Date: Thu, 30 Oct 2003 20:46:46 -0500
+	Thu, 30 Oct 2003 21:03:44 -0500
+Message-ID: <3FA1C2DB.24E60F40@smart.net>
+Date: Thu, 30 Oct 2003 21:03:07 -0500
 From: "Daniel B." <dsb@smart.net>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22+dsb1 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Things that Longhorn seems to be doing right
-References: <LUlv.31e.5@gated-at.bofh.it> <M7iG.41B.7@gated-at.bofh.it>
-	 <MagC.82U.7@gated-at.bofh.it> <Maqe.8l3.9@gated-at.bofh.it>
-	 <3FA0F1B7.7000409@softhome.net> <Pine.LNX.4.58.0310301007340.11170@sm1420.belits.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org>
+	 <3FA0475E.2070907@namesys.com>
+	 <1067466349.3077.274.camel@mentor.gurulabs.com>
+	 <20031030002005.GC3094@digitasaru.net>
+	 <16288.24913.844699.956689@notabene.cse.unsw.edu.au>
+	 <20031030013418.GD3094@digitasaru.net> <20031030212812.GA698@ncsu.edu> <yw1x8yn21hsd.fsf@kth.se>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Belits wrote:
+Måns Rullgård wrote:
 > 
-> On Thu, 30 Oct 2003, Ihar 'Philips' Filipau wrote:
+> jlnance@unity.ncsu.edu writes:
 > 
-...
+> > Unfortunatly, we probably dont really have a choice.  MS has enough market
+> > share that we must emulate not only their good, but even their bad ideas
+> > if we want Linux to be used by people other than those who develop it.
 > 
-> 3. Pluggable directory generator -- a userspace process can tell the
-> system to make an object that looks exactly like a directory, except that
-> its contents are provided by the process, that is being queried when the
-> directory is accessed.
+> Well, do we, necessarily?  Is the goal with Linux to get as many users
+> as possible, or to create the best OS possible?  I was hoping for the
+> latter.
 
-That sounds like ClearCase's dynamically generated views of directories
-and files.
+How about using usefulness as a measure?  (Well, yeah, then the question
+is "useful to whom"?)  
+
 
 Daniel
 -- 

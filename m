@@ -1,73 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264873AbUFLQoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264876AbUFLRPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264873AbUFLQoI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 12:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbUFLQoI
+	id S264876AbUFLRPy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 13:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264719AbUFLRPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 12:44:08 -0400
-Received: from quechua.inka.de ([193.197.184.2]:10905 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S264873AbUFLQoE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 12:44:04 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O_NOATIME support
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <20040612011129.GD1967@flower.home.cesarb.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BZBbt-0007jL-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sat, 12 Jun 2004 18:44:01 +0200
+	Sat, 12 Jun 2004 13:15:54 -0400
+Received: from lakermmtao12.cox.net ([68.230.240.27]:47314 "EHLO
+	lakermmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S264876AbUFLRPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 13:15:51 -0400
+In-Reply-To: <40CB233C.6050505@myrealbox.com>
+References: <772741DF-BC19-11D8-888F-000393ACC76E@mac.com> <40CA74D0.5070207@myrealbox.com> <FA11463F-BC2C-11D8-888F-000393ACC76E@mac.com> <40CA95ED.8060902@myrealbox.com> <3131BE9C-BC6F-11D8-888F-000393ACC76E@mac.com> <40CB233C.6050505@myrealbox.com>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <276EDF6A-BC94-11D8-888F-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: In-kernel Authentication Tokens (PAGs)
+Date: Sat, 12 Jun 2004 13:15:51 -0400
+To: Andy Lutomirski <luto@myrealbox.com>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040612011129.GD1967@flower.home.cesarb.net> you wrote:
-> +++ linux-2.6.6/include/asm-arm/fcntl.h 2004-06-10 18:36:55.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-arm26/fcntl.h       2004-06-10 18:37:42.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-cris/fcntl.h        2004-06-10 18:37:59.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-h8300/fcntl.h       2004-06-10 18:38:16.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-i386/fcntl.h        2004-06-10 18:38:26.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-ia64/fcntl.h        2004-06-10 18:38:38.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-m68k/fcntl.h        2004-06-10 18:38:49.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-mips/fcntl.h        2004-06-10 18:39:12.000000000 -0300
-> +#define O_NOATIME      0x40000
-> +++ linux-2.6.6/include/asm-parisc/fcntl.h      2004-06-10 18:40:03.000000000 -0300
-> +#define O_NOATIME      04000000
-> +++ linux-2.6.6/include/asm-ppc/fcntl.h 2004-06-10 18:40:14.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-ppc64/fcntl.h       2004-06-10 18:40:25.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-s390/fcntl.h        2004-06-10 18:40:42.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-sh/fcntl.h  2004-06-10 18:40:52.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-sparc/fcntl.h       2004-06-10 18:41:14.000000000 -0300
-> +#define O_NOATIME      0x200000
-> +++ linux-2.6.6/include/asm-sparc64/fcntl.h     2004-06-10 18:41:27.000000000 -0300
-> +#define O_NOATIME      0x200000
-> +++ linux-2.6.6/include/asm-v850/fcntl.h        2004-06-10 18:41:56.000000000 -0300
-> +#define O_NOATIME      01000000
-> +++ linux-2.6.6/include/asm-x86_64/fcntl.h      2004-06-10 18:42:13.000000000 -0300
-> +#define O_NOATIME      01000000
+On Jun 12, 2004, at 11:37, Andy Lutomirski wrote:
+> Kyle Moffett wrote:
+>> You want to sent a token to some daemon over a UNIX socket?  Just 
+>> copy the token data and write it out to the socket, the same as if 
+>> you had some external token store (Like in MIT Kerberos) and wanted 
+>> to send the token to somewhere without the environment variables.  
+>> This system would allow several existing token cache mechanisms to be 
+>> converted to this alternative store without much work at all.
+>
+> Except I'd like non-root users to have tokens that they _cannot_ read, 
+> but that they can still pass over unix sockets.  I have no objection 
+> to also allowing user-readable tokens.
 
-This is less related  to  your  patch (i like this feature!) but more to the
-current source layout: is there a reason for not sharing those open flags on
-an non architecture specific file?
+Ok, that makes a lot of sense, I really should have thought of that 
+earlier.  So how about we add an extra flag to a token identifying 
+whether it's readable by someone with it's UID or only by someone with 
+CAP_LINUX_TOKGRP.  How about the following interface:
 
-And should you not try  to use the same value on all architectures to make
-that especially easy to change later?
+The special files "/proc/tokgrp/<tokgrp-id>/group" represent token 
+groups.  They cannot be read or written, but they utilize file modes 
+(I'm not sure how yet).  Opening one of them prevents it from going 
+away until it is closed.  There should be symlinks named 
+"/proc/<pid>/tokgrp" to the appropriate dir in "/proc/tokgrp/".  
+Perhaps there should be symlinks as "/proc/tokgrp/<tokgrp_id>/parent" 
+to the appropriate parent tokgrp directory.  Those would not exist if 
+it did not have a parent.
 
-Greetings
-Bernd
+IOCTLs:
+tokgrp_{get,set}_pid: Manipulates the PID of a token group
+tokgrp_{get,set}_parent: Manipulates the parent of a token group
 
+Tokens are uniquely identified within a token group by an integral 
+"type" and a string "realm".  A specific token is mapped to 
+"/proc/tokgrp/<id>/<typenum>/<realm>".  They can be read or written 
+according to file modes, and the execute permission means the ability 
+to execute in-kernel operations on the token (depending on the type) 
+using IOCTLs.  All tokens (As long as the process is in the same UID 
+and/or has CAP_LINUX_PAG) can be opened and the filehandles passed 
+around using UNIX sockets.
 
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+> This way I could have a server with, say, a Kerberos service token 
+> such that a compromise of the server process does not compromise the 
+> service token.  (You still have a gotcha in that the kerberosd this 
+> would require would, for performance reasons, want to handle only 
+> ticket-granting traffic.  Still, you just mark the TGT unreadable and 
+> the individual session tickets readable, so that the damage of a 
+> compromise is limited to a few hours until the sessions expire.)
+
+Since we have in-kernel crypto we could even put some of the token 
+operations into the kernel and use those operations to work with the 
+ticket (decrypt, etc).  That would mean that in certain cases we could 
+keep the tickets completely out of reach of exposed software.
+
+> Yes, this would be a _lot_ more work than just blindly porting 
+> Kerberos' ticket cache, but it has security benefits.
+
+Definitely
+
+> And I really want a good token system in Linux -- that way the OpenAFS 
+> people will stop bitching and I might be able to use it again.
+
+Yeah, I know.  If we do it well enough and make it modular enough then 
+OpenAFS, Coda, NFSv4, Kerberos, OpenSSH (RSA keys) etc can all use the 
+same implementation.  This could also be steps in the right direction 
+of making Linux more TCB-ish.
+
+Cheers,
+Kyle Moffett
+

@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266901AbUHITOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266912AbUHITOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266901AbUHITOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 15:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266917AbUHITNg
+	id S266912AbUHITOK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 15:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266920AbUHITNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 15:13:36 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:39067 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266912AbUHITMt (ORCPT
+	Mon, 9 Aug 2004 15:13:18 -0400
+Received: from holomorphy.com ([207.189.100.168]:12258 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266901AbUHITMr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 15:12:49 -0400
-From: Hollis Blanchard <hollisb@us.ibm.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [RFC] Host Virtual Serial Interface driver
-Date: Mon, 9 Aug 2004 14:08:04 -0500
-User-Agent: KMail/1.5.4
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-References: <1091827384.31867.21.camel@localhost> <200408091351.49211.hollisb@us.ibm.com> <20040809190042.GB20397@mars.ravnborg.org>
-In-Reply-To: <20040809190042.GB20397@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 15:12:47 -0400
+Date: Mon, 9 Aug 2004 12:12:40 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       "Seth, Rohit" <rohit.seth@intel.com>
+Subject: Re: Hugetlb demanding paging for -mm tree
+Message-ID: <20040809191240.GS11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+	"Seth, Rohit" <rohit.seth@intel.com>
+References: <20040807083613.GZ17188@holomorphy.com> <200408091854.i79IsCY12450@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408091408.04745.hollisb@us.ibm.com>
+In-Reply-To: <200408091854.i79IsCY12450@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 August 2004 14:00, Sam Ravnborg wrote:
-> On Mon, Aug 09, 2004 at 01:51:49PM -0500, Hollis Blanchard wrote:
-> > > pr_debug is a noop if DEBUG is not defined. Make dump_hex, dump_packet
-> > > be a noop also and you get rid of several #ifdef in the code.
-> >
-> > I'd like to do that, but notice that dump_hex() is called from
-> > dump_packet() from hvsi_recv_response() (and I've just made
-> > hvsi_recv_control() the same). Even with debug disabled, I'd like to be
-> > able to dump a whole packet if I get confused...
->
-> Make a small wrapper that becomes noop in non-debug case,
-> and use the real one where you do not care about DEBUG.
+William Lee Irwin III wrote on Saturday, August 07, 2004 1:36 AM
+>> This is needed because we're only freeing pagetables at pgd granularity
+>> at munmap() -time. It makes more sense to refine it to pmd granularity
+>> instead of this cleanup pass, as it's a memory leak beyond just hugetlb
+>> data structure corruption.
 
-Ah sure, like this:
+On Mon, Aug 09, 2004 at 11:54:13AM -0700, Chen, Kenneth W wrote:
+> That would be nice and ease the pain on x86.  OTOH, leaving pte persistent
+> right now may help in mmap/munmap intensive workload since unmap_region()
+> only destroys all pte allocation at pgd granularity.
 
-#ifdef DEBUG
-#define dbg_dump_packet(packet) dump_packet(packet)
-#define dbg_dump_hex(data, len) dump_hex(data, len)
-#else
-#define dbg_dump_packet(packet)
-#define dbg_dump_hex(data, len)
-#endif
+We're better off caching pagetables for that. I don't appear to be able
+to get the code to cache 3rd-level pagetables on ia32 past permavetoes.
 
-... and then replace the in-DEBUG callers. I like it, thanks.
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
+William Lee Irwin III wrote on Saturday, August 07, 2004 1:36 AM
+>> I wonder why this bugfix was rolled into the demand paging patch instead
+>> of shipped separately. And for that matter, this fix applies to mainline.
+
+On Mon, Aug 09, 2004 at 11:54:13AM -0700, Chen, Kenneth W wrote:
+> The bug fix went into hugetlb_prefault() function in the mainline for the
+> prefaulting case.  It went to that function instead of huge_pte_alloc
+> and huge_pte_offset is to avoid scrubbing at pte lookup time. One
+> thing we can do for demand paging case is to scrub it at initial mmap
+> hugetlb vma, so the penalty is paid upfront instead of at every pte
+> allocation/lookup time.
+
+Good thing I brought a barfbag back from the OLS return flight... the
+leak really is a major issue, esp. on 64-bit where vast amounts of
+virtualspace are mapped and hence vast amounts of pagetables may leak.
+
+I'll put the pagetable cleanup on my TODO along with ia64 pagetable
+caching (which should be as easy as it was for ppc64).
+
+
+-- wli

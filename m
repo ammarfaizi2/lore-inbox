@@ -1,111 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135662AbRALXKk>; Fri, 12 Jan 2001 18:10:40 -0500
+	id <S135648AbRALXMK>; Fri, 12 Jan 2001 18:12:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135648AbRALXKU>; Fri, 12 Jan 2001 18:10:20 -0500
-Received: from ziggy.one-eyed-alien.net ([216.120.107.189]:62213 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S135609AbRALXKP>; Fri, 12 Jan 2001 18:10:15 -0500
-Date: Fri, 12 Jan 2001 15:10:08 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: "Robert J. Bell" <rob@bellfamily.org>
-Cc: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: USB Mass Storage in 2.4.0
-Message-ID: <20010112151008.A5798@one-eyed-alien.net>
-Mail-Followup-To: "Robert J. Bell" <rob@bellfamily.org>,
-	kernel-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A5F8956.9040305@bellfamily.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3A5F8956.9040305@bellfamily.org>; from rob@bellfamily.org on Fri, Jan 12, 2001 at 02:46:46PM -0800
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+	id <S135691AbRALXMA>; Fri, 12 Jan 2001 18:12:00 -0500
+Received: from mailgw.prontomail.com ([216.163.180.10]:13033 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S135648AbRALXLs>; Fri, 12 Jan 2001 18:11:48 -0500
+Message-ID: <3A5F8E50.6720DF5E@mvista.com>
+Date: Fri, 12 Jan 2001 15:08:00 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <andrewm@uow.edu.au>
+CC: nigel@nrg.org, "David S. Miller" <davem@redhat.com>,
+        linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <200101110519.VAA02784@pizda.ninka.net> <Pine.LNX.4.05.10101111233241.5936-100000@cosmic.nrg.org> <3A5F0706.6A8A8141@uow.edu.au>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> 
+> Nigel Gamble wrote:
+> >
+> > Spinlocks should not be held for lots of time.  This adversely affects
+> > SMP scalability as well as latency.  That's why MontaVista's kernel
+> > preemption patch uses sleeping mutex locks instead of spinlocks for the
+> > long held locks.
+> 
+> Nigel,
+> 
+> what worries me about this is the Apache-flock-serialisation saga.
+> 
+> Back in -test8, kumon@fujitsu demonstrated that changing this:
+> 
+>         lock_kernel()
+>         down(sem)
+>         <stuff>
+>         up(sem)
+>         unlock_kernel()
+> 
+> into this:
+> 
+>         down(sem)
+>         <stuff>
+>         up(sem)
+> 
+> had the effect of *decreasing* Apache's maximum connection rate
+> on an 8-way from ~5,000 connections/sec to ~2,000 conn/sec.
+> 
+> That's downright scary.
+> 
+> Obviously, <stuff> was very quick, and the CPUs were passing through
+> this section at a great rate.
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If <stuff> was that fast, maybe the down/up should have been a spinlock
+too.  But what if it is changed to:
 
-Please turn on USB Mass Storage debugging and send me the dmesg output from
-when you attach the device and load the drivers.
+      BKL_enter_mutx()
+      down(sem)
+      <stuff>
+      up(sem)
+      BKL_exit_mutex()
+> 
+> How can we be sure that converting spinlocks to semaphores
+> won't do the same thing?  Perhaps for workloads which we
+> aren't testing?
 
-Matt
+The key is to keep the fast stuff on the spinlock and the slow stuff on
+the mutex.  Otherwise you WILL eat up the cpu with the overhead.
+> 
+> So this needs to be done with caution.
+> 
+> As davem points out, now we know where the problems are
+> occurring, a good next step is to redesign some of those
+> parts of the VM and buffercache.  I don't think this will
+> be too hard, but they have to *want* to change :)
 
-On Fri, Jan 12, 2001 at 02:46:46PM -0800, Robert J. Bell wrote:
-> I know there has been some talk arround this topic on this list so If I=
-=20
-> missed the answer I apologize, i just joined the list today. I read=20
-> through the archive and all I could find relative to mass storage is the=
-=20
-> scsi dependancy, which I am aware of. Here is my situation.
->=20
-> I have a Fujufilm FX-1400 digital camera that uses the USB Mass Storage=
-=20
-> driver. I know it works because I had it working in 2.4.0-test12, and in=
-=20
-> 2.4.0 however I had a major system failure and lost my new kernel. This=
-=20
-> time arround I can not get USB Mass Storage to work. I have tried=20
-> various combinations of the scsi and usb options. I thought maybe I=20
-> needed SCSI Disk support as well but it didnt seem to matter. I have=20
-> tried with scsi and usb mass storage as modules and as part of the=20
-> kernel, still no luck. Here is what happens when I connect the camera :
->=20
-> Jan 10 18:49:05 t20 kernel: hub.c: USB new device connect on bus1/1,=20
-> assigned device number 3
-> Jan 10 18:49:05 t20 kernel: Product: USB Mass Storage
-> Jan 10 18:49:05 t20 kernel: SerialNumber: Y-170^^^^^000810X0000003005237
-> Jan 10 18:49:06 t20 kernel: scsi0 : SCSI emulation for USB Mass Storage=
-=20
-> devices
-> Jan 10 18:49:06 t20 kernel:   Vendor:  `.=C0 =C0=F2=CF  Model: \206   =D8=
-\177.=C0=A1#=20
-> =C0 =DD=F2=CF  Rev: =FF=FF=FF=FF
-> Jan 10 18:49:06 t20 kernel:   Type:   Scanner                           =
-=20
-> ANSI SCSI revision: 02
->=20
-> Now this used to detect a scsi disk and all I had to do was mount it. I=
-=20
-> am sure there must be other conflicting config options but I just dont=20
-> know what it could be. Any help would be greatly appreciated.
->=20
-> Robert.
->=20
+They will *want* to change if they pop up due to other work :)
+> 
+> Some of those algorithms are approximately O(N^2), for huge
+> values of N.
+> 
+> -
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > Please read the FAQ at http://www.tux.org/lkml/
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-Oh great modem, why hast thou forsaken me?
-					-- Dust Puppy
-User Friendly, 3/2/1998
-
---d6Gm4EdcadzBjdND
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6X47Qz64nssGU+ykRAufWAKDZ5vlIdelIMjmAkeiMVZknrhQ/qACgoCY+
-SLFE7L0ESsGsQlTXq6vyFyo=
-=gfOC
------END PGP SIGNATURE-----
-
---d6Gm4EdcadzBjdND--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

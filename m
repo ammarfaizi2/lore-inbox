@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263060AbTKJSMy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 13:12:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbTKJSMy
+	id S264045AbTKJS1g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 13:27:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264057AbTKJS1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 13:12:54 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60116 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263060AbTKJSMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 13:12:53 -0500
-Date: Mon, 10 Nov 2003 19:12:46 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, cltien@cmedia.com.tw,
-       support@cmedia.com.tw
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] fix SOUND_CMPCI Configure.help entry
-Message-ID: <20031110181246.GP22185@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 10 Nov 2003 13:27:35 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:7052 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264045AbTKJS1d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 13:27:33 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 10 Nov 2003 10:27:33 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+In-Reply-To: <3FAFD1E5.5070309@zytor.com>
+Message-ID: <Pine.LNX.4.44.0311101004150.2097-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 10 Nov 2003, H. Peter Anvin wrote:
 
-the issue below is only a minor documentation fix, but it has confused 
-me when configuring a kernel for such a card.
+> >>The best way to fix this isn't to add locking to rsync, but to add two
+> >>files inside or outside the tree, each one is a sequence number, so you
+> >>fetch file1 first, then you rsync and you fetch file2, then you compare
+> >>them. If they're the same, your rsync copy is coherent. It's the same
+> >>locking we introduced with vgettimeofday.
+> >>
+> >>Ideally rsync could learn to check the sequence numbers by itself but I
+> >>don't mind a bit of scripting outside of rsync.
+> > 
+> > Wouldn't a simpler  "stop-rsync -> update-root -> start-rsync" work? If 
+> > you'll hit an update you will get a error from your local rsync, that will 
+> > let you know to retry the operation.
+> 
+> Part of the problem is that there are multiple steps in the rsync chain, 
+> some of which can't be stopped in this way.
+> 
+> The sequence number idea looks sensible to me.  Larry, would it be too 
+> much work to have the cvs repository generator generate these files?
 
-The Config.in already contains the correct number.
+So the update of the rsync repo should do something like:
 
-Please apply
-Adrian
+update file1
+update repo
+update file2
 
---- linux-2.4.23-pre9-full/Documentation/Configure.help.old	2003-11-10 19:06:29.000000000 +0100
-+++ linux-2.4.23-pre9-full/Documentation/Configure.help	2003-11-10 19:07:29.000000000 +0100
-@@ -21391,10 +21391,10 @@
-   DSP 16 card. Enter: 0 for Sony, 1 for Panasonic, 2 for IDE, 4 for no
-   CD-ROM present.
- 
--C-Media PCI (CMI8338/8378)
-+C-Media PCI (CMI8338/8738)
- CONFIG_SOUND_CMPCI
-   Say Y or M if you have a PCI sound card using the CMI8338
--  or the CMI8378 chipset.  Data on these chips are available at
-+  or the CMI8738 chipset.  Data on these chips are available at
-   <http://www.cmedia.com.tw/>.
- 
-   A userspace utility to control some internal registers of these
+Isn't it? I do not understand how this guarantee coherency:
+
+Kernel.org             Me
+                       get file1 (old value)
+update file1           get repo-file1 (old value)
+update repo-file1
+...
+update repo-fileJ
+...                    get repo-fileJ (new value)
+update repo-fileN      get file2 (old value)
+update file2
+
+
+
+
+- Davide
+
+
+

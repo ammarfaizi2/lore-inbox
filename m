@@ -1,76 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTINX4Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 19:56:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTINX4Q
+	id S262071AbTINXuc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 19:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbTINXuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 19:56:16 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:37645 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262409AbTINX4O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 19:56:14 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Date: 14 Sep 2003 23:47:13 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bk2um1$flp$1@gatekeeper.tmr.com>
-References: <m1vfrxlxol.fsf@ebiederm.dsl.xmission.com> <20030912195606.24e73086.ak@suse.de>
-X-Trace: gatekeeper.tmr.com 1063583233 16057 192.168.12.62 (14 Sep 2003 23:47:13 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Sun, 14 Sep 2003 19:50:32 -0400
+Received: from [141.154.95.10] ([141.154.95.10]:64205 "EHLO peabody.ximian.com")
+	by vger.kernel.org with ESMTP id S262071AbTINXu2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 19:50:28 -0400
+Message-ID: <3F64FEAF.1070601@ximian.com>
+Date: Sun, 14 Sep 2003 19:50:07 -0400
+From: Kevin Breit <mrproper@ximian.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Need fixing of a rebooting system
+References: <1063496544.3164.2.camel@localhost.localdomain>  <Pine.LNX.4.53.0309131945130.3274@montezuma.fsmlabs.com>  <3F6450D7.7020906@ximian.com>  <Pine.LNX.4.53.0309140904060.22897@montezuma.fsmlabs.com> <1063561687.10874.0.camel@localhost.localdomain> <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030912195606.24e73086.ak@suse.de>,
-Andi Kleen  <ak@suse.de> wrote:
-| On 12 Sep 2003 11:32:42 -0600
-| ebiederm@xmission.com (Eric W. Biederman) wrote:
-| 
-| 
-| > There may be better places to attack.  But new code is what is up for
-| > examination and is easiest to fix.
-| 
-| With is_prefetch:
-| 
-|    text    data     bss     dec     hex filename
-|    2782       4       0    2786     ae2 arch/i386/mm/fault.o
-| 
-| Without is_prefetch:
-| 
-|  text    data     bss     dec     hex filename
-|    2446       4       0    2450     992 arch/i386/mm/fault.o
-| 
-| Difference 332 bytes
-| 
-| If you start your attack on 332 bytes then IMHO you have your priorities wrong ;-)
-| 
-| The main reason I'm really against this is that currently the P4 kernels work
-| fine on Athlon. Just when is_prefetch is not integrated in them there will 
-| be an mysterious oops once every three months in the kernel in prefetch
-| on Athlon.
-|  
-| That would be bad. The alternative would be to prevent the P4 kernel
-| from booting on the Athlon at all, but doing that for 332 bytes
-| would seem a bit silly.
+Zwane Mwaikambo wrote:
 
-I am really missing something here, why is it you want to run a P4
-kernel on Athlon? And why is it good to push bloat into the kernel and
-then tell people who really care about size to go peddle their papers
-elsewhere? There is perfectly good code in the kernel now to disable
-prefetch on Athlon, leave it in unless the kernel is built for Athlon
-support. A P4 kernel should run fine on an Athlon already.
+>On Sun, 14 Sep 2003, Kevin Breit wrote:
+>
+>  
+>
+>>On Sun, 2003-09-14 at 09:05, Zwane Mwaikambo wrote:
+>>    
+>>
+>>>On Sun, 14 Sep 2003, Kevin Breit wrote:
+>>>
+>>>      
+>>>
+>>>>I set the CPU type to PII/Celeron and recompiled.  It was at 
+>>>>PIII/Celeron but it still won't work.  It is still rebooting.
+>>>>        
+>>>>
+>>>Please send your .config and a dmesg from a working kernel.
+>>>      
+>>>
+>>The files should be attached.  If they aren't, please let me know!
+>>
+>>Thanks for your help.
+>>    
+>>
+>
+>Can you try with the following patch, courtesy of Adam Belay, my box 
+>panicked with your .config without it.
+>
+>--- a/sound/pci/ens1370.c	2003-09-13 19:28:45.000000000 +0000
+>+++ b/sound/pci/ens1370.c	2003-09-13 19:30:02.000000000 +0000
+>@@ -2354,7 +2354,11 @@
+> }
+>
+> static struct pci_driver driver = {
+>-	.name = "Ensoniq AudioPCI",
+>+#ifdef CHIP1371
+>+	.name = "Ensoniq 1371",
+>+#else
+>+	.name = "Ensoniq 1370",
+>+#endif
+> 	.id_table = snd_audiopci_ids,
+> 	.probe = snd_audiopci_probe,
+> 	.remove = __devexit_p(snd_audiopci_remove),
+>  
+>
+This unfortunately didn't help.  It still reboots right after it 
+uncompresses the kernel.
 
-We just got a start on making Linux smaller to encourage embedded use, I
-don't see adding 300+ bytes of wasted code so people can run
-misconfigured kernels.
+Thanks
 
-I rather have to patch this in for my Athlon kernels than have people
-who aren't cutting corners trying to avoid building matching kernels
-have to live with the overhead.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Kevin Breit
+

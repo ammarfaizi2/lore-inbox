@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317343AbSGIIvo>; Tue, 9 Jul 2002 04:51:44 -0400
+	id <S317342AbSGIJG0>; Tue, 9 Jul 2002 05:06:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317342AbSGIIvn>; Tue, 9 Jul 2002 04:51:43 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:27296 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317341AbSGIIvm> convert rfc822-to-8bit; Tue, 9 Jul 2002 04:51:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: Thunder from the hill <thunder@ngforever.de>,
-       Keith Owens <kaos@ocs.com.au>
-Subject: Re: Driverfs updates
-Date: Tue, 9 Jul 2002 10:30:17 +0200
-User-Agent: KMail/1.4.1
-Cc: Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0207081745150.10105-100000@hawkeye.luckynet.adm>
-In-Reply-To: <Pine.LNX.4.44.0207081745150.10105-100000@hawkeye.luckynet.adm>
+	id <S317344AbSGIJG0>; Tue, 9 Jul 2002 05:06:26 -0400
+Received: from pro18.it.dtu.dk ([130.225.76.218]:50866 "EHLO pro18.it.dtu.dk")
+	by vger.kernel.org with ESMTP id <S317342AbSGIJGZ>;
+	Tue, 9 Jul 2002 05:06:25 -0400
+Message-ID: <3D2AA82C.7030305@fugmann.dhs.org>
+Date: Tue, 09 Jul 2002 11:09:00 +0200
+From: Anders Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207091030.17096.oliver@neukum.name>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Chatserver workload simulator by Bill Hartner?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-> > I suggest you add a global driverfs_lock.
->
-> Better than locking all kernel threads, isn't it?
+I'm looking for the chatserver workload simulator made by Bill hartner, 
+which was used to test the O(1) scheduler by Ingo Molnar.
 
-No, it is not, not by far.
+Does anyone know where to find it? - All I can find is the VolanoMark,
+but I guess that this is not the one used, since the command used by 
+Ingo Molnar when benchmarking the O(1) scheduler is: './chat_c 127.0.0.1 
+10 100'.
 
--It means that modules are not transparent.
--Everybody is punished, module or no module.
--It limits modules to providing open/use/close APIs.
--It is slow.
--Modules can only be used on APIs that provide for them.
-
-By freezing, which happens only on module removal,
-only users of modules are punished. Handling of
-module usage counts can be encapsulated in the modules
-themselves. And alternative methods of determining removability
-are possible.
-
-Face it, SMP and module unloading have some fundamental problems.
-Therefore you switch the box to pseudo-UP for unloading,
-that's what freeze effectively does. You just have to disable preempt
-on all CPUs and wait for the tasks running to leave kernel.
-
-Cleanly killing a kernel thread of a module is duty of the module's
-cleanup function. Independent kernel threads which use a module
-must be allowed to sleep voluntarily before they are frozen.
-In this case the old rule of "INC before you sleep" is valid again.
-
-	Regards
-		Oliver
+Thanks in advance.
+Anders Fugmann
 

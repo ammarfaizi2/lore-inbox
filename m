@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbUDWUO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUDWUO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbUDWUO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 16:14:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbUDWUO6
+	id S261252AbUDWUO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 16:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbUDWUO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 16:14:58 -0400
-Received: from linux-bt.org ([217.160.111.169]:10372 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S261258AbUDWUOi (ORCPT
+	Fri, 23 Apr 2004 16:14:28 -0400
+Received: from twin.uoregon.edu ([128.223.214.27]:29068 "EHLO twin.uoregon.edu")
+	by vger.kernel.org with ESMTP id S261252AbUDWUOZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 16:14:38 -0400
-Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>
-In-Reply-To: <20040423205504.B2896@flint.arm.linux.org.uk>
-References: <200404230142.46792.dtor_core@ameritech.net>
-	 <1082723147.1843.14.camel@merlin>
-	 <20040423205504.B2896@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1082751264.4294.1.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 23 Apr 2004 22:14:24 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Apr 2004 16:14:25 -0400
+Date: Fri, 23 Apr 2004 13:14:08 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Paul Jackson <pj@sgi.com>
+cc: Timothy Miller <miller@techsource.com>, <tytso@mit.edu>,
+       <miquels@cistron.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: File system compression, not at the block layer
+In-Reply-To: <20040423113435.245f918a.pj@sgi.com>
+Message-ID: <Pine.LNX.4.44.0404231300470.27087-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
+On Fri, 23 Apr 2004, Paul Jackson wrote:
 
-> > I haven't tested it yet, but the same problem should apply to the
-> > bt3c_cs driver for the 3Com Bluetooth card. Are there any patches
-> > available that integrates the PCMCIA subsystem into the driver model, so
-> > we don't have to hack around it if a firmware download is needed?
+> > SO... in addition to the brilliance of AS, is there anything else that 
+> > can be done (using compression or something else) which could aid in 
+> > reducing seek time?
 > 
-> Not yet.  It's something we're working towards, but its going to be
-> some time yet.  There's a fair queue of long outstanding patches
-> which need to be processed first.
+> Buy more disks and only use a small portion of each for all but the
+> most infrequently accessed data.
+
+faster drives. The biggest disks at this point are far slower that the 
+fastest... the average read service time on a maxtor atlas 15k is like 
+5.7ms on 250GB western digital sata, 14.1ms, so that more than twice as 
+many reads can be executed on the fastest disks you can buy now... of 
+course then you pay for it in cost, heat, density, and controller costs. 
+everthing is a tradeoff though.
+ 
 > 
-> Plus, before we can consider driver model in PCMCIA, we need to get
-> the object lifetimes properly sorted.
 
-should we apply the pcmcia_get_sys_device() patch from Dmitry for now to
-fix the current drivers that need a device for loading the firmware?
-
-Regards
-
-Marcel
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 
 

@@ -1,46 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314220AbSDRCUQ>; Wed, 17 Apr 2002 22:20:16 -0400
+	id <S314221AbSDRCWL>; Wed, 17 Apr 2002 22:22:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314221AbSDRCUP>; Wed, 17 Apr 2002 22:20:15 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:44206 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S314220AbSDRCUO>; Wed, 17 Apr 2002 22:20:14 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Date: Thu, 18 Apr 2002 12:23:38 +1000 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15550.11818.429509.22486@notabene.cse.unsw.edu.au>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: Re: RAID superblock confusion
-In-Reply-To: message from Mike Fedyk on Wednesday April 17
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	id <S314222AbSDRCWK>; Wed, 17 Apr 2002 22:22:10 -0400
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:43278
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S314221AbSDRCWI>; Wed, 17 Apr 2002 22:22:08 -0400
+Message-Id: <5.1.0.14.2.20020417214559.00a7edf8@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 17 Apr 2002 22:16:36 -0400
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Adam Kropelin <akropel1@rochester.rr.com>
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: 2.5.8-dj1 : arch/i386/kernel/smpboot.c error
+Cc: Rick Stevens <rstevens@vitalstream.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1873390000.1019090061@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday April 17, mfedyk@matchmail.com wrote:
-> On Thu, Apr 18, 2002 at 11:54:13AM +1000, Neil Brown wrote:
-> > On Saturday April 13, rgooch@ras.ucalgary.ca wrote:
-> > > If there was only a "do as I say, regardless" mode, I would be happy.
-> > > This programmer-knows-best attitude smacks of M$.
-> > 
-> > mdadm will do as you say, reguardless - if you ask it to.  Have you
-> > tried mdadm?
-> >    http://www.cse.unsw.edu.au/~neilb/source/mdadm/
-> 
-> Niel, do you plan to merge mdadm into the raidtools package?  It sounds like
-> it belongs there.
+At 05:34 PM 4/17/2002 -0700, Martin J. Bligh wrote:
 
-No.
-If distributions want to distribute mdadm together with the stuff from
-raidtools, then that is up to them.
-But from a development perspective, I don't see any value in making a
-single source distribution.
+>Personally, I think that's a really sick and twisted way for a compiler
+>to work ... what the hell is the point of compiling something you know
+>perfectly well you're going to dispose of 2 nanoseconds later?
+>
+>M.
 
-NeilBrown
+<RANT>
+
+Granted, I could make a rather similar argument for the reverse: What the hell is the point of giving something to the compiler if we know perfectly well that it would be optimized out anyway?
+
+(Especially if the alternative, leaving it up to the compiler, generates totally insane code like '0 = f();')
+
+When I downloaded and put together 2.5.7, I couldn't even build the kernel because I didn't compile NFS support in ("undefined ref to sys_nfsservctl"); I dread to think of the number of errors I'd see if the compiler's optimizer dropped out blatantly erroneous code because it happened to be surrounded by 'if (0 && other_func())' and optimized out on certain builds.
+
+Because if:
+        (void*) 0 = (void*) 0;
+
+isn't blatantly erroneous (even if not evident at first hand), I don't know what is.
+
+And if the fact that it decomposed into "0 = 0;" wasn't blatantly obvious, all the more reason for my next point:
+
+----
+
+Yes, I agree that as code becomes #ifdef-laden, it becomes hard to read -- at an exponential rate,
+especially if it's poorly done:
+
+#ifdef OPTION_X
+        x 
+#else
+#ifdef OPTION_Y
+        y
+#else
+        z
+#endif
+#endif
+                =
+#ifdef OPTION_X
+        x_func(x,
+#else
+        yz_func(
+#ifdef OPTION_Y
+                y
+#else
+                z
+#endif
+                 ,
+#endif
+                  32);
+
+Yes, I've seen beautiful code mauled by nested #if's and #ifdef's and such.
+
+However... Which of the following is more obviously code geared towards a specific config option?
+
+#ifdef CONFIG_OBSCURE
+  if (obscure_variable == 0) {
+        obscure_variable = init_obscure_variable_function();
+  }
+#endif
+
+-or-
+
+  if (obscure_variable == 0) {
+        obscure_variable = init_obscure_variable_function();
+  }
+
+
+If I didn't know that 'obscure_variable' was #defined to 0 in 'obscure_header.h':
+
+#ifdef CONFIG_OBSCURE
+extern void* obscure_variable;
+#else
+#define obscure_variable ((void*)0)
+#endif
+
+I might wonder why my system never links in 'init_obscure_variable_function' despite the reference.
+
+The preprocessor is a tool.  It's designed to help us.  Just because it's misused often doesn't mean we need to reject it in every situation.  (Just like guns, the preprocessor will let you shoot yourself in the foot! :P)
+
+
+Okay, I'm out of breath for now.
+</RANT>
+
+
+--
+Stevie-O
+
+Real programmers write code like this:
+
+const char *FlashPROMFunc;
+
+...
+ (((void)(*)(void*,void*,int,int))(FlashPROMFunc))(dst, src, count, 1);
+
+[yes, I wrote that line of code once. yes, it was for production use. yes, it worked.]
+

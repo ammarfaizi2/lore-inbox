@@ -1,50 +1,203 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVCUD1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVCUE0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVCUD1N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 22:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVCUD1M
+	id S261542AbVCUE0h (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 23:26:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVCUE0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 22:27:12 -0500
-Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:36767 "EHLO
-	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261519AbVCUD1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 22:27:03 -0500
-MIME-Version: 1.0
+	Sun, 20 Mar 2005 23:26:36 -0500
+Received: from are.twiddle.net ([64.81.246.98]:44419 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S261542AbVCUE0R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 23:26:17 -0500
+Date: Sun, 20 Mar 2005 20:26:02 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dan Kegel <dank@kegel.com>, jbglaw@lug-owl.de,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: 2.6.11.3 build problem in arch/alpha/kernel/srcons.c with gcc-4.0
+Message-ID: <20050321042602.GA3795@twiddle.net>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Dan Kegel <dank@kegel.com>,
+	jbglaw@lug-owl.de, linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <423E238F.3030805@kegel.com> <20050320190352.65cc1396.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16958.16187.716183.994251@wombat.chubb.wattle.id.au>
-Date: Mon, 21 Mar 2005 14:27:55 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: William Beebe <wbeebe@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: forkbombing Linux distributions
-In-Reply-To: <e0716e9f05032019064c7b1cec@mail.gmail.com>
-References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+In-Reply-To: <20050320190352.65cc1396.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "William" == William Beebe <wbeebe@gmail.com> writes:
+On Sun, Mar 20, 2005 at 07:03:52PM -0800, Andrew Morton wrote:
+> Dan Kegel <dank@kegel.com> wrote:
+> >
+> > Anyone with an alpha care to suggest a fix for this?
+> > 
+> > arch/alpha/kernel/srmcons.c: In function 'srmcons_open':
+> > arch/alpha/kernel/srmcons.c:196: warning: 'srmconsp' may be used uninitialized in this function
+> > make[1]: *** [arch/alpha/kernel/srmcons.o] Error 1
+> > make: *** [arch/alpha/kernel] Error 2
+> > 
+> > I get this when building the 2.6.11.3 kernel with a recent gcc-4.0 snapshot.
+> > 
+> 
+> It's beyond gcc's ability to figure out that the code is OK.  Options would
+> be to disable -Werror, or to artificially initialise that variable.
 
-William> Sure enough, I created the following script and ran it as a
-William> non-root user:
+Fixed thus.
 
-William> #!/bin/bash $0 & $0 &
+Note that even with a _raw_read_trylock implementation, smp still
+doesn't work.  Everything that init spawns dies immediately.  I
+havn't had a chance to find out why yet...
 
-There are two approaches to fixing this.
-  1.  Rate limit fork().  Unfortunately some legitimate usges do a lot
-      of forking, and you don't really want to slow them down.
-  2.  Limit (per user) the number of processes allowed. This is what's
-      currently done; and if you as administrator want to you can set
-      RLIMIT_NPROC in /etc/security/limits.conf
 
-On an almost-single-user system such as most desktops, there isn't much
-point in setting this.  On shared systems, it can be useful.
+r~
 
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+
+
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
+
+===================================================================
+
+
+ChangeSet@1.2289, 2005-03-20 12:29:41-08:00, rth@kanga.twiddle.home
+  [ALPHA] Elimitate two warnings from gcc4.
+
+
+ smp.c     |   43 -------------------------------------------
+ srmcons.c |   27 ++++++++++-----------------
+ 2 files changed, 10 insertions(+), 60 deletions(-)
+
+
+diff -Nru a/arch/alpha/kernel/smp.c b/arch/alpha/kernel/smp.c
+--- a/arch/alpha/kernel/smp.c	2005-03-20 20:23:28 -08:00
++++ b/arch/alpha/kernel/smp.c	2005-03-20 20:23:28 -08:00
+@@ -175,48 +175,6 @@
+ 	cpu_idle();
+ }
+ 
+-
+-/*
+- * Rough estimation for SMP scheduling, this is the number of cycles it
+- * takes for a fully memory-limited process to flush the SMP-local cache.
+- *
+- * We are not told how much cache there is, so we have to guess.
+- */
+-static void __init
+-smp_tune_scheduling (int cpuid)
+-{
+-	struct percpu_struct *cpu;
+-	unsigned long on_chip_cache;	/* kB */
+-	unsigned long freq;		/* Hz */
+-	unsigned long bandwidth = 350;	/* MB/s */
+-
+-	cpu = (struct percpu_struct*)((char*)hwrpb + hwrpb->processor_offset
+-				      + cpuid * hwrpb->processor_size);
+-	switch (cpu->type)
+-	{
+-	case EV45_CPU:
+-		on_chip_cache = 16 + 16;
+-		break;
+-
+-	case EV5_CPU:
+-	case EV56_CPU:
+-		on_chip_cache = 8 + 8 + 96;
+-		break;
+-
+-	case PCA56_CPU:
+-		on_chip_cache = 16 + 8;
+-		break;
+-
+-	case EV6_CPU:
+-	case EV67_CPU:
+-	default:
+-		on_chip_cache = 64 + 64;
+-		break;
+-	}
+-
+-	freq = hwrpb->cycle_freq ? : est_cycle_freq;
+-}
+-
+ /* Wait until hwrpb->txrdy is clear for cpu.  Return -1 on timeout.  */
+ static int __init
+ wait_for_txrdy (unsigned long cpumask)
+@@ -517,7 +475,6 @@
+ 	current_thread_info()->cpu = boot_cpuid;
+ 
+ 	smp_store_cpu_info(boot_cpuid);
+-	smp_tune_scheduling(boot_cpuid);
+ 	smp_setup_percpu_timer(boot_cpuid);
+ 
+ 	/* Nothing to do on a UP box, or when told not to.  */
+diff -Nru a/arch/alpha/kernel/srmcons.c b/arch/alpha/kernel/srmcons.c
+--- a/arch/alpha/kernel/srmcons.c	2005-03-20 20:23:28 -08:00
++++ b/arch/alpha/kernel/srmcons.c	2005-03-20 20:23:28 -08:00
+@@ -164,29 +164,22 @@
+ 	unsigned long flags;
+ 	int retval = 0;
+ 
+-	spin_lock_irqsave(&srmconsp_lock, flags);
+-
+-	do {
+-		if (srmconsp != NULL) {
+-			*ps = srmconsp;
+-			break;
+-		}
++	if (srmconsp == NULL) {
++		spin_lock_irqsave(&srmconsp_lock, flags);
+ 
+ 		srmconsp = kmalloc(sizeof(*srmconsp), GFP_KERNEL);
+-		if (srmconsp == NULL) {
++		if (srmconsp == NULL)
+ 			retval = -ENOMEM;
+-			break;
++		else {
++			srmconsp->tty = NULL;
++			spin_lock_init(&srmconsp->lock);
++			init_timer(&srmconsp->timer);
+ 		}
+ 
+-		srmconsp->tty = NULL;
+-		spin_lock_init(&srmconsp->lock);
+-		init_timer(&srmconsp->timer);
+-
+-		*ps = srmconsp;
+-	} while(0);
+-
+-	spin_unlock_irqrestore(&srmconsp_lock, flags);
++		spin_unlock_irqrestore(&srmconsp_lock, flags);
++	}
+ 
++	*ps = srmconsp;
+ 	return retval;
+ }
+ 
+
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.2289
+## Wrapped with gzip_uu ##
+
+
+M'XL( $!,/D(  [56[V_;-A#]+/X5!Q38FFV628KZY<!!TJ98BP9;D"&?BL)@
+M),H6+%$:2=DQIOWO)>4XSH8D1KK%-F#@>'J\]^[>V6_@6@LU\919H#?PL=%F
+MXG$E?+,N\[P2OA3&QJ^:QL;'BZ868YLY?O=YS&_;$?4C9$\ON<D6L!)*3SSB
+M!_<1LVG%Q+OZ\.OUQ=D50M,IO%]P.1=_" /3*3*-6O$JUZ?<+*I&^D9QJ6MA
+MN)\U=7^?VE.,J7V') YP&/4DPBSN,Y(3PAD1.:8LB=@>3:P:O]%YY3=J_D^4
+M$ <DH4&0!LRBL"A YT!\2I,4<#C&P9AB('1"TPDC(YQ,, 9+]G1I(?B]($X#
+M^)G""*-W\/]2>(\R^')V<?GQ["M\J,JZ--P(,.L&UES)4LXU%*JI89YES$>?
+M@82,8'2Y5Q6-7OA""'.,3AZA:?O><Y4MQKQJ%WR\%$J*:JQ5G352^YEC%&!"
+ML664!%%/+:^PCW-:I 7)XUSDE*;Q$_(= K9]<FK1E(0]HPPS6^'S2C\"6+=;
+ML#O=&::T#^*8QGU*;D@>)3BWJA?I3?Z"*G>@#RND49R&PW0_0\O-^RN)C,R\
+MNCVM2MD9U<CRUL_%EYU:7P]+32@A$644]RQ,*!TL0>B_#4'" X8@&$8D?A5+
+M7(FU*JT1[@J?S869M:I<67/,M%%=9D!W;MTLN(&?6@VE!EZM^4:#>] (Z<RR
+M':3?8:36P\<._^5S'?L.+YV3*(88?;*4@"*O+.#M'5QK^P^_75]<',%?R/-T
+M6\I9U63+6:G^U'PEWOZP2QS"OT!1\;D^.K:0<03$0;HO[W%,EY5LLQ)@-DM4
+M6@P7>;O<T8DQ&]CF'P\'^Q)D:?;WCTY<\&C(<2<S4]9"/3P? D-I"8'$7IHD
+MCNT6L9,[6DIH.PI/,_/^=H^FCI7KV737WO;X*2\Y\QW^W?A/JP#==')YJDVG
+M+=HA'SU8!H1AS!@-^X"F=LJ<AT+R8@]9"['@52QT+BKA'%2W,]-):YML(?+.
+M[HSY,90&\D9H^:,!GIF.5]4&6J&*1M7 Y08Z+8JNLB!%)S-3-M)%:]M:YZKM
+I\COL*J?5=SG*3;1=2J%3<?]?PY:?+7573PFE(L5)@+X!A'U=W,@(    
+ 

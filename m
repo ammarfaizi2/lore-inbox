@@ -1,247 +1,243 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262976AbTEBQZD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 12:25:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbTEBQZD
+	id S262951AbTEBRtd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 13:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbTEBRtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 12:25:03 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:50586 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262976AbTEBQY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 12:24:59 -0400
-Date: Fri, 2 May 2003 12:37:23 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
+	Fri, 2 May 2003 13:49:33 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:11711 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S262951AbTEBRt3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 13:49:29 -0400
+From: Arnd Bergmann <arnd@arndb.de>
 To: linux-kernel@vger.kernel.org
-Subject: [Announcement] "Exec Shield", new Linux security feature
-Message-ID: <Pine.LNX.4.44.0305021217090.17548-100000@devserv.devel.redhat.com>
+Subject: [PATCH] alternative compat_ioctl table implementation
+Date: Fri, 2 May 2003 19:59:02 +0200
+User-Agent: KMail/1.5.1
+Cc: Pavel Machek <pavel@ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305021959.02726.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I had some trouble making the 2.5.68bk implementation
+for compat_ioctl work on s390x because of a cross-compiling
+bug in gcc-2.95.
 
-We are pleased to announce the first publically available source code
-release of a new kernel-based security feature called the "Exec Shield",
-for Linux/x86. The kernel patch (against 2.4.21-rc1, released under the
-GPL/OSL) can be downloaded from:
+This patch changes the way that the translation table
+is generated and solves the problem by replacing
+the assembler magic with linker magic.
 
-	http://redhat.com/~mingo/exec-shield/
+As a side effect, it adds type-checking for the handler
+functions and makes it possible to put COMPATIBLE_IOCTL()
+in places other than arch/*/kernel/ioctl32.c, e.g. next
+to the normal ioctl handler.
 
-The exec-shield feature provides protection against stack, buffer or
-function pointer overflows, and against other types of exploits that rely
-on overwriting data structures and/or putting code into those structures.
-The patch also makes it harder to pass in and execute the so-called
-'shell-code' of exploits. The patch works transparently, ie. no
-application recompilation is necessary.
+This needs the compat-ioctl-fix.patch from 2.5.68mm4.
 
-Background:
------------
+Opinions?
 
-It is commonly known that x86 pagetables do not support the so-called
-executable bit in the pagetable entries - PROT_EXEC and PROT_READ are
-merged into a single 'read or execute' flag. This means that even if an
-application marks a certain memory area non-executable (by not providing
-the PROT_EXEC flag upon mapping it) under x86, that area is still
-executable, if the area is PROT_READ.
+	Arnd <><
 
-Furthermore, the x86 ELF ABI marks the process stack executable, which
-requires that the stack is marked executable even on CPUs that support an
-executable bit in the pagetables.
-
-This problem has been addressed in the past by various kernel patches,
-such as Solar Designer's excellent "non-exec stack patch". These patches
-mostly operate by using the x86 segmentation feature to set the code
-segment 'limit' value to a certain fixed value that points right below the
-stack frame. The exec-shield tries to cover as much virtual memory via the
-code segment limit as possible - not just the stack.
-
-Implementation:
----------------
-
-The exec-shield feature works via the kernel transparently tracking
-executable mappings an application specifies, and maintains a 'maximum
-executable address' value. This is called the 'exec-limit'. The scheduler
-uses the exec-limit to update the code segment descriptor upon each
-context-switch. Since each process (or thread) in the system can have a
-different exec-limit, the scheduler sets the user code segment dynamically
-so that always the correct code-segment limit is used.
-
-the kernel caches the user segment descriptor value, so the overhead in
-the context-switch path is a very cheap, unconditional 6-byte write to the
-GDT, costing 2-3 cycles at most.
-
-Furthermore, the kernel also remaps all PROT_EXEC mappings to the
-so-called ASCII-armor area, which on x86 is the addresses 0-16MB. These
-addresses are special because they cannot be jumped to via ASCII-based
-overflows. E.g. if a buggy application can be overflown via a long URL:
-
-  http://somehost/buggy.app?realyloooooooooooooooooooong.123489719875
-
-then only ASCII (ie. value 1-255) characters can be used by attackers. If
-all executable addresses are in the ASCII-armor, then no attack URL can be
-used to jump into the executable code - ie. the attack cannot be
-successful. (because no URL string can contain the \0 character.) E.g. the
-recent sendmail remote root attack was an ASCII-based overflow as well.
-
-With the exec-shield activated, and the 'cat' binary relinked into the the
-ASCII-armor, the following layout is created:
-
-  $ ./cat-lowaddr /proc/self/maps
-  00101000-00116000 r-xp 00000000 03:01 319365     /lib/ld-2.3.2.so
-  00116000-00117000 rw-p 00014000 03:01 319365     /lib/ld-2.3.2.so
-  00117000-0024a000 r-xp 00000000 03:01 319439     /lib/libc-2.3.2.so
-  0024a000-0024e000 rw-p 00132000 03:01 319439     /lib/libc-2.3.2.so
-  0024e000-00250000 rw-p 00000000 00:00 0
-  01000000-01004000 r-xp 00000000 16:01 2036120    /home/mingo/cat-lowaddr
-  01004000-01005000 rw-p 00003000 16:01 2036120    /home/mingo/cat-lowaddr
-  01005000-01006000 rw-p 00000000 00:00 0
-  40000000-40001000 rw-p 00000000 00:00 0
-  40001000-40201000 r--p 00000000 03:01 464809     locale-archive
-  40201000-40207000 r--p 00915000 03:01 464809     locale-archive
-  40207000-40234000 r--p 0091f000 03:01 464809     locale-archive
-  40234000-40235000 r--p 00955000 03:01 464809     locale-archive
-  bfffe000-c0000000 rw-p fffff000 00:00 0
-
-In the above layout, the highest executable address is 0x01003fff, ie.
-every executable address is in the ASCII-armor.
-
-this means that not only the stack is non-executable, but lots of
-mmap()-ed data areas and the malloc() heap is non-executable as well.  
-(some data areas are still executable, but most of them are not.)
-
-the first 1MB of the ASCII-armor is left unused to provide NULL pointer
-dereference protection and leave space for 16-bit emulation mappings used
-by XFree86 and others.
-
-Compare this with the memory layout without exec-shield:
-
-  08048000-0804b000 r-xp 00000000 16:01 3367       /bin/cat
-  0804b000-0804c000 rw-p 00003000 16:01 3367       /bin/cat
-  0804c000-0804e000 rwxp 00000000 00:00 0
-  40000000-40012000 r-xp 00000000 16:01 3759       /lib/ld-2.2.5.so
-  40012000-40013000 rw-p 00011000 16:01 3759       /lib/ld-2.2.5.so
-  40013000-40014000 rw-p 00000000 00:00 0
-  40018000-40129000 r-xp 00000000 16:01 4058       /lib/libc-2.2.5.so
-  40129000-4012f000 rw-p 00111000 16:01 4058       /lib/libc-2.2.5.so
-  4012f000-40133000 rw-p 00000000 00:00 0
-  bffff000-c0000000 rwxp 00000000 00:00 0
-
-In this layout none of the executable areas are in the ASCII-armor, plus
-the exec-limit is 0xbfffffff (3GB) - ie. including all userspace mappings.
-
-Note that the kernel will relocate every shared-library to the
-ASCII-armor, but the binary address is determined at link-time. To ease
-the relinking of applications to the ASCII-armor, Arjan Van de Ven has
-written a binutils patch (binutils-2.13.90.0.18-elf-small.patch), which
-adds a new 'ld' flag "ld -melf_i386_small" (or "gcc -Wl,-melf_i386_small")
-to relink applications into the ASCII-armor. (The patch can be found at
-the exec-shield URL as well.)
-
-Overhead:
----------
-
-the patch was designed to be as efficient as possible. There's a very
-minimal (couple of cycles) tracking overhead for every PROT_MMAP
-system-call, plus there's the 2-3 cycles cost per context-switch.
-
-Limitations:
-------------
-
-This feature will not protect against every type of attack.
-
-E.g. if an overflow can be used to overwrite a local variable which
-changes the flow of control in a way that compromises the system. But we
-do believe that this feature will stop every attack that is purely
-operating by overflowing the return address on the stack, or overflowing a
-function pointer in the heap. Furthermore, exec-shield makes it quite hard
-to mount a successful attack even in the other cases, because it inhibits
-the execution of exploit shell-code, in most cases.
-
-also, if the overflow is within the exec-shield itself (e.g. within the
-data section of one of the shared library objects in the ASCII-armor) then
-the overflow might be possible to exploit.
-
-All in one, exec-shield is one barrier against attacks, not blanket 100%
-protection in any way. The most efficient security can be provided by
-installing as many layers as possible.
-
-To provide as good protection as possible, there's no trampoline
-workaround in the exec-shield code - ie. exec-limit violations in the
-trampoline case are never let through. Applications that need to rely on
-gcc trampolines will have to use the per-binary ELF flag to make the stack
-executable again. (The ELF flag is the same as used by Solar Designer's
-non-exec stack patch, to provide as much compatibility with existing
-non-exec-stack installations as possible.)
-
-The exec-shield feature will uncover applications that incorrectly assumed
-that PROT_READ allows execution on x86. One such example is the XFree86
-module loader. The latest XFree86 on rawhide.redhat.com fixes this
-problem. For those who cannot install the XFree86 bugfix at the moment
-there's a workaround added by the patch, which can be activated via:
-
-    echo 1 > /proc/sys/kernel/X-workaround
-
-This will make every iopl() using application (such as X) have the
-exec-shield disabled. Other applications (sendmail, etc.) will still have
-the exec-shield enabled. This workaround is default-off. We strongly
-encourage to solve this problem by upgrading X, or by using the 'chkstk'
-utility to make X's stack forced-executable.
-
-Using it:
----------
-
-Apply the exec-shield-2.4.21-rc1-B6 kernel patch to the 2.4.21-rc1 kernel,
-recompile & install the kernel and reboot into it, that's all.
-
-There is a new boot-time kernel command line option called exec-shield=,
-which has 4 values. Each value represents a different level of security:
-
- exec-shield=0    - always-disabled
- exec-shield=1    - default disabled, except binaries that enable it
- exec-shield=2    - default enabled, except binaries that disable it
- exec-shield=3    - always-enabled
-
-the current patch defaults to 'exec-shield=2'. The security level can also
-be changed runtime, by writing the level into /proc:
-
-  echo 0 > /proc/sys/kernel/exec-shield
-
-IMPORTANT: security-relevant applications that were started while the
-exec-shield was disabled, will have an executable stack and will thus have
-to be restarted if the exec-shield is enabled again.
-
-I've also uploaded a modified version of Solar Designer's chstk.c code,
-which adds the options necessary to change the 'enable non-exec stack' ELF
-flag:
-
-  $ ./chstk
-  Usage: ./chstk OPTION FILE...
-  Manage stack area executability flag for binaries
-
-    -e    enable execution permission
-    -E    enable non-execution permission
-    -d    disable execution permission
-    -D    disable non-execution permission
-    -v    view current flag state
-
-ie. there are two distinct flags, one for forcing an executable stack, one
-for forcing a non-executable stack. If both flags are zero then the binary
-will follow the system default.
-
-ie. it's possible to use an exec-shield level of 1, and enable the
-non-exec stack on a per binary basis, by using the 'exec-shield=1' boot
-option and changing binaries one at a time:
-
-   ./chstk -E /usr/sbin/sendmail
-
-(People migrating production environments to an exec-shield kernel might
-prefer this variant.)
-
-anyway, comments, suggestions and test feedback is welcome.
-
-	Ingo
-
-
-
+===== include/asm-generic/vmlinux.lds.h 1.7 vs edited =====
+--- 1.7/include/asm-generic/vmlinux.lds.h	Mon Feb  3 22:00:30 2003
++++ edited/include/asm-generic/vmlinux.lds.h	Fri May  2 16:47:13 2003
+@@ -1,3 +1,5 @@
++#include <linux/config.h>
++
+ #ifndef LOAD_OFFSET
+ #define LOAD_OFFSET 0
+ #endif
+@@ -45,3 +47,11 @@
+ 		*(__ksymtab_strings)					\
+ 	}
+ 
++#ifdef CONFIG_COMPAT							\
++#define COMPAT_IOCTL_TABLE						\
++  ioctl_start = .;							\
++  .data.ioctltrans : { *(.data.ioctltrans) }				\
++  ioctl_end = .;
++#else
++#define COMPAT_IOCTL_TABLE
++#endif
+===== include/linux/compat.h 1.11 vs edited =====
+--- 1.11/include/linux/compat.h	Wed Apr 16 07:48:21 2003
++++ edited/include/linux/compat.h	Fri May  2 16:47:13 2003
+@@ -12,6 +12,14 @@
+ #include <linux/param.h>	/* for HZ */
+ #include <asm/compat.h>
+ 
++#define __IOCTL_HANDLER(name,cmd,handler)				\
++	static struct ioctl_trans name					\
++			__attribute_used__				\
++			__attribute__((section(".data.ioctltrans"))) = 	\
++		{ cmd, handler, 0 };
++#define HANDLE_IOCTL(cmd,handler) __IOCTL_HANDLER(handle_ioctl_ ## cmd,cmd,handler)
++#define COMPATIBLE_IOCTL(cmd)     __IOCTL_HANDLER(compatible_ioctl_ ## cmd,cmd,0)
++
+ #define compat_jiffies_to_clock_t(x)	\
+ 		(((unsigned long)(x) * COMPAT_USER_HZ) / HZ)
+ 
+===== arch/parisc/vmlinux.lds.S 1.13 vs edited =====
+--- 1.13/arch/parisc/vmlinux.lds.S	Wed Apr  2 10:42:56 2003
++++ edited/arch/parisc/vmlinux.lds.S	Fri May  2 16:56:36 2003
+@@ -44,6 +44,7 @@
+ 	*(.data)
+ 	}
+ 
++  COMPAT_IOCTL_TABLE
+ #ifdef CONFIG_PARISC64
+   . = ALIGN(16);               /* Linkage tables */
+   .opd : { *(.opd) } PROVIDE (__gp = .); 
+===== arch/parisc/kernel/ioctl32.c 1.8 vs edited =====
+--- 1.8/arch/parisc/kernel/ioctl32.c	Wed Apr 30 20:03:39 2003
++++ edited/arch/parisc/kernel/ioctl32.c	Fri May  2 16:47:13 2003
+@@ -2893,13 +2893,6 @@
+ 	return err;
+ }
+ 
+-#define HANDLE_IOCTL(cmd, handler) { cmd, (ioctl_trans_handler_t)handler, 0 },
+-#define COMPATIBLE_IOCTL(cmd) HANDLE_IOCTL(cmd, sys_ioctl) 
+-
+-#define IOCTL_TABLE_START  struct ioctl_trans ioctl_start[] = {
+-#define IOCTL_TABLE_END    }; struct ioctl_trans ioctl_end[0];
+-
+-IOCTL_TABLE_START
+ #include <linux/compat_ioctl.h>
+ 
+ /* Might be moved to compat_ioctl.h with some ifdefs... */
+@@ -3084,5 +3077,4 @@
+ HANDLE_IOCTL(DRM32_IOCTL_DMA, drm32_dma);
+ HANDLE_IOCTL(DRM32_IOCTL_RES_CTX, drm32_res_ctx);
+ #endif /* DRM */
+-IOCTL_TABLE_END
+ 
+===== arch/ppc64/vmlinux.lds.S 1.14 vs edited =====
+--- 1.14/arch/ppc64/vmlinux.lds.S	Wed Apr  2 10:42:56 2003
++++ edited/arch/ppc64/vmlinux.lds.S	Fri May  2 16:56:48 2003
+@@ -57,6 +57,7 @@
+     *(.dynamic)
+     CONSTRUCTORS
+   }
++  COMPAT_IOCTL_TABLE
+   . = ALIGN(4096);
+   _edata  =  .;
+   PROVIDE (edata = .);
+===== arch/ppc64/kernel/ioctl32.c 1.27 vs edited =====
+--- 1.27/arch/ppc64/kernel/ioctl32.c	Wed Apr 30 17:47:36 2003
++++ edited/arch/ppc64/kernel/ioctl32.c	Fri May  2 16:47:14 2003
+@@ -3649,14 +3649,9 @@
+ 	unsigned long next;
+ };
+ 
+-#define COMPATIBLE_IOCTL(cmd) { cmd, (unsigned long)sys_ioctl, 0 },
+-
+-#define HANDLE_IOCTL(cmd,handler) { cmd, (unsigned long)handler, 0 },
+-
+ #define AUTOFS_IOC_SETTIMEOUT32 _IOWR(0x93,0x64,unsigned int)
+ #define SMB_IOC_GETMOUNTUID_32 _IOR('u', 1, compat_uid_t)
+ 
+-static struct ioctl_trans ioctl_translations[] = {
+     /* List here explicitly which ioctl's need translation,
+      * all others default to calling sys_ioctl().
+      */
+@@ -4473,4 +4468,3 @@
+ HANDLE_IOCTL(BLKBSZGET_32, do_blkbszget)
+ HANDLE_IOCTL(BLKBSZSET_32, do_blkbszset)
+ HANDLE_IOCTL(BLKGETSIZE64_32, do_blkgetsize64)
+-};
+===== arch/s390/vmlinux.lds.S 1.12 vs edited =====
+--- 1.12/arch/s390/vmlinux.lds.S	Mon Apr 14 21:11:57 2003
++++ edited/arch/s390/vmlinux.lds.S	Fri May  2 19:28:50 2003
+@@ -3,7 +3,6 @@
+  */
+ 
+ #include <asm-generic/vmlinux.lds.h>
+-#include <linux/config.h>
+ 
+ #ifndef CONFIG_ARCH_S390X
+ OUTPUT_FORMAT("elf32-s390", "elf32-s390", "elf32-s390")
+@@ -46,6 +45,7 @@
+ 	*(.data)
+ 	CONSTRUCTORS
+ 	}
++  COMPAT_IOCTL_TABLE
+ 
+   . = ALIGN(4096);
+   __nosave_begin = .;
+===== arch/sparc64/vmlinux.lds.S 1.18 vs edited =====
+--- 1.18/arch/sparc64/vmlinux.lds.S	Wed Apr  2 10:42:56 2003
++++ edited/arch/sparc64/vmlinux.lds.S	Fri May  2 16:47:14 2003
+@@ -28,6 +28,7 @@
+     CONSTRUCTORS
+   }
+   .data1   : { *(.data1) }
++  COMPAT_IOCTL_TABLE
+   . = ALIGN(64);
+   .data.cacheline_aligned : { *(.data.cacheline_aligned) }
+   _edata  =  .;
+===== arch/sparc64/kernel/ioctl32.c 1.60 vs edited =====
+--- 1.60/arch/sparc64/kernel/ioctl32.c	Wed Apr 30 17:56:32 2003
++++ edited/arch/sparc64/kernel/ioctl32.c	Fri May  2 16:47:14 2003
+@@ -3833,16 +3833,6 @@
+ #define BNEPGETCONNLIST	_IOR('B', 210, int)
+ #define BNEPGETCONNINFO	_IOR('B', 211, int)
+ 
+-typedef int (* ioctl32_handler_t)(unsigned int, unsigned int, unsigned long, struct file *);
+-
+-#define COMPATIBLE_IOCTL(cmd)		HANDLE_IOCTL((cmd),sys_ioctl)
+-#define HANDLE_IOCTL(cmd,handler)	{ (cmd), (ioctl32_handler_t)(handler), NULL },
+-#define IOCTL_TABLE_START \
+-	struct ioctl_trans ioctl_start[] = {
+-#define IOCTL_TABLE_END \
+-	}; struct ioctl_trans ioctl_end[0];
+-
+-IOCTL_TABLE_START
+ #include <linux/compat_ioctl.h>
+ COMPATIBLE_IOCTL(TCSBRKP)
+ COMPATIBLE_IOCTL(TIOCSTART)
+@@ -4154,4 +4144,3 @@
+ HANDLE_IOCTL(BLKBSZGET_32, do_blkbszget)
+ HANDLE_IOCTL(BLKBSZSET_32, do_blkbszset)
+ HANDLE_IOCTL(BLKGETSIZE64_32, do_blkgetsize64)
+-IOCTL_TABLE_END
+===== arch/x86_64/vmlinux.lds.S 1.15 vs edited =====
+--- 1.15/arch/x86_64/vmlinux.lds.S	Wed Apr  2 10:42:56 2003
++++ edited/arch/x86_64/vmlinux.lds.S	Fri May  2 16:57:36 2003
+@@ -33,6 +33,7 @@
+ 	CONSTRUCTORS
+ 	}
+ 
++  COMPAT_IOCTL_TABLE
+   _edata = .;			/* End of data section */
+ 
+   __bss_start = .;		/* BSS */
+===== arch/x86_64/ia32/ia32_ioctl.c 1.22 vs edited =====
+--- 1.22/arch/x86_64/ia32/ia32_ioctl.c	Thu May  1 03:31:08 2003
++++ edited/arch/x86_64/ia32/ia32_ioctl.c	Fri May  2 16:47:14 2003
+@@ -3136,14 +3136,6 @@
+ 	return err;
+ } 
+ 
+-#define REF_SYMBOL(handler) if (0) (void)handler;
+-#define HANDLE_IOCTL2(cmd,handler) REF_SYMBOL(handler);  asm volatile(".quad %c0, " #handler ",0"::"i" (cmd)); 
+-#define HANDLE_IOCTL(cmd,handler) HANDLE_IOCTL2(cmd,handler)
+-#define COMPATIBLE_IOCTL(cmd) HANDLE_IOCTL(cmd,sys_ioctl)
+-#define IOCTL_TABLE_START void ioctl_dummy(void) { asm volatile("\n.global ioctl_start\nioctl_start:\n\t" );
+-#define IOCTL_TABLE_END  asm volatile("\n.global ioctl_end;\nioctl_end:\n"); }
+-
+-IOCTL_TABLE_START
+ #include <linux/compat_ioctl.h>
+ COMPATIBLE_IOCTL(HDIO_SET_KEEPSETTINGS)
+ COMPATIBLE_IOCTL(HDIO_SCAN_HWIF)
+@@ -3380,5 +3372,4 @@
+ HANDLE_IOCTL(MTRRIOC32_DEL_PAGE_ENTRY, mtrr_ioctl32)
+ HANDLE_IOCTL(MTRRIOC32_GET_PAGE_ENTRY, mtrr_ioctl32)
+ HANDLE_IOCTL(MTRRIOC32_KILL_PAGE_ENTRY, mtrr_ioctl32)
+-IOCTL_TABLE_END
+ 
 

@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313384AbSD3U4M>; Tue, 30 Apr 2002 16:56:12 -0400
+	id <S313572AbSD3VVh>; Tue, 30 Apr 2002 17:21:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313414AbSD3U4L>; Tue, 30 Apr 2002 16:56:11 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:36103 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S313384AbSD3U4L>; Tue, 30 Apr 2002 16:56:11 -0400
-Subject: Re: [OOPS] 2.5.11 software raid,reiserfs & scsi
-From: Tommy Faasen <tommy@vuurwerk.nl>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linux kernel Mailinglist <linux-kernel@vger.kernel.org>, mingo@redhat.com
-In-Reply-To: <Pine.LNX.4.21.0204302056120.23113-100000@serv>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 30 Apr 2002 22:56:07 +0200
-Message-Id: <1020200168.599.0.camel@it0>
+	id <S315165AbSD3VVg>; Tue, 30 Apr 2002 17:21:36 -0400
+Received: from velli.mail.jippii.net ([195.197.172.114]:27591 "HELO
+	velli.mail.jippii.net") by vger.kernel.org with SMTP
+	id <S313572AbSD3VVg>; Tue, 30 Apr 2002 17:21:36 -0400
+Message-ID: <8050080.1020201510415.JavaMail.ground12@jippii.fi>
+Date: Wed, 1 May 2002 00:18:30 +0300 (EEST)
+From: Eric M <ground12@jippii.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
 Mime-Version: 1.0
+Content-Type: text/plain; Charset=iso-8859-15; Format=Flowed
+Content-Transfer-Encoding: 7bit
+X-Mailer: Jippii webmail - http://www.jippiigroup.com/
+X-Originating-IP: 213.139.166.70
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-04-30 at 20:58, Roman Zippel wrote:
-> Hi,
-> 
-> On 29 Apr 2002, Tommy Faasen wrote:
-> 
-> > I got an oops on 2.5.11 with an software raid 0 setup on 3 scsi disks,
-> > it worked ok on 2.5.8. I get this when booting up and then my /dev/md0
-> > isn't found.. If you need more details/help let me know!
-> 
-> The patch below fixes it for me.
-> rdev doesn't point to a valid raid partition.
-> 
-Thanks, that did it for me!
-> bye, Roman
-> 
-> Index: drivers/md/md.c
-> ===================================================================
-> RCS file: /usr/src/cvsroot/linux-2.5/drivers/md/md.c,v
-> retrieving revision 1.1.1.8
-> diff -u -p -r1.1.1.8 md.c
-> --- drivers/md/md.c	29 Apr 2002 17:35:50 -0000	1.1.1.8
-> +++ drivers/md/md.c	30 Apr 2002 17:52:04 -0000
-> @@ -1577,6 +1577,7 @@ static int device_size_calculation(mddev
->  	if (!md_size[mdidx(mddev)])
->  		md_size[mdidx(mddev)] = sb->size * data_disks;
->  
-> +	rdev = list_entry(mddev->disks.next, mdk_rdev_t, same_set);
->  	readahead = (blk_get_readahead(rdev->bdev) * 512) / PAGE_SIZE;
->  	if (!sb->level || (sb->level == 4) || (sb->level == 5)) {
->  		readahead = (mddev->sb->chunk_size>>PAGE_SHIFT) * 4 * data_disks;
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+i have a plextor cd-rw drive which i use via scsi emulation, it is the 
+only device on my second ide bus.
 
+often when i rip cds with grip that have scratches, grip completely 
+stops responding to input and signals, even -9 wont go through. today i 
+tried waiting for over half an hour for it to terminate, got bored and 
+quit X. the grip process died after doing that but the kernel's scsi 
+layer kept spewing error messages on my console and my machine "lagged" 
+on about 10-15 second intervals a few seconds at a time. i waited over 
+an hour for it to give up, but it didn't so i had to reboot. kernel 
+version i'm using is 2.4.17.
+-- 
+
+__
+Ota itsellesi luotettava kotimainen email http://www.jippii.fi/
+Tutustu samalla netin parhaaseen pelipaikkaan JIPPIIGAMESIIN.
 

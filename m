@@ -1,103 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264153AbTLEPSf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 10:18:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbTLEPSf
+	id S264132AbTLEPRa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 10:17:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264142AbTLEPR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 10:18:35 -0500
-Received: from tag.witbe.net ([81.88.96.48]:22026 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S264153AbTLEPS1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 10:18:27 -0500
-Message-Id: <200312051518.hB5FIQD29335@tag.witbe.net>
-From: "Paul Rolland" <rol@witbe.net>
-To: <linux-smp@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Cc: "'Paul Rolland'" <rol@witbe.net>
-Subject: WARNING: MP table in the EBDA can be UNSAFE
-Date: Fri, 5 Dec 2003 16:18:26 +0100
-Organization: Witbe.net
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcO7QwbsDD90uGgyQLG46fGDw5ycQg==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 5 Dec 2003 10:17:29 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:24215 "EHLO
+	VL-MO-MR001.ip.videotron.ca") by vger.kernel.org with ESMTP
+	id S264132AbTLEPR2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 10:17:28 -0500
+Date: Fri, 05 Dec 2003 10:16:33 -0500
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Subject: Re: Double-click on touchpad
+In-reply-to: <20031205093200.GA8877@nasledov.com>
+To: Misha Nasledov <misha@nasledov.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Message-id: <1070637392.12400.1.camel@idefix.homelinux.org>
+Organization: =?ISO-8859-1?Q?Universit=C3=A9_de?= Sherbrooke
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7)
+Content-type: multipart/signed; boundary="=-wt3WBUBhQ+jVOKQ4pqbS";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <1070610304.4328.14.camel@idefix.homelinux.org>
+ <20031205093200.GA8877@nasledov.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Our Linux, running on an IBM X-Series 445, says :
-(excerpt from dmesg) :
+--=-wt3WBUBhQ+jVOKQ4pqbS
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Linux version 2.4.20 (root@stg-02.ntr.witbe.francetelecom.fr) (gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)) #12 SMP
-Fri Dec 5 11:08:40 GMT 2003
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009dc00 (usable)
- BIOS-e820: 000000000009dc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000007ffb7000 (usable)
- BIOS-e820: 000000007ffb7000 - 000000007ffbf800 (ACPI data)
- BIOS-e820: 000000007ffbf800 - 0000000080000000 (reserved)
- BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
-1151MB HIGHMEM available.
-896MB LOWMEM available.
-found SMP MP-table at 0009dd40
-hm, page 0009d000 reserved twice.
-hm, page 0009e000 reserved twice.
-hm, page 0009e000 reserved twice.
-hm, page 0009f000 reserved twice.
-WARNING: MP table in the EBDA can be UNSAFE, contact linux-smp@vger.kernel.org if you experience SMP problems!
-On node 0 totalpages: 524215
-zone(0): 4096 pages.
-zone(1): 225280 pages.
-zone(2): 294839 pages.
-ACPI: Searched entire block, no RSDP was found.
-ACPI: RSDP located at physical address c00fdba0
-RSD PTR  v0 [IBM   ]
-__va_range(0x7ffbf780, 0x68): idx=8 mapped at ffff6000
-ACPI table found: RSDT v1 [IBM    SERVIGIL 0.4096]
-__va_range(0x7ffbf700, 0x24): idx=8 mapped at ffff6000
-__va_range(0x7ffbf700, 0x74): idx=8 mapped at ffff6000
-ACPI table found: FACP v1 [IBM    SERVIGIL 0.4096]
-__va_range(0x7ffbf640, 0x24): idx=8 mapped at ffff6000
-__va_range(0x7ffbf640, 0x9a): idx=8 mapped at ffff6000
-ACPI table found: APIC v1 [IBM    SERVIGIL 0.4096]
-__va_range(0x7ffbf640, 0x9a): idx=8 mapped at ffff6000
-LAPIC (acpi_id[0x0000] id[0x0] enabled[1])
-CPU 0 (0x0000) enabledProcessor #0 Pentium 4(tm) XEON(tm) APIC version 16
- 
-LAPIC (acpi_id[0x0001] id[0x12] enabled[1])
-CPU 1 (0x1200) enabled<4>Processor #18 INVALID - (Max ID: 16).
-LAPIC (acpi_id[0x0002] id[0x20] enabled[1])
-CPU 1 (0x2000) enabled<4>Processor #32 INVALID - (Max ID: 16).
-LAPIC (acpi_id[0x0003] id[0x32] enabled[1])
-CPU 1 (0x3200) enabled<4>Processor #50 INVALID - (Max ID: 16).
+Le ven 05/12/2003 =E0 04:32, Misha Nasledov a =E9crit :
+> Do you have both /dev/psaux and /dev/input/mice in your XF86Config file? =
+In
+> 2.6, these are the same thing, so it actually opens the same mouse twice =
+and
+> it can cause such weird issues with it.
 
-Is there any known solution to re-enable the CPU 1, CPU 2 and CPU 3 ?
+OK, I removed /dev/input/mice and it now behaves correctly. Now I'm just
+not sure how I can add a secondary USB mouse in these conditions...
 
-Is this an IBM bug ?
+Thanks,
 
-Please reply privately, I'm not subscribed to linux-smp.
+	Jean-Marc
 
-Thanks in advance,
-Paul
+--=20
+Jean-Marc Valin, M.Sc.A., ing. jr.
+LABORIUS (http://www.gel.usherb.ca/laborius)
+Universit=E9 de Sherbrooke, Qu=E9bec, Canada
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Blessed are they who have nothing to say and cannot be persuaded to say it.
+--=-wt3WBUBhQ+jVOKQ4pqbS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
 
--James Russell Lowell
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
+iD8DBQA/0KFQdXwABdFiRMQRAqWDAKCPyTnadaoNWSVSZwkKM/+jFFufIACfb0nh
+kkarS+enXgJ0njGXJRA/uls=
+=epW9
+-----END PGP SIGNATURE-----
 
-Paul Rolland, rol@witbe.net
-Witbe.net SA
-Directeur Associe
-
---
-
-Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
-
-"Some people dream of success... while others wake up and work hard at it"
+--=-wt3WBUBhQ+jVOKQ4pqbS--
 

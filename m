@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266588AbUGPRIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266598AbUGPRKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266588AbUGPRIf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 13:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266598AbUGPRIf
+	id S266598AbUGPRKk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 13:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266605AbUGPRKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 13:08:35 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:51380 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266588AbUGPRId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 13:08:33 -0400
-Date: Fri, 16 Jul 2004 10:08:32 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH TRIVIAL] Add Intel IXP2400 & IXP2800 to PCI.ids
-Message-ID: <20040716170832.GA4997@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Fri, 16 Jul 2004 13:10:40 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:18615 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266598AbUGPRKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 13:10:38 -0400
+Date: Fri, 16 Jul 2004 17:35:27 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andreas Kotowicz <koto-lkml@mynetix.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: suspend to disk breaks e100 driver kernel 2.6.7 and 2.6.8-rc1
+Message-ID: <20040716153527.GA8264@openzaurus.ucw.cz>
+References: <1089641949.13037.5.camel@saturn.koto.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <1089641949.13037.5.camel@saturn.koto.lan>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-This is already in sf.net, just not upstream.
+> whenever I put my notebook into suspend to disk by calling "echo -n disk
+> > /sys/power/state" my network connection dies.
+> this is what I get in the logs:
+...
+...
+> taking the network connection down, removing the modules and reinserting
+> it, doesn't help. I have to reboot the notebook for the network to work
+> again.
+> 
+> this didn't happen with kernel 2.6.6 and prior versions.
 
-~Deepak
-
-
-===== drivers/pci/pci.ids 1.64 vs edited =====
---- 1.64/drivers/pci/pci.ids	Sat Jun 12 11:29:20 2004
-+++ edited/drivers/pci/pci.ids	Wed Jul 14 21:02:42 2004
-@@ -8174,7 +8174,9 @@
- 	84e6  460GX - 82466GX Wide and fast PCI eXpander Bridge (WXB)
- 	84ea  460GX - 84460GX AGP Bridge (GXB function 1)
- 	8500  IXP4xx Family  Network Processor (IXP420, 421, 422, 425 and IXC1100)
--	9000  Intel IXP2000 Familly Network Processor
-+	9000  IXP2000 Family Network Processor
-+	9001  IXP2400 Network Processor
-+	9004  IXP2800 Network Processor
- 	9621  Integrated RAID
- 	9622  Integrated RAID
- 	9641  Integrated RAID
-
-Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
-
+Try copying e100 driver from 2.6.6 into recent kernel and/or try
+using swsusp instead of pmdisk.
+				Pavel
 -- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 
-"Unlike me, many of you have accepted the situation of your imprisonment and
- will die here like rotten cabbages." - Number 6

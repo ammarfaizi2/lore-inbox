@@ -1,66 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264318AbUDTXO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264591AbUDTXQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264318AbUDTXO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 19:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUDTXN7
+	id S264591AbUDTXQz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 19:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUDTXO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 19:13:59 -0400
-Received: from mail.cyclades.com ([64.186.161.6]:2702 "EHLO mail.cyclades.com")
-	by vger.kernel.org with ESMTP id S264356AbUDTXNL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 19:13:11 -0400
-Date: Tue, 20 Apr 2004 20:13:52 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: manfred@colorfullife.com, drepper@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] per-user signal pending and message queue limits
-Message-ID: <20040420231351.GB13826@logos.cnet>
-References: <20040419212810.GB10956@logos.cnet> <20040419224940.GY31589@devserv.devel.redhat.com> <20040420141319.GB13259@logos.cnet> <20040420130439.23fae566.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040420130439.23fae566.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 20 Apr 2004 19:14:58 -0400
+Received: from fmr11.intel.com ([192.55.52.31]:62185 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S264181AbUDTXIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 19:08:47 -0400
+Date: Tue, 20 Apr 2004 16:04:26 -0700 (PDT)
+From: Scott Feldman <scott.feldman@intel.com>
+To: Mike Keehan <mike_keehan@yahoo.com>, eamonn.hamilton@saic.com
+cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: e100 NETDEV WATCHDOG transmit timeout since 2.6.4
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0103E9A4E6@orsmsx402.jf.intel.com>
+Message-ID: <Pine.LNX.4.58.0404201559290.7794@snichols-desk.amr.corp.intel.com>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E0103E9A4E6@orsmsx402.jf.intel.com>
+ReplyTo: "Scott Feldman" <scott.feldman@intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 20, 2004 at 01:04:39PM -0700, Andrew Morton wrote:
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-> >
-> >  I wonder if it is a good idea to base mqueue limitation on the number of
-> > > message queues and not take into account how big they are.
-> > > 64 message queues with 1 byte msgsize and 1 maxmsg is certainly quite
-> > > harmless and the system could have even more queues for such a user,
-> > > while 64 message queues with 16K msgsize (current default) and 40 maxmsg
-> > > (also default) eats ~ 40M of kernel memory.
-> > 
-> > Indeed, it seems more correct to account for something else than "nr of message queues".
-> > 
-> > Memory occupied sounds better, yeap?
-> > 
-> > I'm sending the patch anyway, we can use the same RLIMIT_MSGQUEUE and user->msg_queues later 
-> > on with another meaning. 
-> > 
-> > Here it goes the update version, Andrew:
-> 
-> But we still have the global mq and signal limits?  These permit local
-> denials of service attacks.  See
-> http://seclists.org/lists/linux-kernel/2004/Apr/2065.html
 
-Right, but one user can't starve the whole system anymore. You need 4 users starving
-their quotas for it to become a local denial of service attack. But you are right, 
-we can remove the global pending signal. I will prepare and test 
-another patch tomorrow morning.
 
-As for mqueues, currently root is allowed to allocate infinite number of mqueues. We 
-want to remove that and calculate on the amount of memory allocated. I'll also think 
-about it and come with an implementation tomorrow morning.
+On Tue, 20 Apr 2004, Mike Keehan wrote:
 
-> The major advantage of your work is that we can now remove those limits. 
-> You'll be needing a 2.4 backport ;)
+> I am getting these too in recent kernels, but only on a
+> 10Mhz half-duplex network. I have to manually down
+> and up the interface to recover.
+>
+> On a 100Mhz switched network, the e100 is OK (at least 12hours+).
 
-Yeap. :) 
 
-And we also need to do the userspace part. ulimit is part of bash, so 
-probably all shell's should be awared of this? I never looked
-how "ulimit" utility works.
+Mike/Eamonn,
+
+Give this patch a try.  This adds a required workaround for ICH when
+working at 10/Half.  (Guessing you have an ICH system).
+
+--- linux-2.5/drivers/net/e100.c	2004-04-20 15:52:24.000000000 -0700
++++ linux-2.5/drivers/net/e100.c.mod	2004-04-20 15:55:32.000000000 -0700
+@@ -287,6 +287,7 @@ enum scb_cmd_hi {
+ };
+
+ enum scb_cmd_lo {
++	cuc_nop        = 0x00,
+ 	ruc_start      = 0x01,
+ 	ruc_load_base  = 0x06,
+ 	cuc_start      = 0x10,
+@@ -514,10 +515,11 @@ struct nic {
+ 	/* End: frequently used values: keep adjacent for cache effect */
+
+ 	enum {
+-		ich           = (1 << 0),
+-		promiscuous   = (1 << 1),
+-		multicast_all = (1 << 2),
+-		wol_magic     = (1 << 3),
++		ich                = (1 << 0),
++		promiscuous        = (1 << 1),
++		multicast_all      = (1 << 2),
++		wol_magic          = (1 << 3),
++		ich_10h_workaround = (1 << 4),
+ 	} flags					____cacheline_aligned;
+
+ 	enum mac mac;
+@@ -1225,6 +1227,12 @@ static void e100_watchdog(unsigned long
+ 		/* Issue a multicast command to workaround a 557 lock up */
+ 		e100_set_multicast_list(nic->netdev);
+
++	if(nic->flags & ich && cmd.speed==SPEED_10 && cmd.duplex==DUPLEX_HALF)
++		/* Need SW workaround for ICH[x] 10Mbps/half duplex Tx hang. */
++		nic->flags |= ich_10h_workaround;
++	else
++		nic->flags &= ~ich_10h_workaround;
++
+ 	mod_timer(&nic->watchdog, jiffies + E100_WATCHDOG_PERIOD);
+ }
+
+@@ -1244,7 +1252,17 @@ static inline void e100_xmit_prepare(str
+ static int e100_xmit_frame(struct sk_buff *skb, struct net_device *netdev)
+ {
+ 	struct nic *nic = netdev->priv;
+-	int err = e100_exec_cb(nic, skb, e100_xmit_prepare);
++	int err;
++
++	if(nic->flags & ich_10h_workaround) {
++		/* SW workaround for ICH[x] 10Mbps/half duplex Tx hang.
++		   Issue a NOP command followed by a 1us delay before
++		   issuing the Tx command. */
++		e100_exec_cmd(nic, cuc_nop, 0);
++		udelay(1);
++	}
++
++	err = e100_exec_cb(nic, skb, e100_xmit_prepare);
+
+ 	switch(err) {
+ 	case -ENOSPC:
+

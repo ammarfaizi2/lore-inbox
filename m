@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUHRSeB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUHRSfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267466AbUHRSeB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 14:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267457AbUHRSeB
+	id S267454AbUHRSfV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 14:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267457AbUHRSfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 14:34:01 -0400
-Received: from mr01.conversent.com ([216.41.101.18]:62080 "EHLO
-	mr01.conversent.net") by vger.kernel.org with ESMTP id S267466AbUHRScL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 14:32:11 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Is it possible to have a Kernel & initrd in 1 binary?
-Date: Wed, 18 Aug 2004 14:32:07 -0400
-Message-ID: <E8F8DBCB0468204E856114A2CD20741F1A92F8@mail.local.ActualitySystems.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Is it possible to have a Kernel & initrd in 1 binary?
-thread-index: AcSFUarPq88nNu/tRRO/kRsuez0cDA==
-From: "Dave Aubin" <daubin@actuality-systems.com>
-To: <linux-kernel@vger.kernel.org>
+	Wed, 18 Aug 2004 14:35:18 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:20352 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267454AbUHRSeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 14:34:31 -0400
+Subject: Re: [patch] enums to clear suspend-state confusion
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mochel@digitalimplant.org, benh@kernel.crashing.org,
+       David Brownell <david-b@pacbell.net>
+In-Reply-To: <20040818002711.GD15046@elf.ucw.cz>
+References: <20040812120220.GA30816@elf.ucw.cz>
+	 <20040817212510.GA744@elf.ucw.cz> <20040817152742.17d3449d.akpm@osdl.org>
+	 <20040817223700.GA15046@elf.ucw.cz> <20040817161245.50dd6b96.akpm@osdl.org>
+	 <20040818002711.GD15046@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092850283.26049.20.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 18 Aug 2004 18:31:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
- 
-  I'm working on an embedded device and I want it to boot off of a USB
-stick.
-I'm using a utility called filo which is able to read an elf off of a
-USB stick.  The
-problem is filo can only read the kernel portion of the elf and not the
-initrd.
-  Question, is there a way to bundle both the kernel and initrd in to
-just a kernel
-binary?  I thought there was a way, but I've always used initrd and I'm
-not familiar with
-making a kernel & initrd in to one image.
-  An alternative might be that the kernel be built to understand the
-USB, but I've
-found that there is a delay between when the kernel detects USB and when
-it goes to boot off of the USB drive of about 1 second and then the
-kernel fails
-to load thinking the USB drive is not present.
-  Any help is appreciated.
- 
-Thanks,
-Dave
+On Mer, 2004-08-18 at 01:27, Pavel Machek wrote:
+> I can replace suspend_state_t with enum system_state, but it might
+> mean that enum system_state will have to be extended with things like
+> RUNTIME_PM_PCI_D0 in future... I guess that's easiest thing to do. It
+> solves all the problems we have *now*.
+
+Can you not also provide a function
+
+	pci_state_for(system_state)
+
+then most of the drivers don't have to care. It would also be nice
+to have a driver flag to indicate which devices can simply be
+hotunplug/hotreplugged over a suspend and don't need extra duplicate
+code.
 

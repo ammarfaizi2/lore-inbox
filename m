@@ -1,89 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293632AbSCSEBB>; Mon, 18 Mar 2002 23:01:01 -0500
+	id <S293635AbSCSEFv>; Mon, 18 Mar 2002 23:05:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293634AbSCSEAw>; Mon, 18 Mar 2002 23:00:52 -0500
-Received: from 66-188-80-185.mad.wi.charter.com ([66.188.80.185]:56974 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S293632AbSCSEAj>; Mon, 18 Mar 2002 23:00:39 -0500
-To: linux-kernel@vger.kernel.org
-Cc: "Mike Coleman" <mkc+dated+1012446540.067c74@mathdogs.com>,
-        marcelo@conectiva.com.br, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk, hirofumi@mail.parknet.co.jp
-Subject: Re: [PATCH] ptrace on stopped processes (2.4)
-In-Reply-To: <m3adwc9woz.fsf@localhost.localdomain>
-	<87g0632lzw.fsf@mathdogs.com> <m3advcq5jv.fsf@localhost.localdomain>
-	<87665wbdtf.fsf@mathdogs.com> <m3g04qz0yf.fsf@localhost.localdomain>
-From: vic <zandy@cs.wisc.edu>
-Date: Mon, 18 Mar 2002 21:59:51 -0600
-Message-ID: <m3zo15jjgo.fsf@localhost.localdomain>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293642AbSCSEFl>; Mon, 18 Mar 2002 23:05:41 -0500
+Received: from runyon.sfbay.redhat.com ([205.180.230.5]:42669 "HELO cygnus.com")
+	by vger.kernel.org with SMTP id <S293635AbSCSEF1>;
+	Mon, 18 Mar 2002 23:05:27 -0500
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+From: Ulrich Drepper <drepper@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: martin.wirth@dlr.de, pwaechtler@loewe-komp.de,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020319142842.0d9291c2.rusty@rustcorp.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-X0SC+Xq0obMic1jWcTOl"
+X-Mailer: Evolution/1.0.2 (1.0.2-0.7x) 
+Date: 18 Mar 2002 20:05:22 -0800
+Message-Id: <1016510722.2194.101.camel@myware.mynet>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a repost of the ptrace patch to 2.4 kernels
-we've discussed in recent months.
 
-Since the last post, I have updated it to linux 2.4.18
-(no changes) and tested it with subterfuge and uml. 
+--=-X0SC+Xq0obMic1jWcTOl
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Subterfuge seems to be unaffected.
+On Mon, 2002-03-18 at 19:28, Rusty Russell wrote:
 
-UML needs minor modifications; I've discussed them with
-Jeff Dike and (I believe) he is happy.
+> What do you WANT in a kernel primitive then?  Given that we now have mute=
+xes,
+> what else do we need to make pthreads relatively painless?
 
-I believe I have addressed everyone's concerns.
+I think wrt to the mutexes only wake-all is missing.  I don't think that
+semaphore semantic is needed in the kernel.
 
-The patch fixes these two bugs:
 
-    1. gdb and other tools cannot attach to a stopped
-    process.  The wait that follows the PTRACE_ATTACH
-    will block indefinitely.
+> Look, here is an example implementation.  Please suggest:
+> 1) Where this is flawed,
+> 2) Where this is suboptimal,
+> 3) What kernel primitive would help to resolve these?
 
-    2. It is not possible to use PTRACE_DETACH to leave
-    a process stopped, because ptrace ignores SIGSTOPs
-    sent by the tracing process.
+I'll look at this a bit later.
 
-Vic
+--=20
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------
 
---- /home/vic/p/linux-2.4.18.orig/kernel/ptrace.c	Wed Mar 13 13:14:54 2002
-+++ /home/vic/p/linux-2.4.18/kernel/ptrace.c	Mon Mar 18 21:58:11 2002
-@@ -54,6 +54,7 @@
- 
- int ptrace_attach(struct task_struct *task)
- {
-+	int stopped;
- 	task_lock(task);
- 	if (task->pid <= 1)
- 		goto bad;
-@@ -90,7 +91,13 @@
- 	}
- 	write_unlock_irq(&tasklist_lock);
- 
-+	stopped = (task->state == TASK_STOPPED);
- 	send_sig(SIGSTOP, task, 1);
-+	/* If it was stopped when we got here,
-+	   clear the pending SIGSTOP. */
-+	if (stopped)
-+		wake_up_process(task);
-+
- 	return 0;
- 
- bad:
---- /home/vic/p/linux-2.4.18.orig/arch/i386/kernel/signal.c	Wed Mar 13 13:16:44 2002
-+++ /home/vic/p/linux-2.4.18/arch/i386/kernel/signal.c	Wed Mar 13 16:31:38 2002
-@@ -620,9 +620,9 @@
- 				continue;
- 			current->exit_code = 0;
- 
--			/* The debugger continued.  Ignore SIGSTOP.  */
--			if (signr == SIGSTOP)
--				continue;
-+			/* The debugger continued. */
-+			if (signr == SIGSTOP && current->ptrace & PT_PTRACED)
-+				continue; /* ignore SIGSTOP */
- 
- 			/* Update the siginfo structure.  Is this good?  */
- 			if (signr != info.si_signo) {
+--=-X0SC+Xq0obMic1jWcTOl
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8lrkC2ijCOnn/RHQRAlmAAKCFCfLE8PViVZ7PLJbVi655M6NBugCfWrWs
+Ffwv34UNO8d2D4fJxOEKcXs=
+=zRE8
+-----END PGP SIGNATURE-----
+
+--=-X0SC+Xq0obMic1jWcTOl--
+

@@ -1,103 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269767AbRHDDB4>; Fri, 3 Aug 2001 23:01:56 -0400
+	id <S268286AbRHDDJg>; Fri, 3 Aug 2001 23:09:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269769AbRHDDBq>; Fri, 3 Aug 2001 23:01:46 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:30980 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269767AbRHDDBa>; Fri, 3 Aug 2001 23:01:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>, Ben LaHaise <bcrl@redhat.com>
-Subject: Re: [RFC][DATA] re "ongoing vm suckage"
-Date: Sat, 4 Aug 2001 05:06:57 +0200
-X-Mailer: KMail [version 1.2]
-Cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-In-Reply-To: <Pine.LNX.4.33L.0108032144310.11893-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0108032144310.11893-100000@imladris.rielhome.conectiva>
+	id <S269766AbRHDDJ2>; Fri, 3 Aug 2001 23:09:28 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:64904 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S268286AbRHDDJQ>;
+	Fri, 3 Aug 2001 23:09:16 -0400
+Message-ID: <3B6B6934.262D382A@randomlogic.com>
+Date: Fri, 03 Aug 2001 20:17:08 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <0108040506570N.01827@starship>
-Content-Transfer-Encoding: 7BIT
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
+Subject: Re: Kernel 2.4.7 Source Code Documentation
+In-Reply-To: <3B6A2CC8.7D17F96F@randomlogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 04 August 2001 03:29, Rik van Riel wrote:
-> On Fri, 3 Aug 2001, Ben LaHaise wrote:
-> > --- vm-2.4.7/drivers/block/ll_rw_blk.c.2	Fri Aug  3 19:06:46 2001
-> > +++ vm-2.4.7/drivers/block/ll_rw_blk.c	Fri Aug  3 19:32:46 2001
-> > @@ -1037,9 +1037,16 @@
-> >  		 * water mark. instead start I/O on the queued stuff.
-> >  		 */
-> >  		if (atomic_read(&queued_sectors) >= high_queued_sectors) {
-> > -			run_task_queue(&tq_disk);
-> > -			wait_event(blk_buffers_wait,
-> > -			 atomic_read(&queued_sectors) < low_queued_sectors);
->
-> ... OUCH ...
->
-> > bah.  Doesn't fix it.  Still waiting indefinately in ll_rw_blk().
->
-> And it's obvious why.
->
-> The code above, as well as your replacement, are have a
-> VERY serious "fairness issue".
->
-> 	task 1			task 2
->
->  queued_sectors > high
->    ==> waits for
->    queued_sectors < low
->
->                              write stuff, submits IO
->                              queued_sectors < high  (but > low)
->                              ....
->                              queued sectors still < high, > low
->                              happily submits more IO
->                              ...
->                              etc..
->
-> It is quite obvious that the second task can easily starve
-> the first task as long as it keeps submitting IO at a rate
-> where queued_sectors will stay above low_queued_sectors,
-> but under high_queued sectors.
+A slight change in plans:
 
-Nice shooting, this could explain the effect I noticed where
-writing a linker file takes 8 times longer when competing with
-a simultaneous grep.
+www.randomlogic.com was out of disk space, so I now have a second site at http://www2.randomlogic.com. I am uploading the tar now and will uncompress the HTML
+to:
 
-> There are two possible solutions to the starvation scenario:
->
-> 1) have one threshold
-> 2) if one task is sleeping, let ALL tasks sleep
->    until we reach the lower threshold
+http://www2.randomlogic.com/linuxkernel/
 
-Umm.... Hmm, there are lots more solutions than that, but those two
-are nice and simple.  A quick test for (1) I hope Ben will try is
-just to set high_queued_sectors = low_queued_sectors.
+BIG NOTE READ THIS:
 
-Currently, IO scheduling relies on the "random" algorithm for fairness
-where the randomness is supplied by the processes.  This breaks down
-sometimes, spectacularly, for some distinctly non-random access
-patterns as you demonstrated.
 
-Algorithm (2) above would have some potentially strange interactions
-with the scheduler, it looks scary.  (E.g., change the scheduler, IO
-on some people's machines suddenly goes to hell.)
+Anyone wishing to mirror this can download it from here:
 
-Come to think of it (1) will also suffer in some cases from nonrandom
-scheduling.
+http://www.randomlogic.com/files/linux-2.4.7_html.tar.gz
 
-Now let me see, why do we even have the high+low thresholds?  I
-suppose it is to avoid taking two context switches on every submitted
-block, so it seems like a good idea.
+The file is in the neighborhood of 150MB and uncompressed is ~1GB. You have been forewarned. Please, no Wget on www2.randomlogic.com. :/
 
-For IO fairness I think we need something a little more deterministic.
-I'm thinking about an IO quantum right now - when a task has used up
-its quantum it yields to the next task, if any, waiting on the IO
-queue.  How to preserve the effect of the high+low thresholds... it
-needs more thinking, though I've already thought of several ways of
-doing it badly :-)
+I'm still hoping for a better place to put it, but we'll see.
 
---
-Daniel
+PGA
+
+"Paul G. Allen" wrote:
+> 
+> I am attempting to get my slow UP PIII 800 here at work to parse the 2.4.7 source and annotate it so that I can put it up on my other web server. When it is
+> done, I will upload it to the server and it should be available at this URL:
+> 
+> http://www.randomlogic.com/kernel/
+> 
+> This may or may not happen tonight since this machine is nowhere near as fast as my K7 at home and the K7 takes a few hours to do it all, but the U/L bandwidth
+> is much better here (DS3 compared to cable). I do expect to have it up before the weekend.
+> 
+> (NOTE: I compared kernel compile times between the two, no official numbers, just compiling on both machines. I started the PIII 800 about 1 min before the K7
+> Thunder. The K7 Thunder was done with make dep, bzImage, modules, and modules_install before the PIII was 50% complete with bzImage. The K7 was running 2
+> SETI@Home sessions as well as compiling, the PIII was doing nothing else.)
+> 
+> I plan to update the documentation with every stable kernel release. (So please, don't crank them out too fast, I'd hate to spend my life U/L 1GB+ of HTML every
+> other day!! ;-)
+> 
+
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265508AbSJXPeb>; Thu, 24 Oct 2002 11:34:31 -0400
+	id <S265511AbSJXPn6>; Thu, 24 Oct 2002 11:43:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265510AbSJXPea>; Thu, 24 Oct 2002 11:34:30 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:34953 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265508AbSJXPea>; Thu, 24 Oct 2002 11:34:30 -0400
-Date: Thu, 24 Oct 2002 21:16:33 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: maneesh@in.ibm.com, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
-Message-ID: <20021024211633.A21583@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <3DB7A581.9214EFCC@aitel.hist.no> <3DB7A80C.7D13C750@digeo.com> <3DB7AC97.D31A3CB2@digeo.com> <20021024171528.D5311@in.ibm.com> <20021024114740.78FD37CD3@oscar.casa.dyndns.org> <20021024180809.D11418@in.ibm.com> <20021024210105.A20822@in.ibm.com>
-Mime-Version: 1.0
+	id <S265512AbSJXPn5>; Thu, 24 Oct 2002 11:43:57 -0400
+Received: from zero.aec.at ([193.170.194.10]:19973 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S265511AbSJXPn5>;
+	Thu, 24 Oct 2002 11:43:57 -0400
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 performance counters driver 3.0-pre2 for 2.5.44: [2/4] x86 support
+References: <200210241500.RAA03585@kim.it.uu.se>
+From: Andi Kleen <ak@muc.de>
+Date: 24 Oct 2002 17:49:55 +0200
+In-Reply-To: <200210241500.RAA03585@kim.it.uu.se>
+Message-ID: <m3wuo7omzg.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021024210105.A20822@in.ibm.com>; from dipankar@in.ibm.com on Thu, Oct 24, 2002 at 09:01:05PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 09:01:05PM +0530, Dipankar Sarma wrote:
-> OK, I think I know why this one didn't work.
-> 
-> If the bit_mask is 0, find_first_bit() returns 32 or BITS_PER_LONG.
-> That works fine as long as NR_CPUS is 32, but when it isn't things
-> are broken.
-> 
->     (find_first_bit(rcu_ctrlblk.rcu_cpu_mask, NR_CPUS) != BITS_PER_LONG)) {
-> 		return;
-> 
-> should probably work here.
-> 
-> I guess we need to audit all bitmask tests and fix them to check for
-> the right value. 
+Mikael Pettersson <mikpe@csd.uu.se> writes:
 
-Argh!! I spoke too soon.
+> +struct per_cpu_cache {	/* roughly a subset of perfctr_cpu_state */
+> +	union {
+> +		unsigned int p5_cesr;
+> +		unsigned int id;	/* cache owner id */
+> +	} k1;
+> +	struct {
+> +		/* NOTE: these caches have physical indices, not virtual */
+> +		unsigned int evntsel[18];
+> +		unsigned int escr[0x3E2-0x3A0];
+> +		unsigned int pebs_enable;
+> +		unsigned int pebs_matrix_vert;
+> +	} control;
+> +} __attribute__((__aligned__(SMP_CACHE_BYTES)));
+> +static struct per_cpu_cache per_cpu_cache[NR_CPUS] __cacheline_aligned;
 
-AFAICS, find_first_bit() needs to be fixed to return "size" if the
-bitmask is all zeros.
+This should use per cpu data (asm/percpu.h) to save memory.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+-Andi

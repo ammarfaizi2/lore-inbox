@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272222AbTHRRR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 13:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272223AbTHRRR2
+	id S272132AbTHRRQN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 13:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272142AbTHRRQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 13:17:28 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:20646
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S272222AbTHRRRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 13:17:24 -0400
-Date: Mon, 18 Aug 2003 16:16:06 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, dipankar@in.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       paulmck@us.ibm.com
-Subject: Re: [PATCH] RCU: Reduce size of rcu_head 1 of 2
-Message-ID: <20030818141606.GU7862@dualathlon.random>
-References: <1059830126.19819.8.camel@dhcp22.swansea.linux.org.uk> <20030808193441.56F452C25E@lists.samba.org>
+	Mon, 18 Aug 2003 13:16:13 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:42703 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272132AbTHRRQK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 13:16:10 -0400
+Date: Mon, 18 Aug 2003 10:15:54 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: John Bradford <john@grabjohn.com>
+Cc: alan@lxorguk.ukuu.org.uk, torvalds@osdl.org, jamie@shareable.org,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH] use simple_strtoul for unsigned kernel parameters
+Message-ID: <20030818171554.GA32649@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	John Bradford <john@grabjohn.com>, alan@lxorguk.ukuu.org.uk,
+	torvalds@osdl.org, jamie@shareable.org,
+	linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+References: <200308181718.h7IHIUwU001800@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030808193441.56F452C25E@lists.samba.org>
+In-Reply-To: <200308181718.h7IHIUwU001800@81-2-122-30.bradfords.org.uk>
 User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Aug 18, 2003 at 06:18:30PM +0100, John Bradford wrote:
+> Hmmm, at least some Cray machines require three-phase power, though,
+> which is a problem for home use.
 
-On Fri, Aug 08, 2003 at 12:21:04PM +1000, Rusty Russell wrote:
-> There are two patches.  Both reduce the size of the "struct rcu_head".
-> One simply changes the struct rcu_head from a double linked list to a
-> single linked list.  The other eliminates the "void *data" arg, and
-> changes the prototype of the call_rcu() function to take a pointer to
-> the struct rcu_head, rather than a user-defined data ptr.
-> 
-> It is the latter that I am concerned about changing mid-stable-series.
+Huh?  You can get phase converters.  It's a common thing to do for home
+shops with metal working tools.
 
-given the number of users (a dozen) I wouldn't be concerned about the
-API change either. Much better to change it now that there arne't out of
-the tree users yet. IMHO kernel internal API changes aren't a problem if
-there are few users all in tree like in this case.
-
-Andrea
+But who cares?  Nobody is going to run a Cray in their home for more than
+a few days, the power draw would get too expensive.  So this is well into
+"angels in the head of a pin" land.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

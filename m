@@ -1,70 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263487AbTEMVXk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263493AbTEMVXk
+	id S263547AbTEMVdB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263548AbTEMVdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:23:40 -0400
-Received: from ida.rowland.org ([192.131.102.52]:4868 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S263487AbTEMVXB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:23:01 -0400
-Date: Tue, 13 May 2003 17:35:47 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: Paul Fulghum <paulkf@microgate.com>, Andrew Morton <akpm@digeo.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Arnd Bergmann <arnd@arndb.de>, <johannes@erdfelt.com>
-Subject: Re: 2.5.69 Interrupt Latency
-In-Reply-To: <20030513181120.GA10790@kroah.com>
-Message-ID: <Pine.LNX.4.44L0.0305131719260.673-100000@ida.rowland.org>
+	Tue, 13 May 2003 17:33:01 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:12282 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S263547AbTEMVc6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 17:32:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Chuck Ebbert <76306.1226@compuserve.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: The disappearing sys_call_table export.
+Date: Tue, 13 May 2003 16:44:41 -0500
+X-Mailer: KMail [version 1.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200305131048_MC3-1-38B1-E140@compuserve.com>
+In-Reply-To: <200305131048_MC3-1-38B1-E140@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <03051316444102.20373@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 May 2003, Greg KH wrote:
+On Tuesday 13 May 2003 09:45, Chuck Ebbert wrote:
+> Jesse Pollard wrote:
+> > No - C2 evaluation has not been done for almost 3 years. That makes it
+> > impossible to get a C2 evaluation.
+>
+>   The people who used to require that still have lists of approved
+> operating systems.  Linux is not on that list.
 
-> On Tue, May 13, 2003 at 11:09:13AM -0700, Greg KH wrote:
-> > On Tue, May 13, 2003 at 08:01:01AM -0500, Paul Fulghum wrote:
-> > > 
-> > > I applied the patch plus a couple of printk statements,
-> > > and the wakeup_hc() is being continuously called
-> > > as well as actually executing the delay.
-> > 
-> > Is the suspend_hc() function ever getting called by anyone in that
-> > driver? 
-> 
-> Ok, nevermind, I see where it would be getting called under normal
-> operation...
-> 
-> Hm, I don't really know.  Johannes, any thoughts?
+Neither is windows, OS2, MAC 5/6/7/8/9/10.. for that matter.
 
-My take is that wakeup_hc() is getting called whenever some stray signal
-causes the device to generate an interrupt, and then a little while later
-the stall timer routine calls suspend_hc() since nothing is active.  The
-interrupts are probably indistinguishable from what you would get if a new
-device really had just been attached to the bus.
+> > And
+> > "C2 like capability" Linux does just as well as M$. Are the log files as
+> > pretty as would be desired? No. But they are acceptable for all US usage
+> > where a UNIX system is acceptable.
+>
+>   "No audit trail" pretty much kills it right from the get-go.
 
-Assuming this analysis is correct, only malfunctioning hardware would ever
-cause the problem to arise.  Still, it's something that needs to be
-handled.  (That's a tricky point -- to what extent should the kernel try 
-to compensate for broken hardware?)
+It does have audit trails... you do have to turn on process accounting. Are
+they pretty... no. But it is equivalent to base Solaris (well, before 2). You
+also have to turn on logs from every service daemon.
 
-Unfortunately, there isn't any obvious way to tell that under these
-circumstances the wakeup_hc() routine doesn't need to run.  Using a timer
-routine to implement that 20 ms delay would at least remove the large
-interrupt latency.  However, this presents some problems as well.  In
-particular, is there anything that would prevent suspend_hc() from being
-called before the timer had expired?  We don't want to find ourselves
-simultaneously trying to turn the USB controller on and off.  Getting that
-done properly will require some thought.
+>   Base Solaris has it.  And I'm pretty sure HP-UX 9 did but that was
+> a while ago...
 
-Maybe a kind of grace period would help: each time the controller changes
-state, don't allow another change until at least 1 second later.  That
-would also help the "bouncing" effect I see when I turn on or off my USB
-CD-RW drive.
+No current OS has C2 certifications - they have an EAL3 or 4. But not C2.
 
-Alan Stern
+>   And real ACLs are only now getting into Linux... how long till someone
+> certifies that they work is anyone's guess.
 
+Real ACLs were available about 2-3 years ago. They just were not accepted
+for inclusion, and the patch died.
+
+First some organization has to come up with a good bit of $$$. Evaluations
+are not cheap. It would take over a year to get an EAL3, and longer yet to
+get 4.
+
+> > These are also the same people that will not (or should not) accept
+> > laptops in their environement.
+>
+>   Untrusted users shouldn't be allowed cellphones, PDAs, laptops or
+> similar.
+>
+>   Next step up is probably full body cavity search to make sure you
+> haven't hidden a Microdrive somehwere...
+
+Remember the body scanner in that Mars based Schwartzenegger movie...

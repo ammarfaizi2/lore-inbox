@@ -1,96 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129835AbRAIWpo>; Tue, 9 Jan 2001 17:45:44 -0500
+	id <S130231AbRAIWsY>; Tue, 9 Jan 2001 17:48:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130018AbRAIWpg>; Tue, 9 Jan 2001 17:45:36 -0500
-Received: from esteel10.client.dti.net ([209.73.14.10]:60489 "EHLO
-	nynews01.e-steel.com") by vger.kernel.org with ESMTP
-	id <S129835AbRAIWpI>; Tue, 9 Jan 2001 17:45:08 -0500
+	id <S132271AbRAIWsO>; Tue, 9 Jan 2001 17:48:14 -0500
+Received: from kleopatra.acc.umu.se ([130.239.18.150]:26303 "EHLO
+	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
+	id <S130231AbRAIWsH>; Tue, 9 Jan 2001 17:48:07 -0500
+Date: Tue, 9 Jan 2001 23:48:04 +0100
+From: David Weinehall <tao@acc.umu.se>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Mathieu Chouquet-Stringer <mchouque@e-steel.com>
-Newsgroups: e-steel.mailing-lists.linux.linux-kernel
-Subject: Re: Floppy disk strange behavior
-Date: 09 Jan 2001 17:44:58 -0500
-Organization: e-STEEL Netops news server
-Message-ID: <m3puhwtket.fsf@shookay.e-steel.com>
-In-Reply-To: <E14G6S5-0007UK-00@the-village.bc.nu> <Pine.GSO.4.21.0101091642260.9953-100000@weyl.math.psu.edu>
-NNTP-Posting-Host: shookay.e-steel
-X-Trace: nynews01.e-steel.com 979080232 27336 192.168.3.43 (9 Jan 2001 22:43:52 GMT)
-X-Complaints-To: news@nynews01.e-steel.com
-NNTP-Posting-Date: 9 Jan 2001 22:43:52 GMT
-X-Newsreader: Gnus v5.7/Emacs 20.7
+Subject: [Announcement] linux-kernel v2.0.39
+Message-ID: <20010109234804.E18733@khan.acc.umu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Everyone laughs, I guess. The 2.0.39final didn't became the final
+release (could've told you so...) The good thing? Well, some bugs were
+found and removed. But this is it. Enjoy!
 
-Ok, I emailed bug-fileutils@gnu.org and got this response from Jim Meyering
-<jim@meyering.net>:
 
-Thanks for the report.
-That's fixed in the latest test release.
-  ftp://alpha.gnu.org/gnu/fetish/fileutils-4.0.35.tar.gz
+Changelog for v2.0.39
 
-It's fixed in 4.0.33, too.
+o	Fix memory-leak in af_unix		(Jon Nelson,
+						 Alan Cox, me)
+o	Added headerfiles for devfs		(Richard Gooch)
+	to simplify backports of
+	drivers
+o	Fix a bug involving syncronous		(Jari Ruusu)
+	writes and -ENOSPC that could
+	cause file-corruption
+o	Added new versions of PCI-2000		(Mark Ebersole)
+o	Added new versions of PCI-2220i		(Mark Ebersole)
+o	Fixed a few typos in PCI-2000,		(me)
+	PCI-2220i, PSI-240i and related
+	files
+o	Removed unused variable in xd.c		(me)
+o	Renamed the initfunctions in		(me)
+	pi2.c and pt.c, as their names
+	clashed with paride-names
+	(obviously, noone uses paride
+	 together with hamradio)
+o	Changed most references to		(me)
+	vger.rutgers.edu to
+	vger.kernel.org
+o	Fix the few vger.rutgers.edu		(Daniel Roesen)
+	references that I missed
+o	Fix a bug in af_unix that wrote to	(Michael Deutschmann)
+	a socket after freeing it
+	(aka the Win9x-related oops)
+o	Fixed typo in Documentation		(Martin Douda)
+o	IDE-patches				(Andre Hedrick)
+o	Fixes for the IDE-patches		(Andries Brouwier,
+o	Move memory-offset for dynamic		(Michael Deutschsmann)
+	executables
+o	Fixes to the Cyclades-driver		(Ivan Passos)
+o	Fix for a bug in ext2			(Stephen C. Tweedie)
+o	Added marketing-names for 3Com		(Yann Dirson, me)
+	NICs in drivers/net/Config.in
+o	Fix for a buf in smbfs			(Rick Bressier)
+o	Large-disk fixes			(Andries Brouwer)
+o	Wavelan-driver cleanup & bugfixes	(Jean Tourrilhes)
+o	Security-fixes				(Solar Designer)
+o	Quota-fixes				(Jan Kara)
+o	Fixed GPF using IPsec Masquerade	(Rudolf Lippan)
+o	Fixed Config.in bugs in			(Marc Martinez)
+	drivers/net and drivers/isdn
+o	Added IPX-routing of NetBIOS packages	(Jan Rafaj)
+o	Fix for a bug in paride			(Wolfram Gloger)
+o	Fix an erroneous printk in ip_fw.c	(Todd Sabin)
+o	Fix for IP multicast on WAN-adapters	(Matthew Grant)
+o	Big updates to MAINTAINERS		(me)
+o	Big updates to CREDITS			(me, others)
+o	Various updates in Documentation/*	(me)
+o	Styled up all Configuration-files	(me)
+	in a similar manner to newer
+	v2.3 kernels, and various other
+	cleanups
+o	Updated CodingStyle to the one used	(me)
+	in recent v2.3 kernels
+o	Backported nls_8859-14			(me)
+o	Added support for sparse superblocks	(Theodore T'so)
+o	Fix for the ping -s 65468 exploit	(Andrea Arcangeli, others)
 
-viro@math.psu.edu (Alexander Viro) writes:
-> On Tue, 9 Jan 2001, Alan Cox wrote:
-> 
-> > > dd bug. It tries to ftruncate() the output file and gets all upset when
-> > > kernel refuses to truncate a block device (surprise, surprise).
-> > 
-> > Standards compliant but unexpected. 
-> 
-> dd is supposed to be portable. On Solaris:
-> % man ftruncate
-> [snip]
->       EINVAL    The fildes argument  does  not  correspond  to  an
->                ordinary file.
->  
-> > Actually its explicitly mentioned by the spec that truncate _may_ extend
-> > a file but need not do so. 
-> 
-> However, it also explicitly mentions that truncate can fail for non-regular
-> file.
-> 
-> > > Try to build GNU dd on other Unices and you will be able to trigger that
-> > > bug on quite a few of them.
-> > 
-> > I think not
-> 
-> Solaris, for one thing. OK, let's ask folks to test it on different systems
-> and see what it gives.
-> 
-> > > ftruncate(2) is _not_ supposed to succeed on anything other than regular
-> > > files. I.e. dd(1) should not call it and expect success if file is not
-> > > regular. Plain and simple...
-> > 
-> > 2.2 is least suprise 2.4 is most information, but misleading errno IMHO
-> 
-> Agreed. It should be -EINVAL, not -EPERM.
-> 
-> IMO there are two issues:
-> 	* dd(1) portability bug. Obviously there - ftruncate(2) is allowed
-> to fail on non-regular ones. Fix is trivial and it (or something equivalent)
-> should go into the fileutils.
-> 	* What should 2.4 do here? I would prefer -EINVAL - it is true
-> (requested action is invalid for the arguments we got), it is consistent
-> with other systems and it doesn't hide the failure. Data that used to
-> be in the file we were trying to truncate is still there. -EPERM is
-> arguably wrong here - it's not like the problem was in the lack of
-> permissions.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
 
--- 
-Mathieu CHOUQUET-STRINGER              E-Mail : mchouque@e-steel.com
-     Learning French is trivial: the word for horse is cheval, and
-               everything else follows in the same way.
-                        -- Alan J. Perlis
+Enjoy!
+
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

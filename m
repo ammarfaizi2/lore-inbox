@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKVLaH>; Wed, 22 Nov 2000 06:30:07 -0500
+	id <S129259AbQKVLdH>; Wed, 22 Nov 2000 06:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129520AbQKVL35>; Wed, 22 Nov 2000 06:29:57 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:54758 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S129091AbQKVL3q>; Wed, 22 Nov 2000 06:29:46 -0500
-From: kumon@flab.fujitsu.co.jp
-Date: Wed, 22 Nov 2000 19:59:38 +0900
-Message-Id: <200011221059.TAA03907@asami.proc.flab.fujitsu.co.jp>
-To: Jens Axboe <axboe@suse.de>
-Cc: kumon@flab.fujitsu.co.jp, linux-kernel@vger.kernel.org,
-        Dave Jones <davej@suse.de>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH] livelock in elevator scheduling
-In-Reply-To: <20001121112836.B10007@suse.de>
-In-Reply-To: <200011210838.RAA27382@asami.proc.flab.fujitsu.co.jp>
-	<20001121112836.B10007@suse.de>
-Reply-To: kumon@flab.fujitsu.co.jp
-Cc: kumon@flab.fujitsu.co.jp
-X-Mailer: Handmade Mailer version 1.0
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129150AbQKVLc6>; Wed, 22 Nov 2000 06:32:58 -0500
+Received: from tellus.thn.htu.se ([193.10.192.40]:41225 "EHLO thn.htu.se")
+	by vger.kernel.org with ESMTP id <S129259AbQKVLct>;
+	Wed, 22 Nov 2000 06:32:49 -0500
+Date: Wed, 22 Nov 2000 12:02:38 +0100 (CET)
+From: Richard Torkar <ds98rito@thn.htu.se>
+To: David Riley <oscar@the-rileys.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Defective Red Hat Distribution poorly represents Linux
+In-Reply-To: <3A1B028B.94F3A221@the-rileys.net>
+Message-ID: <Pine.LNX.4.30.0011221201240.3193-100000@toor.thn.htu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe writes:
- > I'd be very interested if you could repeat your test with my
- > block patch applied. It has, among other things, a more fair (and
- > faster) insertion.
- > 
- > *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.0-test11/blk-11.bz2
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This patch fixes the "DoS" behavior of the current queuing mechanism.
-Even if I set the "pass-over" values to very large number (1000000) it
-stably runs.
-Thank you for your patch.
+David Riley wrote:
 
->From my understanding, passover is an option of the elevator
-scheduling to prioritize long waiting requests for improving online
-responses.  In that test, passover value setting doesn't affect the
-benchmark number, which is probable.
+> Richard Torkar wrote:
+> >
+> > Well David, there is such a "manual".
+> >
+> > http://ftp.sunet.se/LDP/FAQ/faqs/GCC-SIG11-FAQ
+>
+> Yes.  And if you ask the average new Linux user if they've read it, I
+> doubt you'll get a "yes".  My question boils down to this, and this I
+> suppose is a personal/informational request for comments, so don't
+> clutter the list with responses directed at me:  What (in your opinion)
+> is the most commonly read Linux user-land document?
 
-Will the patch is included in the next kernel?
+I would say the manual that comes with the distribution whether it is
+RedHat, Debian, Slackware etc...
+
+So yes it would be a good idea to contact the distributions-people and
+tell them to point it out "clearly" in their manual.
 
 
-BTW,
-The major performance difference between test1 and test2 was caused by
-whether the hard_dirty_limit is hit or not.
+/Richard
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-The current Linux has a lot of difficult to set parameters in
-/proc/sys.
- Once a system goes beyond some settable limits, the system behavior
-changes so sharp.  Bdf_prm.nrfract in fs/buffer.c is one of the
-difficult parameters.  I hope a tool to monitor or set these value.
+iD8DBQE6G6fQUSLExYo23RsRAofAAKCKvLzgDTHs/lYu6Bx0PA/F9Z7nYACgl9qs
+PgbaC8JGvJalG1Sh+6KUhRU=
+=UvUj
+-----END PGP SIGNATURE-----
 
---
-Computer Systems Laboratory, Fujitsu Labs.
-kumon@flab.fujitsu.co.jp
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265474AbTFMSHG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 14:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265475AbTFMSHG
+	id S265468AbTFMSIw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 14:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265469AbTFMSIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 14:07:06 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:64213 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S265474AbTFMSHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 14:07:03 -0400
-Message-ID: <A5974D8E5F98D511BB910002A50A66470B54CBA3@hdsmsx103.hd.intel.com>
-From: "Cress, Andrew R" <andrew.r.cress@intel.com>
-To: "'Matthias Andree'" <matthias.andree@gmx.de>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: RE: SCSI Write Cache Enable in 2.4.20?
-Date: Fri, 13 Jun 2003 11:25:43 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Fri, 13 Jun 2003 14:08:52 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:46240
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265468AbTFMSIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 14:08:51 -0400
+Date: Fri, 13 Jun 2003 20:23:19 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: akpm@digeo.com, davidsen@tmr.com, haveblue@us.ibm.com, habanero@us.ibm.com,
+       mbligh@aracnet.com, linux-kernel@vger.kernel.org
+Subject: Re: userspace irq balancer
+Message-ID: <20030613182319.GP1571@dualathlon.random>
+References: <20030527115314.GU3767@dualathlon.random> <20030527.150449.08322270.davem@redhat.com> <20030527222712.GB1453@dualathlon.random> <20030612.232249.104032251.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030612.232249.104032251.davem@redhat.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 12, 2003 at 11:22:49PM -0700, David S. Miller wrote:
+>    From: Andrea Arcangeli <andrea@suse.de>
+>    Date: Wed, 28 May 2003 00:27:12 +0200
+> 
+>    I see your point, please try with 2.4.21rc4aa1 or with this patch:
+>    
+>    	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21rc4aa1/00_ksoftirqd-max-loop-networking-1
+>    
+>    you can put a printk in the ksoftirqd loop and tune the N until it
+>    behaves as you want.
+> 
+> Ingo's specweb testing indicated that a value somewhere between 8 and
+> 10 appear optimal.
 
-IMO, it isn't "necessary", but it is very desirable, and should be the
-default, to disable write cache on SCSI disks for any system that is
-concerned about reliability.
+Sounds very good.
 
-If reliability is less important than performance, and you have more
-sequential writes than random writes, then you would get a performance
-boost, and those (limited) cases might want to turn write cache on.  Disk
-benchmark apps are one example.
+> 
+> I've pushed this change into Andrew's -mm 2.5.x patch set.
 
-However, most environments have a lot more small random writes than
-sequential writes, and so don't even see a performance improvement from
-turning disk write cache on.  
+Thanks!
 
-The OS type or version shouldn't affect this, in principle.
-
-Andy
-
------Original Message-----
-From: Matthias Andree [mailto:matthias.andree@gmx.de] 
-Sent: Thursday, June 12, 2003 5:25 AM
-To: Linux-Kernel mailing list
-Subject: SCSI Write Cache Enable in 2.4.20?
-
-
-Hi,
-
-I haven't followed the status of write barrier patches recently, I am
-wondering if it's still "necessary" (to avoid file system corruption) to
-disable the write cache of a SCSI disk drive when the machine doesn't
-have an uninterruptible power supply or if instead the file systems and
-driver know how to use ordered tags.  (Fujitsu MAP drive: 8 MB cache,
-AIC7880 adapter, SuSE Linux 8.2 patched 2.4.20 kernel with ext3 and xfs)
-
-TIA,
-
--- 
-Matthias Andree
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Andrea

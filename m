@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263695AbTEJJWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 05:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263700AbTEJJWr
+	id S263700AbTEJJ1D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 05:27:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263704AbTEJJ1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 05:22:47 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:19607 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263695AbTEJJWq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 05:22:46 -0400
-Date: Sat, 10 May 2003 05:24:13 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Joshua Kwan <joshk@triplehelix.org>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: OOPS in smbfs module - 2.5.69-mm1
-In-Reply-To: <20030510053548.GA23841@triplehelix.org>
-Message-ID: <Pine.LNX.4.50.0305100440150.11047-100000@montezuma.mastecende.com>
-References: <20030510053548.GA23841@triplehelix.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 May 2003 05:27:03 -0400
+Received: from almesberger.net ([63.105.73.239]:38922 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S263700AbTEJJ1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 05:27:02 -0400
+Date: Sat, 10 May 2003 06:39:36 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: anyone ever implemented a reparent(pid) syscall?
+Message-ID: <20030510063936.D13069@almesberger.net>
+References: <3EBBF965.4060001@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EBBF965.4060001@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Fri, May 09, 2003 at 02:54:29PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 May 2003, Joshua Kwan wrote:
+Chris Friesen wrote:
+> I would like some way for the main one to restart, read the 
+> list of pids out of a file that it conveniently stashed away,
+[...]
 
-> Got this trying to mount my MP3 partition in 2.5.69-mm1...
-> 
-> Unable to handle kernel paging request at virtual address af0272f7
->  printing eip:
-> d4c8ffe9
-> *pde = 00000000
-> Oops: 0000 [#1]
-> CPU:    0
-> EIP:    0060:[<d4c8ffe9>]    Not tainted VLI
-> EFLAGS: 00010246
-> EIP is at find_request+0x15/0x45 [smbfs]
+And until it has done this, any child death will still only be seen
+by init. So you either didn't have a problem with this in the first
+place, or you can make sure your children don't die while their
+parents are changing, or you've just designed yourself a race
+condition.
 
-<snip>
+A design where the parent simply doesn't die would be much better.
 
-> Code: 1b 8b 46 1c 89 58 04 89 03 89 7b 04 89 5e 1c b8 fb ff ff ff eb ac
-> 57 31 c9 56 53 8b 7c 24 10 8b 74 24 14 8b 57 24 8b 02 0f 18 00 <63> 8d
-> 5f 24 39 da 74 15 39 72 18 89 d1 74 0e 89 c2 31 c9 8b 00
+> Has anyone ever done this?
 
-You appear to be in a very bad place, looks like list corruption, possibly 
-a prefetch into never never land, which gcc version are you using? Can you 
-reproduce easily?
+You could use ptrace to pretty much this effect. Of course, this
+only works if the child processes don't already use ptrace for
+some other purpose, and your parent now needs to respond whenever
+a child gets a non-terminal signal (in addition to the terminal
+ones).
+
+- Werner
 
 -- 
-function.linuxpower.ca
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbTEIMbX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 08:31:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbTEIMbX
+	id S262513AbTEIMlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 08:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbTEIMlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 08:31:23 -0400
-Received: from viefep14-int.chello.at ([213.46.255.13]:34118 "EHLO
-	viefep14-int.chello.at") by vger.kernel.org with ESMTP
-	id S262638AbTEIMbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 08:31:22 -0400
-Message-Id: <5.2.0.9.2.20030509143954.01d3d3f8@pop.tvnet.hu>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Fri, 09 May 2003 14:45:33 +0100
-To: linux-kernel@vger.kernel.org
-From: Newsmail <newsmail@satimex.tvnet.hu>
-Subject: kernel patches for intel c compiler
+	Fri, 9 May 2003 08:41:16 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24203
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262513AbTEIMlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 08:41:15 -0400
+Subject: Re: [PATCH] i386 uaccess to fixmap pages
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roland McGrath <roland@redhat.com>
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200305091043.h49Ah7Z24822@magilla.sf.frob.com>
+References: <200305091043.h49Ah7Z24822@magilla.sf.frob.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052481316.14538.0.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 May 2003 12:55:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi everyone,
-at the bottom of this article 
-http://news.zdnet.co.uk/story/0,,t269-s2134430,00.html we can read:
+On Gwe, 2003-05-09 at 11:43, Roland McGrath wrote:
+> Here's an updated version of the patch.  Since the support for 386s without
+> WP support seems to be gone, I shaved an instruction here and there by not
+> passing the read/write flag to the helper function.  
 
-Version 7.0 of Intel's compiler has been used to build Linux kernels, but 
-only with special modifications to the kernel, the paper said. Intel hopes 
-to eliminate those modifications by modifying its compiler and by working 
-with the Linux programming community to change some features of the kernel. 
-For example, Intel programmers have submitted kernel patches to permit use 
-of the Intel compiler.
-
-is there any patches availible publicly that we can use to build the kernel 
-with intel's compiler? where can I find one?
-regards,
-greg
-
-ps: please cc me
-
+Manfred Spraul redid the 386 support very nicely so the older CPU's
+should be fine
 

@@ -1,45 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbTEBDO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 23:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262880AbTEBDO0
+	id S262880AbTEBDV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 23:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTEBDV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 23:14:26 -0400
-Received: from frogadmin.yi.org ([80.65.224.85]:5641 "EHLO Gilgamesh")
-	by vger.kernel.org with ESMTP id S262878AbTEBDO0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 23:14:26 -0400
-To: linux-kernel@vger.kernel.org
-Date: 2 May 2003 03:21:36 -0000
-Message-ID: <ZIA7D8S737743.2233333333@Gilgamesh-frog.org>
-From: The Spirit of Open Source <tsoos@scoloses.org>
-Subject: Did the SCO Group plant UnixWare source in the Linux kernel?
-Comments: This message probably did not originate from the above address.
-        It was automatically remailed by one or more anonymous mail services.
-        You should NEVER trust ANY address on Usenet ANYWAYS: use PGP !!!
-        Get information about complaints from the URL below
-X-Remailer-Contact: http://80.65.224.85/  In case my abuse address is unreachable: It is because I have been flooded by <mgg@uiuc.edu>, please contact <abuse@uiuc.edu>
+	Thu, 1 May 2003 23:21:58 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:47040 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S262880AbTEBDV4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 23:21:56 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Robert White" <rwhite@casabyte.com>, "Jamie Lokier" <jamie@shareable.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Why DRM exists [was Re: Flame Linus to a crisp!]
+Date: Thu, 1 May 2003 20:34:16 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKOEKGCKAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEKFCKAA.davids@webmaster.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This C|Net news article says the SCO Group claims to have found many instances
-of copyrighted UnixWare source code being inserted verbatim into the Linux
-kernel:
 
-	http://msnbc-cnet.com.com/2100-1016_3-999371.html
+> > The fact that they are "not the same thing" completely
+> > negates your "the law of one is the law for all" claim that
+> > "property law"
+> > somehow carries into the other areas.
 
-I can see a Linux developer copying copy from one of BSDs (which is cool), but
-UnixWare?!?  Come on.
+	You know, I read over my original argument again, and I absolutely cannot
+understand how you could have misunderstood it. There is no reference to
+property law at all in it, and several times I mentioned that I was talking
+about contract law. So how you could have misunderstood me to mean that
+property law applies to contracts is baffling to me. What I mean is the
+reverse, that intangible property rights and conceptually part of contract
+law.
 
-If there's UnixWare source in the Linux kernel, a SCO Group employee put it
-there!  After all, who else would have such easy access to UnixWare sources?
+	The one thing I said that was not clear and where I understand your
+confusion was:
 
-If a SCO Group employee put the UnixWare source code into Linux, that begs the
-question:
+> Most property rights are contractual. You come to own property because you
+contract for it.
 
-	Did the SCO Group conspire to plant copyrighted code in the Linux
-	kernel so they could sue IBM for US$1 billion?
+	However, I maintain that the rest of my argument is completely clear and
+you have not responded to it:
 
-I believe the Justice Department calls that fraud, and that's a crime that CEOs
-go to jail for.  Are you listening Darl McBride?
+>> There was also no intent to create
+>> "intellectual property" in the minds of the founders of the United
+States.
+
+>Because there was no need for them to do so. If I have possession of an
+idea and agree to
+>tell you the idea for $10 provided you agree not to disclose the idea to
+anyone else, I don't
+>need any special laws other than the normal laws that permit me to make and
+enforce contracts.
+
+>Access restrictions are purely contractual things and more obviously so. If
+I put a security
+>restriction on a CD and sell it to you, there's an implied agreement that
+you will respect the
+>restricitions. If I really wanted to, I could have you sign an agreement to
+that affect.
+
+>> That is also why "theft" and what we can generally refer to as "the theft
+>> words" never applies these topics no matter how often or loudly someone
+>> yells "you stole that idea from me."
+
+>But it is theft, as surely as if I pay you $10 to mow my lawn and you don't
+mow my lawn.
+>Violating a contractual agreement not to disclose and not paying the
+damages the agreement
+>specifies is a form of theft by fraud.
+
+>> Worse, absolutely none of the DRM arguments even exist within the
+>> presidents
+>> of copyright law as a significant subset of the technology and
+uncertainty
+>> only comes into play well after the act of copying is completed.
+
+>Then forget about copyright law entirely. Think only about contractual
+property and the fact
+>that a person who comes up with an idea cannot be compelled to disclose it
+and can disclose it
+>under any terms he or she chooses. Think that when you buy a CD or a
+program, there's an implied >contract that the CD or program is for your
+personal use and that violating that contract is as >much theft as living in
+an apartment without paying rent.
+
+	DS
+
 

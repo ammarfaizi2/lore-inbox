@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270816AbUJUT5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270815AbUJUT5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270816AbUJUT5n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 15:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270911AbUJUTsS
+	id S270815AbUJUT5o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 15:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270865AbUJUTr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 15:48:18 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:64609 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S270910AbUJUTot
+	Thu, 21 Oct 2004 15:47:28 -0400
+Received: from zamok.crans.org ([138.231.136.6]:29372 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S270816AbUJUToQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 15:44:49 -0400
-Subject: Re: belkin usb serial converter (mct_u232), break not working
-From: Paul Fulghum <paulkf@microgate.com>
-To: Thomas Stewart <thomas@stewarts.org.uk>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1098362487.2815.9.camel@deimos.microgate.com>
-References: <200410201946.35514.thomas@stewarts.org.uk>
-	 <200410202308.02624.thomas@stewarts.org.uk>
-	 <1098311228.6006.3.camel@at2.pipehead.org>
-	 <200410210004.13214.thomas@stewarts.org.uk>
-	 <1098326278.6017.19.camel@at2.pipehead.org> <20041021100637.GA7003@diamond>
-	 <1098362487.2815.9.camel@deimos.microgate.com>
-Content-Type: text/plain
-Message-Id: <1098387861.3288.51.camel@deimos.microgate.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 21 Oct 2004 14:44:22 -0500
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Oct 2004 15:44:16 -0400
+To: root@chaos.analogic.com
+Cc: Paulo Marques <pmarques@grupopie.com>,
+       Mildred Frisco <mildred.frisco@gmail.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: making a linux kernel with no root filesystem
+References: <e7b30b2404102102466dc71118@mail.gmail.com>
+	<e7b30b24041021030535925d1d@mail.gmail.com>
+	<417792F0.20008@grupopie.com>
+	<Pine.LNX.4.61.0410210757040.10239@chaos.analogic.com>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Thu, 21 Oct 2004 21:44:15 +0200
+In-Reply-To: <Pine.LNX.4.61.0410210757040.10239@chaos.analogic.com> (Richard
+	B. Johnson's message of "Thu, 21 Oct 2004 08:10:14 -0400 (EDT)")
+Message-ID: <87d5zbc0vk.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 07:41, Paul Fulghum wrote:
-> On Thu, 2004-10-21 at 05:06, Thomas Stewart wrote:
-> > As you can see, this time there is the correct pause. However
-> > it still does not send the break.
-> > 
-> > To add the mix, I dug about and found a differnt type of USB serial
-> > converter, a no-brand one that uses the pl2303 module. Both minicom
-> > and porttest with either stock 2.6.8.1 or 2.6.8.1 with your patch
-> > send the break fine with this different converter.
-> > 
-> > This makes me think it is a problem with the mct_u232 driver?
-> 
-> OK. This problem has multiple parts.
-> 
-> The change to tty_io.c is necessary to get the proper delay
-> between setting and clearing break. I will submit that
-> patch for inclusion.
-> 
-> Now it is a matter of figuring why the device is not
-> sending the break. The device break_ctl() gets called,
-> and the URB to set the line control is sent successfully.
-> 
-> Maybe the comments are wrong on the line control bits
-> or possibly the Belkin device requires some other setup
-> to send breaks.
+"Richard B. Johnson" <root@chaos.analogic.com> disait dernièrement que :
 
-I looked at mct_232.h and noticed the comment:
+> On Thu, 21 Oct 2004, Paulo Marques wrote:
+>
+> Let me add the basics that the kernel expects to execute
+> /sbin/init. This means that there must be a root file-system
+> to contain it. However, it can be a RAM-disk. That's how
+> initrd works. /sbin/init can be a program that you write
+> that does everything you need yout system to do. It can
+> fork off multiple tasks, etc. Just don't accidentally call
+> exit() or return from main()!
 
-"There seem to be two bugs in the Win98 driver:
-the break does not work (bit 6 is not asserted) and the
-stick parity bit is not cleared when set once."
-The driver was reverse engineered from the Win98 driver.
-
-Even though the LCR for this device is similar to
-the LCR of a 16550 UART, some bits work differently.
-
-This suggests to me that either the device does not
-properly support break, or that the break is
-controlled through a different USB request and not
-through MCT_U232_SET_LINE_CTRL_REQUEST
-
-The Linux and FreeBSD drivers do the same thing
-for setting break, so no new info there.
-I don't have access to the device or manufacturer docs.
-
-The only thing I can suggest is if you have
-access to a Windows 2000/XP machine, try and generate
-a break with the manufacturer provided drivers.
-If you can't, then the device does not support break.
-If you can, then maybe you can use USB sniffer
-software to look at the USB requests going to the device.
+but initrd needs a FS code linked in :)
+the only way to have no fs linked in the kernel, is to use initramfs,
+i.e. rootfs as the real root.
+The solution to the problem is to provide the basics of a system in
+the newc cpio format (see in Documentation/early-userspace/) which
+will require no FS code linked in (huh, I guess RAMFS is needed ;)),
+tweak usr/Makefile to get it use the in-place initramfs_data.cpio.gz and
+put the cpio archive in usr. (I do this way because the initramfs_list
+"mechanics" never succeeded in getting me a working kernel :)) 
 
 -- 
-Paul Fulghum
-paulkf@microgate.com
+"I know how hard it is for you to put food on your family."
+
+George W. Bush
+January 27, 2000
+During a campaign speech in Nashua, New Hampshire.
 

@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbTJZN6N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 08:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263155AbTJZN6N
+	id S263142AbTJZN7g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 08:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263144AbTJZN7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 08:58:13 -0500
-Received: from morbo.e-centre.net ([66.154.82.3]:21455 "EHLO
-	morbo.e-centre.net") by vger.kernel.org with ESMTP id S263154AbTJZN6K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 08:58:10 -0500
-Date: Sun, 26 Oct 2003 08:57:59 -0500
-From: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: Swsusp-2.0-2.6-alpha1
-Message-ID: <20031026135759.GA1169@iain-vaio-fx405>
-Mail-Followup-To: Nigel Cunningham <ncunningham@clear.net.nz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1067069558.1975.54.camel@laptop-linux> <20031025192019.GA1033@iain-vaio-fx405> <20031025200524.GA1170@iain-vaio-fx405> <1067154164.14037.55.camel@laptop-linux>
-Mime-Version: 1.0
+	Sun, 26 Oct 2003 08:59:36 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:8383 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S263142AbTJZN73 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 08:59:29 -0500
+To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+Cc: "John Bradford" <john@grabjohn.com>,
+       "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Hans Reiser '" <reiser@namesys.com>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       <linux-kernel@vger.kernel.org>, <nikita@namesys.com>,
+       "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>
+Subject: Re: Blockbusting news, results get worse
+References: <334101c39b94$268a0370$24ee4ca5@DIAMONDLX60>
+	<200310261039.h9QAdniV000310@81-2-122-30.bradfords.org.uk>
+	<358a01c39bb5$c651c7a0$24ee4ca5@DIAMONDLX60>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 26 Oct 2003 14:59:28 +0100
+In-Reply-To: <358a01c39bb5$c651c7a0$24ee4ca5@DIAMONDLX60>
+Message-ID: <m37k2s9k1r.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1067154164.14037.55.camel@laptop-linux>
-X-Editor: Vim http://www.vim.org/
-X-Operating-System: Linux/2.6.0-test8 (i686)
-X-Uptime: 08:55:31 up 9 min,  4 users,  load average: 2.01, 1.58, 0.82
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nigel Cunningham (ncunningham@clear.net.nz) wrote:
-> You should be able to press escape to cancel; if the message stays for
-> more than a couple of seconds, something is wrong. When you cancel, you
-> should get messages in the log that will help me diagnose and fix the
-> issue. You may need to run them through ksymoops to convert hex to
-> procedure names.
+"Norman Diamond" <ndiamond@wta.att.ne.jp> writes:
 
-Sorry, I forgot to mention that I did try hitting escape, with zero
-response.
+> By the way some participants in this thread have argued that the block
+> should not be replaced by zeroes or random garbage without notice.  I fully
+> agree.  The block should be replaced by zeroes or random garbage WITH
+> notice.
 
-I also saw no swsusp messages in /var/log/messages beyond the startup
-'resume device set to /dev/hda1' lines.
+Right. The correct way of sending such a notice is returning I/O error
+on read. It's standard and applications support it for years (of course
+we can - and currently do - log the error as well).
 
-iain
+>  From the point of view of logging it in the system log, it is
+> enough to log it once, it doesn't have to be logged over and over again.
 
+Storing a log entry in system log doesn't tell applications there is
+a problem. It's simply unacceptable.
+Relocating on write (at filesystem level) - sure, it would be helpful
+(possibly as a compile-time option - most IDE drives and things like
+RAM disks don't need it).
 -- 
-"If sharing a thing in no way diminishes it, it is not rightly owned if it is
-not shared." -- St. Augustine
+Krzysztof Halasa, B*FH

@@ -1,63 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265587AbSJXR7h>; Thu, 24 Oct 2002 13:59:37 -0400
+	id <S265588AbSJXSDH>; Thu, 24 Oct 2002 14:03:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265588AbSJXR7g>; Thu, 24 Oct 2002 13:59:36 -0400
-Received: from bitchcake.off.net ([216.138.242.5]:151 "EHLO mail.off.net")
-	by vger.kernel.org with ESMTP id <S265587AbSJXR7d>;
-	Thu, 24 Oct 2002 13:59:33 -0400
-Date: Thu, 24 Oct 2002 14:05:46 -0400
-From: Zach Brown <zab@zabbo.net>
-To: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Cc: arjanv@redhat.com
-Subject: Re: [CFT] faster athlon/duron memory copy implementation
-Message-ID: <20021024140546.Q12512@bitchcake.off.net>
-References: <3DB82ABF.8030706@colorfullife.com> <1035481054.735.52.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1035481054.735.52.camel@phantasy>; from rml@tech9.net on Thu, Oct 24, 2002 at 01:37:34PM -0400
+	id <S265589AbSJXSDG>; Thu, 24 Oct 2002 14:03:06 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:45305 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S265588AbSJXSDF>; Thu, 24 Oct 2002 14:03:05 -0400
+Message-ID: <3DB837FE.8080100@mvista.com>
+Date: Thu, 24 Oct 2002 11:12:14 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Advanced TCA SCSI/FC disk hotswap driver for kernel 2.5.44
+References: <3DB7304A.3030903@mvista.com> <20021024042838.GA30891@codepoet.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 2002-10-24 at 13:15, Manfred Spraul wrote:
-> 
-> > Attached is a test app that compares several memory copy implementations.
-> > Could you run it and report the results to me, together with cpu, 
-> > chipset and memory type?
+Erik,
 
-CPU0: AMD Athlon(tm) MP 1800+ stepping 02
 
-in a tyan tiger mpx (amd762 north bridge), two 512m non-buffered
-pc2100 ddr sticks, in a mostly-idle dual workstation:
+Erik Andersen wrote:
 
-copy_page() tests 
-copy_page function 'warm up run'	 took 16543 cycles per page
-copy_page function '2.4 non MMX'	 took 18241 cycles per page
-copy_page function '2.4 MMX fallback'	 took 18144 cycles per page
-copy_page function '2.4 MMX version'	 took 16551 cycles per page
-copy_page function 'faster_copy'	 took 10099 cycles per page
-copy_page function 'even_faster'	 took 10218 cycles per page
-copy_page function 'no_prefetch'	 took 9618 cycles per page
+>On Wed Oct 23, 2002 at 04:27:06PM -0700, Steven Dake wrote:
+>  
+>
+>>lkml,
+>>
+>>Attached is an update of the Advanced TCA disk hotswap driver to provide 
+>>disk hotswap
+>>support for the Linux Kernel 2.5.43.  Hotswap targets include both SCSI 
+>>and FibreChannel.
+>>    
+>>
+>
+>This looks (in parts) similar to the patch I made to make 1394
+>hotswapping work correctly.
+>    http://codepoet.org/scsi_add_remove_single.patch
+>The patch is vs 2.4, but you get the idea.  Anyway, I think it 
+>would make more sense for you to fixup proc_scsi_gen_write() to
+>make the old hotswap interface (you know the 
+>    echo "scsi add-single-device 0 1 2 3" >/proc/scsi/scsi
+>    echo "scsi remove-single-device 0 1 2 3" >/proc/scsi/scsi
+>  
+>
+I wanted to seperate the hotswap functionality from the main scsi code. 
+ I also feel
+that hotswap shouldn't be a function of proc.  Also, the patch I 
+supplied supports
+fibrechannel hotswap as well.  Your patch looks pretty good and I plan 
+to change
+the proc_scsi_gen_write() to use the scsi hotswap commands in hotswap.c. 
+ The
+advantage of this technique is that the HBA_ptr doesn't have to be known 
+(and
+this generic code can go in the actual routine instead of the proc 
+parsing routine).
+The final advantage of having seperate comands is less time is spent 
+passing and
+parsing text data.  Plus my patch provides usage information for those 
+that don't
+or can't read the source code to understand the interface :)
 
-copy_page() tests 
-copy_page function 'warm up run'	 took 16618 cycles per page
-copy_page function '2.4 non MMX'	 took 18274 cycles per page
-copy_page function '2.4 MMX fallback'	 took 18126 cycles per page
-copy_page function '2.4 MMX version'	 took 16649 cycles per page
-copy_page function 'faster_copy'	 took 10100 cycles per page
-copy_page function 'even_faster'	 took 10219 cycles per page
-copy_page function 'no_prefetch'	 took 9571 cycles per page
+As far as I'm concerned, I'd be happy to entirely remove the 
+proc_scsi_gen_write
+code, but I think that might confuse some people.
 
-copy_page() tests 
-copy_page function 'warm up run'	 took 16571 cycles per page
-copy_page function '2.4 non MMX'	 took 18265 cycles per page
-copy_page function '2.4 MMX fallback'	 took 18076 cycles per page
-copy_page function '2.4 MMX version'	 took 16558 cycles per page
-copy_page function 'faster_copy'	 took 10112 cycles per page
-copy_page function 'even_faster'	 took 10207 cycles per page
-copy_page function 'no_prefetch'	 took 9582 cycles per page
+As for the interfaces stomping each other, I've added correct locking to 
+proc_scsi_gen_write()
+to ensure that the host_queue is locked during access so changes to it 
+cannot occur
+during hotswap operations.  This keeps a scsi_device entry from being 
+deleted while
+the list is being parsed, resulting in bad magic.
 
-- z
+>one) and make it use your new hotswap code.  Otherwise the two
+>interfaces could easily stomp on each other and hose up the
+>kernel when mucking about with scsi host internals.
+>
+> -Erik
+>
+>--
+>Erik B. Andersen             http://codepoet-consulting.com/
+>--This message was written using 73% post-consumer electrons--
+>
+>
+>
+>  
+>
 

@@ -1,153 +1,182 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261851AbRE2LNW>; Tue, 29 May 2001 07:13:22 -0400
+	id <S261819AbRE2LSx>; Tue, 29 May 2001 07:18:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261819AbRE2LNM>; Tue, 29 May 2001 07:13:12 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:17418 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S261763AbRE2LNA>;
-	Tue, 29 May 2001 07:13:00 -0400
-Date: Tue, 29 May 2001 13:11:08 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-smp@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [patch] ioapic-2.4.5-A1
-Message-ID: <Pine.LNX.4.33.0105291306470.3146-200000@localhost.localdomain>
+	id <S261864AbRE2LSn>; Tue, 29 May 2001 07:18:43 -0400
+Received: from wb3-a.mail.utexas.edu ([128.83.126.138]:12807 "HELO
+	mail.utexas.edu") by vger.kernel.org with SMTP id <S261819AbRE2LSf>;
+	Tue, 29 May 2001 07:18:35 -0400
+Message-ID: <3B12DCCF.6524A99@mail.utexas.edu>
+Date: Tue, 29 May 2001 05:18:39 +0600
+From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
+Organization: (I do not speak for) The University of Texas at Austin (nor they for 
+ me).
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-athlon i686)
+X-Accept-Language: en,fr,de
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1030739712-991134668=:3146"
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        mfrisch@saturn.tlug.org, Axel.Thimm@physik.fu-berlin.de
+Subject: Re: Status of ALi MAGiK 1 support in 2.4.?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Mike Frisch wrote:
 
---8323328-1030739712-991134668=:3146
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> On Mon, May 28, 2001 at 05:57:12PM +0200, Axel Thimm wrote:
+> > What is the status of the support for this chipset, found for example in an
+> > ASUS A7A266? Judging from
+> > http://www.acerlabs.com/eng/support/faqlnx.htm
+> > one gets the impression that ALi is respectfully treating the Linux community.
+>
+> I cannot answer your question about the level of support this chipset
+> has, but suffice it to say that my new (as of last week) A7A266 based
+> system (1.2Ghz T-Bird w/256MB Crucial DDR RAM) is running 2.4.5 (and
+> previous to that 2.2.18) quite nicely.
+>
+I finally jerked the braindead 8KTA3 out of one of my new systems and
+replaced it with an A7A266 about two weeks ago, and it has been smooth
+sailing ever since.  The only problems that I'm are ware of are a
+(maybe) DMA problem and a (maybe) SMBus problem, per below.  Right now
+I've been up 6d 7h on an Athlon-optimized 2.4.4, and I think I had been
+up a similar amount of trouble free uptime when I had to shut it down
+due to thunderstorms last week.  FWIW, I'm also running a 1.2, but
+with768MB of PC133 rather than DDR.
+
+The swap provided an instant cure for a hole pile of annoying problems
+that killed my system every few hours on the 8KTA3:  crashes, hard
+hangs, unrequested GNOME session exits, and states where almost any
+command I typed resulted in a segfault.  All that appears to be gone
+now.
 
 
-the attached ioapic-2.4.5-A1 patch includes a number of important IO-APIC
-related fixes (against 2.4.5-ac3):
+Re the (maybe) SMBus problem:
 
- - correctly handle bridged devices that are not listed in the mptable
-   directly. This fixes eg. dual-port eepro100 devices on Compaq boxes
-   with such PCI layout:
+I installed Lm_sensors to watch my temperatures, and had to kluge it a
+bit to get it to work.  In particular, I had to load the i2c-ali1535
+module rather than the i2c-ali15x3 module that Lm_sensors decided I
+needed.  (I did this on the basis of the chip<==>module associations
+documented on the Lm_sensors page, ass-u-me-ing that the A7A266's
+M1535D+ should use the module specified for the M1535D.)
 
-    -+-[0d]---0b.0
-     +-[05]-+-02.0
-     |      \-0b.0
-     \-[00]-+-02.0
-            +-03.0-[01]--+-04.0    <=== eth0
-            |            \-05.0    <=== eth1
-            +-0b.0
-            +-0c.0
-            +-0d.0
-            +-0e.0
-            +-0f.0
-            +-14.0
-            +-14.1
-            +-19.0
-            +-1a.0
-            \-1b.0
+However I now see this in /var/log/messages every few minutes:
 
-   without the patch the eepro100 devices get misdetected as XT-PIC IRQs
-   and their interrupts are stuck.
+May 29 04:39:28 pollux kernel: i2c-ali1535.o: Resetting entire SMB Bus
+to clear busy condition (08)
+May 29 04:39:28 pollux kernel: i2c-ali1535.o: SMBus reset failed! (0x08)
+- controller or device on bus is probably hung
 
- - the srcbus entry in the mptable does not have to be translated into
-   a PCI-bus value.
+I assume that the problem is because the module isn't quite working
+right for the D+ chip, but it does at least get my temperatures and
+voltages, and I haven't noticed any ill side effects other than the
+messages.  Maybe it will go away when a new version of Lm_sensors comes
+out.
 
- - add more APIC versions to the whitelist
 
- - initialize mp_bus_id_to_pci_bus[] correctly, so that we can detect
-   nonlisted/bridged PCI busses more accurately.
+> Perhaps Linux is not optimized
+> for performance with this chipset, but it feels fast to me.
+>
 
-the patch should only affect systems that were not working properly
-before, but it might break broken-mptable systems - we'll see.
+I actually saw a consistent 2.7% speedup on a FP-intensive benchmark
+that my research group uses, comparing the A7A266 to the 8KTA3 after the
+switch, using the same hardware for everything else and with the BIOS
+settings matched as closely as possible.
 
-	Ingo
 
---8323328-1030739712-991134668=:3146
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ioapic-2.4.5-A1"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0105291311080.3146@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="ioapic-2.4.5-A1"
+> According to 'hdparm -t /dev/hda', I am getting 25MB/s transfer rates
+> with my Quantum Fireball Plus LM. Seems a little high, but drive
+> performance 'feels' good.
+>
 
-LS0tIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvaW9fYXBpYy5jLm9yaWcJVHVl
-IE1heSAyOSAxMjoxMzoxNSAyMDAxDQorKysgbGludXgvYXJjaC9pMzg2L2tl
-cm5lbC9pb19hcGljLmMJVHVlIE1heSAyOSAxMjoxOTo1NSAyMDAxDQpAQCAt
-MjU2LDEwICsyNTYsMTYgQEANCiAgKi8NCiBzdGF0aWMgaW50IHBpbl8yX2ly
-cShpbnQgaWR4LCBpbnQgYXBpYywgaW50IHBpbik7DQogDQotaW50IElPX0FQ
-SUNfZ2V0X1BDSV9pcnFfdmVjdG9yKGludCBidXMsIGludCBzbG90LCBpbnQg
-cGNpX3BpbikNCitpbnQgSU9fQVBJQ19nZXRfUENJX2lycV92ZWN0b3IoaW50
-IGJ1cywgaW50IHNsb3QsIGludCBwaW4pDQogew0KIAlpbnQgYXBpYywgaSwg
-YmVzdF9ndWVzcyA9IC0xOw0KIA0KKwlEcHJpbnRrKCJxdWVyeWluZyBQQ0kg
-LT4gSVJRIG1hcHBpbmcgYnVzOiVkLCBzbG90OiVkLCBwaW46JWQuXG4iLA0K
-KwkJYnVzLCBzbG90LCBwaW4pOw0KKwlpZiAobXBfYnVzX2lkX3RvX3BjaV9i
-dXNbYnVzXSA9PSAtMSkgew0KKwkJcHJpbnRrKEtFUk5fV0FSTklORyAiUENJ
-IEJJT1MgcGFzc2VkIG5vbmV4aXN0ZW50IFBDSSBidXMgJWQhXG4iLCBidXMp
-Ow0KKwkJcmV0dXJuIC0xOw0KKwl9DQogCWZvciAoaSA9IDA7IGkgPCBtcF9p
-cnFfZW50cmllczsgaSsrKSB7DQogCQlpbnQgbGJ1cyA9IG1wX2lycXNbaV0u
-bXBjX3NyY2J1czsNCiANCkBAIC0yNzAsMTQgKzI3NiwxNCBAQA0KIA0KIAkJ
-aWYgKChtcF9idXNfaWRfdG9fdHlwZVtsYnVzXSA9PSBNUF9CVVNfUENJKSAm
-Jg0KIAkJICAgICFtcF9pcnFzW2ldLm1wY19pcnF0eXBlICYmDQotCQkgICAg
-KGJ1cyA9PSBtcF9idXNfaWRfdG9fcGNpX2J1c1ttcF9pcnFzW2ldLm1wY19z
-cmNidXNdKSAmJg0KKwkJICAgIChidXMgPT0gbGJ1cykgJiYNCiAJCSAgICAo
-c2xvdCA9PSAoKG1wX2lycXNbaV0ubXBjX3NyY2J1c2lycSA+PiAyKSAmIDB4
-MWYpKSkgew0KIAkJCWludCBpcnEgPSBwaW5fMl9pcnEoaSxhcGljLG1wX2ly
-cXNbaV0ubXBjX2RzdGlycSk7DQogDQogCQkJaWYgKCEoYXBpYyB8fCBJT19B
-UElDX0lSUShpcnEpKSkNCiAJCQkJY29udGludWU7DQogDQotCQkJaWYgKHBj
-aV9waW4gPT0gKG1wX2lycXNbaV0ubXBjX3NyY2J1c2lycSAmIDMpKQ0KKwkJ
-CWlmIChwaW4gPT0gKG1wX2lycXNbaV0ubXBjX3NyY2J1c2lycSAmIDMpKQ0K
-IAkJCQlyZXR1cm4gaXJxOw0KIAkJCS8qDQogCQkJICogVXNlIHRoZSBmaXJz
-dCBhbGwtYnV0LXBpbiBtYXRjaGluZyBlbnRyeSBhcyBhDQpAQCAtNzM4LDkg
-Kzc0NCwxMSBAQA0KIAlwcmludGsoS0VSTl9ERUJVRyAiLi4uLiByZWdpc3Rl
-ciAjMDE6ICUwOFhcbiIsICooaW50ICopJnJlZ18wMSk7DQogCXByaW50ayhL
-RVJOX0RFQlVHICIuLi4uLi4uICAgICA6IG1heCByZWRpcmVjdGlvbiBlbnRy
-aWVzOiAlMDRYXG4iLCByZWdfMDEuZW50cmllcyk7DQogCWlmICgJKHJlZ18w
-MS5lbnRyaWVzICE9IDB4MGYpICYmIC8qIG9sZGVyIChOZXB0dW5lKSBib2Fy
-ZHMgKi8NCisJCShyZWdfMDEuZW50cmllcyAhPSAweDExKSAmJg0KIAkJKHJl
-Z18wMS5lbnRyaWVzICE9IDB4MTcpICYmIC8qIHR5cGljYWwgSVNBK1BDSSBi
-b2FyZHMgKi8NCiAJCShyZWdfMDEuZW50cmllcyAhPSAweDFiKSAmJiAvKiBD
-b21wYXEgUHJvbGlhbnQgYm9hcmRzICovDQogCQkocmVnXzAxLmVudHJpZXMg
-IT0gMHgxZikgJiYgLyogZHVhbCBYZW9uIGJvYXJkcyAqLw0KKwkJKHJlZ18w
-MS5lbnRyaWVzICE9IDB4MjApICYmDQogCQkocmVnXzAxLmVudHJpZXMgIT0g
-MHgyMikgJiYgLyogYmlnZ2VyIFhlb24gYm9hcmRzICovDQogCQkocmVnXzAx
-LmVudHJpZXMgIT0gMHgyRSkgJiYNCiAJCShyZWdfMDEuZW50cmllcyAhPSAw
-eDNGKQ0KLS0tIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvbXBwYXJzZS5jLm9y
-aWcJVHVlIE1heSAyOSAxMjoxMzoxNSAyMDAxDQorKysgbGludXgvYXJjaC9p
-Mzg2L2tlcm5lbC9tcHBhcnNlLmMJVHVlIE1heSAyOSAxMjoxMzo0NiAyMDAx
-DQpAQCAtMzYsNyArMzYsNyBAQA0KICAqLw0KIGludCBhcGljX3ZlcnNpb24g
-W01BWF9BUElDU107DQogaW50IG1wX2J1c19pZF90b190eXBlIFtNQVhfTVBf
-QlVTU0VTXTsNCi1pbnQgbXBfYnVzX2lkX3RvX3BjaV9idXMgW01BWF9NUF9C
-VVNTRVNdID0geyAtMSwgfTsNCitpbnQgbXBfYnVzX2lkX3RvX3BjaV9idXMg
-W01BWF9NUF9CVVNTRVNdID0geyBbMCAuLi4gTUFYX01QX0JVU1NFUy0xXSA9
-IC0xIH07DQogaW50IG1wX2N1cnJlbnRfcGNpX2lkOw0KIA0KIC8qIEkvTyBB
-UElDIGVudHJpZXMgKi8NCi0tLSBsaW51eC9hcmNoL2kzODYva2VybmVsL3Bj
-aS1pcnEuYy5vcmlnCVR1ZSBNYXkgMjkgMTI6MTM6MTUgMjAwMQ0KKysrIGxp
-bnV4L2FyY2gvaTM4Ni9rZXJuZWwvcGNpLWlycS5jCVR1ZSBNYXkgMjkgMTI6
-MTM6NDYgMjAwMQ0KQEAgLTY2MCwxMCArNjYwLDEyIEBADQogCQkJaWYgKHBp
-bikgew0KIAkJCQlwaW4tLTsJCS8qIGludGVycnVwdCBwaW5zIGFyZSBudW1i
-ZXJlZCBzdGFydGluZyBmcm9tIDEgKi8NCiAJCQkJaXJxID0gSU9fQVBJQ19n
-ZXRfUENJX2lycV92ZWN0b3IoZGV2LT5idXMtPm51bWJlciwgUENJX1NMT1Qo
-ZGV2LT5kZXZmbiksIHBpbik7DQotLyoNCi0gKiBXaWxsIGJlIHJlbW92ZWQg
-Y29tcGxldGVseSBpZiB0aGluZ3Mgd29yayBvdXQgd2VsbCB3aXRoIGZ1enp5
-IHBhcnNpbmcNCi0gKi8NCi0jaWYgMA0KKwkvKg0KKwkgKiBCdXNzZXMgYmVo
-aW5kIGJyaWRnZXMgYXJlIHR5cGljYWxseSBub3QgbGlzdGVkIGluIHRoZSBN
-UC10YWJsZS4NCisJICogSW4gdGhpcyBjYXNlIHdlIGhhdmUgdG8gbG9vayB1
-cCB0aGUgSVJRIGJhc2VkIG9uIHRoZSBwYXJlbnQgYnVzLA0KKwkgKiBwYXJl
-bnQgc2xvdCwgYW5kIHBpbiBudW1iZXIuIFRoZSBTTVAgY29kZSBkZXRlY3Rz
-IHN1Y2ggYnJpZGdlZA0KKwkgKiBidXNzZXMgaXRzZWxmIHNvIHdlIHNob3Vs
-ZCBnZXQgaW50byB0aGlzIGJyYW5jaCByZWxpYWJseS4NCisJICovDQogCQkJ
-CWlmIChpcnEgPCAwICYmIGRldi0+YnVzLT5wYXJlbnQpIHsgLyogZ28gYmFj
-ayB0byB0aGUgYnJpZGdlICovDQogCQkJCQlzdHJ1Y3QgcGNpX2RldiAqIGJy
-aWRnZSA9IGRldi0+YnVzLT5zZWxmOw0KIA0KQEAgLTY3NCw3ICs2NzYsNiBA
-QA0KIAkJCQkJCXByaW50ayhLRVJOX1dBUk5JTkcgIlBDSTogdXNpbmcgUFBC
-KEIlZCxJJWQsUCVkKSB0byBnZXQgaXJxICVkXG4iLCANCiAJCQkJCQkJYnJp
-ZGdlLT5idXMtPm51bWJlciwgUENJX1NMT1QoYnJpZGdlLT5kZXZmbiksIHBp
-biwgaXJxKTsNCiAJCQkJfQ0KLSNlbmRpZg0KIAkJCQlpZiAoaXJxID49IDAp
-IHsNCiAJCQkJCXByaW50ayhLRVJOX0lORk8gIlBDSS0+QVBJQyBJUlEgdHJh
-bnNmb3JtOiAoQiVkLEklZCxQJWQpIC0+ICVkXG4iLA0KIAkJCQkJCWRldi0+
-YnVzLT5udW1iZXIsIFBDSV9TTE9UKGRldi0+ZGV2Zm4pLCBwaW4sIGlycSk7
-DQo=
---8323328-1030739712-991134668=:3146--
+I was getting around 32MB/s on my 8KTA3, but it dropped way down to 2.24
+MB/sec after the upgrade.  The DMA is off, but I don't want to just turn
+it on without investigating a possibly related problem first.
+
+
+Re the (maybe) DMA problem:
+
+I notice this whenever I boot, which may or may not all be relevant:
+
+May 22 21:45:07 pollux kernel: ALI15X3: IDE controller on PCI bus 00 dev
+20
+May 22 21:45:07 pollux kernel: PCI: No IRQ known for interrupt pin A of
+device 00:04.0. Please try using pci=biosirq.
+May 22 21:45:07 pollux kernel: ALI15X3: chipset revision 196
+May 22 21:45:07 pollux kernel: ALI15X3: not 100%% native mode: will
+probe irqs later
+May 22 21:45:07 pollux kernel: ALI15X3: simplex device:  DMA disabled
+May 22 21:45:07 pollux kernel: ide0: ALI15X3 Bus-Master DMA disabled
+(BIOS)
+May 22 21:45:07 pollux kernel: ALI15X3: simplex device:  DMA disabled
+May 22 21:45:07 pollux kernel: ide1: ALI15X3 Bus-Master DMA disabled
+(BIOS)
+...
+
+May 22 21:45:07 pollux kernel: PCI: Enabling device 00:0d.0 (0000 ->
+0001)
+May 22 21:45:07 pollux kernel: PCI: Assigned IRQ 5 for device 00:0d.0
+May 22 21:45:07 pollux kernel: Redundant entry in serial pci_table.
+Please send the output of
+May 22 21:45:07 pollux kernel: lspci -vv, this message
+(4793,4104,4793,215)
+May 22 21:45:07 pollux kernel: and the manufacturer and name of serial
+board or modem board
+May 22 21:45:07 pollux kernel: to serial-pci-info@lists.sourceforge.net.
+
+
+
+I did send the information to serial-pci-info.
+
+Notice that the kernel thinks it is talking to an ALI15X3, whereas my
+manual seems to say that I actually have an M1535D+ instead.
+
+
+While trying to discover a suitable IRQ for device 00:04.0, and noticed
+this:
+
+% /sbin/lspci -vv
+...
+00:04.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c4)
+(prog-if
+fa)
+        Subsystem: Asustek Computer, Inc.: Unknown device 8053
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (500ns min, 1000ns max)
+        Interrupt: pin A routed to IRQ 0
+        Region 4: I/O ports at d400 [size=16]
+        Capabilities: [60] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+...
+
+The routing to IQR 0 sounds funny to me, but this is already way beyond
+what I understand.
+
+At any rate, I didn't want to enable DMA until I had time to ask whether
+the messages quoted above were relevant, so I've just been living with a
+slow disk.  Any suggestions will be appreciated, and of course I'll be
+happy to supply more info if needed.
+
+
+
+> Based on my weekend experience with this board and Linux, I think I have
+> made the right choice.
+>
+
+I'm mostly happy with mine too, and if I could get my money back on a
+couple of 8KTA3s I'd spend it on a DDR upgrade for the A7A266.
+
+
+Bobby Bryant
+Austin, Texas
+
+p.s. - Please consider CCing me on any replies; I have unsubscribed from
+linux-kernel for the next couple of weeks to keep my mailbox from
+overflowing while I'm busy at something else.
+
+

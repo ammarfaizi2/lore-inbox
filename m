@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269664AbTGJWST (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 18:18:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbTGJWQa
+	id S266422AbTGJWWr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 18:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266502AbTGJWWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 18:16:30 -0400
-Received: from relay.inway.cz ([212.24.128.3]:2962 "EHLO relay.inway.cz")
-	by vger.kernel.org with ESMTP id S269651AbTGJWQD (ORCPT
+	Thu, 10 Jul 2003 18:22:47 -0400
+Received: from c3po.aoltw.net ([64.236.137.25]:10424 "EHLO netscape.com")
+	by vger.kernel.org with ESMTP id S266422AbTGJWWp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 18:16:03 -0400
-Date: Fri, 11 Jul 2003 00:29:12 +0200
-From: Petr Sebor <petr@scssoft.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
-Subject: [PATCH] via-agp.c - agp_try_unsupported typo
-Message-ID: <20030710222912.GA6656@scssoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Thu, 10 Jul 2003 18:22:45 -0400
+Message-ID: <3F0DEAA0.4050909@netscape.com>
+Date: Thu, 10 Jul 2003 15:37:20 -0700
+From: jgmyers@netscape.com (John Myers)
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel McNeil <daniel@osdl.org>
+CC: "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH libaio] add timeout to io_queue_run and remove	io_queue_wait
+References: <1057712224.11509.35.camel@dell_ss5.pdx.osdl.net> 	<3F0C97C0.2060408@netscape.com> <1057794581.10851.66.camel@dell_ss5.pdx.osdl.net>
+In-Reply-To: <1057794581.10851.66.camel@dell_ss5.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Looking through the linux-aio archives, it seems I  was confusing 
+io_queue_run() with io_queue_init() and io_queue_release(), which Ben 
+LaHaise reports as being used by Oracle.  In any case, I have no 
+objection to removing io_queue_run() or io_queue_wait().  But then I 
+don't maintain the library.
 
-via-agp.c in 2.5.75 has the agp_try_unsupported test reverted
 
-please apply,
 
-thanks
--petr
-
-diff -ur linux-2.5.75.old/drivers/char/agp/via-agp.c linux-2.5.75/drivers/char/agp/via-agp.c
---- linux-2.5.75.old/drivers/char/agp/via-agp.c	2003-07-11 00:17:44.000000000 +0200
-+++ linux-2.5.75/drivers/char/agp/via-agp.c	2003-07-11 00:17:58.000000000 +0200
-@@ -382,7 +382,7 @@
- 		}
- 	}
- 
--	if (agp_try_unsupported) {
-+	if (!agp_try_unsupported) {
- 		printk(KERN_ERR PFX 
- 		    "Unsupported VIA chipset (device id: %04x),"
- 		    " you might want to try agp_try_unsupported=1.\n",

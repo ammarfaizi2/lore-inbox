@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbTJLVlf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 17:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbTJLVlf
+	id S261176AbTJLVpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 17:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTJLVpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 17:41:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27546 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261152AbTJLVle
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 17:41:34 -0400
-Date: Sun, 12 Oct 2003 22:41:33 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Valdis.Kletnieks@vt.edu
-Cc: kevin conaway <kconaway_is@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Where does user_path_walk() live?
-Message-ID: <20031012214133.GO7665@parcelfarce.linux.theplanet.co.uk>
-References: <20031012202609.54340.qmail@web20422.mail.yahoo.com> <20031012203819.GN7665@parcelfarce.linux.theplanet.co.uk> <200310122059.h9CKxweb019804@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310122059.h9CKxweb019804@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+	Sun, 12 Oct 2003 17:45:15 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:60546 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261190AbTJLVpM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 17:45:12 -0400
+Date: Sun, 12 Oct 2003 23:45:04 +0200 (MEST)
+Message-Id: <200310122145.h9CLj42k017265@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: sam@ravnborg.org
+Subject: Re: non-modular 2.6 ppc kernels miscompiled by gcc-3.3.1?
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 12, 2003 at 04:59:58PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Sun, 12 Oct 2003 21:38:19 BST, viro@parcelfarce.linux.theplanet.co.uk said:
-> > On Sun, Oct 12, 2003 at 01:26:09PM -0700, kevin conaway wrote:
-> > > I am a student doing an independent study on
-> > > filesystem security and I was trying to pin down
-> > 
-> > man find
-> > man xargs
-> > man grep
-> > 
-> > RTFUnixFAQ
-> 
-> Actually, the answer Kevin wanted was:
-> 
-> cd /usr/src/linux
-> grep -r __user_walk .
+On Sun, 12 Oct 2003 21:53:55 +0200, Sam Ravnborg wrote:
+>On Sun, Oct 12, 2003 at 09:47:48PM +0200, Mikael Pettersson wrote:
+>> Notice __start___ex_table[]'s address: it's not 4-byte aligned.
+>> With gcc-3.2.3 it got an 8-byte aligned address in my 2.6 kernel.
+>> 
+>> vmlinux.lds.S doesn't explicitly align __start___ex_table, so I
+>> simply put ". = ALIGN(4);" before it and Voila! now it works.
+>
+>ld will aling the section according to alingment requirements
+>of the symbols inside the section.
+>So what happens in your case is that . (current address) is
+>un-even. But ld alings the section to a 4-byte boundary,
+>due to one of the symbols inside the section.
+>
+>So the better fix is to define the lables inside the section,
+>(read: inside the two '{}').
+>
+>Care to give my patch a check and report back.
 
-Ehh...  First of all, you'll end up doing a metric buttload of getdents()
-for no good reason every time you want to search for something.  And on
-the kernel source that's pretty noticable.
+Yes, your patch also works.
 
-Moreover, you generally do *not* want to deal with every file in the tree -
-find . -name *.[chS] does it nicely, grep -r can't do that at all.
-
-grep -r is a pointless GNUism.  It's not safer than find + xargs grep, it's
-weaker than use of find and it's non-portable to boot...
+/Mikael

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbTECOIL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 10:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263317AbTECOIL
+	id S263317AbTECOOO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 10:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263320AbTECOOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 10:08:11 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51007 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S263315AbTECOIK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 10:08:10 -0400
-To: Scott Robert Ladd <coyote@coyotegulch.com>
-Cc: John Bradford <john@grabjohn.com>, Bill Davidsen <davidsen@tmr.com>,
-       Hanna Linder <hannal@us.ibm.com>, jw schultz <jw@pegasys.ws>,
-       lse-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LSE conference call
-References: <200304251826.h3PIQMNg001890@81-2-122-30.bradfords.org.uk>
-	<3EB28FC2.6070305@coyotegulch.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 May 2003 08:17:26 -0600
-In-Reply-To: <3EB28FC2.6070305@coyotegulch.com>
-Message-ID: <m1ade4cdxl.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 May 2003 10:14:14 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:4626 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S263317AbTECOON (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 10:14:13 -0400
+Subject: [PATCH 2.{4,5}.x] trivial mod_timer fixes for sdla_chdlc.c
+From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+To: dm@sangoma.com
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 May 2003 20:01:06 +0530
+Message-Id: <1051972267.2018.144.camel@lima.royalchallenge.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Robert Ladd <coyote@coyotegulch.com> writes:
+sdla_chdlc.c: trivial {del,add}_timer to mod_timer conversion.
 
-> John Bradford wrote:
-> > Ah, but assuming that you had a compass to calculate the local time
-> > offset, (ignoring DST), anyway, you could have used that to calculate
-> > the _local_ time without looking at your watch at all ;-).  However,
-> > you wouldn't be able to calculate the timezone you were in.
-> 
-> Ah, but if you had a GPS system available, and a database of time zone
-> boundaries, you could adjust on-the-fly for different jurisdictions. I've dones
-> somethign of the sort recently for a client; the main problem lies in the
-> accuracy (and size) of the database. Indiana, for example, presents unique
-> challenges, with its patchwork implementation of DST...
+--- linux-2.5.68/drivers/net/wan/sdla_chdlc.c	2003-04-21 10:14:28.000000000 +0530
++++ linux-2.5.68-nvk/drivers/net/wan/sdla_chdlc.c	2003-05-03 15:59:23.000000000 +0530
+@@ -998,13 +998,11 @@
+ 	
+ 	set_bit(0,&chdlc_priv_area->config_chdlc);
+ 	chdlc_priv_area->config_chdlc_timeout=jiffies;
+-	del_timer(&chdlc_priv_area->poll_delay_timer);
+ 
+ 	/* Start the CHDLC configuration after 1sec delay.
+ 	 * This will give the interface initilization time
+ 	 * to finish its configuration */
+-	chdlc_priv_area->poll_delay_timer.expires=jiffies+HZ;
+-	add_timer(&chdlc_priv_area->poll_delay_timer);
++	mod_timer(&chdlc_priv_area->poll_delay_timer, jiffies + HZ);
+ 	return err;
+ }
+ 
 
-Indiana doesn't do DST.  But it is true that people on the edges of the state
-like to know what time it is for their neighbors across the border.  
 
-I suspect the border case is at least slightly true for other places right
-on the border between timezones, as well.    Though I can't think of any other
-examples right now.
 
-Eric

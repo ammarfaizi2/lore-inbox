@@ -1,675 +1,345 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVATPhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVATPm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262168AbVATPhy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 10:37:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVATPhr
+	id S262158AbVATPm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 10:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbVATPlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 10:37:47 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:18596 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262161AbVATPaQ
+	Thu, 20 Jan 2005 10:41:02 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:17572 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262158AbVATPaP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 10:30:16 -0500
+	Thu, 20 Jan 2005 10:30:15 -0500
 X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 20 Jan 2005 16:27:09 +0100
+Date: Thu, 20 Jan 2005 16:26:56 +0100
 From: Gerd Knorr <kraxel@bytesex.org>
 To: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [patch] v4l: add tveeprom module.
-Message-ID: <20050120152709.GA12962@bytesex>
+Subject: [patch] v4l: tuner update
+Message-ID: <20050120152656.GA12938@bytesex>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a module which can parse config informations out of
-TV card eeproms.  Will be used by bttv, cx88 and ivtv.
+- add new tuner types.
+- add support for digital tv tuning.
+- make tda9887 output ports more configurable.
 
 Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
 ---
- drivers/media/Kconfig          |    3 
- drivers/media/video/Makefile   |    1 
- drivers/media/video/tveeprom.c |  577 +++++++++++++++++++++++++++++++++
- include/media/tveeprom.h       |   23 +
- 4 files changed, 604 insertions(+)
+ drivers/media/video/tda9887.c |   38 +++++++++++++++------
+ drivers/media/video/tuner.c   |   60 +++++++++++++++++++---------------
+ include/media/tuner.h         |    8 +++-
+ 3 files changed, 69 insertions(+), 37 deletions(-)
 
-Index: linux-2.6.10/include/media/tveeprom.h
+Index: linux-2.6.10/include/media/tuner.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.10/include/media/tveeprom.h	2005-01-19 14:11:40.830555813 +0100
-@@ -0,0 +1,23 @@
-+struct tveeprom {
-+	u32 has_radio;
-+
-+	u32 tuner_type;
-+	u32 tuner_formats;
-+
-+	u32 digitizer;
-+	u32 digitizer_formats;
-+
-+	u32 audio_processor;
-+	/* a_p_fmts? */
-+
-+	u32 model;
-+	u32 revision;
-+	u32 serial_number;
-+	char rev_str[5];
-+};
-+
-+void tveeprom_hauppauge_analog(struct tveeprom *tvee,
-+			       unsigned char *eeprom_data);
-+
-+int tveeprom_read(struct i2c_client *c, unsigned char *eedata, int len);
-+int tveeprom_dump(unsigned char *eedata, int len);
-Index: linux-2.6.10/drivers/media/video/tveeprom.c
+--- linux-2.6.10.orig/include/media/tuner.h	2004-12-29 23:57:53.000000000 +0100
++++ linux-2.6.10/include/media/tuner.h	2005-01-19 14:12:25.168221195 +0100
+@@ -77,6 +77,7 @@
+ #define TUNER_MICROTUNE_4042FI5  49	/* FusionHDTV 3 Gold - 4042 FI5 (3X 8147) */
+ #define TUNER_TCL_2002N          50
+ #define TUNER_PHILIPS_FM1256_IH3   51
++#define TUNER_THOMSON_DTT7610    52
+ 
+ #define NOTUNER 0
+ #define PAL     1	/* PAL_BG */
+@@ -97,6 +98,7 @@
+ #define HITACHI 9
+ #define Panasonic 10
+ #define TCL     11
++#define THOMSON 12
+ 
+ #define TUNER_SET_TYPE               _IOW('t',1,int)    /* set tuner type */
+ #define TUNER_SET_TVFREQ             _IOW('t',2,int)    /* set tv freq */
+@@ -108,10 +110,12 @@
+ #define  TDA9887_SET_CONFIG          _IOW('t',5,int)
+ /* tv card specific */
+ # define TDA9887_PRESENT             (1<<0)
+-# define TDA9887_PORT1               (1<<1)
+-# define TDA9887_PORT2               (1<<2)
++# define TDA9887_PORT1_INACTIVE      (1<<1)
++# define TDA9887_PORT2_INACTIVE      (1<<2)
+ # define TDA9887_QSS                 (1<<3)
+ # define TDA9887_INTERCARRIER        (1<<4)
++# define TDA9887_PORT1_ACTIVE        (1<<5)
++# define TDA9887_PORT2_ACTIVE        (1<<6)
+ /* config options */
+ # define TDA9887_DEEMPHASIS_MASK     (3<<16)
+ # define TDA9887_DEEMPHASIS_NONE     (1<<16)
+Index: linux-2.6.10/drivers/media/video/tuner.c
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.10/drivers/media/video/tveeprom.c	2005-01-19 14:12:11.606770486 +0100
-@@ -0,0 +1,577 @@
-+/* 
-+ * tveeprom - eeprom decoder for tvcard configuration eeproms
-+ *
-+ * Data and decoding routines shamelessly borrowed from bttv-cards.c
-+ * eeprom access routine shamelessly borrowed from bttv-if.c
-+ * which are:
+--- linux-2.6.10.orig/drivers/media/video/tuner.c	2004-12-30 00:00:10.000000000 +0100
++++ linux-2.6.10/drivers/media/video/tuner.c	2005-01-19 14:12:25.169221007 +0100
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: tuner.c,v 1.31 2004/11/10 11:07:24 kraxel Exp $
++ * $Id: tuner.c,v 1.36 2005/01/14 13:29:40 kraxel Exp $
+  */
+ 
+ #include <linux/module.h>
+@@ -62,7 +62,7 @@ struct tuner {
+ 	v4l2_std_id  std;
+ 	int          using_v4l2;
+ 
+-	unsigned int radio;
++	enum v4l2_tuner_type mode;
+ 	unsigned int input;
+ 
+ 	// only for MT2032
+@@ -265,6 +265,11 @@ static struct tunertype tuners[] = {
+ 	{ "Philips PAL/SECAM_D (FM 1256 I-H3)", Philips, PAL,
+ 	  16*160.00,16*442.00,0x01,0x02,0x04,0x8e,623 },
+ 
++	{ "Thomson DDT 7610 ATSC/NTSC)", THOMSON, ATSC,
++	  16*157.25,16*454.00,0x39,0x3a,0x3c,0x8e,732},
++	{ "Philips FQ1286", Philips, NTSC,
++	  16*160.00,16*454.00,0x41,0x42,0x04,0x8e,940}, // UHF band untested
 +
-+    Copyright (C) 1996,97,98 Ralph  Metzler (rjkm@thp.uni-koeln.de)
-+                           & Marcus Metzler (mocm@thp.uni-koeln.de)
-+    (c) 1999-2001 Gerd Knorr <kraxel@goldbach.in-berlin.de>
-+
-+ * Adjustments to fit a more general model and all bugs:
-+ 
-+ 	Copyright (C) 2003 John Klar <linpvr at projectplasma.com>
-+
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/types.h>
-+#include <linux/i2c.h>
-+
-+#include <media/tuner.h>
-+#include <media/tveeprom.h>
-+
-+MODULE_DESCRIPTION("i2c Hauppauge eeprom decoder driver");
-+MODULE_AUTHOR("John Klar");
-+MODULE_LICENSE("GPL");
-+
-+static int debug = 0;
-+module_param(debug, int, 0644);
-+MODULE_PARM_DESC(debug, "Debug level (0-2)");
-+
-+#define STRM(array,i) (i < sizeof(array)/sizeof(char*) ? array[i] : "unknown")
-+
-+#define dprintk(num, args...) \
-+	do { \
-+		if (debug >= num) \
-+			printk(KERN_INFO "tveeprom: " args); \
-+	} while (0)
-+
-+#define TVEEPROM_KERN_ERR(args...) printk(KERN_ERR "tveeprom: " args);
-+#define TVEEPROM_KERN_INFO(args...) printk(KERN_INFO "tveeprom: " args);
-+
-+/* ----------------------------------------------------------------------- */
-+/* some hauppauge specific stuff                                           */
-+
-+static struct HAUPPAUGE_TUNER_FMT
-+{
-+	int	id;
-+	char *name;
-+}
-+hauppauge_tuner_fmt[] =
-+{
-+	{ 0x00000000, "unknown1" },
-+	{ 0x00000000, "unknown2" },
-+	{ 0x00000007, "PAL(B/G)" },
-+	{ 0x00001000, "NTSC(M)" },
-+	{ 0x00000010, "PAL(I)" },
-+	{ 0x00400000, "SECAM(L/L�)" },
-+	{ 0x00000e00, "PAL(D/K)" },
-+	{ 0x03000000, "ATSC Digital" },
-+};
-+
-+/* This is the full list of possible tuners. Many thanks to Hauppauge for
-+   supplying this information. Note that many tuners where only used for
-+   testing and never made it to the outside world. So you will only see
-+   a subset in actual produced cards. */
-+static struct HAUPPAUGE_TUNER 
-+{
-+	int  id;
-+	char *name;
-+} 
-+hauppauge_tuner[] = 
-+{
-+	/* 0-9 */
-+	{ TUNER_ABSENT,        "None" },
-+	{ TUNER_ABSENT,        "External" },
-+	{ TUNER_ABSENT,        "Unspecified" },
-+	{ TUNER_PHILIPS_PAL,   "Philips FI1216" },
-+	{ TUNER_PHILIPS_SECAM, "Philips FI1216MF" },
-+	{ TUNER_PHILIPS_NTSC,  "Philips FI1236" },
-+	{ TUNER_PHILIPS_PAL_I, "Philips FI1246" },
-+	{ TUNER_PHILIPS_PAL_DK,"Philips FI1256" },
-+	{ TUNER_PHILIPS_PAL,   "Philips FI1216 MK2" },
-+	{ TUNER_PHILIPS_SECAM, "Philips FI1216MF MK2" },
-+	/* 10-19 */
-+	{ TUNER_PHILIPS_NTSC,  "Philips FI1236 MK2" },
-+	{ TUNER_PHILIPS_PAL_I, "Philips FI1246 MK2" },
-+	{ TUNER_PHILIPS_PAL_DK,"Philips FI1256 MK2" },
-+	{ TUNER_TEMIC_NTSC,    "Temic 4032FY5" },
-+	{ TUNER_TEMIC_PAL,     "Temic 4002FH5" },
-+	{ TUNER_TEMIC_PAL_I,   "Temic 4062FY5" },
-+	{ TUNER_PHILIPS_PAL,   "Philips FR1216 MK2" },
-+	{ TUNER_PHILIPS_SECAM, "Philips FR1216MF MK2" },
-+	{ TUNER_PHILIPS_NTSC,  "Philips FR1236 MK2" },
-+	{ TUNER_PHILIPS_PAL_I, "Philips FR1246 MK2" },
-+	/* 20-29 */
-+	{ TUNER_PHILIPS_PAL_DK,"Philips FR1256 MK2" },
-+	{ TUNER_PHILIPS_PAL,   "Philips FM1216" },
-+	{ TUNER_PHILIPS_SECAM, "Philips FM1216MF" },
-+	{ TUNER_PHILIPS_NTSC,  "Philips FM1236" },
-+	{ TUNER_PHILIPS_PAL_I, "Philips FM1246" },
-+	{ TUNER_PHILIPS_PAL_DK,"Philips FM1256" },
-+	{ TUNER_TEMIC_4036FY5_NTSC, "Temic 4036FY5" },
-+	{ TUNER_ABSENT,        "Samsung TCPN9082D" },
-+	{ TUNER_ABSENT,        "Samsung TCPM9092P" },
-+	{ TUNER_TEMIC_4006FH5_PAL, "Temic 4006FH5" },
-+	/* 30-39 */
-+	{ TUNER_ABSENT,        "Samsung TCPN9085D" },
-+	{ TUNER_ABSENT,        "Samsung TCPB9085P" },
-+	{ TUNER_ABSENT,        "Samsung TCPL9091P" },
-+	{ TUNER_TEMIC_4039FR5_NTSC, "Temic 4039FR5" },
-+	{ TUNER_PHILIPS_FQ1216ME,   "Philips FQ1216 ME" },
-+	{ TUNER_TEMIC_4066FY5_PAL_I, "Temic 4066FY5" },
-+        { TUNER_PHILIPS_NTSC,        "Philips TD1536" },
-+        { TUNER_PHILIPS_NTSC,        "Philips TD1536D" },
-+	{ TUNER_PHILIPS_NTSC,  "Philips FMR1236" }, /* mono radio */
-+	{ TUNER_ABSENT,        "Philips FI1256MP" },
-+	/* 40-49 */
-+	{ TUNER_ABSENT,        "Samsung TCPQ9091P" },
-+	{ TUNER_TEMIC_4006FN5_MULTI_PAL, "Temic 4006FN5" },
-+	{ TUNER_TEMIC_4009FR5_PAL, "Temic 4009FR5" },
-+	{ TUNER_TEMIC_4046FM5,     "Temic 4046FM5" },
-+	{ TUNER_TEMIC_4009FN5_MULTI_PAL_FM, "Temic 4009FN5" },
-+	{ TUNER_ABSENT,        "Philips TD1536D FH 44"},
-+	{ TUNER_LG_NTSC_FM,    "LG TP18NSR01F"},
-+	{ TUNER_LG_PAL_FM,     "LG TP18PSB01D"},
-+	{ TUNER_LG_PAL,        "LG TP18PSB11D"},	
-+	{ TUNER_LG_PAL_I_FM,   "LG TAPC-I001D"},
-+	/* 50-59 */
-+	{ TUNER_LG_PAL_I,      "LG TAPC-I701D"},
-+	{ TUNER_ABSENT,        "Temic 4042FI5"},
-+	{ TUNER_MICROTUNE_4049FM5, "Microtune 4049 FM5"},
-+	{ TUNER_ABSENT,        "LG TPI8NSR11F"},
-+	{ TUNER_ABSENT,        "Microtune 4049 FM5 Alt I2C"},
-+	{ TUNER_ABSENT,        "Philips FQ1216ME MK3"},
-+	{ TUNER_ABSENT,        "Philips FI1236 MK3"},
-+	{ TUNER_PHILIPS_FM1216ME_MK3, "Philips FM1216 ME MK3"},
-+	{ TUNER_ABSENT,        "Philips FM1236 MK3"},
-+	{ TUNER_ABSENT,        "Philips FM1216MP MK3"},
-+	/* 60-69 */
-+	{ TUNER_ABSENT,        "LG S001D MK3"},
-+	{ TUNER_ABSENT,        "LG M001D MK3"},
-+	{ TUNER_ABSENT,        "LG S701D MK3"},
-+	{ TUNER_ABSENT,        "LG M701D MK3"},
-+	{ TUNER_ABSENT,        "Temic 4146FM5"},
-+	{ TUNER_ABSENT,        "Temic 4136FY5"},
-+	{ TUNER_ABSENT,        "Temic 4106FH5"},
-+	{ TUNER_ABSENT,        "Philips FQ1216LMP MK3"},
-+	{ TUNER_LG_NTSC_TAPE,  "LG TAPE H001F MK3"},
-+	{ TUNER_ABSENT,        "LG TAPE H701F MK3"},
-+	/* 70-79 */
-+	{ TUNER_ABSENT,        "LG TALN H200T"},
-+	{ TUNER_ABSENT,        "LG TALN H250T"},
-+	{ TUNER_ABSENT,        "LG TALN M200T"},
-+	{ TUNER_ABSENT,        "LG TALN Z200T"},
-+	{ TUNER_ABSENT,        "LG TALN S200T"},
-+	{ TUNER_ABSENT,        "Thompson DTT7595"},
-+	{ TUNER_ABSENT,        "Thompson DTT7592"},
-+	{ TUNER_ABSENT,        "Silicon TDA8275C1 8290"},
-+	{ TUNER_ABSENT,        "Silicon TDA8275C1 8290 FM"},
-+	{ TUNER_ABSENT,        "Thompson DTT757"},
-+	/* 80-89 */
-+	{ TUNER_ABSENT,        "Philips FQ1216LME MK3"},
-+	{ TUNER_ABSENT,        "LG TAPC G701D"},
-+	{ TUNER_LG_NTSC_NEW_TAPC, "LG TAPC H791F"},
-+	{ TUNER_ABSENT,        "TCL 2002MB 3"},
-+	{ TUNER_ABSENT,        "TCL 2002MI 3"},
-+	{ TUNER_TCL_2002N,     "TCL 2002N 6A"},
-+	{ TUNER_ABSENT,        "Philips FQ1236 MK3"},
-+	{ TUNER_ABSENT,        "Samsung TCPN 2121P30A"},
-+	{ TUNER_ABSENT,        "Samsung TCPE 4121P30A"},
-+	{ TUNER_ABSENT,        "TCL MFPE05 2"},
-+	/* 90-99 */
-+	{ TUNER_ABSENT,        "LG TALN H202T"},
-+	{ TUNER_ABSENT,        "Philips FQ1216AME MK4"},
-+	{ TUNER_ABSENT,        "Philips FQ1236A MK4"},
-+	{ TUNER_ABSENT,        "Philips FQ1286A MK4"},
-+	{ TUNER_ABSENT,        "Philips FQ1216ME MK5"},
-+	{ TUNER_ABSENT,        "Philips FQ1236 MK5"},
-+};
-+
-+static char *sndtype[] = {
-+	"None", "TEA6300", "TEA6320", "TDA9850", "MSP3400C", "MSP3410D",
-+	"MSP3415", "MSP3430", "MSP3438", "CS5331", "MSP3435", "MSP3440",
-+	"MSP3445", "MSP3411", "MSP3416", "MSP3425",
-+
-+	"Type 0x10","Type 0x11","Type 0x12","Type 0x13",
-+	"Type 0x14","Type 0x15","Type 0x16","Type 0x17",
-+	"Type 0x18","MSP4418","Type 0x1a","MSP4448",
-+	"Type 0x1c","Type 0x1d","Type 0x1e","Type 0x1f",
-+};
-+
-+static int hasRadioTuner(int tunerType)
-+{
-+        switch (tunerType) {
-+                case 18: //PNPEnv_TUNER_FR1236_MK2:
-+                case 23: //PNPEnv_TUNER_FM1236:
-+                case 38: //PNPEnv_TUNER_FMR1236:
-+                case 16: //PNPEnv_TUNER_FR1216_MK2:
-+                case 19: //PNPEnv_TUNER_FR1246_MK2:
-+                case 21: //PNPEnv_TUNER_FM1216:
-+                case 24: //PNPEnv_TUNER_FM1246:
-+                case 17: //PNPEnv_TUNER_FR1216MF_MK2:
-+                case 22: //PNPEnv_TUNER_FM1216MF:
-+                case 20: //PNPEnv_TUNER_FR1256_MK2:
-+                case 25: //PNPEnv_TUNER_FM1256:
-+                case 33: //PNPEnv_TUNER_4039FR5:
-+                case 42: //PNPEnv_TUNER_4009FR5:
-+                case 52: //PNPEnv_TUNER_4049FM5:
-+                case 54: //PNPEnv_TUNER_4049FM5_AltI2C:
-+                case 44: //PNPEnv_TUNER_4009FN5:
-+                case 31: //PNPEnv_TUNER_TCPB9085P:
-+                case 30: //PNPEnv_TUNER_TCPN9085D:
-+                case 46: //PNPEnv_TUNER_TP18NSR01F:
-+                case 47: //PNPEnv_TUNER_TP18PSB01D:
-+                case 49: //PNPEnv_TUNER_TAPC_I001D:
-+                case 60: //PNPEnv_TUNER_TAPE_S001D_MK3:
-+                case 57: //PNPEnv_TUNER_FM1216ME_MK3:
-+                case 59: //PNPEnv_TUNER_FM1216MP_MK3:
-+                case 58: //PNPEnv_TUNER_FM1236_MK3:
-+                case 68: //PNPEnv_TUNER_TAPE_H001F_MK3:
-+                case 61: //PNPEnv_TUNER_TAPE_M001D_MK3:
-+                case 78: //PNPEnv_TUNER_TDA8275C1_8290_FM:
-+                case 89: //PNPEnv_TUNER_TCL_MFPE05_2:
-+                    return 1;
-+        }
-+        return 0;
-+}
-+
-+void tveeprom_hauppauge_analog(struct tveeprom *tvee, unsigned char *eeprom_data)
-+{
-+	/* ----------------------------------------------
-+	** The hauppauge eeprom format is tagged
-+	**
-+	** if packet[0] == 0x84, then packet[0..1] == length
-+	** else length = packet[0] & 3f;
-+	** if packet[0] & f8 == f8, then EOD and packet[1] == checksum
-+	**
-+	** In our (ivtv) case we're interested in the following:
-+	** tuner type: tag [00].05 or [0a].01 (index into hauppauge_tuners)
-+	** tuner fmts: tag [00].04 or [0a].00 (bitmask index into hauppauge_fmts)
-+	** radio:      tag [00].{last} or [0e].00  (bitmask.  bit2=FM)
-+	** audio proc: tag [02].01 or [05].00 (lower nibble indexes lut?)
-+
-+	** Fun info:
-+	** model:      tag [00].07-08 or [06].00-01
-+	** revision:   tag [00].09-0b or [06].04-06
-+	** serial#:    tag [01].05-07 or [04].04-06
-+
-+	** # of inputs/outputs ???
-+	*/
-+
-+	int i, j, len, done, tag, tuner = 0, t_format = 0;
-+	char *t_name = NULL, *t_fmt_name = NULL;
-+	
-+	dprintk(1, "%s\n",__FUNCTION__);
-+	tvee->revision = done = len = 0;
-+	for (i = 0; !done && i < 256; i += len) {
-+		dprintk(2, "processing pos = %02x (%02x, %02x)\n",
-+			i, eeprom_data[i], eeprom_data[i + 1]);
-+
-+		if (eeprom_data[i] == 0x84) {
-+			len = eeprom_data[i + 1] + (eeprom_data[i + 2] << 8);
-+			i+=3;
-+		} else if ((eeprom_data[i] & 0xf0) == 0x70) {
-+			if ((eeprom_data[i] & 0x08)) {
-+				/* verify checksum! */
-+				done = 1;
-+				break;
-+			}
-+			len = eeprom_data[i] & 0x07;
-+			++i;
-+		} else {
-+			TVEEPROM_KERN_ERR("Encountered bad packet header [%02x]. "
-+				   "Corrupt or not a Hauppauge eeprom.\n", eeprom_data[i]);
-+			return;
-+		}
-+
-+		dprintk(1, "%3d [%02x] ", len, eeprom_data[i]);
-+		for(j = 1; j < len; j++) {
-+			dprintk(1, "%02x ", eeprom_data[i + j]);
-+		}
-+		dprintk(1, "\n");
-+
-+		/* process by tag */
-+		tag = eeprom_data[i];
-+		switch (tag) {
-+		case 0x00:
-+			tuner = eeprom_data[i+6];
-+			t_format = eeprom_data[i+5];
-+			tvee->has_radio = eeprom_data[i+len-1];
-+			tvee->model = 
-+				eeprom_data[i+8] + 
-+				(eeprom_data[i+9] << 8);
-+			tvee->revision = eeprom_data[i+10] +
-+				(eeprom_data[i+11] << 8) +
-+				(eeprom_data[i+12] << 16);
-+			break;
-+		case 0x01:
-+			tvee->serial_number = 
-+				eeprom_data[i+6] + 
-+				(eeprom_data[i+7] << 8) + 
-+				(eeprom_data[i+8] << 16);
-+			break;
-+		case 0x02:
-+			tvee->audio_processor = eeprom_data[i+2] & 0x0f;
-+			break;
-+		case 0x04:
-+			tvee->serial_number = 
-+				eeprom_data[i+5] + 
-+				(eeprom_data[i+6] << 8) + 
-+				(eeprom_data[i+7] << 16);
-+			break;
-+		case 0x05:
-+			tvee->audio_processor = eeprom_data[i+1] & 0x0f;
-+			break;
-+		case 0x06:
-+			tvee->model = 
-+				eeprom_data[i+1] + 
-+				(eeprom_data[i+2] << 8);
-+			tvee->revision = eeprom_data[i+5] +
-+				(eeprom_data[i+6] << 8) +
-+				(eeprom_data[i+7] << 16);
-+			break;
-+		case 0x0a:
-+			tuner = eeprom_data[i+2];
-+			t_format = eeprom_data[i+1];
-+			break;
-+		case 0x0e:
-+			tvee->has_radio = eeprom_data[i+1];
-+			break;
-+		default:
-+			dprintk(1, "Not sure what to do with tag [%02x]\n", tag);
-+			/* dump the rest of the packet? */
-+		}
-+
+ };
+ #define TUNERS ARRAY_SIZE(tuners)
+ 
+@@ -663,7 +668,8 @@ static void mt2050_set_if_freq(struct i2
+ 	int ret;
+ 	unsigned char buf[6];
+ 
+-	dprintk("mt2050_set_if_freq freq=%d\n",freq);
++	dprintk("mt2050_set_if_freq freq=%d if1=%d if2=%d\n",
++		freq,if1,if2);
+ 
+ 	f_lo1=freq+if1;
+ 	f_lo1=(f_lo1/1000000)*1000000;
+@@ -688,9 +694,10 @@ static void mt2050_set_if_freq(struct i2
+ 	div2a=(lo2/8)-1;
+ 	div2b=lo2-(div2a+1)*8;
+ 
+-	dprintk("lo1 lo2 = %d %d\n", lo1, lo2);
+-        dprintk("num1 num2 div1a div1b div2a div2b= %x %x %x %x %x %x\n",num1,num2,div1a,div1b,div2a,div2b);
+-
++	if (debug > 1) {
++		printk("lo1 lo2 = %d %d\n", lo1, lo2);
++		printk("num1 num2 div1a div1b div2a div2b= %x %x %x %x %x %x\n",num1,num2,div1a,div1b,div2a,div2b);
 +	}
-+
-+	if (!done) {
-+		TVEEPROM_KERN_ERR("Ran out of data!\n");
-+		return;
+ 
+ 	buf[0]=1;
+ 	buf[1]= 4*div1b + num1;
+@@ -702,7 +709,7 @@ static void mt2050_set_if_freq(struct i2
+ 	buf[5]=div2a;
+ 	if(num2!=0) buf[5]=buf[5]|0x40;
+ 
+-	if(debug) {
++	if (debug > 1) {
+ 		int i;
+ 		printk("bufs is: ");
+ 		for(i=0;i<6;i++)
+@@ -727,6 +734,10 @@ static void mt2050_set_tv_freq(struct i2
+                 // PAL
+                 if2 = 38900*1000;
+         }
++	if (V4L2_TUNER_DIGITAL_TV == t->mode) {
++		// testing for DVB ...
++		if2 = 36150*1000;
 +	}
-+
-+	if (tvee->revision != 0) {
-+		tvee->rev_str[0] = 32 + ((tvee->revision >> 18) & 0x3f);
-+		tvee->rev_str[1] = 32 + ((tvee->revision >> 12) & 0x3f);
-+		tvee->rev_str[2] = 32 + ((tvee->revision >>  6) & 0x3f);
-+		tvee->rev_str[3] = 32 + ( tvee->revision        & 0x3f);
-+		tvee->rev_str[4] = 0;
-+	}
-+
-+        if (hasRadioTuner(tuner) && !tvee->has_radio) {
-+	    TVEEPROM_KERN_INFO("The eeprom says no radio is present, but the tuner type\n");
-+	    TVEEPROM_KERN_INFO("indicates otherwise. I will assume that radio is present.\n");
-+            tvee->has_radio = 1;
-+        }
-+
-+	if (tuner < sizeof(hauppauge_tuner)/sizeof(struct HAUPPAUGE_TUNER)) {
-+		tvee->tuner_type = hauppauge_tuner[tuner].id;
-+		t_name = hauppauge_tuner[tuner].name;
-+	} else {
-+		t_name = "<unknown>";
-+	}
-+
-+	tvee->tuner_formats = 0;
-+	t_fmt_name = "<none>";
-+	for (i = 0; i < 8; i++) {
-+		if (t_format & (1<<i)) {
-+			tvee->tuner_formats |= hauppauge_tuner_fmt[i].id;
-+			/* yuck */
-+			t_fmt_name = hauppauge_tuner_fmt[i].name;
-+		}
-+	}
-+
-+#if 0
-+	if (t_format < sizeof(hauppauge_tuner_fmt)/sizeof(struct HAUPPAUGE_TUNER_FMT)) {
-+		tvee->tuner_formats = hauppauge_tuner_fmt[t_format].id;
-+		t_fmt_name = hauppauge_tuner_fmt[t_format].name;
-+	} else {
-+		t_fmt_name = "<unknown>";
-+	}
-+#endif
-+
-+	TVEEPROM_KERN_INFO("Hauppauge: model = %d, rev = %s, serial# = %d\n",
-+		   tvee->model,
-+		   tvee->rev_str,
-+		   tvee->serial_number);
-+	TVEEPROM_KERN_INFO("tuner = %s (idx = %d, type = %d)\n",
-+		   t_name,
-+		   tuner,
-+		   tvee->tuner_type);
-+	TVEEPROM_KERN_INFO("tuner fmt = %s (eeprom = 0x%02x, v4l2 = 0x%08x)\n",
-+		   t_fmt_name,
-+		   t_format,
-+		   tvee->tuner_formats);
-+
-+	TVEEPROM_KERN_INFO("audio_processor = %s (type = %d)\n",
-+		   STRM(sndtype,tvee->audio_processor),
-+		   tvee->audio_processor);
-+
-+}
-+EXPORT_SYMBOL(tveeprom_hauppauge_analog);
-+
-+/* ----------------------------------------------------------------------- */
-+/* generic helper functions                                                */
-+
-+int tveeprom_read(struct i2c_client *c, unsigned char *eedata, int len)
-+{
-+	unsigned char buf;
-+	int err;
-+
-+	dprintk(1, "%s\n",__FUNCTION__);
-+	buf = 0;
-+	if (1 != (err = i2c_master_send(c,&buf,1))) {
-+		printk(KERN_INFO "tveeprom(%s): Huh, no eeprom present (err=%d)?\n",
-+		       c->name,err);
-+		return -1;
-+	}
-+	if (len != (err = i2c_master_recv(c,eedata,len))) {
-+		printk(KERN_WARNING "tveeprom(%s): i2c eeprom read error (err=%d)\n",
-+		       c->name,err);
-+		return -1;
-+	}
-+	return 0;
-+}
-+EXPORT_SYMBOL(tveeprom_read);
-+
-+int tveeprom_dump(unsigned char *eedata, int len)
-+{
-+	int i;
-+
-+	dprintk(1, "%s\n",__FUNCTION__);
-+	for (i = 0; i < len; i++) {
-+		if (0 == (i % 16))
-+			printk(KERN_INFO "tveeprom: %02x:",i);
-+		printk(" %02x",eedata[i]);
-+		if (15 == (i % 16))
-+			printk("\n");
-+	}
-+	return 0;
-+}
-+EXPORT_SYMBOL(tveeprom_dump);
-+
-+/* ----------------------------------------------------------------------- */
-+/* needed for ivtv.sf.net at the moment.  Should go away in the long       */
-+/* run, just call the exported tveeprom_* directly, there is no point in   */
-+/* using the indirect way via i2c_driver->command()                        */
-+
-+#ifndef I2C_DRIVERID_TVEEPROM
-+# define I2C_DRIVERID_TVEEPROM I2C_DRIVERID_EXP2
-+#endif
-+
-+static unsigned short normal_i2c[] = {
-+	0xa0 >> 1,
-+	I2C_CLIENT_END,
-+};
-+static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
-+I2C_CLIENT_INSMOD;
-+
-+struct i2c_driver i2c_driver_tveeprom;
-+
-+static int
-+tveeprom_command(struct i2c_client *client,
-+		 unsigned int       cmd,
-+		 void              *arg)
-+{
-+	struct tveeprom eeprom;
-+	u32 *eeprom_props = arg;
-+	u8 *buf;
-+
-+	switch (cmd) {
-+	case 0:
-+		buf = kmalloc(256,GFP_KERNEL);
-+		memset(buf,0,256);
-+		tveeprom_read(client,buf,256);
-+		tveeprom_hauppauge_analog(&eeprom,buf);
-+		kfree(buf);
-+		eeprom_props[0] = eeprom.tuner_type;
-+		eeprom_props[1] = eeprom.tuner_formats;
-+		eeprom_props[2] = eeprom.model;
-+		eeprom_props[3] = eeprom.revision;
+ 	mt2050_set_if_freq(c, freq*62500, if2);
+ 	mt2050_set_antenna(c, tv_antenna);
+ }
+@@ -1069,14 +1080,18 @@ static void set_freq(struct i2c_client *
+ {
+ 	struct tuner *t = i2c_get_clientdata(c);
+ 
+-	if (t->radio) {
++	switch (t->mode) {
++	case V4L2_TUNER_RADIO:
+ 		dprintk("tuner: radio freq set to %lu.%02lu\n",
+ 			freq/16,freq%16*100/16);
+ 		set_radio_freq(c,freq);
+-	} else {
 +		break;
-+	default:
-+		return -EINVAL;
++	case V4L2_TUNER_ANALOG_TV:
++	case V4L2_TUNER_DIGITAL_TV:
+ 		dprintk("tuner: tv freq set to %lu.%02lu\n",
+ 			freq/16,freq%16*100/16);
+ 		set_tv_freq(c, freq);
++		break;
+ 	}
+ 	t->freq = freq;
+ }
+@@ -1237,9 +1252,9 @@ tuner_command(struct i2c_client *client,
+ 		set_type(client,*iarg,client->adapter->name);
+ 		break;
+ 	case AUDC_SET_RADIO:
+-		if (!t->radio) {
++		if (V4L2_TUNER_RADIO != t->mode) {
+ 			set_tv_freq(client,400 * 16);
+-			t->radio = 1;
++			t->mode = V4L2_TUNER_RADIO;
+ 		}
+ 		break;
+ 	case AUDC_CONFIG_PINNACLE:
+@@ -1271,7 +1286,7 @@ tuner_command(struct i2c_client *client,
+ 		struct video_channel *vc = arg;
+ 
+ 		CHECK_V4L2;
+-		t->radio = 0;
++		t->mode = V4L2_TUNER_ANALOG_TV;
+ 		if (vc->norm < ARRAY_SIZE(map))
+ 			t->std = map[vc->norm];
+ 		tuner_fixup_std(t);
+@@ -1292,7 +1307,7 @@ tuner_command(struct i2c_client *client,
+ 		struct video_tuner *vt = arg;
+ 
+ 		CHECK_V4L2;
+-		if (t->radio)
++		if (V4L2_TUNER_RADIO == t->mode)
+ 			vt->signal = tuner_signal(client);
+ 		return 0;
+ 	}
+@@ -1301,7 +1316,7 @@ tuner_command(struct i2c_client *client,
+ 		struct video_audio *va = arg;
+ 
+ 		CHECK_V4L2;
+-		if (t->radio)
++		if (V4L2_TUNER_RADIO == t->mode)
+ 			va->mode = (tuner_stereo(client) ? VIDEO_SOUND_STEREO : VIDEO_SOUND_MONO);
+ 		return 0;
+ 	}
+@@ -1311,7 +1326,7 @@ tuner_command(struct i2c_client *client,
+ 		v4l2_std_id *id = arg;
+ 
+ 		SWITCH_V4L2;
+-		t->radio = 0;
++		t->mode = V4L2_TUNER_ANALOG_TV;
+ 		t->std = *id;
+ 		tuner_fixup_std(t);
+ 		if (t->freq)
+@@ -1323,15 +1338,10 @@ tuner_command(struct i2c_client *client,
+ 		struct v4l2_frequency *f = arg;
+ 
+ 		SWITCH_V4L2;
+-		if (V4L2_TUNER_ANALOG_TV == f->type) {
+-			t->radio = 0;
+-		}
+-		if (V4L2_TUNER_RADIO == f->type) {
+-			if (!t->radio) {
+-				set_tv_freq(client,400*16);
+-				t->radio = 1;
+-			}
+-		}
++		if (V4L2_TUNER_RADIO == f->type &&
++		    V4L2_TUNER_RADIO != t->mode)
++			set_tv_freq(client,400*16);
++		t->mode  = f->type;
+ 		t->freq  = f->frequency;
+ 		set_freq(client,t->freq);
+ 		break;
+@@ -1341,7 +1351,7 @@ tuner_command(struct i2c_client *client,
+ 		struct v4l2_tuner *tuner = arg;
+ 
+ 		SWITCH_V4L2;
+-		if (t->radio)
++		if (V4L2_TUNER_RADIO == t->mode)
+ 			tuner->signal = tuner_signal(client);
+ 		break;
+ 	}
+Index: linux-2.6.10/drivers/media/video/tda9887.c
+===================================================================
+--- linux-2.6.10.orig/drivers/media/video/tda9887.c	2004-12-29 23:59:46.000000000 +0100
++++ linux-2.6.10/drivers/media/video/tda9887.c	2005-01-19 14:12:25.169221007 +0100
+@@ -1,4 +1,5 @@
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/kernel.h>
+ #include <linux/i2c.h>
+ #include <linux/types.h>
+@@ -27,6 +28,7 @@
+ 
+ /* Addresses to scan */
+ static unsigned short normal_i2c[] = {
++	0x84 >>1,
+ 	0x86 >>1,
+ 	0x96 >>1,
+ 	I2C_CLIENT_END,
+@@ -374,8 +376,8 @@ static int tda9887_set_tvnorm(struct tda
+ 	return 0;
+ }
+ 
+-static unsigned int port1  = 1;
+-static unsigned int port2  = 1;
++static unsigned int port1  = UNSET;
++static unsigned int port2  = UNSET;
+ static unsigned int qss    = UNSET;
+ static unsigned int adjust = 0x10;
+ module_param(port1, int, 0644);
+@@ -385,10 +387,19 @@ module_param(adjust, int, 0644);
+ 
+ static int tda9887_set_insmod(struct tda9887 *t, char *buf)
+ {
+-	if (port1)
+-		buf[1] |= cOutputPort1Inactive;
+-	if (port2)
+-		buf[1] |= cOutputPort2Inactive;
++	if (UNSET != port1) {
++		if (port1)
++			buf[1] |= cOutputPort1Inactive;
++		else
++			buf[1] &= ~cOutputPort1Inactive;
 +	}
-+	return 0;
-+}
++	if (UNSET != port2) {
++		if (port2)
++			buf[1] |= cOutputPort2Inactive;
++		else
++			buf[1] &= ~cOutputPort2Inactive;
++	}
 +
-+static int
-+tveeprom_detect_client(struct i2c_adapter *adapter,
-+		       int                 address,
-+		       int                 kind)
-+{
-+	struct i2c_client *client;
-+
-+	dprintk(1,"%s: id 0x%x @ 0x%x\n",__FUNCTION__,
-+	       adapter->id, address << 1);
-+	client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL);
-+	if (NULL == client)
-+		return -ENOMEM;
-+	memset(client, 0, sizeof(struct i2c_client));
-+	client->addr = address;
-+	client->adapter = adapter;
-+	client->driver = &i2c_driver_tveeprom;
-+	client->flags = I2C_CLIENT_ALLOW_USE;
-+	snprintf(client->name, sizeof(client->name), "tveeprom");
-+        i2c_attach_client(client);
-+	return 0;
-+}
-+
-+static int
-+tveeprom_attach_adapter (struct i2c_adapter *adapter)
-+{
-+	dprintk(1,"%s: id 0x%x\n",__FUNCTION__,adapter->id);
-+	if (adapter->id != (I2C_ALGO_BIT | I2C_HW_B_BT848))
-+		return 0;
-+	return i2c_probe(adapter, &addr_data, tveeprom_detect_client);
-+}
-+
-+static int
-+tveeprom_detach_client (struct i2c_client *client)
-+{
-+	int err;
-+
-+	err = i2c_detach_client(client);
-+	if (err < 0)
-+		return err;
-+	kfree(client);
-+	return 0;
-+}
-+
-+struct i2c_driver i2c_driver_tveeprom = {
-+	.owner          = THIS_MODULE,
-+	.name           = "tveeprom",
-+	.id             = I2C_DRIVERID_TVEEPROM,
-+	.flags          = I2C_DF_NOTIFY,
-+	.attach_adapter = tveeprom_attach_adapter,
-+	.detach_client  = tveeprom_detach_client,
-+	.command        = tveeprom_command,
-+};
-+
-+static int __init tveeprom_init(void)
-+{
-+	return i2c_add_driver(&i2c_driver_tveeprom);
-+}
-+
-+static void __exit tveeprom_exit(void)
-+{
-+	i2c_del_driver(&i2c_driver_tveeprom);
-+}
-+
-+module_init(tveeprom_init);
-+module_exit(tveeprom_exit);
-+
-+/*
-+ * Local variables:
-+ * c-basic-offset: 8
-+ * End:
-+ */
-Index: linux-2.6.10/drivers/media/Kconfig
-===================================================================
---- linux-2.6.10.orig/drivers/media/Kconfig	2004-12-29 23:59:52.000000000 +0100
-+++ linux-2.6.10/drivers/media/Kconfig	2005-01-19 14:11:40.844553181 +0100
-@@ -47,5 +47,8 @@ config VIDEO_BTCX
- config VIDEO_IR
- 	tristate
+ 	if (UNSET != qss) {
+ 		if (qss)
+ 			buf[1] |= cQSS;
+@@ -403,10 +414,15 @@ static int tda9887_set_insmod(struct tda
  
-+config VIDEO_TVEEPROM
-+	tristate
+ static int tda9887_set_config(struct tda9887 *t, char *buf)
+ {
+-	if (t->config & TDA9887_PORT1)
++	if (t->config & TDA9887_PORT1_ACTIVE)
++		buf[1] &= ~cOutputPort1Inactive;
++	if (t->config & TDA9887_PORT1_INACTIVE)
+ 		buf[1] |= cOutputPort1Inactive;
+-	if (t->config & TDA9887_PORT2)
++	if (t->config & TDA9887_PORT2_ACTIVE)
++		buf[1] &= ~cOutputPort2Inactive;
++	if (t->config & TDA9887_PORT2_INACTIVE)
+ 		buf[1] |= cOutputPort2Inactive;
 +
- endmenu
+ 	if (t->config & TDA9887_QSS)
+ 		buf[1] |= cQSS;
+ 	if (t->config & TDA9887_INTERCARRIER)
+@@ -437,14 +453,14 @@ static int tda9887_set_pinnacle(struct t
+ {
+ 	unsigned int bCarrierMode = UNSET;
  
-Index: linux-2.6.10/drivers/media/video/Makefile
-===================================================================
---- linux-2.6.10.orig/drivers/media/video/Makefile	2004-12-29 23:56:17.000000000 +0100
-+++ linux-2.6.10/drivers/media/video/Makefile	2005-01-19 14:11:40.853551490 +0100
-@@ -48,6 +48,7 @@ obj-$(CONFIG_VIDEO_TUNER) += tuner.o tda
- obj-$(CONFIG_VIDEO_BUF)   += video-buf.o
- obj-$(CONFIG_VIDEO_BUF_DVB) += video-buf-dvb.o
- obj-$(CONFIG_VIDEO_BTCX)  += btcx-risc.o
-+obj-$(CONFIG_VIDEO_TVEEPROM) += tveeprom.o
+-	if (t->std & V4L2_STD_PAL) {
++	if (t->std & V4L2_STD_625_50) {
+ 		if ((1 == t->pinnacle_id) || (7 == t->pinnacle_id)) {
+ 			bCarrierMode = cIntercarrier;
+ 		} else {
+ 			bCarrierMode = cQSS;
+ 		}
+ 	}
+-	if (t->std & V4L2_STD_NTSC) {
++	if (t->std & V4L2_STD_525_60) {
+                 if ((5 == t->pinnacle_id) || (6 == t->pinnacle_id)) {
+ 			bCarrierMode = cIntercarrier;
+ 		} else {
+@@ -529,6 +545,8 @@ static int tda9887_configure(struct tda9
+ 	int rc;
  
- obj-$(CONFIG_VIDEO_M32R_AR_M64278) += arv.o
- 
+ 	memset(buf,0,sizeof(buf));
++	buf[1] |= cOutputPort1Inactive;
++	buf[1] |= cOutputPort2Inactive;
+ 	tda9887_set_tvnorm(t,buf);
+ 	if (UNSET != t->pinnacle_id) {
+ 		tda9887_set_pinnacle(t,buf);
 
 -- 
 #define printk(args...) fprintf(stderr, ## args)

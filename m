@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264083AbRFNVko>; Thu, 14 Jun 2001 17:40:44 -0400
+	id <S264084AbRFNVkn>; Thu, 14 Jun 2001 17:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264086AbRFNVkh>; Thu, 14 Jun 2001 17:40:37 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:65293 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264083AbRFNVkT>; Thu, 14 Jun 2001 17:40:19 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Linux-2.4.6-pre3
-Date: 14 Jun 2001 14:39:40 -0700
-Organization: A poorly-installed InterNetNews site
-Message-ID: <9gbaus$564$1@penguin.transmeta.com>
-In-Reply-To: <26832.992400011@ocs4.ocs-net> <E15AbRo-00053O-00@the-village.bc.nu>
+	id <S264083AbRFNVkj>; Thu, 14 Jun 2001 17:40:39 -0400
+Received: from ns.snowman.net ([63.80.4.34]:51471 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S264084AbRFNVkY>;
+	Thu, 14 Jun 2001 17:40:24 -0400
+Date: Thu, 14 Jun 2001 17:40:11 -0400 (EDT)
+From: <nick@snowman.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: Kip Macy <kmacy@netapp.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 3com Driver and the 3XP Processor
+In-Reply-To: <15145.11935.992736.767777@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0106141739140.16013-100000@ns>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E15AbRo-00053O-00@the-village.bc.nu>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->
->Use pre2. Linus applied a patch that changed the PCI power management stuff
->and broke all the drivers.
+So are there any intresting changes one can make to the acenic?  I've got
+one, mostly unused right now.  I've been told it is mostly a pair or R5ks
+hooked back to back.  Would anyone have a recommendation for a replacement
+to the 3cr990?
+	Nick
 
-It shouldn't have broken anything.  The warning happens, but the
-function call ends up doing the same thing as it used to - old drivers
-will just ignore the new argument. 
+On Thu, 14 Jun 2001, David S. Miller wrote:
 
-It was a necessary step in working ACPI suspend.  Which Patrick has
-working - with caveats.  And the fact that Pat happens to work at the
-same company I do probably has more to do with the fact that Transmeta
-is obviously interested in suspend issues more than most - and not so
-much with the fact that he would exert undue influence on me. 
+> 
+> nick@snowman.net writes:
+>  > Erm, that is going to be a problem.  Crypto benifits more from open source
+>  > than any other market segment, and binary only drivers for linux are not
+>  > the way to go.  I guess I need to get rid of my 5-10 3cr990s and replace
+>  > them with someone else's product?
+> 
+> Many of us on the networking developer team believe that making the
+> programming interface to the cpus on the Tigon3 is the biggest mistake
+> 3com could ever make.
+> 
+> What made the Acenic so ubiquitous and interesting was that you could
+> program the firmware on the board to do whatever you like.  They even
+> provided an entire firmware developer kit so you could hack on it.
+> 
+> So many useful projects came from this capability.
+> 
+> I feel dirty working on the Tigon3 driver for 2.4.x because of this.
+> 
+> Later,
+> David S. Miller
+> davem@redhat.com
+> 
 
-		Linus

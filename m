@@ -1,97 +1,200 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbTH0R4q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 13:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbTH0R4q
+	id S261369AbTH0SRq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 14:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTH0SRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 13:56:46 -0400
-Received: from holomorphy.com ([66.224.33.161]:23737 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261754AbTH0R4o (ORCPT
+	Wed, 27 Aug 2003 14:17:46 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:13214 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S261369AbTH0SRk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 13:56:44 -0400
-Date: Wed, 27 Aug 2003 10:57:43 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Peter Chubb <peterc@gelato.unsw.edu.au>, akpm@digeo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0-test4 -- add context switch counters
-Message-ID: <20030827175743.GF4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Peter Chubb <peterc@gelato.unsw.edu.au>, akpm@digeo.com,
-	linux-kernel@vger.kernel.org
-References: <16204.520.61149.961640@wombat.disy.cse.unsw.edu.au> <20030827065435.GV4306@holomorphy.com> <20030827155246.GA23609@work.bitmover.com> <20030827160133.GD4306@holomorphy.com> <20030827160939.GA29987@work.bitmover.com>
-Mime-Version: 1.0
+	Wed, 27 Aug 2003 14:17:40 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030827160939.GA29987@work.bitmover.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16204.62914.298711.293389@gargle.gargle.HOWL>
+Date: Wed, 27 Aug 2003 20:17:38 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: herbert@13thfloor.at
+Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: UP optimizations ..
+In-Reply-To: <20030827160315.GD26817@www.13thfloor.at>
+References: <20030827160315.GD26817@www.13thfloor.at>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 27, 2003 at 09:09:39AM -0700, Larry McVoy wrote:
-> This is the classic response that I get whenever I raise this sort of
-> concern.  I got it at Sun, I got it at SGI.  Everyone says "my change
-> made no difference".  And they are right from one point of view: you
-> run some micro benchmark and you can't see any difference.
-> Of course you can't see any difference, in the microbenchmark everything
-> is in the cache.  But you did increase the amount of cache usage.
-> Consider a real world case where the application and the kernel now
-> just exactly fit in the caches for the critical loop.  Adding one
-> extra cache line will hurt that application but would never be seen in
-> a microbenchmark.
+Herbert =?iso-8859-1?Q?P=F6tzl?= writes:
+ > 
+ > Hi Mikael!
+ > Hi Marcelo!
+ > 
+ > stumbled repeatedly over the patches (or what remained of them)
+ > from Mikael?, replacing task->processor and friends by inline
+ > functions task_cpu(task), to eliminate them on UP systems ...
+ > 
+ > my questions: 
+ >  - is there an up to date patchset?
 
-I used a macrobenchmark for this measurement with instruction-level
-profiling on cache misses, TLB misses, and cpu cycles.
+Yes, I've kept it up to date. In fact I've been using it in
+every single 2.4 kernel I've built for the last 18+ months.
+Lately also on ppc32 and x86-64.
 
-An unusual result of this was that with respect to cpu cycles, the
-most costly operation in the entire kernel after bitblitting userspace
-memory was rounding the stack pointer to find current_thread_info();
-that is, it was #3, behind only copy_to_user_ll()/copy_from_user_ll().
+Below is the current UP micro-optimisation patch set for 2.4.22.
+It changes p->processor, p->cpus_allowed, and p->cpus_runnable
+accesses (reads and writes) to use inline functions. In UP kernels
+these reduce to doing nothing or returning a constant.
 
+To keep the patch small, it doesn't change accesses in SMP-only code.
+(This is also the reason why p->cpus_runnable only has a wrapper for
+updates, since all reads are in SMP-only code.)
 
-On Wed, Aug 27, 2003 at 09:09:39AM -0700, Larry McVoy wrote:
-> The only way to really measure this is with real work loads and a cache
-> miss counter.  And even that won't always show up because if the work load
-> you choose happened to only use 1/2 of the data cache (for instance) you
-> need to add enough more than 1/2 of the cache lines to show up in the 
-> results.
+/Mikael
 
-I already used the cache miss counter. Seeing mm->rss take numerous
-cache misses in the loop of copy_page_range() (in mainline!) seemed
-unusual. A vaguely plausible explanation (guesswork is required without
-an ITP/ICE or a sufficiently useful simulator) is that the pagetable
-bitblitting evicted it from the cache, despite my _very_ intense
-efforts to reduce the amount of pagetable bitblitting via cacheing.
-An alternative explanation is that the off-node access to slab memory
-took such large remote access penalties when it did have cache misses
-that even a low miss rate elevated it to the the top of the profile.
-
-
-On Wed, Aug 27, 2003 at 09:09:39AM -0700, Larry McVoy wrote:
-> Think of it this way: we can add N extra cache lines and see no
-> difference.  Then we add the Nth+1 and all of a sudden things get slow.
-> Is that the fault of the Nth+1 guy?  Nope.  It's the fault of all N,
-> the Nth+1 guy just had bad timing, he should have gotten his change
-> in earlier.
-> I realize that I'm being extreme here but if I can get this point across
-> that's a good thing.  I'm convinced that it was a lack of understanding
-> of this point that lead to the bloated commercial operating systems.
-> Linux needs to stay fast.  Processors have cycle times of a third of a
-> nanosecond yet memory is still ~130ns away.
-
-This is not lost on me (and I'm in fact pushing other cache preservation
-code very hard; c.f. pagetable cacheing discussions and the soon to be
-sent bottom-level pagetable cacheing code in -wli). The fact of the
-matter is that we lose a cacheline at a time, and if we've already lost
-one to mm->rss, we should utilize the rest of it for whatever other
-counters are prudent instead of wasting the rest of it.
-
-A number of the rest of these counters are very infrequently updated;
-IMHO such things as nswaps (whenever we get load control, which we seem
-to be getting various complaints about lacking) and signal counts are
-updated rarely enough to ignore the effects of.
-
-
--- wli
+diff -ruN linux-2.4.22/fs/proc/array.c linux-2.4.22.up-opt/fs/proc/array.c
+--- linux-2.4.22/fs/proc/array.c	2003-06-14 13:30:27.000000000 +0200
++++ linux-2.4.22.up-opt/fs/proc/array.c	2003-08-27 19:42:34.159566477 +0200
+@@ -390,7 +390,7 @@
+ 		task->nswap,
+ 		task->cnswap,
+ 		task->exit_signal,
+-		task->processor);
++		task_cpu(task));
+ 	if(mm)
+ 		mmput(mm);
+ 	return res;
+diff -ruN linux-2.4.22/include/linux/sched.h linux-2.4.22.up-opt/include/linux/sched.h
+--- linux-2.4.22/include/linux/sched.h	2003-06-14 13:30:29.000000000 +0200
++++ linux-2.4.22.up-opt/include/linux/sched.h	2003-08-27 19:42:34.161566172 +0200
+@@ -559,17 +559,77 @@
+ 	return p;
+ }
+ 
++/*
++ * Wrappers for p->processor/cpus_allowed/cpus_runnable access. No-op on UP.
++ */
++#ifdef CONFIG_SMP
++
++static inline int task_cpu(const struct task_struct *p)
++{
++	return p->processor;
++}
++
++static inline void set_task_cpu(struct task_struct *p, int cpu)
++{
++	p->processor = cpu;
++}
++
++static inline unsigned long task_cpus_allowed(const struct task_struct *p)
++{
++	return p->cpus_allowed;
++}
++
++static inline void set_task_cpus_allowed(struct task_struct *p,
++					 unsigned long cpus_allowed)
++{
++	p->cpus_allowed = cpus_allowed;
++}
++
++static inline void set_task_cpus_runnable(struct task_struct *p,
++					  unsigned long cpus_runnable)
++{
++	p->cpus_runnable = cpus_runnable;
++}
++
++#else
++
++static inline int task_cpu(const struct task_struct *p)
++{
++	return 0;
++}
++
++static inline void set_task_cpu(struct task_struct *p, int cpu)
++{
++}
++
++static inline unsigned long task_cpus_allowed(const struct task_struct *p)
++{
++	return ~0UL;
++}
++
++static inline void set_task_cpus_allowed(struct task_struct *p,
++					 unsigned long cpus_allowed)
++{
++}
++
++static inline void set_task_cpus_runnable(struct task_struct *p,
++					  unsigned long cpus_runnable)
++{
++}
++
++#endif /* CONFIG_SMP */
++
+ #define task_has_cpu(tsk) ((tsk)->cpus_runnable != ~0UL)
+ 
+ static inline void task_set_cpu(struct task_struct *tsk, unsigned int cpu)
+ {
+-	tsk->processor = cpu;
+-	tsk->cpus_runnable = 1UL << cpu;
++	set_task_cpu(tsk, cpu);
++	set_task_cpus_runnable(tsk, 1UL << cpu);
+ }
+ 
+ static inline void task_release_cpu(struct task_struct *tsk)
+ {
+-	tsk->cpus_runnable = ~0UL;
++	set_task_cpus_runnable(tsk, ~0UL);
+ }
+ 
+ /* per-UID process charging. */
+diff -ruN linux-2.4.22/kernel/sched.c linux-2.4.22.up-opt/kernel/sched.c
+--- linux-2.4.22/kernel/sched.c	2003-08-25 20:07:50.000000000 +0200
++++ linux-2.4.22.up-opt/kernel/sched.c	2003-08-27 19:42:34.163565866 +0200
+@@ -359,7 +359,7 @@
+ 	if (task_on_runqueue(p))
+ 		goto out;
+ 	add_to_runqueue(p);
+-	if (!synchronous || !(p->cpus_allowed & (1UL << smp_processor_id())))
++	if (!synchronous || !(task_cpus_allowed(p) & (1UL << smp_processor_id())))
+ 		reschedule_idle(p);
+ 	success = 1;
+ out:
+@@ -557,7 +557,7 @@
+ 	BUG_ON(!current->active_mm);
+ need_resched_back:
+ 	prev = current;
+-	this_cpu = prev->processor;
++	this_cpu = task_cpu(prev);
+ 
+ 	if (unlikely(in_interrupt())) {
+ 		printk("Scheduling in interrupt\n");
+@@ -1364,7 +1364,7 @@
+ 	}
+ 	sched_data->curr = current;
+ 	sched_data->last_schedule = get_cycles();
+-	clear_bit(current->processor, &wait_init_idle);
++	clear_bit(task_cpu(current), &wait_init_idle);
+ }
+ 
+ extern void init_timervecs (void);
+@@ -1378,7 +1378,7 @@
+ 	int cpu = smp_processor_id();
+ 	int nr;
+ 
+-	init_task.processor = cpu;
++	set_task_cpu(&init_task, cpu);
+ 
+ 	for(nr = 0; nr < PIDHASH_SZ; nr++)
+ 		pidhash[nr] = NULL;
+diff -ruN linux-2.4.22/kernel/softirq.c linux-2.4.22.up-opt/kernel/softirq.c
+--- linux-2.4.22/kernel/softirq.c	2002-11-30 17:12:32.000000000 +0100
++++ linux-2.4.22.up-opt/kernel/softirq.c	2003-08-27 19:42:34.164565713 +0200
+@@ -368,7 +368,7 @@
+ 	sigfillset(&current->blocked);
+ 
+ 	/* Migrate to the right CPU */
+-	current->cpus_allowed = 1UL << cpu;
++	set_task_cpus_allowed(current, 1UL << cpu);
+ 	while (smp_processor_id() != cpu)
+ 		schedule();
+ 

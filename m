@@ -1,88 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129213AbQKIHYM>; Thu, 9 Nov 2000 02:24:12 -0500
+	id <S129231AbQKIHdq>; Thu, 9 Nov 2000 02:33:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129231AbQKIHYD>; Thu, 9 Nov 2000 02:24:03 -0500
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:6666 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S129213AbQKIHXt>; Thu, 9 Nov 2000 02:23:49 -0500
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Thu, 9 Nov 2000 08:23:26 +0100
+	id <S130079AbQKIHdg>; Thu, 9 Nov 2000 02:33:36 -0500
+Received: from iq.sch.bme.hu ([152.66.226.168]:32859 "EHLO iq.rulez.org")
+	by vger.kernel.org with ESMTP id <S129231AbQKIHdX>;
+	Thu, 9 Nov 2000 02:33:23 -0500
+Date: Thu, 9 Nov 2000 08:33:21 +0100 (CET)
+From: Sasi Peter <sape@iq.rulez.org>
+To: Scott McDermott <vaxerdec@frontiernet.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Stange NFS messages - 2.2.18pre19
+In-Reply-To: <20001108211538.C14262@vaxerdec>
+Message-ID: <Pine.LNX.4.10.10011090832480.14350-100000@iq.rulez.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: kernel: eepro100: wait_for_cmd_done timeout!
-CC: linux-eepro100@webserv.gsfc.nasa.gov
-Message-ID: <3A0A5EF9.22733.135B0F@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 8 Nov 2000, Scott McDermott wrote:
 
-I'm seeing the message periodically:
+> Sasi Peter on Tue  7/11 23:28 +0100:
+> > I'm getting this under moderate NFS load:
+> > Nov  6 17:39:56 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
+> > Nov  6 17:40:08 iq kernel: svc: unknown program 100227 (me 100003)
+> > Nov  6 19:06:11 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
+> > Nov  6 19:38:48 iq kernel: svc: server socket destroy delayed (sk_inuse: 1)
+> > What do these means? Is this a kernel bug?
+> Your Suns are using TCP mounts, this got introduced into 2.2.18
+> somewhere and is a bit broken, do a patch -R with
+> ftp://oss.sgi.com/www.projects/nfs3/download/nfs_tcp-2.2.17.dif and
+> these go away.  Suns try TCP mounts first.  Be careful to unmount them
+> first or they will hang waiting for the TCP server to come back up.
 
-Nov  8 09:52:59 kgate last message repeated 5 times
-Nov  8 11:26:54 kgate kernel: eepro100: wait_for_cmd_done timeout!
-Nov  8 11:56:12 kgate kernel: eepro100: wait_for_cmd_done timeout!
-Nov  8 14:38:45 kgate kernel: eepro100: wait_for_cmd_done timeout!
-Nov  8 14:38:47 kgate last message repeated 3 times
-Nov  8 14:56:11 kgate kernel: eepro100: wait_for_cmd_done timeout!
-Nov  8 14:57:01 kgate last message repeated 10 times
-Nov  8 21:32:15 kgate kernel: eepro100: wait_for_cmd_done timeout!
-Nov  8 22:57:46 kgate kernel: eepro100: wait_for_cmd_done timeout!
+Broken link:
+[root@iq patches]# wget
+ftp://oss.sgi.com/www.projects/nfs3/download/nfs_tcp-2.2.17.dif
+--08:31:28--
+ftp://oss.sgi.com:21/www.projects/nfs3/download/nfs_tcp-2.2.17.dif
+           => `nfs_tcp-2.2.17.dif'
+Connecting to oss.sgi.com:21... connected!
+Logging in as anonymous ... Logged in!
+==> TYPE I ... done.  ==> CWD www.projects/nfs3/download ...
+No such directory `www.projects/nfs3/download'.
 
-The source contains:
+--  SaPE
 
-/* How to wait for the command unit to accept a command.
-   Typically this takes 0 ticks. */
-static inline void wait_for_cmd_done(long cmd_ioaddr)
-{
-        int wait = 1000;
-        do   ;
-        while(inb(cmd_ioaddr) && --wait >= 0);
-#ifndef final_version
-        if (wait < 0)
-                printk(KERN_ALERT "eepro100: wait_for_cmd_done 
-timeout!\n");
-#endif
-}
-
-My machine is a HP Netserver LD Pro with a 200MHz Pentium Pro. I guess 
-a fast machine will only allow a very short time for the above loop. 
-Shouldn't it be fixed?
-
-The hardware is this:
-01:02.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] 
-(rev 02)
-        Subsystem: Hewlett-Packard Company Ethernet Pro 10/100TX
-        Flags: bus master, medium devsel, latency 66, IRQ 9
-        Memory at fe8fe000 (32-bit, prefetchable)
-        I/O ports at ece0
-        Memory at fea00000 (32-bit, non-prefetchable)
-
-
-kgate kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker 
-http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-kgate kernel: eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31 Modified by 
-Andrey V. Savochkin <saw@saw.sw.com.sg> and others
-kgate kernel: eth0: OEM i82557/i82558 10/100 Ethernet, 00:60:B0:6D:F1:AE, 
-IRQ 9.
-kgate kernel:   Board assembly 673610-001, Physical connectors present: 
-RJ45
-kgate kernel:   Primary interface chip i82555 PHY #1.
-kgate kernel:   General self-test: passed.
-kgate kernel:   Serial sub-system self-test: passed.
-kgate kernel:   Internal registers self-test: passed.
-kgate kernel:   ROM checksum self-test: passed (0x49caa8d6).
-kgate kernel:   Receiver lock-up workaround activated.
-
-The software is Linux-2.2.16 (SuSE 7.0).
-
-Regards,
-Ulrich
+Peter, Sasi <sape@sch.hu>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

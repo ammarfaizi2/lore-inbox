@@ -1,55 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVANBpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVAMThW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbVANBpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 20:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVANBmB
+	id S261208AbVAMThW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVAMTgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 20:42:01 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48518 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261861AbVANBiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 20:38:54 -0500
-Date: Fri, 14 Jan 2005 01:38:50 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Erez Zadok <ezk@cs.sunysb.edu>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] shared subtrees
-Message-ID: <20050114013850.GN26051@parcelfarce.linux.theplanet.co.uk>
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> <200501140111.j0E1Bx0N023763@agora.fsl.cs.sunysb.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501140111.j0E1Bx0N023763@agora.fsl.cs.sunysb.edu>
-User-Agent: Mutt/1.4.1i
+	Thu, 13 Jan 2005 14:36:11 -0500
+Received: from smtp.sys.beep.pl ([195.245.198.13]:29189 "EHLO smtp.sys.beep.pl")
+	by vger.kernel.org with ESMTP id S261356AbVAMTcc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:32:32 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH]: add Ever UPS vendor/product id to ftdi_sio driver
+Date: Thu, 13 Jan 2005 20:30:33 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <200501132014.34558.arekm@pld-linux.org> <20050113192517.GA29433@kroah.com>
+In-Reply-To: <20050113192517.GA29433@kroah.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Zxs5BauTuOk0oaz"
+Message-Id: <200501132030.33996.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 08:11:59PM -0500, Erez Zadok wrote:
-> Al, how do shared subtrees related to stacking?  From your description, it
-> looks like event propagation is similar to what stacking does (pass an op
-> from one layer to another), only that subtree sharing is for "mount points"
-> and not for every VFS object.  Am I right?
+--Boundary-00=_Zxs5BauTuOk0oaz
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Umm...  Not really - that's propagation of operations on VFS-*only* data
-structures from one part of tree to another; I don't see how that's
-related to layering.
+On Thursday 13 of January 2005 20:25, Greg KH wrote:
+
+> Your email client got hungry and ate all of the tabs for lunch.=20
+Hungry bastard.
+
+> Care to=20
+> resend it?
+This time as attachment.
+
+> thanks,
+> greg k-h
+
+=2D-=20
+Arkadiusz Mi=B6kiewicz                    PLD/Linux Team
+http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/
+
+--Boundary-00=_Zxs5BauTuOk0oaz
+Content-Type: text/x-diff;
+  charset="iso-8859-2";
+  name="ftdi_sio-ever.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ftdi_sio-ever.patch"
+
+--- drivers/usb/serial/ftdi_sio.h.org	2005-01-13 16:32:21.000000000 +0100
++++ drivers/usb/serial/ftdi_sio.h	2005-01-13 16:37:33.000000000 +0100
+@@ -240,6 +240,12 @@
+ #define FTDI_RM_VID		0x0403	/* Vendor  Id */
+ #define FTDI_RMCANVIEW_PID	0xfd60	/* Product Id */
  
-> If shared subtrees have nothing to do with stacking, do you foresee them as
-> perhaps a first step toward full stacking support in the VFS?  (I mean, if
-> we're going to have to hack the VFS heavily already...)
++/*
++ * EVER Eco Pro UPS (http://www.ever.com.pl/)
++ */
++
++#define	EVER_ECO_PRO_CDS	0xe520	/* RS-232 converter */
++
+ /* Commands */
+ #define FTDI_SIO_RESET 		0 /* Reset the port */
+ #define FTDI_SIO_MODEM_CTRL 	1 /* Set the modem control register */
+--- drivers/usb/serial/ftdi_sio.c.org	2005-01-13 16:32:26.000000000 +0100
++++ drivers/usb/serial/ftdi_sio.c	2005-01-13 17:04:12.000000000 +0100
+@@ -372,6 +372,7 @@
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USOTL4_PID, 0, 0x3ff) },
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USTL4_PID, 0, 0x3ff) },
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USO9ML2_PID, 0, 0x3ff) },
++	{ USB_DEVICE_VER(FTDI_VID, EVER_ECO_PRO_CDS, 0, 0x3ff) },
+ 	{ }						/* Terminating entry */
+ };
+ 
+@@ -486,6 +487,7 @@
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USOTL4_PID, 0x400, 0xffff) },
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USTL4_PID, 0x400, 0xffff) },
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USO9ML2_PID, 0x400, 0xffff) },
++	{ USB_DEVICE_VER(FTDI_VID, EVER_ECO_PRO_CDS, 0x400, 0xffff) },
+ 	{ }						/* Terminating entry */
+ };
+ 
+@@ -608,6 +610,7 @@
+ 	{ USB_DEVICE(BANDB_VID, BANDB_USOTL4_PID) },
+ 	{ USB_DEVICE(BANDB_VID, BANDB_USTL4_PID) },
+ 	{ USB_DEVICE(BANDB_VID, BANDB_USO9ML2_PID) },
++	{ USB_DEVICE(FTDI_VID, EVER_ECO_PRO_CDS) },
+ 	{ }						/* Terminating entry */
+ };
+ 
 
-I don't see how they are related, so anything towards stacking would be
-a separate story, IMO...  I'm not sure whether it makes sense to put that
-into the same cycle - depends on how much will be affected by each set
-of patches and how well it will split into trivial widespread modifications
-vs. heavy localized work...
-
-IOW, no idea right now.
-
->  Your "p-node"
-> sounds awfully similar to Rosenthal's and Skinner's "pvnode"s. :-)
-
-Heh.  "p-node" is a result of giving up on finding a better term than
-"node in propagation graph" - no more, no less.  I doubt that it'll
-survive to final edition - both as term and as something that would
-have a corresponding in-core object...
+--Boundary-00=_Zxs5BauTuOk0oaz--

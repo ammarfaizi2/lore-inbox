@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263659AbUCUOy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 09:54:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263660AbUCUOy5
+	id S263661AbUCUO5z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 09:57:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263662AbUCUO5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 09:54:57 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:25474
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263659AbUCUOy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 09:54:56 -0500
-Date: Sun, 21 Mar 2004 15:55:47 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.5-rc2-aa1
-Message-ID: <20040321145547.GA3649@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 21 Mar 2004 09:57:55 -0500
+Received: from mta04-svc.ntlworld.com ([62.253.162.44]:4675 "EHLO
+	mta04-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S263661AbUCUO5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 09:57:52 -0500
+From: Richard Browning <richard@redline.org.uk>
+Organization: Redline Software Engineering
+To: root@chaos.analogic.com
+Subject: Re: ANYONE? Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
+Date: Sun, 21 Mar 2004 14:57:42 +0000
+User-Agent: KMail/1.6.1
+Cc: Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       linux-kernel@vger.kernel.org,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com> <200403201433.40357.richard@redline.org.uk> <Pine.LNX.4.53.0403210940380.11483@chaos>
+In-Reply-To: <Pine.LNX.4.53.0403210940380.11483@chaos>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403211457.42738.richard@redline.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes MAP_SHARED|MAP_ANONYMOUS spotted by Jens and Martin, plus it
-avoids vmware to crash (but it only warns about the missing VM_RESERVED
-bitflag).
+On Sunday 21 March 2004 14:46, Richard B. Johnson wrote:
+> I have been using 2.4.24 with SMP and hyperthreading with no
+> problems. FYI, the reference to Windows is useless, because
+> M$ was unable to make any SMP stuff function without crashes
+> since windows 2000/professional, later Windows versions don't
+> use your additional CPUs at all, they just report that they
+> exist. FYI, see if you can find your CPU resources at all
+> in XP!!!  They just don't want you to know!
 
-URL:
+Er, sorry old man, but WindozeXPPro certainly does use the extra processors 
+with HT. I'm not talking about Task Manager (which of course shows four 
+processors) but the multi-threaded secure gateway application I'm developing 
+confirms the multiple (and virtual) processors.
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc2-aa1.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc2-aa1/
+In fact, Windoze2kPro has a different threading kernel to WIndozeXPPro, which 
+is why you get four procs in XPPro and only two in 2kPro. Anyway, this isn't 
+the thread or forum for this topic. I don't use Doze for anything other than 
+compatibility testing so it's a (fairly) moot point. I'm only interested in 
+improving Linux (since I develop on and for it) and if this investigation 
+helps, then marvellous.
 
-Changelog diff between 2.6.5-rc1-aa3 and 2.6.5-rc2-aa1:
+Cheers
 
-Binary files 2.6.5-rc1-aa3/anon_vma.gz and 2.6.5-rc2-aa1/anon_vma.gz differ
-
-	Fixed silly bug in mmap(MAP_SHARED|MAP_ANONYMOUS) and converted a
-	BUG_ON to a WARN_ON if some device driver passes non-pageable pages
-	to the VM via ->nopage. VM_RESERVED it's not required with current
-	VM, so even if the WARN_ON triggers the machine remains completely
-	stable.
-
-Only in 2.6.5-rc1-aa3: linus.patch.gz
-
-	Updated to 2.6.5-rc2 so not needed anymore.
+R

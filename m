@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVC2FBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVC2FHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262184AbVC2FBi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 00:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVC2FBi
+	id S262191AbVC2FHa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 00:07:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVC2FHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 00:01:38 -0500
-Received: from irc.sh.nu ([216.239.132.110]:17299 "EHLO mail.3gstech.com")
-	by vger.kernel.org with ESMTP id S262184AbVC2FB3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 00:01:29 -0500
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-From: Aaron Gyes <floam@sh.nu>
-To: Greg KH <greg@kroah.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050329044533.GG7362@kroah.com>
-References: <1111886147.1495.3.camel@localhost>
-	 <490243b66dc7c3f592df7a7d0769dcb7@mac.com>
-	 <20050327181221.GB14502@kroah.com> <1112058277.14563.4.camel@localhost>
-	 <20050329033350.GA6990@kroah.com> <1112070511.32594.4.camel@localhost>
-	 <20050329044533.GG7362@kroah.com>
-Content-Type: text/plain
-Date: Mon, 28 Mar 2005 21:01:27 -0800
-Message-Id: <1112072487.27364.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Tue, 29 Mar 2005 00:07:30 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:36519 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262191AbVC2FHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 00:07:22 -0500
+Message-ID: <4248E282.1000105@nortel.com>
+Date: Mon, 28 Mar 2005 23:07:14 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: krishna <krishna.c@globaledgesoft.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to measure time accurately.
+References: <424779F3.5000306@globaledgesoft.com>
+In-Reply-To: <424779F3.5000306@globaledgesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-28 at 20:45 -0800, Greg KH wrote:
-> If after removed, that's not what udev is set up to do, sorry.
+krishna wrote:
+> Hi All,
+> 
+> Can any one tell me how to measure time accurately for a block of C code 
+> in device drivers.
+> For example, If I want to measure the time duration of firmware download.
 
-There's no way to either a) Hack udev.conf to always create a node with
-a certain major and minor or b) A way to make sysfs trick udev?
+Most cpus have some way of getting at a counter or decrementer of 
+various frequencies.  Usually it requires low-level hardware knowledge 
+and often it needs assembly code.
 
-I'll kind of need to do this for nvidia and any other modules affected
-by this change, or else switch back to the inferior devfs.
 
-Aaron Gyes
+On ppc you'd use the mftbu/mftbl instructions, as suggested by Lee on 
+x86 you'd use the rdtsc instruction.
 
+Chris

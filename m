@@ -1,72 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268348AbTCCFEn>; Mon, 3 Mar 2003 00:04:43 -0500
+	id <S268354AbTCCFPO>; Mon, 3 Mar 2003 00:15:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268351AbTCCFEn>; Mon, 3 Mar 2003 00:04:43 -0500
-Received: from dsl093-244-091.ric1.dsl.speakeasy.net ([66.93.244.91]:53475
-	"EHLO perl") by vger.kernel.org with ESMTP id <S268348AbTCCFEm>;
-	Mon, 3 Mar 2003 00:04:42 -0500
-Date: Mon, 3 Mar 2003 05:15:03 +0000
-From: xsdg <xsdg@freenode.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.60-63 panic: unable to mount root
-Message-Id: <20030303051503.7084ec0e.xsdg@freenode.org>
-X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.hWA7f_te=qF1V:"
+	id <S268372AbTCCFPO>; Mon, 3 Mar 2003 00:15:14 -0500
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:53210 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S268354AbTCCFPG>; Mon, 3 Mar 2003 00:15:06 -0500
+Message-ID: <3E62E9D3.60103@kegel.com>
+Date: Sun, 02 Mar 2003 21:36:19 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: linux@trios.org
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kernel source spellchecker
+References: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de>	<3E6101DE.5060301@	 kegel.com>	<1046546305.10138.415.camel@spc1.mesatop.com>	<3E6167B1.6040206@kegel.com> 	<3E617428.3090207@kegel.com>	<1046578585.2544.451.camel@spc1.mesatop.com>	<1046604117.12947.16.camel@imladris.demon.co.uk>	<1046612993.7527.472.camel@spc1.mesatop.com>  <3E62C0FF.1090700@kegel.com> <1046661777.7527.518.camel@spc1.mesatop.com>
+In-Reply-To: <1046661777.7527.518.camel@spc1.mesatop.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.hWA7f_te=qF1V:
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+"Jared Daniel J. Smith" wrote:
+> Even a single lost pun because of overenthusiastic spellchecking is
+> not worth the cleanup. I would prefer to see typos than lose a single
+> intentional 'misspelling'. It would be best if you posted all changes 
+> somewhere so that they could be verified manually.
+> 
+> Consider the following:
+> 
+> alignment=alignement
+> alignmement is French; is this intentional?
 
-Hi... I saw your post in the lkml archives (I'm not subscribed either).  I think I'm having either a very similar problem, or the same problem that you are.
+No.  All three instances were english typos.
 
-Similarities:
-	Can't mount root, kernel panic
-	Only happening in 2.5.62-ac1 (I haven't tried any other 2.5.6x kernels)
+> constants=konstants
+> konstants is German; is this intentional?
 
-Differences:
-	Using IDE root disc
-	Using devfs
-	root, which contains /boot, is ext3
+No.  All three instances were english typos.
 
-I think something about device handling may have changed which is causing this problem. (for me, devfs started needing a root= option since about 2.5.50).  Additionally, when the kernel panics, does it specify the correct major/minor device number?  Mine uses the wrong one unless I use rdev, and then panics with the correct one (/dev/hda2, 0x0302)
+> consumer=comsumer
+> comsumer is a neologism: http://www.firstmonday.dk/issues/issue5_5/henshall/
 
-These are the relevant entries in grub's menu.lst:
+That may be, but in the neologism, it seems to be usually partially capitalized,
+and the C source sure looks like just a typo:
+/* producer/comsumer pointers for Tx/Rx ring */
 
-timeout 5
-default 0
+> Converted=Coverted
+> is it a pun on something 'hidden' or is it something transformed?
 
-title   2.5.62 ac1
-root    (hd0,1)
-kernel  /boot/kernel/62.5.2k-ac1 root=/dev/ide/host0/bus0/target0/lun0/part2
+Allan said it was a copy/paste error and should be fixed.
 
-title   2.5.51
-root    (hd0,1)
-kernel  /boot/kernel/51.5.2k-br root=/dev/ide/host0/bus0/target0/lun0/part2
+> descriptor=decriptor,desciptor
+> is it descriptor or decrypter?
 
-the second entry works fine, but the first entry panics and gives me the same message you described.
+You be the judge:
+      /* Initiliaze Transmit/Receive decriptor and CR3/4 */
 
-	--xsdg
+All instances I saw were just english typos.
+
+> invocation=invokation
+> invokation is German; is this intentional?
+
+No idea, seems to be gone in the current kernel source?
+
+> negative=negativ
+> negativ is a legitimate non-English word; is this intentional?
+
+Where I spot-checked it, it was always just an English typo.
+
+> signaled=signalled
+> signaling=Signalling
+> signaling=signalling
+> signalled is a legitimate alternate spelling of signaled.
+
+Thanks, fixed!
+
+> succeeded=succeded
+> succeded could also be a typo for 'succeed'
+> 
+> through=throught,throuth
+> throught could also be a typo for 'thought'
+
+Yes.  These will have to be hand-reviewed.  I do recommend absolutely
+every change be hand-reviewed just in case.
+
+> writable=writeable
+> writeable is a legitimate alternate spelling of writable
+
+You're right, though I had to dig to find a dictionary that agreed with you.
+
+I've updated http://www.kegel.com/kerspell to remove the "signall*" and "writeable"
+corrections.  (My stoplist already listed them as acceptable, fwiw.)
+
+Thanks!
+- Dan
+
 -- 
-| Every child asks questinos.  I'm just still a     |
-|   child.                                          |
-|   -- Steven Hawking                               |
-) http://www.cuodan.net/~xsdg/    xsdg@freenode.org (
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 
-
---=.hWA7f_te=qF1V:
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+YuTcLa8oArNOsUERAuk/AJ9yBlfvu9yG9jAopEwFqbfMelVkhQCgjRbf
-TJjo/A28JP9Dc7mZUwaedJ8=
-=ISPG
------END PGP SIGNATURE-----
-
---=.hWA7f_te=qF1V:--

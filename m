@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267918AbSIRRik>; Wed, 18 Sep 2002 13:38:40 -0400
+	id <S267883AbSIRRis>; Wed, 18 Sep 2002 13:38:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267890AbSIRRij>; Wed, 18 Sep 2002 13:38:39 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:46841 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S267883AbSIRRic>; Wed, 18 Sep 2002 13:38:32 -0400
-Date: Wed, 18 Sep 2002 13:51:42 -0400 (EDT)
-From: Rob Ransbottom <rir@attbi.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Clumsey make, README
-In-Reply-To: <20020918174755.B1386@mars.ravnborg.org>
-Message-ID: <Pine.LNX.3.96.1020918132657.21270C-100000@localhost>
+	id <S267928AbSIRRir>; Wed, 18 Sep 2002 13:38:47 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:35848 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S267883AbSIRRin>; Wed, 18 Sep 2002 13:38:43 -0400
+Date: Wed, 18 Sep 2002 14:43:06 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Cort Dougan <cort@fsmlabs.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
+ elimination, 2.5.35-BK
+In-Reply-To: <20020918113551.A654@host110.fsmlabs.com>
+Message-ID: <Pine.LNX.4.44L.0209181441430.1519-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Sep 2002, Sam Ravnborg wrote:
+On Wed, 18 Sep 2002, Cort Dougan wrote:
 
-> On Wed, Sep 18, 2002 at 10:22:47AM -0400, Rob Ransbottom wrote:
+> It's also not a bad idea to sometimes say "Linux cannot do that".
+> Trying to make the system do _everything_ will result in it doing many
+> things very poorly.
 
-> You can do:
-> make allmodconfig
-> make
+That's been tried before, but for some reason people just won't
+listen and Linux ended up running on non-x86 machines and even SMP.
 
-My idea was that if this didn't use the .config file
-it would be very convenient for naive users.
-They could "make all_modules; make modules_install; "and
-not disrupt their kernel config.
+I don't see any reason to rule out a fix for this problem in
+principle, maybe somebody will come up with code that Linus does
+like ?
 
-> make help
-> Only kernel 2.5..
+cheers,
 
-Thanks, I am currently moving to 2.4.
-It is nice to look forward to something.
+Rik
+-- 
+Spamtrap of the month: september@surriel.com
 
-rob                     Live the dream.
+http://www.surriel.com/		http://distro.conectiva.com/
 

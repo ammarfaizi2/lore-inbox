@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbVCPNPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbVCPNPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262572AbVCPNPX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 08:15:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbVCPNPW
+	id S262573AbVCPNPl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 08:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbVCPNPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 08:15:22 -0500
-Received: from mail.dif.dk ([193.138.115.101]:50834 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262572AbVCPNOr (ORCPT
+	Wed, 16 Mar 2005 08:15:40 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:37082 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262573AbVCPNPS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 08:14:47 -0500
-Date: Wed, 16 Mar 2005 14:14:50 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Steven French <sfrench@us.ibm.com>
-Cc: smfrench@austin.rr.com, linux-kernel@vger.kernel.org
-Subject: [PATCH][0/7] cifs: file.c cleanups in incremental bits
-Message-ID: <Pine.LNX.4.62.0503161402550.3141@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Mar 2005 08:15:18 -0500
+Subject: [PATCH] Reserve Bootmem fix for booting nondefault location kernel
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       fastboot <fastboot@lists.osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Content-Type: multipart/mixed; boundary="=-d/XlY9CnMwuAb0WYNFjA"
+Date: Wed, 16 Mar 2005 18:45:12 +0530
+Message-Id: <1110978912.3575.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Steven,
-
-Here 's a version of my fs/cifs/file.c cleanup patch split into seven 
-chunks for easier review.
-Please use these incremental patches instead of the big one I send you 
-earlier since I've made a few changes compared to that.
-
-Since you seemed to have trouble with the original patch when included 
-inline I'll attach the patch files instead, along with a description of 
-each patch in the email.
-
-For your convenience the patches are also available online at :
-http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-whitespace-changes.patch
-http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-kfree-changes.patch
-http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-cifs_init_private.patch
-http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-cifs_open_inode_helper.patch
-http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-cifs_convert_flags.patch
-http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-cifs_get_disposition.patch
-http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_file-cleanups-3-condense_if_else.patch
-(listed in the order they apply)
-
-The first patch applies on top of the first whitespace cleanup patch you 
-already applied to your tree, so you should be able to just apply all 7 in 
-order to your tree.
-
-I still haven't managed to get hold of/setup a cifs server to test these 
-against, so they are still only compile tested.
+--=-d/XlY9CnMwuAb0WYNFjA
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
 
--- 
-Jesper Juhl
 
+--=-d/XlY9CnMwuAb0WYNFjA
+Content-Disposition: attachment; filename=x86-nondefault-kernel-reserve-bootmem-fix.patch
+Content-Type: text/x-patch; name=x86-nondefault-kernel-reserve-bootmem-fix.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+
+This patch fixes a problem with reserving memory during boot up of a kernel
+built for non-default location. Currently boot memory allocator reserves the
+memory required by kernel image, boot allocaotor bitmap etc. It assumes that
+kernel is loaded at 1MB (HIGH_MEMORY hard coded to 1024*1024). But kernel can
+be built for non-default locatoin, hence existing hardcoding will lead to
+reserving unnecessary memory. This patch fixes it.
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ linux-2.6.11-mm3-vivek/arch/i386/kernel/setup.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN arch/i386/kernel/setup.c~x86-nondefault-kernel-reserve-bootmem-fix arch/i386/kernel/setup.c
+--- linux-2.6.11-mm3/arch/i386/kernel/setup.c~x86-nondefault-kernel-reserve-bootmem-fix	2005-03-15 14:15:25.391856008 +0530
++++ linux-2.6.11-mm3-vivek/arch/i386/kernel/setup.c	2005-03-15 14:16:12.780651816 +0530
+@@ -1135,8 +1135,8 @@ void __init setup_bootmem_allocator(void
+ 	 * the (very unlikely) case of us accidentally initializing the
+ 	 * bootmem allocator with an invalid RAM area.
+ 	 */
+-	reserve_bootmem(HIGH_MEMORY, (PFN_PHYS(min_low_pfn) +
+-			 bootmap_size + PAGE_SIZE-1) - (HIGH_MEMORY));
++	reserve_bootmem(__PHYSICAL_START, (PFN_PHYS(min_low_pfn) +
++			 bootmap_size + PAGE_SIZE-1) - (__PHYSICAL_START));
+ 
+ 	/*
+ 	 * reserve physical page 0 - it's a special BIOS page on many boxes,
+_
+
+--=-d/XlY9CnMwuAb0WYNFjA--
 

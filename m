@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbTJCX6g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 19:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTJCX4l
+	id S261614AbTJCXw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 19:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbTJCXms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 19:56:41 -0400
-Received: from users.ccur.com ([208.248.32.211]:19060 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id S261549AbTJCXy6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 19:54:58 -0400
-Date: Fri, 3 Oct 2003 19:54:16 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, riel@redhat.com, andrea@suse.de
-Subject: Re: mlockall and mmap of IO devices don't mix
-Message-ID: <20031003235416.GA27201@rudolph.ccur.com>
-References: <20031003214411.GA25802@rudolph.ccur.com> <20031003152349.7194b73d.akpm@osdl.org> <20031003225509.GA26590@rudolph.ccur.com> <20031003161540.42ff98bb.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Oct 2003 19:42:48 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25044 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261574AbTJCXkG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 19:40:06 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kill dummy init_dma_* from drivers/ide/pci/
+Date: Sat, 4 Oct 2003 01:43:32 +0200
+User-Agent: KMail/1.5.4
+References: <200310040138.08690.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200310040138.08690.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031003161540.42ff98bb.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+Message-Id: <200310040143.32386.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 03, 2003 at 04:15:40PM -0700, Andrew Morton wrote:
->> Sigh.  No go; it *looks* good but my app still locks up....
-> 
-> Or we could use that VM_RESERVED thing?
 
-Hi Andrew,
- Your third patch worked perfectly for all the tested cases:
-    o /dev/mem at offset fd000000 (my video card mem addr)
-    o /dev/mem at offset 0
-    o with an mmapable device driver.
+[IDE] ns87415: kill dummy init_dma_ns87415()
 
-I did have to make two changes to get it to compile:
+ drivers/ide/pci/ns87415.c |    5 -----
+ drivers/ide/pci/ns87415.h |    2 --
+ 2 files changed, 7 deletions(-)
 
---- mm/memory.c.am3	2003-10-03 19:44:17.000000000 -0400
-+++ mm/memory.c	2003-10-03 19:43:47.000000000 -0400
-@@ -738,7 +738,7 @@
- #endif
+diff -puN drivers/ide/pci/ns87415.c~ide-ns87415-init_dma drivers/ide/pci/ns87415.c
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/ns87415.c~ide-ns87415-init_dma	2003-10-04 01:00:59.548345088 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/ns87415.c	2003-10-04 01:00:59.554344176 +0200
+@@ -217,11 +217,6 @@ static void __init init_hwif_ns87415 (id
+ 	hwif->drives[1].autodma = hwif->autodma;
+ }
  
- 		special = vma->vm_flags & (VM_IO | VM_RESERVED);
--		if (!vma || (pages && vm_io) || !(flags & vma->vm_flags))
-+		if (!vma || (pages && special) || !(flags & vma->vm_flags))
- 			return i ? : -EFAULT;
+-static void __init init_dma_ns87415 (ide_hwif_t *hwif, unsigned long dmabase)
+-{
+-	ide_setup_dma(hwif, dmabase, 8);
+-}
+-
+ extern void ide_setup_pci_device(struct pci_dev *, ide_pci_device_t *);
  
- 		if (is_vm_hugetlb_page(vma)) {
-@@ -755,7 +755,7 @@
- 			 * mappings of /dev/mem - they may have no pageframes.
- 			 * And the caller passed NULL for `pages' anyway.
- 			 */
--			while (!special && !(map=follow_page(mm,start,write)) {
-+			while (!special && !(map=follow_page(mm,start,write))) {
- 				spin_unlock(&mm->page_table_lock);
- 				switch (handle_mm_fault(mm,vma,start,write)) {
- 				case VM_FAULT_MINOR:
+ static int __devinit ns87415_init_one(struct pci_dev *dev, const struct pci_device_id *id)
+diff -puN drivers/ide/pci/ns87415.h~ide-ns87415-init_dma drivers/ide/pci/ns87415.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/ns87415.h~ide-ns87415-init_dma	2003-10-04 01:00:59.550344784 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/ns87415.h	2003-10-04 01:01:36.634707104 +0200
+@@ -6,7 +6,6 @@
+ #include <linux/ide.h>
+ 
+ static void init_hwif_ns87415(ide_hwif_t *);
+-static void init_dma_ns87415(ide_hwif_t *, unsigned long);
+ 
+ static ide_pci_device_t ns87415_chipsets[] __devinitdata = {
+ 	{	/* 0 */
+@@ -16,7 +15,6 @@ static ide_pci_device_t ns87415_chipsets
+ 		.init_chipset	= NULL,
+ 		.init_iops	= NULL,
+ 		.init_hwif	= init_hwif_ns87415,
+-                .init_dma	= init_dma_ns87415,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+ 		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
 
-In the first change, 'special' != '(vma->vma_flags & VM_IO)' which
-was what was originally being tested.  Could that cause a problem?
+_
 
-Also, could the use of VM_RESERVED cause in some cases memory with
-pageframes to skip adjustment/use of those pageframes?
-
-Regards, and thanks,
-Joe

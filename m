@@ -1,56 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271963AbTGYHd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 03:33:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271964AbTGYHd4
+	id S271924AbTGYHh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 03:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271943AbTGYHh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 03:33:56 -0400
-Received: from smtp1.cwidc.net ([154.33.63.111]:27281 "EHLO smtp1.cwidc.net")
-	by vger.kernel.org with ESMTP id S271963AbTGYHdz (ORCPT
+	Fri, 25 Jul 2003 03:37:26 -0400
+Received: from imap.gmx.net ([213.165.64.20]:1695 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S271924AbTGYHhZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 03:33:55 -0400
-Message-ID: <3F20E0ED.6010800@tequila.co.jp>
-Date: Fri, 25 Jul 2003 16:49:01 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en, ja
-MIME-Version: 1.0
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Japanese keyboards broken in 2.6
-References: <018401c35059$2bb8f940$4fee4ca5@DIAMONDLX60>
-In-Reply-To: <018401c35059$2bb8f940$4fee4ca5@DIAMONDLX60>
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Jul 2003 03:37:25 -0400
+Date: Fri, 25 Jul 2003 09:52:22 +0200
+From: Dominik Brugger <ml.dominik83@gmx.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: OHCI problems with suspend/resume
+Message-Id: <20030725095222.21a2632e.ml.dominik83@gmx.net>
+In-Reply-To: <20030724224600.GB430@elf.ucw.cz>
+References: <20030723220805.GA278@elf.ucw.cz>
+	<20030724143731.5fe40b4e.ml.dominik83@gmx.net>
+	<20030724224600.GB430@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Good morning,
 
-Norman Diamond wrote:
+> Do not unload modules before suspend, they should handle that just
+> fine.
 
-cheap, but working and I think it will stay so until 2.6 goes into final
-of distris:
+If I keep them loaded during suspend:
 
-setkeycodes 0x6a 124 1>&2 in your rc.local, local.start or whatever.
-works fine for me for alle 2.5x kernels
+[...]
+Suspending devices
+uhci-hcd 0000:00:11.2: suspend to state 3
+drivers/usb/host/uhci-hcd.c: dc00: suspend_hc
+ hwsleep-0257 [10] acpi_enter_sleep_state: Entering sleep state [S3]
+Enabling SEP on CPU 0
+Back to C!
+Devices Resumed
+uhci-hcd 0000:00:11.2: resume
+[...]
+drivers/usb/host/uhci-hcd.c: dc00: wakeup_hc
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Mouse doesn't work, unplug:
 
-iD8DBQE/IODtjBz/yQjBxz8RApisAKCG28H8qJQgvpOmOsEmm9+SiPx61ACcDlo2
-OuF4YVp0i2KhdTRnZD6fzvY=
-=xEBX
------END PGP SIGNATURE-----
+hub 1-0:0: port 1, status 300, change 3, 1.5 Mb/s
+usb 1-1: USB disconnect, address 2
+drivers/usb/core/usb.c: nuking urbs assigned to 1-1
+usb 1-1: unregistering interfaces
+drivers/usb/core/usb.c: nuking urbs assigned to 1-1
+usb 1-1: hcd_unlink_urb df7be640 fail -22
+usb 1-1: hcd_unlink_urb df7be540 fail -22
+drivers/usb/core/usb.c: usb_hotplug
+usb 1-1: unregistering device
+drivers/usb/core/usb.c: usb_hotplug
+hub 1-0:0: port 1 enable change, status 300
+drivers/usb/host/uhci-hcd.c: dc00: suspend_hc
 
+replug:
+
+hub 1-0:0: port 1, status 301, change 3, 1.5 Mb/s
+hub 1-0:0: debounce: port 1: delay 100ms stable 4 status 0x301
+hub 1-0:0: new USB device on port 1, assigned address 3
+drivers/usb/core/message.c: usb_control/bulk_msg: timeout
+
+Further attempts to un/re-plug the device show no response.
+
+(Same with Canon Powershot instead of Logitech USB Mouse)
+
+> With uhci on toshiba satelite I can do both S3 and S4, and USB
+> survives that (at least it is able to power devices and detects
+> plugs/unplugs).
+
+In my case it is an Epox 8kha+ board, the problem should not be hardware specific since Suspend To RAM works under WinXP.
+
+I will try S4 lateron.
+
+-Dominik Brugger

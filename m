@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268812AbUHLWHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268797AbUHLVKC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268812AbUHLWHA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUHLWG7
+	id S268797AbUHLVKC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 17:10:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268787AbUHLVHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:06:59 -0400
-Received: from mail.tmr.com ([216.238.38.203]:33298 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268812AbUHLWGl (ORCPT
+	Thu, 12 Aug 2004 17:07:50 -0400
+Received: from gprs214-76.eurotel.cz ([160.218.214.76]:40838 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S268788AbUHLVFm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:06:41 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Date: Thu, 12 Aug 2004 18:10:21 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cfgpa6$gu2$1@gatekeeper.tmr.com>
-References: <200408091412.i79EC7iR010554@burner.fokus.fraunhofer.de><200408091412.i79EC7iR010554@burner.fokus.fraunhofer.de> <1092061265.4383.5183.camel@hades.cambridge.redhat.com>
+	Thu, 12 Aug 2004 17:05:42 -0400
+Date: Thu, 12 Aug 2004 23:04:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Disconnect <swsusp@gotontheinter.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Status with pmdisk/swsusp merge ?
+Message-ID: <20040812210415.GB17113@elf.ucw.cz>
+References: <1091679494.5225.186.camel@gaston> <Pine.LNX.4.50.0408051517141.6736-100000@monsoon.he.net> <20040808182234.GA620@elf.ucw.cz> <1092065741.4088.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1092348039 17346 192.168.12.100 (12 Aug 2004 22:00:39 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <1092061265.4383.5183.camel@hades.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092065741.4088.3.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> On Mon, 2004-08-09 at 16:12 +0200, Joerg Schilling wrote:
+Hi!
+
+> > > I intend to try and merge my tree with Linus once he releases 2.6.8,
+> > > modulo any bugs that crop up between now and then. Feel free to send me
+> > > the patches to fix up ppc before then, and I will merge them as well.
+> > 
+> > Sounds good.
+> > 
+> > > As far as the device power management stuff goes, I'm wading through the
+> > > discussion right now..
+> > 
+> > Hopefully we can at least switch to enums so that we clear any
+> > confusion....
+
+> ..And once thats done and the tree settles a bit I'll start working on
+> the swsusp2 x86_64 port again. (Unless someone who understands that
+> whole thing better wants to jump forward.)
 > 
->>If you are right, why then is SuSE removing the warnings in cdrecord
->>that are there to tell the user that cdrecord is running with insufficient 
->>privilleges?
-> 
-> 
-> Because those warnings are bogus, put there by someone who likes to
-> complain about things that are not _really_ a problem?
+> FWIW I ported the 'old' pmdisk suspend code into swsusp2 and I can
+> suspend, but I can't resume. I haven't got a serial port (its a "modern"
+> laptop.. with parallel, etc but no serial..) so I'm also looking at
+> netconsole, digging around for a line printer, etc..
 
-Actually they are a problem on a loaded system, it's just that 
-developers seem to run system with enough power to avoid the issues. And 
-if you have a system using burn-free all the time you do use more track 
-and the occasional device won't read it.
+Well, suspend is always easy :-)))))))))))))))))))).
 
-If someone would note the capabilities needed to allow these things 
-maybe jrg would have one less thing to complain about.
-
-
+You may want to use 8 leds on paralel port.
+									Pavel
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

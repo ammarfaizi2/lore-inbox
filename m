@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264913AbRFUKHx>; Thu, 21 Jun 2001 06:07:53 -0400
+	id <S264401AbRFUJ7c>; Thu, 21 Jun 2001 05:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264912AbRFUKHn>; Thu, 21 Jun 2001 06:07:43 -0400
-Received: from big-relay-1.ftel.co.uk ([192.65.220.123]:29063 "EHLO
-	old-callisto.ftel.co.uk") by vger.kernel.org with ESMTP
-	id <S264850AbRFUKHg>; Thu, 21 Jun 2001 06:07:36 -0400
-Message-ID: <3B31C762.BEBC2D07@ftel.co.uk>
-Date: Thu, 21 Jun 2001 11:07:30 +0100
-From: Paul Flinders <P.Flinders@ftel.co.uk>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4-ac4 i686)
-X-Accept-Language: en
+	id <S264912AbRFUJ7X>; Thu, 21 Jun 2001 05:59:23 -0400
+Received: from bubba.NMSU.Edu ([128.123.3.39]:24808 "EHLO bubba.NMSU.Edu")
+	by vger.kernel.org with ESMTP id <S264401AbRFUJ7M>;
+	Thu, 21 Jun 2001 05:59:12 -0400
+Date: Thu, 21 Jun 2001 03:59:08 -0600 (MDT)
+From: SPENCE <sspence@NMSU.Edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: AGP for 760MP chipset
+Message-ID: <Pine.LNX.4.30.0106210352310.15192-100000@gauss.NMSU.Edu>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
-In-Reply-To: <E15Cq9u-0000CX-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
-> > http://www.zdnet.com/zdnn/stories/news/0,4586,5092935,00.html >
->
-> Of course the URL that goes with that is :
->         http://www.microsoft.com/windows2000/interix/features.asp
->
-> Yes., Microsoft ship GNU C (quite legally) as part of their offerings...
+I managed to get my hands on a dual athlon box and get it working fairly
+well.  I have been unable to get agpgart working however because it is an
+unrecognized chipset.  It would be great to get this working and I would
+be happy to supply any info or do some testing for the developers.  On a
+side note the kernel cannot identify many of the interfaces. For example:
 
-Do they include the source? There's a CD of source that you can buy
-for $20 but gcc isn't listed
+00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700c
+(rev 11)
+00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700d
+00:07.0 ISA bridge: Advanced Micro Devices [AMD]: Unknown device 7410 (rev
+02)
+00:07.1 IDE interface: Advanced Micro Devices [AMD]: Unknown device 7411
+(rev 01)
+00:07.3 Bridge: Advanced Micro Devices [AMD]: Unknown device 7413 (rev 01)
+00:07.4 USB Controller: Advanced Micro Devices [AMD]: Unknown device 7414
+(rev 07)
+00:0a.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev
+04)
+00:0a.1 Input device controller: Creative Labs SB Live! (rev 01)
+00:0c.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c895
+(rev 01)
+00:0f.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC
+[Python-T]
+(rev 78)
+00:10.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC
+[Python-T]
+(rev 78)
+01:05.0 VGA compatible controller: nVidia Corporation NV15 Bladerunner
+(Geforce2 GTS) (rev a4)
+
+Though it's not that big of a deal it would make it look more purty.
+
+Steven
+
 

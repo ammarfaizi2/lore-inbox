@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVAUKLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVAUKWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbVAUKLK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 05:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbVAUKJU
+	id S262330AbVAUKWq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 05:22:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbVAUKIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 05:09:20 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4624 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262309AbVAUKHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 05:07:48 -0500
-Date: Fri, 21 Jan 2005 11:07:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kernel/kallsyms.c: make some code static
-Message-ID: <20050121100747.GC3209@stusta.de>
+	Fri, 21 Jan 2005 05:08:45 -0500
+Received: from gprs215-198.eurotel.cz ([160.218.215.198]:45769 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262254AbVAUKGo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 05:06:44 -0500
+Date: Fri, 21 Jan 2005 11:06:03 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       hugang@soulinfo.com, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] swsusp: speed up image restoring on x86-64
+Message-ID: <20050121100603.GD18373@elf.ucw.cz>
+References: <200501202032.31481.rjw@sisk.pl> <200501202358.53918.rjw@sisk.pl> <20050120230616.GD22201@elf.ucw.cz> <200501210114.14859.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200501210114.14859.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+Hi!
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > Well, I know that current code works. It was produced by C compiler,
+> > btw. Now, new code works for you, but it was not in kernel for 4
+> > releases, and... this code is pretty subtle.
+> 
+> Now, I'm confused. :-)  It's roughly this:
+> 
+> struct pbe *pbe = pagedir_nosave, *end;
+> unsigned n = nr_copy_pages;
+> if (n) {
+> 	end = pbe + n;
+> 	do {
+> 		memcpy((void *)pbe->orig_address, (void *)pbe->address, PAGE_SIZE);
+> 		pbe++;
+> 	} while (pbe < end);
+> }
+> 
+> where memcpy() is of course a hand-written inline that includes the cr3 manipulation,
+> and pbe, end, n are registers.
 
----
+For example it may not use any variable in memory, and may not use
+stack, as memory changes under its hands. Plus assembly is always
+subtle ;-).
 
-diffstat output:
- kernel/kallsyms.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-
-This patch was already sent on:
-- 12 Dec 2004
-
---- linux-2.6.10-rc2-mm4-full/kernel/kallsyms.c.old	2004-12-12 02:56:23.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/kernel/kallsyms.c	2004-12-12 02:56:45.000000000 +0100
-@@ -326,7 +326,7 @@
- 	return 0;
- }
- 
--struct seq_operations kallsyms_op = {
-+static struct seq_operations kallsyms_op = {
- 	.start = s_start,
- 	.next = s_next,
- 	.stop = s_stop,
-@@ -368,7 +368,7 @@
- 	.release = kallsyms_release,
- };
- 
--int __init kallsyms_init(void)
-+static int __init kallsyms_init(void)
- {
- 	struct proc_dir_entry *entry;
- 
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

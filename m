@@ -1,27 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312289AbSCTXib>; Wed, 20 Mar 2002 18:38:31 -0500
+	id <S312279AbSCTXjv>; Wed, 20 Mar 2002 18:39:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312279AbSCTXiV>; Wed, 20 Mar 2002 18:38:21 -0500
-Received: from mx12.nameplanet.com ([62.70.3.42]:40721 "HELO
-	mx12.nameplanet.com") by vger.kernel.org with SMTP
-	id <S312289AbSCTXiN>; Wed, 20 Mar 2002 18:38:13 -0500
-Date: 20 Mar 2002 23:38:06 -0000
-Message-ID: <20020320233806.684.qmail@www4.nameplanet.com>
-From: david@shepard.tc
-To: linux-kernel@vger.kernel.org
+	id <S312290AbSCTXje>; Wed, 20 Mar 2002 18:39:34 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34321 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312279AbSCTXjR>; Wed, 20 Mar 2002 18:39:17 -0500
+Subject: Re: Linux 2.4.19pre3-ac2
+To: hch@infradead.org (Christoph Hellwig)
+Date: Wed, 20 Mar 2002 23:54:58 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020320175431.A26404@infradead.org> from "Christoph Hellwig" at Mar 20, 2002 05:54:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Subject: smbfs font corruption in 2.5.7
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16npv0-0003jE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears there were some changes made during 2.5.6 to allow for smbfs unicode
-support. The problem appears any time I mount an smb filesystem, whether in X or
-at VGA framebuffer console. File and directory names show up in a language I
-don't speak. Is there some setting I should change to support unicode now, or is
-this a known problem. I haven't seen this reported yet, so...
+> On Tue, Mar 19, 2002 at 05:28:15PM +0000, Alan Cox wrote:
+> > o	Add down_read/write_trylock		(Brian Watson, David Howells)
+> 
+> This is not actually in the patch.
 
-Thanks in advance,
-David Shepard
+My error - I pulled it because it didnt compile

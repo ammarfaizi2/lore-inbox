@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbTGKRNI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 13:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbTGKRNI
+	id S264499AbTGKRPP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 13:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbTGKRPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 13:13:08 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:35542
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263315AbTGKRNF
+	Fri, 11 Jul 2003 13:15:15 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:35822 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S264499AbTGKRPK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 13:13:05 -0400
-Date: Fri, 11 Jul 2003 13:27:47 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Henrique Oliveira <henrique2.gobbi@cyclades.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kevin Curtis <kevin.curtis@farsite.co.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Why is generic hldc beig ignored?   RE:Linux 2.4.22-pre4
-Message-ID: <20030711172747.GK2210@gtf.org>
-References: <7C078C66B7752B438B88E11E5E20E72E25C978@GENERAL.farsite.co.uk> <Pine.LNX.4.55L.0307101410570.25103@freak.distro.conectiva> <003101c34712$a9b8f480$602fa8c0@henrique> <1057914760.8028.27.camel@dhcp22.swansea.linux.org.uk> <013901c347cd$44586f60$602fa8c0@henrique> <Pine.LNX.4.55L.0307111416100.29959@freak.distro.conectiva>
+	Fri, 11 Jul 2003 13:15:10 -0400
+Subject: Re: 2.5 'what to expect'
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk>
+References: <20030711140219.GB16433@suse.de>
+	 <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1057944829.6808.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0307111416100.29959@freak.distro.conectiva>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 11 Jul 2003 10:33:50 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 02:18:10PM -0300, Marcelo Tosatti wrote:
-> I am.
-> 
-> Please report the results of your tests and CC lkml.
-> 
-> And Alan, what the -ac tree hdlc changes are about ?
+On Fri, 2003-07-11 at 07:26, Alan Cox wrote:
 
-IMO hdlc is a "raidtools-like situation":
+> or upgrade to rpm 4.2 (which I'd recommend everyone does anyway as it
+> fixes a load of other problems) - ftp.rpm.org
 
-New HDLC stuff (already in 2.5) was also developed for 2.4.  It changes
-the 2.4 HDLC userland ABI... but pretty much everybody who still
-cares about HDLC is using the new (changed) ABI.
+I think the 2.5 problem is _only_ in rpm 4.2.
 
-	Jeff
+It looks like it is still in the latest version, too:
 
+[10:32:41]root@phantasy:~# rpm -q rpm
+rpm-4.2.1-0.11
+[10:32:44]root@phantasy:~# rpm --rebuilddb
+error: db4 error(16) from dbenv->remove: Device or resource busy
+
+4.2 is fine, otherwise :)
+
+	Robert Love
 
 

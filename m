@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263268AbTJUTBN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 15:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbTJUTBN
+	id S263272AbTJUTDl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 15:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTJUTDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 15:01:13 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22291 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263268AbTJUTBL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 15:01:11 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Circular Convolution scheduler
-Date: 21 Oct 2003 18:51:10 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bn3v6u$hv6$1@gatekeeper.tmr.com>
-References: <20031019085008.7505.qmail@email.com>
-X-Trace: gatekeeper.tmr.com 1066762270 18406 192.168.12.62 (21 Oct 2003 18:51:10 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 21 Oct 2003 15:03:41 -0400
+Received: from [199.45.143.209] ([199.45.143.209]:7174 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S263272AbTJUTDk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 15:03:40 -0400
+Subject: Re: 2.6.0-test8 and HIGMEM = segfaults and panics?
+From: Zan Lynx <zlynx@acm.org>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031021155337.GF2617@rdlg.net>
+References: <20031021155337.GF2617@rdlg.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ybyrBF7hcRlNgoGek42t"
+Organization: 
+Message-Id: <1066762982.5055.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Oct 2003 13:03:02 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031019085008.7505.qmail@email.com>,
-Clayton Weaver <cgweav@email.com> wrote:
-| (perhaps a bit less vague)
-| 
-| While the long-term time series analyses
-| would doubtless be interesting for enterprise
-| networks, I had something more modest in mind.
-| 
-| Most of the heuristic work so far seems to have
-| been directed toward how to identify interactive
-| processes as interactive without false positives
-| on batch processes, making the code correct (no
-| bugs), making it fast, and a little tuning to
-| obtain generally ("for most people") usable
-| values for how fast to scale up the priority
-| on a process that has matched the heuristics,
-| yes?
-| 
-| My question about inserting a convolution
-| would be more relevant to what do we do
-| with that information ("we believe that
-| this process is interactive")once we have it.
 
-I think that's the right point, but the advantage of better analysis may
-not be in better finding which process does what, but deciding which
-type of process we want to run and for how long. The reports of starving
-this and that indicate that giving the "most interactive" process all it
-can use may not be the best for the system responsiveness overall.
+--=-ybyrBF7hcRlNgoGek42t
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-And the observed results from various fairness and deadline scheduling
-seem to bear this out. Instead of using an override "this process has
-waited too long" model, a better schudling in normal mode might be
-possible.
+On Tue, 2003-10-21 at 09:53, Robert L. Harris wrote:
+> I'm running a dual-athalon system.  When I compiled the 2.6.0-test8 kerne=
+l I
+> enabled HIGHMEM for 4 Gigs as I'm at 1.5G now and planning on purchasing
+> an additional 512Meg DIMM next weekend (yeah, should have with the
+> 1.5Gig).
+>=20
+> At any rate the box comes up just fine and runs for a while but once the
+> memory is in use for a few hours and seems to exceed 220+ Megs about any
+> command I execute will Segfault and the kernel has panic'd twice
+> (couldn't read the whole oops).
 
-Just my thought, not "do the same old but better," but "make better
-choices for the system overall." That could target throughput or
-responsiveness as desired.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+I run a dual athlon system with 2 GB, and it has never done anything
+like that.
+
+Have you run memtest86 on your system to verify it isn't a physical
+memory problem?
+
+Are you using registered RAM chips?  I seem to remember from my
+motherboard documentation that registered is required to use more than 2
+memory slots.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-ybyrBF7hcRlNgoGek42t
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/lYLmG8fHaOLTWwgRApAsAJ9WhdhdXGsQQ4ZBk5OscL/e1uSBrACgmR8T
+B+zg1O85S811FPh31wxoZB0=
+=BuPR
+-----END PGP SIGNATURE-----
+
+--=-ybyrBF7hcRlNgoGek42t--
+

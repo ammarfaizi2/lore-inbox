@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314680AbSGUWA4>; Sun, 21 Jul 2002 18:00:56 -0400
+	id <S317107AbSGSWMI>; Fri, 19 Jul 2002 18:12:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314811AbSGUWA4>; Sun, 21 Jul 2002 18:00:56 -0400
-Received: from slarti.muc.de ([193.149.48.10]:18955 "HELO slarti.muc.de")
-	by vger.kernel.org with SMTP id <S314680AbSGUWAz> convert rfc822-to-8bit;
-	Sun, 21 Jul 2002 18:00:55 -0400
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Stephan Maciej <stephan@maciej.muc.de>
+	id <S317115AbSGSWMI>; Fri, 19 Jul 2002 18:12:08 -0400
+Received: from gw-local.medianetgroup.net ([213.138.160.5]:37389 "HELO
+	localhost.com") by vger.kernel.org with SMTP id <S317107AbSGSWMI> convert rfc822-to-8bit;
+	Fri, 19 Jul 2002 18:12:08 -0400
+From: "LECCORNIA" <CUNILINGUS@LIBERO.IT>
 To: linux-kernel@vger.kernel.org
-Subject: 'ne nette Idee zum programmieren...
-Date: Sun, 21 Jul 2002 17:23:01 +0200
-X-Mailer: KMail [version 1.4]
+Date: Sat, 20 Jul 2002 00.15.04 +0200
+Subject: CHAT  AND SEXSCHOOL  LIVE
+X-Mailer: MailXSender 1.06
 MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200207211723.02135.stephan@maciej.muc.de>
+Message-Id: <20020719221208Z317107-685+14419@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Servus,
+http://www.ragazze-sexy.tv
 
-wie wäre es mit einer aufgepeppten Version von xfig, geschrieben in C++ für 
-KDE (bzw. zumindest man mit Qt). Xfig sieht einfach zu alt aus und diverse 
-nette Features fehlen (Winkel zwischen zwei Schenkeln und so...)
+nuova chat multitasking con multiriprese
+nuova area interna per lezioni di sesso live 
+nuova sezione per allungamento del pene 
+tutto manuale 100% naturale
+nuove chattiste mai viste in rete
 
-Stephan
+http://www.ragazze-sexy.tv
 
--- 
-"That's interesting.  Can it be disabled?" -- someone on LKML, after being 
-told about the PIV hyperthreading features
+La Tua email è stata rilasciata sui nostri portali
+se non vui più ricevere news scrivi a
+deletemail@libero.it
+
 

@@ -1,100 +1,95 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312381AbSELKMI>; Sun, 12 May 2002 06:12:08 -0400
+	id <S312411AbSELK1b>; Sun, 12 May 2002 06:27:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312411AbSELKMH>; Sun, 12 May 2002 06:12:07 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:38156 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S312381AbSELKMH>;
-	Sun, 12 May 2002 06:12:07 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Axel H. Siebenwirth" <axel@hh59.org>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
-Subject: Re: [patch] 2.4.19-pre8-ac2 kbuild 2.4 tmp_include_depends 
-In-Reply-To: Your message of "Sun, 12 May 2002 11:04:50 +0200."
-             <20020512090450.GA481@neon> 
+	id <S312447AbSELK1a>; Sun, 12 May 2002 06:27:30 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:61233 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S312411AbSELK1a>; Sun, 12 May 2002 06:27:30 -0400
+Message-Id: <5.1.0.14.2.20020512111022.02051b70@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 12 May 2002 11:26:42 +0100
+To: mcp@linux-systeme.de
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [ANNOUNCE] NTFS 2.0.7a for Linux 2.4.18
+Cc: Pawel Kot <pkot@ziew.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1020512040757.27097A-100000@fps>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 12 May 2002 20:11:46 +1000
-Message-ID: <22198.1021198306@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 May 2002 11:04:50 +0200, 
-"Axel H. Siebenwirth" <axel@hh59.org> wrote:
->make: *** No rule to make target .tmp_include_depends', needed by
->=1Fdir_kernel'.  Stop.
+At 03:26 12/05/02, mcp@linux-systeme.de wrote:
+>Hi Pawel,
+>
+> >Backported NTFS 2.0.7 from 2.5.x to 2.4.18 is available from linux-ntfs
+> >project page:
+>i've tried this, have a look:
 
-Missed one occurrence of .tmp_include_depends.  Edit Makefile, find
-$(patsubst %, _dir_%, $(SUBDIRS)) and change .tmp_include_depends to
-tmp_include_depends (no '.' at start).
+I just had a look at the ntfs patch. Pawel has removed all preemption code 
+from ntfs. This means that if you use the new ntfs with 2.4.x + preempt 
+your kernel will cause MASSIVE in-memory data corruption. So in a way I am 
+very glad it didn't compile in the first place... Saved you a lot of grief.
 
-Corrected patch against 2.4.19-pre8-ac2.
+ From the below errors it is very clear that it is the preempt patch 
+interacting badly with the ntfs patch and breaking the compile. I have made 
+a few suggestions to Pawel on how to add preemption to ntfs again but if 
+you want to do it yourself, basically look at the 2.5.x new ntfs driver and 
+grep for "preempt" (in fs/ntfs/*.[hc]) and wherever you find it in 2.5.x 
+put it into 2.4.x, too. Basically only fs/ntfs/compress.c uses preempt_*() 
+so it is very easy to do this. Then there is the compilation problem below. 
+I suspect preempt itself is not including a header file somewhere, and you 
+get away with this when ntfs is not present because it just so happens that 
+all other code adds the right #include. In 2.4.x vanilla "current" used to 
+be defined in asm/current.h which is usually included via linux/sched.h. So 
+at a guess you could fix compilation of fs/ntfs/debug.c by adding #include 
+<linux/sched.h> to the list of includes in debug.c.
 
-diff -ur 2.4.19-pre8-ac2/Makefile 2.4.19-pre8-ac2-test/Makefile
---- 2.4.19-pre8-ac2/Makefile	Sun May 12 20:02:13 2002
-+++ 2.4.19-pre8-ac2-test/Makefile	Sun May 12 20:04:44 2002
-@@ -226,6 +226,7 @@
- # files removed with 'make mrproper'
- MRPROPER_FILES = \
- 	include/linux/autoconf.h include/linux/version.h \
-+	tmp* \
- 	drivers/net/hamradio/soundmodem/sm_tbl_{afsk1200,afsk2666,fsk9600}.h \
- 	drivers/net/hamradio/soundmodem/sm_tbl_{hapn4800,psk4800}.h \
- 	drivers/net/hamradio/soundmodem/sm_tbl_{afsk2400_7,afsk2400_8}.h \
-@@ -317,7 +318,7 @@
- 
- linuxsubdirs: $(patsubst %, _dir_%, $(SUBDIRS))
- 
--$(patsubst %, _dir_%, $(SUBDIRS)) : dummy include/linux/version.h .tmp_include_depends
-+$(patsubst %, _dir_%, $(SUBDIRS)) : dummy include/linux/version.h tmp_include_depends
- 	$(MAKE) CFLAGS="$(CFLAGS) $(CFLAGS_KERNEL)" -C $(patsubst _dir_%, %, $@)
- 
- $(TOPDIR)/include/linux/version.h: include/linux/version.h
-@@ -353,13 +354,13 @@
- 
- comma	:= ,
- 
--init/version.o: init/version.c include/linux/compile.h .tmp_include_depends
-+init/version.o: init/version.c include/linux/compile.h tmp_include_depends
- 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) -DUTS_MACHINE='"$(ARCH)"' -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o init/version.o init/version.c
- 
--init/main.o: init/main.c .tmp_include_depends
-+init/main.o: init/main.c tmp_include_depends
- 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $*.o $<
- 
--init/do_mounts.o: init/do_mounts.c .tmp_include_depends
-+init/do_mounts.o: init/do_mounts.c tmp_include_depends
- 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) -c -o $*.o $<
- 
- fs lib mm ipc kernel drivers net: dummy
-@@ -386,7 +387,7 @@
- modules: $(patsubst %, _mod_%, $(SUBDIRS))
- 
- .PHONY: $(patsubst %, _mod_%, $(SUBDIRS))
--$(patsubst %, _mod_%, $(SUBDIRS)) : include/linux/version.h .tmp_include_depends
-+$(patsubst %, _mod_%, $(SUBDIRS)) : include/linux/version.h tmp_include_depends
- 	$(MAKE) -C $(patsubst _mod_%, %, $@) CFLAGS="$(CFLAGS) $(MODFLAGS)" MAKING_MODULES=1 modules
- 
- .PHONY: modules_install
-@@ -491,13 +492,13 @@
- ifdef CONFIG_MODVERSIONS
- 	$(MAKE) update-modverfile
- endif
--	(find $(TOPDIR) \( -name .depend -o -name .hdepend \) -print | xargs $(AWK) -f scripts/include_deps) > .tmp_include_depends
--	sed -ne 's/^\([^ ].*\):.*/  \1 \\/p' .tmp_include_depends > .tmp_include_depends_1
--	(echo ""; echo "all: \\"; cat .tmp_include_depends_1; echo "") >> .tmp_include_depends
--	rm .tmp_include_depends_1
-+	(find $(TOPDIR) \( -name .depend -o -name .hdepend \) -print | xargs $(AWK) -f scripts/include_deps) > tmp_include_depends
-+	sed -ne 's/^\([^ ].*\):.*/  \1 \\/p' tmp_include_depends > tmp_include_depends_1
-+	(echo ""; echo "all: \\"; cat tmp_include_depends_1; echo "") >> tmp_include_depends
-+	rm tmp_include_depends_1
- 
--.tmp_include_depends: include/config/MARKER dummy
--	$(MAKE) -r -f .tmp_include_depends all
-+tmp_include_depends: include/config/MARKER dummy
-+	$(MAKE) -r -f tmp_include_depends all
- 
- ifdef CONFIG_MODVERSIONS
- MODVERFILE := $(TOPDIR)/include/linux/modversions.h
+Best regards,
+
+         Anton
+
+
+>cc  -D__KERNEL__ -I/usr/src/linux-2.4.18/include  -Wall
+>-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+>-fno-strict-aliasing -fno-common -Wno-unused -pipe
+>-mpreferred-stack-boundary=2 -march=i686 -DMODULE
+>-DNTFS_VERSION=\"2.0.7a\" -DDEBUG -DKBUILD_BASENAME=debug  -c -o debug.o
+>debug.c
+>debug.c: In function `__ntfs_warning':
+>debug.c:58: `current' undeclared (first use in this function)
+>debug.c:58: (Each undeclared identifier is reported only once
+>debug.c:58: for each function it appears in.)
+>debug.c:68: warning: implicit declaration of function `preempt_schedule'
+>debug.c: In function `__ntfs_error':
+>debug.c:98: `current' undeclared (first use in this function)
+>debug.c: In function `__ntfs_debug':
+>debug.c:126: `current' undeclared (first use in this function)
+>make[2]: *** [debug.o] Error 1
+>make[2]: Leaving directory
+>`/usr/src/linux-2.4.18/fs/ntfs'
+>make[1]: *** [_modsubdir_ntfs] Error 2
+>make[1]: Leaving directory `/usr/src/linux-2.4.18/fs'
+>make: *** [_mod_fs] Error 2
+>
+>Yes, 2.4.18 + preempt and some other additional stuff.
+>NTFS is a Module, happs with/without selecting debug feature in kernel
+>config.
+>
+>Kind regards,
+>         Marc
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

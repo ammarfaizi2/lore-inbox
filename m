@@ -1,97 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVA1QkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVA1Qnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVA1QkW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 11:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVA1QkW
+	id S261477AbVA1Qnt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 11:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVA1Qnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 11:40:22 -0500
-Received: from mailhub.lss.emc.com ([168.159.2.31]:4250 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP id S261475AbVA1QkL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 11:40:11 -0500
-Message-ID: <41FA6ADE.4010209@emc.com>
-Date: Fri, 28 Jan 2005 11:39:58 -0500
-From: Ric Wheeler <ric@emc.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jakob Oestergaard <jakob@unthought.net>
-CC: Kiniger <karl.kiniger@med.ge.com>, Lars Marowsky-Bree <lmb@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: raid 1 - automatic 'repair' possible?
-References: <20050118211801.GA28400@wszip-kinigka.euro.med.ge.com> <20050118214605.GY22648@marowsky-bree.de> <20050119104852.GB3087@wszip-kinigka.euro.med.ge.com> <20050119115519.GY347@unthought.net>
-In-Reply-To: <20050119115519.GY347@unthought.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 28 Jan 2005 11:43:49 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:15242 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261477AbVA1Qnq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 11:43:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=c8srnTOBIgKe2BAPodzMza8cACwCCI6XQKojlpyY8c05JkJuuU+BABtOLgmdecXx8mVL7DETEaJXJ27ms9B/mQ9TWt4tjWQ+MjvuLZSoHlHzzrCrrpvoJmxvaIKU6jGXfRKKwEi0KtbWotFb57p1JXdKD7oqskOgp3JiqTWcIZc=
+Message-ID: <d120d500050128084345bb1abd@mail.gmail.com>
+Date: Fri, 28 Jan 2005 11:43:44 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Olaf Hering <olh@suse.de>
+Subject: Re: atkbd_init lockup with 2.6.11-rc1
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+In-Reply-To: <20050128161746.GA1092@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.6.1.107272, Antispam-Engine: 2.0.2.0, Antispam-Data: 2005.1.28.2
-X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_VERSION 0, __SANE_MSGID 0'
+References: <20050128132202.GA27323@suse.de> <20050128135827.GA28784@suse.de>
+	 <d120d50005012806435a17fe98@mail.gmail.com>
+	 <20050128145511.GA29340@suse.de>
+	 <d120d500050128072268a5c2f0@mail.gmail.com>
+	 <20050128161746.GA1092@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Having looked at a lot of disks, I think that it is definitely worth 
-forcing a write to try and invoke the remap.  With large drives, you 
-usually several bad sectors in the normal case (drive vendors allocate 
-up to a couple thousand spare sectors just for remapping).
+On Fri, 28 Jan 2005 17:17:46 +0100, Olaf Hering <olh@suse.de> wrote:
+> On Fri, Jan 28, Dmitry Torokhov wrote:
+> 
+> > Fixes as in "it reports that reset fails" again or it resets the
+> > keyboard cleanly and works fine?
+> 
+> It doesnt hang if I add printk around the outb.
+> 
+> > > Do you have a version of that i8042 delay patch for 2.6.11-rc2-bk6?
+> > > Maybe it will help.
+> > >
+> >
+> > No I don't, and I don't think you need all of it. What happens if you
+> > edit drivers/input/serio/i8042.c manually and stick udelay(7); in
+> > front of calls to i8042_write_data() in i8042_kbd_write() and
+> > i8042_aux_write()?
+> 
+> Doesnt help either, adding printk fixes it.
+> 
+> /home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: 60 -> i8042 (command) [2264]
+> /home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: 61 -> i8042 (parameter) [2264]
+> i8042_write_data(56) swapper(1):c0,j4294673158 enter 97
+> i8042_write_data(58) swapper(1):c0,j4294673158 leave 97
+> /home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: ff -> i8042 (kbd-data) [2640]
+> i8042_write_data(56) swapper(1):c0,j4294673534 enter 255
+> i8042_write_data(58) swapper(1):c0,j4294673534 leave 255
+> /home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: fe <- i8042 (interrupt, kbd, 1, timeout) [2895]
+> atkbd.c: keyboard reset failed on isa0060/serio0
+> /home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [3096]
+> i8042_write_data(56) swapper(1):c0,j4294673990 enter 242
+> i8042_write_data(58) swapper(1):c0,j4294673990 leave 242
+> /home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: fe <- i8042 (interrupt, kbd, 1, timeout) [3351]
+> /home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [3494]
+> i8042_write_data(56) swapper(1):c0,j4294674388 enter 237
+> i8042_write_data(58) swapper(1):c0,j4294674388 leave 237
+> /home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: fe <- i8042 (interrupt, kbd, 1, timeout) [3750]
+> /home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: 60 -> i8042 (command) [3893]
+> /home/olaf/kernel/b50/linux-2.6.11-rc2-bk6-olh/drivers/input/serio/i8042.c: 60 -> i8042 (parameter) [3893]
+> i8042_write_data(56) swapper(1):c0,j4294674787 enter 96
+> i8042_write_data(58) swapper(1):c0,j4294674787 leave 96
 
-Depending on the type of drive error, the act of writing is likely to 
-clean the questionable sector and leave you with a perfectly fine disk.
+So this trace is without printk but with udelay, right? This time
+keyboard does not hang but NAKs everything instead... What if you aso
+add udelay(20) after calls to i8042_write_data()?
 
-Ric
+> md: md driver 0.90.1 MAX_MD_DEVS=256, MD_SB_DISKS=27
+> NET: Registered protocol family 2
+> .. here it hangs again.
 
-Jakob Oestergaard wrote:
+Do you know where exactly? Is it some IO port access again?
 
->On Wed, Jan 19, 2005 at 11:48:52AM +0100, Kiniger wrote:
->...
->  
->
->>some random thoughts:
->>
->>nowadays hardware sector sizes are much bigger than 512 bytes
->>    
->>
->
->No :)
->
->  
->
->>and
->>the read error may affect some sectors +- the sector which actually
->>returned the error.
->>    
->>
->
->That's right
->
->  
->
->>to keep the handling in userspace as much as possible: 
->>
->>the real problem is the long resync time. therefore it would
->>be sufficient to have a concept of "defective areas" per partition
->>and drive (a few of them, perhaps four or so , would be enough) 
->>which will be excluded from reads/writes and some means to
->>re-synchronize these "defective areas" from the good counterparts
->>of the other disk. This would avoid having the whole partition being
->>marked as defective.
->>    
->>
->
->I wonder if it's really worth it.
->
->The original idea has some merit I think - but what you're suggesting
->here is almost "bad block remapping" with transparent recovery and user
->space policy agents etc. etc.
->
->If a drive has problems reading the platter, it can usually be corrected
->by overwriting the given sector (either the drive can actually overwrite
->the sector in place, or it will re-allocate it with severe read
->performance penalties following). But there's a reason why that sector
->went bad, and you realy want to get the disk replaced.
->
->I think the current policy of marking the disk as failed when it has
->failed is sensible.
->
->Just my 0.02 Euro
->
->  
->
+-- 
+Dmitry

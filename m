@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272818AbRKGMBj>; Wed, 7 Nov 2001 07:01:39 -0500
+	id <S280602AbRKGMI7>; Wed, 7 Nov 2001 07:08:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280628AbRKGMBT>; Wed, 7 Nov 2001 07:01:19 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:25319 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S272818AbRKGMBO>; Wed, 7 Nov 2001 07:01:14 -0500
-Date: Wed, 7 Nov 2001 13:01:09 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Richard <richard.how@bigpond.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.14 link error
-In-Reply-To: <20011107154414.A809@Gromit>
-Message-ID: <Pine.NEB.4.40.0111071259320.25169-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S280628AbRKGMIj>; Wed, 7 Nov 2001 07:08:39 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25874 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280602AbRKGMIe>; Wed, 7 Nov 2001 07:08:34 -0500
+Subject: Re: VIA 686 timer bugfix incomplete
+To: diemer@gmx.de (Jonas Diemer)
+Date: Wed, 7 Nov 2001 12:15:47 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kermel ML)
+In-Reply-To: <20011107125012.6b1fbdc3.diemer@gmx.de> from "Jonas Diemer" at Nov 07, 2001 12:50:12 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E161RcS-0003x8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Nov 2001, Richard wrote:
+> but it seems that the patch was incomplete: The bug is still triggered on my
+> computer using 2.4.14, but the bugfix seems to work whith -ac kernels.
 
-> This is my first nervous attempt at kernel stuff (sweat, panic...)
->
-> Kernel 2.4.14 does not link if loopback device is enabled. The link fails
-> with unresolved extern reference "deactivate_page" in block.o
->
-> This function is called from drivers/block/loop.c and is located in
-> in mm/swap.c for kernel 2.4.13 but not for 2.4.14.
-> I made a copy of loop.c commented out the references (2) to deactivate_page
-> and compiled as a module, which seems to work just fine.
+The first piece is in.
 
-This is a known bug and you did the right thing to fix it.
+> you can see what's missing to actually work around the via timer bug. I hope
+> this will go into 2.4.15.
 
-> Hope this helps
-
-cu
-Adrian
-
--- 
-
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
-
-
+I don't plan to submit it until the locking fixes for the timer access are
+done and we know the real cause

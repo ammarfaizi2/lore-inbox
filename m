@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVDDWSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVDDWVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVDDWSS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 18:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVDDWOV
+	id S261434AbVDDWVY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 18:21:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVDDWVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 18:14:21 -0400
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:23718 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261441AbVDDWM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 18:12:56 -0400
-Subject: Re: [ACPI] Re: [RFC 5/6]clean cpu state after hotremove CPU
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Nathan Lynch <ntl@pobox.com>
-Cc: Li Shaohua <shaohua.li@intel.com>, lkml <linux-kernel@vger.kernel.org>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, Len Brown <len.brown@intel.com>,
-       Pavel Machek <pavel@suse.cz>
-In-Reply-To: <20050404153345.GC3611@otto>
-References: <1112580367.4194.344.camel@sli10-desk.sh.intel.com>
-	 <20050404052844.GB3611@otto>
-	 <1112593338.4194.362.camel@sli10-desk.sh.intel.com>
-	 <20050404153345.GC3611@otto>
+	Mon, 4 Apr 2005 18:21:23 -0400
+Received: from coriana6.CIS.McMaster.CA ([130.113.128.17]:65470 "EHLO
+	coriana6.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S261434AbVDDWVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 18:21:05 -0400
+Subject: Re: [patch] inotify 0.22
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Dale Blount <linux-kernel@dale.us>
+Cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1112647855.520.20.camel@dale.velocity.net>
+References: <1112644936.6736.7.camel@betsy>
+	 <1112647855.520.20.camel@dale.velocity.net>
 Content-Type: text/plain
-Message-Id: <1112652864.3757.31.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 05 Apr 2005 08:14:25 +1000
 Content-Transfer-Encoding: 7bit
+Date: Mon, 04 Apr 2005 18:21:22 -0400
+Message-Id: <1112653282.11281.2.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+X-PMX-Version-Mac: 4.7.1.128075, Antispam-Engine: 2.0.3.1, Antispam-Data: 2005.4.4.13
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, 2005-04-04 at 16:50 -0400, Dale Blount wrote:
+> Will inotify watch directories recursively?  A quick browse through the
+> source doesn't look like it, but I very well could be wrong.  Last I
+> checked, dnotify did not either.  I am looking for a way to synchronize
+> files in as-real-as-possible-time when they are modified.  The ideal
+> implementation would be a kernel "hook" like d/inotify and a client
+> application that watches changes and copies them to a remote server for
+> redundancy purposes.   A scheduled rsync works decently, but has a lag
+> time of 2-3 (or more) hours on certain files on a large filesystem.
+> Will inotify work for this, or does someone else have another
+> recommended solution to the problem?
 
-On Tue, 2005-04-05 at 01:33, Nathan Lynch wrote:
-> > Yes, exactly. Someone who understand do_exit please help clean up the
-> > code. I'd like to remove the idle thread, since the smpboot code will
-> > create a new idle thread.
-> 
-> I'd say fix the smpboot code so that it doesn't create new idle tasks
-> except during boot.
+This problem is solved really well by inotify. But inotify will not
+watch directories recursively for you. You can easily spider your way
+down the path yourself adding a watch for each directory you encounter.
+This is how beagle works, which has the same needs as your problem.
 
-Would that mean that CPUs that were physically hotplugged wouldn't get
-idle threads?
-
-Regards,
-
-Nigel
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
-
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
-
+John McCutchan <ttb@tentacle.dhs.org>

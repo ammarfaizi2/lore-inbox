@@ -1,29 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270891AbRHNWLd>; Tue, 14 Aug 2001 18:11:33 -0400
+	id <S270898AbRHNWW4>; Tue, 14 Aug 2001 18:22:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270892AbRHNWLY>; Tue, 14 Aug 2001 18:11:24 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2310 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270891AbRHNWLU>; Tue, 14 Aug 2001 18:11:20 -0400
-Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
-To: esr@thyrsus.com
-Date: Tue, 14 Aug 2001 23:13:53 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <20010814172733.B4772@thyrsus.com> from "Eric S. Raymond" at Aug 14, 2001 05:27:33 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270880AbRHNWWq>; Tue, 14 Aug 2001 18:22:46 -0400
+Received: from web14509.mail.yahoo.com ([216.136.224.168]:21769 "HELO
+	web14509.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S270898AbRHNWWi>; Tue, 14 Aug 2001 18:22:38 -0400
+Message-ID: <20010814222235.95626.qmail@web14509.mail.yahoo.com>
+Date: Tue, 14 Aug 2001 15:22:35 -0700 (PDT)
+From: Kent Hunt <kenthunt@yahoo.com>
+Subject: Thanks!! SMP+emu10k1+2.4.9-pre1 == no lockups after 2 years
+To: lk <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15WmRd-00026D-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So what are the implications of running in no-IOAPIC mode?  Performance loss?
+After almost 2 years using 2.4 kernels since the test
+ones I finally can say that my SMP box is rock solid.
+I was experiencing hard lockups without any oops in
+some sporadic but very particular situations: creation
+and destruction of gtk+ objects. I thought that the
+problem was either X or G400 video card. It turned out
+that it was the emu10k1 driver which I decided to
+unload after reading a recent post of Eric S. Raymond
+using Tyan K7 Thunder dual-Athlon. After unloading the
+driver I was not 
+able to crash my box anymore. So it was not the gtk+
+the problem but was the little sound events generated
+during the creation and destruction of objects. The
+new driver in 2.4.9-pre1 is solid for me. I hope that
+you keep this one and thanks for fixing it! My SMP
+mobo is ASUS P2BD with PIII's. 
 
-Slight performance hit. For the moment Im interested to know if it helps, 
-as a guess
+Kent
 
-Alan
+
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

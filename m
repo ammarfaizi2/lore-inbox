@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261495AbTAOENk>; Tue, 14 Jan 2003 23:13:40 -0500
+	id <S261290AbTAOE04>; Tue, 14 Jan 2003 23:26:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265681AbTAOENj>; Tue, 14 Jan 2003 23:13:39 -0500
-Received: from [64.8.50.184] ([64.8.50.184]:38892 "EHLO mta4.adelphia.net")
-	by vger.kernel.org with ESMTP id <S261495AbTAOENj>;
-	Tue, 14 Jan 2003 23:13:39 -0500
-Message-ID: <3029.10.1.0.252.1042604546.squirrel@webmail.laufernet.com>
-Date: Tue, 14 Jan 2003 20:22:26 -0800 (PST)
-Subject: Re: [PATCH] 2.5.58 sound/isa/sb/sb16.c isapnp compile
-From: <paul@laufernet.com>
-To: <matt@mh.dropbear.id.au>
-In-Reply-To: <20030115043417.GA12493@mh.dropbear.id.au>
-References: <20030115043417.GA12493@mh.dropbear.id.au>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.6)
+	id <S261456AbTAOE0z>; Tue, 14 Jan 2003 23:26:55 -0500
+Received: from blizzard.bluegravity.com ([64.57.64.28]:1290 "HELO
+	blizzard.bgci.net") by vger.kernel.org with SMTP id <S261290AbTAOE0z>;
+	Tue, 14 Jan 2003 23:26:55 -0500
+Message-ID: <3E24E591.1000805@ryanflynn.com>
+Date: Tue, 14 Jan 2003 23:37:37 -0500
+From: ryan <ryan@ryanflynn.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.56 sound/oss/sb_mixer.c bounds check
+References: <3E24D1D5.5090200@ryanflynn.com> <200301141930.00567.akpm@digeo.com>
+In-Reply-To: <200301141930.00567.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have rewritten sb_card.c for use with the new pnp and modules interface.
-I'll get you a copy soon, my ISP has gone out of business and I've been
-without access for a few weeks now.
-I have also a patch to the rest of the oss soundblaster driver to make it
-use safe interfaces so that it can be unloaded.
-Paul
+Andrew Morton wrote:
+--snip--
+> It would be better to do:
+> 
+> 	if (dev < 0 || dev >= ARRAY_SIZE(smw_mix_regs))
+> 
 
-Matthew Hawkins said:
-> Here's a patch based on an earlier one by Ruslan Zakirov
-> to get the sb16 driver to compile again wrt. isapnp changes.
->
-> Now, if someone could get it to _work_ I'd be grateful ;)
->
-> Cheers,
->
-> --
-> Matt
+some bounds checking and general housecleaning
 
-
+http://www.0x80.org/patches/2.5.56/sb_mixer.diff
 

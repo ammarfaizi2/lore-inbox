@@ -1,87 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbUB1Pou (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 10:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUB1Pou
+	id S261875AbUB1QFk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 11:05:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUB1QFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 10:44:50 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:51106 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S261872AbUB1Pos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 10:44:48 -0500
-Date: Sat, 28 Feb 2004 07:44:33 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>
-cc: castetm@ensisun.imag.fr
-Subject: [Bug 2219] New: kernel BUG at mm/rmap.c:306 
-Message-ID: <476870000.1077983073@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Feb 2004 11:05:40 -0500
+Received: from cpc1-cwma1-5-0-cust4.swan.cable.ntl.com ([80.5.120.4]:25516
+	"EHLO dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261876AbUB1QFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 11:05:39 -0500
+Subject: Re: Errors on 2th ide channel of promise ultra100 tx2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: andersen@codepoet.org
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       John Bradford <john@grabjohn.com>, Erik van Engelen <Info@vanE.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040228012630.GA3074@codepoet.org>
+References: <403F2178.70806@vanE.nl>
+	 <200402272114.23108.bzolnier@elka.pw.edu.pl>
+	 <20040227224431.GB984@codepoet.org>
+	 <200402280220.22324.bzolnier@elka.pw.edu.pl>
+	 <20040228012630.GA3074@codepoet.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <1077984093.31248.0.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 28 Feb 2004 16:01:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=2219
+On Sad, 2004-02-28 at 01:26, Erik Andersen wrote:
+> > Now I remember why this wasn't applied.
+> > It breaks braindamaged HDIO_GETGEO_BIG_RAW ioctl
+> > (because changes way drive->cyls is calculated).
+> > We workaround-ed it in 2.6 by removing this ioctl. :)
+> > I think we really should do the same for 2.4.
+> 
+> I did just that but it was rejected by Alan Cox...
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0308.2/0193.html
 
-           Summary: kernel BUG at mm/rmap.c:306
-    Kernel Version: 2.6.3
-            Status: NEW
-          Severity: high
-             Owner: akpm@digeo.com
-         Submitter: castetm@ensimag.imag.fr
+You can't go around randomly removing bad ideas during a stable
+tree. Sucks but true.
 
-
-Distribution: gentoo
-Hardware Environment:pentium-3/512 Mo RAM
-
-I have try overcommit-accounting with strict overcommit, but when i launch a
-program like [1], there was a kernel bug [2]
-
-
-[1]
-int main()
-{
-        while(fork() != -1) {}
-        while(malloc(1024)) {}
-        while(1) {}
-}
-------------------------------------------------
-[2]
-Out of Memory: Killed process 8289 (a.out).
-Out of Memory: Killed process 8297 (a.out).
-swap_free: Bad swap offset entry 001c2790
-------------[ cut here ]------------
-kernel BUG at mm/rmap.c:306!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c014baf0>]    Not tainted
-EFLAGS: 00010246
-EIP is at try_to_unmap_one+0x1e0/0x1f0
-eax: 00000000   ebx: 000c0000   ecx: 00000009   edx: c1000000
-esi: c14662e8   edi: df55e300   ebp: c14662e8   esp: dfa99d48
-ds: 007b   es: 007b   ss: 0068
-Process kswapd0 (pid: 8, threadinfo=dfa98000 task=dfa9eca0)
-Stack: df55e300 00000009 1c279005 00000000 00000000 00000004 c14662e8 da675ac0
-       00000000 c014bbab d4a5d440 00000004 00000000 da675ac0 00000000 c14662e8
-       00000001 dfa98000 c0142554 c1416c20 dfa99db8 c036a6f4 dfa98000 00000028
-Call Trace:
- [<c014bbab>] try_to_unmap+0xab/0x160
- [<c0142554>] shrink_list+0x224/0x560
- [<c0142a30>] shrink_cache+0x1a0/0x320
- [<c0143243>] shrink_zone+0x83/0xb0
- [<c014365a>] balance_pgdat+0x19a/0x220
- [<c01437f5>] kswapd+0x115/0x130
- [<c011d7e0>] autoremove_wake_function+0x0/0x50
- [<c0109302>] ret_from_fork+0x6/0x14
- [<c011d7e0>] autoremove_wake_function+0x0/0x50
- [<c01436e0>] kswapd+0x0/0x130
- [<c01072a5>] kernel_thread_helper+0x5/0x10
-
-Code: 0f 0b 32 01 13 c0 32 c0 e9 78 fe ff ff 8d 76 00 55 57 56 89
- <6>note: kswapd0[8] exited with preempt_count 2
-Out of Memory: Killed process 12353 (a.out).
-
+Alan
 

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262952AbTDBJjO>; Wed, 2 Apr 2003 04:39:14 -0500
+	id <S262955AbTDBJxR>; Wed, 2 Apr 2003 04:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262953AbTDBJjO>; Wed, 2 Apr 2003 04:39:14 -0500
-Received: from ns.tasking.nl ([195.193.207.2]:47372 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S262952AbTDBJjN>;
-	Wed, 2 Apr 2003 04:39:13 -0500
-To: linux-kernel@vger.kernel.org
+	id <S262956AbTDBJxR>; Wed, 2 Apr 2003 04:53:17 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:23014 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S262955AbTDBJxQ>; Wed, 2 Apr 2003 04:53:16 -0500
+Date: Wed, 2 Apr 2003 12:04:28 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Christoph Rohland <cr@sap.com>
+Cc: tomlins@cam.org, CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+Message-ID: <20030402100428.GA2661@wohnheim.fh-wedel.de>
+References: <fa.eagpkml.m3elbd@ifi.uio.no> <20030401133833.6C71DF3D@oscar.casa.dyndns.org> <ovk7eekwsc.fsf@sap.com>
 Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@altium.nl (Dick Streefland)
-Organization: Altium BV
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-References: <200304012032.43228.freesoftwaredeveloper@web.de>
-From: spam@altium.nl (Dick Streefland)
-Subject: Re: 2.5.66 oops
-Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <3862.3e8ab21c.73a7f@altium.nl>
-Date: Wed, 02 Apr 2003 09:49:16 -0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ovk7eekwsc.fsf@sap.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch <freesoftwaredeveloper@web.de> wrote:
-| I got an oops on linux-2.5.66:
+On Tue, 1 April 2003 18:27:47 +0200, Christoph Rohland wrote:
+> 
+> I agree and I think if you add this option it should adjust to a
+> percentage of (ram + swap). With this it would be a really nice
+> improvement.
+> I even had patches for this but to do it efficently you would need to
+> add some hooks to swapon and swapoff.
 
-This is probably the same oops as I reported saturday (Subject:
-[2.5.66] Oops in bttv driver). I got a reply from Greg KH that the
-problem is fixed in the latest bk tree.
+Which means we have two orthogonal problems to deal with. Adding the
+percent option and "fixing" it to take swap into account.
+
+Not completely orthogonal, though, since the "fix" actually changes
+semantics and might break some peoples setups. Take 3x50% of RAM and
+twice the RAM as swap, for example.
+
+Jörn
 
 -- 
-Dick Streefland                      ////                      Altium BV
-dick.streefland@altium.nl           (@ @)          http://www.altium.com
---------------------------------oOO--(_)--OOo---------------------------
-
+They laughed at Galileo.  They laughed at Copernicus.  They laughed at
+Columbus. But remember, they also laughed at Bozo the Clown.
+-- unknown

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130889AbRBETWS>; Mon, 5 Feb 2001 14:22:18 -0500
+	id <S135651AbRBET07>; Mon, 5 Feb 2001 14:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131638AbRBETWK>; Mon, 5 Feb 2001 14:22:10 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:1284 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S130889AbRBETWB>;
-	Mon, 5 Feb 2001 14:22:01 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Peter Horton <pdh@colonel-panic.com>
-Date: Mon, 5 Feb 2001 20:20:41 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: VIA silent disk corruption - patch
-CC: linux-kernel@vger.kernel.org, andre@linux-ide.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <14A3825B3E3F@vcnet.vc.cvut.cz>
+	id <S135650AbRBET0s>; Mon, 5 Feb 2001 14:26:48 -0500
+Received: from [212.150.53.130] ([212.150.53.130]:32018 "EHLO
+	marcellos.corky.net") by vger.kernel.org with ESMTP
+	id <S135614AbRBET0d>; Mon, 5 Feb 2001 14:26:33 -0500
+Date: Mon, 5 Feb 2001 21:26:11 +0200
+From: Marc Esipovich <marc@corky.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: The CREDITS file.
+Message-ID: <20010205212611.A27631@marcellos.corky.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  5 Feb 01 at 19:05, Peter Horton wrote:
+ We've detected a serious bug in the CREDITS file, under normal circumstances
+it does not produce visible side effects but may trigger unpredictable results
+as soon as Leonard N. Zubkoff (lnz@dandelion.com) sets his eyes on it.
 
-> Okay, looks like this fixes it (for me anyways).
+ Patch stream follows:
 
-> +    *  VIA VT8363 host bridge has broken feature 'PCI Master Read
-> +    *  Caching'. It caches more than is good for it, sometimes
-> +    *  serving the bus master with stale data. Some BIOSes enable
-> +    *  it by default, so we disable it.
+--- linux-2.4.1/CREDITS Tue Feb  6 04:17:16 2001
++++ linux-2.4.1/CREDITS.orig    Tue Feb  6 04:17:05 2001
+@@ -3015,5 +3015,5 @@
+ # Don't add your name here, unless you really _are_ after Marc
+ # alphabetically. Leonard used to be very proud of being the
+ # last entry, and he'll get positively pissed if he can't even
+-# be second-to-last.  (and this file really _is_ supposed to be
++# be third-to-last.  (and this file really _is_ supposed to be
+ # in alphabetic order)
 
-Hi,
-  I'll try it today, though I'm not sure that it will fix lost last
-dword on read. But at least it should stop corruption on write...
-  After your mail I noticed that there is couple of `unsettable'
-options in BIOS, and I did not tried switching BIOS from optimal to
-slow setting yet, so maybe there are more broken optimizations?
-  I'll keep you informed.
-                                    Thanks,
-                                        Petr Vandrovec
-                                        vandrove@vc.cvut.cz
-                                        
-                                    
+ bye,
+	Marc.
+
+--
+marc @ corky.net
+
+fingerprint = D1F0 5689 967F B87A 98EB  C64D 256A D6BF 80DE 6D3C
+
+          /"\
+          \ /     ASCII Ribbon Campaign
+           X      Against HTML Mail
+          / \
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312361AbSDBMjD>; Tue, 2 Apr 2002 07:39:03 -0500
+	id <S311866AbSDBMjC>; Tue, 2 Apr 2002 07:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311752AbSDBMix>; Tue, 2 Apr 2002 07:38:53 -0500
-Received: from customer201-108.iplannetworks.net ([200.69.201.108]:30702 "EHLO
-	ntmba.mba") by vger.kernel.org with ESMTP id <S311866AbSDBMil>;
-	Tue, 2 Apr 2002 07:38:41 -0500
-Message-ID: <3CA98CFE.8030202@laotraesquina.com.ar>
-Date: Tue, 02 Apr 2002 07:50:38 -0300
+	id <S312361AbSDBMix>; Tue, 2 Apr 2002 07:38:53 -0500
+Received: from customer201-108.iplannetworks.net ([200.69.201.108]:30958 "EHLO
+	ntmba.mba") by vger.kernel.org with ESMTP id <S311900AbSDBMin>;
+	Tue, 2 Apr 2002 07:38:43 -0500
+Message-ID: <3CA990E0.6060507@laotraesquina.com.ar>
+Date: Tue, 02 Apr 2002 08:07:12 -0300
 From: Pablo Alcaraz <pabloa@laotraesquina.com.ar>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
 X-Accept-Language: es-ar, en-us
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 7.52 second kernel compile
-In-Reply-To: <Pine.LNX.4.33.0203181213130.12950-100000@home.transmeta.com>
+To: mtopper@xarch.tu-graz.ac.at
+CC: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>,
+        Mark Hahn <hahn@physics.mcmaster.ca>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Request for 2.4.20 to be a non-trivial-bugfixes-only   version
+In-Reply-To: <Pine.LNX.4.21.0203292251250.17724-100000@xarch.tu-graz.ac.at>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+mtopper@xarch.tu-graz.ac.at wrote:
 
+>>...I have been looking for the 'good' 
+>>kernel for a while: trying 2.4.6, 2.4.8, 2.4.15, 2.4.17, 2.4.18rc1 -- I'm 
+>>starting to wonder when it might get here.
+>>
 >
->But it's interesting to see how on an athlon the numbers are
+>Personally, 2.4.16 works like a charm for me. I guess I'm the only one, am
+>I? :-)
 >
->	   3.17: 59
->	  34.94: 62
->	   4.71: 85
->	  54.83: 88
 >
->ie roughly 60% take 85-90 cycles, and 40% take ~60 cycles. I don't know
->where that pattern would come from..
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 >
-In an athlon 1Ghz the numbers are:
+>
 
-94.49: 20
- 2.51: 21
-
-I don't why the numbers are so different.
-
-Pablo
+I use 2.4.16 kernel for my production machines and I love it (well, swap 
+a bit with 256mb ram, but it's right with 1gb, 128mb, 512mb, 32mb, 
+etc... 256mb is a bad number for its vm I think)
 

@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266207AbUAIF3h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 00:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266232AbUAIF3h
+	id S266232AbUAIFiX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 00:38:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266277AbUAIFiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 00:29:37 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:11183 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266207AbUAIF3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 00:29:36 -0500
-Subject: Re: PATCH: Fix support for wide consoles in vt.c and
-	include/linux/selection.h
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: ncunningham@users.sourceforge.net
+	Fri, 9 Jan 2004 00:38:23 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:65215 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S266232AbUAIFiV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 00:38:21 -0500
+Date: Fri, 09 Jan 2004 18:35:43 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: Is this too ugly to merge?
+In-reply-to: <3FFE31B6.1030205@osdl.org>
+To: Stephen Hemminger <shemminger@osdl.org>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1073621988.2003.40.camel@laptop-linux>
-References: <1073621988.2003.40.camel@laptop-linux>
-Content-Type: text/plain
-Message-Id: <1073626143.828.2.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 09 Jan 2004 16:29:03 +1100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1073626462.10391.7.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-Vh2pwqi0v8jAvvskyLsN";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <1073609923.2003.10.camel@laptop-linux> <3FFE31B6.1030205@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-01-09 at 15:19, Nigel Cunningham wrote:
-> Hi.
-> 
-> In implementing a 'nice' display for Software Suspend, some users with
-> wide VTs reported problems with distortion. These changes from signed to
-> unsigned int/char fixed the issue and have been tested for around a year
-> (guesstimate).
-> 
-> The only other user of getconsxy is vc_screen.c. It might benefit from
-> matching changes, although the users who reported the problem to me said
-> nothing about other issues with their displays, so far as I recall.
-> 
-> To actually use the functions from Suspend, the functions also had to be
-> made non-static. Of course I could make this into 2 patches if desired.
 
-Also make sure you grab the console semaphore when doing those things,
-or recent 2.6's (at least -mm) will probably bark on you :)
+--=-Vh2pwqi0v8jAvvskyLsN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Ben.
+Oh, I did forget - there is a bit of debugging code in there that can be
+taken out.
+
+Regards,
+
+Nigel
+
+On Fri, 2004-01-09 at 17:44, Stephen Hemminger wrote:
+> Nigel Cunningham wrote:
+>=20
+> > Hi all.
+> >=20
+> > I'm wanting to the opinion, if I may, of more experienced people
+> > regarding changes I have implemented in my version of Software Suspend,
+> > which I want to merge with Patrick and Pavel. Since I'm don't expect
+> > that you're all familiar with how my version works, I'll give a fair bi=
+t
+> > of background before I come to the question.
+>=20
+> Do they all have to be big ugly macros?
+>=20
+>=20
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
+
+--=-Vh2pwqi0v8jAvvskyLsN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA//j1eVfpQGcyBBWkRAg6+AJwK8yMKiFNneaYJlWzoJaKslqvMyACeOm0l
+rmqG2hRhD7zk1yyDbEHQwUM=
+=Qgtr
+-----END PGP SIGNATURE-----
+
+--=-Vh2pwqi0v8jAvvskyLsN--
 

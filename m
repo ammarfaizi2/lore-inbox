@@ -1,70 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130090AbQJaD7d>; Mon, 30 Oct 2000 22:59:33 -0500
+	id <S130108AbQJaEIg>; Mon, 30 Oct 2000 23:08:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130108AbQJaD7X>; Mon, 30 Oct 2000 22:59:23 -0500
-Received: from smtp2.Mountain.Net ([198.77.1.5]:35728 "EHLO
-	nabiki.mountain.net") by vger.kernel.org with ESMTP
-	id <S130090AbQJaD7I>; Mon, 30 Oct 2000 22:59:08 -0500
-Message-ID: <39FE39EF.62CC880B@mountain.net>
-Date: Mon, 30 Oct 2000 22:18:07 -0500
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-t10p5-kdb i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+	id <S130139AbQJaEIQ>; Mon, 30 Oct 2000 23:08:16 -0500
+Received: from web2103.mail.yahoo.com ([128.11.68.247]:21515 "HELO
+	web2103.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S130108AbQJaEIH>; Mon, 30 Oct 2000 23:08:07 -0500
+Message-ID: <20001031040805.24819.qmail@web2103.mail.yahoo.com>
+Date: Mon, 30 Oct 2000 20:08:05 -0800 (PST)
+From: Steven Walter <srwalter@yahoo.com>
+Subject: UDMA/66 Data Corruption on SiS530
+To: linux-kernel@vger.kernel.org
+Cc: andre@linux-ide.org
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] ipv4 skbuff locking scope
-In-Reply-To: <39FDF518.A9F1204D@mountain.net> <200010302224.OAA02266@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
->    Date: Mon, 30 Oct 2000 17:24:24 -0500
->    From: Tom Leete <tleete@mountain.net>
-> 
->    This fixes tests of a socket buffer done without holding the
->    lock. tcp_data_wait() and wait_for_tcp_memory() both had
->    unguarded refs in their sleep conditionals.
-> 
-> These are not buggy at all, see the discussion which took place here
-> over the past few days.
 
-I'll post traces privately. It was my lockups that got Rick
-interested.
- 
-> Look, if the sleep condition test "races" due to not holding the lock,
-> the schedule() just returns because if the sleep condidion test passes
-> then by definition this means we were also woken up, see?
+Recently, when trying to use UDMA/66 on my SiS 530 and
+WD84AA, I got some data corruption.  At first, I tried
+with "UDMA Enabled" set to off in the BIOS, because I
+had known this to previously cause problems.  However,
+like this, I couldn't set the harddrive to use UDMA
+mode4 (-X68).  I would set it, it would appear
+successful, check with hdparm -i, and it would still
+say mode2.  Additionally, there was no speed increase
+after the -X68.
 
-Would you explain what is accomplished by toggling the lock
-every time through? What breaks by not doing so?
+Before, on a 40-conductor cable, I was getting 11MB/s
+with hdparm -t .  I bought an 80-conductor cable
+today, and saw no speed improvement in mode2, which is
+the only mode I can set it to.  Something that striked
+me as odd about the cable, though, is that the red
+wire was broken between the Drive 1 socket and the
+Drive 0 socket.  Is this to differentiate the two?
 
-> BTW, while we're on the topic of people not understanding the
-> networking locking and proposing bogus patches, does anyone know who
-> sent the bogon IP tunneling locking "fixes" to Linus behind my back?
+Anyway, what's interesting is what happens after I
+turned "UDMA Enabled" on in the BIOS.  Upon booting,
+everything appeared normal until just before X
+started.  At this point, I got a
 
-Not me, but see below.
- 
-> They were crap too, and I had to revert them in test10-pre7.  It's
-> another case of people just not understanding how the code works and
-> thus that it is correct without any changes.
+dma_intr: hda: status=0x58 { DriveReady SeekComplete
+Error}
+error=0x0 { }
 
-If it's perfect why can't I use it without locking up the
-machine? BTW, I'm currently running my patch. I can now
-flood ping 100000 packets in either direction. With
-unmodified tcp that is a red switcher (reliably hard locks
-all i/o including the serial console).
+I'm not sure about the numbers, but I am sure about
+the texts.  The drive said there was an error, but no
+error was set.  After fooling around with hdparm
+(setting the drive to -X68, timing it, etc) I got a
+few more identical errors.  Then, I started getting
+errors from EXT3-fs regarding invalid/corrupt data. 
+This concerned me, so I tried a "shutdown -r now", but
+to no avail.  I instead did a SysRq
+Sync-Unmount-reBoot.  Upon rebooting, I could no
+longer mount my root fs due to "Invalid track type or
+session number," or something to that effect.  I tried
+using e2fsck, but I can't find a valid superblock on
+the root partition.  Other partitions on the drive
+remain intact, however.
 
-> Please send such fixes to me, and I'll set you straight with a
-> description as to why your change is unnecessary :-)
+If anyone can shed any light on this problem, it would
+be much appreciated.  I wonder whether this is a linux
+bug, or a hardware problem, and if a hardware problem, where?
 
-Perhaps that's why somebody wants to bypass you.
+=====
+-Steven
+====================================================
+"The most foolish mistake we could possibly make would be to allow the subject races to possess arms. History shows that all conquerors who have allowed their subject races to carry arms have prepared their own downfall by doing so."
+Adolph Hitler
 
-Tom Leete
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Messenger - Talk while you surf!  It's FREE.
+http://im.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

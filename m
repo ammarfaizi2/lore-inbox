@@ -1,238 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267171AbUBMSnh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 13:43:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267173AbUBMSnh
+	id S267174AbUBMSvN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 13:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267175AbUBMSvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 13:43:37 -0500
-Received: from havoc.gtf.org ([63.247.75.124]:56964 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S267171AbUBMSnW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 13:43:22 -0500
-Date: Fri, 13 Feb 2004 13:43:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCHES] 2.6.x libata update
-Message-ID: <20040213184316.GA28871@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Fri, 13 Feb 2004 13:51:13 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:58584
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S267174AbUBMSvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 13:51:09 -0500
+Message-ID: <402D1C68.5030600@redhat.com>
+Date: Fri, 13 Feb 2004 10:50:16 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: viro@parcelfarce.linux.theplanet.co.uk,
+       Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
+       Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: JFS default behavior
+References: <1076604650.31270.20.camel@ulysse.olympe.o2t> <20040213030346.GF25499@mail.shareable.org> <1076695606.23795.23.camel@m222.net81-64-248.noos.fr> <20040213181542.GD8858@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.53.0402131325470.1895@chaos>
+In-Reply-To: <Pine.LNX.4.53.0402131325470.1895@chaos>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard B. Johnson wrote:
 
-Please do a
+> I think that all ASCII characters below 0x20 are forbidden in
+> Unix file-names
 
-	bk pull bk://gkernel.bkbits.net/libata-2.5
+Not true.  Filenames in Unix are defined as
 
-This will update the following files:
+3.169 Filename
+  A name consisting of 1 to {NAME_MAX} bytes used to name a file. The
+  characters composing the name may be selected from the set of all
+  character values excluding the slash character and the null byte. The
+  filenames dot and dot-dot have special meaning. A filename is
+  sometimes referred to as a   pathname component  .
 
- drivers/scsi/ata_piix.c     |    6 +++---
- drivers/scsi/libata-core.c  |   40 ++++++++++++++++++++++++++++++++++++++--
- drivers/scsi/libata-scsi.c  |    4 ++--
- drivers/scsi/libata.h       |    6 +++---
- drivers/scsi/sata_promise.c |    2 +-
- drivers/scsi/sata_via.c     |    4 ++--
- include/linux/ata.h         |    4 ++--
- include/linux/libata.h      |    4 ++--
- 8 files changed, 53 insertions(+), 17 deletions(-)
 
-through these ChangeSets:
+Only NUL and / are special.
 
-<jgarzik@redhat.com> (04/02/13 1.1635)
-   Bump libata, ata_piix to version 1.0.
-   
-   Also update copyrights for 2004.
-
-<jgarzik@redhat.com> (04/02/13 1.1634)
-   [libata] catch, and ack, spurious DMA interrupts
-   
-   Hardware issue on Intel ICH5 requires an additional ack sequence
-   over and above the normal IDE DMA interrupt ack requirements.  Issue
-   described in post to freebsd list:
-   http://www.mail-archive.com/freebsd-stable@freebsd.org/msg58421.html
-   
-   Since the bug workaround only requires a single additional PIO or
-   MMIO read in the interrupt handler, it is applied to all chipsets
-   using the standard libata interrupt handler.
-   
-   Credit for research the issue, creating the patch, and testing the
-   patch all go to Jon Burgess.
-
-diff -Nru a/drivers/scsi/ata_piix.c b/drivers/scsi/ata_piix.c
---- a/drivers/scsi/ata_piix.c	Fri Feb 13 13:40:32 2004
-+++ b/drivers/scsi/ata_piix.c	Fri Feb 13 13:40:32 2004
-@@ -3,8 +3,8 @@
-     ata_piix.c - Intel PATA/SATA controllers
- 
- 
--	Copyright 2003 Red Hat Inc
--	Copyright 2003 Jeff Garzik
-+	Copyright 2003-2004 Red Hat Inc
-+	Copyright 2003-2004 Jeff Garzik
- 
- 
- 	Copyright header from piix.c:
-@@ -28,7 +28,7 @@
- #include <linux/libata.h>
- 
- #define DRV_NAME	"ata_piix"
--#define DRV_VERSION	"0.95"
-+#define DRV_VERSION	"1.00"
- 
- enum {
- 	PIIX_IOCFG		= 0x54, /* IDE I/O configuration register */
-diff -Nru a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
---- a/drivers/scsi/libata-core.c	Fri Feb 13 13:40:32 2004
-+++ b/drivers/scsi/libata-core.c	Fri Feb 13 13:40:32 2004
-@@ -1,8 +1,8 @@
- /*
-    libata-core.c - helper library for ATA
- 
--   Copyright 2003 Red Hat, Inc.  All rights reserved.
--   Copyright 2003 Jeff Garzik
-+   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+   Copyright 2003-2004 Jeff Garzik
- 
-    The contents of this file are subject to the Open
-    Software License version 1.1 that can be found at
-@@ -2386,6 +2386,41 @@
- }
- 
- /**
-+ *	ata_chk_spurious_int - Check for spurious interrupts
-+ *	@ap: port to which command is being issued
-+ *
-+ *	Examines the DMA status registers and clears
-+ *      unexpected interrupts.  Created to work around
-+ *	hardware bug on Intel ICH5, but is applied to all
-+ *	chipsets using the standard irq handler, just for safety.
-+ *	If the bug is not present, this is simply a single
-+ *	PIO or MMIO read addition to the irq handler.
-+ *
-+ *	LOCKING:
-+ */
-+static inline void ata_chk_spurious_int(struct ata_port *ap) {
-+	int host_stat;
-+	
-+	if (ap->flags & ATA_FLAG_MMIO) {
-+		void *mmio = (void *) ap->ioaddr.bmdma_addr;
-+		host_stat = readb(mmio + ATA_DMA_STATUS);
-+	} else
-+		host_stat = inb(ap->ioaddr.bmdma_addr + ATA_DMA_STATUS);
-+	
-+	if ((host_stat & (ATA_DMA_INTR | ATA_DMA_ERR | ATA_DMA_ACTIVE)) == ATA_DMA_INTR) {
-+		if (ap->flags & ATA_FLAG_MMIO) {
-+			void *mmio = (void *) ap->ioaddr.bmdma_addr;
-+			writeb(host_stat & ~ATA_DMA_ERR, mmio + ATA_DMA_STATUS);
-+		} else
-+			outb(host_stat & ~ATA_DMA_ERR, ap->ioaddr.bmdma_addr + ATA_DMA_STATUS);
-+		
-+		DPRINTK("ata%u: Caught spurious interrupt, status 0x%X\n", ap->id, host_stat);
-+		udelay(1);
-+	}
-+}
-+
-+
-+/**
-  *	ata_interrupt -
-  *	@irq:
-  *	@dev_instance:
-@@ -2417,6 +2452,7 @@
- 			qc = ata_qc_from_tag(ap, ap->active_tag);
- 			if (qc && ((qc->flags & ATA_QCFLAG_POLL) == 0))
- 				handled += ata_host_intr(ap, qc);
-+			ata_chk_spurious_int(ap);
- 		}
- 	}
- 
-diff -Nru a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
---- a/drivers/scsi/libata-scsi.c	Fri Feb 13 13:40:32 2004
-+++ b/drivers/scsi/libata-scsi.c	Fri Feb 13 13:40:32 2004
-@@ -1,8 +1,8 @@
- /*
-    libata-scsi.c - helper library for ATA
- 
--   Copyright 2003 Red Hat, Inc.  All rights reserved.
--   Copyright 2003 Jeff Garzik
-+   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+   Copyright 2003-2004 Jeff Garzik
- 
-    The contents of this file are subject to the Open
-    Software License version 1.1 that can be found at
-diff -Nru a/drivers/scsi/libata.h b/drivers/scsi/libata.h
---- a/drivers/scsi/libata.h	Fri Feb 13 13:40:32 2004
-+++ b/drivers/scsi/libata.h	Fri Feb 13 13:40:32 2004
-@@ -1,8 +1,8 @@
- /*
-    libata.h - helper library for ATA
- 
--   Copyright 2003 Red Hat, Inc.  All rights reserved.
--   Copyright 2003 Jeff Garzik
-+   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+   Copyright 2003-2004 Jeff Garzik
- 
-    The contents of this file are subject to the Open
-    Software License version 1.1 that can be found at
-@@ -26,7 +26,7 @@
- #define __LIBATA_H__
- 
- #define DRV_NAME	"libata"
--#define DRV_VERSION	"0.81"	/* must be exactly four chars */
-+#define DRV_VERSION	"1.00"	/* must be exactly four chars */
- 
- struct ata_scsi_args {
- 	struct ata_port		*ap;
-diff -Nru a/drivers/scsi/sata_promise.c b/drivers/scsi/sata_promise.c
---- a/drivers/scsi/sata_promise.c	Fri Feb 13 13:40:32 2004
-+++ b/drivers/scsi/sata_promise.c	Fri Feb 13 13:40:32 2004
-@@ -1,7 +1,7 @@
- /*
-  *  sata_promise.c - Promise SATA
-  *
-- *  Copyright 2003 Red Hat, Inc.
-+ *  Copyright 2003-2004 Red Hat, Inc.
-  *
-  *  The contents of this file are subject to the Open
-  *  Software License version 1.1 that can be found at
-diff -Nru a/drivers/scsi/sata_via.c b/drivers/scsi/sata_via.c
---- a/drivers/scsi/sata_via.c	Fri Feb 13 13:40:32 2004
-+++ b/drivers/scsi/sata_via.c	Fri Feb 13 13:40:32 2004
-@@ -1,8 +1,8 @@
- /*
-    sata_via.c - VIA Serial ATA controllers
- 
--   Copyright 2003 Red Hat, Inc.  All rights reserved.
--   Copyright 2003 Jeff Garzik
-+   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+   Copyright 2003-2004 Jeff Garzik
- 
-    The contents of this file are subject to the Open
-    Software License version 1.1 that can be found at
-diff -Nru a/include/linux/ata.h b/include/linux/ata.h
---- a/include/linux/ata.h	Fri Feb 13 13:40:32 2004
-+++ b/include/linux/ata.h	Fri Feb 13 13:40:32 2004
-@@ -1,7 +1,7 @@
- 
- /*
--   Copyright 2003 Red Hat, Inc.  All rights reserved.
--   Copyright 2003 Jeff Garzik
-+   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+   Copyright 2003-2004 Jeff Garzik
- 
-    The contents of this file are subject to the Open
-    Software License version 1.1 that can be found at
-diff -Nru a/include/linux/libata.h b/include/linux/libata.h
---- a/include/linux/libata.h	Fri Feb 13 13:40:32 2004
-+++ b/include/linux/libata.h	Fri Feb 13 13:40:32 2004
-@@ -1,6 +1,6 @@
- /*
--   Copyright 2003 Red Hat, Inc.  All rights reserved.
--   Copyright 2003 Jeff Garzik
-+   Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
-+   Copyright 2003-2004 Jeff Garzik
- 
-    The contents of this file are subject to the Open
-    Software License version 1.1 that can be found at
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

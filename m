@@ -1,87 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268961AbUIMVHC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268929AbUIMVHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268961AbUIMVHC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 17:07:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268964AbUIMVHB
+	id S268929AbUIMVHY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 17:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268964AbUIMVHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 17:07:01 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:60599 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S268961AbUIMVFQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 17:05:16 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc1-mm5
-Date: Mon, 13 Sep 2004 23:06:38 +0200
-User-Agent: KMail/1.6.2
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <20040913015003.5406abae.akpm@osdl.org>
-In-Reply-To: <20040913015003.5406abae.akpm@osdl.org>
+	Mon, 13 Sep 2004 17:07:24 -0400
+Received: from modemcable166.48-200-24.mc.videotron.ca ([24.200.48.166]:60851
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP id S268929AbUIMVGN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 17:06:13 -0400
+Date: Mon, 13 Sep 2004 17:06:06 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Herbert Poetzl <herbert@13thfloor.at>
+cc: Dan Kegel <dank@kegel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fix allnoconfig on arm with small tweak to kconfig?
+In-Reply-To: <20040913192900.GC4317@MAIL.13thfloor.at>
+Message-ID: <Pine.LNX.4.61.0409131653070.12375@xanadu.home>
+References: <414551FD.4020701@kegel.com> <20040913091534.B27423@flint.arm.linux.org.uk>
+ <4145BB30.60309@kegel.com> <20040913195119.B4658@flint.arm.linux.org.uk>
+ <20040913192900.GC4317@MAIL.13thfloor.at>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409132306.38340.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 of September 2004 10:50, Andrew Morton wrote:
+On Mon, 13 Sep 2004, Herbert Poetzl wrote:
+
+> On Mon, Sep 13, 2004 at 07:51:19PM +0100, Russell King wrote:
+> > Basically, there's a fair amount of conditions under which Kconfig
+> > fails to perform reasonably, and these (little used) targets are
+> > an example of that.
+> > 
+> > If you want something that's guaranteed to work, use one of the
+> > per-platform default configurations.  Nothing else carries any
+> > guarantee what so ever on ARM.
+> > 
+> > (Also, I have no interest in all*config myself so even if someone
+> > does fix it, chances are it'll get broken again.  I believe that
+> > the concept of all*config is a fundamentally broken concept for an
+> > architecture with numerous platform configurations.)
 > 
-> Due to master.kernel.org being on the blink, 2.6.9-rc1-mm5 Is currently at
-> 
->  http://www.zip.com.au/~akpm/linux/patches/2.6.9-rc1-mm5/
-> 
-> and will later appear at
-> 
->  
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm5/
+> what about providing a reasonable (not necessarily useful)
+> configuration for a minimal arm setup (maybe for each endianess)
+> and one for a maximal (read: as many as possible) options
+> selected which - and this is the important part - are known
+> and supposed to compile (regardless if they make sense or are
+> used in actual systems)?
 
-It does not compile on SMP x86-64 w/ NUMA:
+See arch/arm/configs/* for many configuration examples.  They are all 
+separate ARM targets and usually a given config enables as much 
+sensible options 
+as possible for that target.  It seems to me that using
+'make neponset_defconfig && make all' is a relatively good configuration 
+to test toolchain regressions, at least for an ARMv4 build.
 
-  CC      arch/x86_64/ia32/ia32_ioctl.o
-In file included from fs/compat_ioctl.c:63,
-                 from arch/x86_64/ia32/ia32_ioctl.c:14:
-include/linux/reiserfs_fs.h:441: error: redefinition of `struct key'
-include/linux/reiserfs_fs.h: In function `le_key_k_offset':
-include/linux/reiserfs_fs.h:608: error: structure has no member named `u'
-include/linux/reiserfs_fs.h:609: error: structure has no member named `u'
-include/linux/reiserfs_fs.h: In function `le_key_k_type':
-include/linux/reiserfs_fs.h:620: error: structure has no member named `u'
-include/linux/reiserfs_fs.h:621: error: structure has no member named `u'
-include/linux/reiserfs_fs.h: In function `set_le_key_k_offset':
-include/linux/reiserfs_fs.h:633: error: structure has no member named `u'
-include/linux/reiserfs_fs.h:634: error: structure has no member named `u'
-include/linux/reiserfs_fs.h: In function `set_le_key_k_type':
-include/linux/reiserfs_fs.h:647: error: structure has no member named `u'
-include/linux/reiserfs_fs.h:648: error: structure has no member named `u'
-include/linux/reiserfs_fs.h: In function `cpu_key_k_offset':
-include/linux/reiserfs_fs.h:677: error: structure has no member named `u'
-include/linux/reiserfs_fs.h:678: error: structure has no member named `u'
-include/linux/reiserfs_fs.h: In function `cpu_key_k_type':
-include/linux/reiserfs_fs.h:684: error: structure has no member named `u'
-include/linux/reiserfs_fs.h:685: error: structure has no member named `u'
-include/linux/reiserfs_fs.h: In function `set_cpu_key_k_offset':
-include/linux/reiserfs_fs.h:691: error: structure has no member named `u'
-include/linux/reiserfs_fs.h:692: error: structure has no member named `u'
-include/linux/reiserfs_fs.h: In function `set_cpu_key_k_type':
-include/linux/reiserfs_fs.h:699: error: structure has no member named `u'
-include/linux/reiserfs_fs.h:700: error: structure has no member named `u'
-include/linux/reiserfs_fs.h: In function `cpu_key_k_offset_dec':
-include/linux/reiserfs_fs.h:707: error: structure has no member named `u'
-include/linux/reiserfs_fs.h:709: error: structure has no member named `u'
-include/linux/reiserfs_fs.h: In function `le_key_version':
-include/linux/reiserfs_fs.h:1869: error: structure has no member named `u'
-make[1]: *** [arch/x86_64/ia32/ia32_ioctl.o] Error 1
-make: *** [arch/x86_64/ia32] Error 2
+If you need, say, a minimal test configurations with the least selected 
+options as possible, I don't think anyone would object including such a 
+default config file.
 
-The .config is available at: 
-http://www.sisk.pl/kernel/040913/2.6.9-rc1-mm5-NUMA.config
+> if this isn't in _your_ interest, then maybe some specific
+> (considered representative) system defaults can be used instead
 
-Greets,
-RJW
+Right.
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+
+Nicolas

@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264962AbSLSPM1>; Thu, 19 Dec 2002 10:12:27 -0500
+	id <S265681AbSLSPOW>; Thu, 19 Dec 2002 10:14:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265012AbSLSPM1>; Thu, 19 Dec 2002 10:12:27 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:45903 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S264962AbSLSPM0>; Thu, 19 Dec 2002 10:12:26 -0500
-Date: Thu, 19 Dec 2002 16:20:42 +0100 (CET)
-From: bart@etpmod.phys.tue.nl
-Reply-To: bart@etpmod.phys.tue.nl
-Subject: Re: Intel P6 vs P7 system call performance
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org, billyrose@billyrose.net
+	id <S265727AbSLSPOV>; Thu, 19 Dec 2002 10:14:21 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:30922 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S265681AbSLSPOU>; Thu, 19 Dec 2002 10:14:20 -0500
+Date: Thu, 19 Dec 2002 07:22:15 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>, William Lee Irwin III <wli@holomorphy.com>
+cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: 2.5.52-mm2
+Message-ID: <10930000.1040311334@titus>
+In-Reply-To: <3E01A004.58F2B880@digeo.com>
+References: <3E015ECE.9E3BD19@digeo.com>
+ <20021219085426.GJ1922@holomorphy.com>
+ <20021219092853.GK1922@holomorphy.com>
+ <20021219101219.GS31800@holomorphy.com> <3E01A004.58F2B880@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-Message-Id: <20021219152044.7846F51FC4@gum12.etpnet.phys.tue.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Dec, Richard B. Johnson wrote:
-> On Thu, 19 Dec 2002 billyrose@billyrose.net wrote:
+> Actually, just looking at mmzone.h, I have to say "ick".  The
+> non-NUMA case seems unnecessarily overdone.  eg:
+>
+># define page_to_pfn(page)
+> 	((page - page_zone(page)->zone_mem_map) +
+> page_zone(page)->zone_start_pfn)
+>
+> Ouch.  Why can't we have the good old `page - mem_map' here?
 
->> long_call:
->>         pushl $0xfffff000
->>         ret
->> 
-> 
-> Because the number pushed onto the stack is a displacement, not
-> an address, i.e., -4095. To have the address act as an address,
+Ummm .... mmzone.h:
 
-Not true. A ret(urn) is (sort of) equivalent to 'pop %eip'. The above
-code would actually jump to address 0xfffff000, but probably be slow
-since it confuses the branch prediction.
+#ifdef CONFIG_DISCONTIGMEM
+....
+#define page_to_pfn(page)       ((page - page_zone(page)->zone_mem_map) + 
+page_zone(page)->zone_start_pfn)
+....
+#endif /* CONFIG_DISCONTIGMEM */
 
-Bart
+page.h:
 
--- 
-Bart Hartgers - TUE Eindhoven 
-http://plasimo.phys.tue.nl/bart/contact.html
+#ifndef CONFIG_DISCONTIGMEM
+#define page_to_pfn(page)       ((unsigned long)((page) - mem_map))
+#endif /* !CONFIG_DISCONTIGMEM */
+
+
+I'll admit the file obfuscation hides this from being easy to read, but
+i'm not stupid enough to screw things up *that* badly. Well, not most
+of the time ;-) Want me to reshuffle things around so that the same defines
+end up in the same file, and people have a hope in hell of reading it?
+If I do that, it'll probably be based on the struct page breakout patch,
+and making these things all static inlines, so people stop blowing their
+own feet off.
+
+M.
+
+PS. cscope is cool ;-)
+

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261224AbSJLOiz>; Sat, 12 Oct 2002 10:38:55 -0400
+	id <S261238AbSJLOtZ>; Sat, 12 Oct 2002 10:49:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261228AbSJLOiz>; Sat, 12 Oct 2002 10:38:55 -0400
-Received: from nx5.HRZ.Uni-Dortmund.DE ([129.217.131.21]:43987 "EHLO
-	nx5.HRZ.Uni-Dortmund.DE") by vger.kernel.org with ESMTP
-	id <S261224AbSJLOiz>; Sat, 12 Oct 2002 10:38:55 -0400
-Message-ID: <3DA8342C.40408@mathematik.uni-dortmund.de>
-Date: Sat, 12 Oct 2002 16:39:40 +0200
-From: Michael Abshoff <Michael.Abshoff@mathematik.uni-dortmund.de>
-Reply-To: Michael.Abshoff@mathematik.uni-dortmund.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en, zh, zh-cn, zh-hk, zh
-MIME-Version: 1.0
-To: Alan Chandler <alan@chandlerfamily.org.uk>
-CC: linux-kernel@vger.kernel.org
+	id <S261242AbSJLOtZ>; Sat, 12 Oct 2002 10:49:25 -0400
+Received: from pcow057o.blueyonder.co.uk ([195.188.53.94]:59404 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S261238AbSJLOtY> convert rfc822-to-8bit;
+	Sat, 12 Oct 2002 10:49:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Alan Chandler <alan@chandlerfamily.org.uk>
+To: Michael.Abshoff@mathematik.uni-dortmund.de
 Subject: Re: How does ide-scsi get loaded?
-References: <5.1.0.14.0.20021012192828.0183aa08@mail.bur.st> <200210121533.12998.alan@chandlerfamily.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Date: Sat, 12 Oct 2002 15:55:09 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <5.1.0.14.0.20021012192828.0183aa08@mail.bur.st> <200210121533.12998.alan@chandlerfamily.org.uk> <3DA8342C.40408@mathematik.uni-dortmund.de>
+In-Reply-To: <3DA8342C.40408@mathematik.uni-dortmund.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210121555.19492.alan@chandlerfamily.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Chandler wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->No - its not in there - as I said grep -r of /etc did not show anything
->
->>Else it may be compiled into the kernel, try passing ide-scsi=none or
->>something similar to the kernel (check the docs)
->>    
->>
->
->I do not think its in the kernel - lsmod shows ide-scsi as a loaded module.
->
->  
->
-If you are using lilo to boot look for a block like the following:
+On Saturday 12 October 2002 3:39 pm, Michael Abshoff wrote:
+> Alan Chandler wrote:
+> >No - its not in there - as I said grep -r of /etc did not show anything
+> >
 
-  image  = /boot/vmlinuz
-  label  = linux
-  root   = /dev/hda7
-  append = "enableapic hdd=ide-scsi"
+>If you are using lilo to boot look for a block like the following: 
+ > image = /boot/vmlinuz 
+ > label = linux 
+ > root = /dev/hda7 
+  >append = "enableapic hdd=ide-scsi" 
 
-Remove the "hdX=ide-scsi" and you are done.  In case you are using grub 
-it should be a
-similar layout.
+so isn't /etc/lilo.conf in /etc.
 
-Hope this helps,
+I keep saying - the string ide-scsi is not used anywhere in /etc
 
-Michael
-
--- 
-Michael Abshoff - MRB - Universität Dortmund - Telefon 755-3463 (intern)
+[and believe me, I have also looked manually at all these sorts of places]
 
 
+
+- -- 
+Alan Chandler
+alan@chandlerfamily.org.uk
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9qDfXuFHxcV2FFoIRAhyJAJ90OEl3GG1lJ9IPpm9Xiuq7hCg13wCfdI0I
+PgIkTEx3zga3WfRSkkD0aM4=
+=m0tr
+-----END PGP SIGNATURE-----
 

@@ -1,119 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUGISfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUGISlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265207AbUGISfe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 14:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbUGISfe
+	id S265212AbUGISlA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 14:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265219AbUGISlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 14:35:34 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:58257 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S265207AbUGISfP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 14:35:15 -0400
-Date: Fri, 9 Jul 2004 20:26:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Arjan van de Ven <arjanv@redhat.com>
-Subject: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040709182638.GA11310@elte.hu>
+	Fri, 9 Jul 2004 14:41:00 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12224 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265212AbUGISk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 14:40:57 -0400
+Date: Fri, 9 Jul 2004 20:40:50 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andi Kleen <ak@muc.de>
+Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 and broken inlining.
+Message-ID: <20040709184050.GR28324@fs.tum.de>
+References: <2fFzK-3Zz-23@gated-at.bofh.it> <2fG2F-4qK-3@gated-at.bofh.it> <2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it> <2fPfF-2Dv-19@gated-at.bofh.it> <m34qohrdel.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <m34qohrdel.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 09, 2004 at 06:51:46AM +0200, Andi Kleen wrote:
+> Nigel Cunningham <ncunningham@linuxmail.org> writes:
+> 
+> I think a better solution would be to apply the appended patch 
+> 
+> And then just mark the function you know needs to be inlined
+> as __always_inline__. I did this on x86-64 for some functions
+> too that need to be always inlined (although using the attribute
+> directly because all x86-64 compilers support it)
+> 
+> The rationale is that the inlining algorithm in gcc 3.4+ is quite
+> a lot better and actually eliminates some not-so-great inlining
+> we had in the past and makes the kernel a bit smaller.
 
-as most of you are probably aware of it, there have been complaints on
-lkml that the 2.6 kernel is not suitable for serious audio work due to
-high scheduling latencies (e.g. the Jackit people complained). I took a
-look at latencies and indeed 2.6.7 is pretty bad - latencies up to 50
-msec (!) can be easily triggered using common workloads, on fast 2GHz+
-x86 system - even when using the fully preemptible kernel!
+Making the kernel a bit smaller is a small improvement.
 
-to solve this problem, Arjan van de Ven and I went over various kernel
-functions to determine their preemptability and we re-created from
-scratch a patch that is equivalent in performance to the 2.4 lowlatency
-patches but is different in design, impact and approach:
+Runtime errors caused with gcc 3.4 are IMHO much worse than such a small 
+improvement or three dozen compile errors with gcc 3.4 .
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.7-bk20-H2
+The effect of your patch with gcc 3.4 would be nearly:
+  Ignore all old inlines and add something new that does what inline
+  did before.
 
-  (Note to kernel patch reviewers: the split voluntary_resched type of
-  APIs, the feature #ifdefs and runtime flags are temporary and were
-  only introduced to enable a easy benchmarking/comparisons. I'll split
-  this up into small pieces once there's testing feedback and actual
-  audio users had their say!)
+Wouldn't it be a better solution if you would audit the existing inlines 
+in the kernel for abuse of inline and fix those instead?
 
-unlike the lowlatency patches, this patch doesn't add a lot of new
-scheduling points to the source code, it rather reuses a rich but
-currently inactive set of scheduling points that already exist in the
-2.6 tree: the might_sleep() debugging checks. Any code point that does
-might_sleep() is in fact ready to sleep at that point. So the patch
-activates these debugging checks to be scheduling points. This reduces
-complexity and impact quite significantly.
+> -Andi
+> 
+> P.S.: compiler.h seems to be not "gcc 4.0 safe". Probably that needs
+> to be fixed too.
+>...
 
-but even using these (over one hundred) might_sleep() points there were
-still a number of latency sources in the kernel - we identified and
-fixed them by hand, either via additional might_sleep() checks, or via
-explicit rescheduling points. Sometimes lock-break was necessary as
-well.
+My copy of compiler.h says:
 
-as a practical goal, this patch aims to fix all latency sources that
-generate higher than ~1 msec latencies. We'd love to learn about
-workloads that still cause audio skipping even with this patch applied,
-but i've been unable to generate any load that creates higher than 1msec
-latencies. (not counting driver initialization routines.)
+<--  snip  -->
 
-this patch is also more configurable than the 2.4 lowlatency patches
-were: there's a .config option to enable voluntary preemption, and there
-are runtime /proc/sys knobs and boot-time flags to turn voluntary
-preemption (CONFIG_VOLUNTARY_PREEMPT) and kernel preemption
-(CONFIG_PREEMPT) on/off:
+#if __GNUC__ > 3
+# include <linux/compiler-gcc+.h>       /* catch-all for GCC 4, 5, etc. */
 
-        # turn on/off voluntary preemption (if CONFIG_VOLUNTARY_PREEMPT)
-	echo 1 > /proc/sys/kernel/voluntary_preemption
-	echo 0 > /proc/sys/kernel/voluntary_preemption
+<--  snip  -->
 
-        # turn on/off the preemptible kernel feature (if CONFIG_PREEMPT)
-	/proc/sys/kernel/kernel_preemption
-	/proc/sys/kernel/kernel_preemption
+What exactly is wrong with this?
 
-the 'voluntary-preemption=0/1' and 'kernel-preemption=0/1' boot options
-can be used to control these flags at boot-time.
 
-all 4 combinations make sense if both CONFIG_PREEMPT and
-CONFIG_VOLUNTARY_PREEMPT are enabled - great for performance/latency
-testing and comparisons.
+cu
+Adrian
 
-The stock 2.6 kernel is equivalent to:
+-- 
 
-   voluntary_preemption:0 kernel_preemption:0
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-the 2.6 kernel with voluntary kernel preemption is equivalent to:
-
-   voluntary_preemption:1 kernel_preemption:0
-
-the 2.6 kernel with preemptible kernel enabled is:
-
-   voluntary_preemption:0 kernel_preemption:1
-
-and the preemptible kernel enhanced with additional lock-breaks is 
-enabled via:
-
-   voluntary_preemption:1 kernel_preemption:1
-
-it is safe to change these flags anytime.
-
-The patch is against 2.6.7-bk20, and it also includes fixes for kernel
-bugs that were uncovered while developing this patch. While it works for
-me, be careful when using this patch!
-
-Testreports, comments, suggestions are more than welcome,
-
-	Ingo

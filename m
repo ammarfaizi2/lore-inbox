@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVCOUb2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVCOTyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVCOUb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 15:31:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVCOUbU
+	id S261846AbVCOTyz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 14:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVCOTvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 15:31:20 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:56311 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261477AbVCOU2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 15:28:00 -0500
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH] InfiniBand: remove unsafe use of in_atomic()
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 15 Mar 2005 12:27:58 -0800
-Message-ID: <52zmx4wt69.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Tue, 15 Mar 2005 14:51:47 -0500
+Received: from chello081018222206.chello.pl ([81.18.222.206]:45575 "EHLO
+	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S261823AbVCOTtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 14:49:31 -0500
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
+To: Stephen Evanchik <evanchsa@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.11] IBM TrackPoint support
+Date: Tue, 15 Mar 2005 20:49:25 +0100
+User-Agent: KMail/1.8
+References: <a71293c2050313210230161278@mail.gmail.com>
+In-Reply-To: <a71293c2050313210230161278@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 15 Mar 2005 20:27:58.0377 (UTC) FILETIME=[7A066190:01C5299D]
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_GxzNCuiaxBlMfeP"
+Message-Id: <200503152049.26488.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using in_atomic() to decide between GFP_KERNEL and GFP_ATOMIC is not
-safe (it doesn't work if CONFIG_PREEMPT=n).  Change to just always
-allocating with GFP_ATOMIC, since we don't know if we can sleep or not.
+--Boundary-00=_GxzNCuiaxBlMfeP
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+On Monday 14 of March 2005 06:02, Stephen Evanchik wrote:
+> Here's the latest patch for TracKPoint devices. I have changed the
+> sysfs filenames to be more descriptive for commonly used attributes. I
+> also implemented the set_properties flag for initialization.
+>
+> It patches against 2.6.11 and 2.6.11.3 however I have not tested it
+> with 2.6.11.3 .
+>
+> Any comments are appreciated.
 
+  CC [M]  drivers/input/mouse/psmouse-base.o
+drivers/input/mouse/psmouse-base.c: In function 'psmouse_extensions':
+drivers/input/mouse/psmouse-base.c:489: error: 'PSMOUSE_TRACKPOINT' undeclared
 
---- linux-export.orig/drivers/infiniband/core/mad.c	2005-03-15 12:23:32.640868259 -0800
-+++ linux-export/drivers/infiniband/core/mad.c	2005-03-15 12:26:56.311553460 -0800
-@@ -646,7 +646,7 @@
- 				  struct ib_smp *smp,
- 				  struct ib_send_wr *send_wr)
- {
--	int ret, alloc_flags, solicited;
-+	int ret, solicited;
- 	unsigned long flags;
- 	struct ib_mad_local_private *local;
- 	struct ib_mad_private *mad_priv;
-@@ -666,11 +666,7 @@
- 	if (!ret || !device->process_mad)
- 		goto out;
+;-)
+
+-- 
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+
+                           #define say(x) lie(x)
+
+--Boundary-00=_GxzNCuiaxBlMfeP
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="1.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="1.diff"
+
+--- linux-2.6.11.3/drivers/input/mouse/psmouse.h.orig	2005-03-15 20:22:45.000000000 +0100
++++ linux-2.6.11.3/drivers/input/mouse/psmouse.h	2005-03-15 20:47:12.000000000 +0100
+@@ -79,6 +79,7 @@
+ 	PSMOUSE_IMEX,
+ 	PSMOUSE_SYNAPTICS,
+ 	PSMOUSE_ALPS,
++	PSMOUSE_TRACKPOINT,
+ };
  
--	if (in_atomic() || irqs_disabled())
--		alloc_flags = GFP_ATOMIC;
--	else
--		alloc_flags = GFP_KERNEL;
--	local = kmalloc(sizeof *local, alloc_flags);
-+	local = kmalloc(sizeof *local, GFP_ATOMIC);
- 	if (!local) {
- 		ret = -ENOMEM;
- 		printk(KERN_ERR PFX "No memory for ib_mad_local_private\n");
-@@ -678,7 +674,7 @@
- 	}
- 	local->mad_priv = NULL;
- 	local->recv_mad_agent = NULL;
--	mad_priv = kmem_cache_alloc(ib_mad_cache, alloc_flags);
-+	mad_priv = kmem_cache_alloc(ib_mad_cache, GFP_ATOMIC);
- 	if (!mad_priv) {
- 		ret = -ENOMEM;
- 		printk(KERN_ERR PFX "No memory for local response MAD\n");
-@@ -860,9 +856,7 @@
- 		}
- 
- 		/* Allocate MAD send WR tracking structure */
--		mad_send_wr = kmalloc(sizeof *mad_send_wr,
--				      (in_atomic() || irqs_disabled()) ?
--				      GFP_ATOMIC : GFP_KERNEL);
-+		mad_send_wr = kmalloc(sizeof *mad_send_wr, GFP_ATOMIC);
- 		if (!mad_send_wr) {
- 			printk(KERN_ERR PFX "No memory for "
- 			       "ib_mad_send_wr_private\n");
+ int psmouse_sliced_command(struct psmouse *psmouse, unsigned char command);
+
+--Boundary-00=_GxzNCuiaxBlMfeP--

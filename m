@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264905AbSJVSlU>; Tue, 22 Oct 2002 14:41:20 -0400
+	id <S264924AbSJVSph>; Tue, 22 Oct 2002 14:45:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264904AbSJVSkz>; Tue, 22 Oct 2002 14:40:55 -0400
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:40867
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S264895AbSJVSjb>; Tue, 22 Oct 2002 14:39:31 -0400
-Message-ID: <3DB59EBC.9010500@rackable.com>
-Date: Tue, 22 Oct 2002 11:53:48 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roelf Schreurs <rosc@imc.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: source for 2.4.18-10 (redhat)
-References: <3DB55FE9.9060104@imc.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Oct 2002 18:45:39.0942 (UTC) FILETIME=[37C84860:01C279FB]
+	id <S262126AbSJVSpC>; Tue, 22 Oct 2002 14:45:02 -0400
+Received: from 166.Red-80-36-134.pooles.rima-tde.net ([80.36.134.166]:16768
+	"EHLO apocalipsis") by vger.kernel.org with ESMTP
+	id <S264920AbSJVSoT>; Tue, 22 Oct 2002 14:44:19 -0400
+Date: Tue, 22 Oct 2002 20:49:20 +0200
+From: "Juan M. de la Torre" <jmtorre@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Problem compiling 2.5.44 (net/ipv4/raw.c)
+Message-ID: <20021022184920.GA8742@apocalipsis>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roelf Schreurs wrote:
 
-> Hi
->
-> I'm upgrading to 2.4.18-10 (on redhat 7.3), and therefore need some 
-> files.
-> On updates.redhat.com I found:
-> kernel-2.4.18-10.i686.rpm
-> kernel-bigmem-2.4.18-10.i686.rpm
-> kernel-debug-2.4.18-10.i686.rpm
-> kernel-smp-2.4.18-10.i686.rpm
->
-> Do I need kernel-source.2.4.18-10.i686.rpm and 
-> kernel-doc-2.4.18-10.i686.rpm and if yes, where do I find it.
-> I guess the doc is not too important, but the source seems to be 
-> important.
->
-  You want kernel-source.2.4.18-10.i386.rpm.  The kernel-source package 
-is not compiled so it works just as well on 386 or a Quad P4 Xeon.  The 
-only difference is the config file used to compile the kernel. The 
-config file can be found in the configs directory in the kernel source.
+  net/ipv4/raw.c: In function `raw_send_hdrinc':
+  net/ipv4/raw.c:297: `NF_IP_LOCAL_OUT' undeclared (first use in this
+  function)
+  net/ipv4/raw.c:297: (Each undeclared identifier is reported only once
+  net/ipv4/raw.c:297: for each function it appears in.)
+  make[2]: *** [net/ipv4/raw.o] Error 1
+  make[1]: *** [net/ipv4] Error 2
+  make: *** [net] Error 2
 
+ net/ipv4/raw.c includes linux/netfilter.h, but not linux/netfilter_ipv4.h
+ (NF_IP_LOCAL_OUT is defined in netfilter_ipv4.h).
 
-BTW- kernel-2.4.18-17.7.x is redhat's current eratta kernel.  In 
-addition your downloads may be a bit faster if you use a mirror.
-http://www.redhat.com/download/mirror.html
+Regards,
+ Juanma
+
+-- 
+/jm
 

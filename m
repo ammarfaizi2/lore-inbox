@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280583AbRKNM7n>; Wed, 14 Nov 2001 07:59:43 -0500
+	id <S280563AbRKNNJE>; Wed, 14 Nov 2001 08:09:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280577AbRKNM7d>; Wed, 14 Nov 2001 07:59:33 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:63498 "EHLO
+	id <S280570AbRKNNIo>; Wed, 14 Nov 2001 08:08:44 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:3083 "EHLO
 	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S280570AbRKNM7Q>; Wed, 14 Nov 2001 07:59:16 -0500
-Message-Id: <200111141259.fAECx6KZ012150@pincoya.inf.utfsm.cl>
-To: Thorsten Kukuk <kukuk@suse.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        sparclinux@vger.kernel.org
-Subject: Re: Linux 2.4.15-pre4 - merge with Alan 
-In-Reply-To: Message from Thorsten Kukuk <kukuk@suse.de> 
-   of "Tue, 13 Nov 2001 16:21:02 BST." <20011113162102.A2305@suse.de> 
-Date: Wed, 14 Nov 2001 09:59:06 -0300
+	id <S280563AbRKNNIn>; Wed, 14 Nov 2001 08:08:43 -0500
+Message-Id: <200111141308.fAED85k6012767@pincoya.inf.utfsm.cl>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: fdutils. 
+In-Reply-To: Message from "Maciej W. Rozycki" <macro@ds2.pg.gda.pl> 
+   of "Tue, 13 Nov 2001 21:52:40 BST." <Pine.GSO.3.96.1011113214448.11222E-100000@delta.ds2.pg.gda.pl> 
+Date: Wed, 14 Nov 2001 10:08:05 -0300
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thorsten Kukuk <kukuk@suse.de> said:
-> On Tue, Nov 13, Horst von Brand wrote:
-> 
-> > On CVS as of today for sparc64 I get:
-> > 
-> > sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-pr
-> oto
-> > types -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-commo
-> n -
-> > m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5
->  -f
-> > call-used-g7 -Wno-sign-compare -Wa,--undeclared-regs    -c -o ioctl32.o ioctl
-> 32.
-> > c
-> > ioctl32.c: In function `do_lvm_ioctl':
-> > ioctl32.c:2636: warning: assignment makes pointer from integer without a cast
-> > ioctl32.c:2670: structure has no member named `inode'
-> > ioctl32.c:2711: warning: assignment from incompatible pointer type
-> > ioctl32.c:2712: structure has no member named `inode'
-> > ioctl32.c:2719: structure has no member named `inode'
-> > ioctl32.c:2732: structure has no member named `inode'
-> > ioctl32.c:2611: warning: `v' might be used uninitialized in this function
-> > make[1]: *** [ioctl32.o] Error 1
-> > make[1]: Leaving directory `/usr/src/linux-2.4/arch/sparc64/kernel'
-> > make: *** [_dir_arch/sparc64/kernel] Error 2
-> 
-> Please try the both attached patches. I'm using them with 
-> 2.4.15pre1aa1 (which has the same lvm version as now 2.2.15pre4).
+"Maciej W. Rozycki" <macro@ds2.pg.gda.pl> said:
 
-Whatever patches went into CVS since yesterday fixed that one (in a
-different way).
+[....]
 
-Thanks!
+>  You only confirm what I wrote -- hardly anyone uses floppies, so there is
+> no need to keep mechanical compatibility in devices -- a complete dump of
+> 1.44" FD support would be almost harmless.  Hence whether a Zip or a
+> LS-120 -- it doesn't really matter.  You need new media anyway. 
+
+"Hardly anyone" includes 100% of the people I know. Not exactly heavy use,
+mostly occasional transport of files and for emergency booting. Heck,
+_every_ machine I see around me here has a floppy drive, can't just throw
+that away because _you_ don't like it. The alternatives are extremely
+expensive and so rare as to be almost useless around here.
 -- 
 Dr. Horst H. von Brand                Usuario #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431

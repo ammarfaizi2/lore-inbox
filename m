@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266091AbRF2O0m>; Fri, 29 Jun 2001 10:26:42 -0400
+	id <S266092AbRF2OZw>; Fri, 29 Jun 2001 10:25:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266096AbRF2O0h>; Fri, 29 Jun 2001 10:26:37 -0400
-Received: from paloma17.e0k.nbg-hannover.de ([62.159.219.17]:35261 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S266091AbRF2O01>; Fri, 29 Jun 2001 10:26:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux-2.4.5-ac21
-Date: Fri, 29 Jun 2001 16:25:55 +0200
-X-Mailer: KMail [version 1.2.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010629142630Z266091-17721+7209@vger.kernel.org>
+	id <S266091AbRF2OZm>; Fri, 29 Jun 2001 10:25:42 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:54535 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S266092AbRF2OZd>;
+	Fri, 29 Jun 2001 10:25:33 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Byeong-ryeol Kim <jinbo21@hananet.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: compile error about do_softirq in 2.4.5-ac21 
+In-Reply-To: Your message of "Fri, 29 Jun 2001 19:41:06 +0900."
+             <Pine.LNX.4.33.0106291939100.8064-100000@progress.plw.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 30 Jun 2001 00:25:28 +1000
+Message-ID: <27681.993824728@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+On Fri, 29 Jun 2001 19:41:06 +0900 (KST), 
+Byeong-ryeol Kim <jinbo21@hananet.net> wrote:
+>background.c:57: `do_softirq_Rf0a529b7' undeclared (first use in \
+>                this function)
 
-I mount my bootdisk (minix filesystem) with "mount /dev/fd0 /mnt" and copy my 
-new compiled kernel to it. After that I do a "lilo -v -C /mnt/lilo.conf".
-
-All following commands which are floppy related (filesystem) fall into the D 
-state. Load goes up by 100 for every D state process.
-
-ls /mnt
-umount /mnt
-sync
-
-SunWave1#ps aux
-root      1039  0.0  0.0  1404   64 pts/1    D    16:24   0:00 umount /mnt
-nuetzel   1108  0.1  0.1  1412  500 pts/5    D    16:28   0:00 sync
-
-Only the floppy (Minix) show this symptoms.
-All other disk partitions (ReiserFS) working (mount/umount) as expected.
-
-Thanks,
-        Dieter
+2.4.5-ac21 compiles and loads for me with module symbols turned on.
+Try the procedure in http://www.tux.org/lkml/#s8-8.
 

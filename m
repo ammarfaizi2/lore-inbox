@@ -1,81 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUGSGCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUGSGGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264702AbUGSGCn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 02:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUGSGCn
+	id S264697AbUGSGGY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 02:06:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUGSGGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 02:02:43 -0400
-Received: from ozlabs.org ([203.10.76.45]:31953 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264702AbUGSGCk (ORCPT
+	Mon, 19 Jul 2004 02:06:24 -0400
+Received: from [221.140.247.223] ([221.140.247.223]:26129 "HELO addr.com")
+	by vger.kernel.org with SMTP id S264697AbUGSGGV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 02:02:40 -0400
-Date: Mon, 19 Jul 2004 15:55:42 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Anton Blanchard <anton@samba.org>, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: page align emergency stack
-Message-ID: <20040719055542.GC11586@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-	linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
-References: <20040715145708.GG27715@krispykreme> <20040716004729.GA24753@zax> <20040716011141.GC17574@krispykreme> <20040716013901.GC24753@zax>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040716013901.GC24753@zax>
-User-Agent: Mutt/1.5.6+20040523i
+	Mon, 19 Jul 2004 02:06:21 -0400
+Date: Mon, 19 Jul 2004 06:01:16 +0000
+From: miko@almaden.ibm.com
+Subject: New O E M software site
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <C29963F45474I91J@vger.kernel.org>
+In-Reply-To: <C29963F45474I91J@vger.kernel.org>
+Message-ID: <FKE7HLI5CHI8029D@almaden.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 16, 2004 at 11:39:01AM +1000, David Gibson wrote:
-> 
-> On Fri, Jul 16, 2004 at 11:11:41AM +1000, Anton Blanchard wrote:
-> >
-> >
-> > > Do we actually need to do this?  I noted that the old guard pages were
-> > > page aligned, but couldn't see any particular reason for it, so I
-> > > didn't transfer the alignment to the new version.
-> >
-> > The ABI requires us to have 128 bit alignment doesnt it? Im thinking
-> > about what would happen if we saved altivec registers to the stack.
-> 
-> Ok, that's not quite the same thing as page alignment...
+Huge of O E M Software! You will find everything you need
+on our site http://gabydg.biz
 
-Ok, here's a patch that just applies the weaker 128-byte alignment
-constraint.
+Microsoft Windows XP Professional
+Retail price: $299.00
+Our low Price: $50.00
+You Save: $249.00
+   
+Adobe Photoshop CS V 8.0 PC
+Retail price: $609.99
+Our low Price: $80.00
+You Save: $529.99
 
-Andrew, please apply
+Microsoft Office XP Professional
+Retail price: $499.95
+Our low Price: $100.00
+You Save: $399.95
 
-The PPC64 ABI requires the stack to be 128 byte aligned (and that can
-become important if AltiVec registers are saved there).  In the
-kernel, that's usually dealt with by the fact that the stack has a
-page more-or-less to itself.  However, the emergency stacks (used in
-SMP bringup and when we detect a bad stack pointer) aren't necessarily
-page aligned, or anything aligned for that matter.  This patch applies
-the necessary alignement constraint to them.
+Microsoft Windows 2000 Professional
+Retail price: $320.00
+Our low Price: $50.00
+You Save: $270.00
 
-Signed-off-by: David Gibson <dwg@au.ibm.com>
+Adobe Pagemaker V 7.0 PC
+Retail price: $599.95
+Our low Price: $80.00
+You Save: $519.95
+   
+Adobe Illustrator CS V 11.0 PC
+Retail price: $599.95
+Our low Price: $80.00
+You Save: $519.95
 
-Index: working-2.6/arch/ppc64/kernel/pacaData.c
-===================================================================
---- working-2.6.orig/arch/ppc64/kernel/pacaData.c
-+++ working-2.6/arch/ppc64/kernel/pacaData.c
-@@ -29,8 +29,10 @@
+CorelDraw Graphics Suite V 12 PC
+Retail price: $349.95
+Our low Price: $100.00
+You Save: $249.95
+   
+Microsoft SQL Server 2000
+Retail price: $1450.00
+Our low Price: $90.00
+You Save: $1360.00
  
- /* Stack space used when we detect a bad kernel stack pointer, and
-  * early in SMP boots before relocation is enabled.
-+ *
-+ * ABI requires stack to be 128-byte aligned
-  */
--char emergency_stack[PAGE_SIZE * NR_CPUS];
-+char emergency_stack[PAGE_SIZE * NR_CPUS] __attribute__((aligned(128)));
- 
- /* The Paca is an array with one entry per processor.  Each contains an 
-  * ItLpPaca, which contains the information shared between the 
+Symantec Norton Antivirus 2004 Professional
+Retail price: $69.95
+Our low Price: $15.00
+You Save: $54.95
 
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+RedHat Linux 9.0
+Retail price: $79.99
+Our low Price: $60.00
+You Save: $19.99
+
+or site is http://gabydg.biz
+

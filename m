@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbTJPUo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 16:44:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbTJPUng
+	id S263116AbTJPVFj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 17:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbTJPVFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 16:43:36 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:24311 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S263173AbTJPUnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 16:43:25 -0400
-Date: Thu, 16 Oct 2003 14:42:05 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Eli Billauer <eli_billauer@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org,
-       David Mosberger-Tang <David.Mosberger@acm.org>
-Subject: Re: [RFC] frandom - fast random generator module
-Message-ID: <20031016144205.I7000@schatzie.adilger.int>
-Mail-Followup-To: Eli Billauer <eli_billauer@users.sourceforge.net>,
-	linux-kernel@vger.kernel.org,
-	David Mosberger-Tang <David.Mosberger@acm.org>
-References: <HbGf.8rL.1@gated-at.bofh.it> <HbQ5.ep.27@gated-at.bofh.it> <Hdyv.2Vd.13@gated-at.bofh.it> <HeE6.4Cc.1@gated-at.bofh.it> <HjaT.3nN.7@gated-at.bofh.it> <Hjkw.3Al.11@gated-at.bofh.it> <ugzng1axel.fsf@panda.mostang.com> <3F8EF17A.2040502@users.sf.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F8EF17A.2040502@users.sf.net>; from eli_billauer@users.sourceforge.net on Thu, Oct 16, 2003 at 09:28:58PM +0200
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Thu, 16 Oct 2003 17:05:39 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:39394 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263116AbTJPVFb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 17:05:31 -0400
+Message-ID: <3F8F07FA.1030006@vnet.ibm.com>
+Date: Thu, 16 Oct 2003 16:04:58 -0500
+From: Peter Bergner <bergner@vnet.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: linuxppc64-dev@lists.linuxppc.org
+Subject: [BUG][PATCH] fs/binfmt_elf.c:load_elf_binary() doesn't verify interpreter
+ arch
+Content-Type: multipart/mixed;
+ boundary="------------040008010606020800060006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 16, 2003  21:28 +0200, Eli Billauer wrote:
-> Allow me to supply a couple facts about frandom:
-> 
-> * It's not a "crappy" RNG. Its RC4 origins and the fact, that it has 
-> passed tests indicate the opposite. A fast RNG doesn't necessarily mean 
-> a bad one. I doubt if any test will tell the difference between frandom 
-> and any other good RNG. You're most welcome to try.
+This is a multi-part message in MIME format.
+--------------040008010606020800060006
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The "crappy RNG" being referred to is just some code we implemented to
-give us somewhat unique numbers instead of sucking CPU.
+In fs/binfmt_elf.c:load_elf_binary() (both 2.6 and 2.4), there is some minimal
+checking whether the interpreter it's about to load/run is a valid ELF file,
+but it fails to check whether the interpreter is of the correct arch.
+We ran into this when a borked powerpc64-linux toolchain set the interpreter
+on our 64-bit app to our 32-bit ld.so.  Executing the app caused the kernel to
+really chew up memory.  I'm assuming x86_64 and sparc64 might possibly see
+the same behavior.
 
-> * Frandom is written completely in C. On an i686, gcc compiles the 
-> critical part to 26 assembly instructions per byte, and I doubt if any 
-> hand assembly would help significantly. The algorithms is clean and 
-> simple, and the compiler performs well with it.
+A patch against 2.6 is attached below for review (although it applies with some
+fuzz on 2.4).  Note I'm not sure of the history behind INTERPRETER_AOUT, so I
+added the test for INTERPRETER_ELF so as not to change it's behavior in case
+someone still relies on it.
 
-This is still more expensive than a hw RNG (which will be about 1 ins
-per 4 bytes), so it would be nice to make this arch-specific if possible
-(runtime and compile time).
+As an aside, it seems the elf_check_arch() macros should really be checking
+for more than a valid e_machine value.  I'd think checking one or more of the
+e_ident[EI_CLASS], e_ident[EI_DATA] and e_ident[EI_OSABI] values would be
+required as well, no?
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Peter
+
+
+
+--------------040008010606020800060006
+Content-Type: text/plain;
+ name="binfmt_elf.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="binfmt_elf.diff"
+
+--- linux-2.5-orig/fs/binfmt_elf.c	2003-10-16 13:35:24.000000000 -0500
++++ linux-2.5/fs/binfmt_elf.c	2003-10-16 15:23:34.000000000 -0500
+@@ -602,6 +602,10 @@
+ 			// printk(KERN_WARNING "ELF: Ambiguous type, using ELF\n");
+ 			interpreter_type = INTERPRETER_ELF;
+ 		}
++		/* Verify the interpreter has a valid arch */
++		if ((interpreter_type == INTERPRETER_ELF) &&
++		    !elf_check_arch(&interp_elf_ex))
++			goto out_free_dentry;
+ 	} else {
+ 		/* Executables without an interpreter also need a personality  */
+ 		SET_PERSONALITY(elf_ex, ibcs2_interpreter);
+
+--------------040008010606020800060006--
 

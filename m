@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbSKDWmP>; Mon, 4 Nov 2002 17:42:15 -0500
+	id <S262826AbSKDWqj>; Mon, 4 Nov 2002 17:46:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbSKDWmP>; Mon, 4 Nov 2002 17:42:15 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:6900 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S262821AbSKDWmO>; Mon, 4 Nov 2002 17:42:14 -0500
-Message-ID: <000a01c28454$56a94b90$7fd40a0a@amr.corp.intel.com>
-From: "Geoff Gustafson" <geoff@linux.co.intel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] Open POSIX Test Suite
-Date: Mon, 4 Nov 2002 14:48:47 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S262827AbSKDWqj>; Mon, 4 Nov 2002 17:46:39 -0500
+Received: from almesberger.net ([63.105.73.239]:16649 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S262826AbSKDWqi>; Mon, 4 Nov 2002 17:46:38 -0500
+Date: Mon, 4 Nov 2002 19:52:29 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Rob Landley <landley@trommello.org>
+Cc: dcinege@psychosis.com, andersen@codepoet.org,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
+Message-ID: <20021104195229.C1407@almesberger.net>
+References: <200210272017.56147.landley@trommello.org> <20021030085149.GA7919@codepoet.org> <200210300455.21691.dcinege@psychosis.com> <200211011917.16978.landley@trommello.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211011917.16978.landley@trommello.org>; from landley@trommello.org on Mon, Nov 04, 2002 at 02:13:20AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to announce a new project to develop and/or assemble a GPL test
-suite for POSIX APIs. The tests will focus on conformance to the IEEE Std
-1003.1-2001, but will also include separate functional and stress tests.
+Rob Landley wrote:
+> Yeah, cpio is a pain and change to use, but so is tar.
 
-The project's current approach to conformance testing is to record
-assertions
-from a close reading of the POSIX specifications, and write minimal test
-cases
-that prove or disprove these assertions. The test suite will be independent
-of
-specific API implementations, and will eventually be easily configurable to
-work with different implementations. The project aims for OS independence,
-using only POSIX APIs, the autoconf suite, and simple shell support.
-However,
-it is currently only being tested on Linux.
+Somebody who strogly dislikes cpio could just write wrapper accepting
+tar-style options. Or add a --cpio option to GNU tar, that switches
+to using the cpio format. One could even try to auto-detect the
+format when reading :-)
 
-Ultimately, the plan is to use the test suite to evaluate current support in
-Linux, as well as new implementations being considered in the open source
-community, and then contribute patches or at least bug reports (with a
-minimal
-test case) to the appropriate places, like LKML.
+- Werner (hates cpio, but not enough)
 
-Contributions of any test cases, review of the work, discussion of the
-approach, etc. are very welcome. Join the development mailing list,
-posixtest-discuss. The initial focus is on Signals, Message Queues, Threads,
-Semaphores, and Clocks & Timers, based on current interests and resources.
-You can help in these areas, or start work on another area of the spec.
-There
-will need to be some uniformity across the suite, but many details have yet
-to
-be worked out, so your involvement in those decisions help a lot.
-
-For more information, see the project website at
-http://posixtest.sourceforge.net
-
-Thanks,
-
--- Geoff Gustafson
-
-These are my views and not necessarily those of my employer.
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,85 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287593AbSAEH4S>; Sat, 5 Jan 2002 02:56:18 -0500
+	id <S287582AbSAEHys>; Sat, 5 Jan 2002 02:54:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287596AbSAEH4K>; Sat, 5 Jan 2002 02:56:10 -0500
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:59913 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S287593AbSAEH4A>; Sat, 5 Jan 2002 02:56:00 -0500
-Subject: 2.5.2-pre8 -- Compile errors in ieee1394/raw1394.c and video1394.c
-	(invalid operands to binary &)
-From: Miles Lane <miles@megapathdsl.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Evolution/1.1.0.99 (Preview Release)
-Date: 04 Jan 2002 23:56:03 -0800
-Message-Id: <1010217375.19924.8.camel@stomata.megapathdsl.net>
+	id <S287595AbSAEHyj>; Sat, 5 Jan 2002 02:54:39 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:28380 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S287593AbSAEHyb>; Sat, 5 Jan 2002 02:54:31 -0500
+Date: Fri, 4 Jan 2002 23:54:26 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: kkeil@suse.de, linux-kernel@vger.kernel.org, kai.germaschewski@gmx.de,
+        torvalds@transmeta.com
+Subject: Patch: linux-2.5.2-pre8/drivers/isdn/sc/commands.c bug exposed by kdev_t changes
+Message-ID: <20020104235426.A17712@baldur.yggdrasil.com>
 Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am including relevant bits of the .config.
-I am running gcc 3.0.3.
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon     -c -o raw1394.o raw1394.c
-raw1394.c: In function `raw1394_open':
-raw1394.c:918: invalid operands to binary &
-make[3]: *** [raw1394.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/drivers/ieee1394'
-
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon     -c -o video1394.o video1394.c
-video1394.c: In function `video1394_ioctl':
-video1394.c:853: invalid operands to binary &
-video1394.c:863: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
-video1394.c:863: invalid operands to binary &
-video1394.c: In function `video1394_mmap':
-video1394.c:1331: invalid operands to binary &
-video1394.c:1340: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
-video1394.c:1340: invalid operands to binary &
-video1394.c: In function `video1394_open':
-video1394.c:1360: invalid operands to binary &
-video1394.c: In function `video1394_release':
-video1394.c:1400: invalid operands to binary &
-video1394.c:1409: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
-video1394.c:1409: invalid operands to binary &
-video1394.c: In function `irq_handler':
-video1394.c:1477: warning: concatenation of string literals with __FUNCTION__ is deprecated.  This feature will be removed in future
-make[3]: *** [video1394.o] Error 1
-
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-CONFIG_IEEE1394=y
-# CONFIG_IEEE1394_PCILYNX is not set
-CONFIG_IEEE1394_OHCI1394=y
-CONFIG_IEEE1394_VIDEO1394=y
-CONFIG_IEEE1394_SBP2=y
-CONFIG_IEEE1394_RAWIO=y
-CONFIG_IEEE1394_VERBOSEDEBUG=y
-
-If you need more .config, please let me know.
-
-Also. here's what ver_linux spits out:
-
-Gnu C                  3.0.3
-Gnu make               3.79.1
-binutils               2.10.91.0.2
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.12
-e2fsprogs              1.23
-reiserfsprogs          3.x.0j
-pcmcia-cs              3.1.22
-PPP                    2.4.0
-isdn4k-utils           3.1pre1
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Linux C++ Library      3.0.2
-Procps                 2.0.7
-Net-tools              1.57
-Console-tools          0.3.3
-Sh-utils               2.0
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
+	The kdev_t changes have exposed an amusing bug in
+linux-2.5.2-pre8/drivers/isdn/sc/command.c.  A routine that
+was intended to return the error "-ENODEV" was actually
+returning "-NODEV" (prevously zero, now a compilation error).
+Here is the fix.
+
+	I have already checked to see that '-NODEV' and '- NODEV' do
+not appear anywhere else in the kernel sources.
+
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="sc.diff"
+
+--- linux-2.5.2-pre8/drivers/isdn/sc/command.c	Sun Sep 30 12:26:06 2001
++++ linux/drivers/isdn/sc/command.c	Fri Jan  4 23:47:36 2002
+@@ -95,7 +95,7 @@
+ 		if(adapter[i]->driverId == driver)
+ 			return i;
+ 	}
+-	return -NODEV;
++	return -ENODEV;
+ }
+ 
+ /* 
+
+--ReaqsoxgOBHFXBhH--

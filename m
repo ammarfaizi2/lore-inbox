@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282839AbRK0HmZ>; Tue, 27 Nov 2001 02:42:25 -0500
+	id <S282850AbRK0Hnh>; Tue, 27 Nov 2001 02:43:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282843AbRK0HmQ>; Tue, 27 Nov 2001 02:42:16 -0500
-Received: from queen.bee.lk ([203.143.12.182]:27040 "EHLO queen.bee.lk")
-	by vger.kernel.org with ESMTP id <S282839AbRK0HmD>;
-	Tue, 27 Nov 2001 02:42:03 -0500
-Date: Tue, 27 Nov 2001 13:41:38 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-Message-ID: <20011127134138.B21914@bee.lk>
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2946@OTTONEXC1>
+	id <S282847AbRK0Hms>; Tue, 27 Nov 2001 02:42:48 -0500
+Received: from smtp-rt-1.wanadoo.fr ([193.252.19.151]:59345 "EHLO
+	anagyris.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S282844AbRK0Hmd>; Tue, 27 Nov 2001 02:42:33 -0500
+Date: Tue, 27 Nov 2001 08:41:50 +0100
+From: Eric Streit <Eric.Streit@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: one missing line in ov511.c
+Message-ID: <20011127084150.A11807@sarah.maison.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2946@OTTONEXC1>; from dana.lacoste@peregrine.com on Mon, Nov 26, 2001 at 09:52:57AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 09:52:57AM -0800, Dana Lacoste wrote:
->
-> So can we drop it?  There will be no changes from the
-> last pre-release and the actual release, so this will
-> not be an issue :)
+hi,
 
-If I understand correctly, -preX releases will be for adding features and bug
-fixes and -rcX releases will be for only bug fixes.
+a short mail to report a small bug in "ov511.c".
+(drivers/usb/ov511.c)
 
-Hopefully, there won't be _any_ change from last -rc release to the -final.
+the line defining the kernel version is missing in the kernel 2.2.20.
 
-Anuradha
+I downloaded it 2 days ago.
 
--- 
+************line  missing**************
+static char kernel_version[] = UTS_RELEASE;
+************end of line missing********
 
-Debian GNU/Linux (kernel 2.4.13)
+I am at work, so I have only the 2.2.19 kernel, so I cannot say
+the right line, but it's just under the "MODULE_DESCRIPTION" line.
 
-You are dishonest, but never to the point of hurting a friend.
+Hope this help,
 
+
+Eric
+
+Eric.Streit@wanadoo.fr
+ 

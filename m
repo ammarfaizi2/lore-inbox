@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317157AbSEXPxX>; Fri, 24 May 2002 11:53:23 -0400
+	id <S317172AbSEXPxV>; Fri, 24 May 2002 11:53:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314457AbSEXPxW>; Fri, 24 May 2002 11:53:22 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2829 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317157AbSEXPxT>; Fri, 24 May 2002 11:53:19 -0400
-Subject: Re: Quota patches
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Fri, 24 May 2002 17:12:05 +0100 (BST)
-Cc: hch@infradead.org (Christoph Hellwig), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jack@suse.cz (Jan Kara), nathans@sgi.com (Nathan Scott),
-        torvalds@transmeta.com (Linus Torvalds),
-        hirofumi@mail.parknet.co.jp (OGAWA Hirofumi),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CEE51A4.9010308@evision-ventures.com> from "Martin Dalecki" at May 24, 2002 04:43:48 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317175AbSEXPxU>; Fri, 24 May 2002 11:53:20 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:13509 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317172AbSEXPxS>; Fri, 24 May 2002 11:53:18 -0400
+Date: Fri, 24 May 2002 08:53:38 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4 VM sucks. Again
+Message-ID: <421830000.1022255618@flay>
+In-Reply-To: <E17BGj9-0006VQ-00@the-village.bc.nu>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17BHfh-0006lp-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Of course you can.  Even the latest OpenLinux release (shipping 2.4.13-ac)
-> > uses a libc4/a.out based installer fo space reasons.  Not to forget the
-> > old quake1 binary from some redhat 4.x CD I run from time to time :)
+>> > How much RAM do you have, and what does /proc/meminfo
+>> > and /proc/slabinfo say just before the explosion point?
+>> 
+>> I have 1 gig - highmem (not enabled) - 900 megs.
+>> for what I can see, kernel can't reclaim buffers fast enough.
+>> ut looks better on -aa.
+>> 
 > 
-> OK thanks for the *substantial* answer. That was the reason I was asking about.
-> Somehow this is of course surprising me of course.
+> What sort of setup. I can't duplicate the problem here ?
 
-So why didn't you -test- the theory before suggesting it. It btw goes beyond
-Libc4. Currently we have almost 100% compatibility back to libc 2.2.2. The
-dated libc before that doesn't work because we dropped some very very
-early obscure versions of a few syscalls.
+I'm not sure exactly what Roy was doing, but we were taking a machine
+with 16Gb of RAM, and reading files into the page cache - I think we built up
+8 million buffer_heads according to slabinfo ... on a P4 they're 128 bytes each,
+on a P3 96 bytes.
 
-Is it too much to ask that you go and look through the syscall tables of
-old and new kernels ? 
+M.
 
-Alan
+

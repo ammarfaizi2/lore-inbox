@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291842AbSBNTPv>; Thu, 14 Feb 2002 14:15:51 -0500
+	id <S291834AbSBNTZc>; Thu, 14 Feb 2002 14:25:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291843AbSBNTPl>; Thu, 14 Feb 2002 14:15:41 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:30216 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S291842AbSBNTPc>; Thu, 14 Feb 2002 14:15:32 -0500
-Date: Thu, 14 Feb 2002 20:15:23 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Nick Craig-Wood <ncw@axis.demon.co.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18-pre9: iptables screwed?
-Message-ID: <20020214191523.GA30874@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <a3vjts$r7l$1@cesium.transmeta.com> <20020208094649.J26676@sunbeam.de.gnumonks.org> <20020214161225.A2867@axis.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020214161225.A2867@axis.demon.co.uk>
-User-Agent: Mutt/1.3.25i
+	id <S291846AbSBNTZW>; Thu, 14 Feb 2002 14:25:22 -0500
+Received: from echo.sound.net ([205.242.192.21]:59296 "HELO echo.sound.net")
+	by vger.kernel.org with SMTP id <S291834AbSBNTZM>;
+	Thu, 14 Feb 2002 14:25:12 -0500
+Date: Thu, 14 Feb 2002 13:24:36 -0600 (CST)
+From: Hal Duston <hald@sound.net>
+To: linux-kernel@vger.kernel.org
+cc: vojtech@suse.cz
+Subject: Re: Input w/2.5.3-dj3
+Message-ID: <Pine.GSO.4.10.10202141319410.19668-100000@sound.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 14, 2002 at 04:12:25PM +0000, Nick Craig-Wood wrote:
+Sorry I haven't gotten back to you before this, but life got in the way.
 
-> > > iptables-restore: libiptc/libip4tc.c:384: do_check: Assertion
-> > > `h->info.valid_hooks == (1 << 0 | 1 << 3)' failed.
-> > > Abort (core dumped)
-> 
-> I've noticed this too.
-[...]
-> Apologies if this info is too late but I didn't see a followup to
-> lkml.
+OK, I've got the timeouts bumped up as you suggested earlier, and applied 
+the patch from the 12th.  Both of these things together w/o any options
+make the keyboard work again.
 
-There were several followups on lkml, search the archives.
+Yes, this _is_ a weird machine.  It's a laptop that is a true PS/2 (MCA
+bus) from 1994.  All the rest of the hardware is "odd" as well, so why not
+the keyboard?
 
-The final solution was to rebuild the userspace tools with the
--DNODEBUG make flag (the RH RPM was build with debug enabled due
-to a CFLAGS override in the .spec).
+If you want me to look at anything else, let me know.
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+Thanks for your efforts,
+Hal Duston
+hald@sound.net
+

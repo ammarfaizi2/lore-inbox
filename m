@@ -1,29 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVARPDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVARPHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVARPDf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 10:03:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVARPDf
+	id S261315AbVARPHg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 10:07:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVARPHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 10:03:35 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:59152 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261314AbVARPDc (ORCPT
+	Tue, 18 Jan 2005 10:07:36 -0500
+Received: from mail45.messagelabs.com ([140.174.2.179]:10982 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S261315AbVARPHa convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 10:03:32 -0500
-Date: Tue, 18 Jan 2005 16:03:30 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-Cc: Mario Holbe <Mario.Holbe@TU-Ilmenau.DE>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4: "access beyond end of device" after ext2 mount
-Message-ID: <20050118150330.GG8747@pclin040.win.tue.nl>
-References: <2E314DE03538984BA5634F12115B3A4E01BC42B3@email1.mitretek.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2E314DE03538984BA5634F12115B3A4E01BC42B3@email1.mitretek.org>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : 
+	Tue, 18 Jan 2005 10:07:30 -0500
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-9.tower-45.messagelabs.com!1106060848!9539916!1
+X-StarScan-Version: 5.4.5; banners=-,-,-
+X-Originating-IP: [66.10.26.57]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.4: "access beyond end of device" after ext2 mount
+Date: Tue, 18 Jan 2005 10:07:27 -0500
+Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC42B5@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4: "access beyond end of device" after ext2 mount
+thread-index: AcT9bwbTYXadNnGgRKmfhXUgqlvuvAAAFWfw
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: "Andries Brouwer" <aebr@win.tue.nl>
+Cc: "Mario Holbe" <Mario.Holbe@TU-Ilmenau.DE>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Not trying to spread FUD, I am just explaining I had the same issue and
+that was the resolution.
+
+-----Original Message-----
+From: Andries Brouwer [mailto:aebr@win.tue.nl] 
+Sent: Tuesday, January 18, 2005 10:04 AM
+To: Piszcz, Justin Michael
+Cc: Mario Holbe; linux-kernel@vger.kernel.org
+Subject: Re: 2.4: "access beyond end of device" after ext2 mount
 
 On Tue, Jan 18, 2005 at 09:24:03AM -0500, Piszcz, Justin Michael wrote:
 

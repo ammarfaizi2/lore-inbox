@@ -1,52 +1,158 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283840AbRK3XzJ>; Fri, 30 Nov 2001 18:55:09 -0500
+	id <S283842AbRK3X57>; Fri, 30 Nov 2001 18:57:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283835AbRK3XzA>; Fri, 30 Nov 2001 18:55:00 -0500
-Received: from sunfish.linuxis.net ([64.71.162.66]:43736 "HELO
-	sunfish.linuxis.net") by vger.kernel.org with SMTP
-	id <S283916AbRK3Xyl>; Fri, 30 Nov 2001 18:54:41 -0500
-Date: Fri, 30 Nov 2001 15:50:22 -0800
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.5 oops in VM
-Message-ID: <20011130155022.I2009@flounder.net>
+	id <S283835AbRK3X5u>; Fri, 30 Nov 2001 18:57:50 -0500
+Received: from bitmover.com ([192.132.92.2]:47290 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S283833AbRK3X5l>;
+	Fri, 30 Nov 2001 18:57:41 -0500
+Date: Fri, 30 Nov 2001 15:57:40 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Larry McVoy <lm@bitmover.com>, Daniel Phillips <phillips@bonn-fries.net>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Linux/Pro [was Re: Coding style - a non-issue]
+Message-ID: <20011130155740.I14710@work.bitmover.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	Larry McVoy <lm@bitmover.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Henning Schmiedehausen <hps@intermeta.de>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <E169scn-0000kt-00@starship.berlin> <20011130110546.V14710@work.bitmover.com> <E169vcF-0000lQ-00@starship.berlin>, <E169vcF-0000lQ-00@starship.berlin>; <20011130140613.F14710@work.bitmover.com> <3C08057D.48645B56@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.21i
-Mail-Copies-To: never
-X-Delivery-Agent: TMDA v0.41/Python 2.1.1 (sunos5)
-From: "Adam McKenna" <adam-dated-1007596224.7b8cf1@flounder.net>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3C08057D.48645B56@zip.com.au>; from akpm@zip.com.au on Fri, Nov 30, 2001 at 02:17:33PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sure this is probably not needed by now, but I had a 2.4.5 box crash
-today.  It's already been upgraded to 2.4.14, but just in case this is
-useful:
+On Fri, Nov 30, 2001 at 02:17:33PM -0800, Andrew Morton wrote:
+> Larry McVoy wrote:
+> > 
+> > Linux isn't there yet
+> > and unless the development model changes somewhat, I'll stand behind my
+> > belief that it is unlikely to ever get there.
+> 
+> I am (genuinely) interested in what changes you think are needed.
 
-Bad swap file entry 80016464
-VM: killing process oracle
-kernel BUG at page_alloc.c:75
-invalid operand: 0000
-CPU:	1
-EIP:	0010:[<c012b96e>]
-EFLAGS:	00010286
+Well I have an opinion, not sure if it will be well received or not,
+but here goes.
 
-eax: 0000001f	ebx: c2aaa910	ecx: 0000002e	edx: 00000002
-esi: c2aaa938	edi: 00000000	ebp: 00000000	esp: c52abf64
-as: 0018    es: 0018    ss:0018
+There is a choice which needs to be made up front, and that is this:
 
-process kswapd (pid:3, stackpage=c52ab000)
-stack: c0239b26 c0239bf8 0000004b c2aaa910 c2aaa938 00000000 0000dfd7 00000000
-       0000dfd7 00000018 00000000 c012abab c012c1f3 c012ad95 00000004 00000000
-       00000000 0008e000 00000000 00000004 00000000 00024189 00000000 c012b3b9
+    do you want to try and turn the Linux kernel hackers into Sun style
+    hackers or do you want to try something else?
 
-call trace: [<c012ab8b>] [<c012df37>] [<c012as95>] [<c012b3b9>] [<c012b44b>]
-[<c01054cc>]
+This assumes we have agreement that there is a difference between the
+two camps.  I'd rather not get into a "this way is better than that way"
+discussion, let's just postulate that the Sun way has some pros/cons
+and so do the Linux way.
 
-code: 0f 0b 83 c4 0c 89 d8 2b 05 18 57 30 c0 69 c0 f1 f0 f0 f0 c1
+If you want to try and make Linux people work like Sun people, I think
+that's going to be tough.  First of all, Sun has a pretty small kernel
+group, they work closely with each other, and they are full time,
+highly paid, professionals working with a culture that is intolerant of
+anything but the best.  It's a cool place to be, to learn, but I think
+it is virtually impossible to replicate in a distributed team, with way
+more people, who are not paid the same or working in the same way.
 
---Adam
+Again, let's not argue the point, let's postulate for the time being
+that the Linux guys aren't going to work like the Sun guys any time soon.
+
+So what's the problem?  The Sun guys fix more bugs, handle more corner
+cases, and scale up better (Linux is still better on the uniprocessors
+but the gap has narrowed considerably; Sun is getting better faster than
+Linux is getting better, performance wise.  That's a bit unfair because
+Linux had, and has, better absolute numbers so there was less room to
+improve, but the point is that Sun is catching up fast.)
+
+As the source base increases in size, handles more devices, runs on more
+platforms, etc., it gets harder and harder to make the OS be reliable.
+Anyone can make a small amount of code work well, it's exponentially
+more difficult to make a large amount of code work well.  There are lots
+of studies which show this to be true, the mythical man month is a good
+starting place.
+
+OK, so it sounds like I'm saying that the Linux guys are lame, Sun is
+great, and there isn't any chance that Linux is going to be as good
+as Solaris.  That's not quite what I'm saying.  *If* you want to play
+by the same rules as Sun, i.e., develop and build things the same way,
+then that is what I'm saying.  The Linux team will never be as good
+as the Sun team unless the Sun team gets a lot worse.  I think that's
+a fact of life, Sun has 100s of millions of dollars a year going into
+software development.  ESR can spout off all he likes, but there is no
+way a team of people working for fun is going to compete with that.
+
+On the other hand, there is perhaps a way Linux could be better.  But it
+requires changing the rules quite a bit.
+
+Instead of trying to make the Linux hackers compete with the Sun hackers,
+what would happen if you architected your way around the problem?
+For example, suppose I said we need to have a smaller, faster, more
+reliable uniprocessor kernel.  Suppose I could wave a magic wand and
+make SMP go away (I can't, but bear with me for a second).  The problem
+space just got at least an order of magnitude less complex than what Sun
+deals with.  I think they are up to 32-64 way SMP and you can imagine,
+I hope, the additional complexity that added.  OK, so *if* uniprocessor
+was the only thing we had to worry about, or say 2-4 way SMP with just
+a handful of locks, then can we agree that it is a lot more likely that
+we could produce a kernel which was in every way as good or better than
+Sun's kernel, on the same platform?  If the answer is yes, keep reading,
+if the answer is no, then we're done because I don't know what to do if
+we can't get that far.
+
+For the sake of discussion, let's assume that you buy what I am saying
+so far.  And let's say that we agree that if you were to toss the SMP
+stuff then we have a good chance at making a reliable kernel, albeit
+an uninteresting one when compared to big boxes.  If you want me to go
+into what I think it would take to do that, I will.
+
+The problem is that we can't ignore the SMP issues, it drives hardware
+sales, gets press, it's cool, etc.  We have to have both but the problem
+is that if we have both we really need Sun's level of professionalism
+to make it work, and it isn't realistic to expect that from a bunch of
+underpaid (or not at all paid) Linux hackers.
+
+Here's how you get both.  Fork the development efforts into the SMP part
+and the uniprocessor part.  The uniprocessor focus is on reliability,
+stability, performance.  The SMP part is a whole new development effort,
+which is architected in such a way as to avoid the complexity of a
+traditional SMP implementation.
+
+The uniprocessor team owns the core architecture of the system.  The
+abstractions provided, the baseline code, etc., that's all uni.  The
+focus there is a small, fast, stable kernel.
+
+The SMP team doesn't get to touch the core code, or at least there is 
+a very strong feedback loop against.  In private converstations, we've
+started talking about the "punch in the nose" feedback loop, which means
+while it may be necessary to touch generic code for the benefit of SMP,
+someone has to feel strongly enough about it that they well sacrifice
+their nose.
+
+It would seem like I haven't solved anything here, just painted a nice
+but impossible picture.  Maybe.  I've actually thought long and hard 
+about the approach needed to scale up without touching all the code
+and it is radically different from the traditional way (i.e., how
+Sun, SGI, Sequent, etc., did it).  If you are interested in that, I'll
+talk about it but I'll wait to see if anyone cares.
+
+The summary over all of this is:
+
+    If you want to solve all the problems that Sun does, run on the same
+    range of UP to big SMP, Linux is never going to be as reliable as 
+    Solaris.  My opinion, of course, but one that is starting to gain
+    some traction as the OS becomes more complex.
+
+    That leaves you with a choice: either give up on some things,
+    magically turn the Linux hackers into Sun hackers, or
+    architect your way around the problem.
+
+My vote is the last one, it fits better with the Linux effort, the answer
+is way more cool than anything Sun or anyone else has done, and it lets
+you have a simple mainline kernel source base.
 -- 
-Adam McKenna <adam@flounder.net>   | GPG: 17A4 11F7 5E7E C2E7 08AA
-http://flounder.net/publickey.html |      38B0 05D0 8BF7 2C6D 110A
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

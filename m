@@ -1,63 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262317AbTABPuq>; Thu, 2 Jan 2003 10:50:46 -0500
+	id <S262326AbTABPxV>; Thu, 2 Jan 2003 10:53:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262326AbTABPuq>; Thu, 2 Jan 2003 10:50:46 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:46280 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262317AbTABPup>;
-	Thu, 2 Jan 2003 10:50:45 -0500
-Date: Thu, 2 Jan 2003 07:56:24 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: SZALAY Attila <sasa@pheniscidae.tvnetwork.hu>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.54
-In-Reply-To: <Pine.LNX.4.33L2.0301020745260.22868-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33L2.0301020755520.22868-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262360AbTABPxV>; Thu, 2 Jan 2003 10:53:21 -0500
+Received: from dp.samba.org ([66.70.73.150]:19078 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262326AbTABPxU>;
+	Thu, 2 Jan 2003 10:53:20 -0500
+Date: Fri, 3 Jan 2003 02:58:08 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][COMPAT] Eliminate the rest of the __kernel_..._t32 typedefs 1/7 PPC64
+Message-ID: <20030102155808.GF12395@krispykreme>
+References: <20021230171959.63ea2d5d.sfr@canb.auug.org.au> <20021230172529.3acc863f.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021230172529.3acc863f.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Jan 2003, Randy.Dunlap wrote:
 
-| On Thu, 2 Jan 2003, SZALAY Attila wrote:
-|
-| | I have a linking problem with 2.5.54 (and 2.5.53 too)
-| |
-| | drivers/built-in.o: In function `kd_nosound':
-| | drivers/built-in.o(.text+0x37923): undefined reference to 	nput_event'
-| | drivers/built-in.o(.text+0x3793c): undefined reference to 	nput_event'
-| | drivers/built-in.o: In function `kd_mksound':
-| | drivers/built-in.o(.text+0x379e7): undefined reference to 	nput_event'
-| | drivers/built-in.o: In function `kbd_bh':
-| | drivers/built-in.o(.text+0x385a2): undefined reference to 	nput_event'
-| | drivers/built-in.o(.text+0x385b0): undefined reference to 	nput_event'
-| | drivers/built-in.o(.text+0x385c1): more undefined references to 	nput_event' follow
-| | drivers/built-in.o: In function `kbd_connect':
-| | drivers/built-in.o(.text+0x389e3): undefined reference to 	nput_open_device'
-| | drivers/built-in.o: In function `kbd_disconnect':
-| | drivers/built-in.o(.text+0x389ff): undefined reference to 	nput_close_device'
-| | drivers/built-in.o: In function `kbd_init':
-| | drivers/built-in.o(.init.text+0x2ae1): undefined reference to 	nput_register_handler'
-| | make[1]: *** [vmlinux] Error 1
-|
-| Yes, unfortunately this is a well-known problem.
-| See kernel.bugzilla.org # 126 and # 164.
+> This includes that compat_..stat and compat_times calls and fixes a
+> (pseudo) bug where the compatibility loff_t was defined as int (instead
+> of signed 64 bit).
 
-Sorry, make that bugzilla.kernel.org (and go get coffee).
-|
-| You need to have CONFIG_INPUT=y, not =m.
-| Alternatively you could have CONFIG_VT=n if that
-| would work for you (not likely).
-|
-| | CONFIG_INPUT=m
-| | CONFIG_VT=y
-| | CONFIG_VT_CONSOLE=y
-|
-|
-| HTH.
+Thanks Stephen, Ive applied the ppc64 bits.
 
--- 
-~Randy
-
+Anton

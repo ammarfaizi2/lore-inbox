@@ -1,23 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292588AbSBZLIg>; Tue, 26 Feb 2002 06:08:36 -0500
+	id <S293511AbSBZLKG>; Tue, 26 Feb 2002 06:10:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292554AbSBZLI0>; Tue, 26 Feb 2002 06:08:26 -0500
-Received: from sproxy.gmx.de ([213.165.64.20]:51886 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S292178AbSBZLII>;
-	Tue, 26 Feb 2002 06:08:08 -0500
-Date: Tue, 26 Feb 2002 12:07:58 +0100
-From: Hanno =?ISO-8859-1?Q?B=F6ck?= <hanno@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: bzip2-archives at www.kernel.org?
-Message-Id: <20020226120758.506ca5bc.hanno@gmx.de>
-X-Mailer: Sylpheed version 0.7.2claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S292178AbSBZLJ4>; Tue, 26 Feb 2002 06:09:56 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:46607 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S293511AbSBZLJp>; Tue, 26 Feb 2002 06:09:45 -0500
+Message-ID: <3C7B6CC8.3090509@evision-ventures.com>
+Date: Tue, 26 Feb 2002 12:08:56 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linuxdiskcert.org>
+CC: Daniel Quinlan <quinlan@transmeta.com>, linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Dave Bogdanoff <bog@transmeta.com>
+Subject: Re: [PATCH] Linux Secondary Slave IDE timings
+In-Reply-To: <Pine.LNX.4.10.10202260021200.14807-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe it would be a good idea to make the standard-links on www.kernel.org point to the bz2-archives?
-Most people have bz2, it's smaller, there would be less traffic on the ftp and people would download faster.
-(I know that I can get the bz2s in the ftp-directory, but I think most people use the links on www.kernel.org)
+Andre Hedrick wrote:
+> It is a valid and correct fix.
+> There must have been a bug or something in an odd compiler, but the reason
+> for the <> | order problem escapes me now.
+> The verification came from a commumication I had with the author of the
+> Intel programmer docs.
+> 
+> I hope my comments do not kill the patch.
+
+Certainly NOT. Thank's for confirmation.
+

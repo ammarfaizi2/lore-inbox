@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbTDHM7H (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 08:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbTDHM7H (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 08:59:07 -0400
-Received: from siaag2af.compuserve.com ([149.174.40.136]:44254 "EHLO
-	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
-	id S261352AbTDHM7G (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 08:59:06 -0400
-Date: Tue, 8 Apr 2003 09:06:56 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304080910_MC3-1-337C-B9A7@compuserve.com>
+	id S261359AbTDHNFc (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 09:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbTDHNFc (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 09:05:32 -0400
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:19945 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261359AbTDHNFb (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 09:05:31 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.67-mm1
+Date: Tue, 8 Apr 2003 09:17:15 -0400
+User-Agent: KMail/1.5.9
+References: <20030408042239.053e1d23.akpm@digeo.com>
+In-Reply-To: <20030408042239.053e1d23.akpm@digeo.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
 Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200304080917.15648.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
->> Have you looked at Stellation at all?  I know the
->> code itself is Java but they have some neat ideas about
->> being able to take 'slices' across the repository and
->> treat the slice as a single file for things like revision
->> tracking.  
->
-> Except that those are ideas as far as I can tell, not actual code.
+This does not boot here.  I loop with the following message. 
 
+i8042.c: Can't get irq 12 for AUX, unregistering the port.
 
- Last I saw they had a prototype that worked better than they expected.
+irq 12 is used (correctly) by my 20267 ide card.  My mouse is
+usb and AUX is not used.
 
+Ideas?
 
-
->  In the
->for what it is worth department, we've done this internally and found
->it doesn't work as well as you might hope.  Sometimes there are clear
->delinations and you really can move stuff around but most of the time
->there is stuff built on top of the stuff you want to move and there is
->no way for a program to tell the difference between enhancements vs fixes
->to the original change.
-
-
-I wouldn't expect the system to be able to do that any better than it can
-resolve every merge conflict.  And at the very least I'd like to be able
-link changesets together so that if I pull cset 1 and there is a mandatory
-fix applied to it, I at least get a pointer to the changes.  Something
-like this:
-
-  1. Keep the csets separate but link them together.  Let the developer
-     tell the system whether one is an enhancement or a bugfix to the base.
-
-  2. Conflicts can be resolved when someone pulls any member of the group.
-
-
-Stellation is also nice becuase it's built on a SQL database.  This gains
-you all the features of the DBMS you run it on, like rollback of failed
-transactions and point-in-time recovery.
-
---
- Chuck
+Ed Tomlinson

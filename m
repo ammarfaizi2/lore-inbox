@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271230AbTHCSXF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 14:23:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271231AbTHCSXF
+	id S271276AbTHCS2B (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 14:28:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271278AbTHCS2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 14:23:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52905 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271230AbTHCSXD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 14:23:03 -0400
-Message-ID: <3F2D52FB.5040304@pobox.com>
-Date: Sun, 03 Aug 2003 14:22:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Erik Steffl <steffl@bigfoot.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SATA HD 137GB limitation?
-References: <3F1F33B0.4070701@bigfoot.com> <20030724171253.GD5695@gtf.org> <3F201AD0.1020704@bigfoot.com>
-In-Reply-To: <3F201AD0.1020704@bigfoot.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Aug 2003 14:28:01 -0400
+Received: from codepoet.org ([166.70.99.138]:5866 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S271276AbTHCS14 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 14:27:56 -0400
+Date: Sun, 3 Aug 2003 12:27:55 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Werner Almesberger <werner@almesberger.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, Nivedita Singhvi <niv@us.ibm.com>
+Subject: Re: TOE brain dump
+Message-ID: <20030803182755.GA16770@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Werner Almesberger <werner@almesberger.net>,
+	Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+	linux-kernel@vger.kernel.org, Nivedita Singhvi <niv@us.ibm.com>
+References: <20030802140444.E5798@almesberger.net> <3F2BF5C7.90400@us.ibm.com> <3F2C0C44.6020002@pobox.com> <20030802184901.G5798@almesberger.net> <3F2CAE61.7070401@pobox.com> <20030803145737.B10280@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030803145737.B10280@almesberger.net>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just realized, 2.4 kernels don't support scsi's READ_CAPACITY_16, nor 
-64-bit sector_t on a 32-bit processor.
+On Sun Aug 03, 2003 at 02:57:37PM -0300, Werner Almesberger wrote:
+> > There is one interesting TOE solution, that I have yet to see created: 
+> > run Linux on an embedded processor, on the NIC.
+> 
+> That's basically what I've been talking about all the
+> while :-)
 
-Can you test Alan Cox's 2.6.0-test-ac tree?  I bet the 137GB limitation 
-may disappear there.
+http://www.snapgear.com/pci630.html
 
-	Jeff
+ -Erik
 
-
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

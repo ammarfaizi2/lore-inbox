@@ -1,163 +1,203 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263875AbTG1MHs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 08:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265182AbTG1MHs
+	id S263355AbTG1MKo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 08:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTG1MKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 08:07:48 -0400
-Received: from hades.mk.cvut.cz ([147.32.96.3]:24530 "EHLO hades.mk.cvut.cz")
-	by vger.kernel.org with ESMTP id S263875AbTG1MHo (ORCPT
+	Mon, 28 Jul 2003 08:10:44 -0400
+Received: from gate.perex.cz ([194.212.165.105]:64010 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S263355AbTG1MKi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 08:07:44 -0400
-Message-ID: <3F2515A2.8040008@kmlinux.fjfi.cvut.cz>
-Date: Mon, 28 Jul 2003 14:22:58 +0200
-From: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030718
-X-Accept-Language: cs, en-us, en
+	Mon, 28 Jul 2003 08:10:38 -0400
+Date: Mon, 28 Jul 2003 14:24:24 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ALSA update 0.9.6
+Message-ID: <Pine.LNX.4.44.0307281421360.28950-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: via-rhine broken in 2.4.22-pre8 and 2.6.0-pre1&2
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[please cc:, I am not a subscriber]
+Linus, please do a
 
-Hello,
+  bk pull http://linux-sound.bkbits.net/linux-sound
 
-I recently tried 2.6.0-test1, 2.6.0-test2, 2.4.22-pre6 and 2.4.22-pre8, 
-and via-rhine seems broken in all of them. Network connection doesn't 
-work, and only the timeout messages appear:
+The GNU patch is available at:
 
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: Transmit timed out, status 0003, PHY status 786d, resetting...
-eth0: Setting full-duplex based on MII #1 link partner capability of 41e1.
+  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2003-07-28.patch.gz
 
-2.4.21 still works fine.
+						Jaroslav
 
-lspci -v:
+The pull command will update the following files:
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400 AGP] Host Bridge
-	Subsystem: VIA Technologies, Inc. VT8377 [KT400 AGP] Host Bridge
-	Flags: bus master, 66Mhz, medium devsel, latency 8
-	Memory at d0000000 (32-bit, prefetchable) [size=128M]
-	Capabilities: [a0] AGP version 2.0
-	Capabilities: [c0] Power Management version 2
+ Documentation/sound/alsa/ALSA-Configuration.txt              |   39 
+ Documentation/sound/alsa/DocBook/writing-an-alsa-driver.tmpl |   46 
+ include/sound/ac97_codec.h                                   |   15 
+ include/sound/ad1848.h                                       |   10 
+ include/sound/asequencer.h                                   |   11 
+ include/sound/asound.h                                       |    3 
+ include/sound/core.h                                         |    3 
+ include/sound/cs8427.h                                       |    2 
+ include/sound/emu10k1.h                                      |    5 
+ include/sound/hdsp.h                                         |    1 
+ include/sound/info.h                                         |    9 
+ include/sound/pcm_oss.h                                      |    4 
+ include/sound/seq_midi_event.h                               |   16 
+ include/sound/soundfont.h                                    |    1 
+ include/sound/version.h                                      |    8 
+ include/sound/ymfpci.h                                       |    8 
+ scripts/MAKEDEV.snd                                          |  161 ++
+ sound/core/control.c                                         |    4 
+ sound/core/info.c                                            |   10 
+ sound/core/ioctl32/ioctl32.c                                 |    6 
+ sound/core/memalloc.c                                        |   81 -
+ sound/core/oss/pcm_oss.c                                     |  205 ++
+ sound/core/oss/pcm_plugin.c                                  |   23 
+ sound/core/oss/pcm_plugin.h                                  |    1 
+ sound/core/oss/plugin_ops.h                                  |    2 
+ sound/core/oss/rate.c                                        |   22 
+ sound/core/oss/route.c                                       |    4 
+ sound/core/pcm_lib.c                                         |   13 
+ sound/core/pcm_memory.c                                      |   16 
+ sound/core/pcm_native.c                                      |   12 
+ sound/core/rawmidi.c                                         |   26 
+ sound/core/rtctimer.c                                        |   14 
+ sound/core/seq/seq_clientmgr.c                               |   56 
+ sound/core/seq/seq_midi_event.c                              |   55 
+ sound/core/seq/seq_ports.c                                   |   14 
+ sound/core/seq/seq_ports.h                                   |    3 
+ sound/core/sound.c                                           |   18 
+ sound/core/sound_oss.c                                       |    2 
+ sound/core/timer.c                                           |   20 
+ sound/drivers/dummy.c                                        |   26 
+ sound/drivers/opl3/opl3_lib.c                                |    2 
+ sound/drivers/opl4/opl4_lib.c                                |    5 
+ sound/drivers/opl4/opl4_local.h                              |    2 
+ sound/drivers/opl4/opl4_synth.c                              |   22 
+ sound/drivers/vx/vx_core.c                                   |    6 
+ sound/i2c/cs8427.c                                           |    6 
+ sound/i2c/other/ak4xxx-adda.c                                |    2 
+ sound/isa/ad1848/ad1848.c                                    |   19 
+ sound/isa/ad1848/ad1848_lib.c                                |  108 +
+ sound/isa/cmi8330.c                                          |    2 
+ sound/isa/cs423x/cs4231_lib.c                                |    4 
+ sound/isa/es18xx.c                                           |    2 
+ sound/isa/gus/gus_main.c                                     |    4 
+ sound/isa/opl3sa2.c                                          |    3 
+ sound/isa/sb/emu8000.c                                       |    2 
+ sound/isa/sb/sb16.c                                          |   18 
+ sound/isa/sscape.c                                           |    2 
+ sound/pci/ac97/Makefile                                      |    2 
+ sound/pci/ac97/ac97_codec.c                                  |  823 -----------
+ sound/pci/ac97/ac97_local.h                                  |   42 
+ sound/pci/ac97/ac97_patch.c                                  |  618 ++++++++
+ sound/pci/ac97/ac97_patch.h                                  |    3 
+ sound/pci/ac97/ac97_proc.c                                   |  295 +++
+ sound/pci/ali5451/ali5451.c                                  |   52 
+ sound/pci/cmipci.c                                           |    4 
+ sound/pci/cs4281.c                                           |   74 
+ sound/pci/cs46xx/cs46xx.c                                    |   13 
+ sound/pci/cs46xx/cs46xx_lib.c                                |   29 
+ sound/pci/emu10k1/emu10k1.c                                  |   10 
+ sound/pci/emu10k1/emu10k1_main.c                             |    8 
+ sound/pci/emu10k1/emufx.c                                    |   59 
+ sound/pci/emu10k1/emumixer.c                                 |   82 -
+ sound/pci/emu10k1/irq.c                                      |   45 
+ sound/pci/ens1370.c                                          |   10 
+ sound/pci/es1938.c                                           |    6 
+ sound/pci/es1968.c                                           |   48 
+ sound/pci/ice1712/ak4xxx.c                                   |   14 
+ sound/pci/ice1712/aureon.c                                   |    2 
+ sound/pci/ice1712/ews.c                                      |   16 
+ sound/pci/ice1712/ice1712.h                                  |    8 
+ sound/pci/ice1712/ice1724.c                                  |    4 
+ sound/pci/intel8x0.c                                         |  358 ++--
+ sound/pci/maestro3.c                                         |  100 -
+ sound/pci/nm256/nm256.c                                      |   13 
+ sound/pci/rme96.c                                            |   18 
+ sound/pci/rme9652/Makefile                                   |    5 
+ sound/pci/rme9652/hammerfall_mem.c                           |  251 ---
+ sound/pci/rme9652/hdsp.c                                     |  417 +++--
+ sound/pci/rme9652/rme9652.c                                  |   79 -
+ sound/pci/sonicvibes.c                                       |    6 
+ sound/pci/trident/trident.c                                  |   15 
+ sound/pci/trident/trident_main.c                             |   17 
+ sound/pci/via82xx.c                                          |    6 
+ sound/pci/ymfpci/ymfpci.c                                    |   15 
+ sound/pci/ymfpci/ymfpci_main.c                               |  131 +
+ sound/pcmcia/vx/vxpocket.c                                   |    1 
+ sound/ppc/awacs.c                                            |   29 
+ sound/ppc/burgundy.c                                         |   25 
+ sound/ppc/pmac.c                                             |    2 
+ sound/ppc/pmac.h                                             |    5 
+ sound/ppc/tumbler.c                                          |   28 
+ sound/synth/emux/soundfont.c                                 |   18 
+ sound/usb/usbaudio.c                                         |  230 ++-
+ sound/usb/usbaudio.h                                         |    8 
+ sound/usb/usbmidi.c                                          |    3 
+ sound/usb/usbmixer.c                                         |    2 
+ sound/usb/usbmixer_maps.c                                    |   23 
+ sound/usb/usbquirks.h                                        |   36 
+ 108 files changed, 3166 insertions(+), 2126 deletions(-)
 
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8235 PCI Bridge (prog-if 00 
-[Normal decode])
-	Flags: bus master, 66Mhz, medium devsel, latency 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	Memory behind bridge: e0000000-e1ffffff
-	Prefetchable memory behind bridge: d8000000-dfffffff
-	Capabilities: [80] Power Management version 2
+through these ChangeSets:
 
-00:0c.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 08)
-	Subsystem: Creative Labs CT4850 SBLive! Value
-	Flags: bus master, medium devsel, latency 32, IRQ 18
-	I/O ports at a000 [size=32]
-	Capabilities: [dc] Power Management version 1
+<perex@suse.cz> (03/07/28 1.1598)
+   ALSA update
+     - removed empty hammerfall_mem.c file
+     - added MAKEDEV.snd script
 
-00:0c.1 Input device controller: Creative Labs SB Live! MIDI/Game Port 
-(rev 08)
-	Subsystem: Creative Labs Gameport Joystick
-	Flags: bus master, medium devsel, latency 32
-	I/O ports at a400 [size=8]
-	Capabilities: [dc] Power Management version 1
+<perex@suse.cz> (03/07/28 1.1597)
+   ALSA 0.9.6 update
+     - added __setup() to all midlevel modules
+     - sequencer protocol 1.0.1
+       - added timestamping flags for ports
+     - OSS PCM emulation
+       - fixed write() behaviour
+       - added two new options no-silence & whole-frag
+       - a try to fix OOPSes caused in the rate plugin
+     - emu10k1 driver
+       - more support for Audigy/Audigy2 EX
+       - fixed soundfont locking
+     - sb16 driver
+       - fixed fm_res handling (and proc OOPS)
+     - via82xx driver
+       - fixed revision check for 8233A
+     - usbaudio driver
+       - added a workaround for M-Audio Audiophile USB
 
-00:0d.0 Multimedia video controller: Brooktree Corporation Bt878 Video 
-Capture (rev 11)
-	Flags: bus master, medium devsel, latency 32, IRQ 19
-	Memory at e3001000 (32-bit, prefetchable) [size=4K]
-	Capabilities: [44] Vital Product Data
-	Capabilities: [4c] Power Management version 2
+<perex@suse.cz> (03/07/21 1.1506.7.1)
+   ALSA update 0.9.5
+     - global
+       - updated #ifdefs for sequencer and gameport
+       - removed more "compatibility" code
+     - PCM OSS interface
+       - implemented POST ioctl
+       - fixed read() semantics according original OSS API
+     - AC'97 codec
+       - separated code for specific codecs
+       - added wolfson specific defines
+     - AD1848
+       - added workaround for thinkpad notebook
+     - EMU10K1
+       - fixed emufx ioctls
+     - HDSP
+       - updated driver
+     - YMFPCI
+       - added joystick code
+     - USB driver
+       - updated
+     - intel8x0
+       - added ALI chipset support
+     - ice1712
+       - fixed initialization for EWS cards
 
-00:0d.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture 
-(rev 11)
-	Flags: bus master, medium devsel, latency 32, IRQ 19
-	Memory at e3000000 (32-bit, prefetchable) [size=4K]
-	Capabilities: [44] Vital Product Data
-	Capabilities: [4c] Power Management version 2
 
-00:0e.0 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
-	Subsystem: Triones Technologies, Inc.: Unknown device 0001
-	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 17
-	I/O ports at a800 [size=8]
-	I/O ports at ac00 [size=4]
-	I/O ports at b000 [size=8]
-	I/O ports at b400 [size=4]
-	I/O ports at b800 [size=256]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: [60] Power Management version 2
-
-00:0e.1 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
-	Subsystem: Triones Technologies, Inc.: Unknown device 0001
-	Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 17
-	I/O ports at bc00 [size=8]
-	I/O ports at c000 [size=4]
-	I/O ports at c400 [size=8]
-	I/O ports at c800 [size=4]
-	I/O ports at cc00 [size=256]
-	Capabilities: [60] Power Management version 2
-
-00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80) (prog-if 00 
-[UHCI])
-	Subsystem: Unknown device 1695:3005
-	Flags: bus master, medium devsel, latency 32, IRQ 21
-	I/O ports at d000 [size=32]
-	Capabilities: [80] Power Management version 2
-
-00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80) (prog-if 00 
-[UHCI])
-	Subsystem: Unknown device 1695:3005
-	Flags: bus master, medium devsel, latency 32, IRQ 21
-	I/O ports at d400 [size=32]
-	Capabilities: [80] Power Management version 2
-
-00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80) (prog-if 00 
-[UHCI])
-	Subsystem: Unknown device 1695:3005
-	Flags: bus master, medium devsel, latency 32, IRQ 21
-	I/O ports at d800 [size=32]
-	Capabilities: [80] Power Management version 2
-
-00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82) (prog-if 
-20 [EHCI])
-	Subsystem: Unknown device 1695:3005
-	Flags: bus master, medium devsel, latency 32, IRQ 19
-	Memory at e3002000 (32-bit, non-prefetchable) [size=256]
-	Capabilities: [80] Power Management version 2
-
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-	Subsystem: VIA Technologies, Inc. VT8235 ISA Bridge
-	Flags: bus master, stepping, medium devsel, latency 0
-	Capabilities: [c0] Power Management version 2
-
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus 
-Master IDE (rev 06) (prog-if 8a [Master SecP PriP])
-	Subsystem: Unknown device 1695:3005
-	Flags: bus master, medium devsel, latency 32
-	I/O ports at dc00 [size=16]
-	Capabilities: [c0] Power Management version 2
-
-00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] 
-(rev 74)
-	Subsystem: Unknown device 1695:3005
-	Flags: bus master, medium devsel, latency 32, IRQ 23
-	I/O ports at e000 [size=256]
-	Memory at e3003000 (32-bit, non-prefetchable) [size=256]
-	Capabilities: [40] Power Management version 2
-
-01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 
-MX/MX 400] (rev b2) (prog-if 00 [VGA])
-	Flags: bus master, 66Mhz, medium devsel, latency 248, IRQ 16
-	Memory at e0000000 (32-bit, non-prefetchable) [size=16M]
-	Memory at d8000000 (32-bit, prefetchable) [size=128M]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [60] Power Management version 2
-	Capabilities: [44] AGP version 2.0
-
--- 
-Jindrich Makovicka
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs
 

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275119AbRJJJMu>; Wed, 10 Oct 2001 05:12:50 -0400
+	id <S275120AbRJJJUB>; Wed, 10 Oct 2001 05:20:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275122AbRJJJMn>; Wed, 10 Oct 2001 05:12:43 -0400
-Received: from femail13.sdc1.sfba.home.com ([24.0.95.140]:51393 "EHLO
-	femail13.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S275120AbRJJJMg>; Wed, 10 Oct 2001 05:12:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: Andrew Morton <akpm@zip.com.au>, BALBIR SINGH <balbir.singh@wipro.com>
-Subject: Re: is reparent_to_init a good thing to do?
-Date: Tue, 9 Oct 2001 16:26:18 -0400
-X-Mailer: KMail [version 1.2]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BC3118B.8050001@wipro.com> <3BC3223E.902FB7E@zip.com.au>
-In-Reply-To: <3BC3223E.902FB7E@zip.com.au>
+	id <S275121AbRJJJTv>; Wed, 10 Oct 2001 05:19:51 -0400
+Received: from web20501.mail.yahoo.com ([216.136.226.136]:42763 "HELO
+	web20501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S275120AbRJJJTn>; Wed, 10 Oct 2001 05:19:43 -0400
+Message-ID: <20011010092011.50158.qmail@web20501.mail.yahoo.com>
+Date: Wed, 10 Oct 2001 11:20:11 +0200 (CEST)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Linux 2.4.10-ac10
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org, acme@conectiva.com.br
 MIME-Version: 1.0
-Message-Id: <01100916261802.09423@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 October 2001 12:13, Andrew Morton wrote:
+Adrian,
 
-> I think yes, more kernel threads need to use this function.  Most
-> particularly, threads which are parented by a userspace application
-> and which can terminate.  For example, the nfsd threads.
->
-> Right now, it's probably the case that nfsd threads will turn
-> into zombies when they terminate, *if* their parent is still
-> running.   But of course, most kernel threads are parented
-> by very short-lived userspace applications, so nobody has
-> ever noticed.
+I think this simple patch should solve your problem.
+It may have
+been a simple thinko replacing check_region with
+request_region.
 
-Or long lived kernel threads from short lived login sessions.
+Cheers,
+Willy
 
-You have a headless gateway box for your local subnet, administered via ssh 
-from a machine on the local subnet.  So you SSH into the box through eth1, 
-ifconfig eth0 down back up again.  If eth0 is an rtl8039too, this fires off a 
-kernel thread (which, before reparent_to_init, was parented to your ssh login 
-session).
+--- linux/drivers/sound/ad1816.c        Wed Oct 10
+11:15:53 2001
++++ linux/drivers/sound/ad1816.c        Wed Oct 10
+11:16:12 2001
+@@ -1015,7 +1015,7 @@
+               options,
+               isa_dma_bridge_buggy);
 
-Now exit the login session.  SSH does not exit until all the child processes 
-exit, so it just hangs there until you kill it from another console window...
+-       if (request_region(io_base, 16, "AD1816
+Sound")) {
++       if (!request_region(io_base, 16, "AD1816
+Sound")) {
+                printk(KERN_WARNING "ad1816: I/O port
+0x%03x not free\n",
+                                    io_base);
+                goto err;
 
-Rob
 
+___________________________________________________________
+Un nouveau Nokia Game commence. 
+Allez sur http://fr.yahoo.com/nokiagame avant le 3 novembre
+pour participer à cette aventure tous médias.

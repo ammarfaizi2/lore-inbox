@@ -1,33 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264923AbUHNULy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUHNUSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264923AbUHNULy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 16:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUHNULy
+	id S265127AbUHNUSf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 16:18:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUHNUSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 16:11:54 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:21938 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S264923AbUHNULx
+	Sat, 14 Aug 2004 16:18:35 -0400
+Received: from dh138.citi.umich.edu ([141.211.133.138]:60034 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265051AbUHNUSd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 16:11:53 -0400
-Message-ID: <411E71BB.5080603@rtr.ca>
-Date: Sat, 14 Aug 2004 16:10:35 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Nicolas BENOIT <nbenoit@tuxfamily.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: No DMA Since 2.6.8 Upgrade
-References: <1092493521.468.14.camel@brioche.gwened>
-In-Reply-To: <1092493521.468.14.camel@brioche.gwened>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Aug 2004 16:18:33 -0400
+Subject: Re: PATCH [2/7] Fix posix locking code
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040814200048.GV12936@parcelfarce.linux.theplanet.co.uk>
+References: <1092511792.4109.22.camel@lade.trondhjem.org>
+	 <20040814200048.GV12936@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1092514711.4109.50.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 14 Aug 2004 16:18:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Most likely the chipset driver for you mobo isn't loaded.
+På lau , 14/08/2004 klokka 16:00, skreiv Matthew Wilcox:
 
-What's in /var/log/messages from startup?
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+> I know I said I thought file_lock_operations was the right thing to
+> do ...  but now I think that this isn't a property of the file_lock so
+> much as it is a property of the underlying filesystem.  I think putting a
+> lock_operations into struct file is maybe a bit much.  How about adding
+> a lock_operations pointer to file_operations?
+
+Lock operations are as much a property of the lock *type*. A BSD lock
+may/will have an entirely different set of callbacks.
+
+Trond

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbTJGXtm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 19:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbTJGXtm
+	id S263079AbTJGXrk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 19:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbTJGXrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 19:49:42 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:39038 "EHLO
+	Tue, 7 Oct 2003 19:47:40 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:13950 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S262117AbTJGXtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 19:49:40 -0400
-Date: Wed, 8 Oct 2003 00:49:02 +0100
+	id S263079AbTJGXri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 19:47:38 -0400
+Date: Wed, 8 Oct 2003 00:46:55 +0100
 From: Dave Jones <davej@redhat.com>
-To: Juliusz Chroboczek <jch@pps.jussieu.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MCE: The hardware reports... (AMD Duron)
-Message-ID: <20031007234902.GB10471@redhat.com>
+To: Len Brown <len.brown@intel.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Dimitri Torfs <dimitri@sonycom.com>, acpi-devel@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: vaio doesn't poweroff with 2.4.22 (fwd)
+Message-ID: <20031007234655.GA10471@redhat.com>
 Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Juliusz Chroboczek <jch@pps.jussieu.fr>,
-	linux-kernel@vger.kernel.org
-References: <tppth8j07y.fsf@helium.pps.jussieu.fr>
+	Len Brown <len.brown@intel.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Dimitri Torfs <dimitri@sonycom.com>,
+	acpi-devel@lists.sourceforge.net,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.21.0310022254280.8802-400000@vervain.sonytel.be> <1065560111.3366.33.camel@dhcppc4>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <tppth8j07y.fsf@helium.pps.jussieu.fr>
+In-Reply-To: <1065560111.3366.33.camel@dhcppc4>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 07, 2003 at 09:50:57PM +0200, Juliusz Chroboczek wrote:
- > Under both 2.6.0test4 and test6, I'm fairly regularly getting the
- > following at boot time:
- > 
- >  MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
- >  Bank 0: e603800000000175
- > 
- > The machine is a Compaq Presario 711, with a 950MHz Mobile Duron
- > (family 6 model 7 stepping 1 according to /proc/cpuinfo).
- > 
- > The Intel docs seem to imply that this is something memory-related, I
- > couldn't find the relevant AMD docs.
- > 
- > Would somebody be so kind as to explain what the above means?
+On Tue, Oct 07, 2003 at 04:55:11PM -0400, Len Brown wrote:
 
-Probably spurious, a fix was merged on the 29th. Test6 came out on 
-the 28th, so just missed...
+ > > In 2.4.21, both `halt' and `reboot' work fine.
+ > Did you configure with ACPI in 2.4.21?
+ > If you configured with APM in 2.4.21, you might consider sticking with
+ > it rather than switching to ACPI in 2.4.22.
+
+So power-off on shutdown with acpi is actually working for some folks?
+None of my boxes seem to work with it any more. I'm not sure when
+this started, but its been that way for a while, in both 2.4 and 2.6test
+
+ > Also, if there is a BIOS update available for this system you should
+ > consider it.
+
+Rocking horse poop is probably easier to find than Sony VAIO BIOS updates. 
+I spent an afternoon once being bounced around from one Sony
+flash-ridden site to another to no avail..
 
 		Dave
 

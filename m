@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbVDFEtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVDFEvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262044AbVDFEtM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 00:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVDFEtM
+	id S262043AbVDFEvx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 00:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbVDFEvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 00:49:12 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:31113 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262044AbVDFEtH (ORCPT
+	Wed, 6 Apr 2005 00:51:52 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:39390 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262027AbVDFEvj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 00:49:07 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 6 Apr 2005 00:51:39 -0400
+Date: Wed, 6 Apr 2005 10:31:07 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-aio@kvack.org
+Subject: Re: [RFC] Add support for semaphore-like structure with support for asynchronous I/O
+Message-ID: <20050406050107.GB6200@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20050330143409.04f48431.akpm@osdl.org> <1112224663.18019.39.camel@lade.trondhjem.org> <1112309586.27458.19.camel@lade.trondhjem.org> <20050331161350.0dc7d376.akpm@osdl.org> <1112318537.11284.10.camel@lade.trondhjem.org> <20050401141225.GA3707@in.ibm.com> <20050404155245.GA4659@in.ibm.com> <20050404162216.GA18469@kvack.org> <1112637395.10602.95.camel@lade.trondhjem.org> <20050405154641.GA27279@kvack.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16979.27158.381388.691910@napali.hpl.hp.com>
-Date: Tue, 5 Apr 2005 21:48:22 -0700
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: davidm@hpl.hp.com, Andi Kleen <ak@muc.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mel Gorman <mel@csn.ul.ie>, linux-ia64@vger.kernel.org,
-       Jens.Maurer@gmx.net
-Subject: Re: [PATCH] add a clear_pages function to clear pages of higher
- order
-In-Reply-To: <Pine.LNX.4.58.0504051729080.12307@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503101229420.13911@schroedinger.engr.sgi.com>
-	<200503111008.12134.vda@port.imtp.ilyichevsk.odessa.ua>
-	<Pine.LNX.4.58.0503161720570.1787@schroedinger.engr.sgi.com>
-	<200503181154.37414.vda@port.imtp.ilyichevsk.odessa.ua>
-	<Pine.LNX.4.58.0503180652350.15022@schroedinger.engr.sgi.com>
-	<20050318192808.GB38053@muc.de>
-	<16963.2075.713737.485070@napali.hpl.hp.com>
-	<Pine.LNX.4.58.0504051706110.12179@schroedinger.engr.sgi.com>
-	<16979.11287.36091.610287@napali.hpl.hp.com>
-	<Pine.LNX.4.58.0504051729080.12307@schroedinger.engr.sgi.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20050405154641.GA27279@kvack.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 5 Apr 2005 17:33:59 -0700 (PDT), Christoph Lameter <clameter@engr.sgi.com> said:
+On Tue, Apr 05, 2005 at 11:46:41AM -0400, Benjamin LaHaise wrote:
+> On Mon, Apr 04, 2005 at 01:56:35PM -0400, Trond Myklebust wrote:
+> > IOW: the current semaphore implementations really all need to die, and
+> > be replaced by a single generic version to which it is actually
+> > practical to add new functionality.
+> 
+> I can see that goal, but I don't think introducing iosems is the right 
+> way to acheive it.  Instead (and I'll start tackling this), how about 
+> factoring out the existing semaphore implementations to use a common 
+> lib/semaphore.c, much like lib/rwsem.c?  The iosems can be used as a 
+> basis for the implementation, but we can avoid having to do a giant 
+> s/semaphore/iosem/g over the kernel tree.
 
-  Christoph> Which benchmark would you recommend for this?
+That would be really neat, if you can get to it.
 
-I don't know about "recommend", but I think SPECweb, SPECjbb,
-the-UNIX-multi-user-benchmark-whose-name-I-keep-forgetting, and in
-general anything that involves process-activity and/or large working
-sets might be interesting (in other words: anything but
-microbenchmarks; I'm afraid).
+Regards
+Suparna
 
-	--david
+> 
+> > Failing that, it is _much_ easier to convert the generic code that needs
+> > to support aio to use a new locking implementation and then test that.
+> > It is not as if conversion to aio won't involve changes to the code in
+> > the area surrounding those locks anyway.
+> 
+> Quite true.  There's a lot more work to do in this area, and these common 
+> primatives are needed to make progress.  Someone at netapp sent me an 
+> email yesterday asking about aio support in NFS, so there is some demand 
+> out there.  Cheers,
+> 
+> 		-ben
+> -- 
+> "Time is what keeps everything from happening all at once." -- John Wheeler
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

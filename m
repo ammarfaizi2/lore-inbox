@@ -1,67 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264277AbTDPJnt (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 05:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264279AbTDPJnt 
+	id S264279AbTDPJtn (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 05:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbTDPJtn 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 05:43:49 -0400
-Received: from dsl-170-219.dsl.cambrium.nl ([213.239.170.219]:677 "EHLO
-	fratser") by vger.kernel.org with ESMTP id S264277AbTDPJnr 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 05:43:47 -0400
-Date: Wed, 16 Apr 2003 11:55:51 +0200 (CEST)
-From: John v/d Kamp <john@connectux.com>
-X-X-Sender: john@fratser
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] DAC960_Release bug (2.4.x)
-Message-ID: <Pine.LNX.4.53.0304161136270.18523@fratser>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-288770493-1050486951=:18523"
+	Wed, 16 Apr 2003 05:49:43 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:5124 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S264279AbTDPJtm (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 05:49:42 -0400
+Date: Wed, 16 Apr 2003 14:01:10 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: =?koi8-r?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: DMA transfers in 2.5.67
+Message-ID: <20030416140110.A642@jurassic.park.msu.ru>
+References: <yw1x3ckjfs2v.fsf@zaphod.guide> <1050438684.28586.8.camel@dhcp22.swansea.linux.org.uk> <yw1xy92be915.fsf@zaphod.guide> <1050439715.28586.17.camel@dhcp22.swansea.linux.org.uk> <yw1xptnne7lv.fsf@zaphod.guide> <20030416123654.A2629@jurassic.park.msu.ru> <yw1xk7duessc.fsf@zaphod.guide> <yw1xadeqes1s.fsf@zaphod.guide> <yw1x65peeqm4.fsf@zaphod.guide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <yw1x65peeqm4.fsf@zaphod.guide>; from mru@users.sourceforge.net on Wed, Apr 16, 2003 at 11:30:43AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Wed, Apr 16, 2003 at 11:30:43AM +0200, Måns Rullgård wrote:
+> I set the latency to 128 using setpci and now I get 66 MB/s.  Other
+> values give slower transfer rates.  Is there some other setting that
+> could improve it even more?
 
---8323328-288770493-1050486951=:18523
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Interesting. Did you set latency 128 for all devices or only for
+3Dlabs card?
 
-Hi,
-
-It seems the DAC960_Release function doesn't work correctly when
-DAC960_Open is called with File->f_flags has O_NONBLOCK set. This causes
-BLKRRPART to fail, as an unsigned int gets decreased below 0.
-The File struct passed to DAC960_Release is NULL, so in Open the counters
-aren't increased, but in Release they are decreased. I've added a simple
-check that prevents the decrements if the counters are 0.
-
-Allso, I've no idea why there are two counters. It seems that the
-ControllerUsageCount is only used to increment and decrement.
-
---
-John van der Kamp, ConnecTUX
---8323328-288770493-1050486951=:18523
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="dac960.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0304161155510.18523@fratser>
-Content-Description: 
-Content-Disposition: attachment; filename="dac960.patch"
-
-ZGlmZiAtdXIgbGludXgtMi40LjE5L2RyaXZlcnMvYmxvY2svREFDOTYwLmMg
-cGF0Y2hlZC0yLjQuMTkvZHJpdmVycy9ibG9jay9EQUM5NjAuYw0KLS0tIGxp
-bnV4LTIuNC4xOS9kcml2ZXJzL2Jsb2NrL0RBQzk2MC5jCTIwMDItMDktMTMg
-MTc6NDE6MzAuMDAwMDAwMDAwICswMjAwDQorKysgcGF0Y2hlZC0yLjQuMTkv
-ZHJpdmVycy9ibG9jay9EQUM5NjAuYwkyMDAzLTA0LTE2IDExOjA3OjE2LjAw
-MDAwMDAwMCArMDIwMA0KQEAgLTUzOTgsOCArNTM5OCwxMCBAQA0KICAgLyoN
-CiAgICAgRGVjcmVtZW50IHRoZSBMb2dpY2FsIERyaXZlIGFuZCBDb250cm9s
-bGVyIFVzYWdlIENvdW50cy4NCiAgICovDQotICBDb250cm9sbGVyLT5Mb2dp
-Y2FsRHJpdmVVc2FnZUNvdW50W0xvZ2ljYWxEcml2ZU51bWJlcl0tLTsNCi0g
-IENvbnRyb2xsZXItPkNvbnRyb2xsZXJVc2FnZUNvdW50LS07DQorICBpZiAo
-Q29udHJvbGxlci0+TG9naWNhbERyaXZlVXNhZ2VDb3VudFtMb2dpY2FsRHJp
-dmVOdW1iZXJdID4gMCkNCisgICAgQ29udHJvbGxlci0+TG9naWNhbERyaXZl
-VXNhZ2VDb3VudFtMb2dpY2FsRHJpdmVOdW1iZXJdLS07DQorICBpZiAoQ29u
-dHJvbGxlci0+Q29udHJvbGxlclVzYWdlQ291bnQgPiAwKQ0KKyAgICBDb250
-cm9sbGVyLT5Db250cm9sbGVyVXNhZ2VDb3VudC0tOw0KICAgcmV0dXJuIDA7
-DQogfQ0K
-
---8323328-288770493-1050486951=:18523--
+Ivan.

@@ -1,55 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317282AbSIIMx7>; Mon, 9 Sep 2002 08:53:59 -0400
+	id <S317286AbSIIND7>; Mon, 9 Sep 2002 09:03:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317286AbSIIMx6>; Mon, 9 Sep 2002 08:53:58 -0400
-Received: from users.linvision.com ([62.58.92.114]:10127 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S317282AbSIIMx6>; Mon, 9 Sep 2002 08:53:58 -0400
-Date: Mon, 9 Sep 2002 14:58:29 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: John Weber <john.weber@linux.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux on Toshiba Libretto 70CT
-Message-ID: <20020909145828.A30633@bitwizard.nl>
-References: <3D7563B2.2090707@linux.org> <1031138132.2796.24.camel@irongate.swansea.linux.org.uk> <3D777BC0.9030004@linux.org> <1031240975.6623.10.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1031240975.6623.10.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+	id <S317299AbSIIND7>; Mon, 9 Sep 2002 09:03:59 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:30856 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317286AbSIIND6>; Mon, 9 Sep 2002 09:03:58 -0400
+Date: Mon, 9 Sep 2002 15:08:31 +0200 (CEST)
+From: Oktay Akbal <oktay.akbal@s-tec.de>
+X-X-Sender: oktay@omega.s-tec.de
+To: linux-kernel@vger.kernel.org
+Subject: md multipath with disk missing ?
+Message-ID: <Pine.LNX.4.44.0209091504270.12771-100000@omega.s-tec.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.1; AVE: 6.15.0.1; VDF: 6.15.0.6
+	 at email has not found any known virus in this email.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 05, 2002 at 04:49:35PM +0100, Alan Cox wrote:
-> > Disabling the accelerated functions also "fixes" the machine, for some 
-> > definitions of "fix" :).
-> 
-> That sounds like an X bug then
-> 
-> > My question is really why this problem would lock up the kernel...
-> > I can't really tell whether the problem is in the implementation of the 
-> > XFree86 functions or the kernel functions it is calling, but the fact 
-> > that the entire kernel locks up suggests that both are to blame.  Can 
-> > you suggest where I should start reading code (if not the file atleast 
-> > the directory :).
-> 
-> X maps the video hardware and drives it directly. In that sense X is the
-> device driver for video not the kernel.
+Hello !
 
-... And some chips have bugs like "will hang the PCI bus if you
-disable this while the chip is doing that". The chip "errata" will
-read "don't do that then", and the manufacturer will try to make the
-windows driver "not do that". But the Xfree driver may be lagging and
-still do this occasionally.
-
-			Roger. 
+Can someone tell me, how md multipathing works, when a drive fails
+completly ?
+Does this only work with raid-autodetection ?
+When no autodetection is done and a drive is missing, would a raidstart
+kill the raid, since the drives are now available with other devices (sda
+instead of former sdb...) ?
 
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************
+Oktay Akbal
+

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290551AbSBFOHq>; Wed, 6 Feb 2002 09:07:46 -0500
+	id <S290550AbSBFOHD>; Wed, 6 Feb 2002 09:07:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290553AbSBFOHe>; Wed, 6 Feb 2002 09:07:34 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:60367 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S290551AbSBFOHO>; Wed, 6 Feb 2002 09:07:14 -0500
-Date: Wed, 6 Feb 2002 15:06:18 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Hiroshi MIURA <miura@da-cha.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NSC Geode Companion chip workaround
-In-Reply-To: <20020206022016.735C7118231@triton2>
-Message-ID: <Pine.GSO.3.96.1020206150212.11725E-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290551AbSBFOGx>; Wed, 6 Feb 2002 09:06:53 -0500
+Received: from ns.suse.de ([213.95.15.193]:4363 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290550AbSBFOGt>;
+	Wed, 6 Feb 2002 09:06:49 -0500
+Date: Wed, 6 Feb 2002 15:06:45 +0100
+From: Dave Jones <davej@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel: ldt allocation failed
+Message-ID: <20020206150645.G7337@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Andi Kleen <ak@suse.de>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0112070057480.20196-100000@tombigbee.pixar.com.suse.lists.linux.kernel> <5.1.0.14.2.20011207092244.049f6720@pop.cus.cam.ac.uk.suse.lists.linux.kernel> <200202061258.g16CwGt31197@Port.imtp.ilyichevsk.odessa.ua.suse.lists.linux.kernel> <p73ofj2lpdg.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <p73ofj2lpdg.fsf@oldwotan.suse.de>; from ak@suse.de on Wed, Feb 06, 2002 at 02:19:07PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Feb 2002, Hiroshi MIURA wrote:
+On Wed, Feb 06, 2002 at 02:19:07PM +0100, Andi Kleen wrote:
 
-> I've tryed several month with this patch, It seems good for me.
->     trial machine: Casio CASSIOPEIA FIVA 101 and Fiva 103.
->                    MediaGX 200MHz and NSC Geode 300MHz.
+ > glibc 2.3 seems to plan to use segment register based thread local data for 
+ > even non threaded programs, so it would be a good idea to optimize LDT 
+ > allocation a bit (= not allocate 64K of vmalloc space every time 
+ > sys_modify_ldt is called - there is only 8MB of it) 
 
- Does the chip fail with the readback 8254 command as well?  If not, it
-would be a less intrusive change. 
+ Manfred Spraul had a patch that did this.
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

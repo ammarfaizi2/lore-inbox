@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264767AbSLaWWW>; Tue, 31 Dec 2002 17:22:22 -0500
+	id <S264795AbSLaW1p>; Tue, 31 Dec 2002 17:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264771AbSLaWWW>; Tue, 31 Dec 2002 17:22:22 -0500
-Received: from ns.netrox.net ([64.118.231.130]:34811 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S264767AbSLaWWV>;
-	Tue, 31 Dec 2002 17:22:21 -0500
-Subject: [PATCH] __deprecated requires gcc 3.1
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041373958.1013.9.camel@icbm>
+	id <S264771AbSLaW1p>; Tue, 31 Dec 2002 17:27:45 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:57571 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S264755AbSLaW1o> convert rfc822-to-8bit; Tue, 31 Dec 2002 17:27:44 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Tue, 31 Dec 2002 14:36:08 -0800
+In-Reply-To: <Pine.LNX.4.10.10212310412290.421-100000@master.linux-ide.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 31 Dec 2002 17:32:39 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20021231223609.AAA23921@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-James Bottomley confirmed the "deprecated" attribute requires gcc 3.1
-and onward, not gcc 3.0.
+>Recall the kernel is capable of rejecting non-gpl binary modules; yet it
+>does not!  Regardless of the original intent or scope of the "tainting
+>process", it created more grey than clarity.
 
-Attached patch updates the check in compiler.h to require gcc 3.1 or
-greater.
+	Nothing would stop someone from distributing a kernel that did not reject 
+those drivers. The GPL doesn't permit you to add additional restrictions to 
+it, so you can't add a clause prohibiting such distribution.
 
-Patch is against current BK, please apply.
+>Now until the kernel forcable rejects loading binary closed source
+>modules, it defaults to quietly approved of the concept regardless what
+>you think, feel, or care.
 
-	Robert Love
+	There would just be a set of patches to bypass that rejection. Every major 
+distribution would distribute kernels with those patches. You can't GPL code 
+and at the same time control how it is used.
 
- include/linux/compiler.h |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+	As I argued in my previous post, it would be suicidal for any advocate of 
+open source to attempt to broaden the scope of what constitutes a 'derived 
+work' or narrow the scope of fair use or first sale type doctrines.
 
+	Hey, we're almost back on topic for this list. Happy new year.
 
-diff -urN linux-2.5.53/include/linux/compiler.h linux/include/linux/compiler.h
---- linux-2.5.53/include/linux/compiler.h~	2002-12-31 17:27:53.000000000 -0500
-+++ linux/include/linux/compiler.h	2002-12-31 17:29:09.000000000 -0500
-@@ -17,10 +17,9 @@
-  * Allow us to mark functions as 'deprecated' and have gcc emit a nice
-  * warning for each use, in hopes of speeding the functions removal.
-  * Usage is:
-- * 		int deprecated foo(void)
-- * and then gcc will emit a warning for each usage of the function.
-+ * 		int __deprecated foo(void)
-  */
--#if __GNUC__ >= 3
-+#if ( __GNUC__ == 3 && __GNUC_MINOR > 0 ) || __GNUC__ > 3
- #define __deprecated	__attribute__((deprecated))
- #else
- #define __deprecated
+	DS
 
 
 

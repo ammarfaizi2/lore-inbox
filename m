@@ -1,86 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261651AbRGEJOP>; Thu, 5 Jul 2001 05:14:15 -0400
+	id <S262568AbRGEJns>; Thu, 5 Jul 2001 05:43:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262076AbRGEJOF>; Thu, 5 Jul 2001 05:14:05 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:31207 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S261651AbRGEJN6>; Thu, 5 Jul 2001 05:13:58 -0400
-Message-ID: <3B44304E.1973C43D@idcomm.com>
-Date: Thu, 05 Jul 2001 03:15:58 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: >128 MB RAM stability problems (again)
-In-Reply-To: <01Jul4.172916edt.62972@gpu.utcc.utoronto.ca> <994322676.768.0.camel@tux>
+	id <S262609AbRGEJni>; Thu, 5 Jul 2001 05:43:38 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:61700 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S262568AbRGEJn2>; Thu, 5 Jul 2001 05:43:28 -0400
+Date: Thu, 5 Jul 2001 13:43:06 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Oleg I. Vdovikin" <vdovikin@jscc.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: alpha - generic_init_pit - why using RTC for calibration?
+Message-ID: <20010705134306.A2071@jurassic.park.msu.ru>
+In-Reply-To: <022901c10095$f4fca650$4d28d0c3@jscc.ru> <20010629211931.A582@jurassic.park.msu.ru> <20010704114530.A1030@twiddle.net> <003e01c10522$1c9cf580$4d28d0c3@jscc.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <003e01c10522$1c9cf580$4d28d0c3@jscc.ru>; from vdovikin@jscc.ru on Thu, Jul 05, 2001 at 11:14:19AM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronald Bultje wrote:
-> 
-> On 04 Jul 2001 17:29:12 -0400, Chris Siebenmann wrote:
-> > You write:
-> > | I'm kind of astounded now, WHY can't linux-2.4.x run on ANY machine in
-> > | my house with more than 128 MB RAM?!? Can someone please point out to me
-> > | that he's actually running kernel-2.4.x on a machine with more than 128
-> > | MB RAM and that he's NOT having severe stability problems?
-> >
-> >  Me. Two machines. (Both 2.4.5 high -ac kernels.)
-> >
-> >  I strongly suggest getting memtest86 and running it on all of your
-> > problematic machines.
-> 
-> I ran memtest tonight on all machines....
-> It gave 0 errors on all of them.....
-> 
-> So.... this leads to the conclusion that the memory is okay, and that
-> something else must be the problem.... Could it still be a failing power
-> supply or something? It seems both computers have a 230 W power supply.
-> Might be a problem, I guess, I can buy a 400 W thingy if that makes
-> sense.
-> 
-> Other solutions I heard:
-> - antistatic wrist strap: already have one :-)
-> - BIOS fiddling... What exactly should I look for? They are, as far as I
-> can see, identical memory sticks, probably both from different
-> suppliers, but besides that quite the same....
+On Thu, Jul 05, 2001 at 11:14:19AM +0400, Oleg I. Vdovikin wrote:
+>     Richard, thanks. But please use calibrate_cc version which I've submited
+> as a patch - it gives more accuracy with maximum latch we can ever use and
 
-Look for wait states. Add a wait state, which slows down access to the
-ram (if it doesn't help, put it back where it was).
+With both variants even on a 166MHz CPU you'll get above 1e-7 precision,
+which is way above accuracy of any crystal oscillator.
 
-> - are there different brands of memory of different quality and might
-> that be a possible cause of the problems? And if so - what are good
-> memory brands and what are the bad ones?
-> - I mixed different types of SDRAM... Could be it.... My mainboard
-> manual is not really clear about this.... And I have no clue what brand
-> of memory I bought... they are all 133 MHz SDRAM sticks, some 64 MB,
-> some 128 MB.... MB manual says it can handle all 64/128 MB sticks...
+> has cc's type changed to 'unsigned int' to prevent problems when rpcc
+> overflows.
 
-Mixing different types is a bad thing to leave to chance. Corsair and
-Kingston I *think* are good brands.
+The only difference is that you'll have extra 'zap' instruction converting
+'unsigned int' to 'unsigned long'.
 
-> - <your solution here :-)>
-
-Try each memory stick by itself; if it only fails when both are in at
-once, reverse the slots they are in; if it still fails, get another
-stick that is the same brand and type as another, try just those
-together.
-
-> 
-> Anyway, thanks for any advice until now and thanks for listening again,
-> hope to hear more solutions.
-> 
-> --
-> Ronald Bultje
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Ivan.

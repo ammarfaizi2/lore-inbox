@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319446AbSIGHEx>; Sat, 7 Sep 2002 03:04:53 -0400
+	id <S319450AbSIGHF4>; Sat, 7 Sep 2002 03:05:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319447AbSIGHEx>; Sat, 7 Sep 2002 03:04:53 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:8713 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319446AbSIGHEw>; Sat, 7 Sep 2002 03:04:52 -0400
-Date: Sat, 7 Sep 2002 00:08:04 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: DevilKin <devilkin-lkml@blindguardian.org>
-cc: jbradford@dial.pipex.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide drive dying?
-In-Reply-To: <200209061755.06344.devilkin-lkml@blindguardian.org>
-Message-ID: <Pine.LNX.4.10.10209070007540.11256-100000@master.linux-ide.org>
+	id <S319448AbSIGHF4>; Sat, 7 Sep 2002 03:05:56 -0400
+Received: from dsl-213-023-021-052.arcor-ip.net ([213.23.21.52]:7094 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319447AbSIGHFy>;
+	Sat, 7 Sep 2002 03:05:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: <imran.badr@cavium.com>, "'Manfred Spraul'" <manfred@colorfullife.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Calculating kernel logical address ..
+Date: Sat, 7 Sep 2002 03:57:20 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <00e901c255c8$bd144e80$9e10a8c0@IMRANPC>
+In-Reply-To: <00e901c255c8$bd144e80$9e10a8c0@IMRANPC>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17nUqf-0006Lk-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Send me the results offline
-
-On Fri, 6 Sep 2002, DevilKin wrote:
-
-> On Friday 06 September 2002 17:36, jbradford@dial.pipex.com wrote:
-> > > I've looked up these errors on the net, and as far as i can tell it means
-> > > that the drive has some bad sectors at the given addresses and that it
-> > > will probably die on me sooner or later.
-> > >
-> > > Can someone either confirm this to me or tell me what to do to fix it?
-> > >
-> > > The drive involved is an IBM-DTLA-307060, which has served me without
-> > > problems now for about 2 years.
+On Friday 06 September 2002 19:13, Imran Badr wrote:
+> > adr = user_address;
+> > pgd_offset(current->mm, adr);
 > >
-> > Have a look at:
+> > if (!pgd_none(*pgd)) {
+> > 	pmd = pmd_offset(pgd, adr);
+> > 	if (!pmd_none(*pmd)) {
+> > 		ptep = pte_offset(pmd, adr);
+> > 		pte = *ptep;
+> > 		if(pte_present(pte)) {
+> > 			kaddr  = (unsigned long) page_address(pte_page(pte));
+> > 			kaddr |= (adr & (PAGE_SIZE - 1));
+> > 		}
+> > 	}
+> > }
 > >
-> > http://csl.cse.ucsc.edu/smart.shtml
-> >
-> > there you will find software for interrogating and monitoring the
-> > S.M.A.R.T. data available from your drive.  It's a little late to start
-> > monitoring it, if the drive is already dying, but if, for example, it shows
-> > a lot of re-allocated sectors, or spin retries, you'll know something is
-> > wrong.
-> >
+> > Will this code always give me correct kernel logical address?
 > 
-> OK, I downloaded that and installed it, but well, frankly, it shows me very 
-> little useful stuff.
-> 
-> Or i'm just not good at interpreting this.
-> 
-> DK
-> 
-> -- 
-> "I gained nothing at all from Supreme Enlightenment, and for that very
-> reason it is called Supreme Enlightenment."
-> 		-- Gotama Buddha
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> I was wondering if the code which I am using, will always give me addresses
+> no matter whether HIGHMEM is defined in kernel configuration or not.
 
-Andre Hedrick
-LAD Storage Consulting Group
+On second thought, this code does have problems with highmem.  The page in
+question was never kmapped, so no kernel address was assigned if the page
+was a high memory page.  Besides that, there are other other changes to
+page address that imply it can't be used with a high memory page.  So the
+above code isn't generic.
 
+> I
+> belive that it should not be problem because I am mmap'ing kmalloc'ed memory
+> which always returns mapped memory. But whats happeing in my lab is
+> different. If I define HIGHMEM in kernel configuration and install 2GB of
+> memory in my server then I see a crash in the kernel where I try to access
+> kaddr calculated bu above code. Any idea?
+
+Because of what I just said.
+
+> The problem with your suggestion is that at the point where user gives me an
+> address for DMA, I do not know what kmalloc_buffer and vma->vm_start values
+> are. Also, if there are more than one processes accessing the driver, then
+> how am I going to keep track of all mmap'ed memory.
+
+-- 
+Daniel

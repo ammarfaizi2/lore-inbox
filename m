@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313962AbSDKBoS>; Wed, 10 Apr 2002 21:44:18 -0400
+	id <S313963AbSDKBus>; Wed, 10 Apr 2002 21:50:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313963AbSDKBoR>; Wed, 10 Apr 2002 21:44:17 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:21243
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S313962AbSDKBoQ>; Wed, 10 Apr 2002 21:44:16 -0400
-Date: Wed, 10 Apr 2002 18:46:30 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
+	id <S313964AbSDKBus>; Wed, 10 Apr 2002 21:50:48 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:10256 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S313963AbSDKBur>; Wed, 10 Apr 2002 21:50:47 -0400
+Message-ID: <3CB4DD71.DED82F57@zip.com.au>
+Date: Wed, 10 Apr 2002 17:48:49 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [patch-2.5.8-pre] swapinfo accounting
-Message-ID: <20020411014630.GK23513@matchmail.com>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	linux-kernel@vger.kernel.org
 In-Reply-To: <Pine.LNX.4.33L2.0204101755170.25409-100000@dragon.pdx.osdl.net>
-Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 06:20:55PM -0700, Randy.Dunlap wrote:
-> Anyway, here is the patch that makes it better.
-> Not perfect, due to possibility of bad blocks, but better
-> than it was.   Comments?
+"Randy.Dunlap" wrote:
 > 
-> 
-> --- linux-258-pre2/mm/swapfile.c.SI	Wed Apr 10 17:50:34 2002
-> +++ linux-258-pre2/mm/swapfile.c	Wed Apr 10 18:09:46 2002
-> @@ -1107,8 +1107,8 @@
->  			}
->  		}
->  	}
-> -	val->freeswap = nr_swap_pages + nr_to_be_unused;
-> -	val->totalswap = total_swap_pages + nr_to_be_unused;
-> +	val->freeswap = nr_swap_pages;
-> +	val->totalswap = total_swap_pages;
->  	swap_list_unlock();
->  }
+> It looks to me like mm/swapfile.c::si_swapinfo()
+> shouldn't be adding nr_to_be_unused to total_swap_pages
+> or nr_swap_pages for return in val->freeswap and
+> val->totalswap.
 
-Shouldn't that be s/+/-/ instead?  If this is badblocks accounting, it
-should probably be subtracted instead of added.
+whee, an si_swapinfo() maintainer.
+
+Your function sucks :)  I'm spending 15 CPU-seconds
+in there during a kernel build.  The problem appears
+to be that a fix from 2.4 hasn't been propagated
+forward.
+
+2.4 has:
+
+                if (swap_info[i].flags != SWP_USED)
+
+and 2.5 has:
+
+                if (!(swap_info[i].flags & SWP_USED))
+
+and I think the 2.4 version will fix the accounting
+problem you're seeing?
+
+(I haven't checked whather it's the _right_ fix, but
+it looks like it'll make it go away?)
+
+-

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129367AbRAYTaV>; Thu, 25 Jan 2001 14:30:21 -0500
+	id <S129431AbRAYTbV>; Thu, 25 Jan 2001 14:31:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbRAYTaB>; Thu, 25 Jan 2001 14:30:01 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:7951 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129274AbRAYT3q>;
-	Thu, 25 Jan 2001 14:29:46 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200101251929.WAA10001@ms2.inr.ac.ru>
-Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
-To: andrewm@uow.EDU.AU (Andrew Morton)
-Date: Thu, 25 Jan 2001 22:29:14 +0300 (MSK)
+	id <S131831AbRAYTbL>; Thu, 25 Jan 2001 14:31:11 -0500
+Received: from mail48-s.fg.online.no ([148.122.161.48]:14810 "EHLO
+	mail48.fg.online.no") by vger.kernel.org with ESMTP
+	id <S129431AbRAYTbB>; Thu, 25 Jan 2001 14:31:01 -0500
+To: kaih@khms.westfalen.de (Kai Henningsen)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A6F8415.8EC5DB23@uow.edu.au> from "Andrew Morton" at Jan 25, 1 04:45:00 am
-X-Mailer: ELM [version 2.4 PL24]
+Subject: Re: [OT?] Coding Style
+In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCCD@zcard00g.ca.nortel.com>
+	<200101231600.LAA24562@mah21awu.cas.org>
+	<7uYrAAR1w-B@khms.westfalen.de>
+From: Harald Arnesen <gurre@start.no>
+Date: 25 Jan 2001 20:30:18 +0100
+In-Reply-To: <7uYrAAR1w-B@khms.westfalen.de>
+Message-ID: <m3ae8fig51.fsf@basilikum.skogtun.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+kaih@khms.westfalen.de (Kai Henningsen) writes:
 
-> no problems.  I simply mounted an NFS server with rsize=wsize=8192
-> and read a few files - I assume this is sufficient?
+> >   void ThisIsMyDumbassFunctionName
+> >
+> > if MUCH more difficult to read than
+> >
+> >   void this_is_my_clear_and_easy_function_name
+> 
+> I can certainly read the first easier than the second.
 
-This is orthogonal.
+So I assume you don't approve of the new German spelling standard,
+where nouns with capital letters are optional (don't know if it became
+reality, I remember reading that Günther Grass was against it).
 
-Only TCP uses this and you need not to do something special
-to test it. Any TCP connection going through 3c tests it.
-
-
-> rather than using the IS_CYCLONE stuff.  Then we can add cards
-> individually as confirmation comes in.
-
-Seems, you meaned opposite way. To add this flag to all the chips,
-except for several, and to remove it as soon as it is "confirmed"
-that it does not work. 8)
-
-Also, please, reset the state. Until this snapshot, hw checksumming
-did not work due to bugs in netfilter, so that all the reports about
-failures to checksum are dubious.
-
-Alexey
+For a Norwegian, the second variant is much more readable.
+-- 
+Harald Arnesen, Apalløkkveien 23 A, N-0956 Oslo, Norway
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

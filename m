@@ -1,41 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263196AbSJGW5f>; Mon, 7 Oct 2002 18:57:35 -0400
+	id <S262640AbSJGWtj>; Mon, 7 Oct 2002 18:49:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263328AbSJGW4d>; Mon, 7 Oct 2002 18:56:33 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13250 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S263413AbSJGWzi>; Mon, 7 Oct 2002 18:55:38 -0400
-Date: Mon, 7 Oct 2002 20:01:10 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Matt Porter <porter@cox.net>
-Cc: "David S. Miller" <davem@redhat.com>, giduru@yahoo.com,
-       andre@linux-ide.org, linux-kernel@vger.kernel.org
-Subject: Re: The end of embedded Linux?
-Message-ID: <20021007230109.GI3485@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Matt Porter <porter@cox.net>, "David S. Miller" <davem@redhat.com>,
-	giduru@yahoo.com, andre@linux-ide.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org> <20021005205238.47023.qmail@web13201.mail.yahoo.com> <20021005.212832.102579077.davem@redhat.com> <20021007092212.B18610@home.com>
-Mime-Version: 1.0
+	id <S262564AbSJGWti>; Mon, 7 Oct 2002 18:49:38 -0400
+Received: from marob.cust.panix.com ([166.84.191.66]:49538 "HELO
+	marob.cust.panix.com") by vger.kernel.org with SMTP
+	id <S262640AbSJGWtd>; Mon, 7 Oct 2002 18:49:33 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: make modules fails with 2.5.41 in scsi/ppa
+From: rcliff@panix.com (Robert Clifford)
+Reply-To: rcliff@panix.com (Robert Clifford)
+X-Phone: 212 924-2812 (Data 675-7059)
+X-Organization: ESCC, New York City
+X-Face: ByE+UMAp1klWR3?\RNGx(A-~Ri!YT%C6M!sxoJL+.;9`Q/|+dj7[KR>gGMyV.2qZeot0NI`4\MA^_Qg`F9=+Ox&zaE?Y9dV%F~Xzf';Zyk2Aobs.uu^Ey0_C6^~q';G#$HkA!ZAHXPpG-"*|Dd*Z4U$4y{{aI0c%75}i~Of(jxYtI[uIpYF<*Zoe|\*/ufb
+References: <20021007214904.19683.qmail@marob.cust.panix.com>
+Date: Mon, 07 Oct 2002 18:55:13 -0400
+In-Reply-To: <20021007214904.19683.qmail@marob.cust.panix.com> (rcliff@panix.com's
+ message of "7 Oct 2002 17:49:04 -0400, Mon, 7 Oct 2002 17:49:04 -0400
+ (EDT)")
+Message-ID: <ufr8f1luzy.fsf@marob.cust.panix.com>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.5 (brussels sprouts,
+ i686-pc-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021007092212.B18610@home.com>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Oct 07, 2002 at 09:22:12AM -0700, Matt Porter escreveu:
+And if I remove #include <linux/tqueue.h> from ppa.h: 
+(routine (ppa.c line 56) was in tqueue.h:
+struct tq_struct {
+        struct list_head list;          /* linked list of active bh's */
+        unsigned long sync;             /* must be initialized to zero */
+        void (*routine)(void *);        /* function to call */
+        void *data;                     /* argument to function */
+}; )
 
-> The ideal situation is if as we work on all these areas where we can reduce
-> size, we provide fine grained options to tweak them (with a default
-> desktop/server value and a default "tiny" value).  You can have this
-> CONFIG_TINY or whatever, but then we should also provide the ability to tweak
-> the values exactly how we want in a specific application.  The tweaking
-> options can be buried under advanced kernel options with the appropriate
-> disclaimers about shooting yourself in the foot.
- 
-That is how I think it should be done, yes.
+-----------------
 
-- Arnaldo
+make -f drivers/scsi/Makefile
+  gcc -Wp,-MD,drivers/scsi/.ppa.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE -include include/linux/modversions.h   -DKBUILD_BASENAME=ppa   -c -o drivers/scsi/ppa.o drivers/scsi/ppa.c
+drivers/scsi/ppa.c:32: field `ppa_tq' has incomplete type
+drivers/scsi/ppa.c:56: warning: braces around scalar initializer
+drivers/scsi/ppa.c:56: warning: (near initialization for `ppa_hosts[0].ppa_tq')
+drivers/scsi/ppa.c:56: unknown field `routine' specified in initializer
+drivers/scsi/ppa.c:56: invalid initializer
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[0].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[0].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[0]')
+drivers/scsi/ppa.c:56: warning: braces around scalar initializer
+drivers/scsi/ppa.c:56: warning: (near initialization for `ppa_hosts[1].ppa_tq')
+drivers/scsi/ppa.c:56: unknown field `routine' specified in initializer
+drivers/scsi/ppa.c:56: invalid initializer
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[1].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[1].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[1]')
+drivers/scsi/ppa.c:56: warning: braces around scalar initializer
+drivers/scsi/ppa.c:56: warning: (near initialization for `ppa_hosts[2].ppa_tq')
+drivers/scsi/ppa.c:56: unknown field `routine' specified in initializer
+drivers/scsi/ppa.c:56: invalid initializer
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[2].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[2].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[2]')
+drivers/scsi/ppa.c:56: warning: braces around scalar initializer
+drivers/scsi/ppa.c:56: warning: (near initialization for `ppa_hosts[3].ppa_tq')
+drivers/scsi/ppa.c:56: unknown field `routine' specified in initializer
+drivers/scsi/ppa.c:56: invalid initializer
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[3].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[3].ppa_tq')
+drivers/scsi/ppa.c:56: initializer element is not constant
+drivers/scsi/ppa.c:56: (near initialization for `ppa_hosts[3]')
+drivers/scsi/ppa.c: In function `ppa_interrupt':
+drivers/scsi/ppa.c:804: warning: implicit declaration of function `schedule_delayed_work_Rd3dad18a'
+drivers/scsi/ppa.c: In function `ppa_queuecommand':
+drivers/scsi/ppa.c:989: warning: implicit declaration of function `schedule_work_Rf6a5a6c8'
+make[2]: *** [drivers/scsi/ppa.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
+
+
+
+
+rcliff@panix.com writes:
+
+> slackware-8.1: gcc 2.95.3; intel pentuum4
+>
+> Here is the error when I do "make modules" from a clean 2.5.41:
+>
+>
+> 05:06pm{/usr/src/linux}# make modules
+> .....
+> make -f drivers/scsi/Makefile
+>   gcc -Wp,-MD,drivers/scsi/.ppa.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE -include include/linux/modversions.h   -DKBUILD_BASENAME=ppa   -c -o drivers/scsi/ppa.o drivers/scsi/ppa.c
+> In file included from drivers/scsi/ppa.c:52:
+> drivers/scsi/ppa.h:81: linux/tqueue.h: No such file or directory
+....
+> make[1]: *** [drivers/scsi] Error 2
+> make: *** [drivers] Error 2
+
+-- 
+Robert Clifford, ESCC New York City                         rcliff@panix.com
+"I think I've got the hang of it now .... :w :q :wq :wq!  ^d  X  exit  X   Q 
+:quitbye CtrlAltDel  ~~q :~q logout save/quit :!QUIT ^[zz  ^[ZZ ZZZZ ^H ^@ ^L
+^[c ^# ^E ^X ^I ^T ? help helpquit ^D^d ^C ^c help exit ?Quit ?q" (Ed Wright)

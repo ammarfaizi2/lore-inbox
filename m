@@ -1,142 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286215AbRLaDbx>; Sun, 30 Dec 2001 22:31:53 -0500
+	id <S286210AbRLaDyL>; Sun, 30 Dec 2001 22:54:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286187AbRLaDbd>; Sun, 30 Dec 2001 22:31:33 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:40403 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S286206AbRLaDbM>;
-	Sun, 30 Dec 2001 22:31:12 -0500
-Message-ID: <3C2FDBFB.3030201@candelatech.com>
-Date: Sun, 30 Dec 2001 20:31:07 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "Ryan C. Bonham" <Ryan@srfarms.com>
-CC: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: Tyan Tomcat i815T(S2080) LAN problems
-In-Reply-To: <19AB8F9FA07FB0409732402B4817D75A1251C3@FILESERVER.SRF.srfarms.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S286211AbRLaDyC>; Sun, 30 Dec 2001 22:54:02 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:60684 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S286210AbRLaDxx>;
+	Sun, 30 Dec 2001 22:53:53 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Dave Jones <davej@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: merge in progress. 
+In-Reply-To: Your message of "Mon, 31 Dec 2001 03:15:06 -0000."
+             <20011231031506.A1537@suse.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 31 Dec 2001 14:53:34 +1100
+Message-ID: <29543.1009770814@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I sort of got it working by using the e100 driver from Intel, and then
-forcefully setting the MAC address to something other than 0xFF...FF
+On Mon, 31 Dec 2001 03:15:06 +0000, 
+Dave Jones <davej@suse.de> wrote:
+>Ok, pre5 gets us in sync with most of the important and easy
+>to merge bits. Here's a list of whats left between the trees.
+>
+>Pending:
+>o  Bunch of __devexit changes
+>o  Keith's text.lock -> .subsection changes
+>   Better to merge this first and see whats left broken before merging
+>   the __devexit changes, in case there are any more bogus ones.
 
-Neither Becker, I, nor someone at Intel could figure out why
-the MAC (EEPROM) was all FFs.  The best guess was that the BIOS
-was screwed up somehow (that's what the Intel guy said...)
+The __devexit_p changes are required in addition to .text.lock ->
+.subsection, they are fixing different parts of the same problem.  Most
+of the devexit_p changes were in my patch against 2.4.17-pre6, all of
+those changes are needed.  The only devexit changes from 2.4.17-pre6 to
+2.4.17 are :-
 
-I'd be interested if you get it working...I have two of these marginal
-boards gathering dust!!
+drivers/char/synclink.c
 
-Ben
+  Spurious, there is no point in specifying __init, __exit etc. on the
+  declaration, those attributes only affect the function body.  The
+  change has no effect.  Anybody want to go through and remove spurious
+  __init, __exit etc. on forward function declarations?
 
-Ryan C. Bonham wrote:
+drivers/pcmcia/i82092.c
 
-> Hi,
-> 
-> I installed kernel 2.4.17 and this problem still exists. I have attached the important stuff from demesg and from eepro100-diag. 
-> 
-> 
->>Has anyone gotten the Dual built-in LAN cards to work on the 
->>Tyan S2080 Motherboard?  I am running a Redhat kernel 
->>2.4.9-13.. I haven't tried the latest kernel yet.. I saw some 
->>talk about this board in the archives but I found no 
->>solutions. It says it has a Intel 82559 LAN controller and a 
->>ICH2 LAN Controller. I am only seeing one NIC when I boot up. 
->>And dmesg is showing
->>eth0: Invalid EEPROM checksum 0xFF00, check setting before 
->>activating this device!
->>
->>
-> 
-> Thanks,
-> 
-> 
-> eepro100.c:v1.09j-t 9/29/99 Donald Becker http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-> eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
-> PCI: Found IRQ 11 for device 01:08.0
-> eth0: Invalid EEPROM checksum 0xff00, check settings before activating this device!
-> eth0: OEM i82557/i82558 10/100 Ethernet, FF:FF:FF:FF:FF:FF, IRQ 11.
->   Board assembly ffffff-255, Physical connectors present: RJ45 BNC AUI MII
->   Primary interface chip unknown-15 PHY #31.
->     Secondary interface chip i82555.
->   General self-test: passed.
->   Serial sub-system self-test: passed.
->   Internal registers self-test: passed.
->   ROM checksum self-test: passed (0x04f4518b).
-> 
-> ----------------------------------  eerpro100-diag -aaeef
-> 
-> eepro100-diag.c:v2.06 12/10/2001 Donald Becker (becker@scyld.com)
->  http://www.scyld.com/diag/index.html
-> Index #1: Found a Intel i82562 Pro/100 V adapter at 0xc800.
-> i82557 chip registers at 0xc800:
->   0c000050 07036000 00000000 00080002 3fe1ffff 00000600
->   No interrupt sources are pending.
->    The transmit unit state is 'Suspended'.
->    The receive unit state is 'Ready'.
->   This status is normal for an activated but idle interface.
->  The Command register has an unprocessed command 0c00(?!).
-> EEPROM contents, size 256x16:
->     00: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x08: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x10: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x18: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x20: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x28: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x30: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x38: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x40: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x48: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x50: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x58: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x60: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x68: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x70: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x78: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x80: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x88: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x90: ffff ffff ffff ffff ffff ffff ffff ffff
->   0x98: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xa0: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xa8: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xb0: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xb8: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xc0: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xc8: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xd0: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xd8: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xe0: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xe8: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xf0: ffff ffff ffff ffff ffff ffff ffff ffff
->   0xf8: ffff ffff ffff ffff ffff ffff ffff ffff
->  *****  The EEPROM checksum is INCORRECT!  *****
->   The checksum is 0xFF00, it should be 0xBABA!
-> Intel EtherExpress Pro 10/100 EEPROM contents:
->   Station address FF:FF:FF:FF:FF:FF.
->   Board assembly ffffff-255, Physical connectors present: RJ45 BNC AUI MII
->   Primary interface chip i82555 PHY #-1.
->     Secondary interface chip i82555, PHY -1.
->    Sleep mode is enabled.  This is not recommended.
->    Under high load the card may not respond to
->    PCI requests, and thus cause a master abort.
->    To clear sleep mode use the '-G 0 -w -w -f' options..
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+  Mine, valid AFAICT.
 
+drivers/isdn/hisax/hisax_fcpcipnp.c
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+  Don't know who changed it but it is valid.  hisax_fcpcipnp was added
+  after my first patch against 2.4.16 and I missed the new driver when
+  I redid the devexit_p patch for 2.4.17.
 
+I would add all the devexit_p changes through 2.4.17 at least, in
+addition to the .text.lock changes.
 

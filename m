@@ -1,53 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268440AbUIJGi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268327AbUIJGiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268440AbUIJGi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 02:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268439AbUIJGi2
+	id S268327AbUIJGiF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 02:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268399AbUIJGiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 02:38:28 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:937 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S268399AbUIJGiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 02:38:11 -0400
-Date: Fri, 10 Sep 2004 07:37:54 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH] atomic_inc_return() [0/5] (Re: atomic_inc_return)
-In-Reply-To: <01be01c496eb$6a9dbd60$f97d220a@linux.bs1.fc.nec.co.jp>
-Message-ID: <Pine.LNX.4.44.0409100721470.15219-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Fri, 10 Sep 2004 02:38:04 -0400
+Received: from [66.35.79.110] ([66.35.79.110]:62954 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S268327AbUIJGh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 02:37:59 -0400
+Date: Thu, 9 Sep 2004 23:37:38 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.9-rc1-bk14 Oops] In groups_search()
+Message-ID: <20040910063738.GA15319@hockin.org>
+References: <413FA9AE.90304@bigpond.net.au> <20040909010610.28ca50e1.akpm@osdl.org> <4140EE3E.5040602@bigpond.net.au> <20040909171450.6546ee7a.akpm@osdl.org> <4141092B.2090608@bigpond.net.au> <20040909200650.787001fc.akpm@osdl.org> <41413F64.40504@bigpond.net.au> <20040909231858.770ab381.akpm@osdl.org> <414149A0.1050006@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <414149A0.1050006@bigpond.net.au>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Sep 2004, Kaigai Kohei wrote:
-> > 
-> > I believe you have a patch adding those to i386 (including CONFIG_M386
-> > runtime check lest it's an actual i386 which cannot do "xadd") and x86_64.
-> > I'd be glad to see that go into the tree, would you be ready to submit it
-> > to Andrew or Linus based on the current 2.6 BK tree?
-> 
-> Indeed, I hope to do this.
-> atomic_inc_return() is necessary for the 'SELinux performance improvement
-> by RCU' patch.
+On Fri, Sep 10, 2004 at 04:28:48PM +1000, Peter Williams wrote:
+> All the way through and it's still occurring.  After the second patch 
+> the symptoms changed slightly and it was a different gdm program that 
+> triggered the oops.  But with all patches applied it's back to the 
+> original symptoms.
 
-Thanks a lot, the patches 1-5 you've posted look good to me (aside from
-some spaces instead of tab in the asm-arm 3/5), and should save me from
-my silly race.
-
-If we'd had these earlier, we could have avoiding changing page->count
-and page->mapcount over to start from -1 (though I dare say they may
-be slightly more efficient as they now are, than if we converted them
-back).  Should save making such conversions in future, anyway.
-
-> > I think arm was missing the inc and dec, but has recently gained them.
-
-I was wrong when I said that: asm-arm/atomic.h has recently been reworked,
-but does still needs your additions: sorry for the confusion.
-
-Thanks,
-Hugh
-
+What is special about the gdm programs wrt groups?

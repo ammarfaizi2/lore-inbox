@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290291AbSAXIL7>; Thu, 24 Jan 2002 03:11:59 -0500
+	id <S284305AbSAXISK>; Thu, 24 Jan 2002 03:18:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290292AbSAXILu>; Thu, 24 Jan 2002 03:11:50 -0500
-Received: from bs1.dnx.de ([213.252.143.130]:38568 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S290291AbSAXILf>;
-	Thu, 24 Jan 2002 03:11:35 -0500
-Date: Thu, 24 Jan 2002 09:09:50 +0100 (CET)
-From: Robert Schwebel <robert@schwebel.de>
-X-X-Sender: <robert@callisto.local>
-Reply-To: <robert@schwebel.de>
-To: <marcelo@conectiva.com.br>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: New version of AMD Elan patch
-In-Reply-To: <Pine.LNX.4.33.0201210821570.21377-100000@callisto.local>
-Message-ID: <Pine.LNX.4.33.0201240905010.893-100000@callisto.local>
+	id <S284933AbSAXISA>; Thu, 24 Jan 2002 03:18:00 -0500
+Received: from pD9E607DD.dip.t-dialin.net ([217.230.7.221]:41725 "EHLO
+	panzerknacker.falkenstr.de") by vger.kernel.org with ESMTP
+	id <S284305AbSAXIRu>; Thu, 24 Jan 2002 03:17:50 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Bug in Kernel or apm?
+Reply-To: spam@kliche.org
+Organization: GoInForm
+From: Max Kliche <max@kliche.org>
+Date: Thu, 24 Jan 2002 10:17:29 +0100
+Message-ID: <87vgdshzva.fsf@kliche.org>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.5 (artichoke)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Hallo,
+there is some misterious with apm and cdrom locks.
 
-thanks for applying the Elan patch. Unfortunately, I've discovered a typo,
-patch below.
+mount /mnt/cdrom
+(the cdrom is locked and mounted, I can't get it open, OK)
+apm -s
+(the notebook goes to sleep, and me too :))
+after awaking the notebook,
+the cdrom is still mounted (ok),
+but I can get it open, by pressing the eject button.
+In my opinion, it is not ok.
 
-For the list: the remaining stuff against -pre7 is as usual on
+Notebook: Dell Inspiron 8000
+Kernel: 2.4.17
+apm version: 3.0.2
 
-  http://www.pengutronix.de/software/elan_en.wml
+Max
 
-Changelog:
-
-01/24/2002      Robert Schwebel <robert@schwebel.de>
-
-                - Revision 2.4.18-pre7.1 released.
-                - Marcelo has integrated everything but the serial
-                  driver stuff into the latest pre-patch. I'll have
-                  to send the rest to tytso...
-                - striped out the applied stuff
-                - typo in arch/i386/kernel/setup.c
-
-Robert
-
-----------8<----------
-diff -urN -X kernel-patches/dontdiff linux-2.4.18-pre7/arch/i386/kernel/setup.c linux-2.4.18-pre7-elan/arch/i386/kernel/setup.c
---- linux-2.4.18-pre7/arch/i386/kernel/setup.c	Thu Jan 24 07:36:14 2002
-+++ linux-2.4.18-pre7-elan/arch/i386/kernel/setup.c	Thu Jan 24 08:51:01 2002
-@@ -329,7 +329,7 @@
- 	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
- 	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
- };
--#ifdef CONFIG_ELAN
-+#ifdef CONFIG_MELAN
- standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
- standard_io_resources[5] = { "pic2", 0xa0, 0xa1, IORESOURCE_BUSY };
- #endif
-----------8<----------
---
- +--------------------------------------------------------+
- | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
- | Pengutronix - Linux Solutions for Science and Industry |
- |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
- |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
- +--------------------------------------------------------+
-
+-- 
+when I find my code in tons of trouble,    |  GoInForm
+   friends and colleagues come to me,      |  Umweltrecht und 
+       speaking words of wisdom            |  Informationssysteme
+            "write in C"                   |  http://www.goinform.de

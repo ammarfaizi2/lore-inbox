@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbVAEMQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262355AbVAEMRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbVAEMQV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 07:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbVAEMQV
+	id S262355AbVAEMRe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 07:17:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVAEMRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 07:16:21 -0500
-Received: from alog0174.analogic.com ([208.224.220.189]:3968 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262356AbVAEMQI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 07:16:08 -0500
-Date: Wed, 5 Jan 2005 07:06:24 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: David Vrabel <dvrabel@cantab.net>
-cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, aryix <aryix@softhome.net>,
-       lug-list@lugmen.org.ar, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: dmesg: PCI interrupts are no longer routed automatically.........
-In-Reply-To: <41DBB5F6.6070801@cantab.net>
-Message-ID: <Pine.LNX.4.61.0501050640430.12879@chaos.analogic.com>
-References: <20041229095559.5ebfc4d4@sophia>  <1104862721.1846.49.camel@eeyore>
-  <Pine.LNX.4.61.0501041342070.5445@chaos.analogic.com> <1104867678.1846.80.camel@eeyore>
- <Pine.LNX.4.61.0501041447420.5310@chaos.analogic.com> <41DBB5F6.6070801@cantab.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 5 Jan 2005 07:17:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58018 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262357AbVAEMQ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 07:16:56 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <41DB4EC7.9070608@yahoo.com.au> 
+References: <41DB4EC7.9070608@yahoo.com.au>  <18003.1104868971@redhat.com> 
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] FRV: Change PML4 -> PUD 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Wed, 05 Jan 2005 12:16:43 +0000
+Message-ID: <8551.1104927403@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Jan 2005, David Vrabel wrote:
 
-> linux-os wrote:
->> 
->> For instance,  Level interrupts from PLX chips on the PCI bus
->> can (read do) generate interrupts when some of the BARS are
->> being configured. Once you get an unhandled interrupt, you
->> are dead because there's nothing to reset the line.
->
-> Why not unconditionally clear all interrupts after configuring the chip?
->
-> David Vrabel
->
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-You can't configure the chip until the BARS are set up for
-access. You _must_ know what the interrupt line is, before
-you touch any registers so that any "waiting" interrupt
-gets handled, i.e., cleared. Otherwise, the code that
-inspects the PCI bus, looking for a device to claim, finds
-the device, then (in order to make its IRQ correct) enables
-it ... BAM that's all she wrote. No messages, no nothing,
-a halted machine because the IRQ line is permanently TRUE
-with no code in place to reset it.
+> David Howells wrote:
+> > The attached patch changes the PML4 bits of the FRV arch to the new PUD way.
+> > 
+> 
+> Looks OK... any reason you aren't using the asm-generic folding headers?
+> (asm-generic/pgtable-nopmd.h or asm-generic/pgtable-nopud.h).
 
-The temporary work-around is....
- 	pci_enable_device(pdev);
- 	save_irq = pdev->irq;
- 	pci_disable_device(pdev);	// Turn back off.
+The PMEs aren't that trivial. Technically, I think I should have one PGE
+containing 64 PMEs, each of which points to one chunk of a common page table,
+but I'm not sure the allocation assumptions will work right for that.
 
- 	init_bars(....);
- 	request_irq(save_irq,...)	// Put ISR in place
+The way the page table tree structure is defined on this arch is interesting:
+16KB PGD, 256B PTs and 16KB pages. I glue several PTs together into one page,
+which means that each PME actually contains 64 pointers and is 256B in size.
 
- 	pci_write_config_byte(pdev, PCI_CACHE_LINE_SIZE, 0x08);
- 	pci_write_config_byte(pdev, PCI_LATENCY_TIMER, 0x40);
- 	pci_set_dma_mask(pdev, 0x00000000ffffffffULL);
- 	pci_set_drvdata(pdev, NULL);
- 	pci_set_power_state(pdev, 0);
- 	pci_set_master(pdev);
- 	pci_set_mwi(pdev);
- 	pci_write_config_dword(pdev, PCI_COMMAND, PCI_CONFIG);
+Trying to use the trivial PUD/PMD support buys me compilation errors about
+being unable to represent objects. It would be easier if the support wasn't
+inside out: pmd_t contains a pud_t which contains a pgd_t. This perhaps should
+be the other way around.
 
- 	.... configure chip-specific stuff, clear interrupts, etc.
- 	pci_enable_device(dev);
+The problems seem to revolve around this:
 
+	#define set_pgd(pgdptr, pgdval) \
+		set_pud((pud_t *)(pgdptr), (pud_t) { pgdval })
 
-Now, the temporary work-around is a MACRO called ROUTE_IRQ().
-If the guy who changed the PCI API adds a seperate callable
-procedure to do this routing without actually enabling the
-chip, I will substitute.
+It's probably possible to rewrite the thing so that the pgd_t contains the 64
+pointers, but then set_pmd() ends up setting the pgd_t which seems wrong
+somehow. Not only that, but the code looks wrong: pmd->pud->pgd?????
 
-This work-round is a new Linux-2.6.10 bug-hack. It was never
-required before
+It would seem better to me to start from the assumption that PMEs will always
+contain "pointers" to page tables. What the current method seems to do is that
+pointers to page tables are installed as high up the tree as possible, and the
+unnecessary dangly bits (PUDs/PMDs) are looped back on themselves.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Both methods work, I suppose, but it's not well documented; and because it's
+inside out, it's not immediately obvious. Whoever designed this system should
+write it up and stick a file in Documentation/ about it.
+
+> I sent some notes to the arch list about getting those working, but
+> apparently it hasn't come though yet.
+
+Sounds like there's a mailing list I should be on, but don't know about.
+
+> Of course I do think it is sensible that you just get it working first,
+> before getting too fancy.
+
+Definitely. The arch makes "fancy" tricky anyway.
+
+David

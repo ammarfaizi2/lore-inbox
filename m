@@ -1,83 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUFSUXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUFSUdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264658AbUFSUXM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 16:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUFSUXM
+	id S262574AbUFSUdk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 16:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUFSUdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 16:23:12 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59399 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264658AbUFSUWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 16:22:52 -0400
-Date: Sat, 19 Jun 2004 21:22:46 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Proposal for new generic device API: dma_get_required_mask()
-Message-ID: <20040619212246.B8063@flint.arm.linux.org.uk>
-Mail-Followup-To: Krzysztof Halasa <khc@pm.waw.pl>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>
-References: <1087481331.2210.27.camel@mulgrave> <m33c4tsnex.fsf@defiant.pm.waw.pl> <20040618102120.A29213@flint.arm.linux.org.uk> <m3brjg7994.fsf@defiant.pm.waw.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m3brjg7994.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Sat, Jun 19, 2004 at 01:10:31AM +0200
+	Sat, 19 Jun 2004 16:33:40 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:9429 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262574AbUFSUdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 16:33:35 -0400
+Date: Sat, 19 Jun 2004 16:35:34 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Christophe Saout <christophe@saout.de>
+Cc: Brice Goglin <Brice.Goglin@ens-lyon.fr>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7 Samba OOPS (in smb_readdir)
+In-Reply-To: <1087586532.9085.1.camel@leto.cs.pocnet.net>
+Message-ID: <Pine.LNX.4.58.0406191624430.2228@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org> 
+ <20040618163759.GN1146@ens-lyon.fr> <20040618164125.GO1146@ens-lyon.fr> 
+ <Pine.LNX.4.58.0406181309440.2228@montezuma.fsmlabs.com> 
+ <1087585251.13235.3.camel@leto.cs.pocnet.net> <1087586532.9085.1.camel@leto.cs.pocnet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 19, 2004 at 01:10:31AM +0200, Krzysztof Halasa wrote:
-> Russell King <rmk+lkml@arm.linux.org.uk> writes:
-> > Good idea, except for the fact that we have drivers merged which have
-> > real masks like 0x0fefffff.  It _really is_ a mask and not a number
-> > of bits.
-> 
-> Which drivers do you mean? And which platforms support it?
+On Fri, 18 Jun 2004, Christophe Saout wrote:
 
-The SA1111 device and associated sub-device drivers.  Basically, Intel
-has a "no fix" errata where one of the address bits gets incorrectly
-routed to the SDRAM "auto precharge" address bit.  This address bit
-must be zero, otherwise the SDRAM accesses are messed up.
+> Well, it's not. :(
+>
+> The oops is gone but the processes are still hanging. I'm posting the
+> SysRq-T trace on bugzilla. Hope it helps. If you need some help
+> debugging the problem, please tell me if I can do something.
 
-However, because SDRAM is accessed by "row" and "column" addresses,
-the physical address bit which corresponds to the "auto precharge"
-signal varies according to the size of SDRAM.
+This is an updated debugging patch (which is also added to Bugzilla),
+please give this a spin. There are still a few issues with this patch but
+lets try at least avoid oopsing for now.
 
-This is what the following table is about:
+Index: linux-2.6.7/include/linux/smb_fs_sb.h
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.7/include/linux/smb_fs_sb.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 smb_fs_sb.h
+--- linux-2.6.7/include/linux/smb_fs_sb.h	16 Jun 2004 16:49:26 -0000	1.1.1.1
++++ linux-2.6.7/include/linux/smb_fs_sb.h	19 Jun 2004 20:22:35 -0000
+@@ -57,7 +57,7 @@ struct smb_sb_info {
+ 	unsigned int generation;
+ 	pid_t conn_pid;
+ 	struct smb_conn_opt opt;
+-
++	wait_queue_head_t conn_wq;
+ 	struct semaphore sem;
 
-static u32 sa1111_dma_mask[] = {
-        ~0,
-        ~(1 << 20),
-        ~(1 << 23),
-        ~(1 << 24),
-        ~(1 << 25),
-        ~(1 << 20),
-        ~(1 << 20),
-        0,
-};
+         unsigned short     rcls; /* The error codes we received */
+Index: linux-2.6.7/fs/smbfs/inode.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.7/fs/smbfs/inode.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 inode.c
+--- linux-2.6.7/fs/smbfs/inode.c	16 Jun 2004 16:49:47 -0000	1.1.1.1
++++ linux-2.6.7/fs/smbfs/inode.c	19 Jun 2004 20:22:35 -0000
+@@ -521,6 +521,7 @@ int smb_fill_super(struct super_block *s
+ 	server->super_block = sb;
+ 	server->mnt = NULL;
+ 	server->sock_file = NULL;
++	init_waitqueue_head(&server->conn_wq);
+ 	init_MUTEX(&server->sem);
+ 	INIT_LIST_HEAD(&server->entry);
+ 	INIT_LIST_HEAD(&server->xmitq);
+Index: linux-2.6.7/fs/smbfs/proc.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.7/fs/smbfs/proc.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 proc.c
+--- linux-2.6.7/fs/smbfs/proc.c	16 Jun 2004 16:49:47 -0000	1.1.1.1
++++ linux-2.6.7/fs/smbfs/proc.c	19 Jun 2004 20:23:39 -0000
+@@ -56,6 +56,7 @@ static struct smb_ops smb_ops_os2;
+ static struct smb_ops smb_ops_win95;
+ static struct smb_ops smb_ops_winNT;
+ static struct smb_ops smb_ops_unix;
++static struct smb_ops smb_ops_null;
 
-for each setting of the SDRAM row/column address multiplexer, we have
-to ensure that a certain DMA address bit is zero.  Note, however,
-that the problem address bit does not correspond to the highest
-addressable bit.  You may have a 32MB SDRAM but need to ensure that
-physical bit 20 is always zero - IOW you can only DMA from even MB
-addresses and not odd MB addresses.
+ static void
+ smb_init_dirent(struct smb_sb_info *server, struct smb_fattr *fattr);
+@@ -878,7 +879,6 @@ smb_newconn(struct smb_sb_info *server,
+ 	server->conn_pid = current->pid;
+ 	server->opt = *opt;
+ 	server->generation += 1;
+-	server->state = CONN_VALID;
+ 	error = 0;
 
-Hence, this ends up with DMA masks such as the example in my previous
-mail.
+ 	if (server->conn_error) {
+@@ -981,6 +981,9 @@ smb_newconn(struct smb_sb_info *server,
+ 	smbiod_wake_up();
+ 	if (server->opt.capabilities & SMB_CAP_UNIX)
+ 		smb_proc_query_cifsunix(server);
++
++	server->state = CONN_VALID;
++	wake_up_interruptible_all(&server->conn_wq);
+ 	return error;
 
-And yes, this chip is popular, in use, and this quirk is not difficult
-to cleanly work around given our existing API.
+ out:
+@@ -2794,10 +2797,48 @@ out:
+ }
 
-Hence why changing from "dma mask" to "number of bits" breaks existing
-drivers.
+ static int
++smb_proc_ops_wait(struct smb_sb_info *server)
++{
++	int result;
++
++	result = wait_event_interruptible_timeout(server->conn_wq,
++				server->state == CONN_VALID, 30*HZ);
++
++	if (!result || signal_pending(current))
++		return -EIO;
++
++	return 0;
++}
++
++static int
+ smb_proc_getattr_null(struct smb_sb_info *server, struct dentry *dir,
+-		      struct smb_fattr *attr)
++			  struct smb_fattr *fattr)
+ {
+ 	return -EIO;
++#if 0
++	int result;
++
++	if (smb_proc_ops_wait(server) < 0)
++		return -EIO;
++
++	smb_init_dirent(server, fattr);
++	result = server->ops->getattr(server, dir, fattr);
++	smb_finish_dirent(server, fattr);
++
++	return result;
++#endif
++}
++
++static int
++smb_proc_readdir_null(struct file *filp, void *dirent, filldir_t filldir,
++		      struct smb_cache_control *ctl)
++{
++	struct smb_sb_info *server = server_from_dentry(filp->f_dentry);
++
++	if (smb_proc_ops_wait(server) < 0)
++		return -EIO;
++
++	return server->ops->readdir(filp, dirent, filldir, ctl);
+ }
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+ int
+@@ -3431,6 +3472,7 @@ static struct smb_ops smb_ops_unix =
+ /* Place holder until real ops are in place */
+ static struct smb_ops smb_ops_null =
+ {
++	.readdir	= smb_proc_readdir_null,
+ 	.getattr	= smb_proc_getattr_null,
+ };
+

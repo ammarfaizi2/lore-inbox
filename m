@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262568AbRFNNBC>; Thu, 14 Jun 2001 09:01:02 -0400
+	id <S262580AbRFNNFm>; Thu, 14 Jun 2001 09:05:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262580AbRFNNAx>; Thu, 14 Jun 2001 09:00:53 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:49926 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S262568AbRFNNAm>;
-	Thu, 14 Jun 2001 09:00:42 -0400
-Date: Thu, 14 Jun 2001 15:00:25 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Udo Wolter <uwp@dicke-aersche.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: EXT2FS problems & 2.2.19 & 3ware RAID
-In-Reply-To: <Pine.SOL.4.10.10106141420580.20645-100000@blasuarr>
-Message-ID: <Pine.LNX.4.33.0106141454440.28405-100000@Expansa.sns.it>
+	id <S262582AbRFNNFW>; Thu, 14 Jun 2001 09:05:22 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:45319 "EHLO
+	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S262580AbRFNNFS>; Thu, 14 Jun 2001 09:05:18 -0400
+Message-Id: <200106141305.f5ED5hD00663@thunderbird.ncptiddische.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Nils Holland <nils@nightcastleproductions.org>
+Organization: NightCastle Productions
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: obsolete code must die
+Date: Thu, 14 Jun 2001 15:05:43 +0200
+X-Mailer: KMail [version 1.2.2]
+In-Reply-To: <27525795B28BD311B28D00500481B7601F1458@ftrs1.intranet.ftr.nl>
+In-Reply-To: <27525795B28BD311B28D00500481B7601F1458@ftrs1.intranet.ftr.nl>
+NCP-Opt: Powered by Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 14 June 2001 12:22, Heusden, Folkert van wrote:
+> Yeah, and while you're at it: make it closed source and ask big time $$
+> for every single line of update.
+> If your stupid idea will be followed, a lot of african people will not
+> be happy. (me neither. proud owner of a 486 (at home))
 
+Well, although I am not involved in developement of the kernel, I'm pretty 
+much about this "cleaning up" idea. While I'm not one of those folks who are 
+actually working on the code, I don't see a reason for limiting the range of 
+hardware that Linux suppurts, which is what this clean-up would do.
 
-On Thu, 14 Jun 2001, Udo Wolter wrote:
+Some ideas that have been presented here are not of much relevance to me, but 
+I think dropping support for the serial and parallel ports is an insane idea. 
+Why not also stop supporting other devices that are in use by probably 70% of 
+the users?
 
-> Hi !
->
-> I'm hosting a server with 120 GB disk space. This disk space consists of
-> a RAID10 via a 3ware Escalade 6800 controller. As you can see, the disks are
-> IDE disks (4 x 60 GB) but the controller maps it as scsi-devices to
-> the system. It runs fine but from time to time I get those errors:
->
-> kernel: EXT2-fs warning (device sd(8,6)): ext2_free_inode: bit already cleared for inode 885312
-> kernel: EXT2-fs warning (device sd(8,6)): ext2_free_inode: bit already cleared for inode 885258
->
-when i saw something similar, with a configuration really similar to your,
-but on scsi disks, it was because a disc was near to break.
-I had to change the disk and everything went ok.
+Besides the fact that Linux is free, stable and fast, I have always liked the 
+fact that I could put it on almost any machine I got my hands on. That holds 
+true to my fastest Athlon with 512 MB of RAM, as well as for a 486SX with 16 
+MB of RAM.  With Linux, even such old machines could be put to good use. And 
+now, after this suggested clean-up, I wouldn't even be able to use my non-USB 
+supporting Pentium machines anymore. I wonder what that would be good for.
 
-It also happened to me after a crash on a disk due to eathing
-problems, last august. Same messages,
-and thanx God the disk was not really damnaged, so low level formatted
-the disk, rebuilt partition table, then I rebuilt the fs to restore my
-backup and everything went ok.
-So my suggestion is to loock for HW problems.
+I really cannot imagine that the older features in the kernel are big 
+problems of any kind that make it impossible (or harder) for the developers 
+to focus on supporting new features. The only thing a clean-up would do is 
+probably making a whole lot of users unhappy.
 
-> etc.
->
-> The messages are coming almost once a week. As long as those messages are not
-> harming the filesystem, I had no problems with them (in fact, they say, they
-> are warnings and no errors). But the last times I tried to do a du over the
-> full partition, I got 2 or 3 files and directories which say that that they
-> can't be accessed -> I/O-Error. Neither I can't delete them nor I can
-> access them in any way, not even list.
->
-> After using debugfs (read only mode during the mount) I can see the files
-> in the listing but even here they are not accessible.
->
-> I shut the machine down for 2 hours to do a fsck and the errors had been
-> gone but after some days the errors came back (different files and directories,
-> not the same). At this time it's not possible to shut it down because
-> more than 5000 users use it at the moment. Anyway before doing a fsck again
-> I'd like to solve the problem so that the system couldn't get corrupted again.
->
-exactly, that what I saw myself on the soon to get broken disk.
+Greetings
+Nils
 
-bests
-
-Luigi Genoni
-
-
-
-
+-- 
+----------------------------------------------------------
+Nils Holland - nils@nightcastleproductions.org
+NightCastle Productions - Linux in Tiddische, Germany
+http://www.nightcastleproductions.org
+"They asked me where this earthquake would begin,
+ I offered to let them feel my pulse."
+----------------------------------------------------------

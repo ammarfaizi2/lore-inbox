@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312457AbSDCWra>; Wed, 3 Apr 2002 17:47:30 -0500
+	id <S312459AbSDCWsK>; Wed, 3 Apr 2002 17:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312459AbSDCWrK>; Wed, 3 Apr 2002 17:47:10 -0500
-Received: from quark.didntduck.org ([216.43.55.190]:62469 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S312458AbSDCWrH>; Wed, 3 Apr 2002 17:47:07 -0500
-Message-ID: <3CAB8554.1A94C077@didntduck.org>
-Date: Wed, 03 Apr 2002 17:42:28 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S312460AbSDCWsB>; Wed, 3 Apr 2002 17:48:01 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:20497 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S312458AbSDCWrt>;
+	Wed, 3 Apr 2002 17:47:49 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Rik van Riel <riel@conectiva.com.br>
+Date: Thu, 4 Apr 2002 00:47:07 +0100
 MIME-Version: 1.0
-To: Tommy Reynolds <reynolds@redhat.com>
-CC: Eric Sandeen <sandeen@sgi.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, marcelo@conectiva.com.br
-Subject: Re: [PATCH] kmem_cache_zalloc()
-In-Reply-To: <1017871982.25556.7.camel@stout.americas.sgi.com> <20020403162810.2c24ba60.reynolds@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+CC: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Gerd Knorr <kraxel@bytesex.org>, <linux-kernel@vger.kernel.org>,
+        Hugh Dickins <hugh@veritas.com>, riel@conectiva.com.br
+X-mailer: Pegasus Mail v3.50
+Message-ID: <159BD1442BE@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tommy Reynolds wrote:
-> 
-> Uttered "Eric Sandeen" <sandeen@sgi.com>, spoke thus:
-> 
-> >  In short, we're using a kmem_cache_zalloc() function in XFS which just
-> >  does kmem_cache_alloc + memset.
+On  3 Apr 02 at 19:39, Rik van Riel wrote:
+> On Wed, 3 Apr 2002, Tigran Aivazian wrote:
+> > On Wed, 3 Apr 2002, Rik van Riel wrote:
+> > > after all Redhat, SuSE, Conectiva, etc. wouldn't want to have
+> > > vmware and Veritas use their work without giving anything back ...
 > >
-> >  We'd like to incorporate this into the kernel proper, and several others
-> >  chimed in that it would be useful, so here's the patch.  If it's a no-go
-> >  with you, we can roll this functionality back under fs/xfs to reduce our
-> >  changes in the mainline kernel.
+> > I don't know about vmware (probably applies too) but more than one person
+> > at Veritas can be justly offended by your implication that Veritas
+> > employees have not contributed anything useful to the Linux kernel.
 > 
-> Why not use the constructor function interface to kmem_cache_create that is
-> _already_ in the kernel API?
+> Indeed, Veritas has contributed significantly to kernel development,
+> but I can't remember ever seeing anything but troubled users from
+> companies like nvidia or vmware.
+> 
+> Veritas was a bad example indeed ;)
 
-Constructors are only called once when the slab is allocated.  It is
-expected that objects are returned to the slab in the same state.
+Well, now I feel really offended. Maybe my contributions are not so big
+as yours, but I think that negating them completely is way too off.
+                                                Petr Vandrovec
+                                         (also) petr@vmware.com
 
-I think a better idea would be to add a flag to the cache that tells
-kmem_cache_alloc() to zero out the object it allocates instead of
-creating another interface.
-
---
-
-				Brian Gerst

@@ -1,44 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314546AbSFXRsj>; Mon, 24 Jun 2002 13:48:39 -0400
+	id <S314548AbSFXRtp>; Mon, 24 Jun 2002 13:49:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314548AbSFXRsi>; Mon, 24 Jun 2002 13:48:38 -0400
-Received: from [212.18.235.100] ([212.18.235.100]:13697 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id <S314546AbSFXRsh>; Mon, 24 Jun 2002 13:48:37 -0400
-From: kernel@street-vision.com
-Message-Id: <200206241748.g5OHmXl11626@tench.street-vision.com>
-Subject: Re: driverfs is not for everything! (was:  [PATCH] /proc/scsi/map
-To: andrew.grover@intel.com (Grover, Andrew)
-Date: Mon, 24 Jun 2002 17:48:33 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7F53@orsmsx111.jf.intel.com> from "Grover, Andrew" at Jun 24, 2002 10:35:53 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314553AbSFXRto>; Mon, 24 Jun 2002 13:49:44 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40671 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314548AbSFXRto>;
+	Mon, 24 Jun 2002 13:49:44 -0400
+Date: Mon, 24 Jun 2002 10:43:37 -0700 (PDT)
+Message-Id: <20020624.104337.13391139.davem@redhat.com>
+To: fdavis@si.rr.com
+Cc: linux-kernel@vger.kernel.org, jfbeam@bluetronic.net
+Subject: Re: [PATCH] 2.5.24 : drivers/scsi/dpt_i2o.c (DMA Rev. 2)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0206241320180.901-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0206241320180.901-100000@localhost.localdomain>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Frank Davis <fdavis@si.rr.com>
+   Date: Mon, 24 Jun 2002 13:23:14 -0400 (EDT)
 
-> It's a matter of where to draw the line. Obviously when we're talking
-> physical devices, my tcpip connection to www.yahoo.com is not one. My PS/2
-> port is. I actually think keeping in mind that driverfs is for power
-> management can help delineate what should be in driverfs and what shouldn't.
-> With technologies like USB, infiniband, NFS, iSCSI, and 1394, it's tough,
-> but the main question should be:
-> 
-> "If my computer suspends, should this device be turned off?" Which is
-> another way of asking is the use of a device exclusive to a particular
-> machine.
-> 
-> If a device can be accessed by multiple machines concurrently, it should not
-> be in driverfs.
+     I've added the check for 64-bit DMA addressing per Rick's comment. 
 
-That is rather confusing with respect to 1394. You should log out of sbp2
-devices, but they can still be shared. Basically 1394 is shared though, and
-other types of device dont have logins. So you should probably exclude it.
-But anything with disks on at least wants the device flushed before sleeping,
-and probably unmounted in many cases.
-
-Justin
+I can guarentee you didn't try to compile that.

@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266859AbTBGXuA>; Fri, 7 Feb 2003 18:50:00 -0500
+	id <S266865AbTBHAJE>; Fri, 7 Feb 2003 19:09:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266865AbTBGXuA>; Fri, 7 Feb 2003 18:50:00 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:41221 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S266859AbTBGXt7>; Fri, 7 Feb 2003 18:49:59 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: The Linux Kernel and Castle Technology Ltd, UK
-References: <20030207153007$386b@gated-at.bofh.it>
-From: alan.nospam@glaramara.freeserve.co.uk (Alan J. Wylie)
-Date: 07 Feb 2003 23:59:36 +0000
-In-Reply-To: <20030207153007$386b@gated-at.bofh.it>
-Message-ID: <wgadh71w2f.fsf@snoeze.glaramara.freeserve.co.uk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S266886AbTBHAJE>; Fri, 7 Feb 2003 19:09:04 -0500
+Received: from ns.suse.de ([213.95.15.193]:32780 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S266865AbTBHAJE>;
+	Fri, 7 Feb 2003 19:09:04 -0500
+Date: Sat, 8 Feb 2003 01:18:44 +0100
+From: Andi Kleen <ak@suse.de>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.5.59_getcycles_A0
+Message-ID: <20030208001844.GA20849@wotan.suse.de>
+References: <1044649542.18673.20.camel@w-jstultz2.beaverton.ibm.com.suse.lists.linux.kernel> <p73ptq3bxh6.fsf@oldwotan.suse.de> <1044659375.18676.80.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1044659375.18676.80.camel@w-jstultz2.beaverton.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 07 Feb 2003 16:30:07 +0100, Russell King <rmk@arm.linux.org.uk> said:
+> I'm sorry, I'm not seeing get_cycles used in /dev/random (although they
+> do make a direct call to rdtsc if its available - which is fine, since
 
-> It would appear that Castle Technology Limited, UK, have taken some
-> of the Linux kernel 2.5 code, and incorporated it into their own
-> product, "RISC OS",
+Hmm, perhaps it was only a proposed patch that wasn't merged.
+Anyways my point stands - get_cycles should be only used when no
+wall time is needed, so I see no reason to complicate it and slow
+it down with external timers.
 
-There is more than one player involved with RISC OS:
-
-Pace Micro, of Saltaire, West Yorkshire
-
-http://www.pace.co.uk/
-
-http://uk.finance.yahoo.com/q?s=PIC.L&d=c&k=c1&a=v&p=s&t=5y&l=on&z=m&q=l
-
-seem to own the Copyright.
-
-And RISCOS Ltd., of Cardiff, Wales 
-
-http://www.riscos.com/
-
-are involved as well.
-
--- 
-Alan J. Wylie                            http://www.glaramara.freeserve.co.uk/
-
-I'm looking for a job.      CV at http://www.glaramara.freeserve.co.uk/cv.html
-Unix/Linux/C/Internet/embedded and lots more.           UK:Bradford/Manchester
+-Andi

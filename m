@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129047AbRBFIdc>; Tue, 6 Feb 2001 03:33:32 -0500
+	id <S129222AbRBFIdJ>; Tue, 6 Feb 2001 03:33:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129739AbRBFIdJ>; Tue, 6 Feb 2001 03:33:09 -0500
-Received: from h179-210-243-135.iii.org.tw ([210.243.135.179]:31684 "EHLO
-	mta0.iii.org.tw") by vger.kernel.org with ESMTP id <S129041AbRBFIdD>;
-	Tue, 6 Feb 2001 03:33:03 -0500
-Message-ID: <000f01c09017$847854e0$4c0c5c8c@trd.iii.org.tw>
+	id <S129047AbRBFIdA>; Tue, 6 Feb 2001 03:33:00 -0500
+Received: from h179-210-243-135.iii.org.tw ([210.243.135.179]:32964 "EHLO
+	mta0.iii.org.tw") by vger.kernel.org with ESMTP id <S129041AbRBFIcy>;
+	Tue, 6 Feb 2001 03:32:54 -0500
+Message-ID: <000b01c09017$7e8273e0$4c0c5c8c@trd.iii.org.tw>
 From: "Greeen-III" <greeen@iii.org.tw>
 To: <linux-mips-request@fnet.fr>,
         "LinuxEmbeddedMailList" <linux-embedded@waste.org>,
         "LinuxKernelMailList" <linux-kernel@vger.kernel.org>
 Subject: Linux/MIPS high_memory!!
-Date: Tue, 6 Feb 2001 16:33:42 +0800
+Date: Tue, 6 Feb 2001 16:33:21 +0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="big5"
@@ -70,7 +70,6 @@ SECTIONS
 * Working at III(資策會)
 * 台北市大安區敦化南路二段216號12F
 ************************************
-
 
 
 -

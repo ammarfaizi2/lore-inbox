@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268101AbUJOCFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268130AbUJOCJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268101AbUJOCFV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 22:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268126AbUJOCFU
+	id S268130AbUJOCJq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 22:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268128AbUJOCJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 22:05:20 -0400
-Received: from ozlabs.org ([203.10.76.45]:57821 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268101AbUJOCFO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 22:05:14 -0400
-Subject: Re: 2.6.9-rc3-mm2
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dominik.karall@gmx.net,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041014184427.65d75324.akpm@osdl.org>
-References: <20041004020207.4f168876.akpm@osdl.org>
-	 <200410051607.40860.dominik.karall@gmx.net>
-	 <1097804285.22673.47.camel@localhost.localdomain>
-	 <20041014184427.65d75324.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1097805925.22673.70.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 15 Oct 2004 12:05:25 +1000
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Oct 2004 22:09:46 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:15597 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S268126AbUJOCJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 22:09:41 -0400
+Date: Fri, 15 Oct 2004 11:11:08 +0900
+From: Takao Indoh <indou.takao@soft.fujitsu.com>
+Subject: Re: [PATCH 1/5][Diskdump] IPF(IA64) support
+In-reply-to: <1097804121.22673.43.camel@localhost.localdomain>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Message-id: <34C4B25C3BFAE4indou.takao@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: TuruKame 3.63
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <1097804121.22673.43.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-15 at 11:44, Andrew Morton wrote:
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > Please, please please!  Never use per_cpu(XXX, smp_processor_id())!
-> 
-> Why?
+Hi!
 
-Because that's what get_cpu_var() does, and an arch might not need to
-get the processor id to do it.  As more things get per-cpu-ified, and
-smp_processor_id() for its own sake becomes more unusual, I expect archs
-to go to smp_processor_id() as a per-cpu variable, and a register
-holding the per-cpu offset.  (This needs a real dynamic per-cpu
-allocator, as well, which I've been meaning to polish off).
+On Fri, 15 Oct 2004 11:35:22 +1000, Rusty Russell wrote:
 
-> We were getting warnings from somewhere or other due to smp_processor_id()
-> within preemptible code - I don't recall the callsite.
+>On Fri, 2004-07-23 at 19:53, Takao Indoh wrote:
+>> +static unsigned int fallback_on_err = 1;
+>> +static unsigned int allow_risky_dumps = 1;
+>> +static unsigned int block_order = 2;
+>> +static int sample_rate = 8;
+>> +module_param(fallback_on_err, uint, 0);
+>> +module_param(allow_risky_dumps, uint, 0);
+>> +module_param(block_order, uint, 0);
+>> +module_param(sample_rate, int, 0);
+>
+>Hi Takao!
+>
+>	Are you sure you want "uint" for fallback_on_err and allow_risky_dumps
+>and not "bool"?  Also, I suggest "0400" as permissions so you can read
+>them out of sysfs; maybe even 0600 if these parameters can be changed
+>after loading.
 
-That's weird, but implies bogosity in the caller.  Covering it up like
-this is not necessarily a win.
+Thanks for comment.
 
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+The type of fallback_on_err and allow_risky_dumps is bool.
+The latest version of diskdump (released on 28th Aug) is as follows.
 
++static int fallback_on_err = 1;
++static int allow_risky_dumps = 1;
++static unsigned int block_order = 2;
++static int sample_rate = 8;
++module_param_named(fallback_on_err, fallback_on_err, bool, S_IRUGO|S_IWUSR);
++module_param_named(allow_risky_dumps, allow_risky_dumps, bool, S_IRUGO|S_IWUSR);
++module_param_named(block_order, block_order, uint, S_IRUGO|S_IWUSR);
++module_param_named(sample_rate, sample_rate, int, S_IRUGO|S_IWUSR);
+
+
+Regards,
+Takao Indoh

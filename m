@@ -1,92 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269227AbUJFMHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269218AbUJFMPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269227AbUJFMHa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 08:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269231AbUJFMHa
+	id S269218AbUJFMPm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 08:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269225AbUJFMPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 08:07:30 -0400
-Received: from smtp.nedstat.nl ([194.109.98.184]:57751 "HELO smtp.nedstat.nl")
-	by vger.kernel.org with SMTP id S269227AbUJFMH1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 08:07:27 -0400
-Subject: 2.6.9-rc3-mm2-VP-T0: oprofile - using smp_processor_id() in
-	preemptible code
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1097064222.3172.17.camel@localhost.localdomain>
+	Wed, 6 Oct 2004 08:15:41 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:37612 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S269218AbUJFMPj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 08:15:39 -0400
+Date: Wed, 6 Oct 2004 14:15:34 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Willy Tarreau <willy@w.ods.org>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
+Message-ID: <20041006121534.GA8386@wohnheim.fh-wedel.de>
+References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <200410060058.57244.vda@port.imtp.ilyichevsk.odessa.ua> <20041006043458.GB19761@alpha.home.local> <Pine.GSO.4.61.0410061038590.20160@waterleaf.sonytel.be>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 06 Oct 2004 14:03:42 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.GSO.4.61.0410061038590.20160@waterleaf.sonytel.be>
+User-Agent: Mutt/1.3.28i
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wed, 6 October 2004 10:43:52 +0200, Geert Uytterhoeven wrote:
+> On Wed, 6 Oct 2004, Willy Tarreau wrote:
+> > On Wed, Oct 06, 2004 at 12:58:57AM +0300, Denis Vlasenko wrote:
+> > > > +		if (open("/dev/null", O_RDWR, 0) == 0)
+> > > > +			printk("         Falling back to /dev/null.\n");
+> > > > +	}
+> > > 
+> > > What will happen if /dev is totally empty?
+> > 
+> > ... Which is the most probable reason causing this trouble.
 
-Just making a note of some warnings. 
-The running kernel is 
-	2.6.9-rc3-mm2-VP-T0 
-	+ a !4KSTACK build fix 
-	+ Hugh Dickins's _raw_read_trylock fix
-	+ Greg HK's pci_register_driver fix
+I have no idea about the probability, but in the one case I worry
+about, a console is explicitly disabled because it is not wanted.
+/dev does exist and is populated.
 
-Regards,
+> Some debug methods use register_console() to get their print routines
+> registered. If people forget to say e.g. `console=tty0' afterwards, the debug
+> console without the real device cannot be opened through /dev/console, and they
+> get a mysterious error. Usually /dev/console _is_ present in the root fs.
 
-Peter Zijlstra
+Yes, I thought about doing things at a different level as well.  If
+there really is no console, shouldn't /dev/console have the same
+behavious as /dev/null?
 
----- 
+Point is that above patch is simpler and empiria didn't give me a
+reason to worry about anything else.
 
-Oct  6 09:25:00 localhost kernel: using smp_processor_id() in preemptible code: modprobe/11004
-Oct  6 09:25:00 localhost kernel:  [<c011bce4>] smp_processor_id+0x8f/0x95
-Oct  6 09:25:00 localhost kernel:  [<f8d701a1>] nmi_init+0x12/0xd8 [oprofile]
-Oct  6 09:25:00 localhost kernel:  [<f8d70095>] oprofile_arch_init+0x8/0x17 [oprofile]
-Oct  6 09:25:00 localhost kernel:  [<f8d70011>] oprofile_init+0x11/0x6a [oprofile]
-Oct  6 09:25:00 localhost kernel:  [<c0136dd5>] sys_init_module+0x1ae/0x275
-Oct  6 09:25:00 localhost kernel:  [<c0103fc9>] sysenter_past_esp+0x52/0x71
-Oct  6 09:25:00 localhost kernel: using smp_processor_id() in preemptible code: modprobe/11004
-Oct  6 09:25:00 localhost kernel:  [<c011bce4>] smp_processor_id+0x8f/0x95
-Oct  6 09:25:00 localhost kernel:  [<f8d701b0>] nmi_init+0x21/0xd8 [oprofile]
-Oct  6 09:25:00 localhost kernel:  [<f8d70095>] oprofile_arch_init+0x8/0x17 [oprofile]
-Oct  6 09:25:00 localhost kernel:  [<f8d70011>] oprofile_init+0x11/0x6a [oprofile]
-Oct  6 09:25:00 localhost kernel:  [<c0136dd5>] sys_init_module+0x1ae/0x275
-Oct  6 09:25:00 localhost kernel:  [<c0103fc9>] sysenter_past_esp+0x52/0x71
-Oct  6 09:25:01 localhost kernel: using smp_processor_id() in preemptible code: modprobe/11004
-Oct  6 09:25:01 localhost kernel:  [<c011bce4>] smp_processor_id+0x8f/0x95
-Oct  6 09:25:01 localhost kernel:  [<f8d700c7>] p4_init+0x8/0x72 [oprofile]
-Oct  6 09:25:01 localhost kernel:  [<f8d70255>] nmi_init+0xc6/0xd8 [oprofile]
-Oct  6 09:25:01 localhost kernel:  [<f8d70095>] oprofile_arch_init+0x8/0x17 [oprofile]
-Oct  6 09:25:01 localhost kernel:  [<f8d70011>] oprofile_init+0x11/0x6a [oprofile]
-Oct  6 09:25:01 localhost kernel:  [<c0136dd5>] sys_init_module+0x1ae/0x275
-Oct  6 09:25:01 localhost kernel:  [<c0103fc9>] sysenter_past_esp+0x52/0x71
-Oct  6 09:25:01 localhost kernel: oprofile: using NMI interrupt.
-Oct  6 09:45:24 localhost sshd(pam_unix)[13448]: session opened for user reinout by (uid=501)
-Oct  6 09:45:35 localhost kernel: using smp_processor_id() in preemptible code: sleep/13533
-Oct  6 09:45:35 localhost kernel:  [<c011bce4>] smp_processor_id+0x8f/0x95
-Oct  6 09:45:35 localhost kernel:  [<f8da96a6>] task_exit_notify+0x5/0xd [oprofile]
-Oct  6 09:45:35 localhost kernel:  [<c012c01e>] notifier_call_chain+0x17/0x2b
-Oct  6 09:45:35 localhost kernel:  [<c0120902>] profile_task_exit+0x3e/0x5a
-Oct  6 09:45:35 localhost kernel:  [<c01225b7>] do_exit+0x17/0x477
-Oct  6 09:45:35 localhost kernel:  [<c01d5dd3>] copy_from_user+0x5e/0x8b
-Oct  6 09:45:35 localhost kernel:  [<c0122ac0>] do_group_exit+0x3b/0xa4
-Oct  6 09:45:35 localhost kernel:  [<c0103fc9>] sysenter_past_esp+0x52/0x71
-Oct  6 09:45:35 localhost kernel: using smp_processor_id() in preemptible code: expr/13534
-Oct  6 09:45:35 localhost kernel:  [<c011bce4>] smp_processor_id+0x8f/0x95
-Oct  6 09:45:35 localhost kernel:  [<f8da96a6>] task_exit_notify+0x5/0xd [oprofile]
-Oct  6 09:45:35 localhost kernel:  [<c012c01e>] notifier_call_chain+0x17/0x2b
-Oct  6 09:45:35 localhost kernel:  [<c0120902>] profile_task_exit+0x3e/0x5a
-Oct  6 09:45:35 localhost kernel:  [<c01225b7>] do_exit+0x17/0x477
-Oct  6 09:45:35 localhost kernel:  [<c014e69c>] do_munmap+0x11c/0x15f
-Oct  6 09:45:35 localhost kernel:  [<c0122ac0>] do_group_exit+0x3b/0xa4
-Oct  6 09:45:35 localhost kernel:  [<c0103fc9>] sysenter_past_esp+0x52/0x71
-Oct  6 09:45:35 localhost kernel: using smp_processor_id() in preemptible code: cat/13535
-Oct  6 09:45:35 localhost kernel:  [<c011bce4>] smp_processor_id+0x8f/0x95
-Oct  6 09:45:36 localhost kernel:  [<f8da96a6>] task_exit_notify+0x5/0xd [oprofile]
-Oct  6 09:45:36 localhost kernel:  [<c012c01e>] notifier_call_chain+0x17/0x2b
-Oct  6 09:45:36 localhost kernel:  [<c0120902>] profile_task_exit+0x3e/0x5a
-Oct  6 09:45:36 localhost kernel:  [<c01225b7>] do_exit+0x17/0x477
-Oct  6 09:45:36 localhost kernel:  [<c015a252>] __fput+0xeb/0x150
-Oct  6 09:45:36 localhost kernel:  [<c0122ac0>] do_group_exit+0x3b/0xa4
-Oct  6 09:45:36 localhost kernel:  [<c0103fc9>] sysenter_past_esp+0x52/0x71
+Jörn
 
-
+-- 
+Time? What's that? Time is only worth what you do with it.
+-- Theo de Raadt

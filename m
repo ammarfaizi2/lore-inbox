@@ -1,95 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263939AbUFINFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264357AbUFINF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263939AbUFINFT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 09:05:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264357AbUFINFT
+	id S264357AbUFINF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 09:05:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265767AbUFINF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 09:05:19 -0400
-Received: from gprs214-178.eurotel.cz ([160.218.214.178]:62337 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263939AbUFINFG (ORCPT
+	Wed, 9 Jun 2004 09:05:57 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:50326 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264357AbUFINFy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 09:05:06 -0400
-Date: Wed, 9 Jun 2004 15:04:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@digitalimplant.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Fix memory leak in swsusp
-Message-ID: <20040609130451.GA23107@elf.ucw.cz>
+	Wed, 9 Jun 2004 09:05:54 -0400
+Date: Wed, 9 Jun 2004 15:05:29 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Christian Borntraeger <linux-kernel@borntraeger.net>
+Cc: linux-kernel@vger.kernel.org, nathans@sgi.com, owner-xfs@oss.sgi.com
+Subject: Re: [STACK] >3k call path in xfs
+Message-ID: <20040609130529.GL21168@wohnheim.fh-wedel.de>
+References: <20040609122647.GF21168@wohnheim.fh-wedel.de> <200406091454.21182.linux-kernel@borntraeger.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200406091454.21182.linux-kernel@borntraeger.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 9 June 2004 14:54:17 +0200, Christian Borntraeger wrote:
+> Jörn Engel wrote:
+> > 3k is not really bad yet, I just like to keep 1k of headroom for
+> > surprises like an extra int foo[256] in a structure.
+> > stackframes for call path too long (3064):
+> [...]
+> >       12  panic
+> [...]
+> 
+> I agree thats good to reduce stack size. 
+> 
+> On the other hand I think call traces containing panic are not a call trace 
+> I want to see at all.
 
-This fixes 2 memory leaks in swsusp: during relocating pagedir, eaten
-pages were not properly freed in error path and even regular freeing
-path was freeing one page too little. Please apply,
+Does panic switch to a different stack?  If that was the case, you'd
+be right and I'd have to make some adjustments.
 
-								Pavel
+Or do you mean that at the time of panic, a stack overflow simply
+doesn't matter anymore.  The only data that may get corrupted is the
+dump for a developer to analyse, after all.  (I'd like to make such a
+claim someday, just to hear RAS people scream bloody murder. ;))
 
---- linux-cvs/kernel/power/swsusp.c	2004-05-22 19:39:01.000000000 +0200
-+++ linux/kernel/power/swsusp.c	2004-06-06 00:30:09.000000000 +0200
-@@ -455,7 +455,7 @@
-@@ -503,6 +503,9 @@
- 		if (!pbe)
- 			continue;
- 		pbe->orig_address = (long) page_address(page);
-+		/* Copy page is dangerous: it likes to mess with
-+		   preempt count on specific cpus. Wrong preempt count is then copied,
-+		   oops. */
- 		copy_page((void *)pbe->address, (void *)pbe->orig_address);
- 		pbe++;
- 	}
-@@ -923,8 +952,9 @@
- 	suspend_pagedir_t *new_pagedir, *old_pagedir = pagedir_nosave;
- 	void **eaten_memory = NULL;
- 	void **c = eaten_memory, *m, *f;
-+	int ret = 0;
- 
--	printk("Relocating pagedir");
-+	printk("Relocating pagedir ");
- 
- 	if(!does_collide_order(old_pagedir, (unsigned long)old_pagedir, pagedir_order)) {
- 		printk("not necessary\n");
-@@ -941,22 +971,23 @@
- 		c = eaten_memory;
- 	}
- 
--	if (!m)
--		return -ENOMEM;
--
--	pagedir_nosave = new_pagedir = m;
--	copy_pagedir(new_pagedir, old_pagedir);
-+	if (!m) {
-+		printk("out of memory\n");
-+		ret = -ENOMEM;
-+	} else {
-+		pagedir_nosave = new_pagedir = m;
-+		copy_pagedir(new_pagedir, old_pagedir);
-+	}
- 
- 	c = eaten_memory;
--	while(c) {
-+	while (c) {
- 		printk(":");
--		f = *c;
-+		f = c;
- 		c = *c;
--		if (f)
--			free_pages((unsigned long)f, pagedir_order);
-+		free_pages((unsigned long)f, pagedir_order);
- 	}
- 	printk("|\n");
--	return 0;
-+	return ret;
- }
- 
- /*
+Jörn
 
 -- 
-934a471f20d6580d5aad759bf0d97ddc
+"Security vulnerabilities are here to stay."
+-- Scott Culp, Manager of the Microsoft Security Response Center, 2001

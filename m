@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUGIUwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUGIU42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264629AbUGIUwP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 16:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264633AbUGIUwP
+	id S264665AbUGIU42 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 16:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264701AbUGIU41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 16:52:15 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:41678 "EHLO tsmtp18.mail.isp")
-	by vger.kernel.org with ESMTP id S264629AbUGIUwM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 16:52:12 -0400
-Date: Fri, 9 Jul 2004 22:44:00 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Stefan Reinauer <stepan@openbios.org>
-Cc: hch@infradead.org, pavel@suse.cz, erik@rigtorp.com,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-Subject: Re: [PATCH] swsusp bootsplash support
-Message-Id: <20040709224400.4f44303a.diegocg@teleline.es>
-In-Reply-To: <20040709144859.GA18243@openbios.org>
-References: <20040708110549.GB9919@linux.nu>
-	<20040708133934.GA10997@infradead.org>
-	<20040708204840.GB607@openzaurus.ucw.cz>
-	<20040708210403.GA18049@infradead.org>
-	<20040709144859.GA18243@openbios.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Fri, 9 Jul 2004 16:56:27 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:58760 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S264665AbUGIU40 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 16:56:26 -0400
+Date: Fri, 9 Jul 2004 22:54:04 +0200
+To: akpm@osdl.org
+Cc: Valdis.Kletnieks@vt.edu, jsimmons@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Kill off CONFIG_PCI_CONSOLE
+Message-ID: <20040709205404.GA1592@mars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
+From: a.othieno@bluewin.ch (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Fri, 9 Jul 2004 16:48:59 +0200 Stefan Reinauer <stepan@openbios.org> escribió:
+Hi,
 
-> Whether one wants retro text messages or a graphical bootup mechanism is
-> sure a philosophical thing. IMHO starting X that early is not an option.
+Around the 2.6.0-test8 time-frame, Valdis Kletnieks noted that
+CONFIG_PCI_CONSOLE was actually dead code[1].  James Simmons
+agreed with this and went on to remark that this'd die off
+unless someone spoke up.  No one has done so ever since.
 
-Is really neccesary to use a X server? Why not just modify the init scripts to
-use fbi to show a image? Is not that the kernel takes a lot of time to boot and
-run init - even windows XP shows an ascii bar while it loads their kernel,
-that period of time doesn't takes too much time and it doesn't annoy anyone.
-You could switch off the printk output too, so the users doesn't see any
-kernel message at all while init runs and the scripts puts the image in the
-framebuffer console.
+Against 2.6.7. Thanks.
+
+  [1] http://www.uwsg.iu.edu/hypermail/linux/kernel/0310.2/1042.html
+
+Signed-off-by: Arthur Othieno <a.othieno@bluewin.ch>
+
+
+ Kconfig |    5 -----
+ 1 files changed, 5 deletions(-)
+
+--- a/drivers/video/console/Kconfig	2004-04-11 14:04:22.000000000 +0200
++++ b/drivers/video/console/Kconfig	2004-02-11 15:38:53.000000000 +0100
+@@ -106,11 +106,6 @@ config FRAMEBUFFER_CONSOLE
+ 	tristate "Framebuffer Console support"
+ 	depends on FB
+ 
+-config PCI_CONSOLE
+-	bool
+-	depends on FRAMEBUFFER_CONSOLE
+-	default y
+-
+ config FONTS
+ 	bool "Select compiled-in fonts"
+ 	depends on FRAMEBUFFER_CONSOLE

@@ -1,88 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbTJMFvx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 01:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTJMFvx
+	id S261464AbTJMFtY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 01:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbTJMFtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 01:51:53 -0400
-Received: from cartman.gtsi.sk ([62.168.96.9]:58078 "EHLO cartman.gtsi.sk")
-	by vger.kernel.org with ESMTP id S261476AbTJMFvu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 01:51:50 -0400
-Subject: Re: Oops on APM wakeup on 2.4.22/23-pre, works with 2.6.0-test
-In-Reply-To: <3F89B310.2050805@colorfullife.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Date: Mon, 13 Oct 2003 07:51:47 +0200 (CEST)
-Cc: linux-kernel@vger.kernel.org, sfr@canb.auug.org.au, apmd-list@lists.nit.ca
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+	Mon, 13 Oct 2003 01:49:24 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:39375 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261464AbTJMFtW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 01:49:22 -0400
+Message-ID: <3F8A3CE0.4060705@namesys.com>
+Date: Mon, 13 Oct 2003 09:49:20 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: jw schultz <jw@pegasys.ws>
+CC: linux-kernel@vger.kernel.org, vs@thebsh.namesys.com, nikita@namesys.com
+Subject: Re: ReiserFS patch for updating ctimes of renamed files
+References: <JIEIIHMANOCFHDAAHBHOIELODAAA.alex_a@caltech.edu> <20031012071447.GJ8724@pegasys.ws>
+In-Reply-To: <20031012071447.GJ8724@pegasys.ws>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E1A8vcS-0000Yj-00@trillian.meduna.org>
-From: Stanislav Meduna <stano@meduna.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+jw schultz wrote:
 
-> Perhaps the same bug I fixed today in 2.6?
+>On Sun, Oct 12, 2003 at 01:05:19AM -0500, Alex Adriaanse wrote:
+>  
 >
-> Could you try the attached patch? It's untested but should fix the 
-> double oops.
+>>Hi,
+>>
+>>I ran into some trouble trying to do incremental backups with GNU tar
+>>(using --listed-incremental) where renaming a file in between backups would
+>>cause the file to disappear upon restoration.  When investigating the issue
+>>I discovered that this doesn't happen on ext2, ext3, and tmpfs filesystems
+>>but only on ReiserFS filesystems.  I also noticed that for example ext3
+>>updates the affected file's ctime upon rename whereas ReiserFS doesn't, so
+>>I'm thinking this causes tar to believe that the file existed before the
+>>first backup was taking under the new name, and as a result it doesn't back
+>>it up during the second backup.  So I believe ReiserFS needs to update
+>>ctimes for renamed files in order for incremental GNU tar backups to work
+>>reliably.
+>>
+>>I made some changes to the reiserfs_rename function that I *think* should
+>>fix the problem.  However, I don't know much about ReiserFS's internals, and
+>>I haven't been able to test them out to see if things work now since I can't
+>>afford to deal with potential FS corruption with my current Linux box.
+>>
+>>I included a patch below against the 2.4.22 kernel with my changes.  Would
+>>somebody mind taking a look at this to see if I did things right here (and
+>>perhaps wouldn't mind testing it out either)?  If it works then I (and I'm
+>>sure others who've experienced the same problem) would like to see the
+>>changes applied to the next 2.4.x (and 2.6.x?) release.
+>>    
+>>
+>
+>Hmm.  I'm conflicted.
+>
+>rename(2) manpage:
+>	Any other hard links to the file (as created using
+>	link(2)) are unaffected.
+>
+>A change to ctime would affect the other links.
+>
+>stat(2) manpage:
+>	The field st_ctime is changed by writing or by
+>	setting inode information (i.e., owner, group, link
+>	count, mode, etc.).
+>
+>I am not aware of any field in the inode structure that must
+>be changed by an atomic rename.  Per documentation the only
+>reason rename should update st_ctime is if it does a
+>link+unlink sequence which would alter st_nlink briefly.
+>
+>On the other hand it does seem to me there ought to be some
+>record that something about the inode changed.  st_ctime would
+>be the only appropriate indicator.
+>
+>rename() SUSv3:
+>	Some implementations mark for update the st_ctime
+>	field of renamed files and some do not. Applications
+>	which make use of the st_ctime field may behave
+>	differently with respect to renamed files unless
+>	they are designed to allow for either behavior.
+>
+>So reiserfs is on this point definitely standards conformant
+>already.  A change could at best be seen as an enhancement.
+>
+>
+>
+>
+>  
+>
+thanks Mr. Schultz, you saved us a lot of work in reviewing this issue.
 
-OK, it did. Thanks.
+In theory it is cleaner and purer to do it the way we did.  In practice, 
+Alex's problem seems like a real one, and I don't know how hard it is to 
+change tar to do the right thing.  We'll discuss it in a small seminar 
+today.
 
-With your patch none of the trace gets printed, so maybe the
-stack is really messed somehow. Now I get the oops,
-but the machine wakes up and works normally afterwards.
-The output is:
-
-
-ksymoops 2.4.9 on i586 2.4.23-pre7-ford.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.23-pre7-ford/ (default)
-     -m /boot/System.map-2.4.23-pre7-ford (default)
-
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Oct 13 07:37:21 ford kernel: NMI: IOCK error (debug interrupt?)
-Oct 13 07:37:21 ford kernel: CPU:    0
-Oct 13 07:37:21 ford kernel: EIP:    0050:[<000047ce>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Oct 13 07:37:21 ford kernel: EFLAGS: 00000082
-Oct 13 07:37:21 ford kernel: eax: 00270000   ebx: 07000001   ecx: 00000002   edx: 00000000
-Oct 13 07:37:21 ford kernel: esi: c5a8b420   edi: 00000096   ebp: 00000096   esp: c4fb7ef2
-Oct 13 07:37:21 ford kernel: ds: 0000   es: 0000   ss: 0018
-Oct 13 07:37:21 ford kernel: Process apmd (pid: 259, stackpage=c4fb7000)
-Oct 13 07:37:21 ford kernel: Stack: 0000ea27 00000096 0000c27b 5307c064 c03ac03f 00000048 f79d0000 0010c010 
-Oct 13 07:37:21 ford kernel:        00000000 00960000 00180000 00180000 12150000 0000c012 0000c117 41020000 
-Oct 13 07:37:21 ford kernel:        b4200000 11c0c5a8 6400c500 f862c4fc 5307c010 00010000 00020000 7f540000 
-Oct 13 07:37:21 ford kernel: Call Trace:   
-Oct 13 07:37:21 ford kernel: Code:  Bad EIP value.
-
-
->>EIP; 000047ce Before first symbol   <=====
-
->>esi; c5a8b420 <_end+57aff14/6562b54>
->>esp; c4fb7ef2 <_end+4cdc9e6/6562b54>
-
-
-1 warning issued.  Results may not be reliable.
-
-
-> Any objections against adding lkml back to the cc list? I dropped it 
-> accidentially.
-
-OK, I added the addresses back.
-
-Thanks
 -- 
-                                     Stano
+Hans
+
 

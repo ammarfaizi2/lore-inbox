@@ -1,56 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbUJ0O7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262481AbUJ0PDA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262475AbUJ0O7W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 10:59:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbUJ0O7W
+	id S262481AbUJ0PDA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 11:03:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbUJ0PC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 10:59:22 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:62346 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262475AbUJ0O7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 10:59:12 -0400
-Message-ID: <417FB7BA.9050005@grupopie.com>
-Date: Wed, 27 Oct 2004 15:59:06 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+	Wed, 27 Oct 2004 11:02:59 -0400
+Received: from mail3.utc.com ([192.249.46.192]:46552 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S262478AbUJ0PAW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 11:00:22 -0400
+Message-ID: <417FB7F0.4070300@cybsft.com>
+Date: Wed, 27 Oct 2004 10:00:00 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
-References: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+References: <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com> <20041027132926.GA7171@elte.hu>
+In-Reply-To: <20041027132926.GA7171@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.11; VDF: 6.28.0.39; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallipadi, Venkatesh wrote:
->>....
-> Yes. Clock modulation is not as useful compared to enhanced speedstep.
-> But, 
-> I feel, it should be OK to have the driver, though it is not really
-> useful 
-> in common case. It may be useful in some exceptional cases. 
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+> 
+>>Running amlat [...]
+> 
+> 
+> btw., to get good 'realfeel' results i had to apply the attached patch. 
+> Especially when running realfeel over the network it can easily happen
+> that it's delayed for some time and gets out of sync with the RTC. So
+> after a new maximum latency has triggered the code now waits 10 periods
+> to wait for the timings to recover.
+> 
+> this does not hurt the latency measurements in any way - latencies that
+> occur after these 10 ticks (~5 msecs) are over are still fully measured
+> and reported.
+> 
+> amlat produces weird output for me, continuously increasing latency
+> values:
+> 
+>  latency = 2967939 milliseconds
+>  latency = 2967950 milliseconds
+>  sigint
+>  max jitter = 0 microseconds
+> 
+> maybe some /dev/rtc API detail changed? Or is this the normal output?
+> 
+> 	Ingo
+> 
+Well to produce useful results, amlat requires Andrew's rtc-debug patch 
+that modifies the rtc driver as well as traps so that timings are kept 
+when the isr gets run and when the rtc device is read to track 
+scheduling latencies. Also if this patch was applied the value being 
+read by amlat from the rtc device would be the last interrupt time 
+instead of the interrupt info that rtc normally produces. So the latency 
+values being spit out are bogus, but it's good enough to exercise the rtc.
 
-I think I have one of such cases.
+I use the rtc-debug and amlat to generate histograms of latencies which 
+is what I was trying to do when I found the rtc problem the first time. 
+I believe that rtc-debug/amlat is much more accurate for generating 
+histograms of latencies than realfeel is because the instrumentation is 
+in the kernel rather than a userspace program.
 
-I am one of the members of the robotic soccer team from the University 
-of Oporto, and a couple of months ago we were looking for new 
-motherboards for our robots, because we are starting to need new 
-hardware (on-board lan, usb2.0, etc.).
+kr
 
-We really don't need excepcional performance, but we really, really need 
-low power consumption, so lowering the clock on a standard mainboard 
-seemed to be the best cost/performance scenario.
-
-Could this driver be used to keep a standard p4 processor at say 25% 
-clock speed at all times?
-
--- 
-Paulo Marques - www.grupopie.com
-
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)

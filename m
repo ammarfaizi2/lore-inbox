@@ -1,34 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268128AbUH1Xaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268129AbUH1XcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268128AbUH1Xaj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 19:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268129AbUH1Xaj
+	id S268129AbUH1XcM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 19:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268131AbUH1XcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 19:30:39 -0400
-Received: from main.gmane.org ([80.91.224.249]:47340 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268128AbUH1Xah (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 19:30:37 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jeremy <jeremy@felonyroom.com>
-Subject: PWC driver changes
-Date: Sat, 28 Aug 2004 23:21:57 +0000 (UTC)
-Message-ID: <loom.20040829T011815-40@post.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Aug 2004 19:32:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58779 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268129AbUH1XbH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 19:31:07 -0400
+Message-ID: <413115AF.4010306@pobox.com>
+Date: Sat, 28 Aug 2004 19:30:55 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: achew <achew@nvidia.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.8.1] sata_nv.c
+References: <4125106A.2020903@nvidia.com>
+In-Reply-To: <4125106A.2020903@nvidia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 24.148.76.145 (Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.0.3705; .NET CLR 1.1.4322))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This whole affair is especially disappointing for me, as I just got a Phillips 
-webcam up and running the other day using pwcx.  Will some kind soul please 
-post something indicating which files contained the hook?  Was it part of pwc 
-somewhere?  I'd like to compare the older kernel sources I have to the 2.6.8 I 
-just downloaded so I can see what I need to change in order to keep pwcx 
-working.
+achew wrote:
+> This patch fixes a problem introduced when CK804 support was added.  
+> mmio_base can only be set in the CK804 case,
+> else libata will attempt to iounmap mmio_base, which isn't iomapped for 
+> the non-CK804 case.  Still need the bar 5
+> address, so steal from host_set->ports[0]->ioaddr.scr_addr.  Jeff, let 
+> me know if this is a bad thing to do.
+
+applied.
+
+PLEASE use a descriptive subject line.
+
+The email subject, after stripping '\[.*]', becomes a one-line summary 
+of the change, and is directly injected into the BK changelog.
+
+	Jeff
+
+
 

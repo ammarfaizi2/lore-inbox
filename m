@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317755AbSIEQTr>; Thu, 5 Sep 2002 12:19:47 -0400
+	id <S317876AbSIEQYQ>; Thu, 5 Sep 2002 12:24:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317799AbSIEQTr>; Thu, 5 Sep 2002 12:19:47 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:39328 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S317755AbSIEQTq>; Thu, 5 Sep 2002 12:19:46 -0400
-Message-ID: <3D778527.86F10C10@nortelnetworks.com>
-Date: Thu, 05 Sep 2002 12:24:07 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-6mdkenterprise i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Ryan <genanr@emsphone.com>
+	id <S317865AbSIEQYQ>; Thu, 5 Sep 2002 12:24:16 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:14097 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317872AbSIEQYO>;
+	Thu, 5 Sep 2002 12:24:14 -0400
+Date: Thu, 5 Sep 2002 09:26:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Peter <cogweb@cogweb.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ARP and alias IPs
-References: <20020905150949.GA8112@thumper2.emsphone.com>
+Subject: Re: 2.4.19-ac4 build problem
+Message-ID: <20020905162644.GB12763@kroah.com>
+References: <20020905065825.GA10140@kroah.com> <Pine.LNX.4.44.0209050025460.14137-100000@greenie.frogspace.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209050025460.14137-100000@greenie.frogspace.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Ryan wrote:
+<offtopic, your site keeps refusing my direct email due to a procmail
+configuration bug on your site>
+
+On Thu, Sep 05, 2002 at 01:00:33AM -0700, Peter wrote:
 > 
-> The linux implementation of ARP is causing me problems.  Linux sends out an
-> ARP request with the default interface as the sender address, rather than then
-> interface the request came on.
+> In that case, let's add this to the help screens for the three device
+> types (CONFIG_INPUT_KEYBDEV, CONFIG_INPUT_MOUSEDEV, CONFIG_INPUT_JOYDEV), 
+> after the current text:
 > 
-> For example
+> For the drivers to link correctly, you must make the same selection (Y or
+> M) here as for the USB Human Interface Device (full HID) support.
 > 
-> eth0   10.1.1.100
-> eth0:1 192.16.1.101
+> Under CONFIG_USB_HID, likewise add after the current text:
 > 
-> and an ARP is received on 192.16.1.101, linux responds with
-> 10.1.1.100 as the source address in the ARP request, rather than 192.16.1.101
-> (which FreeBSD, Solaris, and tru64 do).  To me, this is just plain wrong.
-> The sender address should be an address on the subnet that the request came
-> from, not a different one.  Is there any way to fix this?
+> For the drivers to link correctly, you must make the same selection (Y or
+> M) here as for Input core support.
 
+That sounds reasonable.
 
-I'm not sure how you're managing to get that behaviour.  I just reproduced the scenario on a 2.2.17
-kernel and logged the output. 47.129.82.232 is configured as eth0:0, with 47.129.82.53 being eth0,
-and pcary1ja maps to 47.129.82.54.
+> That said, I suggest that Input core support menu be moved into the USB
+> support menu, where these dependency relations can be automated and made 
+> visible to the user. 
 
+No, the Input core is separate from the USB code, it does not belong in
+that menu.
 
-08:04:59.650707 eth0 > 0:0:0:0:0:0 0:30:65:a0:ff:c6 arp 42: arp who-has 47.129.82.232 tell pcary1ja
-(0:30:65:a0:ff:c6)
-                         0001 0800 0604 0001 0030 65a0 ffc6 2f81
-                         5236 0000 0000 0000 2f81 52e8
-08:04:59.650707 eth0 < 0:30:65:c0:23:c4 0:0:0:0:0:1 arp 64: arp reply 47.129.82.232 is-at
-0:30:65:c0:23:c4 (0:30:65:a0:ff:c6)
-                         0001 0800 0604 0002 0030 65c0 23c4 2f81
-                         52e8 0030 65a0 ffc6 2f81 5236 5555 5555
-                         5555 5555 5555 5555 5555 5555 5555 e796
-                         9051
+> I apologize for not submitting a patch -- it's a skill I lack.
 
-As you can see, the reply is properly sent out with the source IP address of 47.129.82.232.
+Take a look at Documentation/SubmittingPatches, it should help you learn
+those skills :)
 
-Are you sure you aren't misreading something?  If you change the source IP address then the arp
-reply is totally useless as it is a reply to another request entirely.
+thanks,
 
-Chris
+greg k-h

@@ -1,68 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129460AbQK1JQS>; Tue, 28 Nov 2000 04:16:18 -0500
+        id <S130892AbQK1JVt>; Tue, 28 Nov 2000 04:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130008AbQK1JQI>; Tue, 28 Nov 2000 04:16:08 -0500
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:20453 "EHLO
-        virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-        id <S129460AbQK1JPy>; Tue, 28 Nov 2000 04:15:54 -0500
-Message-Id: <5.0.2.1.2.20001128084055.042262b0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Tue, 28 Nov 2000 08:46:09 +0000
-To: Tom Mraz <t8m@centrum.cz>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Status of the NTFS driver in 2.4.0 kernels?
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0011280912030.16603-100000@p38mraz.cbu.pvt.c
- z>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+        id <S130803AbQK1JVi>; Tue, 28 Nov 2000 04:21:38 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:60121 "EHLO
+        delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+        id <S130892AbQK1JV1>; Tue, 28 Nov 2000 04:21:27 -0500
+Date: Tue, 28 Nov 2000 09:42:36 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: crashing kernels
+In-Reply-To: <Pine.LNX.3.96.1001127203333.9821A-100000@sneaker.sch.bme.hu>
+Message-ID: <Pine.GSO.3.96.1001128091924.23460A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's not a real bug. - It's a call to BUG() in ntfs_get_block which is 
-there because the function is not actually implemented. - I have only ever 
-seen this happen when using midnight commander to browse through an NTFS 
-partition. - It seems to never happen if I am just in bash typing away or 
-ftp-ing into the machine with the mounted NTFS partitions.
+On Mon, 27 Nov 2000, Mr. Big wrote:
 
-When are you hitting this? - If you are using mc just refrain from using it 
-for now for ntfs filesystems and all will be fine.
+> We've disabled the apic, because there was a hint, that maybe there's some
+> bug with the hardware or software on it. I belive that it's could be
+> better to use the apic.
+> 
+> The output of lspci -v:
+[...]
+> 00:0e.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
+>         Subsystem: Intel Corporation 82559 Fast Ethernet LAN on Motherboard
+>         Flags: bus master, medium devsel, latency 64, IRQ 5
 
-Anton
+ Hmm, this is the device you reported you have a problem initially, isn't
+it?  If it is, then...
 
-At 08:33 28/11/2000, Tom Mraz wrote:
->I've tried to use the readonly NTFS driver in 2.4.0-test11 kernel, but it
->reported me a kernel BUG at fs.c:567. I've searched the archives where David
->Weinehall writes that the driver even in readonly mode doesn't support the
->Win2k NTFS. But I don't have Win2k NTFS (I have WinNT 4.0 SP 6) and the
->kernel still reports this bug :-(. The driver from 2.2.17 kernel seems to
->work fine. Could someone help me?
->
->Please Cc me, because I'm not subscribed to the kernel mailing list. (Or
->don't if you don't want to because I read the archives regularly. :-))
->
->Thanks,
->
->Tomas Mraz
->
->-----------------------------------------------------------------
->No matter how far down the wrong road you've gone, turn back.
->                                                 Turkish proverb
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->Please read the FAQ at http://www.tux.org/lkml/
+> 00:12.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+>         Flags: bus master, medium devsel, latency 64, IRQ 5
+
+ ... it shares its IRQ with an USB host adapter as I suspected.  And you
+don't have an USB driver installed.  Does the following patch help?  (Hmm,
+since you tested 2.4.0-test* as well -- it might not as it's just a
+backport...  Then again -- you might hit a different problem with
+2.4.0-test*.) 
+
+ It's not impossible for an I/O APIC to lose an EOI message if there are
+severe errors during the transmission -- since you already tried
+2.4.0-test*: have you seen any APIC errors in the syslog? 
+
+  Maciej
 
 -- 
-      "Education is what remains after one has forgotten everything he 
-learned in school." - Albert Einstein
--- 
-Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
-Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
-Cambridge CB2 3BU    ICQ: 8561279
-United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
+diff -up --recursive --new-file linux-2.2.17.macro/drivers/pci/quirks.c linux-2.2.17/drivers/pci/quirks.c
+--- linux-2.2.17.macro/drivers/pci/quirks.c	Wed Oct 27 00:53:40 1999
++++ linux-2.2.17/drivers/pci/quirks.c	Fri Oct 20 10:33:01 2000
+@@ -144,6 +144,26 @@ __initfunc(static void quirk_isa_dma_han
+ 	}
+ }
+ 
++/*
++ * PIIX3 USB: We have to disable USB interrupts that are
++ * hardwired to PIRQD# and may be shared with an
++ * external device.
++ *
++ * Legacy Support Register (LEGSUP):
++ *     bit13:  USB PIRQ Enable (USBPIRQDEN),
++ *     bit4:   Trap/SMI On IRQ Enable (USBSMIEN).
++ *
++ * We mask out all r/wc bits, too.
++ */
++__initfunc(static void quirk_piix3_usb(struct pci_dev *dev, int arg))
++{
++	u16 legsup;
++
++	pci_read_config_word(dev, 0xc0, &legsup);
++	legsup &= 0x50ef;
++	pci_write_config_word(dev, 0xc0, legsup);
++}
++
+ 
+ typedef void (*quirk_handler)(struct pci_dev *, int);
+ 
+@@ -202,6 +222,8 @@ static struct quirk_info quirk_list[] __
+ 	 */
+ 	{ PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_0,	quirk_isa_dma_hangs,	0x00 },
+ 	{ PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C596_0,	quirk_isa_dma_hangs,	0x00 },
++	{ PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371SB_2,	quirk_piix3_usb,	0x00 },
++	{ PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371AB_2,	quirk_piix3_usb,	0x00 },
+ };
+ 
+ __initfunc(void pci_quirks_init(void))
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270577AbUJTXXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270584AbUJTXWx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270577AbUJTXXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 19:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270574AbUJTXXT
+	id S270584AbUJTXWx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 19:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270472AbUJTXWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 19:23:19 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:22671 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S270580AbUJTXWz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 19:22:55 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
+	Wed, 20 Oct 2004 19:22:48 -0400
+Received: from wang.choosehosting.com ([212.42.1.230]:6801 "EHLO
+	wang.choosehosting.com") by vger.kernel.org with ESMTP
+	id S270276AbUJTXWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 19:22:07 -0400
+From: Thomas Stewart <thomas@stewarts.org.uk>
+To: Paul Fulghum <paulkf@microgate.com>
+Subject: Re: belkin usb serial converter (mct_u232), break not working
+Date: Thu, 21 Oct 2004 00:04:13 +0100
+User-Agent: KMail/1.6.2
+References: <200410201946.35514.thomas@stewarts.org.uk> <200410202308.02624.thomas@stewarts.org.uk> <1098311228.6006.3.camel@at2.pipehead.org>
+In-Reply-To: <1098311228.6006.3.camel@at2.pipehead.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+X-PGP-Key: http://www.stewarts.org.uk/public-key.asc
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: forcing PS/2 USB emulation off
-Date: Wed, 20 Oct 2004 16:22:54 -0700
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B3017FC327@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: forcing PS/2 USB emulation off
-Thread-Index: AcS28EO2jsNRh1EhQZSjfNl6ko30ewACAZkw
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Greg KH" <greg@kroah.com>
-Cc: "Alexandre Oliva" <aoliva@redhat.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Vojtech Pavlik" <vojtech@suse.cz>,
-       "Dmitry Torokhov" <dtor_core@ameritech.net>
-X-OriginalArrivalTime: 20 Oct 2004 23:22:54.0709 (UTC) FILETIME=[BA040A50:01C4B6FB]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410210004.13214.thomas@stewarts.org.uk>
+X-Scanner: Exiscan on wang.choosehosting.com at 2004-10-21 00:22:04
+X-Spam-Score: 0.0
+X-Spam-Bars: /
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->-----Original Message-----
->From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
->Sent: Wednesday, October 20, 2004 12:54 PM
->To: Greg KH
->Cc: Alexandre Oliva; Linux Kernel Mailing List; Vojtech 
->Pavlik; Dmitry Torokhov
->Subject: Re: forcing PS/2 USB emulation off
->
->On Sul, 2004-10-17 at 23:57, Greg KH wrote:
->> It's already in the -mm kernels, and will be sent to Linus 
->after 2.6.9
->> is out.  If you could test that kernel and verify that it 
->works for this
->> situation, I would appreciate it.
->
->It would be ok if someone bothered to copy the USB core code (or better
->yet call into it) but the patch in the -mm tree doesn't know about the
->zillion OHCI controller bugs, and doesn't know about the suprise
->interrupt on switch from BIOS->host you sometimes see.
+On Wednesday 20 October 2004 23:21, you wrote:
+> What kernel version are you running?
 
-Isn't this interrupt disabled at that point, and status are cleared
-right
-after handoff ? Have you actually been able to see a problem with such 
-an interrupt with this patch applied ?
+2.6.8.1
 
->
->The real fix is to link the USB code early enough to run before the PC
->keyboard code. I've had this confirmed by BIOS folks as well.
+Well, a stock debian one out of sarge, kernel-image-2.6.8-1-686-smp, configs 
+at http://www.stewarts.org.uk/stuff/config-2.6.8-1-686. There is not much 
+difference between a stock 2.6.8.1 and the debian 2.6.8:-
+http://www.stewarts.org.uk/stuff/debian.2.6.8.patch
 
-That would be nice, but -mm patch covers not only keyboard/mouse issues,
-but lockups as well. Unfortunately, to work around this, handoff should 
-happen not only pretty early, but before you start enabling shared (with
-USB)
-interrupts for your cards.
+On Wednesday 20 October 2004 23:27, you wrote:
+> Can you record and display the return code from the ioctl()?
 
-Aleks.
+porttest.c:
+#include <sys/fcntl.h>
+#include <sys/ioctl.h>
+main(int argc, char ** argv) {
+        int r, fd = open(argv[1], O_RDWR|O_NOCTTY);
+        r=ioctl(fd, TCSBRKP, 20);
+        printf("%d\n", r);
+        close(fd);
+}
+
+$ ./porttest /dev/ttyS0
+0
+$ ./porttest /dev/ttyUSB0
+0
+
+Regards
+-- 
+Tom
+
+PGP Fingerprint [DCCD 7DCB A74A 3E3B 60D5  DF4C FC1D 1ECA 68A7 0C48]
+PGP Publickey   [http://www.stewarts.org.uk/public-key.asc]
+PGP ID  [0x68A70C48]

@@ -1,98 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265211AbUAYTxN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 14:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbUAYTvC
+	id S265213AbUAYT5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 14:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265236AbUAYT5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 14:51:02 -0500
-Received: from mail.gmx.de ([213.165.64.20]:54205 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265244AbUAYTu1 (ORCPT
+	Sun, 25 Jan 2004 14:57:16 -0500
+Received: from opersys.com ([64.40.108.71]:1296 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S265213AbUAYT5L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 14:50:27 -0500
-X-Authenticated: #11949556
-From: Michael Schierl <schierlm-usenet@gmx.de>
-Subject: [PATCH] [APM] Is this the correct way to fix suspend bug introduced in 2.6.0-test4?
-To: fr@canb.auug.org.au, linux-laptop@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, mochel@digitalimplant.org
-User-Agent: 40tude_Dialog/2.0.10.1de
+	Sun, 25 Jan 2004 14:57:11 -0500
+Message-ID: <4014209E.2040908@opersys.com>
+Date: Sun, 25 Jan 2004 15:01:34 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Dan Aloni <da-x@gmx.net>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Cooperative Linux
+References: <20040125193518.GA32013@callisto.yi.org>
+In-Reply-To: <20040125193518.GA32013@callisto.yi.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Reply-To: schierlm@gmx.de
-Date: Sun, 25 Jan 2004 20:50:38 +0100
-Message-ID: <13zy7qdcyz1q7$.50e5l3rpbsyx$.dlg@40tude.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-the patch below (against 2.6.1-mm5) fixes my APM problems (my laptop, Acer
-TravelMate 210TEV (Celeron 700, 128 MB RAM), hangs after resuming from APM
-since 2.6.0-test4).
+Dan Aloni wrote:
+> The bottom line is that it allows us to run Linux on an unmodified
+> Windows 2000/XP system in a practical way (the user just launches 
+> an app), and it may eventually bring Linux to a large sector of desktop 
+> computer users who wouldn't even care about trying to install a 
+> dual boot system or boot a Linux live CD (like Knoppix).
+> 
+> Screen-shots and further details at:
+> 
+>     http://www.colinux.org
 
-I found the "fix" by trying to "reversely" backport the changes from
-patch-2.6.0-test4.bz2 into 2.6.1-mm5 (the old device_suspend code calls
-sysdev_suspend, the new one does not; so what do I lose if I call
-sysdev_suspend myself?). This trial-and-error-approach finally led into the
-patch below (which works great for me).
+Cool!
 
-Most likely this is not the cleanest way to do this; but since I don't even
-know what this sysdev_suspend does (except that it does something that
-seems to be vital for making my laptop resume...), i don't know how to make
-it better...
+> Our motto is:
+> 
+>     "If Linux runs on every architecture, why should another 
+>      operating system be in its way?"
 
-If you have any suggestions, tell me (or change it yourself and submit it),
-if you think that's okay like that, please submit that to the guy who is
-responsible for 2.6 (is it Linus or Andrew? did not follow lkml recently).
+Indeed.
 
-TIA,
+> coLinux is similar to plex86 in a way that it implements a Linux-specific 
+> lightweight VM with I/O virtualization. However, it is designed to be 
+> mostly host-OS independent, so that with minimal porting efforts it 
+> would be possible to run it under Solaris, Linux itself, or any operating 
+> system that supports loading kernel drivers, under any architecture that 
+> uses an MMU. Unlike other virtualization methods, it doesn't base its 
+> implementation on exceptions that are caused by instructions. 
 
-Michael
+Right, that's the way to go with an OS for which the source is available.
+Have you looked at the work that's been going on with the Adeos nanokernel:
+http://www.opersys.com/adeos/index.html
+Some of the infrastructure required by all these virtualization solutions
+is fairly similar.
 
-PS: if possible, please CC me in yout replies
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 
-====== apm-bug-introduced-in-test4.patch ======
---- linux-2.6.1-mm5/arch/i386/kernel/apm.c.old	Sun Jan 25 14:48:27 2004
-+++ linux-2.6.1-mm5/arch/i386/kernel/apm.c	Sun Jan 25 16:10:43 2004
-@@ -234,6 +234,9 @@ extern spinlock_t i8253_lock;
- extern unsigned long get_cmos_time(void);
- extern void machine_real_restart(unsigned char *, int);
- 
-+extern int sysdev_resume(void);
-+extern int sysdev_suspend(u32 state);
-+
- #if defined(CONFIG_APM_DISPLAY_BLANK) && defined(CONFIG_VT)
- extern int (*console_blank_hook)(int);
- #endif
-@@ -1199,6 +1202,7 @@ static int suspend(int vetoable)
- 	}
- 
- 	device_suspend(3);
-+	sysdev_suspend(3);
- 
- 	/* serialize with the timer interrupt */
- 	write_seqlock_irq(&xtime_lock);
-@@ -1232,6 +1236,7 @@ static int suspend(int vetoable)
- 	if (err != APM_SUCCESS)
- 		apm_error("suspend", err);
- 	err = (err == APM_SUCCESS) ? 0 : -EIO;
-+	sysdev_resume();
- 	device_resume();
- 	pm_send_all(PM_RESUME, (void *)0);
- 	queue_event(APM_NORMAL_RESUME, NULL);
-@@ -1250,6 +1255,7 @@ static void standby(void)
- {
- 	int	err;
- 
-+	sysdev_suspend(3);
- 	/* serialize with the timer interrupt */
- 	write_seqlock_irq(&xtime_lock);
- 	/* If needed, notify drivers here */
-@@ -1259,6 +1265,7 @@ static void standby(void)
- 	err = set_system_power_state(APM_STATE_STANDBY);
- 	if ((err != APM_SUCCESS) && (err != APM_NO_ERROR))
- 		apm_error("standby", err);
-+	sysdev_resume();
- }
- 
- static apm_event_t get_event(void)

@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264152AbTGGBTp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 21:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbTGGBTp
+	id S263171AbTGGBpC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 21:45:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbTGGBpC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 21:19:45 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:21222 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S264152AbTGGBTo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 21:19:44 -0400
-Date: Sun, 6 Jul 2003 20:11:49 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-pre3
-Message-ID: <20030707001149.GO502@phunnypharm.org>
-References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva> <20030706134156.GG502@phunnypharm.org> <Pine.LNX.4.55L.0307062157300.30827@freak.distro.conectiva> <20030707010527.GA30154@work.bitmover.com>
+	Sun, 6 Jul 2003 21:45:02 -0400
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:62981 "EHLO
+	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S263171AbTGGBpA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 21:45:00 -0400
+Date: Mon, 7 Jul 2003 03:59:28 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: C99 types VS Linus types
+Message-ID: <20030707015928.GC1006@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <1057529906.749.41.camel@cube>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030707010527.GA30154@work.bitmover.com>
+In-Reply-To: <1057529906.749.41.camel@cube>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 06, 2003 at 06:05:27PM -0700, Larry McVoy wrote:
-> On Sun, Jul 06, 2003 at 10:00:34PM -0300, Marcelo Tosatti wrote:
-> > On Sun, 6 Jul 2003, Ben Collins wrote:
-> > > Any chance you could be consistent in tagging the -pre's? Neither pre2,
-> > > nor pre3 is tagged in BK, and thus, not tagged in CVS/SVN either.
-> > 
-> > I guess I have tagged -pre2 and -pre3:
-> > 
-> > Maybe I'm missing something?
-> 
-> Hmm.   Ben, look again in the CVS tree and make sure that the tags aren't
-> there.  Maybe the converter screwed up?  
+On Sun, 06 Jul 2003, Albert Cahalan wrote:
 
-Doesn't show up in linux-2.4/ChangeSet,v as a tag.
+> Sure, both are "correct", but there would be a lot less
+> pain and suffering in the world if "unsigned long long"
+> would be used for 64-bit.
+
+What if unsigned long long is 96 bit? or 128?
+
+> It ought to be at least 40 years
+> before 128-bit types begin to matter.
+
+Yup, and 8-Bit CPU and 640 kB RAM ought to be enough for...
+
+nevermind.
+
+> In the Linux world,
+> we can consider "long long" to be 64-bit, "int" to be
+> 32-bit, and "long" to be the same size as a pointer.
+
+> Then we can ditch the nasty casts:
+> sprintf(foo, "%llu", (unsigned long long)bar);
+
+Speaking of shifting forward to standards:
+
+unsigned char foo = 42;
+char bar[42];
+sprintf(bar, "%ju", (uintmax_t)foo); // see IEEE Std 1003.1-2001
+
+If that's too ugly, write your own [u]intmax_t-to-char[] converter, then
+only the stack is nasty if uintmax_t is 128 bits wide and you're
+printing an array uint8_t. :-P
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Matthias Andree

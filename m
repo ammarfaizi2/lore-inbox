@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271973AbRIDNmY>; Tue, 4 Sep 2001 09:42:24 -0400
+	id <S271977AbRIDNsY>; Tue, 4 Sep 2001 09:48:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271974AbRIDNmO>; Tue, 4 Sep 2001 09:42:14 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:45839 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S271973AbRIDNmE>; Tue, 4 Sep 2001 09:42:04 -0400
-Date: Tue, 4 Sep 2001 15:42:21 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Rastislav Stanik <rastos@woctni.sk>
+	id <S271976AbRIDNsO>; Tue, 4 Sep 2001 09:48:14 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:15200 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S271975AbRIDNsC>; Tue, 4 Sep 2001 09:48:02 -0400
+Date: Tue, 4 Sep 2001 14:48:14 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Michael Ben-Gershon <mybg@netvision.net.il>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Should I use Linux to develop driver for specialized ISA card?
-Message-ID: <20010904154221.J19621@arthur.ubicom.tudelft.nl>
-In-Reply-To: <XFMail.010904145710.rastos@woctni.sk>
+Subject: Re: lpr to HP laserjet stalls
+Message-ID: <20010904144814.W20060@redhat.com>
+In-Reply-To: <3B93E289.7F121DE9@netvision.net.il> <20010903221142.J20060@redhat.com> <3B94B4E7.701C76FA@netvision.net.il> <20010904121523.Q20060@redhat.com> <3B94B93B.2B907DCF@netvision.net.il> <20010904122751.S20060@redhat.com> <3B94D58B.180860A2@netvision.net.il> <20010904142755.V20060@redhat.com> <3B94DA02.9F6E9184@netvision.net.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="73F5niR8LUvFAf4p"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <XFMail.010904145710.rastos@woctni.sk>; from rastos@woctni.sk on Tue, Sep 04, 2001 at 02:57:10PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+In-Reply-To: <3B94DA02.9F6E9184@netvision.net.il>; from mybg@netvision.net.il on Tue, Sep 04, 2001 at 04:41:22PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 04, 2001 at 02:57:10PM +0200, Rastislav Stanik wrote:
-> I'm developing specialized plotter.
-> The moving parts of the plotter are controlled by ISA card that generates
-> (and responds to) interrupts on each movement or printing event.
-> The interrupts can be generated quite fast; up to frequency of 4kHz.
 
-I just made a driver for a couple of serial A/Ds that runs at 2kHz on a
-StrongARM platform. The system doesn't have any problems to keep up
-with that frequency, so I think 4kHz would still be OK.
+--73F5niR8LUvFAf4p
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> I need to write a driver for that.
-> The 1st prototype is developed in MS-DOS,but I hit problem with memory.
-> The driver needs to use (and transfer) quite big chunks of memory.
-> 1MB is not enough.
-> 
-> In NT you don't develop drivers so easily. It is actually a pain.
-> Therefore I'm considering Linux. The machine would be probably 
-> dedicated and, may be later, embeded in the plotter.
-> Problems:
-> - It is unlikely that my driver would ever make it to main-stream
->   kernel source.
+On Tue, Sep 04, 2001 at 04:41:22PM +0300, Michael Ben-Gershon wrote:
 
-That's no problem, most of the embedded drivers never do.
+> Building it as a module meant I didn't have to reboot for every time
+> I wanted to retest it with different parameters.
 
-> - I'm just a C/C++ programmer, I have just rough idea what does it
-> mean to 'develop a driver in Linux'. I'm pretty familiar with Linux
-> as sys-admin though.
+I understand.  But I'm looking at the differences between a broken
+system and a working system.  It seems from what you say to be:
 
-Forget about C++ for kernel programming, it simply doesn't work (see
-the lkml FAQ at http://www.tux.org/lkml/ ). A nice starting point for
-kernel programming is http://www.kernelnewbies.org/ together with its
-IRC channel #kernelnewbies. Also get a copy of the book "Linux device
-drivers (2nd edition)", there is a link in the books section on the
-kernelnewbies website.
+- CONFIG_PARPORT_PC_FIFO
+- Parport built as modules
 
-> All I need is: to have piece of code executed on some interrupt,
-> read/write IO ports of the card and be able to transfer big pieces
-> of memory to the card.
-> 
-> What do you think? Is Linux the ideal platform for me?
+So it seems as though it's either one of these, or the combination.
 
-I don't know if Linux is the *ideal* platform, but driving a plotter
-could certainly be done in Linux.
+Tim.
+*/
 
+--73F5niR8LUvFAf4p
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Erik
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+iD8DBQE7lNueyaXy9qA00+cRAs0mAKCWbevKv4Zu0r0/vJmWKmOkiCM2FACgoKSX
+aZKOovD6zTRB0yIbURPfqLk=
+=Gxbc
+-----END PGP SIGNATURE-----
+
+--73F5niR8LUvFAf4p--

@@ -1,48 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbUB0KWV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 05:22:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbUB0KWV
+	id S261747AbUB0K12 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 05:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbUB0K12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 05:22:21 -0500
-Received: from server0027.freedom2surf.net ([194.106.33.36]:23529 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S261770AbUB0KWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 05:22:20 -0500
-Date: Fri, 27 Feb 2004 10:21:29 +0000
-From: Ian Molton <spyro@f2s.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: bunk@fs.tum.de, scottb@rebel.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove kernel 2.0 #ifdef's from arm{,26} code
-Message-Id: <20040227102129.30429558.spyro@f2s.com>
-In-Reply-To: <20040227101602.B17462@flint.arm.linux.org.uk>
-References: <20040226224333.GW5499@fs.tum.de>
-	<20040227101602.B17462@flint.arm.linux.org.uk>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.8-gtk2-20031212 (GTK+ 2.2.4; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Feb 2004 05:27:28 -0500
+Received: from viefep12-int.chello.at ([213.46.255.25]:33333 "EHLO
+	viefep12-int.chello.at") by vger.kernel.org with ESMTP
+	id S261747AbUB0KYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 05:24:19 -0500
+Message-ID: <403F1ACC.5060804@freemail.hu>
+Date: Fri, 27 Feb 2004 11:24:12 +0100
+From: Boszormenyi Zoltan <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu; rv:1.6) Gecko/20040115
+X-Accept-Language: hu, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.3-mmX locks up reading scratched SVCD
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004 10:16:02 +0000
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-
-> On Thu, Feb 26, 2004 at 11:43:34PM +0100, Adrian Bunk wrote:
-> > The patch below removes #ifdef's for kernel 2.0 from 
-> > arch/arm{,26}/nwfpe/fpmodule.c .
-> > 
-> > Please apply
+> On Fri, Feb 27 2004, Boszormenyi Zoltan wrote:
+>> Hi,
+>> 
+>> I have a scratched SVCD and reading it back with vcdimager-0.7.14
+>> locks up the machine completely. I tried it with kernels is 2.6.3-mm[1234].
+>> I have not tried older kernel.
+>> 
+>> A flawless SVCD can be read back. I also tried reading back a bad 
+>> overburned SVCD,
+>> (cdrdao-1.1.8 reported error at the end) and it also locked up the machine.
+>> I fixated this disk, tried reading back -> lockup.
+>> Two IDE CD-RWs produce the same effect: LG 52/24/52 and Sony 48/24/48.
+>> Something must be bad in the ide-cd driver, it should at least report an
+>> error instead of locking up.
 > 
-> I've applied the ARM bit (not the ARM26).  I've also moved these
-> two the end of the file, and added an appropriate MODULE_LICENSE.
+> With damaged media, the problem is often the hardware locking up. In
+> that case there's really not much the kernel can do. That said, does the
+> keyboard LED's blink when the machine hangs?
+ >
+ > --
+ > Jens Axboe
 
-I will be doing the same for arm26, however it is my hope that arm26
-will become softfloat-only in the long term.
+No, they do not. Numlock is not responding. The CD-RW drives were not locked up.
+I already experienced drive lockups earlier, the eject button does not respond,
+the LED on one of the drives changes to red (instead of green -> normal operation
+or orange -> writing)
+
+In the meantime I was busy compiling libcddb-0.9.4, libcdio-0.66
+and vcdimager-0.7.20. I am trying to read the CDs back with it,
+the changelog mentions memleak fixes.
+
+(several minutes later) Hm, it finished now, the overburned
+SVCD is read back, it's about 20MB shorter than the original mpeg.
+I got this error:
+
+$ vcdxrip -C /dev/cdrom -p -v
+!ASSERT: file mpeg.c: line 509 (_analyze_pes_header): assertion failed: (vcd_bitvec_peek_bits (buf, pos2, 8) == 0x0f)
+Terminated
+
+Somehow I expected that. So vcdimager-0.7.14 is faulty, the machine
+lockup was in fact an OOM. Sorry for the noise.
 
 -- 
-Spyros lair: http://www.mnementh.co.uk/   ||||   Maintainer: arm26 linux
+Best regards,
+Zoltán Böszörményi
 
-Do not meddle in the affairs of Dragons, for you are tasty and good with
-ketchup.
+---------------------
+What did Hussein say about his knife?
+One in Bush worth two in the hand.

@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUH3D5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267327AbUH3EBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266839AbUH3D5R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 23:57:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266725AbUH3D5R
+	id S267327AbUH3EBg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 00:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266725AbUH3EBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 23:57:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37045 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266631AbUH3D5M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 23:57:12 -0400
-Date: Sun, 29 Aug 2004 20:55:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Hans Reiser <reiser@namesys.com>, flx@msu.ru, Paul Jackson <pj@sgi.com>,
-       riel@redhat.com, ninja@slaphack.com, diegocg@teleline.es,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       jra@samba.org, hch@lst.de,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040830030157.GE16297@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0408292042380.2295@ppc970.osdl.org>
-References: <4132205A.9080505@namesys.com> <20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
- <20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk> <41323751.5000607@namesys.com>
- <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org> <1093821430.8099.49.camel@lade.trondhjem.org>
- <Pine.LNX.4.58.0408291641070.2295@ppc970.osdl.org> <1093830135.8099.181.camel@lade.trondhjem.org>
- <Pine.LNX.4.58.0408291919450.2295@ppc970.osdl.org>
- <20040830030157.GE16297@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 Aug 2004 00:01:34 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:53740 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267452AbUH3EBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 00:01:32 -0400
+From: jmerkey@comcast.net
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>
+Cc: Roland Dreier <roland@topspin.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jmerkey@drdos.com
+Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
+Date: Mon, 30 Aug 2004 04:01:29 +0000
+Message-Id: <083020040401.15279.4132A6990005360E00003BAF2200758942970A059D0A0306@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
+X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 30 Aug 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > 
-> > So I don't see any way to extend pathname semantics to distinguish between 
-> > "directory contents" and "directory attribute stream". 
+
+> On Sul, 2004-08-29 at 17:42, William Lee Irwin III wrote:
+
+> Ok so I can compile with a.out support. End of problem, that makes the
+> patch useful and "spec compliant", although the spec compliance is
+> irrelevant anyway. The spec doesn't determine what Linux is it's a
+> useful reference for normality. Special cases are special cases and you
+> harm the system by seeking to stop stuff that works purely for pieces of
+> paper.
 > 
-> I do, actually.  There might be a way and it is kinda-sorta similar to
-> your openat() variant, but lives in normal namespace.  No, I'm not too
-> fond of that, but since we are discussing weird variants anyway...
-> 
-> 	a) associated directory tree of object is not automounted on top
-> of it.  Instead of that, we always do detached vfsmount (and do it on demand -
-> see below)
-> 	b) we have a bunch of pseudo-symlinks in /proc/<pid>/fd/ - same
-> kind as what we already have there, but instead of (file->f_vfsmount,
-> file->f_dentry) they lead to associated vfsmount (allocated if needed).
-> Once we get a reference to such guy, we can
-> 	* do further lookups
-> 	* chdir there and poke around
-> 	* hell, we can even bind it someplace (that will require slight change
-> in attach_mnt() logics, but it's not hard) and get it permanently mounted
 
-Well, the above _is_ the same as "openat()", really. It's just using a
-filesystem starting point to emulate a new system call. Same thing
-conceptually. You could do pretty much any system call as a filesystem
-action if you wanted to ;)
+Amen.  USB 2.0 orinoco wireless drivers seems to have problems when user space
+is set to 1GB.  Works grat with 2GB ad 3GB user space settings.  Problem occurs during
+any acces to usb_read_device().  This doesn't look like a ABI problem, looks like 
+a problem with the USB subsystem.  The serialize semaphore gets stuck for some
+reason. 
 
-I don't disagree with doing so - as a way to expose the new system call to
-scripts. But I don't think you're being entirely intellectually honest if
-you think this suddendly makes it be "one namespace". It's still a
-secondary namespace rooted in an entry in the normal ones - exactly like
-"openat()". 
+On the other topic, ABI compliance sounds a little restrictive since this is after all, an 
+open source OS.  Most apps get recompiled and I always download open source 
+components for Linux.  
 
-For a non-script, a native "openat()" interface would be more efficient
-and less confusing, and conceptually no different from yours.  No reason
-we couldn't have both, since they are 100% equivalent and would share the
-same code anyway...
+:-)
 
-		Linus
+Jeff

@@ -1,26 +1,750 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277276AbRJ0Wdz>; Sat, 27 Oct 2001 18:33:55 -0400
+	id <S277348AbRJ0XSN>; Sat, 27 Oct 2001 19:18:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277278AbRJ0Wdq>; Sat, 27 Oct 2001 18:33:46 -0400
-Received: from mx7.port.ru ([194.67.57.17]:29849 "EHLO mx7.port.ru")
-	by vger.kernel.org with ESMTP id <S277276AbRJ0Wd2>;
-	Sat, 27 Oct 2001 18:33:28 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200110272235.f9RMZv920026@vegae.deep.net>
-Subject: Nice stats gathering idea
-To: linux-kernel@vger.kernel.org
-Date: Sun, 28 Oct 2001 02:35:57 +0400 (MSD)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277353AbRJ0XSE>; Sat, 27 Oct 2001 19:18:04 -0400
+Received: from c999639-a.carneg1.pa.home.com ([24.180.243.111]:41465 "EHLO
+	maul.jdc.home") by vger.kernel.org with ESMTP id <S277348AbRJ0XRu>;
+	Sat, 27 Oct 2001 19:17:50 -0400
+Subject: Re: Strange memory stats with 2.4.13 and ext3
+From: Jim Crilly <noth@noth.is.eleet.ca>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1004213323.9797.15.camel@ixodes.goop.org>
+In-Reply-To: <1004213323.9797.15.camel@ixodes.goop.org>
+Content-Type: multipart/mixed; boundary="=-jum6bA4LU/PD3IBPK3EB"
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 27 Oct 2001 19:18:25 -0400
+Message-Id: <1004224705.918.13.camel@warblade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello folks, gotta an idea, well discovery:
- do vmstat 1; then strike scroll lock
- wait for the delay you want to measure the overall, and release the scrolling
- *bah* - you have the overall stats for the VM usage for a given period
 
-cheers, Samium Gromoff
+--=-jum6bA4LU/PD3IBPK3EB
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+After seeing this I decided to take a look at a box I recently put
+2.4.13+ext3(-pre6 + manually fixed .rej) and I got this:
+
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  125820928 121167872  4653056        0 295002112
+18446744073458835456
+Swap: 536117248  4866048 531251200
+MemTotal:       122872 kB
+MemFree:          4544 kB
+MemShared:           0 kB
+Buffers:        288088 kB
+Cached:       18446744073709305672 kB
+SwapCached:       1104 kB
+Active:          28832 kB
+Inactive:        14416 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       122872 kB
+LowFree:          4544 kB
+SwapTotal:      523552 kB
+SwapFree:       518800 kB
+
+I only have 1 ext3 filesystem yet, because I was stress-testing the box
+before I put it into real use.
+
+/dev/sdb2     ext3     16G   33M   16G   1% /mnt/tmp
+
+This box is a 167Mhz Ultra 1, 128M memory 512M swap. I ran bonnie++ on
+the ext3 partition for about 15 hours and then let it sit idle for about
+the same before I noticed this.
+
+
+On Sat, 2001-10-27 at 16:08, Jeremy Fitzhardinge wrote:
+> Hi,
+> 
+> My gateway/firewall/mailserver machine has been running 2.4.13 for a day
+> or so now.  Its basically a stock Linus kernel + ext3-0.9.13 patch (for
+> -pre6, with the rej fixed).
+> 
+> I'm getting this in /proc/meminfo:
+> 
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  130179072 117489664 12689408        0 46854144    69632
+> Swap: 1073987584 10907648 1063079936
+> MemTotal:       127128 kB
+> MemFree:         12392 kB
+> MemShared:           0 kB
+> Buffers:         45756 kB
+> Cached:       4294965116 kB
+> SwapCached:       2248 kB
+> Active:          11392 kB
+> Inactive:        36784 kB
+> HighTotal:           0 kB
+> HighFree:            0 kB
+> LowTotal:       127128 kB
+> LowFree:         12392 kB
+> SwapTotal:     1048816 kB
+> SwapFree:      1038164 kB
+> 
+> 
+> Needless to say, this is unexpected.  I do have 128MB of RAM and a gig
+> of swap, but I certainly don't expect to see 4TB of cached stuff...
+> 
+> I have a number of ext3 filesystems:
+> 
+> /dev/root / ext3 rw 0 0
+> /proc /proc proc rw 0 0
+> /dev/hda3 /home ext3 rw 0 0
+> /dev/hda5 /var ext3 rw,noatime 0 0
+> none /dev/pts devpts rw 0 0
+> 
+> /var is data=journal, the rest are data=ordered.  /var also has a number
+> of files and directories with the sync bit set.
+> 
+> The machine doesn't seem to be misbehaving at all, and there's nothing
+> unusual in the kernel log.  It has not been under any particular load.
+> 
+> I have another machine here running 2.4.13+ext3 for a few days now, and
+> it has no oddities.
+> 
+> UPDATE: now that I look at it again, it has fixed itself.  How odd.
+> 
+> 	J
+> ----
+> 
+
+-- deleted Jeremy's quoted .config --
+-- 
+Help protect your rights on-line.
+Join the Electronic Frontiers Foundation today: http://www.eff.org/join
+-----------------------------------------------------------------------
+Security: Antonyms: See Microsoft
+-----------------------------------------------------------------------
+"We are coming after you. God may have mercy on you, but we won't,"
+declared Sen. John McCain, R-Arizona.
+
+--=-jum6bA4LU/PD3IBPK3EB
+Content-Type: text/plain
+Content-Disposition: attachment; filename=config-2.4.13-ext3-sparc64
+Content-Transfer-Encoding: 7bit
+
+#
+# Automatically generated by make menuconfig: don't edit
+#
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+# CONFIG_MODVERSIONS is not set
+CONFIG_KMOD=y
+
+#
+# General setup
+#
+# CONFIG_BBC_I2C is not set
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+# CONFIG_SMP is not set
+CONFIG_SPARC64=y
+CONFIG_HAVE_DEC_LOCK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+# CONFIG_ISA is not set
+# CONFIG_ISAPNP is not set
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+# CONFIG_PCMCIA is not set
+CONFIG_SBUS=y
+CONFIG_SBUSCHAR=y
+CONFIG_BUSMOUSE=y
+CONFIG_SUN_MOUSE=y
+CONFIG_SERIAL=y
+CONFIG_SUN_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_SUN_KEYBOARD=y
+CONFIG_SUN_CONSOLE=y
+CONFIG_SUN_AUXIO=y
+CONFIG_SUN_IO=y
+# CONFIG_PCI is not set
+CONFIG_SUN_OPENPROMFS=m
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_SPARC32_COMPAT=y
+CONFIG_BINFMT_ELF32=y
+CONFIG_BINFMT_AOUT32=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+# CONFIG_SUNOS_EMUL is not set
+CONFIG_SOLARIS_EMUL=m
+
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+# CONFIG_PARPORT_PC is not set
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+CONFIG_PARPORT_1284=y
+CONFIG_PRINTER=m
+
+#
+# Console drivers
+#
+CONFIG_PROM_CONSOLE=y
+CONFIG_FB=y
+
+#
+# Frame-buffer support
+#
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+# CONFIG_FB_CYBER2000 is not set
+CONFIG_FB_SBUS=y
+CONFIG_FB_CREATOR=y
+CONFIG_FB_CGSIX=y
+# CONFIG_FB_BWTWO is not set
+# CONFIG_FB_CGTHREE is not set
+# CONFIG_FB_LEO is not set
+# CONFIG_FB_VIRTUAL is not set
+# CONFIG_FBCON_ADVANCED is not set
+CONFIG_FBCON_FONTWIDTH8_ONLY=y
+CONFIG_FONT_SUN8x16=y
+# CONFIG_FBCON_FONTS is not set
+
+#
+# Misc Linux/SPARC drivers
+#
+CONFIG_SUN_OPENPROMIO=m
+CONFIG_SUN_MOSTEK_RTC=y
+CONFIG_OBP_FLASH=m
+# CONFIG_SUN_BPP is not set
+# CONFIG_SUN_VIDEOPIX is not set
+# CONFIG_SUN_AURORA is not set
+
+#
+# Linux/SPARC audio subsystem (EXPERIMENTAL)
+#
+CONFIG_SPARCAUDIO=m
+CONFIG_SPARCAUDIO_CS4231=m
+CONFIG_SPARCAUDIO_DUMMY=m
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Block devices
+#
+# CONFIG_BLK_DEV_FD is not set
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+
+#
+# Multi-device support (RAID and LVM)
+#
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+CONFIG_MD_RAID5=m
+# CONFIG_MD_MULTIPATH is not set
+CONFIG_BLK_DEV_LVM=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_NETLINK_DEV=y
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_RTNETLINK=y
+CONFIG_NETLINK=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_NAT=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_TOS=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_ROUTE_LARGE_TABLES=y
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+CONFIG_INET_ECN=y
+CONFIG_SYN_COOKIES=y
+
+#
+#   IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_IP_NF_NAT_NEEDED=y
+# CONFIG_IP_NF_COMPAT_IPFWADM is not set
+# CONFIG_IPV6 is not set
+# CONFIG_KHTTPD is not set
+# CONFIG_ATM is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+CONFIG_NET_SCHED=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_CSZ=m
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_INGRESS=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=m
+CONFIG_NET_CLS_U32=m
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+CONFIG_NET_CLS_POLICE=y
+
+#
+# ATA/IDE/MFM/RLL support
+#
+# CONFIG_IDE is not set
+# CONFIG_BLK_DEV_IDE_MODES is not set
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# SCSI support
+#
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=y
+CONFIG_CHR_DEV_OSST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+#
+# SCSI low-level drivers
+#
+CONFIG_SCSI_SUNESP=y
+# CONFIG_SCSI_QLOGICPTI is not set
+
+#
+# Fibre Channel support
+#
+# CONFIG_FC4 is not set
+# CONFIG_FC4_SOC is not set
+# CONFIG_FC4_SOCAL is not set
+# CONFIG_SCSI_PLUTO is not set
+# CONFIG_SCSI_FCAL is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_BOOT is not set
+# CONFIG_FUSION_ISENSE is not set
+# CONFIG_FUSION_CTL is not set
+# CONFIG_FUSION_LAN is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=m
+CONFIG_BONDING=m
+CONFIG_EQUALIZER=m
+CONFIG_TUN=m
+CONFIG_ETHERTAP=m
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+CONFIG_SUNLANCE=y
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNBMAC is not set
+CONFIG_SUNQE=y
+CONFIG_SUNLANCE=y
+# CONFIG_SUNGEM is not set
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_NET_ISA is not set
+# CONFIG_NET_PCI is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_MYRI_SBUS is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PLIP is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Unix 98 PTY support
+#
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+
+#
+# Video For Linux
+#
+CONFIG_VIDEO_DEV=y
+
+#
+# XFree86 DRI support
+#
+CONFIG_DRM=y
+CONFIG_DRM_FFB=m
+# CONFIG_DRM_TDFX is not set
+# CONFIG_DRM_R128 is not set
+
+#
+# Input core support
+#
+# CONFIG_INPUT is not set
+# CONFIG_INPUT_KEYBDEV is not set
+# CONFIG_INPUT_MOUSEDEV is not set
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+
+#
+# File systems
+#
+CONFIG_QUOTA=y
+# CONFIG_AUTOFS_FS is not set
+# CONFIG_AUTOFS4_FS is not set
+CONFIG_REISERFS_FS=m
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_BFS_FS is not set
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+# CONFIG_BUFFER_DEBUG is not set
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_UMSDOS_FS=m
+CONFIG_VFAT_FS=m
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_JFFS2_FS is not set
+CONFIG_CRAMFS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=m
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_MINIX_FS=m
+# CONFIG_VXFS_FS is not set
+# CONFIG_NTFS_FS is not set
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+# CONFIG_DEVFS_FS is not set
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+CONFIG_DEVPTS_FS=y
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+CONFIG_SYSV_FS=m
+CONFIG_UDF_FS=m
+# CONFIG_UDF_RW is not set
+CONFIG_UFS_FS=m
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+# CONFIG_CODA_FS is not set
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+# CONFIG_ROOT_NFS is not set
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+# CONFIG_SMB_NLS_DEFAULT is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SUN_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_CODEPAGE_1251 is not set
+CONFIG_NLS_ISO8859_1=y
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+# CONFIG_NLS_UTF8 is not set
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+CONFIG_SOUND_BT878=m
+# CONFIG_SOUND_CMPCI is not set
+# CONFIG_SOUND_EMU10K1 is not set
+# CONFIG_MIDI_EMU10K1 is not set
+# CONFIG_SOUND_FUSION is not set
+# CONFIG_SOUND_CS4281 is not set
+# CONFIG_SOUND_ES1370 is not set
+# CONFIG_SOUND_ES1371 is not set
+# CONFIG_SOUND_ESSSOLO1 is not set
+# CONFIG_SOUND_MAESTRO is not set
+# CONFIG_SOUND_MAESTRO3 is not set
+# CONFIG_SOUND_ICH is not set
+# CONFIG_SOUND_RME96XX is not set
+# CONFIG_SOUND_SONICVIBES is not set
+# CONFIG_SOUND_TRIDENT is not set
+# CONFIG_SOUND_MSNDCLAS is not set
+# CONFIG_SOUND_MSNDPIN is not set
+# CONFIG_SOUND_VIA82CXXX is not set
+# CONFIG_MIDI_VIA82CXXX is not set
+# CONFIG_SOUND_OSS is not set
+# CONFIG_SOUND_TVMIXER is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+# CONFIG_USB_UHCI is not set
+# CONFIG_USB_UHCI_ALT is not set
+# CONFIG_USB_OHCI is not set
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_BLUETOOTH is not set
+# CONFIG_USB_STORAGE is not set
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_DATAFAB is not set
+# CONFIG_USB_STORAGE_FREECOM is not set
+# CONFIG_USB_STORAGE_ISD200 is not set
+# CONFIG_USB_STORAGE_DPCM is not set
+# CONFIG_USB_STORAGE_HP8200e is not set
+# CONFIG_USB_STORAGE_SDDR09 is not set
+# CONFIG_USB_STORAGE_JUMPSHOT is not set
+# CONFIG_USB_ACM is not set
+# CONFIG_USB_PRINTER is not set
+# CONFIG_USB_DC2XX is not set
+# CONFIG_USB_MDC800 is not set
+# CONFIG_USB_SCANNER is not set
+# CONFIG_USB_MICROTEK is not set
+# CONFIG_USB_HPUSBSCSI is not set
+# CONFIG_USB_IBMCAM is not set
+# CONFIG_USB_OV511 is not set
+# CONFIG_USB_PWC is not set
+# CONFIG_USB_SE401 is not set
+# CONFIG_USB_DSBR is not set
+# CONFIG_USB_DABUSB is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_KAWETH is not set
+# CONFIG_USB_CATC is not set
+# CONFIG_USB_CDCETHER is not set
+# CONFIG_USB_USBNET is not set
+# CONFIG_USB_USS720 is not set
+
+#
+# USB Serial Converter support
+#
+# CONFIG_USB_SERIAL is not set
+# CONFIG_USB_SERIAL_GENERIC is not set
+# CONFIG_USB_SERIAL_BELKIN is not set
+# CONFIG_USB_SERIAL_WHITEHEAT is not set
+# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
+# CONFIG_USB_SERIAL_EMPEG is not set
+# CONFIG_USB_SERIAL_FTDI_SIO is not set
+# CONFIG_USB_SERIAL_VISOR is not set
+# CONFIG_USB_SERIAL_IR is not set
+# CONFIG_USB_SERIAL_EDGEPORT is not set
+# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
+# CONFIG_USB_SERIAL_KEYSPAN is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA49W is not set
+# CONFIG_USB_SERIAL_MCT_U232 is not set
+# CONFIG_USB_SERIAL_PL2303 is not set
+# CONFIG_USB_SERIAL_CYBERJACK is not set
+# CONFIG_USB_SERIAL_XIRCOM is not set
+# CONFIG_USB_SERIAL_OMNINET is not set
+# CONFIG_USB_RIO500 is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BLUEZ is not set
+
+#
+# Watchdog
+#
+# CONFIG_SOFT_WATCHDOG is not set
+
+#
+# Kernel hacking
+#
+CONFIG_MAGIC_SYSRQ=y
+
+--=-jum6bA4LU/PD3IBPK3EB--
+

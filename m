@@ -1,82 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262573AbTHZEDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 00:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbTHZEDZ
+	id S262561AbTHZEPx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 00:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbTHZEPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 00:03:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64184 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262573AbTHZEDX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 00:03:23 -0400
-Date: Mon, 25 Aug 2003 21:06:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Futex non-page-pinning fix
-Message-Id: <20030825210606.5912bac4.akpm@osdl.org>
-In-Reply-To: <20030826031940.0CDDD2C243@lists.samba.org>
-References: <20030826031940.0CDDD2C243@lists.samba.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 26 Aug 2003 00:15:53 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:40715 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262561AbTHZEPu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 00:15:50 -0400
+Date: Tue, 26 Aug 2003 06:11:16 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: "Hmamouche, Youssef" <youssef@ece.utexas.edu>,
+       Christian Hesse <news@earthworm.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22 hangs with pcmcia and linux-wlan
+Message-ID: <20030826041116.GI734@alpha.home.local>
+References: <Pine.LNX.4.21.0308252234010.25458-100000@linux08.ece.utexas.edu> <1061869538.2790.9.camel@laptop-linux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1061869538.2790.9.camel@laptop-linux>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->
-> Hi Andrew, Ingo,
+Hi,
+
+I already encountered similar problems.
+
+Check if the PCMCIA slot is not on the same IRQ as ACPI in /proc/interrupts. You
+can also try to use a different PCMCIA slot, or boot with "acpi=off".
+
+Cheers,
+Willy
+
+On Tue, Aug 26, 2003 at 03:45:52PM +1200, Nigel Cunningham wrote:
+> Hi.
 > 
-> 	Ingo was (rightfully) concerned about the amount of memory
-> which could be pinned using FUTEX_FD.  This solution doesn't keep
-> pages pinned any more: it hashes on mapping + offset, or for anonomous
-> pages, uses a callback to move them out and back into the hash table
-> as they are swapped out and in.
-
-I have a bad feeling about this.  We shall see...
-
-> 	Searching the (256-bucket) hash table to find potential pages
-> is fairly slow, but we're swapping anyway, so it's lost in the noise.
-> The hash table is usually fairly empty.
+> Similar results here, except I can be more specific. I see the issue
+> using pcmcia only. The package I'm using is the
+> external-to-the-kernel-tree pcmcia-cs-3.2.3. Under 2.4.22, I get a
+> complete freeze (no SysRq, no flashing cursor) when I insmod i82365.o. I
+> tried recompiling the whole kernel & modules using gcc 2.96 and 3.2 to
+> no avail.  If I use the kernel tree's code, I can insmod okay, but my
+> ltmodem_cs driver reports the modem as being busy all the time. The
+> problem was fixed by reverting to 2.4.21 (I'd already deleted pre2,
+> which was working). No configuration changes required - just a
+> recompile.
 > 
-> 	My only concern is for a race between swapping a page in and
-> it being accessed, but I think I have the callbacks in the right place
-> in the swap code: more VM-aware eyes welcome.
-
-Looks to be OK: as long as the page is locked you can't go far wrong.
-
-But end_swap_bio_read() is called from interrupt context.  Hence the
-spinlock you have in there needs to become IRQ safe.
-
-Two issues:
-
-a) what to do about futexes in file-backed pages?  At present the
-   attacker can pin arbitrary amount of memory by backing it with a file.
-
-   Your solution won't scale to solving this, because we need to perform
-   a futex lookup on every add_to_page_cache().  (Well, it will scale
-   fairly well because add_to_page_cache() is ratelimited by the IO speed. 
-   But it will still suck quite a bit for some people).
-
-b) Assuming a) is solved: futexes which are backed by tmpfs.  tmpfs
-   (which is a study in conceptual baroquenness) will rewrite page->mapping
-   as pages are moved between tmpfs inodes and swapper_space.  I _think_
-   lock_page() is sufficient to serialise against this.  If not, both
-   ->page_locks are needed.
-
-   This of course will break your hashing scheme.  Hooks in
-   move_to_swap_cache() and move_from_swap_cache() are needed.
-
-
-So what to do?  One option is to just not pin the pages at all: let them be
-reclaimed and/or swapped out.  Let the kernel fault them in.  We have all
-the stuff to do this over in fs/aio.c, with use_mm().
-
-It does mean that the futex code would have to change its representation of
-a futex's location from page/offset to mm/vaddr, and the futex code would
-need to hook into the exit path, similar to exit_aio().
-
-Or create RLIM_NRFUTEX.
-
-
+> Regards,
+> 
+> Nigel
+> 
+> On Tue, 2003-08-26 at 15:37, Hmamouche, Youssef wrote:
+> > Out of curiosity, what happens when you remove the card? Does the system
+> > come back to normal or does it stay in the same state?
+> > 
+> > Youssef
+> > 
+> > On Tue, 26 Aug 2003, Christian Hesse wrote:
+> > 
+> > > Hi,
+> > > 
+> > > I'm running kernels with pcmcia-cs-3.2.4 and linux-wlan-ng-0.2.1-pre11 (also 
+> > > tried 0.2). With 2.4.22-rc3 to final the system hangs if I insert my LevelOne 
+> > > WPC-0100 (Prism-II-base wlan), no output at all. Everything worked well up to 
+> > > and including 2.4.22-rc2.
+> > > 
+> > > Regards,
+> > >   Christian
+> > > 
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> -- 
+> Nigel Cunningham
+> 495 St Georges Road South, Hastings 4201, New Zealand
+> 
+> You see, at just the right time, when we were still powerless,
+> Christ died for the ungodly.
+> 	-- Romans 5:6, NIV.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbSBJVuL>; Sun, 10 Feb 2002 16:50:11 -0500
+	id <S282511AbSBJV4U>; Sun, 10 Feb 2002 16:56:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279798AbSBJVuB>; Sun, 10 Feb 2002 16:50:01 -0500
-Received: from mallaury.noc.nerim.net ([62.4.17.82]:42252 "HELO
-	mallaury.noc.nerim.net") by vger.kernel.org with SMTP
-	id <S276424AbSBJVtl>; Sun, 10 Feb 2002 16:49:41 -0500
-Date: Sun, 10 Feb 2002 22:49:32 +0100
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, andre@linux-ide.org,
-        jmontpezat@nerim.net
-Subject: Re: [RAID-soft,ATA,WD] problems with a RAID5 disc not detected
-Message-ID: <20020210214932.GA20694@calixo.net>
-In-Reply-To: <20020210205653.GA20212@calixo.net> <15462.59714.671946.156442@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <15462.59714.671946.156442@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.3.27i
-X-Face: "99`N"mZV/:<T->OLp[>#d3R;u.!ivtwAEpIQDL8rD#;L3Wm)~^)Uv=#;S!LZf1y8oRY7J#JR\Lr{*4Cn*32C89ln>0~5~tm--}j%hvhj+vtW><xbwA=@G8M||zPV0-r`:6zhMqq+_OC_0W*-:Wxzm3%|A5EE}VFnIgRU=+,L-hGdM"j&l'_^zK+%MBOsdmi#e3(3fGg^SGM
-From: Cyrille Chepelov <cyrille@chepelov.org>
+	id <S280975AbSBJV4L>; Sun, 10 Feb 2002 16:56:11 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:32710 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S279798AbSBJVzz>;
+	Sun, 10 Feb 2002 16:55:55 -0500
+To: <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, davem@redhat.com,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: My HDLC patch and the recent discussion...
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 10 Feb 2002 21:58:22 +0100
+Message-ID: <m36655m4up.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Mon, Feb 11, 2002, à 08:42:26AM +1100, Neil Brown a écrit:
+Hi,
 
-> Are you sure that you set the partition type properly for the
-> partitions in the new drive. i.e. set it to FD ??
+Does anybody have additional comments on the HDLC (SIOCDEVICE etc)?
 
-I'm stupid.
-
-Thanks a *lot* for pointing that out to me (I was sure I had done it, but 
-in fact I've done it on the other disc bought that day -- which sits in a 
-closet as a spare drive).
-
-(I'm not going to retract my comments on Western Digital -- but at least
-that thing works now)
-
-	-- Cyrille (going to run and hide in my bed, after cfdisk'ing that
-		    partition table)
-
+A copy of my previous lkml message follows.
 -- 
-Grumpf.
+Krzysztof Halasa
+Network Administrator
 
+
+
+Jeff Garzik <garzik@havoc.gtf.org> writes:
+
+> "SIOCDEVICE" as a constant is unacceptable, so it would need to be
+> SIOCWANDEVICE or something similar.
+
+Well, I was probably under impression it should be used for Ethernet
+as well (see the Dec 2000 thread)... Now I think I know people
+using Ethernet (with full duplex over SM fibre) for WAN connections
+- so SIOCWANDEVICE is ok. Not sure about TR, though - anyone using
+it for WAN networking?
+
+> SIOCETHTOOL, for example, is an ioctl which actually provides
+> sub-ioctls, so that is probably a good model to follow.
+
+SIOCDEVICE^WSIOCWANDEVICE of course has sub-ioctls as well. It is
+obviously impossible without them.
+
+
+I do _not_ want to fight any ETHTOOL vs SIOCDEVICE etc. battle here.
+What I want is creating the best interface for controlling network
+devices. Including Token Ring and Ethernet, unless there are valid
+reasons to do otherwise.
+
+I think we should concentrate on the interface first, then I will
+patch the HDLC implementation.
+
+If we're here... maybe we should really drop using the ifreq structure
+and _replace_ it with better one (variable-sized)? It can be done
+gradually, as both are quite compatible.
+-- 
+Krzysztof Halasa

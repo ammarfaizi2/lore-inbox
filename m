@@ -1,102 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbUAIL64 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 06:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbUAIL64
+	id S261262AbUAIMG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 07:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbUAIMG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 06:58:56 -0500
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:51606 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S261188AbUAIL6x
+	Fri, 9 Jan 2004 07:06:58 -0500
+Received: from gw.openisis.org ([217.115.141.41]:1741 "HELO gw.openisis.org")
+	by vger.kernel.org with SMTP id S261262AbUAIMG4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 06:58:53 -0500
-Date: Fri, 9 Jan 2004 13:58:36 +0200 (EET)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: Thomas Graham <lkthomas@sml.dyndns.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bridge-utils update for 2.6 ?
-In-Reply-To: <2522.192.168.0.97.1073645515.squirrel@sml.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0401091357250.28409@hosting.rdsbv.ro>
-References: <1059.192.168.0.97.1073611363.squirrel@sml.dyndns.org>     
- <3FFE3157.9030307@osdl.org>    <2363.192.168.0.97.1073642603.squirrel@sml.dyndns.org>
-    <Pine.LNX.4.58.0401091203540.28409@hosting.rdsbv.ro>
- <2522.192.168.0.97.1073645515.squirrel@sml.dyndns.org>
+	Fri, 9 Jan 2004 07:06:56 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Klaus Ripke <paul@malete.org>
+To: linux-kernel@vger.kernel.org
+Subject: mm/filemap.c: atomic file read(2)/write(2) ?
+Date: Fri, 9 Jan 2004 13:08:44 +0100
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401091308.45802.paul@malete.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jan 2004, Thomas Graham wrote:
+hi all
 
-> that would be slower than kernel hardcoded, right ?
-> > On Fri, 9 Jan 2004, Thomas Graham wrote:
-> >
-> >> my god, what protocol could I use for STP replacement after it's removed
-> >> from the kernal code then ?!
-I don't think so.
-I think it will work the same (except you'll get a Segmentation fault vs.
-OOPS). :)
+judging from mm/filemap.c it seems like
+ordinary reads/writes should be atomic to each other
+(read sees write completely or not at all,
+not only where it "can be proven to be after the write"),
+if
+- the fs uses the generic code from filemap.c,
+  like ext2 and most do
+- the file region affected fits within one cache page,
+  like nice little B-Tree blocks do,
+  so there is only one copy_from/to_user per call
+- the respective userspace memory regions fit within
+  one page, so the copy will not be interrupted
+- we're not interfering with another processor
+  (but depending on mm hardware it could even work on SMP ?)
 
-> >
-> > The userlevel one. ;)
-> >
-> >>
-> >> > Thomas Graham wrote:
-> >> >
-> >> >> does anyone know if there have any new update patch for Bridge-utils
-> >> on
-> >> >> 2.6.0kernel ?!
-> >> >> http://bridge.sourceforge.net/download.html <--- this is the web site
-> >> >
-> >> > Existing 2.4 kernels work on 2.6, no API changes.
-> >> > I am planning on an update later when STP is moved out of the kernel.
-> >> >
-> >> > -
-> >> > To unsubscribe from this list: send the line "unsubscribe
-> >> linux-kernel" in
-> >> > the body of a message to majordomo@vger.kernel.org
-> >> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >> > Please read the FAQ at  http://www.tux.org/lkml/
-> >> >
-> >>
-> >>
-> >> --
-> >> HK Celtic Orchestra leader and coordanator: Thomas Graham Lau
-> >> Phone number: 852-93239670    (24hours a day, 7days a week non-stop
-> >> phone)
-> >> Web site: http://sml.dyndns.org
-> >> Email: lkthomas@sml.dyndns.org
-> >> -
-> >> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> >> in
-> >> the body of a message to majordomo@vger.kernel.org
-> >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >> Please read the FAQ at  http://www.tux.org/lkml/
-> >>
-> >
-> > ---
-> > Catalin(ux) BOIE
-> > catab@deuroconsult.ro
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
->
-> --
-> HK Celtic Orchestra leader and coordanator: Thomas Graham Lau
-> Phone number: 852-93239670    (24hours a day, 7days a week non-stop phone)
-> Web site: http://sml.dyndns.org
-> Email: lkthomas@sml.dyndns.org
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+correct?
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
+Would be a nice property to avoid read locks on a L-B-Tree
+
+thx + cheers
+Paul

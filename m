@@ -1,90 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310818AbSCHMBJ>; Fri, 8 Mar 2002 07:01:09 -0500
+	id <S310816AbSCHLyj>; Fri, 8 Mar 2002 06:54:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310821AbSCHMA7>; Fri, 8 Mar 2002 07:00:59 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:12036 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S310818AbSCHMAz>; Fri, 8 Mar 2002 07:00:55 -0500
-Message-ID: <3C88A796.2070301@evision-ventures.com>
-Date: Fri, 08 Mar 2002 12:59:18 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S310818AbSCHLyb>; Fri, 8 Mar 2002 06:54:31 -0500
+Received: from gra-lx1.iram.es ([150.214.224.41]:55563 "EHLO gra-lx1.iram.es")
+	by vger.kernel.org with ESMTP id <S310816AbSCHLyT> convert rfc822-to-8bit;
+	Fri, 8 Mar 2002 06:54:19 -0500
+Date: Fri, 8 Mar 2002 12:54:02 +0100 (CET)
+From: Gabriel Paubert <paubert@iram.es>
+To: Eric Ries <eries@there.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: RE: FPU precision & signal handlers (bug?)
+In-Reply-To: <KPEDLFEJBNHDLFEEOIIMOEOBCEAA.eries@there.com>
+Message-ID: <Pine.LNX.4.33.0203081250440.22832-100000@gra-lx1.iram.es>
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH][2.5] BUG check in elevator.c:237
-In-Reply-To: <Pine.LNX.4.44.0203081258500.5383-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please let me elaborate a bit on this, to give you may be
-some hints about where to look for an actual solution of
-the problem:
 
-Zwane Mwaikambo wrote:
-> Please refer to Subject [PANIC] 2.5.5-pre1 elevator.c for more detailed 
-> explanation.
-> 
-> I don't really like this patch mainly because it _really_ feels like a 
-> bandaid for a larger problem in ide-cd, namely it violating the ide 
-> layers command requirements. But it does stop my box from oopsing and 
-> lets it finish the "dd" i was doing. Oops is at the end.
-> 
-> diffed against 2.5.6-pre3 (one down 2 quadrillion to go ;)
-> 
-> --- linux-2.5.6-pre/drivers/ide/ide-cd.c.orig	Fri Mar  8 12:09:10 2002
-> +++ linux-2.5.6-pre/drivers/ide/ide-cd.c	Fri Mar  8 12:04:08 2002
-> @@ -666,9 +666,11 @@
->  			cdrom_end_request(drive, 0);
->  		}
->  
-> -		/* If we got a CHECK_CONDITION status,
-> -		   queue a request sense command. */
-> -		if ((stat & ERR_STAT) != 0)
-> +		/* If we got a CHECK_CONDITION status, queue a request sense command,
-> +		   however if we're generating spurious errors, make sure we don't
-> +		   attempt to queue an an already started request.
-> +		*/
-> +		if (((stat & ERR_STAT) != 0) && !(rq->flags & REQ_STARTED))
->  			cdrom_queue_request_sense(drive, NULL, NULL, NULL);
->  	} else
->  		blk_dump_rq_flags(rq, "ide-cd bad flags");
-> 
 
-After having a look at the oops I think that this may be very well a
-symptom of another problem in the ide-cd.c drivers overall
-way of working. Please let me elaborate a bit.
+On 7 Mar 2002, Eric Ries wrote:
 
-In ide.c there is one central interrupt handler, namely:
+> Yes, this is a quite tricky problem. Fortunately, in our situation we are
+> extremely picky about just which calculations must be bit-for-bit consistent
+> across machines, and try to keep those operations very simple. We have been
+> doing this for some time on Intel hardware, and - apart from this signal
+> handler issue - have never had any problems.
 
-void ide_timer_expiry(unsigned long data)
+Intel but not IA-64 I presume ?
 
-This function is called upon finish of every command.
+>
+> > Right.
+> > [Snipped the clear explanation showing that you've done your homework]
+>
+> Thanks :) I know how annoying it can be to put up with clueless posts on
+> mailing lists.
 
-However for cd-rom there are commands, which can
-take quite a long time. Therefore there is the possiblity there
-to provide a polling function, which will be engaged after the
-interrupt happens in the above function:
+Indeed :)
 
-	/* continue */
-				if ((wait = expiry(drive)) != 0) {
-					/* reengage timer */
-					hwgroup->timer.expires  = jiffies + wait;
-					add_timer(&hwgroup->timer);
-					spin_unlock_irqrestore(&ide_lock, flags);
-					return;
-				}
-And plase guess whot? CD-ROM is the only driver which is using
-this facility. Please have a look at the last
-argument of ide_set_handler(). The second argument is the
-interrutp handler for a command. The third is supposed to be
-the poll timerout function. But if you look at the
-actual poll function found in ide-cd.c (and only there).
-You may as well feel to try to just execute its commands directly in
-ide_timer_expiry, thus reducing tons of possible races ind the
-overall intr handling found currently there.
+> > Actually, fxsave does not reset the FPU state IIRC (so it could be faster
+> > for signal delivery to use fxsave followed by fnsave instead of the format
+> > conversion routine if the FPU happens to hold the state of the current
+> > process).
+>
+> That's an interesting thought. I didn't have a decent reference on MMX
+> instructions while I was tracking this bug down, so I just assumed they were
+> basically equivalent to their 387 counterparts.
+
+I confirm.
+
+> I don't see how this is a problem, because (as far as I can tell) there is
+> no need to use the "default" control word at all. In the solution I propose,
+> the FPU state is still saved before a signal handler call, and restored
+> afterwards. It's just that during the signal handler execution, the control
+> word is set to the process-global value. Keep in mind that, in the case that
+> your signal handler has no floating-point instructions, the control word
+> never has to be set, because no FINIT trap will be generated. So there's
+> only a performance cost to those of us who use floating point in our signal
+> handlers.
+
+And where would you take the global value from ?
+
+>
+> > Therefore you certainly don't want to inherit the control word of the
+> > executing thread. Now adding a prctl or something similar to say "I'd like
+> > to get this control word(s) value as initial value(s) in signal handlers"
+> > might make sense, even on other architectures or for SSE/SSE2 to control
+> > such things as handle denormal as zeros or change the set of exceptions
+> > enabled by default...
+>
+> I'm afraid I don't quite follow what you're suggesting here. Don't you
+> always want “your” control word in any function that executes as part of
+> your process?
+
+But your control word is changed on the fly by the compiler for things as
+trivial as float/double to int conversion. It is not as global and static
+as you seem to believe.
+
+	Gabriel.
 

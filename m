@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272929AbTHIQWP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 12:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272932AbTHIQWP
+	id S273016AbTHIQYF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 12:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273071AbTHIQYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 12:22:15 -0400
-Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:61403
-	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S272929AbTHIQWL
+	Sat, 9 Aug 2003 12:24:05 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:37764 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S273016AbTHIQYC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 12:22:11 -0400
-Date: Sat, 9 Aug 2003 18:24:29 +0200
-From: Voluspa <lista1@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3 Make defconfig or menuconfig - unchoosables
-Message-Id: <20030809182429.094de20b.lista1@telia.com>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 9 Aug 2003 12:24:02 -0400
+Date: Sat, 9 Aug 2003 17:23:32 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "David S. Miller" <davem@redhat.com>, Willy Tarreau <willy@w.ods.org>,
+       albert@users.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       chip@pobox.com
+Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
+Message-ID: <20030809162332.GB29647@mail.jlokier.co.uk>
+References: <1060087479.796.50.camel@cube> <20030809002117.GB26375@mail.jlokier.co.uk> <20030809081346.GC29616@alpha.home.local> <20030809015142.56190015.davem@redhat.com> <1060425774.4933.73.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060425774.4933.73.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> > I believe the C language allows for systems where the NULL pointer is
+> > not zero.
 
-Looking for the fabled but hard to locate "ikconfig":
+The representation is not zero, however in the C language (since ANSI,
+not sure about K&R), 0 is a valid name for the NULL pointer whatever
+its representation.
 
-root:loke:/usr/src/test/linux# make defconfig >fel.log
-./arch/i386/defconfig:22: trying to assign nonexistent symbol IKCONFIG
-./arch/i386/defconfig:23: trying to assign nonexistent symbol
-IKCONFIG_PROC
-./arch/i386/defconfig:70: trying to assign nonexistent symbol X86_SSE2
-./arch/i386/defconfig:183: trying to assign nonexistent symbol PNP_NAMES
-./arch/i386/defconfig:184: trying to assign nonexistent symbol PNP_CARD
-./arch/i386/defconfig:324: trying to assign nonexistent symbol
-SCSI_EATA_DMA
-./arch/i386/defconfig:336: trying to assign nonexistent symbol
-SCSI_NCR53C7xx
-./arch/i386/defconfig:338: trying to assign nonexistent symbol
-SCSI_NCR53C8XX
-./arch/i386/defconfig:361: trying to assign nonexistent symbol
-SCSI_PCMCIA
-./arch/i386/defconfig:395: trying to assign nonexistent symbol FILTER
-./arch/i386/defconfig:544: trying to assign nonexistent symbol
-NET_PCMCIA_RADIO
-./arch/i386/defconfig:663: trying to assign nonexistent symbol INTEL_RNG
-./arch/i386/defconfig:664: trying to assign nonexistent symbol AMD_RNG
-./arch/i386/defconfig:678: trying to assign nonexistent symbol AGP3
+> > I can't think of any reason why the NULL macro exists otherwise.
+> 
+> <OldFart>
+> NULL is really important in K&R C because you don't have prototypes and
+> sizeof(foo *) may not be the same as sizeof(int). This leads to very
+> nasty problems that people nowdays forget about.
+> </OldFart>
 
-Mvh
-Mats Johannesson
+Not just K&R.  These are different because of varargs:
+
+	printf ("%p", NULL);
+	printf ("%p", 0);
+
+-- Jamie

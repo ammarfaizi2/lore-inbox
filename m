@@ -1,42 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265893AbUGIVut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265938AbUGIVvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265893AbUGIVut (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 17:50:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbUGIVut
+	id S265938AbUGIVvj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 17:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265945AbUGIVv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 17:50:49 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:54961 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265893AbUGIVur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 17:50:47 -0400
-Date: Fri, 9 Jul 2004 22:50:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Modular filesystem using drop_inode would need inode_lock
-Message-ID: <20040709215046.GA6681@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org
-References: <B8E391BBE9FE384DAA4C5C003888BE6F019FB78F@scsmsx401.amr.corp.intel.com>
+	Fri, 9 Jul 2004 17:51:28 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:10742 "EHLO
+	mail.kroptech.com") by vger.kernel.org with ESMTP id S265920AbUGIVvG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 17:51:06 -0400
+Date: Fri, 9 Jul 2004 18:24:56 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
+Message-ID: <20040709182456.A20309@mail.kroptech.com>
+References: <40EEF10F.1030404@am.sony.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F019FB78F@scsmsx401.amr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40EEF10F.1030404@am.sony.com>; from tim.bird@am.sony.com on Fri, Jul 09, 2004 at 12:25:03PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 09, 2004 at 02:43:32PM -0700, Luck, Tony wrote:
-> This is mostly a logical inconsistency at the moment (since the
-> only filesystem that has a "drop_inode" function defined in its
-> super_operations is hugetlbfs, and it is unlikely to move out of
-> the kernel and into a module).  But the ->drop_inode() function
-> is called with inode_lock held, and it is expected to drop the
-> lock ... which would be impossible for a module as the lock is
-> not exported.
+On Fri, Jul 09, 2004 at 12:25:03PM -0700, Tim Bird wrote:
+> Finally, this code adds a new FASTBOOT menu to the kernel
+> config system, where we (CE Linux Forum developers) would like
+> to add this and other config options which can be used to
+> reduce kernel bootup time.
 
-->drop_inode is a bad idea anyway.  Please send a pointer to your
-filesystem so we can fix it.
+<snip>
+
+> +menuconfig FASTBOOT
+> +	bool "Fast boot options"
+> +	help
+> +	  Say Y here to enable faster booting of the Linux kernel.  If you
+> +	  say Y here, you may be asked to provide hardcoded values for some
+> +	  parameters that the kernel usually determines automatically.
+
+If FASTBOOT is intended to be merely a container for individual related
+options, this help text seems misleading. FASTBOOT=y alone will have no
+effect on the kernel. It's just a gateway to other more specific
+options. Something like this may be better:
+
+	Say Y here to select among various options that can decrease
+	kernel boot time. These options commonly involve providing
+	hardcoded values for some parameters that the kernel usually
+	determines automatically.
+
+	This option is useful primarily on embedded systems.
+
+	If unsure, say N.
+
+> +config PRESET_LPJ
+> +	int "Preset loops_per_jiffy" if USE_PRESET_LPJ
+> +	help
+> +	  This is the number of loops used by delay() to achieve a single
+> +	  jiffy of delay inside the kernel.  It is roughly BogoMips * 5000.
+> +	  To determine the correct value for your kernel, first turn off
+> +	  the fast booting option, compile and boot the kernel on your
+> +	  target hardware, then see what value is printed during the
+> +	  kernel boot.  Use that value here.
+
+Perhaps mention the new lpj= parameter is an alternative:
+
+	loops_per_jiffy can also be set via the "lpj=" kernel command
+	line parameter.
+
+--Adam
 

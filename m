@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265059AbTFRDYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 23:24:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbTFRDYZ
+	id S265061AbTFRDbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 23:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbTFRDbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 23:24:25 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:22239 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265059AbTFRDYY
+	Tue, 17 Jun 2003 23:31:25 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:34252 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S265061AbTFRDbX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 23:24:24 -0400
-Date: Tue, 17 Jun 2003 20:38:16 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: SCM domains [was Re: Linux 2.5.71]
-Message-ID: <20030618033816.GB6552@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20030615002153.GA20896@work.bitmover.com> <bcneo1$osd$1@cesium.transmeta.com> <20030618013940.GA19176@work.bitmover.com> <3EEFC6A3.5010406@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EEFC6A3.5010406@zytor.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
-	required 7, AWL)
+	Tue, 17 Jun 2003 23:31:23 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780DD16A41@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Kevin P. Fleming'" <kpfleming@cox.net>,
+       "'Alan Stern'" <stern@rowland.harvard.edu>
+Cc: "'Patrick Mochel'" <mochel@osdl.org>,
+       "'Russell King'" <rmk@arm.linux.org.uk>, "'Greg KH'" <greg@kroah.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Flaw in the driver-model implementation of attributes
+Date: Tue, 17 Jun 2003 20:44:50 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17, 2003 at 06:55:47PM -0700, H. Peter Anvin wrote:
-> Larry McVoy wrote:
-> > 
-> > It seems to me that kernel.org is the right place but if hpa is too busy
-> > (which I understand and respect) then we need to come up with some sort of
-> > domain which is unused, simple, and memorable.  I'm aware of the levels of
-> > distrust people have for bitmover but we could pay for it and run the DNS
-> > servers and let some set of community agreed on people manage the DNS entries
-> > if that makes people feel safe.
-> > 
-> 
-> I have no problem setting up CNAMEs in kernel.org if people are OK with
-> it.  Setting up actual servers is another matter.
+> From: Kevin P. Fleming [mailto:kpfleming@cox.net]
+>
+> These are two wildly differing views, but yes, they are the same device.
+> These differing attributes do _not_ belong in the same directory. An
+> application looking at your IDE devices does not really care how the
+> block subsystem perceives those devices (i.e. hdparm). Conversely, an
+> application looking at your block devices should not care about what
+> underlying physical devices (if any :-) they are associated with. 
 
-I think CNAMEs are all that we need now.  BitMover and Penguin Computing
-will host it for the time being and if we cross over to the dark side
-someone else can step forward and host it and all you need to do is redo
-the CNAMEs.  
+But that is describing a physical mapping vs. a logical view.
 
-We do need to advertise the "URLs" for the CVS tree and the SVN tree and 
-the BK trees as well I suppose.  Is that a Gooch/FAQ thing?  Richard, you
-still out there?
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+I can think of many different "views" I want to see (IDE, block,
+physical, block sorted by size, the ones who are green and sing 
+in Basque...) but only one is unique and inherently defined: the
+physical one. 
+
+I guess I agree with Alan; I'd prefer something like:
+
+/sys/devices/pci0/0000:00:07.1/ide0/0.0/
+  attr1
+  attr2 ...   sysfs specific attrs 
+  block-attr1
+  block-attr2 ... block layer specific attrs
+  ide-attr1
+  ide-attr2 ... ide layer specific attrs
+
+(or make that TAG- a subdirectory of the device if you wish,
+that is just an example). 
+
+This way, for each device I have an *unique* location where to
+track it, and an easy way to hunt down attributes specific to
+each layer that controls it.
+
+And when, when I want to make logical views (again, by IDE, by
+block device ...), I can do that from user space and create a
+tree full of symlinks to the unique, physical locations.
+
+Maybe this is going to kill my argument as an analogy, but think
+about a C++ class hierarchy, where belonging to a class means
+to inherit that class' methods. When an object is instantiated
+and its class inherits a lot of other classes, it inherits all
+the methods of those classes. Your methods are the attrs, and
+you can access them with the same pointer, you don't  need to
+look somewhere else ...
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

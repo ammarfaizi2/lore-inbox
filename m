@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292057AbSBYR1t>; Mon, 25 Feb 2002 12:27:49 -0500
+	id <S292035AbSBYRfR>; Mon, 25 Feb 2002 12:35:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288980AbSBYR1l>; Mon, 25 Feb 2002 12:27:41 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:47513 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S293408AbSBYRYs>;
-	Mon, 25 Feb 2002 12:24:48 -0500
-Date: Mon, 25 Feb 2002 12:24:33 -0500 (EST)
+	id <S292908AbSBYRfI>; Mon, 25 Feb 2002 12:35:08 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1710 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S292035AbSBYRfB>;
+	Mon, 25 Feb 2002 12:35:01 -0500
+Date: Mon, 25 Feb 2002 12:34:25 -0500 (EST)
 From: Alexander Viro <viro@math.psu.edu>
 To: Daniel Phillips <phillips@bonn-fries.net>
 cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
 Subject: Re: [PATCH] Son of Unbork (1 of 3)
-In-Reply-To: <E16egez-00006K-00@starship.berlin>
-Message-ID: <Pine.GSO.4.21.0202251224150.3162-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0202251224150.3162-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0202251231290.3162-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,17 +20,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 23 Feb 2002, Daniel Phillips wrote:
+On Mon, 25 Feb 2002, Alexander Viro wrote:
 
-> This three patch set completes the removal of ext2-specific includes from 
-> fs.h.  When this is done, your kernel will compile a little faster, the Ext2 
-> source will be organized a little better, and then infamous fs.h super_block 
-> union will no longer hurt your eyes.  When every filesystem has been changed 
-> in a similar way, fs.h will finally be generic, in-memory super_blocks will be
-> somewhat smaller, and the kernel will compile quite a lot faster.  And peace
-> will come once more to Middle-Earth.  (I made that last part up.)
-> 
-> Patch 1 adds alloc_super and destroy_super methods to struct file_system.  A 
+> On Sat, 23 Feb 2002, Daniel Phillips wrote:
 
-Vetoed.
+> > Patch 1 adds alloc_super and destroy_super methods to struct file_system.  A 
+> Vetoed.
+
+To elaborate: there is no reason why private stuff couldn't be allocated
+by ext2_fill_super() and freed by ext2_put_super().  What's more, there
+is no reason why it would break for any other fs.  IOW, new methods are
+not necessary.  Now apply Occam's Razor.
 

@@ -1,58 +1,48 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154085AbQCYCF2>; Fri, 24 Mar 2000 21:05:28 -0500
-Received: by vger.rutgers.edu id <S154095AbQCYB4v>; Fri, 24 Mar 2000 20:56:51 -0500
-Received: from ix.netcorps.com ([207.1.125.106]:44805 "EHLO ix.netcorps.com") by vger.rutgers.edu with ESMTP id <S154344AbQCYBFp>; Fri, 24 Mar 2000 20:05:45 -0500
-Message-ID: <38DC0F98.8F2E91DC@timpanogas.com>
-Date: Fri, 24 Mar 2000 18:00:08 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.com>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.rutgers.edu, linux-kernel-announe@vger.rutgers.edu
-Subject: M2FS Open Source Clustering Announcement (CORRECTED) 3/29/00
-Content-Type: multipart/mixed; boundary="------------BBAB65B43F5D49EA2007C091"
+Received: by vger.rutgers.edu via listexpand id <S153857AbQCYNe4>; Sat, 25 Mar 2000 08:34:56 -0500
+Received: by vger.rutgers.edu id <S153848AbQCYNer>; Sat, 25 Mar 2000 08:34:47 -0500
+Received: from paris11-nas2-43-237.dial.proxad.net ([212.27.43.237]:2763 "HELO alienor.populi.vox") by vger.rutgers.edu with SMTP id <S153680AbQCYNeW>; Sat, 25 Mar 2000 08:34:22 -0500
+Date: Sat, 25 Mar 2000 10:49:19 +0100
+From: Thierry Danis <danis@mail.dotcom.fr>
+To: linux-kernel@vger.rutgers.edu
+Subject: Very low cpio tansfer rates with 2.2.12-20
+Message-ID: <20000325104918.A16983@alienor.populi.vox>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.95.6i
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-This is a multi-part message in MIME format.
---------------BBAB65B43F5D49EA2007C091
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
- 
---------------BBAB65B43F5D49EA2007C091
-Content-Type: text/plain; charset=us-ascii;
- name="m2fs.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="m2fs.txt"
+Hello,
 
-FOR IMMEDIATE RELEASE - US1
+I needed to transfer a news spool tree (almost 650.000 files) between
+two computers. I did that using a cpio through the network.
 
-Timpanogas Research Group( Announces the M-Squared (M2CS)  Clustered Storage System for Linux and Windows 2000, and the M-Squared Distributed File System (M2FS) for NetWare, Linux and Windows 2000
+The command was :
+# cd /var/spool
+# find news -depth | cpio -oB | rsh other_computer 'cd /var/spool; cpio -iBdm'
 
-Orem, Utah - March 29, 2000 -  Timpanogas Research Group, Inc. located in Orem, Utah is pleased to announce the M-Squared Clustered Storage System (M2CS) for NetWare 5, Linux and Windows 2000, and the M-Squared Distributed File System (M2FS) for NetWare 5, Linux and Windows 2000.
+As soon as I had to much files in some directories (say, more than 3000,
+maybe less), the cpio paused 10 or 15 seconds every 100 files, with no
+network load, no disk access, and no CPU load as well.
+When in directories with few files, or at the beginning of a directory,
+the transfer went back to normal.
 
-TRG's M2CS provides clustered storage capability for Linux and Windows 2000, allowing seamless and transparent clustering capability for existing Linux and Windows 2000 file systems.  M2CS also provides the ability for NetWare 5, Linux, and Windows 2000 platforms to inter-operate within a single cluster and share file system images between systems.  TRG will post early releases of M2CS to it's website Q3 of 2000.  
+It tooks hours to transfer all the spool tree, and the source computer
+had a very low average load.
 
-TRG's M2FS is a fully clustered and distributed file system that provides cross platform clustering capability for NetWare 5, Linux and Windows 2000 within a single clustered configuration.  M2FS also supports Native NetWare and NTFS file systems, allowing customers to cluster existing NTFS and NetWare file systems cross-platform with NetWare, Linux, and Windows 2000 in a single clustered configuration.  M2FS will be available from TRG's website at www.timpanogas.com Q4 2000.   
+Both machines are RH 6.1 Stock RH kernel 2.2.12-20. Hard drives are 4 Go
+UW SCSI. The source machine is a P100, 48Mb RAM, NE2000 PCI 10 Mb/s.
+The destination machine is a Celeron 400, 64 Mb RAM, SMC 100 Mb/s.
 
-In connection with this announcement, Linux NetworX, Inc. (www.linuxnetworx.com) has announced its intention of being an early development partner with TRG technology.  Linux NetworX is a leading supplier of clustered computer systems located in Sandy, Utah. "TRG has excellent vision for the kinds of tools required by our customers," says Clark Roundy, Vice-President of Sales and Marketing at Linux NetworX,   "We look forward to working closely with TRG in commercializing these products within the markets we serve."   
+The question is why was the machine almost idle during the transfer ?
 
-About Timpanogas Research Group
-TRG is a Utah corporation located in Orem, Utah. TRG is committed to the development of technology solutions for the networking, storage and clustering markets. For information on Timpanogas Research Group, its products and services, visit TRG's web site at www.timpanogas.com. 
-
-Note: Timpanogas Research Group, TRG and FENRIS are trademarks of Timpanogas Research Group, Inc., in the United States and other countries. All other registered trademarks, trademarks and service marks are the property of their respective owners.
-# # #
-Press Contact:
-Jeff Merkey
-Timpanogas Research Group, Inc.
-Phone: (801) 222-9129
-Cell: (801) 361-9907
-Internet: jmerkey@timpanogas.com
-
---------------BBAB65B43F5D49EA2007C091--
-
+A+,
+-- 
+	Thierry Danis
+# rm *;o
+o : commande non trouvée
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

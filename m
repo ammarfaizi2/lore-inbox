@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262648AbTCPKlG>; Sun, 16 Mar 2003 05:41:06 -0500
+	id <S262650AbTCPLBv>; Sun, 16 Mar 2003 06:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262649AbTCPKlG>; Sun, 16 Mar 2003 05:41:06 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:7577 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S262648AbTCPKlE>; Sun, 16 Mar 2003 05:41:04 -0500
-From: David Woodhouse <dwmw2@infradead.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Fowler <cfowler@outpostsentinel.com>,
-       Robert White <rwhite@casabyte.com>, Ed Vance <EdV@macrolink.com>,
-       "'Linux PPP'" <linuxppp@indiainfo.com>, linux-serial@vger.kernel.org,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030316103517.B14404@flint.arm.linux.org.uk>
-References: <PEEPIDHAKMCGHDBJLHKGGECKCDAA.rwhite@casabyte.com>
-	 <1047598241.5292.2.camel@hp.outpostsentinel.com>
-	 <1047732394.20703.10.camel@imladris.demon.co.uk>
-	 <1047776160.1327.0.camel@irongate.swansea.linux.org.uk>
-	 <1047809131.22070.33.camel@imladris.demon.co.uk>
-	 <20030316103517.B14404@flint.arm.linux.org.uk>
-Message-Id: <1047811906.22070.44.camel@imladris.demon.co.uk>
+	id <S262653AbTCPLBv>; Sun, 16 Mar 2003 06:01:51 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:45316 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262650AbTCPLBv>;
+	Sun, 16 Mar 2003 06:01:51 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cpu-2.5.64-1 
+In-reply-to: Your message of "Sun, 16 Mar 2003 02:10:55 -0800."
+             <20030316101055.GG20188@holomorphy.com> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.1.99 (dwmw2) (Preview Release)
-Date: 16 Mar 2003 10:51:47 +0000
-Subject: Re: RS485 communication
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 16 Mar 2003 22:12:24 +1100
+Message-ID: <17275.1047813144@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-16 at 10:35, Russell King wrote
-> No - that's not how RS485 works.  With a balanced line, the result
-> that any one receiver will see will depend on it's position on the
-> line and the relative distance to each transmitter, the resistance
-> of the line, and the manufacturer/type of the RS485 transceiver.
-> In other words, the state you see is indeterminent.
+On Sun, 16 Mar 2003 02:10:55 -0800, 
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>On Sun, Mar 16, 2003 at 08:19:31PM +1100, Keith Owens wrote:
+>> Good, it lets us optimize for 1/32/64/lots of cpus.  NR_CPUS > 8 *
+>> sizeof(unsigned long) is the interesting case, it needs arrays.
+>
+>Hmm. It shouldn't make a difference with respect to optimizing them.
+>My API passes transparently by reference:
+>#define cpu_isset(cpu, map)		test_bit(cpu, (map).mask)
 
-Ah, OK. Then I must have been mistaken in thinking that CAN was based on
-RS485 -- or mistaken in remembering that that's how CAN does collision
-avoidance I suppose, but I suspect the former is more likely.
+Some of the 64 bit archs implement test_bit() as taking int * instead
+of long *.  That generates unoptimized code for the case of NR_CPUS <
+64.
 
-Thanks for the correction.
+#if NR_CPUS < 64
+#define cpu_isset(cpu, map)		(map.mask & (1UL << (cpu)))
+...
 
--- 
-dwmw2
-
+generates better code on those architectures.  Yet another special case :(
 

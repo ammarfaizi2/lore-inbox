@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVAXETr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVAXEWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVAXETr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 23:19:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVAXETr
+	id S261435AbVAXEWo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 23:22:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVAXEWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 23:19:47 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:58840 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261426AbVAXETq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 23:19:46 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-Date: Mon, 24 Jan 2005 15:19:41 +1100
+	Sun, 23 Jan 2005 23:22:44 -0500
+Received: from web60606.mail.yahoo.com ([216.109.118.244]:37209 "HELO
+	web60606.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261435AbVAXEWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 23:22:41 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=08iAFy8buwJtIlT4b+2zmJ7xx6xqaLN2SkMzKrc6Ay8a94dQgDCsmsXPpEqxSLG7li2aqoWDWmmDp8OaPQuvQWBe0OX+lWQ4Rp5nMgW1w4BKAIqy5eIxWL7W6ffRfS4nKU2JtTOiH8/dzMg6yaMocqouWVDglCO173c/G6mA/pE=  ;
+Message-ID: <20050124042241.44427.qmail@web60606.mail.yahoo.com>
+Date: Sun, 23 Jan 2005 20:22:41 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: Help Regarding putting my module into the kernel
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16884.30557.631532.32864@cse.unsw.edu.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: md and RAID 5 [was Re: LVM2]
-In-Reply-To: message from Trever L. Adams on Friday January 21
-References: <1106250687.3413.6.camel@localhost.localdomain>
-	<1106336028.3369.4.camel@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday January 21, tadams-lists@myrealbox.com wrote:
-> Thank you all for having been so kind in your responses and help.
-> 
-> However, there is one more set of questions I have.
-> 
-> Does the md (software raid) have disk size or raid volume limits?
+Hello linux-experts,
+     I am intercepting a few syscalls in kernel
+2.4.28. My module name is rsched.c. To put it in the
+kernel, I created a new subdirectory with the name
+rsched under /linux-2.4.28 source directory. I created
+the Makefile for it. I included the rsched
+subdirectory in the list of  kernel subdirectories in
+the toplevel Makefile as
+  SUDIRS := (all-available subdirectories) rsched
+     But when I build the kernel depmod showed the
+following error:
 
-2^31 sectors for individual disks.  Arrays do not have this limit.
+  depmod: cannot read ELF header from
+/lib/modules/2.4.28-rsched/kernel/rsched/rsched.o
 
-> 
-> If I am using such things as USB or 1394 disks, is there a way to use
-> labels in /etc/raidtab and with the tools so that when the disks, if
-> they do, get renumbered in /dev that all works fine. I am aware that the
-> kernel will autodetect these devices, but that the raidtab needs to be
-> consistent. This is what I am trying to figure out how to do.
+   How can I correct it and add my module into the
+kernel?
+  Can anyone help me regarding this? I have also
+attached the Makefile here.
 
-Scrap raidtools and /etc/raidtab.  Explore "mdadm" and /etc/mdadm.conf
+Thanks,
+selva
 
-NeilBrown
+Makefile
+--------
+O_TARGET := rsched.o
+
+
+obj-m   := $(O_TARGET)
+
+include $(TOPDIR)/Rules.make
+----------
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

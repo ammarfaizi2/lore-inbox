@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUHBRIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266643AbUHBRJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266663AbUHBRIo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 13:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266643AbUHBRIo
+	id S266643AbUHBRJx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 13:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266666AbUHBRJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 13:08:44 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:18414 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S266663AbUHBRIe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 13:08:34 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] 2.6.8-rc2-mm2 with usb and input problems
-Date: Mon, 2 Aug 2004 10:03:42 -0700
-User-Agent: KMail/1.6.2
-Cc: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-References: <20040802162845.GA24725@gamma.logic.tuwien.ac.at>
-In-Reply-To: <20040802162845.GA24725@gamma.logic.tuwien.ac.at>
-MIME-Version: 1.0
+	Mon, 2 Aug 2004 13:09:53 -0400
+Received: from holomorphy.com ([207.189.100.168]:58541 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266643AbUHBRI5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 13:08:57 -0400
+Date: Mon, 2 Aug 2004 10:08:43 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: sfr@ozlabs.org, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: Re: [PATCH] [ppc64] watch IOMMU virtual merging
+Message-ID: <20040802170843.GI2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Anton Blanchard <anton@samba.org>, sfr@ozlabs.org,
+	linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
+	benh@kernel.crashing.org
+References: <20040802164448.GN30253@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408021003.42090.david-b@pacbell.net>
+In-Reply-To: <20040802164448.GN30253@krispykreme>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 August 2004 09:28, Norbert Preining wrote:
+On Tue, Aug 03, 2004 at 02:44:48AM +1000, Anton Blanchard wrote:
+> Heres a quick patch to watch IOMMU virtual merging on ppc64. The column
+> on the left is the SG list before virtual merging and the one on the
+> right is after virtual merging.
+> Also attached is a sample of a dd from a disk. One interesting thing to
+> note is that the merging is worse than on earlier 2.6 kernels. The dd
+> test would show only 1 segment SG lists on the way out, now we have a
+> range of 1-8 segment SG lists.
 
-> - USB deadlocking
->   USB is still deadlocky, quite often process hang in D+ state.
+Okay, this is not encouraging.
 
-So what does alt-sysrq-t show you about those processes?
-How do you reproduce these hangs?  I'm guesssing that
-And does 2.6.8-rc (without the MM patch) acts the same.
 
- 
-> - psmouse/synaptics
->   If I have usb as module, I cannot get synaptics to be recognized.
+On Tue, Aug 03, 2004 at 02:44:48AM +1000, Anton Blanchard wrote:
+> I think the change in the page allocator to attempt to allocate memory
+> in increasing addresses (which improves physical merging a lot) is
+> causing this. In doing so we end up with some really large SG entries
+> (greater than 15 pages) and the largealloc path in the ppc64 IOMMU code
+> kicks in and allocates it in another region of TCE space. This makes it
+> impossible to merge with a smaller allocation either before or after it.
+> The other problem with large SG list entries is that IOMMU space
+> exhaustion could prevent it from being mapped, while it would fit if no
+> physical merging had taken place. One option is to disable physical
+> merging for ppc64 but there are trade offs (eg physical merging allows
+> us to allocate smaller SG lists).
+> We have discussed these issues before, but its interesting to have some
+> data to analyse.
 
-Odd.  BIOS settings maybe?
+This is a rather painful state of affairs. I'm not convinced external
+fragmentation in the IOMMU address space is insurmountable as the
+physically contiguous segments can (in principle; the mechanics of
+ramming this through the IO subsystem are another matter entirely) be
+IO-mapped in a bus-discontiguous fashion.
 
->    (or is a modular USB not necessary for S2R now that
->   we have CONFIG_USB_SUSPEND?)
+I'm not familiar with the TCE space regions; could you describe or
+point to documentation for the semantics there?
 
-The S2R issue is caused by delivering bogus PCI
-device power states to PCI drivers.  See if the patch
-in http://bugme.osdl.org/show_bug.cgi?id=2886
-helps at all.  (It might be better to map STANDBY
-to D0 state, so long as nobody's actually checking
-PCI config space there to see if D1 or D2 works.)
+My first thought is to artificially limit the amount of physical
+merging (hopefully to some nonzero amount instead of disabling it
+entirely) allowed to take place in order to allow for better virtual
+merging.
 
-If you don't actually have code trying to suspend
-USB devices, don't enable it.  Until some other
-issues in the PM core get resolved (notably its
-eagerness to self-deadlock) that's purely for use
-by developers.
 
-- Dave
+-- wli

@@ -1,292 +1,470 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbUDNVwk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 17:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbUDNVwk
+	id S261832AbUDNWQk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 18:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbUDNWQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 17:52:40 -0400
-Received: from mail.kroah.org ([65.200.24.183]:3730 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261857AbUDNVwX (ORCPT
+	Wed, 14 Apr 2004 18:16:38 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:24240 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S261832AbUDNWQK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 17:52:23 -0400
-Date: Wed, 14 Apr 2004 14:51:47 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB update for 2.6.5
-Message-ID: <20040414215146.GA25126@kroah.com>
+	Wed, 14 Apr 2004 18:16:10 -0400
+Date: Wed, 14 Apr 2004 15:16:08 -0700
+To: "David S. Miller" <davem@redhat.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6 IrDA] Convert vlsi_ir /proc/driver to seq_file
+Message-ID: <20040414221608.GB5434@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ir265_vlsi_proc.diff :
+~~~~~~~~~~~~~~~~~~~~
+		<Patch from Stephen Hemminger>
+	o [FEATURE] Convert vlsi_ir /proc/driver to single seq_file method.
 
-Here are some USB patches for 2.6.5.  Almost all of these have been in
-the -mm tree for a number of weeks now (the exceptions being the last 4
-patches, to the speedtouch driver, and a security fix which has been in
-the WOLK kernel for a while.)
 
-Here are the main types of changes:
-	- bugfixes.  Lots of these that have been reported numerous
-	  times on lkml.
-	- uhci fixes
-	- gadget driver updates and additions
-	- new device ids
-	- lots of misc small cleanups
-
-Please pull from:  bk://linuxusb.bkbits.net/usb-2.6
-
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
-
-thanks,
-
-greg k-h
-
- arch/arm/configs/neponset_defconfig               |    2 
- arch/ia64/configs/generic_defconfig               |    2 
- arch/ia64/configs/zx1_defconfig                   |    2 
- arch/ia64/defconfig                               |    2 
- arch/mips/configs/rm200_defconfig                 |    1 
- arch/parisc/configs/c3000_defconfig               |    2 
- arch/parisc/defconfig                             |    1 
- arch/ppc64/configs/pSeries_defconfig              |    2 
- arch/ppc64/defconfig                              |    2 
- arch/ppc/configs/adir_defconfig                   |    1 
- arch/ppc/configs/common_defconfig                 |    2 
- arch/ppc/configs/lopec_defconfig                  |    1 
- arch/ppc/configs/pmac_defconfig                   |    2 
- arch/ppc/configs/sandpoint_defconfig              |    1 
- arch/ppc/defconfig                                |    2 
- Documentation/input/ff.txt                        |    2 
- Documentation/input/input.txt                     |   70 
- Documentation/input/joystick.txt                  |    4 
- Documentation/usb/linux.inf                       |  200 ++
- drivers/isdn/hisax/hfc_usb.c                      |    8 
- drivers/isdn/hisax/st5481_b.c                     |    6 
- drivers/isdn/hisax/st5481_d.c                     |    8 
- drivers/isdn/hisax/st5481_init.c                  |    4 
- drivers/isdn/hisax/st5481_usb.c                   |   26 
- drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |   13 
- drivers/usb/core/config.c                         |  462 +++---
- drivers/usb/core/devices.c                        |    8 
- drivers/usb/core/devio.c                          |  172 +-
- drivers/usb/core/driverfs.c                       |   39 
- drivers/usb/core/hcd.c                            |   21 
- drivers/usb/core/hcd.h                            |    4 
- drivers/usb/core/hcd-pci.c                        |   22 
- drivers/usb/core/hub.c                            |  188 +-
- drivers/usb/core/hub.h                            |   20 
- drivers/usb/core/message.c                        |   77 -
- drivers/usb/core/usb.c                            |  175 +-
- drivers/usb/core/usb.h                            |    4 
- drivers/usb/gadget/dummy_hcd.c                    | 1681 +++++++++++++++++++++-
- drivers/usb/gadget/epautoconf.c                   |  314 ++++
- drivers/usb/gadget/ether.c                        | 1553 ++++++++++++++------
- drivers/usb/gadget/file_storage.c                 |  454 ++---
- drivers/usb/gadget/gadget_chips.h                 |    6 
- drivers/usb/gadget/goku_udc.c                     |    3 
- drivers/usb/gadget/Kconfig                        |   49 
- drivers/usb/gadget/Makefile                       |   16 
- drivers/usb/gadget/ndis.h                         |  187 ++
- drivers/usb/gadget/net2280.c                      |    4 
- drivers/usb/gadget/pxa2xx_udc.c                   |    8 
- drivers/usb/gadget/rndis.c                        | 1384 ++++++++++++++++++
- drivers/usb/gadget/rndis.h                        |  319 ++++
- drivers/usb/gadget/serial.c                       |   21 
- drivers/usb/gadget/usbstring.c                    |    1 
- drivers/usb/gadget/zero.c                         |  211 +-
- drivers/usb/host/ehci-dbg.c                       |    6 
- drivers/usb/host/ehci.h                           |   40 
- drivers/usb/host/ehci-hcd.c                       |   58 
- drivers/usb/host/ehci-hub.c                       |   18 
- drivers/usb/host/ehci-q.c                         |   15 
- drivers/usb/host/Kconfig                          |   11 
- drivers/usb/host/ohci-hcd.c                       |    7 
- drivers/usb/host/ohci-q.c                         |   12 
- drivers/usb/host/uhci-debug.c                     |   22 
- drivers/usb/host/uhci-hcd.c                       |  294 ---
- drivers/usb/host/uhci-hcd.h                       |   44 
- drivers/usb/input/aiptek.c                        |    2 
- drivers/usb/input/ati_remote.c                    |   60 
- drivers/usb/input/hiddev.c                        |   80 -
- drivers/usb/input/kbtab.c                         |    2 
- drivers/usb/input/Kconfig                         |    2 
- drivers/usb/input/Makefile                        |   16 
- drivers/usb/input/powermate.c                     |    2 
- drivers/usb/input/wacom.c                         |    2 
- drivers/usb/input/xpad.c                          |    2 
- drivers/usb/Makefile                              |    3 
- drivers/usb/media/Kconfig                         |    2 
- drivers/usb/media/vicam.c                         |   14 
- drivers/usb/media/w9968cf.c                       |   12 
- drivers/usb/misc/cytherm.c                        |  433 +++++
- drivers/usb/misc/Kconfig                          |   13 
- drivers/usb/misc/Makefile                         |    3 
- drivers/usb/misc/speedtch.c                       |   51 
- drivers/usb/misc/usbtest.c                        |    3 
- drivers/usb/net/Kconfig                           |    2 
- drivers/usb/net/rtl8150.c                         |  115 +
- drivers/usb/net/usbnet.c                          |    3 
- drivers/usb/serial/ftdi_sio.c                     |   96 +
- drivers/usb/serial/ftdi_sio.h                     |   49 
- drivers/usb/serial/io_ti.c                        |    2 
- drivers/usb/serial/kobil_sct.c                    |   16 
- drivers/usb/serial/omninet.c                      |    4 
- drivers/usb/serial/pl2303.c                       |   10 
- drivers/usb/serial/visor.c                        |   65 
- drivers/usb/serial/whiteheat.c                    |   11 
- drivers/usb/storage/datafab.c                     |    4 
- drivers/usb/storage/transport.c                   |    5 
- drivers/usb/storage/unusual_devs.h                |   42 
- drivers/usb/usb-skeleton.c                        |    2 
- include/linux/pci_ids.h                           |    6 
- include/linux/usb_ch9.h                           |   14 
- include/linux/usb_gadget.h                        |    9 
- include/linux/usb.h                               |   25 
- 101 files changed, 7553 insertions(+), 1925 deletions(-)
------
-
-<alessandro.zummo:towertech.it>:
-  o USB: omninet patch
-
-<coreyed:linxtechnologies.com>:
-  o USB: add ftdi_sio product ids
-
-<erik:rigtorp.com>:
-  o USB: new cypress thermometer driver
-
-<info:gudeads.com>:
-  o USB: more ftdi_sio ids
-
-<jan:ccsinfo.com>:
-  o USB: more ftdi devices
-
-<m.c.p:kernel.linux-systeme.com>:
-  o USB: fix CAN-2004-0075
-
-<mail:gude.info>:
-  o USB: FTDI 232BM "USB-RS232 OptoBridge"
-
-<martin.lubich:gmx.at>:
-  o USB: Patch for Clie TH55 Support in visor kernel module
-
-<mochel:digitalimplant.org>:
-  o USB:  Fix drivers/usb/net/Kconfig
-
-<patrick.boettcher:desy.de>:
-  o USB: fix bug in usb-skeleton.c
-
-<rml:ximian.com>:
-  o USB: add missing usb entries to sysfs
-
-<thoffman:arnor.net>:
-  o USB: fix race in ati_remote and small cleanup
-
-Alan Stern:
-  o USB: Updated unusual_dev.h entry
-  o USB Gadget: Rename the dummy_hcd's gadget
-  o USB: Complete all URBs in UHCI when releasing the bus
-  o USB Gadget: Use automatic endpoint selection in file-storage
-  o USB Gadget: Use configuration-buffer library in file-storage
-  o USB: Altsetting update for USB input drivers
-  o USB: Add dummy_hcd to the main kernel
-  o USB: UHCI: Get rid of excessive spinlocks
-  o USB: UHCI: Improved handling of short control transfers
-  o USB: UHCI: Do short packet detection correctly
-  o USB: Don't trust raw descriptor length in devioc
-  o USB: Unusual_devs.h update
-  o USB: Regularize unusual_devs entries for Genesys Logic
-  o USB: Unusual_devs update
-  o USB: Code improvements for core/config.c
-  o USB: Improve core/config.c error messages
-
-Andrew Morton:
-  o USB: drivers/usb/gadget/epautoconf.c gcc-3.5 build fix
-
-Andries E. Brouwer:
-  o USB Storage: datafab fix and unusual devices
-
-Arjan van de Ven:
-  o USB: fix race in whiteheat serial driver
-  o USB: usb hiddev stack usage patch
-
-Dave Jones:
-  o USB: w9968cf driver misplaced ;
-  o USB: kill off CONFIG_USB_BRLVGER detritus
-
-David Brownell:
-  o USB: fix xsane breakage, hangs on device scan at launch
-  o USB: retry some descriptor fetches
-  o USB: usbcore blinkenlights
-  o USB Gadget: ethernet/rndis gadget updates
-  o USB: ehci updates:  CONFIG_PCI, integrated TT
-  o USB: remove usb_interface.driver field
-  o USB: RNDIS/Ethernet Gadget Driver .inf file
-  o USB: fix dvb-ttusb-budget driver due to set_configuration locking cleanups
-  o USB: RNDIS/Ethernet Gadget Driver comment changes
-  o USB: set_configuration locking cleanups
-  o USB Gadget: RNDIS/Ethernet Gadget Driver (2/2)
-  o USB Gadget: RNDIS/Ethernet Gadget Driver (1/2)
-  o USB: ohci unlink tweaks
-  o USB: usb/core/config.c null pointers after kfree
-  o USB; minor usbfs locking updates
-  o USB: ohci misc updates
-  o USB: g_ether does endpoint autoconfig too
-  o USB: usbnet, minor probe() fault fix
-  o USB: define USB feature bit indices
-  o USB: fix osdl bugid 2006 (timer init and fault paths)
-  o USB: fix osdl bugid 481 (USB boot messages)
-  o USB: USB gadgets can autoconfigure endpoints
-  o USB: gadget zero does endpoint autoconfig
-
-Deepak Saxena:
-  o IXP425 -> IXP4XX conversion for USB-gadget
-
-Duncan Sands:
-  o USB speedtouch: bump the version number
-  o USB speedtouch: fix memory leak in error path
-  o USB speedtouch: turn on debugging if CONFIG_USB_DEBUG is set
-
-Greg Kroah-Hartman:
-  o USB: fix empty write issue in pl2303 driver
-  o USB: fix pl2303 handling of status bits
-  o USB: fix up previous sysfs patch to actually compile
-  o USB: add usb_get_intf() and usb_put_intf() functions as they will be needed
-  o USB: clean up usb_get_dev() as it was written quite horribly
-  o USB: remove "released" field from struct usb_interface as it is not needed
-  o USB: fix compiler warning in whiteheat driver
-  o USB: ftdi_sio merge fixups
-  o USB: mark pwc driver as broken, as it is
-  o USB: add cytherm driver to the build
-
-Luca Tettamanti:
-  o USB: New ID for ftdi_sio
-
-Marcel Holtmann:
-  o USB: Rename the USB HID driver
-
-Meelis Roos:
-  o USB: fix whiteheat USB serial compile failure on PPC
-
-Michael Still:
-  o USB: kernel-doc comment tweak in vicam.c
-  o USB: kernel-doc comment tweak
-
-Oliver Neukum:
-  o USB: fix hfc_usb sleeping in irq
-  o USB: fix typo in previous patch
-  o USB: cleanup of st5481
-  o USB: fix DMA to stack in ftdi driver
-  o USB: fix error paths in kobil_sct
-  o USB: race condition in open of w9968cf
-
-Paulo Marques:
-  o USB: ftdi_sio.c: not unlinking urb on ftdi_close
-
-Petko Manolov:
-  o USB: rtl8150 update
-
+diff -u -p linux/drivers/net/irda/vlsi_ir.d0.c linux/drivers/net/irda/vlsi_ir.c
+--- linux/drivers/net/irda/vlsi_ir.d0.c	Wed Apr  7 14:54:04 2004
++++ linux/drivers/net/irda/vlsi_ir.c	Wed Apr  7 18:34:42 2004
+@@ -44,6 +44,7 @@ MODULE_LICENSE("GPL");
+ #include <linux/delay.h>
+ #include <linux/time.h>
+ #include <linux/proc_fs.h>
++#include <linux/seq_file.h>
+ #include <linux/smp_lock.h>
+ #include <asm/uaccess.h>
+ #include <asm/byteorder.h>
+@@ -160,72 +161,64 @@ static struct proc_dir_entry *vlsi_proc_
+ 
+ #ifdef CONFIG_PROC_FS
+ 
+-static int vlsi_proc_pdev(struct pci_dev *pdev, char *buf, int len)
++static void vlsi_proc_pdev(struct seq_file *seq, struct pci_dev *pdev)
+ {
+ 	unsigned iobase = pci_resource_start(pdev, 0);
+ 	unsigned i;
+-	char *out = buf;
+ 
+-	if (len < 500)
+-		return 0;
+-
+-	out += sprintf(out, "\n%s (vid/did: %04x/%04x)\n",
+-			PCIDEV_NAME(pdev), (int)pdev->vendor, (int)pdev->device);
+-	out += sprintf(out, "pci-power-state: %u\n", (unsigned) pdev->current_state);
+-	out += sprintf(out, "resources: irq=%u / io=0x%04x / dma_mask=0x%016Lx\n",
+-			pdev->irq, (unsigned)pci_resource_start(pdev, 0), (unsigned long long)pdev->dma_mask);
+-	out += sprintf(out, "hw registers: ");
++	seq_printf(seq, "\n%s (vid/did: %04x/%04x)\n",
++		   PCIDEV_NAME(pdev), (int)pdev->vendor, (int)pdev->device);
++	seq_printf(seq, "pci-power-state: %u\n", (unsigned) pdev->current_state);
++	seq_printf(seq, "resources: irq=%u / io=0x%04x / dma_mask=0x%016Lx\n",
++		   pdev->irq, (unsigned)pci_resource_start(pdev, 0), (unsigned long long)pdev->dma_mask);
++	seq_printf(seq, "hw registers: ");
+ 	for (i = 0; i < 0x20; i++)
+-		out += sprintf(out, "%02x", (unsigned)inb((iobase+i)));
+-	out += sprintf(out, "\n");
+-	return out - buf;
++		seq_printf(seq, "%02x", (unsigned)inb((iobase+i)));
++	seq_printf(seq, "\n");
+ }
+ 		
+-static int vlsi_proc_ndev(struct net_device *ndev, char *buf, int len)
++static void vlsi_proc_ndev(struct seq_file *seq, struct net_device *ndev)
+ {
+ 	vlsi_irda_dev_t *idev = ndev->priv;
+-	char *out = buf;
+ 	u8 byte;
+ 	u16 word;
+ 	unsigned delta1, delta2;
+ 	struct timeval now;
+ 	unsigned iobase = ndev->base_addr;
+ 
+-	if (len < 1000)
+-		return 0;
+-
+-	out += sprintf(out, "\n%s link state: %s / %s / %s / %s\n", ndev->name,
++	seq_printf(seq, "\n%s link state: %s / %s / %s / %s\n", ndev->name,
+ 		netif_device_present(ndev) ? "attached" : "detached", 
+ 		netif_running(ndev) ? "running" : "not running",
+ 		netif_carrier_ok(ndev) ? "carrier ok" : "no carrier",
+ 		netif_queue_stopped(ndev) ? "queue stopped" : "queue running");
++
+ 	if (!netif_running(ndev))
+-		return out - buf;
++		return;
+ 
+-	out += sprintf(out, "\nhw-state:\n");
++	seq_printf(seq, "\nhw-state:\n");
+ 	pci_read_config_byte(idev->pdev, VLSI_PCI_IRMISC, &byte);
+-	out += sprintf(out, "IRMISC:%s%s%s uart%s",
++	seq_printf(seq, "IRMISC:%s%s%s uart%s",
+ 		(byte&IRMISC_IRRAIL) ? " irrail" : "",
+ 		(byte&IRMISC_IRPD) ? " irpd" : "",
+ 		(byte&IRMISC_UARTTST) ? " uarttest" : "",
+ 		(byte&IRMISC_UARTEN) ? "@" : " disabled\n");
+ 	if (byte&IRMISC_UARTEN) {
+-		out += sprintf(out, "0x%s\n",
++		seq_printf(seq, "0x%s\n",
+ 			(byte&2) ? ((byte&1) ? "3e8" : "2e8")
+ 				 : ((byte&1) ? "3f8" : "2f8"));
+ 	}
+ 	pci_read_config_byte(idev->pdev, VLSI_PCI_CLKCTL, &byte);
+-	out += sprintf(out, "CLKCTL: PLL %s%s%s / clock %s / wakeup %s\n",
++	seq_printf(seq, "CLKCTL: PLL %s%s%s / clock %s / wakeup %s\n",
+ 		(byte&CLKCTL_PD_INV) ? "powered" : "down",
+ 		(byte&CLKCTL_LOCK) ? " locked" : "",
+ 		(byte&CLKCTL_EXTCLK) ? ((byte&CLKCTL_XCKSEL)?" / 40 MHz XCLK":" / 48 MHz XCLK") : "",
+ 		(byte&CLKCTL_CLKSTP) ? "stopped" : "running",
+ 		(byte&CLKCTL_WAKE) ? "enabled" : "disabled");
+ 	pci_read_config_byte(idev->pdev, VLSI_PCI_MSTRPAGE, &byte);
+-	out += sprintf(out, "MSTRPAGE: 0x%02x\n", (unsigned)byte);
++	seq_printf(seq, "MSTRPAGE: 0x%02x\n", (unsigned)byte);
+ 
+ 	byte = inb(iobase+VLSI_PIO_IRINTR);
+-	out += sprintf(out, "IRINTR:%s%s%s%s%s%s%s%s\n",
++	seq_printf(seq, "IRINTR:%s%s%s%s%s%s%s%s\n",
+ 		(byte&IRINTR_ACTEN) ? " ACTEN" : "",
+ 		(byte&IRINTR_RPKTEN) ? " RPKTEN" : "",
+ 		(byte&IRINTR_TPKTEN) ? " TPKTEN" : "",
+@@ -235,16 +228,16 @@ static int vlsi_proc_ndev(struct net_dev
+ 		(byte&IRINTR_TPKTINT) ? " TPKTINT" : "",
+ 		(byte&IRINTR_OE_INT) ? " OE_INT" : "");
+ 	word = inw(iobase+VLSI_PIO_RINGPTR);
+-	out += sprintf(out, "RINGPTR: rx=%u / tx=%u\n", RINGPTR_GET_RX(word), RINGPTR_GET_TX(word));
++	seq_printf(seq, "RINGPTR: rx=%u / tx=%u\n", RINGPTR_GET_RX(word), RINGPTR_GET_TX(word));
+ 	word = inw(iobase+VLSI_PIO_RINGBASE);
+-	out += sprintf(out, "RINGBASE: busmap=0x%08x\n",
++	seq_printf(seq, "RINGBASE: busmap=0x%08x\n",
+ 		((unsigned)word << 10)|(MSTRPAGE_VALUE<<24));
+ 	word = inw(iobase+VLSI_PIO_RINGSIZE);
+-	out += sprintf(out, "RINGSIZE: rx=%u / tx=%u\n", RINGSIZE_TO_RXSIZE(word),
++	seq_printf(seq, "RINGSIZE: rx=%u / tx=%u\n", RINGSIZE_TO_RXSIZE(word),
+ 		RINGSIZE_TO_TXSIZE(word));
+ 
+ 	word = inw(iobase+VLSI_PIO_IRCFG);
+-	out += sprintf(out, "IRCFG:%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
++	seq_printf(seq, "IRCFG:%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
+ 		(word&IRCFG_LOOP) ? " LOOP" : "",
+ 		(word&IRCFG_ENTX) ? " ENTX" : "",
+ 		(word&IRCFG_ENRX) ? " ENRX" : "",
+@@ -259,7 +252,7 @@ static int vlsi_proc_ndev(struct net_dev
+ 		(word&IRCFG_TXPOL) ? " TXPOL" : "",
+ 		(word&IRCFG_RXPOL) ? " RXPOL" : "");
+ 	word = inw(iobase+VLSI_PIO_IRENABLE);
+-	out += sprintf(out, "IRENABLE:%s%s%s%s%s%s%s%s\n",
++	seq_printf(seq, "IRENABLE:%s%s%s%s%s%s%s%s\n",
+ 		(word&IRENABLE_PHYANDCLOCK) ? " PHYANDCLOCK" : "",
+ 		(word&IRENABLE_CFGER) ? " CFGERR" : "",
+ 		(word&IRENABLE_FIR_ON) ? " FIR_ON" : "",
+@@ -269,22 +262,22 @@ static int vlsi_proc_ndev(struct net_dev
+ 		(word&IRENABLE_ENRXST) ? " ENRXST" : "",
+ 		(word&IRENABLE_CRC16_ON) ? " CRC16_ON" : "");
+ 	word = inw(iobase+VLSI_PIO_PHYCTL);
+-	out += sprintf(out, "PHYCTL: baud-divisor=%u / pulsewidth=%u / preamble=%u\n",
++	seq_printf(seq, "PHYCTL: baud-divisor=%u / pulsewidth=%u / preamble=%u\n",
+ 		(unsigned)PHYCTL_TO_BAUD(word),
+ 		(unsigned)PHYCTL_TO_PLSWID(word),
+ 		(unsigned)PHYCTL_TO_PREAMB(word));
+ 	word = inw(iobase+VLSI_PIO_NPHYCTL);
+-	out += sprintf(out, "NPHYCTL: baud-divisor=%u / pulsewidth=%u / preamble=%u\n",
++	seq_printf(seq, "NPHYCTL: baud-divisor=%u / pulsewidth=%u / preamble=%u\n",
+ 		(unsigned)PHYCTL_TO_BAUD(word),
+ 		(unsigned)PHYCTL_TO_PLSWID(word),
+ 		(unsigned)PHYCTL_TO_PREAMB(word));
+ 	word = inw(iobase+VLSI_PIO_MAXPKT);
+-	out += sprintf(out, "MAXPKT: max. rx packet size = %u\n", word);
++	seq_printf(seq, "MAXPKT: max. rx packet size = %u\n", word);
+ 	word = inw(iobase+VLSI_PIO_RCVBCNT) & RCVBCNT_MASK;
+-	out += sprintf(out, "RCVBCNT: rx-fifo filling level = %u\n", word);
++	seq_printf(seq, "RCVBCNT: rx-fifo filling level = %u\n", word);
+ 
+-	out += sprintf(out, "\nsw-state:\n");
+-	out += sprintf(out, "IrPHY setup: %d baud - %s encoding\n", idev->baud, 
++	seq_printf(seq, "\nsw-state:\n");
++	seq_printf(seq, "IrPHY setup: %d baud - %s encoding\n", idev->baud, 
+ 		(idev->mode==IFF_SIR)?"SIR":((idev->mode==IFF_MIR)?"MIR":"FIR"));
+ 	do_gettimeofday(&now);
+ 	if (now.tv_usec >= idev->last_rx.tv_usec) {
+@@ -295,216 +288,110 @@ static int vlsi_proc_ndev(struct net_dev
+ 		delta2 = 1000000 + now.tv_usec - idev->last_rx.tv_usec;
+ 		delta1 = 1;
+ 	}
+-	out += sprintf(out, "last rx: %lu.%06u sec\n",
++	seq_printf(seq, "last rx: %lu.%06u sec\n",
+ 		now.tv_sec - idev->last_rx.tv_sec - delta1, delta2);	
+ 
+-	out += sprintf(out, "RX: packets=%lu / bytes=%lu / errors=%lu / dropped=%lu",
++	seq_printf(seq, "RX: packets=%lu / bytes=%lu / errors=%lu / dropped=%lu",
+ 		idev->stats.rx_packets, idev->stats.rx_bytes, idev->stats.rx_errors,
+ 		idev->stats.rx_dropped);
+-	out += sprintf(out, " / overrun=%lu / length=%lu / frame=%lu / crc=%lu\n",
++	seq_printf(seq, " / overrun=%lu / length=%lu / frame=%lu / crc=%lu\n",
+ 		idev->stats.rx_over_errors, idev->stats.rx_length_errors,
+ 		idev->stats.rx_frame_errors, idev->stats.rx_crc_errors);
+-	out += sprintf(out, "TX: packets=%lu / bytes=%lu / errors=%lu / dropped=%lu / fifo=%lu\n",
++	seq_printf(seq, "TX: packets=%lu / bytes=%lu / errors=%lu / dropped=%lu / fifo=%lu\n",
+ 		idev->stats.tx_packets, idev->stats.tx_bytes, idev->stats.tx_errors,
+ 		idev->stats.tx_dropped, idev->stats.tx_fifo_errors);
+ 
+-	return out - buf;
+ }
+ 		
+-static int vlsi_proc_ring(struct vlsi_ring *r, char *buf, int len)
++static void vlsi_proc_ring(struct seq_file *seq, struct vlsi_ring *r)
+ {
+ 	struct ring_descr *rd;
+ 	unsigned i, j;
+ 	int h, t;
+-	char *out = buf;
+-
+-	if (len < 3000)
+-		return 0;
+ 
+-	out += sprintf(out, "size %u / mask 0x%04x / len %u / dir %d / hw %p\n",
++	seq_printf(seq, "size %u / mask 0x%04x / len %u / dir %d / hw %p\n",
+ 		r->size, r->mask, r->len, r->dir, r->rd[0].hw);
+ 	h = atomic_read(&r->head) & r->mask;
+ 	t = atomic_read(&r->tail) & r->mask;
+-	out += sprintf(out, "head = %d / tail = %d ", h, t);
++	seq_printf(seq, "head = %d / tail = %d ", h, t);
+ 	if (h == t)
+-		out += sprintf(out, "(empty)\n");
++		seq_printf(seq, "(empty)\n");
+ 	else {
+ 		if (((t+1)&r->mask) == h)
+-			out += sprintf(out, "(full)\n");
++			seq_printf(seq, "(full)\n");
+ 		else
+-			out += sprintf(out, "(level = %d)\n", ((unsigned)(t-h) & r->mask)); 
++			seq_printf(seq, "(level = %d)\n", ((unsigned)(t-h) & r->mask)); 
+ 		rd = &r->rd[h];
+ 		j = (unsigned) rd_get_count(rd);
+-		out += sprintf(out, "current: rd = %d / status = %02x / len = %u\n",
++		seq_printf(seq, "current: rd = %d / status = %02x / len = %u\n",
+ 				h, (unsigned)rd_get_status(rd), j);
+ 		if (j > 0) {
+-			out += sprintf(out, "   data:");
++			seq_printf(seq, "   data:");
+ 			if (j > 20)
+ 				j = 20;
+ 			for (i = 0; i < j; i++)
+-				out += sprintf(out, " %02x", (unsigned)((unsigned char *)rd->buf)[i]);
+-			out += sprintf(out, "\n");
++				seq_printf(seq, " %02x", (unsigned)((unsigned char *)rd->buf)[i]);
++			seq_printf(seq, "\n");
+ 		}
+ 	}
+ 	for (i = 0; i < r->size; i++) {
+ 		rd = &r->rd[i];
+-		out += sprintf(out, "> ring descr %u: ", i);
+-		out += sprintf(out, "skb=%p data=%p hw=%p\n", rd->skb, rd->buf, rd->hw);
+-		out += sprintf(out, "  hw: status=%02x count=%u busaddr=0x%08x\n",
++		seq_printf(seq, "> ring descr %u: ", i);
++		seq_printf(seq, "skb=%p data=%p hw=%p\n", rd->skb, rd->buf, rd->hw);
++		seq_printf(seq, "  hw: status=%02x count=%u busaddr=0x%08x\n",
+ 			(unsigned) rd_get_status(rd),
+ 			(unsigned) rd_get_count(rd), (unsigned) rd_get_addr(rd));
+ 	}
+-	return out - buf;
+ }
+ 
+-static int vlsi_proc_print(struct net_device *ndev, char *buf, int len)
++static int vlsi_seq_show(struct seq_file *seq, void *v)
+ {
+-	vlsi_irda_dev_t *idev;
++	struct net_device *ndev = seq->private;
++	vlsi_irda_dev_t *idev = ndev->priv;
+ 	unsigned long flags;
+-	char *out = buf;
+-
+-	if (!ndev || !ndev->priv) {
+-		ERROR("%s: invalid ptr!\n", __FUNCTION__);
+-		return 0;
+-	}
+-
+-	idev = ndev->priv;
+ 
+-	if (len < 8000)
+-		return 0;
+-
+-	out += sprintf(out, "\n%s %s\n\n", DRIVER_NAME, DRIVER_VERSION);
+-	out += sprintf(out, "clksrc: %s\n", 
++	seq_printf(seq, "\n%s %s\n\n", DRIVER_NAME, DRIVER_VERSION);
++	seq_printf(seq, "clksrc: %s\n", 
+ 		(clksrc>=2) ? ((clksrc==3)?"40MHz XCLK":"48MHz XCLK")
+ 			    : ((clksrc==1)?"48MHz PLL":"autodetect"));
+-	out += sprintf(out, "ringsize: tx=%d / rx=%d\n",
++	seq_printf(seq, "ringsize: tx=%d / rx=%d\n",
+ 		ringsize[0], ringsize[1]);
+-	out += sprintf(out, "sirpulse: %s\n", (sirpulse)?"3/16 bittime":"short");
+-	out += sprintf(out, "qos_mtt_bits: 0x%02x\n", (unsigned)qos_mtt_bits);
++	seq_printf(seq, "sirpulse: %s\n", (sirpulse)?"3/16 bittime":"short");
++	seq_printf(seq, "qos_mtt_bits: 0x%02x\n", (unsigned)qos_mtt_bits);
+ 
+ 	spin_lock_irqsave(&idev->lock, flags);
+ 	if (idev->pdev != NULL) {
+-		out += vlsi_proc_pdev(idev->pdev, out, len - (out-buf));
++		vlsi_proc_pdev(seq, idev->pdev);
++
+ 		if (idev->pdev->current_state == 0)
+-			out += vlsi_proc_ndev(ndev, out, len - (out-buf));
++			vlsi_proc_ndev(seq, ndev);
+ 		else
+-			out += sprintf(out, "\nPCI controller down - resume_ok = %d\n",
++			seq_printf(seq, "\nPCI controller down - resume_ok = %d\n",
+ 				idev->resume_ok);
+ 		if (netif_running(ndev) && idev->rx_ring && idev->tx_ring) {
+-			out += sprintf(out, "\n--------- RX ring -----------\n\n");
+-			out += vlsi_proc_ring(idev->rx_ring, out, len - (out-buf));
+-			out += sprintf(out, "\n--------- TX ring -----------\n\n");
+-			out += vlsi_proc_ring(idev->tx_ring, out, len - (out-buf));
++			seq_printf(seq, "\n--------- RX ring -----------\n\n");
++			vlsi_proc_ring(seq, idev->rx_ring);
++			seq_printf(seq, "\n--------- TX ring -----------\n\n");
++			vlsi_proc_ring(seq, idev->tx_ring);
+ 		}
+ 	}
+-	out += sprintf(out, "\n");
++	seq_printf(seq, "\n");
+ 	spin_unlock_irqrestore(&idev->lock, flags);
+ 
+-	return out - buf;
+-}
+-
+-struct vlsi_proc_data {
+-	int size;
+-	char *data;
+-};
+-
+-/* most of the proc-fops code borrowed from usb/uhci */
+-
+-static int vlsi_proc_open(struct inode *inode, struct file *file)
+-{
+-	const struct proc_dir_entry *pde = PDE(inode);
+-	struct net_device *ndev = pde->data;
+-	vlsi_irda_dev_t *idev = ndev->priv;
+-	struct vlsi_proc_data *procdata;
+-	const int maxdata = 8000;
+-
+-	lock_kernel();
+-	procdata = kmalloc(sizeof(*procdata), GFP_KERNEL);
+-	if (!procdata) {
+-		unlock_kernel();
+-		return -ENOMEM;
+-	}
+-	procdata->data = kmalloc(maxdata, GFP_KERNEL);
+-	if (!procdata->data) {
+-		kfree(procdata);
+-		unlock_kernel();
+-		return -ENOMEM;
+-	}
+-
+-	down(&idev->sem);
+-	procdata->size = vlsi_proc_print(ndev, procdata->data, maxdata);
+-	up(&idev->sem);
+-
+-	file->private_data = procdata;
+-
+ 	return 0;
+ }
+ 
+-static loff_t vlsi_proc_lseek(struct file *file, loff_t off, int whence)
+-{
+-	struct vlsi_proc_data *procdata;
+-	loff_t new = -1;
+-
+-	lock_kernel();
+-	procdata = file->private_data;
+-
+-	switch (whence) {
+-	case 0:
+-		new = off;
+-		break;
+-	case 1:
+-		new = file->f_pos + off;
+-		break;
+-	}
+-	if (new < 0 || new > procdata->size) {
+-		unlock_kernel();
+-		return -EINVAL;
+-	}
+-	unlock_kernel();
+-	return (file->f_pos = new);
+-}
+-
+-static ssize_t vlsi_proc_read(struct file *file, char *buf, size_t nbytes,
+-			loff_t *ppos)
+-{
+-	struct vlsi_proc_data *procdata = file->private_data;
+-	unsigned int pos;
+-	unsigned int size;
+-
+-	pos = *ppos;
+-	size = procdata->size;
+-	if (pos >= size)
+-		return 0;
+-	if (nbytes >= size)
+-		nbytes = size;
+-	if (pos + nbytes > size)
+-		nbytes = size - pos;
+-
+-	if (copy_to_user(buf, procdata->data + pos, nbytes))
+-		return -EFAULT;
+-
+-	*ppos += nbytes;
+-
+-	return nbytes;
+-}
+-
+-static int vlsi_proc_release(struct inode *inode, struct file *file)
++static int vlsi_seq_open(struct inode *inode, struct file *file)
+ {
+-	struct vlsi_proc_data *procdata = file->private_data;
+-
+-	kfree(procdata->data);
+-	kfree(procdata);
+-
+-	return 0;
++	return single_open(file, vlsi_seq_show, PDE(inode)->data);
+ }
+ 
+ static struct file_operations vlsi_proc_fops = {
+-	/* protect individual procdir file entry against rmmod */
+-	.owner		= THIS_MODULE,
+-	.open		= vlsi_proc_open,
+-	.llseek		= vlsi_proc_lseek,
+-	.read		= vlsi_proc_read,
+-	.release	= vlsi_proc_release,
++	.owner	 = THIS_MODULE,
++	.open    = vlsi_seq_open,
++	.read    = seq_read,
++	.llseek  = seq_lseek,
++	.release = single_release,
+ };
+ 
+ #define VLSI_PROC_FOPS		(&vlsi_proc_fops)
+@@ -1787,13 +1674,12 @@ vlsi_irda_probe(struct pci_dev *pdev, co
+ 		ent = create_proc_entry(ndev->name, S_IFREG|S_IRUGO, vlsi_proc_root);
+ 		if (!ent) {
+ 			WARNING("%s: failed to create proc entry\n", __FUNCTION__);
+-		}
+-		else {
++		} else {
+ 			ent->data = ndev;
+ 			ent->proc_fops = VLSI_PROC_FOPS;
+ 			ent->size = 0;
+-			idev->proc_entry = ent;
+ 		}
++		idev->proc_entry = ent;
+ 	}
+ 	MESSAGE("%s: registered device %s\n", drivername, ndev->name);
+ 

@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262737AbRE3LZt>; Wed, 30 May 2001 07:25:49 -0400
+	id <S262742AbRE3Lsp>; Wed, 30 May 2001 07:48:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262738AbRE3LZj>; Wed, 30 May 2001 07:25:39 -0400
-Received: from [203.143.19.4] ([203.143.19.4]:63506 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S262737AbRE3LZY>;
-	Wed, 30 May 2001 07:25:24 -0400
-Date: Wed, 30 May 2001 17:23:25 +0600 (LKT)
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Robert Siemer <siemer@panorama.hadiko.de>
+	id <S262743AbRE3Lsg>; Wed, 30 May 2001 07:48:36 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:61386 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S262742AbRE3Lsa>; Wed, 30 May 2001 07:48:30 -0400
+Date: Wed, 30 May 2001 12:47:18 +0100 (BST)
+From: Mark Hemment <markhe@veritas.com>
+To: Jens Axboe <axboe@suse.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] compiler warning fix in aci.c
-In-Reply-To: <20010530113700W.siemer@panorama.hadiko.de>
-Message-ID: <Pine.LNX.4.21.0105301718480.22876-100000@presario>
+Subject: ll_rw_blk.c and high memory
+Message-ID: <Pine.LNX.4.21.0105301233390.7153-100000@alloc>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jens, all,
 
-On Wed, 30 May 2001, Robert Siemer wrote:
+  In drivers/block/ll_rw_blk.c:blk_dev_init(), the high and low queued
+sectors are calculated from the total number of free pages in all memory
+zones.  Shouldn't this calculation be passed upon the number of pages upon
+which I/O can be done directly (ie. without bounce pages)?
 
-> From: Anuradha Ratnaweera <anuradha@gnu.org>
->
-> > On Wed, 30 May 2001, Anuradha Ratnaweera wrote:
-> > 
-> > > Following patch fixes a compiler warning in aci.c.
-> > 
-> > I can guess the usefullness of the functiion print_bits that would be
-> > removed if my patch is applied. If this is so, how about putting it
-> > inside an "#ifdef DEBUG"?
-> 
-> This is exactly what I did some month ago with my little working tree.
+  On a box with gigabytes of memory, high_queued_sectors becomes larger
+than the amount of memory upon which block I/O can be directly done - the
+test in ll_rw_block() against high_queued_sectors is then never true.  The
+throttling of submitting I/O happens much earlier in the stack - at
+the allocation of a bounce page.  This doesn't seem right.
 
-So will you be adding the "#ifdef" again?
- 
-> Anyway: are you using some aci-supported hardware? Which one?
-
-No. I just compiled a kernel with a generic .config and noticed the
-compiler warning.
-
-Regards,
-
-Anuradha
-
-----------------------------------
-http://www.bee.lk/people/anuradha/
+Mark
 

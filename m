@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130387AbRAIQt2>; Tue, 9 Jan 2001 11:49:28 -0500
+	id <S129226AbRAIQui>; Tue, 9 Jan 2001 11:50:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131712AbRAIQtM>; Tue, 9 Jan 2001 11:49:12 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:22540 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S130387AbRAIQsy>;
-	Tue, 9 Jan 2001 11:48:54 -0500
-Date: Tue, 9 Jan 2001 17:48:32 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Christoph Hellwig <hch@caldera.de>,
-        "David S. Miller" <davem@redhat.com>, <riel@conectiva.com.br>,
-        <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <E14G1mB-0006vF-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0101091743090.5932-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131224AbRAIQu2>; Tue, 9 Jan 2001 11:50:28 -0500
+Received: from monza.monza.org ([209.102.105.34]:1294 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S129226AbRAIQuO>;
+	Tue, 9 Jan 2001 11:50:14 -0500
+Date: Tue, 9 Jan 2001 08:50:01 -0800
+From: Tim Wright <timw@splhi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>,
+        "'Pavel Machek'" <pavel@suse.cz>, adefacc@tin.it,
+        linux-kernel@vger.kernel.org, timw@splhi.com
+Subject: Re: Confirmation request about new 2.4.x. kernel limits
+Message-ID: <20010109085001.B2971@scutter.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Andi Kleen <ak@suse.de>,
+	Matti Aarnio <matti.aarnio@zmailer.org>,
+	Venkatesh Ramamurthy <Venkateshr@ami.com>,
+	'Pavel Machek' <pavel@suse.cz>, adefacc@tin.it,
+	linux-kernel@vger.kernel.org, timw@splhi.com
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95137@ATL_MS1> <20010109142156.L25659@mea-ext.zmailer.org> <20010109082749.A2971@scutter.internal.splhi.com> <20010109174446.A5602@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010109174446.A5602@gruyere.muc.suse.de>; from ak@suse.de on Tue, Jan 09, 2001 at 05:44:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 09, 2001 at 05:44:46PM +0100, Andi Kleen wrote:
+> On Tue, Jan 09, 2001 at 08:27:49AM -0800, Tim Wright wrote:
+> > you are correct in saying that ia32 systems don't have IOMMU hardware, but
+> > it's unfortunate that we don't support 64-bit PCI bus master cards, since
+> > they're inexpensive and fairly common now. For instance, the Qlogic ISP SCSI
+> > cards can do 64-bit addressing, as can many others. Has anybody taken a look
+> > at enabling this ?
+> 
+> Problem is that it needs a driver interface change and cooperation from the
+> drivers. 
+> 
+> -Andi
 
-On Tue, 9 Jan 2001, Alan Cox wrote:
+I thought as much. Sounds like 2.5 material really, although it might be
+interesting to see if I can make a patch to play with.
 
-> > > We have already shown that the IO-plugging API sucks, I'm afraid.
-> >
-> > it might not be important to others, but we do hold one particular
-> > SPECweb99 world record: on 2-way, 2 GB RAM, testing a load with a full
->
-> And its real world value is exactly the same as the mindcraft NT
-> values. Don't forget that.
+Regards,
 
-( what you have not quoted is the part that says that the fileset is 9GB.
-This is one of the busiest and most complex block-IO Linux systems i've
-ever seen, this is why i quoted it - the talk was about block-IO
-performance, and Stephen said that our block IO sucks. It used to suck,
-but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
+Tim
 
-	Ingo
-
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

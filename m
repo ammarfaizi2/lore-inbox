@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265305AbSJRS2m>; Fri, 18 Oct 2002 14:28:42 -0400
+	id <S265297AbSJRRjm>; Fri, 18 Oct 2002 13:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265343AbSJRS2m>; Fri, 18 Oct 2002 14:28:42 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38131 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S265305AbSJRS2k>;
-	Fri, 18 Oct 2002 14:28:40 -0400
-Message-ID: <3DB053C4.8458B0D8@mvista.com>
-Date: Fri, 18 Oct 2002 11:32:36 -0700
-From: Frank Rowand <frowand@mvista.com>
-Reply-To: frowand@mvista.com
-Organization: Montavista Software, Inc
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: karim@opersys.com
-CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [ltt-dev] [ANNOUNCE] LTT 0.9.6pre2: Per-CPU buffers, TSC timestamps, 
- etc.
-References: <3DAF850D.D104A6D@opersys.com>
+	id <S265279AbSJRR1X>; Fri, 18 Oct 2002 13:27:23 -0400
+Received: from blowme.phunnypharm.org ([65.207.35.140]:59398 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S265312AbSJRQ5h>; Fri, 18 Oct 2002 12:57:37 -0400
+Date: Fri, 18 Oct 2002 13:03:20 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.43
+Message-ID: <20021018170320.GA540@phunnypharm.org>
+References: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com> <Pine.NEB.4.44.0210181856330.28761-100000@mimas.fachschaften.tu-muenchen.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.NEB.4.44.0210181856330.28761-100000@mimas.fachschaften.tu-muenchen.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour wrote:
+On Fri, Oct 18, 2002 at 07:00:44PM +0200, Adrian Bunk wrote:
+> On Tue, 15 Oct 2002, Linus Torvalds wrote:
 > 
-> A new development version of LTT is now available, 0.9.6pre2.
-> Here's what's new:
-> - Per-CPU buffering
-> - TSC timestamping
-> - Use of syscall interface instead of char dev abstraction
+> >...
+> > Summary of changes from v2.5.42 to v2.5.43
+> > ============================================
+> >...
+> > Ben Collins <bcollins@debian.org>:
+> >   o Linux IEEE-1394 Updates
+> >...
 > 
-> The release includes a patch for 2.5.43 which is pretty much ready
-> for inclusion. I will be posting this patch raw ot the LKML with
-> a more verbose description.
-> 
-> You will find 0.9.6pre2 here:
-> http://www.opersys.com/ftp/pub/LTT/
+> This patch added an argument "flags" to the prototypes of
+> sbp2_handle_physdma_write and sbp2_handle_physdma_read in
+> drivers/ieee1394/sbp2.h but doesn't include the corresponding changes to
+> drivers/ieee1394/sbp2.c resulting in the following compile error:
 
-I noticed that the Linux 2.4.19 patch is not carried forward from
-pre1 to pre2.  Are you planning to no longer maintain support for
-LTT in the Linux 2.4 line?
+Ok. In the meantime, just disable PHY DMA for sbp2. It's a debug option
+anyway. Not meant for general purpose use.
 
--Frank
 -- 
-Frank Rowand <frank_rowand@mvista.com>
-MontaVista Software, Inc
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264633AbUEaXwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264788AbUFAAE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264633AbUEaXwk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 19:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUEaXwj
+	id S264788AbUFAAE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 20:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264852AbUFAAE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 19:52:39 -0400
-Received: from gate.crashing.org ([63.228.1.57]:51899 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264633AbUEaXwi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 19:52:38 -0400
-Subject: Re: misc device suspend/resume new model
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Florian Lohoff <flo@rfc822.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040531225744.GA6682@paradigm.rfc822.org>
-References: <20040531225744.GA6682@paradigm.rfc822.org>
-Content-Type: text/plain
-Message-Id: <1086047542.1996.76.camel@gaston>
+	Mon, 31 May 2004 20:04:26 -0400
+Received: from mailgw.aecom.yu.edu ([129.98.1.16]:63942 "EHLO
+	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP id S264788AbUFAAEZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 20:04:25 -0400
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 01 Jun 2004 09:52:23 +1000
-Content-Transfer-Encoding: 7bit
+Message-Id: <a06100505bce17827c3e8@[129.98.90.227]>
+Date: Mon, 31 May 2004 20:03:25 -0400
+To: linux-kernel@vger.kernel.org
+From: Maurice Volaski <mvolaski@aecom.yu.edu>
+Subject: Re: tg3 module in kernel 2.6.5 panics
+Cc: Jeff Garzik <jgarzik@pobox.com>, aj@andaco.de, davem@nuts.davemloft.net,
+       mchan@broadcom.com
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-06-01 at 08:57, Florian Lohoff wrote:
-> Hi,
-> what is the preferred way of getting suspend/resume events (new model)
-> with misc devices registered via misc_register.
-> 
-> Registering a sys_driver/device/class ?
+>Maurice Volaski wrote:
+>>The tg3 module in (gentoo) kernel 2.6.5 panics on boot on a 
+>>dual-opteron 248 box with 4G RAM. I copied the following screen 
+>>output...
+>
+>
+>This looks like kobject stuff unrelated to tg3.
+>
+>Does 2.6.6 fail similarly?
+>
+>	Jeff
 
-The suspend/resume events aren't propagated from the functional
-interface/class (which misc is), but from the bus binding. So you
-should get them from whatever bus your device is on, that is via
-a pci_dev for PCI devices, etc...
+So do 2.6.7-rc1 and rc2.
+-- 
 
-Ben.
-
-
+Maurice Volaski, mvolaski@aecom.yu.edu
+Computing Support, Rose F. Kennedy Center
+Albert Einstein College of Medicine of Yeshiva University

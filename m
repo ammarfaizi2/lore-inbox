@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUHCI2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264734AbUHCInA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUHCI2g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 04:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264734AbUHCI2g
+	id S264734AbUHCInA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 04:43:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUHCInA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 04:28:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50320 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264665AbUHCI1W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 04:27:22 -0400
-Subject: Re: Initial bits to help pull jiffies out of drivers
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Alan Cox <alan@redhat.com>
+	Tue, 3 Aug 2004 04:43:00 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:7849 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S264734AbUHCIm6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 04:42:58 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: Andrew Morton <akpm@osdl.org>
+Subject: 2.6.8-rc2-mm2 vs prune_dcache, -mm2 wins (I think)
+Date: Tue, 3 Aug 2004 04:42:56 -0400
+User-Agent: KMail/1.6.82
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040727195939.GA20712@devserv.devel.redhat.com>
-References: <20040727195939.GA20712@devserv.devel.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YrP7CZQDQNuG8jMzd6UW"
-Organization: Red Hat UK
-Message-Id: <1091521635.2816.7.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 03 Aug 2004 10:27:16 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200408030442.56644.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.12.17] at Tue, 3 Aug 2004 03:42:57 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings;
 
---=-YrP7CZQDQNuG8jMzd6UW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I noted there was a patch to fs/dcache.c in -mm2, so I built it.
 
-On Tue, 2004-07-27 at 21:59, Alan Cox wrote:
-> This is really for comment, the basic idea is to add some relative
-> timer functionality. This gives us timeout objects as well as pulling
-> jiffies use into one place in the timer code. The need for the old
-> interfaces never goes away however because some code uses a previous
-> event base to construct timeouts to avoid sliding due to the latency
-> between service and re-addition.
->=20
-> (please cc me on comments)
+I may be a bit premature here, but I seem to have made it thru the 4am 
+cron driven stuff without a killer Oops from prune_dcache and friends 
+such as I have posted several times about (but everyone was at 
+conventions)
 
-My gripe with this is that the interface still is relative-to-HZ time.
-I'm convinced that driver(writers) are better off with an absolute time
-interface, eg add_timeout_ms(), add_timeout_us() etc.
-(which btw also give a hint about the accuracy required, so that the
-kernel can group milisecond delays together even when they got scheduled
-at different usecs, once we get timers that accurate)
+I had those with 2.6.7, but they were generally not fatal.  Starting 
+with 2.6.7-mm1, they generally were fatal to the whole machine, in 
+one instance requireing a full powerdown before it would reboot.
 
+>From 2.6.7-mm1 on most of the time it didn't make it to the log, the 
+system was gone before the log could be written out.
 
---=-YrP7CZQDQNuG8jMzd6UW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+My uptime:
+root@coyote root]# uptime
+ 04:32:59 up 14:52,  4 users,  load average: 2.55, 2.59, 2.97
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Over half a day now!
 
-iD8DBQBBD0xjxULwo51rQBIRAoO8AJ0U0IdW2IlGIUk9ruhXIT0DSf04iwCfR0cZ
-dkaEm1gWXr0G3uJTLcu3ZU0=
-=Eth5
------END PGP SIGNATURE-----
+This seems to be a genuine improvement, many many thanks.
 
---=-YrP7CZQDQNuG8jMzd6UW--
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,58 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265661AbTFSGN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 02:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265670AbTFSGN4
+	id S265677AbTFSGVj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 02:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265706AbTFSGVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 02:13:56 -0400
-Received: from Mail1.kontent.de ([81.88.34.36]:40877 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S265661AbTFSGNx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 02:13:53 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: "Kevin P. Fleming" <kpfleming@cox.net>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-Date: Thu, 19 Jun 2003 08:27:08 +0200
-User-Agent: KMail/1.5.1
-Cc: Robert Love <rml@tech9.net>, Patrick Mochel <mochel@osdl.org>,
-       Andrew Morton <akpm@digeo.com>, sdake@mvista.com,
-       linux-kernel@vger.kernel.org
-References: <3EE8D038.7090600@mvista.com> <20030618225913.GB2413@kroah.com> <3EF10002.7020308@cox.net>
-In-Reply-To: <3EF10002.7020308@cox.net>
+	Thu, 19 Jun 2003 02:21:39 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:50377 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S265677AbTFSGVg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 02:21:36 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] 2.5.72 O(1) interactivity bugfix
+Date: Thu, 19 Jun 2003 16:35:33 +1000
+User-Agent: KMail/1.5.2
+Cc: Andreas Boman <aboman@midgaard.us>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1055983621.1753.23.camel@asgaard.midgaard.us> <5.2.0.9.2.20030619071327.00ce7ee8@pop.gmx.net>
+In-Reply-To: <5.2.0.9.2.20030619071327.00ce7ee8@pop.gmx.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200306190827.08352.oliver@neukum.org>
+Message-Id: <200306191635.33965.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 19. Juni 2003 02:12 schrieb Kevin P. Fleming:
-> Greg KH wrote:
-> >>If this kmalloc fails, you'll have a hole in the numbers and
-> >>user space will be very confused. You need to report dropped
-> >>events if you do this.
+On Thu, 19 Jun 2003 16:13, Mike Galbraith wrote:
+> At 11:12 AM 6/19/2003 +1000, Con Kolivas wrote:
+> >On Thu, 19 Jun 2003 10:47, Andreas Boman wrote:
+> > > On Wed, 2003-06-18 at 19:38, Con Kolivas wrote:
+> > > > I had another look at 2.5 and noticed the max sleep avg is set to 10
+> > > > seconds instead of 2 seconds in 2.4. This could make a _big_
+> > > > difference to new forked tasks if they all start out penalised as
+> > > > most
+> > > > non-interactive. It can take 5 times longer before they get the
+> > > > balance right. Can you try with this set to 2 or even 1 second on
+> > > > 2.5?
+> > >
+> > > Ahh, thanks Con, setting MAX_SLEEP_AVG to 2 *almost* removes all xmms
+> > > skipping here, a song *may* skip during desktop switches sometime
+> > > during the first 5 sec or so of playback IFF make -j20 is running. On a
+> > > mostly idle box (well LoadAvg 3 or so is mostly idle isnt it? ;)
+> > > desktop switching doesnt cause skips anymore 8)
 > >
-> > Yes, we should add the sequence number last.
+> >That's nice; a MAX_SLEEP_AVG of 1 second will shorten that 5 seconds to
+> > half that as well. What you describe makes perfect sense given that
+> > achieving a balance is an exponential function where the MSA is the time
+> > constant.
 >
-> While this is not a bad idea, I don't think you want to make a promise
-> to userspace that there will never be gaps in the sequence numbers. When
-> this sequence number was proposed, in my mind it seemed perfect because
-> then userspace could _order_ multiple events for the same device to
-> ensure they got processed in the correct order. I don't know that any
-> hotplug userspace implementation is going to be large and complex enough
-> to warrant "holding" events until lower-numbered events have been
-> delivered. That just seems like a very difficult task with little
-> potential gain, but I could very well be mistaken :-)
+> However, that will also send X and friends go off to the expired array
+> _very_ quickly.  This will certainly destroy interactive feel under load
+> because your desktop can/will go away for seconds at a time.  Try to drag a
+> window while a make -j10 is running, and it'll get choppy as heck.  AFAIKT,
+> anything that you do to increase concurrency in a global manner is _going_
+> to have the side effect of damaging interactive feel to some extent.  The
+> one and only source of desktop responsiveness is the large repository of
+> cpu ticks a task is allowed to save up for a rainy day.
 
-You cannot order events unless you hold such events. One event always
-arrives first. If it's the lower numbered, the point is moot. If it's the
-higher numbered, you'll need to hold it or there's no ordering.
+Indeed that's what I thought and found as well. I have a question though - do 
+non interactive tasks have periods of inactivity where they collect sleep 
+times or is it just interactive tasks that exhibit this? Why I'm asking is, 
+what if the interactivity bonus is based on the best interactive setting that 
+task has received, and make this one much slower at decaying than the 
+sleep_avg. Say one second for max_sleep_avg and 60 seconds for 
+max_interactive_bonus? So it can become interactive very quickly (and 
+therefore also should start as non interactive) but becomes non-interactive 
+slowly.
 
-For the paranoid even that is not enough. A hotplug script may die in user
-space due to OOM oe EIO.
+> Sigh, scheduling is a _bitch_.
 
-	Regards
-		Oliver
+Indeed
+
+Con.
 

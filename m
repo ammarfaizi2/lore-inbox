@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265569AbTFZLG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 07:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265575AbTFZLG2
+	id S265615AbTFZLN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 07:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265605AbTFZLN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 07:06:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44972 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265569AbTFZLGU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 07:06:20 -0400
-Date: Thu, 26 Jun 2003 12:20:32 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] pci_name()
-Message-ID: <20030626112032.GK451@parcelfarce.linux.theplanet.co.uk>
-References: <20030625233525.GB451@parcelfarce.linux.theplanet.co.uk> <20030626003620.GB13892@kroah.com> <20030626005315.GD451@parcelfarce.linux.theplanet.co.uk> <20030626010239.GB15189@kroah.com> <20030626025057.GE451@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030626025057.GE451@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Thu, 26 Jun 2003 07:13:26 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:42669 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265572AbTFZLNX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 07:13:23 -0400
+Date: Thu, 26 Jun 2003 13:27:27 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Bob Frey <linux@advansys.com>
+cc: linux-scsi@vger.kernel.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Advansys SCSI compile problems in 2.5.73
+Message-ID: <Pine.GSO.4.21.0306261326160.20587-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 26, 2003 at 03:50:57AM +0100, Matthew Wilcox wrote:
-> This patch introduces pci_name() and converts slot_name into a pointer to
-> dev.bus_id.
+	Hi Bob,
 
-Here's the compatibility patch for 2.4:
+If CONFIG_PCI is not set, the advansys driver doesn't compile. Below are a few
+required changes, but some more are needed. Since I don't have the hardware, I
+gave up.
 
---- linux/include/linux/pci.h	2003-05-21 05:21:29.000000000 -0400
-+++ linux-acpi/include/linux/pci.h	2003-06-26 06:39:58.000000000 -0400
-@@ -773,6 +773,11 @@
- 	pdev->driver_data = data;
+--- linux-2.5.73/drivers/scsi/advansys.c.orig	Sun Jun 15 09:38:35 2003
++++ linux-2.5.73/drivers/scsi/advansys.c	Mon Jun 23 15:51:12 2003
+@@ -4765,7 +4765,10 @@
+                 continue;
+             }
+ 
++#ifdef CONFIG_PCI
++	    /* FIXME */
+ 	    scsi_set_device(shp, &pci_devp->dev);
++#endif
+ 
+             /* Save a pointer to the Scsi_Host of each board found. */
+             asc_host[asc_board_count++] = shp;
+@@ -9146,8 +9149,6 @@
+ {
+ #ifdef CONFIG_PCI
+     pci_write_config_byte(asc_dvc->cfg->pci_dev, offset, byte_data);
+-#else /* CONFIG_PCI */
+-    return 0;
+ #endif /* CONFIG_PCI */
  }
  
-+static inline char *pci_name(struct pci_dev *pdev)
-+{
-+	return pdev->slot_name;
-+}
-+
- /*
-  *  The world is not perfect and supplies us with broken PCI devices.
-  *  For at least a part of these bugs we need a work-around, so both
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

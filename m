@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSHBNnS>; Fri, 2 Aug 2002 09:43:18 -0400
+	id <S314277AbSHBNrM>; Fri, 2 Aug 2002 09:47:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313537AbSHBNnS>; Fri, 2 Aug 2002 09:43:18 -0400
-Received: from daimi.au.dk ([130.225.16.1]:20153 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S313477AbSHBNnS>;
-	Fri, 2 Aug 2002 09:43:18 -0400
-Message-ID: <3D4A8D45.49226E2B@daimi.au.dk>
-Date: Fri, 02 Aug 2002 15:46:45 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [RFC] Race condition?
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S314395AbSHBNrM>; Fri, 2 Aug 2002 09:47:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26376 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314277AbSHBNrK>;
+	Fri, 2 Aug 2002 09:47:10 -0400
+Date: Fri, 2 Aug 2002 14:50:34 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: gerg@snapgear.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.30uc0 MMU-less patches
+Message-ID: <20020802145034.B24631@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a race condition in this piece of code from do_fork in
-linux/kernel/fork.c? I cannot see what prevents two processes
-from calling this at the same time and both successfully fork
-even though the user had only one process left.
 
-        if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur
-                      && !capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE))
-                goto bad_fork_free;
+Some constructive criticism...
 
-        atomic_inc(&p->user->__count);
-        atomic_inc(&p->user->processes);
+ - the Makefile changes seem terribly inappropriate.
+ - you probably didn't mean to include page_alloc2.hack in the diff
+
+ - Do you really need your own copy of fbcon.c?  Can it be merged with the
+   one in drivers/video?
+ - arch/m68knommu/console/68328fb.c should probably move to drivers/video
+   too.
+ - ditto most of the other files in the console directory ... 
+
+ - Why are the changes to rd.c required?
+ - I'm not sure it's appropriate to include the changes to nfs2xdr.c --
+   is this a toolchain bug you're working around?
+
+ - drivers/char/mcfserial.c needs to be converted to the new serial core
+   and moved to drivers/serial.
+ - ditto arch/m68knommu/platform/68360/quicc/uart.c
+
+I'll look at the change you want to make to locks.c - I'm not terribly
+fond of that interaction either.
 
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razrep@daimi.au.dk
-or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+Revolutions do not require corporate support.

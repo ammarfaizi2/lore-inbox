@@ -1,56 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261825AbSJDO1C>; Fri, 4 Oct 2002 10:27:02 -0400
+	id <S261747AbSJDNxO>; Fri, 4 Oct 2002 09:53:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261823AbSJDO1C>; Fri, 4 Oct 2002 10:27:02 -0400
-Received: from percy.comedia.it ([213.246.0.111]:61627 "EHLO percy.comedia.it")
-	by vger.kernel.org with ESMTP id <S261822AbSJDO06>;
-	Fri, 4 Oct 2002 10:26:58 -0400
-Message-ID: <3D9DA67A.8050608@comedia.it>
-Date: Fri, 04 Oct 2002 16:32:26 +0200
-From: Luca Berra <bluca@comedia.it>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-Subject: Re: RAID backup
-References: <Pine.LNX.3.96.1021004041421.5688A-100000@Maggie.Linux-Consulting.com> <1033735943.31839.12.camel@irongate.swansea.linux.org.uk> <20021004132419.GF710@gallifrey>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261748AbSJDNxO>; Fri, 4 Oct 2002 09:53:14 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:35346 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261747AbSJDNxN>; Fri, 4 Oct 2002 09:53:13 -0400
+Date: Fri, 4 Oct 2002 14:58:45 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: export of sys_call_table
+Message-ID: <20021004145845.A30064@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	kernel <linux-kernel@vger.kernel.org>
+References: <20021003153943.E22418@openss7.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021003153943.E22418@openss7.org>; from bidulock@openss7.org on Thu, Oct 03, 2002 at 03:39:43PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dr. David Alan Gilbert wrote:
-> * Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> 
->>The problem with disks is you still have to archive them somewhere, and
->>they are bulky. I also dont know what studies are available on the
->>degradation of stored disk media over time. 
-> 
-> 
-> Not sure about that; DLT tapes are pretty bulky themselves; I think the
-> difference between say a set of 4 DLT tapes and a single Maxtor 320 in
-> caddy would be minimal. As for stored media, I think Maxtor are quoting
-> 1M hours MTTF - (I hate to think how you measure such a figure) - for
-> the 320G, and that is probably longer than I'd trust either the tape or
-> the drive to survive.
+On Thu, Oct 03, 2002 at 03:39:43PM -0600, Brian F. G. Bidulock wrote:
+> I see that RH, in their infinite wisdom, have seen fit to remove
+> the export of sys_call_table in 8.0 kernels breaking any loadable
+> modules that wish to implement non-implemented system calls such
+> as LiS's or iBCS implementation of putmsg/getmsg.
 
-i DO seriously doubt that this figure includes removing the drive, 
-stuffing it in a siutcase or similar, loading on a truck/car/bike and 
-unloading at a remote site.
-
-Regards,
-L.
-
--- 
-Luca Berra -- bluca@comedia.it
-	Service Delivery Manager
-	Communication Media & Services S.r.l.
-	Via A. Modigliani 1 - MILANO
-	
+There is no such thing as iBCS for 2.4+.  iBCS/Linux-ABI are for foreign
+personalities only anyway and don't need to touch sys_call_table.
 

@@ -1,58 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270237AbRHGXrp>; Tue, 7 Aug 2001 19:47:45 -0400
+	id <S270232AbRHGXxf>; Tue, 7 Aug 2001 19:53:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270219AbRHGXrg>; Tue, 7 Aug 2001 19:47:36 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:1548
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S270233AbRHGXra>; Tue, 7 Aug 2001 19:47:30 -0400
-Date: Tue, 7 Aug 2001 16:47:40 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: =?iso-8859-1?Q?=D8ystein_Haare?= <oyhaare@online.no>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Via chipset
-Message-ID: <20010807164740.U23718@work.bitmover.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	=?iso-8859-1?Q?=D8ystein_Haare?= <oyhaare@online.no>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <997225828.10528.4.camel@eagle> <E15UGOw-0004H2-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E15UGOw-0004H2-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Aug 08, 2001 at 12:36:42AM +0100
+	id <S270231AbRHGXxZ>; Tue, 7 Aug 2001 19:53:25 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:36229 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S270229AbRHGXxN>;
+	Tue, 7 Aug 2001 19:53:13 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 7 Aug 2001 23:52:49 GMT
+Message-Id: <200108072352.XAA25661@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
+Subject: Re: [RFC][PATCH] parser for mount options
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a reoccurring question on this (and many other) list[s].  It seems
-like someone ought to maintain a database of boards that are known to work
-and what they are used for.  For example,  lots of people say "such and such
-works for me" but what they don't say is "I only have 1 disk and 1 CDROM and
-nothing else".
+> it breeds global variables for no good reason
 
-I've had fairly good luck with just about any board as long as I don't 
-beat on the IDE on a VIA chipset board.  I switched all my servers over
-to 3ware Escalades to get off the IDE; that helped tremendously but it
-adds about $400 to a system (3ware card and you will probably want a 
-better PS and cooling, so maybe more).
+Globals? What globals?
 
-Yeah, I know, if I'm whining I should volunteer the space.  OK, I'll do the
-following: if someone starts gathering the data in a simple way (see below)
-then I'll archive it all in a database and make it accessible via the web.
-If you are interested in doing this, which means you write the script that
-gathers the info, contact me offline and we'll set it up.
+> Switch that will keep growing, BTW.
+> would turn into complete mess two years down the road.
 
-The data format I want is simple.  Imagine a perl script gathering the
-info into an associative array, the key is the field name like "cpu" or
-"motherboard" etc., and the value is the value, like "AMD K7" or "ASUS A7V".
-It would be good to have a set of required fields so people can query 
-across those fields, but there need not be any limit on how many fields and
-all fields need not be present in all records.  
+But this was written five and a half years ago, and I think it
+still suffices.
 
-Once you have that, I can send you some code that will shlep over that data
-to me and I have tools here that will eat it and store it into a database.
-Our bugdatabase is lot like this, it's a fairly trivial change to support
-this as a sort of bugdatabase like thing.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> There are two different tasks - one of them is to decide which option we
+> are dealing with and another - decode and act upon it.  Mixing parsing
+> and data conversion in that kind of situations is a Bad Thing(tm).
+
+Possibly. I like the option parsing for each filesystem:
+
+	parse_mount_options((char *) data, SIZE(opts), opts);
+
+and this does parse_and_assign. You do
+
+	while (more_tokens) {
+		t = type_of_next_token();
+		switch (t) {
+		case ...
+		}
+	}
+
+where the type_of_next_token() does the parsing, and the switch
+does the assigning. Much more code. Much uglier - but tastes differ.
+The reason that I call it uglier is that you have the same, or
+nearly the same code for each filesystem. But then discrepancies arise,
+and things are not treated uniformly across filesystems. A single
+parser and assigner forces uniformity.
+You have a coherency problem. In
+
++enum { Opt_mode, ...};
++                               
++static match_table_t tokens = {
++       {Opt_mode, "mode=%o"},
+...
++                       case Opt_mode:
++                               mode = match_octal(args);
++                               break;
+
+the %o must correspond to the match_octal().
+But that is unfortunate duplication.
+That same code is
+
+	{ "mode", OPT_INT_8, 0, &mode},
+
+for me. Not only much more compact, but no coherency problem either.
+Of course one might write
+
+	{ "mode", "%o", 0, &mode},
+
+to save the reader the trouble of looking up what OPT_INT_8 means.
+
+If you see strange warts in my parser it is mostly because
+it was a patch without user-visible changes, so all existing
+msdos option peculiarities had to be accommodated.
+Once such code is in place one needs a very good reason to
+invent option syntax not covered by it.
+
+Andries

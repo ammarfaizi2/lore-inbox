@@ -1,69 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262507AbTIUSkX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 14:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbTIUSkX
+	id S262501AbTIUSfR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 14:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbTIUSfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 14:40:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51845 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262507AbTIUSkT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 14:40:19 -0400
-Date: Sun, 21 Sep 2003 11:39:30 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       zwane@linuxpower.ca, axboe@suse.de
-Cc: arvidjaar@mail.ru, stoffel@lucent.com, barryn@pobox.com, torvalds@osdl.org
-Subject: [PATCH] floppy I/O error handling => Oops
-Message-Id: <20030921113930.4ce1f0a1.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Sep 2003 14:35:17 -0400
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:44302 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id S262501AbTIUSfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 14:35:05 -0400
+Date: Sun, 21 Sep 2003 15:37:40 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+X-X-Sender: marcelo@logos.cnet
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Shantanu Goel <sgoel01@yahoo.com>, <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Subject: Re: A couple of 2.4.23-pre4 VM nits
+In-Reply-To: <20030921024649.GB16294@velociraptor.random>
+Message-ID: <Pine.LNX.4.44.0309211533310.18223-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-bad_flp_intr() in floppy.c can cause an Oops if the I/O request is
-freed but <errors> still points into the I/O request block.
 
-Here is a simple patch that fixes it.  The ordering of the if/else
-conditionals might be improved, but this works (for me).
+On Sun, 21 Sep 2003, Andrea Arcangeli wrote:
 
-bad_flp_intr() oopsen reports:
+> Hi Shantanu,
+> 
+> On Sat, Sep 20, 2003 at 06:39:30AM -0700, Shantanu Goel wrote:
+> > Hi Andrea,
+> > 
+> > The VM fixes perform rather well in my testing
+> > (thanks!), but I noticed a couple of glitches that the
+> > attached patch addresses.
+> > 
+> > 1. max_scan is never decremented in shrink_cache().  I
+> > am assuming this is a typo.
+> 
+> this is an huge half-merging error, no surprise Andi run into vm
+> troubles with pre4. My tree looks like this for years:
+> 
+> 		if (unlikely(!page_count(page)))
+> 			continue;
+> 
+> 		only_metadata = 0;
+> 		if (!memclass(page_zone(page), classzone)) {
+> 			/*
+> 			 * Hack to address an issue found by Rik. The
+> 			 * problem is that
+> 			 * highmem pages can hold buffer headers
+> 			 * allocated
+> 			 * from the slab on lowmem, and so if we are
+> 			 * working
+> 			 * on the NORMAL classzone here, it is correct
+> 			 * not to
+> 			 * try to free the highmem pages themself (that
+> 			 * would be useless)
+> 			 * but we must make sure to drop any lowmem
+> 			 * metadata related to those
+> 			 * highmem pages.
+> 			 */
+> 			if (page->buffers && page->mapping) { /* fast
+> path racy check */
+> 				if (unlikely(TryLockPage(page)))
+> 					continue;
+> 				if (page->buffers && page->mapping &&
+> memclass_related_bhs(page, classzone)) { /* non racy check */
+> 					only_metadata = 1;
+> 					goto free_bhs;
+> 				}
+> 				UnlockPage(page);
+> 			}
+> 			continue;
+> 		}
+> 
+> 		max_scan--;
+> 
+> max_scan-- should happen only after the memclass check to ensure not
+> failing too early on GFP_KERNEL/DMA allocations (i.e. no highmem)
+> 
+> This is the right fix:
+> 
+> --- 2.4.23pre4/mm/vmscan.c.~1~	2003-09-13 00:08:04.000000000 +0200
+> +++ 2.4.23pre4/mm/vmscan.c	2003-09-21 04:40:12.000000000 +0200
+> @@ -401,6 +401,8 @@ static int shrink_cache(int nr_pages, zo
+>  		if (!memclass(page_zone(page), classzone))
+>  			continue;
+>  
+> +		max_scan--;
+> +
+>  		/* Racy check to avoid trylocking when not worthwhile */
+>  		if (!page->buffers && (page_count(page) != 1 || !page->mapping))
+>  			goto page_mapped;
 
-Andrey: http://marc.theaimsgroup.com/?l=linux-kernel&m=105837886921297&w=2
-John:   http://marc.theaimsgroup.com/?l=linux-kernel&m=106303650007125&w=2
-Barry:  http://bugme.osdl.org/show_bug.cgi?id=1033
+Right! Thanks Andrea. 
 
---
-~Randy
+Sorry for the merge mistake people. Shame on me.
 
+Im going to release pre5 now with this. 
 
-patch_name:	floppyio_errors.patch
-patch_version:	2003-09-21.11:10:08
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	don't use the <errors> pointer after calling cont->done();
-		it can be invalid since it points into a req block
-		which may have been freed;
-product:	Linux
-product_versions: 2.6.0-test5
-diffstat:	=
- drivers/block/floppy.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-The ordering of the if/else conditionals may need to change.
-
-diff -Naur ./drivers/block/floppy.c~flopio ./drivers/block/floppy.c
---- ./drivers/block/floppy.c~flopio	2003-09-08 12:49:53.000000000 -0700
-+++ ./drivers/block/floppy.c	2003-09-21 11:03:17.000000000 -0700
-@@ -2161,7 +2174,7 @@
- 	INFBOUND(DRWE->badness, *errors);
- 	if (*errors > DP->max_errors.abort)
- 		cont->done(0);
--	if (*errors > DP->max_errors.reset)
-+	else if (*errors > DP->max_errors.reset)
- 		FDCS->reset = 1;
- 	else if (*errors > DP->max_errors.recal)
- 		DRS->track = NEED_2_RECAL;

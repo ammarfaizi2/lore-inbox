@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264607AbTFYPws (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 11:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264608AbTFYPwr
+	id S264601AbTFYPvw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 11:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264607AbTFYPvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 11:52:47 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:9988 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S264607AbTFYPwo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 11:52:44 -0400
-Date: Wed, 25 Jun 2003 18:06:50 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Larry McVoy <lm@work.bitmover.com>, Andre Tomt <andre@tomt.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bkbits.net web UI oddities after last crash
-Message-ID: <20030625160650.GA1470@mars.ravnborg.org>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andre Tomt <andre@tomt.net>, linux-kernel@vger.kernel.org
-References: <1056475651.7646.128.camel@slurv.ws.pasop.tomt.net> <20030625154602.GA25213@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030625154602.GA25213@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 25 Jun 2003 11:51:52 -0400
+Received: from ns0.eris.qinetiq.com ([128.98.1.1]:32521 "HELO
+	ns0.eris.dera.gov.uk") by vger.kernel.org with SMTP id S264601AbTFYPvv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 11:51:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: Finding out what cards a driver supports...
+Date: Wed, 25 Jun 2003 16:58:35 +0100
+User-Agent: KMail/1.4.3
+References: <200306251453.02690.m.watts@eris.qinetiq.com> <20030625143239.GA11244@gtf.org>
+In-Reply-To: <20030625143239.GA11244@gtf.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306251658.35745.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 25, 2003 at 08:46:02AM -0700, Larry McVoy wrote:
-> On Tue, Jun 24, 2003 at 07:27:31PM +0200, Andre Tomt wrote:
-> > Hi
-> > 
-> > I noticed some rather strange behavior from
-> > http://linux.bkbits.net:8080/linux-2.4
-> 
-> I put up a new release that used MD5 based names for revision numbers rather
-> than the revision numbers (sort of like naming a file by inode number) 
-> because the revision numbers shift around on you.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Using cset numbers in the interface would make it a bit easier to
-understand.
 
-> It has bugs.  Once we
-> work out the bugs the plus is that you'll be able to post a URL and it 
-> will always get people to the same data which is not true today.
+> On Wed, Jun 25, 2003 at 02:53:02PM +0100, Mark Watts wrote:
+> > How would I find out what network cards a particular driver supports?
+> > (particularly the tg3 / bcm5700 driver in 2.4.x)
+>
+> Look in the PCI ids table, and compare that with the output of 'lspci -n'
+> for your card.
+>
+> 	Jeff
 
-Good to hear - drop a mail when you think the bugs are fixed so
-we know when to give feedback. (Eventually at bitkeeper-users ml)
+Is there a way to do it without actually having the card in question?
 
-	Sam
+I'm trying to help a chap who has a 3Com 3c940 GigE card...
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE++carBn4EFUVUIO0RAjqdAKCzOtOMKBrkdGVDa0YJa/FE90g4PgCgxIp7
+BvEkaHMTOLFbp7f6BROTGOM=
+=yX3c
+-----END PGP SIGNATURE-----
+

@@ -1,81 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUGJGdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUGJGg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266163AbUGJGdU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 02:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUGJGdU
+	id S266166AbUGJGg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 02:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUGJGg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 02:33:20 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56491 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266163AbUGJGdM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 02:33:12 -0400
-Date: Sat, 10 Jul 2004 08:31:34 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Jakub Jelinek <jakub@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GCC 3.4 and broken inlining.
-Message-ID: <20040710063134.GA8267@devserv.devel.redhat.com>
-References: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au> <20040708120719.GS21264@devserv.devel.redhat.com> <20040708205225.GI28324@fs.tum.de> <20040708210925.GA13908@devserv.devel.redhat.com> <1089324501.3098.9.camel@nigel-laptop.wpcb.org.au> <20040709062403.GA15585@devserv.devel.redhat.com> <20040710012117.GA28324@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+	Sat, 10 Jul 2004 02:36:56 -0400
+Received: from bigapple.newyorkcity.de ([192.76.147.50]:9344 "EHLO
+	bigapple.newyorkcity.de") by vger.kernel.org with ESMTP
+	id S266166AbUGJGgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 02:36:54 -0400
+Date: Sat, 10 Jul 2004 08:36:19 +0200
+From: Martin Ziegler <mz@newyorkcity.de>
+To: James Pearson <james-p@moving-picture.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS no longer working ?
+Message-ID: <3D8F3266FD65DD9E1EFB0E44@soho>
+In-Reply-To: <40EF873A.30603@moving-picture.com>
+References: <40EF873A.30603@moving-picture.com>
+X-Mailer: Mulberry/3.1.5 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040710012117.GA28324@fs.tum.de>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Whew...i was sure that i compiled NFSD into the kernel. When looking at 
+.config i recognized that it was set to be compiled as a module. That was 
+the trick. Sorry for that and thanks for your help!
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--On Samstag, 10. Juli 2004 07:05 +0100 James Pearson 
+<james-p@moving-picture.com> wrote:
 
-On Sat, Jul 10, 2004 at 03:21:17AM +0200, Adrian Bunk wrote:
-> > one thing to note is that you also need to monitor stack usage then :)
-> > inlining somewhat blows up stack usage so do monitor it...
-> 
-> How could inlining increase stack usage?
-
-void foo1(void)
-{
-	char array[200];
-	do_something(array);
-}
-
-void foo2(void)
-{
-	char other_array[200];
-	do_somethingelse(other_array);
-}
-
-void function_to_which_they_inline(void)
-{
-	foo1();
-	foo2();
-}
-
-(assume the do_* functions get inlined into foo or are defines or whatever)
-
-without inlining it's clear that the max stack usage is 200, the lifetimes
-of the 2 arrays are 100% exclusive.
-
-With inlining, gcc reorders instructions in it's optimisation passes, and as
-a result the lifetimes of the 2 arrays no longer are exclusive and as a
-result gcc has no choice to have both separately on the stack.
+> Martin Ziegler:
+>> it's mentioned in Documentation/Changes. When i try to mount i get the
+>> message "mount: fs type nfsd not supported by kernel" although NFS is
+>> compiled into the kernel. Perhaps there is another option which have to
+>> be  enabled but i just overseen it ?
+>
+> Do you have CONFIG_NFSD set?
+>
+> James Pearson
+>
 
 
---r5Pyd7+fXNt84Ff3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA741GxULwo51rQBIRArEcAJ9/pQkgQ4fRJEnGSfjW/dFYagEetwCcDRq4
-SwKIfx1v1qBK5WMft3Yqi24=
-=uE9U
------END PGP SIGNATURE-----
-
---r5Pyd7+fXNt84Ff3--

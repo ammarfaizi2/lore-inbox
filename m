@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263792AbTDIUcM (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 16:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTDIUcM (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 16:32:12 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:35202 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263792AbTDIUcL (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 16:32:11 -0400
-Subject: Re: 2.5.67, 2.5-bk lock up with RH 9 and graphical log out.
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1049904293.24463.25.camel@spc9.esa.lanl.gov>
-References: <1049904293.24463.25.camel@spc9.esa.lanl.gov>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049921014.592.0.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 09 Apr 2003 22:43:34 +0200
+	id S263786AbTDIUiY (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 16:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbTDIUiY (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 16:38:24 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:58536 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S263786AbTDIUiW (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 16:38:22 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16020.34678.824488.248372@napali.hpl.hp.com>
+Date: Wed, 9 Apr 2003 13:49:58 -0700
+To: Christoph Hellwig <hch@infradead.org>
+Cc: davidm@hpl.hp.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: bk pull
+In-Reply-To: <20030409203836.A9397@infradead.org>
+References: <200304091927.h39JRob0010157@napali.hpl.hp.com>
+	<20030409203836.A9397@infradead.org>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-09 at 18:04, Steven Cole wrote:
-> With kernel 2.5.67 or 2.5-bk-current and Red Hat 9, if I try to do a
-> graphical log out from either KDE or Gnome, the test machine locks up
-> hard, not responding to pings, or alt-sysrq-anything. (and yes,
-> /proc/sys/kernel/sysrq is 1 and I "fixed" /etc/sysctl.conf, line 13)
-> 
-> The same lockup happens with ctrl-alt-backspace from KDE or Gnome.
-> 
-> Doing an /sbin/init 3 works fine.  Harsh way to log out however.
-> Subsequent cycles of startx and graphical "Log Out" do _not_ lock up
-> the box, but work just fine.
-> 
-> Needless to say, with the vendor kernel, everything works perfectly. 
-> Alt-sysrq-various behaves as expected. Ctrl-alt-backspace does not
-> lock up the box.
-> 
-> If I get time, I'll try some older 2.5.x kernels to see if this is a
-> recently introduced behavior.
+>>>>> On Wed, 9 Apr 2003 20:38:36 +0100, Christoph Hellwig <hch@infradead.org> said:
 
-.config? Are you using Framebuffer console support?
--- 
-Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
-Linux Registered User #287198
+  Christoph> Btw, do you have any plans to push the changes outside
+  Christoph> from arch/ia64 and include/asm-ia64/ in the ia64 patch to
+  Christoph> Linus? It would be really nice if the ia64 port could be
+  Christoph> used with an out-of-the-box kernel.
 
+Boy, what a loaded question!
+
+Sure, I too would like it if the kernel would always build
+out-of-the-box, but I don't think it's very realistic.  Even if I
+followed Linus's checkins on an hourly basis (no way in hell I'm ever
+gonna do that), there is always a chance that he'll accept a patch
+that will (perhaps subtly) break non-x86 platforms.
+
+Having said that, I do submit patches to the respective maintainers
+quite frequently.  I probably should cc linux-kernel more often so
+others can see that.  Anyhow, I think part of the problem is that I'm
+simply not willing to spend inordinate amounts of time pushing the
+patches (no, maintaining a kernel tree is not much fun and most
+definitely underappreciated, so I do want to get some real work done
+occasionally).  For example, the sound driver patches have been around
+forever, have been submitted multiple times, and each time we get a
+"yeah, that looks good, let me work on it" and that's the last thing
+we hear.
+
+I think the only two biggies right now are the AGP/DRM changes (which
+I'm working on) and the virtual mem_map support.  The latter I haven't
+pushed at all so far, mostly because I just haven't had the
+time/energy/interest to do so.  Also, I'm always optimistic someone
+else comes along to help with the work... ;-)
+
+	--david

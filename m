@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261692AbTCGRzO>; Fri, 7 Mar 2003 12:55:14 -0500
+	id <S261699AbTCGR4a>; Fri, 7 Mar 2003 12:56:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261695AbTCGRzO>; Fri, 7 Mar 2003 12:55:14 -0500
-Received: from divine.city.tvnet.hu ([195.38.100.154]:19986 "EHLO
-	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S261692AbTCGRzN>; Fri, 7 Mar 2003 12:55:13 -0500
-Date: Fri, 7 Mar 2003 18:56:41 +0100 (MET)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: <aia21@cantab.net>, <linux-kernel@vger.kernel.org>,
-       <linux-ntfs-dev@lists.sourceforge.net>
-Subject: Re: [Linux-NTFS-Dev] ntfs OOPS (2.5.63)
-In-Reply-To: <20030307091720.6b71268c.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.30.0303071818080.32-100000@divine.city.tvnet.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261702AbTCGR4a>; Fri, 7 Mar 2003 12:56:30 -0500
+Received: from boden.synopsys.com ([204.176.20.19]:15814 "HELO
+	boden.synopsys.com") by vger.kernel.org with SMTP
+	id <S261699AbTCGR42>; Fri, 7 Mar 2003 12:56:28 -0500
+Date: Fri, 7 Mar 2003 19:06:53 +0100
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: WimMark I for 2.5.64-mm1
+Message-ID: <20030307180653.GA30288@riesen-pc.gr05.synopsys.com>
+Reply-To: alexander.riesen@synopsys.COM
+References: <20030307175700.GA2835@ca-server1.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030307175700.GA2835@ca-server1.us.oracle.com>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joel Becker, Fri, Mar 07, 2003 18:57:01 +0100:
+> 
+> WimMark I report for 2.5.64-mm1
+> 
+> Runs with anticipatory scheduler:  547.28 580.69
+> Runs with deadline scheduler:  1557.79 1360.52
 
-On Fri, 7 Mar 2003, Randy.Dunlap wrote:
+What do the numbers mean?
+Is AS better or worse DS?
 
-> BTW, I think that this would be a reasonable reason (huh?) to dismiss
-> this bug against NTFS -- i.e., if it's found to be a problem in general
-> kernel debug helpers.  Still be nice to find where it happened,
-> of course.
-
-It seems (and CONFIG_DEBUG_SPINLOCK also seems to contribute)
-        init_MUTEX(&ni->mrec_lock);
-	        ...
-		INIT_LIST_HEAD(...)
-
-and IMHO that shouldn't happen :) But you have the infamous 2.96
-compiler, there were several updates for Red Hat [remember how buggy
-code it complied?] but I don't know how many updates were issued for
-Mandrake and if you did those. gcc 3.2.2 generates much nicer code for
-__ntfs_init_inode.
-
-	Szaka
-
+> 	WimMark I is a rough benchmark we have been running
+> here at Oracle against various kernels.  Each run tests an OLTP
+> workload on the Oracle database with somewhat restrictive memory
+> conditions.  This reduces in-memory buffering of data, allowing for
+> more I/O.  The I/O is read and sync write, random and seek-laden.
+> 	The benchmark is called "WimMark I" because it has no
+> official standing and is only a relative benchmark useful for comparing
+> kernel changes.  The benchmark is normalized an arbitrary kernel, which
+> scores 1000.0.  All other numbers are relative to this.
+> 	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+> of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+> 10K RPM U2W SCSI of similar vintage.  Unless mentioned, all runs are
+> on this machine (variation in hardware would indeed change the
+> benchmark).

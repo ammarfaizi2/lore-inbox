@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281436AbRKMCum>; Mon, 12 Nov 2001 21:50:42 -0500
+	id <S281052AbRKMCuc>; Mon, 12 Nov 2001 21:50:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281440AbRKMCud>; Mon, 12 Nov 2001 21:50:33 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:5072 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S281436AbRKMCuS>;
-	Mon, 12 Nov 2001 21:50:18 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+	id <S281440AbRKMCuW>; Mon, 12 Nov 2001 21:50:22 -0500
+Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:12808 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S281052AbRKMCuH>;
+	Mon, 12 Nov 2001 21:50:07 -0500
+Message-ID: <3BF089A9.9C9C18EE@nyc.rr.com>
+Date: Mon, 12 Nov 2001 21:47:05 -0500
+From: John Weber <weber@nyc.rr.com>
+Organization: WorldWideWeber
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Changed message for GPLONLY symbols
-Mime-Version: 1.0
+Subject: Re: PCMCIA and 2.4.15-pre4
+In-Reply-To: <fa.cbjrp4v.1a3ct9g@ifi.uio.no> <fa.lptltuv.30am1g@ifi.uio.no>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Nov 2001 13:50:09 +1100
-Message-ID: <10444.1005619809@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When insmod detects a non-GPL module with unresolved symbols it
-currently says:
+> 
+>         I hate to say it, but your question isn't all that useful in its
+> current form.  What kinds of problems?  What pcmcia version?  What kernel
+> configuration?  What error messages?  Functional problems?  Compiling
+> problems?  Cosmetic problems?  Are they reproducable?  How can we
+> reproduce the problem?
 
-Note: modules without a GPL compatible license cannot use GPLONLY_ symbols
+Actually, my note was supposed to be longer... but I had a little
+technical difficulty in getting the question out.  My machine completely
+crashed actually...
+funny that I thought it was just a kernel thing.
 
-I thought that hint was self-explanatory, obviously it was not clear.
-Never underestimate the ability of lusers to misread a message.  insmod
-2.4.12 will say
-
-Hint: You are trying to load a module without a GPL compatible license
-      and it has unresolved symbols.  The module may be trying to access
-      GPLONLY symbols but the problem is more likely to be a coding or
-      user error.  Contact the module supplier for assistance.
-
-Does anyone think that this message can be misunderstood by anybody
-with the "intelligence" of the normal Windoze user?
-
+Thanks anyway.

@@ -1,93 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266810AbTADMFt>; Sat, 4 Jan 2003 07:05:49 -0500
+	id <S266977AbTADMEH>; Sat, 4 Jan 2003 07:04:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266848AbTADMFt>; Sat, 4 Jan 2003 07:05:49 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:517 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266810AbTADMFr>;
-	Sat, 4 Jan 2003 07:05:47 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301041214.h04CE90f000847@darkstar.example.net>
-Subject: Re: please help me understand a line code about pci
-To: fretre3618@hotmail.com (fretre lewis)
-Date: Sat, 4 Jan 2003 12:14:09 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <F870TlKn4ZHkRQq5xVz0000f680@hotmail.com> from "fretre lewis" at Jan 04, 2003 11:59:11 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S266978AbTADMEH>; Sat, 4 Jan 2003 07:04:07 -0500
+Received: from vsmtp3.tin.it ([212.216.176.223]:16854 "EHLO smtp3.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S266977AbTADMEG>;
+	Sat, 4 Jan 2003 07:04:06 -0500
+Message-ID: <3E16DD2A.2BCDE86B@tin.it>
+Date: Sat, 04 Jan 2003 13:10:02 +0000
+From: "A.D.F." <adefacc@tin.it>
+Reply-To: adefacc@tin.it
+Organization: Private
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.2.21 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.801.1041682449--%"
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: TCP Zero Copy for mmapped files
+References: <3E161DFD.AB8D25AE@tin.it> <20030104004153.GA16238@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---%--multipart-mixed-boundary-1.801.1041682449--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
->   I am reading code about pci, and I can't understand some lines in
-> pci_check_direct(), in arch/i386/kernel/pci-pc.c
+"J.A. Magallon" wrote:
 > 
-> the PCI spec v2.0 say: ( page32)
+> On 2003.01.04 A.D.F. wrote:
+> > FreeBSD 5.0 should already have a zero copy for mmapped files and
+> > IMHO it would be worth to have it in Linux 2.6 too.
+> >
+> > It would also be very nice to be able to enable zero copy for mmapped files
+> > by a config option.
+> >
+> > Many applications use mapped memory to serve lots of small and
+> > medium sized files (4 - 1024 KB) or even a few big files
+> > (think at web servers, i.e. Apache 2, etc.);  this is done to better
+> > serve multiple / parallel downloads being done on the same files.
+> >
 > 
-> "Anytime a host bridge sees a full DWORD I/O write from the host to
-> CONFIG_ADDRESS, the bridge must latch the data into its CONFIG_ADDRESS
-> register. On full DWORD I/O reads to CONFIG_ADDRESS,the bridge must return 
-> the
-> data in CONFIG_ADDRESS. Any other types of accesses to this 
-> address(non-DWORD)
-> have no effect on CONFIG_ADDRESS and are excuted as normal I/O transaction 
-> on PCI bus......"
-> 
-> CONFIG_ADDRESS = 0xcf8
-> CONFIG_data = 0xcfc
-> 
-> so , I wonder why need "outb (0x01, 0xCFB);" if check configuration type 1 ? 
-> and why "outb (0x00, 0xCFB);" if check configuration type 2?
+> Apache2 uses mmap() to open files ??
 
-It looks to me like a workaround for broken hardware, but I could be
-wrong.
+No, you cannot use mmap() to open files ... :-),
+at most mmap() helps caching static file contents in order
+to avoid too many open() / close() calls (which maybe slow).
 
-Incidently, wouldn't it be worth printing some debugging info, such as
-the values read from 0xCF8 and 0xCFA, when neither configuration type
-works?  I've attached an, (untested), patch to do so.
+Apache 2 seems to use sendfile (in blocking mode) by default,
+it uses mmap() only if you enable it (see also mod_file_cache).
 
-John.
+Other web servers (i.e. Zeus) use widely mmap() for specific
+file sizes, when it is usually a strong win (specially under *BSD and
+Solaris)
+in big / busy servers with lots of RAM.
 
---%--multipart-mixed-boundary-1.801.1041682449--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Description: ASCII text
-Content-Disposition: attachment; filename="temp_patch"
+> So then there is a reason to include it in my patchset...
 
---- pci-pc.c.orig	2003-01-04 12:09:35.000000000 +0000
-+++ pci-pc.c	2003-01-04 12:12:37.000000000 +0000
-@@ -459,6 +459,8 @@
- {
- 	unsigned int tmp;
- 	unsigned long flags;
-+	unsigned int foo;
-+	unsigned int bar;
- 
- 	__save_flags(flags); __cli();
- 
-@@ -493,13 +495,17 @@
- 		outb (0x00, 0xCFB);
- 		outb (0x00, 0xCF8);
- 		outb (0x00, 0xCFA);
--		if (inb (0xCF8) == 0x00 && inb (0xCFA) == 0x00 &&
-+		foo = inb (0xCF8);
-+		bar = inb (0xCFA);
-+		if (foo == 0x00 && bar == 0x00 &&
- 		    pci_sanity_check(&pci_direct_conf2)) {
- 			__restore_flags(flags);
- 			printk(KERN_INFO "PCI: Using configuration type 2\n");
- 			request_region(0xCF8, 4, "PCI conf2");
- 			return &pci_direct_conf2;
- 		}
-+	printk ((KERN_INFO, "PCI: Failed to use configuration type 1 or 2.
-+0xCF8:%x 0xCFA:%x\n", foo, bar);
- 	}
- 
- 	__restore_flags(flags);
+Certainly yes (after required bug fixes :-)
 
---%--multipart-mixed-boundary-1.801.1041682449--%--
+-- 
+Nick Name:      A.D.F.
+E-Mail:         adefacc@tin.it
+E-Mail-Font:    Courier New (plain text, no html)
+--

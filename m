@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288246AbSACQqT>; Thu, 3 Jan 2002 11:46:19 -0500
+	id <S288250AbSACQs7>; Thu, 3 Jan 2002 11:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288241AbSACQqH>; Thu, 3 Jan 2002 11:46:07 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:11279 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288243AbSACQpb>;
-	Thu, 3 Jan 2002 11:45:31 -0500
-Date: Thu, 3 Jan 2002 14:45:46 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Ion Badulescu <ion@cs.columbia.edu>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
+	id <S288251AbSACQsz>; Thu, 3 Jan 2002 11:48:55 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:2224 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S288250AbSACQsA>;
+	Thu, 3 Jan 2002 11:48:00 -0500
+Date: Thu, 3 Jan 2002 11:47:58 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Christoph Hellwig <hch@ns.caldera.de>, acme@conectiva.com.br,
+        linux-kernel@vger.kernel.org
 Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
-Message-ID: <20020103144546.E25846@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Martin Dalecki <dalecki@evision-ventures.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Ion Badulescu <ion@cs.columbia.edu>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org
-In-Reply-To: <200201031605.g03G57e22947@guppy.limebrokerage.com> <E16MAp4-00018b-00@starship.berlin> <3C3486C9.8080007@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C3486C9.8080007@evision-ventures.com>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+In-Reply-To: <E16MAbL-00018W-00@starship.berlin>
+Message-ID: <Pine.GSO.4.21.0201031145210.23312-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Jan 03, 2002 at 05:28:57PM +0100, Martin Dalecki escreveu:
-> >That's good advice and I'm likely to adhere to it - if you can show that 
-> >having no spaces between the name of the function and its arguments really 
-> >is the accepted practice. 
 
-> It is trust on that. Only the silly GNU indentation style introduced 
-> something else. Look at the "core kernel" and
-> not the ugly drivers around it.
 
-Specially _not_ the ones in drivers/scsi ;)
+On Thu, 3 Jan 2002, Daniel Phillips wrote:
 
-/me runs
+> On January 3, 2002 04:45 pm, Christoph Hellwig wrote:
+> > In article <E16M7Gz-00015E-00@starship.berlin> you wrote:
+> > > -	inode = get_empty_inode();
+> > > +	inode = get_empty_inode(sb);
+> > 
+> > How about killing get_empty_inode completly and using new_inode() instead?
+> > There should be no regularly allocated inode without a superblock.
+> 
+> There are: sock_alloc rd_load_image.  However that's a nit because the new, 
+> improved get_empty_inode understands the concept of null sb.  (Another thing 
+> we could do is require every inode to have a superblock - that's probably 
+> where it will go in time.)
 
-- Arnaldo
+It's _already_ there.  RTFS, please - sock_alloc() creates inodes with
+sockfs superblock in ->i_sb and rd_load_image() just does normal open()
+for device nodes on rootfs.
+
+Please, don't reintroduce the crap we'd already killed.
+

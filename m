@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129608AbRBQHbK>; Sat, 17 Feb 2001 02:31:10 -0500
+	id <S129165AbRBQHvk>; Sat, 17 Feb 2001 02:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130028AbRBQHbA>; Sat, 17 Feb 2001 02:31:00 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:45580
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129608AbRBQHav>; Sat, 17 Feb 2001 02:30:51 -0500
-Date: Fri, 16 Feb 2001 23:29:28 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: David Balazic <david.balazic@uni-mb.si>
-cc: Michael E Brown <michael_e_brown@dell.com>, linux-kernel@vger.kernel.org
-Subject: Re: block ioctl to read/write last sector
-In-Reply-To: <3A8A7AB0.5D483D5F@uni-mb.si>
-Message-ID: <Pine.LNX.4.10.10102162328370.30327-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S129545AbRBQHvb>; Sat, 17 Feb 2001 02:51:31 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:36615 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S129165AbRBQHv3>; Sat, 17 Feb 2001 02:51:29 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Sat, 17 Feb 2001 18:46:34 +1100
+To: Rick Richardson <rickr@mn.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Whats the rvmalloc() story?
+Message-ID: <20010217184633.A2484@linuxcare.com>
+In-Reply-To: <20010210220808.A18488@mn.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010210220808.A18488@mn.rr.com>; from rickr@mn.rr.com on Sat, Feb 10, 2001 at 10:08:08PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Feb 2001, David Balazic wrote:
+ 
+> I note that at least 5 device drivers have similar implementations
+> of rvmalloc()/rvfree() et al:
+> 
+> 	ieee1394/video1394.c
+> 	usb/ibmcam.c
+> 	usb/ov511.c
+> 	media/video/bttv-driver.c
+> 	media/video/cpia.c
+> 
+> rvmalloc()/rvfree() are functions that are used to allocate large
+> amounts of physically non-contiguous kernel virtual memory that will
+> then be mmap()'ed into a user process.
 
-> Did you try scsi-emulation on IDE disks ?
+I had to rewrite rvmalloc and friends in the bttv driver to support the
+new pci dynamic mapping interface. This sounds like a good time to clean
+up all these multiple definitions.
 
-Don't be silly.
-That emulation is from scsi-packet to atapi-packet.
-
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
-
+Anton

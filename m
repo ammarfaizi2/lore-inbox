@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262335AbSJQW6H>; Thu, 17 Oct 2002 18:58:07 -0400
+	id <S262444AbSJQXH0>; Thu, 17 Oct 2002 19:07:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262336AbSJQW6H>; Thu, 17 Oct 2002 18:58:07 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:16320 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262335AbSJQW6G>;
-	Thu, 17 Oct 2002 18:58:06 -0400
-Date: Thu, 17 Oct 2002 15:56:30 -0700 (PDT)
-Message-Id: <20021017.155630.98395232.davem@redhat.com>
-To: jgarzik@pobox.com
-Cc: ast@domdv.de, greg@kroah.com, hch@infradead.org, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
+	id <S262442AbSJQXGX>; Thu, 17 Oct 2002 19:06:23 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:33287 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S262422AbSJQXFz>;
+	Thu, 17 Oct 2002 19:05:55 -0400
+Message-ID: <3DAF4382.9020800@domdv.de>
+Date: Fri, 18 Oct 2002 01:10:58 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: jgarzik@pobox.com, greg@kroah.com, hch@infradead.org,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] remove sys_security
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3DAF412A.7060702@pobox.com>
-References: <20021017.131830.27803403.davem@redhat.com>
-	<3DAF3EF1.50500@domdv.de>
-	<3DAF412A.7060702@pobox.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+References: <20021017.131830.27803403.davem@redhat.com>	<3DAF3EF1.50500@domdv.de>	<3DAF412A.7060702@pobox.com> <20021017.155630.98395232.davem@redhat.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jeff Garzik <jgarzik@pobox.com>
-   Date: Thu, 17 Oct 2002 19:00:58 -0400
-   
-   Finally, I was under the impression that Greg KH agreed that it is 
-   possible to eliminate this overhead?  Maybe I recall incorrectly.
+David S. Miller wrote:
+> I'm now leaning more towards something like what Al Viro
+> hinted at earlier, creating generic per-file/fd attributes.
+> This kind of stuff.
+> 
+I'm perfectly happy with anything that doesn't kill LSM.
+-- 
+Andreas Steinmetz
 
-The agreement was that it would be nice, we also agreed
-that it's a very difficult thing to implement.
-
-I'm now leaning more towards something like what Al Viro
-hinted at earlier, creating generic per-file/fd attributes.
-This kind of stuff.

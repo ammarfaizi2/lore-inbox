@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbSLMLtO>; Fri, 13 Dec 2002 06:49:14 -0500
+	id <S262826AbSLML56>; Fri, 13 Dec 2002 06:57:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262296AbSLMLtO>; Fri, 13 Dec 2002 06:49:14 -0500
-Received: from smtp.netcabo.pt ([212.113.174.9]:35965 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id <S262067AbSLMLtN>;
-	Fri, 13 Dec 2002 06:49:13 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: =?iso-8859-1?q?Jo=E3o=20Seabra?= <seabra@aac.uc.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Local APIC(?)+PIII mobile 
-Date: Fri, 13 Dec 2002 11:56:11 +0000
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200212131156.11262.seabra@aac.uc.pt>
-X-OriginalArrivalTime: 13 Dec 2002 11:54:55.0446 (UTC) FILETIME=[73FF9F60:01C2A29E]
+	id <S262648AbSLML5m>; Fri, 13 Dec 2002 06:57:42 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:7940 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262783AbSLML52>;
+	Fri, 13 Dec 2002 06:57:28 -0500
+Date: Thu, 12 Dec 2002 20:34:51 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.5.51: new warning from lilo
+Message-ID: <20021212193451.GA458@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+Hi!
 
- I have an Asus S8600. 
- Mobile PIII 800Mhz + 192M RAM.
- If i select "Local APIC support on uniprocessors" the kernel while booting 
-says there's no APIC present.Why?
- I know the same problem with some other laptops.
- Others detect it.
- 
+Lilo now presents me with new warning:
 
- At home my Athlon Tunderbird + Asus A7V133-C with local APIC enabled detects 
-it but doesn seem to use it ... 
+Warning: Kernel & BIOS return differing head/sector geometries for
+device 0x80
+    Kernel: 8944 cylidners, 15 heads, 63 sectors
+      BIOS: 525 cylinders, 255 heads, 63 sectors
 
- cat /proc/interrupts
-           CPU0
-  0:     375529          XT-PIC  timer
-  1:       7452          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  5:     113246          XT-PIC  bttv, eth0
-  8:          2          XT-PIC  rtc
- 10:     144373          XT-PIC  EMU10K1
- 11:     382444          XT-PIC  nvidia
- 12:     153864          XT-PIC  PS/2 Mouse
- 14:      12346          XT-PIC  ide0
- 15:         12          XT-PIC  ide1
-NMI:          0
-ERR:          0
-
-Anyway why do I need local APIC :) ?What are the advantages?Links?
-
-Thank you very much for your kindness
-
- Best Regards,
-
- João Seabra
+lilo did not warn under 2.5.50. Now... Will it boot?
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

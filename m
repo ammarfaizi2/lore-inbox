@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285197AbRLRVgO>; Tue, 18 Dec 2001 16:36:14 -0500
+	id <S285190AbRLRV0z>; Tue, 18 Dec 2001 16:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285180AbRLRVed>; Tue, 18 Dec 2001 16:34:33 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:65475 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S285203AbRLRVde>;
-	Tue, 18 Dec 2001 16:33:34 -0500
-Message-ID: <3C1FB6A0.5080908@athlon.maya.org>
-Date: Tue, 18 Dec 2001 22:35:28 +0100
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Jeronimo Pellegrini <pellegrini@mpcnet.com.br>
-CC: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17rc1] fatal problem: system time suddenly changes
-In-Reply-To: <Pine.LNX.4.21.0112181509150.4456-100000@freak.distro.conectiva> <3C1F901E.6050800@athlon.maya.org> <20011218195245.GA28160@socrates>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S285195AbRLRVZh>; Tue, 18 Dec 2001 16:25:37 -0500
+Received: from hermes.toad.net ([162.33.130.251]:47304 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S285180AbRLRVYG>;
+	Tue, 18 Dec 2001 16:24:06 -0500
+Subject: Re: APM driver patch summary
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Russell King <rmk@arm.linux.org.uk>, 125612@bugs.debian.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 18 Dec 2001 16:24:05 -0500
+Message-Id: <1008710648.21102.1.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeronimo Pellegrini wrote:
+Here is an updated list of the patches:
 
-> Hi.
-> 
-> That's a VIA timer bug. The patch that fixes it was inthe kernel some
-> time ago, but was removed because the workaround was being triggered
-> when it shouldn't, if I remember correctly.
+Notify listener of suspend before notifying driver  (Russell King / me)
+    (appended)
+Fix idle handling                                   (Andreas Steinmetz)
+    http://marc.theaimsgroup.com/?l=linux-kernel&m=100754277600661&w=2
+Control apm idle calling by runtime parameter       (Andrej Borsenkow)
+    http://marc.theaimsgroup.com/?l=linux-kernel&m=100852862320955&w=2
+Detect failure to stop CPU on apm idle call         (Andrej Borsenkow)
+    http://marc.theaimsgroup.com/?l=linux-kernel&m=100869841008117&w=2
 
+I added the last one which was posted today.
 
-Thank you! I applied the patch and did a first quick and dirty test. 
-After 20 restarts of X I coludn't detect any problem :-).
+I have modified Russell's patch to notify (of standbys & suspends)
+listeners before drivers.  I made the following changes:
 
-I will do a long term test from now on in order to see, if the problem 
-appears again.
+Return EBUSY instead of EIO (or EAGAIN) on rejection of request.
+   (Suggestion from apmd maintainer.  Is this okay?)
+Move "sti()" up a bit inside suspend() function.  (Should be harmless.)
+Move "out:" after "queue_event" so that no RESUME event will be queued.
+   (Listeners should notice the EBUSY and undo whatever they did.)
+Recode suspend() a bit to make it easier to read.
+   (Unfortunately this makes the patch harder to read.)
+Skip actual suspend even if APM version is 0x100 (... just don't
+   try to set APM_STATE_REJECT.  I don't see why this should be
+   a problem, judging from a quick read of the APM spec).
 
-Is there a chance to get this patch in in vanilla kernel (maybe with 
-some changes), if it really fixes the VIA timer bug?
+The driver compiles with this patch, but I haven't tested it yet.
 
-Regards,
-Andreas
+I still have one worry about the driver with this patch applied.
+If a user requests a suspend and it is rejected by a driver
+(and the APM version > 0x100) then APM_STATE_REJECT is sent
+to the BIOS.  If the BIOS didn't generate the request then this
+REJECT is comes out of the blue.  Is that acceptable, or
+should we refrain from sending such REJECTS when the suspend
+request didn't come from the BIOS?
+
+--
+Thomas
+
 

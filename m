@@ -1,80 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264837AbTFQV5o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 17:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264928AbTFQV5o
+	id S264934AbTFQWAi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264938AbTFQWAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 17:57:44 -0400
-Received: from netmail01.services.quay.plus.net ([212.159.14.219]:55274 "HELO
-	netmail01.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S264837AbTFQV5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 17:57:41 -0400
-From: "Riley Williams" <Riley@Williams.Name>
-To: <davidm@hpl.hp.com>
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] input: Fix CLOCK_TICK_RATE usage ...  [8/13]
-Date: Tue, 17 Jun 2003 23:11:46 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAEEOAEFAA.Riley@Williams.Name>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <16110.4883.885590.597687@napali.hpl.hp.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Tue, 17 Jun 2003 18:00:38 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:51965 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id S264934AbTFQWAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 18:00:31 -0400
+Date: Tue, 17 Jun 2003 15:13:35 -0700
+From: Chris Wright <chris@wirex.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] PCI device list locking
+Message-ID: <20030617151335.A17117@figure1.int.wirex.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <20030617212628.GA12723@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030617212628.GA12723@kroah.com>; from greg@kroah.com on Tue, Jun 17, 2003 at 02:26:28PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David.
+* Greg KH (greg@kroah.com) wrote:
+> 
+> Comments?  Places I missed protecting?
 
- > Riley> 2. The IA64 arch didn't define CLOCK_TICK_RATE at all, but
- > Riley>    then used the 1193182 value as a magic value in several
- > Riley>    files. I've inserted that as the definition thereof in
- > Riley>    timex.h for that arch.
+Is it safe to ignore pcibios_init?  This happens after smp_init, but are
+could there be multiple events (that would effect pcibios_sort)?
 
- > AFAIK, on ia64, it makes absolutely no sense at all to define this
- > magic CLOCK_TICK_RATE in timex.h. There simply is nothing in the
- > ia64 architecture that requires any timer to operate at 1193182 Hz.
+> --- a/drivers/pci/proc.c	Tue Jun 17 12:47:27 2003
+> +++ b/drivers/pci/proc.c	Tue Jun 17 12:47:27 2003
+> @@ -12,6 +12,7 @@
+>  #include <linux/proc_fs.h>
+>  #include <linux/seq_file.h>
+>  #include <linux/smp_lock.h>
+> +#include "pci.h"
+>  
+>  #include <asm/uaccess.h>
+>  #include <asm/byteorder.h>
+> @@ -311,20 +312,32 @@
+>  	struct list_head *p = &pci_devices;
+>  	loff_t n = *pos;
+>  
+> -	/* XXX: surely we need some locking for traversing the list? */
+> +	spin_lock(&pci_bus_lock);
 
-I think we're talking at cross-purposes here. The kernel includes a
-timer that, amongst other things, measures how long it's been up, and
-on most architectures, this is based on a hardware timer that runs at
-a particular frequency. This define states what frequency that timer
-runs at, nothing more nor less than that.
+should you just grab this lock here (pci_seq_start), and release in
+pci_seq_stop, holding for duration of ->seq_start() ->seq_next()
+->seq_stop().  IOW, what happens when you grab list element in
+->seq_start(), it's removed from list, you reference a bogus ->next
+pointer in ->seq_next()?
 
-On most architectures, the said timer runs at 1,193,181.818181818 Hz.
-However, there is absolutely nothing that states that it has to run at
-that frequency. Indeed, some of the other architectures run at wildly
-different frequencies from that one - varying from 25,000 Hz right up
-to 40,000,000 Hz.
-
- > If there are drivers that rely on the frequency, those drivers
- > should be fixed instead.
-
-There are generic drivers that rely on knowing the frequency of the
-kernel timer, and those are almost certainly currently bug-ridden in
-any architecture where the kernel timer doesn't run at the above
-frequency simply because they currently assume it runs at that
-frequency. However, ANY bugfix involves each architecture declaring
-the frequency its particular kernel timer runs at, and thus requires
-the CLOCK_TICK_RATE macro to be defined.
-
- > Please do not add CLOCK_TICK_RATE to the ia64 timex.h header file.
-
-It needs to be declared there. The only question is regarding the
-value it is defined to, and it would have to be somebody with better
-knowledge of the ia64 than me who decides that. All I can do is to
-post a reasonable default until such decision is made.
-
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
-
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.490 / Virus Database: 289 - Release Date: 16-Jun-2003
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,125 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267759AbUIGLJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267840AbUIGL0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267759AbUIGLJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 07:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267828AbUIGLJ6
+	id S267840AbUIGL0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 07:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUIGL0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 07:09:58 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:2465 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S267759AbUIGLJx (ORCPT
+	Tue, 7 Sep 2004 07:26:16 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:63973 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S267840AbUIGL0N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 07:09:53 -0400
-Date: Tue, 7 Sep 2004 13:09:13 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Steve French <smfltc@us.ibm.com>
-Subject: Re: [PATCH 1/3] copyfile: generic_sendpage
-Message-ID: <20040907110913.GA25802@wohnheim.fh-wedel.de>
-References: <20040904165733.GC8579@wohnheim.fh-wedel.de> <20040904153902.6ac075ea.akpm@osdl.org> <413C5BF2.nail2RA1138AG@pluto.uni-freiburg.de> <20040906133523.GC25429@wohnheim.fh-wedel.de> <413C74E6.nail3YF11Y0TT@pluto.uni-freiburg.de>
+	Tue, 7 Sep 2004 07:26:13 -0400
+Date: Tue, 7 Sep 2004 13:26:12 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Nathan <lists@netdigix.com>, keepalived-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: Kernel panic issues
+Message-ID: <20040907112612.GA16199@MAIL.13thfloor.at>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	Nathan <lists@netdigix.com>, keepalived-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+References: <1094411544.413b65185bdba@mail.dreamtoy.net> <20040905170527.4d2e079c.rddunlap@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <413C74E6.nail3YF11Y0TT@pluto.uni-freiburg.de>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040905170527.4d2e079c.rddunlap@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 September 2004 16:32:06 +0200, Gunnar Ritter wrote:
-> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+On Sun, Sep 05, 2004 at 05:05:27PM -0700, Randy.Dunlap wrote:
+> On Sun,  5 Sep 2004 12:12:24 -0700 Nathan wrote:
 > 
-> > Using a loop of 4k sendfile commands should be easy enough to do.
+> | Hi,  I have a server running debian 3.0r1 kernel 2.4.25 and I get these kernel 
+> | panic about 5 times this week.  If anyone can tell me what it means it would be 
+> | greatly appreciated.  Any additional instructions on how to read kernel panic 
+> | dumps would also be appreciated.
 > 
-> Heck, guess what I did (although 4k seems a bit small).
+> Denis Vlasenko recently did a "howto find oops location" for 2.6.x,
+> but it's probably the best reference for you to look at.
+> It's here:
+>   http://marc.theaimsgroup.com/?l=linux-kernel&m=109257016020612&w=2
 
-I did the loop inside the kernel, so the syscall overhead is less of
-an issue.  4k is a safe bet for _really_ slow devices and if people
-want to increase it, hey, it's just a single constant to touch.
+hmm, very interesting and sure fun to do, but
+usually you can get away with doing
 
-> > Problem is that copyfile(2) should do some decent cleanup after
-> > receiving a signal.  Hans Reiser got it right that all filesystem
-> > operations should be atomic.
+addr2line -e vmlinux c012609d
+
+(might require CONFIG_DEBUG_KERNEL and recompile)
+
+HTH,
+Herbert
+
+> | asdasdkernel BUG as slab.c:1263!
+> | Invalid operand: 0000
+> | CPU:	0
+> | EIP:	0010:[<c012609d>] Not tainted
+> | EFLAGS: 00010012
+> | eax: f31eafff	ebx: c19ad700	ecx: 00000001	edx: 00000001
+> | esi: f31ea800	edi: f31eabd3	ebp: c02cfca8	esp: c02cfc8c
+> | ds: 0018	es: 0018	ss: 0018
+> | Process swapper (pid: 0, stackpage=c02cf000)
+> | Stack:	f69657fc c03397e0 00000020 00000800 00012800 f31eabd3 00000246 c02cfcc4
+> | 	c01f6b5e 0000065c 00000020 00000008 0000001c f74ec160 c02cfcf f887afe3
+> | 	00000620 00000020 00000008 0000001c f74ec160 c01fa090 00000000 f6ebec
+> | Call Trace:	[<c01f6b5e>] [<f887afe3>] [<c01fa090>] [<f887ae58>] [<f887ae58>]
+> | 	[<c0107ee0>] [<c010806f>] [<c0125f2c>] [<c0231d11>] [<c02320c8>] 
+> | [<c0207b60>]
+> | 	[<f887b4ef>] [<c010806f>] [<c0207b60>] [<c02010b7>] [<c0207b60>] 
+> | [<c02079f5>]
+> | 	[<c0207b60>] [<c01fa40b>] [<c01fa4ad>] [<c01fa5bf>] [<c011552b>] 
+> | [<c010809d>]
+> | 	[<c0105260>] [<c0105260>] [<c0105260>] [<c0105260>] [<c0105286>] 
+> | [<c01052f9>]
+> | 	[<c0105000>] [<c010502a>]
+> | 
+> | Code: 0f 0b ef 04 60 33 26 c0 8b 7d f4 f7 c7 00 04 00 00 74 36 b8
+> |  <0>Kernel panic: Aiee, Killing interrupt handler!
+> | In interrupt handler - not syncing
 > 
-> Then I don't see the point in having a copyfile system call. In
-> fact, I would consider to deactivate it in every kernel derivative
-> I'm responsible for to prevent hanging applications.
-
-Personally, I don't care much either.  It's nice to get some test
-coverage and Steve French liked to have it for cifs.  Anyway, for the
-curious, here is the loop patch.
-
-Tested, sendfile(2) returns a short count if you send a signal to the
-calling process.  Add another loop in the userspace caller to deal
-with it, if you don't already have it.  It's a valid and documented
-return value, after all.
-
-Andrew, I'll resend all four patches to you in new thread.
-
-Jörn
-
--- 
-Ninety percent of everything is crap.
--- Sturgeon's Law
-
-
-Linus and Andrew are rightfully concerned about local DoS via a large
-file->file sendfile().  This patch turns large sendfile() calls into a
-loop of 4k chunks.  After each chunk, it adds a cond_resched for
-interactivity and a signal check to allow aborts etc. after the user
-found out what a bad idea this may be.
-
-Signed-off-by: Jörn Engel <joern@wohnheim.fh-wedel.de>
----
-
- read_write.c |   31 ++++++++++++++++++++++++++++++-
- 1 files changed, 30 insertions(+), 1 deletion(-)
-
-
---- linux-2.6.8cow/fs/read_write.c~sendfile_loop	2004-09-05 12:06:39.000000000 +0200
-+++ linux-2.6.8cow/fs/read_write.c	2004-09-07 11:18:55.000000000 +0200
-@@ -561,6 +561,35 @@
- 	return ret;
- }
- 
-+/**
-+ * sendfile() of a 2GB file over usb1-attached hard drives can take a moment.
-+ * This little loop is supposed to stop now and then to check for signals,
-+ * reschedule and generally play nice with others.
-+ */
-+ssize_t inline __vfs_sendfile(struct file *in_file, loff_t *ppos, size_t count,
-+		read_actor_t actor, struct file *out_file)
-+{
-+	ssize_t done = 0, ret;
-+	while (count) {
-+		size_t n = min(count, (size_t)4096);
-+		ret = in_file->f_op->sendfile(in_file, ppos, n, actor,out_file);
-+		if (ret < 0) {
-+			if (done)
-+				return done;
-+			else
-+				return ret;
-+		}
-+
-+		done += ret;
-+		count -= ret;
-+
-+		cond_resched();
-+		if (signal_pending(current))
-+			break;
-+	}
-+	return done;
-+}
-+
- ssize_t vfs_sendfile(struct file *out_file, struct file *in_file, loff_t *ppos,
- 		     size_t count, loff_t max)
- {
-@@ -608,7 +637,7 @@
- 		count = max - pos;
- 	}
- 
--	ret = in_file->f_op->sendfile(in_file, ppos, count, file_send_actor, out_file);
-+	ret = __vfs_sendfile(in_file, ppos, count, file_send_actor, out_file);
- 
- 	if (*ppos > max)
- 		return -EOVERFLOW;
+> The stack addresses are useless without associating some of (your)
+> kernel symbols with them.  Please read REPORTING-BUGS in the top
+> level of the kernel source tree for full bug-reporting info, and see
+> Documentation/Changes on where to get 'ksymoops' if you don't
+> already have it, then run this panic message text thru ksymoops.
+> That should tell the function call chain to get to slab.c.
+> 
+> --
+> ~Randy
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

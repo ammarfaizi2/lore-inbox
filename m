@@ -1,36 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267911AbTBVUoa>; Sat, 22 Feb 2003 15:44:30 -0500
+	id <S267914AbTBVUwL>; Sat, 22 Feb 2003 15:52:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267913AbTBVUoa>; Sat, 22 Feb 2003 15:44:30 -0500
-Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:1802 "EHLO
-	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
-	id <S267911AbTBVUoa>; Sat, 22 Feb 2003 15:44:30 -0500
-Date: Sat, 22 Feb 2003 21:54:39 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-ac1 not seeing IDE disk on PIIX host adapter
-Message-ID: <20030222205438.GA27893@torres.ka0.zugschlus.de>
-References: <20030222085102.GA23966@torres.ka0.zugschlus.de> <1045946551.5484.2.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267915AbTBVUwL>; Sat, 22 Feb 2003 15:52:11 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:47557 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267914AbTBVUwK>; Sat, 22 Feb 2003 15:52:10 -0500
+Date: Sat, 22 Feb 2003 13:02:12 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: Mark Hahn <hahn@physics.mcmaster.ca>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <2080000.1045947731@[10.10.2.4]>
+In-Reply-To: <20030222195642.GI1407@work.bitmover.com>
+References: <Pine.LNX.4.44.0302221417120.2686-100000@coffee.psychology.mcmaster.ca> <1510000.1045942974@[10.10.2.4]> <20030222195642.GI1407@work.bitmover.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1045946551.5484.2.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 08:42:31PM +0000, Alan Cox wrote:
-> I'd like to know if 2.4.21pre4-ac6 sees the disks.
+>> Interesting. Given the profit margins involved, I bet they still
+>> make more money on servers than desktops and notebooks combined
+>> (the annual report doesn't seem to list that). And that's before 
+>> you take account of the "linux weighting" on top of that ...
+> 
+> Err, here's a news flash.  Dell has just one server with more than
+> 4 CPUS and it tops out at 8.  Everything else is clusters.  And they
+> call any machine that doesn't have a head a server, they have servers
+> starting $299.  Yeah, that's right, $299.
+> 
+> http://www.dell.com/us/en/bsd/products/series_pedge_servers.htm
+> 
+> How much do you want to bet that more than 95% of their server revenue
+> comes from 4CPU or less boxes?  I wouldn't be surprised if it is more
+> like 99.5%.  And you can configure yourself a pretty nice quad xeon box
+> for $25K.  Yeah, there is some profit in there but nowhere near the huge
+> margins you are counting on to make your case.
 
-ftp.kernel.org doesn't have pre4-ac6, only pre4-ac5. Is the patch
-already released?
+OK, so now you've slid from talking about PCs to 2-way to 4-way ...
+perhaps because your original arguement was fatally flawed.
 
-Greetings
-Marc
+The work we're doing on scalablity has big impacts on 4-way systems
+as well as the high end. We're also simultaneously dramatically improving
+stability for smaller SMP machines by finding reproducing races in 
+5 minutes that smaller machines might hit once every year or so, and 
+running high-stress workloads that thrash the hell out of various 
+subsystems exposing bugs.
 
--- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29
+Some applications work well on clusters, which will give them cheaper 
+hardware, at the expense of a lot more complexity in userspace ... 
+depending on the scale of the system, that's a tradeoff that might go 
+either way. 
+
+For applications that don't work well on clusters, you have no real
+choice but to go with the high-end systems. I'd like to see Linux
+across the board, as would many others.
+
+You don't believe we can make it scale without screwing up the low end,
+I do believe we can do that. Time will tell ... Linus et al are not 
+stupid ... we're not going to be able to submit stuff that screwed up
+the low-end, even if we wanted to.
+
+M.
+
+
+

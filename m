@@ -1,67 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269517AbUICQwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269540AbUICQ63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269517AbUICQwX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 12:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269486AbUICQqo
+	id S269540AbUICQ63 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 12:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269486AbUICQ6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 12:46:44 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:62336
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269456AbUICQqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 12:46:10 -0400
-To: alan@lxorguk.ukuu.org.uk, apw@shadowen.org
-Subject: Re: [PATCH] tidy AMD 768MPX fix
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1094225233.8102.16.camel@localhost.localdomain>
-Message-Id: <E1C3HCK-0001aU-H4@localhost.localdomain>
-From: Andy Whitcroft <apw@shadowen.org>
-Date: Fri, 03 Sep 2004 17:46:00 +0100
+	Fri, 3 Sep 2004 12:58:14 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:60546 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269466AbUICQxf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 12:53:35 -0400
+Date: Fri, 3 Sep 2004 17:53:23 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: lkml@einar-lueck.de
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net/ipv4 for Source VIPA support, kernel BK Head
+In-Reply-To: <200409031007.29467.elueck@de.ibm.com>
+Message-ID: <Pine.LNX.4.61.0409031747580.23011@fogarty.jakma.org>
+References: <200409011441.10154.elueck@de.ibm.com> <200409021858.38338.elueck@de.ibm.com>
+ <Pine.LNX.4.61.0409022147220.23011@fogarty.jakma.org> <200409031007.29467.elueck@de.ibm.com>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Even if we use a different software page size in some future x86 release
-> the workaround is to reserve 4096 bytes. I don't think this change makes
-> sense therefore.
+On Fri, 3 Sep 2004, Einar Lueck wrote:
 
-I have always assumed that PAGE_SIZE in the bootmem allocator was
-hardware page size; such that if software PAGE_SIZE was to change that
-it would necessarily be replaced with two different constants.  But fair
-enough.  In that case perhaps we should at least fix the code indent
-etc.  Revised patch below.
+> I just set up the loopback interface via ZEBRA/OSPF as You 
+> described it and checked via tcpdump the source IP address of the 
+> related NFS packets. The kernel chooses the IP address of the NIC 
+> he routes the packets over as the source IP address and not the 
+> Source VIPA configured for loopback.
 
--apw
+Ah, I didnt say adding an address to loopback would make everything 
+use it. Merely that loopback already exists as an interface to which 
+from which you can 'hang' your VIPA - no need for a new interface.
 
-=== 8< ===
-Fix indentation and layout of AMD 768MPX errata #56 fix.
+You could try:
 
-Revision: $Rev: 620 $
+ 	ip route change default via <gateway> src <vipa>
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+Presuming the NFS clients are behind a gateway. If also onlink, you 
+need to modify the connected routes and change the src there too.
 
-diffstat 020-tidy-AMD-768MPX-fix
----
- setup.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+> You are right, it would be one option to have a "bind to address" 
+> in KNFSD.
 
-diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/arch/i386/kernel/setup.c current/arch/i386/kernel/setup.c
---- reference/arch/i386/kernel/setup.c	2004-09-02 18:05:57.000000000 +0100
-+++ current/arch/i386/kernel/setup.c	2004-09-03 17:34:58.000000000 +0100
-@@ -1052,12 +1052,14 @@ static unsigned long __init setup_memory
- 	/* reserve EBDA region, it's a 4K region */
- 	reserve_ebda_region();
- 
--    /* could be an AMD 768MPX chipset. Reserve a page  before VGA to prevent
--       PCI prefetch into it (errata #56). Usually the page is reserved anyways,
--       unless you have no PS/2 mouse plugged in. */
-+	/*
-+	 * could be an AMD 768MPX chipset. Reserve a page before VGA to
-+	 * prevent PCI prefetch into it (errata #56). Usually the page is
-+	 * reserved anyways, unless you have no PS/2 mouse plugged in.
-+	 */
- 	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD &&
- 	    boot_cpu_data.x86 == 6)
--	     reserve_bootmem(0xa0000 - 4096, 4096);
-+		reserve_bootmem(0xa0000 - 4096, 4096);
- 
- #ifdef CONFIG_SMP
- 	/*
+It might even already exist.. who knows. ;)
+
+> But our idea was to implement a feature well known from other 
+> operating systems like AIX to Linux because this feature is quite 
+> popular and liked especially by large customers.
+
+Right, but Linux can already do it. The configuration might not be 
+the same as AIX, but that's not a good reason.. if it were, you 
+should also be porting smit to Linux to satisfy your customers ;)
+
+Linux can already do what you want I think. Just a matter of 
+configuring it.
+
+> We would win a facility allowing for a Source VIPA for all kinds of 
+> servers not offering an explicit bind option. So: Due to the 
+> feature port idea mentioned above.
+
+Have you tried playing with ip route?
+
+ 	ip route <destination> ...... src <source address>
+
+> If we focus for a moment just on the NIC-fail-over issue (not 
+> caring about layers, virtual IPs, etc.) then bonding offers the 
+> desired failover with some restriction. This is the reason why I 
+> mentioned it in this context.
+
+Ah.
+
+> Again, thanks for Your suggestions and maybe we should continue our
+> discussion privately.
+
+Sure.
+
+> Regards
+>
+> Einar.
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+kernel panic: write-only-memory (/dev/wom0) capacity exceeded.

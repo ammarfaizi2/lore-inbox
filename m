@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130230AbQKXXoX>; Fri, 24 Nov 2000 18:44:23 -0500
+        id <S130535AbQKXX55>; Fri, 24 Nov 2000 18:57:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130406AbQKXXoN>; Fri, 24 Nov 2000 18:44:13 -0500
-Received: from jalon.able.es ([212.97.163.2]:7870 "EHLO jalon.able.es")
-        by vger.kernel.org with ESMTP id <S130230AbQKXXoC>;
-        Fri, 24 Nov 2000 18:44:02 -0500
-Date: Sat, 25 Nov 2000 00:13:51 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Rusty Russell <rusty@linuxcare.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
-Message-ID: <20001125001351.A1342@werewolf.able.es>
-Reply-To: jamagallon@able.es
-In-Reply-To: <Pine.LNX.4.21.0011212300590.950-100000@penguin.homenet> <20001123110203.EB8A8813D@halfway.linuxcare.com.au>
+        id <S130566AbQKXX5q>; Fri, 24 Nov 2000 18:57:46 -0500
+Received: from laurin.munich.netsurf.de ([194.64.166.1]:63969 "EHLO
+        laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
+        id <S130535AbQKXX52>; Fri, 24 Nov 2000 18:57:28 -0500
+Date: Sat, 25 Nov 2000 00:28:23 +0100
+To: Bjorn Wesen <bjorn@sparta.lu.se>
+Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Address translation
+Message-ID: <20001125002822.D2324@storm.local>
+Mail-Followup-To: Bjorn Wesen <bjorn@sparta.lu.se>,
+        Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20001123212315.C4886@storm.local> <Pine.LNX.3.96.1001123214139.14437A-100000@medusa.sparta.lu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20001123110203.EB8A8813D@halfway.linuxcare.com.au>; from rusty@linuxcare.com.au on Thu, Nov 23, 2000 at 12:01:53 +0100
-X-Mailer: Balsa 1.0.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.96.1001123214139.14437A-100000@medusa.sparta.lu.se>; from bjorn@sparta.lu.se on Thu, Nov 23, 2000 at 10:04:18PM +0100
+From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 23 Nov 2000 12:01:53 Rusty Russell wrote:
+On Thu, Nov 23, 2000 at 10:04:18PM +0100, Bjorn Wesen wrote:
+> On Thu, 23 Nov 2000, Andreas Bombe wrote:
+> > > I may be wrong on this, but I thought that copy_{to,from}_user are
+> > > only necessary if the address range you are accessing might cause a
+> > > fault which Linux cannot handle (ie. one which would cause the
+> > > application to segfault if it accessed that memory). If it is only a
+> > 
+> > It is wrong.  copy_*_user handle the page faults, whether they are good
+> > faults (swapped out, copy on write) or bad faults (illegal access).
+> > Without these macros you get the "unable to handle kernel page fault"
+> > oops message if a fault occurs.
 > 
-> What irritates about these monkey-see-monkey-do patches is that if I
-> initialize a variable to NULL, it's because my code actually relies on
-> it; I don't want that information eliminated.
+> Yes but only if it's a real fault, not if the address range actually is
+> a valid VMA which needs paging, COW'ing or related OS ops. copy_*_user
+> does not do the access in any different way than a "manual" access or
+> memcpy does, it just adds a .fixup section that tells the do_page_fault
+> handler that it should not segfault the kernel itself if the copy takes a
+> big fault at any point, instead it should jump to the fixup which makes
+> the copy routine return an error message.
+
+You're right, I remembered wrong.
+
+> > >  (1) In a "top half" thread, can I now access this memory without the
+> > >      access macros (since I know the address range is valid)?
+> > 
+> > The address is valid, the pages probably aren't.  In fact, extending the
+> > address space only creates read-only mappings to the global zeroed page
+> > if I remember right.
 > 
+> But it does not matter that the pages aren't there physically, any kind of
+> access (including an access from kernel-mode) will bring about the same
+> COW/change-on-write mechanism as copy_to_user or a user-mode access would.
 
-What I understood from the previous answer from Tigran is that you can
-avoid initializations to ZERO or NULL, because the BSS is zeroed (ie, all
-variables you declare static os global in a module are zeroed) at
-kernel start.
+However these faults can let you sleep (swap-in, or swap-out to make
+room for a COW page).  That's defined for the uaccess macros, but might
+come very unexpected with a memcpy.  Unexpected sleeps alone can make a
+crash if the surrounding code does not allow it.
 
-As I understand from compiler working, if you put a statement like
-int a = 0;
-int b = 0;
-all variables that have an initial value are stored contiguous in the
-data segment of the executable and an image of their initial values has
-to be stored with the binary. So if a program like
-
-int a[16384];
-int main() {}
-
-gives a binary of 13k, if you write it as
-
-int a[16384] = {0};
-int main() {}
-
-it has to store the 64k of a, just to put a 0 in the first place and
-make the exec size to 78k.
-
-ANSI rules for C say that uninitialized vars get a 0, but you can't trust
-on the ANSI behaviour of a compiler.
-
-Obviuosly, you have to leave your initializations to 7 or -1 in place.
+It's a moot point anyway, memcpy with user space is illegal.
 
 -- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
-
-Linux 2.2.18-pre23-vm #3 SMP Wed Nov 22 22:33:53 CET 2000 i686 unknown
-
+ Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
+http://home.pages.de/~andreas.bombe/    http://linux1394.sourceforge.net/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

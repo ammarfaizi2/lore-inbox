@@ -1,28 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262835AbRE0Rfj>; Sun, 27 May 2001 13:35:39 -0400
+	id <S262837AbRE0Rij>; Sun, 27 May 2001 13:38:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262842AbRE0Rf3>; Sun, 27 May 2001 13:35:29 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2061 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262835AbRE0RfT>; Sun, 27 May 2001 13:35:19 -0400
-Subject: Re: Inconsistent "#ifdef __KERNEL__" on different architectures
-To: bunk@fs.tum.de (Adrian Bunk)
-Date: Sun, 27 May 2001 18:29:55 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.33.0105271903050.4227-100000@mimas.fachschaften.tu-muenchen.de> from "Adrian Bunk" at May 27, 2001 07:25:33 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262843AbRE0RiT>; Sun, 27 May 2001 13:38:19 -0400
+Received: from HSE-MTL-ppp74207.qc.sympatico.ca ([64.229.207.238]:20358 "HELO
+	oscar.casa.dyndns.org") by vger.kernel.org with SMTP
+	id <S262837AbRE0RiI>; Sun, 27 May 2001 13:38:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 + ReiserFS + SMP + umount = oops
+Date: Sun, 27 May 2001 13:38:00 -0400
+X-Mailer: KMail [version 1.2]
+Cc: Rene <kaos@intet.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1544MV-00028h-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01052713380000.19585@oscar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On some architectures a function is inside an "#ifdef __KERNEL__" in the
-> header file and on others not. Is there a reason for this or is this
-> inconsistency simply a bug?
+Hi,
 
-Its probably a bug - primarily it depends if the function is useful when
-exported to non kernel code
+This was reported on the reiserfs list yesterday.  Seems that the cleanup
+applied late in  2.4.5-pre affected the locking of the umount process.  This
+was posted to fix the problem.
+
+Ed Tomlinson
+
+-----------------------
+
+"Vladimir V. Saveliev" wrote:
+> 
+> Hi
+> 
+> Gergely Tamas wrote:
+> > 
+> > Hi!
+> > 
+> > Kernel is 2.4.5
+> > 
+> > I've tried to unmount a reiserfs device (/uu.new) and got a segfault.
+>
+> Well, sys_umount in 2.4.5 changed to not lock_kernel() at the beginning and to not unlock_kernel() at the end correspondingly.
+> journal_begin expectes kernel locked and it oopses when it is not. Maybe reiserfs_put_super should lock_kernel () itself?
+> 
+
+
+Hi,
+
+You are right.
+It seems, the next patch can fix umount reiserfs bug in linux-2.4.5 :
+
+diff -urN v2.4.5/fs/reiserfs/super.c linux/fs/reiserfs/super.c
+--- v2.4.5/fs/reiserfs/super.c   Sun Apr 29 16:02:25 2001
++++ linux/fs/reiserfs/super.c    Sat May 26 19:10:16 2001
+@@ -104,7 +104,8 @@
+ {
+   int i;
+   struct reiserfs_transaction_handle th ;
+-  
++
++  lock_kernel() ;  
+   /* change file system state to current state if it was mounted with
+read-write permissions */
+   if (!(s->s_flags & MS_RDONLY)) {
+     journal_begin(&th, s, 10) ;
+@@ -117,6 +118,7 @@
+   ** to do a journal_end
+   */
+   journal_release(&th, s) ;
++  unlock_kernel() ;
+ 
+   for (i = 0; i < SB_BMAP_NR (s); i ++)
+     brelse (SB_AP_BITMAP (s)[i]);
+
+
+
+Thanks,
+Yura.

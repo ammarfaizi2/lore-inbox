@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbULJRoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbULJRn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbULJRoE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 12:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbULJRoE
+	id S261764AbULJRn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 12:43:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbULJRn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 12:44:04 -0500
-Received: from holomorphy.com ([207.189.100.168]:32402 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261769AbULJRn7 (ORCPT
+	Fri, 10 Dec 2004 12:43:58 -0500
+Received: from holomorphy.com ([207.189.100.168]:32658 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261764AbULJRn4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 12:43:59 -0500
-Date: Fri, 10 Dec 2004 09:43:36 -0800
+	Fri, 10 Dec 2004 12:43:56 -0500
+Date: Fri, 10 Dec 2004 09:43:42 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>,
-       nickpiggin@yahoo.com.au
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
+       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] oom killer (Core)
-Message-ID: <20041210174336.GP2714@holomorphy.com>
-References: <1101985759.13353.102.camel@tglx.tec.linutronix.de> <1101995280.13353.124.camel@tglx.tec.linutronix.de> <20041202164725.GB32635@dualathlon.random> <20041202085518.58e0e8eb.akpm@osdl.org> <20041202180823.GD32635@dualathlon.random> <1102013716.13353.226.camel@tglx.tec.linutronix.de> <20041202233459.GF32635@dualathlon.random> <20041203022854.GL32635@dualathlon.random> <20041210163614.GN2714@holomorphy.com> <20041210173554.GW16322@dualathlon.random>
+Message-ID: <20041210174342.GQ2714@holomorphy.com>
+References: <20041201104820.1.patchmail@tglx> <20041210163247.GM2714@holomorphy.com> <1102697553.3306.91.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041210173554.GW16322@dualathlon.random>
+In-Reply-To: <1102697553.3306.91.camel@tglx.tec.linutronix.de>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2004 at 08:36:14AM -0800, William Lee Irwin III wrote:
->> Maybe the mm == &init_mm case should return an ERR_PTR also, as that is
->> a sign of a transient error, not cause for a hard panic.
+On Fri, 2004-12-10 at 08:32 -0800, William Lee Irwin III wrote:
+>> It appears the net functional change here is the reentrancy prevention;
+>> the choice of tasks is policy. The functional change may be accomplished
+>> with the following:
 
-On Fri, Dec 10, 2004 at 06:35:54PM +0100, Andrea Arcangeli wrote:
-> It can't be a transient error as far as I can tell, it's just like the
-> issue of alloc_pages returning NULL (and potentially scheduling first)
-> before mounting the root fs.
+On Fri, Dec 10, 2004 at 05:52:33PM +0100, Thomas Gleixner wrote:
+> Your patch would call yield() with the lock held. On an UP machine you
+> end up in the same code, as spin_locks are NOPs except for the preempt
+> part.
+> It's now obsolete by the fixes which were done by Andrea. 
+> I'm wondering why he did not post the final version. Andrea ???
+> Attached is the latest working and tested patch. It contains Andrea's
+> fixes to the oom invocation and my modifications to the selection whom
+> to kill.
+> This should really go into mainline.
 
-Well, the only way I see this happening is the process exiting followed
-by use_mm() on init_mm for unobvious reasons (perhaps reasons not in
-the tree).
+ARGH, preempt.
 
 
 -- wli

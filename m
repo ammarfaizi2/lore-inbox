@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130325AbRA2WEe>; Mon, 29 Jan 2001 17:04:34 -0500
+	id <S129975AbRA2WGf>; Mon, 29 Jan 2001 17:06:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130400AbRA2WEY>; Mon, 29 Jan 2001 17:04:24 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:16258 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130325AbRA2WEN>;
-	Mon, 29 Jan 2001 17:04:13 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S130400AbRA2WGZ>; Mon, 29 Jan 2001 17:06:25 -0500
+Received: from comunit.de ([195.21.213.33]:35104 "HELO comunit.de")
+	by vger.kernel.org with SMTP id <S129975AbRA2WGN>;
+	Mon, 29 Jan 2001 17:06:13 -0500
+Date: Mon, 29 Jan 2001 23:06:11 +0100 (CET)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: <haegar@space.comunit.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0-test12: SiS pirq handling..
+In-Reply-To: <Pine.LNX.4.10.10101291348330.9791-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.32.0101292303360.7513-100000@space.comunit.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14965.59519.548797.376559@pizda.ninka.net>
-Date: Mon, 29 Jan 2001 14:02:39 -0800 (PST)
-To: kuznet@ms2.inr.ac.ru
-Cc: ionut@cs.columbia.EDU (Ion Badulescu), linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
-In-Reply-To: <200101261943.WAA28202@ms2.inr.ac.ru>
-In-Reply-To: <Pine.LNX.4.30.0101251253300.20615-100000@age.cs.columbia.edu>
-	<200101261943.WAA28202@ms2.inr.ac.ru>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 29 Jan 2001, Linus Torvalds wrote:
 
-kuznet@ms2.inr.ac.ru writes:
- > Dave, seems, it is better to repair this. Code really assumes
- > that SG cannot be used without one of CSUM flags...
+> give 2.4.0-test12 a final whirl before I release it as 2.4.1? We got a lot
+[...]
+> The other changes in pre12 aren't likely to be all that noticeable, unless
+[...]
+> 		Linus
 
-SG+CSUM requirement is enforced now in my tree, I will publish a newer
-zerocopy patch later today.
+Seems that even you are still confused with -testXX and -preXX ;)
 
-Later,
-David S. Miller
-davem@redhat.com
+*SCNR*
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,29 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbSI3Dg0>; Sun, 29 Sep 2002 23:36:26 -0400
+	id <S261909AbSI3EAE>; Mon, 30 Sep 2002 00:00:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261908AbSI3Dg0>; Sun, 29 Sep 2002 23:36:26 -0400
-Received: from cs6625140-244.austin.rr.com ([66.25.140.244]:29577 "EHLO
-	spherenet.dyndns.org") by vger.kernel.org with ESMTP
-	id <S261907AbSI3DgZ>; Sun, 29 Sep 2002 23:36:25 -0400
-Date: Sun, 29 Sep 2002 22:41:47 -0500
-From: Rodney Gordon II <meff@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: IDE patch for 2.4.19?
-Message-ID: <20020930034147.GA3431@spherenet.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S261910AbSI3EAE>; Mon, 30 Sep 2002 00:00:04 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:23312 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261909AbSI3EAD>;
+	Mon, 30 Sep 2002 00:00:03 -0400
+Date: Sun, 29 Sep 2002 21:00:05 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic/exception dump support in 2.5?
+In-Reply-To: <1033334307.13795.11.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33L2.0209292059240.2691-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone point me to a patch for 2.4.19 that is just the IDE changes
-in the ac series that effects the ICH3M chipset and UDMA 3/4/5 settings?
-Someone replied to my last post and said that this was merged in around
-ac3 .. I'd really appreciate it :)
+On 29 Sep 2002, Alan Cox wrote:
 
--r
+| On Sun, 2002-09-29 at 21:42, Shawn Starr wrote:
+| >
+| > It would really be nice if I could capture kernel exceptions/and oopsies
+| > on a file, or over a network connection. Redirecting console=lp0 to
+| > printer doesnt really let me paste dumps to LKML =)
+| >
+| > Any solutions? Will we have a way to properly dump kernel failures
+| > (exceptions/oopies) somewhere?
+|
+| The netdump patch can do this, including the actual kernel image
+| -
 
+Is this something different from netconsole?
+Where can I find netdump?
+
+Thanks,
 -- 
-Rodney "meff" Gordon II - meff@pobox.com
+~Randy
+

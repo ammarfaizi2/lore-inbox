@@ -1,54 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVCaCQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262489AbVCaCUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbVCaCQj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 21:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVCaCQj
+	id S262489AbVCaCUG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 21:20:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbVCaCUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 21:16:39 -0500
-Received: from digitalimplant.org ([64.62.235.95]:39843 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S262482AbVCaCQ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 21:16:26 -0500
-Date: Wed, 30 Mar 2005 18:16:19 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Alan Stern <stern@rowland.harvard.edu>
-cc: David Brownell <david-b@pacbell.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: klists and struct device semaphores
-In-Reply-To: <Pine.LNX.4.44L0.0503291055560.1038-100000@ida.rowland.org>
-Message-ID: <Pine.LNX.4.50.0503301814090.20992-100000@monsoon.he.net>
-References: <Pine.LNX.4.44L0.0503291055560.1038-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Mar 2005 21:20:06 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:6300 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262484AbVCaCT4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 21:19:56 -0500
+Subject: Re: [NFS] [PATCH] SGI 926917: make knfsd interact cleanly with HSMs
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Linux NFS Mailing List <nfs@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux Filesystem Development List 
+	<linux-fsdevel@vger.kernel.org>
+In-Reply-To: <16971.22880.262928.543410@cse.unsw.edu.au>
+References: <20050315074949.GA4541@sgi.com>
+	 <1112233192.1991.1031.camel@hole.melbourne.sgi.com>
+	 <16971.22880.262928.543410@cse.unsw.edu.au>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1112235521.1991.1082.camel@hole.melbourne.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 31 Mar 2005 12:18:42 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-03-31 at 11:58, Neil Brown wrote:
+> On Thursday March 31, gnb@melbourne.sgi.com wrote:
+> > On Tue, 2005-03-15 at 18:49, Greg Banks wrote:
+> > > This patch seeks to remedy the interaction between knfsd and HSMs by
+> > > providing mechanisms to allow knfsd to tell an underlying filesystem
+> > > (which supports HSMs) not to block for reads, writes and truncates
+> > > of offline files.  It's a port of a Linux 2.4 patch used in SGI's
+> > > ProPack distro for the last 12 months.  The patch:
+> > 
+> > Any news on this patch?  Is it good, bad, ugly, or what?
+> [...]
+> Yes, it looks reasonably sane.
+> 
+> I'm not very comfortable about the
+> 
+> +		if (rqstp->rq_vers == 3)
+> 
+> usage.  Shouldn't it be 
+> +		if (rqstp->rq_vers >= 3)
+> as presumably NFSv4 would like NFSERR_JUKEBOX returns too.
 
-On Tue, 29 Mar 2005, Alan Stern wrote:
+I guess so, but I haven't tested it with v4.  I'll update the patch.
 
-> On Mon, 28 Mar 2005, Patrick Mochel wrote:
->
-> > How is this related to (8) above? Do you need some sort of protected,
-> > short path through the core to add the device, but not bind it or add it
-> > to the PM core?
->
-> Having thought it through, I believe all we need for USB support is this:
->
-> 	Whenever usb_register() in the USB core calls driver_register()
-> 	and the call filters down to driver_attach(), that routine
-> 	should lock dev->parent->sem before calling driver_probe_device()
-> 	(and unlock it afterward, of course).
->
-> 	(For the corresponding remove pathway, where usb_deregister()
-> 	calls driver_unregister(), it would be nice if __remove_driver()
-> 	locked dev->parent->sem before calling device_release_driver().
-> 	This is not really needed, however, since USB drivers aren't
-> 	supposed to touch the device in their disconnect() method.)
+> Also, it assumes an extension to the semantics of IFREG files such
+> that O_NONBLOCK has a meaning... 
 
+Yes.
 
-Why can't you just lock it in ->probe() and ->remove() yourself?
+> What exactly is that meaning?
+> "Returned -EAGAIN if the request will take a long time for some vague
+> definition of long" ...
 
+This is one of the issues I'd appreciate some real feedback on, so
+I've cc'ed lkml and fsdevel.
 
-	Pat
+The specific and practical answer is "Return -EAGAIN if DMAPI decides
+it needs to queue an event", but that only applies to XFS (and JFS
+in SLES) so it's not really a generic definition.
+
+>From knfsd's point of view, the desired definition is "Return -EAGAIN
+if the operation is likely to take longer than a client RPC timeout".
+Of course, the server doesn't know what that number is, although 1.1 sec
+is a pretty good guess.
+
+Perhaps the best definition is "Return -EAGAIN if the operation needs
+to block on something other than a disk IO".  This covers what actually
+happens in the guts of XFS, what needs generically to happen for HSMs,
+and suits the needs of knfsd.
+
+> Is this new semantic in any way 'standard' or accepted by the
+> filesystem gurus (e.g. Al Viro)??
+
+It's not currently standard; my hope is to extend the standard.
+I've cc'ed Al Viro in the hope of some feedback.
+
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
+
 

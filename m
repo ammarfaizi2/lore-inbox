@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272050AbTHHWGi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 18:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272066AbTHHWGh
+	id S271941AbTHHWDC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 18:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271973AbTHHWDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 18:06:37 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:36868 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S272050AbTHHWEy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 18:04:54 -0400
-Date: Sat, 9 Aug 2003 00:03:03 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: [PATCH] TRY #2 - 2.6.0-test2-bk8 - seq_file conversion of /proc/net/atm
-Message-ID: <20030809000303.A2699@electric-eye.fr.zoreil.com>
+	Fri, 8 Aug 2003 18:03:02 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36297 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271941AbTHHWDA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 18:03:00 -0400
+Date: Fri, 8 Aug 2003 14:49:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Romeyke <art1@it-netservice.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.5:  mlock broken?
+Message-Id: <20030808144937.6055a798.akpm@osdl.org>
+In-Reply-To: <20030808233213.4ffb2c84.art1@it-netservice.de>
+References: <20030808233213.4ffb2c84.art1@it-netservice.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  followup to the posting of 2003/07/09. Patchkit is still divided in 8 parts:
+Andreas Romeyke <art1@it-netservice.de> wrote:
+>
+> Hi folks,
+> 
+> By testing 2.6.0-test2, I detected that the glibc-function mlock(),
+> provided by /sys/mlock.h seems to be a deadlock in some cases on 2.5
+> 
+> If you want to lock more memory than physical RAM could be freed, the
+> mlock() does not return with an errorcode as under 2.4.21 does.
+> The system hangs around. This problem was catched under x86 and s390
+> architecture by using Debian distribution (woody and unstable) and
+> others  with the well known memtest program written by Charles Cazabon
+> from   http://www.qcc.ca/~charlesc/software/memtester/ (ver. 2.93.1).
+> 
 
-1 - devices;
-2 - utility and common code for vcs (vc/pvc/svc);
-3 - pvc;
-4 - svc;
-5 - vc;
-6 - arp;
-7 - lec;
-8 - final cleanup.
+2.4 kernels have a little check which prevents a single process from
+mlocking more than half of physical memory.  So you need to run two
+processes to kill a 2.4 box with mlock.
 
-Gross bugs have been fixed in #7. It now passes some basic testing. Its
-behavior with a huge number of lec remains to be proved. Others parts
-already seemed quite nice last month.
+Some people want to be able to mlock more memory than that in a single
+process, so the check was removed in 2.6.  It was pretty pointless.
 
---
-Ueimor

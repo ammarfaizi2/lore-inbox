@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278697AbRJ2R7m>; Mon, 29 Oct 2001 12:59:42 -0500
+	id <S276628AbRJ2SJM>; Mon, 29 Oct 2001 13:09:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278690AbRJ2R7c>; Mon, 29 Oct 2001 12:59:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4872 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278697AbRJ2R7Q>; Mon, 29 Oct 2001 12:59:16 -0500
-Subject: Re: eepro100.c & Intel integrated MBs
-To: greearb@candelatech.com (Ben Greear)
-Date: Mon, 29 Oct 2001 18:05:56 +0000 (GMT)
-Cc: jurgen@botz.org (Jurgen Botz), linux-kernel@vger.kernel.org
-In-Reply-To: <3BDD8EEC.6DFE6BA5@candelatech.com> from "Ben Greear" at Oct 29, 2001 10:16:28 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276639AbRJ2SJD>; Mon, 29 Oct 2001 13:09:03 -0500
+Received: from [193.78.30.180] ([193.78.30.180]:17487 "EHLO
+	rotterdam.jasongeo.com") by vger.kernel.org with ESMTP
+	id <S276628AbRJ2SIy>; Mon, 29 Oct 2001 13:08:54 -0500
+Message-ID: <7141CF666EB1D411AF4A004854550BBC088DBE@dexter.jason.nl>
+From: Wouter van Bommel <WvanBommel@jasongeo.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: SMP machine with 2GB ram hangs without any clue
+Date: Mon, 29 Oct 2001 19:10:16 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15yGnN-0003UO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The Scyld drivers have only recently started working with the 2.4 series,
-> and there is some unholly war between Becker and the rest of the kernel
+Hi all,
 
-Hardly that. Donald does things his way, and then other folks pick up his
-changes where good (most of the time in fact) and merge them into the
-kernel drivers.
+I am hoping someone can help me with picking the right (read stable) kernel for the following hardware configuration:
+2x 1Ghz PIII fitted on a serverworks chipset, and 2GB ram.
+Video Card is an Geforce MX-400 twinview setup (no agp, several Geforce cards tried)
+Network is an intergrated intel ether express (eepro100 driver)
 
-If someone can figure why Don's driver sorts out the 815E hangs then thats
-stuff we want in the main stream.
+For some reason it is not possible to get the above configuration. Tried several versions of the 2.4.x kernel series (include the Suse ones, as 7.2 is the suse version installed)
+Also tried various versions of the NVidia driver and all versions of XFree between 4.02 and 4.1
 
-> instead of the eepro100.  The e100's license is close to compatible
-> with the kernel, and I've heard rumors that the remaining issues may
-> be worked out...  I've also heard the code is ugly as hell...but it
+None of the combinations would give a stable system (that is hanging the kernel afther 1/2 - 60 minutes)
+The system would crash so badly that even ping responsed stayed out. (No numlock either)
 
-The patent grant thing got sort of sorted out (last I saw it was seems ok
-now ask vendor legal people). Unfortunately it seems the intel people want
-to force e100.c into the kernel by refusing to work on eepro100.c. 
+The machine is some sort of stable if the kernel is a 2.4.4 one compiled for only 1 cpu. (Booting with nosmp would hang the system)
 
-As anyone can tell you trying to force things on Linux developers generally
-works out pretty badly. Other bits of Intel are being quite sane (eg most
-of the ACPI stuff except for the speedstop mobile stuff).
+Does anyone else have simular experience (or knows how to solve this).
+If more information is required I will provide it.
 
-Alan
+Waiting for a solving answer,
 
+Wouter van Bommel

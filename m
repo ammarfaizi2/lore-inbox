@@ -1,60 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318747AbSIKMpD>; Wed, 11 Sep 2002 08:45:03 -0400
+	id <S318752AbSIKMwF>; Wed, 11 Sep 2002 08:52:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318748AbSIKMpD>; Wed, 11 Sep 2002 08:45:03 -0400
-Received: from p50846B66.dip.t-dialin.net ([80.132.107.102]:25571 "EHLO
-	sol.fo.et.local") by vger.kernel.org with ESMTP id <S318747AbSIKMpC>;
-	Wed, 11 Sep 2002 08:45:02 -0400
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Linux 2.4.20-pre6
-References: <Pine.GSO.4.21.0209111252340.27524-100000@vervain.sonytel.be>
-From: Joachim Breuer <jmbreuer@gmx.net>
-Date: Wed, 11 Sep 2002 14:49:46 +0200
-In-Reply-To: <Pine.GSO.4.21.0209111252340.27524-100000@vervain.sonytel.be> (Geert
- Uytterhoeven's message of "Wed, 11 Sep 2002 12:55:52 +0200 (MEST)")
-Message-ID: <m365xcu1w5.fsf@venus.fo.et.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
- i386-redhat-linux)
+	id <S318762AbSIKMwF>; Wed, 11 Sep 2002 08:52:05 -0400
+Received: from dp.samba.org ([66.70.73.150]:39141 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S318752AbSIKMwA>;
+	Wed, 11 Sep 2002 08:52:00 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15743.15275.412038.388540@argo.ozlabs.ibm.com>
+Date: Wed, 11 Sep 2002 22:48:43 +1000 (EST)
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] highmem I/O for ide-pmac.c
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven <geert@linux-m68k.org> writes:
+Marcelo,
 
-> On Wed, 11 Sep 2002, Adrian Bunk wrote:
->> On Tue, 10 Sep 2002, Marcelo Tosatti wrote:
->> 
->> >...
->> > Geert Uytterhoeven <geert@linux-m68k.org>:
->> >...
->> >   o Wrong fbcon_mac dependency
->> >...
->> 
-> [SNIP]
->
-> Hmmm... I didn't realize vesafb can use fbcon-mac.
->
-> However, it seems to be used if you don't enable any of the fbcon-cfb* modules
-> only, since fbcon-cfb* takes precendence.
->
-> Do people really use 6x11 fonts with vesafb?
+This patch fixes drivers/ide/ide-pmac.c to handle I/O to highmem
+pages.  Please apply it to your tree.
 
-I don't use vesafb (as they (do they still?) tend to interfere with
-accelerated X). "But I would if I did."
+Thanks,
+Paul.
 
-(Currently typing in an XEmacs on a 1600x1200 21" CRT using 6x13
-font. No, I still don't get "enough" on one screen...)
-
-
-So long,
-   Joe
-
--- 
-"I use emacs, which might be thought of as a thermonuclear
- word processor."
--- Neal Stephenson, "In the beginning... was the command line"
+diff -urN linux-2.4/drivers/ide/ide-pmac.c linuxppc_2_4/drivers/ide/ide-pmac.c
+--- linux-2.4/drivers/ide/ide-pmac.c	Wed Aug  7 18:09:29 2002
++++ linuxppc_2_4/drivers/ide/ide-pmac.c	Sun Aug 18 22:12:10 2002
+@@ -1032,33 +1032,48 @@
+ 	struct pmac_ide_hwif *pmif = &pmac_ide[ix];
+ 	struct buffer_head *bh;
+ 	struct scatterlist *sg = pmif->sg_table;
++	unsigned long lastdataend = ~0UL;
+ 	int nents = 0;
+ 
+ 	if (hwif->sg_dma_active)
+ 		BUG();
+-		
++
+ 	if (rq->cmd == READ)
+ 		pmif->sg_dma_direction = PCI_DMA_FROMDEVICE;
+ 	else
+ 		pmif->sg_dma_direction = PCI_DMA_TODEVICE;
++
+ 	bh = rq->bh;
+ 	do {
+-		unsigned char *virt_addr = bh->b_data;
++		struct scatterlist *sge;
+ 		unsigned int size = bh->b_size;
+ 
++		/* continue segment from before? */
++		if (bh_phys(bh) == lastdataend) {
++			sg[nents-1].length += size;
++			lastdataend += size;
++			continue;
++		}
++
++		/* start new segment */
+ 		if (nents >= MAX_DCMDS)
+ 			return 0;
+ 
+-		while ((bh = bh->b_reqnext) != NULL) {
+-			if ((virt_addr + size) != (unsigned char *) bh->b_data)
+-				break;
+-			size += bh->b_size;
++		sge = &sg[nents];
++		memset(sge, 0, sizeof(*sge));
++
++		if (bh->b_page) {
++			sge->page = bh->b_page;
++			sge->offset = bh_offset(bh);
++		} else {
++			if ((unsigned long)bh->b_data < PAGE_SIZE)
++				BUG();
++			sge->address = bh->b_data;
+ 		}
+-		memset(&sg[nents], 0, sizeof(*sg));
+-		sg[nents].address = virt_addr;
+-		sg[nents].length = size;
++		sge->length = size;
++		lastdataend = bh_phys(bh) + size;
+ 		nents++;
+-	} while (bh != NULL);
++	} while ((bh = bh->b_reqnext) != NULL);
+ 
+ 	return pci_map_sg(hwif->pci_dev, sg, nents, pmif->sg_dma_direction);
+ }
+@@ -1330,6 +1345,23 @@
+ 	return 0;
+ }
+ 
++static inline void pmac_ide_toggle_bounce(ide_drive_t *drive, int on)
++{
++	dma64_addr_t addr = BLK_BOUNCE_HIGH;
++
++	if (HWIF(drive)->no_highio || HWIF(drive)->pci_dev == NULL)
++		return;
++
++	if (on && drive->media == ide_disk) {
++		if (!PCI_DMA_BUS_IS_PHYS)
++			addr = BLK_BOUNCE_ANY;
++		else
++			addr = HWIF(drive)->pci_dev->dma_mask;
++	}
++
++	blk_queue_bounce_limit(&drive->queue, addr);
++}
++
+ static int __pmac
+ pmac_ide_dmaproc(ide_dma_action_t func, ide_drive_t *drive)
+ {
+@@ -1354,6 +1386,7 @@
+ 		printk(KERN_INFO "%s: DMA disabled\n", drive->name);
+ 	case ide_dma_off_quietly:
+ 		drive->using_dma = 0;
++		pmac_ide_toggle_bounce(drive, 0);
+ 		break;
+ 	case ide_dma_on:
+ 	case ide_dma_check:

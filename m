@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVDAFbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVDAFgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbVDAFbK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 00:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbVDAFan
+	id S262640AbVDAFgY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 00:36:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVDAFgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 00:30:43 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:34520 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262638AbVDAF3t (ORCPT
+	Fri, 1 Apr 2005 00:36:23 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:23736 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262640AbVDAFgF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 00:29:49 -0500
+	Fri, 1 Apr 2005 00:36:05 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=IHEedDM5yaZEvxU6/Tp1hwS/MRHIY27aiTQ1m6sCgijbLyFye0p05/UjogUEzbu11FF8kokVyumbmY0vxqoLDHhFr8XQFK/m7mrT/Lq9yjFRtxoImhHMHSaIFlcH+fbDLgwSN+98oOUJEXI80gkn8VbLRCbeb0FclSMCBCnCd8Y=
-Date: Fri, 1 Apr 2005 14:29:42 +0900
+        h=received:date:from:to:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=gMJoDCFpmRQges8+Cj8ZMVrGFcpZc4W2DuXSI+MITSrGBPxieK6m2OsGNF0HikM7PecJPTnM+OGHZbVwWLe08FepncPnc4ZGRhXw4ZlnIVhezKeph4rDd8UiIo6PVh5pjhyKQiPpGe0E2CHXp1R2Zr38UW2oitEuuwsHkzb4sr0=
+Date: Fri, 1 Apr 2005 14:35:59 +0900
 From: Tejun Heo <htejun@gmail.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 09/13] scsi: in scsi_prep_fn(), remove bogus comments & clean up
-Message-ID: <20050401052942.GH11318@htj.dyndns.org>
-References: <20050331090647.FEDC3964@htj.dyndns.org> <20050331090647.B562915C@htj.dyndns.org> <1112292140.5619.26.camel@mulgrave>
+To: Christoph Hellwig <hch@infradead.org>, James.Bottomley@steeleye.com,
+       axboe@suse.de, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH scsi-misc-2.6 11/13] scsi: add reprep arg to scsi_requeue_command() and make it public
+Message-ID: <20050401053559.GI11318@htj.dyndns.org>
+References: <20050331090647.FEDC3964@htj.dyndns.org> <20050331090647.ABDB1FF4@htj.dyndns.org> <20050331103203.GA14266@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112292140.5619.26.camel@mulgrave>
+In-Reply-To: <20050331103203.GA14266@infradead.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello, James.
+ Hello, Christoph.
 
-On Thu, Mar 31, 2005 at 12:02:20PM -0600, James Bottomley wrote:
-> On Thu, 2005-03-31 at 18:08 +0900, Tejun Heo wrote:
-> > -	 * come up when there is a medium error.  We have to treat
-> > -	 * these two cases differently.  We differentiate by looking
-> > -	 * at request->cmd, as this tells us the real story.
-> > +	 * come up when there is a medium error.
+On Thu, Mar 31, 2005 at 11:32:03AM +0100, Christoph Hellwig wrote:
+> > - * Arguments:	q	- queue to operate on
+> > - *		cmd	- command that may need to be requeued.
+> > + * Arguments:	cmd	- command that may need to be requeued.
+> > + *		reprep	- needs to prep the command again?
+> >   *
+> >   * Returns:	Nothing
+> >   *
+> > @@ -478,11 +478,16 @@ void scsi_device_unbusy(struct scsi_devi
+> >   *		we need to request the blocks that come after the bad
+> >   *		sector.
+> >   */
+> > -static void scsi_requeue_command(struct request_queue *q, struct scsi_cmnd *cmd)
+> > +void scsi_requeue_command(struct scsi_cmnd *cmd, int reprep)
+> >  {
+> > +	struct request_queue *q = cmd->device->request_queue;
+> >  	unsigned long flags;
+> >  
+> > -	cmd->request->flags &= ~REQ_DONTPREP;
+> > +	cmd->state = SCSI_STATE_MLQUEUE;
+> > +	cmd->owner = SCSI_OWNER_MIDLEVEL;
+> > +
+> > +	if (reprep)
+> > +		cmd->request->flags &= ~REQ_DONTPREP;
 > 
-> This comment isn't wrong.  That's exactly what this piece of code:
-> 
-> 		if (sreq->sr_magic == SCSI_REQ_MAGIC) {
-> 
-> is all about ... that's how it distinguishes between the two cases.
-> 
-> The comment is misleading --- what it actually should say is that req-
-> >special has different contents depending upon the two cases, so
-> rephrasing it to be more accurate would be helpful.
+> the flag is not needed, you can move the clearing of the flag to the
+> caller.  And given that there's lots of callers rename the
+> scsi_requeue_command without it to __scsi_requeue_command and make
+> scsi_requeue_command a tiny inline wrapper around it that clears it.
 
- Yes, it was misleading, even more so with previous REQ_SPECIAL
-patches.  I'll rewrite the comment once we resolve the REQ_SPECIAL
-issue.
+ I opt for scsi_requeue_command() and scsi_requeue_command_reprep()
+for clarity (the latter being static inline).
 
- Thanks.
+ Thanks a lot for all your inputs. :-)
 
 -- 
 tejun

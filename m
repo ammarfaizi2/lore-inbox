@@ -1,106 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267805AbTBVAB2>; Fri, 21 Feb 2003 19:01:28 -0500
+	id <S267803AbTBVAAN>; Fri, 21 Feb 2003 19:00:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267806AbTBVAB2>; Fri, 21 Feb 2003 19:01:28 -0500
-Received: from amdext2.amd.com ([163.181.251.1]:55964 "EHLO amdext2.amd.com")
-	by vger.kernel.org with ESMTP id <S267805AbTBVABZ>;
-	Fri, 21 Feb 2003 19:01:25 -0500
-From: richard.brunner@amd.com
-X-Server-Uuid: BB5E7757-34FD-4146-B9CC-0950D472AE87
-Message-ID: <99F2150714F93F448942F9A9F112634C013857BF@txexmtae.amd.com>
-To: prandal@herefordshire.gov.uk, sowadski@umr.edu
-cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.4.20 amd speculative caching
-Date: Fri, 21 Feb 2003 18:11:19 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 12481FA2886414-01-01
-Content-Type: text/plain;
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S267804AbTBVAAN>; Fri, 21 Feb 2003 19:00:13 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:3968 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S267803AbTBVAAL>;
+	Fri, 21 Feb 2003 19:00:11 -0500
+Date: Fri, 21 Feb 2003 16:10:12 -0800
+From: Bob Miller <rem@osdl.org>
+To: rusty@rustcorp.com.au, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5.62] Fix two races in module code.
+Message-ID: <20030222001012.GA1394@doc.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The best and reliable way to go is by the output of CPUID
-(or cat /proc/cpuinfo)
+This patch fixes two bugs.
 
-if (((family == 6)  && (model >= 6)) || (family == 15)) {
-    printk(KERN_INFO "Advanced speculative caching feature present\n");
-    return 1;
-}
+The first is that use_module() was ignoring the return value of
+try_module_get().  This causes an OOPs if a module needs symbols
+from a module that is halfway unloaded.  The fix is to not ignore
+the error.
 
-If your AMD processor meets the above CPUID family and model, then
-you need the patch. The decoder ring from any random
-Product name to CPUID family and model number is not yet available ;-)
+The second is a race in sys_init_module().  There is code at the
+bottom that changes the modules state from COMING to LIVE.  After
+the LIVE is set it is possible for another thread to unload the
+module making the mod pointer used for the next few statements
+invalid.  It would take a lot of interrupts or preempt but it could
+happen.
 
--Rich ...
-[richard brunner amd.com -- AMD]
-[Senior Member, Technical Staff] 
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+ 
 
-> -----Original Message-----
-> From: Randal, Phil [mailto:prandal@herefordshire.gov.uk] 
-> Sent: Thursday, February 20, 2003 8:50 AM
-> To: Sowadski, Craig Harold (UMR-Student)
-> Cc: linux-kernel@vger.kernel.org
-> Subject: RE: 2.4.20 amd speculative caching
-> 
-> 
-> According to Richard Brunner of AMD's email to the list dated 
-> June 11, 2002,
-> the cache attribute bug only affected Athlon XPs and MPs, so 
-> that can't be
-> the problem here, can it?
-> 
-> Cheers,
-> 
-> Phil
-> 
-> ---------------------------------------------
-> Phil Randal
-> Network Engineer
-> Herefordshire Council
-> Hereford, UK 
-> 
-> > -----Original Message-----
-> > From: Dave Jones [mailto:davej@codemonkey.org.uk]
-> > Sent: 20 February 2003 16:53
-> > To: Sowadski, Craig Harold (UMR-Student)
-> > Cc: Andi Kleen; linux-kernel@vger.kernel.org
-> > Subject: Re: 2.4.20 amd speculative caching
-> > 
-> > 
-> > On Wed, Feb 19, 2003 at 01:13:28PM -0600, Sowadski, Craig 
-> > Harold (UMR-Student) wrote:
-> > 
-> >  > If it helps, here is my hardware config:
-> >  > 
-> >  > 	AMD Duron 1300MHZ
-> >  > 	MSI K7T Turbo-2
-> >  > 	ATI Radeon 7500 w/64mb
-> >  > 	Redhat 8.0
-> > 
-> > Are you using the ATi firegl drivers ? If so, thats likely the
-> > problem. (They ship an agpgart based upon 2.4.16 which lacks
-> > the fixes needed).
-> > 
-> > 		Dave
-> > 
-> > -- 
-> > | Dave Jones.        http://www.codemonkey.org.uk
-> > | SuSE Labs
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe 
-> > linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+diff -Nru a/kernel/module.c b/kernel/module.c
+--- a/kernel/module.c	Fri Feb 21 15:57:53 2003
++++ b/kernel/module.c	Fri Feb 21 15:57:53 2003
+@@ -173,16 +173,22 @@
+ 	struct module_use *use;
+ 	if (b == NULL || already_uses(a, b)) return 1;
+ 
++	/*
++	 * If the module is being unloaded don't attach.
++	 */
++	if (try_module_get(b) == 0) {
++		return 0;
++	}
+ 	DEBUGP("Allocating new usage for %s.\n", a->name);
+ 	use = kmalloc(sizeof(*use), GFP_ATOMIC);
+ 	if (!use) {
+ 		printk("%s: out of memory loading\n", a->name);
++		module_put(b);
+ 		return 0;
+ 	}
+ 
+ 	use->module_which_uses = a;
+ 	list_add(&use->list, &b->modules_which_use_me);
+-	try_module_get(b); /* Can't fail */
+ 	return 1;
+ }
+ 
+@@ -1456,10 +1462,15 @@
+ 	}
+ 
+ 	/* Now it's a first class citizen! */
+-	mod->state = MODULE_STATE_LIVE;
+ 	module_free(mod, mod->module_init);
+ 	mod->module_init = NULL;
+ 	mod->init_size = 0;
++	/*
++	 * Hold off setting state to "LIVE" until now.  If set any
++	 * sooner there is a race with an unload making the mod
++	 * pointer invalid.
++	 */
++	mod->state = MODULE_STATE_LIVE;
+ 
+ 	return 0;
+ }

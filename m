@@ -1,46 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265423AbUATMhI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 07:37:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265431AbUATMhI
+	id S265476AbUATMkV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 07:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265477AbUATMkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 07:37:08 -0500
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:2900 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S265423AbUATMhG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 07:37:06 -0500
-From: Bart Samwel <bart@samwel.tk>
-To: Tommi Virtanen <tv@tv.debian.net>,
-       Lorenzo Hernandez Garcia-Hierro <lorenzohgh@nsrg-security.com>
-Subject: Re: Noise with  2.6.0 in a Dell Laptop ( Latitude c600 )
-Date: Tue, 20 Jan 2004 13:36:53 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <1073488405.850.35.camel@zeus> <4003F998.4020104@tv.debian.net>
-In-Reply-To: <4003F998.4020104@tv.debian.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jan 2004 07:40:20 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:56278 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265476AbUATMkI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 07:40:08 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Tue, 20 Jan 2004 13:44:52 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] new module args for ir-kbd-*.c
+Message-ID: <20040120124452.GA19988@bytesex.org>
+References: <20040115115611.GA16266@bytesex.org> <20040120020710.8F8F62C280@lists.samba.org> <20040120093054.GC18096@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401201336.54113.bart@samwel.tk>
+In-Reply-To: <20040120093054.GC18096@bytesex.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 January 2004 14:58, Tommi Virtanen wrote:
-> Lorenzo Hernandez Garcia-Hierro wrote:
-> > When the 2.6.0 inits in my laptop it becomes reaaallyyy noisy.
-> > Why ?
->
-> If it's the fans, it's the BIOS reading CPU temperature of 85 C,
-> which is not true. It seems a Fn-Z press resets this reading to
-> sane values. You can look at the temperature reading and fan
-> state with i8kutils.
->
-> Atleast that's what a Dell Latitude C640 that I had did.
+> On Tue, Jan 20, 2004 at 12:55:39PM +1100, Rusty Russell wrote:
+> > Please replace the MODULE_PARM lines with the modern form:
+> > 
+> > 	module_param(repeat, bool, 0644);
+> > 	module_param(debug, int, 0644);
+> 
+> I'll do for the bttv ir support, that is 2.6 only anyway due to the
+> usage of tasklets.
 
-Might it be that the hardware reports 85 F instead of 85 C maybe? That's about 
-(85-32)*0.55 = about 29 C, which may be more realistic when you're just 
-booting it up. :)
+Here we go.
 
--- Bart
+  Gerd
+
+==============================[ cut here ]==============================
+diff -u linux-2.6.1-mm5/drivers/media/video/ir-kbd-i2c.c linux/drivers/media/video/ir-kbd-i2c.c
+--- linux-2.6.1-mm5/drivers/media/video/ir-kbd-i2c.c	2004-01-20 12:59:51.491270352 +0100
++++ linux/drivers/media/video/ir-kbd-i2c.c	2004-01-20 13:03:04.982855160 +0100
+@@ -25,6 +25,7 @@
+  */
+ 
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+@@ -55,8 +56,7 @@
+ /* ----------------------------------------------------------------------- */
+ /* insmod parameters                                                       */
+ 
+-static int debug = 0;    /* debug level (0,1,2) */
+-MODULE_PARM(debug,"i");
++module_param(debug, int, 0644);    /* debug level (0,1,2) */
+ 
+ #define DEVNAME "ir-kbd-i2c"
+ #define dprintk(level, fmt, arg...)	if (debug >= level) \
+diff -u linux-2.6.1-mm5/drivers/media/video/ir-kbd-gpio.c linux/drivers/media/video/ir-kbd-gpio.c
+--- linux-2.6.1-mm5/drivers/media/video/ir-kbd-gpio.c	2004-01-20 12:59:51.490270504 +0100
++++ linux/drivers/media/video/ir-kbd-gpio.c	2004-01-20 13:03:05.080840264 +0100
+@@ -18,6 +18,7 @@
+  */
+ 
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/init.h>
+ #include <linux/input.h>
+ #include <linux/delay.h>
+@@ -170,8 +171,7 @@
+ 	struct timer_list       timer;
+ };
+ 
+-static int debug = 0;    /* debug level (0,1,2) */
+-MODULE_PARM(debug,"i");
++module_param(debug, int, 0644);    /* debug level (0,1,2) */
+ 
+ #define DEVNAME "ir-kbd-gpio"
+ #define dprintk(fmt, arg...)	if (debug) \

@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270447AbTGMXb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 19:31:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270448AbTGMXb1
+	id S270438AbTGMXED (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 19:04:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270440AbTGMXED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 19:31:27 -0400
-Received: from aneto.able.es ([212.97.163.22]:6548 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S270447AbTGMXb0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 19:31:26 -0400
-Date: Mon, 14 Jul 2003 01:40:24 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrea Arcangeli <andrea@suse.de>
-Subject: gcc-3.3.1-hammer vs current pre
-Message-ID: <20030713234024.GA2346@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.12
+	Sun, 13 Jul 2003 19:04:03 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:61063 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270438AbTGMXEA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 19:04:00 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 13 Jul 2003 16:11:21 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: David Schwartz <davids@webmaster.com>
+cc: Eric Varsanyi <e0206@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: [Patch][RFC] epoll and half closed TCP connections
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEFKEFAA.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.55.0307131610100.15022@bigblue.dev.mcafeelabs.com>
+References: <MDEHLPKNGKAHNMBLJOLKGEFKEFAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+On Sun, 13 Jul 2003, David Schwartz wrote:
 
-One good and one bad news...
+>
+> > Let's look at what the poll code does :
+> >
+> > 1) It has to allocate the kernel buffer for events
+> >
+> > 2) It has to copy it from userspace
+> >
+> > 3) It has to allocate wait queue buffer calling get_free_page (possibly
+> > 	multiple times when we talk about decent fds numbers)
+> >
+> > 4) It has to loop calling N times f_op->poll() that in turn will add into
+> > 	the wait queue getting/releasing IRQ locks
+> >
+> > 5) Loop another M loop to copy events to userspace
+> >
+> > 6) Call kfree() for all blocks allocated
+> >
+> > 7) Call poll_freewait() that will go with another N loop to unregister
+> > 	poll waits, that in turn will do another N IRQ locks
+>
+> 	This is really just due to bad coding in 'poll', or more precisely very bad
+> for this case. For example, why is it allocating a wait queue buffer if the
+> odds that it will need to wait are basically zero? Why is it adding file
+> descriptors to the wait queue before it has determined that it needs to
+> wait?
+>
+> 	As load increases, more and more calls to 'poll' require no waiting. Yet
+> 'poll' is heavily optimized for the 'no or low load' case. That's why 'poll'
+> doesn't scale on Linux.
 
-The good:
-Current 22-pre5 builds at -O1 level. I always thought it was mandatory to
-build at -O2...At least it can be useful to detect optimizer bugs...
+However you implement poll(2) you have "at least" to do one iteration
+among the interest set, and hence your implementation will be O(N).
 
-And the bad. The current gcc in mandrakke cooker miscompiles the kernel.
-Current 2.4.22-pre5 (plain, even a comma touched) works if built with -O1
-and breaks with -O2 (does not pass init launch). As it is based on
-the hammer branch from SuSE, I think this also affects SuSE developers,
-if not corrected in their tree yet.
 
-Is there any way to set compile flags for _subsystems_ ? To start
-a search on what breaks at -O2.
 
-[OT] (off-topic, not Operacion Triunfo -bleh- ...)
-BTW, is anybody from Mandrake reading this ? The cooker list looks dead
-since a week or so. If someone reads this, plz mail me in private.
+- Davide
 
-TIA
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-pre2-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-2mdk))

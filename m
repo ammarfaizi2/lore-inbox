@@ -1,92 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130442AbQLGTwC>; Thu, 7 Dec 2000 14:52:02 -0500
+	id <S130870AbQLGTyM>; Thu, 7 Dec 2000 14:54:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130425AbQLGTvw>; Thu, 7 Dec 2000 14:51:52 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:49932 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S130423AbQLGTvf>;
-	Thu, 7 Dec 2000 14:51:35 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Date: Thu, 7 Dec 2000 20:20:22 MET-1
+	id <S130877AbQLGTyC>; Thu, 7 Dec 2000 14:54:02 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26374 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130870AbQLGTxy>;
+	Thu, 7 Dec 2000 14:53:54 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200012071922.TAA09634@raistlin.arm.linux.org.uk>
+Subject: Oops while assigning PCI resources
+To: linux-kernel@vger.kernel.org
+Date: Thu, 7 Dec 2000 19:22:24 +0000 (GMT)
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Why is double_fault serviced by a trap gate?
-CC: "Richard B. Johnson" <root@chaos.analogic.com>, richardj_moore@uk.ibm.com,
-        linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <F02E6C85A2D@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  7 Dec 00 at 19:04, Maciej W. Rozycki wrote:
-> On Thu, 7 Dec 2000, Petr Vandrovec wrote:
-> 
-> > No. If interrupt uses task gate, task switch happens. Nothing is stored
-> > in context of old process except registers into TSS. There is only one
-> > (bad) problem. If you want to get it 100% proof (it is not needed for double
-> > fault, but it is definitely needed for NMI, as NMI is very often on SMP
-> > ia32), each CPU's IRQ vector must point to different task, otherwise you
-> > can get TSS in use during doublefault, leading to triplefault again...
-> 
->  Well, I expect wasting a descriptor and a page of memory for the purpose
-> of a TSS is not a big problem.
+Hi,
 
-It is architectural problem. Each CPU must have its own IDT or GDT table.
-If (for real example) you'll use task gate for NMI, both NMIs are currently
-(AFAIK) delivered to both CPUs at same time. Both CPUs find in IDT that
-they should switch to task 0x1230. So one of them finds TSS 0x1230 (in GDT
-entry 0x1230 / 8) as not busy (busy is field in TSS GDT descriptor), marks 
-it busy and starts executing in new context. But other one finds 0x1230 as 
-busy. And fault during doublefault is triplefault. Which is hardwired to 
-reset and we are where we were before...
+Kernel is 2.4.0-test12-pre7
 
-<fiddling through manuals>
+I'm seeing an oops while assigning PCI resources on an ARM board.  This
+board as a PCI to PCI bridge on board without any devices on the second
+bus.
 
-Well, Intel recommends 'Invalid TSS' exception to be handled through TSS
-too, for obvious reason that CPU state may be half-old and half-new...
-But I'm not sure that all vendors handle TSS fault during doublefault
-correctly and I do not want to rely on that. 
+Trace is:
 
-So either each CPU must have its own IDT, pointing to different slots
-in GDT, or each CPU must have its own GDT... I preffer IDT, as having
-per-CPU GDT could create some really nasty problems (f.e. synchronizing
-LDT entries between CPUs) (*) (**).
+Trace; c0013ac0 <pbus_assign_resources+0/e4>
+Trace; c0013ba4 <pci_assign_unassigned_resources+0/98>
+Trace; c0009f34 <pcibios_init+0/68>
+Trace; c0012db4 <pci_init+0/44>
+Trace; c00089ec <do_basic_setup+0/54>
 
-> > Yes. Currently if any ESP related problem happens in kernel, machine silently
-> > reboots without any message. With task gate (as Jeff Merkey proposed
-> 
->  You might handle the stack fault with a task gate, actually, but I'm not
-> sure it's worth the hassle.  Handling just the double fault should be
-> sufficient. 
+The place which is causing the oops is in drivers/pci/setup-bus.c:
 
-Yes, it is. Directing stackfault to task gate is wrong, as userspace
-faults ar handled by stackfault. Most of kernelspace stackfaults are 
-handled by doublefault ;-)
+        for (ln=bus->children.next; ln != &bus->children; ln=ln->next) {
+                struct pci_bus *b = pci_bus_b(ln);
 
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
-(*) I have even per-process IDT patch at 
-ftp://platan.vc.cvut.cz/pub/linux/idt/idts-0.00.tar.gz, so per-cpu
-IDTs should be doable too... Patch is for 2.3.11-pre3, so it will
-need some tweaking if someone wants to try it...
+                vvvvvvvvvvvvvvvvvvvvv
+                b->resource[0]->start = ranges->io_start = ranges->io_end;
+                ^^^^^^^^^^^^^^^^^^^^^
+                b->resource[1]->start = ranges->mem_start = ranges->mem_end;
 
-(**) On other hand, it could allow leaking information. Currently
-you can find on which CPU you run with:
+                pbus_assign_resources(b, ranges);
 
-void main(void) {
-    int x;
-    
-    while (1) {
-        asm ( "str %%ax\n" : "=a"(x));
-        printf("CPU %u\n", (x - 0x60) / 0x20);
-    }
-}
+The reason is because b->resource is NULL.  Looking at drivers/pci/pci.c,
+when we hit a non-cardbus bridge, we never set b->resource[*] to point to
+anything.  We call "pci_add_new_bus" from pci_scan_bridge, but neither
+pci_add_new_bus nor pci_scan_bridge sets up the resources.
 
-With per-CPU GDT we could have same value of TR accross all CPUs...
+Unfortunately, the PCI bus code (in drivers/pci/setup-bus.c) seems to
+assume that someone somewhere has allocated these resources.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

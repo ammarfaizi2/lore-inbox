@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbTELNEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 09:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbTELNEZ
+	id S262119AbTELNDW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 09:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbTELNDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 09:04:25 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:13236 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262117AbTELNEY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 09:04:24 -0400
-Date: Mon, 12 May 2003 15:16:17 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Oliver Neukum <oliver@neukum.org>, Oleg Drokin <green@namesys.com>,
-       <lkhelp@rekl.yi.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.69, IDE TCQ can't be enabled
-In-Reply-To: <200305121455.58022.oliver@neukum.org>
-Message-ID: <Pine.SOL.4.30.0305121513270.18058-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 May 2003 09:03:22 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:25102 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262119AbTELNDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 09:03:20 -0400
+Date: Mon, 12 May 2003 14:16:00 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ioctl32: kill code duplication (sparc64 tester wanted)
+Message-ID: <20030512141600.A29386@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20030512114055.GA3539@atrey.karlin.mff.cuni.cz> <20030512134353.A28931@infradead.org> <20030512130518.GA15227@atrey.karlin.mff.cuni.cz> <20030512140834.A29260@infradead.org> <20030512131326.GB15227@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030512131326.GB15227@atrey.karlin.mff.cuni.cz>; from pavel@ucw.cz on Mon, May 12, 2003 at 03:13:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 12, 2003 at 03:13:26PM +0200, Pavel Machek wrote:
+> > What's the reason you can't build fs/compat_ioctl.c normally and pull
+> > in the arch magic through a magic asm/ header?  
+> 
+> Some architectures need special stuff (mtrr's), so I'd have to include
+> .c files, too (the other way). [Look at how the table of ioctls is
+> generated, its asm magic].
 
-On Mon, 12 May 2003, Oliver Neukum wrote:
+Shouldn't that special stuff move to the dynamic ioctl handler
+registration method or the new ->compat_ioctl?
 
-> > Just a note that we have found TCQ unusable on our IBM drives and we had
-> > some reports about TCQ unusable on some WD drives.
-> >
-> > Unusable means severe FS corruptions starting from mount.
-> > So if your FSs will suddenly start to break, start looking for cause with
-> > disabling TCQ, please.
->
-> I can confirm that. This drive Model=IBM-DTLA-307045, FwRev=TX6OA60A,
-> SerialNo=YMCYMT3Y229 has eaten my filesystem with TCQ on 2.5.69
->
-> 	Regards
-> 		Oliver
+> Are you asking why are there #includes in compat_ioctl.c? Its because
+> there is so many of them, and having to update all archs when you
+> tuoch fs/compat_ioctl.c would be bad.
 
-TCQ is marked EXPERIMENTAL and is known to be broken.
-Probably it should be marked DANGEROUS or removed?
-
-Alan, what do you think?
-
---
-Bartlomiej
+I'm asking for the #ifdef INCLUDES in fs/compat_ioctl.c.  Why do you
+need it instead of including the headers uncondtionally?
 

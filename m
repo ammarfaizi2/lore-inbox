@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317872AbSGKR1I>; Thu, 11 Jul 2002 13:27:08 -0400
+	id <S317770AbSGKRex>; Thu, 11 Jul 2002 13:34:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317873AbSGKR1H>; Thu, 11 Jul 2002 13:27:07 -0400
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:43281 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S317872AbSGKR1G>; Thu, 11 Jul 2002 13:27:06 -0400
-Date: Thu, 11 Jul 2002 19:28:48 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org
-Subject: Re: direct-to-BIO for O_DIRECT
-Message-ID: <20020711192848.A793@nightmaster.csn.tu-chemnitz.de>
-References: <3D2A5F34.F38B893F@torque.net> <3D2A6608.7C43EE3@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3D2A6608.7C43EE3@zip.com.au>; from akpm@zip.com.au on Mon, Jul 08, 2002 at 09:26:48PM -0700
+	id <S317786AbSGKRew>; Thu, 11 Jul 2002 13:34:52 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:22032 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S317770AbSGKRew>; Thu, 11 Jul 2002 13:34:52 -0400
+Date: Thu, 11 Jul 2002 19:37:19 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Daniel Phillips <phillips@arcor.de>
+cc: Rusty Russell <rusty@rustcorp.com.au>, Alexander Viro <viro@math.psu.edu>,
+       "David S. Miller" <davem@redhat.com>, <adam@yggdrasil.com>,
+       <R.E.Wolff@bitwizard.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: Rusty's module talk at the Kernel Summit
+In-Reply-To: <E17Sbat-0002TF-00@starship>
+Message-ID: <Pine.LNX.4.44.0207111929500.8911-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 08, 2002 at 09:26:48PM -0700, Andrew Morton wrote:
-> Ben had lightweight sg structures called `kvecs' and `kveclets'. And
-> library functions to map pages into them.  And code to attach them
-> to BIOs.  So we'll be looking at getting that happening.
+Hi,
 
-Ok, I've looked at them and they don't help me at all. 
+On Thu, 11 Jul 2002, Daniel Phillips wrote:
 
-A user, who splits its IO into single pages, wants to do DMA and
-needs bus addresses for that. So he needs "struct scatterlist".
+> Closing the rmmod race with this interface is easy.  We can for example just
+> keep a state variable in the module struct (protected by a lock) to say the
+> module is in the process of being deregistered.
 
-If one doesn't need to DMA, one can do copy_{from,to}_user
-directly with an immediate buffer, so the splitup isn't needed.
+Please check try_inc_mod_count(). It's already done.
 
-For this I conclude, that using the EXISTING 'struct scatterlist'
-will be enough for both. Attaching a vector of these to the BIOs
-is no problem. Neither it is for CHARACTER device IOs (CIOs).
+bye, Roman
 
-So by using this simple abstraction we MIGHT waste only 4-8 bytes
-per page submitted, but by page-splitting the IO only for devices,
-that need DMA (e.g. make the request that explicitly) we don't
-really waste it and support BIOs and CIOs the same way.
 
-I will refine that code for my own uses anyway, so if nobody with
-more clues about IO than me implements it, I will submit it
-later.
-
-Regards
-
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

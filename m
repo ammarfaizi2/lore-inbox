@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVBFMkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVBFMpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVBFMkn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 07:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVBFMkn
+	id S261200AbVBFMpn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 07:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVBFMpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 07:40:43 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:42757 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261195AbVBFMkh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 07:40:37 -0500
-Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, torvalds@osdl.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, drepper@redhat.com
-In-Reply-To: <20050206123355.GB30109@wotan.suse.de>
-References: <20050206113635.GA30109@wotan.suse.de>
-	 <20050206114758.GA8437@infradead.org>
-	 <20050206123355.GB30109@wotan.suse.de>
-Content-Type: text/plain
-Date: Sun, 06 Feb 2005 13:40:22 +0100
-Message-Id: <1107693622.22680.86.camel@laptopd505.fenrus.org>
+	Sun, 6 Feb 2005 07:45:43 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:58105 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261200AbVBFMpj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 07:45:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=H7xDmpjd/vaWCURF4il0p3s+yJShMRMbCEyc2phbdOOdytxFLwxfQ+Xu+q1lpY9ltvx78m9Dewf3ZCtqHrojwqn9qKw8ars4wPaRCaYibLIFR3CpTKX2QzC2hFc8RFcdWfV7YA36OxKuhwaeAQmiTacHqIX/TOkitMGV9LU21IE=
+Message-ID: <58cb370e050206044513eb7f89@mail.gmail.com>
+Date: Sun, 6 Feb 2005 13:45:38 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [ANNOUNCE] "iswraid" (ICHxR ataraid sub-driver) for 2.4.29
+Cc: Jeff Garzik <jgarzik@pobox.com>, Martins Krikis <mkrikis@yahoo.com>,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
+In-Reply-To: <1107682076.22680.58.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.3 (/)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (0.3 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <87651hdoiv.fsf@yahoo.com> <420582C6.7060407@pobox.com>
+	 <1107682076.22680.58.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-02-06 at 13:33 +0100, Andi Kleen wrote:
-> > Your main objection is that *incorrect* programs that assume they can
-> > execute malloc() code without PROT_EXEC protection. For legacy binaries
-> > keeping this behavior makes sense, no objection from me.
-> > 
-> > For newly compiled programs this is just wrong and incorrect.
+On Sun, 06 Feb 2005 10:27:56 +0100, Arjan van de Ven
+<arjan@infradead.org> wrote:
+> On Sat, 2005-02-05 at 21:36 -0500, Jeff Garzik wrote:
+> > Martins Krikis wrote:
+> > > Version 0.1.5 of the Intel Sofware RAID driver (iswraid) is now
+> > > available for the 2.4 series kernels at
+> > > http://prdownloads.sourceforge.net/iswraid/2.4.29-iswraid.patch.gz?download
+> >
+> > ACK from me
 > 
-> That's not true as the grub/mono/... experience shows. 
+>  personally I consider it a new feature, and I don't consider new
+> features like this appropriate for a 2.4 deep maintenance stream.
 
-both those apps are buggy and incorrect though and should be fixed.
-
-> > You mention grub (which has RWE and the patch below thus makes that work)
-> > and mono. mono has patches for this on their mailinglist and bugzilla since
-> > 2003 according to google, I'm surprised the novell mono guys haven't fixed
-> > this bug in their code.
-> 
-> There are probably more.
-
-I consider that unlikely. Anything remotely portable (either to other
-architectures which required since in linux since day one, or to OpenBSD
-or similar which require this even for x86) already is correct. And this
-is there since 2.6.6.. it's not like this is new
-
-(and for the non-RWE case, fedora has had this behavior all along with
-execshield, and that even lead to a patch to fix mono fwiw)
-
-
+I have the same opinion

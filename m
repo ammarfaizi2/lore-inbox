@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbTHTRa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 13:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbTHTRa5
+	id S262112AbTHTRg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 13:36:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbTHTRg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 13:30:57 -0400
-Received: from main.gmane.org ([80.91.224.249]:63709 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262081AbTHTRaz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 13:30:55 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: how to turn off, or to clear read cache?
-Date: Wed, 20 Aug 2003 19:28:02 +0200
-Message-ID: <yw1xhe4cb5nh.fsf@users.sourceforge.net>
-References: <200308201322.h7KDMQga000797@81-2-122-30.bradfords.org.uk> <3F437646.4050107@gamic.com>
- <yw1x8ypocv63.fsf@users.sourceforge.net>
- <20030820164949.GA5613@lsd.di.uminho.pt>
- <yw1xptj0b72s.fsf@users.sourceforge.net> <20030820171713.GA21822@gtf.org>
+	Wed, 20 Aug 2003 13:36:58 -0400
+Received: from 213-0-201-211.dialup.nuria.telefonica-data.net ([213.0.201.211]:53134
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S262112AbTHTRg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 13:36:56 -0400
+Date: Wed, 20 Aug 2003 19:36:39 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Connection tracking for IPSec
+Message-ID: <20030820173639.GA4436@localhost>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+References: <1061378568.668.9.camel@teapot.felipe-alfaro.com> <1061381498.4210.16.camel@chtephan.cs.pocnet.net> <1061389376.3804.16.camel@teapot.felipe-alfaro.com> <1061391227.5558.2.camel@chtephan.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:k0zsm013kaitMDAe3noReF8s63k=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1061391227.5558.2.camel@chtephan.cs.pocnet.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+On Wednesday, 20 August 2003, at 16:53:47 +0200,
+Christophe Saout wrote:
 
->> > Will it clear the cache?
->> 
->> It will probably clear some cache to make room for cache from hda.
->> 
->> perl -e '@f[0..100000000]=0'
->> 
->> will do it faster.
->
-> Using fillmem will do it better :)
+> These packets should get reinjected into the netfilter mechanism after
+> decryption and should pass the rules before getting encrypted.
+> 
+I don't know if this is possible or even desireable, but if you want to
+have an answer from the people who cares and works most on Linux's net
+support, you should at least Cc: linux-net@vger.kernel.org, where Linux
+network development occurs.
 
-[39 lines of C code]
-
-If you already have that piece of code, of course.
+Regards,
 
 -- 
-Måns Rullgård            You can write faster programs in C, but
-mru@users.sf.net         you can write programs faster in Perl. 
-
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test3-mm2)

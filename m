@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281559AbRKZKZb>; Mon, 26 Nov 2001 05:25:31 -0500
+	id <S281562AbRKZKq7>; Mon, 26 Nov 2001 05:46:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281561AbRKZKZW>; Mon, 26 Nov 2001 05:25:22 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:2830 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S281559AbRKZKZL>; Mon, 26 Nov 2001 05:25:11 -0500
-Message-ID: <3C021848.A25B284A@idb.hist.no>
-Date: Mon, 26 Nov 2001 11:24:08 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.1-pre1 i686)
-X-Accept-Language: no, en
+	id <S281564AbRKZKqt>; Mon, 26 Nov 2001 05:46:49 -0500
+Received: from [62.245.135.174] ([62.245.135.174]:26243 "EHLO mail.teraport.de")
+	by vger.kernel.org with ESMTP id <S281562AbRKZKqi>;
+	Mon, 26 Nov 2001 05:46:38 -0500
+Message-ID: <3C021D87.E0390883@TeraPort.de>
+Date: Mon, 26 Nov 2001 11:46:31 +0100
+From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-greased-turkey i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
-Subject: Re: OOM killer in 2.4.15pre1 still not 100% ok
-In-Reply-To: <01112217224700.01298@manta> <E166wVS-0004Vk-00@localhost> <01112313001401.00886@manta>
-Content-Type: text/plain; charset=us-ascii
+To: jjasen1@umbc.edu
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Releases
+X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 11/26/2001 11:46:31 AM,
+	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 11/26/2001 11:46:38 AM,
+	Serialize complete at 11/26/2001 11:46:38 AM
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vda wrote:
+> Re: Kernel Releases
+> 
+> 
+> > Development kernels are development kernels... nothing else. Look to
+> > distributors for high degrees of quality assurance testing. When you run a
+> > development kernel you have joined the development team, even if you don't
+> > know it. Finding and reporting bugs is your job...
+> 
+> That's why you stay away from 2.5.x, or 2.4.x-pre, or 2.4.x-ac -- which
+> are development kernels. 2.4.x kernels are released kernels.
+> 
 
-> Maybe I misunderstand something, but why OOM chose top? Is it how it is
-> intended to work?
+ The point being made (I believe) is that recently the "released"
+kernels have had a low quality with showstopper-quality bugs being
+introduced, but not detected,  very late in the -preX cycle. What the
+initiator of this thread wants is a longer testing of the last -preX
+version. And changes between that an the "release" confined to bug/doc
+fixing *only*. Whether this has to be under the "-rcX" label, or not -
+the idea behind it is sound.
 
-It is intended to do the least possible damage when killing
-something.  I'd say it does nicely when killing "top", you
-surely don't loose much work that way. :-)
-
-Helge Hafting
+Martin
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

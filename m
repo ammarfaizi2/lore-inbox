@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291913AbSBTPPE>; Wed, 20 Feb 2002 10:15:04 -0500
+	id <S291908AbSBTPTe>; Wed, 20 Feb 2002 10:19:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291908AbSBTPO4>; Wed, 20 Feb 2002 10:14:56 -0500
-Received: from gw-nl4.philips.com ([212.153.190.6]:16139 "EHLO
-	gw-nl4.philips.com") by vger.kernel.org with ESMTP
-	id <S291906AbSBTPOn>; Wed, 20 Feb 2002 10:14:43 -0500
-From: fabrizio.gennari@philips.com
-To: linux-kernel@vger.kernel.org
-Cc: rmk@arm.linux.org.uk
-Subject: Oxford Semiconductor's OXCB950 UART not recognized by serial.c
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF89F1C10D.9DA9C831-ONC1256B66.0052BC8A@diamond.philips.com>
-Date: Wed, 20 Feb 2002 16:14:03 +0100
-X-MIMETrack: Serialize by Router on hbg001soh/H/SERVER/PHILIPS(Release 5.0.5 |September
- 22, 2000) at 20/02/2002 16:33:22,
-	Serialize complete at 20/02/2002 16:33:22
+	id <S291918AbSBTPTY>; Wed, 20 Feb 2002 10:19:24 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:57731 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S291908AbSBTPTS>; Wed, 20 Feb 2002 10:19:18 -0500
+Date: Wed, 20 Feb 2002 10:21:15 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Glover George <dime@gulfsales.com>
+cc: "'Mr. James W. Laferriere'" <babydr@baby-dragons.com>,
+        linux-kernel@vger.kernel.org
+Subject: RE: st0: Block limits 1 - 16777215 bytes.
+In-Reply-To: <003601c1ba1e$ce631630$0300a8c0@yellow>
+Message-ID: <Pine.LNX.3.95.1020220100827.5893A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have 32-bit CardBus cards with OXCB950 CardBus (PCI ID 1415:950b) UART 
-chips on them (OXCB950 is the CardBus version of 16C950) . The module 
-serial_cb in the pcmcia-cs package recognizes them correctly. But, when 
-not using serial_cb, the function serial_pci_guess_board in serial.c 
-doesn't (kernel 2.4.17 tested). The problem is that the card advertises 3 
-i/o memory regions and 2 ports. If one replaces the line
+On Wed, 20 Feb 2002, Glover George wrote:
 
-if (num_iomem <= 1 && num_port == 1) {
+> Ok, after playing with it a little more I found out that the message I'm
+> getting about the block sizes isn't related to the lockups.  I can lock
+> the system up by tar'ing up the /proc directory (why are you tar'ing the
+> /proc directory!!! I know!!! But that's not the point).  I had no
+> problem with RH 7.2's supplied 7.2 kernel (2.4.7-10).  However, this is
+> 2.4.17 (with the linux-abi patch). 
+> 
+> I have been able to make succesful backups as long as I ignore the /proc
+> directory but something must be wrong.  Doing an "ls -la *" doesn't lock
+> the machine though.  Only when tar'ing it (I suppose because of a read).
+> It doesn't lock up consistently in the same place when reading from the
+> proc directory however, but always in the proc.  I made about 15 test
+> runs and they all died in proc and --exclude proc doesn't cause it to
+> lock somewhere else.
 
-with
+You do not tar /proc!  There is kcore there! `tar` thinks it's a real
+file. Reading (accessing) some kernel areas will cause a deadlock.
 
-if (num_port >= 1) {
+If you don't want to --exclude proc, then `umount` it before your
+backups. FYI, it's SOP to backup different mounted file-systems so
+you don't end up backing up N disks on a single media. Therefore
+your `tar` sequence would be something like:
 
-in the function serial_pci_guess_board(), the card is detected and works 
-perfectly. Only, when inserting it, the kernel displays the message:
+tar -czlf root.tar.gz /
+tar -czlf user.tar.gz /user
+       |________ stay on the same file-system.
+..etc..
 
-Redundant entry in serial pci_table.  Please send the output of
-lspci -vv, this message (1415,950b,1415,0001)
-and the manufacturer and name of serial board or modem board
-to serial-pci-info@lists.sourceforge.net.  
-
-And this is the output of lspci -vv, only the part relevant to the Oxford 
-card:
-
-03:00.0 Serial controller: Oxford Semiconductor Ltd CardBus Device 
-(prog-if 06 [16950])
-        Subsystem: Oxford Semiconductor Ltd: Unknown device 0001
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at 4800 [size=8]
-        Region 1: Memory at 10c00000 (32-bit, non-prefetchable) [size=4K]
-        Region 2: I/O ports at 4810 [size=16]
-        Region 3: Memory at 10c01000 (32-bit, non-prefetchable) [size=4K]
-        Region 4: Memory at 10c02000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [40] Power Management version 1
-                Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA 
-PME(D0+,D1-,D2+,D3hot+,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+Since /proc is a seperate file-system, you never have problems like
+you describe and the mount-point gets backed up as required.
 
 
-Fabrizio Gennari
-Philips Research Monza
-via G.Casati 23, 20052 Monza (MI), Italy
-tel. +39 039 2037816, fax +39 039 2037800
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+        111,111,111 * 111,111,111 = 12,345,678,987,654,321
+

@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317892AbSIJSVW>; Tue, 10 Sep 2002 14:21:22 -0400
+	id <S317931AbSIJSe6>; Tue, 10 Sep 2002 14:34:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317898AbSIJSUT>; Tue, 10 Sep 2002 14:20:19 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1707 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317892AbSIJSTz>;
-	Tue, 10 Sep 2002 14:19:55 -0400
-Date: Tue, 10 Sep 2002 11:16:27 -0700 (PDT)
-Message-Id: <20020910.111627.00809211.davem@redhat.com>
-To: jgarzik@mandrakesoft.com
-Cc: torvalds@transmeta.com, david-b@pacbell.net,
-       mdharm-kernel@one-eyed-alien.net, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D7E28D3.4070200@mandrakesoft.com>
-References: <Pine.LNX.4.44.0209100947481.2842-100000@home.transmeta.com>
-	<3D7E28D3.4070200@mandrakesoft.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S317945AbSIJSe6>; Tue, 10 Sep 2002 14:34:58 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:4851 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317931AbSIJSe5>; Tue, 10 Sep 2002 14:34:57 -0400
+Subject: Re: ignore pci devices?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Martin Mares <mj@ucw.cz>
+Cc: Gerd Knorr <kraxel@bytesex.org>,
+       Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020910163023.GA3862@ucw.cz>
+References: <20020910134708.GA7836@bytesex.org> 
+	<20020910163023.GA3862@ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 10 Sep 2002 19:42:42 +0100
+Message-Id: <1031683362.1537.104.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jeff Garzik <jgarzik@mandrakesoft.com>
-   Date: Tue, 10 Sep 2002 13:16:03 -0400
-   
-   IMO we should have ASSERT() and OHSHIT(),
+On Tue, 2002-09-10 at 17:30, Martin Mares wrote:
+> > Is there already something generic for this?  Some kernel parameter
+> > which makes pci_module_init() skip a given PCI device for example?
+> 
+> What about writing a "driver" which will just bind to a given
+> PCI device, so that the other drivers will see it's already handled?
 
-I fully support the addition of an OHSHIT() macro.
-:-)
+pci_driver has no implicit ordering.
+

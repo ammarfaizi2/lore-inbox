@@ -1,88 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbULJVZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbULJVZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbULJVZr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 16:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbULJVZq
+	id S261200AbULJVZc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 16:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbULJVZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 16:25:46 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:55002 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261212AbULJVZR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 16:25:17 -0500
-Date: Fri, 10 Dec 2004 22:24:51 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
-Message-ID: <20041210212451.GF5864@elte.hu>
-References: <OF8AB2B6D9.572374AA-ON86256F66.0061EFA8-86256F66.0061F00A@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF8AB2B6D9.572374AA-ON86256F66.0061EFA8-86256F66.0061F00A@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+	Fri, 10 Dec 2004 16:25:32 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:18325 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261200AbULJVZQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 16:25:16 -0500
+Date: Fri, 10 Dec 2004 21:24:50 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Christoph Lameter <clameter@sgi.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, <linux-mm@kvack.org>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: pfault V12 : correction to tasklist rss
+In-Reply-To: <Pine.LNX.4.58.0412101150490.9169@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.44.0412102054190.32422-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
-
-> [...] I also had several cases where I "triggered" a trace but no
-> output - I assume those are related symptoms. For example:
+On Fri, 10 Dec 2004, Christoph Lameter wrote:
+> On Thu, 9 Dec 2004, Hugh Dickins wrote:
 > 
-> # ./cpu_delay 0.000100
-> Delay limit set to 0.00010000 seconds
-> calibrating loop ....
-> time diff= 0.504598 or 396354830 loops/sec.
-> Trace activated with 0.000100 second delay.
-> Trace triggered with 0.000102 second delay. [not recorded]
-> Trace activated with 0.000100 second delay.
-> Trace triggered with 0.000164 second delay. [not recorded]
+> > Updating current->rss in do_anonymous_page, current->anon_rss in
+> > page_add_anon_rmap, is not always correct: ptrace's access_process_vm
+> > uses get_user_pages on another task.  You need check that current->mm ==
+> > mm (or vma->vm_mm) before incrementing current->rss or current->anon_rss,
+> > fall back to mm (or vma->vm_mm) in rare case not (taking page_table_lock
+> > for that).  You'll also need to check !(current->flags & PF_BORROWED_MM),
+> > to guard against use_mm.  Or... just go back to sloppy rss.
+> 
+> Use_mm can simply attach the kernel thread to the mm via mm_add_thread
+> and will then update mm->rss when being detached again.
 
-is the userspace delay measurement nested inside the kernel-based
-method? I.e. is it something like:
+True.  But please add and remove mm outside of the task_lock,
+there's no need to nest page_table_lock within it, is there?
 
-	gettimeofday(0,1);
-	timestamp1 = cycles();
+> The issue with ptrace and get_user_pages is a bit thorny. I did the check
+> for mm = current->mm in the following patch. If mm != current->mm then
+> do the sloppy thing and increment mm->rss without the page table lock.
+> This should be a very special rare case.
 
-	... loop some ...
+I don't understand why you want to avoid taking mm->page_table_lock
+in that special rare case.  I do prefer the sloppy rss approach, but if
+you're trying to be exact then it's regrettable to leave sloppy corners.
 
-	timestamp2 = cycles();
-	gettimeofday(0,0);
+Oh, is it because page_add_anon_rmap is usually called with page_table_lock,
+but without in your do_anonymous_page case?  You'll have to move the
+anon_rss incrementation out of page_add_anon_rmap to its callsites
+(I was being a little bit lazy when I sited it in that one place,
+it's probably better to do it near mm->rss anyway.)
 
-and do you get 'unreported' latencies in such a case too? If yes then
-that would indeed indicate a tracer bug. But if the measurement is done
-like this:
+> One could also set current to the target task in get_user_pages but then
+> faults for the actual current task may increment the wrong counters. Could
+> we live with that?
 
-	gettimeofday(0,1);
-	timestamp1 = cycles();
+No, "current" is not nearly so easy to play with as that.
+See i386.  Even if it were, you might get burnt for heresy.
 
-	... loop some ...
+> Or simply leave as is. The pages are after all allocated by the ptrace
+> process and it should be held responsible for it.
 
-	gettimeofday(0,0);		// [1]
-	timestamp2 = cycles();		// [2]
+No.
 
-then a delay could get inbetween [1] and [2].
+> My favorite rss solution is still just getting rid of rss and
+> anon_rss and do the long loops in procfs. Whichever process wants to
+> know better be willing to pay the price in cpu time and the code for
+> incrementing rss can be removed from the page fault handler.
 
-OTOH if the 'loop some' time is long enough then the [1]-[2] window is
-too small to be significant statistically, while your logs show a near
-50% 'miss rate'.
+We all seem to have different favourites.  Your favourite makes
+quite a few people very angry.  We've been there, we've done that,
+we've no wish to return.  It'd be fine if just the process which
+wants to know paid the price; but it's every other that has to pay.
 
-	Ingo
+> We have no  real way of establishing the ownership of shared pages
+> anyways. Its counted when allocated. But the page may live on afterwards
+> in another process and then not be accounted for although its only user is
+> the new process.
+
+I didn't understand that bit.
+
+> IMHO vm scans may be the only way of really getting an accurate count.
+> 
+> But here is the improved list_rss patch:
+
+Not studied in depth, but... am I going mad, or is your impressive
+RCUing the wrong way round?  While we're scanning the list of tasks
+sharing the mm, there's no danger of the mm vanishing, but there is
+a danger of the task vanishing.  Isn't it therefore the task which
+needs to be freed via RCU, not the mm?
+
+Hugh
+

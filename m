@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265635AbUBFSWN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 13:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbUBFSWN
+	id S265577AbUBFSTv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 13:19:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265635AbUBFSTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 13:22:13 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59105 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265635AbUBFSWJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 13:22:09 -0500
-Date: Fri, 6 Feb 2004 18:22:08 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: John Cherry <cherry@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: IA32 (2.6.2 - 2004-02-05.22.30) - 3 New warnings (gcc 3.2.2)
-Message-ID: <20040206182208.GI21151@parcelfarce.linux.theplanet.co.uk>
-References: <200402061122.i16BMZ10009537@cherrypit.pdx.osdl.net> <20040206113305.GF21151@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0402060850380.30672@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402060850380.30672@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 6 Feb 2004 13:19:51 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:44471
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S265577AbUBFSTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 13:19:49 -0500
+Message-ID: <4023DB4B.3060008@tmr.com>
+Date: Fri, 06 Feb 2004 13:22:03 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: grouch@edge-op.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel releases 0.01 - 2.6.2
+References: <Pine.LNX.4.51.0402041746050.19792@jak.edge-op.org>
+In-Reply-To: <Pine.LNX.4.51.0402041746050.19792@jak.edge-op.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 06, 2004 at 08:52:00AM -0800, Linus Torvalds wrote:
+grouch@edge-op.org wrote:
+> At the suggestion of a subscriber to this list,
+> and before the 10th anniversary of Linux v1.0:
 > 
+> Dates and versions of kernel releases, 0.01 to 2.6.2
 > 
-> On Fri, 6 Feb 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > 
-> > IOW, gcc doesn't realize that we never return from BUG().  AFAICS, it
-> > should.  Some changes of __volatile__ semantics?
+> http://edge-op.org/files/kernel-releases.html (table)
+> http://edge-op.org/files/kernel-releases  (plain text)
 > 
-> Thsrs is no way to tell gcc that an inline asm doesn't return. The only
-> way to do it would be to add something like a "for (;;);" (that gcc will
-> actually generate real code for) inside the BUG() macro, but I'd hate to 
-> do that.
+> (You folks have cranked out an amazing amount!)
 
-Umm...  How about
+Thanks for the timeline, may it continue! I can't believe how long I 
+have run machines once they became stable... my last 1.2.13 machine was 
+taken down on Y2k-eve, I still have a 2.1.106 machine running, and a 
+2.0.33 machine was upgraded to RHEL-3.0 early this year. Speaks well for 
+stability that machines without security issues can just run virtually 
+forever.
 
-static inline void BUG() __attribute__((noreturn));
-
-static inline void BUG(void)
-{
-	__asm__ ....
-}
- 
-> Better to just initialize the variable to a default value and avoid the 
-> warning for now.
-
-Alternatively, we can just turn the damn thing into
-	if (dev->mode == IMM_NIBBLE || dev->mode = IMM_PS2)
-		ports = 3;
-	else
-		ports = 8;
-and be done with that...
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

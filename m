@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262586AbVCCWGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVCCWGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262586AbVCCWGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 17:06:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVCCWDf
+	id S262627AbVCCWGX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 17:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVCCWEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 17:03:35 -0500
-Received: from fire.osdl.org ([65.172.181.4]:50609 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262586AbVCCV7i (ORCPT
+	Thu, 3 Mar 2005 17:04:01 -0500
+Received: from fire.osdl.org ([65.172.181.4]:38834 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262627AbVCCWCS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 16:59:38 -0500
-Date: Thu, 3 Mar 2005 13:55:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: andrea@cpushare.com, linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] seccomp: don't say it was more or less mandatory
-Message-Id: <20050303135556.5fae2317.akpm@osdl.org>
-In-Reply-To: <20050303145147.GX4608@stusta.de>
-References: <20050223014233.6710fd73.akpm@osdl.org>
-	<20050224215136.GK8651@stusta.de>
-	<20050224224134.GE20715@opteron.random>
-	<20050225211453.GC3311@stusta.de>
-	<20050226013137.GO20715@opteron.random>
-	<20050301003247.GY4021@stusta.de>
-	<20050301004449.GV8880@opteron.random>
-	<20050303145147.GX4608@stusta.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 3 Mar 2005 17:02:18 -0500
+Subject: Re: RFD: Kernel release numbering
+From: John Cherry <cherry@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       jgarzik@pobox.com, rmk+lkml@arm.linux.org.uk,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050303215245.GK29371@redhat.com>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+	 <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com>
+	 <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
+	 <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org>
+	 <20050303052100.GA22952@redhat.com>
+	 <1109886590.24056.33.camel@cherrypit.pdx.osdl.net>
+	 <20050303215245.GK29371@redhat.com>
+Content-Type: text/plain
+Date: Thu, 03 Mar 2005 14:02:52 -0800
+Message-Id: <1109887372.24056.40.camel@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
->
-> My point is simply:
+On Thu, 2005-03-03 at 16:52 -0500, Dave Jones wrote:
+> On Thu, Mar 03, 2005 at 01:49:50PM -0800, John Cherry wrote:
+>  > On Thu, 2005-03-03 at 00:21 -0500, Dave Jones wrote:
+>  > <snip>
+>  > > compile time regressions we should be able to nail down fairly easily.
+>  > > (someone from OSDL is already doing compile stats and such on each release
+>  > >  [too bad they're mostly incomprehensible to the casual viewer])
+>  > 
+>  > Dave, I'm the "someone from OSDL".  I agree that the compile stats and
+>  > error/warning regresssions can be a little challenging to grock for the
+>  > casual observer.  Is it content or formatting that would help the casual
+>  > viewer?
 > 
->  The help text for an option you need only under very specific 
->  circumstances shouldn't sound as if this option was nearly was 
->  mandatory.
+> I don't have one handy to quote from, but personally I find there
+> are two problems with what's currently presented.
+> 
+> 1 - information overload. It's just a screenfull of numbers.
+> 2 - the column headings were non-obvious iirc. Or maybe I'm just dumb
+>     and didn't look at them long enough.
+> 
+> So it could just need some formatting tweaks to make it more
+> palatable.
 
-I think the sort of sell-your-cycles service which this patch enables is a
-neat idea, and one which is worth supporting, especially as the kernel
-patch is so tiny.  So we want as many machines as possible to support it. 
-So people don't need a special kernel just to join in.
+This is not too difficult to do.  I'll tweak the format a bit and see if
+it is more consumable.
 
-Others may disagree, although nobody has.
+John
 
-And the patch is tiny.
+> 
+> 		Dave
+

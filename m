@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262882AbSJaSMN>; Thu, 31 Oct 2002 13:12:13 -0500
+	id <S265290AbSJaS2K>; Thu, 31 Oct 2002 13:28:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262905AbSJaSLO>; Thu, 31 Oct 2002 13:11:14 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:23826 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S262882AbSJaSJ4>; Thu, 31 Oct 2002 13:09:56 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S265291AbSJaS2J>; Thu, 31 Oct 2002 13:28:09 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:7817 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265290AbSJaS2G>; Thu, 31 Oct 2002 13:28:06 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 31 Oct 2002 10:42:28 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>, <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: and nicer too - Re: [PATCH] epoll more scalable
+ than poll
+In-Reply-To: <20021031164035.A3178@in.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210311026080.1562-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15809.29557.756663.288173@laputa.namesys.com>
-Date: Thu, 31 Oct 2002 21:16:21 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <Torvalds@Transmeta.COM>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: [PATCH]: reiser4 [8/8] reiser4 code
-In-Reply-To: <Pine.GSO.4.21.0210311203300.16688-100000@weyl.math.psu.edu>
-References: <15809.25023.211776.529580@laputa.namesys.com>
-	<Pine.GSO.4.21.0210311203300.16688-100000@weyl.math.psu.edu>
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-Microsoft: Programs so large they have weather.
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Reiserfs-List@Namesys.COM is no longer subscribers-only, back into CC]
+On Thu, 31 Oct 2002, Suparna Bhattacharya wrote:
 
-Alexander Viro writes:
- > 
- > 
- > On Thu, 31 Oct 2002, Nikita Danilov wrote:
- > 
- > > generic_shutdown_super() calls fsync_super(sb) (which will call
- > > ->writepage() on each dirty page) and then invalidate_inodes().
- > > 
- > > Reiser4 has commit out-standing transactions -between- these two points:
- > > after ->writepage() has been called on all dirty pages, but before
- > > inodes were destroyed. Thus, we cannot use
- > > kill_block_super()/generic_shutdown_super().
- > 
- > Why don't you do that from within fsync_super()?  That would be much
- > more natural point for such stuff...
- > 
- > I hadn't looked into akpm's stuff in fs-writeback.c for a while, but
- > if one can't stick such flush point in there I'd argue that this is
- > a bug that needs to be fixed - either there or by providing explicit
+> I think what John means, and what Jamie has also brought up in a
+> separate note is that now when an event happens on an fd, in some cases
+> there are tests for 3 kinds of callbacks that get triggered -- the wait
+> queue for poll type registrations, the fasync list for sigio, and the
+> new epoll file send notify type callbacks. There is a little overhead
+> (not sure if significant) for each kind of test ...
 
-->writepages gets (in wbc->sync_mode) enough information to tell
-synchronization request like umount or sync from
-balance_dirty_pages(). Yes, it looks like better solution,
-->writepages(inode, WB_SYNC_ALL) should just synchronously commit all
-transactions involving any of inode's pages.
+The poll hooks is not where an edge triggered event notification API wants
+to hook. For the way notification are sent and for the registration
+method, that is not the most efficent thing. Hooking inside the fasync
+list is worth to be investigated and I'll look into it as soon as I
+finished the patch for 2.5.45 for Linus. It does have certain limits IMHO,
+like the single lock protection. I'll look into it, even if the famous
+cost for the extra callback check cannot even be measured IMHO.
 
- > callback from fsync_super().
 
-Hmm, I just noted that for now we probably could simply use exported
-fsync_bdev(s->s_bdev) in fsync_super(s) stead. How simple. Thank you for
-the useful discussion. :-)
 
-Nikita.
+- Davide
+
+

@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315758AbSENPLf>; Tue, 14 May 2002 11:11:35 -0400
+	id <S315760AbSENPNM>; Tue, 14 May 2002 11:13:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315760AbSENPLd>; Tue, 14 May 2002 11:11:33 -0400
-Received: from trained-monkey.org ([209.217.122.11]:46347 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S315758AbSENPL3>; Tue, 14 May 2002 11:11:29 -0400
-To: "chen, xiangping" <chen_xiangping@emc.com>
-Cc: "'Steve Whitehouse'" <Steve@ChyGwyn.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel deadlock using nbd over acenic driver.
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A51@srgraham.eng.emc.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 14 May 2002 11:11:28 -0400
-Message-ID: <m3sn4u4vdr.fsf@trained-monkey.org>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S315762AbSENPNL>; Tue, 14 May 2002 11:13:11 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:26496 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315760AbSENPNK>; Tue, 14 May 2002 11:13:10 -0400
+Date: Tue, 14 May 2002 11:10:25 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alvaro de Luna <aluna@datsi.fi.upm.es>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: DOS functions setvect, getvect
+In-Reply-To: <3CE11548.C55BBE7@datsi.fi.upm.es>
+Message-ID: <Pine.LNX.3.95.1020514110020.2245A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Xiangping" == chen, xiangping <chen_xiangping@emc.com> writes:
+On Tue, 14 May 2002, Alvaro de Luna wrote:
 
-Xiangping> But the acenic driver author suggested that sndbuf should
-Xiangping> be at least 262144, and the sndbuf can not exceed
-Xiangping> r/wmem_default. Is that correct?
+> Hi,
+>     I'm trying to transform a DOS driver into a Linux one, but don't
+> know
+>     what functions use to replace "setvect" and "getvect", does anybody
+>     knows?
+> 
+> Thanks,
+>     Alvaro.
+> 
 
-Ehm, the acenic author is me ;-)
+You probably want ...
 
-The default value is what all sockets are assigned on open, you can
-adjust this using SO_SNDBUF and SO_RCVBUF, however the values you set
-cannot exceed the [rw]mem_max values. Basically if you set the default
-to 4MB, your telnet sockets will have a 4MB default limit as well
-which may not be what you want (not saying it will use 4MB).
+  request_irq(IRQ_NR, isr_procedure, SA_INTERRUPT, 
+                         char_ptr_device_name, void_ptr_to_params).
+... and ...
 
-Thus, set the _max values and use SO_SNDBUF and SO_RCVBUF to set the
-per process values. But leave the _default values to their original
-setting.
+  free_irq(IRQ_NR, void_ptr_to_params);
 
-Xiangping> So for gigabit Ethernet driver, what is the optimal mem
-Xiangping> configuration for performance and reliability?
+In Linux, the kernel sets up and tears down 'vectors' for you.
+You need to get a book on drivers (modules).
 
-It depends on your application, number of streams, general usage of
-the connection etc. There's no perfect-for-all magic number.
+In user-mode, there is no such thing as an interrupt vector because
+they will all cause a trap to the kernel, the kernel handles them,
+usually by killing the process. In one case only, the kernel
+allows user mode int 0x80. This is for kernel services. You
+can't "get that vector" and "set a new one".
 
-Jes
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

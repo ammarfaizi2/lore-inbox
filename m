@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267353AbTA1PDJ>; Tue, 28 Jan 2003 10:03:09 -0500
+	id <S267352AbTA1PEt>; Tue, 28 Jan 2003 10:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267352AbTA1PDI>; Tue, 28 Jan 2003 10:03:08 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:34565 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267353AbTA1PBf>;
-	Tue, 28 Jan 2003 10:01:35 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301281509.h0SF9sGV001368@darkstar.example.net>
+	id <S267364AbTA1PEt>; Tue, 28 Jan 2003 10:04:49 -0500
+Received: from home.wiggy.net ([213.84.101.140]:1729 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S267352AbTA1PEr>;
+	Tue, 28 Jan 2003 10:04:47 -0500
+Date: Tue, 28 Jan 2003 16:14:06 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: Bootscreen
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Tue, 28 Jan 2003 15:09:54 +0000 (GMT)
-Cc: stepan@suse.de, raphael@arrivingarrow.net, linux-kernel@vger.kernel.org
-In-Reply-To: <1043765442.8675.2.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Jan 28, 2003 02:50:42 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20030128151406.GF4868@wiggy.net>
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20030128114840.GV4868@wiggy.net> <1043758528.8100.35.camel@dhcp22.swansea.linux.org.uk> <20030128130953.GW4868@wiggy.net> <1043761632.1316.67.camel@dhcp22.swansea.linux.org.uk> <20030128143235.GY4868@wiggy.net> <20030128153533.X28781-100000@snail.stack.nl> <20030128144714.GC4868@wiggy.net> <1043765872.6760.27.camel@oubop4.bursar.vt.edu> <20030128145856.GE4868@wiggy.net> <1043766477.6794.32.camel@oubop4.bursar.vt.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1043766477.6794.32.camel@oubop4.bursar.vt.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It's not too much to even state that almost any computer working with
-> > Linux 2.4+ can do 800x600 or 1024x768. Anything below that can be
-> > considered a special case, regarding the numbers out there. But that
-> > does not influence the possibility of using a bootsplash graphics. 
-> > On a system you can't use it properly, you probably also would not 
-> > want it (i.e. use normal text mode boot instead of a framebuffer
-> > driver)
-> 
-> Lots of systems cannot do 800x600 or 1024x768. Some of them cannot
-> do 640x480 very well but 640x480 is safe except for weird kit because
-> of the VGA mode support.
+Previously Richard B. Tilley  (Brad) wrote:
+> Then, not supporting loadable modules *is* more secure. By not
+> supporting them, you are decreasing the ease in which the kernel can be
+> modified. There are fewer people who can "fiddle with memory by hand"
+> than there are that can insert a loadable module... a lot fewer, don't
+> you agree?
 
-Infact, better than using text mode with a custom font to draw a logo,
-because some LCD screens display 720x400 as 640x400 by missing out one
-pixel of each character.
+No, there are simple tools to do that which are just as easy to use as
+insmod.
 
-John
+Wichert.
+
+-- 
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

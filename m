@@ -1,70 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271796AbRHWJrE>; Thu, 23 Aug 2001 05:47:04 -0400
+	id <S271799AbRHWJwo>; Thu, 23 Aug 2001 05:52:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271799AbRHWJqy>; Thu, 23 Aug 2001 05:46:54 -0400
-Received: from ltgp.iram.es ([150.214.224.138]:2688 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id <S271796AbRHWJql>;
-	Thu, 23 Aug 2001 05:46:41 -0400
-Date: Thu, 23 Aug 2001 11:46:47 +0200 (CEST)
-From: Gabriel Paubert <paubert@iram.es>
-To: Paul Mackerras <paulus@samba.org>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (comments requested) adding finer-grained timing to PPC
-  add_timer_randomness()
-In-Reply-To: <15236.23943.260421.31691@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.21.0108231137080.2015-100000@ltgp.iram.es>
+	id <S271802AbRHWJwe>; Thu, 23 Aug 2001 05:52:34 -0400
+Received: from juicer02.bigpond.com ([139.134.6.78]:22741 "EHLO
+	mailin5.bigpond.com") by vger.kernel.org with ESMTP
+	id <S271799AbRHWJwV>; Thu, 23 Aug 2001 05:52:21 -0400
+Message-ID: <012401c12bb9$51ce4020$010da8c0@valhalla>
+From: "Kingsley Foreman" <Kingsley@wintronics.com.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4.9 and an AMD compile
+Date: Thu, 23 Aug 2001 19:22:28 +0930
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Aug 2001, Paul Mackerras wrote:
+Ive compiled kernel 2.4.9 as an amd athlon cpu
 
-> Chris Friesen writes:
-> 
-> > > +extern int have_timebase;
-> > >   ...
-> > 
-> > > Am I missing something, or should at least one of these not be extern?
-> > 
-> > 
-> > Okay, I feel dumb.  You're right of course. I guess I must have missed the
-> > compiler warning.
-> 
-> I accidently deleted the message with the patch, but my comment would
-> be that the way we have tended to handle this sort of thing is by
-> reading the PVR register (processor version register) each time rather
-> than by setting a flag in memory and testing that, since I expect that
-> reading a special-purpose register in the CPU should be faster than
-> doing a load from memory.
-> 
-> In the 2.4 tree we have code that works out a cpu features word from
-> the PVR value.  The cpu features word has bits for things like does
-> the cpu have the TB register, does the MMU use a hash table, does the
-> cpu have separate I and D caches, etc.
+ive got a amd 1.2 on a via kt133a mb
 
-Reading the PVR is probably faster in this case, since you avoid a
-potential cache miss. As I said in an earlier message the __USE_RTC macro
-should be made dependent on whether the kernel supports 601 or not.
+It compiles fine but when i try to boot that kernel it randomly segfaults
+and gives me gives me kernel panics at boot up ive tried
+2.4.6-2.4.8 and they all do the same but it works if i compile it as a i686
+cpu
 
 
-> The other thing you could consider is using the value in the
-> decrementer register rather than the TB or RTC.  The timer interrupt
-> is signalled when the DEC transitions from 0 to -1, and the DEC keeps
-> decrementing (at the same rate that the TB increments, on cpus which
-> have a TB).  I assume that the source of randomness that you are
-> trying to capture is the jitter in the timer (decrementer) interrupt
-> latency.  AFAICS you could get that from DEC just as well as from the
-> TB/RTC and it would have the advantage that you would not need a
-> conditional on the processor version.
+Im new to the list so if it has come up before i appoligize
+anyone got any ideas what causes this and any way of fixing it
 
-No, this is not what they are trying to capture. Furthermore the 7 LSB of
-the decrementer on a 601 are not random (but they don't seem to be 0
-always despite the documentation) so you would have to shift the result
-right by 7. Because you need this test, it's better taking the time base
-or RTC and adding some salt from the upper half while we are at it.
 
-	Gabriel.
+Kingsley
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+|||||||||||||||||||||||||||
+This signature set seems to have reduced my spam. Maybe if everyone does
+ it we can defeat the email search bots.  tosspam@aol.com abuse@aol.com
+ abuse@yahoo.com abuse@hotmail.com abuse@msn.com abuse@sprint.com
+abuse@earthlink.com uce@ftc.gov abuse@fbi.gov abuse@cia.gov abuse@nsa.gov
 

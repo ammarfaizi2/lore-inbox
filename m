@@ -1,52 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVBHIpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVBHIvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVBHIpj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 03:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVBHIpj
+	id S261492AbVBHIvs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 03:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVBHIvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 03:45:39 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:45709 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261485AbVBHIpf (ORCPT
+	Tue, 8 Feb 2005 03:51:48 -0500
+Received: from edu.joroinen.fi ([194.89.68.130]:51934 "EHLO edu.joroinen.fi")
+	by vger.kernel.org with ESMTP id S261492AbVBHIvo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 03:45:35 -0500
-Date: Tue, 8 Feb 2005 09:45:29 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-Message-ID: <20050208084529.GD24669@elte.hu>
-References: <20050204100347.GA13186@elte.hu> <200502080755.j187tFI8003915@turing-police.cc.vt.edu>
+	Tue, 8 Feb 2005 03:51:44 -0500
+Date: Tue, 8 Feb 2005 10:51:43 +0200
+From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+To: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [WATCHDOG] support of motherboards with ICH6
+Message-ID: <20050208085143.GJ1561@edu.joroinen.fi>
+References: <41FF9366.5030203@fr.thalesgroup.com> <42072E13.4000903@fr.thalesgroup.com> <20050207142030.GE1561@edu.joroinen.fi> <420782AE.9050505@fr.thalesgroup.com> <20050207152203.GI1561@edu.joroinen.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200502080755.j187tFI8003915@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050207152203.GI1561@edu.joroinen.fi>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-
-> I found a CONFIG_NET_PKTGEN=Y in the config, rebuilt with =n, and the
-> resulting kernel boots fine (am using it as I type). Vanilla -rc3-mm1
-> also boots fine with the PTKGEN=y setting (as did
-> 2.6.10-mm1-V0.7.34-01, the last -mm I built with a -RT patch).  I
-> haven't tried a vanilla -rc3-V0.7.38-03, but I don't see anyplace -mm1
-> hits pktgen.c
+On Mon, Feb 07, 2005 at 05:22:03PM +0200, Pasi Kärkkäinen wrote:
+> On Mon, Feb 07, 2005 at 04:01:02PM +0100, P.O. Gaillard wrote:
+> > Pasi Kärkkäinen
+> > >Hi!
+> > >
+> > >I have P8SCi motherboard, and I just tried the watchdog with Linux 2.6.10.
+> > >
+> > >I loaded w83627hf_wdt driver, and the watchdog was detected:
+> > >
+> > >WDT driver for the Winbond(TM) W83627HF Super I/O chip initialising.
+> > >w83627hf WDT: initialized. timeout=60 sec (nowayout=0)
+> > >
+> > >But it is not working. I tried setting the timeout to 1 minute, and to
+> > >8 minute in the BIOS, but the machine reboots after the delay no matter 
+> > >what
+> > >the delay is.. the watchdog driver is loaded before the timeout of course.
+> > >
+> > >For some reason, the driver is not working.
+> > >
+> > >I mailed supermicro support about this, and they told me one of their
+> > >customers is using watchdog with Debian 2.6.10 kernel. 
+> > >So it should work, but..
+> > >
+> > >Is there some patches I could try? 
+> > Hi !
+> > I am so glad to find somebody interested in this issue ;-)
+> >
 > 
-> If the above isn't enough to track down the issue, feel free to let me
-> know what you'd like me to try next.
+> Me too :)
+>  
+> > I am not sure about which watchdog is working in the P8SCi. On my P4Sci, 
+> > the working watchdog was the one in Intel's southbridge with the i8xx-tco 
+> > driver. I tried to use this driver with the P8SAA. To do that I had to use 
+> > 2.6.11rc2bk9 to get ICH6 support in the i8xx-tco driver. But as you may 
+> > know, the watchdog is not working on the P8SAA.
+> > 
+> > This might be a good bet for you.
+> > 
+> 
+> Currently building 2.6.11rc3 i8xx-tco driver to test this.. 
+> 
+> I'll let you know what happens.
+> 
 
-i tried to enable NET_PKTGEN in my vanilla-based -RT tree and it
-boots/works fine. Could you try a vanilla-based -RT tree too, with
-NET_PKTGEN enabled, and if it breaks send me your .config - if it doesnt
-break then could you send me your -mm1 .config?
+i8xx-tco driver from 2.6.11rc3 doesnt seem to work either on P8SCi :(
+Machine rebooted after the timeout set in BIOS.
 
-	Ingo
+btw. I'm running watchdog-drivers in xen-dom0 kernel (2.6.10-xen0).. could that cause
+problems?
+
+-- Pasi Kärkkäinen
+       
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.

@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274818AbRIUU3T>; Fri, 21 Sep 2001 16:29:19 -0400
+	id <S274819AbRIUU3j>; Fri, 21 Sep 2001 16:29:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274819AbRIUU3K>; Fri, 21 Sep 2001 16:29:10 -0400
-Received: from c007-h014.c007.snv.cp.net ([209.228.33.221]:61665 "HELO
-	c007.snv.cp.net") by vger.kernel.org with SMTP id <S274818AbRIUU3G>;
-	Fri, 21 Sep 2001 16:29:06 -0400
-X-Sent: 21 Sep 2001 20:29:24 GMT
-Message-ID: <3BABA15A.57255E63@distributopia.com>
-Date: Fri, 21 Sep 2001 15:21:46 -0500
-From: "Christopher K. St. John" <cks@distributopia.com>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.0.36 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: /dev/yapoll : Re: [PATCH] /dev/epoll update ...
-In-Reply-To: <XFMail.20010921131017.davidel@xmailserver.org>
+	id <S274821AbRIUU33>; Fri, 21 Sep 2001 16:29:29 -0400
+Received: from mueller.uncooperative.org ([216.254.102.19]:62733 "EHLO
+	mueller.datastacks.com") by vger.kernel.org with ESMTP
+	id <S274819AbRIUU31>; Fri, 21 Sep 2001 16:29:27 -0400
+Date: Fri, 21 Sep 2001 16:29:49 -0400
+From: Crutcher Dunnavant <crutcher@datastacks.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Magic SysRq +# in 2.4.9-ac/2.4.10-pre12
+Message-ID: <20010921162949.H8188@mueller.datastacks.com>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BA8C01D.79FBD7C3@osdlab.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BA8C01D.79FBD7C3@osdlab.org>; from rddunlap@osdlab.org on Wed, Sep 19, 2001 at 08:56:13AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> 
-> By reporting the initial state of the connection will
-> make /dev/epoll to be a hybrid interface
->
+> 2.  I'd really prefer to see callers use
+> register_sysrq_key() and unregister_sysrq_key() so that they
+> can get/use return values, and not the lower-level functions
+> "__sysrq*" functions that are EXPORTed in sysrq.c.
+> I don't see a good reason to EXPORT all of these functions.
 
- Yes, but you need that anyway (see below)
+So would I, however, the lower interface is there so that modules can
+restructure the table in more complex ways, allowing for sub-menus.
 
+The really good answer here is to add registration functions for the top
+level handler, so that sub handlers can just claim the top level events
+without mucking with the table, and then restore the table handler
+later. This allows really modeful handlers, with submenus, and
+potentially even key entry. An example would be a handler to kill a
+specific process.
 
-> and looks pretty crappy to me.
->
+I'm also looking at a patch from Amazon which allows sysrq to be
+'sticky', to get arround bad keyboards and VTs, and allows which key the
+magic key is to be setable, to get arround VTs lacking sysrq entirely. 
 
- Talk to the people who wrote the paper (and won
-"Outstanding Paper" for it at Usenix). The paper
-is quite convincing, so I'm afraid I'll have to
-disagree. But as I said, I'll know more when I've
-tested further.
+I am reviewing the things I apparently horked, and this amazon stuff
+(which is very small) at the moment. Expect a pair of patches tomorrow,
+or late tonight.
 
-
- It turns out that a hybrid interface is needed
-in any case to handle overload. When the queues
-start to fill up, you need to back off and start
-basically doing something like a plain-old-poll()
-instead. Ref the paper. Here's a link to a kernel
-list dicussion that covers similiar ground:
-
-  http://kt.linuxcare.com/kernel-traffic/kt20001113_93.epl
-
- Also, merging events for the same fd, which
-everyone seems to agree is a good thing, is
-in fact a "hybrid" approach, right? Since 
-you're now tracking state (albeit only between
-calls to ioctl(EP_POLL).
-
- I intend to use some of the original Linux
-/dev/poll code, as well as some of yours, but
-it's a new patch with a new name.
-
+Ps. I am very embarassed about the log-level stuff.
 
 -- 
-Christopher St. John cks@distributopia.com
-DistribuTopia http://www.distributopia.com
+Crutcher        <crutcher@datastacks.com>
+GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$

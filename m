@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUIMA0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUIMA2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbUIMA0w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 20:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUIMA0w
+	id S264386AbUIMA2T (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 20:28:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUIMA2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 20:26:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6558 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264346AbUIMA0v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 20:26:51 -0400
-Message-ID: <4144E93E.5030404@pobox.com>
-Date: Sun, 12 Sep 2004 20:26:38 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Add sparse "__iomem" infrastructure to check PCI address usage
-References: <200409110726.i8B7QTGn009468@hera.kernel.org>
-In-Reply-To: <200409110726.i8B7QTGn009468@hera.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Sep 2004 20:28:19 -0400
+Received: from host-63-144-52-41.concordhotels.com ([63.144.52.41]:10619 "EHLO
+	080relay.CIS.CIS.com") by vger.kernel.org with ESMTP
+	id S264386AbUIMA2K convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 20:28:10 -0400
+Subject: Re: radeon-pre-2
+From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
+       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0409122319550.20080@skynet>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
+	 <Pine.LNX.4.58.0409100209100.32064@skynet>
+	 <9e47339104090919015b5b5a4d@mail.gmail.com>
+	 <20040910153135.4310c13a.felix@trabant>
+	 <9e47339104091008115b821912@mail.gmail.com>
+	 <1094829278.17801.18.camel@localhost.localdomain>
+	 <9e4733910409100937126dc0e7@mail.gmail.com>
+	 <1094832031.17883.1.camel@localhost.localdomain>
+	 <9e47339104091010221f03ec06@mail.gmail.com>
+	 <1094835846.17932.11.camel@localhost.localdomain>
+	 <9e47339104091011402e8341d0@mail.gmail.com>
+	 <Pine.LNX.4.58.0409102254250.13921@skynet>
+	 <1094853588.18235.12.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0409110137590.26651@skynet>
+	 <1094912726.21157.52.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0409122319550.20080@skynet>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Sun, 12 Sep 2004 20:27:56 -0400
+Message-Id: <1095035276.22112.31.camel@admin.tel.thor.asgaard.local>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> --- a/include/linux/compiler.h	2004-09-11 00:26:40 -07:00
-> +++ b/include/linux/compiler.h	2004-09-11 00:26:40 -07:00
-> @@ -6,13 +6,17 @@
->  # define __kernel	/* default address space */
->  # define __safe		__attribute__((safe))
->  # define __force	__attribute__((force))
-> +# define __iomem	__attribute__((noderef, address_space(2)))
+On Sun, 2004-09-12 at 23:42 +0100, Dave Airlie wrote:
+> 
+> I think yourself and Linus's ideas for a locking scheme look good, I also
+> know they won't please Jon too much as he can see where the potential
+> ineffecienes with saving/restore card state on driver swap are, especailly
+> on running fbcon and X on a dual-head card with different users.
 
-Dumb gcc attribute questions:
+Frankly, I don't understand the fuss about that. When you run a 3D
+client on X today, 3D client and X server share the accelerator with
+this scheme, and as imperfect as it is, it seems to do a pretty good job
+in my experience.
 
-1) what does force do? it doesn't appear to be in gcc 3.3.3 docs.
 
-2) is "volatile ... __force" redundant?
-
-3) can we use 'malloc' attribute on kmalloc?
-
+-- 
+Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
+Libre software enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer

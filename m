@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129718AbRA1RXy>; Sun, 28 Jan 2001 12:23:54 -0500
+	id <S132396AbRA1RYe>; Sun, 28 Jan 2001 12:24:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbRA1RXo>; Sun, 28 Jan 2001 12:23:44 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:61189 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S129235AbRA1RXe>; Sun, 28 Jan 2001 12:23:34 -0500
-Date: Sun, 28 Jan 2001 18:22:15 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux Post codes during runtime, possibly OT
-Message-ID: <20010128182215.D9106@pcep-jamie.cern.ch>
-In-Reply-To: <200101281012.LAA04278@cave.bitwizard.nl> <3A73F1EB.B6F69A93@transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A73F1EB.B6F69A93@transmeta.com>; from hpa@transmeta.com on Sun, Jan 28, 2001 at 02:18:19AM -0800
+	id <S129445AbRA1RYZ>; Sun, 28 Jan 2001 12:24:25 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:2052 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129235AbRA1RXw>;
+	Sun, 28 Jan 2001 12:23:52 -0500
+Date: Sun, 28 Jan 2001 18:21:54 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Linux SMP mailinglist <linux-smp@vger.kernel.org>
+Subject: [patch] new, scalable timer implementation, smptimers-2.4.0-B1
+Message-ID: <Pine.LNX.4.30.0101281752090.2612-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> It is; you'd have to specify "eax" as a clobber value, and that is
-> undesirable.
 
-For outb_p, EAX is used, usually for the last time, in the preceding
-"out" instruction so clobbering it is not a big deal.
+a new, 'ultra SMP scalable' implementation of Linux kernel timers is now
+available for download:
 
-For inb_p, you first have to copy EAX to another register before
-outputting the post_byte.  That's a small penalty.  Are in[bwl]_p used
-anywhere time critical?  (Richard Johnson's explanation for outb_p
-implies that inb_p is not required, but perhaps that explanation doesn't
-tell the whole story).
+    http://www.redhat.com/~mingo/scalable-timers/smptimers-2.4.0-B1
 
-> And you're still overwriting the POST value written by the BIOS.
+the patch is against 2.4.1-pre10 or ac12. The timer design in this
+implementation is a work of David Miller, Alexey Kuznetsov and myself.
 
-Can the BIOS-written value be read from port 0x80?
+Internals: the current 2.4 timer implementation uses a global spinlock for
+synchronizing access to the global timer lists. This causes excessive
+cacheline ping-pongs and visible performance degradation under very high
+TCP networking load (and other, timer-intensive operations).
 
--- Jamie
+The new implementation introduces per-CPU timer lists and per-CPU
+spinlocks that protect them. All timer operations, add_timer(),
+del_timer() and mod_timer() are still O(1) and cause no cacheline
+contention at all (because all data structures are separated). All
+existing semantics of Linux timers are preserved, so the patch is
+'transparent' to all other subsystems.
+
+In addition, the role of TIMER_BH has been redefined, and run_local_timers
+is used directly from APIC timer interrupts to run timers (not from
+TIMER_BH). This means that timer expiry is per-CPU as well - it is global
+in vanilla 2.4. Every timer is started and expired on the CPU where it has
+been added. Timers get migrated between CPUs if mod_timer() is done on
+another CPU (because eg. a process using them migrates to another CPU.).
+In the typical case timer handling is completely localized to one CPU.
+
+The new timers still maintain 'semantical compatibility' with older
+concepts such as the IRQ lock and manipulation of TIMER_BH state. These
+constructs are quite rare already, in 2.5 they can be removed completely.
+
+the patch has been sanity tested on UP-pure, UP-APIC, UP-IOAPIC and SMP
+systems. Reports/comments/questions/suggestions welcome!
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272465AbTGaMF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 08:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272467AbTGaMF0
+	id S272993AbTGaMOV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 08:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272997AbTGaMOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 08:05:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:42917 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S272465AbTGaMFW (ORCPT
+	Thu, 31 Jul 2003 08:14:21 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:56840 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id S272993AbTGaMOT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 08:05:22 -0400
-Date: Thu, 31 Jul 2003 14:05:12 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lou Langholtz <ldl@aros.net>
-Cc: Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2+ext3+dbench=Buffer I/O error
-Message-ID: <20030731120512.GQ22104@suse.de>
-References: <5.2.1.1.2.20030730163933.00b41b50@wen-online.de> <20030730150902.5281f72c.akpm@osdl.org> <3F284CE6.6080701@aros.net>
+	Thu, 31 Jul 2003 08:14:19 -0400
+Date: Thu, 31 Jul 2003 14:12:48 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: scholz@wdt.de
+Subject: fun or real: proc interface for module handling?
+Message-ID: <20030731121248.GQ264@schottelius.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fu8LepSeDvpxVgv6"
 Content-Disposition: inline
-In-Reply-To: <3F284CE6.6080701@aros.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux flapp 2.6.0-test2
+X-Free86: doesn't compile currently
+X-Replacement: please tell me some (working)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30 2003, Lou Langholtz wrote:
-> Andrew Morton wrote:
-> 
-> >Mike Galbraith <efault@gmx.de> wrote:
-> > 
-> >
-> >>Greetings,
-> >>
-> >>While trying to duplicate Randy Hron's "dbench has intermittent hang on 
-> >>2.6.0-test1-ac2" report, I received quite a few "Buffer I/O error on 
-> >>/dev/hda8, logical block N" messages.  (changing elevators makes no 
-> >>difference fwiw).
-> >>   
-> >>
-> >
-> >That's just a gremlinlet.  You can delete the offending printk for now.
-> >
-> > 
-> >
-> >>I went back to test1, and it spat up a couple of "buffer 
-> >>layer error" messages and associated traces.   Attempting to umount 
-> >>afterward to run fsck left umount in D state.  See attachment.
-> >>   
-> >>
-> >
-> >Well that's a worry.  Is it repeatable? . . .
-> >
-> Any chance this problem is a consequence of not yet having Sean 
-> Estabrooks partial bvec patch in this person's kernel??? 
-> <http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/0861.html>. Jens 
-> said he applied it on 2003/7/27 so it doesn't seem like this could have 
-> made it into 2.6.0-test1-ac2.
 
-no not unless Mike is using taskfile + pio, and even then I've never
-heard of it triggering.
+--fu8LepSeDvpxVgv6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jens Axboe
+Hello!
 
+I was just joking around here, but what do you think about this idea:
+
+A proc interface for module handling:
+   /proc/mods/
+   /proc/mods/<module-name>/<link-to-the-modules-use-us>
+
+So we could try to load a module with
+   mkdir /proc/mods/ipv6
+and remove it and every module which uses us with
+   rm -r /proc/mods/ipv6
+
+Modul options could be passed my
+   echo "psmouse_noext=3D1" > /proc/mods/psmouse/options
+which would also make it possible to change module options while running..
+
+It's just an idea, perhaps someone likes this..
+perhaps if there is enough feedback I even could think about
+implementing it.
+
+
+Greetings'
+
+Nico
+
+ps: please CC, the majordomo isn't answering my subscribe requests..
+
+--=20
+echo God bless America | sed 's/.*\(A.*\)$/Why \1?/'
+pgp: new id: 0x8D0E27A4 | ftp.schottelius.org/pub/familiy/nico/pgp-key.new
+
+--fu8LepSeDvpxVgv6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE/KQfAtnlUggLJsX0RApp4AJ4rgPSXi1wdxpfQACiyTEKBzXg/jwCfRiz3
+qhT7kLVQR3E0AVwMfmqdS0U=
+=C6eT
+-----END PGP SIGNATURE-----
+
+--fu8LepSeDvpxVgv6--

@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264554AbUE0OWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUE0O0B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264554AbUE0OWO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 10:22:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUE0OWO
+	id S264561AbUE0O0B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 10:26:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264562AbUE0O0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 10:22:14 -0400
-Received: from news.ti.com ([192.94.94.33]:60614 "EHLO dragon.ti.com")
-	by vger.kernel.org with ESMTP id S264554AbUE0OWI convert rfc822-to-8bit
+	Thu, 27 May 2004 10:26:01 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:12241
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S264561AbUE0OZ6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 10:22:08 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6510.0
-Subject: dev.c -- dev_queue_xmit-- Is the comment misleading or is it a bug??
-Date: Thu, 27 May 2004 19:51:58 +0530
-Message-ID: <F6B01C6242515443BB6E5DDD63AE935F05F068@dbde2k01.ent.ti.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: dev.c -- dev_queue_xmit-- Is the comment misleading or is it a bug??
-Thread-Index: AcRD9fh41e+EOAP5RZuPLw1fJjftIg==
-From: "Kumar, Sharath" <krs@ti.com>
-To: <linux-kernel@vger.kernel.org>
+	Thu, 27 May 2004 10:25:58 -0400
+Date: Thu, 27 May 2004 10:34:14 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+Message-ID: <20040527103414.A31572@animx.eu.org>
+References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <40B4590A.1090006@yahoo.com.au> <40B4667B.5040303@nodivisions.com> <40B46A57.4050209@yahoo.com.au> <20040526161127.A30461@animx.eu.org> <40B583BC.7030706@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <40B583BC.7030706@yahoo.com.au>; from Nick Piggin on Thu, May 27, 2004 at 03:59:24PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, (Please mark a cc to my id  in your reply as I am not subscribed to this list Thanks in advance :-))
+> > I have a question about that.  I keep a debian mirror on one of my machines. 
+> > there is over 70000 files.  If I run find on that tree while it's
+> > downloading the file list, it doesn't take as long.  I thought it would be
+> > nice if there was some way I could keep that in memory.  The box has 256mb
+> > ram no swap.  It is configured as diskless.
+> > 
+> 
+> You mean that if you prime the cache by running find on the tree,
+> your actual operation doesn't take as long?
 
-I am attaching the snippet for dev_queue_xmit code in net/core/dev.c 
+Yup.  Running the mirror doesn't matter really.  I start that before I
+retire at the end of the day.
 
-The issue I am trying to point out here is about calling this function from  an interrupt context.
-(The comment clearly says that I am right in doing so)
+> I don't doubt this. Slab cache is shrunk aggressively compared to
+> page cache. Traditionally I think this has been due at least in
+> part to some failure cases in the balancing there resulting in slab
+> growing out of control with some systems.
 
-So this function has to be re-entrant if it can be called from an interrupt which means 
-q->enqueue() also needs to be re-entrant.
+Where it gets me is the 2nd mirror I have on a usb disk.  Updating it takes
+a while.  Although priming the cache on the machine where the usb disk is is
+a bit quicker than where the mirror is (rsync over tcp/ip).  Both disks use
+ext3, but the machine the usb is on has way more memory, usb2, and overall
+quicker than the other.
 
-The enqueue function by default is mapped to  pfifo_fast_enqueue  (net/sched/sch_generic.c)
-unfortunately the code in this function updates the transmit queue and qdisc->q.qlen
-without disabling interrupts. 
+> These failure cases should be fixed now, and slab vs pagecache is
+> probably something that should be looked at again. I really need
+> to get my hands on a 2GB+ system before I'd be game to start
+> fiddling with too much stuff though.
 
-So If I call dev_queue_xmit from a non-interrupt context and if I  have an interrupt which again makes
-a call to dev_queue_xmit(on the same device), then my transmit queue may be left in inconsistent state  :-(
+I've been wanting to upgrade that machine to 768mb, but I don't know if
+it'll handle it.
 
-Either the comment is misleading or I am missing something here.
-
-/**
- *	dev_queue_xmit - transmit a buffer
- *	@skb: buffer to transmit
- *
- *	Queue a buffer for transmission to a network device. The caller must
- *	have set the device and priority and built the buffer before calling
- *	this function. The function can be called from an interrupt.
- *
- *	A negative errno code is returned on a failure. A success does not
- *	guarantee the frame will be transmitted as it may be dropped due
- *	to congestion or traffic shaping.
- */
-
-int dev_queue_xmit(struct sk_buff *skb)
-{
-		..
-	..
-	/* Grab device queue */
-	spin_lock_bh(&dev->queue_lock);
-	q = dev->qdisc;
-	if (q->enqueue) {
-		rc = q->enqueue(skb, q);
-
-
-Regards.
--Sharath.
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

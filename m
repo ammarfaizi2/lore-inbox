@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbTLOW4S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 17:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264288AbTLOW4S
+	id S264285AbTLOWzt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 17:55:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTLOWzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 17:56:18 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:52680 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264286AbTLOW4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 17:56:12 -0500
-From: Christian Borntraeger <kernel@borntraeger.net>
-To: root@chaos.analogic.com, Felix von Leitner <felix-kernel@fefe.de>
-Subject: Re: request: capabilities that allow users to drop privileges further
-Date: Mon, 15 Dec 2003 23:55:41 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20031215213912.GA29281@codeblau.de> <Pine.LNX.4.53.0312151700320.15531@chaos>
-In-Reply-To: <Pine.LNX.4.53.0312151700320.15531@chaos>
+	Mon, 15 Dec 2003 17:55:49 -0500
+Received: from mail3.speakeasy.net ([216.254.0.203]:37523 "EHLO
+	mail3.speakeasy.net") by vger.kernel.org with ESMTP id S264285AbTLOWzq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 17:55:46 -0500
+Date: Mon, 15 Dec 2003 14:55:38 -0800
+Message-Id: <200312152255.hBFMtcEZ024917@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312152355.41980.kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+From: Roland McGrath <roland@redhat.com>
+To: arjanv@redhat.com
+X-Fcc: ~/Mail/linus
+Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] Re: Problem with exiting threads under NPTL
+In-Reply-To: Arjan van de Ven's message of  Monday, 15 December 2003 09:54:16 +0100 <1071478455.5223.0.camel@laptop.fenrus.com>
+Emacs: or perhaps you'd prefer Russian Roulette, after all?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> On Mon, 15 Dec 2003, Felix von Leitner wrote:
-> > I would like to be able to drop capabilities that every normal user
-[...]
-> > security problems further.  For example, I want my non-cgi web server
-[...]
-> >   * fork
-> >   * execve
-> >   * ptrace
-[...]
-> So you expect kernel support?  Normally, real people write or
-> modify applications to provide for specific exceptions to
-> the standards. They don't expect an operating system to
-> modify itself to unique situations. That's not what
-> operating systems have generally done in the past.
-[...]
+> On Sun, 2003-12-14 at 23:10, Linus Torvalds wrote:
+> 
+> > Even though the parent ignores SIGCHLD it _can_ be running on another CPU
+> > in "wait4()".
+> 
+> which fwiw is a case of illegal behavior in the program ... of course
+> the kernel shouldn't die if it happens.
 
-I dont agree. Policy is userspace but enforcing the policy very often needs 
-kernel support.
-
-Having ACL in 2.6 is an example where operating system already adopted to 
-special needs. Furthermore, the kernel is already able to drop special 
-capabilites, like module loading.  Having a generalised capabilites model 
-is a good idea and there are already some more or less usable security 
-modules.
-
-cheers
-
-Christian
-
+No, it is legal to call wait* when ignoring SIGCHLD--and it is required to
+return ECHILD for the dead ones.  For example, using waitpid with WNOHANG
+is a valid way to poll for the liveness of a child (though there is no good
+reason why an application wouldn't just use kill(,0) for that).  It's not a
+method that has anything to recommend it, but it is perfectly valid and the
+range of permissible results is well-specified.

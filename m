@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbUK2XSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUK2XIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbUK2XSK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 18:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUK2XQg
+	id S261880AbUK2XIP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 18:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbUK2XEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 18:16:36 -0500
-Received: from www.zeroc.com ([63.251.146.250]:30856 "EHLO www.zeroc.com")
-	by vger.kernel.org with ESMTP id S261881AbUK2XO0 (ORCPT
+	Mon, 29 Nov 2004 18:04:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7630 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261858AbUK2XAl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 18:14:26 -0500
-Message-ID: <002c01c4d669$28ec6e30$6401a8c0@centrino>
-From: "Bernard Normier" <bernard@zeroc.com>
-To: <jonathan@jonmasters.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <006001c4d4c2$14470880$6400a8c0@centrino> <35fb2e5904112914476df48518@mail.gmail.com>
-Subject: Re: Concurrent access to /dev/urandom
-Date: Mon, 29 Nov 2004 18:14:20 -0500
+	Mon, 29 Nov 2004 18:00:41 -0500
+Date: Mon, 29 Nov 2004 15:00:17 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alexandre Oliva <aoliva@redhat.com>
+cc: Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <oract0thnj.fsf@livre.redhat.lsd.ic.unicamp.br>
+Message-ID: <Pine.LNX.4.58.0411291458040.22796@ppc970.osdl.org>
+References: <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+ <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com>
+ <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
+ <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br> <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
+ <oract0thnj.fsf@livre.redhat.lsd.ic.unicamp.br>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I use /dev/urandom to generate UUIDs by reading 16 random bytes from
->> /dev/urandom (very much like e2fsprogs' libuuid).
->
-> Why not use /dev/random for such data instead?
 
-A UUID generator that blocks from time to time waiting for entropy would not 
-be usable.
 
-Cheers,
-Bernard
+On Mon, 29 Nov 2004, Alexandre Oliva wrote:
+> 
+> I don't see it as obvious at all.  The need for an agreement between
+> two parties on an ABI doesn't imply that one party gets to define it
+> and the other gets to follow it. 
 
+Sorry, but that's not how it works.
+
+He who writes the code decides what it is. In this case, if the kernel 
+does a new extension, it's the kernel that gets to decide what it is. 
+Full stop.
+
+If glibc wants to do something new, go wild. The kernel won't care.
+
+And that's really the fundamental issue. The kernel does not care what
+user land does. The kernel exports functionality, the kernel does _not_
+ask user land to help.
+
+That _does_ make it a one-way street. Sorry.
+
+		Linus

@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbTJFTGP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 15:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTJFTFW
+	id S262074AbTJFS4f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 14:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbTJFS4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 15:05:22 -0400
-Received: from leon.mat.uni.torun.pl ([158.75.2.17]:18358 "EHLO
-	Leon.mat.uni.torun.pl") by vger.kernel.org with ESMTP
-	id S262126AbTJFTEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 15:04:47 -0400
-Date: Mon, 6 Oct 2003 21:04:30 +0200 (CEST)
-From: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-X-X-Sender: golbi@ultra60
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michal Wronski <wrona@mat.uni.torun.pl>
-Subject: Re: POSIX message queues
-In-Reply-To: <3F7FEE6F.9050601@colorfullife.com>
-Message-ID: <Pine.GSO.4.58.0310062029590.20893@ultra60>
-References: <Pine.GSO.4.58.0310051047560.12323@ultra60> <3F7FEE6F.9050601@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Oct 2003 14:56:35 -0400
+Received: from mail0-96.ewetel.de ([212.6.122.96]:23028 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id S262074AbTJFS4e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 14:56:34 -0400
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
+In-Reply-To: <DIAQ.2Hh.5@gated-at.bofh.it>
+References: <DIre.Cy.15@gated-at.bofh.it> <DIre.Cy.17@gated-at.bofh.it> <DIre.Cy.19@gated-at.bofh.it> <DIre.Cy.13@gated-at.bofh.it> <DIAQ.2Hh.5@gated-at.bofh.it>
+Date: Mon, 6 Oct 2003 20:56:25 +0200
+Message-Id: <E1A6aWv-0000rJ-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Oct 2003, Manfred Spraul wrote:
+On Mon, 06 Oct 2003 20:50:12 +0200, you wrote in linux.kernel:
 
-> Krzysiek: What is MQ_IOC_CLOSE? It looks like a stale ioctl. Please
-> remove such code from the patch.
-It is used. If this ioctl will succeed we know that it was done on mqueue
-fs file. And thanks to it we get rid of the possibility of closing
-ordinary file descriptor with mq_close().
+> That has no bearing on the legalities.  A version of the kernel can't
+> force the GPL on a driver that works with that version of the kernel
+> because you can pull that driver out and drop in another.
 
- >
-> The last time I looked at your patch I noticed a race between creation
-> and setting queue attributes. Did you fix that?
-Yes - as Alan Cox suggested. But see below.
+Okay, I can see the boundary. We still have the problem that drivers
+writers have to be very careful to not copy kernel code by accident
+because the kernel changes often, which creates a temptation to look
+closely at in-tree drivers to see how they do things. And if a
+drivers writer then produces code that is essentialy the same as is
+found in the kernel, only with changed indentation and variable names,
+I think we both a agree that such a driver would be a derived work.
 
+Another problem is the fact that Linux kernel headers can contain code
+in the form of macros. If a driver uses such a header, it links kernel
+code with itself which can easily make it a derived work.
 
-> I personally prefer syscalls, but that's just my personal preference.
-In our opinion also - and that was the reason why we initially had done
-this with syscall. But this was criticized. Mostly but Christopher Hellwig
-AFAIR. So we changed it ;-) ... Anyway:
-
-Removing ioctls has mostly advantages (maybe except checking for
-permissions) and it's simply. Reusing code of msg_load/free/store - also
-no problem. Third issue is filesystem. IMHO removing it from userspace is
-unnecessary. It gives a lot of valuable informations (about
-notifications which can't be gather with POSIX calls). It is also
-convenient to rm queue to poll it.
-The things I think should be changed:
-mqueues should be be accessible from the module init time
-touch can create queue with system limits (?)
-multiple mounts of mqueue fs should show the same content.
-
-With this functionality we will have some more convenient queues.
-Is it sensible?
-
-(
-Implementing with syscalls will also solve proc/mounts dependency (which
-BTW can be turned of in library configure).
-)
-
-
-Regards
-Krzysiek
+-- 
+Ciao,
+Pascal

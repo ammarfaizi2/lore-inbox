@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266997AbRG1TIC>; Sat, 28 Jul 2001 15:08:02 -0400
+	id <S267043AbRG1TMm>; Sat, 28 Jul 2001 15:12:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267009AbRG1THw>; Sat, 28 Jul 2001 15:07:52 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60932 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266997AbRG1THp>; Sat, 28 Jul 2001 15:07:45 -0400
-Subject: Re: binary modules (was Re: ReiserFS / 2.4.6 / Data Corruption)
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Sat, 28 Jul 2001 20:08:46 +0100 (BST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        kiwiunixman@yahoo.co.nz (Matthew Gardiner),
-        pauld@egenera.com (Philip R. Auld),
-        linux-kernel@vger.kernel.org (kernel)
-In-Reply-To: <no.id> from "Richard Gooch" at Jul 28, 2001 01:44:05 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S267014AbRG1TMd>; Sat, 28 Jul 2001 15:12:33 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:22277 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S267009AbRG1TMU>;
+	Sat, 28 Jul 2001 15:12:20 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200107281912.XAA17362@ms2.inr.ac.ru>
+Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
+To: samudrala@us.ibm.com (Sridhar Samudrala)
+Date: Sat, 28 Jul 2001 23:12:05 +0400 (MSK DST)
+Cc: alan@lxorguk.ukuu.org.uk, samudrala@us.ibm.com,
+        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        lartc@mailman.ds9a.nl, diffserv-general@lists.sourceforge.net,
+        rusty@rustcorp.com.au
+In-Reply-To: <Pine.LNX.4.21.0107271140330.14328-100000@w-sridhar2.des.sequent.com> from "Sridhar Samudrala" at Jul 27, 1 12:55:25 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15QZSA-00083U-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> The right answer for vendors who want to ship binary modules is to
-> ship an Open Source interface layer which shields the vendor from
-> kernel drift (since users will be able to build the interface layer if
-> they need to, without waiting for the vendor).
+Hello!
 
-As people have seen from vmware and from the ever growing piles of 
-nvidia crashes the truth about binary modules in general even with glue is
-pain and suffering.
+> Low priority connections can clog the accept queue only when there are no
+> high priority connection requests coming along. As soon as a slot becomes empty
+> in the accept queue, it becomes available for a high priority connection.
 
-Veritas have some good Linux people though, and while I'm sad they won't
-open source the core of veritas they do at least appear to have the
-knowledgebase to do a good job
+And in presence of persistent low priority traffic, high priority connection
+will not have any chances to take this slot. When high priority connection
+arrives all the slots are permanently busy with low ones.
+
+> If that happens, TCP SYN policing can be employed to limit the rate of low 
+> priority connections getting into accept queue. 
+
+After this your patch is not required at all. :-)
+
+All the effect is a bit better latency, not a big win.
+
+
+> dropped simply because there is no room for that class although there is room 
+> for higher priority classes and there are no incoming higher priority 
+> connections. 
+
+ABC of resource control. If you have finite resource and want to give
+better service to class A, you must reserve for it some bits of resource
+or must be able to preempt other classes.
+
+Alexey

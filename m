@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280047AbRKIT7j>; Fri, 9 Nov 2001 14:59:39 -0500
+	id <S280056AbRKIUWL>; Fri, 9 Nov 2001 15:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280056AbRKIT7a>; Fri, 9 Nov 2001 14:59:30 -0500
-Received: from AMontpellier-201-1-6-99.abo.wanadoo.fr ([80.11.171.99]:14604
-	"EHLO awak") by vger.kernel.org with ESMTP id <S280047AbRKIT7Q> convert rfc822-to-8bit;
-	Fri, 9 Nov 2001 14:59:16 -0500
-Subject: Re: Lockup in IDE code
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Dan Hollis <goemon@anime.net>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andre Hedrick <andre@linux-ide.org>
-In-Reply-To: <Pine.LNX.4.30.0111091138140.30935-100000@anime.net>
-In-Reply-To: <Pine.LNX.4.30.0111091138140.30935-100000@anime.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.49 (Preview Release)
-Date: 09 Nov 2001 20:49:22 +0100
-Message-Id: <1005335364.15261.19.camel@nomade>
-Mime-Version: 1.0
+	id <S280086AbRKIUWA>; Fri, 9 Nov 2001 15:22:00 -0500
+Received: from omnis-mail.omnis.com ([216.239.128.28]:46354 "HELO omnis.com")
+	by vger.kernel.org with SMTP id <S280056AbRKIUVo>;
+	Fri, 9 Nov 2001 15:21:44 -0500
+Message-ID: <3BEC3B3A.6040005@sh.nu>
+Date: Fri, 09 Nov 2001 12:23:22 -0800
+From: Daniel Ceregatti <vi@sh.nu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011010
+X-Accept-Language: en-us
+MIME-Version: 1.0
+CC: vi@sh.nu, linux-kernel@vger.kernel.org
+Subject: MS Natural keyboard extra keys using usb
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le ven 09-11-2001 à 20:38, Dan Hollis a écrit :
-> On Fri, 9 Nov 2001, Richard Gooch wrote:
-> > GXavier Bestel writes:
-> > > le ven 09-11-2001 à 03:17, Richard Gooch a écrit :
-> > > >   Hi, all. I tried to use my IDE CD-ROM today, the first time in a
-> > > > long while. When attempting to mount it, the machine locked up,
-> > > > hard. Even SysReq didn't work.
-> > > Do you have a read error on your CD ?
-> > No. I did mention that when I turned off DMA, it worked fine.
-> 
-> I don't see why read errors should lock up the kernel anyway... would it
-> be acceptable for floppy read errors to lock up the kernel too?
+Hi,
 
-Indeed, but they do, on my machine anyway.
+First off, I do not subcribe to the kernel list, so if anyone responds
+to this, please CC me at vi@sh.nu.
 
-	Xav
+I've got an MS Natural keyboard plugged in via USB. I've mapped all the
+"Internet Keys", those blue keys above the keyboard, in X using xmodmap.
+I use them to control xmms, volume, spawn shells, etc.
+
+Ever since 2.4.10, these keys have stopped working. I suspect it's some
+issue with USB, as my mouse, an MS Intellimouse Optical, also stopped
+working in X with that kernel. The fix for the mouse was to change the
+protocol from NetmousePS/2 to ExplorerPS/2. I never use console, so I
+don't know if it broke there too. Keep in mind here that the only thing
+that changed was the kernel. Nothing in X changed. If I go back to
+2.4.9, everything works as it did before. This problem exists with all
+kernels between 2.4.10 and 2.4.13.
+
+To further prove the usb theory, these mouse and keyboard issues have
+been present in all the ac kernels since about 2.4.5-acX. I understand
+that a lot of these ac changes were merged into 2.4.10. So it seems
+logical to conclude that something that was merged from ac is the cause
+of this.
+
+I'm not a kernel programmer, so I have no idea how to troubleshoot this.
+I've searched high and low for resolutions to this issue and have come
+up blank. That is why I'm posting here.
+
+Thanks,
+
+Daniel Ceregatti
 

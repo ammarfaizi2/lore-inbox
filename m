@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262012AbREYXGr>; Fri, 25 May 2001 19:06:47 -0400
+	id <S262023AbREYXIH>; Fri, 25 May 2001 19:08:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262013AbREYXGh>; Fri, 25 May 2001 19:06:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32787 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262012AbREYXGY>; Fri, 25 May 2001 19:06:24 -0400
-Subject: Re: ac15 and 2.4.5-pre6, pwc format conversion
-To: nemosoft@smcc.demon.nl (Nemosoft Unv.)
-Date: Sat, 26 May 2001 00:03:33 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), johannes@erdfelt.com,
-        linux-usb-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org (Erik Mouw), J.A.K.Mouw@ITS.TUDelft.NL,
-        randy.dunlap@intel.com
-In-Reply-To: <XFMail.010525213709.nemosoft@smcc.demon.nl> from "Nemosoft Unv." at May 25, 2001 09:37:09 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262020AbREYXHt>; Fri, 25 May 2001 19:07:49 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:30725 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262013AbREYXHf>; Fri, 25 May 2001 19:07:35 -0400
+Date: Fri, 25 May 2001 16:07:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [with-PATCH-really] highmem deadlock removal, balancing & cleanup
+In-Reply-To: <Pine.LNX.4.33.0105251932380.10469-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.31.0105251606360.15404-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E153QcH-0007CW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> all at the same time). I will *not* have a crippled driver into the Lin=
-> ux
-> kernel. If this is going to be policy, fine. But then this policy will =
-> apply
-> to ALL drivers equally, not just mine because suddenly Alan realizes he=
 
-I've had the others on the list for a while too, jus this one was very easy
-to fix and mindbogglingly annoying
 
-> been sleeping for the past 5 years and decides to implement a policy ha=
-> rdly
-> noone ever knew existed.
+On Fri, 25 May 2001, Rik van Riel wrote:
+>
+> Without the patch my workstation (with ~180MB RAM) usually has
+> between 50 and 80MB of inode/dentry cache and real usable stuff
+> gets  swapped out.
 
-The policy has been there since day 1. This is a kernel not a library. You've
-written some very nice conversion library routines and I do hope you contribute
-those in userspace where they belong
+All I want is more people giving feedback.
+
+It's clear that neither my nor your machine is a good thing to base things
+on.
+
+		Linus
 

@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbULUGAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbULUGcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbULUGAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 01:00:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbULUGAJ
+	id S261314AbULUGcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 01:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbULUGcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 01:00:09 -0500
-Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:62357 "EHLO
-	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261299AbULUF74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 00:59:56 -0500
-References: <20041221024347.3004.qmail@web52606.mail.yahoo.com>
-Message-ID: <cone.1103608791.326982.28853.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: jesse <jessezx@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Gurus, a silly question for preemptive behavior
-Date: Tue, 21 Dec 2004 16:59:51 +1100
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Dec 2004 01:32:25 -0500
+Received: from web60605.mail.yahoo.com ([216.109.118.243]:48754 "HELO
+	web60605.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261314AbULUGcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 01:32:23 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=Gaz3dANdwqO47TVgM+wcq41cPRBgr/9VGkZdxaPANiXOPddaFzWy5XJshlHoCVg/tWrtN9ArGVZkLD0GkDY3lHmUx9niixp/FfJlPw5NCU7l3Y5u0gkFziKnuz1P3R/IR1hnLli+qVYBOSs7bwfc9oUjASwK5MXpQUHQWqeASoQ=  ;
+Message-ID: <20041221063222.26890.qmail@web60605.mail.yahoo.com>
+Date: Mon, 20 Dec 2004 22:32:22 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: Printk output on console
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jesse writes:
+ How can we see the output of printk calls in kernel
+source files in our console. Is there any special
+command or utility for it?
+ How to view the output of printk on our console? What
+is the log level to be set for this?
 
->  
-> As i know, in linux, user space application is
-> preemptive at any time. however, linux kernel is NOT
-> preemptive, that means, even some event is finished,
-> Linux kernel scheduler itself still can't have
-> opportunity to interrupt the current user application
-> and switch it out. it is called scheduler latency.
+Thanks,
+selva
 
-The kernel is preemptible if you enable the preempt option in the 
-configuration. There are some code paths that are not preemptible despite 
-this, but they are gradually being improved over time.
 
-> normally , the latency is about 88us in mean , maximum
-> : 200ms. Thus, the short latency shouldn't impact user
-> applications too much and is not a problem. It is an
-> issue in those embedded voice processing systems by
-> introducing jitters, thus smart people came up with
-> two kernel schedule patch: preemptive patch and low
-> latency patch. 
 
-You're thinking about the 2.4 kernel. 2.6 is effectively both of those 
-patches inclusive.
-
-> my system: 
-> [root@sa-c2-7 proc]# uname  -a 
-> Linux sa-c2-7 2.4.21-15.ELsmp #1 SMP Thu Apr 22
-> 00:18:24 EDT 2004 i686 i686 i386 GNU/Linux 
-
-If you want lower latency on a 2.4 kernel you need further patches. You are 
-most likely to benefit from a move to a 2.6 kernel and enabling preempt.
-
-Cheers,
-Con
-
+		
+__________________________________ 
+Do you Yahoo!? 
+Take Yahoo! Mail with you! Get it on your mobile phone. 
+http://mobile.yahoo.com/maildemo 

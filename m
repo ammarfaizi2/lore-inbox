@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288557AbSA3HG1>; Wed, 30 Jan 2002 02:06:27 -0500
+	id <S288731AbSA3HMS>; Wed, 30 Jan 2002 02:12:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288731AbSA3HGI>; Wed, 30 Jan 2002 02:06:08 -0500
-Received: from zero.tech9.net ([209.61.188.187]:60171 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288557AbSA3HF5>;
-	Wed, 30 Jan 2002 02:05:57 -0500
-Subject: Re: Configure.help in 2.5.3-pre6
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a3847v$17m$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0201292147530.22800-100000@barbarella.hawaga.org.uk>
-	<1012370595.3392.21.camel@phantasy>  <a3847v$17m$1@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 30 Jan 2002 02:11:16 -0500
-Message-Id: <1012374707.3213.24.camel@phantasy>
-Mime-Version: 1.0
+	id <S288732AbSA3HMH>; Wed, 30 Jan 2002 02:12:07 -0500
+Received: from waste.org ([209.173.204.2]:1428 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S288731AbSA3HMB>;
+	Wed, 30 Jan 2002 02:12:01 -0500
+Date: Wed, 30 Jan 2002 01:11:44 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Hans Reiser <reiser@namesys.com>
+cc: Chris Mason <mason@suse.com>, Alexander Viro <viro@math.psu.edu>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+Subject: Re: [reiserfs-dev] Re: Note describing poor dcache utilization under
+ high memory pressure
+In-Reply-To: <3C570FD0.3080206@namesys.com>
+Message-ID: <Pine.LNX.4.44.0201300106020.25123-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-01-30 at 01:35, Linus Torvalds wrote:
+On Wed, 30 Jan 2002, Hans Reiser wrote:
 
-> I'd much _prefer_ to have somebody who knows menuconfug/xconfig (or just
-> wants to learn).  I have a totally untested patch for menuconfig, that
-> probably just works (like the regular config thing it doesn't actualy
-> take _advantage_ of pairing the Config.help files up with the questions,
-> but at least it should give you the help texts like it used to).
+> Chris Mason wrote:
+>
+> >>I don't mean to suggest that the dentry cache locking is an easy problem to solve, but the problem discussed is a real one, and it is sufficient to illustrate that the unified cache is fundamentally flawed as an algorithm compared to using subcache plugins.
+> >>
+> >
+> >It isn't just dentries.  If a subcache object is in use, it can't be moved
+> >to a warmer page without invalidating all existing pointers to it.
+> >
+> >If it isn't in use, it can be migrated when the VM asks for the page to
+> >be flushed.
+> >
+> garbage collection is a lot of work to implement --- there are a lot of
+> good reasons why ext2 doesn't shrink directories.....;-)
+>
+> really guys, you can get me to agree that it is more work to code, you
+> can even get me to agree to skip it for now because we are all busy, but
+> the design principle remains valid  --- using per page aging of subpage
+> objects that do not correlate in accesses leads to diffused hot sets,
+> and that means that the cache will perform as though it was much smaller
+> than it is.
 
-Does not work for me; menuconfig bails out to the console (but does not
-return to prompt) on "?" ...
+Can we get you to agree that basically all subpage objects are immovable?
+And as a consequence that garbage collecting at subpage levels doesn't
+guarantee freeing up any pages that can then be given up to other
+subsystems in response to VM pressure? The GC must think in terms of pages
+to actually make progress.
 
-I don't no one lick of this stuff either, so that is all you get from
-me. :)
+One of the design goals of slab by the way is that objects of a similar
+type will end up having similar lifetimes, avoiding some of the worst
+cases of sub-page allocations.
 
-	Robert Love
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

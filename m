@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263025AbTFOXbt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 19:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTFOXbt
+	id S263056AbTFOXop (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 19:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTFOXop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 19:31:49 -0400
-Received: from ip212-226-133-178.adsl.kpnqwest.fi ([212.226.133.178]:27317
-	"EHLO jumper") by vger.kernel.org with ESMTP id S263025AbTFOXbs
+	Sun, 15 Jun 2003 19:44:45 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:22757 "EHLO
+	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S263056AbTFOXoo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 19:31:48 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.71 go boom
-References: <87isr7cjra.fsf@jumper.lonesom.pp.fi>
-	<20030615191125.I5417@flint.arm.linux.org.uk>
-	<87el1vcdrz.fsf@jumper.lonesom.pp.fi>
-	<20030615212814.N5417@flint.arm.linux.org.uk>
-From: Jaakko Niemi <liiwi@lonesom.pp.fi>
-Date: Mon, 16 Jun 2003 02:46:00 +0300
-In-Reply-To: <20030615212814.N5417@flint.arm.linux.org.uk> (Russell King's
- message of "Sun, 15 Jun 2003 21:28:14 +0100")
-Message-ID: <87he6qc3bb.fsf@jumper.lonesom.pp.fi>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 Jun 2003 19:44:44 -0400
+Subject: 2.5.71-mm1 and ACPI (Re: Broken USB, sound in 2.5.70-mmX series)
+From: Michel Alexandre Salim <mas118@york.ac.uk>
+To: Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200306132247.17696.oliver@neukum.org>
+References: <1055436599.6845.7.camel@bushido>
+	 <200306122110.10207.oliver@neukum.org> <1055512702.6143.17.camel@bushido>
+	 <200306132247.17696.oliver@neukum.org>
+Content-Type: text/plain
+Organization: University of York
+Message-Id: <1055721510.6880.4.camel@bushido>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 16 Jun 2003 00:58:30 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> writes:
+On Fri, 2003-06-13 at 21:47, Oliver Neukum wrote:
+> > > > > Do you see irqs for USB if you boot with acpi?
+> > > >
+> > > > Everything's on IRQ 9. That's why sound is broken as well it seems -
+> > > > IRQ sharing does not work as well as it should.
+> > >
+> > > Did you try using pci= on the command line?
+> >
+> > Err.. no. What should I set pci= to?
+> 
+> pci=biosirq
+> 
+> 	HTH
+Alas, it does not help :(. I tried 2.5.71-mm1 too, since there has been
+ACPI updates - still the same, but I just realised my problem might be
+related to the conspicuous drop in size of the initrd image created by
+mkinitrd (on Red Hat 9):
 
-> On Sun, Jun 15, 2003 at 11:00:00PM +0300, Jaakko Niemi wrote:
->> Russell King <rmk@arm.linux.org.uk> writes:
->> > On Sun, Jun 15, 2003 at 08:50:49PM +0300, Jaakko Niemi wrote:
->> >>  I seem to be able to reproduce crash with 2.7.70-bk and .71.
->> >>  First, I tried getting dlink dwl-650 wlan card up on my thinkpad
->> >>  570e, but orinoco_cs does not seem to want to even look at it.
->> >>  (any ideas what's the deal with that, btw?) 
->> >
->> > What happens if you plug in your cardbus card before the dlink wlan card?
->> 
->>  Same thing.
->
-> Ok, I'm confused.  I suspect that it may be something to do with two
-> PCI device structures appearing for the same device, however I don't
-> see that happening with the code which is in 2.5.7x.
+2.4.20: 143K
+2.5.69-mm8: 288K
+2.5.70/1-mmX: 84K
 
- Hmm, that second instance was not there always. I'll try to get 
- a crash without it.
+It turns out that the 'insmod' binary is much smaller (down from 300+K
+to 100+K), but that should not matter, since modules still load
+properly?
 
-> Which kernel version first showed the problem?
+Bizarre... anyone else has 2.5.70 and above working on a Centrino
+notebook on a Red Hat system? 2.5.71 has a sweet Enhanced SpeedStep
+module that finally detects Centrino, now if only I could get it working
+properly...
 
- 2.5.71-bk13 was the first I managed to notice this with, iirc.
- If you have some older version in mind, I can try that. 
+Thanks,
 
-> Which modules are you loading?
+Michel
 
- Only those that come by default with this config:
-
- snd, soundcore, usbkbd and usbcore
-
-> Which version of cardmgr are you using?
-
- 3.2.2
-
-> Are you using any modules from the pcmcia-cs package?
-
- No.
-
-                --j

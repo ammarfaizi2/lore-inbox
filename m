@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271643AbRIDNWL>; Tue, 4 Sep 2001 09:22:11 -0400
+	id <S271967AbRIDN2B>; Tue, 4 Sep 2001 09:28:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271967AbRIDNWC>; Tue, 4 Sep 2001 09:22:02 -0400
-Received: from alpha.netvision.net.il ([194.90.1.13]:8461 "EHLO
-	alpha.netvision.net.il") by vger.kernel.org with ESMTP
-	id <S271643AbRIDNVr>; Tue, 4 Sep 2001 09:21:47 -0400
-Message-ID: <3B94D58B.180860A2@netvision.net.il>
-Date: Tue, 04 Sep 2001 16:22:19 +0300
-From: Michael Ben-Gershon <mybg@netvision.net.il>
-Organization: My Office
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en-GB, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Tim Waugh <twaugh@redhat.com>
+	id <S271970AbRIDN1v>; Tue, 4 Sep 2001 09:27:51 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:5460 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S271967AbRIDN1n>; Tue, 4 Sep 2001 09:27:43 -0400
+Date: Tue, 4 Sep 2001 14:27:55 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Michael Ben-Gershon <mybg@netvision.net.il>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: lpr to HP laserjet stalls
-In-Reply-To: <3B93E289.7F121DE9@netvision.net.il> <20010903221142.J20060@redhat.com> <3B94B4E7.701C76FA@netvision.net.il> <20010904121523.Q20060@redhat.com> <3B94B93B.2B907DCF@netvision.net.il> <20010904122751.S20060@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <20010904142755.V20060@redhat.com>
+In-Reply-To: <3B93E289.7F121DE9@netvision.net.il> <20010903221142.J20060@redhat.com> <3B94B4E7.701C76FA@netvision.net.il> <20010904121523.Q20060@redhat.com> <3B94B93B.2B907DCF@netvision.net.il> <20010904122751.S20060@redhat.com> <3B94D58B.180860A2@netvision.net.il>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="z2hf4YSN3H4nBSDp"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B94D58B.180860A2@netvision.net.il>; from mybg@netvision.net.il on Tue, Sep 04, 2001 at 04:22:19PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Waugh wrote:
-> 
-> On Tue, Sep 04, 2001 at 02:21:31PM +0300, Michael Ben-Gershon wrote:
-> 
-> For interrupt-driven mode: irq=auto dma=nofifo
-> For PIO mode: irq=auto dma=none
-> For DMA mode: irq=auto dma=auto
-> 
-> You need to check the 'dmesg' output after parport_pc has loaded to
-> see exactly what it will use though (i.e. whether it has detected
-> usable hardware).
-> 
-> The line that goes 'parport0: PC-style at 0x378 (0x778)' is the
-> important one.  Ignore the stuff in [brackets] at the end; if an
-> interrupt is mentioned it is using it; if a DMA channel is mentioned,
-> it is using it; and if it says 'using FIFO' then it's using the FIFO
-> with programmed IO (rather than DMA).
 
+--z2hf4YSN3H4nBSDp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK. Firstly I rebuilt the kernel (2.4.9) with CONFIG_PARPORT_PC_FIFO
-enabled. I also configured the parallel driver to be a module, to enable
-easier testing.
+On Tue, Sep 04, 2001 at 04:22:19PM +0300, Michael Ben-Gershon wrote:
 
-I found that whatever I did, printing was not stalled (this must be a
-result of CONFIG_PARPORT_PC_FIFO).
+> I don't know what they mean (the printing itself was not affected) but
+> I guess it would be better to avoid modes which give such messages.
 
-However, I found that dmesg gave some strange messages every so often under
-PIO and DMA modes.
+They are normal, really, and are there to help debugging.
 
-	FIFO is stuck
-	BUSY timeout
-	dma write timed out
+> At the moment I am loading the module with:
+>=20
+> 	insmod parport
+> 	insmod parport_pc io=3D0x378,0xa800 irq=3Dauto,auto dma=3Dnofifo,nofifo
 
-I don't know what they mean (the printing itself was not affected) but
-I guess it would be better to avoid modes which give such messages.
+So this is interrupt-driven printing but without using the ECP
+hardware.  I wonder why CONFIG_PARPORT_PC_FIFO makes a difference.  It
+shouldn't, really, and neither should building it as a module.
 
-At the moment I am loading the module with:
+Strange.
 
-	insmod parport
-	insmod parport_pc io=0x378,0xa800 irq=auto,auto dma=nofifo,nofifo
+Tim.
+*/
 
-If there is anything more I should be doing, please let me know.
+--z2hf4YSN3H4nBSDp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Thanks for all the help,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Michael Ben-Gershon
-mybg@netvision.net.il
+iD4DBQE7lNbayaXy9qA00+cRAvS2AJiOOThJGJmqEuIAhMy2C1y3jWrJAJ0YS0bK
+wqMX91ZUa1hxpCacCWZ49Q==
+=g6WU
+-----END PGP SIGNATURE-----
+
+--z2hf4YSN3H4nBSDp--

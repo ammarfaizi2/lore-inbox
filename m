@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268274AbUJOSXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268282AbUJOS36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268274AbUJOSXd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 14:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268275AbUJOSXc
+	id S268282AbUJOS36 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 14:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268275AbUJOS36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 14:23:32 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:40104 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S268274AbUJOSVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 14:21:13 -0400
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Fri, 15 Oct 2004 11:20:58 -0700
+	Fri, 15 Oct 2004 14:29:58 -0400
+Received: from mail8.spymac.net ([195.225.149.8]:12482 "EHLO mail8")
+	by vger.kernel.org with ESMTP id S268282AbUJOS34 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 14:29:56 -0400
+Message-ID: <4170333D.8000006@spymac.com>
+Date: Fri, 15 Oct 2004 22:29:49 +0200
+From: Gunther Persoons <gunther_persoons@spymac.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
-CC: KendallB@scitechsoft.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <416FB29A.11731.1C46848@localhost>
-In-reply-to: <1097850784.9857.20.camel@localhost.localdomain>
-References: <m3655cjc1r.fsf@averell.firstfloor.org>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Spam-Flag: NO
+To: linux-kernel@vger.kernel.org
+CC: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
+In-Reply-To: <20041015102633.GA20132@elte.hu>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Ingo Molnar wrote:
 
-> On Gwe, 2004-10-15 at 15:22, Andi Kleen wrote:
-> > > There is exactly that in 2.6 - the hotplug interfaces allow the kernel
-> > > to fire off userspace programs. Jon Smirl (who you should definitely
-> > > talk to about this stuff) has been hammering out a design for moving
-> > > almost all the mode switching into user space for kernel video.
-> > 
-> > The problem is that this would imply that the console would only
-> > work after user space is running. Even with initrd that's quite late.
-> 
-> It doesn't imply this at all. You set an initial mode with the BIOS
-> during boot up. When your initrd runs you gain the ability to flip mode
-> and do cool stuff - arguably it doesn't even need to be in initrd.
+>i have released the -U3 PREEMPT_REALTIME patch:
+>
+>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U3
+>
+>this is a buildfixes-only release, and it is still experimental code.
+>
+>Changes since -U2:
+>
+> - build fix: fixes the latency.c compilation error reported by Adam 
+>   Heath.
+>
+> - build fix: fixes !HIGHMEM compilation, patch from Andrew Rodland
+>
+>to create a -U3 tree from scratch the patching order is:
+>
+>   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+> + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
+> + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
+> + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U3
+>
+>	Ingo
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Hey,
 
-That works great on x86, but this solution was developed for PowerPC and 
-MIPS embedded systems development not x86 desktop systems. For those 
-platforms you either need a boot loader that can bring up the system into 
-graphics mode (possible with U-Boot) or to init the video right when the 
-framebuffer console driver is brought up.
-
->From the sound of it that might be too early to spawn a user mode 
-process?
-
-Regards,
-
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
-
-~ SciTech SNAP - The future of device driver technology! ~
-
-
+I get lockups a few second after i issue the dhcpcd command for my 
+wireless pcmcia network card (cisco).
+These lockups go away when i disable PREEMPT_REALTIME. Are there any 
+logs or information you want?

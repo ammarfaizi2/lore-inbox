@@ -1,73 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVCTV6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVCTWBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbVCTV6G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 16:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVCTV6F
+	id S261295AbVCTWBD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 17:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVCTWBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 16:58:05 -0500
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:58126 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S261294AbVCTV5k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 16:57:40 -0500
-Date: Sun, 20 Mar 2005 13:59:38 -0800
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, tglx@linutronix.de,
-       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       dipankar@in.ibm.com, shemminger@osdl.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, rusty@au1.ibm.com, tgall@us.ibm.com,
-       jim.houston@comcast.net, gh@us.ibm.com,
-       LKML <linux-kernel@vger.kernel.org>, "Bill Huey (hui)" <bhuey@lnxw.com>
-Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050320215938.GB23167@nietzsche.lynx.com>
-References: <20050318002026.GA2693@us.ibm.com> <20050318091303.GB9188@elte.hu> <20050318092816.GA12032@elte.hu> <423BB299.4010906@colorfullife.com> <20050319162601.GA28958@elte.hu> <423D19FE.7020902@colorfullife.com> <1111310736.17944.24.camel@tglx.tec.linutronix.de> <423DAB73.2030904@colorfullife.com> <20050320213824.GA23167@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050320213824.GA23167@nietzsche.lynx.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Sun, 20 Mar 2005 17:01:03 -0500
+Received: from mail.dif.dk ([193.138.115.101]:58333 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261295AbVCTWAn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 17:00:43 -0500
+Date: Sun, 20 Mar 2005 23:02:24 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Antonino Daplas <adaplas@pol.net>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net, Alex Kern <alex.kern@gmx.de>,
+       Ani Joshi <ajoshi@shell.unixbox.com>,
+       "Ben. Herrenschmidt" <benh@kernel.crashing.org>,
+       Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+       Helge Deller <deller@gmx.de>, Philipp Rumpf <prumpf@tux.org>,
+       James Simmons <jsimmons@users.sf.net>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       "Eddie C. Dost" <ecd@skynet.be>, Nicolas Pitre <nico@cam.org>,
+       linux-arm-kernel@lists.arm.linux.org.uk, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] remove redundant NULL checks before kfree() in drivers/video/
+In-Reply-To: <200503210453.47487.adaplas@hotpop.com>
+Message-ID: <Pine.LNX.4.62.0503202255060.2508@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0503192339190.5507@dragon.hyggekrogen.localhost>
+ <200503210453.47487.adaplas@hotpop.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 20, 2005 at 01:38:24PM -0800, Bill Huey wrote:
-> On Sun, Mar 20, 2005 at 05:57:23PM +0100, Manfred Spraul wrote:
-> > That was just one random example.
-> > Another one would be :
-> > 
-> > drivers/chat/tty_io.c, __do_SAK() contains
-> >    read_lock(&tasklist_lock);
-> >    task_lock(p);
-> > 
-> > kernel/sys.c, sys_setrlimit contains
-> >    task_lock(current->group_leader);
-> >    read_lock(&tasklist_lock);
-> > 
-> > task_lock is a shorthand for spin_lock(&p->alloc_lock). If read_lock is 
-> > a normal spinlock, then this is an A/B B/A deadlock.
+On Mon, 21 Mar 2005, Antonino A. Daplas wrote:
+
+> On Sunday 20 March 2005 06:59, Jesper Juhl wrote:
+> > Checking a pointer for NULL before calling kfree() on it is redundant,
+> > kfree() deals with NULL pointers just fine.
+> > This patch removes such checks from files in drivers/video/
+> >
+> > Since this is a fairly trivial change (and the same change made
+> > everywhere) I've just made a single patch for all the files and CC all
+> > authors/maintainers of those files I could find for comments. If spliting
+> > this into one patch pr file is prefered, then I can easily do that as
+> > well.
+> >
 > 
-> That code was already dubious in the first place just because it
-> contained that circularity. If you had a rwlock that block on an
-> upper read count maximum[,] a deadlock situation would trigger anyways,
-> say, upon a flood of threads trying to do that sequence of aquires.
+> [snip]
+> 
+> > --- linux-2.6.11-mm4-orig/drivers/video/console/bitblit.c	2005-03-16
+> > 15:45:26.000000000 +0100 +++
+> > linux-2.6.11-mm4/drivers/video/console/bitblit.c	2005-03-19
+> > 22:27:39.000000000 +0100 @@ -199,8 +199,7 @@ static void bit_putcs(struct
+> > vc_data *vc
+> >  		count -= cnt;
+> >  	}
+> >
+> > -	if (buf)
+> > -		kfree(buf);
+> > +	kfree(buf);
+> >  }
+> >
+> 
+> This is performance critical, so I would like the check to remain. A comment
+> may be added in this section.
+> 
+Ok, I believe Andrew already merged the patch into -mm, if you really want 
+that check back then I'll send him a patch to put it back and add a 
+comment once he puts out the next -mm.
+But, at the risk of exposing my ignorance, I have to ask if it wouldn't 
+actually perform better /without/ the if(buf) bit?  The reason I say that 
+is that the generated code shrinks quite a bit when it's removed, and also 
+kfree() itself does the same NULL check as the very first thing, so it 
+comes down to the bennefit of shorter generated code, one less branch, 
+against the overhead of a function call - and how often will 'buf' be 
+NULL? if buff is != NULL the majority of the time, then it should be a 
+gain to remove the if().
 
-The RT patch uses the lock ordering "in place" and whatevery nasty
-situation was going on previously will be effectively under high load,
-which increases the chance of it being triggered. Removal of the read
-side semantic just increases load more so that those cases can trigger.
 
-I disagree with this approach and I have an alternate implementation
-here that restores it. It's only half tested and fairly meaningless
-until an extreme contention case is revealed with the current rt lock
-implementation. Numbers need to be gather to prove or disprove this
-conjecture.
+> >  static void bit_clear_margins(struct vc_data *vc, struct fb_info *info,
+> > @@ -273,8 +272,7 @@ static void bit_cursor(struct vc_data *v
+> >  		dst = kmalloc(w * vc->vc_font.height, GFP_ATOMIC);
+> >  		if (!dst)
+> >  			return;
+> > -		if (ops->cursor_data)
+> > -			kfree(ops->cursor_data);
+> > +		kfree(ops->cursor_data);
+> >  		ops->cursor_data = dst;
+> >  		update_attr(dst, src, attribute, vc);
+> >  		src = dst;
+> > @@ -321,8 +319,7 @@ static void bit_cursor(struct vc_data *v
+> >  		if (!mask)
+> >  			return;
+> >
+> > -		if (ops->cursor_state.mask)
+> > -			kfree(ops->cursor_state.mask);
+> > +		kfree(ops->cursor_state.mask);
+> >  		ops->cursor_state.mask = mask;
+> 
+> Although these are also performance critical, I will agree that the checks
+> can go.  Very rarely will ops->cursor_state.mask and ops->cursor_data be
+> NULL.
+> 
+> As for the rest, they are acceptable, as long as the maintainers agree.
+> 
+Ok, thank you for commenting.
 
-> I'd probably experiment with using the {spin,read,write}-trylock
-> logic and release the all locks contains in a sequence like that
-> on the failure to aquire any of the locks in the chain as an
-> initial fix. A longer term fix might be to break things up a bit
-> so that whatever ordering being done would have that circularity.
 
-Excuse me, ...would *not* have that circularity.
-
-bill
+-- 
+Jesper Juhl
 

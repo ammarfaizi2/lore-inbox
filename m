@@ -1,54 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272512AbTGZOmg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 10:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272508AbTGZOfb
+	id S272546AbTGZO6K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 10:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272545AbTGZO5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 10:35:31 -0400
-Received: from amsfep16-int.chello.nl ([213.46.243.26]:29745 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S272512AbTGZOch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 10:32:37 -0400
-Date: Sat, 26 Jul 2003 16:51:41 +0200
-Message-Id: <200307261451.h6QEpfB3002316@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Atari ksyms
+	Sat, 26 Jul 2003 10:57:45 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:33154 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S270153AbTGZOzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:55:42 -0400
+Date: Sat, 26 Jul 2003 16:20:52 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307261520.h6QFKqDT002295@81-2-122-30.bradfords.org.uk>
+To: rpjday@mindspring.com, szepe@pinerecords.com
+Subject: Re: some kernel config menu suggested tweaks
+Cc: john@grabjohn.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atari ksyms: Kill obsolete symbol exports
+> I'm merely thinking of turning your submenus into sub-entries
+> in the main fs menu, because as John has pointed out, the submenus
+> are rather annoying.
 
---- linux-2.6.x/arch/m68k/atari/atari_ksyms.c	Tue Apr  7 16:52:04 1998
-+++ linux-m68k-2.6.x/arch/m68k/atari/atari_ksyms.c	Sun Jun  8 12:11:33 2003
-@@ -28,16 +28,8 @@
- EXPORT_SYMBOL(atari_stram_alloc);
- EXPORT_SYMBOL(atari_stram_free);
- 
--EXPORT_SYMBOL(atari_mouse_buttons);
--EXPORT_SYMBOL(atari_mouse_interrupt_hook);
--EXPORT_SYMBOL(atari_MIDI_interrupt_hook);
- EXPORT_SYMBOL(atari_MFP_init_done);
- EXPORT_SYMBOL(atari_SCC_init_done);
- EXPORT_SYMBOL(atari_SCC_reset_done);
--EXPORT_SYMBOL(ikbd_write);
--EXPORT_SYMBOL(ikbd_mouse_y0_top);
--EXPORT_SYMBOL(ikbd_mouse_thresh);
--EXPORT_SYMBOL(ikbd_mouse_rel_pos);
--EXPORT_SYMBOL(ikbd_mouse_disable);
- 
- EXPORT_SYMBOL(atari_microwire_cmd);
+Having them as sub-entries would be an improvement all-round, (in my
+opinion).
 
-Gr{oetje,eeting}s,
+As well as improving the usability of make menuconfig, it's also
+better for the make config configurator, because that decends in to
+submenus automatically, whereas it prompts for sub-entries.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+John.

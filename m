@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267819AbUG3UeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267833AbUG3Udu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267819AbUG3UeK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 16:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUG3UeJ
+	id S267833AbUG3Udu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 16:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUG3Udu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 16:34:09 -0400
-Received: from mail.kroah.org ([69.55.234.183]:59602 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267819AbUG3UaK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 16:30:10 -0400
-Date: Fri, 30 Jul 2004 13:29:14 -0700
-From: Greg KH <greg@kroah.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, Matthew Wilcox <willy@debian.org>,
-       Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@yahoo.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Exposing ROM's though sysfs
-Message-ID: <20040730202914.GA30825@kroah.com>
-References: <20040730165339.76945.qmail@web14929.mail.yahoo.com> <200407301149.39256.jbarnes@engr.sgi.com> <20040730195539.GA30466@kroah.com> <200407301316.14836.jbarnes@engr.sgi.com>
+	Fri, 30 Jul 2004 16:33:50 -0400
+Received: from adsl-64-109-89-108.dsl.chcgil.ameritech.net ([64.109.89.108]:19859
+	"EHLO redscar") by vger.kernel.org with ESMTP id S267833AbUG3U21
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 16:28:27 -0400
+Subject: Re: [PATCH] Improve pci_alloc_consistent wrapper on preemptive
+	kernels
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ak@suse.de, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040730132016.5906caa7.akpm@osdl.org>
+References: <20040730190227.29913e23.ak@suse.de>
+	<20040730130238.0f68f5e7.akpm@osdl.org> <1091218419.1968.46.camel@mulgrave>
+	 <20040730132016.5906caa7.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 30 Jul 2004 16:28:26 -0400
+Message-Id: <1091219306.1727.49.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407301316.14836.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 30, 2004 at 01:16:14PM -0700, Jesse Barnes wrote:
-> On Friday, July 30, 2004 12:55 pm, Greg KH wrote:
-> > On Fri, Jul 30, 2004 at 11:49:39AM -0700, Jesse Barnes wrote:
-> > > +
-> > > +	/* If the device has a ROM, map it */
-> > > +	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
-> > > +		pci_rom_attr.size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
-> > > +		sysfs_create_bin_file(&pdev->dev.kobj, &pci_rom_attr);
-> > > +	}
-> >
-> > Doesn't this code cause _all_ rom sizes to be the same, as you only have
-> > 1 pci_rom_attr variable?  You should create a new one for every pci
-> > device (making sure to clean it up when the device is removed.)
+On Fri, 2004-07-30 at 16:20, Andrew Morton wrote:
+> Sounds sane.  But the default version in asm-generic/dma-mapping.h needs to
+> be fixed up:
 > 
-> Yep, that's pretty broken.  I guess I need to allocate a pci_rom_attr every 
-> time we see a ROM...  Where would the cleanup code go though?  In one of the 
-> hotplug remove paths?
+> static inline void *
+> dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle,
+> 		   int flag)
+> {
+> 	BUG_ON(dev->bus != &pci_bus_type);
+> 
+> 	return pci_alloc_consistent(to_pci_dev(dev), size, dma_handle);
+> }
+> 
+> If we stick with this model, we'll still need a new pci_alloc_consistent_gfp().
 
-We need to create a pci_remove_sysfs_dev_files() call, and call it when
-the pci device is about to be unregistered (in pci_destroy_dev(), just
-before the call to device_unregister()).
+Theoretically, that was just to help architectures that didn't want to
+implement the dma_ functions.  If we make dma_alloc_coherent() the
+preferred implementation, we just remove this because now all arch's
+will have to implement dma_alloc_coherent anyway.
 
-thanks,
+James
 
-greg k-h
+

@@ -1,124 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277729AbRJIOnQ>; Tue, 9 Oct 2001 10:43:16 -0400
+	id <S277733AbRJIOnn>; Tue, 9 Oct 2001 10:43:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277731AbRJIOnH>; Tue, 9 Oct 2001 10:43:07 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:59783 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S277729AbRJIOmv>; Tue, 9 Oct 2001 10:42:51 -0400
-Message-ID: <3BC30D1D.7050402@wipro.com>
-Date: Tue, 09 Oct 2001 20:13:41 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: BALBIR SINGH <balbir.singh@wipro.com>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: pre6 VM issues
-In-Reply-To: <Pine.LNX.4.21.0110091057470.5604-100000@freak.distro.conectiva> <3BC30B9F.9060609@wipro.com>
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+	id <S277731AbRJIOn1>; Tue, 9 Oct 2001 10:43:27 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:32704 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S277732AbRJIOnX>; Tue, 9 Oct 2001 10:43:23 -0400
+Date: Tue, 9 Oct 2001 16:43:48 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: kernel size
+Message-ID: <20011009164348.I30515@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <163112682879.20011009161634@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.3.95.1011009100315.5093A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.3.95.1011009100315.5093A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Oct 09, 2001 at 10:16:48AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 09, 2001 at 10:16:48AM -0400, Richard B. Johnson wrote:
+> Compiled, produces this:
+> 
+> 	.file	"xxx.c"
+> 	.version	"01.01"
+> gcc2_compiled.:
+> 	.comm	foo,4,4
+> 	.ident	"GCC: (GNU) egcs-2.91.66 19990314 (egcs-1.1.2 release)"
+> 
+> It __might__ be possible to link, without linking in ".ident", which
+> currently shares space with .rodata. My gcc man pages are not any
+> better than the usual Red Hat so I can't find out if there is any way
+> to turn OFF these spurious strings.
 
-This is a multi-part message in MIME format.
+strip -R .ident -R .comment -R .note
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+is your friend. 
 
-BALBIR SINGH wrote:
+Or if we would like to solve it more elegant:
 
->>
->> There is nothing which avoids us from doing that (there is one reserved
->> pool I remeber right now: the highmem bounce buffering pool, but that 
->> one
->> is a special case due to the way Linux does IO in high memory and its 
->> only
->> needed on _real_ emergencies --- it will be removed in 2.5, I hope).
->>
->> In general, its a better approach to share the memory and have a unified
->> pool. If a given subsystem is not using its own "reversed" memory, 
->> another
->> subsystems can use it.
->>
->> The problem we are seeing now can be fixed even without the reserved
->> pools.
->>
-> I agree that is the fair and nice thing to do, but I was talking about 
-> reserving
-> memory for device vs sharing it with a user process, user processes 
-> can wait,
-> their pages can even be swapped out if needed. But for a device that 
-> is not willing
-> to wait (GFP_ATOMIC) say in an interrupt context, this might be a issue.
+--- linux-2.4.10/arch/i386/vmlinux.lds       Tue Oct  9 16:36:06 2001
++++ linux/arch/i386/vmlinux.lds   Tue Oct  9 16:36:28 2001
+@@ -70,6 +70,9 @@
+        *(.text.exit)
+        *(.data.exit)
+        *(.exitcall.exit)
++       *(.ident)
++       *(.comment)
++       *(.note)
+        }
 
-
->
->
-> Anyway, how do you plan to solve this ?
-> Balbir
+   /* Stabs debugging sections.  */
 
 
-I did not realize that highmem was causing this problem you were facing, 
-anyway my argument
-about the pools still holds.
+which puts it into the list of sections to be discarde on i386.
 
-Balbir
+Regards
 
->
->>
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->
->
->
->
->------------------------------------------------------------------------
->
->----------------------------------------------------------------------------------------------------------------------
->Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
->is intended for use only by the individual or entity to which it is
->addressed, and may contain information that is privileged, confidential or
->exempt from disclosure under applicable law. If you are not the intended
->recipient or it appears that this mail has been forwarded to you without
->proper authority, you are notified that any use or dissemination of this
->information in any manner is strictly prohibited. In such cases, please
->notify us immediately at mailto:mailadmin@wipro.com and delete this mail
->from your records.
->----------------------------------------------------------------------------------------------------------------------
->
-
-
-
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
-
-
---------------InterScan_NT_MIME_Boundary--
+Ingo Oeser

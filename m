@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262413AbSI2ILu>; Sun, 29 Sep 2002 04:11:50 -0400
+	id <S262416AbSI2ITm>; Sun, 29 Sep 2002 04:19:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262415AbSI2ILu>; Sun, 29 Sep 2002 04:11:50 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:9344 "EHLO
-	completely") by vger.kernel.org with ESMTP id <S262413AbSI2ILt>;
-	Sun, 29 Sep 2002 04:11:49 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: chrisl@gnuchina.org, "Theodore Ts'o" <tytso@mit.edu>,
-       Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] fix htree dir corrupt after fsck -fD
-Date: Sun, 29 Sep 2002 01:16:57 -0700
-User-Agent: KMail/1.4.7-cool
-References: <E17uINs-0003bG-00@think.thunk.org> <20020928141330.GA653@think.thunk.org> <20020929070315.GA6876@vmware.com>
-In-Reply-To: <20020929070315.GA6876@vmware.com>
+	id <S262421AbSI2ITl>; Sun, 29 Sep 2002 04:19:41 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:15778 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262416AbSI2ITk>;
+	Sun, 29 Sep 2002 04:19:40 -0400
+Date: Sun, 29 Sep 2002 10:33:15 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Zach Brown <zab@zabbo.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.39 list_head debugging
+In-Reply-To: <20020929015852.K13817@bitchcake.off.net>
+Message-ID: <Pine.LNX.4.44.0209291027120.12583-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="big5"
-Content-Transfer-Encoding: 8bit
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209290117.02331.ryan@completely.kicks-ass.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On September 29, 2002 00:03, chrisl@gnuchina.org wrote:
-> I already do the initial test and it fix the problem in kernel and
-> e2fsck.
+> This patch adds some straight-forward assertions that check the
+> validity of arguments to the list_* inlines. [...]
 
-Still broken here. The short directory inodes are cleared up, but I'm still 
-getting various errors from fsck
++	BUG_ON(list == NULL);
++	BUG_ON(list->next == NULL);
++	BUG_ON(list->prev == NULL);
 
-Case 1:
-"Problem in HTREE directory inode 2 (/): bad block 3223649"
+these checks are not needed - they'll trivially be oopsing when trying to
+use them, right?
 
-Case 2:
-"Inode 2, i_blocks is 3718, should be 2280
-Directory inode 2 has an unallocated block #377
-Directory inode 2 has an unallocated block #378
-Directory inode 2 has an unallocated block #379"
-etc
++	BUG_ON(list->next->prev != list);
++	BUG_ON(list->prev->next != list);
 
-This is a completely fresh loopback EXT3 filesystem, untouched by fsck -D, and 
-normally unmounted.
+these two are indeed nice to have.
 
-- -Ryan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
++	BUG_ON((list->next == list) && (list->prev != list));
++	BUG_ON((list->prev == list) && (list->next != list));
 
-iD8DBQE9lrb9LGMzRzbJfbQRAhpSAKCbkbyiwM8PnpAbN2FvU6tRHM1urwCdEzFK
-WSwjN6jC+0QI0NnJzKc0rX8=
-=HHtV
------END PGP SIGNATURE-----
+arent these redundant? If list->next->prev == list and list->prev->next ==
+list, then if list->next == list then list->prev == list. Ditto for the 
+other rule.
+
+so i think we only need the following two checks:
+
++	BUG_ON(list->next->prev != list);
++	BUG_ON(list->prev->next != list);
+
+and we could as well add these unconditionally (no .config complexity
+needed), until 2.6.0 or so, hm?
+
+	Ingo
+

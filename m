@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130707AbRCMAmr>; Mon, 12 Mar 2001 19:42:47 -0500
+	id <S130719AbRCMBTr>; Mon, 12 Mar 2001 20:19:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130719AbRCMAmi>; Mon, 12 Mar 2001 19:42:38 -0500
-Received: from ohiper1-204.apex.net ([209.250.47.219]:40196 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S130707AbRCMAm3>; Mon, 12 Mar 2001 19:42:29 -0500
-Date: Mon, 12 Mar 2001 18:45:18 -0600
-From: Steven Walter <srwalter@yahoo.com>
-To: rusty@linuxcare.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Trouble with an ip_conntrack_helper
-Message-ID: <20010312184518.A4793@hapablap.dyn.dhs.org>
-Mime-Version: 1.0
+	id <S130722AbRCMBTh>; Mon, 12 Mar 2001 20:19:37 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:52997 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S130719AbRCMBT0>; Mon, 12 Mar 2001 20:19:26 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Tue, 13 Mar 2001 12:18:45 +1100 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 6:39pm  up  2:25,  1 user,  load average: 1.01, 1.10, 1.14
+Content-Transfer-Encoding: 7bit
+Message-ID: <15021.30069.381855.886337@notabene.cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: PATCH - compile fix for 3c509.c in 2.4.3-pre3
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting some interesting behavior while writing an ip_conntrack
-helper module.  The primary problem is if I specify a destination port
-for the struct ip_conntrack_helper, my help routine is never called.
-If I specify a source port, rather than a destination port, the routine
-gets called for the various packets in the desired connection.
 
-The problem with this is that I my routine doesn't start getting called
-until a packet in the opposite direction arrives, and all packets before
-that are never sent by my module.  This makes sense, as the tuple
-specifies a /source/ port, which would only occur on reverse traffic.
+Linus,
+ in 2.4.3-pre3, drivers/net/3c509.c will not compile ifdef CONFIG_ISAPNP.
 
-Here is the chunk of code I'm using to register my helper.  Is there
-something really obvious that I'm missing.  I really appreciate any help
-you can give.
+ The following patches fixes the error.  I suspect that 3c515.c has
+ the same problem, but I didn't need to fix that to get my kernel to
+ build... so I didn't.
 
-static struct ip_conntrack_helper icq;
-
-static int __init init(void) {
-        memset(&icq, 0, sizeof(struct ip_conntrack_helper));
-        icq.tuple.dst.protonum = IPPROTO_UDP;
-        icq.tuple.dst.u.udp.port = __constant_htons(4000);
-        icq.mask.dst.protonum = 0xffff;
-        icq.mask.dst.u.udp.port = 0xffff;
-        icq.help = help;
-        printk(KERN_INFO "ip_conntrack_icq: registered\n");
-        return ip_conntrack_helper_register(&icq);
-}
+NeilBrown
 
 
--- 
--Steven
-Never ask a geek why, just nod your head and slowly back away.
+
+--- ./drivers/net/3c509.c	2001/03/12 00:39:58	1.1
++++ ./drivers/net/3c509.c	2001/03/12 01:31:13	1.2
+@@ -327,7 +327,7 @@
+ 			irq = idev->irq_resource[0].start;
+ 			if (el3_debug > 3)
+ 				printk ("ISAPnP reports %s at i/o 0x%x, irq %d\n",
+-					el3_isapnp_adapters[i].name, ioaddr, irq);
++					(char *)el3_isapnp_adapters[i].driver_data, ioaddr, irq);
+ 			EL3WINDOW(0);
+ 			for (j = 0; j < 3; j++)
+ 				el3_isapnp_phys_addr[pnp_cards][j] =

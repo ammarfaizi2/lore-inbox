@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268259AbUHKWDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268261AbUHKWKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268259AbUHKWDi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 18:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268262AbUHKWDh
+	id S268261AbUHKWKo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 18:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268263AbUHKWKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:03:37 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:55989 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268259AbUHKWDY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:03:24 -0400
-Message-Id: <200408102258.i7AMwBsP006326@localhost.localdomain>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-cc: vonbrand@inf.utfsm.cl, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel bug report (includes fix) 
-In-Reply-To: Message from Joerg Schilling <schilling@fokus.fraunhofer.de> 
-   of "Mon, 09 Aug 2004 14:03:41 +0200." <200408091203.i79C3fYh009639@burner.fokus.fraunhofer.de> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 10 Aug 2004 18:58:11 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Wed, 11 Aug 2004 18:10:44 -0400
+Received: from ctb-mesg2.saix.net ([196.25.240.74]:38070 "EHLO
+	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S268261AbUHKWKl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:10:41 -0400
+Subject: Re: 2.6.8-rc3-np1
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <4117494E.704@yahoo.com.au>
+References: <4117494E.704@yahoo.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-10sA96UmuBAB35N5Hmpe"
+Message-Id: <1092262435.8976.59.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 12 Aug 2004 00:13:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling <schilling@fokus.fraunhofer.de> said:
-> >From vonbrand@inf.utfsm.cl  Sun Aug  8 05:59:28 2004
-> >Joerg Schilling <schilling@fokus.fraunhofer.de> said:
-> >> -	Linux Kernel include files (starting with Linux-2.5) are buggy and 
-> >> 	prevent compilation.
 
-> >They do not, the kernel compiles just fine. They are _not_ to be used for
-> >random userspace programs.
+--=-10sA96UmuBAB35N5Hmpe
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> As you don't know how kernel/user interfaces are handled,
+On Mon, 2004-08-09 at 11:52, Nick Piggin wrote:
+> http://www.kerneltrap.org/~npiggin/2.6.8-rc3-np1/
+>=20
+> Patch is against 2.6.8-rc3-mm2 only at this stage due to significant
+> memory management changes in there making it difficult to track Linus'
+> tree as well.
+>=20
+> Feedback on the scheduler would be much appreciated, as it might get
+> a run in Andrew's tree soon.
+>=20
 
-Funny... How would you know what I do or don't know?
+I am trying to get it patched against rc4-mm1, but it seems there
+are some issues with the SMT bits - dependent_sleeper for example
+is still around although it was removed with all previous patches
+(and uses task_t.time_slice which is no longer there).
 
->                                                           it would be
-> wise for you to keep quiet.....
+I assume you forgot to apply them?  Possible to get a complete
+patch?  If not, I'll see if I can get something going after some
+sleep.
 
-I _do_ know about kernel/user interfaces (in Linux); you clearly haven't
-got a clue. Please keep quiet.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+
+Thanks,
+
+--=20
+Martin Schlemmer
+
+--=-10sA96UmuBAB35N5Hmpe
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBGpojqburzKaJYLYRArRuAJ9YU4oyCkmC3pNruMTAnDsmAjB02ACeLJl9
+LlJ8W9IK2mL5M5CN/33/wV4=
+=6l7q
+-----END PGP SIGNATURE-----
+
+--=-10sA96UmuBAB35N5Hmpe--
+

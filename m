@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268884AbUHUHhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268858AbUHUHk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268884AbUHUHhA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 03:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268885AbUHUHg7
+	id S268858AbUHUHk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 03:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268829AbUHUHk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 03:36:59 -0400
-Received: from main.gmane.org ([80.91.224.249]:59036 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268884AbUHUHgn (ORCPT
+	Sat, 21 Aug 2004 03:40:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46277 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268858AbUHUHkX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 03:36:43 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
-Date: Sat, 21 Aug 2004 16:36:34 +0900
-Message-ID: <cg6u22$kk$1@sea.gmane.org>
-References: <4126F16D.1000507@gmc.lt> <S268868AbUHUHCe/20040821070234Z+1825@vger.kernel.org>
+	Sat, 21 Aug 2004 03:40:23 -0400
+Subject: Re: Dumping kernel log (dmesg) and backtraces after a panic
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Chris Johns <cbjohns@mn.rr.com>
+Cc: linux-kernel@vger.kernel.org, kaos@oss.sgi.com
+In-Reply-To: <C14859EA-F318-11D8-9C0E-000A958E2366@mn.rr.com>
+References: <C14859EA-F318-11D8-9C0E-000A958E2366@mn.rr.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-R2A3eFGSTIL24JMStuK2"
+Organization: Red Hat UK
+Message-Id: <1093074013.2792.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040627
-X-Accept-Language: bg, en, ja, ru, de
-In-Reply-To: <S268868AbUHUHCe/20040821070234Z+1825@vger.kernel.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 21 Aug 2004 09:40:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josan Kadett wrote:
-> It is definetely impossible to use IPTables to handle packets with incorrect
-> checksums since NAT would drop the connection right away, otherwise I would
-> not have been asking this question here.
-> 
-> -----Original Message-----
-> From: Aidas Kasparas [mailto:a.kasparas@gmc.lt] 
-> Sent: Saturday, August 21, 2004 8:54 AM
-> To: Josan Kadett
-> Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
-> 
-> How about setting up a separate box which would listen on that 
-> 192.168.77.1 address and MASQUERADE connections to your crazy box from 
-> 192.168.1.x address? Maybe then you would no longer need to break things 
->   in kernel?
 
-Isn't rp_filter for this?
+--=-R2A3eFGSTIL24JMStuK2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-A chunk of my iptables firewall script is:
+On Sat, 2004-08-21 at 04:21, Chris Johns wrote:
+> We're using Red Hat EL3 Linux (2.4.21 base kernel plus 300 or so Red=20
+> Hat and/or community patches) and I'm dearly missing KDB already, since=20
+> we previously used 2.4.21 from kernel.org and applied the appropriate=20
+> KDB patch(es). Now with EL3, I'm not even sure what the right patch for=20
+> KDB would be.
+>=20
+> The problem is how to debug a hang or panic without KDB. Specifically,=20
+> I'd like to dump out real backtraces of all (or selected) processes=20
+> instead of the pseudo-backtraces that the panic or Alt-Sysrq-t=20
+> provides, and I'd like to dump out the kernel log buffer (dmesg) after=20
+> a hang or panic.
+>=20
+> When I say "pseudo-backtraces", it seems that the oops/sysrq processing=20
+> picks everything that looks like a text address from the stack of each=20
+> thread (or the thread that caused the panic) and formats it, rather=20
+> than walking the stack back correctly like KDB's 'bt' command does. And=20
+> I don't know of any way of getting the 'dmesg' output after a=20
+> hang/panic other than by using KDB.
 
-# Force route verification
-for f in /proc/sys/net/ipv4/conf/*/rp_filter; do echo 1 > $f; done
 
-So why don't you try:
-for f in /proc/sys/net/ipv4/conf/*/rp_filter; do echo "0" > $f; done
+why not use netdump and then analyze the dump on another machine with
+"crash" (a gdb variant) ?
 
-Kalin.
+--=-R2A3eFGSTIL24JMStuK2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
- || ~~~~~~~~~~~~~~~~~~~~~~ ||
-(  ) http://ThinRope.net/ (  )
- || ______________________ ||
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBJvxdxULwo51rQBIRAkTHAJ9/LJYubNp3UxKrkWobgc7xJ6LeegCgqJnk
+hFX8AjBRQaPUfr9C4PIiD5g=
+=fqnl
+-----END PGP SIGNATURE-----
+
+--=-R2A3eFGSTIL24JMStuK2--
 

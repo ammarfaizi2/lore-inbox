@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbTJAMNj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 08:13:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTJAMNj
+	id S262050AbTJAMEs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 08:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTJAMEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 08:13:39 -0400
-Received: from pcp01068424pcs.andrsn01.tn.comcast.net ([68.60.0.211]:17682
-	"HELO 68.60.0.211") by vger.kernel.org with SMTP id S262068AbTJAMNg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 08:13:36 -0400
-From: Bob <oijconsumer@hotmail.com>
-To: consumer@hotmail.com
-Subject: Telephone Jokes 
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Wed, 1 Oct 2003 13:13:27 +0100
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Message-Id: <S262068AbTJAMNg/20031001121336Z+839@vger.kernel.org>
+	Wed, 1 Oct 2003 08:04:48 -0400
+Received: from mail.icablenet.com.br ([200.215.9.228]:47369 "EHLO
+	mail.icablenet.com.br") by vger.kernel.org with ESMTP
+	id S262050AbTJAMEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 08:04:48 -0400
+Message-ID: <00a901c38816$01f3d180$0201a8c0@bigip>
+Reply-To: "Rivalino M. Jr." <rmj@icablenet.com.br>
+From: "Rivalino M. Jr." <rmj@icablenet.com.br>
+To: <linux-kernel@vger.kernel.org>
+References: <4AAAA1EF5359E2478E766A11357773A70545BE3F@cceexc16.americas.cpqcorp.net>
+Subject: Re: libgcc
+Date: Wed, 1 Oct 2003 09:17:38 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=====MAKE PRANK CALLS=====
-
-LAST CHANCE - WE ARE SOON CLOSING DOWN!
-
-How to use this service:
-  
-1. Choose a Prank from the list below
-2. Make sure you have the telephone number of your chosen target
-3. Call 0906 403 8796
-4. Listen in as the computer dials out to your victim!
+----- Original Message ----- 
+From: "KALBAGILMATH, VISHWANATH" <vishwanath.kalbagilmath@hp.com>
 
 
-The Pranks:
+> I want to know where do I find libgcc for RHAS2.1, or can I install libgcc
+of RH 9.0.
 
-1. Mr Fury
-2. Irate Delivery Driver
-3. Invite to no. 10
-4. Tax Inspector from Hell
-5. Mr Stammer
-6. The Detective
-7. My Daughter`s Pregnant
+You need a RHN account (RHEL AS 2.1 channel) to take the binary version, or
+the source code from Red Hat ftp.
 
 
-Calls to 0906 no`s cost one pound and fifty pence per minute and last a
-few  minutes. Service provider: C Fry:  0871 872 3731. To be excluded
-from future promotions please call 0871 520 0125 - (We can also stop promotions to your domain name). Data ticket 51312
-Message ID: wvcqmw
+RMJ.
+
 

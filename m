@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269059AbUJUDEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270542AbUJUDED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269059AbUJUDEF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 23:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUJUDAt
+	id S270542AbUJUDED (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 23:04:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270529AbUJUDAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 23:00:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13971 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270460AbUJUCwj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 22:52:39 -0400
-Message-ID: <4177237D.8070502@osdl.org>
-Date: Wed, 20 Oct 2004 19:48:29 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Wed, 20 Oct 2004 23:00:25 -0400
+Received: from mx13.sac.fedex.com ([199.81.197.53]:46860 "EHLO
+	mx13.sac.fedex.com") by vger.kernel.org with ESMTP id S270512AbUJUC4j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 22:56:39 -0400
+Date: Thu, 21 Oct 2004 10:53:12 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: Jeff Chua <jeffchua@silk.corp.fedex.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, LARTC@mailman.ds9a.nl
+Subject: Re: [ANNOUNCE] iproute2 2.6.9-041019
+In-Reply-To: <20041020091554.57e60936@zqx3.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.61.0410211049400.4927@boston.corp.fedex.com>
+References: <41758014.4080502@osdl.org> <Pine.LNX.4.61.0410200805110.8475@boston.corp.fedex.com>
+ <20041020091554.57e60936@zqx3.pdx.osdl.net>
 MIME-Version: 1.0
-To: Adam Hunt <kinema@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: I/O scheduler recomendation for Linux as a VMware guest
-References: <b476569a0410201616415b0600@mail.gmail.com>
-In-Reply-To: <b476569a0410201616415b0600@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/21/2004
+ 10:56:36 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/21/2004
+ 10:56:37 AM,
+	Serialize complete at 10/21/2004 10:56:37 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Hunt wrote:
-> I am forced to spend quite a bit of time with my only relatively
-> powerful workstation booted into XP so I can do CAD work
-> (unfortunately Autodesk's Inventor only runs on Windows).  Because of
-> this unfortunate situation I am planning my first attempt to get the
-> Linux install that I have on the other drive in this workstation to
-> boot using VMware.  VMware has the ability to access raw disk
-> partitions (as apposed to partitions stored in a file on a host
-> partition) so I figure with some init and /etc magic I should be able
-> to boot the system using VMware and when I am not drawing in Inventor
-> I should be able to reboot and run Linux natively directly on the
-> hardware.
-> 
-> What I am wondering is what I/O scheduler should I be using when the
-> system is running within a VMware instance?  I figure that Windows
-> will be scheduling the access to the physical hardware so I would
-> assume that I want a bare bones priority based scheduler, something
-> with the lowest possible overhead.  Is this correct?  If so, what
-> would that scheduler be?
-> 
-> IIRC someone (Ingo?) was working on the ability to change schedules
-> during runtime.  How has that work progressed?  Is it available in any
-> kernel trees?
 
-It was Jens Axboe.
+On Wed, 20 Oct 2004, Stephen Hemminger wrote:
 
-It was merged _after_ 2.6.9, so it's currently available in
-2.6.9-bkN.  See this BK changeset (and the lwn.net article that
-is referred to there):
+> Try this, ss was dragging in byteorder.h and it didn't need to.
+>
+> diff -Nru a/misc/ss.c b/misc/ss.c
+> --- a/misc/ss.c	2004-10-20 09:13:56 -07:00
+> +++ b/misc/ss.c	2004-10-20 09:13:56 -07:00
+> @@ -33,7 +33,6 @@
+> #include "libnetlink.h"
+> #include "SNAPSHOT.h"
+>
+> -#include <asm/byteorder.h>
+> #include <linux/tcp.h>
+> #include <linux/tcp_diag.h>
 
-http://linux.bkbits.net:8080/linux-2.5/cset@41752c48DmUvWjzNzOcvM8RlMCIF4A?nav=index.html|ChangeSet@-4w
 
--- 
-~Randy
+same problem.
+
+"#include <linux/tcp.h>" is dragging in "#include <asm/byteorder.h>".
+
+Same thing goes for <linux/ip.h>.
+
+All these kernel headers need cleanup, and I don't know enough to fix it.
+
+Jeff.
+

@@ -1,92 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbVCXLDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVCXLFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262442AbVCXLDj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 06:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVCXLDj
+	id S262443AbVCXLFO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 06:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbVCXLFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 06:03:39 -0500
-Received: from web53308.mail.yahoo.com ([206.190.39.237]:1467 "HELO
-	web53308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262442AbVCXLDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 06:03:22 -0500
-Message-ID: <20050324110321.83788.qmail@web53308.mail.yahoo.com>
-Date: Thu, 24 Mar 2005 11:03:21 +0000 (GMT)
-From: sounak chakraborty <sounakrin@yahoo.co.in>
-Subject: Re: sched.c  function
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: 6667
-MIME-Version: 1.0
+	Thu, 24 Mar 2005 06:05:13 -0500
+Received: from fire.osdl.org ([65.172.181.4]:27884 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262443AbVCXLFF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 06:05:05 -0500
+Date: Thu, 24 Mar 2005 03:04:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: davej@redhat.com, linux-kernel@vger.kernel.org,
+       dri-devel@lists.sourceforge.net
+Subject: Re: drm bugs hopefully fixed but there might still be one..
+Message-Id: <20050324030421.63d2d670.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503241015190.7647@skynet>
+References: <Pine.LNX.4.58.0503241015190.7647@skynet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> Tasks do not change their state without holding a
-> lock. (There is an exception,
-> but it is justified.)
-list after that..
+Dave Airlie <airlied@linux.ie> wrote:
+>
+> I've put a couple of patches into my drm-2.6 tree that hopefully fix up
+>  the multi-bridge on i915 and the XFree86 4.3 issue.. Andrew can you drop
+>  the two patches in your tree.. the one from Brice and the one I attached
+>  to the bug? you'll get conflicts anyway I'm sure. I had to modify Brices
+>  one as it didn't look safe to me in all cases..
 > 
-> So you want to record task state changes? That is
-> better done at the right
-> places in the kernel rather than traversing the task
-> list repeatedly (the
-> latter is not that performant).
+>  I think their might be one left, but I think it only seems to be on
+>  non-intel AGP system, as in my system works fine for a combination of
+>  cards and X releases ... anyone with a VIA chipset and Radeon graphics
+>  card or r128 card.. testing the next -mm would help me a lot..
 
-So you want to say that only one task could be running
-at a single time 
+argh, I just uploaded -mm2, but haven't announced it yet.  I'll resync with
+your -bk.
 
-but how to know which one 
-is there any way without traversing the task list
-previously i thought of for_each_process(p)
-                        if(p->state==running)
-
-but without this how to find which process is
-currently running and other are sleeping 
-may it is through "current"
-
-since the current->pid is only running
-but i have to run this repeatedly to get the
-information of currently running process(since this
-may be for a fraction of a second and i can miss that
-process if my loop is longer) 
-how to do that 
-fast timer 
-or any other way 
-i am little bit confused
-                        
-
-> I would be interested in the background: what do you
-> need to know the task
-> states for?
-
-
-i want to develop a task manager for threads.
-the application reads properly the process information
-and the thread information but not able to refresh the
-thread information as i am building my own proc file
-where only threads are there 
-i am distinguishing between process and thread at
-fork.c
-with clone_vm set..
-
-therefore i need to know which thread is currently
-running or not 
-
-
-there is another problem i am discusing with you 
-
-i want to distinguish between thread and process and
-after distinguishing between user thread and kernel
-thread 
-but i am unable to find any condition which will be
-true for kernel level thread during creation and false
-for user level thread 
-can you help me in this also
-thanks 
-sounak
-
-________________________________________________________________________
-Yahoo! India Matrimony: Find your partner online. http://yahoo.shaadi.com/india-matrimony/

@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289532AbSBJPUI>; Sun, 10 Feb 2002 10:20:08 -0500
+	id <S289671AbSBJPhN>; Sun, 10 Feb 2002 10:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289657AbSBJPT6>; Sun, 10 Feb 2002 10:19:58 -0500
-Received: from 1Cust172.tnt15.sfo3.da.uu.net ([67.218.75.172]:32273 "EHLO
-	morrowfield.home") by vger.kernel.org with ESMTP id <S289532AbSBJPTt>;
-	Sun, 10 Feb 2002 10:19:49 -0500
-Date: Sun, 10 Feb 2002 10:27:53 -0800 (PST)
-Message-Id: <200202101827.KAA10439@morrowfield.home>
-From: Tom Lord <lord@regexps.com>
-To: rmk@arm.linux.org.uk
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <20020210095312.A12674@flint.arm.linux.org.uk> (message from
-	Russell King on Sun, 10 Feb 2002 09:53:12 +0000)
-Subject: Re: a new arch feature "for Linus"
-In-Reply-To: <200202100913.BAA29987@morrowfield.home> <20020210095312.A12674@flint.arm.linux.org.uk>
+	id <S289677AbSBJPhE>; Sun, 10 Feb 2002 10:37:04 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:34829 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S289671AbSBJPgw>; Sun, 10 Feb 2002 10:36:52 -0500
+Date: Sun, 10 Feb 2002 07:36:27 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Boris Bezlaj <boris@kista.gajba.net>,
+        Paul Gortmaker <p_gortmaker@yahoo.com>,
+        Edward Betts <edward@debian.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mdacon driver updates
+In-Reply-To: <E16Zjqb-0000Ca-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10202100735380.2352-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> > can someone point me to the current maintainer of mdacon.c (Hercules console drv)?
+> > i was unable to find it in MAINTAINERS and the header of the driver is not clear about this..
+> 
+> It seems to be "whoever last fixed it"
 
-       > The command is:
-       > 
-       > 	  % arch touched-files-prereqs REVISION
-       'arch' really isn't a good choice of command name:
-
-Not it isn't. But the announcment I cut and pasted the example from is
-out of date.  In 1.0pre7 the command has been renamed "larch".  The 
-command is really:
-
-       > 	  % larch touched-files-prereqs REVISION
-
-Also in the latest NEWS file and worth mentioning since some kernel
-maintainers have complained:
-
-  * NOT DONE IN THIS RELEASE, BUT MUCH REQUESTED AND LIKELY TO HAPPEN
-
-  The directory "{arch}" in project trees should, at least optionally,
-  have a different name -- but this is slightly tricky to do in an 
-  upward compatible way so I'm putting it off for now.
-
--t
-
+Actually I have a MDA card and having being working on it. I use my MDA as
+a second console to debug fbdev drivers. So sned patches my way.
+ 
 

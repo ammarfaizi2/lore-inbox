@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVCYJHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVCYJNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVCYJHx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 04:07:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVCYJHx
+	id S261557AbVCYJNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 04:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVCYJNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 04:07:53 -0500
-Received: from mail.renesas.com ([202.234.163.13]:8645 "EHLO
-	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S261554AbVCYJHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 04:07:43 -0500
-Date: Fri, 25 Mar 2005 18:07:36 +0900 (JST)
-Message-Id: <20050325.180736.1021580554.takata.hirokazu@renesas.com>
-To: rmk+lkml@arm.linux.org.uk
-Cc: takata@linux-m32r.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Bitrotting serial drivers
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20050324121746.A4189@flint.arm.linux.org.uk>
-References: <20050319172101.C23907@flint.arm.linux.org.uk>
-	<20050324.191424.233669632.takata.hirokazu@renesas.com>
-	<20050324121746.A4189@flint.arm.linux.org.uk>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 25 Mar 2005 04:13:25 -0500
+Received: from smtp.uninet.ee ([194.204.0.4]:9989 "EHLO smtp.uninet.ee")
+	by vger.kernel.org with ESMTP id S261557AbVCYJNW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 04:13:22 -0500
+Message-ID: <4243D65A.2050007@tuleriit.ee>
+Date: Fri, 25 Mar 2005 11:14:02 +0200
+From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
+Reply-To: indrek.kruusa@tuleriit.ee
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050215)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Intel MB + P4 HT: bios processors logo depends on what?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-Date: Thu, 24 Mar 2005 12:17:46 +0000
-> On Thu, Mar 24, 2005 at 07:14:24PM +0900, Hirokazu Takata wrote:
-> > Could you please accept the following patch?
-> 
-> Probably, but I'd like to have a reply to my comments below first.
-> 
-> > diff -ruNp a/include/asm-m32r/serial.h b/include/asm-m32r/serial.h
-> > --- a/include/asm-m32r/serial.h	2004-12-25 06:35:40.000000000 +0900
-> > +++ b/include/asm-m32r/serial.h	2005-03-24 17:25:05.812651363 +0900
-> 
-> Can m32r accept PCMCIA cards?  If so, this may mean that 8250.c gets
-> built, which will use this file to determine where it should look for
-> built-in 8250 ports.
-> 
-> If this file is used to describe non-8250 compatible ports, you could
-> end up with a nasty mess.  Therefore, I recommend that you do not use
-> asm-m32r/serial.h to describe your SIO ports.
+A bit silly point maybe but it is somewhat interesting what makes BIOS 
+on Intel motherboard decide which processor's logo to display.
 
-I understand.
+Situation:
 
-You mean I have to keep 8250.c buildable for PCMCIA serial cards, 
-if I make use of both m32r_sio and 8250 compatible drivers at a time, right?
+a) Fedora Core 4 test1  + kernel-2.6.11-1.1177_FC4smp
+- going to reboot from fedora the bios shows always processors logo with 
+HT marks
 
-> Instead, since these definitions are private to your own driver, you
-> may consider moving them into the driver, or a header file closely
-> associated with your driver in drivers/serial.
+b) Mandrake 10.2 rc1 + kernel-2.6.11-5mdksmp
+- after reboot there is processor logo without HT marks
 
-I will try to move these definitions into the m32r_sio driver.
-Please just a moment, I have no time to do it now...
+c) Mandrake + kernel-2.6.12-rc1-mm1 (compiled with SMP+SMT)
+- same as b)
 
-Thank you.
 
--- Takata
+There is nothing wrong with those kernels but it is interesting why 
+Fedora's kernel (acpi daemon?) is somewhat special here.
+
+thanks,
+Indrek
+

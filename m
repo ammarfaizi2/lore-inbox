@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282888AbRK0JfN>; Tue, 27 Nov 2001 04:35:13 -0500
+	id <S273854AbRK0Jvy>; Tue, 27 Nov 2001 04:51:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282071AbRK0JfC>; Tue, 27 Nov 2001 04:35:02 -0500
-Received: from weta.f00f.org ([203.167.249.89]:17561 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S282888AbRK0Jet>;
-	Tue, 27 Nov 2001 04:34:49 -0500
-Date: Tue, 27 Nov 2001 22:36:26 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Ben Greear <greearb@candelatech.com>, Ben Greear <greearb@agcs.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.16: 802.1Q VLAN non-modular
-Message-ID: <20011127223626.A13821@weta.f00f.org>
-In-Reply-To: <Pine.GSO.3.96.1011126165647.21598T-100000@delta.ds2.pg.gda.pl> <Pine.LNX.4.33L.0111261435090.1491-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
+	id <S274789AbRK0Jvo>; Tue, 27 Nov 2001 04:51:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53260 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273854AbRK0Jv0>; Tue, 27 Nov 2001 04:51:26 -0500
+Subject: Re: PNP Bios
+To: louisg00@bellsouth.net (Louis Garcia)
+Date: Tue, 27 Nov 2001 09:59:59 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1006831443.5051.0.camel@tiger> from "Louis Garcia" at Nov 26, 2001 10:24:02 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0111261435090.1491-100000@duckman.distro.conectiva>
-User-Agent: Mutt/1.3.23i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
+Message-Id: <E168f1z-0000SM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 02:35:55PM -0200, Rik van Riel wrote:
+> > > I=B4m a NEW Kernel Developer wanting to get my hands dirty.
+> >=20
+> > I plan to submit PnP BIOS to 2.5 but not 2.4 - it needs more study ye=
+> 
+> I thought ACPI is going to replace PNP Bios in the future?
 
-    OK, does anybody have good scripts for automatically compiling
-    the kernel with many random configurations so we can discover
-    bugs like this automagically ?
-
-cd ~/wk/linux/focus/
-while true ; do
-  mconfig -m random
-  make dep clean bzImage
-[...]
-
-sort of thing.
-
-mconfig is super fast and simple, and seems to work very reliably.
-I'm not sure why more people don't use it.
-
-
-
-   --cw
+It won't however spontaneously upgrade all the existing non ACPI machines on
+the planet

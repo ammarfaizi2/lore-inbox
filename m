@@ -1,85 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269874AbUJHMGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269873AbUJHMIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269874AbUJHMGO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 08:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269873AbUJHMGO
+	id S269873AbUJHMIu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 08:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269889AbUJHMIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 08:06:14 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:53431 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S269874AbUJHMGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 08:06:07 -0400
-Date: Fri, 08 Oct 2004 21:11:38 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: [PATCH] no buddy bitmap patch revist : for ia64 [2/2]
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-mm <linux-mm@kvack.org>,
-       LHMS <lhms-devel@lists.sourceforge.net>, Andrew Morton <akpm@osdl.org>,
-       Tony Luck <tony.luck@intel.com>, Dave Hansen <haveblue@us.ibm.com>,
-       Hirokazu Takahashi <taka@valinux.co.jp>
-Message-id: <416683FA.5060406@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	Fri, 8 Oct 2004 08:08:50 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:65202 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S269873AbUJHMIr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 08:08:47 -0400
+Message-ID: <41668346.6090109@adaptec.com>
+Date: Fri, 08 Oct 2004 08:08:38 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
 X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
- Gecko/20040113
+MIME-Version: 1.0
+To: "K.R. Foley" <kr@cybsft.com>
+CC: "J.A. Magallon" <jamagallon@able.es>, Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc3-mm3 fails to detect aic7xxx
+References: <1097178019.24355.39.camel@localhost> <1097188963l.6408l.2l@werewolf.able.es> <41661013.9090700@cybsft.com>
+In-Reply-To: <41661013.9090700@cybsft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Oct 2004 12:08:46.0078 (UTC) FILETIME=[8FCBC1E0:01C4AD2F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is for ia64.
-CONFIG_HOLES_IN_ZONE is added to Kconfig.
-It is set automaically if CONFIG_VIRTUAL_MEMMAP=y.
+K.R. Foley wrote:
+> J.A. Magallon wrote:
+> 
+>>
+>> On 2004.10.07, Dave Hansen wrote:
+>>
+>>> I just booted 2.6.9-rc3-mm3 and got the good ol'
+>>> VFS: Cannot open root device "sda2" or unknown-block(0,0)
+>>> Please append a correct "root=" boot option
+>>> Kernel panic - not syncing: VFS: Unable to mount root fs on
+>>> unknown-block(0,0)
+>>>
+>>> backing out bk-scsi.patch seems to fix it.  I believe this worked in
+>>> 2.6.9-rc3-mm2.
+>>>
+>>
+>> Mine works:
+>>
+>> 03:0c.0 SCSI storage controller: Adaptec AIC-7892B U160/m (rev 02)
+>>
+>> werewolf:~> uname -a
+>> Linux werewolf.able.es 2.6.9-rc3-mm3 #1 SMP...
+> 
+> 
+> Mine doesn't without backing out those patches :) See my other post 
+> about this.
+> 
+> 04:05.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+> 04:05.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
 
-Thanks.
-Kame <kamezawa.hiroyu@jp.fujitsu.com>
-=========== for ia64 stuff==========
+You can see you have different chips.  It's the IDs.
+I'll come up with something shortly.
 
-
-This patch is for ia64 kernel.
-This defines CONFIG_HOLES_IN_ZONE in arch/ia64/Kconfig.
-IA64 has memory holes smaller than its MAX_ORDER and its virtual memmap
-allows holes in a zone's memmap.
-
-This patch makes vmemmap aligned with IA64_GRANULE_SIZE in
-arch/ia64/mm/init.c.
-
-Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
-
----
-
- test-kernel-kamezawa/arch/ia64/Kconfig   |    4 ++++
- test-kernel-kamezawa/arch/ia64/mm/init.c |    3 ++-
- 2 files changed, 6 insertions(+), 1 deletion(-)
-
-diff -puN arch/ia64/mm/init.c~ia64_fix arch/ia64/mm/init.c
---- test-kernel/arch/ia64/mm/init.c~ia64_fix	2004-10-08 18:29:20.510992392 +0900
-+++ test-kernel-kamezawa/arch/ia64/mm/init.c	2004-10-08 18:29:20.515991632 +0900
-@@ -410,7 +410,8 @@ virtual_memmap_init (u64 start, u64 end,
- 	struct page *map_start, *map_end;
-
- 	args = (struct memmap_init_callback_data *) arg;
--
-+	start = GRANULEROUNDDOWN(start);
-+	end = GRANULEROUNDUP(end);
- 	map_start = vmem_map + (__pa(start) >> PAGE_SHIFT);
- 	map_end   = vmem_map + (__pa(end) >> PAGE_SHIFT);
-
-diff -puN arch/ia64/Kconfig~ia64_fix arch/ia64/Kconfig
---- test-kernel/arch/ia64/Kconfig~ia64_fix	2004-10-08 18:29:20.513991936 +0900
-+++ test-kernel-kamezawa/arch/ia64/Kconfig	2004-10-08 18:29:20.516991480 +0900
-@@ -178,6 +178,10 @@ config VIRTUAL_MEM_MAP
- 	  require the DISCONTIGMEM option for your machine. If you are
- 	  unsure, say Y.
-
-+config HOLES_IN_ZONE
-+	bool
-+	default y if VIRTUAL_MEM_MAP
-+
- config DISCONTIGMEM
- 	bool "Discontiguous memory support"
- 	depends on (IA64_DIG || IA64_SGI_SN2 || IA64_GENERIC || IA64_HP_ZX1) && NUMA && VIRTUAL_MEM_MAP
-
-_
+	Luben
 

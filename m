@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266924AbTAOTxL>; Wed, 15 Jan 2003 14:53:11 -0500
+	id <S266928AbTAOT6f>; Wed, 15 Jan 2003 14:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266928AbTAOTxL>; Wed, 15 Jan 2003 14:53:11 -0500
-Received: from office-NAT.rockwellfirstpoint.com ([199.191.58.7]:62846 "EHLO
-	ecsmtp01.rockwellfirstpoint.com") by vger.kernel.org with ESMTP
-	id <S266924AbTAOTxK>; Wed, 15 Jan 2003 14:53:10 -0500
-In-Reply-To: <OFEC2D1079.106A6C04-ON86256C91.00739206-86256C91.0073544D@LocalDomain>
-Subject: Re: i810 sound starts and stops for 2.4.XX and i845PE chipset
+	id <S266917AbTAOT6f>; Wed, 15 Jan 2003 14:58:35 -0500
+Received: from mars.mj.nl ([81.91.1.49]:6021 "HELO mars.mj.nl")
+	by vger.kernel.org with SMTP id <S266928AbTAOT6e>;
+	Wed, 15 Jan 2003 14:58:34 -0500
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+From: Thomas Hood <jdthood@yahoo.co.uk>
 To: linux-kernel@vger.kernel.org
-Cc: edward.kuns@rockwellfirstpoint.com
-X-Mailer: Lotus Notes Release 6.0 September 26, 2002
-Message-ID: <OFFA31EAD2.3942B973-ON86256CAF.006D4FCA-86256CAF.006E0AFE@rockwellfirstpoint.com>
-From: edward.kuns@rockwellfirstpoint.com
-Date: Wed, 15 Jan 2003 13:59:43 -0600
-X-MIMETrack: Serialize by Router on ECSMTP01/EC/Rockwell(Release 5.0.11  |July 24, 2002) at
- 01/15/2003 02:02:03 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042661316.1743.71.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 15 Jan 2003 21:08:37 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+RMS: This battle is lost.  By continuing to complain
+about the use of "Linux" you are not only wasting your
+time; you are harming your reputation, too.  Why?
+Because you are *wrong*, and yet you won't admit that you
+are wrong, but continue to reiterate your wrong opinion.
+This makes you sound like a fanatic.  Your stubbornness
+has served you well in other causes (where you are closer
+to the truth), but is hurting you here.
 
-Last weekend I tried out 2.4.21-pre3-ac2 and that resolved the sound
-problems I was having with i810 audio.  Since moving the sound driver
-itself back to an earlier release did not make the difference, I conclude
-that the IRQ steering code was updated between 2.4.18 and the latest
-releases.  This is with the i845PE chipset on the Gigabyte 8PE667 Ultra
-motherboard (aka P4 Titan 667 Ultra) .
+Let me explain how you are wrong.  You say things like:
 
-It's possible that this IRQ fix was present in an earlier load.  I had
-separate issues with 2.4.20-*** loads that prevented this computer from
-booting.  I'm pretty sure that a fix included in 2.4.21-pre3 resolved that
-problem.
+> Calling the system "Linux" denies the GNU Project
+> credit for the GNU operating system.
 
-      Eddie
+This is wrong.  The use of a proper name does not commit
+the user to any particular characterization of what bears
+that name.  I can use the name 'Linux' without in any way
+committing myself to a denial of the role of GNU in Linux.
+When I use the name 'Linux', I (usually) denote that
+collection of software consisting of GNU's tools, Linus's
+kernel, Ximian's MUA, etc.  I do this without contradicting
+myself in the least.  In philosophical jargon, proper names
+do not have connotations.
 
---
-Edward Kuns
-Technical Staff Member
-Rockwell FirstPoint Contact
-300 Bauman Ct
-Wood Dale, IL  60191
-Phone: +1-630-227-8070
-Fax: +1-630-227-8040
-edward.kuns@rockwellfirstpoint.com
-www.rockwellfirstpoint.com
+To see, this, suppose I decide to start calling you "Mr. X".
+This may not be very polite of me, but it is not incorrect,
+so long as everyone understands whom I am referring to.
+So when you say that 'GNU/Linux' is a "just" name and
+'Linux' is not, you are wrong.  There is no such standard
+of justice.
 
-This e-mail is intended solely for the person or entity to which it is
-addressed and may contain confidential or privileged material.  Any
-duplication,  dissemination, action taken in reliance upon, or other use of
-this information by persons or entities other than the intended recipient
-is prohibited and may violate applicable law.  If this e-mail has been
-received in error, please notify the sender and delete the information from
-your system.
+In your view, Linux is "the GNU system" with a Linux kernel
+added on.  Fine.  But it is wrong of you to imply that this
+is the only way to regard what you call 'GNU/Linux'. 
+It is equally legitimate to regard it as Linux with GNU
+utilities added on.  There is no objective standard for
+what constitutes a "system" or "the same system" in this
+context.  You are wrong to imply that there is one.
 
+I am willing to entertain the proposition that the GNU
+project deserves greater recognition in Linux circles than
+it has received.  But I want to warn you that quibbling over
+a name is a bad way to try to improve the situation.  Doing
+so on the basis of bad arguments is doubly bad.
 
+Apart from that ... carry on the good work!
+
+-- 
+Thomas Hood <jdthood@yahoo.co.uk>
 

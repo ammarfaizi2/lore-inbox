@@ -1,117 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270615AbTGTDok (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 23:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270616AbTGTDok
+	id S270614AbTGTDnL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 23:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270615AbTGTDnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 23:44:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13781 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270615AbTGTDog
+	Sat, 19 Jul 2003 23:43:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7893 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270614AbTGTDnK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 23:44:36 -0400
-Message-ID: <3F1A139B.3090708@pobox.com>
-Date: Sat, 19 Jul 2003 23:59:23 -0400
+	Sat, 19 Jul 2003 23:43:10 -0400
+Message-ID: <3F1A1345.7080301@pobox.com>
+Date: Sat, 19 Jul 2003 23:57:57 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 Organization: none
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
 X-Accept-Language: en
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [Fwd: [PATCH] missing __KERNEL__ ifdef in include/linux/device.h]
-Content-Type: multipart/mixed;
- boundary="------------040003080006050206010800"
+To: Matt Reppert <repp0017@tc.umn.edu>
+CC: Pedro Ribeiro <deadheart@netcabo.pt>, linux-kernel@vger.kernel.org
+Subject: Re: Problem with mii-tool && 2.6.0-test1-ac2
+References: <3F198C66.1030405@netcabo.pt> <20030719232804.08cc3689.repp0017@tc.umn.edu>
+In-Reply-To: <20030719232804.08cc3689.repp0017@tc.umn.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040003080006050206010800
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Matt Reppert wrote:
+> On Sat, 19 Jul 2003 19:22:30 +0100
+> Pedro Ribeiro <deadheart@netcabo.pt> wrote:
+> 
+> 
+>>If I compile the 8139 ethernet support as a module (as I always did - 
+>>module name >> 8130too) I will get an error in make modules_install. 
+>>However, if I build it in the kernel it will work just fine. The problem 
+>>is that now when I try to do a simple mii-tool -F 100baseTX-FD eth0 
+>>(because my eth always stats at 100 Half duplex) I get this error:
+>>
+>>SIOCGMIIPHY on 'eth0' failed: Operation not supported
+> 
+> 
+> What's the error you get on install? I don't have a problem doing it on
+> my iBook.
+> 
+> You have to explicitly turn on MII support in 2.6-test; the kconfig option
+> is CONFIG_MII; it's "Generic Media Independent Interface device support",
+> the first item under "Ethernet (10 or 100Mbit)". This needs to be modular or
+> on to use mii-tool, I imagine.
 
 
---------------040003080006050206010800
-Content-Type: message/rfc822;
- name="[PATCH] missing __KERNEL__ ifdef in include/linux/device.h"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="[PATCH] missing __KERNEL__ ifdef in include/linux/device.h"
+No, CONFIG_MII only occasionally affects mii-tool support.  Further, 
+CONFIG_MII is forced on if it is needed.
 
-Return-Path: <netdev-bounce@oss.sgi.com>
-Delivered-To: garzik@gtf.org
-Received: from orb.pobox.com (orb.pobox.com [216.65.124.72])
-	by havoc.gtf.org (Postfix) with ESMTP id 7E9F1663B
-	for <garzik@gtf.org>; Sat, 19 Jul 2003 22:57:55 -0400 (EDT)
-Received: from orb.pobox.com (localhost [127.0.0.1])
-	by orb.pobox.com (Postfix) with ESMTP id C895C1562EC
-	for <garzik@gtf.org>; Sat, 19 Jul 2003 22:57:54 -0400 (EDT)
-Delivered-To: jgarzik@pobox.com
-Received: from smtp.mandrake.com (smtp.mandrake.com [63.209.80.248])
-	by orb.pobox.com (Postfix) with ESMTP id BE51915620B
-	for <jgarzik@pobox.com>; Sat, 19 Jul 2003 22:57:54 -0400 (EDT)
-Received: from oss.sgi.com (oss.sgi.com [192.48.159.27])
-	by smtp.mandrake.com (Postfix) with ESMTP id 2EB3A83C0E
-	for <jgarzik@mandrakesoft.com>; Sat, 19 Jul 2003 18:10:30 -0700 (PDT)
-Received: from oss.sgi.com (localhost [127.0.0.1])
-	by oss.sgi.com (8.12.9/8.12.9) with ESMTP id h6K2unFl011061;
-	Sat, 19 Jul 2003 19:56:49 -0700
-Received: with ECARTIS (v1.0.0; list netdev); Sat, 19 Jul 2003 19:55:41 -0700 (PDT)
-Received: from rei.rakuen (dclient217-162-65-211.hispeed.ch [217.162.65.211])
-	by oss.sgi.com (8.12.9/8.12.9) with SMTP id h6K2taFl010762
-	for <netdev@oss.sgi.com>; Sat, 19 Jul 2003 19:55:37 -0700
-Received: by reeler.org id 19e4MD-0007Pb-00
-	for <netdev@oss.sgi.com>; Sun, 20 Jul 2003 04:55:29 +0200
-Date: Sun, 20 Jul 2003 04:55:29 +0200
-From: Thomas Graf <tgraf@suug.ch>
-To: netdev@oss.sgi.com
-Subject: [PATCH] missing __KERNEL__ ifdef in include/linux/device.h
-Message-ID: <20030720025528.GA30577@rei.rakuen>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Encryption: "Encrypted with ROT13 using key 42"
-X-archive-position: 4180
-X-ecartis-version: Ecartis v1.0.0
-Sender: netdev-bounce@oss.sgi.com
-Errors-To: netdev-bounce@oss.sgi.com
-X-original-sender: tgraf@suug.ch
-Precedence: bulk
-X-list: netdev
-X-Spam-Status: No, hits=-6.0 required=6.0
-	tests=AWL,BAYES_01,PATCH_UNIFIED_DIFF
-	version=2.55
-X-Spam-Level: 
-X-Spam-Checker-Version: SpamAssassin 2.55 (1.174.2.19-2003-05-19-exp)
+As I explained in another mail, older mii-tool binaries use the 
+traditional -- but non-standard -- ioctls for the MII operations.  Newer 
+versions of mii-tool use the proper SIOC[GS]MIIxxx ioctls.
 
-Hello
+The proper fix is to obtain the latest version of mii-tool, possibly 
+from net-utils cvs if nowhere else.
 
-device.h should be protected with __KERNEL__ because it uses
-__KERNEL__ protected structures. Userspace applications
-including if_arp.h such as iproute2 will fail because
-it finally includes device.h as well.
-
- - thomas
+	Jeff
 
 
-Index: include/linux/device.h
-===================================================================
-RCS file: /cvs/tgr/linux-25/include/linux/device.h,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 device.h
---- include/linux/device.h	10 Jul 2003 22:58:31 -0000	1.1.1.2
-+++ include/linux/device.h	20 Jul 2003 02:49:12 -0000
-@@ -8,7 +8,7 @@
-  * See Documentation/driver-model/ for more information.
-  */
- 
--#ifndef _DEVICE_H_
-+#if defined __KERNEL__ && !defined _DEVICE_H_
- #define _DEVICE_H_
- 
- #include <linux/config.h>
-
-
-
-
-
---------------040003080006050206010800--
 

@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129211AbRCBO4d>; Fri, 2 Mar 2001 09:56:33 -0500
+	id <S129232AbRCBPNE>; Fri, 2 Mar 2001 10:13:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129212AbRCBO4X>; Fri, 2 Mar 2001 09:56:23 -0500
-Received: from [206.245.154.69] ([206.245.154.69]:8358 "HELO
-	athena.intergrafix.net") by vger.kernel.org with SMTP
-	id <S129211AbRCBO4J>; Fri, 2 Mar 2001 09:56:09 -0500
-Date: Fri, 2 Mar 2001 09:56:07 -0500 (EST)
-From: Admin Mailing Lists <mlist@intergrafix.net>
-To: linux-kernel@vger.kernel.org
-Subject: gids in kernel
-Message-ID: <Pine.LNX.4.10.10103020954140.11082-100000@athena.intergrafix.net>
+	id <S129227AbRCBPMy>; Fri, 2 Mar 2001 10:12:54 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:29408 "EHLO
+	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S129232AbRCBPMs>; Fri, 2 Mar 2001 10:12:48 -0500
+Message-ID: <3A9FB760.15E6321F@nortelnetworks.com>
+Date: Fri, 02 Mar 2001 10:08:17 -0500
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John Being <olonho@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: strange nonmonotonic behavior of gettimeoftheday -- seen similar 
+         problem on PPC
+In-Reply-To: <F104TJcu8Puwo7hGP4E00009f3d@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@americasm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+John Being wrote:
 
-apache documentation states:
-#  NOTE that some kernels refuse to setgid(Group) or semctl(IPC_SET)
-#  when the value of (unsigned)Group is above 60000;
-#  don't use Group nobody on these systems!
+> gives following result on box in question
+> root@******:# ./clo
+> Leap found: -1687 msec
+> and prints nothing on all other  my boxes.
+> This gives me bunch of troubles with occasional hang ups and I found nothing
+> in kernel archives at
+> http://www.uwsg.indiana.edu/hypermail/linux/kernel/index.html
+> just some notes about smth like this for SMP boxes with ntp. Is this issue
+> known, and how can I fix it?
 
-does this apply to linux in either the 2.2 or 2.4 kernels?
-i'd like to use a block of uids from maybe 63000-65000, with
-gids of the same number, for web domains, and want to know if i'll have
-any problems.
+I've run into non-monotonic gettimeofday() on a PPC system with 2.2.17, but it
+always seemed to be almost exactly a jiffy out, as though it was getting
+hundredths of a second from the old tick, and microseconds from the new tick. 
+Your leap seems to be more unusual, and the first one I've seen on an x86 box.
 
-Thanx,
+Have you considered storing the results to see what happens on the next call? 
+Does it make up the difference, or do you just lose that time?
 
--Tony
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-Anthony J. Biacco                       Network Administrator/Engineer
-thelittleprince@asteroid-b612.org       Intergrafix Internet Services
+Chris
 
-    "Dream as if you'll live forever, live as if you'll die today"
-http://www.asteroid-b612.org                http://www.intergrafix.net
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
 
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

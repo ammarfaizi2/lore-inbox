@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275221AbTHGIEm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 04:04:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275222AbTHGIEm
+	id S275216AbTHGIAd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 04:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275218AbTHGIAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 04:04:42 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:12037 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S275221AbTHGIEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 04:04:40 -0400
-Subject: Re: [PATCH] PCMCIA IRQ stuff
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030807002110.K16116@flint.arm.linux.org.uk>
-References: <20030807002110.K16116@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1060243477.562.0.camel@teapot.felipe-alfaro.com>
+	Thu, 7 Aug 2003 04:00:32 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:11782 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S275216AbTHGIAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 04:00:32 -0400
+Date: Thu, 7 Aug 2003 09:00:31 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test2-mm5
+Message-ID: <20030807090031.A12476@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030806223716.26af3255.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 07 Aug 2003 10:04:37 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030806223716.26af3255.akpm@osdl.org>; from akpm@osdl.org on Wed, Aug 06, 2003 at 10:37:16PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-08-07 at 01:21, Russell King wrote:
-> Ok, this is what's going to Linus shortly.  I have some further changes
-> which cleans up the whole override stuff, but I haven't had time to
-> sort those out cleanly, and probably won't do until the weekend now.
+On Wed, Aug 06, 2003 at 10:37:16PM -0700, Andrew Morton wrote:
+> +devfs-pty-slave-fix.patch
+> 
+>  devfs fix
 
-Works fine for me :-)
+This patch is wrong.  Those nodes are managed by devpts.
 

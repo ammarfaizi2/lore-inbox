@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130151AbQKWTfQ>; Thu, 23 Nov 2000 14:35:16 -0500
+        id <S129903AbQKWThq>; Thu, 23 Nov 2000 14:37:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130147AbQKWTfH>; Thu, 23 Nov 2000 14:35:07 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:14604 "EHLO
-        vger.timpanogas.org") by vger.kernel.org with ESMTP
-        id <S129097AbQKWTex>; Thu, 23 Nov 2000 14:34:53 -0500
-Date: Thu, 23 Nov 2000 13:01:25 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Ben LaHaise <bcrl@redhat.com>
-Subject: Re: [patch] O_SYNC patch 3/3, add inode dirty buffer list support to ext2
-Message-ID: <20001123130125.B23067@vger.timpanogas.org>
-In-Reply-To: <20001122112646.D6516@redhat.com> <20001122115424.A18592@vger.timpanogas.org> <20001123120135.D8368@redhat.com>
-Mime-Version: 1.0
+        id <S129091AbQKWThh>; Thu, 23 Nov 2000 14:37:37 -0500
+Received: from porgy.srv.nld.sonera.net ([195.66.15.137]:3102 "EHLO
+        porgy.srv.nld.sonera.net") by vger.kernel.org with ESMTP
+        id <S129905AbQKWThY>; Thu, 23 Nov 2000 14:37:24 -0500
+Message-ID: <3A1D6AE1.60DF0AAD@ITS.TUDelft.nl>
+Date: Thu, 23 Nov 2000 20:07:13 +0100
+From: "H.J.Visser" <H.J.Visser@ITS.TUDelft.nl>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-21mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Power-off doesn't work in 2.4.0test11
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001123120135.D8368@redhat.com>; from sct@redhat.com on Thu, Nov 23, 2000 at 12:01:35PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 23, 2000 at 12:01:35PM +0000, Stephen C. Tweedie wrote:
-> Hi,
-> 
-> On Wed, Nov 22, 2000 at 11:54:24AM -0700, Jeff V. Merkey wrote:
-> > 
-> > I have not implemented O_SYNC in NWFS, but it looks like I need to add it 
-> > before posting the final patches.  This patch appears to force write-through 
-> > of only dirty inodes, and allow reads to continue from cache.  Is this
-> > assumption correct
-> 
-> Yes: O_SYNC is not required to force reads to be made from disk.
-> SingleUnix has an "O_RSYNC" option which does that, but O_SYNC and
-> O_DSYNC don't imply that.
+Hi,
 
-Cool.  ORACLE is going to **SMOKE** on EXT2 with this change.
+Since I use kernel 2.4.0(test11) the power-off on halt doesn't work 
+anymore (I have the same problem with previous 2.4.0 releases).
 
-Jeff
+I use apm to power-off the system (my system doesn't support acpi) and 
+with kernel 2.2.17 everything works great. But since I've compiled 
+2.4.0test11 with exactly the same configuration, my system doesn't 
+power-off anymore.
 
-> 
-> Cheers,
->  Stephen
+I use a celeron 266@400MHz with a BX-pro mainboard with an ALi chipset.
+
+Does anyone know how I get my system to power-off again?
+
+Thanx,
+Jeroen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,324 +1,484 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261709AbSIXRPC>; Tue, 24 Sep 2002 13:15:02 -0400
+	id <S261710AbSIXRT3>; Tue, 24 Sep 2002 13:19:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261710AbSIXRPC>; Tue, 24 Sep 2002 13:15:02 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:60396 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261709AbSIXRO6>; Tue, 24 Sep 2002 13:14:58 -0400
-Date: Tue, 24 Sep 2002 14:19:55 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
+	id <S261711AbSIXRT3>; Tue, 24 Sep 2002 13:19:29 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:34326 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id <S261710AbSIXRTW>; Tue, 24 Sep 2002 13:19:22 -0400
+Date: Tue, 24 Sep 2002 13:24:33 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+X-X-Sender: davidsen@oddball.prodigy.com
+Reply-To: davidsen@tmr.com
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] per user scheduling for 2.4.19
-Message-ID: <Pine.LNX.4.44L.0209241417520.15154-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+Subject: 2.5.38 compile (link) errs
+Message-ID: <Pine.LNX.4.44.0209241320340.15835-300000@oddball.prodigy.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1597264651-1032888273=:15835"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-the following patch implements per user scheduling for 2.4.19,
-it's not sophisticated but kept as simple as possible.  I'm
-still thinking of a nice way to implement this for the O(1)
-scheduler...
+--8323328-1597264651-1032888273=:15835
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Tested on UP and SMP, don't forget to enable CONFIG_FAIRSCHED.
+2.5 is like the two-step, the kernels which compile don't boot, etc. This 
+is 2.5.38 with the floppy fix, the cdrom fix, and a Makefile fix to allow 
+/usr/src/linux to be a symbolic link to somewhere I have space.
 
-have fun,
+Attached to prevent munging, the end of the mail log and the config file 
+with "not set" lines removed for readability.
 
-Rik
+I have no idea what address this is from, the machine will vanish in a 
+puff of reinstall later today.
 -- 
-A: No.
-Q: Should I include quotations after my reply?
+bill davidsen <davidsen@tmr.com>
 
-http://www.surriel.com/		http://distro.conectiva.com/
+--8323328-1597264651-1032888273=:15835
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="x.tmp"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0209241324330.15835@oddball.prodigy.com>
+Content-Description: compile err
+Content-Disposition: attachment; filename="x.tmp"
 
+bWFrZVsxXTogTGVhdmluZyBkaXJlY3RvcnkgYC9ob21lL2xpbnV4LTIuNS4z
+OC9uZXQnDQ0KbWFrZVsxXTogRW50ZXJpbmcgZGlyZWN0b3J5IGAvaG9tZS9s
+aW51eC0yLjUuMzgvbGliJw0NCm1ha2VbMV06IExlYXZpbmcgZGlyZWN0b3J5
+IGAvaG9tZS9saW51eC0yLjUuMzgvbGliJw0NCm1ha2VbMV06IEVudGVyaW5n
+IGRpcmVjdG9yeSBgL2hvbWUvbGludXgtMi41LjM4L2FyY2gvaTM4Ni9saWIn
+DQ0KbWFrZVsxXTogTGVhdmluZyBkaXJlY3RvcnkgYC9ob21lL2xpbnV4LTIu
+NS4zOC9hcmNoL2kzODYvbGliJw0NCiAgR2VuZXJhdGluZyBidWlsZCBudW1i
+ZXINDQptYWtlWzFdOiBFbnRlcmluZyBkaXJlY3RvcnkgYC9ob21lL2xpbnV4
+LTIuNS4zOC9pbml0Jw0NCiAgR2VuZXJhdGluZyAvaG9tZS9saW51eC0yLjUu
+MzgvaW5jbHVkZS9saW51eC9jb21waWxlLmggKHVwZGF0ZWQpDQ0KICBnY2Mg
+LVdwLC1NRCwuLy52ZXJzaW9uLm8uZCAtRF9fS0VSTkVMX18gLUkvaG9tZS9s
+aW51eC0yLjUuMzgvaW5jbHVkZSAtV2FsbCAtV3N0cmljdC1wcm90b3R5cGVz
+IC1Xbm8tdHJpZ3JhcGhzIC1PMiAtZm9taXQtZnJhbWUtcG9pbnRlciAtZm5v
+LXN0cmljdC1hbGlhc2luZyAtZm5vLWNvbW1vbiAtcGlwZSAtbXByZWZlcnJl
+ZC1zdGFjay1ib3VuZGFyeT0yIC1tYXJjaD1pNjg2IC1JL2hvbWUvbGludXgt
+Mi41LjM4L2FyY2gvaTM4Ni9tYWNoLWdlbmVyaWMgLW5vc3RkaW5jIC1pd2l0
+aHByZWZpeCBpbmNsdWRlICAgIC1ES0JVSUxEX0JBU0VOQU1FPXZlcnNpb24g
+ICAtYyAtbyB2ZXJzaW9uLm8gdmVyc2lvbi5jDQ0KICAgbGQgLW0gZWxmX2kz
+ODYgIC1yIC1vIGJ1aWx0LWluLm8gbWFpbi5vIHZlcnNpb24ubyBkb19tb3Vu
+dHMubw0NCm1ha2VbMV06IExlYXZpbmcgZGlyZWN0b3J5IGAvaG9tZS9saW51
+eC0yLjUuMzgvaW5pdCcNDQogIGxkIC1tIGVsZl9pMzg2IC1lIHN0ZXh0IC1U
+IGFyY2gvaTM4Ni92bWxpbnV4Lmxkcy5zIGFyY2gvaTM4Ni9rZXJuZWwvaGVh
+ZC5vIGFyY2gvaTM4Ni9rZXJuZWwvaW5pdF90YXNrLm8gIGluaXQvYnVpbHQt
+aW4ubyAtLXN0YXJ0LWdyb3VwICBhcmNoL2kzODYva2VybmVsL2J1aWx0LWlu
+Lm8gIGFyY2gvaTM4Ni9tbS9idWlsdC1pbi5vICBhcmNoL2kzODYvbWFjaC1n
+ZW5lcmljL2J1aWx0LWluLm8ga2VybmVsL2J1aWx0LWluLm8gbW0vYnVpbHQt
+aW4ubyBmcy9idWlsdC1pbi5vIGlwYy9idWlsdC1pbi5vIHNlY3VyaXR5L2J1
+aWx0LWluLm8gIGxpYi9saWIuYSAgYXJjaC9pMzg2L2xpYi9saWIuYSAgZHJp
+dmVycy9idWlsdC1pbi5vICBzb3VuZC9idWlsdC1pbi5vICBhcmNoL2kzODYv
+cGNpL2J1aWx0LWluLm8gIG5ldC9idWlsdC1pbi5vIC0tZW5kLWdyb3VwIC1v
+IHZtbGludXgNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm86IEluIGZ1
+bmN0aW9uIGBkaXNjb25uZWN0X2JzcF9BUElDJzoNDQphcmNoL2kzODYva2Vy
+bmVsL2J1aWx0LWluLm8oLnRleHQrMHhiNjcyKTogdW5kZWZpbmVkIHJlZmVy
+ZW5jZSB0byBgcGljX21vZGUnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1p
+bi5vOiBJbiBmdW5jdGlvbiBgY2xlYXJfSU9fQVBJQyc6DQ0KYXJjaC9pMzg2
+L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0KzB4YmUzMyk6IHVuZGVmaW5lZCBy
+ZWZlcmVuY2UgdG8gYG5yX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9i
+dWlsdC1pbi5vKC50ZXh0KzB4YmU3NCk6IHVuZGVmaW5lZCByZWZlcmVuY2Ug
+dG8gYG5yX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5v
+OiBJbiBmdW5jdGlvbiBgSU9fQVBJQ19nZXRfUENJX2lycV92ZWN0b3InOg0N
+CmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dCsweGJmNTYpOiB1
+bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9idXNfaWRfdG9fcGNpX2J1cycN
+DQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQrMHhiZjhhKTog
+dW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaXJxX2VudHJpZXMnDQ0KYXJj
+aC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0KzB4YmZhMyk6IHVuZGVm
+aW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycXMnDQ0KYXJjaC9pMzg2L2tlcm5l
+bC9idWlsdC1pbi5vKC50ZXh0KzB4YmZhYik6IHVuZGVmaW5lZCByZWZlcmVu
+Y2UgdG8gYG5yX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1p
+bi5vKC50ZXh0KzB4YmZiOSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1w
+X2lycXMnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0KzB4
+YmZiZik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lvYXBpY3MnDQ0K
+YXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0KzB4YmZjYyk6IHVu
+ZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycXMnDQ0KYXJjaC9pMzg2L2tl
+cm5lbC9idWlsdC1pbi5vKC50ZXh0KzB4YmZlZCk6IHVuZGVmaW5lZCByZWZl
+cmVuY2UgdG8gYG1wX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWls
+dC1pbi5vKC50ZXh0KzB4YmZmZCk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8g
+YG1wX2J1c19pZF90b190eXBlJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQt
+aW4ubygudGV4dCsweGMwMDkpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBt
+cF9pcnFzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dCsw
+eGMwNjQpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pcnFzJw0NCmFy
+Y2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dCsweGMwN2QpOiB1bmRl
+ZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pcnFfZW50cmllcycNDQphcmNoL2kz
+ODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQrMHhjMDkyKTogdW5kZWZpbmVk
+IHJlZmVyZW5jZSB0byBgbXBfaXJxX2VudHJpZXMnDQ0KYXJjaC9pMzg2L2tl
+cm5lbC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBgcGluXzJfaXJxJzoNDQph
+cmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQrMHhjMGMyKTogdW5k
+ZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaXJxcycNDQphcmNoL2kzODYva2Vy
+bmVsL2J1aWx0LWluLm8oLnRleHQrMHhjMGY4KTogdW5kZWZpbmVkIHJlZmVy
+ZW5jZSB0byBgbXBfYnVzX2lkX3RvX3R5cGUnDQ0KYXJjaC9pMzg2L2tlcm5l
+bC9idWlsdC1pbi5vKC50ZXh0KzB4YzExOSk6IHVuZGVmaW5lZCByZWZlcmVu
+Y2UgdG8gYG1wX2lycXMnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5v
+OiBJbiBmdW5jdGlvbiBgc2V0dXBfbWVtb3J5JzoNDQphcmNoL2kzODYva2Vy
+bmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweGY3OSk6IHVuZGVmaW5lZCBy
+ZWZlcmVuY2UgdG8gYGZpbmRfc21wX2NvbmZpZycNDQphcmNoL2kzODYva2Vy
+bmVsL2J1aWx0LWluLm86IEluIGZ1bmN0aW9uIGBzZXR1cF9hcmNoJzoNDQph
+cmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDEzMDQp
+OiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBzbXBfZm91bmRfY29uZmlnJw0N
+CmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4MTMw
+ZSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYGdldF9zbXBfY29uZmlnJw0N
+CmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubzogSW4gZnVuY3Rpb24gYGNv
+bm5lY3RfYnNwX0FQSUMnOg0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4u
+bygudGV4dC5pbml0KzB4NDE1Mik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8g
+YHBpY19tb2RlJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubzogSW4g
+ZnVuY3Rpb24gYGluaXRfYnNwX0FQSUMnOg0NCmFyY2gvaTM4Ni9rZXJuZWwv
+YnVpbHQtaW4ubygudGV4dC5pbml0KzB4NDIyMyk6IHVuZGVmaW5lZCByZWZl
+cmVuY2UgdG8gYHNtcF9mb3VuZF9jb25maWcnDQ0KYXJjaC9pMzg2L2tlcm5l
+bC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBgc2V0dXBfbG9jYWxfQVBJQyc6
+DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg0
+Mjk5KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgcGh5c19jcHVfcHJlc2Vu
+dF9tYXAnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0Lmlu
+aXQrMHg0MmIyKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgcGljX21vZGUn
+DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBg
+ZGV0ZWN0X2luaXRfQVBJQyc6DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1p
+bi5vKC50ZXh0LmluaXQrMHg0NGVkKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0
+byBgbXBfbGFwaWNfYWRkcicNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWlu
+Lm8oLnRleHQuaW5pdCsweDQ0ZjUpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRv
+IGBib290X2NwdV9waHlzaWNhbF9hcGljaWQnDQ0KYXJjaC9pMzg2L2tlcm5l
+bC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBgaW5pdF9hcGljX21hcHBpbmdz
+JzoNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsw
+eDQ1MzQpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBzbXBfZm91bmRfY29u
+ZmlnJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0
+KzB4NDU2OCk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2xhcGljX2Fk
+ZHInDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQr
+MHg0NTgyKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgYm9vdF9jcHVfcGh5
+c2ljYWxfYXBpY2lkJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygu
+dGV4dC5pbml0KzB4NDU5NSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYGJv
+b3RfY3B1X3BoeXNpY2FsX2FwaWNpZCcNDQphcmNoL2kzODYva2VybmVsL2J1
+aWx0LWluLm8oLnRleHQuaW5pdCsweDQ1YTIpOiB1bmRlZmluZWQgcmVmZXJl
+bmNlIHRvIGBucl9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQt
+aW4ubygudGV4dC5pbml0KzB4NDViMik6IHVuZGVmaW5lZCByZWZlcmVuY2Ug
+dG8gYHNtcF9mb3VuZF9jb25maWcnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWls
+dC1pbi5vKC50ZXh0LmluaXQrMHg0NWJkKTogdW5kZWZpbmVkIHJlZmVyZW5j
+ZSB0byBgbXBfaW9hcGljcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWlu
+Lm8oLnRleHQuaW5pdCsweDQ1ZjkpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRv
+IGBucl9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubzog
+SW4gZnVuY3Rpb24gYEFQSUNfaW5pdF91bmlwcm9jZXNzb3InOg0NCmFyY2gv
+aTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NDgyMik6IHVu
+ZGVmaW5lZCByZWZlcmVuY2UgdG8gYHNtcF9mb3VuZF9jb25maWcnDQ0KYXJj
+aC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg0ODRkKTog
+dW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgYm9vdF9jcHVfcGh5c2ljYWxfYXBp
+Y2lkJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0
+KzB4NDg1NCk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYGFwaWNfdmVyc2lv
+bicNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsw
+eDQ4N2IpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBib290X2NwdV9waHlz
+aWNhbF9hcGljaWQnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50
+ZXh0LmluaXQrMHg0ODg2KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgcGh5
+c19jcHVfcHJlc2VudF9tYXAnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1p
+bi5vKC50ZXh0LmluaXQrMHg0OGEzKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0
+byBgc21wX2ZvdW5kX2NvbmZpZycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0
+LWluLm8oLnRleHQuaW5pdCsweDQ4YjcpOiB1bmRlZmluZWQgcmVmZXJlbmNl
+IHRvIGBucl9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4u
+bzogSW4gZnVuY3Rpb24gYGZpbmRfaXJxX2VudHJ5JzoNDQphcmNoL2kzODYv
+a2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDRlMjMpOiB1bmRlZmlu
+ZWQgcmVmZXJlbmNlIHRvIGBtcF9pcnFfZW50cmllcycNDQphcmNoL2kzODYv
+a2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDRlM2IpOiB1bmRlZmlu
+ZWQgcmVmZXJlbmNlIHRvIGBtcF9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJu
+ZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NGU1Myk6IHVuZGVmaW5lZCBy
+ZWZlcmVuY2UgdG8gYG1wX2lycXMnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWls
+dC1pbi5vKC50ZXh0LmluaXQrMHg0ZTVlKTogdW5kZWZpbmVkIHJlZmVyZW5j
+ZSB0byBgbXBfaXJxcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8o
+LnRleHQuaW5pdCsweDRlNmYpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBt
+cF9pcnFzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubzogSW4gZnVu
+Y3Rpb24gYGZpbmRfaXNhX2lycV9waW4nOg0NCmFyY2gvaTM4Ni9rZXJuZWwv
+YnVpbHQtaW4ubygudGV4dC5pbml0KzB4NGVhMik6IHVuZGVmaW5lZCByZWZl
+cmVuY2UgdG8gYG1wX2lycV9lbnRyaWVzJw0NCmFyY2gvaTM4Ni9rZXJuZWwv
+YnVpbHQtaW4ubygudGV4dC5pbml0KzB4NGViNCk6IHVuZGVmaW5lZCByZWZl
+cmVuY2UgdG8gYG1wX2J1c19pZF90b190eXBlJw0NCmFyY2gvaTM4Ni9rZXJu
+ZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NGVjMyk6IHVuZGVmaW5lZCBy
+ZWZlcmVuY2UgdG8gYG1wX2lycXMnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWls
+dC1pbi5vKC50ZXh0LmluaXQrMHg0ZWRhKTogdW5kZWZpbmVkIHJlZmVyZW5j
+ZSB0byBgbXBfaXJxcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8o
+LnRleHQuaW5pdCsweDRlZTUpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBt
+cF9pcnFzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5p
+bml0KzB4NGVmMik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycXMn
+DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBg
+TVBCSU9TX3BvbGFyaXR5JzoNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWlu
+Lm8oLnRleHQuaW5pdCsweDRmNWMpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRv
+IGBtcF9pcnFzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4
+dC5pbml0KzB4NGY2Myk6IG1vcmUgdW5kZWZpbmVkIHJlZmVyZW5jZXMgdG8g
+YG1wX2lycXMnIGZvbGxvdw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4u
+bzogSW4gZnVuY3Rpb24gYE1QQklPU19wb2xhcml0eSc6DQ0KYXJjaC9pMzg2
+L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg0Zjk0KTogdW5kZWZp
+bmVkIHJlZmVyZW5jZSB0byBgbXBfYnVzX2lkX3RvX3R5cGUnDQ0KYXJjaC9p
+Mzg2L2tlcm5lbC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBgTVBCSU9TX3Ry
+aWdnZXInOg0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5p
+bml0KzB4NGZlMik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycXMn
+DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg0
+ZmY3KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaXJxcycNDQphcmNo
+L2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDUwMzQpOiB1
+bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9idXNfaWRfdG9fdHlwZScNDQph
+cmNoL2kzODYva2VybmVsL2J1aWx0LWluLm86IEluIGZ1bmN0aW9uIGBzZXR1
+cF9JT19BUElDX2lycXMnOg0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4u
+bygudGV4dC5pbml0KzB4NTEyYSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8g
+YG5yX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50
+ZXh0LmluaXQrMHg1MWU0KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBf
+aW9hcGljcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQu
+aW5pdCsweDUyMTApOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pb2Fw
+aWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0
+KzB4NTMwNSk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG5yX2lvYXBpY3Mn
+DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg1
+MzUxKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbnJfaW9hcGljcycNDQph
+cmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDU0MjAp
+OiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBucl9pb2FwaWNzJw0NCmFyY2gv
+aTM4Ni9rZXJuZWwvYnVpbHQtaW4ubzogSW4gZnVuY3Rpb24gYHByaW50X0lP
+X0FQSUMnOg0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5p
+bml0KzB4NTUyYik6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycV9l
+bnRyaWVzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5p
+bml0KzB4NTUzZCk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG5yX2lvYXBp
+Y3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQr
+MHg1NTQ1KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaW9hcGljcycN
+DQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDU1
+NmUpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBucl9pb2FwaWNzJw0NCmFy
+Y2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NTU4ZCk6
+IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG5yX2lvYXBpY3MnDQ0KYXJjaC9p
+Mzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg1NjQxKTogdW5k
+ZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaW9hcGljcycNDQphcmNoL2kzODYv
+a2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDU4Y2EpOiB1bmRlZmlu
+ZWQgcmVmZXJlbmNlIHRvIGBucl9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJu
+ZWwvYnVpbHQtaW4ubzogSW4gZnVuY3Rpb24gYGVuYWJsZV9JT19BUElDJzoN
+DQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDU5
+YzApOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBucl9pb2FwaWNzJw0NCmFy
+Y2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NWEyYSk6
+IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG5yX2lvYXBpY3MnDQ0KYXJjaC9p
+Mzg2L2tlcm5lbC9idWlsdC1pbi5vOiBJbiBmdW5jdGlvbiBgc2V0dXBfaW9h
+cGljX2lkc19mcm9tX21wYyc6DQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1p
+bi5vKC50ZXh0LmluaXQrMHg1YTRhKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0
+byBgcGh5c19jcHVfcHJlc2VudF9tYXAnDQ0KYXJjaC9pMzg2L2tlcm5lbC9i
+dWlsdC1pbi5vKC50ZXh0LmluaXQrMHg1YTUwKTogdW5kZWZpbmVkIHJlZmVy
+ZW5jZSB0byBgbnJfaW9hcGljcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0
+LWluLm8oLnRleHQuaW5pdCsweDVhYmYpOiB1bmRlZmluZWQgcmVmZXJlbmNl
+IHRvIGBtcF9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4u
+bygudGV4dC5pbml0KzB4NWI5MCk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8g
+YG1wX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50
+ZXh0LmluaXQrMHg1YmMwKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBf
+aW9hcGljcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQu
+aW5pdCsweDViYzcpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pcnFf
+ZW50cmllcycNDQphcmNoL2kzODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQu
+aW5pdCsweDViZDkpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pb2Fw
+aWNzJw0NCmFyY2gvaTM4Ni9rZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0
+KzB4NWJlNyk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG1wX2lycXMnDQ0K
+YXJjaC9pMzg2L2tlcm5lbC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg1YmY0
+KTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaXJxcycNDQphcmNoL2kz
+ODYva2VybmVsL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweDVjMGEpOiB1bmRl
+ZmluZWQgcmVmZXJlbmNlIHRvIGBtcF9pb2FwaWNzJw0NCmFyY2gvaTM4Ni9r
+ZXJuZWwvYnVpbHQtaW4ubygudGV4dC5pbml0KzB4NWMyNCk6IHVuZGVmaW5l
+ZCByZWZlcmVuY2UgdG8gYG1wX2lvYXBpY3MnDQ0KYXJjaC9pMzg2L2tlcm5l
+bC9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHg1Y2E4KTogdW5kZWZpbmVkIHJl
+ZmVyZW5jZSB0byBgbXBfaW9hcGljcycNDQphcmNoL2kzODYva2VybmVsL2J1
+aWx0LWluLm8oLnRleHQuaW5pdCsweDVjZTIpOiB1bmRlZmluZWQgcmVmZXJl
+bmNlIHRvIGBucl9pb2FwaWNzJw0NCmRyaXZlcnMvYnVpbHQtaW4ubzogSW4g
+ZnVuY3Rpb24gYHF1aXJrX3ZpYV9pb2FwaWMnOg0NCmRyaXZlcnMvYnVpbHQt
+aW4ubygudGV4dC5pbml0KzB4ZTAzKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0
+byBgbnJfaW9hcGljcycNDQphcmNoL2kzODYvcGNpL2J1aWx0LWluLm86IElu
+IGZ1bmN0aW9uIGBwaXJxX2VuYWJsZV9pcnEnOg0NCmFyY2gvaTM4Ni9wY2kv
+YnVpbHQtaW4ubygudGV4dCsweDE1MTApOiB1bmRlZmluZWQgcmVmZXJlbmNl
+IHRvIGBtcF9pcnFfZW50cmllcycNDQphcmNoL2kzODYvcGNpL2J1aWx0LWlu
+Lm86IEluIGZ1bmN0aW9uIGBwY2liaW9zX2lycV9pbml0JzoNDQphcmNoL2kz
+ODYvcGNpL2J1aWx0LWluLm8oLnRleHQuaW5pdCsweGZmYSk6IHVuZGVmaW5l
+ZCByZWZlcmVuY2UgdG8gYG1wX2lycV9lbnRyaWVzJw0NCmFyY2gvaTM4Ni9w
+Y2kvYnVpbHQtaW4ubzogSW4gZnVuY3Rpb24gYHBjaWJpb3NfZml4dXBfaXJx
+cyc6DQ0KYXJjaC9pMzg2L3BjaS9idWlsdC1pbi5vKC50ZXh0LmluaXQrMHgx
+MGMyKTogdW5kZWZpbmVkIHJlZmVyZW5jZSB0byBgbXBfaXJxX2VudHJpZXMn
+DQ0KbWFrZTogKioqIFt2bWxpbnV4XSBFcnJvciAxDQ0Kb2RkYmFsbDpyb290
+PiANClNjcmlwdCBkb25lIG9uIE1vbiBTZXAgMjMgMTc6MTA6MDYgMjAwMg0K
 
---- linux/kernel/sched.c.fair	2002-09-20 10:58:49.000000000 -0300
-+++ linux/kernel/sched.c	2002-09-24 13:29:01.000000000 -0300
-@@ -45,31 +45,33 @@
+--8323328-1597264651-1032888273=:15835
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="y.tmp"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0209241324331.15835@oddball.prodigy.com>
+Content-Description: config_partial
+Content-Disposition: attachment; filename="y.tmp"
 
- extern void mem_use(void);
-
-+#ifdef CONFIG_FAIRSCHED
-+/* Toggle the per-user fair scheduler on/off */
-+int fairsched = 1;
-+
-+/* Move a task to the tail of the tasklist */
-+static inline void move_last_tasklist(struct task_struct * p)
-+{
-+	/* list_del */
-+	p->next_task->prev_task = p->prev_task;
-+	p->prev_task->next_task = p->next_task;
-+
-+	/* list_add_tail */
-+	p->next_task = &init_task;
-+	p->prev_task = init_task.prev_task;
-+	init_task.prev_task->next_task = p;
-+	init_task.prev_task = p;
-+}
-+
- /*
-- * Scheduling quanta.
-- *
-- * NOTE! The unix "nice" value influences how long a process
-- * gets. The nice value ranges from -20 to +19, where a -20
-- * is a "high-priority" task, and a "+10" is a low-priority
-- * task.
-- *
-- * We want the time-slice to be around 50ms or so, so this
-- * calculation depends on the value of HZ.
-+ * Remember p->next, in case we call move_last_tasklist(p) in the
-+ * fairsched recalculation code.
-  */
--#if HZ < 200
--#define TICK_SCALE(x)	((x) >> 2)
--#elif HZ < 400
--#define TICK_SCALE(x)	((x) >> 1)
--#elif HZ < 800
--#define TICK_SCALE(x)	(x)
--#elif HZ < 1600
--#define TICK_SCALE(x)	((x) << 1)
--#else
--#define TICK_SCALE(x)	((x) << 2)
--#endif
--
--#define NICE_TO_TICKS(nice)	(TICK_SCALE(20-(nice))+1)
-+#define safe_for_each_task(p) \
-+	for (p = init_task.next_task, next = p->next_task ; p != &init_task ; \
-+			p = next, next = p->next_task)
-
-+#endif /* CONFIG_FAIRSCHED */
-
- /*
-  *	Init task must be ok at boot for the ix86 as we will check its signals
-@@ -616,6 +618,40 @@
-
- 	/* Do we need to re-calculate counters? */
- 	if (unlikely(!c)) {
-+#ifdef CONFIG_FAIRSCHED
-+ 	    if (fairsched) {
-+		struct task_struct *p, *next;
-+		struct user_struct *up;
-+		long oldcounter, newcounter;
-+
-+		spin_unlock_irq(&runqueue_lock);
-+
-+		recalculate_peruser_cputicks();
-+
-+		write_lock_irq(&tasklist_lock);
-+		safe_for_each_task(p) {
-+		    up = p->user;
-+		    if (up->cpu_ticks > 0) {
-+			oldcounter = p->counter;
-+			newcounter = (oldcounter >> 1) + NICE_TO_TICKS(p->nice);
-+			up->cpu_ticks += oldcounter;
-+			up->cpu_ticks -= newcounter;
-+			/*
-+			 * If a user is very busy, only some processes can
-+			 * get CPU time. We move those processes out of the
-+			 * way to prevent starvation of others.
-+			 */
-+			if (oldcounter != newcounter) {
-+				p->counter = newcounter;
-+				move_last_tasklist(p);
-+			}
-+		    }
-+		}
-+		write_unlock_irq(&tasklist_lock);
-+		spin_lock_irq(&runqueue_lock);
-+	    } else
-+#endif /* CONFIG_FAIRSCHED */
-+	    {
- 		struct task_struct *p;
-
- 		spin_unlock_irq(&runqueue_lock);
-@@ -624,7 +660,8 @@
- 			p->counter = (p->counter >> 1) + NICE_TO_TICKS(p->nice);
- 		read_unlock(&tasklist_lock);
- 		spin_lock_irq(&runqueue_lock);
--		goto repeat_schedule;
-+	    }
-+	    goto repeat_schedule;
- 	}
-
- 	/*
---- linux/kernel/user.c.fair	2002-09-20 11:50:56.000000000 -0300
-+++ linux/kernel/user.c	2002-09-23 16:03:38.000000000 -0300
-@@ -29,9 +29,13 @@
- struct user_struct root_user = {
- 	__count:	ATOMIC_INIT(1),
- 	processes:	ATOMIC_INIT(1),
--	files:		ATOMIC_INIT(0)
-+	files:		ATOMIC_INIT(0),
-+	l_prev:		&root_user,
-+	l_next:		&root_user,
-+	cpu_ticks:	NICE_TO_TICKS(0)
- };
-
-+
- /*
-  * These routines must be called with the uidhash spinlock held!
-  */
-@@ -44,6 +48,11 @@
- 		next->pprev = &up->next;
- 	up->pprev = hashent;
- 	*hashent = up;
-+
-+	up->l_next = root_user.l_next;
-+	up->l_prev = &root_user;
-+	root_user.l_next->l_prev = up;
-+	root_user.l_next = up;
- }
-
- static inline void uid_hash_remove(struct user_struct *up)
-@@ -54,6 +63,9 @@
- 	if (next)
- 		next->pprev = pprev;
- 	*pprev = next;
-+
-+	up->l_prev->l_next = up->l_next;
-+	up->l_next->l_prev = up->l_prev;
- }
-
- static inline struct user_struct *uid_hash_find(uid_t uid, struct user_struct **hashent)
-@@ -101,6 +113,7 @@
- 		atomic_set(&new->__count, 1);
- 		atomic_set(&new->processes, 0);
- 		atomic_set(&new->files, 0);
-+		new->cpu_ticks = NICE_TO_TICKS(0);
-
- 		/*
- 		 * Before adding this, check whether we raced
-@@ -120,6 +133,18 @@
- 	return up;
- }
-
-+/* Fair scheduler, recalculate the per user cpu time cap. */
-+void recalculate_peruser_cputicks(void)
-+{
-+	struct user_struct * up;
-+
-+	spin_lock(&uidhash_lock);
-+	root_user.cpu_ticks = root_user.cpu_ticks / 2 + NICE_TO_TICKS(0);
-+	for (up = &root_user ; (up = up->l_next) != &root_user ; ) {
-+		up->cpu_ticks = (up->cpu_ticks / 2) + NICE_TO_TICKS(0);
-+	}
-+	spin_unlock(&uidhash_lock);
-+}
-
- static int __init uid_cache_init(void)
- {
---- linux/kernel/sysctl.c.fair	2002-09-21 00:00:36.000000000 -0300
-+++ linux/kernel/sysctl.c	2002-09-21 20:40:49.000000000 -0300
-@@ -50,6 +50,7 @@
- extern int sysrq_enabled;
- extern int core_uses_pid;
- extern int cad_pid;
-+extern int fairsched;
-
- /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
- static int maxolduid = 65535;
-@@ -256,6 +257,10 @@
- 	{KERN_S390_USER_DEBUG_LOGGING,"userprocess_debug",
- 	 &sysctl_userprocess_debug,sizeof(int),0644,NULL,&proc_dointvec},
- #endif
-+#ifdef CONFIG_FAIRSCHED
-+	{KERN_FAIRSCHED, "fairsched", &fairsched, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+#endif
- 	{0}
- };
-
---- linux/include/linux/sched.h.fair	2002-09-20 10:59:03.000000000 -0300
-+++ linux/include/linux/sched.h	2002-09-21 20:57:22.000000000 -0300
-@@ -275,6 +275,10 @@
- 	/* Hash table maintenance information */
- 	struct user_struct *next, **pprev;
- 	uid_t uid;
-+
-+	/* Linked list for for_each_user */
-+	struct user_struct *l_next, *l_prev;
-+	long cpu_ticks;
- };
-
- #define get_current_user() ({ 				\
-@@ -282,6 +286,7 @@
- 	atomic_inc(&__user->__count);			\
- 	__user; })
-
-+extern void recalculate_peruser_cputicks(void);
- extern struct user_struct root_user;
- #define INIT_USER (&root_user)
-
-@@ -422,6 +427,31 @@
- };
-
- /*
-+ * Scheduling quanta.
-+ *
-+ * NOTE! The unix "nice" value influences how long a process
-+ * gets. The nice value ranges from -20 to +19, where a -20
-+ * is a "high-priority" task, and a "+10" is a low-priority
-+ * task.
-+ *
-+ * We want the time-slice to be around 50ms or so, so this
-+ * calculation depends on the value of HZ.
-+ */
-+#if HZ < 200
-+#define TICK_SCALE(x)	((x) >> 2)
-+#elif HZ < 400
-+#define TICK_SCALE(x)	((x) >> 1)
-+#elif HZ < 800
-+#define TICK_SCALE(x)	(x)
-+#elif HZ < 1600
-+#define TICK_SCALE(x)	((x) << 1)
-+#else
-+#define TICK_SCALE(x)	((x) << 2)
-+#endif
-+
-+#define NICE_TO_TICKS(nice)	(TICK_SCALE(20-(nice))+1)
-+
-+/*
-  * Per process flags
-  */
- #define PF_ALIGNWARN	0x00000001	/* Print alignment warning msgs */
---- linux/include/linux/sysctl.h.fair	2002-09-21 20:41:18.000000000 -0300
-+++ linux/include/linux/sysctl.h	2002-09-21 20:41:43.000000000 -0300
-@@ -124,6 +124,7 @@
- 	KERN_CORE_USES_PID=52,		/* int: use core or core.%pid */
- 	KERN_TAINTED=53,	/* int: various kernel tainted flags */
- 	KERN_CADPID=54,		/* int: PID of the process to notify on CAD */
-+	KERN_FAIRSCHED=55,	/* int: turn fair scheduler on/off */
- };
-
-
---- linux/arch/i386/config.in.fair	2002-09-21 20:42:06.000000000 -0300
-+++ linux/arch/i386/config.in	2002-09-21 20:42:35.000000000 -0300
-@@ -261,6 +261,9 @@
- bool 'System V IPC' CONFIG_SYSVIPC
- bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
- bool 'Sysctl support' CONFIG_SYSCTL
-+if [ "$CONFIG_EXPERIMENTAL" = "y" ] ; then
-+   bool 'Fair scheduler' CONFIG_FAIRSCHED
-+fi
- if [ "$CONFIG_PROC_FS" = "y" ]; then
-    choice 'Kernel core (/proc/kcore) format' \
- 	"ELF		CONFIG_KCORE_ELF	\
---- linux/arch/alpha/config.in.fair	2002-08-02 21:39:42.000000000 -0300
-+++ linux/arch/alpha/config.in	2002-09-21 20:43:21.000000000 -0300
-@@ -273,6 +273,9 @@
- bool 'System V IPC' CONFIG_SYSVIPC
- bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
- bool 'Sysctl support' CONFIG_SYSCTL
-+if [ "$CONFIG_EXPERIMENTAL" = "y" ] ; then
-+   bool 'Fair scheduler' CONFIG_FAIRSCHED
-+fi
- if [ "$CONFIG_PROC_FS" = "y" ]; then
-    choice 'Kernel core (/proc/kcore) format' \
- 	"ELF		CONFIG_KCORE_ELF	\
-
+Iw0KIyBBdXRvbWF0aWNhbGx5IGdlbmVyYXRlZCBtYWtlIGNvbmZpZzogZG9u
+J3QgZWRpdA0KIw0KQ09ORklHX1g4Nj15DQpDT05GSUdfSVNBPXkNCkNPTkZJ
+R19VSUQxNj15DQpDT05GSUdfR0VORVJJQ19JU0FfRE1BPXkNCg0KIw0KIyBD
+b2RlIG1hdHVyaXR5IGxldmVsIG9wdGlvbnMNCiMNCkNPTkZJR19FWFBFUklN
+RU5UQUw9eQ0KDQojDQojIEdlbmVyYWwgc2V0dXANCiMNCkNPTkZJR19ORVQ9
+eQ0KQ09ORklHX1NZU1ZJUEM9eQ0KQ09ORklHX0JTRF9QUk9DRVNTX0FDQ1Q9
+eQ0KQ09ORklHX1NZU0NUTD15DQoNCiMNCiMgTG9hZGFibGUgbW9kdWxlIHN1
+cHBvcnQNCiMNCkNPTkZJR19NT0RVTEVTPXkNCkNPTkZJR19NT0RWRVJTSU9O
+Uz15DQpDT05GSUdfS01PRD15DQoNCiMNCiMgUHJvY2Vzc29yIHR5cGUgYW5k
+IGZlYXR1cmVzDQojDQpDT05GSUdfTTY4Nj15DQpDT05GSUdfWDg2X1dQX1dP
+UktTX09LPXkNCkNPTkZJR19YODZfSU5WTFBHPXkNCkNPTkZJR19YODZfQ01Q
+WENIRz15DQpDT05GSUdfWDg2X1hBREQ9eQ0KQ09ORklHX1g4Nl9CU1dBUD15
+DQpDT05GSUdfWDg2X1BPUEFEX09LPXkNCkNPTkZJR19SV1NFTV9YQ0hHQURE
+X0FMR09SSVRITT15DQpDT05GSUdfWDg2X0wxX0NBQ0hFX1NISUZUPTUNCkNP
+TkZJR19YODZfVFNDPXkNCkNPTkZJR19YODZfR09PRF9BUElDPXkNCkNPTkZJ
+R19YODZfVVNFX1BQUk9fQ0hFQ0tTVU09eQ0KQ09ORklHX1g4Nl9QUFJPX0ZF
+TkNFPXkNCkNPTkZJR19QUkVFTVBUPXkNCkNPTkZJR19YODZfVVBfQVBJQz15
+DQpDT05GSUdfWDg2X1VQX0lPQVBJQz15DQpDT05GSUdfWDg2X0xPQ0FMX0FQ
+SUM9eQ0KQ09ORklHX1g4Nl9JT19BUElDPXkNCkNPTkZJR19YODZfTUNFPXkN
+CkNPTkZJR19YODZfTVNSPXkNCkNPTkZJR19YODZfQ1BVSUQ9eQ0KQ09ORklH
+X05PSElHSE1FTT15DQpDT05GSUdfTVRSUj15DQpDT05GSUdfSEFWRV9ERUNf
+TE9DSz15DQoNCiMNCiMgUG93ZXIgbWFuYWdlbWVudCBvcHRpb25zIChBQ1BJ
+LCBBUE0pDQojDQoNCiMNCiMgQUNQSSBTdXBwb3J0DQojDQoNCiMNCiMgQnVz
+IG9wdGlvbnMgKFBDSSwgUENNQ0lBLCBFSVNBLCBNQ0EsIElTQSkNCiMNCkNP
+TkZJR19QQ0k9eQ0KQ09ORklHX1BDSV9HT0FOWT15DQpDT05GSUdfUENJX0JJ
+T1M9eQ0KQ09ORklHX1BDSV9ESVJFQ1Q9eQ0KQ09ORklHX1BDSV9OQU1FUz15
+DQoNCiMNCiMgRXhlY3V0YWJsZSBmaWxlIGZvcm1hdHMNCiMNCkNPTkZJR19L
+Q09SRV9FTEY9eQ0KQ09ORklHX0JJTkZNVF9BT1VUPW0NCkNPTkZJR19CSU5G
+TVRfRUxGPXkNCkNPTkZJR19CSU5GTVRfTUlTQz1tDQoNCiMNCiMgTWVtb3J5
+IFRlY2hub2xvZ3kgRGV2aWNlcyAoTVREKQ0KIw0KDQojDQojIFBhcmFsbGVs
+IHBvcnQgc3VwcG9ydA0KIw0KQ09ORklHX1BBUlBPUlQ9eQ0KQ09ORklHX1BB
+UlBPUlRfUEM9eQ0KQ09ORklHX1BBUlBPUlRfUENfQ01MMT15DQpDT05GSUdf
+UEFSUE9SVF9QQ19GSUZPPXkNCkNPTkZJR19QQVJQT1JUX1BDX1NVUEVSSU89
+eQ0KDQojDQojIFBsdWcgYW5kIFBsYXkgY29uZmlndXJhdGlvbg0KIw0KQ09O
+RklHX1BOUD15DQpDT05GSUdfSVNBUE5QPXkNCkNPTkZJR19QTlBCSU9TPXkN
+Cg0KIw0KIyBCbG9jayBkZXZpY2VzDQojDQpDT05GSUdfQkxLX0RFVl9GRD15
+DQpDT05GSUdfQkxLX0RFVl9MT09QPXkNCkNPTkZJR19CTEtfREVWX1JBTT15
+DQpDT05GSUdfQkxLX0RFVl9SQU1fU0laRT00MDk2DQpDT05GSUdfQkxLX0RF
+Vl9JTklUUkQ9eQ0KDQojDQojIEFUQS9BVEFQSS9NRk0vUkxMIGRldmljZSBz
+dXBwb3J0DQojDQpDT05GSUdfSURFPXkNCg0KIw0KIyBJREUsIEFUQSBhbmQg
+QVRBUEkgQmxvY2sgZGV2aWNlcw0KIw0KQ09ORklHX0JMS19ERVZfSURFPXkN
+Cg0KIw0KIyBQbGVhc2Ugc2VlIERvY3VtZW50YXRpb24vaWRlLnR4dCBmb3Ig
+aGVscC9pbmZvIG9uIElERSBkcml2ZXMNCiMNCkNPTkZJR19CTEtfREVWX0lE
+RURJU0s9eQ0KQ09ORklHX0lERURJU0tfTVVMVElfTU9ERT15DQpDT05GSUdf
+QkxLX0RFVl9JREVDRD15DQpDT05GSUdfQkxLX0RFVl9JREVTQ1NJPW0NCg0K
+Iw0KIyBJREUgY2hpcHNldCBzdXBwb3J0L2J1Z2ZpeGVzDQojDQpDT05GSUdf
+QkxLX0RFVl9DTUQ2NDA9eQ0KQ09ORklHX0JMS19ERVZfSURFUENJPXkNCkNP
+TkZJR19CTEtfREVWX0dFTkVSSUM9eQ0KQ09ORklHX0lERVBDSV9TSEFSRV9J
+UlE9eQ0KQ09ORklHX0JMS19ERVZfSURFRE1BX1BDST15DQpDT05GSUdfSURF
+RE1BX1BDSV9BVVRPPXkNCkNPTkZJR19CTEtfREVWX0lERURNQT15DQpDT05G
+SUdfQkxLX0RFVl9BRE1BPXkNCkNPTkZJR19CTEtfREVWX1BJSVg9eQ0KQ09O
+RklHX0JMS19ERVZfUloxMDAwPXkNCkNPTkZJR19JREVETUFfQVVUTz15DQpD
+T05GSUdfQkxLX0RFVl9JREVfTU9ERVM9eQ0KDQojDQojIFNDU0kgZGV2aWNl
+IHN1cHBvcnQNCiMNCkNPTkZJR19TQ1NJPW0NCg0KIw0KIyBTQ1NJIHN1cHBv
+cnQgdHlwZSAoZGlzaywgdGFwZSwgQ0QtUk9NKQ0KIw0KQ09ORklHX0JMS19E
+RVZfU0Q9bQ0KQ09ORklHX1NEX0VYVFJBX0RFVlM9NDANCkNPTkZJR19DSFJf
+REVWX1NUPW0NCkNPTkZJR19CTEtfREVWX1NSPW0NCkNPTkZJR19CTEtfREVW
+X1NSX1ZFTkRPUj15DQpDT05GSUdfU1JfRVhUUkFfREVWUz0yDQpDT05GSUdf
+Q0hSX0RFVl9TRz1tDQoNCiMNCiMgU29tZSBTQ1NJIGRldmljZXMgKGUuZy4g
+Q0QganVrZWJveCkgc3VwcG9ydCBtdWx0aXBsZSBMVU5zDQojDQpDT05GSUdf
+U0NTSV9NVUxUSV9MVU49eQ0KQ09ORklHX1NDU0lfUkVQT1JUX0xVTlM9eQ0K
+Q09ORklHX1NDU0lfQ09OU1RBTlRTPXkNCg0KIw0KIyBTQ1NJIGxvdy1sZXZl
+bCBkcml2ZXJzDQojDQpDT05GSUdfU0NTSV9BSEExNTJYPW0NCkNPTkZJR19T
+Q1NJX0FIQTE1NDI9bQ0KQ09ORklHX1NDU0lfQUlDN1hYWD1tDQpDT05GSUdf
+QUlDN1hYWF9DTURTX1BFUl9ERVZJQ0U9MjUzDQpDT05GSUdfQUlDN1hYWF9S
+RVNFVF9ERUxBWV9NUz0xNTAwMA0KQ09ORklHX1NDU0lfTkNSNTNDN3h4PW0N
+CkNPTkZJR19TQ1NJX05DUjUzQzd4eF9zeW5jPXkNCkNPTkZJR19TQ1NJX05D
+UjUzQzd4eF9GQVNUPXkNCkNPTkZJR19TQ1NJX05DUjUzQzd4eF9ESVNDT05O
+RUNUPXkNCkNPTkZJR19TQ1NJX1NZTTUzQzhYWF8yPW0NCkNPTkZJR19TQ1NJ
+X1NZTTUzQzhYWF9ETUFfQUREUkVTU0lOR19NT0RFPTENCkNPTkZJR19TQ1NJ
+X1NZTTUzQzhYWF9ERUZBVUxUX1RBR1M9MTYNCkNPTkZJR19TQ1NJX1NZTTUz
+QzhYWF9NQVhfVEFHUz02NA0KQ09ORklHX1NDU0lfTkNSNTNDOFhYPW0NCkNP
+TkZJR19TQ1NJX1NZTTUzQzhYWD1tDQpDT05GSUdfU0NTSV9OQ1I1M0M4WFhf
+REVGQVVMVF9UQUdTPTQNCkNPTkZJR19TQ1NJX05DUjUzQzhYWF9NQVhfVEFH
+Uz0zMg0KQ09ORklHX1NDU0lfTkNSNTNDOFhYX1NZTkM9MjANCg0KIw0KIyBP
+bGQgbm9uLVNDU0kvQVRBUEkgQ0QtUk9NIGRyaXZlcw0KIw0KDQojDQojIE11
+bHRpLWRldmljZSBzdXBwb3J0IChSQUlEIGFuZCBMVk0pDQojDQoNCiMNCiMg
+RnVzaW9uIE1QVCBkZXZpY2Ugc3VwcG9ydA0KIw0KDQojDQojIElFRUUgMTM5
+NCAoRmlyZVdpcmUpIHN1cHBvcnQgKEVYUEVSSU1FTlRBTCkNCiMNCg0KIw0K
+IyBJMk8gZGV2aWNlIHN1cHBvcnQNCiMNCg0KIw0KIyBOZXR3b3JraW5nIG9w
+dGlvbnMNCiMNCkNPTkZJR19QQUNLRVQ9eQ0KQ09ORklHX05FVEZJTFRFUj15
+DQpDT05GSUdfVU5JWD15DQpDT05GSUdfSU5FVD15DQpDT05GSUdfSVBfTVVM
+VElDQVNUPXkNCkNPTkZJR19JUF9BRFZBTkNFRF9ST1VURVI9eQ0KQ09ORklH
+X0lQX01VTFRJUExFX1RBQkxFUz15DQpDT05GSUdfSVBfUk9VVEVfTkFUPXkN
+CkNPTkZJR19JUF9ST1VURV9NVUxUSVBBVEg9eQ0KQ09ORklHX0lQX1JPVVRF
+X1RPUz15DQpDT05GSUdfSVBfUk9VVEVfVkVSQk9TRT15DQpDT05GSUdfSVBf
+Uk9VVEVfTEFSR0VfVEFCTEVTPXkNCkNPTkZJR19JUF9QTlA9eQ0KQ09ORklH
+X0lQX1BOUF9ESENQPXkNCkNPTkZJR19JUF9QTlBfQk9PVFA9eQ0KQ09ORklH
+X0lQX1BOUF9SQVJQPXkNCkNPTkZJR19ORVRfSVBJUD1tDQpDT05GSUdfSU5F
+VF9FQ049eQ0KQ09ORklHX1NZTl9DT09LSUVTPXkNCg0KIw0KIyAgIElQOiBO
+ZXRmaWx0ZXIgQ29uZmlndXJhdGlvbg0KIw0KQ09ORklHX0lQX05GX0NPTk5U
+UkFDSz1tDQpDT05GSUdfSVBfTkZfRlRQPW0NCkNPTkZJR19JUF9ORl9JUkM9
+bQ0KQ09ORklHX0lQX05GX1FVRVVFPW0NCkNPTkZJR19JUF9ORl9JUFRBQkxF
+Uz1tDQpDT05GSUdfSVBfTkZfTUFUQ0hfTElNSVQ9bQ0KQ09ORklHX0lQX05G
+X01BVENIX01BQz1tDQpDT05GSUdfSVBfTkZfTUFUQ0hfUEtUVFlQRT1tDQpD
+T05GSUdfSVBfTkZfTUFUQ0hfTUFSSz1tDQpDT05GSUdfSVBfTkZfTUFUQ0hf
+TVVMVElQT1JUPW0NCkNPTkZJR19JUF9ORl9NQVRDSF9UT1M9bQ0KQ09ORklH
+X0lQX05GX01BVENIX0VDTj1tDQpDT05GSUdfSVBfTkZfTUFUQ0hfRFNDUD1t
+DQpDT05GSUdfSVBfTkZfTUFUQ0hfQUhfRVNQPW0NCkNPTkZJR19JUF9ORl9N
+QVRDSF9MRU5HVEg9bQ0KQ09ORklHX0lQX05GX01BVENIX1RUTD1tDQpDT05G
+SUdfSVBfTkZfTUFUQ0hfVENQTVNTPW0NCkNPTkZJR19JUF9ORl9NQVRDSF9I
+RUxQRVI9bQ0KQ09ORklHX0lQX05GX01BVENIX1NUQVRFPW0NCkNPTkZJR19J
+UF9ORl9NQVRDSF9DT05OVFJBQ0s9bQ0KQ09ORklHX0lQX05GX01BVENIX1VO
+Q0xFQU49bQ0KQ09ORklHX0lQX05GX01BVENIX09XTkVSPW0NCkNPTkZJR19J
+UF9ORl9GSUxURVI9bQ0KQ09ORklHX0lQX05GX1RBUkdFVF9SRUpFQ1Q9bQ0K
+Q09ORklHX0lQX05GX1RBUkdFVF9NSVJST1I9bQ0KQ09ORklHX0lQX05GX05B
+VD1tDQpDT05GSUdfSVBfTkZfTkFUX05FRURFRD15DQpDT05GSUdfSVBfTkZf
+VEFSR0VUX01BU1FVRVJBREU9bQ0KQ09ORklHX0lQX05GX1RBUkdFVF9SRURJ
+UkVDVD1tDQpDT05GSUdfSVBfTkZfTkFUX0xPQ0FMPXkNCkNPTkZJR19JUF9O
+Rl9OQVRfU05NUF9CQVNJQz1tDQpDT05GSUdfSVBfTkZfTkFUX0lSQz1tDQpD
+T05GSUdfSVBfTkZfTkFUX0ZUUD1tDQpDT05GSUdfSVBfTkZfTUFOR0xFPW0N
+CkNPTkZJR19JUF9ORl9UQVJHRVRfVE9TPW0NCkNPTkZJR19JUF9ORl9UQVJH
+RVRfRUNOPW0NCkNPTkZJR19JUF9ORl9UQVJHRVRfRFNDUD1tDQpDT05GSUdf
+SVBfTkZfVEFSR0VUX01BUks9bQ0KQ09ORklHX0lQX05GX1RBUkdFVF9MT0c9
+bQ0KQ09ORklHX0lQX05GX1RBUkdFVF9UQ1BNU1M9bQ0KDQojDQojICAgIFND
+VFAgQ29uZmlndXJhdGlvbiAoRVhQRVJJTUVOVEFMKQ0KIw0KQ09ORklHX0lQ
+VjZfU0NUUF9fPXkNCg0KIw0KIyBRb1MgYW5kL29yIGZhaXIgcXVldWVpbmcN
+CiMNCg0KIw0KIyBOZXR3b3JrIGRldmljZSBzdXBwb3J0DQojDQpDT05GSUdf
+TkVUREVWSUNFUz15DQoNCiMNCiMgQVJDbmV0IGRldmljZXMNCiMNCkNPTkZJ
+R19EVU1NWT1tDQpDT05GSUdfQk9ORElORz1tDQpDT05GSUdfVFVOPW0NCg0K
+Iw0KIyBFdGhlcm5ldCAoMTAgb3IgMTAwTWJpdCkNCiMNCkNPTkZJR19ORVRf
+RVRIRVJORVQ9eQ0KQ09ORklHX05FVF9QQ0k9eQ0KQ09ORklHX0UxMDA9eQ0K
+DQojDQojIEV0aGVybmV0ICgxMDAwIE1iaXQpDQojDQoNCiMNCiMgV2lyZWxl
+c3MgTEFOIChub24taGFtcmFkaW8pDQojDQoNCiMNCiMgVG9rZW4gUmluZyBk
+ZXZpY2VzDQojDQoNCiMNCiMgV2FuIGludGVyZmFjZXMNCiMNCg0KIw0KIyBU
+dWxpcCBmYW1pbHkgbmV0d29yayBkZXZpY2Ugc3VwcG9ydA0KIw0KDQojDQoj
+IEFtYXRldXIgUmFkaW8gc3VwcG9ydA0KIw0KDQojDQojIElyREEgKGluZnJh
+cmVkKSBzdXBwb3J0DQojDQoNCiMNCiMgSVNETiBzdWJzeXN0ZW0NCiMNCg0K
+Iw0KIyBUZWxlcGhvbnkgU3VwcG9ydA0KIw0KDQojDQojIElucHV0IGRldmlj
+ZSBzdXBwb3J0DQojDQpDT05GSUdfSU5QVVQ9eQ0KDQojDQojIFVzZXJsYW5k
+IGludGVyZmFjZXMNCiMNCkNPTkZJR19JTlBVVF9NT1VTRURFVj15DQpDT05G
+SUdfSU5QVVRfTU9VU0VERVZfUFNBVVg9eQ0KQ09ORklHX0lOUFVUX01PVVNF
+REVWX1NDUkVFTl9YPTEwMjQNCkNPTkZJR19JTlBVVF9NT1VTRURFVl9TQ1JF
+RU5fWT03NjgNCg0KIw0KIyBJbnB1dCBJL08gZHJpdmVycw0KIw0KQ09ORklH
+X1NPVU5EX0dBTUVQT1JUPXkNCkNPTkZJR19TRVJJTz15DQpDT05GSUdfU0VS
+SU9fSTgwNDI9eQ0KDQojDQojIElucHV0IERldmljZSBEcml2ZXJzDQojDQpD
+T05GSUdfSU5QVVRfS0VZQk9BUkQ9eQ0KQ09ORklHX0tFWUJPQVJEX0FUS0JE
+PXkNCkNPTkZJR19JTlBVVF9NT1VTRT15DQpDT05GSUdfTU9VU0VfUFMyPXkN
+Cg0KIw0KIyBDaGFyYWN0ZXIgZGV2aWNlcw0KIw0KQ09ORklHX1ZUPXkNCkNP
+TkZJR19WVF9DT05TT0xFPXkNCkNPTkZJR19IV19DT05TT0xFPXkNCg0KIw0K
+IyBTZXJpYWwgZHJpdmVycw0KIw0KQ09ORklHX1NFUklBTF84MjUwPXkNCg0K
+Iw0KIyBOb24tODI1MCBzZXJpYWwgcG9ydCBzdXBwb3J0DQojDQpDT05GSUdf
+U0VSSUFMX0NPUkU9eQ0KQ09ORklHX1VOSVg5OF9QVFlTPXkNCkNPTkZJR19V
+TklYOThfUFRZX0NPVU5UPTI1Ng0KQ09ORklHX1BSSU5URVI9eQ0KDQojDQoj
+IEkyQyBzdXBwb3J0DQojDQpDT05GSUdfSTJDPW0NCkNPTkZJR19JMkNfQ0hB
+UkRFVj1tDQpDT05GSUdfSTJDX1BST0M9bQ0KDQojDQojIE1pY2UNCiMNCg0K
+Iw0KIyBXYXRjaGRvZyBDYXJkcw0KIw0KQ09ORklHX0lOVEVMX1JORz15DQpD
+T05GSUdfUlRDPXkNCg0KIw0KIyBGdGFwZSwgdGhlIGZsb3BweSB0YXBlIGRl
+dmljZSBkcml2ZXINCiMNCkNPTkZJR19BR1A9eQ0KQ09ORklHX0FHUF9JTlRF
+TD15DQpDT05GSUdfQUdQX0k4MTA9eQ0KQ09ORklHX0RSTT15DQpDT05GSUdf
+RFJNX1JBREVPTj15DQoNCiMNCiMgTXVsdGltZWRpYSBkZXZpY2VzDQojDQoN
+CiMNCiMgRmlsZSBzeXN0ZW1zDQojDQpDT05GSUdfQVVUT0ZTNF9GUz15DQpD
+T05GSUdfVE1QRlM9eQ0KQ09ORklHX1JBTUZTPXkNCkNPTkZJR19JU085NjYw
+X0ZTPXkNCkNPTkZJR19QUk9DX0ZTPXkNCkNPTkZJR19ERVZQVFNfRlM9eQ0K
+Q09ORklHX0VYVDJfRlM9eQ0KDQojDQojIE5ldHdvcmsgRmlsZSBTeXN0ZW1z
+DQojDQpDT05GSUdfTkZTX0ZTPXkNCkNPTkZJR19ORlNEPXkNCkNPTkZJR19T
+VU5SUEM9eQ0KQ09ORklHX0xPQ0tEPXkNCkNPTkZJR19FWFBPUlRGUz15DQoN
+CiMNCiMgUGFydGl0aW9uIFR5cGVzDQojDQpDT05GSUdfTVNET1NfUEFSVElU
+SU9OPXkNCg0KIw0KIyBDb25zb2xlIGRyaXZlcnMNCiMNCkNPTkZJR19WR0Ff
+Q09OU09MRT15DQoNCiMNCiMgRnJhbWUtYnVmZmVyIHN1cHBvcnQNCiMNCg0K
+Iw0KIyBTb3VuZA0KIw0KQ09ORklHX1NPVU5EPXkNCg0KIw0KIyBPcGVuIFNv
+dW5kIFN5c3RlbQ0KIw0KDQojDQojIEFkdmFuY2VkIExpbnV4IFNvdW5kIEFy
+Y2hpdGVjdHVyZQ0KIw0KQ09ORklHX1NORD15DQpDT05GSUdfU05EX1NFUVVF
+TkNFUj15DQpDT05GSUdfU05EX09TU0VNVUw9eQ0KQ09ORklHX1NORF9NSVhF
+Ul9PU1M9eQ0KQ09ORklHX1NORF9QQ01fT1NTPXkNCkNPTkZJR19TTkRfU0VR
+VUVOQ0VSX09TUz15DQoNCiMNCiMgR2VuZXJpYyBkZXZpY2VzDQojDQoNCiMN
+CiMgSVNBIGRldmljZXMNCiMNCg0KIw0KIyBQQ0kgZGV2aWNlcw0KIw0KQ09O
+RklHX1NORF9FTlMxMzcxPXkNCg0KIw0KIyBVU0Igc3VwcG9ydA0KIw0KQ09O
+RklHX1VTQj15DQoNCiMNCiMgTWlzY2VsbGFuZW91cyBVU0Igb3B0aW9ucw0K
+Iw0KDQojDQojIFVTQiBIb3N0IENvbnRyb2xsZXIgRHJpdmVycw0KIw0KDQoj
+DQojIFVTQiBEZXZpY2UgQ2xhc3MgZHJpdmVycw0KIw0KQ09ORklHX1VTQl9T
+VE9SQUdFPW0NCg0KIw0KIyBVU0IgSHVtYW4gSW50ZXJmYWNlIERldmljZXMg
+KEhJRCkNCiMNCg0KIw0KIyBVU0IgSW1hZ2luZyBkZXZpY2VzDQojDQoNCiMN
+CiMgVVNCIE11bHRpbWVkaWEgZGV2aWNlcw0KIw0KDQojDQojICAgVmlkZW80
+TGludXggc3VwcG9ydCBpcyBuZWVkZWQgZm9yIFVTQiBNdWx0aW1lZGlhIGRl
+dmljZSBzdXBwb3J0DQojDQoNCiMNCiMgVVNCIE5ldHdvcmsgYWRhcHRvcnMN
+CiMNCg0KIw0KIyBVU0IgcG9ydCBkcml2ZXJzDQojDQoNCiMNCiMgVVNCIFNl
+cmlhbCBDb252ZXJ0ZXIgc3VwcG9ydA0KIw0KDQojDQojIFVTQiBNaXNjZWxs
+YW5lb3VzIGRyaXZlcnMNCiMNCg0KIw0KIyBCbHVldG9vdGggc3VwcG9ydA0K
+Iw0KDQojDQojIEtlcm5lbCBoYWNraW5nDQojDQpDT05GSUdfREVCVUdfS0VS
+TkVMPXkNCkNPTkZJR19NQUdJQ19TWVNSUT15DQpDT05GSUdfWDg2X0VYVFJB
+X0lSUVM9eQ0KQ09ORklHX1g4Nl9GSU5EX1NNUF9DT05GSUc9eQ0KDQojDQoj
+IFNlY3VyaXR5IG9wdGlvbnMNCiMNCkNPTkZJR19TRUNVUklUWV9DQVBBQklM
+SVRJRVM9eQ0KDQojDQojIExpYnJhcnkgcm91dGluZXMNCiMNCkNPTkZJR19Y
+ODZfQklPU19SRUJPT1Q9eQ0K
+--8323328-1597264651-1032888273=:15835--

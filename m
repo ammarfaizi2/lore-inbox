@@ -1,91 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310330AbSCGNxh>; Thu, 7 Mar 2002 08:53:37 -0500
+	id <S310333AbSCGNy6>; Thu, 7 Mar 2002 08:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310329AbSCGNx2>; Thu, 7 Mar 2002 08:53:28 -0500
-Received: from hanoi.cronyx.ru ([144.206.181.53]:14610 "EHLO hanoi.cronyx.ru")
-	by vger.kernel.org with ESMTP id <S310328AbSCGNxP>;
-	Thu, 7 Mar 2002 08:53:15 -0500
-Message-ID: <3C8770D5.3090209@cronyx.ru>
-Date: Thu, 07 Mar 2002 16:53:25 +0300
-From: Roman Kurakin <rik@cronyx.ru>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Ed Vance <EdV@macrolink.com>, linux-kernel@vger.kernel.org
-Subject: Re: Serial.c BUG 2.4.x-2.5x
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A76CB@EXCHANGE> <20020306203936.C26344@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S310332AbSCGNyl>; Thu, 7 Mar 2002 08:54:41 -0500
+Received: from employees.nextframe.net ([212.169.100.200]:47086 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S310329AbSCGNyc>; Thu, 7 Mar 2002 08:54:32 -0500
+Date: Thu, 7 Mar 2002 14:54:34 +0100
+From: Morten Helgesen <admin@nextframe.net>
+To: "Steven A. DuChene" <linux-clusters@mindspring.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCHED_YIELD undeclared with Trond's NFS patch w/2.4.19-pre2-ac2
+Message-ID: <20020307145434.O142@sexything>
+Reply-To: admin@nextframe.net
+In-Reply-To: <20020307084514.C16224@lapsony.mydomain.here>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020307084514.C16224@lapsony.mydomain.here>
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Unless my memory is corrupt, you can just replace the 'let`s set the SCHED_YIELD bit' with 'yield()' ...
 
-Russell King wrote:
+== Morten
 
->On Fri, Mar 01, 2002 at 11:07:03AM -0800, Ed Vance wrote:
->
->>On Fri, Mar 01, 2002 at 4:19 AM, Roman Kurakin wrote:
->>
->>>    Who is responsible person for applying [serial driver] patches 
->>>    to main tree?
->>>
->
->This particular bug has already been fixed in the rewrite, as I originally
->said back on 14 November 2001.
->
-I remember this, I thought some one responsible for updating current 
-version of the main tree.
-Now I see the reason this didn't  get into recent stable versions.
+On Thu, Mar 07, 2002 at 08:45:14AM -0500, Steven A. DuChene wrote:
+> I am attempting to apply Trond's linux-2.4.18-NFS_ALL.dif patch to 2.4.19-pre2-ac2
+> I get the patch to apply once I massage fs/nfs/inode.c a little bit but when I try
+> to compile it I get:
+> 
+> svcsock.c: In function `svc_recv':
+> svcsock.c:987: `SCHED_YIELD' undeclared (first use in this function)
+> svcsock.c:987: (Each undeclared identifier is reported only once
+> svcsock.c:987: for each function it appears in.)
+> make[3]: *** [svcsock.o] Error 1
+> make[3]: Leaving directory `/usr/src/linux-2.4.X/net/sunrpc'
+> make[2]: *** [first_rule] Error 2
+> 
+> Now I know there were some changes because of the O(1) stuff in the ac2 patch but
+> what is the process for eliminating references to SCHED_YIELD?
+> -- 
+> Steven A. DuChene      linux-clusters@mindspring.com
+>                       sduchene@mindspring.com
+> 
+>         http://www.mindspring.com/~sduchene/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
->The patch does fine for the most part, but I have two worries:
->
->1. the possibilities of pushing through changes in the IO or memory space
->   by changing the other space at the same time. (ie, port = 1, iomem =
->   0xfe007c00 and you already have a line at port = 0, iomem = 0xfe007c00).
->   I delt with this properly using the resource management subsystem.
->
-I think such code could solve this problem ...
+-- 
 
-- 			    (rs_table[i].port == new_port) &&
-+ 			    ((rs_table[i].port && rs_table[i].port == new_port) ||
-+			    ((rs_table[i].iomem_base && rs_table[i].iomem_base == new_mem)) &&
- 
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
 
->2. there seems to be a lack of security considerations for changing the
->   iomem address.  (ie, changing the iomem address without CAP_SYS_ADMIN.
->   I added this as an extra check for change_port)
->
-And this one could be fixed with something like this (this is no a 
-patch, just an idea)
-
-        change_port = (new_port != ((int) state->port)) ||
-                (new_serial.hub6 != state->hub6);
-+        change_mem = (new_mem != state->iomem_base)
-
-        if (!capable(CAP_SYS_ADMIN)) {
--                if (change_irq || change_port ||
-+                if (change_irq || change_port || change_mem
-
-As I wrote I didn't check serial.c for all possible problems, I just 
-find one bug and suggested
-the way it could be solved.
-
-Best regards,
-                        Roman Kurakin
-
->>I then asked Russell to set the rules for this co-ordination and no response
->>has been forthcoming. Perhaps he missed my question?
->>
->
->I have a fair bit of email backed up at the moment, but I have been in
->contact with Ted T'so recently.  I won't say much more at the moment,
->but should have something in a month or two.  Until then I'd rather not
->say too much publically.
->
-
-
-
-
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

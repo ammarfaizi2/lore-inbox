@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261301AbSJHR4v>; Tue, 8 Oct 2002 13:56:51 -0400
+	id <S261327AbSJHRzG>; Tue, 8 Oct 2002 13:55:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261311AbSJHR4u>; Tue, 8 Oct 2002 13:56:50 -0400
-Received: from maile.telia.com ([194.22.190.16]:31433 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S261301AbSJHR4K>;
-	Tue, 8 Oct 2002 13:56:10 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Date: Tue, 8 Oct 2002 20:01:34 +0200 (CEST)
-From: Peter Osterlund <petero2@telia.com>
-X-X-Sender: petero@p4.localdomain
-To: Greg KH <greg@kroah.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.5.40 panic in uhci-hcd
-In-Reply-To: <20021008071351.GQ1780@kroah.com>
-Message-ID: <Pine.LNX.4.44.0210081959400.6558-100000@p4.localdomain>
+	id <S261336AbSJHRzG>; Tue, 8 Oct 2002 13:55:06 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:23823 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S261327AbSJHRzF>; Tue, 8 Oct 2002 13:55:05 -0400
+Message-Id: <200210081754.g98Hsnp25324@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       "list, linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: scsi crash
+Date: Tue, 8 Oct 2002 20:48:21 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <05256C4C.001A6B46.00@dns.searchsoftware.com> <3DA2B6B1.DB194DD6@eyal.emu.id.au>
+In-Reply-To: <3DA2B6B1.DB194DD6@eyal.emu.id.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, Greg KH wrote:
+On 8 October 2002 08:42, Eyal Lebedinsky wrote:
+> I am getting a full system lockup trying to access a SCSI tape drive.
+>
+> I got it at first using an ASUS SC200 (810 based) on one machine, and
+> later on a Compaq Proliant 6000, which uses an 875 controller.
+>
+> The newer driver at sym53c8xx_2 actually dies (full system lockup)
+> while being loaded without any message shown.
+>
+> I assume that the tape drive has a significant problem, and consider
+> the "unexpected disconnect" to be an indication of this, however the
+> real problem is that after the driver reports this error for about a
+> minute (once every 3 seconds) the system locks up hard. It is this
+> lockup that do not expect.
 
-> On Sun, Oct 06, 2002 at 02:03:49PM +0200, Peter Osterlund wrote:
-> > Sometimes when booting 2.5.40 and my Freecom USB-IDE controller (CDRW)
-> > is connected, the kernel panics when trying to initialize the usb
-> > subsystem. It happens right after the RH73 boot scripts print out:
-> > 
-> >         Initializing USB controller (uhci-hcd):  [  OK  ]
-> > 
-> > In 2.5.39, this happened every time I tried to boot, but in 2.5.40 it
-> > seems to happen about 20% of the time.
-> 
-> Hey, we're getting better :)
-> 
-> How does 2.5.41 work for you?
-
-It seems to be fixed. Thanks.
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
-
+Kernel version? config?
+--
+vda

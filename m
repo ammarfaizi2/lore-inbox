@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132075AbQLaBVo>; Sat, 30 Dec 2000 20:21:44 -0500
+	id <S131023AbQLaBdc>; Sat, 30 Dec 2000 20:33:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132087AbQLaBVf>; Sat, 30 Dec 2000 20:21:35 -0500
-Received: from lima.epix.net ([199.224.64.56]:11675 "EHLO lima.epix.net")
-	by vger.kernel.org with ESMTP id <S132075AbQLaBV0>;
-	Sat, 30 Dec 2000 20:21:26 -0500
-Message-ID: <3A4E3D6D.4D64E13@epix.net>
-Date: Sat, 30 Dec 2000 19:54:21 +0000
-From: Tony Spinillo <tspin@epix.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: TEST13-PRE7 - Nvidia Kernel Module Compile Problem
+	id <S130643AbQLaBdM>; Sat, 30 Dec 2000 20:33:12 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:61525 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129348AbQLaBdF>; Sat, 30 Dec 2000 20:33:05 -0500
+Date: Sun, 31 Dec 2000 02:02:34 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Eric W. Biederman" <ebiederman@uswest.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Generic deferred file writing
+Message-ID: <20001231020234.A15179@athlon.random>
+In-Reply-To: <Pine.LNX.4.10.10012301214210.1017-100000@penguin.transmeta.com> <m1u27lpo1g.fsf@frodo.biederman.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <m1u27lpo1g.fsf@frodo.biederman.org>; from ebiederman@uswest.net on Sat, Dec 30, 2000 at 03:00:43PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The nvidia kernel module (from www.nvidia.com) has compiled and loaded
-correctly with all test13-pre series up to pre6. I just tried to
-compile and load under pre7.
-I got the following:
-nv.c:860:unknown field `unmap' specified in initializer
-nv.c:860:warning: initialization from incompatible pointer type
-make:*** [nv.o] Error 1
+On Sat, Dec 30, 2000 at 03:00:43PM -0700, Eric W. Biederman wrote:
+> To get ENOSPC handling 99% correct all we need to do is decrement a counter,
+> that remembers how many disks blocks are free.  If we need a better
 
-Is this due to a problem with the recent makefile changes or a problem
-with the nvidia module?
+Yes, we need to add one field to the in-core superblock to do this accounting.
 
-Thanks!
+> estimate than just the data blocks it should not be hard to add an
+> extra callback to the filesystem.  
 
-Tony
+Yes, I was thinking at this callback too. Such a callback is nearly the only
+support we need from the filesystem to provide allocate on flush. Allocate on
+flush is a pagecache issue, not really a filesystem issue. When a filesystem
+doesn't implement such callback we can simply get_block(create) at pagecache
+creation time as usual.
 
-The output for ver_linux:
-
-Kernel modules         2.3.23
-Gnu C                  egcs-2.91.66
-Gnu Make               3.79.1
-Binutils               2.10.0.24
-Linux C Library        2.1.3
-Dynamic linker         ldd (GNU libc) 2.1.3
-Procps                 2.0.7
-Mount                  2.10o
-Net-tools              1.57
-Console-tools          0.2.3
-Sh-utils               2.0
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

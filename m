@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132326AbRCZGJk>; Mon, 26 Mar 2001 01:09:40 -0500
+	id <S132328AbRCZGNL>; Mon, 26 Mar 2001 01:13:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132327AbRCZGJ3>; Mon, 26 Mar 2001 01:09:29 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:16389 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S132326AbRCZGJP>; Mon, 26 Mar 2001 01:09:15 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
-MIME-Version: 1.0
+	id <S132329AbRCZGNC>; Mon, 26 Mar 2001 01:13:02 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:23494 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S132328AbRCZGM4>;
+	Mon, 26 Mar 2001 01:12:56 -0500
+Date: Mon, 26 Mar 2001 10:09:41 +0400
+From: Oleg Drokin <green@ixcelerator.com>
+To: Manoj Sontakke <manojs@sasken.com>
+Cc: Oleg Drokin <green@dredd.crimea.edu>, linux-kernel@vger.kernel.org,
+        davem@redhat.com, kuznet@ms2.inr.ac.ru
+Subject: Re: IP layer bug?
+Message-ID: <20010326100941.A16800@iXcelerator.com>
+In-Reply-To: <20010325005731.A5243@dredd.crimea.edu> <Pine.LNX.4.21.0103261555250.25563-100000@pcc65.sasi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15038.56527.591553.87791@wire.cadcamlab.org>
-Date: Mon, 26 Mar 2001 00:08:15 -0600 (CST)
-To: "Eric S. Raymond" <esr@snark.thyrsus.com>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML1 cleanup patch
-In-Reply-To: <200103260001.f2Q01Yt09387@snark.thyrsus.com>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0103261555250.25563-100000@pcc65.sasi.com>; from manojs@sasken.com on Mon, Mar 26, 2001 at 04:06:19PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-[esr]
-> CONFIG_8139TOO			CONFIG_RTL8139TOO
-> CONFIG_8139TOO_PIO		CONFIG_RTL8139TOO_PIO
-> CONFIG_8139TOO_TUNE_TWISTER	CONFIG_RTL8139TOO_TUNE_TWISTER
+On Mon, Mar 26, 2001 at 04:06:19PM +0530, Manoj Sontakke wrote:
+> >    2.4.x kernel. have not tried 2.2
+> >    I just found somethig, I believe is kernel bug.
+> >    I am working with usbnet.c driver, which stores some of its
+> >    internal state in sk_buff.cb area. But once such skb passed to
+> >    upper layer with netif_rx, net/ipv4/ip_input.c reuses content of cb
+> >    (line #345), 
+> ip_options_compile() when called with first argument NULL resets cb to 0.
+I have found that already.
 
-The -TOO suffix was to distinguish between this and the former 8139
-driver, as the two coexisted in 2.2 and 2.3.  As the old driver has
-been dropped from 2.4, I propose likewise dropping the -TOO.
+> This is probably because the cb is supposed to be used IP and above. The
+Sure.
 
-Oh, BTW -- an alternate approach to making the kernel tree compatible
-with CML2 would be to make CML2 compatible with the kernel tree.
-Define a character (say '%') as an optional prefix for a configuration
-symbol.  This character would only be required where the symbol would
-otherwise by misparsed, as with '[0-9].*'.
+> underlying layer(link and phy) could be anything so where from the
+> ip_options should start will depend upon the underlying layer.
+But here's the problem!
+If I won't zero cb in my driver before netif_rx() call,
+IP layer thinks that all my packets have various ip options set
+(source routing most notable)
 
-Peter
+Bye,
+    Oleg

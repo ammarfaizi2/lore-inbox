@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263957AbRFFSLD>; Wed, 6 Jun 2001 14:11:03 -0400
+	id <S263649AbRFFSVo>; Wed, 6 Jun 2001 14:21:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263950AbRFFSKn>; Wed, 6 Jun 2001 14:10:43 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:28173 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S263804AbRFFSKn>; Wed, 6 Jun 2001 14:10:43 -0400
-Date: Wed, 6 Jun 2001 20:09:33 +0200
-From: Tomas Telensky <ttel5535@artax.karlin.mff.cuni.cz>
-To: Harald Welte <laforge@gnumonks.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to know HZ from userspace?
-Message-ID: <20010606200933.B16802@artax.karlin.mff.cuni.cz>
-In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva>
+	id <S263994AbRFFSVe>; Wed, 6 Jun 2001 14:21:34 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:42591 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S263649AbRFFSVY>; Wed, 6 Jun 2001 14:21:24 -0400
+Date: Wed, 6 Jun 2001 19:20:13 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andries.Brouwer@cwi.nl
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, viro@math.psu.edu,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: mount --bind accounting
+Message-ID: <20010606192013.B3761@redhat.com>
+In-Reply-To: <UTC200106032038.WAA184171.aeb@vlet.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010530203725.H27719@corellia.laforge.distro.conectiva>; from laforge@gnumonks.org on Wed, May 30, 2001 at 08:37:25PM -0300
+In-Reply-To: <UTC200106032038.WAA184171.aeb@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Sun, Jun 03, 2001 at 10:38:29PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi!
-> 
-> Is there any way to read out the compile-time HZ value of the kernel?
+Hi,
 
-Why simply #include <asm/param.h>?
+On Sun, Jun 03, 2001 at 10:38:29PM +0200, Andries.Brouwer@cwi.nl wrote:
 
-	Tomas
+> Each bind does an alloc_vfsmnt() and hence takes some kernel memory.
+> Any user can therefore take all kernel memory, until
+> 	kmalloc(sizeof(struct vfsmount), GFP_KERNEL)
+> fails. Bad security.
 
+Until we can account properly for basic things like page tables, the
+small kmallocs for things like vfsmount and file structs will be
+negligible in comparison.
 
-> 
-> I had a brief look at /proc/* and didn't find anything.
-> 
-> The background, why it is needed:
-> 
-> There are certain settings, for example the icmp rate limiting values,
-> which can be set using sysctl. Those setting are basically derived from
-> HZ values (1*HZ, for example).
-> 
-> If you now want to set those values from a userspace program / script in
-> a portable manner, you need to be able to find out of HZ of the currently
-> running kernel.
-> 
-> -- 
-> Live long and prosper
-> - Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-> ============================================================================
-> GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
-> V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Fortunately we used to have at least skeleton patches for a framework
+in which to do this.  Whatever happened to beancounter, anyway?  Is
+somebody maintaining that at all these days?
+
+Cheers,
+ Stephen

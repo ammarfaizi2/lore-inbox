@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbREVPpY>; Tue, 22 May 2001 11:45:24 -0400
+	id <S261916AbREVPuO>; Tue, 22 May 2001 11:50:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261940AbREVPpQ>; Tue, 22 May 2001 11:45:16 -0400
-Received: from dhcp04.gb.nrao.edu ([192.33.116.206]:5636 "EHLO
-	mobilix.atnf.CSIRO.AU") by vger.kernel.org with ESMTP
-	id <S261892AbREVPpF>; Tue, 22 May 2001 11:45:05 -0400
-Date: Tue, 22 May 2001 09:06:25 -0400
-Message-Id: <200105221306.f4MD6Pi00360@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
-Cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>,
-        <linux-net@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>, <linux-hams@vger.kernel.org>,
-        <linux-ppp@vger.kernel.org>
-Subject: Re: ECN is on!
-In-Reply-To: <Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu>
-In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net>
-	<Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu>
+	id <S261966AbREVPuE>; Tue, 22 May 2001 11:50:04 -0400
+Received: from waste.org ([209.173.204.2]:31344 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S261916AbREVPtx>;
+	Tue, 22 May 2001 11:49:53 -0400
+Date: Tue, 22 May 2001 10:50:51 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Theodore Tso <tytso@valinux.com>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Andrew McNamara <andrewm@connect.com.au>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Ext2, fsync() and MTA's?
+In-Reply-To: <20010521180405.D495@think.thunk.org>
+Message-ID: <Pine.LNX.4.30.0105221045530.19818-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brent D. Norris writes:
-> > I veto, the whole point of moving to ECN was to make a statement and
-> > get people to fix their kit.
-> >
-> > We will remove these people, that's all.
-> 
-> Isn't this a problem though because the messge saying that ECN was
-> enabled was set after ECN was enabled?  Thus these people have no
-> idea what is going on and they probably won't know what to fix until
-> they do.
+On Mon, 21 May 2001, Theodore Tso wrote:
 
-Dave sent a message out a week or two ago saying he was going to do it
-soon. And back in January he said he'd be doing it in February. The
-kernel list FAQ has stated this right at the top, in big, bright red
-letters. Yesterday, after I saw Dave's announcement, I updated the FAQ
-to reflect that we're now running ECN.
+> On Mon, May 21, 2001 at 06:47:58PM +0100, Stephen C. Tweedie wrote:
+>
+> > Just set chattr +S on the spool dir.  That's what the flag is for.
+> > The biggest problem with that is that it propagates to subdirectories
+> > and files --- would a version of the flag which applied only to
+> > directories be a help here?
+>
+> That's probably the right thing to add.
 
-People have had plenty of warning. Think of it as a bonus that it
-didn't happen back in February. They've had an extra 3 months to sort
-something out.
+I'd vote for an async flag instead.
 
-I note with disgust the number of places which should know better, but
-still haven't fixed their kit. Most appalling was
-missionalcriticallinux.com. Shame!
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-Sure, Dave is being bloody-minded, but that's the only way we'll see
-people get off their fat, lazy asses and fix their broken systems.
-In fact, hopefully he's still in a dark mood, and he may take up the
-suggestion to bounce mails of the following type:
-- MIME encoded
-- HTML encoded
-- quoted printables (those stupid "=20" things are particuarly hard to
-  read).
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

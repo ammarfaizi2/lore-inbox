@@ -1,48 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266458AbUBRQrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 11:47:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266340AbUBRQrI
+	id S267362AbUBRQ5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 11:57:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267342AbUBRQ5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 11:47:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7403 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266458AbUBRQrG
+	Wed, 18 Feb 2004 11:57:25 -0500
+Received: from dirac.phys.uwm.edu ([129.89.57.19]:24456 "EHLO
+	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S267362AbUBRQzW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 11:47:06 -0500
-Date: Wed, 18 Feb 2004 16:46:59 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: module unload deadlock
-Message-ID: <20040218164659.GA31035@parcelfarce.linux.theplanet.co.uk>
-References: <20040217172646.GT4478@dualathlon.random> <20040218041527.052222C510@lists.samba.org> <20040218043555.GY8858@parcelfarce.linux.theplanet.co.uk> <20040218154040.GZ4478@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040218154040.GZ4478@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+	Wed, 18 Feb 2004 11:55:22 -0500
+Date: Wed, 18 Feb 2004 10:55:05 -0600 (CST)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: harddisk or kernel problem?
+In-Reply-To: <200402160109.05151.bzolnier@elka.pw.edu.pl>
+Message-ID: <Pine.GSO.4.21.0402181042090.8134-100000@dirac.phys.uwm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 04:40:41PM +0100, Andrea Arcangeli wrote:
-> On Wed, Feb 18, 2004 at 04:35:55AM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> It's clear this could be fixed by making sure parport won't call
-> request_module from cleanup_module, the primary reason I fixed it in the
-> module code is that I don't know if other drivers are doing this, do
-> you? What parport did was legitimate, and it was working fine in the
-> past, sure the parport code could be made slightly more complex and
-> aware about the fact it doesn't worth to try loading the lowlevel module
-> in cleanup_exit, but it wasn't obviously wrong, the cleanup/init module
-> are slow paths, it didn't matter if parport tried to load a lowlevel
-> module there.
+> On Monday 16 of February 2004 00:34, Nico Schottelius wrote:
+> > Bartlomiej Zolnierkiewicz [Fri, Feb 13, 2004 at 05:17:34PM +0100]:
+> > > [ ... ]
+> > > Check your disk with SMART tools: http://smartmontools.sf.net.
+> >
+> > Before I continue to report what I've found out:
+> >
+> > Thank you all for your good help!
+> >
+> > I'm really down as this is the second disk
+> > dyeing within two month (and the second 2.5" hd even, I begin to think
+> > notebooks don't like me :/).
+> 
+> :-(  sh*t happens
+> 
+> > I currently collect all data I get / find out to
+> >
+> > http://schotteli.us/~nico/hd-problem.02/
+> > (renamed it, as this does not look like a kernel problem and I don't
+> > want somebody believe this).
+> >
+> > Currently I don't really understand the output of smartctl and cannot
+> > say what causes the error. Perhaps someone can give me a hint on this?
+> 
+> The most important things are: READ DMA errors were logged,
+> SMART self tests (short and extended) completed with read failure.
 
-Sigh...
+FWIW, after reading this thread, I've slightly modified smartmontools so
+that when smartctl prints the error log (-l error) it ALSO prints the LBA
+at which a READ or WRITE command failed.
 
-No, it wasn't legitimate.  As the matter of fact, _nothing_ outside of
-parport/share.c has any business looking at the list of ports.  IOW,
-parport_enumerate() should be removed regardless of the request_module()
-crap.
+[Note that this is a 28-bit sector address.  If a disk is larger than 2^37
+Bytes = 137 GB, then some LBAs can't be written in 28 bits, in which case
+there won't be a summary error log entry.  If the disk is smaller than
+2^37 Bytes then the failing LBA address should always be logged.]
 
-In particular, parport_pc should keep track of the ports it had created
-instead of messing with parport_enumerate().
+This feature is in smartmontools releases AFTER 5.27, or from the
+smartmontools CVS server.
+
+In the case of Nico's disk the failed READ LBA address can be computed
+from the error log registers at
+http://schotteli.us/~nico/hd-problem.02/smartctl-a:
+
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 01 32 bb 7e e0  Error: UNC
+
+yielding:
+
+  LBA = 0x007ebb32 (bits 0-3 of DH, CH, CL and SN)
+
+which can be compared with the LBA of the first error in the self-test
+log:
+
+# 1  Extended offline    Completed: read failure       90%      1633
+0x007ebb32
+
+and with the LBA logged in SYSLOG:
+hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=8305458,
+sector=8305454
+
+Since 8305458 = 0x7EBB32 it's a pretty open and shut case.
+
+****************************************************************
+
+Executive summary: smartmontools versions > 5.27 will print this:
+
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 01 32 bb 7e e0  Error: UNC at LBA = 0x007ebb32 = 8305458
+
+rather than this:
+
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 01 32 bb 7e e0  Error: UNC
+
+Cheers,
+	Bruce
+
+
+
+

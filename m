@@ -1,58 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbUBYWyb (ORCPT <rfc822;willy@w.ods.org>);
+	id S261630AbUBYWyb (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 25 Feb 2004 17:54:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbUBYWvv
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbUBYWwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 17:51:51 -0500
-Received: from smtp.instant802.com ([66.93.138.219]:10145 "EHLO
-	mail-gateway.instant802.com") by vger.kernel.org with ESMTP
-	id S261589AbUBYWr6 convert rfc822-to-8bit (ORCPT
+	Wed, 25 Feb 2004 17:52:03 -0500
+Received: from gprs151-5.eurotel.cz ([160.218.151.5]:9860 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261594AbUBYVZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 17:47:58 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: [PATCH 2.4.26-pre1] Allow ebtables module to change protocol in netif_receive_skb
-Date: Wed, 25 Feb 2004 14:47:41 -0800
-Message-ID: <AC8C1F46CD753F4AAC8F890E35A9EB461C670B@webmail.instant802.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.4.26-pre1] Allow ebtables module to change protocol in netif_receive_skb
-Thread-Index: AcP7H8r7liQMqexhSF+8GCI1T/Fy6gA0P82A
-From: "Simon Barber" <simon@instant802.com>
-To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Cc: "Bart De Schuymer" <bdschuym@pandora.be>
+	Wed, 25 Feb 2004 16:25:44 -0500
+Date: Wed, 25 Feb 2004 22:25:16 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: George Anzinger <george@mvista.com>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Tom Rini <trini@kernel.crashing.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
+Subject: Re: [Kgdb-bugreport] Re: kgdb: rename i386-stub.c to kgdb.c
+Message-ID: <20040225212515.GE1307@elf.ucw.cz>
+References: <20040224130650.GA9012@elf.ucw.cz> <200402251303.50102.amitkale@emsyssoft.com> <20040225103703.GB6206@atrey.karlin.mff.cuni.cz> <403D10DB.8060506@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403D10DB.8060506@mvista.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently skb->protocol is read before the bridge is called, even though
-it's not used until after. Hence if an ebtables module changes the
-protocol of a frame the wrong protocol is interpreted.
+Hi!
 
-Simon Barber
+> >>>kgdb uses really confusing names for arch-dependend parts. This fixes
+> >>>it. Okay to commit?
+> >>
+> >>Why is arch/$x/kernel/$x-stub.c confusing? The name $x-stub.c is 
+> >>indicative of architecture dependent code in it. Err, well so is the path.
+> >
+> >
+> >
+> >Well, looking at i386-stub.c, how do you know it is kgdb-related?
+> >
+> >
+> >>PPC and sparc stubs in present vanilla kernel use this naming convention. 
+> >>That's why I adopted it.
+> >>
+> >>I find kernel/kgdbstub.c, arch/$x/kernel/$x-stub.c more consistent 
+> >>compared to kernel/kgdbstub.c, arch/$x/kernel/kgdb.c
+> >
+> >
+> >I actually made it kernel/kgdb.c and arch/*/kernel/kgdb.c. I believe
+> >there's no point where one could be confused....
+> 
+> gdb itself gets confused with this.  Try, for example, time.c which, on the 
+> x86, is in both arch and common code.  I use emacs with kgdb and it gets 
+> confused when I point at a location in the source and tell it to set a 
+> break point.
 
---- linux-2.4.26-pre1.orig/net/core/dev.c	2004-02-25
-04:16:33.000000000 -0800
-+++ linux-2.4.26-pre1/net/core/dev.c	2004-02-25 06:42:05.000000000
--0800
-@@ -1462,7 +1462,7 @@
- {
- 	struct packet_type *ptype, *pt_prev;
- 	int ret = NET_RX_DROP;
--	unsigned short type = skb->protocol;
-+	unsigned short type;
- 
- 	if (skb->stamp.tv_sec == 0)
- 		do_gettimeofday(&skb->stamp);
-@@ -1507,6 +1507,7 @@
- 	}
- #endif
- 
-+	type = skb->protocol;
- 	for (ptype=ptype_base[ntohs(type)&15];ptype;ptype=ptype->next) {
- 		if (ptype->type == type &&
- 		    (!ptype->dev || ptype->dev == skb->dev)) {
+That's a gdb bug, surely?
+
+My gdb seems to work okay:
+
+(gdb) b time.c:3
+Breakpoint 1 at 0xc01e8b30: file fs/ntfs/time.c, line 3.
+(gdb) b kernel/time.c:3
+Breakpoint 2 at 0xc0122540: file kernel/time.c, line 3.
+(gdb)
+
+....that seems more or less right.
+
+> Please, lets have only one of each name.
+
+You can't have that, anyway.. Filenames are already repeating.
+
+Well, I already commited it. It is possible to revert last change, and
+we'll get kernel/kgdbstub.c but arch/*/kernel/kgdb.c.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

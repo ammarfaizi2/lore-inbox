@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277797AbRJVGBV>; Mon, 22 Oct 2001 02:01:21 -0400
+	id <S277818AbRJVGLc>; Mon, 22 Oct 2001 02:11:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277818AbRJVGBL>; Mon, 22 Oct 2001 02:01:11 -0400
-Received: from pa92.nowy-targ.sdi.tpnet.pl ([217.97.37.92]:56050 "EHLO
-	nt.kegel.com.pl") by vger.kernel.org with ESMTP id <S277797AbRJVGA5>;
-	Mon, 22 Oct 2001 02:00:57 -0400
-Message-ID: <010801c15abe$ced47240$0100050a@abartoszko>
-From: "Albert Bartoszko" <albertb@nt.kegel.com.pl>
-To: "Alexander Viro" <viro@math.psu.edu>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0110190845580.22889-100000@weyl.math.psu.edu>
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
-Date: Mon, 22 Oct 2001 08:00:07 +0200
+	id <S277866AbRJVGLW>; Mon, 22 Oct 2001 02:11:22 -0400
+Received: from [213.33.71.165] ([213.33.71.165]:37383 "EHLO hofr.at")
+	by vger.kernel.org with ESMTP id <S277818AbRJVGLL>;
+	Mon, 22 Oct 2001 02:11:11 -0400
+From: Der Herr Hofrat <der.herr@hofr.at>
+Message-Id: <200110220556.f9M5ubG25129@hofr.at>
+Subject: ANNOUNCMENT 3ed Real Time Linux Workshop
+To: linux-kernel@vger.kernel.org
+Date: Mon, 22 Oct 2001 07:56:36 +0200 (CEST)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I find bug in  binfmt_misc.c from kernel 2.4.12 source. The read()
-syscal
->
-> only one?
 
-"Gutta cavat lapidem non vi, sed saepe cadendo"
+                   Third Real-Time Linux Workshop
+ 
+                           26-29.11.2001
+                  Crowne Plaza in Milan San Donato
+                           Milano, Italy
 
->
-> > return bad value, causes some application SIGSEGV.
->
-> Hardly a surprise.  Not everything that passes compiler is valid C.
-> Stuff in fs/binfmt_misc.c from Linus' tree isn't.  Pick one from -ac
-> + corresponding change in fs/proc/root.c (again, see -ac).  Variant
-> in Linus' tree is complete crap.
+As followup to the meetings of developers and users of real-time linux 
+in Vienna and Orlando, the Third Real Time Linux Workshop is held in 
+the framework of the Embedded Linux Expo & Conference and the Real-Time
+& Embedded Computing Conference, Summit Milan, organized by ACTIVE 
+Exhibitions Europe. This Summit will offer two days of tutorials, four 
+tracks of conferences over two days, interesting keynotes, exhibitions 
+and more. The contribution of the Real Time Linux Foundation to this 
+outstanding event will be:
 
-You are sarcastic.
+   - technical keynotes,
+   - kick start sessions,
+   - paper presentations,
+   - work in progress reports,
+   - real time linux tutorials,
 
-I do it. And:
-
-# uname -a
-Linux xxxx 2.4.12-ac3 #1 Sun Oct 21 13:50:52 CEST 2001 i686 unknown
-# insmod binfmt_misc
-Using /lib/modules/2.4.12-ac3/kernel/fs/binfmt_misc.o
-# echo ':Java:M::\xca\xfe\xba\xbe::/usr/local/bin/javawrapper:'
->/proc/sys/fs/binfmt_misc/register
-bash: /proc/sys/fs/binfmt_misc/register: No such file or directory
-# lsmod
-Module                  Size  Used by
-binfmt_misc             5680   1
-#rmmod binfmt_misc
-binfmt_misc: Device or resource busy                # ?????
-
-Very high C. But this don't work for me.
-
-
-
+For any further information take a look at the Real-Time Linux Foundation, 
+http://www.realtimelinuxfoundation.org/, by following Contents->Events->
+Real Time Linux Workshop 2001. For all events of the summit, organisational 
+details and registration, please go to ACTIVE Exhibitions Europe's Summit 
+Milan page, http://www.rtcgroup.com/summitmilan/invitation.html.

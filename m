@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVATDvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVATEDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbVATDvd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 22:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVATDvd
+	id S262038AbVATEDL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 23:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVATEDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 22:51:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46737 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262035AbVATDvb (ORCPT
+	Wed, 19 Jan 2005 23:03:11 -0500
+Received: from fsmlabs.com ([168.103.115.128]:42657 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262038AbVATEDI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 22:51:31 -0500
-Date: Wed, 19 Jan 2005 22:51:24 -0500
-From: Dave Jones <davej@redhat.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH RFC] agp_backend: remove drm_agp_t & inter_module_<foo> V1 [1/1]
-Message-ID: <20050120035124.GA15621@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>
-References: <20050120023832.GA3758@taniwha.stupidest.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050120023832.GA3758@taniwha.stupidest.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 19 Jan 2005 23:03:08 -0500
+Date: Wed, 19 Jan 2005 21:02:24 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Tony Lindgren <tony@atomide.com>
+cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
+       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+In-Reply-To: <20050119000556.GB14749@atomide.com>
+Message-ID: <Pine.LNX.4.61.0501192100060.3010@montezuma.fsmlabs.com>
+References: <20050119000556.GB14749@atomide.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 19, 2005 at 06:38:32PM -0800, Chris Wedgwood wrote:
- > What extremely obvious thing am I missing which prevents up from
- > kill drm_agp_t and the inter_module_register, etc. code that goes with
- > it?
+On Tue, 18 Jan 2005, Tony Lindgren wrote:
 
-Gar, this is the 3rd copy of this patch I've got.
-I wanted the dust to settle on the agp carnage in -mm before
-merging anything else, but tbh, I'm so sick of the sight
-of this patch coming around every few days I'm going to merge
-it and let Andrew deal with any resulting breakage when he
-cuts the next -mm
+> Hi all,
+> 
+> Attached is the dynamic tick patch for x86 to play with
+> as I promised in few threads earlier on this list.[1][2]
+> 
+> The dynamic tick patch does following:
+> 
+> - Separates timer interrupts from updating system time
+> 
+> - Allows updating time from other interrupts in addition
+>   to timer interrupt
+> 
+> - Makes timer tick dynamic
+> 
+> - Allows power management modules to take advantage of the
+>   idle time inbetween skipped ticks
+> 
+> - Might help with the whistling caps?
 
-		Dave
-
+This doesn't seem to cover the local APIC timer, what do you do about the 
+1kHz tick which it's programmed to do?

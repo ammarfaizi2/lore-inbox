@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319307AbSILVT1>; Thu, 12 Sep 2002 17:19:27 -0400
+	id <S319499AbSILV2W>; Thu, 12 Sep 2002 17:28:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319318AbSILVT0>; Thu, 12 Sep 2002 17:19:26 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:5548 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S319307AbSILVTK>;
-	Thu, 12 Sep 2002 17:19:10 -0400
-Date: Thu, 12 Sep 2002 15:21:06 -0600
-From: yodaiken@fsmlabs.com
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@digeo.com>,
-       "Hanumanthu. H" <hanumanthu.hanok@wipro.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pid_max hang again...
-Message-ID: <20020912152106.B31236@hq.fsmlabs.com>
-References: <20020912202314.GA12775@win.tue.nl> <Pine.LNX.4.44L.0209121817130.1857-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44L.0209121817130.1857-100000@imladris.surriel.com>; from riel@conectiva.com.br on Thu, Sep 12, 2002 at 06:17:26PM -0300
-Organization: FSM Labs
+	id <S319500AbSILV2W>; Thu, 12 Sep 2002 17:28:22 -0400
+Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:16043 "EHLO
+	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S319499AbSILV2T>; Thu, 12 Sep 2002 17:28:19 -0400
+Message-ID: <002a01c25aa3$f865b7a0$1125a8c0@wednesday>
+From: "jdow" <jdow@earthlink.net>
+To: <root@chaos.analogic.com>, "jw schultz" <jw@pegasys.ws>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.95.1020912072949.2700A-100000@chaos.analogic.com>
+Subject: Re: Heuristic readahead for filesystems
+Date: Thu, 12 Sep 2002 14:33:01 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 12, 2002 at 06:17:26PM -0300, Rik van Riel wrote:
-> On Thu, 12 Sep 2002, Andries Brouwer wrote:
-> 
-> > Once people stand up and say that they need Linux machines with 10^6
-> > processes, or with 10^4 processes and real time guarantees, then we
-> > must have a discussion about data structures, and a discussion about
-> > standards.
-> 
-> IIRC that happened last month.
+From: "Richard B. Johnson" <root@chaos.analogic.com>
 
-And what about a discussion about reality?
+> Then you are tuning a file-system for a single program
+> like `ls`. Most real-world I/O to file-systems are not done
+> by `ls` or even `make`. The extra read-ahead overhead is
+> just that, 'overhead'. Since the cost of disk I/O is expensive,
+> you certainly do not want to read any more than is absolutely
+> necessary. There had been a lot so studies about this in the
+> 70's when disks were very, very, slow. The disk-to-RAM speed
+> ratio hasn't changed much even though both are much faster.
+> Therefore, the conclusions of these studies, made by persons
+> from DEC and IBM, should not have changed. From what I recall,
+> all studies showed that read-ahead always reduced performance,
+> but keeping what was already read in RAM always increased
+> performance.
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+Dick, those studies are simply not meaningful. The speedup for
+general applications that I generated in the mid 80s with a pair
+of SCSI controllers for the Amiga was rather dramatic. At that
+time every PC controller I ran down was reading 512 bytes per
+transaction. They could not read contiguous sectors unless they
+were VERY fast. For these readahead would generate no benefit.
+(Even some remarkably expensive SCSI controllers for PCs fell
+into that trap and defective mindset.) The controllers I re-
+engineered were capable of reading large blocks of data multiple
+sectors in size in a single transaction. I experimented with
+several programs and discovered that a 16k readahead was about
+my optimum compromise between the read time overhead vs the
+transaction time overhead. I even found that for the average case
+ONE buffer was sufficient, which boggled me. (As a developer I
+was used to reading multiple files at a time to create object
+files and linked targets.)
+
+Back in the 70s did anyone ever read more than a single block
+at a time, other than me that is? (I had readahead in CP/M back
+in the late 70s. But the evidence for that has evaporated I am
+afraid. I repeatedly boggled other CP/M users with my 8" floppy
+speeds as a result. I also added blocking and deblocking so I
+could use large sectors for even more speed.)
+
+{^_^}   Joanne Dow, jdow@earthlink.net, not a gray beard solely
+        because I am severely beard challenged.
+
 

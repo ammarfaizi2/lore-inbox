@@ -1,76 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268511AbUILHcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268515AbUILHpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268511AbUILHcR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 03:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268515AbUILHcQ
+	id S268515AbUILHpB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 03:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268520AbUILHpB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 03:32:16 -0400
-Received: from os.inf.tu-dresden.de ([141.76.48.99]:7840 "EHLO
-	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id S268511AbUILHcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 03:32:14 -0400
-Date: Sun, 12 Sep 2004 00:29:45 -0700
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, len.brown@intel.com
-Subject: Re: Possible dcache BUG
-Message-ID: <20040912002945.29a976ad@laptop.delusion.de>
-In-Reply-To: <20040912001626.759e2d17.akpm@osdl.org>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org>
-	<20040808113930.24ae0273.akpm@osdl.org>
-	<200408100012.08945.gene.heskett@verizon.net>
-	<200408102342.12792.gene.heskett@verizon.net>
-	<Pine.LNX.4.58.0408102044220.1839@ppc970.osdl.org>
-	<20040810211849.0d556af4@laptop.delusion.de>
-	<Pine.LNX.4.58.0408102201510.1839@ppc970.osdl.org>
-	<Pine.LNX.4.58.0408102213250.1839@ppc970.osdl.org>
-	<20040812180033.62b389db@laptop.delusion.de>
-	<Pine.LNX.4.58.0408121813190.1839@ppc970.osdl.org>
-	<20040912000354.7243a328@laptop.delusion.de>
-	<20040912001626.759e2d17.akpm@osdl.org>
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Mailer: X-Mailer 5.0 Gold
+	Sun, 12 Sep 2004 03:45:01 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11433 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268515AbUILHo6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 03:44:58 -0400
+Date: Sun, 12 Sep 2004 00:42:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: nickpiggin@yahoo.com.au, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [pagevec] resize pagevec to O(lg(NR_CPUS))
+Message-Id: <20040912004256.59a74c28.akpm@osdl.org>
+In-Reply-To: <20040912071948.GH2660@holomorphy.com>
+References: <20040909155226.714dc704.akpm@osdl.org>
+	<20040909230905.GO3106@holomorphy.com>
+	<20040909162245.606403d3.akpm@osdl.org>
+	<20040910000717.GR3106@holomorphy.com>
+	<414133EB.8020802@yahoo.com.au>
+	<20040910174915.GA4750@logos.cnet>
+	<20040912045636.GA2660@holomorphy.com>
+	<4143D07E.3030408@yahoo.com.au>
+	<20040912062703.GF2660@holomorphy.com>
+	<4143E6C6.40908@yahoo.com.au>
+	<20040912071948.GH2660@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Sun__12_Sep_2004_00_29_45_-0700_PObuK35=dzSJ/dZf"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__12_Sep_2004_00_29_45_-0700_PObuK35=dzSJ/dZf
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> A large stream of faults to map in a file will blow L1 caches of the
+>  sizes you've mentioned at every kernel/user context switch. 256 distinct
+>  cachelines will very easily be referenced between faults. MAP_POPULATE
+>  and mlock() don't implement batching for either ->page_table_lock or
+>  ->tree_lock, so the pagevec point is moot in pagetable instantiation
+>  codepaths (though it probably shouldn't be).
 
-On Sun, 12 Sep 2004 00:16:26 -0700 Andrew Morton (AM) wrote:
+Instantiation via normal fault-in becomes lock-intensive once you have
+enough CPUs.  At low CPU count the page zeroing probably preponderates.
 
-AM> Random guess: acpi_evaluate_object() is returning an error but is
-AM> allocating memory anyway.
-AM> 
-AM> In acpi_battery_get_status():
-AM> 
-AM> 	status = acpi_evaluate_object(battery->handle, "_BST", NULL, &buffer);
-AM> 	if (ACPI_FAILURE(status)) {
-AM> 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Error evaluating _BST\n"));
-AM> 		return_VALUE(-ENODEV);
-AM> 	}
-AM> 
-AM> Is that failure path being taken?
+>  O_DIRECT writes and msync(..., ..., MS_SYNC) will use pagevecs on
+>  ->tree_lock in a rapid-fire process-triggerable manner. Almost all
+>  uses of pagevecs for ->lru_lock outside the scanner that I'm aware
+>  of are not rapid-fire in nature (though there probably should be some).
 
-Is there a way for me to find that out without recompiling and rebooting?
+pagetable teardown (munmap, mremap, exit) is the place where pagevecs help
+->lru_lock.  And truncate.
 
--Udo.
+>  IMHO pagevecs are somewhat underutilized.
+> 
 
---Signature=_Sun__12_Sep_2004_00_29_45_-0700_PObuK35=dzSJ/dZf
-Content-Type: application/pgp-signature
+Possibly.  I wouldn't bother converting anything unless a profiler tells
+you to though.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+>  Sorry, 4*lg(NR_CPUS) is 64 when lg(NR_CPUS) = 16, or 65536 cpus. 512x
+>  Altixen would have 4*lg(512) = 4*9 = 36. The 4*lg(NR_CPUS) sizing was
+>  rather conservative on behalf of users of stack-allocated pagevecs.
 
-iD8DBQFBQ/runhRzXSM7nSkRAk0pAJ9uKi1w3cfOt5TimchJZsA/I9uFmACeMRw3
-/yBCjASbcdrcOC/5GWVbzac=
-=pEvV
------END PGP SIGNATURE-----
+It's pretty simple to diddle PAGEVEC_SIZE, run a few benchmarks.  If that
+makes no difference then the discussion is moot.  If it makes a significant
+difference then more investigation is warranted.
 
---Signature=_Sun__12_Sep_2004_00_29_45_-0700_PObuK35=dzSJ/dZf--

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262554AbREVDXA>; Mon, 21 May 2001 23:23:00 -0400
+	id <S262561AbREVDqL>; Mon, 21 May 2001 23:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262555AbREVDWu>; Mon, 21 May 2001 23:22:50 -0400
-Received: from ns.suse.de ([213.95.15.193]:52743 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S262554AbREVDWh>;
-	Mon, 21 May 2001 23:22:37 -0400
-Date: Tue, 22 May 2001 05:22:35 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Steven Walter <srwalter@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
-In-Reply-To: <20010521215927.B31289@hapablap.dyn.dhs.org>
-Message-ID: <Pine.LNX.4.30.0105220519160.20545-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262559AbREVDqB>; Mon, 21 May 2001 23:46:01 -0400
+Received: from smtp2.Stanford.EDU ([171.64.14.116]:49837 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S262558AbREVDpx>; Mon, 21 May 2001 23:45:53 -0400
+Message-Id: <5.0.2.1.2.20010521204131.00ae0028@pxwang.pobox.stanford.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 21 May 2001 20:45:33 -0700
+To: alan@lxorguk.ukuu.org.uk
+From: Philip Wang <PXWang@stanford.edu>
+Subject: [PATCH] drivers/acpi/driver.c (repost)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        Dawson Engler <engler@cs.Stanford.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 May 2001, Steven Walter wrote:
+Hello!
 
-> > Any particular reason this needs to be done in the kernel, as opposed
-> > to having your script read /dev/cpu/*/cpuid?
-> Wouldn't that be the same reason we have /anything/ in cpuinfo?
+This is a repost of my previous message, which came out garbled.  Now you 
+should be able to run patch -pO from the root linux dir on the files...
 
-When /proc/cpuinfo was added, we didn't have /dev/cpu/*/cpuid
-Now that we do, we're stuck with keeping /proc/cpuinfo for
-compatability reasons.
+There is a bug in driver.c of not freeing memory on error 
+paths.  buf.pointer is allocated but not freed if copy_to_user fails.  The 
+addition I made was to kfree buf.pointer before returning -EFAULT.  Thanks!
 
-regards,
+Philip
 
-Dave.
+--- drivers/acpi/driver.c.orig       Mon May 21 20:36:55 2001
++++ drivers/acpi/driver.c    Mon May 21 20:37:21 2001
+@@ -311,8 +311,10 @@
+                 size = buf.length - file->f_pos;
+                 if (size > *len)
+                         size = *len;
+-               if (copy_to_user(buffer, data, size))
+-                       return -EFAULT;
++               if (copy_to_user(buffer, data, size)) {
++                 kfree(buf.pointer);
++                 return -EFAULT;
++               }
+         }
 
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+         kfree(buf.pointer);
 

@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263576AbUECCve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263573AbUECCxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263576AbUECCve (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 22:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUECCvc
+	id S263573AbUECCxu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 22:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUECCxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 22:51:32 -0400
-Received: from os.inf.tu-dresden.de ([141.76.48.99]:37106 "EHLO
-	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id S263578AbUECCvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 22:51:15 -0400
-Date: Sun, 2 May 2004 19:51:09 -0700
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
+	Sun, 2 May 2004 22:53:50 -0400
+Received: from mail.kroah.org ([65.200.24.183]:61603 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263573AbUECCxt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 22:53:49 -0400
+Date: Sun, 2 May 2004 19:51:49 -0700
+From: Greg KH <greg@kroah.com>
+To: Ian Stirling <linux-kernel@mauve.plus.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Numdimmies MUST DIE!
-Message-Id: <20040502195109.3897ee2e@laptop.delusion.de>
-In-Reply-To: <1083551201.25582.149.camel@bach>
-References: <1083551201.25582.149.camel@bach>
-Organization: Fiasco Core Team
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Mailer: X-Mailer 5.0 Gold
+Subject: Re: usb-storage unplanned unplugging. (2.6.5)
+Message-ID: <20040503025149.GB21614@kroah.com>
+References: <409573CC.1000700@mauve.plus.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Sun__2_May_2004_19_51_09_-0700_tJ+HAWAf/K9v4VUi"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <409573CC.1000700@mauve.plus.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__2_May_2004_19_51_09_-0700_tJ+HAWAf/K9v4VUi
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Sun, May 02, 2004 at 11:18:52PM +0100, Ian Stirling wrote:
+> What should happen when I unplug a USB-storage device with mounted 
+> filesystems that are in use?
 
-On Mon, 03 May 2004 12:26:42 +1000 Rusty Russell (RR) wrote:
+Not good things :)
 
-RR> Status: Vitally Important
-RR> 
-RR> I'm sure this is violating the trademark of a pre-schooler's TV show
-RR> somewhere in the world.
+But all should be well once you unmount those mounted filesystems.  Did
+you try that?
 
-While you're at it, there's more (revised patch below):
+> At the moment, it simply kills the USB port that it's on, it won't
+> recognise anything plugged into it later.  Sort-of understandably, the
+> scsi-module won't now unload, nor will the usb-storage or USB ones.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c
---- .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c	2004-04-29 17:29:43.000000000 +1000
-+++ .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c	2004-05-03 12:25:11.000000000 +1000
-@@ -104,7 +104,7 @@ static struct net_device **dummies;
- 
- /* Number of dummy devices to be set up by this module. */
- module_param(numdummies, int, 0);
--MODULE_PARM_DESC(numdimmies, "Number of dummy psuedo devices");
-+MODULE_PARM_DESC(numdummies, "Number of dummy pseudo devices");
- 
- static int __init dummy_init_one(int index)
- {
+That's not good at all.  Can you try 2.6.6-rc3 and see if it does the
+same thing?  If so, can you send us the kernel debug messages that
+happen when you yank out the device, and then unmount the filesystems?
 
--Udo.
+thanks,
 
---Signature=_Sun__2_May_2004_19_51_09_-0700_tJ+HAWAf/K9v4VUi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAlbOdnhRzXSM7nSkRAtW9AJ0cv/yF01tM3eRd6tQZyI4K9eAMigCeP4qt
-5SmrSXDra8FrcKEw0Me8ebY=
-=PYhA
------END PGP SIGNATURE-----
-
---Signature=_Sun__2_May_2004_19_51_09_-0700_tJ+HAWAf/K9v4VUi--
+greg k-h

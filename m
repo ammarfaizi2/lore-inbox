@@ -1,59 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbUDIRdn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 13:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUDIRdn
+	id S261468AbUDIRgM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 13:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbUDIRgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 13:33:43 -0400
-Received: from mail.kroah.org ([65.200.24.183]:35740 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261498AbUDIRd0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 13:33:26 -0400
-Date: Fri, 9 Apr 2004 10:31:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: Jean Delvare <khali@linux-fr.org>,
-       LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 2.6] Rework memory allocation in i2c chip drivers
-Message-ID: <20040409173158.GC15820@kroah.com>
-References: <20040403191023.08f60ff1.khali@linux-fr.org> <20040403202042.GA3898@sirius.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Apr 2004 13:36:11 -0400
+Received: from gizmo11bw.bigpond.com ([144.140.70.21]:7113 "HELO
+	gizmo11bw.bigpond.com") by vger.kernel.org with SMTP
+	id S261468AbUDIReU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 13:34:20 -0400
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: jgrimm2@us.ibm.com
+Subject: Re: io_apic & timer_ack fix
+Date: Sat, 10 Apr 2004 03:37:21 +1000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, phil.el@wanadoo.fr
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040403202042.GA3898@sirius.home>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404100337.21730.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 04, 2004 at 12:20:42AM +0400, Sergey Vlasov wrote:
-> Hello!
-> 
-> > Some times ago, Ralf Roesch reported that the memory allocation scheme
-> > used in the i2c eeprom driver was causing trouble on MIPS architecture:
-> > 
-> > http://archives.andrew.net.au/lm-sensors/msg07233.html
-> > 
-> > The cause of the problems is that we do allocate two structures with a
-> > single kmalloc, which breaks alignment. This doesn't seem to be a
-> > problem on x86, but is on mips and probably on other architectures as
-> > well. It happens that all other chip drivers work the same way too, so
-> > they all would need to be fixed.
-> 
-> Instead of splitting one kmalloc in two, it would also be possible to
-> add a "struct i2c_client client" field to each of the *_data
-> structures - the compiler should align all fields appropriately.
-> Probably this way will result in less changes to the code (and also
-> less labels and less error paths).
-> 
-> Example patch for lm75 (untested):
+On Fri, 09 Apr 2004 at 08:39 +0000, Jon Grimm wrote: 
 
-I like this version a lot better.  It's simpler and if we do this, we
-can easily switch to the proper refcount handling of the i2c_client
-structures like we should do in 2.7.
+> Hmmm.... 
+ > 
+ > I see that the following patch got pulled in by Andrew: 
+ > http://linux.bkbits.net:8080/linux-2.5/diffs/arch/i386/kernel/io_apic.c@1.85?nav=index.html|src/|src/arch|src/arch/i386|src/arch/i386/kernel|hist/arch/i386/kernel/io_apic.c 
+ > 
+ > The patch had a couple bugs: 
+ > http://seclists.org/lists/linux-kernel/2004/Mar/4152.html 
+ > 
+ > But the patch was pulled out entirely by Linus: 
+ > http://linux.bkbits.net:8080/linux-2.5/diffs/arch/i386/kernel/io_apic.c@1.88?nav=index.html|src/|src/arch|src/arch/i386|src/arch/i386/kernel|hist/arch/i386/kernel/io_apic.c 
+ > 
+ > Was it determined that the fix was bogus? damaging? fixable? 
+ 
+I thought the patch was OK with typos fixed.
 
-Jean, care to redo your patch in this form?
+> I ask as I see behavior identical for which this patch seems to have 
+ > been originally carved up for (buggy SMM BIOS at fault, but this was a 
+ > workaround in the OS). 
+ > 
+ > http://marc.theaimsgroup.com/?l=linux-kernel&m=101604672921823&w=2 
+ > http://www.ussg.iu.edu/hypermail/linux/kernel/0203.2/0698.html 
+ > 
+ > Its a fair answer to force the BIOS vendor to fix, but in the meantime, 
+ > I'm trying to figure out how safe/unsafe the workaround patch is ? 
+ > I've ran on it overnight (with the semi-colon's fixed) and it hasn't 
+ > exhibited the troubling behavior (where timer interrupts seem stuck or 
+ > in some cases just extremely slow.... and the 8259 IMR is mucked up when 
+ > Linux isn't even touching anymore). 
 
-thanks,
+I read the thread you mention about the IMR muckup along the way to creating
+my nforce2 patches - it was most enlightening as to how bad consumer computers
+can be.
 
-greg k-h
+Prakash tracked his overheat to a buggy binary nvidia driver
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108059111721363&w=2
+and not Maciej's patch.
+
+Thomas was tracking down C1 C2 etc states but I do not know the results of
+his search?
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107972277920929&w=2
+Was it a problem only with one machine?
+
+I do not recollect any other threads indicating problems with the patch.
+
+I remember rediffing my nforce2 io-apic patch using the 2.6.3-mm3 kernel with
+Maciej's patch and having no heat trouble. I am surprised it got pulled out but
+then I only tested it on one type of chipset.
+
+BTW I just rebooted to my modified 2.6.3-mm3 and got my normal 38C cpu.
+I have to have timer_ack=0 in my io-apic timer routing patch for nforce2 to
+get nmi_debug=1 to work. This was all along the way to trying to stop lockups.
+In fact I have been running no timer_ack kernel mods since December on 4 
+machines and all have been cool and hard lockup free.
+
+Regards
+Ross Dickson
+
+
+ 

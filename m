@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280433AbRKNKoO>; Wed, 14 Nov 2001 05:44:14 -0500
+	id <S280430AbRKNKoy>; Wed, 14 Nov 2001 05:44:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280430AbRKNKoE>; Wed, 14 Nov 2001 05:44:04 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:29194 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S280433AbRKNKns>; Wed, 14 Nov 2001 05:43:48 -0500
-Message-ID: <3BF24AB2.1C8232C0@idb.hist.no>
-Date: Wed, 14 Nov 2001 11:42:58 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.15-pre1 i686)
-X-Accept-Language: no, en
+	id <S280434AbRKNKoo>; Wed, 14 Nov 2001 05:44:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35857 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280430AbRKNKof>; Wed, 14 Nov 2001 05:44:35 -0500
+Subject: Re: What Athlon chipset is most stable in Linux?
+To: davem@redhat.com (David S. Miller)
+Date: Wed, 14 Nov 2001 10:51:49 +0000 (GMT)
+Cc: goemon@anime.net, nitrax@giron.wox.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20011113.182956.75780493.davem@redhat.com> from "David S. Miller" at Nov 13, 2001 06:29:56 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reformat mtrr.c to conform to CodingStyle
-In-Reply-To: <20011112232539.A14409@redhat.com> <Pine.LNX.4.33.0111130903350.16316-100000@penguin.transmeta.com> <20011114080505.A18098@weta.f00f.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E163xe2-0004IM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
+>    From: Dan Hollis <goemon@anime.net>
+>    Date: Tue, 13 Nov 2001 13:19:07 -0800 (PST)
+>    
+>    AMD761 ... is what you want.
+> 
+> Unless you actually plan on actually using the AGP slot without
+> crashes/hangs.
 
-> If (at some point) people do want coding-style patches then there are
-> MANY places (eg. entire filesystem sub-trees) which could have
-> white-space alignment changes and similar things....
-
-Creating lots of such patches looks like unnecessary work to me.
-Why not let Linus run Lindent on the whole tree and be done with it?
-find linux/ -name "*.[ch]" | linux/scripts/Lindent
-
-Helge Hafting
+Only if your card hits the AMD errata, and that specifically claims the
+card is the problem. It mostly appears to afflict nvidia users so its not
+a problem ;)

@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274174AbRJVPNh>; Mon, 22 Oct 2001 11:13:37 -0400
+	id <S273996AbRJVPOh>; Mon, 22 Oct 2001 11:14:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273996AbRJVPN2>; Mon, 22 Oct 2001 11:13:28 -0400
-Received: from users.ccur.com ([208.248.32.211]:19651 "HELO amber2.ccur.com")
-	by vger.kernel.org with SMTP id <S274174AbRJVPNM>;
-	Mon, 22 Oct 2001 11:13:12 -0400
-Date: Mon, 22 Oct 2001 15:13:40 GMT
-Message-Id: <200110221513.PAA24852@amber2.ccur.com>
-From: Tom Horsley <Tom.Horsley@mail.ccur.com>
-To: linux-kernel@vger.kernel.org
-Subject: Is this a clone() failing?
-Reply-to: Tom.Horsley@mail.ccur.com
+	id <S274774AbRJVPOZ>; Mon, 22 Oct 2001 11:14:25 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:8407 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S273996AbRJVPNq>; Mon, 22 Oct 2001 11:13:46 -0400
+Date: Mon, 22 Oct 2001 11:14:16 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: sten@blinkenlights.nl, linux-kernel@vger.kernel.org
+Subject: Re: INIT_MMAP on sparc64
+Message-ID: <20011022111416.A23213@redhat.com>
+In-Reply-To: <20011021.080432.71105870.davem@redhat.com> <Pine.LNX.4.40-blink.0110211736030.19859-100000@deepthought.blinkenlights.nl> <20011021.181523.112610375.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011021.181523.112610375.davem@redhat.com>; from davem@redhat.com on Sun, Oct 21, 2001 at 06:15:23PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Consider the case of a debugger which also happens to be a multi-threaded
-application. From what I understand, clone() is supposed to allow you to
-inherit all attributes so the different threads can act like they are really
-part of the same program, but it turns out that the thread which does the
-ptrace "attach" is the only thread the kernel thinks should be allowed to do
-any other operations on the process being debugged.
+On Sun, Oct 21, 2001 at 06:15:23PM -0700, David S. Miller wrote:
+> 
+> DRI works perfectly fine in my current sources, patches below.
 
-Should there be a new "clone debug privileges" flag?
+On a side note of coding style, the following:
 
-Or is this just something (multi-threaded) debuggers have to live with?
+> +#ifdef __sparc__
+> +		if (io_remap_page_range(vma->vm_start,
+> +					VM_OFFSET(vma) + offset,
+> +					vma->vm_end - vma->vm_start,
+> +					vma->vm_page_prot, 0))
+> +#else
+>  		if (remap_page_range(vma->vm_start,
+>  				     VM_OFFSET(vma) + offset,
+>  				     vma->vm_end - vma->vm_start,
+>  				     vma->vm_page_prot))
+> +#endif
 
-(It wasn't too hard to force a single thread to always be the one that does
-all ptrace() calls).
---
-Tom.Horsley@mail.ccur.com                \\\\      Will no one rid me of
-Concurrent Computers, Ft. Lauderdale, FL    \\\\     this troublesome
-Me: http://home.att.net/~Tom.Horsley/          \\\\     autoconf?
-Project Vote Smart: http://www.vote-smart.org     \\\\    !!!!!
+should really be turned into io_remap_page_range(...) unconditionally 
+and add a #define for io_remap_page_range in the arch specific code.  
+Having #ifdef's all over generic code is just ugly.
+
+		-ben

@@ -1,82 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275218AbTHMPJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 11:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275220AbTHMPJ2
+	id S275220AbTHMPM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 11:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275229AbTHMPM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 11:09:28 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:40833 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S275218AbTHMPJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 11:09:26 -0400
-Date: Wed, 13 Aug 2003 14:56:23 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200308131356.h7DDuN3W000921@81-2-122-30.bradfords.org.uk>
-To: jakob@unthought.net, Nick.Pavlica@echostar.com
-Subject: Re: Swapfile Calculation / 2.4.18 | >
-Cc: linux-kernel@vger.kernel.org
+	Wed, 13 Aug 2003 11:12:28 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:14829 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S275220AbTHMPM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 11:12:26 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Wed, 13 Aug 2003 17:12:24 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Oleg Drokin <green@namesys.com>
+Cc: marcelo@conectiva.com.br, akpm@osdl.org, andrea@suse.de,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, mason@suse.com
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+Message-Id: <20030813171224.2a13b97f.skraw@ithnet.com>
+In-Reply-To: <20030813145940.GC26998@namesys.com>
+References: <20030813125509.360c58fb.skraw@ithnet.com>
+	<Pine.LNX.4.44.0308131143570.4279-100000@localhost.localdomain>
+	<20030813145940.GC26998@namesys.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >   Our team is discussing the best approach to calculating the swap
-> > file size for the 2.4.18 kernels and newer on systems with 6 - 8
-> > Gb of RAM.  Does the "Double The System Ram" rule still apply?
->
-> It never did.  It's a rule of thumb, if you have no idea about what
-> your swap needs might be, and if it's a general purpose machine with
-> "normal amounts of memory" that shouldn't swap at all but still
-> should have some swap space just in case.
+On Wed, 13 Aug 2003 18:59:40 +0400
+Oleg Drokin <green@namesys.com> wrote:
 
-Too much swap space can be a bad thing.
+> Hello!
+> 
+> On Wed, Aug 13, 2003 at 11:53:09AM -0300, Marcelo Tosatti wrote:
+> 
+> > > Running SMP. So far no crash happened under ext3. 
+> > > Still I see the tar-verification errors. None on the first day, 2 on the
+> > > second
+> 
+> But tar verification errors are still bad, right?
 
-I know an ISP who had a runaway process on a webserver, which had 256
-Mb of RAM, and 512 Mb of swap.  As soon as the process started using a
-lot of swap, the machine became almost completely unresponsive, and
-somebody ended up driving to the datacentre to reboot it :-).
+Sure. Maybe both topics are unrelated. I can't tell.
 
-Just because disk space is cheap, it's not a good idea simply to
-allocate swap space excessively.
+> > > it still crashes, then ideas for patches will be welcome :-)
+> > Great you tracked it down. Your previous traces almost always involved
+> > reiserfs calls, which is another indicator that reiserfs is probably the
+> > problem here.
+> 
+> reiserfs is just probably a bit more sensitive to memory corruptions.
+> 
+> > Chris, Oleg, it might be nice if you guys could look at previous oops
+> > reports by Stephan. 
+> 
+> All of them looked like memory corruptions of unknown reason to me.
 
-> The only common rule that I can think of in this respect is: OOM is
-> bad!
-> Make sure that you have enough virtual memory for your applications,
-> and then some to spare. A slow (swap thrashing) machine is better
-> than a crashed machine.
+Well, that's exactly the reason why I am awaiting some more days of
+up-and-running ext3. After how many days will you be convinced that a random
+memory corruption should have hit the ext3 system that bad, that it should have
+crashed?
+I can add another week if you want me to, just tell me. The only thing I don't
+want is that any doubts are left after testing ...
+Still, current 2 days uptime is early stage, so let's give it some more time.
 
-Not always!  In the scenario I described above, the machine didn't
-need any swap at all - if it hadn't had any, the runaway process would
-have just been killed, and downtime would have been avoided.
-
-> The workloads I have are usually a handfull of processes in the
-> few-hundred-megs-of-memory range.  For this, I usually make sure
-> that I have 1-2 GB of swap *more* than I would ever need.  A little
-> headroom is useful when something doesn't run as expected.
->
-> Also, having the majority of the used virtual memory in swap (say, a
-> 2GB RAM plus 16 GB swap machine with 90% of all virtual memory
-> used), is not necessarily a problem.  It depends.  Look at "vmstat".
-> If there is virtually no paging activity, then it's probably not a
-> performance problem.  Buying those extra 16 GB of RAM instead may
-> not help you a lot.  I know people who do chip design, and I've
-> heard stories about buying extra 'swap drives' simply in order to
-> work around memory leaks in simulation applications.   It's a
-> workaround, and the simulation application should of course be
-> fixed, but it can work just nicely for memory leaks where the data
-> that gets swapped out is never again accessed.
-
-A large number of installations, especially desktop machines, don't
-need swap devices at all.
-
-The twice the physical RAM rule simply saves the effort of doing a
-real assessment of how much RAM is needed for any particular task, and
-doesn't negatively affect performance too much, or cost too much in
-terms of disk space.  It works well, and is appropriate as a default
-configuration for a Linux distribution, for example.  Wherever
-possible, though, it's worth doing a real assessment of memory
-requirements.
-
-> So to summarize:  There is no simple rule.
-
-I totally agree :-).
-
-John.
+Regards,
+Stephan

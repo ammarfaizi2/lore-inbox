@@ -1,39 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVCQSGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbVCQSKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261978AbVCQSGd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 13:06:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVCQSGd
+	id S263101AbVCQSKA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 13:10:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVCQSJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 13:06:33 -0500
-Received: from bay101-f38.bay101.hotmail.com ([64.4.56.48]:59901 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261978AbVCQSGb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 13:06:31 -0500
-Message-ID: <BAY101-F3858D9AE9F3222CAB9AB3CC1490@phx.gbl>
-X-Originating-IP: [64.4.56.200]
-X-Originating-Email: [peter_w_morreale@hotmail.com]
-From: "Peter W. Morreale" <peter_w_morreale@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel memory limits?
-Date: Thu, 17 Mar 2005 11:06:19 -0700
+	Thu, 17 Mar 2005 13:09:38 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:36800 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S263094AbVCQSIs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 13:08:48 -0500
+Subject: Re: [ACPI] Re: Fw: Anybody? 2.6.11 (stable and -rc) ACPI breaks USB
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Grzegorz Kulewski <kangur@polcom.net>, Andrew Morton <akpm@osdl.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>
+In-Reply-To: <1111023217.15278.7.camel@sli10-desk.sh.intel.com>
+References: <1110989436.8378.19.camel@eeyore>
+	 <1111023217.15278.7.camel@sli10-desk.sh.intel.com>
+Content-Type: text/plain
+Date: Thu, 17 Mar 2005 11:08:34 -0700
+Message-Id: <1111082914.11380.30.camel@eeyore>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 17 Mar 2005 18:06:19.0751 (UTC) FILETIME=[05467770:01C52B1C]
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I did not see this addressed in the FAQs...)
+On Thu, 2005-03-17 at 09:33 +0800, Li Shaohua wrote:
+> The comments in previous quirk said it's required only in PIC mode.
+...
+> I feel we concerned too much. Changing the interrupt line isn't harmful,
+> right? Linux actually ignored interrupt line. Maybe just a
+> PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irq) is
+> sufficient.
 
-How much physical memory can the 2.4.26 kernel address in kernel context on 
-x86?
+I think it's good to limit the scope of the quirk as much as
+possible because that makes it easier to do future restructuring,
+such as device-specific interrupt routers.
 
-What about DMA memory?
+The comment (before quirk_via_acpi(), nowhere near quirk_via_irqpic())
+says *on-chip devices* have this unusual behavior when the interrupt
+line is written.  That makes sense to me.
 
-Local rumor says ~1GB.  But this makes little sense given a 32-bit address.
+Writing the interrupt line on random plug-in Via PCI devices does
+not make sense to me, because for that to have any effect, an
+upstream bridge would have to be snooping the traffic going through
+it.  That doesn't sound plausible to me.
 
-Where in the source can I learn more about this?
+What about this:
 
-Thanks,
--PWM
+===== arch/i386/pci/irq.c 1.55 vs edited =====
+--- 1.55/arch/i386/pci/irq.c	2005-02-07 22:39:15 -07:00
++++ edited/arch/i386/pci/irq.c	2005-03-15 10:11:44 -07:00
+@@ -1026,7 +1026,6 @@
+ static int pirq_enable_irq(struct pci_dev *dev)
+ {
+ 	u8 pin;
+-	extern int via_interrupt_line_quirk;
+ 	struct pci_dev *temp_dev;
+ 
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+@@ -1081,10 +1080,6 @@
+ 		printk(KERN_WARNING "PCI: No IRQ known for interrupt pin %c of device %s.%s\n",
+ 		       'A' + pin, pci_name(dev), msg);
+ 	}
+-	/* VIA bridges use interrupt line for apic/pci steering across
+-	   the V-Link */
+-	else if (via_interrupt_line_quirk)
+-		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq & 15);
+ 	return 0;
+ }
+ 
+===== drivers/acpi/pci_irq.c 1.37 vs edited =====
+--- 1.37/drivers/acpi/pci_irq.c	2005-03-01 09:57:29 -07:00
++++ edited/drivers/acpi/pci_irq.c	2005-03-15 10:10:57 -07:00
+@@ -388,7 +388,6 @@
+ 	u8			pin = 0;
+ 	int			edge_level = ACPI_LEVEL_SENSITIVE;
+ 	int			active_high_low = ACPI_ACTIVE_LOW;
+-	extern int		via_interrupt_line_quirk;
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_pci_irq_enable");
+ 
+@@ -437,9 +436,6 @@
+ 			return_VALUE(0);
+ 		}
+  	}
+-
+-	if (via_interrupt_line_quirk)
+-		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, irq & 15);
+ 
+ 	dev->irq = acpi_register_gsi(irq, edge_level, active_high_low);
+ 
+===== drivers/pci/quirks.c 1.72 vs edited =====
+--- 1.72/drivers/pci/quirks.c	2005-03-10 01:38:25 -07:00
++++ edited/drivers/pci/quirks.c	2005-03-17 10:48:04 -07:00
+@@ -683,19 +683,33 @@
+ }
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82454NX,	quirk_disable_pxb );
+ 
+-/*
+- *	VIA northbridges care about PCI_INTERRUPT_LINE
+- */
+-int via_interrupt_line_quirk;
++#ifdef CONFIG_ACPI
++#include <linux/acpi.h>
++#endif
+ 
+-static void __devinit quirk_via_bridge(struct pci_dev *pdev)
++static void __devinit quirk_via_irqpic(struct pci_dev *dev)
+ {
+-	if(pdev->devfn == 0) {
+-		printk(KERN_INFO "PCI: Via IRQ fixup\n");
+-		via_interrupt_line_quirk = 1;
++	u8 irq, new_irq;
++
++#ifdef CONFIG_ACPI
++	if (acpi_irq_model != ACPI_IRQ_MODEL_PIC)
++		return;
++#endif
++
++	new_irq = dev->irq & 0xf;
++	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
++	if (new_irq != irq) {
++		printk(KERN_INFO "PCI: Via PIC IRQ fixup for %s, from %d to %d\n",
++			pci_name(dev), irq, new_irq);
++		udelay(15);
++		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
+ }
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_ANY_ID,                     quirk_via_bridge );
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_2, quirk_via_irqpic);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5, quirk_via_irqpic);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_6, quirk_via_irqpic);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8233_5,   quirk_via_irqpic);
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8233_7,   quirk_via_irqpic);
+ 
+ /*
+  *	Serverworks CSB5 IDE does not fully support native mode
 
 

@@ -1,221 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267088AbSKMBdT>; Tue, 12 Nov 2002 20:33:19 -0500
+	id <S267090AbSKMBen>; Tue, 12 Nov 2002 20:34:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267094AbSKMBdT>; Tue, 12 Nov 2002 20:33:19 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:54401 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267088AbSKMBdO>;
-	Tue, 12 Nov 2002 20:33:14 -0500
-Message-ID: <3DD1AC62.8040204@us.ibm.com>
-Date: Tue, 12 Nov 2002 17:35:30 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, Martin Bligh <mjbligh@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Fix asm-i386/topology.h
-References: <3DD18FB3.8060605@us.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------050107050609030306010306"
+	id <S267094AbSKMBen>; Tue, 12 Nov 2002 20:34:43 -0500
+Received: from smtp07.iddeo.es ([62.81.186.17]:51691 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id <S267090AbSKMBel>;
+	Tue, 12 Nov 2002 20:34:41 -0500
+Date: Wed, 13 Nov 2002 02:41:20 +0100
+From: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCHSET] Linux 2.4.20-rc1-jam2
+Message-ID: <20021113014120.GC1806@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050107050609030306010306
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi all...
 
-We'll give this another shot, with the patch attatched this time.
+Just to public a new relase ;).
 
-Cheers!
+Changes/updates/new things:
 
--Matt
+- update to official rc1-aa1
+- reverted the pte_fast changes in -aa. It cured my hangs on X logoff with
+  nvidia driver. Perhaps some bug when gart releases pages ??
+- add the force_inline patch from Denis Vlasenko, with some additions for
+  __copy_[to,from]_user
+- kmsgdump-0.4.4 by  Willy Tarreau: dump oopsen to floppy/console...
+- proconfig-0.9.5 by Peter T. Breuer: store .config in /proc/config
+- bttv updates and missing files
+- bproc 3.2.2
 
-Matthew Dobson wrote:
-> Linus,
->     This patch fixes some slow, quickly written macros in 
-> asm-i386/topology.h.  The new versions use value caching in arrays to 
-> greatly speed up topology queries.
-> 
-> Please apply.
-> 
-> [mcd@arrakis patches]$ diffstat i386_topology_fixup-2.5.47.patch
->  arch/i386/kernel/smpboot.c  |   43 
-> +++++++++++++++++++++++++++++++++++++++++++
->  include/asm-i386/smpboot.h  |    8 ++++++++
->  include/asm-i386/topology.h |   43 
-> +++++--------------------------------------
->  3 files changed, 56 insertions(+), 38 deletions(-)
-> 
-> Cheers!
-> 
-> -Matt
-> 
+More info on
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.20-rc1-jam2/README.txt
 
+Get it at 
 
---------------050107050609030306010306
-Content-Type: text/plain;
- name="i386_topology_fixup-2.5.47.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i386_topology_fixup-2.5.47.patch"
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.20-rc1-jam2/
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.20-rc1-jam2.tar.gz
 
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.46-vanilla/arch/i386/kernel/smpboot.c linux-2.5.46-i386_topo_fix/arch/i386/kernel/smpboot.c
---- linux-2.5.46-vanilla/arch/i386/kernel/smpboot.c	Mon Nov  4 14:30:27 2002
-+++ linux-2.5.46-i386_topo_fix/arch/i386/kernel/smpboot.c	Mon Nov  4 16:43:49 2002
-@@ -501,6 +501,46 @@
- 	return do_fork(CLONE_VM|CLONE_IDLETASK, 0, &regs, 0, NULL);
- }
- 
-+#ifdef CONFIG_X86_NUMAQ
-+/* which logical CPUs are on which nodes */
-+volatile unsigned long node_2_cpu_mask[MAX_NR_NODES];
-+/* which node each logical CPU is on */
-+volatile int cpu_2_node[NR_CPUS];
-+
-+/* Initialize all maps between cpu number and node */
-+static inline void init_cpu_to_node_mapping(void)
-+{
-+	int node, cpu;
-+
-+	for (node = 0; node < MAX_NR_NODES; node++) {
-+		node_2_cpu_mask[node] = 0;
-+	}
-+	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+		cpu_2_node[cpu] = -1;
-+	}
-+}
-+
-+/* set up a mapping between cpu and node. */
-+static inline void map_cpu_to_node(int cpu, int node)
-+{
-+	node_2_cpu_mask[node] |= (1 << cpu);
-+	cpu_2_node[cpu] = node;
-+}
-+
-+/* undo a mapping between cpu and node. */
-+static inline void unmap_cpu_to_node(int cpu, int node)
-+{
-+	node_2_cpu_mask[node] &= ~(1 << cpu);
-+	cpu_2_node[cpu] = -1;
-+}
-+#else /* !CONFIG_X86_NUMAQ */
-+
-+#define init_cpu_to_node_mapping()	({})
-+#define map_cpu_to_node(cpu, node)	({})
-+#define unmap_cpu_to_node(cpu, node)	({})
-+
-+#endif /* CONFIG_X86_NUMAQ */
-+
- /* which physical APIC ID maps to which logical CPU number */
- volatile int physical_apicid_2_cpu[MAX_APICID];
- /* which logical CPU number maps to which physical APIC ID */
-@@ -524,6 +564,7 @@
- 		cpu_2_physical_apicid[cpu] = -1;
- 		cpu_2_logical_apicid[cpu] = -1;
- 	}
-+	init_cpu_to_node_mapping();
- }
- 
- static inline void map_cpu_to_boot_apicid(int cpu, int apicid)
-@@ -535,6 +576,7 @@
- 	if (clustered_apic_mode) {
- 		logical_apicid_2_cpu[apicid] = cpu;	
- 		cpu_2_logical_apicid[cpu] = apicid;
-+		map_cpu_to_node(cpu, apicid >> 4);
- 	} else {
- 		physical_apicid_2_cpu[apicid] = cpu;	
- 		cpu_2_physical_apicid[cpu] = apicid;
-@@ -550,6 +592,7 @@
- 	if (clustered_apic_mode) {
- 		logical_apicid_2_cpu[apicid] = -1;	
- 		cpu_2_logical_apicid[cpu] = -1;
-+		unmap_cpu_to_node(cpu, apicid >> 4);
- 	} else {
- 		physical_apicid_2_cpu[apicid] = -1;	
- 		cpu_2_physical_apicid[cpu] = -1;
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.46-vanilla/include/asm-i386/smpboot.h linux-2.5.46-i386_topo_fix/include/asm-i386/smpboot.h
---- linux-2.5.46-vanilla/include/asm-i386/smpboot.h	Mon Nov  4 14:30:51 2002
-+++ linux-2.5.46-i386_topo_fix/include/asm-i386/smpboot.h	Mon Nov  4 16:43:49 2002
-@@ -23,6 +23,14 @@
-  #define boot_cpu_apicid boot_cpu_physical_apicid
- #endif /* CONFIG_CLUSTERED_APIC */
- 
-+#ifdef CONFIG_X86_NUMAQ
-+/*
-+ * Mappings between logical cpu number and node number
-+ */
-+extern volatile unsigned long node_2_cpu_mask[];
-+extern volatile int cpu_2_node[];
-+#endif /* CONFIG_X86_NUMAQ */
-+
- /*
-  * Mappings between logical cpu number and logical / physical apicid
-  * The first four macros are trivial, but it keeps the abstraction consistent
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.46-vanilla/include/asm-i386/topology.h linux-2.5.46-i386_topo_fix/include/asm-i386/topology.h
---- linux-2.5.46-vanilla/include/asm-i386/topology.h	Mon Nov  4 14:30:10 2002
-+++ linux-2.5.46-i386_topo_fix/include/asm-i386/topology.h	Mon Nov  4 16:43:49 2002
-@@ -32,7 +32,7 @@
- #include <asm/smpboot.h>
- 
- /* Returns the number of the node containing CPU 'cpu' */
--#define __cpu_to_node(cpu) (cpu_to_logical_apicid(cpu) >> 4)
-+#define __cpu_to_node(cpu) (cpu_2_node[cpu])
- 
- /* Returns the number of the node containing MemBlk 'memblk' */
- #define __memblk_to_node(memblk) (memblk)
-@@ -41,44 +41,11 @@
-    so it is a pretty simple function! */
- #define __parent_node(node) (node)
- 
--/* Returns the number of the first CPU on Node 'node'.
-- * This should be changed to a set of cached values
-- * but this will do for now.
-- */
--static inline int __node_to_first_cpu(int node)
--{
--	int i, cpu, logical_apicid = node << 4;
--
--	for(i = 1; i < 16; i <<= 1)
--		/* check to see if the cpu is in the system */
--		if ((cpu = logical_apicid_to_cpu(logical_apicid | i)) >= 0)
--			/* if yes, return it to caller */
--			return cpu;
--
--	BUG(); /* couldn't find a cpu on given node */
--	return -1;
--}
--
--/* Returns a bitmask of CPUs on Node 'node'.
-- * This should be changed to a set of cached bitmasks
-- * but this will do for now.
-- */
--static inline unsigned long __node_to_cpu_mask(int node)
--{
--	int i, cpu, logical_apicid = node << 4;
--	unsigned long mask = 0UL;
--
--	if (sizeof(unsigned long) * 8 < NR_CPUS)
--		BUG();
--
--	for(i = 1; i < 16; i <<= 1)
--		/* check to see if the cpu is in the system */
--		if ((cpu = logical_apicid_to_cpu(logical_apicid | i)) >= 0)
--			/* if yes, add to bitmask */
--			mask |= 1 << cpu;
-+/* Returns a bitmask of CPUs on Node 'node'. */
-+#define __node_to_cpu_mask(node) (node_2_cpu_mask[node])
- 
--	return mask;
--}
-+/* Returns the number of the first CPU on Node 'node'. */
-+#define __node_to_first_cpu(node) (__ffs(__node_to_cpu_mask(node)))
- 
- /* Returns the number of the first MemBlk on Node 'node' */
- #define __node_to_memblk(node) (node)
+Enjoy !!
 
---------------050107050609030306010306--
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.20-rc1-jam2 (gcc 3.2 (Mandrake Linux 9.1 3.2-3mdk))

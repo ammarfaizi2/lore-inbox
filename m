@@ -1,99 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284785AbRLEWrs>; Wed, 5 Dec 2001 17:47:48 -0500
+	id <S284781AbRLEWrS>; Wed, 5 Dec 2001 17:47:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284789AbRLEWrk>; Wed, 5 Dec 2001 17:47:40 -0500
-Received: from nat.transgeek.com ([66.92.79.28]:45821 "HELO smtp.transgeek.com")
-	by vger.kernel.org with SMTP id <S284788AbRLEWrX>;
-	Wed, 5 Dec 2001 17:47:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Craig Christophel <merlin@transgeek.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: shrink_caches inconsistancy
-Date: Wed, 5 Dec 2001 17:49:12 -0500
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011205184445.3E4B6C7382@smtp.transgeek.com>
+	id <S284788AbRLEWrI>; Wed, 5 Dec 2001 17:47:08 -0500
+Received: from 222-VALL-X6.libre.retevision.es ([62.83.214.222]:14597 "EHLO
+	ragnar-hojland.com") by vger.kernel.org with ESMTP
+	id <S284781AbRLEWq7>; Wed, 5 Dec 2001 17:46:59 -0500
+Date: Tue, 4 Dec 2001 23:25:52 +0100
+From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue
+Message-ID: <20011204232552.A1034@ragnar-hojland.com>
+In-Reply-To: <20011202190635.J2622@work.bitmover.com> <200112040139.fB41d8ld026671@sleipnir.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200112040139.fB41d8ld026671@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Mon, Dec 03, 2001 at 10:39:08PM -0300
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 03, 2001 at 10:39:08PM -0300, Horst von Brand wrote:
+> >         If you want an experiment in evolution, then let *everything* into
+> > the kernel.  That's how evolution works, it tries everything, it doesn't
+> > prescreen.  Go read Darwin, go think, there isn't any screening going on,
+> > evolution *is* the screening.
+> 
+> Why does the screening have to be at the level of full organisms? It
+> _looks_ that way because you don't see the busted sperm or broken eggs, or
+> the stillborn embryos which make up the "preliminary checks show it won't
+> work" in nature. The process is (hopefully) much more efficient here than
+> in nature, and visible, that is all.
 
-locking issue with return 0; inside the lock/unlock_kernel calls.  previous 
-patch is crap.  use this one instead.
+And I'd add something more along those lines..
 
+Evolution and selection is about species, not individuals as its commonly
+considered, so what might be bad for an individual (getting "screened" at
+early ages) might be good for (reproduction of) the species (since it
+ensures a better reproduction material quality)  Darwinian evolution doesnt
+fit too well in the kernel.
 
-Craig.
+On the other hand we can think of developers' minds as a copy-on-write DNA.
+DNA knows when something wont work, so it doesn't try it.   Screening :)
 
-
-
-diff -urN linux/fs/dcache.c linux.mt/fs/dcache.c
---- linux/fs/dcache.c   Sat Dec  1 17:21:03 2001
-+++ linux.mt/fs/dcache.c        Wed Dec  5 16:13:38 2001
-@@ -543,7 +543,7 @@
-  * too much.
-  *
-  * Priority:
-- *   0 - very urgent: shrink everything
-+ *   1 - very urgent: shrink everything
-  *  ...
-  *   6 - base-level: try to shrink a bit.
-  */
-diff -urN linux/fs/dquot.c linux.mt/fs/dquot.c
---- linux/fs/dquot.c    Thu Nov 22 13:38:31 2001
-+++ linux.mt/fs/dquot.c Wed Dec  5 17:46:29 2001
-@@ -407,11 +407,31 @@
-                head = free_dquots.prev;
-        }
- }
-+/*
-+ * This is called from kswapd when we think we need some
-+ * more memory, but aren't really sure how much. So we
-+ * carefully try to free a _bit_ of our dqcache, but not
-+ * too much.
-+ *
-+ * Priority:
-+ *   1 - very urgent: shrink everything
-+ *   ...
-+ *   6 - base-level: try to shrink a bit.
-+ */
-
- int shrink_dqcache_memory(int priority, unsigned int gfp_mask)
- {
-+       int count = 0;
-+
-+
-+       if (!(gfp_mask & __GFP_FS))
-+               return 0;
-+
-        lock_kernel();
--       prune_dqcache(nr_free_dquots / (priority + 1));
-+
-+       count = nr_free_dquots / priority;
-+
-+       prune_dqcache(count);
-        unlock_kernel();
-        kmem_cache_shrink(dquot_cachep);
-        return 0;
-diff -urN linux/fs/inode.c linux.mt/fs/inode.c
---- linux/fs/inode.c    Sat Dec  1 17:21:03 2001
-+++ linux.mt/fs/inode.c Wed Dec  5 16:37:25 2001
-@@ -707,7 +707,17 @@
-        if (goal)
-                schedule_task(&unused_inodes_flush_task);
- }
--
-+/*
-+ * This is called from kswapd when we think we need some
-+ * more memory, but aren't really sure how much. So we
-+ * carefully try to free a _bit_ of our icache, but not
-+ * too much.
-+ *
-+ * Priority:
-+ *   1 - very urgent: shrink everything
-+ *  ...
-+ *   6 - base-level: try to shrink a bit.
-+ */
- int shrink_icache_memory(int priority, int gfp_mask)
- {
-        int count = 0;
+-- 
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."

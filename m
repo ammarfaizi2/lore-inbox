@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132281AbRCWANk>; Thu, 22 Mar 2001 19:13:40 -0500
+	id <S132260AbRCWAYJ>; Thu, 22 Mar 2001 19:24:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132245AbRCWAMn>; Thu, 22 Mar 2001 19:12:43 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:24705 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S132277AbRCWAKp>;
-	Thu, 22 Mar 2001 19:10:45 -0500
-Date: Fri, 23 Mar 2001 01:09:32 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200103230009.BAA22702@harpo.it.uu.se>
-To: alan@lxorguk.ukuu.org.uk
+	id <S132284AbRCWAYD>; Thu, 22 Mar 2001 19:24:03 -0500
+Received: from owns.warpcore.org ([216.81.249.18]:6786 "EHLO owns.warpcore.org")
+	by vger.kernel.org with ESMTP id <S132260AbRCWAXw>;
+	Thu, 22 Mar 2001 19:23:52 -0500
+Date: Thu, 22 Mar 2001 18:20:48 -0600
+From: Stephen Clouse <stephenc@theiqgroup.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Guest section DW <dwguest@win.tue.nl>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Prevent OOM from killing init
-Cc: linux-kernel@vger.kernel.org
+Message-ID: <20010322182048.B1406@owns.warpcore.org>
+In-Reply-To: <3AB9313C.1020909@missioncriticallinux.com> <Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva> <20010322124727.A5115@win.tue.nl> <20010322142831.A929@owns.warpcore.org> <3C9BCD6E.94A5BAA0@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Disposition: inline; filename="msg.pgp"
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C9BCD6E.94A5BAA0@evision-ventures.com>; from dalecki@evision-ventures.com on Sat, Mar 23, 2002 at 01:33:50AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Mar 2001 23:43:57 +0000 (GMT), Alan Cox wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > >How do you return an out of memory error to a C program that is out of memory
-> > >due to a stack growth fault. There is actually not a language construct for it
-> > SIGSEGV.
-> > Stack overflow for a language like C using standard implementation techniques
-> > is the same as a page fault while accessing a page for which there is no backing
-> > store. SIGSEGV is the logical choice, and the one I'd expect on other Unices.
-> 
-> Guess again. You are expanding the stack because you have no room left on it.
-> You take a fault. You want to report a SIGSEGV. Now where are you
-> going to put the stack frame ?
-> 
-> SIGSEGV in combination with a preallocated alternate stack maybe
+On Sat, Mar 23, 2002 at 01:33:50AM +0100, Martin Dalecki wrote:
+> AMEN! TO THIS!
+> Uptime of a process is a much better mesaure for a killing candidate
+> then it's size.
 
-Oh I know 99% of the processes getting this will die. The behaviour I'd
-expect from vanilla code in this particular case (stack overflow) is:
-- page fault in stack "segment"
-- no backing store available
-- post SIGSEGV to current
-  * push sighandler frame on current stack (or altstack, if registered) [+]
-  * no room? SIG_DFL, i.e kill
+Thing is, if you take a good study of mm/oom_kill.c, it *does* take start time
+into account, as well as CPU time.  The problem is that a process (like Oracle,
+in our case) using ludicrous amounts of memory can still rank at the top of the 
+list, even with the time-based reduction factors, because total VM is the
+starting number in the equation for determining what to kill.  Oracle or what
+not sitting at 80 MB for a day or two will still find a way to outrank the
+newly-started 1 MB shell process whose malloc triggered oom_kill in the first
+place.
 
-My point is that with overcommit removed, there's no question as to
-which process is actually out of memory. No need for the kernel to guess;
-since it doesn't guess, it cannot guess wrong.
+If anything, time really needs to be a hard criterion for sorting the final list
+on and not merely a variable in the equation and thus tied to vmsize.
 
-Concerning the stack: sure, oom makes it problematic to report the
-error in a useful way. So use sigaltstack() and SA_ONSTACK. [+]
-Processes that don't do this get killed, but not because oom_kill
-did some fancy guesswork.
+This is why the production database boxen aren't running 2.4 yet.  I can control
+Oracle's usage very finely (since it uses a fixed memory pool preallocated at
+startup), but if something else decides to fire up on there (like the nightly
+backup and maintenance routine) and decides it needs just a pinch more memory
+than what's available -- ick.  2.2.x doesn't appear to enforce new memory 
+allocation with a sniper rifle -- the new process just suffers a pleasant ("Out
+of memory!") or violent (SIGSEGV) death.
 
-[+] Speaking as a hacker on a runtime system for a concurrent
-programming language (Erlang), I consider the current Unix/POSIX/Linux
-default of having the kernel throw up[*] at the user's current stack
-pointer to be unbelievably broken. sigaltstack() and SA_ONSTACK should
-not be options but required behaviour.
+- -- 
+Stephen Clouse <stephenc@theiqgroup.com>
+Senior Programmer, IQ Coordinator Project Lead
+The IQ Group, Inc. <http://www.theiqgroup.com/>
 
-[*] Signal & trap frames used to be called "stack puke" in old 68k days.
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8
 
-/Mikael
+iQA/AwUBOrqW3wOGqGs0PadnEQLZUwCfWTr8HwAChQamWWvWWzZcX5DZ8PAAnROB
+Ja25OAQu3W1h7Ck0SU/TfKj8
+=VlQt
+-----END PGP SIGNATURE-----

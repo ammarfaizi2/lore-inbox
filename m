@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129597AbQLRV6B>; Mon, 18 Dec 2000 16:58:01 -0500
+	id <S129525AbQLRWEN>; Mon, 18 Dec 2000 17:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbQLRV5v>; Mon, 18 Dec 2000 16:57:51 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:9996
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129597AbQLRV5l>; Mon, 18 Dec 2000 16:57:41 -0500
-Date: Mon, 18 Dec 2000 13:27:07 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: SerialATA Release, sortof........
-Message-ID: <Pine.LNX.4.10.10012181325170.24738-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129524AbQLRWED>; Mon, 18 Dec 2000 17:04:03 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:62100 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S129464AbQLRWDq>;
+	Mon, 18 Dec 2000 17:03:46 -0500
+Date: Mon, 18 Dec 2000 16:33:13 -0500
+Message-Id: <200012182133.QAA02136@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+CC: David Schwartz <davids@webmaster.com>,
+        Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: Jamie Lokier's message of Mon, 18 Dec 2000 21:38:01 +0100,
+	<20001218213801.A19903@pcep-jamie.cern.ch>
+Subject: Re: /dev/random: really secure?
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   Date: 	Mon, 18 Dec 2000 21:38:01 +0100
+   From: Jamie Lokier <lk@tantalophile.demon.co.uk>
 
-FYI
+   David Schwartz wrote:
+   > The code does its best to estimate how much actual entropy it is gathering.
 
-The Serial ATA specification (500 pages) is now available to the public
-under certain "click-to-accept" conditions.  Click the "specification"
-link at the bottom of the home page at http://www.serialata.org/.
-I hope the conditions are acceptable. The file is zipped MS Word.
+   A potential weakness.  The entropy estimator can be manipulated by
+   feeding data which looks random to the estimator, but which is in fact
+   not random at all.
 
-This just for those that care...please do not ask me for my copy as I am a
-member of this working group and bound under the NDA.
+Yes, absolutely.  That's why you have to be careful before you make
+changes to the kernel code to feed additional data to the estimator.
+*Usually* relying on interrupt timing is safe, but not always.  For
+example, an adversary can observe, and in some cases control the
+arrivial of network packets which control the network card's interrupt
+timings.  Is it enough to be able to predict with cpu-counter
+resolution the inputs to the /dev/random pool?  Maybe; it depends on how
+paranoid you are.
 
-Regards,
+Note that writing to /dev/random does *not* update the entropy estimate,
+for this very reason.  The assumption is that inputs to the entropy
+estimator have to be trusted, and since /dev/random is typically
+world-writeable, it is not so trusted.
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
-
+					- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288953AbSBDMt2>; Mon, 4 Feb 2002 07:49:28 -0500
+	id <S288963AbSBDM5I>; Mon, 4 Feb 2002 07:57:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288955AbSBDMtS>; Mon, 4 Feb 2002 07:49:18 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:59660 "EHLO
+	id <S288956AbSBDM46>; Mon, 4 Feb 2002 07:56:58 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:41231 "EHLO
 	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S288953AbSBDMtB>; Mon, 4 Feb 2002 07:49:01 -0500
-Message-Id: <200202041247.g14ClUt12479@Port.imtp.ilyichevsk.odessa.ua>
+	id <S288955AbSBDM4x>; Mon, 4 Feb 2002 07:56:53 -0500
+Message-Id: <200202041255.g14CtDt12574@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=US-ASCII
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Steven Walter <srwalter@hapablap.dyn.dhs.org>
-Subject: Re: VIA Northing workaround /causing/ problems
-Date: Mon, 4 Feb 2002 14:47:31 -0200
+To: "Luis A. Montes" <Luis.A.Montes.1@worldnet.att.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 filesystem corruption
+Date: Mon, 4 Feb 2002 14:55:15 -0200
 X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020202224032.A8010@hapablap.dyn.dhs.org>
-In-Reply-To: <20020202224032.A8010@hapablap.dyn.dhs.org>
-Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200202030538.g135chu00602@penguin.montes2.org>
+In-Reply-To: <200202030538.g135chu00602@penguin.montes2.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 February 2002 02:40, Steven Walter wrote:
-> I recently upgraded my kernel from 2.4.10-pre6 to 2.4.18-pre2.  After
-> doing so, X acted extremely weird; whenever just about anything
-> happened, lines would appear across the screen, almost like static.
+On 3 February 2002 03:38, Luis A. Montes wrote:
+> I have been experiencing filesystem corruption very frequently with
+> 2.4.17. I've probably reinstalled my system more than 10 times in as
+> many days. So far it seems to be related to the kernel version and
+> perhaps to the UDMA settings. I haven't been able to crash the system
+> running 2.4.5 or 2.2.19, but it has crashed with 2.4.17 every time,
+> regardless of cpu optimization (Athlon, K6 or i386), AGP (built-in, as
+> a module or not built), filesystem (ext2 or xfs). Last kernel I tried
+> was a 2.4.17 with a ext2 fs and a patch I found by Lionel Bouton in
+> this list to handle my SiS 735 chipset. It did seem more stable for a
+> while, until I decided to try and enable ultra dma 66 on my primary
+> drive. The two partitions that I had mounted got completely corrupted
+> (on boot the kernel tried to mount it as a UMSDOS fs) and e2fsck
+> wasn't able to fix it. It did seem to work with udma 33, I compiled
+> the kernel without a problem as a test of disk IO, but I can't really
+> tell for sure that there wasn't a subtle disk corruption just waiting
+> to crop up.
 >
-> After playing around with a few config options that I'd changed, with no
-> results, I noticed the message about the VIA northbridge bug in dmesg.
-> I commented out the line listing this chipset in pci-pc.c, recompiled,
-> and sure enough that fixed the problem!
+> My system is as follows:
 >
-> This board is based on the KT33 chipset.  If anyone would like more
-> information, email me.
+> ECS K7S5A Motherboard with the SiS 735 chipset, 128MB of PC133 SDRAM
+> and Athlon XP 1700+ processor at 1.4 something MHz. Memory is good,
+> tested with memtest86 overnight several full passes.
+>
+> hda: Western Digital Caviar WDC AC313000R (it is *not* in the udma
+> black list, should it be?)
 
-Can you play with it a bit more?
-Go to that file, uncomment it back, fiddle with
-pci_fixup_via_northbridge_bug(): try to clear only bit 7,
-then only 7 and 6 and see which cause it...
-Make it print reg#, old, new contents:
-...
-printk("Trying to stomp on VIA Northbridge bug: [%02x] %02x->%02x\n", where, v, v & 0x1f);
-...
-etc.
-Original function for your reference:
+Maybe. Your report might lead to this, can you test with some hdd known to 
+work with UDMA66+ in another box?
 
-static void __init pci_fixup_via_northbridge_bug(struct pci_dev *d)
-{
-        u8 v;
-        int where = 0x55;
-        if (d->device == PCI_DEVICE_ID_VIA_8367_0) {
-                where = 0x95; /* the memory write queue timer register is
-                                 different for the kt266x's: 0x95 not 0x55 */
-        }
-        pci_read_config_byte(d, where, &v);
-        if (v & 0xe0) {
-                printk("Trying to stomp on VIA Northbridge bug...\n");
-                v &= 0x1f; /* clear bits 5, 6, 7 */
-                pci_write_config_byte(d, where, v);
-        }
-}
+> hdb: Western Digital Caviar WDC AC23200L (this one is in the black
+> list, but is not being mounted, so it shouldn't matter, right?)
+
+Trying to disconnect it and provoke fs corruption on a test partition
+on the first drive sounds like good idea...
+
+> Software: Straight Slackware 8 install, with XFree86 from cvs. But
+> lately I havent even tried glx, dri et al at all ...
+>
+> Questions:
+>
+> - There is a patch by the IDE maintainer (Andre Hedrick?), but I don't
+>   know if that is supposed to make the system behave better or is a
+>   new major architectural change (if it is the latest I probably don't
+>   want to compound my problem, do I?) although at this point I'm
+>   willing to try almost anything, even windows ;-)
+
+Consider CC'ing Andre and Jens Axboe:
+andre@linuxdiskcert.org
+Jens Axboe <axboe@suse.de>
 --
 vda

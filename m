@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315205AbSEDT7W>; Sat, 4 May 2002 15:59:22 -0400
+	id <S315209AbSEDUO7>; Sat, 4 May 2002 16:14:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315207AbSEDT7W>; Sat, 4 May 2002 15:59:22 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:14040 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S315205AbSEDT7V>; Sat, 4 May 2002 15:59:21 -0400
-Date: Sat, 4 May 2002 21:54:45 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Robert Baruch <autophile@starband.net>
-cc: mdharm-usb@one-eyed-alien.net, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: Re: NDA used for drivers/usb/storage/shuttle_usbat.c?
-In-Reply-To: <200205041443.16772.autophile@starband.net>
-Message-ID: <Pine.NEB.4.44.0205042136420.283-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S315210AbSEDUO7>; Sat, 4 May 2002 16:14:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21518 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315209AbSEDUO6>;
+	Sat, 4 May 2002 16:14:58 -0400
+Message-ID: <3CD44120.7080709@mandrakesoft.com>
+Date: Sat, 04 May 2002 16:14:24 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: Regina Kodato <reginak@cyclades.com>, linux-kernel@vger.kernel.org,
+        akpm@zip.com.au
+Subject: Re: [2.5 patch] s|linux/malloc.h|linux/slab.h| in drivers/net/wan/pc300_tty.c
+In-Reply-To: <Pine.NEB.4.44.0205041738540.283-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 May 2002, Robert Baruch wrote:
+Adrian Bunk wrote:
 
-> Adrian,
-
-Hi Robert,
-
-> In personal communication with the representative of the NDA for SCM, I have
-> been assured that an open-source driver would not violate the NDA. I can
-> update the comment to this effect.
-
-thanks, that is exactly what I was interested in.
-
-> --Rob
-
-cu
-Adrian
-
-BTW: Sorry for the Cc's to linux-kernel. It would have been enough to send
-     my first mail only to you.
+>Hi Regina,
+>
+>the patch below fixes the compilation of pc300_tty.c in 2.5.13 and
+>2.5.13-dj2:
+>
 
 
--- 
+I'm completely amazed this slipped past me, since I did compile tests 
+when I merged it.
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+Thanks much for the patch.
+
+    Jeff
+
+
 
 

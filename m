@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266356AbTBPLSd>; Sun, 16 Feb 2003 06:18:33 -0500
+	id <S266320AbTBPLRr>; Sun, 16 Feb 2003 06:17:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266367AbTBPLSd>; Sun, 16 Feb 2003 06:18:33 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:22998 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266356AbTBPLSb>; Sun, 16 Feb 2003 06:18:31 -0500
-Date: Sun, 16 Feb 2003 12:28:23 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: kkeil@suse.de, kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] isdn_net_lib.c must include isdn_concap.h
-Message-ID: <20030216112823.GB20159@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266356AbTBPLRr>; Sun, 16 Feb 2003 06:17:47 -0500
+Received: from p0006.as-l043.contactel.cz ([194.108.242.6]:58103 "EHLO
+	SnowWhite.janik.cz") by vger.kernel.org with ESMTP
+	id <S266320AbTBPLRq> convert rfc822-to-8bit; Sun, 16 Feb 2003 06:17:46 -0500
+To: Larry McVoy <lm@work.bitmover.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: openbkweb-0.0
+References: <Pine.LNX.4.44.0302132224470.656-100000@dlang.diginsite.com>
+	<1045233701.7958.14.camel@irongate.swansea.linux.org.uk>
+	<20030214153039.GB3188@work.bitmover.com>
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Sun, 16 Feb 2003 12:17:22 +0100
+In-Reply-To: <20030214153039.GB3188@work.bitmover.com> (Larry McVoy's
+ message of "Fri, 14 Feb 2003 07:30:39 -0800")
+Message-ID: <m3wuk0jwzh.fsf@Janik.cz>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i386-suse-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With CONFIG_ISDN_X25 enabled I got the following compile error in 
-isdn_net_lib.c in 2.5.61:
+   From: Larry McVoy <lm@bitmover.com>
+   Date: Fri, 14 Feb 2003 07:30:39 -0800
 
-<--  snip  -->
+Larry,
 
-...
-  gcc -Wp,-MD,drivers/isdn/i4l/.isdn_net_lib.o.d -D__KERNEL__ -Iinclude 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=isdn_net_lib -DKBUILD_MODNAME=isdn -c -o 
-drivers/isdn/i4l/isdn_net_lib.o drivers/isdn/i4l/isdn_net_lib.c
-...
-drivers/isdn/i4l/isdn_net_lib.c: In function `isdn_net_lib_init':
-drivers/isdn/i4l/isdn_net_lib.c:2330: `isdn_x25_ops' undeclared (first 
-use in this function)
-drivers/isdn/i4l/isdn_net_lib.c:2330: (Each undeclared identifier is 
-reported only once
-drivers/isdn/i4l/isdn_net_lib.c:2330: for each function it appears in.)
-make[3]: *** [drivers/isdn/i4l/isdn_net_lib.o] Error 1
+   > Third of all, you could be right, I could be wrong, and I'm still right.
+   > We give the software away for *free*.  We *own* it.  If it turns out that
+   > people want to behave like little children and not play nice, no problem,
+   > we'll promptly fork the tree and you are stuck with whatever version you
+   > had at the point you decided to not play nice.  
 
-<--  snip  -->
+you are talking about forking BK, not Linux. Right?
 
-The following patch solved it for me:
+Your last sentence seems to me like from Microsoft.
+-- 
+Pavel Janík
 
---- linux-2.5.61-full/drivers/isdn/i4l/isdn_net_lib.c.old	2003-02-16 12:22:56.000000000 +0100
-+++ linux-2.5.61-full/drivers/isdn/i4l/isdn_net_lib.c	2003-02-16 12:24:39.000000000 +0100
-@@ -58,6 +58,7 @@
- #include "isdn_net.h"
- #include "isdn_ppp.h"
- #include "isdn_ciscohdlck.h"
-+#include "isdn_concap.h"
- 
- #define ISDN_NET_TX_TIMEOUT (20*HZ) 
- 
-
-
-cu
-Adrian
-
-
+I'm glad I'm not as fat and slow running as Emacs (20)...
+                  -- Lars G. T. Jorgensen in gnu.emacs.help

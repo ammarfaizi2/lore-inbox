@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266669AbTGKUVW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 16:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266665AbTGKUT3
+	id S264957AbTGKUYt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 16:24:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264701AbTGKUYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 16:19:29 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19986 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S266620AbTGKUTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 16:19:09 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Style question: Should one check for NULL pointers?
-Date: 11 Jul 2003 13:33:18 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ben6ue$mj9$1@cesium.transmeta.com>
-References: <Pine.LNX.4.44L0.0307102233230.12370-100000@netrider.rowland.org> <3F0EC9C9.4090307@inet.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	Fri, 11 Jul 2003 16:24:48 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:62219 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S266767AbTGKUYJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 16:24:09 -0400
+Date: Fri, 11 Jul 2003 22:38:50 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030711203850.GB20970@win.tue.nl>
+References: <20030711140219.GB16433@suse.de> <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk> <20030711155613.GC2210@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030711155613.GC2210@gtf.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3F0EC9C9.4090307@inet.com>
-By author:    Eli Carter <eli.carter@inet.com>
-In newsgroup: linux.dev.kernel
-> > 
-> > Not really needed, since a segfault will produce almost as much 
-> > information as a BUG_ON().  Certainly it will produce enough to let a 
-> > developer know that the pointer was NULL.
-> 
-> Your first message said, "I see no reason for pure paranoia, 
-> particularly if it's not commented as such."  A BUG_ON() call makes it 
-> clear that the condition should never happen.  Dereferencing a NULL 
-> leaves the question of whether NULL is an unhandled case or invalid 
-> input.  BUG_ON() is an explicit paranoia check, and with a bit of 
-> preprocessing magic, you could compile out all of those checks.
-> 
-> So it documents invalid input conditions, allows you to eliminate the 
-> checks in the name of speed or your personal preference, or use them to 
-> help with debugging/testing.
-> 
+On Fri, Jul 11, 2003 at 11:56:13AM -0400, Jeff Garzik wrote:
 
-... but it also bloats the code, in this case, in many ways
-needlessly.  You don't want to compile out all BUG_ON()'s, just the
-ones that wouldn't be checked for anyway.
+> Definitely.  I'm hoping that people will decide upon a userland that
+> supports the popular (non-raid) partition tables as well as the simple
+> raid partitions, too.
 
-In fact, have a macro that explicitly tests for nullness by
-dereferencing a pointer might be a good idea; on most architectures it
-will be a lot cheaper than BUG_ON() (which usually requires an
-explicit test), and the compiler at least has a prayer at optimizing
-it out.
+That reminds me.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Our DOS-type partition tables are close to their limit -
+regularly people complain about things that do not work
+with disks of size between 1 TB and 2 TB, and if not today
+then very soon we'll see disks too large to handle with
+DOS-type partition tables.
+
+Two years ago or so I wrote some simple-minded stuff -
+maybe there also was discussion on Linux-type partition tables,
+I forgot all about it.
+(Maybe the format was plan9-inspired, with sequence number,
+start, size, label and uuid, all in ASCII.)
+
+What is the situation today? What is the structure of these
+LVM or raid partition tables? Is there some natural type
+suitable for crossing the 2 TB limit?
+Is it better to invent a Linux-type partition table?
+
+Andries
+

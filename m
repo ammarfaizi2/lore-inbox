@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbUCIXs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 18:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUCIXs2
+	id S262351AbUCIXrC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 18:47:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUCIXrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 18:48:28 -0500
-Received: from linux-bt.org ([217.160.111.169]:33238 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S262285AbUCIXsX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 18:48:23 -0500
-Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
-From: Marcel Holtmann <marcel@holtmann.org>
-To: James Ketrenos <jketreno@linux.co.intel.com>
-Cc: arjanv@redhat.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <404E3EBB.7030803@linux.co.intel.com>
-References: <404E27E6.40200@linux.co.intel.com>
-	 <1078865831.4452.16.camel@laptop.fenrus.com>
-	 <404E3EBB.7030803@linux.co.intel.com>
-Content-Type: text/plain
-Message-Id: <1078876080.10671.114.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 10 Mar 2004 00:48:01 +0100
+	Tue, 9 Mar 2004 18:47:01 -0500
+Received: from moutng.kundenserver.de ([212.227.126.184]:28650 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262351AbUCIXq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 18:46:27 -0500
+From: "Ingo at Pyrillion" <ingo@pyrillion.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.6.3 patch for Intel Compiler 8.0
+Date: Wed, 10 Mar 2004 00:46:20 +0100
+Message-ID: <000001c40630$b9705480$374ca8c0@bunnybook2>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:c4c36d513a3e07b982252e2b8ea3678d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
+Hi,
 
-> I was going down the path of using request_firmware but needed to support older 
-> 2.4 kernels as well, so I punted for the time being and stuck with what you 
-> currently see.
+please have a look at http://www.pyrillion.org/linuxkernelpatch.html
+for a working 2.6.3 patch to compile the kernel with Intel Compiler 8.0 
+for Linux.
 
-the request_firmware() is part of 2.4.23 and onwards. I have a backport
-of it in my Bluetooth patches down to 2.4.18. Take a look at
+Please CC me in answers/replies to this mail.
 
-	http://www.holtmann.org/linux/kernel/
+Rgs, Ingo Kubbilun.
 
-Regards
-
-Marcel
 
 

@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278890AbRKIA36>; Thu, 8 Nov 2001 19:29:58 -0500
+	id <S278908AbRKIA36>; Thu, 8 Nov 2001 19:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278908AbRKIA3t>; Thu, 8 Nov 2001 19:29:49 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:41424 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S278911AbRKIA3a>; Thu, 8 Nov 2001 19:29:30 -0500
-Date: Thu, 8 Nov 2001 16:25:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Tim Pepper <tpepper@vato.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Big USB speed difference when compiled as module (was Re: speed difference between using hard-linked and modular drives?)
-Message-ID: <20011108162559.A1632@us.ibm.com>
-In-Reply-To: <20011108142412.A19451@vato.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011108142412.A19451@vato.org>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.15-pre1 (i686)
+	id <S278924AbRKIA3k>; Thu, 8 Nov 2001 19:29:40 -0500
+Received: from [208.129.208.52] ([208.129.208.52]:9220 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S278890AbRKIA3X>;
+	Thu, 8 Nov 2001 19:29:23 -0500
+Date: Thu, 8 Nov 2001 16:37:46 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
+In-Reply-To: <20011108153749.A14468@mikef-linux.matchmail.com>
+Message-ID: <Pine.LNX.4.40.0111081632400.1501-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08, 2001 at 02:24:12PM -0800, Tim Pepper wrote:
-> BTW: is there a way to do USB sniffing in software in linux?  I'd imagine it's
-> possible, but just can't find anything that does...
+On Thu, 8 Nov 2001, Mike Fedyk wrote:
 
-There was a patch on the linux-usb-devel list a few months ago that
-contained a patch to do this.  You might check the archives if you're
-interested.
+> Ingo's patch in effect lowers the number of jiffies taken per second in the
+> scheduler (by making each task use several jiffies).
+>
+> Davide's patch can take the default scheduler (even Ingo's enhanced
+> scheduler) and make it per processor, with his extra layer of scheduling
+> between individual processors.
 
-thanks,
+Don't mix things :)
+We're talking only about the CpuHistory token of the scheduler proposed here:
 
-greg k-h
+http://www.xmailserver.org/linux-patches/mss.html
+
+This is a bigger ( and not yet complete ) change on the SMP scheduler
+behavior, while it keeps the scheduler that runs on each CPU the same.
+I'm currently working on different balancing methods to keep the proposed
+scheduler fair well balanced without spinning tasks "too much"(tm).
+
+
+
+
+- Davide
+
+

@@ -1,84 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267685AbUI1Mf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUI1Mff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267685AbUI1Mf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 08:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267683AbUI1Mf6
+	id S267651AbUI1Mff (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 08:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267683AbUI1Mff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 08:35:58 -0400
-Received: from smtp-vbr11.xs4all.nl ([194.109.24.31]:62481 "EHLO
-	smtp-vbr11.xs4all.nl") by vger.kernel.org with ESMTP
-	id S267685AbUI1Mfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 08:35:43 -0400
-Subject: Re: [OT] Microsoft claim 267% better peak performance than linux?
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200409281524.25187.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <20040928075545.GA3298@cenedra.walrond.org>
-	 <200409281524.25187.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1096374908.21271.38.camel@linux.local>
+	Tue, 28 Sep 2004 08:35:35 -0400
+Received: from 217-114-210-112.kunde.vdserver.de ([217.114.210.112]:21764 "EHLO
+	old-fsckful.ath.cx") by vger.kernel.org with ESMTP id S267651AbUI1Mec
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 08:34:32 -0400
+Date: Tue, 28 Sep 2004 14:34:26 +0200
+From: Andreas Happe <andreashappe@flatline.ath.cx>
+To: Michal Ludvig <michal@logix.cz>
+Cc: James Morris <jmorris@redhat.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, Andreas Happe <crow@old-fsckful.ath.cx>
+Subject: Re: [cryptoapi/sysfs] display cipher details in sysfs
+Message-ID: <20040928123426.GA21069@final-judgement.ath.cx>
+References: <20040831175449.GA2946@final-judgement.ath.cx> <Xine.LNX.4.44.0409010043020.30561-100000@thoron.boston.redhat.com> <20040901082819.GA2489@final-judgement.ath.cx> <Pine.LNX.4.53.0409061847000.25698@maxipes.logix.cz> <20040907143509.GA30920@old-fsckful.ath.cx> <Pine.LNX.4.53.0409071659070.19015@maxipes.logix.cz> <20040910105502.GA4663@final-judgement.ath.cx> <20040927084149.GA3625@final-judgement.ath.cx> <Pine.LNX.4.53.0409271046280.12238@maxipes.logix.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 28 Sep 2004 14:35:09 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0409271046280.12238@maxipes.logix.cz>
+X-Request-PGP: subkeys.pgp.net
+X-Hangover: none
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The document shows some interesting points though:
-- They describe what they did to make redhat/apache perform better
-- ISAPI is pretty fast compared to CGI (Didn't apache recently release a
-programming interface which is cross platform and does something like
-this too?)
-- Multithreading works in their advantage (Compare 2003 normal against
-multithreaded, maybe too little amount of apache threads running, or
-some optimization needed in the linux kernel here?)
-And last but not least:
-WIndows 2003 suddenly realizes that is has a few CPU's left and starts
-using them (-: See the graphs where there is a weird bent in the 8 CPU
-curve.
+Michal Ludvig <michal@logix.cz> [040927 11:32]:
+>BTW In http://lists.logix.cz/pipermail/cryptoapi/2004/000088.html I
+>described a concept of "preferences" that was done for the current
+>cryptoapi. How to do something similar with your patch applied?
 
-And it still doesn't matter actually: 286% faster is still about 3 times
-more expensive, which is the point on which is must be compared (lower
-TCO because we are faster, so MS TCO is lower, but still too high)
+The class - objects are used just for display use.. your patch should
+apply (sans offsets) without problems.. I don't think that the two
+different algorithms would be displayed in sysfs as i use the cra_name
+as directory name (which should be aes for aes and aes-i586).
 
+>If I'd finally have two or more modules for the same algorithm loaded, how
+>should the /sys subtree look like?
 
+good one.
 
-On Tue, 2004-09-28 at 17:24, Denis Vlasenko wrote:
-> On Tuesday 28 September 2004 07:55, Andrew Walrond wrote:
-> > I was pointed to this (rotating) banner advert at the top of www.eweek.com
-> >
-> > It claims that when comparing Red Hat AS2.1 with Windows Server 2003 on a
-> > dual processor machine, Windows Server 2003 gives 276% better peak
-> > performance, quoting Veritest as the source.
-> 
-> It is very easy to 'slightly' misconfigure Linux machine so that it
-> slows to a crawl. For webservers, classic way to do it is to force
-> Apache to log a fqdn of incoming connections instead of numeric IP.
-> 
-> From pdf:
-> > Microsoft commissioned VeriTest, a division of Lionbridge
-> > Technologies, Inc., to conduct a series of tests comparing
-> > the Web serving performance of the following server operating
-> > system configurations running on a variety of server hardware
-> > and processor configurations...
-> 
-> Do you seriously expect that MS-funded tests can ever find Linux
-> to be faster?
--- 
-Met vriendelijke groet,
+If there are lots of different implementation for a given algorithm it
+could be worthwhile to create a algorithm and a implementation -
+directory e.g.
 
-Norbert van Nobelen
-EduSupport
+ls /sysfs/class/crypto/implementations would list:
+aes-i586 aes-c4 md5 sha1 sha256-c4
 
-Postbus 95963
-2509CZ Den Haag
-T: 070-3280200
-M: 06-43036586
-F: 070-3280029
-E: Norbert@edusupport.nl
-I: www.edusupport.nl
-B: ABN AMRO
-R: 47.38.00.411
+and: ls /sysfs/class/crypto/algorithms
+aes
 
+with ls /sysfs/class/crypto/algorithms/aes
+name type implementations
+
+where implementations is a directory with links to the given
+implementations in /sysfs/class/crypto/implementations.
+
+Seems like a lot of work if there are only few implementations (like aes
+and aes-i586).
+
+the same could be done without the implementations - directory. If a new
+algorithm tries to register itself with a already registered name (and
+the module name isn't known) it is added to the
+/sysfs/class/crypto/<cra-name>/implementations - directory as
+<module-name>. All Algorithm - specific data would be displayed in the
+<cra-name> directory, the rest in the implementations/<module-name> -
+directory.
+
+I'm moving to vienna the day after tomorrow so don't expect too fast
+response times from me.
+
+	--Andreas

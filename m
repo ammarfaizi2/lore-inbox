@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274815AbTGaQoe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 12:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274817AbTGaQod
+	id S274823AbTGaQn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 12:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274824AbTGaQn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 12:44:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47802 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S274815AbTGaQo3 (ORCPT
+	Thu, 31 Jul 2003 12:43:29 -0400
+Received: from fed1mtao03.cox.net ([68.6.19.242]:2966 "EHLO fed1mtao03.cox.net")
+	by vger.kernel.org with ESMTP id S274823AbTGaQn2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 12:44:29 -0400
-Date: Thu, 31 Jul 2003 09:45:21 -0700
-From: Dave Olien <dmo@osdl.org>
-To: Bernd Eckenfels <ecki-lmk@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sparse function pointer arguments now accept void pointers
-Message-ID: <20030731164521.GA3796@osdl.org>
-References: <20030731052810.GA2853@osdl.org> <E19i6wG-0000Um-00@calista.inka.de>
+	Thu, 31 Jul 2003 12:43:28 -0400
+Date: Thu, 31 Jul 2003 09:43:26 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Ihar Philips Filipau <filia@softhome.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6 size increase
+Message-ID: <20030731164326.GG27214@ip68-0-152-218.tc.ph.cox.net>
+References: <eLiy.31J.3@gated-at.bofh.it> <eLBW.3eJ.7@gated-at.bofh.it> <eLVb.3yF.1@gated-at.bofh.it> <eOJn.5NI.1@gated-at.bofh.it> <f1dJ.GS.21@gated-at.bofh.it> <faTE.2LQ.3@gated-at.bofh.it> <fd56.4Te.9@gated-at.bofh.it> <fdRv.5uB.9@gated-at.bofh.it> <fnHd.54o.19@gated-at.bofh.it> <3F294461.2020902@softhome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E19i6wG-0000Um-00@calista.inka.de>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3F294461.2020902@softhome.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Bernd,
-
-I might have messed up here.  But could you give a little more explanation,
-to help me understand what you think is wrong with this and why?
-
-Dave
-
-On Thu, Jul 31, 2003 at 08:29:24AM +0200, Bernd Eckenfels wrote:
-> In article <20030731052810.GA2853@osdl.org> you wrote:
-> > This patch eliminates warnings of the form:
-> ...
-> > -       if (t->type == SYM_PTR) {
-> > +       if (t->type == SYM_PTR || t->type == SYM_FN) {
+On Thu, Jul 31, 2003 at 06:31:29PM +0200, Ihar Philips Filipau wrote:
+> Tom Rini wrote:
+> >
+> >Power Management, sysfs plays / will play a role in finding out the order
+> >in which devices get powered down.  This is important on some types of
+> >embedded devices (and arguably important everywhere).
+> >
 > 
-> unlikely
+>   You are contradicting to yourself.
 > 
-> Greetings
-> Bernd
-> -- 
-> eckes privat - http://www.eckes.org/
-> Project Freefire - http://www.freefire.org/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>   I have participated in creation of two specialized embedded systems, 
+> and currently going into third one.
+>   Every system were need some specialized shutdown sequence.
+>   None of them were need power saving.
+
+Shutdown != sleep.  If you want to wake devices up again, you need to do
+them in the right order.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,79 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbUCCPXS (ORCPT <rfc822;willy@w.ods.org>);
+	id S262481AbUCCPXS (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 3 Mar 2004 10:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUCCPXN
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbUCCPWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 10:23:13 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:19857 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262479AbUCCPUt
+	Wed, 3 Mar 2004 10:22:52 -0500
+Received: from fed1mtao08.cox.net ([68.6.19.123]:28117 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S262488AbUCCPW2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 10:20:49 -0500
-Date: Wed, 3 Mar 2004 16:22:13 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Krzysztof Halasa <khc@pm.waw.pl>, linuxabi@zytor.com
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
-Message-ID: <20040303152213.GA2148@mars.ravnborg.org>
-Mail-Followup-To: Krzysztof Halasa <khc@pm.waw.pl>,
-	linuxabi@zytor.com, Chris Friesen <cfriesen@nortelnetworks.com>,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-	linux-kernel@vger.kernel.org
-References: <200402291942.45392.mmazur@kernel.pl> <200402292130.55743.mmazur@kernel.pl> <c1tk26$c1o$1@terminus.zytor.com> <200402292221.41977.mmazur@kernel.pl> <yw1xn0711sgw.fsf@kth.se> <40434BD7.9060301@nortelnetworks.com> <m37jy4cuaw.fsf@defiant.pm.waw.pl>
+	Wed, 3 Mar 2004 10:22:28 -0500
+Date: Wed, 3 Mar 2004 08:22:27 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: George Anzinger <george@mvista.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kgdb-bugreport@lists.sourceforge.net,
+       "Amit S. Kale" <amitkale@emsyssoft.com>
+Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
+Message-ID: <20040303152226.GS20227@smtp.west.cox.net>
+References: <20040302213901.GF20227@smtp.west.cox.net> <40450468.2090700@mvista.com> <20040302221106.GH20227@smtp.west.cox.net> <20040302223143.GE1225@elf.ucw.cz> <20040302230018.GL20227@smtp.west.cox.net> <20040302233512.GJ1225@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m37jy4cuaw.fsf@defiant.pm.waw.pl>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040302233512.GJ1225@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Also sent to linuxabi@zytor.com]
-
-On Mon, Mar 01, 2004 at 07:10:31PM +0100, Krzysztof Halasa wrote:
+On Wed, Mar 03, 2004 at 12:35:12AM +0100, Pavel Machek wrote:
+> On ?t 02-03-04 16:00:18, Tom Rini wrote:
+> > On Tue, Mar 02, 2004 at 11:31:43PM +0100, Pavel Machek wrote:
+> > 
+> > > Hi!
+> > > 
+> > > > > Tom Rini wrote:
+> > > > > >Hello.  The following interdiff kills kgdb_serial in favor of function
+> > > > > >names.  This only adds a weak function for kgdb_flush_io, and documents
+> > > > > >when it would need to be provided.
+> > > > > 
+> > > > > It looks like you are also dumping any notion of building a kernel that can 
+> > > > > choose which method of communication to use for kgdb at run time.  Is this 
+> > > > > so?
+> > > > 
+> > > > Yes, as this is how Andrew suggested we do it.  It becomes quite ugly if
+> > > > you try and allow for any 2 of 3 methods.
+> > > 
+> > > I do not think that having kgdb_serial is so ugly. Are there any other
+> > > uglyness associated with that?
+> > 
+> > More precisely:
+> > http://lkml.org/lkml/2004/2/11/224
 > 
-> The "non-problem" here is, IMHO, that the cleaning of kernel headers
-> is quite trivial, and thus nobody is interested :-)
+> Well, that just says Andrew does not care too much. I think that
+> having both serial and ethernet support *is* good idea after all... I
+> have few machines here, some of them do not have serial, and some of
+> them do not have supported ethernet. It would be nice to use same
+> kernel on all of them. Also distribution wants to have "debugging
+> kernel", but does _not_ want to have 10 of them.
 
-The problem is that there is no infrastructure for abi only .h files (mainly).
-Matthew Wilcox + others IIRC has already posted a few patches, but I do not see
-this happening until 2.7 opens up.
+But unless I'm missing something, supporting eth or 8250 at all times
+doesn't work right now anyhow, as eth if available will always take over.
 
-When the proper infrastructure is agreed upon on lot's of people will put some effort
-in this janitorial type of work. But imagine all the small mistakes, something we do not
-want in 2.6.
-
-IIRC the current agreed scheme is something along the lines of this:
-
-abi/abi-linux/* Userspace relevant parts of include/linux
-abi/abi-asm/ symlink to abi/abi-$(ARCH)
-abi/abi-i386 i386 specific userland abi
-abi/abi-ppc  ppc ....
-
-
-So a header file in include/linux with a counterpart in abi could look like this:
-
-include/linux/wait.h:
-#include <abi-linux/wait.h>
-
-#include <linux/config.h>
-typedef struct __wait_queue wait_queue_t;
-...
-
-
-abi/abi-linux/wait.h:
-#define WNOHANG         0x00000001
-#define WUNTRACED       0x00000002
-
-
-
-This proposal meets some resistence related to internal issues such as
-renaming of internal types etc.
-But in the end the gain from a scheme like this outweights the drawbacks - IMHO. 
-
-And the backward compatible stuff can be located in abi where it may belong -
-if really needed.
-
-	Sam
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

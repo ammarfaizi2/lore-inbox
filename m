@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272504AbTGaPXm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 11:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272501AbTGaPWN
+	id S272533AbTGaPWG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 11:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272501AbTGaPUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 11:22:13 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:36224 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S272504AbTGaPVa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 11:21:30 -0400
-Date: Thu, 31 Jul 2003 16:20:07 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Timothy Miller <miller@techsource.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       James Simmons <jsimmons@infradead.org>, Charles Lepple <clepple@ghz.cc>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Turning off automatic screen clanking
-Message-ID: <20030731152007.GA6658@mail.jlokier.co.uk>
-References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org> <Pine.LNX.4.53.0307291338260.6166@chaos> <Pine.LNX.4.53.0307292015580.11053@montezuma.mastecende.com> <20030730012533.GA18663@mail.jlokier.co.uk> <Pine.LNX.4.53.0307292136050.11053@montezuma.mastecende.com> <3F2928AD.90501@techsource.com> <Pine.LNX.4.53.0307311056540.9348@montezuma.mastecende.com>
-Mime-Version: 1.0
+	Thu, 31 Jul 2003 11:20:24 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:34957 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S272504AbTGaPT2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 11:19:28 -0400
+Date: Thu, 31 Jul 2003 08:19:01 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2-mm1 results
+Message-ID: <59900000.1059664740@[10.10.2.4]>
+In-Reply-To: <200308010113.02866.kernel@kolivas.org>
+References: <5110000.1059489420@[10.10.2.4]> <200307310128.50189.kernel@kolivas.org> <58530000.1059663364@[10.10.2.4]> <200308010113.02866.kernel@kolivas.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307311056540.9348@montezuma.mastecende.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Thu, 31 Jul 2003, Timothy Miller wrote:
-> > This looks like it prevents blanking after panic.  What about UNblanking 
-> > during panic?
+>> Does this help interactivity a lot, or was it just an experiment?
+>> Perhaps it could be less agressive or something?
 > 
-> iirc the screen already unblanks. But it's been a while since i've looked 
-> at a panic'ing box via the screen.
+> Well basically this is a side effect of selecting out the correct cpu hogs in 
+> the interactivity estimator. It seems to be working ;-) The more cpu hogs 
+> they are the lower dynamic priority (higher number) they get, and the more 
+> likely they are to be removed from the active array if they use up their full 
+> timeslice. The scheduler in it's current form costs more to resurrect things 
+> from the expired array and restart them, and the cpu hogs will have to wait 
+> till other less cpu hogging tasks run. 
+> 
+> How do we get around this? I'll be brave here and say I'm not sure we need to, 
+> as cpu hogs have a knack of slowing things down for everyone, and it is best 
+> not just for interactivity for this to happen, but for fairness.
+> 
+> I suspect a lot of people will have something to say on this one...
 
-That's still not good enough if the boot-time crash is not a panic.
+Well, what you want to do is prioritise interactive tasks over cpu hogs.
+What *seems* to be happening is you're just switching between cpu hogs
+more ... that doesn't help anyone really. I don't have an easy answer
+for how to fix that, but it doesn't seem desireable to me - we need some
+better way of working out what's interactive, and what's not.
 
--- Jamie
+M.
+

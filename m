@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbUCLJiT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 04:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUCLJiS
+	id S262056AbUCLJhu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 04:37:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUCLJhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 04:38:18 -0500
-Received: from mail-07.iinet.net.au ([203.59.3.39]:20359 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262052AbUCLJiN
+	Fri, 12 Mar 2004 04:37:50 -0500
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:13270 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S262056AbUCLJht convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 04:38:13 -0500
-Message-ID: <405184F7.1050100@cyberone.com.au>
-Date: Fri, 12 Mar 2004 20:37:59 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
+	Fri, 12 Mar 2004 04:37:49 -0500
+Subject: Re: [PATCH] s390 bits for remap-file-pages-prot.
 To: Andrew Morton <akpm@osdl.org>
-CC: m.c.p@wolk-project.de, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       mfedyk@matchmail.com, plate@gmx.tm
-Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
-References: <404FACF4.3030601@cyberone.com.au>	<200403111825.22674@WOLK>	<40517E47.3010909@cyberone.com.au> <20040312012703.69f2bb9b.akpm@osdl.org>
-In-Reply-To: <20040312012703.69f2bb9b.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF0D40EF92.61026E45-ONC1256E55.0034AF3F-C1256E55.0034E157@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Fri, 12 Mar 2004 10:37:35 +0100
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 12/03/2004 10:37:36
+MIME-Version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Andrew Morton wrote:
 
->Nick Piggin <piggin@cyberone.com.au> wrote:
->
->>Hmm... I guess it is still smooth because it is swapping out only
->> inactive pages. If the standard VM isn't being pushed very hard it
->> doesn't scan mapped pages at all which is why it isn't swapping.
->>
->> I have a preference for allowing it to scan some mapped pages though.
->>
->
->I haven't looked at the code but if, as I assume, it is always scanning
->mapped pages, although at a reduced rate then the effect will be the same
->as setting swappiness to 100, except it will take longer.
->
->
 
-Yep
+> There's a little test app to check the functionality of the new syscall.
+> You'll need to tweak the syscall slot number.
 
->That effect is to cause the whole world to be swapped out when people
->return to their machines in the morning.  Once they're swapped back in the
->first thing they do it send bitchy emails to you know who.
->
->>From a performance perspective it's the right thing to do, but nobody likes
->it.
->
->
+Ok, just tried the test app. After tweaking the syscall number and some
+debugging I finally got it to work (there is a mean little/big endian
+problem in the test app). sys_remap_file_page works fine for me.
 
-Yeah. I wonder if there is a way to be smarter about dropping these
-used once pages without putting pressure on more permanent pages...
-I guess all heuristics will fall down somewhere or other.
+blue skies,
+   Martin
+
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
+
 

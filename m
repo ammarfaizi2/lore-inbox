@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277502AbRJERFO>; Fri, 5 Oct 2001 13:05:14 -0400
+	id <S277503AbRJERGo>; Fri, 5 Oct 2001 13:06:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277486AbRJERE7>; Fri, 5 Oct 2001 13:04:59 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60935 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277503AbRJEREk>; Fri, 5 Oct 2001 13:04:40 -0400
-Subject: Re: 3ware discontinuing the Escalade Series
-To: Ryan@srfarms.com (Ryan C. Bonham)
-Date: Fri, 5 Oct 2001 18:10:11 +0100 (BST)
-Cc: lm@bitmover.com (Larry McVoy),
-        alan@lxorguk.ukuu.org.uk ("Alan Cox (E-mail)"),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <19AB8F9FA07FB0409732402B4817D75A038B63@FILESERVER.SRF.srfarms.com> from "Ryan C. Bonham" at Oct 05, 2001 12:49:19 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277498AbRJERGe>; Fri, 5 Oct 2001 13:06:34 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10805 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S277505AbRJERGY>; Fri, 5 Oct 2001 13:06:24 -0400
+To: jdthood@home.dhs.org (Thomas Hood)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <20011003153550.0A0D85AC@thanatos.toad.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Oct 2001 10:57:12 -0600
+In-Reply-To: <20011003153550.0A0D85AC@thanatos.toad.net>
+Message-ID: <m1vghuxbx3.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pYUF-00071y-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The Adaptec 2400A IDE Raid Cards work under Linux, although you will need to
-> patch your kernel, the patch is available from Adaptec's website. 
+jdthood@home.dhs.org (Thomas Hood) writes:
 
-Adaptec have released complete source code ?
+> Stelian Pop wrote:
+> >> Well, the funny thing is, the same kernel doesn't boot on a Dell Inspiron 
+> >> laptop either, if PNP is enabled -- and the oops is the same. So it's not 
+> >> just Sony...
+> >
+> >Maybe we'll need to test against something like 'pnp_broken' 
+> >variable instead of is_sony_vaio_laptop in PnP drivers, and
+> >add the callbacks in dmi_scan to initialize pnp_broken...
+> 
+> Yes, the "pnp_bios_dont_use_current_config" flag in the driver
+> can be set based on additional criteria.
+> 
+> I notice that both the Vaio and the Inspiron have Phoenix BIOSes.
+> So perhaps there is a class of Phoenix BIOSes we should be testing
+> for.  For the time being, we will need to add Ion Badulescu's Inspiron
+> to the dmi_blacklist.  Ion, can you give us the exact product name,
+> exact BIOS vendor name, exact BIOS version and exact BIOS date?
+> Also, let us know all the results of your tests of various kernels.
+> 
+> It's interesting to note that my IBM ThinkPad BIOS has a bug that
+> is similar to the bug in your BIOS.  After Linux is run, on the
+> subsequent boot the "current" config is not initialized from the
+> "boot" config; instead, all devices are left disabled.  This does
+> not happen if Windows was the previous OS run, or if the BIOS
+> is initialized before the boot.  My sneaking suspicion is that this
+> behavior is a "feature" of the BIOS: when certain of its functions
+> are accessed it deduces that it is being used by a Plug-n-Play
+> operating system (tm) and so refrains from configuring devices other
+> than the vital ones.  
 
-> It seems like work was being done to add support for the Promise RAID cards,
-> it seems like Alan had support in his tree, I might be wrong about that
-> though. Alan?
+Hmm. If you are using an AC kernel I seriously suspect the bootflag code,
+because that is what the code is telling the BIOS to do explicitly.
 
-We have partial promise and hpt support for their softraid in the -ac tree
-and the basics pushed into Linus tree. Andre and Promise have sorted out
-full access to promise info on this so we should see full promise softraid
-support.
+> My workaround for now is to use "setpnp" to
+> switch on all the configurable devices.  The "right" solution may
+> be to use the ESCD functions of the BIOS.  Or it may be to stop
+> doing whatever it is that suggests to the BIOS that Linux is a
+> PnP OS.
 
-The Promise hardware raid (Supertrak100) is also supported in the ac and
-Linus trees nowdays but I've never been happy with its price/performance 
-personally.
+Suggests.  With the bootflag stuff we are saying treat as a pnpos we
+know what we are doing.
 
-Alan
+Eric
+
+
+

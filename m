@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbTIOO4v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 10:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbTIOO4v
+	id S261432AbTIOOvc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 10:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbTIOOvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 10:56:51 -0400
-Received: from peabody.ximian.com ([141.154.95.10]:54996 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261442AbTIOO4u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 10:56:50 -0400
-Subject: Re: Need fixing of a rebooting system
-From: Kevin Breit <mrproper@ximian.com>
-Reply-To: mrproper@ximian.com
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0309142055560.5140@montezuma.fsmlabs.com>
-References: <1063496544.3164.2.camel@localhost.localdomain>
-	 <Pine.LNX.4.53.0309131945130.3274@montezuma.fsmlabs.com>
-	 <3F6450D7.7020906@ximian.com>
-	 <Pine.LNX.4.53.0309140904060.22897@montezuma.fsmlabs.com>
-	 <1063561687.10874.0.camel@localhost.localdomain>
-	 <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>
-	 <3F64FEAF.1070601@ximian.com>
-	 <Pine.LNX.4.53.0309142055560.5140@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Organization: Ximian, Inc.
-Message-Id: <1063637805.1673.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 15 Sep 2003 10:56:46 -0400
+	Mon, 15 Sep 2003 10:51:32 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:33772 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S261432AbTIOOva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 10:51:30 -0400
+Date: Mon, 15 Sep 2003 07:50:32 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: erlid@dtek.chalmers.se
+Subject: [Bug 1232] New: Wont build without DMA support enabled
+Message-ID: <1506940000.1063637432@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-09-14 at 20:57, Zwane Mwaikambo wrote:
-> On Sun, 14 Sep 2003, Kevin Breit wrote:
-> 
-> > This unfortunately didn't help.  It still reboots right after it 
-> > uncompresses the kernel.
-> 
-> Please try the attached .config, if that works, start removing things like 
-> ACPI from your configuration.
+http://bugme.osdl.org/show_bug.cgi?id=1232
 
-When I did a make it kept asking me for configuration options ("Do you
-want to add this? [Y/n]") I'm not sure what to say to all these.
+           Summary: Wont build without DMA support enabled
+    Kernel Version: 2.6.0-test5
+            Status: NEW
+          Severity: normal
+             Owner: bzolnier@elka.pw.edu.pl
+         Submitter: perlid@dtek.chalmers.se
 
-Thanks
 
-Kevin
+Distribution: Debian testing
+Hardware Environment:
+ASUS P4C800 Deluxe, i875 chipset
+2.80 GHz P4 CPU
+hda: quantum fireball lct08
+hdc: plextor cd-writer
+hde: Seagate Barracuda V S-ATA, 120GB (ST3120023AS)
+Software Environment:
+glibc 2.3.1
+gcc 3.3 (but kernel compiled with gcc 2.95
+Problem Description:
+I'm unable to compile the kernel if I dont select generic PCI bus-master DMA
+support, BLK_DEV_IDEDMA_PCI. If that's not selected, on the line after
+  LD      .tmp_vmlinux1
+I get this error message:
+drivers/built-in.o(.text+0x1f52d): In function `init_dma_generic':
+: undefined reference to `ide_setup_dma'
+drivers/built-in.o(.text+0x2b5a5): In function `ide_hwif_setup_dma':
+: undefined reference to `ide_setup_dma'
+make: *** [.tmp_vmlinux1] Error 1
+
+Steps to reproduce:
+configure the kernel without BLK_DEV_IDEDMA_PCI and execute make
+
 

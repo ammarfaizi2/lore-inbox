@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314690AbSFITQ6>; Sun, 9 Jun 2002 15:16:58 -0400
+	id <S314783AbSFITUc>; Sun, 9 Jun 2002 15:20:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314783AbSFITQ5>; Sun, 9 Jun 2002 15:16:57 -0400
-Received: from p50887457.dip.t-dialin.net ([80.136.116.87]:37286 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S314690AbSFITQ4>; Sun, 9 Jun 2002 15:16:56 -0400
-Date: Sun, 9 Jun 2002 13:16:55 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: About new list commands and emu10k1
-Message-ID: <Pine.LNX.4.44.0206091315290.8715-100000@hawkeye.luckynet.adm>
+	id <S314811AbSFITUb>; Sun, 9 Jun 2002 15:20:31 -0400
+Received: from mail215.mail.bellsouth.net ([205.152.58.155]:52062 "EHLO
+	imf15bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S314783AbSFITUa>; Sun, 9 Jun 2002 15:20:30 -0400
+Message-ID: <3D03AA77.BEC5606C@bellsouth.net>
+Date: Sun, 09 Jun 2002 15:20:23 -0400
+From: Albert Cranford <ac9410@bellsouth.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.21 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] 2.5.21 i2c updates 1/4
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Patch 1/4 updates I2C for 2.5.21
+--- linux/drivers/i2c/Config.in.orig	2002-05-05 23:38:06.000000000 -0400
++++ linux/drivers/i2c/Config.in	2002-05-16 01:00:36.000000000 -0400
+@@ -43,7 +43,7 @@
+ # This is needed for automatic patch generation: sensors code ends here
+ 
+    dep_tristate 'I2C device interface' CONFIG_I2C_CHARDEV $CONFIG_I2C
+-   dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C
++   dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C $CONFIG_SYSCTL
+ 
+ fi
+ endmenu
 
-I couldn't reach the emu10k1 guys for some obscure reason. I had a patch
-which sounded like this:
-
---- linus-2.5/sound/pci/emu10k1/memory.c	Sun Jun  9 04:18:03 2002
-+++ thunder-2.5/sound/pci/emu10k1/memory.c	Sun Jun  9 07:47:37 2002
-@@ -259,8 +259,7 @@
- 	spin_lock_irqsave(&emu->memblk_lock, flags);
- 	if (blk->mapped_page >= 0) {
- 		/* update order link */
--		list_del(&blk->mapped_order_link);
--		list_add_tail(&blk->mapped_order_link, &emu->mapped_order_link_head);
-+		list_move_tail(&blk->mapped_order_link, &emu->mapped_order_link_head);
- 		spin_unlock_irqrestore(&emu->memblk_lock, flags);
- 		return 0;
- 	}
-
-Regards,
-Thunder
 -- 
-German attitude becoming        |	Thunder from the hill at ngforever
-rightaway popular:		|
-       "Get outa my way,  	|	free inhabitant not directly
-    for I got a mobile phone!"	|	belonging anywhere
-
+Albert Cranford Deerfield Beach FL USA
+ac9410@bellsouth.net

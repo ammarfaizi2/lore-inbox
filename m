@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbTIUPiK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 11:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTIUPiK
+	id S262439AbTIUPo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 11:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTIUPoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 11:38:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:29970 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262434AbTIUPiI (ORCPT
+	Sun, 21 Sep 2003 11:44:25 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:20119 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262439AbTIUPoY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 11:38:08 -0400
-Date: Sun, 21 Sep 2003 10:38:02 -0500
-From: Tommy Reynolds <reynolds@redhat.com>
-To: "sting sting" <zstingx@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EXPORT_SYMBOL MACRO definition (in 2.4.18-3) - newbie
-Message-Id: <20030921103802.138e96fa.reynolds@redhat.com>
-In-Reply-To: <Sea2-F317wbaj3ywtsI00006dd5@hotmail.com>
-References: <Sea2-F317wbaj3ywtsI00006dd5@hotmail.com>
-Organization: Red Hat GLS
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Sep 2003 11:44:24 -0400
+To: linux-kernel@vger.kernel.org
+Subject: New System freezes for seconds to minutes then recovers [2.4.23-pre4]
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 21 Sep 2003 11:44:06 -0400
+Message-ID: <87smmqp2nt.fsf@stark.dyndns.tv>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uttered "sting sting" <zstingx@hotmail.com>, spoke thus:
 
-> I want to know where EXPORT_SYMBOL macro is defined  (in 2.4.18-3 kernel).
+I just set up a new system with an Asus P4P800 and P4 with HT. Under
+2.4.23-pre4 the system freezes occasionally for a few seconds, sometimes for
+as long as a minute. Then it recovers as if nothing happened. No printks,
+nothing to explain what happened. When the machine is frozen it doesn't
+respond to pings, but when it recovers it sends all the icmp echo responses
+for the time it was down.
 
-It's optionally defined in module source code.
 
-This symbol is used to tailor the symbol scoping rules implemented by
-the module utilities.  A module is free to define this symbol before
-importing the standard module #include<> files.  Use is voluntary
-(2.4.x) but strongly recommended.
+At first I thought it was related to the i810_audio, since it seemed to happen
+consistently whenever I started playing a new track in xmms. But I've removed
+the i810_audio module and it's still happening.
+
+I thought it could be related to the sk98 ethernet driver even though I wasn't
+using it but i've removed that module too. I haven't rebooted since removing
+these modules though.
+
+The only "suspicious" things left are Hyperthreading, and the SATA controller.
+
+Have other people been reporting similar problems? 
+
+-- 
+greg
+

@@ -1,85 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268132AbUH2Qsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268167AbUH2QuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268132AbUH2Qsi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 12:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268161AbUH2Qsi
+	id S268167AbUH2QuW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 12:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268170AbUH2QuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 12:48:38 -0400
-Received: from holomorphy.com ([207.189.100.168]:27822 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268132AbUH2Qsc (ORCPT
+	Sun, 29 Aug 2004 12:50:21 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:5351 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268167AbUH2Qt6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 12:48:32 -0400
-Date: Sun, 29 Aug 2004 09:48:25 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       nathanl@austin.ibm.com, jbarnes@sgi.com
-Subject: Re: sched_domains + NUMA issue
-Message-ID: <20040829164825.GI5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-	nickpiggin@yahoo.com.au, nathanl@austin.ibm.com, jbarnes@sgi.com
-References: <20040829111855.GB26072@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 29 Aug 2004 12:49:58 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: SMP Panic caused by [PATCH] sched: consolidate sched domains
+Date: Sun, 29 Aug 2004 09:48:06 -0700
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1093786747.1708.8.camel@mulgrave>
+In-Reply-To: <1093786747.1708.8.camel@mulgrave>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040829111855.GB26072@krispykreme>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408290948.06473.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 09:18:55PM +1000, Anton Blanchard wrote:
-> We are seeing errors in the sched domains debug code when SMT + NUMA is
-> enabled. Nathan pointed out that the recent change to limit the number
-> of nodes in a scheduling group may be causing this - in particular
-> sched_domain_node_span.
-> It looks like ia64 are the only ones implementing a reasonable
-> node_distance, the others just do:
-> #define node_distance(from,to) (from != to)
-> On these architectures I wonder if we should disable the
-> sched_domain_node_span code since we will just get a random grouping of
-> cpus.
+On Sunday, August 29, 2004 6:39 am, James Bottomley wrote:
+> This patch causes an immediate panic when the secondary processors come
+> on-line because sd->next is NULL.
+>
+> The fix is to use cpu_possible_map instead of nodemask (which expands,
+> probably erroneously, to cpu_online_map in the non-numa case).
+>
+> Any use of cpu_online_map in initialisation code is almost invariably
+> wrong, so please don't do it in future.
+>
+> I know I'm sounding like a broken record, but it would be a lot easier
+> to spot mistakes like this immediately if every arch used the hotplug
+> paths to bring SMP up.
+>
+> Anyway, the attached fixes our panic.
+>
+> James
+>
+> ===== kernel/sched.c 1.329 vs edited =====
+> --- 1.329/kernel/sched.c 2004-08-24 02:08:09 -07:00
+> +++ edited/kernel/sched.c 2004-08-29 06:17:26 -07:00
+> @@ -3756,7 +3756,7 @@
+>    sd = &per_cpu(phys_domains, i);
+>    group = cpu_to_phys_group(i);
+>    *sd = SD_CPU_INIT;
+> -  sd->span = nodemask;
+> +  sd->span = cpu_possible_map;
+>    sd->parent = p;
+>    sd->groups = &sched_group_phys[group];
+>
+> @@ -3790,7 +3790,7 @@
+>    if (cpus_empty(nodemask))
+>     continue;
+>
+> -  init_sched_build_groups(sched_group_phys, nodemask,
+> +  init_sched_build_groups(sched_group_phys, cpu_possible_map,
+>        &cpu_to_phys_group);
+>   }
 
-For fsck's sake... macro writers need to exercise more discipline.
+But I think this breaks what the code is supposed to do.  You're right that we 
+shouldn't use cpu_online_map, but we should leave the nodemask in there and 
+fix the code that sets it in the non-NUMA case instead.
 
-
-Index: wait-2.6.9-rc1-mm1/include/linux/topology.h
-===================================================================
---- wait-2.6.9-rc1-mm1.orig/include/linux/topology.h	2004-08-24 00:03:18.000000000 -0700
-+++ wait-2.6.9-rc1-mm1/include/linux/topology.h	2004-08-29 09:44:35.932705488 -0700
-@@ -55,7 +55,7 @@
- 	for (node = 0; node < numnodes; node = __next_node_with_cpus(node))
- 
- #ifndef node_distance
--#define node_distance(from,to)	(from != to)
-+#define node_distance(from,to)	((from) != (to))
- #endif
- #ifndef PENALTY_FOR_NODE_WITH_CPUS
- #define PENALTY_FOR_NODE_WITH_CPUS	(1)
-Index: wait-2.6.9-rc1-mm1/include/asm-ia64/numa.h
-===================================================================
---- wait-2.6.9-rc1-mm1.orig/include/asm-ia64/numa.h	2004-08-24 00:02:26.000000000 -0700
-+++ wait-2.6.9-rc1-mm1/include/asm-ia64/numa.h	2004-08-29 09:45:07.223948496 -0700
-@@ -59,7 +59,7 @@
-  */
- 
- extern u8 numa_slit[MAX_NUMNODES * MAX_NUMNODES];
--#define node_distance(from,to) (numa_slit[from * numnodes + to])
-+#define node_distance(from,to) (numa_slit[(from) * numnodes + (to)])
- 
- extern int paddr_to_nid(unsigned long paddr);
- 
-Index: wait-2.6.9-rc1-mm1/include/asm-i386/topology.h
-===================================================================
---- wait-2.6.9-rc1-mm1.orig/include/asm-i386/topology.h	2004-08-24 00:02:20.000000000 -0700
-+++ wait-2.6.9-rc1-mm1/include/asm-i386/topology.h	2004-08-29 09:45:24.973250192 -0700
-@@ -67,7 +67,7 @@
- }
- 
- /* Node-to-Node distance */
--#define node_distance(from, to) (from != to)
-+#define node_distance(from, to) ((from) != (to))
- 
- /* Cross-node load balancing interval. */
- #define NODE_BALANCE_RATE 100
+Jesse

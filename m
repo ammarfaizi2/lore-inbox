@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262616AbRFZUri>; Tue, 26 Jun 2001 16:47:38 -0400
+	id <S264141AbRFZUw6>; Tue, 26 Jun 2001 16:52:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264141AbRFZUrS>; Tue, 26 Jun 2001 16:47:18 -0400
-Received: from zero.tech9.net ([209.61.188.187]:36868 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S263605AbRFZUrJ>;
-	Tue, 26 Jun 2001 16:47:09 -0400
-Subject: RE: Maintainers master list?
-From: Robert Love <rml@tech9.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Holzrichter," Bruce <bruce.holzrichter@monster.com>,
-        "'esr@thyrsus.com'" <esr@thyrsus.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.33L.0106261602380.23373-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0106261602380.23373-100000@duckman.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 26 Jun 2001 16:46:05 -0400
-Message-Id: <993588379.763.0.camel@phantasy>
+	id <S264273AbRFZUwh>; Tue, 26 Jun 2001 16:52:37 -0400
+Received: from [207.213.212.4] ([207.213.212.4]:5113 "EHLO geos.coastside.net")
+	by vger.kernel.org with ESMTP id <S264141AbRFZUw1>;
+	Tue, 26 Jun 2001 16:52:27 -0400
 Mime-Version: 1.0
+Message-Id: <p0510030fb75ea3bda183@[207.213.214.37]>
+In-Reply-To: <01062610445301.12583@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0106252104530.18127-100000@vtrl22.vtrl.co.uk>
+ <01062610445301.12583@localhost.localdomain>
+Date: Tue, 26 Jun 2001 13:49:40 -0700
+To: landley@webofficenow.com, <asmith@14inverleith.freeserve.co.uk>,
+        Kai Henningsen <kaih@khms.westfalen.de>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [comphist] Re: Microsoft and Xenix.
+Cc: <linux-kernel@vger.kernel.org>, <penguicon-comphist@lists.sourceforge.net>
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Jun 2001 16:03:05 -0300, Rik van Riel wrote:
-> On Tue, 26 Jun 2001, Holzrichter, Bruce wrote:
-> 
-> > respect Eric, and all the developers work.  How about starting
-> > with a simple MAINTAINERS file maintainer?  Someone to actively
-> > follow project developers and contact info?
-> 
-> That's the best idea I've read so far.
-> 
-> Any takers?
+At 10:44 AM -0400 2001-06-26, Rob Landley wrote:
+>"A quarter century of unix" mentions RK05 cartridges several times, but never
+>says much ABOUT them.
+>
+>Okay, so they're 2.4 megabyte removable cartridges?  How big?  Are they tapes
+>or disk packs?  (I.E. can you run off of them or are they just storage?)  I
+>know lots of early copies of unix were sent out from Bell Labs on RK05
+>cartidges signed "love, ken"...
 
-me.  I took issue with the MAINTAINERS file when Eric brought it up
-originally.  However, I don't think drastic measures need to be taken.
-I have seen a lot of ideas, including Meta-data in the kernel source.
+http://www.pdp8.net/rk05/rk05.shtml
 
-What I think we need is the simple solution: find a maintainer for the
-file, cleanup the current cruft and misinformation, and then actively
-work to keep the file current.  I am willing to be this maintainer.
+>What was that big reel to reel tape they always show in movies, anyway?
 
-I am not a major "maintainer" in the kernel, but I have and do
-contribute.  Thus I think this is a good task for me.  I am willing and
-wanting to do this.  Comments?
-
+The big-refrigerator-sized guys were generally attached to 
+mainframes, IBM or otherwise. Here's a little info: 
+http://www.digital-interact.co.uk/site/html/reference/media_9trk.html 
+(but take it with a grain of salt; IBM surely didn't go to nine 
+tracks because of ASCII!).
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+/Jonathan Lundell.

@@ -1,130 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263058AbUDORcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 13:32:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUDORb1
+	id S263037AbUDORfM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 13:35:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbUDORcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 13:31:27 -0400
-Received: from mail.kroah.org ([65.200.24.183]:21422 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263153AbUDORYQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 13:24:16 -0400
-X-Fake: the user-agent is fake
-Subject: [PATCH] PCI and PCI Hotplug update for 2.6.6-rc1
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <20040415171959.GA3849@kroah.com>
-Date: Thu, 15 Apr 2004 10:23:44 -0700
-Message-Id: <1082049824159@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Thu, 15 Apr 2004 13:32:41 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:26520 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S263027AbUDORbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 13:31:01 -0400
+Message-Id: <200404151727.i3FHRwF08564@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'David Gibson'" <david@gibson.dropbear.id.au>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
+       <lse-tech@lists.sourceforge.net>, <raybry@sgi.com>,
+       "'Andy Whitcroft'" <apw@shadowen.org>,
+       "'Andrew Morton'" <akpm@osdl.org>
+Subject: RE: hugetlb demand paging patch part [2/3]
+Date: Thu, 15 Apr 2004 10:27:58 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <20040415071728.GE25560@zax>
+Thread-Index: AcQjBNiluzp39IC6SlOg90j8XJy+UgACKnUg
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1643.55.1, 2004/03/23 00:15:58-05:00, jgarzik@redhat.com
+>>>> David Gibson wrote on Thursday, April 15, 2004 12:17 AM
+> > diff -Nurp linux-2.6.5/mm/memory.c linux-2.6.5.htlb/mm/memory.c
+> > +++ linux-2.6.5.htlb/mm/memory.c	2004-04-13 12:02:31.000000000 -0700
+> > @@ -769,11 +769,6 @@ int get_user_pages(struct task_struct *t
+> >  		if ((pages && vm_io) || !(flags & vma->vm_flags))
+> >  			return i ? : -EFAULT;
+> >
+> > -		if (is_vm_hugetlb_page(vma)) {
+> > -			i = follow_hugetlb_page(mm, vma, pages, vmas,
+> > -						&start, &len, i);
+> > -			continue;
+> > -		}
+> >  		spin_lock(&mm->page_table_lock);
+> >  		do {
+> >  			struct page *map = NULL;
+>
+> Ok, I notice that you've removed the follow_hugtlb_page() function
+> (and from the arch specific stuff, as well).  As far as I can tell,
+> this isn't actually related to demand-paging, in fact as far as I can
+> tell this function is unnecessary
 
-Create PCI_DMA_{64,32]BIT constants, for use in passing to
-pci_set_{consistent_}dma_mask().
-
-Use them in e1000 and ixgb.
+That was the reason I removed the function because it is no longer used
+with demand paging.
 
 
- Documentation/DMA-mapping.txt |   16 ++++++++--------
- drivers/net/e1000/e1000.h     |    2 --
- drivers/net/ixgb/ixgb.h       |    2 --
- include/linux/pci.h           |    3 +++
- 4 files changed, 11 insertions(+), 12 deletions(-)
+> should already work for huge pages.  In particular the path in
+> get_user_pages() which can call handle_mm_fault() (which won't work on
+> hugepages without your patch) should never get triggered, since
+> hugepages are all prefaulted.
 
+> Does that sound right?  In other words, do you think the patch below,
+> which just kills off follow_hugetlb_page() is safe, or have I missed
+> something?
+>
+> Index: working-2.6/mm/memory.c
+> ===================================================================
+> --- working-2.6.orig/mm/memory.c	2004-04-13 11:42:42.000000000 +1000
+> +++ working-2.6/mm/memory.c	2004-04-15 17:03:01.421905400 +1000
+> @@ -766,16 +766,13 @@
+> [snip]
+>  		spin_lock(&mm->page_table_lock);
+>  		do {
+>  			struct page *map;
+>  			int lookup_write = write;
+>  			while (!(map = follow_page(mm, start, lookup_write))) {
+> +				/* hugepages should always be prefaulted */
+> +				BUG_ON(is_vm_hugetlb_page(vma));
+>  				/*
+>  				 * Shortcut for anonymous pages. We don't want
+>  				 * to force the creation of pages tables for
 
-diff -Nru a/Documentation/DMA-mapping.txt b/Documentation/DMA-mapping.txt
---- a/Documentation/DMA-mapping.txt	Thu Apr 15 10:07:01 2004
-+++ b/Documentation/DMA-mapping.txt	Thu Apr 15 10:07:01 2004
-@@ -132,7 +132,7 @@
- The standard 32-bit addressing PCI device would do something like
- this:
- 
--	if (pci_set_dma_mask(pdev, 0xffffffff)) {
-+	if (pci_set_dma_mask(pdev, PCI_DMA_32BIT)) {
- 		printk(KERN_WARNING
- 		       "mydev: No suitable DMA available.\n");
- 		goto ignore_this_device;
-@@ -151,9 +151,9 @@
- 
- 	int using_dac;
- 
--	if (!pci_set_dma_mask(pdev, 0xffffffffffffffff)) {
-+	if (!pci_set_dma_mask(pdev, PCI_DMA_64BIT)) {
- 		using_dac = 1;
--	} else if (!pci_set_dma_mask(pdev, 0xffffffff)) {
-+	} else if (!pci_set_dma_mask(pdev, PCI_DMA_32BIT)) {
- 		using_dac = 0;
- 	} else {
- 		printk(KERN_WARNING
-@@ -166,14 +166,14 @@
- 
- 	int using_dac, consistent_using_dac;
- 
--	if (!pci_set_dma_mask(pdev, 0xffffffffffffffff)) {
-+	if (!pci_set_dma_mask(pdev, PCI_DMA_64BIT)) {
- 		using_dac = 1;
- 	   	consistent_using_dac = 1;
--		pci_set_consistent_dma_mask(pdev, 0xffffffffffffffff)
--	} else if (!pci_set_dma_mask(pdev, 0xffffffff)) {
-+		pci_set_consistent_dma_mask(pdev, PCI_DMA_64BIT);
-+	} else if (!pci_set_dma_mask(pdev, PCI_DMA_32BIT)) {
- 		using_dac = 0;
- 		consistent_using_dac = 0;
--		pci_set_consistent_dma_mask(pdev, 0xffffffff)
-+		pci_set_consistent_dma_mask(pdev, PCI_DMA_32BIT);
- 	} else {
- 		printk(KERN_WARNING
- 		       "mydev: No suitable DMA available.\n");
-@@ -215,7 +215,7 @@
- 
- Here is pseudo-code showing how this might be done:
- 
--	#define PLAYBACK_ADDRESS_BITS	0xffffffff
-+	#define PLAYBACK_ADDRESS_BITS	PCI_DMA_32BIT
- 	#define RECORD_ADDRESS_BITS	0x00ffffff
- 
- 	struct my_sound_card *card;
-diff -Nru a/drivers/net/e1000/e1000.h b/drivers/net/e1000/e1000.h
---- a/drivers/net/e1000/e1000.h	Thu Apr 15 10:07:01 2004
-+++ b/drivers/net/e1000/e1000.h	Thu Apr 15 10:07:01 2004
-@@ -74,8 +74,6 @@
- #define BAR_0		0
- #define BAR_1		1
- #define BAR_5		5
--#define PCI_DMA_64BIT	0xffffffffffffffffULL
--#define PCI_DMA_32BIT	0x00000000ffffffffULL
- 
- 
- struct e1000_adapter;
-diff -Nru a/drivers/net/ixgb/ixgb.h b/drivers/net/ixgb/ixgb.h
---- a/drivers/net/ixgb/ixgb.h	Thu Apr 15 10:07:01 2004
-+++ b/drivers/net/ixgb/ixgb.h	Thu Apr 15 10:07:01 2004
-@@ -65,8 +65,6 @@
- #define BAR_0           0
- #define BAR_1           1
- #define BAR_5           5
--#define PCI_DMA_64BIT   0xffffffffffffffffULL
--#define PCI_DMA_32BIT   0x00000000ffffffffULL
- 
- #include "ixgb_hw.h"
- #include "ixgb_ee.h"
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Thu Apr 15 10:07:01 2004
-+++ b/include/linux/pci.h	Thu Apr 15 10:07:01 2004
-@@ -362,6 +362,9 @@
- #define PCI_DMA_FROMDEVICE	2
- #define PCI_DMA_NONE		3
- 
-+#define PCI_DMA_64BIT	0xffffffffffffffffULL
-+#define PCI_DMA_32BIT	0x00000000ffffffffULL
-+
- #define DEVICE_COUNT_COMPATIBLE	4
- #define DEVICE_COUNT_RESOURCE	12
- 
+This portion is incorrect, because it will trigger BUG_ON all the time
+for faulting hugetlb page.
+
+Yes, killing follow_hugetlb_page() is safe because follow_page() takes
+care of hugetlb page.  See 2nd patch posted earlier in
+hugetlb_demanding_generic.patch
+
 

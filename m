@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266847AbRGFVCu>; Fri, 6 Jul 2001 17:02:50 -0400
+	id <S266845AbRGFVBK>; Fri, 6 Jul 2001 17:01:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266848AbRGFVCk>; Fri, 6 Jul 2001 17:02:40 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:51983 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S266847AbRGFVC2>; Fri, 6 Jul 2001 17:02:28 -0400
-Message-ID: <3B46275E.C84E0E38@didntduck.org>
-Date: Fri, 06 Jul 2001 17:02:22 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S266846AbRGFVBB>; Fri, 6 Jul 2001 17:01:01 -0400
+Received: from gate.tuxia.com ([213.209.134.221]:34033 "EHLO
+	exchange1.win.agb.tuxia") by vger.kernel.org with ESMTP
+	id <S266845AbRGFVAx> convert rfc822-to-8bit; Fri, 6 Jul 2001 17:00:53 -0400
+x-mimeole: Produced By Microsoft Exchange V6.0.4418.65
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: anderson@centtech.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BIGMEM kernel question
-In-Reply-To: <3B4624C9.18290280@centtech.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Trouble Booting Linux PPC On Mac G4 2000
+Date: Fri, 6 Jul 2001 23:00:53 +0200
+Message-ID: <A16915712C18BD4EBD97897F82DA08CD409EEE@exchange1.win.agb.tuxia>
+Thread-Topic: why this 1ms delay in mdio_read?  (cont'd from "are ioctl calls supposed to take this long?")
+Thread-Index: AcEGSafKEB1r4/3ASduBA4+FdOMHdgABBLGwAAMhu+A=
+From: "Tim McDaniel" <tim.mcdaniel@tuxia.com>
+To: <linux-ppc@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Anderson wrote:
-> 
-> I am currently running a RedHat 7.1 machine with the 2.4.3-12enterprise
-> kernel.  My machine has 4GB of RAM, and 6GB of swap.  It appears that I
-> can only allocate 2930 MB (using heapc_linux and other programs).  What
-> do I need to do to get Linux to allow allocation of all available memory
-> (up to the 4GB)?  All the FAQs I have seen so far explain only how to
-> get Linux to recognize the 4GB, and not use it all in one process.  Any
-> help would be greatly appreciated.
 
-On a 32-bit architecture, Linux gives each user process 3GB of virtual
-address space.  Into that 3GB address space you need to map your stack,
-exectuable images, shared libaries, etc. with the rest left for the
-heap.  If you need more memory in a single process you're better off
-moving to a 64-bit architecture.  Note that multiple processes, as well
-as the various caches can use the remaining memory.
+We are having a great degree of difficulty getting Linux PPC20000
+running on a Mac G4 466 tower with 128MB of memory, One 30MB HD and one
+CR RW. This is not a NuBus based system. To the best of our knowledge we
+have followed the user manual to the tee, and even tried forcing video
+settings at the Xboot screen.   
 
---
 
-				Brian Gerst
+But still, when we encounter the screen where you must chose between
+MacOS and Linux and we chose linux, the screen goes black and for all
+practical purposes the box appears to be locked.   We've also tried
+editing yaboot.conf but can't seem to save the new file.
+
+Any help would be greatly appreatiated.
+
+Tim 

@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265270AbTBJV5Q>; Mon, 10 Feb 2003 16:57:16 -0500
+	id <S265275AbTBJWHS>; Mon, 10 Feb 2003 17:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbTBJV5P>; Mon, 10 Feb 2003 16:57:15 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52751 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265270AbTBJV5P>; Mon, 10 Feb 2003 16:57:15 -0500
-Date: Mon, 10 Feb 2003 17:03:25 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.59 : sound/oss/vidc.c
-In-Reply-To: <Pine.LNX.3.95.1030207152853.31273A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.3.96.1030210165537.29699A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265333AbTBJWHS>; Mon, 10 Feb 2003 17:07:18 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:51439 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S265275AbTBJWHR>;
+	Mon, 10 Feb 2003 17:07:17 -0500
+Date: Mon, 10 Feb 2003 23:16:55 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Dan Parks <Dan.Parks@camotion.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Keystrokes, USB, and Latency
+Message-ID: <20030210221655.GA3875@win.tue.nl>
+References: <1044907523.1438.475.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1044907523.1438.475.camel@localhost>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Feb 2003, Richard B. Johnson wrote:
+On Mon, Feb 10, 2003 at 03:05:22PM -0500, Dan Parks wrote:
 
-> If the code is correct, it really should be written as:
-> 
->    for (new2size = 128; new2size < newsize; new2size <<= 1)
->        ;
-> 
-> The code seems to want to make the value of new2size a power of
-> 2 and, greater than 128, but less than newsize. It ignores the
-> fact that newsize might be less than 128, maybe this is okay.
+> ...  However, if the user presses caps
+> lock, num lock, or scroll lock (everything else is ok), it ALWAYS misses
+> 7-8 milliseconds.
 
-Power of two - yes. Greater than 128 no, if newsize were <=128 new2size
-would not increment. Previous code may make newsize larger (and later
-limit new2size) but not here. And new2size can be equal to newsize, again
-by this code.
-
-A comment like /*empty_loop*/ before the semicolon would help human
-readability. Code should be readable by humans, too.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+You didnt mention a kernel version, and details very much depend on it.
+But you may look into LED setting, and e.g. whether interrupts are
+disabled during LED setting.

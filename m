@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265030AbTL1I2G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 03:28:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265235AbTL1I2G
+	id S264981AbTL1IXX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 03:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264987AbTL1IXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 03:28:06 -0500
-Received: from sina187-158.sina.com.cn ([202.106.187.158]:46596 "HELO sina.com")
-	by vger.kernel.org with SMTP id S265030AbTL1I2E (ORCPT
+	Sun, 28 Dec 2003 03:23:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55227 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264981AbTL1IXV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 03:28:04 -0500
-Date: Sun, 28 Dec 2003 16:26:46 +0800
-From: dlion <dlion2004@sina.com.cn>
-X-Mailer: The Bat! (v2.00)
-Reply-To: dlion2004@sina.com.cn
-X-Priority: 3 (Normal)
-Message-ID: <1593963906.20031228162646@sina.com.cn>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-In-Reply-To: <17140565218.20031226223021@sina.com.cn>
-References: <8BD3ED34-37A6-11D8-A9B5-00039341E01A@ybb.ne.jp>
- <17140565218.20031226223021@sina.com.cn>
+	Sun, 28 Dec 2003 03:23:21 -0500
+Date: Sun, 28 Dec 2003 00:23:07 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: Matt Mackall <mpm@selenic.com>,
+       Linux Networking Development Mailing List 
+	<netdev@oss.sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-2.6.0-tiny] "uninline" {lock,release}_sock
+In-Reply-To: <20031228075426.GB24351@conectiva.com.br>
+Message-ID: <Pine.LNX.4.58.0312280017060.2274@home.osdl.org>
+References: <20031228075426.GB24351@conectiva.com.br>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bxynj>> Hi,
-
- >>>I got other errors on ext3 filesystem include:
- >>>1. missing file
- >>>2. corrupted file
- >>>but when I used fsck.ext3 to check the ramdisk, the result was clean.
-
-Bxynj>> Dlion,  how did the corrupted file look like?
-Bxynj>> (its file size, number of blocks etc.)
-
-d> 3. maybe all corrupted files' mtime is exactly the same
-d> wrong value. Should be around 2003.12.26 21:30:00, but
-d> is 2002.05.12 12:00:48(hex value is 0x3cdde8f0) . ctime
-d> and atime is correct. The system's clock time is unchanged.
-
-Sorry. I have made a mistake. The mtime is correct, not damaged.
-It is set by tar.
 
 
+On Sun, 28 Dec 2003, Arnaldo Carvalho de Melo wrote:
+> 
+> 	Please apply on top of your 2.6.0-tiny1 tree, CC to netdev for
+> eventual comments.
 
+Please don't do it this way.
+
+This is quite possibly faster even _normally_, so it might make more sense 
+to just do it globally instead of having a CONFIG_NEX_SMALL.
+
+Basically, inline functions tend to win only when inlining them is smaller
+and simpler than actually calling a function. The most common cause of
+that is that some argument is commonly constant (and thus gets simplified
+away by inlining), or the function itself literally expands to just a few 
+instructions (the list functions, the inline asms for things like "cli" 
+etc).
+
+We use a lot too many inline functions for other reasons: one reason to 
+use them is that they are sometimes more convenient than it is to find a 
+good place for the non-inline version. Another common reason is that the 
+thing started out smaller than it eventually became - and the inline just 
+stuck around.
+
+But if you do things like this for a CONFIG_SMALL, then the convenience 
+argument obviously isn't true any more, and you'd be a lot better off just 
+unconditionally making it a real function call.
+
+Function calls aren't all that expensive, especially with FASTCALL() etc 
+to show that you don't have to follow the common calling conventions. 
+Right now I think FASTCALL() only matters on x86, but some other 
+architectures could make it mean "smaller call clobbered list" or similar.
+
+Have you benchmarked with the smaller kernel? 
+
+		Linus

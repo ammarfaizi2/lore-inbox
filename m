@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129712AbRC0AFM>; Mon, 26 Mar 2001 19:05:12 -0500
+	id <S129719AbRC0AXD>; Mon, 26 Mar 2001 19:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129719AbRC0AFC>; Mon, 26 Mar 2001 19:05:02 -0500
-Received: from d83b5259.dsl.flashcom.net ([216.59.82.89]:48004 "EHLO
-	home.lameter.com") by vger.kernel.org with ESMTP id <S129712AbRC0AEy>;
-	Mon, 26 Mar 2001 19:04:54 -0500
-Date: Mon, 26 Mar 2001 15:21:29 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-To: Chris Mason <mason@suse.com>
-cc: linux-kernel@vger.linux.org
-Subject: Re: ReiserFS phenomenon with 2.4.2 ac24/ac12
-In-Reply-To: <87200000.985628791@tiny>
-Message-ID: <Pine.LNX.4.21.0103261520480.28218-100000@home.lameter.com>
+	id <S129828AbRC0AWx>; Mon, 26 Mar 2001 19:22:53 -0500
+Received: from phnxpop3.phnx.uswest.net ([206.80.192.3]:47108 "HELO
+	phnxpop3.phnx.uswest.net") by vger.kernel.org with SMTP
+	id <S129719AbRC0AWg>; Mon, 26 Mar 2001 19:22:36 -0500
+Date: Mon, 26 Mar 2001 17:21:49 -0700
+Message-ID: <3ABFDD1D.8DE07D1D@qwest.net>
+From: "Art Wagner" <awagner@qwest.net>
+To: "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre6-1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: 2.4.2-ac25 Compile error in es1370.c
+Content-Type: multipart/mixed;
+ boundary="------------A6186ABC9126EE71260F55C5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Mar 2001, Chris Mason wrote:
+This is a multi-part message in MIME format.
+--------------A6186ABC9126EE71260F55C5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> On Saturday, March 24, 2001 11:56:08 AM -0800 Christoph Lameter
-> <christoph@lameter.com> wrote:
-> 
-> > I got a directory /a/yy that I tried to erase with rm -rf /a/yy.
-> > 
-> > rm hangs...
-> > 
-> > ls gives the following output:
-> > 
-> > ls: /a/yy/cache3A0F94EA0A00557.html: No such file or directory
-> > ls: /a/yy/cache3A0F94EA0A00557.html: No such file or directory
-> > ls: /a/yy/cache3A8CCC6A0490B05.gifcache393C2B6A2CD2DF1.crumb: No such file
-> > or directory
-> > ls: /a/yy/cache3A0F94EA0A00557.html: No such file or directory
-> > ls: /a/yy/cache3A0F94EA0A00557.html: No such file or directory
-> > ls: /a/yy/cache3A8CCC6A0490B05.gifcache393C2B6A2CD2DF1.crumb: No such file
-> > or directory
-> > 
-> > and so on and so on....
-> > 
-> > I tried a reiserfscheck -x on the /a volume but the strangeness still
-> > persists. What is going on here?
-> There should be more messages on the console that will help identify the
-> problem.  Please check through /var/log/messages and send along anything that
-> looks odd.
+Alan;
+I got the attached compile error in /drivers/sound/es1370.c.
+If any further information might be helpful please e-mail me or 
+post to LKML.
+Art Wagner
+awagner@qwest.net
+--------------A6186ABC9126EE71260F55C5
+Content-Type: text/plain; charset=us-ascii;
+ name="make_modules-2.4.2-ac25-1.log_clip"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="make_modules-2.4.2-ac25-1.log_clip"
 
 
-Yes I see messages like this in the log:
+make[2]: Leaving directory `/usr/src/linux-2.4.2-ac/drivers/scsi'
+make[2]: Entering directory `/usr/src/linux-2.4.2-ac/drivers/video'
+make -C aty modules
+make[3]: Entering directory `/usr/src/linux-2.4.2-ac/drivers/usb/storage'
+ld -m elf_i386 -r -o usb-storage.o scsiglue.o protocol.o transport.o usb.o initializers.o debug.o freecom.o
+make[3]: Leaving directory `/usr/src/linux-2.4.2-ac/drivers/usb/storage'
+make[2]: Leaving directory `/usr/src/linux-2.4.2-ac/drivers/usb'
+make[3]: Entering directory `/usr/src/linux-2.4.2-ac/drivers/video/aty'
+make[3]: Nothing to be done for `modules'.
+make[3]: Leaving directory `/usr/src/linux-2.4.2-ac/drivers/video/aty'
+make[2]: Leaving directory `/usr/src/linux-2.4.2-ac/drivers/video'
+es1370.c: In function `es1370_probe':
+es1370.c:2667: structure has no member named `trigger'
+es1370.c:2667: structure has no member named `read'
+make[2]: *** [es1370.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.2-ac/drivers/sound'
+make[1]: *** [_modsubdir_sound] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.2-ac/drivers'
+make: *** [_mod_drivers] Error 2
 
-Mar 26 06:47:50 k2-400 kernel: Out of Memory: Killed process 421 (mysqld).
-Mar 26 06:48:02 k2-400 kernel: Out of Memory: Killed process 425 (mysqld).
-Mar 26 06:48:04 k2-400 kernel: Out of Memory: Killed process 426 (mysqld).
-Mar 26 06:48:04 k2-400 kernel: Out of Memory: Killed process 427 (mysqld).
-Mar 26 06:48:04 k2-400 kernel: Out of Memory: Killed process 562 (apache).
-Mar 26 06:48:04 k2-400 kernel: Out of Memory: Killed process 563 (apache).
-Mar 26 06:48:04 k2-400 kernel: Out of Memory: Killed process 564 (apache).              
-
+--------------A6186ABC9126EE71260F55C5--
 

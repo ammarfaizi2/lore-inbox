@@ -1,39 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278807AbRJVNtx>; Mon, 22 Oct 2001 09:49:53 -0400
+	id <S278808AbRJVN4O>; Mon, 22 Oct 2001 09:56:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278806AbRJVNtn>; Mon, 22 Oct 2001 09:49:43 -0400
-Received: from ns.suse.de ([213.95.15.193]:1289 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S278804AbRJVNtf>;
-	Mon, 22 Oct 2001 09:49:35 -0400
-Date: Mon, 22 Oct 2001 15:50:08 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB module ov511 dies after about 30 minutes
-In-Reply-To: <20011022154537.53c54bf3.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.30.0110221547290.11628-100000@Appserv.suse.de>
+	id <S278810AbRJVN4F>; Mon, 22 Oct 2001 09:56:05 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3594 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278808AbRJVN4C>; Mon, 22 Oct 2001 09:56:02 -0400
+Subject: Re: VM
+To: mbabcock@fibrespeed.net (Michael T. Babcock)
+Date: Mon, 22 Oct 2001 15:02:49 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <3BD420ED.4090508@fibrespeed.net> from "Michael T. Babcock" at Oct 22, 2001 09:36:45 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15vffF-00023N-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, Stephan von Krawczynski wrote:
+> I have never done this comparison myself, but I was wondering how ugly 
+> it would be if stable versions of Andrea's and Rik's VMs were both 
+> available in your/Linus' kernel as compile-time options.  Assuming that 
+> each provides better performance under certain conditions, wouldn't 
 
-> > > about 30 minutes the module ov511 cannot be unloaded anymore, stopped
-> > > working
-> Sorry, tested but does not work either. It even hangs the system sometimes. Of
-> course it did with former kernels. Any other ideas?
-
-Remind me, what kernel version was this ? Until 2.4.12 iirc usb-uhci had
-problems with ov511. Using the alternative uhci driver may also be
-something worth trying. Other than that, I'm out of ideas. USB gurus ?
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+Too ugly for words.

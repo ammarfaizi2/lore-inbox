@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263055AbTEYQeC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 12:34:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263270AbTEYQeC
+	id S263549AbTEYQ6W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 12:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263558AbTEYQ6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 12:34:02 -0400
-Received: from main.gmane.org ([80.91.224.249]:58242 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263055AbTEYQeB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 12:34:01 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Nicholas Wourms <nwourms@myrealbox.com>
-Subject: Re: 2.5.69-mm9
-Date: Sun, 25 May 2003 12:47:08 -0400
-Message-ID: <3ED0F38C.5020203@myrealbox.com>
-References: <20030525042759.6edacd62.akpm@digeo.com> <200305251456.39404.rudmer@legolas.dynup.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-Cc: linux-mm@kvack.org
+	Sun, 25 May 2003 12:58:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8200 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263549AbTEYQ6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 12:58:19 -0400
+Date: Sun, 25 May 2003 10:10:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Adam Sampson <azz@us-lot.org>
+cc: Ben Collins <bcollins@debian.org>, Patrick Mochel <mochel@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
+In-Reply-To: <y2awugf2pz9.fsf@cartman.at.fivegeeks.net>
+Message-ID: <Pine.LNX.4.44.0305251008490.21192-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rudmer van Dijk wrote:
-> On Sunday 25 May 2003 13:27, Andrew Morton wrote:
-> 
->>. 2.5.69-mm9 is not for the timid.  It includes extensive changes to the
->>  ext3 filesystem and the JBD layer.  It withstood an hour of testing on my
->>  4-way, but it probably has a couple of holes still.
-> 
-> 
-> there seems to be no problem, it survives a kernel compile.
-> Only the patch for fs/buffer.c seems to be reverted, it was there in -mm8
-> (original patch by wli, adjusted to cleanly apply against -mm9)
-> 
-> 	Rudmer
-> 
 
-It looks like he "silently" updated aio-06-bread_wq-fix.patch with an 
-additional fix, but it overwrote the existing diffs in that file.
+On 25 May 2003, Adam Sampson wrote:
+> 
+> If you're going to do this, it might make sense to call it "strlcpy"
+> for consistency with the OpenBSD-introduced function of the same name
+> that's getting included in a lot of userspace these days...
 
-Cheers,
-Nicholas
+Sure, done. I'll check it in asap (and I'll make the devfs parts that Ben 
+was unhappy about use it too).
 
+Somebody (else ;) should probably go through our current uses of strncpy()  
+and see if they make sense. Some of them probably do, but I suspect 
+anything name/path related does not.
+
+		Linus
 

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316759AbSE0VwW>; Mon, 27 May 2002 17:52:22 -0400
+	id <S316766AbSE0V5L>; Mon, 27 May 2002 17:57:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316766AbSE0VwV>; Mon, 27 May 2002 17:52:21 -0400
-Received: from h-64-105-136-78.SNVACAID.covad.net ([64.105.136.78]:34706 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S316759AbSE0VwU>; Mon, 27 May 2002 17:52:20 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 27 May 2002 14:52:13 -0700
-Message-Id: <200205272152.OAA03070@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+	id <S316768AbSE0V5K>; Mon, 27 May 2002 17:57:10 -0400
+Received: from holomorphy.com ([66.224.33.161]:63658 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316766AbSE0V5K>;
+	Mon, 27 May 2002 17:57:10 -0400
+Date: Mon, 27 May 2002 14:56:32 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Memory management in Kernel 2.4.x
+Message-ID: <20020527215632.GR14918@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Benjamin LaHaise <bcrl@redhat.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <fa.iklie8v.5k2hbj@ifi.uio.no> <actahk$6bp$1@ID-44327.news.dfncis.de> <3CF23893.207@loewe-komp.de> <1022513156.1126.289.camel@irongate.swansea.linux.org.uk> <acu82e$7qn$1@cesium.transmeta.com> <20020527173306.C15560@redhat.com> <1022539831.4123.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 27, 2002 at 02:22:22PM -0700, H. Peter Anvin wrote:
+>>> Well, if you can't fork a new process because that would push you into
+>>> overcommit, then you usually can't actually do anything useful on the
+>>> machine.
 
-	If Red Hat is able to leave the licensing issues for their
-Linux patents unresolved and they still manage to be regarded as being
-in good standing with most contributors and would-be customers, then,
-in the coming months, many other Linux companies will take this is a
-green light to file for many patents and remain silent when asked to
-explictly grant permission to the public to practice the patents in
-free software.  There is little or no business reason to publicly
-grant such permission if one can get away with not doing so.
+On Mon, 2002-05-27 at 22:33, Benjamin LaHaise wrote:
+>> Just use vfork or clone + exec.  It's faster and uses less memory.
 
-	Although other companies today already have many patents that
-they could argue are infringed by certain free software components.
-The Linux patents are different as a practical matter, however, in
-that the chance of prevailing in that argument will be greater when
-if alleged infringer is using the code for which the patent was
-originally submitted.
+On Mon, May 27, 2002 at 11:50:31PM +0100, Alan Cox wrote:
+> In the general case a fork doesn't cause too much overcommit. Most of
+> the binary is mapped read-only as is a lot of the library space. Since
+> its read only and backed by a file it has zero cost. If you mprotect it
+> then you pay at mprotect time
 
-	Eventually, as some companies are bought or go out of
-business, it is a statistical certainty that some of these patents
-will pass into the control of parties that do not care about the GPL's
-penalties for enforcing a software patent (after all, that would allow
-litigation only against copiers of the software, and a copyright owner
-would have to sue, which is approximately already the level of danger
-one has with an unlicensed software patent).
+If you're willing to take a feature request, I'd be much obliged if the
+pagetable memory were also accounted.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+
+Thanks,
+Bill

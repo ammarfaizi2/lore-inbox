@@ -1,70 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310920AbSCHPzr>; Fri, 8 Mar 2002 10:55:47 -0500
+	id <S310924AbSCHP6H>; Fri, 8 Mar 2002 10:58:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310922AbSCHPzi>; Fri, 8 Mar 2002 10:55:38 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:18949 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S310920AbSCHPzX>;
-	Fri, 8 Mar 2002 10:55:23 -0500
-Date: Fri, 8 Mar 2002 16:54:44 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.6 IDE oops with i810 chipset
-In-Reply-To: <3C88CEF6.8010603@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0203081652560.28525-100000@Expansa.sns.it>
+	id <S310926AbSCHP56>; Fri, 8 Mar 2002 10:57:58 -0500
+Received: from tolkor.sgi.com ([192.48.180.13]:55457 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S310924AbSCHP5l>;
+	Fri, 8 Mar 2002 10:57:41 -0500
+Message-ID: <3C88DFC9.8060907@sgi.com>
+Date: Fri, 08 Mar 2002 09:59:05 -0600
+From: Stephen Lord <lord@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: svetljo <galia@st-peter.stw.uni-erlangen.de>
+CC: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: 2.4.18-rc4-aa1 XFS oopses caused by cpio
+In-Reply-To: <1015580766.20800.3.camel@svetljo.st-peter.stw.uni-erlangen.de> <3C88B612.1070206@sgi.com> <3C88C9A1.5070502@st-peter.stw.uni-erlangen.de> <3C88CB1C.90203@sgi.com>
+Content-Type: multipart/mixed;
+ boundary="------------040807060906000606030200"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Due to a lack of time i tried just 2.5.5, which worked very well.
-I get the oops while initializing the IDE controller, just after
+This is a multi-part message in MIME format.
+--------------040807060906000606030200
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-hdc: LTN485, ATAPI CD/DVD-ROM drive
+Stephen Lord wrote:
 
-and before the expected:
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-
-
-On Fri, 8 Mar 2002, Martin Dalecki wrote:
-
-> Luigi Genoni wrote:
-> > HI,
-> >
-> > It is almost impossible to boot 2.5.6 with IDE disk with
-> > chipset :
-> >
-> > 00:1f.1 IDE interface: Intel Corporation 82801AA IDE (rev 02) (prog-if 80
-> > [Master])
-> >         Subsystem: Intel Corporation 82801AA IDE
-> >         Flags: bus master, medium devsel, latency 0
-> >         I/O ports at 2460 [size=16]
-> >
-> >
-> > I get an oops with every configuration I tried.
-> > Of course I have no way to save log this oops,
-> > and I had no time to write it down. Anyway it is the usual
-> > "attemped to kill init" message.
-> >
-> > Apart of this there is the old OSS driver with still
-> > a virt_to_bus() in dma.c file,
-> > and drm/i810.c has the same problem too, also if a trivial
-> > (and of course wrong, also if it works temporally) fix
-> > is quite fast.
+>>
+> Ah, so you ran growfs on the filesystem, thats the key here. It looks 
+> like the new code
+> does not handle growfs correctly, the structure which is null is not 
+> allocated in the
+> expansion case. I should have a fix shortly.
 >
-> Could you please tell me which was the last version (possible up to
-> pre status) which worked? And could you possible tell where the
-> system actually hangs during the boot process (what is the
-> last init message which appears on the screen?).
->
-> During IDE setup? During mounting? During fsck or whatever.
-> I'm asking this becouse I couldn't get patch-2.5.6-pre3 working
-> on my athlon system and there are as well apparent instabilities
-> on my i440MX based notebook, which are not related to the IDE changes.
-> (pre2 with patch number 16 and 17 applied works for me of course on
-> both of them quite well...)
->
-> Thank you in advance.
->
+> Steve
+
+Hi,
+
+Can you try and repeat with this patch, it should apply reasonably 
+cleanly to the aa tree.
+
+Steve
+
+
+
+--------------040807060906000606030200
+Content-Type: text/plain;
+ name="growfs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="growfs.patch"
+
+
+===========================================================================
+Index: linux/fs/xfs/xfs_alloc.c
+===========================================================================
+
+2234a2235,2236
+> 		pag->pagb_list = kmem_zalloc(XFS_PAGB_NUM_SLOTS *
+> 					sizeof(xfs_perag_busy_t), KM_SLEEP);
+
+===========================================================================
+Index: linux/fs/xfs/xfs_mount.c
+===========================================================================
+
+151,152c151,153
+< 			kmem_free(mp->m_perag[agno].pagb_list,
+< 			  sizeof(xfs_perag_busy_t) * XFS_PAGB_NUM_SLOTS);
+---
+> 			if (mp->m_perag[agno].pagb_list)
+> 				kmem_free(mp->m_perag[agno].pagb_list,
+> 				  sizeof(xfs_perag_busy_t) * XFS_PAGB_NUM_SLOTS);
+877,881d877
+< 	for (agno = 0; agno < sbp->sb_agcount; agno++) {
+< 		mp->m_perag[agno].pagb_count = 0;
+< 		mp->m_perag[agno].pagb_list = kmem_zalloc(XFS_PAGB_NUM_SLOTS *
+< 					sizeof(xfs_perag_busy_t), KM_SLEEP);
+< 	}
+1066,1067c1062,1064
+< 		kmem_free(mp->m_perag[agno].pagb_list,
+< 		  sizeof(xfs_perag_busy_t) * XFS_PAGB_NUM_SLOTS);
+---
+> 		if (mp->m_perag[agno].pagb_list)
+> 			kmem_free(mp->m_perag[agno].pagb_list,
+> 			  sizeof(xfs_perag_busy_t) * XFS_PAGB_NUM_SLOTS);
+
+--------------040807060906000606030200--
 

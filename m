@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130096AbRBSOQG>; Mon, 19 Feb 2001 09:16:06 -0500
+	id <S129155AbRBSOkF>; Mon, 19 Feb 2001 09:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130089AbRBSOP4>; Mon, 19 Feb 2001 09:15:56 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:8713 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129155AbRBSOPn>;
-	Mon, 19 Feb 2001 09:15:43 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Werner Almesberger <Werner.Almesberger@epfl.ch>,
-        "Henning P. Schmiedehausen" <hps@tanstaafl.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [LONG RANT] Re: Linux stifles innovation...
-In-Reply-To: <Pine.LNX.3.96.1010219050514.17784G-100000@mandrakesoft.mandrakesoft.com>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 19 Feb 2001 15:15:25 +0100
-In-Reply-To: Jeff Garzik's message of "Mon, 19 Feb 2001 05:07:02 -0600 (CST)"
-Message-ID: <d3r90un4hu.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129491AbRBSOjz>; Mon, 19 Feb 2001 09:39:55 -0500
+Received: from f223.law7.hotmail.com ([216.33.237.223]:39174 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129364AbRBSOjt>;
+	Mon, 19 Feb 2001 09:39:49 -0500
+X-Originating-IP: [195.171.24.4]
+From: "lafanga lafanga" <lafanga1@hotmail.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Proliant hangs with 2.4 but works with 2.2.
+Date: Mon, 19 Feb 2001 14:39:42 -0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F223BDXmDQOa8NlgXjs0000598e@hotmail.com>
+X-OriginalArrivalTime: 19 Feb 2001 14:39:42.0522 (UTC) FILETIME=[CBB131A0:01C09A81]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+Alan,
 
-Jeff> On Mon, 19 Feb 2001, Werner Almesberger wrote:
->> Now what's at stake ? Look at the Windows world. Also there,
->> companies could release their drivers as Open Source. Quick, how
->> many do this ?  Almost none. So, given the choice, most companies
->> have defaulted to closed source. Consistently complaining when a
->> company tries to release only closed source drivers for Linux seems
->> to generally have the desired effect of making them change their
->> policy.
+I'll be happy to test out 2.2.19pre. I'm having a little difficulty locating 
+it though on kernel.org. Can you or somebody send me a URL for this.
 
-Jeff> FWIW, -every single- Windows driver source code I've seen has
-Jeff> been bloody awful.  Asking them to release that code would
-Jeff> probably result in embarrassment.  Same reasoning why many
-Jeff> companies won't release hardware specifications...  The internal
-Jeff> docs are bad.  Really bad.
+Thanks.
 
-Trust me, commercial UNIX drivers aren't any better.
 
-Jes
+>From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>To: lafanga1@hotmail.com (lafanga lafanga)
+>CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+>Subject: Re: Proliant hangs with 2.4 but works with 2.2.
+>Date: Mon, 19 Feb 2001 11:37:49 +0000 (GMT)
+>
+> > You were spot on. Indeed touching the device file causes it to hang. 
+>Should
+> > I recompile the kernel in a particular way to avoid this?
+>
+>I'd be interested to know if 2.2.19pre works or not. I'd like to fix the 
+>hang
+>most definitely.
+>
+>As a short term cure
+>
+>rm /dev/psaux
+>
+>you can use mknod to put it back if you ever need to. But that will disable
+>PS/2 mouse support on that box somewhat
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
+

@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262269AbRENJaf>; Mon, 14 May 2001 05:30:35 -0400
+	id <S262319AbRENJzJ>; Mon, 14 May 2001 05:55:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262274AbRENJaZ>; Mon, 14 May 2001 05:30:25 -0400
-Received: from t2.redhat.com ([199.183.24.243]:10223 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262269AbRENJaS>; Mon, 14 May 2001 05:30:18 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <m1y9s1jbml.fsf@frodo.biederman.org> 
-In-Reply-To: <m1y9s1jbml.fsf@frodo.biederman.org>  <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org> 
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: "H . J . Lu" <hjl@lucon.org>, "David S. Miller" <davem@redhat.com>,
-        alan@lxorguk.ukuu.org.uk, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 14 May 2001 10:29:47 +0100
-Message-ID: <16874.989832587@redhat.com>
+	id <S262323AbRENJy7>; Mon, 14 May 2001 05:54:59 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:21776 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262319AbRENJyt>; Mon, 14 May 2001 05:54:49 -0400
+Date: Mon, 14 May 2001 11:53:49 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Reply-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "David S. Miller" <davem@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Another VM race? (was: page_launder() bug)
+In-Reply-To: <Pine.LNX.4.21.0105132003580.5468-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.3.96.1010514114823.17128A-100000@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > CPU 0				CPU 1
+> > is executing the code marked	is executing try_to_free_buffers on
+> > above with ^^^^^^^:		the same page (it can be, because CPU 0
+> > 				did not lock the page)
+> > 
+> > (page->buffers &&
+> > 
+> > 				page->buffers = NULL
+> > 
+> > MAJOR(page->buffers->b_dev) == 
+> > 	RAMDISK_MAJOR)) ===> Oops, NULL pointer dereference!
+> > 
+> > 
+> > 
+> > Maybe compiler CSE optimization will eliminate the double load of
+> > page->buffers, but we must not rely on it. If the compiler doesn't
+> > optimize it, it can produce random oopses.
+> 
+> You're right, this should be fixed. Do you happen to have a
+> patch ? ;)
 
-ebiederm@xmission.com said:
->  Since you have to set the command line anyway ip=dhcp is no extra
-> burden and it lets you use the same kernel to boot of the harddrive
-> etc.
+You can apply this one.
 
-You don't have to set the command line anyway. At least you _didn't_.
+Mikulas
 
-
-ebiederm@xmission.com said:
->  I boot diskless all of time and supporting a ramdisk is trivial.  You
-> just a have a program that slaps a kernel a ramdisk, and some command
-> line arguments into a single image, along with a touch of adapter code
-> to set the kernel parameters correctly and then boot that.
-
-It's a PITA. Downloading a kernel by TFTP each time you make a one-line 
-change is painful enough, without having to download a ramdisk to go with 
-it.
-
-And once those kernels are being built with CONFIG_BLK_DEV=n, the ramdisk 
-is going to be an even more unattractive solution.
-
---
-dwmw2
+--- linux/mm/vmscan.c_	Mon May 14 11:41:42 2001
++++ linux/mm/vmscan.c	Mon May 14 11:44:54 2001
+@@ -454,8 +454,7 @@
+ 
+ 		/* Page is or was in use?  Move it to the active list. */
+ 		if (PageTestandClearReferenced(page) || page->age > 0 ||
+-				(!page->buffers && page_count(page) > 1) ||
+-				page_ramdisk(page)) {
++				(!page->buffers && page_count(page) > 1)) {
+ 			del_page_from_inactive_dirty_list(page);
+ 			add_page_to_active_list(page);
+ 			continue;
+@@ -470,6 +469,9 @@
+ 			list_add(page_lru, &inactive_dirty_list);
+ 			continue;
+ 		}
++
++		/* M.P.: We must not call page_ramdisk for unlocked page */
++		if (page_ramdisk(page)) goto page_active;
+ 
+ 		/*
+ 		 * Dirty swap-cache page? Write it out if
 
 

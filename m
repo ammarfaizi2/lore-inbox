@@ -1,90 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277313AbRJLKIX>; Fri, 12 Oct 2001 06:08:23 -0400
+	id <S277298AbRJLKMn>; Fri, 12 Oct 2001 06:12:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277298AbRJLKIO>; Fri, 12 Oct 2001 06:08:14 -0400
-Received: from [212.77.202.3] ([212.77.202.3]:18695 "EHLO mail.cbq.com.qa")
-	by vger.kernel.org with ESMTP id <S277313AbRJLKIF>;
-	Fri, 12 Oct 2001 06:08:05 -0400
-Message-ID: <002101c15305$9e016d00$b00b0180@TALHA>
-Reply-To: "Syed Mohammad Talha" <talha@cbq.com.qa>
-From: "Syed Mohammad Talha" <talha@cbq.com.qa>
-To: "hanhbkernel" <hanhbkernel@yahoo.com.cn>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011012052453.72507.qmail@web15001.mail.bjs.yahoo.com>
-Subject: Re: initrd problem of 2.4.10
-Date: Fri, 12 Oct 2001 13:06:52 +0300
-Organization: Commercial Bank of Qatar
+	id <S277324AbRJLKMe>; Fri, 12 Oct 2001 06:12:34 -0400
+Received: from energy.pdb.sbs.de ([192.109.2.19]:37778 "EHLO nixpbe.pdb.sbs.de")
+	by vger.kernel.org with ESMTP id <S277298AbRJLKM0>;
+	Fri, 12 Oct 2001 06:12:26 -0400
+Date: Fri, 12 Oct 2001 12:12:49 +0200 (CEST)
+From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: <Matt_Domsch@Dell.com>, <rgooch@ras.ucalgary.ca>,
+        Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] EFI GUID Partition Tables
+In-Reply-To: <20011009222359.M6348@turbolinux.com>
+Message-ID: <Pine.LNX.4.33.0110121035030.9327-100000@biker.pdb.fsc.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the same problems, which I am facing and have posted a mail as well,
-but so far repose has been received, please any one who can help do reply.
+On Tue, 9 Oct 2001, Andreas Dilger wrote:
 
-Regards.
-Talha
+> > Yes, UUIDs and GUIDs are the same thing, fortunately.
+> > I'll have to defer this to the author of this piece of code.  Martin, any
+> > reason why it shouldn't be renamed?  Richard, any preferred name?
+>
+> Well, the "common" usage is in /etc/fstab, where we allow "UUID=" and
+> "LABEL=", so it would be nice to stick with "uuid" or "UUID".
+>
 
------ Original Message -----
-From: "hanhbkernel" <hanhbkernel@yahoo.com.cn>
-To: <linux-kernel@vger.kernel.org>
-Sent: Friday, October 12, 2001 8:24 AM
-Subject: initrd problem of 2.4.10
+uuid is fine, I have no objections.
+/dev/disks/uuid or /dev/volumes/uuid is also ok. I can see other potential
+applications of UUIDs apart from disks and partitions, but not in the
+short term. Windows doesn't seem to use them for other things, either.
+
+> > > On a side note, I have a user-space library which locates/identifies
+> > > devices by UUID/LABELs as well.  It is likely to become part
+> > > of e2fsprogs
+> > > and mount as a way to consolidate all of the fs identification code,
+> > > but it could easily to partition identification also (hasn't
+> > > been possible until now).
+
+My thinking was that devfs was an obvious facility to use for this
+information. Of course having the functionality in user space would be
+cleaner, but I thought it was most effective to hook into
+grok_partitions(), because the kernel is reading the complete partition
+information there anyway, later discarding most of it. Thus basically
+all I did was take care that the UUID information was not discarded at
+that point.
+
+In any case, we should try determine where this functionality actually
+belongs, and not duplicate it in kernel and user space.
+
+> 1) Currently libblkid is only doing identification of "content" (e.g.
+>    filesystems, RAID, swap, LVM, etc) and not actual "partition tables".
+>    Is it possible to get the GPT data when reading the actual partitioned
+>    device (e.g. /dev/hda1) or do you need to read the whole-disk device
+>    (e.g. /dev/hda)?
+
+AFAIK you need to read the partition table, i.e. /dev/hda.
+
+> 2) What to do with multiple identifiers for a single partition?  Current
+>    partitioning schemes don't have any identifiers, so I've assumed that
+>    there will only be one "correct" identifier for each block device.
+>    With GPT, you could have a GPT GUID+LABEL and a filesystem UUID+LABEL.
+>    It would be nice NOT to introduce new "types" for each possible ID
+>    (i.e. I have been calling all "serial number" type things "UUID" and
+>    all "name" type things "LABEL" to match current usage).
+
+I see a dilemma here: the partition and the file system residing on it are
+not "the same entity", therefore they should in principle have different
+unique IDs.
+On the other hand, in practice both can equally well be used to identify
+a file system on a partition, so it would be less confusing to assign an
+identical UUID to them. I think with parted it would be possible to
+synchronize partition UUID/label and file system UUID/label automatically.
+e2fstools should check if they are working on a GPT disk, and if yes,
+use the UUID/label in the partition table (or not??).
+
+> I was actually in the process of
+> adding LABEL support to swap and reiserfs, because we will still be stuck
+> with DOS partitions a long time.
+
+ - partition labels/UUIDs will work bo matter what file system is on the
+   partition, but only if GPT is used,
+
+ - file system labels/UUIDs will work no matter what partition table is
+   used, but only if the file system supports it.
+
+It seems that in the short term file system labels are the more powerful
+solution. Keeping the UUIDs in sync will be useful, though, if GPT
+partition tables eventually get wide spread use.
+
+The question is if we need to have /dev/[whatever]/uuid, after all.
+After reading this thread I am more and more convinced we don't really need it.
+What is needed is mounting and fscking by UUID (also for the root file
+system). If this can be done in user space, fine for me if the
+UUID part of the patch is left out (it seems to be the most controversial
+part of the patch anyway).
+
+Regards
+Martin
+
+-- 
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
 
 
-> There is no problem using the initial RAM disk
-> (initrd) with kernel 2.4.9
-> But with kernel 2.4.10 system reports the following
-> messages:
->
-> RAMDISK: compressed image found at block 0
-> Freeing initrd memory: 1153k freed
-> VFS: Mounted root (ext2 filesystem)
-> Freeing unused kernel (memory: 224k freed)
-> Kernel panic: No init found. Try passing init=option
-> to kernel
->
-> When I compile the 2.4.10 The following option is
-> supported:
-> <*> RAM disk support(128000)   Default RAM disk size
->
-> [*]   Initial RAM disk (initrd) support
->
-> The version of lilo is 21.6. My lilo.conf is as this:
-> boot=/dev/hda
-> map=/boot/map
-> install=/boot/boot.b
-> prompt
-> timeout=50
-> message=/boot/message
-> linear
-> default=CapitelFW-2.4.9
-> image=/hda2/boot/linux-2.4.91
-> label=CapitelFW-2.4.9
-> initrd=/hda2/root/initrd.gz
-> append="root=/dev/ram0 init=linuxrc rw"
-> image=/hda2/boot/linux-2.4.10-ac
-> label=CapitelFW-ac12
-> initrd=/hda2/root/initrd.gz
-> append="root=/dev/ram0 init=linuxrc rw"
->
->
->
-> _________________________________________________________
-> Do You Yahoo!? 登录免费雅虎电邮! http://mail.yahoo.com.cn
->
-> <font color=#6666FF>无聊？郁闷？高兴？没理由？都来聊天吧！</font>——
-> 雅虎全新聊天室! http://cn.chat.yahoo.com/c/roomlist.html
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+
+
 

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbTJAOWa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 10:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbTJAOWa
+	id S262225AbTJAOUh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 10:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbTJAOUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 10:22:30 -0400
-Received: from ns.suse.de ([195.135.220.2]:16551 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262253AbTJAOWY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 10:22:24 -0400
-To: root@chaos.analogic.com
-Cc: Jurjen Oskam <jurjen@stupendous.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: File Permissions are incorrect. Security flaw in Linux
-References: <1065012013.4078.2.camel@lisaserver>
-	<20031001135322.GA16692@quadpro.stupendous.org>
-	<Pine.LNX.4.53.0310011004570.3612@chaos>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: GOOD-NIGHT, everybody..  Now I have to go administer FIRST-AID
- to my pet LEISURE SUIT!!
-Date: Wed, 01 Oct 2003 16:22:15 +0200
-In-Reply-To: <Pine.LNX.4.53.0310011004570.3612@chaos> (Richard B. Johnson's
- message of "Wed, 1 Oct 2003 10:09:51 -0400 (EDT)")
-Message-ID: <jer81x82co.fsf@sykes.suse.de>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 1 Oct 2003 10:20:37 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:53510 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S262225AbTJAOU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 10:20:28 -0400
+Date: Wed, 1 Oct 2003 15:19:52 +0100
+From: Dave Jones <davej@redhat.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONFIG_* In Comments Considered Harmful
+Message-ID: <20031001141950.GA13115@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Matthew Wilcox <willy@debian.org>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+References: <20031001132619.GL24824@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031001132619.GL24824@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+On Wed, Oct 01, 2003 at 02:26:19PM +0100, Matthew Wilcox wrote:
+ > 
+ > I reviewed the dependency list for a file this morning to see why it was
+ > being unnecessarily recompiled (a little fetish of mine, mostly harmless).
+ > I was a little discombobulated to find this line:
 
-> ...So anything you put into "/tmp", for instance, can be deleted
-> by anybody. This is the Unix way.
+Mmm discombobulation.
 
-...Unless your /tmp is marked properly with +t (sticky bit), so that you
-can only delete your own files.
+ >     $(wildcard include/config/higmem.h) \
+ > 
+ > Naturally, I assumed a typo somewhere.  It turns out there is indeed
+ > a CONFIG_HIGMEM in include/linux/mm.h, but it's in a comment.  The
+ > fixdep script doesn't parse C itself, so it doesn't know that this should
+ > be ignored.
 
-Andreas.
+Maybe it should be taught to parse comments? There are zillions of
+#endif /* CONFIG_FOO */
+braces in the tree. Why is this one special ?
+
+		Dave
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265976AbRG3THO>; Mon, 30 Jul 2001 15:07:14 -0400
+	id <S267184AbRG3TTe>; Mon, 30 Jul 2001 15:19:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266698AbRG3THE>; Mon, 30 Jul 2001 15:07:04 -0400
-Received: from ns.caldera.de ([212.34.180.1]:28332 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S265976AbRG3TGw>;
-	Mon, 30 Jul 2001 15:06:52 -0400
-Date: Mon, 30 Jul 2001 21:06:44 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Christoph Hellwig <hch@ns.caldera.de>,
-        Matthew Gardiner <kiwiunixman@yahoo.co.nz>,
-        kernel <linux-kernel@vger.kernel.org>,
-        Joshua Schmidlkofer <menion@srci.iwpsd.org>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Message-ID: <20010730210644.A5488@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch>, Hans Reiser <reiser@namesys.com>,
-	Christoph Hellwig <hch@ns.caldera.de>,
-	Matthew Gardiner <kiwiunixman@yahoo.co.nz>,
-	kernel <linux-kernel@vger.kernel.org>,
-	Joshua Schmidlkofer <menion@srci.iwpsd.org>
-In-Reply-To: <200107281645.f6SGjA620666@ns.caldera.de> <3B653211.FD28320@namesys.com>
-Mime-Version: 1.0
+	id <S267018AbRG3TTY>; Mon, 30 Jul 2001 15:19:24 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:48398 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S267184AbRG3TTN>;
+	Mon, 30 Jul 2001 15:19:13 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200107301919.f6UJJH7227019@saturn.cs.uml.edu>
+Subject: Re: Test mail
+To: torrey.hoffman@myrio.com (Torrey Hoffman)
+Date: Mon, 30 Jul 2001 15:19:17 -0400 (EDT)
+Cc: acahalan@cs.uml.edu ('Albert D. Cahalan'), ignacio@openservices.net,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211C971@mail0.myrio.com> from "Torrey Hoffman" at Jul 30, 2001 11:32:05 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B653211.FD28320@namesys.com>; from reiser@namesys.com on Mon, Jul 30, 2001 at 02:08:17PM +0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, Jul 30, 2001 at 02:08:17PM +0400, Hans Reiser wrote:
-> Christoph Hellwig wrote:
-> > 
->  
-> > Reiserfs as implemented in the 2.4.2-based kernel of OpenLinux 3.1 is
-> > everything but stable and has a lot of issues (e.g. NFS-exporting doesn't
-> > work).  That is the reason why it is a) marked experimental and is completly
-> > unsupported (and that is written _big_ _fat_ in manuals and similar stuff)
-> > and b) has debugging enabled to have the additional sanity checks that are
-> > under this option and give addtional hints if reiserfs fails again.
-> 
-> The debugging won't prevent a single crash, it will only print a diagnostic that
-> might help to understand why it crashed.
+Torrey Hoffman writes:
 
-I don't know when you took a look at you code the last time, but when
-I did some time before the COL 3.1 release, there were lots of places
-in the reiserfs code where functions assumed that they have valid
-arguments when compiled without debugging and did the check explicitly
-when compiled with.  Given the state the reiserfs code is in I really
-prefer to see this option turned on.
+> I hate to jump in and extend this mostly off-topic thread, but I would be
+> a little annoyed if Outlook was banned from LKML.  I've got two machines
+> on my desk here at work - one is Win2K, and is used almost exclusively for 
+> Outlook and Word.  It's very difficult to give those up when the rest of
+> the company uses them extensively.  The automatic meeting scheduling and
+> other MS Exchange features of Outlook are not available in other clients, 
+> and why should I switch when Outlook works fine?  
+>
+> Of course the other computer runs Linux, and is where all my real work
+> gets done.  It's convenient to have both environments.
 
-> It makes zero sense for a distro to
-> have it on, and I think we make that pretty clear in the help button.  It would
-> be nice if distros read the help buttons before selecting options when
-> configuring their kernels.:-/
+This does not mean you have to use Outlook to _send_ mail to
+the linux-kernel mailing list. Do this:
 
-Well sometimes it's even better to take a look at the code..
+1. log into the Linux box you have
+2. run emacs
+3. Control-x m
+4. fill in the header fields and write your message
+5. Control-c Control-c
 
-	Christoph
+If you really must send mail directly from the Windows box,
+get emacs for Windows and skip step 1 above.
 
-> I make no claims that users should use ReiserFS as it is in a 2.4.2 kernel....
-
-No one said that (and even if I wouldn't believe him).
-
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.
+BTW, if you can't log into anything that can open an SMTP connection
+to the outside world and don't have a relay, then most likely your
+employer doesn't want you sending stuff to linux-kernel anyway.

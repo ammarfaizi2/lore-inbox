@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbUBXDBC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 22:01:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbUBXDBC
+	id S262150AbUBXDKv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 22:10:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbUBXDKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 22:01:02 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12751 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262056AbUBXDBA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 22:01:00 -0500
-Date: Tue, 24 Feb 2004 03:00:57 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Ian Wienand <ianw@gelato.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devpts_fs.h fails with "error: parameter name omitted"
-Message-ID: <20040224030056.GN31035@parcelfarce.linux.theplanet.co.uk>
-References: <20040224021651.GF1200@cse.unsw.EDU.AU> <20040224022424.GL31035@parcelfarce.linux.theplanet.co.uk> <20040224024942.GG1200@cse.unsw.EDU.AU>
+	Mon, 23 Feb 2004 22:10:51 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:49117 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262150AbUBXDKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 22:10:49 -0500
+Date: Mon, 23 Feb 2004 22:09:34 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 3c359_microcode.h clean up - 2.6.3
+Message-ID: <20040224030933.GA7116@siasl.dyndns.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040224024942.GG1200@cse.unsw.EDU.AU>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
+From: Mike Phillips <phillim2@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 01:49:42PM +1100, Ian Wienand wrote:
-> On Tue, Feb 24, 2004 at 02:24:24AM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > That part makes sense.  Previous one doesn't.
-> 
-> Is that by convention or is leaving out the parameter name in the
-> prototype standardised somewhere?  
+Small patch to clean up 3c359_micrcode.h, no other drivers in the kernel
+come anywhere near the file and the #if is superflous.
 
-It's valid C and it's pretty common style.  Both that and leaving the
-names in prototype can be found in the kernel and CodingStyle is OK
-with either variant.  Which makes the change gratitious.
+Mike Phillips 
+
+diff -urN -X dontdiff linux-2.6.3/drivers/net/tokenring/3c359_microcode.h linux-2.6.3-working/drivers/net/tokenring/3c359_microcode.h
+--- linux-2.6.3/drivers/net/tokenring/3c359_microcode.h	2004-02-17 22:57:20.000000000 -0500
++++ linux-2.6.3-working/drivers/net/tokenring/3c359_microcode.h	2004-02-23 21:57:58.000000000 -0500
+@@ -20,9 +20,6 @@
+  * different length.
+  */
+ 
+-
+-#if defined(CONFIG_3C359) || defined(CONFIG_3C359_MODULE) 
+-
+ static int mc_size = 24880 ; 
+ 
+ u8 microcode[] = { 
+@@ -1582,4 +1579,3 @@
+ ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+ ,0x90,0xea,0xc0,0x15,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x13,0x06
+ } ;  
+-#endif 

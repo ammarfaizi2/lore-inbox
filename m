@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbUKLVxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbUKLVxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262637AbUKLVxj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 16:53:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbUKLVwC
+	id S262626AbUKLVxk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 16:53:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbUKLVv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 16:52:02 -0500
-Received: from mail2.speakeasy.net ([216.254.0.202]:61869 "EHLO
-	mail2.speakeasy.net") by vger.kernel.org with ESMTP id S262633AbUKLVtw
+	Fri, 12 Nov 2004 16:51:27 -0500
+Received: from mms3.broadcom.com ([63.70.210.38]:16403 "EHLO mms3.broadcom.com")
+	by vger.kernel.org with ESMTP id S262632AbUKLVtm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 16:49:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: source address for UDP broadcasts with aliased interfaces?
-From: Daniel Risacher <magnus@alum.mit.edu>
-Date: Fri, 12 Nov 2004 16:49:50 -0500
-Message-ID: <87lld6n3ep.fsf@m5.risacher.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.2.90 (gnu/linux)
+	Fri, 12 Nov 2004 16:49:42 -0500
+X-Server-Uuid: 062D48FB-9769-4139-967C-478C67B5F9C9
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: RE: [PATCH] pci-mmconfig fix for 2.6.9
+Date: Fri, 12 Nov 2004 13:49:18 -0800
+Message-ID: <B1508D50A0692F42B217C22C02D84972020F3C9D@NT-IRVA-0741.brcm.ad.broadcom.com>
+Thread-Topic: [PATCH] pci-mmconfig fix for 2.6.9
+Thread-Index: AcTI+fGdqpUFp6tLQ2WKk7FB6UY/cgABIlww
+From: "Michael Chan" <mchan@broadcom.com>
+To: "Grant Grundler" <grundler@parisc-linux.org>
+cc: "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, greg@kroah.com,
+       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
+X-WSS-ID: 6D8BF0551TG2713095-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 Nov 2004, 13:55:09 -0700, Grant Grundler wrote:
 
-I'm not sure if this is a bug or a feature.
+> Yes. I found it on page 5 of PciEx_ECN_MMCONFIG_040217.pdf. 
+> AFAICT, this section only applies to "systems that implement 
+> a processor-architecture-specific firmware interface 
+> standard". e.g. ia64 SAL calls.
+> 
 
-There seems to be no way to get the kernel to send a UDP broadcast
-packet to INADDR_BROADCAST from a specific address, short of using
-iptables.  
+Hi Grant,
 
-I would think that bind()ing a socket to a local address would
-determine the source address, but the kernel seems to ignore the bound
-address.  
+I disagree with your interpretations of the ECN. Here's my
+interpretations:
 
-I'm trying to write a program that communicates with multiple hosts on
-a local net, several of which have firewall rules that drop packets
-from external addresses.  The source computer has multiple aliased
-addresses on the eth0 interface.  I therefore want to broadcast from a
-specific non-routable internal address.  I've experimented with bind()
-and setsockopt(,SO_BINDTODEVICE,) to determine the source address
-and/or interface but the kernel seems to pick whatever it wants.
+1. PC-compatible systems or systems that do not implement a
+processor-architecture-specific firmware interface must implement
+mmconfig as specified in the ECN.
 
-Is there a correct way to specify the sender address/interface?
+2. mmconfig implementation must provide a method for software to
+guarantee that the config access has completed before software execution
+continues. In Implementation Note, it provides some examples on how to
+do this. One example is to make mmconfig non-posted. But there are other
+examples.
 
-Dan Risacher
+In short, I believe mmconfig is allowed to be posted or non-posted. If
+it is posted, there must be a method to allow software to flush it.
 
-(reference code follows; testing was done on Linux 2.6.9)
-
-  struct sockaddr_in to_addr;
-  struct sockaddr_in my_addr;
-  my_addr.sin_family = AF_INET;
-  my_addr.sin_port = htons(0);
-  my_addr.sin_addr.s_addr = find_if_addr(interface);
-  to_addr.sin_family = AF_INET;
-  to_addr.sin_port = htons(11415);
-  to_addr.sin_addr.s_addr = INADDR_BROADCAST;
-
-  fd = socket(PF_INET, SOCK_DGRAM, 0);
- 
-  res = setsockopt(fd, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one));
-  if (res) perror ("setsockopt (SO_BROADCAST)");
-
-  res = bind(fd, (struct sockaddr*) &my_addr, sizeof(struct sockaddr_in));
-  if (res) perror ("bind");  
-  
-  res = setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, interface, 1+strlen(interface));
-  if (res) perror ("setsockopt (SO_BINDTODEVICE)");
-
-  res = sendto(fd, mesg, strlen(mesg), MSG_DONTROUTE, 
-	 (struct sockaddr *)&to_addr, 
-	 sizeof(struct sockaddr_in));
-  if (res == -1) perror ("sendto");
-
+Michael
 
 

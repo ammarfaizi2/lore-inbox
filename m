@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316825AbSGLTyN>; Fri, 12 Jul 2002 15:54:13 -0400
+	id <S316845AbSGLT4d>; Fri, 12 Jul 2002 15:56:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316835AbSGLTyM>; Fri, 12 Jul 2002 15:54:12 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:55786 "EHLO
+	id <S316842AbSGLT42>; Fri, 12 Jul 2002 15:56:28 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:11755 "EHLO
 	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S316825AbSGLTyJ>; Fri, 12 Jul 2002 15:54:09 -0400
-Date: Fri, 12 Jul 2002 21:55:26 +0200 (CEST)
+	id <S316840AbSGLT4S>; Fri, 12 Jul 2002 15:56:18 -0400
+Date: Fri, 12 Jul 2002 21:57:33 +0200 (CEST)
 From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207121955.g6CJtQur018433@burner.fokus.gmd.de>
-To: linux-kernel@vger.kernel.org
+Message-Id: <200207121957.g6CJvXLs018439@burner.fokus.gmd.de>
+To: alan@lxorguk.ukuu.org.uk, schilling@fokus.gmd.de
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Andersen wrote:
+>From alan@lxorguk.ukuu.org.uk Fri Jul 12 21:56:54 2002
 
->cdrecord should use the CDROM_SEND_PACKET ioctl, then it would
->work regardless,
+>On Fri, 2002-07-12 at 20:49, Joerg Schilling wrote:
+>> >> Describe the problems.
+>> 
+>> >Go read the source code, do your own homework
+>> 
+>> Fine! You repeat that you have no argument that stands a check.
+>> So let us take it as prooven that there is no problem with resent
+>> (< 10 year old) drives. 
 
-Wis you ever look at the cdrecord sources?
+>Read the source code, then you'd already know you are talking crap
 
-Cdrecord relies on libscg which is a generic SCSI transport library.
-It has been first written in August 1986 when I wrote the first SCSI
-pass through driver (for SunOS-3.0) - long before Adapted came out with
-ASPI. In the 16 years of evolution, it has been ported to > 30
-different platforms (not including CPU variants like sparc/x86).
 
-If you force cdrecord to rely on CD-ROM only interfaces, you make Linux
-unusable in general. Do you really like to create an unusable Linux just
-to avoid creating a usable generic SCSI transport interface?
+If you are unable to use arguments, I cannot take you for serious.
+Please educate yourself about SCSI and ATAPI, this would help a lot
+haveing a serious discussion.
+
 Jörg
 
  EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin

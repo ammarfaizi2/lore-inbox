@@ -1,115 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267638AbUGWLQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267647AbUGWL1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267638AbUGWLQb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 07:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267643AbUGWLQb
+	id S267647AbUGWL1T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 07:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUGWL1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 07:16:31 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:3043 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S267638AbUGWLQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 07:16:25 -0400
-Subject: Re: Compression filter for Loopback device
-From: Paulo Marques <pmarques@grupopie.com>
-Reply-To: pmarques@grupopie.com
-To: Lei Yang <leiyang@nec-labs.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <951A499AA688EF47A898B45F25BD8EE80126D4D6@mailer.nec-labs.com>
-References: <951A499AA688EF47A898B45F25BD8EE80126D4D6@mailer.nec-labs.com>
-Content-Type: text/plain
-Organization: Grupo PIE
-Message-Id: <1090581375.22679.20.camel@pmarqueslinux>
+	Fri, 23 Jul 2004 07:27:19 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:13709 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267647AbUGWL1S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 07:27:18 -0400
+Date: Fri, 23 Jul 2004 13:28:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Rudo Thomas <rudo@matfyz.cz>,
+       Matt Heler <lkml@lpbproductions.com>
+Subject: [patch] voluntary-preempt-2.6.8-rc2-I4
+Message-ID: <20040723112842.GA5133@elte.hu>
+References: <20040722160055.GA4837@ss1000.ms.mff.cuni.cz> <20040722161941.GA23972@elte.hu> <20040722172428.GA5632@ss1000.ms.mff.cuni.cz> <20040722175457.GA5855@ss1000.ms.mff.cuni.cz> <20040722180142.GC30059@elte.hu> <20040722180821.GA377@elte.hu> <20040722181426.GA892@elte.hu> <20040723104246.GA2752@elte.hu> <4d8e3fd30407230358141e0e58@mail.gmail.com> <20040723110430.GA3787@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 23 Jul 2004 12:16:15 +0100
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.26.0.10; VDF: 6.26.0.41; host: bipbip)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040723110430.GA3787@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-22 at 20:27, Lei Yang wrote:
-> Hi all,
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> > >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-I3
+> > > 
+> > > it mainly fixes an ext3 livelock that could result in long delays during
+> > > heavy commit traffic.
+> > 
+> > Hello Ingo, do you have any measurement of the improvement available ?
 > 
-> Is there anything like 'losetup' that allows choosing encryption
-> algorithm for a loopback device that can be used on compression
-> algorithms? Or in other words, when the data passes through loopback
-> device to a real storage device, it can be filtered and the filter is
-> compression instead of encryption; when kernel ask for data in a storage
-> device that is mounted to a loopback device with compression, it will be
-> filtered again -- decompressed.
-> 
-> If there is not a ready-to-use method for this, is there any way I can
-> implement the idea?
+> it's a bug in the patch, not really a latency fix. When this (rare)
+> condition under heavy write traffic occurs then kjournald would loop for
+> many seconds (or tens of seconds) in __journal_clean_checkpoint_list(),
+> effectively hanging the system. The system is still preemptible but the
+> user cannot do much with it. Note that this condition is not present in
+> the vanilla kernel, it got introduced by earlier versions of
+> voluntary-preempt.
 
-There is cloop. The only problem with cloop is that it is read-only.
+there's one more new version:
 
-If you want read-write, there is no solution AFAIK(*).
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-I4
 
-I did start working on something like that a while ago. I even
-registered for a project on sourceforge: 
+this fixes another rare bug: release_task() could trigger a 'Badness'
+atomicity message when the right conditions occur on a preemptible
+kernel. This bugfix also allowed the addition of might_sleep() checks
+(and hence voluntary-preemption points) to dput() and fput(), two common
+functions.
 
-http://sourceforge.net/projects/zloop/
-
-I stopped working on it because:
-
-1 - I didn't have the time
-
-2 - There are some nasty issues with this concept:
-
-    - The image file would ideally shrink and grow according to the 
-achieved compression ratio. In the worst case it would have to grow to
-more than the size of the "block device" (if you wrote a bunch of
-already compressed files to the device, for instance), because it has to
-keep some metadata. This reduces the scenarios where this sort of
-compressed loopback device could be used.
-
-    - Respect the sequence of writes to the block device is tricky. This
-is important because you have to guarantee that a journaled filesystem
-on top of the block device will assure data integrity. This is worst
-than on a normal loopback because you have to make sure the "block
-device metadata" is also written at appropriate times. I actually
-conceived an algorithm that could acomplish this with little overhead,
-but never got to implement it.
-
-    - The block device doesn't understand anything about files. This is
-an advantage because it will compress the filesystem metadata
-transparently, but it is bad because it compresses "unused" blocks of
-data. This could probably be avoided with a patch I saw floating around
-a while ago that zero'ed delete ext2 files. Zero'ed blocks didn't accupy
-any space at all in my compressed scheme, only metadata (only 2 bytes
-per block).
-
-3 - There didn't seem to be much interest from the commmunity in
-something like this.
-
-
-If interest rises now, I'll probably have the time to resume the project
-where I left off.
-
-I did a proof of concept using a nbd server. This way I could test
-everything in user space.
-
-With this NBD server I tested the compression ratios that my scheme
-could achieve, and they were much better than those achieved by cramfs,
-and close to tar.gz ratios. This I wasn't expecting, but it was a nice
-surprise :)
-
-Anyway, any feedback, suggestions, ideas on this will be greatly
-appreciated.
-
--- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
-
-
-
-(*) There is JFFS2 that you can mount on top of a mtd-block device. I
-never tried it personally, because it seemed a bit of a cludge, and it
-didn't get the shrink and grow effect that I wanted from the compressed
-loop-back. There is also an old ext2 "compression extension" that seemed
-not to be mantained for a long time, last time I checked.
-
-
-
-
-
+	Ingo

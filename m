@@ -1,106 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272478AbTHEKdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 06:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272535AbTHEKdP
+	id S272635AbTHEKuS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 06:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272634AbTHEKuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 06:33:15 -0400
-Received: from dyn-ctb-203-221-74-83.webone.com.au ([203.221.74.83]:4100 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S272478AbTHEKdJ
+	Tue, 5 Aug 2003 06:50:18 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:62201 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S272635AbTHEKuK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 06:33:09 -0400
-Message-ID: <3F2F87DA.7040103@cyberone.com.au>
-Date: Tue, 05 Aug 2003 20:32:58 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
+	Tue, 5 Aug 2003 06:50:10 -0400
+Date: Tue, 5 Aug 2003 12:49:42 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: IDE locking problem
+In-Reply-To: <1060070884.615.47.camel@gaston>
+Message-ID: <Pine.SOL.4.30.0308051236250.552-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [PATCH] O13int for interactivity
-References: <200308050207.18096.kernel@kolivas.org> <1060060568.3f2f3d989683f@kolivas.org> <3F2F4076.1030009@cyberone.com.au> <200308052022.01377.kernel@kolivas.org>
-In-Reply-To: <200308052022.01377.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 5 Aug 2003, Benjamin Herrenschmidt wrote:
 
-Con Kolivas wrote:
+> On Tue, 2003-08-05 at 02:28, Bartlomiej Zolnierkiewicz wrote:
+> > On 3 Aug 2003, Benjamin Herrenschmidt wrote:
+> >
+> > > And there's more to it... ide_unregister() doesn't copy hwif->hold from
+> > > old to new hwif causing my hotswap bay to lose it's iops on next plug,
+> > > it doesn't call unregister_device() for neither hwif->gendev nor
+> > > drive[n]->gendev, causing the device model list to be corrupted after
+> > > an unregister, ...
+> >
+> > What is a goal of calling init_hwif_data() in ide_unregister()?
+> > I guess it is used mainly to clear hwif->io_ports and hwif->irq.
+> > Therefore even if you are using hwif->hold flag io_ports will be set to
+> > default values, so how do you later find your hwif?
+>
+> What is the goal ? good question ;) I'd be happy with removing most
+> of the junk in init_hwif_data, but we need to go a bit further there
+> for 2.7, maybe we should discuss that one irc one of these days ;)
+> We probably want to remove the static array of hwifs and change that
+> into pointers, hwif themselves beeing fully initialized 'offline' by
+> the host driver, then handed out to the ide layer...
 
->On Tue, 5 Aug 2003 15:28, Nick Piggin wrote:
->
->>Con Kolivas wrote:
->>
->>>Quoting Nick Piggin <piggin@cyberone.com.au>:
->>>
->>Yes yes, but we come to the same conclusion no matter why you have decided
->>to make the change ;) namely that you're only papering over a flaw in the
->>scheduler!
->>
->
->This would take a redesign in the interactivity estimator. I worked on one for 
->a while but decided it best to stick to one infrastructure and tune it as 
->much as possible; especially in this stage of 2.6 blah blah...
->
->
->>What happens in the same sort of workload that is using interruptible
->>sleeps?
->>Say the same make -j NFS mounted interrruptible (I think?).
->>
->
->Dunno. Can't say. I've only ever seen NFS D but I don't have enough test 
->material...
->
->
->>I didn't really understand your answer a few emails ago... please just
->>reiterate: if the problem is that processes sleeping too long on IO get
->>too high a priority, then give all processes the same boost after they
->>have slept for half a second?
->>
->>Also, why is this a problem exactly? Is there a difference between a
->>process that would be a CPU hog but for its limited disk bandwidth, and
->>a process that isn't a CPU hog? Disk IO aside, they are exactly the same
->>thing to the CPU scheduler, aren't they?
->>
->>_wants_ to be a CPU hog, but can't due to disk
->>
->
->You're on the right track; I'll try and explain differently. 
->
->A truly interactive task has periods of sleeping irrespective of disk 
->activity. It is the time spent sleeping that the estimator uses to decide 
->"this task is interactive, improve it's dynamic priority by 5". A true cpu 
->hog (eg cc1) never sleeps intentionally and the estimator sees this as "I'm a 
->hog; drop my priority by 5". Now if the cpu hog sleeps while waiting on disk 
->i/o the estimator suddenly decides to elevate it's priority. If it gets to 
->maximum boost and then stops doing I/O and goes back to being a hog it now 
->starts starving other processes till it's dynamic priority drops enough 
->again. As I said it's a design quirk (bug?) and _limiting_ how high the 
->priority goes if the sleep is due to I/O would be ideal but I don't have a 
->simple way to tell that apart from knowing that the sleep was 
->UNINTERRUPTIBLE. This is not as bad as it sounds as for the most part it 
->still is counted as sleep except that it can't ever get maximum priority 
->boost to be a sustained starver.
->
+Yes, plus adding HBA structure.
 
-But by employing the kernel's services in the shape of a blocking
-syscall, all sleeps are intentional. I think what you see is interactive
-apps sleep in select which is interruptible. Anyway, I'll grant you that
-a true cpu hog never sleeps, but then you don't have to worry about what
-happens if it were to submit IO ;)
+> In the meantime, the current code works because init_hwif_data()
+> calls ide_init_hwif_ports() which is an arch hook, which will fill
+> the proper io base, so the hwif can still be found. Since the IOps
 
-If cc1 is doing a lot of waiting on IO, I fail to see how it should be
-called a CPU hog. OK I'll stop being difficult! I understand the problem
-is that its behaviour suddenly changes from IO bound to CPU hog, right?
-Then it seems like the scheduler's problem is that it doesn't adapt
-quickly enough to this change.
+It only works with default/legacy io bases.
 
-What you are doing is restricting some range so it can adapt more quickly
-right? So you still have the problem in the cases where you are not
-restricting this range.
+> themselves are saved/restored in ide_unregister, we end up with
+> proper IO base and proper IOps still there.
+> In fact, I suspect the only remaining useful thing done by
+> init_hwif_date() in there is to clear the drive structures.
+>
+> > Hmmm... what about not copying anything and calling init_hwif_data()
+> > only if !hwif->hold?
+>
+> We may probably still want to clear the drive array and maybe a
+> the present flag, no ?
 
+Oh yes, this is the main goal if ide_unregister() :-).
+
+> Also, look at my patch, we also _NEED_ to add some proper
+> device_unregister calls to ide_unregister() or this function will
+> leave dangling entries in the device list, and since those have the
+> same restrictions as the new blk_cleanup_queue(), we really need to
+> do that without the lock held.
+
+Yes.
+
+> I'd suggest merging my patch for now, it won't make things much
+> worse than what they are today regarding racyness of IDE registration
+> and unregistration, we an look into sanitizing this as a 2.7 goal.
+
+Okay :\.
+
+--
+Bartlomiej
 

@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262100AbTCPCnO>; Sat, 15 Mar 2003 21:43:14 -0500
+	id <S262203AbTCPCoF>; Sat, 15 Mar 2003 21:44:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262132AbTCPCnO>; Sat, 15 Mar 2003 21:43:14 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:23745 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S262100AbTCPCnN>; Sat, 15 Mar 2003 21:43:13 -0500
-Date: Sat, 15 Mar 2003 20:53:56 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, <colpatch@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] NUMAQ subarchification
-In-Reply-To: <1047750799.1964.72.camel@mulgrave>
-Message-ID: <Pine.LNX.4.44.0303152036250.27065-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262205AbTCPCoF>; Sat, 15 Mar 2003 21:44:05 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:48398
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S262203AbTCPCoC>; Sat, 15 Mar 2003 21:44:02 -0500
+Subject: Re: 2.5.64-mm6: oops in elv_remove_request
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <20030315081558.GK791@suse.de>
+References: <20030313175454.GP836@suse.de>
+	 <1047578690.1322.17.camel@ixodes.goop.org> <20030313190247.GQ836@suse.de>
+	 <1047633884.1147.3.camel@ixodes.goop.org> <20030314104219.GA791@suse.de>
+	 <1047637870.1147.27.camel@ixodes.goop.org> <20030314113732.GC791@suse.de>
+	 <1047664774.25536.47.camel@ixodes.goop.org> <20030314180716.GZ791@suse.de>
+	 <1047680345.1508.2.camel@ixodes.goop.org>  <20030315081558.GK791@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047783292.1209.3.camel@ixodes.goop.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 15 Mar 2003 18:54:53 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Mar 2003, James Bottomley wrote:
+On Sat, 2003-03-15 at 00:15, Jens Axboe wrote:
+> I can reliably crash the box with SG_IO -> ide-cd here, so I'm hoping
+> there's a connection. Need to move it to a box where nmi watchdog
+> actually works...
 
-> It is the place designed for code belonging only to one subarch.
-> 
-> > Last time I looked (and I don't think anyone has fixed it since) 
-> > it requires copying files all over the place, making an unmaintainable
-> > nightmare. Either subarch needs fixing first, or we don't use it.
+And wouldn't you know it - with -mm7 it seems to be working fine...
 
-I agree that duplicating files into different subarch dirs sure isn't the 
-way to go.
-
-> The problem you have (your setup.c and topology.c are identical to the
-> default) was originally going to be solved using VPATH.  Unfortunately,
-> that got broken along the way in the new build scheme, so the best I
-> think you can do is add this to the summit Makefile
-
-I think VPATH has never been meant to be used for anything like this, it 
-could be make to work, though it would interfere with the separate src/obj 
-thing. But I don't think it's a good idea, we'll have object files 
-magically appear without any visible source file, that's just too obscure.
-
-I can basically see two options at this point:
-
-> $(obj)/setup.c: $(src)/../mach-default/setup.c
-> 	cat $< $@
-
-Something like this, but using ln -sf would be nicer, since that avoids 
-someone editing the wrong file by mistake.
-
-Or:
-
-Make the build enter mach-default always. However, make compilation of
-setup.c and topology.c conditional on CONFIG_X86_DEFAULT_SETUP and
-CONFIG_X86_DEFAULT_TOPOLOGY (or combine those two into one config
-variable). Then, you'll have to deal with those two variables explicitly
-from Kconfig. Basically, set them to n for voyager and visws, y otherwise.
-
-Yes, that means changing another line in Kconfig when you add a new 
-subarch, but that doesn't happen all that frequently. And it's sure better 
-than crashes on boot because your setup.c disappeared after a bk commit 
-and the build chose to use the mach-default one instead...
-
---Kai
-
+	J
 

@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267702AbUHaVJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269176AbUHaVMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267702AbUHaVJL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 17:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUHaVHF
+	id S269176AbUHaVMw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 17:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269190AbUHaVKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 17:07:05 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.145]:25869 "EHLO
-	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
-	id S269176AbUHaVDr convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 17:03:47 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 31 Aug 2004 17:10:50 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:56013 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S269176AbUHaVJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 17:09:35 -0400
+Message-ID: <4134E8EA.9080605@linux.intel.com>
+Date: Tue, 31 Aug 2004 16:08:58 -0500
+From: James Ketrenos <jketreno@linux.intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: IDE class driver with SATA controllers
-Date: Tue, 31 Aug 2004 14:03:41 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B03F969B@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: IDE class driver with SATA controllers
-Thread-Index: AcSPlnIr2WgDnbT2QD2WTEOvsQckHAAAD7BgAABXO5AAAWO/wA==
-From: "Andrew Chew" <achew@nvidia.com>
-To: <linux-ide@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Cc: <jgarzik@pobox.com>, <B.Zolnierkiewicz@elka.pw.edu.pl>
-X-OriginalArrivalTime: 31 Aug 2004 21:03:42.0056 (UTC) FILETIME=[FECAD680:01C48F9D]
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: [Announce] Update on ipw2100, ipw2200, and support for Intel PRO/Wireless
+ 2915ABG
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my perusal of the kernel code, I noticed that the IDE subsystem
-handles IDE controllers at legacy IO ports if no other driver claims
-them (albeit without DMA support).  I was wondering if it could be
-extended to support SATA controllers 
-that aren't mapped to legacy I/O ports.
 
-I'm aware of the idex=base,ctl,irq kernel option, but I can't seem to
-get this to work with my SATA controller (using ide6=base,ctl,irq).
+It's been a while since I've updated lkml and netdev on the progress of
+the ipw projects.  Given the recent announcement by Intel for the
+introduction of Intel PRO/Wireless 2915 ABG Network Connection miniPCI
+adapter, I thought now was a good time...
 
-The reason I'm asking is because it would seem like a good thing to have
-SATA controllers that are broadly compatible with IDE to be usable
-without having to modify the core kernel drivers.  This would at least
-allow a user to perform a Linux install on a SATA drive even if that
-kernel doesn't have explicit support for the SATA controller.  A
-kernel/driver update can then take place after the install.
+First, thanks to everyone that has been contributing, using, testing,
+and reporting feedback for the projects described below.  The support
+by folks in the community has been terrific -- the drivers wouldn't be
+anywhere near as feature rich and stable as they are today if not for
+the contributions of everyone.
 
-Also, are there plans for libata to take over the IDE class driver
-functionality in the future?
+The ipw2100 project (802.11b) has progressed very well.  We are in the
+process of cleaning up the driver for submittal to netdev for eventual
+inclusion into the kernel.  The driver currently supports wep, 802.1x,
+monitor mode, adhoc, infrastructure, etc.  Suspend/resume isn't quite
+functioning yet, but we'll get there soon.  This project is hosted at
+http://ipw2100.sf.net.
+
+The ipw2200 project (802.11bg), which was launched back in May, is
+quickly catching up to the ipw2100 project in terms of functionality.
+It currently supports wep and 802.1x in infrastructure mode.  Currently
+it will only associate at B data rates; hooking in the G capabilities
+is going on right now.  We'll then tackle adhoc and remaining feature
+gaps.  We had been planning on holding off submittal for kernel
+inclusion until we were feature complete.  However, several folks have
+requested that we accelerate that plan and get it in sooner rather than
+later.  To that end we're working to try and get it ready for submittal
+along with the ipw2100 project.  This project is hosted at
+http://ipw2200.sf.net.
+
+The ipw2100 and ipw2200 projects currently share the 802.11 frame
+handling stack for Tx/Rx and some management frame processing.  That
+code has been pulled into its own module suite (ieee80211), based on
+work from the Host AP project.  That code needs to be resync'd with the
+Host AP code (and vice versa where appropriate) so that then all of
+those drivers will be able to leverage a single wireless network stack.
+
+Anyway, this brings me to announcing Linux support for the Intel
+PRO/Wireless 2915 ABG Network Connection adapter.  As of next week, the
+ipw2200 project will also begin supporting the ABG adapter.  From the
+driver's perspective, the only change between the two cards is the
+addition fo the A radio on the 2915.  So, adding support for the ABG is
+just a matter of updating the firmware used by the ipw2200 project,
+adding PCI id's, and putting in support for A.  That work will progress
+as we continue to bring full support for the ipw2200 project.
+
+At some point in the near future we will rename the ipw2200 project to
+something more appropriate to identify it as supporting both the 2200
+and 2915 adapters.
+
+Thanks,
+James

@@ -1,178 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbRAaQgE>; Wed, 31 Jan 2001 11:36:04 -0500
+	id <S129996AbRAaQkE>; Wed, 31 Jan 2001 11:40:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129996AbRAaQfz>; Wed, 31 Jan 2001 11:35:55 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:529
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129532AbRAaQfr>; Wed, 31 Jan 2001 11:35:47 -0500
-Date: Wed, 31 Jan 2001 08:35:27 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ole Aamot <ole@linpro.no>
-cc: mlord@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: Problems with Promise IDE controller under 2.4.1
-In-Reply-To: <uk0d7d3hfqm.fsf@false.linpro.no>
-Message-ID: <Pine.LNX.4.10.10101310833300.14252-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S131234AbRAaQj5>; Wed, 31 Jan 2001 11:39:57 -0500
+Received: from venus.postmark.net ([207.244.122.71]:15632 "HELO
+	venus.postmark.net") by vger.kernel.org with SMTP
+	id <S129996AbRAaQjq>; Wed, 31 Jan 2001 11:39:46 -0500
+Message-ID: <20010131174231.12356.qmail@venus.postmark.net>
+Mime-Version: 1.0
+From: J Brook <jbk@postmark.net>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Matrox G450 problems with 2.4.0 and xfree
+Date: Wed, 31 Jan 2001 17:41:39 +0000
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Petr,
 
-There is not problem, the BIOS in the addon cards/promise do not
-translation for you like the mainboard does.
-If you are worried pass the geometry by hand
+ I think I might have something to add to this discussion, but then
+again you probably know this already!
 
-hd{e,f,g,h}=9345,255,63
+On Tue Jan 30 2001 Petr Vandrovec wrote:
+> > > > Installed a Matrox G450 on my linux system. Now it has
+> > > > problems booting. The kernel is compiled with framebuffer
+> > > > support so is supposed to boot up with the Linux logo.
+> > > > Unfortunately the systems hangs when the kernel switches to
+> > > > the graphics mode. When I first boot into windoze and the
+> > > > reboot to linux it works fine. So it looks like an
+> > > > initialisation problem...
 
-Cheers,
+<snip>
 
-On 31 Jan 2001, Ole Aamot wrote:
+> Windows drivers works around somehow, as after booting
+> to Windows matroxfb works fine - but without Windows it is just
+> pure luck.
 
-> We experience trouble with the Promise (PDC20265) IDE controller
-> and seven 75GB IBM disks on a single CPU (Pentium-III) server.
-> 
-> Linux 2.4.1 fails to detect correct geometry for the four last
-> disks (identified as hde, hdf, hdg, hdh).
-> 
-> [root@nngds1 /root]# cat /proc/ide/hd[abcefgh]/geometry
-> physical     148945/16/63
-> logical      9345/255/63
-> physical     148945/16/63
-> logical      9345/255/63
-> physical     148945/16/63
-> logical      9345/255/63
-> physical     148945/16/63
-> logical      148945/16/63
-> physical     148945/16/63
-> logical      148945/16/63
-> physical     148945/16/63
-> logical      148945/16/63
-> physical     148945/16/63
-> logical      148945/16/63
-> 
-> 
-> Output from hdparm -i /dev/hd[abcefgh]:
-> 
-> /dev/hda:
-> 
->  Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSFAL154
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
->  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=150136560
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes: pio0 pio1 pio2 pio3 pio4
->  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
-> 
-> /dev/hdb:
-> 
->  Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSFAR909
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
->  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=150136560
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes: pio0 pio1 pio2 pio3 pio4
->  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
-> 
-> /dev/hdc:
-> 
->  Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSFAS836
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
->  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=150136560
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes: pio0 pio1 pio2 pio3 pio4
->  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
-> 
-> /dev/hde:
-> 
->  Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSFAL701
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
->  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=150136560
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes: pio0 pio1 pio2 pio3 pio4
->  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
-> 
-> /dev/hdf:
-> 
->  Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSFAR606
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
->  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=150136560
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes: pio0 pio1 pio2 pio3 pio4
->  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
-> 
-> /dev/hdg:
-> 
->  Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSFAL151
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
->  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=150136560
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes: pio0 pio1 pio2 pio3 pio4
->  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
-> 
-> /dev/hdh:
-> 
->  Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSFAR624
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
->  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=150136560
->  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes: pio0 pio1 pio2 pio3 pio4
->  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 udma5
-> 
-> 
-> ---
-> 
-> Two types of disks:
-> (geometry of the first is correctly detected, the second isn't)
-> 
-> [root@nngds1 /root]# hdparm /dev/hda
-> 
-> /dev/hda:
->  multcount    =  0 (off)
->  I/O support  =  0 (default 16-bit)
->  unmaskirq    =  0 (off)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  nowerr       =  0 (off)
->  readonly     =  0 (off)
->  readahead    =  8 (on)
->  geometry     = 9345/255/63, sectors = 150136560, start = 0
-> 
-> [root@nngds1 /root]# hdparm /dev/hde
-> 
-> /dev/hde:
->  multcount    =  0 (off)
->  I/O support  =  0 (default 16-bit)
->  unmaskirq    =  0 (off)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  nowerr       =  0 (off)
->  readonly     =  0 (off)
->  readahead    =  8 (on)
->  geometry     = 17873/16/63, sectors = 150136560, start = 0
-> 
-> 
-> The machine runs RedHat 7.0 with RHN upgrades if it means anything.
-> 
-> -- 
-> Ole Aamot                                      mailto:ole@linpro.no
-> LinPro AS                                      http://www.linpro.no
-> 
+ I have a similar problem to the one outlined above with kernel 2.4.x
+(hardware details below).
 
-Andre Hedrick
-Linux ATA Development
+ I don't have Windows installed on my machine, but I find that if I
+cold boot to 2.2 (RH7) first and start up X (4.0.2 with Matrox driver
+1.00.04 compiled in), I am then able to "shutdown -r now" and warm
+restart to 2.4 with FB acceleration enabled. This generally works
+fine
+for me.
+
+ The 2.2 kernel I have (2.2.16 Redhat 7.0 standard) does not have FB
+enabled
+
+ This isn't generally too much of a problem because 2.4.x is so
+stable
+I don't have to reboot for weeks!
+
+> It looks like that if you compile 'agpgart' into kernel, chances
+> that it will work are better, but I have also reports that it did
+> not changed anything.
+
+ I have agpgart compiled directly in (not as a module) to the kernel,
+but this does not seem to relieve any of the cold boot problems :-(
+
+ I'm willing to try out some patches if that would be useful.
+
+Note: Please CC me as I'm not subscribed to l-k.
+
+
+My hardware is:
+  Matrox G450
+  Duron 750
+  128 Mb Ram
+  Aopen AK33 m/b with VIA KT133 / 686A chipset
+
+relevant lspci output:
+
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP
+(rev 82) (prog-if 00 [VGA])
+	Subsystem: Matrox Graphics, Inc.: Unknown device 0641
+	Flags: bus master, medium devsel, latency 64, IRQ 10
+	Memory at d8000000 (32-bit, prefetchable) [size=32M]
+	Memory at da000000 (32-bit, non-prefetchable) [size=16K]
+	Memory at db000000 (32-bit, non-prefetchable) [size=8M]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [dc] Power Management version 2
+	Capabilities: [f0] AGP version 2.0
+
+    John
+----------------
+jbk@postmark.net
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,30 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318155AbSGPWvt>; Tue, 16 Jul 2002 18:51:49 -0400
+	id <S317834AbSGPXDd>; Tue, 16 Jul 2002 19:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318156AbSGPWvs>; Tue, 16 Jul 2002 18:51:48 -0400
-Received: from cmsrelay02.mx.net ([165.212.11.111]:6338 "HELO
-	cmsoutbound.mx.net") by vger.kernel.org with SMTP
-	id <S318155AbSGPWvs> convert rfc822-to-8bit; Tue, 16 Jul 2002 18:51:48 -0400
-Message-ID: <20020716225441.23939.qmail@uwdvg008.cms.usa.net>
-Date: Tue, 16 Jul 2002 17:54:41 -0500
-From: shreenivasa H V <shreenihv@usa.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Gang Scheduling in linux
-X-Mailer: USANET web-mailer (CM.0402.1.07D)
+	id <S317864AbSGPXDc>; Tue, 16 Jul 2002 19:03:32 -0400
+Received: from employees.nextframe.net ([212.169.100.200]:11001 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S317834AbSGPXDc>; Tue, 16 Jul 2002 19:03:32 -0400
+Date: Wed, 17 Jul 2002 01:17:00 +0200
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+To: sanket rathi <sanket@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Aiie, killing the interrupt handler
+Message-ID: <20020717011700.G103@sexything>
+Reply-To: morten.helgesen@nextframe.net
+References: <20020716145534.27565.qmail@linuxmail.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020716145534.27565.qmail@linuxmail.org>
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hey, 
 
-I wanted to know whether there is any support for gang scheduling in the linux
-kernel. If so, what is the status of the implementation and if there are any
-documents about the same.
+On Tue, Jul 16, 2002 at 10:55:34PM +0800, sanket rathi wrote:
+> I am getting this message "Aiie, killing the interrupt handler" and much more stuff dump on screen after that 
+> system get hang and i have to reboot the system. what does it mean is there some problem in my driver's interrupt 
+> routine i m working on linux 2.2.14-5 
 
-thanks,
-shreeni.
+2.2.14-5 ? you probably want to be working on something newer.
 
+for anyone to even have a chance at figuring out what`s going on with your system, you`ll have
+to run the, quote : "'Aiie, killing the interrupt handler' and much more stuff" (aka a kernel oops message), 
+through ksymoops and show us the result. have a look at Documentation/oops-tracing.txt or the ksymoops 
+documentation for more information.
 
+> 
+> Thanks in Advance
+> 
+> Sanket
+> 
+> 
+> -- 
+> Get your free email from www.linuxmail.org 
+> 
+> 
+> Powered by Outblaze
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
+
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

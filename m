@@ -1,103 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312515AbSCUVvL>; Thu, 21 Mar 2002 16:51:11 -0500
+	id <S312513AbSCUVtU>; Thu, 21 Mar 2002 16:49:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312516AbSCUVvC>; Thu, 21 Mar 2002 16:51:02 -0500
-Received: from gherkin.frus.com ([192.158.254.49]:12160 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S312515AbSCUVuv>;
-	Thu, 21 Mar 2002 16:50:51 -0500
-Message-Id: <m16oASN-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: Re: 2.5.7: acct.c oops
-In-Reply-To: <20020321092526.A11399@doc.pdx.osdl.net> "from Bob Miller at Mar
- 21, 2002 09:25:27 am"
-To: Bob Miller <rem@osdl.org>
-Date: Thu, 21 Mar 2002 15:50:47 -0600 (CST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S312515AbSCUVtK>; Thu, 21 Mar 2002 16:49:10 -0500
+Received: from mail.actcom.co.il ([192.114.47.13]:10930 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S312513AbSCUVtD>; Thu, 21 Mar 2002 16:49:03 -0500
+Message-Id: <200203212148.g2LLmY426830@lmail.actcom.co.il>
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] [was SCSI host numbers? ]
+Date: Thu, 21 Mar 2002 23:48:21 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu> <200201160703.g0G73Sr27779@vindaloo.ras.ucalgary.ca> <200201160947.g0G9lxv15813@lmail.actcom.co.il>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_L8FCKRXQN94384OJLKVC"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bob Miller wrote:
-> On Thu, Mar 21, 2002 at 09:50:10AM -0600, Bob_Tracy wrote:
-> > Running "accton" (with or without arguments) consistently generates
-> > an oops at linux/kernel/acct.c:169
-> > 	BUG_ON(!spin_is_locked(&acct_globals.lock));
-> 
-> Do you have the rest of the of oops message passed through ksymoops?
-> I'll also try to reproduce here.  TIA.
 
-Synopsis: after a fresh boot, ran "accton" with no arguments.  It died
-with a segmentation violation, and generated an "oops".
+--------------Boundary-00=_L8FCKRXQN94384OJLKVC
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Here's the ksymoops output.  Since this involves the libc acct() function,
-you'll probably be interested in the C library version as well: 2.2.3.
-Compiler is "gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)".
+Hello all,
 
-====--CUT HERE--====
-ksymoops 2.4.5 on i586 2.5.7.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.7/ (default)
-     -m /usr/src/linux/System.map (default)
+Under some scenarios Linux assigns the same
+host_no to more than one scsi device.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+I raised this problem a long time ago.
 
-No modules in ksyms, skipping objects
-Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod file?
-kernel BUG at acct.c:169!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[acct_file_reopen+8/224]    Not tainted
-EFLAGS: 00010246
-eax: d644d200   ebx: 00000000   ecx: 00000001   edx: 00000000
-esi: 00000000   edi: d2d1e000   ebp: bffffa2c   esp: d2d1ffa4
-ds: 0018   es: 0018   ss: 0018
-Stack: d2d1e000 00000000 c011cd89 00000000 d2d1e000 00000001 00000000 c0107007 
-       00000000 00000001 bffffa94 00000001 00000000 bffffa2c 00000033 0000002b 
-       0000002b 00000033 400e4e6d 00000023 00000246 bffffa14 0000002b 
-Call Trace: [sys_acct+197/232] [syscall_call+7/11] 
-Code: 0f 0b a9 00 ff dd 22 c0 a1 2c cb 2c c0 85 c0 74 2f 89 c6 68 
-Using defaults from ksymoops -t elf32-i386 -a i386
+To repeat the problem (all recent 2.4.x and possibly 2.5.x kernels):
+Use two scsi drivers that are not required for system
+use (mean - not the one that drives your hard disk). I got
+this problem the first time with ide-scsi and usb-storage.
+Call these device drivers A and B.
+Host numbers are remembered after they are assigned
+until the next reboot (or until unloading scsi_mod if
+it is compiled as a module). Start with a "clean" system.
+
+modprobe A
+rmmod A
+modprobe B
+modprobe A
+
+And - the two adapters now have the same host number.
+In this case, some functions of A will not work. Especially devices
+attached to A cannot be accessed through the sg interface. I believe
+that writes to /proc/scsi/scsi will not work for these devices too
+(but these are useless for the drivers that I used in my tests).
+
+See also <http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=55876>.
+
+I gave it as much testing as I could, and I believe it is not worse
+than it was. People with more SCSI hardware should be able to try
+more complex cases.
+
+I left the stuff in #ifdef + comments because I believe that the scsi
+registration code needs more cleanup. I have some related questions
+that I will post on a separate message to lkml.
+
+-- Itai
 
 
->>eax; d644d200 <END_OF_CODE+16150ed4/????>
->>edi; d2d1e000 <END_OF_CODE+12a21cd4/????>
->>ebp; bffffa2c Before first symbol
->>esp; d2d1ffa4 <END_OF_CODE+12a23c78/????>
+--------------Boundary-00=_L8FCKRXQN94384OJLKVC
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="scsi-host_no.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="scsi-host_no.patch"
 
-Code;  00000000 Before first symbol
-0000000000000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   0f 0b                     ud2a   
-Code;  00000002 Before first symbol
-   2:   a9 00 ff dd 22            test   $0x22ddff00,%eax
-Code;  00000007 Before first symbol
-   7:   c0 a1 2c cb 2c c0 85      shlb   $0x85,0xc02ccb2c(%ecx)
-Code;  0000000e Before first symbol
-   e:   c0                        (bad)  
-Code;  0000000f Before first symbol
-   f:   74 2f                     je     40 <_EIP+0x40> 00000040 Before first symbol
-Code;  00000011 Before first symbol
-  11:   89 c6                     mov    %eax,%esi
-Code;  00000013 Before first symbol
-  13:   68 00 00 00 00            push   $0x0
+--- drivers/scsi/hosts-2.4.19-pre4.c=09Thu Mar 21 03:35:41 2002
++++ drivers/scsi/hosts.c=09Thu Mar 21 04:02:18 2002
+@@ -81,8 +81,8 @@
+ struct Scsi_Host * scsi_hostlist;
+ struct Scsi_Device_Template * scsi_devicelist;
+=20
+-int max_scsi_hosts;
+-int next_scsi_host;
++int max_scsi_hosts;=09/* host_no for next new host */
++int next_scsi_host;=09/* count of registered scsi hosts */
+=20
+ void
+ scsi_unregister(struct Scsi_Host * sh){
+@@ -107,6 +107,18 @@
+     if (shn) shn->host_registered =3D 0;
+     /* else {} : This should not happen, we should panic here... */
+    =20
++#if 1
++    /* We shoult not decrement max_scsi_hosts (and make this value
++     * candidate for re-allocation by a different driver).
++     * Reason: the device is _still_ on the
++     * scsi_host_no_list and it's identified by its name. When the same
++     * device is re-registered it will get the same host_no again while
++     * new devices may use the allocation scheme and get this very same
++     * host_no.
++     * It's OK to have "holes" in the allocation but it does not mean
++     * "leaks".
++     */
++#else // if 0
+     /* If we are removing the last host registered, it is safe to reuse
+      * its host number (this avoids "holes" at boot time) (DB)=20
+      * It is also safe to reuse those of numbers directly below which ha=
+ve
+@@ -121,7 +133,9 @@
+ =09=09break;
+ =09}
+     }
++#endif
+     next_scsi_host--;
++
+     kfree((char *) sh);
+ }
+=20
 
-
-2 warnings issued.  Results may not be reliable.
-====--TUC EREH--====
-
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+--------------Boundary-00=_L8FCKRXQN94384OJLKVC--

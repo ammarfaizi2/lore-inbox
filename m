@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270204AbRHGMkM>; Tue, 7 Aug 2001 08:40:12 -0400
+	id <S270207AbRHGMqE>; Tue, 7 Aug 2001 08:46:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270207AbRHGMjx>; Tue, 7 Aug 2001 08:39:53 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:45440 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S270205AbRHGMjs>; Tue, 7 Aug 2001 08:39:48 -0400
-Date: Tue, 7 Aug 2001 08:39:14 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Kevin Krieser <kkrieser_list@footballmail.com>
-cc: Sean Hunter <sean@dev.sportingbet.com>,
-        Evgeny Polyakov <johnpol@2ka.mipt.ru>, Ryan Mack <rmack@mackman.net>,
+	id <S270209AbRHGMpq>; Tue, 7 Aug 2001 08:45:46 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:30468 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S270207AbRHGMpf>;
+	Tue, 7 Aug 2001 08:45:35 -0400
+Date: Tue, 7 Aug 2001 15:45:37 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: lk@Aniela.EU.ORG
+Cc: "Stephen M. Williams" <rootusr@midsouth.rr.com>,
         linux-kernel@vger.kernel.org
-Subject: RE: Encrypted Swap
-In-Reply-To: <NDBBLFLJADKDMBPPNBALGEEJEPAA.kkrieser_list@footballmail.com>
-Message-ID: <Pine.LNX.3.95.1010807083831.5144A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Is the mailing list going out?
+Message-ID: <20010807154537.A11046@mea-ext.zmailer.org>
+In-Reply-To: <997135113.558.1.camel@bofumgw.bofum.net> <Pine.LNX.4.33.0108071011470.13748-100000@ns1.Aniela.EU.ORG>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0108071011470.13748-100000@ns1.Aniela.EU.ORG>; from lk@Aniela.EU.ORG on Tue, Aug 07, 2001 at 10:13:03AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Aug 2001, Kevin Krieser wrote:
+On Tue, Aug 07, 2001 at 10:13:03AM +0300, lk@Aniela.EU.ORG wrote:
+> The mailing list works fine. I receiveid a lot of e-mail in 4 days. Your
+> ISP might have something to do with you not receiving any mail.... Go
+> shoot him in the head :))
 
-> I guess you don't want to run a laptop computer, or even on a good UPS,
-> since you could just steal the UPS too, and leave the computer running :)
-> 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Sean Hunter
-> Sent: Tuesday, August 07, 2001 2:23 AM
-> To: Evgeny Polyakov
-> Cc: Ryan Mack; linux-kernel@vger.kernel.org
-> Subject: Re: Encrypted Swap
-> 
-> 
-> Right, now you, (as black hat) have physically stolen my machine.  Remember
-> that in order to do that you need to turn the power off.  You know my
-> algorithim for key generation: how do you recover the key?
-> 
+  "them", not "him".
+But the ISP's are using softwares which enable them to shoot themselves
+on their feet/head quite nicely, we don't need to do any additional effort
+there.
 
-A kind word and a gun?
+And for that matter, for some reason (maybe because most of the world is
+running with sendmail ?) most of the time we see failures, there is
+a sendmail which is failing to work as it is supposed to.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+/Matti Aarnio

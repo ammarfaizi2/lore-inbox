@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262580AbRFWUMj>; Sat, 23 Jun 2001 16:12:39 -0400
+	id <S262684AbRFWUbX>; Sat, 23 Jun 2001 16:31:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262593AbRFWUMa>; Sat, 23 Jun 2001 16:12:30 -0400
-Received: from matrix2.enst.fr ([137.194.2.14]:13044 "HELO smtp2.enst.fr")
-	by vger.kernel.org with SMTP id <S262580AbRFWUMW>;
-	Sat, 23 Jun 2001 16:12:22 -0400
-Date: Sat, 23 Jun 2001 22:11:26 +0200
-From: Fabrice Gautier <gautier@email.enst.fr>
-To: "Eric S. Raymond" <esr@snark.thyrsus.com>
-Subject: Re: Controversy over dynamic linking -- how to end the panic
+	id <S262715AbRFWUbN>; Sat, 23 Jun 2001 16:31:13 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40007 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S262684AbRFWUbC>; Sat, 23 Jun 2001 16:31:02 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com>
-In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com>
-Message-Id: <20010623220115.3698.GAUTIER@email.enst.fr>
+Subject: Re: For comment: draft BIOS use document for the kernel
+In-Reply-To: <E15DTfd-0003gI-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 23 Jun 2001 14:26:32 -0600
+In-Reply-To: <E15DTfd-0003gI-00@the-village.bc.nu>
+Message-ID: <m1u217aqo7.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.06
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-On Thu, 21 Jun 2001 14:14:42 -0400
-"Eric S. Raymond" <esr@snark.thyrsus.com> wrote:
-> >
-> >As copyright holder of the Linux kernel, Linus is the only person with
-> >standing to sue for license violation. [...] This means
-> >that in order for them to lose, a court must rule that module linking
-> >propagates derivative-work status *and* Linus must reverse himself and
-> >sue.
+> Linux 2.4 BIOS usage reference
 
-I always thought that, Linus was not the sole copyright holder on the
-linux kernel.
+Pretty decent.  It misses a lot of hardware details that we still
+depend on the BIOS to reliably setup for us.
 
-Hence, didn't think hat he is not the only person to be able to sue. Could
-not "kernel hacker x" sue if indeed some part of his work was used in
-(what he assumes to be) non GPL compliant derivative work ?
+I've got code that does all of this so, setup on a couple of
+boards so it should just be a matter of tracking it down and including
+it in the documentation.
 
-Scenario: hacker X write ethernet driver for card made by constructor Y.
-Constructor Y provide binary module to exploit super capability of their
-card. 
+If there is interest I'll start tracking it down as soon as I have a
+free minute.
 
-Could hacker X sue company Y ? 
-
-(well more interresting could be to replace hacker X by company X)
-
--- 
-Fabrice Gautier <gautier@email.enstfr>
-
+Eric

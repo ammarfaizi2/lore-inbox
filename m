@@ -1,152 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRB0Vdi>; Tue, 27 Feb 2001 16:33:38 -0500
+	id <S129583AbRB0Vf6>; Tue, 27 Feb 2001 16:35:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129577AbRB0Vd3>; Tue, 27 Feb 2001 16:33:29 -0500
-Received: from tepid.osl.fast.no ([213.188.9.130]:24080 "EHLO
-	tepid.osl.fast.no") by vger.kernel.org with ESMTP
-	id <S129584AbRB0VdN>; Tue, 27 Feb 2001 16:33:13 -0500
-Date: Tue, 27 Feb 2001 21:47:44 GMT
-Message-Id: <200102272147.VAA76308@tepid.osl.fast.no>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-From: Dag Brattli <dag@brattli.net>
-Reply-To: dag@brattli.net
-Subject: [patch] patch-2.4.2-irda4 (misc fixes 2nd part)
-X-Mailer: Pygmy (v0.5.0)
+	id <S129593AbRB0Vfs>; Tue, 27 Feb 2001 16:35:48 -0500
+Received: from 13dyn203.delft.casema.net ([212.64.76.203]:2576 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129583AbRB0Vfj>; Tue, 27 Feb 2001 16:35:39 -0500
+Message-Id: <200102272135.WAA23965@cave.bitwizard.nl>
+Subject: Re: binfmt_script and ^M
+In-Reply-To: <20010227143823.A25058@cistron.nl> from Ivo Timmermans at "Feb 27,
+ 2001 02:38:23 pm"
+To: Ivo Timmermans <irt@cistron.nl>
+Date: Tue, 27 Feb 2001 22:35:35 +0100 (MET)
+CC: "Heusden, Folkert van" <f.v.heusden@ftr.nl>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Ivo Timmermans wrote:
+> Heusden, Folkert van wrote:
+> > > When running a script (perl in this case) that has DOS-style newlines
+> > > (\r\n), Linux 2.4.2 can't find an interpreter because it doesn't
+> > > recognize the \r.  The following patch should fix this (untested).
+> > 
+> > _should_ it work with the \r in it?
+> 
+> IMHO, yes.  This set of files were created on Windows, then zipped and
+> uploaded to a Linux server, unpacked.  This does not change the \r.
 
-These are various irda patches (2nd part) to fix various bit of the stack. Please
-apply to your latest Linux-2.4.2 code. Changes:
+Use the right option on "unzip" to unpack with cr/lf conversion.
 
-o Fix socket stuck in CONN_PEND
-o NSC wakeup fix
-o Fix for IrDA stack static init
+Otherwise, use a script that does it afterwards. 
 
-diff -u -p linux/net/irda/irlmp_event.d7.c linux/net/irda/irlmp_event.c
---- linux/net/irda/irlmp_event.d7.c	Tue Feb 20 14:14:33 2001
-+++ linux/net/irda/irlmp_event.c	Tue Feb 20 14:41:31 2001
-@@ -472,8 +472,6 @@ static int irlmp_state_disconnected(stru
- 		irlmp_start_watchdog_timer(self, 5*HZ);
- 		break;
- 	case LM_CONNECT_INDICATION:
--		irlmp_next_lsap_state(self, LSAP_CONNECT_PEND);
--
- 		if (self->conn_skb) {
- 			WARNING(__FUNCTION__ 
- 				"(), busy with another request!\n");
-@@ -481,6 +479,8 @@ static int irlmp_state_disconnected(stru
- 		}
- 		self->conn_skb = skb;
- 
-+		irlmp_next_lsap_state(self, LSAP_CONNECT_PEND);
-+
- 		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
- 		break;
- 	default:
-@@ -562,6 +562,15 @@ static int irlmp_state_connect_pend(stru
- 	switch (event) {
- 	case LM_CONNECT_REQUEST:
- 		/* Keep state */
-+		break;
-+	case LM_CONNECT_INDICATION:
-+		/* Will happen in some rare cases when the socket get stuck,
-+		 * the other side retries the connect request.
-+		 * We just unstuck the socket - Jean II */
-+		IRDA_DEBUG(0, __FUNCTION__ "(), LM_CONNECT_INDICATION, "
-+			   "LSAP stuck in CONNECT_PEND state...\n");
-+		/* Keep state */
-+		irlmp_do_lap_event(self->lap, LM_LAP_CONNECT_REQUEST, NULL);
- 		break;
- 	case LM_CONNECT_RESPONSE:
- 		IRDA_DEBUG(0, __FUNCTION__ "(), LM_CONNECT_RESPONSE, "
+			Roger.
 
-diff -u -p linux/drivers/net/irda/nsc-ircc.j1.c linux/drivers/net/irda/nsc-ircc.c
---- linux/drivers/net/irda/nsc-ircc.j1.c	Fri Feb 23 15:56:05 2001
-+++ linux/drivers/net/irda/nsc-ircc.c	Fri Feb 23 16:01:20 2001
-@@ -251,9 +251,14 @@ static int nsc_ircc_open(int i, chipio_t
- 
- 	IRDA_DEBUG(2, __FUNCTION__ "()\n");
- 
-+	MESSAGE("%s, Found chip at base=0x%03x\n", driver_name,
-+		info->cfg_base);
-+
- 	if ((nsc_ircc_setup(info)) == -1)
- 		return -1;
- 
-+	MESSAGE("%s, driver loaded (Dag Brattli)\n", driver_name);
-+
- 	/* Allocate new instance of the driver */
- 	self = kmalloc(sizeof(struct nsc_ircc_cb), GFP_KERNEL);
- 	if (self == NULL) {
-@@ -699,8 +704,6 @@ static int nsc_ircc_setup(chipio_t *info
- 		ERROR("%s, Wrong chip version %02x\n", driver_name, version);
- 		return -1;
- 	}
--	MESSAGE("%s, Found chip at base=0x%03x\n", driver_name, 
--		info->cfg_base);
- 
- 	/* Switch to advanced mode */
- 	switch_bank(iobase, BANK2);
-@@ -729,8 +732,6 @@ static int nsc_ircc_setup(chipio_t *info
- 	outb(0x0d, iobase+2); /* Set SIR pulse width to 1.6us */
- 	outb(0x2a, iobase+4); /* Set beginning frag, and preamble length */
- 
--	MESSAGE("%s, driver loaded (Dag Brattli)\n", driver_name);
--
- 	/* Enable receive interrupts */
- 	switch_bank(iobase, BANK0);
- 	outb(IER_RXHDL_IE, iobase+IER);
-@@ -1859,7 +1860,7 @@ static int nsc_ircc_net_open(struct net_
- 	if (request_dma(self->io.dma, dev->name)) {
- 		WARNING("%s, unable to allocate dma=%d\n", driver_name, 
- 			self->io.dma);
--		free_irq(self->io.irq, self);
-+		free_irq(self->io.irq, dev);
- 		return -EAGAIN;
- 	}
- 	
-@@ -2011,18 +2012,10 @@ static void nsc_ircc_suspend(struct nsc_
- 
- static void nsc_ircc_wakeup(struct nsc_ircc_cb *self)
- {
--	int iobase;
--
- 	if (!self->io.suspended)
- 		return;
- 
--	iobase = self->io.fir_base;
--
--	/* Switch to advanced mode */
--	switch_bank(iobase, BANK2);
--	outb(ECR1_EXT_SL, iobase+ECR1);
--	switch_bank(iobase, BANK0);
--
-+	nsc_ircc_setup(&self->io);
- 	nsc_ircc_net_open(self->netdev);
- 	
- 	MESSAGE("%s, Waking up\n", driver_name);
-
-diff -urpN linux-2.4.1-pre8/init/main.c linux-2.4.1-pre8-irda-patch/init/main.c
---- linux-2.4.1-pre8/init/main.c	Thu Jan  4 05:45:26 2001
-+++ linux-2.4.1-pre8-irda-patch/init/main.c	Mon Jan 22 00:53:49 2001
-@@ -726,6 +726,7 @@ static void __init do_basic_setup(void)
- 	filesystem_setup();
- 
- #ifdef CONFIG_IRDA
-+	irda_proto_init();
- 	irda_device_init(); /* Must be done after protocol initialization */
- #endif
- #ifdef CONFIG_PCMCIA
-
-
-
-----
-Dag Brattli     <dag@brattli.net>
-My homepage     http://www.brattli.net/dag/
-Try Linux-IrDA: http://irda.sourceforge.net/
-Try Pygmy:      http://pygmy.sourceforge.net/
-
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

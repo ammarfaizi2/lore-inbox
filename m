@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319237AbSHNHR7>; Wed, 14 Aug 2002 03:17:59 -0400
+	id <S318172AbSHNHkO>; Wed, 14 Aug 2002 03:40:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319238AbSHNHR7>; Wed, 14 Aug 2002 03:17:59 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:12558
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319237AbSHNHR7>; Wed, 14 Aug 2002 03:17:59 -0400
-Date: Wed, 14 Aug 2002 00:12:53 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ivan Gyurdiev <ivangurdiev@attbi.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.31 SCSI emulation and cd burner....severe filesystem corruption
-In-Reply-To: <200208111110.22772.ivangurdiev@attbi.com>
-Message-ID: <Pine.LNX.4.10.10208140008140.12468-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S319238AbSHNHkO>; Wed, 14 Aug 2002 03:40:14 -0400
+Received: from cmailm2.svr.pol.co.uk ([195.92.193.210]:17419 "EHLO
+	cmailm2.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S318172AbSHNHkN>; Wed, 14 Aug 2002 03:40:13 -0400
+Date: Wed, 14 Aug 2002 08:43:37 +0100
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Christoph Hellwig <hch@lst.de>, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org, "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [PATCH] simplify b_inode usage
+Message-ID: <20020814074337.GB1045@fib011235813.fsnet.co.uk>
+References: <20020813171024.A4365@lst.de> <3D5975B2.66B4B215@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D5975B2.66B4B215@zip.com.au>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Aug 2002, Ivan Gyurdiev wrote:
+On Tue, Aug 13, 2002 at 02:10:10PM -0700, Andrew Morton wrote:
+> Also, Joe Thornber needs to add another pointer to struct buffer_head
+> for LVM2 reasons.  If we collapse b_inode into a b_flags bit then
+> Joe gets his pointer for free (bh stays at 48 bytes on ia32).
 
-> By the way, I dared to try it again under 2.4 and it burned my disk 
-> flawlessly..... so this is NOT a hardware failure.
+This change is in the latest -ac.
 
-Did you expect anything less :-)
-
-As soon as I trace and squash an introduced bug in the delayed SATA 1.0
-release for 2.4, I will do an update of the original port forward.
-
-Also you will enjoy the added features of 2.4 soon.
-
-echo ide-scsi:{0|1} > /proc/ide/hdX/settings
-
-This will auto sense and discretely toggle the atapi/ide-scsi driver sets
-between devices with all modules built-in.  This is a minor detail but it
-is the next to last stage of dynamic devices sense on open("/dev/hdX").
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+- Joe

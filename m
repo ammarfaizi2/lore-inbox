@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263564AbTKJN31 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 08:29:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263572AbTKJN31
+	id S263577AbTKJNWb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 08:22:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTKJNWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 08:29:27 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:17812
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S263564AbTKJN30
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 08:29:26 -0500
-Date: Mon, 10 Nov 2003 14:26:17 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Larry McVoy <lm@bitmover.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel.bkbits.net off the air
-Message-ID: <20031110132617.GA6834@x30.random>
-References: <20031109152534.GA24312@work.bitmover.com> <Pine.LNX.4.44.0311090737550.12198-100000@bigblue.dev.mdolabs.com>
+	Mon, 10 Nov 2003 08:22:31 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:29417 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263577AbTKJNWa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 08:22:30 -0500
+Date: Mon, 10 Nov 2003 14:22:23 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Lars Ehrhardt <1103@ng.h42.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Compiling 2.6.0-test9 with Stack Overflow Detection Support fails on sparc64
+Message-ID: <20031110132223.GB12099@wohnheim.fh-wedel.de>
+References: <3FAF8FE0.30908@ng.h42.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311090737550.12198-100000@bigblue.dev.mdolabs.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3FAF8FE0.30908@ng.h42.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 09, 2003 at 07:42:09AM -0800, Davide Libenzi wrote:
-> On Sun, 9 Nov 2003, Larry McVoy wrote:
+On Mon, 10 November 2003 14:17:20 +0100, Lars Ehrhardt wrote:
 > 
-> > On Sun, Nov 09, 2003 at 07:16:15AM -0800, H. Peter Anvin wrote:
-> > > That doesn't include anyone who uses the mirrored repository on the
-> > > main kernel.org machines.  
-> > 
-> > Last I checked, kernel.org isn't offering pserver access, just ftp.  If you
-> > want to take over the CVS access just say the word.
+> trying to compile kernel 2.6.0-test9 with the Stack Overflow Detection
+> Support option set to yes does not work on sparc64 gcc version 3.3.2
+> (Debian).
 > 
-> It is faster for me to use rsync on the CVS root locally, and then use the 
-> local repository instead. Rsync is better than CVS when it comes to syncs.
-> Cvsps expecially, really wants a local repository when you start playing 
-> heavily with -g.
+> The output from make is:
+> 
+> CC      scripts/empty.o
+> gcc: -pg and -fomit-frame-pointer are incompatible
+> make[1]: *** [scripts/empty.o] Error 1
+> make: *** [scripts] Error 2
 
-same here, however the rsync export on kernel.org is lacking a two
-sequence number locking that would allow us to checkout a coherent copy
-of the cvs repository.  Currently it works by luck.
+Then get rid of all -fomit-frame-pointer options in the Makefile.
 
-if we add the two sequence numbers to the rsync on kernel.org, I believe
-shutting down the pserver is ok.
+Jörn
+
+-- 
+With a PC, I always felt limited by the software available. On Unix, 
+I am limited only by my knowledge.
+-- Peter J. Schoenster

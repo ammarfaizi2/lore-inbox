@@ -1,73 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316512AbSHaIH2>; Sat, 31 Aug 2002 04:07:28 -0400
+	id <S316576AbSHaJH4>; Sat, 31 Aug 2002 05:07:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316530AbSHaIH2>; Sat, 31 Aug 2002 04:07:28 -0400
-Received: from AMarseille-201-1-5-96.abo.wanadoo.fr ([217.128.250.96]:4464
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316512AbSHaIH0>; Sat, 31 Aug 2002 04:07:26 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.5.31] transparent PCI-to-PCI bridges
-Date: Sat, 31 Aug 2002 10:09:53 +0200
-Message-Id: <20020831080954.10900@192.168.4.1>
-In-Reply-To: <20020831015716.B926@jurassic.park.msu.ru>
-References: <20020831015716.B926@jurassic.park.msu.ru>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S316614AbSHaJH4>; Sat, 31 Aug 2002 05:07:56 -0400
+Received: from ppp-217-133-219-1.dialup.tiscali.it ([217.133.219.1]:37083 "EHLO
+	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S316576AbSHaJHz>;
+	Sat, 31 Aug 2002 05:07:55 -0400
+Subject: logbuf_lock deadlock on NMI
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-6BgrZ4sGKJFosg8pRtQc"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 31 Aug 2002 11:12:19 +0200
+Message-Id: <1030785139.1569.26.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Obviously, this window + 128M range of the PCI card won't fit in the
->256M region of the host bridge. So, the only way to get all this working
->is to set AGP bridge window such that it overlaps both regions
->of the host bridge. Like this:
->0x80000000-0x87ffffff           - PCI card, fb
->0x88000000-0xf00fffff           - AGP bridge, memory window
->        0x88000000-0x8fffffff   - AGP card, fb
->        0x90000000-0xefffffff   - empty
->        0xf0000000-0xf0000fff   - AGP card, MMIO
->0xf0100000-0xf0100fff           - PCI card, MMIO
->
->I don't see how you can cope with it using 2 separate bus resources -
->the memory resource of the AGP bridge wouldn't have a valid parent.
->OTOH, if you expose a _single_ memory resource of the host bridge
->(0x80000000-0xf0ffffff) and write your pcibios_align_resource()
->such that it won't allow allocation of non-bridge resources in the
->0x90000000-0xefffffff range, everything is fine.
->
->Please prove me that I'm wrong. :-)
 
-First, a simple problem: You are showing a possible problem caused
-by a given PCI host & bridge setup. That's not my point. My point
-is that I _do_ have setups with N MMIO regions and want the kernel
-to be able to deal with that. I'm not introducing any limitation to
-the code, I want the code to be generic enough to cope with a setup
-that exist (as the host is configured by my firmware).
+--=-6BgrZ4sGKJFosg8pRtQc
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Also, in your example, if I expose a single memory resource, then I
-lie since the host bridge in this example would not forward addresses
-"between" the 2 ranges, thus the kernel would potentially allocate
-space for unassigned devices in that non-decoded range.
+I already mentioned this in an unrelated thread but I got no responses.
 
-I want my host pci_bus structure to expose what it is really forwarding.
-That's as simple as that. If your host is configured in a more "sane",
-way, then good. I'm not forcing anybody to have 2 MMIO regions ;)
-I just want that dawn code to deal with cases where I do have them
-(or more). Again, that code isn't about setting up the bus, it's
-about coping with an existing setup when building the resource tree.
+NMIs, by definition and documentation, are non maskable. This means that
+we can get them anywhere, even when interrupts are disabled.
 
-Regarding your above example, it just don't happen in real life.
-First, we have AGP as a separate PCI host domain on pmac ;) Then,
-the firmware can configures host bridges with large enough regions
-to deal with what is needed by the card.
+The problem is that in some paths of the NMI handler (mem_parity_error,
+io_check_error, mca_handle_nmi), we call printk without busting
+spinlocks first.
+As a consequence, if I'm not missing something, if we get e.g. a memory
+parity error while inside printk, we deadlock on logbuf_lock.
 
-Ben.
+Apart from removing logbuf_lock and other locks that might be held in
+printk, we could solve this by telling the APIC (I think that the same
+can be done with the 8259 but I'm not sure) to send an interrupt to the
+current CPU.
+The interrupt, being maskable, will be triggered only outside
+irq-protected spinlocks so we can safely do the NMI printk inside it.
+
+Alternatively we may just reset the locks but since some errors are
+non-fatal it probably isn't a good idea.
+
+Any comments?
 
 
+--=-6BgrZ4sGKJFosg8pRtQc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9cIhzdjkty3ft5+cRAkp8AKC6qdRxgGrgcgsjs7wsJkego+P4LgCgiR8q
+0G0ex1W1m152pFq0IkXcSeg=
+=g8Md
+-----END PGP SIGNATURE-----
+
+--=-6BgrZ4sGKJFosg8pRtQc--

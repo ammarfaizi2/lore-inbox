@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319047AbSHFK1U>; Tue, 6 Aug 2002 06:27:20 -0400
+	id <S319049AbSHFKb4>; Tue, 6 Aug 2002 06:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319048AbSHFK1U>; Tue, 6 Aug 2002 06:27:20 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:38416 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S319047AbSHFK1R>;
-	Tue, 6 Aug 2002 06:27:17 -0400
+	id <S319050AbSHFKb4>; Tue, 6 Aug 2002 06:31:56 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:44816 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S319049AbSHFKbz>;
+	Tue, 6 Aug 2002 06:31:55 -0400
 From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
 Organization: CC CTU Prague
-To: Bill Davidsen <davidsen@tmr.com>
-Date: Tue, 6 Aug 2002 12:28:42 +0200
+To: Marcin Dalecki <dalecki@evision.ag>
+Date: Tue, 6 Aug 2002 12:35:03 +0200
 MIME-Version: 1.0
 Content-type: text/plain; charset=US-ASCII
 Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] pdc20265 problem.
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Nick Orlov <nick.orlov@mail.ru>, lkml <linux-kernel@vger.kernel.org>,
-       b.zolnierkiewitz@elka.pw.edu.pl
+Subject: Re: [PATCH] 2.5.30 IDE 113
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 X-mailer: Pegasus Mail v3.50
-Message-ID: <13AAA8A2687@vcnet.vc.cvut.cz>
+Message-ID: <13AC5F92253@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  5 Aug 02 at 23:48, Bill Davidsen wrote:
-> On Sat, 3 Aug 2002, Bartlomiej Zolnierkiewicz wrote:
+On  6 Aug 02 at 12:20, Marcin Dalecki wrote:
+> Uz.ytkownik Petr Vandrovec napisa?:
 > 
-> > And second problem is that 20265 is used as primary onboard
-> > sometimes and sometimes as offboard (another config option?).
+> > Hi Marcin,
+> >   what synchronizes these accesses to make sure that you do not have
+> > two ide_raw_taskfile requests on the flight, both using same 
+> > drive->srequest? It looks to me like that nothing, so you can overwrite 
+> > request's contents while somebody else already uses this buffer.
 > 
-> Can that not be configured at boot time with ide0=xxx or similar? I'm
-> clearly missing why it would matter on or off board as long as the
-> controller(s) were checked in the right order.
+> I don't think so. The queue lock is synchronizing them.
+> And then we usually add them just to the front of the queue in question
+> and wait for finishment until the request is done.
 
-Make me favor, and extend ide0=<port> to also allow 
-ide0=pci<slotnumber>.primary or .secondary... Until then
-I do not know port address in advance (my board also uses
-20265 as secondary ATA host, and I was really surprised what happened
-to my /dev/hde after upgrade).
-                                        Petr Vandrovec
-                                        vandrove@vc.cvut.cz
-                                        
+How queue lock can synchronize them if we do not hold queue lock
+for entire duration and setup of request, including drive->srequest 
+setup?
+
+> After all ide_raw_taskfile only gets used for REQ_SPECIAL request
+> types. This does *not* contain normal data request from block IO.
+> As of master slave issues - well we have the data pre allocated per
+> device not per channel! If q->request_fn would properly return the
+> error count instead of void, we could even get rid ot the
+> checking for rq->errors after finishment... But well that's
+> entierly different story.
+
+For example do_cmd_ioctl() invokes ide_raw_taskfile, without any locking.
+Two programs, both issuing HDIO_DRIVE_CMD at same time, will compete
+over one drive->srequest struct: you'll get same drive->srequest structure
+submitted twice to blk_insert_request (hm, Jens, will this trigger
+BUG, or will this just damage request list?).
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            

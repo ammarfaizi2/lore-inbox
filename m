@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262546AbTKVRVs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 12:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTKVRVs
+	id S262564AbTKVRW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 12:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTKVRW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 12:21:48 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:34434
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262546AbTKVRVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 12:21:46 -0500
-Date: Sat, 22 Nov 2003 12:20:29 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Remi Colinet <remi.colinet@wanadoo.fr>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test9-mm5 : compile error
-In-Reply-To: <3FBF99E6.1070402@wanadoo.fr>
-Message-ID: <Pine.LNX.4.53.0311221218350.2498@montezuma.fsmlabs.com>
-References: <3FBF5C79.5050409@wanadoo.fr> <Pine.LNX.4.53.0311220946280.2498@montezuma.fsmlabs.com>
- <3FBF99E6.1070402@wanadoo.fr>
+	Sat, 22 Nov 2003 12:22:58 -0500
+Received: from web41906.mail.yahoo.com ([66.218.93.157]:46470 "HELO
+	web41906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262564AbTKVRWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 12:22:54 -0500
+Message-ID: <20031122172253.5645.qmail@web41906.mail.yahoo.com>
+Date: Sat, 22 Nov 2003 09:22:53 -0800 (PST)
+From: Michael Welles <mikewelles71@yahoo.com>
+Subject: Re: Using get_cwd inside a module.
+To: Christoph Hellwig <hch@infradead.org>, Juergen Hasch <lkml@elbonia.de>
+Cc: Michael Welles <mike@bangstate.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031122110459.A31359@infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Nov 2003, Remi Colinet wrote:
+For changedfiles, using cut n' paste sys_getcwd, we've
+managed to get "good enough" functionality.  When a
+user runs "touch foo" in /tmp/watch, when we intercept
+the  openw, we manage to resolve "foo" to
+"/tmp/watch/foo".   We still break on things like 
+"touch ../../foo", since we resolve that to
+"/tmp/watch/../../foo"  -- but that's pretty fixable  
+with a little effort.
 
-> >Index: linux-2.6.0-test9-mm5/arch/i386/kernel/process.c
-> >===================================================================
-> >RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/arch/i386/kernel/process.c,v
-> >retrieving revision 1.1.1.1
-> >diff -u -p -B -r1.1.1.1 process.c
-> >--- linux-2.6.0-test9-mm5/arch/i386/kernel/process.c	21 Nov 2003 20:59:15 -0000	1.1.1.1
-> >+++ linux-2.6.0-test9-mm5/arch/i386/kernel/process.c	21 Nov 2003 22:20:00 -0000
-> >@@ -50,6 +50,7 @@
-> > #include <asm/desc.h>
-> > #include <asm/tlbflush.h>
-> > #include <asm/cpu.h>
-> >+#include <asm/atomic_kmap.h>
-> > #ifdef CONFIG_MATH_EMULATION
-> > #include <asm/math_emu.h>
-> > #endif
+NFS mounted filesystems still get us, since we rely on
+intercepting the system calls and putting a wrapper
+around them.  I've looked into doing so, but I didn't
+see a way of doing so in a module -- and we haven't
+wanted to demand that users patch and rebuild a
+kernel.
+
+
+--- Christoph Hellwig <hch@infradead.org> wrote:
+
 > 
-> Just a point : in the file arch/i383/process.c, I added the  following 
-> lines.
+> Well, reporting a single path component relative to
+> the parent directory
+> is doable, there's just no way to have a canonical
+> absolute or
+> multi-component pathname.
 > 
-> #include <asm/tlbflush.h>
-> #include <asm/cpu.h>
 
-That was already in there.
 
-> My original processs.c file seems to be a little be bit different from 
-> yours (?).
-> The following line was already in the process.c file.
-> 
-> +#include <asm/atomic_kmap.h>
-
-Hmm that's strange, can you verify your tree and i'll do the same. There 
-are two discrepancies.
+__________________________________
+Do you Yahoo!?
+Free Pop-Up Blocker - Get it now
+http://companion.yahoo.com/

@@ -1,101 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262766AbTCTWiL>; Thu, 20 Mar 2003 17:38:11 -0500
+	id <S263028AbTCTWyG>; Thu, 20 Mar 2003 17:54:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263011AbTCTWhA>; Thu, 20 Mar 2003 17:37:00 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:51329 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S262704AbTCTWYk>; Thu, 20 Mar 2003 17:24:40 -0500
-Date: Thu, 20 Mar 2003 23:35:42 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@oss.sgi.com, acme@conectiva.com.br
-Subject: Re: [PATCH] clean up net/802/Makefile (large version)
-Message-ID: <20030320223542.GC13641@wohnheim.fh-wedel.de>
-References: <20030320223329.GB13641@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030320223329.GB13641@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+	id <S262970AbTCTWxY>; Thu, 20 Mar 2003 17:53:24 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:54532 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263006AbTCTWxC>; Thu, 20 Mar 2003 17:53:02 -0500
+Date: Fri, 21 Mar 2003 00:03:57 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andries.Brouwer@cwi.nl
+cc: linux-kernel@vger.kernel.org, <akpm@digeo.com>
+Subject: Re: [PATCH] alternative dev patch
+In-Reply-To: <UTC200303202150.h2KLoEl09978.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0303202314210.5042-100000@serv>
+References: <UTC200303202150.h2KLoEl09978.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This one tries to clean up the other code as well.
+Hi,
 
-Jörn
+On Thu, 20 Mar 2003 Andries.Brouwer@cwi.nl wrote:
 
--- 
-The cheapest, fastest and most reliable components of a computer
-system are those that aren't there.
--- Gordon Bell, DEC labratories
+> (i)
+> There was some unused code, and you decide to start using that
+> in order to speed up the open() of a chardev. Is that urgent?
+> Is the speed of opening a chardev a bottleneck?
 
---- linux-2.4.20/net/802/Makefile	Sat Aug  3 02:39:46 2002
-+++ linux-2.4.20/net/802/Makefile.2	Thu Mar 20 23:26:22 2003
-@@ -11,48 +11,26 @@
- 
- export-objs = llc_macinit.o p8022.o psnap.o
- 
-+snap-objs = p8022.o psnap.o
-+
- obj-y	= p8023.o
- 
- obj-$(CONFIG_SYSCTL) += sysctl_net_802.o
--obj-$(CONFIG_LLC) += llc_sendpdu.o llc_utility.o cl2llc.o llc_macinit.o
--ifeq ($(CONFIG_SYSCTL),y)
--obj-y += sysctl_net_802.o
--endif
--
--ifeq ($(CONFIG_LLC),y)
--subdir-y += transit
--obj-y += llc_sendpdu.o llc_utility.o cl2llc.o llc_macinit.o
--SNAP = y
--endif
--
--ifdef CONFIG_TR
--obj-y += tr.o
--	SNAP=y
--endif
--
--ifdef CONFIG_NET_FC
--obj-y += fc.o
--endif
--
--ifdef CONFIG_FDDI
--obj-y += fddi.o
--endif
--
--ifdef CONFIG_HIPPI
--obj-y += hippi.o
--endif
--
--ifdef CONFIG_IPX
--	SNAP=y
--endif
--
--ifdef CONFIG_ATALK
--	SNAP=y
--endif
--
--ifeq ($(SNAP),y)
--obj-y += p8022.o psnap.o
--endif
-+obj-$(CONFIG_LLC) += llc_sendpdu.o llc_utility.o cl2llc.o llc_macinit.o $(snap-objs)
-+
-+subdir-$(CONFIG_LLC) += transit
-+
-+obj-$(CONFIG_TR) += tr.o $(snap-objs)
-+
-+obj-$(CONFIG_NET_FC) += fc.o
-+
-+obj-$(CONFIG_FDDI) += fddi.o
-+
-+obj-$(CONFIG_HIPPI) += hippi.o
-+
-+obj-$(CONFIG_IPX) += $(snap-objs)
-+
-+obj-$(CONFIG_ATALK) += $(snap-objs)
- 
- include $(TOPDIR)/Rules.make
- 
+Currently it isn't, but it shouldn't become one?
+I'm unsure how your code will scale. It depends on how that code will be 
+used. If drivers register a lot of devices, your lookup function has to 
+scan a possibly very long list of minor devices and that function is 
+difficult to optimize. If drivers want to avoid this they have to 
+implement their own lookup function.
+One other major reason for the "unused" code is to convert the 16/32/64bit 
+dev_t as early as possible to either struct block_device/struct 
+char_device, so the kernel mostly doesn't care about the dev_t resolution,
+the character device core would match here the behaviour of the block 
+device core.
+
+> > Further he introduces a new function register_chrdev_region(),
+> > which is only needed by the tty code and rather hides the problem
+> > than solves it.
+> 
+> What does one want? A driver announces the device number regions
+> that it wants to cover. Simple and straightforward.
+> Hardly a new idea. How is this done for block devices?
+> Using blk_register_region(). How is register_chrdev_region()
+> hiding problems? It eliminates the tty kludges that you only
+> move to a different file.
+
+char devices don't have partitions, so you hardly need regions. The 
+problem with the tty layer is that the console and the serial devices 
+should have different majors.
+Even for block devices blk_register_region() is not the preferred 
+interface, you should use alloc_disk/add_disk instead. This will make it 
+easier to assign dynamic device numbers later.
+
+> (iii)
+> > this patch helps drivers to manage them without huge tables
+> > (this latter part is also missing in Andries patch).
+> 
+> I am not sure I understand. Where are these huge tables?
+> And how did you remove them?
+
+See the misc device example. It doesn't have a table, but the list is now 
+only needed to generate /proc/misc. As soon as character devices are 
+better integrated into the driver model, even this list is not needed 
+anymore. This means for simple character devices, we can easily add a 
+alloc_chardev/add_chardev interface similiar to block devices.
+
+bye, Roman
+

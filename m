@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbULQX7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbULQX7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbULQX7z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 18:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbULQX7y
+	id S262231AbULQX7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 18:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbULQX7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 18:59:54 -0500
-Received: from 82-43-72-5.cable.ubr06.croy.blueyonder.co.uk ([82.43.72.5]:9713
-	"EHLO home.chandlerfamily.org.uk") by vger.kernel.org with ESMTP
-	id S262236AbULQX7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 18:59:41 -0500
-From: Alan Chandler <alan@chandlerfamily.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: ide-cd problem revisited - more brainpower needed
-Date: Fri, 17 Dec 2004 23:59:39 +0000
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jens Axboe <axboe@suse.de>
-References: <200412121334.55460.alan@chandlerfamily.org.uk> <200412140020.18114.alan@chandlerfamily.org.uk> <41C1B018.2090903@tmr.com>
-In-Reply-To: <41C1B018.2090903@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412172359.40037.alan@chandlerfamily.org.uk>
+	Fri, 17 Dec 2004 18:59:25 -0500
+Received: from out012pub.verizon.net ([206.46.170.137]:39143 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S262231AbULQX7H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 18:59:07 -0500
+From: James Nelson <james4765@verizon.net>
+To: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, James Nelson <james4765@verizon.net>
+Message-Id: <20041217235927.17998.75228.61750@localhost.localdomain>
+Subject: [PATCH] lcd: replace cli()/sti() with spin_lock_irqsave()/spin_unlock_irqrestore()
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [209.158.220.243] at Fri, 17 Dec 2004 17:59:05 -0600
+Date: Fri, 17 Dec 2004 17:59:05 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 December 2004 15:56, Bill Davidsen wrote:
+Remove the cli()/sti() calls in drivers/char/lcd.c
 
->
-> Is it? Or did the firmware "upgrade" make it worse? Can you reflash back
-> to the original firmware and see if 2.4 works correctly?
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-Unfortunately not - the version I 'upgraded' from was not on their web site, 
-so I don't have a way back.
-
-I was a thought that crossed my mind, although the detailed problem of 
-multiple interrupts after apparently successfully completing the 0x3c command 
-still occurred in exactly the same way and place when using 2.6.10-rc3.
-
-
-
--- 
-Alan Chandler
-alan@chandlerfamily.org.uk
-First they ignore you, then they laugh at you,
- then they fight you, then you win. --Gandhi
+diff -urN --exclude='*~' linux-2.6.10-rc3-mm1-original/drivers/char/lcd.c linux-2.6.10-rc3-mm1/drivers/char/lcd.c
+--- linux-2.6.10-rc3-mm1-original/drivers/char/lcd.c	2004-12-03 16:53:42.000000000 -0500
++++ linux-2.6.10-rc3-mm1/drivers/char/lcd.c	2004-12-17 18:57:10.760197439 -0500
+@@ -33,6 +33,8 @@
+ 
+ #include "lcd.h"
+ 
++static spinlock_t lcd_lock = SPIN_LOCK_UNLOCKED;
++
+ static int lcd_ioctl(struct inode *inode, struct file *file,
+ 		     unsigned int cmd, unsigned long arg);
+ 
+@@ -464,14 +466,13 @@
+ 			}
+ 
+ 			printk("Churning and Burning -");
+-			save_flags(flags);
+ 			for (i = 0; i < FLASH_SIZE; i = i + 128) {
+ 
+ 				if (copy_from_user
+ 				    (rom, display.RomImage + i, 128))
+ 					return -EFAULT;
+ 				burn_addr = kFlashBase + i;
+-				cli();
++				spin_lock_irqsave(&lcd_lock, flags);
+ 				for (index = 0; index < (128); index++) {
+ 
+ 					WRITE_FLASH(kFlash_Addr1,
+@@ -492,7 +493,7 @@
+ 					}
+ 					burn_addr++;
+ 				}
+-				restore_flags(flags);
++				spin_unlock_irqrestore(&lcd_lock, flags);
+ 				if (*
+ 				    ((volatile unsigned char *) (burn_addr
+ 								 - 1)) ==

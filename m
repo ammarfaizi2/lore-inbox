@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268680AbTGIWhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 18:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268675AbTGIWhY
+	id S268678AbTGIWhM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 18:37:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268679AbTGIWhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 18:37:24 -0400
-Received: from sycorax.lbl.gov ([128.3.5.196]:60565 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S268680AbTGIWhW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 18:37:22 -0400
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre4
-References: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: Wed, 09 Jul 2003 15:51:54 -0700
-In-Reply-To: <Pine.LNX.4.55L.0307091918400.5325@freak.distro.conectiva> (message
- from Marcelo Tosatti on Wed, 9 Jul 2003 19:24:40 -0300 (BRT))
-Message-ID: <87k7ar2u0l.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+	Wed, 9 Jul 2003 18:37:12 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:54194 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S268678AbTGIWhJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 18:37:09 -0400
+Date: Thu, 10 Jul 2003 00:51:18 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Fix IDE initialization when we don't probe for interrupts.
+In-Reply-To: <Pine.LNX.4.44.0307091520570.16947-100000@home.osdl.org>
+Message-ID: <Pine.SOL.4.30.0307100037140.6581-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
 
-> Here goes -pre4. It contains a lot of updates and fixes.
+On Wed, 9 Jul 2003, Linus Torvalds wrote:
 
-patch-2.4.22-pre4.bz2 is reversed (it applies with -R). please upload
-a correct one.
+> On Wed, 9 Jul 2003, Jeff Garzik wrote:
+> >
+> > I'm curious where interrupts are re-enabled, though?
+>
+> The low-level drivers seem to do it at every IO. Don't ask me why. But it
+> gets done automatically by any code that does
+>
+> 	hwif->OUTB(drive->ctl, IDE_CONTROL_REG);
+>
+> which is pretty common (just grep for "IDE_CONTROL_REG" and you'll see
+> what I mean).
+>
+> I note that I should have made this "disable irq" be dependent on
+> IDE_CONTROL_REG being non-zero. Although I don't see when that register
+> _can_ be zero, it would be a major bummer not to have access to the
+> control register.
+>
+> (Obviously it must be zero for some architecture, though, or those
+> conditionals woulnd't make sense. Alan?  Bartlomiej? What kind of sick
+> pseudo-IDE controller doesn't have a control register?).
 
---alex--
+Amiga X-Surf and Amiga Gayle with IDE doubler...
+--
+Bartlomiej
 
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+> 			Linus
+

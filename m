@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266128AbUH1UhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266669AbUH1UhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266128AbUH1UhR (ORCPT <rfc822;willy@w.ods.org>);
+	id S266669AbUH1UhR (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 28 Aug 2004 16:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266133AbUH1UfT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267976AbUH1Ugg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 16:35:19 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:10368 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268008AbUH1USM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 16:18:12 -0400
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robert Milkowski <milek@rudy.mif.pg.gda.pl>
-Cc: Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Julien Oster <usenet-20040502@usenet.frodoid.org>,
-       Miles Lane <miles.lane@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.60L.0408232107270.13955@rudy.mif.pg.gda.pl>
-References: <200408191822.48297.miles.lane@comcast.net>
-	 <87hdqyogp4.fsf@killer.ninja.frodoid.org>
-	 <Pine.LNX.4.60L.0408210520380.3003@rudy.mif.pg.gda.pl>
-	 <1093174557.24319.55.camel@localhost.localdomain>
-	 <Pine.LNX.4.60L.0408232107270.13955@rudy.mif.pg.gda.pl>
+	Sat, 28 Aug 2004 16:36:36 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:3761 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267973AbUH1URN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 16:17:13 -0400
+Subject: Re: [patch] 2.6.9-rc1-mm1: megaraid_mbox.c compile error with gcc
+	3.4
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Mukker, Atul" <Atulm@lsil.com>, bunk@fs.tum.de, sreenib@lsil.com,
+       Manojj@lsil.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
+In-Reply-To: <20040828130419.57a56cdd.akpm@osdl.org>
+References: <0E3FA95632D6D047BA649F95DAB60E57033BC9BB@exa-atlanta>
+	 <20040828130419.57a56cdd.akpm@osdl.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093354658.2810.31.camel@localhost.localdomain>
+Message-Id: <1093724235.8611.67.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 28 Aug 2004 20:16:03 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 28 Aug 2004 16:17:16 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-08-23 at 20:48, Robert Milkowski wrote:
-> Solaris runs on x86 platform, and runs quite well.
-> And guess what - DTrace runs on x86 like a charm.
+On Sat, 2004-08-28 at 16:04, Andrew Morton wrote:
+> "Mukker, Atul" <Atulm@lsil.com> wrote:
+> >
+> > The driver and the patches with the re-ordered functions is available at
+> >  ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.20.3.1/
+> 
+> I dunno about James, but I *really* dislike receiving patches by going and
+> getting them from internet servers.  It breaks our commonly-used tools.  It
+> loses authorship info.  It loses Signed-off-by: info.  There is no
+> changelog.  All this means that your patch is more likely to be ignored by
+> busy people.  Please, just email the diffs.
+> 
 
-Larger x86 boxes. I can't seem to find PDA's with Solaris or phones
-with Solaris or $70 wireless routers with Solaris.
+The FAQ should be updated, as it recommends posting a link to large
+patches, rather than splitting them up and posting that way.
 
-> I must admit I don't know OProfile.
-> But can you profile already running application without interuption
+Of course, there is a lot in the FAQ that needs updating...
 
-Yes
-
-> What about getting structure contents, function arguments and returns, 
-> etc... all on the fly.
-
-ptrace. Actually there are folks who want to take ptrace a bit further
-for some things - at least one vendor posted some proposals which when
-recast into ptrace extensions look good.
-
-> I think you missed the point.
-
-Nope
-
-> Sure, you can make your own module on Linux, load it and trace whatever 
-> you want. But:
-
-Why do that, why not use the existing functionality that the kernel
-provides built on the stuff Intel AMD and friends stuck in the CPU. I'm
-not claiming our debugging tools are as good as dtrace but most of it
-(especially with kprobes patches installed) is essentially a UI design
-issue.
-
-Alan
+Lee
 

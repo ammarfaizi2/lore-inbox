@@ -1,158 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVCNWts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVCNWS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbVCNWts (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 17:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVCNWrc
+	id S262028AbVCNWS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 17:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVCNWPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 17:47:32 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:40735 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262026AbVCNWnJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 17:43:09 -0500
-Date: Mon, 14 Mar 2005 23:43:17 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Ryan Anderson <ryan@michonline.com>
-Subject: Re: [PATCH] Automatically append a semi-random version for BK users
-Message-ID: <20050314224317.GB31437@mars.ravnborg.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Ryan Anderson <ryan@michonline.com>
-References: <20050309080638.GW7828@mythryan2.michonline.com>
+	Mon, 14 Mar 2005 17:15:09 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:458 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S262029AbVCNWO1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 17:14:27 -0500
+Date: Mon, 14 Mar 2005 23:14:21 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: inconsistent kallsyms data [2.6.11-mm2]
+Message-ID: <20050314221421.GA13378@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Paulo Marques <pmarques@grupopie.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050308033846.0c4f8245.akpm@osdl.org> <20050308192900.GA16882@isilmar.linta.de> <20050308123554.669dd725.akpm@osdl.org> <20050308204521.GA17969@isilmar.linta.de> <422EF2B0.7070304@grupopie.com> <422F59A3.9010209@grupopie.com> <423039A6.5010301@grupopie.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050309080638.GW7828@mythryan2.michonline.com>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <423039A6.5010301@grupopie.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 03:06:38AM -0500, Ryan Anderson wrote:
-> Automatically append a semi-random version if the tree we're building
-> isn't tagged in BitKeeper and CONFIG_LOCALVERSION_AUTO is set.
+On Thu, Mar 10, 2005 at 12:12:22PM +0000, Paulo Marques wrote:
+> Paulo Marques wrote:
+> >[...]
+> >A simple and robust way is to do the sampling on a list of symbols 
+> >sorted by symbol name. This way, even if the symbol positions that are 
+> >given to scripts/kallsyms change, the symbols sampled will be the same.
+> >
+> >I'll do the patch to do this and send it ASAP.
 > 
-> This fixes the case when Linus (or someone else) does a release and tags
-> it, someone else does a build of that release tree (i.e, 2.6.11), and
-> installs it.  Later, before another release occurs (i.e, -rc1), another
-> build happens, and the actual, released 2.6.11 is overwritten with the
-> -current tree.
+> Ok, here it is.
 > 
-> Two approachs are present here, a Perl version that is setup to handle
-> other automatic version appends (i.e, a CVS version shouldn't be much
-> effort to add), and a simplistic shell version that depends on "md5sum".
-> Both approaches generate the same hash.
+> Dominik can you try the attached patch and see if it solves the problem?
 
-Please skip the shell version - add a note in Kconfig that enabling this
-option requires perl.
+It does not solve the problem: 
 
->  
->  #export	INSTALL_PATH=/boot
->  
-> +# If CONFIG_LOCALVERSION_AUTO is set, we automatically perform some tests
-> +# and try to determine if the current source tree is a release tree, of any sort,
-> +# or if is a pure development tree.
-> +# A 'release tree' is any tree with a BitKeeper TAG associated with it.
-> +# The primary goal of this is to make it safe for a native BitKeeper user to
-> +# build a release tree (i.e, 2.6.9) and also to continue developing against the
-> +# current Linus tree, without having the Linus tree overwrite the 2.6.9 tree 
-> +# when installed.
-> +#
-> +# (In the future, CVS and SVN support will be added as well.)
-> +
-> +ifeq ($(CONFIG_LOCALVERSION_AUTO),y)
-> +	ifeq ($(shell ls -d $(srctree)/BitKeeper 2>/dev/null),$(srctree)/BitKeeper)
-> +		localversion-bk := $(shell $(srctree)/scripts/setlocalversion.sh $(srctree) $(objtree))
-> +		LOCALVERSION := $(LOCALVERSION)$(localversion-bk)
-> +	endif
-> +endif
-Move the logic to determine the SCM system into the perl script.
-And do not assume bk, select more generic names.
-
-Also use:
-ifdef CONFIG_LOCALVERSION_AUTO
-like in rest of Makefile.
-
-Something like this:
-ifdef CONFIG_LOCALVERSION_AUTO
-    LOCALVERSION += $(CONFIG_SHELL) $(srctree)/scripts/setlocalversion.sh $(srctree)
-endif
-note - perl script does not use objtree.
+ ~/local/kernel/linux-2.6.11-mm2 $ patch -p1 < ~/kallpatch 
+patching file scripts/kallsyms.c
+ ~/local/kernel/linux-2.6.11-mm2 $ make
+  CHK     include/linux/version.h
+  HOSTCC  scripts/kallsyms
+make[1]: »arch/i386/kernel/asm-offsets.s« ist bereits aktualisiert.
+  CHK     include/linux/compile.h
+  CHK     usr/initramfs_list
+  CC [M]  arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.o
+  KSYM    .tmp_kallsyms1.S
+  AS      .tmp_kallsyms1.o
+  LD      .tmp_vmlinux2
+  KSYM    .tmp_kallsyms2.S
+  AS      .tmp_kallsyms2.o
+  LD      vmlinux
+  SYSMAP  System.map
+  SYSMAP  .tmp_System.map
+Inconsistent kallsyms data
+Try setting CONFIG_KALLSYMS_EXTRA_PASS
+make: *** [vmlinux] Fehler 1
 
 
-diff -Nru a/scripts/setlocalversion b/scripts/setlocalversion
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/scripts/setlocalversion	2005-03-09 02:51:15 -05:00
-> @@ -0,0 +1,62 @@
-> +#!/usr/bin/perl
-> +# Copyright 2004 - Ryan Anderson <ryan@michonline.com>  GPL v2
-> +
-> +use strict;
-> +use warnings;
-> +use Digest::MD5;
-> +require 5.006;
-> +
-> +if (@ARGV != 2) {
-> +	print <<EOT;
-> +Usage: setlocalversion <srctree> <objtree>
-wrong - objtree is not needed
+Will test the other patch floating around in just a moment.
 
-> +EOT
-> +	exit(1);
-> +}
-> +
-> +my $debug = 0;
-remove debug for such a simple script
-
-> +
-> +my ($srctree,$objtree) = @ARGV;
-> +
-> +my @LOCALVERSIONS = ();
-> +
-> +# BitKeeper Version Checks
-> +
-> +# We are going to use the following commands to try and determine if
-> +# this repository is at a Version boundary (i.e, 2.6.10 vs 2.6.10 + some patches)
-> +# We currently assume that all meaningful version boundaries are marked by a tag.
-> +# We don't care what the tag is, just that something exists.
-> +
-> +#ryan@mythryan2 ~/dev/linux/local$ T=`bk changes -r+ -k`
-> +#ryan@mythryan2 ~/dev/linux/local$ bk prs -h -d':TAG:\n' -r$T
-- to be deleted?
-
-> +
-> +sub do_bk_checks {
-> +	chdir($srctree);
-> +	my $changeset = `bk changes -r+ -k`;
-> +	chomp $changeset;
-> +	my $tag = `bk prs -h -d':TAG:' -r'$changeset'`;
-> +
-> +	printf("ChangeSet Key = '%s'\nTAG = '%s'\n", $changeset, $tag) if ($debug > 0);
-> +
-> +	if (length($tag) == 0) {
-if this imply that this is not a release tree then please write so - to
-be consistent with comment in top-level makefile.
-Thats good for poor sould like me that does not know perl.
-
-> +		# We do not have a tag at the Top of Tree, so we need to generate a localversion file
-> +		# We'll use the given $changeset as input into this.
-> +		my $localversion = Digest::MD5::md5_hex($changeset);
-> +		$localversion = substr($localversion,0,8);
-> +
-> +		printf("localversion = '%s'\n",$localversion) if ($debug > 0);
-> +
-> +		push @LOCALVERSIONS, "BK" . $localversion;
-> +
-> +	}
-> +}
-> +
-> +
-> +if ( -d "BitKeeper" ) {
-> +	my $bk = `which bk`;
-> +	chomp $bk;
-> +	if (length($bk) != 0) {
-> +		do_bk_checks();
-> +	}
-> +}
-And this part should be prepared for cvs+svn.
-
-	Sam
+Thanks,
+	Dominik

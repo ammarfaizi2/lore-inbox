@@ -1,163 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263842AbUFCTq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263923AbUFCTrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263842AbUFCTq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 15:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263845AbUFCTq0
+	id S263923AbUFCTrt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 15:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263845AbUFCTrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 15:46:26 -0400
-Received: from unicorn.sch.bme.hu ([152.66.208.4]:39654 "EHLO
-	unicorn.sch.bme.hu") by vger.kernel.org with ESMTP id S263842AbUFCTqV
+	Thu, 3 Jun 2004 15:47:48 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:6018 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263923AbUFCTrP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 15:46:21 -0400
-Date: Thu, 3 Jun 2004 21:46:07 +0200
-From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: Len Brown <len.brown@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: ACPI related hangup during boot, 2.6.6 worked ok, 2.6.7-rc2 freezes
-Message-ID: <20040603194607.GA26410@unicorn.sch.bme.hu>
+	Thu, 3 Jun 2004 15:47:15 -0400
+Subject: Re: 2.6.7-rc2: open() hangs on ReiserFS with SELinux enabled
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Dmitry Baryshkov <mitya@school.ioffe.ru>
+Cc: lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@redhat.com>,
+       mason@suse.com, jeffm@suse.com
+In-Reply-To: <1086271751.17657.104.camel@moss-spartans.epoch.ncsc.mil>
+References: <20040602174810.GA31263@school.ioffe.ru>
+	 <1086201647.15871.135.camel@moss-spartans.epoch.ncsc.mil>
+	 <20040603083622.GA9918@school.ioffe.ru>
+	 <1086271751.17657.104.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1086291991.19025.55.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 03 Jun 2004 15:46:31 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-06-03 at 10:09, Stephen Smalley wrote:
+> Ok, so vfs_create calls security_inode_post_create hook, and SELinux
+> attempts to set the xattr on the newly created inode.  But reiserfs
+> xattr implementation attempts to create a directory to store the xattr,
+> and the attempt to instantiate the dentry for the directory inode causes
+> the security_d_instantiate hook to be called, so that SELinux then
+> attempts to get the xattr value for that directory inode to initialize
+> the directory inode's security field before it becomes accessible via
+> the dcache.  More generally, reiserfs_mkdir code is calling
+> d_instantiate while holding reiserfs_write_lock, but d_instantiate can
+> _block_ under SELinux due to need to fetch xattr for inode.  See
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=106712276514199&w=2 for
+> related discussion.
 
-Hi!
-
-
-On an Intel D865GRH motherboard kernel 2.6.6 works fine, but 2.6.7-rc2 
-(vanilla, -mm1 and -mm2 too) freezes during boot if acpi is enabled.
-(using acpi=off, it boots and works)
-
-I could not gather any useable call trace or other debug information.
-
-I could though find the diff which causes the trouble, to revert 
-2.6.7-rc2 to a working version, I have to apply:
-
-
-diff -Naurd linux-bad/drivers/acpi/acpi_ksyms.c linux-good/drivers/acpi/acpi_ksyms.c
---- linux-bad/drivers/acpi/acpi_ksyms.c	2004-06-01 12:42:05.000000000 +0200
-+++ linux-good/drivers/acpi/acpi_ksyms.c	2004-05-10 04:32:27.000000000 +0200
-@@ -106,7 +106,7 @@
- EXPORT_SYMBOL(acpi_os_create_semaphore);
- EXPORT_SYMBOL(acpi_os_delete_semaphore);
- EXPORT_SYMBOL(acpi_os_wait_semaphore);
--EXPORT_SYMBOL(acpi_os_wait_events_complete);
-+
- EXPORT_SYMBOL(acpi_os_read_pci_configuration);
- 
- /* ACPI Utilities (acpi_utils.c) */
-diff -Naurd linux-bad/drivers/acpi/events/evxface.c linux-good/drivers/acpi/events/evxface.c
---- linux-bad/drivers/acpi/events/evxface.c	2004-06-01 12:42:05.000000000 +0200
-+++ linux-good/drivers/acpi/events/evxface.c	2004-05-10 04:32:39.000000000 +0200
-@@ -406,15 +406,6 @@
- 			goto unlock_and_exit;
- 		}
- 
--		/* Make sure all deferred tasks are completed */
--
--		(void) acpi_ut_release_mutex (ACPI_MTX_NAMESPACE);
--		acpi_os_wait_events_complete(NULL);
--		status = acpi_ut_acquire_mutex (ACPI_MTX_NAMESPACE);
--		if (ACPI_FAILURE (status)) {
--			return_ACPI_STATUS (status);
-- 		}
--
- 		if (handler_type == ACPI_SYSTEM_NOTIFY) {
- 			acpi_gbl_system_notify.node  = NULL;
- 			acpi_gbl_system_notify.handler = NULL;
-@@ -461,15 +452,6 @@
- 			goto unlock_and_exit;
- 		}
- 
--		/* Make sure all deferred tasks are completed */
--
--		(void) acpi_ut_release_mutex (ACPI_MTX_NAMESPACE);
--		acpi_os_wait_events_complete(NULL);
--		status = acpi_ut_acquire_mutex (ACPI_MTX_NAMESPACE);
--		if (ACPI_FAILURE (status)) {
--			return_ACPI_STATUS (status);
-- 		}
--
- 		/* Remove the handler */
- 
- 		if (handler_type == ACPI_SYSTEM_NOTIFY) {
-@@ -632,15 +614,6 @@
- 		goto unlock_and_exit;
- 	}
- 
--	/* Make sure all deferred tasks are completed */
--
--	(void) acpi_ut_release_mutex (ACPI_MTX_EVENTS);
--	acpi_os_wait_events_complete(NULL);
--	status = acpi_ut_acquire_mutex (ACPI_MTX_EVENTS);
--	if (ACPI_FAILURE (status)) {
--		return_ACPI_STATUS (status);
-- 	}
--
- 	/* Remove the handler */
- 
- 	acpi_os_acquire_lock (acpi_gbl_gpe_lock, ACPI_NOT_ISR);
-diff -Naurd linux-bad/drivers/acpi/osl.c linux-good/drivers/acpi/osl.c
---- linux-bad/drivers/acpi/osl.c	2004-06-01 12:42:30.000000000 +0200
-+++ linux-good/drivers/acpi/osl.c	2004-05-30 14:37:40.000000000 +0200
-@@ -66,7 +66,6 @@
- static unsigned int acpi_irq_irq;
- static OSD_HANDLER acpi_irq_handler;
- static void *acpi_irq_context;
--static struct workqueue_struct *kacpid_wq;
- 
- acpi_status
- acpi_os_initialize(void)
-@@ -81,8 +80,6 @@
- 		return AE_NULL_ENTRY;
- 	}
- #endif
--	kacpid_wq = create_singlethread_workqueue("kacpid");
--	BUG_ON(!kacpid_wq);
- 
- 	return AE_OK;
- }
-@@ -95,8 +92,6 @@
- 						 acpi_irq_handler);
- 	}
- 
--	destroy_workqueue(kacpid_wq);
--
- 	return AE_OK;
- }
- 
-@@ -659,8 +654,8 @@
- 	task = (void *)(dpc+1);
- 	INIT_WORK(task, acpi_os_execute_deferred, (void*)dpc);
- 
--	if (!queue_work(kacpid_wq, task)) {
--		ACPI_DEBUG_PRINT ((ACPI_DB_ERROR, "Call to queue_work() failed.\n"));
-+	if (!schedule_work(task)) {
-+		ACPI_DEBUG_PRINT ((ACPI_DB_ERROR, "Call to schedule_work() failed.\n"));
- 		kfree(dpc);
- 		status = AE_ERROR;
- 	}
-@@ -668,13 +663,6 @@
- 	return_ACPI_STATUS (status);
- }
- 
--void
--acpi_os_wait_events_complete(
--	void *context)
--{
--	flush_workqueue(kacpid_wq);
--}
--
- /*
-  * Allocate the memory for a spinlock and initialize it.
-  */
-
-
-Understanding why this is needed is beyond my current capabilities, but 
-I hope you can find it out :)
-
+Actually, that last part may be a red herring, since reiserfs_write_lock
+is simply a macro for lock_kernel.  The more immediate concern is
+avoiding the inode->i_op->getxattr call from SELinux on the xattr
+directory inode.  reiserfs xattr code would need to call a new security
+hook to mark the xattr root directory inode in some manner, so that
+subsequent security_d_instantiate calls on the per-object subdirectories
+could be identified by SELinux, and it could then just set the SID on
+the incore inode to a well-defined value and not call
+inode->i_op->getxattr for those inodes.
 
 -- 
-pozsy
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

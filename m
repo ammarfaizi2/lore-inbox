@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286915AbSABKdK>; Wed, 2 Jan 2002 05:33:10 -0500
+	id <S286909AbSABKdA>; Wed, 2 Jan 2002 05:33:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286913AbSABKdA>; Wed, 2 Jan 2002 05:33:00 -0500
-Received: from mail.s.netic.de ([212.9.160.11]:22021 "EHLO mail.netic.de")
-	by vger.kernel.org with ESMTP id <S286790AbSABKcp>;
-	Wed, 2 Jan 2002 05:32:45 -0500
-To: Momchil Velikov <velco@fadata.bg>
-Cc: linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-From: Florian Weimer <fw@deneb.enyo.de>
-Date: Wed, 02 Jan 2002 11:29:20 +0100
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> (Momchil Velikov's message of "02
- Jan 2002 01:03:25 +0200")
-Message-ID: <87y9jh3v27.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1 (i686-pc-linux-gnu)
+	id <S286913AbSABKcu>; Wed, 2 Jan 2002 05:32:50 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:49675 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S286909AbSABKck>;
+	Wed, 2 Jan 2002 05:32:40 -0500
+Date: Wed, 2 Jan 2002 11:33:11 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Astinus <Astinus@netcabo.pt>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Dual ATHLON MP AND curren linux KERNEL
+In-Reply-To: <000d01c19243$a29ac280$d500a8c0@mshome.net>
+Message-ID: <Pine.LNX.4.33.0201021132390.7044-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Momchil Velikov <velco@fadata.bg> writes:
 
-> -		strcpy(namep, RELOC("linux,phandle"));
-> +		memcpy (namep, RELOC("linux,phandle"), sizeof("linux,phandle"));
 
-Doesn't this still trigger undefined behavior, as far as the C
-standard is concerned?  It's probably a better idea to fix the linker,
-so that it performs proper relocation.
+On Mon, 31 Dec 2001, Astinus wrote:
+
+> Well i would like if the kernel supportd the AMD 760 MP
+> chipset.
+>
+> By the way, will this pc setup bring any obvious problems with linux red hat
+> / suse 7.x???
+I use this chip and no problem with 2.4.13/17.
+which kernel are you using?
+>
+> Dual Athlon Mp 1800
+> mobo-- Tyan's Thunder k7 (S2462)
+> seagte scsci ultra 160 cheeta 10k 16 mb cache 73,4 gb
+> no sound
+> ~52x scsi cdrom ( creative )
+> matrox g450(g550)
+>
+> regards Astinus
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

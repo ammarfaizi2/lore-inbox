@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319028AbSH1V4B>; Wed, 28 Aug 2002 17:56:01 -0400
+	id <S319010AbSH1V45>; Wed, 28 Aug 2002 17:56:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319029AbSH1V4A>; Wed, 28 Aug 2002 17:56:00 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:33288 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S319028AbSH1V4A>; Wed, 28 Aug 2002 17:56:00 -0400
-Message-ID: <3D6D477C.F5116BA7@zip.com.au>
-Date: Wed, 28 Aug 2002 14:58:20 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] adjustments to dirty memory thresholds
-References: <3D6C53ED.32044CAD@zip.com.au> <20020828200857.GB888@holomorphy.com> <3D6D3216.D472CBC3@zip.com.au> <20020828214243.GC888@holomorphy.com>
+	id <S319011AbSH1V45>; Wed, 28 Aug 2002 17:56:57 -0400
+Received: from holomorphy.com ([66.224.33.161]:39040 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S319010AbSH1V4y>;
+	Wed, 28 Aug 2002 17:56:54 -0400
+Date: Wed, 28 Aug 2002 15:01:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] mysterious tty deadlock
+Message-ID: <20020828220114.GA878@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> 
-> ...
-> I've already written the patch to address it, though of course, I can
-> post those traces along with the patch once it's rediffed. (It's trivial
-> though -- just a fresh GFP flag and a check for it before calling
-> out_of_memory(), setting it in mempool_alloc(), and ignoring it in
-> slab.c.) It requires several rounds of "un-throttling" to reproduce
-> the OOM's, the nature of which I've outlined elsewhere.
+One such stuck process had the following backtrace:
 
-That's a sane approach.  mempool_alloc() is designed for allocations
-which "must" succeed if you wait long enough.
+#0  schedule_timeout (timeout=-150765944) at timer.c:864
+#1  0xc01a28a3 in uart_wait_until_sent (tty=0xf7669000, timeout=2147483647)
+    at core.c:1320
+#2  0xc01afca8 in tty_wait_until_sent (tty=0xf7669000, timeout=0)
+    at tty_ioctl.c:66
+#3  0xc01b0049 in set_termios (tty=0xf7669000, arg=3221221720, opt=2)
+    at tty_ioctl.c:164
+#4  0xc01b03dc in n_tty_ioctl (tty=0xf7669000, file=0xf716b8a0, cmd=21507, 
+    arg=3221221720) at tty_ioctl.c:409
+#5  0xc01ac3b0 in tty_ioctl (inode=0xf72b9cf4, file=0xf716b8a0, cmd=21507, 
+    arg=3221221720) at tty_io.c:1798
+#6  0xc0152cf6 in sys_ioctl (fd=0, cmd=21507, arg=3221221720) at ioctl.c:128
+#7  0xc01078df in syscall_call () at process.c:982
 
-In fact it might make sense to only perform a single scan of the
-LRU if __GFP_WLI is set, rather than the increasing priority thing.
 
-But sigh.  Pointlessly scanning zillions of dirty pages and doing nothing
-with them is dumb.  So much better to go for a FIFO snooze on a per-zone
-waitqueue, be woken when some memory has been cleansed.  (That's effectively
-what mempool does, but it's all private and different).
+This doesn't appear to be serial-specific. Another stuck process is:
 
-> One such trace is below, some of the others might require repeating the
-> runs. It's actually a relatively deep call chain, I'd be worried about
-> blowing the stack at this point as well.
 
-Well it's presumably the GFP_NOIO which has killed it - we can't wait
-on PG_writeback pages and we can't write out dirty pages.  Taking a
-nap in mempool_alloc is appropriate.
+(gdb) bt
+#0  schedule_timeout (timeout=2147483647) at timer.c:836
+#1  0xc01af23d in read_chan (tty=0xf73da000, file=0xf781f6a0, 
+    buf=0xbffffd93 "", nr=1) at n_tty.c:1043
+#2  0xc01aa4b6 in tty_read (file=0xf781f6a0, buf=0xbffffd93 "", count=1, 
+    ppos=0xf781f6c0) at tty_io.c:677
+#3  0xc0142e2c in vfs_read (file=0xf781f6a0, buf=0xbffffd93 "", count=1, 
+    pos=0xf781f6c0) at read_write.c:193
+#4  0xc0142ffe in sys_read (fd=0, buf=0xbffffd93 "", count=1)
+    at read_write.c:232
+#5  0xc01078df in syscall_call () at process.c:982
+
+It's actually possible to kick these by sending them signal-generating
+characters, though the forward progress one can make this way is limited.
+
+(1) type "ls &"
+(2) This will not echo.
+(3) type ^Z (^C doesn't work for some reason)
+(4) "ls &" echoes
+(5) no prompt appears
+(6) type ^Z again
+(7) the prompt doesn't appear
+(8) type ^Z again
+(9) the prompt appears
+
+... this is a little oversimplified. Some pounding on the return keys is
+usually also required. serial and non-serial behave identically here.
+
+
+Cheers,
+Bill

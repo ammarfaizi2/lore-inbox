@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130582AbRCEBnI>; Sun, 4 Mar 2001 20:43:08 -0500
+	id <S130584AbRCEBpS>; Sun, 4 Mar 2001 20:45:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130583AbRCEBm6>; Sun, 4 Mar 2001 20:42:58 -0500
-Received: from ausxc10.us.dell.com ([143.166.98.229]:51462 "EHLO
-	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
-	id <S130582AbRCEBmv>; Sun, 4 Mar 2001 20:42:51 -0500
-Message-ID: <CDF99E351003D311A8B0009027457F1403BF9E09@ausxmrr501.us.dell.com>
-From: Matt_Domsch@Dell.com
-To: linux-kernel@vger.kernel.org
-Cc: R.E.Wolff@BitWizard.nl, fluffy@snurgle.org
-Subject: RE: 2.4 and 2GB swap partition limit
-Date: Sun, 4 Mar 2001 16:04:52 -0600 
+	id <S130585AbRCEBpJ>; Sun, 4 Mar 2001 20:45:09 -0500
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:50474 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S130584AbRCEBo4>; Sun, 4 Mar 2001 20:44:56 -0500
+Message-ID: <002401c0a515$e7998c70$1601a8c0@zeusinc.com>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: "Zach Brown" <zab@zabbo.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010304183017.A19760@tetsuo.zabbo.net>
+Subject: Re: [CFT] maestro update vs 2.2.18
+Date: Sun, 4 Mar 2001 20:44:55 -0500
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Linus has spoken, and 2.4.x now requires swap = 2x RAM.
-> > 
-> > I think I missed this.  What possible value does this have? 
+> Its an awfully large diff, so it can be fetched from:
+>
+> http://www.zabbo.net/maestro/patches/2.2.18-mega-1.diff.gz
+>
+> if this works I'll officially submit it and make the same sorts of
+> changes to 2.4.
 
-A good write-up of the discussion can be found at:
-http://kt.zork.net/kernel-traffic/kt20010126_104.html#2
+I'd love to test this on my Dell 5000e (Maestro 2E) but it's pretty
+impractical for me to return to the 2.2.x kernels.  I know you said you'll
+wait before making the changes to 2.4, but I think you'll get more testers
+if you turn it out sooner rather than later.
+
+Later,
+Tom
 
 
-My concern is that if there continues to be a 2GB swap partition/file size
-limitation, and you can have (as currently #defined) 8 swap partitions,
-you're limited to 16GB swap, which then follows a max of 8GB RAM.  We'd like
-to sell servers with 32GB or 64GB RAM to customers who request such for
-their applications.  Such customers generally have no problem purchasing
-additional disks to be used for swap, likely on a hardware RAID controller.
-
-We've also seen (anecdotal evidence here) cases where a kernel panics, which
-we believe may have to do with having 0 < swap < 2x RAM.  We're
-investigating further.
-
-> Actually the deal is: either use enough swap (about 2x RAM) or use
-> none at all. 
-
-If swap space isn't required in all cases, great!  We'll encourage the use
-of swap files as needed, rather than swap partitions.  But, if instead you
-*require* swap = 2x RAM, then the 2GB swap size limitation must go.
-
-Thanks,
-Matt
-	
-
--- 
-Matt Domsch
-Dell Linux Systems Group
-Linux OS Development
-www.dell.com/linux

@@ -1,89 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbUKADIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbUKADQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbUKADIR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 22:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUKADIR
+	id S261732AbUKADQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 22:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUKADQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 22:08:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54716 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261729AbUKADIN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 22:08:13 -0500
-Date: Mon, 1 Nov 2004 03:08:10 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
-Subject: [PATCH] Use optimised byteswap again
-Message-ID: <20041101030810.GH8958@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sun, 31 Oct 2004 22:16:59 -0500
+Received: from smtpout.mac.com ([17.250.248.45]:63455 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261734AbUKADQx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 22:16:53 -0500
+In-Reply-To: <20041031234440.GA6842@work.bitmover.com>
+References: <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <20041031210323.GG5578@elf.ucw.cz> <20041031211436.GE27728@work.bitmover.com> <20041031212111.GF1430@elf.ucw.cz> <20041031213559.GF27728@work.bitmover.com> <20041031214617.GG1430@elf.ucw.cz> <20041031234440.GA6842@work.bitmover.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <754B7EBC-2BB4-11D9-857E-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: James Bruce <bruce@andrew.cmu.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@novell.com>, Pavel Machek <pavel@suse.cz>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: BK kernel workflow
+Date: Sun, 31 Oct 2004 22:16:44 -0500
+To: Larry McVoy <lm@bitmover.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Oct 31, 2004, at 18:44, Larry McVoy wrote:
+> Come on Pavel, you think I'm stupid enough to tell you that you can 
+> touch
+> BK?  No, I'm not.  No, you can't.  Under any circumstances.  You've 
+> long
+> since lost that priviledge and you aren't getting it back.
 
-Looks like Al's patch to sparsify the byteorder code prevented use of the
-assembler-optimised code.  Not that I can blame him -- three underscores
-are C-coded and two underscores are assembly-optimised.
+So you are saying that at one point (X days ago) he could have written 
+his
+own BK2CVS tool without an issue?
 
-Index: linux-2.6/include/linux/byteorder/big_endian.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/linux/byteorder/big_endian.h,v
-retrieving revision 1.3
-diff -u -p -r1.3 big_endian.h
---- linux-2.6/include/linux/byteorder/big_endian.h	11 Oct 2004 21:41:36 -0000	1.3
-+++ linux-2.6/include/linux/byteorder/big_endian.h	1 Nov 2004 02:59:17 -0000
-@@ -27,12 +27,12 @@
- #define __constant_be32_to_cpu(x) ((__force __u32)(__be32)(x))
- #define __constant_cpu_to_be16(x) ((__force __be16)(__u16)(x))
- #define __constant_be16_to_cpu(x) ((__force __u16)(__be16)(x))
--#define __cpu_to_le64(x) ((__force __le64)___swab64((x)))
--#define __le64_to_cpu(x) ___swab64((__force __u64)(__le64)(x))
--#define __cpu_to_le32(x) ((__force __le32)___swab32((x)))
--#define __le32_to_cpu(x) ___swab32((__force __u32)(__le32)(x))
--#define __cpu_to_le16(x) ((__force __le16)___swab16((x)))
--#define __le16_to_cpu(x) ___swab16((__force __u16)(__le16)(x))
-+#define __cpu_to_le64(x) ((__force __le64)__swab64((x)))
-+#define __le64_to_cpu(x) __swab64((__force __u64)(__le64)(x))
-+#define __cpu_to_le32(x) ((__force __le32)__swab32((x)))
-+#define __le32_to_cpu(x) __swab32((__force __u32)(__le32)(x))
-+#define __cpu_to_le16(x) ((__force __le16)__swab16((x)))
-+#define __le16_to_cpu(x) __swab16((__force __u16)(__le16)(x))
- #define __cpu_to_be64(x) ((__force __be64)(__u64)(x))
- #define __be64_to_cpu(x) ((__force __u64)(__be64)(x))
- #define __cpu_to_be32(x) ((__force __be32)(__u32)(x))
-Index: linux-2.6/include/linux/byteorder/little_endian.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/linux/byteorder/little_endian.h,v
-retrieving revision 1.3
-diff -u -p -r1.3 little_endian.h
---- linux-2.6/include/linux/byteorder/little_endian.h	11 Oct 2004 21:41:36 -0000	1.3
-+++ linux-2.6/include/linux/byteorder/little_endian.h	1 Nov 2004 02:59:17 -0000
-@@ -33,12 +33,12 @@
- #define __le32_to_cpu(x) ((__force __u32)(__le32)(x))
- #define __cpu_to_le16(x) ((__force __le16)(__u16)(x))
- #define __le16_to_cpu(x) ((__force __u16)(__le16)(x))
--#define __cpu_to_be64(x) ((__force __be64)___swab64((x)))
--#define __be64_to_cpu(x) ___swab64((__force __u64)(__be64)(x))
--#define __cpu_to_be32(x) ((__force __be32)___swab32((x)))
--#define __be32_to_cpu(x) ___swab32((__force __u32)(__be32)(x))
--#define __cpu_to_be16(x) ((__force __be16)___swab16((x)))
--#define __be16_to_cpu(x) ___swab16((__force __u16)(__be16)(x))
-+#define __cpu_to_be64(x) ((__force __be64)__swab64((x)))
-+#define __be64_to_cpu(x) __swab64((__force __u64)(__be64)(x))
-+#define __cpu_to_be32(x) ((__force __be32)__swab32((x)))
-+#define __be32_to_cpu(x) __swab32((__force __u32)(__be32)(x))
-+#define __cpu_to_be16(x) ((__force __be16)__swab16((x)))
-+#define __be16_to_cpu(x) __swab16((__force __u16)(__be16)(x))
- 
- static inline __le64 __cpu_to_le64p(const __u64 *p)
- {
+I do not know for certain, but I will guess that Pavel has not done 
+anything
+blatantly illegal or violated the BK license in any way you can prove.  
+I am
+also guessing that he has not signed any additional contracts or EULAs
+with you.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+You also appear to be stating in this email that he may _not_ now write
+his own BK2CVS tool.
+
+What changed? (Aside from derogatory opinionated remarks in a public
+forum which, AFAIK, are not significant in any court of law)
+
+> You've got the BK2CVS tree, I suggest you use it.  That's all you get 
+> and
+> no amount of dancing around with my words will change that.
+
+You were stating earlier that you are not trying to trap people into 
+BK, but
+these statements appear to be much to the contrary of that position.
+
+One could theorize that the "preferred form" for the kernel is a tar.gz 
+or
+tar.bz2 file of the sources, and since you distribute through BK _all_
+versions of the kernel, you must also provide a way to get the 
+"preferred
+form" for any particular version.  I realize that this is somewhat 
+difficult,
+but if you are going to use contractual crap to restrict Pavel's rights 
+to
+get at his BK data, then you probably ought to offer to send anybody
+a tar.gz or tar.bz2 of any version of the sources at any particular 
+time.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
+

@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263924AbRFEIwQ>; Tue, 5 Jun 2001 04:52:16 -0400
+	id <S263926AbRFEJGJ>; Tue, 5 Jun 2001 05:06:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263925AbRFEIwG>; Tue, 5 Jun 2001 04:52:06 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:36367 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S263924AbRFEIvx>;
-	Tue, 5 Jun 2001 04:51:53 -0400
-Date: Tue, 5 Jun 2001 10:49:50 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Akash Jain <aki.jain@stanford.edu>, <linux-kernel@vger.kernel.org>,
-        <su.class.cs99q@nntp.stanford.edu>
-Subject: Re: [PATCH] fs/devfs/base.c
-In-Reply-To: <E156o6c-0005AB-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106051047460.2339-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263929AbRFEJF7>; Tue, 5 Jun 2001 05:05:59 -0400
+Received: from t2.redhat.com ([199.183.24.243]:44785 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263926AbRFEJFn>; Tue, 5 Jun 2001 05:05:43 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <15132.40298.80954.434805@pizda.ninka.net> 
+In-Reply-To: <15132.40298.80954.434805@pizda.ninka.net>  <15132.22933.859130.119059@pizda.ninka.net> <13942.991696607@redhat.com> <3B1C1872.8D8F1529@mandrakesoft.com> <15132.15829.322534.88410@pizda.ninka.net> <20010605155550.C22741@metastasis.f00f.org> <25587.991730769@redhat.com> 
+To: "David S. Miller" <davem@redhat.com>
+Cc: Chris Wedgwood <cw@f00f.org>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        bjornw@axis.com, linux-kernel@vger.kernel.org,
+        linux-mtd@lists.infradead.org
+Subject: Re: Missing cache flush. 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 05 Jun 2001 10:05:35 +0100
+Message-ID: <25831.991731935@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 4 Jun 2001, Alan Cox wrote:
+davem@redhat.com said:
+>  One way to do this, (even portably :-) is via displacement flushes.
+> Linus mentioned this.
 
-> >  - the kernel stack is 4kB, and _nobody_ has the right to eat up a
-> >    noticeable portion of it. It doesn't matter if you "know" your caller
->
-> Umm Linus on what platform - its 8K or more on all that I can think of
+> Basically if you know the L2 cache size and the assosciativity you can
+> do this as long as you can get a "2 * L2 cache size * assosciativity"
+> piece of contiguous physical memory.  When you need this "simon says"
+> flush, you basically read this physical memory span and this will
+> guarentee that all dirty data has exited the L2 cache. 
 
-it's 8K-sizeof(struct task_struct). On x86, the size of task_struct is
-getting near to 2K already, and it's not getting smaller in the future, so
-4K is a safe thing.
+Fine. So it should be possible to do it on all architectures with 
+physically-indexed caches - that's good. Architectures with 
+virtually-indexed caches are going to have explicit cache management 
+functionality anyway, presumably :)
 
-	Ingo
+Obviously the algorithm you describe should not be implemented in
+arch-independent drivers. It should be in include/asm-*, for those
+architectures which _can't_ do it with a single cache management instruction
+(or loop of same).
+
+What shall we call this function? The intuitive "flush_dcache_range" appears
+to have already been taken.
+
+--
+dwmw2
 
 

@@ -1,49 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131856AbQKYXM4>; Sat, 25 Nov 2000 18:12:56 -0500
+        id <S129434AbQKYXQ5>; Sat, 25 Nov 2000 18:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131904AbQKYXMr>; Sat, 25 Nov 2000 18:12:47 -0500
-Received: from nova.acomp.usf.edu ([131.247.100.22]:14832 "EHLO
-        nova.acomp.usf.edu") by vger.kernel.org with ESMTP
-        id <S131856AbQKYXMe>; Sat, 25 Nov 2000 18:12:34 -0500
-Date: Sat, 25 Nov 2000 17:42:22 -0500 (EST)
-From: Rick Bunke <rbunke@helios.acomp.usf.edu>
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.GSO.4.21.0011251651280.28783-100000@nova.acomp.usf.edu>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+        id <S130134AbQKYXQs>; Sat, 25 Nov 2000 18:16:48 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:7672 "EHLO hera.cwi.nl")
+        by vger.kernel.org with ESMTP id <S129434AbQKYXQk>;
+        Sat, 25 Nov 2000 18:16:40 -0500
+Date: Sat, 25 Nov 2000 23:46:24 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0"
+Message-ID: <20001125234624.A7049@veritas.com>
+In-Reply-To: <20001125211939.A6883@veritas.com> <200011252211.eAPMBIo21200@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200011252211.eAPMBIo21200@gondor.apana.org.au>; from herbert@gondor.apana.org.au on Sun, Nov 26, 2000 at 09:11:18AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I read up on this thread in the archives (the last message in thread was
-posted on the 24th) so I'm sorry if this has already been said.
+On Sun, Nov 26, 2000 at 09:11:18AM +1100, Herbert Xu wrote:
 
-I'm having the same problem with 2.4.0-test10, but I don't have the
-problem with 2.4.0-test9.  So i think the bug might have been introduced
-in 10.
+> No information is lost.
 
-When I try to compile xfree86 (the DRI version) under test10 my system 
-locks up and then has to clean up a bunch of errors in the filesystem on
-reboot.  I went back, removed my build tree, recreated it, recompiled
-again and it would lock up again.  I did this a few times under kernel
-2.4.0-test10 and it would consistantly lock up, then I went to the kernel
-archive and found this thread which says the problem is in test11.  I then
-decided I better try out test9 and see if it was just me.  I rebooted into
-kernel 2.4.0-test9, removed my build tree, recreated it, then recompiled
-again and it worked just fine without locking up.  That is what leads me
-to believe the problem was introduced in test10 and probably carried over
-to test11.  Hope this helps. 
+Do I explain things so badly? Let me try again.
+The difference between
 
-If you want more info just let me know 
-my email address is rbunke@helios.acomp.usf.edu.
+  static int a;
 
-Have Fun
-Rick
+and
 
-Information is the currency of democracy.
-		   - Thomas Jefferson
+  static int a = 0;
 
+is the " = 0". The compiler may well generate the same code,
+but I am not talking about the compiler. I am talking about
+the programmer. This " = 0" means (to me, the programmer)
+that the correctness of my program depends on this initialization.
+Its absense means (to me) that it does not matter what initial
+value the variable has.
+
+This is a useful distinction. It means that if the program
+
+  static int a;
+
+  int main() {
+	  /* do something */
+  }
+
+is used as part of a larger program, I can just rename main
+and get
+
+  static int a;
+
+  int do_something() {
+	  ...
+  }
+
+But if the program
+
+  static int a = 0;
+
+  int main() {
+	  /* do something */
+  }
+
+is used as part of a larger program, it has to become
+
+  static int a;
+
+  int do_something() {
+	  a = 0;
+	  ...
+  }
+
+
+You see that I, in my own code, follow a certain convention
+where presence or absence of assignments means something
+about the code. If now you change "static int a = 0;"
+into "static int a;" and justify that by saying that it
+generates the same code, then I am unhappy, because now
+if I turn main() into do_something() I either get a buggy
+program, or otherwise I have to read the source of main()
+again to see which variables need initialisation.
+
+In a program source there is information for the compiler
+and information for the future me. Removing the " = 0"
+is like removing comments. For the compiler the information
+remains the same. For the programmer something is lost.
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

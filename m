@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbUB0AqW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 19:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUB0AqW
+	id S261505AbUB0Arr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 19:47:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbUB0Aqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 19:46:22 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:4056 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id S261557AbUB0Apm (ORCPT
+	Thu, 26 Feb 2004 19:46:45 -0500
+Received: from mail.kroah.org ([65.200.24.183]:14043 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261505AbUB0AqU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 19:45:42 -0500
-Date: Fri, 27 Feb 2004 11:45:19 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, linus@osdl.org, anton@samba.org, paulus@samba.org,
-       axboe@suse.de, piggin@cyberone.com.au,
-       viro@parcelfarce.linux.theplanet.co.uk, hch@lst.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] iSeries virtual disk
-Message-Id: <20040227114519.6c65e5cd.sfr@canb.auug.org.au>
-In-Reply-To: <Pine.LNX.4.58.0402260932580.7830@ppc970.osdl.org>
-References: <20040123163504.36582570.sfr@canb.auug.org.au>
-	<20040122221136.174550c3.akpm@osdl.org>
-	<20040226172325.3a139f73.sfr@canb.auug.org.au>
-	<Pine.LNX.4.58.0402260932580.7830@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 26 Feb 2004 19:46:20 -0500
+Date: Thu, 26 Feb 2004 16:46:02 -0800
+From: Greg KH <greg@kroah.com>
+To: "J.A. Magallon" <jamagallon@able.es>,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       sensors@stimpy.netroedge.com
+Subject: Re: 2.6.3-mm4
+Message-ID: <20040227004602.GB15075@kroah.com>
+References: <20040225185536.57b56716.akpm@osdl.org> <403E82D8.3030209@gmx.de> <20040225185536.57b56716.akpm@osdl.org> <20040227001115.GA2627@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Fri__27_Feb_2004_11_45_19_+1100_6jImrdjf2EsR+cg="
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403E82D8.3030209@gmx.de> <20040227001115.GA2627@werewolf.able.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__27_Feb_2004_11_45_19_+1100_6jImrdjf2EsR+cg=
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-Hi Linus,
-
-On Thu, 26 Feb 2004 09:35:18 -0800 (PST) Linus Torvalds <torvalds@osdl.org> wrote:
->
-> On Thu, 26 Feb 2004, Stephen Rothwell wrote:
-> > 
-> > Unfortunately, things have moved on in the last couple of weeks and to
-> > fix everyone;s abjections, I need to include in this patch a ppc64 specific
-> > version of the dma_mapping routines.  They are pretty straight forward.
+On Fri, Feb 27, 2004 at 01:11:15AM +0100, J.A. Magallon wrote:
 > 
-> I'd _really_ like to see those as a separate patch and separately ack'ed 
-> as having been tested on the different DMA architectures.
+> As somebody also stated, there are problems with sensors:
+> 
 
-Fine.  I don't know what I was thinking at the time, I really didn't
-need that for the viodasd patch anyway :-(
+On Fri, Feb 27, 2004 at 12:35:52AM +0100, Prakash K. Cheemplavam wrote:
+> Hi,
+> 
+> this release made my sensors broken. With mm3 it worked nicely.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Yup, we changed all of the sensors sysfs names :)
 
---Signature=_Fri__27_Feb_2004_11_45_19_+1100_6jImrdjf2EsR+cg=
-Content-Type: application/pgp-signature
+Hey, we did warn everyone here on lkml we were going to do this, and no
+one complained...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Anyway, I think all you need to do is get the cvs tree of the lmsensors
+package.  Sensors people, the needed changes are commited into the tree,
+right?
 
-iD8DBQFAPpMfFG47PeJeR58RAlLsAJ0Q4q7XIHHlO+oNPWYgweF7PMdkIQCdEpRg
-D/Yf9pOy0RxmjeRj/hxZ3yg=
-=/mYK
------END PGP SIGNATURE-----
+thanks,
 
---Signature=_Fri__27_Feb_2004_11_45_19_+1100_6jImrdjf2EsR+cg=--
+greg k-h

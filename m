@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135706AbREBSFk>; Wed, 2 May 2001 14:05:40 -0400
+	id <S135709AbREBSMl>; Wed, 2 May 2001 14:12:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135711AbREBSFb>; Wed, 2 May 2001 14:05:31 -0400
-Received: from 223-ZARA-X27.libre.retevision.es ([62.82.240.223]:43790 "EHLO
-	head.redvip.net") by vger.kernel.org with ESMTP id <S135706AbREBSFZ>;
-	Wed, 2 May 2001 14:05:25 -0400
-Message-ID: <3AF02049.1080901@zaralinux.com>
-Date: Wed, 02 May 2001 16:57:13 +0200
-From: Jorge Nerin <comandante@zaralinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i586; en-US; 0.8) Gecko/20010226
-X-Accept-Language: es-es, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Linux SMP <linux-smp@vger.kernel.org>
-Subject: Memory management issues with 2.4.4
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S135711AbREBSMc>; Wed, 2 May 2001 14:12:32 -0400
+Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:53261 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S135709AbREBSMQ>; Wed, 2 May 2001 14:12:16 -0400
+Date: Wed, 2 May 2001 12:12:03 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac3
+Message-ID: <20010502121203.A27478@mail.harddata.com>
+In-Reply-To: <E14uhhF-0002Q8-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14uhhF-0002Q8-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, May 01, 2001 at 10:28:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Short version:
-Under very heavy thrashing (about four hours) the system either lockups 
-or OOM handler kills a task even when there is swap space left.
+On Tue, May 01, 2001 at 10:28:35PM +0100, Alan Cox wrote:
+> 
+....
+> 2.4.4-ac3
+....
 
-Long version:
-My system is a dual 2x200MMX in a Gigabyte 586DX with 96Mb and 226Mb of 
-swap this way:
+Does not compile on Alpha.  I have a strange feeling that because
+of this:-)
+> o	Fix module exception race on Alpha		(Andrea Arcangeli)
 
-[root@quartz ~]# swapon -s
-Filename                        Type            Size    Used    Priority
-/dev/hda7                       partition       96348   6456    1
-/dev/hdc6                       partition       130276  6460    1
+A declaration was forgotten and, comparing with i386 equivalent, this
+minor correction is required:
 
-Well, I have tried to compile Mozilla 0.8.1 since the day it came out, 
-but I always lockup in the same place, wich it's begining to be a bit 
-frustrating ;-)
+--- linux-2.4.4-ac/arch/alpha/mm/extable.c~	Wed May  2 11:08:43 2001
++++ linux-2.4.4-ac/arch/alpha/mm/extable.c	Wed May  2 12:08:50 2001
+@@ -36,6 +36,8 @@
+ 
+ register unsigned long gp __asm__("$29");
+ 
++extern spinlock_t modlist_lock;
++
+ static unsigned
+ search_exception_table_without_gp(unsigned long addr)
+ {
 
-The problem is that compiling the file  
-content/base/src/nsStyleContext.o makes cc1plus grow up to a size of 
-141M, at this point the system is in heavy thrashing, kswapd is using 
-about 7-12% of CPU time and cc1plus is using 8-14%.
-
-If I use a SMP kernel the system always ends up frozen, some times after 
-about almost one day of uptime and compiling since booting, and another 
-times  it gets frozen in much less time, three or four hours.
-
-If I use a non SMP kernel the system doesn't lokup but after some hours, 
-it varies between 6-8h, the cc1plus procces get a kill signal by OOM 
-killer, althought there is plenty of swap space left ((96Mb RAM + 226Mb 
-swap) - (140Mb - tiny amount used by the system) = plenty ;-).
-
-For this tries I have left the system in single user, so no cron jobs, 
-no network trafic, no etc...
-
-I suspect there is a race in the swap handling in SMP, and that the OOM 
-doesn't take into account the swap space left sometimes.
-
-I don't know what to try next, suggestions?
-
--- 
-Jorge Nerin
-<comandante@zaralinux.com>
+    Michal
 

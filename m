@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266855AbUAXCZS (ORCPT <rfc822;willy@w.ods.org>);
+	id S266857AbUAXCZS (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 23 Jan 2004 21:25:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266854AbUAXCXQ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266855AbUAXCYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 21:23:16 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:27286 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S266702AbUAXCUR (ORCPT
+	Fri, 23 Jan 2004 21:24:08 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:7835 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S266851AbUAXCWa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 21:20:17 -0500
-Date: Fri, 23 Jan 2004 18:20:16 -0800
+	Fri, 23 Jan 2004 21:22:30 -0500
+Date: Fri, 23 Jan 2004 18:22:29 -0800
 To: "David S. Miller" <davem@redhat.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] 3/11: esi-sir: dongle api change
-Message-ID: <20040124022016.GD22410@bougret.hpl.hp.com>
+Subject: [PATCH 2.6 IrDA] 6/11: act200l-sir: converted to new API
+Message-ID: <20040124022229.GG22410@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,97 +26,271 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir262_dongles-3_esi-sir.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ir262_dongles-6_act200l-sir.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		<Patch from Martin Diehl>
-* convert to de-virtualized sirdev helpers
-* add probably missing dongle power-up operation
+* converted for new api from old driver
 
 
-diff -u -p linux/drivers/net/irda.d6/esi-sir.c  linux/drivers/net/irda/esi-sir.c
---- linux/drivers/net/irda.d6/esi-sir.c	Wed Dec 17 18:59:18 2003
-+++ linux/drivers/net/irda/esi-sir.c	Thu Jan 22 16:43:22 2004
-@@ -68,11 +68,14 @@ static int esi_open(struct sir_dev *dev)
- {
- 	struct qos_info *qos = &dev->qos;
- 
-+	/* Power up and set dongle to 9600 baud */
-+	sirdev_set_dtr_rts(dev, FALSE, TRUE);
+diff -u -p linux/drivers/net/irda.d6/act200l-sir.c  linux/drivers/net/irda/act200l-sir.c
+--- linux/drivers/net/irda.d6/act200l-sir.c	Wed Dec 31 16:00:00 1969
++++ linux/drivers/net/irda/act200l-sir.c	Thu Jan 22 16:43:35 2004
+@@ -0,0 +1,258 @@
++/*********************************************************************
++ *
++ * Filename:      act200l.c
++ * Version:       0.8
++ * Description:   Implementation for the ACTiSYS ACT-IR200L dongle
++ * Status:        Experimental.
++ * Author:        SHIMIZU Takuya <tshimizu@ga2.so-net.ne.jp>
++ * Created at:    Fri Aug  3 17:35:42 2001
++ * Modified at:   Fri Aug 17 10:22:40 2001
++ * Modified by:   SHIMIZU Takuya <tshimizu@ga2.so-net.ne.jp>
++ *
++ *     Copyright (c) 2001 SHIMIZU Takuya, All Rights Reserved.
++ *
++ *     This program is free software; you can redistribute it and/or
++ *     modify it under the terms of the GNU General Public License as
++ *     published by the Free Software Foundation; either version 2 of
++ *     the License, or (at your option) any later version.
++ *
++ ********************************************************************/
 +
- 	qos->baud_rate.bits &= IR_9600|IR_19200|IR_115200;
- 	qos->min_turn_time.bits = 0x01; /* Needs at least 10 ms */
- 	irda_qos_bits_to_value(qos);
- 
--	/* shouldn't we do set_dtr_rts(FALSE, TRUE) here (power up at 9600)? */
++#include <linux/module.h>
++#include <linux/delay.h>
++#include <linux/init.h>
++
++#include <net/irda/irda.h>
++
++#include "sir-dev.h"
++
++static int act200l_reset(struct sir_dev *dev);
++static int act200l_open(struct sir_dev *dev);
++static int act200l_close(struct sir_dev *dev);
++static int act200l_change_speed(struct sir_dev *dev, unsigned speed);
++
++/* Regsiter 0: Control register #1 */
++#define ACT200L_REG0    0x00
++#define ACT200L_TXEN    0x01 /* Enable transmitter */
++#define ACT200L_RXEN    0x02 /* Enable receiver */
++
++/* Register 1: Control register #2 */
++#define ACT200L_REG1    0x10
++#define ACT200L_LODB    0x01 /* Load new baud rate count value */
++#define ACT200L_WIDE    0x04 /* Expand the maximum allowable pulse */
++
++/* Register 4: Output Power register */
++#define ACT200L_REG4    0x40
++#define ACT200L_OP0     0x01 /* Enable LED1C output */
++#define ACT200L_OP1     0x02 /* Enable LED2C output */
++#define ACT200L_BLKR    0x04
++
++/* Register 5: Receive Mode register */
++#define ACT200L_REG5    0x50
++#define ACT200L_RWIDL   0x01 /* fixed 1.6us pulse mode */
++
++/* Register 6: Receive Sensitivity register #1 */
++#define ACT200L_REG6    0x60
++#define ACT200L_RS0     0x01 /* receive threshold bit 0 */
++#define ACT200L_RS1     0x02 /* receive threshold bit 1 */
++
++/* Register 7: Receive Sensitivity register #2 */
++#define ACT200L_REG7    0x70
++#define ACT200L_ENPOS   0x04 /* Ignore the falling edge */
++
++/* Register 8,9: Baud Rate Dvider register #1,#2 */
++#define ACT200L_REG8    0x80
++#define ACT200L_REG9    0x90
++
++#define ACT200L_2400    0x5f
++#define ACT200L_9600    0x17
++#define ACT200L_19200   0x0b
++#define ACT200L_38400   0x05
++#define ACT200L_57600   0x03
++#define ACT200L_115200  0x01
++
++/* Register 13: Control register #3 */
++#define ACT200L_REG13   0xd0
++#define ACT200L_SHDW    0x01 /* Enable access to shadow registers */
++
++/* Register 15: Status register */
++#define ACT200L_REG15   0xf0
++
++/* Register 21: Control register #4 */
++#define ACT200L_REG21   0x50
++#define ACT200L_EXCK    0x02 /* Disable clock output driver */
++#define ACT200L_OSCL    0x04 /* oscillator in low power, medium accuracy mode */
++
++static struct dongle_driver act200l = {
++	.owner		= THIS_MODULE,
++	.driver_name	= "ACTiSYS ACT-IR200L",
++	.type		= IRDA_ACT200L_DONGLE,
++	.open		= act200l_open,
++	.close		= act200l_close,
++	.reset		= act200l_reset,
++	.set_speed	= act200l_change_speed,
++};
++
++int __init act200l_init(void)
++{
++	return irda_register_dongle(&act200l);
++}
++
++void __exit act200l_cleanup(void)
++{
++	irda_unregister_dongle(&act200l);
++}
++
++static int act200l_open(struct sir_dev *dev)
++{
++	struct qos_info *qos = &dev->qos;
++
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
++
++	/* Power on the dongle */
++	sirdev_set_dtr_rts(dev, TRUE, TRUE);
++
++	/* Set the speeds we can accept */
++	qos->baud_rate.bits &= IR_9600|IR_19200|IR_38400|IR_57600|IR_115200;
++	qos->min_turn_time.bits = 0x03;
++	irda_qos_bits_to_value(qos);
++
 +	/* irda thread waits 50 msec for power settling */
- 
- 	return 0;
- }
-@@ -80,7 +83,7 @@ static int esi_open(struct sir_dev *dev)
- static int esi_close(struct sir_dev *dev)
- {
- 	/* Power off dongle */
--	dev->set_dtr_rts(dev, FALSE, FALSE);
-+	sirdev_set_dtr_rts(dev, FALSE, FALSE);
- 
- 	return 0;
- }
-@@ -88,11 +91,13 @@ static int esi_close(struct sir_dev *dev
- /*
-  * Function esi_change_speed (task)
-  *
-- *    Set the speed for the Extended Systems JetEye PC ESI-9680 type dongle
-+ * Set the speed for the Extended Systems JetEye PC ESI-9680 type dongle
-+ * Apparently (see old esi-driver) no delays are needed here...
-  *
-  */
- static int esi_change_speed(struct sir_dev *dev, unsigned speed)
- {
-+	int ret = 0;
- 	int dtr, rts;
- 	
- 	switch (speed) {
-@@ -104,6 +109,7 @@ static int esi_change_speed(struct sir_d
- 		dtr = rts = TRUE;
- 		break;
- 	default:
-+		ret = -EINVAL;
- 		speed = 9600;
- 		/* fall through */
- 	case 9600:
-@@ -113,12 +119,10 @@ static int esi_change_speed(struct sir_d
- 	}
- 
- 	/* Change speed of dongle */
--	dev->set_dtr_rts(dev, dtr, rts);
-+	sirdev_set_dtr_rts(dev, dtr, rts);
- 	dev->speed = speed;
- 
--	/* do we need some delay for power stabilization? */
--
--	return 0;
-+	return ret;
- }
- 
- /*
-@@ -129,9 +133,18 @@ static int esi_change_speed(struct sir_d
-  */
- static int esi_reset(struct sir_dev *dev)
- {
--	dev->set_dtr_rts(dev, FALSE, FALSE);
++
++	return 0;
++}
++
++static int act200l_close(struct sir_dev *dev)
++{
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
++
++	/* Power off the dongle */
 +	sirdev_set_dtr_rts(dev, FALSE, FALSE);
 +
-+	/* Hm, the old esi-driver left the dongle unpowered relying on
-+	 * the following speed change to repower. This might work for
-+	 * the esi because we only need the modem lines. However, now the
-+	 * general rule is reset must bring the dongle to some working
-+	 * well-known state because speed change might write to registers.
-+	 * The old esi-driver didn't any delay here - let's hope it' fine.
-+	 */
- 
--	/* Hm, probably repower to 9600 and some delays? */
++	return 0;
++}
++
++/*
++ * Function act200l_change_speed (dev, speed)
++ *
++ *    Set the speed for the ACTiSYS ACT-IR200L type dongle.
++ *
++ */
++static int act200l_change_speed(struct sir_dev *dev, unsigned speed)
++{
++	u8 control[3];
++	int ret = 0;
++
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
++
++	/* Clear DTR and set RTS to enter command mode */
 +	sirdev_set_dtr_rts(dev, FALSE, TRUE);
-+	dev->speed = 9600;
- 
- 	return 0;
- }
++
++	switch (speed) {
++	default:
++		ret = -EINVAL;
++		/* fall through */
++	case 9600:
++		control[0] = ACT200L_REG8 |  (ACT200L_9600       & 0x0f);
++		control[1] = ACT200L_REG9 | ((ACT200L_9600 >> 4) & 0x0f);
++		break;
++	case 19200:
++		control[0] = ACT200L_REG8 |  (ACT200L_19200       & 0x0f);
++		control[1] = ACT200L_REG9 | ((ACT200L_19200 >> 4) & 0x0f);
++		break;
++	case 38400:
++		control[0] = ACT200L_REG8 |  (ACT200L_38400       & 0x0f);
++		control[1] = ACT200L_REG9 | ((ACT200L_38400 >> 4) & 0x0f);
++		break;
++	case 57600:
++		control[0] = ACT200L_REG8 |  (ACT200L_57600       & 0x0f);
++		control[1] = ACT200L_REG9 | ((ACT200L_57600 >> 4) & 0x0f);
++		break;
++	case 115200:
++		control[0] = ACT200L_REG8 |  (ACT200L_115200       & 0x0f);
++		control[1] = ACT200L_REG9 | ((ACT200L_115200 >> 4) & 0x0f);
++		break;
++	}
++	control[2] = ACT200L_REG1 | ACT200L_LODB | ACT200L_WIDE;
++
++	/* Write control bytes */
++	sirdev_raw_write(dev, control, 3);
++	set_current_state(TASK_UNINTERRUPTIBLE);
++	schedule_timeout(MSECS_TO_JIFFIES(5));
++
++	/* Go back to normal mode */
++	sirdev_set_dtr_rts(dev, TRUE, TRUE);
++
++	dev->speed = speed;
++	return ret;
++}
++
++/*
++ * Function act200l_reset (driver)
++ *
++ *    Reset the ACTiSYS ACT-IR200L type dongle.
++ */
++
++#define ACT200L_STATE_WAIT1_RESET	(SIRDEV_STATE_DONGLE_RESET+1)
++#define ACT200L_STATE_WAIT2_RESET	(SIRDEV_STATE_DONGLE_RESET+2)
++
++static int act200l_reset(struct sir_dev *dev)
++{
++	unsigned state = dev->fsm.substate;
++	unsigned delay = 0;
++	u8 control[9] = {
++		ACT200L_REG15,
++		ACT200L_REG13 | ACT200L_SHDW,
++		ACT200L_REG21 | ACT200L_EXCK | ACT200L_OSCL,
++		ACT200L_REG13,
++		ACT200L_REG7  | ACT200L_ENPOS,
++		ACT200L_REG6  | ACT200L_RS0  | ACT200L_RS1,
++		ACT200L_REG5  | ACT200L_RWIDL,
++		ACT200L_REG4  | ACT200L_OP0  | ACT200L_OP1 | ACT200L_BLKR,
++		ACT200L_REG0  | ACT200L_TXEN | ACT200L_RXEN
++	};
++	int ret = 0;
++
++	IRDA_DEBUG(2, "%s()\n", __FUNCTION__ );
++
++	switch (state) {
++	case SIRDEV_STATE_DONGLE_RESET:
++		/* Reset the dongle : set RTS low for 25 ms */
++		sirdev_set_dtr_rts(dev, TRUE, FALSE);
++		state = ACT200L_STATE_WAIT1_RESET;
++		delay = 50;
++		break;
++
++	case ACT200L_STATE_WAIT1_RESET:
++		/* Clear DTR and set RTS to enter command mode */
++		sirdev_set_dtr_rts(dev, FALSE, TRUE);
++
++		udelay(25);			/* better wait for some short while */
++
++		/* Write control bytes */
++		sirdev_raw_write(dev, control, sizeof(control));
++		state = ACT200L_STATE_WAIT2_RESET;
++		delay = 15;
++		break;
++
++	case ACT200L_STATE_WAIT2_RESET:
++		/* Go back to normal mode */
++		sirdev_set_dtr_rts(dev, TRUE, TRUE);
++		dev->speed = 9600;
++		break;
++	default:
++		ERROR("%s(), unknown state %d\n", __FUNCTION__, state);
++		ret = -1;
++		break;
++	}
++	dev->fsm.substate = state;
++	return (delay > 0) ? delay : ret;
++}
++
++MODULE_AUTHOR("SHIMIZU Takuya <tshimizu@ga2.so-net.ne.jp>");
++MODULE_DESCRIPTION("ACTiSYS ACT-IR200L dongle driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("irda-dongle-10"); /* IRDA_ACT200L_DONGLE */
++
++module_init(act200l_init);
++module_exit(act200l_cleanup);

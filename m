@@ -1,81 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbTHYMCR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 08:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbTHYMCR
+	id S261725AbTHYMI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 08:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbTHYMI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 08:02:17 -0400
-Received: from magic-mail.adaptec.com ([216.52.22.10]:20885 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S261675AbTHYMCK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 08:02:10 -0400
-Date: Mon, 25 Aug 2003 05:30:16 +0530 (IST)
-From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-X-X-Sender: tomar@localhost.localdomain
-Reply-To: nagendra_tomar@adaptec.com
-To: linux-kernel@vger.kernel.org
-Subject: tasklet_kill will always hang for recursive tasklets on a UP
-Message-ID: <Pine.LNX.4.44.0308250518380.26988-100000@localhost.localdomain>
-Organization: Adaptec
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Aug 2003 08:08:28 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:57097 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261725AbTHYMIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 08:08:25 -0400
+Date: Mon, 25 Aug 2003 13:08:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       ballen@gravity.phys.uwm.edu
+Subject: Re: [2.6.0-test4] blocking access to mounted scsi devices
+Message-ID: <20030825130822.A4258@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Douglas Gilbert <dougg@torque.net>, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, ballen@gravity.phys.uwm.edu
+References: <3F49B515.6010107@torque.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F49B515.6010107@torque.net>; from dougg@torque.net on Mon, Aug 25, 2003 at 05:04:53PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	While going thru the code for tasklet_kill(), I cannot figure out 
-how recursive tasklets (tasklets that schedule themselves from within 
-their tasklet handler) can be killed by this function. To me it looks that 
-tasklet_kill will never complete for such tasklets.
+On Mon, Aug 25, 2003 at 05:04:53PM +1000, Douglas Gilbert wrote:
+> A recent test of smartmontools on lk 2.6.0-test4 failed
+> miserably on my main SCSI disk. It would seem that
+> attempts to use either the:
+>     SCSI_IOCTL_SEND_COMMAND
+>     SG_IO
+> ioctls on a mounted SCSI "block" device fail with EBUSY.
+> These ioctls work fine on devices that don't have mounted
+> file systems on then. If this is a new policy then it needs
+> to be reconsidered. smartmontools still works ok on ATA disks
+> in lk 2.6.0-test4.
 
-void tasklet_kill(struct tasklet_struct *t)
-{
-	...
- 	...
-	while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
-		current->state = TASK_RUNNING;
-		do
-			sys_sched_yield();
-		while (test_bit(TASKLET_STATE_SCHED, &t->state));
-	}
-	...
-	...
-}
+That's because both mount (or e.g. volume managers) claims
+devices for exclusive use, as does drivers/block/scsi_ioctl.c
 
-The above while loop will only exit if TASKLET_STATE_SCHED is not set 
-(tasklet is not scheduled).
-Now if we see tasklet_action
+> Both the ioctls in question still work via the corresponding
+> scsi generic device.
 
-static void tasklet_action(struct softirq_action *a)
-{
-	...
-	...
-	if (!atomic_read(&t->count)) {
-	--> TASKLET_STATE_SCHED is set here
-		if(!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
-			BUG();
-		t->func(t->data);
-	--> if we schedule the tasklet inside its handler, 
-	--> TASKLET_STATE_SCHED will be set here also
-		tasklet_unlock(t);
-		continue;
-	}
-	...
-	...
-}
+Well, we either want both to work or not work.  The current
+situation is inconsistant.
 
-The only small window when TASKLET_STATE_SCHED is not set is between the 
-time when test_and_clear_bit above clears it and by the time the tasklet 
-handler again calls tasklet_schedule(). But since tasklet_kill is called 
-from user context the while loop in tasklet_kill checking for 
-TASKLET_STATE_SCHED to be cleared  cannot interleave between the above two 
-lines in tasklet_action and hence tasklet_kill will never come out of the 
-while loop.
-This is true only for UP machines.
+> Will scsi generic devices make a
+> re-appearance in sysfs (as indicated by Christoph when the
+> relevant code in sg was removed)?
 
-Pleae point me out if I am missing something.
-
-Thanx
-tomar
-
+Yeah, I still need to come up with a way for class_interfaces
+like sg to have sysfs entries.  the TODO list is growing but
+I'll take a look at this, promised.
 

@@ -1,82 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262554AbTIPXjR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 19:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbTIPXjR
+	id S262531AbTIPXfm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 19:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbTIPXfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 19:39:17 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:5274 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262554AbTIPXjM convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 19:39:12 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: Options for handling  buggy PCI/PCI-X hardware when MSI is enabled
-Date: Tue, 16 Sep 2003 14:26:23 -0700
-Message-ID: <7F740D512C7C1046AB53446D3720017304AF60@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Options for handling  buggy PCI/PCI-X hardware when MSI is enabled
-Thread-Index: AcN8mS2NgZiyy9FfTl+Np1Q3gJR3Qw==
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Nguyen, Tom L" <tom.l.nguyen@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-X-OriginalArrivalTime: 16 Sep 2003 21:26:23.0948 (UTC) FILETIME=[2DF690C0:01C37C99]
+	Tue, 16 Sep 2003 19:35:42 -0400
+Received: from karnickel.4msp.de ([217.6.190.222]:19718 "EHLO
+	karnickel.franken.de") by vger.kernel.org with ESMTP
+	id S262531AbTIPXfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 19:35:41 -0400
+Date: Wed, 17 Sep 2003 01:29:57 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: edouardino@ifrance.com, Bernhard Rosenkraenzer <bero@arklinux.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-pre4-pac1
+Message-ID: <20030916232957.GA6216@debian.franken.de>
+References: <Pine.LNX.4.56.0309151411010.14486@dot.kde.org> <wazza.87znh6t891.fsf@message.id> <1063665253.8257.27.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1063665253.8257.27.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
+From: erik@debian.franken.de (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The other day, Long (Tom) posted:
+On Mon, Sep 15, 2003 at 11:34:14PM +0100, Alan Cox wrote:
+> On Llu, 2003-09-15 at 15:51, edouardino@ifrance.com wrote:
+> > Hi,
+> > 
+> > Could you send me the Device Mapper patch you used ?
+> > Or could you make -pac available as splitted patches too ?
+> > I fact I'd like to use a recent dm.
+> 
+> Its the bits in drivers/md and include/linux/dm* - easy to split out.
+> It is quite old. The Sistina guys have been promising me an update for
+> some time but I guess 2.6 is far more important
 
-   During testing we have found many currently shipping 
-   PCI/PCI-X MSI-capable devices have silicon bugs specific to 
-   MSI support. Most of these will cause system failures when 
-   MSI is enabled. To filter out MSI buggy hardware requires the 
-   kernel to detect and disable the MSI support on specific hardware. 
+The latest version I know about is at:
 
-So far we've got two options based on the input from the community
-(Jeff, Zwane, etc., thanks) to deal with this problem:
-(1)  the blacklist approach
-(2)  the new API (enable_msi, for example) approach
-
-We would like to solicit more input to close this, to finalize the
-solution.
-
-Thanks,
-Jun
-======
-"Blacklist" approach using PCI_quirks.c
----------------------------------------
-Pros
-   - Places the burden to fix broken HW on the HW owners
-   - Consistent with the current MSI patch (enable all by default)
-   - A simple fix and minimum patch size (Patch already exists)
-Cons
-   - Core kernel impact (larger image size)
-   - Added entries will require a kernel rebuild (core kernel code
-change)
-
-New API approach (enable_msi, for example)
--------------------------------------------
-Pros
-   - Only working devices will be enabled via modification of the device
-
-     driver. 
-   - Minimum impact (image size increase very small)
-Cons
-   - All devices desiring MSI support will be required to modify
-associated   
-     device drivers 
-   - Validation burden - known good devices not know until the driver is
-
-     modified and device tested
-   - The burden for MSI support is on devices that work and not those
-that 
-     are broken 
-
-
+http://people.sistina.com/~thornber/patches/2.4-stable/2.4.22/

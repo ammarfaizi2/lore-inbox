@@ -1,72 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbTJAI3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 04:29:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTJAI3Y
+	id S261982AbTJAIqM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 04:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbTJAIqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 04:29:24 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:59777
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261971AbTJAI3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 04:29:19 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: mrproper@ximian.com, linux-kernel@vger.kernel.org
-Subject: [patch] Re: make install problems
-Date: Wed, 1 Oct 2003 03:26:11 -0500
-User-Agent: KMail/1.5
-References: <1064927778.1575.0.camel@localhost.localdomain>
-In-Reply-To: <1064927778.1575.0.camel@localhost.localdomain>
+	Wed, 1 Oct 2003 04:46:12 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:50668 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id S261982AbTJAIqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 04:46:11 -0400
+Date: Wed, 1 Oct 2003 09:02:11 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Jamie Lokier <jamie@shareable.org>
+cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata patch
+In-Reply-To: <20031001073132.GK1131@mail.shareable.org>
+Message-ID: <Pine.LNX.4.44.0310010900280.5501-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310010326.13187.rob@landley.net>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 September 2003 08:16, Kevin Breit wrote:
-> Hey,
-> 	I setup a test6 kernel without module support.  I did a make install
-> and got:
->
-> Kernel: arch/i386/boot/bzImage is ready
-> sh /usr/src/linux-2.6.0-test6/arch/i386/boot/install.sh 2.6.0-test6
-> arch/i386/boot/bzImage System.map ""
-> /lib/modules/2.6.0-test6 is not a directory.
-> mkinitrd failed
->
-> How can I fix this?
+On Wed, 1 Oct 2003, Jamie Lokier wrote:
+> 
+> See recent message from me.  All you need is a check "address >=
+> TASK_SIZE", which is thread already at the start of do_page_fault.
 
-Make modules_install before make install.
+What about the 4G+4G split?
 
-Here's a patch to do that automatically for i386 (untested).
-
-The problem is that Red Hat 9's kernel install script tries to make an
-initrd, which includes the modules directory, and barfs if it isn't there...
-
---- linux-old/Makefile	2003-10-01 02:52:49.000000000 -0500
-+++ linux-2.6.0-test6/Makefile	2003-10-01 03:03:09.859448696 -0500
-@@ -708,10 +708,7 @@
- modules modules_install: FORCE
- 	@echo
- 	@echo "The present kernel configuration has modules disabled."
--	@echo "Type 'make config' and enable loadable module support."
--	@echo "Then build a kernel with module support enabled."
--	@echo
--	@exit 1
-+	mkdir -p $(MODLIB)  # Needed by some install scripts.
- 
- endif # CONFIG_MODULES
- 
---- linux-old/arch/i386/boot/Makefile	2003-10-01 02:52:40.000000000 -0500
-+++ linux-2.6.0-test6/arch/i386/boot/Makefile	2003-10-01 02:54:49.000000000 -0500
-@@ -98,5 +98,5 @@
- 	cp System.map $(INSTALL_PATH)/
- 	if [ -x /sbin/lilo ]; then /sbin/lilo; else /etc/lilo/install; fi
- 
--install: $(BOOTIMAGE)
-+install: $(BOOTIMAGE) modules_install
- 	sh $(srctree)/$(src)/install.sh $(KERNELRELEASE) $< System.map "$(INSTALL_PATH)"
+Hugh
 

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbTHSVEl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 17:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbTHSVEK
+	id S261408AbTHSUoo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 16:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbTHSUm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 17:04:10 -0400
-Received: from mail.kroah.org ([65.200.24.183]:33177 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261464AbTHSVCZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 17:02:25 -0400
-Date: Tue, 19 Aug 2003 14:02:24 -0700
-From: Greg KH <greg@kroah.com>
-To: Stian Jordet <liste@jordet.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't read fan-speeds from i2c
-Message-ID: <20030819210223.GB6170@kroah.com>
-References: <1061324213.708.6.camel@chevrolet.hybel> <20030819205356.GA5968@kroah.com> <1061326633.611.8.camel@chevrolet.hybel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061326633.611.8.camel@chevrolet.hybel>
-User-Agent: Mutt/1.4.1i
+	Tue, 19 Aug 2003 16:42:28 -0400
+Received: from binky.tuxfriends.net ([212.105.197.44]:38670 "EHLO
+	binky.tuxfriends.net") by vger.kernel.org with ESMTP
+	id S261428AbTHSUeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 16:34:21 -0400
+Message-ID: <3F428A4F.4050600@zaplinski.de>
+Date: Tue, 19 Aug 2003 22:36:31 +0200
+From: Olaf Zaplinski <olaf@zaplinski.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: jeff millar <wa1hco@adelphia.net>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.6.0-test3 does not mount root fs
+References: <3F3F6E38.9070002@zaplinski.de> <20030817141651.A20799@electric-eye.fr.zoreil.com> <006f01c364d0$b40641f0$6401a8c0@wa1hco> <3F407B41.10303@zaplinski.de> <002101c365d7$a0ce8950$6401a8c0@wa1hco>
+In-Reply-To: <002101c365d7$a0ce8950$6401a8c0@wa1hco>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-KAVCheck: binky.tuxfriends.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 10:57:13PM +0200, Stian Jordet wrote:
-> tir, 19.08.2003 kl. 22.53 skrev Greg KH:
-> > On Tue, Aug 19, 2003 at 10:16:53PM +0200, Stian Jordet wrote:
-> > > Hi,
-> > > 
-> > > I have a Asus CUV266-DLS, which uses the as99127f chipset. Everything
-> > > seems to work as it is supposed to, except for fan-speeds. They say 0.
-> > > Is that supposed behaviour since the as99127f doesn't have any
-> > > datasheets, or am I doing something wrong?
-> > 
-> > What kernel version are you using?
-> 
-> Latest bk-snapshot...
+jeff millar wrote:
+> Ok...interesting...sounds like yet another variation on the problem.
+> Herbert Potzl is interested in debugging this and sent me two patches to
+> gather more debugging info.  I'll forward them to you
 
-Does 2.4 work just fine for this chip and driver and 2.6 does not?  If
-2.4 also doesn't work, I would suggest bringing this up on the sensors
-mailing list.
+Yup, these patches worked, 2.6.0-test3 is running.
 
-thanks,
+Olaf
 
-greg k-h

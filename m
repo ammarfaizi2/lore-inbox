@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277599AbRJHXLh>; Mon, 8 Oct 2001 19:11:37 -0400
+	id <S277595AbRJHXVu>; Mon, 8 Oct 2001 19:21:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277600AbRJHXL1>; Mon, 8 Oct 2001 19:11:27 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:63878 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S277599AbRJHXLN>;
-	Mon, 8 Oct 2001 19:11:13 -0400
-Date: Mon, 08 Oct 2001 16:08:54 -0700 (PDT)
-Message-Id: <20011008.160854.08322122.davem@redhat.com>
-To: dwmw2@infradead.org
-Cc: frival@zk3.dec.com, paulus@samba.org, Martin.Bligh@us.ibm.com,
-        alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, jay.estabrook@compaq.com,
-        rth@twiddle.net
-Subject: Re: [PATCH] change name of rep_nop 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <14658.1002582388@redhat.com>
-In-Reply-To: <15294.24873.866942.423260@cargo.ozlabs.ibm.com>
-	<13962.1002580586@redhat.com>
-	<14658.1002582388@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S277598AbRJHXVl>; Mon, 8 Oct 2001 19:21:41 -0400
+Received: from [207.21.185.24] ([207.21.185.24]:3854 "EHLO smtp.lynuxworks.com")
+	by vger.kernel.org with ESMTP id <S277595AbRJHXVa>;
+	Mon, 8 Oct 2001 19:21:30 -0400
+Message-ID: <3BC23441.1EF944A2@lnxw.com>
+Date: Mon, 08 Oct 2001 16:18:25 -0700
+From: Petko Manolov <pmanolov@Lnxw.COM>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en, bg
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: discontig physical memory
+In-Reply-To: <3BC0E9FD.4F3921C6@mvista.com>
+		<3BC2158E.BE52400D@welho.com>
+		<3BC22EA6.696604E7@lnxw.com> <20011008.160528.85686937.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Woodhouse <dwmw2@infradead.org>
-   Date: Tue, 09 Oct 2001 00:06:28 +0100
-   
-   It's not just mtrr stuff, and it's not just arch-specific code either. In
-   some cases, there is a need for a function which actually does flush the
-   cache.
+I already did that. I fixed MAX_DMA_ADDRESS and the
+kernel now reports:
 
-Example of this on ix86?
+zone(0): 1024 pages
+zone(1): 7168 pages	/* this should be 4096 */
+...
 
-Regardless, the purpose of the cachetlb.txt interfaces is for the
-generic VM subsystem of the kernel.  Nothing more.  If AGP, mtrr,
-whatever weird device stuff needs this, it belongs in a different
-area.
+Which is not true as we have a gap between 4 - 16MB
+phys memory. I also played with add_memory_region(),
+but the kernel still think we have 32MB ram instead
+of 20MB as is the case.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Also it lock solid in __get_free_pages in mem_init()
+Probably this is related to zone(1) wrong assumption
+right?
+
+
+best,
+Petko
+
+
+
+"David S. Miller" wrote:
+> 
+>    From: Petko Manolov <pmanolov@Lnxw.COM>
+>    Date: Mon, 08 Oct 2001 15:54:30 -0700
+> 
+>    Any ideas how to make lowest 4MB allocatable throu
+>    kmalloc(size, GFP_DMA) without breaking the kernel?
+> 
+> Setup ZONE_DMA correctly at boot time.
+> 
+> See the code around the free_area_init() call in
+> arch/i386/mm/init.c for an example of how to do this.
+> Intel does it for the low 16MB, you would just do it
+> for the low 4MB.
+> 
+> Franks a lot,
+> David S. Miller
+> davem@redhat.com

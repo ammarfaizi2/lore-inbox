@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265997AbTGCAcj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 20:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbTGCAci
+	id S266012AbTGCAgH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 20:36:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbTGCAgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 20:32:38 -0400
-Received: from ms-smtp-02.rdc-kc.rr.com ([24.94.166.122]:22243 "EHLO
-	ms-smtp-02.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S265997AbTGCAch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 20:32:37 -0400
-Subject: Re: build from RO source tree?
-From: david nicol <whatever@davidnicol.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0307021615150.15047-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0307021615150.15047-100000@vervain.sonytel.be>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1057193186.966.17.camel@plaza.davidnicol.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 02 Jul 2003 19:46:26 -0500
+	Wed, 2 Jul 2003 20:36:07 -0400
+Received: from mail.inw.de ([217.6.75.131]:60037 "EHLO mail.internetwork-ag.de")
+	by vger.kernel.org with ESMTP id S266012AbTGCAgD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 20:36:03 -0400
+Message-ID: <3F037DF5.BCF5DF22@inw.de>
+Date: Wed, 02 Jul 2003 17:51:01 -0700
+From: Till Immanuel Patzschke <tip@inw.de>
+Organization: interNetwork AG
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-4GB i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Faye Pearson <faye@zippysoft.com>
+CC: linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net
+Subject: Re: pppd pppoatm multilink?
+References: <20030702121820.GA21592@clara.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-07-02 at 09:15, Geert Uytterhoeven wrote:
+Hmmm,
 
-> Subject: [PATCH] touchless dependencies for 2.4.x
-> 
-> 	Hi,
-> 
-> The 2.4.x dependency system depends on being able to `touch' include files in
-> case of recursive dependencies.  This fails when using a revision control
-> system (e.g. ClearCase) where non-checked out files are read-only and cannot be
-> touch'ed.
-> 
-> The patch below solves this by making object files depend on (recursive) lists,
-> containing the list of dependencies for each header file.
+how is that supposed to work?  The trick about PPPoA is that the underlying
+(logical) structure provides a distinct physical link (like in the modem
+world).  The actual ATM cells have no tag that allows the BRAS to sort out which
+PPP connection is currently sending packets, so you actually have to have more
+than one VC to make this work.
 
-So with this patch applied you can safely build in a lndir against
-a RO media. but without it you can't?  
+Cheers,
 
+Immanuel
 
+Faye Pearson wrote:
 
--- 
-David Nicol, independent consultant, contractor, and food service worker
+> My ISP is about to trial multilink ADSL for use with routers like the
+> Cisco 1600, but I was wondering if it could be done 'on the cheap' (well
+> relatively anyway) with a linux box and a couple of PCI ADSL modems.
+>
+> AIUI it should work the same as MP using two ttyS devices but
+> first glance suggests this won't work, the pppoatm module for pppd
+> seems to take the VPI.VCI as the device and there doesn't seem to
+> be any way to say which physical ATM device to use.  The VPI.VCI
+> would be the same at both interfaces.  Does it just pick the
+> first available ATM device?  Or just the first ATM device?
+>
+> Thanks
+>
+> Faye.
+>
+> Please also cc: me in on replies, thank you.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

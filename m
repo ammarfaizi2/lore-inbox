@@ -1,63 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbUBXA7w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 19:59:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbUBXA7w
+	id S262118AbUBXBBS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 20:01:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUBXBBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 19:59:52 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:16905 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S262116AbUBXA7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 19:59:50 -0500
-Message-ID: <403AA230.3080500@snapgear.com>
-Date: Tue, 24 Feb 2004 11:00:32 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: uClinux development list <uclinux-dev@uclinux.org>
-CC: "Hyok S. Choi" <hyok.choi@samsung.com>,
-       Linux-Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [uClinux-dev] Re: the first port of uClinux/ARM for 2.6 kernel
- (armnommu architecture)
-References: <009501c3f1ce$13fc88a0$1327dba8@dmsst.net> <20040221212739.GA302@elf.ucw.cz>
-In-Reply-To: <20040221212739.GA302@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Feb 2004 20:01:18 -0500
+Received: from chello212186110032.14.vie.surfer.at ([212.186.110.32]:53129
+	"HELO hostmaster.org") by vger.kernel.org with SMTP id S262118AbUBXBBG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 20:01:06 -0500
+Subject: Re: Intel vs AMD x86-64
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org>
+	 <16435.14044.182718.134404@alkaid.it.uu.se>
+	 <Pine.LNX.4.58.0402180744440.2686@home.osdl.org>
+	 <20040222025957.GA31813@MAIL.13thfloor.at>
+	 <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UvXHY7U55yiTj7NwVFOo"
+Message-Id: <1077584461.8414.164.camel@hostmaster.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
+Date: Tue, 24 Feb 2004 02:01:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
 
-Pavel Machek wrote:
->> I'm reporting of the first port of new architecture(armnommu) for 2.6
->>kernel is done.
->>
->> I planning the patch against recent kernel version will be announced in
->>this month, after some test and addition of 1~2 more chips. The current
->>port include support of only one (Samsung S5C7375 SoC) for test.
->  
-> How common are arms without mmu?
+--=-UvXHY7U55yiTj7NwVFOo
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-There is quite a few:
+On Sam, 2004-02-21 at 19:12 -0800, Linus Torvalds wrote: =20
+> Any Intel people on this list: tell your managers to be f*cking ashamed o=
+f
+> themselves. Just because Intel didn't care about their customers and has
+> been playing with some other 64-bit architecture that nobody wanted to us=
+e
+> is no excuse for not giving credit to AMD for what they did with x86-64.
 
-   Conexant CX82100, P52
-   Triscend A7V, A7S
-   Net+ARM 15, 40, 50
-   TI DSC21, 5471
-   Samsung S3C3410, S3C4530, S3C4510
-   Atmel AT91 R40807
+This very clear statement deserves standing ovations :-)
 
-I am sure there is more...
+If anyone from Intel is really listening here I would like them to know
+that I am pretty much pissed of by their product politics as well.
 
-Regards
-Greg
+Although older Celeron processors supported SMP configurations they were
+not supported and to my knowledge never used in the primary SMP market.
+So in fact they even helped Intel to increase their revenues by allowing
+hobbyists to build their own affordable SMP boxes. Nonetheless Intel has
+decided to disable this capability in current Celeron and even Pentium
+processors attempting to force hobbyists into the professional market
+with about four times the cost of previous configurations.
+
+For my part I have understood the message from Intel, that they do not
+want hobbyists looking for cheap SMP configurations as their customers
+and will accordingly buy AMD in the future.
+
+Tom
 
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+--=-UvXHY7U55yiTj7NwVFOo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iQEVAwUAQDqiTWD1OYqW/8uJAQKFuAf/SmnxTAGdoUnSiYfl0sKIJ3r3jTCGSO+f
+luKIWjMahPOEpxsCLqAU5UvRAYDm8gCm6Tp0MhPQviWxrBVzChoxrRRnZMZS8oCB
++4acOexBEQtL7jPA1O2DwMdUob1knbnEo7tVkU3IdyRaSJSXLuayGiERehrP779w
+QwcYKMDHBWCs1IolJcnW/zr0osZSlttYapSZvkoy0u5cwu4xeE2eB3aFyP/Fpi5B
+kFb6PZaDHuWz0N7FOeaHmDfY38jtdHF2FgCn/eQTQsd4dkw8VZpw+I9O1xD7LYZD
+CgE5S/E9E/Xou8FtTxmjWB23qZrcWrseB+v08X9MVIdAYMZS826X3Q==
+=dGbn
+-----END PGP SIGNATURE-----
+
+--=-UvXHY7U55yiTj7NwVFOo--
 

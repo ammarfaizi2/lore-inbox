@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266535AbSLUGvj>; Sat, 21 Dec 2002 01:51:39 -0500
+	id <S266749AbSLUHCZ>; Sat, 21 Dec 2002 02:02:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266552AbSLUGvi>; Sat, 21 Dec 2002 01:51:38 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41438 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266535AbSLUGvi>;
-	Sat, 21 Dec 2002 01:51:38 -0500
-Date: Fri, 20 Dec 2002 22:54:11 -0800 (PST)
-Message-Id: <20021220.225411.34743908.davem@redhat.com>
-To: maxk@qualcomm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1040313919.2650.31.camel@localhost>
-References: <1040225146.1873.21.camel@localhost>
-	<1040313919.2650.31.camel@localhost>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S266735AbSLUHCZ>; Sat, 21 Dec 2002 02:02:25 -0500
+Received: from codepoet.org ([166.70.99.138]:14988 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S266731AbSLUHCY>;
+	Sat, 21 Dec 2002 02:02:24 -0500
+Date: Sat, 21 Dec 2002 00:10:31 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] aic7xxx bouncing over 4G
+Message-ID: <20021221071031.GA25566@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"Justin T. Gibbs" <gibbs@scsiguy.com>, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com> <176730000.1040430221@aslan.btc.adaptec.com> <20021221002940.GM25000@holomorphy.com> <190380000.1040432350@aslan.btc.adaptec.com> <20021221013500.GN25000@holomorphy.com> <223910000.1040435985@aslan.btc.adaptec.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <223910000.1040435985@aslan.btc.adaptec.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri Dec 20, 2002 at 06:59:46PM -0700, Justin T. Gibbs wrote:
+> time and in any granularity.  Linux doesn't give me that freedom so 
+> you get this result.  I mean really.  I've only been trying to get
+> Marcelo to take the aic79xx driver since May or something.  Give
+> me a break.
 
-Bunch of problems with this patch:
+Supposing I wanted to try out the latest aic7xxx driver?
+These are they, right?
+    http://people.freebsd.org/~gibbs/linux/SRC/aic79xx-linux-2.4-20021220.bksend.gz
 
-1) Module leak.  If try_module_get(npf->owner) works but sock_alloc()
-   fails, we never put the module.  It just branches to the "out"
-   label in that case, which unlocks the net_family table and returns
-   err.
+I'm looking at it, and I don't know what it is, bit it sure 
+isn't anything I recognize as usable.
 
-2) Bigger issue, why not attach the owner to struct sock
-   instead of socket?  The sock can exist, and thus reference
-   the protocol family code, long after the socket (ie. the
-   user end) is killed off and closed.
+    $ file aic79xx-linux-2.4-20021220.bksend 
+    aic79xx-linux-2.4-20021220.bksend: ASCII English text
 
-   For example, this could happen for just about any protocol family
-   due to stray device sk_buff references to the sock and thus the
-   protocol family.
+Is the latest aic7xxx driver available as, say, a unified diff,
+or a tarball, or some similar usable format?
 
-Please address this stuff.
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

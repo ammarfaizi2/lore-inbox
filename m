@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbUKJGCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbUKJGEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbUKJGCe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 01:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbUKJGCe
+	id S261895AbUKJGEm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 01:04:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbUKJGEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 01:02:34 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:60891 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261894AbUKJGCd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 01:02:33 -0500
-Subject: Re: [RFC] [PATCH] kmem_alloc (generic wrapper for kmalloc and
-	vmalloc)
-From: Robert Love <rml@novell.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4191A4E2.7040502@gmx.net>
-References: <4191A4E2.7040502@gmx.net>
-Content-Type: text/plain
-Date: Wed, 10 Nov 2004 01:03:17 -0500
-Message-Id: <1100066597.18601.124.camel@localhost>
+	Wed, 10 Nov 2004 01:04:41 -0500
+Received: from main.gmane.org ([80.91.229.2]:58773 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261898AbUKJGE1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 01:04:27 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: [PATCH] Partitioned loop devices, support for 127 Partitions on SATA, IDE and SCSI
+Date: Wed, 10 Nov 2004 11:05:46 +0500
+Message-ID: <cmsb12$pr1$1@sea.gmane.org>
+References: <419199A3.3050806@gmx.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: inet.ycc.ru
+User-Agent: KNode/0.8.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-10 at 06:19 +0100, Carl-Daniel Hailfinger wrote:
+Carl-Daniel Hailfinger wrote:
+
 > Hi,
 > 
-> it seems there is a bunch of drivers which want to allocate memory as
-> efficiently as possible in a wide range of allocation sizes. XFS and
-> NTFS seem to be examples. Implement a generic wrapper to reduce code
-> duplication.
-> Functions have the my_ prefixes to avoid name clash with XFS.
+> having seen the problems people have when switching from traditional IDE
+> drivers to libata if they have more than 15 partitions, I decided to do
+> something against it. With this patch (and recreating /dev/loop* nodes)
+> it is possible to support up to 127 partitions per loop device
+> regardless what the underlying device supports. It works for me
+> and has the added bonus that it will be in compatibility mode as long
+> as you don't specify the max_part parameter.
+> 
+> To make migration to the new loop version easy, the new default loop
+> behaviour is exactly the same as the old one, so you should not notice
+> any breakage. However, if you decide to enable partitioned loop support
+> by specifying the max_part parameter, loop devices will have major
+> number 240, currently reserved for local/experimental use, and loopN
+> will have the minor range [N*max_part, (N+1)*max_part-1].
+> 
+> For even easier migration, the partition table will NOT be read by
+> default on losetup so you even can use unpartitioned loop devices when
+> being no longer in compat mode. If you want to activate partitions for
+> /dev/loopN, just issue "blockdev --rereadpt /dev/loopN" and the
+> partitions will magically appear in /sys/block/loopN/.
 
-No, no, no.  A good patch would be fixing places where you see this.
+Why not just use EVMS? Partition code is supposed to be moved to userspace
+anyway.
 
-Code needs to conscientiously decide to use vmalloc over kmalloc.  The
-behavior is different and the choice needs to be explicit.
-
-	Robert Love
- 
+-- 
+Alexander E. Patrakov
 

@@ -1,75 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132660AbRDONzL>; Sun, 15 Apr 2001 09:55:11 -0400
+	id <S132672AbRDOOZQ>; Sun, 15 Apr 2001 10:25:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132659AbRDONzB>; Sun, 15 Apr 2001 09:55:01 -0400
-Received: from relay.freedom.net ([207.107.115.209]:6410 "HELO relay")
-	by vger.kernel.org with SMTP id <S132658AbRDONyt>;
-	Sun, 15 Apr 2001 09:54:49 -0400
-X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQEYOYTStNTVz2tGCQR4barIcm2W0ki/Pyi+zP/VdcidTRiOLHOZM8wf
-Date: Sun, 15 Apr 2001 07:53:22 -0600
-Old-From: cacook@freedom.net
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Writing to Pana DVD-RAM
-In-Reply-To: <20010414213259Z132548-682+222@vger.kernel.org> <3AD8CC04.EA5022C1@coplanar.net>
-Content-Type: text/plain; charset = "us-ascii" 
-Content-Transfer-Encoding: 7bit
-From: cacook@freedom.net
-Message-Id: <20010415135500Z132658-682+339@vger.kernel.org>
+	id <S132675AbRDOOZG>; Sun, 15 Apr 2001 10:25:06 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:63753 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S132672AbRDOOY5>;
+	Sun, 15 Apr 2001 10:24:57 -0400
+Date: Sun, 15 Apr 2001 16:24:51 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Arjan Filius <iafilius@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org, linux-lvm@msede.com
+Subject: Re: 2.4.4-pre3: lvm.c patch results in "hanging" mount or swapon
+Message-ID: <20010415162451.F1982@suse.de>
+In-Reply-To: <Pine.LNX.4.31.0104151444130.1050-100000@sjoerd.sjoerdnet>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="WIyZ46R2i8wDzkSu"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.31.0104151444130.1050-100000@sjoerd.sjoerdnet>; from iafilius@xs4all.nl on Sun, Apr 15, 2001 at 02:55:53PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DOH!  You're right.
 
-I can now write to it, but only get one chance.  Copy a file to DVDRAM, read, print, etc, but when I try to rm or mv, segfault.  Foreverafter the DVDRAM is 'busy'.  Cannot umount.  Must reboot then umount.  Remount, get another write, but on subsequent write, segfault.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I am using UDF2. (UDF2.1 won't mount)  Would I be better off with UDF1.2, or FAT32?  How can I get details of the driver's capabilities?
---
-C.
+On Sun, Apr 15 2001, Arjan Filius wrote:
+> Hello,
+> 
+> While trying kernel 2.4.4-pre3 i found a "hanging" swapon (my swap is on
+> LVM), same effect for "mount -a". 2.4.3 works properly.
+> 
+> I found ./drivers/md/lvm.c is patched, and restoring the lvm.c from 2.4.3
+> resulted in normal operation.
+> 
+> I Found LVM/0.9.1_beta7 makes some notes about the patch, so i tried that
+> (beta7), but no luck, only 2.4.3:lvm.c worked ok.
 
-The best way out is always through.
-      - Robert Frost  A Servant to Servants, 1914
+Small buglet in the buffer_IO_error out path, I maybe that's it...
 
-
-
-Jeremy Jackson wrote:
-
-> cacook@freedom.net wrote:
->
-> > Hello,
-> >
-> > I am running RedHat Wolverine (beta) with kernel 2.4.2.  I have a SCSI subsystem (AHA2740) with a Panasonic LF-D101 DVDRAM on it.
-> >
-> > I read that the CDROM driver is built to recognize DVDRAMs and allow writes; well I can mount and read the UDF file system fine, but am not allowed writes.  I have UDF2.0 on the disk, because it didn't recognize UDF2.1.
-> >
-> > Also, when I  make xconfig,  it includes UDF support, but read-only. (Write-Experimental is grayed-out)
-> >
-> > In fstab: /dev/scd1 is mounted to /mnt/dvdram  udf  default 0 0. (paraphrasing)
-> >
-> > I need the DVDRAM for backups and file transfers.  Is the problem the driver, the UDF filesystem, my setup, or what?
-> > --
-> > C.
-> >
-> > The best way out is always through.
-> >       - Robert Frost  A Servant to Servants, 1914
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
-> Check that "Experimental " is enabled under "Code Maturity level options",
-> if you can't find it try using "make menuconfig" instead of "make xconfig"
-> Note that the UDF-write support option is listed as "Dangerous"... possibly
-> making things difficult, but then again if you have a DVD-RAM,
-> how bad can things be :)
->
-> Cheers,
->
-> Jeremy
+-- 
+Jens Axboe
 
 
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=lvm-eout-1
 
+--- /opt/kernel/linux-2.4.4-pre3/drivers/md/lvm.c	Sun Apr 15 16:24:13 2001
++++ drivers/md/lvm.c	Sun Apr 15 16:23:36 2001
+@@ -1675,8 +1675,10 @@
+ 			       struct buffer_head *bh)
+ {
+ 	int ret = lvm_map(bh, rw);
+-	if (ret < 0)
++	if (ret < 0) {
++		ret = 0;
+ 		buffer_IO_error(bh);
++	}
+ 	return ret;
+ }
+ 
 
+--WIyZ46R2i8wDzkSu--

@@ -1,48 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbRAYGGG>; Thu, 25 Jan 2001 01:06:06 -0500
+	id <S129383AbRAYGLr>; Thu, 25 Jan 2001 01:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129444AbRAYGF4>; Thu, 25 Jan 2001 01:05:56 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:53256 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S135501AbRAYGFp>;
-	Thu, 25 Jan 2001 01:05:45 -0500
-Message-ID: <3A6FD1D4.61F3CD38@candelatech.com>
-Date: Thu, 25 Jan 2001 00:12:20 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: How to determine what driver belongs to eth0 (ethX)?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129444AbRAYGLh>; Thu, 25 Jan 2001 01:11:37 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:23209 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129383AbRAYGL2>; Thu, 25 Jan 2001 01:11:28 -0500
+Date: Thu, 25 Jan 2001 01:11:18 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200101250611.f0P6BI418581@devserv.devel.redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Patches
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to write a server that is able to run specific
-diags against various ethernet drivers, knowing only the
-interface name (ie eth0).
 
-Can anyone think of a reasonably easy way to tell what driver
- (and thus what diag-code), to run against a particular interface?
+I seem to be getting more and more patches that have tabs/spaces
+broken and line wrap damage. I've dumped a pile in my queue including
+some pcmcia support for sh3 and the like
 
-This information is spit out at boot time, but processing the dmesg
-log is almost too much of a hack for me to bear!!
+If your patches are getting ignored please mail yourself a copy and
+check your mailer works. If you have problems use mime (Linus doesnt like
+mime I dont care)
 
-These are the values I'm currently planning on probing and setting:
-
-Link Speed (10/100, full/half, auto-negotiate)
-
-After these are satisfied, then other things can be added as desired.
-
-Thanks,
-Ben
-
--- 
-Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
-Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
-http://scry.wanfear.com               http://scry.wanfear.com/~greear
+Alan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

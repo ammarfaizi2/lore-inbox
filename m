@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129610AbRAKLiF>; Thu, 11 Jan 2001 06:38:05 -0500
+	id <S129933AbRAKLlF>; Thu, 11 Jan 2001 06:41:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131437AbRAKLh7>; Thu, 11 Jan 2001 06:37:59 -0500
-Received: from pat.uio.no ([129.240.130.16]:48521 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S129610AbRAKLhr>;
-	Thu, 11 Jan 2001 06:37:47 -0500
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: mantel@suse.de (Hubert Mantel), Alan Cox <alan@redhat.com>,
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-Subject: Re: Compatibility issue with 2.2.19pre7
-In-Reply-To: <200101100654.f0A6sjJ02453@flint.arm.linux.org.uk>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 11 Jan 2001 12:37:38 +0100
-In-Reply-To: Russell King's message of "Wed, 10 Jan 2001 06:54:45 +0000 (GMT)"
-Message-ID: <shsy9wi8gl9.fsf@charged.uio.no>
-X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Channel Islands"
+	id <S129878AbRAKLkz>; Thu, 11 Jan 2001 06:40:55 -0500
+Received: from mail.sun.ac.za ([146.232.128.1]:47109 "EHLO mail.sun.ac.za")
+	by vger.kernel.org with ESMTP id <S130026AbRAKLkm>;
+	Thu, 11 Jan 2001 06:40:42 -0500
+Date: Thu, 11 Jan 2001 13:40:30 +0200 (SAST)
+From: Hans Grobler <grobh@sun.ac.za>
+To: Darryl Miles <darryl@netbauds.net>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0: Small observation in /proc/sys/net/unix/
+In-Reply-To: <3A5D9A82.2568646B@netbauds.net>
+Message-ID: <Pine.LNX.4.30.0101111339370.30013-100000@prime.sun.ac.za>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Russell King <rmk@arm.linux.org.uk> writes:
+On Thu, 11 Jan 2001, Darryl Miles wrote:
+> # ls -il /proc/sys/net/unix/
+> total 24
+>    4446 -rw-------   1 root     root            0 Jan 11 11:06
+> max_dgram_qlen
+>    4446 -rw-------   1 root     root            0 Jan 11 11:06
+> max_dgram_qlen
+>
+> Identical filenames, nothing bad appears to be happening it just looks
+> weird.
 
-     > Hubert Mantel writes:
-    >> is this part of 2.2.19pre7 really a good idea? Even in 2.4.0
-    >> the size field is still a short.
-    >> #define NFS_MAXFHSIZE 64
-    >> struct nfs_fh {
-    >> - unsigned short size;
-    >> + unsigned int size;
-    >> unsigned char data[NFS_MAXFHSIZE]; };
+This has been fixed in Alan's patches.
 
-     > This is an internal kernel data structure.  Do you know of some
-     > program that breaks as a result of this?
-     >    _____
+-- Hans
 
-Any program which mounts an NFS partition.
-
-If you do this, then you need to provide some sort of compatibility
-layer for nfs_mount.h since the format for version 4 of the NFS mount
-structure was decided more than 2 years ago.
-
-Cheers,
-  Trond
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

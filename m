@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269913AbTGaV6A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 17:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270000AbTGaV6A
+	id S270634AbTGaWKV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 18:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274824AbTGaWKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 17:58:00 -0400
-Received: from mtaw4.prodigy.net ([64.164.98.52]:26249 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S269913AbTGaV5y (ORCPT
+	Thu, 31 Jul 2003 18:10:20 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:1774 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S270634AbTGaWKM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 17:57:54 -0400
-Message-ID: <3F299193.20407@pacbell.net>
-Date: Thu, 31 Jul 2003 15:00:51 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: Charles Lepple <clepple@ghz.cc>, Greg KH <greg@kroah.com>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [PATCH] reorganize USB submenu's
-References: <20030731101144.32a3f0d7.shemminger@osdl.org>	<23979.216.12.38.216.1059672599.squirrel@www.ghz.cc>	<20030731125032.785ffba1.shemminger@osdl.org>	<3F298517.8060202@pacbell.net> <20030731141811.2c7e13fd.shemminger@osdl.org>
-In-Reply-To: <20030731141811.2c7e13fd.shemminger@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Jul 2003 18:10:12 -0400
+Date: Fri, 1 Aug 2003 00:09:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Dominik Brugger <ml.dominik83@gmx.net>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
+Message-ID: <20030731220958.GA459@elf.ucw.cz>
+References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org> <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net> <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net> <1059686596.7187.153.camel@gaston> <3F299069.1010905@pacbell.net> <1059689105.2417.195.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1059689105.2417.195.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
+Hi!
 
->>Why do you want to remove that choice menu?  By doing that,
->>you've enabled illegal configurations.
+> > I suspect that USB should do some non-global PM stuff too.
+> > Hub ports can be suspended when the devices connected to them
+> > are idle for long enough ... that's not something I'd expect
+> > system-wide PM policies to address.
 > 
+> Indeed, this is not addressed, though it may sense to have
+> a way in the device model to call the suspend/resume callbacks
+> of "childs" of a given hub only for that purpose, I don't think
+> this is implemented yet. Maybe talk to Patrick about it.
 > 
-> Because the choice appears to be only useful for radio box type
-> selections.  Try the following with the linux-2.5 version of xconfig.
-> 
-> 	USB_GADGET=y
-> 	USB Peripheral Controller support = y (not module)
-> 	USB Gadgets = y (not module)
-> 
-> The Netchip becomes a radio button.
+> In general "local" power management (automatic disk spin down,
+> chipset idle-pm, etc...) is ... local to the driver, though you
+> can probably use the power state field of struct device to
+> store your current state if it maps to those semantics.
 
-As should be.  If some hardware supports net2280 and another
-controller (maybe PCI, maybe not), only one of them can provide
-the device's single upstream port -- so choose only one.
-
-
-> And Gadget Zero and Gadget Ethernet become select one radio buttons.
-
-As should be.  You can't use them at the same time, only one
-of them can "own" the controller driver -- so choose only one.
-
-- Dave
-
-
-
+Is not disk spin-down policy, and thus belonging to userspace? Having
+daemon poll for inactivity of hubs once every 5 minutes and sending
+them to sleep should not hurt, too...
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

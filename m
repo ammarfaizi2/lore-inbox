@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267312AbUJBQW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267319AbUJBQYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267312AbUJBQW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 12:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267304AbUJBQW3
+	id S267319AbUJBQYg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 12:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUJBQXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 12:22:29 -0400
-Received: from main.gmane.org ([80.91.229.2]:58001 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267359AbUJBQUP (ORCPT
+	Sat, 2 Oct 2004 12:23:00 -0400
+Received: from gprs214-136.eurotel.cz ([160.218.214.136]:644 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267186AbUJBQWS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 12:20:15 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Adam Sherman <adam@sherman.ca>
-Subject: DMA timeout error
-Date: Fri, 01 Oct 2004 14:56:42 -0400
-Message-ID: <cjmk3s$gjs$1@sea.gmane.org>
+	Sat, 2 Oct 2004 12:22:18 -0400
+Date: Sat, 2 Oct 2004 18:22:05 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mitch <Mitch@0Bits.COM>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3 software suspend (pmdisk) stopped working
+Message-ID: <20041002162205.GA24061@elf.ucw.cz>
+References: <415EABA2.6010605@0Bits.COM>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cpe000c41aab295-cm000f9fa6ba66.cpe.net.cable.rogers.com
-User-Agent: Mozilla Thunderbird 0.8 (Macintosh/20040913)
-X-Accept-Language: en-us, en
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <415EABA2.6010605@0Bits.COM>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a VIA M6000 board with an ATA CompactFlash adaptor containing a
-512MB SanDisk card.
+Hi!
 
-I get the following error during boot:
+> I don't understand. The highmem issue was when resuming, not when
+> suspending ? My laptop doesn't suspend with -rc3. Please elaborate ?
+> What config do i change ? Remember i don't have ACPI, so unless pmdisk
+> supports APM BIOS poweroff, then -rc3 is useless to me.
 
-hdb: dma_timer_expiry: dma status == 0x41
-hdb: DMA timeout error
-hdb: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+There's no pmdisk in -rc3.
 
-hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+swsusp in -rc3 should support apm.
 
-hdb: drive not ready for command
-hdb: dma_timer_expiry: dma status == 0x41
-hdb: DMA timeout error
-hdb: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+Check your .config to see if it is enabled, and make sure you have
+resume= on command line. If it still fails, mail me dmesg of failed
+attempt.
 
-hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hdb: drive not ready for command
-
-
-Any ideas?
-
-Thanks,
-
-A.
-
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

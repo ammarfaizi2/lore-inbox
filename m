@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270888AbRHNWBY>; Tue, 14 Aug 2001 18:01:24 -0400
+	id <S270896AbRHNWGD>; Tue, 14 Aug 2001 18:06:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270893AbRHNWBN>; Tue, 14 Aug 2001 18:01:13 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:5636 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S270888AbRHNWBB>;
-	Tue, 14 Aug 2001 18:01:01 -0400
-Date: Tue, 14 Aug 2001 17:27:33 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
-Message-ID: <20010814172733.B4772@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010813115214.A23591@thyrsus.com> <E15WK98-0007gd-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S270895AbRHNWFx>; Tue, 14 Aug 2001 18:05:53 -0400
+Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:4491 "EHLO
+	pga.intervu.net") by vger.kernel.org with ESMTP id <S270885AbRHNWFo>;
+	Tue, 14 Aug 2001 18:05:44 -0400
+Message-ID: <3B79A272.48CD19B0@randomlogic.com>
+Date: Tue, 14 Aug 2001 15:13:06 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OT] DMCA loop hole
+In-Reply-To: <Pine.BSO.4.33.0108140204380.22991-100000@aaieee.daisy-chan.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15WK98-0007gd-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 13, 2001 at 05:00:54PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> http://www.amd.com/products/cpg/athlon/techdocs/index.html#chipset
+"Joshua b. Jore" wrote:
 > 
-> Its the AMD760tm MP - really
+> I'd beg to differ with you on that. The way I've heard it is that writing
+> viruses is not legal in the US. Some of you aren't here so you have your
+> own laws but then you aren't bound by the DMCA. I recall that was the
+> impetus for this thread in the first place.
+> 
+> I'll just have to beg off and say that I've understood it that
+> 'educational' are as illegal as say, something you meant to release into
+> the wide world.
+> 
 
-Got it.  I read the docs.
+Show me the written US law that says it is illegal for me to write a computer virus.
 
-So what are the implications of running in no-IOAPIC mode?  Performance loss?
+PGA
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-A nation or civilization that continues to produce soft-minded men
-purchases its own spiritual death on an installment plan.
-	--Martin Luther King, Jr. 
+Paul G. Allen
+UNIX Admin II/Programmer
+Akamai Technologies, Inc.
+www.akamai.com
+Work: (858)909-3630
+Cell: (858)395-5043

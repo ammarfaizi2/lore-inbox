@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbTHTSVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 14:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbTHTSVV
+	id S262123AbTHTSTz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 14:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbTHTSTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 14:21:21 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:32005 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262128AbTHTSVR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 14:21:17 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: DVD ROM on 2.6
-Date: 20 Aug 2003 18:13:03 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bi0dnf$etl$1@gatekeeper.tmr.com>
-References: <20030819193456.B25148@animx.eu.org> <20030819202108.A25325@animx.eu.org> <3F437D8A.3040409@lanil.mine.nu> <20030820114719.A26833@animx.eu.org>
-X-Trace: gatekeeper.tmr.com 1061403183 15285 192.168.12.62 (20 Aug 2003 18:13:03 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 20 Aug 2003 14:19:55 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:39868 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S262123AbTHTSTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 14:19:53 -0400
+Date: Wed, 20 Aug 2003 15:15:43 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, acpi-devel@sourceforge.net
+Subject: RE: [patch] 2.4.x ACPI updates
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC7F@hdsmsx402.hd.intel.com>
+Message-ID: <Pine.LNX.4.55L.0308201514140.617@freak.distro.conectiva>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FC7F@hdsmsx402.hd.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030820114719.A26833@animx.eu.org>,
-Wakko Warner  <wakko@animx.eu.org> wrote:
-| > >I do have DVDs playing now on 2.6.0-test3.  I used ide-cd instead of
-| > >ide-scsi.  apparently the scsi layer didn't like it.
-| > >Buffer I/O error on device sr1, logical block 7651
-| > >Buffer I/O error on device sr1, logical block 7652
-| > >Buffer I/O error on device sr1, logical block 7653
-| > >end_request: I/O error, dev sr1, sector 660400
-| > >
-| > >I would get tons of Buffer I/O errors and some end_requests like the above
-| > >
-| > I thought ide-scsi was broken?
-| 
-| I can't tell if this is in the ide-scsi driver or the scsi cdrom driver.  I
-| still personally wish that the ide drivers were modules of scsi instead of
-| being a seperate block device.  USB storage creates scsi adapters, ide-scsi
-| allows ATAPI access via scsi.  Why not do this for ide in general (if that
-| starts a flame war, please don't contribute =)
 
-Probably because IDE and ATAPI are not the same thing. There are devices
-which electrically connect to the IDE bus which don't speak ATAPI.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+On Tue, 19 Aug 2003, Brown, Len wrote:
+
+> Andy/Jeff/Marcelo,
+>
+> At Jeff's request, I've back ported ACPICA 20030813 from
+> http://linux-acpi.bkbits.net/linux-acpi-2.4 into a new tree for 2.4.22:
+> http://linux-acpi.bkbits.net/linux-acpi-2.4.22
+>
+> I've restored acpitable.[ch], which was deleted too late for this
+> release cycle; and will live on until 2.4.23 -- as well as restored
+> CONFIG_ACPI_HT_ONLY under CONFIG_ACPI; restored the 8-bit characters
+> that got expanded to 16-bits in a previous merge; and deleted some dmesg
+> verbiage that Jeff didn't think was appropriate for the baseline kernel.
+>
+> I exported this a patch and then imported onto a clone of Marcelo's
+> tree, so it appears as a single cset where the changes that got un-done
+> never happened.  I've done some sanity tests on it, and will test it
+> some more tomorrow.  Take a look at it and let me know if I missed
+> anything.  When Andy is happy with it I'll leave it to him to re-issue a
+> pull request from Marcelo.
+
+Cool!!
+
+Ill try to take a look at the patch now (having serious conectivity issues
+:()
+

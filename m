@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288516AbSADHDn>; Fri, 4 Jan 2002 02:03:43 -0500
+	id <S288515AbSADHIx>; Fri, 4 Jan 2002 02:08:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288515AbSADHDd>; Fri, 4 Jan 2002 02:03:33 -0500
-Received: from dsl-213-023-043-248.arcor-ip.net ([213.23.43.248]:8978 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S288512AbSADHDS>;
-	Fri, 4 Jan 2002 02:03:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andreas Dilger <adilger@turbolabs.com>,
-        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Ion Badulescu <ion@cs.columbia.edu>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
-Date: Fri, 4 Jan 2002 08:05:56 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200201031605.g03G57e22947@guppy.limebrokerage.com> <20020103150705.F25846@conectiva.com.br> <20020103123623.X12868@lynx.no>
-In-Reply-To: <20020103123623.X12868@lynx.no>
+	id <S288518AbSADHIn>; Fri, 4 Jan 2002 02:08:43 -0500
+Received: from lsr-net2.nei.nih.gov ([128.231.132.10]:27809 "HELO
+	lsr.nei.nih.gov") by vger.kernel.org with SMTP id <S288515AbSADHI2>;
+	Fri, 4 Jan 2002 02:08:28 -0500
+Date: Fri, 4 Jan 2002 02:06:57 -0500 (EST)
+From: Art Hays <art@lsr.nei.nih.gov>
+X-X-Sender: <art@lsr-linux>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: kswapd etc hogging machine
+In-Reply-To: <E16M72b-0008B8-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0201040201190.3437-100000@lsr-linux>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16MOQT-0001Az-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 3, 2002 08:36 pm, Andreas Dilger wrote:
-> I removed the following two options:
-> -bs: Put a space between sizeof and its argument.
-> -psl: Put the type of a procedure on the line before its name.
+
+An update:  This particular behavior I observed no longer occurs with
+2.4.9-13smp, the latest update supplied by Redhat.  Thanks for all the
+very helpful info I received.
+
+> Problem:  kswapd, kreclaimd, kupdated push load average high during simple
+> tar.  Response of system drops such that even keystroke echos are
+> noticeably delayed.
 > 
-> I added the following options:
-> -nbbo: don't prefer to break lines before boolean operators
-> -ci8: indent continuation lines 8 characters
-> -ncs: Do not put a space after cast operators.
+> Specifics:
+> 
+> Machine- 4 processor 700Mhz Dell with 4G Ram and 6G swap space running
+> stock Redhat 7.2 distribution.  All disks are SCSI using ext2.
+> 
+> Command- from a remote machine this command is executed to the Linux 
+> machine "tar cBf - . | rsh linux "(tar xBpf -)".
+> 
+> Manifestion of problem- As this command continues on a freshly booted 
+> Linux machine the free memory reported by 'top' slowly goes to a low 
+> number.  When it bottoms out, the processes 'kswapd', 'kreclaimd', and 
+> 'kupdated' begin to run pushing the load average above 4 at times.  
+> Responsiveness of machine drops dramatically with even keystroke echos 
+> delayed for seconds.
 
-Not putting a space after a cast is gross ;)
 
-> -lps: Leave space between # and preprocessor directive.
-> -pmt: Preserve access and modification times on output files.
-> -npro: Do not read .indent.pro files.
+-- 
+Art Hays					avhays@nih.gov or art@lsr.nei.nih.gov
+Bldg 49 Rm 2A50					(301) 496-7143 (voice)
+Nat. Institutes of Health			(301) 402-0511 (fax)
+Bethesda, MD  20892
 
---
-Daniel
+

@@ -1,35 +1,35 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <157336-17165>; Sun, 6 Dec 1998 07:24:33 -0500
-Received: from 3dyn10.delft.casema.net ([195.96.104.10]:4180 "EHLO rosie.BitWizard.nl" ident: "root") by vger.rutgers.edu with ESMTP id <157102-17165>; Sun, 6 Dec 1998 02:41:04 -0500
-Message-Id: <199812061016.LAA00459@cave.bitwizard.nl>
+Received: by vger.rutgers.edu id <157268-17165>; Sun, 6 Dec 1998 12:12:28 -0500
+Received: from snowcrash.cymru.net ([163.164.160.3]:1358 "EHLO snowcrash.cymru.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <157647-17165>; Sun, 6 Dec 1998 08:06:42 -0500
+Message-Id: <m0zmhG5-0007U1C@the-village.bc.nu>
+From: alan@lxorguk.ukuu.org.uk (Alan Cox)
 Subject: Re: atomicity
-In-Reply-To: <m0zmNHr-0007U1C@the-village.bc.nu> from Alan Cox at "Dec 5, 98 07:22:38 pm"
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sun, 6 Dec 1998 11:16:24 +0100 (MET)
-Cc: feuer@his.com, linux-kernel@vger.rutgers.edu
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: tzs@tzs.net (Tim Smith)
+Date: Sun, 6 Dec 1998 16:42:09 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.rutgers.edu
+In-Reply-To: <Pine.LNX.3.96.981205215727.29256C-100000@52-a-usw.rb1.blv.nwnexus.net> from "Tim Smith" at Dec 5, 98 10:07:38 pm
+Content-Type: text
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Alan Cox wrote:
-> Think about it this way. SIGKILL and a power failure are identical.
+> 	open target file for writing
+> 	while target file not fully written
+> 		write until error
+> 		delete one of the small files at random
+> 	close target file
+> 	delete all of the small random files that remain
+> 
+> Are there any file systems around that will manage to resist fragmentation
+> if subjected to that?
 
-Well, I occasionally get processes stuck in "D" state. SIGKILL doesn't
-kill them, a power failure does. (Try a filesystem that Oops-es on the
-"mount" system call, then retry the mount). 
+ext2fs will quite happily handle that situation (in fact its not an atypical
+pattern of I/O on a big multiuser box - consider someone doing a download
+as another user does an rm -r.
 
-Yeah, I know I've taken your quote out of context. Sorry. :-)
+ext2fs tries to grab linear chunks of disk and divides the disk into cylinder
+groups to also help to maintain locality. The BSD ffs papers [McKusik et al]
+describe this sort of stuff well.
 
-				Roger. 
-
--- 
-My pet light bulb is a year old today.   \_________  R.E.Wolff@BitWizard.nl
-That's 5.9*10^12 miles. Your mileage will NOT vary.\__Phone: +31-15-2137555
---(time <-> distance can be converted: lightspeed)--  \____ fax: ..-2138217
-We write Linux device drivers for any device you may have! \_______________
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

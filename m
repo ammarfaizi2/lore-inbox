@@ -1,51 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbUC1WZT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 17:25:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUC1WZT
+	id S262418AbUC1W0A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 17:26:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbUC1W0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 17:25:19 -0500
-Received: from gprs214-54.eurotel.cz ([160.218.214.54]:61825 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262416AbUC1WZP (ORCPT
+	Sun, 28 Mar 2004 17:26:00 -0500
+Received: from mail3.absamail.co.za ([196.35.40.69]:60297 "EHLO absamail.co.za")
+	by vger.kernel.org with ESMTP id S262418AbUC1WZx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 17:25:15 -0500
-Date: Mon, 29 Mar 2004 00:25:02 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Arthur Othieno <a.othieno@bluewin.ch>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Subject: Re: Kill IDE debug messages during suspend
-Message-ID: <20040328222502.GJ406@elf.ucw.cz>
-References: <20040326001154.GA3353@elf.ucw.cz> <20040328205822.GA846@mars>
+	Sun, 28 Mar 2004 17:25:53 -0500
+Subject: [2.6.4] STIME confusion after ACPI/APM resume
+From: Niel Lambrechts <antispam@absamail.co.za>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1080512680.1743.25.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040328205822.GA846@mars>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 29 Mar 2004 00:24:41 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> What about these stale #ifdefs?
-> 
-> drivers/ide/ide-io.c:126:#ifdef DEBUG_PM
-> drivers/ide/ide-io.c:220:#ifdef DEBUG_PM
-> drivers/ide/ide-io.c:638:#ifdef DEBUG_PM
-> drivers/ide/ide-io.c:662:#ifdef DEBUG_PM
+Wondering if anyone else is getting this wrong behaviour?
 
-I wanted to leave debugging possible...
+<apm -s OR echo 3 > /proc/acpi/sleep>
+<resume after a while>
+notebook:~ # date
+Thu Mar 18 12:26:41 SAST 2004
 
-> This patch sweeps up both DEBUG_PM and DEBUG #ifdefs in favour of pr_debug()
+notebook:~ # ps -ef|grep nothing
+UID        PID  PPID  C STIME TTY          TIME CMD
+root      2291  1550  0 12:24 pts/34   00:00:00 grep nothing
 
-...but your patch looks better.
-								Pavel
+You can clearly see STIME column lagging behind the real system time by
+2 minutes...
 
->  ide-io.c |   74 ++++++++++++++++++++++++++-------------------------------------
+It seems to be behind exactly the amount of time that the notebook was
+suspended for.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+BTW, hwclock and system time is in sync.
+
+I have tried recompiling with disabling HPET - made no difference. also
+updated ps (rpm) to ps-2004.1.24-3, same story.  
+
+Is ps broken or is this an obscure kernel issue?
+
+-Niel
+
+Equipment:
+IBM R50P Thinkpad, SuSE 9.0 Pro, kernel 2.6.4 w/APM.
+
+CONFIG_X86_TSC=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+# CONFIG_X86_PM_TIMER is not set
+# CONFIG_HANGCHECK_TIMER is not set
+CONFIG_SND_RTCTIMER=m
+# Power management options (ACPI, APM)
+# APM (Advanced Power Management) BIOS Support
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_APM_ALLOW_INTS=y
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+# Power management options (ACPI, APM)
+# ACPI (Advanced Configuration and Power Interface) Support
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=m
+CONFIG_ACPI_BATTERY=m
+CONFIG_ACPI_BUTTON=m
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+CONFIG_ACPI_ASUS=m
+CONFIG_ACPI_TOSHIBA=m
+CONFIG_ACPI_DEBUG=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_ACPI_CPUFREQ=m
+# CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set
+CONFIG_HOTPLUG_PCI_ACPI=m
+# CONFIG_SERIAL_8250_ACPI is not set
+

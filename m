@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315928AbSETNAO>; Mon, 20 May 2002 09:00:14 -0400
+	id <S315942AbSETNEk>; Mon, 20 May 2002 09:04:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315936AbSETNAN>; Mon, 20 May 2002 09:00:13 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:44961 "EHLO
+	id <S315961AbSETNEj>; Mon, 20 May 2002 09:04:39 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:45729 "EHLO
 	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S315928AbSETNAI>; Mon, 20 May 2002 09:00:08 -0400
-Date: Mon, 20 May 2002 09:00:06 -0400
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.16 iget_locked [1/6]
-Message-ID: <20020520130005.GA13816@ravel.coda.cs.cmu.edu>
+	id <S315942AbSETNEg>; Mon, 20 May 2002 09:04:36 -0400
+Date: Mon, 20 May 2002 09:04:35 -0400
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.16 iget_locked [2/6]
+Message-ID: <20020520130435.GA13865@ravel.coda.cs.cmu.edu>
 Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020520130005.GA13816@ravel.coda.cs.cmu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,378 +20,167 @@ From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pulled the iget_locked patch series up to 2.5.16.
 
-Merged Al Viro's earlier comments, no other changes. Tested compilation
-after every patch and I'm currently running the final result (so I guess
-it works).
+Now we introduce iget_locked and iget5_locked. These are similar to
+iget, but return a locked inode and read_inode has not been called. So
+the FS has to call read_inode to initialize the inode and then unlock
+it with unlock_new_inode().
 
-iget_locked [1/6]
-
-Fix a race in iget4. The fs specific data that is used to find an inode
-should be initialized while still holding the inode lock.
-
-It adds a 'set' callback function that should be a non-blocking FS
-provided function which initializes the private parts of the inode so
-that the 'test' callback function can correctly match new inodes.
-
-Touches all filesystems that use iget4 (Coda/NFS/ReiserFS).
+This patch is based on the icreate patch from the XFS group, i.e.
+it is pretty much identical except for function naming.
 
 
-diff -urN orig/fs/coda/cnode.c iget_locked-1/fs/coda/cnode.c
---- orig/fs/coda/cnode.c	Wed Apr 24 21:39:46 2002
-+++ iget_locked-1/fs/coda/cnode.c	Sun May 19 17:55:27 2002
-@@ -25,11 +25,6 @@
- 	return 1;
- }
+diff -urN iget_locked-1/fs/Makefile iget_locked-2/fs/Makefile
+--- iget_locked-1/fs/Makefile	Wed May  1 00:27:34 2002
++++ iget_locked-2/fs/Makefile	Sun May 19 18:02:05 2002
+@@ -7,7 +7,7 @@
  
--static int coda_inocmp(struct inode *inode, unsigned long ino, void *opaque)
--{
--	return (coda_fideq((ViceFid *)opaque, &(ITOC(inode)->c_fid)));
--}
--
- static struct inode_operations coda_symlink_inode_operations = {
- 	readlink:	page_readlink,
- 	follow_link:	page_follow_link,
-@@ -55,27 +50,35 @@
-                 init_special_inode(inode, inode->i_mode, attr->va_rdev);
- }
+ O_TARGET := fs.o
  
-+static int coda_test_inode(struct inode *inode, void *data)
-+{
-+	ViceFid *fid = (ViceFid *)data;
-+	return coda_fideq(&(ITOC(inode)->c_fid), fid);
-+}
-+
-+static int coda_set_inode(struct inode *inode, void *data)
-+{
-+	ViceFid *fid = (ViceFid *)data;
-+	ITOC(inode)->c_fid = *fid;
-+	return 0;
-+}
-+
-+static int coda_fail_inode(struct inode *inode, void *data)
-+{
-+	return -1;
-+}
-+
- struct inode * coda_iget(struct super_block * sb, ViceFid * fid,
- 			 struct coda_vattr * attr)
- {
- 	struct inode *inode;
--	struct coda_inode_info *cii;
- 	ino_t ino = coda_f2i(fid);
+-export-objs :=	filesystems.o open.o dcache.o buffer.o bio.o
++export-objs :=	filesystems.o open.o dcache.o buffer.o bio.o inode.o
+ mod-subdirs :=	nls
  
--	inode = iget4(sb, ino, coda_inocmp, fid);
-+	inode = iget4(sb, ino, coda_test_inode, coda_set_inode, fid);
+ obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
+diff -urN iget_locked-1/fs/inode.c iget_locked-2/fs/inode.c
+--- iget_locked-1/fs/inode.c	Sun May 19 18:00:59 2002
++++ iget_locked-2/fs/inode.c	Sun May 19 18:02:54 2002
+@@ -12,6 +12,7 @@
+ #include <linux/quotaops.h>
+ #include <linux/slab.h>
+ #include <linux/writeback.h>
++#include <linux/module.h>
  
- 	if (!inode)
- 		return ERR_PTR(-ENOMEM);
- 
--	/* check if the inode is already initialized */
--	cii = ITOC(inode);
--	if (coda_isnullfid(&cii->c_fid))
--		/* new, empty inode found... initializing */
--		cii->c_fid = *fid;
--
--	/* we shouldnt see inode collisions anymore */
--	if (!coda_fideq(fid, &cii->c_fid)) BUG();
--
- 	/* always replace the attributes, type might have changed */
- 	coda_fill_inode(inode, attr);
+ /*
+  * New inode.c implementation.
+@@ -501,6 +502,21 @@
  	return inode;
-@@ -131,7 +134,6 @@
- {
- 	ino_t nr;
- 	struct inode *inode;
--	struct coda_inode_info *cii;
- 
- 	if ( !sb ) {
- 		printk("coda_fid_to_inode: no sb!\n");
-@@ -139,43 +141,29 @@
- 	}
- 
- 	nr = coda_f2i(fid);
--	inode = iget4(sb, nr, coda_inocmp, fid);
-+	inode = iget4(sb, nr, coda_test_inode, coda_fail_inode, fid);
- 	if ( !inode ) {
- 		printk("coda_fid_to_inode: null from iget, sb %p, nr %ld.\n",
- 		       sb, (long)nr);
- 		return NULL;
- 	}
- 
--	cii = ITOC(inode);
--
--	/* The inode could already be purged due to memory pressure */
--	if (coda_isnullfid(&cii->c_fid)) {
--		inode->i_nlink = 0;
--		iput(inode);
--		return NULL;
--	}
--
--	/* we shouldn't see inode collisions anymore */
--	if ( !coda_fideq(fid, &cii->c_fid) ) BUG();
--
--        return inode;
-+	return inode;
  }
  
- /* the CONTROL inode is made without asking attributes from Venus */
- int coda_cnode_makectl(struct inode **inode, struct super_block *sb)
- {
--    int error = 0;
-+	int error = -ENOMEM;
++void unlock_new_inode(struct inode *inode)
++{
++	/*
++	 * This is special!  We do not need the spinlock
++	 * when clearing I_LOCK, because we're guaranteed
++	 * that nobody else tries to do anything about the
++	 * state of the inode when it is locked, as we
++	 * just created it (so there can be no old holders
++	 * that haven't tested I_LOCK).
++	 */
++	inode->i_state &= ~(I_LOCK|I_NEW);
++	wake_up(&inode->i_wait);
++}
 +
-+	*inode = iget(sb, CTL_INO);
-+	if ( *inode ) {
-+		(*inode)->i_op = &coda_ioctl_inode_operations;
-+		(*inode)->i_fop = &coda_ioctl_operations;
-+		(*inode)->i_mode = 0444;
-+		error = 0;
-+	}
- 
--    *inode = iget(sb, CTL_INO);
--    if ( *inode ) {
--	(*inode)->i_op = &coda_ioctl_inode_operations;
--	(*inode)->i_fop = &coda_ioctl_operations;
--	(*inode)->i_mode = 0444;
--	error = 0;
--    } else { 
--	error = -ENOMEM;
--    }
--    
--    return error;
-+	return error;
- }
- 
-diff -urN orig/fs/inode.c iget_locked-1/fs/inode.c
---- orig/fs/inode.c	Wed May  1 00:27:35 2002
-+++ iget_locked-1/fs/inode.c	Sun May 19 18:00:59 2002
-@@ -452,7 +452,7 @@
-  * by hand after calling find_inode now! This simplifies iunique and won't
-  * add any additional branch in the common code.
-  */
--static struct inode * find_inode(struct super_block * sb, unsigned long ino, struct list_head *head, find_inode_t find_actor, void *opaque)
-+static struct inode * find_inode(struct super_block * sb, unsigned long ino, struct list_head *head, int (*test)(struct inode *, void *), void *data)
- {
- 	struct list_head *tmp;
- 	struct inode * inode;
-@@ -468,7 +468,7 @@
- 			continue;
- 		if (inode->i_sb != sb)
- 			continue;
--		if (find_actor && !find_actor(inode, ino, opaque))
-+		if (test && !test(inode, data))
- 			continue;
- 		break;
- 	}
-@@ -507,9 +507,10 @@
-  * We no longer cache the sb_flags in i_flags - see fs.h
-  *	-- rmk@arm.uk.linux.org
-  */
--static struct inode * get_new_inode(struct super_block *sb, unsigned long ino, struct list_head *head, find_inode_t find_actor, void *opaque)
-+static struct inode * get_new_inode(struct super_block *sb, unsigned long ino, struct list_head *head, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *data)
- {
- 	struct inode * inode;
-+	int err = 0;
- 
- 	inode = alloc_inode(sb);
- 	if (inode) {
-@@ -517,12 +518,15 @@
- 
- 		spin_lock(&inode_lock);
- 		/* We released the lock, so.. */
--		old = find_inode(sb, ino, head, find_actor, opaque);
-+		old = find_inode(sb, ino, head, test, data);
- 		if (!old) {
-+			inode->i_ino = ino;
-+			if (set && set(inode, data))
-+				goto set_failed;
 +
+ /*
+  * This is called without the inode lock held.. Be careful.
+  *
+@@ -527,31 +543,12 @@
  			inodes_stat.nr_inodes++;
  			list_add(&inode->i_list, &inode_in_use);
  			list_add(&inode->i_hash, head);
--			inode->i_ino = ino;
- 			inode->i_state = I_LOCK;
+-			inode->i_state = I_LOCK;
++			inode->i_state = I_LOCK|I_NEW;
  			spin_unlock(&inode_lock);
  
-@@ -532,7 +536,7 @@
- 			** -- mason@suse.com 
- 			*/
- 			if (sb->s_op->read_inode2) {
--				sb->s_op->read_inode2(inode, opaque) ;
-+				sb->s_op->read_inode2(inode, data) ;
- 			} else {
- 				sb->s_op->read_inode(inode);
- 			}
-@@ -563,6 +567,11 @@
- 		wait_on_inode(inode);
- 	}
+-			/* reiserfs specific hack right here.  We don't
+-			** want this to last, and are looking for VFS changes
+-			** that will allow us to get rid of it.
+-			** -- mason@suse.com 
+-			*/
+-			if (sb->s_op->read_inode2) {
+-				sb->s_op->read_inode2(inode, data) ;
+-			} else {
+-				sb->s_op->read_inode(inode);
+-			}
+-
+-			/*
+-			 * This is special!  We do not need the spinlock
+-			 * when clearing I_LOCK, because we're guaranteed
+-			 * that nobody else tries to do anything about the
+-			 * state of the inode when it is locked, as we
+-			 * just created it (so there can be no old holders
+-			 * that haven't tested I_LOCK).
++			/* Return the locked inode with I_NEW set, the
++			 * caller is responsible for filling in the contents
+ 			 */
+-			inode->i_state &= ~I_LOCK;
+-			wake_up(&inode->i_wait);
+-
+ 			return inode;
+ 		}
+ 
+@@ -636,8 +633,12 @@
  	return inode;
-+
-+set_failed:
-+	spin_unlock(&inode_lock);
-+	destroy_inode(inode);
-+	return NULL;
  }
  
- static inline unsigned long hash(struct super_block *sb, unsigned long i_ino)
-@@ -628,13 +637,13 @@
- }
- 
- 
--struct inode *iget4(struct super_block *sb, unsigned long ino, find_inode_t find_actor, void *opaque)
-+struct inode *iget4(struct super_block *sb, unsigned long ino, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *data)
+-
+-struct inode *iget4(struct super_block *sb, unsigned long ino, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *data)
++/*
++ * This is iget without the read_inode portion of get_new_inode
++ * the filesystem gets back a new locked and hashed inode and gets
++ * to fill it in before unlocking it via unlock_new_inode().
++ */
++struct inode *iget5_locked(struct super_block *sb, unsigned long ino, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *data)
  {
  	struct list_head * head = inode_hashtable + hash(sb,ino);
  	struct inode * inode;
- 
- 	spin_lock(&inode_lock);
--	inode = find_inode(sb, ino, head, find_actor, opaque);
-+	inode = find_inode(sb, ino, head, test, data);
- 	if (inode) {
- 		__iget(inode);
- 		spin_unlock(&inode_lock);
-@@ -647,7 +656,7 @@
- 	 * get_new_inode() will do the right thing, re-trying the search
+@@ -657,6 +658,36 @@
  	 * in case it had to block at any point.
  	 */
--	return get_new_inode(sb, ino, head, find_actor, opaque);
-+	return get_new_inode(sb, ino, head, test, set, data);
+ 	return get_new_inode(sb, ino, head, test, set, data);
++}
++
++struct inode *iget_locked(struct super_block *sb, unsigned long ino)
++{
++	return iget5_locked(sb, ino, NULL, NULL, NULL);
++}
++
++EXPORT_SYMBOL(iget5_locked);
++EXPORT_SYMBOL(iget_locked);
++EXPORT_SYMBOL(unlock_new_inode);
++
++struct inode *iget4(struct super_block *sb, unsigned long ino, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *data)
++{
++	struct inode *inode = iget5_locked(sb, ino, test, set, data);
++
++	if (inode && (inode->i_state & I_NEW)) {
++		/* reiserfs specific hack right here.  We don't
++		** want this to last, and are looking for VFS changes
++		** that will allow us to get rid of it.
++		** -- mason@suse.com 
++		*/
++		if (sb->s_op->read_inode2) {
++			sb->s_op->read_inode2(inode, data);
++		} else {
++			sb->s_op->read_inode(inode);
++		}
++		unlock_new_inode(inode);
++	}
++
++	return inode;
  }
  
  /**
-diff -urN orig/fs/nfs/inode.c iget_locked-1/fs/nfs/inode.c
---- orig/fs/nfs/inode.c	Wed May  1 00:27:35 2002
-+++ iget_locked-1/fs/nfs/inode.c	Sun May 19 17:55:27 2002
-@@ -592,7 +592,7 @@
-  * i_ino.
-  */
- static int
--nfs_find_actor(struct inode *inode, unsigned long ino, void *opaque)
-+nfs_find_actor(struct inode *inode, void *opaque)
- {
- 	struct nfs_find_desc	*desc = (struct nfs_find_desc *)opaque;
- 	struct nfs_fh		*fh = desc->fh;
-@@ -610,6 +610,18 @@
- 	return 1;
- }
+diff -urN iget_locked-1/include/linux/fs.h iget_locked-2/include/linux/fs.h
+--- iget_locked-1/include/linux/fs.h	Sun May 19 17:55:27 2002
++++ iget_locked-2/include/linux/fs.h	Sun May 19 18:02:05 2002
+@@ -799,6 +799,7 @@
+ #define I_LOCK			8
+ #define I_FREEING		16
+ #define I_CLEAR			32
++#define I_NEW			64
  
-+static int
-+nfs_init_locked(struct inode *inode, void *opaque)
-+{
-+	struct nfs_find_desc	*desc = (struct nfs_find_desc *)opaque;
-+	struct nfs_fh		*fh = desc->fh;
-+	struct nfs_fattr	*fattr = desc->fattr;
-+
-+	NFS_FILEID(inode) = fattr->fileid;
-+	memcpy(NFS_FH(inode), fh, sizeof(struct nfs_fh));
-+	return 0;
-+}
-+
- /*
-  * This is our own version of iget that looks up inodes by file handle
-  * instead of inode number.  We use this technique instead of using
-@@ -652,7 +664,7 @@
+ #define I_DIRTY (I_DIRTY_SYNC | I_DIRTY_DATASYNC | I_DIRTY_PAGES)
  
- 	ino = nfs_fattr_to_ino_t(fattr);
- 
--	if (!(inode = iget4(sb, ino, nfs_find_actor, &desc)))
-+	if (!(inode = iget4(sb, ino, nfs_find_actor, nfs_init_locked, &desc)))
- 		goto out_no_inode;
- 
- 	if (NFS_NEW(inode)) {
-@@ -662,8 +674,6 @@
- 
- 		/* We can't support UPDATE_ATIME(), since the server will reset it */
- 		NFS_FLAGS(inode) &= ~NFS_INO_NEW;
--		NFS_FILEID(inode) = fattr->fileid;
--		memcpy(NFS_FH(inode), fh, sizeof(struct nfs_fh));
- 		inode->i_flags |= S_NOATIME;
- 		inode->i_mode = fattr->mode;
- 		/* Why so? Because we want revalidate for devices/FIFOs, and
-diff -urN orig/fs/reiserfs/inode.c iget_locked-1/fs/reiserfs/inode.c
---- orig/fs/reiserfs/inode.c	Fri May 10 10:30:07 2002
-+++ iget_locked-1/fs/reiserfs/inode.c	Sun May 19 17:55:27 2002
-@@ -1138,6 +1138,13 @@
- // evolved as the prototype did
- //
- 
-+int reiserfs_init_locked_inode (struct inode * inode, void *p)
-+{
-+    struct reiserfs_iget4_args *args = (struct reiserfs_iget4_args *)p ;
-+    INODE_PKEY(inode)->k_dir_id = cpu_to_le32(args->objectid);
-+    return 0;
-+}
-+
- /* looks for stat data in the tree, and fills up the fields of in-core
-    inode stat data fields */
- void reiserfs_read_inode2 (struct inode * inode, void *p)
-@@ -1213,7 +1220,6 @@
-  * reiserfs_find_actor() - "find actor" reiserfs supplies to iget4().
-  *
-  * @inode:    inode from hash table to check
-- * @inode_no: inode number we are looking for
-  * @opaque:   "cookie" passed to iget4(). This is &reiserfs_iget4_args.
-  *
-  * This function is called by iget4() to distinguish reiserfs inodes
-@@ -1222,8 +1228,7 @@
-  * inode numbers (objectids) are distinguished by parent directory ids.
-  *
-  */
--static int reiserfs_find_actor( struct inode *inode, 
--				unsigned long inode_no, void *opaque )
-+int reiserfs_find_actor( struct inode *inode, void *opaque )
- {
-     struct reiserfs_iget4_args *args;
- 
-@@ -1239,7 +1244,7 @@
- 
-     args.objectid = key->on_disk_key.k_dir_id ;
-     inode = iget4 (s, key->on_disk_key.k_objectid, 
--		   reiserfs_find_actor, (void *)(&args));
-+		   reiserfs_find_actor, reiserfs_init_locked_inode, (void *)(&args));
-     if (!inode) 
- 	return ERR_PTR(-ENOMEM) ;
- 
-diff -urN orig/fs/reiserfs/super.c iget_locked-1/fs/reiserfs/super.c
---- orig/fs/reiserfs/super.c	Fri May 10 10:30:07 2002
-+++ iget_locked-1/fs/reiserfs/super.c	Sun May 19 17:55:27 2002
-@@ -1070,7 +1070,7 @@
- 	s->s_flags |= MS_RDONLY ;
-     }
-     args.objectid = REISERFS_ROOT_PARENT_OBJECTID ;
--    root_inode = iget4 (s, REISERFS_ROOT_OBJECTID, 0, (void *)(&args));
-+    root_inode = iget4 (s, REISERFS_ROOT_OBJECTID, reiserfs_find_actor, reiserfs_init_locked_inode, (void *)(&args));
-     if (!root_inode) {
- 	printk ("reiserfs_fill_super: get root inode failed\n");
- 	goto error;
-diff -urN orig/include/linux/fs.h iget_locked-1/include/linux/fs.h
---- orig/include/linux/fs.h	Sun May 19 17:52:58 2002
-+++ iget_locked-1/include/linux/fs.h	Sun May 19 17:55:27 2002
-@@ -1207,11 +1207,10 @@
+@@ -1206,6 +1207,10 @@
+ extern void force_delete(struct inode *);
  extern struct inode * igrab(struct inode *);
  extern ino_t iunique(struct super_block *, ino_t);
++
++extern struct inode * iget5_locked(struct super_block *, unsigned long, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *);
++extern struct inode * iget_locked(struct super_block *, unsigned long);
++extern void unlock_new_inode(struct inode *);
  
--typedef int (*find_inode_t)(struct inode *, unsigned long, void *);
--extern struct inode * iget4(struct super_block *, unsigned long, find_inode_t, void *);
-+extern struct inode * iget4(struct super_block *, unsigned long, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *);
+ extern struct inode * iget4(struct super_block *, unsigned long, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *);
  static inline struct inode *iget(struct super_block *sb, unsigned long ino)
- {
--	return iget4(sb, ino, NULL, NULL);
-+	return iget4(sb, ino, NULL, NULL, NULL);
- }
- 
- extern void __iget(struct inode * inode);
-diff -urN orig/include/linux/reiserfs_fs.h iget_locked-1/include/linux/reiserfs_fs.h
---- orig/include/linux/reiserfs_fs.h	Fri May 10 10:30:08 2002
-+++ iget_locked-1/include/linux/reiserfs_fs.h	Sun May 19 17:55:27 2002
-@@ -1820,6 +1820,8 @@
- 
- void reiserfs_read_inode (struct inode * inode) ;
- void reiserfs_read_inode2(struct inode * inode, void *p) ;
-+int reiserfs_find_actor(struct inode * inode, void *p) ;
-+int reiserfs_init_locked_inode(struct inode * inode, void *p) ;
- void reiserfs_delete_inode (struct inode * inode);
- void reiserfs_write_inode (struct inode * inode, int) ;
- struct dentry *reiserfs_get_dentry(struct super_block *, void *) ;

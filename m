@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318692AbSG0DsR>; Fri, 26 Jul 2002 23:48:17 -0400
+	id <S318695AbSG0EBe>; Sat, 27 Jul 2002 00:01:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318693AbSG0DsR>; Fri, 26 Jul 2002 23:48:17 -0400
-Received: from member.michigannet.com ([207.158.188.18]:50192 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S318692AbSG0DsR>; Fri, 26 Jul 2002 23:48:17 -0400
-Date: Fri, 26 Jul 2002 23:50:42 -0400
-From: Paul <set@pobox.com>
-To: Matt Simonsen <matt@careercast.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to mount "multimedia" audio cdroms
-Message-ID: <20020727035042.GI27089@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	Matt Simonsen <matt@careercast.com>, linux-kernel@vger.kernel.org
-References: <1027708015.3260.17.camel@mattlaptop.careercast.com>
+	id <S318696AbSG0EBe>; Sat, 27 Jul 2002 00:01:34 -0400
+Received: from monster.nni.com ([216.107.0.51]:10254 "EHLO admin.nni.com")
+	by vger.kernel.org with ESMTP id <S318695AbSG0EBd>;
+	Sat, 27 Jul 2002 00:01:33 -0400
+Date: Sat, 27 Jul 2002 00:04:08 -0400
+From: Andrew Rodland <arodland@noln.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: j.schmidt@paradise.net.nz, root@chaos.analogic.com, davidsen@tmr.com,
+       phillips@arcor.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -ac] Panicking in morse code
+Message-Id: <20020727000408.12b4261a.arodland@noln.com>
+In-Reply-To: <200207270205.g6R253P35635@saturn.cs.uml.edu>
+References: <3D41DA4E.B243E55E@paradise.net.nz>
+	<200207270205.g6R253P35635@saturn.cs.uml.edu>
+X-Mailer: Sylpheed version 0.7.8claws55 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1027708015.3260.17.camel@mattlaptop.careercast.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Simonsen <matt@careercast.com>, on Fri Jul 26, 2002 [11:26:55 AM] said:
-> Is there a way to mount multimedia audio cds under Linux so that instead
-> of the .inf file and video you can listen to the audio tracks?
-> 
-> Thanks
-> Matt
-> 
-> 
-	Hi;
+No offense to anyone intended, but since this most recent discussion is
+on the _original_ thread, perhaps some of you have not read the latest
+"v3" version of the patch. It does make a bunch of the recent comments
+irrelevant (some of the recent discussion, however, is very
+interesting.)
 
-	I dont know if this will do what you want, or no. I also
-dont know how active it is...
+If that thread is lost to most normal people by now, and they don't
+wantto go gooja-surfing, I'll find a place on the web to put this stuff
+up. 
 
-http://www.elis.rug.ac.be/~ronsse/cdfs/
+--hobbs
 
-Paul
-set@pobox.com
 
----
-CDfs is a file system for Linux systems that `exports' all tracks
-and boot images on a CD as normal files. These files can then be
-mounted (e.g. for ISO and boot images), copied, played (audio and
-VideoCD tracks)... The primary goal for developing this file
-system was to `unlock' information
-in old ISO images. For instance, if you have a multisession CD
-with two ISO images that both contain the file 'a', you only see
-the file 'a' in the second session if you use the iso9660 file
-system: 
----

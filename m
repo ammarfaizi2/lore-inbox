@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263777AbUEGUr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263782AbUEGUsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbUEGUr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 16:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUEGUqC
+	id S263782AbUEGUsw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 16:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbUEGUh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 16:46:02 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:44475 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S263777AbUEGUod convert rfc822-to-8bit
+	Fri, 7 May 2004 16:37:56 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:41629 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S263824AbUEGUfE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 16:44:33 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: fabiano.ramos@acm.org
-Subject: Re: Love's book
-Date: Fri, 7 May 2004 22:44:18 +0200
-User-Agent: KMail/1.6.2
-References: <1083952163.1384.38.camel@slack.domain.invalid>
-In-Reply-To: <1083952163.1384.38.camel@slack.domain.invalid>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Fri, 7 May 2004 16:35:04 -0400
+Date: Fri, 7 May 2004 20:45:34 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+In-Reply-To: <20040507065105.GA10600@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.58.0405072045170.1979@fogarty.jakma.org>
+References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net>
+ <200405051822.i45IM2uT018573@turing-police.cc.vt.edu>
+ <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu>
+ <1083858033.3844.6.camel@laptop.fenrus.com> <Pine.LNX.4.58.0405070136010.1979@fogarty.jakma.org>
+ <20040507065105.GA10600@devserv.devel.redhat.com>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200405072244.27465.mbuesch@freenet.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 7 May 2004, Arjan van de Ven wrote:
 
-On Friday 07 May 2004 19:49, Fabiano Ramos wrote:
-> Hi all.
-> 
-> 	I am about to buy Robert Love's  "Linux Kernel Development" book, but a
-> I am quite unsure about whether this title is based on
-> 2.4 with some 2.6 info or is it a full-blown 2.6 book.
-> 	Can anyone help me (this include Mr. Love himself!)?
+> NFSv4 has a > 1Kb stack user; Dave Jones has a fix pending for
+> that...
 
-This book is a very good 2.6 based book.
+I'm using NFSv3 though.
 
-> TIA
-> Fabiano Ramos
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAm/UpFGK1OIvVOP4RAs00AJ4nhRc2V6Rafiq9nQq/mdYdxWJg2wCfTH0v
-CZKJvPOQJ6VFCSY9nf1IxEE=
-=uBo1
------END PGP SIGNATURE-----
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+Never invest your money in anything that eats or needs repainting.
+		-- Billy Rose

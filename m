@@ -1,76 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266172AbUA2PDU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 10:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUA2PDU
+	id S266070AbUA2P7N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 10:59:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266122AbUA2P7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 10:03:20 -0500
-Received: from crafty.cis.uab.edu ([138.26.64.17]:9953 "EHLO
-	crafty.cis.uab.edu") by vger.kernel.org with ESMTP id S266169AbUA2PDQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 10:03:16 -0500
-Date: Thu, 29 Jan 2004 09:02:41 -0600 (CST)
-From: "Robert M. Hyatt" <hyatt@cis.uab.edu>
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: Catalin BOIE <util@deuroconsult.ro>, <linux-kernel@vger.kernel.org>,
-       <linux-smp@vger.kernel.org>
-Subject: Re: 2.6.2-rc2 Interactivity problems with SMP + HT
-In-Reply-To: <4018E524.8060200@cyberone.com.au>
-Message-ID: <Pine.LNX.4.44.0401290901510.21120-100000@crafty.cis.uab.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jan 2004 10:59:13 -0500
+Received: from mailwasher.lanl.gov ([192.16.0.25]:38562 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S266070AbUA2P7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 10:59:12 -0500
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
+From: Stephen Smoogen <smoogen@lanl.gov>
+To: chakkerz@optusnet.com.au
+Cc: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200401291211.05461.chakkerz@optusnet.com.au>
+References: <4017F2C0.4020001@techsource.com>
+	 <200401291211.05461.chakkerz@optusnet.com.au>
+Content-Type: text/plain
+Organization: CCN-2 ESM/SSC
+Message-Id: <1075391946.5035.17.camel@smoogen2.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 29 Jan 2004 08:59:06 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-01-28 at 18:11, Christian Unger wrote:
+> Oh ... don't get me wrong, i think that the conceptual idea is awesome. 
+> Personally, i wouldn't know where to begin, but can the open source community 
+> compete with Nvidia and ATI? afterall this goes beyond software, it delves 
 
-
-It might be some IDE disk I/O that results from flushing buffers or 
-whatever.  I don't see this on my SCSI boxes, but I have seen an IDE 
-box get sluggish at times due to I/O.
-
-On Thu, 29 Jan 2004, Nick Piggin 
-wrote:
-
-> 
-> 
-> Catalin BOIE wrote:
-> 
-> >Hello!
-> >
-> >First, thank you very much for the effort you put for Linux!
-> >
-> >I have a Intel motherboard with SATA (2 Maxtor disks).
-> >CPUs: 2 x 2.4GHz PIV HT = 4 processors (2 virtual)
-> >1 GB RAM.
-> >
-> >Load: postgresql and apache. Very low load (3-4 clients).
-> >
-> >RAID: Yes, soft RAID1 between the 2 disks.
-> >
-> >I have times when the console freeze for 3-4 seconds!
-> >2.6.0-test11 had the same problem (maybe longer times).
-> >2.6.1-rc2 worked good in this respect but crashed after 2 days. :(
-> >2.6.2-rc2 is back with the delay.
-> >
-> >Do you know why this can happen?
-> >
-> >
-> 
-> There haven't been many scheduler changes there recently so
-> maybe its something else.
-> 
-> But you could try the latest -mm kernels. They have some
-> Hyperthreading work in them (you need to enable CONFIG_SCHED_SMT).
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-smp" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Well I think the first problem is that the idea is currently too big. If
+someone were to do this sucessfully they would make the first open cards
+something like a Trident 8900C. Something small but usable for people
+who need it. The next cards would add onto it, and so on and so on until
+you got a base that would meet the 3D ATI/Nvidia needs. Trying to aim
+for the top at the beginning is a great way to crater.
 
 -- 
-Robert M. Hyatt, Ph.D.          Computer and Information Sciences
-hyatt@uab.edu                   University of Alabama at Birmingham
-(205) 934-2213                  136A Campbell Hall
-(205) 934-5473 FAX              Birmingham, AL 35294-1170
+Stephen John Smoogen		smoogen@lanl.gov
+Los Alamos National Lab  CCN-5 Sched 5/40  PH: 4-0645
+Ta-03 SM-1498 MailStop B255 DP 10S  Los Alamos, NM 87545
+-- So shines a good deed in a weary world. = Willy Wonka --
 

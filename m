@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271108AbRIVObA>; Sat, 22 Sep 2001 10:31:00 -0400
+	id <S271278AbRIVOiV>; Sat, 22 Sep 2001 10:38:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271278AbRIVOav>; Sat, 22 Sep 2001 10:30:51 -0400
-Received: from mueller.uncooperative.org ([216.254.102.19]:35598 "EHLO
-	mueller.datastacks.com") by vger.kernel.org with ESMTP
-	id <S271108AbRIVOaf>; Sat, 22 Sep 2001 10:30:35 -0400
-Date: Sat, 22 Sep 2001 10:31:00 -0400
-From: Crutcher Dunnavant <crutcher@datastacks.com>
+	id <S271329AbRIVOiM>; Sat, 22 Sep 2001 10:38:12 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:34309 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S271278AbRIVOhw>;
+	Sat, 22 Sep 2001 10:37:52 -0400
+Date: Sat, 22 Sep 2001 11:38:15 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: linux-kernel@vger.kernel.org
 Subject: Re: Whats in the wings for 2.5 (when it opens)
-Message-ID: <20010922103100.C9352@mueller.datastacks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010921155806.B8188@mueller.datastacks.com> <17588.1001127560@ocs3.intra.ocs.com.au>
+Message-ID: <20010922113815.B25545@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org> <20010918214904.B29648@vdpas.hobby.nl> <20010921155806.B8188@mueller.datastacks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <17588.1001127560@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sat, Sep 22, 2001 at 12:59:20PM +1000
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010921155806.B8188@mueller.datastacks.com>; from crutcher@datastacks.com on Fri, Sep 21, 2001 at 03:58:06PM -0400
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-++ 22/09/01 12:59 +1000 - Keith Owens:
-> On Fri, 21 Sep 2001 15:58:06 -0400, 
-> Crutcher Dunnavant <crutcher@datastacks.com> wrote:
-> >A cleaner handling of module parameters/cmd line options.
-> 
-> That comes out as a side effect of kernel build 2.5, every object gets
-> -DKBUILD_OBJECT to define the name it is known by.  From
-> Documentation/kbuild/kbuild-2.5.
-> 
->       -DKBUILD_OBJECT=module, the name of the module the object is
->         linked into, without the trailing '.o' and without any paths.
->         If the object is a free standing module or is linked into
->         vmlinux then the "module" name is the object itself.
->         Automatically generated.
-> 
-> Post kbuild 2.5 I will be writing a generic parameter/command line
-> interface so you can insmod foo bar=99 or boot with foo.bar=99.  You
-> will even be able to boot with foo.bar=99 when foo is a module, insmod
-> will use the command line as a default set of values.
+Em Fri, Sep 21, 2001 at 03:58:06PM -0400, Crutcher Dunnavant escreveu:
+> ++ 18/09/01 21:49 +0200 - toon@vdpas.hobby.nl:
+> > On Mon, Sep 17, 2001 at 08:18:25PM -0400, Ed Tomlinson wrote:
+> > > Seems like there is a lot of code "ready" for consideration in a 2.5 kernel.
+> > > I can think of:
+> > > premptable kernel option
+> > > user mode kernel 
+> > > jfs
+> > > xfs (maybe)
+> > ext3
+> > > rc2
+> > > reverse maping vm
+> > > ide driver rewrite
+> > > 32bit dma
+> > > LTT (maybe)
+> > > LVM update to 1.01
+> > My opinion is that the LVM update to 1.01 should go into 2.4
+> > as soon as possible.
+> > > ELVM (maybe)
+> > > module security stuff
+> > > UP friendly SMP scheduler
+> > > What else?
 
-Well, that certainly is clean. How deep does it go? For instance, can
-we you define it as:
+NetBEUI and more complete 802.2 net stacks, patches available at my work in
+progress area at http://bazar.conectiva.com.br/~acme/patches/wip and at my
+CVS repository at http://cvs.conectiva.com.br/kernel-acme.
 
-	foo.bar.baz.bat.quux=99 -> mod 'foo.bar.baz.bat', parm 'quux'
-
-so we get naming schemes like:
-
-	net.3com.3c501.i=5
-
-This would help much with keeping some of the namespaces cleaner. Do you
-want any help with this?
-
--- 
-Crutcher        <crutcher@datastacks.com>
-GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
-    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$
+- Arnaldo

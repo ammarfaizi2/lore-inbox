@@ -1,69 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267234AbUFZXjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267235AbUFZXsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267234AbUFZXjV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 19:39:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUFZXjV
+	id S267235AbUFZXsl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 19:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267236AbUFZXsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 19:39:21 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:6054 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S267234AbUFZXjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 19:39:17 -0400
-Date: Sat, 26 Jun 2004 16:37:54 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: jiffies_64
-Message-ID: <20040626233754.GA12761@taniwha.stupidest.org>
-References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org> <20040626221802.GA12296@taniwha.stupidest.org> <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org>
+	Sat, 26 Jun 2004 19:48:41 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5629 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267235AbUFZXsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 19:48:38 -0400
+Date: Sun, 27 Jun 2004 01:48:35 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Andreas Gruenbacher <agruen@suse.de>,
+       Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Testing for kernel features in external modules
+Message-ID: <20040626234835.GP18303@fs.tum.de>
+References: <20040624203043.GA4557@mars.ravnborg.org> <20040624203516.GV31203@schnapps.adilger.int> <200406251032.22797.agruen@suse.de> <20040625090413.GM3956@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040625090413.GM3956@marowsky-bree.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 26, 2004 at 03:48:34PM -0700, Linus Torvalds wrote:
+On Fri, Jun 25, 2004 at 11:04:13AM +0200, Lars Marowsky-Bree wrote:
+> On 2004-06-25T10:32:22,
+>    Andreas Gruenbacher <agruen@suse.de> said:
+> 
+> > I disagree. I don't think we want to clutter the code with feature
+> > definitions that have no known users. That doesn't age/scale very
+> > well. It's easy enough to test for features in the external module.
+> 
+> True enough, but how do you propose to do that? I do understand the pain
+> of the external module builds who have to try and support the vanilla
+> kernel plus several vendor trees.
+> 
+> Yes, of course, we could end up with a autoconf like approach for
+> building them, but ... you know ... that's sort of ugly.
+> 
+> Having a list of defines to document the version of a specific API in
+> the kernel, and a set of defines pre-fixed with <vendor>_ to document
+> vendor tree extensions may not be the worst thing:
+>...
+> Now the granularity of the API versioning is interesting - per .h is too
+> coarse, and per-call would be too fine. But I'm sure someone could come
+> up with a sane proposal here.
 
-> So please tell me where the jiffies64 thing was suddenly correct as
-> a "volatile", and I can almost guarantee you that you were WRONG to
-> mark it volatile.
+What's an API for modules?
+- whether a .h file is present under include/
+- every EXPORT_SYMBOL{,_GPL}'ed function
+- every inlined function under include/
+- every struct defined under include/
+- perhaps more things I'm currently forgetting
 
-In this case it's a platform where moving jiffies around is very
-painful so I have a patch to make jiffies per-CPU using the local APIC
-timer (jiffies becomes a macro to get_local_jiffies() with all the
-horrors that come with that).
+Every change to something mentioned above during a development kernel 
+needs to be cover by an appropriate API versioning.
 
-Because this drifts we use the PIT as a referrence and resynchronize
-every few seconds against jiffies_64.
+And then consider as an example cases like a function returning 
+irqreturn_t in 2.6:
+- in 2.6, this function returns irqreturn_t (typedef'd to int)
+- in 2.4, this function might return irqreturn_t (typedef'd to void)
+- in 2.4, this function might return void
 
-A few places can't actually use get_local_jiffies() early on like the
-bogomips calibration code (because the local APIC timer isn't working
-yet) so I've got some hacks in there where they use jiffies_64.
+I'm sure there is a correct solution for such cases - but it's extra
+work and easy to get things wrong.
 
-> But you're right, on a 64-bit architecture, jiffies_64 falls back to
-> the "jiffies" case, and there it would be acceptable to make it
-> volatile.
+Why do you dislike autoconf? I do not pretend autoconf where perfect -
+but it works. Looking at the external ALSA, autoconf seems to be a good 
+solution to probe for exact the things a module needs without a big 
+overhead in kernel development.
 
-Actually, I don't like the way we use xtime_lock at all for jiffies_64
-now.  Things are unclear and fragile in places.  In my tree I have
-jiffies_64 protected by a spinlock instead of the seqlock thing (as it
-still needs to be locked even though it's incremented only from one
-CPU in irq context) and was looking at using cmpxchg8 on platforms
-what can to remove the need to lock jiffies_64 completely.
+> Sincerely,
+>     Lars Marowsky-Brée <lmb@suse.de>
 
-I've wondered if we can't do the same thing for xtime as well,
-however I need to make per-CPU xtime so I'll revisit that when I get a
-chance.
+cu
+Adrian
 
-> See? The volatile is (again) wrong on the data structure (jiffies_64), and
-> you should have added it to the code (get_jiffies_64).
+-- 
 
-get_jiffies_64() in my case reads the per-CPU value and like I said a
-few places don't like that.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-
-  --cw

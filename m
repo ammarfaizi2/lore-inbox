@@ -1,32 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267822AbUHPRwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267836AbUHPRyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267822AbUHPRwn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 13:52:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267830AbUHPRwn
+	id S267836AbUHPRyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 13:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267830AbUHPRyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:52:43 -0400
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:23188 "HELO
-	server5.heliogroup.fr") by vger.kernel.org with SMTP
-	id S267822AbUHPRwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 13:52:40 -0400
-From: Hubert Tonneau <hubert.tonneau@heliogroup.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB storage crash report in 2.6
-Date: Mon, 16 Aug 2004 17:35:20 GMT
-Message-ID: <04BRKUX12@server5.heliogroup.fr>
-X-Mailer: Pliant 92
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 16 Aug 2004 13:54:16 -0400
+Received: from fmr11.intel.com ([192.55.52.31]:10969 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S267832AbUHPRxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 13:53:20 -0400
+Subject: Re: eth*: transmit timed out since .27 (was: linux-2.4.27 released)
+From: Len Brown <len.brown@intel.com>
+To: Oliver Feiler <kiza@gmx.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <566B962EB122634D86E6EE29E83DD808182C3236@hdsmsx403.hd.intel.com>
+References: <566B962EB122634D86E6EE29E83DD808182C3236@hdsmsx403.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092678734.23057.18.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 16 Aug 2004 13:52:15 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubert Tonneau wrote:
->
-> When I try to copy large amount of datas (more than 100 GB) between USB
-> attached disks, I get a crash with Linux 2.6
+Oliver,
+I'm glad that turning off "pci=noacpi" fixed your system.
+I don't know why the legacy irqrouter didn't work, but
+as ACPI works, I'm not going to worry about it;-)
 
-The crash will not happen if I use an UP instead of SMP kernel.
+I expect the "acpi=off" experiment would behave the same as
+"pci=noacpi", but it looks like in your experiment you
+mis-spelled that parameter as apci=off, so instead it was the
+same as the default ACPI-enabled case.
 
-PS: there is no problem with the disks since I get the exact same behaviour with
-    a set of three new ones
+Re: lots of interrupts on the same IRQ.
+There are boot params to balance out the IRQs in PIC mode,
+but what you want to do on this system is enable the IOAPIC
+in your kernel config.  The existence of the MADT in your
+ACPI tables suggests you may have one.  An IOAPIC will bring
+additional interrupt pins to bear, usually allowing
+the PCI interrupts to use IRQs > 16 where they may
+not have to share so much.
+
+cheers,
+-Len
+
 

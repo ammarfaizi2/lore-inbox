@@ -1,76 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132625AbRDUOEK>; Sat, 21 Apr 2001 10:04:10 -0400
+	id <S132614AbRDUN47>; Sat, 21 Apr 2001 09:56:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132627AbRDUOEB>; Sat, 21 Apr 2001 10:04:01 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:44377 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132625AbRDUODy>; Sat, 21 Apr 2001 10:03:54 -0400
-Date: Sat, 21 Apr 2001 16:03:27 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "D . W . Howells" <dhowells@astarte.free-online.co.uk>,
-        dhowells@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: x86 rwsem in 2.4.4pre[234] are still buggy [was Re: rwsem benchmarks [Re: generic rwsem [Re: Alpha "process table hang"]]]
-Message-ID: <20010421160327.A17757@athlon.random>
-In-Reply-To: <20010420191710.A32159@athlon.random> <Pine.LNX.4.31.0104201639070.6299-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.31.0104201639070.6299-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Apr 20, 2001 at 04:45:32PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S132619AbRDUN4u>; Sat, 21 Apr 2001 09:56:50 -0400
+Received: from mail.mesatop.com ([208.164.122.9]:60933 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S132614AbRDUN4l>;
+	Sat, 21 Apr 2001 09:56:41 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.3-ac11 request for help texts for recenty introduced config options
+Date: Sat, 21 Apr 2001 07:55:44 -0600
+X-Mailer: KMail [version 1.2]
+Cc: esr@thyrsus.com, elenstev@mesatop.com
+MIME-Version: 1.0
+Message-Id: <01042107554400.01451@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 20, 2001 at 04:45:32PM -0700, Linus Torvalds wrote:
-> I would suggest the following:
-> 
->  - the generic semaphores should use the lock that already exists in the
->    wait-queue as the semaphore spinlock.
+As of kernel 2.4.3-ac11, there are 464 config options which have no help text in Configure.help.
 
-Ok, that is what my generic code does.
+Here is the list of these items which have been introduced  after 2.4.3-ac1.
+Each group is incremental, versus 2.4.3-ac[n-1].
 
->  - the generic semaphores should _not_ drop the lock. Right now it drops
->    the semaphore lock when it goes into the slow path, only to re-aquire
->    it. This is due to bad interfacing with the generic slow-path routines.
+If you see one of your options here, please consider generating a patch for Configure.help,
+or send me the information and I'll do the rest.
 
-My generic code doesn't drop the lock.
+A status of "acknowledged" means that the item is being worked on by the person named or
+their designate.  Thank you to the maintainers who have responded.
 
->    I suspect that this lock-drop is why Andrea sees problems with the
->    generic semaphores. The changes to "count" and "sleeper" aren't
->    actually atomic, because we don't hold the lock over them all. And
->    re-using the lock means that we don't need the two levels of
->    spinlocking for adding ourselves to the wait queue. Easily done by just
->    moving the locking _out_ of the wait-queue helper functions, no?
+Thanks in advance,
+Steven
 
-Basically yes, however for the wakeup I wrote a dedicated routine that
-knows how to do the wake-all-next-readers or wake-next-writer (it is not
-the same helper function of sched.c).
+2.4.3-ac11
 
->  - the generic semaphores are entirely out-of-line, and are just declared
->    universally as regular FASTCALL() functions.
+        none
 
-This is what I implemented originally but then I moved the fast path inline
-for the fast-path benchmark reasons. I think in real life it doesn't matter
-much if the fast path is inline or not.
+2.4.3-ac10
 
-> The fast-path x86 code looks ok to me. The debugging stuff makes it less
-> readable than it should be, I suspect, and is probably not worth it at
-> this stage. The users of rw-semaphores are so well-defined (and so well
-> debugged) that the debugging code only makes the code harder to follow
-> right now.
+	CONFIG_E1355_FB_BASE
+	CONFIG_E1355_REG_BASE
+	CONFIG_ETRAX_CSP0_LEDS
+	CONFIG_ETRAX_DEBUG_PORT0
+	CONFIG_ETRAX_DEBUG_PORT1
+	CONFIG_ETRAX_DEBUG_PORT2
+	CONFIG_ETRAX_DEBUG_PORT3
+	CONFIG_ETRAX_DEBUG_PORT_NULL
+	CONFIG_ETRAX_I2C_EEPROM_16KB
+	CONFIG_ETRAX_I2C_EEPROM_2KB
+	CONFIG_ETRAX_I2C_EEPROM_8KB
+	CONFIG_ETRAX_IDE_CSP0_8_RESET
+	CONFIG_ETRAX_LED10Y
+	CONFIG_ETRAX_LED11Y
+	CONFIG_ETRAX_LED12R
+	CONFIG_ETRAX_LED4G
+	CONFIG_ETRAX_LED4R
+	CONFIG_ETRAX_LED5G
+	CONFIG_ETRAX_LED5R
+	CONFIG_ETRAX_LED6G
+	CONFIG_ETRAX_LED6R
+	CONFIG_ETRAX_LED7G
+	CONFIG_ETRAX_LED7R
+	CONFIG_ETRAX_LED8Y
+	CONFIG_ETRAX_LED9Y
+	CONFIG_ETRAX_PARALLEL_PORT0
+	CONFIG_ETRAX_PARALLEL_PORT1
+	CONFIG_ETRAX_PARPORT
+	CONFIG_ETRAX_RESCUE_SER0
+	CONFIG_ETRAX_RESCUE_SER1
+	CONFIG_ETRAX_RESCUE_SER2
+	CONFIG_ETRAX_RESCUE_SER3
+	CONFIG_ETRAX_RS485_ON_PA_BIT
+	CONFIG_ETRAX_SDRAM
+	CONFIG_FB_DC
+	CONFIG_FB_E1355
 
-yes I agree, infact I added the ->magic check only to catch uninitialized
-semaphores (and this one doesn't hurt readability that much).
+2.4.3-ac9
 
-> Comments?  Andrea? Your patches have looked ok, but I absoutely refuse to
-> see the non-inlined fast-path for reasonable x86 hardware..
+        none
 
-In my last patch the fast path is inline as said above but it is not in asm yet
-because I couldn't get convinced it was right code. I plan to return looking
-into the rwsem soon. I also seen David fixed the bug and dropped the buggy
-rwsem-spin.h, so I suggest to merge his code for now, after a very short look
-it seems certainly better than pre5.
+2.4.3-ac8
 
-Andrea
+        none
+
+2.4.3-ac7
+
+        CONFIG_BBC_I2C
+
+2.4.3-ac6
+
+        CONFIG_AIC7XXX_BUILD_FIRMWARE
+
+2.4.3-ac5
+
+        CONFIG_IA64_EFIVARS                             acknowledged    Matt Domsch
+        CONFIG_ITANIUM
+        CONFIG_MCKINLEY
+        CONFIG_MCKINLEY_A0_SPECIFIC
+        CONFIG_MCKINLEY_ASTEP_SPECIFIC
+
+2.4.3-ac4
+
+        CONFIG_ARCH_CLPS711X
+        CONFIG_ARCH_P720T
+        CONFIG_ARM_THUMB
+        CONFIG_CPU_ARM1020
+        CONFIG_CPU_ARM610                               acknowledged    Russell King
+        CONFIG_CPU_ARM710                               acknowledged    Russell King
+        CONFIG_CPU_ARM720T                              acknowledged    Russell King
+        CONFIG_CPU_ARM920T                              acknowledged    Russell King
+        CONFIG_CPU_SA110                                acknowledged    Russell King
+        CONFIG_DASD_DIAG
+        CONFIG_DEBUG_CLPS711X_UART2
+        CONFIG_DEBUGSYM
+        CONFIG_GCOV
+        CONFIG_GPROF
+        CONFIG_HOSTFS
+        CONFIG_NET_UM_ETH
+        CONFIG_NET_UMN
+        CONFIG_SA1100_PANGOLIN
+        CONFIG_SA1100_SHERMAN
+        CONFIG_SSL
+
+2.4.3-ac3
+
+        none
+
+2.4.3-ac2
+
+        CONFIG_GEMINI
+

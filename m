@@ -1,72 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268771AbTBZPpW>; Wed, 26 Feb 2003 10:45:22 -0500
+	id <S268783AbTBZPqW>; Wed, 26 Feb 2003 10:46:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268782AbTBZPpW>; Wed, 26 Feb 2003 10:45:22 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:39593 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268771AbTBZPpV>; Wed, 26 Feb 2003 10:45:21 -0500
-Date: Wed, 26 Feb 2003 07:55:33 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Mark Haverkamp <markh@osdl.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: 2.5.62-mjb3 (scalability / NUMA patchset)
-Message-ID: <3090000.1046274931@[10.10.2.4]>
-In-Reply-To: <1046273777.1913.6.camel@markh1.pdx.osdl.net>
-References: <6490000.1045713212@[10.10.2.4]>
- <16170000.1046110132@[10.10.2.4]>
- <1046273777.1913.6.camel@markh1.pdx.osdl.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S268784AbTBZPqW>; Wed, 26 Feb 2003 10:46:22 -0500
+Received: from lucidpixels.com ([66.45.37.187]:44305 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id <S268783AbTBZPqR>;
+	Wed, 26 Feb 2003 10:46:17 -0500
+Message-ID: <3E5CE3B2.6010003@lucidpixels.com>
+Date: Wed, 26 Feb 2003 10:56:34 -0500
+From: jpiszcz <jpiszcz@lucidpixels.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: vishwas@india.hp.com
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Question about DMA and cd burning.
+References: <3E5C4ECD.7020806@lucidpixels.com> <3E5CA785.8010801@india.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The patchset contains mainly scalability and NUMA stuff, and anything 
->> else that stops things from irritating me. It's meant to be pretty
->> stable,  not so much a testing ground for new stuff.
->> 
->> I'd be very interested in feedback from anyone willing to test on any 
->> platform, however large or small.
->> 
->> ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.62/patch-2.5.62-
->> mjb 3.bz2
->> 
-> 
-> Martin,
-> 
-> I have been seeing system hangs on my 16 processor numaq while running
-> contest.  The system will hang within a few seconds to half an hour. 
-> Unfortunately there is no stack trace or any other indication on the
-> system console.  I have been running your 2.5.62-mjb2 without problems
-> previously.  Any ideas what I can do to narrow this down?
+Yes, hdparm -d1 /dev/hd{b,c} did not work on older kernels for me, but 
+2.4.20 appears to work successfully.
 
-Humpf. Can you try backing out this patch (it caused me similar problems on
-59, but seemed fine in 62). I suspect it's just changing timing enough that
-we hit some other bug ... if you could, would be nice to try the ALT+SYSRQ
-stuff, or turn on NMI watchdogs and get a backtrace ... I've  not been able
-to reproduce this on recent kernels.
+However, second question, both of my Plextors support UDMA2, and both 
+are on 80 PIN/IDE cables, when I enabled -d1 -X66, the kernel, it 
+crashed the kernel.
 
-Thanks,
+Feb 26 10:30:55 war kernel: hdc: drive_cmd: status=0x41 { DriveReady Error }
+Feb 26 10:30:55 war kernel: hdc: drive_cmd: error=0x04
+Feb 26 10:30:59 war kernel: hdc: drive_cmd: status=0x41 { DriveReady Error }
+Feb 26 10:30:59 war kernel: hdc: drive_cmd: error=0x04
+Feb 26 10:31:02 war kernel: hdc: drive_cmd: status=0x41 { DriveReady Error }
+Feb 26 10:31:02 war kernel: hdc: drive_cmd: error=0x04
+Feb 26 10:32:22 war kernel: scsi : aborting command due to timeout : pid 
+11206, scsi1, channel 0, id 1, lun 0 Read (10) 00 00 00 00 00 00 00 02 00
+Feb 26 10:32:22 war kernel: hdc: timeout waiting for DMA
+Feb 26 10:32:22 war kernel: ide_dmaproc: chipset supported 
+ide_dma_timeout func only: 14
+Feb 26 10:32:22 war kernel: hdc: status timeout: status=0xd8 { Busy }
+Feb 26 10:32:22 war kernel: hdc: drive not ready for command
 
-M.
+After this, X froze and the keyboard lights were blinking, I could not 
+change to console or anything to see the kernel messages.
 
-diff -urpN -X /home/fletch/.diff.exclude
-330-no_kirq/include/asm-i386/mach-numaq/mach_mpparse.h
-340-auto_disable_tsc/include/asm-i386/mach-numaq/mach_mpparse.h
---- 330-no_kirq/include/asm-i386/mach-numaq/mach_mpparse.h	Fri Jan 17
-09:18:31 2003
-+++ 340-auto_disable_tsc/include/asm-i386/mach-numaq/mach_mpparse.h	Mon Feb
-24 08:14:42 2003
-@@ -32,6 +32,7 @@ static inline void mps_oem_check(struct 
- 	if (mpc->mpc_oemptr)
- 		smp_read_mpc_oem((struct mp_config_oemtable *) mpc->mpc_oemptr, 
- 				mpc->mpc_oemsize);
-+	tsc_disable=1;
- }
- 
- /* Hook from generic ACPI tables.c */
+1] Why does the kernel turn DMA off by default?
+     config: http://installkernel.tripod.com/config-2.4.20.txt
+2] Why does the kernel crash when I try to enable UDMA2 on the cdrw?
+
+
+vishwas@india.hp.com wrote:
+
+> use: hdparam -d1 /dev/<hdX>
+>
+> to enable DMA, if it still says it cannot enable DMA.
+> try enabling the xfermode,which gives me the same
+> performace as DMA enabled.
+>
+> hdparam -X<num> /dev/<hdX>
+>     put num greater than 32..like 33,34 etc  (for multiword DMA)
+>     OR  greater that 64....like 65 66 etc.   (for UltraDMA)
+>
+> -vvp
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+>
+
 

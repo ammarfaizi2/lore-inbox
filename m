@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVA2TY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVA2TaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVA2TY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 14:24:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVA2TTr
+	id S261553AbVA2TaT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 14:30:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVA2T00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 14:19:47 -0500
-Received: from neapel230.server4you.de ([217.172.187.230]:26029 "EHLO
-	neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S261556AbVA2TSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 14:18:50 -0500
-Message-ID: <41FBE18B.2010105@lsrfire.ath.cx>
-Date: Sat, 29 Jan 2005 20:18:35 +0100
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+	Sat, 29 Jan 2005 14:26:26 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:22592 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261566AbVA2TZX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 14:25:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ARJlIKdn2pYhold2SZce0gAhclg8SPXONuRmnapcu7cYANwtRORwgVq5AoHnYvtTb05zwEVExqd131axRtrymL3xtnEuW4nb1eTcqFBIswzSv7wwFRFcBVdY0V/SFV3YaNY5zbBjbyKwyj9vytATwp5DIE3Ei6EYLoc31icjDG4=
+Message-ID: <9e473391050129112525f4947@mail.gmail.com>
+Date: Sat, 29 Jan 2005 14:25:15 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: ee21rh@surrey.ac.uk
+Subject: Re: OpenOffice crashes due to incorrect access permissions on /dev/dri/card*
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Restrict procfs permissions
-References: <20050129024542.GB12270@lsrfire.ath.cx> <20050129044109.GR8859@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050129044109.GR8859@parcelfarce.linux.theplanet.co.uk>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <pan.2005.01.29.13.02.51.478976@surrey.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <pan.2005.01.29.10.44.08.856000@surrey.ac.uk>
+	 <E1CurmR-0000H8-00@calista.eckenfels.6bone.ka-ip.net>
+	 <pan.2005.01.29.12.49.13.177016@surrey.ac.uk>
+	 <pan.2005.01.29.13.02.51.478976@surrey.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Sat, Jan 29, 2005 at 03:45:42AM +0100, Rene Scharfe wrote:
+On Sat, 29 Jan 2005 13:02:51 +0000, Richard Hughes <ee21rh@surrey.ac.uk> wrote:
+> On Sat, 29 Jan 2005 12:49:16 +0000, Richard Hughes wrote:
+> > Note, that strace glxgears gives exactly the same output, going from 0 to
+> > 14 and then seg-faulting, so it's *not just a oo problem*.
 > 
->> The patch is inspired by the /proc restriction parts of the
->> GrSecurity patch.  The main difference is the ability to configure
->> the restrictions dynamically.  You can change the umask setting by
->> running
->> 
->> # mount -o remount,umask=007 /proc
->> 
->> Testing has been *very* light so far -- it compiles and boots.
->> Patch is against 2.6.11-rc2-bk6.
->> 
->> Comments are very welcome.
+> I know it's bad to answer your own post, but here goes.
 > 
+> I changed my /etc/udev/permissions.d/50-udev.permissions config to read:
 > 
-> It leaves already existing inodes with whatever mode they used to
-> have.
+> dri/*:root:root:0666
+> 
+> changing it from
+> 
+> dri/*:root:root:0660
+> 
+> And oowriter and glxgears work from bootup. Shall I file a bug with udev?
 
-I said "configure the restrictions dynamically" but I meant "doesn't
-need a recompile to change settings".  I expect the umask to be
-specified in /etc/fstab and rarely changed in a running system.  With
-that in mind I think the patch is useful as-is, especially because it's
-so small.  But I agree, that thing is a dirty hack. :]
+Your user ID needs to belong to group DRI.
 
-> _IF_ you want to do that sort of things, do it right - add
-> ->permission() that would apply that umask before checks and if you
-> want it to be seen in results of stat(2) - add ->gettattr() and do
-> the same there.
-
-Aww, that sounds expensive.  My favourite solution would be to only 
-allow the umask to be changed at mount time, not when remounting.
-
-Calling parse_options from proc_fill_super, only and not from 
-proc_remount does not help very much because proc_fill_super is only 
-called at boot (or proc module load time).  Is there another way?
-
-While we are here: how would one change the uid or gid parameter? With a 
-built-in proc fs the mount -a -t proc in the init scripts only results 
-in a proc_remount call which (in mainline) doesn't bother looking at 
-parameters at all.  The same is true for a unmount, mount sequence.
-
-Thanks,
-Rene
+-- 
+Jon Smirl
+jonsmirl@gmail.com

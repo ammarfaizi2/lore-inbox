@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264940AbUALTVH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 14:21:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265283AbUALTVH
+	id S266148AbUALTir (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 14:38:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266177AbUALTir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 14:21:07 -0500
-Received: from smtp3.Stanford.EDU ([171.67.16.117]:41624 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S264940AbUALTVF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 14:21:05 -0500
-Message-ID: <4002F317.2070102@myrealbox.com>
-Date: Mon, 12 Jan 2004 11:18:47 -0800
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.5a (20031223)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, reserfs-list@namesys.com
-Subject: loopback over reiserfs broken in 2.6.1-mm1
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 14:38:47 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:48143 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266148AbUALTiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 14:38:46 -0500
+Date: Mon, 12 Jan 2004 19:38:44 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allow SGI IOC4 chipset support
+Message-ID: <20040112193844.B6991@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jes Sorensen <jes@wildopensource.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040106010924.GA21747@sgi.com> <20040106102538.A14492@infradead.org> <yq0fzelchtw.fsf@wildopensource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <yq0fzelchtw.fsf@wildopensource.com>; from jes@wildopensource.com on Mon, Jan 12, 2004 at 10:22:35AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi-
+On Mon, Jan 12, 2004 at 10:22:35AM -0500, Jes Sorensen wrote:
+> +	snia_pciio_endian_set(dev, PCIDMA_ENDIAN_LITTLE, PCIDMA_ENDIAN_BIG);
 
-on 2.6.1-mm1, where /var is reiserfs:
+Shouldn't we check for a failure here?
 
-[root@luto var]# dd if=/dev/zero of=foo count=1024
-1024+0 records in
-1024+0 records out
-[root@luto var]# losetup /dev/loop0 foo
-ioctl: LOOP_SET_FD: Invalid argument
-
-This works on ext3 and XFS, and it worked on -test11.  It does not work 
-in /tmp or anything bind-mounted off reiserfs, but it does work in bind 
-mounts from ext3.  Any ideas?
-
-/proc/mounts:
-
-rootfs / rootfs rw 0 0
-/dev/root / ext3 rw,noatime 0 0
-none /dev devfs rw 0 0
-/proc /proc proc rw 0 0
-/sys /sys sysfs rw 0 0
-usbdevfs /proc/bus/usb usbdevfs rw 0 0
-none /dev/pts devpts rw 0 0
-none /dev/shm tmpfs rw 0 0
-/dev/hda5 /usr reiserfs rw,noatime 0 0
-/dev/hda6 /var reiserfs rw,nosuid 0 0
-/dev/hda7 /data xfs rw,noatime,nosuid,usrquota,logbufs=8 0 0
-tmpfs /dev/shm tmpfs rw 0 0
-/dev/hda6 /var/tmp reiserfs rw,nosuid 0 0
-
-
---Andy

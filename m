@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318128AbSG2XXm>; Mon, 29 Jul 2002 19:23:42 -0400
+	id <S318129AbSG2XkE>; Mon, 29 Jul 2002 19:40:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318129AbSG2XXm>; Mon, 29 Jul 2002 19:23:42 -0400
-Received: from fachschaft.cup.uni-muenchen.de ([141.84.250.61]:62990 "EHLO
-	fachschaft.cup.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id <S318128AbSG2XXl>; Mon, 29 Jul 2002 19:23:41 -0400
-Message-Id: <200207292326.g6TNQcI19062@fachschaft.cup.uni-muenchen.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-To: Patrick Mochel <mochel@osdl.org>, Adam Belay <ambx1@netscape.net>
-Subject: Re: [PATCH] integrate driverfs and devfs (2.5.28)
-Date: Tue, 30 Jul 2002 01:25:22 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207291431381.22697-100000@cherise.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.44.0207291431381.22697-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S318132AbSG2XkE>; Mon, 29 Jul 2002 19:40:04 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:12320 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318129AbSG2XkD>; Mon, 29 Jul 2002 19:40:03 -0400
+Date: Tue, 30 Jul 2002 01:44:33 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: oopsen with rc3-aa3
+Message-ID: <20020729234433.GL1201@dualathlon.random>
+References: <20020729174238.GA1919@714-cm.cps.unizar.es> <20020729181020.GU1201@dualathlon.random> <20020729223539.GA1936@714-cm.cps.unizar.es> <20020729224737.GJ1201@dualathlon.random> <20020729231203.GA6314@714-cm.cps.unizar.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020729231203.GA6314@714-cm.cps.unizar.es>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 30. Juli 2002 00:21 schrieb Patrick Mochel:
+On Tue, Jul 30, 2002 at 01:12:03AM +0200, J.A. Magallon wrote:
+> But -rc3-jam3 bombed on the dual-p4xeon box, but works on a PIII laptop.
 
-> 1) devfs imposes a default naming policy. That is bad, wrong and unjust.
-> There shalt not be a default naming policy in the kernel. Period.
+I decored the oops and in short rq_target->idle is NULL, so then
+resched_task bugs out while reading p->need_resched.
 
-Why not? Who really needs the ability to name anything in /dev ?
-You can always use a symlink if you realy, realy want.
+it's the hyperthreading support that bugs out infact.
 
-[..]
-> devfs was already implemented in the wrong way in the first place. Instead
-> of requiring modification to every driver, the devfs registration should
-> have taken place in the subsystem for which the driver belongs to. In most
-> cases (I won't say all), the driver already registers the devices it
-> attaches to with _something_. The proper thing to do is not to create a
-> parallel API, but one the subsystems can use. The subsystems already know
-> most of the information about the device, they should use it.
+I had a look and this should fix it (the first one is just a theorical
+bug, since it's under an ifdef i386 cpu_number_map is an identity, the
+++ thing was the reason I think). Can you test it?
 
-I am afraid I have to disagree violently here.
-A device on this level is a logical thing. It must not matter which subsystem it
-is attached to. Furthermore, the subsystem cannot know what the physical
-device actually does. That's what a driver does.
-
-<snip comments on code quality>
-
-> With symlinks back to the device's directory in the physical hierarchy
-> layout. The user can see what devices of what type they have, and have
-> access to their configuration items.
->
-> It is that mapping (from logical to physical) that is really useful, not
-> the other way around. Users probably aren't going to be poking around
-> in the physical layout as much as they will be in the logical layout (but
-> we keep all the attributes in one place with symlinks between them).
-
-The problem is that a device without a mapping to a driver is a valid
-state. In fact, this is how hotplugging scripts have to work.
+--- 2.4.19rc3aa3/kernel/sched.c.~1~	Sun Jul 28 18:12:19 2002
++++ 2.4.19rc3aa3/kernel/sched.c	Tue Jul 30 01:42:08 2002
+@@ -490,7 +490,7 @@ static inline void pull_task(runqueue_t 
+  */
+ static inline int find_idle_package(int this_cpu)
+ {
+-	int i = this_cpu + 1;
++	int i = cpu_number_map(this_cpu) + 1;
  
-> So why call include the devfs information at all? The SCSI people have
-> been doing something similar for a couple of versions now. They export a
-> driverfs file with the kdev_t value in it. Granted, they export it as one
-> value, which is bad, but it's only the kdev_t number.
+ 	if (i == smp_num_cpus)
+ 		i = 0;
+@@ -500,7 +500,7 @@ static inline int find_idle_package(int 
+ 		physical = cpu_logical_map(i);
+ 		sibling = cpu_sibling_map[physical];
+ 
+-		if (i++ == smp_num_cpus)
++		if (++i == smp_num_cpus)
+ 			i = 0;
+ 		if (idle_cpu(physical) && idle_cpu(sibling))
+ 			return physical;
 
-They export a kdev_t ???
-
-	Regards
-		Oliver
+Andrea

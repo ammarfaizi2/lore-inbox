@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274454AbRITMZw>; Thu, 20 Sep 2001 08:25:52 -0400
+	id <S274449AbRITMYw>; Thu, 20 Sep 2001 08:24:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274451AbRITMZf>; Thu, 20 Sep 2001 08:25:35 -0400
-Received: from [24.254.60.16] ([24.254.60.16]:62116 "EHLO
-	femail26.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S274448AbRITMZa>; Thu, 20 Sep 2001 08:25:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: Adrian Cox <adrian@humboldt.co.uk>, tegeran@home.com
-Subject: Re: via82cxxx_audio locking problems
-Date: Thu, 20 Sep 2001 05:24:38 -0700
-X-Mailer: KMail [version 1.2]
-Cc: t.sailer@alumni.ethz.ch, Thomas Sailer <sailer@scs.ch>,
-        jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3BA9AB43.C26366BF@scs.ch> <01092004333500.00182@c779218-a> <3BA9DBED.9020401@humboldt.co.uk>
-In-Reply-To: <3BA9DBED.9020401@humboldt.co.uk>
+	id <S274455AbRITMYn>; Thu, 20 Sep 2001 08:24:43 -0400
+Received: from res1.hostid.de ([62.146.35.65]:3851 "EHLO res1.hostid.de")
+	by vger.kernel.org with ESMTP id <S274449AbRITMYe>;
+	Thu, 20 Sep 2001 08:24:34 -0400
+Date: Thu, 20 Sep 2001 14:24:57 +0200
+From: Richard Mueller <mueller@teamix.net>
+X-Mailer: The Bat! (v1.52f) Business
+Reply-To: Richard Mueller <mueller@teamix.net>
+Organization: Teamix GmbH
+X-Priority: 3 (Normal)
+Message-ID: <8414177426.20010920142457@teamix.net>
+To: linux-kernel@vger.kernel.org
+Subject: Strange SGID-Bit behavior with 2.2. and 2.4
 MIME-Version: 1.0
-Message-Id: <01092005243800.01369@c779218-a>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 September 2001 05:07 am, Adrian Cox wrote:
-> Nicholas Knight wrote:
-> > thankyouthankyouthankyouthankyouthankyou
-> > Adrian Cox was working on this after I raised the issue on the list,
-> > but nobody got anywhere. All we knew was that there were temporary
-> > lockups appearing when anything was using the mixer.
->
-> This is the right answer. The reason some of us didn't see a problem
-> may actually be quite simple: we were using very small buffers in xmms.
-> Once I increased the xmms buffer size the problem became visible.
+Hello almighty kernelgods...
 
-Interesting, I just experimented with it, bringing down the buffers to 
-200ms (low as they'll go) and pre-buffer % to 0, does seem to have an 
-effect, but it doesn't "fix" the problem for me... Should I just conclude 
-that the tolerance for this is higher on some boards/chips than on 
-others, and that once THIS problem is fixed, it'll go away and I can 
-happily use my volume control again?
+a friend and I discovered some strange diffrence in the beahavior
+of the 2.4, 2.2 Kernels.
+
+Following Commands were done on both kernels:
+---------------------------------------------
+su -
+cd /
+mkdir test
+chmod 2755 test
+chown rdd test
+su rdd
+cd /test
+touch a
+chgrp users a
+chmod 7777 a
+cp a b
+cp /bin/ls d
+chgrp users d
+chmod 7777 d
+cp d e
+
+These results are on 2.4.6
+--------------------------
+drwxr-sr-x    2 rdd      root          190 Sep 14 15:17 .
+drwxr-xr-x   22 root     root          455 Sep 14 14:59 ..
+-rwsrwsrwt    1 rdd      users           0 Sep 14 15:00 a
+-rwsr-sr-t    1 rdd      root            0 Sep 14 15:02 b
+   -->^<-- What's that?
+-rwsrwsrwt    1 rdd      users       46568 Sep 14 15:07 d
+-rwxr-xr-t    1 rdd      root        46568 Sep 14 15:08 e
+
+
+And these on 2.2.16
+-------------------
+drwxr-sr-x   2 rdd      root          103 Sep 14 15:13 .
+drwxr-xr-x  20 root     root          369 Sep 14 15:10 ..
+-rwsrwsrwt   1 rdd      users           0 Sep 14 15:12 a
+-rwsr-xr-t   1 rdd      root            0 Sep 14 15:12 b
+-rwsrwsrwt   1 rdd      users       41552 Sep 14 15:12 d
+-rwsr-xr-t   1 rdd      root        41552 Sep 14 15:13 e
+
+It happens both with ext2 and reiserfs.
+
+
+Can anyone explain this behavior? Would be great.
+
+If this is a damn stupid question, please drop it and kill me. :|
+
+
+Richard Mueller
+

@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264137AbTE0VE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 17:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTE0VE0
+	id S264154AbTE0VG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 17:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264173AbTE0VGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 17:04:26 -0400
-Received: from Mail1.kontent.de ([81.88.34.36]:11706 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264137AbTE0VEX (ORCPT
+	Tue, 27 May 2003 17:06:37 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:24220 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264154AbTE0VFH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 17:04:23 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-Subject: Re: 2.5.69-bk13 USB storage ,few errors
-Date: Tue, 27 May 2003 23:14:04 +0200
-User-Agent: KMail/1.5.1
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <1053972173.1968.18.camel@nalesnik.localhost> <200305270007.16492.oliver@neukum.org> <1053987543.3650.11.camel@nalesnik.localhost>
-In-Reply-To: <1053987543.3650.11.camel@nalesnik.localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Tue, 27 May 2003 17:05:07 -0400
+Date: Tue, 27 May 2003 23:18:17 +0200
+From: Jens Axboe <axboe@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       manish <manish@storadinc.com>,
+       Christian Klose <christian.klose@freenet.de>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030527211817.GB845@suse.de>
+References: <3ED2DE86.2070406@storadinc.com> <200305272032.03645.m.c.p@wolk-project.de> <20030527201028.GJ3767@dualathlon.random> <200305272224.22567.m.c.p@wolk-project.de> <20030527205516.GZ845@suse.de> <20030527210518.GQ8978@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305272314.04758.oliver@neukum.org>
+In-Reply-To: <20030527210518.GQ8978@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 27. Mai 2003 00:19 schrieb Grzegorz Jaskiewicz:
-> On Mon, 2003-05-26 at 23:07, Oliver Neukum wrote:
-> > Am Montag, 26. Mai 2003 23:30 schrieb Grzegorz Jaskiewicz:
-> > > On Mon, 2003-05-26 at 21:05, Oliver Neukum wrote:
-> > > > > this is sony vaio pcg-c1ve notebook
-> > > > > USB storage on 2.4.21-rc3 does not say anything in dmesg, and works
-> > > > > just perfect.
-> > > >
-> > > > Does it work on 2.5? Your dmesg has no errors.
-> > >
-> > > no, it does not on 2.5.69-bk19
-> > > /dev/scsi dir is empty (devfs)
-> >
-> > Do you see it in /proc/scsi/scsi ?
->
-> cat gj@nalesnik:~$ cat /proc/scsi/scsi
-> Attached devices:
-> Host: scsi0 Channel: 00 Id: 00 Lun: 00
->   Vendor: Sony     Model: MSC-U01N         Rev: 1.00
->   Type:   Direct-Access                    ANSI SCSI revision: 02
->
-> gj@nalesnik:~$ ls -l /dev/scsi/
-> total 0
->
-> nalesnik:~# lsusb
-> Bus 001 Device 002: ID 054c:0032 Sony Corp. MemoryStick MSC-U01 Reader
-> Bus 001 Device 001: ID 0000:0000
->
-> well, i can recompile usb system with debug and give you log.
+On Tue, May 27 2003, William Lee Irwin III wrote:
+> I, for one, got a good laugh out of it. =) Makes me wonder if the 2.4
+> distro backport trees' diffs are bigger than 2.4 itself yet.
 
-Sorry about the delay. This is unlikely to yield useful results.
-Usb-storage works. This looks like a devfs problem.
+Heh, well they're open for inspection, it's probably not far off :)
 
-	Regards
-		Oliver
-
+-- 
+Jens Axboe
 

@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266474AbUHYXel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUHYXiC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266474AbUHYXel (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 19:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266466AbUHYXcm
+	id S266341AbUHYXiC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 19:38:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHYXiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 19:32:42 -0400
-Received: from sasami.anime.net ([207.109.251.120]:55185 "EHLO
-	sasami.anime.net") by vger.kernel.org with ESMTP id S266242AbUHYXcB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 19:32:01 -0400
-X-Antispam-Origin-Id: c4dc35da7d5d290438c6d6bdb17308d1
-Date: Wed, 25 Aug 2004 16:31:50 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Dave Jones <davej@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bizarre 2.6.8.1 /sys permissions
-In-Reply-To: <20040825221814.GA20283@redhat.com>
-Message-ID: <Pine.LNX.4.44.0408251630380.17580-100000@sasami.anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Message not sent from an IPv4 address, not delayed by milter-greylist-1.3.8 (sasami.anime.net [0.0.0.0]); Wed, 25 Aug 2004 16:31:50 -0700 (PDT)
+	Wed, 25 Aug 2004 19:38:01 -0400
+Received: from dp.samba.org ([66.70.73.150]:13753 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266281AbUHYXhq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 19:37:46 -0400
+Date: Wed, 25 Aug 2004 16:37:39 -0700
+From: Jeremy Allison <jra@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Spam <spam@tnonline.net>, torvalds@osdl.org, reiser@namesys.com,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040825233739.GP10907@legion.cup.hp.com>
+Reply-To: Jeremy Allison <jra@samba.org>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040825163225.4441cfdd.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > $ cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq
->  > cat: /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_cur_freq: Permission denied
-> Reading this file causes reads from hardware on some cpufreq drivers.
-> This can be a slow operation, so a user could degrade system performance
-> for everyone else by repeatedly cat'ing it.
+On Wed, Aug 25, 2004 at 04:32:25PM -0700, Andrew Morton wrote:
+> 
+> We can add these new features tomorrow, as reiser4-only features, with a
+> plan in hand to generalise them later.
+> 
+> -->>__if__<<-- we think these are features which Linux should offer.
 
-any reason why cpuinfo_cur_freq cant read cpu_khz ?
+Multiple-data-stream files are something we should offer, definately (IMHO).
+I don't care how we do it, but I know it's something we need as application
+developers.
 
-or rather, is there any reason why cpuinfo_cur_freq and /proc/cpuinfo 
-should legitimately differ?
-
--Dan
-
+Jeremy.

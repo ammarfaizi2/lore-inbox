@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316079AbSEOO16>; Wed, 15 May 2002 10:27:58 -0400
+	id <S316083AbSEOO2O>; Wed, 15 May 2002 10:28:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316083AbSEOO15>; Wed, 15 May 2002 10:27:57 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:48283 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S316079AbSEOO14>; Wed, 15 May 2002 10:27:56 -0400
-From: "Ashok Raj" <ashokr2@attbi.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Pete Zaitcev" <zaitcev@redhat.com>
-Cc: <Tony.P.Lee@nokia.com>, <lmb@suse.de>, <woody@co.intel.com>,
-        <linux-kernel@vger.kernel.org>, <zaitcev@redhat.com>
-Subject: RE: InfiniBand BOF @ LSM - topics of interest
-Date: Wed, 15 May 2002 07:27:36 -0700
-Message-ID: <PPENJLMFIMGBGDDHEPBBKEKNDAAA.ashokr2@attbi.com>
+	id <S316084AbSEOO2N>; Wed, 15 May 2002 10:28:13 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:59482 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S316083AbSEOO2M>;
+	Wed, 15 May 2002 10:28:12 -0400
+Date: Wed, 15 May 2002 15:28:17 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: <tigran@einstein.homenet>
+To: Dead2 <dead2@circlestorm.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Initrd or Cdrom as root
+In-Reply-To: <00bd01c1fc16$6fcfbd50$0d01a8c0@studio2pw0bzm4>
+Message-ID: <Pine.LNX.4.33.0205151523500.2461-100000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <E177wy8-0001hK-00@the-village.bc.nu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-InfiniBand specifications provides tools to implement QoS.
+On Wed, 15 May 2002, Dead2 wrote:
+> So, I now have a new problem I hope someone can help me out with.
+> It now mounts the cdrom as root like it should, but then gives me the error:
+> "Warning: unable to open an initial console."
+>
+> I have checked everything I can think of, but if someone could point me to
+> exactly generates this error, I would be forever grateful.
 
-Service Level (SL) and Virtual Lane (VL) managed by the SM determines how
-the SL->VL mapping is performed these attributes are carried in the local
-routing headers when a node sources the packet to the fabric.
+Yes, that is well-known.
 
-The SL is not modified when the packet crosses subnets. IB spec has more
-details on how these could be used. There is a separate congestion control
-work group in IBTA that is trying to address these issue, but i have not see
-that very active. Possibly since the update to 1.0a is due in very short
-time.
+Unix root filesystem cannot be readonly in its entirety. Linux is much
+better, but even Linux is not perfect.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Alan Cox
-Sent: Wednesday, May 15, 2002 4:29 AM
-To: Pete Zaitcev
-Cc: Alan Cox; Tony.P.Lee@nokia.com; lmb@suse.de; woody@co.intel.com;
-linux-kernel@vger.kernel.org; zaitcev@redhat.com
-Subject: Re: InfiniBand BOF @ LSM - topics of interest
+So, what I do is --- I prepare the /var, /home, /etc, /dev in a tar.gz
+file and place it on CD. Then, from rc.sysinit I mount tmpfs on those
+points and unpack the tar.gz from / --- thus ending up with readwrite /var
+/home /etc and /dev. (you could avoid /dev issue by using devfs but then
+you will have other little problems to deal with :)
 
+Btw, you will encounter lots of other problems, of course. Making a Linux
+distribution is fun (I enjoy it) but it is not as trivial as some think.
+It is certainly not a "pile of rpms" and Red Hat certainly do _not_ "just
+package some free software" and sell it. Even without going into the level
+of producing _general purpose_ distribution (which is what Red Hat Linux
+is), making a (even specialized) Linux distribution is non-trivial. But it
+is fun, try it :)
 
-> The thing about Infiniband is that its scope is so great.
-> If you consider Infiniband was only a glorified PCI with serial
-> connector, the congestion control is not an issue. Credits
-
-Congestion control is always an issue 8
-
-> are quite sufficient to provide per link flow control, and
-> everything would work nicely with a couple of switches.
-> Such was the original plan, anyways, but somehow cluster
-> ninjas managed to hijack the spec and we have the rabid
-> overengineering running amok. In fact, they ran so far
-> that Intel jumped ship and created PCI Express, and we
-> have discussions about congestion control. Sad, really...
-
-My interest is in the question "does infiniband have usable congestion
-control for tcp/clustering/networking". I don't actually care if it doesn't
-and I'd rather have most congestion control in software anyway.
-
-Alan
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Regards
+Tigran
 

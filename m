@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbUBUOhN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 09:37:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbUBUOgu
+	id S261565AbUBUO6W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 09:58:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbUBUO6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 09:36:50 -0500
-Received: from ambr.mtholyoke.edu ([138.110.1.10]:32520 "EHLO
-	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S261564AbUBUOgs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 09:36:48 -0500
-Date: Sat, 21 Feb 2004 09:36:41 -0500 (EST)
-From: Ron Peterson <rpeterso@MtHolyoke.edu>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: network / performance problems
-In-Reply-To: <20040220190859.67442592.akpm@osdl.org>
-Message-ID: <Pine.OSF.4.21.0402210917220.482543-100000@mhc.mtholyoke.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 21 Feb 2004 09:58:22 -0500
+Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:44561 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261565AbUBUO6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 09:58:21 -0500
+Date: Sat, 21 Feb 2004 15:58:19 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: "Zephaniah E. Hull" <warp@mercury.d2dc.net>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com, greg@kroah.com
+Subject: Re: [RFC 2.6] sensor chips sysfs interface change (long)
+Message-Id: <20040221155819.7bc58609.khali@linux-fr.org>
+In-Reply-To: <20040221131318.GA31688@babylon.d2dc.net>
+References: <20040218220845.361341c9.khali@linux-fr.org>
+	<20040221131318.GA31688@babylon.d2dc.net>
+Reply-To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I would like to further suggest the renaming of 'sensor<n>' to
+> 'temp<n>_sensor' or 'temp<n>_type', in the interest of being
+> consistent.
 
-On Fri, 20 Feb 2004, Andrew Morton wrote:
-> 
-> Could you chmod user.log and vmstat.log for us?
+Correct. I was precisely thinking of something similar :) For the sake
+of completeness, here is the list of renames that I plan to do:
 
-Oops.  All set.  :\
+temp<n>_hyst  -> temp<n>_max_hyst or temp<n>_crit_hyst
+sensor<n>     -> temp<n>_type
+pwm<n>        -> fan<n>_pwm
+pwm<n>_enable -> fan<n>_pwm_enable
+vid           -> in<n>_ref
 
-> There are a few things you should try - you probably already have:
-> 
-> - Stop all applications, restart them
-> 
-> - Unload net driver module, reload and reconfigure it.
-> 
-> If either of those (or similar operations) are found to bring the latency
-> back to normal then that would be a big hint.  ie: we need to find
-> something which brings the performance back apart from a complete reboot.
+I think that this should define a self-explanatory and easily extendable
+interface. There are a few "technical" terms remaining (in, pwm, vrm),
+but since these are the words used in the sensors domain, I feel like we
+better keep them as they are.
 
-I have managed to get the system back without reboot.  I stopped all
-sendmail and mimedefang processes.  After a few minutes, I brought down
-the (virtual) interface eth0:2 that served to host the MX IP 
-address.  Shortly later, the machine came back.
+Thanks a lot for your constructive comment, I appreciate that.
 
-That was on mist, the heavily loaded mail gateway.  I just added a couple
-more graphs in folder 'other' that show a couple of other machines being
-monitored by tap.  Ping response times grow over time, no matter what
-machine is being monitored (not just linux).  Tap does not have any
-virtual interfaces.
-
-> Also, look out for consistent increases in either urer or system CPU time.
-
-OK.  Have to run to the dump and other errands now, though... ;)
-
-Thanks.
-
-_________________________
-Ron Peterson
-Network & Systems Manager
-Mount Holyoke College
-
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

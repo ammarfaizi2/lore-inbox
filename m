@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbTISIGk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 04:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbTISIGk
+	id S261434AbTISILY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 04:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbTISILY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 04:06:40 -0400
-Received: from mail.videonetworks.com ([193.128.170.146]:51463 "EHLO
-	natst.videonetworks.com") by vger.kernel.org with ESMTP
-	id S261409AbTISIGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 04:06:39 -0400
-Message-ID: <3F6ABA4A.64DF0652@videonetworks.com>
-Date: Fri, 19 Sep 2003 09:11:54 +0100
-From: Dominic Robinson <d.robinson@videonetworks.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Fri, 19 Sep 2003 04:11:24 -0400
+Received: from main.gmane.org ([80.91.224.249]:61677 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261434AbTISILX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 04:11:23 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.22 multicast address problem, pcap workaround
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: How does one get paid to work on the kernel?
+Date: Fri, 19 Sep 2003 10:10:46 +0200
+Message-ID: <yw1xu179mc55.fsf@users.sourceforge.net>
+References: <1063915370.2410.12.camel@laptop-linux> <yw1xad91nrmd.fsf@users.sourceforge.net>
+ <1063958370.5520.6.camel@laptop-linux>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:qZDhsvdjoMmHRjpFq4YqBHJk3KA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please cc to d.robinson@videonetworks.com
+Nigel Cunningham <ncunningham@clear.net.nz> writes:
 
-My source machine sends multicast packets on all the following
-addresses: 230.1.1.1, 230.1.1.2 through to 230.1.1.64
+> There is support in the current kernel for Software Suspend, but the 2.4
+> version contains a lot of extra functionality that isn't present in 2.6
+> at the moment. (Support for HighMem, swap files, asynchronous I/O, a
+> nicer user interface, compression...).
 
-My target machine (on local network, or with cross-over cable)
-joins all these multicast groups, and receives packets on all
-of these addresses EXCEPT 230.1.1.18 and 230.1.1.32.  
+I see.  BTW, is it possible to boot normally, and later resume from
+the saved state, provided you don't touch any filesystems or swap
+areas involved in the suspend?  I seem to recall reading somewhere
+that it would be possible, but I can't find any information on how to
+do it.
 
-However, if I run tcpdump at the same time as my program, I
-find my program suddenly starts receiving on 230.1.1.[18,32]
-If I kill tcpdump, my program stops receiving.  It's the
-"pcap_open_live()" function in tcpdump which causes this, 
-and as a workaround I just call it direct in my receiver.
+-- 
+Måns Rullgård
+mru@users.sf.net
 
-Could this be a bug in the multicast kernel code?
-
-NOTES: 
-(1) 230.1.1.1 to 230.1.64.1 and 230.1.1.1 to 230.64.1.1
-    has the same problem.
-(2) 230.1.1.1 to 230.1.1.63 works
-(3) 230.1.1.1 to 230.1.1.128 fails with slightly different
-    behaviour
-(4) It makes no difference if I run a single program 
-    listening on all addresses, or 64 individual programs
-    each listening on a single address.
-
-Thanks and regards,
-Dominic

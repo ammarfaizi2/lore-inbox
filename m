@@ -1,69 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268157AbUHQITm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268191AbUHQIVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268157AbUHQITm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 04:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268170AbUHQISN
+	id S268191AbUHQIVo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 04:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268182AbUHQIUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 04:18:13 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:57802 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268156AbUHQIRL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 04:17:11 -0400
-Date: Tue, 17 Aug 2004 10:18:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
-Message-ID: <20040817081829.GA1977@elte.hu>
-References: <1092624221.867.118.camel@krustophenia.net> <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <20040817021431.169d07db@mango.fruits.de> <1092701223.13981.106.camel@krustophenia.net> <20040817073927.GA594@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040817073927.GA594@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 17 Aug 2004 04:20:16 -0400
+Received: from mailhub2.uq.edu.au ([130.102.149.128]:60173 "EHLO
+	mailhub2.uq.edu.au") by vger.kernel.org with ESMTP id S268165AbUHQITl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 04:19:41 -0400
+Message-ID: <412185B0.4080105@torque.net>
+Date: Tue, 17 Aug 2004 14:12:32 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en, es-es, es
+MIME-Version: 1.0
+To: Matthew Wilcox <willy@debian.org>
+CC: Greg KH <greg@kroah.com>, martins@au.ibm.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: VPD in sysfs
+References: <20040814182932.GT12936@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040814182932.GT12936@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > Yes, Ingo identified an issue with copy_page_range, I don't think it's
-> > fixed yet.  See the voluntary-preempt-2.6.8.1-P0 thread.
+Matthew Wilcox wrote:
+> I've been sent a patch that reads some VPD from the Symbios NVRAM and
+> displays it in sysfs.  I'm not sure whether the way the author chose
+> to present it is the best.  They put it in 0000:80:01.0/host0/vpd_name
+> which seems a bit too scsi-specific and insufficiently forward-looking
+> (I bet we want to expose more VPD data than that in the future, so we
+> should probably use a directory).
 > 
-> right, it's not fixed yet. It's not a trivial critical section - we
-> are holding two locks and are mapping two atomic kmaps.
+> I actually have a feeling (and please don't kill me for saying this), that
+> we should add a struct vpd * to the struct device.  Then we need something
+> like the drivers/base/power/sysfs.c file (probably drivers/base/vpd.c)
+> that takes care of adding vpd to each device that wants it.
+> 
+> Thoughts?  Since there's at least four and probably more ways of getting
+> at VPD, we either need to fill in some VPD structs at initialisation or
+> have some kind of vpd_ops that a driver can fill in so the core can get
+> at the data.
 
-fortunately it's easier than i thought - neither the source pmd nor the
-target pmd can go away so we can simply drop the locks, reschedule, and
-remap. Does the patch below (ontop of -P3) fix the copy_page_range()
-latencies you are seeing?
+Vital Product Data (VPD) seems to be an ever increasing
+area for all sorts of data. Here is a list (from sg_inq
+in sg3_utils) of existing and proposed VPD pages for SCSI
+targets and LUs:
 
-	Ingo
+struct vpd_name {
+     int number;
+     int peri_type;
+     char * name;
+};
 
---- linux/mm/memory.c.orig	
-+++ linux/mm/memory.c	
-@@ -337,6 +337,15 @@ cont_copy_pte_range_noset:
- 				}
- 				src_pte++;
- 				dst_pte++;
-+				if (voluntary_need_resched()) {
-+					pte_unmap_nested(src_pte);
-+					pte_unmap(dst_pte);
-+					spin_unlock(&src->page_table_lock);
-+					cond_resched_lock(&dst->page_table_lock);
-+					spin_lock(&src->page_table_lock);
-+					dst_pte = pte_offset_map(dst_pmd, address);
-+					src_pte = pte_offset_map_nested(src_pmd, address);
-+				}
- 			} while ((unsigned long)src_pte & PTE_TABLE_MASK);
- 			pte_unmap_nested(src_pte-1);
- 			pte_unmap(dst_pte-1);
+static struct vpd_name vpd_name_arr[] = {
+     {0x0, 0, "Supported VPD pages"},
+     {0x80, 0, "Unit serial number"},
+     {0x82, 0, "ASCII implemented operating definition"},
+     {0x83, 0, "Device identification"},
+     {0x84, 0, "Software interface identification"},
+     {0x85, 0, "Management network addresses"},
+     {0x86, 0, "Extended INQUIRY data"},
+     {0x87, 0, "Mode page policy"},
+     {0x88, 0, "SCSI ports"},
+     {0x89, 0, "ATA information"},
+     {0xb0, 0, "Block limits (sbc2)"},
+     {0xb0, 0x1, "SSC device capabilities (ssc3)"},
+     {0xb0, 0x11, "OSD information (osd)"},
+     {0xb1, 0x11, "Security token (osd)"},
+};
+
+The most interesting one in the above list is the
+"Device identification" VPD page (0x83) which may contain
+multiple descriptors each identifying either a:
+   - SCSI port (of a target)
+   - SCSI target
+   - SCSI logical unit
+
+And here is a selection of possible identifier formats:
+    - naa (2,5 or 6)
+    - eui-64
+    - t10 vendor
+    - SCSI name string (iSCSI here)
+    - MD5 logical unit identifier
+    - vendor specific
+amongst others.
+
+["The great thing about standards is that there are so many
+to choose from."]
+
+And your patch is about attaching VPD data to a SCSI HBA (host)
+via sysfs.
+"struct vpd" should be interesting ...
+
+Doug Gilbert
+
+
+

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSEYXnU>; Sat, 25 May 2002 19:43:20 -0400
+	id <S315457AbSEYXk6>; Sat, 25 May 2002 19:40:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315459AbSEYXk6>; Sat, 25 May 2002 19:40:58 -0400
-Received: from bs1.dnx.de ([213.252.143.130]:61610 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S315452AbSEYXju>;
-	Sat, 25 May 2002 19:39:50 -0400
-Date: Sun, 26 May 2002 01:27:41 +0200
+	id <S315454AbSEYXjw>; Sat, 25 May 2002 19:39:52 -0400
+Received: from bs1.dnx.de ([213.252.143.130]:61098 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S315457AbSEYXjs>;
+	Sat, 25 May 2002 19:39:48 -0400
+Date: Sun, 26 May 2002 00:47:11 +0200
 From: Robert Schwebel <robert@schwebel.de>
-To: Mark Mielke <mark@mark.mielke.cc>
+To: Karim Yaghmour <karim@opersys.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-Message-ID: <20020526012741.D598@schwebel.de>
-In-Reply-To: <Pine.LNX.4.44.0205251057370.6515-100000@home.transmeta.com> <3CEFD65A.ED871095@opersys.com> <20020525143358.A4481@mark.mielke.cc>
+Message-ID: <20020526004710.A598@schwebel.de>
+In-Reply-To: <20020524223950.D22643@work.bitmover.com> <Pine.LNX.4.44.0205250152110.15928-100000@hawkeye.luckynet.adm> <20020525091444.H28795@work.bitmover.com> <3CEFB9C6.FC21D7CB@opersys.com> <20020525092557.K28795@work.bitmover.com> <3CEFBEA3.71611EDB@opersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,31 +20,25 @@ User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 25, 2002 at 02:33:58PM -0400, Mark Mielke wrote:
-> From what I understand, Linux _is_ being considered for RT applications
-> by quite a few heavy-weights in the field including IBM, Intel and quite
-> a few others. 
+On Sat, May 25, 2002 at 12:41:07PM -0400, Karim Yaghmour wrote:
+> Developers will simply not come out in the cold and say we chose OS xyz
+> instead of Linux because of the rtlinux issues. But talk to them in
+> private and then you get an entirely different picture.
 
-Uhm, that shows that you don't have _any_ idea what's going on in the
-automation field. IBM is an IT company, and Intel is a processor
-manufacturer. We are talking about the world of signal processors and PLCs
-here, where companies like Siemens, ABB, Schneider etc. are the big
-players. 
+That's also my experience: 
 
-> My limited observations suggest that the primary reasons people do not
-> use Linux for their RT applications are:
-> 
->     1) They don't trust it for 'high availability'.
+- I have been on all major automation trade shows in Germany for about 5
+  years
 
-Not correct. 
+- I am the author of one of the two German books about Embedded Linux and
+  of lots of articles about Linux for automation 
 
->     2) They already have their application mostly written, or
->        completely written, for some other RT operating system, and
->        it would cost too much to switch.
+- I have organized the largest developer conference in Germany about "Linux
+  for industrial applications" 
 
-You would be wondering how fast you can port an application for another
-RTOS to RTAI. There is even a module for RTAI/LXRT which lets you run
-Matlab/RTW code natively on RTAI...
+During all that activities I have talked to hundrets of people who are
+either already working with Linux or considering it's use. What Karim says
+here does exactly reflect the mood of the people. 
 
 Robert
 -- 

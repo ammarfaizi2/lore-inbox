@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262130AbTCVXfI>; Sat, 22 Mar 2003 18:35:08 -0500
+	id <S261949AbTCVX3h>; Sat, 22 Mar 2003 18:29:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262178AbTCVXfI>; Sat, 22 Mar 2003 18:35:08 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:908 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S262130AbTCVXfG>; Sat, 22 Mar 2003 18:35:06 -0500
-Message-ID: <3E7CF5D1.9020901@myrealbox.com>
-Date: Sat, 22 Mar 2003 15:46:25 -0800
-From: walt <wa1ter@myrealbox.com>
+	id <S262130AbTCVX3h>; Sat, 22 Mar 2003 18:29:37 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42184 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261949AbTCVX3g>;
+	Sat, 22 Mar 2003 18:29:36 -0500
+Message-ID: <3E7CF48F.9070204@pobox.com>
+Date: Sat, 22 Mar 2003 18:41:03 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
 Organization: none
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.3b) Gecko/20030213
-X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.65-ac2:  Zip drive problem continues
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.65-ac3
+References: <200303222050.h2MKopw28918@devserv.devel.redhat.com>
+In-Reply-To: <200303222050.h2MKopw28918@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+Alan Cox wrote:
+> Linux 2.5.65-ac3
+> o	Revert some dead fb stuff I missed		(me)
+> o	Fix eisa printk for 0 devices			(me)
+> o	Resync with Linus bk3
+> 	- Drop broken tty changes in Linus tree
+> o	Implement tty changes properly			(me)
 
-Long ago, about 2.5.50 or so, I posted here about the ppa
-Iomega parallel-port Zip drive driver causing a kernel panic.
 
-I know that the ppa driver isn't your baby, but it now is
-really the only obstacle preventing me from adopting the
-2.5 kernel, which otherwise seems great for my purposes.
+tty fixes... yum!
 
-If I compile ppa into the kernel it causes a panic at boot.
-If I compile it as a module it still causes error messages
-when loaded, and doesn't work properly.
+Once your tty and ide bits are merged, what's left on the plate (in your 
+opinion) before 2.6.0-test1?
 
-Is there something you can do to get this driver working --
-or a fire you can light under someone else who could make
-the appropriate fixes?
+	Jeff
 
-Thanks for all the wonderful work you do for us open-source
-fans!
+
 

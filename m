@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264591AbTK3AjO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 19:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264592AbTK3AjN
+	id S264494AbTK3BAb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 20:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbTK3BAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 19:39:13 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:10508 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S264591AbTK3AjL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 19:39:11 -0500
-Date: Sun, 30 Nov 2003 01:39:04 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Sven Luther <sven.luther@wanadoo.fr>
-Cc: John Bradford <john@grabjohn.com>, Szakacsits Szabolcs <szaka@sienet.hu>,
-       Apurva Mehta <apurva@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bug-parted@gnu.org
-Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
-Message-ID: <20031130003904.GB5465@win.tue.nl>
-References: <20031128045854.GA1353@home.woodlands> <20031128142452.GA4737@win.tue.nl> <20031129022221.GA516@gnu.org> <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi> <20031129123451.GA5372@win.tue.nl> <200311291350.hATDo0CY001142@81-2-122-30.bradfords.org.uk> <20031129170103.GA6092@iliana> <20031129221424.GA5456@win.tue.nl> <20031129224411.GA9214@iliana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031129224411.GA9214@iliana>
-User-Agent: Mutt/1.3.25i
+	Sat, 29 Nov 2003 20:00:31 -0500
+Received: from h008.c007.snv.cp.net ([209.228.33.236]:20160 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id S264494AbTK3BAa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 20:00:30 -0500
+X-Sent: 30 Nov 2003 01:00:29 GMT
+Message-ID: <000d01c3b6dd$30ab34a0$8a04a943@bananacabana>
+From: "Chris Peterson" <chris@potamus.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: question about preempt_disable()
+Date: Sat, 29 Nov 2003 16:59:21 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 29, 2003 at 11:44:11PM +0100, Sven Luther wrote:
+I just bought Robert Love's new book "Linux Kernel Development". The book
+has been very informative, but I have some unanswered questions about kernel
+preemption.
 
-> That said, i really doubt that a standard BIOS can boot from a not MBR
-> containing disk, but i may be wrong.
+>From what I understand, SMP-safe code is also preempt-safe. The preempt
+count is the number of spinlocks held by the current kernel thread. If the
+preempt code is greater zero, then the kernel thread cannot be preempted.
 
-The BIOS reads the MBR and jumps to the code loaded from there.
-There is no need for any partition table, or, if there is a table,
-for any particular format. It is all up to the code that is found
-in the MBR.
+My question is: if the code is already SMP-safe and holding the necessary
+spinlocks, why is the preempt count necessary? Why must preemption be
+disabled and re-enabled as spinlocks are acquired and released? Is it just
+an optimization for accessing per-cpu data? Or is it necessary to prevent
+priority inversion of kernel threads, when a low priority thread holds
+spinlock X and is preempted by a high priority thread that hogs the CPU,
+forever spinning in spin_lock(&X)?
+
+
+chris
 

@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUEJWUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUEJWWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbUEJWUs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 18:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbUEJWUs
+	id S261984AbUEJWWY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 18:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbUEJWWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 18:20:48 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:54032 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261648AbUEJWUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 18:20:39 -0400
-Date: Mon, 10 May 2004 23:20:38 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-Message-ID: <20040510232038.A8331@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040510024506.1a9023b6.akpm@osdl.org> <20040510223755.A7773@infradead.org> <20040510150203.3257ccac.akpm@osdl.org> <20040510230558.A8159@infradead.org> <20040510151554.49965f1d.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 10 May 2004 18:22:23 -0400
+Received: from web14922.mail.yahoo.com ([216.136.225.6]:13926 "HELO
+	web14922.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261984AbUEJWWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 18:22:13 -0400
+Message-ID: <20040510222211.78262.qmail@web14922.mail.yahoo.com>
+Date: Mon, 10 May 2004 15:22:11 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: Is it possible to implement interrupt time printk's reliably?
+To: James Simmons <jsimmons@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       keithp@keithp.com
+In-Reply-To: <Pine.LNX.4.44.0405102253330.8016-100000@phoenix.infradead.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040510151554.49965f1d.akpm@osdl.org>; from akpm@osdl.org on Mon, May 10, 2004 at 03:15:54PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 03:15:54PM -0700, Andrew Morton wrote:
-> It beats the alternatives which are floating about, which includes a sysctl
-> which defeats CAP_SYS_MLOCK system-wide.
+So how long is the delay between PCI probe time (when the framebuffer goes
+active) and when early user space is up with initrd? Or is initrd up first? If
+initrd is up first then early user space mode setting will occur at the same
+time that it does currently.
 
-That one might not be nice, but at least it doesn't randomly change
-the meaning of a group id.  So yeah, although it's a hack too it's
-much much better than the junk that just went into Linus tree.
-
-Why btw do we have a staging tree if such sensitive patches go into
-mainline without proper review after just one day?
-
-> >  What happened to the patch rick promised
-> > to make mlock an rlimit?  This is the right approach and could be easily
-> > extended to hugetlb pages.
+--- James Simmons <jsimmons@infradead.org> wrote:
 > 
-> rlimits don't work for this.  shm segments persist after process exit and
-> aren't associated with a particular user.
+> > So how do printk's work in the very early boot? Is the video card active
+> before
+> > the kernel probes it's module, or are these very early printk's being queued
+> > until the video driver is probed?
+> 
+> printk messages are stored in log_buf in printk.c. The console driver just 
+> reads the buffer and displays what is in the buffer. Look at printk.c 
+> carefully.
+> 
+>  
+> 
 
-When did shm segments come into the play?  I know we bolted hugetlb
-support onto the back of the already horrible sysv shm interface, but
-if people want additional interfaces ontop of that they should use
-the proper mmap api.
 
+=====
+Jon Smirl
+jonsmirl@yahoo.com
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Win a $20,000 Career Makeover at Yahoo! HotJobs  
+http://hotjobs.sweepstakes.yahoo.com/careermakeover 

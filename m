@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263646AbTKQTHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 14:07:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTKQTHZ
+	id S263584AbTKQTPU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 14:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263586AbTKQTPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 14:07:25 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:5764 "EHLO
-	myware.akkadia.org") by vger.kernel.org with ESMTP id S263646AbTKQTHX
+	Mon, 17 Nov 2003 14:15:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60564 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263584AbTKQTPP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 14:07:23 -0500
-Message-ID: <3FB91C54.5020905@redhat.com>
-Date: Mon, 17 Nov 2003 11:07:00 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-CC: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Michal Wronski <wrona@mat.uni.torun.pl>
-Subject: Re: [PATCH] POSIX message queues - syscalls & SIGEV_THREAD
-References: <Pine.GSO.4.58.0311161546260.25475@Juliusz> <20031117064832.GA16597@mail.shareable.org> <Pine.GSO.4.58.0311171236420.29330@Juliusz>
-In-Reply-To: <Pine.GSO.4.58.0311171236420.29330@Juliusz>
-X-Enigmail-Version: 0.81.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Mon, 17 Nov 2003 14:15:15 -0500
+Date: Mon, 17 Nov 2003 19:15:13 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Is initramfs freed after kernel is booted?
+Message-ID: <20031117191513.GA24159@parcelfarce.linux.theplanet.co.uk>
+References: <E1ALlQs-000769-00.arvidjaar-mail-ru@f7.mail.ru> <3FB90A6A.4050505@nortelnetworks.com> <20031117180312.GZ24159@parcelfarce.linux.theplanet.co.uk> <200311172133.59839.arvidjaar@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200311172133.59839.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Nov 17, 2003 at 09:33:59PM +0300, Andrey Borzenkov wrote:
+> On Monday 17 November 2003 21:03, viro@parcelfarce.linux.theplanet.co.uk 
+> wrote:
+> > On Mon, Nov 17, 2003 at 12:50:34PM -0500, Chris Friesen wrote:
+> > > viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > > >On Mon, Nov 17, 2003 at 11:06:48AM -0500, Chris Friesen wrote:
+> > > >>Anyone know why it overmounts rather than pivots?
+> > > >
+> > > >Because amount of extra code you lose that way takes more memory than
+> > > >empty roots takes.
+> > > >
+> > > >Remove whatever files you don't need and be done with that.
+> > >
+> > > How do you remove files from the old rootfs after the new one has been
+> > > mounted on top of it?
+> >
+> > You do that before ;-)
+> 
+> would the following work?
+> 
+> pivot_root . /initramfs
+> cd /initramfs && rm -rf *
 
-Krzysztof Benedyczak wrote:
-> In userspace we can assign one futex to
-> every such a queue and pass it to kernel in mq_notify syscall. Then we can
-> use FUTEX_FD to get file descriptors of all futexes and wait on them with
-> poll(). On the kernel side it notification have to be triggered we change
-> futex value and do FUTEX_WAKE.
+No.  pivot_root() will not move the absolute root of tree elsewhere.
 
-Yes, this would be possible if FUTEX_FD wouldn't be useless as it is
-implemented today (see the futex paper I announced here recently).  The
-thing which makes FUTEX_WAIT work is the current value of the futex
-which is passed to the kernel and based on which the userlevel code made
-it decisions.  This part doesn't exist in case of using FUTEX_FD.
+> ?? doing it before is rather hard ... you apparently still need something to 
+> execute your mounts :)
 
+You do, but you can trivially call unlink() on the executable itself.  It
+will be freed after it does exec() of final /sbin/init...
 
-The main recent I suggested using futexes for the notification is that
-it is flexible.  For now, we can use simple waiting by creating the
-thread ahead of time.  This could change later when there is a reliable
-multi-futex wait operation.
+Alternatively, you could
+mkdir /root
+mount final root on /root
 
-- -- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+chdir("/root");
+mount("/", "initramfs", NULL, MS_BIND, NULL);
+mount(".", "/", NULL, MS_MOVE, NULL);
+chroot(".");
+execve("/sbin/init", ...)
 
-iD8DBQE/uRxU2ijCOnn/RHQRArcGAJ921MfetyPy1ciyYE2C7SG6nm0RLQCfbbwh
-AUFbyDBmQJGAd1Vk+20TaTc=
-=o+cD
------END PGP SIGNATURE-----
-
+and have init scripts do rm -rf /initramfs/*; umount /initramfs

@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbULaLRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbULaLR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbULaLRb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 06:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbULaLRb
+	id S261852AbULaLR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 06:17:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbULaLR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 06:17:31 -0500
-Received: from livid.absolutedigital.net ([66.92.46.173]:47751 "EHLO
-	mx2.absolutedigital.net") by vger.kernel.org with ESMTP
-	id S261849AbULaLR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 06:17:26 -0500
-Date: Fri, 31 Dec 2004 06:17:26 -0500 (EST)
-From: Cal Peake <cp@absolutedigital.net>
-To: Ikke <ikke.lkml@gmail.com>
-cc: Michael Berger <mikeb1@t-online.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Compile error in kernel 2.6.10-bk3 in file slhc.c
-In-Reply-To: <297f4e0104123102571bb1759f@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0412310614320.6599@lancer.cnet.absolutedigital.net>
-References: <3hbOM-43L-21@gated-at.bofh.it> <41D5009E.4090100@t-online.de>
- <297f4e0104123102571bb1759f@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 31 Dec 2004 06:17:59 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38809 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261852AbULaLRz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 06:17:55 -0500
+Date: Fri, 31 Dec 2004 06:28:26 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: William Park <opengeometry@yahoo.ca>, juhl-lkml@dif.dk,
+       linux-kernel@vger.kernel.org
+Subject: Re: waiting 10s before mounting root filesystem?
+Message-ID: <20041231082826.GE7081@logos.cnet>
+References: <20041227195645.GA2282@node1.opengeometry.net> <20041227201015.GB18911@sweep.bur.st> <41D07D56.7020702@netshadow.at> <20041229005922.GA2520@node1.opengeometry.net> <20041230152531.GB5058@logos.cnet> <Pine.LNX.4.61.0412310011400.3494@dragon.hygekrogen.localhost> <Pine.LNX.4.61.0412310234040.4725@dragon.hygekrogen.localhost> <20041231035834.GA2421@node1.opengeometry.net> <20041231014905.30b05a11.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041231014905.30b05a11.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Dec 2004, Ikke wrote:
+On Fri, Dec 31, 2004 at 01:49:05AM -0800, Andrew Morton wrote:
+> William Park <opengeometry@yahoo.ca> wrote:
+> >
+> > -		printk("VFS: Cannot open root device \"%s\" or %s\n",
+> >  -				root_device_name, b);
+> >  -		printk("Please append a correct \"root=\" boot option\n");
+> >  +		if (--tryagain) {
+> >  +		    printk (KERN_WARNING "VFS: Waiting %dsec for root device...\n", tryagain);
+> >  +		    ssleep (1);
+> >  +		    goto retry;
+> >  +		}
+> >  +		printk (KERN_CRIT "VFS: Cannot open root device \"%s\" or %s\n", root_device_name, b);
+> >  +		printk (KERN_CRIT "Please append a correct \"root=\" boot option\n");
+> 
+> Why is this patch needed?  If it is to offer the user a chance to insert
+> the correct medium or to connect the correct device, 
 
-> Could you point me to the patch please?
+The media may take a while to become readable (think of CDROM).
 
-at:
+> why not rely upon the user doing that thing and then hitting reset? 
 
-http://linux.bkbits.net:8080/linux-2.5/cset@1.2082?nav=index.html|ChangeSet@-1d
+I think this is not the case (only) case the patch covers up.
 
-and below.
+Yes its ugly.
 
--- Cal
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/12/30 15:21:16-08:00 acme@conectiva.com.br 
-#   [PATCH] Fix net/core/sock.o build failure
-#   
-#   This fixes a build failure that happens when you don't select IPV6.
-#   
-#   Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-# 
-# include/linux/ipv6.h
-#   2004/12/29 14:22:45-08:00 acme@conectiva.com.br +1 -1
-#   Fix net/core/sock.o build failure
-# 
-diff -Nru a/include/linux/ipv6.h b/include/linux/ipv6.h
---- a/include/linux/ipv6.h	2004-12-31 03:15:16 -08:00
-+++ b/include/linux/ipv6.h	2004-12-31 03:15:16 -08:00
-@@ -273,6 +273,7 @@
- 	struct ipv6_pinfo inet6;
- };
- 
-+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
- static inline struct ipv6_pinfo * inet6_sk(const struct sock *__sk)
- {
- 	return inet_sk(__sk)->pinet6;
-@@ -283,7 +284,6 @@
- 	return &((struct raw6_sock *)__sk)->raw6;
- }
- 
--#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
- #define __ipv6_only_sock(sk)	(inet6_sk(sk)->ipv6only)
- #define ipv6_only_sock(sk)	((sk)->sk_family == PF_INET6 && __ipv6_only_sock(sk))
- #else

@@ -1,87 +1,81 @@
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S264784AbSKJJlQ>; Sun, 10 Nov 2002 04:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S264786AbSKJJlQ>; Sun, 10 Nov 2002 04:41:16 -0500
-Received: from [212.96.2.205] ([212.96.2.205]:24077 "HELO 2mails2393.com") by vger.kernel.org with SMTP id <S264784AbSKJJlP>; Sun, 10 Nov 2002 04:41:15 -0500
-From: "Abdulrahman Taofeek" <abdulrahman@weedmail.com>
-Reply-To: abdul_rahman@excite.com
-To: linux-kernel@vger.kernel.org
-Date: Sun, 10 Nov 2002 10:46:29 -0800
-Subject: urgently
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="===_SecAtt_000_1fflougumdnnxr"
-Message-Id: <20021110094115Z264784-32597+19513@vger.kernel.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S265385AbSK1KNI>; Thu, 28 Nov 2002 05:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S265396AbSK1KNI>; Thu, 28 Nov 2002 05:13:08 -0500
+Received: from mail20.bigmailbox.com ([209.132.220.51]:55998 "EHLO mail20.bigmailbox.com") by vger.kernel.org with ESMTP id <S265385AbSK1KNG>; Thu, 28 Nov 2002 05:13:06 -0500
+Date: Thu, 28 Nov 2002 02:19:24 -0800
+Message-Id: <200211281019.gASAJOY10920@mail20.bigmailbox.com>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [192.116.106.6]
+From: "Benjamin Danjuma" <bendanjuma@37.com>
+To: bendanjuma@37.com
+Subject: Gold  assistance
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
-X-Envelope-To: </home/ralf/ralf> (uid 501)
-Original-Recipient: rfc822;ralf@linux-mips.org
 
---===_SecAtt_000_1fflougumdnnxr
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+            WE URGENTLY REQUIRE YOUR ASSISTANCE 
 
-FROM THE DESK OF THE SECRETARY=2C 
-KUWAIT DEVELOPMENT PANEL=2C 
-KUWAIT=2E 
- 
-TEL=3A 011-871-762336687=2E FAX=3A 011-871-762336689=2E 
- 
-BUSINESS OPPORTUNITY 
- 
- 
- Dear Sir=2C 
- 
-As part of efforts to rebuild Afghanistan and to 
-assist the government led by Ahmed Kazai aftermath 
-the tragic events of Sept 11=2Cthe Kuwaiti government 
-out of it's current crude oil sales and excess in 
-her budgetary projections has decided to be part of 
-the reconstruction and rehabilitation efforts in 
-the Kandahar and Jalalabad provinces of Afghanistan=2E 
- 
-In line with this efforts our panel has been mandated 
-to shop for reliable and genuine contractors 
-and suppliers in the Australian=2CAsia Pacific and 
-African region due to the apathy currently being 
-experienced in the United States and the European 
-Union=2E 
-Our interest are in the areas of health 
-=2Cagriculture=2Cworks=2Ceducation and other developmental 
-sectors=2C 
-Do notify us by e-mail and fax =28due to language 
-barrier=29 if you or your agency is able and vibrant to 
-be part of this reconstruction efforts=2C introduce your 
-business activity properly to enable us appraise your 
-details=2E 
- 
-Upon shortlisting you will be directed to proceed with 
-prototype of your product or services to meet 
-with the Project Approval=2FImplementation Committee 
-Officials for a final seal of approval before 
-mobilisation is granted for your approved projects=2E 
- 
-Further details will be forwarded to you upon receipt 
-of your response=2E 
- 
-Yours Faithfully=2C 
- 
-Abdulrahman Taofeek=2E
-Secretary=2CAfghanistan Development Panel=2E 
+      I greet you in the name of Allah. My name is Benjamin Danjuma, a very close and personal assistant to 
+the late Head of State of Nigeria, Gen Sanni Abacha 
+who died in office in 1998. 
+
+During my boss rule, some persons in the now ruling 
+political parties were charged with felony in the 
+Court of jurisdiction and those found guilty were 
+consequently jailed . Now as a retaliatory measure on 
+all that served during ABACHA’S regime and late head 
+of state family itself, they are all out to seize, 
+destroy and confiscate all perceived and suspected 
+wealth, estate, companies etc that has to do with my 
+late boss. 
+
+Few days before the death of my boss, I was mandated 
+to deposit some GOLD in a security company in one of 
+the West African countries, to be precise, Ghana. I 
+only came back to meet the death of my boss. This they 
+have not discovered and I am only in the know. To 
+avoid seizure if discovered, my lawyer advised me to 
+open a correspondence wit someone who can help us 
+evacuate the GOLD to a safe place and change ownership 
+(on trust). We are ready to cede some portion to you 
+consequent upon an agreement signed by an attorney. 
+
+If you are capable and it touches your mind to assist 
+a fellow human being that has been subjected to 
+humiliation, indicate your interest to assist, quickly 
+reply to my email box indicating your interest to 
+assist. 
+
+PLEASE NOTE THE FOLLOWING 
+
+1.THE WORTH OF THE GOLD IS USD35,000,000.00 . 
+2.DOCUMENTS OF THE GOLD PASS TO YOU AFTER 
+VERIFCATIONOF THE GOLD AND AGREEMENT SIGNED. 
+3. WE SHALL CEDE 20% WORTH OF THE GOLD TO YOU FOR YOUR 
+URGENT AND KIND ASSISTANCE. 
+
+Please this communication is confidential. It is only 
+in the know of the attorney, you and family. No other 
+party should have knowledge of this transaction. 
+
+While expecting your urgent response and further 
+update from my attorney, accept my sincere greetings. 
+
+Thanks 
 
 
 
 
+------------------------------------------------------------
+http://Game.37.com/  <--- Free Games
+http://newJoke.com/   <---  J O K E S  ! ! !
 
 
---===_SecAtt_000_1fflougumdnnxr
-Content-Type: application/octet-stream; name="ddd12.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="ddd12.txt"
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---===_SecAtt_000_1fflougumdnnxr--
+---------------------------------------------------------------------
+Express yourself with a super cool email address from BigMailBox.com.
+Hundreds of choices. It's free!
+http://www.bigmailbox.com
+---------------------------------------------------------------------

@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVCUOzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVCUO6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVCUOzs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 09:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVCUOzs
+	id S261819AbVCUO6P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 09:58:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVCUO6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 09:55:48 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:34514 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261816AbVCUOzr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 09:55:47 -0500
-Subject: Re: [PATCH] alpha build fixes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Richard Henderson <rth@twiddle.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-       chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>,
-       Leendert van Doorn <leendert@watson.ibm.com>,
-       Reiner Sailer <sailer@watson.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050319231116.GA4114@twiddle.net>
-References: <423BABBF.6030103@pobox.com> <20050319231116.GA4114@twiddle.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1111416728.14833.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 21 Mar 2005 14:52:10 +0000
+	Mon, 21 Mar 2005 09:58:15 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:38836 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261819AbVCUO6M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 09:58:12 -0500
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.11.2][RFC] printk with anti-cluttering-feature
+References: <Pine.LNX.4.58.0503200528520.2804@be1.lrz>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 21 Mar 2005 15:58:10 +0100
+In-Reply-To: <Pine.LNX.4.58.0503200528520.2804@be1.lrz> (Bodo Eggert's
+ message of "Sun, 20 Mar 2005 05:37:20 +0100 (CET)")
+Message-ID: <m1is3l3v25.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-03-19 at 23:11, Richard Henderson wrote:
-> On Fri, Mar 18, 2005 at 11:34:07PM -0500, Jeff Garzik wrote:
-> > +/* TODO: integrate with include/asm-generic/pci.h ? */
-> > +static inline int pci_get_legacy_ide_irq(struct pci_dev *dev, int channel)
-> > +{
-> > +	return channel ? 15 : 14;
-> > +}
-> 
-> Am I missing something, or is this *only* used by drivers/ide/pci/amd74xx.c?
-> Why in the world would we have this much infrastructure for one driver?  And
-> why not just not compile that one for Alpha, since it'll never be used.
+Bodo Eggert <7eggert@gmx.de> writes:
+>
+> atkbd.c: Keyboard on isa0060/serio0 reports too many keys pressed.
+>  (I'm using a keyboard switch and a IBM PS/2 keyboard)
 
-The issue is bigger - it's needed for the CMD controllers on PA-RISC for
-example it appears - and anything else where IDE legacy IRQ is wired
-oddly.
+This one should be just taken out. It is as far as I can figure out
+completely useless and happens on most machines.
+
+-Andi
 

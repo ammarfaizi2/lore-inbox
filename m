@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269249AbTGOToI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 15:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269569AbTGOToI
+	id S269602AbTGOTrS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 15:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269616AbTGOTrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 15:44:08 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:24259 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269249AbTGOToF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 15:44:05 -0400
-Date: Tue, 15 Jul 2003 12:51:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jim Keniston <jkenisto@us.ibm.com>
-Cc: jmorris@intercode.com.au, davem@redhat.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, jgarzik@pobox.com, alan@lxorguk.ukuu.org.uk,
-       rddunlap@osdl.org, kuznet@ms2.inr.ac.ru, jkenisto@us.ibm.com
-Subject: Re: [PATCH] [1/2] kernel error reporting (revised)
-Message-Id: <20030715125121.315920a2.akpm@osdl.org>
-In-Reply-To: <3F143D0A.A052F0B6@us.ibm.com>
-References: <Mutt.LNX.4.44.0307131052420.2146-100000@excalibur.intercode.com.au>
-	<3F143D0A.A052F0B6@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 15 Jul 2003 15:47:18 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:40917 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S269602AbTGOTrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 15:47:17 -0400
+Date: Tue, 15 Jul 2003 22:00:48 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       James Simmons <jsimmons@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, dank@reflexsecurity.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
+Message-ID: <20030715200048.GF8240@wohnheim.fh-wedel.de>
+References: <1058290204.3857.51.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.44.0307151833310.7746-100000@phoenix.infradead.org> <20030715175758.GC15505@suse.de> <20030715184909.GD8240@wohnheim.fh-wedel.de> <20030715191328.GB20424@suse.de> <20030715192853.GE8240@wohnheim.fh-wedel.de> <20030715193224.GE20424@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030715193224.GE20424@suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Keniston <jkenisto@us.ibm.com> wrote:
->
-> +int kernel_error_event_iov(const struct iovec *iov, unsigned int nseg,
-> +	u32 groups)
-> +{
-> ...
-> +
-> +	return netlink_broadcast(kerror_nl, skb, 0, ~0, GFP_ATOMIC);
+On Tue, 15 July 2003 20:32:24 +0100, Dave Jones wrote:
+> On Tue, Jul 15, 2003 at 09:28:53PM +0200, J?rn Engel wrote:
+> 
+>  > So what is lunatic about doing the same with 2.6test?
+> 
+> Simple, there are known problems in 2.6.0test.
+> At the time of embedded folks using 2.4.5, there were no known problems.
 
-This appears to be deadlocky when called from interrupt handlers.
+The VM was enough of a problem for one flamewar or another.  There is
+even a faint memory of major construction work around 2.4.10.
 
-netlink_broadcast() does read_lock(&nl_table_lock).  But nl_table_lock is
-not an irq-safe lock.
+You may be right for an x86 design that work out of the box, but I got
+used to extensive adjustments and just as extensive test afterwards.
+If those test are successful, the kernel is stable by definition,
+whatever the known problems may be.
 
-Possibly netlink_broadcast() can be made callable from hardirq context, but
-it looks to be non trivial.  The various error and delivery handlers need
-to be reviewed, the kfree_skb() calls should be thought about, etc.
+Jörn
 
+-- 
+Eighty percent of success is showing up.
+-- Woody Allen

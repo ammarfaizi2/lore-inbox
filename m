@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261668AbSI0Mvz>; Fri, 27 Sep 2002 08:51:55 -0400
+	id <S261695AbSI0M4A>; Fri, 27 Sep 2002 08:56:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261696AbSI0Mvz>; Fri, 27 Sep 2002 08:51:55 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:23058 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S261668AbSI0Mvv>; Fri, 27 Sep 2002 08:51:51 -0400
-Message-Id: <200209271239.g8RCdIp09188@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Gcc k6 testing account <caligula@cam029208.student.utwente.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.32 bootfailure for nfsroot
-Date: Fri, 27 Sep 2002 15:33:32 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: nfs@lists.sourceforge.net
-References: <Pine.LNX.4.44.0209021041260.30980-100000@cam029208.student.utwente.nl>
-In-Reply-To: <Pine.LNX.4.44.0209021041260.30980-100000@cam029208.student.utwente.nl>
+	id <S261696AbSI0M4A>; Fri, 27 Sep 2002 08:56:00 -0400
+Received: from 62-190-217-91.pdu.pipex.net ([62.190.217.91]:13316 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S261695AbSI0Mz7>; Fri, 27 Sep 2002 08:55:59 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209271308.g8RD8JPE000494@darkstar.example.net>
+Subject: Re: Distributing drivers independent of the kernel source tree
+To: schwab@suse.de (Andreas Schwab)
+Date: Fri, 27 Sep 2002 14:08:19 +0100 (BST)
+Cc: arjanv@redhat.com, Daniel.Heater@gefanuc.com, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, jgarzik@pobox.com
+In-Reply-To: <jed6qzy4xi.fsf@sykes.suse.de> from "Andreas Schwab" at Sep 27, 2002 02:48:09 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The subject says it all.
-> > 2.5.32 doesn't boot when using nfsroot.
-> > same systems running fine with 2.4.19/2.5.31
-> >
-> > SYSTEMS:
-> >    athlon with/without preempt. (flatbak)
-> >    i586 with preempt.           (cam029205)
-> >
-> > The relevant configs/dmesg/lspci are on
-> > cam029208.student.utwente.nl/~caligula.
-> >
-> > SYMPTOMS:
-> > I'm using loadlin to load the kernels. I see the kernel loading,unzipping
-> > and then...black screen followed by reboot.
->
-> Small update.
-> Still no joy with 2.5.33. Same results,same symptoms :(
+> 
+> jbradford@dial.pipex.com writes:
+> 
+> |> > > 2. Assuming the kernel source is in /usr/src/linux is not always valid.
+> |> > >=20
+> |> > > 3. I currently use /usr/src/linux-`uname -r` to locate the kernel source
+> |> > > which is just as broken as method #2.
+> |> > 
+> |> > you have to use
+> |> > 
+> |> > /lib/modules/`uname -r`/build
+> |> > (yes it's a symlink usually, but that doesn't matter)
+> |> > 
+> |> > 
+> |> > that's what Linus decreed and that's what all distributions honor, and
+> |> > that's that make install does for manual builds.
+> |> 
+> |> What about instances where there is no modular support in the kernel?
+> 
+> If your kernel has no module support then you cannot compile kernel
+> modules.
 
-Why do you think it is nfsroot related?
-Does it boot off local filesystem?
---
-vda
+Sorry, my first post was a brain fart, I thought the original poster was talking about the correct way to identify the verison of source code that you're 'looking at'.  Appologies for the wasted bandwidth.
+
+John.

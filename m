@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264770AbRFTIZA>; Wed, 20 Jun 2001 04:25:00 -0400
+	id <S264853AbRFTI0k>; Wed, 20 Jun 2001 04:26:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264853AbRFTIYu>; Wed, 20 Jun 2001 04:24:50 -0400
-Received: from 22dyn160.com21.casema.net ([213.17.92.160]:56591 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S264770AbRFTIYm>;
-	Wed, 20 Jun 2001 04:24:42 -0400
-Date: Wed, 20 Jun 2001 10:22:52 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: intermittent hangs with threads (clone() bug?/linuxthreads bug?)
-Message-ID: <20010620102252.A6553@home.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <0632CC5F67853B4D96D542BAE8AD008274BA10@merc08.na.sas.com>
-Mime-Version: 1.0
+	id <S264854AbRFTI0a>; Wed, 20 Jun 2001 04:26:30 -0400
+Received: from ns.suse.de ([213.95.15.193]:26117 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S264853AbRFTI0S>;
+	Wed, 20 Jun 2001 04:26:18 -0400
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: Should VLANs be devices or something else?
+In-Reply-To: <3B2FCE0C.67715139@candelatech.com.suse.lists.linux.kernel> <Pine.LNX.4.33.0106191641150.17061-100000@duely.gurulabs.com.suse.lists.linux.kernel> <15151.55017.371775.585016@pizda.ninka.net.suse.lists.linux.kernel> <3B2FDD62.EFC6AEB1@candelatech.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 20 Jun 2001 10:26:15 +0200
+In-Reply-To: Ben Greear's message of "20 Jun 2001 01:26:03 +0200"
+Message-ID: <oup3d8vftg8.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <0632CC5F67853B4D96D542BAE8AD008274BA10@merc08.na.sas.com>; from Ed.Connell@sas.com on Tue, Jun 19, 2001 at 05:23:48PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 05:23:48PM -0400, Ed Connell wrote:
+Ben Greear <greearb@candelatech.com> writes:
+> 
+> Adding the hashed lookup for devices took the exponential curve out of
+> ip and ifconfig's performance, btw.
 
-> If I run, for example, linuxthreads/Examples/ex1 (one thread prints 'a',
->    one prints 'b') it will run fine.  If I run it from a shell script
->    (bash or ksh) with exec ex1
-> it almost always hangs.  When I do a "ps" I see the original "ex1" process
-> plus another defunct "ex1" process with a higher pid.  This defunct
+And fixing the ifconfig user data structures took it also.
+Probably just ip needs similar tuning.
+No need to add the name lookup hash table to the kernel.
 
-and if you redirect output to /dev/null?
+Perhaps it would be best if you could post your current patch without
+these hash tables, so that it can be properly reviewed and hopefully
+merged then.
 
-regards,
-
-bert
-
--- 
-http://www.PowerDNS.com      Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+-Andi

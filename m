@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262860AbTELWgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 18:36:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262842AbTELWgJ
+	id S262867AbTELWia (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 18:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTELWi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 18:36:09 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:63828 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262869AbTELWfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 18:35:50 -0400
-Date: Mon, 12 May 2003 15:44:16 -0700
-From: Andrew Morton <akpm@digeo.com>
+	Mon, 12 May 2003 18:38:29 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62213 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262867AbTELWiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 18:38:04 -0400
+Date: Mon, 12 May 2003 23:48:28 +0100
+From: Russell King <rmk@arm.linux.org.uk>
 To: Paul Fulghum <paulkf@microgate.com>
-Cc: dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: PCMCIA 2.5.X sleeping from illegal context
-Message-Id: <20030512154416.3f502c36.akpm@digeo.com>
-In-Reply-To: <1052775331.1995.49.camel@diemos>
-References: <1052775331.1995.49.camel@diemos>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Message-ID: <20030512234828.C17227@flint.arm.linux.org.uk>
+Mail-Followup-To: Paul Fulghum <paulkf@microgate.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1052775331.1995.49.camel@diemos> <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk> <1052742964.1467.3.camel@doobie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 May 2003 22:48:30.0151 (UTC) FILETIME=[9BBF3D70:01C318D8]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1052742964.1467.3.camel@doobie>; from paulkf@microgate.com on Mon, May 12, 2003 at 07:36:05AM -0500
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum <paulkf@microgate.com> wrote:
->
-> The 2.5.X PCMCIA kernel support seems to have a problem
-> with drivers/pcmcia/rsrc_mgr.c in function undo_irq().
+On Mon, May 12, 2003 at 07:36:05AM -0500, Paul Fulghum wrote:
+> On Mon, 2003-05-12 at 16:07, Alan Cox wrote:
+> > On Llu, 2003-05-12 at 22:35, Paul Fulghum wrote:
+> > > The 2.5.X PCMCIA kernel support seems to have a problem
+> > > with drivers/pcmcia/rsrc_mgr.c in function undo_irq().
+> > 
+> > Does this still happen with all the patches Russell King posted
+> > that everyone else is ignoring ?
+> 
+> I don't know, I've been ignoring them :-)
+> 
+> Seriously, are they centralized someplace or
+> should I scan back and try to extract them
+> from the lk archive? Do you know about when
+> they were posted?
 
-The timer handlers need to be converted to use schedule_delayed_work(),
-or (more probably) schedule_work().
+Try this one.  Its a slightly updated version from the one I sent earlier.
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> Does this still happen with all the patches Russell King posted
-> that everyone else is ignoring ?
-
-I've had the below in -mm for a couple of weeks.  I don't know if
-it fixes the down()-in-timer-handler bug?
-
-
-
-
-From: Russell King <rmk@arm.linux.org.uk>
-
-Ok, I think everyone ignored my last email about the updated pcmcia
-deadlock patch.  I've done a little more work on it since then, so
-here it is again.  Feedback welcome.
-
-It should apply to bk-curr or 2.5.68 (probably with some offsets
-though.)
-
-I've tried all manner of cardctl operations vs plugging and unplugging
-cards, as well as module insertion and removal - it seems pretty rock
-solid for me.
-
-
-
- 25-akpm/drivers/pcmcia/cs.c          |  721 +++++++++++++++++++----------------
- 25-akpm/drivers/pcmcia/cs_internal.h |    9 
- 2 files changed, 418 insertions(+), 312 deletions(-)
-
-diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
---- 25/drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2	Tue Apr 29 13:29:35 2003
-+++ 25-akpm/drivers/pcmcia/cs.c	Tue Apr 29 13:29:35 2003
-@@ -302,11 +302,8 @@ static int proc_read_clients(char *buf, 
+diff -u /net/flint/usrc/linux-bk-2.5/linux-2.5-pcmcia/drivers/pcmcia/cs.c linux/drivers/pcmcia/cs.c
+--- /net/flint/usrc/linux-bk-2.5/linux-2.5-pcmcia/drivers/pcmcia/cs.c	Sat Apr 26 23:00:59 2003
++++ linux/drivers/pcmcia/cs.c	Sat Apr 26 23:07:24 2003
+@@ -302,11 +302,8 @@
      
  ======================================================================*/
  
@@ -76,11 +60,11 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
 -static void unreset_socket(socket_info_t *);
 -static void parse_events(void *info, u_int events);
 +static int pccardd(void *__skt);
-+void pcmcia_unregister_socket(struct device *dev);
++void pcmcia_unregister_socket(struct class_device *dev);
  
  #define to_class_data(dev) dev->class_data
  
-@@ -317,7 +314,7 @@ int pcmcia_register_socket(struct class_
+@@ -317,7 +314,7 @@
  {
  	struct pcmcia_socket_class_data *cls_d = class_get_devdata(class_dev);
  	socket_info_t *s_info;
@@ -89,7 +73,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  
  	if (!cls_d)
  		return -EINVAL;
-@@ -330,6 +327,7 @@ int pcmcia_register_socket(struct class_
+@@ -330,6 +327,7 @@
  	memset(s_info, 0, cls_d->nsock * sizeof(socket_info_t));
  
  	cls_d->s_info = s_info;
@@ -97,7 +81,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  
  	/* socket initialization */
  	for (i = 0; i < cls_d->nsock; i++) {
-@@ -344,7 +342,7 @@ int pcmcia_register_socket(struct class_
+@@ -344,7 +342,7 @@
  		s->erase_busy.next = s->erase_busy.prev = &s->erase_busy;
  		INIT_LIST_HEAD(&s->cis_cache);
  		spin_lock_init(&s->lock);
@@ -106,7 +90,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  		/* TBD: remove usage of socket_table, use class_for_each_dev instead */
  		for (j = 0; j < sockets; j++)
  			if (socket_table[j] == NULL) break;
-@@ -353,6 +351,20 @@ int pcmcia_register_socket(struct class_
+@@ -353,6 +351,20 @@
  
  		init_socket(s);
  		s->ss_entry->inquire_socket(s->sock, &s->cap);
@@ -117,7 +101,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
 +		spin_lock_init(&s->thread_lock);
 +		ret = kernel_thread(pccardd, s, CLONE_KERNEL);
 +		if (ret < 0) {
-+			pcmcia_unregister_socket(dev);
++			pcmcia_unregister_socket(class_dev);
 +			break;
 +		}
 +
@@ -127,7 +111,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  #ifdef CONFIG_PROC_FS
  		if (proc_pccard) {
  			char name[3];
-@@ -368,7 +380,7 @@ int pcmcia_register_socket(struct class_
+@@ -368,7 +380,7 @@
  		}
  #endif
  	}
@@ -136,7 +120,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  } /* pcmcia_register_socket */
  
  
-@@ -407,8 +419,12 @@ void pcmcia_unregister_socket(struct cla
+@@ -407,8 +419,12 @@
  			remove_proc_entry(name, proc_pccard);
  		}
  #endif
@@ -151,7 +135,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  		release_cis_mem(s);
  		while (s->clients) {
  			client = s->clients;
-@@ -450,15 +466,6 @@ static void free_regions(memory_handle_t
+@@ -450,15 +466,6 @@
  
  static int send_event(socket_info_t *s, event_t event, int priority);
  
@@ -167,7 +151,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  static void shutdown_socket(socket_info_t *s)
  {
      client_t **c;
-@@ -505,132 +512,6 @@ static void shutdown_socket(socket_info_
+@@ -505,132 +512,6 @@
      free_regions(&s->c_region);
  } /* shutdown_socket */
  
@@ -300,7 +284,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  /*======================================================================
  
      The central event handler.  Send_event() sends an event to all
-@@ -661,61 +542,266 @@ static int send_event(socket_info_t *s, 
+@@ -661,61 +542,266 @@
      return ret;
  } /* send_event */
  
@@ -617,7 +601,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  } /* parse_events */
  
  /*======================================================================
-@@ -727,27 +813,18 @@ static void parse_events(void *info, u_i
+@@ -727,27 +813,18 @@
      
  ======================================================================*/
  
@@ -653,7 +637,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  }
  
  
-@@ -1461,15 +1538,8 @@ int pcmcia_register_client(client_handle
+@@ -1461,15 +1538,8 @@
  
      s = socket_table[ns];
      if (++s->real_clients == 1) {
@@ -670,7 +654,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
      }
  
      *handle = client;
-@@ -2022,30 +2092,44 @@ int pcmcia_request_window(client_handle_
+@@ -2022,30 +2092,44 @@
  
  int pcmcia_reset_card(client_handle_t handle, client_req_t *req)
  {
@@ -737,7 +721,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  } /* reset_card */
  
  /*======================================================================
-@@ -2057,42 +2141,56 @@ int pcmcia_reset_card(client_handle_t ha
+@@ -2057,42 +2141,56 @@
  
  int pcmcia_suspend_card(client_handle_t handle, client_req_t *req)
  {
@@ -822,7 +806,7 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  } /* resume_card */
  
  /*======================================================================
-@@ -2103,57 +2201,58 @@ int pcmcia_resume_card(client_handle_t h
+@@ -2103,57 +2201,58 @@
  
  int pcmcia_eject_card(client_handle_t handle, client_req_t *req)
  {
@@ -922,10 +906,10 @@ diff -puN drivers/pcmcia/cs.c~pcmcia-deadlock-fix-2 drivers/pcmcia/cs.c
  } /* insert_card */
  
  /*======================================================================
-diff -puN drivers/pcmcia/cs_internal.h~pcmcia-deadlock-fix-2 drivers/pcmcia/cs_internal.h
---- 25/drivers/pcmcia/cs_internal.h~pcmcia-deadlock-fix-2	Tue Apr 29 13:29:35 2003
-+++ 25-akpm/drivers/pcmcia/cs_internal.h	Tue Apr 29 13:29:35 2003
-@@ -133,7 +133,6 @@ typedef struct socket_info_t {
+diff -u /net/flint/usrc/linux-bk-2.5/linux-2.5-pcmcia/drivers/pcmcia/cs_internal.h linux/drivers/pcmcia/cs_internal.h
+--- /net/flint/usrc/linux-bk-2.5/linux-2.5-pcmcia/drivers/pcmcia/cs_internal.h	Sat Apr 26 23:01:03 2003
++++ linux/drivers/pcmcia/cs_internal.h	Sat Apr 26 21:34:59 2003
+@@ -133,7 +133,6 @@
      u_short			lock_count;
      client_handle_t		clients;
      u_int			real_clients;
@@ -933,7 +917,7 @@ diff -puN drivers/pcmcia/cs_internal.h~pcmcia-deadlock-fix-2 drivers/pcmcia/cs_i
      pccard_mem_map		cis_mem;
      u_char			*cis_virt;
      config_t			*config;
-@@ -155,6 +154,14 @@ typedef struct socket_info_t {
+@@ -155,6 +154,14 @@
  #ifdef CONFIG_PROC_FS
      struct proc_dir_entry	*proc;
  #endif
@@ -949,5 +933,7 @@ diff -puN drivers/pcmcia/cs_internal.h~pcmcia-deadlock-fix-2 drivers/pcmcia/cs_i
  
  /* Flags in config state */
 
-_
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

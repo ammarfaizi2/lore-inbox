@@ -1,129 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131527AbRAXTbv>; Wed, 24 Jan 2001 14:31:51 -0500
+	id <S129737AbRAXTiV>; Wed, 24 Jan 2001 14:38:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131326AbRAXTbb>; Wed, 24 Jan 2001 14:31:31 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:6480 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S129847AbRAXTbP>;
-	Wed, 24 Jan 2001 14:31:15 -0500
-Message-ID: <3A6F2D6A.107@valinux.com>
-Date: Wed, 24 Jan 2001 12:30:50 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S129847AbRAXTiM>; Wed, 24 Jan 2001 14:38:12 -0500
+Received: from picard.csihq.com ([204.17.222.1]:14723 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S129737AbRAXTiD>;
+	Wed, 24 Jan 2001 14:38:03 -0500
+Message-ID: <06dc01c0863d$29383390$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: Largefile support in 2.4
+Date: Wed, 24 Jan 2001 14:38:00 -0500
 MIME-Version: 1.0
-To: Timur Tabi <ttabi@interactivesi.com>
-CC: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>,
-        Linux MM mailing list <linux-mm@kvack.org>
-Subject: Re: Page Attribute Table (PAT) support?
-In-Reply-To: <20010124174824Z129401-18594+948@vger.kernel.org> <20010124185046Z131368-18595+642@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timur Tabi wrote:
+How do normal users get to create/maintain large files (i.e. >2G) in Linux
+2.4 on i386?
 
-> ** Reply to message from Jeff Hartmann <jhartmann@valinux.com> on Wed, 24 Jan
-> 2001 11:45:43 -0700
-> 
-> 
-> 
->> I'm actually writing support for the PAT as we speak.  I already have 
->> working code for PAT setup.  Just having a parameter for ioremap is not 
->> enough, unfortunately.  According to the Intel Architecture Software 
->> Developer's Manual we have to remove all mappings of the page that are 
->> cached.  Only then can they be mapped with per page write combining.  I 
->> should have working code by the 2.5.x timeframe.  I can also discuss the 
->> planned interface if anyone is interested.
-> 
-> 
-> I'm interested.  Would it be possible to port this support to 2.2, or would
-> that be too much work?
+The root user can make filesize unlimited but a non-root user cannot.  They
+come up with the same limits in both tcsh and bash (i.e. filesize
+1048576 kbytes or 0x40000000)
 
-Its most likely that it will be 2.5.x only for awhile.  I'm not sure at 
-this point if it will make it into 2.4.x, much less 2.2.x.
+I can't seem to find where this number comes from anywhere -- either in
+glibc-2.2.1 or the kernel.   getrlimit64 returns it.
 
-Basically the high level interface will be a several allocation routines 
-which handle the cache/remapping issues for you.  They will allocate 
-groups of pages at once (to minimize smp cache flush issues.)
+I can't make all my users root users!!!  Can anybody help?
 
-Let me give fair warning this is rough writeup of provided interfaces. 
-I'm still not completely done with the design, and it might go through 
-several iterations before I'm done with it.  There is no plan to provide 
-a generic user land interface for these functions.
-
-Here is some function prototypes:
-
-extern int pat_allow_page_write_combine(void);
-
-	This function is called by someone wanting to use the write combine 
-allocation routines.  If it returns 1, per page write combining is 
-available.
-
-
-extern struct page_list *pat_wrtcomb_alloc_page_list(int gfp_mask,
-	unsigned long order,
-	int num_pages);
-
-	An allocation routine which allocates a group of write combined pages.
-
-extern struct virtual_page_list *pat_wrtcomb_vmalloc_page_list(
-	int gfp_mask,
-	int num_pages);
-
-	An allocation routine which allocates a group of write combined pages and 
-maps them contiguously in kernel virtual memory.
-
-extern void pat_wrtcomb_free_page_list(struct page_list *list);
-extern void pat_wrtcomb_vfree_page_list(struct virtual_page_list *list);
-	The corresponding free routines.
-
-
-The following functions would be provided for changing a 4mb mapping to 
-the individual pte's, and vice versa.
-
-
-extern int convert_4mb_page_to_individual(unsigned long address);
-	This function would test to see if the page address given is mapped 
-through a 4mb page in the kernel page tables.  If it is, ever address 
-described by this 4mb page will get converted to individual pte entries.
-
-extern int convert_individual_to_4mb_page(unsigned long address);
-	This does the opposite of the above function when all pages in a range 
-have the same page protection.
-
-These functions are in turn supported by the following page list 
-routines, this is the only part which would be arch-independant:
-struct page_list {
-         unsigned long   *pages;
-         int             num_pages;
-         unsigned long   order;
-};
-
-struct virtual_page_list {
-         struct page_list        *list;
-         void                    *addr;
-};
-
-extern struct page_list *allocate_page_list(int gfp_mask,
-                                             unsigned long order,
-                                             int num_pages);
-
-extern struct virtual_page_list *vmalloc_page_list(unsigned long size,
-                                                    int gfp_mask,
-                                                    pgprot_t prot);
-
-	These functions allocate a page_list or a page_list mapped into kernel 
-virtual memory.
-
-extern void free_page_list(struct page_list *list);
-extern void vfree_page_list(struct virtual_page_list *list);
-	The corresponding free routines.
-
-
-
--Jeff
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267404AbSLNGkG>; Sat, 14 Dec 2002 01:40:06 -0500
+	id <S267467AbSLNHk1>; Sat, 14 Dec 2002 02:40:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267466AbSLNGkG>; Sat, 14 Dec 2002 01:40:06 -0500
-Received: from mx11.dmz.fedex.com ([199.81.193.118]:21001 "EHLO
-	mx11.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S267404AbSLNGkF>; Sat, 14 Dec 2002 01:40:05 -0500
-Date: Sat, 14 Dec 2002 14:45:57 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: 2.5.51 ide module problem
-In-Reply-To: <20021212235934.A770@baldur.yggdrasil.com>
-Message-ID: <Pine.LNX.4.50.0212141423230.15493-100000@boston.corp.fedex.com>
-References: <200212110650.WAA13780@adam.yggdrasil.com>
- <Pine.LNX.4.50.0212111501310.30173-100000@boston.corp.fedex.com>
- <20021211004104.A362@baldur.yggdrasil.com>
- <Pine.LNX.4.50.0212111711180.4632-200000@boston.corp.fedex.com>
- <20021212235934.A770@baldur.yggdrasil.com>
+	id <S267497AbSLNHk1>; Sat, 14 Dec 2002 02:40:27 -0500
+Received: from mgr3.xmission.com ([198.60.22.203]:56139 "EHLO
+	mgr3.xmission.com") by vger.kernel.org with ESMTP
+	id <S267467AbSLNHk0>; Sat, 14 Dec 2002 02:40:26 -0500
+Message-ID: <3DFAE241.7060603@xmission.com>
+Date: Sat, 14 Dec 2002 00:48:17 -0700
+From: Frank Jacobberger <f1j1@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/14/2002
- 02:47:53 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/14/2002
- 02:47:55 PM,
-	Serialize complete at 12/14/2002 02:47:55 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: ehci-hcd.o apparent load failure in 2.4.20-xx.. but
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Who maintains this driver?
 
-On Thu, 12 Dec 2002, Adam J. Richter wrote:
+I'm getting an odd error when kernel boots that the ehci-hcd.o.gz can't 
+load..
 
-> something else?).  For what it's worth, 2.5.51 + init-module-tools-0.9.3
-> is the first kernel-based module loader configuration which works enough
-> so that I'm able to work on other things.  For the past few releases, I
-> had been restoring user level module loading.  There still are a lot of
-> quirks with the kernel based module loading, but you might find it
-> sufficient to get things done.
+or if doing an insmod ehci-hcd I get:
 
-I just test your patch and IDE modules are working now on 2.5.51.
-reiserfs, devmap and lvm2 are all working ... but the modules has
-to be loaded in a certain order, otherwise the whole system would crash.
+insmod ehci-hcd
+Using /lib/modules/2.4.20-0.pp.7/kernel/drivers/usb/hcd/ehci-hcd.o.gz
+/lib/modules/2.4.20-0.pp.7/kernel/drivers/usb/hcd/ehci-hcd.o.gz: 
+init_module: No such device
 
+Dmesg and everything else points to it loading:
 
-modprobe ide-mod
-ide_info /dev/hda
---> this crashs the system
-ide_mod looks for ide_hwifs, start_request, ide_do_request,
-ide_do_drive_cmd, ide_diag_taskfile, ide_raw_taskfile,
-taskfile_lib_get_identify, task_in_intr, proc_ide_read_identify,
-proc_file_read, vfs_read, sys_read, syscall_call
+hcd.c: ehci-hcd @ 00:1d.7, Intel Corp. 82801DB USB EHCI Controller
 
-modprobe ide-disk
-ide_info /dev/hda
---> this works (ide-disk will load ide-mod first)
+and:
 
-Under 2.4, I don't have to load the ide module first, calling fdisk
-/dev/hda will automatically loads the ide modules, but under 2.5, I've to
-manually load the ide modules.
+Doing an lspci bears this out:
 
+00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 02)
+
+No idea why the kernel is balking at boot and not logging this to kernel messages!
+
+Any ideas?
 
 Thanks,
-Jeff.
+
+Frank
+
+
+
+

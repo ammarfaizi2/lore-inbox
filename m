@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbTJWVGE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 17:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbTJWVGD
+	id S261746AbTJWU5x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 16:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbTJWU5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 17:06:03 -0400
-Received: from smtp5.arnet.com.ar ([200.45.191.23]:21644 "HELO
-	smtp5.arnet.com.ar") by vger.kernel.org with SMTP id S261788AbTJWVGB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 17:06:01 -0400
-Message-ID: <3F9842C0.10206@arnet.com.ar>
-Date: Thu, 23 Oct 2003 18:06:08 -0300
-From: Javier Villavicencio <jvillavicencio@arnet.com.ar>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: DuDe <dude68@tiscali.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Radeon 9600 triplex
-References: <200310232251.12780.dude68@tiscali.it>
-In-Reply-To: <200310232251.12780.dude68@tiscali.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 23 Oct 2003 16:57:53 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:3253 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261746AbTJWU5w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 16:57:52 -0400
+Subject: Re: [pm] fix time after suspend-to-*
+From: john stultz <johnstul@us.ibm.com>
+To: george anzinger <george@mvista.com>
+Cc: Pavel Machek <pavel@suse.cz>, Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F9838B4.5010401@mvista.com>
+References: <20031022233306.GA6461@elf.ucw.cz>
+	 <1066866741.1114.71.camel@cog.beaverton.ibm.com>
+	 <20031023081750.GB854@openzaurus.ucw.cz>  <3F9838B4.5010401@mvista.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1066942532.1119.98.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 23 Oct 2003 13:55:33 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DuDe wrote:
+On Thu, 2003-10-23 at 13:23, George Anzinger wrote:
 
-> Hi list, i would like add 9600 radeon support on radeonfb driver, now i have 
-> successfully add a limited support on radeonfb driver, but i have some 
-> problem, the system boot, i see 2 penguin logo but the cursor is scared, and 
-> if use fbset to set resolution, i cant get resolution function but only a 
-> square area of the crt are in hires, the rest is dirty.
-> 
-> Where i can find infos about howto add support in radeonfb? 
-> 
-> Many thanks 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+> I lost (never saw) the first of this thread, BUT, if this is 2.6, I strongly 
+> recommend that settimeofday() NOT be called.  It will try to adjust 
+> wall_to_motonoic, but, as this appears to be a correction for time lost while 
+> sleeping, wall_to_monotonic should not change.
 
-I did something similar taking parts of the radeonfb driver from 
-2.4.23-preX (maybe 6) into 2.6, hard coding the resolution into the code 
-I have 1024x768 and a ugly big cursor on console, fbtv and links on 
-framebuffer works fine, but when I switch back from XFree (using fglrx 
-drivers from ati) the console is completely unusable no matter what can 
-I do with fbset (seems that I missed some clock setting for the RV350).
+While suspended should the notion monotonic time be incrementing? If
+we're not incrementing jiffies, then uptime isn't being incremented, so
+to me it doesn't follow that the monotonic time should be incrementing
+as well. 
 
-So the very first source of support for 9600 is the working driver on 2.4.23
+It may very well be a POSIX timers spec issue, but it just strikes me as
+odd.
 
-Greetings
+thanks
+-john
 
-Javier Villavicencio.
 

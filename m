@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265222AbSLTTzE>; Fri, 20 Dec 2002 14:55:04 -0500
+	id <S265368AbSLTUHd>; Fri, 20 Dec 2002 15:07:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265247AbSLTTzE>; Fri, 20 Dec 2002 14:55:04 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:21254 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265222AbSLTTy6>; Fri, 20 Dec 2002 14:54:58 -0500
-Date: Fri, 20 Dec 2002 20:03:00 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: vesafb no longer works on 2.5.50/51
-In-Reply-To: <20021212192937.GA132@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0212202002270.8777-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265369AbSLTUHd>; Fri, 20 Dec 2002 15:07:33 -0500
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:34958 "EHLO
+	arlx002.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S265368AbSLTUHc>; Fri, 20 Dec 2002 15:07:32 -0500
+Subject: Re: OT: Which Gigabit ethernet card?
+From: Wes Felter <wesley@felter.org>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1021220134612.1509A-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1021220134612.1509A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Dec 2002 14:15:29 -0600
+Message-Id: <1040415329.13019.5.camel@arlx002.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> On one of my machines, vesafb no longer works in 2.5.51 (other machine
-> is okay?!).
+On Fri, 2002-12-20 at 12:48, Bill Davidsen wrote:
+> On Fri, 20 Dec 2002, Jurgen Kramer wrote:
 > 
-> Everything is okay, except I can not see anything on the display.
+> > I know this is a bit OT but because here are the kernel driver hackers
+> > this might be the right place to ask.
+> > 
+> > I am looking for a couple of PCI Gigabit ethernet adapters to play
+> > around with SAN/NAS stuff like iSCSI and HyperSCSI and the like. There
+> > are variuos adapters around which work with Linux. My choice would be
+> > based on the following:
+> > 
+> > - Relatively cheap, around $100/EUR100
+> > - 32 bit/33MHz PCI compatible
+> > - Low cpu usage
+> > - Busmaster DMA
+> > - Opensource Linux driver
+> > - zero-copy capable
+> > - etc.
+> > 
+> > What card is best? 3Com, Intel or National Semi based?
 > 
-> 2.4. (vesafb works):
-> vesafb: framebuffer at 0xee000000, mapped to 0xd080d000, size 8192k
-> vesafb: mode is 1024x768x16, linelength=2048, pages=4
-> vesafb: protected mode interface info at c000:7652
-> vesafb: scrolling: redraw
-> vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
-> 
-> 2.5.51 (vesafb does not work):
-> vesafb: framebuffer at 0xee000000, mapped to 0xd0815000, size 8192k
-> vesafb: mode is 1024x768x16, linelength=2048, pages=4
-> vesafb: protected mode interface info at c000:7652
-> vesafb: scrolling: redraw
-> vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
+> 01:07.0 Ethernet controller: Alteon Networks Inc. AceNIC Gigabit Ethernet
+>   (Fibre) (rev 01)
 
-Can you try my patch to cfbimgblt.c in another post to see if that fixes 
-teh problem.
+Good luck buying one of those for under $100, if you can find one at
+all.
 
+-- 
+Wes Felter - wesley@felter.org - http://felter.org/wesley/

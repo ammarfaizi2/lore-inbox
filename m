@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267265AbTB0XgP>; Thu, 27 Feb 2003 18:36:15 -0500
+	id <S267322AbTB0Xpi>; Thu, 27 Feb 2003 18:45:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267275AbTB0XgP>; Thu, 27 Feb 2003 18:36:15 -0500
-Received: from web11005.mail.yahoo.com ([216.136.131.55]:29035 "HELO
-	web11005.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267265AbTB0XgO>; Thu, 27 Feb 2003 18:36:14 -0500
-Message-ID: <20030227234630.96126.qmail@web11005.mail.yahoo.com>
-Date: Thu, 27 Feb 2003 15:46:30 -0800 (PST)
-From: Kristof Bruyninckx <masterkristof@yahoo.com>
-Subject: MC4952 atapi support
+	id <S267346AbTB0Xpi>; Thu, 27 Feb 2003 18:45:38 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36114 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267322AbTB0Xph>; Thu, 27 Feb 2003 18:45:37 -0500
 To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Invalid compilation without -fno-strict-aliasing
+Date: 27 Feb 2003 15:55:43 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b3m8hv$5fh$1@cesium.transmeta.com>
+References: <20030227203512.GA12623@nevyn.them.org> <Pine.LNX.4.44.0302271234530.9696-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Followup to:  <Pine.LNX.4.44.0302271234530.9696-100000@home.transmeta.com>
+By author:    Linus Torvalds <torvalds@transmeta.com>
+In newsgroup: linux.dev.kernel
+> 
+> On Thu, 27 Feb 2003, Daniel Jacobowitz wrote:
+> > 
+> > We could work around both of these: disable the sign compare warning,
+> > and use check_gcc to set a high number for -finline-limit...
+> 
+> Oh, both are work-aroundable, no question about it. The same way it was 
+> possible to work around the broken aliasing with previous releases. I'm 
+> just hoping that especially the inline thing can be resolved sanely, 
+> otherwise we'll end up having to use something ugly like
+> 
+> 	-D'inline=inline __attribute__((force_inline))'
+> 
+> on every single command line..
+> 
 
-I am trying to make uClinux support the atapi
-protocol. But everytime I compile it i'm getting the
-following errors (see attachement). I already
-rebuilded my toolchain and applied the following patch
-http://www.uclinux.org/ports/coldfire/gcc-2.95.3-m68k-zext.patch
-and got a little further. Do you know what possibly
-goes wrong?? any tips or advice will be deeply welkom.
+Isn't this what compiler.h is for?  If the complaint is that some
+things don't include compiler.h then we may want to force it with
+-include.  Better all the cruft in one file IMO.
 
-yours truly and hoping for a reply
-
-a learing student
-
-
-
-
-
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Tax Center - forms, calculators, tips, more
-http://taxes.yahoo.com/
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

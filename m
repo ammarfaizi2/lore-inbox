@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267441AbSLRTfA>; Wed, 18 Dec 2002 14:35:00 -0500
+	id <S267334AbSLRTbc>; Wed, 18 Dec 2002 14:31:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267452AbSLRTfA>; Wed, 18 Dec 2002 14:35:00 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:29909 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267441AbSLRTe6>; Wed, 18 Dec 2002 14:34:58 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200212181942.gBIJgp418497@devserv.devel.redhat.com>
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-To: lm@bitmover.com (Larry McVoy)
-Date: Wed, 18 Dec 2002 14:42:51 -0500 (EST)
-Cc: alan@redhat.com (Alan Cox), lm@bitmover.com (Larry McVoy),
-       torvalds@transmeta.com (Linus Torvalds),
-       davej@codemonkey.org.uk (Dave Jones),
-       vonbrand@inf.utfsm.cl (Horst von Brand), linux-kernel@vger.kernel.org,
-       akpm@digeo.com (Andrew Morton)
-In-Reply-To: <20021218113324.I7976@work.bitmover.com> from "Larry McVoy" at Dec 18, 2002 11:33:24 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267403AbSLRTbc>; Wed, 18 Dec 2002 14:31:32 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:15531 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S267334AbSLRTba>; Wed, 18 Dec 2002 14:31:30 -0500
+Date: Thu, 19 Dec 2002 08:37:30 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: RE: [ACPI] Re: [PATCH] S4bios for 2.5.52.
+In-reply-to: <20021218085902.GD1012@poup.poupinou.org>
+To: "'Ducrot Bruno'" <poup@poupinou.org>,
+       "'Kai Germaschewski'" <kai@tp1.ruhr-uni-bochum.de>
+Cc: "'Grover, Andrew'" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org,
+       "'Pavel Machek'" <pavel@suse.cz>, acpi-devel@lists.sourceforge.net
+Message-id: <000401c2a6cc$ec43a2f0$0101010a@NigelLaptop>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7bit
+Importance: Normal
+X-Priority: 3 (Normal)
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Dec 18, 2002 at 02:30:48PM -0500, Alan Cox wrote:
-> > We've got one - its called linux-kernel.
-> 
-> Huh?  That's like saying "we don't need a bug database, we have a mailing
-> list".  That's patently wrong and so is your statement.  If you want 
-> reviews you need some place to store them.  A mailing list isn't storage.
-> 
-> You'll do it however you want of course, but you are being stupid about it.
-> Why is that?
+> Kai, if you see that S4OS is slower, it is probably a bug
+> that have to be
+> fixed in swsusp.
 
-We've got a bug database (bugzilla), we've got a system for seeing what opinion
-appears to be -kernel-list
+There does seem to be a problem with the rw_swap_page_sync routine. Perhaps
+not on Pavel's machine (:>), but I've experienced painfully slow suspends
+too. Performance was helped immensely by applying a concept that I'll credit
+Lyle Seaman for - unrolling rw_swap_page_sync and submitting all the IO for
+pages then looping again and waiting on each sync. I found with writing 7000
+or so pages (a suspend from init S) that something gets triggered to force
+the sync about every 3900 pages anyway.
 
+Regards,
+
+Nigel
 

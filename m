@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319462AbSH2X6e>; Thu, 29 Aug 2002 19:58:34 -0400
+	id <S319471AbSH3AHg>; Thu, 29 Aug 2002 20:07:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319463AbSH2X6e>; Thu, 29 Aug 2002 19:58:34 -0400
-Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:36485 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S319462AbSH2X6c>; Thu, 29 Aug 2002 19:58:32 -0400
-Date: Fri, 30 Aug 2002 01:02:50 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: cfraas <chris@weh.rwth-aachen.de>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: PROBLEM: found kernelbug about ext3 filesystem journaling
-Message-ID: <20020830010250.E23868@redhat.com>
-References: <3D6D2971.4030509@weh.rwth-aachen.de>
+	id <S319474AbSH3AHf>; Thu, 29 Aug 2002 20:07:35 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:9641 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319471AbSH3AHf>;
+	Thu, 29 Aug 2002 20:07:35 -0400
+Date: Thu, 29 Aug 2002 17:05:51 -0700 (PDT)
+Message-Id: <20020829.170551.98069822.davem@redhat.com>
+To: pavel@suse.cz
+Cc: alan@lxorguk.ukuu.org.uk, ldb@ldb.ods.org, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH 1 / ...] i386 dynamic fixup/self modifying code
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020829232233.GA18573@atrey.karlin.mff.cuni.cz>
+References: <20020828121129.A35@toy.ucw.cz>
+	<1030663192.1326.20.camel@irongate.swansea.linux.org.uk>
+	<20020829232233.GA18573@atrey.karlin.mff.cuni.cz>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D6D2971.4030509@weh.rwth-aachen.de>; from chris@weh.rwth-aachen.de on Wed, Aug 28, 2002 at 09:50:09PM +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Pavel Machek <pavel@suse.cz>
+   Date: Fri, 30 Aug 2002 01:22:33 +0200
 
-On Wed, Aug 28, 2002 at 09:50:09PM +0200, cfraas wrote:
+   Aha, making a list and just patching early at boot is even simpler
+   than method I was thinking about.... Why not do it that way?
 
-> Aug 28 20:57:17 chris kernel: Assertion failure in 
-> journal_unmap_buffer() at transaction.c:1859: "transaction == 
-> journal->j_running_transaction"
+Even more cleverly you could use subsections, and thus:
 
-There have been a couple of bugs fixed in ext3 that _might_ relate to
-that, but no recent ones I can think of which are definitely
-associated with that sort of sympton.  
+1) __init free the patch code blocks at the end of boot
+2) patch them more simply, the .subsection entries would
+   be "kern_addr, insn" __u32 pairs on x86 for example.
 
-> kernel version from /proc/version:
-> Linux version 2.4.18-6mdk (quintela@bi.mandrakesoft.com) (gcc version 
-> 2.96 20000731 (Mandrake Linux 8.2 2.96-0.76mdk)) #1 Fri Mar 15 02:59:08
-> CET 2002
 
-I'm not sure just what version of the code Mandrake are shipping,
-though.  The latest ext3 is almost completely merged into Marcelo's bk
-tree now --- can you reproduce with that code?
-
-Without ksymoops output for the oops, there's not much else I can do
-with this.
-
---Stephen

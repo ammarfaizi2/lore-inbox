@@ -1,90 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUJESmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUJESm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUJESmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 14:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUJESmY
+	id S264377AbUJESm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 14:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUJESm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 14:42:24 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:37552 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264443AbUJESkj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 14:40:39 -0400
-Message-ID: <4162EAA6.5050608@namesys.com>
-Date: Tue, 05 Oct 2004 11:40:38 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Mahoney <jeffm@novell.com>
-CC: Alex Zarochentsev <zam@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/4] I/O Error Handling for ReiserFS v3
-References: <20041005150819.GA30046@locomotive.unixthugs.org> <4162C156.3030108@namesys.com> <20041005172233.GE28617@backtop.namesys.com> <4162DCAA.50902@namesys.com> <4162E61F.5000103@novell.com>
-In-Reply-To: <4162E61F.5000103@novell.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Oct 2004 14:42:29 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:4256 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264665AbUJESku (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 14:40:50 -0400
+Date: Tue, 5 Oct 2004 20:42:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm2-T1
+Message-ID: <20041005184226.GA10318@elte.hu>
+References: <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <32799.192.168.1.5.1096994246.squirrel@192.168.1.5>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32799.192.168.1.5.1096994246.squirrel@192.168.1.5>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, in a perfect world with all the resources we deserve, we would 
-have a second person test it.  This is the real world though, and Elena 
-is backed up with things to test, and so we should just take the patch.  
-Thanks Jeff.
 
-Hans
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-Jeff Mahoney wrote:
+> Still the same ugliness here with T1. As before, there goes some info
+> attached, which I could collect while barely up and running.
 
-> Hans Reiser wrote:
-> | Alex Zarochentsev wrote:
-> |
-> |> On Tue, Oct 05, 2004 at 08:44:22AM -0700, Hans Reiser wrote:
-> |>
-> |>
-> |>> These have received design approval from zam (and thus me), but zam,
-> |>> did they receive stress testing by Elena under your guidance?
-> |>>
-> |>
-> |>
-> |> No. We have a long queue of test tasks.  There are fsck.reiser4 
-> testing,
-> |> reiser4/dmapper crashes and the benchmarks in the queue.
-> |>
-> | Well, we cannot let our process be a barrier to good patches getting in,
-> | so let me ask, Jeff, did you test each of these conditions you
-> | improved?  How?  Did anyone else test them?
->
-> The "testing" version of the code had a another conditional added to
-> each of the !buffer_update tests that allowed me to trigger an I/O error
-> handling at each error point. The I/O error path is obviously more
-> difficult to test in real-world conditions as I/O errors could be caused
-> by any number of failures.
->
-> The testing was done using fsx-linux, the LTP fsstress program, and
-> stress.sh, sometimes all at once.
->
-> This code has also been active in the SUSE Linux Enterprise Server 9
-> kernel for some time and has seen real-world testing to show that the
-> normal path is still working as expected.
->
-> The end result for the i/o error path is that the write operations still
-> happen, but the commit block is never written. This means that the end
-> result is essentially the same as a power outage at the point of
-> failure. The filesystem is then read-only until the user decides to
-> umount and correct the problem that caused the I/O error in the first 
-> place.
->
-> -Jeff
->
-> --
-> Jeff Mahoney
-> SuSE Labs
+the dmesg info shows you had a crash early on, in khubd:
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+ Badness in remove_proc_entry at fs/proc/generic.c:688
+  [<c018c8e8>] remove_proc_entry+0x152/0x15a
+  [<f8b8e116>] uhci_hcd_init+0x116/0x133 [uhci_hcd]
+  [<c0135f0e>] sys_init_module+0x1df/0x2da
+  [<c01044ed>] sysenter_past_esp+0x52/0x71
+ usb 3-1: new low speed USB device using address 2
+ Unable to handle kernel paging request at virtual address a49c0e0c
 
+i believe this is a crash present in -mm too. In theory such a crash
+could mess up the kernel so best would be if you could try a kernel with
+USB disabled? Hopefully none of your critical devices is on USB ...
+
+	Ingo

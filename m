@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129332AbRBKNwb>; Sun, 11 Feb 2001 08:52:31 -0500
+	id <S129415AbRBKOI1>; Sun, 11 Feb 2001 09:08:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129415AbRBKNwK>; Sun, 11 Feb 2001 08:52:10 -0500
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:54278 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S129332AbRBKNwH>; Sun, 11 Feb 2001 08:52:07 -0500
-Date: Mon, 12 Feb 2001 02:52:04 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Pavel Machek <pavel@suse.cz>, Hacksaw <hacksaw@hacksaw.org>,
-        Tom Eastep <teastep@seattlefirewall.dyndns.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Major Clock Drift
-Message-ID: <20010212025203.A11492@metastasis.f00f.org>
-In-Reply-To: <Pine.LNX.4.30.0102040908320.877-100000@wookie.seattlefirewall.dyndns.org> <200102041804.f14I4br22433@habitrail.home.fools-errant.com> <3A7EA9B3.3507DC8D@uow.edu.au>, <3A7EA9B3.3507DC8D@uow.edu.au>; <20010210225851.G7877@bug.ucw.cz> <3A8671FF.C390FDCC@uow.edu.au>
+	id <S129417AbRBKOIS>; Sun, 11 Feb 2001 09:08:18 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:36876 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129415AbRBKOH7>;
+	Sun, 11 Feb 2001 09:07:59 -0500
+Date: Sun, 11 Feb 2001 15:07:21 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
+Message-ID: <20010211150721.C17129@almesberger.net>
+In-Reply-To: <20010208004021.D189@bug.ucw.cz> <Pine.LNX.4.33.0102080736190.5431-100000@asdf.capslock.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A8671FF.C390FDCC@uow.edu.au>; from andrewm@uow.edu.au on Sun, Feb 11, 2001 at 10:05:35PM +1100
-X-No-Archive: Yes
+In-Reply-To: <Pine.LNX.4.33.0102080736190.5431-100000@asdf.capslock.lan>; from mharris@opensourceadvocate.org on Thu, Feb 08, 2001 at 07:37:48AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 11, 2001 at 10:05:35PM +1100, Andrew Morton wrote:
+Mike A. Harris wrote:
+> On Thu, 8 Feb 2001, Pavel Machek wrote:
+>> wondering when linux boot gets so long that mpeg2 player gets
+>> integrated into kernel.
+> 
+> ;o)
+> 
+> I doubt strongly that that is technically possible. In fact I'm
+> sure it is not.
 
-    And has this been observed to cause clock drift?
+Why not ? Just preload the movie with the kernel, and you can start
+playing as soon as framebuffer, timers, and interrupts are
+available.
 
-I've seen clock-tick loss when using matroxfb...
+Of course, if the word gets out that you're writing such a patch,
+the people from the village may come with torches ... ;-)
 
+- Werner
 
-  --cw
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,127 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284611AbRLPN6i>; Sun, 16 Dec 2001 08:58:38 -0500
+	id <S284613AbRLPOLr>; Sun, 16 Dec 2001 09:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284608AbRLPN6S>; Sun, 16 Dec 2001 08:58:18 -0500
-Received: from elin.scali.no ([62.70.89.10]:43534 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S284611AbRLPN6H>;
-	Sun, 16 Dec 2001 08:58:07 -0500
-Date: Sun, 16 Dec 2001 14:57:53 +0100 (CET)
-From: Terje Eggestad <terje.eggestad@scali.no>
-To: Suresh Gopalakrishnan <gsuresh@cs.rutgers.edu>
-cc: Andrew Morton <akpm@zip.com.au>, GOTO Masanori <gotom@debian.org>,
-        <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: O_DIRECT wierd behavior..
-In-Reply-To: <Pine.GSO.4.02A.10112160417330.26029-100000@aramis.rutgers.edu>
-Message-ID: <Pine.LNX.4.30.0112161454160.26995-100000@elin.scali.no>
+	id <S284619AbRLPOLi>; Sun, 16 Dec 2001 09:11:38 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:23036 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S284613AbRLPOLX>; Sun, 16 Dec 2001 09:11:23 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 16 Dec 2001 05:45:54 -0800 (PST)
+Subject: different behavior with 3c59x module vs built-in
+Message-ID: <Pine.LNX.4.40.0112160540530.7706-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a dell laptop and am useing a 3com cardbus nic in it.
 
-The problem is that the kernel that don't support O_DIRECT has erronous
-handling of the O_DIRECT flag. Meaning they happily accept it.
+currently running 2.4.13 (but I don't remember seeing driver updates since
+then for this driver)
 
-In order to figure out ifthe running kernel support O_DIRECT you MUST
-attempt an unaligned read/write, if it succed the kernel DON'T
-support O_DIRECT.
+If I compile the 3c59x driver into the kernel the nic does not work.
+If I compile the driver as a module and load it manually the nic does work
+it doesn't matter if I load the card first or insert the nic first, in
+both cases the module needs to be loaded manually (even though the kernel
+autoloader is enabled).
 
-TJ
+I'm on a relativly slow line until monday.
 
+let me know if there is anything anyone wants me to try.
 
-On Sun, 16 Dec 2001, Suresh Gopalakrishnan wrote:
-
->
-> On Sun, 16 Dec 2001, Andrew Morton wrote:
-> > GOTO Masanori wrote:
-> > > At Sat, 15 Dec 2001 21:59:06 -0800,
-> > > Andrew Morton wrote:
-> > > ...
-> > > > --- linux-2.4.17-rc1/mm/filemap.c     Thu Dec 13 14:07:55 2001
-> > > > +++ linux-akpm/mm/filemap.c   Sat Dec 15 21:52:06 2001
-> > > > @@ -3038,8 +3038,11 @@ unlock:
-> > > >       /* For now, when the user asks for O_SYNC, we'll actually
-> > > >        * provide O_DSYNC. */
-> > > >       if (status >= 0) {
-> > > > -             if ((file->f_flags & O_SYNC) || IS_SYNC(inode))
-> > > > +             if ((file->f_flags & O_SYNC) || IS_SYNC(inode)) {
-> > > >                       status = generic_osync_inode(inode, OSYNC_METADATA|OSYNC_DATA);
-> > > > +                     if (status < 0)
-> > > > +                             written = 0;    /* Return the right thing */
-> > > > +             }
-> > > >       }
-> > >
-> > > Right. If generic_osync_inode returns error, it must be needed.
-> > > This patch seems ok than my patch...
-> >
-> > Actually, I preferred your approach :)
-> >
-> > Also, note how if ->commit_write() or ->prepare_write() return an
-> > error, and we have already written some data, the function returns the
-> > number of bytes written and no indication that there was an error.
-> > According to the write(2) manpage, that's wrong.
-> >
-> > Probably it is sufficient to make `written' a signed quantity and to
-> > do:
-> >
-> > out_status:
-> > -       err = written ? written : status;
-> > +       err = status ? status : written;
-> >
-> > I think that fixes the five or six bugs we've found so far in this
-> > function.  err..  make that six or seven.  What is it trying do if
-> > ->prepare_write() returns a non-zero, positive value?
-> >
-> > It needs a big spring-clean.  I'm afraid I don't have time to do that
-> > for several days.
->
-> Thanks for the patches. There seems to be one more fix required: the test
-> program below works in 2.4.16 only if the write size is a multiple of 4K.
-> (Why) are all writes expected to be page size, in addition to being page
-> aligned? (It works fine on 2.4.2 for all sizes). Any quick fixes? :)
->
-> --suresh
->
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <fcntl.h>
-> #include <sys/stat.h>
-> #include <sys/types.h>
-> #include <unistd.h>
->
-> #define O_DIRECT         040000 /* direct disk access hint */
->
-> int main()
-> {
->         char *buf;
->         int fd;
->
->         buf = valloc(16384);
->         fd = open("/tmp/blah", O_CREAT | O_RDWR | O_DIRECT, 0755 );
->
->         printf("write returns %i\n", write(fd, buf, 4096));
->
->         return 0;
-> }
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
-_________________________________________________________________________
-
-Terje Eggestad                  terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
-N-0621 Oslo                     fax:    +47 22 62 89 51
-NORWAY
-_________________________________________________________________________
-
+David Lang

@@ -1,50 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261595AbREURGJ>; Mon, 21 May 2001 13:06:09 -0400
+	id <S261593AbREURG3>; Mon, 21 May 2001 13:06:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbREURF7>; Mon, 21 May 2001 13:05:59 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:48132 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S261593AbREURFy>;
-	Mon, 21 May 2001 13:05:54 -0400
-Date: Mon, 21 May 2001 19:05:45 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Marcus Meissner <Marcus.Meissner@caldera.de>
+	id <S261594AbREURGJ>; Mon, 21 May 2001 13:06:09 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31493 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261593AbREURGA>; Mon, 21 May 2001 13:06:00 -0400
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+To: dalgoda@ix.netcom.com
+Date: Mon, 21 May 2001 18:03:21 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: maestro ported to 2.4 PCI API
-Message-ID: <20010521190545.A3522@se1.cogenit.fr>
-In-Reply-To: <20010521173707.A10692@caldera.de>
-Mime-Version: 1.0
+In-Reply-To: <20010521095938.A1529@thune.mrc-home.com> from "Mike Castle" at May 21, 2001 09:59:38 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010521173707.A10692@caldera.de>; from Marcus.Meissner@caldera.de on Mon, May 21, 2001 at 05:37:07PM +0200
-X-Organisation: Marie's fan club
+Content-Transfer-Encoding: 7bit
+Message-Id: <E151t5W-0000Xo-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcus Meissner <Marcus.Meissner@caldera.de> ecrit :
-[...]
->  	if( request_region(iobase, 256, card_names[card_type]) == NULL )
->  	{
->  		printk(KERN_WARNING "maestro: can't allocate 256 bytes I/O at 0x%4.4x\n", iobase);
-> -		return 0;
-> -	}
-> -
-> -	/* this was tripping up some machines */
-> -	if(pcidev->irq == 0) {
-> -		printk(KERN_WARNING "maestro: pci subsystem reports irq 0, this might not be correct.\n");
-> +		return -EBUSY;
->  	}
->  
->  	/* just to be sure */
-> @@ -3406,7 +3429,7 @@
->  	if(card == NULL)
->  	{
->  		printk(KERN_WARNING "maestro: out of memory\n");
-> -		return 0;
-> +		return -ENOMEM;
+> On Sun, May 20, 2001 at 11:33:20PM -0700, Ben Ford wrote:
+> > Not only that, but Alan said that somebody is rewriting it in C.
+> I'll believe it when I see it.
 
-request_region is unbalanced in this return path.
+and if not then obviously nobody hates the python one enough ;)
 
--- 
-Ueimor

@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVA3STh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVA3SYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbVA3STh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 13:19:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVA3STg
+	id S261761AbVA3SYe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 13:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVA3SYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 13:19:36 -0500
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:29704
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S261758AbVA3STR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 13:19:17 -0500
-Date: Sun, 30 Jan 2005 10:19:13 -0800
-From: Phil Oester <kernel@linuxace.com>
-To: Patrick McHardy <kaber@trash.net>, "David S. Miller" <davem@davemloft.net>,
-       Robert.Olsson@data.slu.se, akpm@osdl.org, torvalds@osdl.org,
-       alexn@dsv.su.se, kas@fi.muni.cz, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-ID: <20050130181913.GA15299@linuxace.com>
-References: <16888.58622.376497.380197@robur.slu.se> <20050127164918.C3036@flint.arm.linux.org.uk> <20050127123326.2eafab35.davem@davemloft.net> <20050128001701.D22695@flint.arm.linux.org.uk> <20050127163444.1bfb673b.davem@davemloft.net> <20050128085858.B9486@flint.arm.linux.org.uk> <20050130132343.A25000@flint.arm.linux.org.uk> <41FD17FE.6050007@trash.net> <41FD18C5.6090108@trash.net> <20050130180146.E25000@flint.arm.linux.org.uk>
+	Sun, 30 Jan 2005 13:24:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18635 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261643AbVA3SY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 13:24:29 -0500
+Date: Sun, 30 Jan 2005 13:27:49 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Lukasz Kosewski <lkosewsk@nit.ca>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, vgoyal@in.ibm.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: SCSI aic7xxx driver: Initialization Failure over a kdump reboot
+Message-ID: <20050130152749.GF5186@logos.cnet>
+References: <1105014959.2688.296.camel@2fwv946.in.ibm.com> <1105013524.4468.3.camel@laptopd505.fenrus.org> <20050106195043.4b77c63e.akpm@osdl.org> <41DE15C7.6030102@nit.ca> <20050107043832.GR27371@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050130180146.E25000@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050107043832.GR27371@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 30, 2005 at 06:01:46PM +0000, Russell King wrote:
-> > OTOH, if conntrack isn't loaded forwarded packet are never defragmented,
-> > so frag_list should be empty. So probably false alarm, sorry.
+On Fri, Jan 07, 2005 at 04:38:32AM +0000, Matthew Wilcox wrote:
+> On Thu, Jan 06, 2005 at 11:53:27PM -0500, Lukasz Kosewski wrote:
+> > I have an idea of something I might do for 2.6.11, but I doubt anyone
+> > will actually agree with it.  Say we keep a counter of how many times
+> > interrupt x has been fired off since the last timer interrupt
+> > (obviously, a timer interrupt resets the counter).  Then we can pick an
+> > arbitrary threshold for masking out this interrupt until another device
+> > actually pines for it.
+> > 
+> > Or something.  The point is, we need a general solution to the problem,
+> > not poking about in every single driver trying to tie it down.
 > 
-> I've just checked Phil's mails - both Phil and myself are using
-> netfilter on the troublesome boxen.
-> 
-> Also, since FragCreates is zero, and this does mean that the frag_list
-> is not empty in all cases so far where ip_fragment() has been called.
-> (Reading the code, if frag_list was empty, we'd have to create some
-> fragments, which increments the FragCreates statistic.)
+> Something like note_interrupt() in kernel/irq/spurious.c?
 
-The below testcase seems to illustrate the problem nicely -- ip_dst_cache
-grows but never shrinks:
+BTW I wonder if its feasible to add an interface on top of kernel/irq/spurious.c for 
+notifying drivers about interrupts storms, so they can take appropriate action 
+(try to reset the device).
 
-On gateway:
+For example I've seen a 8390 based pcnet_cs driven (Linksys EtherFast 10/100+ + 56K Modem) PCMCIA
+card go nuts and trigger infinite interrupt storms on custom PowerPC hardware under certain situations, 
+and resetting the device after a high limit of bogus interrupts "brought the hardware back", stabilizing
+the system.
 
-iptables -I FORWARD -d 10.10.10.0/24 -j DROP
+Would be nice to be able to change the current hardcoded nr-of-interrupt limits, and 
+have a notification mechanism.
 
-On client:
-
-for i in `seq 1 254` ; do ping -s 1500 -c 5 -w 1 -f 10.10.10.$i ; done
-
-
-Phil
+Not sure if this kind of problem is common enough that adding a generic API 
+is worth it, though ?

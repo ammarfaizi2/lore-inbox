@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281589AbRKUKRQ>; Wed, 21 Nov 2001 05:17:16 -0500
+	id <S281690AbRKUKSq>; Wed, 21 Nov 2001 05:18:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281565AbRKUKRG>; Wed, 21 Nov 2001 05:17:06 -0500
-Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:11793 "HELO
-	carlsberg.amagerkollegiet.dk") by vger.kernel.org with SMTP
-	id <S281563AbRKUKQy>; Wed, 21 Nov 2001 05:16:54 -0500
-Date: Wed, 21 Nov 2001 11:16:53 +0100 (CET)
-From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-To: "Marcel J.E. Mol" <marcel@mesa.nl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New ac patch???
-In-Reply-To: <20011121103354.E15851@joshua.mesa.nl>
-Message-ID: <Pine.LNX.4.33.0111211116020.1457-100000@grignard.amagerkollegiet.dk>
+	id <S281565AbRKUKSh>; Wed, 21 Nov 2001 05:18:37 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:42501 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S281690AbRKUKS3>;
+	Wed, 21 Nov 2001 05:18:29 -0500
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: slab: avoid linear search in kmalloc? (GCC Guru wanted :)
+In-Reply-To: <20011121024525.A18750@lina.inka.de> <873d38wkmo.fsf@fadata.bg>
+	<3BFB725C.7468088A@redhat.com>
+From: Momchil Velikov <velco@fadata.bg>
+Date: 21 Nov 2001 11:34:48 +0200
+In-Reply-To: <3BFB725C.7468088A@redhat.com>
+Message-ID: <87wv0kv553.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Nov 2001, Marcel J.E. Mol wrote:
+>>>>> "Arjan" == Arjan van de Ven <arjanv@redhat.com> writes:
 
-> > You have a box with an IBM 20Gig 2.5" drive (just out of interest)
-> 
-> Not exaclty. It is a 48Gig drive in a dell inspiron 8000. I think it is
-> IBM but the logs do not show a brandname. I can try open up the case tonight
-> if you want to know for sure?
+Arjan> Momchil Velikov wrote:
+>> 
+>> >>>>> "Bernd" == Bernd Eckenfels <ecki@lina.inka.de> writes:
+>> 
+Bernd> Hello,
+Bernd> I noticed that kmalloc and kmem_find_general_cachep are doing a linear
+Bernd> search in the cache_sizes array. Isnt it better to speed that up by doing a
+Bernd> binary search or a b-tree if like the following patch?
+>> 
+>> Here is a patch using a gcc extension. gcc generates binary search for the case.
 
-'hdparm -i /dev/hdX' should tell you...
+Arjan> the big "case" statement makes you wonder if ffz(~size) would do the
+Arjan> same ;)
 
-Rasmus
+*Nod*, espesially on architectures, where it is a single instruction.
 
--- 
--- [ Rasmus 'Møffe' Bøg Hansen ] ---------------------------------------
-God, root, what is difference?
-God is more forgiving.
---------------------------------- [ moffe at amagerkollegiet dot dk ] --
+OTOH, this is possible only if the sizes are powers of two. And they
+could be more closely sparsed ...
 
+Regards,
+-velco
 

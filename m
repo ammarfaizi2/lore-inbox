@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269431AbTCDRRQ>; Tue, 4 Mar 2003 12:17:16 -0500
+	id <S269435AbTCDRYs>; Tue, 4 Mar 2003 12:24:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269435AbTCDRRQ>; Tue, 4 Mar 2003 12:17:16 -0500
-Received: from firewall.francoudi.net.32.27.217.in-addr.arpa ([217.27.32.7]:37995
-	"EHLO news.linux.dom") by vger.kernel.org with ESMTP
-	id <S269431AbTCDRRO>; Tue, 4 Mar 2003 12:17:14 -0500
-To: linux-kernel@vger.kernel.org
-From: Leonid Mamchenkov <f.l.linux-admin@news.francoudi.com>
-Subject: Re: Updating the kernel of a RedHat 7.3
-Date: Tue, 4 Mar 2003 17:27:32 +0000 (UTC)
-Organization: Thunderworx Ltd.
-Message-ID: <20030304172732.GA20620@francoudi.com>
-References: <3E64DC09.C15CC287@tid.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-X-Trace: news.linux.dom 1046798852 16761 10.5.10.99 (4 Mar 2003 17:27:32 GMT)
-X-Complaints-To: admins@news.francoudi.com
+	id <S269441AbTCDRYs>; Tue, 4 Mar 2003 12:24:48 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:30154 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S269435AbTCDRYr>; Tue, 4 Mar 2003 12:24:47 -0500
+Date: Tue, 04 Mar 2003 09:34:47 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: ravikumar.chakaravarthy@amd.com, linux-kernel@vger.kernel.org
+Subject: Re: Loading and executing kernel from a non-standard address using
+ SY SLINUX
+Message-ID: <124790000.1046799286@[10.10.2.4]>
+In-Reply-To: <99F2150714F93F448942F9A9F112634CA54B07@txexmtae.amd.com>
+References: <99F2150714F93F448942F9A9F112634CA54B07@txexmtae.amd.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3E64DC09.C15CC287@tid.es>
-X-Operating-System: Linux leonid.francoudi.com 2.4.18-19.8.0
-X-Uptime: 7:16pm  up 36 days,  3:02, 11 users,  load average: 0.11, 0.08, 0.07
-X-PGP-Public-Key: http://www.leonid.maks.net/leonid-at-francoudi.com.pub.key
-User-Agent: Mutt/1.5.3i
-Reply-To: Leonid Mamchenkov <leonid@francoudi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Miguel Gonz?lez Casta?os,
+> I am trying to load and boot the kernel from a non-standard address
+> (0x200000). I am using the SYSLINUX boot loader, which loads the
+> kernel at that address. I have also made changes to the kernel to
+> setup code and startup_32() function to effect the same. When I boot
+> the system It says
+> 
+> Loading.......... Ready
+> Uncompressing Linux... OK Booting the kernel
+> 
+> and then hangs.
+> 
+> I guess the reason being the System.map entries are still using the
+> PAGE_OFFSET = 0xc0000000, as opposed to 0xc0100000.
+> I have the following questions??
+> 
+> 1. How do i change the System.map to get the right PAGE_OFFSET.
+> 2. Will it work if I load and boot the kernel from a different address
+> like (0xdf000000)??
+> 
+> 3. Am I in the right track or missing something.
 
-Once you wrote about "Updating the kernel of a RedHat 7.3":
-MGlCo>  I have followed the instructions of redhat of how to upgrade a kernel
-MGlCo> downloading from the upgrades.redhat.com web page the corresponding
-MGlCo> RPMs.
+The kernel should decompress itself to the right space anyway ... check
+arch/i386/boot/compressed/head.S ... should be minimal changes needed,
+if any.
 
-It looks like you haven't followed all instructions...
-
-MGlCo>  I have downloaded the following RPMs for my fresh installation:
-MGlCo>  kernel-2.4.18-24.7.x.i686.rpm
-MGlCo>  kernel-source-2.4.18-24.7.x.i686.rpm
-MGlCo>  kernel-smp-2.4.18-24.7.x.i686.rpm (since its a double proccesor box)
-
-Sometimes you need a little more then that, like modutils, for example.
-
-MGlCo>  I did the upgrade of the kernel-source RPM and had to use -ivh --nodeps
-MGlCo> --force options to install the kernel and the kernel-smp RPMs.
-
-Using either of --nodeps and --force is asking for troubles... not to
-mention a combination of two.
-
-MGlCo> 
-MGlCo>  I noticed that the kernel progress bar only reached the 50%.
-
-Bad sign.
-
-MGlCo>  Everything seems to be fine, but what could be wrong or everything is
-MGlCo> fine?
-
-If you can run lilo without any complaints, I'd call it a pretty good
-sign.  Otherwise, noone knows. :)
-
--- 
-Best regards,
-  Leonid Mamtchenkov, RHCE
-  System Administrator
-  Francoudi & Stephanou Ltd.
+M.
 

@@ -1,55 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263000AbUDOMOV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 08:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263656AbUDOMOV
+	id S262981AbUDOMVi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 08:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262990AbUDOMVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 08:14:21 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:22700 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263000AbUDOMOT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 08:14:19 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16510.31796.137286.428042@laputa.namesys.com>
-Date: Thu, 15 Apr 2004 16:12:36 +0400
-To: Hubert Chan <hubert@uhoreg.ca>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reiserfs v3 fixes and features
-In-Reply-To: <874qrmkl43.fsf@uhoreg.ca>
-References: <1081274618.30828.30.camel@watt.suse.com>
-	<1081989006.27614.110.camel@watt.suse.com>
-	<874qrmkl43.fsf@uhoreg.ca>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+	Thu, 15 Apr 2004 08:21:38 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:61201 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S262981AbUDOMVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 08:21:36 -0400
+Date: Thu, 15 Apr 2004 13:58:03 +0200
+From: DervishD <raul@pleyades.net>
+To: Adam Belay <ambx1@neo.rr.com>, Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Confused about 2.6 PnP support
+Message-ID: <20040415115803.GB7258@DervishD>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20040412170515.GA670@DervishD> <20040414050838.GB8473@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040414050838.GB8473@neo.rr.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubert Chan writes:
- > On 2.6.5, it still fails:
- > 
- > ...
- >   CC      fs/reiserfs/bitmap.o
- > In file included from fs/reiserfs/bitmap.c:8:
- > include/linux/reiserfs_fs.h: In function `reiserfs_transaction_running':
- > include/linux/reiserfs_fs.h:1752: error: structure has no member named `journal_info'
- > make[3]: *** [fs/reiserfs/bitmap.o] Error 1
+    Hi Adam, and thanks for your answer :)
 
-Err.. clash with the reiser4 patch, surely.
+ * Adam Belay <ambx1@neo.rr.com> dixit:
+> >     AFAIK, PnP, strictly speaking, has nothing to do with the PCI
+> > bus, but I think is common notation to talk about PnP referring
+> > autoconfiguration of PCI cards, and I want to know if I need to
+> > select PCI support for having my PCI cards correctly detected and
+> > configured (currently my BIOS does the work), or if the PnP support
+> > in kernel 2.6 is just for ISA cards. In addition to this, the PnP
+> > BIOS support (which I think I may need so Linux correctly gets the
+> > IO, IRQ and DMA settings for my parallel port) is marked as
+> > EXPERIMENTAL (at least in 2.6.5)
+> In this context PnP is refering to configuration of system and ISA
+> devices.
 
- > make[2]: *** [fs/reiserfs] Error 2
- > make[1]: *** [fs] Error 2
- > 
- > (all patches applied, except for reiserfs-group-alloc-8 and
- > reiserfs-search_reada-5)
+    But then, why it depends on ISA support?
 
-Nikita.
+    BTW, in the case of my printer, the log says:
 
- > 
- > -- 
- > Hubert Chan <hubert@uhoreg.ca> - http://www.uhoreg.ca/
- > PGP/GnuPG key: 1024D/124B61FA
- > Fingerprint: 96C5 012F 5F74 A5F7 1FF7  5291 AF29 C719 124B 61FA
- > Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.
- > 
+parport0: PC-style at 0x378 (0x778), irq 7 [PCSPP,TRISTATE]
+lp0: using parport0 (interrupt-driven).
+lp0: console ready
+
+    The question is that my parallel port is configured as EPP, using
+DMA 3, not as SPP, and I'm not sure if the problem is on the kernel,
+the motherboard or if it is a simple matter of notation and the port
+is being properly detected. My /proc/sys/dev/parport says
+PCSPP,TRISTATE, not EPP... But DMA channel, IRQ line and IO addresses
+are being correctly detected, so this doesn't seem a problem of PnP.
+
+> >     I want to know if I must tell my BIOS I don't have a PnP OS or
+> > if, on the contrary, I should tell my BIOS that my OS is not PnP (I
+> > only use Linux) and deselect PnP support (as well as ISA support) in
+> > my 2.6.x kernel. Personally, I don't mind setting 'Non PnP OS' in my
+> > BIOS and remove both CONFIG_ISA and CONFIG_PNP.
+> If you are using PnPBIOS support then set PNP OS to "yes", otherwise use
+> "no".
+
+    So if I don't want ISA support in my kernel I must go with PNP OS
+set to 'no' and let the BIOS do the work, am I right?
+ 
+> >     BTW, ?does Linux support rebalancing of PnP bus resources or I
+> > better avoid conflicts...?
+> Yes, see sysfs and drivers/pnp/interface.c.  Resources can be
+> reallocated but only if the device is not bound to a driver
+> (modules are useful for this).
+
+    Cool :)) Thanks for the information.
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

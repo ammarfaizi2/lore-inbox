@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312601AbSDSRjQ>; Fri, 19 Apr 2002 13:39:16 -0400
+	id <S312704AbSDSSA4>; Fri, 19 Apr 2002 14:00:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312610AbSDSRjP>; Fri, 19 Apr 2002 13:39:15 -0400
-Received: from employees.nextframe.net ([212.169.100.200]:40696 "EHLO
-	sexything.nextframe.net") by vger.kernel.org with ESMTP
-	id <S312601AbSDSRjP>; Fri, 19 Apr 2002 13:39:15 -0400
-Date: Fri, 19 Apr 2002 19:39:14 +0200
-From: Morten Helgesen <morten.helgesen@nextframe.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re:   [patch] ide updates
-Message-ID: <20020419193914.D334@sexything>
-Reply-To: morten.helgesen@nextframe.net
-In-Reply-To: <20020419180851.C334@sexything> <Pine.LNX.4.33.0204191238080.19090-100000@coffee.psychology.mcmaster.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Editor: VIM - Vi IMproved 6.0
-X-Keyboard: PFU Happy Hacking Keyboard
-X-Operating-System: Slackware Linux (of course)
+	id <S312772AbSDSSAz>; Fri, 19 Apr 2002 14:00:55 -0400
+Received: from waste.org ([209.173.204.2]:31438 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S312704AbSDSSAz>;
+	Fri, 19 Apr 2002 14:00:55 -0400
+Date: Fri, 19 Apr 2002 13:00:44 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: "Dr. Death" <drd@homeworld.ath.cx>, <linux-kernel@vger.kernel.org>
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while
+ reading damadged files
+In-Reply-To: <Pine.LNX.3.95.1020419100917.724A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44.0204191256180.8537-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 19, 2002 at 12:39:24PM -0400, Mark Hahn wrote:
-> > guys with other WD drives, in particular :) You can use the
-> > attached perl script, sent to me by Jens, to check you drives.
-> 
-> did the script give valid results?  (I wrote it...)
+On Fri, 19 Apr 2002, Richard B. Johnson wrote:
 
-sure - seems to work like a charm :)
+> On Thu, 18 Apr 2002, Dr. Death wrote:
+>
+> > Problem:
+> >
+> > I use SuSE Linux 7.2 and when I create md5sums from damaged files on a
+> > CD, the WHOLE system  freezes or is ugly slow untill md5 has passed the
+> > damaged part of the file !
+> >
+>
+> So what do you suggest? You can see from the logs that the device
+> is having difficulty  reading your damaged CD. You can do what
+> Windows-95 does (ignore the errors and pretend everything is fine),
+> or what Windows-98 and Windows-2000/Prof does (blue-screen, and re-boot),
+> or you can try like hell to read the files like Linux does. What do you
+> suggest?
 
-> 
-> thanks, mark hahn.
-> 
-> 
+The problem is not that reading the disk is slow, it's that it brings the
+system to its knees. There are many valid scenarios where non-root users
+should be able to put CDs in a machine and they shouldn't be able to DoS
+it by doing so.
 
-== Morten
+Fact is the SCSI layer's error handling has been on the list of things in
+dire need of replacement for years and this is one of the many symptoms.
 
 -- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-"Livet er ikke for nybegynnere" - sitat fra en klok person.
-
-mvh
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-admin@nextframe.net / 93445641
-http://www.nextframe.net

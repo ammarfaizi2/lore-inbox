@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135265AbRDRT1P>; Wed, 18 Apr 2001 15:27:15 -0400
+	id <S135271AbRDRThk>; Wed, 18 Apr 2001 15:37:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135266AbRDRT1G>; Wed, 18 Apr 2001 15:27:06 -0400
-Received: from AGrenoble-101-1-1-84.abo.wanadoo.fr ([193.251.23.84]:51695 "EHLO
-	lyon.ram.loc") by vger.kernel.org with ESMTP id <S135265AbRDRT04>;
-	Wed, 18 Apr 2001 15:26:56 -0400
-To: linux-kernel@vger.kernel.org
-From: ram@ram.fr.eu.org (Raphael Manfredi)
-Subject: 2.2.19 - old UDMA drive detected, recent is not?
-Date: 18 Apr 2001 19:26:47 GMT
-Organization: Home, Grenoble, France
-Message-ID: <9bkppn$330$1@lyon.ram.loc>
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-X-Mailer: newsgate 1.0 at lyon.ram.loc
+	id <S135270AbRDRTha>; Wed, 18 Apr 2001 15:37:30 -0400
+Received: from m180-mp1-cvx1b.col.ntl.com ([213.104.72.180]:29824 "EHLO
+	[213.104.72.180]") by vger.kernel.org with ESMTP id <S135269AbRDRThY>;
+	Wed, 18 Apr 2001 15:37:24 -0400
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'Simon Richter'" <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
+        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        "'Pavel Machek'" <pavel@suse.cz>,
+        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Let init know user wants to shutdown
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDD9A@orsmsx35.jf.intel.com>
+From: John Fremlin <chief@bandits.org>
+Date: 18 Apr 2001 20:36:38 +0100
+In-Reply-To: "Grover, Andrew"'s message of "Wed, 18 Apr 2001 11:28:52 -0700"
+Message-ID: <m2y9sy3sqh.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On an older machine running 2.2.19, I have the following messages at boot
-time:
+ "Grover, Andrew" <andrew.grover@intel.com> writes:
 
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-hda: IBM-DTLA-307030, ATA DISK drive
-hdb: IBM-DJNA-351520, ATA DISK drive
-hdc: IBM-DTLA-307030, ATA DISK drive
-hdd: WDC AC34300L, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: IBM-DTLA-307030, 29314MB w/1916kB Cache, CHS=3737/255/63
-hdb: IBM-DJNA-351520, 14664MB w/430kB Cache, CHS=29795/16/63
-hdc: IBM-DTLA-307030, 29314MB w/1916kB Cache, CHS=59560/16/63
-hdd: WDC AC34300L, 4104MB w/256kB Cache, CHS=8896/15/63, UDMA
+[...]
 
-My question is: why is the WDC drive detected as UDMA and the
-other more recent disks are NOT?
+> Fair enough. I don't think I would be out of line to say that our
+> resources are focused on enabling full ACPI functionality for Linux,
+> including a full-featured PM policy daemon. That said, I don't think
+> there's anything precluding the use of another daemon (or whatever)
+> from using the ACPI driver's interface.
 
-The hdd drive that is detected as UDMA is at the end of the IDE
-cable, so cable length is not a problem for hdc...
+ACPI != PM. I don't see why ACPI details should be exposed to PM
+interface at all.
 
-I'd like to understand the logic behind this UDMA detection.
-The BIOS settings, as reported for the 4 IDE drives are identical,
-so I don't know why there is a difference at all...
+[...]
 
-Please, enlighten me.
+-- 
 
-Raphael
+	http://www.penguinpowered.com/~vii

@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264880AbVBDVA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263697AbVBDVA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264880AbVBDVA7 (ORCPT <rfc822;willy@w.ods.org>);
+	id S263697AbVBDVA7 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 4 Feb 2005 16:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbVBDUzK
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263483AbVBDUyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:55:10 -0500
-Received: from mail.kroah.org ([69.55.234.183]:40372 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266555AbVBDUwh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 15:52:37 -0500
-Date: Fri, 4 Feb 2005 12:52:26 -0800
-From: Greg KH <greg@kroah.com>
-To: Kylene Hall <kjhall@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, emilyr@us.ibm.com, toml@us.ibm.com,
-       tpmdd-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/1] tpm: implement use of sysfs classes
-Message-ID: <20050204205226.GA26780@kroah.com>
-References: <Pine.LNX.4.58.0412201146060.10943@jo.austin.ibm.com> <29495f1d041221085144b08901@mail.gmail.com> <Pine.LNX.4.58.0412211209410.14092@jo.austin.ibm.com> <Pine.LNX.4.58.0501121236180.2453@jo.austin.ibm.com> <Pine.LNX.4.58.0501181621200.2473@jo.austin.ibm.com> <Pine.LNX.4.58.0501181735110.13908@jo.austin.ibm.com> <Pine.LNX.4.58.0501281539340.6360@jo.austin.ibm.com> <Pine.LNX.4.58.0501311322380.9872@jo.austin.ibm.com> <Pine.LNX.4.58.0502031034290.18135@jo.austin.ibm.com> <Pine.LNX.4.58.0502041405230.22211@jo.austin.ibm.com>
-Mime-Version: 1.0
+	Fri, 4 Feb 2005 15:54:53 -0500
+Received: from moutng.kundenserver.de ([212.227.126.189]:48838 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S266631AbVBDUxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 15:53:05 -0500
+To: Stelian Pop <stelian@popies.net>
+Cc: Daniele Venzano <webvenza@libero.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+References: <20050202155403.GE3117@crusoe.alcove-fr>
+	<51cfdfdc084037ae1e3f164b0c524abc@libero.it>
+	<20050203104501.GC3144@crusoe.alcove-fr>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Fri, 04 Feb 2005 21:52:47 +0100
+Message-ID: <87sm4cm4io.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0502041405230.22211@jo.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 04, 2005 at 02:12:50PM -0600, Kylene Hall wrote:
-> +static struct class tpm_class = {
-> +	.name = "tpm",
-> +	.class_dev_attrs = tpm_attrs,
-> +};
+Stelian Pop <stelian@popies.net> writes:
 
-Where is your release function?  Did you see any warnings from the
-kernel when you removed any of these class devices?  Why did you ignore
-it?
+> I must test this...), plus 600 MB per working copy.
 
-thanks,
+If you use svk <http://svk.elixus.org/> for the client side, there's
+(almost?) no overhead.
 
-greg k-h
+Regards, Olaf.

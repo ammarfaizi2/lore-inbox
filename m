@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265499AbUHPHir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265812AbUHPHlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265499AbUHPHir (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 03:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265743AbUHPHir
+	id S265812AbUHPHlp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 03:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265743AbUHPHlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 03:38:47 -0400
-Received: from proxy.vc-graz.ac.at ([193.171.121.30]:34262 "EHLO
-	proxy.vc-graz.ac.at") by vger.kernel.org with ESMTP id S265499AbUHPHiq convert rfc822-to-8bit
+	Mon, 16 Aug 2004 03:41:45 -0400
+Received: from mail.humboldt.co.uk ([81.2.65.18]:28800 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S265812AbUHPHkz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 03:38:46 -0400
-From: Wolfgang Scheicher <worf@sbox.tu-graz.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
-Date: Mon, 16 Aug 2004 09:40:02 +0200
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200408160940.02849.worf@sbox.tu-graz.ac.at>
+	Mon, 16 Aug 2004 03:40:55 -0400
+Subject: Re: [PATCH][2.4.27] PowerPC 745x data corruption bug fix
+From: Adrian Cox <adrian@humboldt.co.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org
+In-Reply-To: <200408160254.i7G2ss3S000656@harpo.it.uu.se>
+References: <200408160254.i7G2ss3S000656@harpo.it.uu.se>
+Content-Type: text/plain
+Message-Id: <1092642051.959.56.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 16 Aug 2004 08:40:51 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Wendel wrote:
+On Mon, 2004-08-16 at 03:54, Mikael Pettersson wrote:
+> On Mon, 16 Aug 2004 08:13:59 +1000, Paul Mackerras wrote:
 
-> K3B detects my Lite-on LTR-52327S CDRW as a CDROM when run with 2.6.8.1.
-> Booting back into 2.6.7 corrects the problem.
+> >Does CONFIG_MPC10X_BRIDGE mean just MPC107, or is it set for (e.g.)
+> >systems with a MPC106 as well?
+> 
+> I just copied this part from 2.6.8. Currently it
+> seems CONFIG_MPC10X_BRIDGE is set for some platforms
+> (sandpoint and lopec), but it is definitely not set
+> for MPC106 machines like my beige PowerMac G3.
 
-I have the same problem.
-I found out that cdrecord has a empty Line for the supported modes.
-( not k3b fault )
+I don't understand how your patch can improve the stability of your
+machine when CONFIG_MPC10X_BRIDGE isn't set. 
 
-cdrecord -checkdrive with kernel 2.6.7 (vanilla) gives:
-Supported modes: TAO PACKET SAO SAO/R96P SAO/R96R RAW/R16 RAW/R96P RAW/R96R
-with kernel 2.6.8 :
-Supported modes:      ( the rest is blank )
+Pages should be marked coherent for the MPC106 as well as the MPC107,
+but the problem shouldn't be seen unless the processor supports the
+shared cache line state. My original patch only set
+CPU_FTR_NEED_COHERENT for the 745x family, as only 745x plus 604 have
+the shared state, but Tom Rini extended it to cover all the other
+processors. I'm not convinced that extending it was necessary, but the
+performance impact should be low.
 
-Trying to burn anyway leads to "not supported mode" messages.
+Also, are you sure that you have an MPC106 together with a 7455
+processor?  I thought that the 7455 required a revision D or later
+MPC107.
 
-my system: Athlon on nforce2 board, LITE-ON brenner LTR-52327S, gcc 3.4.1
+- Adrian Cox
+Humboldt Solutions Ltd.
 
-Worf
+

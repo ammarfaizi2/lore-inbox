@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269304AbUIBXfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269289AbUIBXhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269304AbUIBXfR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 19:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269307AbUIBXdJ
+	id S269289AbUIBXhK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 19:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269307AbUIBXfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:33:09 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:914 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269289AbUIBXbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:31:46 -0400
-Subject: Re: The argument for fs assistance in handling archives (was:
-	silent semantic changes with reiser4)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Thu, 2 Sep 2004 19:35:38 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:24981 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269163AbUIBXev
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:34:51 -0400
+Date: Fri, 3 Sep 2004 00:33:20 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
 To: Jamie Lokier <jamie@shareable.org>
-Cc: Christer Weinigel <christer@weinigel.se>,
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
        Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
        Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
        linux-fsdevel@vger.kernel.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alexander Lyamin aka FLX <flx@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20040902214731.GF24932@mail.shareable.org>
-References: <20040901200806.GC31934@mail.shareable.org>
-	 <200409021407.i82E70hx004899@laptop11.inf.utfsm.cl>
-	 <20040902173214.GB24932@mail.shareable.org>
-	 <m3pt54il82.fsf@zoo.weinigel.se>
-	 <20040902214731.GF24932@mail.shareable.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094164023.6163.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 02 Sep 2004 23:27:06 +0100
+Subject: Re: The argument for fs assistance in handling archives (was: silent
+ semantic changes with reiser4)
+In-Reply-To: <20040902161130.GA24932@mail.shareable.org>
+Message-ID: <Pine.LNX.4.61.0409030028510.23011@fogarty.jakma.org>
+References: <20040826150202.GE5733@mail.shareable.org>
+ <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org>
+ <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
+ <1094118362.4847.23.camel@localhost.localdomain> <20040902161130.GA24932@mail.shareable.org>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-02 at 22:47, Jamie Lokier wrote:
->     - Can the daemon keep track of _every_ file on my disk like this?
->       That's more than a million files, and about 10^5 directories.
->       dnotify would require the daemon to open all the directories.
->       I'm not sure what inotify offers.
+On Thu, 2 Sep 2004, Jamie Lokier wrote:
 
-This is currently a real issue for both desktop search and for virus
-scanners. They want a "what changed and where" system wide (or at least
-per namespace/mount).
+> Firstly, if I have to do it from a Gnome program, about the only 
+> program where looking in a tar file is visibly useful is Nautilus. 
+> Ironically, clicking on a tar file in Nautilus doesn't work, 
+> despite having a dependency on gnome-vfs2. :/
 
+Do you have file-roller installed?
 
+I can open tar/zip/rar/etc.. files from anywhere in gnome2, eg in 
+Galeon I can click on a tar.gz URL (http or whatever) and have it 
+open it in file-roller, from where i can browse the files to my 
+hearts content.
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+Why isn't there a special name for the tops of your feet?
+ 		-- Lily Tomlin

@@ -1,213 +1,282 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261906AbSIYD1y>; Tue, 24 Sep 2002 23:27:54 -0400
+	id <S261900AbSIYD14>; Tue, 24 Sep 2002 23:27:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261900AbSIYD0U>; Tue, 24 Sep 2002 23:26:20 -0400
-Received: from dp.samba.org ([66.70.73.150]:49280 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261901AbSIYDQr>;
+	id <S261902AbSIYD0l>; Tue, 24 Sep 2002 23:26:41 -0400
+Received: from dp.samba.org ([66.70.73.150]:46720 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261898AbSIYDQr>;
 	Tue, 24 Sep 2002 23:16:47 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Module rewrite 3/20: init_module() changeover
-Date: Wed, 25 Sep 2002 13:00:46 +1000
-Message-Id: <20020925032201.E45E62C17C@lists.samba.org>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: [PATCH] Module rewrite 2/20: bigrefs
+Date: Wed, 25 Sep 2002 13:00:10 +1000
+Message-Id: <20020925032201.CF8A72C14D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name: init_module removal
+Name: Bigrefs Implementation
 Author: Rusty Russell
-Status: Trivial
+Status: Tested on 2.5.38
 
-D: Modules in 2.4 can simply name functions init_module() and
-D: cleanup_module(), and they will be called at module load and
-D: unload.  The preferred way is to use module_init(funcname) and
-D: module_exit(funcname), and this is the only way once the
-D: in-kernel-module loader is included.
-D:
-D: This is not all of them, just some examples (the ones I needed to
-D: successfully compile).
+D: This is an implementation of cache-friendly reference counts.  The
+D: refcounters work in two modes: the normal mode just incs and decs a
+D: cache-aligned per-cpu counter.  When someone is waiting for the
+D: reference count to hit 0, a flag is set and a shared reference
+D: counter is decremented (which is slower).
+D: 
+D: This uses a simple non-intrusive synchronize_kernel() primitive.
 
-diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.35/drivers/net/ethertap.c working-2.5.35-modbase-try-i386/drivers/net/ethertap.c
---- linux-2.5.35/drivers/net/ethertap.c	Fri May 24 15:20:21 2002
-+++ working-2.5.35-modbase-try-i386/drivers/net/ethertap.c	Tue Sep 17 18:50:15 2002
-@@ -346,7 +346,7 @@ static struct net_device dev_ethertap =
- 	0, 0, 0, NULL, ethertap_probe
- };
- 
--int init_module(void)
-+static int init(void)
- {
- 	dev_ethertap.base_addr=unit+NETLINK_TAPBASE;
- 	sprintf(dev_ethertap.name,"tap%d",unit);
-@@ -360,7 +360,7 @@ int init_module(void)
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void cleanup(void)
- {
- 	tap_map[dev_ethertap.base_addr]=NULL;
- 	unregister_netdev(&dev_ethertap);
-@@ -372,6 +372,10 @@ void cleanup_module(void)
- 	kfree(dev_ethertap.priv);
- 	dev_ethertap.priv = NULL;	/* gets re-allocated by ethertap_probe */
- }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13385-linux-2.5.38/include/linux/bigref.h .13385-linux-2.5.38.updated/include/linux/bigref.h
+--- .13385-linux-2.5.38/include/linux/bigref.h	1970-01-01 10:00:00.000000000 +1000
++++ .13385-linux-2.5.38.updated/include/linux/bigref.h	2002-09-25 10:30:06.000000000 +1000
+@@ -0,0 +1,78 @@
++#ifndef _LINUX_BIGREF_H
++#define _LINUX_BIGREF_H
++#include <linux/cache.h>
++#include <linux/smp.h>
++#include <linux/compiler.h>
++#include <linux/thread_info.h>
++#include <linux/preempt.h>
++#include <asm/atomic.h>
 +
-+/* FIXME: Remove Space.c hardcoded crap --RR */
-+module_init(init);
-+module_exit(cleanup);
- 
- #endif /* MODULE */
- MODULE_LICENSE("GPL");
-diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.35/drivers/net/slhc.c working-2.5.35-modbase-try-i386/drivers/net/slhc.c
---- linux-2.5.35/drivers/net/slhc.c	Sat Nov 10 12:52:24 2001
-+++ working-2.5.35-modbase-try-i386/drivers/net/slhc.c	Tue Sep 17 18:54:16 2002
-@@ -735,17 +735,20 @@ EXPORT_SYMBOL(slhc_toss);
- 
- #ifdef MODULE
- 
--int init_module(void)
-+static int init(void)
- {
- 	printk(KERN_INFO "CSLIP: code copyright 1989 Regents of the University of California\n");
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void fini(void)
- {
- 	return;
- }
- 
-+/* FIXME: Remove hard-coded initializers for builtin case */
-+module_init(init);
-+module_exit(fini);
- #endif /* MODULE */
- #else /* CONFIG_INET */
- 
-diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.35/drivers/parport/init.c working-2.5.35-modbase-try-i386/drivers/parport/init.c
---- linux-2.5.35/drivers/parport/init.c	Thu Jul 25 10:13:08 2002
-+++ working-2.5.35-modbase-try-i386/drivers/parport/init.c	Tue Sep 17 18:56:13 2002
-@@ -120,7 +120,7 @@ __setup ("parport=", parport_setup);
- #endif
- 
- #ifdef MODULE
--int init_module(void)
-+static int init(void)
- {
- #ifdef CONFIG_SYSCTL
- 	parport_default_proc_register ();
-@@ -128,12 +128,15 @@ int init_module(void)
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void fini(void)
- {
- #ifdef CONFIG_SYSCTL
- 	parport_default_proc_unregister ();
- #endif
- }
++/* Big reference counts for Linux.
++ *   (C) Copyright 2002 Paul Russell, IBM Corporation.
++ */
 +
-+module_init(init);
-+module_exit(fini);
++struct bigref_percpu
++{
++	atomic_t counter;
++	int slow_mode;
++} ____cacheline_aligned_in_smp;
++
++struct bigref
++{
++	struct bigref_percpu ref[NR_CPUS];
++
++	atomic_t slow_count;
++	struct task_struct *waiter;
++};
++
++static inline void bigref_init(struct bigref *ref, int value)
++{
++	unsigned int i;
++	atomic_set(&ref->ref[0].counter, value);
++	for (i = 1; i < NR_CPUS; i++)
++		atomic_set(&ref->ref[i].counter, 0);
++	ref->waiter = NULL; /* To trap bugs */
++}
++
++extern void __bigref_inc(struct bigref *ref);
++extern int __bigref_dec(struct bigref *ref);
++
++/* We only need protection against local interrupts. */
++#ifndef __HAVE_LOCAL_INC
++#define local_inc(x) atomic_inc(x)
++#define local_dec(x) atomic_dec(x)
++#endif
++
++static inline void bigref_inc(struct bigref *ref)
++{
++	struct bigref_percpu *cpu;
++
++	cpu = &ref->ref[get_cpu()];
++	if (likely(!cpu->slow_mode))
++		local_inc(&cpu->counter);
++	else
++		__bigref_inc(ref);
++	put_cpu();
++}
++
++/* Return true if we were the last one to decrement it */
++static inline int bigref_dec(struct bigref *ref)
++{
++	struct bigref_percpu *cpu;
++	int ret = 0;
++
++	cpu = &ref->ref[get_cpu()];
++	if (likely(!cpu->slow_mode))
++		local_dec(&cpu->counter);
++	else
++		ret = __bigref_dec(ref);
++	put_cpu();
++	return ret;
++}
++
++/* Get the approximate value */
++extern int bigref_approx_val(struct bigref *ref);
++
++/* Wait for it refcount to hit zero (sleeps) */
++extern void bigref_wait_for_zero(struct bigref *ref);
++#endif /* _LINUX_BIGREF_H */ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13385-linux-2.5.38/include/linux/sched.h .13385-linux-2.5.38.updated/include/linux/sched.h
+--- .13385-linux-2.5.38/include/linux/sched.h	2002-09-21 13:55:19.000000000 +1000
++++ .13385-linux-2.5.38.updated/include/linux/sched.h	2002-09-25 10:30:06.000000000 +1000
+@@ -445,8 +445,10 @@ do { if (atomic_dec_and_test(&(tsk)->usa
  
+ #if CONFIG_SMP
+ extern void set_cpus_allowed(task_t *p, unsigned long new_mask);
++extern void synchronize_kernel(void);
  #else
- 
-diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.35/drivers/parport/parport_pc.c working-2.5.35-modbase-try-i386/drivers/parport/parport_pc.c
---- linux-2.5.35/drivers/parport/parport_pc.c	Sat Jul 27 15:24:38 2002
-+++ working-2.5.35-modbase-try-i386/drivers/parport/parport_pc.c	Tue Sep 17 18:57:17 2002
-@@ -3069,7 +3069,7 @@ MODULE_PARM_DESC(verbose_probing, "Log c
- MODULE_PARM(verbose_probing, "i");
+ # define set_cpus_allowed(p, new_mask) do { } while (0)
++# define synchronize_kernel() do { } while (0)
  #endif
  
--int init_module(void)
-+static int init(void)
- {	
- 	/* Work out how many ports we have, then get parport_share to parse
- 	   the irq values. */
-@@ -3118,7 +3118,7 @@ int init_module(void)
- 	return ret;
- }
+ extern void set_user_nice(task_t *p, long nice);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13385-linux-2.5.38/kernel/Makefile .13385-linux-2.5.38.updated/kernel/Makefile
+--- .13385-linux-2.5.38/kernel/Makefile	2002-09-21 13:55:19.000000000 +1000
++++ .13385-linux-2.5.38.updated/kernel/Makefile	2002-09-25 10:30:06.000000000 +1000
+@@ -3,12 +3,12 @@
+ #
  
--void cleanup_module(void)
-+static void fini(void)
- {
- 	/* We ought to keep track of which ports are actually ours. */
- 	struct parport *p = parport_enumerate(), *tmp;
-@@ -3134,4 +3134,8 @@ void cleanup_module(void)
- 		p = tmp;
- 	}
- }
+ export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
+-		printk.o platform.o suspend.o dma.o
++		printk.o platform.o suspend.o dma.o bigref.o
+ 
+ obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o time.o softirq.o resource.o \
+ 	    sysctl.o capability.o ptrace.o timer.o user.o \
+-	    signal.o sys.o kmod.o context.o futex.o platform.o pid.o
++	    signal.o sys.o kmod.o context.o futex.o platform.o pid.o bigref.o
+ 
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += cpu.o
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13385-linux-2.5.38/kernel/bigref.c .13385-linux-2.5.38.updated/kernel/bigref.c
+--- .13385-linux-2.5.38/kernel/bigref.c	1970-01-01 10:00:00.000000000 +1000
++++ .13385-linux-2.5.38.updated/kernel/bigref.c	2002-09-25 10:30:06.000000000 +1000
+@@ -0,0 +1,78 @@
++/* Big reference counts for Linux.
++ *   (C) Copyright 2002 Paul Russell, IBM Corporation.
++ */
++#include <linux/bigref.h>
++#include <linux/sched.h>
++#include <linux/module.h>
 +
-+/* FIXME: Merge builtin and modular initializers --RR */
-+module_init(init);
-+module_exit(fini);
- #endif
-diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.35/net/netlink/netlink_dev.c working-2.5.35-modbase-try-i386/net/netlink/netlink_dev.c
---- linux-2.5.35/net/netlink/netlink_dev.c	Sun Aug 11 15:31:47 2002
-+++ working-2.5.35-modbase-try-i386/net/netlink/netlink_dev.c	Tue Sep 17 18:51:54 2002
-@@ -208,16 +208,20 @@ int __init init_netlink(void)
- 
- MODULE_LICENSE("GPL");
- 
--int init_module(void)
-+static int init(void)
- {
- 	printk(KERN_INFO "Network Kernel/User communications module 0.04\n");
- 	return init_netlink();
- }
- 
--void cleanup_module(void)
-+static void fini(void)
- {
- 	devfs_unregister (devfs_handle);
- 	unregister_chrdev(NETLINK_MAJOR, "netlink");
- }
++/* Atomic is 24 bits on sparc, so make this 23. */
++#define BIGREF_BIAS (1 << 23)
 +
-+/* FIXME: Remove harded init call in socket.c */
-+module_init(init);
-+module_exit(fini);
- 
- #endif
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .18828-linux-2.5.35/drivers/char/ftape/zftape/zftape-init.c .18828-linux-2.5.35.updated/drivers/char/ftape/zftape/zftape-init.c
---- .18828-linux-2.5.35/drivers/char/ftape/zftape/zftape-init.c	2002-08-02 11:15:07.000000000 +1000
-+++ .18828-linux-2.5.35.updated/drivers/char/ftape/zftape/zftape-init.c	2002-09-18 11:50:20.000000000 +1000
-@@ -393,20 +393,26 @@ KERN_INFO
- 
- 
- #ifdef MODULE
++void __bigref_inc(struct bigref *ref)
++{
++	/* They *must* have read slow_mode before they touch slow
++           count, which is not guaranteed on all architectures. */
++	rmb();
++	atomic_inc(&ref->slow_count);
++}
 +
-+#if 0 /* FIXME --RR */
- /* Called by modules package before trying to unload the module
-  */
- static int can_unload(void)
- {
- 	return (GET_USE_COUNT(THIS_MODULE)||zft_dirty()||test_bit(0,&busy_flag))?-EBUSY:0;
- }
-+#endif
++int __bigref_dec(struct bigref *ref)
++{
++	int ret = 0;
++	/* They *must* have read slow_mode before they touch slow
++           count, which is not guaranteed on all architectures. */
++	rmb();
++	if (atomic_dec_and_test(&ref->slow_count)) {
++		wake_up_process(ref->waiter);
++		ret = 1;
++	}
++	return ret;
++}
 +
- /* Called by modules package when installing the driver
-  */
- int init_module(void)
- {
-+#if 0 /*FIXME --RR*/
- 	if (!mod_member_present(&__this_module, can_unload)) {
- 		return -EBUSY;
- 	}
- 	__this_module.can_unload = can_unload;
-+#endif
- 	return zft_init();
++/* Get the approximate value */
++int bigref_approx_val(struct bigref *ref)
++{
++	unsigned int i;
++	int total = 0;
++
++	for (i = 0; i < NR_CPUS; i++)
++		total += atomic_read(&ref->ref[i].counter);
++
++	return total;
++}
++
++void bigref_wait_for_zero(struct bigref *ref)
++{
++	unsigned int i;
++	int total;
++
++	atomic_set(&ref->slow_count, BIGREF_BIAS);
++	wmb();
++	for (i = 0; i < NR_CPUS; i++)
++		ref->ref[i].slow_mode = 1;
++	wmb();
++
++	/* Wait for that to sink in everywhere... */
++	synchronize_kernel();
++
++	/* Sum all the (now inactive) per-cpu counters */
++	total = bigref_approx_val(ref);
++
++	/* Now we move those counters into the slow counter, and take
++           away the bias again.  Leave one refcount for us. */
++	atomic_sub(BIGREF_BIAS + total - 1, &ref->slow_count);
++
++	/* Someone may dec to zero after the next step, so be ready. */
++	ref->waiter = current;
++	current->state = TASK_UNINTERRUPTIBLE;
++	wmb();
++
++	/* Drop (probably final) refcount */
++	__bigref_dec(ref);
++	schedule();
++}
++
++EXPORT_SYMBOL(__bigref_inc);
++EXPORT_SYMBOL(__bigref_dec);
++EXPORT_SYMBOL(bigref_approx_val);
++EXPORT_SYMBOL(bigref_wait_for_zero);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13385-linux-2.5.38/kernel/sched.c .13385-linux-2.5.38.updated/kernel/sched.c
+--- .13385-linux-2.5.38/kernel/sched.c	2002-09-23 08:54:54.000000000 +1000
++++ .13385-linux-2.5.38.updated/kernel/sched.c	2002-09-25 10:30:06.000000000 +1000
+@@ -1898,6 +1898,50 @@ void __init init_idle(task_t *idle, int 
  }
  
-@@ -444,3 +450,5 @@ void cleanup_module(void)
- }
- 
- #endif /* MODULE */
+ #if CONFIG_SMP
++/* This scales quite well (eg. 64 processors, average time to wait for
++   first schedule = jiffie/64.  Total time for all processors =
++   jiffie/63 + jiffie/62...
 +
-+module_init(init_module);
++   At 1024 cpus, this is about 7.5 jiffies.  And that assumes noone
++   schedules early. --RR */
++void synchronize_kernel(void)
++{
++	unsigned long cpus_allowed, old_cpus_allowed, old_prio, old_policy;
++	struct sched_param param = { .sched_priority = MAX_RT_PRIO-1 };
++	unsigned int i;
++
++	/* Save old values. */
++	read_lock_irq(&tasklist_lock);
++	old_cpus_allowed = current->cpus_allowed;
++	old_prio = current->rt_priority;
++	old_policy = current->policy;
++	read_unlock_irq(&tasklist_lock);
++
++	/* Create an unreal time task. */
++	setscheduler(current->pid, SCHED_FIFO, &param);
++
++	/* Make us schedulable on all other online CPUs: if we get
++	   preempted here it doesn't really matter, since it means we
++	   *did* run on the cpu returned by smp_processor_id(), which
++	   is all we care about. */
++	cpus_allowed = 0;
++	for (i = 0; i < NR_CPUS; i++)
++		if (cpu_online(i) && i != smp_processor_id())
++			cpus_allowed |= (1 << i);
++
++	while (cpus_allowed) {
++		/* Change CPUs */
++		set_cpus_allowed(current, cpus_allowed);
++		/* Eliminate this one */
++		cpus_allowed &= ~(1 << smp_processor_id());
++	}
++
++	/* Back to normal. */
++	set_cpus_allowed(current, old_cpus_allowed);
++	param.sched_priority = old_prio;
++	setscheduler(current->pid, old_policy, &param);
++}
++
+ /*
+  * This is how migration works:
+  *
 
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

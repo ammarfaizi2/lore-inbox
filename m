@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267261AbTCEPmJ>; Wed, 5 Mar 2003 10:42:09 -0500
+	id <S267436AbTCEPsW>; Wed, 5 Mar 2003 10:48:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267268AbTCEPmI>; Wed, 5 Mar 2003 10:42:08 -0500
-Received: from almesberger.net ([63.105.73.239]:20491 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S267261AbTCEPmF>; Wed, 5 Mar 2003 10:42:05 -0500
-Date: Wed, 5 Mar 2003 12:52:31 -0300
-From: Werner Almesberger <wa@almesberger.net>
+	id <S267433AbTCEPsU>; Wed, 5 Mar 2003 10:48:20 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:15502 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267431AbTCEPsP>; Wed, 5 Mar 2003 10:48:15 -0500
+Date: Wed, 5 Mar 2003 09:58:40 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
 To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] make atm (and clip) modular + try_module_get()
-Message-ID: <20030305125230.B525@almesberger.net>
-References: <20030305.065341.35361286.davem@redhat.com> <200303051528.h25FSqGi006413@locutus.cmf.nrl.navy.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303051528.h25FSqGi006413@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Wed, Mar 05, 2003 at 10:28:52AM -0500
+cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][ATM] make atm (and clip) modular + try_module_get() 
+In-Reply-To: <200303051443.h25EhlGi006161@locutus.cmf.nrl.navy.mil>
+Message-ID: <Pine.LNX.4.44.0303050952010.31461-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chas williams wrote:
-> sk->receieve_queue i suspect -- more on that later) while the skb are
-> moved to copy.  i am afraid i dont know much about how the clip driver
-> operates.
+On Wed, 5 Mar 2003, chas williams wrote:
 
-What's happening there is that new CLIP connections start as normal
-native ATM VCs, owned by atmarpd. When atmarpd clears them for IP
-traffic, all the data that has been queued so far (i.e. any ATMARP
-messages, and any IP - typically I'd expect to find a SYN there)
-is removed from the native ATM VC's queue, and fed into the non-ATM
-part of the stack, for de-encapsulation, etc.
+> In message <Pine.LNX.4.44.0303031825240.16397-100000@chaos.physics.uiowa.edu>,K
+> ai Germaschewski writes:
+> >Not terribly important, but you can write this as:
+> >obj-$(CONFIG_ATM)	+= atm.o
+> >atm-y			+= addr.o pvc.o signaling.o svc.o ...
+> >atm-$(CONFIG_PROC_FS)	+= proc.o
+> 
+> after looking at some other examples, i guess i like this even better:
+> 
+> 
+> ipcommon-obj-$(subst m,y,$(CONFIG_ATM_CLIP)) := ipcommon.o
+> ipcommon-obj-$(subst m,y,$(CONFIG_NET_SCH_ATM)) := ipcommon.o
+> 
+> atm-objs        := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o $(ipcommon-obj-y)
+> 
+> obj-$(CONFIG_ATM) += atm.o
+> atm-$(CONFIG_PROC_FS) += proc.o
 
-Note that ATMARP will be delivered again to the "native ATM" VC's
-queue, because that's how atmarpd receives ATMARP messages.
+Well, this is IMO confusing since now you're using two different ways to 
+add to atm.o in the same Makefile.
 
-Figure 6 of http://www.almesberger.net/cv/papers/atm_on_linux.ps
-shows the overall design (some details have changed since then,
-though).
+The preferred way would be:
 
-- Werner
+obj-$(CONFIG_ATM) += atm.o
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+atm-y := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o resources.o
+atm-$(subst m,y,$(CONFIG_ATM_CLIP))	+= ipcommon.o
+atm-$(subst m,y,$(CONFIG_NET_SCH_ATM))	+= ipcommon.o
+atm-$(CONFIG_PROC_FS)			+= proc.o
+
+You could write this as
+
+obj-$(CONFIG_ATM) += atm.o
+
+atm-obj-$(subst m,y,$(CONFIG_ATM_CLIP))		+= ipcommon.o
+atm-obj-$(subst m,y,$(CONFIG_NET_SCH_ATM))	+= ipcommon.o
+atm-obj-$(CONFIG_PROC_FS)			+= proc.o
+atm-objs := addr.o pvc.o signaling.o svc.o common.o atm_misc.o raw.o \
+	 resources.o $(atm-obj-y)
+
+But I'd really like you to use the former. I know this is currently 
+handled inconsistently throughout the Makefiles, at some point I'll 
+hopefully get around to converting things to the "new-style" above.
+
+--Kai
+
+

@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289178AbSAMNjL>; Sun, 13 Jan 2002 08:39:11 -0500
+	id <S288012AbSAMNeb>; Sun, 13 Jan 2002 08:34:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288010AbSAMNjC>; Sun, 13 Jan 2002 08:39:02 -0500
-Received: from chiark.greenend.org.uk ([212.22.195.2]:8201 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id <S289178AbSAMNiw>; Sun, 13 Jan 2002 08:38:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unauthorized connection blocking withing socket
-In-Reply-To: <3C40B526.D960AC26@nbnet.nb.ca>
-In-Reply-To: <3C40B526.D960AC26@nbnet.nb.ca>
-Organization: Linux Unlimited
-Message-Id: <E16PkqZ-00085N-00@chiark.greenend.org.uk>
-From: Peter Benie <peterb@chiark.greenend.org.uk>
-Date: Sun, 13 Jan 2002 13:38:51 +0000
+	id <S288010AbSAMNeV>; Sun, 13 Jan 2002 08:34:21 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:20237 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S288012AbSAMNeN>; Sun, 13 Jan 2002 08:34:13 -0500
+Message-ID: <3C418CCC.3854D76E@linux-m68k.org>
+Date: Sun, 13 Jan 2002 14:34:04 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: arjan@fenrus.demon.nl, Rob Landley <landley@trommello.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16PZQA-0003fl-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C40B526.D960AC26@nbnet.nb.ca> you write:
->Hi,
->
->Currently I am working on a project which intends to stop unauthorized
->processes sending emails or messages to the internet. The goal of the
->project  is to tackle  the Distributed Service Denial problem.
->
->From the experience on telecommunication at socket level,  it is natural
->for me to look at sys_connect().
->My idea is that: every time when a process tries to make a connection,
->the kernel checks whether the process has the permission to make such
->connection. It requires:
->1. The identification of the process.  I chose the absolute path since
->it is unique, can't be tempted.
+Hi,
 
-Identification of processes is hard. Even if you identify which
-program was execed (eg. via /proc/<pid>/exe), that doesn't help
-you. For example, if I set LD_PRELOAD or LD_LIBRARY_PATH to cause the
-program to link with a library that I control, then I have complete
-control over what code gets run. Alternatively, I can control the
-process by attaching to it with ptrace. 
+Alan Cox wrote:
 
-If you're going to stick with something approximating unix, then you
-can prevent tampering by making the program privileged (eg. by making
-the program setuid). Having done that, you're in a much better
-position to enforce policy. You can use netfilter to firewall out
-connections to port 25 from your users, and to enable the privileged
-user (ie. the uid used by your MTA during remote deliveries) to make
-connections.
+> disable_irq only blocks _one_ interrupt line, spin_lock_irqsave locks the
+> interrupt off on a uniprocessor, and  50% of the time off on a
+> dual processor.
+> 
+> If I use a spin lock you can't run a modem and an NE2000 card together on
+> Linux 2.4. Thats why I had to do that work on the code. Its one of myriads
+> of basic obvious cases that the pre-empt patch gets wrong
 
->2. A config file which contains connection rules for processes.
->Currently, there are  only two fields in a connection rule: <cmd path>
->and  <ip mask> e.g.
->    # <cmdpath>     <mask>
->    /home/stao/test1        192.168.2.2
->    /usr/bin/ftp    255.255.255.255
->
->where test1 can connect any port on local host 192.168.2.2 and ftp can
->connect to ports of any ip address.
+I wouldn't say it gets it wrong, the driver also has to take a non irq
+spinlock anyway, so the window is quite small and even then the packet
+is only delayed.
+But now I really have to look at that driver and try a more optimistic
+irq disabling approach, otherwise it will happily disable the most
+important shared interrupt on my Amiga for ages.
 
-Access control based on program filenames in unix is in the class of
-problems where you "don't start from here." The mechanisms used by
-unix for access control are almost entirely based on uids and gids,
-and you are much better off working within this constraint. If you
-don't, you may end up with code that's very hard to check for
-correctness. 
-
-Peter
+bye, Roman

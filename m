@@ -1,136 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317429AbSFXHVX>; Mon, 24 Jun 2002 03:21:23 -0400
+	id <S317430AbSFXHsf>; Mon, 24 Jun 2002 03:48:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317430AbSFXHVX>; Mon, 24 Jun 2002 03:21:23 -0400
-Received: from [194.85.255.177] ([194.85.255.177]:20864 "HELO blacklake.uucp")
-	by vger.kernel.org with SMTP id <S317429AbSFXHVV>;
-	Mon, 24 Jun 2002 03:21:21 -0400
-Date: Mon, 24 Jun 2002 10:22:49 +0300
-From: Dzmitry Chekmarou <diavolo@mail.ru>
-To: martin@dalecki.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5.24][patch] ide recalibrating bug
-Message-ID: <20020624072249.GA1125@blacklake>
-Mime-Version: 1.0
+	id <S317431AbSFXHse>; Mon, 24 Jun 2002 03:48:34 -0400
+Received: from web21006.mail.yahoo.com ([216.136.227.60]:23939 "HELO
+	web21006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317430AbSFXHsc>; Mon, 24 Jun 2002 03:48:32 -0400
+Message-ID: <20020624074834.36579.qmail@web21006.mail.yahoo.com>
+Date: Mon, 24 Jun 2002 00:48:34 -0700 (PDT)
+From: Zak Shaf <zak_shaf@yahoo.com>
+Subject: slimscsi 1480 on dell inspiron 5000, crashing
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Hi,
 
-previous message was with whitespaces(not tabs) in patch :(
+As per the instructions in PCMCIA-HOMTO, after
+recompiling the latest kernel with SCSI options, and
+installing the modules from the latest pcmcia-cs
+package, my machine appears to detect the scsi
+controller and the devices on them.
 
-the problem:
-  kernel fails when ide recalibrating (dma should be turned on)
-  when schedule called and in_interrupt() returns non-zero - BUG() executed
-  do_recalibrate() is executed with in_interrupt() == 1
+However, there are two aspects which are worrisome. In
+my dmesg, I get an error message -
+"aic7xxx: PCI6:0:0 MEM region 0x60050000 unavailable.
+Cannot map device."
 
-this happens after 2.5.20 to 2.5.21 patch
+and the machine crashes frequently, after kernel goes
+into panic.
 
-procedures call stack:
-  drivers/ide/ide.c:
-    do_recalibrate()
-  drivers/ide/ide-taskfile.c:
-    ide_raw_taskfile()
-    ide_do_drive_cmd()
-  kernel/sched.c:
-    wait_for_completion()
-    schedule()
+any hints/pointers would be much appreciated.
+zak
 
-solutions:
-  do not use wait_for_completion when in_interrupt() non-zero (use old wait-scheme)
-  return to old version
+ps: the complete dmesg relevant dmesg output is
+attached below.
 
-my hardware(this is not hw problem, i think):
-  cpu: athlon 1000
-  mb: sis735
-  ram: 256ddr
-  hdd: ibm
+Linux version 2.5.0 (zak@puma) (gcc version 2.95.3
+20010315 (release)) #2 Sun Ju
+n 23 14:03:45 EDT 2002
+...PCI: PCI BIOS revision 2.10 entry at 0xfd9ae, last
+bus=1
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+Unknown bridge resource 2: assuming transparent
+PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
+PCI: Found IRQ 11 for device 00:04.0
+PCI: Sharing IRQ 11 with 00:04.1
+PCI: Sharing IRQ 11 with 01:00.0
+PCI: Cannot allocate resource region 4 of device
+00:07.1
+Limiting direct PCI/PCI transfers.
+...
+maestro: version 0.15 time 13:59:10 Jun 23 2002
+PCI: Found IRQ 5 for device 00:08.0
+PCI: Sharing IRQ 5 with 00:07.2
+PCI: Sharing IRQ 5 with 00:10.0
+...
+Intel ISA/PCI/CardBus PCIC probe:
+PCI: Found IRQ 11 for device 00:04.0
+PCI: Sharing IRQ 11 with 00:04.1
+PCI: Sharing IRQ 11 with 01:00.0
 
-compiler(and not compiler problem):
-  gcc 3.1
+  TI 1225 rev 01 PCI-to-CardBus at slot 00:04, mem
+0x10000000
+    host opts [0]: [ring] [serial pci & irq] [pci irq
+11] [lat 168/32] [bus 2/5]
+    host opts [1]: [ring] [serial pci & irq] [pci irq
+11] [lat 168/32] [bus 6/9]
+    ISA irqs (scanned) = 3,4,7,10 PCI status changes
+cs: cb_alloc(bus 2): vendor 0x10b7, device 0x5257
+cs: cb_alloc(bus 6): vendor 0x9004, device 0x6075
+3c59x.c:v0.99Q 5/16/2000 Donald Becker,
+becker@scyld.com
+  http://www.scyld.com/network/vortex.html
+cs: cb_config(bus 2)
+cs: IO port probe 0x0100-0x04ff: excluding 0x4d0-0x4d7
+cs: IO port probe 0x04d8-0x04ff: clean.
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0a00-0x0aff: clean.
+cs: IO port probe 0x0c00-0x0cff: clean.
+  fn 0 bar 1: io 0x200-0x27f
+  fn 0 bar 2: mem 0x60021000-0x6002107f
+  fn 0 bar 3: mem 0x60020000-0x6002007f
+  fn 0 rom: mem 0x60000000-0x6001ffff
+  irq 11
+cs: cb_enable(bus 2)  bridge mem map 0 (flags 0x1):
+0x60000000-0x60021fff
+vortex_attach(device 02:00.0)
+eth0: 3Com 3CCFE575CT Tornado CardBus at 0x200, 
+00:01:02:7b:2f:1b, IRQ 11
+  product code 'ZW' rev 10.0 date 10-17-00
+eth0: CardBus functions mapped 60020000->c8c81000.
+  8K byte-wide RAM 5:3 Rx:Tx split, MII interface.
+  MII transceiver found at address 0, status 7809.
+  Enabling bus-master transmits and whole-frame
+receives.
+ROM image dump:
+  image 0: 0x000000-0x0001ff, signature PCIR
+  image 1: 0x000200-0x0003ff, signature PCIR
+SCSI subsystem driver Revision: 1.00
+cs: cb_config(bus 6)
+  fn 0 bar 1: io 0x800-0x8ff
+  fn 0 bar 2: mem 0x60050000-0x60050fff
+  fn 0 rom: mem 0x60040000-0x6004ffff
+  irq 11
+cs: cb_enable(bus 6)
+  bridge io map 0 (flags 0x21): 0x800-0x8ff
+  bridge mem map 0 (flags 0x1): 0x60040000-0x60050fff
+apa1480_attach(device 06:00.0)
+aic7xxx: PCI6:0:0 MEM region 0x60050000 unavailable.
+Cannot map device.
+ahc_pci:6:0:0: Host Adapter Bios disabled.  Using
+default SCSI device parameters
 
-tested kernels:
-  2.5.17-20(good)
-  2.5.21-24(broken)
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER,
+Rev 6.2.4
+        <Adaptec 1480A Ultra SCSI adapter>
+        aic7860: Ultra Single Channel A, SCSI Id=7,
+3/253 SCBs
 
-sorry for my bad english
+  Vendor: Nikon     Model: LS-2000           Rev: 1.31
+  Type:   Scanner                            ANSI SCSI
+revision: 02
+Attached scsi generic sg0 at scsi0, channel 0, id 2,
+lun 0,  type 6
+spurious 8259A interrupt: IRQ7.
 
-wbr zmiter
 
-===here is patch(applies to 2.5.24) to return old code for do_recalibrate (temporary fix)===
-diff -Nru a/drivers/ide/ide.c b/drivers/ide/ide.c
---- a/drivers/ide/ide.c	Sun Jun 23 17:08:19 2002
-+++ b/drivers/ide/ide.c	Sun Jun 23 23:11:51 2002
-@@ -550,6 +550,39 @@
-  * We are still on the old request path here so issuing the recalibrate command
-  * directly should just work.
-  */
-+
-+/*
-+ * Here is deleted ide_set_handler and recal_intr for do_recalibrate
-+ */
-+
-+void ide_set_handler(struct ata_device *drive, ata_handler_t handler,
-+		      unsigned long timeout, ata_expiry_t expiry)
-+{
-+	unsigned long flags;
-+	struct ata_channel *ch = drive->channel;
-+
-+	spin_lock_irqsave(ch->lock, flags);
-+
-+	if (ch->handler != NULL) {
-+		printk("%s: ide_set_handler: handler not null; old=%p, new=%p, from %p\n",
-+			drive->name, ch->handler, handler, __builtin_return_address(0));
-+	}
-+	ch->handler = handler;
-+	ch->expiry = expiry;
-+	ch->timer.expires = jiffies + timeout;
-+	add_timer(&ch->timer);
-+
-+	spin_unlock_irqrestore(ch->lock, flags);
-+}
-+
-+ide_startstop_t recal_intr(struct ata_device *drive, struct request *rq)
-+{
-+	if (!ata_status(drive, READY_STAT, BAD_STAT))
-+		return ata_error(drive, rq, __FUNCTION__);
-+
-+	return ide_stopped;
-+}
-+
- static int do_recalibrate(struct ata_device *drive)
- {
- 
-@@ -560,10 +593,28 @@
- 		struct ata_taskfile args;
- 
- 		printk(KERN_INFO "%s: recalibrating...\n", drive->name);
-+
- 		memset(&args, 0, sizeof(args));
- 		args.taskfile.sector_count = drive->sect;
- 		args.cmd = WIN_RESTORE;
--		ide_raw_taskfile(drive, &args);
-+		args.command_type = IDE_DRIVE_TASK_NO_DATA;
-+
-+		ata_irq_enable(drive, 1);
-+		ata_mask(drive);
-+
-+		if ((drive->id->command_set_2 & 0x0400) && (drive->id->cfs_enable_2 & 0x0400) && (drive->addressing == 1))
-+			ata_out_regfile(drive, &args.hobfile);
-+
-+		ata_out_regfile(drive, &args.taskfile);
-+
-+		{
-+			u8 HIHI = (drive->addressing) ? 0xE0 : 0xEF;
-+			OUT_BYTE((args.taskfile.device_head & HIHI) | drive->select.all, IDE_SELECT_REG);
-+		}
-+
-+		ide_set_handler(drive, recal_intr, WAIT_CMD, NULL);
-+		OUT_BYTE(args1->cmd, IDE_COMMAND_REG);
-+
- 		printk(KERN_INFO "%s: done!\n", drive->name);
- 	}
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com

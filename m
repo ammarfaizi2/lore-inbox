@@ -1,71 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316832AbSGLTDt>; Fri, 12 Jul 2002 15:03:49 -0400
+	id <S316848AbSGLTEw>; Fri, 12 Jul 2002 15:04:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316840AbSGLTDt>; Fri, 12 Jul 2002 15:03:49 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:58775 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S316832AbSGLTDq>; Fri, 12 Jul 2002 15:03:46 -0400
-Date: Fri, 12 Jul 2002 21:06:12 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Martin Dalecki <dalecki@evision-ventures.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <3D2F20DD.1030704@zytor.com>
-Message-ID: <Pine.SOL.4.30.0207122051280.21379-100000@mion.elka.pw.edu.pl>
+	id <S316845AbSGLTEv>; Fri, 12 Jul 2002 15:04:51 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:30361 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316848AbSGLTEp>;
+	Fri, 12 Jul 2002 15:04:45 -0400
+Message-ID: <3D2F28C5.80403@us.ibm.com>
+Date: Fri, 12 Jul 2002 12:06:45 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] AFFS fix return without releasing BKL
+References: <Pine.LNX.4.44.0207112236330.28515-100000@serv>
+Content-Type: multipart/mixed;
+ boundary="------------050202000105010605000706"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------050202000105010605000706
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, 12 Jul 2002, H. Peter Anvin wrote:
+Roman Zippel wrote:
+> Hi,
+> 
+> On Thu, 11 Jul 2002, Dave Hansen wrote:
+> 
+>>This was found by Dan Carpenter <error27@email.com>, using an smatch
+>>script.  Looks to me like like an error caused during all the BKL
+>>pushing.  1 more coming...
+> 
+> Actually lock_kernel() and the test there can be removed completely.
 
-> Linus Torvalds wrote:
-> >
-> > On Fri, 12 Jul 2002, Martin Dalecki wrote:
-> >
-> >>So Linus what's your opinnion please?
-> >
-> >
-> > I will violently oppose anything that implies that the IDE layer uses the
-> > SCSI layer normally.  No way, Jose. I'm all for scrapping, but the thing
-> > that should be scrapped is ide-scsi.
-> >
-> > The higher layers already have much of what the SCSI layer does, and the
-> > SCSI layer itself is slowly moving in that direction.
->
-> Then *please* make a *compatible* interface available to user space.
-> This certainly can be done; the parallel port IDE interface stuff had
-> exactly such an interface (/dev/pg*) -- we could have a /dev/hg*
-> interface presumably.  That is an acceptable solution.
->
-> Note again that this discussion (and it's a discussion, not a voting
-> session -- technical pros and cons is what applies) apply to ATAPI (SCSI
-> over IDE) only.  Alan has already brought up the fact of non-hard disk
+Patch attached to do just that.
 
-Please stop calling ATAPI as SCSI over IDE, it is not. It is Packet
-Interface over ATA (IDE). Some ATAPI/SCSI devices are functionally
-equivalent because they support the same command set (i.e. MMC).
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-> non-ATAPI devices, and IMO those devices are explicitly out of scope.
-> Maturity of drivers is another, but right now we're suffering through
-> having to deal with multiple drivers for the same hardware, or with user
+--------------050202000105010605000706
+Content-Type: text/plain;
+ name="affs-bkl_ret-2.5.25-1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="affs-bkl_ret-2.5.25-1.patch"
 
-Where multiple means two? ;-)
+--- linux-2.5.25-clean/fs/affs/namei.c	Thu Jun 20 15:53:49 2002
++++ linux/fs/affs/namei.c	Fri Jul 12 12:05:24 2002
+@@ -342,14 +342,7 @@
+ 	pr_debug("AFFS: rmdir(dir=%u, \"%.*s\")\n", (u32)dir->i_ino,
+ 		 (int)dentry->d_name.len, dentry->d_name.name);
+ 
+-	lock_kernel();
+-
+-	/* WTF??? */
+-	if (!dentry->d_inode)
+-		return -ENOENT;
+-
+ 	res = affs_remove_header(dentry);
+-	unlock_kernel();
+ 	return res;
+ }
+ 
 
-> space having to choose different interfaces depending on connection
-> interface, and either which way that's pretty pathetic.
-
-It is in fact. Generic higher level interface is a solution.
-
-Greets
---
-Bartlomiej
-
->
-> 	-hpa
-
+--------------050202000105010605000706--
 

@@ -1,57 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbTIBX7q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 19:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbTIBX7q
+	id S261396AbTICAH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 20:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbTICAH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 19:59:46 -0400
-Received: from hoemail2.lucent.com ([192.11.226.163]:13257 "EHLO
-	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S261325AbTIBX7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 19:59:42 -0400
+	Tue, 2 Sep 2003 20:07:56 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:17166
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S261396AbTICAHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 20:07:52 -0400
+Date: Tue, 2 Sep 2003 16:52:13 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: James Clark <jimwclark@ntlworld.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Driver Model
+In-Reply-To: <200309021943.15875.jimwclark@ntlworld.com>
+Message-ID: <Pine.LNX.4.10.10309021555410.8229-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16213.12008.527588.874265@gargle.gargle.HOWL>
-Date: Tue, 2 Sep 2003 19:59:36 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Greg KH <greg@kroah.com>
-Cc: John Stoffel <stoffel@lucent.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.0-test4-mm4 - USD disconnect oops
-In-Reply-To: <20030901065928.GB22647@kroah.com>
-References: <16210.44543.579049.520185@gargle.gargle.HOWL>
-	<20030901065928.GB22647@kroah.com>
-X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Greg" == Greg KH <greg@kroah.com> writes:
 
->> Here's the backtrace, my .config is at the end.  It's a PIII Xeon 2 x
->> 550mhz, Dell Precision 610 motherboard/system, 768mb of RAM.  The only
->> USB devices are the controllers and the CompactFlash reader, which
->> works great under 2.4.  
+## The unoffical insider's guide to thwart the gpl_only garbage       ##
+## First how to finally become a total outcast from being in/near the ##
+## inner circle to exile.                                             ##
 
-Greg> Does this happen on 2.6.0-test4?  (no -mm).
+The soul intent of "GPL_ONLY" is to prevent binary modules.
+The soul intent of "tainting" is to ignore the people who want a choice.
 
-Well, I can now use the usb-storage device under 2.6.0-test4 without
-any problems, but I just did a quick test.  So there's something in
--mm4 which is messing me and usb in general up.  I've made the
-following changes though, so I should go back and check:
+Now two sides to the sword with the above:
 
-- upgrade to module-init-tools-0.9.13
-- upgrade to hotplug-2003_08_05-1
-	     hotplug-base-2003_08_05-1
+Create a pre-loading module to wrapper all the needed "GPL_ONLY" symbols
+which rightly belong to the unprotected API.
 
-I'll see if I can figure out what changed in the -mm4 patch to cause
-this problem.  Could it be the kobject patch Akpm posted?  It looks
-like the oops I've gotten.
+-------------------------------------------
 
-The next big thing to do is to get my Dell Precision 610 to recognize
-it's CS4236B ISA sound card properly with ALSA in 2.6.0-t4...
+/*
+ * freed_symbols.h
+ *
+ * The Free Stolen Symbols module.
+ * Licensed under GPL and source code is free.
+ */
 
-Thanks Greg!
+extern int freed_xxxxx ( ... );
 
-John
+-------------------------------------------
+
+/*
+ * freed_symbols.c
+ *
+ * The Free Stolen Symbols module.
+ * Licensed under GPL and source code is free.
+ */
+
+... blah blah, standard kernel module stuff and setup ...
+
+int freed_xxxxx ( ... )
+{
+	return xxxxx( ... );
+}
+
+EXPORT_SYMBOL(freed_xxxxx);
+
+... blah blah, standard kernel module stuff and clean up ...
+
+LICENSE("GPL");
+
+-------------------------------------------
+
+Now wash rinse repeat for all the symbols you need to create a pre-loader
+module to return to usage all the symbols you need.
+
+First you will get people complaining this violates intent, kindly give
+them the middle finger, two fingers, fore arm, or whatever non verbal
+expression you wish.  Second envite them to get a lawyer.  Third, when
+they tell you to stop, ask if they are imposing restrictions on GPL for
+terms of usage.  If they are notify them they are in violation of the
+license.
+
+If you are an embedded space widget.  Apply thumb to nose and wiggle
+fingers.  Provided you ship the source code you modify in the kernel, and
+I do mean all of it, use the short cut to clobber the issues in module.h.
+When they scream and complain about, this violates intent, ask them are
+they issuing a restriction on the usage of the GPL kernel?  If they do not
+permit one to use it under GPL them the kernel itself is in violation.
+
+The short version:  It is a game of politics, where people what it both
+ways.  They want it to be open source and restict the usage.
+
+Now back to "tainting", if the politics were such to cause all modules
+which are not GPL to be rejected then the game is over.  Because the
+kernel does not reject loading, it by default approves of closed source
+binary modules.  One could use the means of taint-testing to accept or
+reject, regardless of the original intent.  Many have and will make the
+argument the kernel has the ability to reject closed source and it choose
+to accept.
+
+Well I have now alienated myself from the world of open source, but
+someone has to show who intellectually dishonestity in the politics.
+
+This goes even further in some folks in the embedded appliance who will
+digitally sign binary kernels against their module suite to prevent one
+from compiling an identical kernel but unsigned, and the modules will not
+load.  This is a hot topic along with distos adding into their big dollar
+distributions extra export_symbol hooks for things that do not exist in
+the source tree shipped.
+
+There is more, but you can discover all the left-right speak on your own.
+
+Cheers,
+
+Andre
+
+PS: Did this earn my way back into exile again, damn the truth hurts!
+
+
+On Tue, 2 Sep 2003, James Clark wrote:
+
+> 1. Will the move to a more uniform driver model in 2.6 increase the chances of 
+> a given binary driver working with a 2.6+ kernel. 
+> 
+> 2. Will the new model reduce the use/need for kernel modules. Would this be a 
+> good thing if functionality could be implemented in a driver instead of a 
+> module.
+> 
+> 3. Will the practice of deliberately breaking some binary only 'tainted' 
+> modules prevent take up of Linux. Isn't this taking things too far?
+> 
+> James
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 1. Will the move to a more uniform driver model in 2.6 increase the chances of 
+> a given binary driver working with a 2.6+ kernel. 
+> 
+> 2. Will the new model reduce the use/need for kernel modules. Would this be a 
+> good thing if functionality could be implemented in a driver instead of a 
+> module.
+> 
+> 3. Will the practice of deliberately breaking some binary only 'tainted' 
+> modules prevent take up of Linux. Isn't this taking things too far?
+> 
+> James
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

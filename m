@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261502AbSJMMFM>; Sun, 13 Oct 2002 08:05:12 -0400
+	id <S261505AbSJMMOA>; Sun, 13 Oct 2002 08:14:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261505AbSJMMFM>; Sun, 13 Oct 2002 08:05:12 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:47628 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S261502AbSJMMFM>;
-	Sun, 13 Oct 2002 08:05:12 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.21 is available
-Date: Sun, 13 Oct 2002 22:10:41 +1000
-Message-ID: <16837.1034511041@ocs3.intra.ocs.com.au>
+	id <S261507AbSJMMOA>; Sun, 13 Oct 2002 08:14:00 -0400
+Received: from ep09.kernel.pl ([212.87.11.162]:40516 "EHLO ep09.kernel.pl")
+	by vger.kernel.org with ESMTP id <S261505AbSJMMN7>;
+	Sun, 13 Oct 2002 08:13:59 -0400
+Date: Sun, 13 Oct 2002 14:19:45 +0200 (CEST)
+From: Witek Krecicki <adasi@kernel.pl>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is initrd working?
+In-Reply-To: <20021013043121.A1300@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.44L.0210131418440.8712-100000@ep09.kernel.pl>
+References: <20021013043121.A1300@adam.yggdrasil.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 13 Oct 2002, Adam J. Richter wrote:
 
-Content-Type: text/plain; charset=us-ascii
-
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
-
-modutils-2.4.21.tar.gz          Source tarball, includes RPM spec file
-modutils-2.4.21-1.src.rpm       As above, in SRPM format
-modutils-2.4.21-1.i386.rpm      Compiled with gcc 2.96 20000731,
-                                glibc 2.2.2.
-modutils-2.4.21-1.ia64.rpm	Compiled with gcc 2.96-ia64-20000731,
-				glibc-2.2.3.
-modutils-2.4.21-1.sparc.rpm	Compiled for combined 32/64 sparc, with gcc
-				2.95.4, glibc-2.2.5.
-patch-modutils-2.4.21.gz        Patch from modutils 2.4.20 to 2.4.21.
-
-Changelog extract
-
-	* Add ksymoops support for sbss section.
-	* Allow include to handle multiple files, with globbing.  Kelledin.
-
-If you are seeing ksymoops warnings about symbols in the sbss section
-(objdump -t /lib/modules/.../foo.o | grep sbss to identify symbols in
-sbss) then you should upgrade to modutils 2.4.21 and ksymoops 2.4.7.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE9qWK/i4UHNye0ZOoRAuDKAJ0VKV0NnT2c95aljISrL2Xbdv4VVACfcbBK
-bCGc8Dc/sxZhVAgZEgZ2Xoc=
-=8vCW
------END PGP SIGNATURE-----
+> Date: Sun, 13 Oct 2002 04:31:21 -0700
+> From: Adam J. Richter <adam@yggdrasil.com>
+> To: adasi@kernel.pl
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Is initrd working?
+> 
+> On 2002-10-13 at 9:45:38, Witek Krecicki wrote:
+> >I was trying to run initrd on 2.5.41, 2.5.42, 2.5.42-mm{1,2}, 2.5.42-ac1 
+> >and it is not working in any case (oopsing just after RAMDISK: Compressed 
+> >image found...). I've sent decoded oops some time ago, without any 
+> >response. I cannot even try modular IDE because of that :/
+> >Please help
+> 
+> 	Make sure you are not running CONFIG_HIGHMEM64G.  I believe there
+> is some kind of memory corruption problem under highmem=64g on x86 with
+> big ramdisks.  I use a ~900kB initial ramdisk that expands to ~2.2MB.
+> 
+> 	With CONFIG_HIGHMEM4G or CONFIG_NOHIGHMEM, the problem disappears
+> for me.  I am writing this email under 2.5.41 with CONFIG_HIGHMEM4G and
+> IDE as a module (with a patch that I posted to lkml).
+I've checked this config option:  CONFIG_HIGHMEM4G was enabled. I've 
+turned it to NOHIGHMEM, recompiled and it's still not working. ramdisk is 
+pretty small (just IDE)
+WK
 

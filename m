@@ -1,58 +1,301 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVBBT7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVBBUEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbVBBT7B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 14:59:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVBBTqg
+	id S262761AbVBBUEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 15:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVBBUDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:46:36 -0500
-Received: from asplinux.ru ([195.133.213.194]:781 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S262589AbVBBTkd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:40:33 -0500
-Message-ID: <42012C7B.1010609@sw.ru>
-Date: Wed, 02 Feb 2005 22:39:39 +0300
-From: Vasily Averin <vvs@sw.ru>
-Organization: SW-soft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021224
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Matt Domsch <Matt_Domsch@dell.com>
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrey Melnikov <temnota+kernel@kmv.ru>, linux-kernel@vger.kernel.org,
-       Atul Mukker <Atul.Mukker@lsil.com>,
-       Sreenivas Bagalkote <Sreenivas.Bagalkote@lsil.com>
-Subject: Re: [PATCH] Prevent NMI oopser
-References: <41F5FC96.2010103@sw.ru> <20050131231752.GA17126@logos.cnet> <42011EFA.10109@sw.ru> <20050202190626.GB18763@lists.us.dell.com>
-In-Reply-To: <20050202190626.GB18763@lists.us.dell.com>
-X-Enigmail-Version: 0.70.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Feb 2005 15:03:46 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262645AbVBBTwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 14:52:22 -0500
+Date: Wed, 2 Feb 2005 20:52:21 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Margit Schubert-While <margitsw@t-online.de>, prism54-private@prism54.org,
+       netdev@oss.sgi.com, jgarzik@pobox.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] prism54: misc cleanups
+Message-ID: <20050202195221.GE3313@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Matt
+This patch makes some functions in prism54 that are only required 
+locally static.
 
-Matt Domsch wrote:
-> On Wed, Feb 02, 2005 at 09:42:02PM +0300, Vasily Averin wrote:
->>This is megaraid2 driver update (2.10.8.2 version, latest 2.4-compatible
->>version that I've seen), taken from latest RHEL3 kernel update. I
->>believe it should prevent NMI in abort/reset handler.
-> 
-> Thanks Vasily, I was just looking at this again yesterday.
-> 
-> You'll also find that because the driver doesn't define its inline
-> functions prior to their use, newest compilers refuse to compile this
-> version of the driver.  Earlier compilers just ignore it and don't
-> inline anything.
-> 
-> As a hack, one could #define inline /*nothing*/ in megaraid2.h to
-> avoid this, but it would be nice if the functions could all get
-> reordered such that inlining works properly, and the need for function
-> declarations in megaraid2.h would disappear completely.
+As a side effect it turned out that the mgt_unlatch_all function was 
+completely unused, and it's therefore #if 0'ed.
 
-Could you fix it by additional patch? Or do you going to prepare a new one?
+I also considered moving display_buffer as static inline into 
+islpci_mgt.h, but I wasn't 100% sure and therefore left it.
 
-Thank you,
-	Vasily Averin, SWSoft Linux Kernel Team
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 20 Dec 2004
+
+ drivers/net/wireless/prism54/isl_ioctl.c  |   32 +++++++++++-------
+ drivers/net/wireless/prism54/isl_ioctl.h  |    5 --
+ drivers/net/wireless/prism54/islpci_dev.c |    5 +-
+ drivers/net/wireless/prism54/islpci_dev.h |    2 -
+ drivers/net/wireless/prism54/islpci_mgt.c |    2 +
+ drivers/net/wireless/prism54/oid_mgt.c    |   38 +---------------------
+ drivers/net/wireless/prism54/oid_mgt.h    |    4 --
+ 7 files changed, 28 insertions(+), 60 deletions(-)
+
+--- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/isl_ioctl.h.old	2004-10-30 06:52:18.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/isl_ioctl.h	2004-10-30 07:02:58.000000000 +0200
+@@ -41,15 +41,10 @@
+ 
+ void prism54_wpa_ie_init(islpci_private *priv);
+ void prism54_wpa_ie_clean(islpci_private *priv);
+-void prism54_wpa_ie_add(islpci_private *priv, u8 *bssid,
+-			u8 *wpa_ie, size_t wpa_ie_len);
+-size_t prism54_wpa_ie_get(islpci_private *priv, u8 *bssid, u8 *wpa_ie);
+ 
+ int prism54_set_mac_address(struct net_device *, void *);
+ 
+ int prism54_ioctl(struct net_device *, struct ifreq *, int);
+-int prism54_set_wpa(struct net_device *, struct iw_request_info *, 
+-			__u32 *, char *);
+ 
+ extern const struct iw_handler_def prism54_handler_def;
+ 
+--- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/isl_ioctl.c.old	2004-10-30 06:43:10.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/isl_ioctl.c	2004-10-30 07:11:26.000000000 +0200
+@@ -36,6 +36,14 @@
+ 
+ #include <net/iw_handler.h>	/* New driver API */
+ 
++
++static void prism54_wpa_ie_add(islpci_private *priv, u8 *bssid,
++				u8 *wpa_ie, size_t wpa_ie_len);
++static size_t prism54_wpa_ie_get(islpci_private *priv, u8 *bssid, u8 *wpa_ie);
++static int prism54_set_wpa(struct net_device *, struct iw_request_info *, 
++				__u32 *, char *);
++
++
+ /**
+  * prism54_mib_mode_helper - MIB change mode helper function
+  * @mib: the &struct islpci_mib object to modify
+@@ -47,7 +55,7 @@
+  *  Wireless API modes to Device firmware modes. It also checks for 
+  *  correct valid Linux wireless modes. 
+  */
+-int
++static int
+ prism54_mib_mode_helper(islpci_private *priv, u32 iw_mode)
+ {
+ 	u32 config = INL_CONFIG_MANUALRUN;
+@@ -647,7 +655,7 @@
+ 	return current_ev;
+ }
+ 
+-int
++static int
+ prism54_get_scan(struct net_device *ndev, struct iw_request_info *info,
+ 		 struct iw_point *dwrq, char *extra)
+ {
+@@ -1582,7 +1590,7 @@
+ #define MAC2STR(a) (a)[0], (a)[1], (a)[2], (a)[3], (a)[4], (a)[5]
+ #define MACSTR "%02x:%02x:%02x:%02x:%02x:%02x"
+ 
+-void
++static void
+ prism54_wpa_ie_add(islpci_private *priv, u8 *bssid,
+ 		   u8 *wpa_ie, size_t wpa_ie_len)
+ {
+@@ -1649,7 +1657,7 @@
+ 	up(&priv->wpa_sem);
+ }
+ 
+-size_t
++static size_t
+ prism54_wpa_ie_get(islpci_private *priv, u8 *bssid, u8 *wpa_ie)
+ {
+ 	struct list_head *ptr;
+@@ -1736,7 +1744,7 @@
+ 	}
+ }
+ 
+-int
++static int
+ prism54_process_trap_helper(islpci_private *priv, enum oid_num_t oid,
+ 			    char *data)
+ {
+@@ -2314,7 +2322,7 @@
+        return ret;
+ }
+ 
+-int
++static int
+ prism54_set_wpa(struct net_device *ndev, struct iw_request_info *info,
+ 		__u32 * uwrq, char *extra)
+ {
+@@ -2358,7 +2366,7 @@
+ 	return 0;
+ }
+ 
+-int
++static int
+ prism54_get_wpa(struct net_device *ndev, struct iw_request_info *info,
+ 		__u32 * uwrq, char *extra)
+ {
+@@ -2367,7 +2375,7 @@
+ 	return 0;
+ }
+ 
+-int
++static int
+ prism54_set_prismhdr(struct net_device *ndev, struct iw_request_info *info,
+ 		     __u32 * uwrq, char *extra)
+ {
+@@ -2380,7 +2388,7 @@
+ 	return 0;
+ }
+ 
+-int
++static int
+ prism54_get_prismhdr(struct net_device *ndev, struct iw_request_info *info,
+ 		     __u32 * uwrq, char *extra)
+ {
+@@ -2389,7 +2397,7 @@
+ 	return 0;
+ }
+ 
+-int
++static int
+ prism54_debug_oid(struct net_device *ndev, struct iw_request_info *info,
+ 		  __u32 * uwrq, char *extra)
+ {
+@@ -2401,7 +2409,7 @@
+ 	return 0;
+ }
+ 
+-int
++static int
+ prism54_debug_get_oid(struct net_device *ndev, struct iw_request_info *info,
+ 		      struct iw_point *data, char *extra)
+ {
+@@ -2437,7 +2445,7 @@
+ 	return ret;
+ }
+ 
+-int
++static int
+ prism54_debug_set_oid(struct net_device *ndev, struct iw_request_info *info,
+ 		      struct iw_point *data, char *extra)
+ {
+--- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_dev.h.old	2004-10-30 06:58:23.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_dev.h	2004-10-30 07:04:02.000000000 +0200
+@@ -211,8 +211,6 @@
+ 			       priv->device_base);
+ }
+ 
+-struct net_device_stats *islpci_statistics(struct net_device *);
+-
+ int islpci_free_memory(islpci_private *);
+ struct net_device *islpci_setup(struct pci_dev *);
+ #endif				/* _ISLPCI_DEV_H */
+--- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_dev.c.old	2004-10-30 06:46:08.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_dev.c	2004-10-30 07:12:13.000000000 +0200
+@@ -44,6 +44,7 @@
+ 
+ static int prism54_bring_down(islpci_private *);
+ static int islpci_alloc_memory(islpci_private *);
++static struct net_device_stats *islpci_statistics(struct net_device *);
+ 
+ /* Temporary dummy MAC address to use until firmware is loaded.
+  * The idea there is that some tools (such as nameif) may query
+@@ -52,7 +53,7 @@
+  * Of course, this is not the final/real MAC address. It doesn't
+  * matter, as you are suppose to be able to change it anytime via
+  * ndev->set_mac_address. Jean II */
+-const unsigned char	dummy_mac[6] = { 0x00, 0x30, 0xB4, 0x00, 0x00, 0x00 };
++static const unsigned char	dummy_mac[6] = { 0x00, 0x30, 0xB4, 0x00, 0x00, 0x00 };
+ 
+ static int
+ isl_upload_firmware(islpci_private *priv)
+@@ -607,7 +608,7 @@
+ 	return rc;
+ }
+ 
+-struct net_device_stats *
++static struct net_device_stats *
+ islpci_statistics(struct net_device *ndev)
+ {
+ 	islpci_private *priv = netdev_priv(ndev);
+--- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_mgt.c.old	2004-10-30 06:46:45.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/islpci_mgt.c	2004-10-30 07:15:39.000000000 +0200
+@@ -44,6 +44,7 @@
+ /******************************************************************************
+     Driver general functions
+ ******************************************************************************/
++#if VERBOSE > SHOW_ERROR_MESSAGES
+ void
+ display_buffer(char *buffer, int length)
+ {
+@@ -58,6 +59,7 @@
+ 
+ 	printk("\n");
+ }
++#endif
+ 
+ /*****************************************************************************
+     Queue handling for management frames
+--- linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/oid_mgt.h.old	2004-10-30 07:05:55.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/drivers/net/wireless/prism54/oid_mgt.h	2004-10-30 07:42:02.000000000 +0200
+@@ -28,8 +28,7 @@
+ 
+ void mgt_clean(islpci_private *);
+ 
+-/* I don't know where to put these 3 */
+-extern const int frequency_list_bg[];
++/* I don't know where to put these 2 */
+ extern const int frequency_list_a[];
+ int channel_of_freq(int);
+ 
+@@ -49,7 +48,6 @@
+ void mgt_get(islpci_private *, enum oid_num_t, void *);
+ 
+ int mgt_commit(islpci_private *);
+-void mgt_unlatch_all(islpci_private *);
+ 
+ int mgt_mlme_answer(islpci_private *);
+ 
+--- linux-2.6.10-rc3-mm1-full/drivers/net/wireless/prism54/oid_mgt.c.old	2004-12-20 01:03:44.000000000 +0100
++++ linux-2.6.10-rc3-mm1-full/drivers/net/wireless/prism54/oid_mgt.c	2004-12-20 01:05:31.000000000 +0100
+@@ -24,8 +24,8 @@
+ #include "isl_ioctl.h"
+ 
+ /* to convert between channel and freq */
+-const int frequency_list_bg[] = { 2412, 2417, 2422, 2427, 2432, 2437, 2442,
+-	2447, 2452, 2457, 2462, 2467, 2472, 2484
++static const int frequency_list_bg[] = { 2412, 2417, 2422, 2427, 2432,
++	2437, 2442, 2447, 2452, 2457, 2462, 2467, 2472, 2484
+ };
+ 
+ int
+@@ -730,6 +730,7 @@
+  *
+  * The way to do this is to set ESSID. Note though that they may get 
+  * unlatch before though by setting another OID. */
++#if 0
+ void
+ mgt_unlatch_all(islpci_private *priv)
+ {
+@@ -756,6 +757,7 @@
+ 	if (rvalue)
+ 		printk(KERN_DEBUG "%s: Unlatching OIDs failed\n", priv->ndev->name);
+ }
++#endif
+ 
+ /* This will tell you if you are allowed to answer a mlme(ex) request .*/
+ 
 

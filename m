@@ -1,60 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264058AbTE3Vaw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 17:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTE3Vaw
+	id S264352AbTE3Vm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 17:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbTE3Vm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 17:30:52 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:14198 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264070AbTE3Vav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 17:30:51 -0400
-From: Bob Johnson <livewire@gentoo.org>
-Reply-To: livewire@gentoo.org
-To: <lk@trolloc.com>
-Subject: Re: siimage driver status
-Date: Fri, 30 May 2003 16:44:12 -0500
-User-Agent: KMail/1.5.1
-References: <Pine.LNX.4.33.0305301156510.17286-100000@ip-64-7-1-79.dsl.lax.megapath.net>
-In-Reply-To: <Pine.LNX.4.33.0305301156510.17286-100000@ip-64-7-1-79.dsl.lax.megapath.net>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 30 May 2003 17:42:27 -0400
+Received: from ihemail1.lucent.com ([192.11.222.161]:36494 "EHLO
+	ihemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S264352AbTE3VmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 17:42:25 -0400
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305301644.14880.livewire@gentoo.org>
+Message-ID: <16087.50544.283105.222031@gargle.gargle.HOWL>
+Date: Fri, 30 May 2003 16:56:16 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.70-mm2
+In-Reply-To: <20030530133015.4f305808.akpm@digeo.com>
+References: <20030529012914.2c315dad.akpm@digeo.com>
+	<20030529042333.3dd62255.akpm@digeo.com>
+	<16087.47491.603116.892709@gargle.gargle.HOWL>
+	<20030530133015.4f305808.akpm@digeo.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>> Any hint on when -mm3 will be out,
 
+Andrew> About ten hours hence, probably.
 
-This is the exact problem i have with onboard siimage (asus a7n8x)
- or a siimage controller card on a abit motherboard. (kt7a)
+Great, I'll take a look for it tomorrow morning if I'm lucky.
 
-echo "max_kb_per_request:15" > /proc/ide/hde/settings
-is a work around for 2.4.XX.
+>> and if it will include the RAID1 patches?
 
-				Bob
+Andrew> I have a raid0 patch from Neil, but no raid1 patch.  I saw one
+Andrew> drift past, from Zwane (I think), but wasn't sure that it
+Andrew> worked.  If someone has a raid1 fix, please send it.
 
-> I get two console messages before the machine locks hard:
-> hde: dma_timer_expiry: dma status == 0x22
-> hde: dma_timer_expiry status = 0xd8 { Busy }
->
-> I'd love to get this tracked down...
->
->
-> Brian.
->
-> -----------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Hmmm... I could have sworn that Neil sent a RAID1 patch out as well,
+which was just adding an 'else' after a block.  Here it is:
 
-iD8DBQE+19CuxJgsCy9JAX0RArvcAJ9JdNeIAGCcDvrSSqvam6XgPklm9ACfSPx5
-M+JgErtFM9OoqP/6yZuMxnQ=
-=q97p
------END PGP SIGNATURE-----
+ ----------- Diffstat output ------------
+ ./drivers/md/raid1.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
+diff ./drivers/md/raid1.c~current~ ./drivers/md/raid1.c
+--- ./drivers/md/raid1.c~current~	2003-05-29 11:05:03.000000000 +1000
++++ ./drivers/md/raid1.c	2003-05-29 11:05:08.000000000 +1000
+@@ -137,7 +137,7 @@ static void put_all_bios(conf_t *conf, r
+ 			BUG();
+ 		bio_put(r1_bio->read_bio);
+ 		r1_bio->read_bio = NULL;
+-	}
++	} else
+ 	for (i = 0; i < conf->raid_disks; i++) {
+ 		struct bio **bio = r1_bio->write_bios + i;
+ 		if (*bio) {
+
+Andrew> Welll ext3 has been a bit bumpy of course.  It's getting
+Andrew> better, but I haven't yet been able to give it a 12-hour bash
+Andrew> on the 4-way.  Last time I tried a circuit breaker conked; it
+Andrew> lasted three hours but even ext3 needs electricity.  But three
+Andrew> hours is very positive - it was hard testing.
+
+I've got a dual PIII 550 with 8 disks on it, so I'll see about beating
+on it if I get a change.  I need to take a backup anyway this
+weekend... 
+
+Andrew> I'm not testing RAID at present, partly because I'm too
+Andrew> stoopid to understand mdadm and partly because the
+Andrew> box-with-18-disks heats the room up too much.  This needs to
+Andrew> change, because of possible interaction between the IO
+Andrew> scheduler work and software RAID.
+
+The mdadm is alot better than the old raid stuff for sure.  
+
+Once I get 2.5.70* up and running, I'll try out my hacks to the
+Cyclades driver (and we need a patch for the Kconfig entry as well,
+it's wrong in it's description) under ISA to see if I can get it
+working.  I'll bounce those to you and Linus if they fly. 
+
+Thanks,
+John

@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUIARRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266273AbUIARRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267195AbUIARRi (ORCPT <rfc822;willy@w.ods.org>);
+	id S266273AbUIARRi (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Sep 2004 13:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267377AbUIAP4C
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267368AbUIAPzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 11:56:02 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:64946 "EHLO
+	Wed, 1 Sep 2004 11:55:54 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:60338 "EHLO
 	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S267334AbUIAPvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S267338AbUIAPvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Sep 2004 11:51:46 -0400
-Date: Wed, 1 Sep 2004 16:51:22 +0100
-Message-Id: <200409011551.i81FpMPw000660@delerium.codemonkey.org.uk>
+Date: Wed, 1 Sep 2004 16:51:21 +0100
+Message-Id: <200409011551.i81FpLVF000615@delerium.codemonkey.org.uk>
 From: Dave Jones <davej@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove pointless check in zlib
+Subject: [PATCH] Fix another PNP leak.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-We dereference 'z' a few lines above this check.
-If it was possible to hit this condition, it wouldve
-triggered long ago, in the form of a crash.
 
 Spotted with the source checker from Coverity.com.
 
 Signed-off-by: Dave Jones <davej@redhat.com>
 
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/lib/zlib_inflate/inflate.c linux-2.6/lib/zlib_inflate/inflate.c
---- bk-linus/lib/zlib_inflate/inflate.c	2004-06-03 13:40:26.000000000 +0100
-+++ linux-2.6/lib/zlib_inflate/inflate.c	2004-06-03 13:42:54.000000000 +0100
-@@ -53,8 +53,6 @@ int zlib_inflateInit2_(
-       return Z_VERSION_ERROR;
- 
-   /* initialize state */
--  if (z == NULL)
--    return Z_STREAM_ERROR;
-   z->msg = NULL;
-   z->state = &WS(z)->internal_state;
-   z->state->blocks = NULL;
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pnp/pnpbios/core.c linux-2.6/drivers/pnp/pnpbios/core.c
+--- bk-linus/drivers/pnp/pnpbios/core.c	2004-07-14 00:00:48.000000000 +0100
++++ linux-2.6/drivers/pnp/pnpbios/core.c	2004-08-23 14:08:16.000000000 +0100
+@@ -252,8 +252,10 @@ static int pnpbios_set_resources(struct 
+ 	node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
+ 	if (!node)
+ 		return -1;
+-	if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_DYNAMIC, node))
++	if (pnp_bios_get_dev_node(&nodenum, (char )PNPMODE_DYNAMIC, node)) {
++		kfree(node);
+ 		return -ENODEV;
++	}
+ 	if(pnpbios_write_resources_to_node(res, node)<0) {
+ 		kfree(node);
+ 		return -1;

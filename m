@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264096AbTEGQCF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 12:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbTEGQCF
+	id S264094AbTEGP7n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbTEGP7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 12:02:05 -0400
-Received: from mail.convergence.de ([212.84.236.4]:51860 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S264096AbTEGQCD
+	Wed, 7 May 2003 11:59:43 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:49457 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S264094AbTEGP7k
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 12:02:03 -0400
-Message-ID: <3EB930ED.7020901@convergence.de>
-Date: Wed, 07 May 2003 18:14:37 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
-X-Accept-Language: de-at, de, en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH[[2.5][3-11] update dvb subsystem core
-References: <3EB7DCF0.2070207@convergence.de> <20030506220828.A19971@infradead.org> <3EB8C67A.4020500@convergence.de> <20030507102256.B14040@infradead.org> <3EB92CAD.2040502@convergence.de> <20030507165935.A29161@infradead.org>
-In-Reply-To: <20030507165935.A29161@infradead.org>
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 7 May 2003 11:59:40 -0400
+Subject: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052323940.2360.7.camel@diemos>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 07 May 2003 11:12:20 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Christoph,
+Starting with kernel version 2.5.69, I am
+encountering what appears to be increased
+interrupt latency or spikes in interrupt latency.
 
-> Oh, you can of course touch it again in future, I just want to
-> finish the API transition first, I hope I'll be done by the end of this
-> week.
+I noticed this on two serial drivers that use programmed
+I/O with FIFOs. On 2.5.68, no problems. On 2.5.69
+plenty of underruns. Inspecting the driver tracing, it
+does not look like lost interrupts.
 
-Ok. (see below)
+I see this on 2 different machines
+(one SMP server and one laptop).
 
->>Will the other patches be applied and who does that for which tree?
->>Shall I resend the patches where you had objections?
+There were changes involving the return type of
+interrupt handlers (from void to irqreturn_t) in 2.5.69.
+Could this be related?
 
-> As nothing got in yet I'd suggest resending everything, with Linus you
-> sometimes may have to resend quite often anyway :)
+Has anyone else seen similar results?
 
-No problem. I'll change the stuff you suggested and resend it.
+If I can get time, I'll try and hook up a scope
+to measure the latencies precisely. I want to
+check to see if this is a known problems before doing so.
 
-Last time I sent the patches through Alan Cox, who feeded them to Linus.
-It this better? Alan?
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
 
-CU
-Michael.
 

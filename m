@@ -1,290 +1,891 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266539AbUIUXcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267324AbUIUXxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266539AbUIUXcS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 19:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUIUXcS
+	id S267324AbUIUXxM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 19:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUIUXxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 19:32:18 -0400
-Received: from pop.gmx.de ([213.165.64.20]:39092 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266539AbUIUXb5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 19:31:57 -0400
-X-Authenticated: #1725425
-Date: Wed, 22 Sep 2004 01:35:16 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: rusty@rustcorp.com.au, torvalds@osdl.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
-Message-Id: <20040922013516.753044db.Ballarin.Marc@gmx.de>
-In-Reply-To: <20040921153600.2e732ea6.davem@davemloft.net>
-References: <1095721742.5886.128.camel@bach>
-	<20040921143613.2dc78e2f.Ballarin.Marc@gmx.de>
-	<1095803902.1942.211.camel@bach>
-	<20040922003646.3a84f4c5.Ballarin.Marc@gmx.de>
-	<20040921153600.2e732ea6.davem@davemloft.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 21 Sep 2004 19:53:12 -0400
+Received: from perninha.conectiva.com.br ([200.140.247.100]:46241 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S267324AbUIUXw1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 19:52:27 -0400
+Date: Tue, 21 Sep 2004 20:54:49 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Robert Love <rml@novell.com>
+Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] updated inotify
+Message-ID: <20040921235449.GO2482@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Robert Love <rml@novell.com>, ttb@tentacle.dhs.org,
+	linux-kernel@vger.kernel.org
+References: <1095800893.5090.16.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Wed__22_Sep_2004_01_35_16_+0200_fil8Jbh+_6drhF_K"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095800893.5090.16.camel@betsy.boston.ximian.com>
+X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.5.5.1i
+X-Bogosity: No, tests=bogofilter, spamicity=0.500000, version=0.16.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Em Tue, Sep 21, 2004 at 05:08:13PM -0400, Robert Love escreveu:
+> I have posted so many small patches recently that I wanted to just post
+> an updated inotify patch, with all of my changes merged in.
+> 
+> I also rediffed everything against 2.6.9-rc2.
+> 
+> And introduced an INOTIFY_FILENAME_MAX for the filename size, since
+> there were open coded 255's and 256's in inotify.c.
+> 
+> Additionally, I cleaned up some of the coding style to match the
+> kernel's.  Don't know if you want this, but there it is.
 
---Multipart=_Wed__22_Sep_2004_01_35_16_+0200_fil8Jbh+_6drhF_K
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+coding style? So nitpicking I go, see below.
+ 
+> Best,
+> 
+> 	Robert Love
+> 
 
-On Tue, 21 Sep 2004 15:36:00 -0700
-"David S. Miller" <davem@davemloft.net> wrote:
+> inotify. the "i" stands for "awesome".
+> 
+> Signed-Off-By: Robert Love <rml@novell.com>
+> 
+>  drivers/char/Makefile   |    2 
+>  drivers/char/inotify.c  |  988 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  fs/attr.c               |    6 
+>  fs/inode.c              |    1 
+>  fs/namei.c              |   17 
+>  fs/open.c               |    5 
+>  fs/read_write.c         |   17 
+>  fs/super.c              |    2 
+>  include/linux/fs.h      |    4 
+>  include/linux/inotify.h |   93 ++++
+>  10 files changed, 1127 insertions(+), 8 deletions(-)
+> 
+> diff -urN linux-2.6.9-rc2/drivers/char/inotify.c linux/drivers/char/inotify.c
+> --- linux-2.6.9-rc2/drivers/char/inotify.c	1969-12-31 19:00:00.000000000 -0500
+> +++ linux/drivers/char/inotify.c	2004-09-21 16:58:57.529151952 -0400
+> @@ -0,0 +1,988 @@
+> +/*
+> + * Inode based directory notifications for Linux.
+> + *
+> + * Copyright (C) 2004 John McCutchan
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the
+> + * Free Software Foundation; either version 2, or (at your option) any
+> + * later version.
+> + *
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + * General Public License for more details.
+> + */
+> +
+> +/* TODO: 
+> + * use rb tree so looking up watcher by watcher descriptor is faster.
+> + * dev->watch_count is incremented twice for each watcher
+> + */
+> +
+> +#include <linux/bitops.h>
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/sched.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/slab.h>
+> +#include <linux/fs.h>
+> +#include <linux/namei.h>
+> +#include <linux/poll.h>
+> +#include <linux/miscdevice.h>
+> +#include <linux/device.h>
+> +#include <linux/init.h>
+> +#include <linux/types.h>
+> +#include <linux/stddef.h>
+> +#include <linux/kernel.h>
+> +#include <linux/list.h>
+> +#include <linux/writeback.h>
+> +#include <linux/inotify.h>
+> +
+> +#define MAX_INOTIFY_DEVS		8	/* maximum open devices */
+> +#define MAX_INOTIFY_DEV_WATCHERS	8192	/* max watchers per device */
+> +#define MAX_INOTIFY_QUEUED_EVENTS	256	/* max events we queue */
+> +
+> +#define INOTIFY_DEV_TIMER_TIME		(jiffies + (HZ/4))
 
-> You can't have ipchains and iptables loaded at the same time.
-> You must first manually unload iptables, then you can
-> successfully load the ipchains module.
+                                                (jiffies + (HZ / 4))
 
-Yes, I know, something seems strange here.
+> +
+> +static atomic_t watcher_count;		/* < MAX_INOTIFY_DEVS */
+> +
+> +static kmem_cache_t *watcher_cache;
+> +static kmem_cache_t *kevent_cache;
+> +
+> +/* For debugging */
+> +static int event_object_count;
+> +static int watcher_object_count;
+> +static int inode_ref_count;
+> +static int inotify_debug_flags;
+> +#define iprintk(f, str...) if (inotify_debug_flags & f) printk (KERN_ALERT str)
+> +
+> +/*
+> + * For each inotify device we need to keep a list of events queued on it,
+> + * a list of inodes that we are watching and other stuff.
+> + */
+> +struct inotify_device {
+> +	struct list_head 	events;
+> +	atomic_t		event_count;
+> +	struct list_head 	watchers;
+> +	int			watcher_count;
+> +	wait_queue_head_t 	wait;
+> +	struct timer_list	timer;
+> +	char			read_state;
+> +	spinlock_t		lock;
+> +	unsigned long	bitmask[MAX_INOTIFY_DEV_WATCHERS / BITS_PER_LONG];
+> +};
+> +
+> +struct inotify_watcher {
+> +	int 			wd;	/* watcher descriptor */
+> +	unsigned long		mask;
+> +	struct inode *		inode;
+                                *inode;
+> +	struct inotify_device *	dev;
 
-Just to be sure, I disabled iptables completely and rebooted:
-(Complete config.gz is attached.)
 
-# Networking options
-#
-CONFIG_PACKET=y
-# CONFIG_PACKET_MMAP is not set
-# CONFIG_NETLINK_DEV is not set
-CONFIG_UNIX=y
-CONFIG_NET_KEY=m
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-CONFIG_SYN_COOKIES=y
-CONFIG_INET_AH=m
-CONFIG_INET_ESP=m
-CONFIG_INET_IPCOMP=m
-CONFIG_INET_TUNNEL=m
+> +	struct list_head	d_list;	/* device list */
+> +	struct list_head	i_list;	/* inode list */
+> +	struct list_head	u_list;	/* unmount list */
+> +};
+> +
+> +/*
+> + * A list of these is attached to each instance of the driver
+> + * when the drivers read() gets called, this list is walked and
+> + * all events that can fit in the buffer get delivered
+> + */
+> +struct inotify_kernel_event {
+> +        struct list_head        list;
+> +	struct inotify_event	event;
+> +};
+> +#define list_to_inotify_kernel_event(pos) list_entry((pos), struct inotify_kernel_event, list)
+> +
+> +static int find_inode (const char __user *dirname, struct inode **inode)
+> +{
+> +	struct nameidata nd;
+> +	int error;
+> +
+> +	error = __user_walk (dirname, LOOKUP_FOLLOW, &nd);
 
-#
-# IP: Virtual Server Configuration
-#
-# CONFIG_IP_VS is not set
-# CONFIG_IPV6 is not set
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
+                __user_walk(
 
-#
-# IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=m
-# CONFIG_IP_NF_CT_ACCT is not set
-# CONFIG_IP_NF_CT_PROTO_SCTP is not set
-# CONFIG_IP_NF_FTP is not set
-# CONFIG_IP_NF_IRC is not set
-# CONFIG_IP_NF_TFTP is not set
-# CONFIG_IP_NF_AMANDA is not set
-CONFIG_IP_NF_QUEUE=m
-# CONFIG_IP_NF_IPTABLES is not set
-CONFIG_IP_NF_NAT_NEEDED=y
-# CONFIG_IP_NF_ARPTABLES is not set
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_COMPAT_IPFWADM=m
-CONFIG_XFRM=y
-# CONFIG_XFRM_USER is not set
+spaces before ( only on if, while, for, etc.
 
-This gives me the same error upon modprobe ipchains.
+> +	if (error) {
+> +		iprintk(INOTIFY_DEBUG_INODE, "could not find inode\n");
+> +		goto out;
+> +	}
+> +
+> +	*inode = nd.dentry->d_inode;
+> +	__iget (*inode);
 
-If I disable CONFIG_IP_NF_CONNTRACK, I get unresolved symbols:
-ipchains: Unknown symbol ip_ct_log_invalid
+ditto
 
-(Is that combination supposed to work?)
+> +	iprintk(INOTIFY_DEBUG_INODE, "ref'd inode\n");
+> +	inode_ref_count++;
+> +	path_release(&nd);
+> +
+> +out:
+> +	return error;
+> +}
+> +
+> +static void unref_inode (struct inode *inode)
 
-lsmod (ALSA snipped):
+ditto, stop here
 
-vfat                   10432  0
-stir4200               10052  0
-irda                  110972  1 stir4200
-crc_ccitt               1664  1 irda
-fat                    36320  1 vfat
-parport_pc             29440  1
-lp                      7976  0
-parport                32072  2 parport_pc,lp
-floppy                 50576  0
-radeon                120676  2
-nvidia_agp              5404  1
-agpgart                26024  2 nvidia_agp
-8139too                19200  0
-mii                     3712  1 8139too
-crc32                   3840  2 stir4200,8139too
-evdev                   6848  0
+> +{
+> +	inode_ref_count--;
+> +	iprintk(INOTIFY_DEBUG_INODE, "unref'd inode\n");
+> +	iput (inode);
+> +}
+> +
+> +struct inotify_kernel_event *kernel_event (int wd, int mask,
+> +					   const char *filename)
+> +{
+> +	struct inotify_kernel_event *kevent;
+> +
+> +	kevent = kmem_cache_alloc (kevent_cache, GFP_ATOMIC);
+> +
+> +
+> +	if (!kevent) {
 
-Regards
+kevent == NULL (I like !pointer, but hey, Linus says NULL is cute, so...)
 
---Multipart=_Wed__22_Sep_2004_01_35_16_+0200_fil8Jbh+_6drhF_K
-Content-Type: application/x-gzip;
- name="config.gz"
-Content-Disposition: attachment;
- filename="config.gz"
-Content-Transfer-Encoding: base64
+> +		iprintk(INOTIFY_DEBUG_ALLOC,
+> +			"failed to alloc kevent (%d,%d)\n", wd, mask);
+> +		goto out;
+> +	}
+> +
+> +	iprintk(INOTIFY_DEBUG_ALLOC,
+> +		"alloced kevent %p (%d,%d)\n", kevent, wd, mask);
+> +
+> +	kevent->event.wd = wd;
+> +	kevent->event.mask = mask;
+> +	INIT_LIST_HEAD(&kevent->list);
+> +
+> +	if (filename) {
+> +		iprintk(INOTIFY_DEBUG_FILEN,
+> +			"filename for event was %p %s\n", filename, filename);
+> +		strncpy (kevent->event.filename, filename,
+> +			 INOTIFY_FILENAME_MAX);
+> +		kevent->event.filename[INOTIFY_FILENAME_MAX-1] = '\0';
+> +		iprintk(INOTIFY_DEBUG_FILEN,
+> +			"filename after copying %s\n", kevent->event.filename);
+> +	} else {
+> +		iprintk(INOTIFY_DEBUG_FILEN, "no filename for event\n");
+> +		kevent->event.filename[0] = '\0';
+> +	}
+> +
+> +	event_object_count++;
+> +
+> +out:
+> +	return kevent;
+> +}
+> +
+> +void delete_kernel_event (struct inotify_kernel_event *kevent)
+> +{
+> +	if (!kevent)
+> +		return;
+> +
+> +	event_object_count--;
+> +
+> +	INIT_LIST_HEAD(&kevent->list);
+> +	kevent->event.wd = -1;
+> +	kevent->event.mask = 0;
+> +
+> +	iprintk(INOTIFY_DEBUG_ALLOC, "free'd kevent %p\n", kevent);
+> +	kmem_cache_free (kevent_cache, kevent);
+> +}
+> +
+> +#define inotify_dev_has_events(dev) (!list_empty(&dev->events))
+> +#define inotify_dev_get_event(dev) (list_to_inotify_kernel_event(dev->events.next))
+> +/* Does this events mask get sent to the watcher ? */
+> +#define event_and(event_mask,watchers_mask) 	((event_mask == IN_UNMOUNT) || \
+> +						(event_mask == IN_IGNORED) || \
+> +						(event_mask & watchers_mask))
+> +
+> +/* dev->lock == locked before calling */
+> +static void inotify_dev_queue_event (struct inotify_device *dev,
+> +				     struct inotify_watcher *watcher,
+> +				     int mask, const char *filename)
+> +{
+> +	struct inotify_kernel_event *kevent;
+> +
+> +	if (atomic_read(&dev->event_count) == MAX_INOTIFY_QUEUED_EVENTS) {
+> +		iprintk(INOTIFY_DEBUG_EVENTS,
+> +			"event queue for %p overflowed\n", dev);
+> +		return;
+> +	}
+> +
+> +	if (!event_and(mask, watcher->inode->watchers_mask) ||
+> +			!event_and(mask, watcher->mask))
+> +		return;
+> +
+> +	atomic_inc(&dev->event_count);
+> +
+> +	kevent = kernel_event (watcher->wd, mask, filename);
+> +
+> +	if (!kevent)
+> +		iprintk(INOTIFY_DEBUG_EVENTS,
+> +			"failed to queue event %x for %p\n", mask, dev);
+> +
+> +	list_add_tail(&kevent->list, &dev->events);
+> +
+> +	iprintk(INOTIFY_DEBUG_EVENTS, "queued event %x for %p\n", mask, dev);
+> +}
+> +
+> +static void inotify_dev_event_dequeue (struct inotify_device *dev)
+> +{
+> +	struct inotify_kernel_event *kevent;
+> +
+> +	if (!inotify_dev_has_events (dev))
+> +		return;
+> +
+> +	kevent = inotify_dev_get_event(dev);
+> +
+> +	list_del(&kevent->list);
+> +	atomic_dec(&dev->event_count);
+> +
+> +	delete_kernel_event (kevent);
+> +
+> +	iprintk(INOTIFY_DEBUG_EVENTS, "dequeued event on %p\n", dev);
+> +}
+> +
+> +static int inotify_dev_get_wd (struct inotify_device *dev)
+> +{
+> +	int wd;
 
-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
-twjFV41zlMH/A8wERdm9hAAA
+        int wd = -1;
+	and remove line below, 80x25 rules :P
+> +
+> +	wd = -1;
+> +
+> +	if (!dev)
+> +		return -1;
+> +
+> +	if (dev->watcher_count == MAX_INOTIFY_DEV_WATCHERS)
+> +		return -1;
+> +
+> +	dev->watcher_count++;
+> +
+> +	wd = find_first_zero_bit (dev->bitmask, MAX_INOTIFY_DEV_WATCHERS);
+> +
+> +	set_bit (wd, dev->bitmask);
+> +
+> +	return wd;
+> +}
+> +
+> +static int inotify_dev_put_wd (struct inotify_device *dev, int wd)
+> +{
+> +	if (!dev || wd < 0)
+> +		return -1;
+> +
+> +	dev->watcher_count--;
+> +
+> +	clear_bit (wd, dev->bitmask);
+> +
+> +	return 0;
+> +}
+> +
+> +
+> +static struct inotify_watcher *create_watcher (struct inotify_device *dev,
+> +					       int mask, struct inode *inode)
+> +{
+> +	struct inotify_watcher *watcher;
+> +
+> +	watcher = kmem_cache_alloc (watcher_cache, GFP_KERNEL);
+> +
+> +	if (!watcher) {
+> +		iprintk(INOTIFY_DEBUG_ALLOC,
+> +			"failed to allocate watcher (%p,%d)\n", inode, mask);
+> +		return NULL;
+> +	}
+> +
+> +	watcher->wd = -1;
+> +	watcher->mask = mask;
+> +	watcher->inode = inode;
+> +	watcher->dev = dev;
 
---Multipart=_Wed__22_Sep_2004_01_35_16_+0200_fil8Jbh+_6drhF_K--
+kernel _networking_ style encourages aligning the assignments:
+
+        watcher->wd	= -1;
+	watcher->mask	= mask;
+	watcher->inode	= inode;
+
+	and so on...
+
+> +	INIT_LIST_HEAD(&watcher->d_list);
+> +	INIT_LIST_HEAD(&watcher->i_list);
+> +	INIT_LIST_HEAD(&watcher->u_list);
+> +
+> +	spin_lock(&dev->lock);
+> +	watcher->wd = inotify_dev_get_wd (dev);
+> +	spin_unlock(&dev->lock);
+> +
+> +	if (watcher->wd < 0) {
+> +		iprintk(INOTIFY_DEBUG_ERRORS,
+> +			"Could not get wd for watcher %p\n", watcher);
+> +		iprintk(INOTIFY_DEBUG_ALLOC, "free'd watcher %p\n", watcher);
+> +		kmem_cache_free (watcher_cache, watcher);
+> +		watcher = NULL;
+> +		return watcher;
+
+		return NULL;
+		and remove the watcher = NULL; ...
+
+> +	}
+> +
+> +	watcher_object_count++;
+
+or:
+
+out:
+	and goto out; in the previous return?
+
+> +	return watcher;
+> +}
+> +
+> +/* Must be called with dev->lock held */
+> +static void delete_watcher (struct inotify_device *dev,
+> +			    struct inotify_watcher *watcher)
+> +{
+> +	inotify_dev_put_wd (dev, watcher->wd);
+> +
+> +	iprintk(INOTIFY_DEBUG_ALLOC, "free'd watcher %p\n", watcher);
+> +
+> +	kmem_cache_free (watcher_cache, watcher);
+> +
+> +	watcher_object_count--;
+> +}
+> +
+> +static struct inotify_watcher *inode_find_dev (struct inode *inode,
+> +					       struct inotify_device *dev)
+> +{
+> +	struct inotify_watcher *watcher;
+> +
+> +	list_for_each_entry (watcher, &inode->watchers, i_list) {
+> +		if (watcher->dev == dev)
+> +			return watcher;
+> +	}
+> +
+> +	return NULL;
+> +}
+> +
+> +static struct inotify_watcher *dev_find_wd (struct inotify_device *dev, int wd)
+> +{
+> +	struct inotify_watcher *watcher;
+> +
+> +	list_for_each_entry (watcher, &dev->watchers, d_list) {
+> +		if (watcher->wd == wd)
+> +			return watcher;
+> +	}
+> +
+> +	return NULL;
+> +}
+> +
+> +static int inotify_dev_is_watching_inode (struct inotify_device *dev,
+> +					  struct inode *inode)
+> +{
+> +	struct inotify_watcher *watcher;
+> +
+> +	list_for_each_entry (watcher, &dev->watchers, d_list)
+> +		if (watcher->inode == inode) {
+> +			return 1;
+> +	}
+> +	
+> +	return 0;
+> +}
+> +
+> +static int inotify_dev_add_watcher (struct inotify_device *dev,
+> +				    struct inotify_watcher *watcher)
+> +{
+> +	int error;
+> +
+> +	error = 0;
+> +
+> +	if (!dev || !watcher) {
+> +		error = -EINVAL;
+> +		goto out;
+> +	}
+> +	if (dev_find_wd(dev, watcher->wd)) {
+> +		error = -EINVAL;
+> +		goto out;
+> +	}
+> +
+> +	if (dev->watcher_count == MAX_INOTIFY_DEV_WATCHERS) {
+> +		error = -ENOSPC;
+> +		goto out;
+> +	}
+> +	list_add(&watcher->d_list, &dev->watchers);
+> +
+> +out:
+> +	return error;
+
+See? goto aren't harmful in all cases after all :P
+
+> +}
+> +
+> +static int inotify_dev_rm_watcher (struct inotify_device *dev,
+> +				   struct inotify_watcher *watcher)
+> +{
+> +	int error;
+> +
+> +	error = -EINVAL;
+> +	if (watcher) {
+> +		inotify_dev_queue_event (dev, watcher, IN_IGNORED, NULL);
+> +		list_del(&watcher->d_list);
+> +		error = 0;
+> +	} 
+> +
+> +	return error;
+> +}
+> +
+> +void inode_update_watchers_mask (struct inode *inode)
+> +{
+> +	struct inotify_watcher *watcher;
+> +	unsigned long new_mask;
+> +
+> +	new_mask = 0;
+> +	list_for_each_entry(watcher, &inode->watchers, i_list)
+> +		new_mask |= watcher->mask;
+> +
+> +	inode->watchers_mask = new_mask;
+> +}
+> +
+> +static int inode_add_watcher (struct inode *inode,
+> +			      struct inotify_watcher *watcher)
+> +{
+> +	if (!inode || !watcher || inode_find_dev(inode, watcher->dev))
+> +		return -EINVAL;
+> +
+> +	list_add(&watcher->i_list, &inode->watchers);
+> +	inode->watcher_count++;
+> +
+> +	inode_update_watchers_mask (inode);
+> +
+> +	return 0;
+> +}
+> +
+> +static int inode_rm_watcher (struct inode *inode,
+> +			     struct inotify_watcher *watcher)
+> +{
+> +	if (!inode || !watcher)
+> +		return -EINVAL;
+> +
+> +	list_del(&watcher->i_list);
+> +	inode->watcher_count--;
+> +
+> +	inode_update_watchers_mask (inode);
+> +
+> +	return 0;
+> +}
+> +
+> +/* Kernel API */
+> +
+> +void inotify_inode_queue_event (struct inode *inode, unsigned long mask,
+> +				const char *filename)
+> +{
+> +	struct inotify_watcher *watcher;
+> +
+> +	spin_lock(&inode->i_lock);
+> +
+> +	list_for_each_entry (watcher, &inode->watchers, i_list) {
+> +			spin_lock(&watcher->dev->lock);
+> +			inotify_dev_queue_event (watcher->dev, watcher,
+> +						 mask, filename);
+> +			spin_unlock(&watcher->dev->lock);
+> +	}
+> +
+> +	spin_unlock(&inode->i_lock);
+> +}
+> +EXPORT_SYMBOL_GPL(inotify_inode_queue_event);
+
+Cool, EXPORT_SYMBOL{_GPL} just after the function, way to go!
+
+> +
+> +void inotify_dentry_parent_queue_event(struct dentry *dentry,
+> +				       unsigned long mask, const char *filename)
+> +{
+> +	struct dentry *parent;
+> +
+> +	spin_lock(&dentry->d_lock);
+> +	dget (dentry->d_parent);
+> +	parent = dentry->d_parent;
+> +	inotify_inode_queue_event(parent->d_inode, mask, filename);
+> +	dput (parent);
+> +	spin_unlock(&dentry->d_lock);
+> +}
+> +EXPORT_SYMBOL_GPL(inotify_dentry_parent_queue_event);
+> +
+> +static void ignore_helper (struct inotify_watcher *watcher, int event)
+> +{
+> +	struct inotify_device *dev;
+> +	struct inode *inode;
+> +
+> +	spin_lock(&watcher->dev->lock);
+> +	spin_lock(&watcher->inode->i_lock);
+> +
+> +	inode = watcher->inode;
+> +	dev = watcher->dev;
+> +
+> +	if (event)
+> +		inotify_dev_queue_event (dev, watcher, event, NULL);
+> +
+> +	inode_rm_watcher (inode, watcher);
+> +	inotify_dev_rm_watcher (watcher->dev, watcher);
+> +	list_del(&watcher->u_list);
+> +
+> +	spin_unlock(&inode->i_lock);
+> +
+> +	delete_watcher(dev, watcher);
+> +
+> +	spin_unlock(&dev->lock);
+> +
+> +	unref_inode (inode);
+> +}
+> +
+> +static void process_umount_list (struct list_head *umount)
+> +{
+> +	struct inotify_watcher *watcher, *next;
+> +
+> +	list_for_each_entry_safe (watcher, next, umount, u_list)
+> +		ignore_helper (watcher, IN_UNMOUNT);
+
+For consistency, in the previous list_for_entry{_whatever} braces were
+being being used, but not here, remove the braces in the other cases where
+just one statement is the loop body? :)
+
+> +}
+> +
+> +static void build_umount_list (struct list_head *head, struct super_block *sb,
+> +			       struct list_head *umount)
+> +{
+> +	struct inode *	inode;
+
+what for the spaces after the *? :)
+
+> +
+> +	list_for_each_entry (inode, head, i_list) {
+> +		struct inotify_watcher *watcher;
+> +
+> +		if (inode->i_sb != sb)
+> +			continue;
+> +		spin_lock(&inode->i_lock);
+> +		list_for_each_entry (watcher, &inode->watchers, i_list)
+> +			list_add (&watcher->u_list, umount);
+> +		spin_unlock(&inode->i_lock);
+> +	}
+> +}
+> +
+> +void inotify_super_block_umount (struct super_block *sb)
+> +{
+> +	struct list_head umount;
+> +
+> +	INIT_LIST_HEAD(&umount);
+> +
+> +	spin_lock(&inode_lock);
+> +	build_umount_list (&inode_in_use, sb, &umount);
+> +	spin_unlock(&inode_lock);
+> +
+> +	process_umount_list (&umount);
+> +}
+> +EXPORT_SYMBOL_GPL(inotify_super_block_umount);
+> +
+> +/* The driver interface is implemented below */
+> +
+> +static unsigned int inotify_poll(struct file *file, poll_table *wait) {
+> +        struct inotify_device *dev;
+> +
+> +        dev = file->private_data;
+
+	   struct inotify_device *dev = file->private_data; here please
+
+> +
+> +
+> +        poll_wait(file, &dev->wait, wait);
+> +
+> +        if (inotify_dev_has_events(dev))
+> +                return POLLIN | POLLRDNORM;
+> +
+> +        return 0;
+> +}
+> +
+> +#define MAX_EVENTS_AT_ONCE 20
+> +static ssize_t inotify_read(struct file *file, __user char *buf,
+> +			    size_t count, loff_t *pos)
+> +{
+> +	size_t out;
+
+	out = -ENOMEM;  and remove the assignment below? declare it closer
+	to the kmalloc even
+
+> +	struct inotify_event *eventbuf;
+> +	struct inotify_kernel_event *kevent;
+> +	struct inotify_device *dev;
+> +	char *obuf;
+> +	int err;
+> +	int events;
+> +	int event_count;
+> +
+> +	DECLARE_WAITQUEUE(wait, current);	
+> +
+> +	out = -ENOMEM;
+> +	eventbuf = kmalloc(sizeof(struct inotify_event) * MAX_EVENTS_AT_ONCE, 
+> +			GFP_KERNEL);
+> +	if (!eventbuf)
+> +		goto out;
+> +	events = 0;
+> +	event_count = 0;
+> +	out = 0;
+> +	err = 0;
+> +
+> +	obuf = buf;
+> +
+> +	dev = file->private_data;
+> +
+> +	/* We only hand out full inotify events */
+> +	if (count < sizeof(struct inotify_event)) {
+> +		out = -EINVAL;
+> +		goto out;
+> +	}
+> +
+> +	events = count / sizeof(struct inotify_event);
+> +
+> +	if (events > MAX_EVENTS_AT_ONCE)
+> +		events = MAX_EVENTS_AT_ONCE;
+> +
+> +	if (!inotify_dev_has_events(dev)) {
+> +		if (file->f_flags & O_NONBLOCK) {
+> +			out = -EAGAIN;
+> +			goto out;
+> +		}
+> +	}
+> +
+> +	spin_lock_irq(&dev->lock);
+> +
+> +	add_wait_queue(&dev->wait, &wait);
+> +repeat:
+> +	if (signal_pending(current)) {
+> +		spin_unlock_irq (&dev->lock);
+> +		out = -ERESTARTSYS;
+> +		set_current_state (TASK_RUNNING);
+> +		remove_wait_queue(&dev->wait, &wait);
+> +		goto out;
+> +	}
+> +	set_current_state(TASK_INTERRUPTIBLE);
+> +	if (!inotify_dev_has_events (dev)) {
+> +		spin_unlock_irq (&dev->lock);
+> +		schedule ();
+> +		spin_lock_irq (&dev->lock);
+> +		goto repeat;
+> +	}
+> +
+> +	set_current_state(TASK_RUNNING);
+> +	remove_wait_queue(&dev->wait, &wait);
+> +
+> +	err = !access_ok(VERIFY_WRITE, (void *)buf,
+> +			 sizeof(struct inotify_event));
+> +
+> +	if (err) {
+> +		out = -EFAULT;
+> +		goto out;
+> +	}
+> +
+> +	/* Copy all the events we can to the event buffer */
+> +	for (event_count = 0; event_count < events; event_count++) {
+> +		kevent = inotify_dev_get_event(dev);
+> +		eventbuf[event_count] = kevent->event;
+> +		inotify_dev_event_dequeue(dev);
+> +	}
+> +
+> +	spin_unlock_irq(&dev->lock);
+> +
+> +	/* Send the event buffer to user space */
+> +	err = copy_to_user(buf, eventbuf,
+> +			   events * sizeof(struct inotify_event));
+> +
+> +	buf += sizeof(struct inotify_event) * events;
+> +
+> +	out = buf - obuf;
+> +
+> +out:
+> +	kfree(eventbuf);
+> +	return out;
+> +}
+> +
+> +static void inotify_dev_timer (unsigned long data)
+> +{
+> +	struct inotify_device *dev;
+> +
+> +	dev = (struct inotify_device *) data;
+
+ditto
+
+> +
+> +	if (!dev)
+> +		return;
+> +
+> +	/* reset the timer */
+> +	mod_timer(&dev->timer, INOTIFY_DEV_TIMER_TIME);
+> +
+> +	/* wake up anything waiting on poll */
+> +	if (inotify_dev_has_events (dev))
+> +		wake_up_interruptible(&dev->wait);
+> +}
+> +
+> +static int inotify_open(struct inode *inode, struct file *file) {
+> +	struct inotify_device *dev;
+> +
+> +	if (atomic_read(&watcher_count) == MAX_INOTIFY_DEVS)
+> +		return -ENODEV;
+> +
+> +	atomic_inc(&watcher_count);
+> +
+> +	dev = kmalloc(sizeof(struct inotify_device), GFP_KERNEL);
+> +	if (!dev)
+> +		return -ENOMEM;
+> +	memset(dev->bitmask, 0, MAX_INOTIFY_DEV_WATCHERS);
+> +
+> +	INIT_LIST_HEAD(&dev->events);
+> +	INIT_LIST_HEAD(&dev->watchers);
+> +	init_timer(&dev->timer);
+> +	init_waitqueue_head(&dev->wait);
+> +
+> +	atomic_set(&dev->event_count, 0);
+> +	dev->watcher_count = 0;
+> +	dev->lock = SPIN_LOCK_UNLOCKED;
+> +	dev->read_state = 0;
+> +
+> +	file->private_data = dev;
+> +
+> +	dev->timer.data = (unsigned long) dev;
+> +	dev->timer.function = inotify_dev_timer;
+> +	dev->timer.expires = INOTIFY_DEV_TIMER_TIME;
+> +
+> +	add_timer(&dev->timer);
+> +
+> +	printk(KERN_ALERT "inotify device opened\n");
+> +
+> +	return 0;
+> +}
+> +
+> +static void inotify_release_all_watchers (struct inotify_device *dev)
+> +{
+> +	struct inotify_watcher *watcher,*next;
+> +
+> +	list_for_each_entry_safe(watcher, next, &dev->watchers, d_list)
+> +		ignore_helper(watcher, 0);
+> +}
+> +
+> +static void inotify_release_all_events (struct inotify_device *dev)
+> +{
+> +	spin_lock(&dev->lock);
+> +	while (inotify_dev_has_events(dev))
+> +		inotify_dev_event_dequeue(dev);
+> +	spin_unlock(&dev->lock);
+> +}
+> +
+> +
+> +static int inotify_release(struct inode *inode, struct file *file)
+> +{
+> +	if (file->private_data) {
+> +		struct inotify_device *dev;
+> +
+> +		dev = (struct inotify_device *) file->private_data;
+> +		del_timer_sync(&dev->timer);
+> +		inotify_release_all_watchers(dev);
+> +		inotify_release_all_events(dev);
+> +		kfree (dev);
+> +	}
+> +
+> +	printk(KERN_ALERT "inotify device released\n");
+> +
+> +	atomic_dec(&watcher_count);
+> +	return 0;
+> +}
+> +
+> +static int inotify_watch (struct inotify_device *dev,
+> +			  struct inotify_watch_request *request)
+> +{
+> +	int err;
+> +	struct inode *inode;
+> +	struct inotify_watcher *watcher;
+> +	err = 0;
+> +
+> +	err = find_inode (request->dirname, &inode);
+
+why assing 0 just to overwrite it?
+
+	int err = find_inode (request->dirname, &inode);
+
+
+Ok, </nitpick> :-)

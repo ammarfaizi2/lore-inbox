@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262334AbREUCK7>; Sun, 20 May 2001 22:10:59 -0400
+	id <S262344AbREUCU3>; Sun, 20 May 2001 22:20:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262341AbREUCKt>; Sun, 20 May 2001 22:10:49 -0400
-Received: from mclean.mail.mindspring.net ([207.69.200.57]:46124 "EHLO
-	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S262334AbREUCKl>; Sun, 20 May 2001 22:10:41 -0400
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-From: Robert "M." Love <rml@tech9.net>
-To: Jes Sorensen <jes@sunsite.dk>
-Cc: John Cowan <jcowan@reutershealth.com>, esr@thyrsus.com,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <d31ypj1r4y.fsf@lxplus015.cern.ch>
-In-Reply-To: <20010505192731.A2374@thyrsus.com>
-	<d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com>
-	<d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com>
-	<d3wv7eptuz.fsf@lxplus015.cern.ch> <3B054500.2090408@reutershealth.com> 
-	<d31ypj1r4y.fsf@lxplus015.cern.ch>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 20 May 2001 22:10:49 -0400
-Message-Id: <990411054.773.0.camel@phantasy>
+	id <S262346AbREUCUT>; Sun, 20 May 2001 22:20:19 -0400
+Received: from venus.postmark.net ([207.244.122.71]:5394 "HELO
+	venus.postmark.net") by vger.kernel.org with SMTP
+	id <S262344AbREUCUL>; Sun, 20 May 2001 22:20:11 -0400
+Message-ID: <20010521013705.4079.qmail@venus.postmark.net>
 Mime-Version: 1.0
+From: J Brook <jbk@postmark.net>
+To: linux-kernel@vger.kernel.org
+Subject: tulip driver BROKEN in 2.4.5-pre4
+Date: Mon, 21 May 2001 01:37:05 +0000
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 May 2001 02:29:17 +0200, Jes Sorensen wrote:
-> John> Au contraire.  It is very reasonable to have both python and
-> John> python2 installed.  Having two different gcc versions installed
-> John> is a big pain in the arse.
-> 
-> It's not unreasonable to have both installed, it's unreasonable to
-> require it.
-> 
-> Eric seems to think he can tell every distributor to ship Python2
-> tomorrow. Well it's a fine dream but it's not going to happen; <snip>
+Okay, so Jeff Garzik already knows about this - I told him last week -
+but seeing as how the code has made it to a Linus pre-release without
+a fix I thought I'd better post the breakage description to l-k!
 
-I think this is a very important point, and one I agree with.  I tend to
-let my distribution handle stuff like python.  now, I use RedHat's
-on-going devel, RawHide. it is not using python2.  in fact, since
-switching to python2 may break old stuff, I don't expect python2 until
-8.0. that wont be for 9 months.  90% of RedHat's configuration tools, et
-al, are written in python1 and they just are not going to change on
-someone's whim.
+The symptoms are:
+In 2.4.5-pre4 (and 2.4.4-ac8 and above - note: I didn't try -ac7)
+system boots up normally, card is recognised etc, but all networking
+services fail because it's not possible to talk to the network. The
+system appears to be stable apart from the bug (possible to compile
+kernels, run X, etc.), but nothing gets to or from the network.
 
-im not installing python2 from source just so i can run some new config
-utility.
+I'm using the "DECchip Tulip (dc21x4x) PCI support" option to get the
+driver for the PCI card which has a Digital 21041 chip in it.
 
-(on another note, about the coexist issue: am i going to have a python
-and python2 binary? so now the config tool will find which to use, ala
-the kgcc mess? great)
+FWIW I think it might be related to the selection of full- or
+half-duplex. 2.4.4-ac6 (which works fine) says:
+  Port selection is half-duplex
+when I run tulip-diag, whereas 2.4.5-pre4 says
+  Port selection is full-duplex
 
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
+My system is RH7.1 (using gcc-2.96 not kgcc)
+Duron 750, KT133 chipset (not kt133a!)
+
+Network card details (it is a PCI):
+Kingston KNE40BT (1995)
+  Digital 21041-AA  DC1017BA
+  21-40756-01  Dec 1994
+  S15313-02
+  A 9615
+
+ More details on request. And I'm willing to test patches...
+
+    John
+----------------
+jbk@postmark.net
 

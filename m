@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266669AbUBLWfy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 17:35:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266655AbUBLWfx
+	id S266665AbUBLWei (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 17:34:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUBLWei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 17:35:53 -0500
-Received: from mail-05.iinet.net.au ([203.59.3.37]:420 "HELO mail.iinet.net.au")
-	by vger.kernel.org with SMTP id S266669AbUBLWfp (ORCPT
+	Thu, 12 Feb 2004 17:34:38 -0500
+Received: from motgate8.mot.com ([129.188.136.8]:31426 "EHLO motgate8.mot.com")
+	by vger.kernel.org with ESMTP id S266665AbUBLWec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 17:35:45 -0500
-Message-ID: <402BFF39.2070701@cyberone.com.au>
-Date: Fri, 13 Feb 2004 09:33:29 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Thu, 12 Feb 2004 17:34:32 -0500
+X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
+	unless indicated otherwise in the message.
+From: "Gopi Palaniappan" <gpalani1@urbana.css.mot.com>
+To: <root@chaos.analogic.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: memory foorprint of kernel modules
+Date: Thu, 12 Feb 2004 16:34:25 -0600
+Message-ID: <BDEMIINGEPCMIFLFPKCKIEFFCCAA.gpalani1@urbana.css.mot.com>
 MIME-Version: 1.0
-To: Mark Haverkamp <markh@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Christine Moore <cem@osdl.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: 2.6.3-rc2-mm1
-References: <20040212015710.3b0dee67.akpm@osdl.org>	 <402B6251.2060909@cyberone.com.au> <1076600437.22976.3.camel@markh1.pdx.osdl.net>
-In-Reply-To: <1076600437.22976.3.camel@markh1.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <Pine.LNX.4.53.0402121543070.28272@chaos>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Richard:
+    I am not sure looking at the ksyms will give me an actual measure.
+Lets take an example,
+I have a driver "foo.o" that i insmod, lets say. If this driver uses kmalloc
+or malloc to dynamically
+utilize RAM space for its internal operation, I don't think your suggested
+method will capture
+that dynamic allocation of memory, am i correct?
+
+  I want to get a real-time ram usage of a specified dynamically loaded
+module.
+
+thanks,
+Gopi
 
 
-Mark Haverkamp wrote:
 
->On Thu, 2004-02-12 at 03:24, Nick Piggin wrote:
->
->>Andrew Morton wrote:
->>
->>
->>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3-rc2/2.6.3-rc2-mm1/
->>>
->>>
->>>
->>Nether this nor the previous one boots on the NUMAQ at osdl.
->>Not sure which is the last -mm that did. 2.6.3-rc2 boots.
->>
->>I turned early_printk on and nothing. It stops at
->>Loading linux..............
->>
->
->I saw this behavior with the last mm kernel on my 8-way with
->CONFIG_HIGHMEM64G.  The problem went away when I backed out the
->highmem-equals-user-friendliness.patch
+On Thu, 12 Feb 2004, Gopi Palaniappan wrote:
+
+> Is there an easy way to measure the memory/RAM footprint of dynamically
+> loaded kernel modules?
+> Are there tools similar to "pmap" for this purpose?
 >
 >
 
-It boots with this patch backed out. Thanks Mark.
+You might make some sense of /proc/ksyms...
+
+This is for a module called ramdisk.
+
+Script started on Thu Feb 12 15:41:10 2004
+cd /proc
+# strings ksyms | grep ramdisk
+[ramdisk]
+[ramdisk]
+d4a19510 __insmod_ramdisk_S.bss_L4
+[ramdisk]
+d4a19100 __insmod_ramdisk_S.rodata_L563
+d4a18000
+__insmod_ramdisk_O/root/Message-Based/drivers/target/ramdisk.o_M4027E0AD_V13
+2120
+d4a18054 __insmod_ramdisk_S.text_L4237
+d4a19398 __insmod_ramdisk_S.data_L5
+[ramdisk]
+# exit
 

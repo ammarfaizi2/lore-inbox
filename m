@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263568AbUD2GYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUD2GYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbUD2GYs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 02:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263589AbUD2GYs
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 02:24:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26575 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263568AbUD2GYp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S263555AbUD2GYp (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 29 Apr 2004 02:24:45 -0400
-Date: Wed, 28 Apr 2004 23:22:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: paulus@samba.org, brettspamacct@fastclick.com, jgarzik@pobox.com,
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUD2GYp
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 29 Apr 2004 02:24:45 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:6032 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S263555AbUD2GYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 02:24:44 -0400
+Date: Wed, 28 Apr 2004 23:24:36 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Kenneth Johansson <ken@kenjo.org>,
+       Moritz Muehlenhoff <jmm@informatik.uni-bremen.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-Id: <20040428232222.1be25448.akpm@osdl.org>
-In-Reply-To: <1083219158.20089.128.camel@gaston>
-References: <409021D3.4060305@fastclick.com>
-	<20040428170106.122fd94e.akpm@osdl.org>
-	<409047E6.5000505@pobox.com>
-	<40905127.3000001@fastclick.com>
-	<20040428180038.73a38683.akpm@osdl.org>
-	<16528.23219.17557.608276@cargo.ozlabs.ibm.com>
-	<20040428185342.0f61ed48.akpm@osdl.org>
-	<20040428194039.4b1f5d40.akpm@osdl.org>
-	<16528.28485.996662.598051@cargo.ozlabs.ibm.com>
-	<1083219158.20089.128.camel@gaston>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: [BUG] DVD writing in 2.6.6-rc2
+Message-ID: <20040429062436.GA6507@taniwha.stupidest.org>
+References: <1083088772.2679.11.camel@tiger> <20040427183607.GA3011@suse.de> <8n23m1-g22.ln1@legolas.mmuehlenhoff.de> <20040428113056.GA2150@suse.de> <1083176956.2679.19.camel@tiger> <20040428200953.GA3470@suse.de> <20040428221334.GA22404@taniwha.stupidest.org> <20040429061956.GA3558@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040429061956.GA3558@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->
-> 
-> > The really strange thing is that the behaviour seems to get worse the
-> > more RAM you have.  I haven't noticed any problem at all on my laptop
-> > with 768MB, only on the G5, which has 2.5GB.  (The laptop is still on
-> > 2.6.2-rc3 though, so I will try a newer kernel on it.)
-> 
-> Your G5 also has a 2Gb IO hole in the middle of zone DMA, it's possible
-> that the accounting doesn't work properly.
+On Thu, Apr 29, 2004 at 08:19:58AM +0200, Jens Axboe wrote:
 
-heh.  It should have zone->spanned_pages - zone->present_pages = 2G.
+> Yeah, with 'retries' I mean waiting retries. The command does expire
+> and ide-cd notices it just doesn't put an upper bound on how long it
+> waits.  A minute or so should suffice, unless the caller specifies
+> otherwise.
+
+Can we poke the IDE drive is it's hung or reset it in these cases?  I
+wonder more in the general case where I've had to reboot because the
+burner went nuts for some reason...
+
+  --cw

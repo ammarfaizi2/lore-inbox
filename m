@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267397AbUI0WKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267401AbUI0WRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267397AbUI0WKo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 18:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267401AbUI0WKo
+	id S267401AbUI0WRl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 18:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267403AbUI0WRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 18:10:44 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:18979 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S267397AbUI0WKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 18:10:42 -0400
-To: Paul Jackson <pj@sgi.com>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-References: <1096302710971@topspin.com> <10963027102899@topspin.com>
-	<20040927131014.695b8212.pj@sgi.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 27 Sep 2004 15:10:41 -0700
-In-Reply-To: <20040927131014.695b8212.pj@sgi.com> (Paul Jackson's message of
- "Mon, 27 Sep 2004 13:10:14 -0700")
-Message-ID: <52fz53e526.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Mon, 27 Sep 2004 18:17:41 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:2542 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267401AbUI0WRi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 18:17:38 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] handle usb host allocation failures
+Date: Mon, 27 Sep 2004 15:17:32 -0700
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH][1/2] [RESEND] kobject: add HOTPLUG_ENV_VAR
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 27 Sep 2004 22:10:41.0611 (UTC) FILETIME=[D3C981B0:01C4A4DE]
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_8FJWBKQSwkd+jh4"
+Message-Id: <200409271517.32192.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Paul> Would a procedure (not inlined) save text space here,
-    Paul> provide better type checking, and be easier to read?
+--Boundary-00=_8FJWBKQSwkd+jh4
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The problem is that the straightforward way to implement this helper
-modifies three of its parameters (the current buffer location, the
-amount of space left, and the current index).  It seemed ugly to force
-these three parameters to be passed by address.
+It looks like a host (like ohci or whatever) could try to allocate a new 
+usb_device structure with usb_alloc_dev and get back a valid pointer even if 
+the allocation of its private data failed.  I first saw this in the 2.4 
+sources, but it looks like 2.6 has the same problem.  This patch attempts to 
+fix it by freeing dev if the ->allocate() routine fails, and then returns 
+NULL instead of a potentially dangerous dev pointer.
 
-I could easily rework this to do as you suggest though.  Greg, what's
-your opinion?
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
 
 Thanks,
-  Roland
+Jesse
+
+--Boundary-00=_8FJWBKQSwkd+jh4
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="usb-alloc-dev-nomem.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="usb-alloc-dev-nomem.patch"
+
+===== drivers/usb/core/usb.c 1.174 vs edited =====
+--- 1.174/drivers/usb/core/usb.c	2004-08-03 07:18:53 -07:00
++++ edited/drivers/usb/core/usb.c	2004-09-27 15:13:25 -07:00
+@@ -759,7 +759,10 @@
+ 	init_MUTEX(&dev->serialize);
+ 
+ 	if (dev->bus->op->allocate)
+-		dev->bus->op->allocate(dev);
++		if (dev->bus->op->allocate(dev)) {
++			kfree(dev);
++			return NULL;
++		}
+ 
+ 	return dev;
+ }
+
+--Boundary-00=_8FJWBKQSwkd+jh4--

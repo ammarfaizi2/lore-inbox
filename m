@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271163AbRHOMMN>; Wed, 15 Aug 2001 08:12:13 -0400
+	id <S271165AbRHOMJX>; Wed, 15 Aug 2001 08:09:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271166AbRHOMMD>; Wed, 15 Aug 2001 08:12:03 -0400
-Received: from smtp6.mindspring.com ([207.69.200.110]:14626 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S271163AbRHOMLu>; Wed, 15 Aug 2001 08:11:50 -0400
-Message-ID: <006001c12583$70808960$fe01a8c0@federationspace.org>
-From: "Tom Sightler" <ttsig@tuxyturvy.com>
-To: "Ihar Filipau" <philips@iph.to>, "lkml" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B7A4659.9B40682C@iph.to>
-Subject: Re: status of VMware on 2.4?
-Date: Wed, 15 Aug 2001 08:11:34 -0400
+	id <S271166AbRHOMJN>; Wed, 15 Aug 2001 08:09:13 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:10252 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S271165AbRHOMJF>; Wed, 15 Aug 2001 08:09:05 -0400
+Message-ID: <3B7A666C.567260F3@delusion.de>
+Date: Wed, 15 Aug 2001 14:09:16 +0200
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-ac5 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="koi8-r"
+To: rui.p.m.sousa@clix.pt
+CC: Gerd Knorr <kraxel@bytesex.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BT878 audio dma
+In-Reply-To: <Pine.LNX.4.33.0108151358390.9296-100000@sophia-sousar2.nice.mindspeed.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello All!
->
-> Could anyone say something good about VMware support of 2.4 kernel.
-> I heard about problems with earlier 2.4 kernels.
->
-> Any success stories?
+rui.p.m.sousa@clix.pt wrote:
+> 
+> On Wed, 15 Aug 2001, Udo A. Steinberg wrote:
+> 
+> The bt878 must be grabing an audio device. If so, and when the bt878
+> module is loaded first, thememu10k1 should be using /dev/dsp1 (and
+> /dev/dsp2).
+> 
+> When you compile the bt878 as a module and _loaded it after_ the
+> emu10k1 module does it still work (proving my point above)?
 
-I've been using VMware on both a Dell Inspiron 5000 and ,within the last
-year, a 5000e on Linux kernels since the 2.3.99 kernels and it has worked
-very well.
+Yes, then it still works. Is there an easy way to tell which driver
+uses which dsp device?
 
-The earlier system was running Redhat 6.2, and the 5000e has run RH 7.0,
-7.1, and most recently the roswell beta.  VMware does require some patches
-to thier modules to make them compile with recent 2.4.x kernels (I think it
-broke around 2.4.7).  I don't have the URL handy but it's in the lkml
-archives (that's where I found them when I recently upgraded to 2.4.8-ac1).
-
-Anyway, I've used this machine daily for over a year now, I spend about 50%
-of my time in the VM running Windows 2000 Pro for compatibility with
-applications at work.  It's been rock solid for me, the last serious problem
-I had was trying to get the modem to work when, for some reason, Windows
-2000 lost the settings for serial ports and on the next reboot decided I had
-8 serial ports.   Still, this was minor, and I did get that resolved as
-well.
-
-Later,
-Tom
-
-
+Regards,
+Udo.

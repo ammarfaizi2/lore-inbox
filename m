@@ -1,75 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBHPJU>; Thu, 8 Feb 2001 10:09:20 -0500
+	id <S129181AbRBHPKA>; Thu, 8 Feb 2001 10:10:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129181AbRBHPJA>; Thu, 8 Feb 2001 10:09:00 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:1814 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129051AbRBHPIw>; Thu, 8 Feb 2001 10:08:52 -0500
-Date: Thu, 8 Feb 2001 10:06:01 -0500 (EST)
-From: Ben LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-        Manfred Spraul <manfred@colorfullife.com>, Ingo Molnar <mingo@elte.hu>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        <kiobuf-io-devel@lists.sourceforge.net>,
-        Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.10.10102061516570.1972-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0102080927400.23469-100000@today.toronto.redhat.com>
+	id <S130201AbRBHPJu>; Thu, 8 Feb 2001 10:09:50 -0500
+Received: from smtp1.free.fr ([212.27.32.5]:58888 "EHLO smtp1.free.fr")
+	by vger.kernel.org with ESMTP id <S129181AbRBHPJf>;
+	Thu, 8 Feb 2001 10:09:35 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Multiple PPP sessions w/o load balancing, possible ?
+Message-ID: <981644973.3a82b6add1bb1@imp.free.fr>
+Date: Thu, 08 Feb 2001 16:09:33 +0100 (MET)
+From: Bastien Nocera <hadess@hadess.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 194.237.142.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Feb 2001, Linus Torvalds wrote:
+Hi,
 
-> There are currently no other alternatives in user space. You'd have to
-> create whole new interfaces for aio_read/write, and ways for the kernel to
-> inform user space that "now you can re-try submitting your IO".
->
-> Could be done. But that's a big thing.
+Sorry if my question is out of the scope of lkml. If you know a better place for 
+this, please tell me.
 
-Has been done.  Still needs some work, but it works pretty well.  As for
-throttling io, having ios submitted does not have to correspond to them
-being queued in the lower layers.  The main issue with async io is
-limiting the amount of pinned memory for ios; if that's taken care of, I
-don't think it matters how many ios are in flight.
+The problem is:
+We (me and my work colleagues) need to setup some heavy testing of a 
+telecom network. Right now, we are using a laptop and a mobile phone for each 
+ppp session we want to setup.
 
-> > An application which sets non blocking behavior and busy waits for a
-> > request (which seems to be your argument) is just stupid, of course.
->
-> Tell me what else it could do at some point? You need something like
-> select() to wait on it. There are no such interfaces right now...
->
-> (besides, latency would suck. I bet you're better off waiting for the
-> requests if they are all used up. It takes too long to get deep into the
-> kernel from user space, and you cannot use the exclusive waiters with its
-> anti-herd behaviour etc).
+The idea was that we could ease the setup of this test by using one laptop, 
+running multiple ppp sessions, using 2 quad serial port pcmcia cards and 
+starting up 9 ppp sessions (2x4 on the serial card + 1 mobo port) each one on 
+one of the 9 phones.
 
-Ah, but no.  In fact for some things, the wait queue extensions I'm using
-will be more efficient as things like test_and_set_bit for obtaining a
-lock gets executed without waking up a task.
+My idea was to have one IP address to contact per interface and add the proper 
+routing so that creating traffic to an IP address would automatically go to one 
+interface. The problem is that we're not able to make any changes to the already 
+in place servers.
 
-> Simple rule: if you want to optimize concurrency and avoid waiting - use
-> several processes or threads instead. At which point you can get real work
-> done on multiple CPU's, instead of worrying about what happens when you
-> have to wait on the disk.
+So, to make a long story short, we need to simulate 9 laptops+mobile phones with 
+1 laptop, 2 serial cards and 9 phones.
+I'll repeat that to be sure. We know how to setup the cards, the ppp sessions, 
+but not how to create traffic on one specific interface without using load 
+balancing or multiple target IP addresses.
 
-There do exist plenty of cases where threads are not efficient enough.
-Just the stack overhead alone with 8000 threads makes things really suck.
-Event based io completion means that server processes don't need to have
-the overhead of select/poll.  Add in NT style completion ports for waking
-up the right number of worker threads off of the completion queue, and
+If anybody can help, I'll be grateful (and my boss as well =).
 
-That said, I don't expect all devices to support async io.  But given
-support for files, raw and sockets all the important cases are covered.
-The remainder can be supported via userspace helpers.
+Cheers
 
-		-ben
-
+/Bastien Nocera
+http://hadess.net
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

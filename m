@@ -1,131 +1,188 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272405AbTGaGnN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 02:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272410AbTGaGnN
+	id S272412AbTGaGwN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 02:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272419AbTGaGwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 02:43:13 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:1877 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S272405AbTGaGnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 02:43:10 -0400
-Subject: Re: [More Info] Re: 2.6.0test 1 fails on eth0 up (arjanv RPM's -
-	all needed rpms installed)
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Greg KH <greg@kroah.com>, arjanv@redhat.com,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F21C5FA.5020507@pacbell.net>
-References: <1058196612.3353.2.camel@aurora.localdomain>
-	 <3F12FF53.7060708@pobox.com> <1058210139.5981.6.camel@laptop.fenrus.com>
-	 <1058217601.4441.1.camel@aurora.localdomain>
-	 <1058299838.3358.4.camel@aurora.localdomain>
-	 <20030715210240.GA5345@kroah.com>  <3F21C5FA.5020507@pacbell.net>
-Content-Type: text/plain
-Message-Id: <1059633777.4720.7.camel@aurora.localdomain>
+	Thu, 31 Jul 2003 02:52:12 -0400
+Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:9856 "EHLO
+	amaryllis.anomalistic.org") by vger.kernel.org with ESMTP
+	id S272412AbTGaGwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 02:52:04 -0400
+Date: Thu, 31 Jul 2003 14:52:00 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: Kernel List <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Subject: USB problems encountered when offing Zaurus
+Message-ID: <20030731065200.GA1226@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-5) 
-Date: 31 Jul 2003 02:42:57 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.0-test2-mm2-kj1
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-25 at 20:06, David Brownell wrote:
 
-> See if this patch resolves it.
-> 
-> The patch adds an explicit reset to HCD initialization, and then makes
-> EHCI use it.  (OHCI could do so even more easily ... but nobody's reported
-> firmware acting that type of strange with OHCI.)   It should prevent IRQs
-> being enabled while the HC is still in an indeterminate state.
-> 
-> This also fixes a missing local_irq_restore() that was generating some
-> annoying might_sleep() messages, and a missing readb() that affects some
-> ARM (and other) PCI systems.
-> 
-> - Dave
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Applied it against test2.  I think the problem is indeed ACPI handling
-PCI irqs.  This is an nVidia nForce2 board, I should check to see if the
-patch someone posted fixes this (Did it get folded into test2?).
+I got this when I try to turn off Zaurus SL-5560.
+Any idea what went wrong?
 
-Anyway, the first oops only happens if I have the mouse plugged in as
-USB (Intellimouse USB... I usually use the dumb little PS/2 adapter). 
-The second happens now, but didn't before.  It is 1394 related. 
-Interrupts are at 100k+ on both usb and 1394 ohci almost instantly with
-ACPI on.
+I am using 2.6.0-test2-mm2-kj1. I am trying to turn
+off my Zaurus, and then turn it on again. When I turn
+it off, I get the following messages. When I turn it
+on, and try to do a samba mount, i get pretty unstable
+connection.pretty unstable
+connection.
 
-irq 11: nobody cared!
-Call Trace:
-[<c010c12a>] __report_bad_irq+0x2a/0x90
-[<c010c21c>] note_interrupt+0x6c/0xb0
-[<c010c42d>] do_IRQ+0xed/0x110
-[<c010a9f8>] common_interrupt+0x18/0x20
-[<c011f780>] do_softirq+0x40/0xa0
-[<c010c414>] do_IRQ+0xd4/0x110
-[<c010a9f8>] common_interrupt+0x18/0x20
-[<c010c84e>] setup_irq+0x6e/0xb0
-[<e087f350>] usb_hcd_irq+0x0/0x60 [usbcore]
-[<c010c4d0>] request_irq+0x80/0xd0
-[<e08824e0>] usb_hcd_pci_probe+0x200/0x4a0 [usbcore]
-[<e087f350>] usb_hcd_irq+0x0/0x60
-[<c01aa1f2>] pci_device_probe_static+0x52/0x70
-[<c01aa30c>] __pci_device_probe+0x3c/0x50
-[<c01aa34f>] pci_device_probe+0x2f/0x50
-[<c01eb695>] bus_match+0x45/0x80
-[<c01eb7ac>] driver_attach+0x5c/0x60
-[<c01eba97>] bus_add_driver+0xa7/0xc0
-[<c01ebf1f>] driver_register+0x2f/0x40
-[<c01aa600>] pci_register_driver+0x70/0xa0
-[<e0824021>] init+0x21/0x4f [ehci_hcd]
-[<c0130afb>] sys_init_module+0x10b/0x200
-[<c010a839>] sysenter_past_esp+0x52/0x71
+Eugene
 
-handlers:
-[<e087f350>] (usb_hcd_irq+0x0/0x60 [usbcore])
-Disabling IRQ #11
-ehci_hcd 0000:00:02.2: irq 11, pci mem e0815000
-ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 1
+Jul 31 14:40:27 amaryllis kernel: uhci-hcd 0000:00:1d.0: remove, state 3
+Jul 31 14:40:27 amaryllis kernel: usb usb1: USB disconnect, address 1
+Jul 31 14:40:27 amaryllis kernel: Call Trace:
+Jul 31 14:40:27 amaryllis kernel:  [__might_sleep+95/114] __might_sleep+0x5=
+f/0x72
+Jul 31 14:40:27 amaryllis kernel:  [hcd_endpoint_disable+388/1321] hcd_endp=
+oint_disable+0x184/0x529
+Jul 31 14:40:27 amaryllis kernel:  [hcd_endpoint_disable+0/1321] hcd_endpoi=
+nt_disable+0x0/0x529
+Jul 31 14:40:27 amaryllis kernel:  [nuke_urbs+128/135] nuke_urbs+0x80/0x87
+Jul 31 14:40:27 amaryllis kernel:  [usb_disconnect+161/395] usb_disconnect+=
+0xa1/0x18b
+Jul 31 14:40:27 amaryllis kernel:  [usb_hcd_pci_remove+180/410] usb_hcd_pci=
+_remove+0xb4/0x19a
+Jul 31 14:40:27 amaryllis kernel:  [pci_device_remove+59/61] pci_device_rem=
+ove+0x3b/0x3d
+Jul 31 14:40:27 amaryllis kernel:  [device_release_driver+96/98] device_rel=
+ease_driver+0x60/0x62
+Jul 31 14:40:27 amaryllis kernel:  [driver_detach+34/49] driver_detach+0x22=
+/0x31
+Jul 31 14:40:27 amaryllis kernel:  [bus_remove_driver+87/143] bus_remove_dr=
+iver+0x57/0x8f
+Jul 31 14:40:27 amaryllis kernel:  [driver_unregister+26/68] driver_unregis=
+ter+0x1a/0x44
+Jul 31 14:40:27 amaryllis kernel:  [pci_unregister_driver+23/37] pci_unregi=
+ster_driver+0x17/0x25
+Jul 31 14:40:27 amaryllis kernel:  [_end+540895445/1068727528] uhci_hcd_cle=
+anup+0x12/0x5c [uhci_hcd]
+Jul 31 14:40:27 amaryllis kernel:  [sys_delete_module+295/409] sys_delete_m=
+odule+0x127/0x199
+Jul 31 14:40:27 amaryllis kernel:  [sys_munmap+87/117] sys_munmap+0x57/0x75
+Jul 31 14:40:27 amaryllis kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jul 31 14:40:27 amaryllis kernel:=20
+Jul 31 14:40:27 amaryllis kernel: Badness in device_release at drivers/base=
+/core.c:84
+Jul 31 14:40:27 amaryllis kernel: Call Trace:
+Jul 31 14:40:27 amaryllis kernel:  [kobject_cleanup+129/131] kobject_cleanu=
+p+0x81/0x83
+Jul 31 14:40:27 amaryllis kernel:  [device_unregister+20/34] device_unregis=
+ter+0x14/0x22
+Jul 31 14:40:27 amaryllis kernel:  [usb_disconnect+237/395] usb_disconnect+=
+0xed/0x18b
+Jul 31 14:40:27 amaryllis kernel:  [usb_hcd_pci_remove+180/410] usb_hcd_pci=
+_remove+0xb4/0x19a
+Jul 31 14:40:27 amaryllis kernel:  [pci_device_remove+59/61] pci_device_rem=
+ove+0x3b/0x3d
+Jul 31 14:40:27 amaryllis kernel:  [device_release_driver+96/98] device_rel=
+ease_driver+0x60/0x62
+Jul 31 14:40:27 amaryllis kernel:  [driver_detach+34/49] driver_detach+0x22=
+/0x31
+Jul 31 14:40:27 amaryllis kernel:  [bus_remove_driver+87/143] bus_remove_dr=
+iver+0x57/0x8f
+Jul 31 14:40:27 amaryllis kernel:  [driver_unregister+26/68] driver_unregis=
+ter+0x1a/0x44
+Jul 31 14:40:27 amaryllis kernel:  [pci_unregister_driver+23/37] pci_unregi=
+ster_driver+0x17/0x25
+Jul 31 14:40:27 amaryllis kernel:  [_end+540895445/1068727528] uhci_hcd_cle=
+anup+0x12/0x5c [uhci_hcd]
+Jul 31 14:40:27 amaryllis kernel:  [sys_delete_module+295/409] sys_delete_m=
+odule+0x127/0x199
+Jul 31 14:40:27 amaryllis kernel:  [sys_munmap+87/117] sys_munmap+0x57/0x75
+Jul 31 14:40:27 amaryllis kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jul 31 14:40:27 amaryllis kernel:=20
+Jul 31 14:40:27 amaryllis kernel: uhci-hcd 0000:00:1d.0: USB bus 1 deregist=
+ered
+Jul 31 14:40:27 amaryllis kernel: Badness in kobject_cleanup at lib/kobject=
+=2Ec:402
+Jul 31 14:40:27 amaryllis kernel: Call Trace:
+Jul 31 14:40:27 amaryllis kernel:  [kobject_cleanup+96/131] kobject_cleanup=
++0x60/0x83
+Jul 31 14:40:27 amaryllis kernel:  [usb_hcd_pci_remove+328/410] usb_hcd_pci=
+_remove+0x148/0x19a
+Jul 31 14:40:27 amaryllis kernel:  [pci_device_remove+59/61] pci_device_rem=
+ove+0x3b/0x3d
+Jul 31 14:40:27 amaryllis kernel:  [device_release_driver+96/98] device_rel=
+ease_driver+0x60/0x62
+Jul 31 14:40:27 amaryllis kernel:  [driver_detach+34/49] driver_detach+0x22=
+/0x31
+Jul 31 14:40:27 amaryllis kernel:  [bus_remove_driver+87/143] bus_remove_dr=
+iver+0x57/0x8f
+Jul 31 14:40:27 amaryllis kernel:  [driver_unregister+26/68] driver_unregis=
+ter+0x1a/0x44
+Jul 31 14:40:27 amaryllis kernel:  [pci_unregister_driver+23/37] pci_unregi=
+ster_driver+0x17/0x25
+Jul 31 14:40:27 amaryllis kernel:  [_end+540895445/1068727528] uhci_hcd_cle=
+anup+0x12/0x5c [uhci_hcd]
+Jul 31 14:40:27 amaryllis kernel:  [sys_delete_module+295/409] sys_delete_m=
+odule+0x127/0x199
+Jul 31 14:40:27 amaryllis kernel:  [sys_munmap+87/117] sys_munmap+0x57/0x75
+Jul 31 14:40:27 amaryllis kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jul 31 14:40:27 amaryllis kernel:=20
+Jul 31 14:40:27 amaryllis kernel: uhci-hcd 0000:00:1d.2: remove, state 3
+Jul 31 14:40:27 amaryllis kernel: usb usb2: USB disconnect, address 1
+Jul 31 14:40:27 amaryllis kernel: Badness in device_release at drivers/base=
+/core.c:84
+Jul 31 14:40:27 amaryllis kernel: Call Trace:
+Jul 31 14:40:27 amaryllis kernel:  [kobject_cleanup+129/131] kobject_cleanu=
+p+0x81/0x83
+Jul 31 14:40:27 amaryllis kernel:  [device_unregister+20/34] device_unregis=
+ter+0x14/0x22
+Jul 31 14:40:27 amaryllis kernel:  [usb_disconnect+237/395] usb_disconnect+=
+0xed/0x18b
+Jul 31 14:40:27 amaryllis kernel:  [usb_hcd_pci_remove+180/410] usb_hcd_pci=
+_remove+0xb4/0x19a
+Jul 31 14:40:27 amaryllis kernel:  [pci_device_remove+59/61] pci_device_rem=
+ove+0x3b/0x3d
+Jul 31 14:40:27 amaryllis kernel:  [device_release_driver+96/98] device_rel=
+ease_driver+0x60/0x62
+Jul 31 14:40:27 amaryllis kernel:  [driver_detach+34/49] driver_detach+0x22=
+/0x31
+Jul 31 14:40:27 amaryllis kernel:  [bus_remove_driver+87/143] bus_remove_dr=
+iver+0x57/0x8f
+Jul 31 14:40:27 amaryllis kernel:  [driver_unregister+26/68] driver_unregis=
+ter+0x1a/0x44
+Jul 31 14:40:27 amaryllis kernel:  [pci_unregister_driver+23/37] pci_unregi=
+ster_driver+0x17/0x25
+Jul 31 14:40:27 amaryllis kernel:  [_end+540895445/1068727528] uhci_hcd_cle=
+anup+0x12/0x5c [uhci_hcd]
+Jul 31 14:40:27 amaryllis kernel:  [sys_delete_module+295/409] sys_delete_m=
+odule+0x127/0x199
+Jul 31 14:40:27 amaryllis kernel:  [sys_munmap+87/117] sys_munmap+0x57/0x75
+Jul 31 14:40:27 amaryllis kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jul 31 14:40:27 amaryllis kernel:=20
+Jul 31 14:40:27 amaryllis kernel: uhci-hcd 0000:00:1d.2: USB bus 2 deregist=
+ered
+Jul 31 14:40:27 amaryllis kernel: drivers/usb/core/usb.c: deregistering dri=
+ver audio
+Jul 31 14:40:27 amaryllis kernel: drivers/usb/core/usb.c: deregistering dri=
+ver Philips webcam
 
+--gKMricLos+KVdGMg
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-irq 4: nobody cared!
-Call Trace:
-[<c010c12a>] __report_bad_irq+0x2a/0x90
-[<c010c21c>] note_interrupt+0x6c/0xb0
-[<c010c42d>] do_IRQ+0xed/0x110
-[<c010a9f8>] common_interrupt+0x18/0x20
-[<c011f780>] do_softirq+0x40/0xa0
-[<c010c414>] do_IRQ+0xd4/0x110
-[<c010a9f8>] common_interrupt+0x18/0x20
-[<c010c84e>] setup_irq+0x6e/0xb0
-[<e08536d0>] ohci_irq_handler+0x0/0x720 [ohci1394]
-[<c010c4d0>] request_irq+0x80/0xd0
-[<e0855603>] ohci1394_pci_probe+0x3d3/0x580 [ohci1394]
-[<e08536d0>] ohci_irq_handler+0x0/0x720 [ohci1394]
-[<c01aa1f2>] pci_device_probe_static+0x52/0x70
-[<c01aa30c>] __pci_device_probe+0x3c/0x50
-[<c01aa34f>] pci_device_probe+0x2f/0x50
-[<c01eb695>] bus_match+0x45/0x80
-[<c01eb7ac>] driver_attach+0x5c/0x60
-[<c01eba97>] bus_add_driver+0xa7/0xc0
-[<c01ebf1f>] driver_register+0x2f/0x40
-[<c01aa600>] pci_register_driver+0x70/0xa0
-[<e0817013>] ohci1394_init+0x13/0x3d [ohci1394]
-[<c0130afb>] sys_init_module+0x10b/0x200
-[<c010a839>] sysenter_past_esp+0x52/0x71
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-handlers:
-[<e08536d0>] (ohci_irq_handler+0x0/0x720 [ohci1394])
-Disabling IRQ #4
+iD8DBQE/KLyQcyGjihSg3eURAgfDAJ9NzBF2JQ2bxixNmccd2ORViOtXMQCePc6N
+Fr4t58a0Ze+M4WHlfJEoIXo=
+=B2hW
+-----END PGP SIGNATURE-----
 
-Anyway, so either it is ACPI and fixable, or I just forget pci routing
-with ACPI.
-
-Trever Adams
---
-"If a revolution destroys a systematic government, but the systematic
-patterns of thought that produced that government are left intact, then
-those patterns will repeat themselves in the succeding government." --
-Robert M. Pirsig
-
+--gKMricLos+KVdGMg--

@@ -1,74 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131495AbRCSPUl>; Mon, 19 Mar 2001 10:20:41 -0500
+	id <S131415AbRCSP3K>; Mon, 19 Mar 2001 10:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131498AbRCSPUb>; Mon, 19 Mar 2001 10:20:31 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:26847 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S131495AbRCSPUT>; Mon, 19 Mar 2001 10:20:19 -0500
-Date: Mon, 19 Mar 2001 15:21:56 +0000 (GMT)
-From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Andrzej Krzysztofowicz <ankry@pg.gda.pl>,
-        William T Wilson <fluffy@snurgle.org>,
-        Torrey Hoffman <torrey.hoffman@myrio.com>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Is swap == 2 * RAM a permanent thing?
-In-Reply-To: <Pine.LNX.4.33.0103160205480.1320-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0103191518580.25521-100000@erdos.shef.ac.uk>
+	id <S131502AbRCSP3A>; Mon, 19 Mar 2001 10:29:00 -0500
+Received: from [212.115.175.146] ([212.115.175.146]:61690 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S131415AbRCSP2l>; Mon, 19 Mar 2001 10:28:41 -0500
+Message-ID: <27525795B28BD311B28D00500481B7601F1014@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: "Amit S. Kale" <akale@users.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: RE: Per user private directories - trfs
+Date: Mon, 19 Mar 2001 16:27:25 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Mar 2001, Rik van Riel wrote:
+> Translators for providing per user private directories and restricting
+> visibility of files and directories using the translation filesystem are
+> available now at
+> http://trfs.sourceforge.net/
+> Per user private directories:
+> Files created in a per user private directory are not visible to users
+> other than the owner of the files.
 
-> On Thu, 15 Mar 2001, Andrzej Krzysztofowicz wrote:
-> > "Rik van Riel wrote:"
-> > >   total usage == maximum(swap, ram)
-> >
-> > Does it mean that having swap<RAM you only lose some disk space ?
-> 
-> If you actually "rely" on swap, yes.
-
-Sorry, I also don't understand this. Take a plain simple situation - your
-RAM is full, swap (which is < RAM) empty, you start (or try to) another
-application - will it start? If yes - it means you already have 
-total > max(swap, RAM)
-if you simply can't start another app in this situation - that'd be VERY
-strange...
-
-Guennadi
-
-> 
-> If you usually don't swap but want to have it for "overflow"
-> in some situations, or if only a few things end up on swap,
-> then it's actually useful.
-> 
-> regards,
-> 
-> Rik
-> --
-> Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-> 
-> Virtual memory is like a game you can't win;
-> However, without VM there's truly nothing to lose...
-> 
-> 		http://www.surriel.com/
-> http://www.conectiva.com/	http://distro.conectiva.com/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-___
-
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
-
+I like the concept, I would have done it different though: I would look
+at the bits and see if a user can do anything with a file. Can
+he/she (from now on I'll write 'xe' for that) read or write or execute a
+file (or is owner of course)? -> file is visible. Xe is in group of file?
+And Xe can r/w/x file? -> visible. all other cases: invisible.
 

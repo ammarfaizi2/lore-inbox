@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267506AbSLLV5W>; Thu, 12 Dec 2002 16:57:22 -0500
+	id <S267509AbSLLWNz>; Thu, 12 Dec 2002 17:13:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267502AbSLLV5W>; Thu, 12 Dec 2002 16:57:22 -0500
-Received: from trained-monkey.org ([209.217.122.11]:48398 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S267501AbSLLV5T>; Thu, 12 Dec 2002 16:57:19 -0500
-To: Stephan van Hienen <ultra@a2000.nu>
-Cc: sparclinux@vger.kernel.org, "" <linux-kernel@vger.kernel.org>
-Subject: Re: Alteon AceNIC Coper Seen as Fibre ? (and incorrect settings)
-References: <Pine.LNX.4.50.0212102157440.1634-100000@ddx.a2000.nu>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 12 Dec 2002 17:00:02 -0500
-In-Reply-To: Stephan van Hienen's message of "Tue, 10 Dec 2002 22:03:03 +0100 (CET)"
-Message-ID: <m37keej3tp.fsf@trained-monkey.org>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S267518AbSLLWNz>; Thu, 12 Dec 2002 17:13:55 -0500
+Received: from a213-84-34-179.xs4all.nl ([213.84.34.179]:51585 "EHLO
+	defiant.binary-magic.com") by vger.kernel.org with ESMTP
+	id <S267509AbSLLWNx>; Thu, 12 Dec 2002 17:13:53 -0500
+From: Take Vos <Take.Vos@binary-magic.com>
+Organization: Binary Magic
+To: Vojtech Pavlik <vojtech@suse.cz>, David Woodhouse <dwmw2@infradead.org>
+Subject: Re: PROBLEM: PS/2 mouse wart does not work, while scratch pad does.
+Date: Thu, 12 Dec 2002 20:30:03 +0100
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <200210221046.46700.Take.Vos@binary-magic.com> <5001.1035330391@passion.cambridge.redhat.com> <20021023104222.B28139@ucw.cz>
+In-Reply-To: <20021023104222.B28139@ucw.cz>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200212122030.16167.Take.Vos@binary-magic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Stephan" == Stephan van Hienen <ultra@a2000.nu> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Stephan> Sun UltraSparc 10 kernel 2.4.20
+On Wednesday 23 October 2002 10:42, Vojtech Pavlik wrote:
+> On Wed, Oct 23, 2002 at 12:46:31AM +0100, David Woodhouse wrote:
+> > Take.Vos@binary-magic.com said:
+> > > hardware:DELL Inspiron 8100
+> > >
+> > >  The internal scratch pad works, but the internal wart mouse doesn't,
+> > > in the  BIOS it is set to use both devices for input. This is tested
+> > > with both  Xfree86 and running cat on /dev/input/mice and /dev/input/
+> > > mouse0 and  /dev/input/event0.
+> >
+> > Probing for various other PS/2 extensions appears to confuse the thing
+> > such that the clitmouse no longer works. If we probe for it first and
+> > then abort the other probes, it seems happier...
+I just tried 2.5.51, but I still have the same problem, scratch pad works, but 
+internal wart mouse doesn't.
 
-Stephan> eth2: Alteon AceNIC Gigabit Ethernet at 0x1ff02900000, irq
-Stephan> 6,7d0 Tigon II (Rev. 6), Firmware: 12.4.11, MAC:
-Stephan> 00:60:cf:20:92:fc PCI bus width: 32 bits, speed: 33MHz,
-Stephan> latency: 64 clks eth2: Firmware up and running
+Here is the current dmesg output:
+	device class 'input': registering
+	register interface 'mouse' with class 'input'
+	mice: PS/2 mouse device common for all mice
+	register interface 'joystick' with class 'input'
+	register interface 'event' with class 'input'
+	input: PS/2 Synaptics TouchPad on isa0060/serio1
+	serio: i8042 AUX port at 0x60,0x64 irq 12
+	input: AT Set 2 keyboard on isa0060/serio0
+	serio: i8042 KBD port at 0x60,0x64 irq 1
 
-Stephan> unplugging the utp cable, and plugging back in gives :
+Thank you,
+	Take Vos
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-Stephan> eth2: 10/100BaseT link UP eth2: Optical link DOWN eth2:
-Stephan> 10/100BaseT link UP
+iD8DBQE9+OPGMMlizP1UqoURAgbUAKCK4JZhpd+nybjJZw2QpXf2wt9lvgCfSzdZ
+l7/EHd3rzWVi3bs+iWrUkOY=
+=8zyA
+-----END PGP SIGNATURE-----
 
-This is purely cosmetic. Basically the firmware sends a link down
-event but not media info with it. At the time I wrote the code copper
-cards weren't available and I just never got around to changing
-it. It's trivial to fix, but really makes no difference whatsoever.
-
-Jes

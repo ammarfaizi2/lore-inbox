@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277514AbRKHGrm>; Thu, 8 Nov 2001 01:47:42 -0500
+	id <S281199AbRKHHKc>; Thu, 8 Nov 2001 02:10:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278709AbRKHGrd>; Thu, 8 Nov 2001 01:47:33 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:8185
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277514AbRKHGrW>; Thu, 8 Nov 2001 01:47:22 -0500
-Date: Wed, 7 Nov 2001 22:47:16 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory accounting problem in 2.4.13, 2.4.14pre, and possibly 2.4.14
-Message-ID: <20011107224716.D467@mikef-linux.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011106140335.A13678@mikef-linux.matchmail.com> <3BE9E9A7.6F90C4DB@zip.com.au>, <3BE9E9A7.6F90C4DB@zip.com.au> <20011107182442.B467@mikef-linux.matchmail.com> <3BEA116A.646B9159@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BEA116A.646B9159@zip.com.au>
-User-Agent: Mutt/1.3.23i
+	id <S281255AbRKHHKW>; Thu, 8 Nov 2001 02:10:22 -0500
+Received: from sj-msg-core-4.cisco.com ([171.71.163.10]:37057 "EHLO
+	sj-msg-core-4.cisco.com") by vger.kernel.org with ESMTP
+	id <S281199AbRKHHKD>; Thu, 8 Nov 2001 02:10:03 -0500
+Date: Thu, 8 Nov 2001 12:39:32 +0530 (IST)
+From: Manik Raina <manik@cisco.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix for redefinition of jedec_probe_init
+Message-ID: <Pine.LNX.4.21.0111081237330.24010-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 09:00:26PM -0800, Andrew Morton wrote:
-> Mike Fedyk wrote:
-> > 
-> > >
-> > 
-> > I am running unpatched 2.4.14 now.
-> > 
-> > Do you still want me to try this patch now that you know I have been able to
-> > see the problem with 2.2.14+ext3?
-> > 
-> 
-> It's OK - I can reproduce it easily anyway.
-> 
-> There are two things here.  Recent -ac kernels had a merge
-> bug down in the /proc code which caused `Cached:' to go
-> negative.  It was recently fixed.
-> 
-> And quite independently, current ext3 for Linus kernels now has a
-> bug which causes the `buffermem_pages' number to get too large.
-> This has the exact same effect: `Cached:' goes negative. 
-> 
-> The buffermem_pages counter is purely for reporting - no VM decisions
-> are based on its value.  But if it worries you, just remove line 1933 of fs/jbd/transaction.c.
+On inclusion of both these files (modules disabled) the build breaks.
+This is because jedec_probe_init () is defined in both these files.
 
-Applied.
+I am sending a patch which makes them static. Of course, there
+is another option, since both these functions are doing the same
+thing, we could delete one of them. 
 
-Here's the patch.
 
---- 2.4.14-ext3_0.9.15-2414/fs/jbd/transaction.c~	Wed Nov  7 22:41:13 2001
-+++ 2.4.14-ext3_0.9.15-2414/fs/jbd/transaction.c	Wed Nov  7 22:43:14 2001
-@@ -1930,7 +1930,6 @@
+diff -u -r /home/manik/linux/orig/linux/drivers/mtd/chips/jedec.c ./drivers/mtd/chips/jedec.c
+--- /home/manik/linux/orig/linux/drivers/mtd/chips/jedec.c	Fri Oct  5 03:44:59 2001
++++ ./drivers/mtd/chips/jedec.c	Thu Nov  8 11:12:28 2001
+@@ -873,7 +873,7 @@
+    }
+ }
  
- 	if (!offset) {
- 		if (!may_free || !try_to_free_buffers(page, 0)) {
--			atomic_inc(&buffermem_pages);
- 			return 0;
- 		}
- 		J_ASSERT(page->buffers == NULL);
+-int __init jedec_probe_init(void)
++static int __init jedec_probe_init(void)
+ {
+ 	register_mtd_chip_driver(&jedec_chipdrv);
+ 	return 0;
+diff -u -r /home/manik/linux/orig/linux/drivers/mtd/chips/jedec_probe.c ./drivers/mtd/chips/jedec_probe.c
+--- /home/manik/linux/orig/linux/drivers/mtd/chips/jedec_probe.c	Fri Oct  5 03:44:59 2001
++++ ./drivers/mtd/chips/jedec_probe.c	Thu Nov  8 11:12:31 2001
+@@ -422,7 +422,7 @@
+ 	module: THIS_MODULE
+ };
+ 
+-int __init jedec_probe_init(void)
++static int __init jedec_probe_init(void)
+ {
+ 	register_mtd_chip_driver(&jedec_chipdrv);
+ 	return 0;
 
-I'll run it overnight, and test it tomorrow...
-
-Mike

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290695AbSARTDE>; Fri, 18 Jan 2002 14:03:04 -0500
+	id <S290779AbSARTFF>; Fri, 18 Jan 2002 14:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290633AbSARTCy>; Fri, 18 Jan 2002 14:02:54 -0500
-Received: from altus.drgw.net ([209.234.73.40]:44809 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S290668AbSARTCq>;
-	Fri, 18 Jan 2002 14:02:46 -0500
-Date: Fri, 18 Jan 2002 13:02:09 -0600
-From: Troy Benjegerdes <hozer@drgw.net>
-To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        Gerard Roudier <groudier@free.fr>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
-        Dan Malek <dan@embeddededge.com>, mattl@mvista.com
-Subject: pci_alloc_consistent from interrupt == BAD
-Message-ID: <20020118130209.J14725@altus.drgw.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S290668AbSARTE4>; Fri, 18 Jan 2002 14:04:56 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:49036 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S290774AbSARTEm>; Fri, 18 Jan 2002 14:04:42 -0500
+Message-Id: <200201181904.g0IJ4ThP001576@tigger.cs.uni-dortmund.de>
+To: Juhan Ernits <juhan@cc.ioc.ee>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: misconfiguration of ne.o module in 2.2.19 damaged hardware. Is it normal? 
+In-Reply-To: Message from Juhan Ernits <juhan@cc.ioc.ee> 
+   of "Thu, 17 Jan 2002 21:33:31 +0200." <Pine.GSO.4.21.0201172119110.18678-100000@suhkur.cc.ioc.ee> 
+Date: Fri, 18 Jan 2002 20:04:29 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Somehow the docs in DMA-mappings.txt say pci_alloc_consistent is allowed from 
-interrupt, but this is a "bad thing" on at least arm and PPC non-cache 
-coherent cpus.
+Juhan Ernits <juhan@cc.ioc.ee> said:
 
-On these cpus we have to allocate page tables for consistent_alloc.. I really 
-dont' think we want to be doing this during interrupt context.
+[...]
 
-This also causes the sym53c8xx_2 driver to not work on some embedded ppc 4xx 
-boards, and in general, seems to be a 'bad thing' to allow.
+> I installed linux on this box (Debian 2.2r4, kernel version 2.2.19).
+> Then when configuring the network the module ne.o was chosen. 
+> I was sure about the io address but not so sure about the irq. So I
+> configured the module with only io address parameter.
 
-For example, in the arch/arm/consistent.c:
+This is enough, IRQ can be found from that datum. I assume this is an ISA
+NIC? If PCI, no such parameters are needed. BTW, NE clones are (in)famous
+for their bizarre assortment of bugs, you might have hit one that doesn't
+work with Linux.
 
-/*
- * This allocates one page of cache-coherent memory space and returns
- * both the virtual and a "dma" address to that space.  It is not clear
- * whether this could be called from an interrupt context or not.  For
- * now, we expressly forbid it, especially as some of the stuff we do
- * here is not interrupt context safe.
- *
- * Note that this does *not* zero the allocated area!
- */
-void *consistent_alloc(int gfp, size_t size, dma_addr_t *dma_handle)
+> At this point no problems occurred.
+> 
+> Then I configured the network address but the device eth0 did not appear
+> to be available (naturally, due to misconfiguration). Since it was part of
+> automated install I decided to reboot after this.
 
-(arm's pci_alloc_consistent always calls consistent_alloc).
+What does lsmod(8) tell you? If you do an "modprobe ne io=..." what does it
+say?
 
-The PPC version calls a similiar function when CONFIG_NOT_COHERENT_CACHE is 
-defined. On 'regular' ppc machines, it's just a __get_free_pages, which is 
-why no one from the pmac crowd has screamed.
-
-
+If your guess at IO is wrong, nothing happens. If the NIC is _not_ an NE,
+strange things could very well happen. It might be broken, not installed
+correctly, jumpers set wrong, ...
 -- 
-Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
------"If this message isn't misspelled, I didn't write it" -- Me -----
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's 
-why I draw cartoons. It's my life." -- Charles Schulz
+Horst von Brand			     http://counter.li.org # 22616

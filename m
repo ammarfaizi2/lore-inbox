@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135853AbRDZSk7>; Thu, 26 Apr 2001 14:40:59 -0400
+	id <S135799AbRDZSwc>; Thu, 26 Apr 2001 14:52:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135886AbRDZSkt>; Thu, 26 Apr 2001 14:40:49 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:35308 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S135853AbRDZSkk>; Thu, 26 Apr 2001 14:40:40 -0400
-Message-ID: <3AE879AE.387D3B78@antefacto.com>
-Date: Thu, 26 Apr 2001 20:40:30 +0100
-From: Padraig Brady <padraig@antefacto.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.0-ac4 i686)
-X-Accept-Language: en
+	id <S135886AbRDZSwX>; Thu, 26 Apr 2001 14:52:23 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:47119 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135799AbRDZSwH>; Thu, 26 Apr 2001 14:52:07 -0400
+Date: Thu, 26 Apr 2001 11:49:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <20010426201236.W819@athlon.random>
+Message-ID: <Pine.LNX.4.21.0104261141280.4480-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ramdisk/tmpfs/ramfs/memfs ?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm working on an embedded system here which has no harddisk.
-So, I can't swap to disk and need to have /var & /tmp in RAM.
-I'm confused between the various options for in RAM file-
-systems. At the moment I've created a ramdisk and made an 
-ext2 partition in it (which is compressed as I applied the 
-e2compr patch), which is working fine. Anyway questions:
+On Thu, Apr 26, 2001 at 11:45:47AM -0400, Alexander Viro wrote:
+>
+>	Ext2 does getblk+wait_on_buffer for new metadata blocks before
+> filling them with zeroes. While that is enough for single-processor,
+> on SMP we have the following race:
+> 
+> getblk gives us unlocked, non-uptodate bh
+> wait_on_buffer() does nothing
+> 					read from device locks it and starts IO
 
-1. I presume the kernel is clever enough to not cache any
-   files from these filesystems? Would it ever need to?
-2. Is tmpfs is basically swap and /tmp together in a ramdisk?
-   The advantage being you need to reserve less RAM for both
-   together than seperately?
-3. If I've no backing store (harddisk?) is there any advantage 
-   of using tmpfs instead of ramfs? Also does tmpfs need a 
-   backing store?
-5. Can you set size limits on ramfs/tmpfs/memfs?
-6. Is a ramdisk resizable like the others. If so, do you have
-   to delete/recreate or umount/resize a fs (e.g. ext2) every
-   time it's resized? Do ramfs/tmpfs/memfs do this transparently?
-   Are ramdisks resizable in kernel 2.2?
-7. What's memfs?
-8. Is there a way I can get transparent compression like I now
-   have using a ramdisk+ext2+e2compr with ramfs et al?
-9. Apart from this transparent compression, is there any other
-   functionality ext2 would have over ramfs for e.g, for /tmp
-   & /var? Also would ramfs have less/more speed over ext2?
+I see the race, but I don't see how you can actually trigger it.
 
-thanks,
-Padraig.
+Exactly _who_ does the "read from device" part? Somebody doing a
+"fsck" while the filesystem is mounted read-write and actively written
+to? Yeah, you'd get disk corruption that way, but you'll get it regardless
+of this bug.
+
+There's nothing else that should be using that block at that stage. And if
+there were, that would be a bug in itself, as far as I can tell. We've
+just allocated it, and we're the only and exclusive owners of that block
+on the disk. Anybody else who touches it is seriously broken.
+
+Now, I don't disagree with your patch (it's just obviously cleaner to lock
+it properly), but I don't think this is a real bug. I suspect that even
+the wait-on-buffer is not strictly necessary: it's probably there to make
+sure old write-backs have completed, but that doesn't really matter
+either.
+
+We used to have "breada()" do physical read-ahead that could have
+triggered this, but we've long since gotten rid of that.
+
+Or am I overlooking something?
+
+			Linus
+

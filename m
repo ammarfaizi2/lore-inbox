@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270432AbTGWQ2c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 12:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270433AbTGWQ2c
+	id S270445AbTGWQbW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 12:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270452AbTGWQbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 12:28:32 -0400
-Received: from [217.78.74.155] ([217.78.74.155]:32517 "HELO vger.kernel.org")
-	by vger.kernel.org with SMTP id S270432AbTGWQ2b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 12:28:31 -0400
-From: "Paul Ogor" <pogor23@hkem.com>
-Date: Tue, 22 Jul 2003 17:43:37
-To: linux-kernel@vger.kernel.org
-Subject: Michael Frank's estate
-MIME-Version: 1.0
-Content-Type: text/plain;charset="iso-8859-1"
+	Wed, 23 Jul 2003 12:31:22 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:7176 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S270445AbTGWQbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 12:31:21 -0400
+Subject: Re: [PATCH] O8int for interactivity
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Mike Fedyk <mfedyk@matchmail.com>, Wiktor Wodecki <wodecki@gmx.net>,
+       Eugene Teo <eugene.teo@eugeneteo.net>,
+       Danek Duvall <duvall@emufarm.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+In-Reply-To: <200307232155.27107.kernel@kolivas.org>
+References: <200307232155.27107.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1058978784.740.4.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 23 Jul 2003 18:46:24 +0200
 Content-Transfer-Encoding: 7bit
-Message-Id: <S270432AbTGWQ2b/20030723162831Z+7002@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am a Senior Manager of bills and exchange at the foreign remittance department of Fortune Bank Plc. Some years ago, I was an account officer to a foreigner/contractor to the Federal Government, late Engr. Michael Frank who died in a car crash years ago.
+On Wed, 2003-07-23 at 13:55, Con Kolivas wrote:
+> Here is an addon to the interactivity work so far. As the ability to become 
+> interactive was made much faster and easier in O6*, I was able to remove a lot 
+> of extra code uneeded in this latest patch, and remove a lot of the noticable 
+> unfairness in the code. This is closer to the original scheduler code after 
+> all these patches than any of my previous patches. All of O8int is aimed
+> at fixing unfairness in my interactivity patches.
 
-I am privilegded to know that he left in his domiciliary account untill his death the sum of $23.5M (Twenty Three Million, Five Hundred Thousand  US Dollars) which is yet to be claimed. The banking policy and financial  law of my bank upholds that all unclaimed funds within eight (8) years   be declaerd unclaimable and then be sent into the treasury as  unclaimed bills.
+Testing it right now on top of 2.6.0-test1-mm2 :-)
 
-My bank had expected any of his (foreign) relative or next of kin to claim the fund since the account has remained unclaimed over the years but all have proved to no avail. It is the impossibility of any of Engr. Michael Frank's next of kin  coming for the claim (he had no wife and child according to his record)  that I write this proposal to you to have your permission so that you can stand in as his next of kin and the fund will be subsequently transfered into your account for further disbursement. 
+Overall it feels better. I can't make XMMS skip at all. Under low load,
+X is very smooth, but X is still jerky/jumpy when the system is under
+heavy load (while true; do a=2; done) and I start moving windows all
+around my KDE desktop. Renicing the X server to -20 makes it very smooth
+under load (yeah, I know I shouldn't do this).
 
-I am ready to give you 30% of the total while I do also wish to commit a larger part of my share into any viable investment in your country with you assiting me. 
-	
-Reach me immiediately, furnishing me with your most confidential telephone and fax numbers and exclusive email so that I can forward to you the relevant details of the transaction. As soon as I receive your response, I will make a draft of the application that you will need to send for the claim.
+I'm playing a bit with tunables to see if I can tune the scheduler a
+little bit for my system/workload. I've had good results reducing max
+timeslice to 100 (yeah, I know I shouldn't do this too).
 
-I expect your urgent response.
-
-Best Regards,
-Paul Ogor
-
-
-
-
+Will keep you informed :-)
 

@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315170AbSEMBCf>; Sun, 12 May 2002 21:02:35 -0400
+	id <S315411AbSEMBFI>; Sun, 12 May 2002 21:05:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315358AbSEMBCe>; Sun, 12 May 2002 21:02:34 -0400
-Received: from loisexc2.loislaw.com ([12.5.234.240]:34059 "EHLO
-	loisexc2.loislaw.com") by vger.kernel.org with ESMTP
-	id <S315170AbSEMBCd>; Sun, 12 May 2002 21:02:33 -0400
-Message-ID: <4188788C3E1BD411AA60009027E92DFD0962E251@loisexc2.loislaw.com>
-From: "Rose, Billy" <wrose@loislaw.com>
-To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Segfault hidden in list.h
-Date: Sun, 12 May 2002 20:02:30 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315461AbSEMBFH>; Sun, 12 May 2002 21:05:07 -0400
+Received: from [202.135.142.196] ([202.135.142.196]:2576 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S315411AbSEMBFE>; Sun, 12 May 2002 21:05:04 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: andersen@codepoet.org
+Cc: Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Some useless cleanup 
+In-Reply-To: Your message of "Thu, 09 May 2002 16:23:58 CST."
+             <20020509222358.GB8651@codepoet.org> 
+Date: Sun, 12 May 2002 22:09:54 +1000
+Message-Id: <E176sAl-0000ct-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not hitting it, but I came across it while writing an application server
-based on TUX 2.1.0. I noticed that Ingo didn't lock a list during reads. As
-long as his code traverses forward (which it does) all is well. If, however,
-some module writer out there fails to lock a list for reads and traverses
-said list in reverse, a failure could result. 
+In message <20020509222358.GB8651@codepoet.org> you write:
+> On Thu May 09, 2002 at 10:36:50PM +1000, Rusty Russell wrote:
+> > Um, why not simply:
+> > 
+> > static inline void set_name(struct task_struct *tsk, const char *name)
+> > {
+> > 	/* comm is always nul-terminated already */
+> > 	strncpy(tsk->comm, name, sizeof(tsk->comm)-1);
+> > }
+> > 
+> > Your implementation using snprintf is (wasteful and) dangerous,
+> > Rusty.
+> 
+> And both implementations suffer from the fact that if tsk->comm
+> were to change from a fixed length array to a char*, allowing
+> arbitrarily sized names, you would end up copying very little
+> indeed.  :)
 
-By logic design this assignment ordering eliminates the need for a read
-lock, hence improving performance, not just data integrity.
+Um, yes, if someone were to make a random change to the kernel without
+looking at what it would effect, the kernel would likely break.
 
-Billy Rose 
-wrose@loislaw.com
-
-> -----Original Message-----
-> From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
-> Sent: Sunday, May 12, 2002 7:45 PM
-> To: Rose, Billy
-> Subject: Re: Segfault hidden in list.h
-> 
-> 
-> Rose, Billy wrote:
-> 
-> >The code inside of __list_add:
-> >
-> >next->prev = new;
-> >new->next = next;
-> >new->prev = prev;
-> >pre-next = new;
-> >
-> >needs to be altered to:
-> >
-> >new->prev = prev;
-> >new->next = next;
-> >next->prev = new;
-> >prev->next = new;
-> >
-> >If something is accessing the list in reverse at the time of 
-> insertion and
-> >"next->prev = new;" has been executed, there exists a moment 
-> when new->prev
-> >may contain garbage if the element had been used in another 
-> list and is
-> >being transposed into a new one. Even if garbage is not 
-> present, and the
-> >element had just been initialized (i.e. new->prev = new), a 
-> false list head
-> >will appear briefly (from the executing thread's point of view).
-> >
-> 
-> It sounds like you need better locking, if you are hitting this...
-> 
-> 
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

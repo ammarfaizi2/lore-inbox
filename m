@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266975AbSLWUx6>; Mon, 23 Dec 2002 15:53:58 -0500
+	id <S266979AbSLWVH0>; Mon, 23 Dec 2002 16:07:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266976AbSLWUx6>; Mon, 23 Dec 2002 15:53:58 -0500
-Received: from mx0.gmx.net ([213.165.64.100]:19603 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S266975AbSLWUx6>;
-	Mon, 23 Dec 2002 15:53:58 -0500
-Date: Mon, 23 Dec 2002 22:02:03 +0100 (MET)
-From: Adam Hunt <adam.r.hunt@gmx.net>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: is there a disc in the drive?
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0008562179@gmx.net
-X-Authenticated-IP: [67.225.114.167]
-Message-ID: <21811.1040677323@www3.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	id <S266981AbSLWVH0>; Mon, 23 Dec 2002 16:07:26 -0500
+Received: from pacman.mweb.co.za ([196.2.45.77]:43143 "EHLO pacman.mweb.co.za")
+	by vger.kernel.org with ESMTP id <S266979AbSLWVHZ>;
+	Mon, 23 Dec 2002 16:07:25 -0500
+Subject: Re: nforce2 and agpgart
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: "Carl D. Blake" <carl@boeckeler.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1040669417.4563.24.camel@vulcan>
+References: <1040669417.4563.24.camel@vulcan>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uVfsH/YOI8WvfGcm8B8Q"
+Organization: 
+Message-Id: <1040678186.2237.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1-1mdk 
+Date: 23 Dec 2002 23:16:44 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a simple way of determining if there is a disc in a CD/DVD drive?  
-Something in /proc would be nice.  Is there any other sort of information 
-availble such as what type of disc is in the drive? 
- 
---adam 
 
--- 
-+++ GMX - Mail, Messaging & more  http://www.gmx.net +++
-NEU: Mit GMX ins Internet. Rund um die Uhr für 1 ct/ Min. surfen!
+--=-uVfsH/YOI8WvfGcm8B8Q
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, 2002-12-23 at 20:50, Carl D. Blake wrote:
+> I'm having trouble getting agpgart support to work with an nforce2
+> chipset.  Is this supported on any kernels?  I'm running a Redhat 7.1
+> system with Redhat's 2.4.9-21 kernel.
+
+Try to use a newer kernel from Redhat, because that kernel was around
+looong before nforce was released. IIRC support for nforce2 was added
+around 2.4.19=20
+
+--=20
+For future reference - don't anybody else try to send patches as vi
+scripts, please. Yes, it's manly, but let's face it, so is
+bungee-jumping with the cord tied to your testicles.
+
+                -- Linus
+
+--=-uVfsH/YOI8WvfGcm8B8Q
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+B30qZMVU7+/5Em8RAlZbAKC+kahVr2KdtFWf4Piu+lveQjESyQCgnoI1
++sV9pNz7AZrB9ru8eG0iQYo=
+=fL9o
+-----END PGP SIGNATURE-----
+
+--=-uVfsH/YOI8WvfGcm8B8Q--
 

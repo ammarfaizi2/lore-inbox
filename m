@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271559AbTGQVEl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 17:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271557AbTGQVEl
+	id S271531AbTGQVIt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 17:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271532AbTGQVIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 17:04:41 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:1541 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S271567AbTGQVEe (ORCPT
+	Thu, 17 Jul 2003 17:08:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2502 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271531AbTGQVIr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 17:04:34 -0400
-To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1-ac2 issues / Toshiba Laptop keyboard
-References: <20030717141847.GF7864@charite.de>
-	<m38yqxf2ab.fsf@lugabout.jhcloos.org>
-	<20030717201039.GC25759@charite.de>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <20030717201039.GC25759@charite.de>
-Date: 17 Jul 2003 17:18:28 -0400
-Message-ID: <m365m0etsr.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Jul 2003 17:08:47 -0400
+Date: Thu, 17 Jul 2003 14:16:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bernardo Innocenti <bernie@develer.com>
+Cc: george@mvista.com, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       torvalds@osdl.org
+Subject: Re: do_div64 generic
+Message-Id: <20030717141608.5f1b7710.akpm@osdl.org>
+In-Reply-To: <200307172310.48918.bernie@develer.com>
+References: <3F1360F4.2040602@mvista.com>
+	<3F149747.3090107@mvista.com>
+	<200307162033.34242.bernie@develer.com>
+	<200307172310.48918.bernie@develer.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Ralf" == Ralf Hildebrandt <Ralf.Hildebrandt@charite.de> writes:
+Bernardo Innocenti <bernie@develer.com> wrote:
+>
+> 2) replace all uses of div_long_long_rem() (I see onlt 4 of them in
+>    2.6.0-test1) with do_div(). This is slightly less efficient, but
+>    easier to maintain in the long term.
 
-Ralf> atkbd.c: Unknown key (set 2, scancode 0xb2, on isa0060/serio0) pressed.
-
-Ralf> But this happened while typing NORMALLY, with no frills :) I
-Ralf> mean, I was just typing in some unix commands - so I never even
-Ralf> came close to the keys I never use anyway...
-
-Interesting.
-
-The one example I quoted above, atkbd_set2_keycode[0xb2] is in fact 0.
-
-Perhaps your kb is doing something unusual w/ the key release events.
-
-If the kb is, eg, |=ing w/ 0x80 rather than preceding w/ 0xf0 then
-0xb2 would be the release event for 0x32.  atkbd_set2_keycode[0x32]
-is 48 (KEY_B in input.h).  
-
-So if you get unknown scancode 0xb2 from hitting the B key, that is
-the cause.
-
-Otherwise, perhaps a list of some keys and what they printk()
-might help debug it.
-
--JimC
-
+Ths one's OK by me.  Let's just fix the bug with minimum risk and churn.

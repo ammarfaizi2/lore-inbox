@@ -1,589 +1,806 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315661AbSEIIzl>; Thu, 9 May 2002 04:55:41 -0400
+	id <S315660AbSEIIyc>; Thu, 9 May 2002 04:54:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315663AbSEIIzk>; Thu, 9 May 2002 04:55:40 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:63753 "EHLO
+	id <S315661AbSEIIyb>; Thu, 9 May 2002 04:54:31 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:20743 "EHLO
 	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315661AbSEIIz3>; Thu, 9 May 2002 04:55:29 -0400
+	id <S315660AbSEIIyZ>; Thu, 9 May 2002 04:54:25 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Hotplug CPU prep V: x86 non-linear CPU numbers
-Date: Thu, 09 May 2002 18:58:48 +1000
-Message-Id: <E175jlA-0003X3-00@wagner.rustcorp.com.au>
+Subject: [PATCH] Hotplug CPU prep IV: non-linear CPU numbers
+Date: Thu, 09 May 2002 18:57:41 +1000
+Message-Id: <E175jk6-0003Ws-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And these are the x86 changes...
+This patch removes:
+1) cpu_logical_map & cpu_number_map
+2) smp_num_cpus.
+3) The sense of complacency caused by too much 2.5 stability.
 
-Name: x86 Support for Non-linear CPU Numbers Patch 
+When CPUs can appear and disappear, "neatening" the numbers becomes
+impractical anyway: it's also one of the top 10 causes of bugs.
+
+This is just the core code: x86 fixups are in the next patch.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+Name: Non-linear CPU Numbers Patch
 Author: Rusty Russell
-Depends: Hotcpu/nonlinear-cpus.patch.gz
+Status: Experimental
 
-D: This patch fixes up x86 for non-linear CPU numbers.
+D: This patch removes the concept of "logical" CPU numbers, in
+D: preparation for CPU hotplugging.
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/apic.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/apic.c
---- linux-2.5.9/arch/i386/kernel/apic.c	Mon Apr 15 11:47:10 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/apic.c	Wed Apr 24 15:31:05 2002
-@@ -800,10 +800,10 @@
- 	 * IRQ APIC event being in synchron with the APIC clock we
- 	 * introduce an interrupt skew to spread out timer events.
- 	 *
--	 * The number of slices within a 'big' timeslice is smp_num_cpus+1
-+	 * The number of slices within a 'big' timeslice is NR_CPUS+1
- 	 */
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/include/linux/smp.h linux-2.5.14.23963.updated/include/linux/smp.h
+--- linux-2.5.14.23963/include/linux/smp.h	Tue Apr 23 11:39:40 2002
++++ linux-2.5.14.23963.updated/include/linux/smp.h	Mon May  6 18:06:41 2002
+@@ -57,8 +57,6 @@
+  */
+ extern int smp_threads_ready;
  
--	slice = clocks / (smp_num_cpus+1);
-+	slice = clocks / (NR_CPUS+1);
- 	printk("cpu: %d, clocks: %d, slice: %d\n", smp_processor_id(), clocks, slice);
- 
- 	/*
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/apm.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/apm.c
---- linux-2.5.9/arch/i386/kernel/apm.c	Thu Mar 21 14:14:38 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/apm.c	Wed Apr 24 15:29:41 2002
-@@ -394,11 +394,7 @@
- #endif
- static int			debug;
- static int			apm_disabled = -1;
--#ifdef CONFIG_SMP
--static int			power_off;
--#else
- static int			power_off = 1;
--#endif
- #ifdef CONFIG_APM_REAL_MODE_POWER_OFF
- static int			realmode_power_off = 1;
- #else
-@@ -898,7 +894,7 @@
- 	 */
- #ifdef CONFIG_SMP
- 	/* Some bioses don't like being called from CPU != 0 */
--	while (cpu_number_map(smp_processor_id()) != 0) {
-+	while (smp_processor_id() != 0) {
- 		kernel_thread(apm_magic, NULL,
- 			CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
- 		schedule();
-@@ -1585,7 +1581,7 @@
- 
- 	p = buf;
- 
--	if ((smp_num_cpus == 1) &&
-+	if ((num_online_cpus() == 1) &&
- 	    !(error = apm_get_power_status(&bx, &cx, &dx))) {
- 		ac_line_status = (bx >> 8) & 0xff;
- 		battery_status = bx & 0xff;
-@@ -1715,7 +1711,7 @@
- 		}
- 	}
- 
--	if (debug && (smp_num_cpus == 1)) {
-+	if (debug && (num_online_cpus() == 1)) {
- 		error = apm_get_power_status(&bx, &cx, &dx);
- 		if (error)
- 			printk(KERN_INFO "apm: power status not available\n");
-@@ -1759,7 +1755,7 @@
- 		pm_power_off = apm_power_off;
- 	register_sysrq_key('o', &sysrq_poweroff_op);
- 
--	if (smp_num_cpus == 1) {
-+	if (num_online_cpus() == 1) {
- #if defined(CONFIG_APM_DISPLAY_BLANK) && defined(CONFIG_VT)
- 		console_blank_hook = apm_console_blank;
- #endif
-@@ -1902,10 +1898,6 @@
- 		printk(KERN_NOTICE "apm: disabled on user request.\n");
- 		return -ENODEV;
- 	}
--	if ((smp_num_cpus > 1) && !power_off) {
--		printk(KERN_NOTICE "apm: disabled - APM is not SMP safe.\n");
--		return -ENODEV;
--	}
- 	if (PM_IS_ACTIVE()) {
- 		printk(KERN_NOTICE "apm: overridden by ACPI.\n");
- 		return -ENODEV;
-@@ -1955,12 +1947,6 @@
- 		SET_MODULE_OWNER(apm_proc);
- 
- 	kernel_thread(apm, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
+-extern int smp_num_cpus;
 -
--	if (smp_num_cpus > 1) {
--		printk(KERN_NOTICE
--		   "apm: disabled - APM is not SMP safe (power off active).\n");
--		return 0;
--	}
+ extern volatile unsigned long smp_msg_data;
+ extern volatile int smp_src_cpu;
+ extern volatile int smp_msg_id;
+@@ -79,19 +77,17 @@
+  *	These macros fold the SMP functionality into a single CPU system
+  */
+  
+-#define smp_num_cpus				1
+ #define smp_processor_id()			0
+ #define hard_smp_processor_id()			0
+ #define smp_threads_ready			1
+ #ifndef CONFIG_PREEMPT
+ #define kernel_lock()
+ #endif
+-#define cpu_logical_map(cpu)			0
+-#define cpu_number_map(cpu)			0
+ #define smp_call_function(func,info,retry,wait)	({ 0; })
+-#define cpu_online_map				1
+ static inline void smp_send_reschedule(int cpu) { }
+ static inline void smp_send_reschedule_all(void) { }
++#define cpu_online(cpu)				1
++#define num_online_cpus()			1
+ #define __per_cpu_data
+ #define per_cpu(var, cpu)			var
+ #define this_cpu(var)				var
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/drivers/acpi/acpi_processor.c linux-2.5.14.23963.updated/drivers/acpi/acpi_processor.c
+--- linux-2.5.14.23963/drivers/acpi/acpi_processor.c	Mon Apr 15 11:47:17 2002
++++ linux-2.5.14.23963.updated/drivers/acpi/acpi_processor.c	Mon May  6 18:06:41 2002
+@@ -2038,8 +2038,9 @@
+ 		return_VALUE(-EINVAL);
  
- 	misc_register(&apm_device);
+ #ifdef CONFIG_SMP
+-	if (smp_num_cpus > 1)
+-		errata.smp = smp_num_cpus;
++	/* FIXME: Used to be smp_num_cpus: what should it be? --RR */
++	if (num_online_cpus() > 1)
++		errata.smp = num_online_cpus();
+ #endif
  
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/bluesmoke.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/bluesmoke.c
---- linux-2.5.9/arch/i386/kernel/bluesmoke.c	Tue Apr 23 11:39:32 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/bluesmoke.c	Wed Apr 24 15:29:41 2002
-@@ -260,7 +260,9 @@
+ 	acpi_processor_errata(pr);
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/drivers/char/agp/agpgart_be.c linux-2.5.14.23963.updated/drivers/char/agp/agpgart_be.c
+--- linux-2.5.14.23963/drivers/char/agp/agpgart_be.c	Wed May  1 15:09:20 2002
++++ linux-2.5.14.23963.updated/drivers/char/agp/agpgart_be.c	Mon May  6 18:06:41 2002
+@@ -98,7 +98,7 @@
+ 
+ static void smp_flush_cache(void)
  {
- 	int i;
+-	atomic_set(&cpus_waiting, smp_num_cpus - 1);
++	atomic_set(&cpus_waiting, num_online_cpus() - 1);
+ 	if (smp_call_function(ipi_handler, NULL, 1, 0) != 0)
+ 		panic(PFX "timed out waiting for the other CPUs!\n");
+ 	flush_cache();
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/drivers/net/aironet4500_core.c linux-2.5.14.23963.updated/drivers/net/aironet4500_core.c
+--- linux-2.5.14.23963/drivers/net/aironet4500_core.c	Wed Feb 20 17:57:08 2002
++++ linux-2.5.14.23963.updated/drivers/net/aironet4500_core.c	Mon May  6 18:06:41 2002
+@@ -2669,10 +2669,8 @@
+ 	 * but without it card gets screwed up 
+ 	 */ 
+ #ifdef CONFIG_SMP
+-	if(smp_num_cpus > 1){
+ 		both_bap_lock = 1;
+ 		bap_setup_spinlock = 1;
+-	}
+ #endif
+ 	//awc_dump_registers(dev);
  
--	for (i=0; i<smp_num_cpus; i++) {
-+	for (i=0; i<NR_CPUS; i++) {
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/drivers/video/fbcon.c linux-2.5.14.23963.updated/drivers/video/fbcon.c
+--- linux-2.5.14.23963/drivers/video/fbcon.c	Mon Apr 29 16:00:26 2002
++++ linux-2.5.14.23963.updated/drivers/video/fbcon.c	Mon May  6 18:06:41 2002
+@@ -2177,7 +2177,7 @@
+     if (p->fb_info->fbops->fb_rasterimg)
+     	p->fb_info->fbops->fb_rasterimg(p->fb_info, 1);
+ 
+-    for (x = 0; x < smp_num_cpus * (LOGO_W + 8) &&
++    for (x = 0; x < num_online_cpus() * (LOGO_W + 8) &&
+     	 x < p->var.xres - (LOGO_W + 8); x += (LOGO_W + 8)) {
+     	 
+ #if defined(CONFIG_FBCON_CFB16) || defined(CONFIG_FBCON_CFB24) || \
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/fs/proc/array.c linux-2.5.14.23963.updated/fs/proc/array.c
+--- linux-2.5.14.23963/fs/proc/array.c	Mon May  6 16:00:10 2002
++++ linux-2.5.14.23963.updated/fs/proc/array.c	Mon May  6 18:06:41 2002
+@@ -693,12 +693,14 @@
+ 		task->times.tms_utime,
+ 		task->times.tms_stime);
+ 		
+-	for (i = 0 ; i < smp_num_cpus; i++)
++	for (i = 0 ; i < NR_CPUS; i++) {
++		if (cpu_online(i))
+ 		len += sprintf(buffer + len, "cpu%d %lu %lu\n",
+ 			i,
+-			task->per_cpu_utime[cpu_logical_map(i)],
+-			task->per_cpu_stime[cpu_logical_map(i)]);
++				       task->per_cpu_utime[i],
++				       task->per_cpu_stime[i]);
+ 
++	}
+ 	return len;
+ }
+ #endif
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/fs/proc/proc_misc.c linux-2.5.14.23963.updated/fs/proc/proc_misc.c
+--- linux-2.5.14.23963/fs/proc/proc_misc.c	Mon May  6 11:11:59 2002
++++ linux-2.5.14.23963.updated/fs/proc/proc_misc.c	Mon May  6 18:06:41 2002
+@@ -265,29 +265,32 @@
+ 	unsigned int sum = 0, user = 0, nice = 0, system = 0;
+ 	int major, disk;
+ 
+-	for (i = 0 ; i < smp_num_cpus; i++) {
+-		int cpu = cpu_logical_map(i), j;
++	for (i = 0 ; i < NR_CPUS; i++) {
++		int j;
+ 
+-		user += kstat.per_cpu_user[cpu];
+-		nice += kstat.per_cpu_nice[cpu];
+-		system += kstat.per_cpu_system[cpu];
++		if(!cpu_online(i)) continue;
++		user += kstat.per_cpu_user[i];
++		nice += kstat.per_cpu_nice[i];
++		system += kstat.per_cpu_system[i];
+ #if !defined(CONFIG_ARCH_S390)
+ 		for (j = 0 ; j < NR_IRQS ; j++)
+-			sum += kstat.irqs[cpu][j];
++			sum += kstat.irqs[i][j];
+ #endif
+ 	}
+ 
+ 	len = sprintf(page, "cpu  %u %u %u %lu\n", user, nice, system,
+-		      jif * smp_num_cpus - (user + nice + system));
+-	for (i = 0 ; i < smp_num_cpus; i++)
++		      jif * num_online_cpus() - (user + nice + system));
++	for (i = 0 ; i < NR_CPUS; i++){
++		if (!cpu_online(i)) continue;
+ 		len += sprintf(page + len, "cpu%d %u %u %u %lu\n",
+ 			i,
+-			kstat.per_cpu_user[cpu_logical_map(i)],
+-			kstat.per_cpu_nice[cpu_logical_map(i)],
+-			kstat.per_cpu_system[cpu_logical_map(i)],
+-			jif - (  kstat.per_cpu_user[cpu_logical_map(i)] \
+-				   + kstat.per_cpu_nice[cpu_logical_map(i)] \
+-				   + kstat.per_cpu_system[cpu_logical_map(i)]));
++			kstat.per_cpu_user[i],
++			kstat.per_cpu_nice[i],
++			kstat.per_cpu_system[i],
++			jif - (  kstat.per_cpu_user[i] \
++				   + kstat.per_cpu_nice[i] \
++				   + kstat.per_cpu_system[i]));
++	}
+ 	len += sprintf(page + len,
+ 		"page %u %u\n"
+ 		"swap %u %u\n"
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/include/linux/kernel_stat.h linux-2.5.14.23963.updated/include/linux/kernel_stat.h
+--- linux-2.5.14.23963/include/linux/kernel_stat.h	Mon May  6 11:12:01 2002
++++ linux-2.5.14.23963.updated/include/linux/kernel_stat.h	Mon May  6 18:06:41 2002
+@@ -43,8 +43,8 @@
+ {
+ 	int i, sum=0;
+ 
+-	for (i = 0 ; i < smp_num_cpus ; i++)
+-		sum += kstat.irqs[cpu_logical_map(i)][irq];
++	for (i = 0 ; i < NR_CPUS ; i++)
++		sum += kstat.irqs[i][irq];
+ 
+ 	return sum;
+ }
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/kernel/fork.c linux-2.5.14.23963.updated/kernel/fork.c
+--- linux-2.5.14.23963/kernel/fork.c	Mon Apr 29 16:00:29 2002
++++ linux-2.5.14.23963.updated/kernel/fork.c	Mon May  6 18:06:41 2002
+@@ -701,9 +701,8 @@
+ 		int i;
+ 
+ 		/* ?? should we just memset this ?? */
+-		for(i = 0; i < smp_num_cpus; i++)
+-			p->per_cpu_utime[cpu_logical_map(i)] =
+-				p->per_cpu_stime[cpu_logical_map(i)] = 0;
++		for(i = 0; i < NR_CPUS; i++)
++			p->per_cpu_utime[i] = p->per_cpu_stime[i] = 0;
+ 		spin_lock_init(&p->sigmask_lock);
+ 	}
+ #endif
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/kernel/sched.c linux-2.5.14.23963.updated/kernel/sched.c
+--- linux-2.5.14.23963/kernel/sched.c	Wed May  1 15:09:29 2002
++++ linux-2.5.14.23963.updated/kernel/sched.c	Mon May  6 18:06:41 2002
+@@ -437,8 +437,8 @@
+ {
+ 	unsigned long i, sum = 0;
+ 
+-	for (i = 0; i < smp_num_cpus; i++)
+-		sum += cpu_rq(cpu_logical_map(i))->nr_running;
++	for (i = 0; i < NR_CPUS; i++)
++		sum += cpu_rq(i)->nr_running;
+ 
+ 	return sum;
+ }
+@@ -447,8 +447,8 @@
+ {
+ 	unsigned long i, sum = 0;
+ 
+-	for (i = 0; i < smp_num_cpus; i++)
+-		sum += cpu_rq(cpu_logical_map(i))->nr_switches;
++	for (i = 0; i < NR_CPUS; i++)
++		sum += cpu_rq(i)->nr_switches;
+ 
+ 	return sum;
+ }
+@@ -523,15 +523,16 @@
+ 
+ 	busiest = NULL;
+ 	max_load = 1;
+-	for (i = 0; i < smp_num_cpus; i++) {
+-		int logical = cpu_logical_map(i);
++	for (i = 0; i < NR_CPUS; i++) {
 +		if (!cpu_online(i))
 +			continue;
- 		if (i == smp_processor_id())
- 			mce_checkregs(i);
+ 
+-		rq_src = cpu_rq(logical);
+-		if (idle || (rq_src->nr_running < this_rq->prev_nr_running[logical]))
++		rq_src = cpu_rq(i);
++		if (idle || (rq_src->nr_running < this_rq->prev_nr_running[i]))
+ 			load = rq_src->nr_running;
  		else
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/i386_ksyms.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/i386_ksyms.c
---- linux-2.5.9/arch/i386/kernel/i386_ksyms.c	Mon Apr 15 11:47:10 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/i386_ksyms.c	Wed Apr 24 15:29:41 2002
-@@ -127,7 +127,6 @@
- #ifdef CONFIG_SMP
- EXPORT_SYMBOL(cpu_data);
- EXPORT_SYMBOL(kernel_flag);
--EXPORT_SYMBOL(smp_num_cpus);
- EXPORT_SYMBOL(cpu_online_map);
- EXPORT_SYMBOL_NOVERS(__write_lock_failed);
- EXPORT_SYMBOL_NOVERS(__read_lock_failed);
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/io_apic.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/io_apic.c
---- linux-2.5.9/arch/i386/kernel/io_apic.c	Tue Apr 23 11:39:32 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/io_apic.c	Wed Apr 24 15:34:29 2002
-@@ -230,14 +230,14 @@
- inside:
- 		if (direction == 1) {
- 			cpu++;
--			if (cpu >= smp_num_cpus)
-+			if (cpu >= NR_CPUS)
- 				cpu = 0;
- 		} else {
- 			cpu--;
- 			if (cpu == -1)
--				cpu = smp_num_cpus-1;
-+				cpu = NR_CPUS-1;
- 		}
--	} while (!IRQ_ALLOWED(cpu,allowed_mask) ||
-+	} while (!cpu_online(cpu) || !IRQ_ALLOWED(cpu,allowed_mask) ||
- 			(search_idle && !IDLE_ENOUGH(cpu,now)));
+-			load = this_rq->prev_nr_running[logical];
+-		this_rq->prev_nr_running[logical] = rq_src->nr_running;
++			load = this_rq->prev_nr_running[i];
++		this_rq->prev_nr_running[i] = rq_src->nr_running;
  
- 	return cpu;
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/irq.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/irq.c
---- linux-2.5.9/arch/i386/kernel/irq.c	Tue Apr 23 11:39:32 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/irq.c	Wed Apr 24 15:29:41 2002
-@@ -138,8 +138,9 @@
- 	struct irqaction * action;
+ 		if ((load > max_load) && (rq_src != this_rq)) {
+ 			busiest = rq_src;
+@@ -1691,7 +1692,7 @@
  
- 	seq_printf(p, "           ");
--	for (j=0; j<smp_num_cpus; j++)
--		seq_printf(p, "CPU%d       ",j);
-+	for (j=0; j<NR_CPUS; j++)
-+		if (cpu_online(j))
-+			p += sprintf(p, "CPU%d       ",j);
- 	seq_putc(p, '\n');
- 
- 	for (i = 0 ; i < NR_IRQS ; i++) {
-@@ -150,9 +151,10 @@
- #ifndef CONFIG_SMP
- 		seq_printf(p, "%10u ", kstat_irqs(i));
- #else
--		for (j = 0; j < smp_num_cpus; j++)
--			seq_printf(p, "%10u ",
--				kstat.irqs[cpu_logical_map(j)][i]);
-+		for (j = 0; j < NR_CPUS; j++)
-+			if (cpu_online(j))
-+				p += sprintf(p, "%10u ",
-+					     kstat.irqs[j][i]);
- #endif
- 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
- 		seq_printf(p, "  %s", action->name);
-@@ -162,13 +164,15 @@
- 		seq_putc(p, '\n');
+ static int migration_thread(void * bind_cpu)
+ {
+-	int cpu = cpu_logical_map((int) (long) bind_cpu);
++	int cpu = (int) (long) bind_cpu;
+ 	struct sched_param param = { sched_priority: MAX_RT_PRIO-1 };
+ 	runqueue_t *rq;
+ 	int ret;
+@@ -1699,12 +1700,15 @@
+ 	daemonize();
+ 	sigfillset(&current->blocked);
+ 	set_fs(KERNEL_DS);
++
++	/* FIXME: First CPU may not be zero, but this crap code
++           vanishes with hotplug cpu patch anyway. --RR */
+ 	/*
+ 	 * The first migration thread is started on CPU #0. This one can migrate
+ 	 * the other migration threads to their destination CPUs.
+ 	 */
+ 	if (cpu != 0) {
+-		while (!cpu_rq(cpu_logical_map(0))->migration_thread)
++		while (!cpu_rq(0)->migration_thread)
+ 			yield();
+ 		set_cpus_allowed(current, 1UL << cpu);
  	}
- 	seq_printf(p, "NMI: ");
--	for (j = 0; j < smp_num_cpus; j++)
--		seq_printf(p, "%10u ", nmi_count(cpu_logical_map(j)));
-+	for (j = 0; j < NR_CPUS; j++)
-+		if (cpu_online(j))
-+			p += sprintf(p, "%10u ", nmi_count(j));
- 	seq_putc(p, '\n');
- #if CONFIG_X86_LOCAL_APIC
- 	seq_printf(p, "LOC: ");
--	for (j = 0; j < smp_num_cpus; j++)
--		seq_printf(p, "%10u ", apic_timer_irqs[cpu_logical_map(j)]);
-+	for (j = 0; j < NR_CPUS; j++)
-+		if (cpu_online(j))
-+			p += sprintf(p, "%10u ", apic_timer_irqs[j]);
- 	seq_putc(p, '\n');
- #endif
- 	seq_printf(p, "ERR: %10u\n", atomic_read(&irq_err_count));
-@@ -198,14 +202,14 @@
+@@ -1768,16 +1772,21 @@
+ {
+ 	int cpu;
  
- 	printk("\n%s, CPU %d:\n", str, cpu);
- 	printk("irq:  %d [",irqs_running());
--	for(i=0;i < smp_num_cpus;i++)
-+	for(i=0;i < NR_CPUS;i++)
- 		printk(" %d",local_irq_count(i));
- 	printk(" ]\nbh:   %d [",spin_is_locked(&global_bh_lock) ? 1 : 0);
--	for(i=0;i < smp_num_cpus;i++)
-+	for(i=0;i < NR_CPUS;i++)
- 		printk(" %d",local_bh_count(i));
- 
- 	printk(" ]\nStack dumps:");
--	for(i = 0; i < smp_num_cpus; i++) {
-+	for(i = 0; i < NR_CPUS; i++) {
- 		unsigned long esp;
- 		if (i == cpu)
- 			continue;
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/microcode.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/microcode.c
---- linux-2.5.9/arch/i386/kernel/microcode.c	Tue Apr 23 11:39:32 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/microcode.c	Wed Apr 24 15:29:41 2002
-@@ -188,7 +188,7 @@
- 	}
- 	do_update_one(NULL);
- 
--	for (i=0; i<smp_num_cpus; i++) {
-+	for (i=0; i<NR_CPUS; i++) {
- 		err = update_req[i].err;
- 		error += err;
- 		if (!err) {
-@@ -343,8 +343,8 @@
- 	}
- 	down_write(&microcode_rwsem);
- 	if (!mc_applied) {
--		mc_applied = kmalloc(smp_num_cpus*sizeof(struct microcode),
--				GFP_KERNEL);
-+		mc_applied = kmalloc(NR_CPUS*sizeof(struct microcode),
-+				     GFP_KERNEL);
- 		if (!mc_applied) {
- 			up_write(&microcode_rwsem);
- 			printk(KERN_ERR "microcode: out of memory for saved microcode\n");
-@@ -368,7 +368,7 @@
- 		ret = -EIO;
- 		goto out_fsize;
- 	} else {
--		mc_fsize = smp_num_cpus * sizeof(struct microcode);
-+		mc_fsize = NR_CPUS * sizeof(struct microcode);
- 		ret = (ssize_t)len;
- 	}
- out_fsize:
-@@ -386,7 +386,7 @@
- 		case MICROCODE_IOCFREE:
- 			down_write(&microcode_rwsem);
- 			if (mc_applied) {
--				int bytes = smp_num_cpus * sizeof(struct microcode);
-+				int bytes = NR_CPUS * sizeof(struct microcode);
- 
- 				devfs_set_file_size(devfs_handle, 0);
- 				kfree(mc_applied);
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/mtrr.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/mtrr.c
---- linux-2.5.9/arch/i386/kernel/mtrr.c	Mon Apr 15 11:47:10 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/mtrr.c	Wed Apr 24 15:29:41 2002
-@@ -1055,7 +1055,7 @@
-     wait_barrier_cache_disable = TRUE;
-     wait_barrier_execute = TRUE;
-     wait_barrier_cache_enable = TRUE;
--    atomic_set (&undone_count, smp_num_cpus - 1);
-+    atomic_set (&undone_count, num_online_cpus() - 1);
-     /*  Start the ball rolling on other CPUs  */
-     if (smp_call_function (ipi_handler, &data, 1, 0) != 0)
- 	panic ("mtrr: timed out waiting for other CPUs\n");
-@@ -1064,14 +1064,14 @@
-     /*  Wait for all other CPUs to flush and disable their caches  */
-     while (atomic_read (&undone_count) > 0) { rep_nop(); barrier(); }
-     /* Set up for completion wait and then release other CPUs to change MTRRs*/
--    atomic_set (&undone_count, smp_num_cpus - 1);
-+    atomic_set (&undone_count, num_online_cpus() - 1);
-     wait_barrier_cache_disable = FALSE;
-     set_mtrr_cache_disable (&ctxt);
- 
-     /*  Wait for all other CPUs to flush and disable their caches  */
-     while (atomic_read (&undone_count) > 0) { rep_nop(); barrier(); }
-     /* Set up for completion wait and then release other CPUs to change MTRRs*/
--    atomic_set (&undone_count, smp_num_cpus - 1);
-+    atomic_set (&undone_count, num_online_cpus() - 1);
-     wait_barrier_execute = FALSE;
-     (*set_mtrr_up) (reg, base, size, type, FALSE);
-     /*  Now wait for other CPUs to complete the function  */
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/nmi.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/nmi.c
---- linux-2.5.9/arch/i386/kernel/nmi.c	Mon Apr 15 11:47:10 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/nmi.c	Wed Apr 24 15:29:41 2002
-@@ -81,8 +81,9 @@
- 	sti();
- 	mdelay((10*1000)/nmi_hz); // wait 10 ticks
- 
--	for (j = 0; j < smp_num_cpus; j++) {
--		cpu = cpu_logical_map(j);
+-	current->cpus_allowed = 1UL << cpu_logical_map(0);
+-	for (cpu = 0; cpu < smp_num_cpus; cpu++) {
++	current->cpus_allowed = 1UL << 0;
 +	for (cpu = 0; cpu < NR_CPUS; cpu++) {
 +		if (!cpu_online(cpu))
 +			continue;
- 		if (nmi_count(cpu) - tmp[cpu].__nmi_count <= 5) {
- 			printk("CPU#%d: NMI appears to be stuck!\n", cpu);
- 			return -1;
-@@ -330,7 +331,7 @@
- 	 * Just reset the alert counters, (other CPUs might be
- 	 * spinning on locks we hold):
- 	 */
--	for (i = 0; i < smp_num_cpus; i++)
-+	for (i = 0; i < NR_CPUS; i++)
- 		alert_counter[i] = 0;
- }
- 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/smp.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/smp.c
---- linux-2.5.9/arch/i386/kernel/smp.c	Mon Apr 15 11:47:10 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/smp.c	Wed Apr 24 15:29:41 2002
-@@ -247,18 +247,16 @@
- 	 * we get an APIC send error if we try to broadcast.
- 	 * thus we have to avoid sending IPIs in this case.
- 	 */
--	if (!(smp_num_cpus > 1))
-+	if (!(num_online_cpus() > 1))
- 		return;
- 
- 	if (clustered_apic_mode) {
- 		// Pointless. Use send_IPI_mask to do this instead
- 		int cpu;
- 
--		if (smp_num_cpus > 1) {
--			for (cpu = 0; cpu < smp_num_cpus; ++cpu) {
--				if (cpu != smp_processor_id())
--					send_IPI_mask(1 << cpu, vector);
--			}
-+		for (cpu = 0; cpu < NR_CPUS; ++cpu) {
-+			if (cpu_online(cpu) && cpu != smp_processor_id())
-+				send_IPI_mask(1 << cpu, vector);
- 		}
- 	} else {
- 		__send_IPI_shortcut(APIC_DEST_ALLBUT, vector);
-@@ -272,7 +270,9 @@
- 		// Pointless. Use send_IPI_mask to do this instead
- 		int cpu;
- 
--		for (cpu = 0; cpu < smp_num_cpus; ++cpu) {
-+		for (cpu = 0; cpu < NR_CPUS; ++cpu) {
-+			if (!cpu_online(cpu))
-+				continue;
- 			send_IPI_mask(1 << cpu, vector);
- 		}
- 	} else {
-@@ -544,7 +544,7 @@
-  */
- {
- 	struct call_data_struct data;
--	int cpus = smp_num_cpus-1;
-+	int cpus = num_online_cpus()-1;
- 
- 	if (!cpus)
- 		return 0;
-@@ -594,7 +594,6 @@
- void smp_send_stop(void)
- {
- 	smp_call_function(stop_this_cpu, NULL, 1, 0);
--	smp_num_cpus = 1;
- 
- 	__cli();
- 	disable_local_APIC();
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/arch/i386/kernel/smpboot.c working-2.5.9-nonlinear-cpu/arch/i386/kernel/smpboot.c
---- linux-2.5.9/arch/i386/kernel/smpboot.c	Mon Apr 15 11:47:10 2002
-+++ working-2.5.9-nonlinear-cpu/arch/i386/kernel/smpboot.c	Wed Apr 24 15:31:35 2002
-@@ -56,9 +56,6 @@
- /* Setup configured maximum number of CPUs to activate */
- static int max_cpus = -1;
- 
--/* Total count of live CPUs */
--int smp_num_cpus = 1;
--
- /* Number of siblings per CPU package */
- int smp_num_siblings = 1;
- int __initdata phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
-@@ -287,7 +284,8 @@
- 		/*
- 		 * all APs synchronize but they loop on '== num_cpus'
- 		 */
--		while (atomic_read(&tsc_count_start) != smp_num_cpus-1) mb();
-+		while (atomic_read(&tsc_count_start) != num_online_cpus()-1)
-+			mb();
- 		atomic_set(&tsc_count_stop, 0);
- 		wmb();
- 		/*
-@@ -305,21 +303,26 @@
- 		/*
- 		 * Wait for all APs to leave the synchronization point:
- 		 */
--		while (atomic_read(&tsc_count_stop) != smp_num_cpus-1) mb();
-+		while (atomic_read(&tsc_count_stop) != num_online_cpus()-1)
-+			mb();
- 		atomic_set(&tsc_count_start, 0);
- 		wmb();
- 		atomic_inc(&tsc_count_stop);
+ 		if (kernel_thread(migration_thread, (void *) (long) cpu,
+ 				CLONE_FS | CLONE_FILES | CLONE_SIGNAL) < 0)
+ 			BUG();
  	}
+ 	current->cpus_allowed = -1L;
  
- 	sum = 0;
--	for (i = 0; i < smp_num_cpus; i++) {
--		t0 = tsc_values[i];
--		sum += t0;
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (cpu_online(i)) {
-+			t0 = tsc_values[i];
-+			sum += t0;
-+		}
- 	}
--	avg = div64(sum, smp_num_cpus);
-+	avg = div64(sum, num_online_cpus());
- 
- 	sum = 0;
--	for (i = 0; i < smp_num_cpus; i++) {
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (!cpu_online(i))
+-	for (cpu = 0; cpu < smp_num_cpus; cpu++)
++	for (cpu = 0; cpu < NR_CPUS; cpu++) {
++		if (!cpu_online(cpu))
 +			continue;
- 		delta = tsc_values[i] - avg;
- 		if (delta < 0)
- 			delta = -delta;
-@@ -351,7 +354,7 @@
- 	int i;
- 
- 	/*
--	 * smp_num_cpus is not necessarily known at the time
-+	 * num_online_cpus is not necessarily known at the time
- 	 * this gets called, so we first wait for the BP to
- 	 * finish SMP initialization:
- 	 */
-@@ -359,14 +362,15 @@
- 
- 	for (i = 0; i < NR_LOOPS; i++) {
- 		atomic_inc(&tsc_count_start);
--		while (atomic_read(&tsc_count_start) != smp_num_cpus) mb();
-+		while (atomic_read(&tsc_count_start) != num_online_cpus())
-+			mb();
- 
- 		rdtscll(tsc_values[smp_processor_id()]);
- 		if (i == NR_LOOPS-1)
- 			write_tsc(0, 0);
- 
- 		atomic_inc(&tsc_count_stop);
--		while (atomic_read(&tsc_count_stop) != smp_num_cpus) mb();
-+		while (atomic_read(&tsc_count_stop) != num_online_cpus()) mb();
- 	}
+ 		while (!cpu_rq(cpu_logical_map(cpu))->migration_thread)
+ 			schedule_timeout(2);
++	}
  }
- #undef NR_LOOPS
-@@ -1068,7 +1072,6 @@
- 		io_apic_irqs = 0;
  #endif
- 		cpu_online_map = phys_cpu_present_map = 1;
--		smp_num_cpus = 1;
- 		if (APIC_init_uniprocessor())
- 			printk(KERN_NOTICE "Local APIC not detected."
- 					   " Using dummy APIC emulation.\n");
-@@ -1099,7 +1102,6 @@
- 		io_apic_irqs = 0;
- #endif
- 		cpu_online_map = phys_cpu_present_map = 1;
--		smp_num_cpus = 1;
- 		goto smp_done;
- 	}
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/kernel/softirq.c linux-2.5.14.23963.updated/kernel/softirq.c
+--- linux-2.5.14.23963/kernel/softirq.c	Wed Feb 20 17:56:17 2002
++++ linux-2.5.14.23963.updated/kernel/softirq.c	Mon May  6 18:06:41 2002
+@@ -360,20 +360,19 @@
  
-@@ -1115,7 +1117,6 @@
- 		io_apic_irqs = 0;
- #endif
- 		cpu_online_map = phys_cpu_present_map = 1;
--		smp_num_cpus = 1;
- 		goto smp_done;
- 	}
+ static int ksoftirqd(void * __bind_cpu)
+ {
+-	int bind_cpu = (int) (long) __bind_cpu;
+-	int cpu = cpu_logical_map(bind_cpu);
++	int cpu = (int) (long) __bind_cpu;
  
-@@ -1196,7 +1197,6 @@
- 			(bogosum/(5000/HZ))%100);
- 		Dprintk("Before bogocount - setting activated=1.\n");
- 	}
--	smp_num_cpus = cpucount + 1;
+ 	daemonize();
+ 	set_user_nice(current, 19);
+ 	sigfillset(&current->blocked);
  
- 	if (smp_b_stepping)
- 		printk(KERN_WARNING "WARNING: SMP operation may be unreliable with B stepping processors.\n");
-@@ -1211,11 +1211,12 @@
- 		for (cpu = 0; cpu < NR_CPUS; cpu++)
- 			cpu_sibling_map[cpu] = NO_PROC_ID;
- 		
--		for (cpu = 0; cpu < smp_num_cpus; cpu++) {
-+		for (cpu = 0; cpu < NR_CPUS; cpu++) {
- 			int 	i;
--			
--			for (i = 0; i < smp_num_cpus; i++) {
--				if (i == cpu)
-+			if (!cpu_online(cpu)) continue;
++	sprintf(current->comm, "ksoftirqd_CPU%d", cpu);
 +
-+			for (i = 0; i < NR_CPUS; i++) {
-+				if (i == cpu || !cpu_online(i))
- 					continue;
- 				if (phys_proc_id[cpu] == phys_proc_id[i]) {
- 					cpu_sibling_map[cpu] = i;
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/include/asm-i386/hardirq.h working-2.5.9-nonlinear-cpu/include/asm-i386/hardirq.h
---- linux-2.5.9/include/asm-i386/hardirq.h	Wed Apr 24 15:27:50 2002
-+++ working-2.5.9-nonlinear-cpu/include/asm-i386/hardirq.h	Wed Apr 24 15:56:55 2002
-@@ -51,7 +51,7 @@
+ 	/* Migrate to the right CPU */
+ 	set_cpus_allowed(current, 1UL << cpu);
+ 	if (smp_processor_id() != cpu)
+ 		BUG();
+ 
+-	sprintf(current->comm, "ksoftirqd_CPU%d", bind_cpu);
+-
+ 	__set_current_state(TASK_INTERRUPTIBLE);
+ 	mb();
+ 
+@@ -398,13 +397,16 @@
+ {
+ 	int cpu;
+ 
+-	for (cpu = 0; cpu < smp_num_cpus; cpu++)
++	for (cpu = 0; cpu < NR_CPUS; cpu++) {
++		if (!cpu_online(cpu))
++			continue;
+ 		if (kernel_thread(ksoftirqd, (void *) (long) cpu,
+ 				  CLONE_FS | CLONE_FILES | CLONE_SIGNAL) < 0)
+ 			printk("spawn_ksoftirqd() failed for cpu %d\n", cpu);
+ 		else
+-			while (!ksoftirqd_task(cpu_logical_map(cpu)))
++			while (!ksoftirqd_task(cpu))
+ 				yield();
++	}
+ 	return 0;
+ }
+ 
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/lib/brlock.c linux-2.5.14.23963.updated/lib/brlock.c
+--- linux-2.5.14.23963/lib/brlock.c	Sat Nov 10 09:11:15 2001
++++ linux-2.5.14.23963.updated/lib/brlock.c	Mon May  6 18:06:41 2002
+@@ -24,16 +24,16 @@
  {
  	int i;
  
 -	for (i = 0; i < smp_num_cpus; i++)
+-		write_lock(&__brlock_array[cpu_logical_map(i)][idx]);
 +	for (i = 0; i < NR_CPUS; i++)
- 		if (local_irq_count(i))
- 			return 1;
- 	return 0;
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.9/include/asm-i386/smp.h working-2.5.9-nonlinear-cpu/include/asm-i386/smp.h
---- linux-2.5.9/include/asm-i386/smp.h	Wed Apr 24 15:27:50 2002
-+++ working-2.5.9-nonlinear-cpu/include/asm-i386/smp.h	Wed Apr 24 15:56:55 2002
-@@ -69,20 +69,6 @@
- extern void zap_low_mappings (void);
- 
- /*
-- * On x86 all CPUs are mapped 1:1 to the APIC space.
-- * This simplifies scheduling and IPI sending and
-- * compresses data structures.
-- */
--static inline int cpu_logical_map(int cpu)
--{
--	return cpu;
--}
--static inline int cpu_number_map(int cpu)
--{
--	return cpu;
--}
--
--/*
-  * Some lowlevel functions might want to know about
-  * the real APIC ID <-> CPU # mapping.
-  */
-@@ -104,9 +90,23 @@
-  * from the initial startup. We map APIC_BASE very early in page_setup(),
-  * so this is correct in the x86 case.
-  */
--
- #define smp_processor_id() (current_thread_info()->cpu)
- 
-+#define cpu_online(cpu) (cpu_online_map & (1<<(cpu)))
-+
-+extern inline unsigned int num_online_cpus(void)
-+{
-+	return hweight32(cpu_online_map);
-+}
-+
-+extern inline int any_online_cpu(unsigned int mask)
-+{
-+	if (mask & cpu_online_map)
-+		return __ffs(mask & cpu_online_map);
-+
-+	return -1;
-+}
-+
- static __inline int hard_smp_processor_id(void)
- {
- 	/* we don't want to mark this access volatile - bad code generation */
-@@ -119,6 +119,15 @@
- 	return GET_APIC_LOGICAL_ID(*(unsigned long *)(APIC_BASE+APIC_LDR));
++		write_lock(&__brlock_array[i][idx]);
  }
  
-+static inline int cpu_possible(unsigned int cpu)
-+{
-+	return phys_cpu_present_map & (1 << cpu);
-+}
-+
-+/* Upping and downing of CPUs */
-+extern int __cpu_disable(void);
-+extern void __cpu_die(unsigned int cpu);
-+extern int __cpu_up(unsigned int cpu);
- #endif /* !__ASSEMBLY__ */
+ void __br_write_unlock (enum brlock_indices idx)
+ {
+ 	int i;
  
- #define NO_PROC_ID		0xFF		/* No processor magic marker */
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-	for (i = 0; i < smp_num_cpus; i++)
+-		write_unlock(&__brlock_array[cpu_logical_map(i)][idx]);
++	for (i = 0; i < NR_CPUS; i++)
++		write_unlock(&__brlock_array[i][idx]);
+ }
+ 
+ #else /* ! __BRLOCK_USE_ATOMICS */
+@@ -50,8 +50,8 @@
+ 
+ again:
+ 	spin_lock(&__br_write_locks[idx].lock);
+-	for (i = 0; i < smp_num_cpus; i++)
+-		if (__brlock_array[cpu_logical_map(i)][idx] != 0) {
++	for (i = 0; i < NR_CPUS; i++)
++		if (__brlock_array[i][idx] != 0) {
+ 			spin_unlock(&__br_write_locks[idx].lock);
+ 			barrier();
+ 			cpu_relax();
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.14/mm/page_alloc.c working-2.5.14-hotcpu/mm/page_alloc.c
+--- linux-2.5.14/mm/page_alloc.c	Mon May  6 16:00:11 2002
++++ working-2.5.14-hotcpu/mm/page_alloc.c	Mon May  6 18:25:24 2002
+@@ -590,10 +590,10 @@
+ 	ret->nr_writeback = 0;
+ 	ret->nr_pagecache = 0;
+ 
+-	for (pcpu = 0; pcpu < smp_num_cpus; pcpu++) {
++	for (pcpu = 0; pcpu < NR_CPUS; pcpu++) {
+ 		struct page_state *ps;
+ 
+-		ps = &page_states[cpu_logical_map(pcpu)];
++		ps = &page_states[pcpu];
+ 		ret->nr_dirty += ps->nr_dirty;
+ 		ret->nr_writeback += ps->nr_writeback;
+ 		ret->nr_pagecache += ps->nr_pagecache;
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/mm/slab.c linux-2.5.14.23963.updated/mm/slab.c
+--- linux-2.5.14.23963/mm/slab.c	Mon May  6 16:00:11 2002
++++ linux-2.5.14.23963.updated/mm/slab.c	Mon May  6 18:06:41 2002
+@@ -937,8 +937,8 @@
+ 	down(&cache_chain_sem);
+ 	smp_call_function_all_cpus(do_ccupdate_local, (void *)&new);
+ 
+-	for (i = 0; i < smp_num_cpus; i++) {
+-		cpucache_t* ccold = new.new[cpu_logical_map(i)];
++	for (i = 0; i < NR_CPUS; i++) {
++		cpucache_t* ccold = new.new[i];
+ 		if (!ccold || (ccold->avail == 0))
+ 			continue;
+ 		local_irq_disable();
+@@ -1671,16 +1671,18 @@
+ 
+ 	memset(&new.new,0,sizeof(new.new));
+ 	if (limit) {
+-		for (i = 0; i< smp_num_cpus; i++) {
++		for (i = 0; i < NR_CPUS; i++) {
+ 			cpucache_t* ccnew;
+ 
+ 			ccnew = kmalloc(sizeof(void*)*limit+
+ 					sizeof(cpucache_t), GFP_KERNEL);
+-			if (!ccnew)
+-				goto oom;
++			if (!ccnew) {
++				for (i--; i >= 0; i--) kfree(new.new[i]);
++				return -ENOMEM;
++			}
+ 			ccnew->limit = limit;
+ 			ccnew->avail = 0;
+-			new.new[cpu_logical_map(i)] = ccnew;
++			new.new[i] = ccnew;
+ 		}
+ 	}
+ 	new.cachep = cachep;
+@@ -1690,8 +1692,8 @@
+ 
+ 	smp_call_function_all_cpus(do_ccupdate_local, (void *)&new);
+ 
+-	for (i = 0; i < smp_num_cpus; i++) {
+-		cpucache_t* ccold = new.new[cpu_logical_map(i)];
++	for (i = 0; i < NR_CPUS; i++) {
++		cpucache_t* ccold = new.new[i];
+ 		if (!ccold)
+ 			continue;
+ 		local_irq_disable();
+@@ -1700,10 +1702,6 @@
+ 		kfree(ccold);
+ 	}
+ 	return 0;
+-oom:
+-	for (i--; i >= 0; i--)
+-		kfree(new.new[cpu_logical_map(i)]);
+-	return -ENOMEM;
+ }
+ 
+ static void enable_cpucache (kmem_cache_t *cachep)
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/net/core/dev.c linux-2.5.14.23963.updated/net/core/dev.c
+--- linux-2.5.14.23963/net/core/dev.c	Thu Mar 21 14:14:56 2002
++++ linux-2.5.14.23963.updated/net/core/dev.c	Mon May  6 18:06:41 2002
+@@ -1815,11 +1815,11 @@
+ static int dev_proc_stats(char *buffer, char **start, off_t offset,
+ 			  int length, int *eof, void *data)
+ {
+-	int i, lcpu;
++	int i;
+ 	int len=0;
+ 
+-	for (lcpu=0; lcpu<smp_num_cpus; lcpu++) {
+-		i = cpu_logical_map(lcpu);
++	for (i=0; i<NR_CPUS; i++) {
++		if (cpu_online(i)) {
+ 		len += sprintf(buffer+len, "%08x %08x %08x %08x %08x %08x %08x %08x %08x\n",
+ 			       netdev_rx_stat[i].total,
+ 			       netdev_rx_stat[i].dropped,
+@@ -1835,6 +1835,7 @@
+ 			       netdev_rx_stat[i].cpu_collision
+ #endif
+ 			       );
++	}
+ 	}
+ 
+ 	len -= offset;
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/net/ipv4/netfilter/arp_tables.c linux-2.5.14.23963.updated/net/ipv4/netfilter/arp_tables.c
+--- linux-2.5.14.23963/net/ipv4/netfilter/arp_tables.c	Thu Mar 21 14:14:57 2002
++++ linux-2.5.14.23963.updated/net/ipv4/netfilter/arp_tables.c	Mon May  6 18:06:41 2002
+@@ -259,7 +259,7 @@
+ 	read_lock_bh(&table->lock);
+ 	table_base = (void *)table->private->entries
+ 		+ TABLE_OFFSET(table->private,
+-			       cpu_number_map(smp_processor_id()));
++			       smp_processor_id());
+ 	e = get_entry(table_base, table->private->hook_entry[hook]);
+ 	back = get_entry(table_base, table->private->underflow[hook]);
+ 
+@@ -705,7 +705,7 @@
+ 	}
+ 
+ 	/* And one copy for every other CPU */
+-	for (i = 1; i < smp_num_cpus; i++) {
++	for (i = 1; i < NR_CPUS; i++) {
+ 		memcpy(newinfo->entries + SMP_ALIGN(newinfo->size)*i,
+ 		       newinfo->entries,
+ 		       SMP_ALIGN(newinfo->size));
+@@ -756,7 +756,7 @@
+ 	unsigned int cpu;
+ 	unsigned int i;
+ 
+-	for (cpu = 0; cpu < smp_num_cpus; cpu++) {
++	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+ 		i = 0;
+ 		ARPT_ENTRY_ITERATE(t->entries + TABLE_OFFSET(t, cpu),
+ 				   t->size,
+@@ -874,7 +874,7 @@
+ 		return -ENOMEM;
+ 
+ 	newinfo = vmalloc(sizeof(struct arpt_table_info)
+-			  + SMP_ALIGN(tmp.size) * smp_num_cpus);
++			  + SMP_ALIGN(tmp.size) * NR_CPUS);
+ 	if (!newinfo)
+ 		return -ENOMEM;
+ 
+@@ -1143,7 +1143,7 @@
+ 
+ 	MOD_INC_USE_COUNT;
+ 	newinfo = vmalloc(sizeof(struct arpt_table_info)
+-			  + SMP_ALIGN(table->table->size) * smp_num_cpus);
++			  + SMP_ALIGN(table->table->size) * NR_CPUS);
+ 	if (!newinfo) {
+ 		ret = -ENOMEM;
+ 		MOD_DEC_USE_COUNT;
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/net/ipv4/netfilter/ip_tables.c linux-2.5.14.23963.updated/net/ipv4/netfilter/ip_tables.c
+--- linux-2.5.14.23963/net/ipv4/netfilter/ip_tables.c	Wed Feb 20 17:56:17 2002
++++ linux-2.5.14.23963.updated/net/ipv4/netfilter/ip_tables.c	Mon May  6 18:06:41 2002
+@@ -288,8 +288,7 @@
+ 	read_lock_bh(&table->lock);
+ 	IP_NF_ASSERT(table->valid_hooks & (1 << hook));
+ 	table_base = (void *)table->private->entries
+-		+ TABLE_OFFSET(table->private,
+-			       cpu_number_map(smp_processor_id()));
++		+ TABLE_OFFSET(table->private, smp_processor_id());
+ 	e = get_entry(table_base, table->private->hook_entry[hook]);
+ 
+ #ifdef CONFIG_NETFILTER_DEBUG
+@@ -865,7 +864,7 @@
+ 	}
+ 
+ 	/* And one copy for every other CPU */
+-	for (i = 1; i < smp_num_cpus; i++) {
++	for (i = 1; i < NR_CPUS; i++) {
+ 		memcpy(newinfo->entries + SMP_ALIGN(newinfo->size)*i,
+ 		       newinfo->entries,
+ 		       SMP_ALIGN(newinfo->size));
+@@ -887,7 +886,7 @@
+ 		struct ipt_entry *table_base;
+ 		unsigned int i;
+ 
+-		for (i = 0; i < smp_num_cpus; i++) {
++		for (i = 0; i < NR_CPUS; i++) {
+ 			table_base =
+ 				(void *)newinfo->entries
+ 				+ TABLE_OFFSET(newinfo, i);
+@@ -934,7 +933,7 @@
+ 	unsigned int cpu;
+ 	unsigned int i;
+ 
+-	for (cpu = 0; cpu < smp_num_cpus; cpu++) {
++	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+ 		i = 0;
+ 		IPT_ENTRY_ITERATE(t->entries + TABLE_OFFSET(t, cpu),
+ 				  t->size,
+@@ -1072,7 +1071,7 @@
+ 		return -ENOMEM;
+ 
+ 	newinfo = vmalloc(sizeof(struct ipt_table_info)
+-			  + SMP_ALIGN(tmp.size) * smp_num_cpus);
++			  + SMP_ALIGN(tmp.size) * NR_CPUS);
+ 	if (!newinfo)
+ 		return -ENOMEM;
+ 
+@@ -1385,7 +1384,7 @@
+ 
+ 	MOD_INC_USE_COUNT;
+ 	newinfo = vmalloc(sizeof(struct ipt_table_info)
+-			  + SMP_ALIGN(table->table->size) * smp_num_cpus);
++			  + SMP_ALIGN(table->table->size) * NR_CPUS);
+ 	if (!newinfo) {
+ 		ret = -ENOMEM;
+ 		MOD_DEC_USE_COUNT;
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/net/ipv4/netfilter/ipchains_core.c linux-2.5.14.23963.updated/net/ipv4/netfilter/ipchains_core.c
+--- linux-2.5.14.23963/net/ipv4/netfilter/ipchains_core.c	Wed Feb 20 17:56:17 2002
++++ linux-2.5.14.23963.updated/net/ipv4/netfilter/ipchains_core.c	Mon May  6 18:06:41 2002
+@@ -125,8 +125,8 @@
+  * UP.
+  *
+  * For backchains and counters, we use an array, indexed by
+- * [cpu_number_map[smp_processor_id()]*2 + !in_interrupt()]; the array is of
+- * size [smp_num_cpus*2].  For v2.0, smp_num_cpus is effectively 1.  So,
++ * [smp_processor_id()*2 + !in_interrupt()]; the array is of
++ * size [NR_CPUS*2].  For v2.0, NR_CPUS is effectively 1.  So,
+  * confident of uniqueness, we modify counters even though we only
+  * have a read lock (to read the counters, you need a write lock,
+  * though).  */
+@@ -151,11 +151,11 @@
+ #endif
+ 
+ #ifdef CONFIG_SMP
+-#define SLOT_NUMBER() (cpu_number_map(smp_processor_id())*2 + !in_interrupt())
++#define SLOT_NUMBER() (smp_processor_id()*2 + !in_interrupt())
+ #else /* !SMP */
+ #define SLOT_NUMBER() (!in_interrupt())
+ #endif /* CONFIG_SMP */
+-#define NUM_SLOTS (smp_num_cpus*2)
++#define NUM_SLOTS (NR_CPUS*2)
+ 
+ #define SIZEOF_STRUCT_IP_CHAIN (sizeof(struct ip_chain) \
+ 				+ NUM_SLOTS*sizeof(struct ip_reent))
+@@ -1121,7 +1121,7 @@
+ 	label->chain = NULL;
+ 	label->refcount = ref;
+ 	label->policy = policy;
+-	for (i = 0; i < smp_num_cpus*2; i++) {
++	for (i = 0; i < NUM_SLOTS; i++) {
+ 		label->reent[i].counters.pcnt = label->reent[i].counters.bcnt
+ 			= 0;
+ 		label->reent[i].prevchain = NULL;
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/net/ipv4/proc.c linux-2.5.14.23963.updated/net/ipv4/proc.c
+--- linux-2.5.14.23963/net/ipv4/proc.c	Thu May 17 03:21:45 2001
++++ linux-2.5.14.23963.updated/net/ipv4/proc.c	Mon May  6 18:06:41 2002
+@@ -55,8 +55,8 @@
+ 	int res = 0;
+ 	int cpu;
+ 
+-	for (cpu=0; cpu<smp_num_cpus; cpu++)
+-		res += proto->stats[cpu_logical_map(cpu)].inuse;
++	for (cpu=0; cpu<NR_CPUS; cpu++)
++		res += proto->stats[cpu].inuse;
+ 
+ 	return res;
+ }
+@@ -103,9 +103,9 @@
+ 
+ 	sz /= sizeof(unsigned long);
+ 
+-	for (i=0; i<smp_num_cpus; i++) {
+-		res += begin[2*cpu_logical_map(i)*sz + nr];
+-		res += begin[(2*cpu_logical_map(i)+1)*sz + nr];
++	for (i=0; i<NR_CPUS; i++) {
++		res += begin[2*i*sz + nr];
++		res += begin[(2*i+1)*sz + nr];
+ 	}
+ 	return res;
+ }
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/net/ipv4/route.c linux-2.5.14.23963.updated/net/ipv4/route.c
+--- linux-2.5.14.23963/net/ipv4/route.c	Mon Apr 15 11:47:52 2002
++++ linux-2.5.14.23963.updated/net/ipv4/route.c	Mon May  6 18:06:41 2002
+@@ -280,12 +280,10 @@
+ static int rt_cache_stat_get_info(char *buffer, char **start, off_t offset, int length)
+ {
+ 	unsigned int dst_entries = atomic_read(&ipv4_dst_ops.entries);
+-	int i, lcpu;
++	int i;
+ 	int len = 0;
+ 
+-        for (lcpu = 0; lcpu < smp_num_cpus; lcpu++) {
+-                i = cpu_logical_map(lcpu);
+-
++        for (i = 0; i < NR_CPUS; i++) {
+ 		len += sprintf(buffer+len, "%08x  %08x %08x %08x %08x %08x %08x %08x  %08x %08x %08x\n",
+ 			       dst_entries,		       
+ 			       rt_cache_stat[i].in_hit,
+@@ -2423,19 +2421,16 @@
+ 		memcpy(dst, src, length);
+ 
+ #ifdef CONFIG_SMP
+-		if (smp_num_cpus > 1 || cpu_logical_map(0) != 0) {
++		/* Alexey, be ashamed: speed gained, horror unleashed. --RR */
++		if (num_online_cpus() > 1 || !cpu_online(0)) {
+ 			int i;
+ 			int cnt = length / 4;
+ 
+-			for (i = 0; i < smp_num_cpus; i++) {
+-				int cpu = cpu_logical_map(i);
++			for (i = 1; i < NR_CPUS; i++) {
+ 				int k;
+ 
+-				if (cpu == 0)
+-					continue;
+-
+ 				src = (u32*)(((u8*)ip_rt_acct) + offset +
+-					cpu * 256 * sizeof(struct ip_rt_acct));
++					i * 256 * sizeof(struct ip_rt_acct));
+ 
+ 				for (k = 0; k < cnt; k++)
+ 					dst[k] += src[k];
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/net/ipv6/netfilter/ip6_tables.c linux-2.5.14.23963.updated/net/ipv6/netfilter/ip6_tables.c
+--- linux-2.5.14.23963/net/ipv6/netfilter/ip6_tables.c	Mon May  6 11:12:01 2002
++++ linux-2.5.14.23963.updated/net/ipv6/netfilter/ip6_tables.c	Mon May  6 18:08:28 2002
+@@ -913,7 +913,7 @@
+ 	}
+ 
+ 	/* And one copy for every other CPU */
+-	for (i = 1; i < smp_num_cpus; i++) {
++	for (i = 1; i < NR_CPUS; i++) {
+ 		memcpy(newinfo->entries + SMP_ALIGN(newinfo->size)*i,
+ 		       newinfo->entries,
+ 		       SMP_ALIGN(newinfo->size));
+@@ -935,7 +935,7 @@
+ 		struct ip6t_entry *table_base;
+ 		unsigned int i;
+ 
+-		for (i = 0; i < smp_num_cpus; i++) {
++		for (i = 0; i < NR_CPUS; i++) {
+ 			table_base =
+ 				(void *)newinfo->entries
+ 				+ TABLE_OFFSET(newinfo, i);
+@@ -982,7 +982,7 @@
+ 	unsigned int cpu;
+ 	unsigned int i;
+ 
+-	for (cpu = 0; cpu < smp_num_cpus; cpu++) {
++	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+ 		i = 0;
+ 		IP6T_ENTRY_ITERATE(t->entries + TABLE_OFFSET(t, cpu),
+ 				  t->size,
+@@ -1116,7 +1116,7 @@
+ 		return -ENOMEM;
+ 
+ 	newinfo = vmalloc(sizeof(struct ip6t_table_info)
+-			  + SMP_ALIGN(tmp.size) * smp_num_cpus);
++			  + SMP_ALIGN(tmp.size) * NR_CPUS);
+ 	if (!newinfo)
+ 		return -ENOMEM;
+ 
+@@ -1429,7 +1429,7 @@
+ 
+ 	MOD_INC_USE_COUNT;
+ 	newinfo = vmalloc(sizeof(struct ip6t_table_info)
+-			  + SMP_ALIGN(table->table->size) * smp_num_cpus);
++			  + SMP_ALIGN(table->table->size) * NR_CPUS);
+ 	if (!newinfo) {
+ 		ret = -ENOMEM;
+ 		MOD_DEC_USE_COUNT;
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/net/ipv6/proc.c linux-2.5.14.23963.updated/net/ipv6/proc.c
+--- linux-2.5.14.23963/net/ipv6/proc.c	Wed Feb 20 17:57:22 2002
++++ linux-2.5.14.23963.updated/net/ipv6/proc.c	Mon May  6 18:06:41 2002
+@@ -31,8 +31,8 @@
+ 	int res = 0;
+ 	int cpu;
+ 
+-	for (cpu=0; cpu<smp_num_cpus; cpu++)
+-		res += proto->stats[cpu_logical_map(cpu)].inuse;
++	for (cpu=0; cpu<NR_CPUS; cpu++)
++		res += proto->stats[cpu].inuse;
+ 
+ 	return res;
+ }
+@@ -140,9 +140,9 @@
+ 	unsigned long res = 0;
+ 	int i;
+ 
+-	for (i=0; i<smp_num_cpus; i++) {
+-		res += ptr[2*cpu_logical_map(i)*size];
+-		res += ptr[(2*cpu_logical_map(i)+1)*size];
++	for (i=0; i<NR_CPUS; i++) {
++		res += ptr[2*i*size];
++		res += ptr[(2*i+1)*size];
+ 	}
+ 
+ 	return res;
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.14.23963/net/socket.c linux-2.5.14.23963.updated/net/socket.c
+--- linux-2.5.14.23963/net/socket.c	Thu Mar 21 14:14:57 2002
++++ linux-2.5.14.23963.updated/net/socket.c	Mon May  6 18:06:41 2002
+@@ -1773,8 +1773,8 @@
+ 	int len, cpu;
+ 	int counter = 0;
+ 
+-	for (cpu=0; cpu<smp_num_cpus; cpu++)
+-		counter += sockets_in_use[cpu_logical_map(cpu)].counter;
++	for (cpu=0; cpu<NR_CPUS; cpu++)
++		counter += sockets_in_use[cpu].counter;
+ 
+ 	/* It can be negative, by the way. 8) */
+ 	if (counter < 0)

@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVDFOA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVDFOQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbVDFOA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 10:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVDFOA0
+	id S262212AbVDFOQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 10:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVDFOQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 10:00:26 -0400
-Received: from mailwasher.lanl.gov ([192.65.95.54]:3964 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S262210AbVDFOAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 10:00:21 -0400
-Message-ID: <4253EB69.6050702@mesatop.com>
-Date: Wed, 06 Apr 2005 08:00:09 -0600
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Thunderbird 1.0 (Multics)
-X-Accept-Language: en-us, en
+	Wed, 6 Apr 2005 10:16:27 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:1160 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262212AbVDFOQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 10:16:21 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: linux-os@analogic.com, Dave Korn <dave.korn@artimi.com>
+Subject: Re: [BUG mm] "fixed" i386 memcpy inlining buggy
+Date: Wed, 6 Apr 2005 17:16:07 +0300
+User-Agent: KMail/1.5.4
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       Jan Hubicka <hubicka@ucw.cz>, Gerold Jury <gerold.ml@inode.at>,
+       jakub@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       gcc@gcc.gnu.org
+References: <SERRANOEKRuYDlrjbud0000007e@SERRANO.CAM.ARTIMI.COM> <Pine.LNX.4.61.0504060912420.22100@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0504060912420.22100@chaos.analogic.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: bunk@stusta.de, reuben-lkml@reub.net, len.brown@intel.com,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: 2.6.12-rc2-mm1: ACPI=y, ACPI_BOOT=n problems
-References: <fa.gcqu6i7.1o6qrhn@ifi.uio.no>	<42524D83.1080104@reub.net>	<20050405121444.GB6885@stusta.de>	<6.2.3.0.2.20050406002812.04393a30@tornado.reub.net>	<20050405132417.GD6885@stusta.de>	<4252F090.4040605@mesatop.com> <20050405183655.0c778129.akpm@osdl.org>
-In-Reply-To: <20050405183655.0c778129.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
+Content-Disposition: inline
+Message-Id: <200504061716.07895.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Steven Cole <elenstev@mesatop.com> wrote:
+On Wednesday 06 April 2005 16:18, Richard B. Johnson wrote:
 > 
->>arch/i386/kernel/setup.c: In function 'setup_arch':
->> arch/i386/kernel/setup.c:1571: warning: implicit declaration of function 'acpi_boot_table_init'
->> arch/i386/kernel/setup.c:1572: warning: implicit declaration of function 'acpi_boot_init'
-> 
-> 
-> 
-> diff -puN include/linux/acpi.h~no-acpi-build-fix include/linux/acpi.h
-> --- 25/include/linux/acpi.h~no-acpi-build-fix	2005-04-05 00:14:46.000000000 -0700
-> +++ 25-akpm/include/linux/acpi.h	2005-04-05 00:23:39.000000000 -0700
-> @@ -418,16 +418,6 @@ extern int sbf_port ;
-[patch snipped]
+> Attached is inline ix86 memcpy() plus test code that tests its
+> corner-cases. The in-line code makes no jumps, but uses longword
+> copies, word copies and any spare byte copy. It works at all
+> offsets, doesn't require alignment but would work fastest if
+> both source and destination were longword aligned.
 
-Yes, that worked with no CONFIG_ACPI.  Thanks.
+Yours is:
 
-On a slightly offtopic note, I'm now using this gcc:
-gcc (GCC) 4.0.0 20050308 (Red Hat 4.0.0-0.32)
+        "shr $1, %%ecx\n"       \
+        "pushf\n"               \
+        "shr $1, %%ecx\n"       \
+        "pushf\n"               \   <=== not needed
+        "rep\n"                 \
+        "movsl\n"               \
+        "popf\n"                \   <=== not needed
+        "adcl %%ecx, %%ecx\n"   \
+        "rep\n"                 \
+        "movsw\n"               \
+        "popf\n"                \
+        "adcl %%ecx, %%ecx\n"   \
+        "rep\n"                 \
+        "movsb\n"               \
 
-I don't have any quantitative data at hand, this seems SLOOOOW.
-I guess that's progress.  But it slows down testing somewhat.
+You struggle too much for that movsw.
 
-Steven
+-mm one (which happen to be mine) is:
+
+	"movl %ecx,%4"
+	"shr $2,%ecx"
+        "rep ; movsl"
+        "movl %4,%%ecx"
+        "andl $3,%%ecx"
+        "jz 1ft"     /* pay 2 byte penalty for a chance to skip microcoded rep */
+        "rep ; movsb"
+"1:"
+
+and I can still drop that jz. It is there just to have
+a chance to skip rep movsb, it was measured to be slow
+enough to matter. rep movs are a bit slow to start, on small
+blocks it is measurable.
+
+However, maybe it is even better without jz,
+need to benchmark 'cold path' (i.e. where branch predictor
+have no data to predict it) somehow.
+--
+vda
+

@@ -1,62 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbTFXRIy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 13:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbTFXRIy
+	id S262171AbTFXRJc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 13:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTFXRJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 13:08:54 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27091 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262170AbTFXRIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 13:08:53 -0400
-Date: Tue, 24 Jun 2003 19:22:55 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: bcollins@debian.org, linux1394-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5.73: eth1394.c: ptask might be used uninitialized
-Message-ID: <20030624172254.GQ3710@fs.tum.de>
+	Tue, 24 Jun 2003 13:09:32 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:27070 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262185AbTFXRJ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 13:09:28 -0400
+Subject: 2.5.73 compile results
+From: John Cherry <cherry@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056475577.9839.110.camel@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 24 Jun 2003 10:26:18 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.5.73, gcc complains as follows:
+Compile statistics: 2.5.73
+Compiler: gcc 3.2.2
+Script: http://www.osdl.org/archive/cherry/stability/compregress.sh
 
-<--  snip  -->
+          bzImage       bzImage        modules
+        (defconfig)  (allmodconfig) (allmodconfig)
 
-...
-  CC      drivers/ieee1394/eth1394.o
-...
-drivers/ieee1394/eth1394.c:1424: warning: `ptask' might be used 
-uninitialized in this function
-...
+2.5.73  2 warnings    11 warnings   1347 warnings
+        0 errors       9 errors       43 errors
 
-<--  snip  -->
+2.5.72  2 warnings     8 warnings   1335 warnings
+        0 errors       0 errors       48 errors
 
-It seems something like the patch below might be needed (I didn't check 
-for 100% correctness, but it shows what might be needed to fix it).
+2.5.71  6 warnings    11 warnings   1347 warnings
+        0 errors       0 errors       48 errors
 
-cu
-Adrian
+2.5.70  7 warnings    10 warnings   1366 warnings
+        0 errors       0 errors       57 errors
 
---- linux-2.5.73-not-full/drivers/ieee1394/eth1394.c.old	2003-06-23 23:11:01.000000000 +0200
-+++ linux-2.5.73-not-full/drivers/ieee1394/eth1394.c	2003-06-23 23:11:25.000000000 +0200
-@@ -1427,7 +1427,7 @@
- 	if (skb_is_nonlinear(skb)) {
- 		ret = skb_linearize(skb, kmflags);
- 		if(ret)
--			goto fail;
-+			goto out;
- 	}
- 
- 	ptask = kmem_cache_alloc(packet_task_cache, kmflags);
-@@ -1555,6 +1555,7 @@
- 		ether1394_free_packet(ptask->packet);
- 	if(ptask)
- 		kmem_cache_free(packet_task_cache, ptask);
-+out:
- 	if(skb != NULL) {
- 		dev_kfree_skb(skb);
- 	}
+
+Compile statistics have been for kernel releases from 2.5.46 to 2.5.73
+at: www.osdl.org/archive/cherry/stability (will be posted by 11AM)
+
+Error Summary:
+                                                                                
+   drivers/block: 2 warnings, 1 errors
+   drivers/char: 234 warnings, 5 errors
+   drivers/isdn: 216 warnings, 6 errors
+   drivers/media: 102 warnings, 5 errors
+   drivers/mtd: 53 warnings, 3 errors
+   drivers/net: 29 warnings, 6 errors
+   drivers/net: 314 warnings, 6 errors
+   drivers/scsi/aic7xxx: 0 warnings, 1 errors
+   drivers/scsi: 114 warnings, 11 errors
+   drivers/video: 75 warnings, 3 errors
+   sound/oss: 49 warnings, 3 errors
+   sound: 5 warnings, 3 errors
+                                                                                
+                                                                                
+Warning Summary:
+                                                                                
+   drivers/atm: 36 warnings, 0 errors
+   drivers/cdrom: 25 warnings, 0 errors
+   drivers/i2c: 3 warnings, 0 errors
+   drivers/ide: 29 warnings, 0 errors
+   drivers/ieee1394: 2 warnings, 0 errors
+   drivers/md: 2 warnings, 0 errors
+   drivers/message: 1 warnings, 0 errors
+   drivers/pci: 1 warnings, 0 errors
+   drivers/pcmcia: 3 warnings, 0 errors
+   drivers/scsi/aacraid: 1 warnings, 0 errors
+   drivers/scsi/pcmcia: 5 warnings, 0 errors
+   drivers/scsi/sym53c8xx_2: 1 warnings, 0 errors
+   drivers/serial: 1 warnings, 0 errors
+   drivers/telephony: 9 warnings, 0 errors
+   drivers/usb: 1 warnings, 0 errors
+   drivers/video/aty: 3 warnings, 0 errors
+   drivers/video/matrox: 5 warnings, 0 errors
+   drivers/video/sis: 2 warnings, 0 errors
+   fs/afs: 1 warnings, 0 errors
+   fs/intermezzo: 1 warnings, 0 errors
+   fs/jffs2: 1 warnings, 0 errors
+   fs/jffs: 1 warnings, 0 errors
+   fs/lockd: 4 warnings, 0 errors
+   fs/nfsd: 2 warnings, 0 errors
+   fs/smbfs: 2 warnings, 0 errors
+   net: 35 warnings, 0 errors
+   sound/isa: 16 warnings, 0 errors
+
+John
+

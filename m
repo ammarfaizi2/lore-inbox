@@ -1,189 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263695AbUBHPbt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 10:31:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUBHPar
+	id S263726AbUBHPet (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 10:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbUBHPdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 10:30:47 -0500
-Received: from amsfep16-int.chello.nl ([213.46.243.26]:21793 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S263726AbUBHP2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 10:28:47 -0500
-Date: Sun, 8 Feb 2004 16:28:29 +0100
-Message-Id: <200402081528.i18FSTrV026999@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 405] Amiga Hydra Ethernet new driver model
+	Sun, 8 Feb 2004 10:33:05 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:30980 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S263726AbUBHPca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 10:32:30 -0500
+Date: Sun, 8 Feb 2004 23:32:08 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: =?koi8-r?Q?=22?=Peter Lojkin=?koi8-r?Q?=22=20?= <ia6432@inbox.ru>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       nfs@lists.sourceforge.net
+Subject: Re: [NFS] nfs or autofs related hangs
+In-Reply-To: <E1AoQvL-0002NP-00.ia6432-inbox-ru@f21.mail.ru>
+Message-ID: <Pine.LNX.4.58.0402082326270.5926@raven.themaw.net>
+References: <E1AoQvL-0002NP-00.ia6432-inbox-ru@f21.mail.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, PATCH_UNIFIED_DIFF, REFERENCES,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hydra Ethernet: Convert to the new driver model
+On Wed, 4 Feb 2004, [koi8-r] "Peter Lojkin[koi8-r] "  wrote:
 
---- linux-2.6.3-rc1/drivers/net/hydra.c	2004-02-08 10:19:34.000000000 +0100
-+++ linux-m68k-2.6.3-rc1/drivers/net/hydra.c	2004-02-08 11:47:55.000000000 +0100
-@@ -44,10 +44,10 @@
+> Hello,
+> 
+> i'm not sure which list is correct to post about
+> our problem so i'm cc'ing both autofs and nfs lists...
+> 
+> some of our server keep hanging (well just any nfs
+> access hangs) and there're always stuck
+> "umount //auto/dir" or "umount //home/dir"
+> processes (btw i thought that double "/" problem
+> was fixed?). 
+> 
+> i've done sysrq-t traces (attached) when this
+> happened with stock 2.4.22 + NFS_ALL (by trond) and
+> with 2.4.23aa1 + autofs4-2.4.22.patch
+> in both cases autofs-4.1.0 were used but there're
+> the same hangs with debian autofs-3.9.99-4.0.0pre10-1
+> and autofs-3.9.99-4.0.0pre10-16
+> there're no oopses or any error messages prior to
+> hang. we have no such problem with 2.4.20aa kernels
+> but on newer servers we can't go below 2.4.22 because
+> of hardware compatibility.
+
+Looking at the trace I can't tell if autofs v4 is causing this but I 
+believe there is a potential race in the wait queue code of the autofs4 
+module.
+
+Could you try this patch please.
+
+diff -Nur linux-2.4.22.orig/fs/autofs4/autofs_i.h linux-2.4.22.waitq/fs/autofs4/autofs_i.h
+--- linux-2.4.22.orig/fs/autofs4/autofs_i.h	2004-02-08 09:24:12.000000000 +0800
++++ linux-2.4.22.waitq/fs/autofs4/autofs_i.h	2004-02-08 23:12:12.000000000 +0800
+@@ -73,7 +73,6 @@
+ struct autofs_wait_queue {
+ 	wait_queue_head_t queue;
+ 	struct autofs_wait_queue *next;
+-	struct task_struct *owner;
+ 	autofs_wqt_t wait_queue_token;
+ 	/* We use the following to see what we are waiting for */
+ 	int hash;
+@@ -81,7 +80,7 @@
+ 	char *name;
+ 	/* This is for status reporting upon return */
+ 	int status;
+-	int wait_ctr;
++	atomic_t wait_ctr;
+ };
  
- #define WORDSWAP(a)     ((((a)>>8)&0xff) | ((a)<<8))
+ #define AUTOFS_SBI_MAGIC 0x6d4a556d
+diff -Nur linux-2.4.22.orig/fs/autofs4/waitq.c linux-2.4.22.waitq/fs/autofs4/waitq.c
+--- linux-2.4.22.orig/fs/autofs4/waitq.c	2004-02-08 09:24:12.000000000 +0800
++++ linux-2.4.22.waitq/fs/autofs4/waitq.c	2004-02-08 23:19:07.000000000 +0800
+@@ -17,6 +17,8 @@
+ #include <linux/file.h>
+ #include "autofs_i.h"
  
--static struct net_device *root_hydra_dev;
++static spinlock_t waitq_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
++
+ /* We make this a static variable rather than a part of the superblock; it
+    is better if we don't reassign numbers easily even across filesystems */
+ static autofs_wqt_t autofs4_next_wait_queue = 1;
+@@ -181,12 +183,14 @@
+ 		return -ENOENT;
+ 	}
  
--static int __init hydra_probe(void);
--static int __init hydra_init(unsigned long board);
-+static int __devinit hydra_init_one(struct zorro_dev *z,
-+				    const struct zorro_device_id *ent);
-+static int __init hydra_init(struct zorro_dev *z);
- static int hydra_open(struct net_device *dev);
- static int hydra_close(struct net_device *dev);
- static void hydra_reset_8390(struct net_device *dev);
-@@ -57,34 +57,38 @@
- 			      struct sk_buff *skb, int ring_offset);
- static void hydra_block_output(struct net_device *dev, int count,
- 			       const unsigned char *buf, int start_page);
--static void __exit hydra_cleanup(void);
-+static void __devexit hydra_remove_one(struct zorro_dev *z);
++	spin_lock(&waitq_lock);
+ 	for ( wq = sbi->queues ; wq ; wq = wq->next ) {
+ 		if ( wq->hash == dentry->d_name.hash &&
+ 		     wq->len == len &&
+ 		     wq->name && !memcmp(wq->name, name, len) )
+ 			break;
+ 	}
++	spin_unlock(&waitq_lock);
+ 	
+ 	if ( !wq ) {
+ 		/* Create a new wait queue */
+@@ -196,22 +200,23 @@
+ 			return -ENOMEM;
+ 		}
  
--static int __init hydra_probe(void)
--{
--    struct zorro_dev *z = NULL;
--    unsigned long board;
--    int err = -ENODEV;
++		spin_lock(&waitq_lock);
+ 		wq->wait_queue_token = autofs4_next_wait_queue;
+ 		if (++autofs4_next_wait_queue == 0)
+ 			autofs4_next_wait_queue = 1;
++		wq->next = sbi->queues;
++		sbi->queues = wq;
++		spin_unlock(&waitq_lock);
+ 		init_waitqueue_head(&wq->queue);
+-		wq->owner = current;
+ 		wq->hash = dentry->d_name.hash;
+ 		wq->name = name;
+ 		wq->len = len;
+ 		wq->status = -EINTR; /* Status return if interrupted */
+-		wq->next = sbi->queues;
+-		sbi->queues = wq;
+ 
+ 		DPRINTK(("autofs4_wait: new wait id = 0x%08lx, name = %.*s, nfy=%d\n",
+ 			(unsigned long) wq->wait_queue_token, wq->len, wq->name, notify));
+ 		/* autofs4_notify_daemon() may block */
+-		wq->wait_ctr = 2;
++		atomic_set(&wq->wait_ctr, 2);
+ 		if (notify != NFY_NONE) {
+ 			autofs4_notify_daemon(sbi,wq, 
+ 				notify == NFY_MOUNT ? 
+@@ -219,7 +224,7 @@
+ 				       	autofs_ptype_expire_multi);
+ 		}
+ 	} else {
+-		wq->wait_ctr++;
++		atomic_inc(&wq->wait_ctr);
+ 		DPRINTK(("autofs4_wait: existing wait id = 0x%08lx, name = %.*s, nfy=%d\n",
+ 			(unsigned long) wq->wait_queue_token, wq->len, wq->name, notify));
+ 	}
+@@ -248,11 +253,6 @@
+ 
+ 		wait_event_interruptible(wq->queue, wq->name == NULL);
+ 
+-		if (waitqueue_active(&wq->queue) && current != wq->owner) {
+-			set_current_state(TASK_INTERRUPTIBLE);
+-			schedule_timeout(HZ/10);
+-		}
 -
--    while ((z = zorro_find_device(ZORRO_PROD_HYDRA_SYSTEMS_AMIGANET, z))) {
--	board = z->resource.start;
--	if (!request_mem_region(board, 0x10000, "Hydra"))
--	    continue;
--	if ((err = hydra_init(ZTWO_VADDR(board)))) {
--	    release_mem_region(board, 0x10000);
--	    return err;
--	}
--	err = 0;
--    }
-+static struct zorro_device_id hydra_zorro_tbl[] = {
-+    { ZORRO_PROD_HYDRA_SYSTEMS_AMIGANET },
-+    { 0 }
-+};
-+
-+static struct zorro_driver hydra_driver = {
-+    .name	= "hydra",
-+    .id_table	= hydra_zorro_tbl,
-+    .probe	= hydra_init_one,
-+    .remove	= __devexit_p(hydra_remove_one),
-+};
+ 		spin_lock_irqsave(&current->sigmask_lock, irqflags);
+ 		current->blocked = oldset;
+ 		recalc_sigpending(current);
+@@ -263,7 +263,7 @@
  
--    if (err == -ENODEV)
--	printk("No Hydra ethernet card found.\n");
-+static int __devinit hydra_init_one(struct zorro_dev *z,
-+				    const struct zorro_device_id *ent)
-+{
-+    int err;
+ 	status = wq->status;
  
--    return err;
-+    if (!request_mem_region(z->resource.start, 0x10000, "Hydra"))
-+	return -EBUSY;
-+    if ((err = hydra_init(z))) {
-+	release_mem_region(z->resource.start, 0x10000);
-+	return -EBUSY;
-+    }
-+    return 0;
- }
+-	if (--wq->wait_ctr == 0)	/* Are we the last process to need status? */
++	if (atomic_dec_and_test(&wq->wait_ctr))	/* Are we the last process to need status? */
+ 		kfree(wq);
  
--static int __init hydra_init(unsigned long board)
-+static int __init hydra_init(struct zorro_dev *z)
+ 	return status;
+@@ -274,20 +274,25 @@
  {
-     struct net_device *dev;
-+    unsigned long board = ZTWO_VADDR(z->resource.start);
-     unsigned long ioaddr = board+HYDRA_NIC_BASE;
-     const char name[] = "NE2000";
-     int start_page, stop_page;
-@@ -128,7 +132,7 @@
- 	return -ENOMEM;
-     }
+ 	struct autofs_wait_queue *wq, **wql;
  
--    printk("%s: hydra at 0x%08lx, address %02x:%02x:%02x:%02x:%02x:%02x (hydra.c " HYDRA_VERSION ")\n", dev->name, ZTWO_PADDR(board),
-+    printk("%s: hydra at 0x%08lx, address %02x:%02x:%02x:%02x:%02x:%02x (hydra.c " HYDRA_VERSION ")\n", dev->name, z->resource.start,
- 	dev->dev_addr[0], dev->dev_addr[1], dev->dev_addr[2],
- 	dev->dev_addr[3], dev->dev_addr[4], dev->dev_addr[5]);
- 
-@@ -147,19 +151,18 @@
-     ei_status.reg_offset = hydra_offsets;
-     dev->open = &hydra_open;
-     dev->stop = &hydra_close;
--#ifdef MODULE
--    ei_status.priv = (unsigned long)root_hydra_dev;
--    root_hydra_dev = dev;
--#endif
-     NS8390_init(dev, 0);
++	spin_lock(&waitq_lock);
+ 	for ( wql = &sbi->queues ; (wq = *wql) ; wql = &wq->next ) {
+ 		if ( wq->wait_queue_token == wait_queue_token )
+ 			break;
+ 	}
+-	if ( !wq )
 +
-     err = register_netdev(dev);
--    if (!err)
--	return 0;
-+    if (err) {
-+	free_irq(IRQ_AMIGA_PORTS, dev);
-+	kfree(dev->priv);
-+	free_netdev(dev);
-+	return err;
-+    }
++	if ( !wq ) {
++		spin_unlock(&waitq_lock);
+ 		return -EINVAL;
++	}
  
--    free_irq(IRQ_AMIGA_PORTS, dev);
--    kfree(dev->priv);
--    free_netdev(dev);
--    return err;
-+    zorro_set_drvdata(z, dev);
-+    return 0;
- }
+ 	*wql = wq->next;	/* Unlink from chain */
++	spin_unlock(&waitq_lock);
+ 	kfree(wq->name);
+ 	wq->name = NULL;	/* Do not wait on this queue */
  
- static int hydra_open(struct net_device *dev)
-@@ -230,20 +233,27 @@
-     z_memcpy_toio(mem_base+((start_page - NESM_START_PG)<<8), buf, count);
- }
+ 	wq->status = status;
  
--static void __exit hydra_cleanup(void)
-+static void __devexit hydra_remove_one(struct zorro_dev *z)
- {
--    struct net_device *dev, *next;
-+    struct net_device *dev = zorro_get_drvdata(z);
- 
--    while ((dev = root_hydra_dev)) {
--	next = (struct net_device *)(ei_status.priv);
--	unregister_netdev(dev);
--	free_irq(IRQ_AMIGA_PORTS, dev);
--	release_mem_region(ZTWO_PADDR(dev->base_addr)-HYDRA_NIC_BASE, 0x10000);
--	free_netdev(dev);
--	root_hydra_dev = next;
--    }
-+    unregister_netdev(dev);
-+    free_irq(IRQ_AMIGA_PORTS, dev);
-+    release_mem_region(ZTWO_PADDR(dev->base_addr)-HYDRA_NIC_BASE, 0x10000);
-+    free_netdev(dev);
-+}
-+
-+static int __init hydra_init_module(void)
-+{
-+    return zorro_module_init(&hydra_driver);
-+}
-+
-+static void __exit hydra_cleanup_module(void)
-+{
-+    zorro_unregister_driver(&hydra_driver);
- }
- 
--module_init(hydra_probe);
--module_exit(hydra_cleanup);
-+module_init(hydra_init_module);
-+module_exit(hydra_cleanup_module);
-+
- MODULE_LICENSE("GPL");
+-	if (--wq->wait_ctr == 0)	/* Is anyone still waiting for this guy? */
++	if (atomic_dec_and_test(&wq->wait_ctr))	/* Is anyone still waiting for this guy? */
+ 		kfree(wq);
+ 	else
+ 		wake_up_interruptible(&wq->queue);
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

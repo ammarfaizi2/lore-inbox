@@ -1,86 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270230AbTHLMUe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 08:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270243AbTHLMUd
+	id S270243AbTHLMb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 08:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270295AbTHLMb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 08:20:33 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:39315
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S270230AbTHLMUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 08:20:32 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH]O15int for interactivity
-Date: Tue, 12 Aug 2003 22:26:11 +1000
+	Tue, 12 Aug 2003 08:31:26 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:27843 "EHLO
+	antoli.gallimedina.net") by vger.kernel.org with ESMTP
+	id S270243AbTHLMbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 08:31:24 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: PATCH: Re: 2.6.0-test3+sk98lin driver with hardware bug make eth unusable
+Date: Tue, 12 Aug 2003 14:31:22 +0200
 User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>
+References: <200308121154.h7CBsEA32675@devserv.devel.redhat.com>
+In-Reply-To: <200308121154.h7CBsEA32675@devserv.devel.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200308122226.11557.kernel@kolivas.org>
+Message-Id: <200308121431.22226.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch addresses the problem of tasks that preempt their children when 
-they're forking, wasting cpu cycles until they get demoted to a priority where 
-they no longer preempt their child. Although this has been said to be a design 
-flaw in the applications, it can cause sustained periods of starvation due to 
-this coding problem, and the more I looked, the more examples I found of this 
-happening.
+On Tuesday 12 August 2003 13:54, Alan Cox shaped the electrons to shout:
+> > There is a ASIC bug in several popular motherboards (including ASUS ones)
+> > related to TX hardware checksum.
+>
+> The checksum comes off the SK hardware
+>
+> > For packets smaller that 56 bytes (payload), as UDP dns queries, the asic
+> > generates a bad checksum making the drivers unusable for "normal"
+> > Internet usage:
+>
+> Sounds like broken padding handling for small frames, if so let the sw
+> checksum handle them.
 
-Tasks now cannot preempt their own children. This speeds up the startup of 
-child applications (eg pgp signed email).
+Find enclosed the patch to make it a Kconfig option. Just tested, 
+at least it works as a workaround.
 
-This change has allowed tasks to stay at higher priority for much longer so 
-the sleep avg decay of high credit tasks has been changed to match the rate of 
-rise during periods of sleep (which I wanted to do originally but was limited 
-by the first problem). This makes for much more sustained interactivity at 
-extreme loads, and much less X jerkiness.
+Regards,
 
-Con
+-- 
+  ricardo galli       GPG id C8114D34
+  http://mnm.uib.es/~gallir/
 
-Patch against 2.6.0-test3-mm1:
 
---- linux-2.6.0-test3-mm1-O14.1/kernel/sched.c	2003-08-12 22:04:13.000000000 +1000
-+++ linux-2.6.0-test3-mm1/kernel/sched.c	2003-08-12 22:03:47.000000000 +1000
-@@ -620,8 +620,13 @@ repeat_lock_task:
- 				__activate_task(p, rq);
- 			else {
- 				activate_task(p, rq);
--				if (TASK_PREEMPTS_CURR(p, rq))
--					resched_task(rq->curr);
-+				/*
-+				 * Parents are not allowed to preempt their
-+				 * children
-+				 */
-+				if (TASK_PREEMPTS_CURR(p, rq) &&
-+					p != rq->curr->parent)
-+						resched_task(rq->curr);
- 			}
- 			success = 1;
- 		}
-@@ -1124,7 +1129,7 @@ static inline void pull_task(runqueue_t 
- 	 * Note that idle threads have a prio of MAX_PRIO, for this test
- 	 * to be always true for them.
- 	 */
--	if (TASK_PREEMPTS_CURR(p, this_rq))
-+	if (TASK_PREEMPTS_CURR(p, this_rq) && p != this_rq->curr->parent)
- 		set_need_resched();
- }
- 
-@@ -1493,9 +1498,8 @@ need_resched:
- 	 * priority bonus
- 	 */
- 	if (HIGH_CREDIT(prev))
--		run_time /= (MAX_BONUS + 1 -
--			(NS_TO_JIFFIES(prev->sleep_avg) * MAX_BONUS /
--			MAX_SLEEP_AVG));
-+		run_time /= ((NS_TO_JIFFIES(prev->sleep_avg) * MAX_BONUS /
-+				MAX_SLEEP_AVG) ? : 1);
- 
- 	spin_lock_irq(&rq->lock);
- 
+Patch against 2.6.0-test3
+
+diff -r -u linux-2.6.0-test3/drivers/net/Kconfig linux-2.6.0-test3-new/drivers/net/Kconfig
+--- linux-2.6.0-test3/drivers/net/Kconfig	2003-08-10 17:34:29.000000000 +0200
++++ linux-2.6.0-test3-new/drivers/net/Kconfig	2003-08-12 13:47:50.000000000 +0200
+@@ -2107,6 +2107,13 @@
+ 	  say M here and read Documentation/modules.txt. This is recommended.
+ 	  The module will be called sk98lin.o.
+
++config SK98LIN_TX_CHECKSUM
++	bool "Use hardware TX checksum"
++	depends on SK98LIN
++	help
++	  Some chips have a hardware bugs that generate wrong
++	  checksums in small packets. If unsure, say No.
++
+ config CONFIG_SK98LIN_T1
+ 	bool "3Com 3C940/3C941 Gigabit Ethernet Adapter"
+ 	depends on SK98LIN
+diff -r -u linux-2.6.0-test3/drivers/net/sk98lin/skge.c linux-2.6.0-test3-new/drivers/net/sk98lin/skge.c
+--- linux-2.6.0-test3/drivers/net/sk98lin/skge.c	2003-08-10 17:33:18.000000000 +0200
++++ linux-2.6.0-test3-new/drivers/net/sk98lin/skge.c	2003-08-12 13:50:41.000000000 +0200
+@@ -422,8 +422,12 @@
+ /* for debuging on x86 only */
+ /* #define BREAKPOINT() asm(" int $3"); */
+
++#ifdef CONFIG_SK98LIN_TX_CHECKSUM
+ /* use the transmit hw checksum driver functionality */
+-#define USE_SK_TX_CHECKSUM
++ #define USE_SK_TX_CHECKSUM
++#else
++ #undef USE_SK_TX_CHECKSUM
++#endif
+
+ /* use the receive hw checksum driver functionality */
+ #define USE_SK_RX_CHECKSUM
 

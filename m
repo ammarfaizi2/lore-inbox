@@ -1,87 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUJLOhc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUJLOhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbUJLOhc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 10:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUJLOfr
+	id S264704AbUJLOhb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 10:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbUJLOgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 10:35:47 -0400
-Received: from ns2.gabswave.net ([193.219.214.10]:3008 "EHLO gabswave.net")
-	by vger.kernel.org with ESMTP id S265161AbUJLOeC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 10:34:02 -0400
-Message-ID: <001401c4b068$7cb74750$0200060a@STEPHANFCN56VN>
-From: "Stephan" <support@bbi.co.bw>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: <linux-kernel@vger.kernel.org>
-References: <006901c4b05a$3dddd570$0200060a@STEPHANFCN56VN> <20041012141123.GA18579@stusta.de>
-Subject: Re: Problem compiling linux-2.6.8.1......
-Date: Tue, 12 Oct 2004 16:33:18 +0200
+	Tue, 12 Oct 2004 10:36:20 -0400
+Received: from foss.kharkov.ua ([195.69.184.25]:23700 "EHLO
+	relay.foss.kharkov.ua") by vger.kernel.org with ESMTP
+	id S264704AbUJLOd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 10:33:56 -0400
+X-AV-Checked: Tue Oct 12 17:33:22 2004 passed
+Message-ID: <416BEB59.5010809@kharkiv.com.ua>
+Date: Tue, 12 Oct 2004 17:34:01 +0300
+From: Oleksiy <Oleksiy@kharkiv.com.ua>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: pl2303/usb-serial driver problem in 2.4.27-pre6
+References: <416A6CF8.5050106@kharkiv.com.ua> <20041011113609.GB417@logos.cnet>
+In-Reply-To: <20041011113609.GB417@logos.cnet>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-gabswave.net-MailScanner-Information: Please contact the ISP for more information
-X-gabswave.net-MailScanner: Found to be clean
-X-MailScanner-From: support@bbi.co.bw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tried to recompile the kernel and watched very carefully for anything 
-out off the ordinary but could not find anything that might relate to an 
-error message.
+Hi,
 
-Is there anything specific I should keep any eye out for?
+No, i haven't changed anything: the same cable, the same modules.
+I was compiling new kernels (-pre1, -pre2 ... all patches ) and just 
+after boot running pppd to test connection.
+2.4.26 and all 2.4.27-preX works fine till -pre6. All after -pre6 
+including 2.4.28-pre4 are not working for me...
 
-Kind Regards
-Steph
+Hardware: Dell Inspiron 1100 notebook
 
+Marcelo Tosatti wrote:
 
------ Original Message ----- 
-From: "Adrian Bunk" <bunk@stusta.de>
-To: "Stephan" <support@bbi.co.bw>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, October 12, 2004 4:11 PM
-Subject: Re: Problem compiling linux-2.6.8.1......
-
-
-> On Tue, Oct 12, 2004 at 02:51:20PM +0200, Stephan wrote:
+>Pete, 
 >
->> I'm trying to compile linux-2.6.8.1 but I'm getting the following error
->> when doing a make.
+>I bet this has been caused by your USB changes?
+>
+>Can you take a look at this please?
+>
+>On Mon, Oct 11, 2004 at 02:22:32PM +0300, Oleksiy wrote:
+>  
+>
+>>Hi all,
 >>
->>  LD      .tmp_vmlinux1
->> ld: cannot open kernel/built-in.o: No such file or directory
->> make: *** [.tmp_vmlinux1] Error 1
+>>I have a problem using GPRS inet vi my Siemens S55 attached with USB 
+>>cable since kernel version 2.4.27-pre5, the link is established well, 
+>>but then no packets get received, looking with tcpdump shows outgoing 
+>>ping packets and just few per several minutes received back. I'm unable 
+>>to ping, do nslookup, etc.
+>>The problem started when i switched from kernel 2.4.26 (linux slackware 
+>>10.0) to 2.4.28-pre3. None of ppp otions haven't changed and all the 
+>>same options were set during kerenel config. So i decided to test all 
+>>kernels between 2.4.26 and 2.4.28-pre4 (also not working). Link works 
+>>well in 2.4.27-pre5 and stop working in 2.4.27-pre6. No "strange" 
+>>messages or errors in the logs. firewall is disabled (ACCEPT for all).
 >>
->> Any ideas would be apreciated.
->
-> This shouldn't be the first error.
->
-> Did you observe any other errors before?
->
->> Kind Regards
->
-> cu
-> Adrian
->
-> -- 
->
->       "Is there not promise of rain?" Ling Tan asked suddenly out
->        of the darkness. There had been need of rain for many days.
->       "Only a promise," Lao Er said.
->                                       Pearl S. Buck - Dragon Seed
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>>i'm using:
+>>
+>>pppd-2.4.2
+>>Siemens S55 mobile
+>>USB cable (PL2303 conroller)
+>>
+>>USB drivers:
+>>
+>>ehci_hcd
+>>uhci.c
+>>pl2303.c
+>>
+>>    
+>>
 
+-- 
+Oleksiy
+http://voodoo.com.ua
 

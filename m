@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbUCLIEz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 03:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbUCLIEy
+	id S262028AbUCLIKg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 03:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbUCLIKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 03:04:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:58085 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262012AbUCLIEs (ORCPT
+	Fri, 12 Mar 2004 03:10:36 -0500
+Received: from hera.kernel.org ([63.209.29.2]:22403 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262028AbUCLIKf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 03:04:48 -0500
-Date: Fri, 12 Mar 2004 09:04:46 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] per-backing dev unplugging #2
-Message-ID: <20040312080446.GB15598@suse.de>
-References: <20040311083619.GH6955@suse.de> <200403120741.18455.ioe-lkml@rameria.de>
+	Fri, 12 Mar 2004 03:10:35 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: /dev/root: which approach ? [PATCH]
+Date: Fri, 12 Mar 2004 08:10:23 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c2rr9f$ppr$1@terminus.zytor.com>
+References: <20040310162003.GA25688@cistron.nl> <404F77F3.9070106@kolumbus.fi> <c2nv6c$j5$2@news.cistron.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403120741.18455.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Trace: terminus.zytor.com 1079079023 26428 63.209.29.3 (12 Mar 2004 08:10:23 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 12 Mar 2004 08:10:23 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12 2004, Ingo Oeser wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+Followup to:  <c2nv6c$j5$2@news.cistron.nl>
+By author:    "Miquel van Smoorenburg" <miquels@cistron.nl>
+In newsgroup: linux.dev.kernel
+>
+> In article <404F77F3.9070106@kolumbus.fi>,
+> Mika Penttilä  <mika.penttila@kolumbus.fi> wrote:
+> >
+> >>My question to the FS hackers: which one is the preferred approach?
+> >>
+> >>dev_root_alias.patch
+> >>
+> >>+	/* See if device is the /dev/root alias. */
+> >>+	if (dev == MKDEV(4, 1)) {
+> >
+> >what is this 4,1, a tty???
 > 
-> Hi Jens,
+> If it was a character device, yes. But it's a block device, and
+> major 4 isn't used yet. I just made it up, a major would need to
+> be allocated by LANANA ofcourse.
 > 
-> On Thursday 11 March 2004 09:36, Jens Axboe wrote:
-> > diff -ur -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.4-mm1/kernel/power/pmdisk.c linux-2.6.4-mm1/kernel/power/pmdisk.c
-> > --- /opt/kernel/linux-2.6.4-mm1/kernel/power/pmdisk.c	2004-03-11 03:55:28.000000000 +0100
-> > +++ linux-2.6.4-mm1/kernel/power/pmdisk.c	2004-03-11 09:07:12.000000000 +0100
-> > @@ -859,7 +859,6 @@
-> >  
-> >  static void wait_io(void)
-> >  {
-> > -	blk_run_queues();
-> >  	while(atomic_read(&io_done))
-> >  		io_schedule();
-> >  }
-> > @@ -895,6 +894,7 @@
-> >  		goto Done;
-> >  	}
-> >  
-> > +	rw |= BIO_RW_SYNC;
-> >  	if (rw == WRITE)
-> >  		bio_set_pages_dirty(bio);
-> >  	start_io();
-> 
-> These last 3 lines look bogus. The condition will never trigger. 
-> Maybe you meant to move the assignment either down or change bio->bi_rw
-> instead of rw.
 
-Oops yes, that is bogus. Thanks for cathing that.
+Please contact John Cagle <device@lanana.org>.
 
--- 
-Jens Axboe
-
+	-hpa

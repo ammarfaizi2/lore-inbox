@@ -1,103 +1,109 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315146AbSD2MdY>; Mon, 29 Apr 2002 08:33:24 -0400
+	id <S315149AbSD2Mfa>; Mon, 29 Apr 2002 08:35:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315149AbSD2MdX>; Mon, 29 Apr 2002 08:33:23 -0400
-Received: from krynn.axis.se ([193.13.178.10]:51851 "EHLO krynn.axis.se")
-	by vger.kernel.org with ESMTP id <S315146AbSD2MdV>;
-	Mon, 29 Apr 2002 08:33:21 -0400
-Date: Mon, 29 Apr 2002 14:29:33 +0200 (CEST)
-From: Johan Adolfsson <johan.adolfsson@axis.com>
-X-X-Sender: <johana@ado-2.axis.se>
-To: <quinlan@transmeta.com>, <marcelo@conectiva.com.br>,
-        <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>, <johan.adolfsson@axis.com>
-Subject: [PATCH] cramfs 5/6 - metafiles.txt
-Message-ID: <Pine.LNX.4.33.0204291419570.25892-200000@ado-2.axis.se>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="218762247-651825825-1020083373=:25892"
+	id <S315150AbSD2Mf3>; Mon, 29 Apr 2002 08:35:29 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:45951 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S315149AbSD2Mf1>; Mon, 29 Apr 2002 08:35:27 -0400
+Message-Id: <5.1.0.14.2.20020429131258.04913ab0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 29 Apr 2002 13:34:02 +0100
+To: Nikita Danilov <Nikita@Namesys.COM>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [prepatch] address_space-based writeback
+Cc: viro@math.psu.edu, Jan Harkes <jaharkes@cs.cmu.edu>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <15565.13742.140693.146727@laputa.namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+At 12:59 29/04/02, Nikita Danilov wrote:
+>[snip]
+>  > >Please note that ->read_inode2() is reiserfs-specific hack. Adding more
+>  > >users for it would make it permanent. The only reason for ->read_inode2
+>  > >existence was that iget() was called by code external to the
+>  > >file-system, knfsd used to do this, now it can call ->fh_to_dentry() in
+>  > >stead. As iget() is never called outside of file-ssytem, you can set
+>  > >ntfs->read_inode to no-op and write your own function ntfs_iget(...) to
+>  > >be called from ntfs_lookup() and ntfs_fill_super().
+>  > >
+>  > >ntfs_iget() calls iget() (->read_inode is no-op, hence iget doesn't
+>  > >access disk) and, if new inode were allocated, reads data from the disk
+>  > >and initializes inode, etc.
+>  > >
+>  > >I guess coda_iget() is example of this.
+>  >
+>  > This will not work AFAICS.
+>  >
+>  > coda_iget() -> iget4() -> get_new_inode(), which calls ->read_inode or
+>  > ->read_inode2, and then unlocks the inode and wakes up the waiting tasks.
+>  >
+>  > If ->read_inode and ->read_inode2 are NULL as you suggest for NTFS it 
+> means
+>  > that as soon as ntfs_iget() has called iget4() there will be an
+>  > uninitialized yet unlocked inode in memory which is guaranteed to cause
+>  > NTFS to oops... (And any other fs using this approach.)
+>
+>I see. While this can be worked around by adding flag set up after inode
+>initialization, this would become ugly shortly.
+>
+>  > Before the inode is unlocked it MUST be initialized. And the only way
+>  > to do this in the framework of the current VFS is to use ->read_inode
+>  > or ->read_inode2.
+>  >
+>  > Al, would you agree with NTFS using ->read_inode2 as well as ReiserFS?
+>
+>->read_inode2 is a hack.
+>
+>And especially so is having both ->read_inode and ->read_inode2. iget() 
+>interface was based on the assumption that inodes can be located (and 
+>identified) by inode number. It is not so at least for the reiserfs and 
+>->read_inode2 works around this by passing "cookie" with information 
+>sufficient for file system to locate inode.
+>
+>I am concerned that (ab)using this cookie and ->read_inode2 to bypass
+>rigid iget() is not right way to go.
 
---218762247-651825825-1020083373=:25892
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Perhaps. But it works now and can easily be modified later if better 
+approach comes along.
 
-5. linux/Documentation/filesystems/metafiles.txt added that describes the
-   metafile format used in mkcramfs.
+>What about VFS exporting function that checks hash table, creates new 
+>inode if not there and returns it still locked? This way each file system 
+>would be able to locate and load
+>inodes in a way it likes without encoding/decoding information in the cookie.
 
-The file is simply attached, not a real patch, hope that is ok.
-It's intended to go into linux/Documentation/filesystems/ , but
-since mkcramfs no longer is in the kernel, perhaps
-that isn't the correct place for it anymore.
-Perhaps simply add it to the cramfs tools (or both..)?
+Yes that would work fine. But it would still need the iget4 like find actor 
+and opaque pointer to do the "checks hash table" part...
 
-/Johan
+Basically one could just change iget4 into two functions: iget calling 
+fs->read_inode (with read_inode2 removed) and iget4 without the 
+->read_inode and ->read_inode2 and returning a locked inode instead.
+
+That would make it fs specific.
+
+If we wanted to make it generic we do need a special method in the 
+operations, but wait, we already have read_inode2! So perhaps it isn't as 
+much of a hack after all...
+
+If you wanted to get rid of the hackish nature of the beast, one could just 
+remove ->read_inode and rename ->read_inode2 to ->read_inode. Then change 
+all fs to accept two dummy parameters in their ->read_inode declaration...
+
+If that would be an acceptable approach I would be happy to do a patch to 
+convert all in kernel file systems in 2.5.x.
+
+Best regards,
+
+Anton
 
 
---218762247-651825825-1020083373=:25892
-Content-Type: TEXT/plain; name="metafiles.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0204291429330.25892@ado-2.axis.se>
-Content-Description: metafiles.txt
-Content-Disposition: attachment; filename="metafiles.txt"
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
-TWV0YWZpbGVzDQo9PT09PT09PT0NCg0KTWV0YWZpbGVzIGFyZSB1c2VkIHRv
-IGxldCBhIGZpbGVzeXN0ZW0gYnVpbGRlciwgc3VjaCBhcyBta2NyYW1mcyBh
-bmQNCm1rZnMuamZmczIsIGlnbm9yZSBmaWxlcyBhbmQgY2hhbmdlIGF0dHJp
-YnV0ZXMgb2YgZmlsZXMgd2hpbGUgYnVpbGRpbmcNCnRoZSBmaWxlc3lzdGVt
-Lg0KDQpUaGlzIGRvY3VtZW50IGJyaWVmbHkgZGVzY3JpYmVzIGhvdyBBeGlz
-IENvbW11bmljYXRpb25zIGFyZSB1c2luZyBtZXRhZmlsZXMNCndpdGggbWtj
-cmFtZnMgYW1kIG1rZnMuamZmczIgYW5kIGlzIGFsc28gYSBwcm9wb3NhbCBv
-ZiBhIG1ldGFmaWxlIHN0YW5kYXJkDQpmb3IgZmlsZXN5c3RlbSBidWlsZGVy
-cy4NCg0KDQoNCk1ldGFmaWxlIEZvcm1hdA0KPT09PT09PT09PT09PT09DQoN
-CkFuIGluc3RydWN0aW9uIGlzIGEgbGluZSBpbiBhIG1ldGFmaWxlIHRlbGxp
-bmcgdGhlIGZpbGVzeXN0ZW0gYnVpbGRlciBpZg0KYW55dGhpbmcgc3BlY2lh
-bCBzaG91bGQgYmUgZG9uZSB3aXRoIGEgZmlsZSBvciBkaXJlY3RvcnkgYmVm
-b3JlIHdyaXRpbmcgaXQgdG8NCnRoZSBmaWxlc3lzdGVtLiBUaGUgZm9sbG93
-aW5nIGluc3RydWN0aW9ucyBzaG91bGQgYmUgcmVjb2duaXplZCBieSB0aGUN
-CmZpbGVzeXN0ZW0gYnVpbGRlcjoNCg0KDQpJZ25vcmUNCi0tLS0tLQ0KU3lu
-dGF4OiAiSWdub3JlOiBGSUxFIg0KDQpJZ25vcmVzIGEgZmlsZSBvciBkaXJl
-Y3RvcnkuIEkuZS4gRklMRSBpcyBub3QgaW5jbHVkZWQgaW4gdGhlIGZpbGVz
-eXN0ZW0uDQpUaGUgbWV0YWZpbGVzIHRoZW1zZWx2ZXMgYXJlIGFsd2F5cyBp
-Z25vcmVkIGFuZCBkbyBub3QgaGF2ZSB0byBiZSBtZW50aW9uZWQNCmluIGFu
-eSBtZXRhZmlsZXMuDQoNCg0KSWdub3JlQ29udGVudHMNCi0tLS0tLS0tLS0t
-LS0tDQpTeW50YXg6ICJJZ25vcmVDb250ZW50czogRElSRUNUT1JZIg0KDQpJ
-Z25vcmVzIHRoZSBjb250ZW50cyBvZiBhIGRpcmVjdG9yeS4gSS5lLiBESVJF
-Q1RPUlkgaXMgaW5jbHVkZWQgaW4gdGhlDQpmaWxlc3lzdGVtIGJ1dCBhbGwg
-ZmlsZXMgYW5kIGRpcmVjdG9yaWVzIGluIERJUkVDVE9SWSBhcmUgaWdub3Jl
-ZC4NCg0KDQpJbmNsdWRlDQotLS0tLS0tDQpTeW50YXg6ICJJbmNsdWRlOiBG
-SUxFIg0KDQpJbmNsdWRlcyBhIGZpbGUgb3IgZGlyZWN0b3J5LiBJZiBhbiBJ
-bmNsdWRlIGluc3RydWN0aW9uIGlzIGZvdW5kIGluIGENCm1ldGFmaWxlLCBh
-bGwgZmlsZXMgb3IgZGlyZWN0b3JpZXMgKGluIHRoZSBzYW1lIGRpcmVjdG9y
-eSBhcyB0aGUgbWV0YWZpbGUpDQp0aGF0IGFyZSBub3QgaW5jbHVkZWQgd2ls
-bCBiZSBpZ25vcmVkIChOT1RFISkuDQoNCg0KRGV2aWNlDQotLS0tLS0NClN5
-bnRheDogIkRldmljZTogRklMRSBUWVBFIE1BSk9SIE1JTk9SIg0KDQpDb252
-ZXJ0IGEgcmVndWxhciBmaWxlIHRvIGEgZGV2aWNlIHNwZWNpYWwgZmlsZS4g
-SWYgRklMRSBleGlzdHMgaXQgd2lsbCBiZQ0Kd3JpdHRlbiB0byB0aGUgZmls
-ZXN5c3RlbSBhcyBhIGNoYXJhY3RlciBvciBibG9jayBzcGVjaWFsIGZpbGUg
-d2l0aA0KTUFKT1IgYW5kIE1JTk9SIG51bWJlcnMuIFRZUEUgaXMgJ2InIGZv
-ciBibG9jayBhbmQgJ2MnIGZvciBjaGFyYWN0ZXIgZGV2aWNlLg0KDQpFeGFt
-cGxlOiBUbyBjcmVhdGUgdGhlIGNoYXJhY3RlciBzcGVjaWFsIGZpbGUgL2Rl
-di90dHlTMCB1c2luZyBtZXRhZmlsZXMsDQphZGQgdGhlIGZvbGxvd2luZyBs
-aW5lIHRvIHRoZSBtZXRhZmlsZSBpbiB0aGUgL2RldiBkaXJlY3Rvcnk6DQoN
-CkRldmljZTogdHR5UzAgYyA0IDY0DQoNCg0KVXNlcklkDQotLS0tLS0NClN5
-bnRheDogIlVzZXJJZDogRklMRSBVSUQiDQoNCkNoYW5nZSBmaWxlIG93bmVy
-LiBUaGUgb3duZXIgb2YgRklMRSB3aWxsIGJlIFVJRC4NCg0KDQpEZWZhdWx0
-VXNlcklkDQotLS0tLS0tLS0tLS0tDQpTeW50YXg6ICJEZWZhdWx0VXNlcklk
-OiBVSUQiDQoNCkNoYW5nZSBmaWxlIG93bmVyIHJlY3Vyc2l2ZWx5LiBBbGwg
-ZmlsZXMgYW5kIGRpcmVjdG9yaWVzIGluIHRoaXMgZGlyZWN0b3J5DQp3aWxs
-IGJlIG93bmVkIGJ5IFVJRCB1bmxlc3Mgb3ZlcnJpZGRlbiB3aXRoIHRoZSBV
-c2VySWQgaW5zdHJ1Y3Rpb24uDQoNCg0KR3JvdXBJZA0KLS0tLS0tLQ0KU3lu
-dGF4OiAiR3JvdXBJZDogRklMRSBHSUQiDQoNCkNoYW5nZSBncm91cCBvd25l
-cnNoaXAgb24gYSBmaWxlIG9yIGRpcmVjdG9yeS4gVGhlIGdyb3VwIG1lbWJl
-cnNoaXAgb2YgRklMRQ0Kd2lsbCBiZSBHSUQuDQoNCg0KRGVmYXVsdEdyb3Vw
-SWQNCi0tLS0tLS0tLS0tLS0tDQpTeW50YXg6ICJEZWZhdWx0R3JvdXBJZDog
-VUlEIg0KDQpDaGFuZ2UgZ3J1b3Agb3duZXJzaGlwIHJlY3Vyc2l2ZWx5LiBU
-aGUgZ3JvdXAgbWVtYmVyc2hpcCBvZiBhbGwgZmlsZXMgYW5kDQpkaXJlY3Rv
-cmllcyBpbiB0aGlzIGRpcmVjdG9yeSB3aWxsIGJlIEdJRCB1bmxlc3Mgb3Zl
-cnJpZGRlbiB3aXRoIHRoZSBHcm91cElkDQppbnN0cnVjdGlvbi4NCg==
---218762247-651825825-1020083373=:25892--

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261911AbREOQFc>; Tue, 15 May 2001 12:05:32 -0400
+	id <S261405AbREOQFw>; Tue, 15 May 2001 12:05:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261910AbREOQFW>; Tue, 15 May 2001 12:05:22 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:39948 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261405AbREOQFN>; Tue, 15 May 2001 12:05:13 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Device Numbers, LILO
-Date: 15 May 2001 09:04:55 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9drk37$51s$1@cesium.transmeta.com>
-In-Reply-To: <20010515121635.B5C402F84AC@www.topmail.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S261921AbREOQFm>; Tue, 15 May 2001 12:05:42 -0400
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:29188 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S261405AbREOQFd>;
+	Tue, 15 May 2001 12:05:33 -0400
+Date: Tue, 15 May 2001 09:05:31 -0700
+From: "H . J . Lu" <hjl@lucon.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+        "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8
+Message-ID: <20010515090531.B12586@lucon.org>
+In-Reply-To: <m1k83kj7dj.fsf@frodo.biederman.org> <m1y9s1jbml.fsf@frodo.biederman.org> <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org> <16874.989832587@redhat.com> <8717.989859079@redhat.com> <m1eltqkars.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m1eltqkars.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Tue, May 15, 2001 at 07:21:59AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010515121635.B5C402F84AC@www.topmail.de>
-By author:    mirabilos <eccesys@topmail.de>
-In newsgroup: linux.dev.kernel
->
-> >That's not the issue.  LILO takes whatever you pass to root= and converts
-> >it to a device number at /sbin/lilo time.  An idiotic practice on the
-> >part of LILO, in my opinion, that ought to have been fixed a long time
-> >ago.
 > 
-> That's why you have to use append="root=blah" for devfs :)
-> Really it should have been in IMO. Btw, is LBA support in?
-> Last time I saw a LILO manpage it stated that "linear" still
-> is restricted to 16bit (65535 sectors) which normally is much
-> less than 1k cylinders...
-> 
+> The clean way to handle it, and I'll take a look it to have
+> root=/dev/nfs (and the rdev equivalent) to set ip=on if it isn't
 
-It's in, but for some strange reason you have to ask for it explicitly
-with the "lba32" option.
+Yes.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+> already.  The current 2.4.4 behavior of root=/dev/hda3 doing ip
+> autoconfig when the code is compiled into the kernel is just bad.
+
+Agreed.
+
+
+H.J.

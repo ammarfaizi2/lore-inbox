@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312704AbSCVPPG>; Fri, 22 Mar 2002 10:15:06 -0500
+	id <S312706AbSCVPQr>; Fri, 22 Mar 2002 10:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312705AbSCVPOr>; Fri, 22 Mar 2002 10:14:47 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:52452 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S312704AbSCVPO0>; Fri, 22 Mar 2002 10:14:26 -0500
-Subject: [PATCH] 2.5.7-dj1, add 1 help text to sound/oss/Config.help
-From: Steven Cole <elenstev@mesatop.com>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 22 Mar 2002 08:11:40 -0700
-Message-Id: <1016809900.24907.37.camel@spc.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S312705AbSCVPQg>; Fri, 22 Mar 2002 10:16:36 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:6395 "EHLO
+	host140.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S312706AbSCVPQY>; Fri, 22 Mar 2002 10:16:24 -0500
+Date: Fri, 22 Mar 2002 15:15:21 +0000 (GMT)
+From: Bernd Schmidt <bernds@redhat.com>
+X-X-Sender: <bernds@host140.cambridge.redhat.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Chris Friesen <cfriesen@nortelnetworks.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: last write to drive issued with write cache off?
+In-Reply-To: <200203221128.g2MBSnX13073@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.33.0203221513430.21505-100000@host140.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a help text for CONFIG_SOUND_IT8172 in
-sound/oss/Config.help.  The text was obtained from ESR's v2.97
-Configure.help.
+On Fri, 22 Mar 2002, Denis Vlasenko wrote:
 
-Steven
+> Re spindown: I don't see a reason why spindown via IDE 'sleep' command
+> should sound differently from spindown due to poweroff.
+> 
+> So it is interesting to understand why Bernd's system started to emit
+> 'funny noises'.
+> 
+> Maybe shutdown script does not realize that drives are spun down and cause 
+> disk accesses which lead to spinup? That will be
+> 
+> normal -> spin down -> spin up -> poweroff and spindown
+> 
+> and indeed may sound funny :-)
+
+I think the explanation may be that the drives are not spun down at the
+same time, but with a one or two second delay, making it sound different
+than usual.
 
 
---- linux-2.5.7-dj1/sound/oss/Config.help.orig	Fri Mar 22 07:59:11 2002
-+++ linux-2.5.7-dj1/sound/oss/Config.help	Fri Mar 22 08:03:09 2002
-@@ -220,6 +220,12 @@
-   <file:Documentation/sound/vwsnd> for more info on this driver's
-   capabilities.
- 
-+CONFIG_SOUND_IT8172
-+  Say Y here to support the on-board sound generator on the Integrated
-+  Technology Express, Inc. ITE8172 SBC.  Vendor page at
-+  <http://www.ite.com.tw/ia/brief_it8172bsp.htm>; picture of the
-+  board at <http://www.mvista.com/allies/semiconductor/ite.html>.
-+
- CONFIG_SOUND_VRC5477
-   Say Y here to enable sound support for the NEC Vrc5477 chip, an
-   integrated, multi-function controller chip for MIPS CPUs.  Works
-
+Bernd
 

@@ -1,90 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317035AbSG1Sok>; Sun, 28 Jul 2002 14:44:40 -0400
+	id <S317209AbSG1Suh>; Sun, 28 Jul 2002 14:50:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317037AbSG1Sok>; Sun, 28 Jul 2002 14:44:40 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:16800 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S317035AbSG1Soj>; Sun, 28 Jul 2002 14:44:39 -0400
-From: "Buddy Lumpkin" <b.lumpkin@attbi.com>
-To: "Ville Herva" <vherva@niksula.hut.fi>
-Cc: "Linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: About the need of a swap area
-Date: Sun, 28 Jul 2002 11:48:51 -0700
-Message-ID: <FJEIKLCALBJLPMEOOMECOEAPDAAA.b.lumpkin@attbi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20020728065830.GT1465@niksula.cs.hut.fi>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
+	id <S317191AbSG1Sug>; Sun, 28 Jul 2002 14:50:36 -0400
+Received: from plum.csi.cam.ac.uk ([131.111.8.3]:31711 "EHLO
+	plum.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S317189AbSG1SuY>; Sun, 28 Jul 2002 14:50:24 -0400
+Message-Id: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 28 Jul 2002 19:54:03 +0100
+To: ebiederm@xmission.com (Eric W. Biederman)
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of 
+  PAGE_{CACHE_,}{MASK,ALIGN}
+Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <m11y9nivrg.fsf@frodo.biederman.org>
+References: <3D42D706.9899A4A0@zip.com.au>
+ <E17YRp5-0006H6-00@storm.christs.cam.ac.uk>
+ <3D42D706.9899A4A0@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 18:53 28/07/02, Eric W. Biederman wrote:
+>Andrew Morton <akpm@zip.com.au> writes:
+> > Anton Altaparmakov wrote:
+> > >
+> > > Linus,
+> > >
+> > > This patch introduces 64-bit versions of PAGE_{CACHE_,}MASK and
+> > > PAGE_{CACHE_,}ALIGN:
+> > >         PAGE_{CACHE_,}MASK_LL and PAGE_{CACHE_,}ALIGN_LL.
+> > >
+> > > These are needed when 64-bit values are worked with on 32-bit
+> > > architectures, otherwise the high 32-bits are destroyed.
+> > >
+> > > ...
+> > >  #define PAGE_SIZE      (1UL << PAGE_SHIFT)
+> > >  #define PAGE_MASK      (~(PAGE_SIZE-1))
+> > > +#define PAGE_MASK_LL   (~(u64)(PAGE_SIZE-1))
+> >
+> > The problem here is that we've explicitly forced the
+> > PAGE_foo type to unsigned long.
+> >
+> > If we instead take the "UL" out of PAGE_SIZE altogether,
+> > the compiler can then promote the type of PAGE_SIZE and PAGE_MASK
+> > to the widest type being used in the expression (ie: long long)
+> > and everything should work.
+> >
+> > Which seems to be a much cleaner solution, if it works.
+> >
+> > Will it work?
 
-On Sat, Jul 27, 2002 at 03:39:41PM -0700, you [Buddy Lumpkin] wrote:
->>
->> Why would you want to push *anything* to swap until you have to?
+I will reply to that point later, I want to do some experiments with gcc 
+first... I think it may work due to signextension but that implies the 
+value must be signed which is of course implied by leaving out the "UL"... 
+I will try it and report results...
 
->If you have idle io time in your hands, you can choose to back up some
-dirty
->anonymous pages to the swap device. This way, when pages really needs to
-get
->freed, you can just drop the pages (just like you would drop clean file
->backed pages.) This obviously eliminates a great latency (somebody said
->something about a "swap storm"), because the write happened beforehand.
+>I don't quite see the point of this work.
+>
+>There is exactly one operation that must be done in 64bit.
+>if (my64bitval > max) {
+>         return -E2BIG;
+>}
+>After that the value can be broken into, an index/offset pair.
+>Which is how the data is used in the page cache.
 
->There's nothing wrong with the swap being in use (and the pages may still
-be
->in memory). If you have swap, it makes sense to use it. What doesn't make
->sense is to waste time waiting for paging to happen.
+Why should I need to bother with index/offset? It is much more natural to 
+work with bytes. Also ntfs has to convert back and forth to bytes (internal 
+NTFS storage for sizes is s64 in units of bytes in many places), ntfs 
+clusters, pages, and buffer heads which are all different sizes so your 
+approach would be a complete code mess.
 
+Also the page cache limit of 32-bit index is IMO not good and needs to be 
+removed. The code needs to be able to cope with true 64-bits. We already 
+have sector_t that can be defined to 64-bit. Once it is used everywhere it 
+will be relatively easy to do something simillar for struct page. Of course 
+people are going to scream so it will just be a compile time option. Or 
+even just an out of tree patch but still I consider 64-bit support on 
+32-bit architectures very important in the future and I belive I am not 
+alone seeing Matt Domsch (sp?)'s comments for example... I guess it boils 
+down to how quickly the 64-bit cpus will become standard comodity hardware 
+vs how quick available storage will blow the 32-bit page cache limit...
 
-This just flat out doesn't make sense to me ...
+Best regards,
 
-The system I showed stats on earlier has been up for 57 days. Periodically
-file system I/O pushes
-freemem below lotsfree and wakes up the scanner. The scanner wakes up and
-finds some filesystem
-pages that haven't been referenced or modified in a really long, long time
-and frees a few of them, then
-it goes back to sleep. This keeps a ton of pages in RAM strictly for caching
-value (although dirty pages
-are flushed periodically, they are kept in RAM too). Then when a shared
-mapping to a file occurs or a file
-is opened, and accessed with read or write, it can use the page fault
-mechanism (minor fault) to retrieve
-those pages (using vnode + offset of the page) as apposed to going to disk.
-
-By looking at it, at one of more rare occasions, it must have pushed some
-anonymous
-pages to the swap devices, and there they sit pretty much doing nothing. But
-thats the
-nice thing about it ... Why would I want I/O going all the time in
-anticipation
-of a memory shortage that will rarely happen, or might not happen at all! If
-I understand
-you correctly, your imagining all of the up front work you could be doing in
-anticipation
-of the crawling system that could benefit from pages already pushed to the
-swap device,
-but that would only be one case.
-
-If im willing to spend the money for tons of RAM I shouldn't have to incur
-the overhead of going
-out to the swap device at all unless I truly get short on memory.
-Don't just assume that it's inevitable that I will have to swap at some
-point.
-
-And when you refer to idle I/O time, do you mean I/O to the swap device(s)
-or all I/O on the system (IO to all disks, network, etc..) ?
-
---Buddy
+         Anton
 
 
-
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

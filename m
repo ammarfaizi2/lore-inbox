@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129786AbQLCPVD>; Sun, 3 Dec 2000 10:21:03 -0500
+	id <S130195AbQLCPsn>; Sun, 3 Dec 2000 10:48:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130548AbQLCPUx>; Sun, 3 Dec 2000 10:20:53 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:38459 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S129786AbQLCPUp>; Sun, 3 Dec 2000 10:20:45 -0500
-From: Armin Schindler <mac@melware.de>
-Reply-To: mac@melware.de
-Organization: Cytronics & Melware
-To: linux-kernel@vger.kernel.org
-Subject: Q: tq_scheduler slower on SMP ?
-Date: Sun, 3 Dec 2000 15:40:05 +0100
-X-Mailer: KMail [version 1.0.21]
-Content-Type: text/plain; charset=US-ASCII
+	id <S130320AbQLCPse>; Sun, 3 Dec 2000 10:48:34 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:48938 "EHLO
+	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S130195AbQLCPs2>; Sun, 3 Dec 2000 10:48:28 -0500
+Date: Sun, 3 Dec 2000 17:25:33 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: David Ford <david@linux.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>,
+        Matthew Kirkwood <matthew@hairy.beasts.org>, folkert@vanheusden.com,
+        "Theodore Y Ts'o" <tytso@mit.edu>,
+        Kernel devel list <linux-kernel@vger.kernel.org>, vpnd@sunsite.auc.dk
+Subject: Re: /dev/random probs in 2.4test(12-pre3)
+In-Reply-To: <3A295EA3.F0E47E9@linux.com>
+Message-ID: <Pine.LNX.4.21.0012031721530.13254-100000@server.serve.me.nl>
 MIME-Version: 1.0
-Message-Id: <00120315500101.18928@cops>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-with kernel 2.2.17 I need to have a
-function in my driver to handle some data.
-I used BH with tq_immediate, but I found
-out, that my function need to be called
-outside of interrupt context, but still as
-soon as I need it. 
-So I decided to use the tq_scheduler queue and
-put my function on the task_queue in my interrupt handler.
-It seems to work good without SMP, but with SMP
-my function is called with delays of many msecs.
+> > I know. Still leaves lot's of people that assume that reading /dev/random
+> > will return data, or will block.
+> >
+> > I've seen lots of programs that will assume that if we request x bytes
+> > from /dev/random it will return x bytes.
+> 
+> I find this really humorous honestly.  I see a lot of people assuming that if
+> you write N bytes or read N bytes that you will have done N bytes.  There are
+> return values for these functions that tell you clearly how many bytes were
+> done.
 
-Since the tq_scheduler queue is only started from
-schedule(), do I need to set some flag to run schedule
-asap ?
-Or has someone better idea for my function ?
+Of course. Lesson one : check return values
 
-Thanx,
+> Any programmer who has evolved sufficiently from a scriptie should take
+> necessary precautions to check how much data was transferred.  Those who
+> don't..well, there is still tomorrow.
+> 
+> There is no reason to add any additional documentation.  If we did, we'd be
+> starting the trend of documenting the direction a mouse moves when it's
+> pushed and not to be alarmed if you turn the mouse sideways and the result is
+> 90 degrees off.
 
-Armin
+random devices are different. If it request 10 bytes on random stuff, I
+want 10 bytes. Anything less is a waste of the read, because I need 10
+bytes.
+
+At least, in my opinion.
+
+Anyone has an insight how other *NIX'es handle this ?
+
+> -d
+
+
+	Igmar
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

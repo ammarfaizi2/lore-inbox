@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317632AbSGVPjo>; Mon, 22 Jul 2002 11:39:44 -0400
+	id <S317634AbSGVPkw>; Mon, 22 Jul 2002 11:40:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317634AbSGVPjo>; Mon, 22 Jul 2002 11:39:44 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:31226 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317632AbSGVPjn>; Mon, 22 Jul 2002 11:39:43 -0400
-Subject: Re: [PATCH] 2.5.27 read_write
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: martin@dalecki.de
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D3C11DE.7010000@evision.ag>
-References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com> 
-	<3D3C11DE.7010000@evision.ag>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 22 Jul 2002 17:55:23 +0100
-Message-Id: <1027356923.31787.47.camel@irongate.swansea.linux.org.uk>
+	id <S317681AbSGVPkw>; Mon, 22 Jul 2002 11:40:52 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:17939 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317634AbSGVPkv>; Mon, 22 Jul 2002 11:40:51 -0400
+Date: Mon, 22 Jul 2002 12:43:45 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.27] Oops in tcp_v6_get_port
+Message-ID: <20020722154345.GB10222@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	"David S. Miller" <davem@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0207221324530.32636-100000@linux-box.realnet.co.sz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207221324530.32636-100000@linux-box.realnet.co.sz>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 15:08, Marcin Dalecki wrote:
-> - It is fixing completely confused wild casting to 32 bits.
+Em Mon, Jul 22, 2002 at 01:25:32PM +0200, Zwane Mwaikambo escreveu:
+> Hi Dave, Arnaldo
 > 
-> - Actually adding a comment explaining the obscure code, which is
->    relying on integer arithmetics overflow.
+> I get this whenever i run some X11 app from the 2.5.27 box and then ssh 
+> in from the X server. It seems to sometimes take a while but is reproducible.
 
-Better yet take the code from 2.4.19-rc3. The code you fixed up is still
-wrong. Sincie iov_len is not permitted to exceed 2Gb (SuS v3, found by
-the LSB test suite) the actual fix turns out to be even simpler and
-cleaner than the one you did
+Known bug, fixed in my tree and in DaveM's too, just waiting for Linus to
+merge...
 
+Shared port space -> tcp_v6_get_port looks at the non more existing IPv6
+private area on a IPv4 socket...
 
+Wow, people are using IPv6 on 2.5! you're the third to report this and
+this bug is there for months :)
+
+- Arnaldo

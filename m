@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276302AbRJYUNS>; Thu, 25 Oct 2001 16:13:18 -0400
+	id <S276075AbRJYUOs>; Thu, 25 Oct 2001 16:14:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276285AbRJYUNI>; Thu, 25 Oct 2001 16:13:08 -0400
-Received: from zero.tech9.net ([209.61.188.187]:55305 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S276255AbRJYUM7>;
-	Thu, 25 Oct 2001 16:12:59 -0400
-Subject: Re: In great need
-From: Robert Love <rml@tech9.net>
-To: EvilTypeGuy <eviltypeguy@qeradiant.com>
+	id <S276099AbRJYUOi>; Thu, 25 Oct 2001 16:14:38 -0400
+Received: from ns.caldera.de ([212.34.180.1]:38604 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S276075AbRJYUOb>;
+	Thu, 25 Oct 2001 16:14:31 -0400
+Date: Thu, 25 Oct 2001 22:14:51 +0200
+Message-Id: <200110252014.f9PKEpI22226@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: offer@sgi.com (richard offer)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011025150858.E4535@virtucon.warpcore.org>
-In-Reply-To: <20011025143701.B4535@virtucon.warpcore.org>
-	<20011025194528.4512.qmail@eklektix.com> 
-	<20011025150858.E4535@virtucon.warpcore.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16 (Preview Release)
-Date: 25 Oct 2001 16:13:38 -0400
-Message-Id: <1004040819.11884.24.camel@phantasy>
-Mime-Version: 1.0
+Subject: Re: [PATCH] export syscalls
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <100000000.1004038404@changeling.engr.sgi.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-10-25 at 16:08, EvilTypeGuy wrote:
-> > I think you're thinking of _Linux_Device_Drivers_.  The authors are working
-> > on an updated edition of the kernel book, but it's not out yet.
-> > 
-> > jon
-> 
-> Yes, but the understanding linux kernel does include some material on 2.4,
-> granted it's mostly previews of the 2.4 arch, but it's there nonetheless...
+In article <100000000.1004038404@changeling.engr.sgi.com> you wrote:
+> * frm hch@caldera.de "10/25/2001 05:25:40 PM +0000" | sed '1,$s/^/* /'
+> *
+> * Hi Linus,
+> * 
+> * the appended patch exports the syscalls (GPL-limited), this is needed
+> * for the Linux-ABI modules so they can use the syscalls in their
+> * syscall tables for non-Linux personalities.
+>
+>
+> What is the rationale for marking these as GPL-exclusive symbols ? 
+>
+> I thought system calls were a public interface.
 
-True, it does have a paragraph or two at the end of each chapter on what
-2.4 is including, but its still entirely a 2.2 book otherwise.  Also,
-there is no 2E so I can understand the confusion.  On the other hand,
-Linux Device Drivers does have a 2E, and it is 2.4 oriented.
+That won't change, but the syscalls are exported GPL-only for _inkernel_
+users.  My first version of the patch didn't do that, but people think
+that they can cause to much pain when used incorrectly, and that is
+checkable only with non-binary-only modules.
 
-Regardless, I think both books are great.
+	Christoph
 
-	Robert Love
-
+-- 
+Of course it doesn't work. We've performed a software upgrade.

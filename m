@@ -1,59 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267985AbUHFAeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267473AbUHFAdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267985AbUHFAeb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 20:34:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268028AbUHFAeb
+	id S267473AbUHFAdv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 20:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267985AbUHFAdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 20:34:31 -0400
-Received: from mail1.fw-sj.sony.com ([160.33.82.68]:44223 "EHLO
-	mail1.fw-sj.sony.com") by vger.kernel.org with ESMTP
-	id S267985AbUHFAe1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 20:34:27 -0400
-Message-ID: <4112D32B.4060900@am.sony.com>
-Date: Thu, 05 Aug 2004 17:39:07 -0700
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-CC: rth@twiddle.net
-Subject: Is extern inline -> static inline OK?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Aug 2004 20:33:51 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:7617 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S267473AbUHFAds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 20:33:48 -0400
+Date: Thu, 5 Aug 2004 17:33:46 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC32] Remove pci-dma.c
+Message-ID: <20040805173346.K14159@home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pardon my ignorance...
+Remove pci-dma.c. It is cruft left over from the DMA API changes.
 
-Under what conditions is it NOT OK to convert "extern inline"
-to "static inline"?
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
 
-Linus once wrote:
->  - "static inline" means "we have to have this function, if you use it
->    but don't inline it, then make a static version of it in this
->    compilation unit"
-> 
->  - "extern inline" means "I actually _have_ an extern for this function,
->    but if you want to inline it, here's the inline-version"
-> 
-> ... we should just convert
-> all current users of "extern inline" to "static inline".
-
-But Richard Henderson rejected (in 2002) the following patch (excerpt):
-
--#define __EXTERN_INLINE extern inline
-+#define __EXTERN_INLINE static inline
-
-presumably because the exact semantics of extern inline were
-required.  I can only find __EXTERN_INLINE in the alpha
-architecture.  Is the requirement to use 'extern' rather
-than 'static' unique to alpha?
-
-Thanks for any illumination on this.
-
-=============================
-Tim Bird
-Architecture Group Co-Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-E-mail: tim.bird@am.sony.com
-=============================
+diff -Nru a/arch/ppc/kernel/pci-dma.c b/arch/ppc/kernel/pci-dma.c
+--- a/arch/ppc/kernel/pci-dma.c	Thu Aug  5 17:22:09 2004
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,49 +0,0 @@
+-/*
+- * Copyright (C) 2000   Ani Joshi <ajoshi@unixbox.com>
+- *
+- *
+- * Dynamic DMA mapping support.
+- *
+- * swiped from i386
+- *
+- */
+-
+-#include <linux/types.h>
+-#include <linux/mm.h>
+-#include <linux/string.h>
+-#include <linux/pci.h>
+-#include <asm/io.h>
+-
+-void *pci_alloc_consistent(struct pci_dev *hwdev, size_t size,
+-			   dma_addr_t *dma_handle)
+-{
+-	void *ret;
+-	int gfp = GFP_ATOMIC;
+-
+-	if (hwdev == NULL || hwdev->dma_mask != 0xffffffff)
+-		gfp |= GFP_DMA;
+-
+-#ifdef CONFIG_NOT_COHERENT_CACHE
+-	ret = consistent_alloc(gfp, size, dma_handle);
+-#else
+-	ret = (void *)__get_free_pages(gfp, get_order(size));
+-#endif
+-
+-	if (ret != NULL) {
+-		memset(ret, 0, size);
+-#ifndef CONFIG_NOT_COHERENT_CACHE
+-		*dma_handle = virt_to_bus(ret);
+-#endif
+-	}
+-	return ret;
+-}
+-
+-void pci_free_consistent(struct pci_dev *hwdev, size_t size,
+-			 void *vaddr, dma_addr_t dma_handle)
+-{
+-#ifdef CONFIG_NOT_COHERENT_CACHE
+-	consistent_free(vaddr);
+-#else
+-	free_pages((unsigned long)vaddr, get_order(size));
+-#endif
+-}

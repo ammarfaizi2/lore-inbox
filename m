@@ -1,92 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRDGTdr>; Sat, 7 Apr 2001 15:33:47 -0400
+	id <S130507AbRDGTdh>; Sat, 7 Apr 2001 15:33:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbRDGTdi>; Sat, 7 Apr 2001 15:33:38 -0400
-Received: from 13dyn201.delft.casema.net ([212.64.76.201]:35335 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S130532AbRDGTdY>; Sat, 7 Apr 2001 15:33:24 -0400
-Message-Id: <200104071933.VAA19651@cave.bitwizard.nl>
-Subject: P-III Oddity. 
-To: linux-kernel@vger.kernel.org, bert@dutepp0.et.tudelft.nl,
-        jeanpaul@dutepp0.et.tudelft.nl
-Date: Sat, 7 Apr 2001 21:33:18 +0200 (MEST)
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S130552AbRDGTd2>; Sat, 7 Apr 2001 15:33:28 -0400
+Received: from front7m.grolier.fr ([195.36.216.57]:3988 "EHLO
+	front7m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S130507AbRDGTdN> convert rfc822-to-8bit; Sat, 7 Apr 2001 15:33:13 -0400
+Date: Sat, 7 Apr 2001 18:22:15 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
+To: Tim Waugh <twaugh@redhat.com>
+cc: Gunther Mayer <Gunther.Mayer@t-online.de>, linux-kernel@vger.kernel.org,
+        mj@suse.cz, reinelt@eunet.at, jgarzik@mandrakesoft.com
+Subject: Re: PATCH for Broken PCI Multi-IO in 2.4.3 (serial+parport)
+In-Reply-To: <20010407200340.C3280@redhat.com>
+Message-ID: <Pine.LNX.4.10.10104071816560.1771-100000@linux.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
 
-One machine regularly crashes.  
+On Sat, 7 Apr 2001, Tim Waugh wrote:
 
-Linux version 2.2.16-3 (root@porky.devel.redhat.com) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Mon Jun 19 19:11:44 EDT 2000
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 7
-model name      : Pentium III (Katmai)
-stepping        : 3
-cpu MHz         : 551.255
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr xmm
-bogomips        : 1101.00
+> On Sat, Apr 07, 2001 at 08:42:35PM +0200, Gunther Mayer wrote:
+> 
+> > Please apply this little patch instead of wasting time by
+> > finger-pointing and arguing.
+> 
+> This patch would make me happy.
+> 
+> It would allow support for new multi-IO cards to generally be the
+> addition of about two lines to two files (which is currently how it's
+> done), rather than having separate mutant hybrid monstrosity drivers
+> for each card (IMHO)..
 
+It is possible to design a single function PCI device that is able to do
+everything. Your approach is just encouraging this kind of monstrosity.
+Such montrosity will look like some single-IRQ capable ISA remake, thus
+worse than 20 years old ISA.
 
-Another one, I don't really know, but I was comparing /proc/cpuinfo on
-these two machines as they are supposed to have the same CPU: 
+If we want to encourage that, then we want to stay stupid for life, in my
+nervous opinion.
+
+  Gérard.
 
 
-/home/wolff> cat /proc/version /proc/cpuinfo
-Linux version 2.4.3 (wolff@cave) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #52 Fri Apr 6 14:43:38 MEST 2001
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 7
-model name      : Pentium III (Katmai)
-stepping        : 3
-cpu MHz         : 551.263
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 3
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips        : 1101.00
-
-/home/wolff> 
-
-
-Everything is exactly the same, except for the "cpuid level". Once the
-cpu family and model are the same, I'd expect the cpuid level to be
-the same too. In this case even the stepping is the same, so how can
-the cpuid level differ? 
-
-Maybe this is a reporting difference between 2.4.3 and 2.2.16????
-
-Anybody care to shed some light on this?
-
-				Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

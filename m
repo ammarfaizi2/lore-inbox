@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284541AbRLIWLg>; Sun, 9 Dec 2001 17:11:36 -0500
+	id <S284500AbRLIWLG>; Sun, 9 Dec 2001 17:11:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284542AbRLIWL1>; Sun, 9 Dec 2001 17:11:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60433 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284541AbRLIWLP>; Sun, 9 Dec 2001 17:11:15 -0500
-Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
-To: _deepfire@mail.ru (Samium Gromoff)
-Date: Sun, 9 Dec 2001 22:18:18 +0000 (GMT)
-Cc: hahn@physics.mcmaster.ca (Mark Hahn), linux-kernel@vger.kernel.org
-In-Reply-To: <200112092150.fB9Lot906422@vegae.deep.net> from "Samium Gromoff" at Dec 10, 2001 12:50:55 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284545AbRLIWK4>; Sun, 9 Dec 2001 17:10:56 -0500
+Received: from shell.cyberus.ca ([216.191.240.114]:10748 "EHLO
+	shell.cyberus.ca") by vger.kernel.org with ESMTP id <S284544AbRLIWKk>;
+	Sun, 9 Dec 2001 17:10:40 -0500
+Date: Sun, 9 Dec 2001 17:07:03 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: bert hubert <ahu@ds9a.nl>
+cc: <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: CBQ and all other qdiscs now REALLY completely documented
+In-Reply-To: <20011209225350.A22512@outpost.ds9a.nl>
+Message-ID: <Pine.GSO.4.30.0112091706000.6079-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DCH5-00080o-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > right, so more fragmentation-assembly increases the CPU load,
-> > no surprise there.
->     damn, i have a mtu of 1500 and i dont quite see abt what frag/reassembly
->    are you talking about while the problems start to pop out on _256_ bytes
->    large packets (yes 256+smth like 32 or more)
 
-Its nothing to do with reassembly. My guess is that the irq handling or the
-other driver locks on the ISA driver are holding off the sound.
 
->    look: we have 2.0 serving NIC interrupts more efficintly than 2.4, and you
->    say that we even dont need to know _why_ its so!?
+On Sun, 9 Dec 2001, bert hubert wrote:
 
-Oh thats easy. 2.0 performs like crap on SMP boxes. 
+> On Sun, Dec 09, 2001 at 04:45:01PM -0500, jamal wrote:
+> > > > Cant think of a straight way to do this .... Alexey would know,
+> > >
+> > > SO_PRIORITY. Or I did not follow you?
+> >
+> > So priority limits the size of skb->priority to be from 0..6; this wont
+> > work with that check in cbq.
+>
+> No, only IP_TOS does so.
+>
 
-The newer code is intended to do sensible things for NE2K drivers however so
-I am curious what is fouling up. It even goes to the trouble to avoid
-disabling all interrupts during a transmit event.
+probaly ip precedence. Have you tried this or you are following what the
+man pages say?
 
-What might be interesting would be to edit 8390.c and change
-
-        /* Mask interrupts from the ethercard.
-           SMP: We have to grab the lock here otherwise the IRQ handler
-           on another CPU can flip window and race the IRQ mask set. We end
-           up trashing the mcast filter not disabling irqs if we dont lock
-	*/
-
-        spin_lock_irqsave(&ei_local->page_lock, flags);
-        outb_p(0x00, e8390_base + EN0_IMR);
-        spin_unlock_irqrestore(&ei_local->page_lock, flags);
- 
-to use 
-
-	/* this is the missing spin_trylock_irqsave longhand.. */
-	save_flags(flags);
-	__cli();
-	if(!spin_trylock(&ei_local->page_lock))
-	{
-		restore_flags(flags);
-		return 1;
-	}
-        outb_p(0x00, e8390_base + EN0_IMR);
-        spin_unlock_irqrestore(&ei_local->page_lock, flags);
+cheers,
+jamal
 

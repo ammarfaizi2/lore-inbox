@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUKIWIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbUKIWOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUKIWIU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 17:08:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbUKIWIU
+	id S261728AbUKIWOz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 17:14:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbUKIWOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 17:08:20 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:2759 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261724AbUKIWIK (ORCPT
+	Tue, 9 Nov 2004 17:14:55 -0500
+Received: from gate.crashing.org ([63.228.1.57]:37523 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261728AbUKIWOy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 17:08:10 -0500
-Date: Tue, 09 Nov 2004 14:07:21 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Brent Casavant <bcasavan@sgi.com>, Andi Kleen <ak@suse.de>,
-       "Adam J. Richter" <adam@yggdrasil.com>, colpatch@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
-Message-ID: <477220000.1100038041@flay>
-In-Reply-To: <Pine.LNX.4.44.0411092056090.5291-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0411092056090.5291-100000@localhost.localdomain>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Nov 2004 17:14:54 -0500
+Subject: Re: [PATCH] ppc64: Bump MAX_HWIFS in IDE code
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041109211201.GA8998@taniwha.stupidest.org>
+References: <20041109203028.GA26806@krispykreme.ozlabs.ibm.com>
+	 <20041109125507.4bc49b3c.akpm@osdl.org>
+	 <20041109211201.GA8998@taniwha.stupidest.org>
+Content-Type: text/plain
+Date: Wed, 10 Nov 2004 09:12:45 +1100
+Message-Id: <1100038365.3946.236.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, November 09, 2004 21:08:11 +0000 Hugh Dickins <hugh@veritas.com> wrote:
-
-> On Tue, 9 Nov 2004, Martin J. Bligh wrote:
->>  
->> > I'm irritated to realize that we can't change the default for SysV
->> > shared memory or /dev/zero this way, because that mount is internal.
->> 
->> Boggle. shmem I can perfectly understand, and have been intending to
->> change for a while. But why /dev/zero ? Presumably you'd always want
->> that local?
+On Tue, 2004-11-09 at 13:12 -0800, Chris Wedgwood wrote:
+> On Tue, Nov 09, 2004 at 12:55:07PM -0800, Andrew Morton wrote:
 > 
-> I was meaning the mmap shared writable of /dev/zero, to get memory
-> shared between parent and child and descendants, a restricted form
-> of shared memory.  I was thinking of them running on different cpus,
-> you're suggesting they'd at least be on the same node.  I dare say,
-> I don't know.  I'm not desperate to be able to set some other mpol
-> default for all of them (and each object can be set in the established
-> way), just would have been happier if the possibility of doing so came
-> for free with the mount option work.
+> > hrmph.  That costs 50kbytes, excluding ide-tape.  It's worth a
+> > config variable, I think.
+> 
+> this come up from time to time, and i wonder why it can't be dynamic?
 
-Oh yeah ... the anon mem allocator trick. Mmmm. Not sure that should
-have a different default than normal alloced memory, but either way,
-what you're suggesting makes a whole lot more sense to me know than
-just straight /dev/zero ;-)
+Good question :) I suppose Bart has that on his todolist, but it will
+require some work on the IDE layer, which only few people can do without
+breaking it all :)
 
-Thanks for the explanation.
+Ben.
 
-M.
 

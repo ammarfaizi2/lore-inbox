@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbULZObJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbULZOdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbULZObJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 09:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbULZObJ
+	id S261657AbULZOdY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 09:33:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbULZOdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 09:31:09 -0500
-Received: from bay15-f26.bay15.hotmail.com ([65.54.185.26]:56868 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261656AbULZObH
+	Sun, 26 Dec 2004 09:33:22 -0500
+Received: from 36-71-dsl.ipact.nl ([84.35.71.36]:18108 "EHLO
+	office.scorpion.nl") by vger.kernel.org with ESMTP id S261657AbULZOcn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 09:31:07 -0500
-Message-ID: <BAY15-F265CCA05303049813A8802B2980@phx.gbl>
-X-Originating-IP: [61.10.7.56]
-X-Originating-Email: [mbenz74@hotmail.com]
-From: "M Benz" <mbenz74@hotmail.com>
+	Sun, 26 Dec 2004 09:32:43 -0500
+Message-ID: <41CECB71.1050601@scorpion.nl>
+Date: Sun, 26 Dec 2004 15:32:17 +0100
+From: Christiaan den Besten <chris@scorpion.nl>
+Reply-To: chris@scorpion.nl
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: is my RAID safe?
-Date: Sun, 26 Dec 2004 14:30:36 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; charset=big5; format=flowed
-X-OriginalArrivalTime: 26 Dec 2004 14:31:05.0790 (UTC) FILETIME=[887EA5E0:01C4EB57]
+Subject: IPSEC traffic duplicated on interface.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-KM95-MailScanner: Found to be clean
+X-MailScanner-From: chris@scorpion.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Today I found this that at my /var/log/message (kernel 2.6.10):
+Hi all !
 
-Dec 26 21:35:14 s1 kernel: ata5: status=0x51 { DriveReady SeekComplete 
-Error }
-Dec 26 21:35:14 s1 kernel: ata5: error=0x84 { DriveStatusError BadCRC }
+Not really sure this is a kernel, or a netfilter issue, but posting anyway.
 
-ata5 is md raid1 with ata6, both are sata drives connected to a promise 
-SATA controller.
+After trying to determine the 'overhead' of my ipsec traffic, I hit a 
+rather annoying 'feature'.
 
-at /proc/mdstat, the raid 1 is still active with "[UU]"
+(Using racoon ipsec with default debian-kernels 2.6.x kernels, but issue 
+was with 2.4 as well if i remember correctly.)
 
-Is my raid 1 safe and should I replace the "ata5" drive? Also, why the 
-raid-1 still up with status "[UU]" ?
+Traffic on the outgoing interface (eth0) shows both the encapsulated as 
+well as the non-encapsulated packets.
 
-Thanks
+--- (tcpdump -i eth0 -n ) ---
+15:24:20.003088 IP 172.20.40.45.45707 > 10.136.100.1.48193: . 
+297216:298592(1376) ack 1 win 5792 <nop,nop,timestamp 920412777 2654747912>
+15:24:20.005095 IP 130.161.82.9 > 84.35.71.36: 
+ESP(spi=0x080d4f70,seq=0x1de7c)
+15:24:20.005095 IP 172.20.40.45.45707 > 10.136.100.1.48193: . 
+298592:299968(1376) ack 1 win 5792 <nop,nop,timestamp 920412777 2654747912>
+15:24:20.005223 IP 84.35.71.36 > 130.161.82.9: 
+ESP(spi=0x0451e539,seq=0xee8e)
+---
 
-_________________________________________________________________
-使用全球用戶最多的電子郵件服務 MSN Hotmail： http://www.hotmail.com 
+Using default tools a la 'iptraf' count them both, so it would look like 
+my adsl-line is doing 11Mbit :)
 
+Is there any way to prevent the kernel from showing the data inside the 
+tunnel ? (172.20.40.45 <> 10.136.100.1 is the tunneled traffic).
+
+bye,
+Chris

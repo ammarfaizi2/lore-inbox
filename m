@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbULCTzC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbULCT4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbULCTzC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 14:55:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbULCTyH
+	id S262479AbULCT4F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 14:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbULCTzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 14:54:07 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:27802 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262482AbULCTvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 14:51:14 -0500
-Date: Fri, 3 Dec 2004 20:51:03 +0100 (CET)
-From: franz_pletz@t-online.de (Franz Pletz)
-X-X-Sender: thorus@sgx.home
-To: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Ludwig Schmidt <ludoschmidt@web.de>
-Subject: [PATCH] loopback device can't act as its backing store
-Message-ID: <Pine.LNX.4.61.0412032028220.10184@sgx.home>
+	Fri, 3 Dec 2004 14:55:25 -0500
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:17559 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262491AbULCTya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 14:54:30 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Why INSTALL_PATH is not /boot by default?
+Date: Fri, 3 Dec 2004 20:57:54 +0100
+User-Agent: KMail/1.7.1
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <200411160127.15471.blaisorblade_spam@yahoo.it> <20041121094308.GA7911@mars.ravnborg.org>
+In-Reply-To: <20041121094308.GA7911@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-ID: XVWSncZdYer0JjfKTsNYD3TBqJygIlDK9JuIz9NSNRpvsnTfNKdUUr
-X-TOI-MSGID: ffad04f0-5ca3-472f-aa9a-38e146dd35ed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412032057.54958.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes a bug in loop which apparently causes the kernel to call
-the initialization routine of a loopback device recursively while trying to set
-the backing store to the loopback device it's being mapped to.
+On Sunday 21 November 2004 10:43, Sam Ravnborg wrote:
+> On Tue, Nov 16, 2004 at 01:27:15AM +0100, Blaisorblade wrote:
+> > This line, in the main Makefile, is commented:
+> >
+> > export  INSTALL_PATH=/boot
+> >
+> > Why? It seems pointless, since almost everything has been for ages
+> > requiring this settings, and distros' versions of installkernel have been
+> > taking an empty INSTALL_PATH as meaning /boot for ages (for instance
+> > Mandrake). It's maybe even mandated by the FHS (dunno).
+> >
+> > Is there any reason I'm missing?
+>
+> Changing this may have impact on default behaviour of some versions of
+> installkernel.
+> If /boot is ok for other than just i386 we can give it a try.
+Sorry for not answering to this.
 
-Ludwig Schmidt <ludoschmidt@web.de> found this misbehaviour by accident. After
-having been informed by him, I analyzed the problem and wrote this patch.
+What I say is *yes*, let's try it.
 
-You can verify this bug for instance by issuing the following command
-     # mount -o loop /dev/loop0 /mnt
-with /dev/loop0 being the first free loop device. You should sync before. ;-)
+However, I know that ia64 is different because I read that in Fedora 2 kernel 
+RPM specs:
 
-However, if you try setting the backing file of the loopback device using the
-losetup utility, you won't experience any crash. For example:
-     # losetup /dev/loop0 /dev/loop0
+#
+# IA64 wants to be different as usual.. sigh.
+#
+%ifarch ia64
+%define image_install_path boot/efi/EFI/redhat
+%else
+%define image_install_path boot
+%endif
 
-But as a matter of fact, the device will be busy until the next reboot. Forced
-unloading of loop will succeed. But after reloading, the kernel will lock up on
-any attempt accessing a loop device.
-Consequently this bug needs to be resolved in any case, although it seems that
-there may also be a bug in the mount utility. By looking at the source code of
-mount, which ironically shares the same codebase as losetup within the
-util-linux package, I couldn't find anything suspicious.
-
-This bug is fully reproduceable on at least all recent 2.6 series kernels.
-The patch below applies cleanly on 2.6.10-rc2.
-
-Comments would be graciously appreciated as this being my first serious kernel
-patch. ;-)
-
-
-Signed-off-by: Franz Pletz <franz_pletz@t-online.de>
-
-  linux/drivers/block/loop.c |    7 +++++++
-   1 files changed, 7 insertions(+)
-
---- linux-2.6.10-rc2/drivers/block/loop.c	2004-11-25 19:56:32.000000000 +0100
-+++ linux/drivers/block/loop.c	2004-12-02 23:39:43.516913144 +0100
-@@ -596,6 +596,9 @@
-  	old_file = lo->lo_backing_file;
-
-  	error = -EINVAL;
-+	/* new backing store mustn't be the loop device it's being mapped to */
-+	if(inode->i_rdev == bdev->bd_dev)
-+		goto out_putf;
-
-  	if (!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))
-  		goto out_putf;
-@@ -652,6 +655,10 @@
-  		lo_flags |= LO_FLAGS_READ_ONLY;
-
-  	error = -EINVAL;
-+	/* new backing store mustn't be the loop device it's being mapped to */
-+	if(inode->i_rdev == bdev->bd_dev)
-+		goto out_putf;
-+
-  	if (S_ISREG(inode->i_mode) || S_ISBLK(inode->i_mode)) {
-  		struct address_space_operations *aops = mapping->a_ops;
-  		/*
+that should be done with a "ARCH_DEFAULT_INSTALL_PATH" set by archs and the 
+main Makefile taking it by default. (Or even without indirection).
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade

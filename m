@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbTKRKjS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 05:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbTKRKjS
+	id S262328AbTKRKgo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 05:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTKRKgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 05:39:18 -0500
-Received: from frankvm.xs4all.nl ([80.126.170.174]:20972 "EHLO
-	iapetus.localdomain") by vger.kernel.org with ESMTP id S262446AbTKRKjR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 05:39:17 -0500
-Date: Tue, 18 Nov 2003 11:39:07 +0100
-From: Frank van Maarseveen <frankvm@xs4all.nl>
-To: Keith Whyte <keith@media-solutions.ie>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 fork & defunct child => system is hacked
-Message-ID: <20031118103907.GA23644@iapetus.localdomain>
-Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
-	Keith Whyte <keith@media-solutions.ie>, linux-kernel@vger.kernel.org
-References: <1069053524.3fb87654286b5@ssl.buz.org> <3FB8E40F.EF61CA7@gmx.de> <3FB96718.20103@media-solutions.ie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 18 Nov 2003 05:36:44 -0500
+Received: from events-for-love.de ([217.160.111.84]:42438 "EHLO it-people.org")
+	by vger.kernel.org with ESMTP id S262328AbTKRKgn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 05:36:43 -0500
+From: Eckhard Jokisch <e.jokisch@u-code.de>
+Reply-To: e.jokisch@u-code.de
+To: linux-kernel@vger.kernel.org
+Subject: Hard lockup with reiserfs in 2.4.22 an2.4.20
+Date: Tue, 18 Nov 2003 11:37:10 +0100
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3FB96718.20103@media-solutions.ie>
-User-Agent: Mutt/1.4i
-X-Subliminal-Message: Use Linux!
+Message-Id: <200311181137.10908.e.jokisch@u-code.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2003 at 06:26:00PM -0600, Keith Whyte wrote:
-> 
-> { strace listing deleted, see 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=106905386725308&w=2 }
+Hello,
+I'm not subscribed to the list - please CC me replies.
 
-First of all, /bin/true doing a fork() basically means you've
-been hacked: there should not be any such code in there. The
-open("/proc/17904///////////exe" is anouther piece of clear evidence
-that your system has been hacked.
+I experienced hardl lockups and instant reboots with a possibly corrupted 
+reiserfs. I didn't find anything like this with goolge so I post it here.
 
-Why the additional slashes?
+The lockup occures reproduceable when a specific user accesses a file in a 3.6 
+reiserfs partition. Even Magic-Sysreq seems to not work. 
+The instant reboot happens when I try to copy this users HOME to a different 
+location on a different filessystem. 
+I'm rather sure that the fs is damaged because I tried reiserfsck  and will 
+have to repair with --rebuild-tree.
 
-I suspect a library/or LD_PRELOAD hack which simply encodes the getpid()
-return value in decimal notation and stores it right into a static
-buffer containing
+Please let me know if this error is already known and where to find 
+information about it.
 
-	"/proc//////////////////exe"
+If not I will keep the corrupted fs for testing and bugtracking.
 
-because it can't use sprintf at that point for some reason (maybe
-just because it is a library/LD_PRELOAD hack).
+Greets
+Eckhard Jokisch
 
-
--- 
-Frank

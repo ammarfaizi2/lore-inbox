@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264946AbSKJQzz>; Sun, 10 Nov 2002 11:55:55 -0500
+	id <S264956AbSKJQ5y>; Sun, 10 Nov 2002 11:57:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264950AbSKJQzz>; Sun, 10 Nov 2002 11:55:55 -0500
-Received: from [211.180.201.199] ([211.180.201.199]:26383 "HELO
-	mail.seilmedia.co.kr") by vger.kernel.org with SMTP
-	id <S264946AbSKJQzx>; Sun, 10 Nov 2002 11:55:53 -0500
-Message-ID: <B0000426257@mail.seilmedia.co.kr>
-Date: Sun, 10 Nov 2002 10:55:38 -0600
-From: "Rustom Hess" <offshoresuppliers@offshore-suppliers-directory.com>
-X-Priority: 3
-To: linux-kernel@vger.kernel.org
-Subject: 
-Mime-Version: 1.0
+	id <S264959AbSKJQ5y>; Sun, 10 Nov 2002 11:57:54 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14153 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S264956AbSKJQ5x>; Sun, 10 Nov 2002 11:57:53 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Subject: Re: [lkcd-devel] Re: What's left over.
+References: <Pine.LNX.4.44.0211091510060.1571-100000@home.transmeta.com>
+	<m1of8ycihs.fsf@frodo.biederman.org>
+	<1036894347.22173.6.camel@irongate.swansea.linux.org.uk>
+	<m1k7jmcgo5.fsf@frodo.biederman.org>
+	<1036938641.1005.2.camel@irongate.swansea.linux.org.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 10 Nov 2002 09:56:53 -0700
+In-Reply-To: <1036938641.1005.2.camel@irongate.swansea.linux.org.uk>
+Message-ID: <m1n0ohbbxm.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Offshore Suppliers Directory (http://www.OffshoreSuppliersDirectory.com) has just gotten better!
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-You know Offshore Suppliers Directory as the world's first published guide to offshore software development, services, and product suppliers. However, did you know it's a growing online B2B, buyer / supplier exchange as well?
+> On Sun, 2002-11-10 at 02:16, Eric W. Biederman wrote:
+> > To use kmapped memory I need to setup a page table to do the final copy.
+> > And to setup a page table I need to know where the memory is going to be
+> copied
+> 
+> > to.
+> 
+> And ?
+> 
+> I find it hard to believe you can't drive an MMU if you can write code
+> that boots one Linux from another
 
-New features for BUYERS:
+One of the simplifying things I do between OS's is turn of the MMU, or
+at least give it a 1-1 trivial mapping with physical memory.
 
-* RFPs and Projects:  You can post your RFPs to all suppliers or you can select just the suppliers you want to invite after a search. 
-* Offshore Resource Management System (ORMS): Nobody knows your requirements better than you.  Search for the right suppliers and invite them to respond to your RFP / Project all within ORMS! 
-* Search Utilities:  Perform basic and complex searches for offshore suppliers (both companies and independent contractors) at our unique ORMS. 
-* Purchase your advance copy of the Offshore Suppliers Directory at a  30% discount! Limited Time Offer!
+If all of that memory is hanging out there forever. It probably makes sense
+to be high memory capable.  But for the first rev of this I won't be.
+Addresses > 4GB are a major pain to work with on x86.  
 
-New features for SUPPLIERS:
+But I do have a test machine that can reproduce that so I can test for
+strange bugs.  I added a BIOS option to put all but 512M out of 4GB
+above the 4GB line.
 
-* Basic listings are FREE!  More comprehensive listings are available for purchase. Note: Buyers will search for suppliers by business and technology capabilities.  These fields are ONLY available with a paid listing.  If you want buyers to find you and invite you to bid on their RFP then upgrade to a 1-page or 2-page listing today. 
-* Our rates have been reduced!  A 1-page listing is now only $75.00 (was $125.00) and a 2-page listing is now only $125.00 (was 200.00)! 
-* Support for Independent Offshore Contractors.  Sometimes buyers just need one or two resources to support a project and now finding those individuals is simple.  It's like having Monster.com but for the offshore market! Make sure buyers find you! The cost is only $19.95 per year (that's only $0.05 per day!). 
-* List your offshore company! Your company information will be available to buyers around the world in both the printed directory and the online searches. 
-* We're sending FREE copies of the Offshore Suppliers Directory to key individuals at Fortune 500 companies! Make sure you have as much information as possible in the printed guide by purchasing a 1-page or 2-page listing so they choose your company as the right providers of services to meet their needs!  If you're not in the printed guide or online directory how can they select you? 
-* With our Offshore Resource Management System (ORMS) you don't have to register for RFPs, the system takes care of that automatically for you when you register as a Supplier or Independent Contractor!
-
-See us at the following sites!:
-
-National Association of Software and Service Companies (NASSCOM): www.nasscom.org
-
-Outsourcing Russia - All about IT Outsourcing to Russia: www.outsourcing-russia.com
-
-Software Ireland - Ireland's leading FREE portal to the IT industry: www.softwareireland.com
-
- 
-
-To Your Success,
-
-Offshore Suppliers Directory
-
-http://www.OffshoreSuppliersDirectory.com
-
-YOUR NAME WAS SELECTED AS A PERSON OR ORGANIZATION INVOLVED WITH TECHNOLOGY. 
-WE APOLOGIZE IF THIS EMAIL IS NOT APPLICABLE TO YOU. 
-THIS IS A ONE TIME SUBMISSION.  
-YOU DO NOT NEED TO SUBMIT A REMOVAL REQUEST.
-
+Eric

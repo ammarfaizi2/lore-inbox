@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262698AbUCWRM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 12:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbUCWRM0
+	id S262719AbUCWRQw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 12:16:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbUCWRQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 12:12:26 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:38287 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262698AbUCWRMY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 12:12:24 -0500
-Message-ID: <406070F9.2070900@tmr.com>
-Date: Tue, 23 Mar 2004 12:16:41 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
+	Tue, 23 Mar 2004 12:16:52 -0500
+Received: from hoemail1.lucent.com ([192.11.226.161]:5810 "EHLO
+	hoemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S262719AbUCWRQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 12:16:50 -0500
 MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Diego_Calleja_Garc=EDa?= <diegocg@teleline.es>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OSS: cleanup or throw away
-References: <1CD8E-65d-33@gated-at.bofh.it> <1CFMG-8wf-61@gated-at.bofh.it> <1CGft-ry-3@gated-at.bofh.it>
-In-Reply-To: <1CGft-ry-3@gated-at.bofh.it>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16480.28882.388997.71072@gargle.gargle.HOWL>
+Date: Tue, 23 Mar 2004 12:16:02 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: arch/i386/Kconfig: CONFIG_IRQBALANCE Description
+In-Reply-To: <1079996577.6595.19.camel@bach>
+References: <1079996577.6595.19.camel@bach>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja García wrote:
-> El Mon, 22 Mar 2004 22:57:09 +0100 Adrian Bunk <bunk@fs.tum.de> escribió:
-> 
-> 
->>OSS will stay in 2.6 (2.6 is a stable kernel series) but it will most
->>likely be removed in 2.7.
-> 
-> 
-> Personally, as an user, I'd like to have the OSS drivers which don't have
-> a ALSA equivalent for my old hardware. There're several
-> sound cards with both ALSA and OSS drivers where ALSA works
-> much better 99% of the time. Those could be safely removed
-> (even in the 2.6 timeframe, I'd argue) but I'd like to keep the ones
-> without an alsa equivalent for my old hardware (specially now that we
-> have a -tiny tree ;) however I can understand that if they don't
-> have a maintainer they'll get removed...
 
-The real issue with removing OSS from a stable kernel is that a kernel 
-update should not break existing system software (at least compliant 
-software). As of early 2.6 it seemed that you had to update to the ALSA 
-mixer and {something I don't remember} if you used the OSS emulation. I 
-just used OSS and it worked. Based on only two systems, so it may not apply.
+And hey, under 2.6.5-rc2-mm1, it doens't seem to do anything:
 
-Stable and install new sound software don't seem to mix well. I suggest 
-that the current course is a good one, keep both systems in the stable 
-kernel.
+  > cat /proc/version 
+  Linux version 2.6.5-rc2-mm1 (john@jfsnew) (gcc version 3.3.3 (Debian 20040314)) #3 SMP Sun Mar 21 15:26:27 EST 2004
+
+  > zcat /proc/config.gz | grep IRQ
+  CONFIG_IRQBALANCE=y
+  CONFIG_IDEPCI_SHARE_IRQ=y
+
+  > cat /proc/interrupts 
+	     CPU0       CPU1       
+    0:   46272316        487    IO-APIC-edge  timer
+    1:        376          0    IO-APIC-edge  i8042
+    2:          0          0          XT-PIC  cascade
+    4:       4147          1    IO-APIC-edge  serial
+    7:          2          0    IO-APIC-edge  parport0
+    8:          4          0    IO-APIC-edge  rtc
+   11:      95936          1    IO-APIC-edge  Cyclom-Y
+   12:        677          0    IO-APIC-edge  i8042
+   14:         87          0    IO-APIC-edge  ide0
+   16:      46770          3   IO-APIC-level  ide2, ide3, ehci_hcd
+   17:     307832          1   IO-APIC-level  eth0
+   18:     118258          1   IO-APIC-level  aic7xxx, aic7xxx, ohci_hcd
+   19:          0          0   IO-APIC-level  ohci_hcd
+  NMI:          0          0 
+  LOC:   46279245   46279281 
+  ERR:          0
+  MIS:        417
 
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+John

@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUDXUEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUDXUWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUDXUEN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 16:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbUDXUEN
+	id S262322AbUDXUWc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 16:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbUDXUWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 16:04:13 -0400
-Received: from pop.gmx.net ([213.165.64.20]:43448 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261752AbUDXUEH (ORCPT
+	Sat, 24 Apr 2004 16:22:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47318 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262322AbUDXUWa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 16:04:07 -0400
-X-Authenticated: #20450766
-Date: Sat, 24 Apr 2004 22:00:10 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-cc: Guennadi Liakhovetski <gl@dsa-ac.de>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [somewhat OT] binary modules agaaaain
-In-Reply-To: <408A3B82.5020807@softhome.net>
-Message-ID: <Pine.LNX.4.44.0404242146100.1890-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 24 Apr 2004 16:22:30 -0400
+Date: Sat, 24 Apr 2004 13:21:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: page allocation failures with 2.6.5 on s390
+Message-Id: <20040424132159.7cae4f54.akpm@osdl.org>
+In-Reply-To: <20040424183711.GC28032@wavehammer.waldi.eu.org>
+References: <20040424183711.GC28032@wavehammer.waldi.eu.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Apr 2004, Ihar 'Philips' Filipau wrote:
-
-> Guennadi Liakhovetski wrote:
-> > Hello all
-> >
-> > I came across an idea, how Linux could allow binary modules, still having
-> > reasonable control over them.
-> >
-> > I am not advocating for binary modules, nor I am trying to make their life
-> > harder, this is just an idea how it could be done.
-> >
-> > I'll try to make it short, details may be discussed later, if any interest
-> > arises.
-> >
-> > A binary module is "considered good" if
+Bastian Blank <bastian@waldi.eu.org> wrote:
 >
->    I belive that you forgot to make "The Point."
+> Today I see the following error message in the logs of two machines
+> with 2.6.5 on s390, both 31 and 64 bit.
+> 
+> | swapper: page allocation failure. order:2, mode:0x20
+> | 0072d8f0 00028b18 00405490 80028bbc 80028dac 0072d868 00392f00 0039068a
+> |        00000002 00000001 0039a400 0000001a
+> | Call Trace:
+> |  [<0000000000049d30>] __alloc_pages+0x318/0x35c
+> |  [<0000000000049dbe>] __get_free_pages+0x4a/0x78
+> |  [<000000000004d838>] cache_grow+0xe0/0x39c
+> |  [<000000000004dcc0>] cache_alloc_refill+0x1cc/0x2d8
+> |  [<000000000004e1f2>] __kmalloc+0xaa/0xb8
+> |  [<000000000023e810>] alloc_skb+0x5c/0xe4
+> |  [<00000000002080ca>] qeth_read_in_buffer+0xd16/0xda0
+> |  [<0000000000212e22>] qeth_qdio_input_handler+0x42a/0x57c
+> |  [<00000000001de17c>] qdio_handler+0xad4/0x10f4
+> |  [<00000000001d46da>] ccw_device_call_handler+0x8a/0x94
+> |  [<00000000001d3922>] ccw_device_irq+0x7a/0xb4
+> |  [<00000000001d42de>] io_subchannel_irq+0x7e/0xc4
+> |  [<00000000001cfcd2>] do_IRQ+0x18a/0x1b0
+> |  [<0000000000020072>] io_return+0x0/0x10
 
-May be...
+This is pretty much unavoidable - the kernel is looking for four
+physically-contiguous free pages at interrupt time, and there aren't any.
 
->    And "discussion" (good vs. bad isn't discussion, but flames) went in
-> wrong direction.
+You can reduce its frequency by increasing /proc/sys/vm/min_free_kbytes.
 
-Very right. Let me try to explain it again. It was just an idea, that
-popped in my mind. I was not sure if it was good or bad, so, I decided to
-dump it to lkml, so, that the people here could evaluate it. And, if it
-can be of any use - use it. I, personally, don't care much (at least at
-the moment) about binary drivers. And I most of all wanted to avoid
-starting a new wave of flames. That's why I tried to avoid answering to
-other posters (sorry, if it was somewhat impolite).
+The best fix would be to alter the driver to use order-0 pages if that's
+possible.
 
->    Be constructive. For example: Let's aks h/w producers making at least
-> glue layer open source (bsd or something), so people eventually might
-> help to maintain this glue layer.
->    How it can help? - producer with time may move bigger parts of driver
-> into open source domains.
->    How it can gets screwed? - producer might just start liking when
-> someone is doing his work for him. Some license a-la GPL to not let glue
-> layer to slip into binary only domain back must be in place.
->
->    This could be a good starting point for h/w producers and linux
-> comunity as a whole.
->
->    Saying Good/Bad is just B.S. - helps no-one.
->    Building bridges between comunity and producers - might improve and
-> deepen relationships. And that's what I hope for.
+> It causes a lot of state-D processes on one machine.
 
-Thanks! You seem to have understood the idea pretty close to what I mean,
-and, probably, you are better capable of explaining things, than I:-) But,
-I think, if it is going to be discussed further, let's move it away from
-LKML (you are right, Bart). It can either be discussed in private emails,
-or, maybe someone could create a dedicated mailing list somewhere.
+This should not happen.  If it happens again, try to capture an all-task
+backtrace into the logs with
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
+	echo t > /proc/sysrq-trigger
 
 

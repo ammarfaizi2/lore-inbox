@@ -1,36 +1,430 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291729AbSBAMBN>; Fri, 1 Feb 2002 07:01:13 -0500
+	id <S291732AbSBAMFN>; Fri, 1 Feb 2002 07:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291730AbSBAMA5>; Fri, 1 Feb 2002 07:00:57 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:50429 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S291729AbSBAMAl>; Fri, 1 Feb 2002 07:00:41 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.21.0202011939150.30567-100000@dog.ima.net> 
-In-Reply-To: <Pine.LNX.4.21.0202011939150.30567-100000@dog.ima.net> 
-To: Joe Wong <joewong@tkodog.no-ip.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.16 cannot connect to www.sun.com 
-Mime-Version: 1.0
+	id <S291733AbSBAMFG>; Fri, 1 Feb 2002 07:05:06 -0500
+Received: from pat.uio.no ([129.240.130.16]:456 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S291732AbSBAMEx>;
+	Fri, 1 Feb 2002 07:04:53 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 01 Feb 2002 12:00:33 +0000
-Message-ID: <17529.1012564833@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15450.33879.761728.231268@charged.uio.no>
+Date: Fri, 1 Feb 2002 13:04:39 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.3]  NFS lookup code rewrite w/o open(".") fix...
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-joewong@tkodog.no-ip.com said:
-> 
->   For some reason after I upgraded to 2.4.16, I cannot connect to
-> www.sun.com anymore. It also happens on some other sites. Anyone know
-> what might be the problem? I have no problem using 2.4.7. 
+   > (Trond: your NFS directory cache cleanup clashes badly with Al's
+   > inode allocations patches, and I decided to do the more
+   > fundamental inode alloc change first, so ..).
 
-http://www.tux.org/lkml/#s14-2
+Third time lucky, I hope. 8)
 
---
-dwmw2
+  This is a resend of the NFS lookup code rewrite, but with the open(".")
+VFS fix removed. (I'll resend the 'uses d_revalidate()' version
+separately after a suitable delay to allow for comments.)
+
+  Issues fixed by this patch:
+
+ - Use the directory mtime in order to give us a hint when we should
+   check for namespace changes.
+
+ - Add support for the 'nocto' flag, in order to turn off the strict
+   attribute cache revalidation on file open().
+
+ - Simplify inode lookup. Don't check the 'fsid' field (which appears
+   to be buggy in too many servers in order to be reliable). Instead
+   we only rely on the inode number (a.k.a. 'fileid') and the
+   (supposedly unique) filehandle.
+---
+  Appended 'minor cleanups'
+
+ - Minor fix to 'unlink': update inode->i_nlink when we complete a
+   sillydelete
+
+ - Clean out obsolete fields from nfs_inode.
+
+Cheers,
+   Trond
 
 
+diff -u --recursive --new-file linux-2.5.3/fs/nfs/dir.c linux-2.5.3-cto/fs/nfs/dir.c
+--- linux-2.5.3/fs/nfs/dir.c	Tue Jan 22 00:54:52 2002
++++ linux-2.5.3-cto/fs/nfs/dir.c	Fri Feb  1 13:01:00 2002
+@@ -402,6 +402,21 @@
+ }
+ 
+ /*
++ * A check for whether or not the parent directory has changed.
++ * In the case it has, we assume that the dentries are untrustworthy
++ * and may need to be looked up again.
++ */
++static inline
++int nfs_check_verifier(struct inode *dir, struct dentry *dentry)
++{
++	if (IS_ROOT(dentry))
++		return 1;
++	if (nfs_revalidate_inode(NFS_SERVER(dir), dir))
++		return 0;
++	return time_after(dentry->d_time, NFS_MTIME_UPDATE(dir));
++}
++
++/*
+  * Whenever an NFS operation succeeds, we know that the dentry
+  * is valid, so we update the revalidation timestamp.
+  */
+@@ -410,48 +425,31 @@
+ 	dentry->d_time = jiffies;
+ }
+ 
+-static inline int nfs_dentry_force_reval(struct dentry *dentry, int flags)
++static inline
++int nfs_lookup_verify_inode(struct inode *inode, int flags)
+ {
+-	struct inode *inode = dentry->d_inode;
+-	unsigned long timeout = NFS_ATTRTIMEO(inode);
+-
++	struct nfs_server *server = NFS_SERVER(inode);
+ 	/*
+-	 * If it's the last lookup in a series, we use a stricter
+-	 * cache consistency check by looking at the parent mtime.
+-	 *
+-	 * If it's been modified in the last hour, be really strict.
+-	 * (This still means that we can avoid doing unnecessary
+-	 * work on directories like /usr/share/bin etc which basically
+-	 * never change).
++	 * If we're interested in close-to-open cache consistency,
++	 * then we revalidate the inode upon lookup.
+ 	 */
+-	if (!(flags & LOOKUP_CONTINUE)) {
+-		long diff = CURRENT_TIME - dentry->d_parent->d_inode->i_mtime;
+-
+-		if (diff < 15*60)
+-			timeout = 0;
+-	}
+-	
+-	return time_after(jiffies,dentry->d_time + timeout);
++	if (!(server->flags & NFS_MOUNT_NOCTO) && !(flags & LOOKUP_CONTINUE))
++		NFS_CACHEINV(inode);
++	return nfs_revalidate_inode(server, inode);
+ }
+ 
+ /*
+  * We judge how long we want to trust negative
+  * dentries by looking at the parent inode mtime.
+  *
+- * If mtime is close to present time, we revalidate
+- * more often.
++ * If parent mtime has changed, we revalidate, else we wait for a
++ * period corresponding to the parent's attribute cache timeout value.
+  */
+-#define NFS_REVALIDATE_NEGATIVE (1 * HZ)
+-static inline int nfs_neg_need_reval(struct dentry *dentry)
++static inline int nfs_neg_need_reval(struct inode *dir, struct dentry *dentry)
+ {
+-	struct inode *dir = dentry->d_parent->d_inode;
+-	unsigned long timeout = NFS_ATTRTIMEO(dir);
+-	long diff = CURRENT_TIME - dir->i_mtime;
+-
+-	if (diff < 5*60 && timeout > NFS_REVALIDATE_NEGATIVE)
+-		timeout = NFS_REVALIDATE_NEGATIVE;
+-
+-	return time_after(jiffies, dentry->d_time + timeout);
++	if (!nfs_check_verifier(dir, dentry))
++		return 1;
++	return time_after(jiffies, dentry->d_time + NFS_ATTRTIMEO(dir));
+ }
+ 
+ /*
+@@ -462,9 +460,8 @@
+  * NOTE! The hit can be a negative hit too, don't assume
+  * we have an inode!
+  *
+- * If the dentry is older than the revalidation interval, 
+- * we do a new lookup and verify that the dentry is still
+- * correct.
++ * If the parent directory is seen to have changed, we throw out the
++ * cached dentry and do a new lookup.
+  */
+ static int nfs_lookup_revalidate(struct dentry * dentry, int flags)
+ {
+@@ -477,13 +474,9 @@
+ 	lock_kernel();
+ 	dir = dentry->d_parent->d_inode;
+ 	inode = dentry->d_inode;
+-	/*
+-	 * If we don't have an inode, let's look at the parent
+-	 * directory mtime to get a hint about how often we
+-	 * should validate things..
+-	 */
++
+ 	if (!inode) {
+-		if (nfs_neg_need_reval(dentry))
++		if (nfs_neg_need_reval(dir, dentry))
+ 			goto out_bad;
+ 		goto out_valid;
+ 	}
+@@ -494,48 +487,39 @@
+ 		goto out_bad;
+ 	}
+ 
+-	if (!nfs_dentry_force_reval(dentry, flags))
++	/* Force a full look up iff the parent directory has changed */
++	if (nfs_check_verifier(dir, dentry)) {
++		if (nfs_lookup_verify_inode(inode, flags))
++			goto out_bad;
+ 		goto out_valid;
+-
+-	if (IS_ROOT(dentry)) {
+-		__nfs_revalidate_inode(NFS_SERVER(inode), inode);
+-		goto out_valid_renew;
+ 	}
+ 
+-	/*
+-	 * Do a new lookup and check the dentry attributes.
+-	 */
++	if (NFS_STALE(inode))
++		goto out_bad;
++
+ 	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, &fhandle, &fattr);
+ 	if (error)
+ 		goto out_bad;
+-
+-	/* Inode number matches? */
+-	if (!(fattr.valid & NFS_ATTR_FATTR) ||
+-	    NFS_FSID(inode) != fattr.fsid ||
+-	    NFS_FILEID(inode) != fattr.fileid)
++	if (memcmp(NFS_FH(inode), &fhandle, sizeof(struct nfs_fh))!= 0)
+ 		goto out_bad;
+-
+-	/* Ok, remember that we successfully checked it.. */
+-	nfs_refresh_inode(inode, &fattr);
+-
+-	if (nfs_inode_is_stale(inode, &fhandle, &fattr))
++	if ((error = nfs_refresh_inode(inode, &fattr)) != 0)
+ 		goto out_bad;
+ 
+- out_valid_renew:
+ 	nfs_renew_times(dentry);
+-out_valid:
++ out_valid:
+ 	unlock_kernel();
+ 	return 1;
+-out_bad:
+-	shrink_dcache_parent(dentry);
+-	/* If we have submounts, don't unhash ! */
+-	if (have_submounts(dentry))
+-		goto out_valid;
+-	d_drop(dentry);
+-	/* Purge readdir caches. */
+-	nfs_zap_caches(dir);
+-	if (inode && S_ISDIR(inode->i_mode))
++ out_bad:
++	NFS_CACHEINV(dir);
++	if (inode && S_ISDIR(inode->i_mode)) {
++		/* Purge readdir caches. */
+ 		nfs_zap_caches(inode);
++		/* If we have submounts, don't unhash ! */
++		if (have_submounts(dentry))
++			goto out_valid;
++		shrink_dcache_parent(dentry);
++	}
++	d_drop(dentry);
+ 	unlock_kernel();
+ 	return 0;
+ }
+@@ -565,6 +549,7 @@
+ {
+ 	if (dentry->d_flags & DCACHE_NFSFS_RENAMED) {
+ 		lock_kernel();
++		inode->i_nlink--;
+ 		nfs_complete_unlink(dentry);
+ 		unlock_kernel();
+ 	}
+@@ -604,9 +589,9 @@
+ 		if (inode) {
+ 	    no_entry:
+ 			d_add(dentry, inode);
+-			nfs_renew_times(dentry);
+ 			error = 0;
+ 		}
++		nfs_renew_times(dentry);
+ 	}
+ out:
+ 	return ERR_PTR(error);
+diff -u --recursive --new-file linux-2.5.3/fs/nfs/inode.c linux-2.5.3-cto/fs/nfs/inode.c
+--- linux-2.5.3/fs/nfs/inode.c	Tue Jan 22 00:37:32 2002
++++ linux-2.5.3-cto/fs/nfs/inode.c	Fri Feb  1 13:00:39 2002
+@@ -630,39 +630,18 @@
+ 	struct nfs_fh		*fh = desc->fh;
+ 	struct nfs_fattr	*fattr = desc->fattr;
+ 
+-	if (NFS_FSID(inode) != fattr->fsid)
+-		return 0;
+ 	if (NFS_FILEID(inode) != fattr->fileid)
+ 		return 0;
+ 	if (memcmp(NFS_FH(inode), fh, sizeof(struct nfs_fh)) != 0)
+ 		return 0;
++	if (is_bad_inode(inode))
++		return 0;
+ 	/* Force an attribute cache update if inode->i_count == 0 */
+ 	if (!atomic_read(&inode->i_count))
+ 		NFS_CACHEINV(inode);
+ 	return 1;
+ }
+ 
+-int
+-nfs_inode_is_stale(struct inode *inode, struct nfs_fh *fh, struct nfs_fattr *fattr)
+-{
+-	/* Empty inodes are not stale */
+-	if (!inode->i_mode)
+-		return 0;
+-
+-	if ((fattr->mode & S_IFMT) != (inode->i_mode & S_IFMT))
+-		return 1;
+-
+-	if (is_bad_inode(inode) || NFS_STALE(inode))
+-		return 1;
+-
+-	/* Has the filehandle changed? If so is the old one stale? */
+-	if (memcmp(NFS_FH(inode), fh, sizeof(struct nfs_fh)) != 0 &&
+-	    __nfs_revalidate_inode(NFS_SERVER(inode),inode) == -ESTALE)
+-		return 1;
+-
+-	return 0;
+-}
+-
+ /*
+  * This is our own version of iget that looks up inodes by file handle
+  * instead of inode number.  We use this technique instead of using
+@@ -713,7 +692,6 @@
+ 		/* We can't support UPDATE_ATIME(), since the server will reset it */
+ 		NFS_FLAGS(inode) &= ~NFS_INO_NEW;
+ 		NFS_FILEID(inode) = fattr->fileid;
+-		NFS_FSID(inode) = fattr->fsid;
+ 		memcpy(NFS_FH(inode), fh, sizeof(struct nfs_fh));
+ 		inode->i_flags |= S_NOATIME;
+ 		inode->i_mode = fattr->mode;
+@@ -787,7 +765,7 @@
+ 	/*
+ 	 * Make sure the inode is up-to-date.
+ 	 */
+-	error = nfs_revalidate(dentry);
++	error = nfs_revalidate_inode(NFS_SERVER(inode),inode);
+ 	if (error) {
+ #ifdef NFS_PARANOIA
+ printk("nfs_notify_change: revalidate failed, error=%d\n", error);
+@@ -1025,12 +1003,11 @@
+ 			inode->i_sb->s_id, inode->i_ino,
+ 			atomic_read(&inode->i_count), fattr->valid);
+ 
+-	if (NFS_FSID(inode) != fattr->fsid ||
+-	    NFS_FILEID(inode) != fattr->fileid) {
++	if (NFS_FILEID(inode) != fattr->fileid) {
+ 		printk(KERN_ERR "nfs_refresh_inode: inode number mismatch\n"
+-		       "expected (0x%Lx/0x%Lx), got (0x%Lx/0x%Lx)\n",
+-		       (long long)NFS_FSID(inode), (long long)NFS_FILEID(inode),
+-		       (long long)fattr->fsid, (long long)fattr->fileid);
++		       "expected (%s/0x%Lx), got (%s/0x%Lx)\n",
++		       inode->i_sb->s_id, (long long)NFS_FILEID(inode),
++		       inode->i_sb->s_id, (long long)fattr->fileid);
+ 		goto out_err;
+ 	}
+ 
+@@ -1100,8 +1077,11 @@
+ 
+ 	inode->i_atime = new_atime;
+ 
+-	NFS_CACHE_MTIME(inode) = new_mtime;
+-	inode->i_mtime = nfs_time_to_secs(new_mtime);
++	if (NFS_CACHE_MTIME(inode) != new_mtime) {
++		NFS_MTIME_UPDATE(inode) = jiffies;
++		NFS_CACHE_MTIME(inode) = new_mtime;
++		inode->i_mtime = nfs_time_to_secs(new_mtime);
++	}
+ 
+ 	NFS_CACHE_ISIZE(inode) = new_size;
+ 	inode->i_size = new_isize;
+@@ -1175,10 +1155,6 @@
+ 	if (!nfsi)
+ 		return NULL;
+ 	nfsi->flags = NFS_INO_NEW;
+-	/* do we need the next 4 lines? */
+-	nfsi->hash_next = NULL;
+-	nfsi->hash_prev = NULL;
+-	nfsi->nextscan = 0;
+ 	nfsi->mm_cred = NULL;
+ 	return &nfsi->vfs_inode;
+ }
+diff -u --recursive --new-file linux-2.5.3/fs/nfs/nfs3proc.c linux-2.5.3-cto/fs/nfs/nfs3proc.c
+--- linux-2.5.3/fs/nfs/nfs3proc.c	Tue Jan 22 00:54:52 2002
++++ linux-2.5.3-cto/fs/nfs/nfs3proc.c	Fri Feb  1 13:00:39 2002
+@@ -80,7 +80,8 @@
+ 		status = rpc_call(NFS_CLIENT(dir), NFS3PROC_GETATTR,
+ 			 fhandle, fattr, 0);
+ 	dprintk("NFS reply lookup: %d\n", status);
+-	nfs_refresh_inode(dir, &dir_attr);
++	if (status >= 0)
++		status = nfs_refresh_inode(dir, &dir_attr);
+ 	return status;
+ }
+ 
+diff -u --recursive --new-file linux-2.5.3/include/linux/nfs_fs.h linux-2.5.3-cto/include/linux/nfs_fs.h
+--- linux-2.5.3/include/linux/nfs_fs.h	Wed Jan 30 06:42:01 2002
++++ linux-2.5.3-cto/include/linux/nfs_fs.h	Fri Feb  1 13:00:39 2002
+@@ -92,7 +92,6 @@
+ 	/*
+ 	 * The 64bit 'inode number'
+ 	 */
+-	__u64 fsid;
+ 	__u64 fileid;
+ 
+ 	/*
+@@ -130,6 +129,12 @@
+ 	unsigned long		attrtimeo_timestamp;
+ 
+ 	/*
++	 * Timestamp that dates the change made to read_cache_mtime.
++	 * This is of use for dentry revalidation
++	 */
++	unsigned long		cache_mtime_jiffies;
++
++	/*
+ 	 * This is the cookie verifier used for NFSv3 readdir
+ 	 * operations
+ 	 */
+@@ -148,11 +153,6 @@
+ 				ncommit,
+ 				npages;
+ 
+-	/* Flush daemon info */
+-	struct inode		*hash_next,
+-				*hash_prev;
+-	unsigned long		nextscan;
+-
+ 	/* Credentials for shared mmap */
+ 	struct rpc_cred		*mm_cred;
+ 
+@@ -183,6 +183,7 @@
+ #define NFS_CONGESTED(inode)		(RPC_CONGESTED(NFS_CLIENT(inode)))
+ #define NFS_COOKIEVERF(inode)		(NFS_I(inode)->cookieverf)
+ #define NFS_READTIME(inode)		(NFS_I(inode)->read_cache_jiffies)
++#define NFS_MTIME_UPDATE(inode)		(NFS_I(inode)->cache_mtime_jiffies)
+ #define NFS_CACHE_CTIME(inode)		(NFS_I(inode)->read_cache_ctime)
+ #define NFS_CACHE_MTIME(inode)		(NFS_I(inode)->read_cache_mtime)
+ #define NFS_CACHE_ISIZE(inode)		(NFS_I(inode)->read_cache_isize)
+@@ -206,7 +207,6 @@
+ #define NFS_NEW(inode)			(NFS_FLAGS(inode) & NFS_INO_NEW)
+ 
+ #define NFS_FILEID(inode)		(NFS_I(inode)->fileid)
+-#define NFS_FSID(inode)			(NFS_I(inode)->fsid)
+ 
+ /* Inode Flags */
+ #define NFS_USE_READDIRPLUS(inode)	((NFS_FLAGS(inode) & NFS_INO_ADVISE_RDPLUS) ? 1 : 0)

@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270409AbUJUJFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268848AbUJTSue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270409AbUJUJFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 05:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270345AbUJUJFH
+	id S268848AbUJTSue (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 14:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268846AbUJTSt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 05:05:07 -0400
-Received: from A.painless.aaisp.net.uk ([81.187.81.51]:57273 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S270409AbUJUJCy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 05:02:54 -0400
-Message-ID: <41777F15.7010502@rgadsdon2.giointernet.co.uk>
-Date: Thu, 21 Oct 2004 10:19:17 +0100
-From: Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.8a2) Gecko/20040604
-X-Accept-Language: en-gb, en, en-us
+	Wed, 20 Oct 2004 14:49:58 -0400
+Received: from smtp1.sloane.cz ([62.240.161.228]:5585 "EHLO smtp1.sloane.cz")
+	by vger.kernel.org with ESMTP id S268991AbUJTSpe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 14:45:34 -0400
+From: Michal Semler <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: Hibernation and time and dhcp
+Date: Wed, 20 Oct 2004 20:45:24 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-To: Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-bk3 - compile error - bk4 & 5 as well..
-References: <4176537A.6070301@rgadsdon2.giointernet.co.uk> <4176725F.1000206@rgadsdon2.giointernet.co.uk>
-In-Reply-To: <4176725F.1000206@rgadsdon2.giointernet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410202045.24388.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-...and -bk5:
+Hi guys,
 
-   LD      init/built-in.o
-   LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0xb86e8): In function `i2o_pci_interrupt':
-: undefined reference to `i2o_msg_out_to_virt'
-drivers/built-in.o(.text+0xb8f8a): In function `i2o_exec_reply':
-: undefined reference to `i2o_msg_in_to_virt'
-make: *** [.tmp_vmlinux1] Error 1
+with 2.6.9 hibernation to disk finally works! Thanks
+To ram it still don't work, system starts with lcd disabled - but it is 
+another story.
 
-Robert Gadsdon wrote:
-> Same with 2.6.9-bk4..
-> 
-> Robert Gadsdon wrote:
-> 
->> ..............
->> GEN     .version
->>   CHK     include/linux/compile.h
->>   UPD     include/linux/compile.h
->>   CC      init/version.o
->>   LD      init/built-in.o
->>   LD      .tmp_vmlinux1
->> drivers/built-in.o(.text+0xb8658): In function `i2o_pci_interrupt':
->> : undefined reference to `i2o_msg_out_to_virt'
->> drivers/built-in.o(.text+0xb8efa): In function `i2o_exec_reply':
->> : undefined reference to `i2o_msg_in_to_virt'
->> make: *** [.tmp_vmlinux1] Error 1
->>
-> 
-> 
+I have now this problem - when I hibernate and then system is started up in 
+other company, it don't update time and shows still for example 14:00 - when 
+I rehibernate for example in 20:00 - could you ask bios for current time? 
+It's better to have bad time about few seconds instead of hours.
 
+Same problem with dhcp - it should ask for IP when rehibernate.
+
+Thanks for fixing
+
+Michal

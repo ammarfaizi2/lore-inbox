@@ -1,63 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263592AbUJ2VUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263576AbUJ2VRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263592AbUJ2VUF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 17:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263484AbUJ2VTQ
+	id S263576AbUJ2VRX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbUJ2VO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 17:19:16 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17927 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263592AbUJ2VOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 17:14:17 -0400
-Date: Fri, 29 Oct 2004 22:14:12 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Tim_T_Murphy@Dell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.6.8.1] serial driver hangs SMP kernel, but not the UP kernel
-Message-ID: <20041029221412.K31627@flint.arm.linux.org.uk>
-Mail-Followup-To: Tim_T_Murphy@Dell.com, linux-kernel@vger.kernel.org
-References: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC5@ausx2kmps304.aus.amer.dell.com>
+	Fri, 29 Oct 2004 17:14:28 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:61366 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263577AbUJ2VLK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 17:11:10 -0400
+Date: Fri, 29 Oct 2004 23:11:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041029211112.GA9836@elte.hu>
+References: <20041029203320.GC5186@elte.hu> <200410292051.i9TKptOi007283@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4B0A1C17AA88F94289B0704CFABEF1AB0B4CC5@ausx2kmps304.aus.amer.dell.com>; from Tim_T_Murphy@Dell.com on Fri, Oct 29, 2004 at 04:04:40PM -0500
+In-Reply-To: <200410292051.i9TKptOi007283@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 04:04:40PM -0500, Tim_T_Murphy@Dell.com wrote:
-> > Shouldn't 8250_pci setup the ports already for you?  If not, what
-> > needs to be done to achieve this.  Using setserial to setup ports
-> > for PCI cards isn't the preferred way of doing this.
+
+* Paul Davis <paul@linuxaudiosystems.com> wrote:
+
+>   [ I trimmed the CC: line because several people there are on
+>     jackit-devel. ]
 > 
-> good question, i will have to understand more to answer it though.
-> our product has used this method for almost 2 years now.
-
-Well, if you forward lspci -vvx and the "maddr" and "irqno" information
-(in private mail if you prefer) then I'll fix 8250_pci to work.
-
-> > At a guess, you've enabled "low latency" setting on this port ?
+> >> compiles and boots fine. no observable change in xrun behaviour though. 
+> >
+> >ok, so there's something else going on as well - or i missed an ioctl. 
 > 
-> yes.  here's a snippet from the script:
+> i really don't think the ioctl's are relevant. 
 > 
-> 	echo -n "Starting ${racsvc}: "
-> 	# set serial characteristics for RAC device
-> 	setserial /dev/${ttyid} \
-> 		port 0x${maddr} irq ${irqno} ^skip_test autoconfig
-> 	setserial /dev/${ttyid} \
-> 		uart 16550A low_latency baud_base 1382400	\
-> 		close_delay 0 closing_wait infinite
-> 	# now start pppd
-> 	/sbin/modprobe -q ppp >/dev/null 2>&1
-> 	/sbin/modprobe -q ppp_async >/dev/null 2>&1
-> 	daemon pppd call ${service}
-> 	RETVAL=$?
+> consider what will happen if jackd does make a system call that causes
+> a major delay (say, because of the BKL). we will get an xrun, yes, but
+> this will cause jackd to stop the audio interface and restart.
+> max_delay is not affected by this behaviour.
 
-I think dropping low_latency will work around the problem for the time
-being.
+indeed. I'd exclude the ioctls at this point. But:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+> as far as i can tell, the number reported by max_delay entirely (or
+> almost entirely) represents problems in kernel scheduling, specifically
+> with a combination of:
+> 
+>      a) handling the audio interface interrupt in time.
+>      b) marking the relevant jackd thread runnable
+>      c) context switching back to the relevant jackd thread
+> 
+> things that jackd does once its running do not, it appear to me, have
+> any impact on max_delay, which is based on the simple observation: 
+> 
+>    "i was just woken, i expect to be awakened again in N usecs or
+>    less.
+
+i dont yet see how this conclusion follows. Here's the poll() code
+(simplified):
+
+                poll_enter = jack_get_microseconds ();
+
+                ret = poll (driver->pfd, nfds, driver->poll_timeout);
+
+		[...]
+
+		if (extra_fd < 0) {
+			if (driver->poll_next && poll_ret > driver->poll_next) {
+				*delayed_usecs = poll_ret - driver->poll_next;
+			} 
+			driver->poll_last = poll_ret;
+			driver->poll_next = poll_ret + driver->period_usecs;
+			driver->engine->transport_cycle_start (driver->engine, 
+							       poll_ret);
+		}
+
+is there a mechanism that ensures that the next poll() will be called
+_before_ ->poll_next? Do you get a real hard ALSA xrun in that case or
+something similar?
+
+if it's possible to 'silently' overrun the next due interrupt (somewhat,
+but not large enough overrun to cause a hard ALSA xrun) then the
+processing delay will i believe be accounted as a 'wakeup delay'. In
+that case to make the delayed_usecs value truly accurate, i'd at least
+add this:
+
+                poll_enter = jack_get_microseconds ();
+
+		if (poll_enter > driver->poll_next) {
+			/*
+			 * This processing cycle got delayed over
+			 * the next due interrupt! Do not account this
+			 * as a wakeup delay:
+			 */
+			driver->poll_next = 0;
+		}
+
+but i'd also suggest to put in a counter into that branch so that this
+condition doesnt get lost. In fact the Maximum Process Cycle stat from
+Rui:
+
+>>   Maximum Delay . . . . . . . . .    6904       921       721    usecs
+>>   Maximum Process Cycle . . . . .    1449      1469      1590    usecs
+
+seems to suggest that there can be significant processing delays? (if
+Maximum Process Cycle is indeed the time spent from poll_ret to the next
+poll_enter.)
+
+	Ingo

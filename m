@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269154AbTB0DEP>; Wed, 26 Feb 2003 22:04:15 -0500
+	id <S269155AbTB0DGG>; Wed, 26 Feb 2003 22:06:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269155AbTB0DEO>; Wed, 26 Feb 2003 22:04:14 -0500
-Received: from netlx010.civ.utwente.nl ([130.89.1.92]:60085 "EHLO
-	netlx010.civ.utwente.nl") by vger.kernel.org with ESMTP
-	id <S269154AbTB0DEO>; Wed, 26 Feb 2003 22:04:14 -0500
-Date: Thu, 27 Feb 2003 04:12:41 +0100 (CET)
-From: Martijn Uffing <mp3project@cam029208.student.utwente.nl>
-To: akpm@digeo.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Older bk snapshots not found on www.kernel.org 
-Message-ID: <Pine.LNX.4.44.0302270405530.21643-100000@cam029208.student.utwente.nl>
+	id <S269156AbTB0DGF>; Wed, 26 Feb 2003 22:06:05 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:4994 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S269155AbTB0DGE>;
+	Wed, 26 Feb 2003 22:06:04 -0500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: finger @zeuz.kernel.org modification?
+References: <87n0kl5krq.fsf@lapper.ihatent.com>
+	<20030224152156.3c3c00e1.rddunlap@osdl.org>
+	<87el5x5jjh.fsf@lapper.ihatent.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 27 Feb 2003 04:16:09 +0100
+In-Reply-To: <87el5x5jjh.fsf@lapper.ihatent.com>
+Message-ID: <87el5ubeh2.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UTwente-MailScanner: Found to be clean
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Feb 2003, Andrew Morton wrote:
+Alexander Hoogerhuis <alexh@ihatent.com> writes:
 
-> Martijn Uffing <mp3project@cam029208.student.utwente.nl> wrote:
-> >
+> "Randy.Dunlap" <rddunlap@osdl.org> writes:
+> 
+> > On 25 Feb 2003 00:19:53 +0100
+> > Alexander Hoogerhuis <alexh@ihatent.com> wrote:
 > > 
-> > Ave people.
+> > | I've been using the above command as a quick reference to get a view
+> > | of whats state of the art kernel-wise, and wondered who is the right
+> > | person to pest^H^H^H^Hask about getting the 2.5-mm releases into the
+> > | same list? :)
 > > 
-> > I know www.xx.kernel.org has nice bk snapshots in the form 
-> > of patch-2.5.x-bkx.gz  However,they are only against the latest linus 
-> > release. The problem is I have a 100% repeatable OOPS in 2.5.62 while 
-> > 2.5.61 worked.  Before I send in a bug report I want to nail it down to 
-> > which bk snapshot starts failing to make it a little easier for the 
-> > bughunters to find the bug.  Is there any website/ftp whatever which 
-> > collects older bk snapshots?
+> > 
+> > and how to have kernel announcements show up on linux-kernel-announce
+> > again too...
+> > 
 > 
-> I just run a script to snarf them.
-> 
-> I've uploaded the 2.5.61->2.5.62 snapshots to
-> 
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.61/snapshots/
-> 
-> each one of these is a diff against 2.5.61.  If you can narrow it down to the
-> offending one, that would be a big start.
+> Lets not get carried away featurewise now, shall we? :)
 > 
 
-Ave 
+No more then I had uttered the words did the finger daemon at zeus
+surrender its mortal coil. Now I can query kernel.org, but still no
+mm-kernels listed. Anyone? :)
 
-I downloaded the different csets and compiled them. However,before 
-that was finished and I could test them Trond posted some patch on the 
-mailing list that fixed my OOPS.(my OOPS was nfsroot related)  
-Anyway thanx for the csets and the quick respons ,next time I got a Oops I 
-know where to look for the csets. The next bug is mine to hunt :)
-
-Greetz Mu
-
-
-
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

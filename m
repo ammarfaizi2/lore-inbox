@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311731AbSCTHuD>; Wed, 20 Mar 2002 02:50:03 -0500
+	id <S311622AbSCTGrv>; Wed, 20 Mar 2002 01:47:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311733AbSCTHty>; Wed, 20 Mar 2002 02:49:54 -0500
-Received: from naxos.pdb.sbs.de ([192.109.3.5]:23484 "EHLO naxos.pdb.sbs.de")
-	by vger.kernel.org with ESMTP id <S311731AbSCTHtj>;
-	Wed, 20 Mar 2002 02:49:39 -0500
-Date: Wed, 20 Mar 2002 08:52:06 +0100 (CET)
-From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
-        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, Ingo Molnar <mingo@elte.hu>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
-In-Reply-To: <20020319232836.GB1758@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.33.0203200844000.9609-100000@biker.pdb.fsc.net>
+	id <S311623AbSCTGrb>; Wed, 20 Mar 2002 01:47:31 -0500
+Received: from smtp.tele.fi ([192.89.123.25]:60618 "EHLO smtp.tele.fi")
+	by vger.kernel.org with ESMTP id <S311622AbSCTGr1>;
+	Wed, 20 Mar 2002 01:47:27 -0500
+Message-ID: <3C983053.BFEA351B@syscon-automation.fi>
+Date: Wed, 20 Mar 2002 08:46:43 +0200
+From: Ismo Salonen <ismo.salonen@syscon-automation.fi>
+Organization: Syscon Automation OY
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Specialix SI patches available - SI V1.x support
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Mar 2002, Pavel Machek wrote:
 
-> > This would get us rid of our problem (although the BIOS hack may
-> > suffice). However, more than that, it also spares ~2 us on each timer
-> > interrupt for CPUs which do not need do_slow_gettimeoffset.
-> >
-> > What do you think?
->
-> Well, you should get your bios fixed.
+Hello 
 
-Whatever's wrong with our BIOS is not the focus of the patch.
-There are two sides to this, and the Linux side is that the
-IO-operations to port 20 are completely superfluous on modern CPUs.
+Yesterday I patched the Specialix SX driver (sx.c,sx.h and sxboard.h)
+and now I can use my old (1988) SI host adapter (with two terminal
+adapters,
+totally 16 ports) :-) . 
 
-> Then... Those ifdefs are not neccessary, right? You only need ...
-[ snip ]
-> ... these lines.
+Is there anybody who has similar harware and would have some spare time 
+to test it more thoroughly ? 
 
-There is no point in keeping the timer_ack variable in the kernel's
-symbol table if it's compiled for CPUS with TSC only, and no need
-to test it in every timer interrupt if we know it's going to be 0
-anyway.
+Or should I submit the changes directly to the maintainer of that code ?
 
-Please note that do_slow_timeoffset is completely #ifdef'ed out in
-time.c for CPUs with TSC.
+I also have ported the old DigiBoard Com/Xi driver by Simon Poole to
+current 
+kernel, however there are some problems with it, handling of termio
+settings
+are not is synch with upper level, anybody intrested in inspecting that
+code.
+( I could reach anybody named in the source by email, all addresses
+bounce)
 
-Martin
-
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
-
-
-
-
-
+ismo

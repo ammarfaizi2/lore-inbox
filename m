@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261847AbSJEBOn>; Fri, 4 Oct 2002 21:14:43 -0400
+	id <S261787AbSJEBIy>; Fri, 4 Oct 2002 21:08:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261851AbSJEBOn>; Fri, 4 Oct 2002 21:14:43 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:32004 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S261847AbSJEBOm>; Fri, 4 Oct 2002 21:14:42 -0400
-Date: Sat, 5 Oct 2002 11:20:06 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: "David S. Miller" <davem@redhat.com>
-cc: greearb@candelatech.com, <linux-kernel@vger.kernel.org>
-Subject: Re: tg3 and Netgear GA302T x 2 locks machine
-In-Reply-To: <20021004.142428.101875902.davem@redhat.com>
-Message-ID: <Mutt.LNX.4.44.0210051117240.23965-100000@blackbird.intercode.com.au>
+	id <S261790AbSJEBIy>; Fri, 4 Oct 2002 21:08:54 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:16560 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261787AbSJEBIw>;
+	Fri, 4 Oct 2002 21:08:52 -0400
+Date: Fri, 4 Oct 2002 21:14:25 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: oops in bk pull (oct 03)
+In-Reply-To: <Pine.LNX.4.44.0210041755310.2993-100000@home.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0210042103340.21250-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Oct 2002, David S. Miller wrote:
 
->    From: Ben Greear <greearb@candelatech.com>
->    Date: Thu, 03 Oct 2002 21:19:37 -0700
+
+On Fri, 4 Oct 2002, Linus Torvalds wrote:
+
 > 
->    Got my two new Netgear GA302t nics today.  They seem to use the
->    tg3 driver....
->    
->    I put them into the 64/66 slots on my Tyan dual amd motherboard..
->    Running kernel 2.4.20-pre8
->    
-> You reported the other week problems with two Acenic's in
-> this same machine right?  The second Acenic wouldn't even probe
-> properly.  And the two Acenic's were identical.
+> On Fri, 4 Oct 2002, Alexander Viro wrote:
+> > 
+> > Hell knows.  The only explanation I see (and that's not worth much) is that
+> > we somehow confuse the chipset and get crapped on something like next cache
+> > miss.
 > 
+> I don't see any better explanation right now, so I guess we just revert 
+> that thing.
+> 
+> The only other notion I might come up with is stack corruption, ie the
+> code in pci_read_bases() might corrupt the return stack subtly (it does
+> add another local variable whose address is taken), causing a jump to a
+> random address on return. Compiler bug?
 
-FWIW, my GA302T seems fine with the kernel he originally reported 
-(2.4.20-pre8).
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+I doubt it.  I've read through the objdump output and code looks OK.
+Diff between old and new _definitely_ looks sane.  FWIW, chipset is
+Via 686A, gcc is from debian-stable (2.95.4-11woody1).  I'll try to
+find some RH box and build with the same .config, but I would be
+surprised if it changes anything.
 

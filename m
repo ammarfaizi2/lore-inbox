@@ -1,67 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266996AbTCEXdk>; Wed, 5 Mar 2003 18:33:40 -0500
+	id <S266987AbTCEXcJ>; Wed, 5 Mar 2003 18:32:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbTCEXdk>; Wed, 5 Mar 2003 18:33:40 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:38077 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266996AbTCEXdi>;
-	Wed, 5 Mar 2003 18:33:38 -0500
-Date: Wed, 05 Mar 2003 15:25:30 -0800 (PST)
-Message-Id: <20030305.152530.70806720.davem@redhat.com>
-To: kazunori@miyazawa.org
-Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       usagi-core@linux-ipv6.org
-Subject: Re: [PATH] IPv6 IPsec support
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030305233025.784feb00.kazunori@miyazawa.org>
-References: <20030305233025.784feb00.kazunori@miyazawa.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266994AbTCEXcJ>; Wed, 5 Mar 2003 18:32:09 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:18990 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266987AbTCEXcI>; Wed, 5 Mar 2003 18:32:08 -0500
+Date: Wed, 5 Mar 2003 18:42:38 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200303052342.h25Ngcs26177@devserv.devel.redhat.com>
+To: "Gregory K. Ruiz-Ade" <gregory@castandcrew.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: system lockup issues w/ 2.4.19
+In-Reply-To: <mailman.1046898841.30893.linux-kernel2news@redhat.com>
+References: <mailman.1046898841.30893.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Kazunori Miyazawa <kazunori@miyazawa.org>
-   Date: Wed, 5 Mar 2003 23:30:25 +0900
+> About once a month or so (not very regular), one or the other of our Dell 
+> PowerEdge servers goes catatonic.  Examining the system in this state, it 
+> seems to exhibit the symptoms of a full process table, in that no new 
+> processes can be started at all.
 
-Hello Miyazawa-san,
+It is essential that you explained how you did the examining,
+with relevant shell traces/snapshots, etc. If they are too
+long, upload them somewhere. And use of stock kernels goes
+without saying, or you have to go to your vendor (SuSE).
 
-   I submit the patch to let the kernel support ipv6 ipsec again.
-   It is able to comple ipv6 as module.
-
-As promised I applied the patch.  I will push it to Linus later
-this evening, or tomorrow.
-
-In this initial checkin I made only 2 minor fixes, they
-are attached below:
-
---- ./include/net/ip6_route.h.~1~	Wed Mar  5 15:32:41 2003
-+++ ./include/net/ip6_route.h	Wed Mar  5 15:40:42 2003
-@@ -38,7 +38,6 @@
- extern int			ipv6_route_ioctl(unsigned int cmd, void *arg);
- 
- extern int			ip6_route_add(struct in6_rtmsg *rtmsg);
--extern int			ip6_route_del(struct in6_rtmsg *rtmsg);
- extern int			ip6_del_rt(struct rt6_info *);
- 
- extern int			ip6_rt_addr_add(struct in6_addr *addr,
---- ./net/ipv6/Kconfig.~1~	Wed Mar  5 15:32:41 2003
-+++ ./net/ipv6/Kconfig	Wed Mar  5 15:35:27 2003
-@@ -19,6 +19,7 @@
- 
- config INET6_AH
- 	tristate "IPv6: AH transformation"
-+	depends on IPV6
- 	---help---
- 	  Support for IPsec AH.
- 
-@@ -26,6 +27,7 @@
- 
- config INET6_ESP
- 	tristate "IPv6: ESP transformation"
-+	depends on IPV6
- 	---help---
- 	  Support for IPsec ESP.
- 
+-- Pete

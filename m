@@ -1,1177 +1,428 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264700AbUEJORE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264711AbUEJO20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264700AbUEJORE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 10:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264707AbUEJORE
+	id S264711AbUEJO20 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 10:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264710AbUEJO20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 10:17:04 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:21903 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id S264700AbUEJOPI (ORCPT
+	Mon, 10 May 2004 10:28:26 -0400
+Received: from maxipes.logix.cz ([81.0.234.97]:61313 "EHLO maxipes.logix.cz")
+	by vger.kernel.org with ESMTP id S264711AbUEJO2D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 10:15:08 -0400
-Subject: [PATCH] sym53c500_cs PCMCIA SCSI driver (round 6)
-In-Reply-To: <20040508161045.A9590@infradead.org> "from Christoph Hellwig at
- May 8, 2004 04:10:45 pm"
-To: Christoph Hellwig <hch@infradead.org>
-Date: Mon, 10 May 2004 09:15:04 -0500 (CDT)
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	Mon, 10 May 2004 10:28:03 -0400
+Date: Mon, 10 May 2004 16:28:02 +0200 (CEST)
+From: Michal Ludvig <michal@logix.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] Support for VIA PadLock crypto engine
+Message-ID: <Pine.LNX.4.53.0405101607320.27527@maxipes.logix.cz>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=ELM768899458-30047-0_
-Content-Transfer-Encoding: 7bit
-Message-Id: <20040510141504.63016DBDB@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob Tracy)
+Content-Type: MULTIPART/MIXED; BOUNDARY="336214560-790098580-1084199282=:27527"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
---ELM768899458-30047-0_
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+--336214560-790098580-1084199282=:27527
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Christoph Hellwig wrote:
-> On Tue, May 04, 2004 at 01:04:51AM -0500, Bob Tracy wrote:
-> > Support for additional sysfs class device attributes has been added:
-> > two are read-only (irq, ioport),
-> 
-> sorry to bother you again, but I don't think these belong into a scsi
-> LLDD.  it's attributes for the underlying bus.  For pci you get these
-> information already, but the pcmcia infrastructure isn't quite ready
-> yet.
+Hi,
 
-I saw the need :-), but agree that those attributes aren't a good fit
-where they were placed.  That code has been removed.
+this is the generic part of the patch that enables use of the
+hardware cryptography engine in VIA C3 Nehemiah CPUs (so called PadLock
+ACE).
 
-> > one is read-write (fast_pio).  The
-> > read-write attribute is a per-instance flag indicating the PIO speed
-> > of the particular HBA: valid values are 1 (enabled -- default) and 0
-> > (disabled).
-> 
-> this one is nice.
+The changes here provide a way to encrypt/decrypt the whole buffer of data
+(e.g. a disk sector or a network packet), here called multiblock, without
+the need to split them to single units and process block-by-block (where
+block is e.g. 16 Bytes for AES algorithm). This way PadLock ACE can
+encrypt/decrypt in much higher speed.
 
-Thanks.  "Round 6" attached: the patch set applies cleanly to 2.6.5, and
-possibly 2.6.6 (haven't tried it).  If there's nothing else to be done,
-let's push this upstream for 2.6.7.
+I also added some support for other modes than ECB and CBC (i.e. new are
+CFB, OFB and CTR).
 
+The next mail will contain the changes for crypto/aes.c
+
+ crypto/api.c           |   14 ++
+ crypto/cipher.c        |  313 +++++++++++++++++++++++++++++--------------------
+ include/linux/crypto.h |   33 +++++
+ 3 files changed, 236 insertions(+), 124 deletions(-)
+
+Michal Ludvig
 -- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+* A mouse is a device used to point at the xterm you want to type in.
+* Personal homepage - http://www.logix.cz/michal
+--336214560-790098580-1084199282=:27527
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="kernel-crypto-all.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.53.0405101628020.27527@maxipes.logix.cz>
+Content-Description: 
+Content-Disposition: attachment; filename="kernel-crypto-all.diff"
 
---ELM768899458-30047-0_
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: attachment; filename=patch05_sym53c500e
+ZGlmZiAtdXJwIGxpbnV4LTIuNi41LnBhdGNoZWQvY3J5cHRvL2NpcGhlci5j
+IGxpbnV4LTIuNi41L2NyeXB0by9jaXBoZXIuYw0KLS0tIGxpbnV4LTIuNi41
+LnBhdGNoZWQvY3J5cHRvL2NpcGhlci5jCTIwMDQtMDQtMjkgMTA6MzM6MDUu
+MDAwMDAwMDAwICswMjAwDQorKysgbGludXgtMi42LjUvY3J5cHRvL2NpcGhl
+ci5jCTIwMDQtMDUtMTAgMTU6MjE6NTYuMTAxODc5NjMyICswMjAwDQpAQCAt
+MjAsNyArMjAsMzEgQEANCiAjaW5jbHVkZSAiaW50ZXJuYWwuaCINCiAjaW5j
+bHVkZSAic2NhdHRlcndhbGsuaCINCiANCisjZGVmaW5lIENSQV9DSVBIRVIo
+dGZtKQkodGZtKS0+X19jcnRfYWxnLT5jcmFfY2lwaGVyDQorDQorI2RlZmlu
+ZSBERUZfVEZNX0ZVTkNUSU9OKG5hbWUsbW9kZSxlbmNkZWMsaXYpCVwNCitz
+dGF0aWMgaW50IG5hbWUoc3RydWN0IGNyeXB0b190Zm0gKnRmbSwJCVwNCisg
+ICAgICAgICAgICAgICAgc3RydWN0IHNjYXR0ZXJsaXN0ICpkc3QsCVwNCisg
+ICAgICAgICAgICAgICAgc3RydWN0IHNjYXR0ZXJsaXN0ICpzcmMsCVwNCisJ
+CXVuc2lnbmVkIGludCBuYnl0ZXMpCQlcDQorewkJCQkJCVwNCisJcmV0dXJu
+IGNyeXB0KHRmbSwgZHN0LCBzcmMsIG5ieXRlcywJXA0KKwkJICAgICBtb2Rl
+LCBlbmNkZWMsIGl2KTsJCVwNCit9DQorDQorI2RlZmluZSBERUZfVEZNX0ZV
+TkNUSU9OX0lWKG5hbWUsbW9kZSxlbmNkZWMsaXYpCVwNCitzdGF0aWMgaW50
+IG5hbWUoc3RydWN0IGNyeXB0b190Zm0gKnRmbSwJCVwNCisgICAgICAgICAg
+ICAgICAgc3RydWN0IHNjYXR0ZXJsaXN0ICpkc3QsCVwNCisgICAgICAgICAg
+ICAgICAgc3RydWN0IHNjYXR0ZXJsaXN0ICpzcmMsCVwNCisJCXVuc2lnbmVk
+IGludCBuYnl0ZXMsIHU4ICppdikJXA0KK3sJCQkJCQlcDQorCXJldHVybiBj
+cnlwdCh0Zm0sIGRzdCwgc3JjLCBuYnl0ZXMsCVwNCisJCSAgICAgbW9kZSwg
+ZW5jZGVjLCBpdik7CQlcDQorfQ0KKw0KIHR5cGVkZWYgdm9pZCAoY3J5cHRm
+bl90KSh2b2lkICosIHU4ICosIGNvbnN0IHU4ICopOw0KK3R5cGVkZWYgdm9p
+ZCAoY3J5cHRibGtmbl90KSh2b2lkICosIHU4ICosIGNvbnN0IHU4ICosIGNv
+bnN0IHU4ICosDQorCQkJICAgIHNpemVfdCwgaW50LCBpbnQpOw0KIHR5cGVk
+ZWYgdm9pZCAocHJvY2ZuX3QpKHN0cnVjdCBjcnlwdG9fdGZtICosIHU4ICos
+DQogICAgICAgICAgICAgICAgICAgICAgICAgdTgqLCBjcnlwdGZuX3QsIGlu
+dCBlbmMsIHZvaWQgKiwgaW50KTsNCiANCkBAIC0zOCw2ICs2MiwzNiBAQCBz
+dGF0aWMgaW5saW5lIHZvaWQgeG9yXzEyOCh1OCAqYSwgY29uc3QgDQogCSgo
+dTMyICopYSlbM10gXj0gKCh1MzIgKiliKVszXTsNCiB9DQogDQorc3RhdGlj
+IHZvaWQgY2JjX3Byb2Nlc3Moc3RydWN0IGNyeXB0b190Zm0gKnRmbSwgdTgg
+KmRzdCwgdTggKnNyYywNCisJCQljcnlwdGZuX3QgKmZuLCBpbnQgZW5jLCB2
+b2lkICppbmZvLCBpbnQgaW5fcGxhY2UpDQorew0KKwl1OCAqaXYgPSBpbmZv
+Ow0KKwkNCisJLyogTnVsbCBlbmNyeXB0aW9uICovDQorCWlmICghaXYpDQor
+CQlyZXR1cm47DQorCQkNCisJaWYgKGVuYykgew0KKwkJdGZtLT5jcnRfdS5j
+aXBoZXIuY2l0X3hvcl9ibG9jayhpdiwgc3JjKTsNCisJCSgqZm4pKGNyeXB0
+b190Zm1fY3R4KHRmbSksIGRzdCwgaXYpOw0KKwkJbWVtY3B5KGl2LCBkc3Qs
+IGNyeXB0b190Zm1fYWxnX2Jsb2Nrc2l6ZSh0Zm0pKTsNCisJfSBlbHNlIHsN
+CisJCXU4IHN0YWNrW2luX3BsYWNlID8gY3J5cHRvX3RmbV9hbGdfYmxvY2tz
+aXplKHRmbSkgOiAwXTsNCisJCXU4ICpidWYgPSBpbl9wbGFjZSA/IHN0YWNr
+IDogZHN0Ow0KKw0KKwkJKCpmbikoY3J5cHRvX3RmbV9jdHgodGZtKSwgYnVm
+LCBzcmMpOw0KKwkJdGZtLT5jcnRfdS5jaXBoZXIuY2l0X3hvcl9ibG9jayhi
+dWYsIGl2KTsNCisJCW1lbWNweShpdiwgc3JjLCBjcnlwdG9fdGZtX2FsZ19i
+bG9ja3NpemUodGZtKSk7DQorCQlpZiAoYnVmICE9IGRzdCkNCisJCQltZW1j
+cHkoZHN0LCBidWYsIGNyeXB0b190Zm1fYWxnX2Jsb2Nrc2l6ZSh0Zm0pKTsN
+CisJfQ0KK30NCisNCitzdGF0aWMgdm9pZCBlY2JfcHJvY2VzcyhzdHJ1Y3Qg
+Y3J5cHRvX3RmbSAqdGZtLCB1OCAqZHN0LCB1OCAqc3JjLA0KKwkJCWNyeXB0
+Zm5fdCBmbiwgaW50IGVuYywgdm9pZCAqaW5mbywgaW50IGluX3BsYWNlKQ0K
+K3sNCisJKCpmbikoY3J5cHRvX3RmbV9jdHgodGZtKSwgZHN0LCBzcmMpOw0K
+K30NCiANCiAvKiANCiAgKiBHZW5lcmljIGVuY3J5cHQvZGVjcnlwdCB3cmFw
+cGVyIGZvciBjaXBoZXJzLCBoYW5kbGVzIG9wZXJhdGlvbnMgYWNyb3NzDQpA
+QCAtNDcsMjAgKzEwMSw5MiBAQCBzdGF0aWMgaW5saW5lIHZvaWQgeG9yXzEy
+OCh1OCAqYSwgY29uc3QgDQogc3RhdGljIGludCBjcnlwdChzdHJ1Y3QgY3J5
+cHRvX3RmbSAqdGZtLA0KIAkJIHN0cnVjdCBzY2F0dGVybGlzdCAqZHN0LA0K
+IAkJIHN0cnVjdCBzY2F0dGVybGlzdCAqc3JjLA0KLSAgICAgICAgICAgICAg
+ICAgdW5zaWduZWQgaW50IG5ieXRlcywgY3J5cHRmbl90IGNyZm4sDQotICAg
+ICAgICAgICAgICAgICBwcm9jZm5fdCBwcmZuLCBpbnQgZW5jLCB2b2lkICpp
+bmZvKQ0KKwkJIHVuc2lnbmVkIGludCBuYnl0ZXMsIA0KKwkJIGludCBtb2Rl
+LCBpbnQgZW5jLCB2b2lkICppbmZvKQ0KIHsNCisJY3J5cHRmbl90ICpjcnlw
+dG9mbiA9IE5VTEw7DQorCXByb2Nmbl90ICpwcm9jZXNzZm4gPSBOVUxMOw0K
+KwljcnlwdGJsa2ZuX3QgKmNyeXB0b211bHRpYmxvY2tmbiA9IE5VTEw7DQor
+DQogCXN0cnVjdCBzY2F0dGVyX3dhbGsgd2Fsa19pbiwgd2Fsa19vdXQ7DQot
+CWNvbnN0IHVuc2lnbmVkIGludCBic2l6ZSA9IGNyeXB0b190Zm1fYWxnX2Js
+b2Nrc2l6ZSh0Zm0pOw0KLQl1OCB0bXBfc3JjW25ieXRlcyA+IHNyYy0+bGVu
+Z3RoID8gYnNpemUgOiAwXTsNCi0JdTggdG1wX2RzdFtuYnl0ZXMgPiBkc3Qt
+Pmxlbmd0aCA/IGJzaXplIDogMF07DQorCXNpemVfdCBtYXhfbmJ5dGVzID0g
+Y3J5cHRvX3RmbV9hbGdfbWF4X25ieXRlcyh0Zm0pOw0KKwlzaXplX3QgYnNp
+emUgPSBjcnlwdG9fdGZtX2FsZ19ibG9ja3NpemUodGZtKTsNCisJaW50IHJl
+cV9hbGlnbiA9IGNyeXB0b190Zm1fYWxnX3JlcV9hbGlnbih0Zm0pOw0KKwlp
+bnQgcmV0ID0gMDsNCisJdm9pZCAqaW5kZXhfc3JjID0gTlVMTCwgKmluZGV4
+X2RzdCA9IE5VTEw7DQorCXU4ICppdiA9IGluZm87DQorCXU4ICp0bXBfc3Jj
+LCAqdG1wX2RzdDsNCiANCiAJaWYgKCFuYnl0ZXMpDQotCQlyZXR1cm4gMDsN
+CisJCXJldHVybiByZXQ7DQogDQogCWlmIChuYnl0ZXMgJSBic2l6ZSkgew0K
+IAkJdGZtLT5jcnRfZmxhZ3MgfD0gQ1JZUFRPX1RGTV9SRVNfQkFEX0JMT0NL
+X0xFTjsNCi0JCXJldHVybiAtRUlOVkFMOw0KKwkJcmV0ID0gLUVJTlZBTDsN
+CisJCWdvdG8gb3V0Ow0KKwl9DQorDQorCXN3aXRjaCAobW9kZSkgew0KKwkJ
+Y2FzZSBDUllQVE9fVEZNX01PREVfRUNCOg0KKwkJCWlmIChDUkFfQ0lQSEVS
+KHRmbSkuY2lhX2VjYikNCisJCQkJY3J5cHRvbXVsdGlibG9ja2ZuID0gQ1JB
+X0NJUEhFUih0Zm0pLmNpYV9lY2I7DQorCQkJZWxzZSB7DQorCQkJCWNyeXB0
+b2ZuID0gKGVuYyA9PSBDUllQVE9fRElSX0VOQ1JZUFQpID8gQ1JBX0NJUEhF
+Uih0Zm0pLmNpYV9lbmNyeXB0IDogQ1JBX0NJUEhFUih0Zm0pLmNpYV9kZWNy
+eXB0Ow0KKwkJCQlwcm9jZXNzZm4gPSBlY2JfcHJvY2VzczsNCisJCQl9DQor
+CQkJYnJlYWs7DQorDQorCQljYXNlIENSWVBUT19URk1fTU9ERV9DQkM6DQor
+CQkJaWYgKENSQV9DSVBIRVIodGZtKS5jaWFfY2JjKQ0KKwkJCQljcnlwdG9t
+dWx0aWJsb2NrZm4gPSBDUkFfQ0lQSEVSKHRmbSkuY2lhX2NiYzsNCisJCQll
+bHNlIHsNCisJCQkJY3J5cHRvZm4gPSAoZW5jID09IENSWVBUT19ESVJfRU5D
+UllQVCkgPyBDUkFfQ0lQSEVSKHRmbSkuY2lhX2VuY3J5cHQgOiBDUkFfQ0lQ
+SEVSKHRmbSkuY2lhX2RlY3J5cHQ7DQorCQkJCXByb2Nlc3NmbiA9IGNiY19w
+cm9jZXNzOw0KKwkJCX0NCisJCQlicmVhazsNCisNCisJCS8qIFVudGlsIHdl
+IGhhdmUgdGhlIGFwcHJvcHJpYXRlIHtvZmIsY2ZiLGN0cn1fcHJvY2Vzcygp
+IGZ1bmN0aW9ucywNCisJCSAgIHRoZSBmb2xsb3dpbmcgY2FzZXMgd2lsbCBy
+ZXR1cm4gLUVOT1NZUyBpZiB0aGVyZSBpcyBubyBIVyBzdXBwb3J0DQorCQkg
+ICBmb3IgdGhlIG1vZGUuICovDQorCQljYXNlIENSWVBUT19URk1fTU9ERV9P
+RkI6DQorCQkJaWYgKENSQV9DSVBIRVIodGZtKS5jaWFfb2ZiKQ0KKwkJCQlj
+cnlwdG9tdWx0aWJsb2NrZm4gPSBDUkFfQ0lQSEVSKHRmbSkuY2lhX29mYjsN
+CisJCQllbHNlDQorCQkJCXJldHVybiAtRU5PU1lTOw0KKwkJCWJyZWFrOw0K
+Kw0KKwkJY2FzZSBDUllQVE9fVEZNX01PREVfQ0ZCOg0KKwkJCWlmIChDUkFf
+Q0lQSEVSKHRmbSkuY2lhX2NmYikNCisJCQkJY3J5cHRvbXVsdGlibG9ja2Zu
+ID0gQ1JBX0NJUEhFUih0Zm0pLmNpYV9jZmI7DQorCQkJZWxzZQ0KKwkJCQly
+ZXR1cm4gLUVOT1NZUzsNCisJCQlicmVhazsNCisNCisJCWNhc2UgQ1JZUFRP
+X1RGTV9NT0RFX0NUUjoNCisJCQlpZiAoQ1JBX0NJUEhFUih0Zm0pLmNpYV9j
+dHIpDQorCQkJCWNyeXB0b211bHRpYmxvY2tmbiA9IENSQV9DSVBIRVIodGZt
+KS5jaWFfY3RyOw0KKwkJCWVsc2UNCisJCQkJcmV0dXJuIC1FTk9TWVM7DQor
+CQkJYnJlYWs7DQorDQorCQlkZWZhdWx0Og0KKwkJCUJVRygpOw0KKwl9DQor
+DQorCWlmIChjcnlwdG9tdWx0aWJsb2NrZm4pDQorCQlic2l6ZSA9IChtYXhf
+bmJ5dGVzID4gbmJ5dGVzKSA/IG5ieXRlcyA6IG1heF9uYnl0ZXM7DQorDQor
+CS8qIFNvbWUgaGFyZHdhcmUgY3J5cHRvIGVuZ2luZXMgbWF5IHJlcXVpcmUg
+YSBzcGVjaWZpYyANCisJICAgYWxpZ25tZW50IG9mIHRoZSBidWZmZXJzLiBX
+ZSB3aWxsIGFsaWduIHRoZSBidWZmZXJzDQorCSAgIGFscmVhZHkgaGVyZSB0
+byBhdm9pZCB0aGVpciByZWFsbG9jYXRpbmcgbGF0ZXIuICovDQorCXRtcF9z
+cmMgPSBjcnlwdG9fYWxpZ25lZF9rbWFsbG9jKGJzaXplLCBHRlBfS0VSTkVM
+LA0KKwkJCQkJIHJlcV9hbGlnbiwgJmluZGV4X3NyYyk7DQorCXRtcF9kc3Qg
+PSBjcnlwdG9fYWxpZ25lZF9rbWFsbG9jKGJzaXplLCBHRlBfS0VSTkVMLA0K
+KwkJCQkJIHJlcV9hbGlnbiwgJmluZGV4X2RzdCk7DQorDQorCWlmICghaW5k
+ZXhfc3JjIHx8ICFpbmRleF9kc3QpIHsNCisJCXJldCA9IC1FTk9NRU07DQor
+CQlnb3RvIG91dDsNCiAJfQ0KIA0KIAlzY2F0dGVyd2Fsa19zdGFydCgmd2Fs
+a19pbiwgc3JjKTsNCkBAIC03MSwxNiArMTk3LDIzIEBAIHN0YXRpYyBpbnQg
+Y3J5cHQoc3RydWN0IGNyeXB0b190Zm0gKnRmbSwNCiANCiAJCXNjYXR0ZXJ3
+YWxrX21hcCgmd2Fsa19pbiwgMCk7DQogCQlzY2F0dGVyd2Fsa19tYXAoJndh
+bGtfb3V0LCAxKTsNCisNCiAJCXNyY19wID0gc2NhdHRlcndhbGtfd2hpY2hi
+dWYoJndhbGtfaW4sIGJzaXplLCB0bXBfc3JjKTsNCiAJCWRzdF9wID0gc2Nh
+dHRlcndhbGtfd2hpY2hidWYoJndhbGtfb3V0LCBic2l6ZSwgdG1wX2RzdCk7
+DQogDQotCQluYnl0ZXMgLT0gYnNpemU7DQotDQogCQlzY2F0dGVyd2Fsa19j
+b3B5Y2h1bmtzKHNyY19wLCAmd2Fsa19pbiwgYnNpemUsIDApOw0KIA0KLQkJ
+cHJmbih0Zm0sIGRzdF9wLCBzcmNfcCwgY3JmbiwgZW5jLCBpbmZvLA0KLQkJ
+ICAgICBzY2F0dGVyd2Fsa19zYW1lYnVmKCZ3YWxrX2luLCAmd2Fsa19vdXQs
+DQotCQkJCQkgc3JjX3AsIGRzdF9wKSk7DQorCQluYnl0ZXMgLT0gYnNpemU7
+DQorDQorCQlpZiAoY3J5cHRvbXVsdGlibG9ja2ZuKQ0KKwkJCSgqY3J5cHRv
+bXVsdGlibG9ja2ZuKShjcnlwdG9fdGZtX2N0eCh0Zm0pLA0KKwkJCQkJICAg
+ZHN0X3AsIHNyY19wLCBpdiwgYnNpemUsIGVuYywNCisJCQkJCSAgIHNjYXR0
+ZXJ3YWxrX3NhbWVidWYoJndhbGtfaW4sICZ3YWxrX291dCwNCisJCQkJCQkJ
+ICAgICAgIHNyY19wLCBkc3RfcCkpOw0KKwkJZWxzZQ0KKwkJCSgqcHJvY2Vz
+c2ZuKSh0Zm0sIGRzdF9wLCBzcmNfcCwgY3J5cHRvZm4sIGVuYywgaW5mbywN
+CisJCQkJICBzY2F0dGVyd2Fsa19zYW1lYnVmKCZ3YWxrX2luLCAmd2Fsa19v
+dXQsDQorCQkJCQkJICAgICAgc3JjX3AsIGRzdF9wKSk7DQogDQogCQlzY2F0
+dGVyd2Fsa19kb25lKCZ3YWxrX2luLCAwLCBuYnl0ZXMpOw0KIA0KQEAgLTg4
+LDQ2ICsyMjEsMjMgQEAgc3RhdGljIGludCBjcnlwdChzdHJ1Y3QgY3J5cHRv
+X3RmbSAqdGZtLA0KIAkJc2NhdHRlcndhbGtfZG9uZSgmd2Fsa19vdXQsIDEs
+IG5ieXRlcyk7DQogDQogCQlpZiAoIW5ieXRlcykNCi0JCQlyZXR1cm4gMDsN
+CisJCQlnb3RvIG91dDsNCiANCiAJCWNyeXB0b195aWVsZCh0Zm0pOw0KIAl9
+DQotfQ0KIA0KLXN0YXRpYyB2b2lkIGNiY19wcm9jZXNzKHN0cnVjdCBjcnlw
+dG9fdGZtICp0Zm0sIHU4ICpkc3QsIHU4ICpzcmMsDQotCQkJY3J5cHRmbl90
+IGZuLCBpbnQgZW5jLCB2b2lkICppbmZvLCBpbnQgaW5fcGxhY2UpDQotew0K
+LQl1OCAqaXYgPSBpbmZvOw0KLQkNCi0JLyogTnVsbCBlbmNyeXB0aW9uICov
+DQotCWlmICghaXYpDQotCQlyZXR1cm47DQotCQkNCi0JaWYgKGVuYykgew0K
+LQkJdGZtLT5jcnRfdS5jaXBoZXIuY2l0X3hvcl9ibG9jayhpdiwgc3JjKTsN
+Ci0JCWZuKGNyeXB0b190Zm1fY3R4KHRmbSksIGRzdCwgaXYpOw0KLQkJbWVt
+Y3B5KGl2LCBkc3QsIGNyeXB0b190Zm1fYWxnX2Jsb2Nrc2l6ZSh0Zm0pKTsN
+Ci0JfSBlbHNlIHsNCi0JCXU4IHN0YWNrW2luX3BsYWNlID8gY3J5cHRvX3Rm
+bV9hbGdfYmxvY2tzaXplKHRmbSkgOiAwXTsNCi0JCXU4ICpidWYgPSBpbl9w
+bGFjZSA/IHN0YWNrIDogZHN0Ow0KK291dDoNCisJaWYgKGluZGV4X3NyYykN
+CisJCWtmcmVlKGluZGV4X3NyYyk7DQorCWlmIChpbmRleF9kc3QpDQorCQlr
+ZnJlZShpbmRleF9kc3QpOw0KIA0KLQkJZm4oY3J5cHRvX3RmbV9jdHgodGZt
+KSwgYnVmLCBzcmMpOw0KLQkJdGZtLT5jcnRfdS5jaXBoZXIuY2l0X3hvcl9i
+bG9jayhidWYsIGl2KTsNCi0JCW1lbWNweShpdiwgc3JjLCBjcnlwdG9fdGZt
+X2FsZ19ibG9ja3NpemUodGZtKSk7DQotCQlpZiAoYnVmICE9IGRzdCkNCi0J
+CQltZW1jcHkoZHN0LCBidWYsIGNyeXB0b190Zm1fYWxnX2Jsb2Nrc2l6ZSh0
+Zm0pKTsNCi0JfQ0KLX0NCi0NCi1zdGF0aWMgdm9pZCBlY2JfcHJvY2Vzcyhz
+dHJ1Y3QgY3J5cHRvX3RmbSAqdGZtLCB1OCAqZHN0LCB1OCAqc3JjLA0KLQkJ
+CWNyeXB0Zm5fdCBmbiwgaW50IGVuYywgdm9pZCAqaW5mbywgaW50IGluX3Bs
+YWNlKQ0KLXsNCi0JZm4oY3J5cHRvX3RmbV9jdHgodGZtKSwgZHN0LCBzcmMp
+Ow0KKwlyZXR1cm4gcmV0Ow0KIH0NCiANCiBzdGF0aWMgaW50IHNldGtleShz
+dHJ1Y3QgY3J5cHRvX3RmbSAqdGZtLCBjb25zdCB1OCAqa2V5LCB1bnNpZ25l
+ZCBpbnQga2V5bGVuKQ0KIHsNCi0Jc3RydWN0IGNpcGhlcl9hbGcgKmNpYSA9
+ICZ0Zm0tPl9fY3J0X2FsZy0+Y3JhX2NpcGhlcjsNCisJc3RydWN0IGNpcGhl
+cl9hbGcgKmNpYSA9ICZDUkFfQ0lQSEVSKHRmbSk7DQogCQ0KIAlpZiAoa2V5
+bGVuIDwgY2lhLT5jaWFfbWluX2tleXNpemUgfHwga2V5bGVuID4gY2lhLT5j
+aWFfbWF4X2tleXNpemUpIHsNCiAJCXRmbS0+Y3J0X2ZsYWdzIHw9IENSWVBU
+T19URk1fUkVTX0JBRF9LRVlfTEVOOw0KQEAgLTEzNyw4MCArMjQ3LDI4IEBA
+IHN0YXRpYyBpbnQgc2V0a2V5KHN0cnVjdCBjcnlwdG9fdGZtICp0Zm0NCiAJ
+CSAgICAgICAgICAgICAgICAgICAgICAgJnRmbS0+Y3J0X2ZsYWdzKTsNCiB9
+DQogDQotc3RhdGljIGludCBlY2JfZW5jcnlwdChzdHJ1Y3QgY3J5cHRvX3Rm
+bSAqdGZtLA0KLQkJICAgICAgIHN0cnVjdCBzY2F0dGVybGlzdCAqZHN0LA0K
+LSAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IHNjYXR0ZXJsaXN0ICpz
+cmMsIHVuc2lnbmVkIGludCBuYnl0ZXMpDQotew0KLQlyZXR1cm4gY3J5cHQo
+dGZtLCBkc3QsIHNyYywgbmJ5dGVzLA0KLQkgICAgICAgICAgICAgdGZtLT5f
+X2NydF9hbGctPmNyYV9jaXBoZXIuY2lhX2VuY3J5cHQsDQotCSAgICAgICAg
+ICAgICBlY2JfcHJvY2VzcywgMSwgTlVMTCk7DQotfQ0KLQ0KLXN0YXRpYyBp
+bnQgZWNiX2RlY3J5cHQoc3RydWN0IGNyeXB0b190Zm0gKnRmbSwNCi0gICAg
+ICAgICAgICAgICAgICAgICAgIHN0cnVjdCBzY2F0dGVybGlzdCAqZHN0LA0K
+LSAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IHNjYXR0ZXJsaXN0ICpz
+cmMsDQotCQkgICAgICAgdW5zaWduZWQgaW50IG5ieXRlcykNCi17DQotCXJl
+dHVybiBjcnlwdCh0Zm0sIGRzdCwgc3JjLCBuYnl0ZXMsDQotCSAgICAgICAg
+ICAgICB0Zm0tPl9fY3J0X2FsZy0+Y3JhX2NpcGhlci5jaWFfZGVjcnlwdCwN
+Ci0JICAgICAgICAgICAgIGVjYl9wcm9jZXNzLCAxLCBOVUxMKTsNCi19DQot
+DQotc3RhdGljIGludCBjYmNfZW5jcnlwdChzdHJ1Y3QgY3J5cHRvX3RmbSAq
+dGZtLA0KLSAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IHNjYXR0ZXJs
+aXN0ICpkc3QsDQotICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3Qgc2Nh
+dHRlcmxpc3QgKnNyYywNCi0JCSAgICAgICB1bnNpZ25lZCBpbnQgbmJ5dGVz
+KQ0KLXsNCi0JcmV0dXJuIGNyeXB0KHRmbSwgZHN0LCBzcmMsIG5ieXRlcywN
+Ci0JICAgICAgICAgICAgIHRmbS0+X19jcnRfYWxnLT5jcmFfY2lwaGVyLmNp
+YV9lbmNyeXB0LA0KLQkgICAgICAgICAgICAgY2JjX3Byb2Nlc3MsIDEsIHRm
+bS0+Y3J0X2NpcGhlci5jaXRfaXYpOw0KLX0NCi0NCi1zdGF0aWMgaW50IGNi
+Y19lbmNyeXB0X2l2KHN0cnVjdCBjcnlwdG9fdGZtICp0Zm0sDQotICAgICAg
+ICAgICAgICAgICAgICAgICAgICBzdHJ1Y3Qgc2NhdHRlcmxpc3QgKmRzdCwN
+Ci0gICAgICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCBzY2F0dGVybGlz
+dCAqc3JjLA0KLSAgICAgICAgICAgICAgICAgICAgICAgICAgdW5zaWduZWQg
+aW50IG5ieXRlcywgdTggKml2KQ0KLXsNCi0JcmV0dXJuIGNyeXB0KHRmbSwg
+ZHN0LCBzcmMsIG5ieXRlcywNCi0JICAgICAgICAgICAgIHRmbS0+X19jcnRf
+YWxnLT5jcmFfY2lwaGVyLmNpYV9lbmNyeXB0LA0KLQkgICAgICAgICAgICAg
+Y2JjX3Byb2Nlc3MsIDEsIGl2KTsNCi19DQorREVGX1RGTV9GVU5DVElPTihl
+Y2JfZW5jcnlwdCwgQ1JZUFRPX1RGTV9NT0RFX0VDQiwgQ1JZUFRPX0RJUl9F
+TkNSWVBULCBOVUxMKTsNCitERUZfVEZNX0ZVTkNUSU9OKGVjYl9kZWNyeXB0
+LCBDUllQVE9fVEZNX01PREVfRUNCLCBDUllQVE9fRElSX0RFQ1JZUFQsIE5V
+TEwpOw0KIA0KLXN0YXRpYyBpbnQgY2JjX2RlY3J5cHQoc3RydWN0IGNyeXB0
+b190Zm0gKnRmbSwNCi0gICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCBz
+Y2F0dGVybGlzdCAqZHN0LA0KLSAgICAgICAgICAgICAgICAgICAgICAgc3Ry
+dWN0IHNjYXR0ZXJsaXN0ICpzcmMsDQotCQkgICAgICAgdW5zaWduZWQgaW50
+IG5ieXRlcykNCi17DQotCXJldHVybiBjcnlwdCh0Zm0sIGRzdCwgc3JjLCBu
+Ynl0ZXMsDQotCSAgICAgICAgICAgICB0Zm0tPl9fY3J0X2FsZy0+Y3JhX2Np
+cGhlci5jaWFfZGVjcnlwdCwNCi0JICAgICAgICAgICAgIGNiY19wcm9jZXNz
+LCAwLCB0Zm0tPmNydF9jaXBoZXIuY2l0X2l2KTsNCi19DQotDQotc3RhdGlj
+IGludCBjYmNfZGVjcnlwdF9pdihzdHJ1Y3QgY3J5cHRvX3RmbSAqdGZtLA0K
+LSAgICAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IHNjYXR0ZXJsaXN0
+ICpkc3QsDQotICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3Qgc2Nh
+dHRlcmxpc3QgKnNyYywNCi0gICAgICAgICAgICAgICAgICAgICAgICAgIHVu
+c2lnbmVkIGludCBuYnl0ZXMsIHU4ICppdikNCi17DQotCXJldHVybiBjcnlw
+dCh0Zm0sIGRzdCwgc3JjLCBuYnl0ZXMsDQotCSAgICAgICAgICAgICB0Zm0t
+Pl9fY3J0X2FsZy0+Y3JhX2NpcGhlci5jaWFfZGVjcnlwdCwNCi0JICAgICAg
+ICAgICAgIGNiY19wcm9jZXNzLCAwLCBpdik7DQotfQ0KLQ0KLXN0YXRpYyBp
+bnQgbm9jcnlwdChzdHJ1Y3QgY3J5cHRvX3RmbSAqdGZtLA0KLSAgICAgICAg
+ICAgICAgICAgICBzdHJ1Y3Qgc2NhdHRlcmxpc3QgKmRzdCwNCi0gICAgICAg
+ICAgICAgICAgICAgc3RydWN0IHNjYXR0ZXJsaXN0ICpzcmMsDQotCQkgICB1
+bnNpZ25lZCBpbnQgbmJ5dGVzKQ0KLXsNCi0JcmV0dXJuIC1FTk9TWVM7DQot
+fQ0KLQ0KLXN0YXRpYyBpbnQgbm9jcnlwdF9pdihzdHJ1Y3QgY3J5cHRvX3Rm
+bSAqdGZtLA0KLSAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3Qgc2NhdHRl
+cmxpc3QgKmRzdCwNCi0gICAgICAgICAgICAgICAgICAgICAgc3RydWN0IHNj
+YXR0ZXJsaXN0ICpzcmMsDQotICAgICAgICAgICAgICAgICAgICAgIHVuc2ln
+bmVkIGludCBuYnl0ZXMsIHU4ICppdikNCi17DQotCXJldHVybiAtRU5PU1lT
+Ow0KLX0NCitERUZfVEZNX0ZVTkNUSU9OKGNiY19lbmNyeXB0LCBDUllQVE9f
+VEZNX01PREVfQ0JDLCBDUllQVE9fRElSX0VOQ1JZUFQsIHRmbS0+Y3J0X2Np
+cGhlci5jaXRfaXYpOw0KK0RFRl9URk1fRlVOQ1RJT05fSVYoY2JjX2VuY3J5
+cHRfaXYsIENSWVBUT19URk1fTU9ERV9DQkMsIENSWVBUT19ESVJfRU5DUllQ
+VCwgaXYpOw0KK0RFRl9URk1fRlVOQ1RJT04oY2JjX2RlY3J5cHQsIENSWVBU
+T19URk1fTU9ERV9DQkMsIENSWVBUT19ESVJfREVDUllQVCwgdGZtLT5jcnRf
+Y2lwaGVyLmNpdF9pdik7DQorREVGX1RGTV9GVU5DVElPTl9JVihjYmNfZGVj
+cnlwdF9pdiwgQ1JZUFRPX1RGTV9NT0RFX0NCQywgQ1JZUFRPX0RJUl9ERUNS
+WVBULCBpdik7DQorDQorREVGX1RGTV9GVU5DVElPTihjZmJfZW5jcnlwdCwg
+Q1JZUFRPX1RGTV9NT0RFX0NGQiwgQ1JZUFRPX0RJUl9FTkNSWVBULCB0Zm0t
+PmNydF9jaXBoZXIuY2l0X2l2KTsNCitERUZfVEZNX0ZVTkNUSU9OX0lWKGNm
+Yl9lbmNyeXB0X2l2LCBDUllQVE9fVEZNX01PREVfQ0ZCLCBDUllQVE9fRElS
+X0VOQ1JZUFQsIGl2KTsNCitERUZfVEZNX0ZVTkNUSU9OKGNmYl9kZWNyeXB0
+LCBDUllQVE9fVEZNX01PREVfQ0ZCLCBDUllQVE9fRElSX0RFQ1JZUFQsIHRm
+bS0+Y3J0X2NpcGhlci5jaXRfaXYpOw0KK0RFRl9URk1fRlVOQ1RJT05fSVYo
+Y2ZiX2RlY3J5cHRfaXYsIENSWVBUT19URk1fTU9ERV9DRkIsIENSWVBUT19E
+SVJfREVDUllQVCwgaXYpOw0KKw0KK0RFRl9URk1fRlVOQ1RJT04ob2ZiX2Vu
+Y3J5cHQsIENSWVBUT19URk1fTU9ERV9PRkIsIENSWVBUT19ESVJfRU5DUllQ
+VCwgdGZtLT5jcnRfY2lwaGVyLmNpdF9pdik7DQorREVGX1RGTV9GVU5DVElP
+Tl9JVihvZmJfZW5jcnlwdF9pdiwgQ1JZUFRPX1RGTV9NT0RFX09GQiwgQ1JZ
+UFRPX0RJUl9FTkNSWVBULCBpdik7DQorREVGX1RGTV9GVU5DVElPTihvZmJf
+ZGVjcnlwdCwgQ1JZUFRPX1RGTV9NT0RFX09GQiwgQ1JZUFRPX0RJUl9ERUNS
+WVBULCB0Zm0tPmNydF9jaXBoZXIuY2l0X2l2KTsNCitERUZfVEZNX0ZVTkNU
+SU9OX0lWKG9mYl9kZWNyeXB0X2l2LCBDUllQVE9fVEZNX01PREVfT0ZCLCBD
+UllQVE9fRElSX0RFQ1JZUFQsIGl2KTsNCisNCitERUZfVEZNX0ZVTkNUSU9O
+KGN0cl9lbmNyeXB0LCBDUllQVE9fVEZNX01PREVfQ1RSLCBDUllQVE9fRElS
+X0VOQ1JZUFQsIHRmbS0+Y3J0X2NpcGhlci5jaXRfaXYpOw0KK0RFRl9URk1f
+RlVOQ1RJT05fSVYoY3RyX2VuY3J5cHRfaXYsIENSWVBUT19URk1fTU9ERV9D
+VFIsIENSWVBUT19ESVJfRU5DUllQVCwgaXYpOw0KK0RFRl9URk1fRlVOQ1RJ
+T04oY3RyX2RlY3J5cHQsIENSWVBUT19URk1fTU9ERV9DVFIsIENSWVBUT19E
+SVJfREVDUllQVCwgdGZtLT5jcnRfY2lwaGVyLmNpdF9pdik7DQorREVGX1RG
+TV9GVU5DVElPTl9JVihjdHJfZGVjcnlwdF9pdiwgQ1JZUFRPX1RGTV9NT0RF
+X0NUUiwgQ1JZUFRPX0RJUl9ERUNSWVBULCBpdik7DQogDQogaW50IGNyeXB0
+b19pbml0X2NpcGhlcl9mbGFncyhzdHJ1Y3QgY3J5cHRvX3RmbSAqdGZtLCB1
+MzIgZmxhZ3MpDQogew0KQEAgLTI0NCwxNyArMzAyLDI0IEBAIGludCBjcnlw
+dG9faW5pdF9jaXBoZXJfb3BzKHN0cnVjdCBjcnlwdG8NCiAJCWJyZWFrOw0K
+IAkJDQogCWNhc2UgQ1JZUFRPX1RGTV9NT0RFX0NGQjoNCi0JCW9wcy0+Y2l0
+X2VuY3J5cHQgPSBub2NyeXB0Ow0KLQkJb3BzLT5jaXRfZGVjcnlwdCA9IG5v
+Y3J5cHQ7DQotCQlvcHMtPmNpdF9lbmNyeXB0X2l2ID0gbm9jcnlwdF9pdjsN
+Ci0JCW9wcy0+Y2l0X2RlY3J5cHRfaXYgPSBub2NyeXB0X2l2Ow0KKwkJb3Bz
+LT5jaXRfZW5jcnlwdCA9IGNmYl9lbmNyeXB0Ow0KKwkJb3BzLT5jaXRfZGVj
+cnlwdCA9IGNmYl9kZWNyeXB0Ow0KKwkJb3BzLT5jaXRfZW5jcnlwdF9pdiA9
+IGNmYl9lbmNyeXB0X2l2Ow0KKwkJb3BzLT5jaXRfZGVjcnlwdF9pdiA9IGNm
+Yl9kZWNyeXB0X2l2Ow0KKwkJYnJlYWs7DQorCQ0KKwljYXNlIENSWVBUT19U
+Rk1fTU9ERV9PRkI6DQorCQlvcHMtPmNpdF9lbmNyeXB0ID0gb2ZiX2VuY3J5
+cHQ7DQorCQlvcHMtPmNpdF9kZWNyeXB0ID0gb2ZiX2RlY3J5cHQ7DQorCQlv
+cHMtPmNpdF9lbmNyeXB0X2l2ID0gb2ZiX2VuY3J5cHRfaXY7DQorCQlvcHMt
+PmNpdF9kZWNyeXB0X2l2ID0gb2ZiX2RlY3J5cHRfaXY7DQogCQlicmVhazsN
+CiAJDQogCWNhc2UgQ1JZUFRPX1RGTV9NT0RFX0NUUjoNCi0JCW9wcy0+Y2l0
+X2VuY3J5cHQgPSBub2NyeXB0Ow0KLQkJb3BzLT5jaXRfZGVjcnlwdCA9IG5v
+Y3J5cHQ7DQotCQlvcHMtPmNpdF9lbmNyeXB0X2l2ID0gbm9jcnlwdF9pdjsN
+Ci0JCW9wcy0+Y2l0X2RlY3J5cHRfaXYgPSBub2NyeXB0X2l2Ow0KKwkJb3Bz
+LT5jaXRfZW5jcnlwdCA9IGN0cl9lbmNyeXB0Ow0KKwkJb3BzLT5jaXRfZGVj
+cnlwdCA9IGN0cl9kZWNyeXB0Ow0KKwkJb3BzLT5jaXRfZW5jcnlwdF9pdiA9
+IGN0cl9lbmNyeXB0X2l2Ow0KKwkJb3BzLT5jaXRfZGVjcnlwdF9pdiA9IGN0
+cl9kZWNyeXB0X2l2Ow0KIAkJYnJlYWs7DQogDQogCWRlZmF1bHQ6DQpkaWZm
+IC11cnAgbGludXgtMi42LjUucGF0Y2hlZC9jcnlwdG8vYXBpLmMgbGludXgt
+Mi42LjUvY3J5cHRvL2FwaS5jDQotLS0gbGludXgtMi42LjUucGF0Y2hlZC9j
+cnlwdG8vYXBpLmMJMjAwNC0wNC0yOSAxMDozMzowNS4wMDAwMDAwMDAgKzAy
+MDANCisrKyBsaW51eC0yLjYuNS9jcnlwdG8vYXBpLmMJMjAwNC0wNS0xMCAx
+NToyMDo0MS4wNDAyOTA3MjggKzAyMDANCkBAIC0yMTMsNiArMjEzLDE5IEBA
+IGludCBjcnlwdG9fYWxnX2F2YWlsYWJsZShjb25zdCBjaGFyICpuYW0NCiAJ
+cmV0dXJuIHJldDsNCiB9DQogDQordm9pZCAqY3J5cHRvX2FsaWduZWRfa21h
+bGxvYyAoc2l6ZV90IHNpemUsIGludCBtb2RlLCBzaXplX3QgYWxpZ25tZW50
+LCB2b2lkICoqaW5kZXgpDQorew0KKwljaGFyICpwdHI7DQorDQorCXB0ciA9
+IGttYWxsb2Moc2l6ZSArIGFsaWdubWVudCwgbW9kZSk7DQorCSppbmRleCA9
+IHB0cjsNCisJaWYgKGFsaWdubWVudCA+IDEgJiYgKChsb25nKXB0ciAmIChh
+bGlnbm1lbnQgLSAxKSkpIHsNCisJCXB0ciArPSBhbGlnbm1lbnQgLSAoKGxv
+bmcpcHRyICYgKGFsaWdubWVudCAtIDEpKTsNCisJfQ0KKw0KKwlyZXR1cm4g
+cHRyOw0KK30NCisNCiBzdGF0aWMgaW50IF9faW5pdCBpbml0X2NyeXB0byh2
+b2lkKQ0KIHsNCiAJcHJpbnRrKEtFUk5fSU5GTyAiSW5pdGlhbGl6aW5nIENy
+eXB0b2dyYXBoaWMgQVBJXG4iKTsNCkBAIC0yMjcsMyArMjQwLDQgQEAgRVhQ
+T1JUX1NZTUJPTF9HUEwoY3J5cHRvX3VucmVnaXN0ZXJfYWxnKQ0KIEVYUE9S
+VF9TWU1CT0xfR1BMKGNyeXB0b19hbGxvY190Zm0pOw0KIEVYUE9SVF9TWU1C
+T0xfR1BMKGNyeXB0b19mcmVlX3RmbSk7DQogRVhQT1JUX1NZTUJPTF9HUEwo
+Y3J5cHRvX2FsZ19hdmFpbGFibGUpOw0KK0VYUE9SVF9TWU1CT0xfR1BMKGNy
+eXB0b19hbGlnbmVkX2ttYWxsb2MpOw0KZGlmZiAtdXJwIGxpbnV4LTIuNi41
+LnBhdGNoZWQvaW5jbHVkZS9saW51eC9jcnlwdG8uaCBsaW51eC0yLjYuNS9p
+bmNsdWRlL2xpbnV4L2NyeXB0by5oDQotLS0gbGludXgtMi42LjUucGF0Y2hl
+ZC9pbmNsdWRlL2xpbnV4L2NyeXB0by5oCTIwMDQtMDQtMjkgMTA6MzI6MjUu
+MDAwMDAwMDAwICswMjAwDQorKysgbGludXgtMi42LjUvaW5jbHVkZS9saW51
+eC9jcnlwdG8uaAkyMDA0LTA1LTEwIDEzOjIxOjIyLjAwMDAwMDAwMCArMDIw
+MA0KQEAgLTQyLDYgKzQyLDcgQEANCiAjZGVmaW5lIENSWVBUT19URk1fTU9E
+RV9DQkMJCTB4MDAwMDAwMDINCiAjZGVmaW5lIENSWVBUT19URk1fTU9ERV9D
+RkIJCTB4MDAwMDAwMDQNCiAjZGVmaW5lIENSWVBUT19URk1fTU9ERV9DVFIJ
+CTB4MDAwMDAwMDgNCisjZGVmaW5lIENSWVBUT19URk1fTU9ERV9PRkIJCTB4
+MDAwMDAwMTANCiANCiAjZGVmaW5lIENSWVBUT19URk1fUkVRX1dFQUtfS0VZ
+CQkweDAwMDAwMTAwDQogI2RlZmluZSBDUllQVE9fVEZNX1JFU19XRUFLX0tF
+WQkJMHgwMDEwMDAwMA0KQEAgLTU2LDYgKzU3LDkgQEANCiAjZGVmaW5lIENS
+WVBUT19VTlNQRUMJCQkwDQogI2RlZmluZSBDUllQVE9fTUFYX0FMR19OQU1F
+CQk2NA0KIA0KKyNkZWZpbmUgQ1JZUFRPX0RJUl9FTkNSWVBUCQkxDQorI2Rl
+ZmluZSBDUllQVE9fRElSX0RFQ1JZUFQJCTANCisNCiBzdHJ1Y3Qgc2NhdHRl
+cmxpc3Q7DQogDQogLyoNCkBAIC02OSw2ICs3MywxOCBAQCBzdHJ1Y3QgY2lw
+aGVyX2FsZyB7DQogCSAgICAgICAgICAgICAgICAgIHVuc2lnbmVkIGludCBr
+ZXlsZW4sIHUzMiAqZmxhZ3MpOw0KIAl2b2lkICgqY2lhX2VuY3J5cHQpKHZv
+aWQgKmN0eCwgdTggKmRzdCwgY29uc3QgdTggKnNyYyk7DQogCXZvaWQgKCpj
+aWFfZGVjcnlwdCkodm9pZCAqY3R4LCB1OCAqZHN0LCBjb25zdCB1OCAqc3Jj
+KTsNCisJc2l6ZV90IGNpYV9tYXhfbmJ5dGVzOw0KKwlzaXplX3QgY2lhX3Jl
+cV9hbGlnbjsNCisJdm9pZCAoKmNpYV9lY2IpKHZvaWQgKmN0eCwgdTggKmRz
+dCwgY29uc3QgdTggKnNyYywgY29uc3QgdTggKml2LA0KKwkJCXNpemVfdCBu
+Ynl0ZXMsIGludCBlbmNkZWMsIGludCBpbnBsYWNlKTsNCisJdm9pZCAoKmNp
+YV9jYmMpKHZvaWQgKmN0eCwgdTggKmRzdCwgY29uc3QgdTggKnNyYywgY29u
+c3QgdTggKml2LA0KKwkJCXNpemVfdCBuYnl0ZXMsIGludCBlbmNkZWMsIGlu
+dCBpbnBsYWNlKTsNCisJdm9pZCAoKmNpYV9jZmIpKHZvaWQgKmN0eCwgdTgg
+KmRzdCwgY29uc3QgdTggKnNyYywgY29uc3QgdTggKml2LA0KKwkJCXNpemVf
+dCBuYnl0ZXMsIGludCBlbmNkZWMsIGludCBpbnBsYWNlKTsNCisJdm9pZCAo
+KmNpYV9vZmIpKHZvaWQgKmN0eCwgdTggKmRzdCwgY29uc3QgdTggKnNyYywg
+Y29uc3QgdTggKml2LA0KKwkJCXNpemVfdCBuYnl0ZXMsIGludCBlbmNkZWMs
+IGludCBpbnBsYWNlKTsNCisJdm9pZCAoKmNpYV9jdHIpKHZvaWQgKmN0eCwg
+dTggKmRzdCwgY29uc3QgdTggKnNyYywgY29uc3QgdTggKml2LA0KKwkJCXNp
+emVfdCBuYnl0ZXMsIGludCBlbmNkZWMsIGludCBpbnBsYWNlKTsNCiB9Ow0K
+IA0KIHN0cnVjdCBkaWdlc3RfYWxnIHsNCkBAIC0xMjEsNiArMTM3LDExIEBA
+IGludCBjcnlwdG9fdW5yZWdpc3Rlcl9hbGcoc3RydWN0IGNyeXB0b18NCiBp
+bnQgY3J5cHRvX2FsZ19hdmFpbGFibGUoY29uc3QgY2hhciAqbmFtZSwgdTMy
+IGZsYWdzKTsNCiANCiAvKg0KKyAqIEhlbHBlciBmdW5jdGlvbi4NCisgKi8N
+Cit2b2lkICpjcnlwdG9fYWxpZ25lZF9rbWFsbG9jIChzaXplX3Qgc2l6ZSwg
+aW50IG1vZGUsIHNpemVfdCBhbGlnbm1lbnQsIHZvaWQgKippbmRleCk7DQor
+DQorLyoNCiAgKiBUcmFuc2Zvcm1zOiB1c2VyLWluc3RhbnRpYXRlZCBvYmpl
+Y3RzIHdoaWNoIGVuY2Fwc3VsYXRlIGFsZ29yaXRobXMNCiAgKiBhbmQgY29y
+ZSBwcm9jZXNzaW5nIGxvZ2ljLiAgTWFuYWdlZCB2aWEgY3J5cHRvX2FsbG9j
+X3RmbSgpIGFuZA0KICAqIGNyeXB0b19mcmVlX3RmbSgpLCBhcyB3ZWxsIGFz
+IHRoZSB2YXJpb3VzIGhlbHBlcnMgYmVsb3cuDQpAQCAtMjU1LDYgKzI3Niwx
+OCBAQCBzdGF0aWMgaW5saW5lIHVuc2lnbmVkIGludCBjcnlwdG9fdGZtX2Fs
+DQogCXJldHVybiB0Zm0tPl9fY3J0X2FsZy0+Y3JhX2RpZ2VzdC5kaWFfZGln
+ZXN0c2l6ZTsNCiB9DQogDQorc3RhdGljIGlubGluZSB1bnNpZ25lZCBpbnQg
+Y3J5cHRvX3RmbV9hbGdfbWF4X25ieXRlcyhzdHJ1Y3QgY3J5cHRvX3RmbSAq
+dGZtKQ0KK3sNCisJQlVHX09OKGNyeXB0b190Zm1fYWxnX3R5cGUodGZtKSAh
+PSBDUllQVE9fQUxHX1RZUEVfQ0lQSEVSKTsNCisJcmV0dXJuIHRmbS0+X19j
+cnRfYWxnLT5jcmFfY2lwaGVyLmNpYV9tYXhfbmJ5dGVzOw0KK30NCisNCitz
+dGF0aWMgaW5saW5lIHVuc2lnbmVkIGludCBjcnlwdG9fdGZtX2FsZ19yZXFf
+YWxpZ24oc3RydWN0IGNyeXB0b190Zm0gKnRmbSkNCit7DQorCUJVR19PTihj
+cnlwdG9fdGZtX2FsZ190eXBlKHRmbSkgIT0gQ1JZUFRPX0FMR19UWVBFX0NJ
+UEhFUik7DQorCXJldHVybiB0Zm0tPl9fY3J0X2FsZy0+Y3JhX2NpcGhlci5j
+aWFfcmVxX2FsaWduOw0KK30NCisNCiAvKg0KICAqIEFQSSB3cmFwcGVycy4N
+CiAgKi8NCg0K
 
---- linux/drivers/scsi/pcmcia/Kconfig.orig	Fri Apr 16 16:00:41 2004
-+++ linux/drivers/scsi/pcmcia/Kconfig	Mon May  3 21:08:26 2004
-@@ -69,4 +69,14 @@
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called qlogic_cs.
- 
-+config PCMCIA_SYM53C500
-+	tristate "Symbios 53c500 PCMCIA support"
-+	depends on m
-+	help
-+	  Say Y here if you have a New Media Bus Toaster or other PCMCIA
-+	  SCSI adapter based on the Symbios 53c500 controller.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called sym53c500_cs.
-+
- endmenu
---- linux/drivers/scsi/pcmcia/Makefile.orig	Fri Apr 16 16:00:41 2004
-+++ linux/drivers/scsi/pcmcia/Makefile	Mon May  3 21:08:26 2004
-@@ -6,6 +6,7 @@
- obj-$(CONFIG_PCMCIA_FDOMAIN)	+= fdomain_cs.o
- obj-$(CONFIG_PCMCIA_AHA152X)	+= aha152x_cs.o
- obj-$(CONFIG_PCMCIA_NINJA_SCSI)	+= nsp_cs.o
-+obj-$(CONFIG_PCMCIA_SYM53C500)	+= sym53c500_cs.o
- 
- aha152x_cs-objs	:= aha152x_stub.o aha152x_core.o
- fdomain_cs-objs	:= fdomain_stub.o fdomain_core.o
---- linux/drivers/scsi/pcmcia/sym53c500_cs.c.orig	Fri Apr 16 16:05:19 2004
-+++ linux/drivers/scsi/pcmcia/sym53c500_cs.c	Mon May 10 08:55:30 2004
-@@ -0,0 +1,1042 @@
-+/*
-+*  sym53c500_cs.c	Bob Tracy (rct@frus.com)
-+*
-+*  A rewrite of the pcmcia-cs add-on driver for newer (circa 1997)
-+*  New Media Bus Toaster PCMCIA SCSI cards using the Symbios Logic
-+*  53c500 controller: intended for use with 2.6 and later kernels.
-+*  The pcmcia-cs add-on version of this driver is not supported
-+*  beyond 2.4.  It consisted of three files with history/copyright
-+*  information as follows:
-+*
-+*  SYM53C500.h
-+*	Bob Tracy (rct@frus.com)
-+*	Original by Tom Corner (tcorner@via.at).
-+*	Adapted from NCR53c406a.h which is Copyrighted (C) 1994
-+*	Normunds Saumanis (normunds@rx.tech.swh.lv)
-+*
-+*  SYM53C500.c
-+*	Bob Tracy (rct@frus.com)
-+*	Original driver by Tom Corner (tcorner@via.at) was adapted
-+*	from NCR53c406a.c which is Copyrighted (C) 1994, 1995, 1996 
-+*	Normunds Saumanis (normunds@fi.ibm.com)
-+*
-+*  sym53c500.c
-+*	Bob Tracy (rct@frus.com)
-+*	Original by Tom Corner (tcorner@via.at) was adapted from a
-+*	driver for the Qlogic SCSI card written by
-+*	David Hinds (dhinds@allegro.stanford.edu).
-+* 
-+*  This program is free software; you can redistribute it and/or modify it
-+*  under the terms of the GNU General Public License as published by the
-+*  Free Software Foundation; either version 2, or (at your option) any
-+*  later version.
-+*
-+*  This program is distributed in the hope that it will be useful, but
-+*  WITHOUT ANY WARRANTY; without even the implied warranty of
-+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+*  General Public License for more details.
-+*/
-+
-+#define SYM53C500_DEBUG 0
-+#define VERBOSE_SYM53C500_DEBUG 0
-+
-+/*
-+*  Set this to 0 if you encounter kernel lockups while transferring 
-+*  data in PIO mode.  Note this can be changed via "sysfs".
-+*/
-+#define USE_FAST_PIO 1
-+
-+/* =============== End of user configurable parameters ============== */
-+
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/errno.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/string.h>
-+#include <linux/ioport.h>
-+#include <linux/blkdev.h>
-+#include <linux/spinlock.h>
-+#include <linux/bitops.h>
-+
-+#include <asm/io.h>
-+#include <asm/dma.h>
-+#include <asm/irq.h>
-+
-+#include <scsi/scsi_ioctl.h>
-+#include <scsi/scsi_cmnd.h>
-+#include <scsi/scsi_device.h>
-+#include <scsi/scsi.h>
-+#include <scsi/scsi_host.h>
-+
-+#include <pcmcia/cs_types.h>
-+#include <pcmcia/cs.h>
-+#include <pcmcia/cistpl.h>
-+#include <pcmcia/ds.h>
-+#include <pcmcia/ciscode.h>
-+
-+/* ================================================================== */
-+
-+#ifdef PCMCIA_DEBUG
-+static int pc_debug = PCMCIA_DEBUG;
-+module_param(pc_debug, int, 0);
-+#define DEBUG(n, args...) if (pc_debug>(n)) printk(KERN_DEBUG args)
-+static char *version =
-+"sym53c500_cs.c 0.9b 2004/05/10 (Bob Tracy)";
-+#else
-+#define DEBUG(n, args...)
-+#endif
-+
-+/* ================================================================== */
-+
-+/* Parameters that can be set with 'insmod' */
-+
-+/* Bit map of interrupts to choose from */
-+static unsigned int irq_mask = 0xdeb8;	/* 3, 6, 7, 9-12, 14, 15 */
-+static int irq_list[4] = { -1 };
-+static int num_irqs = 1;
-+
-+module_param(irq_mask, int, 0);
-+MODULE_PARM_DESC(irq_mask, "IRQ mask bits (default: 0xdeb8)");
-+module_param_array(irq_list, int, num_irqs, 0);
-+MODULE_PARM_DESC(irq_list, "Comma-separated list of up to 4 IRQs to try (default: auto select).");
-+
-+/* ================================================================== */
-+
-+#define SYNC_MODE 0 		/* Synchronous transfer mode */
-+
-+/* Default configuration */
-+#define C1_IMG   0x07		/* ID=7 */
-+#define C2_IMG   0x48		/* FE SCSI2 */
-+#define C3_IMG   0x20		/* CDB */
-+#define C4_IMG   0x04		/* ANE */
-+#define C5_IMG   0xa4		/* ? changed from b6= AA PI SIE POL */
-+#define C7_IMG   0x80		/* added for SYM53C500 t. corner */
-+
-+/* Hardware Registers: offsets from io_port (base) */
-+
-+/* Control Register Set 0 */
-+#define TC_LSB		0x00		/* transfer counter lsb */
-+#define TC_MSB		0x01		/* transfer counter msb */
-+#define SCSI_FIFO	0x02		/* scsi fifo register */
-+#define CMD_REG		0x03		/* command register */
-+#define STAT_REG	0x04		/* status register */
-+#define DEST_ID		0x04		/* selection/reselection bus id */
-+#define INT_REG		0x05		/* interrupt status register */
-+#define SRTIMOUT	0x05		/* select/reselect timeout reg */
-+#define SEQ_REG		0x06		/* sequence step register */
-+#define SYNCPRD		0x06		/* synchronous transfer period */
-+#define FIFO_FLAGS	0x07		/* indicates # of bytes in fifo */
-+#define SYNCOFF		0x07		/* synchronous offset register */
-+#define CONFIG1		0x08		/* configuration register */
-+#define CLKCONV		0x09		/* clock conversion register */
-+/* #define TESTREG	0x0A */		/* test mode register */
-+#define CONFIG2		0x0B		/* configuration 2 register */
-+#define CONFIG3		0x0C		/* configuration 3 register */
-+#define CONFIG4		0x0D		/* configuration 4 register */
-+#define TC_HIGH		0x0E		/* transfer counter high */
-+/* #define FIFO_BOTTOM	0x0F */		/* reserve FIFO byte register */
-+
-+/* Control Register Set 1 */
-+/* #define JUMPER_SENSE	0x00 */		/* jumper sense port reg (r/w) */
-+/* #define SRAM_PTR	0x01 */		/* SRAM address pointer reg (r/w) */
-+/* #define SRAM_DATA	0x02 */		/* SRAM data register (r/w) */
-+#define PIO_FIFO	0x04		/* PIO FIFO registers (r/w) */
-+/* #define PIO_FIFO1	0x05 */		/*  */
-+/* #define PIO_FIFO2	0x06 */		/*  */
-+/* #define PIO_FIFO3	0x07 */		/*  */
-+#define PIO_STATUS	0x08		/* PIO status (r/w) */
-+/* #define ATA_CMD	0x09 */		/* ATA command/status reg (r/w) */
-+/* #define ATA_ERR	0x0A */		/* ATA features/error reg (r/w) */
-+#define PIO_FLAG	0x0B		/* PIO flag interrupt enable (r/w) */
-+#define CONFIG5		0x09		/* configuration 5 register */
-+/* #define SIGNATURE	0x0E */		/* signature register (r) */
-+/* #define CONFIG6	0x0F */		/* configuration 6 register (r) */
-+#define CONFIG7		0x0d
-+
-+/* select register set 0 */
-+#define REG0(x)		(outb(C4_IMG, (x) + CONFIG4))
-+/* select register set 1 */
-+#define REG1(x)		outb(C7_IMG, (x) + CONFIG7); outb(C5_IMG, (x) + CONFIG5)
-+
-+#if SYM53C500_DEBUG
-+#define DEB(x) x
-+#else
-+#define DEB(x)
-+#endif
-+
-+#if VERBOSE_SYM53C500_DEBUG
-+#define VDEB(x) x
-+#else
-+#define VDEB(x)
-+#endif
-+
-+#define LOAD_DMA_COUNT(x, count) \
-+  outb(count & 0xff, (x) + TC_LSB); \
-+  outb((count >> 8) & 0xff, (x) + TC_MSB); \
-+  outb((count >> 16) & 0xff, (x) + TC_HIGH);
-+
-+/* Chip commands */
-+#define DMA_OP               0x80
-+
-+#define SCSI_NOP             0x00
-+#define FLUSH_FIFO           0x01
-+#define CHIP_RESET           0x02
-+#define SCSI_RESET           0x03
-+#define RESELECT             0x40
-+#define SELECT_NO_ATN        0x41
-+#define SELECT_ATN           0x42
-+#define SELECT_ATN_STOP      0x43
-+#define ENABLE_SEL           0x44
-+#define DISABLE_SEL          0x45
-+#define SELECT_ATN3          0x46
-+#define RESELECT3            0x47
-+#define TRANSFER_INFO        0x10
-+#define INIT_CMD_COMPLETE    0x11
-+#define MSG_ACCEPT           0x12
-+#define TRANSFER_PAD         0x18
-+#define SET_ATN              0x1a
-+#define RESET_ATN            0x1b
-+#define SEND_MSG             0x20
-+#define SEND_STATUS          0x21
-+#define SEND_DATA            0x22
-+#define DISCONN_SEQ          0x23
-+#define TERMINATE_SEQ        0x24
-+#define TARG_CMD_COMPLETE    0x25
-+#define DISCONN              0x27
-+#define RECV_MSG             0x28
-+#define RECV_CMD             0x29
-+#define RECV_DATA            0x2a
-+#define RECV_CMD_SEQ         0x2b
-+#define TARGET_ABORT_DMA     0x04
-+
-+/* ================================================================== */
-+
-+struct scsi_info_t {
-+	dev_link_t link;
-+	dev_node_t node;
-+	struct Scsi_Host *host;
-+	unsigned short manf_id;
-+};
-+
-+/*
-+*  Repository for per-instance host data.
-+*/
-+struct sym53c500_data {
-+	struct scsi_cmnd *current_SC;
-+	int fast_pio;
-+};
-+
-+enum Phase {
-+    idle,
-+    data_out,
-+    data_in,
-+    command_ph,
-+    status_ph,
-+    message_out,
-+    message_in
-+};
-+
-+/* ================================================================== */
-+
-+/*
-+*  Global (within this module) variables other than
-+*  sym53c500_driver_template (the scsi_host_template).
-+*/
-+static dev_link_t *dev_list;
-+static dev_info_t dev_info = "sym53c500_cs";
-+
-+/* ================================================================== */
-+
-+static void
-+chip_init(int io_port)
-+{
-+	REG1(io_port);
-+	outb(0x01, io_port + PIO_STATUS);
-+	outb(0x00, io_port + PIO_FLAG);
-+
-+	outb(C4_IMG, io_port + CONFIG4);	/* REG0(io_port); */
-+	outb(C3_IMG, io_port + CONFIG3);
-+	outb(C2_IMG, io_port + CONFIG2);
-+	outb(C1_IMG, io_port + CONFIG1);
-+
-+	outb(0x05, io_port + CLKCONV);	/* clock conversion factor */
-+	outb(0x9C, io_port + SRTIMOUT);	/* Selection timeout */
-+	outb(0x05, io_port + SYNCPRD);	/* Synchronous transfer period */
-+	outb(SYNC_MODE, io_port + SYNCOFF);	/* synchronous mode */  
-+}
-+
-+static void
-+SYM53C500_int_host_reset(int io_port)
-+{
-+	outb(C4_IMG, io_port + CONFIG4);	/* REG0(io_port); */
-+	outb(CHIP_RESET, io_port + CMD_REG);
-+	outb(SCSI_NOP, io_port + CMD_REG);	/* required after reset */
-+	outb(SCSI_RESET, io_port + CMD_REG);
-+	chip_init(io_port);
-+}
-+
-+static __inline__ int
-+SYM53C500_pio_read(int fast_pio, int base, unsigned char *request, unsigned int reqlen)
-+{
-+	int i;
-+	int len;	/* current scsi fifo size */
-+
-+	REG1(base);
-+	while (reqlen) {
-+		i = inb(base + PIO_STATUS);
-+		/* VDEB(printk("pio_status=%x\n", i)); */
-+		if (i & 0x80) 
-+			return 0;
-+
-+		switch (i & 0x1e) {
-+		default:
-+		case 0x10:	/* fifo empty */
-+			len = 0;
-+			break;
-+		case 0x0:
-+			len = 1;
-+			break; 
-+		case 0x8:	/* fifo 1/3 full */
-+			len = 42;
-+			break;
-+		case 0xc:	/* fifo 2/3 full */
-+			len = 84;
-+			break;
-+		case 0xe:	/* fifo full */
-+			len = 128;
-+			break;
-+		}
-+
-+		if ((i & 0x40) && len == 0) { /* fifo empty and interrupt occurred */
-+			return 0;
-+		}
-+
-+		if (len) {
-+			if (len > reqlen) 
-+				len = reqlen;
-+
-+			if (fast_pio && len > 3) {
-+				insl(base + PIO_FIFO, request, len >> 2);
-+				request += len & 0xfc; 
-+				reqlen -= len & 0xfc; 
-+			} else {
-+				while (len--) {
-+					*request++ = inb(base + PIO_FIFO);
-+					reqlen--;
-+				}
-+			} 
-+		}
-+	}
-+	return 0;
-+}
-+
-+static __inline__ int
-+SYM53C500_pio_write(int fast_pio, int base, unsigned char *request, unsigned int reqlen)
-+{
-+	int i = 0;
-+	int len;	/* current scsi fifo size */
-+
-+	REG1(base);
-+	while (reqlen && !(i & 0x40)) {
-+		i = inb(base + PIO_STATUS);
-+		/* VDEB(printk("pio_status=%x\n", i)); */
-+		if (i & 0x80)	/* error */
-+			return 0;
-+
-+		switch (i & 0x1e) {
-+		case 0x10:
-+			len = 128;
-+			break;
-+		case 0x0:
-+			len = 84;
-+			break;
-+		case 0x8:
-+			len = 42;
-+			break;
-+		case 0xc:
-+			len = 1;
-+			break;
-+		default:
-+		case 0xe:
-+			len = 0;
-+			break;
-+		}
-+
-+		if (len) {
-+			if (len > reqlen)
-+				len = reqlen;
-+
-+			if (fast_pio && len > 3) {
-+				outsl(base + PIO_FIFO, request, len >> 2);
-+				request += len & 0xfc;
-+				reqlen -= len & 0xfc;
-+			} else {
-+				while (len--) {
-+					outb(*request++, base + PIO_FIFO);
-+					reqlen--;
-+				}
-+			}
-+		}
-+	}
-+	return 0;
-+}
-+
-+static irqreturn_t
-+SYM53C500_intr(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	unsigned long flags;
-+	struct Scsi_Host *dev = dev_id;
-+	DEB(unsigned char fifo_size;)
-+	DEB(unsigned char seq_reg;)
-+	unsigned char status, int_reg;
-+	unsigned char pio_status;
-+	struct scatterlist *sglist;
-+	unsigned int sgcount;
-+	int port_base = dev->io_port;
-+	struct sym53c500_data *data =
-+	    (struct sym53c500_data *)dev->hostdata;
-+	struct scsi_cmnd *curSC = data->current_SC;
-+	int fast_pio = data->fast_pio;
-+
-+	spin_lock_irqsave(dev->host_lock, flags);
-+
-+	VDEB(printk("SYM53C500_intr called\n"));
-+
-+	REG1(port_base);
-+	pio_status = inb(port_base + PIO_STATUS);
-+	REG0(port_base);
-+	status = inb(port_base + STAT_REG);
-+	DEB(seq_reg = inb(port_base + SEQ_REG));
-+	int_reg = inb(port_base + INT_REG);
-+	DEB(fifo_size = inb(port_base + FIFO_FLAGS) & 0x1f);
-+
-+#if SYM53C500_DEBUG
-+	printk("status=%02x, seq_reg=%02x, int_reg=%02x, fifo_size=%02x", 
-+	    status, seq_reg, int_reg, fifo_size);
-+	printk(", pio=%02x\n", pio_status);
-+#endif /* SYM53C500_DEBUG */
-+
-+	if (int_reg & 0x80) {	/* SCSI reset intr */
-+		DEB(printk("SYM53C500: reset intr received\n"));
-+		curSC->result = DID_RESET << 16;
-+		goto idle_out;
-+	}
-+
-+	if (pio_status & 0x80) {
-+		printk("SYM53C500: Warning: PIO error!\n");
-+		curSC->result = DID_ERROR << 16;
-+		goto idle_out;
-+	}
-+
-+	if (status & 0x20) {		/* Parity error */
-+		printk("SYM53C500: Warning: parity error!\n");
-+		curSC->result = DID_PARITY << 16;
-+		goto idle_out;
-+	}
-+
-+	if (status & 0x40) {		/* Gross error */
-+		printk("SYM53C500: Warning: gross error!\n");
-+		curSC->result = DID_ERROR << 16;
-+		goto idle_out;
-+	}
-+
-+	if (int_reg & 0x20) {		/* Disconnect */
-+		DEB(printk("SYM53C500: disconnect intr received\n"));
-+		if (curSC->SCp.phase != message_in) {	/* Unexpected disconnect */
-+			curSC->result = DID_NO_CONNECT << 16;
-+		} else {	/* Command complete, return status and message */
-+			curSC->result = (curSC->SCp.Status & 0xff)
-+			    | ((curSC->SCp.Message & 0xff) << 8) | (DID_OK << 16);
-+		}
-+		goto idle_out;
-+	}
-+
-+	switch (status & 0x07) {	/* scsi phase */
-+	case 0x00:			/* DATA-OUT */
-+		if (int_reg & 0x10) {	/* Target requesting info transfer */
-+			curSC->SCp.phase = data_out;
-+			VDEB(printk("SYM53C500: Data-Out phase\n"));
-+			outb(FLUSH_FIFO, port_base + CMD_REG);
-+			LOAD_DMA_COUNT(port_base, curSC->request_bufflen);	/* Max transfer size */
-+			outb(TRANSFER_INFO | DMA_OP, port_base + CMD_REG);
-+			if (!curSC->use_sg)	/* Don't use scatter-gather */
-+				SYM53C500_pio_write(fast_pio, port_base, curSC->request_buffer, curSC->request_bufflen);
-+			else {	/* use scatter-gather */
-+				sgcount = curSC->use_sg;
-+				sglist = curSC->request_buffer;
-+				while (sgcount--) {
-+					SYM53C500_pio_write(fast_pio, port_base, page_address(sglist->page) + sglist->offset, sglist->length);
-+					sglist++;
-+				}
-+			}
-+			REG0(port_base);
-+		}
-+		break;
-+
-+	case 0x01:		/* DATA-IN */
-+		if (int_reg & 0x10) {	/* Target requesting info transfer */
-+			curSC->SCp.phase = data_in;
-+			VDEB(printk("SYM53C500: Data-In phase\n"));
-+			outb(FLUSH_FIFO, port_base + CMD_REG);
-+			LOAD_DMA_COUNT(port_base, curSC->request_bufflen);	/* Max transfer size */
-+			outb(TRANSFER_INFO | DMA_OP, port_base + CMD_REG);
-+			if (!curSC->use_sg)	/* Don't use scatter-gather */
-+				SYM53C500_pio_read(fast_pio, port_base, curSC->request_buffer, curSC->request_bufflen);
-+			else {	/* Use scatter-gather */
-+				sgcount = curSC->use_sg;
-+				sglist = curSC->request_buffer;
-+				while (sgcount--) {
-+					SYM53C500_pio_read(fast_pio, port_base, page_address(sglist->page) + sglist->offset, sglist->length);
-+					sglist++;
-+				}
-+			}
-+			REG0(port_base);
-+		}
-+		break;
-+
-+	case 0x02:		/* COMMAND */
-+		curSC->SCp.phase = command_ph;
-+		printk("SYM53C500: Warning: Unknown interrupt occurred in command phase!\n");
-+		break;
-+
-+	case 0x03:		/* STATUS */
-+		curSC->SCp.phase = status_ph;
-+		VDEB(printk("SYM53C500: Status phase\n"));
-+		outb(FLUSH_FIFO, port_base + CMD_REG);
-+		outb(INIT_CMD_COMPLETE, port_base + CMD_REG);
-+		break;
-+
-+	case 0x04:		/* Reserved */
-+	case 0x05:		/* Reserved */
-+		printk("SYM53C500: WARNING: Reserved phase!!!\n");
-+		break;
-+
-+	case 0x06:		/* MESSAGE-OUT */
-+		DEB(printk("SYM53C500: Message-Out phase\n"));
-+		curSC->SCp.phase = message_out;
-+		outb(SET_ATN, port_base + CMD_REG);	/* Reject the message */
-+		outb(MSG_ACCEPT, port_base + CMD_REG);
-+		break;
-+
-+	case 0x07:		/* MESSAGE-IN */
-+		VDEB(printk("SYM53C500: Message-In phase\n"));
-+		curSC->SCp.phase = message_in;
-+
-+		curSC->SCp.Status = inb(port_base + SCSI_FIFO);
-+		curSC->SCp.Message = inb(port_base + SCSI_FIFO);
-+
-+		VDEB(printk("SCSI FIFO size=%d\n", inb(port_base + FIFO_FLAGS) & 0x1f));
-+		DEB(printk("Status = %02x  Message = %02x\n", curSC->SCp.Status, curSC->SCp.Message));
-+
-+		if (curSC->SCp.Message == SAVE_POINTERS || curSC->SCp.Message == DISCONNECT) {
-+			outb(SET_ATN, port_base + CMD_REG);	/* Reject message */
-+			DEB(printk("Discarding SAVE_POINTERS message\n"));
-+		}
-+		outb(MSG_ACCEPT, port_base + CMD_REG);
-+		break;
-+	}
-+out:
-+	spin_unlock_irqrestore(dev->host_lock, flags);
-+	return IRQ_HANDLED;
-+
-+idle_out:
-+	curSC->SCp.phase = idle;
-+	curSC->scsi_done(curSC);
-+	goto out;
-+}
-+
-+static void
-+SYM53C500_release(dev_link_t *link)
-+{
-+	struct scsi_info_t *info = link->priv;
-+	struct Scsi_Host *shost = info->host;
-+
-+	DEBUG(0, "SYM53C500_release(0x%p)\n", link);
-+
-+	/*
-+	*  Do this before releasing/freeing resources.
-+	*/
-+	scsi_remove_host(shost);
-+
-+	/*
-+	*  Interrupts getting hosed on card removal.  Try
-+	*  the following code, mostly from qlogicfas.c.
-+	*/
-+	if (shost->irq)
-+		free_irq(shost->irq, shost);
-+	if (shost->dma_channel != 0xff)
-+		free_dma(shost->dma_channel);
-+	if (shost->io_port && shost->n_io_port)
-+		release_region(shost->io_port, shost->n_io_port);
-+
-+	link->dev = NULL;
-+
-+	pcmcia_release_configuration(link->handle);
-+	pcmcia_release_io(link->handle, &link->io);
-+	pcmcia_release_irq(link->handle, &link->irq);
-+
-+	link->state &= ~DEV_CONFIG;
-+
-+	scsi_host_put(shost);
-+} /* SYM53C500_release */
-+
-+static const char*
-+SYM53C500_info(struct Scsi_Host *SChost)
-+{
-+	static char info_msg[256];
-+	struct sym53c500_data *data =
-+	    (struct sym53c500_data *)SChost->hostdata;
-+
-+	DEB(printk("SYM53C500_info called\n"));
-+	(void)snprintf(info_msg, sizeof(info_msg),
-+	    "SYM53C500 at 0x%lx, IRQ %d, %s PIO mode.", 
-+	    SChost->io_port, SChost->irq, data->fast_pio ? "fast" : "slow");
-+	return (info_msg);
-+}
-+
-+static int 
-+SYM53C500_queue(struct scsi_cmnd *SCpnt, void (*done)(struct scsi_cmnd *))
-+{
-+	int i;
-+	int port_base = SCpnt->device->host->io_port;
-+	struct sym53c500_data *data =
-+	    (struct sym53c500_data *)SCpnt->device->host->hostdata;
-+
-+	VDEB(printk("SYM53C500_queue called\n"));
-+
-+	DEB(printk("cmd=%02x, cmd_len=%02x, target=%02x, lun=%02x, bufflen=%d\n", 
-+	    SCpnt->cmnd[0], SCpnt->cmd_len, SCpnt->device->id, 
-+	    SCpnt->device->lun,  SCpnt->request_bufflen));
-+
-+	VDEB(for (i = 0; i < SCpnt->cmd_len; i++)
-+	    printk("cmd[%d]=%02x  ", i, SCpnt->cmnd[i]));
-+	VDEB(printk("\n"));
-+
-+	data->current_SC = SCpnt;
-+	data->current_SC->scsi_done = done;
-+	data->current_SC->SCp.phase = command_ph;
-+	data->current_SC->SCp.Status = 0;
-+	data->current_SC->SCp.Message = 0;
-+
-+	/* We are locked here already by the mid layer */
-+	REG0(port_base);
-+	outb(SCpnt->device->id, port_base + DEST_ID);	/* set destination */
-+	outb(FLUSH_FIFO, port_base + CMD_REG);	/* reset the fifos */
-+
-+	for (i = 0; i < SCpnt->cmd_len; i++) {
-+		outb(SCpnt->cmnd[i], port_base + SCSI_FIFO);
-+	}
-+	outb(SELECT_NO_ATN, port_base + CMD_REG);
-+
-+	return 0;
-+}
-+
-+static int 
-+SYM53C500_host_reset(struct scsi_cmnd *SCpnt)
-+{
-+	int port_base = SCpnt->device->host->io_port;
-+
-+	DEB(printk("SYM53C500_host_reset called\n"));
-+	SYM53C500_int_host_reset(port_base);
-+
-+	return SUCCESS;
-+}
-+
-+static int 
-+SYM53C500_biosparm(struct scsi_device *disk,
-+    struct block_device *dev,
-+    sector_t capacity, int *info_array)
-+{
-+	int size;
-+
-+	DEB(printk("SYM53C500_biosparm called\n"));
-+
-+	size = capacity;
-+	info_array[0] = 64;		/* heads */
-+	info_array[1] = 32;		/* sectors */
-+	info_array[2] = size >> 11;	/* cylinders */
-+	if (info_array[2] > 1024) {	/* big disk */
-+		info_array[0] = 255;
-+		info_array[1] = 63;
-+		info_array[2] = size / (255 * 63);
-+	}
-+	return 0;
-+}
-+
-+static ssize_t
-+SYM53C500_show_pio(struct class_device *cdev, char *buf)
-+{
-+	struct Scsi_Host *SHp = class_to_shost(cdev);
-+	struct sym53c500_data *data =
-+	    (struct sym53c500_data *)SHp->hostdata;
-+
-+	return snprintf(buf, 4, "%d\n", data->fast_pio);
-+}
-+
-+static ssize_t
-+SYM53C500_store_pio(struct class_device *cdev, const char *buf, size_t count)
-+{
-+	int pio;
-+	struct Scsi_Host *SHp = class_to_shost(cdev);
-+	struct sym53c500_data *data =
-+	    (struct sym53c500_data *)SHp->hostdata;
-+
-+	pio = simple_strtoul(buf, NULL, 0);
-+	if (pio == 0 || pio == 1) {
-+		data->fast_pio = pio;
-+		return count;
-+	}
-+	else
-+		return -EINVAL;
-+}
-+
-+/*
-+*  SCSI HBA device attributes we want to
-+*  make available via sysfs.
-+*/
-+static struct class_device_attribute SYM53C500_pio_attr = {
-+	.attr = {
-+		.name = "fast_pio",
-+		.mode = (S_IRUGO | S_IWUSR),
-+	},
-+	.show = SYM53C500_show_pio,
-+	.store = SYM53C500_store_pio,
-+};
-+
-+static struct class_device_attribute *SYM53C500_shost_attrs[] = {
-+	&SYM53C500_pio_attr,
-+	NULL,
-+};
-+
-+/*
-+*  scsi_host_template initializer
-+*/
-+static struct scsi_host_template sym53c500_driver_template = {
-+     .module			= THIS_MODULE,
-+     .name			= "SYM53C500",
-+     .info			= SYM53C500_info,
-+     .queuecommand		= SYM53C500_queue,
-+     .eh_host_reset_handler	= SYM53C500_host_reset,
-+     .bios_param		= SYM53C500_biosparm,
-+     .proc_name			= "SYM53C500",
-+     .can_queue			= 1,
-+     .this_id			= 7,
-+     .sg_tablesize		= 32,
-+     .cmd_per_lun		= 1,
-+     .use_clustering		= ENABLE_CLUSTERING,
-+     .shost_attrs		= SYM53C500_shost_attrs
-+};
-+
-+#define CS_CHECK(fn, ret) \
-+do { last_fn = (fn); if ((last_ret = (ret)) != 0) goto cs_failed; } while (0)
-+
-+static void
-+SYM53C500_config(dev_link_t *link)
-+{
-+	client_handle_t handle = link->handle;
-+	struct scsi_info_t *info = link->priv;
-+	tuple_t tuple;
-+	cisparse_t parse;
-+	int i, last_ret, last_fn;
-+	int irq_level, port_base;
-+	unsigned short tuple_data[32];
-+	struct Scsi_Host *host;
-+	struct scsi_host_template *tpnt = &sym53c500_driver_template;
-+	struct sym53c500_data *data;
-+
-+	DEBUG(0, "SYM53C500_config(0x%p)\n", link);
-+
-+	tuple.TupleData = (cisdata_t *)tuple_data;
-+	tuple.TupleDataMax = 64;
-+	tuple.TupleOffset = 0;
-+	tuple.DesiredTuple = CISTPL_CONFIG;
-+	CS_CHECK(GetFirstTuple, pcmcia_get_first_tuple(handle, &tuple));
-+	CS_CHECK(GetTupleData, pcmcia_get_tuple_data(handle, &tuple));
-+	CS_CHECK(ParseTuple, pcmcia_parse_tuple(handle, &tuple, &parse));
-+	link->conf.ConfigBase = parse.config.base;
-+
-+	tuple.DesiredTuple = CISTPL_MANFID;
-+	if ((pcmcia_get_first_tuple(handle, &tuple) == CS_SUCCESS) &&
-+	    (pcmcia_get_tuple_data(handle, &tuple) == CS_SUCCESS))
-+		info->manf_id = le16_to_cpu(tuple.TupleData[0]);
-+
-+	/* Configure card */
-+	link->state |= DEV_CONFIG;
-+
-+	tuple.DesiredTuple = CISTPL_CFTABLE_ENTRY;
-+	CS_CHECK(GetFirstTuple, pcmcia_get_first_tuple(handle, &tuple));
-+	while (1) {
-+		if (pcmcia_get_tuple_data(handle, &tuple) != 0 ||
-+		    pcmcia_parse_tuple(handle, &tuple, &parse) != 0)
-+			goto next_entry;
-+		link->conf.ConfigIndex = parse.cftable_entry.index;
-+		link->io.BasePort1 = parse.cftable_entry.io.win[0].base;
-+		link->io.NumPorts1 = parse.cftable_entry.io.win[0].len;
-+
-+		if (link->io.BasePort1 != 0) {
-+			i = pcmcia_request_io(handle, &link->io);
-+			if (i == CS_SUCCESS)
-+				break;
-+		}
-+next_entry:
-+		CS_CHECK(GetNextTuple, pcmcia_get_next_tuple(handle, &tuple));
-+	}
-+
-+	CS_CHECK(RequestIRQ, pcmcia_request_irq(handle, &link->irq));
-+	CS_CHECK(RequestConfiguration, pcmcia_request_configuration(handle, &link->conf));
-+
-+	/*
-+	*  That's the trouble with copying liberally from another driver.
-+	*  Some things probably aren't relevant, and I suspect this entire
-+	*  section dealing with manufacturer IDs can be scrapped.	--rct
-+	*/
-+	if ((info->manf_id == MANFID_MACNICA) ||
-+	    (info->manf_id == MANFID_PIONEER) ||
-+	    (info->manf_id == 0x0098)) {
-+		/* set ATAcmd */
-+		outb(0xb4, link->io.BasePort1 + 0xd);
-+		outb(0x24, link->io.BasePort1 + 0x9);
-+		outb(0x04, link->io.BasePort1 + 0xd);
-+	}
-+
-+	/*
-+	*  irq_level == 0 implies tpnt->can_queue == 0, which
-+	*  is not supported in 2.6.  Thus, only irq_level > 0
-+	*  will be allowed.
-+	*
-+	*  Possible port_base values are as follows:
-+	*
-+	*	0x130, 0x230, 0x280, 0x290,
-+	*	0x320, 0x330, 0x340, 0x350
-+	*/
-+	port_base = link->io.BasePort1;
-+	irq_level = link->irq.AssignedIRQ;
-+
-+	DEB(printk("SYM53C500: port_base=0x%x, irq=%d, fast_pio=%d\n",
-+	    port_base, irq_level, USE_FAST_PIO);)
-+
-+	chip_init(port_base);
-+
-+	host = scsi_host_alloc(tpnt, sizeof(struct sym53c500_data));
-+	if (!host) {
-+		printk("SYM53C500: Unable to register host, giving up.\n");
-+		goto err_release;
-+	}
-+
-+	data = (struct sym53c500_data *)host->hostdata;
-+
-+	if (irq_level > 0) {
-+		if (request_irq(irq_level, SYM53C500_intr, 0, "SYM53C500", host)) {
-+			printk("SYM53C500: unable to allocate IRQ %d\n", irq_level);
-+			goto err_free_scsi;
-+		}
-+		DEB(printk("SYM53C500: allocated IRQ %d\n", irq_level));
-+	} else if (irq_level == 0) {
-+		DEB(printk("SYM53C500: No interrupts detected\n"));
-+		goto err_free_scsi;
-+	} else {
-+		DEB(printk("SYM53C500: Shouldn't get here!\n"));
-+		goto err_free_scsi;
-+	}
-+
-+	host->unique_id = port_base;
-+	host->irq = irq_level;
-+	host->io_port = port_base;
-+	host->n_io_port = 0x10;
-+	host->dma_channel = -1;
-+
-+	/*
-+	*  Note fast_pio is set to USE_FAST_PIO by
-+	*  default, but can be changed via "sysfs".
-+	*/
-+	data->fast_pio = USE_FAST_PIO;
-+
-+	sprintf(info->node.dev_name, "scsi%d", host->host_no);
-+	link->dev = &info->node;
-+	info->host = host;
-+
-+	if (scsi_add_host(host, NULL))
-+		goto err_free_irq;
-+
-+	scsi_scan_host(host);
-+
-+	goto out;	/* SUCCESS */
-+
-+err_free_irq:
-+	free_irq(irq_level, host);
-+err_free_scsi:
-+	scsi_host_put(host);
-+err_release:
-+	release_region(port_base, 0x10);
-+	printk(KERN_INFO "sym53c500_cs: no SCSI devices found\n");
-+
-+out:
-+	link->state &= ~DEV_CONFIG_PENDING;
-+	return;
-+
-+cs_failed:
-+	cs_error(link->handle, last_fn, last_ret);
-+	SYM53C500_release(link);
-+	return;
-+} /* SYM53C500_config */
-+
-+static int
-+SYM53C500_event(event_t event, int priority, event_callback_args_t *args)
-+{
-+	dev_link_t *link = args->client_data;
-+	struct scsi_info_t *info = link->priv;
-+
-+	DEBUG(1, "SYM53C500_event(0x%06x)\n", event);
-+
-+	switch (event) {
-+	case CS_EVENT_CARD_REMOVAL:
-+		link->state &= ~DEV_PRESENT;
-+		if (link->state & DEV_CONFIG)
-+			SYM53C500_release(link);
-+		break;
-+	case CS_EVENT_CARD_INSERTION:
-+		link->state |= DEV_PRESENT | DEV_CONFIG_PENDING;
-+		SYM53C500_config(link);
-+		break;
-+	case CS_EVENT_PM_SUSPEND:
-+		link->state |= DEV_SUSPEND;
-+		/* Fall through... */
-+	case CS_EVENT_RESET_PHYSICAL:
-+		if (link->state & DEV_CONFIG)
-+			pcmcia_release_configuration(link->handle);
-+		break;
-+	case CS_EVENT_PM_RESUME:
-+		link->state &= ~DEV_SUSPEND;
-+		/* Fall through... */
-+	case CS_EVENT_CARD_RESET:
-+		if (link->state & DEV_CONFIG) {
-+			pcmcia_request_configuration(link->handle, &link->conf);
-+			/* See earlier comment about manufacturer IDs. */
-+			if ((info->manf_id == MANFID_MACNICA) ||
-+			    (info->manf_id == MANFID_PIONEER) ||
-+			    (info->manf_id == 0x0098)) {
-+				outb(0x80, link->io.BasePort1 + 0xd);
-+				outb(0x24, link->io.BasePort1 + 0x9);
-+				outb(0x04, link->io.BasePort1 + 0xd);
-+			}
-+			/*
-+			*  If things don't work after a "resume",
-+			*  this is a good place to start looking.
-+			*/
-+			SYM53C500_int_host_reset(link->io.BasePort1);
-+		}
-+		break;
-+	}
-+	return 0;
-+} /* SYM53C500_event */
-+
-+static void
-+SYM53C500_detach(dev_link_t *link)
-+{
-+	dev_link_t **linkp;
-+
-+	DEBUG(0, "SYM53C500_detach(0x%p)\n", link);
-+
-+	/* Locate device structure */
-+	for (linkp = &dev_list; *linkp; linkp = &(*linkp)->next)
-+		if (*linkp == link)
-+			break;
-+	if (*linkp == NULL)
-+		return;
-+
-+	if (link->state & DEV_CONFIG)
-+		SYM53C500_release(link);
-+
-+	if (link->handle)
-+		pcmcia_deregister_client(link->handle);
-+
-+	/* Unlink device structure, free bits. */
-+	*linkp = link->next;
-+	kfree(link->priv);
-+	link->priv = NULL;
-+} /* SYM53C500_detach */
-+
-+static dev_link_t *
-+SYM53C500_attach(void)
-+{
-+	struct scsi_info_t *info;
-+	client_reg_t client_reg;
-+	dev_link_t *link;
-+	int i, ret;
-+
-+	DEBUG(0, "SYM53C500_attach()\n");
-+
-+	/* Create new SCSI device */
-+	info = kmalloc(sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return NULL;
-+	memset(info, 0, sizeof(*info));
-+	link = &info->link;
-+	link->priv = info;
-+	link->io.NumPorts1 = 16;
-+	link->io.Attributes1 = IO_DATA_PATH_WIDTH_AUTO;
-+	link->io.IOAddrLines = 10;
-+	link->irq.Attributes = IRQ_TYPE_EXCLUSIVE;
-+	link->irq.IRQInfo1 = IRQ_INFO2_VALID | IRQ_LEVEL_ID;
-+	if (irq_list[0] == -1)
-+		link->irq.IRQInfo2 = irq_mask;
-+	else
-+		for (i = 0; i < 4; i++)
-+			link->irq.IRQInfo2 |= 1 << irq_list[i];
-+	link->conf.Attributes = CONF_ENABLE_IRQ;
-+	link->conf.Vcc = 50;
-+	link->conf.IntType = INT_MEMORY_AND_IO;
-+	link->conf.Present = PRESENT_OPTION;
-+
-+	/* Register with Card Services */
-+	link->next = dev_list;
-+	dev_list = link;
-+	client_reg.dev_info = &dev_info;
-+	client_reg.Attributes = INFO_IO_CLIENT | INFO_CARD_SHARE;
-+	client_reg.event_handler = &SYM53C500_event;
-+	client_reg.EventMask = CS_EVENT_RESET_REQUEST | CS_EVENT_CARD_RESET |
-+	    CS_EVENT_CARD_INSERTION | CS_EVENT_CARD_REMOVAL |
-+	    CS_EVENT_PM_SUSPEND | CS_EVENT_PM_RESUME;
-+	client_reg.Version = 0x0210;
-+	client_reg.event_callback_args.client_data = link;
-+	ret = pcmcia_register_client(&link->handle, &client_reg);
-+	if (ret != 0) {
-+		cs_error(link->handle, RegisterClient, ret);
-+		SYM53C500_detach(link);
-+		return NULL;
-+	}
-+
-+	return link;
-+} /* SYM53C500_attach */
-+
-+MODULE_AUTHOR("Bob Tracy <rct@frus.com>");
-+MODULE_DESCRIPTION("SYM53C500 PCMCIA SCSI driver");
-+MODULE_LICENSE("GPL");
-+
-+static struct pcmcia_driver sym53c500_cs_driver = {
-+	.owner		= THIS_MODULE,
-+	.drv		= {
-+		.name	= "sym53c500_cs",
-+	},
-+	.attach		= SYM53C500_attach,
-+	.detach		= SYM53C500_detach,
-+};
-+
-+static int __init
-+init_sym53c500_cs(void)
-+{
-+	return pcmcia_register_driver(&sym53c500_cs_driver);
-+}
-+
-+static void __exit
-+exit_sym53c500_cs(void)
-+{
-+	pcmcia_unregister_driver(&sym53c500_cs_driver);
-+}
-+
-+module_init(init_sym53c500_cs);
-+module_exit(exit_sym53c500_cs);
---- linux/Documentation/scsi/sym53c500_cs.txt.orig	Fri Apr 16 16:06:19 2004
-+++ linux/Documentation/scsi/sym53c500_cs.txt	Mon May  3 21:08:26 2004
-@@ -0,0 +1,23 @@
-+The sym53c500_cs driver originated as an add-on to David Hinds' pcmcia-cs
-+package, and was written by Tom Corner (tcorner@via.at).  A rewrite was
-+long overdue, and the current version addresses the following concerns:
-+
-+	(1) extensive kernel changes between 2.4 and 2.6.
-+	(2) deprecated PCMCIA support outside the kernel.
-+
-+All the USE_BIOS code has been ripped out.  It was never used, and could
-+not have worked anyway.  The USE_DMA code is likewise gone.  Many thanks
-+to YOKOTA Hiroshi (nsp_cs driver) and David Hinds (qlogic_cs driver) for
-+the code fragments I shamelessly adapted for this work.  Thanks also to
-+Christoph Hellwig for his patient tutelage while I stumbled about.
-+
-+The Symbios Logic 53c500 chip was used in the "newer" (circa 1997) version
-+of the New Media Bus Toaster PCMCIA SCSI controller.  Presumably there are
-+other products using this chip, but I've never laid eyes (much less hands)
-+on one.
-+
-+Through the years, there have been a number of downloads of the pcmcia-cs
-+version of this driver, and I guess it worked for those users.  It worked
-+for Tom Corner, and it works for me.  Your mileage will probably vary.
-+
-+--Bob Tracy (rct@frus.com)
---- linux/Documentation/scsi/00-INDEX.orig	Fri Apr 16 16:07:11 2004
-+++ linux/Documentation/scsi/00-INDEX	Mon May  3 21:08:26 2004
-@@ -62,6 +62,8 @@
- 	- info on API between SCSI layer and low level drivers
- st.txt
- 	- info on scsi tape driver
-+sym53c500_cs.txt
-+	- info on PCMCIA driver for Symbios Logic 53c500 based adapters
- sym53c8xx_2.txt
- 	- info on second generation driver for sym53c8xx based adapters
- tmscsim.txt
-
---ELM768899458-30047-0_--
+--336214560-790098580-1084199282=:27527--

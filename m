@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbVA2L21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262898AbVA2LhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262899AbVA2L21 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 06:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbVA2L21
+	id S262898AbVA2LhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 06:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbVA2LhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 06:28:27 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:43791 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262899AbVA2L1y
+	Sat, 29 Jan 2005 06:37:16 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:17680 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262898AbVA2LhK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 06:27:54 -0500
-Date: Sat, 29 Jan 2005 12:28:10 +0100
+	Sat, 29 Jan 2005 06:37:10 -0500
+Date: Sat, 29 Jan 2005 12:37:26 +0100
 From: Jean Delvare <khali@linux-fr.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] I2C updates for 2.4.29 (2/3)
-Message-Id: <20050129122810.6c1a4957.khali@linux-fr.org>
+Subject: [PATCH 2.4] I2C updates for 2.4.29 (3/3)
+Message-Id: <20050129123726.2e2019ae.khali@linux-fr.org>
 In-Reply-To: <20050129120235.5c7160e6.khali@linux-fr.org>
 References: <20050129120235.5c7160e6.khali@linux-fr.org>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
@@ -24,49 +24,37 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While editing i2c-algo-bit.c and i2c-algo-pcf.c (see 1/3 of this patch
-set), I noticed that both files include header files they do not need at
-all (namely linux/ioport.h and asm/uaccess.h). The following patch
-cleans this, additionally bringing the files in line with what we have
-in i2c CVS (thus the blank lines changes).
+Original discussion:
+http://archives.andrew.net.au/lm-sensors/msg29038.html
+http://archives.andrew.net.au/lm-sensors/msg29041.html
 
---- linux-2.4.29/drivers/i2c/i2c-algo-bit.c.orig	2005-01-29 11:33:33.000000000 +0100
-+++ linux-2.4.29/drivers/i2c/i2c-algo-bit.c	2005-01-29 11:35:39.000000000 +0100
-@@ -28,14 +28,12 @@
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/init.h>
--#include <asm/uaccess.h>
--#include <linux/ioport.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
--
- #include <linux/i2c.h>
- #include <linux/i2c-algo-bit.h>
+Bottom line:
+The "id" member of the i2c_client structure was discarded in Linux 2.6
+due to a lack of consistent use and overall need. While we of course
+won't backport this to Linux 2.4 so as to not break compatibility with
+existing 2.4 drivers, it still seems wise to update the documentation so
+that new drivers written for Linux 2.4 today (*sigh*) do not rely on it.
+
+--- linux-2.4.29/Documentation/i2c/writing-clients.orig	2005-01-21 21:51:06.000000000 +0100
++++ linux-2.4.29/Documentation/i2c/writing-clients	2005-01-23 18:21:47.000000000 +0100
+@@ -380,9 +380,6 @@
  
-+
- /* ----- global defines ----------------------------------------------- */
- #define DEB(x) if (i2c_debug>=1) x;
- #define DEB2(x) if (i2c_debug>=2) x;
---- linux-2.4.29/drivers/i2c/i2c-algo-pcf.c.orig	2005-01-29 11:33:40.000000000 +0100
-+++ linux-2.4.29/drivers/i2c/i2c-algo-pcf.c	2005-01-29 11:35:45.000000000 +0100
-@@ -32,15 +32,13 @@
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/init.h>
--#include <asm/uaccess.h>
--#include <linux/ioport.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
--
- #include <linux/i2c.h>
- #include <linux/i2c-algo-pcf.h>
- #include "i2c-pcf8584.h"
+ For now, you can ignore the `flags' parameter. It is there for future use.
  
-+
- /* ----- global defines ----------------------------------------------- */
- #define DEB(x) if (i2c_debug>=1) x
- #define DEB2(x) if (i2c_debug>=2) x
+-  /* Unique ID allocation */
+-  static int foo_id = 0;
+-
+   int foo_detect_client(struct i2c_adapter *adapter, int address, 
+                         unsigned short flags, int kind)
+   {
+@@ -518,7 +515,6 @@
+     data->type = kind;
+     /* SENSORS ONLY END */
+ 
+-    new_client->id = foo_id++; /* Automatically unique */
+     data->valid = 0; /* Only if you use this field */
+     init_MUTEX(&data->update_lock); /* Only if you use this field */
+ 
 
 
 -- 

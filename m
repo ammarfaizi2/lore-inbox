@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317404AbSHCAxk>; Fri, 2 Aug 2002 20:53:40 -0400
+	id <S317365AbSHCAtE>; Fri, 2 Aug 2002 20:49:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317405AbSHCAxk>; Fri, 2 Aug 2002 20:53:40 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:13073 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317404AbSHCAxi>; Fri, 2 Aug 2002 20:53:38 -0400
-Date: Fri, 2 Aug 2002 21:56:57 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
+	id <S317386AbSHCAtE>; Fri, 2 Aug 2002 20:49:04 -0400
+Received: from holomorphy.com ([66.224.33.161]:4804 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317365AbSHCAtD>;
+	Fri, 2 Aug 2002 20:49:03 -0400
+Date: Fri, 2 Aug 2002 17:52:05 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Andrew Morton <akpm@zip.com.au>
-cc: Daniel Phillips <phillips@arcor.de>, <linux-kernel@vger.kernel.org>
+Cc: Rik van Riel <riel@conectiva.com.br>, Daniel Phillips <phillips@arcor.de>,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Rmap speedup
+Message-ID: <20020803005205.GK25038@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+References: <3D4AE995.DFD862EF@zip.com.au> <Pine.LNX.4.44L.0208022113440.23404-100000@imladris.surriel.com> <3D4B2471.29EE6462@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
 In-Reply-To: <3D4B2471.29EE6462@zip.com.au>
-Message-ID: <Pine.LNX.4.44L.0208022155310.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Aug 2002, Andrew Morton wrote:
+Rik van Riel wrote:
+>> Remember that we're planning to go to an object-based scheme
+>> later on, turning the code into a big monolithic mesh really
+>> makes long-term maintenance a pain...
 
-> > > Well that's fairly straightforward, thanks.  Butt-ugly though ;)
-
-> I changed it to, essentially:
-
-> See http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.30/daniel-rmap-speedup.patch
-
-This patch looks good.  Good enough for long-term maintainability,
-even... ;)
-
-I like it.
-
+On Fri, Aug 02, 2002 at 05:31:45PM -0700, Andrew Morton wrote:
 > We have short-term rmap problems:
->
 > 1) Unexplained pte chain state with ntpd
-
-I'll do a detailed trace of xntpd to see what's happening...
-
 > 2) 10-20% increased CPU load in fork/exec/exit loads
 > 3) system lock under heavy mmap load
 > 4) ZONE_NORMAL pte_chain consumption
->
+
+On Fri, Aug 02, 2002 at 05:31:45PM -0700, Andrew Morton wrote:
 > Daniel and I are on 2), Bill is on 4) (I think).
 
-regards,
+I am indeed on (4), though I'd describe what I'm doing as "OOM handling".
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
 
-http://www.surriel.com/		http://distro.conectiva.com/
 
+
+
+Cheers,
+Bill

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265767AbSKOEOq>; Thu, 14 Nov 2002 23:14:46 -0500
+	id <S265757AbSKOE04>; Thu, 14 Nov 2002 23:26:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265770AbSKOEOq>; Thu, 14 Nov 2002 23:14:46 -0500
-Received: from are.twiddle.net ([64.81.246.98]:18821 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S265767AbSKOEOp>;
-	Thu, 14 Nov 2002 23:14:45 -0500
-Date: Thu, 14 Nov 2002 20:21:36 -0800
-From: Richard Henderson <rth@twiddle.net>
+	id <S265759AbSKOE04>; Thu, 14 Nov 2002 23:26:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50185 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265757AbSKOE0z>; Thu, 14 Nov 2002 23:26:55 -0500
+Message-ID: <3DD47908.5010405@zytor.com>
+Date: Thu, 14 Nov 2002 20:33:12 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
 To: Andi Kleen <ak@suse.de>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: in-kernel linking issues
-Message-ID: <20021114202136.A22473@twiddle.net>
-Mail-Followup-To: Andi Kleen <ak@suse.de>, rusty@rustcorp.com.au,
-	linux-kernel@vger.kernel.org
-References: <20021114143701.A30355@twiddle.net.suse.lists.linux.kernel> <p73wunfv5b0.fsf@oldwotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <p73wunfv5b0.fsf@oldwotan.suse.de>; from ak@suse.de on Fri, Nov 15, 2002 at 05:13:23AM +0100
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] early printk for x86
+References: <3DD3FCB3.40506@us.ibm.com.suse.lists.linux.kernel> <3DD40719.5030108@pobox.com.suse.lists.linux.kernel> <3DD428C3.4030700@us.ibm.com.suse.lists.linux.kernel> <20021115044300.C20764@wotan.suse.de.suse.lists.linux.kernel> <ar1sdm$gfe$1@cesium.transmeta.com.suse.lists.linux.kernel> <p73u1ijv4gw.fsf@oldwotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 05:13:23AM +0100, Andi Kleen wrote:
-> Richard Henderson <rth@twiddle.net> writes:
-> >  (3) Alpha and MIPS64 absolutely require that the core and init allocations
-> >      are "close" (within 2GB).  I don't see how this can be guaranteed with
-> >      two different vmalloc calls.
+Andi Kleen wrote:
 > 
-> In x86-64 (and I think sparc64) the modules (both data and code) also need
-> to be within 2GB of the main kernel code. This is done to avoid needing
-> a GOT for calls between main kernel and modules. In the old module code that
-> is done with a custom module_map() function. I have not looked yet on how
-> that could be implemented in the new code.
+> But then assuming they have PC style VGA/serial is a pretty big
+> assumption too.
+> 
 
-Hmm.  I guess that can be done with the two allocation hooks,
-which could allocate from a special pool (as is done with the
-module_map function at present).  And, as far as that goes,
-could apply to Alpha and MIPS as well, if the same special
-allocation is done.
+That's a configure option more than anything else, IMO.
 
-Consider this point refuted, Rusty.
+> It is probably better hidden in arch/
+
+It's not arch though; rather it's a platform option.
+
+	-hpa
 
 
-r~

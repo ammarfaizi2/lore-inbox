@@ -1,56 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264656AbUGFXAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUGFXCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264656AbUGFXAo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 19:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUGFXAo
+	id S264677AbUGFXCo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 19:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUGFXCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 19:00:44 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:8909 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S264656AbUGFXAm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 19:00:42 -0400
-Date: Wed, 7 Jul 2004 00:54:02 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: David Gibson <hermes@gibson.dropbear.id.au>, jt@hpl.hp.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>
-Subject: Re: [PATCH] Update in-kernel orinoco drivers to upstream current CVS
-Message-ID: <20040707005402.A15251@electric-eye.fr.zoreil.com>
-References: <20040702222655.GA10333@bougret.hpl.hp.com> <20040703010709.A22334@electric-eye.fr.zoreil.com> <20040704021304.GD25992@zax> <20040704191732.A20676@electric-eye.fr.zoreil.com> <20040706011401.A390@electric-eye.fr.zoreil.com> <40E9E6BC.8020608@pobox.com>
+	Tue, 6 Jul 2004 19:02:44 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:43475 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264677AbUGFXCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 19:02:08 -0400
+Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
+From: Jim Houston <jim.houston@comcast.net>
+Reply-To: jim.houston@comcast.net
+To: Andrew Morton <akpm@osdl.org>
+Cc: kevcorry@us.ibm.com, linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+       torvalds@osdl.org, agk@redhat.com
+In-Reply-To: <20040706152817.38ce1151.akpm@osdl.org>
+References: <200407011035.13283.kevcorry@us.ibm.com>
+	 <200407021233.09610.kevcorry@us.ibm.com>
+	 <20040702124218.0ad27a85.akpm@osdl.org>
+	 <200407061323.27066.kevcorry@us.ibm.com>
+	 <20040706142335.14efcfa4.akpm@osdl.org>
+	 <1089151650.985.129.camel@new.localdomain>
+	 <20040706152817.38ce1151.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1089154845.985.164.camel@new.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <40E9E6BC.8020608@pobox.com>; from jgarzik@pobox.com on Mon, Jul 05, 2004 at 07:39:40PM -0400
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 06 Jul 2004 19:00:45 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> :
-> Francois Romieu wrote:
-> > The news:
-> > - I got the adequate patch from the cvs repository
-> > - 35 patches are available at the usual location. The series-mm file
-> >   describes the ordering of the patches. I'll redo the numbering as
-> >   it starts to be scary
-> > - the remaining diff weights ~210k so far
+On Tue, 2004-07-06 at 18:28, Andrew Morton wrote:
+> Jim Houston <jim.houston@comcast.net> wrote:
+> >
+> > On Tue, 2004-07-06 at 17:23, Andrew Morton wrote:
+> > > Kevin Corry <kevcorry@us.ibm.com> wrote:
+> > > >
+> > > > After talking with Alasdair a bit, there might be one bug in the "dm-use-idr"
+> > > > patch I submitted before. It seems (based on some comments in lib/idr.c) that
+> > > > the idr_find() routine might not return NULL if the desired ID value is not
+> > > > in the tree.
+> > > 
+> > > 
+> > > Confused.  idr_find() returns the thing it found, or NULL.  To which
+> > > comments do you refer?
 > > 
-> > At least it makes reviewing easier.
+> > Hi Andrew, Kevin,
+> > 
+> > Kevin is correct.  It's more of the nonsense related to having a counter
+> > in the upper bits of the id.  If you call idr_find with an id that is
+> > beyond the currently allocated space it ignores the upper bits and
+> > returns one of the entries that is in the allocated space.  This
+> > aliasing is most annoying.
+> 
+> erk, OK, we have vestigial bits still.  Note that MAX_ID_SHIFT is now 31 on
+> 32-bit, so we're still waggling the top bit.
+> 
+> > I'm attaching an untested patch which removes the counter in the upper
+> > bits of the id and makes idr_find return NULL if the requested id is
+> > beyond the allocated space.
+> 
+> Would you have time to get it tested please?
+> 
+> >  I suspect that there are problems with
+> > id values which are less than zero.
+> 
+> Me too.  I'd only be confident in the 0..2G range.
 > 
 > 
-> If you are willing to do some re-diffing, feel free to send out the 
-> boring, and easy-to-review parts such as netdev_priv() or obvious 
-> cleanups.  That would help, at least, to cut things to more meat, and 
-> less noise.
+> > -#endif
+> > +	if (id >= (1 << n))
+> > +		return NULL;
+> >  	while (n > 0 && p) {
+> >  		n -= IDR_BITS;
+> >  		p = p->ary[(id >> n) & IDR_MASK];
+> > 
+> 
+> I think the above test is unneeded?
 
-Actually it does not induce a noticeable noise. The remaining patch is
-down to 162 ko. 50 ko have disappeared while partially moving code on
-the target sources (I'll keep this part separated from the "normal"
-patches).
+Hi Everyone,
 
-The renumbered patches + one or two new ones are available at
-http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.7-mm6
+With out the test above an id beyond the allocated space will alias
+to one that exists.  Perhaps the highest id currently allocated is 
+100, there will be two layers in the radix tree and the while loop
+above will only look at the 10 least significant bits.  If you call
+idr_find with 1025 it will return the pointer associated with id 1.
 
---
-Ueimor
+The patch I sent was against linux-2.6.7, so I missed the change to
+MAX_ID_SHIFT.
+
+Jim Houston - Concurrent Computer Corp.
+

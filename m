@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129404AbQKFWNJ>; Mon, 6 Nov 2000 17:13:09 -0500
+	id <S129066AbQKFWdz>; Mon, 6 Nov 2000 17:33:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130456AbQKFWM7>; Mon, 6 Nov 2000 17:12:59 -0500
-Received: from gateway-490.mvista.com ([63.192.220.206]:34808 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S129404AbQKFWMs>; Mon, 6 Nov 2000 17:12:48 -0500
-Message-ID: <3A072CDD.C2EFB1C9@mvista.com>
-Date: Mon, 06 Nov 2000 14:12:45 -0800
-From: Michael Pruznick <michael_pruznick@mvista.com>
-Reply-To: michael_pruznick@mvista.com
-Organization: MontaVista
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+	id <S129331AbQKFWdg>; Mon, 6 Nov 2000 17:33:36 -0500
+Received: from smtprch2.nortelnetworks.com ([192.135.215.15]:45744 "EHLO
+	smtprch2.nortel.com") by vger.kernel.org with ESMTP
+	id <S129066AbQKFWdd>; Mon, 6 Nov 2000 17:33:33 -0500
+Message-ID: <3A07319B.7E2BD403@asiapacificm01.nt.com>
+Date: Mon, 06 Nov 2000 22:32:59 +0000
+From: "Andrew Morton" <morton@nortelnetworks.com>
+Organization: Nortel Networks, Wollongong Australia
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.0-test4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: CONFIG_BLK_DEV_RAM_SIZE not used
+To: kuznet@ms2.inr.ac.ru
+CC: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] NE2000
+In-Reply-To: <3A039E77.5DD87DF0@uow.edu.au> from "Andrew Morton" at Nov 4,
+            0 08:45:01 am <200011061846.VAA20608@ms2.inr.ac.ru>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Orig: <morton@asiapacificm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kuznet@ms2.inr.ac.ru wrote:
+> 
+> Hello!
+> 
+> > No, that code is correct, provided (current->state == TASK_RUNNING)
+> > on entry.  If it isn't, there's a race window which can cause
+> > lost wakeups.   As a check you could add:
+> >
+> >       if ((current->state & (TASK_INTERRUPTIBLE|TASK_UNINTERRUPTIBLE)) == 0)
+> >               BUG();
+> 
+> Though it really cannot happen and really happens, as we have seen... 8)
+> 
+> In any case, Andrew, where is the race, when we enter in sleeping state?
+> Wakeup is not lost, it is just not required when we are not going
+> to schedule and force task to running state.
 
-What's up with CONFIG_BLK_DEV_RAM_SIZE?  It is
-set in .config by "make config", but it not
-used by the kernel.   
+	set_current_state(TASK_INTERRUPTIBLE);
+	add_wait_queue(...);
+	/* window here */
+	set_current_state(TASK_INTERRUPTIBLE);
+	schedule();
 
-I checked the cvs tree and see that it was used
-for in a single rev of the file.  Looks to me
-like this change may have been lost by accident.
-Can anyone confirm or deny?  Is someone who can
-fix this on this maillist? 
+If there's a wakeup by another CPU (or this CPU in an interrupt) in
+that window, current->state will get switched to TASK_RUNNING.
 
+Then it's immediately overwritten and we go to sleep.  Lost wakeup.
 
-cvs diff -r1.59 -r1.60 rd.c
-< int rd_size = 8192;           /* Size of the RAM disks */
-< int rd_size = 4096;           /* Size of the RAM disks */
-> int rd_size = CONFIG_BLK_DEV_RAM_SIZE;        /* Size of the RAM disks */
+> I still do not see how it is possible that task runs in sleeping state.
+> Apparently, set_current_state is forgotten somewhere. Do you see, where? 8)
 
-
-cvs diff -r1.60 -r1.61 rd.c
-< int rd_size = CONFIG_BLK_DEV_RAM_SIZE;        /* Size of the RAM disks */
-> int rd_size = 4096;           /* Size of the RAM disks */
-
-
--- 
-Michael Pruznick, michael_pruznick@mvista.com
+Nope.  Is Jorge running SMP?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

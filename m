@@ -1,69 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSHZXnZ>; Mon, 26 Aug 2002 19:43:25 -0400
+	id <S311025AbSHZXnu>; Mon, 26 Aug 2002 19:43:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310190AbSHZXnY>; Mon, 26 Aug 2002 19:43:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11027 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293203AbSHZXnY>;
-	Mon, 26 Aug 2002 19:43:24 -0400
-Message-ID: <3D6AC0BB.FE65D5F7@zip.com.au>
-Date: Mon, 26 Aug 2002 16:58:51 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
-       Daniel Phillips <phillips@arcor.de>
-Subject: Re: MM patches against 2.5.31
-References: <200208261809.45568.tomlins@cam.org>
+	id <S310190AbSHZXnu>; Mon, 26 Aug 2002 19:43:50 -0400
+Received: from p50838C89.dip.t-dialin.net ([80.131.140.137]:7183 "EHLO
+	calista.inka.de") by vger.kernel.org with ESMTP id <S311025AbSHZXns>;
+	Mon, 26 Aug 2002 19:43:48 -0400
+Date: Tue, 27 Aug 2002 01:48:04 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and full ipv6 - will it happen?
+Message-ID: <20020826234804.GA13520@lina.inka.de>
+References: <20020821220313.GA25141@lina.inka.de> <Pine.LNX.4.44.0208261149170.6621-100000@betelgeuse.compendium-tech.com> <20020826215123.GA22750@alcove.wittsend.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020826215123.GA22750@alcove.wittsend.com>
+User-Agent: Mutt/1.4i
+From: Bernd Eckenfels <ecki@lina.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson wrote:
-> 
-> This seems to have been missed:
+On Mon, Aug 26, 2002 at 05:51:23PM -0400, Michael H. Warfield wrote:
+> 	My only other annoynance right now is the default ip6 route on my
+> ipv6 router (RedHat 7.3).  It's not working (or doesn't seem to be)!  I
+> have a 6bone allocation from Freenet6 (3ffe:b80:c84::/48) with about a
+> half a dozen SLA subnets and several routers.  If I assign a default route
+> (::/0) on the main router back down my Freenet6 tunnel, weird things happen.
 
-Still thinking about it.
+the linux kernel does ignore the ::/0 route if it is in forwarding not, I
+guess this is since it is asumed, that the user knows what he is doing and
+does not want to do that. You can use 2000::/2 instead.
 
-> Linus Torvalds wrote:
-> 
-> > In article <3D6989F7.9ED1948A@zip.com.au>,
-> > Andrew Morton  <akpm@zip.com.au> wrote:
-> >>
-> >>What I'm inclined to do there is to change __page_cache_release()
-> >>to not attempt to free the page at all.  Just let it sit on the
-> >>LRU until page reclaim encounters it.  With the anon-free-via-pagevec
-> >>patch, very, very, very few pages actually get their final release in
-> >>__page_cache_release() - zero on uniprocessor, I expect.
-> >
-> > If you do this, then I would personally suggest a conceptually different
-> > approach: make the LRU list count towards the page count.  That will
-> > _automatically_ result in what you describe - if a page is on the LRU
-> > list, then "freeing" it will always just decrement the count, and the
-> > _real_ free comes from walking the LRU list and considering count==1 to
-> > be trivially freeable.
-> >
-> > That way you don't have to have separate functions for releasing
-> > different kinds of pages (we've seen how nasty that was from a
-> > maintainance standpoint already with the "put_page vs
-> > page_cache_release" thing).
-> >
-> > Ehh?
-> 
-> If every structure locks before removing its reference (ie before testing and/or
-> removing a lru reference we take zone->lru_lock, for slabs take cachep->spinlock
-> etc)  Its a bit of an audit task to make sure the various locks are taken (and
-> documented) though.
-> 
-> By leting the actual free be lazy as Linus suggests things should simplify nicely.
+> This has been noticed and mentioned by others on the 6bone and freenet6
+> lists.  Seems to be peculiar to Linux.
 
-Well we wouldn't want to leave tons of free pages on the LRU - the
-VM would needlessly reclaim pagecache before finding the free pages.  And
-higher-order page allocations could suffer.
+it is by intention, yes.
 
-If we go for explicit lru removal in truncate and zap_pte_range
-then this approach may be best.  Still thinking about it.
+> 	The default routers on the leaf workstations (autoconfigured from
+> router advertisements) seem to work fine though.
+
+yes it deoeds on the ipforward setting.
+
+
+BTW: i am working a bit on net-tools and ipv6, like:
+
+calista:~# netstat -tl
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 *:1024                  *:*                     LISTEN
+tcp        0      0 *:5269                  *:*                     LISTEN
+...
+tcp        0      0 calista.inka.de:domain  *:*                     LISTEN
+tcp6       0      0 *:auth                  *:*                     LISTEN
+tcp6       0      0 *:ssh                   *:*                     LISTEN
+tcp6       0      0 *:smtp                  *:*                     LISTEN
+
+
+i am not yet sure about the wildcard address and the port separator, but I
+like the tcp6 :)
+
+
+ifconfig may get a more BSDish look, also:
+
+# ./ifconfig
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500  metric 1
+        inet 10.0.0.3  netmask 255.255.255.0  broadcast 10.0.0.255
+        inet6 3ffe:400:4f0:ffff::3  prefixlen 112  scopeid 0x0<global>
+        inet6 fe80::2e0:7dff:fe92:1f0b  prefixlen 10  scopeid 0x20<link>
+        ether 00:e0:7d:92:1f:0b  txqueuelen 100  (Ethernet)
+        RX packets 2581434  bytes 1632512018 (1.5 GiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 2031678  bytes 1202569629 (1.1 GiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        device interrupt 9  base 0x9000
+
+Greetings
+Bernd

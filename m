@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265995AbSKOJ7X>; Fri, 15 Nov 2002 04:59:23 -0500
+	id <S265978AbSKOKCa>; Fri, 15 Nov 2002 05:02:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266006AbSKOJ7W>; Fri, 15 Nov 2002 04:59:22 -0500
-Received: from mail.hometree.net ([212.34.181.120]:38363 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S265995AbSKOJ7W>; Fri, 15 Nov 2002 04:59:22 -0500
+	id <S265987AbSKOKCa>; Fri, 15 Nov 2002 05:02:30 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:14504 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP
+	id <S265978AbSKOKC3>; Fri, 15 Nov 2002 05:02:29 -0500
+From: Erik Hensema <usenet@hensema.xs4all.nl>
+Subject: Re: via-rhine weirdness with via kt8235 Southbridge
+Date: Fri, 15 Nov 2002 10:09:22 +0000 (UTC)
+Message-ID: <slrnat9huh.153.usenet@bender.home.hensema.net>
+References: <20021115002822.G6981@pc9391.uni-regensburg.de> <20021115011738.D17058@pc9391.uni-regensburg.de>
+Reply-To: erik@hensema.xs4all.nl
+User-Agent: slrn/0.9.7.4 (Linux)
 To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: [2.4.20-rc1-ac3] Confusing configure messages
-Date: Fri, 15 Nov 2002 10:06:16 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <ar2guo$s7v$1@forge.intermeta.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1037354776 31564 212.34.181.4 (15 Nov 2002 10:06:16 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Fri, 15 Nov 2002 10:06:16 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
-  Generic PCI IDE chipset support (CONFIG_BLK_DEV_IDEPCI) [Y/n/?] 
-    Generic PCI IDE Chipset Support (CONFIG_BLK_DEV_GENERIC) [N/y/?] (NEW) ?
-[...]
+Christian Guggenberger (christian.guggenberger@physik.uni-regensburg.de) wrote:
+>> On Wed, 23 Oct 2002 15:49:31 +0200, Christian Guggenberger wrote:
+>>> This concerns both 2.4 and 2.5 kernels  (testet with 2.4.20pre*aa series,
+>>> and with 2.5.43, 2.5.44 and 2.5.44-ac1):
+>>> 
+>>> When I enable APIC in the Bios, the via-rhine module will insert
+>>> properly, but I won't get a link... With APIC disabled, link is ok.  Ok,
+>>> this could be caused by buggy bios, so I'll try again, when a new
+>>> biosversion is available.
+>> 
+>> Yeah, it seems there's a problem with IO-APICs. I currently don't have a
+>> machine with IO-APIC for testing, though, so...
+>> 
+> 
+> A new Biosversion is installed on my mobo now, but that APIC problem is still
+> there.
+> Are there some dumps I could post to get some light on that topic?
+> 
+> Maybe some outputs of via-diag, mii-diag, lspci, dmesg ...?
+> If they could help, what options should I pass to mii-diag and via-diag ?
 
-The same text (besides case changes) and no help for the second
-question.
-
-	Regards
-		Henning
-
+I've had the exact same problems with via-rhine and APIC. I donated (well,
+actually sold, but not voluntarily ;-)) my card to Roger Luethi so he can
+look into the bug. And yes, it's an actual PCI card, which seems to be rare
+with via-rhines.
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Erik Hensema (erik@hensema.net)

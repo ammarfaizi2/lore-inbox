@@ -1,61 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbQKFWdz>; Mon, 6 Nov 2000 17:33:55 -0500
+	id <S129109AbQKFWtH>; Mon, 6 Nov 2000 17:49:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129331AbQKFWdg>; Mon, 6 Nov 2000 17:33:36 -0500
-Received: from smtprch2.nortelnetworks.com ([192.135.215.15]:45744 "EHLO
-	smtprch2.nortel.com") by vger.kernel.org with ESMTP
-	id <S129066AbQKFWdd>; Mon, 6 Nov 2000 17:33:33 -0500
-Message-ID: <3A07319B.7E2BD403@asiapacificm01.nt.com>
-Date: Mon, 06 Nov 2000 22:32:59 +0000
-From: "Andrew Morton" <morton@nortelnetworks.com>
-Organization: Nortel Networks, Wollongong Australia
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.0-test4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] NE2000
-In-Reply-To: <3A039E77.5DD87DF0@uow.edu.au> from "Andrew Morton" at Nov 4,
-            0 08:45:01 am <200011061846.VAA20608@ms2.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <morton@asiapacificm01.nt.com>
+	id <S129408AbQKFWs5>; Mon, 6 Nov 2000 17:48:57 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:27403 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S129109AbQKFWsn>; Mon, 6 Nov 2000 17:48:43 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jas88@cam.ac.uk (James A. Sutherland),
+        dwmw2@infradead.org (David Woodhouse),
+        jgarzik@mandrakesoft.com (Jeff Garzik), goemon@anime.net (Dan Hollis),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org
+Message-ID: <8625698F.007D39C7.00@smtpnotes.altec.com>
+Date: Mon, 6 Nov 2000 16:48:36 -0600
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> 
-> Hello!
-> 
-> > No, that code is correct, provided (current->state == TASK_RUNNING)
-> > on entry.  If it isn't, there's a race window which can cause
-> > lost wakeups.   As a check you could add:
-> >
-> >       if ((current->state & (TASK_INTERRUPTIBLE|TASK_UNINTERRUPTIBLE)) == 0)
-> >               BUG();
-> 
-> Though it really cannot happen and really happens, as we have seen... 8)
-> 
-> In any case, Andrew, where is the race, when we enter in sleeping state?
-> Wakeup is not lost, it is just not required when we are not going
-> to schedule and force task to running state.
 
-	set_current_state(TASK_INTERRUPTIBLE);
-	add_wait_queue(...);
-	/* window here */
-	set_current_state(TASK_INTERRUPTIBLE);
-	schedule();
 
-If there's a wakeup by another CPU (or this CPU in an interrupt) in
-that window, current->state will get switched to TASK_RUNNING.
+This sounds to me like the most flexible way to do it.  If the module accepts
+parameters then those who want the sound card initialized at every load can put
+the desired settings in modules.conf.  The rest of us can just initialize it
+once at boot time and the rest of the time the settings will be left untouched.
 
-Then it's immediately overwritten and we go to sleep.  Lost wakeup.
 
-> I still do not see how it is possible that task runs in sleeping state.
-> Apparently, set_current_state is forgotten somewhere. Do you see, where? 8)
 
-Nope.  Is Jorge running SMP?
+
+
+James A.Sutherland <jas88@cam.ac.uk> on 11/06/2000 11:38:44 AM
+
+To:   Alan Cox <alan@lxorguk.ukuu.org.uk>, jas88@cam.ac.uk (James A. Sutherland)
+cc:   dwmw2@infradead.org (David Woodhouse), jgarzik@mandrakesoft.com (Jeff
+      Garzik), goemon@anime.net (Dan Hollis), alan@lxorguk.ukuu.org.uk (Alan
+      Cox), oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
+      linux-kernel@vger.kernel.org (bcc: Wayne Brown/Corporate/Altec)
+
+Subject:  Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+
+
+
+On Mon, 06 Nov 2000, Alan Cox wrote:
+> > So autoload the module with a "dont_screw_with_mixer" option. When the
+kernel
+> > first boots, initialise the mixer to suitable settings (load the module with
+> > "do_screw_with_mixer" or whatever); thereafter, the driver shouldn't change
+> > the mixer settings on load.
+>
+> Which is part of what persistent module data lets you do. And without having
+> to mess with dont_screw_with_mixer (which if you get it wrong btw can be
+> fatal and hang the hardware)
+
+Eh? You just load the driver once, probably on boot, to configure sane values.
+This time round, you use an argument (or an ioctl or whatever) to specify the
+values you want. (cat /etc/sysconfig/sound/defaultvolume > /dev/sound/mixer or
+whatever). After that, the module can be unloaded and loaded as needed, without
+any need to touch the mixer settings except in response to *explicit* "set
+volume" commands from userspace.
+
+
+James.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/
+
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

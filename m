@@ -1,98 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272623AbRHaHhI>; Fri, 31 Aug 2001 03:37:08 -0400
+	id <S272624AbRHaHns>; Fri, 31 Aug 2001 03:43:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272624AbRHaHg7>; Fri, 31 Aug 2001 03:36:59 -0400
-Received: from mail.arcor-ip.de ([145.253.2.10]:47009 "EHLO mail.arcor-ip.de")
-	by vger.kernel.org with ESMTP id <S272623AbRHaHgv>;
-	Fri, 31 Aug 2001 03:36:51 -0400
-Date: Fri, 31 Aug 2001 09:36:41 +0200
-From: Christopher Ruehl <ruehlc@europe.com>
-To: linux-kernel@vger.kernel.org
-Subject: usb_control/bulk_msg
-Message-ID: <20010831093641.A1257@pegasus>
-Reply-To: Christopher Ruehl <ruehlc@europe.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S272625AbRHaHni>; Fri, 31 Aug 2001 03:43:38 -0400
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:45698 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S272624AbRHaHnW>; Fri, 31 Aug 2001 03:43:22 -0400
+Date: Fri, 31 Aug 2001 08:43:35 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH] __alloc_pages cleanup -R6 Was: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
+Message-ID: <20010831084335.A4222@flint.arm.linux.org.uk>
+In-Reply-To: <20010829140706.3fcb735c.skraw@ithnet.com> <20010829232929Z16206-32383+2351@humbolt.nl.linux.org> <20010830164634.3706d8f8.skraw@ithnet.com> <200108302357.BAA11235@mailb.telia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-OS: Linux pegasus 2.4.9-ac5
+In-Reply-To: <200108302357.BAA11235@mailb.telia.com>; from roger.larsson@skelleftea.mail.telia.com on Fri, Aug 31, 2001 at 01:53:24AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-! PLEASE CC to me i'am not registered to this list
+On Fri, Aug 31, 2001 at 01:53:24AM +0200, Roger Larsson wrote:
+> Some ideas implemented in this code:
+> * Reserve memory below min for atomic and recursive allocations.
+> * When being min..low on free pages, free one more than you want to allocate.
+> * When being low..high on free pages, free one less than wanted.
+> * When above high - don't free anything.
+> * First select zones with more than high free memory.
+> * Then those with more than high 'free + inactive_clean - inactive_target'
+> * When freeing - do it properly. Don't steal direct reclaimed pages
 
-i'll try to use the usb-storage with my Sony DSC
-but since kernel version 2.4.7 it's seems to be brocken.
+Hmm, I wonder.
 
-look like a problem with the interrupt handling with the
-usb-uhci which shares it's interupt with the sym53c8xx driver.
+I have a 1MB DMA zone, and 31MB of normal memory.
 
-i use a 'dualhead' SCSI controller from DIGIAL with
-two 53c875 chipset.
+The machine has been running lots of programs for some time, but not under
+any VM pressure.  I now come to open a device which requires 64K in 8K
+pages from the DMA zone.  What happens?
 
-any idea?
+I suspect that the chances of it failing will be significantly higher with
+this algorithm - do you have any thoughts for this?
 
-cheers
-chris ruehl
+I don't think we should purely select the allocation zone based purely on
+how much free it contains, but also if it's special (like the DMA zone).
 
-info follows:
-$PCI Status for kernel:  Linux 2.4.9-ac5 i686
+You can't clean in-use slab pages out on demand like you can for fs
+cache/user pages.
 
-$PCI up; bus count is 3
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 03)
-00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8305
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 40)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 16)
-00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-00:09.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
-00:0b.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
-02:00.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c875 (rev 04)
-02:01.0 SCSI storage controller: Symbios Logic Inc. (formerly NCR) 53c875 (rev 04)
-02:02.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-$USB Status for kernel:  Linux 2.4.9-ac5 i686
-
-$USB up; bus count is 1
-T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
-P:  Vendor=0000 ProdID=0000 Rev= 0.00
-S:  Product=USB UHCI Root Hub
-S:  SerialNumber=e000
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-
-Aug 31 09:15:14 pegasus kernel: Initializing USB Mass Storage driver... 
-Aug 31 09:15:14 pegasus kernel: usb.c: registered new driver usb-storage 
-Aug 31 09:15:14 pegasus kernel: USB Mass Storage support registered. 
-Aug 31 09:15:35 pegasus kernel: hub.c: USB new device connect on bus1/2, assigned device number 2 
-Aug 31 09:15:35 pegasus kernel: Manufacturer: Sony 
-Aug 31 09:15:35 pegasus kernel: Product: Sony DSC 
-Aug 31 09:15:36 pegasus kernel: scsi2 : SCSI emulation for USB Mass Storage devices 
-Aug 31 09:15:36 pegasus kernel:   Vendor: Sony      Model: Sony DSC          Rev: 2.10 
-Aug 31 09:15:36 pegasus kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02 
-Aug 31 09:15:38 pegasus kernel: Attached scsi removable disk sdc at scsi2, channel 0, id 0, lun 0 
-Aug 31 09:15:39 pegasus kernel: SCSI device sdc: 126848 512-byte hdwr sectors (65 MB) 
-Aug 31 09:15:39 pegasus kernel: usb-uhci.c: interrupt, status 3, frame# 1033 
-Aug 31 09:15:39 pegasus kernel: usb_control/bulk_msg: timeout
-
-[root@pegasus chris]# cat /proc/interrupts 
-CPU0       
-0:     139465          XT-PIC  timer
-1:       3326          XT-PIC  keyboard
-2:          0          XT-PIC  cascade
-5:          8          XT-PIC  eth0
-8:          1          XT-PIC  rtc
-10:       7816          XT-PIC  sym53c8xx
-11:        102          XT-PIC  sym53c8xx, usb-uhci
-12:      22185          XT-PIC  PS/2 Mouse
-15:       7896          XT-PIC  HiSax
-NMI:          0 
-ERR:          0
-
--- 
-       """"
-Linux, O  O  we work on it!
-        (    help the commnuity and find the BUGS.
-       +__/ 

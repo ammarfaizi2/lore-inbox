@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266198AbUAGOTy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 09:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUAGOTy
+	id S266223AbUAGObP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 09:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266225AbUAGObP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 09:19:54 -0500
-Received: from trinity.webmaking.ms ([213.131.251.60]:24782 "HELO
-	trinity.webmaking.ms") by vger.kernel.org with SMTP id S266198AbUAGOTw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 09:19:52 -0500
-Date: Wed, 7 Jan 2004 15:19:48 +0100
-From: Thomas Fischbach <webmaster@kennygno.net>
-To: linux-kernel@vger.kernel.org
-Subject: can't mount encrypted dvd with 2.6.0
-Message-Id: <20040107151948.4376d881@kyp.intra>
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Wed__7_Jan_2004_15_19_48_+0100_UU_WVzZfteNnYfSx"
+	Wed, 7 Jan 2004 09:31:15 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:31171 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S266223AbUAGObK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 09:31:10 -0500
+Message-ID: <3FFC17BD.80000@oracle.com>
+Date: Wed, 07 Jan 2004 15:29:17 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031119
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [solved] no ALSA sound in 2.6 on Intel 82801CA-ICH3 - OSS works
+References: <3FFBF379.6080301@oracle.com>
+In-Reply-To: <3FFBF379.6080301@oracle.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__7_Jan_2004_15_19_48_+0100_UU_WVzZfteNnYfSx
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Alessandro Suardi wrote:
+> I'm a bit ashamed about posting this, but I couldn't find anyone with
+>  a similar problem googling. I admit up front that I'm ALSA-ignorant
+>  so this could well be a silly configuration issue...
 
-Hi,
+[snipped the /proc/asound details]
 
-if I create an encrypted iso image:
-dd if=/dev/zero of=/files/image.iso bs=512 count=$((1024*4400))
-losetup -e aes -k 256 /dev/loop1 /files/image.iso
-mkisofs -r -o /dev/loop1 /files/stuff/*
-losetup -d /dev/loop1 
+And it was; thanks to Gunther Sohler who tipped me the right way I
+  installed the software I was missing (alsa-lib, alsa-driver and
+  alsa-tools plus the xmms-alsa plugin), unmuted the audio channels
+  by means of alsamixer (*the* problem - somehow the channels are
+  muted by default), set volume for what I use and now xine/xmms
+  play audio fine.
 
-I can mount the file:
-mount /files/image.iso /mnt/cd -t iso9660 \
--o loop=/dev/loop1,encryption=aes,keybits=256
+As a bonus I cleared my mind about a few differences between ALSA
+  and OSS :)
 
-but when I burned the iso and tried to mount, it failed with:
-mount: wrong fs type ...
 
-and the logs says:
-hdc: cdrom_read_intr: data underrun (2 blocks)
-end_request: I/O error, dev hdc, sector 64
-isofs_fill_super: bread failed, dev=loop0, iso_blknum=16, block=32
+Sorry for the waste of bandwidth and thanks again,
 
-under 2.4.22 it works fine.
-Hope someone can help.
+--alessandro
 
-Thanks,
-Thomas
+  "Immagina intensamente e vedrai
+    dove gli altri pensano che non ci sia niente"
+       (Cristina Dona', "Salti nell'aria")
 
--- 
-Thomas Fischbach
-http://www.kennygno.net
-webmaster@kennygno.net
-
---Signature=_Wed__7_Jan_2004_15_19_48_+0100_UU_WVzZfteNnYfSx
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQE//BWEhty018ANwB4RAqbXAJ9qkmHhf18jcEyWS50Tls3Z5lR9/gCePi2G
-7N2+AScX45pxWJlouVL8+AQ=
-=I4ry
------END PGP SIGNATURE-----
-
---Signature=_Wed__7_Jan_2004_15_19_48_+0100_UU_WVzZfteNnYfSx--

@@ -1,26 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279574AbRJ2WLI>; Mon, 29 Oct 2001 17:11:08 -0500
+	id <S279575AbRJ2WRS>; Mon, 29 Oct 2001 17:17:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279575AbRJ2WK7>; Mon, 29 Oct 2001 17:10:59 -0500
-Received: from [213.96.124.18] ([213.96.124.18]:27891 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S279574AbRJ2WKq>;
-	Mon, 29 Oct 2001 17:10:46 -0500
-Date: Mon, 29 Oct 2001 23:10:56 +0000
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: join?
-Message-ID: <20011029231056.B7310@dardhal.mired.net>
-Mail-Followup-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1D7F262B87C0D31180C800508BDCDEC79142F3@petntm02>
-Mime-Version: 1.0
+	id <S279576AbRJ2WRI>; Mon, 29 Oct 2001 17:17:08 -0500
+Received: from ibis.worldnet.net ([195.3.3.14]:51716 "EHLO ibis.worldnet.net")
+	by vger.kernel.org with ESMTP id <S279575AbRJ2WQz>;
+	Mon, 29 Oct 2001 17:16:55 -0500
+Message-ID: <3BDDD55C.56EDE4E0@worldnet.fr>
+Date: Mon, 29 Oct 2001 23:17:00 +0100
+From: Laurent Deniel <deniel@worldnet.fr>
+Organization: Home
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en, fr
+MIME-Version: 1.0
+To: willy tarreau <wtarreau@yahoo.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Ethernet NIC dual homing
+In-Reply-To: <20011029133921.74466.qmail@web20508.mail.yahoo.com> <3BDDB51C.4095AF84@worldnet.fr>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1D7F262B87C0D31180C800508BDCDEC79142F3@petntm02>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Check the last part of each mail coming from the list.
+Laurent Deniel wrote:
+> 
+> Currently only the link status is used to monitor a NIC.
+> So it would be nice if an ioctl was available to force a NIC switch-over
+> (especially in active-backup policy). This could be used by a user-space
+> daemon in case for instance no traffic is detected.
+> 
+> I see that the bonding driver is included in 2.2.18, what is its status
+> in 2.4.x ?
+> 
+> Regards,
+> 
+> Laurent
 
+Hmm, it seems that a lot of good stuff (e.g. ARP monitoring and
+SIOCBONDCHANGEACTIVE ioctl) are implemented in the bonding patch for 2.4.13.
+Will it be included in the mainstream 2.4.x kernel or is it a 2.5 thing ?

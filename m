@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264673AbUEUXCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264837AbUEVCDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264673AbUEUXCf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 19:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbUEUWvW
+	id S264837AbUEVCDj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 22:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbUEVCAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 18:51:22 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:8870 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265118AbUEUWrl (ORCPT
+	Fri, 21 May 2004 22:00:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36558 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265173AbUEVB5K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:47:41 -0400
-Date: Fri, 21 May 2004 10:35:26 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Brad Campbell <brad@wasp.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: libata 2.6.5->2.6.6 regression -part II
-In-Reply-To: <200405211433.13034.bzolnier@elka.pw.edu.pl>
-Message-ID: <Pine.LNX.3.96.1040521102100.11411A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 21 May 2004 21:57:10 -0400
+Date: Fri, 21 May 2004 18:56:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Dr. Ernst Molitor" <molitor@cfce.de>
+Cc: linux-kernel@vger.kernel.org, Christophe Saout <christophe@saout.de>
+Subject: Re: PROBLEM: Linux-2.6.6 with dm-crypt hangs on SMP boxes
+Message-Id: <20040521185640.6bf88bdb.akpm@osdl.org>
+In-Reply-To: <1085043539.18199.20.camel@felicia>
+References: <1085043539.18199.20.camel@felicia>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 May 2004, Bartlomiej Zolnierkiewicz wrote:
+"Dr. Ernst Molitor" <molitor@cfce.de> wrote:
+>
+> [1.] Linux-2.6.6 caused full halts on two SMP boxes.
+> [2.] I've been using Linux-2.4.20 with   cryptoloop/cryptoapi for 156
+> days uptime; on two boxes, I have installed 2.6.6-rc3-bk5 (one box) and
+> 2.6.6-bk5 (the other one), with dm-crypt on the partitions created with
+> cryptoloop/cryptoapi. Both boxes ran like a charm, but both of them
+> repeatedly came to a halt (no screen, no network connectivity, no
+> reaction to keyboard or mouse activity: Need for hard reset) repeatedly.
+> [3.] dm-crypt, loop device (maybe other things).
+> In kern.log on the box with 2.6.6-bk5, I found the line
+>   Incorrect TSC synchronization on an SMP system (see dmesg).
+> with the 2.6.6 kernels, with 2.4.20, the message was
+>  checking TSC synchronization across CPUs: passed.
+> [4.] 2.6.6, 2.6.6-bk5
 
-> On Friday 21 of May 2004 14:06, Bill Davidsen wrote:
-> > Bartlomiej Zolnierkiewicz wrote:
-> > > On Monday 17 of May 2004 18:34, Brad Campbell wrote:
-> > >>G'day all,
-> > >>I caught the suggestion on my last post in the archives, but because I'm
-> > >>not subscribed and wasn't cc'd I can't keep it threaded.
-> > >>
-> > >>I tried backing out the suggested acpi patch (No difference at all), and
-> > >> I managed to get apic to work but it still hangs solid in the same
-> > >> place.
-> > >>
-> > >>dmesg attached.
-> > >>
-> > >>I managed to figure out that the VIA ATA driver captures my sata drives
-> > >> on the via ports, explaining why sata_via misses them, but writing data
-> > >> to those drives (hde & hdg) causes dma timeouts and locks the machine.
-> > >> No useful debug info produced. The machine becomes non-responsive,
-> > >> throws a couple of dma timeouts to the console and then loses all
-> > >> interactivity (keyboard, serial, network) forcing a reset push.
-> > >>
-> > >>Is there any way I can prevent the VIA ATA driver capturing this device?
-> > >>Unfortunately my boot drive is on hda on the on-board VIA ATA interface
-> > >> so I need it compiled in.
-> > >
-> > > Disable the fscking PCI IDE generic driver.
-> > > [ You are not the first one tricked by it. ]
-> > >
-> > > AFAIR support for VIA 8237 was added to it before sata_via.c was ready.
-> > > [ but my memory is... ]
-> >
-> > What would happen if the generic driver was initialized last? That would
-> > let other more specific drivers grab devices first. The model which
-> > comes to mind is a route table, smallest subnet (or in this case most
-> > specific) being used first. Or would that open a whole other nest of
-> > snakes?
-> 
-> I think that you are confusing PCI IDE generic driver with IDE generic driver
-> (the latter is already called after the former).
-> 
-> Brad's problem was IDE driver (pci/generic.c) vs libata driver (sata_via.c).
+Are the machines using highmem? (What is in /proc/meminfo?)
 
-I was indeed doing just that, but I guess the sense of the question is
-still valid, what would the implications of doing the sata_via before the
-pci/generic be? Would it address the original problem, and if so what
-would break, if anything? You noted this is not the first time the
-problem has been seen.
+Please add `nmi_watchdog=1' to the kernel boot command line and reboot.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+After booting, do:
 
+	echo 1 > /proc/sys/kernel/sysrq
+
+After a machine hangs up, see if there is an NMI watchdog message on the
+console.  If not, try typing ALT-sysrq-P.  If this generates a trace, type
+it again until you capture the trace from the other CPU as well.  We'd need
+to see both those traces.  A digital camera helps...
+
+Thanks.

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313300AbSDOVl0>; Mon, 15 Apr 2002 17:41:26 -0400
+	id <S313305AbSDOVpv>; Mon, 15 Apr 2002 17:45:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313302AbSDOVlZ>; Mon, 15 Apr 2002 17:41:25 -0400
-Received: from h52544c185a20.ne.client2.attbi.com ([24.147.41.41]:34571 "EHLO
-	luna.pizzashack.org") by vger.kernel.org with ESMTP
-	id <S313300AbSDOVlZ>; Mon, 15 Apr 2002 17:41:25 -0400
-Date: Mon, 15 Apr 2002 17:41:23 -0400
-From: xystrus <xystrus@haxm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: link() security
-Message-ID: <20020415174123.C16804@pizzashack.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020411192122.F5777@pizzashack.org> <s5gpu11rpgx.fsf@egghead.curl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S313309AbSDOVpu>; Mon, 15 Apr 2002 17:45:50 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:51189 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313305AbSDOVpt>; Mon, 15 Apr 2002 17:45:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Mark Mielke <mark@mark.mielke.cc>
+Subject: Re: [PATCH] Futex Generalization Patch
+Date: Mon, 15 Apr 2002 16:46:24 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Bill Abt <babt@us.ibm.com>, drepper@redhat.com,
+        linux-kernel@vger.kernel.org, Martin.Wirth@dlr.de,
+        Peter =?iso-8859-1?q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
+        Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <OF24E0B753.2B92A422-ON85256B9C.00512368@raleigh.ibm.com> <20020415172204.4B6073FE08@smtp.linux.ibm.com> <20020415165740.A28056@mark.mielke.cc>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020415214532.1F3553FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 10:44:30AM -0400, Patrick J. LoPresti wrote:
-> A better design is to use a separate spool directory for each user
-> (/var/spool/mail/user/ or ~user/mail/ or somesuch), and only allow
-> that user to access it at all.  This solves *all* of the security
-> problems you mention:
+On Monday 15 April 2002 04:57 pm, Mark Mielke wrote:
+> On Mon, Apr 15, 2002 at 12:22:59PM -0400, Hubertus Franke wrote:
+> > typedef struct siginfo {
+> >    ...
+> >         union {
+> >                 int _pad[SI_PAD_SIZE];
+> >
+> >                 struct {
+> >                         ...
+> >                 } _kill;
+> >  ...
+> >
+> > I'd suggest we tag along the _sigfault semantics.
+> > We don't need to know who woke us up, just which <addr> got signalled.
+>
+> Is there issues with creating a new struct in the union that represents
+> exactly what you wish it to represent?
+>
+> mark
 
-I'll agree with the above, however consider that there are other
-reasons to have drwxrwxrwt directories besides a mail spool.  My point
-was not that link() should be modified because it makes mail spools
-that use this feature less secure; my point was that (IMO) link should
-be modified because it does not make sense to allow users to create
-hard links to files they have no access to, in general.  The mail
-spool example was simply one common example.
+No, but then again there seems to be no need either.
+All we need is the <addr> that is to be woken up, which
+carries similarity to a SEGV signal handler.
 
-IMO, if I have created a file, and I own the file, then there are only
-two users who should get to decide whether that file gets deleted or
-not: me, and root.  Regular users should not be able to create hard
-links to my files, potentially without me knowing about it.  Allowing
-them to do so means that you allow users who do not own a resource,
-and have no access to that resource, to potentially manage control of
-that resource to some extent.  I don't see how this policy makes any
-sense.  It allows that a file I created may be hanging around despite
-the fact that I think it's been deleted.  And that just seems like a
-very bad idea to me.
-
-> The solution to a fundamentally broken spool design is to fix that
-> design, not to patch the kernel in nonstandard ways to plug just one
-> of its multiple flaws.
-
-Rephrased, your argument is basically that it is unwise to continue a
-behavior which is fundamentally flawed just because it is a standard
-behavior.  That is precisely my argument WRT the current behavior of
-link().
-
-> All just My Opinion, of course.
-
-Ditto. :)
-
-Xy
-
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

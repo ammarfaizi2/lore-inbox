@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266296AbUHJNXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUHJNCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266296AbUHJNXW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 09:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266174AbUHJNUY
+	id S265144AbUHJNCD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 09:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUHJM7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 09:20:24 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:52197 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265099AbUHJNQp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 09:16:45 -0400
-Subject: Re: [BUG] 2.6.8-rc3 slab corruption (jffs2?)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Wu Jian Feng <jianfengw@mobilesoft.com.cn>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-mtd@lists.infradead.org,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040810005204.GA15714@mobilesoft.com.cn>
-References: <20040807150458.E2805@flint.arm.linux.org.uk>
-	 <20040808061206.GA5417@mobilesoft.com.cn>
-	 <1091962414.1438.977.camel@imladris.demon.co.uk>
-	 <20040809015950.GA20408@mobilesoft.com.cn>
-	 <1092057472.4383.5155.camel@hades.cambridge.redhat.com>
-	 <20040810005204.GA15714@mobilesoft.com.cn>
+	Tue, 10 Aug 2004 08:59:12 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:58828 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265040AbUHJMzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 08:55:22 -0400
+Subject: Re: [PATCH 2.6] Remove spaces from PCI IDE pci_driver.name field
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: dsaxena@plexity.net
+Cc: greg@kroah.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040810021209.GA10495@plexity.net>
+References: <20040810001316.GA7292@plexity.net>
+	 <1092096699.14934.4.camel@localhost.localdomain>
+	 <20040810021209.GA10495@plexity.net>
 Content-Type: text/plain
-Message-Id: <1092143795.4383.8195.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 10 Aug 2004 14:16:36 +0100
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <1092138774.16979.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 10 Aug 2004 12:52:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-10 at 08:52 +0800, Wu Jian Feng wrote:
-> On Mon, Aug 09, 2004 at 02:17:53PM +0100, David Woodhouse wrote:
-> > 
-> > Please could you test this....
-> > 
-> 
-> It doesn't compile :-(
+On Maw, 2004-08-10 at 03:12, Deepak Saxena wrote:
+> Files w/o spaces look better and is easier to work with if running 
+> from cmd line, but if we ignore the "prettyness" issue, we should at 
+> least try to be consistent. Either we have spaces and _all_ driver 
+> names are in the format "xxx IDE", "xxx i2c", etc, or we don't allow
+> space at all. 
 
-Doh. I committed that fix too -- I'll send it to Linus today. Thanks.
+Any command line tool has to be robust for space handling anyway.
 
--- 
-dwmw2
+Alan
 

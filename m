@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbTE3Cs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 22:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbTE3Cs6
+	id S263219AbTE3Dob (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 23:44:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTE3Dob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 22:48:58 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:46763 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262298AbTE3Cs6 (ORCPT
+	Thu, 29 May 2003 23:44:31 -0400
+Received: from rth.ninka.net ([216.101.162.244]:61064 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S263219AbTE3Doa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 22:48:58 -0400
-Date: Thu, 29 May 2003 20:01:01 -0700 (PDT)
-Message-Id: <20030529.200101.118622651.davem@redhat.com>
-To: chas@cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] assorted he driver cleanup
+	Thu, 29 May 2003 23:44:30 -0400
+Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305291609.h4TG9rx01188@relax.cmf.nrl.navy.mil>
-References: <200305291609.h4TG9rx01188@relax.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+To: Scott A Crosby <scrosby@cs.rice.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <oydbrxlbi2o.fsf@bert.cs.rice.edu>
+References: <oydbrxlbi2o.fsf@bert.cs.rice.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054267067.2713.3.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 29 May 2003 20:57:47 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@cmf.nrl.navy.mil>
-   Date: Thu, 29 May 2003 12:09:54 -0400
+On Thu, 2003-05-29 at 13:42, Scott A Crosby wrote:
+> I highly advise using a universal hashing library, either our own or
+> someone elses. As is historically seen, it is very easy to make silly
+> mistakes when attempting to implement your own 'secure' algorithm.
 
-   the three following changesets attempt to bring the he atm
-   driver into conformance with the accepted linux coding style,
-   fix some chattiness the irq handler, and address the stack
-   usage issue in he_init_cs_block_rcm().
+Why are you recommending this when after 2 days of going back
+and forth in emails with me you came to the conclusion that for
+performance critical paths such as the hashes in the kernel the Jenkins
+hash was an acceptable choice?
 
-Applied, thanks.
+It is unacceptably costly to use a universal hash, it makes a multiply
+operation for every byte of key input plus a modulo operation at the
+end of the hash computation.  All of which can be extremely expensive
+on some architectures.
 
-You can integrate ideas posted in this thread in subsequent
-patches.
+I showed and backed this up for you with benchmarks comparing your
+universal hashing code and Jenkins.
 
-BTW, can you use more consistent changeset messages?  I always
-at least allude to what is being changed, for example I changed
-all of your messages to be of the form:
+Some embedded folks will have your head on a platter if we end up using
+a universal hash function for the DCACHE solely based upon your advice.
+:-)
 
-	[ATM]: Blah blah blah in HE driver.
-
-This tells the reader that:
-
-1) It's an ATM change.
-
-2) It's to the HE driver.
-
-3) The change made was "Blah blah blah" :-)
+-- 
+David S. Miller <davem@redhat.com>

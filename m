@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUIOL2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUIOLei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUIOL2l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 07:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUIOL2l
+	id S265211AbUIOLei (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 07:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUIOLeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 07:28:41 -0400
-Received: from businessbox3.server-home.net ([195.137.212.33]:64972 "EHLO
-	businessbox3.server-home.net") by vger.kernel.org with ESMTP
-	id S264704AbUIOL1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 07:27:25 -0400
-Message-ID: <4148271D.9050009@devilcode.de>
-Date: Wed, 15 Sep 2004 13:27:25 +0200
-From: Patrick Kiwitter- Mailinglist <ccc@devilcode.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7) Gecko/20040803
-X-Accept-Language: de, en
-MIME-Version: 1.0
+	Wed, 15 Sep 2004 07:34:37 -0400
+Received: from web53601.mail.yahoo.com ([206.190.37.34]:1464 "HELO
+	web53601.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265196AbUIOLee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 07:34:34 -0400
+Message-ID: <20040915113434.80150.qmail@web53601.mail.yahoo.com>
+Date: Wed, 15 Sep 2004 04:34:34 -0700 (PDT)
+From: Donald Duckie <schipperke2000@yahoo.com>
+Subject: snull_load insmod: unresolved symbol 
 To: linux-kernel@vger.kernel.org
-Subject: monoholitic, hybrid or not monoholitic?
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+hi!
 
-hello world,
+has anyone ever tried compiling and running snull on
+Linux2.4.18-sh?
 
-i've invested a couple of hours to find a correct description of the
-linux kernel achritecture. most books or litretures (in general) are
-talking about a monoholitic kernel (incl. linux kernel development -
-robert love and understanding the linux kernel - oreilly). i also asked
-google an read the kernel.org faq.
+i tried compiling snull(without any modification) on
+Linux2.4.18-sh.
+upon running snull_load, i got the following:
+Using /lib/modules/2.4.18-sh/kernel/drivers/net/snull.
+insmod: unresolved symbol kmalloc_R93d4cfe6
+insmod: unresolved symbol skb_under_panic_R69955398
+insmod: unresolved symbol register_netdev_R09e03f58
+insmod: unresolved symbol eth_type_trans_R0a4e7a1c
+insmod: unresolved symbol unregister_netdev_R98eda3f8
+insmod: unresolved symbol printk_Rdd132261
+insmod: unresolved symbol __udivsi3_i4
+insmod: unresolved symbol memcpy_R11f7ce5e
+insmod: unresolved symbol jiffies_R0da02d67
+insmod: unresolved symbol alloc_skb_R0177038c
+insmod: unresolved symbol softnet_data_R258cb892
+insmod: unresolved symbol cpu_raise_softirq_R4d09166c
+insmod: unresolved symbol __kfree_skb_R1741771d
+insmod: unresolved symbol memset_R2bc95bd4
+insmod: unresolved symbol kfree_R037a0cba
+insmod: unresolved symbol netif_rx_R8316ccd0
+insmod: unresolved symbol ether_setup_R586ea93a
+insmod: unresolved symbol skb_over_panic_R4bb59969
 
-the kernel were mostly descripted as monoholitic. but some sources means
-that the linux kernel is not really monoholitic because of the feature
-of loading kernel modules. some pages are talking about a "hybrid
-kernel" which means that the kernel is a glue one, a little bit of
-monoholitic and a little bit not.
+can someone please tell me what's wrong with this,
+and how to fix this without chaning Linux versions?
 
-so i would like to receive detailed information where i can read a
-correct description of course you can also post your comments here (if
-allowed). by the way, yes i've read the "tanenbaum" reffering monoholitc.
 
-thanks a lot in advanced,
-patrick
+thank you for you help in advance :-)
 
-- --
-.O.
-..O   http://www.catb.org/hacker-emblem/
-OOO
 
-Administrator of http://www.devilcode.de - the developers community
-Developer for http://www.lbsdde.de - the localized BSD project
-chaos computer club http://www.ccc.de - cable salad is healthy
 
-- -----BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GIT d+ dx d s--:-- a-- C+++ UL+++(U-) P+++ L+++
-E--- W+++ N++ w--- !O++ >V >Y+ b++(+++) h!(*)
-- ------END GEEK CODE BLOCK------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+-
+donald
 
-iD8DBQFBSCcdDHDJZHMNHXYRApP/AKCI8oXZHJVzyr261W+/fWYTCy1HwwCeJZFF
-8ugaYwcP3sSCeENnSust4TA=
-=YKHH
------END PGP SIGNATURE-----
+
+		
+_______________________________
+Do you Yahoo!?
+Declare Yourself - Register online to vote today!
+http://vote.yahoo.com

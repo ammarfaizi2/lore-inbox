@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbTENRoU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 13:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTENRoU
+	id S263353AbTENRnB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 13:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTENRnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 13:44:20 -0400
-Received: from main.gmane.org ([80.91.224.249]:18565 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263355AbTENRoS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 13:44:18 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: What exactly does "supports Linux" mean?
-Date: 14 May 2003 19:58:37 +0200
-Message-ID: <yw1xhe7xo1f6.fsf@zaphod.guide>
-References: <20030514021210.GD30766@pegasys.ws> <BKEGKPICNAKILKJKMHCAMEONCPAA.Riley@Williams.Name>
+	Wed, 14 May 2003 13:43:01 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:57190 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263353AbTENRnA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 13:43:00 -0400
+Date: Wed, 14 May 2003 10:57:06 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: mika.penttila@kolumbus.fi, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Race between vmtruncate and mapped areas?
+Message-Id: <20030514105706.628fba15.akpm@digeo.com>
+In-Reply-To: <82240000.1052934152@baldur.austin.ibm.com>
+References: <154080000.1052858685@baldur.austin.ibm.com>
+	<3EC15C6D.1040403@kolumbus.fi>
+	<199610000.1052864784@baldur.austin.ibm.com>
+	<20030513181018.4cbff906.akpm@digeo.com>
+	<18240000.1052924530@baldur.austin.ibm.com>
+	<20030514103421.197f177a.akpm@digeo.com>
+	<82240000.1052934152@baldur.austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 May 2003 17:55:43.0697 (UTC) FILETIME=[0A269410:01C31A42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Riley Williams" <Riley@Williams.Name> writes:
-
->  > This is really a trademark related labelling issue. The trademark
->  > allows Linus or his assignee to specify in what way Linux (tm) may
->  > be used in labelling and advertising. Linux is just like other
->  > products with third-party parts and supplies. If Linus's assignee
->  > (Linux international?) where to specify explicit guidelines then
->  > people would know what to expect. Something like:
->  >
->  > Linux certified:
->  >     The mainline kernel has a driver and it has been certified
->  >     as functioning with this hardware by OSDL or some other
->  >     officially sanctioned lab.
->  >
->  > Linux supported:
->  >     The mainline kernel has a driver.
+Dave McCracken <dmccr@us.ibm.com> wrote:
+>
+> task 1 waits for IO in the page fault.
 > 
-> Fine so far.
+>  task 2 calls truncate, which does zap_page_range() on the range that page
+>  is in.
 > 
->  > Linux compatible:
->  >     Source code driver is available as a patch.
+>  task 1 wakes up and maps the page.
 > 
-> In other words, if a patch is available for the 1.0.0 kernel, they
-> can claim "Linux compatible" ??? That's meaningless...replace with
-> something like...
+>  task 2 calls truncate_inode_pages which removes the newly mapped page from
+>  the page cache.
 > 
->    Linux 2.2.2 compatible:
->        Source code driver is available as a patch for the stated
->        mainline kernel.
-> 
-> ...with the specific version to be made explicit. As a minimum, it
-> needs to state the actual kernel series the patch is for.
+>  Now the state is that the page has been disconnected from the file, but
+>  it's still mapped in task 1's address space.  That task thinks it has valid
+>  data from the file in that page, and may continue to read/write there, and
+>  assume any changes will get written back..
 
-It should also be stated which architectures it works on.  Something
-like
+yes.  It's a very complex way of allocating anonymous memory.
 
-        Compatible with Linux 2.4.20 on foo hardware
+I am told that Stephen, Linus and others discussed this at length at KS a
+couple of years ago and the upshot was that the application is racy anyway
+and there's nothing wrong with it.
 
-might be getting closer.
+Hugh calls these "Morton pages" but it wasn't me and nobody saw me do it.
 
--- 
-Måns Rullgård
-mru@users.sf.net
-
+It would be nice to make them go away - they cause problems.

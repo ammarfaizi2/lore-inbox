@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbULMVIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbULMVJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbULMVIu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 16:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbULMVIt
+	id S261181AbULMVJg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 16:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbULMVJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 16:08:49 -0500
-Received: from waste.org ([209.173.204.2]:30938 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261340AbULMVIP (ORCPT
+	Mon, 13 Dec 2004 16:09:05 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:33764 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S261181AbULMVIq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 16:08:15 -0500
-Date: Mon, 13 Dec 2004 13:07:33 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Arne Caspari <arne@datafloater.de>
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH] drivers/base/driver.c : driver_unregister
-Message-ID: <20041213210733.GD12189@waste.org>
-References: <41BB4268.8020908@datafloater.de> <20041211191113.A13985@flint.arm.linux.org.uk> <41BB4951.2080304@datafloater.de> <41BD42E6.6000402@datafloater.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41BD42E6.6000402@datafloater.de>
-User-Agent: Mutt/1.3.28i
+	Mon, 13 Dec 2004 16:08:46 -0500
+Date: Mon, 13 Dec 2004 21:08:45 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: What if?
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+References: <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org>
+	<1101976424l.5095l.0l@werewolf.able.es>
+	<1101984361.28965.10.camel@tara.firmix.at>
+	<cpkc5i$84f$1@terminus.zytor.com>
+In-Reply-To: <cpkc5i$84f$1@terminus.zytor.com> (from hpa@zytor.com on Mon
+	Dec 13 16:23:30 2004)
+X-Mailer: Balsa 2.2.6
+Message-Id: <1102972125l.7475l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+	protocol="application/pgp-signature"; boundary="=-/p1NiJRJ2PziA+j4mPJj"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 08:21:10AM +0100, Arne Caspari wrote:
-> Arne Caspari wrote:
-> >Russell King wrote:
-> >>No.  The semaphore is there to ensure that the function does not
-> >>return until the driver structure has a use count of zero.  If you
-> >>tested your patch, you'd find that your change would deadlock on
-> >>the locked semaphore.
-> >
-> >I am sorry I can not test that patch since unloading of the modules I am 
-> >currently testing blocks anyway. This makes it very hard to test the 
-> >patch :-( and currently this was the reason why I was going to this.
-> 
-> I reverted the code to the original 2.6.9 and unloading of IEEE1394 
-> modules like 'eth1394' does just that: It deadlocks on this semaphore.
-> 
-> At least this is a good excuse why I was not able to test my patch ;-) 
-> The behaviour just remained the same as before...
-> 
-> Btw. I am developing/debugging on a machine without serial/parallel 
-> ports. Is there a way to connect a kernel mode debugger to this. I am 
-> used to windows development and there the debugger works on a IEEE1394 
-> connection. Does anybody have hints to improve development on such a 
-> machine?
+--=-/p1NiJRJ2PziA+j4mPJj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Netconsole, and/or kgdb-over-ethernet? You'll need a -mm or -tiny
-kernel for the latter, or just pull the patches individually.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+On 2004.12.13, H. Peter Anvin wrote:
+> Followup to:  <1101984361.28965.10.camel@tara.firmix.at>
+> By author:    Bernd Petrovitsch <bernd@firmix.at>
+> In newsgroup: linux.dev.kernel
+> >=20
+> > The unanswered question is: What does it actually buy?
+> >=20
+>=20
+> Type-safe linkage, mainly.  That actually would be a nice thing.
+>=20
+
+And let the compiler do all what now is done by hand wrt driver methods,
+inheritance, specialized methods and so on, with a 1000% increase in securi=
+ty
+because compiler does not forget to do thinks, like we do ;)
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-rc2-jam4 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-1mdk)) #4
+
+
+--=-/p1NiJRJ2PziA+j4mPJj
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBvgTdRlIHNEGnKMMRAgpZAJ0SeGeRDuuvm/XNf/dPccgXFDJkUwCdGqaU
+Y13vaKwJyAO2B93pJY1dtdM=
+=abIV
+-----END PGP SIGNATURE-----
+
+--=-/p1NiJRJ2PziA+j4mPJj--
+

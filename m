@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280982AbRKGVKb>; Wed, 7 Nov 2001 16:10:31 -0500
+	id <S280693AbRKJT6z>; Sat, 10 Nov 2001 14:58:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280985AbRKGVKW>; Wed, 7 Nov 2001 16:10:22 -0500
-Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:49927 "EHLO
-	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S280983AbRKGVKJ>; Wed, 7 Nov 2001 16:10:09 -0500
-Date: Tue, 6 Nov 2001 10:01:54 +0000
+	id <S280642AbRKJT6p>; Sat, 10 Nov 2001 14:58:45 -0500
+Received: from md.hub.gts.cz ([194.213.32.136]:52865 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S280689AbRKJT6m>;
+	Sat, 10 Nov 2001 14:58:42 -0500
+Date: Sat, 1 Jan 2000 00:13:12 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Riley Williams <rhw@MemAlpha.cx>
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-Message-ID: <20011106100153.B35@toy.ucw.cz>
-In-Reply-To: <506556532.1004787679@[195.224.237.69]> <Pine.LNX.4.21.0111031813390.9415-100000@Consulate.UFP.CX>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Tim Jansen <tim@tjansen.de>,
+        =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20000101001311.A35@(none)>
+In-Reply-To: <20011107012009.B35@toy.ucw.cz> <Pine.LNX.4.33L.0111071913590.2963-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0111031813390.9415-100000@Consulate.UFP.CX>; from rhw@MemAlpha.cx on Sat, Nov 03, 2001 at 06:35:44PM +0000
+In-Reply-To: <Pine.LNX.4.33L.0111071913590.2963-100000@imladris.surriel.com>; from riel@conectiva.com.br on Wed, Nov 07, 2001 at 07:14:37PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >>  3. AFAICT, if xntpd writes to the RTC, then it has achieved true
-> >>     synchronisation to a reference clock other than the RTC.
+> > > > It eats CPU, it's error-prone, and all in all it's just "wrong".
+> > >
+> > > How much of your CPU time is spent parsing /proc files?
+> >
+> > 30% of 486 if you run top... That's way too much and top is unusable
+> > on slower machines.
+> > "Not fast enough for showing processes" sounds wery wrong.
 > 
-> > I thought the original poster was claiming that the /kernel/
-> > wrote to the RTC, which would explain the behaviour I'm seeing.
-> 
-> The kernel itself never writes to the RTC, and that is one of Linus's
-> decisions with which I am in 100% agreeance (and one thing I hate about
-> Windows). In fact, the kernel itself also doesn't read from the RTC
-> either, but leaves that to userspace.
+> Is this time actually spent parsing ascii, or is it procfs
+> walking all the page tables of all processes ? ;)
 
-Wrong two times.
+About 1:1, probably. Readdir of /proc and open/read/parse/close is 
+pretty expensive.
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268483AbTBOBCR>; Fri, 14 Feb 2003 20:02:17 -0500
+	id <S268502AbTBOBDn>; Fri, 14 Feb 2003 20:03:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268490AbTBOBCQ>; Fri, 14 Feb 2003 20:02:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37650 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268483AbTBOBCQ>; Fri, 14 Feb 2003 20:02:16 -0500
-Date: Fri, 14 Feb 2003 17:08:08 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: Davide Libenzi <davidel@xmailserver.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-In-Reply-To: <20030215000628.GB1073@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.44.0302141704280.1296-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268503AbTBOBDn>; Fri, 14 Feb 2003 20:03:43 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25217
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268497AbTBOBDm>; Fri, 14 Feb 2003 20:03:42 -0500
+Subject: RE: openbkweb-0.0
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: vlad@geekizoid.com
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       "'Larry McVoy'" <lm@bitmover.com>,
+       "'Jamie Lokier'" <jamie@shareable.org>
+In-Reply-To: <008e01c2d48d$d0fe28f0$0200a8c0@wsl3>
+References: <008e01c2d48d$d0fe28f0$0200a8c0@wsl3>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045275223.2961.8.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 15 Feb 2003 02:13:44 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2003-02-15 at 01:01, Vlad@geekizoid.com wrote:
+> We eat less.  Seriously, it's not like you can't work under the
+> circumstances - you just refuse to.  That's your choice - one I respect.
+> Why try to, or even advocate limiting Larry's choices? 
 
-On Sat, 15 Feb 2003, Matti Aarnio wrote:
-> 
-> Somehow all this idea has a feeling of long established
-> Linux kernel facility called:  netlink
+I'm not. I treated it just like any other document I couldn't read,
+I asked for it in a sane format. The author kindly sent me it. The
+rest of the thread is Larry's invention. I don't care what Larry
+does with bitkeeper, any more than I care about clearcase.
 
-Several people have said that, and it's completely NOT TRUE.
+The transaction is the same thing as 
+"A word file, can yo send me that in text"
+"Thanks"
 
-The thing about sigfd() has _nothing_ to do with sending packets, and 
-everything to do with the fact that you _associate_ signals with the thing 
-that you get the packets from.
+the rest is touchy people inventing sinister plots that don't exist
 
-Sure, the code could associate signals with a netlink fd instead. But 
-netlink is not actually a very good abstraction in my opinion - it has 
-another layer of code (the network layer) between it and the user, which 
-dos not add any value.
-
-> Do we need new syscall(s) ?  Could it all be done with netlink ?
-
-We'd need the same new system call - the one to associate signals of this 
-process with the netlink thing.
-
-(Yeah, the "system call" could be an ioctl entry, but quite frankly, 
-that's much WORSE than adding a system call. It's just system calls 
-without type checking).
-
-			Linus
 

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130215AbQKLIgU>; Sun, 12 Nov 2000 03:36:20 -0500
+	id <S130343AbQKLJCT>; Sun, 12 Nov 2000 04:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130241AbQKLIgL>; Sun, 12 Nov 2000 03:36:11 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:12049 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130215AbQKLIgD>;
-	Sun, 12 Nov 2000 03:36:03 -0500
-Date: Sun, 12 Nov 2000 09:35:54 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Hisaaki Shibata <shibata@luky.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patch: atapi dvd-ram support
-Message-ID: <20001112093554.I805@suse.de>
-In-Reply-To: <20001028201047.A5879@suse.de> <20001029134145N.shibata@luky.org> <20001029141214.B615@suse.de> <20001111031748S.shibata@luky.org>
-Mime-Version: 1.0
+	id <S130352AbQKLJCA>; Sun, 12 Nov 2000 04:02:00 -0500
+Received: from DKBH-T-003-p-249-178.tmns.net.au ([203.54.249.178]:45586 "EHLO
+	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S130343AbQKLJB6>;
+	Sun, 12 Nov 2000 04:01:58 -0500
+Message-ID: <3A0E5C71.D12A25C2@eyal.emu.id.au>
+Date: Sun, 12 Nov 2000 20:01:37 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0-test11-pre3 - md.c compile error
+In-Reply-To: <Pine.LNX.4.10.10011111914170.7609-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001111031748S.shibata@luky.org>; from shibata@luky.org on Sat, Nov 11, 2000 at 03:17:48AM +0900
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11 2000, Hisaaki Shibata wrote:
-> > Or you could try the 2.4 version, as I said originally the 2.2 patch
-> > hasn't been tested at all. It would be nice to know if that works
-> > for you, as I may have screwed up the backport a bit.
+Linus Torvalds wrote:
 > 
-> I tested on 2.4-test10 + dvd-ram-240t10p5.diff.bz2 + dvdram-ro_fix.diff env.
-> It occured oops too :-(.
+> Drivers, drivers, drivers. IrDA and ISDN. PPC.
 
-Interesting, then it isn't the backport that is buggy.
+Got compile errors in drivers/md/md.c, had to add
+        #include <linux/fs.h>
+before
+        #include <linux/sysctl.h>
 
-> And I forgot to say that my DVD-RAM drive is a new 9.4GB DVD-RAM model drive.
-
-I'd like to know specifically what make/model drive you have? The
-oops you sent earlier seems to indicate an empty ide dma request setup.
-If you disable DMA on the drive, does it then work? I'd send you a
-patch right now, but I have to unpack my trees first.
-
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+--
+Eyal Lebedinsky		(eyal@eyal.emu.id.au)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292820AbSCELia>; Tue, 5 Mar 2002 06:38:30 -0500
+	id <S292785AbSCELhU>; Tue, 5 Mar 2002 06:37:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292817AbSCELiQ>; Tue, 5 Mar 2002 06:38:16 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:31473 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S292806AbSCELh7>; Tue, 5 Mar 2002 06:37:59 -0500
-Message-ID: <3C84AE16.A7F1ECCA@redhat.com>
-Date: Tue, 05 Mar 2002 11:37:58 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-26beta.16smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
-In-Reply-To: <E16i9mc-00043p-00@wagner.rustcorp.com.au> <3C84A34E.6060708@evision-ventures.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S292805AbSCELhK>; Tue, 5 Mar 2002 06:37:10 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:18704 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S292785AbSCELhA>;
+	Tue, 5 Mar 2002 06:37:00 -0500
+Date: Tue, 5 Mar 2002 12:23:23 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
+Cc: andrea@suse.de, Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
+        phillips@bonn-fries.net, davidsen@tmr.com, mfedyk@matchmail.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre1aa1
+Message-Id: <20020305122323.0ed9a343.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.33.0203041447450.17847-100000@dbear.engr.sgi.com>
+In-Reply-To: <20020304230603.O20606@dualathlon.random>
+	<Pine.LNX.4.33.0203041447450.17847-100000@dbear.engr.sgi.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
+On Mon, 4 Mar 2002 15:03:19 -0800 (PST)
+Samuel Ortiz <sortiz@dbear.engr.sgi.com> wrote:
 
-> - Disable configuration of the task file stuff. It is going to go away
->    and will be replaced by a truly abstract interface based on
->    functionality and *not* direct mess-up of hardware.
+> On Mon, 4 Mar 2002, Andrea Arcangeli wrote:
+> > yes, also make sure to keep this patch from SGI applied, it's very
+> > important to avoid memory balancing if there's still free memory in the
+> > other zones:
+> >
+> > 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre1aa1/20_numa-mm-1
+> This patch is included (in a slightly different form) in the 2.4.17
+> discontig patch (http://sourceforge.net/projects/discontig).
+> But martin may need another patch to apply. With the current
+> implementation of __alloc_pages, we have 2 problems :
+> 1) A node is not emptied before moving to the following node
+> 2) If none of the zones on a node have more freepages than min(defined as
+>    min+= z->pages_low), we start looking on the following node, instead of
+>    trying harder on the same node.
 
-Can we also expect a patch to remove the scb's from the scsi midlayer
-from you ?
-I mean, if a standard specifies a nice *common* command packet format
-I'd expect the midlayer
-to create such packets. Taskfile is exactly that... why removing it ?
+Forgive my ignorance, but aren't these two problems completely identical in a
+UP or even SMP setup? I mean what is the negative drawback in your proposed
+solution, if there simply is no other node? If it is not harmful to the
+"standard" setups it may as well be included in the mainline, or not?
+
+Regards,
+Stephan
+
+

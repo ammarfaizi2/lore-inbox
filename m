@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbTJOFkX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 01:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbTJOFkX
+	id S262259AbTJOGHt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 02:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbTJOGHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 01:40:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2944 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262152AbTJOFkT (ORCPT
+	Wed, 15 Oct 2003 02:07:48 -0400
+Received: from mail.storm.ca ([209.87.239.66]:31657 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id S262259AbTJOGHr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 01:40:19 -0400
-Date: Tue, 14 Oct 2003 22:43:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange dcache memory pressure when highmem enabled
-Message-Id: <20031014224352.0171e971.akpm@osdl.org>
-In-Reply-To: <16268.52761.907998.436272@notabene.cse.unsw.edu.au>
-References: <16268.52761.907998.436272@notabene.cse.unsw.edu.au>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 15 Oct 2003 02:07:47 -0400
+Message-ID: <3F8CE3EB.8040907@storm.ca>
+Date: Wed, 15 Oct 2003 14:06:35 +0800
+From: Sandy Harris <sandy@storm.ca>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
+References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it> <Pine.LNX.4.44.0310140917540.3754-100000@chimarrao.boston.redhat.com> <20031014143047.GA6332@ncsu.edu>
+In-Reply-To: <20031014143047.GA6332@ncsu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown <neilb@cse.unsw.edu.au> wrote:
->
-> I noticed that shrink_caches calls shrink_dcache_memory independant
->   of the classzone that is being shrunk.  So if we are trying to
->   shrink ZONE_HIGHMEM, the dentry_cache is shrunk, even though the
->   dentry_cache doesn't live in highmem.  However I'm not sure if I have
->   understood the classzones well enough for that observation even to
->   make sense.
+jlnance@unity.ncsu.edu wrote:
 
-Makes heaps of sense.  Here's an instabackport of what we did in 2.6:
+> Let me concur with the sentiments on this thread.
 
- mm/vmscan.c |   12 +++++++++---
- 1 files changed, 9 insertions(+), 3 deletions(-)
+Me too.
 
-diff -puN mm/vmscan.c~a mm/vmscan.c
---- 24/mm/vmscan.c~a	2003-10-14 22:41:34.000000000 -0700
-+++ 24-akpm/mm/vmscan.c	2003-10-14 22:42:22.000000000 -0700
-@@ -640,11 +640,17 @@ int try_to_free_pages_zone(zone_t *class
- 			nr_pages = shrink_caches(classzone, gfp_mask, nr_pages, &failed_swapout);
- 			if (nr_pages <= 0)
- 				return 1;
--			shrink_dcache_memory(vm_vfs_scan_ratio, gfp_mask);
--			shrink_icache_memory(vm_vfs_scan_ratio, gfp_mask);
-+			if (classzone - classzone->zone_pgdat->node_zones <
-+						ZONE_HIGHMEM) {
-+				shrink_dcache_memory(vm_vfs_scan_ratio,
-+							gfp_mask);
-+				shrink_icache_memory(vm_vfs_scan_ratio,
-+							gfp_mask);
- #ifdef CONFIG_QUOTA
--			shrink_dqcache_memory(vm_vfs_scan_ratio, gfp_mask);
-+				shrink_dqcache_memory(vm_vfs_scan_ratio,
-+							gfp_mask);
- #endif
-+			}
- 			if (!failed_swapout)
- 				failed_swapout = !swap_out(classzone);
- 		} while (--tries);
+> ...  There are many people who will never be able to afford
+> to buy a computer but could find someone to give them one of these
+> "hopelessy outdated" machines for nothing.
 
-_
+Some people may be able to get more than one. A year or two
+back a peniless friend of mine built quite a nice environment
+for himself with two 486 boxes and a pile of SPARC IIs.
+
+Also, there are server applications that don't need much. For
+example, a firewall and NAT box for an ADSL line, or a print
+spooler or ...
+
+You could even build a Beowulf out of such machines
+http://stonesoup.esd.ornl.gov/
+
+> If we can ensure that
+> Linux keeps working on these machines, it will be a good thing.
+
+Indeed.
+
+
 

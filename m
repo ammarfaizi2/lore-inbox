@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264283AbTDPKCf (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 06:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbTDPKCf 
+	id S264282AbTDPKAz (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 06:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbTDPKAz 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 06:02:35 -0400
-Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:29066
-	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S264283AbTDPKCd 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 06:02:33 -0400
-To: Andrew Morton <akpm@digeo.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
+	Wed, 16 Apr 2003 06:00:55 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:53473 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264282AbTDPKAx (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 06:00:53 -0400
+Date: Wed, 16 Apr 2003 03:13:03 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: 76306.1226@compuserve.com, mru@users.sourceforge.net,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
 Subject: Re: DMA transfers in 2.5.67
+Message-Id: <20030416031303.76779cac.akpm@digeo.com>
+In-Reply-To: <20030416031144.613b0cc7.akpm@digeo.com>
 References: <200304160548_MC3-1-349F-E844@compuserve.com>
 	<20030416031144.613b0cc7.akpm@digeo.com>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 16 Apr 2003 12:13:09 +0200
-In-Reply-To: <20030416031144.613b0cc7.akpm@digeo.com>
-Message-ID: <yw1xwuhuda2y.fsf@zaphod.guide>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Apr 2003 10:12:41.0038 (UTC) FILETIME=[B6D43EE0:01C30400]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
-
+Andrew Morton <akpm@digeo.com> wrote:
+>
+> Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> >
 > > # mount /ext3_fs
 > > # time dd if=/ext3_fs/100MiB_file of=/dev/null bs=32k
 > > 
@@ -37,9 +38,7 @@ Andrew Morton <akpm@digeo.com> writes:
 > 
 > You should include a `sync' in the timings.
 
-That was reading a file discarding that data.  A sync shouldn't make
-any difference.
+Well you should include the sync if you're writing to disk ;)
 
--- 
-Måns Rullgård
-mru@users.sf.net
+doh.
+

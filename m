@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbVCKEQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVCKEV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262724AbVCKEQB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 23:16:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVCKEIe
+	id S261722AbVCKEV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 23:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVCKESJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 23:08:34 -0500
-Received: from ozlabs.org ([203.10.76.45]:32232 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263169AbVCKECC (ORCPT
+	Thu, 10 Mar 2005 23:18:09 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52134 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263211AbVCKEEp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 23:02:02 -0500
+	Thu, 10 Mar 2005 23:04:45 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: AGP bogosities
+Date: Thu, 10 Mar 2005 20:02:46 -0800
+User-Agent: KMail/1.7.2
+Cc: Paul Mackerras <paulus@samba.org>, werner@sgi.com,
+       Linus Torvalds <torvalds@osdl.org>, davej@redhat.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <200503101818.25033.jbarnes@engr.sgi.com> <1110508715.32524.317.camel@gaston>
+In-Reply-To: <1110508715.32524.317.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16945.6211.331369.393573@cargo.ozlabs.ibm.com>
-Date: Fri, 11 Mar 2005 15:02:11 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: ncunningham@cyclades.com
-Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <DaveJ@redhat.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jerome Glisse <j.glisse@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: [PATCH] AGP support for powermac G5
-In-Reply-To: <1110513167.3049.45.camel@desktop.cunningham.myip.net.au>
-References: <16945.2617.625095.404994@cargo.ozlabs.ibm.com>
-	<1110513167.3049.45.camel@desktop.cunningham.myip.net.au>
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Content-Disposition: inline
+Message-Id: <200503102002.47645.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham writes:
+On Thursday, March 10, 2005 6:38 pm, Benjamin Herrenschmidt wrote:
+> That one is even worse... from what I see in your lspci output, you have
+> no bridge with AGP capability at all, and the various AGP devices are
+> all siblings...
 
-> No power management support? :>
+Both of the video cards are sitting on agp busses in agp slots hooked up to 
+host to agp bridges.
 
-The suspend/resume methods are in the pci_driver struct, not the
-agp_bridge_driver struct.  Not that we have suspend/resume on the G5
-yet.
+> Are you sure there is any real AGP slot in there ?
 
-Paul.
+Yes :)
+
+Jesse

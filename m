@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVBLRb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVBLRqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVBLRb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 12:31:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVBLRb6
+	id S261170AbVBLRqn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 12:46:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVBLRqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 12:31:58 -0500
-Received: from smtpout5.uol.com.br ([200.221.4.196]:25059 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261167AbVBLRb4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 12:31:56 -0500
-Date: Sat, 12 Feb 2005 15:31:50 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: linux-kernel@vger.kernel.org
-Subject: Warnings when compiling apm
-Message-ID: <20050212173150.GD13729@ime.usp.br>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sat, 12 Feb 2005 12:46:43 -0500
+Received: from s-utl01-nypop.stsn.com ([199.106.90.52]:2071 "HELO
+	s-utl01-nypop.stsn.com") by vger.kernel.org with SMTP
+	id S261170AbVBLRqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 12:46:42 -0500
+Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
+From: Arjan van de Ven <arjan@infradead.org>
+To: Kenan Esau <kenan.esau@conan.de>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, harald.hoyer@redhat.de,
+       lifebook@conan.de, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <1108227679.12327.24.camel@localhost>
+References: <20050211201013.GA6937@ucw.cz>
+	 <1108227679.12327.24.camel@localhost>
+Content-Type: text/plain
+Date: Sat, 12 Feb 2005 12:46:32 -0500
+Message-Id: <1108230392.4056.100.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Feb 2005 17:46:35.0724 (UTC) FILETIME=[CBE888C0:01C5112A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there.
+On Sat, 2005-02-12 at 18:01 +0100, Kenan Esau wrote:
 
-For many kernel releases, including 2.6.11-rc3-mm2, I ve been getting
-warnings like the following when compiling the apm driver:
+> Second thing is that I am not shure that it is a good idea to integrate
+> the lbtouch-support into the psmouse-driver since there is no real way
+> of deciding if the device you are talking to is REALLY a
+> lifebook-touchsreen or not. 
+...
+> IMHO the driver should be standalone and the user should decide which
+> driver he wants to use. As default the touchscreen-functionality will be
+> disabled and only the quick-point device will work like a normal
+> PS2-mouse.
 
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  CC      arch/i386/kernel/apm.o
-arch/i386/kernel/apm.c: In function `suspend':
-arch/i386/kernel/apm.c:1191: warning: `pm_send_all' is deprecated (declared at include/linux/pm.h:126)
-arch/i386/kernel/apm.c:1241: warning: `pm_send_all' is deprecated (declared at include/linux/pm.h:126)
-arch/i386/kernel/apm.c: In function `check_events':
-arch/i386/kernel/apm.c:1357: warning: `pm_send_all' is deprecated (declared at include/linux/pm.h:126)
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+I just want to point out that this is a problem for distributions and
+for not-so-technical users.
 
-Unfortunately, I read the code in pm.h and apm.c to see if I could fix the
-problem, but I am just not sure if killing the calls to pm_send_all is
-something that should be done or not (the function currently is just an
-inline function that returns 0).
-
-Similar things can be said about pm_register, pm_unregister,
-pm_unregister_all and pm_send.
-
+Is there *really*  no way to know if you're on a lifebook? Can't you use
+say the DMI identification mechanism to find this out ? If so, I think
+integrating into the regular driver very much is the right thing to
+do... it makes things JustWork(tm) for users without any need for manual
+configuration (which also makes distribution makers happy).
 
 
-Thanks for any guidance, Rogério.
 
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+

@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbTDDWSc (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 17:18:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbTDDWSc (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 17:18:32 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:32179 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261369AbTDDWSa (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 17:18:30 -0500
-Date: Sat, 5 Apr 2003 00:29:39 +0200 (MEST)
-Message-Id: <200304042229.h34MTdTp008601@harpo.it.uu.se>
-From: mikpe@csd.uu.se
-To: rddunlap@osdl.org
-Subject: Re: [Bug 538] New: Rebooting of pentium-I during initial booting phase.
-Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, robins.t@kutumb.org.in
+	id S261366AbTDDWSA (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 17:18:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbTDDWSA (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 17:18:00 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33477 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261366AbTDDWR7 (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 17:17:59 -0500
+Date: Sat, 5 Apr 2003 00:29:23 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Greg KH <greg@kroah.com>
+Cc: Vagn Scott <vagn@ranok.com>, linux-kernel@vger.kernel.org,
+       zippel@linux-m68k.org
+Subject: Re: [2.5.66-bk9] : undefined reference to `i2c_detect'
+Message-ID: <20030404222922.GE20044@fs.tum.de>
+References: <E191DBZ-0004ac-00@Maya.ny.ranok.com> <20030403223901.GB6170@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030403223901.GB6170@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Apr 2003 13:25:47 +0000, Randy.Dunlap wrote:
->On Fri, 4 Apr 2003 22:52:35 +0200 (MEST) mikpe@csd.uu.se wrote:
->
->| On Thu, 3 Apr 2003 09:55:34 -0800, mbligh@aracnet.com wrote:
->| >http://bugme.osdl.org/show_bug.cgi?id=538
->| >
->| >           Summary: Rebooting of pentium-I during initial booting phase.
->| >    Kernel Version: 2.5.65 (probably most versions of 2.5.x)
->| >            Status: NEW
->| >          Severity: normal
->| >             Owner: mbligh@aracnet.com
->| >         Submitter: robins.t@kutumb.org.in
->| >
->| >
->| >Distribution: linus kernel 2.5.65 (probably 2.5.x)
->| >
->| >Hardware Environment: 
->| >Pentium - I (120 MHz) with FO-OF Bug
->| >Motherboard Via - With DMA Problem ("nodma" option required in 2.4.x kernels)
->| >16mb RAM (EDO)
->| >
->| >Software Environment:
->| >Linus kernel 2.5.65
->| >
->| >Problem Description:
->| >The new kernel 2.5.65 reboots while booting process (in the very initial phase) making even noting the progress very difficult.
->| >The system is running fine with 2.4.21-pre5, with the option "nodma".
->| 
->| Most probably a configuration error, viz. choosing a CPU type
->| higher than generic 586. My Socket7 ASUS T2P4 with a Pentium
->| Classic (pre-MMX) 133MHz boots 2.5.66 just fine.
->
->Yes, I agree with that suggestion, but I don't see a problem.
->Did you look at his .config file?  It's here:
->  http://bugme.osdl.org/attachment.cgi?id=261&action=view
->
->I'm comparing it to the .config on my Pentium-with-f00f-bug, which does
->boot 2.5.65 successfully, and I don't see CPU option differences.
->I see lots that don't matter and I see PIIX vs. VIA option differences.
+On Thu, Apr 03, 2003 at 02:39:01PM -0800, Greg KH wrote:
+> On Thu, Apr 03, 2003 at 05:27:53PM -0500, Vagn Scott wrote:
+> > 
+> > CONFIG_SENSORS_LM75=y
+> > CONFIG_SENSORS_VIA686A=y
+> > CONFIG_I2C_SENSOR=m
+> 
+> Ok, I need a bit of Kconfig help for drivers/i2c/chips to set
+> CONFIG_I2C_SENSOR to be "y" if either of those two drivers are selected
+> as "y".  Anyone know how?
 
-I've re-tested with the exakt same .config and gcc (RH8 stock)
-that Robins used, and I still can't reproduce the problem.
-According to his 2.4.21-pre5 dmesg output, his CPU is even the
-same stepping as mine (CPUID 52C).
+The following (untested) should work:
 
-/Mikael
+config I2C_SENSOR
+        tristate
+        default y if SENSORS_ADM1021=y || SENSORS_LM75=y || SENSORS_VIA686A=y   || SENSORS_W83781D=y
+        default m if SENSORS_ADM1021=m || SENSORS_LM75=m || SENSORS_VIA686A=m   || SENSORS_W83781D=m
+        default n
+
+
+> thanks,
+> 
+> greg k-h
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

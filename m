@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264775AbSKEGJp>; Tue, 5 Nov 2002 01:09:45 -0500
+	id <S263252AbSKEGJ3>; Tue, 5 Nov 2002 01:09:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264951AbSKEGJp>; Tue, 5 Nov 2002 01:09:45 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:19728
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264775AbSKEGJo>; Tue, 5 Nov 2002 01:09:44 -0500
-Subject: Re: ps performance sucks (was Re: dcache_rcu [performance results])
-From: Robert Love <rml@tech9.net>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, andersen@codepoet.org,
-       Werner Almesberger <wa@almesberger.net>, jw schultz <jw@pegasys.ws>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0211050056170.2336-100000@steklov.math.psu.edu>
-References: <Pine.GSO.4.21.0211050056170.2336-100000@steklov.math.psu.edu>
+	id <S264775AbSKEGJ3>; Tue, 5 Nov 2002 01:09:29 -0500
+Received: from rth.ninka.net ([216.101.162.244]:29413 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S263252AbSKEGJ2>;
+	Tue, 5 Nov 2002 01:09:28 -0500
+Subject: Re: Linux v2.5.46
+From: "David S. Miller" <davem@redhat.com>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: george anzinger <george@mvista.com>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0211042035330.20254-100000@chaos.physics.uiowa.edu>
+References: <Pine.LNX.4.44.0211042035330.20254-100000@chaos.physics.uiowa.edu>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Nov 2002 01:15:49 -0500
-Message-Id: <1036476957.777.10.camel@phantasy>
+Date: 04 Nov 2002 22:30:34 -0800
+Message-Id: <1036477834.31982.0.camel@rth.ninka.net>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-05 at 00:59, Alexander Viro wrote:
+On Mon, 2002-11-04 at 18:37, Kai Germaschewski wrote:
+> On Mon, 4 Nov 2002, george anzinger wrote:
+> 
+> > I think we need a newer objcopy :(
+> 
+> Alternatively, use this patch. (It's not really needed to force people to 
+> upgrade binutils when ld can do the job, as it e.g. does in 
+> arch/i386/boot/compressed/Makefile already).
 
-> Oh, yes it can.  Easily.
-> 	* device is not network-transparent - even in principle
-> 	* restricting data access would be harder - welcome to suid or
-> sgid country
-> 	* real killer: you think Albert would fail to produce equally
-> crappy code and equally crappy behaviour?  Yeah, right.
+Does not work for me at all on sparc64, it complains that *.gz has an
+unknown file format.
 
-Well I think Rik and I can handle it in our tree :)
-
-But I agree - I do not care much for this /dev idea either.
-
-	Robert Love
+Why not just hexdump the thing into an array of char foo.c file,
+then compile that.
 

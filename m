@@ -1,47 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbTI1UpF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 16:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbTI1UpF
+	id S262720AbTI1UoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 16:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbTI1UoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 16:45:05 -0400
-Received: from gprs147-229.eurotel.cz ([160.218.147.229]:50817 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262721AbTI1UpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 16:45:02 -0400
-Date: Sun, 28 Sep 2003 22:44:31 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: -test6 include/asm-i386/mman.h bits
-Message-ID: <20030928204431.GA9008@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sun, 28 Sep 2003 16:44:16 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:29205 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262720AbTI1UoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 16:44:14 -0400
+Date: Sun, 28 Sep 2003 14:55:23 +0200
+Message-Id: <200309281255.h8SCtNJg005528@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 309] Macintosh 8390 Ethernet update
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Mac8390: Update for netdevice/8390 core changes in 2.5.8
 
-This does not seem right, one copy should be enough.
+--- linux-2.6.0-test6/drivers/net/mac8390.c	Tue Jul 29 18:18:58 2003
++++ linux-m68k-2.6.0-test6/drivers/net/mac8390.c	Fri Sep 19 14:21:17 2003
+@@ -442,14 +442,14 @@
+                ei_status.tx_start_page = CABLETRON_TX_START_PG;
+                ei_status.rx_start_page = CABLETRON_RX_START_PG;
+                ei_status.stop_page = CABLETRON_RX_STOP_PG;
+-               dev->rmem_start = dev->mem_start;
+-               dev->rmem_end = dev->mem_start + CABLETRON_RX_STOP_PG*256;
++               ei_status.rmem_start = dev->mem_start;
++               ei_status.rmem_end = dev->mem_start + CABLETRON_RX_STOP_PG*256;
+ 	} else {
+                ei_status.tx_start_page = WD_START_PG;
+                ei_status.rx_start_page = WD_START_PG + TX_PAGES;
+                ei_status.stop_page = (dev->mem_end - dev->mem_start)/256;
+-               dev->rmem_start = dev->mem_start + TX_PAGES*256;
+-               dev->rmem_end = dev->mem_end;
++               ei_status.rmem_start = dev->mem_start + TX_PAGES*256;
++               ei_status.rmem_end = dev->mem_end;
+ 	}
+ 	
+ 	/* Fill in model-specific information and functions */
+@@ -621,12 +621,12 @@
+ 	unsigned long xfer_base = ring_offset - (WD_START_PG<<8);
+ 	unsigned long xfer_start = xfer_base + dev->mem_start;
+ 
+-	if (xfer_start + count > dev->rmem_end) {
++	if (xfer_start + count > ei_status.rmem_end) {
+ 		/* We must wrap the input move. */
+-		int semi_count = dev->rmem_end - xfer_start;
++		int semi_count = ei_status.rmem_end - xfer_start;
+ 		memcpy_fromio(skb->data, (char *)dev->mem_start + xfer_base, semi_count);
+ 		count -= semi_count;
+-		memcpy_toio(skb->data + semi_count, (char *)dev->rmem_start, count);
++		memcpy_toio(skb->data + semi_count, (char *)ei_status.rmem_start, count);
+ 	} else {
+ 		memcpy_fromio(skb->data, (char *)dev->mem_start + xfer_base, count);
+ 	}
+@@ -657,15 +657,16 @@
+ 
+ 	/* Note the offset math is done in card memory space which is word
+ 	   per long onto our space. */
+-	 
+-	if (xfer_start + count > dev->rmem_end) 
++
++	if (xfer_start + count > ei_status.rmem_end)
+ 	{
+ 		/* We must wrap the input move. */
+-		int semi_count = dev->rmem_end - xfer_start;
++		int semi_count = ei_status.rmem_end - xfer_start;
+ 		dayna_memcpy_fromcard(dev, skb->data, xfer_base, semi_count);
+ 		count -= semi_count;
+-		dayna_memcpy_fromcard(dev, skb->data + semi_count, 
+-			dev->rmem_start - dev->mem_start, count);
++		dayna_memcpy_fromcard(dev, skb->data + semi_count,
++				      ei_status.rmem_start - dev->mem_start,
++				      count);
+ 	}
+ 	else
+ 	{
+@@ -697,15 +698,15 @@
+ 	unsigned long xfer_base = ring_offset - (WD_START_PG<<8);
+ 	unsigned long xfer_start = xfer_base+dev->mem_start;
+ 
+-	if (xfer_start + count > dev->rmem_end)
++	if (xfer_start + count > ei_status.rmem_end)
+ 	{
+ 		/* We must wrap the input move. */
+-		int semi_count = dev->rmem_end - xfer_start;
++		int semi_count = ei_status.rmem_end - xfer_start;
+ 		word_memcpy_fromcard(skb->data, (char *)dev->mem_start +
+ 			xfer_base, semi_count);
+ 		count -= semi_count;
+ 		word_memcpy_fromcard(skb->data + semi_count,
+-			(char *)dev->rmem_start, count);
++				     (char *)ei_status.rmem_start, count);
+ 	}
+ 	else
+ 	{
 
-diff -Nru a/include/asm-i386/mman.h b/include/asm-i386/mman.h
---- a/include/asm-i386/mman.h   Sat Sep 27 17:51:31 2003
-+++ b/include/asm-i386/mman.h   Sat Sep 27 17:51:31 2003
-@@ -6,6 +6,10 @@
- #define PROT_EXEC      0x4             /* page can be executed */
- #define PROT_SEM       0x8             /* page may be used for atomic ops */
- #define PROT_NONE      0x0             /* page can not be accessed */
-+#define PROT_GROWSDOWN 0x01000000      /* mprotect flag: extend change to start of growsdown vma */
-+#define PROT_GROWSUP   0x02000000      /* mprotect flag: extend change to end of growsup vma */
-+#define PROT_GROWSDOWN 0x01000000      /* mprotect flag: extend change to start of growsdown vma */
-+#define PROT_GROWSUP   0x02000000      /* mprotect flag: extend change to end of growsup vma */
+Gr{oetje,eeting}s,
 
- #define MAP_SHARED     0x01            /* Share changes */
- #define MAP_PRIVATE    0x02            /* Changes are private */
+						Geert
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

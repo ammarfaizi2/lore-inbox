@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266708AbTAIOLp>; Thu, 9 Jan 2003 09:11:45 -0500
+	id <S266702AbTAIORJ>; Thu, 9 Jan 2003 09:17:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266721AbTAIOLp>; Thu, 9 Jan 2003 09:11:45 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:60547 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S266708AbTAIOLo>; Thu, 9 Jan 2003 09:11:44 -0500
-Date: Thu, 9 Jan 2003 15:20:21 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4.21-pre3-bk RESEND 2] CREDITS update
-Message-ID: <20030109152021.C11787@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S266718AbTAIORJ>; Thu, 9 Jan 2003 09:17:09 -0500
+Received: from edu.joroinen.fi ([195.156.135.125]:7083 "EHLO edu.joroinen.fi")
+	by vger.kernel.org with ESMTP id <S266702AbTAIORI>;
+	Thu, 9 Jan 2003 09:17:08 -0500
+Date: Thu, 9 Jan 2003 16:25:50 +0200
+From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Megaraid crash (Blocked mailbox......!!) with 2.4.19-aa and 2.4.20-aa
+Message-ID: <20030109142550.GK19326@edu.joroinen.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This patch updates my current CREDITS entry.
+Hello!
 
-Marcelo, Alan, please apply.
+I've seen this at least 5 times now in one month.. One of our boxes die
+when postgresql maintenance script AND backup cron jobs are ran at the same
+time (by mistake - normally they are not ran at the same time)..
 
-(Alan, IIRC this was present in your 2.4.20-ac tree but I can't see
-it anymore in 2.4.21-ac. Any reason why it get dropped ?)
+So it seems to be related to high disk i/o. The adapter is 
+HP NetRAID 1M with latest firmware. There is one RAID5 array with 3 disks
+configured to it.
 
-Thanks,
+Usually this crash happens 1 to 2 times a week.. always when cron starts to
+run the stuff at the night. The console will be flooded with "Blocked
+mailbox......!!" text (which surprisingly means that the megaraid firmware
+has stopped responding.. according to google)
 
-Stelian.
+This box doesn't have high disk i/o at the daytime, only at the night when
+cron starts to do things..
 
-===== CREDITS 1.64 vs edited =====
---- 1.64/CREDITS	Mon Dec 30 18:23:57 2002
-+++ edited/CREDITS	Mon Jan  6 10:49:31 2003
-@@ -2405,13 +2405,10 @@
- D: CDROM driver "sonycd535" (Sony CDU-535/531)
- 
- N: Stelian Pop
--E: stelian.pop@fr.alcove.com
-+E: stelian@popies.net
- P: 1024D/EDBB6147 7B36 0E07 04BC 11DC A7A0  D3F7 7185 9E7A EDBB 6147
- D: sonypi, meye drivers, mct_u232 usb serial hacks
--S: Alcôve
--S: 153, bd. Anatole France 
--S: 93200 Saint Denis
--S: France
-+S: Paris, France
- 
- N: Frederic Potter 
- E: fpotter@cirpack.com
--- 
-Stelian Pop <stelian@popies.net>
+When the cron jobs are not ran at the same time, the box is stable.
+
+
+Other box using the same kind of adapter, but RAID1 array instead, having
+high disk i/o all the time doesn't have any problems.. (with the same kernels).
+
+
+Kernels are compiled with gcc 2.95.4 (Debian 3.0).
+
+
+Any thoughts?
+
+
+-- Pasi Kärkkäinen
+       
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.

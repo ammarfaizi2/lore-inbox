@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262604AbSI0Tm7>; Fri, 27 Sep 2002 15:42:59 -0400
+	id <S262614AbSI0TqX>; Fri, 27 Sep 2002 15:46:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262605AbSI0TmL>; Fri, 27 Sep 2002 15:42:11 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:6926 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262604AbSI0Tkl>;
-	Fri, 27 Sep 2002 15:40:41 -0400
-Date: Fri, 27 Sep 2002 12:44:21 -0700
+	id <S262612AbSI0Tp0>; Fri, 27 Sep 2002 15:45:26 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:8206 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262609AbSI0Toa>;
+	Fri, 27 Sep 2002 15:44:30 -0400
+Date: Fri, 27 Sep 2002 12:48:06 -0700
 From: Greg KH <greg@kroah.com>
 To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Subject: Re: [BK PATCH] More USB changes for 2.5.38
-Message-ID: <20020927194420.GJ12909@kroah.com>
-References: <20020927193723.GA12909@kroah.com> <20020927193855.GB12909@kroah.com> <20020927194025.GC12909@kroah.com> <20020927194054.GD12909@kroah.com> <20020927194240.GE12909@kroah.com> <20020927194258.GF12909@kroah.com> <20020927194314.GG12909@kroah.com> <20020927194330.GH12909@kroah.com> <20020927194353.GI12909@kroah.com>
+Message-ID: <20020927194806.GK12909@kroah.com>
+References: <20020927193723.GA12909@kroah.com> <20020927193855.GB12909@kroah.com> <20020927194025.GC12909@kroah.com> <20020927194054.GD12909@kroah.com> <20020927194240.GE12909@kroah.com> <20020927194258.GF12909@kroah.com> <20020927194314.GG12909@kroah.com> <20020927194330.GH12909@kroah.com> <20020927194353.GI12909@kroah.com> <20020927194420.GJ12909@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020927194353.GI12909@kroah.com>
+In-Reply-To: <20020927194420.GJ12909@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -24,241 +24,174 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.611.1.8 -> 1.611.1.9
-#	drivers/usb/core/usb.c	1.87    -> 1.88   
+#	           ChangeSet	1.611.1.9 -> 1.611.1.10
+#	drivers/pci/pci-driver.c	1.18    -> 1.19   
+#	drivers/pci/hotplug.c	1.5     -> 1.6    
+#	               (new)	        -> 1.1     drivers/pci/pci.h
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/09/27	greg@kroah.com	1.611.1.9
-# converted USB to use the driver core's hotplug call.
+# 02/09/27	greg@kroah.com	1.611.1.10
+# converted PCI to use the driver core's hotplug call.
 # --------------------------------------------
 #
-diff -Nru a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
---- a/drivers/usb/core/usb.c	Fri Sep 27 12:30:06 2002
-+++ b/drivers/usb/core/usb.c	Fri Sep 27 12:30:06 2002
-@@ -510,57 +510,42 @@
-  * cases, we know no other thread can recycle our address, since we must
-  * already have been serialized enough to prevent that.
-  */
--static void call_policy (char *verb, struct usb_device *dev)
-+static int usb_hotplug (struct device *dev, char **envp, int num_envp,
-+			char *buffer, int buffer_size)
+diff -Nru a/drivers/pci/hotplug.c b/drivers/pci/hotplug.c
+--- a/drivers/pci/hotplug.c	Fri Sep 27 12:30:03 2002
++++ b/drivers/pci/hotplug.c	Fri Sep 27 12:30:03 2002
+@@ -1,52 +1,68 @@
+ #include <linux/pci.h>
+ #include <linux/module.h>
+-#include <linux/kmod.h>		/* for hotplug_path */
++#include "pci.h"
+ 
+-#ifndef FALSE
+-#define FALSE	(0)
+-#define TRUE	(!FALSE)
+-#endif
+ 
+ #ifdef CONFIG_HOTPLUG
+-static void run_sbin_hotplug(struct pci_dev *pdev, int insert)
++int pci_hotplug (struct device *dev, char **envp, int num_envp,
++		 char *buffer, int buffer_size)
  {
--	char *argv [3], **envp, *buf, *scratch;
--	int i = 0, value;
-+	struct usb_interface *intf;
-+	struct usb_device *usb_dev;
+-	int i;
+-	char *argv[3], *envp[8];
+-	char id[20], sub_id[24], bus_id[24], class_id[20];
+-
+-	if (!hotplug_path[0])
+-		return;
++	struct pci_dev *pdev;
 +	char *scratch;
 +	int i = 0;
 +	int length = 0;
- 
--	if (!hotplug_path [0])
--		return;
--	if (in_interrupt ()) {
--		dbg ("In_interrupt");
--		return;
--	}
--	if (!current->fs->root) {
--		/* statically linked USB is initted rather early */
--		dbg ("call_policy %s, num %d -- no FS yet", verb, dev->devnum);
--		return;
--	}
--	if (dev->devnum < 0) {
-+	dbg ("%s", __FUNCTION__);
 +
 +	if (!dev)
 +		return -ENODEV;
 +
-+	/* check for generic driver, we do not call do hotplug calls for it */
-+	if (dev->driver == &usb_generic_driver)
++	pdev = to_pci_dev(dev);
++	if (!pdev)
 +		return -ENODEV;
 +
-+	intf = to_usb_interface(dev);
-+	if (!intf)
-+		return -ENODEV;
-+
-+	usb_dev = interface_to_usbdev (intf);
-+	if (!usb_dev)
-+		return -ENODEV;
-+	
-+	if (usb_dev->devnum < 0) {
- 		dbg ("device already deleted ??");
--		return;
-+		return -ENODEV;
- 	}
--	if (!(envp = (char **) kmalloc (20 * sizeof (char *), GFP_KERNEL))) {
--		dbg ("enomem");
--		return;
--	}
--	if (!(buf = kmalloc (256, GFP_KERNEL))) {
--		kfree (envp);
--		dbg ("enomem2");
--		return;
-+	if (!usb_dev->bus) {
-+		dbg ("bus already removed?");
-+		return -ENODEV;
- 	}
- 
--	/* only one standardized param to hotplug command: type */
--	argv [0] = hotplug_path;
--	argv [1] = "usb";
--	argv [2] = 0;
--
--	/* minimal command environment */
--	envp [i++] = "HOME=/";
--	envp [i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
--
--#ifdef	DEBUG
--	/* hint that policy agent should enter no-stdout debug mode */
--	envp [i++] = "DEBUG=kernel";
--#endif
--	/* extensible set of named bus-specific parameters,
--	 * supporting multiple driver selection algorithms.
--	 */
--	scratch = buf;
--
--	/* action:  add, remove */
--	envp [i++] = scratch;
--	scratch += sprintf (scratch, "ACTION=%s", verb) + 1;
 +	scratch = buffer;
- 
- #ifdef	CONFIG_USB_DEVICEFS
- 	/* If this is available, userspace programs can directly read
-@@ -569,27 +554,48 @@
- 	 *
- 	 * FIXME reduce hardwired intelligence here
- 	 */
--	envp [i++] = "DEVFS=/proc/bus/usb";
- 	envp [i++] = scratch;
--	scratch += sprintf (scratch, "DEVICE=/proc/bus/usb/%03d/%03d",
--		dev->bus->busnum, dev->devnum) + 1;
++
++	/* stuff we want to pass to /sbin/hotplug */
++	envp[i++] = scratch;
++	length += snprintf (scratch, buffer_size - length, "PCI_CLASS=%04X",
++			    pdev->class);
++	if ((buffer_size - length <= 0) || (i >= num_envp))
++		return -ENOMEM;
++	++length;
++	scratch += length;
++
++	envp[i++] = scratch;
++	length += snprintf (scratch, buffer_size - length, "PCI_ID=%04X:%04X",
++			    pdev->vendor, pdev->device);
++	if ((buffer_size - length <= 0) || (i >= num_envp))
++		return -ENOMEM;
++	++length;
++	scratch += length;
++
++	envp[i++] = scratch;
 +	length += snprintf (scratch, buffer_size - length,
-+			    "%s", "DEVFS=/proc/bus/usb");
++			    "PCI_SUBSYS_ID=%04X:%04X", pdev->subsystem_vendor,
++			    pdev->subsystem_device);
 +	if ((buffer_size - length <= 0) || (i >= num_envp))
 +		return -ENOMEM;
 +	++length;
 +	scratch += length;
 +
-+	envp [i++] = scratch;
-+	length += snprintf (scratch, buffer_size - length,
-+			    "DEVICE=/proc/bus/usb/%03d/%03d",
-+			    usb_dev->bus->busnum, usb_dev->devnum);
++	envp[i++] = scratch;
++	length += snprintf (scratch, buffer_size - length, "PCI_SLOT_NAME=%s",
++			    pdev->slot_name);
 +	if ((buffer_size - length <= 0) || (i >= num_envp))
 +		return -ENOMEM;
-+	++length;
-+	scratch += length;
- #endif
  
- 	/* per-device configuration hacks are common */
- 	envp [i++] = scratch;
--	scratch += sprintf (scratch, "PRODUCT=%x/%x/%x",
--		dev->descriptor.idVendor,
--		dev->descriptor.idProduct,
--		dev->descriptor.bcdDevice) + 1;
-+	length += snprintf (scratch, buffer_size - length, "PRODUCT=%x/%x/%x",
-+			    usb_dev->descriptor.idVendor,
-+			    usb_dev->descriptor.idProduct,
-+			    usb_dev->descriptor.bcdDevice);
-+	if ((buffer_size - length <= 0) || (i >= num_envp))
-+		return -ENOMEM;
-+	++length;
-+	scratch += length;
- 
- 	/* class-based driver binding models */
- 	envp [i++] = scratch;
--	scratch += sprintf (scratch, "TYPE=%d/%d/%d",
--			    dev->descriptor.bDeviceClass,
--			    dev->descriptor.bDeviceSubClass,
--			    dev->descriptor.bDeviceProtocol) + 1;
--	if (dev->descriptor.bDeviceClass == 0) {
--		int alt = dev->actconfig->interface [0].act_altsetting;
-+	length += snprintf (scratch, buffer_size - length, "TYPE=%d/%d/%d",
-+			    usb_dev->descriptor.bDeviceClass,
-+			    usb_dev->descriptor.bDeviceSubClass,
-+			    usb_dev->descriptor.bDeviceProtocol);
-+	if ((buffer_size - length <= 0) || (i >= num_envp))
-+		return -ENOMEM;
-+	++length;
-+	scratch += length;
-+
-+	if (usb_dev->descriptor.bDeviceClass == 0) {
-+		int alt = intf->act_altsetting;
- 
- 		/* a simple/common case: one config, one interface, one driver
- 		 * with current altsetting being a reasonable setting.
-@@ -597,31 +603,29 @@
- 		 * device-specific binding policies.
- 		 */
- 		envp [i++] = scratch;
--		scratch += sprintf (scratch, "INTERFACE=%d/%d/%d",
--			dev->actconfig->interface [0].altsetting [alt].bInterfaceClass,
--			dev->actconfig->interface [0].altsetting [alt].bInterfaceSubClass,
--			dev->actconfig->interface [0].altsetting [alt].bInterfaceProtocol)
--			+ 1;
--		/* INTERFACE-0, INTERFACE-1, ... ? */
-+		length += snprintf (scratch, buffer_size - length,
-+				    "INTERFACE=%d/%d/%d",
-+				    intf->altsetting[alt].bInterfaceClass,
-+				    intf->altsetting[alt].bInterfaceSubClass,
-+				    intf->altsetting[alt].bInterfaceProtocol);
-+		if ((buffer_size - length <= 0) || (i >= num_envp))
-+			return -ENOMEM;
-+		++length;
-+		scratch += length;
-+
- 	}
- 	envp [i++] = 0;
--	/* assert: (scratch - buf) < sizeof buf */
- 
--	/* NOTE: user mode daemons can call the agents too */
+-	sprintf(class_id, "PCI_CLASS=%04X", pdev->class);
+-	sprintf(id, "PCI_ID=%04X:%04X", pdev->vendor, pdev->device);
+-	sprintf(sub_id, "PCI_SUBSYS_ID=%04X:%04X", pdev->subsystem_vendor, pdev->subsystem_device);
+-	sprintf(bus_id, "PCI_SLOT_NAME=%s", pdev->slot_name);
 -
--	dbg ("kusbd: %s %s %d", argv [0], verb, dev->devnum);
--	value = call_usermodehelper (argv [0], argv, envp);
--	kfree (buf);
--	kfree (envp);
--	if (value != 0)
--		dbg ("kusbd policy returned 0x%x", value);
+-	i = 0;
+-	argv[i++] = hotplug_path;
+-	argv[i++] = "pci";
+-	argv[i] = 0;
+-
+-	i = 0;
+-	/* minimal command environment */
+-	envp[i++] = "HOME=/";
+-	envp[i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
+-	
+-	/* other stuff we want to pass to /sbin/hotplug */
+-	envp[i++] = class_id;
+-	envp[i++] = id;
+-	envp[i++] = sub_id;
+-	envp[i++] = bus_id;
+-	if (insert)
+-		envp[i++] = "ACTION=add";
+-	else
+-		envp[i++] = "ACTION=remove";
+ 	envp[i] = 0;
+ 
+-	call_usermodehelper (argv [0], argv, envp);
 +	return 0;
  }
- 
  #else
- 
--static inline void
--call_policy (char *verb, struct usb_device *dev)
--{ } 
-+static int usb_hotplug (struct device *dev, char **envp,
-+			char *buffer, int buffer_size)
+-static void run_sbin_hotplug(struct pci_dev *pdev, int insert) { }
++int pci_hotplug (struct device *dev, char **envp, int num_envp,
++		 char *buffer, int buffer_size)
 +{
 +	return -ENODEV;
 +}
+ #endif
  
- #endif	/* CONFIG_HOTPLUG */
- 
-@@ -894,9 +898,6 @@
- 		put_device(&dev->dev);
- 	}
- 
--	/* Let policy agent unload modules etc */
--	call_policy ("remove", dev);
--
- 	/* Decrement the reference count, it'll auto free everything when */
- 	/* it hits 0 which could very well be now */
- 	usb_put_dev(dev);
-@@ -1174,9 +1175,6 @@
- 	/* add a /proc/bus/usb entry */
- 	usbfs_add_device(dev);
- 
--	/* userspace may load modules and/or configure further */
--	call_policy ("add", dev);
--
- 	return 0;
+ /**
+@@ -66,8 +82,6 @@
+ #ifdef CONFIG_PROC_FS
+ 	pci_proc_attach_device(dev);
+ #endif
+-	/* notify userspace of new hotplug device */
+-	run_sbin_hotplug(dev, TRUE);
  }
  
-@@ -1439,6 +1437,7 @@
- struct bus_type usb_bus_type = {
- 	.name =		"usb",
- 	.match =	usb_device_match,
-+	.hotplug =	usb_hotplug,
- };
+ static void
+@@ -99,8 +113,6 @@
+ #ifdef CONFIG_PROC_FS
+ 	pci_proc_detach_device(dev);
+ #endif
+-	/* notify userspace of hotplug device removal */
+-	run_sbin_hotplug(dev, FALSE);
+ }
+ 
+ #ifdef CONFIG_HOTPLUG
+diff -Nru a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+--- a/drivers/pci/pci-driver.c	Fri Sep 27 12:30:03 2002
++++ b/drivers/pci/pci-driver.c	Fri Sep 27 12:30:03 2002
+@@ -6,6 +6,7 @@
+ #include <linux/pci.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
++#include "pci.h"
  
  /*
+  *  Registration of PCI drivers and handling of hot-pluggable devices.
+@@ -199,8 +200,9 @@
+ }
+ 
+ struct bus_type pci_bus_type = {
+-	name:	"pci",
+-	match:	pci_bus_match,
++	name:		"pci",
++	match:		pci_bus_match,
++	hotplug:	pci_hotplug,
+ };
+ 
+ static int __init pci_driver_init(void)
+diff -Nru a/drivers/pci/pci.h b/drivers/pci/pci.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/pci/pci.h	Fri Sep 27 12:30:03 2002
+@@ -0,0 +1,5 @@
++/* Functions internal to the PCI core code */
++
++extern int pci_hotplug (struct device *dev, char **envp, int num_envp,
++			 char *buffer, int buffer_size);
++

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286936AbRL1R2u>; Fri, 28 Dec 2001 12:28:50 -0500
+	id <S286941AbRL1Rek>; Fri, 28 Dec 2001 12:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284138AbRL1R2l>; Fri, 28 Dec 2001 12:28:41 -0500
-Received: from 247.229.252.64.snet.net ([64.252.229.247]:14721 "EHLO
-	karaya.com") by vger.kernel.org with ESMTP id <S286937AbRL1R2d>;
-	Fri, 28 Dec 2001 12:28:33 -0500
-Message-Id: <200112281831.fBSIVJq03612@karaya.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: andersg@0x63.nu
-cc: linux-kernel@vger.kernel.org
-Subject: Re: UML has been sent to Linus 
-In-Reply-To: Your message of "Fri, 28 Dec 2001 11:16:47 +0100."
-             <20011228101647.GB20899@h55p111.delphi.afb.lu.se> 
-Mime-Version: 1.0
+	id <S286938AbRL1ReX>; Fri, 28 Dec 2001 12:34:23 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12810 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286937AbRL1ReI>; Fri, 28 Dec 2001 12:34:08 -0500
+Subject: Re: 2.4.17 absurd number of context switches
+To: davidel@xmailserver.org (Davide Libenzi)
+Date: Fri, 28 Dec 2001 17:43:46 +0000 (GMT)
+Cc: skraw@ithnet.com (Stephan von Krawczynski),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), jwb@saturn5.com,
+        linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <Pine.LNX.4.40.0112280920270.1466-100000@blue1.dev.mcafeelabs.com> from "Davide Libenzi" at Dec 28, 2001 09:22:28 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Dec 2001 13:31:18 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16K12o-0001BR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andersg@0x63.nu said:
-> is it available somewhere? 
+>         local_irq_disable();
+>         if (current->counter > 0)
+>             --current->counter;
+>         local_irq_enable();
 
-http://prdownloads.sourceforge.net/user-mode-linux/uml-patch-2.5.1-1.bz2
+Umm: SuS sayeth..
 
-plus it's mirrored in various places - start with 
-	http://user-mode-linux.sourceforge.net/dl-sf.html
+   DESCRIPTION
 
-It's the same UML as the 2.4.17 I released last night with some changes
-in the block driver required by the bio changes.
+     The sched_yield() function forces the running thread to relinquish the
+     processor until it again becomes the head of its thread list. It takes
+     no arguments.
 
-				Jeff
-
+Which doesnt seem to be what you are doing.

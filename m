@@ -1,101 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269113AbUJKPhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269105AbUJKPlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269113AbUJKPhy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 11:37:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269065AbUJKPh3
+	id S269105AbUJKPlL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 11:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269116AbUJKPiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 11:37:29 -0400
-Received: from main.uucpssh.org ([212.27.33.224]:29328 "EHLO main.uucpssh.org")
-	by vger.kernel.org with ESMTP id S269129AbUJKPfL (ORCPT
+	Mon, 11 Oct 2004 11:38:21 -0400
+Received: from soundwarez.org ([217.160.171.123]:23185 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S269105AbUJKPhZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 11:35:11 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-mm1 [missing i2o patch in the main patch]
-References: <20041011032502.299dc88d.akpm@osdl.org>
-From: syrius.ml@no-log.org
-Message-ID: <87y8idnvmm.87wtxxnvmm@87vfdhnvmm.message.id>
-Date: Mon, 11 Oct 2004 17:33:07 +0200
-In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org> (Andrew Morton's
- message of "Mon, 11 Oct 2004 03:25:02 -0700")
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Mon, 11 Oct 2004 11:37:25 -0400
+Date: Mon, 11 Oct 2004 17:37:19 +0200
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: bert hubert <ahu@ds9a.nl>, Greg KH <greg@kroah.com>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.9-rc4] USB && mass-storage && disconnect broken semantics
+Message-ID: <20041011153719.GA4118@vrfy.org>
+References: <20041011120701.GA824@outpost.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041011120701.GA824@outpost.ds9a.nl>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Mon, Oct 11, 2004 at 02:07:01PM +0200, bert hubert wrote:
+> Ok,
+> 
+> This is about stupid users (including me) unplugging USB devices whilst
+> still mounted, and expecting sane semantics.
+> 
+> This has generally not been the 'Unix' or even 'Linux' way, but people
+> expect it to work. I also see no clear automated and robust solution from
+> userspace. "Don't do that then" is a pretty weak answer, especially since we
+> want to work on the desktop.
+> 
+> The expected behaviour is that on forceably unplugging an USB memory stick,
+> the created SCSI device should vanish, along with the mounts based on it.
 
-Andrew Morton <akpm@osdl.org> writes:
+That is clearly bejond the scope of the kernel or hotplug. This policy
+belongs to some other device management software. We are currently working on
+HAL as one example, to make that happen.
 
+> When the user plugs in the device again, people expect to see it get the
+> first available name, and be available for remount, possible automated.
+...
+> Sometimes however, sda appears to be still 'occupied', and higher names are
+> used.
+> 
+> Now - the perhaps intended behaviour where the user can replug the USB
+> device when it was disconnected by accident also does not work. When we do
+> this, things get really out of whack, /dev/sda1 has now become invalid.
 
-> i2o-new-functions-to-convert-messages-to-a-virtual-address.patch
->   i2o: new functions to convert messages to a virtual address
+Forget about the kernel device names, these are "cookies" to access the
+device and have no other meaning. Never rely on that longer as your
+device session lasts! You may use a udev rule to create a stable name for
+your device based on some unique device property and that will work.
+Btw: With HAL we even don't care about the /dev-name, all volumes are
+recognized by uuid or fslabel.
 
-looking at
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/i2o-new-functions-to-convert-messages-to-a-virtual-address.patch,
-it seems the include/linux/i2o.h patch is missing:
+> Unmounting and unplugging and replugging saves us.
+> 
+> Greg, others, I hope you agree this needs work. I hope we have the
+> infrastructure to umount based on USB disconnect events, or, alternatively,
+> will support 'replugging' which at least does part of what people expect.
 
-tell me if I'm wrong, but i think this patch is missing:
+Yes, we need to make the unplug of mounted devices more safe, especially
+with sync mount, but don't expect the kernel or hotplug to do anything
+like that. It's up to some policy software higher in the stack.
 
-
---=-=-=
-Content-Type: application/octet-stream
-Content-Disposition: attachment;
-  filename=i2o-new-functions-to-convert-messages-to-a-virtual-address.patch4
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtcHVOIGluY2x1ZGUvbGludXgvaTJvLmh+aTJvLW5ldy1mdW5jdGlvbnMtdG8tY29udmVy
-dC1tZXNzYWdlcy10by1hLXZpcnR1YWwtYWRkcmVzcyBpbmNsdWRlL2xpbnV4L2kyby5oCi0tLSAy
-NS9pbmNsdWRlL2xpbnV4L2kyby5ofmkyby1uZXctZnVuY3Rpb25zLXRvLWNvbnZlcnQtbWVzc2Fn
-ZXMtdG8tYS12aXJ0dWFsLWFkZHJlc3MJRnJpIE9jdCAgOCAxNDozMjozNiAyMDA0CisrKyAyNS1h
-a3BtL2luY2x1ZGUvbGludXgvaTJvLmgJRnJpIE9jdCAgOCAxNDozMjozNiAyMDA0CkBAIC00Nyw3
-ICs0Nyw3IEBAIHN0cnVjdCBpMm9fbWVzc2FnZSB7CiAJCQl1MzIgZnVuY3Rpb246ODsKIAkJCXUz
-MiBpY250eHQ7CS8qIGluaXRpYXRvciBjb250ZXh0ICovCiAJCQl1MzIgdGNudHh0OwkvKiB0cmFu
-c2FjdGlvbiBjb250ZXh0ICovCi0JCX0gczsKKwkJfSBfX2F0dHJpYnV0ZSgocGFja2VkKSkgczsK
-IAkJdTMyIGhlYWRbNF07CiAJfSB1OwogCS8qIExpc3QgZm9sbG93cyAqLwpAQCAtMjUyLDYgKzI1
-MiwxMSBAQCBleHRlcm4gaW50IGkyb19tc2dfcG9zdF93YWl0X21lbShzdHJ1Y3QgCiBleHRlcm4g
-dm9pZCBpMm9fbXNnX25vcChzdHJ1Y3QgaTJvX2NvbnRyb2xsZXIgKiwgdTMyKTsKIHN0YXRpYyBp
-bmxpbmUgdm9pZCBpMm9fZmx1c2hfcmVwbHkoc3RydWN0IGkyb19jb250cm9sbGVyICosIHUzMik7
-CiAKK3N0YXRpYyBpbmxpbmUgc3RydWN0IGkyb19tZXNzYWdlICppMm9fbXNnX2luX3RvX3ZpcnQo
-c3RydWN0IGkyb19jb250cm9sbGVyICosCisJCQkJCQkgICAgIHUzMik7CitzdGF0aWMgaW5saW5l
-IHN0cnVjdCBpMm9fbWVzc2FnZSAqaTJvX21zZ19vdXRfdG9fdmlydChzdHJ1Y3QgaTJvX2NvbnRy
-b2xsZXIKKwkJCQkJCSAgICAgICosIHUzMik7CisKIC8qIERNQSBoYW5kbGluZyBmdW5jdGlvbnMg
-Ki8KIHN0YXRpYyBpbmxpbmUgaW50IGkyb19kbWFfYWxsb2Moc3RydWN0IGRldmljZSAqLCBzdHJ1
-Y3QgaTJvX2RtYSAqLCBzaXplX3QsCiAJCQkJdW5zaWduZWQgaW50KTsKQEAgLTUwMiw2ICs1MDcs
-NDUgQEAgc3RhdGljIGlubGluZSB2b2lkIGkyb19mbHVzaF9yZXBseShzdHJ1YwogfTsKIAogLyoq
-CisgKglpMm9fb3V0X3RvX3ZpcnQgLSBUdXJuIGFuIEkyTyBtZXNzYWdlIHRvIGEgdmlydHVhbCBh
-ZGRyZXNzCisgKglAYzogY29udHJvbGxlcgorICoJQG06IG1lc3NhZ2UgZW5naW5lIHZhbHVlCisg
-KgorICoJVHVybiBhIHJlY2VpdmUgbWVzc2FnZSBmcm9tIGFuIEkyTyBjb250cm9sbGVyIGJ1cyBh
-ZGRyZXNzIGludG8KKyAqCWEgTGludXggdmlydHVhbCBhZGRyZXNzLiBUaGUgc2hhcmVkIHBhZ2Ug
-ZnJhbWUgaXMgYSBsaW5lYXIgYmxvY2sKKyAqCXNvIHdlIHNpbXBseSBoYXZlIHRvIHNoaWZ0IHRo
-ZSBvZmZzZXQuIFRoaXMgZnVuY3Rpb24gZG9lcyBub3QKKyAqCXdvcmsgZm9yIHNlbmRlciBzaWRl
-IG1lc3NhZ2VzIGFzIHRoZXkgYXJlIGlvcmVtYXAgb2JqZWN0cworICoJcHJvdmlkZWQgYnkgdGhl
-IEkyTyBjb250cm9sbGVyLgorICovCitzdGF0aWMgaW5saW5lIHN0cnVjdCBpMm9fbWVzc2FnZSAq
-aTJvX21zZ19vdXRfdG9fdmlydChzdHJ1Y3QgaTJvX2NvbnRyb2xsZXIgKmMsCisJCQkJCQkgICAg
-ICB1MzIgbSkKK3sKKwlpZiAodW5saWtlbHkKKwkgICAgKG0gPCBjLT5vdXRfcXVldWUucGh5cwor
-CSAgICAgfHwgbSA+PSBjLT5vdXRfcXVldWUucGh5cyArIGMtPm91dF9xdWV1ZS5sZW4pKQorCQlC
-VUcoKTsKKworCXJldHVybiBjLT5vdXRfcXVldWUudmlydCArIChtIC0gYy0+b3V0X3F1ZXVlLnBo
-eXMpOworfTsKKworLyoqCisgKglpMm9fbXNnX2luX3RvX3ZpcnQgLSBUdXJuIGFuIEkyTyBtZXNz
-YWdlIHRvIGEgdmlydHVhbCBhZGRyZXNzCisgKglAYzogY29udHJvbGxlcgorICoJQG06IG1lc3Nh
-Z2UgZW5naW5lIHZhbHVlCisgKgorICoJVHVybiBhIHNlbmQgbWVzc2FnZSBmcm9tIGFuIEkyTyBj
-b250cm9sbGVyIGJ1cyBhZGRyZXNzIGludG8KKyAqCWEgTGludXggdmlydHVhbCBhZGRyZXNzLiBU
-aGUgc2hhcmVkIHBhZ2UgZnJhbWUgaXMgYSBsaW5lYXIgYmxvY2sKKyAqCXNvIHdlIHNpbXBseSBo
-YXZlIHRvIHNoaWZ0IHRoZSBvZmZzZXQuIFRoaXMgZnVuY3Rpb24gZG9lcyBub3QKKyAqCXdvcmsg
-Zm9yIHJlY2VpdmUgc2lkZSBtZXNzYWdlcyBhcyB0aGV5IGFyZSBrbWFsbG9jIG9iamVjdHMKKyAq
-CWluIGEgZGlmZmVyZW50IHBvb2wuCisgKi8KK3N0YXRpYyBpbmxpbmUgc3RydWN0IGkyb19tZXNz
-YWdlICppMm9fbXNnX2luX3RvX3ZpcnQoc3RydWN0IGkyb19jb250cm9sbGVyICpjLAorCQkJCQkJ
-ICAgICB1MzIgbSkKK3sKKwlyZXR1cm4gYy0+aW5fcXVldWUudmlydCArIG07Cit9OworCisvKioK
-ICAqCWkyb19kbWFfYWxsb2MgLSBBbGxvY2F0ZSBETUEgbWVtb3J5CiAgKglAZGV2OiBzdHJ1Y3Qg
-ZGV2aWNlIHBvaW50ZXIgdG8gdGhlIFBDSSBkZXZpY2Ugb2YgdGhlIEkyTyBjb250cm9sbGVyCiAg
-KglAYWRkcjogaTJvX2RtYSBzdHJ1Y3Qgd2hpY2ggc2hvdWxkIGdldCB0aGUgRE1BIGJ1ZmZlcgpf
-Cg==
---=-=-=
-
-
-at least it resolves the unknown symbol i2o_msg_in_to_virt issues for
-me ;-)
-
-
--- 
-
---=-=-=--
+Thanks,
+Kay

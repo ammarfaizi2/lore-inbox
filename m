@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbUAMBmj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 20:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUAMBmj
+	id S263513AbUAMBsM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 20:48:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUAMBsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 20:42:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47307 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263015AbUAMBmi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 20:42:38 -0500
-Date: Mon, 12 Jan 2004 17:16:06 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bart Oldeman <bartoldeman@users.sourceforge.net>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] 2.6.1 (not 2.4.24!) mremap fixes broke shm alias mappings
-In-Reply-To: <Pine.LNX.4.44.0401130119490.21515-100000@enm-bo-lt.enm.bris.ac.uk>
-Message-ID: <Pine.LNX.4.58.0401121714370.14305@evo.osdl.org>
-References: <Pine.LNX.4.44.0401130119490.21515-100000@enm-bo-lt.enm.bris.ac.uk>
+	Mon, 12 Jan 2004 20:48:12 -0500
+Received: from pengo.systems.pipex.net ([62.241.160.193]:41658 "EHLO
+	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S263513AbUAMBsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 20:48:08 -0500
+From: Roman Gaufman <hackeron@dsl.pipex.com>
+Reply-To: hackeron@dsl.pipex.com
+To: linux-kernel@vger.kernel.org
+Subject: Slow NFS performance over wireless!
+Date: Tue, 13 Jan 2004 01:55:32 +0000
+User-Agent: KMail/1.5.94
+References: <Pine.LNX.4.44.0401060055570.1417-100000@poirot.grange>
+In-Reply-To: <Pine.LNX.4.44.0401060055570.1417-100000@poirot.grange>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401130155.32894.hackeron@dsl.pipex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey,
 
+I have experienced extremely poor NFS performance over wireless, when I scp a 
+piece of information from server to laptop, transfer rates stay stable and 
+file transfers, when I use NFS transfer rates jump constantly, and most of 
+the time file is NOT transfering.
 
-On Tue, 13 Jan 2004, Bart Oldeman wrote:
-> 
-> We've already been discussing and playing with a cleaner alternative to
-> mremap that works too (mmap'ing a file on tmpfs, perhaps via
-> shm_open()). It's just that it's difficult to explain to users why DOSEMU
-> worked on 2.6.0 and suddenly stopped working with the same configuration
-> on 2.6.1.
+I have searched all over the nfs, enabled higher caching on nfs, enabled the 
+usage of tcp, tried to pass hard, but transfer rates very poor, and only for 
+nfs transfer, so it doesn't seem my network configurations are wrong as scp, 
+html, ftp seem to work on full speed.
 
-Oh, please keep on using the mremap(ptr, 0, s) thing to create aliases.  
-There's nothing really wrong with it, and as long as we just document it
-in the sources, it shouldn't break again.
+On other machines on the network (non wireless) running same kernel (2.6.0) 
+everything seems fine.
 
-> -- the consensus amongst DOSEMU developers seems to be that you should
-> feel free to disallow this funny old_len==0 case in 2.7 if you like.
-
-It's potentially useful, and if we'll have a backwards compatibility issue 
-anyway, there's no reason to remove it.
-
-		Linus
+Can anyone suggest what I could test to trace this problem?

@@ -1,91 +1,174 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261926AbUCOCKW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 21:10:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbUCOCKW
+	id S262198AbUCOCU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 21:20:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbUCOCU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 21:10:22 -0500
-Received: from mail.kroah.org ([65.200.24.183]:47244 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261926AbUCOCKT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 21:10:19 -0500
-Date: Sun, 14 Mar 2004 18:10:09 -0800
-From: Greg KH <greg@kroah.com>
-To: "Woodruff, Robert J" <woody@co.intel.com>
-Cc: linux-kernel@vger.kernel.org, "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-Message-ID: <20040315021009.GA18106@kroah.com>
-References: <1AC79F16F5C5284499BB9591B33D6F000B630B@orsmsx408.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1AC79F16F5C5284499BB9591B33D6F000B630B@orsmsx408.jf.intel.com>
-User-Agent: Mutt/1.5.6i
+	Sun, 14 Mar 2004 21:20:26 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:27062 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262198AbUCOCUV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 21:20:21 -0500
+Message-ID: <4055122D.8030809@us.ibm.com>
+Date: Sun, 14 Mar 2004 18:17:17 -0800
+From: Nivedita Singhvi <niv@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: lkml <linux-kernel@vger.kernel.org>, benh@kernel.crashing.org,
+       davem@redhat.com, netdev <netdev@oss.sgi.com>
+Subject: Re: [patch/RFC] networking menus
+References: <20040314163327.53102f46.rddunlap@osdl.org>
+In-Reply-To: <20040314163327.53102f46.rddunlap@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 13, 2004 at 07:46:12PM -0800, Woodruff, Robert J wrote:
-> On Sat, Mar 13, 2004 at 02:07:13PM -0800, Greg KH wrote:
-> >I think you need to work with the openib.org people as they seem to
-> >have:
-> >	- working code with support for a number of different devices
-> I have code that has been running MPI NBPs, Pallas benchmark, and IPoIB
-> stress tests for almost 10 days now on multiple vendors equipment. We
-> are also close to having a major data base vendor's DAPL stress test
-> running very well.  I'm thinkin this code could be running 1000 nodes
-> clusters within a couple of months, if people wanted to try it, but
-> that would require Mellanox to open source their TVPD. 
+Randy.Dunlap wrote:
 
-Hm, without open source drivers, the Intel stack doesn't seem very
-viable, correct?
+> This is just a first pass/RFC.  It moves "Networking support" out of
+> the "Device Drivers" menu, which seems helpful to me.  However,
+> ISTM that it should really just be the "Networking options" here
+> and not include Amateur Radio, IrDA, and Bluetooth support.
+> I.e., I think that those latter 3 should fall under Device Drivers.
+> Does that make sense to anyone else?
 
-> >	- developers with extensive kernel programming experience
-> As if we don't. 
+Just a comment that those 3 subsystems are not just
+device drivers, they have non-trivial amount of code
+in the protocol stack under ../net/. So would moving
+them to device drivers be misleading in any way?
 
-Former kernel subsystem maintainers?  I did not realize that.
+I can see pulling out Networking support from under
+device drivers, though.
 
-> >	  working on cleaning up the code to fit properly into the
-> >	  kernel tree.
-> The comments you have given on IBAL would probably only take a few weeks
-> to change.
+> Does this need to be discussed on netdev (also)?
 
-Is that work already underway?  Finished?  If neither, why not?
+Yes. :)
 
-> >	- their code showing up in at least one distro which will expose
-> >	  them to a much wider range of testing than Intel's project so
-> >	  far has had.
-> Ok, the OEMS pushed for and got a distro to accept a TTM solution,
-> that's OK for getting InfiniBand jumpstarted, but does that mean we
-> have to accept it into Linux and live with that solution forever. 
+thanks,
+Nivedita
 
-We constantly change the kernel.  Look at the USB stack.  It has been
-rewritten completely almost 3 times now.  Did anyone really notice
-besides the wonderful speed improvements?  :)
+> 
+> // Linux 2.6.4
+> // Rearrange networking menus so that Networking support/options
+> // isn't buried inside Device Drivers.
+ >
+> diffstat:=
+>  drivers/Kconfig       |    4 +++-
+>  init/Kconfig          |    0
+>  net/Kconfig           |    6 ++----
+>  net/ax25/Kconfig      |    7 ++-----
+>  net/bluetooth/Kconfig |    4 +---
+>  net/irda/Kconfig      |    6 ++----
+>  6 files changed, 10 insertions(+), 17 deletions(-)
+> 
+> 
+> diff -Naurp ./drivers/Kconfig~net_config ./drivers/Kconfig
+> --- ./drivers/Kconfig~net_config	2004-03-10 18:55:44.000000000 -0800
+> +++ ./drivers/Kconfig	2004-03-12 15:20:39.000000000 -0800
+> @@ -1,5 +1,7 @@
+>  # drivers/Kconfig
+>  
+> +source "net/Kconfig"
+> +
+>  menu "Device Drivers"
+>  
+>  source "drivers/base/Kconfig"
+> @@ -28,7 +30,7 @@ source "drivers/message/i2o/Kconfig"
+>  
+>  source "drivers/macintosh/Kconfig"
+>  
+> -source "net/Kconfig"
+> +source "drivers/net/Kconfig"
+>  
+>  source "drivers/isdn/Kconfig"
+>  
+> diff -Naurp ./net/bluetooth/Kconfig~net_config ./net/bluetooth/Kconfig
+> --- ./net/bluetooth/Kconfig~net_config	2004-03-10 18:55:43.000000000 -0800
+> +++ ./net/bluetooth/Kconfig	2004-03-12 15:41:42.000000000 -0800
+> @@ -2,10 +2,8 @@
+>  # Bluetooth subsystem configuration
+>  #
+>  
+> -menu "Bluetooth support"
+> +menuconfig BT
+>  	depends on NET
+> -
+> -config BT
+>  	tristate "Bluetooth subsystem support"
+>  	help
+>  	  Bluetooth is low-cost, low-power, short-range wireless technology.
+> diff -Naurp ./net/irda/Kconfig~net_config ./net/irda/Kconfig
+> --- ./net/irda/Kconfig~net_config	2004-03-10 18:55:27.000000000 -0800
+> +++ ./net/irda/Kconfig	2004-03-12 15:39:39.000000000 -0800
+> @@ -2,11 +2,9 @@
+>  # IrDA protocol configuration
+>  #
+>  
+> -menu "IrDA (infrared) support"
+> +menuconfig IRDA
+>  	depends on NET
+> -
+> -config IRDA
+> -	tristate "IrDA subsystem support"
+> +	tristate "IrDA (infrared) subsystem support"
+>  	---help---
+>  	  Say Y here if you want to build support for the IrDA (TM) protocols.
+>  	  The Infrared Data Associations (tm) specifies standards for wireless
+> diff -Naurp ./net/ax25/Kconfig~net_config ./net/ax25/Kconfig
+> --- ./net/ax25/Kconfig~net_config	2004-03-10 18:55:44.000000000 -0800
+> +++ ./net/ax25/Kconfig	2004-03-12 15:40:01.000000000 -0800
+> @@ -6,9 +6,8 @@
+>  #		Joerg Reuter DL1BKE <jreuter@yaina.de>
+>  # 19980129	Moved to net/ax25/Config.in, sourcing device drivers.
+>  
+> -menu "Amateur Radio support"
+> -
+> -config HAMRADIO
+> +menuconfig HAMRADIO
+> +	depends on NET
+>  	bool "Amateur Radio support"
+>  	help
+>  	  If you want to connect your Linux box to an amateur radio, answer Y
+> @@ -109,5 +108,3 @@ source "drivers/net/hamradio/Kconfig"
+>  
+>  endmenu
+>  
+> -endmenu
+> -
+> diff -Naurp ./net/Kconfig~net_config ./net/Kconfig
+> --- ./net/Kconfig~net_config	2004-03-10 18:55:21.000000000 -0800
+> +++ ./net/Kconfig	2004-03-12 15:24:30.000000000 -0800
+> @@ -2,9 +2,9 @@
+>  # Network configuration
+>  #
+>  
+> -menu "Networking support"
+> +###menu "Networking support"
+>  
+> -config NET
+> +menuconfig NET
+>  	bool "Networking support"
+>  	---help---
+>  	  Unless you really know what you are doing, you should say Y here.
+> @@ -650,8 +650,6 @@ endmenu
+>  
+>  endmenu
+>  
+> -source "drivers/net/Kconfig"
+> -
+>  source "net/ax25/Kconfig"
+>  
+>  source "net/irda/Kconfig"
+> diff -Naurp ./init/Kconfig~net_config ./init/Kconfig
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-We never have to "live with a solution forever."
 
-> I guess I just wish they had started working with us on this open source
-> project 2 years ago when we started it, rather than developing a
-> complete stack behind closed doors and then releasing it without any
-> input from anyone.
 
-There have been numerous closed source IB stacks for Linux.  Just like
-there were numerous Bluetooth stacks for Linux in the past.  Over time
-the closed ones are weeded out as everyone relies on the in-kernel one.
-
-> Now there are serious issues that will take a lot of work to fix.
-
-What are the issues with the OpenIB stack?  If there are any, how does
-the Intel stack solve those issues?  Could the Intel solutions be merged
-into the OpenIB stack to solve these issues?
-
-> At least our project was totally open from the start and anyone could
-> have provided input at any time. 
-
-I understand your frustrations, I've been there before.
-
-Good luck,
-
-greg k-h

@@ -1,65 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262213AbSJOA7M>; Mon, 14 Oct 2002 20:59:12 -0400
+	id <S262306AbSJOBCm>; Mon, 14 Oct 2002 21:02:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbSJOA7M>; Mon, 14 Oct 2002 20:59:12 -0400
-Received: from holomorphy.com ([66.224.33.161]:54418 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262213AbSJOA7L>;
-	Mon, 14 Oct 2002 20:59:11 -0400
-Date: Mon, 14 Oct 2002 17:58:10 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       LSE <lse-tech@lists.sourceforge.net>, Andrew Morton <akpm@zip.com.au>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [rfc][patch] Memory Binding API v0.3 2.5.41
-Message-ID: <20021015005810.GL4488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Matthew Dobson <colpatch@us.ibm.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-	LSE <lse-tech@lists.sourceforge.net>,
-	Andrew Morton <akpm@zip.com.au>,
-	Michael Hohnbaum <hohnbaum@us.ibm.com>
-References: <3DAB6385.9000207@us.ibm.com> <2005946728.1034617377@[10.10.2.3]> <3DAB669B.3000801@us.ibm.com>
-Mime-Version: 1.0
+	id <S262310AbSJOBCm>; Mon, 14 Oct 2002 21:02:42 -0400
+Received: from mta02ps.bigpond.com ([144.135.25.134]:16621 "EHLO
+	wmailout2.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262306AbSJOBCk>; Mon, 14 Oct 2002 21:02:40 -0400
+From: harisri <harisri@telstra.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, harisri@bigpond.com
+Message-ID: <fd1cf102287.102287fd1cf@bigpond.com>
+Date: Tue, 15 Oct 2002 11:08:31 +1000
+X-Mailer: Netscape Webmail
+MIME-Version: 1.0
+Content-Language: en
+Subject: Re: 2.4.20-pre10aa1 oops report (was Re: Linux-2.4.20-pre8-aa2
+ oops report. [solved])
+X-Accept-Language: en
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DAB669B.3000801@us.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 05:51:39PM -0700, Matthew Dobson wrote:
-> Well, since each node's memory (or memblk in the parlance of my head ;) 
-> has several 'zones' in it (DMA, HIGHMEM, etc), this conversion function 
-> will need 2 parameters.  It may well be called 
-> __node_and_zone_type_to_flat_zone_number(node, DMA|NORMAL|HIGHMEM).
-> Or, we could have:
-> __zone_to_node(5) = node #
-> and
-> __zone_to_zone_type(5) = DMA|NORMAL|HIGHMEM.
-> But either way, we would need to specify both pieces.
-> Cheers!
-> -Matt
+Hello Andrea,
+ 
+> this smells like a problem with one of your modules. Please make 100%
+> sure you use exactly the same .config for both 2.4.20pre10 and
+> 2.4.20pre10aa1 and please try to find which is the module that is
+> crashing the kernel after it's being loaded. Expect always different
+> kind of crashes and oopses. You can also try to turn on the slab
+> debugging option in the kernel hacking menu.
 
-Zone "type" can be found in (page->flags >> ZONE_SHIFT) & 0x3UL and
-similarly node ID can be found in page_zone(page)->zone_pgdat->node_id
-and these are from the page.
+Yes I am using the same .config file from 2.4.20-pre10 on 
+2.4.20-pre10aa1 (of course I run make oldconfig, and accept the default 
+setting that shows up on 2.4.20-pre10aa1)
 
-zone->zone_pgdat->node_id does the zone to node conversion
-zone - zone_pgdat->node_zones does the zone to zone type conversion.
+I think you are right, it has something to do with the kernel modules.
 
-Node and zone type to flat zone number would be
-	NODE_DATA(nid)->node_zones[type]
+> > Code;  c01e55e2 <fast_clear_page+12/50>
+> 
+> you also may want to configure the kernel as i686 instead of K7 so
+> fast_clear_page won't be used to see if it makes any difference.
 
-Basically there's a number written in page->flags that should be easy
-to decode if you can go on arithmetic alone, and if you need details,
-there's a zone_table[] you can get at the zones (and hence pgdats) with.
+Ok. That didn't really help. Kernel compiled for i386 even crashes, but 
+the k7 optimised kernel crashes at the Athlon speed :-)
+ 
+> the place where the oops happens is most certainly not the problem,
+> either something is wrong with fast_clear_page for whatever hardware
+> reason, or more likely the moduled by modprobe is corrupting the
+> freelist and alloc_pages returned garbage.
+> 
+> btw, how much memory do you have? If you've more than 800M it 
+> could be a
+> broken driver using pte_offset by hand, try to reproduce with mem=800m
+> in such case. To fix this you should find which is the module that is
+> destabilizing the kernel.
 
+My computer has 512 MB RAM. No highmem.
 
-Bill
+I am able to trigger the issue (after 3 attempts [1]) with,
+CONFIG_AGP m
+CONFIG_AGP_AMD y
+CONFIG_DRM y
+CONFIG_DRM_RADEON m
+
+While I couldn't trigger the issue (after 5 attempts [1]) without them. 
+Hence I suspect it may be something to do with them. But it takes a lot 
+of time to test these all, I think I will have good answers in couple of 
+days time considering the amount of time it takes to perform the tests.
+
+[1]
+1. Login to XFree86/Gnome
+2. Start Mozilla, Evolution, OpenOffice Writer/Calc/Impress, Konqueror, 
+KMail. And exit them all.
+3. mke2fs -j /dev/hdc9; mount /dev/hdc9 /test;cd /test;dd if=/dev/zero 
+of=zero bs=1024 count=2097152;cd /
+4. Redo the step 2
+5. Log out and log in and redo step 2
+6. Unmount /test
+
+Repeat the above test cycle few times (on 3rd attempt or so) the system 
+oops (when I had AGP/AMD/DRM/Radeon stuff).
+
+Thanks for your help.
+
+Hari
+harisri@bigpond.com
+ 
+

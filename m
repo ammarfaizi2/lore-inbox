@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbTKUXJI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 18:09:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTKUXJI
+	id S261733AbTKUXVr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 18:21:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTKUXVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 18:09:08 -0500
-Received: from 217-124-7-166.dialup.nuria.telefonica-data.net ([217.124.7.166]:1152
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S261731AbTKUXJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 18:09:06 -0500
-Date: Sat, 22 Nov 2003 00:08:57 +0100
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Voicu Liviu <pacman@mscc.huji.ac.il>, kerin@recruit2recruit.net
-Subject: Re: 2.6.0-test9-mm4 (only) and vmware
-Message-ID: <20031121230857.GA6202@localhost>
-Mail-Followup-To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, Voicu Liviu <pacman@mscc.huji.ac.il>,
-	kerin@recruit2recruit.net
-References: <20031120225629.GN22764@holomorphy.com> <20031121201019.GA5848@localhost>
-Mime-Version: 1.0
+	Fri, 21 Nov 2003 18:21:47 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:30380 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261733AbTKUXVq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 18:21:46 -0500
+Date: Fri, 21 Nov 2003 15:46:55 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Cirrus Logic CS 4614/22/24 driver (IBM thinkpad T21)
+Message-ID: <941270000.1069458415@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031121201019.GA5848@localhost>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 21 November 2003, at 21:10:19 +0100,
-Jose Luis Domingo Lopez wrote:
+Has anyone got the driver for this thing to work for more than about
+24 hours? Seems to descend slowly into crackly hell. Or are there any
+ways to debug these damned things?
 
-> Otherwise, everything is as it was yesterday. Booted the program,
-> started the same guest operating system as ever, and now the BUG is gone
-> and everything works OK.
-> 
-Just for the record, the recently released 2.6.0-test9-mm5 has the fix 
-for mm/memory.c so VMware works OK again.
+Multimedia audio controller: 
+Cirrus Logic CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator] (rev 01)
 
-Greetings.
+CONFIG_SND_CS46XX=y
+CONFIG_SND_ENS1371=y
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test9-mm5)
+ALSA device list:
+  #0: Sound Fusion CS46xx at 0xe8122000/0xe8000000, irq 11
+
+

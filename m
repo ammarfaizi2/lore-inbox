@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265494AbTGCWwX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 18:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbTGCWwG
+	id S265505AbTGCW63 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 18:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbTGCW4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 18:52:06 -0400
-Received: from gutemberg-1-81-57-26-150.fbx.proxad.net ([81.57.26.150]:38091
-	"EHLO charlus.dyndns.org") by vger.kernel.org with ESMTP
-	id S265485AbTGCWvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 18:51:46 -0400
-Message-ID: <3F04B6DA.2040300@ruault.com>
-Date: Fri, 04 Jul 2003 01:06:02 +0200
-From: Charles-Edouard Ruault <ce@ruault.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Thu, 3 Jul 2003 18:56:36 -0400
+Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:13440 "EHLO server")
+	by vger.kernel.org with ESMTP id S265488AbTGCWz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 18:55:26 -0400
+Message-ID: <14af01c341b8$2b979c50$3400a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Matthias Andree" <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
+References: <00d901c340a8$810556c0$3300a8c0@Slepetys> <1083830000.1057158848@aslan.scsiguy.com> <01b101c340dc$ede386c0$3300a8c0@Slepetys> <016901c34191$14c4a1c0$3300a8c0@Slepetys> <20030703224928.GB20143@merlin.emma.line.org>
+Subject: Re: Probably 2.4 kernel or AIC7xxx module trouble
+Date: Thu, 3 Jul 2003 16:09:34 -0700
 MIME-Version: 1.0
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-CC: Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.21 , large disk write => system crawls
-References: <Pine.LNX.4.44.0307031848420.7338-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.44.0307031848420.7338-100000@coffee.psychology.mcmaster.ca>
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
+Tried that before. Before I thought it was the kswapd problem (see list).
+But a few hours after I thought it was fixed, bamm it did it again.
 
->>>>when i do a large disk write operation ( copy a big file for example ), 
->>>>the whole system becomes very busy ( system goes into 99% cpu 
->>>>        
->>>>
->
->it's not write-specific.  you can see below that you're somehow
->managing to trigger roughly two interrupts per *either* bi or bo.
->for a normal IDE setup, you should see one interrupt per 16-64K
->under average use.  it's almost like your sys somehow thinks
->that it can only transfer 1 sector per interrupt!
->  
->
-hmmm interesting i had not noticed that !
-
->  
->
->>everytime i experience a slowdown, there's a 'big' number in the io (bo) 
->>column.
->>    
->>
->
->no, it's basically in=2*(bi+bo), as if your system somehow believes
->it can only do a single sector per interrupt (PIO and -m1 perhaps?)
->it should be more like 32K per interrupt.
->
->  
->
->>Jun 27 22:52:31 charlus kernel: Found and enabled local APIC!
->>    
->>
->
->have you tried without that?
->
->.
->
->  
->
-nope. I'll do that for sure. I've already had problems with APIC on 
-other systems ...
-Thanks for the hint. I'll keep you posted if it works.
+I have monitored ps via this script, but I never see anything out of the
+ordinary. I will try again and send a copy to the other guy who is having
+the problem to see what results we get.
 
 
--- 
-Charles-Edouard Ruault
-PGP Key ID E10C24DC
+----- Original Message ----- 
+From: "Matthias Andree" <matthias.andree@gmx.de>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, July 03, 2003 3:49 PM
+Subject: Re: Probably 2.4 kernel or AIC7xxx module trouble
 
+
+> On Thu, 03 Jul 2003, Roberto Slepetys Ferreira wrote:
+>
+> > Meanning that the Load Average is incompatible with the use of the CPUs.
+>
+> To find the stuck process that pushes your LA up, try: ps ax | grep -w D
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263223AbVCKHRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263224AbVCKHTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263223AbVCKHRh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 02:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263224AbVCKHRh
+	id S263224AbVCKHTb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 02:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263225AbVCKHTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 02:17:37 -0500
-Received: from fire.osdl.org ([65.172.181.4]:15006 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263223AbVCKHRf (ORCPT
+	Fri, 11 Mar 2005 02:19:31 -0500
+Received: from mail.kroah.org ([69.55.234.183]:32730 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263224AbVCKHSk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 02:17:35 -0500
-Date: Thu, 10 Mar 2005 23:17:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ppc64: Add IDE-pmac support for new "Shasta" chipset
-Message-Id: <20050310231700.5486ccd4.akpm@osdl.org>
-In-Reply-To: <1110523540.5751.52.camel@gaston>
-References: <1110523540.5751.52.camel@gaston>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 11 Mar 2005 02:18:40 -0500
+Date: Thu, 10 Mar 2005 23:18:25 -0800
+From: Greg KH <greg@kroah.com>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for 2.6.11)
+Message-ID: <20050311071825.GA28613@kroah.com>
+References: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->
-> The iMac G5 and new single CPU PowerMac G5 come with a new revision of
->  the K2 ASIC called Shasta. The PATA cell in there now does 133Mhz. This
->  patch adds support for it. It also adds some power management bits to
->  the old 100MHz cell that was in Intrepid based ppc32 machines.
+On Fri, Mar 11, 2005 at 02:37:17PM +1100, Peter Chubb wrote:
+> +/*
+> + * The PCI subsystem is implemented as yet-another pseudo filesystem,
+> + * albeit one that is never mounted.
+> + * This is its magic number.
+> + */
+> +#define USR_PCI_MAGIC (0x12345678)
 
-Compile fix:
+If you make it a real, mountable filesystem, then you don't need to have
+any of your new syscalls, right?  Why not just do that instead?
 
---- 25/drivers/ide/ppc/pmac.c~ppc64-add-ide-pmac-support-for-new-shasta-chipset-fix	2005-03-11 07:12:01.000000000 -0700
-+++ 25-akpm/drivers/ide/ppc/pmac.c	2005-03-11 07:12:20.000000000 -0700
-@@ -1301,7 +1301,7 @@ pmac_ide_setup_device(pmac_ide_hwif_t *p
- 	 */
- 	if (device_is_compatible(np, "K2-UATA") ||
- 	    device_is_compatible(np, "shasta-ata"))
--		pmid->cable_80 = 1;
-+		pmif->cable_80 = 1;
- 
- 	/* On Kauai-type controllers, we make sure the FCR is correct */
- 	if (pmif->kauai_fcr)
-_
+thanks,
 
-(Wonders how well tested this was).
+greg k-h

@@ -1,88 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVBAXpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbVBAXtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262135AbVBAXpf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVBAXpf
+	id S262147AbVBAXtq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:49:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVBAXtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:45:35 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:44486 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262135AbVBAXpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:45:16 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc2-V0.7.36-04
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Tom Rini <trini@kernel.crashing.org>, Bill Huey <bhuey@lnxw.com>,
-       linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <20050201204359.GA346@elte.hu>
-References: <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu>
-	 <20041214132834.GA32390@elte.hu>
-	 <20050104064013.GA19528@nietzsche.lynx.com>
-	 <20050104094518.GA13868@elte.hu> <20050107192651.GG5259@smtp.west.cox.net>
-	 <20050126080952.GC4771@elte.hu> <1107288076.18349.7.camel@krustophenia.net>
-	 <20050201201704.GA32139@elte.hu>
-	 <1107289878.18349.20.camel@krustophenia.net> <20050201204359.GA346@elte.hu>
-Content-Type: text/plain
-Date: Tue, 01 Feb 2005 18:45:14 -0500
-Message-Id: <1107301515.27870.29.camel@krustophenia.net>
+	Tue, 1 Feb 2005 18:49:45 -0500
+Received: from neapel230.server4you.de ([217.172.187.230]:59575 "EHLO
+	neapel230.server4you.de") by vger.kernel.org with ESMTP
+	id S262147AbVBAXqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 18:46:15 -0500
+Date: Wed, 2 Feb 2005 00:46:14 +0100
+From: rene.scharfe@lsrfire.ath.cx
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] proc filesystem (1/3): fix mount options
+Message-ID: <20050201234614.GA29125@lsrfire.ath.cx>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-01 at 21:44 +0100, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > OK.  So for application triggered tracing you need LATENCY_TRACING
-> > enabled, as described here:
-> > 
-> > http://lkml.org/lkml/2004/10/29/312
-> 
-> correct, that too should still work fine - with the small change that
-> there's now a separate flag to active it:
-> 
-> 	echo 1 > /proc/sys/kernel/trace_user_triggered  # default: 0
-> 
-> it is an orthogonal mechanism to atomicity-debugging.
+Hello,
 
-OK.  Rereading my old mail, it looks like there were some possibly
-unresolved false positives with the userspace atomicity debugger.
+while trying to add a umask option to the proc filesystem I stumbled
+over a somewhat related problem: the existing mount options uid and
+gid were non-functional.  The patch below is an attempt to fix them
+and prepares the ground for my evil umask plans. :)
 
-Here's one I get from alsaplayer.  Would more information be required to
-know if this is a false positive?
+The first half of the reason why the uid and gid options are not
+working is that proc has only a single superblock, no matter how many
+times it is mounted.  This is achieved with the help of get_single_sb().
+Only the first mount calls fill_super(), all following mounts are
+like remounts.
 
-alsaplayer:5718 userspace BUG: scheduling in user-atomic context!
- [<c0102a97>] dump_stack+0x17/0x20 (20)
- [<c026268c>] schedule+0x6c/0x100 (24)
- [<c026330c>] rwsem_down_read_failed+0x9c/0x170 (48)
- [<c01277f5>] .text.lock.futex+0x7/0xb2 (44)
- [<c01276bf>] do_futex+0x4f/0x80 (28)
- [<c01277ba>] sys_futex+0xca/0xe0 (68)
- [<c0102457>] syscall_call+0x7/0xb (-4028)
+The second half is that proc is mounted during boot with kern_mount().
+This function passes NULL as mount parameter string to
+proc_fill_super().
 
-(gdb) bt
-#0  0x4117c4ec in __lll_mutex_unlock_wake () from /lib/tls/libpthread.so.0
-#1  0x41179a69 in _L_mutex_unlock_26 () from /lib/tls/libpthread.so.0
-#2  0x0824d3c0 in ?? ()
-#3  0xb7ef3958 in ?? ()
-#4  0x41179a60 in pthread_mutex_unlock () from /lib/tls/libpthread.so.0
-#5  0x41179a60 in pthread_mutex_unlock () from /lib/tls/libpthread.so.0
-#6  0x08057a30 in CorePlayer::Read32 (this=0x1, data=0xb7508008, samples=64) at CorePlayer.cpp:1076
-#7  0x08057f89 in CorePlayer::streamer_func (arg=0x824d3c0, data=0x824cc80, size=128) at CorePlayer.cpp:1257
-#8  0xb7ffcd52 in process (nframes=64, arg=0x824b258) at jack.cpp:350
-#9  0xb7ef99f9 in jack_client_thread (arg=0x824bb48) at client.c:1264
-#10 0x41177b63 in start_thread () from /lib/tls/libpthread.so.0
-#11 0x410f0c4a in clone () from /lib/tls/libc.so.6
+So the single mount call where we could provide some options provides --
+nothing.  I don't know why parse_options() is not called from
+proc_remount(), but it looks like this has been done on purpose, to
+avoid changing ownership of the root inode while proc is mounted.
+Is that observation correct or was it just an accident?
 
-The backtrace is incomplete because I was unable to reproduce the
-problem with the debug glibc.
+Anyway, the following patch changes proc to not appear like accepting
+regular mount options and instead makes it parse kernel parameters.  I
+hope this is not too evil.  They provide the semantics which I hope is
+correct: changable at boot time and only at boot time.
 
-Lee
+Patch is against 2.6.11-rc2-bk10 (2.6.10 should be OK, too), compiles,
+boots and works for me.
+
+Comments welcome.
+
+Thanks,
+Rene
 
 
+diff -pur linux-2.6.11-rc2-bk10/fs/proc/inode.c ll/fs/proc/inode.c
+--- linux-2.6.11-rc2-bk10/fs/proc/inode.c	2005-02-01 04:17:25.000000000 +0100
++++ ll/fs/proc/inode.c	2005-02-01 03:23:51.000000000 +0100
+@@ -148,22 +148,24 @@ enum {
+ };
+ 
+ static match_table_t tokens = {
+-	{Opt_uid, "uid=%u"},
+-	{Opt_gid, "gid=%u"},
++	{Opt_uid, "proc.uid=%u"},
++	{Opt_gid, "proc.gid=%u"},
+ 	{Opt_err, NULL}
+ };
+ 
++/*
++ * This parse_options function is different.  It parses kernel parameters
++ * instead of filesystem mount options.
++ */ 
+ static int parse_options(char *options,uid_t *uid,gid_t *gid)
+ {
+ 	char *p;
+ 	int option;
+ 
+-	*uid = current->uid;
+-	*gid = current->gid;
+ 	if (!options)
+ 		return 1;
+ 
+-	while ((p = strsep(&options, ",")) != NULL) {
++	while ((p = strsep(&options, " \t")) != NULL) {
+ 		substring_t args[MAX_OPT_ARGS];
+ 		int token;
+ 		if (!*p)
+@@ -173,16 +175,14 @@ static int parse_options(char *options,u
+ 		switch (token) {
+ 		case Opt_uid:
+ 			if (match_int(args, &option))
+-				return 0;
++				continue;
+ 			*uid = option;
+ 			break;
+ 		case Opt_gid:
+ 			if (match_int(args, &option))
+-				return 0;
++				continue;
+ 			*gid = option;
+ 			break;
+-		default:
+-			return 0;
+ 		}
+ 	}
+ 	return 1;
+@@ -231,6 +231,11 @@ out_fail:
+ 	goto out;
+ }			
+ 
++/*
++ * Because proc is a single-superblock filesystem, proc_fill_super() is
++ * only called at boot time and never during sys_mount().  That means
++ * filesystem options can only be specified as kernel parameters.
++ */
+ int proc_fill_super(struct super_block *s, void *data, int silent)
+ {
+ 	struct inode * root_inode;
+@@ -249,6 +254,8 @@ int proc_fill_super(struct super_block *
+ 	 * Fixup the root inode's nlink value
+ 	 */
+ 	root_inode->i_nlink += nr_processes();
++	root_inode->i_uid = 0;
++	root_inode->i_gid = 0;
+ 	s->s_root = d_alloc_root(root_inode);
+ 	if (!s->s_root)
+ 		goto out_no_root;
+diff -pur linux-2.6.11-rc2-bk10/fs/proc/root.c ll/fs/proc/root.c
+--- linux-2.6.11-rc2-bk10/fs/proc/root.c	2004-12-24 22:35:24.000000000 +0100
++++ ll/fs/proc/root.c	2005-02-01 02:25:04.000000000 +0100
+@@ -7,6 +7,7 @@
+  */
+ 
+ #include <asm/uaccess.h>
++#include <asm/setup.h>
+ 
+ #include <linux/errno.h>
+ #include <linux/time.h>
+@@ -17,6 +18,8 @@
+ #include <linux/module.h>
+ #include <linux/bitops.h>
+ #include <linux/smp_lock.h>
++#include <linux/string.h>
++#include <linux/mount.h>
+ 
+ struct proc_dir_entry *proc_net, *proc_net_stat, *proc_bus, *proc_root_fs, *proc_root_driver;
+ 
+@@ -39,13 +42,15 @@ static struct file_system_type proc_fs_t
+ extern int __init proc_init_inodecache(void);
+ void __init proc_root_init(void)
+ {
++	char tmp_cmdline[COMMAND_LINE_SIZE];
+ 	int err = proc_init_inodecache();
+ 	if (err)
+ 		return;
+ 	err = register_filesystem(&proc_fs_type);
+ 	if (err)
+ 		return;
+-	proc_mnt = kern_mount(&proc_fs_type);
++	strlcpy(tmp_cmdline, saved_command_line, COMMAND_LINE_SIZE);
++	proc_mnt = do_kern_mount("proc", 0, "proc", tmp_cmdline);
+ 	err = PTR_ERR(proc_mnt);
+ 	if (IS_ERR(proc_mnt)) {
+ 		unregister_filesystem(&proc_fs_type);

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284088AbRLTLKf>; Thu, 20 Dec 2001 06:10:35 -0500
+	id <S284175AbRLTLQ0>; Thu, 20 Dec 2001 06:16:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284153AbRLTLK0>; Thu, 20 Dec 2001 06:10:26 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:20638 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S284144AbRLTLKL>;
-	Thu, 20 Dec 2001 06:10:11 -0500
-Date: Thu, 20 Dec 2001 14:07:29 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: James Cleverdon <jamesclv@us.ibm.com>, <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] MAX_MP_BUSSES increase
-In-Reply-To: <Pine.LNX.4.33.0112192154190.19321-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0112201405550.6212-100000@localhost.localdomain>
+	id <S284144AbRLTLQQ>; Thu, 20 Dec 2001 06:16:16 -0500
+Received: from mons.uio.no ([129.240.130.14]:13504 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S284153AbRLTLQD>;
+	Thu, 20 Dec 2001 06:16:03 -0500
+To: David Chow <davidchow@rcn.com.hk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nfsroot dead slow with redhat 7.2
+In-Reply-To: <3C2131FC.6040209@rcn.com.hk> <shs6672n25h.fsf@charged.uio.no>
+	<1008812943.16827.1.camel@star9.planet.rcn.com.hk>
+	<15393.20331.862567.47007@charged.uio.no>
+	<1008836323.972.6.camel@star7.planet.rcn.com.hk>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 20 Dec 2001 12:15:53 +0100
+In-Reply-To: <1008836323.972.6.camel@star7.planet.rcn.com.hk>
+Message-ID: <shsadwef8gm.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == David Chow <davidchow@rcn.com.hk> writes:
 
-On Wed, 19 Dec 2001, Linus Torvalds wrote:
+     > Just find out... it is a problem of some settings in /etc
+     > directory it is not related to the FSes . I replaced the /etc
+     > directory with the one we are using on the production
+     > machines... by the way. What can be wrong? When it starts init
+     > , and execute the /etc/rc.d/rc.sysinit , it is hell slow. We
+     > have tried replace /sbin/init with bash and we got out a shell
+     > but "ls -l" takes more than 2 minutes... do you know what sort
+     > of settings in the /etc will affect use space "bash" or "glibc"
+     > on nfsroot behaves different ? This is so strange.
 
-> > Marcello and Linus, please apply.
->
-> Can you give a rough description of what kinds of arrays this will
-> impact, just out of curiosity. Ie do we talk about "5kB more memory in
-> order to avoid problems", or are we talking about something
-> noticeable..
->
-> 		Linus "too lazy to grep" Torvalds
+Anything network related: ipchains, network parameters, ...
+Also, if things like portmapper, statd, and the remaining NFS mounts
+are getting started in the wrong order.
 
-the change is OK, it's about +3K RAM used, on SMP kernels.
-
-	Ingo
-
+Cheers,
+  Trond

@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261594AbTAIFJQ>; Thu, 9 Jan 2003 00:09:16 -0500
+	id <S261599AbTAIFGD>; Thu, 9 Jan 2003 00:06:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbTAIFJQ>; Thu, 9 Jan 2003 00:09:16 -0500
-Received: from gherkin.frus.com ([192.158.254.49]:1152 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id <S261594AbTAIFJP>;
-	Thu, 9 Jan 2003 00:09:15 -0500
-Subject: Re: XFree86 vs. 2.5.54 - reboot
-In-Reply-To: <3E1C9D9A.FD5CA1F6@digeo.com> "from Andrew Morton at Jan 8, 2003
- 01:52:26 pm"
-To: Andrew Morton <akpm@digeo.com>
-Date: Wed, 8 Jan 2003 23:17:56 -0600 (CST)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S261600AbTAIFGC>; Thu, 9 Jan 2003 00:06:02 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:25556 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S261599AbTAIFGC>; Thu, 9 Jan 2003 00:06:02 -0500
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A110@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk,
+       acpi-devel@lists.sourceforge.net
+Subject: RE: [PATCH 2.5.54] cpufreq-ACPI: deprecated usage of CPUFREQ_ALL_
+	CPUS
+Date: Wed, 8 Jan 2003 17:06:15 -0800 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20030109051756.7B1134EE7@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy(0000))
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Perhaps you should try disabling
-> various DRM/AGP type things in config, see if that helps.
+> From: Dominik Brodowski [mailto:linux@brodo.de] 
+> Deprecated usage of CPUFREQ_ALL_CPUS: as policy->cpu now only points
+> to an existing CPU, some code can safely be removed from the ACPI
+> P-States cpufreq driver.
 
-All the DRM/AGP stuff was configured as modules, and none of them
-were loaded prior to running "startx".  If disabling them entirely
-is different from not loading them, I'll be happy to give that a try.
+OK thanks, applied.
 
-> If not, it would
-> help if you could identify the kernel version at which the failure started
-> to occur.
+BTW Dominik in the future don't feel you need to submit cpufreq-ACPI
+patches through me - although a CC would still be nice. ;-)
 
-Wish I knew for certain...  The 2.5 series got to be unusable from my
-perspective somewhere in the 2.5.50 timeframe.  2.5.51 may have worked:
-that was the last 2.5 kernel I built prior to 2.5.54.  I didn't run it
-as a "production" kernel either because of the X11 problem, or because
-the ALSA emu10k1 driver was broken (the latter is fine in 2.5.54 as far
-as I can tell).
-
-2.5.55 is out.  Maybe I should give that a try.
-
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Regards -- Andy

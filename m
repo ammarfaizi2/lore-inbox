@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUCVWMh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 17:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbUCVWMC
+	id S263716AbUCVWLx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 17:11:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbUCVWLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 17:12:02 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:3532 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263717AbUCVWLv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 17:11:51 -0500
-Date: Mon, 22 Mar 2004 23:11:48 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Kai Germaschewski <kai@germaschewski.name>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] out-of-tree builds
-In-Reply-To: <20040315180243.GB8456@mars.ravnborg.org>
-Message-ID: <Pine.GSO.4.58.0403222310360.25759@waterleaf.sonytel.be>
-References: <Pine.GSO.4.58.0403141353470.1231@waterleaf.sonytel.be>
- <20040315180243.GB8456@mars.ravnborg.org>
+	Mon, 22 Mar 2004 17:11:53 -0500
+Received: from mail005.syd.optusnet.com.au ([211.29.132.54]:31156 "EHLO
+	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263716AbUCVWLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 17:11:46 -0500
+Message-Id: <200403222211.i2MMBcu20944@mail005.syd.optusnet.com.au>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
+From: chakkerz_dev@optusnet.com.au
+To: Eric Brunner-Williams in Portland Maine <brunner@nic-naa.net>
+Cc: linux-kernel@vger.kernel.org
+Date: Tue, 23 Mar 2004 09:11:38 +1100
+Subject: T21 config wanted, 2.4 or 2.6, both USB mouse and eth0 (3c556
+    MiniPCI)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Mar 2004, Sam Ravnborg wrote:
-> On Sun, Mar 14, 2004 at 01:58:36PM +0100, Geert Uytterhoeven wrote:
-> > Although I like the feature to build a kernel in a different directory a lot, I
-> > don't like its syntax. I prefer to just have a build directory where I can run
-> > `make whatever'.
-> >
-> > The following patch adds a configure script to the kernel. If you run
-> >
-> >     /path/to/kernel/source/tree/configure
-> >
-> > it will create a Makefile in the current directory, after which you can just do
-> > `make whatever', just like in the source directory.
-> >
-> > The configure script contains a simple protection for when run in the source
-> > directory, but this may be approved (I'm not a configure script guru).
-> >
-> > Comments?
->
-> I like the general idea.
-> I'm in doubt that configure is the best name, because no actual
-> configuration takes place.
 
-I know. But I make it that way because that's how people are used to configure
-for out-of-tree builds with autoconf.
+a T21 is a ThinkPad 21 i take it
 
-> But I want to finish the external modules stuff before introducing
-> more features. So it will wait until then.
+now from what i can see here there are a few
+t21s out there, with different CPUs in them
+but the network card appears to be
+consistently 3Com made, which one isn't all
+that clear to me here. Just check the cat
+/proc/pci and you should get something like this:
 
-Let's see what other people think ;-)
+ Bus  6, device   0, function  0:
+    Ethernet controller: Realtek
+Semiconductor Co., Ltd. RTL-8139/8139C/8139C+
+(rev 16).
+      IRQ 11.
+      Master Capable.  Latency=64.  Min
+Gnt=32.Max Lat=64.
+      I/O at 0x4800 [0x48ff].
+      Non-prefetchable 32 bit memory at
+0x11000000 [0x110001ff].
+(NOTE i've got a realtek PCMCIA card in this
+notebook)
 
-Gr{oetje,eeting}s,
+So under Device Drivers > Network Support 
 
-						Geert
+You've got "Networking support" and "Network
+device support" enabled
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+go into "Ethernet (10 or 100 MBti)" and
+enable support for you card (as determined by
+the cat /proc/pci) there is support for 3com
+there.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+good luck
+  Christian Unger / Chakkerz

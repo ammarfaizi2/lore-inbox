@@ -1,34 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbULLWyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbULLW7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbULLWyi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 17:54:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbULLWyi
+	id S262162AbULLW7G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 17:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbULLW7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 17:54:38 -0500
-Received: from [65.54.233.107] ([65.54.233.107]:62110 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262164AbULLWyY (ORCPT
+	Sun, 12 Dec 2004 17:59:06 -0500
+Received: from quechua.inka.de ([193.197.184.2]:37329 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262162AbULLW7D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 17:54:24 -0500
-Message-ID: <BAY21-F18905FD4E8F32BE43C85BCF3AA0@phx.gbl>
-X-Originating-IP: [206.167.164.155]
-X-Originating-Email: [beaudoin_danny@hotmail.com]
-From: "Danny Beaudoin" <beaudoin_danny@hotmail.com>
+	Sun, 12 Dec 2004 17:59:03 -0500
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: Typo in kernel configuration (xconfig)
-Date: Sun, 12 Dec 2004 17:53:33 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 12 Dec 2004 22:54:02.0591 (UTC) FILETIME=[797C8EF0:01C4E09D]
+Subject: Re: [WISHLIST] IBM HD Shock detection in Linux
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <1102888882.15558.2.camel@ksyrium.local>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1CdcgA-0002Qy-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sun, 12 Dec 2004 23:59:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-If I'm not at the right place, please forward this to the right person.
+In article <1102888882.15558.2.camel@ksyrium.local> you wrote:
+> The code apparently can display the horizon, but cannot prevent
+> shocks :(
 
-In Device Drivers/Graphics Support/Support for frame buffer devices:
-"On several non-X86 architectures, the frame buffer device is the
-only way to use the graphics hardware."
+This code is not helpfull since it uses a win32 ioctl. One would have to
+know what this ioctl is doing with the disk. Personally I think it is either
+using smart or its an april fools joke.
 
-This should be 'x86' instead, as in the rest of the description.
-
-
+Greetings
+Bernd

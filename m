@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262787AbTJAX3j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 19:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbTJAX3j
+	id S262730AbTJAX2h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 19:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbTJAX2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 19:29:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32931 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262787AbTJAX3d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 19:29:33 -0400
-Date: Wed, 1 Oct 2003 16:29:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from 10/1 LSE Call
-Message-Id: <20031001162916.5fc2241b.akpm@osdl.org>
-In-Reply-To: <37940000.1065035945@w-hlinder>
-References: <37940000.1065035945@w-hlinder>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Oct 2003 19:28:37 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:1972 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262730AbTJAX2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 19:28:35 -0400
+Date: Wed, 1 Oct 2003 19:28:27 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Chris Wright <chrisw@osdl.org>, James Morris <jmorris@redhat.com>,
+       <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       <vserver@solucorp.qc.ca>
+Subject: Re: sys_vserver
+In-Reply-To: <Pine.LNX.4.44.0310011620440.6077-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0310011928000.4454-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hanna Linder <hannal@us.ibm.com> wrote:
->
-> In mainline, once block size is over 32k our throuput actually drops off.
-> It levels off around 128k but at a greater cpu utilization.
-> Dont really understand why that is. 
+On Wed, 1 Oct 2003, Linus Torvalds wrote:
 
-Probably thrashing the CPU's L1 cache.
+> And I suspect you'll find a number of vendors who start integrating
+> patches into their "server release" thing if there truly is enough
+> pressure from users. Which is fine.
 
-> In mm tree, maintains throughput for all block size but the cpu utilzation
-> keeps going up to do the same throughput.  Readprofile shows the extra time 
-> is being spent in copy_to_user (in mm tree). Backing out readahead patch 
-> reduces cpu by 10% for all block sizes but still shows the spike. So that
-> isnt the main problem.
+Actual use will also help determine exactly what functionality
+should be merged into 2.7 and what wasn't really needed.
 
-If you have a loop like:
-
-	char *buf;
-
-	for (lots) {
-		read(fd, buf, size);
-	}
-
-
-the optimum value of `size' is small: as little as 8k.  Once `size' gets
-close to half the size of the L1 cache you end up pushing the memory at
-`buf' out of CPU cache all the time.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

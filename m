@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266198AbUFXRCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266225AbUFXROt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266198AbUFXRCo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 13:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUFXRCo
+	id S266225AbUFXROt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 13:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266229AbUFXROt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 13:02:44 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57610 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266198AbUFXRCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 13:02:42 -0400
-Date: Thu, 24 Jun 2004 18:02:39 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dag Nygren <dag@newtech.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7 Oops when removing PCMCIA memory card
-Message-ID: <20040624180239.A29156@flint.arm.linux.org.uk>
-Mail-Followup-To: Dag Nygren <dag@newtech.fi>, linux-kernel@vger.kernel.org
-References: <20040624095205.29088.qmail@dag.newtech.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040624095205.29088.qmail@dag.newtech.fi>; from dag@newtech.fi on Thu, Jun 24, 2004 at 12:52:05PM +0300
+	Thu, 24 Jun 2004 13:14:49 -0400
+Received: from [66.199.228.3] ([66.199.228.3]:49927 "EHLO xdr.com")
+	by vger.kernel.org with ESMTP id S266225AbUFXROr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 13:14:47 -0400
+Date: Thu, 24 Jun 2004 10:14:47 -0700
+From: David Ashley <dash@xdr.com>
+Message-Id: <200406241714.i5OHElWL026388@xdr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Cached memory never gets released
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 12:52:05PM +0300, Dag Nygren wrote:
-> just an into this Oops on my laptop during the following procedure:
-> 
-> - Inserted a PCMCIA adapter with a CompactFlash
-> - This was recognized and mounted readonly as requested
-> - A number of pictures was copied from it
-> - The card was unmounted
-> - Ejected the PCMCIA adapter and got the Oops
+Ross Biro wrote:
+>You may want to examine /proc/meminfo, /proc/slabinfo, and the output
+>of sysrq-m.
+>
+>mm/vmscan.c (kswapd) is responsible for freeing most memory.  The
+>routine you are probably most interested in is shrink_cache.
+>
+>I would check to make sure that the pages in the icache are backed by
+>a mapping and if so, that they are clean.   If either of those two
+>conditions are not met, then the page cannot be thrown away.
 
-I'd be grateful if you could test 2.6.7-mm2.
 
-> This seems to be repeatable as it happened again after a reboot.
+We're locating sysrq-m, I haven't used that before.
+/proc/meminfo doesn't give any new insight. /proc/slabinfo the only
+thing that jumped out at me was this:
+BOX with 16M cached
+buffer_head          448    600     96   15   15    1
+BOX with 61M cached
+buffer_head         1377   4160     96  104  104    1
 
-Yes, it's a known problem caused by the way ide-cs fiddles with resources
-owned by the PCMCIA layer.
+The inode_cache lines didn't seem to differ much:
+inode_cache          838    856    480  107  107    1
+vs
+inode_cache          313    784    480   97   98    1
+The first was the 16M cached and the second was the 61M cached.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+In both cases the root filesystem is mounted read-only. So I would think
+it can't be a question of dirty pages. In one case the root filesystem
+is nfs, and in the other it is a block device with an ext2 filesystem
+on it.
+
+Thanks--
+Dave
+

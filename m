@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269019AbUI2Uo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268999AbUI2Uq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269019AbUI2Uo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 16:44:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268999AbUI2Uo7
+	id S268999AbUI2Uq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 16:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUI2Uqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 16:44:59 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:47262 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S269019AbUI2UoQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 16:44:16 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] I/O space write barrier
-Date: Wed, 29 Sep 2004 13:43:55 -0700
+	Wed, 29 Sep 2004 16:46:54 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:38626 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S268999AbUI2UqA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 16:46:00 -0400
+From: Christian Borntraeger <linux-kernel@borntraeger.net>
+To: Bernd Schubert <bernd-schubert@web.de>
+Subject: Re: 2.6.9-rc2: isofs oops
+Date: Wed, 29 Sep 2004 22:45:58 +0200
 User-Agent: KMail/1.7
-Cc: Greg Banks <gnb@sgi.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       jeremy@sgi.com, johnip@sgi.com, netdev@oss.sgi.com
-References: <200409271103.39913.jbarnes@engr.sgi.com> <20040929103646.GA4682@sgi.com> <20040929133500.59d78765.davem@davemloft.net>
-In-Reply-To: <20040929133500.59d78765.davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org
+References: <200409292008.17149.bernd-schubert@web.de>
+In-Reply-To: <200409292008.17149.bernd-schubert@web.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200409291343.55863.jbarnes@engr.sgi.com>
+Message-Id: <200409292245.58857.linux-kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, September 29, 2004 1:35 pm, David S. Miller wrote:
-> On Wed, 29 Sep 2004 20:36:46 +1000
+Bernd Schubert wrote:
 >
-> Greg Banks <gnb@sgi.com> wrote:
-> > Ok, here's a patch for the tg3 network driver to use mmiowb().  Tests
-> > over the last couple of days has shown that it solves the oopses in
-> > tg3_tx() that I reported and attempted to patch some time ago:
-> >
-> > http://marc.theaimsgroup.com/?l=linux-netdev&m=108538612421774&w=2
-> >
-> > The CPU usage of the mmiowb() approach is also significantly better
-> > than doing PCI reads to flush the writes (by setting the existing
-> > TG3_FLAG_MBOX_WRITE_REORDER flag).  In an artificial CPU-constrained
-> > test on a ProPack kernel, the same amount of CPU work for the REORDER
-> > solution pushes 85.1 MB/s over 2 NICs compared to 146.5 MB/s for the
-> > mmiowb() solution.
->
-> Please put this macro in asm/io.h or similar and make sure
-> every platform has it implemented or provides a NOP version.
+> ISO 9660 Extensions: RRIP_1991A
+[oops in isofs]
 
-The patch that actually implements mmiowb() already does this, I think Greg 
-just used his patch for testing.  The proper way to do it of course is to 
-just use mmiowb() where needed in tg3 after the write barrier patch gets in.
 
-> A lot of people are going to get this wrong btw.  The only
-> way it's really going to be cured across the board is if someone
-> like yourself who understands this audits all of the drivers.
+Known and already fixed by Andrew Morton.
 
-Yep, just like PCI posting (though many people seem to have a grasp on that 
-now).
+--- a/fs/isofs/rock.c   2004-09-29 13:45:15 -07:00
++++ b/fs/isofs/rock.c   2004-09-29 13:45:15 -07:00
+@@ -62,7 +62,7 @@
+ }                                     
+ 
+ #define MAYBE_CONTINUE(LABEL,DEV) \
+-  {if (buffer) kfree(buffer); \
++  {if (buffer) { kfree(buffer); buffer = NULL; } \
+   if (cont_extent){ \
+     int block, offset, offset1; \
+     struct buffer_head * pbh; \
 
-Thanks,
-Jesse
+
+cheers
+
+Christian
+

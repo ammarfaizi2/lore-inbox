@@ -1,36 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUG1JJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266853AbUG1JLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266835AbUG1JJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 05:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266845AbUG1JJ0
+	id S266853AbUG1JLo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 05:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266846AbUG1JJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 05:09:26 -0400
-Received: from dwdmx2.dwd.de ([141.38.3.197]:58953 "HELO dwdmx2.dwd.de")
-	by vger.kernel.org with SMTP id S266835AbUG1JIq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 05:08:46 -0400
-Date: Wed, 28 Jul 2004 09:08:42 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@praktifix.dwd.de
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: minyard@acm.org
-Subject: IPMI watchdog question
-Message-Id: <Pine.LNX.4.58.0407280901330.31636@praktifix.dwd.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 Jul 2004 05:09:38 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:34058 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S266837AbUG1JIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 05:08:50 -0400
+Date: Wed, 28 Jul 2004 11:09:50 +0200
+From: DervishD <raul@pleyades.net>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: The dreadful CLOSE_WAIT
+Message-ID: <20040728090950.GE32254@DervishD>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20040727083947.GB31766@DervishD> <20040727160057.GE2334@holomorphy.com> <20040727171025.GA26146@DervishD> <20040727232724.GH2334@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040727232724.GH2334@holomorphy.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+    Hi William :)
 
-Using kernel 2.6.7 with ipmi watchdog compiled in, I have noticed that
-when the process writting to /dev/watchdog is killed (-9) the system is
-not reset. When I query the BMC to list the SEL it does report:
+ * William Lee Irwin III <wli@holomorphy.com> dixit:
+> >> Probably best to implement timeouts by hand in your network daemon.
+> >     Of course, this is a bug in the application, but anyway the
+> > kernel (IMHO) shouldn't allow this.
+> I suspect the sysctls controlling this, tcp_fin_timeout, tcp_max_orphans,
+> etc., may be useful to you. Check Documentation/networking/ip-sysctl.txt
 
-   Watchdog 2 #0x03 | Timer expired
+    tcp_fin_timeout is of no help here, since the server is not stuck
+in FIN_WAIT2, and in addition to this, the connection is not closed,
+that is exactly the problem. tcp_max_orphans refer to TCP connections
+not attached to any user file handle, but a connection in state
+CLOSE_WAIT is still attached to a file handle, to a valid one indeed.
 
-So the BMC does notice that the timer did expire but no action is taken.
-What must I do so it resets my system?
+    A grep in the kernel sources didn't give any useful guide about
+which sysctl parameter will help :((
 
-Thanks,
-Holger
+    Thanks anyway, William :) Maybe tcp_max_orphans can help, don't
+know.
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

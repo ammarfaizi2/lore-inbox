@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272068AbTG2UdR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 16:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272069AbTG2UdR
+	id S272073AbTG2Uha (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 16:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272074AbTG2Uha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 16:33:17 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:13198 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272068AbTG2UdQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 16:33:16 -0400
-Date: Tue, 29 Jul 2003 16:31:40 -0400 (EDT)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: ACPI failure (2.6.0-test<x> and 2.4.22-pre<x>)
-In-Reply-To: <F760B14C9561B941B89469F59BA3A8470255EEB2@orsmsx401.jf.intel.com>
-Message-ID: <Pine.LNX.4.56.0307291536100.15041@onqynaqf.yrkvatgba.voz.pbz>
-References: <F760B14C9561B941B89469F59BA3A8470255EEB2@orsmsx401.jf.intel.com>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
+	Tue, 29 Jul 2003 16:37:30 -0400
+Received: from c52038.upc-c.chello.nl ([212.187.52.38]:45444 "EHLO
+	lintilla.koffie.nu") by vger.kernel.org with ESMTP id S272073AbTG2Uh1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 16:37:27 -0400
+Message-ID: <XFMail.20030729223719.kernel@koffie.nu>
+X-Mailer: XFMail 1.5.2 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Tue, 29 Jul 2003 22:37:19 +0200 (CEST)
+Organization: JBS Unix Solutions
+From: Jan Huijsmans <kernel@koffie.nu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test 2 & matroxfb or orinoco wifi card
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003, Grover, Andrew wrote:
+Hello,
 
-> Could you try, say, 2.5.70? That would help me understand if it's a
-> regression or not.
+After digging a bit in the archives I couldn't find the solution to my problem,
+so I'm asking you guys.
 
-looks to be the same problem, I got a little more info - and compared
-it to 2.6.0-test2-mm1; forgive the formatting, this was copied by hand
-(its a pain being with only one box):
+I found the "matroxfb and 2.6.0-test2" thread, so it's possible to compile the
+kernel with the matrox framebuffer, but I can't find what I'm missing. Did I
+forget to set a config option (all copied from the 2.4.21 config except the
+nForce2 agp chipset)?
 
-anything before this was cut of by the size of the screen
+This is the error I'm getting while linking. 
 
-EIP: 0060: c01efc11   (2.6.0-test2-mm1 version)
-EFLAGS: 00010202
-EIP at: acpi_ut_remove_allocation+0xb5/0x126
-EAX: 00000003  EBX: c136c59c  ECX: 00000000  EDX: 00000001
-ESI: 00000000  EDI: 00000000  EBP: cff118c4  ESP: cff118c8
-ds:  007b      es:  007b      ss:  0068
-...
-... acpi_ps_parse_aml+0xa2/0x250
-... acpi_power_add+0x126/0x1c4
-... acpi_bus_scan
-...
+drivers/built-in.o(.text+0x89c80): In function `matroxfb_set_par':
+: undefined reference to `default_grn'
+drivers/built-in.o(.text+0x89c85): In function `matroxfb_set_par':
+: undefined reference to `default_blu'
+drivers/built-in.o(.text+0x89c93): In function `matroxfb_set_par':
+: undefined reference to `color_table'
+drivers/built-in.o(.text+0x89c9b): In function `matroxfb_set_par':
+: undefined reference to `default_red'
 
-> If that also fails, then I think determining exactly where it is oopsing
-> (probably via printks) would be the next best way to go.
+I would suspect I'm missing libraries, but I don't know which set. I'm runnig
+with a dabian sarge distro, the system has an Athlon XP CPU, with asus A7N8X-X
+mainboard, matrox G550 graphics card.
 
->From other messages, here I found and extracted the acpi_dsdt.aml if
-that'll help with anything (can't make much sense of it myself, but
-was surprised to see special casing for win98/nt/me in the init section)
+Could someone point me in the right direction to get this working?
 
--- 
-Rick Nelson
-I can saw a woman in two, but you won't want to look in the box when I do
-'For My Next Trick I'll Need a Volunteer' -- Warren Zevon
+---
+
+Jan Huijsmans              kernel@koffie.nu
+
+... cannot activate /dev/brain, no response from main coffee server

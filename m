@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272010AbTG2TK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 15:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272011AbTG2TK0
+	id S272003AbTG2TER (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 15:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272006AbTG2TEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 15:10:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31398 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272010AbTG2TKS (ORCPT
+	Tue, 29 Jul 2003 15:04:16 -0400
+Received: from fed1mtao08.cox.net ([68.6.19.123]:4781 "EHLO fed1mtao08.cox.net")
+	by vger.kernel.org with ESMTP id S272003AbTG2TEN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 15:10:18 -0400
-Date: Tue, 29 Jul 2003 11:58:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: albert@users.sourceforge.net, zwane@arm.linux.org.uk,
-       linux-yoann@ifrance.com, linux-kernel@vger.kernel.org, akpm@digeo.com,
-       vortex@scyld.com, jgarzik@pobox.com
-Subject: Re: another must-fix: major PS/2 mouse problem
-Message-Id: <20030729115825.5347b487.akpm@osdl.org>
-In-Reply-To: <1059482410.3862.120.camel@cube>
-References: <1054431962.22103.744.camel@cube>
-	<3EDCF47A.1060605@ifrance.com>
-	<1054681254.22103.3750.camel@cube>
-	<3EDD8850.9060808@ifrance.com>
-	<1058921044.943.12.camel@cube>
-	<20030724103047.31e91a96.akpm@osdl.org>
-	<1059097601.1220.75.camel@cube>
-	<20030725201914.644b020c.akpm@osdl.org>
-	<Pine.LNX.4.53.0307261112590.12159@montezuma.mastecende.com>
-	<1059447325.3862.86.camel@cube>
-	<20030728201459.78c8c7c6.akpm@osdl.org>
-	<1059482410.3862.120.camel@cube>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 29 Jul 2003 15:04:13 -0400
+Date: Tue, 29 Jul 2003 12:04:11 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Miles Lane <miles.lane@comcast.net>
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2 (Linus tree ppc32 build) -- drivers/built-in.o(.init.text+0x5e64): In function `init_control': undefined reference to `nvram_read_byte'
+Message-ID: <20030729190411.GJ16051@ip68-0-152-218.tc.ph.cox.net>
+References: <200307271801.44966.miles.lane@comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307271801.44966.miles.lane@comcast.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan <albert@users.sourceforge.net> wrote:
->
-> > So this looks OK, yes?
-> 
-> I suppose boomerang_interrupt itself is OK.
-> Spending 104 ms in IRQ 0, 31 ms in IRQ 11, and
-> 44 ms in IRQ 14 is not at all OK. I was hoping
-> to get under 200 microseconds for everything.
+On Sun, Jul 27, 2003 at 06:01:44PM -0700, Miles Lane wrote:
 
-I misread that.
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o(.init.text+0x5e64): In function `init_control':
+> : undefined reference to `nvram_read_byte'
+> drivers/built-in.o(.init.text+0x5e64): In function `init_control':
+> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
+> drivers/built-in.o(.init.text+0x5ef0): In function `init_control':
+> : undefined reference to `nvram_read_byte'
+> drivers/built-in.o(.init.text+0x5ef0): In function `init_control':
+> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
+> drivers/built-in.o(.init.text+0x67cc): In function `init_platinum':
+> : undefined reference to `nvram_read_byte'
+> drivers/built-in.o(.init.text+0x67cc): In function `init_platinum':
+> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
+> drivers/built-in.o(.init.text+0x67ec): In function `init_platinum':
+> : undefined reference to `nvram_read_byte'
+> drivers/built-in.o(.init.text+0x67ec): In function `init_platinum':
+> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
+> drivers/built-in.o(.init.text+0x7c08): In function `init_imstt':
+> : undefined reference to `nvram_read_byte'
+> drivers/built-in.o(.init.text+0x7c08): In function `init_imstt':
+> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
+> drivers/built-in.o(.init.text+0x7c24): more undefined references to 
+> `nvram_read_byte' follow
+> drivers/built-in.o(.init.text+0x7c24): In function `init_imstt':
+> : relocation truncated to fit: R_PPC_REL24 nvram_read_byte
 
-Last time I checked (which was about 18 months ago) the maximum
-interrupts-off time on a 500MHz desktop-class machine was 80 microseconds.
+The problem is that arch/ppc/platforms/pmac_nvram.c needs to be compiled
+on CONFIG_PPC_PMAC, not on CONFIG_NVRAM (so edit
+arch/ppc/platforms/Makefile).
 
-Something is broken there.  Do you have another machine to sanity check
-against?
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

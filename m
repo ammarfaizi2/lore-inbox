@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315506AbSECA2j>; Thu, 2 May 2002 20:28:39 -0400
+	id <S315509AbSECAcA>; Thu, 2 May 2002 20:32:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315509AbSECA2i>; Thu, 2 May 2002 20:28:38 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:43537 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315506AbSECA2h>; Thu, 2 May 2002 20:28:37 -0400
-Message-ID: <3CD1CAFE.3010109@evision-ventures.com>
-Date: Fri, 03 May 2002 01:25:50 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S315507AbSECAb7>; Thu, 2 May 2002 20:31:59 -0400
+Received: from [194.234.65.222] ([194.234.65.222]:45727 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S315509AbSECAb6>; Thu, 2 May 2002 20:31:58 -0400
+Date: Fri, 3 May 2002 02:31:40 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+X-X-Sender: roy@mustard.heime.net
+To: Samuel Flory <sflory@rackable.com>
+cc: =?ISO-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Pavel Machek <pavel@suse.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: IDE hotplug support?
+In-Reply-To: <3CD19D16.7070605@rackable.com>
+Message-ID: <Pine.LNX.4.44.0205030230030.31927-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-In-Reply-To: <802.1020382834@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Keith Owens napisa?:
+>   Why not just grab a pair of 8 port 3ware cards?  Run raid 5 on each 
+> card, and throw 0 or linear via the md driver on top?
 
-> I know how to do ABI versioning right.  But there is no chance of me
-> starting work on the correct method of ABI versioning until kbuild 2.5
-> is in.
+because I don't need the speed. and because they cost $1200 a piece
 
-It's shown in the syscall part of the kernel :-) Just don't provide
-a too big ABI and stick to it is one possible strategy.
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
 
-And of course I'm sure you recognize that what we could use is ABI *checking*
-and not ABI *versioning* thingee. If one really really want's to do this the
-only true one way, well the solution is.... for example CORBA IDL and stuff
-if you divide the remote part of CORBA out.
-
-And hell I'm not expecting an ORB to appear in the kernel any time soon.
-(However I remember someone once implementid such a beast...)
-
+Computers are like air conditioners.
+They stop working when you open Windows.
 

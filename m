@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265857AbSLNUBN>; Sat, 14 Dec 2002 15:01:13 -0500
+	id <S265854AbSLNUKR>; Sat, 14 Dec 2002 15:10:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265863AbSLNUBN>; Sat, 14 Dec 2002 15:01:13 -0500
-Received: from adsl-65-64-152-167.dsl.stlsmo.swbell.net ([65.64.152.167]:18305
-	"EHLO base.torri.linux") by vger.kernel.org with ESMTP
-	id <S265857AbSLNUBM>; Sat, 14 Dec 2002 15:01:12 -0500
-Subject: Unresolved symbols in agpart
-From: Stephen Torri <storri@sbcglobal.net>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-b1VUsfiIydGrtemqqkHz"
-Organization: 
-Message-Id: <1039896536.963.7.camel@base.torri.linux>
+	id <S265872AbSLNUKR>; Sat, 14 Dec 2002 15:10:17 -0500
+Received: from pD9540C18.dip.t-dialin.net ([217.84.12.24]:60040 "EHLO felicia")
+	by vger.kernel.org with ESMTP id <S265854AbSLNUKQ>;
+	Sat, 14 Dec 2002 15:10:16 -0500
+Date: Sat, 14 Dec 2002 21:16:37 +0100
+From: Juergen Quade <quade@hsnr.de>
+To: linux-kernel@vger.kernel.org
+Cc: quade@hs-niederrhein.de
+Subject: tasklet_kill: bug or feature?
+Message-ID: <20021214201637.GA3073@hsnr.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 14 Dec 2002 14:08:56 -0600
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-b1VUsfiIydGrtemqqkHz
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I had a closer look to the tasklet implementation, especially
+to tasklet_kill. I do not understand, why at the end of
+the function the TASKLET_STATE_SCHED bit is cleared. Is it
+a bug or a feature? Maybe someone can help me.
 
-I would like to help clear up the module problem in the linux kernel
-(2.5.51). The problem I am getting is when I do "make install" there is
-a report back that some symbols are unresolved. What I need to know is
-how these symbols are supposed to be exported? I can grep the files to
-find the symbols and correct this problem.
+	The function tasklet_schedule does two things:
+	1. it sets the schedule_bit (TASKLET_STATE_SCHED)
+	2. if the bit wasn't set (cleared) it puts the tasklet on the
+	   tasklet_vec list.
+	
+	By the trick, to set the schedule_bit without putting
+	the tasklet on the list, a tasklet can be "killed"
+	(it is not on the list and tasklet_schedule is not going
+	to put it on the list). But in the current implementation
+	of tasklet_kill the schedule_bit is cleared (last line of
+	the function)? In this case the next tasklet_schedule
+	"works" and the tasklet-function will be called again.
+	So, is it a bug? What do we achieve by clearing the
+	schedule_bit? Can we remove the "clear_bit" line
+	(it is not necessary to call "set_bit", because
+	"test_and_set_bit" has set it before)?
+	Or what is _exactly_ the purpose of tasklet_kill?
 
-Stephen
---=20
-Stephen Torri <storri@sbcglobal.net>
+	Juergen.
 
---=-b1VUsfiIydGrtemqqkHz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+=====================
+void tasklet_kill(struct tasklet_struct *t)
+{
+	if (in_interrupt())
+		printk("Attempt to kill tasklet from interrupt\n");
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9+4/YsZ6ZpmJVIPURAqo1AKCC5WK64Essn2uFpMvC9SDs22iiMQCfXnA/
-gknJpshrdnYgAgUZ5Nw6yaw=
-=UM3/
------END PGP SIGNATURE-----
-
---=-b1VUsfiIydGrtemqqkHz--
+	while (test_and_set_bit(TASKLET_STATE_SCHED, &t->state)) {
+		do
+			yield();
+		while (test_bit(TASKLET_STATE_SCHED, &t->state));
+	}
+	tasklet_unlock_wait(t);
+	clear_bit(TASKLET_STATE_SCHED, &t->state);
+}

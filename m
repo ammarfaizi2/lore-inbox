@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263382AbTKASdk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 13:33:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263412AbTKASdj
+	id S263415AbTKATBX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 14:01:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263420AbTKATBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 13:33:39 -0500
-Received: from b-195-adc53e.lohjanpuhelin.fi ([62.197.173.195]:28317 "EHLO
-	mail.zmailer.org") by vger.kernel.org with ESMTP id S263382AbTKASdi
+	Sat, 1 Nov 2003 14:01:23 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:13060 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S263415AbTKATBW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 13:33:38 -0500
-Date: Sat, 1 Nov 2003 20:33:36 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Alexander Chacon <chacona@mechanus.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Modular ipv4 inquiries...
-Message-ID: <20031101183336.GD26480@mea-ext.zmailer.org>
-References: <1067711134.659a9dpacz4s@webmail.mechanus.org>
+	Sat, 1 Nov 2003 14:01:22 -0500
+Date: Sat, 1 Nov 2003 20:01:14 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Ville Herva <vherva@twilight.cs.hut.fi>, linux-kernel@vger.kernel.org
+Subject: Re: ide write cache issue? [Re: Something corrupts raid5 disks slightly during reboot]
+Message-ID: <20031101190114.GA936@alpha.home.local>
+References: <20031031190829.GM4868@niksula.cs.hut.fi> <3FA30F4A.5030500@hundstad.net> <20031101082745.GF4640@niksula.cs.hut.fi> <20031101155604.GB530@alpha.home.local> <20031101182518.GL4640@niksula.cs.hut.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1067711134.659a9dpacz4s@webmail.mechanus.org>
+In-Reply-To: <20031101182518.GL4640@niksula.cs.hut.fi>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 01, 2003 at 12:25:34PM -0600, Alexander Chacon wrote:
-> Hello!
-> 
-> I would like to know a few things about making the ipv4 code modular. I've been
-> working on a school assignment that requires implementing tunneling, but first
-> ipv4 must be modularized... it needs to be done using kernel 2.4.20
-> 
-> .... What should I consider for a start, and how hard can it be
-> in the end?
+On Sat, Nov 01, 2003 at 08:25:18PM +0200, Ville Herva wrote:
+ 
+> Is there anything special in booting to DOS instead of different linux
+> kernel, other than that it would rule out some strange kernel bug that is
+> present in 2.2 and 2.4?
 
-When I did it way back when once, it took me 1 or 2 days to do
-basic modularization, where the IPv4 is installable once, and
-will stay in forever (like IPv6 is now).  To make it uninstallable
-took me another week.
+No, it was just to quicky confirm or deny the fact that it's the kernel
+which causes the problem. It could have been a long standing bug in the IDE
+or partition code, and which is present in several kernels. But as you say
+that it affects two different controllers, there's little chance that it's
+caused by anything except linux itself. Then, the reboot on DOS will only
+tell you if the drives were corrupted at startup or at shutdown.
 
-> I've experienced a lot of undefined symbol references which are linked
-> to core kernel files!, isn't there a way to access these symbols from 
-> the module into the kernel while executing?
+> Yes, but I find it unlikely. The partition table in within the first 512
+> bytes and the corruption was in bytes 1060-1080. Also, one of the corrupted
+> disks is on i815 and another in on HPT370.
 
-Yes.  You need to export them from basic core.
+I agree, but I proposed it just because it was simple to test.
 
-> Thanks in advance
-> Alexander Chacon
+> BTW: the corruption happens on warm reboots (running reboot command), not
+> just on power off / on.
 
-/Matti Aarnio
+OK, but the BIOS scans your disks even during warm reboots. Though I don't
+think it comes from there because of your two different controllers.
+
+Willy
+

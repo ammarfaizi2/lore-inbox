@@ -1,256 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbTKPIQX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 03:16:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTKPIQX
+	id S262491AbTKPIqh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 03:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbTKPIqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 03:16:23 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:51092 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262432AbTKPIQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 03:16:06 -0500
-Subject: [PATCH] Add lib/parser.c kernel-doc
-From: Will Dyson <will_dyson@pobox.com>
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1068970562.19499.11.camel@thalience>
+	Sun, 16 Nov 2003 03:46:37 -0500
+Received: from coffee.creativecontingencies.com ([210.8.121.66]:20973 "EHLO
+	coffee.cc.com.au") by vger.kernel.org with ESMTP id S262491AbTKPIqe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 03:46:34 -0500
+Message-Id: <6.0.0.22.2.20031116184701.01b54ae0@caffeine.cc.com.au>
+X-Mailer: QUALCOMM Windows Eudora Version 6.0.0.22
+Date: Sun, 16 Nov 2003 19:46:08 +1100
+To: Linus Torvalds <torvalds@osdl.org>
+From: Peter Lieverdink <cafuego@cafuego.net>
+Subject: Re: loopback device + crypto = crash on 2.6.0-test7 ? 
+Cc: Valdis.Kletnieks@vt.edu,
+       Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0311110847120.30657-100000@home.osdl.org>
+References: <6.0.0.22.2.20031111202757.01af5f50@caffeine.cc.com.au>
+ <Pine.LNX.4.44.0311110847120.30657-100000@home.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 16 Nov 2003 03:16:03 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I converted befs's option parsing to use the new lib/parser.c
-functions, I had to read the functions (and the patch converting ext3)
-in order to understand exactly how to use them. They are not that
-complicated, but since I'd already read and (hopefully) understood the
-functions, I figured I'd add a bit of documentation for others.
+At 03:49 12/11/2003, you wrote:
 
-I am not the author of the functions I am attempting to document here,
-so any mistakes are just that: mistakes on my part.
+>On Tue, 11 Nov 2003, Peter Lieverdink wrote:
+> > >At 13:50 11/11/2003, you wrote:
+> > >Could we see a 'gcc -V' from *both* machines, please? (and an 'as -v'
+> > >and 'ld -v' as well, just to be thorough?)
+> >
+> > They're the same. Both boxes use Debian Sid with gcc-3.3.2.
+>
+>[ Taa-daa-taa-daa.. Theme from "The Twilight Zone" ]
+>
+>And yet the kenrel works when built on one machine?
+>
+>I'd love to see what the differences are. If the .config etc are all 100%
+>the same, I'd like to see what "diff" reports on the generated vmlinux
+>files (well, to be honest, I'd need either both files on some web-site, or
+>you to actually run diff and find _where_ the differences are).
+>
+>                 Linus
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or
-higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1352  -> 1.1353 
-#	        lib/parser.c	1.2     -> 1.3    
-#	include/linux/parser.h	1.1     -> 1.2    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/11/16	will@thalience.(none)	1.1353
-# Add documentation and comments to lib/parser.c and
-include/linux/parser.h
-# --------------------------------------------
-#
-diff -Nru a/include/linux/parser.h b/include/linux/parser.h
---- a/include/linux/parser.h	Sun Nov 16 03:02:39 2003
-+++ b/include/linux/parser.h	Sun Nov 16 03:02:39 2003
-@@ -1,3 +1,14 @@
-+/*
-+ * linux/include/linux/parser.h
-+ *
-+ * Header for lib/parser.c
-+ * Intended use of these functions is parsing filesystem argument
-lists,
-+ * but could potentially be used anywhere else that simple option=arg 
-+ * parsing is required.
-+ */
-+
-+
-+// associates an integer enumerator with a pattern string.
- struct match_token {
- 	int token;
- 	char *pattern;
-@@ -5,17 +16,18 @@
- 
- typedef struct match_token match_table_t[];
- 
-+// Maximum number of arguments that match_token will find in a pattern
- enum {MAX_OPT_ARGS = 3};
- 
-+// Describe the location within a string of a substring
- typedef struct {
- 	char *from;
- 	char *to;
- } substring_t;
- 
- int match_token(char *s, match_table_t table, substring_t args[]);
--
--int match_int(substring_t *, int *result);
--int match_octal(substring_t *, int *result);
--int match_hex(substring_t *, int *result);
--void match_strcpy(char *, substring_t *);
--char *match_strdup(substring_t *);
-+int match_int(substring_t *s, int *result);
-+int match_octal(substring_t *s, int *result);
-+int match_hex(substring_t *s, int *result);
-+void match_strcpy(char *to, substring_t *s);
-+char *match_strdup(substring_t *s);
-diff -Nru a/lib/parser.c b/lib/parser.c
---- a/lib/parser.c	Sun Nov 16 03:02:39 2003
-+++ b/lib/parser.c	Sun Nov 16 03:02:39 2003
-@@ -11,6 +11,17 @@
- #include <linux/slab.h>
- #include <linux/string.h>
- 
-+/**
-+ * match_one: - Determines if a string matches a simple pattern
-+ * @s: the string to examine for presense of the pattern
-+ * @p: the string containing the pattern
-+ * @args: array of %MAX_OPT_ARGS &substring_t elements. Used to return
-match
-+ * locations.
-+ *
-+ * Description: Determines if the pattern @p is present in string @s.
-Can only
-+ * match extremely simple token=arg style patterns. If the pattern is
-found,
-+ * the location(s) of the arguments will be returned in the @args
-array.
-+ */
- static int match_one(char *s, char *p, substring_t args[])
- {
- 	char *meta;
-@@ -74,6 +85,20 @@
- 	}
- }
- 
-+/**
-+ * match_token: - Find a token (and optional args) in a string
-+ * @s: the string to examine for token/argument pairs
-+ * @table: match_table_t describing the set of allowed option tokens
-and the
-+ * arguments that may be associated with them. Must be terminated with
-a
-+ * &struct match_token who's pattern is set to the NULL pointer.
-+ * @args: array of %MAX_OPT_ARGS &substring_t elements. Used to return
-match
-+ * locations.
-+ *
-+ * Description: Detects which if any of a set of token strings has been
-passed
-+ * to it. Tokens can include up to MAX_OPT_ARGS instances of basic
-c-style
-+ * format identifiers which will be taken into account when matching
-the
-+ * tokens, and who's locations will be returned in the @args array.
-+ */
- int match_token(char *s, match_table_t table, substring_t args[])
- {
- 	struct match_token *p;
-@@ -84,6 +109,16 @@
- 	return p->token;
- }
- 
-+/**
-+ * match_number: scan a number in the given base from a substring_t
-+ * @s: substring to be scanned
-+ * @result: resulting integer on success
-+ * @base: base to use when converting string
-+ *
-+ * Description: Given a &substring_t and a base, attempts to parse the
-substring
-+ * as a number in that base. On success, sets @result to the integer
-represented
-+ * by the string and returns 0. Returns either -ENOMEM or -EINVAL on
-failure.
-+ */
- static int match_number(substring_t *s, int *result, int base)
- {
- 	char *endp;
-@@ -103,27 +138,71 @@
- 	return ret;
- }
- 
-+/**
-+ * match_int: - scan a decimal representation of an integer from a
-substring_t
-+ * @s: substring_t to be scanned
-+ * @result: resulting integer on success
-+ *
-+ * Description: Attempts to parse the &substring_t @s as a decimal
-integer. On
-+ * success, sets @result to the integer represented by the string and
-returns 0.
-+ * Returns either -ENOMEM or -EINVAL on failure.
-+ */
- int match_int(substring_t *s, int *result)
- {
- 	return match_number(s, result, 0);
- }
- 
-+/**
-+ * match_octal: - scan an octal representation of an integer from a
-substring_t
-+ * @s: substring_t to be scanned
-+ * @result: resulting integer on success
-+ *
-+ * Description: Attempts to parse the &substring_t @s as an octal
-integer. On
-+ * success, sets @result to the integer represented by the string and
-returns
-+ * 0. Returns either -ENOMEM or -EINVAL on failure.
-+ */
- int match_octal(substring_t *s, int *result)
- {
- 	return match_number(s, result, 8);
- }
- 
-+/**
-+ * match_hex: - scan a hex representation of an integer from a
-substring_t
-+ * @s: substring_t to be scanned
-+ * @result: resulting integer on success
-+ *
-+ * Description: Attempts to parse the &substring_t @s as a hexadecimal
-integer.
-+ * On success, sets @result to the integer represented by the string
-and
-+ * returns 0. Returns either -ENOMEM or -EINVAL on failure.
-+ */
- int match_hex(substring_t *s, int *result)
- {
- 	return match_number(s, result, 16);
- }
- 
-+/**
-+ * match_strcpy: - copies the characters from a substring_t to a
-c-string
-+ * @to: c-string to copy characters to.
-+ * @s: &substring_t to copy
-+ *
-+ * Description: Copies the set of characters represented by the given
-+ * &substring_t @s to the c-style string @to. Caller guarantees that
-@to is
-+ * large enough to hold the characters of @s.
-+ */
- void match_strcpy(char *to, substring_t *s)
- {
- 	memcpy(to, s->from, s->to - s->from);
- 	to[s->to - s->from] = '\0';
- }
- 
-+/**
-+ * match_strdup: - allocate a new c-string with the contents of a
-substring_t
-+ * @s: &substring_t to copy
-+ *
-+ * Description: Allocates and returns a c-string filled with the
-contents of
-+ * the &substring_t @s. The caller is responsible for freeing the
-returned
-+ * string with kfree().
-+ */
- char *match_strdup(substring_t *s)
- {
- 	char *p = kmalloc(s->to - s->from + 1, GFP_KERNEL);
+Well, due to [insert long explanation] the -test8 kernel wasn't available. 
+The "good" machine built a -test9, which crashed as well. *sigh* Mind you, 
+there are differences between the kernel _it_ builds and the one built by 
+the "bad" machine. I've uploaded a alien -t'd debian kernel packages to the 
+fastest web space I have for you to have a peek, if you have some time. 
+(what with lawsuits and whatnot ;-)
+
+2.6.0-test9 built on the "good" box:
+http://monolith.dnsalias.org/~cafuego/kernel-image-2.6.0-test9-kahlua.1.tgz
+
+2.6.0-test9 built on the "bad" box:
+http://monolith.dnsalias.org/~cafuego/kernel-image-2.6.0-test9-kahlua.2.tgz
+
+More importantly though, the post from Jindrich:
+
+At 00:13 16/11/2003, you wrote:
+>I can confirm, having similar problem. I am using Debian Sid & 
+>2.6.0-test9, with 4Gig highmem support (1.5G physical RAM). When reading 
+>from cryptoloop (dd if=/dev/loop0 of=testoutput), it seems to produce only 
+>noise. Each run of dd produces completely different heap of garbage. When 
+>I disable highmem, getting rid of about 512 Megs, cryptoloop seems to work 
+>as expected - I can do losetup & mke2fs & mount & read/write files & 
+>unmount & losetup -d & again.. ad nauseam.
+>
+>Jindrich Makovicka
+
+When I compiled on the "bad" machine with disabled HIGHMEM, the resultant 
+kernel has NO problems with cryptoloop. I can make a cryptoloop fs, mount, 
+copy, unmount, remount etc. That kernel is at:
+http://monolith.dnsalias.org/~cafuego/kernel-image-2.6.0-test9-kahlua.3.tgz
+
+So I guess HIGHMEM breaks cryptoloop somehow.
+
+- Peter.
 
 
--- 
-Will Dyson
-"Back off man, I'm a scientist!" -Dr. Peter Venkman
+
 

@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317728AbSFMPfP>; Thu, 13 Jun 2002 11:35:15 -0400
+	id <S317754AbSFMPtD>; Thu, 13 Jun 2002 11:49:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317734AbSFMPfO>; Thu, 13 Jun 2002 11:35:14 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:27357 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S317728AbSFMPfN>; Thu, 13 Jun 2002 11:35:13 -0400
-Message-ID: <3D08BB90.6010805@antefacto.com>
-Date: Thu, 13 Jun 2002 16:34:40 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Shipman, Jeffrey E" <jeshipm@sandia.gov>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: TCP checksum?
-In-Reply-To: <03781128C7B74B4DBC27C55859C9D73809840636@es06snlnt>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317772AbSFMPtC>; Thu, 13 Jun 2002 11:49:02 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:11535 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S317754AbSFMPtB>; Thu, 13 Jun 2002 11:49:01 -0400
+Message-Id: <200206131548.g5DFmv407602@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH: NEW SUBARCHITECTURE FOR 2.5.21] support for NCR voyager 
+ (3/4/5xxx series)
+In-Reply-To: Message from Andrey Panin <pazke@orbita1.ru> 
+   of "Thu, 13 Jun 2002 12:20:53 +0400." <20020613082053.GA614@pazke.ipt> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 13 Jun 2002 11:48:57 -0400
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shipman, Jeffrey E wrote:
-> I'm looking for a function similar to skb_checksum(), but
-> for the tcphdr->check field. I'm playing around with a module
-> I've written for netfilter and I would like to modify options of
-> the IP and TCP headers. For example, right now I'm trying
-> to set the destination IP to the source IP
+pazke@orbita1.ru said:
+> Attached patch is needed to compile kernel with Voyager patch applied
+> for the SMP PC machine. 
 
-I think there already is a module to do this?
-Paull Russel (did I get the l's right :-)) mentioned
-it at a talk in Ireland a couple of months ago.
-There were fun and games when 2 machines with this
-module we put back to back and it was noticed that the
-ttl wasn't decremented :-P
+I've applied it to my repository, thanks.  I forgot to keep track of these 
+issues in the voyager tree when I separated the arch-split stuff.
 
-Padraig.
+> [Q1] Will it be better to  create separate directory for PC
+> architecture and split some PC'isms from arch/i386/generic ? Right now
+> it contains acpi.c, bootflag.c and dmi_scan.c which are not generic in
+> any way :) 
+
+The thinking currently is that arch/i386 is really PC plus a few exceptions 
+rather than a truly generic x86 plus additonal machine architectures, so it 
+makes sense under this view that `generic' and PC be the same thing.
+
+> [Q2] May be directory naming like mach-visws, mach-voyager and
+> possible  mach-pc will be more convinent ? 
+
+To be more consistent with the way arch/arm does it?  Certainly the renames 
+can be done easily enough, what does the rest of the list think?
+
+James
+
 

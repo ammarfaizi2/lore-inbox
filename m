@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267425AbUG2VaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267438AbUG2VaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267425AbUG2VaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 17:30:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUG2V2x
+	id S267438AbUG2VaL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 17:30:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbUG2V21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 17:28:53 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21476 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267425AbUG2V1p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 17:27:45 -0400
-Date: Thu, 29 Jul 2004 23:27:37 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, linux-dvb-maintainer@linuxtv.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.8-rc2-mm1: DVB: "errno" undefined
-Message-ID: <20040729212737.GH23589@fs.tum.de>
-References: <20040728020444.4dca7e23.akpm@osdl.org>
+	Thu, 29 Jul 2004 17:28:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:55744 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267438AbUG2VZS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 17:25:18 -0400
+Date: Thu, 29 Jul 2004 14:28:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org, riel@redhat.com,
+       Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [patch] mlock-as-nonroot revisted
+Message-Id: <20040729142829.2a75c9b9.akpm@osdl.org>
+In-Reply-To: <20040729100307.GA23571@devserv.devel.redhat.com>
+References: <20040729100307.GA23571@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040728020444.4dca7e23.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the following errors when trying to compile 2.6.8-rc2-mm1 as 
-modular as possible (using gcc 2.95):
+Arjan van de Ven <arjanv@redhat.com> wrote:
+>
+> Below is a fixed up patch to allow non-root to mlock memory
 
-<--  snip  -->
+I seem to recall that Andrea identified reasons why per-user mlock limits
+were fundamentally broken/unsuitable, but I forget the details.  Perhaps he
+could remind us?
 
-...
-*** Warning: "errno" [drivers/media/dvb/frontends/tda1004x.ko] undefined!
-*** Warning: "errno" [drivers/media/dvb/frontends/sp887x.ko] undefined!
-*** Warning: "errno" [drivers/media/dvb/frontends/alps_tdlb7.ko] undefined!
-...
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+As for this patch: it's a new capability which will get basically zero
+testing for the next year, which is a worry.  How have you tested it, and
+how much?

@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265962AbUGILRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265993AbUGILYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265962AbUGILRW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 07:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265961AbUGILRW
+	id S265993AbUGILYq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 07:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265994AbUGILYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 07:17:22 -0400
-Received: from mail.eris.qinetiq.com ([128.98.1.1]:34413 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S265962AbUGILQd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 07:16:33 -0400
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux Serial ATA (SATA) status report
-Date: Fri, 9 Jul 2004 12:12:04 +0100
-User-Agent: KMail/1.6.1
-References: <40EDD78C.9070408@pobox.com> <pan.2004.07.09.08.17.20.880869@dungeon.inka.de>
-In-Reply-To: <pan.2004.07.09.08.17.20.880869@dungeon.inka.de>
+	Fri, 9 Jul 2004 07:24:45 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:40546 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265993AbUGILYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 07:24:42 -0400
+Message-ID: <40EE8075.6060700@yahoo.com.au>
+Date: Fri, 09 Jul 2004 21:24:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200407091212.08082.m.watts@eris.qinetiq.com>
+To: FabF <fabian.frederick@skynet.be>
+CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       nigelenki@comcast.net, linux-kernel@vger.kernel.org
+Subject: Re: Autoregulate swappiness & inactivation
+References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net>	 <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org>	 <cone.1089268800.781084.4554.502@pc.kolivas.org>	 <20040708001027.7fed0bc4.akpm@osdl.org>	 <cone.1089273505.418287.4554.502@pc.kolivas.org>	 <20040708010842.2064a706.akpm@osdl.org>	 <cone.1089275229.304355.4554.502@pc.kolivas.org>	 <1089284097.3691.52.camel@localhost.localdomain>	 <40EDEF68.2020503@kolivas.org>	 <1089366486.3322.10.camel@localhost.localdomain>	 <40EE76CC.5070905@yahoo.com.au> <1089371646.3322.38.camel@localhost.localdomain>
+In-Reply-To: <1089371646.3322.38.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+FabF wrote:
+> On Fri, 2004-07-09 at 12:43, Nick Piggin wrote:
 
-http://www.plextor.be/products/dvd_recorders/px-712sa.asp?choice=PX-712SA
+>>pdflush is used to perform writeout of dirty data, so it has
+>>no part in reducing Mozilla's RSS.
+> 
+> Oops ... kswapd then ?
+> 
 
-If anyone was wondering...
+Yep.
 
-> IIRC Plextor is shipping dvd burners with SATA
-> interface. Any idea whether or not these will
-> work?
->
-> Regards, Andreas
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+>>I don't really understand what you are asking though. Your basic
+>>problem is that mozilla's resident memory gets evicted too easily,
+>>is that right?
+>>
+> 
+> Not at all.My problem is mozilla has some MB to recover when
+> reactivating; meanwhile, I consider there was sufficient resource to
+> share with it _before_ reactivation as I'm waiting some minutes after an
+> heavy process (e.g updatedb) to be done and over.
+> 
 
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ Trusted Information Management
-Trusted Solutions and Services group
-GPG Public Key ID: 455420ED
+You could try my -np7 patch, which would hopefully fix the problem
+for you.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+It may take some time and work before (if ever) the memory management
+patches in it are merged though.
 
-iD8DBQFA7n2HBn4EFUVUIO0RAvTKAJ9Ocr5DU0w0lrxvlhkBm0bYFjWn+ACgywTf
-gw0CdmSiw3Amt2Jydlorrs4=
-=gIOh
------END PGP SIGNATURE-----
+> AFAICS, Con's patches are about auto-regulation, not about anticipation
+> (?)
+> 
+
+Yep. Con's patch changes the conditions that are required to start
+reclaiming mapped pages. Basically: when to start swapping.

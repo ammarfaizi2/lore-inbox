@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285226AbSBMOrP>; Wed, 13 Feb 2002 09:47:15 -0500
+	id <S285338AbSBMO4z>; Wed, 13 Feb 2002 09:56:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285417AbSBMOrF>; Wed, 13 Feb 2002 09:47:05 -0500
-Received: from dsl-213-023-039-092.arcor-ip.net ([213.23.39.92]:29320 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S285338AbSBMOqy>;
-	Wed, 13 Feb 2002 09:46:54 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] queue barrier support
-Date: Wed, 13 Feb 2002 15:51:45 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020213135134.A1907@suse.de>
-In-Reply-To: <20020213135134.A1907@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16b0l7-0001nn-00@starship.berlin>
+	id <S285417AbSBMO4p>; Wed, 13 Feb 2002 09:56:45 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:28918 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S285338AbSBMO4i>; Wed, 13 Feb 2002 09:56:38 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3C6A2F86.E5C322D4@zip.com.au> 
+In-Reply-To: <3C6A2F86.E5C322D4@zip.com.au> 
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] compile fixes 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 13 Feb 2002 14:56:32 +0000
+Message-ID: <22568.1013612192@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 13, 2002 01:51 pm, Jens Axboe wrote:
-> Patches attached, comments welcome.
 
-A meta-comment: the BK url's are wonderfully informative and useful, but they 
-are long and _ugly_!  Is there anything that can be done about that?
+akpm@zip.com.au said:
+> -static void __exit cleanup_elan_104nc(void) 
+> +static void cleanup_elan_104nc(void)
+>  {
 
--- 
-Daniel
+Bah. Now it doesn't get dropped from the kernel after init is done either.
+Anyone for an __initexit section? 
+
+(I'll apply it to my tree as soon as my CVS server comes back online though 
+- it's obviously the right thing to do in the meantime)
+
+--
+dwmw2
+
+

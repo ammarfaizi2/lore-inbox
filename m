@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbUCKRi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 12:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbUCKRi1
+	id S261576AbUCKRmi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 12:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbUCKRmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 12:38:27 -0500
-Received: from mxfep01.bredband.com ([195.54.107.70]:55225 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S261472AbUCKRiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 12:38:20 -0500
-Subject: Badness in remove_proc_entry called from snd_via82xx_remove
-	(2.6.4-mm)
-From: Alexander Nyberg <alexn@telia.com>
-To: linux-kernel@vger.kernel.org
-Cc: alsa-devel@lists.sourceforge.net
-In-Reply-To: <20040204203426.GA1841@miriel.finwe.eu.org>
-References: <20040204203426.GA1841@miriel.finwe.eu.org>
-Content-Type: text/plain
-Message-Id: <1079026696.810.26.camel@boxen>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Mar 2004 18:38:16 +0100
+	Thu, 11 Mar 2004 12:42:38 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:9183 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S261576AbUCKRmb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 12:42:31 -0500
+Message-ID: <4050A506.3000703@stesmi.com>
+Date: Thu, 11 Mar 2004 18:42:30 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7a) Gecko/20040219
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Schwab <schwab@suse.de>
+CC: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: (0 == foo), rather than (foo == 0)
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com>	<20040310100215.1b707504.rddunlap@osdl.org>	<Pine.LNX.4.53.0403101324120.18709@chaos>	<404F9E28.4040706@aurema.com>	<Pine.LNX.4.58.0403101832580.1045@ppc970.osdl.org>	<404FD81D.3010502@aurema.com>	<Pine.LNX.4.58.0403101917060.1045@ppc970.osdl.org>	<404FEDAC.8090300@stesmi.com> <yw1x7jxrzpbt.fsf@kth.se> <je4qsvs98a.fsf@sykes.suse.de>
+In-Reply-To: <je4qsvs98a.fsf@sykes.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This happens at shutdown when alsa is to be closed with kernel 2.6.4-mm.
-I'm running debian sid, snd_via82xx compiled as module.
-Happens also on 2.6.4-rc2-mm1, I can try on more kernels as well if it
-is not a clear case.
+Hi Andreas.
 
+>>>>The warning should be there whether there are parenthesis or not,
+>>>>and it should state that you should have an explicit inequality
+>>>>expression. So if you have
+>>>>	if (a = b) 		...
+>>>>and you really _mean_ that, then the way to write it sanely is to
+>>>>just write it as
+>>>>	if ((a = b) != 0)
+>>>>		...
+>>>>which makes it much clearer what you're actually doing.
+>>>
+>>>Or actually change it to
+>>>
+>>>a = b;
+>>>if (a)
+>>
+>>That doesn't work with while().
+> 
+> 
+> But this works:  while (a = b, a != 0).
+> (not that it is any better readable :-) ).
 
-I slapped a printk on these just before the badness:
-de->subdir->name = "id", de->name = "card0"
+My eyes! *Starts clawing them out*
 
-Badness in remove_proc_entry at fs/proc/generic.c:667
-Call Trace:
-[<c016fb5a>] remove_proc_entry+0x13a/0x1a0
-[<e083a6fb>] snd_info_unregister+0x3b/0x70 [snd]
-[<e083a231>] snd_info_card_free+0x31/0x60 [snd]
-[<e0838b67>] snd_card_free+0xd7/0x250 [snd]
-[<c015bfde>] destroy_inode+0x4e/0x50
-[<c015d0b5>] iput+0x55/0x80
-[<e08709c9>] snd_via82xx_remove+0x19/0x30 [snd_via82xx]
-[<c01a074b>] pci_device_remove+0x3b/0x40
-[<c01c4854>] device_release_driver+0x64/0x70
-[<c01c4880>] driver_detach+0x20/0x30
-[<c01c4aad>] bus_remove_driver+0x3d/0x80
-[<c01c4ec3>] driver_unregister+0x13/0x28
-[<c01a08e2>] pci_unregister_driver+0x12/0x20
-[<e08709ef>] alsa_card_via82xx_exit+0xf/0x13 [snd_via82xx]
-[<c012b5d1>] sys_delete_module+0x131/0x170
-[<c013e264>] sys_munmap+0x44/0x70
-[<c0249c4f>] syscall_call+0x7/0xb
-
-
-
-00:11.5 Multimedia audio controller: VIA Technologies, Inc.
-VT8233/A/8235 AC97 Audio Controller (rev 50)
-        Subsystem: ABIT Computer Corp.: Unknown device 1401
-        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin C routed to IRQ 11
-        Region 0: I/O ports at e800 [size=256]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-
-
+// Stefan

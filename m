@@ -1,116 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUEVPEt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUEVPLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUEVPEt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 11:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUEVPEs
+	id S261474AbUEVPLq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 11:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUEVPLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 11:04:48 -0400
-Received: from ws3.netA.ort.spb.ru ([195.70.200.211]:35716 "EHLO
-	gate-n.ort.spb.ru") by vger.kernel.org with ESMTP id S261500AbUEVPEo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 11:04:44 -0400
-Date: Sat, 22 May 2004 19:04:33 +0400 (MSD)
-From: Andrew Shirrayev <andrews@gate.ort.spb.ru>
-To: <linux-kernel@vger.kernel.org>
-Subject: Adds: PROBLEM: SMP kernel freeze on e1000,ipx,ncp complex
-In-Reply-To: <Pine.LNX.4.33.0405200357150.28012-100000@gate.ort.spb.ru>
-Message-ID: <Pine.LNX.4.33.0405221854200.14832-100000@gate.ort.spb.ru>
+	Sat, 22 May 2004 11:11:46 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:37089 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261474AbUEVPLo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 11:11:44 -0400
+Date: Sat, 22 May 2004 08:11:36 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: herbert@gondor.apana.org.au
+Subject: [Bug 2748] New: Missing locks in video1394_ioctl
+Message-ID: <7560000.1085238696@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score-Gate: 0.0 (/)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://bugme.osdl.org/show_bug.cgi?id=2748
 
-Same result SMP kernel with acpi=on on dual Xeon P4 (w/o HT)
+           Summary: Missing locks in video1394_ioctl
+    Kernel Version: 2.6.6
+            Status: NEW
+          Severity: normal
+             Owner: bcollins@debian.org
+         Submitter: herbert@gondor.apana.org.au
 
 
-Load ACPI klog:
-kernel:  BIOS-e820: 000000003fff0000 - 000000003ffff000 (ACPI data)
-kernel:  BIOS-e820: 000000003ffff000 - 0000000040000000 (ACPI NVS)
-kernel: ACPI: RSDP (v000 AMI                                       ) @ 0x000ff900
-kernel: ACPI: RSDT (v001 RCC    GCHE     0x00000001 MSFT 0x01000000) @ 0x3fff0000
-kernel: ACPI: FADT (v001 RCC    GCHE     0x00000001 MSFT 0x01000000) @ 0x3fff0030
-kernel: ACPI: MADT (v001 RCC    GCHE     0x00000001 MSFT 0x01000000) @ 0x3fff00b0
-kernel: ACPI: DSDT (v001    RCC     GCSL 0x00000100 MSFT 0x0100000d) @ 0x00000000
-kernel: ACPI: Local APIC address 0xfee00000
-kernel: ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
-kernel: ACPI: LAPIC (acpi_id[0x01] lapic_id[0x06] enabled)
-kernel: ACPI: LAPIC (acpi_id[0x02] lapic_id[0x00] disabled)
-kernel: ACPI: LAPIC (acpi_id[0x03] lapic_id[0x00] disabled)
-kernel: ACPI: LAPIC (acpi_id[0x04] lapic_id[0x00] disabled)
-kernel: ACPI: LAPIC (acpi_id[0x05] lapic_id[0x00] disabled)
-kernel: ACPI: LAPIC (acpi_id[0x06] lapic_id[0x00] disabled)
-kernel: ACPI: LAPIC (acpi_id[0x07] lapic_id[0x00] disabled)
-kernel: ACPI: IOAPIC (id[0x08] address[0xfec00000] global_irq_base[0x0])
-kernel: ACPI: IOAPIC (id[0x09] address[0xfec01000] global_irq_base[0x10])
-kernel: ACPI: IOAPIC (id[0x0a] address[0xfec02000] global_irq_base[0x20])
-kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-kernel: Using ACPI (MADT) for SMP configuration information
-kernel: Kernel command line: BOOT_IMAGE=Linux-ACPI root=802 acpi=on
-kernel: ACPI: Subsystem revision 20040326
-kernel:     ACPI-0562: *** Warning: Type override - [DEB_] had invalid type (Integer) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [MLIB] had invalid type (Integer) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [IO__] had invalid type (Integer) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [DATA] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [SIO_] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [SB__] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [PM__] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [ICNT] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [ACPI] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [IORG] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [SB__] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [PM__] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [SIO_] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [PM__] had invalid type (String) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [BIOS] had invalid type (Integer) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [CMOS] had invalid type (Integer) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [KBC_] had invalid type (Integer) for Scope operator, changed to (Scope)
-kernel:     ACPI-0562: *** Warning: Type override - [OEM_] had invalid type (Integer) for Scope operator, changed to (Scope)
-kernel: ACPI: Interpreter enabled
-kernel: ACPI: Using IOAPIC for interrupt routing
-kernel: ACPI: System [ACPI] (supports S0 S1 S4 S5)
-kernel: ACPI: PCI Root Bridge [NRTH] (00:00)
-kernel: ACPI: PCI Interrupt Routing Table [\_SB_.NRTH._PRT]
-kernel: ACPI: PCI Interrupt Link [LN00] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN01] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN02] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN03] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN04] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN05] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN06] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN07] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN08] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN09] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN10] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN11] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN12] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN13] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN14] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN15] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN16] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN17] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN18] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN19] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN20] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN21] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN22] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN23] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN24] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN25] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN26] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN27] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN28] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN29] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN30] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LN31] (IRQs 3 4 5 7 9 11 12 14 15)
-kernel: ACPI: PCI Interrupt Link [LNUS] (IRQs 10)
-kernel: ACPI: PCI Interrupt Link [LNTE] (IRQs 11)
-kernel: ACPI: PCI Interrupt Link [LNUS] enabled at IRQ 10
-kernel: PCI: Using ACPI for IRQ routing
-kernel: PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
-kernel: ACPI: Power Button (FF) [PWRF]
-kernel: ACPI: Sleep Button (CM) [SLPB]
-kernel: ACPI: Processor [CPU0] (supports C1)
-kernel: ACPI: Processor [CPU1] (supports C1)
+This bug was reported at http://bugs.debian.org/248996.
+
+The last few messages are:
+
+video1394_0: Iso receive DMA: 8 buffers of size 614400 allocated for a frame sis
+video1394_0: iso context 1 listen on channel 0
+video1394_0: Waking up iso dma ctx=1
+video1394_0: Buffer 3 is already used
+video1394_0: Iso context 1 stop talking on channel 0
+NMI Watchdog detected LOCKUP on CPU1, eip c02920f0, registers:
+CPU:    1
+EIP:    0060:[<c02920f0>]    Not tainted
+EFLAGS: 00200086   (2.6.6-1-686-smp)
+EIP is at .text.lock.sched+0x34/0xa4
+eax: 00000000   ebx: f3106000   ecx: c1813be0   edx: f3106000
+esi: f3c49edc   edi: 00200286   ebp: f3107ed0   esp: f3107ea4
+ds: 007b   es: 007b   ss: 0068
+Process Simulation_trac (pid: 2218, threadinfo=f3106000 task=f77ba0d0)
+Stack: 00000000 f77ba0d0 c011bb60 f3c49ee0 f3c49ee0 c01b48c2 f3107f44 bf5ffa84
+       f3106000 f3c49e48 f3106000 00200297 f8aafbcd f77f7a20 00000001 00000000
+       f77ba0d0 c011bb60 00000000 00000000 f77515b8 f77ba5f4 f3107fc4 f3c49edc
+Call Trace:
+ [<c011bb60>] default_wake_function+0x0/0x20
+ [<c01b48c2>] copy_from_user+0x42/0x70
+ [<f8aafbcd>] video1394_ioctl+0xacd/0x1070 [video1394]
+ [<c011bb60>] default_wake_function+0x0/0x20
+ [<c010dc66>] convert_fxsr_from_user+0x26/0xf0
+ [<c01e4f8e>] tty_write+0x19e/0x2f0
+ [<c01eab80>] write_chan+0x0/0x230
+ [<c015d7b7>] vfs_write+0x107/0x160
+ [<c0171c08>] sys_ioctl+0x148/0x2d0
+ [<c0102313>] huft_build+0x1d3/0x540
+ [<c010621b>] syscall_call+0x7/0xb
+ [<c0102313>] huft_build+0x1d3/0x540
+                                                                               
+                                                                               
+                  
+Code: 80 3e 00 7e f9 e9 9e fb ff ff f3 90 80 3e 00 7e f9 e9 11 fc
+console shuts up ...
+
+So it looks like someone did a WAIT/POLL BUFFER which sleeps without holding a
+lock on d, and then someone did a UNLISTEN/UNTALK CHANNEL, which frees d...
+
 

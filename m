@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263709AbUFBSh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263592AbUFBSlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263709AbUFBSh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 14:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUFBSh5
+	id S263592AbUFBSlg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 14:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263799AbUFBSlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 14:37:57 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:34020 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263709AbUFBShy convert rfc822-to-8bit
+	Wed, 2 Jun 2004 14:41:36 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:9411 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263592AbUFBSlc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 14:37:54 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 2 Jun 2004 11:37:50 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-In-Reply-To: <20040602182019.GC30427@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.58.0406021124310.22742@bigblue.dev.mdolabs.com>
-References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl>
- <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org>
- <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org>
- <Pine.LNX.4.58.0406020724040.22204@bigblue.dev.mdolabs.com>
- <20040602182019.GC30427@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 2 Jun 2004 14:41:32 -0400
+Subject: Re: 2.6.7-rc2: open() hangs on ReiserFS with SELinux enabled
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Dmitry Baryshkov <mitya@school.ioffe.ru>
+Cc: lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@redhat.com>,
+       mason@suse.com, jeffm@suse.com
+In-Reply-To: <20040602174810.GA31263@school.ioffe.ru>
+References: <20040602174810.GA31263@school.ioffe.ru>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1086201647.15871.135.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 02 Jun 2004 14:40:47 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jun 2004, [iso-8859-1] Jörn Engel wrote:
-
-> On Wed, 2 June 2004 07:35:39 -0700, Davide Libenzi wrote:
-> > 
-> > Hmmm, I see more data to maintain to support a method that will never be 
-> > even close to be perfect.
+On Wed, 2004-06-02 at 13:48, Dmitry Baryshkov wrote:
+> Hello,
 > 
-> You get it wrong.  This is mainly about Bad Code or Insufficient
-> Documentation.  In general, I want recursions to be removed, full
-> stop.  So there is not more data, but less.
+> I tried enabling SELinux on my Linux-box, using ReiserFS as /, kernel
+> 2.6.7-rc2.
+> 
+> After relabeling and rebooting in non-enforcing mode everything worked
+> well, exept the fact, that new files on reiserfs filesystems don't get
+> security attributes.
+> 
+> So I added 'fs_use_xattr reiserfs system_u:object_r:fs_t;' to the policy,
+> rebooted and found, that mount hangs during opening of /etc/mtab~<pid>
+> (even in non-enforcing mode).
+> 
+> If I remove that line from SELinux policy, systems boots up OK.
+> 
+> Here are last lines from #strace mount / -o remount :
+> 
+> === Cut ===
+> open("/etc/mtab~202", O_WRONLY|O_CREAT|O_LARGEFILE, 0600audit(1085949484.378:0): avc:  denied  { write } for  pid=202 exe=/bin/mount name=etc dev=hda5 ino=91 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:etc_t tclass=dir
+> audit(1085949484.378:0): avc:  denied  { add_name } for  pid=202 exe=/bin/mount name=etc dev=hda5 ino=91 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:etc_t tclass=dir
+> audit(1085949484.378:0): avc:  denied  { create } for  pid=202 exe=/bin/mount name=mtab~202 dev=hda5 ino=91 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:etc_t tclass=file
+> === Cut ===
+> 
+> Tell me, if I need to provide any additional info.
 
-You're requesting to add and maintain data to feed a tool that catches 
-only trivially visible recursion. I don't want to waste mine and your time 
-explaining why your tool will never work, but if you want an hint, you can 
-start thinking about all functions that sets/pass callbacks and/or sets 
-operational functions. I don't know if you noticed that, but Linux is 
-heavily function-pointer driven. Eg, one function setups a set of function 
-pointers, and another 317 indirectly calls them. Having such comments, not 
-only makes the maintainance heavier, but gives the false sense of safeness 
-that once you drop that data in, you're protected against recursion.
+The mount process shouldn't be in kernel_t, although that shouldn't
+cause a hang.  Is /sbin/init labeled properly?  Are you using the
+patched /sbin/init that loads policy and then re-execs itself into the
+proper security domain?
 
+What output did you get from SELinux during initialization, particularly
+for hda5?
 
+When the mount process is hung, what output do you get from pressing
+ALT-SysRq-t after enabling sysrq (echo 1 > /proc/sys/kernel/sysrq)?
 
-- Davide
+Most likely location for a hang would be when post_create invokes
+inode->i_op->setxattr to set the attribute on the newly created file. 
+Inode semaphore is taken around the call, as per other invocations of
+inode->i_op->setxattr.
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

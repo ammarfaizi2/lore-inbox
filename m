@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUIVTJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266725AbUIVTPq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266679AbUIVTJv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 15:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266687AbUIVTJv
+	id S266725AbUIVTPq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 15:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUIVTPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 15:09:51 -0400
-Received: from open.hands.com ([195.224.53.39]:8879 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S266679AbUIVTIY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 15:08:24 -0400
-Date: Wed, 22 Sep 2004 20:19:31 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org
-Subject: hur hur.  fusexmp (userspace fs) + autofs + mount --rbind equals BLURP
-Message-ID: <20040922191931.GD7308@lkcl.net>
+	Wed, 22 Sep 2004 15:15:46 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54023 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S266725AbUIVTPo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 15:15:44 -0400
+Date: Wed, 22 Sep 2004 20:15:41 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] MMC compatibility fix - GO_IDLE
+Message-ID: <20040922201541.G2347@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	linux-kernel@vger.kernel.org
+References: <414C065A.7000602@drzeus.cx> <20040922151735.D2347@flint.arm.linux.org.uk> <4151BA3F.8040406@drzeus.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4151BA3F.8040406@drzeus.cx>; from drzeus-list@drzeus.cx on Wed, Sep 22, 2004 at 07:45:35PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-anybody scared of ugly usage of linux kernel modules should look away,
-_right_ now :)
+On Wed, Sep 22, 2004 at 07:45:35PM +0200, Pierre Ossman wrote:
+> Russell King wrote:
+> >How about this patch?
+>
+> Looks ok. You sure we don't need to put all cards into an idle state 
+> before issuing a new SEND_OP_COND?
 
-... that having been said, this is quite a problem for mount --rbind.
+We aren't sending that to the existing cards - they are still in
+whatever state they were when they were previously detected.  In
+addition, we aren't actually changing or detecting the operational
+conditions, we're merely informing the new cards about the existing
+setup.
 
-repro setup:
+> Can a rescan be done while a card is in a selected state?
 
-1) install fuse.
-2) install autofs.
-3) write an /etc/autofs.media with a mountpoint /media/floppy
-4) mkdir /mnt/test and run fusexmp /mnt/test &
-5) mkdir /home/yourhome/media and mount --rbind /media /home/yourhome/media
-6) attempt to access /mnt/test/home/yourhome/media/floppy
-
-... and watch the little bits of kernel segfaults go _flying_ by...
-
-this is with 2.6.8[.1-selinux1].
-
-some clues as to there-might-be-a-problem-with-rbind are that the
-problem does _not_ occur if you access /home/yourhome/media/floppy,
-and a second clue is that if there are any subdirectories in /media
-prior to running autofs, with a bit of dickering about with the
-order of the above repro setup it's possible to _see_ those subdirectories
-_even_ though you've done a mount --rbind.
-
-i think i saw this occur when i swapped stages 4) and 5) above.
-
-l.
+Yes - any cards not already in idle state will ignore the command
+as intended.
 
 -- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

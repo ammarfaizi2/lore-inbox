@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266028AbUBJRgK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 12:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266070AbUBJRf6
+	id S265947AbUBJRWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 12:22:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266066AbUBJRTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:35:58 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62922 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266066AbUBJRfM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:35:12 -0500
-Date: Tue, 10 Feb 2004 09:37:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: jeffchua@silk.corp.fedex.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] warning: `__attribute_used__' redefined
-Message-Id: <20040210093732.390721cb.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402100827100.2128@home.osdl.org>
-References: <Pine.LNX.4.58.0402101434260.27213@boston.corp.fedex.com>
-	<20040209225336.1f9bc8a8.akpm@osdl.org>
-	<Pine.LNX.4.58.0402102150150.17289@silk.corp.fedex.com>
-	<20040210082514.04afde4a.akpm@osdl.org>
-	<Pine.LNX.4.58.0402100827100.2128@home.osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 10 Feb 2004 12:19:03 -0500
+Received: from h24-82-88-106.vf.shawcable.net ([24.82.88.106]:58508 "HELO
+	tinyvaio.nome.ca") by vger.kernel.org with SMTP id S266064AbUBJRNK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 12:13:10 -0500
+Date: Tue, 10 Feb 2004 09:13:39 -0800
+From: Mike Bell <kernel@mikebell.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: devfs vs udev, thoughts from a devfs user
+Message-ID: <20040210171337.GK4421@tinyvaio.nome.ca>
+References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040210170157.GA27421@kroah.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> So the rule should still be: don't include kernel headers from user 
->  programs. 
+On Tue, Feb 10, 2004 at 09:01:57AM -0800, Greg KH wrote:
+> Did you read:
+> 	http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
 
-Yup.  I generally take the position that we should fix up things which used
-to work, but which 2.6 broke.  Usually that is the only thing which people
-care about anyway...
+Yes, I've read everything since the original OLS one, and liked udev
+less and less with each one.
 
+> But that is not what sysfs does.  And sysfs will not do this.  So this
+> point is moot.
+
+No, you misunderstand. I'm not suggesting that sysfs /should/ export
+device files. I'm saying that sysfs exporting type/major/minor as files
+is not really that different from exporting full-fledged device files.
+Making udev a sort of ugly-hack devfsd.

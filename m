@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275213AbTHRWTG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 18:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275221AbTHRWTG
+	id S275211AbTHRWRc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 18:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275213AbTHRWRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 18:19:06 -0400
-Received: from mail.kroah.org ([65.200.24.183]:61591 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S275213AbTHRWTC (ORCPT
+	Mon, 18 Aug 2003 18:17:32 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:29447 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S275211AbTHRWRb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 18:19:02 -0400
-Date: Mon, 18 Aug 2003 14:31:12 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: 2.6 - sysfs sensor nameing inconsistency
-Message-ID: <20030818213112.GB3478@kroah.com>
-References: <200307152214.38825.arvidjaar@mail.ru> <200308161938.47935.arvidjaar@mail.ru> <20030816165016.GE9735@kroah.com> <200308182049.57093.arvidjaar@mail.ru>
+	Mon, 18 Aug 2003 18:17:31 -0400
+Date: Tue, 19 Aug 2003 00:17:28 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Andries.Brouwer@cwi.nl, Dominik.Strasser@t-online.de, hch@infradead.org,
+       jgarzik@pobox.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: headers
+Message-ID: <20030819001728.A1211@pclin040.win.tue.nl>
+References: <UTC200308181907.h7IJ7im12407.aeb@smtp.cwi.nl> <20030818145709.0b5e162a.rddunlap@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308182049.57093.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030818145709.0b5e162a.rddunlap@osdl.org>; from rddunlap@osdl.org on Mon, Aug 18, 2003 at 02:57:09PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 08:49:57PM +0400, Andrey Borzenkov wrote:
-> On Saturday 16 August 2003 20:50, Greg KH wrote:
-> > > > I like this idea, but now that the name logic has changed in the i2c
-> > > > code, care to re-do this patch?  Just set the name field instead of
-> > > > creating a new file in sysfs.
-> > >
-> > > something like attached patch? I like it as well :)
-> >
-> > Why rename local variables?  Your patch would be a lot smaller if you
-> > just keep the same local name variable, and fix up the name strings.
-> >
+On Mon, Aug 18, 2003 at 02:57:09PM -0700, Randy.Dunlap wrote:
+> | In case people want to try just one file, do signal.h.
 > 
-> To make it clear for anyone porting other drivers that we are using type_name 
-> and not client_name or whatever. In 2.4 every driver have both; mixing name, 
-> type_name and client_name will just add to confusion.
+> Since there are 20+ <arch>/signal.h files and they don't always agree
+> on signal bit numbers e.g., do we have 20+ abi/arch/signal.h files?
+> Or 1 abi/signal.h file with many #ifdefs?  ugh.
+> 
+> The ABI is still per-arch, right?  Not _one ABI_ for any/all arches.
 
-No, we don't need both a "type_name" and a "client_name" anymore, right?
-So it's just a simple "name" for the i2c client device.  "type_name" is
-handled by the name of the client driver now.
+Yes, per arch.
 
-> I will redo patch if you insist but I really prefer having things consistent 
-> if possible.
-
-I prefer having things make sense :)
-So yes, I'd prefer if you change your patch.
-
-I've cced the sensors mailing list to get any feedback from them.
-
-thanks,
-
-greg k-h

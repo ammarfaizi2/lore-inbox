@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289901AbSBXQ45>; Sun, 24 Feb 2002 11:56:57 -0500
+	id <S290125AbSBXRLv>; Sun, 24 Feb 2002 12:11:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289954AbSBXQ4r>; Sun, 24 Feb 2002 11:56:47 -0500
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:30930 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S289901AbSBXQ4b>; Sun, 24 Feb 2002 11:56:31 -0500
-Date: Sun, 24 Feb 2002 17:56:27 +0100 (MET)
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-X-X-Sender: sithglan@faui02.informatik.uni-erlangen.de
-To: Otto Wyss <otto.wyss@bluewin.ch>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic: Loop 1 (aic7xxx driver)
-In-Reply-To: <3C79198D.B4161A96@bluewin.ch>
-Message-ID: <Pine.GSO.4.44.0202241755030.23901-100000@faui02.informatik.uni-erlangen.de>
+	id <S290103AbSBXRLl>; Sun, 24 Feb 2002 12:11:41 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:55218 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S290125AbSBXRLV>; Sun, 24 Feb 2002 12:11:21 -0500
+Date: Sun, 24 Feb 2002 08:42:52 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: adam@os.inf.tu-dresden.de, fernando@quatro.com.br,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
+Message-ID: <58726664.1014540170@[10.10.2.3]>
+In-Reply-To: <20020223231850.4ea9d3ca.skraw@ithnet.com>
+In-Reply-To: <20020223231850.4ea9d3ca.skraw@ithnet.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The easiest way is to use a serial console. Maybe you should have a look at
-http://kgdb.sourceforge.net/, too.
-
-Greetings,
-		 Thomas
-
-On Sun, 24 Feb 2002, Otto Wyss wrote:
-
-> Since kernel version 2.4.9 I haven't compiled a kernel until recently. With
-> 2.4.17 I always got the "Kernel panic: Loop 1" from the aic7xxx driver. When I
-> removed this driver the kernel started correctly. My research on the net showed
-> that "Gregoire Favre (Kernel panic: Loop 1 (aic7xxx under 2.4.13-ac[246]))" has
-> the same problem as I and his report is almost exactly as mine. I won't write
-> mine here since I don't know how to save it into a file, anything is lost after
-> the hard reset (does anybody know how to save/retrieve kernel messages after a panic?).
+>> > <4>CPU1<T0:1339376,T1:446448,D:8,S:446460,C:1339380>
+>> > <4>checking TSC synchronization across CPUs: passed.
+>> > <4>Waiting on wait_init_idle (map = 0x2)
+>> > <4>All processors have done init_idle
+>> >
+>> > I would say this means the TSC skew fix is broken and shooting down
+>> > your box. What do you think, Alan?
+>>
+>> Seems a reasonable guess. However that TSC skew itself may point to other
+>> problems. It means one processor started running successfully a little
+>> after the other. That might be normal behaviour for that board or might
+>> point to  something else
 >
-> Well but I can give a hint where to look for since the problem disappears when I
-> compile the aic7xxx driver into the kernel. If (with make menuconfig) the option
-> "SCSI support" and the low level driver "Adaptec aic7xxx support" is set to "M"
-> the problem occurs. It occurs only if the option _"SCSI support"_ is set to "M".
-> I guess only very few people use this option.
+> It seems no normal behaviour, I checked several other boards of this type
+> and none had a TSC skew (and all work). Purely guessing I would suggest
+> two try some other 2 processors to verify the behaviour is really
+> processor-independent. Another guess would of course be the MB itself
+> being broken to some extent.
 >
-> O. Wyss
->
-> --
-> Author of "Debian partial mirror synch script"
-> ("http://dpartialmirror.sourceforge.net/")
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Has anybody ever seen a _working_ skew correction? Is this known-to-work
+> code?
 
+Yes. Works every time for me (on NUMA-Q), with huge corrections:
+
+checking TSC synchronization across CPUs:
+BIOS BUG: CPU#0 improperly initialized, has 6571 usecs TSC skew! FIXED.
+BIOS BUG: CPU#1 improperly initialized, has 6571 usecs TSC skew! FIXED.
+BIOS BUG: CPU#2 improperly initialized, has 6571 usecs TSC skew! FIXED.
+BIOS BUG: CPU#3 improperly initialized, has 6571 usecs TSC skew! FIXED.
+BIOS BUG: CPU#4 improperly initialized, has 20664 usecs TSC skew! FIXED.
+BIOS BUG: CPU#5 improperly initialized, has 20664 usecs TSC skew! FIXED.
+BIOS BUG: CPU#6 improperly initialized, has 20665 usecs TSC skew! FIXED.
+BIOS BUG: CPU#7 improperly initialized, has 20664 usecs TSC skew! FIXED.
+BIOS BUG: CPU#8 improperly initialized, has -4424 usecs TSC skew! FIXED.
+BIOS BUG: CPU#9 improperly initialized, has -4424 usecs TSC skew! FIXED.
+BIOS BUG: CPU#10 improperly initialized, has -4424 usecs TSC skew! FIXED.
+BIOS BUG: CPU#11 improperly initialized, has -4424 usecs TSC skew! FIXED.
+BIOS BUG: CPU#12 improperly initialized, has -22812 usecs TSC skew! FIXED.
+BIOS BUG: CPU#13 improperly initialized, has -22812 usecs TSC skew! FIXED.
+BIOS BUG: CPU#14 improperly initialized, has -22812 usecs TSC skew! FIXED.
+BIOS BUG: CPU#15 improperly initialized, has -22811 usecs TSC skew! FIXED.
+
+I did try disabling it once, which stopped the system booting.
+I never looked at it any further.
+
+If you are crashing near the wait_init_idle fix, you might
+try Ingo's scheduler patch - it has a different way of
+fixing this race condition.
+
+M.

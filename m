@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263923AbUAHSd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 13:33:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265957AbUAHSd7
+	id S265814AbUAHSbE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 13:31:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265878AbUAHSbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 13:33:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52430 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263923AbUAHSdz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 13:33:55 -0500
-Date: Thu, 8 Jan 2004 10:34:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc2-mm1: drm/sis_mm.c compile error
-Message-Id: <20040108103404.1a90d34f.akpm@osdl.org>
-In-Reply-To: <20040108153656.GF13867@fs.tum.de>
-References: <20040107232831.13261f76.akpm@osdl.org>
-	<20040108153656.GF13867@fs.tum.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jan 2004 13:31:04 -0500
+Received: from p68.rivermarket.wintek.com ([208.13.56.68]:3482 "EHLO
+	dust.p68.rivermarket.wintek.com") by vger.kernel.org with ESMTP
+	id S265814AbUAHSbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 13:31:01 -0500
+Date: Thu, 8 Jan 2004 13:35:01 -0500 (EST)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Ian Kent <raven@themaw.net>
+Cc: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+In-Reply-To: <Pine.LNX.4.58.0401081310060.3452@dust>
+Message-ID: <Pine.LNX.4.58.0401081333190.3452@dust>
+References: <Pine.LNX.4.44.0401082333280.449-100000@donald.themaw.net>
+ <Pine.LNX.4.58.0401081310060.3452@dust>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> wrote:
->
-> drivers/char/drm/sis_mm.c:37:25: linux/sisfb.h: No such file or directory
->  drivers/char/drm/sis_mm.c: In function `sis_fb_alloc':
->  drivers/char/drm/sis_mm.c:92: error: storage size of `req' isn't known
->  drivers/char/drm/sis_mm.c:98: warning: implicit declaration of function `sis_malloc'
->  drivers/char/drm/sis_mm.c:105: warning: implicit declaration of function `sis_free'
->  drivers/char/drm/sis_mm.c:92: warning: unused variable `req'
+On Thu, 8 Jan 2004, Alex Goddard wrote:
 
-Yes.  The video header files were moved.  I assume this code is also
-designed to build under 2.4.  If so, something like this is the way to go:
+> On Thu, 8 Jan 2004, Ian Kent wrote:
+> 
+> > On Thu, 8 Jan 2004, [koi8-r] "Andrey Borzenkov[koi8-r] "  wrote:
+> 
+> [Snip]
+> 
+> > > I do care. Searching archives for devfs mostly brings "everyone knows
+> > > this is crap". That is why I kindly ask you to show real evidence that
+> > > the problems it has are unsolvable.
+> > 
+> > Again I'm also unable to find descriptions of the 'unsolvable' races.
+> > 
+> > I wouldn't mind knowing what they are either. Anyone?
+> 
+> Can no one think of good search terms for these sorts of things these
+> days?  From the first and only page of results for 'devfs unsolvable
+> races':
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=105851630726585&w=2
 
----
+Someone else already mentioned the many, many posts by Al Viro on this
+subject I was about to post a URL or two for.  They make for good (and
+entertainingly flame-ridden) reading.
 
- drivers/char/drm/sis_mm.c |    4 ++++
- 1 files changed, 4 insertions(+)
-
-diff -puN drivers/char/drm/sis_mm.c~drm-include-fix drivers/char/drm/sis_mm.c
---- 25/drivers/char/drm/sis_mm.c~drm-include-fix	2004-01-08 10:14:41.000000000 -0800
-+++ 25-akpm/drivers/char/drm/sis_mm.c	2004-01-08 10:16:49.000000000 -0800
-@@ -34,8 +34,12 @@
- #include "sis_drv.h"
- #include "sis_ds.h"
- #if defined(__linux__) && defined(CONFIG_FB_SIS)
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
-+#include <video/sisfb.h>
-+#else
- #include <linux/sisfb.h>
- #endif
-+#endif
- 
- #define MAX_CONTEXT 100
- #define VIDEO_TYPE 0 
-
-_
-
+-- 
+Alex Goddard
+agoddard at purdue.edu

@@ -1,38 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279317AbRKFNhE>; Tue, 6 Nov 2001 08:37:04 -0500
+	id <S279250AbRKFNle>; Tue, 6 Nov 2001 08:41:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279313AbRKFNgy>; Tue, 6 Nov 2001 08:36:54 -0500
-Received: from sushi.toad.net ([162.33.130.105]:51176 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S279250AbRKFNgj>;
-	Tue, 6 Nov 2001 08:36:39 -0500
-Subject: Re: [PATCH] PnP BIOS support for OPL3-SA1 sound driver
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrey Panin <pazke@orbita1.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 06 Nov 2001 08:35:57 -0500
-Message-Id: <1005053761.20873.26.camel@thanatos>
-Mime-Version: 1.0
+	id <S279264AbRKFNlZ>; Tue, 6 Nov 2001 08:41:25 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:24080 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S279250AbRKFNlT>; Tue, 6 Nov 2001 08:41:19 -0500
+Date: Tue, 6 Nov 2001 10:22:02 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: out_of_memory() heuristic broken for different mem configurations
+In-Reply-To: <20011106143108.6ef304d5.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.21.0111061015190.9867-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You define a table of struct pnpbios_device_id's containing
-the IDs plus pointers to structs containing info about which
-ioports reported by pnpbios do which things.  Okay.
 
-But rather than search for each ID in the table using
-pnpbios_find_device(), why not use pnpbios_register_driver()?
 
-To use this, you define a struct pnpbios_driver, which contains among
-other things a pointer to your table of struct pnpbios_device_id's
-and callback handles for adding ("probing") and removing the device.
-You call pnpbios_register_driver() with a pointer to this
-struct pnpbios_driver; it searches the devlist and table
-for matches and for each one calls the callback function.
+On Tue, 6 Nov 2001, Stephan von Krawczynski wrote:
 
---
-Thomas
+> On Tue, 6 Nov 2001 09:40:51 -0200 (BRST) Marcelo Tosatti
+> <marcelo@conectiva.com.br> wrote:
+> 
+> > Well, yes, its seems to be just a wrong magic number for this
+> > setup/workload.
+> 
+> Well, first time I read the code I thought that this will happen. Simply think
+> of a _slow_ system with _lots_ of mem. Chances are high you cannot match the
+> seconds-rule. 
+> 
+> > Linus, any suggestion to "fix" that ? 
+> 
+> How about this really stupid idea: oom means allocs fail, so why not simply
+> count failed 0-order allocs, if one succeeds, reset counter. If a page is freed
+> reset counter. If counter reaches <new magic number> then you're oom. No timing
+> involved, which means you can have as much mem or as slow host as you like.
+
+> It isn't even really interesting, if you have swap or not, because a
+> failed 0-order alloc tells you whatever mem you have, there is surely
+> not much left. 
+
+Wrong. If we have swap available, we are able to swapout anonymous data,
+so we are _not_ OOM. This is an important point on this whole OOM killer
+nightmare.
+
+Keep in mind that we don't want to destroy anonymous data from userspace
+(OOM kill).
+
+> I'd try about 100 as magic number.
+
+I think your suggestion will work well in practice (except that we have to
+check the swap).
+
+I'll try that later.
+
+> > /proc tunable (eeek) ? 
+> 
+> NoNoNo, please don't do that!
+
+Note that even if your suggestion works, we may want to make the magic
+value /proc tunable.
+
+The thing is that the point where tasks should be killed is also an admin
+decision, not a complete kernel decision.
 

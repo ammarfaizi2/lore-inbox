@@ -1,83 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVBXWJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVBXWNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262509AbVBXWJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 17:09:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbVBXWJ4
+	id S262492AbVBXWNt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 17:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbVBXWNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 17:09:56 -0500
-Received: from smarthost1.sentex.ca ([64.7.153.18]:27409 "EHLO
-	smarthost1.sentex.ca") by vger.kernel.org with ESMTP
-	id S262509AbVBXWJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 17:09:49 -0500
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Greg Folkert'" <greg@gregfolkert.net>
-Cc: "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: RE: Greg's Decree! (was Re: Linus' decrees?)
-Date: Thu, 24 Feb 2005 17:08:33 -0500
-Organization: Connect Tech Inc.
-Message-ID: <002201c51abd$712cf500$294b82ce@stuartm>
+	Thu, 24 Feb 2005 17:13:49 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:2673 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262492AbVBXWNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 17:13:42 -0500
+Message-ID: <421E5192.1060604@yahoo.com.au>
+Date: Fri, 25 Feb 2005 09:13:38 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 12/13] schedstats additions for sched-balance-fork
+References: <1109229491.5177.71.camel@npiggin-nld.site> <1109229542.5177.73.camel@npiggin-nld.site> <1109229650.5177.78.camel@npiggin-nld.site> <1109229700.5177.79.camel@npiggin-nld.site> <1109229760.5177.81.camel@npiggin-nld.site> <1109229867.5177.84.camel@npiggin-nld.site> <1109229935.5177.85.camel@npiggin-nld.site> <1109230031.5177.87.camel@npiggin-nld.site> <1109230087.5177.89.camel@npiggin-nld.site> <1109230125.5177.91.camel@npiggin-nld.site> <20050224084622.GC10023@elte.hu>
+In-Reply-To: <20050224084622.GC10023@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <1109280654.14960.5.camel@king.gregfolkert.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg Folkert [mailto:greg@gregfolkert.net] 
-> On Thu, 2005-02-24 at 15:03 -0500, Stuart MacDonald wrote:
-> > Recently I ran across
-> > 
-> > http://groups.google.ca/groups?hl=en&lr=lang_en&safe=off&selm=
-> > 1033074519.2698.5.
-> > camel%40localhost.localdomain
-> > 
-> > Is there a collection point for Linus' decrees?
-> > 
-> > The LSB (http://www.linuxbase.org/) seems to be mostly involved with
-> > how a distro is laid out, and not much to do with the kernel.
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
-> Okay, Linus decreed... oh yeah.
-> Exactly what is wrong with the method anyway?
-> You on Crack?
+> 
+>> [PATCH 11/13] sched-domains aware balance-on-fork
+>>  [PATCH 12/13] schedstats additions for sched-balance-fork
+>> [PATCH 13/13] basic tuning
+> 
+> 
+> STREAMS numbers tricky. It's pretty much the only benchmark that 1)
+> relies on being able to allocate alot of RAM in a NUMA-friendly way 2)
+> does all of its memory allocation in the first timeslice of cloned
+> worker threads.
+> 
 
-Uh, what? I'm not sure what you're trying to say with the above,
-except that maybe you think I was implying that the
-/lib/modules/`uname -r`/build method is somehow wrong. Which I wasn't,
-and I'm not even sure how you'd come to that conclusion from my post.
+I know what you mean... but this is not _just_ for STREAM. Firstly,
+if we start 4 tasks on one core (of a 4 socket / 8 core system), and
+just let them be moved around by the periodic balancer, they will
+tend to cluster on 2 or 3 CPUs, and that will be the steady state.
 
-And no, I'm not on crack.
+> There is little help we get from userspace, and i'm not sure we want to
+> add scheduler overhead for this single benchmark - when something like a
+> _tiny_ bit of NUMAlib use within the OpenMP library would probably solve
+> things equally well!
+> 
 
-> Make TONS-O-SENSE to state the obvious. IOW the statement was all meant
-> to say *DO IT THIS WAY AND NO OTHER* as nobody else honors any other
-> method.
+True, for OpenMP apps (and this work shouldn't stop that from happening).
+But other threaded apps are also important, and fork()ed apps can be
+important too.
 
-The post I reference mentions that Linus once said that a standard
-method to locate the source for a particular kernel would be to have
-it at /lib/modules/`uname -r`/build. This seems to be a symlink for
-vanilla kernels, and actual source for the FC3 installed kernels I
-have handy.
+What I hear from the NUMA guys (POWER5, AMD) is that they really want to
+keep memory controllers busy. This seems to be the best way to do it.
 
-I had not heard this before, and it turns out to be handy for me. In
-the past I have also seen Linus state things like "binary drivers are
-bad" and "drm is okay".
+There are a few differences between this and when we last tried it. The
+main thing is that the balancer is now sched-domains aware. I hope we
+can get it to do the right thing more often (at least it is a per domain
+flag, so those who don't want it don't turn it on).
 
-So what I'm wondering is, is there a location on the net where Linus'
-statements about how the kernel is to be are collected? ie, Where the
-above statements could all be found, with cites.
+> Anyway, the code itself looks fine and it would be good if it improved
+> things, so:
+> 
+>  Acked-by: Ingo Molnar <mingo@elte.hu>
+> 
+> but this too needs alot of testing, and it the one that has the highest
+> likelyhood of actually not making it upstream.
+> 
 
-I'm thinking there's probably other info about the standard way of
-doing things in regards to the kernel (all aspects thereof) that Linus
-has put forth that might be handy for me to know, and I'm hoping that
-there's a handy dandy collection that I can peruse.
-
-I guess what I'm looking for is a collection of linux kernel policies.
-Is there such a collection?
-
-..Stu
+Thanks for reviewing.
 

@@ -1,84 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268511AbUJJVzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268520AbUJJV5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268511AbUJJVzo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 17:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUJJVzo
+	id S268520AbUJJV5j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 17:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUJJV5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 17:55:44 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:17421 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S268511AbUJJVzl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 17:55:41 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Sam Hocevar" <sam@zoy.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: possible GPL violation by Free
-Date: Sun, 10 Oct 2004 14:55:36 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCEFAOOAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.44.0410101246000.28406-100000@chimarrao.boston.redhat.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Sun, 10 Oct 2004 14:32:20 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sun, 10 Oct 2004 14:32:22 -0700
+	Sun, 10 Oct 2004 17:57:39 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:46292 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268520AbUJJV5e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 17:57:34 -0400
+Date: Sun, 10 Oct 2004 23:59:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dwalker@mvista.com, sdietrich@mvista.com, linux-kernel@vger.kernel.org,
+       abatyrshin@ru.mvista.com, amakarov@ru.mvista.com, emints@ru.mvista.com,
+       ext-rt-dev@mvista.com, hzhang@ch.mvista.com, yyang@ch.mvista.com
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Message-ID: <20041010215906.GA19497@elte.hu>
+References: <41677E4D.1030403@mvista.com> <20041010084633.GA13391@elte.hu> <1097437314.17309.136.camel@dhcp153.mvista.com> <20041010142000.667ec673.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041010142000.667ec673.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Sun, 10 Oct 2004, Sam Hocevar wrote:
+* Andrew Morton <akpm@osdl.org> wrote:
 
-> > > This leaves Free with 2 options:
+> Lockmeter gets in the way of all this activity in a big way.  I'll
+> drop it.
 
-> >    I know the GPL and I know they don't appear to be doing any of these
-> > two things. However it might be hidden in some obscure agreement between
-> > Free and the user, renounced upon in such an agreement (which would
-> > violate the GPL, like QuakeLives did) or indeed not be there at all. And
-> > the only people who can verify this are the Freebox users.
+great. Daniel, would you mind to merge your patchkit against the
+following base:
 
-> Even if the Freebox users were to renounce their own
-> rights under the GPL, I do not see how they could
-> renounce OUR rights for us ...
+	-mm3, minus lockmeter, plus the -T3 patch
 
-	The GPL doesn't give any rights to anyone but the people the software is
-distributed to. Though the agreement must be enforceable by any third party,
-that third party must actually be a recipient of the agreement, either
-directly or indirectly.
+? To make this easier i've uploaded a combined undo-lockmeter patch to:
 
-	So in other words, if you make a custom binary of the Linux kernel and
-distribute it to me, then you have to give me an agreement that any third
-party can enforce to get the source code. But I don't have to give that
-agreement to any third parties if I don't want to.
+  http://redhat.com/~mingo/voluntary-preempt/undo-lockmeter-2.6.9-rc3-mm3-A1
 
-	The rationale behind this requirement in the GPL is that without it,
-redistribution would be difficult. Since the GPL allows the recipients of
-the code to further distribute it, they must be also able to distribute the
-right to the source code.
+which you should apply to vanilla -mm3, then apply the -T3 patch:
 
-	The GPL does not permit you to impose any other restrictions. So you can't
-use this as a loophole to escape the requirement of distributing the source
-code. A simple way to understand it is this -- wherever the executable can
-go, so too must the source go. Wherever the executable can go, so too must
-the right to redistribute the executable (and therefore, so to must go the
-ability to get the source).
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
 
-	If you lawfully obtained the executable to anything derived from GPL'd
-code, you should be able to obtain the source code. If not, you might or
-might not be able to. If you have the executable, and didn't steal it or
-something, you should also have either the source code or the right to
-easily obtain the source code.
+this will apply cleanly with some minor fuzz. The resulting kernel
+builds & boots fine with my .config.
 
-	DS
-
-
+	Ingo

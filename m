@@ -1,35 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287328AbSAGW5e>; Mon, 7 Jan 2002 17:57:34 -0500
+	id <S287332AbSAGW5X>; Mon, 7 Jan 2002 17:57:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287330AbSAGW5X>; Mon, 7 Jan 2002 17:57:23 -0500
-Received: from unknown-1-11.windriver.com ([147.11.1.11]:55515 "EHLO
-	mail.wrs.com") by vger.kernel.org with ESMTP id <S287328AbSAGW5U>;
-	Mon, 7 Jan 2002 17:57:20 -0500
-From: mike stump <mrs@windriver.com>
-Date: Mon, 7 Jan 2002 14:56:30 -0800 (PST)
-Message-Id: <200201072256.OAA12152@kankakee.wrs.com>
-To: Dautrevaux@microprocess.com, dewar@gnat.com, guerby@acm.org
-Subject: RE: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, paulus@samba.org,
-        trini@kernel.crashing.org, velco@fadata.bg
+	id <S287330AbSAGW5N>; Mon, 7 Jan 2002 17:57:13 -0500
+Received: from c9mailgw.prontomail.com ([216.163.188.200]:29715 "EHLO
+	C9Mailgw03.prontomail.com") by vger.kernel.org with ESMTP
+	id <S287328AbSAGW5H>; Mon, 7 Jan 2002 17:57:07 -0500
+Message-ID: <3C3A27B1.2B33EAC6@starband.net>
+Date: Mon, 07 Jan 2002 17:56:49 -0500
+From: Justin Piszcz <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: test
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Bernard Dautrevaux <Dautrevaux@microprocess.com>
-> To: "'Laurent Guerby'" <guerby@acm.org>, dewar@gnat.com
-> Date: Mon, 7 Jan 2002 14:29:15 +0100 
+my mail server has been down, haven't gotten any messages from this
+group.. testing
 
-> It seems to me that you are right,
 
-That's unfortunate.
-
-> but there is other cases; for example:
-> 	X := T(0)*256 + T(1);
-> compiled on a big endian architecture may well generate just one
-> 16-bit word read...
-
-Not in my word, not in gcc's world.  That is just broken and wrong.
-
-If you want/need the gcc doc to expound on this, write it up, and
-we'll add it.

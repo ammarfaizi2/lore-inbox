@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTIXAj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 20:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbTIXAj3
+	id S261223AbTIXAz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 20:55:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbTIXAz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 20:39:29 -0400
-Received: from web20704.mail.yahoo.com ([216.136.226.177]:31882 "HELO
-	web20704.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261159AbTIXAj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 20:39:28 -0400
-Message-ID: <20030924003922.73492.qmail@web20704.mail.yahoo.com>
-Date: Tue, 23 Sep 2003 17:39:22 -0700 (PDT)
-From: Binny Gill <kernelwise@yahoo.com>
-Subject: Multiple TCP connections serving the same NFS mount?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 23 Sep 2003 20:55:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51125 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261223AbTIXAz1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 20:55:27 -0400
+Date: Wed, 24 Sep 2003 01:55:26 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Deepak Saxena <dsaxena@mvista.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       marcelo.tosatti@cyclades.com.br
+Subject: Re: [PATCH] Fix %x parsing in vsscanf()
+Message-ID: <20030924005526.GQ7665@parcelfarce.linux.theplanet.co.uk>
+References: <20030923212207.GA25234@xanadu.az.mvista.com> <Pine.LNX.4.44.0309231421450.24527-100000@home.osdl.org> <20030923213533.GN7665@parcelfarce.linux.theplanet.co.uk> <20030923221611.GA25464@xanadu.az.mvista.com> <20030923222632.GO7665@parcelfarce.linux.theplanet.co.uk> <20030924010258.GA24014@xanadu.az.mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030924010258.GA24014@xanadu.az.mvista.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone seen or tried an NFS client which uses multiple parallel TCP connections for a single
-mount
- to an NFS server?
-This could be helpful when the server side (outside our control) has a very conservative send
-window, 
-but the bandwidth and latency between the two is large. 
-TIA 
--b
+On Tue, Sep 23, 2003 at 06:02:58PM -0700, Deepak Saxena wrote:
+> On Sep 23 2003, at 23:26, viro@parcelfarce.linux.theplanet.co.uk was caught saying:
+> > The following, AFAICS, would be correct:
+> > 
+> >         if (*cp == '0') {
+> >                 cp++;
+> >                 if (unlikely((*cp == 'x' || *cp == 'X') && isxdigit(cp[1]))) {
+> >                         if (!base || base == 16) {
+> >                                 cp++;
+> >                                 base = 16;
+> >                         }
+> >                 } else if (!base)
+> >                         base = 8;
+> >         } else if (!base)
+> >                 base = 10;
+> 
+> We can remove everything but "base = 10;" from the second "else if"
+> clause b/c by this point we're guaranteed that it's not a hex or
+> octal value.
 
-
-
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+Bzzert.  strtoul() with e.g. base 8 on "1234" should parse it as octal.

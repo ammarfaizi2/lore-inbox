@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264131AbUE1WNA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264161AbUE1WMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264131AbUE1WNA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 18:13:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbUE1WMj
+	id S264161AbUE1WMO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 18:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264138AbUE1WJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 18:12:39 -0400
-Received: from mail.kroah.org ([65.200.24.183]:14530 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264160AbUE1WLE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 18:11:04 -0400
-Date: Fri, 28 May 2004 15:10:06 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Zabolotny <zap@homelink.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: two patches - request for comments
-Message-ID: <20040528221006.GB13851@kroah.com>
-References: <20040529012030.795ad27e.zap@homelink.ru>
+	Fri, 28 May 2004 18:09:20 -0400
+Received: from mail.kroah.org ([65.200.24.183]:33982 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264058AbUE1WB2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 18:01:28 -0400
+Subject: Re: [PATCH] I2C update for 2.6.7-rc1
+In-Reply-To: <10857816431296@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 28 May 2004 15:00:43 -0700
+Message-Id: <10857816431433@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040529012030.795ad27e.zap@homelink.ru>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29, 2004 at 01:20:30AM +0400, Andrew Zabolotny wrote:
-> Hello!
-> 
-> I'm going to submit the class_find_device() patch (attached for your
-> convenience) as a pre-requisite for the backlight/lcd device class patch
-> (also included so that you can take at it as well) via Russel King (the
-> backlight/lcd patch is needed for our ARM-based handhelds framebuffer
-> devices). Any comments/objections are welcome.
-> 
-> The LCD and backlight device classes were implemented with the following in
-> mind:
+ChangeSet 1.1717.6.29, 2004/05/28 13:47:51-07:00, khali@linux-fr.org
 
-Becides the comments that Todd had about the power management stuff, I
-have the following comments:
-	- please inline your patches, I can't quote them :(
-	- you create the DEVICE_ATTR macro, why not use the one already
-	  created for you (CLASS_DEVICE_ATTR will work I think.)
-	- Don't do a unregister function by passing a string to it.
-	  Explicitly pass the pointer of the object that you want to
-	  unregister, like all other kernel interfaces do.  With that
-	  change you no longer need the class_find_device() patch,
-	  right?
-	- How about some drivers that actually use this interface?
-	  Again, you are creating interfaces with no examples of users
-	  of the interface, which isn't acceptable.
+[PATCH] I2C: i2c-parport: support the ADM1031 evaluation board
 
-thanks,
+The following patch adds support for the ADM1030 and ADM1031 evaluation
+boards to the i2c-parport and i2c-parport-light drivers. They are almost
+compatible with the already supported ADM1025 and ADM1032 boards, except
+that the ADM1032 board needs some pins to be set high to draw its power,
+while the same pins power up heating resistors on the ADM1031 board. I
+considered it was a bit dangerous to do that by default, so I ended up
+with two different device definitions, one with powering pins set, and
+one with these pins cleared.
 
-greg k-h
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/i2c/busses/i2c-parport.h |   14 ++++++++++----
+ 1 files changed, 10 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/drivers/i2c/busses/i2c-parport.h b/drivers/i2c/busses/i2c-parport.h
+--- a/drivers/i2c/busses/i2c-parport.h	Fri May 28 14:52:07 2004
++++ b/drivers/i2c/busses/i2c-parport.h	Fri May 28 14:52:07 2004
+@@ -67,13 +67,18 @@
+ 		.getsda	= { 0x40, STAT, 1 },
+ 		.getscl	= { 0x08, STAT, 1 },
+ 	},
+-	/* type 4: ADM1025 and ADM1032 evaluation boards */
++	/* type 4: ADM1032 evaluation board */
++	{
++		.setsda	= { 0x02, DATA, 1 },
++		.setscl	= { 0x01, DATA, 1 },
++		.getsda	= { 0x10, STAT, 1 },
++		.init	= { 0xf0, DATA, 0 },
++	},
++	/* type 5: ADM1025, ADM1030 and ADM1031 evaluation boards */
+ 	{
+ 		.setsda	= { 0x02, DATA, 1 },
+ 		.setscl	= { 0x01, DATA, 1 },
+ 		.getsda	= { 0x10, STAT, 1 },
+-		.init	= { 0xf0, DATA, 0 }, /* ADM1025 doesn't need this,
+-						but it doesn't hurt */
+ 	},
+ };
+ 
+@@ -85,4 +90,5 @@
+ 	" 1 = home brew teletext adapter\n"
+ 	" 2 = Velleman K8000 adapter\n"
+ 	" 3 = ELV adapter\n"
+-	" 4 = ADM1025 and ADM1032 evaluation boards\n");
++	" 4 = ADM1032 evaluation board\n"
++	" 5 = ADM1025, ADM1030 and ADM1031 evaluation boards\n");
+

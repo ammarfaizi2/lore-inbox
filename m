@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285261AbSACKFZ>; Thu, 3 Jan 2002 05:05:25 -0500
+	id <S285266AbSACKHF>; Thu, 3 Jan 2002 05:07:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285266AbSACKFP>; Thu, 3 Jan 2002 05:05:15 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:39826 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S285261AbSACKFC>;
-	Thu, 3 Jan 2002 05:05:02 -0500
-Date: Thu, 3 Jan 2002 11:03:49 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: Richard Henderson <rth@redhat.com>, Tom Rini <trini@kernel.crashing.org>,
-        jtv <jtv@xs4all.nl>, Momchil Velikov <velco@fadata.bg>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        gcc@gcc.gnu.org,
-        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <15411.49911.958835.299377@argo.ozlabs.ibm.com>
-Message-ID: <Pine.GSO.4.21.0201031057430.18863-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285269AbSACKGz>; Thu, 3 Jan 2002 05:06:55 -0500
+Received: from r220-1.rz.RWTH-Aachen.DE ([134.130.3.31]:20938 "EHLO
+	r220-1.rz.RWTH-Aachen.DE") by vger.kernel.org with ESMTP
+	id <S285266AbSACKGp>; Thu, 3 Jan 2002 05:06:45 -0500
+Date: Thu, 3 Jan 2002 11:12:12 +0100
+From: Nils Juergens <ju@isf.rwth-aachen.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Want to learn
+Message-ID: <20020103101212.GA2546@koala7.isf.rwth-aachen.de>
+Mail-Followup-To: Nils Juergens <ju@isf.rwth-aachen.de>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C3423CE.3090405@web.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <3C3423CE.3090405@web.de>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Paul Mackerras wrote:
-> Richard Henderson writes:
-> > Ignore strcpy.  Yes, that's what visibly causing a failure here,
-> > but the bug is in the funny pointer arithmetic.  Leave that in
-> > there and the compiler _will_ bite your ass sooner or later.
-> 
-> I look forward to seeing your patch to remove all uses of
-> virt_to_phys, phys_to_virt, __pa, __va, etc. from arch/alpha... :)
+On Thu, 03.01.02, Todor Todorov <ttodorov@web.de> wrote:
 
-Isn't this why we use `unsigned long' to represent physical addresses, and
-`void *' to represent kernel virtual addresses? Not only helps it against a
-user dereferencing a physical address `pointer', but also against gcc trying to
-be (too) smart.
+> I want to learn how the kernel works and how things build on top of one 
+> another.
 
-Of course this also implies we have to change the pointer argument in readb()
-and friends, since it's not a real pointer but a magic cookie. But we already
-had that discussion last year...
+You might want to take a look at
 
-[ and the conclusion was: keep the pointer, so we can do readl(&base->field) ]
+http://www.kernelnewbies.org/wiki/moin.cgi/KernelHacking
 
-Gr{oetje,eeting}s,
+good luck,
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
-
+Nils

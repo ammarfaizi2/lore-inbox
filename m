@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266159AbUFUIEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266156AbUFUINW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266159AbUFUIEu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 04:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUFUICk
+	id S266156AbUFUINW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 04:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266154AbUFUINV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 04:02:40 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:2273 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266154AbUFUIC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 04:02:29 -0400
-Date: Mon, 21 Jun 2004 09:02:24 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Takao Indoh <indou.takao@soft.fujitsu.com>
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4]Diskdump Update
-Message-ID: <20040621080224.GA15256@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Takao Indoh <indou.takao@soft.fujitsu.com>, arjanv@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <1086954645.2731.23.camel@laptop.fenrus.com> <DBC45765BB709Eindou.takao@soft.fujitsu.com>
+	Mon, 21 Jun 2004 04:13:21 -0400
+Received: from uranus.md1.de ([217.160.177.133]:37810 "EHLO uranus.md1.de")
+	by vger.kernel.org with ESMTP id S266156AbUFUINR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 04:13:17 -0400
+Date: Mon, 21 Jun 2004 10:11:02 +0200
+To: linux-kernel@vger.kernel.org
+Cc: Gerd Knorr <kraxel@bytesex.org>
+Subject: [PATCH][2.6][V4L] saa5246a Videotext driver update
+Message-ID: <20040621081102.GA5961@t-online.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DBC45765BB709Eindou.takao@soft.fujitsu.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.3.28i
+From: linux@MichaelGeng.de (Michael Geng)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 21, 2004 at 04:59:52PM +0900, Takao Indoh wrote:
-> >> int cmd, unsigned long param)
-> >
-> >
-> >ehhh this looks evil
-> 
-> Do you mean I should use not ioctl but the following style?
-> 
-> echo "add /dev/hda1" > /proc/diskdump
-> echo "delete /dev/hda1" > /proc/diskdump
+Hello,
 
-the right interface would probably be a dump attribute for the scsi_device
-where you can echo enable or disable (or 1/0) to.  The also nicely solves
-then need to find an associated scsi_device for a given block_dev.
+I uploaded an update to the Videotext driver for the
+SAA5246A videotext decoder in 
+
+http://www.michaelgeng.de/linux/saa5246a-2.6.7.patch
+
+The update only changes comments showing that the driver 
+also works for the SAA5281 videotext decoder chip. 
+This is not surprising because according to the data sheet of 
+the SAA5281 it is compatible to the SAA5246A. I have tested 
+this with a Siemens Multimedia Extension Board (MXB).
+
+I also added MODULE_AUTHOR and MODULE_DESCRIPTION macros which
+were missing up to now.
+
+Patch comment:
+V4L: saa5246a driver update, supports saa5281
+
+Signed-off-by: Michael Geng <linux@MichaelGeng.de>
+
+Michael
+

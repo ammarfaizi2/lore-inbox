@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262329AbTCIBKO>; Sat, 8 Mar 2003 20:10:14 -0500
+	id <S262343AbTCIBOh>; Sat, 8 Mar 2003 20:14:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262330AbTCIBKO>; Sat, 8 Mar 2003 20:10:14 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:47084 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S262329AbTCIBKN>;
-	Sat, 8 Mar 2003 20:10:13 -0500
-Message-Id: <200303090121.h291LDbx003771@eeyore.valparaiso.cl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: root@chaos.analogic.com
-Subject: Re: Make ipconfig.c work as a loadable module. 
-In-Reply-To: Your message of "Fri, 07 Mar 2003 11:23:56 CDT."
-             <Pine.LNX.3.95.1030307094333.15013A-100000@chaos> 
-Date: Sat, 08 Mar 2003 22:21:13 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S262344AbTCIBOg>; Sat, 8 Mar 2003 20:14:36 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:9233 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262343AbTCIBOf>; Sat, 8 Mar 2003 20:14:35 -0500
+Date: Sun, 9 Mar 2003 02:24:51 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "David S. Miller" <davem@redhat.com>, <david.lang@digitalinsight.com>,
+       <hpa@zytor.com>, <rmk@arm.linux.org.uk>, <greg@kroah.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
+In-Reply-To: <Pine.LNX.4.44.0303080826300.2954-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0303090151400.5042-100000@serv>
+References: <Pine.LNX.4.44.0303080826300.2954-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> said:
+Hi,
 
-[...]
+On Sat, 8 Mar 2003, Linus Torvalds wrote:
 
-> As the kernel changes there are some things that really need to remain.
-> You need to be able to boot from a "floppy" disk.
+> The thing is, this discussion has _not_ been exactly neutral. You may have 
+> said "could" or "might" or whatever, but clearly people are trying to 
+> pressure hpa into going to GPL. It's the whole tone of the thread.
+> 
+> Or would you disagree with that?
 
-No...
+Um, I have to. What I was trying to is to get a clear answer, why he does 
+not want a different license. All arguments I heard so far don't speak 
+against a libgcc like license. I only want to know whether there is an 
+alternative solution he might also be comfortable with.
+I don't want to pressure him into anything, I only sort of expect, if 
+someone makes a decision, which might have farreaching consequences, that 
+he is able to explain and defend his decision. All I want is that people 
+sometimes think what consequences their action might have. This is the 
+point I'm missing here a bit.
 
->                                                   Yes, now-days it's
-> probably not a real floppy, but a BIOS module that emulates a floppy.
-> A lot of people don't realilize that this is how a CD/ROM is booted!
+bye, Roman
 
-Red Hat 8.0 boots directly from the ISO filesystem, IIUC. Plus "floppy
-booting" mostly means using FreeDOS + syslinux, or even an ext2 floppy with
-lilo or grub. The "floppy booting" discussed here is doing:
-
-   dd if=bzImage of=/dev/fd0
-
-and booting that floppy directly. I really don't remember when I did that
-last time, it must have been at least 5 years ago.
-
-Embedded systems I've seen do strange shenanigans with custom bootloaders
-to get the kernel into RAM, no floppy involved.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

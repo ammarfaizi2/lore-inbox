@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129367AbRAYVqW>; Thu, 25 Jan 2001 16:46:22 -0500
+	id <S131454AbRAYVsC>; Thu, 25 Jan 2001 16:48:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbRAYVqN>; Thu, 25 Jan 2001 16:46:13 -0500
-Received: from w146-249.echostar.com ([205.172.146.249]:44306 "EHLO
-	linux0.echostar.com") by vger.kernel.org with ESMTP
-	id <S129367AbRAYVqH>; Thu, 25 Jan 2001 16:46:07 -0500
-Message-ID: <3A709E99.25ADE5F6@echostar.com>
-Date: Thu, 25 Jan 2001 14:46:01 -0700
-From: "Ian S. Nelson" <ian.nelson@echostar.com>
-Reply-To: ian.nelson@echostar.com
-Organization: Echostar
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0 i686)
+	id <S131561AbRAYVrw>; Thu, 25 Jan 2001 16:47:52 -0500
+Received: from hilbert.umkc.edu ([134.193.4.60]:43274 "HELO tesla.umkc.edu")
+	by vger.kernel.org with SMTP id <S131454AbRAYVrl>;
+	Thu, 25 Jan 2001 16:47:41 -0500
+Message-ID: <3A709EC8.72C3F911@kasey.umkc.edu>
+Date: Thu, 25 Jan 2001 15:46:48 -0600
+From: "David L. Nicol" <david@kasey.umkc.edu>
+Organization: University of Missouri - Kansas City   supercomputing infrastructure
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.12-mosix i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Linux Post codes during runtime, possibly OT
+To: linux-kernel@vger.kernel.org, chris.ricker@genetics.utah.edu
+Subject: "no such 386 instruction" with gcc 2.95.2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm curious.  Why does Linux make that friendly 98/9a/88 looking
-postcode pattern when it's running?  DOS and DOS95 don't do that.
 
-I'm begining to feel like I can tell the system health by observing it,
-kind of like "seeing the matrix."
+I think I must need to upgrade my assembler, but:
+2.4.0/Documentation/Changes does not list an assembler version.
 
-Ian
+
+
+
+make[2]: Entering directory `/mnt/sdb2/src/linux-2.4.0/drivers/md'
+gcc -D__KERNEL__ -I/mnt/sdb2/src/linux-2.4.0/include -Wall -Wstrict-proto
+types -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-sta
+ck-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /mnt/sdb2/src/l
+inux-2.4.0/include/linux/modversions.h   -DEXPORT_SYMTAB -c xor.c
+{standard input}: Assembler messages:
+{standard input}:996: Error: no such 386 instruction: `movups'
+{standard input}:997: Error: no such 386 instruction: `movups'
+{standard input}:998: Error: no such 386 instruction: `movups'
+{standard input}:999: Error: no such 386 instruction: `movups'
+{standard input}:1001: Error: no such 386 instruction: `prefetcht0'
+{standard input}:1002: Error: no such 386 instruction: `prefetcht0'
+{standard input}:1005: Error: no such 386 instruction: `movaps'
+{sta...
+...
+
+
+-- 
+                      David Nicol 816.235.1187 dnicol@cstp.umkc.edu
+                            Five seconds of light is a lot of data.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

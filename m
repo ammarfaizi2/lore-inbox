@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267952AbTG1NHx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 09:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269423AbTG1NHx
+	id S269555AbTG1NFh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 09:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269557AbTG1NFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 09:07:53 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:23048 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267952AbTG1NHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 09:07:52 -0400
-Date: Mon, 28 Jul 2003 14:23:06 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ALSA update 0.9.6
-Message-ID: <20030728142306.A9127@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jaroslav Kysela <perex@suse.cz>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20030728134359.A2558@infradead.org> <Pine.LNX.4.44.0307281451220.28950-100000@pnote.perex-int.cz>
+	Mon, 28 Jul 2003 09:05:36 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:41912 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269555AbTG1NFc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 09:05:32 -0400
+Date: Mon, 28 Jul 2003 15:20:45 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lou Langholtz <ldl@aros.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [RFC][PATCH 2.6.0-test2] get rid of unused request_queue field queue_wait
+Message-ID: <20030728132045.GF25356@suse.de>
+References: <3F24D8B8.5030107@aros.net> <20030728121844.GE25356@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0307281451220.28950-100000@pnote.perex-int.cz>; from perex@suse.cz on Mon, Jul 28, 2003 at 03:17:24PM +0200
+In-Reply-To: <20030728121844.GE25356@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 03:17:24PM +0200, Jaroslav Kysela wrote:
-> But the changesets are really great, so I am thinking to switch the ALSA 
-> repository from CVS to BK soon. It will help to propagate changes better.
+On Mon, Jul 28 2003, Jens Axboe wrote:
+> On Mon, Jul 28 2003, Lou Langholtz wrote:
+> > Are we going to use the queue_wait field of struct request_queue 
+> > someday? As of 2.6.0-test2, I don't see any use of it. If it's not 
+> > needed anymore, the following patch gets rid of it. Tested this patch by 
+> > compiling for i386 and also doing a grep through all .h and .c files to 
+> > see if it's used somewhere else (admittedly weak).
+> 
+> It's a relic from before dynamic request allocation, for now it can
+> definitely go.
 
-Thanks, that would be a lot nicer.  With cvsps or similar tools it should
-be possible to do a CVS checking -> BK cset conversion, too.  I did
-something similar for a SGI-internal RCS-based SCM.
+Eh sorry, still very much jet lagged. It has nothing to do with request
+allocation. The point still stands though, it can be removed.
+
+-- 
+Jens Axboe
 

@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267313AbSLKVmB>; Wed, 11 Dec 2002 16:42:01 -0500
+	id <S267308AbSLKVkv>; Wed, 11 Dec 2002 16:40:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267322AbSLKVmB>; Wed, 11 Dec 2002 16:42:01 -0500
-Received: from email.careercast.com ([216.39.101.233]:50127 "HELO
-	email.careercast.com") by vger.kernel.org with SMTP
-	id <S267313AbSLKVl7>; Wed, 11 Dec 2002 16:41:59 -0500
-Subject: PS/Top broken - /proc entry bad
-From: Matt Simonsen <matt_lists@careercast.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 13:49:51 -0800
-Message-Id: <1039643391.27406.41.camel@mattsworkstation>
-Mime-Version: 1.0
+	id <S267312AbSLKVku>; Wed, 11 Dec 2002 16:40:50 -0500
+Received: from WebDev.iNES.RO ([80.86.100.174]:16012 "HELO webdev.ines.ro")
+	by vger.kernel.org with SMTP id <S267308AbSLKVku>;
+	Wed, 11 Dec 2002 16:40:50 -0500
+Date: Wed, 11 Dec 2002 23:48:36 +0200 (EET)
+From: Andrei Ivanov <andrei.ivanov@ines.ro>
+X-X-Sender: shadow@webdev.ines.ro
+To: Robert Love <rml@tech9.net>
+cc: procps-list@redhat.com, "" <linux-kernel@vger.kernel.org>,
+       "" <riel@conectiva.com.br>
+Subject: Re: [announce] procps 2.0.11
+In-Reply-To: <1039639829.826.119.camel@phantasy>
+Message-ID: <Pine.LNX.4.50L0.0212112343550.6387-100000@webdev.ines.ro>
+References: <1039639829.826.119.camel@phantasy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a box where ps and top quit working after hundreds of days uptime.
-After doing an strace ps I found that one directory in /proc was hanging
-it up, a directory named a 5 digit number which I believe was
-associtated with a process of the same name.
 
-I tried doing a kill -9 on the process, it returned fine but the process
-was still there. Reboot hung my session, too, I had to use reboot -f to
-get the machine healthy again.
+top reports this:
 
-Is there any way to "fix" /proc other than what I did? I suppose maybe
-going into a lower init level and then back to 3 may have worked. It's a
-remote machine, though, so reboot was at the time seemed like a better
-solution.
+7 root 18446744073709551615 -20 0 0 0 SW< 0.0  0.0   A0:00   0 mdrecoveryd
+8 root 18446744073709551615 -20 0 0 0 SW< 0.0  0.0   0:00   0 raid1d
 
-Any comments/suggestions on what to do in this situation?
+is this strange or what ?
 
-Thanks
-Matt
+ps aux says:
 
+root  7  0.0  0.0  0  0 ?  SW<  Dec09   0:00 [mdrecoveryd]
+root  8  0.0  0.0  0  0 ?  SW<  Dec09   0:00 [raid1d]
 
+(both from 2.0.11)
+
+kernel 2.4.20-pre6

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314493AbSDXAhq>; Tue, 23 Apr 2002 20:37:46 -0400
+	id <S314500AbSDXAkK>; Tue, 23 Apr 2002 20:40:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314497AbSDXAhp>; Tue, 23 Apr 2002 20:37:45 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60862 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S314493AbSDXAho>; Tue, 23 Apr 2002 20:37:44 -0400
-Date: Tue, 23 Apr 2002 20:37:43 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200204240037.g3O0bhT11578@devserv.devel.redhat.com>
-To: Pavel Machek <pavel@suse.cz>
+	id <S314502AbSDXAkJ>; Tue, 23 Apr 2002 20:40:09 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:53176 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S314500AbSDXAkI>;
+	Tue, 23 Apr 2002 20:40:08 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Alexander.Riesen@synopsys.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-In-Reply-To: <mailman.1019594711.6915.linux-kernel2news@redhat.com>
+Subject: Re: Announce: Kernel Build for 2.5, Release 2.1 is available 
+In-Reply-To: Your message of "Tue, 23 Apr 2002 11:23:31 +0200."
+             <20020423112331.B1142@riesen-pc.gr05.synopsys.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 24 Apr 2002 08:29:43 +1000
+Message-ID: <16499.1019600983@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > The well-defined resync points are the 2.5.N releases.  If -pre goes away,
->> > then the dot-releases might need to come a little closer together, that's all.
->> 
->> I agree.
->> 
->> I've told myself that I shouldn't have done "-preX" releases at all in
->> 2.5.x - the "real" numbers have become diluted by them, and I suspect the
->> -pre's are really just because I got used to making them during the
->> over-long 2.4.x time.
-> 
-> I believe -pre's are still important. Daily snapshots are too likely to be
-> broken, and "real" releases are different from -pre ones (with *usefull*
-> difference): you can ignore -pre release, but you can't ignore real release
-> (because real releases are relative to each other).
+On Tue, 23 Apr 2002 11:23:31 +0200, 
+Alex Riesen <Alexander.Riesen@synopsys.com> wrote:
+>Small issue with generation of defkeymap.c:
+>i got error that there was no permission to write in the file from
+>/bin/sh. Sorry, accidentially typed Ctrl-L in terminal and the error was
+>lost. I'll try to reproduce it (it's not every time).
 
-Pavel, I think it is an delusion. In practical terms we have
-a string of -pre and traditional releases which differ really
-little in terms of reliability. I number of 2.5.x without -pre
-fail to compile different non-core modules. 2.5.9 hangs on boot
-on my machine, while -preX worked.
+Standard problem when the kernel ships files that are also overwritten
+at run time.  You get permission problems if the kernel code is marked
+read only.  After kbuild 2.5 goes in I have a list of FIXME files to
+clean up.
 
-Marcelo pays more attention to stabilizing suffixless releases,
-and as well he should. However, I do not see how this can
-be meaningfuly done in 2.5.x. I am not going to shed any tears
-over the demise of -pre in unstable series, provided that
-releases get spaced tighter, with smaller patch size between them.
+>Btw, why it isn't possible to run "make clean installable"?
+>Or at least "make clean oldconfig installable"?
 
--- Pete
+Race conditions when running parallel make.  With kbuild 2.5 you do not
+need to make clean before building, unlike the existing build system,
+kbuild 2.5 gets it right.
+

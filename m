@@ -1,122 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbULIV4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbULIV7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261637AbULIV4p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 16:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbULIV4p
+	id S261649AbULIV7m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 16:59:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbULIV72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 16:56:45 -0500
-Received: from mail00hq.adic.com ([63.81.117.10]:25961 "EHLO mail00hq.adic.com")
-	by vger.kernel.org with ESMTP id S261646AbULIVzx (ORCPT
+	Thu, 9 Dec 2004 16:59:28 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:64656 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261636AbULIV4w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 16:55:53 -0500
-Message-ID: <41B8C8F0.8000705@xfs.org>
-Date: Thu, 09 Dec 2004 15:51:44 -0600
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: negative dentry_stat.nr_unused causes aggressive dcache pruning
-References: <41B77D54.4080909@xfs.org>	<20041209020919.6f17e322.akpm@osdl.org>	<41B8BB96.4040006@xfs.org> <20041209131949.7862f0c8.akpm@osdl.org>
-In-Reply-To: <20041209131949.7862f0c8.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Dec 2004 21:55:46.0284 (UTC) FILETIME=[D64932C0:01C4DE39]
+	Thu, 9 Dec 2004 16:56:52 -0500
+Date: Thu, 9 Dec 2004 22:56:38 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+Message-ID: <20041209215638.GC14194@elte.hu>
+References: <OFB5659CED.4FB68B70-ON86256F65.0071906C@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFB5659CED.4FB68B70-ON86256F65.0071906C@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Steve Lord <lord@xfs.org> wrote:
 
->>
->>I still do not know exactly how the count gets negative, but I tracked it
->>down to a user space app from emulex called HBAanywhere. The only thing I
->>can see this doing which might be related is attempting to open a lot of
->>non-existant /proc entries:
->>
->>	/proc/scsi//120
->>	/proc/scsi//121
->>	etc...
->>
->>Yes there is a // in there.
->>
->>I ran with a BUG call if we manipulate nr_unused without the dcache lock
->>and it never tripped. All very wierd.
->>
-> 
-> 
-> Is that 2.4 or 2.6?
-> 
-> I'd be expecting a systematic counting bug.  After all, nr_unused would
-> normally be in the thousands and it'd take a lot of races to get that down
-> to zero.
-> 
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-  2.4.20-31.9 (aka Yea Olde Kernel), it is a redhat 9.0 update from the
-  fedora legacy project.
+> >well, i think this measurement issue needs resolving before jumping to
+> >any generic conclusions. Not a single trace is extremely suspect. The
+> >userspace timestamps are rdtsc based, or gettimeofday() based?
 
-Something is pushing down hard on the dcache, I can watch the numbers
-drop after boot up. They start out a few hundred but within a few
-minutes they go negative.
+> rdtsc. Its actually code you sent me a while ago :-) when you
+> suspected a measurement problem before.
 
-I have a fiber channel driver from out the tree loaded (emulex lpfcdd)
-but it does not appear to mess with dcache entries itself. Nothing else
-from outside the tree. I have not had a chance to try 2.6 yet, not
-even sure this code would run on 2.6.
+could you try to put a few deliberate delays into the code - does the
+kernel based tracing method pick the latency up correctly? (attaching to
+the thread via gdb and then 'cont'-ing it ought to be enough i think.)
+It's very weird.
 
-I don't have the source of this app, so all I can do is strace it and
-watch that. Actually I don't even need the app, so I can make the problem
-go away, but it seems very odd that a user space program can do this.
-
-If I start up the program and watch /proc/sys/fs/dentry-state every second
-or so I see a sequence something like this:
-slord@k4> cat /proc/sys/fs/dentry-state
-368     22      45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-364     18      45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-363     16      45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-361     14      45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-361     14      45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-359     13      45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-359     13      45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-359     13      45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-359     13      45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-348     5       45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-332     -16     45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-332     -16     45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-332     -16     45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-332     -16     45      0       0       0
-slord@k4> cat /proc/sys/fs/dentry-state
-332     -16     45      0       0       0
-
-Its not like I am low on memory though:
-slord@k4> free
-              total       used       free     shared    buffers     cached
-Mem:       1030108     244932     785176          0      15012     147808
--/+ buffers/cache:      82112     947996
-Swap:      1574360         76    1574284
-
-All I can see the program doing is attempting to open these non-existent
-/proc entries and doing an ioctl FIBMAP on a /dev/ device bound to the fiber
-channel driver. Of course, FIBMAP is not FIBMAP in this driver.
-
-It looks like a steaming pile in there, and I think I am just going to
-assume the driver is guilty until proven innocent.
-
-
-Steve
-
-
+	Ingo

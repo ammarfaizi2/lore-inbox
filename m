@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262981AbUDEAVi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 20:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUDEAVi
+	id S262952AbUDEAU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 20:20:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbUDEAU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 20:21:38 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:44431 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S262981AbUDEAVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 20:21:25 -0400
-Date: Sun, 4 Apr 2004 20:09:33 -0400
-From: Ben Collins <bcollins@debian.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: benh@kernel.crashing.org, marcel.lanz@ds9.ch, linux-kernel@vger.kernel.org
-Subject: Re: [PANIC] ohci1394 & copy large files
-Message-ID: <20040405000933.GY13168@phunnypharm.org>
-References: <20040404141600.GB10378@ds9.ch> <20040404141339.GW13168@phunnypharm.org> <1081119623.1285.121.camel@gaston> <20040404231746.GX13168@phunnypharm.org> <20040404162818.1caa25a9.rddunlap@osdl.org>
+	Sun, 4 Apr 2004 20:20:26 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19082
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262952AbUDEAUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 20:20:25 -0400
+Date: Mon, 5 Apr 2004 02:20:28 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jeff Sipek <jeffpc@optonline.net>
+Cc: Marcus Hartig <m.f.h@web.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-aa1
+Message-ID: <20040405002028.GB21069@dualathlon.random>
+References: <40707888.80006@web.de> <200404041859.47940.jeffpc@optonline.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040404162818.1caa25a9.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200404041859.47940.jeffpc@optonline.net>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 04, 2004 at 04:28:18PM -0700, Randy.Dunlap wrote:
-> On Sun, 4 Apr 2004 19:17:46 -0400 Ben Collins <bcollins@debian.org> wrote:
+On Sun, Apr 04, 2004 at 06:59:41PM -0400, Jeff Sipek wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> | On Mon, Apr 05, 2004 at 09:00:24AM +1000, Benjamin Herrenschmidt wrote:
-> | > On Mon, 2004-04-05 at 00:13, Ben Collins wrote:
-> | > > On Sun, Apr 04, 2004 at 04:16:00PM +0200, Marcel Lanz wrote:
-> | > > > Since 2.6.4 and still in 2.6.5 I get regurarly a Kernel panic if I try
-> | > > > to backup large files (10-35GB) to an external attached disc (200GB/JFS) via ieee1394/sbp2.
-> | > > > 
-> | > > > Has anyone similar problems ?
-> | > > 
-> | > > Known issue, fixed in our repo. I still need to sync with Linus once I
-> | > > iron one more issue and merge some more patches.
-> | > 
-> | > Hi Ben !
-> | > 
-> | > I don't want to be too critical or harsh or whatever, but why don't you
-> | > just send such fixes right upstream instead of stacking patches for a
-> | > while in your repo ? From my experience, such "batching" of patches is
-> | > the _wrong_ thing to do, and typically, there is a major useability
-> | > issue with sbp2 that could have been "right" in 2.6.5 final and will not
-> | > be (so we'll have to wait what ? 1 or 2 monthes more now to have a
-> | > release kernel with a reliable sbp2)
-> | 
-> | Because the fix was pretty extensive and needed testing. It was
-> | potentially more broken that the problem it was fixing. Sending untested
-> | patches to Linus is far worse than batching a few up and pushing to him.
+> On Sunday 04 April 2004 17:05, Marcus Hartig wrote:
+> <snip>
+> > But now with the vanilla 2.6.5 and/or -aa1 my favourite game Enemy
+> > Territory quits with "signal 11". With 2.6.5-rc3 it runs stable for hours.
+> >
+> > No change in the kernel config, all with preempt, no CONFIG_REGPARM for
+> > nVidia binary drivers is set, or other changes. But only when I want to
+> > access the net server game browser in ET to play online! Only then bumm!
 > 
-> Was (is) it already being tested more extensively in the -mm patches
-> before going to Linus?  Should/could be.  E.g., that's what gregkh does,
-> and ACPI, etc.
+> Same here (with vanilla 2.6.5, I didn't try -aa.)
 
-That's what generally happens in our own repo, and if I get the chance
-to sync them to my bk tree, then that's what happens with -mm too.
-Wasn't the case here since I've been swamped for a little over a week.
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+did you get an oops or just a sigsegv? (see dmesg) If you only got a
+sigsegv can you try to keep the segfaulting process under "strace -o
+/tmp/o -p <pid>" and report the last few syscalls before the segfault?
+That should reduce the scope of the problem, I had a look at the
+diff between rc3 and 2.6.5 final but I found nothing obvious that could
+explain your problem (yet).

@@ -1,75 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312955AbSC0CNl>; Tue, 26 Mar 2002 21:13:41 -0500
+	id <S312956AbSC0CVM>; Tue, 26 Mar 2002 21:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312956AbSC0CNV>; Tue, 26 Mar 2002 21:13:21 -0500
-Received: from holomorphy.com ([66.224.33.161]:8864 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S312955AbSC0CNQ>;
-	Tue, 26 Mar 2002 21:13:16 -0500
-Date: Tue, 26 Mar 2002 18:12:42 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
+	id <S312970AbSC0CVB>; Tue, 26 Mar 2002 21:21:01 -0500
+Received: from p-nya.swiftel.com.au ([202.154.76.83]:9485 "EHLO
+	mail.robres.com.au") by vger.kernel.org with ESMTP
+	id <S312956AbSC0CUm>; Tue, 26 Mar 2002 21:20:42 -0500
+Message-Id: <200203270220.g2R2K7t32470@mail.robres.com.au>
+Content-Type: text/plain; charset=US-ASCII
+From: Franco Broi <franco@robres.com.au>
 To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: [patch] remove dead comment
-Message-ID: <20020327021242.GE10457@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Subject: Process hangs
+Date: Wed, 27 Mar 2002 10:22:23 +0800
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hate to remove a comment from the kernel, but...
 
+Hi
 
-Cheers,
-Bill
+I'm running 2.4.18-rc4 on Alpha SMP. I'm experiencing problems with processes
+which don't exit properly leaving an entry in the /proc filesystem that hangs any
+process that tries to read it, ie top, ps etc.  I've seen this exact problem mentioned
+on the mailing list for Intel machines so it doesn't look like an Alpha specific problem.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.537   -> 1.538  
-#	        mm/filemap.c	1.69    -> 1.70   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/03/26	wli@tisifone.holomorphy.com	1.538
-# filemap.c:
-#   Remove comments already present in hash.h and not corresponding to any code in filemap.c
-# --------------------------------------------
-#
-diff --minimal -Nru a/mm/filemap.c b/mm/filemap.c
---- a/mm/filemap.c	Tue Mar 26 18:08:13 2002
-+++ b/mm/filemap.c	Tue Mar 26 18:08:13 2002
-@@ -742,26 +742,6 @@
- }
- 
- /*
-- * Knuth recommends primes in approximately golden ratio to the maximum
-- * integer representable by a machine word for multiplicative hashing.
-- * Chuck Lever verified the effectiveness of this technique:
-- * http://www.citi.umich.edu/techreports/reports/citi-tr-00-1.pdf
-- *
-- * These primes are chosen to be bit-sparse, that is operations on
-- * them can use shifts and additions instead of multiplications for
-- * machines where multiplications are slow.
-- */
--#if BITS_PER_LONG == 32
--/* 2^31 + 2^29 - 2^25 + 2^22 - 2^19 - 2^16 + 1 */
--#define GOLDEN_RATIO_PRIME 0x9e370001UL
--#elif BITS_PER_LONG == 64
--/*  2^63 + 2^61 - 2^57 + 2^54 - 2^51 - 2^18 + 1 */
--#define GOLDEN_RATIO_PRIME 0x9e37fffffffc0001UL
--#else
--#error Define GOLDEN_RATIO_PRIME for your wordsize.
--#endif
--
--/*
-  * In order to wait for pages to become available there must be
-  * waitqueues associated with pages. By using a hash table of
-  * waitqueues where the bucket discipline is to maintain all
+Strace of ps
+
+stat("/proc/4019", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+open("/proc/4019/stat", O_RDONLY)       = 7
+read(7, "4019 (tcsh) S 4017 4019 4019 348"..., 511) = 215
+close(7)                                = 0
+open("/proc/4019/statm", O_RDONLY)      = 7
+read(7, "253 107 106 0 106 1 0\n", 511) = 22
+close(7)                                = 0
+open("/proc/4019/status", O_RDONLY)     = 7
+read(7, "Name:\ttcsh\nState:\tS (sleeping)\nT"..., 511) = 456
+close(7)                                = 0
+open("/proc/4019/cmdline", O_RDONLY)    = 7
+read(7, "-csh\0", 2047)                 = 5
+close(7)                                = 0
+open("/proc/4019/environ", O_RDONLY)    = -1 EACCES (Permission denied)
+stat("/proc/10577", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+open("/proc/10577/stat", O_RDONLY)      = 7
+read(7, 
+
+hangs here.
+
+I traced the offending process to a user program which had done a divide by zero. When I
+ran the program with gdb I got a floating exception, when I ran it without gdb it hung.
+I then did a few more tests using different shells and different user accounts, the results
+were inconclusive. It soemtimes worked and sometimes failed.
+
+The kernel is patched to run GFS but I don't think this is a factor.
+
+Regards
+Franco

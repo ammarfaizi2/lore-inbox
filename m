@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285273AbRL2TKJ>; Sat, 29 Dec 2001 14:10:09 -0500
+	id <S285309AbRL2TNA>; Sat, 29 Dec 2001 14:13:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285269AbRL2TJ7>; Sat, 29 Dec 2001 14:09:59 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:33207 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S285273AbRL2TJu>;
-	Sat, 29 Dec 2001 14:09:50 -0500
-Message-ID: <3C2E14AB.69CEA694@gmx.de>
-Date: Sat, 29 Dec 2001 20:08:27 +0100
-From: Edgar Toernig <froese@gmx.de>
+	id <S285288AbRL2TMu>; Sat, 29 Dec 2001 14:12:50 -0500
+Received: from waste.org ([209.173.204.2]:30673 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S285269AbRL2TMl>;
+	Sat, 29 Dec 2001 14:12:41 -0500
+Date: Sat, 29 Dec 2001 13:12:33 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Legacy Fishtank <garzik@havoc.gtf.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] rlimit_nproc
+In-Reply-To: <E16KOYH-0000Fr-00@starship.berlin>
+Message-ID: <Pine.LNX.4.43.0112291309060.18183-100000@waste.org>
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Timothy Covell <timothy.covell@ashavan.org>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
-In-Reply-To: <200112290657.fBT6vMSr008000@svr3.applink.net> <20011229105525.C19306@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+On Sat, 29 Dec 2001, Daniel Phillips wrote:
+
+> > You of course need something like -2.4 and -2.5.
 >
-> The data in it is the current BitKeeper bug list (feel free to fix
-> some :-)
+> Yes:
+>
+>     linux-patches-2.0@kernel.org
+>     linux-patches-2.2@kernel.org
+>     linux-patches-2.4@kernel.org
+>     linux-patches-2.5@kernel.org
+>
+> Now... conventions for the subject line?
 
-Bah!  Debugging and patching binaries isn't fun!
+Subjects should be human-readable and descriptive. If they're going to
+Linux-kernel, they should contain [patch]. I don't think you can
+realistically ask for much more unless you put something behind it capable
+of rejecting non-conformers.
 
-ET.
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

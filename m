@@ -1,28 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262712AbTCJEbX>; Sun, 9 Mar 2003 23:31:23 -0500
+	id <S262713AbTCJEgL>; Sun, 9 Mar 2003 23:36:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262713AbTCJEbX>; Sun, 9 Mar 2003 23:31:23 -0500
-Received: from pop.gmx.net ([213.165.64.20]:31506 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262712AbTCJEbW>;
-	Sun, 9 Mar 2003 23:31:22 -0500
-Message-Id: <5.2.0.9.2.20030310054319.00ceedd0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Mon, 10 Mar 2003 05:46:36 +0100
-To: rwhron@earthlink.net
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: scheduler starvation running irman with 2.5.64bk2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030309025015.GA2843@rushmore>
+	id <S262716AbTCJEgK>; Sun, 9 Mar 2003 23:36:10 -0500
+Received: from waste.org ([209.173.204.2]:29899 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S262713AbTCJEgK>;
+	Sun, 9 Mar 2003 23:36:10 -0500
+Date: Sun, 9 Mar 2003 22:46:17 -0600
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       Greg KH <greg@kroah.com>, hch@infradead.org, Andries.Brouwer@cwi.nl,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] register_blkdev
+Message-ID: <20030310044617.GF910@waste.org>
+References: <Pine.LNX.4.44.0303071708260.1796-100000@home.transmeta.com> <1047136177.25932.25.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1047136177.25932.25.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P.S.  You can save a little time by only running the process load.  Edit 
-irman.c:412 and set load_num to 3... no need to wait for the other two 
-loads to complete first, it's the process load that starves the box to 
-death here.
+On Sat, Mar 08, 2003 at 03:09:37PM +0000, Alan Cox wrote:
+> On Sat, 2003-03-08 at 01:13, Linus Torvalds wrote:
+> > On Fri, 7 Mar 2003, Andrew Morton wrote:
+> > > 
+> > > Some time back Linus expressed a preference for a 2^20 major / 2^12 minor split.
+> > 
+> > Other way around. 12 bits for major, 20 bits for minor.
+> > 
+> > Minor numbers tend to get used up more quickly, as shown by the current 
+> > state of affairs, and also as trivially shown by things like pty-like 
+> > virtual devices that pretty much scale arbitrarily with memory and users.
+> 
+> 20:12 is easier for the current behaviour. 12:20 with the ability to hand out
+> sections of space has great potential for lumping things like "disks", 
+> "serial ports" and so on together in more logical ways. 12:20 also makes the
+> compatibility logic easier since all of the legacy space falls in "major 0"
+> which becomes the remangler.
+> 
+> Is there any reason for not using CIDR like schemes as Al Viro proposed a long
+> time back (I think it was Al anyway). That also sorts out the auditing problem
 
-	-Mike
+I think it was actually me, arguing with Viro. I was building a device
+number registration layer on top of the new resource tree structure at
+the time (now 3 years ago!). And in retrospect, I think 32:32
+internally with an 8:8 legacy mangler is probably the sanest way to
+go.
 
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261960AbRE0NNB>; Sun, 27 May 2001 09:13:01 -0400
+	id <S262036AbRE0Nrp>; Sun, 27 May 2001 09:47:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262019AbRE0NMv>; Sun, 27 May 2001 09:12:51 -0400
-Received: from web10406.mail.yahoo.com ([216.136.130.98]:8210 "HELO
-	web10406.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261960AbRE0NMh>; Sun, 27 May 2001 09:12:37 -0400
-Message-ID: <20010527131236.74332.qmail@web10406.mail.yahoo.com>
-Date: Sun, 27 May 2001 23:12:36 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Report several problem with kernel 2.4.5-ac1 ....
-To: linux-kernel@vger.kernel.org
+	id <S262052AbRE0Nrf>; Sun, 27 May 2001 09:47:35 -0400
+Received: from pop.gmx.net ([194.221.183.20]:46796 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262036AbRE0NrU>;
+	Sun, 27 May 2001 09:47:20 -0400
+Message-ID: <3B1101ED.3BF181F6@gmx.de>
+Date: Sun, 27 May 2001 15:32:29 +0200
+From: Edgar Toernig <froese@gmx.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
+ w/info-PATCH]device arguments from lookup)
+In-Reply-To: <Pine.LNX.4.30.0105220957400.19818-100000@waste.org> <0105251300000V.06233@starship> <3B0F1DF9.238C01B9@gmx.de> <0105270036060Z.06233@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone..
+Daniel Phillips wrote:
+> 
+> It won't, the open for "." is handled in the VFS, not the filesystem -
+> it will open the directory.  (Without needing to be told it's a
+> directory via O_DIRECTORY.)  If you do open("magicdev") you'll get the
+> device, because that's handled by magicdevfs.
 
-1. 
+You really mean that "magicdev" is a directory and:
 
-I got the kernel hang when I tried to run pppd without
-any argument on the console (tty1 or tty2...); just
-try to run
+	open("magicdev/.", O_RDONLY);
+	open("magicdev", O_RDONLY);
 
-pppd
+would both succeed but open different objects?
 
-Sorry I can not copy all text here but this problem is
-re-producible and wont happen if I run on pts/1 (for
-example on xterm or rxvt )
+> I'm not claiming there isn't breakage somewhere,
 
-pppd version 2.4.x
-kernel 2.4.5-ac1
-Debian 2.2.r3 with support for running kernel 2.4.x
-(means every utilities is Ok)
-i486 100Mhz 35Mb RAM
-all kernel compile with gcc 2.95.2
+you break UNIX fundamentals.  But I'm quite relieved now because I'm
+pretty sure that something like that will never go into the kernel.
 
-2.
-
-Another thing I noticed is 2.4.5-ac1 uses more swap
-than 2.4.4 in the same situation and in my machine,
-performance is a bit worse than 2.4.4 (have not test
-with 2.4.5).
-
-3.
-
-In parport_pc.c the error:
-parport_pc_find_ports 2618 too many arguments to
-function parport_pc_init_superio
-
-when compiling modules IF YOU DONT ENABLE PCI support
-in the kernel config. From 2.4.4-pre6 up (not sure
-exactly 6 or 5 something). First I dont know why
-nobody reports this problem, but later I know the
-reason is PCI is disabled. when trying to read the
-code in parport_pc.c . And unfortunately I got the
-rather rare machine not having PCI Bus...
-so from that on I have to select PCI even I dont have
-PCI system.
-
-Thanks,
-
-
-
-_____________________________________________________________________________
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- Voice chat, mail alerts, stock quotes and favourite news and lots more!
+Ciao, ET.

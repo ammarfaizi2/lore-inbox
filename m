@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310530AbSCPSRd>; Sat, 16 Mar 2002 13:17:33 -0500
+	id <S310517AbSCPSVd>; Sat, 16 Mar 2002 13:21:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310529AbSCPSRX>; Sat, 16 Mar 2002 13:17:23 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17414 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310516AbSCPSRU>; Sat, 16 Mar 2002 13:17:20 -0500
-Date: Sat, 16 Mar 2002 10:15:33 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Alexander Viro <viro@math.psu.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: 2.5.7-pre2 -- kernel.o(.data+0x300): undefined
- reference
-In-Reply-To: <E16mI91-0006mI-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0203161011150.31850-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310529AbSCPSVY>; Sat, 16 Mar 2002 13:21:24 -0500
+Received: from B5176.pppool.de ([213.7.81.118]:14607 "HELO Nicole.fhm.edu")
+	by vger.kernel.org with SMTP id <S310517AbSCPSVE>;
+	Sat, 16 Mar 2002 13:21:04 -0500
+Subject: Re: libc/1427: gprof does not profile threads <synopsis of the
+	problem  (one li\ne)>
+From: Daniel Egger <degger@fhm.edu>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1016237961.5612.51.camel@myware.mynet>
+In-Reply-To: <1016062486.16743.1091.camel@myware.mynet>
+	<3C8FEC76.F1411739@ixiacom.com>
+	<20020314020834.Z2434@devserv.devel.redhat.com> 
+	<3C926E0B.1A0EE311@ixiacom.com>  <1016237961.5612.51.camel@myware.mynet>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 16 Mar 2002 17:57:59 +0100
+Message-Id: <1016297880.18342.32.camel@sonja>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Sam, 2002-03-16 um 01.19 schrieb Ulrich Drepper:
 
-On Sat, 16 Mar 2002, Alan Cox wrote:
-> > +/* "Conditional" syscalls */
-> > +
-> > +asmlinkage long sys_nfsservctl(void) __attribute__ ((weak, alias ("sys_ni_syscall")));
-> > +asmlinkage long sys_quotactl(void) __attribute__ ((weak, alias ("sys_ni_syscall")));
-> > +
-> 
-> This is what Linus threw out before - when David wanted to use it to remove
-> all the intermodule crap.
-> 
-> It doesn't work with some architecture binutils
+> > Ulrich, do you at least agree that it would be desirable for
+> > gprof to work properly on multithreaded programs?
+ 
+> No.  gprof is uselss in today world.
 
-How true is that these days, though? We are at the point where we don't
-have to worry about COFF and a.out architectures (as far as the kernel is
-concerned, of course - whatever binftm format is loaded in user mode is a
-different thing). 
+Interesting. Care to share your reason for this assumption?
 
-On a related tangent - maybe we should just get rid of SYMBOL_NAME etc 
-crap? I don't think we've been able to compile a a.out kernel in about 5 
-years or so, and that was the only thing that needed the magic prepended 
-underscores etc?
-
-			Linus
+-- 
+Servus,
+       Daniel
 

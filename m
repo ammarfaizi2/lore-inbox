@@ -1,113 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUEGU1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263788AbUEGU1C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUEGU1A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 16:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbUEGU0s
+	id S263788AbUEGU1C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 16:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbUEGU0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 16:26:48 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:649 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S263750AbUEGURV (ORCPT
+	Fri, 7 May 2004 16:26:19 -0400
+Received: from main.gmane.org ([80.91.224.249]:13999 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263766AbUEGUSo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 16:17:21 -0400
-Date: Fri, 7 May 2004 20:11:14 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Michael Westermann <mw@microdata-pos.de>,
-       "Theodore Y. Ts'o" <tytso@MIT.EDU>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] handshake variable with DTR DSR DCD ...
-Message-ID: <20040507181114.GG29503@lug-owl.de>
-Mail-Followup-To: Michael Westermann <mw@microdata-pos.de>,
-	"Theodore Y. Ts'o" <tytso@MIT.EDU>,
-	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-References: <20040507165413.D16132@microdata-pos.de>
+	Fri, 7 May 2004 16:18:44 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ari Pollak <ajp@aripollak.com>
+Subject: 2.6.6-rc3-mm2 oops in psmouse/serio after resuming from APM suspend-to-ram
+Date: Fri, 07 May 2004 16:18:41 -0400
+Message-ID: <409BEF21.6040206@aripollak.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CpYjv1NmbuaesVen"
-Content-Disposition: inline
-In-Reply-To: <20040507165413.D16132@microdata-pos.de>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: wve202.resnet.neu.edu
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On a Thinkpad T41 after going into suspend via APM and then resuming, 
+the psmouse driver seems to crash after resetting itself, at which point 
+the PS/2 mouse device (obviously) stops responding and I can't unload 
+the psmouse module. I don't know if this is a new bug or not, as this is 
+the first time I'm trying APM suspend on this laptop. The oops and the 
+kernel messages before it:
 
---CpYjv1NmbuaesVen
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  Synaptics Touchpad, model: 1
+   Firmware: 5.9
+   Sensor: 44
+   new absolute packet format
+   Touchpad has extended capability bits
+   -> multifinger detection
+   -> palm detection
+   -> pass-through port
+   printing eip:
+  c0206121
+  Oops: 0002 [#1]
+  PREEMPT
+  CPU:    0
+  EIP:    0060:[__serio_unregister_port+17/64]    Not tainted VLI
+  EFLAGS: 00010246   (2.6.6-rc3-mm2)
+  EIP is at __serio_unregister_port+0x11/0x40
+  eax: ec67b534   ebx: ec67b504   ecx: 00000000   edx: 00000000
+  esi: c02d7a60   edi: c02d79a0   ebp: c02d79c0   esp: efda7f94
+  ds: 007b   es: 007b   ss: 0068
+  Process kseriod (pid: 104, threadinfo=efda7000 task=efdd3130)
+  Stack: ed37b000 f0920d5b ec6813c4 ec6813bc c0205dfd efda7000 fffff000 
+efda7fc0
+         efda7000 c0205e85 c027b1d7 00000000 efdd3130 c0113f80 00100100 
+00200200
+         00000000 00000000 00000000 c0205e40 00000000 00000000 00000000 
+c0103d7d
+  Call Trace:
+   [__crc_unlock_buffer+2625559/3107416] psmouse_disconnect+0x2b/0x90 
+[psmouse]
+   [serio_handle_events+157/224] serio_handle_events+0x9d/0xe0
+   [serio_thread+69/320] serio_thread+0x45/0x140
+   [default_wake_function+0/16] default_wake_function+0x0/0x10
+   [serio_thread+0/320] serio_thread+0x0/0x140
+   [kernel_thread_helper+5/24] kernel_thread_helper+0x5/0x18
 
-On Fri, 2004-05-07 16:54:13 +0200, Michael Westermann <mw@microdata-pos.de>
-wrote in message <20040507165413.D16132@microdata-pos.de>:
-> diff -Nurp linux-2.4.26.old/drivers/char/serial.c linux-2.4.26/drivers/ch=
-ar/serial.c
-> --- linux-2.4.26.old/drivers/char/serial.c	2004-02-18 14:36:31.000000000 =
-+0100
-> +++ linux-2.4.26/drivers/char/serial.c	2004-05-07 16:42:19.000000000 +0200
-> @@ -769,9 +769,12 @@ static _INLINE_ void check_modem_status(
->  	}
->  	if (info->flags & ASYNC_CTS_FLOW) {
->  		if (info->tty->hw_stopped) {
-> -			if (status & UART_MSR_CTS) {
-> +			if (status & info->status_flow) {
->  #if (defined(SERIAL_DEBUG_INTR) || defined(SERIAL_DEBUG_FLOW))
-> -				printk("CTS tx start...");
-> +				if (info->status_flow & UART_MSR_CTS)
-> +					printk("CTS tx start...");
-> +				else=20
-> +				    	printk("HW %x tx start...", info->status_flow);
+Code: 00 5b c3 8d b4 26 00 00 00 00 ba 04 00 00 00
+e9 76 fe ff ff 8d b6 00 00 00 00 53 89 c3 e8 f8 fb ff ff 8d 43 30 8b 53 
+30 8b 48 04 <89> 4a 04 89 11 89 40 04 89 43 30 8b 43 2c 85 c0 74 07 8b 50 18
 
-A "\n" is missing here and was already missing in the initial version.
-
->  #if (defined(SERIAL_DEBUG_INTR) || defined(SERIAL_DEBUG_FLOW))
-> -				printk("CTS tx stop...");
-> +				if (info->status_flow & UART_MSR_CTS)
-> +				    	printk("CTS tx stop...");
-> +				else
-> +				    	printk("HW %x tx stop...", info->status_flow);
-
-Dito.
-
-> --- linux-2.4.26.old/include/asm-i386/termbits.h	2000-01-21 01:05:26.0000=
-00000 +0100
-> +++ linux-2.4.26/include/asm-i386/termbits.h	2004-05-07 16:43:39.00000000=
-0 +0200
-> @@ -132,6 +132,7 @@ struct termios {
->  #define  B3000000 0010015
->  #define  B3500000 0010016
->  #define  B4000000 0010017
-> +#define CHWFLOW   001000000000	/* flexible hw flow_ctrl */
->  #define CIBAUD	  002003600000	/* input baud rate (not used) */
->  #define CMSPAR	  010000000000		/* mark or space (stick) parity */
->  #define CRTSCTS	  020000000000		/* flow control */
-
-> It's only i386 yet, but please comment on it!
-
-I won't comment on the code itself, as I don't know the 2.4.x serial
-driver all that good:) Of course, non-i386 code would be cool, too:)
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---CpYjv1NmbuaesVen
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAm9FCHb1edYOZ4bsRAjxCAKCRdx0tWn9mKQTgToEzCiOaj2z5qQCdEC2x
-vh0hlGwwHg7MDV2ZqC4IWuE=
-=IqSK
------END PGP SIGNATURE-----
-
---CpYjv1NmbuaesVen--

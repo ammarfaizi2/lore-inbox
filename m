@@ -1,1145 +1,2312 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265665AbSKFGeW>; Wed, 6 Nov 2002 01:34:22 -0500
+	id <S265662AbSKFGaJ>; Wed, 6 Nov 2002 01:30:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265666AbSKFGeW>; Wed, 6 Nov 2002 01:34:22 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21059 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S265665AbSKFGeB>; Wed, 6 Nov 2002 01:34:01 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: kexec for 2.5.46
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Nov 2002 23:38:08 -0700
-Message-ID: <m14ravfbjj.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S265665AbSKFGaJ>; Wed, 6 Nov 2002 01:30:09 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:35057 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S265662AbSKFG1Y>;
+	Wed, 6 Nov 2002 01:27:24 -0500
+Message-ID: <3DC8B73E.FA82A6B5@mvista.com>
+Date: Tue, 05 Nov 2002 22:31:26 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH ] POSIX clocks & timers take 10 (NOT HIGH RES)
+Content-Type: multipart/mixed;
+ boundary="------------1CE0925F42335E33505AA36D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Linus please apply,
-
-sys_kexec is a system call that allows you to boot another kernel directly
-from Linux and it enables all kinds of interesting things.
-
-It is currently marked as experimental because not all the kinks in using
-it have been working out.  The core code itself is solid and stable.
-
-This code was first submitted before the feature freeze deadline, and
-there was another patch to 2.5.45 that conflicted because it also
-added a system call so for lack of any feedback I will assume that was
-why this patch was dropped.
-
-There has been some question if this code could be made modular, or
-if there is a better interface than a syscall for it.  Currently I
-have not seen a proposal with as few downsides as a syscall,
-nor have I seen clear direction another interface is preferred.  I
-guess a kexecfs might be cleaner, though I would be surprised if the
-binary code size was smaller...  
-
-The code intimately knows how the kernel is running the cpu and it
-uses that information to reliably transition the cpu to another state,
-when jumping to the new kernel, at the very least how paging is
-currently done needs to be modified.  Half of the functions sys_kexec
-calls are not exported from the kernel, so the code cannot be built as 
-module, nor do I think it is a reasonable to desire to do so.
-
-Until I get some kind of clear signal I will continue to retransmit
-assuming my email messages were just dropped.
-
-Eric
+This is a multi-part message in MIME format.
+--------------1CE0925F42335E33505AA36D
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
 
- MAINTAINERS                        |    7 
- arch/i386/Kconfig                  |   17 +
- arch/i386/kernel/Makefile          |    1 
- arch/i386/kernel/entry.S           |    1 
- arch/i386/kernel/machine_kexec.c   |  142 +++++++++
- arch/i386/kernel/relocate_kernel.S |   99 ++++++
- include/asm-i386/kexec.h           |   25 +
- include/asm-i386/unistd.h          |    1 
- include/linux/kexec.h              |   48 +++
- kernel/Makefile                    |    1 
- kernel/kexec.c                     |  577 +++++++++++++++++++++++++++++++++++++
- kernel/sys.c                       |   61 +++
- 12 files changed, 980 insertions
+This patch no longer has any configure options!  
 
-diff -uNr linux-2.5.46/MAINTAINERS linux-2.5.46.x86kexec/MAINTAINERS
---- linux-2.5.46/MAINTAINERS	Tue Nov  5 19:03:41 2002
-+++ linux-2.5.46.x86kexec/MAINTAINERS	Tue Nov  5 19:05:32 2002
-@@ -941,6 +941,13 @@
- W:	http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/
- S:	Maintained
+The patch stands alone (i.e. does not require any of the
+following high-res patches).
+
+This, patch implements the POSIX clocks and timers
+functions.  The two standard clocks are
+defined(CLOCK_REALTIME & CLOCK_MONOTONIC). 
+
+With this version, nano_sleep() is rolled into
+clock_nanosleep().  Also a bug fix in clock_nanosleep().
+
+kernel/timer.c is modified to remove the timer_t typedef
+which conflicts with the POSIX standard definition for this
+type.  
+
+The patch introduces a new kernel source (posix-timers.c)
+which contains most of the code.
+
+This implementation NOW has no limits on the number of
+timers in the system or per process or task, thanks to Jim
+Houston.
+
+Kernel version 2.5.46-bk1
+
+
+Test programs, man pages and readme files as well as this
+patch are available on the sourceforge high-res-timers site: 
+
+http://sourceforge.net/projects/high-res-timers/
+
+Please apply.
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml
+--------------1CE0925F42335E33505AA36D
+Content-Type: text/plain; charset=us-ascii;
+ name="hrtimers-posix-2.5.46-bk1-1.0.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hrtimers-posix-2.5.46-bk1-1.0.patch"
+
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-2.5.46-bk1-kb/arch/i386/kernel/entry.S	Tue Nov  5 20:55:59 2002
++++ linux/arch/i386/kernel/entry.S	Tue Nov  5 20:56:36 2002
+@@ -41,7 +41,6 @@
+  */
  
-+KEXEC
-+P:	Eric Biederman
-+M:	ebiederm@xmission.com
-+M:	ebiederman@lnxi.com
-+L:	linux-kernel@vger.kernel.org
-+S:	Maintained
-+
- LANMEDIA WAN CARD DRIVER
- P:	Andrew Stanley-Jones
- M:	asj@lanmedia.com
-diff -uNr linux-2.5.46/arch/i386/Kconfig linux-2.5.46.x86kexec/arch/i386/Kconfig
---- linux-2.5.46/arch/i386/Kconfig	Tue Nov  5 19:03:42 2002
-+++ linux-2.5.46.x86kexec/arch/i386/Kconfig	Tue Nov  5 19:05:32 2002
-@@ -785,6 +785,23 @@
- 	depends on (SMP || PREEMPT) && X86_CMPXCHG
- 	default y
+ #include <linux/config.h>
+-#include <linux/sys.h>
+ #include <linux/linkage.h>
+ #include <asm/thread_info.h>
+ #include <asm/errno.h>
+@@ -240,7 +239,7 @@
+ 	pushl %eax			# save orig_eax
+ 	SAVE_ALL
+ 	GET_THREAD_INFO(%ebx)
+-	cmpl $(NR_syscalls), %eax
++	cmpl $(nr_syscalls), %eax
+ 	jae syscall_badsys
+ 					# system call tracing in operation
+ 	testb $_TIF_SYSCALL_TRACE,TI_FLAGS(%ebx)
+@@ -316,7 +315,7 @@
+ 	xorl %edx,%edx
+ 	call do_syscall_trace
+ 	movl ORIG_EAX(%esp), %eax
+-	cmpl $(NR_syscalls), %eax
++	cmpl $(nr_syscalls), %eax
+ 	jnae syscall_call
+ 	jmp syscall_exit
  
-+config KEXEC
-+	bool "kexec system call (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
-+	help
-+	  kexec is a system call that implements the ability to  shutdown your
-+	  current kernel, and to start another kernel.  It is like a reboot
-+	  but it is indepedent of the system firmware.   And like a reboot the
-+	  you can start any kernel with it not just Linux.  
-+	
-+	  The name comes from the similiarity to the exec system call. 
-+	
-+	  It is on an going process to be certain the hardware in a machine
-+	  is properly shutdown, so do not be surprised if this code does not
-+	  initially work for you.  It may help to enable device hotplugging
-+	  support.  As of this writing the exact hardware interface is
-+	  strongly in flux, so no good recommendation can be made.
-+
- endmenu
- 
- 
-diff -uNr linux-2.5.46/arch/i386/kernel/Makefile linux-2.5.46.x86kexec/arch/i386/kernel/Makefile
---- linux-2.5.46/arch/i386/kernel/Makefile	Sat Oct 19 00:57:56 2002
-+++ linux-2.5.46.x86kexec/arch/i386/kernel/Makefile	Tue Nov  5 19:05:32 2002
-@@ -25,6 +25,7 @@
- obj-$(CONFIG_X86_MPPARSE)	+= mpparse.o
- obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o nmi.o
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
-+obj-$(CONFIG_KEXEC)		+= machine_kexec.o relocate_kernel.o
- obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o
- obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
- obj-$(CONFIG_PROFILING)		+= profile.o
-diff -uNr linux-2.5.46/arch/i386/kernel/entry.S linux-2.5.46.x86kexec/arch/i386/kernel/entry.S
---- linux-2.5.46/arch/i386/kernel/entry.S	Tue Nov  5 19:03:42 2002
-+++ linux-2.5.46.x86kexec/arch/i386/kernel/entry.S	Tue Nov  5 19:07:09 2002
-@@ -741,6 +741,7 @@
- 	.long sys_epoll_ctl	/* 255 */
+@@ -766,11 +765,18 @@
+ 	.long sys_exit_group
+ 	.long sys_lookup_dcookie
+ 	.long sys_epoll_create
+-	.long sys_epoll_ctl	/* 255 */
++	.long sys_epoll_ctl		/* 255 */
  	.long sys_epoll_wait
   	.long sys_remap_file_pages
-+	.long sys_kexec
++ 	.long sys_timer_create
++ 	.long sys_timer_settime
++ 	.long sys_timer_gettime
++ 	.long sys_timer_getoverrun	/* 260 */
++ 	.long sys_timer_delete
++ 	.long sys_clock_settime
++ 	.long sys_clock_gettime
++ 	.long sys_clock_getres
++ 	.long sys_clock_nanosleep	/* 265 */
++ 
  
+-
+-	.rept NR_syscalls-(.-sys_call_table)/4
+-		.long sys_ni_syscall
+-	.endr
++nr_syscalls=(.-sys_call_table)/4
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/arch/i386/kernel/time.c linux/arch/i386/kernel/time.c
+--- linux-2.5.46-bk1-kb/arch/i386/kernel/time.c	Tue Nov  5 20:55:01 2002
++++ linux/arch/i386/kernel/time.c	Tue Nov  5 20:56:36 2002
+@@ -132,6 +132,7 @@
+ 	time_maxerror = NTP_PHASE_LIMIT;
+ 	time_esterror = NTP_PHASE_LIMIT;
+ 	write_unlock_irq(&xtime_lock);
++	clock_was_set();
+ }
  
- 	.rept NR_syscalls-(.-sys_call_table)/4
-diff -uNr linux-2.5.46/arch/i386/kernel/machine_kexec.c linux-2.5.46.x86kexec/arch/i386/kernel/machine_kexec.c
---- linux-2.5.46/arch/i386/kernel/machine_kexec.c	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.46.x86kexec/arch/i386/kernel/machine_kexec.c	Tue Nov  5 19:05:32 2002
-@@ -0,0 +1,142 @@
-+#include <linux/config.h>
-+#include <linux/mm.h>
-+#include <linux/kexec.h>
-+#include <linux/delay.h>
-+#include <asm/pgtable.h>
-+#include <asm/pgalloc.h>
-+#include <asm/tlbflush.h>
-+#include <asm/io.h>
-+#include <asm/apic.h>
-+
-+
-+/*
-+ * machine_kexec
-+ * =======================
-+ */
-+
-+
-+static void set_idt(void *newidt, __u16 limit)
-+{
-+	unsigned char curidt[6];
-+
-+	/* ia32 supports unaliged loads & stores */
-+	(*(__u16 *)(curidt)) = limit;
-+	(*(__u32 *)(curidt +2)) = (unsigned long)(newidt);
-+
-+	__asm__ __volatile__ (
-+		"lidt %0\n" 
-+		: "=m" (curidt)
-+		);
+ /*
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/arch/i386/kernel/timers/timer_tsc.c linux/arch/i386/kernel/timers/timer_tsc.c
+--- linux-2.5.46-bk1-kb/arch/i386/kernel/timers/timer_tsc.c	Tue Nov  5 20:55:01 2002
++++ linux/arch/i386/kernel/timers/timer_tsc.c	Tue Nov  5 20:56:36 2002
+@@ -26,7 +26,7 @@
+  * Equal to 2^32 * (1 / (clocks per usec) ).
+  * Initialized in time_init.
+  */
+-static unsigned long fast_gettimeoffset_quotient;
++unsigned long fast_gettimeoffset_quotient;
+ 
+ static unsigned long get_offset_tsc(void)
+ {
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/fs/exec.c linux/fs/exec.c
+--- linux-2.5.46-bk1-kb/fs/exec.c	Mon Nov  4 15:58:50 2002
++++ linux/fs/exec.c	Tue Nov  5 20:56:36 2002
+@@ -756,6 +756,7 @@
+ 			
+ 	flush_signal_handlers(current);
+ 	flush_old_files(current->files);
++	exit_itimers(current);
+ 
+ 	return 0;
+ 
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/asm-generic/siginfo.h linux/include/asm-generic/siginfo.h
+--- linux-2.5.46-bk1-kb/include/asm-generic/siginfo.h	Wed Oct 30 22:45:08 2002
++++ linux/include/asm-generic/siginfo.h	Tue Nov  5 20:56:36 2002
+@@ -43,8 +43,9 @@
+ 
+ 		/* POSIX.1b timers */
+ 		struct {
+-			unsigned int _timer1;
+-			unsigned int _timer2;
++			timer_t _tid;		/* timer id */
++			int _overrun;		/* overrun count */
++			sigval_t _sigval;	/* same as below */
+ 		} _timer;
+ 
+ 		/* POSIX.1b signals */
+@@ -86,8 +87,8 @@
+  */
+ #define si_pid		_sifields._kill._pid
+ #define si_uid		_sifields._kill._uid
+-#define si_timer1	_sifields._timer._timer1
+-#define si_timer2	_sifields._timer._timer2
++#define si_tid		_sifields._timer._tid
++#define si_overrun	_sifields._timer._overrun
+ #define si_status	_sifields._sigchld._status
+ #define si_utime	_sifields._sigchld._utime
+ #define si_stime	_sifields._sigchld._stime
+@@ -221,6 +222,7 @@
+ #define SIGEV_SIGNAL	0	/* notify via signal */
+ #define SIGEV_NONE	1	/* other notification: meaningless */
+ #define SIGEV_THREAD	2	/* deliver via thread creation */
++#define SIGEV_THREAD_ID 4	/* deliver to thread */
+ 
+ #define SIGEV_MAX_SIZE	64
+ #ifndef SIGEV_PAD_SIZE
+@@ -235,6 +237,7 @@
+ 	int sigev_notify;
+ 	union {
+ 		int _pad[SIGEV_PAD_SIZE];
++		 int _tid;
+ 
+ 		struct {
+ 			void (*_function)(sigval_t);
+@@ -247,6 +250,7 @@
+ 
+ #define sigev_notify_function	_sigev_un._sigev_thread._function
+ #define sigev_notify_attributes	_sigev_un._sigev_thread._attribute
++#define sigev_notify_thread_id	 _sigev_un._tid
+ 
+ #ifdef __KERNEL__
+ 
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/asm-i386/posix_types.h linux/include/asm-i386/posix_types.h
+--- linux-2.5.46-bk1-kb/include/asm-i386/posix_types.h	Mon Sep  9 10:35:18 2002
++++ linux/include/asm-i386/posix_types.h	Tue Nov  5 20:56:36 2002
+@@ -22,6 +22,8 @@
+ typedef long		__kernel_time_t;
+ typedef long		__kernel_suseconds_t;
+ typedef long		__kernel_clock_t;
++typedef int		__kernel_timer_t;
++typedef int		__kernel_clockid_t;
+ typedef int		__kernel_daddr_t;
+ typedef char *		__kernel_caddr_t;
+ typedef unsigned short	__kernel_uid16_t;
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/asm-i386/signal.h linux/include/asm-i386/signal.h
+--- linux-2.5.46-bk1-kb/include/asm-i386/signal.h	Mon Sep  9 10:35:04 2002
++++ linux/include/asm-i386/signal.h	Tue Nov  5 20:56:36 2002
+@@ -216,9 +216,83 @@
+ 	__asm__("bsfl %1,%0" : "=r"(word) : "rm"(word) : "cc");
+ 	return word;
+ }
++#ifndef _STRUCT_TIMESPEC
++#define _STRUCT_TIMESPEC
++struct timespec {
++	time_t	tv_sec;		/* seconds */
++	long	tv_nsec;	/* nanoseconds */
 +};
-+
-+
-+static void set_gdt(void *newgdt, __u16 limit)
-+{
-+	unsigned char curgdt[6];
-+
-+	/* ia32 supports unaliged loads & stores */
-+	(*(__u16 *)(curgdt)) = limit;
-+	(*(__u32 *)(curgdt +2)) = (unsigned long)(newgdt);
-+
-+	__asm__ __volatile__ (
-+		"lgdt %0\n" 
-+		: "=m" (curgdt)
-+		);
-+};
-+
-+static void load_segments(void)
-+{
-+#define __STR(X) #X
-+#define STR(X) __STR(X)
-+
-+	__asm__ __volatile__ (
-+		"\tljmp $"STR(__KERNEL_CS)",$1f\n"
-+		"\t1:\n"
-+		"\tmovl $"STR(__KERNEL_DS)",%eax\n"
-+		"\tmovl %eax,%ds\n"
-+		"\tmovl %eax,%es\n"
-+		"\tmovl %eax,%fs\n"
-+		"\tmovl %eax,%gs\n"
-+		"\tmovl %eax,%ss\n"
-+		);
-+#undef STR
-+#undef __STR
-+}
-+
-+static void identity_map_page(unsigned long address)
-+{
-+	/* This code is x86 specific...
-+	 * general purpose code must be more carful 
-+	 * of caches and tlbs...
-+	 */
-+	pgd_t *pgd;
-+	pmd_t *pmd;
-+	struct mm_struct *mm = current->mm;
-+	spin_lock(&mm->page_table_lock);
-+	
-+	pgd = pgd_offset(mm, address);
-+	pmd = pmd_alloc(mm, pgd, address);
-+
-+	if (pmd) {
-+		pte_t *pte = pte_alloc_map(mm, pmd, address);
-+		if (pte) {
-+			set_pte(pte, 
-+				mk_pte(virt_to_page(phys_to_virt(address)), 
-+					PAGE_SHARED));
-+			__flush_tlb_one(address);
-+		}
-+	}
-+	spin_unlock(&mm->page_table_lock);
-+}
-+
-+
-+typedef void (*relocate_new_kernel_t)(
-+	unsigned long indirection_page, unsigned long reboot_code_buffer,
-+	unsigned long start_address);
-+
-+const extern unsigned char relocate_new_kernel[];
-+extern void relocate_new_kernel_end(void);
-+const extern unsigned int relocate_new_kernel_size;
-+
-+void machine_kexec(struct kimage *image)
-+{
-+	unsigned long *indirection_page;
-+	void *reboot_code_buffer;
-+	relocate_new_kernel_t rnk;
-+
-+	/* Interrupts aren't acceptable while we reboot */
-+	local_irq_disable();
-+	reboot_code_buffer = image->reboot_code_buffer;
-+	indirection_page = phys_to_virt(image->head & PAGE_MASK);
-+
-+	identity_map_page(virt_to_phys(reboot_code_buffer));
-+
-+	/* copy it out */
-+	memcpy(reboot_code_buffer, relocate_new_kernel, 
-+		relocate_new_kernel_size);
-+
-+	/* The segment registers are funny things, they are
-+	 * automatically loaded from a table, in memory wherever you
-+	 * set them to a specific selector, but this table is never
-+	 * accessed again you set the segment to a different selector.
-+	 *
-+	 * The more common model is are caches where the behide
-+	 * the scenes work is done, but is also dropped at arbitrary
-+	 * times.
-+	 *
-+	 * I take advantage of this here by force loading the
-+	 * segments, before I zap the gdt with an invalid value.
-+	 */
-+	load_segments();
-+	/* The gdt & idt are now invalid.
-+	 * If you want to load them you must set up your own idt & gdt.
-+	 */
-+	set_gdt(phys_to_virt(0),0);
-+	set_idt(phys_to_virt(0),0);
-+
-+	/* now call it */
-+	rnk = (relocate_new_kernel_t) virt_to_phys(reboot_code_buffer);
-+	(*rnk)(virt_to_phys(indirection_page), virt_to_phys(reboot_code_buffer), 
-+		image->start);
-+}
-+
-diff -uNr linux-2.5.46/arch/i386/kernel/relocate_kernel.S linux-2.5.46.x86kexec/arch/i386/kernel/relocate_kernel.S
---- linux-2.5.46/arch/i386/kernel/relocate_kernel.S	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.46.x86kexec/arch/i386/kernel/relocate_kernel.S	Tue Nov  5 19:05:32 2002
-@@ -0,0 +1,99 @@
-+#include <linux/config.h>
-+#include <linux/linkage.h>
-+
-+	/* Must be relocatable PIC code callable as a C function, that once
-+	 * it starts can not use the previous processes stack.
-+	 *
-+	 */
-+	.globl relocate_new_kernel
-+relocate_new_kernel:
-+	/* read the arguments and say goodbye to the stack */
-+	movl  4(%esp), %ebx /* indirection_page */
-+	movl  8(%esp), %ebp /* reboot_code_buffer */
-+	movl  12(%esp), %edx /* start address */
-+
-+	/* zero out flags, and disable interrupts */
-+	pushl $0
-+	popfl
-+
-+	/* set a new stack at the bottom of our page... */
-+	lea   4096(%ebp), %esp
-+
-+	/* store the parameters back on the stack */
-+	pushl   %edx /* store the start address */
-+
-+	/* Set cr0 to a known state:
-+	 * 31 0 == Paging disabled
-+	 * 18 0 == Alignment check disabled
-+	 * 16 0 == Write protect disabled
-+	 * 3  0 == No task switch
-+	 * 2  0 == Don't do FP software emulation.
-+	 * 0  1 == Proctected mode enabled
-+	 */
-+	movl	%cr0, %eax
-+	andl	$~((1<<31)|(1<<18)|(1<<16)|(1<<3)|(1<<2)), %eax
-+	orl	$(1<<0), %eax
-+	movl	%eax, %cr0
-+	jmp 1f
-+1:	
-+
-+	/* Flush the TLB (needed?) */
-+	xorl	%eax, %eax
-+	movl	%eax, %cr3
-+
-+	/* Do the copies */
-+	cld
-+0:	/* top, read another word for the indirection page */
-+	movl    %ebx, %ecx
-+	movl	(%ebx), %ecx
-+	addl	$4, %ebx
-+	testl	$0x1,   %ecx  /* is it a destination page */
-+	jz	1f
-+	movl	%ecx,	%edi
-+	andl	$0xfffff000, %edi
-+	jmp     0b
-+1:
-+	testl	$0x2,	%ecx  /* is it an indirection page */
-+	jz	1f
-+	movl	%ecx,	%ebx
-+	andl	$0xfffff000, %ebx
-+	jmp     0b
-+1:
-+	testl   $0x4,   %ecx /* is it the done indicator */
-+	jz      1f
-+	jmp     2f
-+1:
-+	testl   $0x8,   %ecx /* is it the source indicator */
-+	jz      0b	     /* Ignore it otherwise */
-+	movl    %ecx,   %esi /* For every source page do a copy */
-+	andl    $0xfffff000, %esi
-+
-+	movl    $1024, %ecx
-+	rep ; movsl
-+	jmp     0b
-+
-+2:
-+
-+	/* To be certain of avoiding problems with self modifying code
-+	 * I need to execute a serializing instruction here.
-+	 * So I flush the TLB, it's handy, and not processor dependent.
-+	 */
-+	xorl	%eax, %eax
-+	movl	%eax, %cr3
-+	
-+	/* set all of the registers to known values */
-+	/* leave %esp alone */
-+	
-+	xorl	%eax, %eax
-+	xorl	%ebx, %ebx
-+	xorl    %ecx, %ecx
-+	xorl    %edx, %edx
-+	xorl    %esi, %esi
-+	xorl    %edi, %edi
-+	xorl    %ebp, %ebp
-+	ret
-+relocate_new_kernel_end:
-+
-+	.globl relocate_new_kernel_size
-+relocate_new_kernel_size:	
-+	.long relocate_new_kernel_end - relocate_new_kernel
-diff -uNr linux-2.5.46/include/asm-i386/kexec.h linux-2.5.46.x86kexec/include/asm-i386/kexec.h
---- linux-2.5.46/include/asm-i386/kexec.h	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.46.x86kexec/include/asm-i386/kexec.h	Tue Nov  5 19:05:32 2002
-@@ -0,0 +1,25 @@
-+#ifndef _I386_KEXEC_H
-+#define _I386_KEXEC_H
-+
-+#include <asm/fixmap.h>
-+
++#endif /* _STRUCT_TIMESPEC */
+ 
+ struct pt_regs;
+ extern int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
 +/*
-+ * KEXEC_SOURCE_MEMORY_LIMIT maximum page get_free_page can return.
-+ * I.e. Maximum page that is mapped directly into kernel memory,
-+ * and kmap is not required.
-+ *
-+ * Someone correct me if FIXADDR_START - PAGEOFFSET is not the correct
-+ * calculation for the amount of memory directly mappable into the
-+ * kernel memory space.
++ * These macros are used by nanosleep() and clock_nanosleep().
++ * The issue is that these functions need the *regs pointer which is 
++ * passed in different ways by the differing archs.
++
++ * Below we do things in two differing ways.  In the long run we would
++ * like to see nano_sleep() go away (glibc should call clock_nanosleep
++ * much as we do).  When that happens and the nano_sleep() system
++ * call entry is retired, there will no longer be any real need for
++ * sys_nanosleep() so the FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP macro
++ * could be undefined, resulting in not needing to stack all the 
++ * parms over again, i.e. better (faster AND smaller) code.
++
++ * And while were at it, there needs to be a way to set the return code
++ * on the way to do_signal().  It (i.e. do_signal()) saves the regs on 
++ * the callers stack to call the user handler and then the return is
++ * done using those registers.  This means that the error code MUST be
++ * set in the register PRIOR to calling do_signal().  See our answer 
++ * below...thanks to  Jim Houston <jim.houston@attbi.com>
 + */
-+
-+/* Maximum physical address we can use pages from */
-+#define KEXEC_SOURCE_MEMORY_LIMIT (FIXADDR_START - PAGE_OFFSET) 
-+/* Maximum address we can reach in physical address mode */
-+#define KEXEC_DESTINATION_MEMORY_LIMIT (-1UL)
-+
-+#define KEXEC_REBOOT_CODE_SIZE	4096
-+#define KEXEC_REBOOT_CODE_ALIGN 0
++#define FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP
 +
 +
-+#endif /* _I386_KEXEC_H */
-diff -uNr linux-2.5.46/include/asm-i386/unistd.h linux-2.5.46.x86kexec/include/asm-i386/unistd.h
---- linux-2.5.46/include/asm-i386/unistd.h	Tue Nov  5 19:03:51 2002
-+++ linux-2.5.46.x86kexec/include/asm-i386/unistd.h	Tue Nov  5 23:12:48 2002
-@@ -262,6 +262,7 @@
++#ifdef FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP
++extern long do_clock_nanosleep(struct pt_regs *regs, 
++			clockid_t which_clock, 
++			int flags, 
++			const struct timespec *rqtp, 
++			struct timespec *rmtp);
++
++#define NANOSLEEP_ENTRY(a) \
++  asmlinkage long sys_nanosleep( struct timespec* rqtp, \
++                                 struct timespec * rmtp) \
++{       struct pt_regs *regs = (struct pt_regs *)&rqtp; \
++        return do_clock_nanosleep(regs, CLOCK_REALTIME, 0, rqtp, rmtp); \
++} 
++
++#define CLOCK_NANOSLEEP_ENTRY(a) asmlinkage long sys_clock_nanosleep( \
++                               clockid_t which_clock,      \
++                               int flags,                  \
++                               const struct timespec *rqtp, \
++                               struct timespec *rmtp)       \
++{       struct pt_regs *regs = (struct pt_regs *)&which_clock; \
++        return do_clock_nanosleep(regs, which_clock, flags, rqtp, rmtp); \
++} \
++long do_clock_nanosleep(struct pt_regs *regs, \
++                    clockid_t which_clock,      \
++                    int flags,                  \
++                    const struct timespec *rqtp, \
++                    struct timespec *rmtp)       \
++{        a
++
++#else
++#define NANOSLEEP_ENTRY(a) \
++      asmlinkage long sys_nanosleep( struct timespec* rqtp, \
++                                     struct timespec * rmtp) \
++{       struct pt_regs *regs = (struct pt_regs *)&rqtp; \
++        a
++#define CLOCK_NANOSLEEP_ENTRY(a) asmlinkage long sys_clock_nanosleep( \
++                               clockid_t which_clock,      \
++                               int flags,                  \
++                               const struct timespec *rqtp, \
++                               struct timespec *rmtp)       \
++{       struct pt_regs *regs = (struct pt_regs *)&which_clock; \
++        a
++#endif
++#define _do_signal() (regs->eax = -EINTR, do_signal(regs, NULL))
+ 
+ #endif /* __KERNEL__ */
+ 
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
+--- linux-2.5.46-bk1-kb/include/asm-i386/unistd.h	Mon Nov  4 15:58:53 2002
++++ linux/include/asm-i386/unistd.h	Tue Nov  5 20:56:36 2002
+@@ -262,6 +262,15 @@
  #define __NR_sys_epoll_ctl	255
  #define __NR_sys_epoll_wait	256
  #define __NR_remap_file_pages	257
-+#define __NR_sys_kexec		258
++#define __NR_timer_create	258
++#define __NR_timer_settime	(__NR_timer_create+1)
++#define __NR_timer_gettime	(__NR_timer_create+2)
++#define __NR_timer_getoverrun	(__NR_timer_create+3)
++#define __NR_timer_delete	(__NR_timer_create+4)
++#define __NR_clock_settime	(__NR_timer_create+5)
++#define __NR_clock_gettime	(__NR_timer_create+6)
++#define __NR_clock_getres	(__NR_timer_create+7)
++#define __NR_clock_nanosleep	(__NR_timer_create+8)
  
  
  /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
-diff -uNr linux-2.5.46/include/linux/kexec.h linux-2.5.46.x86kexec/include/linux/kexec.h
---- linux-2.5.46/include/linux/kexec.h	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.46.x86kexec/include/linux/kexec.h	Tue Nov  5 19:05:32 2002
-@@ -0,0 +1,48 @@
-+#ifndef LINUX_KEXEC_H
-+#define LINUX_KEXEC_H
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/linux/id_reuse.h linux/include/linux/id_reuse.h
+--- linux-2.5.46-bk1-kb/include/linux/id_reuse.h	Wed Dec 31 16:00:00 1969
++++ linux/include/linux/id_reuse.h	Tue Nov  5 20:56:36 2002
+@@ -0,0 +1,119 @@
++/*
++ * include/linux/id.h
++ * 
++ * 2002-10-18  written by Jim Houston jim.houston@ccur.com
++ *	Copyright (C) 2002 by Concurrent Computer Corporation
++ *	Distributed under the GNU GPL license version 2.
++ *
++ * Small id to pointer translation service avoiding fixed sized
++ * tables.
++ */
 +
-+#if CONFIG_KEXEC
-+#include <linux/types.h>
-+#include <asm/kexec.h>
++#define IDR_BITS 5
++#define IDR_MASK ((1 << IDR_BITS)-1)
++#define IDR_FULL ((int)((1ULL << (1 << IDR_BITS))-1))
++
++/* Number of id_layer structs to leave in free list */
++#define IDR_FREE_MAX 6
++
++struct idr_layer {
++	unsigned long	        bitmap;
++	struct idr_layer	*ary[1<<IDR_BITS];
++};
++
++struct idr {
++	int		layers;
++	int		last;
++	int		count;
++	struct idr_layer *top;
++	spinlock_t      id_slock;
++};
++
++void *idr_find(struct idr *idp, int id);
++void *idr_find_nolock(struct idr *idp, int id);
++int idr_get_new(struct idr *idp, void *ptr);
++void idr_remove(struct idr *idp, int id);
++void idr_init(struct idr *idp);
++void idr_lock(struct idr *idp);
++void idr_unlock(struct idr *idp);
++
++extern inline void update_bitmap(struct idr_layer *p, int bit)
++{
++	if (p->ary[bit] && p->ary[bit]->bitmap == IDR_FULL)
++		__set_bit(bit, &p->bitmap);
++	else
++		__clear_bit(bit, &p->bitmap);
++}
++
++extern inline void update_bitmap_set(struct idr_layer *p, int bit)
++{
++	if (p->ary[bit] && p->ary[bit]->bitmap == IDR_FULL)
++		__set_bit(bit, &p->bitmap);
++}
++
++extern inline void update_bitmap_clear(struct idr_layer *p, int bit)
++{
++	if (p->ary[bit] && p->ary[bit]->bitmap == IDR_FULL)
++		;
++	else
++		__clear_bit(bit, &p->bitmap);
++}
++
++extern inline void idr_lock(struct idr *idp)
++{
++	spin_lock(&idp->id_slock);
++}
++
++extern inline void idr_unlock(struct idr *idp)
++{
++	spin_unlock(&idp->id_slock);
++}
++
++extern inline void *idr_find(struct idr *idp, int id)
++{
++	int n;
++	struct idr_layer *p;
++
++	id--;
++	idr_lock(idp);
++	n = idp->layers * IDR_BITS;
++	p = idp->top;
++	if ((unsigned)id >= (1 << n)) { // unsigned catches <=0 input
++		idr_unlock(idp);
++		return(NULL);
++	}
++
++	while (n > 0 && p) {
++		n -= IDR_BITS;
++		p = p->ary[(id >> n) & IDR_MASK];
++	}
++	idr_unlock(idp);
++	return((void *)p);
++}
++/*
++ * caller calls idr_lock/ unlock around this one.  Allows
++ * additional code to be protected.
++ */
++extern inline void *idr_find_nolock(struct idr *idp, int id)
++{
++	int n;
++	struct idr_layer *p;
++
++	id--;
++	n = idp->layers * IDR_BITS;
++	p = idp->top;
++	if ((unsigned)id >= (1 << n)) { // unsigned catches <=0 input
++		return(NULL);
++	}
++
++	while (n > 0 && p) {
++		n -= IDR_BITS;
++		p = p->ary[(id >> n) & IDR_MASK];
++	}
++	return((void *)p);
++}
++
++
++
++extern kmem_cache_t *idr_layer_cache;
++
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/linux/init_task.h linux/include/linux/init_task.h
+--- linux-2.5.46-bk1-kb/include/linux/init_task.h	Thu Oct  3 10:42:11 2002
++++ linux/include/linux/init_task.h	Tue Nov  5 20:56:36 2002
+@@ -93,6 +93,7 @@
+ 	.sig		= &init_signals,				\
+ 	.pending	= { NULL, &tsk.pending.head, {{0}}},		\
+ 	.blocked	= {{0}},					\
++	 .posix_timers	 = LIST_HEAD_INIT(tsk.posix_timers),		   \
+ 	.alloc_lock	= SPIN_LOCK_UNLOCKED,				\
+ 	.switch_lock	= SPIN_LOCK_UNLOCKED,				\
+ 	.journal_info	= NULL,						\
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/linux/posix-timers.h linux/include/linux/posix-timers.h
+--- linux-2.5.46-bk1-kb/include/linux/posix-timers.h	Wed Dec 31 16:00:00 1969
++++ linux/include/linux/posix-timers.h	Tue Nov  5 20:56:36 2002
+@@ -0,0 +1,18 @@
++#ifndef _linux_POSIX_TIMERS_H
++#define _linux_POSIX_TIMERS_H
++
++struct k_clock {
++	 int  res;		    /* in nano seconds */
++	 int ( *clock_set)(struct timespec *tp);
++	 int ( *clock_get)(struct timespec *tp);
++	 int ( *nsleep)(   int flags, 
++			   struct timespec*new_setting,
++			   struct itimerspec *old_setting);
++	 int ( *timer_set)(struct k_itimer *timr, int flags,
++			   struct itimerspec *new_setting,
++			   struct itimerspec *old_setting);
++	 int  ( *timer_del)(struct k_itimer *timr);
++	 void ( *timer_get)(struct k_itimer *timr,
++			   struct itimerspec *cur_setting);
++};
++#endif
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.5.46-bk1-kb/include/linux/sched.h	Tue Nov  5 20:55:07 2002
++++ linux/include/linux/sched.h	Tue Nov  5 20:56:36 2002
+@@ -268,6 +268,25 @@
+ typedef struct prio_array prio_array_t;
+ struct backing_dev_info;
+ 
++/* POSIX.1b interval timer structure. */
++struct k_itimer {
++	struct list_head list;		 /* free/ allocate list */
++	spinlock_t it_lock;
++	clockid_t it_clock;		/* which timer type */
++	timer_t it_id;			/* timer id */
++	int it_overrun;			/* overrun on pending signal  */
++	int it_overrun_last;		 /* overrun on last delivered signal */
++	int it_overrun_deferred;	 /* overrun on pending timer interrupt */
++	int it_sigev_notify;		 /* notify word of sigevent struct */
++	int it_sigev_signo;		 /* signo word of sigevent struct */
++	sigval_t it_sigev_value;	 /* value word of sigevent struct */
++	unsigned long it_incr;		/* interval specified in jiffies */
++	struct task_struct *it_process;	/* process to send signal to */
++	struct timer_list it_timer;
++};
++
++
++
+ struct task_struct {
+ 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+ 	struct thread_info *thread_info;
+@@ -330,6 +349,7 @@
+ 	unsigned long it_real_value, it_prof_value, it_virt_value;
+ 	unsigned long it_real_incr, it_prof_incr, it_virt_incr;
+ 	struct timer_list real_timer;
++	struct list_head posix_timers; /* POSIX.1b Interval Timers */
+ 	unsigned long utime, stime, cutime, cstime;
+ 	unsigned long start_time;
+ 	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/linux/signal.h linux/include/linux/signal.h
+--- linux-2.5.46-bk1-kb/include/linux/signal.h	Mon Sep  9 10:35:04 2002
++++ linux/include/linux/signal.h	Tue Nov  5 20:56:36 2002
+@@ -224,6 +224,36 @@
+ struct pt_regs;
+ extern int get_signal_to_deliver(siginfo_t *info, struct pt_regs *regs);
+ #endif
++/*
++ * We would like the asm/signal.h code to define these so that the using
++ * function can call do_signal().  In loo of that, we define a genaric
++ * version that pretends that do_signal() was called and delivered a signal.
++ * To see how this is used, see nano_sleep() in timer.c and the i386 version
++ * in asm_i386/signal.h.
++ */
++#ifndef PT_REGS_ENTRY
++#define PT_REGS_ENTRY(type,name,p1_type,p1, p2_type,p2) \
++type name(p1_type p1,p2_type p2)\
++{
++#endif
++#ifndef _do_signal
++#define _do_signal() 1
++#endif
++#ifndef NANOSLEEP_ENTRY
++#define NANOSLEEP_ENTRY(a) asmlinkage long sys_nanosleep( struct timespec* rqtp, \
++							  struct timespec * rmtp) \
++{ a
++#endif
++#ifndef CLOCK_NANOSLEEP_ENTRY
++#define CLOCK_NANOSLEEP_ENTRY(a) asmlinkage long sys_clock_nanosleep( \
++			       clockid_t which_clock,	   \
++			       int flags,		   \
++			       const struct timespec *rqtp, \
++			       struct timespec *rmtp)	    \
++{ a
++ 
++#endif
++
+ 
+ #endif /* __KERNEL__ */
+ 
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/linux/sys.h linux/include/linux/sys.h
+--- linux-2.5.46-bk1-kb/include/linux/sys.h	Wed Oct 30 22:46:36 2002
++++ linux/include/linux/sys.h	Tue Nov  5 20:56:36 2002
+@@ -2,9 +2,8 @@
+ #define _LINUX_SYS_H
+ 
+ /*
+- * system call entry points ... but not all are defined
++ * This file is no longer used or needed
+  */
+-#define NR_syscalls 260
+ 
+ /*
+  * These are system calls that will be removed at some time
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/linux/time.h linux/include/linux/time.h
+--- linux-2.5.46-bk1-kb/include/linux/time.h	Wed Sep 18 17:04:09 2002
++++ linux/include/linux/time.h	Tue Nov  5 20:56:36 2002
+@@ -38,6 +38,19 @@
+  */
+ #define MAX_JIFFY_OFFSET ((~0UL >> 1)-1)
+ 
++/* Parameters used to convert the timespec values */
++#ifndef USEC_PER_SEC
++#define USEC_PER_SEC (1000000L)
++#endif
++
++#ifndef NSEC_PER_SEC
++#define NSEC_PER_SEC (1000000000L)
++#endif
++
++#ifndef NSEC_PER_USEC
++#define NSEC_PER_USEC (1000L)
++#endif
++
+ static __inline__ unsigned long
+ timespec_to_jiffies(struct timespec *value)
+ {
+@@ -124,6 +137,8 @@
+ #ifdef __KERNEL__
+ extern void do_gettimeofday(struct timeval *tv);
+ extern void do_settimeofday(struct timeval *tv);
++extern int do_sys_settimeofday(struct timeval *tv, struct timezone *tz);
++extern void clock_was_set(void); // call when ever the clock is set
+ #endif
+ 
+ #define FD_SETSIZE		__FD_SETSIZE
+@@ -149,5 +164,25 @@
+ 	struct	timeval it_interval;	/* timer interval */
+ 	struct	timeval it_value;	/* current value */
+ };
++
++
++/*
++ * The IDs of the various system clocks (for POSIX.1b interval timers).
++ */
++#define CLOCK_REALTIME		  0
++#define CLOCK_MONOTONIC	  1
++#define CLOCK_PROCESS_CPUTIME_ID 2
++#define CLOCK_THREAD_CPUTIME_ID	 3
++#define CLOCK_REALTIME_HR	 4
++#define CLOCK_MONOTONIC_HR	  5
++
++#define MAX_CLOCKS 6
++
++/*
++ * The various flags for setting POSIX.1b interval timers.
++ */
++
++#define TIMER_ABSTIME 0x01
++
+ 
+ #endif
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/include/linux/types.h linux/include/linux/types.h
+--- linux-2.5.46-bk1-kb/include/linux/types.h	Tue Oct 15 15:43:06 2002
++++ linux/include/linux/types.h	Tue Nov  5 20:56:36 2002
+@@ -23,6 +23,8 @@
+ typedef __kernel_daddr_t	daddr_t;
+ typedef __kernel_key_t		key_t;
+ typedef __kernel_suseconds_t	suseconds_t;
++typedef __kernel_timer_t	timer_t;
++typedef __kernel_clockid_t	clockid_t;
+ 
+ #ifdef __KERNEL__
+ typedef __kernel_uid32_t	uid_t;
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/kernel/Makefile linux/kernel/Makefile
+--- linux-2.5.46-bk1-kb/kernel/Makefile	Wed Oct 16 00:18:18 2002
++++ linux/kernel/Makefile	Tue Nov  5 20:56:36 2002
+@@ -10,7 +10,7 @@
+ 	    module.o exit.o itimer.o time.o softirq.o resource.o \
+ 	    sysctl.o capability.o ptrace.o timer.o user.o \
+ 	    signal.o sys.o kmod.o workqueue.o futex.o platform.o pid.o \
+-	    rcupdate.o
++	    rcupdate.o posix-timers.o id_reuse.o
+ 
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += cpu.o
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/kernel/exit.c linux/kernel/exit.c
+--- linux-2.5.46-bk1-kb/kernel/exit.c	Wed Oct 16 00:18:18 2002
++++ linux/kernel/exit.c	Tue Nov  5 20:56:36 2002
+@@ -410,6 +410,7 @@
+ 	mmdrop(active_mm);
+ }
+ 
++
+ /*
+  * Turn us into a lazy TLB process if we
+  * aren't already..
+@@ -647,6 +648,7 @@
+ 	__exit_files(tsk);
+ 	__exit_fs(tsk);
+ 	exit_namespace(tsk);
++	exit_itimers(tsk);
+ 	exit_thread();
+ 
+ 	if (current->leader)
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/kernel/fork.c linux/kernel/fork.c
+--- linux-2.5.46-bk1-kb/kernel/fork.c	Mon Nov  4 15:58:58 2002
++++ linux/kernel/fork.c	Tue Nov  5 20:56:36 2002
+@@ -784,6 +784,7 @@
+ 		goto bad_fork_cleanup_files;
+ 	if (copy_sighand(clone_flags, p))
+ 		goto bad_fork_cleanup_fs;
++	INIT_LIST_HEAD(&p->posix_timers);
+ 	if (copy_mm(clone_flags, p))
+ 		goto bad_fork_cleanup_sighand;
+ 	if (copy_namespace(clone_flags, p))
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/kernel/id_reuse.c linux/kernel/id_reuse.c
+--- linux-2.5.46-bk1-kb/kernel/id_reuse.c	Wed Dec 31 16:00:00 1969
++++ linux/kernel/id_reuse.c	Tue Nov  5 20:56:36 2002
+@@ -0,0 +1,198 @@
++/*
++ * linux/kernel/id.c
++ *
++ * 2002-10-18  written by Jim Houston jim.houston@ccur.com
++ *	Copyright (C) 2002 by Concurrent Computer Corporation
++ *	Distributed under the GNU GPL license version 2.
++ *
++ * Small id to pointer translation service.  
++ *
++ * It uses a radix tree like structure as a sparse array indexed 
++ * by the id to obtain the pointer.  The bitmap makes allocating
++ * an new id quick.  
++
++ * Modified by George Anzinger to reuse immediately and to use
++ * find bit instructions.  Also removed _irq on spinlocks.
++ */
++
++
++#include <linux/slab.h>
++#include <linux/id_reuse.h>
++#include <linux/init.h>
++#include <linux/string.h>
++
++static kmem_cache_t *idr_layer_cache;
++
++/*
++ * Since we can't allocate memory with spinlock held and dropping the
++ * lock to allocate gets ugly keep a free list which will satisfy the
++ * worst case allocation.
++
++ * Hm?  Looks like the free list is shared with all users... I guess
++ * that is ok, think of it as an extension of alloc.
++ */
++
++static struct idr_layer *id_free;
++static int id_free_cnt;
++
++static inline struct idr_layer *alloc_layer(void)
++{
++	struct idr_layer *p;
++
++	if (!(p = id_free))
++		BUG();
++	id_free = p->ary[0];
++	id_free_cnt--;
++	p->ary[0] = 0;
++	return(p);
++}
++
++static inline void free_layer(struct idr_layer *p)
++{
++	/*
++	 * Depends on the return element being zeroed.
++	 */
++	p->ary[0] = id_free;
++	id_free = p;
++	id_free_cnt++;
++}
++
++static int sub_alloc(struct idr_layer *p, int shift, void *ptr)
++{
++	int bitmap = p->bitmap;
++	int v, n;
++
++	n = ffz(bitmap);
++	if (shift == 0) {
++		p->ary[n] = (struct idr_layer *)ptr;
++		__set_bit(n, &p->bitmap);
++		return(n);
++	}
++	if (!p->ary[n])
++		p->ary[n] = alloc_layer();
++	v = sub_alloc(p->ary[n], shift-IDR_BITS, ptr);
++	update_bitmap_set(p, n);
++	return(v + (n << shift));
++}
++
++int idr_get_new(struct idr *idp, void *ptr)
++{
++	int n, v;
++	
++	idr_lock(idp);
++	n = idp->layers * IDR_BITS;
++	/*
++	 * Since we can't allocate memory with spinlock held and dropping the
++	 * lock to allocate gets ugly keep a free list which will satisfy the
++	 * worst case allocation.
++	 */
++	while (id_free_cnt < n+1) {
++		struct idr_layer *new;
++		idr_unlock(idp);
++		new = kmem_cache_alloc(idr_layer_cache, GFP_KERNEL);
++		if(new == NULL)
++			return (0);
++		memset(new, 0, sizeof(struct idr_layer));
++		idr_lock(idp);
++		free_layer(new);
++	}
++	/*
++	 * Add a new layer if the array is full 
++	 */
++	if (idp->top->bitmap == IDR_FULL){
++		struct idr_layer *new = alloc_layer();
++		++idp->layers;
++		n += IDR_BITS;
++		new->ary[0] = idp->top;
++		idp->top = new;
++		update_bitmap_set(new, 0);
++	}
++	v = sub_alloc(idp->top, n-IDR_BITS, ptr);
++	idp->last = v;
++	idp->count++;
++	idr_unlock(idp);
++	return(v+1);
++}
++/*
++ * At this time we only free leaf nodes.  It would take another bitmap
++ * or, better, an in use counter to correctly free higher nodes.
++ */
++
++static int sub_remove(struct idr_layer *p, int shift, int id)
++{
++	int n = (id >> shift) & IDR_MASK;
++	
++if (!p) {
++printk("in sub_remove for id=%d called with null pointer.\n", id);
++return(0);
++}
++	if (shift != 0) {
++		if (sub_remove(p->ary[n], shift-IDR_BITS, id)) {
++			free_layer(p->ary[n]);
++			p->ary[n] = NULL;
++		}
++		__clear_bit(n, &p->bitmap);
++		return (0);      // for now, prune only at 0
++	} else {
++		p->ary[n] = NULL;
++		__clear_bit(n, &p->bitmap);
++	} 
++	return (! p->bitmap);
++}
++
++void idr_remove(struct idr *idp, int id)
++{
++	struct idr_layer *p;
++
++	if (id <= 0)
++		return;
++	id--;
++	idr_lock(idp);
++	sub_remove(idp->top, (idp->layers-1)*IDR_BITS, id);
++#if 0
++	/*
++	 * To do this correctly we really need a bit map or counter that
++	 * indicates if any are allocated, not the current one that
++	 * indicates if any are free.  Something to do...
++	 * This is not too bad as we do prune the leaf nodes. So for a 
++	 * three layer tree we will only be left with 33 nodes when 
++	 * empty
++	 */
++	if(idp->top->bitmap == 1 && idp->layers > 1 ){  // We can drop a layer
++		p = idp->top->ary[0];
++		free_layer(idp->top);
++		idp->top = p;
++		--idp->layers;
++	}
++#endif
++	idp->count--;
++	if (id_free_cnt >= IDR_FREE_MAX) {
++		
++		p = alloc_layer();
++		idr_unlock(idp);
++		kmem_cache_free(idr_layer_cache, p);
++		return;
++	}
++	idr_unlock(idp);
++}
++
++static  __init int init_id_cache(void)
++{
++	if (!idr_layer_cache)
++		idr_layer_cache = kmem_cache_create("idr_layer_cache", 
++			sizeof(struct idr_layer), 0, 0, 0, 0);
++	return 0;
++}
++
++void idr_init(struct idr *idp)
++{
++	init_id_cache();
++	idp->count = 0;
++	idp->last = 0;
++	idp->layers = 1;
++	idp->top = kmem_cache_alloc(idr_layer_cache, GFP_KERNEL);
++	memset(idp->top, 0, sizeof(struct idr_layer));
++	spin_lock_init(&idp->id_slock);
++}
++
++__initcall(init_id_cache);
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/kernel/posix-timers.c linux/kernel/posix-timers.c
+--- linux-2.5.46-bk1-kb/kernel/posix-timers.c	Wed Dec 31 16:00:00 1969
++++ linux/kernel/posix-timers.c	Tue Nov  5 20:56:36 2002
+@@ -0,0 +1,1156 @@
++/*
++ * linux/kernel/posix_timers.c
++ *
++ * 
++ * 2002-10-15  Posix Clocks & timers by George Anzinger
++ *			     Copyright (C) 2002 by MontaVista Software.
++ */
++
++/* These are all the functions necessary to implement 
++ * POSIX clocks & timers
++ */
++
++#include <linux/mm.h>
++#include <linux/smp_lock.h>
++#include <linux/interrupt.h>
++#include <linux/slab.h>
++#include <linux/time.h>
++
++#include <asm/uaccess.h>
++#include <asm/semaphore.h>
++#include <linux/list.h>
++#include <linux/init.h>
++#include <linux/posix-timers.h>
++#include <linux/compiler.h>
++#include <linux/id_reuse.h>
++
++#ifndef div_long_long_rem
++#include <asm/div64.h>
++
++#define div_long_long_rem(dividend,divisor,remainder) ({ \
++		       u64 result = dividend;		\
++		       *remainder = do_div(result,divisor); \
++		       result; })
++
++#endif	 /* ifndef div_long_long_rem */
++
++/*
++ * Management arrays for POSIX timers.	 Timers are kept in slab memory
++ * Timer ids are allocated by an external routine that keeps track of the
++ * id and the timer.  The external interface is:
++ *
++ *void *idr_find(struct idr *idp, int id);           to find timer_id <id>
++ *int idr_get_new(struct idr *idp, void *ptr);       to get a new id and 
++ *                                                  related it to <ptr>
++ *void idr_remove(struct idr *idp, int id);          to release <id>
++ *void idr_init(struct idr *idp);                    to initialize <idp>
++ *                                                  which we supply.
++ * The idr_get_new *may* call slab for more memory so it must not be
++ * called under a spin lock.  Likewise idr_remore may release memory
++ * (but it may be ok to do this under a lock...).
++ * idr_find is just a memory look up and is quite fast.  A zero return
++ * indicates that the requested id does not exist.
++
++ */
++/*
++   * Lets keep our timers in a slab cache :-)
++ */
++static kmem_cache_t *posix_timers_cache;
++struct idr posix_timers_id;
++
++
++/*
++ * Just because the timer is not in the timer list does NOT mean it is
++ * inactive.  It could be in the "fire" routine getting a new expire time.
++ */
++#define TIMER_INACTIVE 1
++#define TIMER_RETRY 1
++#ifdef CONFIG_SMP
++#define timer_active(tmr) (tmr->it_timer.entry.prev != (void *)TIMER_INACTIVE)
++#define set_timer_inactive(tmr) tmr->it_timer.entry.prev = (void *)TIMER_INACTIVE
++#else
++#define timer_active(tmr) BARFY	   // error to use outside of SMP
++#define set_timer_inactive(tmr)
++#endif
++/*
++ * The timer ID is turned into a timer address by idr_find().
++ * Verifying a valid ID consists of:
++ * 
++ * a) checking that idr_find() returns other than zero.
++ * b) checking that the timer id matches the one in the timer itself.
++ * c) that the timer owner is in the callers thread group.
++ */
++
++extern rwlock_t xtime_lock;
 +
 +/* 
-+ * This structure is used to hold the arguments that are used when loading
-+ * kernel binaries.
++ * CLOCKs: The POSIX standard calls for a couple of clocks and allows us
++ *	    to implement others.  This structure defines the various
++ *	    clocks and allows the possibility of adding others.	 We
++ *	    provide an interface to add clocks to the table and expect
++ *	    the "arch" code to add at least one clock that is high
++ *	    resolution.	 Here we define the standard CLOCK_REALTIME as a
++ *	    1/HZ resolution clock.
++
++ * CPUTIME & THREAD_CPUTIME: We are not, at this time, definding these
++ *	    two clocks (and the other process related clocks (Std
++ *	    1003.1d-1999).  The way these should be supported, we think,
++ *	    is to use large negative numbers for the two clocks that are
++ *	    pinned to the executing process and to use -pid for clocks
++ *	    pinned to particular pids.	Calls which supported these clock
++ *	    ids would split early in the function.
++ 
++ * RESOLUTION: Clock resolution is used to round up timer and interval
++ *	    times, NOT to report clock times, which are reported with as
++ *	    much resolution as the system can muster.  In some cases this
++ *	    resolution may depend on the underlaying clock hardware and
++ *	    may not be quantifiable until run time, and only then is the
++ *	    necessary code is written.	The standard says we should say
++ *	    something about this issue in the documentation...
++
++ * FUNCTIONS: The CLOCKs structure defines possible functions to handle
++ *	    various clock functions.  For clocks that use the standard
++ *	    system timer code these entries should be NULL.  This will
++ *	    allow dispatch without the overhead of indirect function
++ *	    calls.  CLOCKS that depend on other sources (e.g. WWV or GPS)
++ *	    must supply functions here, even if the function just returns
++ *	    ENOSYS.  The standard POSIX timer management code assumes the
++ *	    following: 1.) The k_itimer struct (sched.h) is used for the
++ *	    timer.  2.) The list, it_lock, it_clock, it_id and it_process
++ *	    fields are not modified by timer code. 
++ *
++ *          At this time all functions EXCEPT clock_nanosleep can be
++ *          redirected by the CLOCKS structure.  Clock_nanosleep is in
++ *          there, but the code ignors it.
++ *
++ * Permissions: It is assumed that the clock_settime() function defined
++ *	    for each clock will take care of permission checks.	 Some
++ *	    clocks may be set able by any user (i.e. local process
++ *	    clocks) others not.	 Currently the only set able clock we
++ *	    have is CLOCK_REALTIME and its high res counter part, both of
++ *	    which we beg off on and pass to do_sys_settimeofday().
 + */
 +
-+typedef unsigned long kimage_entry_t;
-+#define IND_DESTINATION  0x1
-+#define IND_INDIRECTION  0x2
-+#define IND_DONE         0x4
-+#define IND_SOURCE       0x8
++struct k_clock posix_clocks[MAX_CLOCKS];
 +
-+struct kimage {
-+	kimage_entry_t head;
-+	kimage_entry_t *entry;
-+	kimage_entry_t *last_entry;
++#define if_clock_do(clock_fun, alt_fun,parms)	(! clock_fun)? alt_fun parms :\
++							      clock_fun parms
 +
-+	unsigned long destination;
-+	unsigned long offset;
++#define p_timer_get( clock,a,b) if_clock_do((clock)->timer_get, \
++					     do_timer_gettime,	 \
++					     (a,b))
 +
-+	unsigned long start;
-+	void *reboot_code_buffer;
-+};
++#define p_nsleep( clock,a,b,c) if_clock_do((clock)->nsleep,   \
++					    do_nsleep,	       \
++					    (a,b,c))
 +
-+/* kexec helper functions */
-+void kimage_init(struct kimage *image);
-+void kimage_free(struct kimage *image);
++#define p_timer_del( clock,a) if_clock_do((clock)->timer_del, \
++					   do_timer_delete,    \
++					   (a))
 +
-+struct kexec_segment {
-+	void *buf;
-+	size_t bufsz;
-+	void *mem;
-+	size_t memsz;
-+};
++void register_posix_clock(int clock_id, struct k_clock * new_clock);
 +
-+/* kexec interface functions */
-+extern void machine_kexec(struct kimage *image);
-+extern int do_kexec(unsigned long entry, long nr_segments, 
-+	struct kexec_segment *segments, struct kimage *image);
++static int do_posix_gettime(struct k_clock *clock, struct timespec *tp);
++
++int do_posix_clock_monotonic_gettime(struct timespec *tp);
++
++int do_posix_clock_monotonic_settime(struct timespec *tp);
++
++/* 
++ * Initialize everything, well, just everything in Posix clocks/timers ;)
++ */
++
++static	 __init int init_posix_timers(void)
++{
++	struct k_clock clock_realtime = {res: NSEC_PER_SEC/HZ};
++	struct k_clock clock_monotonic = 
++	{res: NSEC_PER_SEC/HZ,
++	 clock_get:  do_posix_clock_monotonic_gettime, 
++	 clock_set: do_posix_clock_monotonic_settime};
++
++	register_posix_clock(CLOCK_REALTIME,&clock_realtime);
++	register_posix_clock(CLOCK_MONOTONIC,&clock_monotonic);
++
++	posix_timers_cache = kmem_cache_create("posix_timers_cache",
++		sizeof(struct k_itimer), 0, 0, 0, 0);
++	idr_init(&posix_timers_id);
++	return 0;
++}
++
++__initcall(init_posix_timers);
++
++static inline int tstojiffie(struct timespec *tp, 
++			     int res,
++			     unsigned long *jiff)
++{
++	unsigned long sec = tp->tv_sec;
++	long nsec = tp->tv_nsec + res - 1;
++
++	if( nsec > NSEC_PER_SEC){
++		sec++;
++		nsec -= NSEC_PER_SEC;
++	}
++
++	/*
++	 * A note on jiffy overflow: It is possible for the system to
++	 * have been up long enough for the jiffies quanity to overflow.
++	 * In order for correct timer evaluations we require that the
++	 * specified time be somewhere between now and now + (max
++	 * unsigned int/2).  Times beyond this will be truncated back to
++	 * this value.	 This is done in the absolute adjustment code,
++	 * below.  Here it is enough to just discard the high order
++	 * bits.  
++	 */
++	*jiff = HZ * sec;
++	/*
++	 * Do the res thing. (Don't forget the add in the declaration of nsec) 
++	 */
++	nsec -= nsec % res;
++	/*
++	 * Split to jiffie and sub jiffie
++	 */
++	*jiff += nsec / (NSEC_PER_SEC / HZ);
++	/*
++	 * We trust that the optimizer will use the remainder from the 
++	 * above div in the following operation as long as they are close. 
++	 */
++	return	0;
++}
++static void tstotimer(struct itimerspec * time, struct k_itimer * timer)
++{
++	int res = posix_clocks[timer->it_clock].res;
++	tstojiffie(&time->it_value,
++		   res,
++		   &timer->it_timer.expires);
++	tstojiffie(&time->it_interval,
++		   res,
++		   &timer->it_incr);
++}
++ 
++
++
++/* PRECONDITION:
++ * timr->it_lock must be locked
++ */
++
++static void timer_notify_task(struct k_itimer *timr)
++{
++	struct siginfo info;
++	int ret;
++
++	if (! (timr->it_sigev_notify & SIGEV_NONE)) {
++
++		memset(&info, 0, sizeof(info));
++
++		/* Send signal to the process that owns this timer. */
++		info.si_signo = timr->it_sigev_signo;
++		info.si_errno = 0;
++		info.si_code = SI_TIMER;
++		info.si_tid = timr->it_id;
++		info.si_value = timr->it_sigev_value;
++		info.si_overrun = timr->it_overrun_deferred;
++		ret = send_sig_info(info.si_signo, &info, timr->it_process);
++		switch (ret) {
++		case 0:		/* all's well new signal queued */
++			timr->it_overrun_last = timr->it_overrun;
++			timr->it_overrun = timr->it_overrun_deferred;
++			break;
++		case 1:	/* signal from this timer was already in the queue */
++			timr->it_overrun += timr->it_overrun_deferred + 1;
++			break;
++		default:
++			printk(KERN_WARNING "sending signal failed: %d\n", ret);
++			break;
++		}
++	}
++}
++
++/* 
++ * Notify the task and set up the timer for the next expiration (if applicable).
++ * This function requires that the k_itimer structure it_lock is taken.
++ */
++static void posix_timer_fire(struct k_itimer *timr)
++{
++	unsigned long interval;
++
++	timer_notify_task(timr);
++
++	/* Set up the timer for the next interval (if there is one) */
++	if ((interval = timr->it_incr) == 0){
++		{
++			set_timer_inactive(timr);
++			return;
++		}
++	}
++	if (interval > (unsigned long) LONG_MAX)
++		interval = LONG_MAX;
++	timr->it_timer.expires += interval;
++	add_timer(&timr->it_timer);
++}
++
++/*
++ * This function gets called when a POSIX.1b interval timer expires.
++ * It is used as a callback from the kernel internal timer.
++ * The run_timer_list code ALWAYS calls with interrutps on.
++ */
++static void posix_timer_fn(unsigned long __data)
++{
++	struct k_itimer *timr = (struct k_itimer *)__data;
++
++	spin_lock_irq(&timr->it_lock);
++	posix_timer_fire(timr);
++	spin_unlock_irq(&timr->it_lock);
++}
++/*
++ * For some reason mips/mips64 define the SIGEV constants plus 128.  
++ * Here we define a mask to get rid of the common bits.	 The 
++ * optimizer should make this costless to all but mips.
++ */
++#if (ARCH == mips) || (ARCH == mips64)
++#define MIPS_SIGEV ~(SIGEV_NONE & \
++		      SIGEV_SIGNAL & \
++		      SIGEV_THREAD &  \
++		      SIGEV_THREAD_ID)
++#else
++#define MIPS_SIGEV (int)-1
 +#endif
-+#endif /* LINUX_KEXEC_H */
 +
-diff -uNr linux-2.5.46/kernel/Makefile linux-2.5.46.x86kexec/kernel/Makefile
---- linux-2.5.46/kernel/Makefile	Fri Oct 18 11:59:29 2002
-+++ linux-2.5.46.x86kexec/kernel/Makefile	Tue Nov  5 19:05:32 2002
-@@ -21,6 +21,7 @@
- obj-$(CONFIG_CPU_FREQ) += cpufreq.o
- obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
- obj-$(CONFIG_SOFTWARE_SUSPEND) += suspend.o
-+obj-$(CONFIG_KEXEC) += kexec.o
++static inline struct task_struct * good_sigevent(sigevent_t *event)
++{
++	struct task_struct * rtn = current;
++
++	if (event->sigev_notify & SIGEV_THREAD_ID & MIPS_SIGEV ) {
++		if ( !(rtn = 
++		       find_task_by_pid(event->sigev_notify_thread_id)) ||
++		     rtn->tgid != current->tgid){
++			return NULL;
++		}
++	}
++	if (event->sigev_notify & SIGEV_SIGNAL & MIPS_SIGEV) {
++		if ((unsigned)(event->sigev_signo > SIGRTMAX))
++			return NULL;
++	}
++	if (event->sigev_notify & ~(SIGEV_SIGNAL | SIGEV_THREAD_ID )) {
++		return NULL;
++	}
++	return rtn;
++}
++
++
++void register_posix_clock(int clock_id,struct k_clock * new_clock)
++{
++	if ( (unsigned)clock_id >= MAX_CLOCKS){
++		printk("POSIX clock register failed for clock_id %d\n",clock_id);
++		return;
++	}
++	posix_clocks[clock_id] = *new_clock;
++}
++
++static struct k_itimer * alloc_posix_timer(void)
++{
++	struct k_itimer *tmr;
++	tmr = kmem_cache_alloc(posix_timers_cache, GFP_KERNEL);
++	memset(tmr, 0, sizeof(struct k_itimer));
++	return(tmr);
++}
++
++static void release_posix_timer(struct k_itimer * tmr)
++{
++	if (tmr->it_id > 0)
++		idr_remove(&posix_timers_id, tmr->it_id);
++	kmem_cache_free(posix_timers_cache, tmr);
++}
++			 
++/* Create a POSIX.1b interval timer. */
++
++asmlinkage int sys_timer_create(clockid_t which_clock,
++				struct sigevent *timer_event_spec,
++				timer_t *created_timer_id)
++{
++	int error = 0;
++	struct k_itimer *new_timer = NULL;
++	timer_t new_timer_id;
++	struct task_struct * process = 0;
++	sigevent_t event;
++
++	if ((unsigned)which_clock >= MAX_CLOCKS || 
++	    ! posix_clocks[which_clock].res) return -EINVAL;
++
++	new_timer = alloc_posix_timer();
++	if (new_timer == NULL) return -EAGAIN;
++
++	spin_lock_init(&new_timer->it_lock);
++	new_timer_id = (timer_t)idr_get_new(&posix_timers_id, 
++					    (void *)new_timer);
++	new_timer->it_id = new_timer_id;
++	if (new_timer_id == 0) {
++		error = -EAGAIN;
++		goto out;
++	}
++	/*
++	 * return the timer_id now.  The next step is hard to 
++	 * back out if there is an error.
++	 */
++	if (copy_to_user(created_timer_id, 
++			 &new_timer_id, 
++			 sizeof(new_timer_id))) {
++		error = -EFAULT;
++		goto out;
++	}
++	if (timer_event_spec) {
++		if (copy_from_user(&event, timer_event_spec,
++				   sizeof(event))) {
++			error = -EFAULT;
++			goto out;
++		}
++		read_lock(&tasklist_lock);
++		if ((process = good_sigevent(&event))) {
++			/*
++			 * We may be setting up this process for another
++			 * thread.  It may be exitiing.  To catch this
++			 * case the we check the PF_EXITING flag.
++			 * If the flag is not set, the task_lock will catch
++			 * him before it is too late (in exit_itimers).
++
++			 * The exec case is a bit more invloved but easy
++			 * to code.  If the process is in our thread group
++			 * (and it must be or we would not allow it here)
++			 * and is doing an exec, it will cause us to be
++			 * killed.  In this case it will wait for us to die
++			 * which means we can finish this linkage with our
++			 * last gasp. I.e. no code :)
++			 */
++			task_lock(process);
++			if (!(process->flags & PF_EXITING)) {
++				list_add(&new_timer->list, 
++					 &process->posix_timers);
++				task_unlock(process);
++			} else {
++				task_unlock(process);
++				process = 0;
++			}
++		}
++		read_unlock(&tasklist_lock);
++		if (!process) {
++			error = -EINVAL;
++			goto out;
++		}
++		new_timer->it_sigev_notify = event.sigev_notify;
++		new_timer->it_sigev_signo = event.sigev_signo;
++		new_timer->it_sigev_value = event.sigev_value;
++	}
++	else {
++		new_timer->it_sigev_notify = SIGEV_SIGNAL;
++		new_timer->it_sigev_signo = SIGALRM;
++		new_timer->it_sigev_value.sival_int = new_timer->it_id;
++		process = current;
++		task_lock(process);
++		list_add(&new_timer->list, &process->posix_timers);
++		task_unlock(process);
++	}
++
++	new_timer->it_clock = which_clock;
++	new_timer->it_incr = 0;
++	new_timer->it_overrun = 0;
++	init_timer (&new_timer->it_timer);
++	new_timer->it_timer.expires = 0;
++	new_timer->it_timer.data = (unsigned long) new_timer;
++	new_timer->it_timer.function = posix_timer_fn;
++	set_timer_inactive(new_timer);
++
++	/*
++	 * Once we set the process, it can be found so do it last...
++	 */
++	new_timer->it_process = process;
++
++ out:
++	if (error) {
++		release_posix_timer(new_timer);
++	}
++	return error;
++}
++
++/*
++ * good_timespec
++ *
++ * This function checks the elements of a timespec structure.
++ *
++ * Arguments:
++ * ts	     : Pointer to the timespec structure to check
++ *
++ * Return value:
++ * If a NULL pointer was passed in, or the tv_nsec field was less than 0 or
++ * greater than NSEC_PER_SEC, or the tv_sec field was less than 0, this
++ * function returns 0. Otherwise it returns 1.
++ */
++
++static int good_timespec(const struct timespec *ts)
++{
++	if ((ts == NULL) || 
++	    (ts->tv_sec < 0) ||
++	    ((unsigned)ts->tv_nsec >= NSEC_PER_SEC))
++		return 0;
++	return 1;
++}
++
++static inline void unlock_timer(struct k_itimer *timr)
++{
++	spin_unlock_irq(&timr->it_lock);
++}
++/*
++ * Locking issues:  We need to protect the result of the id look up until
++ * we get the timer locked down so it is not deleted under us.  The removal
++ * is done under the idr spinlock so we use that here to bridge the find
++ * to the timer lock.  To avoid a dead lock, the timer id MUST be release
++ * with out holding the timer lock.
++ */
++static struct k_itimer* lock_timer( timer_t timer_id)
++{
++	struct  k_itimer *timr;
++
++	idr_lock(&posix_timers_id);
++	timr = (struct  k_itimer *)idr_find_nolock(&posix_timers_id, 
++						   (int)timer_id);
++	if (timr){
++		spin_lock_irq(&timr->it_lock);
++		idr_unlock(&posix_timers_id);
++
++		if (timr->it_id != timer_id) {
++			BUG();
++		}
++		if ( ! (timr->it_process) || 
++		     timr->it_process->tgid != current->tgid){ 
++			unlock_timer(timr);
++			timr = NULL;
++		}	
++	}else{
++		idr_unlock(&posix_timers_id);
++	}
++	
++	return timr;
++}
++
++/* 
++ * Get the time remaining on a POSIX.1b interval timer.
++ * This function is ALWAYS called with spin_lock_irq on the timer, thus
++ * it must not mess with irq.
++ */
++void inline do_timer_gettime(struct k_itimer *timr,
++			     struct itimerspec *cur_setting)
++{
++	long sub_expires;
++	unsigned long expires;
++
++	do {
++		expires = timr->it_timer.expires;  
++	} while ((volatile long)(timr->it_timer.expires) != expires);
++
++	if (expires && timer_pending(&timr->it_timer)){
++		expires -= jiffies;
++	}else{
++		sub_expires = expires = 0;
++	}
++
++	jiffies_to_timespec(expires, &cur_setting->it_value);
++	jiffies_to_timespec(timr->it_incr, &cur_setting->it_interval);
++
++	if (cur_setting->it_value.tv_sec < 0){
++		cur_setting->it_value.tv_nsec = 1;
++		cur_setting->it_value.tv_sec = 0;
++	}				 
++}
++/* Get the time remaining on a POSIX.1b interval timer. */
++asmlinkage int sys_timer_gettime(timer_t timer_id, struct itimerspec *setting)
++{
++	struct k_itimer *timr;
++	struct itimerspec cur_setting;
++
++	timr = lock_timer(timer_id);
++	if (!timr) return -EINVAL;
++
++	p_timer_get(&posix_clocks[timr->it_clock],timr, &cur_setting);
++
++	unlock_timer(timr);
++	
++	if (copy_to_user(setting, &cur_setting, sizeof(cur_setting)))
++		return -EFAULT;
++
++	return 0;
++}
++/*
++ * Get the number of overruns of a POSIX.1b interval timer
++ * This is a bit messy as we don't easily know where he is in the delivery
++ * of possible multiple signals.  We are to give him the overrun on the
++ * last delivery.  If we have another pending, we want to make sure we
++ * use the last and not the current.  If there is not another pending
++ * then he is current and gets the current overrun.  We search both the
++ * shared and local queue.
++ */
++
++asmlinkage int sys_timer_getoverrun(timer_t timer_id)
++{
++	struct k_itimer *timr;
++	int overrun, i;
++	struct sigqueue *q;
++	struct sigpending *sig_queue;
++	struct task_struct * t;
++
++	timr = lock_timer( timer_id);
++	if (!timr) return -EINVAL;
++
++	t = timr->it_process;
++	overrun = timr->it_overrun;
++	spin_lock_irq(&t->sig->siglock);
++	for (sig_queue = &t->sig->shared_pending, i = 2; i; 
++	     sig_queue = &t->pending, i--){
++		for (q = sig_queue->head; q; q = q->next) {
++			if ((q->info.si_code == SI_TIMER) &&
++			    (q->info.si_tid == timr->it_id)) {
++
++				overrun = timr->it_overrun_last;
++				goto out;
++			}
++		}
++	}
++ out:
++	spin_unlock_irq(&t->sig->siglock);
++	
++	unlock_timer(timr);
++
++	return overrun;
++}
++/* Adjust for absolute time */
++/*
++ * If absolute time is given and it is not CLOCK_MONOTONIC, we need to
++ * adjust for the offset between the timer clock (CLOCK_MONOTONIC) and
++ * what ever clock he is using.
++ *
++ * If it is relative time, we need to add the current (CLOCK_MONOTONIC)
++ * time to it to get the proper time for the timer.
++ */
++static int  adjust_abs_time(struct k_clock *clock,struct timespec *tp, int abs)
++{
++	struct timespec now;
++	struct timespec oc;
++	do_posix_clock_monotonic_gettime(&now);
++
++	if ( abs &&
++	     (posix_clocks[CLOCK_MONOTONIC].clock_get == clock->clock_get)){ 
++	}else{
++
++		if (abs){
++			do_posix_gettime(clock,&oc);
++		}else{
++			oc.tv_nsec = oc.tv_sec =0;
++		}
++		tp->tv_sec += now.tv_sec - oc.tv_sec;
++		tp->tv_nsec += now.tv_nsec - oc.tv_nsec;
++
++		/* 
++		 * Normalize...
++		 */
++		if (( tp->tv_nsec - NSEC_PER_SEC) >= 0){
++			tp->tv_nsec -= NSEC_PER_SEC;
++			tp->tv_sec++;
++		}
++		if (( tp->tv_nsec ) < 0){
++			tp->tv_nsec += NSEC_PER_SEC;
++			tp->tv_sec--;
++		}
++	}
++	/*
++	 * Check if the requested time is prior to now (if so set now) or
++	 * is more than the timer code can handle (if so we error out).
++	 * The (unsigned) catches the case of prior to "now" with the same
++	 * test.  Only on failure do we sort out what happened, and then
++	 * we use the (unsigned) to error out negative seconds.
++	 */
++	if ((unsigned)(tp->tv_sec - now.tv_sec) > (MAX_JIFFY_OFFSET / HZ)){
++		if ( (unsigned)tp->tv_sec < now.tv_sec){
++			tp->tv_sec = now.tv_sec;
++			tp->tv_nsec = now.tv_nsec;
++		}else{
++			// tp->tv_sec = now.tv_sec + (MAX_JIFFY_OFFSET / HZ);
++			/*
++			 * This is a considered response, not exactly in
++			 * line with the standard (in fact it is silent on
++			 * possible overflows).  We assume such a large 
++			 * value is ALMOST always a programming error and
++			 * try not to compound it by setting a really dumb
++			 * value.
++			 */ 
++			return -EINVAL;
++		}
++	}
++	return 0;
++}
++
++/* Set a POSIX.1b interval timer. */
++/* timr->it_lock is taken. */
++static inline int do_timer_settime(struct k_itimer *timr, int flags,
++				   struct itimerspec *new_setting,
++				   struct itimerspec *old_setting)
++{
++	struct k_clock * clock = &posix_clocks[timr->it_clock];
++
++	if (old_setting) {
++		do_timer_gettime(timr, old_setting);
++	}
++
++	/* disable the timer */
++	timr->it_incr = 0;
++	/* 
++	 * careful here.  If smp we could be in the "fire" routine which will
++	 * be spinning as we hold the lock.  But this is ONLY an SMP issue.
++	 */
++#ifdef CONFIG_SMP
++	if ( timer_active(timr) && ! del_timer(&timr->it_timer)){
++		/*
++		 * It can only be active if on an other cpu.  Since
++		 * we have cleared the interval stuff above, it should
++		 * clear once we release the spin lock.  Of course once
++		 * we do that anything could happen, including the 
++		 * complete melt down of the timer.  So return with 
++		 * a "retry" exit status.
++		 */
++		return TIMER_RETRY;
++	}
++	set_timer_inactive(timr);
++#else
++	del_timer(&timr->it_timer);
++#endif
++	/* switch off the timer when it_value is zero */
++	if ((new_setting->it_value.tv_sec == 0) &&
++	    (new_setting->it_value.tv_nsec == 0)) {
++		timr->it_timer.expires = 0;
++		return 0;
++	}
++
++	if ((flags & TIMER_ABSTIME) && 
++	    (clock->clock_get != do_posix_clock_monotonic_gettime)) {
++		//timr->it_timer.abs = TIMER_ABSTIME;
++	}else{
++		// timr->it_timer.abs = 0;
++	}
++	if( adjust_abs_time(clock,
++			    &new_setting->it_value,
++			    flags & TIMER_ABSTIME)){
++		return -EINVAL;
++	}
++	tstotimer(new_setting,timr);
++
++	/*
++	 * For some reason the timer does not fire immediately if expires is
++	 * equal to jiffies, so the timer callback function is called directly.
++	 */
++	if (timr->it_timer.expires == jiffies) {
++		posix_timer_fire(timr);
++		return 0;
++	}
++	timr->it_overrun_deferred = 
++		timr->it_overrun_last = 
++		timr->it_overrun = 0;
++	add_timer(&timr->it_timer);
++	return 0;
++}
++
++
++/* Set a POSIX.1b interval timer */
++asmlinkage int sys_timer_settime(timer_t timer_id, int flags,
++				 const struct itimerspec *new_setting,
++				 struct itimerspec *old_setting)
++{
++	struct k_itimer *timr;
++	struct itimerspec new_spec, old_spec;
++	int error = 0;
++	struct itimerspec *rtn = old_setting ? &old_spec : NULL;
++
++
++	if (new_setting == NULL) {
++		return -EINVAL;
++	}
++
++	if (copy_from_user(&new_spec, new_setting, sizeof(new_spec))) {
++		return -EFAULT;
++	}
++
++	if ((!good_timespec(&new_spec.it_interval)) ||
++	    (!good_timespec(&new_spec.it_value))) {
++		return -EINVAL;
++	}
++ retry:
++	timr = lock_timer( timer_id);
++	if (!timr) return -EINVAL;
++
++	if (! posix_clocks[timr->it_clock].timer_set) {
++		error = do_timer_settime(timr, flags, &new_spec, rtn );
++	}else{
++		error = posix_clocks[timr->it_clock].timer_set(timr, 
++							       flags, 
++							       &new_spec, 
++							       rtn );
++	}
++	unlock_timer(timr);
++	if ( error == TIMER_RETRY){
++		rtn = NULL;	    // We already got the old time...
++		goto retry;
++	}
++
++	if (old_setting && ! error) {
++		if (copy_to_user(old_setting, &old_spec, sizeof(old_spec))) {
++			error = -EFAULT;
++		}
++	}
++
++	return error;
++}
++
++static inline int do_timer_delete(struct k_itimer  *timer)
++{
++	timer->it_incr = 0;
++#ifdef CONFIG_SMP
++	if ( timer_active(timer) && ! del_timer(&timer->it_timer)){
++		/*
++		 * It can only be active if on an other cpu.  Since
++		 * we have cleared the interval stuff above, it should
++		 * clear once we release the spin lock.  Of course once
++		 * we do that anything could happen, including the 
++		 * complete melt down of the timer.  So return with 
++		 * a "retry" exit status.
++		 */
++		return TIMER_RETRY;
++	}
++#else
++	del_timer(&timer->it_timer);
++#endif
++	return 0;
++}
++
++/* Delete a POSIX.1b interval timer. */
++asmlinkage int sys_timer_delete(timer_t timer_id)
++{
++	struct k_itimer *timer;
++
++#ifdef CONFIG_SMP
++	int error;
++ retry_delete:
++#endif
++
++	timer = lock_timer( timer_id);
++	if (!timer) return -EINVAL;
++
++#ifdef CONFIG_SMP
++	error =	 p_timer_del(&posix_clocks[timer->it_clock],timer);
++
++	if (error == TIMER_RETRY) {
++		unlock_timer(timer);
++		goto retry_delete;
++	}
++#else
++	p_timer_del(&posix_clocks[timer->it_clock],timer);
++#endif
++
++	task_lock(timer->it_process);
++
++	list_del(&timer->list);
++
++	task_unlock(timer->it_process);
++
++	/*
++	 * This keeps any tasks waiting on the spin lock from thinking
++	 * they got something (see the lock code above).
++	 */
++	timer->it_process = NULL;
++	unlock_timer(timer);
++	release_posix_timer(timer);
++	return 0;
++}
++/*
++ * return  timer owned by the process, used by exit_itimers
++ */
++static inline void itimer_delete(struct k_itimer *timer)
++{
++	if (sys_timer_delete(timer->it_id)){
++		BUG();
++	}
++}
++/*
++ * This is exported to exit and exec
++ */
++void exit_itimers(struct task_struct *tsk)
++{
++	struct	k_itimer *tmr;
++
++	task_lock(tsk);
++	while ( ! list_empty(&tsk->posix_timers)){
++		tmr = list_entry(tsk->posix_timers.next,struct k_itimer,list);
++		task_unlock(tsk);
++		itimer_delete(tmr);
++		task_lock(tsk);
++	}
++	task_unlock(tsk);
++}
++
++/*
++ * And now for the "clock" calls
++
++ * These functions are called both from timer functions (with the timer
++ * spin_lock_irq() held and from clock calls with no locking.	They must
++ * use the save flags versions of locks.
++ */
++static int do_posix_gettime(struct k_clock *clock, struct timespec *tp)
++{
++
++	if (clock->clock_get){
++		return clock->clock_get(tp);
++	}
++
++	do_gettimeofday((struct timeval*)tp);
++	tp->tv_nsec *= NSEC_PER_USEC;
++	return 0;
++}
++
++/*
++ * We do ticks here to avoid the irq lock ( they take sooo long)
++ * Note also that the while loop assures that the sub_jiff_offset
++ * will be less than a jiffie, thus no need to normalize the result.
++ * Well, not really, if called with ints off :(
++ */
++
++int do_posix_clock_monotonic_gettime(struct timespec *tp)
++{
++	long sub_sec;
++	u64 jiffies_64_f;
++
++#if (BITS_PER_LONG > 32) 
++
++	jiffies_64_f = jiffies_64;
++
++#elif defined(CONFIG_SMP)
++
++	/* Tricks don't work here, must take the lock.	 Remember, called
++	 * above from both timer and clock system calls => save flags.
++	 */
++	{
++		unsigned long flags;
++		read_lock_irqsave(&xtime_lock, flags);
++		jiffies_64_f = jiffies_64;
++
++
++		read_unlock_irqrestore(&xtime_lock, flags);
++	}
++#elif ! defined(CONFIG_SMP) && (BITS_PER_LONG < 64)
++	unsigned long jiffies_f;
++	do {
++		jiffies_f = jiffies;
++		barrier();
++		jiffies_64_f = jiffies_64;
++	} while (unlikely(jiffies_f != jiffies));
++
++
++#endif
++	tp->tv_sec = div_long_long_rem(jiffies_64_f,HZ,&sub_sec);
++
++	tp->tv_nsec = sub_sec * (NSEC_PER_SEC / HZ);
++	return 0;
++}
++
++int do_posix_clock_monotonic_settime(struct timespec *tp)
++{
++	return -EINVAL;
++}
++
++asmlinkage int sys_clock_settime(clockid_t which_clock,const struct timespec *tp)
++{
++	struct timespec new_tp;
++
++	if ((unsigned)which_clock >= MAX_CLOCKS || 
++	    ! posix_clocks[which_clock].res) return -EINVAL;
++	if (copy_from_user(&new_tp, tp, sizeof(*tp)))
++		return -EFAULT;
++	if ( posix_clocks[which_clock].clock_set){
++		return posix_clocks[which_clock].clock_set(&new_tp);
++	}
++	new_tp.tv_nsec /= NSEC_PER_USEC;
++	return do_sys_settimeofday((struct timeval*)&new_tp,NULL);
++}
++asmlinkage int sys_clock_gettime(clockid_t which_clock, struct timespec *tp)
++{
++	struct timespec rtn_tp;
++	int error = 0;
++	
++	if ((unsigned)which_clock >= MAX_CLOCKS || 
++	    ! posix_clocks[which_clock].res) return -EINVAL;
++
++	error = do_posix_gettime(&posix_clocks[which_clock],&rtn_tp);
++	 
++	if ( ! error) {
++		if (copy_to_user(tp, &rtn_tp, sizeof(rtn_tp))) {
++			error = -EFAULT;
++		}
++	}
++	return error;
++		 
++}
++asmlinkage int	 sys_clock_getres(clockid_t which_clock, struct timespec *tp)
++{
++	struct timespec rtn_tp;
++
++	if ((unsigned)which_clock >= MAX_CLOCKS || 
++	    ! posix_clocks[which_clock].res) return -EINVAL;
++
++	rtn_tp.tv_sec = 0;
++	rtn_tp.tv_nsec = posix_clocks[which_clock].res;
++	if ( tp){
++		if (copy_to_user(tp, &rtn_tp, sizeof(rtn_tp))) {
++			return -EFAULT;
++		}
++	}
++	return 0;
++	 
++}
++static void nanosleep_wake_up(unsigned long __data)
++{
++	struct task_struct * p = (struct task_struct *) __data;
++
++	wake_up_process(p);
++}
++/*
++ * The standard says that an absolute nanosleep call MUST wake up at
++ * the requested time in spite of clock settings.  Here is what we do:
++ * For each nanosleep call that needs it (only absolute and not on 
++ * CLOCK_MONOTONIC* (as it can not be set)) we thread a little structure
++ * into the "nanosleep_abs_list".  All we need is the task_struct pointer.
++ * When ever the clock is set we just wake up all those tasks.	 The rest
++ * is done by the while loop in clock_nanosleep().
++
++ * On locking, clock_was_set() is called from update_wall_clock which 
++ * holds (or has held for it) a write_lock_irq( xtime_lock) and is 
++ * called from the timer bh code.  Thus we need the irq save locks.
++ */
++spinlock_t nanosleep_abs_list_lock = SPIN_LOCK_UNLOCKED;
++
++struct list_head nanosleep_abs_list =	LIST_HEAD_INIT(nanosleep_abs_list);
++
++struct abs_struct {
++	struct list_head list;
++	struct task_struct *t;
++};
++
++void clock_was_set(void)
++{
++	struct list_head *pos;
++	unsigned long flags;
++
++	spin_lock_irqsave(&nanosleep_abs_list_lock, flags);
++	list_for_each(pos, &nanosleep_abs_list){
++		wake_up_process(list_entry(pos,struct abs_struct,list)->t);
++	}
++	spin_unlock_irqrestore(&nanosleep_abs_list_lock, flags);
++}
++		 
++#if 0	
++// This #if 0 is to keep the pretty printer/ formatter happy so the indents will
++// correct below.
++  
++// The NANOSLEEP_ENTRY macro is defined in  asm/signal.h and
++// is structured to allow code as well as entry definitions, so that when
++// we get control back here the entry parameters will be available as expected.
++// Some systems may find these paramerts in other ways than as entry parms, 
++// for example, struct pt_regs *regs is defined in i386 as the address of the
++// first parameter, where as other archs pass it as one of the paramerters.
++
++asmlinkage long sys_clock_nanosleep(void)
++{
++#endif
++	CLOCK_NANOSLEEP_ENTRY(	struct timespec t;
++				struct timespec tsave;
++				struct timer_list new_timer;
++				struct abs_struct abs_struct = {list: {next :0}};
++				int abs; 
++				int rtn = 0;
++				int active;)
++
++		//asmlinkage int  sys_clock_nanosleep(clockid_t which_clock, 
++		//			   int flags,
++		//			   const struct timespec *rqtp,
++		//			   struct timespec *rmtp)
++		//{
++		if ((unsigned)which_clock >= MAX_CLOCKS || 
++		    ! posix_clocks[which_clock].res) return -EINVAL;
++
++	if(copy_from_user(&tsave, rqtp, sizeof(struct timespec)))
++		return -EFAULT;
++
++	if ((unsigned)tsave.tv_nsec >= NSEC_PER_SEC || tsave.tv_sec < 0)
++		return -EINVAL;
++	
++	init_timer(&new_timer);
++	new_timer.expires = 0;
++	new_timer.data = (unsigned long)current;
++	new_timer.function = nanosleep_wake_up;
++	abs = flags & TIMER_ABSTIME;
++
++	if ( abs && (posix_clocks[which_clock].clock_get != 
++		     posix_clocks[CLOCK_MONOTONIC].clock_get) ){
++		spin_lock_irq(&nanosleep_abs_list_lock);
++		list_add(&abs_struct.list, &nanosleep_abs_list);
++		abs_struct.t = current;
++		spin_unlock_irq(&nanosleep_abs_list_lock);
++	}
++	do {
++		t = tsave;
++		if ( (abs || !new_timer.expires) &&
++		     !(rtn = adjust_abs_time(&posix_clocks[which_clock],
++					     &t,
++					     abs))){
++			/*
++			 * On error, we don't set up the timer so
++			 * we don't arm the timer so
++			 * del_timer_sync() will return 0, thus
++			 * active is zero... and so it goes.
++			 */
++
++				tstojiffie(&t,
++					   posix_clocks[which_clock].res,
++					   &new_timer.expires);
++		}
++		if (new_timer.expires ){
++			current->state = TASK_INTERRUPTIBLE;
++			add_timer(&new_timer);
++
++			schedule();
++		}
++	}
++	while((active = del_timer_sync(&new_timer)) && !_do_signal());
++	 
++	if ( abs_struct.list.next ){
++		spin_lock_irq(&nanosleep_abs_list_lock);
++		list_del(&abs_struct.list);
++		spin_unlock_irq(&nanosleep_abs_list_lock);
++	}
++	if (active && rmtp ) {
++		unsigned long jiffies_f = jiffies;
++
++		jiffies_to_timespec(new_timer.expires - jiffies_f, &t);
++
++		while (t.tv_nsec < 0){
++			t.tv_nsec += NSEC_PER_SEC;
++			t.tv_sec--;
++		} 
++		if (t.tv_sec < 0){
++			t.tv_sec = 0;
++			t.tv_nsec = 1;
++		}
++	}else{
++		t.tv_sec = 0;
++		t.tv_nsec = 0;
++	}
++	if (!rtn && !abs && rmtp && 
++	    copy_to_user(rmtp, &t, sizeof(struct timespec))){
++		return -EFAULT;
++	}
++	if (active) return -EINTR;
++
++	return rtn;
++}
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/kernel/signal.c linux/kernel/signal.c
+--- linux-2.5.46-bk1-kb/kernel/signal.c	Wed Oct 30 22:45:12 2002
++++ linux/kernel/signal.c	Tue Nov  5 20:56:36 2002
+@@ -424,8 +424,6 @@
+ 		if (!collect_signal(sig, pending, info))
+ 			sig = 0;
+ 				
+-		/* XXX: Once POSIX.1b timers are in, if si_code == SI_TIMER,
+-		   we need to xchg out the timer overrun values.  */
+ 	}
+ 	recalc_sigpending();
  
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
-diff -uNr linux-2.5.46/kernel/kexec.c linux-2.5.46.x86kexec/kernel/kexec.c
---- linux-2.5.46/kernel/kexec.c	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.46.x86kexec/kernel/kexec.c	Tue Nov  5 19:05:33 2002
-@@ -0,0 +1,577 @@
-+#include <linux/mm.h>
-+#include <linux/file.h>
-+#include <linux/slab.h>
-+#include <linux/fs.h>
-+#include <linux/version.h>
-+#include <linux/compile.h>
-+#include <linux/kexec.h>
-+#include <net/checksum.h>
-+#include <asm/page.h>
-+#include <asm/uaccess.h>
-+#include <asm/io.h>
+@@ -692,6 +690,7 @@
+ specific_send_sig_info(int sig, struct siginfo *info, struct task_struct *t, int shared)
+ {
+ 	int ret;
++	 struct sigpending *sig_queue;
+ 
+ 	if (!irqs_disabled())
+ 		BUG();
+@@ -725,20 +724,43 @@
+ 	if (ignored_signal(sig, t))
+ 		goto out;
+ 
++	 sig_queue = shared ? &t->sig->shared_pending : &t->pending;
 +
-+/* As designed kexec can only use the memory that you don't
-+ * need to use kmap to access.  Memory that you can use virt_to_phys()
-+ * on an call get_free_page to allocate.
-+ *
-+ * In the best case you need one page for the transition from
-+ * virtual to physical memory.  And this page must be identity
-+ * mapped.  Which pretty much leaves you with pages < PAGE_OFFSET
-+ * as you can only mess with user pages.
-+ * 
-+ * As the only subset of memory that it is easy to restrict allocation
-+ * to is the physical memory mapped into the kernel, I do that
-+ * with get_free_page and hope it is enough.
-+ *
-+ * I don't know of a good way to do this calcuate which pages get_free_page
-+ * will return independent of architecture so I depend on
-+ * <asm/kexec.h> to properly set 
-+ * KEXEC_SOURCE_MEMORY_LIMIT and KEXEC_DESTINATION_MEMORY_LIMIT
-+ * 
-+ */
+ #define LEGACY_QUEUE(sigptr, sig) \
+ 	(((sig) < SIGRTMIN) && sigismember(&(sigptr)->signal, (sig)))
+-
++	 /*
++	  * Support queueing exactly one non-rt signal, so that we
++	  * can get more detailed information about the cause of
++	  * the signal.
++	  */
++	 if (LEGACY_QUEUE(sig_queue, sig))
++		 goto out;
++	 /*
++	  * In case of a POSIX timer generated signal you must check 
++	 * if a signal from this timer is already in the queue.
++	 * If that is true, the overrun count will be increased in
++	 * itimer.c:posix_timer_fn().
++	  */
 +
-+void kimage_init(struct kimage *image)
-+{
-+	memset(image, 0, sizeof(*image));
-+	image->head = 0;
-+	image->entry = &image->head;
-+	image->last_entry = &image->head;
-+}
-+static int kimage_add_entry(struct kimage *image, kimage_entry_t entry)
-+{
-+	if (image->offset != 0) {
-+		image->entry++;
-+	}
-+	if (image->entry == image->last_entry) {
-+		kimage_entry_t *ind_page;
-+		ind_page = (void *)__get_free_page(GFP_KERNEL);
-+		if (!ind_page) {
-+			return -ENOMEM;
-+		}
-+		*image->entry = virt_to_phys(ind_page) | IND_INDIRECTION;
-+		image->entry = ind_page;
-+		image->last_entry = 
-+			ind_page + ((PAGE_SIZE/sizeof(kimage_entry_t)) - 1);
-+	}
-+	*image->entry = entry;
-+	image->entry++;
-+	image->offset = 0;
-+	return 0;
-+}
-+
-+static int kimage_verify_destination(unsigned long destination)
-+{
-+	int result;
-+	
-+	/* Assume the page is bad unless we pass the checks */
-+	result = -EADDRNOTAVAIL;
-+
-+	if (destination >= KEXEC_DESTINATION_MEMORY_LIMIT) {
-+		goto out;
-+	}
-+
-+	/* NOTE: The caller is responsible for making certain we
-+	 * don't attempt to load the new image into invalid or
-+	 * reserved areas of RAM.
-+	 */
-+	result =  0;
-+out:
-+	return result;
-+}
-+
-+static int kimage_set_destination(
-+	struct kimage *image, unsigned long destination) 
-+{
-+	int result;
-+	destination &= PAGE_MASK;
-+	result = kimage_verify_destination(destination);
-+	if (result) {
-+		return result;
-+	}
-+	result = kimage_add_entry(image, destination | IND_DESTINATION);
-+	if (result == 0) {
-+		image->destination = destination;
-+	}
-+	return result;
-+}
-+
-+
-+static int kimage_add_page(struct kimage *image, unsigned long page)
-+{
-+	int result;
-+	page &= PAGE_MASK;
-+	result = kimage_verify_destination(image->destination);
-+	if (result) {
-+		return result;
-+	}
-+	result = kimage_add_entry(image, page | IND_SOURCE);
-+	if (result == 0) {
-+		image->destination += PAGE_SIZE;
-+	}
-+	return result;
-+}
-+
-+
-+static int kimage_terminate(struct kimage *image)
-+{
-+	int result;
-+	result = kimage_add_entry(image, IND_DONE);
-+	if (result == 0) {
-+		/* Point at the terminating element */
-+		image->entry--;
-+	}
-+	return result;
-+}
-+
-+#define for_each_kimage_entry(image, ptr, entry) \
-+	for (ptr = &image->head; (entry = *ptr) && !(entry & IND_DONE); \
-+		ptr = (entry & IND_INDIRECTION)? \
-+			phys_to_virt((entry & PAGE_MASK)): ptr +1)
-+
-+void kimage_free(struct kimage *image)
-+{
-+	kimage_entry_t *ptr, entry;
-+	kimage_entry_t ind = 0;
-+	for_each_kimage_entry(image, ptr, entry) {
-+		if (entry & IND_INDIRECTION) {
-+			/* Free the previous indirection page */
-+			if (ind & IND_INDIRECTION) {
-+				free_page((unsigned long)phys_to_virt(ind & PAGE_MASK));
-+			}
-+			/* Save this indirection page until we are
-+			 * done with it.
-+			 */
-+			ind = entry;
-+		}
-+		else if (entry & IND_SOURCE) {
-+			free_page((unsigned long)phys_to_virt(entry & PAGE_MASK));
-+		}
-+	}
-+}
-+
-+static int kimage_is_destination_page(
-+	struct kimage *image, unsigned long page)
-+{
-+	kimage_entry_t *ptr, entry;
-+	unsigned long destination;
-+	destination = 0;
-+	page &= PAGE_MASK;
-+	for_each_kimage_entry(image, ptr, entry) {
-+		if (entry & IND_DESTINATION) {
-+			destination = entry & PAGE_MASK;
-+		}
-+		else if (entry & IND_SOURCE) {
-+			if (page == destination) {
-+				return 1;
-+			}
-+			destination += PAGE_SIZE;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int kimage_get_unused_area(
-+	struct kimage *image, unsigned long size, unsigned long align,
-+	unsigned long *area)
-+{
-+	/* Walk through mem_map and find the first chunk of
-+	 * ununsed memory that is at least size bytes long.
-+	 */
-+	/* Since the kernel plays with Page_Reseved mem_map is less
-+	 * than ideal for this purpose, but it will give us a correct
-+	 * conservative estimate of what we need to do. 
-+	 */
-+	/* For now we take advantage of the fact that all kernel pages
-+	 * are marked with PG_resereved to allocate a large
-+	 * contiguous area for the reboot code buffer.
-+	 */
-+	unsigned long addr;
-+	unsigned long start, end;
-+	unsigned long mask;
-+	mask = ((1 << align) -1);
-+	start = end = PAGE_SIZE;
-+	for(addr = PAGE_SIZE; addr < KEXEC_SOURCE_MEMORY_LIMIT; addr += PAGE_SIZE) {
-+		struct page *page;
-+		unsigned long aligned_start;
-+		page = virt_to_page(phys_to_virt(addr));
-+		if (PageReserved(page) ||
-+			kimage_is_destination_page(image, addr)) {
-+			/* The current page is reserved so the start &
-+			 * end of the next area must be atleast at the
-+			 * next page.
-+			 */
-+			start = end = addr + PAGE_SIZE;
-+		}
-+		else {
-+			/* O.k.  The current page isn't reserved
-+			 * so push up the end of the area.
-+			 */
-+			end = addr;
-+		}
-+		aligned_start = (start + mask) & ~mask;
-+		if (aligned_start > start) {
-+			continue;
-+		}
-+		if (aligned_start > end) {
-+			continue;
-+		}
-+		if (end - aligned_start >= size) {
-+			*area = aligned_start;
-+			return 0;
-+		}
-+	}
-+	*area = 0;
-+	return -ENOSPC;
-+}
-+
-+static kimage_entry_t *kimage_dst_conflict(
-+	struct kimage *image, unsigned long page, kimage_entry_t *limit)
-+{
-+	kimage_entry_t *ptr, entry;
-+	unsigned long destination = 0;
-+	for_each_kimage_entry(image, ptr, entry) {
-+		if (ptr == limit) {
-+			return 0;
-+		}
-+		else if (entry & IND_DESTINATION) {
-+			destination = entry & PAGE_MASK;
-+		}
-+		else if (entry & IND_SOURCE) {
-+			if (page == destination) {
-+				return ptr;
-+			}
-+			destination += PAGE_SIZE;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static kimage_entry_t *kimage_src_conflict(
-+	struct kimage *image, unsigned long destination, kimage_entry_t *limit)
-+{
-+	kimage_entry_t *ptr, entry;
-+	for_each_kimage_entry(image, ptr, entry) {
-+		unsigned long page;
-+		if (ptr == limit) {
-+			return 0;
-+		}
-+		else if (entry & IND_DESTINATION) {
-+			/* nop */
-+		}
-+		else if (entry & IND_DONE) {
-+			/* nop */
-+		}
-+		else {
-+			/* SOURCE & INDIRECTION */
-+			page = entry & PAGE_MASK;
-+			if (page == destination) {
-+				return ptr;
++	if (((unsigned long)info > 1) && (info->si_code == SI_TIMER)) {
++		struct sigqueue *q;
++		for (q = sig_queue->head; q; q = q->next) {
++			if ((q->info.si_code == SI_TIMER) &&
++			    (q->info.si_tid == info->si_tid)) {
++				 q->info.si_overrun += info->si_overrun + 1;
++				/* 
++				  * this special ret value (1) is recognized
++				  * only by posix_timer_fn() in itimer.c
++				  */
++				ret = 1;
++				goto out;
 +			}
 +		}
 +	}
-+	return 0;
-+}
+ 	if (!shared) {
+-		/* Support queueing exactly one non-rt signal, so that we
+-		   can get more detailed information about the cause of
+-		   the signal. */
+-		if (LEGACY_QUEUE(&t->pending, sig))
+-			goto out;
+ 
+ 		ret = deliver_signal(sig, info, t);
+ 	} else {
+-		if (LEGACY_QUEUE(&t->sig->shared_pending, sig))
+-			goto out;
+ 		ret = send_signal(sig, info, &t->sig->shared_pending);
+ 	}
+ out:
+@@ -1418,8 +1440,9 @@
+ 		err |= __put_user(from->si_uid, &to->si_uid);
+ 		break;
+ 	case __SI_TIMER:
+-		err |= __put_user(from->si_timer1, &to->si_timer1);
+-		err |= __put_user(from->si_timer2, &to->si_timer2);
++		 err |= __put_user(from->si_tid, &to->si_tid);
++		 err |= __put_user(from->si_overrun, &to->si_overrun);
++		 err |= __put_user(from->si_ptr, &to->si_ptr);
+ 		break;
+ 	case __SI_POLL:
+ 		err |= __put_user(from->si_band, &to->si_band);
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.46-bk1-kb/kernel/timer.c linux/kernel/timer.c
+--- linux-2.5.46-bk1-kb/kernel/timer.c	Tue Nov  5 20:55:08 2002
++++ linux/kernel/timer.c	Tue Nov  5 21:37:01 2002
+@@ -48,12 +48,11 @@
+ 	struct list_head vec[TVR_SIZE];
+ } tvec_root_t;
+ 
+-typedef struct timer_list timer_t;
+ 
+ struct tvec_t_base_s {
+ 	spinlock_t lock;
+ 	unsigned long timer_jiffies;
+-	timer_t *running_timer;
++	struct timer_list *running_timer;
+ 	tvec_root_t tv1;
+ 	tvec_t tv2;
+ 	tvec_t tv3;
+@@ -69,7 +68,7 @@
+ /* Fake initialization needed to avoid compiler breakage */
+ static DEFINE_PER_CPU(struct tasklet_struct, timer_tasklet) = { NULL };
+ 
+-static void check_timer_failed(timer_t *timer)
++static void check_timer_failed(struct timer_list *timer)
+ {
+ 	static int whine_count;
+ 	if (whine_count < 16) {
+@@ -87,13 +86,13 @@
+ 	timer->magic = TIMER_MAGIC;
+ }
+ 
+-static inline void check_timer(timer_t *timer)
++static inline void check_timer(struct timer_list *timer)
+ {
+ 	if (timer->magic != TIMER_MAGIC)
+ 		check_timer_failed(timer);
+ }
+ 
+-static inline void internal_add_timer(tvec_base_t *base, timer_t *timer)
++static inline void internal_add_timer(tvec_base_t *base, struct timer_list *timer)
+ {
+ 	unsigned long expires = timer->expires;
+ 	unsigned long idx = expires - base->timer_jiffies;
+@@ -145,7 +144,7 @@
+  * Timers with an ->expired field in the past will be executed in the next
+  * timer tick. It's illegal to add an already pending timer.
+  */
+-void add_timer(timer_t *timer)
++void add_timer(struct timer_list *timer)
+ {
+ 	int cpu = get_cpu();
+ 	tvec_base_t *base = &per_cpu(tvec_bases, cpu);
+@@ -203,7 +202,7 @@
+  * (ie. mod_timer() of an inactive timer returns 0, mod_timer() of an
+  * active timer returns 1.)
+  */
+-int mod_timer(timer_t *timer, unsigned long expires)
++int mod_timer(struct timer_list *timer, unsigned long expires)
+ {
+ 	tvec_base_t *old_base, *new_base;
+ 	unsigned long flags;
+@@ -280,7 +279,7 @@
+  * (ie. del_timer() of an inactive timer returns 0, del_timer() of an
+  * active timer returns 1.)
+  */
+-int del_timer(timer_t *timer)
++int del_timer(struct timer_list *timer)
+ {
+ 	unsigned long flags;
+ 	tvec_base_t *base;
+@@ -319,7 +318,7 @@
+  *
+  * The function returns whether it has deactivated a pending timer or not.
+  */
+-int del_timer_sync(timer_t *timer)
++int del_timer_sync(struct timer_list *timer)
+ {
+ 	tvec_base_t *base;
+ 	int i, ret = 0;
+@@ -362,9 +361,9 @@
+ 	 * detach them individually, just clear the list afterwards.
+ 	 */
+ 	while (curr != head) {
+-		timer_t *tmp;
++		struct timer_list *tmp;
+ 
+-		tmp = list_entry(curr, timer_t, entry);
++		tmp = list_entry(curr, struct timer_list, entry);
+ 		if (tmp->base != base)
+ 			BUG();
+ 		next = curr->next;
+@@ -403,9 +402,9 @@
+ 		if (curr != head) {
+ 			void (*fn)(unsigned long);
+ 			unsigned long data;
+-			timer_t *timer;
++			struct timer_list *timer;
+ 
+-			timer = list_entry(curr, timer_t, entry);
++			timer = list_entry(curr, struct timer_list, entry);
+  			fn = timer->function;
+  			data = timer->data;
+ 
+@@ -507,6 +506,7 @@
+ 	if (xtime.tv_sec % 86400 == 0) {
+ 	    xtime.tv_sec--;
+ 	    time_state = TIME_OOP;
++	    clock_was_set();
+ 	    printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
+ 	}
+ 	break;
+@@ -515,6 +515,7 @@
+ 	if ((xtime.tv_sec + 1) % 86400 == 0) {
+ 	    xtime.tv_sec++;
+ 	    time_state = TIME_WAIT;
++	    clock_was_set();
+ 	    printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
+ 	}
+ 	break;
+@@ -971,7 +972,7 @@
+  */
+ signed long schedule_timeout(signed long timeout)
+ {
+-	timer_t timer;
++	struct timer_list timer;
+ 	unsigned long expire;
+ 
+ 	switch (timeout)
+@@ -1027,10 +1028,32 @@
+ 	return current->pid;
+ }
+ 
+-asmlinkage long sys_nanosleep(struct timespec *rqtp, struct timespec *rmtp)
++#if 0  
++// This #if 0 is to keep the pretty printer/ formatter happy so the indents will
++// correct below.  
++// The NANOSLEEP_ENTRY macro is defined in  asm/signal.h and
++// is structured to allow code as well as entry definitions, so that when
++// we get control back here the entry parameters will be available as expected.
++// Some systems may find these paramerts in other ways than as entry parms, 
++// for example, struct pt_regs *regs is defined in i386 as the address of the
++// first parameter, where as other archs pass it as one of the paramerters.
++asmlinkage long sys_nanosleep(void)
+ {
+-	struct timespec t;
+-	unsigned long expire;
++#endif
++	NANOSLEEP_ENTRY(	struct timespec t;
++				unsigned long expire;)
 +
-+static int kimage_get_off_destination_pages(struct kimage *image)
-+{
-+	kimage_entry_t *ptr, *cptr, entry;
-+	unsigned long buffer, page;
-+	unsigned long destination = 0;
++#ifndef FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP
++		// The following code expects rqtp, rmtp to be available 
++		// as a result of the above macro.  Also any regs needed 
++		// for the _do_signal() macro shoule be set up here.
 +
-+	/* Here we implement safe guards to insure that
-+	 * a source page is not copied to it's destination
-+	 * page before the data on the destination page is
-+	 * no longer useful.
-+	 *
-+	 * To make it work we actually wind up with a 
-+	 * stronger condition.  For every page considered
-+	 * it is either it's own destination page or it is
-+	 * not a destination page of any page considered.
-+	 *
-+	 * Invariants 
-+	 * 1. buffer is not a destination of a previous page.
-+	 * 2. page is not a destination of a previous page.
-+	 * 3. destination is not a previous source page.
-+	 *
-+	 * Result: Either a source page and a destination page 
-+	 * are the same or the page is not a destination page.
-+	 *
-+	 * These checks could be done when we allocate the pages,
-+	 * but doing it as a final pass allows us more freedom
-+	 * on how we allocate pages.
-+	 * 
-+	 * Also while the checks are necessary, in practice nothing
-+	 * happens.  The destination kernel wants to sit in the
-+	 * same physical addresses as the current kernel so we never
-+	 * actually allocate a destination page.
-+	 *
-+	 * BUGS: This is a O(N^2) algorithm.
-+	 */
++		//asmlinkage long sys_nanosleep(struct timespec *rqtp, 
++		//  struct timespec *rmtp)
++		//  {
++		//    struct timespec t;
++		//    unsigned long expire;
 +
-+	
-+	buffer = __get_free_page(GFP_KERNEL);
-+	if (!buffer) {
-+		return -ENOMEM;
-+	}
-+	buffer = virt_to_phys((void *)buffer);
-+	for_each_kimage_entry(image, ptr, entry) {
-+		/* Here we check to see if an allocated page */
-+		kimage_entry_t *limit;
-+		if (entry & IND_DESTINATION) {
-+			destination = entry & PAGE_MASK;
-+		}
-+		else if (entry & IND_INDIRECTION) {
-+			/* Indirection pages must include all of their
-+			 * contents in limit checking.
-+			 */
-+			limit = phys_to_virt(page + PAGE_SIZE - sizeof(*limit));
-+		}
-+		if (!((entry & IND_SOURCE) | (entry & IND_INDIRECTION))) {
-+			continue;
-+		}
-+		page = entry & PAGE_MASK;
-+		limit = ptr;
-+
-+		/* See if a previous page has the current page as it's 
-+		 * destination.
-+		 * i.e. invariant 2
-+		 */
-+		cptr = kimage_dst_conflict(image, page, limit);
-+		if (cptr) {
-+			unsigned long cpage;
-+ 			kimage_entry_t centry;
-+			centry = *cptr;
-+			cpage = centry & PAGE_MASK;
-+			memcpy(phys_to_virt(buffer), phys_to_virt(page), PAGE_SIZE);
-+			memcpy(phys_to_virt(page), phys_to_virt(cpage), PAGE_SIZE);
-+			*cptr = page | (centry & ~PAGE_MASK);
-+			*ptr = buffer | (entry & ~PAGE_MASK);
-+			buffer = cpage;
-+		}
-+		if (!(entry & IND_SOURCE)) {
-+			continue;
-+		}
-+
-+		/* See if a previous page is our destination page.
-+		 * If so claim it now.
-+		 * i.e. invariant 3
-+		 */
-+		cptr = kimage_src_conflict(image, destination, limit);
-+		if (cptr) {
-+			unsigned long cpage;
-+ 			kimage_entry_t centry;
-+			centry = *cptr;
-+			cpage = centry & PAGE_MASK;
-+			memcpy(phys_to_virt(buffer), phys_to_virt(cpage), PAGE_SIZE);
-+			memcpy(phys_to_virt(cpage), phys_to_virt(page), PAGE_SIZE);
-+			*cptr = buffer | (centry & ~PAGE_MASK);
-+			*ptr = cpage | ( entry & ~PAGE_MASK);
-+			buffer = page;
-+		}
-+		/* If the buffer is my destination page do the copy now 
-+		 * i.e. invariant 3 & 1
-+		 */
-+		if (buffer == destination) {
-+			memcpy(phys_to_virt(buffer), phys_to_virt(page), PAGE_SIZE);
-+			*ptr = buffer | (entry & ~PAGE_MASK);
-+			buffer = page;
-+		}
-+	}
-+	free_page((unsigned long)phys_to_virt(buffer));
-+	return 0;
-+}
-+
-+static int kimage_add_empty_pages(struct kimage *image,
-+	unsigned long len)
-+{
-+	unsigned long pos;
-+	int result;
-+	for(pos = 0; pos < len; pos += PAGE_SIZE) {
-+		char *page;
-+		result = -ENOMEM;
-+		page = (void *)__get_free_page(GFP_KERNEL);
-+		if (!page) {
-+			goto out;
-+		}
-+		result = kimage_add_page(image, virt_to_phys(page));
-+		if (result) {
-+			goto out;
-+		}
-+	}
-+	result = 0;
-+ out:
-+	return result;
-+}
-+
-+
-+static int kimage_load_segment(struct kimage *image,
-+	struct kexec_segment *segment)
-+{	
-+	unsigned long mstart;
-+	int result;
-+	unsigned long offset;
-+	unsigned long offset_end;
-+	unsigned char *buf;
-+
-+	result = 0;
-+	buf = segment->buf;
-+	mstart = (unsigned long)segment->mem;
-+
-+	offset_end = segment->memsz;
-+
-+	result = kimage_set_destination(image, mstart);
-+	if (result < 0) {
-+		goto out;
-+	}
-+	for(offset = 0;  offset < segment->memsz; offset += PAGE_SIZE) {
-+		char *page;
-+		size_t size, leader;
-+		page = (char *)__get_free_page(GFP_KERNEL);
-+		if (page == 0) {
-+			result  = -ENOMEM;
-+			goto out;
-+		}
-+		result = kimage_add_page(image, virt_to_phys(page));
-+		if (result < 0) {
-+			goto out;
-+		}
-+		if (segment->bufsz < offset) {
-+			/* We are past the end zero the whole page */
-+			memset(page, 0, PAGE_SIZE);
-+			continue;
-+		}
-+		size = PAGE_SIZE;
-+		leader = 0;
-+		if ((offset == 0)) {
-+			leader = mstart & ~PAGE_MASK;
-+		}
-+		if (leader) {
-+			/* We are on the first page zero the unused portion */
-+			memset(page, 0, leader);
-+			size -= leader;
-+			page += leader;
-+		}
-+		if (size > (segment->bufsz - offset)) {
-+			size = segment->bufsz - offset;
-+		}
-+		result = copy_from_user(page, buf + offset, size);
-+		if (result) {
-+			result = (result < 0)?result : -EIO;
-+			goto out;
-+		}
-+		if (size < (PAGE_SIZE - leader)) {
-+			/* zero the trailing part of the page */
-+			memset(page + size, 0, (PAGE_SIZE - leader) - size);
-+		}
-+	}
-+ out:
-+	return result;
-+}
-+
-+
-+/* do_kexec executes a new kernel 
-+ */
-+int do_kexec(unsigned long start, long nr_segments,
-+	struct kexec_segment *arg_segments, struct kimage *image)
-+{
-+	struct kexec_segment *segments;
-+	size_t segment_bytes;
-+	int i;
-+
-+	int result; 
-+	unsigned long reboot_code_buffer;
-+	kimage_entry_t *end;
-+
-+	/* Initialize variables */
-+	segments = 0;
-+
-+	/* We only trust the superuser with rebooting the system. */
-+	if (nr_segments <= 0) {
-+		result = -EINVAL;
-+		goto out;
-+	}
-+	segment_bytes = nr_segments * sizeof(*segments);
-+	segments = kmalloc(GFP_KERNEL, segment_bytes);
-+	if (segments == 0) {
-+		result = -ENOMEM;
-+		goto out;
-+	}
-+	result = copy_from_user(segments, arg_segments, segment_bytes);
-+	if (result) {
-+		goto out;
-+	}
-+
-+	/* Read in the data from user space */
-+	image->start = start;
-+	for(i = 0; i < nr_segments; i++) {
-+		result = kimage_load_segment(image, &segments[i]);
-+		if (result) {
-+			goto out;
-+		}
-+	}
-+	
-+	/* Terminate early so I can get a place holder. */
-+	result = kimage_terminate(image);
-+	if (result)
-+		goto out;
-+	end = image->entry;
-+
-+	/* Usage of the reboot code buffer is subtle.  We first
-+	 * find a continguous area of ram, that is not one
-+	 * of our destination pages.  We do not allocate the ram.
-+	 *
-+	 * The algorithm to make certain we do not have address
-+	 * conflicts requires each destination region to have some
-+	 * backing store so we allocate abitrary source pages.
-+	 *
-+	 * Later in machine_kexec when we copy data to the
-+	 * reboot_code_buffer it still may be allocated for other
-+	 * purposes, but we do know there are no source or destination
-+	 * pages in that area.  And since the rest of the kernel
-+	 * is already shutdown those pages are free for use,
-+	 * regardless of their page->count values.
-+	 *
-+	 * The kernel mapping is of the reboot code buffer is passed to
-+	 * the machine dependent code.  If it needs something else
-+	 * it is free to set that up.
-+	 */
-+	result = kimage_get_unused_area(
-+		image, KEXEC_REBOOT_CODE_SIZE, KEXEC_REBOOT_CODE_ALIGN,
-+		&reboot_code_buffer);
-+	if (result) 
-+		goto out;
-+
-+	/* Allocating pages we should never need  is silly but the
-+	 * code won't work correctly unless we have dummy pages to
-+	 * work with. 
-+	 */
-+	result = kimage_set_destination(image, reboot_code_buffer);
-+	if (result) 
-+		goto out;
-+	result = kimage_add_empty_pages(image, KEXEC_REBOOT_CODE_SIZE);
-+	if (result)
-+		goto out;
-+	image->reboot_code_buffer = phys_to_virt(reboot_code_buffer);
-+
-+	result = kimage_terminate(image);
-+	if (result)
-+		goto out;
-+
-+	result = kimage_get_off_destination_pages(image);
-+	if (result)
-+		goto out;
-+
-+	/* Now hide the extra source pages for the reboot code buffer.
-+	 */
-+	image->entry = end;
-+	result = kimage_terminate(image);
-+	if (result)
-+		goto out;
-+
-+	result = 0;
-+ out:
-+	/* cleanup and exit */
-+	if (segments)	kfree(segments);
-+	return result;
-+}
-+
-diff -uNr linux-2.5.46/kernel/sys.c linux-2.5.46.x86kexec/kernel/sys.c
---- linux-2.5.46/kernel/sys.c	Tue Nov  5 19:03:56 2002
-+++ linux-2.5.46.x86kexec/kernel/sys.c	Tue Nov  5 19:05:33 2002
-@@ -16,6 +16,7 @@
- #include <linux/init.h>
- #include <linux/highuid.h>
- #include <linux/fs.h>
-+#include <linux/kexec.h>
- #include <linux/workqueue.h>
- #include <linux/device.h>
- #include <linux/times.h>
-@@ -432,6 +433,66 @@
- 	unlock_kernel();
+ 
+ 	if(copy_from_user(&t, rqtp, sizeof(struct timespec)))
+ 		return -EFAULT;
+@@ -1053,6 +1076,7 @@
+ 	}
  	return 0;
  }
-+
-+#ifdef CONFIG_KEXEC
-+/*
-+ * Exec Kernel system call: for obvious reasons only root may call it.
-+ * 
-+ * This call breaks up into three pieces.  
-+ * - A generic part which loads the new kernel from the current
-+ *   address space, and very carefully places the data in the
-+ *   allocated pages.
-+ *
-+ * - A generic part that interacts with the kernel and tells all of
-+ *   the devices to shut down.  Preventing on-going dmas, and placing
-+ *   the devices in a consistent state so a later kernel can
-+ *   reinitialize them.
-+ *
-+ * - A machine specific part that includes the syscall number
-+ *   and the copies the image to it's final destination.  And
-+ *   jumps into the image at entry.
-+ *
-+ * kexec does not sync, or unmount filesystems so if you need
-+ * that to happen you need to do that yourself.
-+ */
-+asmlinkage long sys_kexec(unsigned long entry, long nr_segments, 
-+	struct kexec_segment *segments)
-+{
-+	/* Am I using to much stack space here? */
-+	struct kimage image;
-+	int result;
-+		
-+	/* We only trust the superuser with rebooting the system. */
-+	if (!capable(CAP_SYS_BOOT))
-+		return -EPERM;
-+
-+	lock_kernel();
-+	kimage_init(&image);
-+	result = do_kexec(entry, nr_segments, segments, &image);
-+	if (result) {
-+		kimage_free(&image);
-+		unlock_kernel();
-+		return result;
-+	}
-+	
-+	/* The point of no return is here... */
-+	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
-+	system_running = 0;
-+	device_shutdown();
-+	printk(KERN_EMERG "Starting new kernel\n");
-+	machine_kexec(&image);
-+	/* We never get here but... */
-+	kimage_free(&image);
-+	unlock_kernel();
-+	return -EINVAL; 
-+}
-+#else
-+asmlinkage long sys_kexec(unsigned long entry, long nr_segments,
-+	struct kexec_segment *segments)
-+{
-+	return -ENOSYS;
-+}
-+#endif /* CONFIG_KEXEC */
++#endif // ! FOLD_NANO_SLEEP_INTO_CLOCK_NANO_SLEEP
  
- static void deferred_cad(void *dummy)
- {
+ /*
+  * sys_sysinfo - fill in sysinfo struct
+Binary files linux-2.5.46-bk1-kb/usr/gen_init_cpio and linux/usr/gen_init_cpio differ
+Binary files linux-2.5.46-bk1-kb/usr/initramfs_data.cpio.gz and linux/usr/initramfs_data.cpio.gz differ
+
+--------------1CE0925F42335E33505AA36D--
+

@@ -1,162 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265398AbSJRTJF>; Fri, 18 Oct 2002 15:09:05 -0400
+	id <S265295AbSJRS6p>; Fri, 18 Oct 2002 14:58:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265396AbSJRTHt>; Fri, 18 Oct 2002 15:07:49 -0400
-Received: from mimas.island.net ([199.60.19.4]:65037 "EHLO mimas.island.net")
-	by vger.kernel.org with ESMTP id <S265379AbSJRTHD>;
-	Fri, 18 Oct 2002 15:07:03 -0400
-Date: Fri, 18 Oct 2002 12:12:59 -0700 (PDT)
-From: andy barlak <andyb@island.net>
-Reply-To: <andyb@island.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.43 scsi _eh_ buslogic
-Message-ID: <Pine.LNX.4.30.0210181201060.29276-100000@tosko.alm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265200AbSJRS5c>; Fri, 18 Oct 2002 14:57:32 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:16638 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265623AbSJRS4h>; Fri, 18 Oct 2002 14:56:37 -0400
+Subject: [RFC] vsyscall_A0 LD_PRELOAD implementation
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>, andrea <andrea@suse.de>
+Cc: Michael Hohnbaum <hbaum@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       george anzinger <george@mvista.com>,
+       lkml <linux-kernel@vger.kernel.org>, ak@muc.de
+In-Reply-To: <1034915132.1681.144.camel@cog>
+References: <1034915132.1681.144.camel@cog>
+Content-Type: multipart/mixed; boundary="=-RQVzvqqFIUg9+1c7vtnW"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Oct 2002 11:54:01 -0700
+Message-Id: <1034967241.4048.9.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Buslogic is still not functional in 2.5.43.
-Info below is from successive boots on the same system.
-Two scsi HDs and one scsi cdrom.
-Removing the cdrom changes nothing.
+--=-RQVzvqqFIUg9+1c7vtnW
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Kernel 2.4.19 has run buslogic scsi just fine:
+Here's an example use of the vsyscall via LD_PRELOAD.
 
-SCSI subsystem driver Revision: 1.00
-PCI: Assigned IRQ 10 for device 00:08.0
-scsi: ***** BusLogic SCSI Driver Version 2.1.15 of 17 August 1998 *****
-scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
-scsi0:   Firmware Version: 5.06J, I/O Address: 0xE800, IRQ Channel: 10/Level
-scsi0:   PCI Bus: 0, Device: 8, Address: 0xED001000, Host Adapter SCSI ID: 7
-scsi0:   Parity Checking: Disabled, Extended Translation: Disabled
-scsi0:   Synchronous Negotiation: FFFFSFF#FFFFFFFF, Wide Negotiation: YYYYNYY#YY
-YYYYYY
-scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
-scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
-scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
-scsi0:   Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
-scsi0:   Error Recovery Strategy: Default, SCSI Bus Reset: Disabled
-scsi0:   SCSI Bus Termination: High Enabled, SCAM: Disabled
-scsi0: *** BusLogic BT-958 Initialized Successfully ***
-scsi0 : BusLogic BT-958
-  Vendor: CONNER    Model: CFP2107E  2.14GB  Rev: 1423
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-  Vendor: SEAGATE   Model: SX423451W         Rev: 9E18
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-  Vendor: TOSHIBA   Model: CD-ROM XM-5701TA  Rev: 0167
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-scsi0: Target 0: Queue Depth 28, Wide Synchronous at 20.0 MB/sec, offset 15
-scsi0: Target 1: Queue Depth 28, Wide Synchronous at 20.0 MB/sec, offset 15
-scsi0: Target 2: Queue Depth 3, Synchronous at 10.0 MB/sec, offset 8
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Attached scsi disk sdb at scsi0, channel 0, id 1, lun 0
-SCSI device sda: 4194303 512-byte hdwr sectors (2147 MB)
- sda: sda1 sda2
-SCSI device sdb: 45322644 512-byte hdwr sectors (23205 MB)
- sdb: sdb1 sdb2 sdb3
+Attached is an example library that can be LD_PRELOADED to alias glib's
+gettimeofday function w/ the vsyscall implementation. I've also included
+a quick performance test to give a rough idea of the savings this gives.
 
------------------------------
+Example run on a SMP P4 box:
+
+[jstultz@elm3b52 vsyscall_test]$ ./run.sh 
+Normal gettimeofday
+gettimeofday ( 1391621us / 1000000runs ) = 1.391620us
+vsyscall LD_PRELOAD gettimeofday
+gettimeofday ( 286567us / 1000000runs ) = 0.286567us
+
+So it looks like a pretty big win.
+
+thanks
+-john
 
 
+--=-RQVzvqqFIUg9+1c7vtnW
+Content-Disposition: attachment; filename=vsyscall_test.tar.gz
+Content-Type: application/x-gzip; name=vsyscall_test.tar.gz
+Content-Transfer-Encoding: base64
 
-Kernel 2.5.43 and earlier produce this dmesg info
-(edited  redundant lines):
+H4sIAB2rrz0AA+2X3W/aMBDAeSV/xYmqU8JHcCAh0iiTpnYPlSitOqG9TEJZYiCbSVDioNFp//vO
+CQkERCtNtFU3/x4S+e58/rj4zlnF69h1GJtwGvN25VkgxCS2beHbMCzD3HkXVIhtWV27Yxk9lBsm
+MewKWM8znTJJzJ0IoPI95gnjD0ftntK/UVal+Oct3T3lGMQgpNczj8a/Y9t5/LuG3UX7HumYFSCn
+nMQx/vP4n/mByxKPwkXMPT/U5x+Ukoj534RMWYW+B2pdfCCaGvMocTlwf0FXDqs3YU+gwQBU0aOu
+kZ9ThGKUx8P+xs2McmEZTj1nve8L+AoO/AF/0JRfSjUfn6+aKOkrv5XX3r43T/n83zg/6NRn9LRj
+PHX+u0Y3P/+mSUT+t0zTkuf/JcDQv1eqM9eF1vTu+hJakbcOnIWP7Rm08PkFLWBbFza28dyJqAeo
+Zq04xA60WdjEoW5AK4SSQCcoLCQhtBh6YR7L/M146LXEF6i7omfRVBSXUSfAGUYLqOs7mkPvMhf8
+DeXzvxOHE46Rnn/z6Pk3jG6vqP+2TdL6b3fk+X8JHq//67gtanB6AzjzsDQEFEbjm8n9ePQZjCx8
+heLm+vL+tpAqfsBh4fiBmpbuckUHselc1Plw2QQU9JWqsPfxnQSxPwswubAwmGUPjzLuoGrKQofD
+kkYuDTi2txZ8scR26WLxbjPGaDwcaqJzGKn+gPTBh4tiEdhqNDSlutcVZ7TtuO9VTHmjE+sKlzpf
+TWKKmWuQrWvT7m+1yb46yfTpwsRl6XDR2o7nera1OM1q41HbzK1S3WyR8JzumZYO1FbzZTcMsbBl
+hHs+VWu7CwQVzhlLkhjacO5HOBaI29z5NIm/BrWmmEPqq1lsYTMPCLoEJKI8iQIg8nr2Fijnf4y3
+Hs9PPYbI/4/9/xuY7PP/f2LZ4v6HFUDm/5eAuvMQaqMwWmBW3k0ENUXfXgeUzCz/WGB4Nbm7/zS8
+/Xi112erGOjtwwvgrsvXXrlEIpFIJBKJRCKRSCQSiUQikfzb/AGCgp9CACgAAA==
 
-SCSI subsystem driver Revision: 1.00
-PCI: Assigned IRQ 10 for device 00:08.0
-scsi: ***** BusLogic SCSI Driver Version 2.1.16 of 18 July 2002 *****
-scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host Adapter
-scsi0:   Firmware Version: 5.06J, I/O Address: 0xE800, IRQ Channel: 10/Level
-scsi0:   PCI Bus: 0, Device: 8, Address: 0xED001000, Host Adapter SCSI ID: 7
-scsi0:   Parity Checking: Disabled, Extended Translation: Disabled
-scsi0:   Synchronous Negotiation: FFFFSFF#FFFFFFFF, Wide Negotiation: YYYYNYY#YY
-YYYYYY
-scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
-scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
-scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
-scsi0:   Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
-scsi0:   Error Recovery Strategy: Default, SCSI Bus Reset: Disabled
-scsi0:   SCSI Bus Termination: High Enabled, SCAM: Disabled
-scsi0: *** BusLogic BT-958 Initialized Successfully ***
-scsi0 : BusLogic BT-958
-  Vendor: CONNER    Model: CFP2107E  2.14GB  Rev: 1423
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-  Vendor: SEAGATE   Model: SX423451W         Rev: 9E18
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 1 lun 0
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 1 lun 0
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 2 lun 0
-  Vendor:           Model:                   Rev:
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 2 lun 0
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 2 lun 0
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 3 lun 0
-  Vendor:           Model:                   Rev:
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-.
-.
-.
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 15 lun 0
-  Vendor:           Model:                   Rev:
-  Type:   Direct-Access                      ANSI SCSI revision: 00
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 15 lun 0
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 15 lun 0
-st: Version 20021015, fixed bufsize 32768, wrt 30720, s/g segs 256
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-Attached scsi disk sdb at scsi0, channel 0, id 1, lun 0
-Attached scsi disk sdc at scsi0, channel 0, id 2, lun 0
-Attached scsi disk sdd at scsi0, channel 0, id 3, lun 0
-Attached scsi disk sde at scsi0, channel 0, id 4, lun 0
-Attached scsi disk sdf at scsi0, channel 0, id 5, lun 0
-Attached scsi disk sdg at scsi0, channel 0, id 6, lun 0
-Attached scsi disk sdh at scsi0, channel 0, id 8, lun 0
-Attached scsi disk sdi at scsi0, channel 0, id 9, lun 0
-Attached scsi disk sdj at scsi0, channel 0, id 10, lun 0
-Attached scsi disk sdk at scsi0, channel 0, id 11, lun 0
-Attached scsi disk sdl at scsi0, channel 0, id 12, lun 0
-Attached scsi disk sdm at scsi0, channel 0, id 13, lun 0
-Attached scsi disk sdn at scsi0, channel 0, id 14, lun 0
-Attached scsi disk sdo at scsi0, channel 0, id 15, lun 0
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 0 lun 0
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 0 lun 0
-SCSI device sda: drive cache: write through
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 0 lun 0
-sda : sector size 0 reported, assuming 512.
-SCSI device sda: 1 512-byte hdwr sectors (0 MB)
-.
-.
-.
-
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 15 lun 0
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 15 lun 0
-SCSI device sdo: drive cache: write through
-scsi_eh_offline_sdevs: Device offlined - not ready or command retry failed after
- error recovery: host 0 channel 0 id 15 lun 0
-sdo : sector size 0 reported, assuming 512.
-SCSI device sdo: 1 512-byte hdwr sectors (0 MB)
-Initializing USB Mass Storage driver...
-
-
-
--- 
-
+--=-RQVzvqqFIUg9+1c7vtnW--
 

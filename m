@@ -1,58 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290223AbSBFIEP>; Wed, 6 Feb 2002 03:04:15 -0500
+	id <S290284AbSBFIQJ>; Wed, 6 Feb 2002 03:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290232AbSBFIEF>; Wed, 6 Feb 2002 03:04:05 -0500
-Received: from bitmover.com ([192.132.92.2]:47533 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S290223AbSBFIDx>;
-	Wed, 6 Feb 2002 03:03:53 -0500
-Date: Wed, 6 Feb 2002 00:03:43 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-Cc: Andreas Dilger <adilger@turbolabs.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020206000343.I14622@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Reid Hekman <reid.hekman@ndsu.nodak.edu>,
-	Andreas Dilger <adilger@turbolabs.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.31.0202051928330.2375-100000@cesium.transmeta.com> <20020205235000.J2928@lynx.turbolabs.com> <1012981874.6918.10.camel@zeus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1012981874.6918.10.camel@zeus>; from reid.hekman@ndsu.nodak.edu on Wed, Feb 06, 2002 at 01:50:34AM -0600
+	id <S290277AbSBFIQB>; Wed, 6 Feb 2002 03:16:01 -0500
+Received: from web13103.mail.yahoo.com ([216.136.174.148]:37132 "HELO
+	web13103.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S290236AbSBFIPr>; Wed, 6 Feb 2002 03:15:47 -0500
+Message-ID: <20020206081546.17390.qmail@web13103.mail.yahoo.com>
+Date: Wed, 6 Feb 2002 09:15:46 +0100 (CET)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Re:[OT] windows is more secure than linux!!
+To: Stevie O <stevie@qrpff.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020206001038.00ab7490@whisper.qrpff.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I second that. Maybe however we can have it both ways -- I have no
-> experience with bk, but can't this same info be made available elsewhere
-> like a public web interface or some such thing?
+ --- Stevie O <stevie@qrpff.net> a écrit : > At 11:47
+AM 2/6/2002 +2400, william fitzgerald
+> wrote:
+> >hi all,
+> >
+> >some of you might find this interesting others
+> >disheartening
+> >
+> >www.shortnews.com/shownews.cfm?id=16886&u_id=623
+> 
+> 
+> Face it guys, statistics don't lie:
 
-I've put up read-only clones on 
+Ever heard of a survey made on 1000 people which 
+is relevant for 250,000,000 people ?
 
-	http://linux.bkbits.net
+> 
+> [Windows]
+> Bugs in Windows XP system services resulting in a
+> security hole: 1 (UnPnP)
 
-you can go there and get the changelogs in web form.  I just figured out
-what a bad choice 8088 was for a port and we'll be moving stuff over to
-8080 since that seems to go through more firewalls.
+And the viruses ?
+And the older windows OS's ? 
+try on a 98 box
+Start-> run -> /con/con
 
-hpa is working on getting these up in some of the kernel.org sites, he's
-stalled out because of some stuff he needs from me, we'll get that 
-straightened out and the the authoritative source is bk.kernel.org or
-master.kernel.org, I'm not quite sure.  Peter will tell you.  But we'll
-keep up to date with Linus' BK tree as long as he is playing with BK
-and you can follow along there.
+> 
+> [Linux]
+> Bugs in wu-ftpd and BIND: billions
 
-Oh, and for what it is worth, I agree that having the changelogs as part
-of the history rocks.  Goto the http://linux.bkbits.net:8088/linux-2.5
-link and click on user statistics - because Linus hacked up a nice email
-to patch importer script, all the patches look like they were checked
-in by the person who sent them.  And it propogates down to the annotated
-listings.
+You are still using wu-ftpd ? Than ... enjoy :-))
+In linux you can run a program chrooted.
 
-Here's hoping bkbits.net has gone belly up before I wake up tomorrow :-)
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+In Mickey$oft $oftware you have to wait for the 
+patches. And wait, and wait ...
+
+
+
+> 
+> 
+> 
+> Linux is so way worse!
+> 
+
+Enjoy windows! Enjoy computer taking control over you!
+Enjoy BSOD! Enjoy viruses! Enjoy no customization! 
+Enjoy spontaneus reboots! Enjoy a 32bit GUI on a top
+of a 16bit OS (win 9x)
+
+> 
+> 
+> what? wu-ftpd isnt linux? yes it is! its on
+> freshmeat!
+
+You mean every "fresh meat" == "Linux" ?
+No comment
+
+
+> 
+> 
+> --
+> Stevie-O
+> 
+
+Calin
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.fr

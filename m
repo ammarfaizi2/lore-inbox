@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbTFXWUV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 18:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbTFXWUV
+	id S263861AbTFXWYY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 18:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263859AbTFXWYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 18:20:21 -0400
-Received: from relay02.roc.ny.frontiernet.net ([66.133.131.35]:61652 "EHLO
-	relay02.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S262955AbTFXWUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 18:20:18 -0400
-Date: Tue, 24 Jun 2003 18:34:27 -0400
-From: Scott McDermott <vaxerdec@frontiernet.net>
+	Tue, 24 Jun 2003 18:24:24 -0400
+Received: from smtp1.ispsnet.net ([64.63.192.11]:44426 "EHLO ispsnet.net")
+	by vger.kernel.org with ESMTP id S263861AbTFXWYW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 18:24:22 -0400
+Subject: Re: Sco vs. IBM
+From: Gerald Stuhrberg <grstuhrberg@aaahawk.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi on 2.4.21 (on IBM Thinkpad T30)
-Message-ID: <20030624183427.H30001@newbox.localdomain>
-References: <3EF753EC.9080807@homemail.com>
+In-Reply-To: <bcujfr$ka9$1@news.cistron.nl>
+References: <A46BBDB345A7D5118EC90002A5072C780E0409E9@orsmsx116.jf.intel.com>
+	 <bcujfr$ka9$1@news.cistron.nl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-87rZlxnyx/aRbM/NOmyc"
+Organization: 
+Message-Id: <1056494253.3627.15.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EF753EC.9080807@homemail.com>; from dsen@homemail.com on Tue, Jun 24, 2003 at 05:24:28AM +1000
+X-Mailer: Ximian Evolution 1.2.2-3mdk 
+Date: 24 Jun 2003 18:37:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-D. Sen on Tue 24/06 05:24 +1000:
-> Kernel 2.4.21 causes hangs and/or ooops during boot up if
-> I have a "probeall scsi_hostadapter ide-scsi" in my
-> /etc/modules.conf. If I take out that line and manually
-> load the module after the laptop has booted, everything is
-> fine.
 
-I probably have the same CD-RW that you do (in the T30) and
-I just use hdc=ide-scsi on kernel command line, no need for
-manually loading.  Works fine but don't try burning with
-magicdev running :)
+--=-87rZlxnyx/aRbM/NOmyc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+I just have one quick queston while all of you are debating. If how is
+it right for SCO to target IBM (or any company for that manner) if the
+code doesnt belong to them.
+
+Sorry for the ignorance. I missed something somewhere :/=20
+
+Gerald
+
+--=-87rZlxnyx/aRbM/NOmyc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA++NKtVUs9jOJKOMQRAplgAJ9SNwyVwkhcf+OMLF8l/D0WOfR7dACdGchm
+Z6OdagVepkJomcEiabpU75Y=
+=qVRI
+-----END PGP SIGNATURE-----
+
+--=-87rZlxnyx/aRbM/NOmyc--
+

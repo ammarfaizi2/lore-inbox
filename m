@@ -1,53 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264132AbUBHSdO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 13:33:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbUBHScw
+	id S264310AbUBHSpg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 13:45:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264353AbUBHSpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 13:32:52 -0500
-Received: from dsl-213-023-007-056.arcor-ip.net ([213.23.7.56]:63400 "EHLO
-	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
-	id S264132AbUBHSct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 13:32:49 -0500
-Date: Sun, 8 Feb 2004 19:32:10 +0100
-From: Georg C F Greve <greve@gnuhh.org>
-Message-Id: <200402081832.i18IWAPg001599@brain.gnuhh.org>
+	Sun, 8 Feb 2004 13:45:36 -0500
+Received: from colo.khms.westfalen.de ([213.239.196.208]:650 "EHLO
+	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
+	id S264310AbUBHSpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 13:45:34 -0500
+Date: 08 Feb 2004 17:58:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-CC: Ari Pollak <ajp@aripollak.com>, greve@gnuhh.org
-Subject: Re: [PROBLEM] 2.6.3-rc1: still no suspend/resume on Centrino notebook
-In-Reply-To: <c05slq$e1r$1@sea.gmane.org>
-References: <c05slq$e1r$1@sea.gmane.org>
+Message-ID: <92VRVYaHw-B@khms.westfalen.de>
+In-Reply-To: <pan.2004.02.06.18.59.44.936432@smurf.noris.de>
+Subject: Re: VFS locking: f_pos thread-safe ?
+X-Mailer: CrossPoint v3.12d.kh13 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <pan.2004.02.06.18.59.44.936432@smurf.noris.de>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+smurf@smurf.noris.de (Matthias Urlichs)  wrote on 06.02.04 in <pan.2004.02.06.18.59.44.936432@smurf.noris.de>:
 
- > The Thinkpad T40 and T41 at least; they suspend & resume properly,
- > but there are still interrupt-losing problems when resuming, which
- > is a totally separate issue. I believe they both use the 8255PM
- > chipset:
+> Hi, viro wrote:
+>
+> > "Somebody made a guess about undefined behaviour"
+>
+> Guess what? The manpage says that read(2) return N bytes and advances the
+> file pointer by N bytes. It doesn't talk, much less caution, about threads.
 
- > 00:00.0 Host bridge: Intel Corp. 82855PM Processor to I/O
- > Controller (rev 03)
+That's a defect in the man page, then.
 
-Thanks.
+POSIX says on <http://www.opengroup.org/onlinepubs/007904975/functions/ 
+read.html>:
 
-AFAIK, there are essentially three "Centrino" chipsets
-       Intel 855GM [1]
-       Intel 855PM [2]
-       Intel 855GME [3].
+[...]
+DESCRIPTION
 
-So 855PM based laptops seem to work, whereas 855GM based laptops
-apparently don't. So it would be logical to assume it is the
-difference between these two that causes the problems.
+The read() function shall attempt to read nbyte bytes from the file
+associated with the open file descriptor, fildes, into the buffer pointed
+to by buf. The behavior of multiple concurrent reads on the same pipe,
+FIFO, or terminal device is unspecified.
+[...]
 
-Unfortunately I'm not sure whether that brings us any further as it
-seems that it is the integrated graphics stuff that makes the
-difference -- or is there more?
+That's a pretty explicit warning exactly where one would expect it.
 
-Regards,
-Georg
+If Linux read(2) doesn't say something like that, I'll consider that a  
+serious bug.
 
+OTOH ...
 
-[1] http://www.intel.com/design/chipsets/mobile/855gm.htm?iid=dev_chips855fam+855gm&
-[2] http://www.intel.com/design/chipsets/mobile/855pm.htm?iid=dev_chips855fam+855pm&
-[3] http://www.intel.com/design/chipsets/mobile/855GME.htm?iid=dev_chips855fam+855gme&
+> YOU may immediately know, based on your kernel knowledge or whatever, that
+> things get somewhat undefined when two threads do that at the same time,
+> but it's NOT AT ALL obvious to a "normal" application programmer. There's
+> plenty of system calls that CAN be done concurrently, after all.
+
+... these days, programmers really *should* know enough to consult a free,  
+current, and easily readable version of the relevant standard!
+
+(If you forget where it is, it's easy to find from <http://www.unix- 
+systems.org/>.)
+
+> Please save your "translations" for stupid ideas that are obviously so
+> without in-depth kernel knowledge or equivalent.
+
+... such as the current case.
+
+MfG Kai

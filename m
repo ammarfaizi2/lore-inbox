@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVBJVI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVBJVLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbVBJVI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 16:08:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbVBJVIz
+	id S261946AbVBJVLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 16:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVBJVLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 16:08:55 -0500
-Received: from cavan.codon.org.uk ([213.162.118.85]:32491 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261919AbVBJVII
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 16:08:08 -0500
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Kendall Bennett <kendallb@scitechsoft.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>,
-       Bill Davidsen <davidsen@tmr.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Machek <pavel@ucw.cz>, ncunningham@linuxmail.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <420BC814.4050102@scitechsoft.com>
-References: <1107695583.14847.167.camel@localhost.localdomain>
-	 <420BB267.8060108@tmr.com> <20050210192554.GA15726@sci.fi>
-	 <1108066096.4085.69.camel@tyrosine>
-	 <9e473391050210121756874a84@mail.gmail.com>
-	 <1108067388.4085.74.camel@tyrosine>
-	 <9e47339105021012341c94c441@mail.gmail.com>
-	 <420BC814.4050102@scitechsoft.com>
-Date: Thu, 10 Feb 2005 21:06:36 +0000
-Message-Id: <1108069596.4085.78.camel@tyrosine>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: Re: [RFC] Reliable video POSTing on resume
-Content-Type: text/plain
+	Thu, 10 Feb 2005 16:11:09 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:11931 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261946AbVBJVKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 16:10:53 -0500
+Message-ID: <420BCD23.9080808@sgi.com>
+Date: Thu, 10 Feb 2005 15:07:47 -0600
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Altix : ioc4 serial driver support
+References: <20050103140938.GA20070@infradead.org> <20050207162525.GA15926@infradead.org> <4208EE3A.6010500@sgi.com> <200502101109.43455.jbarnes@engr.sgi.com> <20050210191525.GA11284@infradead.org>
+In-Reply-To: <20050210191525.GA11284@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-10 at 12:46 -0800, Kendall Bennett wrote:
+I updated again with more __iomem tags.
 
-> So perhaps this problem is something similar?
+ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
 
-I don't think so - if I dd out of ROM, I get something that looks like a
-video BIOS (and, indeed, I can make VBE calls to and from it). The
-problem is jumping to c000:0003 and executing - this has the effect of
-turning off the backlight and giving an illegal instruction error
-(I /think/ - I may be getting the machine I have here confused with one
-a tester has...)
+Signed-off-by: Patrick Gefre <pfg@sgi.com>
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+
+
+Christoph Hellwig wrote:
+> On Thu, Feb 10, 2005 at 11:09:43AM -0800, Jesse Barnes wrote:
+> 
+>>On Tuesday, February 8, 2005 8:52 am, Patrick Gefre wrote:
+>>
+>>>I've update the patch with changes from the comments below.
+>>>
+>>>ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
+>>>
+>>>Christoph Hellwig wrote:
+>>>
+>>>>On Mon, Feb 07, 2005 at 09:58:33AM -0600, Patrick Gefre wrote:
+>>>>
+>>>>>Latest version with review mods:
+>>>>>ftp://oss.sgi.com/projects/sn2/sn2-update/033-ioc4-support
+>>>>
+>>>> - still not __iomem annotations.
+>>>
+>>>I *think* I have this right ??
+>>
+>>Here's the output from 'make C=1' with your driver patched in (you if you want
+>>to run it yourself, just copy tomahawk.engr:~jbarnes/bin/sparse to somewhere
+>>in your path and run 'make C=1').  I think most of these warning would be
+>>fixed up if the structure fields referring to registers were declared as
+>>__iomem, but I haven't looked carefully.
+> 
+> 
+> Actually the pointers to the struct need to be declared __iomem.  
 

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264903AbTBOTHM>; Sat, 15 Feb 2003 14:07:12 -0500
+	id <S264945AbTBOTKH>; Sat, 15 Feb 2003 14:10:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264908AbTBOTHM>; Sat, 15 Feb 2003 14:07:12 -0500
-Received: from ns.suse.de ([213.95.15.193]:48145 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S264903AbTBOTHL> convert rfc822-to-8bit;
-	Sat, 15 Feb 2003 14:07:11 -0500
+	id <S264950AbTBOTKG>; Sat, 15 Feb 2003 14:10:06 -0500
+Received: from dhcp-66-212-193-131.myeastern.com ([66.212.193.131]:15263 "EHLO
+	mail.and.org") by vger.kernel.org with ESMTP id <S264945AbTBOTKE>;
+	Sat, 15 Feb 2003 14:10:04 -0500
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Synchronous signal delivery..
+References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com>
+	<Pine.LNX.4.50.0302141553020.988-100000@blue1.dev.mcafeelabs.com>
+From: James Antill <james@and.org>
 Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Labs, SuSE Linux AG
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] Extended attribute fixes, etc.
-Date: Sat, 15 Feb 2003 20:17:03 +0100
-User-Agent: KMail/1.4.3
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, "Theodore T'so" <tytso@mit.edu>
-References: <200302112018.58862.agruen@suse.de> <200302151859.11370.agruen@suse.de> <20030215183959.B22045@infradead.org>
-In-Reply-To: <20030215183959.B22045@infradead.org>
+Date: 15 Feb 2003 14:19:54 -0500
+In-Reply-To: <Pine.LNX.4.50.0302141553020.988-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <m3fzqpgxlx.fsf@code.and.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302152017.03259.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 February 2003 19:39, Christoph Hellwig wrote:
-> On Sat, Feb 15, 2003 at 06:59:11PM +0100, Andreas Gruenbacher wrote:
-> > > Please don't do the ugly flags stuff.  We have fsuids and fsgids
-> > > for exactly that reason (and because we're still lacking a
-> > > credentials cache..).
+Davide Libenzi <davidel@xmailserver.org> writes:
+
+> On Thu, 13 Feb 2003, Linus Torvalds wrote:
+> 
+> > > > One of the reasons for the "flags" field (which is not unused) was because
+> > > > I thought it might have extensions for things like alarms etc.
+> > >
+> > > I was thinking more like :
+> > >
+> > > int timerfd(int timeout, int oneshot);
 > >
-> > The XATTR_KERNEL_CONTEXT flag cannot be substituted by a uid/gid
-> > change; it is unrelated to that; that's the whole point of it. It
-> > would be possible to raise some other flag (such as a capability,
-> > etc.) instead of passing an explicit flag, but that seems uglier
-> > and more problematic/error prone to me.
->
-> Then raise CAP_DAC_OVERRIDE.  The right thing would be to pass down a
-> struct cred, so we could pass down the magic sys_cred that allows all
-> access (look at the XFS ACL code for details on that..), but
-> unfortuantately we still don't have proper credentials although there
-> were numerous patches around in the last years and we really want it
-> for other reasons.
+> > It could be a separate system call, ...
+> 
+> I would personally like it a lot to have timer events available on
+> pollable fds. Am I alone in this ?
 
-That sounds quite reasonable. I would have to raise CAP_SYS_ADMIN for 
-trusted EA's, though. Do you see any potential side effects while a 
-pretty powerful capability like CAP_SYS_ADMIN is temporarily raised?
+ Think of "timer events" as a single TCP connection, so you have...
 
-> Magic flags that change the DAC checks work are ugly and will most
-> certainly lead to bugs in some implementations sooner or later.
+time X: empty
+time X+Y: timed event "Arrives"
+time X+Z: timed event "Arrives"
 
-Maybe.
+...at which point it's pretty obvious that if you "poll" the timer
+event queue from anytime before X+Y it'll be empty, and anytime after
+X+Y it'll be "full". There isn't any point in being able to distinguish
+between the events X+Y and X+Z, you only need to know a timed event has
+occurred so you should process all timed events that are needed.
+ At which point you just need to work out the difference between X and
+X+Y, and pass that to poll/sigtimedwait/etc.
 
-
-Thanks,
-Andreas.
-
+-- 
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266902AbUG1W6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267320AbUG1XCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266902AbUG1W6u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUG1Wzp
+	id S267320AbUG1XCv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 19:02:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUG1W7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:55:45 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:26372 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S266194AbUG1Wza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:55:30 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Carsten Rietzschel <cr7@os.inf.tu-dresden.de>
-Cc: "Saksena, Manas" <Manas.Saksena@timesys.com>,
-       Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Lenar L?hmus <lenar@vision.ee>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       "Wood, Scott" <Scott.Wood@timesys.com>
-In-Reply-To: <200407282259.20577.cr7@os.inf.tu-dresden.de>
-References: <3D848382FB72E249812901444C6BDB1D036EDFD3@exchange.timesys.com>
-	 <200407282259.20577.cr7@os.inf.tu-dresden.de>
-Content-Type: text/plain
-Date: Thu, 29 Jul 2004 00:55:11 +0200
-Message-Id: <1091055311.1844.11.camel@teapot.felipe-alfaro.com>
+	Wed, 28 Jul 2004 18:59:23 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:29331 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S266194AbUG1W4V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 18:56:21 -0400
+Date: Thu, 29 Jul 2004 00:50:29 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>, jt@hpl.hp.com,
+       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>,
+       Orinoco Development List <orinoco-devel@lists.sourceforge.net>
+Subject: Re: [0/15] orinoco merge preliminaries
+Message-ID: <20040729005029.A11537@electric-eye.fr.zoreil.com>
+References: <20040712213349.A2540@electric-eye.fr.zoreil.com> <40F57D78.9080609@pobox.com> <20040715010137.GB3697@zax> <41068E4B.2040507@pobox.com> <20040728065128.GC16908@zax>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.90 (1.5.90-5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040728065128.GC16908@zax>; from hermes@gibson.dropbear.id.au on Wed, Jul 28, 2004 at 04:51:28PM +1000
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-28 at 22:59 +0200, Carsten Rietzschel wrote:
+David Gibson <hermes@gibson.dropbear.id.au> :
+[...]
+> Ok, patchbombing commences.
 
-> It might be interesting for you to test it with suspend(1) / pm_disk (sorry, 
-> these don't work for me). I wonder if they'll also fail.
+I have updated/resynced my serie on top of 2.6.8-rc2-mm1 + the 15
+posted patches.
 
-For me, swsusp1/pmdisk works nicely with 0 <= voluntary_preempt <= 3,
-even with CONFIG_PREEMPT.
+The patches are available at
+http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.8-rc2-mm1/patches/
 
+A (patch-scripts) tarball is available at:
+http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.8-rc2-mm1/blob.tar.bz2
+
+The difference with the 'for_linus' branch which is still to be splitted:
+http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.8-rc2-mm1/TODO.patch
+
+--
+Ueimor

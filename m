@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbREXRdp>; Thu, 24 May 2001 13:33:45 -0400
+	id <S261576AbREXRhf>; Thu, 24 May 2001 13:37:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261564AbREXRdf>; Thu, 24 May 2001 13:33:35 -0400
-Received: from ns2.cypress.com ([157.95.67.5]:13296 "EHLO ns2.cypress.com")
-	by vger.kernel.org with ESMTP id <S261561AbREXRd0>;
-	Thu, 24 May 2001 13:33:26 -0400
-Message-ID: <3B0D45D4.16565824@cypress.com>
-Date: Thu, 24 May 2001 12:33:08 -0500
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor Southeast Design Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
-MIME-Version: 1.0
+	id <S261574AbREXRhZ>; Thu, 24 May 2001 13:37:25 -0400
+Received: from [193.126.240.190] ([193.126.240.190]:10684 "EHLO
+	mcmmta02.iol.pt") by vger.kernel.org with ESMTP id <S261564AbREXRhM>;
+	Thu, 24 May 2001 13:37:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Pedro Miguel Semeano <skinbits@ccjfaro.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] include/linux/coda.h
-In-Reply-To: <Pine.LNX.4.33L2.0105220924560.32368-100000@bodnar42.dhs.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Newbie question
+Date: Thu, 24 May 2001 18:29:58 +0100
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01052418295800.00624@Tuphir>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Cumming wrote:
-> When compiling the kernel under FreeBSD, __KERNEL__ is defined, but
-> __linux__ is not. I think this is an error on the part of the header file,
-> because on non-Linux build environments, which would otherwise compile the
-> Linux kernel correctly, do not have __linux__ defined.
-> 
-> However, not many people will probably find much use in compiling the
-> kernel on other platforms, so if you think this isn't worth inclusion, I
+Hello all,
 
-hmmm...
+I'm doing a project in linux, and I'm changing the driver of sym53c8xx (a 
+SCSI board) to support Target mode. 
 
-building for:
-SPARC under Solaris
-PPC under BeOS
-PA-RISC under HP-UX
-M68k under HP-UX
+To receive data, we need 2 interrupts. One is for initializing all of the 
+structures needed, and the second to send the data to the SCSI layer. What 
+happens is that bettwen that two interrupts i can't start sending data, but 
+in some cases that happen, and is beyond my control. To start sending data I 
+set a bit in a certain register of the chip. 
 
-I'd really like the last one.
-I have a HP, M68k box I'd like to run
-linux on and I've not seen a M68K distro
-yet. But I haven't had time to try it yet
-either.
+What i would like to know is how can i to a kind of lock so that I set a 
+variable in the first interrupt, and unset it in the second. If the SCSI 
+layer trys to send data, I whant to stop before I set the bit of the chip. 
+But I don't know how...
 
-	-Thomas
+Can anybody tel me how to do it?
+
+Pedro Semeano

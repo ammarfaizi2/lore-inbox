@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbTEDUvr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 16:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbTEDUvq
+	id S261702AbTEDUqq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 16:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbTEDUqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 16:51:46 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:6988 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S261710AbTEDUvo (ORCPT
+	Sun, 4 May 2003 16:46:46 -0400
+Received: from rth.ninka.net ([216.101.162.244]:10183 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S261702AbTEDUqn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 16:51:44 -0400
-Date: Sun, 4 May 2003 14:05:37 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] how to fix is_local_disk()?
-Message-Id: <20030504140537.50310417.akpm@digeo.com>
-In-Reply-To: <20030504191013.A10659@lst.de>
-References: <20030504090003.A7285@lst.de>
-	<20030504003021.077e8819.akpm@digeo.com>
-	<20030504010014.67352345.akpm@digeo.com>
-	<20030504191013.A10659@lst.de>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 4 May 2003 16:46:43 -0400
+Subject: Re: [PATCH] remove useless MOD_{INC,DEC}_USE_COUNT from sunrpc
+From: "David S. Miller" <davem@redhat.com>
+To: trond.myklebust@fys.uio.no
+Cc: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <16053.25445.434038.90945@charged.uio.no>
+References: <20030504191447.C10659@lst.de>
+	 <16053.20430.903508.188812@charged.uio.no> <20030504203655.A11574@lst.de>
+	 <16053.24599.277205.64363@charged.uio.no> <20030504205306.A11647@lst.de>
+	 <16053.25445.434038.90945@charged.uio.no>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 May 2003 21:04:06.0358 (UTC) FILETIME=[B2EE4760:01C31280]
+Organization: 
+Message-Id: <1052075166.27465.12.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 May 2003 12:06:06 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> wrote:
->
-> ...
-> +static void do_emergency_remount(unsigned long foo)
-> +{
-> +	struct super_block *sb;
-> +
-> +	spin_lock(&sb_lock);
-> +	list_for_each_entry(sb, &super_blocks, s_list) {
-> +		sb->s_count++;
-> +		spin_unlock(&sb_lock);
-> +		down_read(&sb->s_umount);
-> +		if (sb->s_bdev && !(sb->s_flags & MS_RDONLY))
-> +			do_remount_sb(sb, MS_RDONLY, NULL, 1);
-> +		drop_super(sb);
+On Sun, 2003-05-04 at 12:00, Trond Myklebust wrote:
+> >>>>> " " == Christoph Hellwig <hch@lst.de> writes:
+> 
+>      > Previously you incremented the usecount and now we're waiting
+>      > for the thread to finish in module_exit().
+> 
+> Fair enough...
 
-You might need to check sb->s_root in here after acquiring sb->s_umount. 
-Otherwise the fs may have been unmounted while the semaphore was being waited
-upon.
+Well, what if this hangs?  Unless the user specifies
+"--wait" to 2.5.x's rmmod, the user absolutely does not
+expect this behavior.
 
-About half of the s_umount grabbers perform that check.  The others might be
-buggy.  I'm not sure - it's all rather gunky in there and hard to tell what
-the rules are.
+Rather, so that the "--wait" is respected, something one level
+up ought to be doing try_module_get().
 
+If you want to change the behavior, that's definitely to be considered,
+but on a global scale not locally for sunrpc.
 
+-- 
+David S. Miller <davem@redhat.com>

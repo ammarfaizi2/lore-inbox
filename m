@@ -1,126 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbUCRSZP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 13:25:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbUCRSZO
+	id S262846AbUCRS0a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 13:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbUCRS0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 13:25:14 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:8173 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262844AbUCRSYo (ORCPT
+	Thu, 18 Mar 2004 13:26:30 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52154 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262846AbUCRS0V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 13:24:44 -0500
-Date: Thu, 18 Mar 2004 10:24:10 -0800 (PST)
-From: Sridhar Samudrala <sri@us.ibm.com>
-X-X-Sender: sridhar@localhost.localdomain
-To: rusty@rustcorp.com.au
-cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: OOPS when force unloading sctp with CONFIG_DEBUG_SLAB enabled
-In-Reply-To: <Pine.LNX.4.58.0403171008560.2014@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0403181009150.1918@localhost.localdomain>
-References: <Pine.LNX.4.58.0403171008560.2014@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Mar 2004 13:26:21 -0500
+Date: Thu, 18 Mar 2004 10:26:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: mjy@geizhals.at, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PREEMPT and server workloads
+Message-Id: <20040318102623.04e4fadb.akpm@osdl.org>
+In-Reply-To: <20040318175855.GB2536@dualathlon.random>
+References: <40591EC1.1060204@geizhals.at>
+	<20040318060358.GC29530@dualathlon.random>
+	<20040318015004.227fddfb.akpm@osdl.org>
+	<20040318145129.GA2246@dualathlon.random>
+	<20040318093902.3513903e.akpm@osdl.org>
+	<20040318175855.GB2536@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I took a look at the changes to module unload code(sys_delete_module) after
-2.6.3. One difference i noticed was that mod->waiter is being set to the
-kthread that runs __try_stop_module() instead of the thread that calls
-sys_delete_module().
-
-The following patch fixed the oops.
-
-diff -Nru a/kernel/module.c b/kernel/module.c
---- a/kernel/module.c   Thu Mar 18 10:17:58 2004
-+++ b/kernel/module.c   Thu Mar 18 10:17:58 2004
-@@ -591,6 +591,10 @@
-        /* Stop the machine so refcounts can't move and disable module. */
-        ret = try_stop_module(mod, flags, &forced);
-
-+       /* Mark it as dying. */
-+       mod->waiter = current;
-+       mod->state = MODULE_STATE_GOING;
-+
-        /* Never wait if forced. */
-        if (!forced && module_refcount(mod) != 0)
-                wait_for_zero_refcount(mod);
-
-I am not sure if this is the right or the complete fix, but i think that
-mod->waiter is definitely being set incorrectly in __try_stop_module().
-
-Thanks
-Sridhar
-
-On Wed, 17 Mar 2004, Sridhar Samudrala wrote:
-
-> I am getting the following oops when force unloading sctp (rmmod -f sctp) with
-> 2.6.5-rc1 and 2.6.4.  This happens only when CONFIG_DEBUG_SLAB is enabled.
+Andrea Arcangeli <andrea@suse.de> wrote:
 >
-> This used to work fine until 2.6.3.
->
-> looks like somehow a freed task struct is getting dereferenced in
-> try_to_wake_up() and it causes oops when debug memory allocations is enabled.
-> The call sequence seems to be
-> 	sys_delete_module
-> 	cleanup_module
-> 	sock_release
-> 	module_put
-> 	wake_up_process
-> 	try_to_wake_up
->
-> Thanks
-> Sridhar
->
-> Mar 17 08:31:40 w-sridhar kernel: Unable to handle kernel paging request at virtual address 6b6b6b7b
-> Mar 17 08:31:40 w-sridhar kernel:  printing eip:
-> Mar 17 08:31:40 w-sridhar kernel: c011ad39
-> Mar 17 08:31:40 w-sridhar kernel: *pde = 00000000
-> Mar 17 08:31:40 w-sridhar kernel: Oops: 0000 [#1]
-> Mar 17 08:31:40 w-sridhar kernel: PREEMPT SMP
-> Mar 17 08:31:40 w-sridhar kernel: CPU:    0
-> Mar 17 08:31:40 w-sridhar kernel: EIP:    0060:[<c011ad39>]    Tainted: GF
-> Mar 17 08:31:40 w-sridhar kernel: EFLAGS: 00010086   (2.6.5-rc1)
-> Mar 17 08:31:40 w-sridhar kernel: EIP is at try_to_wake_up+0x29/0x310
-> Mar 17 08:31:40 w-sridhar kernel: eax: 6b6b6b6b   ebx: c041cc80   ecx: ccc66da4   edx: cdc258a0
-> Mar 17 08:31:40 w-sridhar kernel: esi: cdc7c000   edi: c041cc80   ebp: cdc7df18   esp: cdc7def4
-> Mar 17 08:31:40 w-sridhar kernel: ds: 007b   es: 007b   ss: 0068
-> Mar 17 08:31:40 w-sridhar kernel: Process rmmod (pid: 1636, threadinfo=cdc7c000 task=cde2a140)
-> Mar 17 08:31:40 w-sridhar kernel: Stack: d08e2300 cdc7df14 c02bde4c cfcd9304 00000000 00000282 cdf1e5bc cdc7c000
-> Mar 17 08:31:40 w-sridhar kernel:        d08e2300 cdc7df2c c011b03e cdc258a0 00000007 00000000 cdc7df44 c02bac4a
-> Mar 17 08:31:40 w-sridhar kernel:        cdf1e5bc c03843b8 d08e2300 00000a80 cdc7df54 d08d6f24 cdf1e5bc 00000a80
-> Mar 17 08:31:40 w-sridhar kernel: Call Trace:
-> Mar 17 08:31:40 w-sridhar kernel:  [<c02bde4c>] sk_free+0x6c/0xf0
-> Mar 17 08:31:40 w-sridhar kernel:  [<c011b03e>] wake_up_process+0x1e/0x30
-> Mar 17 08:31:40 w-sridhar kernel:  [<c02bac4a>] sock_release+0xea/0xf0
-> Mar 17 08:31:40 w-sridhar kernel:  [<d08d6f24>] cleanup_module+0x24/0x1d5 [sctp]
-> Mar 17 08:31:40 w-sridhar kernel:  [<c013dbd4>] sys_delete_module+0x174/0x1d0
-> Mar 17 08:31:40 w-sridhar kernel:  [<c0157d18>] sys_munmap+0x58/0x80
-> Mar 17 08:31:40 w-sridhar kernel:  [<c0107adf>] syscall_call+0x7/0xb
-> Mar 17 08:31:40 w-sridhar kernel:
-> Mar 17 08:31:40 w-sridhar kernel: Code: 8b 40 10 8b 14 85 20 f0 41 c0 ff 46 14 01 d7 31 c0 86 07 84
-> Mar 17 08:31:40 w-sridhar kernel:  <6>note: rmmod[1636] exited with preempt_count 1
-> Mar 17 08:31:40 w-sridhar kernel: Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
-> Mar 17 08:31:40 w-sridhar kernel: in_atomic():1, irqs_disabled():0
-> Mar 17 08:31:40 w-sridhar kernel: Call Trace:
-> Mar 17 08:31:40 w-sridhar kernel:  [<c011f46b>] __might_sleep+0xab/0xd0
-> Mar 17 08:31:40 w-sridhar kernel:  [<c0123b02>] profile_exit_task+0x22/0x60
-> Mar 17 08:31:40 w-sridhar kernel:  [<c0125a9a>] do_exit+0x7a/0x610
-> Mar 17 08:31:40 w-sridhar kernel:  [<c0108cd0>] do_divide_error+0x0/0xf0
-> Mar 17 08:31:40 w-sridhar kernel:  [<c0119855>] do_page_fault+0x215/0x58a
-> Mar 17 08:31:40 w-sridhar kernel:  [<c011a934>] recalc_task_prio+0xb4/0x1f0
-> Mar 17 08:31:40 w-sridhar kernel:  [<c011c9f9>] schedule+0x3a9/0x7b0
-> Mar 17 08:31:40 w-sridhar kernel:  [<c011bfe3>] scheduler_tick+0x43/0x6a0
-> Mar 17 08:31:40 w-sridhar kernel:  [<c0119640>] do_page_fault+0x0/0x58a
-> Mar 17 08:31:40 w-sridhar kernel:  [<c0108569>] error_code+0x2d/0x38
-> Mar 17 08:31:40 w-sridhar kernel:  [<c02b007b>] atkbd_connect+0x19b/0x420
-> Mar 17 08:31:40 w-sridhar kernel:  [<c011ad39>] try_to_wake_up+0x29/0x310
-> Mar 17 08:31:40 w-sridhar kernel:  [<c02bde4c>] sk_free+0x6c/0xf0
-> Mar 17 08:31:40 w-sridhar kernel:  [<c011b03e>] wake_up_process+0x1e/0x30
-> Mar 17 08:31:40 w-sridhar kernel:  [<c02bac4a>] sock_release+0xea/0xf0
-> Mar 17 08:31:40 w-sridhar kernel:  [<d08d6f24>] cleanup_module+0x24/0x1d5 [sctp]
-> Mar 17 08:31:40 w-sridhar kernel:  [<c013dbd4>] sys_delete_module+0x174/0x1d0
-> Mar 17 08:31:40 w-sridhar kernel:  [<c0157d18>] sys_munmap+0x58/0x80
-> Mar 17 08:31:40 w-sridhar kernel:  [<c0107adf>] syscall_call+0x7/0xb
->
->
->
+> > They do?   kmap_atomic() disables preemption anyway.
+> 
+> dunno why but see:
+> 
+> 	spin_lock(&mm->page_table_lock);
+> 	page_table = pte_offset_map(pmd, address);
+> 
+> 		pte_unmap(page_table);
+> 		spin_unlock(&mm->page_table_lock);
+> 
+
+do_wp_page()?  The lock is there to pin the pte down isn't it?  Maybe it
+can be optimised - certainly the spin_unlock() in there can be moved up a
+few statements.
+
+> Infact I wonder if we should try once more time and go atomic
+> again. what you're doing right now is:
+> 
+> 	kmap_atomic()
+> 	left = copy_user
+> 	kunmap_atomic
+> 	if (left) {
+> 		kmap() <- persistent unscalable
+> 		copy-user
+> 		kunmap
+> 	}
+> 		
+> I would suggest we should be even more aggressive like this:
+> 
+>         kmap_atomic()
+>         left = copy_user
+>         kunmap_atomic
+>         if (left) {
+> 		get_user()
+>         	kmap_atomic()
+> 	        left = copy_user
+> 	        kunmap_atomic
+> 		if (left) {
+> 	                kmap() <- persistent unscalable
+>         	        copy-user
+>                 	kunmap
+> 		}
+>         }
+> 
+> 
+> It's not going to trigger often anyways, but it's only a few bytecodes
+> more and it sounds more scalable.
+
+Could be.  When I did that code I had some printks in the slow path and
+although it did trigger, it was rare.  We've already faulted the page in by
+hand so we should only fall into the kmap() if the page was suddenly stolen
+again.
+
+But it was a long time ago - adding some instrumentation here to work out
+how often we enter the slow path would tell us whether this is needed.

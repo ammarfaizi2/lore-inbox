@@ -1,40 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267992AbRHQSRI>; Fri, 17 Aug 2001 14:17:08 -0400
+	id <S268675AbRHQSV2>; Fri, 17 Aug 2001 14:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268071AbRHQSQ6>; Fri, 17 Aug 2001 14:16:58 -0400
-Received: from cobae1.consultronics.on.ca ([205.210.130.26]:28826 "EHLO
-	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
-	id <S267992AbRHQSQq>; Fri, 17 Aug 2001 14:16:46 -0400
-Date: Fri, 17 Aug 2001 14:17:00 -0400
-From: Greg Louis <glouis@dynamicro.on.ca>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8-ac6 ad1848 module failed at init
-Message-ID: <20010817141700.A1502@athame.dynamicro.on.ca>
-Reply-To: Greg Louis <glouis@dynamicro.on.ca>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010817080330.A613@athame.dynamicro.on.ca> <E15XiRS-0007Ed-00@the-village.bc.nu>
+	id <S269391AbRHQSVS>; Fri, 17 Aug 2001 14:21:18 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:43908 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S268675AbRHQSVJ>; Fri, 17 Aug 2001 14:21:09 -0400
+Message-Id: <5.1.0.14.2.20010817190012.04579580@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 17 Aug 2001 19:21:19 +0100
+To: Andreas Dilger <adilger@turbolabs.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Error on fs unmount
+Cc: Peter Klotz <peter.klotz@aon.at>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010817114820.D17372@turbolinux.com>
+In-Reply-To: <01081718390800.01143@localhost.localdomain>
+ <01081718390800.01143@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <E15XiRS-0007Ed-00@the-village.bc.nu>
-Organization: Dynamicro Consulting Limited
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20010817 (Fri) at 1309:34 +0100, Alan Cox wrote:
-> > module ad1848 built but failed at init with "No device found."
-> > 
-> > I reverted, by copying ad1848.c from the -ac4 tree, and the resulting
-> > module loaded successfully, and seems to be functioning correctly.
-> 
-> Is your card plug and play ?
+At 18:48 17/08/2001, Andreas Dilger wrote:
+>On Aug 17, 2001  18:39 +0200, Peter Klotz wrote:
+> > Kernel 2.4.8 produces the following message on almost every shutdown:
+> >
+> > Unmounting filesystems: Trying to _clear_inode of system file 9! Shouldn't
+> > happen.
+>
+>Please tell us what filesystem you are using?
 
-No, the params are selected among a limited set of combinations with
-DIP switches.  The trix module load instruction goes
-insmod trix io=0x530 irq=9 dma=3 dma2=0 sb_io=0x220 sb_dma=1 \
-  sb_irq=7 mpu_io=0x370 mpu_irq=5
+He is using NTFS. I recognize my error message. (-; [A little omission of 
+mine results in not getting the string "NTFS: " printed at the beginning of 
+the error message. )-: Fixed in my tree and will be in next patch release.]
+
+Peter,
+
+Could you tell me whether on startup (or whenever you mount the NTFS 
+volume) it doesn't give a message but saying: "Trying to open system file 
+9!" or "Opening system file 9!".
+
+If you only get the _clear_inode message that would be bad, but if you get 
+a corresponding "Trying to open..." message, then just ignore them for the 
+moment. - This is part of stage one of a cleanup in ntfs system file 
+handling and this is just a message telling you someone is trying to close 
+a system file which hasn't been opened yet, which should indeed never 
+happen. - This will disappear with my next update to ntfs which completes 
+the system file cleanup stuff.
+
+If you only get the _clear_inode message this is very bad and I would like 
+to know more... but I suspect you will find the matching message.
+
+Best regards,
+
+Anton
+
+
 
 -- 
-| G r e g  L o u i s          | gpg public key:      |
-|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

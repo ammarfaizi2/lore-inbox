@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266824AbUFRUQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266789AbUFRUMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266824AbUFRUQU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266816AbUFRUPk
+	id S266789AbUFRUMF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 16:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266814AbUFRULZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:15:40 -0400
-Received: from ida.rowland.org ([192.131.102.52]:3076 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S266815AbUFRUMg (ORCPT
+	Fri, 18 Jun 2004 16:11:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23735 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266789AbUFRUDm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:12:36 -0400
-Date: Fri, 18 Jun 2004 16:12:32 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: BUG(?): class_device_driver_link()
-Message-ID: <Pine.LNX.4.44L0.0406181502020.702-100000@ida.rowland.org>
+	Fri, 18 Jun 2004 16:03:42 -0400
+Date: Fri, 18 Jun 2004 16:03:28 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
+       Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       4Front Technologies <dev@opensound.com>
+Subject: Re: Stop the Linux kernel madness
+In-Reply-To: <20040618153350.GB20632@lug-owl.de>
+Message-ID: <Pine.LNX.4.44.0406181600310.8065-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg:
+On Fri, 18 Jun 2004, Jan-Benedict Glaw wrote:
+> On Fri, 2004-06-18 08:13:15 -0700, William Lee Irwin III <wli@holomorphy.com>
 
-I'm not sure if this is a bug or not, but it is inconsistent behavior in 
-sysfs.
+> > The shame of things is that the economic/effort problem appears to
+> > often be "solved" by never migrating to new kernel versions, ...
 
-When a class_device is added, if it has a regular device associated with
-it and that device has a driver, a symlink is added from the class_device
-to the driver.  However, if the class_device is added _first_ and the
-driver later, this symlink is not created.  It's not clear that there's
-any good way to create it, especially if the class_device is added by the
-bus layer and the device driver itself is unaware of the class_device.
+> Unfortunately, you're *very* right on this. Eg. read the linux-mips list
+> (at linux-mips.org). You'll see that this list is often hit by people
+> having problems. Normally, they hack on kernels like 2.4.16 or the like.
 
-Is this a known problem?  It definitely affects the sd driver, and maybe 
-others.
+And they have problems for which fixes were merged into the
+upstream kernel well over a year ago.
 
-There is a related side-effect that is a bit unpleasant.  The symlink from
-the class_device to the driver increments the driver's refcount.  Since
-the driver is unaware of the class_device, it doesn't know to remove the
-symlink when its release() method runs.  Consequently, if the driver is
-modprobed before the device exists and rmmod'ed after the device is added,
-the rmmod will hang until the device also goes away.  But if the driver is 
-modprobed _after_ the device exists then the rmmod will complete 
-immediately.
+If these developers had just merged their own stuff into the
+upstream kernel, they wouldn't have had to deal with all the
+ancient kernel bugs - the community has solved them already
+and the embedded developers could just inherit those fixes
+from upstream.
 
-Perhaps the answer is that the bus layer must take these things into 
-account.  Or perhaps a struct device should somehow know about all the 
-class_devices that refer to it.
+In short, the work of merging your functionality back upstream 
+is a way to reduce the total amount of work that needs to be done.
 
-Alan Stern
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

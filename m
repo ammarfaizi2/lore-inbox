@@ -1,38 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318027AbSIBHt3>; Mon, 2 Sep 2002 03:49:29 -0400
+	id <S318079AbSIBICW>; Mon, 2 Sep 2002 04:02:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318079AbSIBHt3>; Mon, 2 Sep 2002 03:49:29 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:13802 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S318027AbSIBHt3>; Mon, 2 Sep 2002 03:49:29 -0400
-Date: Mon, 2 Sep 2002 09:53:34 +0200
-From: kladit@t-online.de (Klaus Dittrich)
-To: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Promise PDC20276 & 2.2.19
-Message-ID: <20020902075334.GA6376@df1tlpc.local.here>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S318184AbSIBICW>; Mon, 2 Sep 2002 04:02:22 -0400
+Received: from tidos.tid.es ([193.145.240.2]:16318 "EHLO tid.tid.es")
+	by vger.kernel.org with ESMTP id <S318079AbSIBICU>;
+	Mon, 2 Sep 2002 04:02:20 -0400
+Message-ID: <3D731C59.CA5796CF@tid.es>
+Date: Mon, 02 Sep 2002 10:07:53 +0200
+From: Miguel =?iso-8859-1?Q?Gonz=E1lez=20Casta=F1os?= <mgc@tid.es>
+Organization: Telefonica I+D
+X-Mailer: Mozilla 4.78 [es] (Windows NT 5.0; U)
+X-Accept-Language: es
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: recompiling kernel for a Soltek 75drv4
+Content-Type: multipart/mixed;
+ boundary="------------756402CA373264139D327663"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jul 2002, Bartlomiej Zolnierkiewicz wrote:
+Este es un mensaje de varias partes en formato MIME.
+--------------756402CA373264139D327663
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> Stupid me :-)
-> Setting it on/off won't help :-)
+Dear all,
 
-Stupid^2, please set it on and change this #ifdef.
+ It is my first post to this mailing list, so I am sorry for my English
+and the possible mistakes that I could make. I have read through the
+information of the FAQs and search a little bit but I have not found an
+answer to my question, so here it goes:
 
-> Just change '#ifdef' around
->       if (dev->class >> 8 == PCI_CLASS_STORAGE_RAID)
-> in ide-pci.c to '#ifndef' and it should work.
+ I have a Red Hat 7.2 linux box as a web server. I am still in the
+proccess of tuning the system.
 
-Works fine here, as it did up to 2.4.19rc1.
+ It is a:
+ AMD K7 Athlon
+ two HD IDE 60 Gbs 
+ 3Com Network card
+ no sound card
+ general video card
+ Mother board Soltek 75drv4 Chipset VT8367 KT266A
 
-Otherwise, may be you must install the driver
-(closed source) from Promise. I never tested this.
+ I am compiling a non-modular kernel, due to I do not have so much
+hardware and I have read that this makes the kernel faster. 
 
--- 
-Regards Klaus
+ I have executed a lspci to get the information of the mother board
+shown above. I have downloaded the latest linux stable kernel 2.4.19 and
+I have not found which chipset would be the best to use. 
+
+ By the way I have created a Software RAID-1 with the two IDE hard
+drives. 
+
+ My issue is that when I try to shutdown the system I experimented two
+things:
+
+ - The system is not shutdown completely, I got a Power down message and
+I got to power off the PC.
+
+ - When I reboot the system and even when the system is shutting down, I
+have seen messages from the system saying that the RAID is not properly
+switched off dued to not a properly shutdowned system.
+
+ I hope I have narrowed enough my question and give enough information
+for you guys.
+
+ Many thanks in advance
+
+ Miguel
+--------------756402CA373264139D327663
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="mgc.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Tarjeta para Miguel González Castaños
+Content-Disposition: attachment;
+ filename="mgc.vcf"
+
+begin:vcard 
+n:González Castaños;Miguel
+tel;work:+34 983 36 79 57
+x-mozilla-html:FALSE
+adr:;;;;;;
+version:2.1
+email;internet:mgc@tid.es
+fn:Miguel González Castaños
+end:vcard
+
+--------------756402CA373264139D327663--
+

@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263293AbTJQC6F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 22:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbTJQC6F
+	id S263294AbTJQDO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 23:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTJQDO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 22:58:05 -0400
-Received: from dyn-ctb-210-9-243-144.webone.com.au ([210.9.243.144]:57092 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S263293AbTJQC6D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 22:58:03 -0400
-Message-ID: <3F8F5A53.50209@cyberone.com.au>
-Date: Fri, 17 Oct 2003 12:56:19 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Albert Cahalan <albert@users.sourceforge.net>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+	Thu, 16 Oct 2003 23:14:29 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:64434 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263294AbTJQDO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 23:14:28 -0400
 Subject: Re: decaying average for %CPU
+From: Albert Cahalan <albert@users.sf.net>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F8F5A53.50209@cyberone.com.au>
 References: <1066358155.15931.145.camel@cube>
-In-Reply-To: <1066358155.15931.145.camel@cube>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	 <3F8F5A53.50209@cyberone.com.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1066359629.15920.161.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 16 Oct 2003 23:00:29 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-10-16 at 22:56, Nick Piggin wrote:
+> Albert Cahalan wrote:
+> 
+> >The UNIX standard requires that Linux provide
+> >some measure of a process's "recent" CPU usage.
+> >Right now, it isn't provided. You might run a
+> >CPU hog for a year, stop it ("kill -STOP 42")
+> >for a few hours, and see that "ps" is still
+> >reporting 99.9% CPU usage. This is because the
+> >kernel does not provide a decaying average.
+> 
+> I think the kernel provides enough info for userspace to do
+> the job, doesn't it?
 
+I'm pretty sure not. Linux provides:
 
-Albert Cahalan wrote:
+per-process start time
+current time
+per-process total (lifetime) CPU usage
+units of time measurement (awkwardly)
+boot time
 
->The UNIX standard requires that Linux provide
->some measure of a process's "recent" CPU usage.
->Right now, it isn't provided. You might run a
->CPU hog for a year, stop it ("kill -STOP 42")
->for a few hours, and see that "ps" is still
->reporting 99.9% CPU usage. This is because the
->kernel does not provide a decaying average.
->
+>From that you can compute %CPU over the whole
+life of the process. This does not meet the
+requirements of the UNIX standard.
 
-I think the kernel provides enough info for userspace to do
-the job, doesn't it?
+What we do for load average is about right,
+except that per-process values can't all get
+updated at the same time. So the algorithm
+needs to be adjusted a bit to allow for that
 
 

@@ -1,57 +1,396 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264407AbUD2NAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264442AbUD2NDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264407AbUD2NAU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 09:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbUD2NAU
+	id S264442AbUD2NDY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 09:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUD2NDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 09:00:20 -0400
-Received: from mail9.messagelabs.com ([194.205.110.133]:35052 "HELO
-	mail9.messagelabs.com") by vger.kernel.org with SMTP
-	id S264407AbUD2M77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 08:59:59 -0400
-X-VirusChecked: Checked
-X-Env-Sender: icampbell@arcom.com
-X-Msg-Ref: server-12.tower-9.messagelabs.com!1083243624!7956878
-X-StarScan-Version: 5.2.10; banners=arcom.com,-,-
-X-Originating-IP: [194.200.159.164]
-Subject: Re: [PATCH] 2.6 I2C epson 8564 RTC chip
-From: Ian Campbell <icampbell@arcom.com>
-To: stefan.eletzhofer@eletztrick.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-In-Reply-To: <20040429120250.GD10867@gonzo.local>
-References: <20040429120250.GD10867@gonzo.local>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Message-Id: <1083243580.26762.38.camel@icampbell-debian>
+	Thu, 29 Apr 2004 09:03:24 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:10654 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264442AbUD2NBG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 09:01:06 -0400
+Date: Thu, 29 Apr 2004 18:33:53 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] fix sysfs symlinks
+Message-ID: <20040429130353.GC11624@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040416223732.GC21701@kroah.com> <20040416234601.GL24997@parcelfarce.linux.theplanet.co.uk> <40807466.1020701@pobox.com> <20040417090712.B11481@flint.arm.linux.org.uk> <20040417082206.GM24997@parcelfarce.linux.theplanet.co.uk> <20040420161602.GB9603@kroah.com> <20040421101104.GA7921@in.ibm.com> <20040422213736.GL17014@parcelfarce.linux.theplanet.co.uk> <20040423085218.GB27638@in.ibm.com> <20040423092641.GM17014@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 29 Apr 2004 13:59:40 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040423092641.GM17014@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-29 at 13:02, stefan.eletzhofer@eletztrick.de wrote:
-> This driver only does the low-level I2C stuff, the rtc misc device
-> driver is a separate driver module which I will send a patch for soon.
+On Fri, Apr 23, 2004 at 10:26:41AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Fri, Apr 23, 2004 at 02:22:18PM +0530, Maneesh Soni wrote:
+> > @@ -136,6 +138,12 @@ restart:
+> >  			 */
+> >  			spin_unlock(&dcache_lock);
+> >  			d_delete(d);
+> 
+> ITYM "d_drop(d)" here.  Right now these are equivalent (and d_drop() is
+> less work) since we are holding at least two references to d; if/when
+> we stop pinning leaves of the tree in core, the check below will become
+> unsafe with d_delete().
 
-By the way -- I notice you have said you need i2c_get_client for your
-RTC driver to locate the i2c chip it wants to work with. 
+You are right again, I do use d_drop() for sysfs backing store. Here also
+we can use d_drop(). I have corrected at both the places you pointed.
 
-Just a thought -- perhaps it would make sense to reverse the roles and
-for the rtc driver to export a 'register_rtc_device' type call which the
-specific i2c chip driver could then call to hook itself up to /dev/rtc
+> 
+> >  	new_dentry = sysfs_get_dentry(parent, new_name);
+> > -	d_move(kobj->dentry, new_dentry);
+> > -	kobject_set_name(kobj,new_name);
+> > +	if (!IS_ERR(new_dentry)) {
+> > +		down_write(&sysfs_rename_sem);
+> > +		d_move(kobj->dentry, new_dentry);
+> > +		kobject_set_name(kobj,new_name);
+> > +		up_write(&sysfs_rename_sem);
+> > +	}
+> >  	up(&parent->d_inode->i_sem);	
+> >  }
+> 
+> BTW, the above leaks because of unbalanced sysfs_get_dentry().  You need
+> a dput() in there.
 
-Ian.
+If I am not wrong I should add dput(new_dentry) after d_move() to avoid leak.
+
+[..]
+
+> 
+> > @@ -70,11 +70,13 @@ void sysfs_remove_group(struct kobject *
+> >  	else
+> >  		dir = dget(kobj->dentry);
+> >  
+> > -	remove_files(dir,grp);
+> > -	if (grp->name)
+> > -		sysfs_remove_subdir(dir);
+> > -	/* release the ref. taken in this routine */
+> > -	dput(dir);
+> > +	if (dir && !IS_ERR(dir)) {
+> > +		remove_files(dir,grp);
+> > +		if (grp->name)
+> > +			sysfs_remove_subdir(dir);
+> > +		/* release the ref. taken in this routine */
+> > +		dput(dir);
+> > +	}
+> >  }
+> 
+> Hmm...  I thought that's what
+> 		if (error)
+> 			return error;
+> several lines above had been about.  Can we get there with NULL or ERR_PTR()
+> in dir?
+
+No.. if sysfs_create_group() is successful, we will never get error in 
+dir. And no one will be allowed to call sysfs_remove_group() if 
+sysfs_create_group() has failed.
+
+Patch appended with corrections.
+
+Thanks
+Maneesh
+
+
+
+o The symlinks code in sysfs doesnot point to the correct target kobject
+  whenever target kobject is renamed and suffers from dangling symlinks
+  if target kobject is removed.
+
+o The following patch implements ->readlink and ->follow_link operations 
+  for sysfs instead of using the page_symlink_inode_operations. 
+  The pointer to target kobject is saved in the link dentry's d_fsdata field. 
+  The target path is generated everytime we do ->readlink and ->follow_link. 
+  This results in generating the correct target path during readlink and 
+  follow_link operations inspite of renamed target kobject. 
+
+o This also pins the target kobject during link creation and the ref. is
+  released when the link is removed. 
+
+o Apart from being correct this patch also saves some memory by not pinning
+  a whole page for saving the target information.
+
+o Used a rw_semaphor sysfs_rename_sem to avoid clashing with renaming of 
+  ancestors while the target path is generated. 
+
+o Used dcache_lock in fs/sysfs/sysfs.h:sysfs_get_kobject() because of using
+  d_drop() while removing dentries.
+
+
+ fs/sysfs/dir.c     |   20 ++++++-
+ fs/sysfs/inode.c   |    7 ++
+ fs/sysfs/symlink.c |  135 ++++++++++++++++++++++++++++++++++++-----------------
+ fs/sysfs/sysfs.h   |    7 +-
+ 4 files changed, 121 insertions(+), 48 deletions(-)
+
+diff -puN fs/sysfs/sysfs.h~sysfs-symlinks-fix fs/sysfs/sysfs.h
+--- linux-2.6.6-rc2-mm2/fs/sysfs/sysfs.h~sysfs-symlinks-fix	2004-04-29 16:15:13.000000000 +0530
++++ linux-2.6.6-rc2-mm2-maneesh/fs/sysfs/sysfs.h	2004-04-29 18:03:58.000000000 +0530
+@@ -12,15 +12,18 @@ extern void sysfs_hash_and_remove(struct
+ extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
+ extern void sysfs_remove_subdir(struct dentry *);
+ 
++extern int sysfs_readlink(struct dentry *, char __user *, int );
++extern int sysfs_follow_link(struct dentry *, struct nameidata *);
++extern struct rw_semaphore sysfs_rename_sem;
+ 
+ static inline struct kobject *sysfs_get_kobject(struct dentry *dentry)
+ {
+ 	struct kobject * kobj = NULL;
+ 
+-	spin_lock(&dentry->d_lock);
++	spin_lock(&dcache_lock);
+ 	if (!d_unhashed(dentry))
+ 		kobj = kobject_get(dentry->d_fsdata);
+-	spin_unlock(&dentry->d_lock);
++	spin_unlock(&dcache_lock);
+ 
+ 	return kobj;
+ }
+diff -puN fs/sysfs/dir.c~sysfs-symlinks-fix fs/sysfs/dir.c
+--- linux-2.6.6-rc2-mm2/fs/sysfs/dir.c~sysfs-symlinks-fix	2004-04-29 16:15:13.000000000 +0530
++++ linux-2.6.6-rc2-mm2-maneesh/fs/sysfs/dir.c	2004-04-29 18:31:53.000000000 +0530
+@@ -10,6 +10,8 @@
+ #include <linux/kobject.h>
+ #include "sysfs.h"
+ 
++DECLARE_RWSEM(sysfs_rename_sem);
++
+ static int init_dir(struct inode * inode)
+ {
+ 	inode->i_op = &simple_dir_inode_operations;
+@@ -134,8 +136,14 @@ restart:
+ 			/**
+ 			 * Unlink and unhash.
+ 			 */
++			__d_drop(d);
+ 			spin_unlock(&dcache_lock);
+-			d_delete(d);
++			/* release the target kobject in case of 
++			 * a symlink
++			 */
++			if (S_ISLNK(d->d_inode->i_mode))
++				kobject_put(d->d_fsdata);
++			
+ 			simple_unlink(dentry->d_inode,d);
+ 			dput(d);
+ 			pr_debug(" done\n");
+@@ -167,10 +175,14 @@ void sysfs_rename_dir(struct kobject * k
+ 	parent = kobj->parent->dentry;
+ 
+ 	down(&parent->d_inode->i_sem);
+-
+ 	new_dentry = sysfs_get_dentry(parent, new_name);
+-	d_move(kobj->dentry, new_dentry);
+-	kobject_set_name(kobj,new_name);
++	if (!IS_ERR(new_dentry)) {
++		down_write(&sysfs_rename_sem);
++		d_move(kobj->dentry, new_dentry);
++		kobject_set_name(kobj,new_name);
++		up_write(&sysfs_rename_sem);
++		dput(new_dentry);
++	}
+ 	up(&parent->d_inode->i_sem);	
+ }
+ 
+diff -puN fs/sysfs/inode.c~sysfs-symlinks-fix fs/sysfs/inode.c
+--- linux-2.6.6-rc2-mm2/fs/sysfs/inode.c~sysfs-symlinks-fix	2004-04-29 16:15:13.000000000 +0530
++++ linux-2.6.6-rc2-mm2-maneesh/fs/sysfs/inode.c	2004-04-29 16:15:13.000000000 +0530
+@@ -96,7 +96,12 @@ void sysfs_hash_and_remove(struct dentry
+ 			pr_debug("sysfs: Removing %s (%d)\n", victim->d_name.name,
+ 				 atomic_read(&victim->d_count));
+ 
+-			d_delete(victim);
++			d_drop(victim);
++			/* release the target kobject in case of 
++			 * a symlink
++			 */
++			if (S_ISLNK(victim->d_inode->i_mode))
++				kobject_put(victim->d_fsdata);
+ 			simple_unlink(dir->d_inode,victim);
+ 		}
+ 		/*
+diff -puN fs/sysfs/symlink.c~sysfs-symlinks-fix fs/sysfs/symlink.c
+--- linux-2.6.6-rc2-mm2/fs/sysfs/symlink.c~sysfs-symlinks-fix	2004-04-29 16:15:13.000000000 +0530
++++ linux-2.6.6-rc2-mm2-maneesh/fs/sysfs/symlink.c	2004-04-29 18:04:07.000000000 +0530
+@@ -8,27 +8,17 @@
+ 
+ #include "sysfs.h"
+ 
++static struct inode_operations sysfs_symlink_inode_operations = {
++	.readlink = sysfs_readlink,
++	.follow_link = sysfs_follow_link,
++};
+ 
+ static int init_symlink(struct inode * inode)
+ {
+-	inode->i_op = &page_symlink_inode_operations;
++	inode->i_op = &sysfs_symlink_inode_operations;
+ 	return 0;
+ }
+ 
+-static int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
+-{
+-	int error;
+-
+-	error = sysfs_create(dentry, S_IFLNK|S_IRWXUGO, init_symlink);
+-	if (!error) {
+-		int l = strlen(symname)+1;
+-		error = page_symlink(dentry->d_inode, symname, l);
+-		if (error)
+-			iput(dentry->d_inode);
+-	}
+-	return error;
+-}
+-
+ static int object_depth(struct kobject * kobj)
+ {
+ 	struct kobject * p = kobj;
+@@ -74,37 +64,20 @@ int sysfs_create_link(struct kobject * k
+ 	struct dentry * dentry = kobj->dentry;
+ 	struct dentry * d;
+ 	int error = 0;
+-	int size;
+-	int depth;
+-	char * path;
+-	char * s;
+-
+-	depth = object_depth(kobj);
+-	size = object_path_length(target) + depth * 3 - 1;
+-	if (size > PATH_MAX)
+-		return -ENAMETOOLONG;
+-	pr_debug("%s: depth = %d, size = %d\n",__FUNCTION__,depth,size);
+-
+-	path = kmalloc(size,GFP_KERNEL);
+-	if (!path)
+-		return -ENOMEM;
+-	memset(path,0,size);
+-
+-	for (s = path; depth--; s += 3)
+-		strcpy(s,"../");
+-
+-	fill_object_path(target,path,size);
+-	pr_debug("%s: path = '%s'\n",__FUNCTION__,path);
+ 
+ 	down(&dentry->d_inode->i_sem);
+ 	d = sysfs_get_dentry(dentry,name);
+-	if (!IS_ERR(d))
+-		error = sysfs_symlink(dentry->d_inode,d,path);
+-	else
++	if (!IS_ERR(d)) {
++		error = sysfs_create(d, S_IFLNK|S_IRWXUGO, init_symlink);
++		if (!error)
++			/* 
++			 * associate the link dentry with the target kobject 
++			 */
++			d->d_fsdata = kobject_get(target);
++		dput(d);
++	} else 
+ 		error = PTR_ERR(d);
+-	dput(d);
+ 	up(&dentry->d_inode->i_sem);
+-	kfree(path);
+ 	return error;
+ }
+ 
+@@ -120,6 +93,86 @@ void sysfs_remove_link(struct kobject * 
+ 	sysfs_hash_and_remove(kobj->dentry,name);
+ }
+ 
++static int sysfs_get_target_path(struct kobject * kobj, struct kobject * target,
++				   char *path)
++{
++	char * s;
++	int depth, size;
++
++	depth = object_depth(kobj);
++	size = object_path_length(target) + depth * 3 - 1;
++	if (size > PATH_MAX)
++		return -ENAMETOOLONG;
++
++	pr_debug("%s: depth = %d, size = %d\n", __FUNCTION__, depth, size);
++
++	for (s = path; depth--; s += 3)
++		strcpy(s,"../");
++
++	fill_object_path(target, path, size);
++	pr_debug("%s: path = '%s'\n", __FUNCTION__, path);
++
++	return 0;
++}
++
++static int sysfs_getlink(struct dentry *dentry, char * path)
++{
++	struct kobject *kobj, *target_kobj;
++	int error = 0;
++
++	kobj = sysfs_get_kobject(dentry->d_parent);
++	if (!kobj)
++		return -EINVAL;
++
++	target_kobj = sysfs_get_kobject(dentry);
++	if (!target_kobj) {
++		kobject_put(kobj);
++		return -EINVAL;
++	}
++
++	down_read(&sysfs_rename_sem);
++	error = sysfs_get_target_path(kobj, target_kobj, path);
++	up_read(&sysfs_rename_sem);
++	
++	kobject_put(kobj);
++	kobject_put(target_kobj);
++	return error;
++
++}
++
++int sysfs_readlink(struct dentry *dentry, char __user *buffer, int buflen)
++{
++	int error = 0;
++	unsigned long page = get_zeroed_page(GFP_KERNEL);
++
++	if (!page)
++		return -ENOMEM;
++
++	error = sysfs_getlink(dentry, (char *) page);
++	if (!error)
++	        error = vfs_readlink(dentry, buffer, buflen, (char *) page);
++
++	free_page(page);
++
++	return error;
++}
++
++int sysfs_follow_link(struct dentry *dentry, struct nameidata *nd)
++{
++	int error = 0;
++	unsigned long page = get_zeroed_page(GFP_KERNEL);
++
++	if (!page)
++		return -ENOMEM;
++
++	error = sysfs_getlink(dentry, (char *) page); 
++	if (!error)
++	        error = vfs_follow_link(nd, (char *) page);
++
++	free_page(page);
++
++	return error;
++}
+ 
+ EXPORT_SYMBOL(sysfs_create_link);
+ EXPORT_SYMBOL(sysfs_remove_link);
+
+_
 
 -- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road, 			Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom	Phone:  +44 (0)1223 411 200
-
-
-_____________________________________________________________________
-The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
-
-This message has been virus scanned by MessageLabs.
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

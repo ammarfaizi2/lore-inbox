@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129377AbRBMKB3>; Tue, 13 Feb 2001 05:01:29 -0500
+	id <S129396AbRBMJ6j>; Tue, 13 Feb 2001 04:58:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129169AbRBMKBT>; Tue, 13 Feb 2001 05:01:19 -0500
-Received: from main.braxis.co.uk ([212.160.232.26]:35081 "EHLO
-	main.braxis.co.uk") by vger.kernel.org with ESMTP
-	id <S129557AbRBMKBI>; Tue, 13 Feb 2001 05:01:08 -0500
-Date: Tue, 13 Feb 2001 10:59:57 +0100
-From: Krzysztof Rusocki <kszysiu@braxis.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: linux-xfs@oss.sgi.com
-Subject: [?] __alloc_pages: 1-order allocation failed.
-Message-ID: <20010213105957.A16713@main.braxis.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129377AbRBMJ63>; Tue, 13 Feb 2001 04:58:29 -0500
+Received: from mons.uio.no ([129.240.130.14]:41139 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S129169AbRBMJ6O>;
+	Tue, 13 Feb 2001 04:58:14 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: carlos@fisica.ufpr.br (Carlos Carvalho), linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19pre10 doesn't compile on alphas (sunrpc)
+In-Reply-To: <E14SQqi-0008Bm-00@the-village.bc.nu>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: text/plain; charset=US-ASCII
+Date: 13 Feb 2001 10:56:28 +0100
+In-Reply-To: Alan Cox's message of "Mon, 12 Feb 2001 21:49:29 +0000 (GMT)"
+Message-ID: <shslmra9a9f.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Hi,
+    >> net/network.a(sunrpc.o): In function `xprt_ping_reserve':
+    >> sunrpc.o(.text+0x4b94): undefined reference to `BUG'
+    >> sunrpc.o(.text+0x4b98): undefined reference to `BUG'
+    >>
+    >> Looks like a problem in Trond's patches, also it doesn't happen
+    >> with pre9. It links in intel machines. I didn't reboot to test
+    >> yet...
 
-Here's what i've found today in logs:
+     > The ideal solution would be for someone to provide BUG() on the
+     > Alpha platform as in 2.4. That would sort things cleanly
 
-Feb 13 02:10:41 main kernel: __alloc_pages: 1-order allocation failed. 
-Feb 13 02:10:42 main last message repeated 143 times
-Feb 13 02:10:47 main kernel: ed. 
-Feb 13 02:10:47 main kernel: __alloc_pages: 1-order allocation failed. 
-Feb 13 02:50:30 main syslogd 1.3-3: restart (remote reception).
+Actually, since BUG() only seems to be defined on i386 platforms for
+2.2.x, perhaps the easiest thing to do (unless somebody wants to
+volunteer to backport all the `safe' definitions from 2.4.x) would be
+to add the generic `*(int *)0 = 0' definition for local use by ping()
+itself.
 
+Cheers,
+  Trond
 
-After that there was possibly lock-up or reboot (i don't know, when i 
-connected to  the machine it was already running).
-
-What can be possible cause of such things ?
-
-I am running 2.4.1-XFS (2001/02/10) on a Mendocino
-366/128MB/VT82C596A/PDC20262.
-
-Regards,
-
-- Krzysztof
-
-PS.
-lkml subscribers: please reply to my email if it's possible :)
+--- net/sunrpc/ping.c.orig	Tue Feb 13 10:47:20 2001
++++ net/sunrpc/ping.c	Tue Feb 13 10:50:03 2001
+@@ -25,6 +25,10 @@
+ # define RPCDBG_FACILITY	RPCDBG_XPRT
+ #endif
+ 
++#ifndef BUG
++#define BUG() do { printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); *(int *)0=0; } while (0)
++#endif
++
+ static void ping_call_reserve(struct rpc_task *);
+ static void ping_call_allocate(struct rpc_task *);
+ static void ping_call_encode(struct rpc_task *);

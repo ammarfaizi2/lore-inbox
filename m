@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVCEKoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263006AbVCEKrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262469AbVCEKoo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 05:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbVCEKon
+	id S263006AbVCEKrH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 05:47:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbVCEKrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 05:44:43 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:22035 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S262469AbVCEKnI (ORCPT
+	Sat, 5 Mar 2005 05:47:06 -0500
+Received: from mx2.mail.ru ([194.67.23.122]:65362 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S263006AbVCEKqz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 05:43:08 -0500
-Date: Sat, 5 Mar 2005 11:43:05 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Greg KH <greg@kroah.com>
-Cc: Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
-Message-ID: <20050305104305.GB7671@pclin040.win.tue.nl>
-References: <20050304222146.GA1686@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 5 Mar 2005 05:46:55 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Subject: Re: [patch] remove the `.' in EXTRAVERSION usage
+Date: Sat, 5 Mar 2005 13:47:08 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, akpm@osdl.org
+References: <2cd57c90050305022211b94e86@mail.gmail.com>
+In-Reply-To: <2cd57c90050305022211b94e86@mail.gmail.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20050304222146.GA1686@kroah.com>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : pastinakel.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200503051347.08860.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 02:21:46PM -0800, Greg KH wrote:
+On Saturday 05 March 2005 12:22, Coywolf Qi Hunt wrote:
 
-> Anything else anyone can think of?  Any objections to any of these?
-> I based them off of Linus's original list.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------
-> 
-> Rules on what kind of patches are accepted, and what ones are not, into
-> the "linux-release" tree.
-> 
->  - It can not bigger than 100 lines, with context.
->  - It must fix only one thing.
->  - It must fix a real bug that bothers people (not a, "This could be a
->    problem..." type thing.)
->  - It must fix a problem that causes a build error (but not for things
->    marked CONFIG_BROKEN), an oops, a hang, or a real security issue.
->  - No "theoretical race condition" issues, unless an explanation of how
->    the race can be exploited.
->  - It can not contain any "trivial" fixes in it (spelling changes,
->    whitespace cleanups, etc.)
+> Since 2.6.9, there came along the LOCALVERSION for people to add local
+> version in make menuconfig which was EXTRAVERSION originally for imho.
+> Now EXTRAVERSION goes just as a kernel version number, it's reasonable
+> to remove the `.' in its usage.
 
-Objections - no. Anything else - yes.
-I would like the requirement: "It must be obviously correct".
+> -KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(LOCALVERSION)
+> +KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL).$(EXTRAVERSION)$(LOCALVERSION)
 
-In a hundred lines one can put a lot of tricky code and subtle changes.
-For example, if a security problem necessitates a nontrivial change,
-it should cause an earlier release of 2.6.x+1 instead of a 2.6.x.y+1.
+You want 2.6.11.-mm2 or 2.6.11.mm2 ? :-)
 
-Andries
+	Alexey

@@ -1,69 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317639AbSHUBZn>; Tue, 20 Aug 2002 21:25:43 -0400
+	id <S317641AbSHUBv2>; Tue, 20 Aug 2002 21:51:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317641AbSHUBZm>; Tue, 20 Aug 2002 21:25:42 -0400
-Received: from ppp-217-133-223-78.dialup.tiscali.it ([217.133.223.78]:16845
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S317639AbSHUBZm>; Tue, 20 Aug 2002 21:25:42 -0400
-Subject: Re: [PATCH] (re-xmit): kprobes for i386
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       "Vamsi Krishna S ." <vamsi@in.ibm.com>
-In-Reply-To: <20020820200453.407422C066@lists.samba.org>
-References: <20020820200453.407422C066@lists.samba.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-UkzkmpwPZ3tahG697mpi"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 21 Aug 2002 03:29:37 +0200
-Message-Id: <1029893377.24300.162.camel@ldb>
+	id <S317642AbSHUBv2>; Tue, 20 Aug 2002 21:51:28 -0400
+Received: from mail01.qualys.com ([12.162.2.5]:23264 "HELO mail01.qualys.com")
+	by vger.kernel.org with SMTP id <S317641AbSHUBv1>;
+	Tue, 20 Aug 2002 21:51:27 -0400
+Date: Tue, 20 Aug 2002 18:00:29 -0700
+From: Silvio Cesare <silvio@qualys.com>
+To: linux-kernel@vger.kernel.org
+Cc: silvio@qualys.com
+Subject: fs/select.c [patch > to >=]
+Message-ID: <20020820180029.A17387@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="2fHTh5uZTiUOsy+g"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-UkzkmpwPZ3tahG697mpi
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> > > +	if (kprobe_running() && kprobe_fault_handler(regs, trapnr))
-> > > +		return;
-> > >  	if (!(regs->xcs & 3))
-> > >  		goto kernel_trap;
-> > The kprobe check should be after the kernel_trap label.
-> 
-> No.  The entire *point* of being able to register a kprobe fault
-> handler is to be able to handle any kernel faults yourself if you want
-> to.
-It seems you have misunderstood my point.
-My idea is that since kprobes are only used for kernel mode address, we
-should move the kprobe check in the code that executes after we check
-that the fault is happening in kernel mode.
+fs/select.c (from 2.4.19 but present in 2.5.x also)
 
-Soemthing like this:
-if (!(regs->xcs & 3))
-	goto kernel_trap;
+asmlinkage long sys_poll(struct pollfd * ufds, unsigned int nfds, long timeout)
+{
+        int i, j, fdcount, err;
+        struct pollfd **fds;
+        poll_table table, *wait;
+        int nchunks, nleft;
 
-[...]
+[ skip ]
 
-kernel_trap:
-	if (kprobe_running() && kprobe_fault_handler(regs, trapnr))
-		return;
+        nchunks = 0;
+        nleft = nfds;
+        while (nleft > POLLFD_PER_PAGE) { /* allocate complete PAGE_SIZE chunks
+*/
+                fds[nchunks] = (struct pollfd *)__get_free_page(GFP_KERNEL);
+                if (fds[nchunks] == NULL)
+                        goto out_fds;
+                nchunks++;
+                nleft -= POLLFD_PER_PAGE;
+        }
+        if (nleft) { /* allocate last PAGE_SIZE chunk, only nleft elements used
+*/
+
+why not -->
+
+        while (nleft >= POLLFD_PER_PAGE) {
+
+in this case we will use only nchunks in the case that this will end up
+page aligned..  the current way of using only > POLLFD_PER_PAGE will
+end up with nchunks, and nleft == PAGE_SIZE / sizeof(pollfd) etc..
+
+silly optimisation by changing > to >=, but still an optimisation.. if there
+is something obviously wrong with changing > to >=, ignore me since I
+probably should get more sleep.. but I dont see any problem though I havent
+really looked at it too much.
+
+attachment has 1 line (1 character) patch ;-)
+
+--
+Silvio
 
 
---=-UkzkmpwPZ3tahG697mpi
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="poll.patch"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+diff -u fs/select.c.2.4.19 fs/select.c 
+--- fs/select.c.2.4.19	Tue Aug 20 17:51:48 2002
++++ fs/select.c	Tue Aug 20 17:52:15 2002
+@@ -445,7 +445,7 @@
+ 
+ 	nchunks = 0;
+ 	nleft = nfds;
+-	while (nleft > POLLFD_PER_PAGE) { /* allocate complete PAGE_SIZE chunks */
++	while (nleft >= POLLFD_PER_PAGE) { /* allocate complete PAGE_SIZE chunks */
+ 		fds[nchunks] = (struct pollfd *)__get_free_page(GFP_KERNEL);
+ 		if (fds[nchunks] == NULL)
+ 			goto out_fds;
 
-iD8DBQA9Yu0Adjkty3ft5+cRAlKhAKDeY7nJ28T4fODsp9Hd4JHMRAGyCgCgt7Fo
-jxlHSUHGxFC/PPBfk0cSk7s=
-=oyti
------END PGP SIGNATURE-----
-
---=-UkzkmpwPZ3tahG697mpi--
+--2fHTh5uZTiUOsy+g--

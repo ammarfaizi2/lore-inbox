@@ -1,137 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288960AbSA2JBB>; Tue, 29 Jan 2002 04:01:01 -0500
+	id <S288967AbSA2JBL>; Tue, 29 Jan 2002 04:01:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289012AbSA2JAw>; Tue, 29 Jan 2002 04:00:52 -0500
-Received: from sydney1.au.ibm.com ([202.135.142.193]:40972 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S288960AbSA2JAo>; Tue, 29 Jan 2002 04:00:44 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] per-cpu areas for 2.5.3-pre6
-Date: Tue, 29 Jan 2002 20:01:17 +1100
-Message-Id: <E16VU8j-0006Hm-00@wagner.rustcorp.com.au>
+	id <S289012AbSA2JBC>; Tue, 29 Jan 2002 04:01:02 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:3334 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S288967AbSA2JAv>; Tue, 29 Jan 2002 04:00:51 -0500
+Message-Id: <200201290859.g0T8xGE26936@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [PATCH] syscall latency improvement #1
+Date: Tue, 29 Jan 2002 10:59:18 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <18993.1011984842@warthog.cambridge.redhat.com> <200201281018.g0SAIIE22462@Port.imtp.ilyichevsk.odessa.ua> <3C55282C.7D607CFB@zip.com.au>
+In-Reply-To: <3C55282C.7D607CFB@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces the __per_cpu_data tag for data, and the
-per_cpu() & this_cpu() macros to go with it.
+On 28 January 2002 08:30, Andrew Morton wrote:
+> > >       s/inline//g
+> >
+> > I like this.
+>
+> Well, it's a fairly small optimisation, but it's easy.
+>
+> I did a patch a while back: 
+> http://www.zip.com.au/~akpm/linux/2.4/2.4.17-pre1/inline.patch This is
+> purely against core kernel files:
 
-This allows us to get rid of all those special case structures
-springing up all over the place for CPU-local data.
+[snip]
 
-Thanks!
-Rusty.
+How did you find big inlines? Care to share hunter script with me (+ lkml)?
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.3-pre6/include/linux/smp.h working-2.5.3-pre6-percpu/include/linux/smp.h
---- linux-2.5.3-pre6/include/linux/smp.h	Thu Jan 17 16:35:24 2002
-+++ working-2.5.3-pre6-percpu/include/linux/smp.h	Wed Jan 30 04:17:59 2002
-@@ -71,7 +71,17 @@
- #define MSG_RESCHEDULE		0x0003	/* Reschedule request from master CPU*/
- #define MSG_CALL_FUNCTION       0x0004  /* Call function on all other CPUs */
- 
--#else
-+#define __per_cpu_data	__attribute__((section(".data.percpu")))
-+
-+#ifndef __HAVE_ARCH_CPU_OFFSET
-+#define per_cpu_offset(cpu) (__per_cpu_offset[(cpu)])
-+#endif
-+
-+#define per_cpu(var, cpu)						  \
-+(*(__typeof__(&var)((void *)&var + per_cpu_offset(cpu))))
-+
-+extern unsigned long __per_cpu_offset[NR_CPUS];
-+#else /* !SMP */
- 
- /*
-  *	These macros fold the SMP functionality into a single CPU system
-@@ -88,6 +98,10 @@
- #define cpu_online_map				1
- static inline void smp_send_reschedule(int cpu) { }
- static inline void smp_send_reschedule_all(void) { }
-+#define __per_cpu_data
-+#define per_cpu(var, cpu)			var
- 
- #endif
-+
-+#define this_cpu(var)				per_cpu(var,smp_processor_id())
- #endif
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.3-pre6/arch/i386/vmlinux.lds working-2.5.3-pre6-percpu/arch/i386/vmlinux.lds
---- linux-2.5.3-pre6/arch/i386/vmlinux.lds	Tue Jan 29 09:16:52 2002
-+++ working-2.5.3-pre6-percpu/arch/i386/vmlinux.lds	Wed Jan 30 04:00:34 2002
-@@ -58,6 +58,10 @@
- 	*(.initcall7.init)
-   }
-   __initcall_end = .;
-+  . = ALIGN(32);
-+  __per_cpu_start = .;
-+  .data.percpu  : { *(.data.percpu) }
-+  __per_cpu_end = .;
-   . = ALIGN(4096);
-   __init_end = .;
- 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.3-pre6/arch/ppc/vmlinux.lds working-2.5.3-pre6-percpu/arch/ppc/vmlinux.lds
---- linux-2.5.3-pre6/arch/ppc/vmlinux.lds	Tue Jan 29 09:16:53 2002
-+++ working-2.5.3-pre6-percpu/arch/ppc/vmlinux.lds	Wed Jan 30 04:00:34 2002
-@@ -104,6 +104,10 @@
- 	*(.initcall7.init)
-   }
-   __initcall_end = .;
-+  . = ALIGN(32);
-+  __per_cpu_start = .;
-+  .data.percpu  : { *(.data.percpu) }
-+  __per_cpu_end = .;
-   . = ALIGN(4096);
-   __init_end = .;
- 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.3-pre6/init/main.c working-2.5.3-pre6-percpu/init/main.c
---- linux-2.5.3-pre6/init/main.c	Tue Jan 29 09:17:09 2002
-+++ working-2.5.3-pre6-percpu/init/main.c	Wed Jan 30 06:43:10 2002
-@@ -274,16 +274,42 @@
- 
- #else
- 
-+unsigned long __per_cpu_offset[NR_CPUS];
-+/* Created by linker magic */
-+extern char __per_cpu_start, __per_cpu_end;
-+
-+static void setup_per_cpu_areas(void)
-+{
-+	unsigned int i;
-+	size_t per_cpu_size;
-+	char *region;
-+	
-+	/* Set up per-CPU offset pointers.  Page align to be safe. */
-+	per_cpu_size = ((&__per_cpu_end - &__per_cpu_start) + PAGE_SIZE-1)
-+		& ~(PAGE_SIZE-1);
-+	region = kmalloc(per_cpu_size * smp_num_cpus, GFP_KERNEL);
-+	if (!region)
-+		panic("Could not allocate per-cpu regions: %u bytes\n",
-+		      per_cpu_size * smp_num_cpus);
-+	for (i = 0; i < smp_num_cpus; i++) {
-+		memcpy(region + per_cpu_size*i, &__per_cpu_start,
-+		       &__per_cpu_end - &__per_cpu_start);
-+		__per_cpu_offset[i] 
-+			= (region + per_cpu_size*i) - &__per_cpu_start;
-+	}
-+	printk("Did %u cpu regions...\n", smp_num_cpus);
-+}
-+
- /* Called by boot processor to activate the rest. */
- static void __init smp_init(void)
- {
- 	/* Get other processors into their bootup holding patterns. */
- 	smp_boot_cpus();
- 
-+	setup_per_cpu_areas();
- 	smp_threads_ready=1;
- 	smp_commence();
- }
--
- #endif
- 
- /*
+> The first patch should be against Documentation/CodingStyle.
+> What are we trying to achieve here?  What are the guidelines
+> for when-to and when-to-not?  I'd say:
+>
+> - If a function has a single call site and is static then it
+>   is always correct to inline.
 
+And what if later you (or someone else!) add another call? You may forget to 
+remove inline. It adds maintenance trouble while not buying much of speed:
+if func is big, inline gains are small, if it's small, it should be inlined 
+regardless of number of call sites.
+
+> - If a function is very small (20-30 bytes) then inlining
+>   is correct even if it has many call sites.
+
+Small in asm code, _not_ in C. Sometimes seemingly small C explodes into 
+horrendous asm.
+
+> - If a function is less-small, and has only one or two
+>   *commonly called* call sites, then inlining is OK.
+
+How much less small? We can have both:
+
+inline int f_inlined() { ... }
+int f() { return f_inline(); }
+...
+f_inlined(); /* we need speed here */
+f(); /* we save space here */
+
+> - If a function is a leaf function, then it is more inlinable
+>   than a function which makes another function call.
+
+100%. Especially when some "cute small functions" called inside happen to be 
+inlined too (or are macros).
+
+> fs/inode.c:__sync_one() violates all the above quite
+> outrageously :)
+
+Homehow I feel there are more :-)
 --
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+vda

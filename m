@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262940AbTK3TIm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 14:08:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTK3TIm
+	id S262782AbTK3TAr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 14:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbTK3TAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 14:08:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53173 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262940AbTK3TIj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 14:08:39 -0500
-Message-ID: <3FCA4028.7050201@pobox.com>
-Date: Sun, 30 Nov 2003 14:08:24 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sun, 30 Nov 2003 14:00:47 -0500
+Received: from nameserver1.brainwerkz.net ([209.251.159.130]:1980 "EHLO
+	nameserver1.mcve.com") by vger.kernel.org with ESMTP
+	id S262782AbTK3TAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 14:00:45 -0500
+Message-ID: <35356.68.105.173.45.1070219694.squirrel@mail.mainstreetsoftworks.com>
+Date: Sun, 30 Nov 2003 14:14:54 -0500 (EST)
+Subject: [PATCH 2.6.0-test11] agpgart [amd64] fix (off by one)
+From: "Brad House" <brad_mssw@gentoo.org>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: Re: [PATCH][2.6] e100_phy.c uses free'd .text after init
-References: <Pine.LNX.4.58.0311290033120.1674@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.58.0311290033120.1674@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> diff -u -p -B -r1.1.1.1 e100_phy.c
-> --- linux-2.6.0-test11/drivers/net/e100/e100_phy.c	28 Nov 2003 18:03:05 -0000	1.1.1.1
-> +++ linux-2.6.0-test11/drivers/net/e100/e100_phy.c	29 Nov 2003 05:39:53 -0000
-> @@ -132,7 +132,7 @@ e100_mdi_read(struct e100_private *bdp,
->  	}
->  }
-> 
-> -static unsigned char __devinit
-> +static unsigned char
->  e100_phy_valid(struct e100_private *bdp, unsigned int phy_address)
->  {
->  	u16 ctrl_reg, stat_reg;
-> @@ -150,7 +150,7 @@ e100_phy_valid(struct e100_private *bdp,
->  	return true;
->  }
-> 
-> -static void __devinit
-> +static void
->  e100_phy_address_detect(struct e100_private *bdp)
->  {
->  	unsigned int addr;
+AGPGart would report "Too many northbridges" without this
+patch. The problem was that 'i' was incremented before being
+checked against the MAX GARTS, just making the check > instead
+of == fixes the problems.  Patch here:
+
+http://dev.gentoo.org/~brad_mssw/kernel_patches/2.6.0/genpatches-0.7/101_amd64_agpgart_fix.patch
 
 
-I should probably move that patch from net-drivers-2.5-exp to mainline, 
-it sounds like...
+Also inlined below.
+Please CC me on any replies
 
-	Jeff
+-Brad House
+brad_mssw@gentoo.org
+
+
+diff -ruN linux-2.6.0-test11.old/drivers/char/agp/amd64-agp.c
+linux-2.6.0-test11/drivers/char/agp/amd64-agp.c
+--- linux-2.6.0-test11.old/drivers/char/agp/amd64-agp.c	2003-11-26
+15:44:44.000000000 -0500
++++ linux-2.6.0-test11/drivers/char/agp/amd64-agp.c	2003-11-30
+14:07:38.690330488 -0500
+@@ -357,7 +357,7 @@
+ 		}
+ 		hammers[i++] = loop_dev;
+ 		nr_garts = i;
+-		if (i == MAX_HAMMER_GARTS) {
++		if (nr_garts > MAX_HAMMER_GARTS) {
+ 			printk(KERN_INFO PFX "Too many northbridges for AGP\n");
+ 			return -1;
+ 		}
 
 
 

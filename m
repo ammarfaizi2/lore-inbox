@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265278AbTLRS32 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 13:29:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265284AbTLRS32
+	id S265258AbTLRSWD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 13:22:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265260AbTLRSWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 13:29:28 -0500
-Received: from rtv5.czechbone.net ([212.96.160.67]:19657 "EHLO main.rtv5.cz")
-	by vger.kernel.org with ESMTP id S265278AbTLRS31 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 13:29:27 -0500
-Message-ID: <3FE1F203.6070809@tiscali.cz>
-Date: Thu, 18 Dec 2003 19:29:23 +0100
-From: Milos Prudek <milos.prudek@tiscali.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: cs, en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Mount Rainier in 2.6
-References: <3FE16489.9060006@tiscali.cz> <20031218083530.GP2495@suse.de> <20031218114000.GB2069@suse.de>
-In-Reply-To: <20031218114000.GB2069@suse.de>
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Dec 2003 13:22:03 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:19623 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265258AbTLRSWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 13:22:01 -0500
+Date: Thu, 18 Dec 2003 18:21:41 +0000
+From: Dave Jones <davej@redhat.com>
+To: Jon Masters <jonathan@jonmasters.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Buffalo Airstation
+Message-ID: <20031218182141.GA12734@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jon Masters <jonathan@jonmasters.org>, linux-kernel@vger.kernel.org
+References: <3FE1DC69.9050704@jonmasters.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FE1DC69.9050704@jonmasters.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 18, 2003 at 04:57:13PM +0000, Jon Masters wrote:
+ > -----BEGIN PGP SIGNED MESSAGE-----
+ > Hash: SHA1
+ > 
+ > Hi there,
+ > 
+ > I made some progress getting up to date code from Buffalo today, after I
+ > called them, in getting a link to the older source and information about
+ > the forthcoming new release. Apparently they are having a meeting on
+ > January 6 to try to push forward a new release soon thereafter.
+ > 
+ > http://www2.melcoinc.co.jp/pub/lan/linux_src.tgz
 
-Sure! I am compiling the patched kernel right now.
+http://www.linux.org.uk/~davej/buffalo.diff.gz
 
-I'll report back to the kernel list.
+Quite amusing as the bulk of the diff seems to be
+a) XFS merge (came in from SGI as the original tree seems to
+   be cloned from the linux-mips tree).
+b) Someone seems to have gone right through the 2.4.5 tree
+   deleting every comment with FIXME/XXX in it, along with
+   anything #if'd out.
 
-Thank you very much for the patch!
-
-> Here's a patch, it's received a little testing. Let me know if it works
-> for you. I'm also attaching a slightly updated cdmrw tool.
-
--- 
-Milos Prudek
+		Dave
 

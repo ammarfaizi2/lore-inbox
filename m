@@ -1,107 +1,221 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbTDXJjs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 05:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbTDXJjs
+	id S262598AbTDXJiX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 05:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbTDXJiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 05:39:48 -0400
-Received: from ltgp.iram.es ([150.214.224.138]:59012 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S262623AbTDXJio (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 05:38:44 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Thu, 24 Apr 2003 10:11:43 +0200
-To: Robert Schweikert <Robert.Schweikert@abaqus.com>
-Cc: linux-kernel@vger.kernel.org, Robert Schweikert <rjschwei@abaqus.com>
-Subject: Re: context switch code question
-Message-ID: <20030424081143.GA6405@iram.es>
-References: <1050614372.2227.161.camel@cheetah.hks.com>
+	Thu, 24 Apr 2003 05:38:23 -0400
+Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:53639 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S262598AbTDXJiS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 05:38:18 -0400
+Date: Thu, 24 Apr 2003 11:50:18 +0200
+From: Stelian Pop <stelian@popies.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.68] meye driver update
+Message-ID: <20030424095018.GB3352@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1050614372.2227.161.camel@cheetah.hks.com>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 17, 2003 at 05:19:32PM -0400, Robert Schweikert wrote:
-> Can someone please point me to the context switching code. I am
-> interested in the context switch structure and the values that are
-> saved. I am chasing a weird problem with some numerical code that uses
-> mmx instructions to get flush to zero to work. Specifically I am calling
-> the
-> 
-> _MM_SET_FLUSH_TO_ZERO_MODE
-> 
-> macro which in turn ends up calling _mm_setcsr(), wherever that might be
-> implemented.
-> 
-> What I am trying to figure out is a.) is this register value properly
-> set/reset during context switch and b.) is this particular register
-> properly transfered when the process gets moved to another CPU. 
+Hi,
 
-Well, there is at least one bug in arch/i386/kernel/i387.c regarding the
-handling of mxcsr on processors with SSE2 extensions. A new mxcsr bit 
-(bit 6, denormals are zero or DAZ) was defined by Intel which will be 
-cleared under you when you get a signal and with some ptrace operations.
+The attached patch:
 
-The following patch should fix this, but I'm not sure that it is your
-problem, and the behaviour of SSE code will vary depending on whether
-the processor has SSE2 (but blame Intel for that, not me ;-)). You don't
-say which kernel you are using, so I made the patch against a very
-recent pull from the from 2.5 tree, but it is trivially portable to 2.4 
-and might even apply as is.
+* replaces the pci_alloc_consistent calls with dma_alloc_coherent
+  because we want to do the allocations at GFP_KERNEL priority and
+  not GFP_ATOMIC because we request quite a bit of memory and the
+  allocation fails quite frequently.
 
+  It would be better to have a pci_alloc_consistent with an extra
+  parameter (priority) but since we haven't, and the meye driver is
+  supposed to work only on ix86 platforms we can safely do the
+  change.
 
-===== arch/i386/kernel/i387.c 1.16 vs edited =====
---- 1.16/arch/i386/kernel/i387.c	Wed Apr  9 07:45:37 2003
-+++ edited/arch/i386/kernel/i387.c	Thu Apr 24 09:52:42 2003
-@@ -25,6 +25,12 @@
- #define HAVE_HWFP 1
- #endif
+* fixes the DMA engine stop request. The hard freezes encountered
+  when using this driver and repeatedly opening/closing the device
+  have been tracked down to this particular piece of code. The new
+  version seems to work way better, I haven't had a single freeze
+  since the change.
+
+* fixes the irq handler prototype (irqreturn_t changes).
+
+Linus, please apply.
+
+Stelian.
+
+===== drivers/media/video/meye.h 1.7 vs edited =====
+--- 1.7/drivers/media/video/meye.h	Tue Feb 18 12:30:51 2003
++++ edited/drivers/media/video/meye.h	Wed Apr 16 10:01:38 2003
+@@ -31,7 +31,7 @@
+ #define _MEYE_PRIV_H_
  
-+/* mxcsr 31-16 must be zero for security reasons,
-+ * bit 6 unfortunately depends on cpu features...
-+ */
-+#define MXSCR_MASK (cpu_has_sse2 ? 0xffff : 0xffbf )
-+
-+
- /*
-  * The _current_ task is using the FPU for the first time
-  * so initialize it and set the mxcsr to its default
-@@ -208,7 +214,7 @@
- void set_fpu_mxcsr( struct task_struct *tsk, unsigned short mxcsr )
- {
- 	if ( cpu_has_xmm ) {
--		tsk->thread.i387.fxsave.mxcsr = (mxcsr & 0xffbf);
-+		tsk->thread.i387.fxsave.mxcsr = (mxcsr & MXCSR_MASK);
+ #define MEYE_DRIVER_MAJORVERSION	1
+-#define MEYE_DRIVER_MINORVERSION	6
++#define MEYE_DRIVER_MINORVERSION	7
+ 
+ #include <linux/config.h>
+ #include <linux/types.h>
+===== drivers/media/video/meye.c 1.15 vs edited =====
+--- 1.15/drivers/media/video/meye.c	Mon Apr 21 10:49:42 2003
++++ edited/drivers/media/video/meye.c	Thu Apr 24 09:40:43 2003
+@@ -168,9 +168,10 @@
+ 
+ 	memset(meye.mchip_ptable, 0, sizeof(meye.mchip_ptable));
+ 
+-	meye.mchip_ptable[MCHIP_NB_PAGES] = pci_alloc_consistent(meye.mchip_dev, 
+-								 PAGE_SIZE, 
+-								 &meye.mchip_dmahandle);
++	meye.mchip_ptable[MCHIP_NB_PAGES] = dma_alloc_coherent(&meye.mchip_dev->dev, 
++							       PAGE_SIZE, 
++							       &meye.mchip_dmahandle,
++							       GFP_KERNEL);
+ 	if (!meye.mchip_ptable[MCHIP_NB_PAGES]) {
+ 		meye.mchip_dmahandle = 0;
+ 		return -1;
+@@ -178,16 +179,17 @@
+ 
+ 	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
+ 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
+-		meye.mchip_ptable[i] = pci_alloc_consistent(meye.mchip_dev, 
+-							    PAGE_SIZE,
+-							    pt);
++		meye.mchip_ptable[i] = dma_alloc_coherent(&meye.mchip_dev->dev, 
++							  PAGE_SIZE,
++							  pt,
++							  GFP_KERNEL);
+ 		if (!meye.mchip_ptable[i]) {
+ 			int j;
+ 			pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
+ 			for (j = 0; j < i; ++j) {
+-				pci_free_consistent(meye.mchip_dev,
+-						    PAGE_SIZE,
+-						    meye.mchip_ptable[j], *pt);
++				dma_free_coherent(&meye.mchip_dev->dev,
++						  PAGE_SIZE,
++						  meye.mchip_ptable[j], *pt);
+ 				pt++;
+ 			}
+ 			meye.mchip_dmahandle = 0;
+@@ -205,17 +207,17 @@
+ 	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
+ 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
+ 		if (meye.mchip_ptable[i])
+-			pci_free_consistent(meye.mchip_dev, 
+-					    PAGE_SIZE, 
+-					    meye.mchip_ptable[i], *pt);
++			dma_free_coherent(&meye.mchip_dev->dev, 
++					  PAGE_SIZE, 
++					  meye.mchip_ptable[i], *pt);
+ 		pt++;
  	}
+ 
+ 	if (meye.mchip_ptable[MCHIP_NB_PAGES])
+-		pci_free_consistent(meye.mchip_dev, 
+-				    PAGE_SIZE, 
+-				    meye.mchip_ptable[MCHIP_NB_PAGES], 
+-				    meye.mchip_dmahandle);
++		dma_free_coherent(&meye.mchip_dev->dev, 
++				  PAGE_SIZE, 
++				  meye.mchip_ptable[MCHIP_NB_PAGES],
++				  meye.mchip_dmahandle);
+ 
+ 	memset(meye.mchip_ptable, 0, sizeof(meye.mchip_ptable));
+ 	meye.mchip_dmahandle = 0;
+@@ -614,25 +616,25 @@
+ /* stop any existing HIC action and wait for any dma to complete then
+    reset the dma engine */
+ static void mchip_hic_stop(void) {
+-	int i = 0;
++	int i, j;
+ 
+ 	meye.mchip_mode = MCHIP_HIC_MODE_NOOP;
+-	if (!(mchip_read(MCHIP_HIC_STATUS) & MCHIP_HIC_STATUS_BUSY)) 
++	if (!(mchip_read(MCHIP_HIC_STATUS) & MCHIP_HIC_STATUS_BUSY))
+ 		return;
+-	mchip_set(MCHIP_HIC_CMD, MCHIP_HIC_CMD_STOP);
+-	mchip_delay(MCHIP_HIC_CMD, 0);
+-	while (!mchip_delay(MCHIP_HIC_STATUS, MCHIP_HIC_STATUS_IDLE)) {
+-		/*  resetting HIC */
++	for (i = 0; i < 20; ++i) {
+ 		mchip_set(MCHIP_HIC_CMD, MCHIP_HIC_CMD_STOP);
+ 		mchip_delay(MCHIP_HIC_CMD, 0);
++		for (j = 0; j < 100; ++j) {
++			if (mchip_delay(MCHIP_HIC_STATUS, MCHIP_HIC_STATUS_IDLE))
++				return;
++			wait_ms(1);
++		}
++		printk(KERN_ERR "meye: need to reset HIC!\n");
++	
+ 		mchip_set(MCHIP_HIC_CTL, MCHIP_HIC_CTL_SOFT_RESET);
+ 		wait_ms(250);
+-		if (i++ > 20) {
+-			printk(KERN_ERR "meye: resetting HIC hanged!\n");
+-			break;
+-		}
+ 	}
+-	wait_ms(100);
++	printk(KERN_ERR "meye: resetting HIC hanged!\n");
  }
  
-@@ -356,8 +362,7 @@
- 	clear_fpu( tsk );
- 	err = __copy_from_user( &tsk->thread.i387.fxsave, &buf->_fxsr_env[0],
- 				sizeof(struct i387_fxsave_struct) );
--	/* mxcsr bit 6 and 31-16 must be zero for security reasons */
--	tsk->thread.i387.fxsave.mxcsr &= 0xffbf;
-+	tsk->thread.i387.fxsave.mxcsr &= MXCSR_MASK;
- 	return err ? 1 : convert_fxsr_from_user( &tsk->thread.i387.fxsave, buf );
+ /****************************************************************************/
+@@ -833,7 +835,7 @@
+ /* Interrupt handling                                                       */
+ /****************************************************************************/
+ 
+-static void meye_irq(int irq, void *dev_id, struct pt_regs *regs) {
++static irqreturn_t meye_irq(int irq, void *dev_id, struct pt_regs *regs) {
+ 	u32 v;
+ 	int reqnr;
+ 	v = mchip_read(MCHIP_MM_INTA);
+@@ -841,7 +843,7 @@
+ 	while (1) {
+ 		v = mchip_get_frame();
+ 		if (!(v & MCHIP_MM_FIR_RDY))
+-			return;
++			return IRQ_NONE;
+ 		switch (meye.mchip_mode) {
+ 
+ 		case MCHIP_HIC_MODE_CONT_OUT:
+@@ -874,11 +876,12 @@
+ 
+ 		default:
+ 			/* do not free frame, since it can be a snap */
+-			return;
++			return IRQ_NONE;
+ 		} /* switch */
+ 
+ 		mchip_free_frame();
+ 	}
++	return IRQ_HANDLED;
  }
  
-@@ -455,8 +460,7 @@
- 	if ( cpu_has_fxsr ) {
- 		__copy_from_user( &tsk->thread.i387.fxsave, buf,
- 				  sizeof(struct user_fxsr_struct) );
--		/* mxcsr bit 6 and 31-16 must be zero for security reasons */
--		tsk->thread.i387.fxsave.mxcsr &= 0xffbf;
-+		tsk->thread.i387.fxsave.mxcsr &= MXCSR_MASK;
- 		return 0;
- 	} else {
- 		return -EIO;
-
-The code in arch/x86-64/ia32/fpu32.c also has a couple of 0xffbf
-masks, maybe they should really be 0xffff. But I lost my x86-64 doc
-in a disk crash and have not yet downloaded it again.
-
-	Regards,
-	Gabriel
+ /****************************************************************************/
+@@ -1392,6 +1395,8 @@
+ 
+ 	mchip_hic_stop();
+ 
++	mchip_dma_free();
++
+ 	/* disable interrupts */
+ 	mchip_set(MCHIP_MM_INTA, 0x0);
+ 
+@@ -1403,8 +1408,6 @@
+ 			   pci_resource_len(meye.mchip_dev, 0));
+ 
+ 	pci_disable_device(meye.mchip_dev);
+-
+-	mchip_dma_free();
+ 
+ 	if (meye.grab_fbuffer)
+ 		rvfree(meye.grab_fbuffer, gbuffers*gbufsize);
+-- 
+Stelian Pop <stelian@popies.net>

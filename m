@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265659AbTFSAup (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 20:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbTFSAup
+	id S265662AbTFSAvy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265664AbTFSAvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 20:50:45 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44797 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S265659AbTFSAuk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 20:50:40 -0400
-Subject: Re: [RFC][PATCH] CONFIG_NR_CPUS for 2.4.21
-From: Robert Love <rml@tech9.net>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <20030618230136.GG3768@werewolf.able.es>
-References: <20030618222336.GC3768@werewolf.able.es>
-	 <20030618230136.GG3768@werewolf.able.es>
-Content-Type: text/plain
-Message-Id: <1055984673.8770.9.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 18 Jun 2003 18:04:34 -0700
+	Wed, 18 Jun 2003 20:51:54 -0400
+Received: from auemail2.lucent.com ([192.11.223.163]:59285 "EHLO
+	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S265662AbTFSAvv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 20:51:51 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16113.3132.953080.164174@gargle.gargle.HOWL>
+Date: Wed, 18 Jun 2003 21:05:00 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: John Stoffel <stoffel@lucent.com>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH CYCLADES 1/2] fix cli()/sti() for ISA Cyclom-Y boards
+In-Reply-To: <20030618224323.GE6754@parcelfarce.linux.theplanet.co.uk>
+References: <16112.56865.325452.254827@gargle.gargle.HOWL>
+	<20030618224323.GE6754@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-18 at 16:01, J.A. Magallon wrote:
 
-> Oops, credits for this should go to (and possible comments/reject come
-> from) Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
+viro> On Wed, Jun 18, 2003 at 05:48:17PM -0400, John Stoffel wrote:
+>> -    save_flags(flags); cli();
+>> +    spin_lock_irqsave(&isa_card_lock, flags);
+>> 
+>> if ((e1 = tty_unregister_driver(cy_serial_driver)))
+>> printk("cyc: failed to unregister Cyclades serial driver(%d)\n",
+>> e1);
+>> 
+>> -    restore_flags(flags);
+>> +    spin_unlock_irqrestore(&isa_card_lock,flags);
 
-It looks fine to me, although I do not think this is as critical an
-issue as it was for 2.5, because the per-processor bloat is not nearly
-as bad in 2.4 as 2.5. Nonetheless, this does not actually break
-anything.
+viro> It doesn't fix the problem and only makes the compile trouble go
+viro> away.  Not to mention anything else, you are relying on a lot of
+viro> code being non-blocking.
 
-Except, I notice in some places (namely, 64-bit architectures), you set
-the default NR_CPUS value to 64. While this ought to work if
-sizeof(unsigned long)==8, it might not and is probably not a change we
-want in a stable series. The default should be 32 all around.
+viro> Could you explain what is protected by disabling interrupts and
+viro> taking a spinlock here?
 
-	Robert Love
+Honestly, I'm not sure.  My original patch was against 2.5.69, which
+didn't have this section of code at all, I think there have been some
+patches to the code between 2.5.69 and 2.5.72 which have mucked around
+with stuff.
 
+It looked suspicious to me as well, and I'd be happy to remove this
+from my patch, since I don't know what locking is needed around this
+section of code off hand.  Let me look at some other drivers and see
+how they unregister themselves.  Maybe theres a tty_drive_spinlock
+somewhere that should be used instead.
+
+Thanks for your comments, good to see you back on l-k.
+
+John

@@ -1,84 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVCIKgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVCIKsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVCIKgC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 05:36:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVCIKf3
+	id S262291AbVCIKsa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 05:48:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVCIKoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 05:35:29 -0500
-Received: from web60606.mail.yahoo.com ([216.109.118.244]:35417 "HELO
-	web60606.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262282AbVCIKcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 05:32:48 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=Fodyf7XpGdn8cDSDdQ44mYXNysgs67GbmeKhwKM2m4tzpLgLd6D61KUHaCnsWFryISc+BVuq4I3bsc/DYeTrfP4YKD3xTvpzAE/w8cKESzMJ/wMV2NkeXYQG+bOFlRyWBPYCh8BwK7o+0QvrIhPgpX2wFbzhZiR+LX57r8e/mxs=  ;
-Message-ID: <20050309103248.84827.qmail@web60606.mail.yahoo.com>
-Date: Wed, 9 Mar 2005 02:32:48 -0800 (PST)
-From: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Re: Random number generator in Linux kernel
-To: vintya@excite.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: 6667
+	Wed, 9 Mar 2005 05:44:03 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:32392 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262310AbVCIKlr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 05:41:47 -0500
+Date: Wed, 9 Mar 2005 11:41:26 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       chrisw@osdl.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.11.2
+In-Reply-To: <Pine.LNX.4.61.0503091014580.7496@student.dei.uc.pt>
+Message-ID: <Pine.LNX.4.62.0503091139470.22598@numbat.sonytel.be>
+References: <20050309083923.GA20461@kroah.com> <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt>
+ <Pine.LNX.4.62.0503091104180.22598@numbat.sonytel.be>
+ <Pine.LNX.4.61.0503091014580.7496@student.dei.uc.pt>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        I think ur idea of generating a random number
-with a seed will not be effective. The kernel comes up
-with true random number generation by using the random
-interaction of device drivers with the kernel. I think
-that will be more effective than ur logic. It provides
-true randomness and it avoids any guess. 
-For more details u please refer the book ' Linux
-kernel development' by Robert M Love Appendix C kernel
-Random Number Generator. If u still want to stick to
-ur own logic then u can implement it as a function
-inside the kernel.
+On Wed, 9 Mar 2005, Marcos D. Marado Torres wrote:
+> On Wed, 9 Mar 2005, Geert Uytterhoeven wrote:
+> > > > which is a patch against the 2.6.11.1 release.  If consensus arrives
+> > > > that this patch should be against the 2.6.11 tree, it will be done that
+> > > > way in the future.
+> > > 
+> > > IMHO it sould be against 2.6.11 and not 2.6.11.1, like -rc's that are'nt
+> > > againt
+> > > the last -rc but against 2.6.x.
+> > 
+> > It's a stable release, not a pre/rc, so against 2.6.11.1 sounds most logical
+> > to
+> > me.
+> 
+> Well, yes, _if_ 2.6.12 patch is going to be to aply against 2.6.11.last
+> instead
+> of 2.6.11. And, well, either one will cause great panic for hose who aren't
+> and
+> the mailing lists and just visit kernel.org to downoad the latest stuff.
 
-Regards,
-selva
+Probably the 2.6.12 patch will be against 2.6.11, since:
+  - The 2.6.11.x line may continue after 2.6.12 was released
+  - 2.6.11.x may contain `quick and dirty' fixes for problems, which will be
+    fixed `properly' in 2.6.12 (or later), cfr. Alan Cox' presentation at
+    FOSDEM.
 
---- Vineet Joglekar <vintya@excite.com> wrote:
-> 
-> Hi all,
-> 
-> Can someone please tell me where can I find and
-> which random/pseudo-random number generator can I
-> use inside the linux kernel? (2.4.28)
-> 
-> I found out 1 function get_random_bytes() in
-> linux/drivers/char/random.c but thats not what I
-> want.
-> 
-> I want a function where I will be supplying a seed
-> to that function as an input, and will get a random
-> number back. If same seed is used, same number
-> should be generated again.
-> 
-> Can anybody please help me with that?
-> 
-> Thanks and regards,
-> 
-> Vineet.
-> 
-> _______________________________________________
-> Join Excite! - http://www.excite.com
-> The most personalized portal on the Web!
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Gr{oetje,eeting}s,
 
+						Geert
 
-	
-		
-__________________________________ 
-Celebrate Yahoo!'s 10th Birthday! 
-Yahoo! Netrospective: 100 Moments of the Web 
-http://birthday.yahoo.com/netrospective/
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbUKVK72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbUKVK4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbUKVK72 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 05:59:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbUKVK6G
+	id S262038AbUKVK4M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 05:56:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUKVKyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:58:06 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:51453 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262068AbUKVKyi (ORCPT
+	Mon, 22 Nov 2004 05:54:05 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:18560 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S262062AbUKVKwS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:54:38 -0500
-Date: Mon, 22 Nov 2004 11:54:20 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Sohail Somani <sohail@sohailsomani.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH 475] HP300 LANCE
-In-Reply-To: <1101083116.20032.0.camel@localhost>
-Message-ID: <Pine.GSO.4.61.0411221153320.7323@waterleaf.sonytel.be>
-References: <200410311003.i9VA3UMN009557@anakin.of.borg>
- <20041101142245.GA28253@infradead.org> <20041116084341.GA24484@infradead.org>
- <20041116231248.5f61e489.akpm@osdl.org> <Pine.GSO.4.61.0411211059500.19680@waterleaf.sonytel.be>
- <20041121161244.1a5ff193.akpm@osdl.org> <1101083116.20032.0.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Nov 2004 05:52:18 -0500
+Date: Mon, 22 Nov 2004 11:48:06 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+       user-mode-linux-devel@lists.sourceforge.net,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: And another bug report for UML in latest Linux 2.6-BK repository.
+Message-ID: <20041122104806.GI19738@admingilde.org>
+Mail-Followup-To: Jeff Dike <jdike@addtoit.com>,
+	Anton Altaparmakov <aia21@cam.ac.uk>,
+	user-mode-linux-devel@lists.sourceforge.net,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1100613788.24599.45.camel@imp.csi.cam.ac.uk> <200411180148.iAI1mGQ3006498@ccure.user-mode-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <200411180148.iAI1mGQ3006498@ccure.user-mode-linux.org>
+User-Agent: Mutt/1.3.28i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Nov 2004, Sohail Somani wrote:
-> On Sun, 2004-11-21 at 16:12 -0800, Andrew Morton wrote:
-> > +#define dio_resource_len(d) \
-> > +       ((d)->resource.end - (d)->resource.start)
-> > 
-> > but dio.h has:
-> > 
-> > #define dio_resource_len(d)   ((d)->resource.end-(z)->resource.start+1)
-> > 
-> > 
-> > Which is correct?
+hoi :)
+
+On Wed, Nov 17, 2004 at 08:48:16PM -0500, Jeff Dike wrote:
+> aia21@cam.ac.uk said:
+> > sleeping process 29410 got unexpected signal : 11
+> > I now have to press Ctrl+C to get back to my shell. 
 > 
-> Where did z come from in the second definition anyway?
+> This one is slightly subtle, but I believe that it is fixed by the following 
+> patch.
 
-I guess it got copied from linux/zorro.h...
-It's a bug which went unnoticed, and got fixed in the mean time.
+It fixes the problem for me. Please send the patch to Linus.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Martin Waitz

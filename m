@@ -1,138 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266602AbUBQUGH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 15:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUBQUGH
+	id S266571AbUBQUMz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 15:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266568AbUBQUMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 15:06:07 -0500
-Received: from galileo.bork.org ([66.11.174.156]:62103 "HELO galileo.bork.org")
-	by vger.kernel.org with SMTP id S266602AbUBQUF7 (ORCPT
+	Tue, 17 Feb 2004 15:12:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:56224 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266580AbUBQUKb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 15:05:59 -0500
-Date: Tue, 17 Feb 2004 15:05:58 -0500
-From: Martin Hicks <mort@wildopensource.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Reduce TLB flushing during process migration
-Message-ID: <20040217200558.GO12142@localhost>
-References: <40323FB6.1030208@colorfullife.com> <20040217100852.2eb50c4b.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="O7hm+SMpb/lu0d4d"
-Content-Disposition: inline
-In-Reply-To: <20040217100852.2eb50c4b.davem@redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 17 Feb 2004 15:10:31 -0500
+Date: Tue, 17 Feb 2004 12:10:23 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: tridge@samba.org, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 and case-insensitivity
+In-Reply-To: <20040217194414.GP8858@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0402171153460.2154@home.osdl.org>
+References: <16433.38038.881005.468116@samba.org> <Pine.LNX.4.58.0402162034280.30742@home.osdl.org>
+ <16433.47753.192288.493315@samba.org> <Pine.LNX.4.58.0402170704210.2154@home.osdl.org>
+ <Pine.LNX.4.58.0402170833110.2154@home.osdl.org>
+ <20040217194414.GP8858@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---O7hm+SMpb/lu0d4d
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-
-
-On Tue, Feb 17, 2004 at 10:08:52AM -0800, David S. Miller wrote:
-> On Tue, 17 Feb 2004 17:22:14 +0100
-> Manfred Spraul <manfred@colorfullife.com> wrote:
+On Tue, 17 Feb 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
 > 
-> > >+		 * we want a new context here. This eliminates TLB
-> > >+		 * flushes on the cpus where the process executed prior to
-> > >+		 * the migration.
-> > >+		 */
-> > >+		flush_tlb_mm(current->mm);
->  ...
-> > I think flush_tlb_mm() is the wrong function - e.g. for i386, it's a 
-> > wasted flush, because i386 disconnects previous cpus from the tlb flush 
-> > automatically.
-> > And it's always the wrong thing if you've migrated one thread of a task 
-> > that runs on multiple cpus. I think you need a new hook.
+> What will protect your generation counts during the operation itself?
+> ->i_sem?
+
+Yes. You have to take it anyway, so why not?
+
+> If anything, I'd suggest doing it as
+> 	cretinous_rename(dir_fd, name1, name2)
+> with the following semantics:
 > 
-> Yes, you're probably right.  Just name it tlb_migrate_prepare(mm) or
-> something like that.
-> 
-> I think most if not all non-x86 platforms will define this straight
-> to flush_tlb_mm().
+> 	* if directory had been changed since open() that gave us dir_fd -
+>   -EFOAD
+> 	* otherwise, rename name1 to name2 (no cross-directory renames here).
 
-Here's an updated patch that creates the new wrapper.  I only changed
-ia64 to call flush_tlb_mm() because I'm a little wary about assuming
-that all non-x86 arches want this.
+Sure, that works.
 
-Boot tested on ia64, compile tested on x86.
+> No need to expose generation counts to userland - we can just compare the
+> count at open() time with that at operation time.  The rest can be done
+> in userland (including creation of files).
 
-mh
+Note that I'm not sure we would expose generation counts at all to user 
+space: we might keep all of this inside the "crapola windows behaviour" 
+module, and user space could actually see some easier highlevel interface. 
+Something like yours, but I suspect we'd want to see what the whole 
+user-level loop would look like to know what the architecture should be 
+like.
 
--- 
-Martin Hicks                Wild Open Source Inc.
-mort@wildopensource.com     613-266-2296
+I do believe we'd need to have some way to "refresh" the fd in your
+example, without restarting the whole lookup. So that when the user gets 
+EFOAD, it can do
 
---O7hm+SMpb/lu0d4d
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="process-migration-2.patch"
+	refresh(fd);
+	readdir(fd);
+	/* Check that nothing clashes */
+	goto try_again;
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1680  -> 1.1681 
-#	include/asm-generic/tlb.h	1.20    -> 1.21   
-#	include/asm-ia64/tlb.h	1.18    -> 1.19   
-#	      kernel/sched.c	1.240   -> 1.241  
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 04/02/17	mort@tomahawk.engr.sgi.com	1.1681
-# Add tlb_migrate_prepare().  Most arches will define this to tlb_flush_mm().
-# x86 is an exception.  For now make the default to do nothing.  Let each
-# arch define tlb_migrate_prepare appropriately.
-# --------------------------------------------
-#
-diff -Nru a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
---- a/include/asm-generic/tlb.h	Tue Feb 17 11:31:56 2004
-+++ b/include/asm-generic/tlb.h	Tue Feb 17 11:31:56 2004
-@@ -146,4 +146,6 @@
- 		__pmd_free_tlb(tlb, pmdp);			\
- 	} while (0)
- 
-+#define tlb_migrate_prepare(mm)
-+
- #endif /* _ASM_GENERIC__TLB_H */
-diff -Nru a/include/asm-ia64/tlb.h b/include/asm-ia64/tlb.h
---- a/include/asm-ia64/tlb.h	Tue Feb 17 11:31:56 2004
-+++ b/include/asm-ia64/tlb.h	Tue Feb 17 11:31:56 2004
-@@ -210,6 +210,8 @@
- 	tlb->end_addr = address + PAGE_SIZE;
- }
- 
-+#define tlb_migrate_prepare(mm) flush_tlb_mm(mm)
-+
- #define tlb_start_vma(tlb, vma)			do { } while (0)
- #define tlb_end_vma(tlb, vma)			do { } while (0)
- 
-diff -Nru a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Tue Feb 17 11:31:56 2004
-+++ b/kernel/sched.c	Tue Feb 17 11:31:56 2004
-@@ -25,6 +25,7 @@
- #include <linux/highmem.h>
- #include <linux/smp_lock.h>
- #include <asm/mmu_context.h>
-+#include <asm/tlb.h>
- #include <linux/interrupt.h>
- #include <linux/completion.h>
- #include <linux/kernel_stat.h>
-@@ -1135,6 +1136,14 @@
- 		task_rq_unlock(rq, &flags);
- 		wake_up_process(rq->migration_thread);
- 		wait_for_completion(&req.done);
-+
-+		/*
-+		 * we want a new context here. This eliminates TLB
-+		 * flushes on the cpus where the process executed prior to
-+		 * the migration.
-+		 */
-+		tlb_migrate_prepare(current->mm);
-+
- 		return;
- 	}
- out:
+or similar. So the generation count _semantics_ would be exposed, even if 
+the numbers themselves would be hidden inside the kernel.
 
---O7hm+SMpb/lu0d4d--
+> We _definitely_ don't want to put "UTF-8 case-insensitive comparison" anywhere
+> near the kernel - it's insane.  If samba wants it, they get to pay the price,
+> both in performance and keeping butt-ugly code (after all, the goal of project
+> is to imitate butt-ugly system for butt-ugly clients).  The same goes for Wine.
+
+I agree. We'd need to let user space do the equality comparisons, I just 
+don't see how to sanely do it in kernel land.
+
+> And we really don't want to encourage those who port Windows userland in
+> not fixing the idiotic semantics.  As for Lindows... let's just say that
+> I can't find any way to describe what I really think of those clowns, their
+> intellect and their morals that wouldn't lead to a lawsuit from them.
+
+Heh.
+
+I suspect most people don't care that much, but I also suspect that 
+projects like samba have to have a "anal mode" where they really act like 
+Windows, even when it's "wrong". People can then choose to say "screw that 
+idiocy", but by just _having_ a very compatible mode you deflect a lot of 
+criticism. Regardless of whether people want the anal mode or not in real 
+life.
+
+Backwards compatibility is King. It's _hugely_ important. It's one of the
+most important things to me in the kernel, and by the same logic I do see
+that it is important to others as well - even when the backwards
+compatibility ends up being inherited from a broken Windows setup. So
+while I hate case-insensitive names, I do understand that people want to
+have some way to emulate the braindamage for some _really_ "ass-backwards"
+compatibility reasons.
+
+So I think it's worth some pain, as long as we keep that compatibility 
+from starting to encrust the _good_ stuff.
+
+		Linus

@@ -1,83 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313060AbSIHSVC>; Sun, 8 Sep 2002 14:21:02 -0400
+	id <S313070AbSIHSds>; Sun, 8 Sep 2002 14:33:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313070AbSIHSVC>; Sun, 8 Sep 2002 14:21:02 -0400
-Received: from packet.digeo.com ([12.110.80.53]:36518 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S313060AbSIHSVB>;
-	Sun, 8 Sep 2002 14:21:01 -0400
-Message-ID: <3D7B9988.6B8CD04F@digeo.com>
-Date: Sun, 08 Sep 2002 11:40:08 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: LMbench2.0 results
-References: <2090000.1031442267@flay> <1031504848.26888.238.camel@irongate.swansea.linux.org.uk>
+	id <S313113AbSIHSds>; Sun, 8 Sep 2002 14:33:48 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:63498 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S313070AbSIHSdr>;
+	Sun, 8 Sep 2002 14:33:47 -0400
+Date: Sun, 8 Sep 2002 20:50:11 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "D. Hugh Redelmeier" <hugh@mimosa.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: clean before or after dep?
+Message-ID: <20020908205011.A1671@mars.ravnborg.org>
+Mail-Followup-To: "D. Hugh Redelmeier" <hugh@mimosa.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <1031490782.26902.4.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0209081206590.21724-100000@redshift.mimosa.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Sep 2002 18:25:36.0920 (UTC) FILETIME=[208CB180:01C25765]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209081206590.21724-100000@redshift.mimosa.com>; from hugh@mimosa.com on Sun, Sep 08, 2002 at 02:09:00PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Sun, Sep 08, 2002 at 02:09:00PM -0400, D. Hugh Redelmeier wrote:
+> What are the ordering constraints on mrproper, clean, dep, and
+> *config?  I'd like to characterise all sequences that properly prepare
+> for a kernel build.
+Lets go through the targets in question, and their purpose:
+mrproper:
+mrproper removes all files generated during the build process. This
+includes the final kernel, the current configuration, firmware for
+drivers, host-progs used during compilation, buildversion, 
+the include/asm link and a few more files.
+mrproper is the right choice when you are going to build a new kernel
+or something weird happend during the build process.
+make mrproper are needed from time to time with the 2.4 kernel, when the
+kernel build system gets 'confused'.
+When executing mrproper, the first step is actually a clean as described below.
+
+clean:
+Clean removes all intermidiate files generated during the build process.
+make clean will force all SRC to be build because all the .o files are
+deleted.
+[Checking arch/i386/Makefile + arch/i386/boot/Makefile]
+make clean delete the final bzImage as well, which kinf of suprised me,
+I did expect that mrproper were needed to do that.
+
+dep:
+In the 2.4 kernel make dep is used to record all the dependencies.
+In the 2.5 kernel it's used for much less than in 2.4 kernel.
+==>You need someone more familiar than me to comment on that.
+
+*config:
+As you probarly know it is used to build the .config.
+To my best knowledge make dep, make clean does not have any influence.
+But make mrproper will delete the .config file.
+
+> What these targets do, according to README:
 > 
-> On Sun, 2002-09-08 at 00:44, Martin J. Bligh wrote:
-> > >> Perhaps testing with overcommit on would be useful.
-> > >
-> > > Well yes - the new overcommit code was a significant hit on the 16ways
-> > > was it not?  You have some numbers on that?
-> >
-> > About 20% hit on system time for kernel compiles.
+> 	mrproper: removes stale .o files and dependencies lying around
+> 	clean: ? seems to remove files built by the build process
+> 	*config: configure the kernel [build a .config]
+> 	dep: set up dependencies
 > 
-> That suprises me a lot. On a 2 way and 4 way the 2.4 memory overcommit
-> check code didnt show up. That may be down to the 2 way being on a CPU
-> that has no measurable cost for locked operations and the 4 way being an
-> ancient ppro a friend has.
-> 
-> If it is the memory overcommit handling then there are plenty of ways to
-> deal with it efficiently in the non-preempt case at least. I had
-> wondered originally about booking chunks of pages off per CPU (take the
-> remaining overcommit divide by four and only when a CPU finds its
-> private block is empty take a lock and redistribute the remaining
-> allocation). Since boxes almost never get that close to overcommit
-> kicking in then it should mean we close to never touch a locked count.
+> The normal sequence seems to be:
+> 	mrproper && *config && dep && build
+> I'm not sure where clean comes in this sequence.  mrproper includes
+> clean, so this sequence will do it once.  Is it needed somewhere after
+> the *config too?
+No, if executed before that should do it.
 
-Martin had this profile for a kernel build on 2.5.31-mm1:
+> - is it safe to do an mrproper after a *config?  In other words, does
+>   mrproper affect/damage/undo anything done by *config?
+Yes, .config is deleted.
 
+> - is it necessary to do a clean after a *config?  (README suggests no;
+>   many things in Documentation suggest yes.)
+>   One reason might be that dep requires this -- is this the case?
+>   <http://www.van-dijk.net/linuxkernel/200223/0432.html> suggests yes.
+>   Experience suggests no, at least until very recently.
+>   Or is there some other way in which dep now requires that
+>   it be preceded by a clean, perhaps after a failed build?
+With the 2.5 kernel, if make clean or make mrproper is ever _required_
+I would say you had triggered an error in the kernel build system.
 
+> - theory: a clean should be done after a failing build so that
+>   a subsequent build won't use the results of the failing build.
+Should not be needed with the build system in the 2.5 kernel.
 
-c01299d0 6761     1.28814     vm_enough_memory
-c0114584 8085     1.5404      load_balance
-c01334c0 8292     1.57984     __free_pages_ok
-c011193c 11559    2.20228     smp_apic_timer_interrupt
-c0113040 12075    2.3006      do_page_fault
-c012bf08 12075    2.3006      find_get_page
-c0114954 12912    2.46007     scheduler_tick
-c012c430 13199    2.51475     file_read_actor
-c01727e8 20440    3.89434     __generic_copy_from_user
-c0133fb8 25792    4.91403     nr_free_pages
-c01337c0 27318    5.20478     rmqueue
-c0129588 36955    7.04087     handle_mm_fault
-c013a65c 38391    7.31447     page_remove_rmap
-c0134094 43755    8.33645     get_page_state
-c0105300 57699    10.9931     default_idle
-c0128e64 58735    11.1905     do_anonymous_page
-
-We can make nr_free_pages go away by adding global free page 
-accounting to struct page_states.  So we're accounting it in
-two places, but it'll be simple.
-
-The global page accounting is very much optimised for the fast path at
-the expense of get_page_state().  (And that kernel didn't have the
-rmap speedups).
-
-We need to find some way of making vm_enough_memory not call get_page_state
-so often.  One way of doing that might be to make get_page_state dump
-its latest result into a global copy, and make vm_enough_memory()
-only get_page_state once per N invokations.  A speed/accuracy tradeoff there.
+	Sam

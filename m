@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269994AbTGUM5b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 08:57:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270014AbTGUM5b
+	id S270040AbTGUNBU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 09:01:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270065AbTGUNBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 08:57:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62417 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269994AbTGUM53 (ORCPT
+	Mon, 21 Jul 2003 09:01:20 -0400
+Received: from zork.zork.net ([64.81.246.102]:58291 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S270040AbTGUNBF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 08:57:29 -0400
-Date: Mon, 21 Jul 2003 06:16:34 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Ian Soboroff <ian.soboroff@nist.gov>
-cc: linux-kernel@vger.kernel.org
+	Mon, 21 Jul 2003 09:01:05 -0400
+To: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.0-test1 - device_suspend KERN_EMERG message?
-In-Reply-To: <9cffzl0nia3.fsf@rogue.ncsl.nist.gov>
-Message-ID: <Pine.LNX.4.44.0307210614260.22018-100000@cherise>
+References: <9cffzl0nia3.fsf@rogue.ncsl.nist.gov>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Mon, 21 Jul 2003 14:16:06 +0100
+In-Reply-To: <9cffzl0nia3.fsf@rogue.ncsl.nist.gov> (Ian Soboroff's message
+ of "Mon, 21 Jul 2003 09:03:48 -0400")
+Message-ID: <6uel0k58bt.fsf@zork.zork.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ian Soboroff <ian.soboroff@nist.gov> writes:
 
-> Is there any special reason to scream that we're suspending devices in
-> device_suspend?
-> 
-> int device_suspend(u32 state, u32 level)
-> {
->         struct device * dev;
->         int error = 0;
-> 
->         printk(KERN_EMERG "Suspending devices\n");
+> On my box, syslog shouts to all xterms and KDE throws up a kwrite message
+> too.  Why is this an emergency?  If there are no objections, I'll send
+> a patch to move these messages to KERN_NOTICE.
 
-Hey, it's so everyone notices. :) 
-
-I don't mind toning it down or removing it. 
-
-
-	-pat
+I think I saw a patch posted recently that deletes them entirely.
 

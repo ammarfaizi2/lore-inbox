@@ -1,108 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVBNKnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVBNKxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVBNKnR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 05:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVBNKnR
+	id S261395AbVBNKxN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 05:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVBNKxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 05:43:17 -0500
-Received: from black.click.cz ([62.141.0.10]:27371 "EHLO click.cz")
-	by vger.kernel.org with ESMTP id S261384AbVBNKnI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 05:43:08 -0500
-From: Michal Rokos <michal@rokos.info>
-To: linux-kernel@vger.kernel.org
-Subject: Re: avoiding pci_disable_device()...
-Date: Mon, 14 Feb 2005 11:43:02 +0100
-User-Agent: KMail/1.7.92
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502141143.02205.michal@rokos.info>
+	Mon, 14 Feb 2005 05:53:13 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:36240 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S261395AbVBNKxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 05:53:10 -0500
+To: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [PATCH, new ACPI driver] new sony_acpi driver
+In-Reply-To: <20050210161809.GK3493@crusoe.alcove-fr>
+References: <20050210161809.GK3493@crusoe.alcove-fr>
+Date: Mon, 14 Feb 2005 10:53:10 +0000
+Message-Id: <E1D0dqo-00041G-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Stelian Pop <stelian@popies.net> wrote:
 
-> Currently, in almost every PCI driver, if pci_request_regions() fails -- 
-> indicating another driver is using the hardware -- then 
-> pci_disable_device() is called on the error path, disabling a device 
-> that another driver is using
-> 
-> To call this "rather rude" is an understatement :)
+> Privately I've had many positive feedbacks from users of this driver
+> (and no negative feedback), including Linux distributions who wish
+> to include it into their kernels. The reports are increasing in number,
+> it would seem that newer Sony Vaios are more and more incompatible
+> with sonypi and require sony_acpi to control the screen brightness.
 
-I believe this is needed for natsemi to be inline with $SUBJ.
+The sonypi driver seems to be necessary to catch Vaio hotkey events,
+including the sleep button. I've checked a couple of DSDTs, and it seems
+that the more recent Vaios are lacking the SPIC entries but still don't
+have the sleep button defined. Is there any chance of this driver being
+able to catch hotkey events?
 
-Signed-off-by: Michal Rokos <michal@rokos.info>
+Related to that, I have a nastyish hack which lets the sonypi driver
+generate ACPI events whenever a hotkey is pressed. Despite not strictly
+being ACPI events, this makes it much easier to integrate sonypi stuff
+with general ACPI support. I'll send it if you're interested.
 
---- linux-2.6/drivers/net/natsemi.c     2005-02-14 11:34:53.000000000 +0100
-+++ linux-2.6-mr/drivers/net/natsemi.c  2005-02-14 11:36:00.000000000 +0100
-@@ -811,6 +811,7 @@
-        void __iomem *ioaddr;
-        const int pcibar = 1; /* PCI base address register */
-        int prev_eedata;
-+       int pci_dev_busy = 0;
-        u32 tmp;
-
- /* when built into the kernel, we only print version if device is found */
-@@ -821,7 +822,13 @@
- #endif
-
-        i = pci_enable_device(pdev);
--       if (i) return i;
-+       if (i) goto out;
-+
-+       i = pci_request_regions(pdev, DRV_NAME);
-+       if (i) {
-+               pci_dev_busy = 1;
-+               goto err_pci_request_regions;
-+       }
-
-        /* natsemi has a non-standard PM control register
-         * in PCI config space.  Some boards apparently need
-@@ -843,15 +850,13 @@
-                pci_set_master(pdev);
-
-        dev = alloc_etherdev(sizeof (struct netdev_private));
--       if (!dev)
--               return -ENOMEM;
-+       if (!dev) {
-+               i = -ENOMEM;
-+               goto err_alloc_etherdev;
-+       }
-        SET_MODULE_OWNER(dev);
-        SET_NETDEV_DEV(dev, &pdev->dev);
-
--       i = pci_request_regions(pdev, DRV_NAME);
--       if (i)
--               goto err_pci_request_regions;
--
-        ioaddr = ioremap(iostart, iosize);
-        if (!ioaddr) {
-                i = -ENOMEM;
-@@ -992,15 +997,20 @@
-        }
-        return 0;
-
-- err_register_netdev:
-+err_register_netdev:
-        iounmap(ioaddr);
-
-- err_ioremap:
--       pci_release_regions(pdev);
-+err_ioremap:
-        pci_set_drvdata(pdev, NULL);
--
-- err_pci_request_regions:
-        free_netdev(dev);
-+
-+err_alloc_etherdev:
-+       pci_release_regions(pdev);
-+
-+err_pci_request_regions:
-+       if (!pci_dev_busy)
-+               pci_disable_device(pdev);
-+out:
-        return i;
- }
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

@@ -1,53 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262712AbREVS3T>; Tue, 22 May 2001 14:29:19 -0400
+	id <S262714AbREVSlK>; Tue, 22 May 2001 14:41:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262709AbREVS3K>; Tue, 22 May 2001 14:29:10 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:34565 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262711AbREVS24>; Tue, 22 May 2001 14:28:56 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Changes in Kernel
-Date: 22 May 2001 11:28:44 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9eeb4s$m81$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0105230000330.1601-100000@gdit.iiit.net> <E152GlV-0002Hh-00@the-village.bc.nu>
+	id <S262715AbREVSlB>; Tue, 22 May 2001 14:41:01 -0400
+Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:39847 "EHLO
+	windmill.gghcwest.com") by vger.kernel.org with ESMTP
+	id <S262714AbREVSkv>; Tue, 22 May 2001 14:40:51 -0400
+Date: Tue, 22 May 2001 11:39:06 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@heat.gghcwest.com>
+To: null <null@null.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: bdflush/mm performance drop-out defect (more info)
+In-Reply-To: <Pine.LNX.4.21.0105221114120.32238-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0105221123450.214-100000@heat.gghcwest.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E152GlV-0002Hh-00@the-village.bc.nu>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
+
+
+On Tue, 22 May 2001, null wrote:
+
+> Here is some additional info about the 2.4 performance defect.
 >
-> >   We are interested in making some changes to the linux kernel so that it
-> > supports some indian type fonts on the console... so what are the special
-> > things that we sould take care of so that our work would be included in
-> > the kernel-distribution, and how do we proceed about getting it included
-> > in the distributions?
-> 
-> Are there specific reasons you cannot just use the existing ioctls to load
-> fonts ? The console driver already supports Klingon for example.
-> 
-> What are the issues - writing right - left ?
-> 
+> Only one person offered a suggestion about the use of HIGHMEM.  I tried
+> with and without HIGHMEM enabled with the same results.  However, it does
+> appear to take a bit longer to reach performance drop-out condition when
+> HIGHMEM is disabled.
+>
+> The same system degradation also appears when using partitions on a single
+> internal SCSI drive, but seems to happen only when performing the I/O in
+> parallel processes.  It appears that the load must be sustained long
+> enough to affect some buffer cache behavior.  Parallel dd commands
+> (if=/dev/zero) also reveal the problem.  I still need to do some
+> benchmarks, but it looks like 2.4 kernels achieve roughly 25% (or less?)
+> of the throughput of the 2.2 kernels under heavy parallel loads (on
+> identical hardware).  I've also confirmed the defect on a dual-processor
+> Xeon system with 2.4.  The defect exists whether drivers are built-in or
+> compiled as modules, altho the parallel mkfs test duration improves by as
+> much as 50% in some cases when using a kernel with built-in SCSI drivers.
 
-Indian languages have complicated character/glyph mappings, similar to
-Arabic but worse.
+That's a very interesting observation.  May I suggest that the problem may
+be the driver for your SCSI device?  I just ran some tests of parallel I/O
+on a 2 CPU Intel Pentium III 800 MHz with 2GB main memory, on a single
+Seagate Barracuda ST336704LWV attached to a AIC7896.  The system
+controller is Intel 440GX.  The kernel is 2.4.3-ac7:
 
-In general, these kinds of things is much better handled in user
-space, similar to the way Asian languages are handled using the user
-space console program "kon".  You would typically use the frame buffer
-driver in the kernel and maintain the complicated state machines and
-glyph sets in user space.
+jwb@windmill:~$ for i in 1 2 3 4 5 6 7 8 9 10; do time dd if=/dev/zero
+of=/tmp/$i bs=4096 count=25600 & done;
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+This spawns 10 writers of 100MB files on the same filesystem.  While all
+this went on, the system was responsive, and vmstat showed a steady block
+write of at least 20000 blocks/second.  Meanwhile this machine also has
+constantly used mysql and postgresql database systems and a few
+interactive users.
+
+The test completed in 19 seconds and 24 seconds on separate runs.
+
+I also performed this test on a machine with 2 Intel Pentium III 933 MHz
+CPUs, 512MB main memory, an Intel 840 system controller, and a Quantum 10K
+II 9GB drive attached to an Adaptec 7899P controller, using kernel
+2.4.4-ac8.  I had no problems there either, and the test completed in 30
+seconds (with a nearly full disk).
+
+I also didn't see this problem on an Apple Powerbook G4 nor on another
+Intel machine with a DAC960 RAID.
+
+In short, I'm not seeing this problem.
+
+Regards,
+Jeffrey Baker
+

@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVA1VNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbVA1VPB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbVA1VNg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 16:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbVA1VJi
+	id S262767AbVA1VPB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 16:15:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbVA1VPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 16:09:38 -0500
-Received: from Mail.MNSU.EDU ([134.29.1.12]:25555 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S262801AbVA1VGl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 16:06:41 -0500
-Message-ID: <41FAA945.3070106@mnsu.edu>
-Date: Fri, 28 Jan 2005 15:06:13 -0600
-From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jakob Oestergaard <jakob@unthought.net>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Greaves <david@dgreaves.com>, Jan Kasprzak <kas@fi.muni.cz>,
-       linux-kernel <linux-kernel@vger.kernel.org>, kruty@fi.muni.cz
-Subject: Re: journaled filesystems -- known instability; Was:	XFS:	inode	with
- st_mode == 0
-References: <20041209125918.GO9994@fi.muni.cz>	 <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org>	 <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net>	 <20041222182344.GB14586@infradead.org> <41E80C1F.3070905@dgreaves.com>	 <20050114182308.GE347@unthought.net> <20050116135112.GA24814@infradead.org>	 <20050117100746.GI347@unthought.net>  <41EC2ECF.6010701@mnsu.edu>	 <1106657254.1985.294.camel@sisko.sctweedie.blueyonder.co.uk>	 <41F6613F.6030509@mnsu.edu>	 <1106667472.1985.644.camel@sisko.sctweedie.blueyonder.co.uk>	 <41FA9D72.2080303@mnsu.edu> <1106946002.1988.88.camel@sisko.sctweedie.blueyonder.co.uk>
-In-Reply-To: <1106946002.1988.88.camel@sisko.sctweedie.blueyonder.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 28 Jan 2005 16:15:01 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:23517 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262767AbVA1VNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 16:13:17 -0500
+Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption,
+	-RT-2.6.10-rc2-mm3-V0.7.32-15)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Ingo Molnar <mingo@elte.hu>, Esben Nielsen <simlo@phys.au.dk>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       mark_h_johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Shane Shrybman <shrybman@aei.ca>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+In-Reply-To: <1106939910.14321.37.camel@lade.trondhjem.org>
+References: <20041214113519.GA21790@elte.hu>
+	 <Pine.OSF.4.05.10412271404440.25730-100000@da410.ifa.au.dk>
+	 <20050128073856.GA2186@elte.hu>
+	 <1106939910.14321.37.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Fri, 28 Jan 2005 16:13:15 -0500
+Message-Id: <1106946796.3705.20.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie wrote:
+On Fri, 2005-01-28 at 11:18 -0800, Trond Myklebust wrote:
+> In the NFS client code we may use rwsems in order to protect stateful
+> operations against the (very infrequently used) server reboot recovery
+> code. The point is that when the server reboots, the server forces us to
+> block *all* requests that involve adding new state (e.g. opening an
+> NFSv4 file, or setting up a lock) while our client and others are
+> re-establishing their existing state on the server.
 
->Hi,
->
->On Fri, 2005-01-28 at 20:15, Jeffrey E. Hundstad wrote:
->
->  
->
->>>>Does linux-2.6.11-rc2 have both the linux-2.6.10-ac10 fix and the xattr 
->>>>problem fixed?
->>>>        
->>>>
->
->  
->
->>>Not sure about how much of -ac went in, but it has the xattr fix.
->>>      
->>>
->
->  
->
->>I've had my machine that would crash daily if not hourly stay up for 10 
->>days now.  This is with the linux-2.6.10-ac10 kernel. 
->>    
->>
->
->Good to know.  Are you using xattrs extensively (eg. for ACLs, SELinux
->or Samba 4)?
->
->--Stephen
->
->  
->
-On the machines that were having problems we really weren't using them 
-for anything.  I think I may have been running into the BIO problem that 
-was fixed in 2.6.10-ac10.
+Hmm, when I was an ISP sysadmin I used to use this all the time.  NFS
+mounts from the BSD/OS clients would start to act up under heavy web
+server load and the cleanest way to get them to recover was to simulate
+a reboot on the NetApp.  Of course Linux clients were unaffected, they
+were just along for the ride ;-)
 
+Lee
 

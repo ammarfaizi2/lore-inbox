@@ -1,78 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263710AbUJ3L6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbUJ3M1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263710AbUJ3L6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 07:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263712AbUJ3L6Q
+	id S261412AbUJ3M1L (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 08:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbUJ3M1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 07:58:16 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:45482 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263710AbUJ3L6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 07:58:11 -0400
-Date: Sat, 30 Oct 2004 13:58:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041030115808.GA29692@elte.hu>
-References: <20041029193303.7d3990b4@mango.fruits.de> <20041029172151.GB16276@elte.hu> <20041029172243.GA19630@elte.hu> <20041029203619.37b54cba@mango.fruits.de> <20041029204220.GA6727@elte.hu> <20041029233117.6d29c383@mango.fruits.de> <20041029212545.GA13199@elte.hu> <1099086166.1468.4.camel@krustophenia.net> <20041029214602.GA15605@elte.hu> <1099091566.1461.8.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1099091566.1461.8.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 30 Oct 2004 08:27:11 -0400
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:44929 "EHLO
+	aquarius.doma") by vger.kernel.org with ESMTP id S261412AbUJ3M1H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 08:27:07 -0400
+Message-ID: <41838899.6070302@ribosome.natur.cuni.cz>
+Date: Sat, 30 Oct 2004 14:27:05 +0200
+From: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041030
+X-Accept-Language: cs, en, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: cannot compile 2.4.28-rc1-bk3
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+  has someone seen something like this?
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.28-rc1-bk3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686    -nostdinc -iwithprefix include -DKBUILD_BASENAME=neighbour  -c -o neighbour.o neighbour.c
+neighbour.c:1901: error: `THIS_MODULE' undeclared here (not in a function)
+neighbour.c:1901: error: initializer element is not constant
+neighbour.c:1901: error: (near initialization for `neigh_stat_seq_fops.owner')
+make[3]: *** [neighbour.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.28-rc1-bk3/net/core'
 
-> Here is the dmesg output.  It looks like the problem could be related
-> to jackd's printing from the realtime thread.  But, this has to be the
-> kernel's fault on some level, because with an earlier version I get no
-> xruns.
 
-with the earlier version these spinlocks were simply disabling
-preemption, while now they will schedule away on contention. If that tty
-lock is held for a long time by a lowprio task then that could delay the
-highprio thread. We are starting to see priority inversion problems. 
-But, the core issue is doing tty printouts - does jackd do that
-periodically, or only as a reaction to an already existing latency?
 
-> jackd:1846 userspace BUG: scheduling in user-atomic context!
->  [<c01069fc>] dump_stack+0x1c/0x20 (20)
->  [<c0283e60>] schedule+0x70/0x100 (24)
->  [<c0119efa>] do_exit+0x29a/0x500 (24)
->  [<c011a196>] sys_exit+0x16/0x20 (12)
->  [<c0106367>] syscall_call+0x7/0xb (-8124)
+gcc -v
+Reading specs from /usr/lib/gcc-lib/i686-pc-linux-gnu/3.3.4/specs
+Configured with: /var/tmp/portage/gcc-3.3.4-r1/work/gcc-3.3.4/configure --prefix=/usr --bindir=/usr/i686-pc-linux-gnu/gcc-bin/3.3 --includedir=/usr/lib/gcc-lib/i686-pc-linux-gnu/3.3.4/include --datadir=/usr/share/gcc-data/i686-pc-linux-gnu/3.3 --mandir=/usr/share/gcc-data/i686-pc-linux-gnu/3.3/man --infodir=/usr/share/gcc-data/i686-pc-linux-gnu/3.3/info --enable-shared --host=i686-pc-linux-gnu --target=i686-pc-linux-gnu --with-system-zlib --enable-languages=c,c++,f77 --enable-threads=posix --enable-long-long --disable-checking --disable-libunwind-exceptions --enable-cstdio=stdio --enable-version-specific-runtime-libs --with-gxx-include-dir=/usr/lib/gcc-lib/i686-pc-linux-gnu/3.3.4/include/g++-v3 --with-local-prefix=/usr/local --enable-shared --enable-nls --without-included-gettext --disable-multilib --enable-__cxa_atexit --enable-clocale=generic
+Thread model: posix
+gcc version 3.3.4 20040623 (Gentoo Linux 3.3.4-r1, ssp-3.3.2-2, pie-8.7.6)
 
-this one is interesting - does the jackd highprio thread start new
-threads and lets them exit? The above schedule() is the final one of an
-exit()-ing thread.
 
-> jackd:1854 userspace BUG: scheduling in user-atomic context!
->  [<c01069fc>] dump_stack+0x1c/0x20 (20)
->  [<c0283e60>] schedule+0x70/0x100 (24)
->  [<c0119efa>] do_exit+0x29a/0x500 (24)
-
-same exit() scenario. That would be pretty much a no-no, a new child
-thread inherits the parent's SCHED_FIFO priority and due to
-child-runs-first it could delay the parent possibly indefinitely.
-
-	Ingo
+I can provide .config if someone asks. Please Cc: me in replies.
+Martin

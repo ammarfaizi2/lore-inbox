@@ -1,99 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVBVNzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVBVOWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbVBVNzw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 08:55:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVBVNzw
+	id S262304AbVBVOWc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 09:22:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbVBVOWc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 08:55:52 -0500
-Received: from smtp.persistent.co.in ([202.54.11.65]:7296 "EHLO
-	smtp.pspl.co.in") by vger.kernel.org with ESMTP id S262314AbVBVNzk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 08:55:40 -0500
-Subject: Re: Needed faster implementation of do_gettimeofday()
-From: Puneet Kaushik <puneet_kaushik@persistent.co.in>
-To: george@mvista.com, kernel-stuff@comcast.net
+	Tue, 22 Feb 2005 09:22:32 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:928 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262304AbVBVOWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 09:22:22 -0500
+Date: Tue, 22 Feb 2005 09:22:17 -0500
+From: John M Flinchbaugh <john@hjsoft.com>
+To: acpi-devel@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <421AA1BD.7020706@mvista.com>
-References: <34373.203.199.147.2.1108897097.squirrel@webmail.persistent.co.in>
-	 <200502201048.01424.kernel-stuff@comcast.net> <421AA1BD.7020706@mvista.com>
-Content-Type: text/plain
-Message-Id: <1109080575.21544.264.camel@ps2335.persistent.co.in>
+Subject: Re: Thinkpad R40 freezes after swsusp resume
+Message-ID: <20050222142217.GA24536@butterfly.hjsoft.com>
+References: <20050216195940.GA32423@butterfly.hjsoft.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 22 Feb 2005 19:26:15 +0530
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAQ=
-X-White-List-Member: TRUE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
+Content-Disposition: inline
+In-Reply-To: <20050216195940.GA32423@butterfly.hjsoft.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Parag and George,
 
-Thanks for immediate reply.
-The main problem is I am working on a SMP system. I have written a small
-program that just calls the gettimeofday(), one billion times. I have
-run it with time utility and it takes almost double time on SMP then a
-UP.
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, Feb 16, 2005 at 02:59:40PM -0500, John M Flinchbaugh wrote:
+> correcting the problem, so I can get swsusp and ACPI coexisting=20
+> happily
+> on my Thinkpad R40.
+> Does anyone here on the ACPI list have some logical next steps for=20
+> me to
+> test?
+> ----- Forwarded message from John M Flinchbaugh <john@hjsoft.com>=20
+> As Murphy's Law would have it, I usually get these lockups at=20
+> inopportune times when I really don't want to have to punch the=20
+> power=20
+> button, like when I'm in a hurry trying to find something or during
+> long-running network backups.  It also does it when sitting idle, so
+> this isn't a rule.
+>=20
+> I've run most of a backup from an NFS mount to the local drive (for
+> about 10 minutes), stopped it, swsusp, ran another backup, and it's
+> looking fine so far.
+>=20
+> To be sure that it's not going to freeze, I'd almost have to let it=20
+> go
+> for a week, though, because sometimes I had just gotten lucky and=20
+> not
+> seen the issue for upto 4 days at a time.
+> ----- End forwarded message -----
 
+I've recompiled my 2.6.11-rc4 kernel without ACPI sleep states, and I've
+enabled lots of debugging.
 
-with kernel 2.6.10 on UP
+Upon swsusp, I see this oops:
+[nosave pfn 0x38c]<7>[nosave pfn 0x38d]<3>Debug: sleeping function
+called from invalid context at mm/slab.c:2082
+in_atomic():0, irqs_disabled():1
+ [<c0102b07>] dump_stack+0x17/0x20
+ [<c0110e0c>] __might_sleep+0xac/0xc0
+ [<c01397ae>] kmem_cache_alloc+0x5e/0x60
+ [<c020dbf9>] acpi_pci_link_set+0x7a/0x24e
+ [<c020e292>] acpi_pci_link_resume+0x47/0x7d
+ [<c020e30d>] irqrouter_resume+0x45/0x6d
+ [<c0234357>] sysdev_resume+0xf7/0xfc
+ [<c02386e8>] device_power_up+0x8/0xe
+ [<c012e798>] swsusp_suspend+0x48/0x50
+ [<c012ebb1>] pm_suspend_disk+0x51/0xc0
+ [<c012d07a>] enter_state+0x8a/0x90
+ [<c012d1b3>] state_store+0xa3/0xaa
+ [<c0186ce7>] subsys_attr_store+0x37/0x40
+ [<c0186f4e>] flush_write_buffer+0x2e/0x40
+ [<c0186fcf>] sysfs_write_file+0x6f/0x90
+ [<c014f004>] vfs_write+0xa4/0x110
+ [<c014f121>] sys_write+0x41/0x70
+ [<c01025af>] syscall_call+0x7/0xb
 
-real    4m5.495s
-user    1m17.088s
-sys     2m48.046s
+Otherwise, the swsusp works and resumes.
 
+After the resume, I see these messages:
+Feb 22 09:00:54 navi kernel: osl-0958 [1385] os_wait_semaphore     :
+Failed to acquire semaphore[c14de5e0|1|0], AE_TIME
+Feb 22 09:04:29 navi kernel: osl-0958 [1734] os_wait_semaphore     :
+Failed to acquire semaphore[c14de5e0|1|0], AE_TIME
+Feb 22 09:07:53 navi kernel: osl-0958 [2076] os_wait_semaphore     :
+Failed to acquire semaphore[c14de5e0|1|0], AE_TIME
+Feb 22 09:12:09 navi kernel: osl-0958 [2534] os_wait_semaphore     :
+Failed to acquire semaphore[c14de5e0|1|0], AE_TIME
 
-With Kernel 2.6.10 on SMP
+I haven't frozen the box yet, but I wouldn't be surprised if these
+contribute to the conditions that cause the freeze.
 
-real    6m24.485s
-user    1m43.723s
-sys     4m30.749s
+Thanks.
+--=20
+John M Flinchbaugh
+john@hjsoft.com
 
+--LQksG6bCIzRHxTLp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-And the fact is this SMP machine is faster and with more memory than the
-UP one. In SMP systems it make a spinlock every time it got called,
-synchronizes both the processors, and unlock them. Thats all I know
-about it.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-George I am just working on your suggestion, let me know if it will work
-for SMPs.
+iD8DBQFCG0AZCGPRljI8080RAqDyAJ4hDGsL0p4igpL51Up7Fh861I9vlACaAnux
+ZyMSrCLDPtxZCszPnh8PJP8=
+=1ibO
+-----END PGP SIGNATURE-----
 
-If there is some good implementation for SMP, please let me know.
-
-Thanks,
-
-- Puneet
-
-
-
-
-On Tue, 2005-02-22 at 08:36, George Anzinger wrote:
-> Parag Warudkar wrote:
-> > On Sunday 20 February 2005 05:58 am, puneet_kaushik@persistent.co.in wrote:
-> > 
-> >>985913    8.6083  vmlinux                  mark_offset_tsc
-> >>584473    5.1032  libc-2.3.2.so            getc
-> > 
-> > 
-> > What makes you think mark_offset_tsc is slow? Do you have any comparative 
-> > numbers?  It might just be that the workload you are throwing at it justifies 
-> > it. (For e.g. if your workload does a zillion system calls, system_call will 
-> > show up as a hot spot in oprofile - doesn't necessarily mean it is slow - 
-> > it's just overused.) Can you post the relevant code?
-> 
-> He really is right.  Mark offset is reading the PIT counter and that is not only 
-> rather dumb but dog slow.
-> 
-> A suggestion, try the high res timers patch.  Even if you don't use the timers 
-> the mark offset there is MUCH faster.  It does not read the PIT.
-> 
-> The difference is where we assume the jiffie bump is in time.  If we assume it 
-> is at the point that the PIT interrupts, well then the only way to get to that 
-> is to read the PIT.  If, on the other hand, we assume it is at the time after 
-> the interrrupt where we mark offset, we can observe the "best" time for this 
-> event based on the TSC and avoid reading the PIT.
-> 
-> Try the HRT patch (see signature below) and see if if doesn't do better.
-> 
-
+--LQksG6bCIzRHxTLp--

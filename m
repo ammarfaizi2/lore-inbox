@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263431AbTDGNOE (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 09:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTDGNOE (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 09:14:04 -0400
-Received: from hercules.egenera.com ([208.254.46.135]:60164 "EHLO
-	coyote.egenera.com") by vger.kernel.org with ESMTP id S263431AbTDGNOD (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 09:14:03 -0400
-Date: Mon, 7 Apr 2003 09:20:12 -0400
-From: "Philip R. Auld" <pauld@egenera.com>
-To: linux-kernel@vger.kernel.org
-Subject: Deadlock in sd_open/revalidate [lk <= 2.4]
-Message-ID: <20030407092012.C13667@vienna.EGENERA.COM>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Razor-id: e831463132f9ed17e049cbdf3601de6b2c28bb12
+	id S263435AbTDGNPw (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 09:15:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263436AbTDGNPw (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 09:15:52 -0400
+Received: from tomts23.bellnexxia.net ([209.226.175.185]:41693 "EHLO
+	tomts23-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S263435AbTDGNPv (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 09:15:51 -0400
+Date: Mon, 7 Apr 2003 09:23:19 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@localhost.localdomain
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: USB optical mouse on laptop causes bk12 boot to hang
+Message-ID: <Pine.LNX.4.44.0304070918200.1380-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
-	There seems to be a potential deadlock in the sd_open path. The problem
-is this while loop:
 
-	...
-	while (rscsi_disks[target].device->busy) {
-                barrier();
-                cpu_relax();
-        }
-	...
+  on to the next issue.  the setup:
+	dell inspiron 8100 laptop
+	RH 9
+	2.5.66-bk12
 
-In revalidate_scsidisk we do this:
-	
-	...
-	device->busy = 1;
-	...
-	almost certain schedule();
-	...
-	device-busy = 0;
+  for ergonomic reasons, rather than use the laptop keyboard and
+touchpad, i have (under the previous RH 8 and 2.4.20) been using
+an external PS/2 keyboard and logitech USB optical mouse.  this
+setup has been working fine -- when both external input devices
+are connected, i can use either keyboard, and just the optical
+USB mouse.
 
-Both paths hold the kernel lock so if sd_open gets into the while loop when 
-the revalidate is sleeping it's all over.
+  booting under 2.5.66-bk12, if just the keyboard is connected,
+no problem.  the boot works, both keyboards are active, and the
+touchpad works.
 
-As a simple preventative fix I'd say put a schedule in the while loop. It's
-a little ugly, but less intrusive that adding a wait queue to the device.
+  however, if i connect *only* the optical mouse, the boot gets
+to "Freeing unused kernel memory", hangs for about a minute, 
+then powers down the box.  not good.  (same thing happens if 
+both external keyboard and mouse are connected, so i've isolated
+it to just the optical mouse).
 
-Anoyone see anything wrong with doing that? Other solutions?
+  thoughts?
 
-This seems to be present in 2.0, 2.2. and 2.4 (where we hit it).
-The while-forever-loop-with -kernel-lock seems to be gone in 2.5.
+rday
 
-
-Cheers,
-
-Phil
-
--- 
-Philip R. Auld, Ph.D.                  Technical Staff 
-Egenera Corp.                        pauld@egenera.com
-165 Forest St., Marlboro, MA 01752       (508)858-2600

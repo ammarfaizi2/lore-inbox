@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264205AbUFFWzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264211AbUFFW7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264205AbUFFWzV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 18:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264211AbUFFWzV
+	id S264211AbUFFW7I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 18:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264208AbUFFW7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 18:55:21 -0400
-Received: from mail012.syd.optusnet.com.au ([211.29.132.66]:32671 "EHLO
-	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264205AbUFFWzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 18:55:17 -0400
+	Sun, 6 Jun 2004 18:59:08 -0400
+Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:20153 "EHLO
+	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264225AbUFFW6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 18:58:45 -0400
 From: Con Kolivas <kernel@kolivas.org>
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
 Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
-Date: Mon, 7 Jun 2004 08:55:00 +1000
+Date: Mon, 7 Jun 2004 08:58:32 +1000
 User-Agent: KMail/1.6.1
 Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
        Zwane Mwaikambo <zwane@linuxpower.ca>,
        William Lee Irwin III <wli@holomorphy.com>
-References: <200406070139.38433.kernel@kolivas.org> <40C381D7.5030406@gmx.de>
-In-Reply-To: <40C381D7.5030406@gmx.de>
+References: <200406070139.38433.kernel@kolivas.org> <1086543600.1700.2.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1086543600.1700.2.camel@teapot.felipe-alfaro.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406070855.00648.kernel@kolivas.org>
+Message-Id: <200406070858.32924.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jun 2004 06:43, Prakash K. Cheemplavam wrote:
-> Hi,
+On Mon, 7 Jun 2004 03:40, Felipe Alfaro Solana wrote:
+> On Sun, 2004-06-06 at 17:39, Con Kolivas wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > This is an update of the scheduler policy mechanism rewrite using the
+> > infrastructure of the current O(1) scheduler. Slight changes from the
+> > original design require a detailed description. The change to the
+> > original design has enabled all known corner cases to be abolished and
+> > cpu distribution to be much better maintained. It has proven to be stable
+> > in my testing and is ready for more widespread public testing now.
+>
+> I'm impressed... I'm currently playing with linux-2.6.7-rc2-bk7 plus
+> staircase plus autoswappiness and my system behaves exceptionally. It
+> seems pretty responsive even when under heavy load (while true; do a=2;
+> done). Nice work.
 
-Hi. Thanks for testing.
+Sounds good.
 
-> it is the first time I tried this scheduler with 2.6.7-rc2-mm2. A k.o
-> criteria for me: Playing ut2004 it generated a lot of statics (sound
-> wise). I consider this a regression in contrast to O(1). Nick's
-> scheduler plays nice as well. For Nick's I have X reniced to -10. Your
-> scheduler doesn't like this, as well: When plaing some tune via xmms and
-> then switching to another (virtual) desktop, I get pops in the sound for
-> fractions of a second. Putting X back to 0 fixes this. But I don't know
-> how to "fix" ut2004 with staircase. :-(
-
-Yes this is designed for X nice==0.
-
-Try interactive = 0 setting for gaming.
+Thanks for testing.
 
 Con

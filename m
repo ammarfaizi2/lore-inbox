@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262525AbSJWBh2>; Tue, 22 Oct 2002 21:37:28 -0400
+	id <S262482AbSJWBgN>; Tue, 22 Oct 2002 21:36:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262568AbSJWBh2>; Tue, 22 Oct 2002 21:37:28 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:65251 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262525AbSJWBgm>;
-	Tue, 22 Oct 2002 21:36:42 -0400
-Date: Wed, 23 Oct 2002 02:44:00 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Rob Landley <landley@trommello.org>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Roman Zippel <zippel@linux-m68k.org>, riel@conectiva.com.br,
-       linux-kernel@vger.kernel.org, akpm@zip.com.au, davem@redhat.com,
-       mingo@redhat.com
-Subject: Re: [STATUS 2.5]  October 21, 2002
-Message-ID: <20021023014400.GA13722@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Rob Landley <landley@trommello.org>,
-	Guillaume Boissiere <boissiere@adiglobal.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Roman Zippel <zippel@linux-m68k.org>, riel@conectiva.com.br,
-	linux-kernel@vger.kernel.org, akpm@zip.com.au, davem@redhat.com,
-	mingo@redhat.com
-References: <20021021135137.2801edd2.rusty@rustcorp.com.au> <3DB3AB3E.23020.5FFF7144@localhost> <200210211522.35843.landley@trommello.org> <20021022194739.GB28822@clusterfs.com> <20021022195730.GA30958@suse.de> <20021022201843.GC28822@clusterfs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021022201843.GC28822@clusterfs.com>
-User-Agent: Mutt/1.4i
+	id <S262490AbSJWBgN>; Tue, 22 Oct 2002 21:36:13 -0400
+Received: from ns.cinet.co.jp ([210.166.75.130]:780 "EHLO multi.cinet.co.jp")
+	by vger.kernel.org with ESMTP id <S262482AbSJWBgM>;
+	Tue, 22 Oct 2002 21:36:12 -0400
+Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A309@ns.cinet.co.jp>
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: "'Vojtech Pavlik '" <vojtech@suse.cz>
+Cc: "'LKML '" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH][RFC] add support for PC-9800 architecture (11/26) inp
+	ut
+Date: Wed, 23 Oct 2002 10:42:19 +0900
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 02:18:43PM -0600, Andreas Dilger wrote:
+Thanks for many suggestion. 
 
- > 	if (doing online resize)
- > 		do something;
- > 	else
- > 		don't even see any difference;
- > 
- > The resize code does not impact any code paths in the normal operation
- > of the filesystem, and 99% could even be put into a separate module,
- > that's how detached it is from the main ext3 code.
+-----Original Message-----
+From: Vojtech Pavlik
+To: Osamu Tomita
+Cc: LKML; Linus Torvalds
+Sent: 2002/10/22 19:29
+Subject: Re: [PATCH][RFC] add support for PC-9800 architecture (11/26) input
 
-Fairy nuff. Sounds promising.
+> Before I'll think of merging this, it has to be seriously cleaned up.
+> Comments below.
+I see. I work away at cleanup.
 
-		Dave
+> (Summary: use your own SERIO_TYPE for the PC-98 keyboard, remove dead
+> code and definitions, fix naming, make as little #ifdefs as possible,
+> and maybe you can put the PC-98 keyboard code into xtkbd.c (in which
+> case you may get away with SERIO_XT).
+Since xtkbd has not write keyboard function, I modified atkbd.
+I'll rewrite driver, keycode translations and (un)initialize using xtkbd's
+way. Also rename identifier.
+I don't touch input.h in next patch.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+Regards
+Osamu Tomita

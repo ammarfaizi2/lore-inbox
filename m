@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbUDERH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 13:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbUDERH3
+	id S263017AbUDERIx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 13:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbUDERIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 13:07:29 -0400
-Received: from 66.Red-80-38-104.pooles.rima-tde.net ([80.38.104.66]:24708 "HELO
-	fulanito.nisupu.com") by vger.kernel.org with SMTP id S262602AbUDERHY
+	Mon, 5 Apr 2004 13:08:52 -0400
+Received: from p01m170.mxlogic.net ([66.179.109.170]:18601 "HELO
+	p01m170.mxlogic.net") by vger.kernel.org with SMTP id S263017AbUDERIt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 13:07:24 -0400
-Message-ID: <001d01c41b30$ab7a0fa0$1530a8c0@HUSH>
-From: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
-To: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Cc: <linux-kernel@vger.kernel.org>
-References: <002101c41b00$3f0f8c30$1530a8c0@HUSH> <c4rku2$9dh$2@news.cistron.nl>
-Subject: Re: Network issues in 2.6
-Date: Mon, 5 Apr 2004 19:08:51 +0200
+	Mon, 5 Apr 2004 13:08:49 -0400
+Message-ID: <40718B2A.967D9467@amis.com>
+Date: Mon, 05 Apr 2004 10:36:58 -0600
+From: Eric Whiting <ewhiting@amis.com>
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.6.5-rc3-mm4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: -mmX 4G patches feedback
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-MX-Spam: exempt
+X-MX-MAIL-FROM: <ewhiting@amis.com>
+X-MX-SOURCE-IP: [207.141.5.253]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Note that for TX packets, the carrier number is almost the same as the
-total
-> >packets.... booting in 2.4.22, there are zero problems.  The only
-difference
-> >in the ifconfig, other than that, is that in 2.4.22, I have "RUNNING" in
-the
-> >options (but I didn't find how to force that).
+from:
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm1/announce.txt
+
+>- I've dropped the 4G/4G patch and the remap-file-pages-prot patch.  Two
+>  reasons:
 >
-> Have you tried upgrading your 'ifconfig' ?
+>  a) They create a lot of noise in areas where Hugh, Andrea and others
+>     are working
+>
+>  b) -mm has been a bit flakey for a few people lately and I suspect the
+>     problems are related to early-startup changes in the 4:4 patch.
 
-net-tools 1.60
-ifconfig 1.42 (2001-04-13)
 
-Didn't find a newer one, but still, the problem's cause gotta be somewhere
-else.
-Or not?
+Andrew -- some data on the 4G/4G problems:
 
+The following kernels with 4G/4G enabled would hang my box about once every 24
+hours.
+2.6.5-rc2-mm4   
+2.6.3-mm3       
+
+The 2.6.5-rc3-mm4 kernel with 4G/4G enabled has been much more stable (like
+earlier -mmX kernels with 4G/4G enabled).
+
+The 4G/4G patch is still useful for me -- although 64bit linux (x86_64) is the
+best 'real' long-term solution to large memory jobs.  
+
+eric

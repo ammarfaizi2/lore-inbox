@@ -1,53 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbTHSXuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 19:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTHSXuY
+	id S261606AbTHTAEq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 20:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbTHTAEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 19:50:24 -0400
-Received: from holomorphy.com ([66.224.33.161]:3458 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261528AbTHSXuV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 19:50:21 -0400
-Date: Tue, 19 Aug 2003 16:51:26 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG][2.6.0-test3-bk7] x86-64 UP_IOAPIC panic caused by cpumask_t conversion
-Message-ID: <20030819235126.GC4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andi Kleen <ak@muc.de>, Mikael Pettersson <mikpe@csd.uu.se>,
-	linux-kernel@vger.kernel.org
-References: <mnCB.1md.29@gated-at.bofh.it> <m3y8xpqktd.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3y8xpqktd.fsf@averell.firstfloor.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 19 Aug 2003 20:04:46 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:56533 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S261606AbTHTAEn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 20:04:43 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [patch] 2.4.x ACPI updates
+Date: Tue, 19 Aug 2003 20:04:03 -0400
+Message-ID: <BF1FE1855350A0479097B3A0D2A80EE009FC7F@hdsmsx402.hd.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] 2.4.x ACPI updates
+Thread-Index: AcNme3Xu3OYWT/cfQk+fUjIadDoKjwAKoDcw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <acpi-devel@sourceforge.net>
+X-OriginalArrivalTime: 20 Aug 2003 00:04:05.0361 (UTC) FILETIME=[91D69E10:01C366AE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> writes:
-> Nasty.
-> But why does i386/UP work?
+Andy/Jeff/Marcelo,
 
-On Wed, Aug 20, 2003 at 01:39:10AM +0200, Andi Kleen wrote:
-> > (I believe this is the correct thing to do, except having
-> > CONFIG_X86_IO_APIC in generic code isn't quite right.)
-> Better would be to undo the cpumask_t changes in io_apic.c
-> and go back to unsigned long masks there again.
-> Obviously a cpu mask is not the right data structure to manage APICs
-> Another way would be to do whatever i386 does to avoid the problem.
-> The IO-APIC code is unfortunately quite out of date/unsynced compared to i386,
-> maybe it just needs some bug fix ported over. I will check that later.
+At Jeff's request, I've back ported ACPICA 20030813 from 
+http://linux-acpi.bkbits.net/linux-acpi-2.4 into a new tree for 2.4.22:
+http://linux-acpi.bkbits.net/linux-acpi-2.4.22
 
-Odd; I have a UP IO-APIC ia32 box here and it appears to do okay; there
-is a question of sparse APIC ID's and APIC ID space needing to be
-independent of NR_CPUS handled in the ia32 code that isn't handled in
-the x86_64 code. It was handled for ia32 by using a bitmap of size
-MAX_APICS (physid_mask_t) instead of cpumask_t for the things, which
-appears to eliminate various special cases for xAPIC's too.
+I've restored acpitable.[ch], which was deleted too late for this
+release cycle; and will live on until 2.4.23 -- as well as restored
+CONFIG_ACPI_HT_ONLY under CONFIG_ACPI; restored the 8-bit characters
+that got expanded to 16-bits in a previous merge; and deleted some dmesg
+verbiage that Jeff didn't think was appropriate for the baseline kernel.
+
+I exported this a patch and then imported onto a clone of Marcelo's
+tree, so it appears as a single cset where the changes that got un-done
+never happened.  I've done some sanity tests on it, and will test it
+some more tomorrow.  Take a look at it and let me know if I missed
+anything.  When Andy is happy with it I'll leave it to him to re-issue a
+pull request from Marcelo.
+
+> This includes a rework of the ACPI config and cmdline options. It now
+> supports DMI-based blacklisting, and cmdline options have been
+> simplified to "acpi=off", "acpi=ht" (use ACPI for CPU enum only) and
+> "acpi=force" (to override the blacklist.)
+
+> It also includes some PCI IRQ routing changes, that seem to help some
+> people's systems work better.
+
+In addition, the "noapic" flag now works properly when full ACPI is
+enabled.
+
+Thanks,
+-Len
+
+Ps. The plain patch on top of Marcelo's current tree is available here:
+https://sourceforge.net/project/showfiles.php?group_id=36832
+
+----------
+This will update the following files:
+
+ Documentation/kernel-parameters.txt |    8 
+ Makefile                            |    2 
+ arch/i386/kernel/acpi.c             |   53 ++++-
+ arch/i386/kernel/acpitable.c        |   10 
+ arch/i386/kernel/acpitable.h        |    4 
+ arch/i386/kernel/dmi_scan.c         |  251 +++++++++++++++++++++++-
+ arch/i386/kernel/io_apic.c          |   14 -
+ arch/i386/kernel/mpparse.c          |   34 ++-
+ arch/i386/kernel/setup.c            |   54 ++---
+ arch/i386/kernel/smpboot.c          |    2 
+ drivers/Makefile                    |    2 
+ drivers/acpi/Config.in              |    2 
+ drivers/acpi/Makefile               |    7 
+ drivers/acpi/bus.c                  |    2 
+ drivers/acpi/executer/exutils.c     |    2 
+ drivers/acpi/hardware/hwregs.c      |   21 +-
+ drivers/acpi/osl.c                  |   27 +-
+ drivers/acpi/pci_irq.c              |   15 +
+ drivers/acpi/pci_link.c             |  100 ++++++---
+ drivers/acpi/processor.c            |    1 
+ drivers/acpi/tables.c               |  120 ++++++-----
+ drivers/acpi/tables/tbconvrt.c      |    6 
+ drivers/acpi/tables/tbget.c         |    4 
+ drivers/acpi/tables/tbinstal.c      |   42 ++--
+ drivers/acpi/tables/tbrsdt.c        |    2 
+ drivers/acpi/tables/tbxfroot.c      |    6 
+ drivers/acpi/toshiba_acpi.c         |    3 
+ drivers/acpi/utilities/utglobal.c   |    6 
+ include/acpi/acconfig.h             |    2 
+ include/acpi/acpi_drivers.h         |    2 
+ include/acpi/platform/acenv.h       |    6 
+ include/asm-i386/io_apic.h          |    2 
+ 32 files changed, 598 insertions(+), 214 deletions(-)
+
+through these ChangeSets:
+
+<len.brown@intel.com> (03/08/19 1.1097)
+   patch_2.4.22-rc2_to_acpi-2.4-20030813
 
 
--- wli

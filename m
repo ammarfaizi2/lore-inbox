@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314284AbSDVRRW>; Mon, 22 Apr 2002 13:17:22 -0400
+	id <S314289AbSDVRSj>; Mon, 22 Apr 2002 13:18:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314289AbSDVRRV>; Mon, 22 Apr 2002 13:17:21 -0400
-Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:13469 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314284AbSDVRRV>;
-	Mon, 22 Apr 2002 13:17:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Date: Sun, 21 Apr 2002 19:17:45 +0200
-X-Mailer: KMail [version 1.3.2]
+	id <S314290AbSDVRSf>; Mon, 22 Apr 2002 13:18:35 -0400
+Received: from bitmover.com ([192.132.92.2]:3751 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S314289AbSDVRRv>;
+	Mon, 22 Apr 2002 13:17:51 -0400
+Date: Mon, 22 Apr 2002 10:17:50 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
 Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
         Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zJbd-0001GZ-00@starship> <20020422131011.D6638@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16zKy9-0001Hw-00@starship>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Message-ID: <20020422101750.D17613@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Larry McVoy <lm@bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zJbd-0001GZ-00@starship> <20020422091012.C17613@work.bitmover.com> <E16zK5f-0001He-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 April 2002 19:10, Jeff Garzik wrote:
-> On Sun, Apr 21, 2002 at 05:50:25PM +0200, Daniel Phillips wrote:
-> > On Monday 22 April 2002 17:44, Larry McVoy wrote:
-> > > On Sun, Apr 21, 2002 at 02:53:13PM +0200, Daniel Phillips wrote:
-> > > > I hope I made it clear that I believe BK is helping Linux.  Furthermore, I
-> > > > don't see why Larry should not collect some advertising for his contribution.
-> > > > Within limits.  IMHO, we're on the wrong side of the limit at the moment,
-> > > > and moving further with no sign of moderating.
-> > > 
-> > > Yes, because so many purchasing managers spend their time reading the
-> > > Documentation subdirectory of the Linux kernel in order to decide what
-> > > SCM system they should use.
-> > > 
-> > > The existence (or non-existence) of the docs has absolutely no marketing
-> > > value to BK.
-> > 
-> > So you have no problem with moving them to a website, leaving a url in
-> > SubmittingPatches?
+On Sun, Apr 21, 2002 at 06:21:27PM +0200, Daniel Phillips wrote:
+> > It's not my call to make.
 > 
-> Do you have a problem with moving other docs out to Websites, which are
-> describing closed-spec hardware?  Such hardware (and their vendors) are
-> actively anti-open source, yet we have documents describing those, too.
+> I know that.  I was wondering if *you personally* would have any objection.
 
-The other example specifically mentioned was the CVS documentation for jfs,
-and yes, I think that moving those instructions to the web site in question
-would make a lot of sense, leaving a URL wherever the docs once were.  By
-definition, the CVS instructions will be available on that site as long as
-they are useful, and not a moment longer.
+Daniel, I won't be nagged into supporting your point of view, sorry.
+I didn't even know that the doc was in the tree until you raised the
+point.  I don't see a problem with it being in the tree and I do *not*
+support your attempts to remove it.
 
-This is all irrespective of the fact that CVS does not have the problem of
-having a restrictive license, but since you asked...
+You seem to think it has some great value to BitMover to have it in
+the tree.  Sorry, that's not true.  It's true to some small extent, in
+that it may reduce the number of support queries that we get related to
+the kernel.  So we'd prefer it stayed in the tree.
 
+Why don't you ask Jeff to stick in the doc saying something like
+
+    BitKeeper is not free software.  You may use it for free, subject
+    to the licensing rules (bk help bkl will display them), but it is
+    not open source.  If you feel strongly about 100% free software
+    tool chain, then don't use BitKeeper.  Linus has repeatedly stated
+    that he will continue to accept and produce traditional "diff -Nur"
+    style patches.  It is explicitly not a requirement that you use
+    BitKeeper to do kernel development, people may choose whatever tool
+    works best for them.
+
+> > Take it up with the people who own the tree.
+> 
+> That's all of us, last I heard.  Administrating it is, of course, another story.
+
+You are, as has been repeatedly pointed out, able to create your own tree,
+with your own rules, and see if you develop a following.  It's way past time
+that you do so, it should be crystal clear to anyone with a clue that you
+are not the administrator of this tree.
 -- 
-Daniel
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

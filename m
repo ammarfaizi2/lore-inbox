@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266005AbUGZTWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265288AbUGZTXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266005AbUGZTWO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 15:22:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUGZTWO
+	id S265288AbUGZTXW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 15:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUGZTXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 15:22:14 -0400
-Received: from nacho.alt.net ([207.14.113.18]:4004 "HELO nacho.alt.net")
-	by vger.kernel.org with SMTP id S266128AbUGZRl3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 13:41:29 -0400
-Date: Mon, 26 Jul 2004 10:41:24 -0700 (PDT)
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Arjan van de Ven <arjanv@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
-In-Reply-To: <20040703051534.GA4998@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0407261028470.21394-100000@nacho.alt.net>
+	Mon, 26 Jul 2004 15:23:22 -0400
+Received: from businessbox3.server-home.net ([195.137.212.33]:9871 "EHLO
+	businessbox3.server-home.net") by vger.kernel.org with ESMTP
+	id S265288AbUGZRwG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 13:52:06 -0400
+Message-ID: <410544D1.20405@devilcode.de>
+Date: Mon, 26 Jul 2004 19:52:17 +0200
+From: Patrick Kiwitter - Mailinglist <ccc@devilcode.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040508
+X-Accept-Language: de, de-de, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
-From: Chris Caputo <ccaputo@alt.net>
+To: linux-kernel@vger.kernel.org
+Subject: [off-topic] book recomandation
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Jul 2004, Arjan van de Ven wrote:
-> On Fri, Jul 02, 2004 at 01:00:19PM -0700, Chris Caputo wrote:
-> > On Fri, 25 Jun 2004, Marcelo Tosatti wrote:
-> > > On Wed, Jun 23, 2004 at 06:50:48PM -0700, Chris Caputo wrote:
-> > > > Is it safe to assume that the x86 version of atomic_dec_and_lock(), which
-> > > > iput() uses, is well trusted?  I figure it's got to be, but doesn't hurt
-> > > > to ask.
-> > > 
-> > > Pretty sure it is, used all over. You can try to use non-optimize version 
-> > > at lib/dec_and_lock.c for a test.
-> > 
-> > My current theory is that occasionally when irqbalance changes CPU
-> > affinities that the resulting set_ioapic_affinity() calls somehow cause
-> > either inter-CPU locking or cache coherency or ??? to fail.
-> 
-> or.... some spinlock is just incorrect and having the irqbalance irqlayout
-> unhides that.. irqbalance only balances very very rarely so I doubt it's the
-> cause of anything...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It has been a while since I have been able to follow up on this but I want
-to let you know that I _have been able_ to reproduce the problem (believed
-to be IRQ twiddling resulting in failed spinlock protection) with a stock
-kernel.
+hello world,
 
-I would like to come up with a more reliable way to reproduce the problem
-with a stock kernel (2.4.26), since it is presently very rare (less than
-once per week) in the way I presently get it to happen, but as yet have
-not done so.
+i would like to get an introduction into kernel hacking, so i would like
+to read kernel hacking related books (ok, i could also read the source
+directly to learn, but i like books).
 
-My plan of attack is to remove irqbalance from the equation and repeatedly
-change with random intervals /proc/irq entries directly from one user mode
-program while another user mode program does things which inspire a lot of
-fs/inode.c spinlock activity (since that is where I continue to see list
-corruption).
+so my question, which books are recommended by you?
 
-A few questions which could help me with this:
+i've got the first editon of oreillys "understandin the linux kernel"
+and a german (i am a german guy) c coding book concerning linux system
+programming (in c of course).
 
-  - Which IRQ (if any) is used by CPU's to coordinate inter-CPU locking?
+i've heard about the linux kernel development book from love and the
+advanced unix programming book. what do you think about that?
 
-  - What does it mean if a stack trace is incomplete?  For example, one I 
-    have gotten is simply the tail end of the code snippet:
+i would be appreciated to get reply.
 
-         0b 9a 00 5d c8
+regards
+patrick kiwitter
 
-    And so I have wondered if the failure to make a full stack trace 
-    indicates something in of itself.
+- --
+.O.
+..O   http://www.catb.org/hacker-emblem/
+OOO
 
-Thanks for any assistance.  I hope to find more time to work on this in
-the coming weeks.
+Administrator of http://www.devilcode.de - the developers community
+Developer for http://www.lbsdde.de - the localized BSD project
 
-Chris
+- -----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GIT d+ dx d s--:-- a-- C+++ UL+++(U-) P+++ L+++
+E--- W+++ N++ w--- !O++ >V >Y+ b++(+++) h!(*)
+- ------END GEEK CODE BLOCK------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
+iD8DBQFBBUTRDHDJZHMNHXYRAlw3AKCX1PZ1EBqMLMNqM9q3V8b/ODRsdQCgn711
+MnFK+Fzq3TXSgfZ2QbNrXdc=
+=L5n7
+-----END PGP SIGNATURE-----

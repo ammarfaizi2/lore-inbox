@@ -1,140 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261342AbSJPUbK>; Wed, 16 Oct 2002 16:31:10 -0400
+	id <S261391AbSJPUez>; Wed, 16 Oct 2002 16:34:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261388AbSJPUbK>; Wed, 16 Oct 2002 16:31:10 -0400
-Received: from mail.3ware.com ([205.253.146.92]:23591 "EHLO
-	siamese.engr.3ware.com") by vger.kernel.org with ESMTP
-	id <S261342AbSJPUbE>; Wed, 16 Oct 2002 16:31:04 -0400
-Message-ID: <A1964EDB64C8094DA12D2271C04B812672C79C@tabby>
-From: Adam Radford <aradford@3WARE.com>
-To: "'Patrick Mansfield'" <patmans@us.ibm.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'torvalds@transmeta.com'" <torvalds@transmeta.com>
-Subject: RE: 2.5.43 aic7xxx segfault sd_synchronize_cache() called after S
-	HT-> release()
-Date: Wed, 16 Oct 2002 13:38:46 -0700
+	id <S261392AbSJPUey>; Wed, 16 Oct 2002 16:34:54 -0400
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:48951
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S261391AbSJPUew>; Wed, 16 Oct 2002 16:34:52 -0400
+Message-ID: <3DADD064.8010707@rackable.com>
+Date: Wed, 16 Oct 2002 13:47:32 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: mcuss@cdlsystems.com
+CC: jamesclv@us.ibm.com, root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel reports 4 CPUS instead of 2...
+References: <Pine.LNX.3.95.1021016135105.150A-100000@chaos.analogic.com> <200210161228.58897.jamesclv@us.ibm.com> <0d3901c2754c$7bf17060$2c0e10ac@frinkiac7>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Oct 2002 20:40:48.0975 (UTC) FILETIME=[4F688DF0:01C27554]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is a "BUG", 2 lines got chopped from my output:
+Mark Cuss wrote:
 
-kernel BUG at drivers/base/core.c:269!
-invalid operand: 0000
+>Speaking of performance.... :)
+>
+>Has anyone done any testing on a dual CPU configuration like this?  I've
+>been testing this box with both the RedHat 8 Stock Kernel (2.4.18.something)
+>and 2.4.19 from kernel.org.  Currently, I can't make the thing perform
+>anywhere near as fast as my Dual PIII 1 Ghz box (running 2.4.7 for the last
+>325 days...) .  I've been compiling the same block of code on both the
+>machines and comparing the times.  The PIII box is around 7 s, while the new
+>Xeon Box is 13 or 14s...
+>
+>My thinking was that since the CPUs are much faster, and the FSB is faster,
+>and the disk controller is faster, that the computer would be faster.
+>
+>The hardware is obviously faster, I'm sure its just something I've done
+>wrong in the kernel configuration...  If anyone has any advice or words of
+>wisdom, I'd really appreciate them...
+>  
+>
 
--Adam
+   Try shutting off hyperthreading in the bios.  Keep in mind 
+hyperthreading is net loss if you are running a single nonthreaded app. 
+ Also you might want to check if there aren't io speed issues.  
 
------Original Message-----
-From: Patrick Mansfield [mailto:patmans@us.ibm.com]
-Sent: Wednesday, October 16, 2002 1:23 PM
-To: Adam Radford
-Cc: 'linux-kernel@vger.kernel.org'; 'torvalds@transmeta.com'
-Subject: Re: 2.5.43 aic7xxx segfault sd_synchronize_cache() called after
-SHT-> release()
+  A good way to see the effects positive effects of hyperthreading is a 
+kernel compile.  A "make -j 4 bzImage" should be much much faster on the 
+Xeon system with hyperthreading than a P3.
+
+>
+>Mark
+>
+>----- Original Message -----
+>From: "James Cleverdon" <jamesclv@us.ibm.com>
+>To: <root@chaos.analogic.com>; "Samuel Flory" <sflory@rackable.com>
+>Cc: "Mark Cuss" <mcuss@cdlsystems.com>; <linux-kernel@vger.kernel.org>
+>Sent: Wednesday, October 16, 2002 1:28 PM
+>Subject: Re: Kernel reports 4 CPUS instead of 2...
+>
+>
+>  
+>
+>>On Wednesday 16 October 2002 10:54 am, Richard B. Johnson wrote:
+>>    
+>>
+>>>On Wed, 16 Oct 2002, Samuel Flory wrote:
+>>>      
+>>>
+>>>>>On Wed, 16 Oct 2002, Mark Cuss wrote:
+>>>>>
+>>>>>This is the correct behavior. If you don't like this, you can
+>>>>>swap motherboards with me ;) Otherwise, grin and bear it!
+>>>>>          
+>>>>>
+>>>>  Wouldn't it be easier just to turn off the hypertreading or jackson
+>>>>tech option in the bios ;-)
+>>>>        
+>>>>
+>>>Why would you ever want to turn it off?  You paid for a CPU with
+>>>two execution units and you want to disable one?  This makes
+>>>no sense unless you are using Windows/2000/Professional, which
+>>>will trash your disks and all their files if you have two
+>>>or more CPUs (true).
+>>>      
+>>>
+>>No, you're thinking of IBM's Power4 chip, which really does have two CPU
+>>    
+>>
+>cores
+>  
+>
+>>on one chip, sharing only the L2 cache.
+>>
+>>The P4 hyperthreading shares just about all CPU resources between the two
+>>threads of execution.  There are only separate registers, local APIC, and
+>>some other minor logic for each "CPU" to call its own.  All execution
+>>    
+>>
+>units
+>  
+>
+>>are demand shared between them.  (The new "pause" opcode, rep nop, allows
+>>    
+>>
+>one
+>  
+>
+>>half to yield resources to the other half.)
+>>
+>>That's why typical job mixes only get around 20% improvement.  Even
+>>    
+>>
+>optimized
+>  
+>
+>>benchmarks, which run only integer code on one side and floating point on
+>>    
+>>
+>the
+>  
+>
+>>other only get around a 40% boost.  The P4 just doesn't have all that many
+>>execution units to go around.  Future chips will probably do better.
+>>
+>>    
+>>
+>>>Cheers,
+>>>Dick Johnson
+>>>Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+>>>The US military has given us many words, FUBAR, SNAFU, now ENRON.
+>>>Yes, top management were graduates of West Point and Annapolis.
+>>>      
+>>>
+>>--
+>>James Cleverdon
+>>IBM xSeries Linux Solutions
+>>{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>    
+>>
+>
+>
+>  
+>
 
 
-On Wed, Oct 16, 2002 at 12:41:14PM -0700, Adam Radford wrote:
-> I think sd_synchronize_cache() is getting called after SHT->release()
-> function,
-> which couldn't possibly be right.  This causes adaptec, 3ware, etc, to
-> segfault
-> on rmmod.
-> 
-> See below for adaptec segfault output:
-> 
-> aic7xxx
-> CPU:    1
-> EIP:    0060:[<c025918b>]    Not tainted
-> EFLAGS: 00010202
-> EIP is at put_device+0x7b/0xa0
-> eax: 00000000   ebx: c8997028   ecx: 00000001   edx: c0465470
-> esi: c12f4174   edi: c8997000   ebp: 00000000   esp: c5b81ee4
-> ds: 0068   es: 0068   ss: 0068
-> Process rmmod (pid: 1085, threadinfo=c5b80000 task=c5d4a800)
-> Stack: c8997028 c0481e20 c02d0f3a c8997028 c8997028 c0481f3c c8997028
-> c0481f4c
->        00000000 c66fe1e8 00000286 c798aa00 c0481e20 c12f4000 c13b5000
-> c02be9aa
->        c12f4000 c5b81f30 00000002 00030002 00000002 08072009 c042399f
-> 08071fff
-> Call Trace:
->  [<c02d0f3a>] sg_detach+0x20a/0x240
->  [<c02be9aa>] scsi_unregister_host+0x26a/0x5f0
->  [<c01418d8>] __alloc_pages+0x88/0x270
->  [<c892f12a>] exit_this_scsi_driver+0xa/0xc [aic7xxx]
->  [<c893a740>] driver_template+0x0/0x70 [aic7xxx]
->  [<c012029e>] free_module+0x1e/0x140
->  [<c011f3db>] sys_delete_module+0x1db/0x4c0
->  [<c010787f>] syscall_call+0x7/0xb
-> 
-> Code: 0f 0b 0d 01 86 69 3d c0 8b 83 d4 00 00 00 85 c0 74 04 53 ff
 
-Are you sure it is not a BUG? This looks just like what Badari reported
-yesterday:
-
-kernel BUG at drivers/base/core.c:251!
-invalid operand: 0000
-qla2200
-CPU:    0
-EIP:    0060:[<c023eb24>]    Not tainted
-EFLAGS: 00010202
-EIP is at put_device+0x64/0x90
-eax: 00000000   ebx: f8a08028   ecx: f8a080c4   edx: 00000001
-esi: c3aded54   edi: f8a08000   ebp: 00000003   esp: cb007ee4
-ds: 0068   es: 0068   ss: 0068
-Process rmmod (pid: 4803, threadinfo=cb006000 task=f62c98c0)
-Stack: f8a08028 c0477a40 c02ce533 f8a08028 f8a08028 c0477b5c f8a08028
-c0477b6c
-       00000000 40153f6d 00000286 f68fc000 c0477a40 c3adec00 f4df0000
-c02a7a9a
-       c3adec00 cb007f30 00000002 00030002 00000001 08071002 c041685c
-08070ffd  
-Call Trace:
- [<c02ce533>] sg_detach+0x1e3/0x210
- [<c02a7a9a>] scsi_unregister_host+0x26a/0x5d0
- [<c01f4736>] __generic_copy_to_user+0x56/0x80
- [<c013e4e8>] __alloc_pages+0x98/0x270
- [<f89e7cba>] exit_this_scsi_driver+0xa/0x10 [qla2200]
- [<f8a00360>] driver_template+0x0/0x74 [qla2200]
- [<c011ea0e>] free_module+0x1e/0x130
- [<c011dc94>] sys_delete_module+0x1b4/0x410
- [<c01075e3>] syscall_call+0x7/0xb
-
-I posted a patch to change the put_device() calls to device_unregister(),
-st.c got fixed in 2.5.43, these are still not fixed in 2.5.43:
-
---- linux-2.5.43/drivers/scsi/scsi.c	Tue Oct 15 20:28:22 2002
-+++ linux-2.5.43-unreg/drivers/scsi/scsi.c	Wed Oct 16 12:50:08 2002
-@@ -2248,7 +2248,7 @@
- 			if (shpnt->hostt->slave_detach)
- 				(*shpnt->hostt->slave_detach) (SDpnt);
- 			devfs_unregister (SDpnt->de);
--			put_device(&SDpnt->sdev_driverfs_dev);
-+			device_unregister(&SDpnt->sdev_driverfs_dev);
- 		}
- 	}
- 
-@@ -2299,7 +2299,7 @@
- 		/* Remove the /proc/scsi directory entry */
- 		sprintf(name,"%d",shpnt->host_no);
- 		remove_proc_entry(name, tpnt->proc_dir);
--		put_device(&shpnt->host_driverfs_dev);
-+		device_unregister(&shpnt->host_driverfs_dev);
- 		if (tpnt->release)
- 			(*tpnt->release) (shpnt);
- 		else {
---- linux-2.5.43/drivers/scsi/sg.c	Tue Oct 15 20:27:57 2002
-+++ linux-2.5.43-unreg/drivers/scsi/sg.c	Wed Oct 16 12:50:25 2002
-@@ -1611,7 +1611,7 @@
- 		sdp->de = NULL;
- 		device_remove_file(&sdp->sg_driverfs_dev, &dev_attr_type);
- 		device_remove_file(&sdp->sg_driverfs_dev, &dev_attr_kdev);
--		put_device(&sdp->sg_driverfs_dev);
-+		device_unregister(&sdp->sg_driverfs_dev);
- 		if (NULL == sdp->headfp)
- 			vfree((char *) sdp);
- 	}

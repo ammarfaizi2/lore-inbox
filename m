@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130422AbRAIOHq>; Tue, 9 Jan 2001 09:07:46 -0500
+	id <S129773AbRAIOHr>; Tue, 9 Jan 2001 09:07:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129773AbRAIOHb>; Tue, 9 Jan 2001 09:07:31 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:10490 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130349AbRAIOHG>; Tue, 9 Jan 2001 09:07:06 -0500
-Message-ID: <3A5B1CA1.3B7402AE@uow.edu.au>
-Date: Wed, 10 Jan 2001 01:13:53 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Fremlin <vii@penguinpowered.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Unified power management userspace policy
-In-Reply-To: <m2lmsld4rk.fsf@boreas.yi.org.> <3A5AED76.B2F60F8D@uow.edu.au>,
-		Andrew Morton's message of "Tue, 09 Jan 2001 21:52:38 +1100" <m27l44x239.fsf@boreas.yi.org.>
+	id <S130308AbRAIOHe>; Tue, 9 Jan 2001 09:07:34 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:24781 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130460AbRAIOHL>;
+	Tue, 9 Jan 2001 09:07:11 -0500
+Date: Tue, 9 Jan 2001 14:05:04 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: "'Pavel Machek'" <pavel@suse.cz>, adefacc@tin.it,
+        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: Confirmation request about new 2.4.x. kernel limits
+Message-ID: <20010109140504.D4284@redhat.com>
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95137@ATL_MS1>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95137@ATL_MS1>; from Venkateshr@ami.com on Mon, Jan 08, 2001 at 11:11:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Fremlin wrote:
+Hi,
+
+On Mon, Jan 08, 2001 at 11:11:05PM -0500, Venkatesh Ramamurthy wrote:
 > 
-> Hi!
-> 
->  Andrew Morton <andrewm@uow.edu.au> writes:
-> 
-> > Could you please use call_usermodehelper() in this patch
-> > rather than exec_usermodehelper()?  I want to kill
-> > exec_usermodehelper() sometime.
-> 
-> The reason I used exec_usermodehelper is that I wanted to waitpid on
-> the process to see how it exited. Am I still allowed to do that if it
-> runs as a child of keventd?
+> 	> Max. RAM size:			64 GB	(any slowness
+> accessing RAM over 4 GB
+> *	with 32 bit machines ?)
+> 	Imore than 4GB in RAM is bounce buffered, so there is performance
+> penalty as the data have to be copied into the 4GB RAM area
 
-Oh foo.  I missed that.
+Any memory over 1GB is bounce-buffered, but we don't use that memory
+for anything other than process data pages or file cache, so only
+swapping and disk IO to regular files gets the extra copy.  In
+particular, things like network buffers are still all kept in the low
+1GB so never need to be buffered.
 
-In the patch-which-didn't-make-it, yes, it can be called
-synchronously.  Or you can be called back with the exit
-code when the subprocess exits.  It does all the waitpid
-stuff, the signal management, handles chrootedness, etc.
-But that's vapourware now.  
-
-In the current implementation of call_usermodehelper(),
-it looks like the commentary is incorrect - it returns
-a negative error code or the subprocess's pid, but you
-can't wait on that because it's parented by keventd.
-
-Sorry for the noise - stick with what you have now.
-
--
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265502AbUA2K4b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 05:56:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbUA2K4a
+	id S265652AbUA2K5P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 05:57:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUA2K5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 05:56:30 -0500
-Received: from 213-84-216-119.adsl.xs4all.nl ([213.84.216.119]:51594 "EHLO
-	morannon.frodo.local") by vger.kernel.org with ESMTP
-	id S265502AbUA2K43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 05:56:29 -0500
-From: Frodo Looijaard <frodol@dds.nl>
-Date: Thu, 29 Jan 2004 11:56:24 +0100
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH to access old-style FAT fs
-Message-ID: <20040129105624.GA1072@frodo.local>
-References: <20040126173949.GA788@frodo.local> <bv3qb3$4lh$1@terminus.zytor.com> <87n0898sah.fsf@devron.myhome.or.jp> <4016B316.4060304@zytor.com> <87ad4987ti.fsf@devron.myhome.or.jp> <20040128115655.GA696@arda.frodo.local> <87y8rr7s5b.fsf@devron.myhome.or.jp> <20040128202443.GA9246@frodo.local> <87bron7ppd.fsf@devron.myhome.or.jp>
+	Thu, 29 Jan 2004 05:57:15 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:45801 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S265652AbUA2K5L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 05:57:11 -0500
+Date: Thu, 29 Jan 2004 18:50:46 +0800
+From: Hugang <hugang@soulinfo.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
+Message-Id: <20040129185046.3a5502df@localhost>
+In-Reply-To: <20040129102948.GA480@elf.ucw.cz>
+References: <20040123183030.02fd16d6@localhost>
+	<1074912854.834.61.camel@gaston>
+	<20040126181004.GB315@elf.ucw.cz>
+	<1075154452.6191.91.camel@gaston>
+	<1075156310.2072.1.camel@laptop-linux>
+	<20040128202217.0a1f8222@localhost>
+	<1075336478.30623.317.camel@gaston>
+	<20040129100554.6453e6c8@localhost>
+	<1075350214.1231.18.camel@gaston>
+	<20040129165119.553403f1@localhost>
+	<20040129102948.GA480@elf.ucw.cz>
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87bron7ppd.fsf@devron.myhome.or.jp>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 29 Jan 2004 11:29:48 +0100
+Pavel Machek <pavel@ucw.cz> wrote:
+> 
+> You may want to try this one.. Maybe it helps?
+> 							
+I has check the kernel, I using swsusp2 patch, the process freeze like
+this, but still need the patch I lastest send.
 
-I have run a small test in MS-DOS 5.00:
+           if (flag) {
+                swsusp_spin_lock_irqsave(PROCESS_SIG_MASK(current),
+flags);                RECALC_SIGPENDING;
+                swsusp_spin_unlock_irqrestore(PROCESS_SIG_MASK(current),
+flags);            }
 
-  1) Create a new directory
-  2) Create five files in it
-  3) Change the first character of the second filename to 0x00 with an editor
-  4) Do a DIR listing: only one file is seen
-     Linux shows four files!
-  5) Create a new file
-  6) Do a DIR listing: there are five files
-
-So MS-DOS 5.00 at least does stop when a 0x00 marker is found, but does
-not write new 0x00 markers when a 0x00 marker is overwritten. 
-
-Thanks,
-  Frodo
 
 -- 
-Frodo Looijaard <frodol@dds.nl>  PGP key and more: http://huizen.dds.nl/~frodol
-Defenestration n. (formal or joc.):
-  The act of removing Windows from your computer in disgust, usually followed
-  by the installation of Linux or some other Unix-like operating system.
+Hu Gang / Steve
+Linux Registered User 204016
+GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc

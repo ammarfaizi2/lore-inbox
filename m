@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266588AbRGTFT1>; Fri, 20 Jul 2001 01:19:27 -0400
+	id <S266631AbRGTGKc>; Fri, 20 Jul 2001 02:10:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266586AbRGTFTS>; Fri, 20 Jul 2001 01:19:18 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55564 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266567AbRGTFTF>; Fri, 20 Jul 2001 01:19:05 -0400
-Date: Thu, 19 Jul 2001 22:17:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Alexander Viro <viro@math.psu.edu>, "David S. Miller" <davem@redhat.com>,
-        Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@redhat.com>,
-        David Woodhouse <dwmw2@redhat.com>, <linux-scsi@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: 2.4.7-pre9..
-Message-ID: <Pine.LNX.4.33.0107192208070.14141-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266620AbRGTGKW>; Fri, 20 Jul 2001 02:10:22 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:43020 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S266399AbRGTGKJ>; Fri, 20 Jul 2001 02:10:09 -0400
+From: "Rob Turk" <r.turk@chello.nl>
+Subject: [PATCH] 2.4.7-pre8 scc.c vector latch region allocation
+Date: Fri, 20 Jul 2001 08:03:27 +0200
+Organization: Cistron Internet Services B.V.
+Message-ID: <9j8i04$6ga$1@ncc1701.cistron.net>
+X-Trace: ncc1701.cistron.net 995609412 6666 213.46.44.164 (20 Jul 2001 06:10:12 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+> This patch fixes a failure in the scc.c driver to properly allocate the
+I/O
+> region for the interrupt vector latch, which is present on some ham radio
+> SCC cards, such as the PA0HZP card.
+>
+> Rob Turk - PE1KOX
+>
 
-I'm getting ready to do a 2.4.7, but one of the fixes in 2.4.7 is a nasty
-SMP race that was found and made it clear that using an old trick of
-having a semaphore on the stack and doing "down()" on it to wait for some
-event (that would do the "up()") was a really bad idea.
+After receiving a few hints that uu-encoded messages are 'not done', here's
+the same patch in text format. Sorry for any confusion.
 
-This kind of trick was used in the kernel vfork() implementation, and also
-in block device "wait for request completion". I've fixed both with a new
-and fairly simple "wait for completion" infrastructure, but I'd like
-especially SCSI device driver writers to check their own drivers as a
-result before I make the final 2.4.7.
+Rob
 
-I've changed all generic code, so drivers are all expected to compile and
-work. However, some SCSI drivers use the semaphore trick in their own
-code, and I've not mucked with that. It's not worth worrying about too
-much, as the race is basically impossible to hit (famous last words), but
-I wanted a heads-up and people to give it a quick look. I also wanted to
-have people who actually have the hardware in question to verify that my
-untested (but on the face of it obvious) changes are indeed working.
 
-So please give it a quick spin,
+--- linux.org/drivers/net/hamradio/scc.c Thu Jul 19 22:48:06 2001
++++ linux/drivers/net/hamradio/scc.c Thu Jul 19 20:55:58 2001
+@@ -1775,8 +1775,8 @@
+      Ivec[hwcfg.irq].used = 1;
+    }
 
-		Linus
+-   if (hwcfg.vector_latch) {
+-    if (!request_region(Vector_Latch, 1, "scc vector latch"))
++   if (hwcfg.vector_latch && !Vector_Latch) {
++    if (!request_region(hwcfg.vector_latch, 1, "scc vector latch"))
+      printk(KERN_WARNING "z8530drv: warning, cannot reserve vector latch
+port 0x%lx\n, disabled.", hwcfg.vector_latch);
+     else
+      Vector_Latch = hwcfg.vector_latch;
+
+
+
 

@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268526AbUIXHjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268536AbUIXHmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268526AbUIXHjo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 03:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268535AbUIXHjo
+	id S268536AbUIXHmz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 03:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268535AbUIXHmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 03:39:44 -0400
-Received: from [211.155.249.251] ([211.155.249.251]:32014 "EHLO
-	nnt.neonetech.com") by vger.kernel.org with ESMTP id S268526AbUIXHjJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 03:39:09 -0400
-Date: Fri, 24 Sep 2004 15:39:07 +0800
-From: "xuhaoz" <xuhaoz@neonetech.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: printk can't display %d, but can display %u, %x, ......, why?
-X-mailer: Foxmail 5.0 [cn]
+	Fri, 24 Sep 2004 03:42:55 -0400
+Received: from scanner2.mail.elte.hu ([157.181.151.9]:1005 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268536AbUIXHmw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 03:42:52 -0400
+Date: Fri, 24 Sep 2004 09:44:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: [patch] voluntary-preempt-2.6.9-rc2-mm3-S6
+Message-ID: <20040924074416.GA17924@elte.hu>
+References: <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 7bit
-Message-ID: <NNTIbnZQ9qGeyEBFztZ00000016@nnt.neonetech.com>
-X-OriginalArrivalTime: 24 Sep 2004 07:43:01.0312 (UTC) FILETIME=[1E310C00:01C4A20A]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040923211206.GA2366@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	
- Hi:
 
-	Yesterday, I found a strangeous problem that printk in my OS can't print %d format number, but can print %u, %x ...
+i've released the -S6 VP patch:
 
-	why?
+   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm3-S6
 
-    let's see an example:
+this iteration fixes the 'dropped tcp connections' problem reported and
+fixed by K.R. Foley.
 
-			unsigned int memsize;
-		
-			memsize=64;
-		
-			printk("memsize unknown: setting to %dMB\n",memsize);
-
-			if I use %d to display, the result of memsize is -18446744073709551552MB
-
-            printk("memsize unknown: setting to %uMB\n",memsize);
-
-			if I use %u to display ,the result of memsize is 64MB
-
-	Would you please tell me what leads to this problem?
-
+The patching order is:
+ 
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc2.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/2.6.9-rc2-pre-mm3-mingo.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm3-S6
+ 
+	Ingo

@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266356AbSKLJOJ>; Tue, 12 Nov 2002 04:14:09 -0500
+	id <S266330AbSKLJMW>; Tue, 12 Nov 2002 04:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266359AbSKLJOJ>; Tue, 12 Nov 2002 04:14:09 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:43750 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S266356AbSKLJOH>;
-	Tue, 12 Nov 2002 04:14:07 -0500
-Date: Tue, 12 Nov 2002 10:20:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Giuliano Pochini <pochini@shiny.it>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Con Kolivas <conman@kolivas.net>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
-Message-ID: <20021112092045.GB832@suse.de>
-References: <3DD046BD.799F36D4@digeo.com> <XFMail.20021112095219.pochini@shiny.it>
+	id <S266335AbSKLJMW>; Tue, 12 Nov 2002 04:12:22 -0500
+Received: from holomorphy.com ([66.224.33.161]:6842 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266330AbSKLJMU>;
+	Tue, 12 Nov 2002 04:12:20 -0500
+Date: Tue, 12 Nov 2002 01:16:40 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: [12/11] hugetlb: fix lack of radix tree locking
+Message-ID: <20021112091640.GZ22031@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <XFMail.20021112095219.pochini@shiny.it>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12 2002, Giuliano Pochini wrote:
-> 
-> On 12-Nov-2002 Andrew Morton wrote:
-> > Con Kolivas wrote:
-> >>
-> >> io_load:
-> >> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> >> 2.4.18 [3]              474.1   15      36      10      6.64
-> >> 2.4.19 [3]              492.6   14      38      10      6.90
-> >> 2.5.46 [1]              600.5   13      48      12      8.41
-> >> 2.5.46-mm1 [5]          134.3   58      6       8       1.88
-> >> 2.5.47 [3]              165.9   46      9       9       2.32
-> >> 2.5.47-mm1 [5]          126.3   61      5       8       1.77
-> >>
-> >
-> > We've increased the kernel build speed by 3.6x while decreasing the
-> > speed at which writes are retired by 5.3x.
-> 
-> Did the elevator change between .46 and .47 ?
+This adds a spinlock to each individual key, initializes it and the
+atomic counter, and uses it when manipulating the radix tree.
+As pointed out by akpm.
 
-No, but the fifo_batch count (which controls how many requests are moved
-sort list to dispatch queue) was halved. This gives lower latency, at
-the possible cost of dimishing throughput.
+ hugetlbpage.c |    8 ++++++++
+ 1 files changed, 8 insertions(+)
 
--- 
-Jens Axboe
 
+diff -urpN htlb-2.5.47-11/arch/i386/mm/hugetlbpage.c htlb-2.5.47-12/arch/i386/mm/hugetlbpage.c
+--- htlb-2.5.47-11/arch/i386/mm/hugetlbpage.c	2002-11-11 23:27:18.000000000 -0800
++++ htlb-2.5.47-12/arch/i386/mm/hugetlbpage.c	2002-11-12 00:35:02.000000000 -0800
+@@ -32,6 +32,7 @@ static spinlock_t htlbpage_lock = SPIN_L
+ struct hugetlb_key {
+ 	struct radix_tree_root tree;
+ 	atomic_t count;
++	spinlock_t lock;
+ 	int key;
+ 	int busy;
+ 	uid_t uid;
+@@ -392,6 +393,7 @@ static int prefault_key(struct hugetlb_k
+ 	BUG_ON(vma->vm_end & ~HPAGE_MASK);
+ 
+ 	spin_lock(&mm->page_table_lock);
++	spin_lock(&key->lock);
+ 	for (addr = vma->vm_start; addr < vma->vm_end; addr += HPAGE_SIZE) {
+ 		unsigned long idx;
+ 		pte_t *pte = huge_pte_alloc(mm, addr);
+@@ -410,6 +412,7 @@ static int prefault_key(struct hugetlb_k
+ 		if (!page) {
+ 			page = alloc_hugetlb_page();
+ 			if (!page) {
++				spin_unlock(&key->lock);
+ 				ret = -ENOMEM;
+ 				goto out;
+ 			}
+@@ -418,6 +421,7 @@ static int prefault_key(struct hugetlb_k
+ 		}
+ 		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
+ 	}
++	spin_unlock(&key->lock);
+ out:
+ 	spin_unlock(&mm->page_table_lock);
+ 	return ret;
+@@ -625,6 +629,10 @@ static int __init hugetlb_init(void)
+ 	}
+ 	htlbpage_max = htlbpagemem = htlbzone_pages = i;
+ 	printk("Total HugeTLB memory allocated, %ld\n", htlbpagemem);
++	for (i = 0; i < MAX_ID; ++i) {
++		atomic_init(&htlbpagek[i].count);
++		spinlock_init(&htlbpagek[i].lock);
++	}
+ 	return 0;
+ }
+ module_init(hugetlb_init);

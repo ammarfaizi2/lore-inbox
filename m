@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265366AbTL0Ll4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 06:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265367AbTL0Ll4
+	id S265364AbTL0Lj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 06:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbTL0Lj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 06:41:56 -0500
-Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:42373
-	"EHLO efix.biz") by vger.kernel.org with ESMTP id S265366AbTL0Lly
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 06:41:54 -0500
-Subject: Re: OSS sound emulation broken between 2.6.0-test2 and test3
-From: Edward Tandi <ed@efix.biz>
-To: azarah@nosferatu.za.org
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, perex@suse.cz,
-       alsa-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       Rob Love <rml@ximian.com>, Andrew Morton <akpm@osdl.org>,
-       Stan Bubrouski <stan@ccs.neu.edu>
-In-Reply-To: <1072523478.12308.52.camel@nosferatu.lan>
-References: <1080000.1072475704@[10.10.2.4]>
-	 <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]>
-	 <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]>
-	 <1072482611.21020.71.camel@nosferatu.lan>  <2060000.1072483186@[10.10.2.4]>
-	 <1072500516.12203.2.camel@duergar>  <8240000.1072511437@[10.10.2.4]>
-	 <1072523478.12308.52.camel@nosferatu.lan>
-Content-Type: text/plain
-Message-Id: <1072525450.3794.8.camel@wires.home.biz>
+	Sat, 27 Dec 2003 06:39:28 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:28331 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S265364AbTL0Lj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 06:39:27 -0500
+Date: Sat, 27 Dec 2003 12:38:48 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Andrew Morton <akpm@osdl.org>, GCS <gcs@lsc.hu>,
+       linux-kernel@vger.kernel.org, Peter Osterlund <petero2@telia.com>
+Subject: Synaptics problems in -mm1
+Message-ID: <20031227113848.GA10491@louise.pinerecords.com>
+References: <20031224095921.GA8147@lsc.hu> <200312250411.55881.dtor_core@ameritech.net> <200312250413.32822.dtor_core@ameritech.net> <200312250414.58598.dtor_core@ameritech.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-2mdk 
-Date: Sat, 27 Dec 2003 11:44:11 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312250414.58598.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-12-27 at 11:11, Martin Schlemmer wrote:
-> On Sat, 2003-12-27 at 09:50, Martin J. Bligh wrote:
-> > Something appears to have broken OSS sound emulation between 
-> > test2 and test3. Best I can tell (despite the appearance of the BK logs), 
-> > that included ALSA updates 0.9.5 and 0.9.6. Hopefully someone who
-> > understands the sound architecture better than I can fix this?
-> > 
-> 
-> I wont say I understand it, but a quick look seems the major change is
-> the addition of the 'whole-frag' and 'no-silence' opts.  You might try
-> the following to revert what 'no-silence' change at least does:
-> 
-> --
->  # echo 'xmms 0 0 no-silence' > /proc/asound/card0/pcm0p/oss
->  # echo 'xmms 0 0 whole-frag' > /proc/asound/card0/pcm0p/oss
-> --
+Hi,
 
-Thanks, that fixes it for me. I too have been seeing terrible problems
-with XMMS since the early 2.6 pre- kernels.
+it seems one of the synaptics-related patches in 2.6.0-mm1 kills
+off the pointer stick on my T40p.  2.6.0 vanilla works just fine
+in that department.  Thought you might want to know.
 
-Because it only happens in XMMS I thought it was one of those
-application bugs brought out by scheduler changes. I now use Zinf BTW
--It's better for large music collections (although not as stable or
-flash).
+Reverting
 
-I guess someone ought to revert the standard behaviour.
+	input-08-synaptics-protocol-discovery.patch
+	input-07-remove-synaptics-config-option.patch
+	synaptics-powerpro-fix.patch
 
-Ed-T.
+did not seem to help.  I failed to figure out a way to easily revert
 
+	serio-06-synaptics-use-reconnect.patch
+	serio-04-synaptics-cleanup.patch
 
-> and restart xmms.  If that do not work, then one of the alsa guys will
-> have to have a look.
+so that I didn't try.
 
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

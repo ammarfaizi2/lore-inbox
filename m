@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129464AbQLLCAR>; Mon, 11 Dec 2000 21:00:17 -0500
+	id <S130685AbQLLCB0>; Mon, 11 Dec 2000 21:01:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129552AbQLLCAH>; Mon, 11 Dec 2000 21:00:07 -0500
-Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:21020 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S129464AbQLLB7w>; Mon, 11 Dec 2000 20:59:52 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14901.32619.305171.617057@somanetworks.com>
-Date: Mon, 11 Dec 2000 20:29:15 -0500 (EST)
-From: "Georg Nikodym" <georgn@somanetworks.com>
+	id <S129846AbQLLCBQ>; Mon, 11 Dec 2000 21:01:16 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:45116 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129552AbQLLCBF>; Mon, 11 Dec 2000 21:01:05 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: georgn@somanetworks.com
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
-        greg@wind.enjellic.com, sct@redhat.com,
+cc: linux-kernel@vger.kernel.org, greg@wind.enjellic.com, sct@redhat.com,
         Linus Torvalds <torvalds@transmeta.com>,
         "Adam J. Richter" <adam@yggdrasil.com>
 Subject: Re: linux-2.4.0-test11 and sysklogd-1.3-31 
-In-Reply-To: <14901.31690.961664.201896@somanetworks.com>
-In-Reply-To: <14897.3214.38818.625199@somanetworks.com>
-	<4977.976313761@ocs3.ocs-net>
-	<14901.31690.961664.201896@somanetworks.com>
-X-Mailer: VM 6.75 under 21.2  (beta37) "Pan" XEmacs Lucid
-Reply-To: georgn@somanetworks.com
+In-Reply-To: Your message of "Mon, 11 Dec 2000 20:13:46 CDT."
+             <14901.31690.961664.201896@somanetworks.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 12 Dec 2000 12:30:00 +1100
+Message-ID: <3586.976584600@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "GN" == Georg Nikodym <georgn@somanetworks.com> writes:
+On Mon, 11 Dec 2000 20:13:46 -0500 (EST), 
+"Georg Nikodym" <georgn@somanetworks.com> wrote:
+>Here's a patch (against sysklogd-1.3-31) that completely tear out the
+>symbol processing code.
 
- GN> Here's a patch (against sysklogd-1.3-31) that completely tear out
- GN> the symbol processing code.
+Looks good, except that you need to keep the option flags for backwards
+compatibility.  There are a *lot* of scripts out there which invoke
+klogd with various options and they will fail with this change.  It is
+OK to issue a warning message "klogd options -[iIpkx] are no longer
+supported" as long as klogd continues to run.  Otherwise you will get a
+lot of irate users complaining that klogd is failing at boot time.
 
-Doh!  Forgot a chunk (to be applied after the others):
-
-diff -Nru a/src/sysklogd-1.3-31/Makefile b/src/sysklogd-1.3-31/Makefile
---- a/src/sysklogd-1.3-31/Makefile	Mon Dec 11 20:28:24 2000
-+++ b/src/sysklogd-1.3-31/Makefile	Mon Dec 11 20:28:24 2000
-@@ -63,8 +63,8 @@
- syslogd: syslogd.o pidfile.o
- 	${CC} ${LDFLAGS} -o syslogd syslogd.o pidfile.o ${LIBS}
- 
--klogd:	klogd.o syslog.o pidfile.o ksym.o
--	${CC} ${LDFLAGS} -o klogd klogd.o syslog.o pidfile.o ksym.o ${LIBS}
-+klogd:	klogd.o syslog.o pidfile.o
-+	${CC} ${LDFLAGS} -o klogd klogd.o syslog.o pidfile.o ${LIBS}
- 
- syslog_tst: syslog_tst.o
- 	${CC} ${LDFLAGS} -o syslog_tst syslog_tst.o
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

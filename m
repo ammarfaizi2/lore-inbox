@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129543AbQJaJVZ>; Tue, 31 Oct 2000 04:21:25 -0500
+	id <S129719AbQJaJZg>; Tue, 31 Oct 2000 04:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129820AbQJaJVP>; Tue, 31 Oct 2000 04:21:15 -0500
-Received: from dillweed.dsl.xmission.com ([166.70.14.212]:38218 "HELO
-	winder.codepoet.org") by vger.kernel.org with SMTP
-	id <S129543AbQJaJVM>; Tue, 31 Oct 2000 04:21:12 -0500
-Date: Tue, 31 Oct 2000 02:25:18 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001031022518.A10336@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <39FDB623.74C200A7@timpanogas.org> <E13qJlo-00077p-00@the-village.bc.nu>
+	id <S129858AbQJaJZQ>; Tue, 31 Oct 2000 04:25:16 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:14604 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129719AbQJaJZJ>;
+	Tue, 31 Oct 2000 04:25:09 -0500
+Date: Tue, 31 Oct 2000 10:25:00 +0100
+From: Andi Kleen <ak@suse.de>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: Andi Kleen <ak@suse.de>, Brian Gerst <bgerst@didntduck.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: kmalloc() allocation.
+Message-ID: <20001031102500.A25854@gruyere.muc.suse.de>
+In-Reply-To: <20001031095410.A25158@gruyere.muc.suse.de> <Pine.LNX.4.21.0010310906310.1604-100000@saturn.homenet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <E13qJlo-00077p-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 30, 2000 at 06:34:55PM +0000
-X-Operating-System: Linux 2.2.17, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0010310906310.1604-100000@saturn.homenet>; from tigran@veritas.com on Tue, Oct 31, 2000 at 09:07:29AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Oct 30, 2000 at 06:34:55PM +0000, Alan Cox wrote:
+On Tue, Oct 31, 2000 at 09:07:29AM +0000, Tigran Aivazian wrote:
+> On Tue, 31 Oct 2000, Andi Kleen wrote:
 > 
-> See www.uclinux.org; the uclinux guys started a 2.4 port recently. Basically
-> the idea is to have a mm-nommu/ directory which implements a mostly compatible
-> replacement for the mm layer (obviously stuff like mmap dont work without an
-> mmu and fork is odd), and a set of binary loaders to load flat binaries with
-> relocations.
+> > On Tue, Oct 31, 2000 at 08:49:02AM +0000, Tigran Aivazian wrote:
+> > > 
+> > > what do you mean?! That is, of course, impossible because it would break
+> > > all existing software, so I won't even bother checking the code, safely 
+> > > assuming that you perhaps meant something else, ok?
+> > 
+> > He refers to faulting into the page table from a master table, not faulting 
+> > from disk.
+> > 
+> 
+> Ah, ok then. Thanks Andi, I was a bit worried that the world has changed 
+> too radically for me to catch up :)
 
-mmap works -- you just can't do MAP_PRIVATE.  Everything has to be
-MAP_SHARED.  There is no fork (though vfork works).  brk doesn't work,
-and things like iopl, ioperm are pointless.  etc...
+Well, unless I'm missing something major the new method is racy (it does 
+not handle vmalloc-vfree-vmalloc of same area on a different CPU)
 
-Oh, and when you do malloc something (malloc is mmap based) you
-really want to remember to free it, since the system can't clean
-up after you,
-
- -Erik
-
---
-Erik B. Andersen   email:  andersee@debian.org
---This message was written using 73% post-consumer electrons--
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266553AbSLDNlA>; Wed, 4 Dec 2002 08:41:00 -0500
+	id <S266576AbSLDNxs>; Wed, 4 Dec 2002 08:53:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266555AbSLDNlA>; Wed, 4 Dec 2002 08:41:00 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:9223 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266553AbSLDNk7>;
-	Wed, 4 Dec 2002 08:40:59 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212041359.gB4DxZqM000911@darkstar.example.net>
-Subject: Re: Ctrl-Alt-Backspace kills machine not X. ACPI?
-To: davej@codemonkey.org.uk (Dave Jones)
-Date: Wed, 4 Dec 2002 13:59:34 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alex@braddahead.com, eich@suse.de
-In-Reply-To: <20021204131514.GG647@suse.de> from "Dave Jones" at Dec 04, 2002 01:15:14 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266643AbSLDNxs>; Wed, 4 Dec 2002 08:53:48 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:20133 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266576AbSLDNxr>; Wed, 4 Dec 2002 08:53:47 -0500
+Subject: Re: [IDE-PATCH] Add piix fix up function into pii.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: hugang <hugang@soulinfo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021204211055.185221c0.hugang@soulinfo.com>
+References: <20021204211055.185221c0.hugang@soulinfo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 04 Dec 2002 14:35:39 +0000
+Message-Id: <1039012539.15359.24.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > I've been running into problems with my machine locking up in X but
->  > however I have been unable to diagnose it because the Ctrl-Alt-Backspace
->  > key sequence kills my whole machine (i.e. powers it down).
+On Wed, 2002-12-04 at 13:10, hugang wrote:
+> Hello all:
 > 
-> ISTR reading something about this a while ago.
+> Please apply.
+> Index: drivers/ide//pci/piix.c
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103810533430878&w=2
+Please tell me why it would be needed ?
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103817080229755&w=2
+pci_enable_device already ensures the resources are allocated. Also on a
+PIIX you only need BAR4 as the other bits are on the ISA side.
 
-John.
+Alan
+

@@ -1,45 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287500AbSAURTE>; Mon, 21 Jan 2002 12:19:04 -0500
+	id <S287516AbSAURXe>; Mon, 21 Jan 2002 12:23:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287552AbSAURSz>; Mon, 21 Jan 2002 12:18:55 -0500
-Received: from ns.suse.de ([213.95.15.193]:15877 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287500AbSAURSu>;
-	Mon, 21 Jan 2002 12:18:50 -0500
-Date: Mon, 21 Jan 2002 18:18:47 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Sven <luther@dpt-info.u-strasbg.fr>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev fbgen cleanup
-In-Reply-To: <Pine.LNX.4.10.10201210849030.20645-100000@www.transvirtual.com>
-Message-ID: <Pine.LNX.4.33.0201211815210.5384-100000@Appserv.suse.de>
+	id <S287558AbSAURXZ>; Mon, 21 Jan 2002 12:23:25 -0500
+Received: from 216-42-72-169.ppp.netsville.net ([216.42.72.169]:21965 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S287516AbSAURXK>; Mon, 21 Jan 2002 12:23:10 -0500
+Date: Mon, 21 Jan 2002 12:21:50 -0500
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>, Rik van Riel <riel@conectiva.com.br>
+cc: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
+Subject: Re: Possible Idea with filesystem buffering.
+Message-ID: <1780530000.1011633710@tiny>
+In-Reply-To: <3C4C20A2.9040009@namesys.com>
+In-Reply-To: <Pine.LNX.4.33L.0201211153110.32617-100000@imladris.surriel.com>
+ <3C4C20A2.9040009@namesys.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002, James Simmons wrote:
 
-> > > The best tree to work with is the Dave Jones tree for 2.5.X. DJ tree
-> > > provides a better testing ground. Eventually when stuff goes from DJ to
-> > > Linus tree ruby and 2.5.X will look alot more alike :-)
-> > Mmm, any timeline for the DJ->linus move ?
-> At the moment no. I guess when Linus will take patches :-)
 
-I'm pushing Linus some of the small bits right now (though no
-feedback, so I'm backing off simultaneously)
-I'm staying clear of the fbdev/console code for two reasons.
+On Monday, January 21, 2002 05:07:30 PM +0300 Hans Reiser
+<reiser@namesys.com> wrote:
 
-1. I'd rather James/Vojtech did this so that a, they get it right
-   and b, it gives me more time to push Linus other bits.
-2. Several Framebuffer driver authors want to push their relevant
-   bits to Linus themselves. which is fine by me. (See 1b)
+> Rik van Riel wrote:
+> 
+>> On Mon, 21 Jan 2002, Hans Reiser wrote:
+>> 
+>>> Pressure received is not equal to pages yielded. ... The number of
+>>> pages yielded should depend on the interplay of pressure received and
+>>> accesses made.
+>>> 
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Ah, once the FS starts counting accesses, we get in trouble.  The FS should
+strive to know only these 3 things:
+
+How to read useful data into a page
+How to flush a dirty page
+How to free a pinned page
+
+The VM records everything else, including how often a page is accessed, and
+which pages should be freed in response to memory pressure.  Of course, the
+FS might have details on many more things such as write clustering, delayed
+allocations, or which pinned pages require tons of extra work to write out.
+This fools us into thinking the FS might be the best place to decide how to
+react under memory pressure, leading to a little VM in each FS.
+
+Everything gets cleaner if we push this info up to the VM in a generic
+fashion, instead of trying to push bits of the VM down into each
+filesystem. 
+The FS should have no idea of what memory pressure is, down that path lies
+pain, suffering, and deadlocks against the journal ;-)
+
+If the VM is telling the FS to write a pinned page when there are unpinned
+pages that can be written with less cost, then we need to give the VM
+better hints about the actual cost of writing the pinned page.
+
+For periodic group flushes (delayed allocation, journal commits, etc), we
+need better throttling on dirty pages instead of just dirty buffers like we
+do now.
+
+I'm not delusional enough to think this will make all the vm<->journal
+nastiness go away, but it hopefully should be less painful than adding
+extra VM intelligence into each FS.
+
+-chris
 

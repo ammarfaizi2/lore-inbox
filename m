@@ -1,66 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272843AbRILOxN>; Wed, 12 Sep 2001 10:53:13 -0400
+	id <S272855AbRILPLo>; Wed, 12 Sep 2001 11:11:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272848AbRILOxE>; Wed, 12 Sep 2001 10:53:04 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:34418 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S272843AbRILOwt>; Wed, 12 Sep 2001 10:52:49 -0400
-Date: Wed, 12 Sep 2001 16:53:35 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-        Paul Mckenney <paul.mckenney@us.ibm.com>
-Subject: Re: 2.4.10pre7aa1
-Message-ID: <20010912165335.F695@athlon.random>
-In-Reply-To: <20010912163426.A5979@in.ibm.com> <20010912160313.A695@athlon.random> <20010912201229.F5819@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010912201229.F5819@in.ibm.com>; from dipankar@in.ibm.com on Wed, Sep 12, 2001 at 08:12:29PM +0530
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S272857AbRILPLe>; Wed, 12 Sep 2001 11:11:34 -0400
+Received: from cm038.32.234.24.lvcm.com ([24.234.32.38]:15232 "EHLO osafo.com")
+	by vger.kernel.org with ESMTP id <S272855AbRILPLX>;
+	Wed, 12 Sep 2001 11:11:23 -0400
+Message-ID: <3B9F7B06.9060600@osafo.com>
+Date: Wed, 12 Sep 2001 08:11:02 -0700
+From: Colin Frank <kernel@osafo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Eric.VanBuggenhaut@AdValvas.be
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PCMCIA_APA1480 not linked to any code ?
+In-Reply-To: <20010911021342.A2682@eric.ath.cx>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 12, 2001 at 08:12:29PM +0530, Dipankar Sarma wrote:
-> You changed the way I maintained the wait_list and current_list.
-> The basic logic was that new callbacks are always added to the
-> wait list. The wait_for_rcu() is started only if current_list
-> was empty and we just moved the wait_list to current_list. The
-> key step was moving the wait_list to current_list *after* doing
-> a wait_for_rcu(). This prevents another CPU from doing a wait_for_rcu().
-> Either that or I missed something big time :-)
 
-Really when Rusty said "multiple cpus calling wait_for_rcu" I was thinking 
-at common code calling wait_for_rcu directly (in such a case you would
-have a problem too), I thought it was exported as well as call_rcu.
+This card is now handled by the the (aic7xxx) HOTPLUG PCI interface.
+It is not at all clear on the docs, but do NOT use the apa1480_cb dirver.
+It crashes my 2.4.x system.
 
-If you mean races with call_rcu they cannot be explained by wait_for_rcu
-called by different cpus also with my approch because there's only one
-keventd so only one wait_for_rcu can run at once with my current code
-(obviously, only keventd will ever recall wait_for_rcu).
+Configure the kernel 2.4.9 with:
+    CONFIG_HOTPLUG=y
+    CONFIG_CARDBUS=y
+    CONFIG_SCSI_AIC7XXX=m
 
-The problem should be elsewhere.
+# modprobe aic7xxx
+Sep 12 07:56:36 localhost kernel: PCI: Enabling device 05:00.0 (0006 -> 
+0007)
+Sep 12 07:56:36 localhost kernel: ahc_pci:5:0:0: Host Adapter Bios 
+disabled.  Using default SCSI device parameters
+Sep 12 07:56:36 localhost kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI 
+SCSI HBA DRIVER, Rev 6.2.1
+Sep 12 07:56:36 localhost kernel:         <Adaptec 1480A Ultra SCSI 
+adapter>
+Sep 12 07:56:36 localhost kernel:         aic7860: Ultra Single Channel 
+A, SCSI Id=7, 3/255 SCBs
+Sep 12 07:56:36 localhost kernel:
 
-Also we still don't address the case of keventd being starved by RT
-tasks. Maybe we should just make keventd RT, but then it would hang if
-somebody reinserts itself for a long time :(. Maybe Russel's approch is
-the cleaner after all, it just adds a branch in schedule fast path but
-(once fixed properly with the IPI and need_resched and dropping the
-unused irq checks that we don't want anyways to avoid even further
-slowdown of the slow paths) then the other issues goes away as well as
-the memory consumation.
+card "Adaptec APA-1480 SCSI Host Adapter"
+  manfid 0x012f, 0xcb01
+  bind "aic7xxx"
+  bind "apa1480_cb"
 
-> One disadvantage of the wrappers is that we would be wasting most of
-> the L1 cache line for rcu_head and that could be relatively significant for 
-> a small frequently allocated structure. And no, I don't see any problem asking
-> people to allocate the rcu_head in the data structure.
+To keep pcmcia from autoloading apa1480_cb when the card is inserted,
+Edit: /etc/pcmcia/config
+comment out the "apa1480_cb" stuff or try to replace it with aic7xxx
 
-Ok. As usual people should care to order the fields in cacheline
-optimized manner, so for example they should care to put the rcu_head at
-the very end if they want to reserve the cacheline for the "hot" fields.
-This can infact save a cacheline if the data structure is very small.
-It's something we cannot choose in rcu_kmalloc etc... only the user can.
+Ref: Kernel help on HOTPLUG, and
+Colin Frank
 
-Andrea
+
+Eric Van Buggenhaut wrote:
+
+>I'm with 2.4.9 source tree.
+>
+>Documentation/Configure.help documents a CONFIG_PCMCIA_APA1480 but this option
+>doesn't lead to any code ?!
+>
+>femto:/usr/src/linux-2.4.9[0]# grep -r CONFIG_PCMCIA_APA1480 *
+>Documentation/Configure.help:CONFIG_PCMCIA_APA1480
+>femto:/usr/src/linux-2.4.9[0]#
+>
+>Am I missing something ?
+>
+>Thanks.
+>
+>Please CC me any answer/comment.
+>
+
+

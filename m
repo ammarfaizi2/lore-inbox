@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbUDHHhd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 03:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbUDHHhd
+	id S262009AbUDHHli (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 03:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbUDHHli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 03:37:33 -0400
-Received: from [202.28.93.1] ([202.28.93.1]:4 "EHLO gear.kku.ac.th")
-	by vger.kernel.org with ESMTP id S263037AbUDHHhc (ORCPT
+	Thu, 8 Apr 2004 03:41:38 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:34825 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262009AbUDHHlh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 03:37:32 -0400
-Date: Thu, 8 Apr 2004 14:37:30 +0700
-From: Kitt Tientanopajai <kitt@gear.kku.ac.th>
-To: daniel.ritz@gmx.ch
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5 yenta_socket irq 10: nobody cared!
-Message-Id: <20040408143730.09b29b49.kitt@gear.kku.ac.th>
-In-Reply-To: <200404072225.43358.daniel.ritz@gmx.ch>
-References: <200404060227.58325.daniel.ritz@gmx.ch>
-	<200404071741.47624.daniel.ritz@gmx.ch>
-	<20040408022419.52ef7a29.kitt@gear.kku.ac.th>
-	<200404072225.43358.daniel.ritz@gmx.ch>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Thu, 8 Apr 2004 03:41:37 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Dhruv Gami <gami@d10systems.com>, linux-kernel@vger.kernel.org
+Subject: Re: setgid - its current use
+Date: Thu, 8 Apr 2004 10:41:24 +0300
+X-Mailer: KMail [version 1.4]
+References: <Pine.LNX.4.58.0404072140070.14350@d10systems.homelinux.com>
+In-Reply-To: <Pine.LNX.4.58.0404072140070.14350@d10systems.homelinux.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404081041.25006.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 08 April 2004 04:46, Dhruv Gami wrote:
+> Hello Everyone,
+>
+> A long time back there was discussion over setuid/setgid and how its been
+> replaced by Capabilities (This is what i understood from the
+> archives...please correct me if im wrong).
+>
+> I'd like to know the possibility of using setgid for users to switch their
+> groups and work as a member of a particular group. Essentially, if i want
+> one user, who belongs to groups X, Y and Z to create a file as a member of
+> group Y while he's logged on as a member of group X, would it be possible
+> through setgid() ?
 
-> ok, try the attached one...at least it compiles..
-> 
-> rgds
-> -daniel
-
-Yes, the patch does work :) Now, I can insert card to the slot controlled by o2micro, no freeze :) My orinoco on TI controller works nicely too, no TX error anymore :)
-
-Thank you very much for your help. 
-kitt
+it is possible through chmod
+-- 
+vda

@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271357AbTHHPFF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 11:05:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271365AbTHHPFE
+	id S271375AbTHHPFp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 11:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271378AbTHHPFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 11:05:04 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:37641 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S271357AbTHHPFA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 11:05:00 -0400
-Message-ID: <3F33BF33.8070601@techsource.com>
-Date: Fri, 08 Aug 2003 11:18:11 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jasper Spaans <jasper@vs19.net>
-CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>, torvalds@osdl.org,
+	Fri, 8 Aug 2003 11:05:45 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:20137 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S271375AbTHHPFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 11:05:38 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Fri, 8 Aug 2003 17:05:36 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: akpm@osdl.org, andrea@suse.de, alan@lxorguk.ukuu.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
-References: <20030807180032.GA16957@spaans.vs19.net> <Pine.LNX.4.53.0308072139320.12875@montezuma.mastecende.com> <20030808065230.GA5996@spaans.vs19.net>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+Message-Id: <20030808170536.23118033.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.44.0308081151330.8204-100000@logos.cnet>
+References: <20030808002918.723abb08.skraw@ithnet.com>
+	<Pine.LNX.4.44.0308081151330.8204-100000@logos.cnet>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Aug 2003 11:54:39 -0300 (BRT)
+Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
 
-
-Jasper Spaans wrote:
-> On Thu, Aug 07, 2003 at 09:42:37PM -0400, Zwane Mwaikambo wrote:
+> > I can give you this additional info:
+> > I tried about everything back to 2.4.21 release, and even this crashes on
+> > the box. BUT it is _not_ the only box I can crash 2.4.21. I have another
+> > hardware(also SMP) based not on Serverworks but on VIA chipset and with no
+> > 64 bit pci and it crashes with 2.4.21 around every 10 - 20 days. It
+> > definitely does not with 2.4.19. 
 > 
+> Do you have any traces of the other box crash? 
+
+Not at hand, but can prepare for the next crash during the weekend.
+
+> > The only requirement for my usual test-box is a working tg3 driver for the
+> > GBit ethernet link.
 > 
->>>It changes all occurrences of 'flavour' to 'flavor' in the complete tree;
->>>I've just comiled all affected files (that is, the config resulting from
->>>make allyesconfig minus already broken stuff) succesfully on i386.
->>
->>Arrrgh! You can't be serious!
+> > Ah yes, and from the long series of tests I can tell that the box won't
+> > crash with UP kernel. I can re-check that with rc1 if this is useful.
 > 
-> 
-> Yes, I am bloody serious; this patch might look purely cosmetic at first
-> sight.. yet, there's a technical reason for at least one part of it. Grep
-> and see the horror:
-> 
-> $ egrep -ni 'flavou?r' fs/nfs/inode.c
-> [snip]
-> 1357:	rpc_authflavor_t authflavour;
-> [snip]
+> Okey. Thats useful information. How hard would it be for you to try ext3 
+> as the filesystem (as Andrew suggested) ? 
 
+Well, if that provides further info I will do. I will try to achieve over the
+weekend, I need some spare volumes for conversion (by copy) :-)
 
-Ah, for a moment, I was worried that someone was talking about text in 
-comments.
-
-Yes, when it comes to spelling of words in variable and type names, I 
-think it would be a good idea to be consistent.
-
-What is Linus's preferred spelling?  Let's use that.
-
-
+Regards,
+Stephan

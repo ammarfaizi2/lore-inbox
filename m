@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269512AbTGXRNz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 13:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269575AbTGXRNz
+	id S269514AbTGXRRK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 13:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269537AbTGXRRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 13:13:55 -0400
-Received: from math.ut.ee ([193.40.5.125]:44709 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S269512AbTGXRNy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 13:13:54 -0400
-Date: Thu, 24 Jul 2003 20:29:00 +0300 (EEST)
-From: Meelis Roos <mroos@math.ut.ee>
-To: linux-kernel@vger.kernel.org
-Subject: NFS server broken in 2.4.22-pre6?
-Message-ID: <Pine.GSO.4.44.0307242023530.5806-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 24 Jul 2003 13:17:10 -0400
+Received: from smtp.terra.es ([213.4.129.129]:28821 "EHLO tsmtp4.mail.isp")
+	by vger.kernel.org with ESMTP id S269514AbTGXRRJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 13:17:09 -0400
+Date: Thu, 24 Jul 2003 19:32:11 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Bas Mevissen <ml@basmevissen.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: time for some drivers to be removed?
+Message-Id: <20030724193211.39d7ed68.diegocg@teleline.es>
+In-Reply-To: <3F1FFC94.7080409@basmevissen.nl>
+References: <Pine.LNX.4.53.0307240817520.19533@localhost.localdomain>
+	<1059058737.7994.25.camel@dhcp22.swansea.linux.org.uk>
+	<3F1FFC94.7080409@basmevissen.nl>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NFS serving seems to be broken in 2.4.22-pre6. I had 2 computers running
-2.4.22-pre6 (x86, debian unstable current). Tried to acces them via NFS
-(using am-utils actually) from a 3rd computer, IO error. Tried to
-mount directly, mount: RPC: timed out. Rebooted one computer to 2.4.18
-and NFS started to work.
+El Thu, 24 Jul 2003 17:34:44 +0200 Bas Mevissen <ml@basmevissen.nl> escribió:
 
-No more details currently but I can test more thoroughly tomorrow.
+> This would make a reasonable Q-requirement for 2.6.0 that at least the 
+> kernel compiles with 'make allyesconfig'. The only thing open is to 
 
--- 
-Meelis Roos             e-mail: mroos@ut.ee
-                        www:    http://www.cs.ut.ee/~mroos/
-
+That 2.6.0 builds with 'make allyesconfig' or not is irrelevant.
+Moving broken drivers to a dark place doesn't fix them  nor increase the
+"quality" level.....

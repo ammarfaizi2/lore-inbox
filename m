@@ -1,21 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279418AbRLDAVG>; Mon, 3 Dec 2001 19:21:06 -0500
+	id <S284693AbRLDAVH>; Mon, 3 Dec 2001 19:21:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284693AbRLDAPR>; Mon, 3 Dec 2001 19:15:17 -0500
-Received: from mail.gmx.de ([213.165.64.20]:7809 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S284933AbRLCSe5>;
-	Mon, 3 Dec 2001 13:34:57 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Christian Armingeon <linux.johnny@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Is lkml dead?
-Date: Mon, 3 Dec 2001 20:35:04 +0100
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011203183504Z284933-752+4718@vger.kernel.org>
+	id <S284684AbRLDAPM>; Mon, 3 Dec 2001 19:15:12 -0500
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:59520 "EHLO
+	Elf.ucw.cz") by vger.kernel.org with ESMTP id <S285323AbRLCWu7>;
+	Mon, 3 Dec 2001 17:50:59 -0500
+Date: Mon, 3 Dec 2001 23:34:14 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Denis Zaitsev <zzz@cd-club.ru>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] mm/swapfile.c/get_swaparea_info - a cosmetic change
+Message-ID: <20011203233413.A125@elf.ucw.cz>
+In-Reply-To: <20011201023252.H23346@zzz.zzz.zzz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011201023252.H23346@zzz.zzz.zzz>
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> The header line of /proc/swaps does not match the consequence ones in
+> case of devfs' names.  These names are too long in comparison with the
+> <Filename> header's part.  So, I've added one tab into the header and
+> made the path's part of other lines to be of length 40-1 vs. 32-1.
+
+This is unneccessary interface change in stable series. Don't do
+this. At least not in 2.4.X.
+
+								Pavel
+-- 
+"I do not steal MS software. It is not worth it."
+                                -- Pavel Kankovsky

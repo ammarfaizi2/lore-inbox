@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130186AbRCESSV>; Mon, 5 Mar 2001 13:18:21 -0500
+	id <S130198AbRCESgW>; Mon, 5 Mar 2001 13:36:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130191AbRCESSL>; Mon, 5 Mar 2001 13:18:11 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:34838 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S130186AbRCESRz>; Mon, 5 Mar 2001 13:17:55 -0500
-Message-ID: <3AA3D7E0.B3DB0DEB@sgi.com>
-Date: Mon, 05 Mar 2001 10:16:00 -0800
-From: LA Walsh <law@sgi.com>
-Organization: Trust Technology, SGI
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, fr
+	id <S130200AbRCESgM>; Mon, 5 Mar 2001 13:36:12 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:2176 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S130198AbRCESgE>; Mon, 5 Mar 2001 13:36:04 -0500
+Date: Mon, 5 Mar 2001 13:35:32 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Loop stuck in -D state
+In-Reply-To: <Pine.LNX.4.33.0103051901580.558-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.3.95.1010305133108.884B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Annoying CD-rom driver error messages
-In-Reply-To: <E14ZzTo-0007Rv-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > > this isnt a kernel problem, its a _very_ stupid app
-> > ---
-> >       Must be more than one stupid app...
-> 
-> Could well be. You have something continually trying to open your cdrom and
-> see if there is media in it
----
-	Is there some feature they *should* be using instead to check for media
-presence so I can forward it to their dev-team?
+On Mon, 5 Mar 2001, Mike Galbraith wrote:
 
-Thanks!
--l
+> On Mon, 5 Mar 2001, Mike Galbraith wrote:
+> 
+> > On Mon, 5 Mar 2001, Richard B. Johnson wrote:
+> >
+> > > I tried Linux 2.4.2
+> > > Now I'm in a load of trouble. I can't make a boot-disk to get back
+> > > to 2.4.1 because I use initrd for my hard disk modules and the loop
+> > > device is broken.
+> >
+> > What's wrong with 2.4.2 that makes you want to go back?  Anyway, if
+> > you grab Jens' patch, all will be peachy (at least for that kind of
+> > basic usage).
+> 
+> P.S.
+> Are you saying that the initrd is broken again as well?  (having
+> trouble understanding the problem.. don't see why you need the
+> loop device or rather how its being busted is connected to your
+> [interpolation] difficulty in creating a new initrd)
+> 
+> 	-EAGAIN ;-)
+> 
 
--- 
-L A Walsh                        | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
+The initial RAM disk image is created using the loop device. You
+can create a RAM disk image for initrd by using the ram device.
+However, that doesn't work once the system has been booted off
+it (try it, be ready for a complete hang).
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

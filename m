@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSLUDs2>; Fri, 20 Dec 2002 22:48:28 -0500
+	id <S261963AbSLUERj>; Fri, 20 Dec 2002 23:17:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261963AbSLUDs2>; Fri, 20 Dec 2002 22:48:28 -0500
-Received: from pine.compass.com.ph ([202.70.96.37]:60681 "EHLO
-	vhost.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S261934AbSLUDs1>; Fri, 20 Dec 2002 22:48:27 -0500
-Subject: Re: [Linux-fbdev-devel] [PATCH] fix endian problem in
-	color_imageblit
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44.0212201932150.6471-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0212201932150.6471-100000@phoenix.infradead.org>
+	id <S262023AbSLUERj>; Fri, 20 Dec 2002 23:17:39 -0500
+Received: from stone.protocoloweb.com.br ([200.226.139.11]:12305 "EHLO
+	smtp.ieg.com.br") by vger.kernel.org with ESMTP id <S261963AbSLUERj>;
+	Fri, 20 Dec 2002 23:17:39 -0500
+Subject: USB/Storage - transport.c - Olympus D150Zoom
+From: Scorpion <scorpionlab@ieg.com.br>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1040442194.1294.9.camel@localhost.localdomain>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
+Date: 21 Dec 2002 01:31:23 -0200
+Message-Id: <1040441486.3708.25.camel@beyond>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Dec 2002 11:45:44 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-12-21 at 03:54, James Simmons wrote:
-> 
-> > Nice catch :-)  We also need a similar fix for slow_imageblit(), so
-> > James can you apply the attached patch also:
-> 
-> Applied.
-> 
-> > Also, I noticed that some drivers load the pseudo_palette with entries
-> > whose length matches the length of the pixel.  The cfb_* functions
-> > always assume that each pseudo_palette entry is an "unsigned long", so
-> > bpp16 will segfault, and so will bpp24/32 for 64-bit machines.
-> 
-> I just noticed that as well. Russell King pointed to it too. I fixed
-> the unsigned long problem in color_imageblit. All the pseudo_palette
-> in cfb_* are assumed u32. Is this safe for 16bpp or 8 bpp modes? I will
 
-The pseudopalette will only matter for truecolor and directcolor as the
-rest of the visuals bypasses the pseudopalette.  Typecasting to
-"unsigned long" rather than "u32" is also safer (even for bpp16) since
-in 64-bit machines, the drawing functions use fb_writeq instead of
-fb_writel.  So, all drivers using the cfb_* functions should change from
-"u32" to "unsigned long" _whatever_ the bit depth when loading the
-pseudopalette.
 
-Of course, drivers with their own drawing functions can use whatever
-they want.
+Hi,
+I was trying to put my digital camera Olympus Brio Zoom D-150Zoom
+to work on my RedHat 7.3 (2.4.18-3, redhat) when found this web page:
+http://www.gingerbear.org/~esm/olympus/
 
-Tony 
+Clicking on transport.c.diff link and taking a look into
+/usr/src/linux-2.4.18-3/drivers/usb/storage/transport.c file
+I started to ask my self what is doing the
+if (bcs.Signature != cpu_to_le32(US_BULK_CS_SIGN) ||
+statement there? Please if anyone could, answer me...
+The patch applied to "support" this camera just remove this comparison,
+so what it does?
 
-PS:  cfb_fillrect is still limited to u32 though which can hopefully be
-fixed in the future.
+Best regards,
+Scorpion.
+---------------transport.c.diff----------------
+--- drivers/usb/storage/transport.c	2002/08/07 13:14:59	1.1
++++ drivers/usb/storage/transport.c	2002/08/07 13:15:08
+@@ -1197,8 +1197,7 @@
+ 	US_DEBUGP("Bulk status Sig 0x%x T 0x%x R %d Stat 0x%x\n",
+ 		  le32_to_cpu(bcs.Signature), bcs.Tag, 
+ 		  bcs.Residue, bcs.Status);
+-	if (bcs.Signature != cpu_to_le32(US_BULK_CS_SIGN) || 
+-	    bcs.Tag != bcb.Tag || 
++	if (bcs.Tag != bcb.Tag || 
+ 	    bcs.Status > US_BULK_STAT_PHASE || partial != 13) {
+ 		US_DEBUGP("Bulk logical error\n");
+ 		return USB_STOR_TRANSPORT_ERROR;
+---------------transport.c.diff----------------
 
 

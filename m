@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129720AbQKHWWd>; Wed, 8 Nov 2000 17:22:33 -0500
+	id <S129812AbQKHWce>; Wed, 8 Nov 2000 17:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130154AbQKHWWZ>; Wed, 8 Nov 2000 17:22:25 -0500
-Received: from vega.services.brown.edu ([128.148.19.202]:40099 "EHLO
-	vega.brown.edu") by vger.kernel.org with ESMTP id <S129720AbQKHWWC>;
-	Wed, 8 Nov 2000 17:22:02 -0500
-Message-Id: <4.3.2.7.2.20001108172304.00adb270@postoffice.brown.edu>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 08 Nov 2000 17:24:18 -0500
-To: linux-kernel@vger.kernel.org
-From: David Feuer <David_Feuer@brown.edu>
-Subject: pcmcia
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129828AbQKHWcY>; Wed, 8 Nov 2000 17:32:24 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:7674 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S129812AbQKHWcQ>; Wed, 8 Nov 2000 17:32:16 -0500
+Date: Wed, 08 Nov 2000 16:32:13 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>
+Subject: `smp_num_cpus' redefined
+X-Mailer: The Polarbar Mailer (pbm 1.17b)
+Message-Id: <20001108223222Z129812-31179+2060@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the current status of PC-card support?  I've seen ominous signs on 
-this list about the state of support....  I have a laptop with a PCMCIA 
-network card (a 3com thing). Will it work?
+Compiling under 2.4, I get this:
 
---
-This message has been brought to you by the letter alpha and the number pi.
-David Feuer
-David_Feuer@brown.edu
+/usr/include/linux/smp.h:80: warning: `smp_num_cpus' redefined
+/usr/include/linux/modules/i386_ksyms.ver:82: warning: this is the location of
+the previous definition
+/usr/include/linux/smp.h:87: warning: `smp_call_function' redefined
+/usr/include/linux/modules/i386_ksyms.ver:98: warning: this is the location of
+the previous definition
+/usr/include/linux/smp.h:88: warning: `cpu_online_map' redefined
+/usr/include/linux/modules/i386_ksyms.ver:84: warning: this is the location of
+the previous definition
 
+Where does i386_ksyms.ver come from?
+
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

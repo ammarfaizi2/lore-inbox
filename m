@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267650AbUIWRQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266311AbUIWRKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267650AbUIWRQH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 13:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268197AbUIWROa
+	id S266311AbUIWRKN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 13:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268165AbUIWRJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 13:14:30 -0400
-Received: from host50.200-117-131.telecom.net.ar ([200.117.131.50]:64235 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S267650AbUIWROM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 13:14:12 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S4
-Date: Thu, 23 Sep 2004 14:13:59 -0300
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20040907115722.GA10373@elte.hu> <20040923130949.GB12984@elte.hu> <200409231346.21398.norberto+linux-kernel@bensa.ath.cx>
-In-Reply-To: <200409231346.21398.norberto+linux-kernel@bensa.ath.cx>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 23 Sep 2004 13:09:10 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:32398 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S268155AbUIWRDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 13:03:46 -0400
+Subject: Re: __attribute__((always_inline)) fiasco
+From: Albert Cahalan <albert@users.sf.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, rth@twiddle.net
+In-Reply-To: <20040923165026.GF9106@holomorphy.com>
+References: <1095956778.4966.940.camel@cube>
+	 <20040923165026.GF9106@holomorphy.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1095958739.4973.948.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 23 Sep 2004 12:59:00 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409231414.00356.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 2004-09-23 at 12:50, William Lee Irwin III wrote:
+> On Thu, Sep 23, 2004 at 12:26:18PM -0400, Albert Cahalan wrote:
+> > #define INLINE
+> > #define INLINE inline
+> > #define INLINE static inline  // an oxymoron
+> > #define INLINE extern inline  // an oxymoron
+> > #define INLINE __force_inline
+> > #define INLINE __attribute__((always_inline))
+> > #define INLINE _Pragma("inline")
+> > #define INLINE __inline_or_die_you_foul_compiler
+> > #define INLINE _Please inline
+> 
+> The // apart from being a C++ ism (screw C99; it's still non-idiomatic)
 
-Norberto Bensa wrote:
-> Is it me or does this patch broke quiet command-line parameter?
+Once you get over the initial jolt of seeing new syntax,
+you'll find that C99 comments are clearly superior.
 
-Ingo, is this on purpose:
+Even with block comments above functions, you'll typically
+save two lines of screen space. (and 7 bytes)
 
---- linux/kernel/printk.c.orig 
-+++ linux/kernel/printk.c 
-@@ -401,7 +401,7 @@ static void __call_console_drivers(unsig
- static void _call_console_drivers(unsigned long start,
-     unsigned long end, int msg_log_level)
- {
-- if (msg_log_level < console_loglevel &&
-+ if (/*msg_log_level < console_loglevel && */
-    console_drivers && start != end) {
-   if ((start & LOG_BUF_MASK) > (end & LOG_BUF_MASK)) {
-    /* wrapped write */
+I think the only trouble is assembly code abusing
+the C (note: "C", not "assembly") pre-processor.
+
+> will cause spurious ignorance of the remainder of the line, which is
+> often very important. e.g.
+> 
+> static INLINE int lock_need_resched(spinlock_t *lock)
+> {
+
+Huh? Sure? It works for me:
+
+albert 0 /tmp$ cat slash.c
+#define MAIN main // test C99 comment
+int MAIN (int argc, char *argv[]){
+(void)argc;
+(void)argv;
+return 0;
+}
+albert 0 /tmp$ gcc -Wall -W -O2 slash.c
+albert 0 /tmp$ ./a.out
+albert 0 /tmp$ gcc -v
+Reading specs from /usr/lib/gcc-lib/powerpc-linux/3.2.3/specs
+Configured with: ../src/configure -v --enable-languages=c,c++,java,f77,objc,ada --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-gxx-include-dir=/usr/include/c++/3.2 --enable-shared --with-system-zlib --enable-nls --without-included-gettext --enable-__cxa_atexit --enable-clocale=gnu --enable-java-gc=boehm --enable-objc-gc powerpc-linux
+Thread model: posix
+gcc version 3.2.3 20030415 (Debian prerelease)
 
 
-If so, why is it needed?
-
-Thanks,
-Norberto

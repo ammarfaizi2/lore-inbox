@@ -1,85 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268559AbTGIV3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 17:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268565AbTGIV3Z
+	id S266181AbTGIV1T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 17:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266159AbTGIVZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 17:29:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38531 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268559AbTGIV3R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 17:29:17 -0400
-Message-ID: <3F0C8C85.6090604@pobox.com>
-Date: Wed, 09 Jul 2003 17:43:33 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: trond.myklebust@fys.uio.no
-CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ->direct_IO API change in current 2.4 BK
-References: <20030709133109.A23587@infradead.org>	<Pine.LNX.4.55L.0307091506180.27004@freak.distro.conectiva>	<16140.24595.438954.609504@charged.uio.no>	<200307092041.42608.m.c.p@wolk-project.de>	<16140.25619.963866.474510@charged.uio.no>	<20030709190531.GF15293@gtf.org>	<16140.26693.72927.451259@charged.uio.no>	<20030709191739.GH15293@gtf.org> <16140.29271.365874.304823@charged.uio.no>
-In-Reply-To: <16140.29271.365874.304823@charged.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Jul 2003 17:25:34 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:13226 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S266158AbTGIVZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 17:25:17 -0400
+Date: Wed, 9 Jul 2003 23:38:21 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Fix swsusp with PREEMPT
+Message-ID: <20030709213820.GA142@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
->>>>>>" " == Jeff Garzik <jgarzik@pobox.com> writes:
-> 
-> 
->      > Having the stable API change, conditional on a define, is
->      > really nasty and IMO will create maintenance and support
->      > headaches down the line.  I do not recall Linux VFS _ever_
->      > having a hook's definition conditional.  We should not start
->      > now...
-> 
-> direct_IO() was precisely such a conditional hook definition. It
-> appeared in 2.4.15, and anybody who does not check for
-> KERNEL_HAS_O_DIRECT is not backward compatible.
+Hi!
 
-You misunderstand.  The 2.4.15 direct_IO hook was _not_ conditionally 
-defined.  It appeared in the middle of a stable series, yes.  It has a 
-feature macro, yes.  But the definition of the hook in 
-include/linux/fs.h does not _change_ based on a define.  That is what I 
-mean by a conditional hook definition.
+This fixes swsusp with CONFIG_PREEMPT and makes locking a bit more
+obvious. Please apply,
+							Pavel
 
-It is far less trouble for everyone to add a new hook, instead of 
-changing an existing hook, in the middle of a stable series.
+--- clean/kernel/suspend.c	2003-05-27 13:44:03.000000000 +0200
++++ linux/kernel/suspend.c	2003-07-09 23:30:12.000000000 +0200
+@@ -692,7 +694,6 @@
+ 		printk(KERN_CRIT "%sCouldn't get enough free pages, on %d pages short\n",
+ 		       name_suspend, nr_needed_pages-nr_free_pages());
+ 		root_swap = 0xFFFF;
+-		spin_unlock_irq(&suspend_pagedir_lock);
+ 		return 1;
+ 	}
+ 	si_swapinfo(&i);	/* FIXME: si_swapinfo(&i) returns all swap devices information.
+@@ -700,7 +701,6 @@
+ 	if (i.freeswap < nr_needed_pages)  {
+ 		printk(KERN_CRIT "%sThere's not enough swap space available, on %ld pages short\n",
+ 		       name_suspend, nr_needed_pages-i.freeswap);
+-		spin_unlock_irq(&suspend_pagedir_lock);
+ 		return 1;
+ 	}
+ 
+@@ -710,7 +710,6 @@
+ 		/* Shouldn't happen */
+ 		printk(KERN_CRIT "%sCouldn't allocate enough pages\n",name_suspend);
+ 		panic("Really should not happen");
+-		spin_unlock_irq(&suspend_pagedir_lock);
+ 		return 1;
+ 	}
+ 	nr_copy_pages_check = nr_copy_pages;
+@@ -724,12 +723,9 @@
+ 	 * End of critical section. From now on, we can write to memory,
+ 	 * but we should not touch disk. This specially means we must _not_
+ 	 * touch swap space! Except we must write out our image of course.
+-	 *
+-	 * Following line enforces not writing to disk until we choose.
+ 	 */
+ 
+ 	printk( "critical section/: done (%d pages copied)\n", nr_copy_pages );
+-	spin_unlock_irq(&suspend_pagedir_lock);
+ 	return 0;
+ }
+ 
+@@ -808,6 +804,24 @@
+ #endif
+ }
+ 
++/* do_magic() is implemented in arch/?/kernel/suspend_asm.S, and basically does:
++
++	if (!resume) {
++		do_magic_suspend_1();
++		save_processor_state();
++		SAVE_REGISTERS
++		do_magic_suspend_2();
++		return;
++	}
++	GO_TO_SWAPPER_PAGE_TABLES
++	do_magic_resume_1();
++	COPY_PAGES_BACK
++	RESTORE_REGISTERS
++	restore_processor_state();
++	do_magic_resume_2();
++
++ */
++
+ void do_magic_suspend_1(void)
+ {
+ 	mb();
+@@ -818,8 +832,13 @@
+ 
+ void do_magic_suspend_2(void)
+ {
++	int is_problem;
+ 	read_swapfiles();
+-	if (!suspend_prepare_image()) {	/* suspend_save_image realeses suspend_pagedir_lock */
++	is_problem = suspend_prepare_image();
++	spin_unlock_irq(&suspend_pagedir_lock);
++	if (!is_problem) {
++		kernel_fpu_end();	/* save_processor_state() does kernel_fpu_begin, and we need to revert it in order to pass in_atomic() checks */
++		BUG_ON(in_atomic());
+ 		suspend_save_image();
+ 		suspend_power_down();	/* FIXME: if suspend_power_down is commented out, console is lost after few suspends ?! */
+ 	}
+@@ -1224,13 +1243,13 @@
+ 	orig_loglevel = console_loglevel;
+ 	console_loglevel = new_loglevel;
+ 
+-	if(!resume_file[0] && resume_status == RESUME_SPECIFIED) {
++	if (!resume_file[0] && resume_status == RESUME_SPECIFIED) {
+ 		printk( "suspension device unspecified\n" );
+ 		return;
+ 	}
+ 
+ 	printk( "resuming from %s\n", resume_file);
+-	if(read_suspend_image(resume_file, 0))
++	if (read_suspend_image(resume_file, 0))
+ 		goto read_failure;
+ 	do_magic(1);
+ 	panic("This never returns");
 
-
-> To comment further: There is at least one example I can think of which
-> was exactly equivalent to the proposed change, namely the redefinition
-> of the filldir_t type in 2.4.9. It was admittedly not documented using
-> a define...
-
-No doubt you can find more :)  That doesn't make the right thing to do, 
-though :)
-
-
-> Note: We could at the same time replace the name direct_IO() with
-> direct_IO2() (that has several precedents).  There are currently only
-> a small number of filesystems that provide O_DIRECT, and converting
-> them all is (as has been pointed out before) trivial...
-
-We cannot just-fix-up filesystems which are not in-tree, which is what 
-the KERNEL_HAS_O_DIRECT2 define would be mainly used for.  In-tree 
-filesystems would just unconditionally use the new, or old, interface as 
-they chose.
-
-
-> The problem with read_inode2() was rather that it overloaded the the
-> existing iget4() interface...
-
-The higher-level problem was that we didn't want to change the VFS 
-API...  otherwise we could have simply used the new interface, and 
-converted all in-tree filesystems.
-
-	Jeff
-
-
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272332AbTHECFg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 22:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272361AbTHECFg
+	id S272373AbTHECWt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 22:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272375AbTHECWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 22:05:36 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:25242
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272332AbTHECFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 22:05:30 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Charlie Baylis <cb-lkml@fish.zetnet.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O12.2int for interactivity
-Date: Tue, 5 Aug 2003 12:10:42 +1000
-User-Agent: KMail/1.5.3
-References: <20030804195058.GA8267@cray.fish.zetnet.co.uk>
-In-Reply-To: <20030804195058.GA8267@cray.fish.zetnet.co.uk>
+	Mon, 4 Aug 2003 22:22:49 -0400
+Received: from web60006.mail.yahoo.com ([216.109.116.229]:25770 "HELO
+	web60006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S272373AbTHECWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 22:22:05 -0400
+Message-ID: <20030805022205.60269.qmail@web60006.mail.yahoo.com>
+Date: Tue, 5 Aug 2003 03:22:05 +0100 (BST)
+From: =?iso-8859-1?q?Steven=20Newbury?= <s_j_newbury@yahoo.co.uk>
+Subject: Re: linux-2.6.0-test2-mm2 with BadRAM patch
+To: Harold Wheaton <hew@gate.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1059880326.3119.35.camel@paradise>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308051210.42779.kernel@kolivas.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 05:50, Charlie Baylis wrote:
-> > I tried them aggressively; irman2 and thud don't hurt here. The idle
-> > detection limits both of them from gaining too much sleep_avg while
-> > waiting around and they dont get better dynamic priority than 17.
->
-> Sounds like you've taken the teeth out of the thud program :) The original
-> aim was to demonstrate what happens when a maximally interactive task
-> suddenly becomes a CPU hog - similar to a web browser starting to render
-> and causing intense X activity in the process. Stopping thud getting
-> maximum priority is addressing the symptom, not the cause. (That's not to
-> say the idle detection is a bad idea - but it's not the complete answer)
+ --- Harold Wheaton <hew@gate.net> wrote: > Hello Steven.  My name is Harold
+and I happened to get your recent
+> BadRAM patch running on the linux-2.6.0-test2-mm2 kernel.
+> 
+> I just upgraded to 2.6 today, and since I do have a minor memory
+> problem, I needed to get BadRAM going.  Fortunately I found your post
+> with the compressed patch (which that one is indeed not corrupt) and got
+> it in there without any difficulty.  It's coming up with the
+> announcement about "4k BadRAM".
+> 
+> So far the kernel is rock solid and I've tested games and multimedia,
+> but I'm not really sure if I'm a great test case.  I have 1 gig of RAM
+> with one intermittently bad bit at around the 250 meg spot, making it
+> tough to gauge the patch's effectiveness.  Also, I am not running
+> HighMem as I've read that it may expose a dormant bug on these newer
+> kernels.
+A bug in BadRAM or the kernel proper?  There was/is a bug in the original
+BadRAM patch with HighMem though it should be fixed in my patch.  It might be
+worth you trying it.
 
-It was a side effect that it helped this particular issue. The idle detection 
-was based around helping real world scenarios and it just happened to help.
+> 
+> I hope this helps in case you are still concerned about the patch. 
+> Thank you for getting it to kernel version 2.6 and I think we all hope
+> that it can make it in the official baseline at some point so that
+> regular users will be able to take advantage of it.
+> -Harold
+> 
+>  
 
-> the idea is to do a little bit of work so that the idle detection doesn't
-> kick in and thud can reach the max interactive bonus. (I haven't tried your
-> patch yet to see if this change achieves this)
+Yes, it does seem to be okay.  I had unfortunatly made my system unstable by
+tweaking the chipset PCI configuration space.  The tweaking was stable on 2.4.x
+so I had assumed it wasn't the problem... it was!  2.6 seems to put more stress
+on the system (probably due to CPU optimized memcopy's or something similar).
 
-Good call; I was quite aware this is the most effective way to create a fork 
-bomb with my patch, but it's effect while being noticably worse than the 
-original thud is still not disastrous. Yes I do appreciate variations on the 
-theme can be made worse again; I'm doing some testing and experimenting there 
-to see how best to tackle it.
+Thankyou for the feedback.
 
-Con
 
+=====
+Steve
+
+__________________________________________________
+Yahoo! Plus - For a better Internet experience
+http://uk.promotions.yahoo.com/yplus/yoffer.html

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289058AbSA3KWh>; Wed, 30 Jan 2002 05:22:37 -0500
+	id <S289055AbSA3KVR>; Wed, 30 Jan 2002 05:21:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289067AbSA3KWS>; Wed, 30 Jan 2002 05:22:18 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:50693 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289058AbSA3KV6>; Wed, 30 Jan 2002 05:21:58 -0500
-Date: Wed, 30 Jan 2002 10:21:47 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Dave Jones <davej@suse.de>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fbdev accel wrapper. II
-Message-ID: <20020130102147.C16937@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.GSO.4.21.0201291034460.3801-100000@vervain.sonytel.be> <Pine.LNX.4.10.10201291507020.29648-100000@www.transvirtual.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10201291507020.29648-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Tue, Jan 29, 2002 at 03:59:26PM -0800
+	id <S289062AbSA3KVC>; Wed, 30 Jan 2002 05:21:02 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:35750 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S289057AbSA3KTX>; Wed, 30 Jan 2002 05:19:23 -0500
+Date: Wed, 30 Jan 2002 12:14:12 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@commfireservices.com>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Diego Calleja <grundig@teleline.es>
+Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: fonts corruption with 3dfx drm module
+In-Reply-To: <20020128203706.24AC0FB8D@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.44.0201301213300.2730-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 03:59:26PM -0800, James Simmons wrote:
->     if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR)
->         region.color = attr_bgcol_ec(p,vc);
->     else 
->         region.color = info->pseudo_palette)[attr_bgcol_ec(p,vc)];
-                        ^                    ^
+On 28 xxx -1, Diego Calleja wrote:
 
-I hope this is a typing mistake that's not present in the real source. 8)
+> On 28 ene 2002, 16:12:34, Zwane Mwaikambo wrote:
+> > 
+> > On Mon, 28 Jan 2002, Zwane Mwaikambo wrote:
+> > 
+> > > Do you guys have CONFIG_MTRR and/or CONFIG_FB_VESA enabled? Also which 
+> > > motherboard chipset?
+> I have CONFIG_MTRR enabled. CONFIG_FB_VESA is disabled.
+> Moterhboard: MS-5571
+> Chipset: SIS 5571 Trinity, Video card voodoo 3 3000 PCI
+> > 
+> > Forgot to mention, which XFree86 version?
+> 
+> X 4.1.0 (debian woody release)
+> 
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Can you try reproduce the font corruption with CONFIG_MTRR disabled, just 
+for my amusement. I would greatly appreciate it.
+
+Cheers,
+	Zwane Mwaikambo
+
 

@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265609AbTIDWKq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 18:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265601AbTIDWKq
+	id S265576AbTIDWI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 18:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265580AbTIDWI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 18:10:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16332 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265609AbTIDWKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 18:10:37 -0400
-Date: Fri, 5 Sep 2003 00:10:36 +0200
-From: Martin Mares <mj@ucw.cz>
-To: James Clark <jimwclark@ntlworld.com>
-Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+	Thu, 4 Sep 2003 18:08:28 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:57049 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265576AbTIDWIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 18:08:23 -0400
 Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-Message-ID: <20030904221036.GA16982@atrey.karlin.mff.cuni.cz>
-References: <1062637356.846.3471.camel@cube> <200309042114.45234.jimwclark@ntlworld.com> <Pine.LNX.4.53.0309041723090.9557@chaos> <200309042251.38514.jimwclark@ntlworld.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jimwclark@ntlworld.com
+Cc: root@chaos.analogic.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <200309042251.38514.jimwclark@ntlworld.com>
-User-Agent: Mutt/1.3.28i
+References: <1062637356.846.3471.camel@cube>
+	 <200309042114.45234.jimwclark@ntlworld.com>
+	 <Pine.LNX.4.53.0309041723090.9557@chaos>
+	 <200309042251.38514.jimwclark@ntlworld.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1062713213.22634.86.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Thu, 04 Sep 2003 23:06:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Iau, 2003-09-04 at 22:51, James Clark wrote:
+> I have not proposed a driver model that is compatible with the Windows DDK. 
+> This is pure invention from the usual school of 'Windows v Linux, Linux is 
+> better because we made it'. The Linux driver model could be much better and 
+> hence the OS could escape the niche box it currently is in. Please ask Joe 
+> User how he feels about rebuilding his whole OS to add IP6 support to an 
+> existing stable system etc.
 
-> It mostly works, sometimes it doesn't, but in total the number of 
-> working hours of PRODUCTIVE use from it is many orders of magnitude greater. 
+Joe User got IPV6 from his vendor as a standard component, and if he
+didn't the large number of app patches his old distro need outweigh the
+kernel.
 
-Maybe the other people working on Linux feel different, but I just don't
-care about the masses and about anybody's commercial success. If they like
-using Windows, well, they deserve it. I'm helping to create a system _I_
-and the people around me like.
+However for drivers its the same - its a _source_ level interface.
 
-About drivers: People around me who are using Windows do have many
-problems (want to use three different USB scanners simultaneously? eh,
-forget about that), people using Linux have slightly less or maybe the
-same amount of problems, but guess what -- for the Linux users there
-usually is somebody around who knows how to fix the things while Windows
-users are helplessly reinstalling their binary-only stuff nobody really
-understands. That's a real story and I guess it's a very typical one.
-And it's the reason why almost nobody here likes binary-only drivers.
+For example 
 
-> Multiple the number of Windows users in the world by their working time and 
-> then do the same for Linux! 
+	spin_lock(&lock)
 
-Well, you can multiply the number of insects in this universe by their
-working time and get an even larger number, but does that mean anything
-except you are skilled in arithmetic?
+compiles to different things for uniprocessor/SMP kernels and the
+difference is worth real speed. So your binary interface roughly
+speaking depends on
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-First law of socio-genetics: Celibacy is not hereditary.
+-	core options selected
+-	compiler (gcc2 v gcc3)
+-	SMP v UP
+-	Highmem v non highmem
+-	CPU target type
+-	4G/4G split in 2.6 case
+
+and a few more, while your source interface is pretty stable.
+
+So what does that mean for someone adding a module
+
+1.	It needs compiling
+2.	If you want trivial end user ease then you need to wrap the
+compilation up as part of the stuff the user never sees.
+
+

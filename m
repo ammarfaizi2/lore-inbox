@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315634AbSIIAIf>; Sun, 8 Sep 2002 20:08:35 -0400
+	id <S315690AbSIIAMg>; Sun, 8 Sep 2002 20:12:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315690AbSIIAIf>; Sun, 8 Sep 2002 20:08:35 -0400
-Received: from mail.gmx.net ([213.165.64.20]:61618 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S315634AbSIIAIe> convert rfc822-to-8bit;
-	Sun, 8 Sep 2002 20:08:34 -0400
-From: Daniel Mehrmann <daniel.mehrmann@gmx.de>
-Organization: private
-To: Dave Jones <davej@suse.de>
-Subject: Re: [PATCH 2.4/2.5] Athlon CFLAGS
-Date: Mon, 9 Sep 2002 02:13:10 +0200
-User-Agent: KMail/1.4.6
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-References: <200209082128.11316.daniel.mehrmann@gmx.de> <20020909011833.B14358@suse.de>
-In-Reply-To: <20020909011833.B14358@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200209090213.10063.daniel.mehrmann@gmx.de>
+	id <S315709AbSIIAMg>; Sun, 8 Sep 2002 20:12:36 -0400
+Received: from maroon.csi.cam.ac.uk ([131.111.8.2]:57054 "EHLO
+	maroon.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S315690AbSIIAMf>; Sun, 8 Sep 2002 20:12:35 -0400
+Message-Id: <5.1.0.14.2.20020909011504.00b1adf0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 09 Sep 2002 01:17:26 +0100
+To: mingo@elte.hu, torvalds@transmeta.com
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: pinpointed: PANIC caused by dequeue_signal() in current
+  Linus BK tree
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020909001700.03fdee00@pop.cus.cam.ac.uk>
+References: <5.1.0.14.2.20020908234145.03fdaec0@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 September 2002 01:18, Dave Jones wrote:
-> On Sun, Sep 08, 2002 at 09:28:11PM +0200, Daniel Mehrmann wrote:
->  > Hi Alan,
->  >
->  > i add for the AMD Athlon family some optimize compilerflags.
->  > Gcc 3.1 and 3.2 support more specific Athlon instructions as
->  > 3.0 or 2.95x. This patch for 2.4.19, 2.4.20-pre5 and 2.5.33
->  > set a new "-march" flag:
->  >
->  > Athlon TB/Duron 		+= -march=athlon-tbird
->  > Athlon XP/Athlon4/Duron	+= -march=athlon-xp
->  > Athlon MP				+= -march=athlon-mp
+On Andrew Morton's suggestion I tried with preempt disabled. That still 
+gives the same result.
+
+I then also tried to compile the kernel for UP and it still gives the same 
+result.
+
+Anton
+
+At 00:21 09/09/02, Anton Altaparmakov wrote:
+>Hi,
 >
-> I thought these were all just gcc aliases for the same options ?
-> It's been a while since I looked at the gcc option parser, so
-> I've forgotten exactly what happens, but at least you missed the
-> bogus athlon-4 option.
+>I had a look and the panic actually happens in collect_signal() in here:
 >
-> Are the gains between all these options really worth the added
-> complexity ?
+>static inline int collect_signal(int sig, struct sigpending *list, 
+>siginfo_t *info)
+>{
+>         if (sigismember(&list->signal, sig)) {
+>                 /* Collect the siginfo appropriate to this signal.  */
+>                 struct sigqueue *q, **pp;
+>                 pp = &list->head;
+>                 while ((q = *pp) != NULL) {
+>q becomes 0x5a5a5a5a  ^^^^^^^^^
+>                         if (q->info.si_signo == sig)
+>0x5a5a5a5a is dereferenced ^^^^^^^^^^^^^^^^
+>                                 goto found_it;
+>                         pp = &q->next;
+>                 }
 >
->         Dave
+>Hope this helps.
+>
+>Best regards,
+>
+>         Anton
 
-Hi Dave,
-
-yes, you`re right with the athlon-4 option. Well, first thing, the mobile athlon
-have the same core as XP (Palomino) expect some "speed scheudle". 
-I never see that we support mobile chips. So i think it`s enough that we 
-put Athlon4 into the "XP group". I think too the new core "Thoroughbread" 
-should use the "XP group". 
-
-I readed the gcc documentation, gcc-3.2 only, very deep. This was the idea for this patch.
-Then i looked fast into gcc-3.1/3.0/2.95x. I believe that the compiler create own code 
-for *every* chip-release. chip-release as: athlon-tbird, athlon-xp, ...
-
-Also take a look into the binary code and size. It`s different. 
-
-chears,
-Daniel
-
-   
-
-
-
-
-
- 
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

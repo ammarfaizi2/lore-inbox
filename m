@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbTFBM0I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 08:26:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTFBM0H
+	id S262270AbTFBM2A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 08:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTFBM2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 08:26:07 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:2524 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S262262AbTFBM0G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 08:26:06 -0400
-Subject: Re: [PATCH] pci bridge class code
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Haverkamp <markh@osdl.org>,
-       Patrick Mochel <mochel@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030602133258.A776@flint.arm.linux.org.uk>
-References: <1054239461.28608.74.camel@markh1.pdx.osdl.net>
-	 <20030529214044.B30661@flint.arm.linux.org.uk>
-	 <1054287852.23562.2.camel@dhcp22.swansea.linux.org.uk>
-	 <1054554964.535.35.camel@gaston>
-	 <20030602133258.A776@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054557568.535.47.camel@gaston>
+	Mon, 2 Jun 2003 08:28:00 -0400
+Received: from holomorphy.com ([66.224.33.161]:39838 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262270AbTFBM1w (ORCPT
+	<rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 08:27:52 -0400
+Date: Mon, 2 Jun 2003 05:40:16 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Gianni Tedesco <gianni@scaramanga.co.uk>,
+       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
+       Linus Torvalds <Torvalds@Transmeta.COM>, Andrew Morton <AKPM@Digeo.COM>
+Subject: Re: const from include/asm-i386/byteorder.h
+Message-ID: <20030602124016.GP8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Nikita Danilov <Nikita@Namesys.COM>,
+	Gianni Tedesco <gianni@scaramanga.co.uk>,
+	Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
+	Linus Torvalds <Torvalds@Transmeta.COM>,
+	Andrew Morton <AKPM@Digeo.COM>
+References: <16088.47088.814881.791196@laputa.namesys.com> <1054406992.4837.0.camel@sherbert> <20030531185709.GK8978@holomorphy.com> <16091.14923.815819.792026@laputa.namesys.com> <20030602121457.GO8978@holomorphy.com> <16091.17602.257293.364468@laputa.namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 02 Jun 2003 14:39:28 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16091.17602.257293.364468@laputa.namesys.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-02 at 14:32, Russell King wrote:
+William Lee Irwin III writes:
+>> Someone needs to doublecheck whether this actually works. Last I heard,
 
-> That would not help the case when you have the "generic" bridge module
-> loaded and the specific bridge driver as a loadable module.
+On Mon, Jun 02, 2003 at 04:36:18PM +0400, Nikita Danilov wrote:
+> I don't quite understand. __attribute_const is defined as
+> #define __attribute_const __attribute__ ((__const__))
+> so, after preprocessing prototypes of get_current() and
+> current_thread_info() will be the same as before patch, modulo spacing.
 
-Well... we could store the match score of the driver, and if a newer
-driver comes with a better match, call a replace() callback in the
-current owner to ask if it allows "live" replacement... But that's
-far beyond my original idea though
+William Lee Irwin III writes:
+>> it did not, but that could have changed since. It vaguely appears some
+>> assumption about it working was made recently since __const__ was there.
 
-Ben.
+On Mon, Jun 02, 2003 at 04:36:18PM +0400, Nikita Danilov wrote:
+> I am currently running ./fsstress -p 111 on patched kernel on 2*XEON
+> 2.20GHz with hyper threading.
 
+Sounds good. If you could doublecheck the assembly to make sure it's
+doing the right thing, that would be good, too.
+
+Thanks.
+
+-- wli

@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263498AbTHWKSf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 06:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTHWKSf
+	id S262540AbTHWK2R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 06:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbTHWK2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 06:18:35 -0400
-Received: from 217-124-19-86.dialup.nuria.telefonica-data.net ([217.124.19.86]:43140
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S263498AbTHWKSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 06:18:33 -0400
-Date: Sat, 23 Aug 2003 12:18:31 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: evms or lvm?
-Message-ID: <20030823101831.GA2857@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <3F47347F.7070103@mscc.huji.ac.il>
+	Sat, 23 Aug 2003 06:28:17 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:11432 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S262540AbTHWK2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 06:28:15 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Sat, 23 Aug 2003 12:28:13 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: TeJun Huh <tejun@aratech.co.kr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Race condition in 2.4 tasklet handling (cli() broken?)
+Message-Id: <20030823122813.0c90e241.skraw@ithnet.com>
+In-Reply-To: <20030823052633.GA4307@atj.dyndns.org>
+References: <20030823025448.GA32547@atj.dyndns.org>
+	<20030823040931.GA3872@atj.dyndns.org>
+	<20030823052633.GA4307@atj.dyndns.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F47347F.7070103@mscc.huji.ac.il>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 23 August 2003, at 12:31:43 +0300,
-Voicu Liviu wrote:
+On Sat, 23 Aug 2003 14:26:34 +0900
+TeJun Huh <tejun@aratech.co.kr> wrote:
 
-> I'm planing to move to 2.6x kernels and I don't know what should I use,
-> lvm or evms, any 1 could help me to decide?
-> I've heard that evms will not continue with 2.6, is it true?
-> Best regards
+>  Oops, Sorry.  Only bh handling is relevant.  Softirq and tasklet are
+> not of concern to cli().
 > 
-2.6.0 will have many changes with respect to LVM and EVMS. LVM is
-updated to newer version 2 (LVM2), based on DM (Device Mapper), sort of
-a simplified in-kernel LVM that just handles discovering the drives.
-Updated userspace utilities (LVM2) are already available to drive this.
+> On Sat, Aug 23, 2003 at 01:09:31PM +0900, TeJun Huh wrote:
+> >  Additional suspicious things.
+> > 
+> > 1. tasklet_kill() has similar race condition.  mb() required before
+> > tasklet_unlock_wait().
+> 
+> Corrected 2.
+> [...]
+>  If bh hanlding is not guaranteed to be blocked during cli() - sti()
+> critical section, global_bh_lock test inside wait_on_irq() is
+> redundant and if it should be guaranteed, current implmentation seems
+> broken.
 
-On the other part, EVMS was completely redesigned. Former EVMS
-implementation was duplicating too much code, and in general it was
-regarded as a bad implementation on a very good idea, so the people at
-IBM in charge on EVMS development took what it look to everyone as a
-very clever move, and for 2.6.x they implemented EVMS on top of DM. User
-space utilities for EVMS are (from the user's point of view) the same as
-before, but now the inner details are different: no reimplementation of
-software RAID, no reimplementation of LVM, etc.
-
-Have a look at both projects websites to get more accurate and detailled
-information about them:
-http://evms.sourceforge.net/
-http://www.sistina.com/products_lvm.htm
+If we follow your analysis and say it is broken, do you have a suggestion/patch
+how to fix both? I am willing to try your proposals, as it seems I am one of
+very few who really experience stability issues on SMP with the current
+implementation.
 
 Regards,
-
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test3-mm2)
+Stephan

@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264092AbTDOVVH (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 17:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264089AbTDOVVH 
+	id S264083AbTDOVTB (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 17:19:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264084AbTDOVTB 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 17:21:07 -0400
-Received: from smtp2.clear.net.nz ([203.97.37.27]:51679 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S264086AbTDOVU7 
+	Tue, 15 Apr 2003 17:19:01 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:5786 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264083AbTDOVS7 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 17:20:59 -0400
-Date: Wed, 16 Apr 2003 09:33:32 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: New Software Suspend Patch for testing.
-In-reply-to: <Pine.LNX.4.44.0304151246400.912-100000@cherise>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-Message-id: <1050442411.2983.5.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <Pine.LNX.4.44.0304151246400.912-100000@cherise>
+	Tue, 15 Apr 2003 17:18:59 -0400
+Date: Tue, 15 Apr 2003 14:29:41 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.5 'what to expect' document.
+Message-Id: <20030415142941.78ed9eba.rddunlap@osdl.org>
+In-Reply-To: <1050435615.1676.2.camel@laptop-linux.cunninghams>
+References: <20030414193138.GA24870@suse.de>
+	<1050367694.2825.3.camel@laptop-linux.cunninghams>
+	<20030415110658.GB4517@suse.de>
+	<1050435615.1676.2.camel@laptop-linux.cunninghams>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 16 Apr 2003 09:24:25 +1200 Nigel Cunningham <ncunningham@clear.net.nz> wrote:
 
-On Wed, 2003-04-16 at 08:06, Patrick Mochel wrote:
-> I have a (fairly large) request: 
-> 
-> Would you mind updating Documentation/swsusp.txt (and moving it to 
-> Documentation/power/swsusp.txt)? 
+| Sorry. Perhaps I shouldn't have mentioned 2.4 first. Did you read the
+| whole thing? It's saying it has been ported to 2.5 and is being
+| maintained and is slowly being merged.
+| 
+| Regards,
+| 
+| Nigel
+| 
+| On Tue, 2003-04-15 at 23:07, Dave Jones wrote:
+| > On Tue, Apr 15, 2003 at 05:19:03PM +1200, Nigel Cunningham wrote:
+| > 
+| >  > If you wish, your comment could reflect the fact that a more advanced
+| >  > version is available under 2.4 and is being actively maintained and
+| >  > enhanced. It has been ported to 2.5 and is being kept in sync with a
+| >  > view to inclusion in 2.5 or 2.6. It may not be in the kernel tree by the
+| >  > time 2.6 is released, but I will do my utmost to ensure the patches are
+| >  > maintained, since I plan in using it! :>
+| > 
+| > The document is for people wanting to try out 2.5, not 2.4+addons.
+| > If the swsusp stuff does get forward ported to 2.5, I'll document it
+| > when it arrives there.
 
-Okay. I've been meaning to update it.
-> 
-> Frankly, the code is a mess and difficult to follow. It's also poorly
-> commented. I spent the time about a month ago unwinding and deciphering 
-> it. Unfortunately, my work conflicts heavily with the work that you're 
-> doing, and the lack of documentation describing the intent of the code 
-> makes it difficult to make sane judgements of it. 
+Once it's in 2.4, it can (should) be listed in Dave's doc as a regression
+if it's not also in 2.5/2.6.
 
-One more problem is that you're also trying to follow a moving target
-:>. In response to Pavel's last request, I'm preparing to work toward
-using a linked list for the meta information (to allow unlimited image
-size), and at the request of others, compressing (zlib) the saved pages
-to make the image faster to save/load.
-
-As to the layout and documentation, I hate them too. I had to keep
-things as similar as possible to existing code to make merging easier,
-but now that I'm merged with the 2.4 code, perhaps I can do some
-cleanups.
-
-Regards,
-
-Nigel
-
+--
+~Randy

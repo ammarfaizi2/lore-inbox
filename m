@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312459AbSDJGB3>; Wed, 10 Apr 2002 02:01:29 -0400
+	id <S312466AbSDJGX7>; Wed, 10 Apr 2002 02:23:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312464AbSDJGB2>; Wed, 10 Apr 2002 02:01:28 -0400
-Received: from zero.tech9.net ([209.61.188.187]:48397 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S312459AbSDJGB2>;
-	Wed, 10 Apr 2002 02:01:28 -0400
-Subject: Re: nanosleep
-From: Robert Love <rml@tech9.net>
-To: mark manning <mark.manning@fastermail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020410055708.9474.qmail@fastermail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 10 Apr 2002 02:01:35 -0400
-Message-Id: <1018418496.903.228.camel@phantasy>
-Mime-Version: 1.0
+	id <S312480AbSDJGX6>; Wed, 10 Apr 2002 02:23:58 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:24845 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S312466AbSDJGX6>; Wed, 10 Apr 2002 02:23:58 -0400
+Message-Id: <200204100620.g3A6KnX04868@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Brian Beattie <alchemy@us.ibm.com>,
+        Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: Event logging vs enhancing printk
+Date: Wed, 10 Apr 2002 09:24:02 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, Martin@m3.polymtl.ca,
+        "Martin.Bligh@us.ibm.com" <J.Bligh@m3.polymtl.ca>,
+        Tony.P.Lee@nokia.com, kessler@us.ibm.com, karym@opersys.com,
+        lmcmpou@lmc.ericsson.se, lmcleve@lmc.ericsson.se
+In-Reply-To: <m2it71uf4u.fsf@m3.polymtl.ca> <1018385394.7923.26.camel@w-beattie1>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-04-10 at 01:57, mark manning wrote:
-> hrm - im confiused now - how can you do a n NANO second delay when the
-> resolution is 10 mili seconds ?
+On 9 April 2002 18:49, Brian Beattie wrote:
+> I would prefer to see effort expended on fixing printk/klogd...off the
+> top of my head:
+>
+> - make printk a macro that prepends file/function/line to the message.
+> - fix printk calls: messages with consistent format, calls in the right
+> places, with the "correct" information.
+> - postprocessing tools for analysing the logs.
+>
+> I would say that this is probably less work than implementing evlog,
+> much less work to maintain, and provide generally better performance.
 
-Uh, you can't - that was his point.
+Sounds ok for me.
 
-You can try, and you will certainly sleep at least that long, but any
-time given modulo 10ms is out the door ...
-
-Like I said, check out the high resolution timers project.
-
-	Robert Love
-
-
+It will be difficult to push it into mainline kernel.
+I tried to fix loglevels in some printks. Patches were _trivial_
+but nevertheless they weren't taken.
+--
+vda

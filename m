@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318113AbSIJUuq>; Tue, 10 Sep 2002 16:50:46 -0400
+	id <S318101AbSIJUsV>; Tue, 10 Sep 2002 16:48:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318116AbSIJUuq>; Tue, 10 Sep 2002 16:50:46 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:31245 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S318113AbSIJUup>;
-	Tue, 10 Sep 2002 16:50:45 -0400
-Date: Tue, 10 Sep 2002 22:55:30 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] kbuild: Make filelist for clean and mrproper distributed 0/6
-Message-ID: <20020910225530.A17094@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S318113AbSIJUsV>; Tue, 10 Sep 2002 16:48:21 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:52213 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318101AbSIJUsV>; Tue, 10 Sep 2002 16:48:21 -0400
+Date: Tue, 10 Sep 2002 22:53:01 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, <johnstul@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] add "If unsure, say N" to CONFIG_X86_TSC_DISABLE
+Message-ID: <Pine.NEB.4.44.0209102247150.18902-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The next six mails contains patches to introduce a distributed way
-to specify what files to delete during make clean and make mrproper
-The end result and the driver for this patch was the possibility
-to get rid of the centralised list of files contained in the top-level
-makefile.
+Hi Marcelo,
 
-The patches are split as follows:
-1/6	The actual infrastructure added to Rules.make
-2/6	makefile for atm updated
-3/6	makefile for sound updated
-4/6	makefile for various drivers updated
-5/6	makefile in scripts/ updated
-6/6	Top-level makefile updated, including removal of file-list
+the patch below does:
+- add a "If unsure, say N" to CONFIG_X86_TSC_DISABLE
+- fix two typos
 
-	Sam
+cu
+Adrian
+
+
+--- Documentation/Configure.help.old	2002-09-10 22:38:42.000000000 +0200
++++ Documentation/Configure.help	2002-09-10 22:49:21.000000000 +0200
+@@ -240,9 +240,11 @@
+   which processor you have compiled for.
+
+   NOTE: If your system hangs when init should run, you are probably
+-  using a i686 compiled glibc which reads the TSC wihout checking for
+-  avaliability. Boot without "notsc" and install a i386 compiled glibc
++  using a i686 compiled glibc which reads the TSC without checking for
++  availability. Boot without "notsc" and install a i386 compiled glibc
+   to solve the problem.
++
++  If unsure, say N.
+
+ Multiquad support for NUMA systems
+ CONFIG_MULTIQUAD
+
 

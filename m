@@ -1,97 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265658AbUBFTbE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 14:31:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265663AbUBFTbE
+	id S265656AbUBFT0c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 14:26:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265658AbUBFT0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 14:31:04 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:63415
-	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S265658AbUBFTa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 14:30:59 -0500
-Message-ID: <4023EBF8.2070804@tmr.com>
-Date: Fri, 06 Feb 2004 14:33:12 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mattias Wadenstein <maswan@acc.umu.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Performance issue with 2.6 md raid0
-References: <Pine.A41.4.58.0402051304410.28218@lenin.acc.umu.se>
-In-Reply-To: <Pine.A41.4.58.0402051304410.28218@lenin.acc.umu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Feb 2004 14:26:31 -0500
+Received: from post.tau.ac.il ([132.66.16.11]:56753 "EHLO post.tau.ac.il")
+	by vger.kernel.org with ESMTP id S265656AbUBFT02 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 14:26:28 -0500
+Date: Fri, 6 Feb 2004 21:26:18 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs - difference between a commit and a transaction
+Message-ID: <20040206192618.GE2582@luna.mooo.com>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+References: <20040206002346.GA2571@luna.mooo.com> <16419.22749.486759.348150@laputa.namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16419.22749.486759.348150@laputa.namesys.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.23.0.3; VDF: 6.23.0.60; host: localhost)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mattias Wadenstein wrote:
-> Greetings.
+On Fri, Feb 06, 2004 at 12:05:33PM +0300, Nikita Danilov wrote:
+> Micha Feigin writes:
+>  > I am trying to do some work on reiserfs to make it laptop-mode
+>  > compliant. After looking at the code because it was still noisy after I
+>  > thought I told correctly to be quite, raised a question that I was
+>  > hoping someone can clarify for me.
+>  > 
+>  > Reiserfs has both a transaction and a commit and I was wondering what
+>  > is which.
 > 
-> While testing a file server to store a couple of TB in resonably large
-> files (>1G), I noticed an odd performance behaviour with the md raid0 in a
-> pristine 2.6.2 kernel as compared to a 2.4.24 kernel.
+> Transaction is a sequence of file system modifications that (by the
+> virtue of file system implementation) is bound to either be completed as
+> a whole or be aborted as a whole (this is called "atomicity").
 > 
-> When striping two md raid5:s, instead of going from about 160-200MB/s for
-> a single raid5 to 300M/s for the raid0 in 2.4.24, the 2.6.2 kernel gave
-> 135M/s in single stream read performance.
+> Commit is a certain operation performed during transaction life-time to
+> implement its atomicity.
 > 
-> The setup:
-> 2 x 2.0 GHz Opteron 248, 4 gigs of ram (running 32-bit kernels)
-> 2 x 8-port 3ware sata raid cards, acting as disk controllers (no hw raid)
-> 16 x Maxtor 250-gig 7k2 rpm sata drives.
-> 1 x system drive on onboard pata doing pretty much nothing.
-> 
-> The sata drives are configured in 2 8-disk md raid5s, not hw raid for
-> performance reasons, we get better numbers from the md driver in that case
-> than the hw raid on the card. Then I have created a raid0 of these two
-> raid5 devices.
-> 
-> I used jfs for these numbers, I have only seen minor differences in speed
-> in the single-stream case on this hardware though for different
-> filesystems I have tested (ext2, xfs, jfs, reiserfs). And the filesystem
-> numbers are reflected pretty close by doing a dd from /dev/md10. The same
-> goes for increasing the chunk-size to 4M instead of 32k, roughly the same
-> numbers. The system is not doing anything else.
-> 
-> The results (as meassured by bonnie++ -f -n0, all numbers in kB/s, all
-> numbers for a single stream[*]):
-> 2.4.24, one of the raid5s: Write: 138273, Read: 212474
-> 2.4.24, raid0 of two raid5s: Write: 215827, Read: 303388
-> 2.6.2, one of the raid5s: Write: 159271, Read: 161327
-> 2.6.2, raid0 of two raid5s: Write: 280691, Read: 134622
-> 
-> It is the last read value that really stands out.
-> 
-> Any ideas? Anything I should try? More info wanted?
-> 
-> Please Cc: me as I'm not a subscriber to this list.
-> 
-> [*]: For multiple streams, say a dozen or so readers, the aggregate
-> performance on the 2.6.2 raid0 went down to about 60MB/s, which is a bit
-> of a real performance problem for the intended use, I'd like to at least
-> saturate a single gigE interface and hopefully two with that many readers.
 
-I believe what you see between 2.4 and 2.6 is just lack of readahead, 
-and you should increase this for your read performance. With no other 
-changes you should be able to pretty much match performance between 2.4 
-and 2.6.
+So, at what time of a transaction's life would a commit be flushed to
+disk, only in the process of flushing the transaction to disk or at
+several points during its life time to make sure that atomicity is
+preserved.
 
-However, after some years of trying to tune stripe size on both Linux 
-and AIX news servers, I suspect that the stripe size you have is too 
-small. The optimal stripe size under heavy load seems to be at least 2x 
-the largest typical io size, so that you don't have to seek on multiple 
-drives all the time. Note "at least," in most cases you can go larger 
-than that unless you create and delete a lot of files, in which case you 
-can wind up with the inodes on one drive, which can be a real issue.
+And on that note, can there be several transactions active at one time
+or is a new transaction created only when the previous is closed and
+ready to flush.
 
-For this reason I find that most install programs are about worthless, 
-they simply use too small a stripe size and generate a lot of overhead 
-when used, because too many io are on multiple devices. That's good for 
-huge io on separate busses where bus bandwidth is a factor, but very bad 
-when most of the time is latency.
+>  > 
+>  > (I am mostly interested in this from the point of what max_trans_age
+>  > and max_commit_age affect)
+> 
+> Take a look at the "commit" mount option of reiserfs.
+> 
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Thats what I was looking at and what I ported to 2.4 (it did require a
+fix for laptop mode to enable reseting the value, but that will be
+coming shortly).
+
+The problem was that reiserfs was still being very noisy (kreiserfsd was
+writing to disk around every 30 seconds despite beeing mounted with
+commit=600). That led me to look further into the code and changing
+max_trans_age instead of max_commit_age kept it quite for the full ten
+minutes. I am still checking to make sure that its not something with me
+or my system.
+
+For laptop mode we want to keep disk activity quiet for around ten
+minutes at a time so that the disk can be spun down, thus sacrificing
+the chance of loosing data for battery life.
+
+I am trying to see what is the right value to change and what is the
+meaning of changing it but I could only find old documentation and the
+comments in the code are good only for people who know the meaning of
+the terms in the first place.
+
+>  > 
+>  > Thanks
+> 
+> Nikita.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

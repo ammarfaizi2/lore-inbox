@@ -1,74 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315370AbSGUXlI>; Sun, 21 Jul 2002 19:41:08 -0400
+	id <S315265AbSGVA5N>; Sun, 21 Jul 2002 20:57:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315279AbSGUXlI>; Sun, 21 Jul 2002 19:41:08 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47093 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S315370AbSGUXlG>;
-	Sun, 21 Jul 2002 19:41:06 -0400
-Message-ID: <3D3B4734.244BBE2A@mvista.com>
-Date: Sun, 21 Jul 2002 16:43:48 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oleg Nesterov <oleg@tv-sign.ru>
-CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [announce, patch, RFC] "big IRQ lock" removal, IRQ cleanups.
-References: <3D39A48C.C0863416@tv-sign.ru>
-Content-Type: text/plain; charset=us-ascii
+	id <S315439AbSGVA5N>; Sun, 21 Jul 2002 20:57:13 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:15609 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S315265AbSGVA5M>; Sun, 21 Jul 2002 20:57:12 -0400
+Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
+From: Robert Love <rml@tech9.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Christoph Hellwig <hch@lst.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0207220224170.4909-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0207220224170.4909-100000@localhost.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 21 Jul 2002 18:00:15 -0700
+Message-Id: <1027299616.932.5.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote:
-> 
-> Hello.
-> 
-> > - to remove the preemption count increase/decrease code from the lowlevel
-> >   IRQ assembly code.
+On Sun, 2002-07-21 at 17:31, Ingo Molnar wrote:
 
-IMHO this is unwise as the system NEEDS to exit to user (or
-system) space when preempt_count is zero with a garuntee
-that TIF_NEED_RESCHED is 0.  To do this from irq.c means
-that it must exit with interrupts off and the the low level
-code needs to keep them off till the irtn.  But this is
-where we test TIF_NEED_RESCHED, and if it is set, schedule()
-is called and should be called with preempt_count != 0, to
-avoid stack overflow interrupt loops.  And, schedule()
-returns with the interrupt system on (even if we, unwisely,
-call it with it off).  
-> 
-> So do_IRQ() can start with preempt_count == 0.
-> Suppose another cpu sets TIF_NEED_RESCHED flag
-> at the same time.
-> 
-> spin_lock(&desc->lock) sets preempt_count == 1.
-> Before calling handle_IRQ_event() (which adds IRQ_OFFSET
-> to preempt_count), do_IRQ() does spin_unlock(&desc->lock)
-> and falls into schedule().
-> 
-> Am I missed something?
+> i've done a minor comment update in softirq.c, plus i've written a
+> cli-sti-removal.txt guide to help driver writers do the transition:
 
-Nope, you got it right.
-> 
-> It seems to me that call to irq_enter() must be shifted
-> from handle_IRQ_event() to do_IRQ().
+Nice document.
 
-Even then...
-> 
-> Oleg.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+One more doc correction while we are at it...
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+	Robert Love
+
+diff -urN linux-2.5.27/Documentation/preempt-locking.txt linux/Documentation/preempt-locking.txt
+--- linux-2.5.27/Documentation/preempt-locking.txt	Sat Jul 20 12:11:06 2002
++++ linux/Documentation/preempt-locking.txt	Sun Jul 21 17:59:13 2002
+@@ -70,7 +70,8 @@
+ preempt_enable()		decrement the preempt counter
+ preempt_disable()		increment the preempt counter
+ preempt_enable_no_resched()	decrement, but do not immediately preempt
+-preempt_get_count()		return the preempt counter
++preempt_check_resched()		if needed, reschedule
++preempt_count()			return the preempt counter
+ 
+ The functions are nestable.  In other words, you can call preempt_disable
+ n-times in a code path, and preemption will not be reenabled until the n-th
+

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbUBNVHx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 16:07:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUBNVHx
+	id S263370AbUBNV1g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 16:27:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbUBNV1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 16:07:53 -0500
-Received: from relay.pair.com ([209.68.1.20]:45326 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S261974AbUBNVHv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 16:07:51 -0500
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <402E8D1A.4000106@kegel.com>
-Date: Sat, 14 Feb 2004 13:03:22 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org
-Subject: re: Kernel Cross Compiling
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Feb 2004 16:27:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4283 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263370AbUBNV1f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 16:27:35 -0500
+Date: Sat, 14 Feb 2004 21:27:33 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Michael Frank <mhf@linuxmail.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH, RFC: Version 4 of 2.6 Codingstyle
+Message-ID: <20040214212733.GJ8858@parcelfarce.linux.theplanet.co.uk>
+References: <200402130615.10608.mhf@linuxmail.org> <200402150444.57528.mhf@linuxmail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402150444.57528.mhf@linuxmail.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl <herbert@13thfloor.at> wrote:
-> I'm currently investigating the requirements/doability
-> of a kernel cross compiling test bed/setup, able to do
-> automated kernel builds for different architecture,
-> just to see if it compiles and later to verify if a 
-> given patch breaks that compile on any of the tested
-> archs ...
+On Sun, Feb 15, 2004 at 04:44:55AM +0800, Michael Frank wrote:
+> +		Chapter 13: References
+> +
+> +The C Programming Language, Second Edition
+> +by Brian W. Kernighan and Dennis M. Ritchie.
+> +Prentice Hall, Inc., 1988.
+> +ISBN 0-13-110362-8 (paperback), 0-13-110370-9 (hardback).
+> +
+> +GNU manuals for cpp, gcc and indent, available from www.gnu.org, while in
+> +compliance with K&R and this text.
 
-Great idea!
-
->  I decided to use binutils 2.14.90.0.8, and gcc 3.3.2,
->    but soon discovered that gcc-3.3.2 will not be able 
->    to build a cross compiler for some archs like the
->    alpha, ia64, powerpc and even i386 ;) without some
->    modifications[2] but with some help, I got all headers
->    fixed, except for the ia64, which still doesn't work
-
-Wouldn't it be easier to use http://kegel.com/crosstool
-which already builds good toolchains for just about every
-CPU type?
-- Dan
-
--- 
-US citizens: if you're considering voting for Bush, look at these first:
-http://www.misleader.org/
-http://www.cbc.ca/news/background/arar/
-http://www.house.gov/reform/min/politicsandscience/
+The Practice of Programming
+Brian W. Kernighan, Rob Pike
+Addison-Wesley, 1999, ISBN 0-201-61586-X

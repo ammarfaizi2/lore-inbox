@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbTIPLl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 07:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTIPLlz
+	id S261861AbTIPLvH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 07:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTIPLvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 07:41:55 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:6306 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261839AbTIPLlz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 07:41:55 -0400
-Date: Tue, 16 Sep 2003 13:41:52 +0200 (MEST)
-Message-Id: <200309161141.h8GBfqZv012047@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: davej@codemonkey.org.uk
-Subject: agpgart's MODULE_ALIAS is broken
-Cc: linux-kernel@vger.kernel.org
+	Tue, 16 Sep 2003 07:51:06 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:14484 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261861AbTIPLvD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 07:51:03 -0400
+Date: Tue, 16 Sep 2003 12:50:50 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: richard.brunner@amd.com
+Cc: davidsen@tmr.com, alan@lxorguk.ukuu.org.uk, zwane@linuxpower.ca,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-ID: <20030916115050.GG26576@mail.jlokier.co.uk>
+References: <99F2150714F93F448942F9A9F112634C0638B1E3@txexmtae.amd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <99F2150714F93F448942F9A9F112634C0638B1E3@txexmtae.amd.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave,
+richard.brunner@amd.com wrote:
+> My concern is trying to prevent 
+> the flood of emails where someone thinks they built 
+> a "standard" kernel only to  discover that they forgot 
+> to select the various suboptions
+> and it doesn't work on their processor. I'd like
+> to simplfy what the majority of folks need to do
+> to get a broadly working kernel.
 
-With 2.6.0-test5, the generated alias for agpgart
-in modules.alias looks wrong:
+There's a similar situation with workarounds for buggy IDE chipsets,
+CMD640 and RZ1000
 
-alias char-major-10-AGPGART_MINOR agpgart
+-- Jamie
 
-Surely that should be char-major-10-175.
-
-The problem is that AGP's MODULE_ALIAS_MISCDEV() is in
-backend.c, but AGPGART_MINOR isn't #define:d there
-because agpgart.h is only #include:d in frontend.c.
-This causes MODULE_ALIAS_MISCDEV()'s __stringify()
-to convert the token itself rather than its value.
-
-Should be easy to fix (move the ALIAS or add #include).
-
-/Mikael

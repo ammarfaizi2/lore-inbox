@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274804AbRIUT6M>; Fri, 21 Sep 2001 15:58:12 -0400
+	id <S274803AbRIUT53>; Fri, 21 Sep 2001 15:57:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274805AbRIUT6B>; Fri, 21 Sep 2001 15:58:01 -0400
-Received: from mueller.uncooperative.org ([216.254.102.19]:55821 "EHLO
-	mueller.datastacks.com") by vger.kernel.org with ESMTP
-	id <S274804AbRIUT5q>; Fri, 21 Sep 2001 15:57:46 -0400
-Date: Fri, 21 Sep 2001 15:58:06 -0400
-From: Crutcher Dunnavant <crutcher@datastacks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Whats in the wings for 2.5 (when it opens)
-Message-ID: <20010921155806.B8188@mueller.datastacks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org> <20010918214904.B29648@vdpas.hobby.nl>
+	id <S274804AbRIUT5T>; Fri, 21 Sep 2001 15:57:19 -0400
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:23565 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S274803AbRIUT5E>; Fri, 21 Sep 2001 15:57:04 -0400
+Date: Fri, 21 Sep 2001 21:56:22 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Greg Ward <gward@python.net>
+Cc: bugs@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
+Message-ID: <20010921215622.A1282@suse.cz>
+In-Reply-To: <20010921134402.A975@gerg.ca> <20010921205356.A1104@suse.cz> <20010921150806.A2453@gerg.ca> <20010921154903.A621@gerg.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010918214904.B29648@vdpas.hobby.nl>; from toon@vdpas.hobby.nl on Tue, Sep 18, 2001 at 09:49:04PM +0200
+In-Reply-To: <20010921154903.A621@gerg.ca>; from gward@python.net on Fri, Sep 21, 2001 at 03:49:03PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-++ 18/09/01 21:49 +0200 - toon@vdpas.hobby.nl:
-> On Mon, Sep 17, 2001 at 08:18:25PM -0400, Ed Tomlinson wrote:
-> > Hi,
-> > 
-> > Seems like there is a lot of code "ready" for consideration in a 2.5 kernel.
-> > I can think of:
-> > 
-> > premptable kernel option
-> > user mode kernel 
-> > jfs
-> > xfs (maybe)
-> 
-> ext3
-> 
-> > rc2
-> > reverse maping vm
-> > ide driver rewrite
-> > 32bit dma
-> > LTT (maybe)
-> > LVM update to 1.01
-> 
-> My opinion is that the LVM update to 1.01 should go into 2.4
-> as soon as possible.
-> 
-> > ELVM (maybe)
-> > module security stuff
-> > UP friendly SMP scheduler
-> > 
-> > What else?
-> > 
-> > TIA
-> > Ed Tomlinson
+On Fri, Sep 21, 2001 at 03:49:03PM -0400, Greg Ward wrote:
 
-A cleaner handling of module parameters/cmd line options.
+> [Vojtech Pavlik]
+> > Do you have the VIA IDE support enabled?
+> 
+> [my response]
+> > I have tried it both ways, but I think only with 2.4.2.  I've only tried
+> > one 2.4.9 build, and that was with CONFIG_BLK_DEV_VIA82CXXX=y.  I've
+> > just done another build with slightly different config settings
+> > (suggestion from Mark Hahn), but haven't tried it yet.  It still has
+> > both the VIA and Promise (CONFIG_BLK_DEV_PDC202XX=y) support enabled.
+> > 
+> > I'll report back when I've tried this kernel build.
+> 
+> Still no luck with this slightly tweaked kernel config.
+> 
+> Here are the relevant config variables ("grep '=y' .config", copy lines
+> from CONFIG_IDE to CONFIG_SCSI):
+> 
+>   CONFIG_IDE=y
+>   CONFIG_BLK_DEV_IDE=y
+>   CONFIG_BLK_DEV_IDEDISK=y
+>   CONFIG_IDEDISK_MULTI_MODE=y
+>   CONFIG_BLK_DEV_IDECD=y
+>   CONFIG_BLK_DEV_IDEPCI=y
+>   CONFIG_IDEPCI_SHARE_IRQ=y
+>   CONFIG_BLK_DEV_IDEDMA_PCI=y
+>   CONFIG_BLK_DEV_ADMA=y
+>   CONFIG_IDEDMA_PCI_AUTO=y
+>   CONFIG_BLK_DEV_IDEDMA=y
+>   CONFIG_BLK_DEV_PDC202XX=y
+>   CONFIG_PDC202XX_BURST=y
+>   CONFIG_PDC202XX_FORCE=y
+>   CONFIG_BLK_DEV_VIA82CXXX=y
+>   CONFIG_IDEDMA_AUTO=y
+>   CONFIG_BLK_DEV_IDE_MODES=y
+> 
+> Is there any point in upgrading to a kernel beyond 2.4.9?  Or has the
+> relevant code not been touched lately?
+
+There were updates in 2.4.9-pre2 in the VIA driver, so it might be worth
+trying. Also disabling CONFIG_IDEDMA_AUTO may work, but you'll get slow
+performance. Afterwards, though, you can do hdparm -i /dev/hd* and cat
+/proc/ide/via, which will tell us interesting information, which may
+lead us further to solving the problem. Btw, what clock and multiplier
+your CPU is?
 
 -- 
-Crutcher        <crutcher@datastacks.com>
-GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
-    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$
+Vojtech Pavlik
+SuSE Labs

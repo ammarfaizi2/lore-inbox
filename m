@@ -1,215 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267775AbTBXSrH>; Mon, 24 Feb 2003 13:47:07 -0500
+	id <S267353AbTBXS04>; Mon, 24 Feb 2003 13:26:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267776AbTBXSrG>; Mon, 24 Feb 2003 13:47:06 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:9682 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267775AbTBXSqz>; Mon, 24 Feb 2003 13:46:55 -0500
-Date: Mon, 24 Feb 2003 10:57:01 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.59-mjb7 (scalability / NUMA patchset)
-Message-ID: <6530000.1046113021@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267481AbTBXSVv>; Mon, 24 Feb 2003 13:21:51 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:21963 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S267353AbTBXSMQ>;
+	Mon, 24 Feb 2003 13:12:16 -0500
+Message-ID: <3E5A6298.3030601@colorfullife.com>
+Date: Mon, 24 Feb 2003 19:21:12 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Daniel Jacobowitz <dan@debian.org>
+CC: fcorneli@elis.rug.ac.be, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ptrace PTRACE_READDATA/WRITEDATA, kernel 2.5.62
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset contains mainly scalability and NUMA stuff, and anything 
-else that stops things from irritating me. It's meant to be pretty stable, 
-not so much a testing ground for new stuff.
+On Mon, Feb 24, 2003 at 03:05:14PM +0100, fcorneli@elis.rug.ac.be wrote:
 
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
+>+		ret = 0;
+>+		res = ptrace_readdata(child, addr, (void *)addr2, data);
+>+		if (res == data)
+>+			break;
+>  
+>
+You mention sparc - have you tested if that works on sparc?
+ptrace_readdata assumes that addr2 is a pointer to kernel space, not 
+user space. It works by chance on i386, but that's not acceptable for 
+merging.
+You must double buffer, check mem_read in fs/proc/base.c
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.59/patch-2.5.59-mjb
-7.bz2
+Daniel wrote:
 
-additional:
+>Thirdly, I was going to do this, but I ended up making GDB use pread64
+>on /dev/mem instead.  It works with no kernel modifications, and is
+>just as fast.
+>  
+>
+I assume you mean /proc/<pid>/mem. Performance is identical, same 
+implementation.
 
-http://www.aracnet.com/~fletch/linux/2.5.59/pidmaps_nodepages
-
-Since 2.5.59-mjb6 (~ = changed, + = added, - = dropped)
-
-Notes:
-
-+ fix_was_sched				Ingo / wli / Rick Lindsley
-+ kirq					Nitin Kamble
-+ kirq_clustered			Dave Hansen / Martin J. Bligh
-+ irq_affinity				Martin J. Bligh
-+ no_kirq				Martin J. Bligh
-
-Pending:
-scheduler callers profiling (Anton)
-PPC64 NUMA patches (Anton)
-Child runs first (akpm)
-Kexec
-e1000 fixes
-Non-PAE aligned kernel splits (Dave Hansen)
-Update the lost timer ticks code
-Ingo scheduler updates
-
-dcache_rcu					Dipankar / Maneesh
-	Use RCU type locking for the dentry cache.
-
-dcache_sunrpc					Maneesh
-	Fix up NFS to work properly with dcache
-
-early_printk					Dave Hansen et al.
-	Allow printk before console_init
-
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
-
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
-
-vmalloc_stats					Dave Hansen
-	Expose useful vmalloc statistics
-
-local_pgdat					William Lee Irwin
-	Move the pgdat structure into the remapped space with lmem_map
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-notsc						Martin Bligh
-	Enable notsc option for NUMA-Q (new version for new config system)
-
-mpc_apic_id					Martin J. Bligh
-	Fix null ptr dereference (optimised away, but ...)
-
-doaction					Martin J. Bligh
-	Fix cruel torture of macros and small furry animals in io_apic.c
-
-kgdb						Andrew Morton / Various People
-	The older version of kgdb, synched with 2.5.54-mm1
-
-noframeptr					Martin Bligh
-	Disable -fomit_frame_pointer
-
-ingosched					Ingo Molnar
-	Modify NUMA scheduler to have independant tick basis.
-
-schedstat					Rick Lindsley
-	Provide stats about the scheduler under /proc/stat
-
-sched_tunables					Robert Love
-	Provide tunable parameters for the scheduler (+ NUMA scheduler)
-
-discontig_x440					Pat Gaughen / IBM NUMA team
-	SLIT/SRAT parsing for x440 discontigmem
-
-acpi_x440_hack					Anonymous Coward
-	Stops x440 crashing, but owner is ashamed of it ;-)
-
-summit_smp					John Stultz
-	Make Summit config options work on standard SMP
-
-cyclone_fixes					John Stultz
-	Fix up some stuff for the x440's cyclone timer
-
-enable_cyclone					John Stultz
-	Enable the x440's cyclone timer
-
-lost_tick					John Stultz
-	Detect lost timer ticks
-
-frlock_xtime					Stephen Hemminger et al.
-	Turn xtime_lock into an frlock to reduce contention 
-
-frlock-xtime-i386				Stephen Hemminger et al.
-	Turn xtime_lock into an frlock to reduce contention 
-
-frlock-xtime-ia64				Stephen Hemminger et al.
-	Turn xtime_lock into an frlock to reduce contention 
-
-frlock-xtime-other				Stephen Hemminger et al.
-	Turn xtime_lock into an frlock to reduce contention 
-
-numaq_ioapicids					William Lee Irwin
-	Stop 8 quad NUMA-Qs from panicing due to phys apicid "exhaustion".
-
-oprofile_p4					John Levon
-	Updates for oprofile for P4s. Needs new userspace tools.
-
-starfire					Ion Badulescu
-	64 bit aware starfire driver	
-
-tcp_fix						Alexey
-	Stop some tcp problem with hardware checksumming (e1000?)
-
-numa_pci_fix					Dave Hansen
-	Fix a potential error in the numa pci code from Stanford Checker
-
-pgd_ctor					William Lee Irwin
-	Use slabs for pgd
-
-pfn_to_nid					William Lee Irwin
-	Turn pfn_to_nid into a macro
-
-oprofile_fixes					John Levon
-	fix a couple of bugs in oprofile
-
-kprobes						Vamsi Krishna S
-	Add kernel probes hooks to the kernel
-
-dmc_exit1					Dave McCracken
-	Speed up the exit path, pt 1.
-
-dmc_exit2					Dave McCracken
-	Speed up the exit path, pt 1.
-
-shpte						Dave McCracken
-	Shared pagetables (as a config option)
-
-thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
-	Prep work to reduce kernel stacks to 4K
-	
-interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
-	Create a per-cpu interrupt stack.
-
-stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
-	Check for kernel stack overflows.
-
-4k_stack            (4K stacks pt 4)		Dave Hansen
-	Config option to reduce kernel stacks to 4K
-
-fix_kgdb					Dave Hansen
-	Fix interaction between kgdb and 4K stacks
-
-stacks_from_slab				William Lee Irwin
-	Take kernel stacks from the slab cache, not page allocation.
-
-thread_under_page				William Lee Irwin
-	Fix THREAD_SIZE < PAGE_SIZE case
-
-lkcd						LKCD team
-	Linux kernel crash dump support
-
-alt_sysrq_t					Russell King
-	Fix up ALT+sysrq+t
-
-fix_was_sched					Ingo / wli / Rick Lindsley
-	Fix hangs in the scheduler.
-
-kirq						Nitin Kamble
-	Provide better interrupt balancing
-
-kirq_clustered					Dave Hansen / Martin J. Bligh
-	Fix kirq for clustered apic systems (eg x440)
-
-irq_affinity					Martin J. Bligh
-	Workaround for irq_affinity on clustered apic mode systems (eg x440)
-
-no_kirq						Martin J. Bligh
-	Allow disabling of kirq to work properly
-
--mjb						Martin Bligh
-	Add a tag to the makefile
+--
+    Manfred
 

@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272325AbRIKIa3>; Tue, 11 Sep 2001 04:30:29 -0400
+	id <S272329AbRIKIrB>; Tue, 11 Sep 2001 04:47:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272330AbRIKIaS>; Tue, 11 Sep 2001 04:30:18 -0400
-Received: from ktirunilai.blr.novell.com ([164.99.144.243]:14342 "EHLO
-	ktirunilai.blr.novell.com") by vger.kernel.org with ESMTP
-	id <S272325AbRIKIaG>; Tue, 11 Sep 2001 04:30:06 -0400
-Date: Tue, 11 Sep 2001 14:04:38 +0530 (IST)
-From: trkannan76 <trkannan76@myrealbox.com>
-X-X-Sender: <trkannan76@ktirunilai.blr.novell.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <trkannan76@myrealbox.com>
-Subject: ps -ef hangs on linux-2.4.9
-Message-ID: <Pine.LNX.4.33.0109111357330.3538-100000@ktirunilai.blr.novell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272330AbRIKIqv>; Tue, 11 Sep 2001 04:46:51 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:17904 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S272329AbRIKIqk>; Tue, 11 Sep 2001 04:46:40 -0400
+Date: Tue, 11 Sep 2001 14:21:58 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: hch@caldera.de
+Cc: linux-kernel@vger.kernel.org, Paul Mckenney <paul.mckenney@us.ibm.com>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.10pre7aa1
+Message-ID: <20010911142158.A1537@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello ,
-       I am running a multithreaded daemon on the 2.4.9 kernel. One of
-the threads of the daemon is getting a SIGSEGV. After this when I tried to
-find the process state using the command:
-   $ ps -ef
-   This just hangs, Ctrl-C or Ctrl-Z also does not interrupt this. The
-only option I have is to reboot machine.
-   When I did a strace on the same command, I found out that ps -ef , was
-hanging when it tried to read from the /proc/<pid of killed daemon>/*.
-   Is there any way I can reset the /proc directory without rebooting the
-machine. After this , even the killall -9 does not work , even this
-command hangs.
-   Any help will be of real great value. Thank you for the help.
+Hi Christoph,
 
-Regards,
-Kannan
+In article <20010910205250.B22889@caldera.de> you wrote:
 
+> Hmm, I don't see why latency is important for rcu - we only want to
+> free datastructures.. (mm load?).
+
+While it is not important for RCU to do the updates quickly, it is
+still necessary that updates are not completely starved out by
+high-priority tasks. So, the idea behind using high-priority
+krcuds is to ensure that they don't get starved thereby delaying
+updates for unreasonably long periods of time which could lead
+to memory pressure or other performance problems depending on
+how RCU is being used. 
+
+
+> On the other hands they are the experts on RCU, not I so I'll believe them.
+
+>> So in short if you really are in pain for 8k per cpu to get the best
+>> runtime behaviour and cleaner code I'd at least suggest to use the
+>> ksoftirqd way that should be the next best step.
+
+> My problem with this appropech is just that we use kernel threads for
+> more and more stuff - always creating new ones.  I think at some point
+> they will sum up badly.
+
+> 	Christoph
+
+I agree that it is not always a good idea to use kernel threads for
+everything, but in this case this seems to be the safest and
+most reasonable option.
+
+FYI, there are a couple of other implementations, but they all affect
+code in fast paths even if there is no RCU going on in the system.
+One of them is from Rusty that keeps track of CPUs going through
+quiescent state from the scheduler context and also executes the
+callbacks from the scheduler context. The other patch is based
+on our old DYNIX/ptx implementation - it uses one per-cpu context
+switch counter to detect quiescent state and checks for completion
+of RCU in local timer interrupt handler. Once all the CPUs go
+through a quiescent state, the callbacks are processed using
+a tasklet. 
+
+Thanks
+Dipankar
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

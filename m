@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbTKYDib (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 22:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbTKYDib
+	id S261965AbTKYFBe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 00:01:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTKYFBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 22:38:31 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:64983 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S261931AbTKYDia (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 22:38:30 -0500
-Date: Mon, 24 Nov 2003 19:38:29 -0800
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-pcmcia@lists.infradead.org,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       David Hinds <dahinds@users.sourceforge.net>
-Subject: Re: [BUG] Ricoh Cardbus -> Can't get interrupts
-Message-ID: <20031125033829.GB4483@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20031124235727.GA2467@bougret.hpl.hp.com> <Pine.LNX.4.58.0311241759470.1599@home.osdl.org> <Pine.LNX.4.58.0311241819030.1599@home.osdl.org> <20031125025605.GA4059@bougret.hpl.hp.com> <Pine.LNX.4.58.0311241901320.1599@home.osdl.org>
+	Tue, 25 Nov 2003 00:01:34 -0500
+Received: from [64.65.189.210] ([64.65.189.210]:58084 "EHLO
+	mail.pacrimopen.com") by vger.kernel.org with ESMTP id S261965AbTKYFBc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 00:01:32 -0500
+Subject: Re: RAID-0 read perf. decrease after 2.4.20
+From: Joshua Schmidlkofer <kernel@pacrimopen.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031124100534.24941.qmail@web13902.mail.yahoo.com>
+References: <20031124100534.24941.qmail@web13902.mail.yahoo.com>
+Content-Type: text/plain
+Message-Id: <1069736477.1552.11.camel@menion.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0311241901320.1599@home.osdl.org>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 24 Nov 2003 21:01:18 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 24, 2003 at 07:03:04PM -0800, Linus Torvalds wrote:
-> 
-> 
-> 
-> On Mon, 24 Nov 2003, Jean Tourrilhes wrote:
+On Mon, 2003-11-24 at 02:05, Martin Knoblauch wrote:
+> >Hello All!
 > >
-> > 	Don't get me wrong, PCI-CardBus add-on cards seem to always be a
-> > pain, whereas laptop seems to always have the right magic. I already
-> > tried unsuccessfully to add a TI PCI-Pcmcia on another box, and this was
-> > similar, whereas my laptops are always working out of the box.
+> >Has anyone else experienced a drastic drop in read performance on
+> >software
+> >RAID-0 with post 2.4.20 kernels? We have a few Athlon XP's here at our
+> >lab with double IDE disks on different channels set up as RAID-0. Some
+> >bonnie++ benchmark results with various kernels, on the same machine
+> >(Athlon XP 2400+, 2 GHz, 1.5 GB RAM, VIA chipset, 2*Maxtor 120 GB
+> >6Y060L0):
+> >write read
+> >2.4.20-ac1: 88,000 135,000 K/sec
+> >2.4.21-pre7: 93,000 75,000
+> >2.4.22-ac4: 94,000 82,000
 > 
-> Hmm.. So this is literally a PCI card you've added?
+> Hi,
+> 
+>  I can attest a similar drop in read performance on a IA64 box going
+> from a 2.4.19ish kernel to 2.4.22. In our setup the RAID0 is LVM, not
+> MD.The RAID is used a a scratch device for a out-of-core finite element
+> program (NASTRAN).
+> 
+>  The setup is some 20 disks on 4 controllers. "iozone" read/reread
+> Performance went from about 400MB/sec to 260 MB/sec, while write went
+> up a notch. Unfortunatelly the read performance is more important for
+> the application in question.
+> 
+>  Due to the fact that I have no controll over the use of the system I
+> cannot make any experiments to find out what killed performance. Sorry
+> :-(
+> 
+> Martin
+> 
+> =====
+> ------------------------------------------------------
+> Martin Knoblauch
+> email: knobi@knobisoft.de or knobi@rocketmail.com
+> www:   http://www.knobisoft.de
+> 
+> 
 
-	Yep. I'm replaing my old ISA->Pcmcia with something that can
-support the latest wireless Cardbus cards.
+And this isn't the read-ahead size change thing?
 
-> Try putting it into another slot, if so. It literally looked from your
-> debug output like it was just that slot that didn't have an irq route for
-> it.
-
-	I already did that, because it's in Dave's howto. In the
-middle slot (swap with HP100VG Ethernet), it was using pirq 60, which
-is the same that is used by aic7xxx. Now, it's back to pirq 61.
-
-> 		Linus
-
-	Jean

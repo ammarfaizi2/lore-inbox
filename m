@@ -1,74 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVAXTzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVAXT5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVAXTzq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 14:55:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVAXTzq
+	id S261604AbVAXT5r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 14:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVAXT5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 14:55:46 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15374 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261601AbVAXTze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 14:55:34 -0500
-Date: Mon, 24 Jan 2005 19:55:23 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Matthew Wilcox <matthew@wil.cx>,
-       Jesse Barnes <jbarnes@sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
-Message-ID: <20050124195523.B5541@flint.arm.linux.org.uk>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Jon Smirl <jonsmirl@gmail.com>, Matthew Wilcox <matthew@wil.cx>,
-	Jesse Barnes <jbarnes@sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
-	lkml <linux-kernel@vger.kernel.org>
-References: <9e47339105011719436a9e5038@mail.gmail.com> <41ED3BD2.1090105@pobox.com> <9e473391050122083822a7f81c@mail.gmail.com> <200501240847.51208.jbarnes@sgi.com> <20050124175131.GM31455@parcelfarce.linux.theplanet.co.uk> <9e473391050124111767a9c6b7@mail.gmail.com> <41F54FC1.6080207@pobox.com>
+	Mon, 24 Jan 2005 14:57:47 -0500
+Received: from hydra.gt.owl.de ([195.71.99.218]:61086 "EHLO hydra.gt.owl.de")
+	by vger.kernel.org with ESMTP id S261604AbVAXT4O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 14:56:14 -0500
+Date: Mon, 24 Jan 2005 18:04:45 +0100
+From: Florian Lohoff <flo@rfc822.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at fs/sysfs/symlink.c:87
+Message-ID: <20050124170445.GB4556@paradigm.rfc822.org>
+References: <20050124155100.GA2583@paradigm.rfc822.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41F54FC1.6080207@pobox.com>; from jgarzik@pobox.com on Mon, Jan 24, 2005 at 02:42:57PM -0500
+In-Reply-To: <20050124155100.GA2583@paradigm.rfc822.org>
+Organization: rfc822 - pure communication
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 02:42:57PM -0500, Jeff Garzik wrote:
-> Jon Smirl wrote:
-> > Is this a justification for doing device drivers for bridge chips? It
-> > has been mentioned before but no one has done it.
-> 
-> 
-> Yeah, people are usually slack and work around the problem.
-> 
-> A bridge driver is really wanted for several situations in today's 
-> hardware...
 
-There's a very good reason not to have a bridge driver at the moment -
-some PCI to PCI bridges need special drivers.  Currently, as the device
-model stands today, we can only have ONE PCI to PCI bridge driver for
-all P2P bridges, which is bad news if you need a specific driver for,
-eg, a mobility docking station P2P bridge.
+--s/l3CgOIzMHHjg/5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-As I said back in 2002, the device model needs a way to have driver
-priories - how well a driver matches the hardware.
+On Mon, Jan 24, 2005 at 04:51:00PM +0100, Florian Lohoff wrote:
+> Hi,
+> while using the bridging code between a tap0 and a real eth1 i got this:
+>=20
+> Linux zmgr1.wstk.mediaways.net 2.6.10-zmgr-p3cel #1 Mon Jan 24 16:15:39 C=
+ET 2005 i686 GNU/Linux
+>=20
+> UP, P3 Celeron, Non-Preempt, Vanilla Kernel
 
-My idea was for the bus match function to return the "goodness"
-factor of the match.  For PCI, matching on just the class IDs would
-be low goodness, but an exact match with both the vendor and device
-IDs would yeild a good match.
+brctl addbr br0
+brctl addif br0 tap0
+brctl addif br0 eth0
+ifconfig br0 up
 
-When the device model has a driver or device added, it scans all current
-devices or drivers (respectively) and chooses the best matched pair.
-If the device already has an existing driver, it calls the ->remove
-method to unbind the current device driver relationship before handing
-it over to the more specific driver.
+Oops
 
-Unfortunately, I never got around to writing the mobility P2P bridge
-driver because I didn't see much chance of this idea being adopted.
+In this order it works
 
-However, if we're going to start having generic drivers for such
-hardware, this kind of functionality needs to be thought about.
+brctl addbr br0
+ifconfig br0 up
+brctl addif br0 tap0
+brctl addif br0 eth0
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Flo
+--=20
+Florian Lohoff                  flo@rfc822.org             +49-171-2280134
+                        Heisenberg may have been here.
+
+--s/l3CgOIzMHHjg/5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFB9SqtUaz2rXW+gJcRAoqDAJ9gx5v7/fQ9tWu7uYB3OUa5wSpxggCfTwAe
+K9jPCCabUUwkDSw2lmWkSrI=
+=NYQq
+-----END PGP SIGNATURE-----
+
+--s/l3CgOIzMHHjg/5--

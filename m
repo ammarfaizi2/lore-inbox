@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129232AbRBHMJg>; Thu, 8 Feb 2001 07:09:36 -0500
+	id <S131176AbRBHMLq>; Thu, 8 Feb 2001 07:11:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbRBHMJQ>; Thu, 8 Feb 2001 07:09:16 -0500
-Received: from mauve.demon.co.uk ([158.152.209.66]:7955 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S130730AbRBHMJI>; Thu, 8 Feb 2001 07:09:08 -0500
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200102081208.MAA09949@mauve.demon.co.uk>
-Subject: Re: PS/2 Mouse/Keyboard conflict and lockup
-To: linux-kernel@vger.kernel.org
-Date: Thu, 8 Feb 2001 12:08:47 +0000 (GMT)
-In-Reply-To: <E14Qm1u-0002nf-00@the-village.bc.nu> from "Alan Cox" at Feb 08, 2001 08:02:12 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131177AbRBHMLh>; Thu, 8 Feb 2001 07:11:37 -0500
+Received: from vulcan.datanet.hu ([194.149.0.156]:20804 "EHLO relay.datanet.hu")
+	by vger.kernel.org with ESMTP id <S131176AbRBHMLZ>;
+	Thu, 8 Feb 2001 07:11:25 -0500
+From: "Bakonyi Ferenc" <fero@drama.obuda.kando.hu>
+Organization: Datakart Geodzia KFT.
+To: Louis Garcia <louisg00@bellsouth.net>
+Date: Thu, 8 Feb 2001 13:10:40 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: nvidia fb 0.9.0 (0.9.2?)
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <3A7EF830.50805@bellsouth.net>
+In-Reply-To: <E14Pqy4-0002vA-00@aleph0.datakart.hu>
+X-mailer: Pegasus Mail for Win32 (v3.01d)
+Message-Id: <E14Qpuo-0004aR-00@aleph0.datakart.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> > I'm not sure whether this is related to the ominous ps/2 mouse bug
-> > you have been chasing, but this problem is 100% reproducible and
-> > very annoying.
-<snip>
 
-I'm also seeing a ps/2 mouse bug, with 2.4.0-pre5 (I think) on a 
-CS433 (486/33 laptop) 
-Freezes after some time in X, killing keyboard.
-Is there a generic approach to finding where this sort of problem lies?
-I note that there were problems in the 2.0.n era, that were fixed in
-2.0.n+3 or so (I think 30), on the ct475, that were similar.
+/me wrote:
+
+> Louis Garcia <louisg00@bellsouth.net> wrote:
+> 
+> > I'm using XFree86-4.0.1 with the nv driver. You are right, it's ver 
+> > 0.9.2 for the fb.
+> >
+> > Where can I get the patch? Should I upgrade to XFree86-4.0.2?
+> 
+> Not yet, we have to write that patch first... :) I'll grab an XFree 
+> source soon.
+> Please test other color depths too: 15bpp and 32bpp.
+
+	Hi!
+
+I've tried to reproduce your problem, but I failed. Rivafb 0.9.2 on 
+Asus V3000 (Riva 128) with nv driver (from XFree-4.0.1g, Debian 
+Woody) works fine for me. Would you like to try out some other XFree 
+versions too?
+
+Regards:
+	Ferenc Bakonyi
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,81 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135588AbREEXII>; Sat, 5 May 2001 19:08:08 -0400
+	id <S135589AbREEXSK>; Sat, 5 May 2001 19:18:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135585AbREEXH7>; Sat, 5 May 2001 19:07:59 -0400
-Received: from pc-62-30-76-3-az.blueyonder.co.uk ([62.30.76.3]:54788 "EHLO
-	mnemosyne.j-harris.dircon.co.uk") by vger.kernel.org with ESMTP
-	id <S135580AbREEXHt>; Sat, 5 May 2001 19:07:49 -0400
-Date: Sun, 6 May 2001 00:08:07 +0100 (GMT Daylight Time)
-From: Jamie Harris <jamie.harris@uwe.ac.uk>
-To: <linux-kernel@vger.kernel.org>, <linux-admin@vger.kernel.org>,
-        Bristol LUG <bristol@lists.lug.org.uk>
-cc: <smoshea@hotmail.com>, <siymann@yahoo.com>
-Subject: Solved: Kernel NULL pointer, over my head...
-Message-ID: <Pine.WNT.4.33.0105060004290.-1841329-100000@proteus.j-harris.dircon.co.uk>
-X-X-Sender: j-harris@mercury.uwe.ac.uk
+	id <S135590AbREEXSB>; Sat, 5 May 2001 19:18:01 -0400
+Received: from thepigsty.demon.co.uk ([158.152.99.38]:56269 "EHLO
+	mad.pigsty.org.uk") by vger.kernel.org with ESMTP
+	id <S135589AbREEXR5>; Sat, 5 May 2001 19:17:57 -0400
+To: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: ipv6 activity causing system hang in kernel 2.4.4
+From: Tim Haynes <kernel@stirfried.vegetable.org.uk>
+Reply-To: kernel@stirfried.vegetable.org.uk (Tim Haynes)
+Date: 06 May 2001 00:17:47 +0100
+Message-ID: <871yq3mllw.fsf@straw.pigsty.org.uk>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to everyone who help me solve this one... As suspected by a few of
-you it turned out to be duff CPU - you mean Linux can't work around that
-yet!! ;)
+    [I can't see evidence of this being reported before; apols if I'm
+     wrong. Please also Cc: me as I only read l-k intermittently but would
+     like to help out more.]
 
-Thanks again.
+Hi,
 
-Jamie...
+I've been making very tentative forays into IPv6. However, in my simple
+experiments thus far I appear to have located a bug:
 
----------- Forwarded message ----------
-Date: Tue, 1 May 2001 05:46:02 +0100 (GMT Daylight Time)
-From: Jamie Harris <jamie.harris@uwe.ac.uk>
-To: linux-kernel@vger.kernel.org, Bristol LUG <bristol@lists.lug.org.uk>,
-     linux-admin@vger.kernel.org
-Subject: Kernel NULL pointer, over my head...
+1/ configure 2 machines with site-local IP#s - I'm using 
+        ifconfig eth0 inet6 add fec0:1234:5:6::n 
+2/ flood-ping from one to the other
+3/ after about 15s, watch one box hang, needing magic-sysreq or hard reset
 
-Morning all,
+This is only with kernel 2.4.4; 2.4.2, 2.4.3 and NetBSD boxes are not
+affected. It is independent of platform; I've reproduced it at will on a
+lowly p75, an athlon, a p3-800 and on a powerbook/PPC.
 
-Sorry for the big cross post but I don't have the first clue about where
-to send this one.  I get this from my stock 2.2.18 kernel in
-/var/log/syslog:
+All kernels are compiled to have ipv6 modular, netfilter modular...
+everything with which I'm playing, modular.
 
-May  1 05:27:36 mnemosyne kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000
-May  1 05:27:36 mnemosyne kernel: current->tss.cr3 = 00362000, %cr3 =
-00362000
-May  1 05:27:36 mnemosyne kernel: *pde = 00000000
-May  1 05:29:36 mnemosyne kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000
-May  1 05:29:36 mnemosyne kernel: current->tss.cr3 = 036dc000, %cr3 =
-036dc000
-May  1 05:29:36 mnemosyne kernel: *pde = 00000000
-May  1 05:30:28 mnemosyne kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000
-May  1 05:30:28 mnemosyne kernel: current->tss.cr3 = 00ca7000, %cr3 =
-00ca7000
-May  1 05:30:28 mnemosyne kernel: *pde = 00000000
+Compiler versions:
+| zsh, 12:06AM % gcc -v
+| Reading specs from /usr/lib/gcc-lib/powerpc-linux/2.95.4/specs
+| gcc version 2.95.4 20010319 (Debian prerelease)
+| zsh, 12:06AM % gcc -v
+| Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
+| gcc version 2.95.4 20010319 (Debian prerelease)
+(I'm tracking Debian/Unstable here.)
 
+I have tcpdump logs (<http://spodzone.org.uk/~tim/ipv6/> - they're 570K
+apiece); the `victim' machine receives nothing but ping-requests and sends
+nothing but ping-replies until the file is truncated; the surviving box
+sends nothing but requests and receives nothing but replies until it
+becomes requests-only. (IOW there is no evidence of ARP, fragmentation
+traffic, only the pings.)
 
-This time it seemed to be caused by running tar on a file, but I've
-noticed a similar error in the past but they've never made anything fall
-over.  The tar process appeared to die but then again so did the telnet
-session so I don't know in what order they went down.  I tried 3 times
-just to check it wasn't a fluke...  What other details would be useful??
+The Changelog lists an `IPv6 packet re-assembly fix' in -pre2; my
+suspicions lie in this area or with my compiler.
 
-Cheers Jamie...
+If there's anything else I can provide by way of diagnostics, please let me
+know.
 
-PS I'm not on the linux-kernel list so please post to me directly...
+Cheers,
 
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
- ***    Slowly and surely the UNIX crept up on the Nintendo user...    ***
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GCS/ED d-(++) s:+ a- C+++>++++$ U+++>$ P++++ L+++>+++++ E+(---) W++ N o?
-K? w(++++) O- M V? PS PE? Y PGP- t+ 5 X- R- tv- b++ DI++ D+++ G e++ h*
-r++>+++ y+++
-------END GEEK CODE BLOCK------
-
-
+~Tim
+-- 
+<http://spodzone.org.uk/>

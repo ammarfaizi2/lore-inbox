@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265363AbRF0Skf>; Wed, 27 Jun 2001 14:40:35 -0400
+	id <S265360AbRF0Sjg>; Wed, 27 Jun 2001 14:39:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265366AbRF0SkQ>; Wed, 27 Jun 2001 14:40:16 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:4878 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S265363AbRF0Sjy>; Wed, 27 Jun 2001 14:39:54 -0400
-Date: Wed, 27 Jun 2001 14:38:46 -0400
-From: Chris Mason <mason@suse.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Xuan Baldauf <xuan--lkml@baldauf.org>, linux-kernel@vger.kernel.org,
-        andrea@suse.de,
-        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
-Subject: Re: VM deadlock
-Message-ID: <898940000.993667126@tiny>
-In-Reply-To: <Pine.LNX.4.33L.0106271515260.23373-100000@duckman.distro.conectiva>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265364AbRF0Sj0>; Wed, 27 Jun 2001 14:39:26 -0400
+Received: from gracie.userfriendly.org ([204.174.17.66]:13326 "EHLO
+	gracie.userfriendly.org") by vger.kernel.org with ESMTP
+	id <S265360AbRF0SjO>; Wed, 27 Jun 2001 14:39:14 -0400
+Date: Wed, 27 Jun 2001 11:39:10 -0700
+From: Jay Thorne <Yohimbe@userfriendly.org>
+To: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [noOOPS] Crash in -ac15 on SMP init fixed in -ac19
+Message-Id: <20010627113910.0405d533.Yohimbe@userfriendly.org>
+Organization: Userfriendly
+X-Mailer: Sylpheed version 0.5.0pre2 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Operating-System: Silly
+X-Crash-MS: Now
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Dunno what the problem was, but the 2.4.5-ac15 problem I was having on the
+4 way alphas is fixed in ac19. 
 
-On Wednesday, June 27, 2001 03:16:09 PM -0300 Rik van Riel <riel@conectiva.com.br> wrote:
+>Unable to handle kernel paging request at virtual address
+043ffc000069c078
+>CPU 2 init(1): Oops 0
+>pc = [<fffffc000034550c>]  ra = [<fffffc00003456ac>]  ps = 0000
 
-> On Wed, 27 Jun 2001, Chris Mason wrote:
->> On Wednesday, June 27, 2001 04:27:45 PM +0200 Xuan Baldauf <xuan--lkml@baldauf.org> wrote:
->> 
->> > My linux box suddenly was not availbale using ssh|telnet,
->> > but it responded to pings. On console login, I could type
->> > "root", but after pressing "return", there was no reaction,
->> 
->> Sounds like a deadlock andrea recently found.
-> 
-> It would be nice if Andrea would TELL US every
-> once in a while what he found ;)
+Anyone venture a guess? The patch log does not seem to show specific
+mentions of mm fixups from ac15 to 19
 
-Well, I got an auto-reply from andrea saying he wasn't reading email until
-July 5th (yeah, I've gotten other mails since then, we all know how
-that goes ;-) 
-
-The orig email I had regarding the patch was he thought some 
-of the page lists were getting corrupted, leading to someone trying to free
-a page that didn't exist anymore.  This was a recent discovery, I don't
-think the patch is even in an aa kernel yet ;-)
-
-Since Xuan's stack trace had things waiting in deactivate page, it sounded
-similar to the problem andrea described.  We had a few test boxes
-hanging under load, they are testing the patch now, plus Xuan, plus
-one other l-k user.  If their problems go away, we'll have to dig to
-find the exact corruption.
-
--chris
-
+--
+Jay Thorne Manager, Systems & Technology, UserFriendly Media, Inc.

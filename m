@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262223AbSIZHgO>; Thu, 26 Sep 2002 03:36:14 -0400
+	id <S262228AbSIZHg7>; Thu, 26 Sep 2002 03:36:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262225AbSIZHgO>; Thu, 26 Sep 2002 03:36:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:31364 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262223AbSIZHgO>;
-	Thu, 26 Sep 2002 03:36:14 -0400
-Date: Thu, 26 Sep 2002 00:35:03 -0700 (PDT)
-Message-Id: <20020926.003503.35357667.davem@redhat.com>
-To: jgarzik@pobox.com
-Cc: wli@holomorphy.com, axboe@suse.de, akpm@digeo.com,
-       linux-kernel@vger.kernel.org, patman@us.ibm.com, andmike@us.ibm.com
-Subject: Re: [PATCH] deadline io scheduler
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D92B83E.3080405@pobox.com>
-References: <3D92B450.2090805@pobox.com>
-	<20020926.001343.57159108.davem@redhat.com>
-	<3D92B83E.3080405@pobox.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262229AbSIZHg7>; Thu, 26 Sep 2002 03:36:59 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:19072 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S262228AbSIZHgp>;
+	Thu, 26 Sep 2002 03:36:45 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Date: Thu, 26 Sep 2002 00:41:54 -0700
+User-Agent: KMail/1.4.7-cool
+Cc: linux-kernel@vger.kernel.org
+References: <E17uINs-0003bG-00@think.thunk.org> <200209252223.13758.ryan@completely.kicks-ass.org> <20020926055755.GA5612@think.thunk.org>
+In-Reply-To: <20020926055755.GA5612@think.thunk.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209260041.59855.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jeff Garzik <jgarzik@pobox.com>
-   Date: Thu, 26 Sep 2002 03:33:18 -0400
-   
-   Just dug up the URL, in case anybody is interested:
-   http://www.feral.com/isp.html
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Note there is a bitkeeper tree to pull from even :-)
+On September 25, 2002 22:57, Theodore Ts'o wrote:
+> On Wed, Sep 25, 2002 at 10:23:11PM -0700, Ryan Cumming wrote:
+> > It seems to be running stable now. Linux 2.4.19, UP Athlon, GCC 3.2.
+>
+> Just to humor me, can you try it with gcc 2.95.4?  I just want to
+> eliminate one variable....
+
+Using GCC 2.95.4 seems to stabilize dir_index nicely, both before and after 
+the hdparm -fD run. Only the kernel was recompiled with 2.95.4, I reused the 
+original GCC 3.2 compiled e2fsprogs.
+
+- -Ryan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9krpHLGMzRzbJfbQRArCGAJ0V8NuAtrUQt/HcOVgbVRtXJzhDwQCeOwtS
+Lkkp52o/ku9W4pXoFl8nARc=
+=axyt
+-----END PGP SIGNATURE-----

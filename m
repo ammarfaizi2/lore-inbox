@@ -1,56 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbTERT0H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 15:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbTERT0H
+	id S262179AbTERTgW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 15:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTERTgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 15:26:07 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:28819 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262170AbTERT0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 15:26:06 -0400
-Subject: Re: 2.5.69-mm6: pccard oops while booting: gcc bug?
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: Andrew Morton <akpm@digeo.com>, rmk@arm.linux.org.uk,
-       LKML <linux-kernel@vger.kernel.org>, davej@suse.de
-In-Reply-To: <1053175886.660.4.camel@teapot.felipe-alfaro.com>
-References: <1052964213.586.3.camel@teapot.felipe-alfaro.com>
-	 <20030514191735.6fe0998c.akpm@digeo.com>
-	 <1052998601.726.1.camel@teapot.felipe-alfaro.com>
-	 <20030515130019.B30619@flint.arm.linux.org.uk>
-	 <1053004615.586.2.camel@teapot.felipe-alfaro.com>
-	 <20030515144439.A31491@flint.arm.linux.org.uk>
-	 <1053037915.569.2.camel@teapot.felipe-alfaro.com>
-	 <20030515160015.5dfea63f.akpm@digeo.com>
-	 <1053090184.653.0.camel@teapot.felipe-alfaro.com>
-	 <1053110098.648.1.camel@teapot.felipe-alfaro.com>
-	 <20030516132908.62e54266.akpm@digeo.com>
-	 <1053121346.569.1.camel@teapot.felipe-alfaro.com>
-	 <3EC56173.1000306@gmx.net>
-	 <1053166275.586.9.camel@teapot.felipe-alfaro.com>
-	 <20030517031840.486683fc.akpm@digeo.com>
-	 <1053169552.613.1.camel@teapot.felipe-alfaro.com>
-	 <3EC61B63.9020906@gmx.net>
-	 <1053175886.660.4.camel@teapot.felipe-alfaro.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Message-Id: <1053286732.812.5.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 18 May 2003 21:38:53 +0200
-Content-Transfer-Encoding: 8bit
+	Sun, 18 May 2003 15:36:21 -0400
+Received: from smtp03.uc3m.es ([163.117.136.123]:16910 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id S262176AbTERTgT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 15:36:19 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200305181949.h4IJn9L05083@oboe.it.uc3m.es>
+Subject: Re: recursive spinlocks. Shoot.
+In-Reply-To: <Pine.LNX.4.55.0305181228390.3568@bigblue.dev.mcafeelabs.com> from
+ Davide Libenzi at "May 18, 2003 12:31:03 pm"
+To: Davide Libenzi <davidel@xmailserver.org>
+Date: Sun, 18 May 2003 21:49:09 +0200 (MET DST)
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've read the announcement of gcc 3.3 and saw that gcc 3.2 is not yet
-supported for linux kernel compilations (I've been using Red Hat's
-gcc-3.2.3-4 to compile 2.5.69-mm6). So I thought, what would happen if I
-use gcc 2.96 to compile the kernel instead?
+"Davide Libenzi wrote:"
+> On Sun, 18 May 2003, Peter T. Breuer wrote:
+> > Going against is the point that it may be slower.  Can you dig out your
+> > implementation and show me it?  I wasn't going for assembler in my hasty
+> > example.  I just wanted to establish that it's easy, so that it becomes
+> 
+> It was something like this. The real code should be in 2.2.x I believe.
+> The problem at the time was nested ( recursive ) spinlocks.
+> 
+> 
+> typedef struct s_nestlock {
+> 	spinlock_t lock;
+> 	void *uniq;
+> 	atomic_t count;
+> } nestlock_t;
 
-And voilà... I've compiled 2.5.69-mm6 with Red Hat's 2.96.118 and now,
-I'm unable to reproduce the pccard oops you've been trying to chase
-down. Does this mean the pccard oops was caused by a compiler bug?
+This is essentially the same struct as mine. I used the pid of the task,
+where you use the address of the task. You use an atomic count, whereas
+I used an ordinary int, guarded by the embedded spinlock.
 
-RFC is welcome.
-Thanks!
 
+> #define nestlock_lock(snl) \
+> 	do { \
+> 		if ((snl)->uniq == current) { \
+
+That would be able to read uniq while it is being written by something
+else (which it can, according to the code below). It needs protection.
+Probably you want the (< 24 bit) pid instead and to use atomic ops on
+it.
+
+> 			atomic_inc(&(snl)->count); \
+
+OK, that's the same.
+
+> 		} else { \
+> 			spin_lock(&(snl)->lock); \
+> 			atomic_inc(&(snl)->count); \
+> 			(snl)->uniq = current; \
+
+Hmm .. else we wait for the lock, and then set count and uniq, while
+somebody else may have entered and be reading it :-). You exit with
+the embedded lock held, while I used the lock only as a guard to
+make the ops atomic.
+
+> 		} \
+> 	} while (0)
+> 
+> #define nestlock_unlock(snl) \
+> 	do { \
+> 		if (atomic_dec_and_test(&(snl)->count)) { \
+> 			(snl)->uniq = NULL; \
+> 			spin_unlock(&(snl)->lock); \
+
+That's OK.
+
+> 		} \
+> 	} while (0)
+
+
+Well, it's not assembler either, but at least it's easily comparable
+with the nonrecursive version. It's essentially got an extra if and
+an inc in the lock. That's all.
+
+I suspect that the rwlock assembler can be coerced to do the job.
+
+Peter

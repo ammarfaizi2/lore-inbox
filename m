@@ -1,124 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135412AbRAYMbK>; Thu, 25 Jan 2001 07:31:10 -0500
+	id <S131788AbRAYMfA>; Thu, 25 Jan 2001 07:35:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130008AbRAYMbA>; Thu, 25 Jan 2001 07:31:00 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:28434 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129511AbRAYMaz>;
-	Thu, 25 Jan 2001 07:30:55 -0500
-From: Daniel Phillips <phillips@innominate.de>
-To: David Wragg <dpw@doc.ic.ac.uk>, "Benjamin C.R. LaHaise" <blah@kvack.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Random thoughts on sustained write performance
-Date: Thu, 25 Jan 2001 11:06:00 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <Pine.LNX.3.96.1010123205643.7482A-100000@kanga.kvack.org> <y7r7l3ldzxp.fsf@sytry.doc.ic.ac.uk>
-In-Reply-To: <y7r7l3ldzxp.fsf@sytry.doc.ic.ac.uk>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-MIME-Version: 1.0
-Message-Id: <01012513283301.19696@gimli>
-Content-Transfer-Encoding: 7BIT
+	id <S129511AbRAYMew>; Thu, 25 Jan 2001 07:34:52 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:14331 "HELO
+	gus.distro.conectiva") by vger.kernel.org with SMTP
+	id <S130008AbRAYMeq>; Thu, 25 Jan 2001 07:34:46 -0500
+Date: Thu, 25 Jan 2001 10:38:45 -0200
+From: "Luis Claudio R.Goncalves" <lclaudio@conectiva.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: tiny patch for nfsd in 2.4.1-pre10
+Message-ID: <20010125103845.A1077@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jan 2001, David Wragg wrote:
-> "Benjamin C.R. LaHaise" <blah@kvack.org> writes:
-> > On 24 Jan 2001, David Wragg wrote:
-> > 
-> > > ebiederm@xmission.com (Eric W. Biederman) writes:
-> > > > Why do you need such a large buffer? 
-> > > 
-> > > ext2 doesn't guarantee sustained write bandwidth (in particular,
-> > > writing a page to an ext2 file can have a high latency due to reading
-> > > the block bitmap synchronously).  To deal with this I need at least a
-> > > 2MB buffer.
-> > 
-> > This is the wrong way of going about things -- you should probably insert
-> > the pages into the page cache and write them into the filesystem via
-> > writepage. 
-> 
-> I currently use prepare_write/commit_write, but I think writepage
-> would have the same issue: When ext2 allocates a block, and has to
-> allocate from a new block group, it may do a synchronous read of the
-> new block group bitmap.  So before the writepage (or whatever) that
-> causes this completes, it has to wait for the read to get picked by
-> the elevator, the seek for the read, etc.  By the time it gets back to
-> writing normally, I've buffered a couple of MB of data.
+Hi!
 
-I'll add my $0.02 here.  Besides reading the block bitmap you may have
-to read up to three levels of file index blocks as well.  If we stop
-pinning the group descriptors in memory you might need to read those as
-well.  So this adds up to 4-5 reads, all synchronous.  Worse, the
-bitmap block may be widely separated from the index blocks, in turn
-widely separated from the data block, and if group descriptors get
-added to the mix you may have to seek across the entire disk.  This all
-adds up to a pretty horrible worst case latency. 
-
-Mapping index blocks into the page cache should produce a noticable
-average case improvement because we can change from a top-down
-traversal of the index hierarchy:
-
-  - get triple-indirect index block nr out of inode, getblk(tind)
-  - get double-ind nr, getblk(dind)
-  - get indirect nr, getblk(ind)
-
-to bottom-up:
-
-  - is the indirect index block in the page cache? 
-  - no? this is it mapped and just needs to be reread?
-  - no? then is the double-indirect block there?
-  - yes? ah, now we know the block nr of the triple-indirect block,
-    map it and read it in and we're done.
-
-The common case for the page cache is even better:
-
-  - is the indirect index block in the page cache? 
-  - yes, we're done.
-
-The page cache approach is so much better because we directly compute
-the page cache index at which we should find the bottom-level index
-block.  The buffers-only approach requires us to traverse the whole
-chain every time.
-
-We are doing considerably less hashing with the page cache approach
-(because we can directly compute the page cache index at which we
-should find the bottom level index block) and we'll avoid some reads. 
-Note: in case anybody thinks avoiding hashing is unimportant, we *are*
-wasting too much cpu in ext2, just look at the cpu numbers for dbench
-runs and you'll see it clearly.
-
-Getting back on-topic, we don't improve the worst case behaviour at all
-with the page-cache approach, which is what matters in rate-guaranteed
-io.  So the big buffer is still needed, and it might need to be even
-bigger than suggested.  If we are *really* unlucky and everything is
-not only out of cache but widely separated on disk, we could be hit
-with 4 reads at 5 ms each, total 20 ms.  If the disk transfers 16
-meg/sec (4 blocks/ms) and we're generating io at 8 meg/sec (2
-blocks/ms) then the metadata reads will create a backlog of 80 blocks
-which will take 40 ms to clear - hope we don't hit more synchronous
-reads during that time.
-
-Clearly, we can construct a worst case that will overflow any size
-buffer.  Even though the chances of that happening may be very small,
-we have so many users that somebody, somewhere will get hit by it. 
-It's worth having a good think to see if there's a nice way to come up
-with a rate guarantee for ext2.  Mapping metadata into the page cache
-seems like it's heading in the right design direction, but we also
-need to think about some organized way of memory-locking the higher
-level, infrequently accessed index blocks to prevent them from
-contributing to the worst case.
-
-Another part of the rate-guarantee is physical layout on disk: we
-*must* update index blocks from time to time.  With streaming writes,
-after a while they tend to get very far from where the write activity
-is taking place and seek times start to hurt.  The solution is to
-relocate the whole chain of index blocks from time to time,
-which sounds a lot like what Tux2 does in normal operation.  This
-behaviour can be added to Ext2/Ext3 quite easily.
+   In order to get nfsd working I had to do this lill' trick. I'm not sure
+this is truly necessary but it worked for me (tm) :)
 
 -- 
-Daniel
+[ Luis Claudio R. Goncalves                  lclaudio@conectiva.com.br ]
+[ MSc coming soon -- Conectiva HA Team -- Gospel User -- Linuxer -- :) ]
+[ Fault Tolerance - Real-Time - Distributed Systems - IECLB - IS 40:31 ]
+[ LateNite Programmer --  Jesus Is The Solid Rock On Which I Stand  -- ]
+
+--- linux-2.4.1-pre10.orig/fs/Config.in	Wed Jan 24 20:05:49 2001
++++ linux-2.4.1-pre10/fs/Config.in	Wed Jan 24 19:58:13 2001
+@@ -91,13 +91,16 @@
+       if [ "$CONFIG_NFS_FS" = "m" -o "$CONFIG_NFSD" = "m" ]; then
+ 	 define_tristate CONFIG_SUNRPC m
+ 	 define_tristate CONFIG_LOCKD m
+-   else
++      else
+ 	 define_tristate CONFIG_SUNRPC n
+ 	 define_tristate CONFIG_LOCKD n
+       fi
+    fi
+    if [ "$CONFIG_NFSD_V3" = "y" -o "$CONFIG_NFS_V3" = "y" ]; then
+      define_bool CONFIG_LOCKD_V4 y
++   fi
++   if [ "$CONFIG_NFSD" = "m" ]; then
++      define_bool	 CONFIG_NFSD_MODULE y
+    fi
+ 
+    dep_tristate 'SMB file system support (to mount Windows shares etc.)' CONFIG_SMB_FS $CONFIG_INET
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

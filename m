@@ -1,70 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273788AbRIXOiH>; Mon, 24 Sep 2001 10:38:07 -0400
+	id <S273867AbRIXOh2>; Mon, 24 Sep 2001 10:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273922AbRIXOiA>; Mon, 24 Sep 2001 10:38:00 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:55310 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273788AbRIXOhq>;
-	Mon, 24 Sep 2001 10:37:46 -0400
-Date: Mon, 24 Sep 2001 11:37:56 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux VM design
-In-Reply-To: <12730310183.20010924170539@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.33L.0109241136210.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273788AbRIXOhR>; Mon, 24 Sep 2001 10:37:17 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:61684 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S273867AbRIXOhK>; Mon, 24 Sep 2001 10:37:10 -0400
+Date: Mon, 24 Sep 2001 15:37:00 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Beau Kuiper <kuib-kl@ljbc.wa.edu.au>, linux-kernel@vger.kernel.org,
+        tovarlds@transmeta.com, Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] Significant performace improvements on reiserfs systems, kupdated bugfixes
+Message-ID: <20010924153700.B13817@redhat.com>
+In-Reply-To: <Pine.LNX.4.30.0109201445170.13543-100000@gamma.student.ljbc> <20010921152627.C13862@emma1.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010921152627.C13862@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Fri, Sep 21, 2001 at 03:26:27PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001, VDA wrote:
+Hi,
 
-> RvR> http://linux-mm.org/
->
-> I was there today. Good. Can this stuff be placed as
-> Doc/mv/vm2.4rik
-> to prevent it from being outdated in 2-3 months?
+On Fri, Sep 21, 2001 at 03:26:27PM +0200, Matthias Andree wrote:
 
-Putting documents in the kernel tree has never worked
-as a means of keeping them up to date.
+> Be careful! MTAs rely on this behaviour on fsync(). The official
+> consensus on ReiserFS and ext3 on current Linux 2.4.x kernels (x >= 9)
+> is that "any synchronous operation flushes all pending operations", and
+> if that is changed, you MUST make sure that the changed ReiserFS/ext3fs
+> still make all the guarantees that softupdated BSD file systems make,
+> lest you want people to run their mail queues off "sync" disks.
 
-Unless, of course, you're volunteering to keep them
-up to date ;)
+Reiserfs and ext3 have their own IO ordering --- they don't commit
+transactions until the log writes for _all_ of the blocks in those
+transactions have been acknowledged.  Reordering outstanding IOs won't
+affect the fsync guarantees at all.
 
-> Also I'd like to be enlightened why this:
->
-> >Virtual Memory Management Policy
-> >--------------------------------
-> >The basic principle of the Linux VM system is page aging.
-
-> is better than plain simple LRU?
->
-> We definitely need VM FAQ to have these questions answered once per VM
-> design, not once per week :-)
-
-
-
-> RvR> The only thing missing is an explanation of Andrea's
-> RvR> VM, but knowing Andrea's enthusiasm at documentation
-> RvR> I wouldn't really count on that any time soon ;)
->
-> :-)
->
-> --
-> Best regards, VDA
-> mailto:VDA@port.imtp.ilyichevsk.odessa.ua
->
->
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+--Stephen

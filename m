@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbTJZOwV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 09:52:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263190AbTJZOwV
+	id S263181AbTJZPFt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 10:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTJZPFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 09:52:21 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22790 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263185AbTJZOwT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 09:52:19 -0500
-Date: Sun, 26 Oct 2003 14:51:56 +0000
-From: Dave Jones <davej@redhat.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Luck, Tony" <tony.luck@intel.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
-Subject: Re: [PATCH 2.4.23-pre8]  Remove broken prefetching in free_one_pgd()
-Message-ID: <20031026145156.GB28572@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Pavel Machek <pavel@ucw.cz>, "Luck, Tony" <tony.luck@intel.com>,
-	Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org,
-	linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0F36E6@scsmsx401.sc.intel.com> <20031025201010.GC505@elf.ucw.cz>
+	Sun, 26 Oct 2003 10:05:49 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:44223 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S263181AbTJZPFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 10:05:47 -0500
+Date: Sun, 26 Oct 2003 16:05:45 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4 <-> 2.6 compatibility (was: Linux 2.6.0-test9)
+Message-ID: <20031026150544.GJ15838@merlin.emma.line.org>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0310251152410.5764-100000@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031025201010.GC505@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.44.0310251152410.5764-100000@home.osdl.org>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 25, 2003 at 10:10:10PM +0200, Pavel Machek wrote:
+On Sat, 25 Oct 2003, Linus Torvalds wrote:
 
- > > This patch was accepted into 2.5.55, attributed to "davej@uk".
- > Dave Jones?n
+> In other words, even if you think that something is the most important
+> piece of software in the world, if you can't make aunt Tilly up the street
+> say "oh, but that would be a show-stopper", then don't bother sending it 
+> to me.
+> 
+> If it corrupts data, is a security issue, or causes lockups or just basic
+> nonworkingness: and this happens on hardware that _normal_ people are
+> expected to have, then it's critical.  Otherwise, it's noise and should
+> wait.
+> 
+> If this works out, then I'll submit -test10 to Andrew Morton, and if he 
+> takes it we'll probably have a real 2.6.0 after a final shakedown. So try 
+> to help, please. We'll all be happier.
 
-Yep.
+A favor that I'd ask of the Linux kernel gurus is:
 
- > > This code will prefetch from beyond the end of the page table
- > > being cleared ... which is clearly a bad thing if the page table
- > > in question is allocated from the last page of memory (or precedes
- > > a hole on a discontig mem system).
- > Prefetching random addresses should be safe...
+As 2.6 starts stabilizing, PLEASE try to synch up major components of
+2.6 and 2.4 so that the same user space can be used for either version.
+It's fine with modutils and stuff, but when it comes to LVM, these 2.4
+and 2.6 versions are a problem. 2.4 doesn't have Device Mapper in
+baseline, and getting DM and XFS in is sorta hard. (ACPI seems to be in
+better shape now.)
 
-It isn't on some CPUs.  Early athlons go bang when you prefetch
-past the end of RAM into unmapped memory for eg.
+To enlarge the testing base, it would be good if people could just drop
+a 2.6 kernel, some user-space updates and then dual-boot 2.4 and 2.6
+hassle free at will without worrying about a dozen 2.4 kernel patches to
+make it compatible with the new user space.
 
-		Dave
-
--- 
- Dave Jones     http://www.codemonkey.org.uk
+(I may have missed a 2.4 spinoff that does just that, merge DM and XFS
+and ACPI and other updates so it can coexist with a 2.6-user space.)

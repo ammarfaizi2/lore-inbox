@@ -1,30 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265136AbUF1TLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265132AbUF1TPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265136AbUF1TLu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 15:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265135AbUF1TLt
+	id S265132AbUF1TPl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 15:15:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUF1TPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 15:11:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9900 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265134AbUF1TLc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 15:11:32 -0400
-Date: Mon, 28 Jun 2004 20:11:31 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Andre Noll <noll@mathematik.tu-darmstadt.de>, linux-kernel@vger.kernel.org
-Subject: Re: nfsroot oops 2.6.7-current
-Message-ID: <20040628191131.GU12308@parcelfarce.linux.theplanet.co.uk>
-References: <slrnce0lrs.tq5.noll@p133.mathematik.tu-darmstadt.de> <1088445193.4394.35.camel@lade.trondhjem.org>
+	Mon, 28 Jun 2004 15:15:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34461 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265132AbUF1TPj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 15:15:39 -0400
+Date: Mon, 28 Jun 2004 12:13:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pat Gefre <pfg@sgi.com>
+Cc: erikj@subway.americas.sgi.com, rmk+lkml@arm.linux.org.uk, cw@f00f.org,
+       hch@infradead.org, jbarnes@engr.sgi.com, pfg@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix serial driver
+Message-Id: <20040628121312.75ac9ed7.akpm@osdl.org>
+In-Reply-To: <Pine.SGI.3.96.1040628140341.36430F-100000@fsgi900.americas.sgi.com>
+References: <Pine.SGI.4.53.0406280719080.581376@subway.americas.sgi.com>
+	<Pine.SGI.3.96.1040628140341.36430F-100000@fsgi900.americas.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1088445193.4394.35.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 01:53:13PM -0400, Trond Myklebust wrote:
-> Yep, and there's probably one missing in fs/nfsctl.c:do_open() too. Al?
+Pat Gefre <pfg@sgi.com> wrote:
+>
+> We think we should stick with the major/minor set we have proposed.  We
+>  don't like hacking the 8250 code, dynamic allocation doesn't work (once
+>  that works we will update our driver to use it), registering for our
+>  own major/minor may not work (if we DO get one we will update the
+>  driver to reflect it) but in the meantime we need to get something in
+>  the community that works.
 
-ACK
+"we don't like" isn't a very strong argument ;)
+
+It does sound to me like some work is needed in the generic serial layer to
+teach it to get its sticky paws off the ttyS0 major/minor if there is no
+corresponding hardware.  AFAICT nobody has scoped out exactly what has to
+be done for a clean solution there - it may not be very complex.  So could
+we please explore that a little further?
+
+If that proves to be impractical for some reason then I'd be inclined to
+allocate a new misc minor, stick it in devices.txt and be done with it.

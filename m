@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276763AbRJHIlS>; Mon, 8 Oct 2001 04:41:18 -0400
+	id <S276702AbRJHIk6>; Mon, 8 Oct 2001 04:40:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276770AbRJHIlK>; Mon, 8 Oct 2001 04:41:10 -0400
-Received: from maild.telia.com ([194.22.190.101]:54995 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S276763AbRJHIlE>;
-	Mon, 8 Oct 2001 04:41:04 -0400
-Message-ID: <3BC1D926.69D1AFED@canit.se>
-Date: Mon, 08 Oct 2001 18:49:42 +0200
-From: Kenneth Johansson <ken@canit.se>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac8 i686)
-X-Accept-Language: en
+	id <S276763AbRJHIkt>; Mon, 8 Oct 2001 04:40:49 -0400
+Received: from [204.177.156.37] ([204.177.156.37]:48541 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S276702AbRJHIko>; Mon, 8 Oct 2001 04:40:44 -0400
+Date: Mon, 8 Oct 2001 09:42:14 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] spurious swap_list_unlock
+In-Reply-To: <20011008002426.I726@athlon.random>
+Message-ID: <Pine.LNX.4.21.0110080932380.1379-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] emu10k1 and SMP
-In-Reply-To: <3BC0D5F9.3C6DCF93@canit.se> <1002518015.999.93.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Mon, 8 Oct 2001, Andrea Arcangeli wrote:
+> On Sun, Oct 07, 2001 at 01:35:58AM +0200, Andrea Arcangeli wrote:
+> > On Thu, Oct 04, 2001 at 10:57:09PM +0200, Andrea Arcangeli wrote:
+> > > 2) Hugh's locking cleanups
+> > 
+> > checked now (of course it's just in pre4), very nice.
+> 
+> btw, while playing with the code I now noticed a swap_list_unlock
+> leftover in vmscan.c.
 
-> On Sun, 2001-10-07 at 18:23, Kenneth Johansson wrote:
-> > I have a problem with my sblive card with some program when I compile
-> > 2.4.10 and -ac8 for SMP.
-> >
-> > This happens with programs from loki and the machine stops or power down
-> > (yes an actuall power down). I'am sure this is sound related as stuff
-> > works if I don't load the emu10k1 driver and it only happens with SMP.
->
-> Can you give a better description of the problem?
->
-> Are you using the sblive driver from the kernel or CVS or ALSA?
->
+Eek, that's not at all nice!  Many thanks for spotting it,
+and for your review, Andrea.  I'll check it all over again.
+For others' sake, patch for 2.4.11-pre5 or 2.4.11-pre4 below.
 
-The kernel.
+Hugh
 
->
-> Does the problem go away if you recompile with CONFIG_SMP=n ?
->
-
-Yes.
-
->
-> What exactly happens? Oops?  Can you debug?  Reproduce?  Anything?
->
-
-No oops . I get a power down or a hung system. I can reproduce this easy but
-I can't get any information out of the system it is really dead it dose not
-repond to anything even when hung and when it's powerd down it's kind of to
-late to do something about it then.
-
+--- 2.4.11-pre5/mm/vmscan.c	Sun Oct  7 20:54:29 2001
++++ linux/mm/vmscan.c	Mon Oct  8 09:32:13 2001
+@@ -139,7 +139,6 @@
+ 	}
+ 
+ 	/* No swap space left */
+-	swap_list_unlock();
+ 	set_pte(page_table, pte);
+ 	UnlockPage(page);
+ 	return 0;
 

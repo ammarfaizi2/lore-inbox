@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264568AbTLVX3d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 18:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264575AbTLVX3d
+	id S264588AbTLVXsk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 18:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264591AbTLVXsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 18:29:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45218 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264568AbTLVX3a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 18:29:30 -0500
-Message-ID: <3FE77E49.4010303@pobox.com>
-Date: Mon, 22 Dec 2003 18:29:13 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
-       Joe Thornber <thornber@sistina.com>
-Subject: Re: [PATCH 2/2][RFC] Add dm-crypt target
-References: <1072129379.5570.73.camel@leto.cs.pocnet.net> <20031222215236.GB13103@leto.cs.pocnet.net> <3FE7794D.7000908@pobox.com> <20031222232433.GT6438@matchmail.com>
-In-Reply-To: <20031222232433.GT6438@matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 22 Dec 2003 18:48:40 -0500
+Received: from ns1.skjellin.no ([80.239.42.66]:12496 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S264588AbTLVXsj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 18:48:39 -0500
+Subject: Re: 2.6.0 modules don't link properly
+From: Andre Tomt <lkml@tomt.net>
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <bs7u1f$8ns$1@gatekeeper.tmr.com>
+References: <bs7u1f$8ns$1@gatekeeper.tmr.com>
+Content-Type: text/plain
+Message-Id: <1072136923.1088.249.camel@slurv.pasop.tomt.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 00:48:43 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-> On Mon, Dec 22, 2003 at 06:07:57PM -0500, Jeff Garzik wrote:
+On Tue, 2003-12-23 at 00:17, bill davidsen wrote:
+> I tried building 2.6.0-final on a new whitebox-3.0-final install, and
+> the modules_install produced thousands of unresolved symbols. This built
+> on another machine I've been running and updating since the 2.5.3x days,
+> so there might be something I've missed, but I don't quite see what it
+> would be.
 > 
->>would prefer to emphasize their differences.  A replacement for 
->>cryptoloop means you must support cryptoloop's on-disk format.
+> Whitebox is built from RH-ES-3.0 source, so the only things I updated
+> were the procps and modutils, using the last tar which didn't have "pre"
+> in the name. I see that there is a new tar, out nearly ten hours so it
+> must be stable, which has jumped from 0.9.15 to 3.0.15-pre1, but I'm
+> happily using something months old on other systems.
 > 
-> 
-> Do you dislike the cryptoloop format?
-> 
-> What if you wanted to take a disk that was used with dm-crypt, and copy it
-> to a file on a larger filesystem?  Would the data now be inaccessable
-> because it's not in a format mountable by a loop driver?
+> Can someone toss me a clue? Has anyone had a working build with
+> RH-ES-3.0? Yes, I know other things need to be done before I can
+> actually run the kernel, but being able to build would be nice, since I
+> got a new test system just for 2.6 test/demo use.
 
-
-Remember we are talking about two -totally different- drivers here.
-
-I can't take my reiserfs data, copy it to a file on a larger filesystem, 
-and then mount it with ext3.  And that's a good thing.
-
-dm-crypt should not be constrained by cryptoloop, and vice versa.
-
-	Jeff
+Sounds like a case of missing module-init-tools.
 
 

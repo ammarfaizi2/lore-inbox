@@ -1,64 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUAHBu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 20:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbUAHBu2
+	id S263486AbUAHCA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 21:00:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbUAHCA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 20:50:28 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:938 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S263475AbUAHBuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 20:50:22 -0500
-Date: Wed, 07 Jan 2004 17:50:17 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Greg KH <greg@kroah.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrey Borzenkov <arvidjaar@mail.ru>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-Message-ID: <20490000.1073526617@[10.10.2.4]>
-In-Reply-To: <20040108011538.GA4002@kroah.com>
-References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com> <Pine.LNX.4.58.0401071036560.12602@home.osdl.org> <20040107185656.GB31827@kroah.com> <Pine.LNX.4.58.0401071123490.12602@home.osdl.org> <20040107195032.GB823@kroah.com> <14870000.1073521945@[10.10.2.4]> <20040108004124.GA3388@kroah.com> <16970000.1073524052@[10.10.2.4]> <20040108011538.GA4002@kroah.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 7 Jan 2004 21:00:58 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:35534 "EHLO dodge.jordet.nu")
+	by vger.kernel.org with ESMTP id S263486AbUAHCAx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 21:00:53 -0500
+Subject: i2c_adapter i2c-0: Bus collision!
+From: Stian Jordet <liste@jordet.nu>
+To: linux-kernel@vger.kernel.org
+Cc: sensors@stimpy.netroedge.com
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1073527236.624.7.camel@buick>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 08 Jan 2004 03:00:36 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The problem is the following:
-> 	- user plugs in their usb flash reader with no media in it
-> 	- the main block device is create, no partitions
-> 	- user plugs a flash stick/whatever into the reader
-> 	- kernel gets no notification of this event
-> 	- userspace gets no notification of this event
+Hi,
 
-You can solve the partitions bit by rescanning when someone opens
-the "/dev/hdaX" directory, was my only point. Which was just a little
-twist on Linus's thing, only a bit simpler. And no, it doesn't work
-unless that dir is a virtual thing that's "magic".
- 
-> How can userspace know to open the main block device now?  Require that
-> we put a big "Rescan media now" button on the desktop?  That's one way,
-> but users are used to having to not do that.  
+I get plenty of this in my logs:
 
-I don't think you should have to press something explicit for the udev
-stuff to be correct. But you should to start an application that does
-pretty stuff with pictures, like you mention below.
+i2c_adapter i2c-0: Bus collision! SMBus may be locked until next hard
+reset. (sorry!)
 
-> If a daemon does the scanning every so often, the media can be
+Kernel 2.6.0 with lm-sensors 2.8.2.
 
-As Linus pointed out ... "every so often" has to be horribly frequent, so
-I don't see how that can work. How often are you proposing? once a second?
+I get very weird results, especially on the fan, but others as well.
+Here are three runs of sensors:
 
-> automatically mounted, and an application can pop up saying that it
-> found some pictures on the new device, do you want to open up your image
-> application?
 
-Ick. You mean like the Windows crap than autoruns stuff off your CD?
-If you really, really want that, then yes you'd have to poll, but it
-would be nice to solve the partitions bit without that, IMHO. I'd
-see a lot more demand for the partitions being correctly populated
-than magically triggered GUI stuff.
+buick:~# sensors
+w83627hf-i2c-0-2d
+Adapter: SMBus Via Pro adapter at 5000
+Algorithm: Unavailable from sysfs
+VCore 1:   +1.79 V  (min =  +1.66 V, max =  +0.72 V)
+VCore 2:   +1.50 V  (min =  +1.66 V, max =  +0.72 V)
++3.3V:     +3.34 V  (min =  +3.14 V, max =  +3.46 V)
++5V:       +4.95 V  (min =  +4.73 V, max =  +5.24 V)
++12V:     +11.55 V  (min = +10.82 V, max = +13.19 V)
+CPU0:     12980 RPM  (min = 3750 RPM, div = 8)
+CPU1:        0 RPM  (min =  750 RPM, div = 8)
+CPU0:      +29.0°C  (high =   +60°C, hyst =   +50°C)   sensor =
+PII/Celeron diode
+CPU1:      +29.5°C  (high =   +50°C, hyst =   +50°C)   sensor =
+PII/Celeron diode
+vid:      +0.000 V
+alarms:   Chassis intrusion detection                      ALARM
+beep_enable:
+          Sound alarm disabled
 
-M.
+
+buick:~# sensors
+w83627hf-i2c-0-2d
+Adapter: SMBus Via Pro adapter at 5000
+Algorithm: Unavailable from sysfs
+VCore 1:   +1.81 V  (min =  +1.66 V, max =  +0.72 V)
+VCore 2:   +4.08 V  (min =  +1.66 V, max =  +4.08 V)
++3.3V:     +3.34 V  (min =  +3.14 V, max =  +3.46 V)
++5V:       +4.95 V  (min =  +4.73 V, max =  +5.24 V)
++12V:     +11.55 V  (min = +10.82 V, max = +13.19 V)
+CPU0:     450000 RPM  (min = 30000 RPM, div = 1)
+CPU1:        0 RPM  (min = 6000 RPM, div = 1)
+CPU0:      +29.0°C  (high =   +60°C, hyst =   +50°C)   sensor =
+PII/Celeron diode
+CPU1:      +29.5°C  (high =   +50°C, hyst =   +50°C)   sensor =
+PII/Celeron diode
+vid:      +3.300 V
+alarms:   Chassis intrusion detection                      ALARM
+beep_enable:
+          Sound alarm disabled
+
+
+buick:~# sensors
+w83627hf-i2c-0-2d
+Adapter: SMBus Via Pro adapter at 5000
+Algorithm: Unavailable from sysfs
+VCore 1:   +1.79 V  (min =  +3.14 V, max =  +3.46 V)
+VCore 2:   +1.50 V  (min =  +3.14 V, max =  +3.46 V)
++3.3V:     +3.34 V  (min =  +3.14 V, max =  +3.46 V)
++5V:       +5.03 V  (min =  +4.73 V, max =  +5.24 V)
++12V:     +11.49 V  (min = +10.82 V, max = +15.50 V)
+CPU0:     337500 RPM  (min = 7500 RPM, div = 4)
+CPU1:     3125 RPM  (min = 1500 RPM, div = 4)
+CPU0:      +29.0°C  (high =   +60°C, hyst =   +50°C)   sensor =
+PII/Celeron diode
+CPU1:      +29.0°C  (high =   +50°C, hyst =   +50°C)   sensor =
+PII/Celeron diode
+vid:      +3.300 V
+alarms:   Chassis intrusion detection                      ALARM
+beep_enable:
+          Sound alarm disabled
+
+
+It works fine with MBM in Windows. Well, MBM is having some troubles
+with the temperature (it gets lower and lower as time pass, and ends on
+about 8-9 degrees celsius. But fan and temperatures are read just fine,
+never any glitch. On thing thing though, the Vcore2 is 1,70. The Bios
+reports it correctly, but both MBM and LM-sensors says 1,50. Have no
+idea why. The 1,50 is static, never changes, while VCore1 (which ideally
+should be 1,75) varies from 1,75 to 1,79. In the BIOS both seem sane,
+and varies with 3-4 degrees.
+
+I guess all these problems are because of the bus collision, which I
+have read usually happens because of bad boards. Which I admit that I do
+have, but it works in Windows :(
+
+What are the most common reasons for the bus collisions, and is there
+anything to do?
+
+Best regards,
+Stian
+

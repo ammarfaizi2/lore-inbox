@@ -1,71 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275098AbRJYPwU>; Thu, 25 Oct 2001 11:52:20 -0400
+	id <S275301AbRJYP4U>; Thu, 25 Oct 2001 11:56:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275126AbRJYPwK>; Thu, 25 Oct 2001 11:52:10 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:36578 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S275098AbRJYPvv>; Thu, 25 Oct 2001 11:51:51 -0400
-Date: Thu, 25 Oct 2001 16:52:26 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.12 / linux-2.4.13 parallel port problem
-Message-ID: <20011025165226.T7544@redhat.com>
-In-Reply-To: <20011024230917.H7544@redhat.com> <ioWB7.5038$rR5.921319585@newssvr17.news.prodigy.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Lfdj09rG01n7l08B"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <ioWB7.5038$rR5.921319585@newssvr17.news.prodigy.com>; from davidsen@tmr.com on Thu, Oct 25, 2001 at 03:41:02PM +0000
+	id <S275126AbRJYP4L>; Thu, 25 Oct 2001 11:56:11 -0400
+Received: from newssvr17-ext.news.prodigy.com ([207.115.63.157]:13008 "EHLO
+	newssvr17.news.prodigy.com") by vger.kernel.org with ESMTP
+	id <S275301AbRJYPz5>; Thu, 25 Oct 2001 11:55:57 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+Newsgroups: linux.dev.kernel
+Subject: Re: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
+In-Reply-To: <Pine.LNX.4.33.0110242100070.14064-100000@viper.haque.net>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: davidsen@deathstar.prodigy.com (Bill Davidsen)
+Message-ID: <LCWB7.5048$ag6.923038958@newssvr17.news.prodigy.com>
+NNTP-Posting-Host: 192.168.192.240
+X-Complaints-To: abuse@prodigy.net
+X-Trace: newssvr17.news.prodigy.com 1004025387 000 192.168.192.240 (Thu, 25 Oct 2001 11:56:27 EDT)
+NNTP-Posting-Date: Thu, 25 Oct 2001 11:56:27 EDT
+Date: Thu, 25 Oct 2001 15:56:27 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.33.0110242100070.14064-100000@viper.haque.net>,
+Mohammad A. Haque <mhaque@haque.net> wrote:
+| On Thu, 25 Oct 2001, Tim Tassonis wrote:
+| 
+| > I'm quite suprised, but this actually worked for me. Rebooted without
+| > using hdparm, created the partintion (3GB) and everything seems ok. Looks
+| > as if hdparm is doing something wrong here (v3.6).
+| >
+| 
+| More than likely it's just triggering something that causes the problem.
 
---Lfdj09rG01n7l08B
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I haven't seen any problem, either. Certainly not with fdisk, this is
+what I see:
+================================================================
+bilbo:root> hdparm -V
+hdparm v3.9
 
-On Thu, Oct 25, 2001 at 03:41:02PM +0000, bill davidsen wrote:
+bilbo:root> df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/hda3               995896    849248     95240  90% /
+/dev/hda4              4597818   2727382   1639502  62% /extra
+/extra/u_local          193687     74214    109473  40% /usr/local
+/dev/hde1              4079656   3611952    262908  93% /extra2
+bilbo:root> fdisk /dev/hde
 
-> Thank you... that sure doesn't jump out at someone, it generates no
-> error message, etc.
+The number of cylinders for this disk is set to 39770.
+There is nothing wrong with that, but this is larger than 1024,
+and could in certain setups cause problems with:
+1) software that runs at boot time (e.g., old versions of LILO)
+2) booting and partitioning software from other OSs
+   (e.g., DOS FDISK, OS/2 FDISK)
 
-See
-<ftp://people.redhat.com/twaugh/patches/linux24/linux-ignore.patch>.
+Command (m for help): p
 
-> Question: is this intended behaviour? I would think that you would
-> normally want to just say irq=auto and let the driver find the io
-> address just as it does normally.
+Disk /dev/hde: 16 heads, 63 sectors, 39770 cylinders
+Units = cylinders of 1008 * 512 bytes
 
-It is intended behaviour.  'irq=auto' in this case didn't help because
-the ECP chipset would not tell us what IRQ it was assigned (it just
-said "it's set by jumpers, or alternatively I'm not telling you".
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hde1             1      8127   4095976+  83  Linux native
+/dev/hde2          8128     28445  10240272   83  Linux native
 
-The problem with just specifying 'irq=7' on its own is that in the
-case of there being more than one port it isn't clear what it should
-mean.
+Command (m for help): q
+================================================================
 
-When there is only one port to consider, it would make sense to use
-that IRQ, but by the time we know how many ports there are we've
-already decided not to use the supplied parameter.  Patches
-welcome. :-)
+I certainly have used hdparm on that drive, my controller comes up in
+ATA33 by default, and I run 
+  # enable the ATA/66 hard drive(s)
+  #   experiment with -u1 after backup
+  hdparm -d1 -X66 /dev/hde
+out of rc.local to get it going. BP6 m/b, dual Celeron500, 
+  Linux bilbo 2.4.10-ac7-2 #5 SMP Sun Oct 7 08:03:37 EDT 2001 i686 unknown
+from the uname. This is NOT a preempt kernel, the patch against this one
+blew up on SMP, although it booted "nosmp" just fine. I have trying
+again with 2.4.13-pre6 this weekend.
 
-Tim.
-*/
+Don't know if this sheds light on the topic, I certainly do run fdisk on
+"drives" my RAID controller creates which have 600GB or so broken into
+little 100GB files.
 
---Lfdj09rG01n7l08B
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE72DU5yaXy9qA00+cRAnUyAJ48mR/aggtT3YyCu37jP8xrrjQP5ACffFPG
-mdorihk3SzIwqITRMrMDnV8=
-=hnw+
------END PGP SIGNATURE-----
-
---Lfdj09rG01n7l08B--
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

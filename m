@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271798AbRH1QKN>; Tue, 28 Aug 2001 12:10:13 -0400
+	id <S271800AbRH1QJo>; Tue, 28 Aug 2001 12:09:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271801AbRH1QKE>; Tue, 28 Aug 2001 12:10:04 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:38666 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S271798AbRH1QJu>; Tue, 28 Aug 2001 12:09:50 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S271799AbRH1QJY>; Tue, 28 Aug 2001 12:09:24 -0400
+Received: from draal.physics.wisc.edu ([128.104.137.82]:21162 "EHLO
+	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
+	id <S271798AbRH1QJF>; Tue, 28 Aug 2001 12:09:05 -0400
+Date: Tue, 28 Aug 2001 11:08:46 -0500
+From: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix msdos warnings
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: 29 Aug 2001 01:09:54 +0900
-Message-ID: <87vgj8f9nx.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.104
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: USB UHCI broken again w/ visor
+Message-ID: <20010828110846.T16752@draal.physics.wisc.edu>
+In-Reply-To: <20010828013239.N16752@draal.physics.wisc.edu> <20010828083537.B7376@kroah.com> <20010828105330.S16752@draal.physics.wisc.edu> <20010828090126.A7544@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nKvJs6ze6az+4fwY"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010828090126.A7544@kroah.com>; from greg@kroah.com on Tue, Aug 28, 2001 at 09:01:26AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-gcc -D__KERNEL__ -I/devel/src/linux/source/msdos_warning-2.4.10-pre1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE   -c -o namei.o namei.c
-namei.c: In function `msdos_lookup':
-namei.c:237: warning: implicit declaration of function `fat_brelse'
-namei.c: In function `msdos_add_entry':
-namei.c:266: warning: implicit declaration of function `fat_mark_buffer_dirty'
-gcc -D__KERNEL__ -I/devel/src/linux/source/msdos_warning-2.4.10-pre1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE   -DEXPORT_SYMTAB -c msdosfs_syms.c
-rm -f msdos.o
-ld -m elf_i386  -r -o msdos.o namei.o msdosfs_syms.o
+--nKvJs6ze6az+4fwY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The following patch fix the above warnings.
-Please apply.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Greg KH [greg@kroah.com] wrote:
+> On Tue, Aug 28, 2001 at 10:53:30AM -0500, Bob McElrath wrote:
+> >=20
+> > The behaviour of the usb-storage stuff is unchanged from 2.4.7, but the
+> > visor definitely did work with 2.4.7, where it doesn't now.
+>=20
+> But the usb-storage code did change from 2.4.7-2.4.9 while the visor
+> code hasn't :)
+>=20
+> So I'd try unloading the usb system (or rebooting if it's compiled into
+> the kernel), and just trying a visor sync without running the
+> usb-storage code to try to narrow down the potential problem.
 
-diff -urN linux-2.4.10-pre1/fs/msdos/namei.c msdos_warning-2.4.10-pre1/fs/msdos/namei.c
---- linux-2.4.10-pre1/fs/msdos/namei.c	Mon Aug 13 03:13:59 2001
-+++ msdos_warning-2.4.10-pre1/fs/msdos/namei.c	Tue Aug 28 23:26:48 2001
-@@ -17,6 +17,8 @@
- 
- #include <asm/uaccess.h>
- 
-+#include "../fat/msbuffer.h"
-+
- #define MSDOS_DEBUG 0
- #define PRINTK(x)
+I tried the visor first, and saw this behavior.  (without even insmoding
+the usb-storage driver)  I tried it several times, with the same
+results.  Only this morning before sending my message did I try the
+usb-storage to see if it was broken too.
 
+I've rmmod'ed everything and re-insmoded everything (except usb-storage)
+with the same results.
+
+Maybe related:
+Why would /proc/bus/usb be always empty?
+
+I'll reboot to 2.4.7 again when I get home tonight and try it.
+
+Cheers,
+-- Bob
+
+Bob McElrath (rsmcelrath@students.wisc.edu)=20
+Univ. of Wisconsin at Madison, Department of Physics
+
+--nKvJs6ze6az+4fwY
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjuLwg4ACgkQjwioWRGe9K39RQCg6olC2knBhrQbZhmIc7f1q5VY
+gmoAn1W/tC2sS9NOHLvKgEa/oS24omOc
+=R2zQ
+-----END PGP SIGNATURE-----
+
+--nKvJs6ze6az+4fwY--

@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288274AbSACSVk>; Thu, 3 Jan 2002 13:21:40 -0500
+	id <S288269AbSACSVv>; Thu, 3 Jan 2002 13:21:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288275AbSACSVa>; Thu, 3 Jan 2002 13:21:30 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:44430 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S288274AbSACSVQ>;
-	Thu, 3 Jan 2002 13:21:16 -0500
-Date: Thu, 3 Jan 2002 10:22:37 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Alex <mail_ker@xarch.tu-graz.ac.at>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Dave Jones <davej@suse.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems? 
-In-Reply-To: <Pine.LNX.4.10.10201031901320.31717-100000@xarch.tu-graz.ac.at>
-Message-ID: <Pine.LNX.4.33.0201031017190.837-100000@segfault.osdlab.org>
+	id <S288275AbSACSVk>; Thu, 3 Jan 2002 13:21:40 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:47876 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288269AbSACSV1>;
+	Thu, 3 Jan 2002 13:21:27 -0500
+Date: Thu, 3 Jan 2002 15:32:13 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: <alan@lxorguk.ukuu.org.uk>, <akpm@zip.com.au>, <znmeb@aracnet.com>,
+        <art@lsr.nei.nih.gov>, <linux-kernel@vger.kernel.org>
+Subject: Re: kswapd etc hogging machine
+In-Reply-To: <20020103182756.237453bd.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.33L.0201031531090.24031-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 3 Jan 2002, Stephan von Krawczynski wrote:
+> On Thu, 3 Jan 2002 14:51:01 -0200 (BRST)
+> Rik van Riel <riel@conectiva.com.br> wrote:
+> > On Thu, 3 Jan 2002, Alan Cox wrote:
+> >
+> > > 2.4.1x VM code is performing better under light loads but its
+> > > absolutely and completely hopeless under a real paging load. 2.4.17-aa
+> > > is somewhat better interestingly.
+> >
+> > A quick 'make -j bzImage' test I did yesterday got the system
+> > to use near 70% of its CPU time in user mode and 30% in system
+> > mode. This was with 2.4.17-rmap-10b, btw.
+>
+> And what kind of an argument is this? This is an honest question,
+> really. If I do this make I end up around 80-90% in user mode and the
+> rest in system on a standard 2.4.17 SMP box (configured with too less
+> swap btw).
 
-> Let's face the bare fact : Linux life could be *way* more comfortable...
-> This stupid Win2k or even *brrr* XP ^H^H^H detects all the hardware
-> fine when installing. Even ISA. So should Linux.
+How much memory does that box have ?
 
-I don't believe that Win2k does it (it's not from the PnP family, is it?).
-But, I don't doubt that XP does it on contemporary hardware. It requires
-ACPI support in the BIOS. And, ACPI enumerates all of the legacy devices
-in the system.
+In my case it was with 512 MB of RAM, the system went almost
+900 MB into swap.
 
-So, we're still relying on the firmware to tell us what's there. One of
-the points of this thread, and many others, is that you can't rely on it.
-Every BIOS is buggy.
+If your machine has one GB of RAM (or more), I expect the gccs
+to fit mostly into RAM, which would give much better behaviour.
 
-Personally, I like the idea of dumping the firmware tables (DMI, ACPI,
-etc) during early init, then letting a userspace program telling the
-kernel what is there based on what the firmware says. If we know a
-particular table in a particular BIOS is bad, we can ignore it or work
-around it.
+regards,
 
-The auto-config tool can use either what the kernel knows (as exported to
-userland), or it can use some parsing tool to parse the tables (with the
-same intelligence to know which tables are borked).
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
 
-And, don't forget that most Windows OSes punt on some hardware. That's why
-there's the nice "Add New Hardware" wizard...
-
-	-pat
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,95 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263812AbTLTFP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 00:15:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTLTFP1
+	id S263850AbTLTHgy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 02:36:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263857AbTLTHgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 00:15:27 -0500
-Received: from port-212-202-159-243.reverse.qsc.de ([212.202.159.243]:5101
-	"EHLO mail.onestepahead.de") by vger.kernel.org with ESMTP
-	id S263812AbTLTFPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 00:15:25 -0500
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-From: Christian Meder <chris@onestepahead.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-In-Reply-To: <3FE3D0CB.603@cyberone.com.au>
-References: <1071864709.1044.172.camel@localhost>
-	 <1071885178.1044.227.camel@localhost> <3FE3B61C.4070204@cyberone.com.au>
-	 <200312201355.08116.kernel@kolivas.org>
-	 <1071891168.1044.256.camel@localhost>  <3FE3C6FC.7050401@cyberone.com.au>
-	 <1071893802.1363.21.camel@localhost>  <3FE3D0CB.603@cyberone.com.au>
-Content-Type: text/plain
-Message-Id: <1071897314.1363.43.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 20 Dec 2003 06:15:16 +0100
+	Sat, 20 Dec 2003 02:36:54 -0500
+Received: from mx2.it.wmich.edu ([141.218.1.94]:18346 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S263850AbTLTHgw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 02:36:52 -0500
+Message-ID: <3FE3FC11.70009@wmich.edu>
+Date: Sat, 20 Dec 2003 02:36:49 -0500
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tomasz Torcz <zdzichu@irc.pl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test11 framebuffer Matrox
+References: <200312190314.13138.schwientek@web.de> <3FE2B717.7020502@convergence.de> <20031219213734.GA27975@irc.pl>
+In-Reply-To: <20031219213734.GA27975@irc.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-12-20 at 05:32, Nick Piggin wrote:
-> Christian Meder wrote:
+Tomasz Torcz wrote:
+> On Fri, Dec 19, 2003 at 09:30:15AM +0100, Michael Hunold wrote:
 > 
-> >On Sat, 2003-12-20 at 04:50, Nick Piggin wrote:
-> >
-> >>(although not much Con)
-> >>
-> >
-> >right. Ok I'm running now 2.6.0 with Nick's v28p1: The results without
-> >load and with kernel compile load are attached. On nice level 0 I get
-> >now the stuttering sound which I described in the previous mail. When I
-> >renice gnomemeeting to -10 it's actually usable but not as good as in
-> >2.4.2x. It's still sensitive to window movement and X activity. Two
-> >subjective observations are that the nice levels haven't got such a big
-> >impact in Nick's scheduler they used to have and that the default
-> >behaviour gnomemeetingwise is better than in earlier Nick schedulers.
-> >
+>>Can somebody definately say if "matroxfb" is working for 2.6? I haven't 
+>>tested it for a while, but I was surprised to find it non-working in 2.6...
 > 
-> No, nice levels don't have such a big impact. That is the last big
-> think I have to fix, but thats another story...
 > 
-> At nice -10, there is basically nothing more the scheduler can do
-> for it (nice -20 will be a tiny bit better again).
+>  Not working for me. G550 driving Samsung SyncMaster 171s (LCD).
+> It locked system several times in the past when switching between XFree
+> and fb console.
+>  I was told to use exact resolution and color depth wi fbcon and X.
+> In my case, it's 1280x1024-16bpp. It is working great in X, but
+> fbcon do not work - all I get is a black screen and lock when
+> I try to blinfly run XFree.
 > 
-> I'd say its due to either sound drivers or your app doing something
-> different when running in 2.6.
-
-I just tried hammering on the sound drivers on the playback side. So I
-put on a kernel compile, a find | cat >/dev/null and ogg123 playback.
-Playback performed largely unimpressed from the load level, no skips or
-whatever. Even adding a gnomemeeting connection didn't decrease audio
-playback. My guess is that the audio drivers are ok even more so because
-otherwise OSS _and_ ALSA would be broken for my soundcard.
-
-That would leave me with two possibilities: 2.6. is doing something
-different in the gnomemeeting case or gnomemeeting is doing something
-different in the 2.6 case. A cursory look at the gnomemeeting sources
-didn't give me the impression that it's doing anything which would be
-affected by 2.6 deployment but I'll ask on the gnomemeeting-devel list
-for advice.
-
-Thanks for all your help, I hope I can nail it soon,
 
 
-
-			Christian
-
--- 
-Christian Meder, email: chris@onestepahead.de
- 
-What's the railroad to me ?
-I never go to see
-Where it ends.
-It fills a few hollows,
-And makes banks for the swallows, 
-It sets the sand a-blowing,
-And the blackberries a-growing.
-                      (Henry David Thoreau)
- 
+last time i tried it (-test7 or so) it worked. your normal fbcon and 
+what not drivers do not work. They haven't been updated to handle the 
+new fb code. You'll need to do all your configuring via kernel or module 
+loading and cross your fingers and hope xfree86 can load based off it. 
+  Also, i never got a non-blank console when using matroxfb... once it 
+loaded i always had to blindly move around and start X and what not.
 
 
-
+But, what's really the point in using X with matroxfb? You lose half 
+your memory off the bat that X cannot access and you get no added 
+performance or anything.  It really does not seem worth it.  Use 
+matroxfb if you need to do fb stuff in a console without X.  Otherwise, 
+stick to just plain console and X and forget about matroxfb.
 

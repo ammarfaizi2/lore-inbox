@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292031AbSBTS40>; Wed, 20 Feb 2002 13:56:26 -0500
+	id <S292188AbSBTS5g>; Wed, 20 Feb 2002 13:57:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292182AbSBTS4Q>; Wed, 20 Feb 2002 13:56:16 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:17680 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S292031AbSBTS4I>; Wed, 20 Feb 2002 13:56:08 -0500
-Message-ID: <3C73F139.8000007@lexus.com>
-Date: Wed, 20 Feb 2002 10:55:53 -0800
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nikita Gergel <fc@yauza.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: opengl-nvidia not compiling
-In-Reply-To: <20020220015358.A26765@suse.de>	<1014182978.21280.14.camel@imyourhandiman>	<20020220170454.5e700732.fc@yauza.ru>	<1014218667.22795.1.camel@imyourhandiman>	<20020220192123.25786b72.fc@yauza.ru>	<3C73DEA4.7010703@lexus.com> <20020220211241.64a19953.fc@yauza.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S292182AbSBTS5W>; Wed, 20 Feb 2002 13:57:22 -0500
+Received: from [212.159.14.225] ([212.159.14.225]:39929 "HELO
+	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S292185AbSBTS5A>; Wed, 20 Feb 2002 13:57:00 -0500
+Date: Wed, 20 Feb 2002 18:58:55 +0000
+From: "J.P. Morris" <jpm@it-he.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18-rc2 problem..
+Message-Id: <20020220185855.2bcecc24.jpm@it-he.org>
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Gergel wrote:
 
->On Wed, 20 Feb 2002 09:36:36 -0800
->J Sloan <jjs@lexus.com> wrote:
->
->>Sire, may I make so bold as to press one
->>point I wish to be clear on?
->>
->>Have you actually run the nvidia drivers
->>in a 2.5 kernel?
->>
->
->yes, I'm using now 2.5.2-pre10 and have to game Quake I/II/III, Tux Racer, BZFlag and everything works well, except Return To Castle Wolfenstein.
->
-hmm, castle wolfenstein is right up there
-with q3a, that's too bad - but it may be
-worth a try anyway...
+I'm getting a problem in usb-storage (it's loaded as a module towards the end
+of the boot sequence).  The module locks during initialisation, which doesn't
+happen in 2.4.17.
+(is it possible to unload a crashed module without rebooting?
+ This happens so often with SCSI... )
 
->>if so, I would be encouraged to try, as the
->>nvidia drivers were one reason I've stayed
->>with 2.4 on my gaming machine.
->>
->
->Of course, If you want only game you must use 2.4 now, but why are you subscribed lkml then? =)
->
-ROFL!
+The culprit seems to be my new usb CF reader.  Unfortunately it's unbranded
+and I can't identify the underlying hardware.  None of the specific drivers
+(e.g. sandisk, lexar, microtech, freecom) need to be loaded for it to work,
+so I guess there's some generic protocol for usb->scsi?
 
-I assume the question is rhetorical.
+Regardless, unless someone else has an idea, I'm going to try manually
+merging the usb-storage changes in from 2.4.17 to 2.4.18-rc2 until it
+breaks to try and isolate the problem..
 
-There's lots of Linux stuff going on here besides games...
-
-;-)
-
-Joe
-
-
+-- 
+JP Morris - aka DOUG the Eagle (Dragon) -=UDIC=-  doug@it-he.org
+Fun things to do with the Ultima games            http://www.it-he.com
+Developing a U6/U7 clone                          http://ire.it-he.org
+d+++ e+ N+ T++ Om U1234!56!7'!S'!8!9!KA u++ uC+++ uF+++ uG---- uLB----
+uA--- nC+ nR---- nH+++ nP++ nI nPT nS nT wM- wC- y a(YEAR - 1976)

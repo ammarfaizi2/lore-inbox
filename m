@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282323AbRK2DNt>; Wed, 28 Nov 2001 22:13:49 -0500
+	id <S282338AbRK2DbO>; Wed, 28 Nov 2001 22:31:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282322AbRK2DNj>; Wed, 28 Nov 2001 22:13:39 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:46348 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S282323AbRK2DN2>; Wed, 28 Nov 2001 22:13:28 -0500
-Date: Wed, 28 Nov 2001 21:13:27 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: lkml <linux-kernel@vger.kernel.org>
+	id <S282339AbRK2DbE>; Wed, 28 Nov 2001 22:31:04 -0500
+Received: from zero.tech9.net ([209.61.188.187]:55050 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S282338AbRK2Daq>;
+	Wed, 28 Nov 2001 22:30:46 -0500
 Subject: Re: Linux 2.4.17-pre1
-Message-ID: <20011128211327.A27177@asooo.flowerfire.com>
-In-Reply-To: <Pine.LNX.4.21.0111281340210.15491-100000@freak.distro.conectiva> <20011128185601.A784@mikef-linux.matchmail.com>
+From: Robert Love <rml@tech9.net>
+To: Ken Brownfield <brownfld@irridia.com>, marcelo@conectiva.com.br
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011128211327.A27177@asooo.flowerfire.com>
+In-Reply-To: <Pine.LNX.4.21.0111281340210.15491-100000@freak.distro.conectiva>
+	<20011128185601.A784@mikef-linux.matchmail.com> 
+	<20011128211327.A27177@asooo.flowerfire.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 28 Nov 2001 22:30:46 -0500
+Message-Id: <1007004647.813.15.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011128185601.A784@mikef-linux.matchmail.com>; from mfedyk@matchmail.com on Wed, Nov 28, 2001 at 06:56:01PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seconded.  Off by default and with appropriate security caveats in the
-Configure.help section, which Robert has already mentioned.
+On Wed, 2001-11-28 at 22:13, Ken Brownfield wrote:>
+> Seconded.  Off by default and with appropriate security caveats in the
+> Configure.help section, which Robert has already mentioned.
+> 
+> It's pretty critical given the burgeoning amount of cryptography in
+> production environments where entropy from disk I/O is essentially
+> non-existent.  The security concerns are very valid, but many trade-offs
+> are worth it, IMHO.  I will most likely be dead in the water soon unless
+> I start using this patch in certain places.
 
-It's pretty critical given the burgeoning amount of cryptography in
-production environments where entropy from disk I/O is essentially
-non-existent.  The security concerns are very valid, but many trade-offs
-are worth it, IMHO.  I will most likely be dead in the water soon unless
-I start using this patch in certain places.
+For those interested, the patch is at
+	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/netdev-random
 
-Just my two humble cents,
--- 
-Ken.
-brownfld@irridia.com
+I want to point out that _without_ this patch, there are network devices
+that feed the entropy pool.  In other words, this patch standardizes the
+situation.
 
-On Wed, Nov 28, 2001 at 06:56:01PM -0800, Mike Fedyk wrote:
-| On Wed, Nov 28, 2001 at 01:47:07PM -0200, Marcelo Tosatti wrote:
-| > 
-| > 
-| > Ok, 2.4.17-pre1 is out. Still going to the mirrors though, so please wait
-| > a while if you haven't found a copy on your local mirror. 
-| > 
-| > 
-| > pre1:
-| > 
-| 
-| Any chance you'll merge Robert's netdev-random uniformity cleanup patch with
-| the default to "no"?
-| 
-| mf
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
+If you don't want net devices contributing, accept the default.
+
+If you do, enable the configure setting and they all will contribute to
+/dev/random.  This has uses in diskless/headless configurations, etc.
+
+> On Wed, Nov 28, 2001 at 06:56:01PM -0800, Mike Fedyk wrote:
+> | Any chance you'll merge Robert's netdev-random uniformity cleanup
+> | patch with the default to "no"?
+
+	Robert Love
+

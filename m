@@ -1,98 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262597AbUCWPXq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 10:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbUCWPXq
+	id S262599AbUCWPZa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 10:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUCWPZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 10:23:46 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:53981 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262597AbUCWPXn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 10:23:43 -0500
-Date: Tue, 23 Mar 2004 16:23:39 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Olaf Fr?czyk <olaf@cbk.poznan.pl>
-Cc: linux-kernel@vger.kernel.org, td@linuxgang.com
-Subject: Re: 2.6.3 BUG - can't write DVD-RAM - reported as write-protected
-Message-ID: <20040323152339.GI1481@suse.de>
-References: <1078434953.1961.13.camel@venus.local.navi.pl> <20040305082350.GO31750@suse.de> <1078487159.3300.23.camel@venus.local.navi.pl> <20040307105911.GH23525@suse.de> <1078819165.1525.1.camel@venus.local.navi.pl> <20040309091221.GV23525@suse.de> <1079263025.1428.4.camel@venus.local.navi.pl> <20040314112208.GH6955@suse.de> <1080053402.1473.0.camel@venus.local.navi.pl>
+	Tue, 23 Mar 2004 10:25:29 -0500
+Received: from fed1mtao05.cox.net ([68.6.19.126]:21649 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S262599AbUCWPZ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 10:25:27 -0500
+Date: Tue, 23 Mar 2004 08:25:26 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
+Subject: Re: kgdb doesn't respond to Ctrl+C
+Message-ID: <20040323152526.GA2330@smtp.west.cox.net>
+References: <200403231202.31160.amitkale@emsyssoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1080053402.1473.0.camel@venus.local.navi.pl>
+In-Reply-To: <200403231202.31160.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 23 2004, Olaf Fr?czyk wrote:
-> > You broke it, the first check simply returns the header so .erasable
-> > must be 0 because we cleared the buffer first.
-> > 
-> > ===== drivers/cdrom/cdrom.c 1.49 vs edited =====
-> > --- 1.49/drivers/cdrom/cdrom.c	Thu Mar 11 13:31:15 2004
-> > +++ edited/drivers/cdrom/cdrom.c	Sun Mar 14 12:21:44 2004
-> > @@ -2658,11 +2658,13 @@
-> >  	/* set up command and get the disc info */
-> >  	init_cdrom_command(&cgc, di, sizeof(*di), CGC_DATA_READ);
-> >  	cgc.cmd[0] = GPCMD_READ_DISC_INFO;
-> > -	cgc.cmd[8] = cgc.buflen = 2;
-> > -	cgc.quiet = 1;
-> > +	cgc.cmd[8] = cgc.buflen = 8;
-> > +	cgc.quiet = 0;
-> >  
-> > -	if ((ret = cdo->generic_packet(cdi, &cgc)))
-> > +	if ((ret = cdo->generic_packet(cdi, &cgc))) {
-> > +		printk("cdrom: read_di failed, %d\n", ret);
-> >  		return ret;
-> > +	}
-> >  
-> >  	/* not all drives have the same disc_info length, so requeue
-> >  	 * packet with the length the drive tells us it can supply
-> > @@ -2673,6 +2675,7 @@
-> >  	if (cgc.buflen > sizeof(disc_information))
-> >  		cgc.buflen = sizeof(disc_information);
-> >  
-> > +	printk("cdrom: re-reading di, len=%d\n", cgc.buflen);
-> >  	cgc.cmd[8] = cgc.buflen;
-> >  	return cdo->generic_packet(cdi, &cgc);
-> >  }
-> On 2.6.4 with your patch I get:
-> Mar 23 15:46:03 venus kernel: cdrom: read_di failed, -95
+On Tue, Mar 23, 2004 at 12:02:30PM +0530, Amit S. Kale wrote:
 
-Ok, so your drive doesn't support GPCMD_READ_DISC_INFO at all. Probably
-the best bet is simply to allow writable open if cdrom_get_disc_info()
-fails after all, even though I hate doing stuff like that.
+> I guess something's gone wrong with serial port interrupts.
+> 
+> Tom, any ideas?
 
-===== drivers/cdrom/cdrom.c 1.50 vs edited =====
---- 1.50/drivers/cdrom/cdrom.c	Tue Mar 16 09:41:01 2004
-+++ edited/drivers/cdrom/cdrom.c	Tue Mar 23 16:23:07 2004
-@@ -725,7 +725,7 @@
- 	disc_information di;
- 
- 	if (cdrom_get_disc_info(cdi, &di))
--		return 0;
-+		return -1;
- 
- 	return di.erasable;
- }
-@@ -735,7 +735,16 @@
-  */
- static int cdrom_dvdram_open_write(struct cdrom_device_info *cdi)
- {
--	return !cdrom_media_erasable(cdi);
-+	int ret = cdrom_media_erasable(cdi);
-+
-+	/*
-+	 * allow writable open if media info read worked and media is
-+	 * erasable, _or_ if it fails since not all drives support it
-+	 */
-+	if (!ret)
-+		return 1;
-+
-+	return 0;
- }
- 
- static int cdrom_mrw_open_write(struct cdrom_device_info *cdi)
+Current CVS works for me.  Relevant .config section:
+#
+# Kernel hacking
+#
+CONFIG_DEBUG_KERNEL=y
+CONFIG_EARLY_PRINTK=y
+# CONFIG_DEBUG_STACKOVERFLOW is not set
+# CONFIG_DEBUG_STACK_USAGE is not set
+# CONFIG_DEBUG_SLAB is not set
+# CONFIG_DEBUG_IOVIRT is not set
+CONFIG_MAGIC_SYSRQ=y
+# CONFIG_DEBUG_SPINLOCK is not set
+# CONFIG_DEBUG_PAGEALLOC is not set
+# CONFIG_DEBUG_HIGHMEM is not set
+CONFIG_DEBUG_INFO=y
+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+CONFIG_KGDB=y
+CONFIG_KGDB_8250=y
+# CONFIG_PPC_SIMPLE_SERIAL is not set
+CONFIG_KGDB_SIMPLE_SERIAL=y
+CONFIG_KGDB_9600BAUD=y
+# CONFIG_KGDB_19200BAUD is not set
+# CONFIG_KGDB_38400BAUD is not set
+# CONFIG_KGDB_57600BAUD is not set
+# CONFIG_KGDB_115200BAUD is not set
+CONFIG_KGDB_TTYS0=y
+# CONFIG_KGDB_TTYS1 is not set
+# CONFIG_KGDB_TTYS2 is not set
+# CONFIG_KGDB_TTYS3 is not set
+CONFIG_FRAME_POINTER=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
 
 -- 
-Jens Axboe
-
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316246AbSEVQbH>; Wed, 22 May 2002 12:31:07 -0400
+	id <S316251AbSEVQcx>; Wed, 22 May 2002 12:32:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316247AbSEVQbG>; Wed, 22 May 2002 12:31:06 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:22792 "EHLO
+	id <S316252AbSEVQcw>; Wed, 22 May 2002 12:32:52 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:26632 "EHLO
 	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316246AbSEVQbF>; Wed, 22 May 2002 12:31:05 -0400
-Date: Wed, 22 May 2002 09:30:48 -0700 (PDT)
+	id <S316251AbSEVQcu>; Wed, 22 May 2002 12:32:50 -0400
+Date: Wed, 22 May 2002 09:31:51 -0700 (PDT)
 From: James Simmons <jsimmons@transvirtual.com>
-To: vojtech@suse.cz
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Alexander Viro <viro@math.psu.edu>, Vojtech Pavlik <vojtech@suse.cz>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Padraig Brady <padraig@antefacto.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.17 /dev/ports
-Message-ID: <Pine.LNX.4.10.10205220924310.4611-100000@www.transvirtual.com>
+In-Reply-To: <3CEB9A3C.6000102@evision-ventures.com>
+Message-ID: <Pine.LNX.4.10.10205220931260.4611-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->On Wed, May 22, 2002 at 03:58:38PM +0100, Alan Cox wrote:
-> > > > IOCTL is ineed the way to go to implement such functionality...
-> > >
-> > > Yes, the EVIOCSREP ioctl will be the one soon (works for USB
-> > > keyboards now).
-> >
-> > The KBDRATE ioctl is already supported by all other keyboard drivers
-> > and used by XFree86....
->
->Correct. And it'll work on USB as well once the console code is
->interfaced to USB better than just by injecting scancodes into
->pc_keyb.c.
->
->KBDRATE will work on console, while EVIOCSREP will work if you open the
->keyboard as an event device.
+> > For kbdrate???  sysctl I might see - after all, we are talking about
+> > setting two numbers.  ioctl() to pass a couple of integers to the kernel?
+> > No, thanks.
+> 
+> Ahhh and just another note - we are talking about a property of a
+> *device* not a property of the kernel - so ioctl (read io as device)
+> and certainly not sysctl (read sys as kernel).
+> 
+> What could be sonsidered as an *serious* alternative would
+> be to abstract it out even further and implement it on
+> the tset (terminal settings) levels. But *certainly* not sysctl.
 
-Alan you are thinking to PC here. On embedded devices that run X it is
-just extra over head to use the VT interface. It would be much lighter
-weigth to use the /dev/input/event interface. Personally I like to see
-KBDRATE and alot of other junk go away in the console code. Intead we
-just use the input api and /dev/fb with DRI. I have talked to Jim Getty
-about this and likes to see things head in this direction.
-
-P.S
-   Jim Getty was working on having X windows using the input api :-) 
-   
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
+Hm. That is a interesting idea. I like it.
 

@@ -1,66 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbTEUXuo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 19:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbTEUXuo
+	id S262402AbTEVACO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 20:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTEVACN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 19:50:44 -0400
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:36026 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S262367AbTEUXun
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 19:50:43 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: must-fix list, v5
-Date: Thu, 22 May 2003 01:59:08 +0200
-User-Agent: KMail/1.5.1
-Cc: Andrew Morton <akpm@digeo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 21 May 2003 20:02:13 -0400
+Received: from holomorphy.com ([66.224.33.161]:6025 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262402AbTEVACL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 20:02:11 -0400
+Date: Wed, 21 May 2003 17:14:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Keith Mannthey <kmannth@us.ibm.com>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, davem@redhat.com,
+       habanero@us.ibm.com, haveblue@us.ibm.com, arjanv@redhat.com,
+       pbadari@us.ibm.com,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       gh@us.ibm.com, johnstul@us.ltcfwd.linux.ibm, jamesclv@us.ibm.com,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: userspace irq =?unknown-8bit?Q?balance?=
+	=?unknown-8bit?B?csKg?=
+Message-ID: <20030522001459.GN8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Keith Mannthey <kmannth@us.ibm.com>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, davem@redhat.com,
+	habanero@us.ibm.com, haveblue@us.ibm.com, arjanv@redhat.com,
+	pbadari@us.ibm.com,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	gh@us.ibm.com, johnstul@us.ltcfwd.linux.ibm, jamesclv@us.ibm.com,
+	Andrew Morton <akpm@digeo.com>
+References: <1053541725.16886.4711.camel@dyn9-47-17-180.beaverton.ibm.com> <1053560371.19335.4725.camel@dyn9-47-17-180.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305220159.08452.arnd@arndb.de>
+In-Reply-To: <1053560371.19335.4725.camel@dyn9-47-17-180.beaverton.ibm.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a list of things we need to do on s390 for 2.6:
+On Wed, May 21, 2003 at 04:39:29PM -0700, Keith Mannthey wrote:
+>   Only kinda.  Boxes with Hyperthreaded cpus have an odd ordering
+> scheme.  The BIOS is free to assign apicids at will to any cpu.  It is
+> not forced to any certain scheme.  On some hyperthreaded boxes the 2nd
+> cpu is on the same apicid cluster even thought the cpu numbers are far
+> apart. 
+>   This makes building meaningful apicid masks (more than one cpu) a bit
+> tricky.  For example a user would have to know that cpus 1,2,9,10 were
+> on the same cluster not (1,2,3,4) as you would expect. Since the bios
+> can do what it will it makes it hard to build masks of capable clusters
+> easily in all situations.
 
-arch/s390/
-~~~~~~~~~
+APIC issues can be dealt with very, very simply.
+(1) for each cpu, report the physical APIC ID
+(2) for each cpu, report the logical APIC ID
+	(or if using only physical IPI's whatever the BIOS left in the LDR)
+(3) report the DFR setting used globally across the system
+(4) for each IO-APIC, report where it's attached (bus and node)
+(5) report the contents of each IO-APIC RTE
+	(5a) report the destination (interpretation depends on DESTMOD)
+	(5b) report DESTMOD as either logical or physical
+	(5c) report what it's connected to (irq, possibly driver name)
+(6) report the APIC revision(s) (to distinguish APIC from xAPIC)
+(7) report the IO-APIC revision(s) (for completeness)
 
-o A nastly memory management problem causes random crashes.
-  These appear to be fixed/hidden by the objrmap patch, more
-  investigation is needed.
+The cpus a given IO-APIC RTE can address with physical DESTMOD can then
+be determined from the APIC revision, and the cpus a given IO-APIC RTE
+can address with logical DESTMOD can then be determined from the APIC
+revision and (global and immutable, though the register is per- local
+APIC; there's no good way to switch over, and no reason to) DFR setting.
 
-drivers/s390/
-~~~~~~~~~~~~~
+The logical CPU number used to refer to CPUs by the kernel bears no
+relation to APIC ID's apart from arithmetic schemes artificially
+imposed by the implementation. Fully tabulating the APIC ID's for all
+the CPUs as in (1) and (2) is sufficient information for userspace to
+construct and invert the relation as required to determine APIC cluster
+membership. It is also possible to directly export APIC clusters as
+sysfs objects and enumerate the cpus, though (IMHO) it's best to merely
+expose the information the kernel acts on as it stands now and let
+userspace infer the rest.
 
-o Early userspace and 64 bit dev_t will allow the removal of most of
-  dasd_devmap.c and dasd_genhd.c.
+In principle one could also export the ability to set IO-APIC RTE's
+DESTMOD bits on the fly, given proper validity checks for
+addressibility and the like (I'm assuming one would rather barf than
+deadlock the box even if some additional code were required). The one
+box where it matters doesn't care to use irqbalance anyway, though.
 
-o The 3270 console driver needs to be replaced with a working one
-  (prototype is there, needs to be finished).
+Basically, spill your guts as to what you've got and let userspace
+think about how to do the right thing with it.
 
-o Minor interface changes are pending in cio/ when the z990 machines
-  are out.
 
-There are some more things being worked on that are either post-2.6.0
-or are likely to remain outside of the official kernel (i.e. not for
-your list):
-
-o Jan Glauber is working on a fix for the timer issues related
-  to running on virtualized CPUs (wall-clock vs. cpu time).
-
-o new zfcp fibre channel driver
-
-o the qeth driver will become GPL soon
-
-o a block device driver for ramdisks shared among virtual
-  machines
-
-o driver for crypto hardware
-
-o 'claw' network device driver
-
-	Arnd <><
+-- wli

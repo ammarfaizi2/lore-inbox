@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132733AbRDNDQq>; Fri, 13 Apr 2001 23:16:46 -0400
+	id <S132734AbRDNDaS>; Fri, 13 Apr 2001 23:30:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132734AbRDNDQh>; Fri, 13 Apr 2001 23:16:37 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:1029 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132733AbRDNDQ0>;
-	Fri, 13 Apr 2001 23:16:26 -0400
-Date: Fri, 13 Apr 2001 23:17:57 -0400
-Message-Id: <200104140317.f3E3Hv805992@snark.thyrsus.com>
-From: "Eric S. Raymond" <esr@snark.thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: CML 1.1.0, aka "I feel the need...the need for speed."
+	id <S132735AbRDNDaI>; Fri, 13 Apr 2001 23:30:08 -0400
+Received: from member.michigannet.com ([207.158.188.18]:30216 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S132734AbRDNDaD>; Fri, 13 Apr 2001 23:30:03 -0400
+Date: Fri, 13 Apr 2001 23:28:55 -0400
+From: Paul <set@pobox.com>
+To: linux-kernel@vger.kernel.org
+Cc: tomlins@cam.org, viro@math.psu.edu
+Subject: Re: [PATCH] Re: memory usage - dentry_cacheg
+Message-ID: <20010413232855.G219@squish.home.loc>
+In-Reply-To: <Pine.GSO.4.21.0104120110210.18135-100000@weyl.math.psu.edu> <20010412114617.051FE723C@oscar.casa.dyndns.org> <0104121730590X.11986@webman>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0104121730590X.11986@webman>; from kowalski@datrix.co.za on Thu, Apr 12, 2001 at 05:30:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+Marcin Kowalski <kowalski@datrix.co.za>, on Thu Apr 12, 2001 [05:30:59 PM] said:
+> Hi
+> 
+> I have applied this(Tom's) patch as well as the small change to 
+> dcache.c(thanx Andreas, David, Alexander and All), I ran some tests and so 
+> far so good, both the dcache and inode cache entries in slabinfo are keeping 
+> nice and low even though I tested by creating thousands of files and then 
+> deleting then. The dentry and icache both pruged succesfully.
+> 
 
-Release 1.1.0: Fri Apr 13 23:10:56 EDT 2001
-	* Better-controlled recursivity in the theorem prover; reading in
-	  defconfigs is much faster now.
-	* Revised config/xconfig/menuconfig/oldconfigs productions, these
-	  should be a better match for the expected behavior now.
-	* Ternary-select (a ? b : c) added to the language.
+	I applied these patches to 2.4.3-ac5, and it made a world
+of difference. I can run kernel compiles, things like 'find /',
+and move between desktops running netscape, mutt with 15000
+messages threaded, etc. without sloggy delays... eg. previously
+netscape used to take a second or so to repaint under this type
+of 'load' upon returning to it from a brief visit to another
+desktop.
+	This is a subjective assesment of my desktop type system,
+k6-333 with 64M; 2.4 is much more usable for me now.
+	If anyone wants me to run specific tests, I am willing.
 
-Configurator startup is now so much faster it's almost ridiculous.  Wheee!
+Paul
+set@pobox.com
 
-I added ternary-select to handle some weird cases in the CRIS port
-tree for 2.4.4-pre1.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Question with boldness even the existence of a God; because, if there
-be one, he must more approve the homage of reason, than that of
-blindfolded fear.... Do not be frightened from this inquiry from any
-fear of its consequences. If it ends in the belief that there is no
-God, you will find incitements to virtue in the comfort and
-pleasantness you feel in its exercise...
-	-- Thomas Jefferson, in a 1787 letter to his nephew

@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315526AbSEQJqW>; Fri, 17 May 2002 05:46:22 -0400
+	id <S315536AbSEQJs0>; Fri, 17 May 2002 05:48:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315535AbSEQJqV>; Fri, 17 May 2002 05:46:21 -0400
-Received: from [202.135.142.196] ([202.135.142.196]:57104 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S315526AbSEQJqV>; Fri, 17 May 2002 05:46:21 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "David S. Miller" <davem@redhat.com>
+	id <S315537AbSEQJsZ>; Fri, 17 May 2002 05:48:25 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:41626 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315536AbSEQJsY>;
+	Fri, 17 May 2002 05:48:24 -0400
+Date: Fri, 17 May 2002 02:35:06 -0700 (PDT)
+Message-Id: <20020517.023506.105129697.davem@redhat.com>
+To: rusty@rustcorp.com.au
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: AUDIT: copy_from_user is a deathtrap. 
-In-Reply-To: Your message of "Fri, 17 May 2002 02:21:48 MST."
-             <20020517.022148.48851839.davem@redhat.com> 
-Date: Fri, 17 May 2002 19:49:40 +1000
-Message-Id: <E178eMm-0000NO-00@wagner.rustcorp.com.au>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E178eMm-0000NO-00@wagner.rustcorp.com.au>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020517.022148.48851839.davem@redhat.com> you write:
->    From: Rusty Russell <rusty@rustcorp.com.au>
->    Date: Fri, 17 May 2002 19:27:54 +1000
-> 
->    There are 415 uses of copy_to/from_user which are wrong, despite an
->    audit 12 months ago by the Stanford checker.
->    
-> I would much rather fix these instances than add yet another
-> interface.
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Fri, 17 May 2002 19:49:40 +1000
+   
+   Sorry I wasn't clear: I'm saying *replace*, not add,
 
-I'll accept that if someone's volunteering to audit the kernel for
-them every six months.
+I don't understand what you are proposing then.  There are some
+instances that do want to know how many bytes did make it before
+the -EFAULT event.
 
-Sorry I wasn't clear: I'm saying *replace*, not add,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+You have to add a new version of the interface to handle both
+the case that cares about the length copied successfully and
+the case that only cares about -EFAULT vs. !-EFAULT

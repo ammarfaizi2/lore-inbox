@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285936AbRLVAfr>; Fri, 21 Dec 2001 19:35:47 -0500
+	id <S285634AbRLVAdH>; Fri, 21 Dec 2001 19:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285705AbRLVAfi>; Fri, 21 Dec 2001 19:35:38 -0500
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:60136 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S285936AbRLVAfS>; Fri, 21 Dec 2001 19:35:18 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C42D819@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Hans-Christian Armingeon'" <linux.johnny@gmx.net>,
-        linux-kernel@vger.kernel.org
-Subject: RE: link errors with CONFIG_SERIAL_ACPI enabled
-Date: Fri, 21 Dec 2001 16:35:08 -0800
+	id <S286123AbRLVAc5>; Fri, 21 Dec 2001 19:32:57 -0500
+Received: from isis.telemach.net ([213.143.65.10]:22020 "HELO
+	isis.telemach.net") by vger.kernel.org with SMTP id <S285936AbRLVAcu>;
+	Fri, 21 Dec 2001 19:32:50 -0500
+Message-ID: <001101c18a80$bd5202c0$41448fd5@telemach.net>
+From: "Grega Fajdiga" <Gregor.Fajdiga@telemach.net>
+To: "Mark Hahn" <hahn@physics.mcmaster.ca>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112211259570.1091-100000@coffee.psychology.mcmaster.ca>
+Subject: Re: Problems with ATA hard disk(s)
+Date: Sat, 22 Dec 2001 01:36:45 +0100
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="ISO-8859-1"
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_SERIAL_ACPI should be an IA64 only option (but it's not) so just
-deselect it for now if you're on IA32.
+Good day,
 
-Regards -- Andy
+> 
+> please read the FAQ.
+I will 
+> I'm guessing you've failed to set the relevant ide-related CONFIG_
+> settings.  you definitely want the piix driver, and almost certainly
+> also all the yes-really-use-dma-by-default ones.
 
-> From: Hans-Christian Armingeon [mailto:linux.johnny@gmx.net]
-> Am Freitag, 21. Dezember 2001 22:45 schrieb Hans-Christian Armingeon:
-> > Hi folks,
-> > I noticed, that every time I switch on CONFIG_SERIAL_ACPI 
-> as a Module, I
-> > get some linker errors when make bzImage tries to link the bzImage
-> > together. I don't have the exact output at hands, but I'll 
-> reproduce it if
-> > needed.
-> here it comes
+Thank you, this indeed solved my problems.
+
+Regards,
+Grega Fajdiga
+

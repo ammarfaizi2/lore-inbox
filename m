@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289580AbSAON4j>; Tue, 15 Jan 2002 08:56:39 -0500
+	id <S289582AbSAOOFX>; Tue, 15 Jan 2002 09:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289579AbSAON43>; Tue, 15 Jan 2002 08:56:29 -0500
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:59647 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S289577AbSAON4T>; Tue, 15 Jan 2002 08:56:19 -0500
-Subject: Re: [BUG] 2.4.18.3, ide-patch, read_dev_sector hangs in read_cache_page
-To: preining@logic.at
-Date: Tue, 15 Jan 2002 13:54:57 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, andre@linuxdiskcert.org
-X-Mailer: ELM [version 2.4 PL24]
+	id <S289585AbSAOOFL>; Tue, 15 Jan 2002 09:05:11 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:43743 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S289582AbSAOOE7>;
+	Tue, 15 Jan 2002 09:04:59 -0500
+Message-ID: <3C443685.70305@debian.org>
+Date: Tue, 15 Jan 2002 15:02:45 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Alan Cox <alan@aunt-tillie.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, esr@thyrsus.com
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+In-Reply-To: <fa.fslncfv.r6o11i@ifi.uio.no> <fa.hqe5uev.c60cjs@ifi.uio.no> <3C4427F6.3010703@debian.org> <20020115135756.A19738@lightning.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16QU3F-0005g6-00@libra.cus.cam.ac.uk>
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+X-OriginalArrivalTime: 15 Jan 2002 14:04:57.0632 (UTC) FILETIME=[9D51BA00:01C19DCD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Norbert,
 
-Could you try this patchlet to fs/partitions/check.c::read_dev_sector() and look if there is any output by dmesg? It's
-a bit of a shot in the dark but will at least exclude this as the source for the peoblem...
 
-diff -u -ur linux-2.4.18-pre3-ac2/fs/partitions/check.c linux-2.4.18-pre3-ac2-aia1/fs/partitions/check.c
---- linux-2.4.18-pre3-ac2/fs/partitions/check.c	Fri Oct 12 01:25:10 2001
-+++ linux-2.4.18-pre3-ac2-aia1/fs/partitions/check.c	Tue Jan 15 13:21:24 2002
-@@ -410,6 +410,14 @@
- 	int sect = PAGE_CACHE_SIZE / 512;
- 	struct page *page;
+Alan Cox wrote:
+
  
-+	if (mapping->a_ops->sync_page != block_sync_page) {
-+		if (mapping->a_ops->sync_page)
-+			printk(KERN_CRIT "read_dev_sector: mapping->a_ops->sync_page != block_sync_page!\n");
-+		else {
-+			printk(KERN_CRIT "read_dev_sector: mapping->a_ops->sync_page is NULL! Setting to default block_sync_page!\n");
-+			mapping->a_ops->sync_page = block_sync_page;
-+		}
-+	}
- 	page = read_cache_page(mapping, n/sect,
- 			(filler_t *)mapping->a_ops->readpage, NULL);
- 	if (!IS_ERR(page)) {
+> All of us get the CPU wrong. By using modules however I don't have to guess
+> the PCI devices. My system already did that. I just need the configurator
+> to hit M a lot and to work out which root devices are for the initrd.
+> 
+> The code for that exists
 
 
-Best regards,
+It is easier to get autoconfigure in linux sources, than
+modify the default (and broken) configuration from Linus.
+(Sorry Linus :-) )
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+ 	giacomo
+
+

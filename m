@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265211AbTAJQBc>; Fri, 10 Jan 2003 11:01:32 -0500
+	id <S265414AbTAJQNr>; Fri, 10 Jan 2003 11:13:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265247AbTAJQBb>; Fri, 10 Jan 2003 11:01:31 -0500
-Received: from holomorphy.com ([66.224.33.161]:16026 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265211AbTAJQBb>;
-	Fri, 10 Jan 2003 11:01:31 -0500
-Date: Fri, 10 Jan 2003 08:10:12 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: any chance of 2.6.0-test*?
-Message-ID: <20030110161012.GD2041@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S265423AbTAJQNr>; Fri, 10 Jan 2003 11:13:47 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:52114
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265414AbTAJQNr>; Fri, 10 Jan 2003 11:13:47 -0500
+Subject: Re: BLKBSZSET still not working on 2.4.18 ?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ludovic Drolez <ludovic.drolez@freealter.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E1EE7A3.1050401@freealter.com>
+References: <3E1EE7A3.1050401@freealter.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042218525.31848.40.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 10 Jan 2003 17:08:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Say, I've been having _smashing_ success with 2.5.x on the desktop and
-on big fat highmem umpteen-way SMP (NUMA even!) boxen, and I was
-wondering if you were considering 2.6.0-test* anytime soon.
+On Fri, 2003-01-10 at 15:32, Ludovic Drolez wrote:
+> I'm trying to backup a partition on an IDE drive which has an odd number 
+> of sectors (204939). With a stock open/read you cannot access the last 
+> sector, and that why I tried the BLKBSZSET ioctl to set the basic read 
+> block size to 512 bytes. I verified the writen value with BLKBSZGET 
+> ioctl, but I still cannot read this last sector !
 
-I'd love to get this stuff out for users to hammer on ASAP, and things
-are looking really good AFAICT.
-
-Any specific concerns/issues/wishlist items you want taken care of
-before doing it or is it a "generalized comfort level" kind of thing?
-Let me know, I'd be much obliged for specific directions to move in.
+Its a known 2.4 limitation. The last odd sector isnt normally used by
+anything so it has never been a big issue (except with EFI partition
+data). There is a patch to allow the last sector to be recovered but
+its quite ugly so never went mainstream.
 
 
-Thanks,
-Bill

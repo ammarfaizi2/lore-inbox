@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVCHUa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVCHUep@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbVCHUa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 15:30:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbVCHUaK
+	id S262209AbVCHUep (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 15:34:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCHUa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 15:30:10 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:46047 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262047AbVCHU1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 15:27:25 -0500
-Subject: Re: [PATCH] clean up FIXME in do_timer_interrupt
-From: Lee Revell <rlrevell@joe-job.com>
-To: george@mvista.com
-Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <4228CBFB.3000602@mvista.com>
-References: <1109869828.2908.18.camel@mindpipe>
-	 <20050303164520.0c0900df.akpm@osdl.org> <1109899148.3630.5.camel@mindpipe>
-	 <42283857.9050007@mvista.com> <1109968985.6710.16.camel@mindpipe>
-	 <4228CBFB.3000602@mvista.com>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 15:27:24 -0500
-Message-Id: <1110313644.4600.13.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 15:30:28 -0500
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:64729 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S262113AbVCHU2P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 15:28:15 -0500
+Date: Tue, 8 Mar 2005 12:27:57 -0800 (PST)
+From: Junfeng Yang <yjf@stanford.edu>
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <ext2-devel@lists.sourceforge.net>, <mc@cs.Stanford.EDU>
+Subject: Re: [CHECKER] crash after fsync causing serious FS corruptions (ext2,
+ 2.6.11)
+In-Reply-To: <20050308123109.GA7005@thunk.org>
+Message-ID: <Pine.GSO.4.44.0503081212180.1669-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 12:58 -0800, George Anzinger wrote:
-> Lee Revell wrote:
-> > On Fri, 2005-03-04 at 02:28 -0800, George Anzinger wrote:
-> > The thing that brought this code to my attention is that with PREEMPT_RT
-> > this happens to be the longest non-preemptible code path in the kernel.
-> > On my 1.3 Ghz machine set_rtc_mmss takes about 50 usecs, combined with
-> > the rest of timer irq we end up disabling preemption for about 90 usecs.
-> > Unfortunately I don't have the trace anymore.
-> > 
-> > Anyway the upshot is if we hung this off a timer it looks like we would
-> > improve the worst case latency with PREEMPT_RT by almost 50%.  Unless
-> > there is some reason it has to be done synchronously of course.
-> 
-> Well, it does have to be done at the right WRT the second, but I suspect we can 
-> hit that as well with a timer as it is hit now.  Also, if we are _really_ off 
-> the mark, this can be defered till the next second.
-> 
+> I believe the warning should go away if you mount -o sync (but then
+> the filesystem will perform very slowly :-).
+>
 
-Do you have a patch?
+I do agree with you, Andreas and other ppl on that this is expected
+behavior on ext2, and ext3 should be chosen over ext2 when such
+corruptions are under consideration.
 
-Andrew merged my trivial patch to clean up the logic, but a real fix
-would be better.
+However, mount -o sync won't fix the problem for ext2 either :)  I sent a
+report last week about that ext2 doesn't actually sync writes even if an
+ext2 partition is mounted -o sync,dirsync.  Andrew confirmed that ext2 has
+MS_SYNCHONOUS holes (and possibly O_SYNC holes).
 
-Lee
+check out http://www.uwsg.iu.edu/hypermail/linux/kernel/0503.0/1252.html
+or google "Junfeng mount sync".
+
+Thanks,
+-Junfeng
 

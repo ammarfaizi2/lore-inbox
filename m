@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316046AbSEJP3L>; Fri, 10 May 2002 11:29:11 -0400
+	id <S316048AbSEJPbN>; Fri, 10 May 2002 11:31:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316048AbSEJP3K>; Fri, 10 May 2002 11:29:10 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:56070 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316046AbSEJP3I>; Fri, 10 May 2002 11:29:08 -0400
-Date: Fri, 10 May 2002 16:29:02 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
+	id <S316049AbSEJPbM>; Fri, 10 May 2002 11:31:12 -0400
+Received: from gw.chygwyn.com ([62.172.158.50]:28169 "EHLO gw.chygwyn.com")
+	by vger.kernel.org with ESMTP id <S316048AbSEJPbL>;
+	Fri, 10 May 2002 11:31:11 -0400
+From: Steven Whitehouse <steve@gw.chygwyn.com>
+Message-Id: <200205101511.QAA29742@gw.chygwyn.com>
+Subject: Re: Kernel deadlock using nbd over acenic driver.
+To: chen_xiangping@emc.com (chen, xiangping)
+Date: Fri, 10 May 2002 16:11:23 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to redirect serial console to telnet session?
-Message-ID: <20020510162902.C7165@flint.arm.linux.org.uk>
-In-Reply-To: <3CDBC5A5.A1844CC0@nortelnetworks.com> <20020510160945.B7165@flint.arm.linux.org.uk> <3CDBD9EA.1826BB48@nortelnetworks.com>
-Mime-Version: 1.0
+In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A43@srgraham.eng.emc.com> from "chen, xiangping" at May 10, 2002 11:02:05 AM
+Organization: ChyGywn Limited
+X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
+X-RegisteredNumber: 03887683
+Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 10:32:10AM -0400, Chris Friesen wrote:
-> I found some patches by Ingo Molnar, but they look like kernel mods.
+Hi,
 
-That's the one.
+> 
+> Hi,
+> 
+[deadlock conditions snipped]
+> 
+> The nbd_client get stuck in sock_recvmsg, and one other process stucks
+> in do_nbd_request (sock_sendmsg). I will try to use kdb to give you
+> more foot print.
+> 
+Anything extra you can send me like that will be very helpful.
 
-> What I'm really looking for is a way to redirect this from userspace in
-> a stock kernel.
+> The system was low in memory, I started up 20 to 40 thread to do block
+> write simultaneously.
+> 
+Ok. I'll have to try and set something similar up because I've not seen
+any hangs with the latest nbd in 2.4 at all. Do you find that the hangs
+happen relatively quickly after you start the I/O or is it something
+which takes some time ?
 
-There isn't anything in the stock kernel that will let you do this
-without some form of patches being applied.
-
-> I want the serial console as normal, but then for just debugging this
-> one thing I want to telnet in over ethernet and basically redirect /dev/ttyS0
-> onto my telnet session.
-
-telnet (and its associated protocol) is a completely different beast to
-serial consoles - in fact any network connection is.
-
-If you really want to get at the kernel message data, there's dmesg
-or a simple cat /proc/kmsg.  The problem with these is, when the kernel
-crashes, you won't get the last messages.  Also, if you're generating
-more than 16K of messages before allowing the kernel to continue (and
-thus user space) you're also going to loose messages.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Steve.

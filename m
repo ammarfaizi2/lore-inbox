@@ -1,133 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288811AbSAEOFC>; Sat, 5 Jan 2002 09:05:02 -0500
+	id <S288825AbSAEO3W>; Sat, 5 Jan 2002 09:29:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288815AbSAEOEv>; Sat, 5 Jan 2002 09:04:51 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:10509 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S288811AbSAEOEf>; Sat, 5 Jan 2002 09:04:35 -0500
-Message-ID: <3C37074A.1020201@namesys.com>
-Date: Sat, 05 Jan 2002 17:01:46 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-dev] Patch?: linux-2.5.2-pre8/fs/reiserfs kdev_t compilation fixes
-In-Reply-To: <20020105051938.A25230@baldur.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288826AbSAEO3K>; Sat, 5 Jan 2002 09:29:10 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:61349 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S288825AbSAEO27>; Sat, 5 Jan 2002 09:28:59 -0500
+Message-Id: <5.1.0.14.2.20020105142339.03156750@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 05 Jan 2002 14:29:06 +0000
+To: Daniel Phillips <phillips@bonn-fries.net>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [RFC] [PATCH] Clean up fs.h union for ext2
+Cc: Legacy Fishtank <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net,
+        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Alexander Viro <viro@math.psu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <E16JRb5-0000cg-00@starship.berlin>
+In-Reply-To: <20011226222809.A8233@havoc.gtf.org>
+ <E16JR71-0000cU-00@starship.berlin>
+ <20011226222809.A8233@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We'll test and release a patch on ~tuesday.  Right now all programmers 
-are on Russian holidays.
-
-Thanks Adam,
-
-Hans
-
-
-Adam J. Richter wrote:
-
->	The following patch gets linux-2.5.2-pre8/fs/reiserfs to
->compile.  I suspect that a lot of the conversion back and forth
->between integers and kdev_t that I have accomodated could possibly
->be eliminated by someone who understands the fs/reiserfs better.
+At 03:52 27/12/01, Daniel Phillips wrote:
+>On December 27, 2001 04:28 am, Legacy Fishtank wrote:
+> > Change in principle looks good except IMHO you should go ahead and
+> > remove the ext2 stuff from the union...  (with the additional changes
+> > that implies)
 >
->	I have not tested this patch in any way.  I only know that
->it compiles.
+>Thanks for your confidence, but that would be a considerably bigger patch.
+>It's not just a matter of removing the includes - other bits and pieces have
+>to be put in place, such as per-filesystem inode slab.  The support for this
+>goes outside ext2.
 >
+>My idea is to just let people have a look and test this minimally intrusive
+>change.  Getting rid of the includes for ext2 inodes will be a two-patch
+>change:
 >
->------------------------------------------------------------------------
+>   1) Abstract away the ext2 .u's (done)
+>   2) Per-fs inode slab, initially only for ext2 (partly done)
 >
->Only in linux/fs/reiserfs: CVS
->diff -u -r linux-2.5.2-pre8/fs/reiserfs/procfs.c linux/fs/reiserfs/procfs.c
->--- linux-2.5.2-pre8/fs/reiserfs/procfs.c	Fri Jan  4 19:40:37 2002
->+++ linux/fs/reiserfs/procfs.c	Sat Jan  5 05:12:34 2002
->@@ -77,7 +77,7 @@
-> 	int len = 0;
-> 	struct super_block *sb;
->     
->-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
->+	sb = procinfo_prologue( to_kdev_t((int)data) );
-> 	if( sb == NULL )
-> 		return -ENOENT;
-> 	len += sprintf( &buffer[ len ], "%s format\twith checks %s\n",
->@@ -134,7 +134,7 @@
-> 	struct reiserfs_sb_info *r;
-> 	int len = 0;
->     
->-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
->+	sb = procinfo_prologue( to_kdev_t((int)data) );
-> 	if( sb == NULL )
-> 		return -ENOENT;
-> 	r = &sb->u.reiserfs_sb;
->@@ -214,7 +214,7 @@
-> 	int len = 0;
-> 	int level;
-> 	
->-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
->+	sb = procinfo_prologue( to_kdev_t((int)data) );
-> 	if( sb == NULL )
-> 		return -ENOENT;
-> 	r = &sb->u.reiserfs_sb;
->@@ -293,7 +293,7 @@
-> 	struct reiserfs_sb_info *r = &sb->u.reiserfs_sb;
-> 	int len = 0;
->     
->-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
->+	sb = procinfo_prologue( to_kdev_t((int)data) );
-> 	if( sb == NULL )
-> 		return -ENOENT;
-> 	r = &sb->u.reiserfs_sb;
->@@ -334,7 +334,7 @@
-> 	int hash_code;
-> 	int len = 0;
->     
->-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
->+	sb = procinfo_prologue( to_kdev_t((int)data) );
-> 	if( sb == NULL )
-> 		return -ENOENT;
-> 	sb_info = &sb->u.reiserfs_sb;
->@@ -387,7 +387,7 @@
-> 	int len = 0;
-> 	int exact;
->     
->-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
->+	sb = procinfo_prologue( to_kdev_t((int)data) );
-> 	if( sb == NULL )
-> 		return -ENOENT;
-> 	sb_info = &sb->u.reiserfs_sb;
->@@ -438,7 +438,7 @@
-> 	struct reiserfs_super_block *rs;
-> 	int len = 0;
->     
->-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
->+	sb = procinfo_prologue( to_kdev_t((int)data) );
-> 	if( sb == NULL )
-> 		return -ENOENT;
-> 	r = &sb->u.reiserfs_sb;
->@@ -491,7 +491,7 @@
-> 			"prepare_retry: \t%12lu\n",
-> 
-> 			DJF( s_journal_block ),
->-			DJF( s_journal_dev ) == 0 ? "none" : bdevname( DJF( s_journal_dev ) ), 
->+			DJF( s_journal_dev ) == 0 ? "none" : bdevname( to_kdev_t( DJF( s_journal_dev ) ) ),
-> 			DJF( s_journal_dev ),
-> 			DJF( s_orig_journal_size ),
-> 			DJF( s_journal_trans_max ),
->@@ -578,7 +578,7 @@
-> {
-> 	return ( sb->u.reiserfs_sb.procdir ) ? create_proc_read_entry
-> 		( name, 0, sb->u.reiserfs_sb.procdir, func, 
->-		  ( void * ) ( int ) sb -> s_dev ) : NULL;
->+		  ( void * ) kdev_t_to_nr( sb -> s_dev ) ) : NULL;
-> }
-> 
-> void reiserfs_proc_unregister( struct super_block *sb, const char *name )
->
+>Removing the includes for ext2 superblocks will need another two patches.  By
+>the time all filesystems are done, it would be thousands of lines if it was
+>all in one patch.  I think it's better to keep it broken up, and do it
+>incrementally.
+
+If anyone wants a look NTFS TNG already has gone all the way (for a while 
+now in fact). Both fs inode and super block are fs internal slab caches and 
+both use static inline NTFS_I / NTFS_SB functions and the ntfs includes 
+from linux/fs.h are removed altogether. Code is in sourceforge cvs. For 
+instructions how to download the code or to browse it online, see:
+
+         http://sourceforge.net/cvs/?group_id=13956
+
+The module of interest is ntfs-driver-tng.
+
+If anyone is doing patches for all kernel file systems, don't bother with 
+ntfs in 2.5 as NTFS TNG will replace the old ntfs driver soon (certainly in 
+2.5 time frame).
+
+Best regards,
+
+         Anton
 
 
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

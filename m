@@ -1,90 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266381AbRGFVOU>; Fri, 6 Jul 2001 17:14:20 -0400
+	id <S266853AbRGFVRK>; Fri, 6 Jul 2001 17:17:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266808AbRGFVOK>; Fri, 6 Jul 2001 17:14:10 -0400
-Received: from [199.26.153.10] ([199.26.153.10]:10245 "HELO fourelle.com")
-	by vger.kernel.org with SMTP id <S266381AbRGFVOE>;
-	Fri, 6 Jul 2001 17:14:04 -0400
-Message-ID: <3B4629A0.2AFB3AF9@fourelle.com>
-Date: Fri, 06 Jul 2001 14:12:00 -0700
-From: "Adam D. Scislowicz" <adams@fourelle.com>
-Organization: Fourelle Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac17 i686)
+	id <S266852AbRGFVRA>; Fri, 6 Jul 2001 17:17:00 -0400
+Received: from moat2.centtech.com ([206.196.95.21]:1206 "EHLO
+	prox.centtech.com") by vger.kernel.org with ESMTP
+	id <S266853AbRGFVQs>; Fri, 6 Jul 2001 17:16:48 -0400
+Message-ID: <3B462AA8.F7F0089D@centtech.com>
+Date: Fri, 06 Jul 2001 16:16:24 -0500
+From: Eric Anderson <anderson@centtech.com>
+Reply-To: anderson@centtech.com
+Organization: Centaur Technology
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.14-5.0smp i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: adams@fourelle.com
-Subject: Re: IDE0/Slave Detection Fails in 2.4.x(2.4.4, 2.4.5, and 2.4.5-ac18 
- tested)
-In-Reply-To: <3B4605E5.DDA1B8CA@fourelle.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BIGMEM kernel question
+In-Reply-To: <E15IckP-0004w6-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just an update: I have now tested it with the 2.4.6 kernel and the problem
+Ahh. That makes sense.  So how can I change the chunk size from 64k to
+something higher (I assume I could set it to 128k to effectively double
+that 3GB to 6GB)?  
 
-persists :(
+Eric Anderson
 
-I failed to mention in the previous email that the machine is an 2
-processor SMP machine.
 
- -Adam
+Alan Cox wrote:
+> 
+> > kernel.  My machine has 4GB of RAM, and 6GB of swap.  It appears that I
+> > can only allocate 2930 MB (using heapc_linux and other programs).  What
+> > do I need to do to get Linux to allow allocation of all available memory
+> 
+> A non x86 based computer. Its basically impractical to map more than 3Gb of
+> memory to user space per process on x86. You can use mmap and shared memory
+> to do DOS EMS like tricks with gig rather than 64K sized chunks but you want
+> a real 64bit processor to go further
+> 
+> Alan
 
-"Adam D. Scislowicz" wrote:
-
-> I am having a problem where the 2.4.x(2.4.4, and 2.4.5, and 2.4.5-ac18)
-> kernel does not detect the IDE0/primary slave device. If I put a third
-> drive in the system as IDE1/secondary master then that is detected.
-> However
-> the IDE0/primary slave is never detected.
->
-> Using the 2.2.19 kernel the IDE0/primary slave device IS detected
-> properly. This
-> can be seen below in the 2.2.19 Kernel Init Messages.
->
-> Below is some more detailed info.
->  *Note: Please CC me in any replay as I am not subscribed to this
-> mailiing list ;)
->
->  -Adam Scislowicz
->
-> [ My IDE Controller Info (2.2.19:/proc/pci) ]
->   Bus  0, device   7, function  1:
->     IDE interface: Intel 82371AB PIIX4 IDE (rev 1).
->       Medium devsel.  Fast back-to-back capable.  Master Capable.
-> Latency=64.
->       I/O at 0xffa0 [0xffa1].
->
-> [ The 2.2.19 Kernel Init Messages ]
-> PIIX4: IDE controller on PCI bus 00 dev 39
-> PIIX4: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
->     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-> hda: TOSHIBA THNCF032MAA, ATA DISK drive
-> hdb: IBM-DARA-206000, ATA DISK drive
-> hdc: ST320420A, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: TOSHIBA THNCF032MAA, 31MB w/2kB Cache, CHS=496/4/32
-> hdb: IBM-DARA-206000, 5729MB w/418kB Cache, CHS=730/255/63, UDMA
-> hdc: ST320420A, 19458MB w/2048kB Cache, CHS=39535/16/63, UDMA
->
-> [ The 2.4.5-ac18 Kernel Init Messages ]
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 33MHz system bus speed for PIO modes; override with
-> idebus=xx
-> PIIX4: IDE controller on PCI bus 00 dev 39
-> PIIX4: chipset revision 1
-> PIIX4: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
->     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-> hda: TOSHIBA THNCF032MAA, ATA DISK drive
-> hdc: ST320420A, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: 63488 sectors (33 MB) w/2KiB Cache, CHS=496/4/32, DMA
-> hdc: 39851760 sectors (20404 MB) w/2048KiB Cache, CHS=39535/16/63,
-> UDMA(33)
-
+-- 
+-------------------------------------------------------------------------------
+Eric Anderson	 anderson@centtech.com    Centaur Technology    (512)
+418-5792
+For every complex problem, there is a solution that is simple, neat, and
+wrong.
+-------------------------------------------------------------------------------

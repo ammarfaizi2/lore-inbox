@@ -1,80 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263692AbTKACbm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 21:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263693AbTKACbm
+	id S263695AbTKACfx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 21:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263700AbTKACfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 21:31:42 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:58375 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S263692AbTKACbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 21:31:40 -0500
-Date: Sat, 1 Nov 2003 13:31:27 +1100
-To: axboe@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BLOCK] phys_contig implies hw_contig
-Message-ID: <20031101023127.GA14438@gondor.apana.org.au>
+	Fri, 31 Oct 2003 21:35:52 -0500
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:6876 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S263695AbTKACfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 21:35:51 -0500
+Subject: md wierdness with 2.6.0test9
+From: Brad Langhorst <brad@langhorst.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1067654148.19557.409.camel@up>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="SLDf9lqlvOQaIe6s"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 31 Oct 2003 21:35:48 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a pretty simple little raid 1 
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+/dev/hda1 and /dev/hdc1 should be mirrors of each other.
 
-Hi:
+i created the raid like this
 
-In ll_merge_requests_fn, it is checking blk_hw_contig_segments even if
-blk_phys_contig_segments succeeds.  This means that it may cause two
-physically contiguous segments to be separated because the hw check
-fails.
+mdadm --create --level 1 -n 2 /dev/md0 /dev/hdc1 missing
+(this is from memory - just to give you an idea of how this happened)
 
-This patch fixes that.
+i also created /dev/md1 for swap
+mdadm --create --level 1 -n 2 /dev/md1 /dev/hdc2 /dev/hda2
 
-Cheers,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
+now when i go to add /dev/hda1 to the array all looks fine
 
-Index: kernel-source-2.5/drivers/block/ll_rw_blk.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/block/ll_rw_blk.c,v
-retrieving revision 1.9
-diff -u -r1.9 ll_rw_blk.c
---- kernel-source-2.5/drivers/block/ll_rw_blk.c	11 Oct 2003 06:29:20 -0000	1.9
-+++ kernel-source-2.5/drivers/block/ll_rw_blk.c	1 Nov 2003 02:24:52 -0000
-@@ -1046,16 +1046,16 @@
- 		return 0;
- 
- 	total_phys_segments = req->nr_phys_segments + next->nr_phys_segments;
--	if (blk_phys_contig_segment(q, req->biotail, next->bio))
-+	total_hw_segments = req->nr_hw_segments + next->nr_hw_segments;
-+
-+	if (blk_phys_contig_segment(q, req->biotail, next->bio)) {
- 		total_phys_segments--;
-+		total_hw_segments--;
-+	} else if (blk_hw_contig_segment(q, req->biotail, next->bio))
-+		total_hw_segments--;
- 
- 	if (total_phys_segments > q->max_phys_segments)
- 		return 0;
--
--	total_hw_segments = req->nr_hw_segments + next->nr_hw_segments;
--	if (blk_hw_contig_segment(q, req->biotail, next->bio))
--		total_hw_segments--;
--
- 	if (total_hw_segments > q->max_hw_segments)
- 		return 0;
- 
+mdadm --zero-superblock /dev/hda1
 
---SLDf9lqlvOQaIe6s--
+mdadm --add /dev/md0 /dev/hda1
+
+array syncs up but i see this wierdness (it exists across reboots)
+from mdadm --details /dev/md0
+
+Number 	Major 	Minor 	RaidDevice	State
+0	22	1	0		active sync /dev/hdc1
+1	0	0	-1		removed
+2	3	1	1		spare /dev/hda1
+
+rebooting to a 2.4 series kernel appears to fix this problem...
+
+In my search for information I read this post
+http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=rvg0.5x4.17%40gated-at.bofh.it&rnum=4&prev=/groups%3Fq%3Dmdadm%2Bfaulty%2Bremoved%26hl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3Dutf-8%26selm%3Drvg0.5x4.17%2540gated-at.bofh.it%26rnum%3D4
+which talks about patching md.c to fix a similar problem...
+
+In test9 the patch discussed is already applied 
+so it either doesn't fix the problem or this problem is not the same
+problem 
+
+best wishes
+
+brad
+
+
+
+
+

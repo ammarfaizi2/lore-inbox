@@ -1,88 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbUKOGuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbUKOHHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbUKOGuX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 01:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbUKOGsa
+	id S261537AbUKOHHi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 02:07:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUKOHHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 01:48:30 -0500
-Received: from havoc.gtf.org ([69.28.190.101]:44505 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261533AbUKOGqp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 01:46:45 -0500
-Date: Mon, 15 Nov 2004 01:46:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [netdrvr] netdev-2.4 queue updated
-Message-ID: <20041115064644.GA14578@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 15 Nov 2004 02:07:38 -0500
+Received: from mms3.broadcom.com ([63.70.210.38]:12551 "EHLO mms3.broadcom.com")
+	by vger.kernel.org with ESMTP id S261537AbUKOHHY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 02:07:24 -0500
+X-Server-Uuid: 062D48FB-9769-4139-967C-478C67B5F9C9
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Subject: RE: [PATCH] pci-mmconfig fix for 2.6.9
+Date: Sun, 14 Nov 2004 23:07:13 -0800
+Message-ID: <B1508D50A0692F42B217C22C02D849720312DED5@NT-IRVA-0741.brcm.ad.broadcom.com>
+Thread-Topic: [PATCH] pci-mmconfig fix for 2.6.9
+Thread-Index: AcTK2HWxfKA0BgdSQi2vqMZEkf5hnwABXNwX
+From: "Michael Chan" <mchan@broadcom.com>
+To: "Grant Grundler" <grundler@parisc-linux.org>, "Andi Kleen" <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       akpm@osdl.org, greg@kroah.com,
+       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
+X-WSS-ID: 6D868A281TG3124110-01-01
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Grant Grundler wrote:
+ 
+> There are two tests in arch/i386/pci/mmconfig.c:pci_mmcfg_init() before
+> the raw_pci_ops is set to &pci_mmcfg. Perhaps some additional crude tests
+> could select a different set of pci_raw_ops to deal with posted writes
+> to mmconfig space. Someone more familiar with those chipsets might
+> find a more elegant solution.
 
-(this is waiting for the next Marcelo release, before going upstream)
+Do you mean something like pci_mmcfg1 for Intel chipsets that implement non-posted mmconfig and pci_mmcfg2 for other chipsets that may implement posted mmconfig? pci_mmcfg2's write method will guarantee that the write has reached the target before returning. If pci_mmcfg2's write method uses read from the target to flush the write, we are back to the original problem of out-of-spec read when writing the PMCSR register. If the flush does not require reading from the target device, then it's fine.
+ 
+Michael
 
-BK users:
 
-	bk pull bk://gkernel.bkbits.net/netdev-2.4
-
-Patch:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.28-rc3-netdev1.patch.bz2
-
-This will update the following files:
-
- Documentation/Configure.help                  |   84 --
- Documentation/networking/dl2k.txt             |   44 -
- Documentation/networking/e1000.txt            |  216 +++--
- drivers/net/3c59x.c                           |  500 ++++++++----
- drivers/net/dl2k.c                            |  309 +++++--
- drivers/net/dl2k.h                            |   19 
- drivers/net/e1000/e1000_ethtool.c             |    6 
- drivers/net/e1000/e1000_hw.c                  |   25 
- drivers/net/e1000/e1000_main.c                |    2 
- drivers/net/e1000/e1000_param.c               |    2 
- drivers/net/forcedeth.c                       | 1020 ++++++++++++++++++--------
- drivers/net/wireless/prism54/isl_38xx.c       |   12 
- drivers/net/wireless/prism54/isl_38xx.h       |   14 
- drivers/net/wireless/prism54/isl_ioctl.c      |   24 
- drivers/net/wireless/prism54/islpci_dev.c     |    8 
- drivers/net/wireless/prism54/islpci_dev.h     |    2 
- drivers/net/wireless/prism54/islpci_hotplug.c |    2 
- drivers/net/wireless/prism54/prismcompat.h    |    4 
- drivers/net/wireless/prism54/prismcompat24.h  |    4 
- include/linux/mii.h                           |    7 
- include/linux/pci_ids.h                       |   11 
- 21 files changed, 1524 insertions(+), 791 deletions(-)
-
-through these ChangeSets:
-
-<edward_peng:alphanetworks.com>:
-  o dl2k: correct author's email
-
-Ganesh Venkatesan:
-  o e1000: Update to Configure.help
-  o e100: Update to Configure.help
-  o e1000: white space corrections
-  o e1000: driver version update
-  o e1000: fix set ringparam for ethtool returning error
-  o e1000: remove unused function e1000_enable_mng_pass_thru
-  o e1000: fix set_pauseparam for fiber serdes link
-  o e1000: Update Documentation/networking/e1000.txt
-
-Jeff Garzik:
-  o [netdrvr dl2k] remove unused constant 'CFI'
-  o [netdrvr dl2k] new TX scheme, fix minor bug
-
-John W. Linville:
-  o 3c59x: resync with 2.6
-
-Manfred Spraul:
-  o Backport of the 0.30 forcedeth driver to 2.4. It's a new backport, starting from the 2.6 tree.
-
-Margit Schubert-While:
-  o prism54 sparse fixes
-  o prism54 fix resume processing
-  o prism54 sync with 2.6
+ 
 

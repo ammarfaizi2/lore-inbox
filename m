@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261574AbTCOVod>; Sat, 15 Mar 2003 16:44:33 -0500
+	id <S261620AbTCOVu7>; Sat, 15 Mar 2003 16:50:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261584AbTCOVod>; Sat, 15 Mar 2003 16:44:33 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:55192 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261574AbTCOVoc>; Sat, 15 Mar 2003 16:44:32 -0500
-To: Andrew Morton <akpm@digeo.com>
-Cc: bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove BKL from ext2's readdir
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 15 Mar 2003 22:55:11 +0100
-In-Reply-To: <20030315023614.3e28e67b.akpm@digeo.com.suse.lists.linux.kernel> (Andrew
- Morton's message of "15 Mar 2003 11:38:42 +0100")
-Message-ID: <m3adfwnvls.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <m3vfyluedb.fsf@lexa.home.net.suse.lists.linux.kernel>
-	<20030315023614.3e28e67b.akpm@digeo.com.suse.lists.linux.kernel>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261622AbTCOVu7>; Sat, 15 Mar 2003 16:50:59 -0500
+Received: from adsl-64-165-208-253.dsl.snfc21.pacbell.net ([64.165.208.253]:18353
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261620AbTCOVu6>; Sat, 15 Mar 2003 16:50:58 -0500
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+From: Robert Anderson <rwa@alumni.princeton.edu>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: phillips@arcor.de, lkml <linux-kernel@vger.kernel.org>,
+       arch <arch-users@lists.fifthvision.net>
+In-Reply-To: <34108.4.64.238.61.1047765001.squirrel@www.osdl.org>
+References: <200303151621.h2FGLgaD003246@eeyore.valparaiso.cl>
+	<20030315212205.CDE923D979@mx01.nexgo.de> <1047765218.9619.124.camel@lan1> 
+	<34108.4.64.238.61.1047765001.squirrel@www.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 15 Mar 2003 14:18:56 -0800
+Message-Id: <1047766737.6310.133.camel@lan1>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
+On Sat, 2003-03-15 at 13:50, Randy.Dunlap wrote:
+> >> > > Does anybody have a convenient mailing list for this design
+> >> discussion?
+> >> >
+> >> > Good idea to move this off LKML
+> >>
+> >> Yup, but nobody has offered one yet, so...
+> >
+> > I think the arch-users@lists.fifthvision.net list would be happy to host
+> > continuing discussion in this vein.  Considering Larry's repeated
+> > attempts to get people to look at arch as a "better fit," it seems
+> > particularly appropriate.
+> >
+> > Of course, you'd have to tolerate "arch community" views on a lot of these
+> > issues, but I suspect that might help focus the discussion.
+> >
+> > Bob
+> > -
+> 
+> Yes, that sounds good to me too.
+> And they have already begun a list of what gcc and Linux kernel SCM
+> requirements (see http://arch.fifthvision.net/bin/view/Arx/WebHome
 
-> foo_readdir()
-> {
-> 	loff_t pos = file->f_pos;
->
-> 	....
-> 	<code which doesn't touch file->f_pos, but which modifies pos>
-> 	...
->
-> 	file->f_pos = pos;
-> }
+I actually just moved this topic to:
 
-At least for alpha this will require an rmb_depends() between the read
-and the write. Probably on x86 an rmb() wouldn't hurt neither.
+http://arch.fifthvision.net/bin/view/Main/WebHome
 
-Otherwise there is no guarantee other CPUs see that intended memory 
-modification order
+since it doesn't properly belong exclusively to the "ArX" fork of the
+arch project.
 
--Andi
+Bob
+
+

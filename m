@@ -1,83 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290315AbSAPAxr>; Tue, 15 Jan 2002 19:53:47 -0500
+	id <S290318AbSAPA4j>; Tue, 15 Jan 2002 19:56:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289804AbSAPAxl>; Tue, 15 Jan 2002 19:53:41 -0500
-Received: from f232.law11.hotmail.com ([64.4.17.232]:28177 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S290308AbSAPAv6>;
-	Tue, 15 Jan 2002 19:51:58 -0500
-X-Originating-IP: [156.153.254.10]
-From: "Balbir Singh" <balbir_soni@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] Suspected bug in getpeername and getsockname
-Date: Tue, 15 Jan 2002 16:51:52 -0800
+	id <S290308AbSAPAxp>; Tue, 15 Jan 2002 19:53:45 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:55829 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S290310AbSAPAwF>; Tue, 15 Jan 2002 19:52:05 -0500
+Date: Tue, 15 Jan 2002 19:52:04 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: John Weber <weber@nyc.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: 2.5.3-pre1 compile error
+Message-ID: <20020115195204.K17477@redhat.com>
+In-Reply-To: <20020115194316.I17477@redhat.com> <Pine.LNX.4.33.0201151644180.1213-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F232Ej1I7QY9zK4unnr000139b2@hotmail.com>
-X-OriginalArrivalTime: 16 Jan 2002 00:51:52.0984 (UTC) FILETIME=[FD126980:01C19E27]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0201151644180.1213-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 15, 2002 at 04:44:54PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current code for sys_getpeername is shown below
+On Tue, Jan 15, 2002 at 04:44:54PM -0800, Linus Torvalds wrote:
+> Numbers please.
+> 
+> I'd MUCH rather just clean up the include file hierarchy than have these
+> kinds of non-local knowledge issues.
 
-asmlinkage long sys_getsockname(int fd, struct sockaddr *usockaddr, int 
-*usockaddr_len)
-{
-        struct socket *sock;
-        char address[MAX_SOCK_ADDR];
-        int len, err;
+The last time I did it for fs.h et al (this meant pulling the fs.h and 
+sched.h codependancy apart), it got 2.4 compiles back down to 2.2 compile 
+times (3m -> 2m45s maybe 2m30s iirc) -- about a 10% drop in compile time.  
+It's even more noticeable when you're doing a fully blown modular kernel 
+build as distributions do.
 
-        sock = sockfd_lookup(fd, &err);
-        if (!sock)
-                goto out;
-        err = sock->ops->getname(sock, (struct sockaddr *)address, &len, 0);
-        if (err)
-                goto out_put;
-        err = move_addr_to_user(address, len, usockaddr, usockaddr_len);
-
-out_put:
-        sockfd_put(sock);
-out:
-        return err;
-}
-
-The man page getpeername(2) says
-========================================================
-The namelen parameter should be initialized to
-indicate the amount of  space  pointed  to  by name.
-On return it  contains  the actual size of the name
-returned (in bytes).  The name is truncated if the buffer
-provided is too small.
-=========================================================
-
-The code does not copy_from_user the passed value of
-length (by the user). It instead passes to the protocol
-specific code a pointer in the stack (len). The copyout to
-user space is correct. But still the value passed
-from the user should also be considered. If this value
-is less than what we want to copyout, the smaller value
-should be used.
-
-The same bug exists even in getsockname. The fix is
-trivial.
-
-1. Copy in the value the user passed.
-2. Pass this value to the protocol (sock ops) getpeername
-   or getsockname. Let it decide what to do if the user
-   passed value is smaller than the size it wants to
-   return.
-3. Copyout the values
-Am I missing something or is this a known bug.
-
-If this fix is acceptable I can quickly send a patch
-after testing it. Please cc me, I am no longer subscribed
-to lkml.
-
-
-Thanks,
-Balbir
-
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
-
+		-ben
+-- 
+Fish.

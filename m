@@ -1,68 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbTH3Tzk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 15:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbTH3Tzk
+	id S262081AbTH3UDR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 16:03:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbTH3UDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 15:55:40 -0400
-Received: from mail-8.tiscali.it ([195.130.225.154]:45627 "EHLO
-	mail-8.tiscali.it") by vger.kernel.org with ESMTP id S262069AbTH3Tzj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 15:55:39 -0400
-Date: Sat, 30 Aug 2003 21:55:29 +0200
-From: Kronos <kronos@kronoz.cjb.net>
+	Sat, 30 Aug 2003 16:03:17 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:10932 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262081AbTH3UDM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 16:03:12 -0400
+Date: Sat, 30 Aug 2003 22:03:09 +0200 (MEST)
+Message-Id: <200308302003.h7UK39v3001763@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
 To: linux-kernel@vger.kernel.org
-Cc: "Alan Cox" <alan@redhat.com>, kraxel@bytesex.org
-Subject: [PATCH] Use after free in drivers/media/video/videodev.c
-Message-ID: <20030830195529.GA15036@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Subject: [PATCH][2.4.23-pre2] fix PPC for wait_hwif_ready() change
+Cc: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I think that there's a bug in videdev.c. Look at
-video_unregister_device:
+2.4.23-pre2 doesn't link on PPC because of an unresolved
+reference to wait_hwif_ready(). This function changed name
+in -pre2 but one PPC-specific use of it wasn't updated.
+Fixed by the patch below.
 
-void video_unregister_device(struct video_device *vfd) {
-        [...]
-        class_device_unregister(&vfd->class_dev);
-        devfs_remove(vfd->devfs_name);
-        video_device[vfd->minor]=NULL;
-}
+/Mikael
 
-The class_device_unregister will  call video_release. This function will
-call  a  ->release callback. As  far  as  I  can  see drivers  do  their
-own cleanup  outside video_unregister_device so there is no problem.
-
-However,  if  a  driver  switch to  dynamically  allocated  video_device
-this  ->release  callback  will   free  the  struct  video_device  (look
-at   video_device_release)   and   possibly  its   container. So   after
-class_device_unregister vfd may be a pointer to deallocated memory.
-
-I think that class_device_unregister should be moved down:
-
---- 2.6.0.orig/drivers/media/video/videodev.c	Tue Aug 12 17:02:29 2003
-+++ 2.6.0/drivers/media/video/videodev.c	Sat Aug 30 21:13:29 2003
-@@ -349,9 +349,9 @@
- 	if(video_device[vfd->minor]!=vfd)
- 		panic("videodev: bad unregister");
+--- linux-2.4.23-pre2/drivers/ide/ide-probe.c.~1~	2003-08-30 20:25:39.000000000 +0200
++++ linux-2.4.23-pre2/drivers/ide/ide-probe.c	2003-08-30 21:47:26.000000000 +0200
+@@ -879,7 +879,7 @@
+ 	 *  
+ 	 *  BenH.
+ 	 */
+-	if (wait_hwif_ready(hwif))
++	if (ide_wait_hwif_ready(hwif))
+ 		printk(KERN_WARNING "%s: Wait for ready failed before probe !\n", hwif->name);
+ #endif /* CONFIG_PPC */
  
--	class_device_unregister(&vfd->class_dev);
- 	devfs_remove(vfd->devfs_name);
- 	video_device[vfd->minor]=NULL;
-+	class_device_unregister(&vfd->class_dev);
- 	up(&videodev_lock);
- }
- 
-
-Luca
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-The trouble with computers is that they do what you tell them,
-not what you want.
-D. Cohen

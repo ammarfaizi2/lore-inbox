@@ -1,99 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129361AbQLLCXq>; Mon, 11 Dec 2000 21:23:46 -0500
+	id <S129552AbQLLCYQ>; Mon, 11 Dec 2000 21:24:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129345AbQLLCXf>; Mon, 11 Dec 2000 21:23:35 -0500
-Received: from tungsten.btinternet.com ([194.73.73.81]:59797 "EHLO
-	tungsten.btinternet.com") by vger.kernel.org with ESMTP
-	id <S129228AbQLLCX1>; Mon, 11 Dec 2000 21:23:27 -0500
-Date: Tue, 12 Dec 2000 01:52:37 +0000 (GMT)
-From: davej@suse.de
-To: Linus Torvalds <torvalds@transmeta.com>, Martin Mares <mj@ucw.cz>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI irq routing..
-Message-ID: <Pine.LNX.4.21.0012120144490.28939-100000@neo.local>
+	id <S129345AbQLLCYK>; Mon, 11 Dec 2000 21:24:10 -0500
+Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:5661 "EHLO
+	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
+	id <S129228AbQLLCXo>; Mon, 11 Dec 2000 21:23:44 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14901.34060.536976.829050@somanetworks.com>
+Date: Mon, 11 Dec 2000 20:53:16 -0500 (EST)
+From: "Georg Nikodym" <georgn@somanetworks.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: georgn@somanetworks.com, linux-kernel@vger.kernel.org,
+        greg@wind.enjellic.com, sct@redhat.com,
+        Linus Torvalds <torvalds@transmeta.com>,
+        "Adam J. Richter" <adam@yggdrasil.com>
+Subject: Re: linux-2.4.0-test11 and sysklogd-1.3-31 
+In-Reply-To: <3586.976584600@kao2.melbourne.sgi.com>
+In-Reply-To: <14901.31690.961664.201896@somanetworks.com>
+	<3586.976584600@kao2.melbourne.sgi.com>
+X-Mailer: VM 6.75 under 21.2  (beta37) "Pan" XEmacs Lucid
+Reply-To: georgn@somanetworks.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "KO" == Keith Owens <kaos@ocs.com.au> writes:
 
->The problem seems to be the "pci_get_interrupt_pin()" call. We should not
->do that. The pirq table has the unmodified device information - and when
->we try to swizzle the pins and find the bridge that the device is behind,
->we're trying to be way too clever.
+ KO> Looks good, except that you need to keep the option flags for
+ KO> backwards compatibility.  There are a *lot* of scripts out there
+ KO> which invoke klogd with various options and they will fail with
+ KO> this change.  It is OK to issue a warning message "klogd options
+ KO> -[iIpkx] are no longer supported" as long as klogd continues to
+ KO> run.  Otherwise you will get a lot of irate users complaining
+ KO> that klogd is failing at boot time.
 
-Both with/without the change you mention, I still get routing warnings
-on bootup. I've pasted the output from my Athlon box, as that seems
-most affected by this. Interrupts 11 & 12 are left free, whilst it
-routes multiple devices onto interrupt 5.
+You're right.  Here's YAP:
 
-PCI: Found IRQ 5 for device 00:09.0
-PCI: The same IRQ used for device 00:04.2
-PCI: The same IRQ used for device 00:04.3
-emu10k1: EMU10K1 rev 5 model 0x20 found, IO at 0xb800-0xb81f, IRQ 5
-PCI: Found IRQ 5 for device 00:04.2
-PCI: The same IRQ used for device 00:04.3
-PCI: The same IRQ used for device 00:09.0
-usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 5
-PCI: Found IRQ 5 for device 00:04.3
-PCI: The same IRQ used for device 00:04.2
-PCI: The same IRQ used for device 00:09.0
-usb-uhci.c: USB UHCI at I/O 0xd000, IRQ 5
-
-
-
-Interrupt routing table found at address 0xf0e90:
-  Version 1.0, size 0x0070
-  Interrupt router is device 00:04.0
-  PCI exclusive interrupt mask: 0x0000 []
-  Compatible router: vendor 0x1106 device 0x0686
-
-Device 00:0c.0 (slot 1): 
-  INTA: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x05, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:0b.0 (slot 2): Ethernet controller
-  INTA: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x05, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:09.0 (slot 4): Multimedia audio controller
-  INTA: link 0x05, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:04.0 (slot 0): ISA bridge
-  INTA: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x05, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:01.0 (slot 0): PCI bridge
-  INTA: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x05, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Interrupt router at 00:04.0: VIA 82C686 PCI-to-ISA bridge
-  PIRQA (link 0x01): irq 11
-  PIRQB (link 0x02): irq 10
-  PIRQC (link 0x03): unrouted
-  PIRQD (link 0x05): irq 5
-
-
-regards,
-
-Davej.
-
--- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
-
+diff -Nru a/src/sysklogd-1.3-31/klogd.c b/src/sysklogd-1.3-31/klogd.c
+--- a/src/sysklogd-1.3-31/klogd.c	Mon Dec 11 20:50:49 2000
++++ b/src/sysklogd-1.3-31/klogd.c	Mon Dec 11 20:50:49 2000
+@@ -763,7 +763,7 @@
+ 	chdir ("/");
+ #endif
+ 	/* Parse the command-line. */
+-	while ((ch = getopt(argc, argv, "c:df:nosv")) != EOF)
++	while ((ch = getopt(argc, argv, "c:df:nosviIk:px")) != EOF)
+ 		switch((char)ch)
+ 		{
+ 		    case 'c':		/* Set console message level. */
+@@ -788,6 +788,20 @@
+ 		    case 'v':
+ 			printf("klogd %s-%s\n", VERSION, PATCHLEVEL);
+ 			exit (1);
++
++		    /* Obsolete options */
++		    case 'i':
++			/* FALLTHRU */
++		    case 'I':
++			/* FALLTHRU */
++		    case 'k':
++			/* FALLTHRU */
++		    case 'p':
++			/* FALLTHRU */
++		    case 'x':
++			fprintf(stderr,
++				"klogd: %c option is obsolete.  Ignoring\n", ch);
++			break;
+ 		}
+ 
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

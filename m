@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267253AbTAGAAH>; Mon, 6 Jan 2003 19:00:07 -0500
+	id <S267209AbTAFXtn>; Mon, 6 Jan 2003 18:49:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267252AbTAGAAG>; Mon, 6 Jan 2003 19:00:06 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:18375 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S267246AbTAGAAC>;
-	Mon, 6 Jan 2003 19:00:02 -0500
-Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
-From: Steven Barnhart <sbarn03@softhome.net>
-To: David Schwartz <davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030106220416.AAA29779@shell.webmaster.com@whenever>
-References: <20030106220416.AAA29779@shell.webmaster.com@whenever>
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Jan 2003 19:08:30 -0500
-Message-Id: <1041898122.20314.2.camel@sbarn.net>
+	id <S267211AbTAFXtn>; Mon, 6 Jan 2003 18:49:43 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:30480 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267209AbTAFXtl>; Mon, 6 Jan 2003 18:49:41 -0500
+Date: Tue, 7 Jan 2003 00:58:17 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in non-freedrivers?
+Message-ID: <20030106235817.GI10752@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1041725489.1770.36.camel@sbarn.net> <E18VNtv-000065-00@fencepost.gnu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18VNtv-000065-00@fencepost.gnu.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-06 at 17:04, David Schwartz wrote:
-> 	You can aim this criticism at many other people in this 
-> conversation, but not me. I think I'm the only one who does 
-> differentiate clearly.	
-> 
-> >Say you buy a book. Reading it ist usage.
-> 
-> 	Really? How do you read a book? You bounce a light off it and make a 
-> copy of the book on your retina, right? In other words, you use 
-> things by copying them.
-> 	Yes, copies *of* *that* *book*. But when you make a copy of the book 
-> on your retina, your eyes and brain are not a derived work. When you 
-> use photoshop, the graphics you create are not a derived work.
-> 
-> 	I submit that the *only* way to use a header file is to include it 
-> in a source file, and compile and copy the resultant output. Note 
-> that you cannot run a program without copying it. It's physically 
-> impossible.
-> 
-> 	Right, because we recognize that a graphic created with photoshop is 
-> *not* a derived work of photoshop. A brain that has read a book is 
-> not a derived work of that book. Similary, a program whose source 
-> code includes a header file should not be considered a derived work 
-> of that header file.
-Amazing how the topic changes so differently when it origionated as a
-battle against NVidia. Amazing how sick I am of recieveing this topic in
-my mailbox. Please end it somehow..there's no need for it anymore. It
-has been concluded that we don't have to listen to rms if we don't want
-too and that half of us will use proprietary software if we want to or
-if their is no good free replacement. Ending it there.
--- 
-Steven
-sbarn03@softhome.net
-GnuPG Fingerprint: 9357 F403 B0A1 E18D 86D5  2230 BB92 6D64 D516 0A94
+On Sun, 05 Jan 2003, Richard Stallman wrote:
 
+> Developing programs does not "cost money"--that is just one way to do
+> it.  But sometimes a person is in a position where he can develop a
+> certain program only if he makes it non-free to raise money.  If you
+> are in such a position, unless you are going to make the program free
+> software soon after, then the best thing you can do is not develop it
+> at all.  Someone else will develop a free program to do the job.
+> Freedom is worth the wait.
+
+Oh, but my backup can't just wait because the hard disk is
+likely to die before someone comes up with a free software that does
+better than Tivoli although this is sorta fragile on the systems I
+maintain. Are you going to sponsor for RAID-1 for the meanwhile, until
+the wait pays off?
+
+-- 
+Matthias Andree

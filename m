@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288985AbSBKTT3>; Mon, 11 Feb 2002 14:19:29 -0500
+	id <S289824AbSBKTU3>; Mon, 11 Feb 2002 14:20:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290211AbSBKTTU>; Mon, 11 Feb 2002 14:19:20 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:33042 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S288985AbSBKTTM>;
-	Mon, 11 Feb 2002 14:19:12 -0500
-Date: Mon, 11 Feb 2002 20:19:02 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Oleg Drokin <green@namesys.com>
-cc: Alex Riesen <fork0@users.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
-In-Reply-To: <20020211172747.A1815@namesys.com>
-Message-ID: <Pine.LNX.4.44.0202112014210.4835-100000@Expansa.sns.it>
+	id <S290211AbSBKTUU>; Mon, 11 Feb 2002 14:20:20 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55046 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S289824AbSBKTT6>; Mon, 11 Feb 2002 14:19:58 -0500
+Date: Mon, 11 Feb 2002 14:19:00 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Steve Snyder <steves@formation.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: Why won't my HD do DMA I/O?
+In-Reply-To: <KMEBIOGPEGOACPDOHPEEMEAMCAAA.steves@formation.com>
+Message-ID: <Pine.LNX.3.96.1020211141639.642D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had corruption also with 2.5.3.
-I was trying to boot 2.5.4, but with preemption patch enabled i got an
-oops immediatelle with swapper ;(.
+On Mon, 11 Feb 2002, Steve Snyder wrote:
 
-Then I sepnt some time for clean i810_audio.c so it can compile, and
-tomorrow I will perform some test with 2.5.4 without preemption.
-I should add that finally I could corrupt a big binary file on the
-pentoim III (the athlon in more important to me).
-I corrupted flash plugin loading mozilla and closing
-X11 without cosing mozilla before.
+> I should have noted this in my original post but, yes, I have enabled DMA in
+> the kernel:
+> 
+> # grep DMA /usr/src/linux-2.4.17/.config | grep -v '#'
+> CONFIG_BLK_DEV_IDEDMA_PCI=y
+> CONFIG_BLK_DEV_ADMA=y
+> CONFIG_IDEDMA_PCI_AUTO=y
+> CONFIG_BLK_DEV_IDEDMA=y
+> CONFIG_IDEDMA_AUTO=y
+> 
+> Thanks for the response.
 
-I did not noticed corruption with 2.5.3-pre1/2.
+Since I'm guessing at things which are unlikely, and I believe you said
+"only one drive" has this, did you check the cable type, seating, and
+condition? Putting in new hardware is such fun, I've found many inobvious
+ways to do it almost perfectly ;-)
 
-I could test also on a dual Pi 1260 Mhz with cpqarray controlelr, if
-needed...
-
-Luigi
-
-On Mon, 11 Feb 2002, Oleg Drokin wrote:
-
-> Hello!
->
-> On Mon, Feb 11, 2002 at 03:23:51PM +0100, Luigi Genoni wrote:
->
-> > > .history may be corrupted if your partition was not unmounted properly
-> > > before reboot.
-> > other files corrupted were
-> > /etc/rc.d/rc.local /etc/rc.d/rc.inet2
-> > /etc/lilo.conf on the PIII
-> > /scratch/root/<some .c source file> on the Athlon
-> > / partition is not the same of /home.
-> All of this on 2.5.4-pre1 only?
-> Or were you able to reproduce it on later kernels too?
->
-> Bye,
->     Oleg
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,140 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267309AbUGNDHD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267306AbUGNDMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267309AbUGNDHD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 23:07:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267311AbUGNDHD
+	id S267306AbUGNDMj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 23:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267310AbUGNDMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 23:07:03 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:54210 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S267309AbUGNDGm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 23:06:42 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Organization: Organization: undetectable
-Subject: Fwd: Mail System Error - Returned Mail
-Date: Tue, 13 Jul 2004 23:06:39 -0400
-User-Agent: KMail/1.6
-To: linux-kernel@vger.kernel.org
+	Tue, 13 Jul 2004 23:12:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34728 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267306AbUGNDMf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 23:12:35 -0400
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Olaf Titz <olaf@bigred.inka.de>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+	<Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org>
+	<m1fz80c406.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>
+	<m1smc09p6m.fsf@ebiederm.dsl.xmission.com>
+	<E1BjmAw-0005MS-00@bigred.inka.de>
+	<Pine.GSO.4.58.0407131042310.6985@waterleaf.sonytel.be>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 14 Jul 2004 00:12:22 -0300
+In-Reply-To: <Pine.GSO.4.58.0407131042310.6985@waterleaf.sonytel.be>
+Message-ID: <oroemjp9ih.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_/MK9AnEJPj/pzdJ"
-Message-Id: <200407132306.39569.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.57.208] at Tue, 13 Jul 2004 22:06:40 -0500
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Jul 13, 2004, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 
---Boundary-00=_/MK9AnEJPj/pzdJ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> On Sun, 11 Jul 2004, Olaf Titz wrote:
+>> in C. (Worse in C++ where usage of NULL is discouraged, I've always
+>> wondered about the reasons.)
 
-Greetings;
+> [ wondered about this as well, but the answer has been posted before in this
+>   thread ]
 
-I'm getting a lot of these bounces, any good reason?
+> Because C++ doesn't do implicit conversions from void * to anything *.
 
-----------  Forwarded Message  ----------
+So what?  NULL must have an integral type in C++.  void* is explicitly
+forbidding in the C++ Standard.
 
-Subject: Mail System Error - Returned Mail
-Date: Tuesday 13 July 2004 13:34
-From: Mail Administrator <Postmaster@verizon.net>
-To: gene.heskett@verizon.net
-
-This Message was undeliverable due to the following reason:
-
-Your message was not delivered because the destination computer was
-not found.  Carefully check that it was spelled correctly and try
-sending it again if there were any mistakes.
-
-It is also possible that a network problem caused this situation,
-so if you are sure the address is correct you might want to try to
-send it again.  If the problem continues, contact your friendly
-system administrator.
-
-     Host vger.kernel.org not found
-
-The following recipients did not receive this message:
-
-     <linux-kernel@vger.kernel.org>
-
-Please reply to Postmaster@verizon.net
-if you feel this message to be in error.
-
--------------------------------------------------------
-
-
+I don't see that NULL is discouraged in C++.  It's mostly redundant,
+like it is in C, and it's not safe for varargs even on machines where
+NULL pointers are represented can be zero-initialized, because
+pointers to members and regular pointers don't even have the same
+size, unlike C, that doesn't have pointers to members and thus can
+safely use (intptr_t)0 for NULL and it will even work for varargs
+(given the considerations above).
 
 -- 
-Cheers, Gene
-There are 4 boxes to be used in defense of liberty. 
-Soap, ballot, jury, and ammo.
-Please use in that order, starting now.  -Ed Howdershelt, Author
-Additions to this message made by Gene Heskett are Copyright 2004, 
-Maurice E. Heskett, all rights reserved.
-
---Boundary-00=_/MK9AnEJPj/pzdJ
-Content-Type: message/delivery-status;
-  charset="us-ascii";
-  name=" "
-Content-Transfer-Encoding: 7bit
-
-Reporting-MTA: dns; out005.verizon.net
-Arrival-Date: Tue, 13 Jul 2004 12:34:08 -0500
-Received-From-MTA: dns; coyote.coyote.den (151.205.57.208)
-
-Final-Recipient: RFC822; <linux-kernel@vgr.kernel.org>
-Action: failed
-Status: 5.1.2
-Remote-MTA: dns; vgr.kernel.org
-
---Boundary-00=_/MK9AnEJPj/pzdJ
-Content-Type: message/rfc822;
-  charset="us-ascii";
-  name=" "
-Content-Transfer-Encoding: 8bit
-
-Received: from coyote.coyote.den ([151.205.57.208]) by out005.verizon.net
-          (InterMail vM.5.01.06.06 201-253-122-130-106-20030910) with ESMTP
-          id <20040713173408.GBTA3910.out005.verizon.net@coyote.coyote.den>
-          for <linux-kernel@vgr.kernel.org>;
-          Tue, 13 Jul 2004 12:34:08 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Organization: Organization: undetectable
-To: linux-kernel@vgr.kernel.org
-Subject: Re: SATA disk device naming ?
-Date: Tue, 13 Jul 2004 13:34:07 -0400
-User-Agent: KMail/1.6
-References: <Pine.GSO.4.33.0407131221000.25702-100000@sweetums.bluetronic.net>
-In-Reply-To: <Pine.GSO.4.33.0407131221000.25702-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407131334.07256.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.57.208] at Tue, 13 Jul 2004 12:34:08 -0500
-
-On Tuesday 13 July 2004 12:23, Ricky Beam wrote:
->On Tue, 13 Jul 2004, Eric D. Mudama wrote:
->>... "root=LABEL=/" ...
->
->I've seen the LABEL method not work at all. (2.6.7-rc3 on the
-> wikipedia servers.)
->
->--Ricky
->
-It was un-reliable enough here that I've discontinued its use.  There 
-are two things wrong with it that I can see, first being that it 
-doesn't always work, and 2nd, there appears to be no way to x-ref 
-back so that you can see that its /dev/hda7 that is your /usr alias.
-
--- 
-Cheers, Gene
-There are 4 boxes to be used in defense of liberty. 
-Soap, ballot, jury, and ammo.
-Please use in that order, starting now.  -Ed Howdershelt, Author
-Additions to this message made by Gene Heskett are Copyright 2004, 
-Maurice E. Heskett, all rights reserved.
-
---Boundary-00=_/MK9AnEJPj/pzdJ--
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

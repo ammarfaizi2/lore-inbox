@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274985AbTHLCS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 22:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274987AbTHLCS7
+	id S275002AbTHLC3A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 22:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275003AbTHLC3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 22:18:59 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:18170 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S274985AbTHLCS5
+	Mon, 11 Aug 2003 22:29:00 -0400
+Received: from core.kaist.ac.kr ([143.248.147.118]:30082 "EHLO
+	core.kaist.ac.kr") by vger.kernel.org with ESMTP id S275002AbTHLC27
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 22:18:57 -0400
-Subject: Re: C99 Initialisers
-From: Robert Love <rml@tech9.net>
-To: CaT <cat@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
-In-Reply-To: <20030812020226.GA4688@zip.com.au>
-References: <20030812020226.GA4688@zip.com.au>
-Content-Type: text/plain
-Message-Id: <1060654733.684.267.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
-Date: Mon, 11 Aug 2003 19:18:53 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Aug 2003 22:28:59 -0400
+Message-ID: <003801c36078$e23b1250$a5a5f88f@core8fyzomwjks>
+From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
+To: <linux-kernel@vger.kernel.org>
+Subject: [Q] Is  'I/O memory'  managed as page?
+Date: Tue, 12 Aug 2003 11:24:40 +0900
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-08-11 at 19:02, CaT wrote:
-> Is there any interest ins omeone 'fixing up' as many structs in the
-> kernel from the form:
+Hello.
 
-Yes, indeed, especially for 2.6. There has been a lot of work already in
-this direction -- not too much should be left.
+'I/O memory' is memory in device (like PCI/ISA device).
 
-> And if so, what form should I feed it back in? Big patches? 1 patch
-> per file? 1 per dir?
+And that memory is mapped into virtual memory by ioremap function.
 
-Whatever makes most sense. One per directory is probably OK for most
-things.
 
-> Main reaosn I'm asking is that it's slowly being done but isn't in
-> the janitor list of things to do yet. If it were I'd just do it. ;)
+After mapping, is 'I/O memory' managed as page like memory on host?
 
-It should be in the list.
-
-Convert GNU-style to C99-style.  I think converting unnamed initializers
-to named initializers is a Good Thing, too.
-
-	Robert Love
+Please answer, thanks!
 
 

@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312326AbSDNO35>; Sun, 14 Apr 2002 10:29:57 -0400
+	id <S312331AbSDNOdk>; Sun, 14 Apr 2002 10:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312331AbSDNO34>; Sun, 14 Apr 2002 10:29:56 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3340 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312326AbSDNO34>; Sun, 14 Apr 2002 10:29:56 -0400
-Subject: Re: linux as a minicomputer ?
-To: davidsen@tmr.com (Bill Davidsen)
-Date: Sun, 14 Apr 2002 14:45:26 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@zytor.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1020414002803.15702A-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Apr 14, 2002 12:30:09 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312332AbSDNOdj>; Sun, 14 Apr 2002 10:33:39 -0400
+Received: from www.microgate.com ([216.30.46.105]:1802 "EHLO sol.microgate.com")
+	by vger.kernel.org with ESMTP id <S312331AbSDNOdi>;
+	Sun, 14 Apr 2002 10:33:38 -0400
+Subject: Re: 2.5.8-pre3 full compile - errors
+From: Paul Fulghum <paulkf@microgate.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1842.1018777178@ocs3.intra.ocs.com.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16wkJq-0004Jl-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-2) 
+Date: 15 Apr 2002 09:31:39 -0600
+Message-Id: <1018884701.1411.2.camel@doobie.pipehead.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> cheap system, but dual Celeron? The last dual Celeron m/b I saw was the
-> BP6, and I have a bunch of them in various places. Is that the board
-> you're remembering? It uses CPUs no longer available.
+On Sun, 2002-04-14 at 03:39, Keith Owens wrote:
+> I offer this list in the hope that the maintainers
+> will fix the code (I can dream, can't I?).  No need
+> to copy me on replies, just fix the code.
+> ...
+> drivers/char/synclink.c:63: #error Please convert me to Documentation/DMA-mapping.txt
 
-There are much newer dual Celeron boards. Maybe they just don't sell them
-in the USA any more ? 
+Already fixed and submitted. Now it just needs
+to be applied (I can dream, can't I?)
+
+Paul Fulghum
+paulkf@microgate.com
+

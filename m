@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272579AbRHaB2i>; Thu, 30 Aug 2001 21:28:38 -0400
+	id <S272581AbRHaB23>; Thu, 30 Aug 2001 21:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272580AbRHaB23>; Thu, 30 Aug 2001 21:28:29 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:63498 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S272579AbRHaB2Y>;
-	Thu, 30 Aug 2001 21:28:24 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108310128.f7V1S3q18739@oboe.it.uc3m.es>
+	id <S272580AbRHaB2T>; Thu, 30 Aug 2001 21:28:19 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:24261 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S272579AbRHaB2L>;
+	Thu, 30 Aug 2001 21:28:11 -0400
+Date: Thu, 30 Aug 2001 21:28:28 -0400
+Message-Id: <200108310128.f7V1SSn08071@moisil.badula.org>
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <Pine.LNX.4.33.0108301753180.2569-100000@penguin.transmeta.com>
- from "Linus Torvalds" at "Aug 30, 2001 05:55:51 pm"
-To: "Linus Torvalds" <torvalds@transmeta.com>
-Date: Fri, 31 Aug 2001 03:28:03 +0200 (MET DST)
-CC: "Peter T. Breuer" <ptb@it.uc3m.es>,
-        "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
-        linux-kernel@vger.kernel.org
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.33.0108300909560.7973-100000@penguin.transmeta.com>
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.8-ac7 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Linus Torvalds wrote:"
+On Thu, 30 Aug 2001 09:21:12 -0700 (PDT), Linus Torvalds <torvalds@transmeta.com> wrote:
+
+> For example, let's look at this perfectly natural code:
 > 
-> On Fri, 31 Aug 2001, Peter T. Breuer wrote:
-> >
-> > To give you all something definite to look at, here's some test code:
+>        static int unix_mkname(struct sockaddr_un * sunaddr, int len, unsigned *hashp)
+>        {
+>                if (len <= sizeof(short) || len > sizeof(*sunaddr))
+>                        return -EINVAL;
+>                ...
 > 
-> Hmm.. This might be a good idea, actually. Have you tried whether it finds
-> something in the existing tree (you could just take the existing macro and
+> Would you agree that the above is _good_ code, and code that makes
+> perfect sense, and code that does exactly the right thing in testing its
+> arguments?
 
-Yes. I just tried it. The first warning thrown up for 2.4.8 was in
-tun.c, when I did a make modules. Obviously it all depends on my
-  .config as to what it finds!  I put in a asm(".error_here") instead of
-BUG() so the compilation stops at every problem instead of warning and
-continuing. Hence I don't kow the total. I can try and see ..
+Ugh. I must confess I am disappointed, Linus. I thought you had better taste.
 
-It's very late here (spain) so I don't trust myself to do much
-hacking of code right now .. I corrected the tun.c code (it was
-harmless) and posted the first bit of output a little while ago.
-It should be down your mail client page a bit.
+Yes, the above code is correct. And yes, gcc should be more aggressive to
+recognize that the above code is unambiguous. But that doesn't change the fact
+that the code is UGLY AS HELL. Nor does it change the fact that each comparison
+is broken if taken separately.
 
-> ignore the first argument)?
+You make two UNSIGNED comparisons when you clearly mean to make two SIGNED
+comparisons, and you call that _good_ code? Hmm.
+
+> Try to compile it with -Wsign-compare.
 > 
-> This would definitely be acceptable to me, and should (assuming no gcc
-> optimization bugs) work with no run-time overhead.
+> You'll get not one, but TWO warnings for code that is totally correct, and
+> that it would make _no_ sense in writing any other way.
 
+Really? How so? We _know_ that the result of sizeof() fits confortably within
+"int"'s range. So the natural way to write that comparison would be
 
-Peter
+	if (len <= (int) sizeof(short) || len > (int) sizeof(*sunaddr))
+
+which is 100% correct, 100% obvious, and does not break horribly if you
+remove one of the comparisons.
+
+The compiler also _knows_ that. But the compiler can't change the implicit 
+cast, because it would make it incompatible with every other compiler on
+the planet. Yes, standards suck sometimes. So compiler warns us instead.
+I consider that a feature.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132807AbQLNU1j>; Thu, 14 Dec 2000 15:27:39 -0500
+	id <S132868AbQLNUbA>; Thu, 14 Dec 2000 15:31:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132868AbQLNU13>; Thu, 14 Dec 2000 15:27:29 -0500
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:3502 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S132807AbQLNU1W>; Thu, 14 Dec 2000 15:27:22 -0500
-From: Gerard Beekmans <gerard@linuxfromscratch.org>
-Organization: LFS
-Date: Thu, 14 Dec 2000 14:55:59 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.0-test11/12 freezes when copying large amounts of data to loop file system
-MIME-Version: 1.0
-Message-Id: <00121414555900.00305@gwaihir>
-Content-Transfer-Encoding: 7BIT
+	id <S132911AbQLNUal>; Thu, 14 Dec 2000 15:30:41 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:59528 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132868AbQLNUa1>;
+	Thu, 14 Dec 2000 15:30:27 -0500
+Date: Thu, 14 Dec 2000 11:43:49 -0800
+Message-Id: <200012141943.LAA08330@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: ionut@cs.columbia.edu
+CC: mhaque@haque.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0012141146320.27848-100000@age.cs.columbia.edu>
+	(message from Ion Badulescu on Thu, 14 Dec 2000 11:52:29 -0800 (PST))
+Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
+In-Reply-To: <Pine.LNX.4.30.0012141146320.27848-100000@age.cs.columbia.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   Date: Thu, 14 Dec 2000 11:52:29 -0800 (PST)
+   From: Ion Badulescu <ionut@cs.columbia.edu>
 
-Every time I try to copy a specific directory to a mounted loop file system, 
-Linux freezes up on me. I've tried this several times and it freezes up at 
-the same place every time. When I copy that same directory to a regular file 
-system everything is ok.
+   The oops looks something like this. It was caught on serial
+   console, and decoded on test11, so it doesn't have translation for
+   module symbols. It if helps, this box is running ip_conntrack and
+   the oops occurred basically as soon as an NFS request came in.
 
-This happens on 2.4.0 test11 and test12 kernels. I've tried a test8 kernel 
-previously and it didn't have this problem. Is this a known issue and if so, 
-is there a patch available somewhere?
+If you turn off netfilter, ip_conntrack, etc. does the OOPS still
+occur?
 
-PS: as im not on this list please CC a reply to me.
-
-Thanks,
-
--- 
-Gerard Beekmans
-www.linuxfromscratch.org
-
--*- If Linux doesn't have the solution, you have the wrong problem -*-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264385AbUFCPYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265545AbUFCP2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264385AbUFCPYW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 11:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUFCPYT
+	id S265545AbUFCP2k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 11:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUFCPYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 11:24:19 -0400
-Received: from mta10-svc.ntlworld.com ([62.253.162.94]:55879 "EHLO
-	mta10-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S265515AbUFCPLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 11:11:04 -0400
-Date: Thu, 3 Jun 2004 16:10:59 +0100
-From: Mike Jagdis <mjagdis@eris-associates.co.uk>
-To: khandelw@cs.fsu.edu
-Cc: jyotiraditya@softhome.net, linux-kernel@vger.kernel.org
-Subject: Re: Select/Poll
-Message-ID: <20040603151058.GA3169@eris-associates.co.uk>
-References: <courier.40BD66BD.00006D7D@softhome.net> <1086190109.a0ea5ca71914e@system.cs.fsu.edu>
+	Thu, 3 Jun 2004 11:24:41 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:63157 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S264850AbUFCPLv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 11:11:51 -0400
+Date: Thu, 3 Jun 2004 17:11:47 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Frediano Ziglio <freddyz77@tin.it>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x partition breakage and dual booting
+Message-ID: <20040603151147.GB820@apps.cwi.nl>
+References: <40BA2213.1090209@pobox.com> <20040603103907.GV23408@apps.cwi.nl> <1086265833.3988.13.camel@freddy> <200406031635.38718.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1086190109.a0ea5ca71914e@system.cs.fsu.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200406031635.38718.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 11:28:29AM -0400, khandelw@cs.fsu.edu wrote:
-> Hello,
->    Can you give more details - Like which machine which vendor etc.,
-> On a sony vaio pcg frv31 laptop/ redhat 9.0/ after firing some 36,000+ request
-> my select multiplexed server used to fail. With select I believe you not get
-> any packet loss...
+On Thu, Jun 03, 2004 at 04:35:38PM +0200, Bartlomiej Zolnierkiewicz wrote:
 
-Then you'd be wrong. Poll/select tell you when desriptors
-are readable/writable. They do *not* impose any magic queuing
-mechanism that guarantees the buffers won't overflow. If the
-low level protocol is non-flow controlled like UDP you *have*
-to read data faster than it arrives and not write data faster
-than it is being transmitted.
+> > Yes and not... HDIO_GETGEO still exists and report inconsistent
+> > informations. IMHO should be removed. I know this breaks some existing
+> > programs however these programs do not actually works correctly.
+> 
+> Hm, you are right - HDIO_GETGEO returns different information in 2.4 and 2.6.
+> 
+> Andries, what is your opinion?
 
-Mike
+HDIO_GETGEO returns 4 fields.
 
--- 
-Mike Jagdis                        Web: http://www.eris-associates.co.uk
-Eris Associates Limited            Tel: +44 7780 608 368
-Reading, England                   Fax: +44 118 926 6974
+There is unsigned long start; giving the starting cylinder
+of a partition. It is valid, and there is some software that
+uses it. It will work until the disks get larger than 2 TB
+(that is, today).
+And there are heads, sectors, cylinders.
+This is mostly garbage. Naive use is not recommended.
+Semantics in 2.0 / 2.2 / 2.4 / 2.6 all different.
+
+> You can export needed information through /proc/ide/.
+
+Not recommended.
+
+Andries
+

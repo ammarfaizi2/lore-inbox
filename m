@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277739AbRJRPNP>; Thu, 18 Oct 2001 11:13:15 -0400
+	id <S277740AbRJRPRE>; Thu, 18 Oct 2001 11:17:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277740AbRJRPMy>; Thu, 18 Oct 2001 11:12:54 -0400
-Received: from ip1-13.brfsodrahamn.se ([213.187.198.13]:55936 "HELO
-	tuttifrutti.cdt.luth.se") by vger.kernel.org with SMTP
-	id <S277739AbRJRPMo> convert rfc822-to-8bit; Thu, 18 Oct 2001 11:12:44 -0400
-X-Mailer: exmh version 2.4 10/15/1999 with nmh-1.0.4
-From: Hakan Lennestal <Hakan.Lennestal@brfsodrahamn.se>
-Reply-To: Hakan Lennestal <Hakan.Lennestal@brfsodrahamn.se>
-To: linux-kernel@vger.kernel.org
-Subject: Sound: opl3sa2 problem
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Thu, 18 Oct 2001 17:13:05 +0200
-Message-Id: <20011018151310.BC82010DC9@tuttifrutti.cdt.luth.se>
+	id <S277743AbRJRPQz>; Thu, 18 Oct 2001 11:16:55 -0400
+Received: from t2.redhat.com ([199.183.24.243]:49908 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S277740AbRJRPQi>; Thu, 18 Oct 2001 11:16:38 -0400
+Message-ID: <3BCEF26E.12D69882@redhat.com>
+Date: Thu, 18 Oct 2001 16:17:02 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-4smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roy Murphy <murphy@panix.com>, linux-kernel@vger.kernel.org
+Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL
+In-Reply-To: <3bceefa6.3cf6.0@panix.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-There seem to be a problem with the opl3sa2 driver with some
-YMF chips. The driver does a test on some register bits that is
-supposed to be read only. But they seem to be read/write in some
-chip-versions and the test fails. I've commented out the "return 0;"
-statement after the "opl3sa2: Control I/O port"... message and then
-everything works as expected. This is with 2.4.12 but this problem
-as been around for quite a while. The machine is a Toshiba Tecra 8000.
+> Exported interfaces are "methods of operation" in the sense of US
+> Copyright Law.  Copyright Law affords no protection to "methods of
+> operation".  The GPL, which gains its strength from Copyright Law, also
+> has no rights in this area.  If a GPLed module does not want other code
+> using its interfaces, they should not be exported.
 
-/Håkan
- 
-Oct 18 18:31:15 io kernel: ad1848/cs4248 codec driver Copyright (C) by Hannu 
-Savolainen 1993-1996
-Oct 18 18:31:15 io kernel: ad1848: No ISAPnP cards found, trying standard 
-ones...
-Oct 18 18:31:15 io kernel: opl3sa2: Control I/O port 0x370 is not a YMF7xx 
-chipset!
-Oct 18 18:31:15 io kernel: opl3sa2: Found OPL3-SA3 (YMF715E or YMF719E)
-
+I think you're missing one thing: binary only modules are only allowed
+because of an exception license grant Linus made for functions that are
+marked EXPORT_SYMBOL(). EXPORT_SYMBOL_GPL() just says "not part of this 
+exception grant"....

@@ -1,79 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266068AbTGDQZj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 12:25:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266071AbTGDQZi
+	id S266040AbTGDQzS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 12:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266071AbTGDQzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 12:25:38 -0400
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:62340 "EHLO
-	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S266068AbTGDQZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 12:25:37 -0400
-Subject: Re: [2.4][2.5][Trivial Patch] Bug in i386/kernel/process.c?
-From: Disconnect <lkml@sigkill.net>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1057249575.2372.18.camel@slappy>
-References: <1057249575.2372.18.camel@slappy>
-Content-Type: text/plain
-Message-Id: <1057336804.1317.58.camel@slappy>
+	Fri, 4 Jul 2003 12:55:18 -0400
+Received: from granite.he.net ([216.218.226.66]:30731 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S266040AbTGDQzQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 12:55:16 -0400
+Date: Fri, 4 Jul 2003 10:05:47 -0700
+From: Greg KH <greg@kroah.com>
+To: Dan Aloni <da-x@gmx.net>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] PCI and sysfs fixes for 2.5.73
+Message-ID: <20030704170547.GA7752@kroah.com>
+References: <20030704020634.GA4316@kroah.com> <20030704065217.GA22032@callisto.yi.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 04 Jul 2003 12:40:04 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030704065217.GA22032@callisto.yi.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Er, that patch won't apply to 2.5 - the code is the same, but its moved
-to reboot.c.
+On Fri, Jul 04, 2003 at 09:52:17AM +0300, Dan Aloni wrote:
+> On Thu, Jul 03, 2003 at 07:06:34PM -0700, Greg KH wrote:
+> > Hi,
+> > 
+> > Here's some PCI and sysfs fixes that are against the latest 2.5.74 bk
+> > tree.  They include Matthew Wilcox's set of pci cleanups, and sysfs
+> > fixes for binary files.  That led into my sysfs attribute file change,
+> > which required John Stultz's timer build fix.  I've also added the
+> > sysfs/kobject/class rename patches based on previously posted patches.
+> 
+> That's good, but I see that you didn't add the call to class_device_rename()
+> in net/core/dev.c, and that's kinda misses the point ;)
 
-Same change, diff't file/offset.
+No, I did that on purpose, send this to David Miller, he's the network
+maintainer.
 
-On Thu, 2003-07-03 at 12:26, Disconnect wrote:
-> I was poking into how to force a warm boot (found it easily enough) and
-> started reading process.c, where the details live.
-> 
-> We have:
-> static int reboot_mode;
-> int reboot_thru_bios;
->                                                                                 
-> static int __init reboot_setup(char *str)
-> {
-> ...set reboot_mode/reboot_thru_bios according to reboot=...
-> }
-> __setup("reboot=", reboot_setup);
-> 
-> Farther down:
->         /* Write 0x1234 to absolute memory location 0x472.  The BIOS
-> reads
->            this on booting to tell it to "Bypass memory test (also warm
->            boot)".  This seems like a fairly standard thing that gets
-> set by
->            REBOOT.COM programs, and the previous reset routine did this
->            too. */
->                                                                                 
->         *((unsigned short *)0x472) = reboot_mode;
->                                                                                 (similar code farther down in !reboot_thru_bios)
-> 
-> ....but reboot_mode doesn't seem to be initialized if you don't set it
-> via reboot=...? (Same for reboot_thru_bios)
-> 
-> A simple patch to use the defaults (according to the code comments) is
-> below; if this is right please push accordingly:
-> 
-> Its against 2.4 but should apply to 2.5 as well.
-> --- build-dis5-final/arch/i386/kernel/process.c.orig    2003-07-03 12:15:36.000000000 -0400
-> +++ build-dis5-final/arch/i386/kernel/process.c 2003-07-03 12:16:46.000000000 -0400
-> @@ -152,8 +152,8 @@
->  __setup("idle=", idle_setup);
->   
->  static long no_idt[2];
-> -static int reboot_mode;
-> -int reboot_thru_bios;
-> +static int reboot_mode = 0x1234;
-> +int reboot_thru_bios = 1;
->   
->  #ifdef CONFIG_SMP
->  int reboot_smp = 0;
--- 
-Disconnect <lkml@sigkill.net>
+thanks,
 
+greg k-h

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262779AbREOPUC>; Tue, 15 May 2001 11:20:02 -0400
+	id <S262784AbREOP3c>; Tue, 15 May 2001 11:29:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbREOPTw>; Tue, 15 May 2001 11:19:52 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:39372 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262779AbREOPTd>;
-	Tue, 15 May 2001 11:19:33 -0400
-Message-ID: <3B014903.B16B650B@mandrakesoft.com>
-Date: Tue, 15 May 2001 11:19:31 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S262785AbREOP3W>; Tue, 15 May 2001 11:29:22 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:43170 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262784AbREOP3M>;
+	Tue, 15 May 2001 11:29:12 -0400
+Date: Tue, 15 May 2001 11:29:10 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Neil Brown <neilb@cse.unsw.edu.au>,
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
         "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.21.0105150811170.1802-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.21.0105150803230.1802-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0105151112410.21081-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Tue, 15 May 2001, Alan Cox wrote:
-> >
-> > For block devices that seems to work well. char devices are harder and I'd
-> > rather issue the occasional new major than have people registering automatic
-> > cabbage slicers as a tty or a disk because they cant get a device id.
-> 
-> What are the valid cases that couldn't just register as a misc'ish
-> driver? The one that stands out is serial devices (you have hundreds of
-> them), but that's the same argument as a disk anyway.
 
-/dev/fbN, /dev/dspN, /dev/videoN, ...
 
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+On Tue, 15 May 2001, Linus Torvalds wrote:
+
+> What is the horrible app that does something like this? 
+
+eject(1), for one thing. And yes, it's ugly beyond belief - don't read
+without a barfbag. BTW, LILO is not better, to put it _very_ mildly.
+
+> > 	/* Use scsi if possible [scsi, ide-scsi, usb-scsi, ...] */
+> > 	if(HAS_FEATURE_SET(fd, "scsi-tape"))
+> > 		...
+> > 	else if(HAS_FEATURE_SET(fd, "floppy-tape"))
+> > 		..
+> 
+> doesn't look horrible, and I don't see why we couldn't expose the "driver
+> name" for any file descriptor. We already do for some: "fstatfs()" is
+> largely the same thing on another level.
+
+Well, yes, if you can extract fs type from fstatfs() output. I don't
+think that ->s_magic (i.e. ->f_type) is a good way to do that, though.
+We have unused space in struct statfs and IMO putting the name there
+is a good idea. Has an additional nice property of killing the crap
+like switch by magic numbers.
+

@@ -1,84 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbTKGXnK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 18:43:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbTKGWRN
+	id S261882AbTKGX3K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 18:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTKGX3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:17:13 -0500
-Received: from D70f8.d.pppool.de ([80.184.112.248]:8900 "EHLO
-	karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S264013AbTKGJum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 04:50:42 -0500
-Subject: Re: Re:No backlight control on PowerBook G4
-From: Daniel Egger <degger@fhm.edu>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Dustin Lang <dalang@cs.ubc.ca>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1068078504.692.175.camel@gaston>
-References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
-	 <1067820334.692.38.camel@gaston>  <1067878624.7695.15.camel@sonja>
-	 <1067896476.692.36.camel@gaston>  <1067976347.945.4.camel@sonja>
-	 <1068078504.692.175.camel@gaston>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ENmX2TPyqRCdy5miGIn8"
-Message-Id: <1068198639.796.109.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 07 Nov 2003 10:50:39 +0100
+	Fri, 7 Nov 2003 18:29:08 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:59368
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261892AbTKGX2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 18:28:51 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+Date: Fri, 7 Nov 2003 17:25:31 -0600
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.96.1031107091607.20991C-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1031107091607.20991C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311071725.32271.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 07 November 2003 08:21, Bill Davidsen wrote:
+> On Fri, 7 Nov 2003, Rob Landley wrote:
+> > Note this still doesn't mean you can scroll large X windows for two or
+> > three seconds at a time without burning a coaster.
+> >
+> > I had high hopes with the new scheduler, but no.  (Maybe if I niced the
+> > heck out of cdrecord...)
+>
+> Wow, is the new scheduler that broken? cdrecord run as a realtime process
+> and should definitely keep going pretty much in spite of what you do.  It's
+> realtime priority and locked in core IIRC. The only problem I've had is
+> running out of data burning from NFS mounted data, if I get a load of SPAM
+> the network gets slow. My fault for not spending the time to copy the data
+> twice or buy a burnfree device.
 
---=-ENmX2TPyqRCdy5miGIn8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I dunno what I did.  This was -test9, using dev=/dev/hdc.  It was also 
+something like a week ago.  Halfway through the burn it died because the 
+buffer had run dry, and I made a second coaster to confirm that it was 
+scrolling a konqueror window that had done it.
 
-Am Don, den 06.11.2003 schrieb Benjamin Herrenschmidt um 01:28:
+I probably forgot to run it as root.  (I don't remember it complaining, but I 
+was in the middle of about four other things at the time.  It did _start_ the 
+burn, and made it about halfway through.)  My laptop was also on battery 
+power, which may have had something to do with it, although I have a vague 
+recollection of that working previously, and the battery wasn't anywhere near 
+dead...
 
-> No, I told you to use _my_ 2.6 tree which contains a new radeonfb
-> that have not yet been merged upstream.
+It's not something I've really followed up on.  It works if I leave it alone 
+while it burns, and I haven't had to burn that many cds recently.  (I was 
+burning a knoppix cd for a friend.)  I mostly back up through the network...
 
-Still cannot try this because your kernel wouldn't even survive yaboot.
-
-> > BTW: It took me quite a while to figure out that the only working image
-> > with yaboot was the zImage.chrp. The normal vmlinux doesn't contain a
-> > valid ELF signature (according to yaboot) and the seemingly obvious
-> > vmlinux.elf-pmac goes boom while trying to decompress the kernel.
-
-> Ugh ?
-
-> Yaboot normally loads a plain vmlinux, though if you are using tftp, you
-> need to modify yaboot to be able to d/l more than 4Mb (edit fs_of.c and
-> change the allocated size). The ELF image should work, at least the
-> one produced by my tree does, it's possible that there's a similar size
-> problem with the one in Linus tree, a few of those recent changes haven't
-> yet made it to Linus.
-
-With your tree I now have the problem that it doesn't even boot anymore.
-The CHRP kernel which worked before stopped after "CHRP kernel
-loader...", the elf-pmac one still crashes with:
-Elf32 kernel loaded...
-chrpboot starting: loaded at 0x01000000
-heap at 0x00003000
-gunzipping (0x00010000 <- 0x01006cf8:0x01155486)...
-Decrementer exception at %SRR0: 01005804   %SRR1: 00003030
- ok
-0 >
-
---=20
-Servus,
-       Daniel
-
---=-ENmX2TPyqRCdy5miGIn8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/q2rvchlzsq9KoIYRAuQmAJ9xNtoBd09Vjquf3nG9+uKOKDJnZwCgyCj2
-YFL+lZiLKNtGk0bM3fPwqL0=
-=hy31
------END PGP SIGNATURE-----
-
---=-ENmX2TPyqRCdy5miGIn8--
-
+Rob

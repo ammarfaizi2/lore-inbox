@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129149AbRBFSxC>; Tue, 6 Feb 2001 13:53:02 -0500
+	id <S129092AbRBFS5W>; Tue, 6 Feb 2001 13:57:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129092AbRBFSww>; Tue, 6 Feb 2001 13:52:52 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:29191 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129304AbRBFSwn>;
-	Tue, 6 Feb 2001 13:52:43 -0500
-Message-ID: <3A8047F4.327CE6B2@mandrakesoft.com>
-Date: Tue, 06 Feb 2001 13:52:36 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre1 i686)
-X-Accept-Language: en
+	id <S129383AbRBFS5C>; Tue, 6 Feb 2001 13:57:02 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:36466 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129092AbRBFS4v>; Tue, 6 Feb 2001 13:56:51 -0500
+Date: Tue, 6 Feb 2001 13:54:45 -0500 (EST)
+From: Ben LaHaise <bcrl@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        <kiobuf-io-devel@lists.sourceforge.net>,
+        Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.30.0102061932040.7249-100000@elte.hu>
+Message-ID: <Pine.LNX.4.30.0102061338380.15204-100000@today.toronto.redhat.com>
 MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2-pre1
-In-Reply-To: <Pine.LNX.4.10.10102032021380.1010-100000@penguin.transmeta.com> <20010206113615.G8469@opus.bloom.county>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> Er, what exactly is the CONFIG_PREP stuff in this driver supposed to be
-> for?  "CONFIG_PREP" doesn't exist anymore to start with, and secondly I'm
-> not sure if any PReP boxes ever shipped with a riva card to start with.  The
-> only real way to handle this in 2.4 is something like:
-> #ifdef CONFIG_ALL_PPC /* CHRP/PMAC/PREP */
-> #include <asm/processor.h>
-> #define isPReP (_machine == _MACH_prep)
-> #else
-> #define isPReP 0
-> #endif
-> 
-> That is, if there's really any need to test explicitly for a PReP box.
-> I asked Ani Joshi about this a while ago, and he wasn't quite sure why they
-> were in there either..
+On Tue, 6 Feb 2001, Ingo Molnar wrote:
 
-It looks like it might have come from drivers/video/clgenfb.c, perhaps
-for use with big endian framebuffers?
+> If you are merging based on (device, offset) values, then that's lowlevel
+> - and this is what we have been doing for years.
+>
+> If you are merging based on (inode, offset), then it has flaws like not
+> being able to merge through a loopback or stacked filesystem.
 
-If the driver works on PPC without CONFIG_PREP code, let's get rid of
-it.
+I disagree.  Loopback filesystems typically have their data contiguously
+on disk and won't split up incoming requests any further.
 
-	Jeff
+Here are the points I'm trying to address:
 
+	- reduce the overhead in submitting block ios, especially for
+	  large ios. Look at the %CPU usages differences between 512 byte
+	  blocks and 4KB blocks, this can be better.
+	- make asynchronous io possible in the block layer.  This is
+	  impossible with the current ll_rw_block scheme and io request
+	  plugging.
+	- provide a generic mechanism for reordering io requests for
+	  devices which will benefit from this.  Make it a library for
+	  drivers to call into.  IDE for example will probably make use of
+	  it, but some high end devices do this on the controller.  This
+	  is the important point: Make it OPTIONAL.
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+You mentioned non-spindle base io devices in your last message.  Take
+something like a big RAM disk.  Now compare kiobuf base io to buffer head
+based io.  Tell me which one is going to perform better.
+
+		-ben
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264121AbTEWSNT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 14:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264122AbTEWSNT
+	id S264122AbTEWST2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 14:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264123AbTEWST2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 14:13:19 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:21576 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264121AbTEWSNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 14:13:18 -0400
-Date: Fri, 23 May 2003 11:29:26 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: rmk@arm.linux.org.uk, LW@KARO-electronics.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
- 2.5.30(at least))
-Message-Id: <20030523112926.7c864263.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0305231821460.1690-100000@localhost.localdomain>
-References: <20030523175413.A4584@flint.arm.linux.org.uk>
-	<Pine.LNX.4.44.0305231821460.1690-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 May 2003 18:26:24.0917 (UTC) FILETIME=[D1523450:01C32158]
+	Fri, 23 May 2003 14:19:28 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:45485 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S264122AbTEWST1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 14:19:27 -0400
+Date: Fri, 23 May 2003 15:30:33 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: willy@w.ods.org, gibbs@scsiguy.com, linux-kernel@vger.kernel.org
+Subject: Re: Undo aic7xxx changes
+In-Reply-To: <20030523123837.6521738f.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.55L.0305231530090.15956@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+ <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com>
+ <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
+ <20030509145738.GB17581@alpha.home.local> <20030512110218.4bbc1afe.skraw@ithnet.com>
+ <20030523123837.6521738f.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
+
+
+On Fri, 23 May 2003, Stephan von Krawczynski wrote:
+
+> On Mon, 12 May 2003 11:02:18 +0200
+> Stephan von Krawczynski <skraw@ithnet.com> wrote:
 >
-> On Fri, 23 May 2003, Russell King wrote:
-> > 
-> > No, I think there is a flush missing somewhere in this path.
-> > 
-> > What I think is happening is that Lothar is using the PXA with the cache
-> > in write allocate write back mode (Xscale is the first ARM-arch cpu to
-> > have allocate on write caches.)
-> > 
-> > This means that when IDE copies the data into the buffer using insw or
-> > whatever, it ends up in the VIVT cache rather than memory.  Since we
-> > don't seem to be calling flush_dcache_page(), we never write this data
-> > back to memory for user space to access it via their mapping.
+> > On Fri, 9 May 2003 16:57:38 +0200
+> > Willy Tarreau <willy@w.ods.org> wrote:
+> >
+> > > On Fri, May 09, 2003 at 04:11:06PM +0200, Stephan von Krawczynski wrote:
+> > > > On Fri, 9 May 2003 15:27:57 +0200
+> > > > Willy Tarreau <willy@w.ods.org> wrote:
+> > > >
+> > > > > Well, would you at least agree to retest current version from the above
+> > > > > URL ? I find it a bit of a shame that the driver goes back in -rc
+> > > > > stage.
+> > > >
+> > > > Ok, I can tell you at least this: it boots. Just did it. I can tell
+> > > > tomorrow how it behaves with my specific problem.
+> > >
+> > > Thanks for having tried ;-)
+> >
+> > Hello all,
+> >
+> > I have tried 2.4.21-rc2 with aic79xx-linux-2.4-20030502-tar.gz for three days
+> > now and have to say it performs well. I had no freezes any more and nothing
+> > weird happening. Everything is smooth and ok. This is the best performance I
+> > have seen comparing all 2.4.21-X versions tested.
+> >
+> > Thanks a lot.
+> >
+> > I will proceed with further stress tests...
+>
+> Ok. I managed to crash the tested machine after 14 days now. The crash itself
+> is exactly like former 2.4.21-X. It just freezes, no oops no nothing. It looks
+> like things got better, but not solved.
+>
 
-That sounds distinctly possible.
-
-> I believe (DaveM will speak with authority) that hitherto it has been
-> assumed that I/O (well, Input) brings data actually into memory: we use
-> flush_dcache_page if kernel memsets or memcpys data, not if it's read in.
-
-Vague statement of principle: The device driver layer takes care of these
-issues for DMA transfers, and hence should also take care of them for PIO. 
-Is this sensible and/or possible?
-
-> If this mode+architecture departs from that, then we would need another
-> macro, which translates to flush_dcache_page (sufficient?) for that,
-> and is a nop for everything else.
-> 
-> And where would it be placed?  I think not where the flush_page_to_ram
-> used to be in filemap_nopage, but after the ->readpage.  Or... would
-> this tie in with Martin's s390 request for a SetPageUptodate hook?
-> 
-
-IDE?
-
+What about rc3?

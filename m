@@ -1,82 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267910AbRGRQhH>; Wed, 18 Jul 2001 12:37:07 -0400
+	id <S267908AbRGRQyd>; Wed, 18 Jul 2001 12:54:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267497AbRGRQg5>; Wed, 18 Jul 2001 12:36:57 -0400
-Received: from arleno1.dsl.sirius.com ([207.44.242.45]:31245 "EHLO
-	altair.dhs.org") by vger.kernel.org with ESMTP id <S267904AbRGRQgq>;
-	Wed, 18 Jul 2001 12:36:46 -0400
-Message-Id: <200107181636.JAA24824@altair.dhs.org>
-Content-Type: text/plain; charset=US-ASCII
-From: Charles Samuels <charles@kde.org>
-Organization: K Desktop Environment
+	id <S267912AbRGRQyX>; Wed, 18 Jul 2001 12:54:23 -0400
+Received: from f79.law3.hotmail.com ([209.185.241.79]:61961 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S267908AbRGRQyM>;
+	Wed, 18 Jul 2001 12:54:12 -0400
+X-Originating-IP: [24.18.79.48]
+From: "Carl Husa" <carlhusa@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: LDP / KDP?
-Date: Wed, 18 Jul 2001 09:36:48 -0700
-X-Mailer: KMail [version 1.2.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Subject: Custom Kernel & NICS
+Date: Wed, 18 Jul 2001 16:54:11 
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F79nNAR1JBjbUf9Sp2W00000c7b@hotmail.com>
+X-OriginalArrivalTime: 18 Jul 2001 16:54:11.0378 (UTC) FILETIME=[44A7A920:01C10FAA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Have installed RedHat Linux 7.1, kernel 2.4.2 with two NICs - 3COM905cx and 
+NetGear FA311. Box will be used as a firewall to separate two rfc 1918 - 
+networks 10.0.0.0 and 192.168.1.0.
 
-Well, upon reading the output produced from a make htmldoc in the kernel
-source, I've been rather (read: very) discouraged.
+At completion of initial install. both NIC's are recognized, activated and 
+load (lsmod shows natsemi and 3c59x). Can connect to Internet from exteernal 
+address, can ping both interfaces.
 
-I'm not sure there'd be much of a "market" for this, seeing as how much more
-complete the inline-kerneldocs will be.
+Then I Customize kernel, with support for iptables, NAT/MASQ, netfilter. 
+Compile is successful, boot is successful, BUT - neither NIC activates. 
+Otherwise, boot is fine, the cat test for iptables produces a '1'.
 
-_still_, I like my format more, it seems like it'd be much easier to search,
-and I think the format is much more ideal than docbook (which I have worked
-with)
+What am I doing wrong?
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 
-e.g., an example data file: http://derkarl.org/kerneldoc/data/init_timer.kd
-
-And of course, I'm making no effort in preventing others from "syndicating"
-these data files.  With which it should be simple enough to generate a
-printed form, and other formats from.  In other words: it's a really easy
-parse.
-
-But the main problem is, it will be easier for the actual writers of the code
-to maintain their docs inline, which will severely slow the acceptance of
-this.  So, it's a choice between inline docs and this.  If there's any
-approval of this ("officially"?), then I'de be open to discuss moving this to
-something LDP-sanctioned, but of course, I wouldn't want to remove the
-versatility that I have so far.
-
-However, the main reason I didn't use docbook at first was _because_ I wanted
-the versatility, and I didn't want something that behaved like a book.
-
-e.g. 
- http://developer.kde.org/documentation/library/2.0-api/classref/kdecore/
-
-This documentation _is_ inline to the code (in the headers), generated via a
-perl script "kdoc".
-
-On Wednesday 18 July 2001 08:50 am, you wrote:
-> Charles Samuels (charles@kde.org) wrote:
-> (I'm only quoting your whole message because I'm
-> cc'ing it to discuss@linuxdoc.org.)
->
-> Have you considered writing this as an LDP Guide?
->
-> Advantages:
-> * Harness the incredible power of a virtual army of
-> LDP volunteers. (Well, a virtual platoon...)
-> * The docs become print-ready as well.
-> * DocBook is a standard! Yay standards!
-> * Use the already-present distribution network the LDP
-> has in place.
->
-> Disadvantages:
-> * Your formatting looks spiffier than the LDP
-> stylesheets.
-> * You'd have to rewrite what you have.
-> * DocBook is not tailored to your purposes.
-> * Multiple versions will exist throughout the world.
->
-> I believe it's an alternative worth considering. I'd
-> be willing to convert what you already have to
-> DocBook.
-
--------------------------------------------------------

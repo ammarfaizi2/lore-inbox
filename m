@@ -1,79 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267632AbRG3Tjo>; Mon, 30 Jul 2001 15:39:44 -0400
+	id <S267624AbRG3Tpe>; Mon, 30 Jul 2001 15:45:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267650AbRG3Tjf>; Mon, 30 Jul 2001 15:39:35 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:61198 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S267632AbRG3TjU>; Mon, 30 Jul 2001 15:39:20 -0400
-Date: Mon, 30 Jul 2001 15:09:22 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        lkml <linux-kernel@vger.kernel.org>, Ben LaHaise <bcrl@redhat.com>,
-        Mike Galbraith <mikeg@wen-online.de>
-Subject: Re: [RFC] Optimization for use-once pages
-In-Reply-To: <3B5E554E.86FDA41F@zip.com.au>
-Message-ID: <Pine.LNX.4.21.0107301501510.7432-100000@freak.distro.conectiva>
+	id <S267672AbRG3TpY>; Mon, 30 Jul 2001 15:45:24 -0400
+Received: from seldon.terminus.sk ([195.146.17.130]:11018 "EHLO
+	seldon.terminus.sk") by vger.kernel.org with ESMTP
+	id <S267624AbRG3TpR>; Mon, 30 Jul 2001 15:45:17 -0400
+Date: Mon, 30 Jul 2001 21:49:06 +0200 (CEST)
+From: Milan WWW Pikula <www@terminus.sk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Announce: fs-salvage mailing list (correct version)
+Message-ID: <Pine.LNX.4.20.0107302144350.17482-100000@seldon.terminus.sk>
+X-NCC-RegID: sk.napri
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Hi all,
+
+I am very sorry for my second posting, but I gave wrong subscription
+information :((. This one is correct.
+
+	I'd like to announce the mailing list, targeted on filesystem repair
+and crash recovery. The mailing list is for discussion of the methods
+for data rescuing, algorithms, hints, existing tools and utilities.
+
+	You are invited to join, if you are:
+
+	* interested in the methods of data rescuing
+	* developer of some filesystem repair tools (fsck, ...)
+	* the one who already lost the data and wants it back ;)
+	* (developer of) or (expert on) a particular filesystem
+
+	You can browse the archives of list at
+
+		http://list.terminus.sk/fs-salvage
+                                        ~~~~~~~~~~
+
+	(though they are empty yet:) and you can subscribe by
+sending a message containing
+
+		subscribe fs-salvage
+                          ~~~~~~~~~~
+
+	in the body of message to address list@list.terminus.sk
+
+	Regards,
+
+		Milan Pikula
+
+--
+Milan Pikula, WWW. Finger me for Geek Code.
+http://fornax.elf.stuba.sk/~www, www@fornax.elf.stuba.sk
+.. dajte mi pevnu linku a pohnem zemegulou ..
 
 
-On Wed, 25 Jul 2001, Andrew Morton wrote:
 
-> Marcelo Tosatti wrote:
-> > 
-> > Daniel's patch adds "drop behind" (that is, adding swapcache
-> > pages to the inactive dirty) behaviour to swapcache pages.
-> 
-> In some *brief* testing here, it appears that the use-once changes
-> make an improvement for light-medium workloads.  With swap-intensive
-> workloads, the (possibly accidental) changes to swapcache aging
-> in fact improve things a lot, and use-once makes things a little worse.
-> 
-> This is a modified Galbraith test: 64 megs of RAM, `make -j12
-> bzImage', dual CPU:
-> 
-> 2.4.7:			6:54
-> 2.4.7+Daniel's patch	6:06
-> 2.4.7+the below patch	5:56
-> 
-> --- mm/swap.c	2001/01/23 08:37:48	1.3
-> +++ mm/swap.c	2001/07/25 04:08:59
-> @@ -234,8 +234,8 @@
->  	DEBUG_ADD_PAGE
->  	add_page_to_active_list(page);
->  	/* This should be relatively rare */
-> -	if (!page->age)
-> -		deactivate_page_nolock(page);
-> +	deactivate_page_nolock(page);
-> +	page->age = 0;
->  	spin_unlock(&pagemap_lru_lock);
->  }
-> 
-> This change to lru_cache_add() is the only change made to 2.4.7,
-> and it provides the 17% speedup for this swap-intensive load.
 
-After some thoughs I think this is due to swapin readahead.
 
-We add "drop behind" behaviour to swap readahead, so we have less impact
-on the system due to swap readahead "misses". 
 
-That is nice but dangerous under swap IO intensive loads: 
 
-We start swapin readahead, bring the first page of the "cluster" in
-memory, block on the next swap page's IO (the one's we are doing
-readahead) and in the meantime the first page we read is reclaimed by
-someone else.
-
-Then we'll have to reread the first page at at the direct
-read_swap_cache_async() called by do_swap_page().
-
-I really want to confirm if this is happening right now. Hope to do it
-soon.
 

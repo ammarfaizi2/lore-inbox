@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289986AbSAPQbC>; Wed, 16 Jan 2002 11:31:02 -0500
+	id <S289954AbSAPQ0c>; Wed, 16 Jan 2002 11:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289991AbSAPQaw>; Wed, 16 Jan 2002 11:30:52 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:13297 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289986AbSAPQam>;
-	Wed, 16 Jan 2002 11:30:42 -0500
-Date: Tue, 15 Jan 2002 21:16:35 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Removing the whitespaces??? [Was: Re: Why not "attach" patches?]
-Message-ID: <20020115211635.T11251@lynx.adilger.int>
-Mail-Followup-To: "Henning P. Schmiedehausen" <hps@intermeta.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201151448050.5892-100000@xanadu.home> <Pine.LNX.4.33.0201151405250.9053-100000@segfault.osdlab.org> <20020115151629.N11251@lynx.adilger.int> <a22gfn$c15$1@forge.intermeta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <a22gfn$c15$1@forge.intermeta.de>; from hps@intermeta.de on Wed, Jan 16, 2002 at 12:11:35AM +0000
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S289986AbSAPQ0Y>; Wed, 16 Jan 2002 11:26:24 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:23681 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S289954AbSAPQ0K>; Wed, 16 Jan 2002 11:26:10 -0500
+Date: Wed, 16 Jan 2002 11:16:55 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Richard Henderson <rth@twiddle.net>,
+        Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+In-Reply-To: <20020116151852.B31993@kushida.apsleyroad.org>
+Message-ID: <Pine.LNX.3.95.1020116110901.13296A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 16, 2002  00:11 +0000, Henning P. Schmiedehausen wrote:
-> Andreas Dilger <adilger@turbolabs.com> writes:
-> >Well, it would be a feature if it knew enough to only remove whitespace
-> >at the end of "+" lines in context diffs.  Then we wouldn't have 200kB
-> >of useless whitespace in the kernel sources.
-> 
-> (This is a TAB and a space in the square brackets above. 
-> Don't use \s. Trust me.)
-> 
-> linux-2.2.20.tar.bz2:		15,751,285 bytes
-> linux-2.2.20-nbl.tar.bz2:       15,608,085 bytes
-> 
-> Patch Size (uncompressed):	17,815,166 bytes (yes this _is_ 17,4 MBytes)
->            (compressed, bzip2):  3,322,456 bytes 
-> 
-> One mega-patch to shear off about 140 KBytes from the compressed (and
-> about 170 k from the unpacked (94488 vs. 94316 KBytes ) kernel source
-> would (while it may be the biggest single "reduce-size-of-kernel-tree
-> patch" in years :-) ) a little gross.
+On Wed, 16 Jan 2002, Jamie Lokier wrote:
 
-Oh, I'm not advocating sending in a huge patch _just_ to remove the
-useless whitespace (which includes trailing spaces/tabs and [space][tab]
-combinations), but it would be nice if someone is setting up a patchbot
-to remove such whitespace in new or modified lines in a patch.
+> Alan Cox wrote:
+> > > What's the point of optimizing an IF to a cmov if I have
+> > > to insert another IF to see if I can use cmov?
+> > 
+> > I've always wondered. Intel made the instruction optional yet there isnt
+> > an obvious way to do runtime fixups on it
+> 
+> Yes there is -- emulation! :-)
+> 
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+It's just as bad, probably worse! You trap on an invalid op-code. The
+trap-handler checks the op-code and if it's emulated, it emulates it
+and returns to the executing task. This takes many instruction cycles,
+certainly more than `if(cmov) doit; else do_something_else;` --which,
+itself, takes many more instruction cycles than cmov is supposed to
+reduce. It's a no-win situation. The only way to win is a compile-time
+choice. This means customizing for your CPU IFF it has the cmov
+instruction.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

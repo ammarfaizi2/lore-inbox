@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129061AbQKHQ7M>; Wed, 8 Nov 2000 11:59:12 -0500
+	id <S129132AbQKHRFX>; Wed, 8 Nov 2000 12:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129132AbQKHQ7C>; Wed, 8 Nov 2000 11:59:02 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:10756 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S129061AbQKHQ7A>; Wed, 8 Nov 2000 11:59:00 -0500
-Date: Wed, 8 Nov 2000 17:58:53 +0100 (CET)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: Re: continuing VM madness
-In-Reply-To: <20001107233247.B1150@werewolf.able.es>
-Message-ID: <Pine.LNX.3.96.1001108174731.7153B-100000@artax.karlin.mff.cuni.cz>
+	id <S129159AbQKHRFO>; Wed, 8 Nov 2000 12:05:14 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:59881 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129132AbQKHRFC>; Wed, 8 Nov 2000 12:05:02 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Szabolcs Szakacsits <szaka@f-secure.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Linus Torvalds <torvalds@transmeta.com>,
+        Ingo Molnar <mingo@elte.hu>
+Subject: Re: Looking for better VM
+In-Reply-To: <Pine.LNX.3.96.1001108172338.7153A-100000@artax.karlin.mff.cuni.cz>
+Organisation: SAP LinuxLab
+Date: 08 Nov 2000 18:03:09 +0100
+In-Reply-To: Mikulas Patocka's message of "Wed, 8 Nov 2000 17:36:40 +0100 (CET)"
+Message-ID: <qwwr94ml7le.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Should kswapd and klogd ever get "do_try_to_free_pages failed"? when
-> > this happens my machine is destabilized, and pauses briefly from time to
-> > time before locking up or otherwise becoming inert. This is 2.2.16+USB.
-> > 
-> > Nov  7 14:51:36 cartman kernel: VM: do_try_to_free_pages failed for
-> > kswapd... 
-> > Nov  7 15:46:39 cartman kernel: VM: do_try_to_free_pages failed for
-> > panel... 
-> 
-> That seems to be the place for Andrea Arcangeli VM patch. Get it at:
-> 
-> http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.16/mm-fix-*
-> 
-> Or even better, get kernel 2.2.17 and
-> http://www.kernel.org/pub/linux/kernel/people/alan/2.2.18pre/pre-patch-2.2.18-18.bz2
-> http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre18/VM-global-2.2.18pre18-7.bz2
-> 
-> and get a 2.2.18-pre18-vm, with USB support included.
-> 
-> There is a 2.2.18-pre20 out, but I have not still checked if
-> VM-global-2.2.18pre18-7.bz2
-> works on it. It worked for me in -pre19.
+Hi Mikulas,
 
-Sadly it is not a bug but a VM misdesign (and people are just making
-different workarounds that more or less work). I believe that this
-solution will break again, as it happened in 2.2.15 and 2.2.16.
+On Wed, 8 Nov 2000, Mikulas Patocka wrote:
+> BTW. Why does your OOM killer in 2.4 try to kill process that mmaped
+> most memory? mmap is hamrless. mmap on files can't eat memory and
+> swap.
 
-Go back to Linux 2.0 - it has the swapper implemented correctly :-)
+Be careful: They may have shm segments mmaped!
 
-Mikulas
-
+Greetings
+		Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

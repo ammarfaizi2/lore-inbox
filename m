@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272182AbRIEO0l>; Wed, 5 Sep 2001 10:26:41 -0400
+	id <S272188AbRIEOgY>; Wed, 5 Sep 2001 10:36:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272187AbRIEO0b>; Wed, 5 Sep 2001 10:26:31 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:43538 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S272182AbRIEO0T>; Wed, 5 Sep 2001 10:26:19 -0400
-Message-Id: <200109051426.f85EQTpp012483@pincoya.inf.utfsm.cl>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress 
-In-Reply-To: Message from "Grover, Andrew" <andrew.grover@intel.com> 
-   of "Tue, 04 Sep 2001 14:52:17 MST." <4148FEAAD879D311AC5700A0C969E89006CDE0E2@orsmsx35.jf.intel.com> 
-Date: Wed, 05 Sep 2001 10:26:28 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S272191AbRIEOgP>; Wed, 5 Sep 2001 10:36:15 -0400
+Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:2061 "EHLO
+	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S272188AbRIEOf6>; Wed, 5 Sep 2001 10:35:58 -0400
+To: Michael Bacarella <mbac@nyct.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: getpeereid() for Linux
+In-Reply-To: <tgsne23sou.fsf@mercury.rus.uni-stuttgart.de>
+	<20010905093851.A24280@sync.nyct.net>
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 05 Sep 2001 16:35:41 +0200
+In-Reply-To: <20010905093851.A24280@sync.nyct.net> (Michael Bacarella's message of "Wed, 5 Sep 2001 09:38:51 -0400")
+Message-ID: <tgsne1vh6q.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Grover, Andrew" <andrew.grover@intel.com> said:
+Michael Bacarella <mbac@nyct.net> writes:
 
-[...]
+> There's no need. The equivalent functionality can already be
+> implemented in userspace.
 
-> Here's Linux:
-> 
-> Drivers (SMP agnostic)
+Well, it doesn't work with TCP.  Uh-oh, I see I forgot to mention the
+following: I need this functionality for local TCP connections, not
+just UNIX domain sockets.
 
-The SMP/UP difference is pervasive in Linux, I don't think there is a
-single SMP-agnostic driver (as far as _binaries_ go). Source is mostly
-SMP-agnostic.
-
-> Kernel (SMP/UP specific)
-> 
-> Here's Windows:
-> 
-> Drivers (SMP agnostic)
-> Kernel (SMP agnostic)
-> HAL (SMP/UP specific, contains locking primitive funcs etc.)
-> 
-> So they use the same kernel and just switch out the HAL.
-
-And each SMP/UP aware operation _has_ to be a separate function (no inlines
-allowed this way). Doable with not too much overhead, AFAICS (at least in
-principle); but maintaining (and synchronizing) a clean split will soon be
-a nightmare. Or end up in two separate kernels anyway ;-)
-
-[...]
-
-> For one thing, it would get rid of the hundreds of "#ifdef CONFIG_SMP"s in
-> the kernel. ;-)
-
-At least the #ifdef's isolate just the places that must be different in
-both cases. It might be worthwhile to abstract them out from the source
-(not necesarily from the binary kernel).
 -- 
-Dr. Horst H. von Brand                Usuario #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270378AbTHBVwk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 17:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270382AbTHBVwj
+	id S270383AbTHBWOU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 18:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270385AbTHBWOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 17:52:39 -0400
-Received: from postman1.arcor-online.net ([151.189.0.187]:2720 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S270378AbTHBVwh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 17:52:37 -0400
-Date: Sat, 2 Aug 2003 23:52:46 +0200
-From: Juergen Quade <quade@hs-niederrhein.de>
-To: linux-kernel@vger.kernel.org
-Cc: Juergen Quade <quade@postman.arcor.de>
-Subject: Does Kernel 2.6 needs to call modprobe with a minor number?
-Message-ID: <20030802215246.GA14636@hsnr.de>
+	Sat, 2 Aug 2003 18:14:20 -0400
+Received: from almesberger.net ([63.105.73.239]:54541 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S270383AbTHBWOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 18:14:19 -0400
+Date: Sat, 2 Aug 2003 19:14:11 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TOE brain dump
+Message-ID: <20030802191411.H5798@almesberger.net>
+References: <20030802140444.E5798@almesberger.net> <1059857864.20305.14.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1059857864.20305.14.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sat, Aug 02, 2003 at 09:57:44PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In kernel 2.6 it is possible for devices to share a major number as long
-as they use different minor numbers (see register_chrdev_region).
-Doesn't it mean, that now a device is clearly identified by a major
-_and_ a minor number?
+Alan Cox wrote:
+> It moves the cost it doesnt make it vanish
 
-Right?
+I don't think it really can. What it can do is reduce the
+overhead (which usually translates to latency and burstiness)
+and the sharing.
 
-In this case, wouldn't it be necessary to call modprobe with
-major _and_ minornumber (for example in function base_probe(),
-sourcefile fs/char_dev.c)?
+> If I read you right you are arguing for a second processor running
+> Linux.with its own independant memory bus. AMD make those already its
+> called AMD64. I don't know anyone thinking at that level about
+> partitioning one as an I/O processor.
 
-Otherwise the modprobe program can not clearly identify, which driver to
-load.
+That's taking this idea to an extreme, yes. I'd think of
+using something as big as an amd64 for this as "too
+expensive", but perhaps it's cheap enough in the long run,
+compared to some "optimized" design.
 
-       Juergen.
+It would certainly have the advantage of already solving
+various consistency and compatibility issues. (That is, if
+your host CPUs is/are also amd64.)
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278625AbRJ1SBF>; Sun, 28 Oct 2001 13:01:05 -0500
+	id <S278632AbRJ1SLZ>; Sun, 28 Oct 2001 13:11:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278629AbRJ1SAz>; Sun, 28 Oct 2001 13:00:55 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11529 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278625AbRJ1SAo>; Sun, 28 Oct 2001 13:00:44 -0500
-Date: Sun, 28 Oct 2001 09:59:14 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Zlatko Calusic <zlatko.calusic@iskon.hr>, Jens Axboe <axboe@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-mm@kvack.org>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
-In-Reply-To: <E15xu2b-0008QL-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110280945150.7360-100000@penguin.transmeta.com>
+	id <S278617AbRJ1SLP>; Sun, 28 Oct 2001 13:11:15 -0500
+Received: from relay-1v.club-internet.fr ([194.158.96.112]:27802 "HELO
+	relay-1v.club-internet.fr") by vger.kernel.org with SMTP
+	id <S278629AbRJ1SK5>; Sun, 28 Oct 2001 13:10:57 -0500
+Message-ID: <3BDC4A55.6080500@freesurf.fr>
+Date: Sun, 28 Oct 2001 19:11:33 +0100
+From: Kilobug <kilobug@freesurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011022
+X-Accept-Language: fr, en, fr-fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lkm <linux-kernel@vger.kernel.org>
+Subject: Re: Radeon Frame Buffer
+In-Reply-To: <1004210340.4537.20.camel@tiger>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've problems too with the Radeon frame buffer. When I type shell
+commands, the screen become weird (some pixel lines seems to move, ...);
+I had to use ^L very often, or less it's totally unreadable. (I'm using
+-ac kernels for ext3fs).
 
-On Sun, 28 Oct 2001, Alan Cox wrote:
->
-> > Does the -ac patches have any hpt366-specific stuff? Although I suspect
-> > you're right, and that it's just the driver (or controller itself) being
->
-> The IDE code matches between the two. It isnt a driver change
+I've a Radoen 64 DDR with an AMD 761 AGP chipset.
+If someone has experimental pacthes and need beta-testing, feel free to
+mail me the patch.
 
-It might, of course, just be timing, but that sounds like a bit _too_ easy
-an explanation. Even if it could easily be true.
+Thanx for your great work
 
-The fact that -ac gets higher speeds, and -ac has a very different
-request watermark strategy makes me suspect that that might be the cause.
+-- 
+   ** Gael Le Mignot, Ing3 EPITA, Coder of The Kilobug Team **
+Home Mail : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM       : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Web       : http://kilobug.freesurf.fr or http://drizzt.dyndns.org
 
-In particular, the standard kernel _requires_ that in order to get good
-performance you can merge many bh's onto one request. That's a very
-reasonable assumption: it basically says that any high-performance driver
-has to accept merging, because that in turn is required for the elevator
-overhead to not grow without bounds. And if the driver doesn't accept big
-requests, that driver cannot perform well because it won't have many
-requests pending.
+"Software is like sex it's better when it's free.", Linus Torvalds
 
-In contrast, the -ac logic says roughly "Who the hell cares if the driver
-can merge requests or not, we can just give it thousands of small requests
-instead, and cap the total number of _sectors_ instead of capping the
-total number of requests earlier".
-
-In my opinion, the -ac logic is really bad, but one thing it does allow is
-for stupid drivers that look like high-performance drivers. Which may be
-why it got implemented.
-
-And it may be that the hpt366 IDE driver has always had this braindamage,
-which the -ac code hides. Or something like this.
-
-Does anybody know the hpt driver? Does it, for example, limit the maximum
-number of sectors per merge somehow for some reason?
-
-Jens?
-
-		Linus
 

@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268252AbUHFTj5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268260AbUHFTmB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268252AbUHFTj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 15:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbUHFTii
+	id S268260AbUHFTmB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 15:42:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268257AbUHFTkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 15:38:38 -0400
-Received: from damned.travellingkiwi.com ([81.6.239.220]:8030 "EHLO
-	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
-	id S268252AbUHFTeD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 15:34:03 -0400
-Message-ID: <4113DD20.1010808@travellingkiwi.com>
-Date: Fri, 06 Aug 2004 20:33:52 +0100
-From: Hamie <hamish@travellingkiwi.com>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
+	Fri, 6 Aug 2004 15:40:19 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32267 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S268258AbUHFTiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 15:38:55 -0400
+Date: Fri, 6 Aug 2004 20:38:49 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Hamie <hamish@travellingkiwi.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: ide-cs using 100% CPU
-References: <40FA4328.4060304@travellingkiwi.com> <20040806202747.H13948@flint.arm.linux.org.uk>
-In-Reply-To: <20040806202747.H13948@flint.arm.linux.org.uk>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040806203849.I13948@flint.arm.linux.org.uk>
+Mail-Followup-To: Hamie <hamish@travellingkiwi.com>,
+	linux-kernel@vger.kernel.org
+References: <40FA4328.4060304@travellingkiwi.com> <20040806202747.H13948@flint.arm.linux.org.uk> <4113DD20.1010808@travellingkiwi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4113DD20.1010808@travellingkiwi.com>; from hamish@travellingkiwi.com on Fri, Aug 06, 2004 at 08:33:52PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+On Fri, Aug 06, 2004 at 08:33:52PM +0100, Hamie wrote:
+> Russell King wrote:
+> 
+> >On Sun, Jul 18, 2004 at 10:30:16AM +0100, Hamie wrote:
+> >  
+> >
+> >>Anyone know why this happens? Something busy waiting? (BUt that should 
+> >>show as system cpu right?) or something taking out really long locks?
+> >>    
+> >>
+> >
+> >It'll be because IDE is using PIO to access the CF card, which could
+> >have long access times (so reading a block of sectors could take some
+> >time _and_ use CPU.)  Obviously, PIO requires the use of the CPU, so
+> >the CPU can't be handed off to some other task while this is occuring.
+> >
+> >  
+> >
+> Well... I did consider that. And not to disbelieve you, since you know 
+> the kernel way better than I do, But decided I was being silly that a 
+> 1.6GHz Pentium-M processor should use 100% CPU moving a couple of 
+> MB/second across a CF interface...
+> 
+> Is 100% CPU not excessive? IIRC my PIII-750 used to use less CPU doing 
+> the same job as quick, or even slightly faster...
+> 
+> And should it not use system CPU rather than user CPU?
 
->On Sun, Jul 18, 2004 at 10:30:16AM +0100, Hamie wrote:
->  
->
->>Anyone know why this happens? Something busy waiting? (BUt that should 
->>show as system cpu right?) or something taking out really long locks?
->>    
->>
->
->It'll be because IDE is using PIO to access the CF card, which could
->have long access times (so reading a block of sectors could take some
->time _and_ use CPU.)  Obviously, PIO requires the use of the CPU, so
->the CPU can't be handed off to some other task while this is occuring.
->
->  
->
-Well... I did consider that. And not to disbelieve you, since you know 
-the kernel way better than I do, But decided I was being silly that a 
-1.6GHz Pentium-M processor should use 100% CPU moving a couple of 
-MB/second across a CF interface...
+Actually, if its being accounted for as waitIO, then we should be
+running some other task...  However, I've just realised that we
+don't appear to specifically account IO waits in the kernel, so
+I'm not sure how userspace comes up with this magic number.
 
-Is 100% CPU not excessive? IIRC my PIII-750 used to use less CPU doing 
-the same job as quick, or even slightly faster...
+Sorry for the noise...
 
-And should it not use system CPU rather than user CPU?
-
-TIA
- Hamish.
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263640AbUFKAg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263656AbUFKAhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263640AbUFKAg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 20:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbUFKAg0
+	id S263656AbUFKAhr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 20:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUFKAhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 20:36:26 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:36005 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S263640AbUFKAgA
+	Thu, 10 Jun 2004 20:37:47 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:32896 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263656AbUFKAhB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 20:36:00 -0400
-Message-ID: <40C8FE7C.2060404@blue-labs.org>
-Date: Thu, 10 Jun 2004 20:36:12 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040609
-X-Accept-Language: en-us, en
+	Thu, 10 Jun 2004 20:37:01 -0400
+Date: Thu, 10 Jun 2004 20:36:42 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: alan <alan@clueserver.org>
+cc: walt <wa1ter@myrealbox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Insults in the kernel-sources
+In-Reply-To: <Pine.LNX.4.44.0406101543160.18250-100000@www.fnordora.org>
+Message-ID: <Pine.LNX.4.53.0406102030480.28013@chaos>
+References: <Pine.LNX.4.44.0406101543160.18250-100000@www.fnordora.org>
 MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       alsa-user@lists.sourceforge.net
-Subject: ALSA burps, 2.6.7-rc2 VIA VT8233
-Content-Type: multipart/mixed;
- boundary="------------080509040907040402060507"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080509040907040402060507
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 10 Jun 2004, alan wrote:
 
-This machine spams dmesg _very_ frequently with the following message:
+> On Thu, 10 Jun 2004, walt wrote:
+>
+> > alan wrote:
+> >
+> > > Turns out the Microsoft code has just as much profanity, if not more, than
+> > > the Linux kernel source.  (Of course, they have more to swear about...)
+> >
+> > Not that I doubt you for one second -- but I'd like to examine the M$ source
+> > code for myself if you don't mind.  Only for the purpose of verifying your
+> > somewhat unusual claim, naturally.
+> >
+> > Oh, BTW, where can I find their source code...
+>
+> The M$ swearwords was widely reported by the press after the source code
+> leakage.
+>
+> You might still be able to find it on one of the file sharing networks.
+>
 
-    ALSA sound/pci/via82xx.c:737: invalid via82xx_cur_ptr, using last 
-valid pointer
+Yes. I recall is was something like:
 
-It doesn't happen constantly but comes in bursts.  I haven't any idea 
-what triggers it since I can be playing 20 minutes without any messages 
-then there will be 50 of them with no change in computer usage.
+10 IF MID$(LEFT$(A$,3), B$) THEN GOTO 20 ELSE GOTO 10
+20 GOTO 100
+100 WHILE((SCREW$, 4Q2), CUSTOMER$) GOTO BANK
+200 GOTO 10
 
-David
+All written in MBASIC.
 
-
---------------080509040907040402060507
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
-
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
---------------080509040907040402060507--

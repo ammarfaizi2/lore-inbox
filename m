@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129964AbRBEUDb>; Mon, 5 Feb 2001 15:03:31 -0500
+	id <S129111AbRBEUJx>; Mon, 5 Feb 2001 15:09:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131368AbRBEUDM>; Mon, 5 Feb 2001 15:03:12 -0500
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:23793 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S129964AbRBEUDE>; Mon, 5 Feb 2001 15:03:04 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Robert Guerra" <rob_guerra@usa.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: system call sched_yield() doesn't work on Linux 2.2
-Date: Mon, 5 Feb 2001 12:03:03 -0800
-Message-ID: <NCBBLIEPOCNJOAEKBEAKOEPFNHAA.davids@webmaster.com>
+	id <S129929AbRBEUJn>; Mon, 5 Feb 2001 15:09:43 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:64239 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129111AbRBEUJa>; Mon, 5 Feb 2001 15:09:30 -0500
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Mathias.Froehlich@gmx.net
+Subject: Re: [patch] make tmpfs_statfs more user friendly
+In-Reply-To: <200102051833.f15IXhv21604@webber.adilger.net>
+From: Christoph Rohland <cr@sap.com>
+In-Reply-To: <200102051833.f15IXhv21604@webber.adilger.net>
+Message-ID: <m3ae80dhl9.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <20010205043355.12353.qmail@nwcst276.netaddress.usa.net>
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
+Date: 05 Feb 2001 21:14:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andreas,
 
-> David,
+On Mon, 5 Feb 2001, Andreas Dilger wrote:
+>> diff -uNr 2.4.1-tmpfs/mm/shmem.c 2.4.1-tmpfs-fstat/mm/shmem.c
+>> --- 2.4.1-tmpfs/mm/shmem.c	Sun Feb  4 16:08:57 2001
+>> +++ 2.4.1-tmpfs-fstat/mm/shmem.c	Sun Feb  4 16:09:50 2001
+>> @@ -696,13 +696,20 @@
+>>  	buf->f_type = TMPFS_MAGIC;
+>>  	buf->f_bsize = PAGE_CACHE_SIZE;
+>>  	spin_lock (&sb->u.shmem_sb.stat_lock);
+>> -	if (sb->u.shmem_sb.max_blocks != ULONG_MAX || 
+>> -	    sb->u.shmem_sb.max_inodes != ULONG_MAX) {
+>> +	if (sb->u.shmem_sb.max_blocks == ULONG_MAX) {
+>> +		/*
+>> +		 * This is only a guestimate and not honoured.
+>> +		 * We need it to make some programs happy which like to
+>> +		 * test the free space of a file system.
+>> +		 */
+>> +		buf->f_bavail = buf->f_bfree = nr_free_pages() + nr_swap_pages + atomic_read(&buffermem_pages);
+> 
+> Should f_bavail be reduced by freepages.min or freepages.low?
 
->     please try to reply courteously to queries by other people.
-> And specially
-> when you're the one who's wrong. Mohit is right - Linux had a
-> long standing problem where sched_yield() system call didn't work. It
-> was only fixed in Linux 2.4.
+Is it still used? If yes, good idea.
 
-	Didn't work in accordance with what standard? I just checked SuSv2, and it
-appears to me that a 'sched_yield' that had no user-visible affects would be
-fully compliant.
+>> + buf->f_blocks = buf->f_bfree + ULONG_MAX - sb->u.shmem_sb.free_blocks;
+> 
+> It's not really clear what you are trying to calculate here... 
 
-> > > Also, it is NOT unrealistic to expect perfect alternation.
-> >
-> >	Find one pthreads expert who agrees with this claim. Post it to
-> > comp.programming.threads and let the guys who created the standard
-> > laugh at you. Scheduling is not a substitute for synchronization, ever.
->
-> I don't claim mastery over threads. But I have been programming
-> with threads
-> for a very long time and am well aware of the way OS schedulers
-> work. In the example that Mohit posted, it is reasonable to expect
-> perfect alternation once both threads have started. And it certainly isn't
-> something to laugh at (even if it were wrong).
+(ULONG_MAX - sb->u.shmem_sb.free_blocks) is the number of occupied
+blocks by this instance. So the size of the instance should be clearly
+buf->f_bfree + ULONG_MAX - sb->u.shmem_sb.free_blocks
 
-	No, it is completely unreasonable to expect the scheduler to provide
-perfect thread synchronization. Implementations that provide threads in user
-space may easily be able to provide this, but implementations of kernel
-threads will not have it so easy.
+> Since f_blocks is a long, adding ULONG_MAX == subtracting 1.  Maybe
+> it should just hold the total amount of VM in the system,
+> (i.e. totalram_pages)?
 
-	DS
+Nope, see above
+
+Greetings
+		Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

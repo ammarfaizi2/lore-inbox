@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318248AbSGWUax>; Tue, 23 Jul 2002 16:30:53 -0400
+	id <S318249AbSGWUbj>; Tue, 23 Jul 2002 16:31:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318221AbSGWUax>; Tue, 23 Jul 2002 16:30:53 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:34097 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S318248AbSGWUau>; Tue, 23 Jul 2002 16:30:50 -0400
-Date: Tue, 23 Jul 2002 22:34:45 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: David F Barrera <dbarrera@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at page_alloc.c:92! & page allocation failure. order:0, mode:0x0
-Message-ID: <20020723203445.GK1117@dualathlon.random>
-References: <OF6F39340B.FF1F1097-ON85256BFF.005C6460@pok.ibm.com> <3D3DAD54.6825F86@zip.com.au>
-Mime-Version: 1.0
+	id <S318250AbSGWUbi>; Tue, 23 Jul 2002 16:31:38 -0400
+Received: from pat.uio.no ([129.240.130.16]:51885 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S318249AbSGWUbh>;
+	Tue, 23 Jul 2002 16:31:37 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D3DAD54.6825F86@zip.com.au>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-ID: <15677.48609.62376.119269@charged.uio.no>
+Date: Tue, 23 Jul 2002 22:34:41 +0200
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.27 fix potential spinlocking race.
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23, 2002 at 12:24:04PM -0700, Andrew Morton wrote:
-> David F Barrera wrote:
-> > 
-> > I have experienced the following errors while running a test suite (LTP
-> > test suite)  on the 2.4.26 kernel.  Has anybody seen this problem, and, if
-> > so, is there a patch for it?  Thanks.
-> > 
-> > kernel BUG at page_alloc.c:92!
-> 
-> Could you please replace the put_page(page) in
-> kernel/ptrace.c:access_process_vm() with page_cache_release(page)
-> and retest?
 
-I prefer to drop page_cache_release and to have __free_pages_ok to deal
-with the lru pages like it's been fixed in 2.4. 
+In case of socket transmission errors etc. kfree_skb(), and hence
+xprt_write_space() can potentially get called outside of a bh-safe
+context.
 
-Andrea
+Cheers,
+  Trond
+
+diff -u --recursive --new-file linux-2.5.27/net/sunrpc/xprt.c linux-2.5.27-fix_wspace/net/sunrpc/xprt.c
+--- linux-2.5.27/net/sunrpc/xprt.c	Sat Jul 20 21:11:08 2002
++++ linux-2.5.27-fix_wspace/net/sunrpc/xprt.c	Tue Jul 23 22:20:48 2002
+@@ -966,10 +966,10 @@
+ 		return;
+ 
+ 	if (!xprt_test_and_set_wspace(xprt)) {
+-		spin_lock(&xprt->sock_lock);
++		spin_lock_bh(&xprt->sock_lock);
+ 		if (xprt->snd_task && xprt->snd_task->tk_rpcwait == &xprt->pending)
+ 			rpc_wake_up_task(xprt->snd_task);
+-		spin_unlock(&xprt->sock_lock);
++		spin_unlock_bh(&xprt->sock_lock);
+ 	}
+ 
+ 	if (test_bit(SOCK_NOSPACE, &sock->flags)) {

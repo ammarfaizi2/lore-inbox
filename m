@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262447AbSJKNsy>; Fri, 11 Oct 2002 09:48:54 -0400
+	id <S262452AbSJKNum>; Fri, 11 Oct 2002 09:50:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262450AbSJKNsx>; Fri, 11 Oct 2002 09:48:53 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:17297 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262447AbSJKNsx>; Fri, 11 Oct 2002 09:48:53 -0400
-Date: Fri, 11 Oct 2002 10:54:27 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Brandon Low <lostlogic@gentoo.org>
-cc: procps-list@redhat.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] procps 2.0.10
-In-Reply-To: <20021010225042.A30948@lostlogicx.com>
-Message-ID: <Pine.LNX.4.44L.0210111053150.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262453AbSJKNum>; Fri, 11 Oct 2002 09:50:42 -0400
+Received: from mx.creditonline.it ([62.110.207.178]:34066 "EHLO
+	mx.creditonline.it") by vger.kernel.org with ESMTP
+	id <S262452AbSJKNul>; Fri, 11 Oct 2002 09:50:41 -0400
+Message-ID: <3DA6D88A.C5A16AEF@tiscalinet.it>
+Date: Fri, 11 Oct 2002 15:56:26 +0200
+From: Domenico Rotiroti <drotiro@tiscalinet.it>
+X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Matthew Dharm <mdharm-usb@one-eyed-alien.net>
+Subject: PATCH unusual device: nec usb floppy
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Oct 2002, Brandon Low wrote:
+Hi,
+with my compaq notebook I got an usb floppy (nec).
+It works fine with usb-storage driver, but with all the
+2.4 kernel I compiled it was found 8 times (LUNs 0 through 7)
+as sda..sdh
+Adding it to the list of unusual devices with the "SINGLE_LUN"
+flag solves the problem.
 
-> Hey, I just saw the recent announcement of procps-3.0.1 on the mailing
-> list by the procps.sourceforge.net team, what is the status of these two
-> projects,
+Here's a small patch that do this:
 
-Albert Cahalan's procps seems to be focussed on rewriting
-and improving procps.
+--- unusual_devs.h_orig Fri Oct 11 13:05:38 2002
++++ unusual_devs.h Fri Oct 11 13:07:42 2002
+@@ -65,6 +65,14 @@
+   US_SC_8070, US_PR_SCM_ATAPI, init_8200e, 0),
+ #endif
 
-The procps project I'm maintaining is more focussed on
-supporting the latest stats exported by 2.5.  I hope to
-get some time to clean up the source code, too...
++/* Submitted by Domenico Rotiroti <drotiro@tiscali.it>
++ * This device needs the SINGLE_LUN flag */
++UNUSUAL_DEV(  0x0409, 0x0040, 0x0000, 0x9999,
++  "NEC",
++  "NEC USB UF000x",
++  US_SC_UFI, US_PR_CBI, NULL,
++  US_FL_SINGLE_LUN),
++
+ #ifdef CONFIG_USB_STORAGE_DPCM
+ UNUSUAL_DEV(  0x0436, 0x0005, 0x0100, 0x0100,
+   "Microtech",
 
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbUKJSFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbUKJSFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbUKJSFG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 13:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbUKJSFG
+	id S262028AbUKJSFf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 13:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbUKJSFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 13:05:06 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:5094 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262026AbUKJSFB (ORCPT
+	Wed, 10 Nov 2004 13:05:34 -0500
+Received: from rproxy.gmail.com ([64.233.170.201]:21597 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262028AbUKJSF2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 13:05:01 -0500
-Date: Wed, 10 Nov 2004 19:04:22 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Adam Heath <doogie@debian.org>
-Cc: Robert Love <rml@novell.com>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] kmem_alloc (generic wrapper for kmalloc and vmalloc)
-Message-ID: <20041110180422.GS5602@suse.de>
-References: <4191A4E2.7040502@gmx.net> <1100066597.18601.124.camel@localhost> <20041110075450.GB5602@suse.de> <Pine.LNX.4.58.0411101154070.1276@gradall.private.brainfood.com>
+	Wed, 10 Nov 2004 13:05:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=d9vcqrF2eAnai90PFXtq8XT1EHpQLMpHmJXhuZ3PsgJLx61tjcmlHOJ8pJhCbkrxXIsXPkk5YLvz20ZU8XDkpoG6eTBov0tP2lutPPezwfmvwIpUucrOqwvqqheDg+qX2A4SHGyFpRwnQzJfkfRYMcb2RpLL6CPIo1Gikfs34qg=
+Message-ID: <58cb370e04111010055ed26378@mail.gmail.com>
+Date: Wed, 10 Nov 2004 19:05:28 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] ppc64: Bump MAX_HWIFS in IDE code
+Cc: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
+       Anton Blanchard <anton@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1100038365.3946.236.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411101154070.1276@gradall.private.brainfood.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041109203028.GA26806@krispykreme.ozlabs.ibm.com>
+	 <20041109125507.4bc49b3c.akpm@osdl.org>
+	 <20041109211201.GA8998@taniwha.stupidest.org>
+	 <1100038365.3946.236.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10 2004, Adam Heath wrote:
-> On Wed, 10 Nov 2004, Jens Axboe wrote:
+Anton, IDE driver is limited to 10 major numbers anyway
+so please just use 10 for now...
+
+On Wed, 10 Nov 2004 09:12:45 +1100, Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
+> On Tue, 2004-11-09 at 13:12 -0800, Chris Wedgwood wrote:
+> > On Tue, Nov 09, 2004 at 12:55:07PM -0800, Andrew Morton wrote:
+> >
+> > > hrmph.  That costs 50kbytes, excluding ide-tape.  It's worth a
+> > > config variable, I think.
+> >
+> > this come up from time to time, and i wonder why it can't be dynamic?
 > 
-> > Plus, you cannot use vfree() from interrupt context. This patch is a bad
-> > idea.
-> 
-> why not have a work queue, that frees things later, after a delay?
+> Good question :) I suppose Bart has that on his todolist, but it will
+> require some work on the IDE layer, which only few people can do without
+> breaking it all :)
 
-Kludge upon kludge does not make the interface any better. The best fix
-is to split the allocations, like suggested a slab cache for the loop
-would do nicely.
-
--- 
-Jens Axboe
-
+Yes I'm working on it and I will need some help with fixing PPC drivers. :)

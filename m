@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265815AbTL3PyF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 10:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265816AbTL3PyF
+	id S265818AbTL3QCa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 11:02:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265820AbTL3QCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 10:54:05 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:55765 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S265815AbTL3PyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 10:54:01 -0500
-From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
-Date: Tue, 30 Dec 2003 10:53:58 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0: alsa, esd, mpg123
-Message-ID: <20031230155358.GB23963@butterfly.hjsoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="St7VIuEGZ6dlpu13"
+	Tue, 30 Dec 2003 11:02:30 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:37341 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S265818AbTL3QC3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 11:02:29 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: "Guldo K" <guldo@tiscali.it>
+Subject: Re: speedtouch for 2.6.0
+Date: Tue, 30 Dec 2003 17:02:26 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <16366.61517.501828.389749@gargle.gargle.HOWL> <200312300911.02044.baldrick@free.fr> <16369.40927.110483.701341@gargle.gargle.HOWL>
+In-Reply-To: <16369.40927.110483.701341@gargle.gargle.HOWL>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200312301702.26973.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> It looks like this needs a connection... it couldn't find the server.
+> Of course, I'm offline when doing this. :-(
 
---St7VIuEGZ6dlpu13
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The famous catch-22 of setting up network connectivity...
 
-on my debian (unstable) laptop newly running 2.6.0, i've noticed
-an irritating tendency for music to not pause, but instead to
-try to go too fast, skipping small parts of the song (fractions
-of a second).  this results in music with regular beats sounding
-erratic.
+> This is getting too frustrating...
 
-i'm using gqmpeg -> mpg123-esd -> esd -> oss -> alsa (maestro3).
+You are nearly there.
 
-switching esd to use -tcp instead of -unix seems to alleviate
-the trouble a bit.  ogg123 playing through esd doesn't seem to
-do it as much either.
+> Maybe I'd better get an ethernet modem, shouldn't I?
 
-has anyone else noted this problem and tuned it away?  thanks.
---=20
-____________________}John Flinchbaugh{______________________
-| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
-~~Powered by Linux: Reboots are for hardware upgrades only~~
+Maybe you should start with 2.4 and not 2.6.
 
---St7VIuEGZ6dlpu13
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Ciao,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/8Z+WCGPRljI8080RAjHvAJ9oPspSOyEw2iRMyJA3oCAOGSQm5gCfdf0v
-vuuWEmhsEd1aF2+ERcN1Hao=
-=aeZz
------END PGP SIGNATURE-----
-
---St7VIuEGZ6dlpu13--
+Duncan.

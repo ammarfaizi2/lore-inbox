@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265682AbUFRXXC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264957AbUFRXXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265682AbUFRXXC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 19:23:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbUFRXSr
+	id S264957AbUFRXXB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265682AbUFRXTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 19:18:47 -0400
-Received: from holomorphy.com ([207.189.100.168]:39818 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265791AbUFRXQi (ORCPT
+	Fri, 18 Jun 2004 19:19:07 -0400
+Received: from cantor.suse.de ([195.135.220.2]:31434 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265785AbUFRXQT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 19:16:38 -0400
-Date: Fri, 18 Jun 2004 16:16:31 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] flexible-mmap-2.6.7-D5
-Message-ID: <20040618231631.GO1863@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <20040618213814.GA589@elte.hu>
+	Fri, 18 Jun 2004 19:16:19 -0400
+Subject: Re: [PATCH RFC] __bd_forget should wait for inodes using the
+	mapping
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20040618142710.5d467d1b.akpm@osdl.org>
+References: <1087523668.8002.103.camel@watt.suse.com>
+	 <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087563810.8002.116.camel@watt.suse.com>
+	 <20040618142207.GW12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087570031.8002.153.camel@watt.suse.com>
+	 <20040618151558.GX12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087573303.8002.172.camel@watt.suse.com>
+	 <20040618154330.GY12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087574752.8002.194.camel@watt.suse.com>
+	 <20040618132628.45e1d364.akpm@osdl.org>
+	 <1087591484.1512.14.camel@watt.suse.com>
+	 <20040618142710.5d467d1b.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1087600516.1512.26.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040618213814.GA589@elte.hu>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 18 Jun 2004 19:15:17 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 11:38:14PM +0200, Ingo Molnar wrote:
-> the flexible-mmap-2.6.7-D5 patch (attached) splits the flexible-mmap
-> layout stuff out of exec-shield. The patch is against 2.6.7 + my latest
-> NX patch. (i've attached the NX patch too, for convenience.)
-> the goal of the patch is to change the way virtual memory is allocated,
-> from:
->   0x08000000 ... binary image
->   0x08xxxxxx ... brk area, grows upwards
->   0x40000000 ... start of mmap, new mmaps go after old ones
->   0xbfxxxxxx ... stack
-> to a more flexible top-down mmap() method:
+On Fri, 2004-06-18 at 17:27, Andrew Morton wrote:
+> Chris Mason <mason@suse.com> wrote:
+> >
+> > [ skip writing block-special inodes ]
+> > 
+> > Hmmm, any risk in missing data integrity syncs because of this?
 > 
->   0x08000000 ... binary image
->   0x08xxxxxx ... brk area, grows upwards
->   0xbfxxxxxx ... _end_ of all mmaps, new mmaps go below old ones
->   0xbfyyyyyy ... stack
+> Need to think about that.  sys_fsync(), sys_fdatasync() and sys_msync() go
+> direct to file->f_mapping and sys_sync() will sync the blockdev via its
+> kernel-internal inode.  What does that leave?
 
-It may be useful to move STACK_TOP to 0x8040000 give the stack more head
-room and fit small statically-linked executables into one pagetable page.
-Otherwise the stack has very little headroom after the first mmap().
+I was worried about O_SYNC, That actually looks safe though,
+generic_osync_inode will first write the mapping via filemap_fdatawrite
+(the mapping comes from f_mapping).
+
+It doesn't really give me warm fuzzies, but looks safe enough.  Al had a
+slightly different plan, maybe with your patch we can push his larger
+changes off a bit?
+
+-chris
 
 
--- wli

@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266452AbSKGGWN>; Thu, 7 Nov 2002 01:22:13 -0500
+	id <S266464AbSKGGZr>; Thu, 7 Nov 2002 01:25:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266458AbSKGGWN>; Thu, 7 Nov 2002 01:22:13 -0500
-Received: from [212.3.242.3] ([212.3.242.3]:35325 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id <S266452AbSKGGWM>;
-	Thu, 7 Nov 2002 01:22:12 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.46] Problems with vfat mount umask on directories
-Date: Thu, 7 Nov 2002 07:28:47 +0100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200211070728.47941.devilkin-lkml@blindguardian.org>
+	id <S266468AbSKGGZr>; Thu, 7 Nov 2002 01:25:47 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:65042 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266464AbSKGGZq>;
+	Thu, 7 Nov 2002 01:25:46 -0500
+Date: Wed, 6 Nov 2002 22:28:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org, perex@suse.cz
+Subject: Re: [PATCH] PnP MODULE_DEVICE_TABLE Update - 2.5.46 (3/6)
+Message-ID: <20021107062816.GC26821@kroah.com>
+References: <20021106210159.GN316@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021106210159.GN316@neo.rr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-'llo list.
+On Wed, Nov 06, 2002 at 09:02:00PM +0000, Adam Belay wrote:
+> 
+> diff -ur --new-file a/include/linux/module.h b/include/linux/module.h
+> --- a/include/linux/module.h	Wed Oct 30 17:45:58 2002
+> +++ b/include/linux/module.h	Wed Oct 30 17:45:24 2002
+> @@ -239,6 +239,8 @@
+>   * The following is a list of known device types (arg 1),
+>   * and the C types which are to be passed as arg 2.
+>   * pci - struct pci_device_id - List of PCI ids supported by this module
+> + * pnpc - struct pnpc_device_id - List of PnP card ids (PNPBIOS, ISA PnP) supported by this module
+> + * pnp - struct pnp_device_id - List of PnP ids (PNPBIOS, ISA PnP) supported by this module
 
-This morning I discovered I no longer could write on my vfat data partition as 
-a normal user. The following line is present in /etc/fstab (and has worked 
-before with atleast 2.5.40 and each and every 2.4 kernel I used)
+I must have missed this last time, but to refresh my memory, why do you
+need two different device types?  What's the difference between a card
+id and a device id?
 
-/dev/hda7   /mnt/data      vfat      defaults,gid=103,umask=007       0 0
+thanks,
 
-which gives the partition a mask of 770 to all users in gid 103 (which is 
-conveniently named fat32). I myself as user devilkin am in this group...
-
-Yet, the directory is still:
-
-07:22:56 root@laptop:/mnt# ls -ld data
-drwxr-xr-x    9 root     fat32       16384 Jan  1  1970 data
-
-(and where the hell did that date come from??)
-
-The permissioning on the files inside this directory seems correct, but for 
-the directories it is wrong:
-
--rwxrwx---    1 root     fat32         313 May 27 12:32 afile.ini*
-drwxr-xr-x    3 root     fat32       16384 Aug 22 13:01 adir/
-
-which denies me the write rights I need.
-
-
-Did something change on the fat/vfat/... layer that can cause this to no 
-longer function?
-
-If you need some more info, just yell... I hope this issue can be resolved.
-
-DK
--- 
-Blore's Razor:
-	Given a choice between two theories, take the one which is
-funnier.
-
+greg k-h

@@ -1,99 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263791AbTDUJUs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 05:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbTDUJUs
+	id S262788AbTDUJUc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 05:20:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263791AbTDUJUc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 05:20:48 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:14349 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263791AbTDUJUp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 05:20:45 -0400
-Date: Mon, 21 Apr 2003 11:32:36 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: John Bradford <john@grabjohn.com>
-Cc: john@grabjohn.com, josh@stack.nl, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
+	Mon, 21 Apr 2003 05:20:32 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1664 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262788AbTDUJUb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 05:20:31 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304210935.h3L9ZLXc000256@81-2-122-30.bradfords.org.uk>
 Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
-Message-Id: <20030421113236.3955d5e6.skraw@ithnet.com>
-In-Reply-To: <200304201720.h3KHKG9A000716@81-2-122-30.bradfords.org.uk>
-References: <20030420190119.048d3a43.skraw@ithnet.com>
-	<200304201720.h3KHKG9A000716@81-2-122-30.bradfords.org.uk>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Date: Mon, 21 Apr 2003 10:35:21 +0100 (BST)
+Cc: john@grabjohn.com (John Bradford),
+       skraw@ithnet.com (Stephan von Krawczynski),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200304210900.h3L90vu07375@Port.imtp.ilyichevsk.odessa.ua> from "Denis Vlasenko" at Apr 21, 2003 12:09:07 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Apr 2003 18:20:16 +0100 (BST)
-John Bradford <john@grabjohn.com> wrote:
+> > > What is so bad about the simple way: the one who wants to write
+> > > (e.g. fs) and knows _where_ to write simply uses another newly
+> > > allocated block and dumps the old one on a blacklist. The blacklist
+> > > only for being able to count them (or get the sector-numbers) in
+> > > case you are interested. If you weren't you might as well mark them
+> > > allocated and that's it (which I would presume a _bad_ idea). If
+> > > there are no free blocks left, well, then the medium is full. And
+> > > that is just about the only cause for a write error then (if the
+> > > medium is writeable at all).
+> >
+> > Modern disks generally do this kind of thing themselves.  By the time
+>                ^^^^^^^^^^^^
+> How many times does Stephan need to say it? 'Generally do'
+> is not enough, because it means 'sometimes they dont'.
 
-> > > > > Fault tolerance in a filesystem layer means in practical terms
-> > > > > that you are guessing what a filesystem should look like, for the
-> > > > > disk doesn't answer that question anymore. IMHO you don't want
-> > > > > that to be done automagically, for it might go right sometimes,
-> > > > > but also might trash everything on RW filesystems.
-> > > > 
-> > > > Let me clarify again: I don't want fancy stuff inside the filesystem
-> > > > that magically knows something about right-or-wrong. The only _very
-> > > > small_ enhancement I would like to see is: driver tells fs there is an
-> > > > error while writing a certain block => fs tries writing the same
-> > > > data onto another block. That's it, no magic, no RAID
-> > > > stuff. Very simple. 
-> > > 
-> > > That doesn't belong in the filesystem.
-> > > 
-> > > Imagine you have ten blocks free, and you allocate data to all of them
-> > > in the filesystem.  The write goes to cache, and succeeds.
-> > > 
-> > > 30 seconds later, the write cache is flushed, and an error is reported
-> > > back from the device.
-> > 
-> > And where's the problem?
-> > Your case:
-> > Immediate failure. Disk error.
-> > 
-> > My case:
-> > Immediate failure. Disk error (no space left for replacement)
-> > 
-> > There's no difference.
+OK, _ALL_ modern disks do.
+
+Name an IDE or SCSI disk on sale today that doesn't retry on write
+failiure.  Forget I said 'Generally do'.
+
+> Most filesystems *are* designed with badblock lists and such,
+> it is possible to teach fs drivers to tolerate write errors
+> by adding affected blocks to the list and continuing (as opposed
+> to 'remounted ro, BOOM!'). As usual, this can only happen if someone
+> will step forward and code it.
 > 
-> In my case, the machine can continue as normal.  The filesystem is
-> intact, (with no blocks free).  The block device driver has to cope
-> with the error, which could be as simple as holding the data in RAM
-> until an operator has been paged to replace the disk.
+> Do you think it would be a Wrong Thing to do?
 
-Forgive my ignorance, but I have not seen a case up to today where ide, aicX or
-3ware has called me up for a replacement unit, written to it and been ok
-afterwards. What the heck are you talking of?
-I am not really interested in what a low-level driver could do unless there is
-none that does it...
-And again, how do you think this should work out on your _root_ partition? (see
-below)
+Yes, I do.
 
-> In your case, the filesystem is no longer in a usable state.
+It achieves nothing useful, and gives people a false sense of security.
 
-I have yet to see an fs thats in a writeable state after the medium is full ...
+We have moved on since the 1980s, and I believe that it is now up to
+the drive firmware, or the block device driver to do this, it has no
+place in a filesystem.
 
->  If that
-> was the root filesystem, the machine will, at best, probably go in to
-> single user mode, with a read-only root filesystem.
-
-How come?
-
-> > Thing is: If there are 11 blocks free and not ten, then you fail
-> 
-> Wrong.  See above.
-
-Please tell me when you were last "paged to replace the disk"? If you can't
-tell me, then you know I am right by now.
-
-> > and I succeed (if there's one bad block). You loose data, I don't.
-> 
-> John.
-
-Regards,
-Stephan
-
+John.

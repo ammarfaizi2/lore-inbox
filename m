@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265275AbUHCHpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUHCHst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265275AbUHCHpy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 03:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265281AbUHCHps
+	id S265098AbUHCHst (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 03:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUHCHst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 03:45:48 -0400
-Received: from mail008.syd.optusnet.com.au ([211.29.132.212]:40115 "EHLO
-	mail008.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265275AbUHCHph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 03:45:37 -0400
-References: <20040802015527.49088944.akpm@osdl.org> <410E3CAF.6080305@kolivas.org> <410F3423.3020409@yahoo.com.au> <cone.1091518501.973503.9648.502@pc.kolivas.org>
-Message-ID: <cone.1091519122.804104.9648.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+	Tue, 3 Aug 2004 03:48:49 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:39150 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265098AbUHCHsp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 03:48:45 -0400
+Date: Tue, 3 Aug 2004 13:15:14 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Ravikiran G Thirumalai <kiran@in.ibm.com>, akpm@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2-mm2
-Date: Tue, 03 Aug 2004 17:45:22 +1000
+Subject: Re: [patch] Add kref_read and kref_put_last primitives
+Message-ID: <20040803074514.GA4432@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20040726144856.GH1231@obelix.in.ibm.com> <20040726173151.A11637@infradead.org> <20040802200849.GG28374@kroah.com> <20040803054218.GA4443@in.ibm.com> <20040803065130.GA10696@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20040803065130.GA10696@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas writes:
-
-> Nick Piggin writes:
+On Mon, Aug 02, 2004 at 11:51:30PM -0700, Greg KH wrote:
+> On Tue, Aug 03, 2004 at 11:12:18AM +0530, Dipankar Sarma wrote:
 > 
->> Con Kolivas wrote:
->>> Andrew Morton wrote:
->> 
->>> Anyone with feedback on this please cc me. This was developed separately 
->>> from the -mm series which has heaps of other scheduler patches which 
->>> were not trivial to merge with so there may be teething problems. Good 
->>> reports dont hurt either ;)
->>> 
->> 
->> I can't get onto the OSDL site now, but I seem to remember staircase
->> having some performance problems on a few things. Hackbench and reaim
->> from memory... are these fixed? was I dreaming?
+> > So, kref_read() as it is would look weird. But if we consider merging
+> > the rest of the kref APIs (lock-free extensions) in future, then the
+> > entire set including kref_read() would make sense.
 > 
-> Definitely dreaming I'm afraid :D
-> 
-> The performance on both reaim and hackbench has always equalled or exceeded 
-> mainline so thanks for bringing it up.
+> No, even with rcu versions, I don't see the need for this in the api.
 
-Funny I just happen to have a few stored results which the urls do work for. 
-Reaim normally on 8x with the default options gets about 7500-7700 jobs per 
-minute. 
+I agree that RCU versions really doesn't need it. However, there
+is code in many places in the kernel where we actually read
+the actual reference count value and even compare it with
+constants. Those things are problematic because you can't
+use kref there without a kref_read_count() type API.
+In typical driver object maintenance, this is not an issue
+and rightly not exported.
 
-Here are the links for 2.6.8-rc2-mm2 with default setting:
-Peak load Test: Maximum Jobs per Minute 
-8248.40 (average of 3 runs) 
-Quick Convergence Test: Maximum Jobs per 
-Minute 7723.62 (average of 3 runs) 
-http://khack.osdl.org/stp/295657/ 
+> Sure, for this specific implementation of a atomic_t, it is useful, as
+> the value is checked.  But that means that you might just want to use an
+> atomic_t, as it doesn't fit the model of a struct kref at all (something
+> where you don't touch the reference count directly at all.)
 
-in non interactive mode: 
-Peak load Test: Maximum Jobs per Minute 
-8379.02 (average of 3 runs) 
-Quick Convergence Test: Maximum Jobs per 
-Minute 7922.50 (average of 3 runs) 
-http://khack.osdl.org/stp/295658/
+Which prevents it from being used in many objects where we touch
+the reference count directly. If we use atomic_t there, then we
+need to abstract out inc/dec for RCU, which results in another
+refcounter which you don't like (for good reasons, btw) ;-) 
 
-and in compute mode:
-Peak load Test: Maximum Jobs per Minute 8590.94 (average of 3 runs) 
-Quick Convergence Test: Maximum Jobs per Minute 8294.81 (average of 3 runs)
-http://khack.osdl.org/stp/295659/
+> Becides, I don't think that people are convinced that this code needs to
+> be changed anyway :)
 
-Con
+Which code ? If you are talking about the lock-free fd lookup
+code, think POSIX threaded apps doing lots of I/O. tiobench
+results show how useful it is.
 
+Thanks
+Dipankar

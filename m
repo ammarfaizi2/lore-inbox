@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264899AbSJVUAW>; Tue, 22 Oct 2002 16:00:22 -0400
+	id <S264830AbSJVTza>; Tue, 22 Oct 2002 15:55:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264900AbSJVUAW>; Tue, 22 Oct 2002 16:00:22 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:25307 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S264899AbSJVUAV>;
-	Tue, 22 Oct 2002 16:00:21 -0400
-Date: Tue, 22 Oct 2002 22:19:37 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
-In-Reply-To: <20021022184938.A2395@infradead.org>
-Message-ID: <Pine.LNX.4.44.0210222204330.21530-100000@localhost.localdomain>
+	id <S264833AbSJVTza>; Tue, 22 Oct 2002 15:55:30 -0400
+Received: from pacman.mweb.co.za ([196.2.45.77]:25287 "EHLO pacman.mweb.co.za")
+	by vger.kernel.org with ESMTP id <S264830AbSJVTz0>;
+	Tue, 22 Oct 2002 15:55:26 -0400
+From: Bongani <bhlope@mweb.co.za>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [Patch] 2.5.44 Stop bttv_driver.c from flooding /var/log/messages
+Date: Tue, 22 Oct 2002 22:02:22 +0200
+User-Agent: KMail/1.4.7
+Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_O7at9uFUAOZsNAx"
+Message-Id: <200210222202.22801.bhlope@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 22 Oct 2002, Christoph Hellwig wrote:
+--Boundary-00=_O7at9uFUAOZsNAx
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-> what is the reason for that interface?  It looks like a gross
-> performance hack for misdesigned applications to me, kindof windowsish..
+Hi Alan
 
-there are a number of reasons why we very much want this extension to the
-Linux VM. Please catch up with the full email discussion, check out the
-first announcement of the interface to lkml, the subject of the email was:
-"[patch, feature] nonlinear mappings, prefaulting support, 2.5.42-F8".
+I have sent this patch to Gerd and I did not get any reply from him, so...
+The bttv drivers are/were filling up my /var/log/messages file with the
+following output
 
-(and add one more application category to the list of beneficiaries,
-NPTL-style threading libraries, see the "[patch] mmap-speedup-2.5.42-C3"  
-discussion on lkml.)
+Oct 20 04:03:01 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
+mux=4/1 irq=yes
+Oct 20 04:03:01 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=yes 
+mux=1/1 irq=yes
+Oct 20 04:03:08 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
+mux=4/1 irq=yes
 
-I think it is quite a bit architectural step for the Linux VM to have more
-generic vmas that 1) can be nonlinear 2) can have finegrained, non-uniform
-protection bits. It has been clearly established in the past few years
-empirically that the vma tree approach itself sucks performance-wise for
-applications that have many different mappings.
+(Which seems to repeat three times a second for three seconds and waits 7 
+second before printing the message again)
 
-And is it a big problem that RAM-windowing applications can make use of
-the new capabilities as well, to overcome the limits of 32 bits? Your
-response is a bit knee-jerk, what do you think the kernel itself does when
-it piggybacks to the highmem range and using kmap? There's no other way to
-overcome 32 bitness limits on a box that has much more than 32 bits worth
-of RAM, but to start mapping things in dynamically. So what's your point?
+The following patch quites them down.
 
-	Ingo
+Thanx
+
+--Boundary-00=_O7at9uFUAOZsNAx
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="bttv.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="bttv.patch"
+
+--- linux-2.5/drivers/media/video/bttv-driver.c.old	2002-10-21 00:08:50.000000000 +0200
++++ linux-2.5/drivers/media/video/bttv-driver.c	2002-10-21 00:09:17.000000000 +0200
+@@ -813,7 +813,7 @@
+ 	i2c_mux = mux = (btv->audio & AUDIO_MUTE) ? AUDIO_OFF : btv->audio;
+ 	if (btv->opt_automute && !signal && !btv->radio_user)
+ 		mux = AUDIO_OFF;
+-	printk("bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d irq=%s\n",
++	dprintk(KERN_DEBUG "bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d irq=%s\n",
+ 	       btv->nr, mode, btv->audio, signal ? "yes" : "no",
+ 	       mux, i2c_mux, in_interrupt() ? "yes" : "no");
+ 
+
+--Boundary-00=_O7at9uFUAOZsNAx--
 

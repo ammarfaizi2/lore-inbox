@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUESL0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263687AbUESL0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUESL0O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 07:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUESLYv
+	id S263687AbUESL0P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 07:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263685AbUESLUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 07:24:51 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:30371 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264155AbUESLXT (ORCPT
+	Wed, 19 May 2004 07:20:42 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:9180 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263711AbUESLOV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 07:23:19 -0400
-Date: Wed, 19 May 2004 21:22:14 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: Jakub Jelinek <jakub@redhat.com>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: sendfile -EOVERFLOW on AMD64
-Message-ID: <20040519212214.F574345@wobbly.melbourne.sgi.com>
-References: <1XuW9-3G0-23@gated-at.bofh.it> <m3d650wys1.fsf@averell.firstfloor.org> <20040519103855.GF18896@fi.muni.cz> <20040519105805.GK30909@devserv.devel.redhat.com> <20040519110105.GC7836@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040519110105.GC7836@fi.muni.cz>; from kas@informatics.muni.cz on Wed, May 19, 2004 at 01:01:05PM +0200
+	Wed, 19 May 2004 07:14:21 -0400
+Date: Wed, 19 May 2004 13:14:01 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: David Eger <eger@theboonies.us>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: FB accel capabilities patch
+In-Reply-To: <20040519030319.1f0e6eec.akpm@osdl.org>
+Message-ID: <Pine.GSO.4.58.0405191311360.23702@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0405191118170.4760@rosencrantz.theboonies.us>
+ <20040519030319.1f0e6eec.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 19, 2004 at 01:01:05PM +0200, Jan Kasprzak wrote:
-> ...
-> 	Yes, XFS. I will look at it  in the evening.
-> 
-> Thanks,
+On Wed, 19 May 2004, Andrew Morton wrote:
+> David Eger <eger@theboonies.us> wrote:
+> > A month or two ago I noticed that the framebuffer console driver doesn't
+> >  know to do proper framebuffer acceleration in Linux 2.6;
+>
+> For what fbdev operations will acceleration be used?
 
-The only spot needing fixing is that one pointed out above; from
-a quick look ssize_t seems to be used correctly in the rest of
-the XFS sendfile code.
+Text console acceleration (rectangle copy, rectangle fill, bitmap expansion,
+panning, y-wrap). These have been in use since ages, but the current 2.6 fbcon
+code doesn't use all of it anymore.
 
-cheers.
+Gr{oetje,eeting}s,
 
--- 
-Nathan
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,85 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVCCIbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVCCIio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVCCIbK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 03:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVCCIbK
+	id S261633AbVCCIio (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 03:38:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVCCIio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 03:31:10 -0500
-Received: from anchor-post-36.mail.demon.net ([194.217.242.86]:14860 "EHLO
-	anchor-post-36.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261612AbVCCIaB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 03:30:01 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 3 Mar 2005 03:38:44 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61061 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261633AbVCCIik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 03:38:40 -0500
+Message-ID: <4226CCFE.2090506@pobox.com>
+Date: Thu, 03 Mar 2005 03:38:22 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Problems with SCSI tape rewind / verify on 2.4.29
-Date: Thu, 3 Mar 2005 08:29:59 -0000
-Message-ID: <E7F85A1B5FF8D44C8A1AF6885BC9A0E472B8C2@ratbert.vale-housing.co.uk>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problems with SCSI tape rewind / verify on 2.4.29
-Thread-Index: AcUfRfhHzhHd7W3JTBWhPlfoBlYIqAAhOYjQ
-From: "Mark Yeatman" <myeatman@vale-housing.co.uk>
-To: <linux-kernel@vger.kernel.org>
+To: Greg KH <greg@kroah.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com> <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org> <20050303081958.GA29524@kroah.com>
+In-Reply-To: <20050303081958.GA29524@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This corrected the problem on 2.4.29. Thanks Marcelo and all for your
-help.
+Greg KH wrote:
+> On Wed, Mar 02, 2005 at 05:15:36PM -0800, Linus Torvalds wrote:
+> 
+>>The thing is, I _do_ believe the current setup is working reasonably well.  
+>>But I also do know that some people (a fairly small group, but anyway)  
+>>seem to want an extra level of stability - although those people seem to
+>>not talk so much about "it works" kind of stability, but literally a "we
+>>can't keep up" kind of stability (ie at least a noticeable percentage of
+>>that group is not complaining about crashes, they are complaining about
+>>speed of development).
+>>
+>>And I suspect that _anything_ I do won't make those people happy.
+> 
+> 
+> That single sentence sums it up perfectly.  When I have given talks
+> about how our current development cycle works, and what's happening with
+> it, people just feel odd seeing all of this change happen and get upset
+> at it.  Perhaps it's because they never paid attention before, or that
+> they are new to Linux and like to believe that old-style development
+> models were somehow "better", and that they know we are doing something
+> wrong.
+> 
+> But when pressed about the issue of speed of development, rate of
+> change, feature increase, driver updates, and so on, no one else has any
+> clue of what to do.  They respond with, "but only put bugfixes into a
+> stable release."  My comeback is explaining how we handle lots of
+> different types of bugfixes, by api changes, real fixes, and driver
+> updates for new hardware.  Sometimes these cause other bugs to happen,
+> or just get shaken out where they were previously hiding (acpi is a
+> great example of this issue.)  In the end, they usually fall back on
+> muttering, "well, I'm just glad that I'm not a kernel developer..." and
+> back away.
 
-Mark
+The pertinent question for a point release (2.6.X.Y) would simply be 
+"does a 2.6.11 user really need this fix?"
 
 
------Original Message-----
-From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com] 
-Sent: 02 March 2005 12:04
-To: Mark Yeatman
-Cc: linux-kernel@vger.kernel.org; akpm@osdl.org
-Subject: Re: Problems with SCSI tape rewind / verify on 2.4.29
+> Like I previously said, I think we're doing a great job.  The current
+> -mm staging area could use some more testers to help weed out the real
+> issues, and we could do "real" releases a bit faster than every 2 months
+> or so.  But other than that, we have adapted over the years to handle
+> this extremely high rate of change in a pretty sane manner.
 
-On Wed, Mar 02, 2005 at 11:15:42AM -0000, Mark Yeatman wrote:
-> Hi
-> 
-> Never had to log a bug before, hope this is correctly done.
-> 
-> Thanks
-> 
-> Mark
-> 
-> Detail....
-> 
-> [1.] One line summary of the problem:    
-> SCSI tape drive is refusing to rewind after backup to allow verify and
-> causing illegal seek error
-> 
-> [2.] Full description of the problem/report:
-> On backup the tape drive is reporting the following error and failing
-> it's backups.
-> 
-> tar: /dev/st0: Warning: Cannot seek: Illegal seek
-> 
-> I have traced this back to failing at an upgrade of the kernel to
-2.4.29
-> on Feb 8th. The backups have not worked since. Replacement Drives have
-> been tried and cables to no avail. I noticed in the the changelog that
-a
-> patch by Solar Designer to the Scsi tape return code had been made. 
+I think Linus's "even/odd" proposal is an admission that 2.6.X releases 
+need some important fixes after it hits kernel.org.
 
-v2.6 also contains the same problem BTW.
+Otherwise 2.6.X is simply a constantly indeterminent state.
 
-Try this:
+We need to serve users, not just make life easier for kernel developers ;-)
 
---- a/drivers/scsi/st.c.orig	2005-03-02 09:02:13.637158144 -0300
-+++ b/drivers/scsi/st.c	2005-03-02 09:02:20.208159200 -0300
-@@ -3778,7 +3778,6 @@
- 	read:		st_read,
- 	write:		st_write,
- 	ioctl:		st_ioctl,
--	llseek:		no_llseek,
- 	open:		st_open,
- 	flush:		st_flush,
- 	release:	st_release,
+	Jeff
+
+

@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265205AbUBADs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 22:48:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUBADs0
+	id S265210AbUBAElG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 23:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUBAElG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 22:48:26 -0500
-Received: from mta04-svc.ntlworld.com ([62.253.162.44]:51722 "EHLO
-	mta04-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S265205AbUBADsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 22:48:25 -0500
-Date: Sun, 1 Feb 2004 03:50:35 +0000
-From: DaMouse Networks <damouse@ntlworld.com>
-To: linux-kernel@vger.kernel.org
-Subject: IRQ 9: nobody cared ;_;
-Message-Id: <20040201035035.600d2876@EozVul.WORKGROUP>
-Organization: DaMouse Networks
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 31 Jan 2004 23:41:06 -0500
+Received: from colo.lackof.org ([198.49.126.79]:54764 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S265210AbUBAElD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 23:41:03 -0500
+Date: Sat, 31 Jan 2004 21:41:01 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
+       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Greg KH <greg@kroah.com>, Andi Kleen <ak@colin2.muc.de>,
+       Andrew Morton <akpm@osdl.org>, mj@ucw.cz,
+       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>,
+       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
+Message-ID: <20040201044101.GA3730@colo.lackof.org>
+References: <6B09584CC3D2124DB45C3B592414FA830112C34F@bgsmsx402.gar.corp.intel.com> <20040129150925.GC18725@parcelfarce.linux.theplanet.co.uk> <20040129155911.GD18725@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0401290802370.689@home.osdl.org> <20040129164230.GE18725@parcelfarce.linux.theplanet.co.uk> <m1hdybwzli.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1hdybwzli.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-irq 9: nobody cared!
-Call Trace:
- [<c010d5fe>] __report_bad_irq+0x2a/0x8b
- [<c010d6e8>] note_interrupt+0x6f/0x9f
- [<c010da06>] do_IRQ+0x161/0x192
- [<c0105000>] _stext+0x0/0x64
- [<c010bd64>] common_interrupt+0x18/0x20
- [<c010901e>] default_idle+0x0/0x2c
- [<c0105000>] _stext+0x0/0x64
- [<c0109047>] default_idle+0x29/0x2c
- [<c01090b0>] cpu_idle+0x33/0x3c
- [<c03b6850>] start_kernel+0x19e/0x1de
- [<c03b640e>] unknown_bootoption+0x0/0xfd
- 
-handlers:
-[<c0207f37>] (acpi_irq+0x0/0x16)
-Disabling IRQ #9
+On Sat, Jan 31, 2004 at 02:57:29PM -0700, Eric W. Biederman wrote:
+> Is it really safe to treat the base address as a u32?
 
-thats all i got, hope it helps.
+Sorry...I missed this in the code...but the following confuses me:
+
+>   I know
+> if I was doing the BIOS and that address was tied to a 32bit BAR I
+> would be extremely tempted to put those 256M of address space above
+> 4G.
+
+uhmm, how can one put a 32-bit BAR above 4G?
+You meant 64-bit BAR?
+
+> Point being I don't think it is safe to assume the BIOS always puts
+> the extended PCI configuration space below 4G.
+
+where MMCONFIG lives is orthogonal to where BARs point to.
+I'm pretty sure I missed the point...sorry.
+
+grant

@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267935AbTBEMOT>; Wed, 5 Feb 2003 07:14:19 -0500
+	id <S267934AbTBEMNO>; Wed, 5 Feb 2003 07:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267933AbTBEMOT>; Wed, 5 Feb 2003 07:14:19 -0500
-Received: from [203.199.54.8] ([203.199.54.8]:33034 "EHLO
-	ltitlout.lntinfotech.com") by vger.kernel.org with ESMTP
-	id <S267935AbTBEMN1>; Wed, 5 Feb 2003 07:13:27 -0500
-Subject: Linux kernel routing tables
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF4E4F731E.60C406E3-ON65256CC4.00437E86@lntinfotech.com>
-From: Mahesh.Pujara@lntinfotech.com
-Date: Wed, 5 Feb 2003 17:48:05 +0530
+	id <S267939AbTBEMNO>; Wed, 5 Feb 2003 07:13:14 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:50882 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S267934AbTBEMMf>; Wed, 5 Feb 2003 07:12:35 -0500
+Date: Wed, 5 Feb 2003 13:22:05 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Oleg Drokin <green@namesys.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: use 64 bit jiffies broke HZ=100 case (and fix)
+In-Reply-To: <20030205144206.A25320@namesys.com>
+Message-ID: <Pine.LNX.4.33.0302051315450.6650-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-X-MIMETrack: Serialize by Router on BANGALORE/LNTINFOTECH(Release 5.0.9 |November 16, 2001) at
- 02/05/2003 05:48:06 PM,
-	Itemize by SMTP Server on LTITLOUT/LNTINFOTECH(Release 5.0.11  |July 24, 2002) at
- 02/05/2003 06:11:40 PM,
-	Serialize by Router on LTITLOUT/LNTINFOTECH(Release 5.0.11  |July 24, 2002) at
- 02/05/2003 06:11:43 PM,
-	Serialize complete at 02/05/2003 06:11:43 PM
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI ,
-      I am having Zebra  routing utility running on Linux kernel 2.4.20.
-As zebra is Updating the kernel routing tables.
-I want to read those routing tables and create the tables
-in some other memory.
+On Wed, 5 Feb 2003, Oleg Drokin wrote:
 
-My questions are
+> In order to get UML to compile again (and pretty much any other HZ=100 arch)
+> I need to apply this patch below:
+>
+[ further '>'s removed to allow direkt feeding to 'patch']
 
-1. Linux is also having the Multiple routing tables. Does
-zebra updating the same routing tables of Linux?
-If yes than which Linux kernel tables are updated.
+===== fs/proc/proc_misc.c 1.63 vs edited =====
+--- 1.63/fs/proc/proc_misc.c	Tue Nov 12 12:37:55 2002
++++ edited/fs/proc/proc_misc.c	Wed Feb  5 14:28:50 2003
+@@ -121,8 +121,7 @@
+ 	}
+ #else
+ 	{
+-		unsigned long idle = init_task.times.tms_utime
+-		                     + init_task.times.tms_stime;
++		unsigned long idle = init_task.utime + init_task.stime;
 
-2 .where the Multiple Routing tables are implemented
- in Linux Kernel for IPv4, means in which files.
+ 		len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
+ 			(unsigned long) uptime,
+>
+>
+Yep. Unfortunately I tested HZ=100 only with the original patch and missed
+these when rediffing. Thanks for spotting this.
 
-3. In my program (which is some module) i want to read the
-Kernel routing tables.
-So how can i read those tables? Is there any standard
-Linux API provided for the same.
-Or what is the other way to read those table from memory ??
+Linus, please apply.
 
+Tim
 
-Waiting for  reply.
-Thanking you in Advance.
-
-
-Mahesh Pujara
 

@@ -1,74 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265643AbSL2Atc>; Sat, 28 Dec 2002 19:49:32 -0500
+	id <S265725AbSL2BE5>; Sat, 28 Dec 2002 20:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265700AbSL2Atc>; Sat, 28 Dec 2002 19:49:32 -0500
-Received: from crack.them.org ([65.125.64.184]:54946 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S265643AbSL2Atb>;
-	Sat, 28 Dec 2002 19:49:31 -0500
-Date: Sat, 28 Dec 2002 19:59:13 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Dike <jdike@karaya.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Allow UML kernel to run in a separate host address space
-Message-ID: <20021229005913.GA25970@nevyn.them.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Jeff Dike <jdike@karaya.com>, linux-kernel@vger.kernel.org,
-	Ingo Molnar <mingo@elte.hu>
-References: <200212282024.PAA03372@ccure.karaya.com> <Pine.LNX.4.44.0212281227510.25566-100000@home.transmeta.com>
+	id <S266114AbSL2BE4>; Sat, 28 Dec 2002 20:04:56 -0500
+Received: from msg.vodafone.pt ([212.18.167.162]:21154 "EHLO msg.vodafone.pt")
+	by vger.kernel.org with ESMTP id <S265725AbSL2BEy>;
+	Sat, 28 Dec 2002 20:04:54 -0500
+Date: Sun, 29 Dec 2002 01:13:02 +0000
+From: "Paulo Andre'" <fscked@netvisao.pt>
+To: dahinds@users.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 3c574_cs.c locking fixes
+Message-Id: <20021229011302.3a4cc200.fscked@netvisao.pt>
+Organization: Orion Enterprises
+X-Mailer: Sylpheed version 0.8.6claws (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212281227510.25566-100000@home.transmeta.com>
-User-Agent: Mutt/1.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Dec 2002 01:12:31.0828 (UTC) FILETIME=[5CD24140:01C2AED7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 28, 2002 at 12:50:53PM -0800, Linus Torvalds wrote:
-> 
-> On Sat, 28 Dec 2002, Jeff Dike wrote:
-> > 
-> > > What are the semantics the host code wants/needs, 
-> > 
-> > 1 - Multiple address spaces per process
-> > 2 - Ability to make a child switch between address spaces
-> > 3 - Ability to manipulate a child's address space (i.e. mmap, munmap, mprotect
-> >     on an address space which is not current->mm)
-> 
-> Well, #3 falls under "ptrace()" as far as I'm concerned, I don't really 
-> want to expose things through /proc (or /dev, which is even _worse_).
-> 
-> We used to have things that could be done with /proc/<pid>/mem, and it was 
-> a total security disaster. It was removed in the 2.3.x series because of 
-> that.
+Hi,
 
-FWIW, GDB also would like to have #3.  We can do without it; GDB
-already supports calling functions in the inferior by a stack or code
-trampoline, so we could just make the child call mprotect; but it would
-be faster and simpler to have a ptrace op for it.  HP/UX had, among
-other things, TT_PROC_SET_MPROTECT and TT_PROC_GET_MPROTECT; I don't
-think we have a system call equivalent to GET_MPROTECT right now.
+This patch adds proper locking to the 3c574 pcmcia driver.
 
-Of course, without more comprehensive kernel support doing
-protection-based watchpoints this way is murder for perfomance, almost
-as bad as just doing it by single-stepping.  You need to disable them
-at every syscall entry, which means that you can't have multiple
-threads running in userspace while one thread is in a syscall, or you
-might miss a watchpoint event.
+	Paulo Andre'
 
-It would be ideal to have some way to set the permissions such that
-accesses from inside the kernel succeeded and from userspace failed
-(i.e. render it temporarily a kernel page; but not exactly; we'd want
-things like "normally writeable; currently writeable by the kernel;
-still currently readable by userspace" for a normal watchpoint).
-I don't know if that's practical without impacting MM performance. 
+---
 
-Suggestions welcome; I haven't really started to work on this yet
-although it's creeping up my list of important debugger projects. 
-PowerPC MMUs have a mechanism that could be used for this but I don't
-know if other architectures do.
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+--- 3c574_cs.c.orig     2002-12-28 23:55:58.000000000 +0000
++++ 3c574_cs.c  2002-12-29 01:00:44.000000000 +0000
+@@ -221,6 +221,7 @@
+        u_short media_status;
+        u_short fast_poll;
+        u_long last_irq;
++       spinlock_t lock;
+ }; 
+ 
+ /* Set iff a MII transceiver on any interface requires mdio preamble.
+@@ -1020,9 +1021,11 @@
+ {   
+     struct el3_private *lp = (struct el3_private *)arg;
+     struct net_device *dev = &lp->dev;
++    unsigned long flags;
++    
+     ioaddr_t ioaddr = dev->base_addr;
+-    u_long flags;
+-       u_short /* cable, */ media, partner;
++
++       u_short /* cable, */ media, partner;
+                
+        if (!netif_device_present(dev))
+                goto reschedule;
+@@ -1043,13 +1046,12 @@
+                return;
+     }
+
+-       save_flags(flags);
+-       cli();
++       spin_lock_irqsave(&lp->lock, flags);
+        EL3WINDOW(4);
+        media = mdio_read(ioaddr, lp->phys, 1);
+        partner = mdio_read(ioaddr, lp->phys, 5);
+        EL3WINDOW(1);
+-       restore_flags(flags);
++       spin_unlock_irqrestore(&lp->lock, flags);
+
+        if (media != lp->media_status) {
+                if ((media ^ lp->media_status) & 0x0004)
+@@ -1232,31 +1234,29 @@
+        case SIOCDEVPRIVATE+1:          /* Read the specified MII register. */
+                {
+                        int saved_window;
+-                       unsigned long flags;
++                       unsigned long flags;
+
+-                       save_flags(flags);
+-                       cli();
++                       spin_lock_irqsave(&lp->lock, flags);
+                        saved_window = inw(ioaddr + EL3_CMD) >> 13;
+                        EL3WINDOW(4);
+                        data[3] = mdio_read(ioaddr, data[0] & 0x1f, data[1] &
+0x1f);                        EL3WINDOW(saved_window);
+-                       restore_flags(flags);
++                       spin_unlock_irqrestore(&lp->lock, flags);
+                        return 0;
+                }
+        case SIOCDEVPRIVATE+2:          /* Write the specified MII register */
+                {
+                        int saved_window;
+-                       unsigned long flags;
++                        unsigned long flags;
+
+                        if (!capable(CAP_NET_ADMIN))
+                                return -EPERM;
+-                       save_flags(flags);
+-                       cli();
++                       spin_lock_irqsave(&lp->lock, flags);
+                        saved_window = inw(ioaddr + EL3_CMD) >> 13;
+                        EL3WINDOW(4);
+                        mdio_write(ioaddr, data[0] & 0x1f, data[1] & 0x1f,
+data[2]);                        EL3WINDOW(saved_window);
+-                       restore_flags(flags);
++                       spin_unlock_irqrestore(&lp->lock, flags);
+                        return 0;
+                }
+        default:

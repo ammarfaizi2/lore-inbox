@@ -1,73 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131082AbQKACVt>; Tue, 31 Oct 2000 21:21:49 -0500
+	id <S131095AbQKACX7>; Tue, 31 Oct 2000 21:23:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131095AbQKACVk>; Tue, 31 Oct 2000 21:21:40 -0500
-Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:26097
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S131082AbQKACVW>; Tue, 31 Oct 2000 21:21:22 -0500
-Date: Tue, 31 Oct 2000 19:18:07 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.0-test10
-Message-ID: <20001031191807.A32641@opus.bloom.county>
-In-Reply-To: <Pine.LNX.4.10.10010311237430.22165-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7JfCtLOvnd9MIVvH"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10010311237430.22165-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Oct 31, 2000 at 12:41:55PM -0800
+	id <S131123AbQKACXu>; Tue, 31 Oct 2000 21:23:50 -0500
+Received: from [200.230.208.16] ([200.230.208.16]:29203 "EHLO plutao.vb.com.br")
+	by vger.kernel.org with ESMTP id <S131095AbQKACXl>;
+	Tue, 31 Oct 2000 21:23:41 -0500
+From: "Carlos E. Gorges" <carlos@vb.com.br>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ipac usb abnt2 (others?) keyboard fix
+Date: Tue, 31 Oct 2000 23:46:26 -0200
+X-Mailer: KMail [version 1.0.28]
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-=_XrJmOWFrxsjyBldbEFSArCBynEcd"
+MIME-Version: 1.0
+Message-Id: <00110100263206.01274@quarks.techlinux>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--Boundary-=_XrJmOWFrxsjyBldbEFSArCBynEcd
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 31, 2000 at 12:41:55PM -0800, Linus Torvalds wrote:
- 
-> Ok, test10-final is out there now. This has no _known_ bugs that I
-> consider show-stoppers, for what it's worth.
+Hi all,
 
-Sure, it's not a critical bug or anything but hey.  One more time:
-This is a very minor patch for fs/nls/Config.in, which Petr Vandrovec came up
-with.  The problem is that if CONFIG_INET is n, CONFIG_SMB_FS is never set
-so fs/nls/Config.in assumes that the user wants to select some NLS options.
-This fixes it and works on config/menuconfig/xconfig.
+This fixes "/" key in abnt2 ( pt_BR ) keyboard of ipac ( compac computer ).
+2.2.17 fix need a suse usb backport patch ( I use test2-pre2 ).
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+	 _________________________
+	 Carlos E Gorges          
+	 (carlos@techlinux.com.br)
+	 Tech informática LTDA
+	 Brazil                   
+	 _________________________
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="nls.patch"
 
---- fs/nls/Config.in.orig	Thu Oct 19 12:54:09 2000
-+++ fs/nls/Config.in	Thu Oct 19 12:54:32 2000
-@@ -2,10 +2,17 @@
- # Native language support configuration
- #
- 
-+# smb wants NLS
-+if [ "$CONFIG_SMB_FS" = "m" -o "$CONFIG_SMB_FS" = "y" ]; then
-+  define_bool CONFIG_SMB_NLS y
-+else
-+  define_bool CONFIG_SMB_NLS n
-+fi
-+
- # msdos and Joliet want NLS
- if [ "$CONFIG_JOLIET" = "y" -o "$CONFIG_FAT_FS" != "n" \
- 	-o "$CONFIG_NTFS_FS" != "n" -o "$CONFIG_NCPFS_NLS" = "y" \
--	-o "$CONFIG_SMB_FS" != "n" ]; then
-+	-o "$CONFIG_SMB_NLS" = "y" ]; then
-   define_bool CONFIG_NLS y
- else
-   define_bool CONFIG_NLS n
+--Boundary-=_XrJmOWFrxsjyBldbEFSArCBynEcd
+Content-Type: application/x-gzip;
+  name="ipac-usbabnt2-2.2.17.diff.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ipac-usbabnt2-2.2.17.diff.gz"
 
---7JfCtLOvnd9MIVvH--
+H4sICMV8/zkAA2lwYWMtdXNiYWJudDItMi4yLjE3LmRpZmYAlZDLasMwEEXX1lfM2vJYYyeWirtx
+CIVC8yIuZBlcP6ipiYNCQrrov9evhDppSioGaRZz7pGU5FkGuNdQ5Jv9EV3btR0lEp0fUr0T8Xuk
+xTZef6Sfb3bcm8E40kW5uzHKEPGeSGOVJjArDwAOEPkk/aEHLhExzvk/fBc5ztAfyDYnCADdgWcp
+4O0RBAwAyOrqidbTcLLqmuWpeZ12AwY0S5hAR+8Bqy0DU/Qi+mUYPxFJFSLVX0jtG42Xc6sP1i7Z
+uPBOl6pdqnHxK6SyvCzCySh8PrO/ozdfdiGr76fav/h6ZMC+AdVIwadKAgAA
+
+--Boundary-=_XrJmOWFrxsjyBldbEFSArCBynEcd
+Content-Type: application/x-gzip;
+  name="ipac-usbabnt2-2.4.0-test10.diff.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ipac-usbabnt2-2.4.0-test10.diff.gz"
+
+H4sICGJ+/zkAA2lwYWMtdXNiYWJudDItMi40LjAtdGVzdDEwLmRpZmYAlZBdT8IwFIav219xrum6
+nnWwyrwZMSYmMjGMhEuC3RYXCTPdIHjhf3dfGCdgsDlpz8V53qdtnKUp8J2BTbbdHbi0hzbyMilK
+B0Vssn1iCqFf10a869Vb8vFi6zOTXK/NJi8uAJRzfn08CfMtzHQJ0gWJ/sjxXa9qEClj7N9uskxi
+eMr3AA4g+tLxh+M2LQiAS3dsKWDtEQQUANDq6h5XYTRdds382CzCboBAs8QA8DC64dWWwkD0IvpF
+yE/Ewwrx1F9I7ZvczWdWH6xdXuPiV7pU7VKNi50gleXxOZpOoodv9jx68WW/ZPX9VPsXn7cU6BfB
+BjFcYgIAAA==
+
+--Boundary-=_XrJmOWFrxsjyBldbEFSArCBynEcd--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

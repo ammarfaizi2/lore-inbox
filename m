@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319343AbSIKVWR>; Wed, 11 Sep 2002 17:22:17 -0400
+	id <S319344AbSIKVXa>; Wed, 11 Sep 2002 17:23:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319344AbSIKVWR>; Wed, 11 Sep 2002 17:22:17 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:27311 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S319343AbSIKVWQ>; Wed, 11 Sep 2002 17:22:16 -0400
-Date: Wed, 11 Sep 2002 22:26:14 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Oliver Neukum <oliver@neukum.name>, Roman Zippel <zippel@linux-m68k.org>,
-       Alexander Viro <viro@math.psu.edu>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Raceless module interface
-Message-ID: <20020911222614.A12614@kushida.apsleyroad.org>
-References: <Pine.LNX.4.44.0209101201280.8911-100000@serv> <E17pD2j-0007TM-00@starship> <200209112229.11975.oliver@neukum.name> <E17pEpj-0007Up-00@starship>
+	id <S319345AbSIKVXa>; Wed, 11 Sep 2002 17:23:30 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:12797
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319344AbSIKVX3>; Wed, 11 Sep 2002 17:23:29 -0400
+Subject: Re: CDROM driver does not support Linux partition tables
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Phil Stracchino <alaric@babcom.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020911211959.GA31724@babylon5.babcom.com>
+References: <20020904181952.GA1158@babylon5.babcom.com>
+	<1031182512.3017.139.camel@irongate.swansea.linux.org.uk> 
+	<20020911211959.GA31724@babylon5.babcom.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 11 Sep 2002 22:28:35 +0100
+Message-Id: <1031779715.2838.4.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E17pEpj-0007Up-00@starship>; from phillips@arcor.de on Wed, Sep 11, 2002 at 11:15:34PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> Really, that's not so, there are limits.  30 seconds?  Whatever.  
-> Remember, during this time the service provided by the module is
-> unavailable, so this is denial-of-service land.  You could of
-> course put in extra code to abort the unload process on demand,
-> but, hmm, it probably wouldn't work ;-)
+On Wed, 2002-09-11 at 22:19, Phil Stracchino wrote:
+>  
+> A deficiency in the Linux CDROM driver was just brought to my attention.
+> Even on a kernel configured with support for UFS and Sun partition
+> tables, it doesn't appear to be possible to mount any but the first
+> slice of a Sun CDROM containing multiple slices.  Essentially, it seems
+> that Solaris partition table support doesn't trickle down to the CDROM
+> driver.
+> 
+> Is this something that's supposed to happen, and is there a reason why
+> it's not supported, or is it simply that no-one has asked for it to be
+> supported and/or no-one has gotten around to implementing it because of 
+> lack of demand?
 
-If you're going to do it right, you should fix that denial-of-service by
-waiting until the module has finished unloading and then demand-loading
-the module again.
+It ought to be supportable on scsi cd or with ide-scsi. ide-cd has no
+minor space for partitioning, ide-scsi/sr do support partitions.
 
-Ideally, those periodic "rmmod -a" calls should _never_ cause a
-denial-of-service.
-
--- Jamie

@@ -1,54 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269744AbUICTLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269748AbUICTPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269744AbUICTLG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 15:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269738AbUICTIs
+	id S269748AbUICTPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 15:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbUICTPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 15:08:48 -0400
-Received: from mail4.utc.com ([192.249.46.193]:48383 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S269745AbUICTHs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 15:07:48 -0400
-Message-ID: <4138C0D3.5080506@cybsft.com>
-Date: Fri, 03 Sep 2004 14:06:59 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
+	Fri, 3 Sep 2004 15:15:15 -0400
+Received: from steffenspage.de ([213.9.79.102]:53672 "EHLO
+	mail.steffenspage.de") by vger.kernel.org with ESMTP
+	id S269748AbUICTOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 15:14:06 -0400
+From: Steffen Zieger <lkml@steffenspage.de>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Codemercs IO-Warrior support
+Date: Fri, 3 Sep 2004 21:14:06 +0200
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-To: Florian Schmidt <mista.tapas@gmx.net>
-CC: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       felipe_alfaro@linuxmail.org
-Subject: Re: lockup with voluntary preempt R0 and VP, KP, etc, disabled
-References: <20040903120957.00665413@mango.fruits.de>	<20040903100946.GA22819@elte.hu>	<20040903123139.565c806b@mango.fruits.de>	<20040903103244.GB23726@elte.hu>	<20040903135919.719db41d@mango.fruits.de>	<20040903140425.26fddf8e@mango.fruits.de>	<20040903140811.37ae8067@mango.fruits.de>	<1094236105.6575.16.camel@krustophenia.net> <20040903205415.0a3cdc23@mango.fruits.de>
-In-Reply-To: <20040903205415.0a3cdc23@mango.fruits.de>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409032114.08743.lkml@steffenspage.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Schmidt wrote:
-> On Fri, 03 Sep 2004 14:28:26 -0400
-> Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> 
->>Change EXTRAVERSION in the top level kernel Makefile.  The newer VP
->>patches do this for you.
-> 
-> 
-> Ok, though my incentive was to have different versions of the same VP
-> patched kernel [different config stuff though] ready w/o rebuilding in
-> between.
-> 
-> Thanks for the tip :)
-> 
-> flo
+Hello list,
 
-I believe if you just change the EXTRAVERSION in an already built tree, 
-you can then just do "make modules_install" to install them into a 
-different directory.
+here is a patch to get the kernel module from Codemerces to work.
+The module is available in source for the 2.4 and 2.6 series except the needed 
+changes in hid-core.c. Codemercs distribute the needed changes as a complete 
+file (version 2.6.4). This isn't working with 2.6.8.1.
 
-kr
+Is there any possibility to get Codemerces driver for the IO-Warrior in the 
+kernel?
+The complete code is under the GPL licensed.
+
+If you need any more information have a look at http://www.codemercs.com or
+consider of contacting me. Will help as much as possible.
+
+Greetz,
+Steffen
+
+
+My Kernel Version: 2.6.8-gentoo-r3
+
+--- /usr/src/linux/drivers/usb/input/hid-core.c.orig    2004-09-03 
+20:53:49.124191720 +0200
++++ /usr/src/linux/drivers/usb/input/hid-core.c 2004-09-03 20:59:14.728692312 
++0200
+@@ -1439,6 +1439,13 @@
+ #define USB_DEVICE_ID_1_PHIDGETSERVO_20        0x8101
+ #define USB_DEVICE_ID_4_PHIDGETSERVO_20        0x8104
+
++#define USB_VENDOR_ID_CODEMERCS        0x07c0
++#define USB_DEVICE_ID_CODEMERCS_IOW40  0x1500
++#define USB_DEVICE_ID_CODEMERCS_IOW24  0x1501
++#define USB_DEVICE_ID_CODEMERCS_IOW48  0x1502
++#define USB_DEVICE_ID_CODEMERCS_IOW28  0x1503
++
+ static struct hid_blacklist {
+        __u16 idVendor;
+        __u16 idProduct;
+@@ -1520,6 +1527,11 @@
+        { USB_VENDOR_ID_NEC, USB_DEVICE_ID_NEC_USB_GAME_PAD, 
+HID_QUIRK_BADPAD },
+        { USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD, 
+HID_QUIRK_BADPAD },
+        { USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD, 
+HID_QUIRK_BADPAD },
++
++       { USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW40, 
+HID_QUIRK_IGNORE },
++       { USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW24, 
+HID_QUIRK_IGNORE },
++       { USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW48, 
+HID_QUIRK_IGNORE },
++       { USB_VENDOR_ID_CODEMERCS, USB_DEVICE_ID_CODEMERCS_IOW28, 
+HID_QUIRK_IGNORE },
+
+        { 0, 0 }
+ };

@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbUCXUc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 15:32:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUCXUc6
+	id S261326AbUCXUup (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 15:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUCXUup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 15:32:58 -0500
-Received: from linux-bt.org ([217.160.111.169]:14759 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S261603AbUCXUc4 (ORCPT
+	Wed, 24 Mar 2004 15:50:45 -0500
+Received: from hera.kernel.org ([63.209.29.2]:10130 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261326AbUCXUun (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 15:32:56 -0500
-Subject: Re: Compile problem on sparc64
-From: Marcel Holtmann <marcel@holtmann.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SPARC Linux Mailing List <sparclinux@vger.kernel.org>
-In-Reply-To: <20040324121914.00fb9bf9.davem@redhat.com>
-References: <1080130448.2515.108.camel@pegasus>
-	 <20040324121914.00fb9bf9.davem@redhat.com>
-Content-Type: text/plain
-Message-Id: <1080160367.2309.71.camel@pegasus>
+	Wed, 24 Mar 2004 15:50:43 -0500
+Date: Wed, 24 Mar 2004 18:51:13 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: matthias.andree@gmx.de, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.25 SMP - BUG at page_alloc.c:105
+Message-ID: <20040324215112.GA6931@logos.cnet>
+References: <20040324205811.GB6572@logos.cnet> <20040324122806.4015d3d6.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 24 Mar 2004 21:32:47 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040324122806.4015d3d6.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
 
-> [ Please us sparclinux@vger.kernel.org in the future, thanks... ]
-
-I will do.
-
-> > I am using Debian Sid with GCC 3.3.3 (Debian 20040320) and I got the
-> > following error on my sparc64 platform while compiling the latest
-> > Bitkeeper sources from 2.6:
+On Wed, Mar 24, 2004 at 12:28:06PM -0800, Andrew Morton wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> >
+> > 
+> > The backtrace is odd to me. 
+> > 
+> > set_page_dirty() does not call __free_pages_ok() directly or indirectly.
+> > 
 > 
-> This should cure it, let me know if it doesn't.
+> I'd suspect that's just gunk on the stack and that zap_pte_range() freed an
+> anonymous page which had a non-null ->mapping.  It could be a hardware bug.
+> Without seeing the actual value of page->mapping it's hard to know.
+> 
+> It would be good to backport the bad_page() debug code so we get a bit more
+> info when this sort of thing happens.
 
-Seems that this is not enough. Now I get this one:
+This should work. Matthias, please apply and try to reproduce.
 
-  CC      arch/sparc64/kernel/process.o
-arch/sparc64/kernel/process.c: In function `flush_thread':
-arch/sparc64/kernel/process.c:435: warning: use of cast expressions as lvalues is deprecated
-
-Regards
-
-Marcel
-
-
+--- mm/page_alloc.c.orig	2004-03-24 18:42:53.693251224 -0300
++++ mm/page_alloc.c	2004-03-24 18:47:52.484828000 -0300
+@@ -81,6 +81,20 @@
+  * -- wli
+  */
+ 
++static void bad_page(const char *function, struct page *page)
++{
++        printk("Bad page state at %s\n", function);
++        printk("flags:0x%08lx mapping:%p buffers:%p count:%d\n",
++                page->flags, page->mapping,
++		page->buffers, page_count(page));
++        printk("Backtrace:\n");
++        dump_stack();
++	printk("bad_page: Trying to fix it up.\n");
++        set_page_count(page, 0);
++        page->mapping = NULL;
++}
++
++
+ static void FASTCALL(__free_pages_ok (struct page *page, unsigned int order));
+ static void __free_pages_ok (struct page *page, unsigned int order)
+ {
+@@ -101,8 +115,8 @@
+ 
+ 	if (page->buffers)
+ 		BUG();
+-	if (page->mapping)
+-		BUG();
++	if (page->mapping) 
++		bad_page(page);
+ 	if (!VALID_PAGE(page))
+ 		BUG();
+ 	if (PageLocked(page))

@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267057AbTAJS7v>; Fri, 10 Jan 2003 13:59:51 -0500
+	id <S265886AbTAJSt7>; Fri, 10 Jan 2003 13:49:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267039AbTAJS65>; Fri, 10 Jan 2003 13:58:57 -0500
-Received: from web20510.mail.yahoo.com ([216.136.226.145]:3882 "HELO
-	web20510.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266257AbTAJSzS>; Fri, 10 Jan 2003 13:55:18 -0500
-Message-ID: <20030110190403.2127.qmail@web20510.mail.yahoo.com>
-Date: Fri, 10 Jan 2003 11:04:03 -0800 (PST)
-From: Manish Lachwani <m_lachwani@yahoo.com>
-Subject: Re: FW: Fastest possible UDMA - how?
-To: linux-kernel@vger.kernel.org, Michael.Knigge@set-software.de
-In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB1B88@xch-a.win.zambeel.com>
+	id <S266243AbTAJSsy>; Fri, 10 Jan 2003 13:48:54 -0500
+Received: from mail.set-software.de ([193.218.212.121]:25302 "EHLO
+	gateway.local.net") by vger.kernel.org with ESMTP
+	id <S266228AbTAJSsf> convert rfc822-to-8bit; Fri, 10 Jan 2003 13:48:35 -0500
+From: Michael Knigge <Michael.Knigge@set-software.de>
+Date: Fri, 10 Jan 2003 18:56:52 GMT
+Message-ID: <20030110.18565214@knigge.local.net>
+Subject: Stupid SMBUS question...
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
+X-Priority: 3 (Normal)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Take a look at the drive IDENTIFY data. From the ATA
-spec, it can be seen that word# 88 in the IDENTIFY
-data can help you find out the UDMA mode selected and
-UDMA mode supported. 
+Hi,
 
-The UDMA mode supported is the maximum supported by
-the drive. 
+I'm working on a tool that can display information of a computer's 
+hardware. For this I want to parse the SMBIOS-Structure. I know that I 
+could search /proc/kcore for the "_SM_" eyecatcher, but I wonder if 
+there is a "easier" way to get the information (so the tool don't have 
+to run setuid-root).
 
-Thanks
-Manish
-
-> Hi all,
-> 
-> is it somehow possible to determine what is the
-> fastest UDMA-Mode my 
-> IDE-Controller supports - independant of the
-> chipset?
-> 
-> Thanks,
->   Michael
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Is there a way? 
 
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com
+Thank you in advance and have a nice weekend,
+  Michael
+
+
+
+

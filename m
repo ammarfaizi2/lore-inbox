@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262089AbSKHOxw>; Fri, 8 Nov 2002 09:53:52 -0500
+	id <S262112AbSKHPAH>; Fri, 8 Nov 2002 10:00:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262100AbSKHOxw>; Fri, 8 Nov 2002 09:53:52 -0500
-Received: from ext-nj2gw-1.online-age.net ([216.35.73.163]:50603 "EHLO
-	ext-nj2gw-1.online-age.net") by vger.kernel.org with ESMTP
-	id <S262089AbSKHOxv>; Fri, 8 Nov 2002 09:53:51 -0500
-Message-ID: <A9713061F01AD411B0F700D0B746CA6802FC1544@vacho6misge.cho.ge.com>
-From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
-To: "'Corey Minyard'" <cminyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: NMI handling rework
-Date: Fri, 8 Nov 2002 10:00:16 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S262120AbSKHPAG>; Fri, 8 Nov 2002 10:00:06 -0500
+Received: from main.gmane.org ([80.91.224.249]:32713 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S262112AbSKHPAG>;
+	Fri, 8 Nov 2002 10:00:06 -0500
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: [PATCH] Linux-streams registration 2.5.46
+Date: Fri, 08 Nov 2002 10:07:54 -0500
+Message-ID: <aqgjr9$8d4$1@main.gmane.org>
+References: <5.1.0.14.2.20021107145447.027905c8@localhost> <200211080637.06511.landley@trommello.org>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: main.gmane.org 1036767914 8612 130.127.121.177 (8 Nov 2002 15:05:14 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Fri, 8 Nov 2002 15:05:14 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Landley wrote:
 
--- Snipped from the patch --
+> On Thursday 07 November 2002 21:00, David Grothe wrote:
+>> All:
+>>
+>> I finally have LiS running on a 2.5 kernel.  Attached is the 2.5.46
+>> version of the syscall registration patch that was submitted for
+>> inclusion in the
+>> 2.4 kernel about a month ago.  It has been tested on an Intel platform.
+                      ^^^^^^^^^
+>>
+>> The patch follows inline for easy perusal and is attached as a file for
+>> tab-preservation.
+>>
+>> Comments welcome.  If it looks good will someone tell me to whom to
+>> direct it for inclusion in the kernel source?
+> 
+> Just a random comment, but the feature freeze was October 31st.  Is this a
+> repost of something we saw before then?
 
-If the handler actually handles the NMI, it should return NOTIFY_OK.
-If it did not handle the NMI, it should return NOTIFY_DONE.  It may "or"
-on NOTIFY_STOP_MASK to the return value if it does not want other
-handlers after it to be notified.
+Seems to me that it is.  Besides, as patches go, this is *hardly* obtrusive 
+and requires minimal changes to the kernel API.  It's not like he's asking 
+to integrate the whole streams driver into the kernel.  I don't think the 
+addition of this code will cause any new bugs to appear [the actual streams 
+driver aside], do you?
 
--- End snip --
+Cheers,
+Nicholas
 
-> It is still possible, though unlikely, that two NMI sources could occur 
-> at the same time.  Maybe that's not worth worrying about, and maybe for 
-> the APICs it works fine.
 
-Am I reading this correctly? As long as no one passes back NOTIFY_STOP_MASK,
-all handlers are run. Assuming that all external NMI sources have a means of
-checking whether they were the source, this would work like shared PCI
-interrupts.
-
-> Not on the i386 family.  Once an NMI is accepted by the CPU, it gets
-> internally masked until an iret instruction gets executed.  If another NMI
-> happens maenwhile, it's latched by the processor internally and dispatched
-> as soon as NMIs are unmasked.  Further NMIs received when masked are lost.
-
-So... We're running through the handler list servicing an NMI, two more NMIs
-come in and we latch one (the other is dropped). It doesn't matter. Either
-the
-affected handlers have not run yet and will get run on the current pass, or
-they will run on the next pass. You may have two handlers run on a single
-pass
-but you should not drop any. True??
-
-This assumes i386 architecture and all handlers are run. I don't know about
-other archs.

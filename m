@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268560AbTBYVVh>; Tue, 25 Feb 2003 16:21:37 -0500
+	id <S268400AbTBYV3Q>; Tue, 25 Feb 2003 16:29:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268505AbTBYVVh>; Tue, 25 Feb 2003 16:21:37 -0500
-Received: from packet.digeo.com ([12.110.80.53]:20146 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268560AbTBYVU7>;
-	Tue, 25 Feb 2003 16:20:59 -0500
-Date: Tue, 25 Feb 2003 13:27:55 -0800
+	id <S268401AbTBYV3Q>; Tue, 25 Feb 2003 16:29:16 -0500
+Received: from packet.digeo.com ([12.110.80.53]:42674 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268400AbTBYV3N>;
+	Tue, 25 Feb 2003 16:29:13 -0500
+Date: Tue, 25 Feb 2003 13:36:13 -0800
 From: Andrew Morton <akpm@digeo.com>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: zilvinas@gemtek.lt, helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.62-mm3 - no X for me
-Message-Id: <20030225132755.241e85ac.akpm@digeo.com>
-In-Reply-To: <131360000.1046195828@[10.1.1.5]>
-References: <20030223230023.365782f3.akpm@digeo.com>
-	<3E5A0F8D.4010202@aitel.hist.no>
-	<20030224121601.2c998cc5.akpm@digeo.com>
-	<20030225094526.GA18857@gemtek.lt>
-	<20030225015537.4062825b.akpm@digeo.com>
-	<131360000.1046195828@[10.1.1.5]>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: fcorneli@elis.rug.ac.be, dan@debian.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ptrace PTRACE_READDATA/WRITEDATA, kernel 2.5.62
+Message-Id: <20030225133613.320cf33a.akpm@digeo.com>
+In-Reply-To: <3E5BA969.5000905@colorfullife.com>
+References: <Pine.LNX.4.44.0302251113050.2572-100000@tom.elis.rug.ac.be>
+	<3E5BA969.5000905@colorfullife.com>
 X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Feb 2003 21:31:03.0541 (UTC) FILETIME=[32C1D250:01C2DD15]
+X-OriginalArrivalTime: 25 Feb 2003 21:39:21.0472 (UTC) FILETIME=[5B8C1000:01C2DD16]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken <dmccr@us.ibm.com> wrote:
+Manfred Spraul <manfred@colorfullife.com> wrote:
 >
-> 
-> --On Tuesday, February 25, 2003 01:55:37 -0800 Andrew Morton
-> <akpm@digeo.com> wrote:
-> 
-> > Ah, thank you.
-> > 
-> > 	kernel BUG at mm/rmap.c:248!
-> > 
-> > The fickle finger of fate points McCrackenwards.
-> 
-> Yep.  He tripped over my sanity check that pages not marked anon actually
-> have a real mapping pointer.  Apparently X allocates a page that should be
-> marked anon but isn't.
+> >http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.62/2.5.62-mm3/broken-out/ptrace-flush.patch
+> >but it's getting fixed I hope.
+> >  
+> >
+> This patch seems to be wrong.
 
-Wonder where that came from?
+Yes, it is wrong.  I discussed it with davem a while back and he was planning
+on fixing it up for real.  I just keep the patch floating about as a reminder
+that the thing which it doesn't fix needs fixing.
 
-> My main reason for adding the anon flag was to prove to myself that the
-> mapping pointer can be trusted.  Apparently it can, generally, but it looks
-> like I haven't successfully tracked down all the places that should set it.
-> It looks like anon pages can come from random sources, so it might be an
-> impossible task to find them all.
+I'll update the changelog...
 
-Yes, the debug check is important at this time.
-
-> I know you said you like the idea of having the flag, but I think the
-> cleanest fix would be to change the check from
-> 
-> 	if (PageAnon(page))
-> to
-> 	if (page->mapping && !PageSwapCache(page))
-
-Well I'm not particularly overjoyed by the flag.  What I liked was that we
-have a place where we can implement anonymous page counting, so we get
-another interesting number in /proc/meminfo.  Minor point.
-
-> Or I could set the anon flag based on that test.  I know page flags are
-> getting scarce, so I'm leaning toward removing the flag entirely.
-> 
-> What would you recommend?
-
-Keep the flag for now, find the escaped page under X, remove the flag later?
 

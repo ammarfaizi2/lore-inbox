@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbSJCUqw>; Thu, 3 Oct 2002 16:46:52 -0400
+	id <S261397AbSJCUli>; Thu, 3 Oct 2002 16:41:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261406AbSJCUqw>; Thu, 3 Oct 2002 16:46:52 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:24077 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S261353AbSJCUqv>;
-	Thu, 3 Oct 2002 16:46:51 -0400
-Date: Thu, 3 Oct 2002 22:50:46 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-Cc: Sam Ravnborg <sam@ravnborg.org>, kbuild-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: RfC: Don't cd into subdirs during kbuild
-Message-ID: <20021003225046.B1411@mars.ravnborg.org>
-Mail-Followup-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-	Sam Ravnborg <sam@ravnborg.org>, kbuild-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20021003223054.A31484@mars.ravnborg.org> <Pine.LNX.4.44.0210031536370.24570-100000@chaos.physics.uiowa.edu>
+	id <S261406AbSJCUli>; Thu, 3 Oct 2002 16:41:38 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:43767 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S261397AbSJCUlJ>; Thu, 3 Oct 2002 16:41:09 -0400
+Date: Thu, 3 Oct 2002 16:46:41 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: george anzinger <george@mvista.com>
+Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dual PPro timer stopping problem
+Message-ID: <20021003164641.F16875@redhat.com>
+References: <14632.1033653828@warthog.cambridge.redhat.com> <3D9C7E7E.7B2BFB52@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210031536370.24570-100000@chaos.physics.uiowa.edu>; from kai-germaschewski@uiowa.edu on Thu, Oct 03, 2002 at 03:38:22PM -0500
+In-Reply-To: <3D9C7E7E.7B2BFB52@mvista.com>; from george@mvista.com on Thu, Oct 03, 2002 at 10:29:34AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 03:38:22PM -0500, Kai Germaschewski wrote:
-> On Thu, 3 Oct 2002, Sam Ravnborg wrote:
-> 
-> > On Thu, Oct 03, 2002 at 10:01:20PM +0200, Sam Ravnborg wrote:
-> > > Now it's testing time..
-> 
-> [...]
-> 
-> You must be missing some of the changes (My first push to bkbits was 
-> incomplete, since I did inadvertently edit Makefile without checking it 
-> out, I do that mistake all the time...). It's fixed in the current repo.
+On Thu, Oct 03, 2002 at 10:29:34AM -0700, george anzinger wrote:
+> The keyboard is, or at least depends on polling which is
+> controled by a timer, thus, no timer, => no keyboard.
 
-This time I applied the patch you sent in the mail.
-Checking bkbits....
-Yep, the latest csets on bkbits fixes some of this.
+Eh?  Sure, by a timer internal to the keyboard itself.  At least x86 
+hardware has an interrupt wired to its keyboard controller that is used 
+to signal when a keystroke is available, and if you look into the driver, 
+you'd see that no timers are used at all.
 
-	Sam
+		-ben

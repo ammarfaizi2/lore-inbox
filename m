@@ -1,84 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbTKTSQl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 13:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbTKTSQl
+	id S262109AbTKTS1J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 13:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTKTS1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 13:16:41 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:48314 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262655AbTKTSQi (ORCPT
+	Thu, 20 Nov 2003 13:27:09 -0500
+Received: from sow.visionpro.com ([63.91.95.5]:18440 "EHLO sow.visionpro.com")
+	by vger.kernel.org with ESMTP id S262109AbTKTS1H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 13:16:38 -0500
-Date: Thu, 20 Nov 2003 10:41:49 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 1565] New: kernel BUG on sound, mm4, intel8x0 
-Message-ID: <414450000.1069353709@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 20 Nov 2003 13:27:07 -0500
+Message-ID: <F8E34394F337C74EA249580DEE7C240C111C28@chicken.machinevisionproducts.com>
+From: Brian McGrew <brian@visionpro.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Upgrading Kernel kills X ...
+Date: Thu, 20 Nov 2003 10:25:20 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1565
+Good morning,
 
-           Summary: kernel BUG on sound, mm4, intel8x0
-    Kernel Version: 2.6.0-test9-mm4
-            Status: NEW
-          Severity: normal
-             Owner: akpm@digeo.com
-         Submitter: arnihr@php.is
+I have here a very weird situation which I'm hoping that someone can help me
+resolve.  I'm running RedHat 9.0 on a Dell Poweredge 1600 server.  Now the
+stock install of RedHat 9.0 gives me the 2.4.20-8(smp) kernels accordingly.
+Now if I run RedHat's up2date and pull a new kernel from there, I'm fine.  
+
+Where I run into problems, is two fold and this is where it gets confusing.
+I have tried manually upgrading my kernel in a couple different ways.  The
+first is that our company develops software for Linux (RedHat 7.3) and
+therefor, we have a custom kernel package that we install as an RPM.  Works
+great on RedHat 7.3 with this Dell PE1600.  The second method is installing
+kernel source and building it myself (2.4-20 as well as 2.6.0-test9).  If I
+build and install a kernel myself or add our typical rpm kernel, my X server
+is toast.  Someone told me to double check that I have framebuffer support
+turned on, so I did and that did not resolve the problem.
+
+This box has an ATI Rage XL onboard video card, which typically uses the ATI
+Mach64 driver.  Life is good with RedHat 7.3.  I can put our custom kernel
+on the box or build and install new kernels all day long with no problems.
+It's just that under RedHat 9.0, a non-RedHat kernel upgrade kills my
+Xserver.  When it tries to start X, I get a signal 11.  Also, if I connect
+to the machine from another host, set my display and try and run X with gdb
+attached, even though there is no debug compiled in, I can see that
+apperantly, X is dying in a function that looks like it's trying to probe
+the PCI bus.
+
+Any help would be great here.  If I have to call someone and pay for
+support, just tell me who to call.  I need to get this fixed, hopefully by
+the end of the day.
+
+Thanks, best regards,
 
 
-Running a HP/Compaq nx7000. 
- 
-Problem Description: 
-Whenever I try to play something in xmms I get the error. I was error free in 
--test9-mm3 and still am in mm3. I get this error: 
---------------------------------------------------------------- 
-ov 20 16:27:59 ahrlap kernel BUG at arch/i386/mm/fault.c:357! 
-Nov 20 16:27:59 ahrlap invalid operand: 0000 [#1] 
-Nov 20 16:27:59 ahrlap PREEMPT DEBUG_PAGEALLOC 
-Nov 20 16:27:59 ahrlap CPU:    0 
-Nov 20 16:27:59 ahrlap EIP:    0060:[<c011c5fc>]    Not tainted VLI 
-Nov 20 16:27:59 ahrlap EFLAGS: 00010206 
-Nov 20 16:27:59 ahrlap EIP is at do_page_fault+0x18b/0x4a1 
-Nov 20 16:27:59 ahrlap eax: 00000202   ebx: ceb72d30   ecx: ceb72d10   edx: 
-00000202 
-Nov 20 16:27:59 ahrlap esi: ceb72d10   edi: ce846950   ebp: ce82bfb4   esp: ce82bf1c 
-Nov 20 16:27:59 ahrlap ds: 007b   es: 007b   ss: 0068 
-Nov 20 16:27:59 ahrlap Process xmms (pid: 4716, threadinfo=ce82a000 
-task=ce846950) 
-Nov 20 16:27:59 ahrlap Stack: 00000001 421e8000 d4666870 e18f1ffa e1904ce0 
-00030002 00000000 40396d04 
-Nov 20 16:27:59 ahrlap ce813f5c ffffffe7 ce82bf8c e18f6757 e1904ce0 dd7c1ef8 
-00000000 ce82bf84 
-Nov 20 16:27:59 ahrlap c012e000 dcd9ed98 ce82bf6c c02e8e15 ce82bf6c ce82bf6c 
-ce82bf94 00000001 
-Nov 20 16:27:59 ahrlap Call Trace: 
-Nov 20 16:27:59 ahrlap [<e18f1ffa>] snd_pcm_action+0x15b/0x16a [snd_pcm] 
-Nov 20 16:27:59 ahrlap [<e18f6757>] snd_pcm_playback_ioctl1+0x54d/0x559 
-[snd_pcm] 
-Nov 20 16:27:59 ahrlap [<c012e000>] run_timer_softirq+0x25f/0x38d 
-Nov 20 16:27:59 ahrlap [<c02e8e15>] rh_report_status+0x0/0x31c 
-Nov 20 16:27:59 ahrlap [<c017d8a4>] sys_ioctl+0x282/0x33e 
-Nov 20 16:27:59 ahrlap [<c017d955>] sys_ioctl+0x333/0x33e 
-Nov 20 16:27:59 ahrlap [<c011c471>] do_page_fault+0x0/0x4a1 
-Nov 20 16:27:59 ahrlap [<c03737af>] error_code+0x2f/0x38 
-Nov 20 16:27:59 ahrlap 
-Nov 20 16:27:59 ahrlap Code: 85 c0 7f 0b 83 f8 ff 0f 84 ea 01 00 00 eb 1c 83 f8 01 74 
-07 83 f8 02 74 0a eb 10 ff 87 0c 02 00 00 eb 10 ff 87 10 02 00 00 eb 08 <0f> 0b 65 01 
-95 9f 39 c0 8b 45 08 f6 40 32 02 74 21 8b 8d 6c ff 
-------------------------------------------------------------- 
- 
-You can find kernel config, dmesg and lspci -v at www.localhost.is/~arnihr 
- 
-I run alsa, I tried both as modules and compiled in. It has been fine in all previous 
-tested kernels. 
- 
-Steps to reproduce: 
-Play sound.
+-brian
 
+Brian D. McGrew {brian@visionpro.com || brian@doubledimension.com }
+--
+> My job is so secret ... I don't know what I do!
 

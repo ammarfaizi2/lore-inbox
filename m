@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261537AbSJAJ65>; Tue, 1 Oct 2002 05:58:57 -0400
+	id <S261551AbSJAKLL>; Tue, 1 Oct 2002 06:11:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261544AbSJAJ65>; Tue, 1 Oct 2002 05:58:57 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:27614 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261537AbSJAJ64>;
-	Tue, 1 Oct 2002 05:58:56 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: kraxel@bytesex.org
-Date: Tue, 1 Oct 2002 12:04:04 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: V4L2? (was Re: Linux v2.5.40 - and a feature freeze reminder)
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <359D88D39E2@vcnet.vc.cvut.cz>
+	id <S261552AbSJAKLL>; Tue, 1 Oct 2002 06:11:11 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:4224 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261551AbSJAKLK>;
+	Tue, 1 Oct 2002 06:11:10 -0400
+Date: Tue, 1 Oct 2002 12:16:25 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Con Kolivas <conman@kolivas.net>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] 2.5.39-mm1
+Message-ID: <20021001101625.GC20878@suse.de>
+References: <200209301941.41627.conman@kolivas.net> <3D98A7D0.8F07193F@digeo.com> <1033418211.3d98b5e347574@kolivas.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1033418211.3d98b5e347574@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  1 Oct 02 at 0:32, Linus Torvalds wrote:
+On Tue, Oct 01 2002, Con Kolivas wrote:
+> > > io_load:
+> > > Kernel                  Time            CPU             Ratio
+> > > 2.4.19                  216.05          33%             3.19
+> > > 2.5.38                  887.76          8%              13.11
+> > > 2.5.38-mm3              105.17          70%             1.55
+> > > 2.5.39                  229.4           34%             3.4
+> > > 2.5.39-mm1              239.5           33%             3.4
+> > 
+> > I think I'll set fifo_batch to 16 again...
+> > 
 > 
-> And a small reminder that we're now officially in the last month of
-> features, and since I'm going to be away basically the last week of
-> October, so I actually personally consider Oct 20th to be the drop-date,
-> unless you've got a really good and scary costume.. So don't try to leave 
-> it to the last day.
+> And I'll happily benchmark it when you do.
 
-Gerd,
-  do you have any plans for V4L2 being in 2.6 or not? There is still
-sitting patch which allows you to control hue/brightness/saturation/contrast
-on matroxfb's TVOut in my tree, waiting for V4L2 API defines. 
-Should I send current patch (which defines matroxfb_queryctrl,
-matroxfb_ctrl_type, MATROXFB_CID_*... binary compatible with its
-video4linux2 counterparts), or should I wait?
+Just take 2.5.39-mm1 sources, edit drivers/block/deadline-iosched.c and
+set
 
-  I'd like to have this extension in matroxfb before 2.6, as G450's
-and G550's TVOuts differ from piece to piece, and default setting
-does not fit for everyone...
-                                        Petr Vandrovec
-                                        vandrove@vc.cvut.cz
-                                        
+static int fifo_batch = 16;
+
+instead of the 32. -mm has them in sysctl too, iirc.
+
+-- 
+Jens Axboe
+

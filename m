@@ -1,72 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317232AbSHAV2n>; Thu, 1 Aug 2002 17:28:43 -0400
+	id <S315870AbSHAVrt>; Thu, 1 Aug 2002 17:47:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317278AbSHAV2n>; Thu, 1 Aug 2002 17:28:43 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:40905 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S317232AbSHAV1l>; Thu, 1 Aug 2002 17:27:41 -0400
-Message-ID: <39B5C4829263D411AA93009027AE9EBB13299566@fmsmsx35.fm.intel.com>
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "'Mala Anand'" <manand@us.ibm.com>, linux-kernel@vger.kernel.org,
-       lse <lse-tech@lists.sourceforge.net>
-Cc: Bill Hartner <Bill_Hartner@us.ibm.com>
-Subject: RE: [Lse-tech] [RFC]  per cpu slab fix to reduce freemiss
-Date: Thu, 1 Aug 2002 14:31:01 -0700 
+	id <S317385AbSHAVrt>; Thu, 1 Aug 2002 17:47:49 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:44557 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315870AbSHAVrs>; Thu, 1 Aug 2002 17:47:48 -0400
+Message-ID: <3D49AC0E.9070804@evision.ag>
+Date: Thu, 01 Aug 2002 23:45:50 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Alexander Viro <viro@math.psu.edu>
+CC: martin@dalecki.de, Thunder from the hill <thunder@ngforever.de>,
+       Peter Chubb <peter@chubb.wattle.id.au>, Pavel Machek <pavel@ucw.cz>,
+       Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.28 and partitions
+References: <Pine.GSO.4.21.0208011709390.12627-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Furthermore I think this design does not take into consideration of
-> multiprocessor issues such as cache-bouncing, cache-warmthness etc.,
-> And also the original implementation of the slab cache in the Linux
-> kernel did not have per cpu support (I am not sure if the paper takes
-> into consideration of SMP etc., also). So this assumption needs to be
-> examined in the light of SMP, NUMA etc., I would like to explore the
-> possibility of changing this assumption if possible in lieu of SMP/NUMA
-> cache effects.
->
-> In the present design there is a limit on how many free objects are held
-> in the per cpu array. So when an object is freed it might end in another
-> cpu more often.  The main cost lies in memory latency than execution of
-> initializing the fields.  I doubt if we get the same gain as explained in
-> the paper by preserving the fields between uses on an SMP/NUMA machines.
+Uz.ytkownik Alexander Viro napisa?:
+> 
+> Newsflash: for Homsky-3 grammar "reg exp guessing" _IS_ complete parser
+> in the formal sense.
 
-Bonwick has a newer paper
-(http://www.usenix.org/events/usenix01/bonwick.html)
-that describes how per cpu support can be added.  I've forgotten my Usenix
-password, so I can't get the full text of the paper online at the moment.
-But, if I recall correctly his magazine layer included support to
-dynamically
-adjust the size of the per-cpu lists.
+Unsually only unless you compre it with your *intentions*.
+Please don't confuse definition of grammar with parser implementation
+despite that fact the reg-exp stuff is looking like declarative
+programming. Whot it does is *not* always equivalent to what it should.
+OK?
 
-The question becomes: Are the performance benefits high enough to justify
-this extra code complexity?  Especially as tuning using /proc/slabinfo is
-already available to mitigate problems that are bad enough for people to
-notice.
+>>>is tough".  Examples on demand, including real gems like
+>>>	fread(&foo, sizeof(foo), 1, fp);
+>>>	if (foo.x >= 100000 || foo.y >= 100000)
+>>>		/* fail and exit */
+>>>	p = (char *)malloc(foo.x * foo.y);
+>>>	if (!p)
+>>>		/* fail and exit */
+>>>	for (i = 0; i < foo.x; i++)
+>>>		fread(p + i*foo.y. 1, foo.y, fp);
+>>>and similar wonders (if anybody wonders what's wrong with the code above,
+>>>you need to learn how multiplication is defined on int and compare 10^10 with
+>>>2^32).  And yes, it's real-life code, from often-used programs.  Used on
+>>>untrusted data, at that.
+>>
+>>Storing the constants in question in the above code sample
+>>as ASCII at the start of where foo is pointing at, would have hardly
+>>saved the poor overworked programmers mind from precisely the same
+>>mistake he did above. (Needless to say that you actually forgott
+>>to mention that the code fails on <= 32 bit systems. Inestad of 
+>>providing te "hint" for guessing where the actual error is.)
+> 
+> 
+> Huh???
+> 
+> you: "it's easy to screw up when working with ASCII strings"
+> me: "tossers will find a way to screw up on anything, no matter what it is;
+>      see example of tosser screwing up on plain arithmetics"
+> you: "use of ASCII wouldn't help them in that case"
+> 
 
-Can you quantify the SMP/NUMA benefits?  I took some measurements a while
-ago that showed that a huge percentage of slab allocations were freed by the
-same cpu after a very short lifetime.  I didn't look into how often the
-problems that you cite occur.
+Scratch the above: I tell you: "Not unsing ASCII is greatly
+diminishing the propability of the occurrance of the error."
+And error rate depends on the size of code. No matter how
+perfect you think someone has to be as a coder.
+  No code - no errors. The same buggy code twice - twice the same errors.
 
-> I agree that preserving read only variables that can be used between uses
-> will help performance. We still can do that by revising the assumption to
-> leave the first 4 or whatever bytes needed to store the links. What do you
-> think?
+> Sure thing, it wouldn't.  _Nothing_ short of acquiring some clue would.
+> Possible solutions:
+> 	A) replace all arithmetics with BIGNUMs (and just you wait for
+> first out-of-memory)
+> 	B) get rid of tossers.
+> 
+> Matter of taste, indeed, but I'd rather go for (B) - has a benefit of
+> solving many other problems.
 
-You'd need enough bytes to store your pointer (so "whatever" == 8 on 64-bit
-architectures).  Users that care to arrange the fields of their structures
-in "used together" order for better cache locality tend to put there efforts
-into the first elements of a structure.  You might get less resistance to
-change
-if you use the tail end of the object?  But this is a potentially big
-change.
-Drivers can create their own slab caches, and if you change the semantics,
-then
-you may well break something.
+No. The vomitting only moves to the time where you actually get your ass 
+up from the kernel and take a look at the code trying to use it. And 
+then it's more painfull. Go libproc or its relatives please. I don't
+blaim Albert for it! I blaim the interface.
+I don't try to tell you that binary interfaces are the best thing
+since slice bread. They are just less worse for the *actual* user.
 
--Tony
+That's the point.
+

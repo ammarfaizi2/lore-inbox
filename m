@@ -1,81 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263098AbUCPPfS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 10:35:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbUCPPcl
+	id S261930AbUCPOit (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 09:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbUCPOiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 10:32:41 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:2183 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263092AbUCPPcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 10:32:14 -0500
-Date: Tue, 16 Mar 2004 15:30:19 +0000
-From: Dave Jones <davej@redhat.com>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       jgarzik@pobox.com
-Subject: Re: [3C509] Fix sysfs leak.
-Message-ID: <20040316153018.GB17958@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Marc Zyngier <mzyngier@freesurf.fr>, linux-kernel@vger.kernel.org,
-	torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com
-References: <200403152147.i2FLl09s002942@delerium.codemonkey.org.uk> <wrpad2hf4be.fsf@panther.wild-wind.fr.eu.org> <20040316134613.GA15600@redhat.com> <wrp3c88g9xu.fsf@panther.wild-wind.fr.eu.org> <20040316142951.GA17958@redhat.com> <wrpwu5kessd.fsf@panther.wild-wind.fr.eu.org>
+	Tue, 16 Mar 2004 09:38:19 -0500
+Received: from styx.suse.cz ([82.208.2.94]:62849 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S261919AbUCPOTn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 09:19:43 -0500
+Content-Transfer-Encoding: 7BIT
+Message-Id: <10794467772247@twilight.ucw.cz>
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH 17/44] Automatically decide how strictly to check the protocol in synaptics
+X-Mailer: gregkh_patchbomb_levon_offspring
+To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <wrpwu5kessd.fsf@panther.wild-wind.fr.eu.org>
-User-Agent: Mutt/1.4.1i
+Date: Tue, 16 Mar 2004 15:19:37 +0100
+In-Reply-To: <10794467772503@twilight.ucw.cz>
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 04:05:38PM +0100, Marc Zyngier wrote:
- > >>>>> "Dave" == Dave Jones <davej@redhat.com> writes:
- > 
- > Dave,
- > 
- > Dave> The damned bus doesn't even exist. If this is a case that couldn't be
- > Dave> detected, I'd not be complaining, but this is just nonsense having
- > Dave> a driver claim that its found an EISA device, when there aren't even
- > Dave> any EISA slots on the board.
- > 
- > The driver doesn't claim to have found any device. It just registered
- > to the EISA framework, which you compiled in for a reason.
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/input
 
-which is valid for a single kernel image that supports boxes both with
-and without eisa (ie, vendor kernels).
+===================================================================
 
- > Unload the driver and the directory will go.
-
-no it doesn't, which is the whole purpose of the patch I sent.
-try it..
-
-modprobe 3c509
-lsmod | grep 3c509     # module didnt stay around
-find /sys | grep 3c509 # oh look, it left crap in sysfs
+ChangeSet@1.1608.54.3, 2004-03-03 00:29:09-05:00, dtor_core@ameritech.net
+  Input: Switch between strict/relaxed synaptics protocol checks based on
+         data in the first full data packet. Having strict checks helps
+         getting rid of bad data after losing sync, but not all harware
+         implements strict protocol.
 
 
- > Dave> This happens long after bus initialisation should have already figured
- > Dave> out that the bus doesn't exist. Even if it was left this late, the
- > Dave> eisa registration code should be doing a 'oh, I've not even checked
- > Dave> if I have a bus yet, I'll do it now' before it starts doing completely
- > Dave> bogus things like checking for devices.
- > 
- > Sure. When EISA bus is hanging off the PCI bus, which haven't been
- > probed yet ?
+ synaptics.c |   53 +++++++++++++++++++++++++++++++++++++++++------------
+ synaptics.h |    7 +++++++
+ 2 files changed, 48 insertions(+), 12 deletions(-)
 
-We have multiple levels of initcalls for a reason. Whilst they suck in a lot
-of ways, they can be used to enforce dependancies like this.
+===================================================================
 
- > When the driver registers, the EISA framework may not
- > have a f*cking clue about where the EISA bus sits, or if it even
- > exists.
-
-Why is this even an issue so late on? Bus probing should have been done as
-part of bootup. By the time I get to modprobing device drivers, it should have
-been determined already.
-
-Your argument seems to be "probing is hard, so we don't do it", which is
-just *wrong*.
-
-		Dave
+diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+--- a/drivers/input/mouse/synaptics.c	Tue Mar 16 13:19:03 2004
++++ b/drivers/input/mouse/synaptics.c	Tue Mar 16 13:19:03 2004
+@@ -435,6 +435,8 @@
+ 		goto init_fail;
+ 	}
+ 
++	priv->pkt_type = SYN_MODEL_NEWABS(priv->model_id) ? SYN_NEWABS : SYN_OLDABS;
++
+ 	if (SYN_CAP_EXTENDED(priv->capabilities) && SYN_CAP_PASS_THROUGH(priv->capabilities))
+        		synaptics_pt_create(psmouse);
+ 
+@@ -602,19 +604,42 @@
+ 	input_sync(dev);
+ }
+ 
+-static int synaptics_validate_byte(struct psmouse *psmouse)
++static int synaptics_validate_byte(unsigned char packet[], int idx, unsigned char pkt_type)
+ {
+-	static unsigned char newabs_mask[] = { 0xC0, 0x00, 0x00, 0xC0, 0x00 };
+-	static unsigned char newabs_rslt[] = { 0x80, 0x00, 0x00, 0xC0, 0x00 };
+-	static unsigned char oldabs_mask[] = { 0xC0, 0x60, 0x00, 0xC0, 0x60 };
+-	static unsigned char oldabs_rslt[] = { 0xC0, 0x00, 0x00, 0x80, 0x00 };
+-	struct synaptics_data *priv = psmouse->private;
+-	int idx = psmouse->pktcnt - 1;
++	static unsigned char newabs_mask[]	= { 0xC8, 0x00, 0x00, 0xC8, 0x00 };
++	static unsigned char newabs_rel_mask[]	= { 0xC0, 0x00, 0x00, 0xC0, 0x00 };
++	static unsigned char newabs_rslt[]	= { 0x80, 0x00, 0x00, 0xC0, 0x00 };
++	static unsigned char oldabs_mask[]	= { 0xC0, 0x60, 0x00, 0xC0, 0x60 };
++	static unsigned char oldabs_rslt[]	= { 0xC0, 0x00, 0x00, 0x80, 0x00 };
++
++	switch (pkt_type) {
++		case SYN_NEWABS:
++		case SYN_NEWABS_RELAXED:
++			return (packet[idx] & newabs_rel_mask[idx]) == newabs_rslt[idx];
++
++		case SYN_NEWABS_STRICT:
++			return (packet[idx] & newabs_mask[idx]) == newabs_rslt[idx];
++
++		case SYN_OLDABS:
++			return (packet[idx] & oldabs_mask[idx]) == oldabs_rslt[idx];
+ 
+-	if (SYN_MODEL_NEWABS(priv->model_id))
+-		return (psmouse->packet[idx] & newabs_mask[idx]) == newabs_rslt[idx];
+-	else
+-		return (psmouse->packet[idx] & oldabs_mask[idx]) == oldabs_rslt[idx];
++		default:
++			printk(KERN_ERR "synaptics: unknown packet type %d\n", pkt_type);
++			return 0;
++	}
++}
++
++static unsigned char synaptics_detect_pkt_type(struct psmouse *psmouse)
++{
++	int i;
++
++	for (i = 0; i < 5; i++)
++		if (!synaptics_validate_byte(psmouse->packet, i, SYN_NEWABS_STRICT)) {
++			printk(KERN_INFO "synaptics: using relaxed packet validation\n");
++			return SYN_NEWABS_RELAXED;
++		}
++
++	return SYN_NEWABS_STRICT;
+ }
+ 
+ void synaptics_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
+@@ -630,13 +655,17 @@
+ 			printk(KERN_NOTICE "Synaptics driver resynced.\n");
+ 		}
+ 
++		if (unlikely(priv->pkt_type == SYN_NEWABS))
++			priv->pkt_type = synaptics_detect_pkt_type(psmouse);
++
+ 		if (psmouse->ptport && psmouse->ptport->serio.dev && synaptics_is_pt_packet(psmouse->packet))
+ 			synaptics_pass_pt_packet(&psmouse->ptport->serio, psmouse->packet);
+ 		else
+ 			synaptics_process_packet(psmouse);
+ 		psmouse->pktcnt = 0;
+ 
+-	} else if (psmouse->pktcnt && !synaptics_validate_byte(psmouse)) {
++	} else if (psmouse->pktcnt &&
++		   !synaptics_validate_byte(psmouse->packet, psmouse->pktcnt - 1, priv->pkt_type)) {
+ 		printk(KERN_WARNING "Synaptics driver lost sync at byte %d\n", psmouse->pktcnt);
+ 		psmouse->pktcnt = 0;
+ 		if (++priv->out_of_sync == psmouse_resetafter) {
+diff -Nru a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+--- a/drivers/input/mouse/synaptics.h	Tue Mar 16 13:19:03 2004
++++ b/drivers/input/mouse/synaptics.h	Tue Mar 16 13:19:03 2004
+@@ -70,6 +70,12 @@
+ #define SYN_PS_SET_MODE2		0x14
+ #define SYN_PS_CLIENT_CMD		0x28
+ 
++/* synaptics packet types */
++#define SYN_NEWABS			0
++#define SYN_NEWABS_STRICT		1
++#define SYN_NEWABS_RELAXED		2
++#define SYN_OLDABS			3
++
+ /*
+  * A structure to describe the state of the touchpad hardware (buttons and pad)
+  */
+@@ -103,6 +109,7 @@
+ 	/* Data for normal processing */
+ 	unsigned int out_of_sync;		/* # of packets out of sync */
+ 	int old_w;				/* Previous w value */
++	unsigned char pkt_type;			/* packet type - old, new, etc */
+ };
+ 
+ #endif /* _SYNAPTICS_H */
 

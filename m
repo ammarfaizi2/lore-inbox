@@ -1,155 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUJODDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUJODHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265970AbUJODDU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 23:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUJODDU
+	id S265996AbUJODHU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 23:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266009AbUJODHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 23:03:20 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:22246 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S265970AbUJODDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 23:03:13 -0400
-Date: Thu, 14 Oct 2004 19:23:02 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: select, jiffies, and SIGALRM
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <008101c4b255$843cadf0$6601a8c0@northbrook>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-Content-type: text/plain; reply-type=original; charset=iso-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <fa.j10pg5k.1q08a2k@ifi.uio.no> <fa.je28id0.1i0sfq4@ifi.uio.no>
+	Thu, 14 Oct 2004 23:07:20 -0400
+Received: from ozlabs.org ([203.10.76.45]:32990 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265996AbUJODHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 23:07:17 -0400
+Subject: Re: 2.6.9-rc3-mm2
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dominik.karall@gmx.net,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Harald Welte <laforge@netfilter.org>
+In-Reply-To: <20041014190910.79cb2665.akpm@osdl.org>
+References: <20041004020207.4f168876.akpm@osdl.org>
+	 <200410051607.40860.dominik.karall@gmx.net>
+	 <1097804285.22673.47.camel@localhost.localdomain>
+	 <20041014184427.65d75324.akpm@osdl.org>
+	 <1097805925.22673.70.camel@localhost.localdomain>
+	 <20041014190910.79cb2665.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1097809631.22673.80.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 15 Oct 2004 13:07:27 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do you mean, adversely affected? Without knowing the interval of real 
-time elapsed between those lines, or what the app is doing with the timer, 
-it's hard to say what's going on.
+On Fri, 2004-10-15 at 12:09, Andrew Morton wrote:
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+> >
+> > > We were getting warnings from somewhere or other due to smp_processor_id()
+> >  > within preemptible code - I don't recall the callsite.
+> > 
+> >  That's weird, but implies bogosity in the caller.  Covering it up like
+> >  this is not necessarily a win.
+> 
+> umm.
+> 
+> 	ip_conntrack_cleanup
+> 	->ip_ct_selective_cleanup
+> 	  ->death_by_timeout
+> 	    ->CONNTRACK_STAT_INC
+> 
+> is one route.
 
+Yep, called on module removal.
 
------ Original Message ----- 
-From: "Vx Glenn" <VxGlenn@gmail.com>
-Newsgroups: fa.linux.kernel
-To: "Robert Hancock" <hancockr@shaw.ca>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Sent: Thursday, October 14, 2004 12:35 PM
-Subject: Re: select, jiffies, and SIGALRM
+Cheers,
+Rusty.
 
+Name: Avoid warning on CONNTRACK_STAT_INC in death_by_timeout()
+Status: Trivial
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-> Thanks for the insight. I looked more closely at the trace I have and
-> I see the POSIX timer is adversely affected by the wrap-around of the
-> jiffies counter.
->
-> getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={2146931,
-> 982728}}) = 0
-> getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={2146931,
-> 962731}}) = 0
-> getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={2146931,
-> 962731}}) = 0
-> getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={131, 
-> 601993}}) = 0
-> getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={131, 
-> 601993}}) = 0
-> getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={131, 
-> 601993}}) = 0
-> getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={131, 
-> 599993}}) = 0
-> getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={131, 
-> 599993}}) = 0
->
-> And when the SIGALRM fires, the app does not handle it.
->
-> My next question is, should the POSIX timer be affected like this? I
-> guess if it uses the jiffies counter, like everything else, it
-> probably would.
->
->
->
-> On Wed, 13 Oct 2004 21:28:26 -0600, Robert Hancock <hancockr@shaw.ca> 
-> wrote:
->> I see calls to getitimer, so I'm assuming it's also using setitimer. 
->> SIGALRM
->> is what you get when those timers go off - if it's not handling that, 
->> that's
->> a bug, but presumably the timer is in there for a reason..
->>
->>
->>
->>
->> ----- Original Message -----
->> From: "Vx Glenn" <VxGlenn@gmail.com>
->> Newsgroups: fa.linux.kernel
->> To: <linux-net@vger.kernel.org>; <linux-kernel@vger.kernel.org>
->> Sent: Wednesday, October 13, 2004 10:13 AM
->> Subject: select, jiffies, and SIGALRM
->>
->> > Hi all,
->> >
->> > I am seeing an issue relating to the jiffies counter wrapping around
->> > at 0x7FFFFFFF.
->> >
->> > This is a legacy application, and when it runs on 32-bit Unix-Like
->> > OS's, the application silently dies without leaving core after 248
->> > days.
->> >
->> > I was able to manipulate the jiffies counter and run the application.
->> > I was able to reproduce the problem. I captured an strace log, and I
->> > see that SIGALRM (alarm clock) is raised after select times out
->> > (because of no data).
->> >
->> > I can add a signal handler to intercept the SIGALRM. But my question
->> > is, why should the signal be raised?
->> >
->> > ---[ strace.log ]---
->> > select(1024, [3 4 5 6], NULL, NULL, {0, 320000}) = 0 (Timeout)
->> > getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={0, 
->> > 684895}})
->> > = 0
->> > adjtimex({modes=32769, offset=0, freq=0, maxerror=16384000,
->> > esterror=16384000, status=64, constant=2, precision=1,
->> > tolerance=33554432, time={1097551596, 43475}}) = 5
->> > getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={0, 
->> > 684895}})
->> > = 0
->> > select(1024, [3 4 5 6], NULL, NULL, {1, 0}) = ? ERESTARTNOHAND (To be
->> > restarted)
->> > --- SIGALRM (Alarm clock) @ 0 (0) ---
->> > Process 4881 detached
->> > ---[ eof strace.log ]---
->> >
->> >
->> > Anyone have any ideas?
->> >
->> >
->> > --
->> > You're not your Job;
->> > You're not the contents of your wallet.
->> > You're the all singing all dancing crap of the world
->> > -
->> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
->> > in
->> > the body of a message to majordomo@vger.kernel.org
->> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> > Please read the FAQ at  http://www.tux.org/lkml/
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" 
->> in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->
->
-> -- 
-> Get Firefox
-> http://getfirefox.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/ 
+Module removal can call death_by_timeout() manually, which isn't in
+softirq context, so the CONNTRACK_STAT_INC() call there (which assumes
+preempt disabled) can give a warning.  Of course, the warning here is
+spurious, but the simplest workaround is to call CONNTRACK_STAT_INC()
+inside the lock.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .29431-linux-2.6.9-rc4-bk2/net/ipv4/netfilter/ip_conntrack_core.c .29431-linux-2.6.9-rc4-bk2.updated/net/ipv4/netfilter/ip_conntrack_core.c
+--- .29431-linux-2.6.9-rc4-bk2/net/ipv4/netfilter/ip_conntrack_core.c	2004-10-11 15:17:21.000000000 +1000
++++ .29431-linux-2.6.9-rc4-bk2.updated/net/ipv4/netfilter/ip_conntrack_core.c	2004-10-15 13:05:52.000000000 +1000
+@@ -328,9 +328,10 @@ static void death_by_timeout(unsigned lo
+ {
+ 	struct ip_conntrack *ct = (void *)ul_conntrack;
+ 
+-	CONNTRACK_STAT_INC(delete_list);
+-
+ 	WRITE_LOCK(&ip_conntrack_lock);
++	/* Inside lock so preempt is disabled on module removal path.
++	 * Otherwise we can get spurious warnings. */
++	CONNTRACK_STAT_INC(delete_list);
+ 	clean_from_lists(ct);
+ 	WRITE_UNLOCK(&ip_conntrack_lock);
+ 	ip_conntrack_put(ct);
+
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

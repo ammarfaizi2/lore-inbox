@@ -1,38 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264080AbRFSKev>; Tue, 19 Jun 2001 06:34:51 -0400
+	id <S264132AbRFSLCS>; Tue, 19 Jun 2001 07:02:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264053AbRFSKem>; Tue, 19 Jun 2001 06:34:42 -0400
-Received: from cs.huji.ac.il ([132.65.16.10]:33995 "EHLO cs.huji.ac.il")
-	by vger.kernel.org with ESMTP id <S264080AbRFSKe3>;
-	Tue, 19 Jun 2001 06:34:29 -0400
-Date: Tue, 19 Jun 2001 13:34:25 +0300 (IDT)
-From: Yoav Etsion <etsman@cs.huji.ac.il>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Tsafrir Dan <dants@cs.huji.ac.il>
-Subject: [BUG] bug in mmap_kmem
-Message-ID: <Pine.LNX.4.20_heb2.08.0106191305060.1005-100000@pomela2.cs.huji.ac.il>
+	id <S264141AbRFSLCI>; Tue, 19 Jun 2001 07:02:08 -0400
+Received: from [213.236.192.200] ([213.236.192.200]:36236 "EHLO
+	mail.circlestorm.org") by vger.kernel.org with ESMTP
+	id <S264132AbRFSLBt>; Tue, 19 Jun 2001 07:01:49 -0400
+Message-ID: <05fd01c0f8af$1d1a4500$d2c0ecd5@dead2>
+From: "Dead2" <dead2@circlestorm.org>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.20_heb2.08.0106191305060.1005-100000@pomela2.cs.huji.ac.il>
+Subject: Scsi
+Date: Tue, 19 Jun 2001 13:00:52 +0200
+Organization: CircleStorm Productions
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Attached below: original mail to the 'linux-scsi' list
+Please read attachment first.
 
-The problem is that mmaping a segment <addr,len> from /dev/kmem gives
-differnet results than reading the same <addr,len>.
+It seems that the Davicom NIC's is the problem in this system.
+I have tried to swap them with new davicom cards, and tried
+with only one of them.
 
-It seems that the bug is that mmap_kmem is a macro for mmap_mem (for
-/dev/mem).
-mmap_mem maps a _physical_ offset into a vm area vma, while mmap_kmem
-should map a _virtual_ offset into a vm area. 
+Davicom DM9102AF is the chip on all the cards.
+Adaptec SCSI 19160 Ultra160, 68/50pin  (7892B, rev2)
 
-I hacked it to work by copying mmap_mem to mmap_kmem and adding __pa() in
-the proper assginment, but I don't know how to check if the offset is
-valid in the kernel virtual memory. Maybe someone who knows the mm code
-better can fix this?
+I changed the Davicom's with Intel cards (same IRQ), and now it works
+flawlessly. I think this might be an error worth looking at..
 
-Thanks,
+Hans K. Rosbach  aka. Dead2
+CircleStorm Productions
 
-Yoav Etsion
+
+
+
+-START ATTACHMENT-
+
+Hi, i'm getting the following errors constantly while accessing my scsi disk
+(10x per second or more)
+
+"Kernel: scsi0: PCI error Interrupt at seqaddr = 0x*"
+"Kernel: scsi0: Data Parity Error Detected during address or write data
+phase"
+(where * is a number, most often 8 or 9)
+
+I'm running Kernel 2.4.6pre1 (also got it with 2.4.5)
+Worked fine with the distro's kernel 2.4.0
+
+Hardware:
+  Adaptec SCSI 19160 Ultra160, 68/50pin  (7892B, rev2)
+  MSI K7T-PRO2 motherboard (VIA chipset)
+  Amd Duron 750Mhz cpu
+  Winbond SDRAM (7ns)
+  2x Davicom PCI 10/100 cards
+  ATI 3D Rage IIc AGP
+
+The computer is running SuSE 7.1 without X or other fancy
+packages, as it is going to run a squid cache server.
+
+The Scsi drivers are compiled into the kernel.
+
+Hans K. Rosbach  aka. Dead2
+CircleStorm Productions
+
+-END ATTACHMENT-
 

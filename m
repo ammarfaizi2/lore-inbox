@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318062AbSIJTcz>; Tue, 10 Sep 2002 15:32:55 -0400
+	id <S318040AbSIJTYg>; Tue, 10 Sep 2002 15:24:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318060AbSIJTcy>; Tue, 10 Sep 2002 15:32:54 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:2730 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318058AbSIJTcx>;
-	Tue, 10 Sep 2002 15:32:53 -0400
-Date: Tue, 10 Sep 2002 12:37:32 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
-Message-ID: <20020910123732.A15175@eng2.beaverton.ibm.com>
-References: <20020910114257.A13614@eng2.beaverton.ibm.com> <Pine.LNX.4.44.0209101145550.1032-100000@cherise.pdx.osdl.net>
+	id <S318044AbSIJTYf>; Tue, 10 Sep 2002 15:24:35 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:35076
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S318040AbSIJTYf>; Tue, 10 Sep 2002 15:24:35 -0400
+Subject: Re: XFS?
+From: Robert Love <rml@tech9.net>
+To: Shawn <core@enodev.com>
+Cc: Mike Galbraith <efault@gmx.de>, Andi Kleen <ak@suse.de>,
+       Thunder from the hill <thunder@lightweight.ods.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020910142347.A5000@q.mn.rr.com>
+References: <p73wupuq34l.fsf@oldwotan.suse.de>
+	<20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel>
+	<Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.lin
+	 ux.kernel> <p73wupuq34l.fsf@oldwotan.suse.de>
+	<20020909162050.B4781@q.mn.rr.com>
+	<5.1.0.14.2.20020910190828.00b27258@pop.gmx.net> 
+	<20020910142347.A5000@q.mn.rr.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 10 Sep 2002 15:29:17 -0400
+Message-Id: <1031686158.945.11.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.44.0209101145550.1032-100000@cherise.pdx.osdl.net>; from mochel@osdl.org on Tue, Sep 10, 2002 at 12:00:47PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 10, 2002 at 12:00:47PM -0700, Patrick Mochel wrote:
-> 
-> On Tue, 10 Sep 2002, Patrick Mansfield wrote:
-> 
-> > On Tue, Sep 10, 2002 at 10:21:53AM -0700, Patrick Mochel wrote:
-> > > Easy: you map the unique identifier of the device to a name in userspace.  
-> > > In our utopian future, /sbin/hotplug is called with that unique ID as one
-> > > of its parameters. It searches for, and finds names based on the ID is. If
-> > > the name(s) already exist, then it doesn't continue.
-> > > 
-> > > 
-> > > 	-pat
-> > 
-> > But then if the md or volume manager wants to do multi-path IO it
-> > will not be able to find all of the names in userspace since the
-> > extra ones (second path and on) have been dropped.
-> 
-> Which is it that you want? One canonical name or all the paths? I supplied
-> a solution for the former in my repsonse. The latter is solved via the
-> exposure of the paths in driverfs, which has been discussed previously.
-> 
-> 
-> 	-pat
+On Tue, 2002-09-10 at 15:23, Shawn wrote:
 
-For scsi multi-path, one name; without scsi multi-path (or for individual
-paths that are not exposed in driverfs) each path probably needs to show up
-in user space with a different name so md or other volume managers can use
-them.
+> If this is correct, could I then make the assumption that merging XFS
+> would be minimally impactful for those kernel user who do not enable it?
 
--- Patrick Mansfield
+Yes, and I think it will go in.  It has just not made it passed Linus's
+filters yet, but it will - hch knows what he is doing.
+
+	Robert Love
+
+

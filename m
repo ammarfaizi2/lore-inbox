@@ -1,92 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264082AbUECVkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264057AbUECVlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264082AbUECVkY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 17:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbUECVkY
+	id S264057AbUECVlO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 17:41:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264039AbUECVlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 17:40:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3979 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264085AbUECVjK (ORCPT
+	Mon, 3 May 2004 17:41:02 -0400
+Received: from pop.gmx.net ([213.165.64.20]:62139 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264057AbUECVic (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 17:39:10 -0400
-Date: Mon, 3 May 2004 14:41:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH][SELINUX] Re-open descriptors closed on exec by SELinux
- to /dev/null
-Message-Id: <20040503144130.42ba1fda.akpm@osdl.org>
-In-Reply-To: <1083603014.7446.197.camel@moss-spartans.epoch.ncsc.mil>
-References: <1083603014.7446.197.camel@moss-spartans.epoch.ncsc.mil>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 3 May 2004 17:38:32 -0400
+X-Authenticated: #21910825
+Message-ID: <4096BBC8.60509@gmx.net>
+Date: Mon, 03 May 2004 23:38:16 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Netdev <netdev@oss.sgi.com>, Jeff Garzik <jgarzik@pobox.com>
+Subject: [PATCH] tulip driver deadlocks on device removal
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley <sds@epoch.ncsc.mil> wrote:
->
-> +/* Create an open file that refers to the null device.
-> +   Derived from the OpenWall LSM. */
-> +struct file *open_devnull(void) 
-> +{
-> +	struct inode *inode;
-> +	struct dentry *dentry;
-> +	struct file *file = NULL;
-> +	struct inode_security_struct *isec;
-> +	dev_t dev;
-> +
-> +	inode = new_inode(current->fs->rootmnt->mnt_sb);
-> +	if (!inode)
-> +		goto out;
-> +
-> +	dentry = dget(d_alloc_root(inode));
-> +	if (!dentry)
-> +		goto out_iput;
-> +
-> +	file = get_empty_filp();
-> +	if (!file)
-> +		goto out_dput;
-> +
-> +	dev = MKDEV(MEM_MAJOR, 3); /* null device */
-> +
-> +	inode->i_uid = current->fsuid;
-> +	inode->i_gid = current->fsgid;
-> +	inode->i_blksize = PAGE_SIZE;
-> +	inode->i_blocks = 0;
-> +	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-> +	inode->i_state = I_DIRTY; /* so that mark_inode_dirty won't touch us */
-> +
-> +	isec = inode->i_security;
-> +	isec->sid = SECINITSID_DEVNULL;
-> +	isec->sclass = SECCLASS_CHR_FILE;
-> +	isec->initialized = 1;
-> +
-> +	file->f_flags = O_RDWR;
-> +	file->f_mode = FMODE_READ | FMODE_WRITE;
-> +	file->f_dentry = dentry;
-> +	file->f_vfsmnt = mntget(current->fs->rootmnt);
-> +	file->f_pos = 0;
-> +
-> +	init_special_inode(inode, S_IFCHR | S_IRUGO | S_IWUGO, dev);
-> +	if (inode->i_fop->open(inode, file))
-> +		goto out_fput;
-> +
-> +out:
-> +	return file;
-> +out_fput:
-> +	mntput(file->f_vfsmnt);
-> +	put_filp(file);
-> +out_dput:	
-> +	dput(dentry);
-> +out_iput:	
-> +	iput(inode);
-> +	file = NULL;
-> +	goto out;
-> +}
+Hi,
 
-That seems to be a heck of a lot of code to get a file* which refers to
-/dev/null.  I guess calling flip_open("/dev/null") is a bit grubby, but are
-you sure there's no simpler way?
+I have a CardBus network card with tulip chipset:
+# lspci -nv
+[...]
+0000:05:00.0 Class 0200: 13d1:ab02 (rev 11)
+        Subsystem: 13d1:ab02
+        Flags: bus master, medium devsel, latency 64, IRQ 11
+        I/O ports at 4800 [size=268M]
+        Memory at 11000000 (32-bit, non-prefetchable) [size=1K]
+        Expansion ROM at 00020000 [disabled]
+        Capabilities: [c0] Power Management version 2
+
+If I remove the card, my machine freezes instantly. This is due to a
+stupid dev->poll function of the tulip driver.
+
+drivers/net/tulip/interrupt.c:tulip_poll() gets stuck in an endless loop
+in interrupt context if the hardware returns 0xffffffff on certain reads.
+But this is exactly what happens if you remove a pci device.
+
+My patch replaces the deadlock with something resembling a livelock. At
+least SysRq-S works now because we leave the poll function after some time.
+
+However, the poll function is called again and again and again regardless
+of its return value. How can I stop that?
+
+Carl-Daniel
+
+--- a/drivers/net/tulip/interrupt.c	2004-05-03 20:31:14.000000000 +0200
++++ b/drivers/net/tulip/interrupt.c	2004-05-03 20:51:06.000000000 +0200
+@@ -113,6 +113,7 @@
+ 	int entry = tp->cur_rx % RX_RING_SIZE;
+ 	int rx_work_limit = *budget;
+ 	int received = 0;
++	int innercnt = 0;
+
+ 	if (!netif_running(dev))
+ 		goto done;
+@@ -129,10 +130,12 @@
+ #endif
+
+ 	if (tulip_debug > 4)
+-		printk(KERN_DEBUG " In tulip_rx(), entry %d %8.8x.\n", entry,
++		printk(KERN_DEBUG " In tulip_poll(), entry %d %8.8x.\n", entry,
+ 			   tp->rx_ring[entry].status);
+
+        do {
++		innercnt++;
++
+                /* Acknowledge current RX interrupt sources. */
+                outl((RxIntr | RxNoBuf), dev->base_addr + CSR5);
+
+@@ -141,12 +144,13 @@
+                while ( ! (tp->rx_ring[entry].status & cpu_to_le32(DescOwned))) {
+                        s32 status = le32_to_cpu(tp->rx_ring[entry].status);
+
++			innercnt = 0;
+
+                        if (tp->dirty_rx + RX_RING_SIZE == tp->cur_rx)
+                                break;
+
+                        if (tulip_debug > 5)
+-                               printk(KERN_DEBUG "%s: In tulip_rx(), entry %d %8.8x.\n",
++                               printk(KERN_DEBUG "%s: In tulip_poll(), entry %d %8.8x.\n",
+                                       dev->name, entry, status);
+                        if (--rx_work_limit < 0)
+                                goto not_done;
+@@ -254,6 +258,11 @@
+                 * No idea how to fix this if "playing with fire" will fail
+                 * tomorrow (night 011029). If it will not fail, we won
+                 * finally: amount of IO did not increase at all. */
++		if (innercnt > 5) {
++			printk(KERN_INFO "More than five loops without doing anything!\n");
++			goto not_done;
++		}
++
+        } while ((inl(dev->base_addr + CSR5) & RxIntr));
+
+ done:
+@@ -321,8 +330,10 @@
+          return 0;
+
+  not_done:
+-         if (!received) {
++         if (!received && (innercnt <= 5)) {
+
++		printk(KERN_NOTICE "tulip_poll: Bugger. This does not happen.\n");
++		/* If it is not going to happen, why do anything about it? */
+                  received = dev->quota; /* Not to happen */
+          }
+          dev->quota -= received;
 

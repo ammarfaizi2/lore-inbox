@@ -1,102 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUJHV5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUJHWHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265805AbUJHV5h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 17:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUJHV5h
+	id S265996AbUJHWHm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 18:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUJHWHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 17:57:37 -0400
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:56002 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S265805AbUJHV53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 17:57:29 -0400
-Date: Fri, 8 Oct 2004 22:57:25 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Paolo Giarrusso <blaisorblade_personal@yahoo.it>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: [patch 1/1] dm: fix printk warnings about whether %lu/%Lu is
- right for sector_t
-In-Reply-To: <200410082245.39119.blaisorblade_personal@yahoo.it>
-Message-ID: <Pine.LNX.4.60.0410082221340.26699@hermes-1.csi.cam.ac.uk>
-References: <20041008144034.EB891B557@zion.localdomain>
- <20041008121239.464151bd.akpm@osdl.org> <Pine.LNX.4.60.0410082105351.26699@hermes-1.csi.cam.ac.uk>
- <200410082245.39119.blaisorblade_personal@yahoo.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Fri, 8 Oct 2004 18:07:42 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:26335 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S265971AbUJHWHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 18:07:40 -0400
+Subject: Re: [PATCH] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
+       "Jack O'Quin" <joq@io.com>
+In-Reply-To: <20041008145252.M2357@build.pdx.osdl.net>
+References: <87k6ubcccl.fsf@sulphur.joq.us>
+	 <1096663225.27818.12.camel@krustophenia.net>
+	 <20041001142259.I1924@build.pdx.osdl.net>
+	 <1096669179.27818.29.camel@krustophenia.net>
+	 <20041001152746.L1924@build.pdx.osdl.net> <877jq5vhcw.fsf@sulphur.joq.us>
+	 <1097193102.9372.25.camel@krustophenia.net>
+	 <1097269108.1442.53.camel@krustophenia.net>
+	 <20041008144539.K2357@build.pdx.osdl.net>
+	 <1097272140.1442.75.camel@krustophenia.net>
+	 <20041008145252.M2357@build.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1097273105.1442.78.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Oct 2004 18:05:06 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Oct 2004, Paolo Giarrusso wrote:
-> On Friday 08 October 2004 22:11, Anton Altaparmakov wrote:
-> > On Fri, 8 Oct 2004, Andrew Morton wrote:
-> > > blaisorblade_spam@yahoo.it wrote:
-> > Actually %Ld is completely wrong.  I know in the kernel it makes no
-> > difference but people see it in the kernel and then go off an use it in
-> > userspace and it generates junk output on at least some architectures.
-> Well, gcc does not complain, and the problem is not "kernel is special" or "on 
-> some arch it's different". It's an alias for "ll" for both gcc and glibc; I 
-> checked, in fact, the version below of info pages for glibc:
-
-gcc is not the only compiler and glibc is not the only C library.
-
-> This is Edition 0.10, last updated 2001-07-06, of `The GNU C Library
-> Reference Manual', for Version 2.3.x of the GNU C Library.
-> (I guess the "last update" is botched).
+On Fri, 2004-10-08 at 17:52, Chris Wright wrote:
+> * Lee Revell (rlrevell@joe-job.com) wrote:
+> > On Fri, 2004-10-08 at 17:45, Chris Wright wrote:
+> > > > --- linux-2.6.8.1/security/realtime.c	Wed Dec 31 18:00:00 1969
+> > > > +++ linux-2.6.8.1-rt02/security/realtime.c	Mon Oct  4 21:35:41 2004
+> > > > +static int any = 0;			/* if TRUE, any process is realtime */
+> > > 
+> > > unecessary init to 0
+> > > 
+> > 
+> > I think gcc 3.4 complains otherwise.
 > 
-> > This is because %L means "long double (floating point)" not "long long
-> > integer" and when you stuff an integer into it it goes wrong (on some
-> > architectures)... 
-> I think an all ones, or at least on i386.
+> Nah, it's fine.
+> 
+> $ grep 'int any' security/realtime.c
+> static int any;                 /* if TRUE, any process is realtime */
+> $ make security/realtime.o
+>   CC      security/realtime.o
+> $ gcc --version
+> gcc (GCC) 3.4.2 20040907 (Red Hat 3.4.2-2)
 
-Yes I know in the kernel and on i386 it makes no difference, I said that 
-already.  But on some systems it does make a difference.  I have seen it 
-myself and I have had it reported.  Thinking about it when I said 
-architectures I possibly meant to say "other Unix flavours", I think one 
-of the *BSDs was the one where I saw the difference between %L and %ll 
-manifest itself.
+So MODULE_PARM_DESC is neccesary even when using module_param instear of
+MODULE_PARM?
 
-> > From the printf(3) man page: 
-> Outdated.
+Lee
 
-Sorry, it is not.  I find it somewhat strange that you choose gcc and 
-glibc to say what is correct...  Ever heard of standards?!?
-
-Quoting from C99 standard (ISO/IEC 9899:1999(E)):
-
-[cut here]
-ll (ell-ell) Specifies that a following d, i, o, u, x, or X conversion
-	     specifier applies to a long long int or unsigned long long
-	     int argument; or that a following n conversion specifier
-	     applies to a pointer to a long long int argument.
-[snip]
-L	     Specifies that a following a, A, e, E, f, F, g, or G
-	     conversion specifier applies to a long double argument. 
-
-If a length modifier appears with any conversion specifier other than as 
-specified above, the behavior is undefined.
-[cut here]
-
-So the C99 standard specifies the use of %L with an integer type 
-conversion specified is undefined.  So relying on %L being an alias for 
-%ll considering there are systems where this is not the case seems stupid 
-to me but hey I don't really care.  I just thought I would let people who 
-don't know it know.  If you want to carry on using %L because it works in 
-the kernel be my guest.
-
-Best regards,
-
-	Anton
-
-PS. Just don't submit patches containing %L for fs/ntfs/* or I will flame 
-you to crisp as we share code with userspace libntfs and ntfsprogs and I 
-and other NTFS developers care about our code being portable and working 
-on as many architectures and OS as possible.  (-;
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVCVX5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVCVX7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbVCVX5t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 18:57:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVCVX5s
+	id S262538AbVCVX7v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 18:59:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVCVX7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 18:57:48 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:5836
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262492AbVCVX5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 18:57:41 -0500
-Date: Tue, 22 Mar 2005 15:56:01 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: hugh@veritas.com, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-Message-Id: <20050322155601.28369fe9.davem@davemloft.net>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F03211851@scsmsx401.amr.corp.intel.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F03211851@scsmsx401.amr.corp.intel.com>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Mar 2005 18:59:46 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:7024 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262507AbVCVX6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 18:58:30 -0500
+Date: Tue, 22 Mar 2005 17:57:11 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: lseek on /proc/kmsg
+In-reply-to: <3KXou-8ft-3@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <4240B0D7.4000209@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3KWsu-7dO-13@gated-at.bofh.it> <3KXeQ-83A-7@gated-at.bofh.it>
+ <3KXou-8ft-3@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005 15:53:08 -0800
-"Luck, Tony" <tony.luck@intel.com> wrote:
+linux-os wrote:
+> On Tue, 22 Mar 2005, Jan Engelhardt wrote:
+> 
+>> Hi,
+>>
+>>> how am I supposed to clear the kmsg buffer since it's not a terminal??
+>>
+>>
+>> fd = open("/proc/kmsg", O_RDONLY | O_NONBLOCK);
+>> while(read(fd, buf, sizeof(buf)) > 0);
+>> if(errno == EAGAIN) { printf("Clear!\n"); }
+>>
+>> This is language (spoken-wise) neutral :p
+>>
+> 
+> Gawd, you are a hacker. I already have to suck on pipes
+> because I can't seek them. Now, I can't even seek a
+> file-system???!!
 
-> But I'm still confused by all the math on addr/end at each
-> level.  Rounding up/down at each level should presumably be
-> based on the size of objects at the next level.  So the pgd
-> code should round using PUD_MASK, pud should use PMD_MASK etc.
-> Perhaps I missed some updates, but the version of the patch
-> that I have (and the simulator) is using PMD_MASK in the
-> pgd_free_range() function ... which is surely wrong.
+I'm not sure that seek makes any sense on that, since it is more like a 
+pipe than a normal file..
 
-PMD_MASK decides the smallest page table chunk, so we mask
-it at the top level.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Look at the next level down in the call chain, the masking
-maskes more sense there.

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262440AbSJ0PrS>; Sun, 27 Oct 2002 10:47:18 -0500
+	id <S262441AbSJ0P4P>; Sun, 27 Oct 2002 10:56:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262441AbSJ0PrS>; Sun, 27 Oct 2002 10:47:18 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:21472 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262440AbSJ0PrR>;
-	Sun, 27 Oct 2002 10:47:17 -0500
-Date: Sun, 27 Oct 2002 10:53:10 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Peter Waechtler <pwaechtler@mac.com>
-cc: linux-kernel@vger.kernel.org, jakub@redhat.com, torvalds@transmeta.com
-Subject: Re: [PATCH] unified SysV and Posix mqueues as FS
-In-Reply-To: <3DBC075B.AF32C23@mac.com>
-Message-ID: <Pine.GSO.4.21.0210271052170.1416-100000@steklov.math.psu.edu>
+	id <S262442AbSJ0P4P>; Sun, 27 Oct 2002 10:56:15 -0500
+Received: from momus.sc.intel.com ([143.183.152.8]:37602 "EHLO
+	momus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S262441AbSJ0P4O> convert rfc822-to-8bit; Sun, 27 Oct 2002 10:56:14 -0500
+content-class: urn:content-classes:message
+Subject: typo in 2.4.19 free_area_init_core()?
+Date: Sun, 27 Oct 2002 08:01:23 -0800
+Message-ID: <51568623CC066847A1DC7EB0D95B587AD2CD@fmsmsx405.fm.intel.com>
+X-MS-Has-Attach: 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MS-TNEF-Correlator: 
+Thread-Topic: typo in 2.4.19 free_area_init_core()?
+Thread-Index: AcJ90hWzCuWr4VhvQMauUl7wXJmKFA==
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: <marcelo@conectiva.com.br>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 27 Oct 2002 16:01:24.0324 (UTC) FILETIME=[19711240:01C27DD2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo,
+
+Is this a typo in function free_area_init_core()?  The information on realsize is more interesting than the size variable.
 
 
-On Sun, 27 Oct 2002, Peter Waechtler wrote:
 
-> I applied the patch from Jakub against 2.5.44
-> There are still open issues but it's important to get this in before
-> feature freeze.
-> 
-> While you can implement Posix mqueues in userland (Irix is doing this
-> with fcntl(fd,F_SETLKW,) and shmem) a kernel implementation has some advantages:
-
-*thud*
-
-ioctls on _directories_, of all things?
-
+--- mm/page_alloc.c~	Sun Oct 27 00:46:10 2002
++++ mm/page_alloc.c	Sun Oct 27 00:46:35 2002
+@@ -735,7 +735,7 @@
+ 		if (zholes_size)
+ 			realsize -= zholes_size[j];
+ 
+-		printk("zone(%lu): %lu pages.\n", j, size);
++		printk("zone(%lu): %lu pages.\n", j, realsize);
+ 		zone->size = size;
+ 		zone->name = zone_names[j];
+ 		zone->lock = SPIN_LOCK_UNLOCKED;

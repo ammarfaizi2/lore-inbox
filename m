@@ -1,205 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbVCIWj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262416AbVCIWj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262497AbVCIWj4 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262416AbVCIWj4 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 9 Mar 2005 17:39:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVCIWiR
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVCIWjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 17:38:17 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:43567 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262416AbVCIWMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:12:14 -0500
-Date: Wed, 9 Mar 2005 22:11:23 +0000 (GMT)
+	Wed, 9 Mar 2005 17:39:23 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:48443 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261952AbVCIWMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:12:48 -0500
+Date: Wed, 9 Mar 2005 22:12:06 +0000 (GMT)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 8/15] ptwalk: zeromap_page_range
+Subject: [PATCH 9/15] ptwalk: unmap_page_range
 In-Reply-To: <Pine.LNX.4.61.0503092201070.6070@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0503092210480.6070@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0503092211280.6070@goblin.wat.veritas.com>
 References: <Pine.LNX.4.61.0503092201070.6070@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert zeromap_page_range pagetable walkers to loops using p?d_addr_end.
-Remove the redundant flush_tlb_range from afterwards: as its comment
-noted, there's already a BUG_ON(!pte_none).
+Convert unmap_page_range pagetable walkers to loops using p?d_addr_end.
+Move blanking of irrelevant details up to unmap_page_range as Nick did.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/memory.c |  143 ++++++++++++++++++++++--------------------------------------
- 1 files changed, 54 insertions(+), 89 deletions(-)
+ mm/memory.c |  119 ++++++++++++++++++++++++++----------------------------------
+ 1 files changed, 53 insertions(+), 66 deletions(-)
 
---- ptwalk7/mm/memory.c	2005-03-09 01:37:02.000000000 +0000
-+++ ptwalk8/mm/memory.c	2005-03-09 01:37:15.000000000 +0000
-@@ -975,113 +975,78 @@ out:
- 
- EXPORT_SYMBOL(get_user_pages);
- 
--static void zeromap_pte_range(struct mm_struct *mm, pte_t * pte,
--			      unsigned long address,
--			      unsigned long size, pgprot_t prot)
--{
--	unsigned long base, end;
--
--	base = address & PMD_MASK;
--	address &= ~PMD_MASK;
--	end = address + size;
--	if (end > PMD_SIZE)
--		end = PMD_SIZE;
-+static int zeromap_pte_range(struct mm_struct *mm, pmd_t *pmd,
-+			unsigned long addr, unsigned long end, pgprot_t prot)
-+{
-+	pte_t *pte;
-+
-+	pte = pte_alloc_map(mm, pmd, addr);
-+	if (!pte)
-+		return -ENOMEM;
- 	do {
--		pte_t zero_pte = pte_wrprotect(mk_pte(ZERO_PAGE(base+address), prot));
-+		pte_t zero_pte = pte_wrprotect(mk_pte(ZERO_PAGE(addr), prot));
- 		BUG_ON(!pte_none(*pte));
--		set_pte_at(mm, base+address, pte, zero_pte);
--		address += PAGE_SIZE;
--		pte++;
--	} while (address && (address < end));
--}
--
--static inline int zeromap_pmd_range(struct mm_struct *mm, pmd_t * pmd,
--		unsigned long address, unsigned long size, pgprot_t prot)
--{
--	unsigned long base, end;
--
--	base = address & PUD_MASK;
--	address &= ~PUD_MASK;
--	end = address + size;
--	if (end > PUD_SIZE)
--		end = PUD_SIZE;
-+		set_pte_at(mm, addr, pte, zero_pte);
-+	} while (pte++, addr += PAGE_SIZE, addr != end);
-+	pte_unmap(pte - 1);
-+	return 0;
-+}
-+
-+static inline int zeromap_pmd_range(struct mm_struct *mm, pud_t *pud,
-+			unsigned long addr, unsigned long end, pgprot_t prot)
-+{
-+	pmd_t *pmd;
-+	unsigned long next;
-+
-+	pmd = pmd_alloc(mm, pud, addr);
-+	if (!pmd)
-+		return -ENOMEM;
- 	do {
--		pte_t * pte = pte_alloc_map(mm, pmd, base + address);
--		if (!pte)
-+		next = pmd_addr_end(addr, end);
-+		if (zeromap_pte_range(mm, pmd, addr, next, prot))
- 			return -ENOMEM;
--		zeromap_pte_range(mm, pte, base + address, end - address, prot);
--		pte_unmap(pte);
--		address = (address + PMD_SIZE) & PMD_MASK;
--		pmd++;
--	} while (address && (address < end));
-+	} while (pmd++, addr = next, addr != end);
- 	return 0;
+--- ptwalk8/mm/memory.c	2005-03-09 01:37:15.000000000 +0000
++++ ptwalk9/mm/memory.c	2005-03-09 01:38:00.000000000 +0000
+@@ -454,29 +454,22 @@ next_pgd:
+ 	return err;
  }
  
--static inline int zeromap_pud_range(struct mm_struct *mm, pud_t * pud,
--				    unsigned long address,
--                                    unsigned long size, pgprot_t prot)
--{
--	unsigned long base, end;
--	int error = 0;
--
--	base = address & PGDIR_MASK;
--	address &= ~PGDIR_MASK;
+-static void zap_pte_range(struct mmu_gather *tlb,
+-		pmd_t *pmd, unsigned long address,
+-		unsigned long size, struct zap_details *details)
++static void zap_pte_range(struct mmu_gather *tlb, pmd_t *pmd,
++				unsigned long addr, unsigned long end,
++				struct zap_details *details)
+ {
+-	unsigned long offset;
+-	pte_t *ptep;
++	pte_t *pte;
+ 
+ 	if (pmd_none_or_clear_bad(pmd))
+ 		return;
+-	ptep = pte_offset_map(pmd, address);
+-	offset = address & ~PMD_MASK;
+-	if (offset + size > PMD_SIZE)
+-		size = PMD_SIZE - offset;
+-	size &= PAGE_MASK;
+-	if (details && !details->check_mapping && !details->nonlinear_vma)
+-		details = NULL;
+-	for (offset=0; offset < size; ptep++, offset += PAGE_SIZE) {
+-		pte_t pte = *ptep;
+-		if (pte_none(pte))
++	pte = pte_offset_map(pmd, addr);
++	do {
++		pte_t ptent = *pte;
++		if (pte_none(ptent))
+ 			continue;
+-		if (pte_present(pte)) {
++		if (pte_present(ptent)) {
+ 			struct page *page = NULL;
+-			unsigned long pfn = pte_pfn(pte);
++			unsigned long pfn = pte_pfn(ptent);
+ 			if (pfn_valid(pfn)) {
+ 				page = pfn_to_page(pfn);
+ 				if (PageReserved(page))
+@@ -500,20 +493,20 @@ static void zap_pte_range(struct mmu_gat
+ 				     page->index > details->last_index))
+ 					continue;
+ 			}
+-			pte = ptep_get_and_clear(tlb->mm, address+offset, ptep);
+-			tlb_remove_tlb_entry(tlb, ptep, address+offset);
++			ptent = ptep_get_and_clear(tlb->mm, addr, pte);
++			tlb_remove_tlb_entry(tlb, pte, addr);
+ 			if (unlikely(!page))
+ 				continue;
+ 			if (unlikely(details) && details->nonlinear_vma
+ 			    && linear_page_index(details->nonlinear_vma,
+-					address+offset) != page->index)
+-				set_pte_at(tlb->mm, address+offset,
+-					   ptep, pgoff_to_pte(page->index));
+-			if (pte_dirty(pte))
++						addr) != page->index)
++				set_pte_at(tlb->mm, addr, pte,
++					   pgoff_to_pte(page->index));
++			if (pte_dirty(ptent))
+ 				set_page_dirty(page);
+ 			if (PageAnon(page))
+ 				tlb->mm->anon_rss--;
+-			else if (pte_young(pte))
++			else if (pte_young(ptent))
+ 				mark_page_accessed(page);
+ 			tlb->freed++;
+ 			page_remove_rmap(page);
+@@ -526,68 +519,62 @@ static void zap_pte_range(struct mmu_gat
+ 		 */
+ 		if (unlikely(details))
+ 			continue;
+-		if (!pte_file(pte))
+-			free_swap_and_cache(pte_to_swp_entry(pte));
+-		pte_clear(tlb->mm, address+offset, ptep);
+-	}
+-	pte_unmap(ptep-1);
++		if (!pte_file(ptent))
++			free_swap_and_cache(pte_to_swp_entry(ptent));
++		pte_clear(tlb->mm, addr, pte);
++	} while (pte++, addr += PAGE_SIZE, addr != end);
++	pte_unmap(pte - 1);
+ }
+ 
+-static void zap_pmd_range(struct mmu_gather *tlb,
+-		pud_t *pud, unsigned long address,
+-		unsigned long size, struct zap_details *details)
++static void zap_pmd_range(struct mmu_gather *tlb, pud_t *pud,
++				unsigned long addr, unsigned long end,
++				struct zap_details *details)
+ {
+-	pmd_t * pmd;
+-	unsigned long end;
++	pmd_t *pmd;
++	unsigned long next;
+ 
+ 	if (pud_none_or_clear_bad(pud))
+ 		return;
+-	pmd = pmd_offset(pud, address);
 -	end = address + size;
--	if (end > PGDIR_SIZE)
--		end = PGDIR_SIZE;
-+static inline int zeromap_pud_range(struct mm_struct *mm, pgd_t *pgd,
-+			unsigned long addr, unsigned long end, pgprot_t prot)
-+{
+-	if (end > ((address + PUD_SIZE) & PUD_MASK))
+-		end = ((address + PUD_SIZE) & PUD_MASK);
++	pmd = pmd_offset(pud, addr);
+ 	do {
+-		zap_pte_range(tlb, pmd, address, end - address, details);
+-		address = (address + PMD_SIZE) & PMD_MASK; 
+-		pmd++;
+-	} while (address && (address < end));
++		next = pmd_addr_end(addr, end);
++		zap_pte_range(tlb, pmd, addr, next, details);
++	} while (pmd++, addr = next, addr != end);
+ }
+ 
+-static void zap_pud_range(struct mmu_gather *tlb,
+-		pgd_t * pgd, unsigned long address,
+-		unsigned long end, struct zap_details *details)
++static void zap_pud_range(struct mmu_gather *tlb, pgd_t *pgd,
++				unsigned long addr, unsigned long end,
++				struct zap_details *details)
+ {
+-	pud_t * pud;
 +	pud_t *pud;
 +	unsigned long next;
-+
-+	pud = pud_alloc(mm, pgd, addr);
-+	if (!pud)
-+		return -ENOMEM;
+ 
+ 	if (pgd_none_or_clear_bad(pgd))
+ 		return;
+-	pud = pud_offset(pgd, address);
++	pud = pud_offset(pgd, addr);
  	do {
--		pmd_t * pmd = pmd_alloc(mm, pud, base + address);
--		error = -ENOMEM;
--		if (!pmd)
--			break;
--		error = zeromap_pmd_range(mm, pmd, base + address,
--					  end - address, prot);
--		if (error)
--			break;
--		address = (address + PUD_SIZE) & PUD_MASK;
+-		zap_pmd_range(tlb, pud, address, end - address, details);
+-		address = (address + PUD_SIZE) & PUD_MASK; 
 -		pud++;
 -	} while (address && (address < end));
 +		next = pud_addr_end(addr, end);
-+		if (zeromap_pmd_range(mm, pud, addr, next, prot))
-+			return -ENOMEM;
++		zap_pmd_range(tlb, pud, addr, next, details);
 +	} while (pud++, addr = next, addr != end);
- 	return 0;
  }
  
--int zeromap_page_range(struct vm_area_struct *vma, unsigned long address,
--					unsigned long size, pgprot_t prot)
-+int zeromap_page_range(struct vm_area_struct *vma,
-+			unsigned long addr, unsigned long size, pgprot_t prot)
+-static void unmap_page_range(struct mmu_gather *tlb,
+-		struct vm_area_struct *vma, unsigned long address,
+-		unsigned long end, struct zap_details *details)
++static void unmap_page_range(struct mmu_gather *tlb, struct vm_area_struct *vma,
++				unsigned long addr, unsigned long end,
++				struct zap_details *details)
  {
+-	unsigned long next;
+ 	pgd_t *pgd;
 -	int i;
--	int error = 0;
--	pgd_t * pgd;
--	unsigned long beg = address;
--	unsigned long end = address + size;
-+	pgd_t *pgd;
- 	unsigned long next;
-+	unsigned long end = addr + size;
- 	struct mm_struct *mm = vma->vm_mm;
-+	int err;
++	unsigned long next;
  
--	pgd = pgd_offset(mm, address);
--	flush_cache_range(vma, beg, end);
 -	BUG_ON(address >= end);
--	BUG_ON(end > vma->vm_end);
--
+-	pgd = pgd_offset(vma->vm_mm, address);
++	if (details && !details->check_mapping && !details->nonlinear_vma)
++		details = NULL;
++
 +	BUG_ON(addr >= end);
-+	pgd = pgd_offset(mm, addr);
-+	flush_cache_range(vma, addr, end);
- 	spin_lock(&mm->page_table_lock);
+ 	tlb_start_vma(tlb, vma);
 -	for (i = pgd_index(address); i <= pgd_index(end-1); i++) {
--		pud_t *pud = pud_alloc(mm, pgd, address);
--		error = -ENOMEM;
--		if (!pud)
--			break;
 -		next = (address + PGDIR_SIZE) & PGDIR_MASK;
--		if (next <= beg || next > end)
+-		if (next <= address || next > end)
 -			next = end;
--		error = zeromap_pud_range(mm, pud, address,
--						next - address, prot);
--		if (error)
-+	do {
-+		next = pgd_addr_end(addr, end);
-+		err = zeromap_pud_range(mm, pgd, addr, next, prot);
-+		if (err)
- 			break;
+-		zap_pud_range(tlb, pgd, address, next, details);
 -		address = next;
 -		pgd++;
 -	}
--	/*
--	 * Why flush? zeromap_pte_range has a BUG_ON for !pte_none()
--	 */
--	flush_tlb_range(vma, beg, end);
++	pgd = pgd_offset(vma->vm_mm, addr);
++	do {
++		next = pgd_addr_end(addr, end);
++		zap_pud_range(tlb, pgd, addr, next, details);
 +	} while (pgd++, addr = next, addr != end);
- 	spin_unlock(&mm->page_table_lock);
--	return error;
-+	return err;
+ 	tlb_end_vma(tlb, vma);
  }
  
- /*

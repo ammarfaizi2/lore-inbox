@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284603AbRLMSbk>; Thu, 13 Dec 2001 13:31:40 -0500
+	id <S284557AbRLMSfU>; Thu, 13 Dec 2001 13:35:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284569AbRLMSba>; Thu, 13 Dec 2001 13:31:30 -0500
-Received: from goliath.siemens.de ([194.138.37.131]:46279 "EHLO
-	goliath.siemens.de") by vger.kernel.org with ESMTP
-	id <S284557AbRLMSbX> convert rfc822-to-8bit; Thu, 13 Dec 2001 13:31:23 -0500
-From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: APM idle problems - how to check if BIOS halts CPU?
-In-Reply-To: <XFMail.20011213123949.ast@domdv.de>
-In-Reply-To: <XFMail.20011213123949.ast@domdv.de>
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1008267923.2263.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 13 Dec 2001 21:31:09 +0300
+	id <S284569AbRLMSfK>; Thu, 13 Dec 2001 13:35:10 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:9344 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S284557AbRLMSfE>; Thu, 13 Dec 2001 13:35:04 -0500
+Date: Thu, 13 Dec 2001 13:34:45 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Bradley D. LaRonde" <brad@ltc.com>
+cc: Thomas Capricelli <orzel@kde.org>, linux-kernel@vger.kernel.org
+Subject: Re: Mounting a in-ROM filesystem efficiently
+In-Reply-To: <07cd01c18401$fa397db0$5601010a@prefect>
+Message-ID: <Pine.LNX.3.95.1011213132109.707A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, my! I am ashamed. I totally missed the fact that default idle task
-alredy halts CPU. I must be getting old :(
+On Thu, 13 Dec 2001, Bradley D. LaRonde wrote:
+[SNIPPED...]
 
-
-On Чтв, 2001-12-13 at 14:39, Andreas Steinmetz wrote:
-> I posted an apm patch and asked Marcelo to apply it. What you do see is
-> kapm-idled and the idle task both racing for idle time. There's even more
-> problems (search lkml for subject kapm-idled and have a look at the reply from
-> Alan Cox on Dec 5 which does contain my original mail and the patch). With the
-> patch e.g. the fan control of my laptop works properly which it never did
-> before.
-
-
-Unfortunately, this patch does not works as I'd expected. This patch
-does hide systime, but it does not cool CPU. With this patch system runs
-4C hotter than it run when I replaced apm_do_idle() with apm_cpu_idle()
-in original apm.c
-
-I'll try to get a closer look at weekend; any hints how to debug it are
-welcome.
-
- If you really do have a broken bios there's no other way than to
-> contact your system's vendor.
+> Sent: Thursday, December 13, 2001 1:02 PM Subject: Re: Mounting a in-ROM
+> filesystem efficiently
+> 
+> 
+> > Generally, ROM based stuff is compressed before being written to >
+> NVRAM. It's uncompressed into a RAM-Disk and the RAM-Disk is mounted.  >
+> > That way, you can use, say, 2 megabytes of NVRAM to get a 10 to 20 >
+> megabyte root file-system. This also allows /tmp and /var/log to be >
+> writable, which is a great help because the development environment >
+> closely approximates the run-time environment. 
+> 
+> That's perfect if you have plenty of RAM to spare. 
 > 
 
-Well, my vendor is ASUS and it is notorious for never answering bug
-reports from mere mortals. I also do not know how important Linux market
-is for them and Windows runs fine with ACPI (and Linux with ACPI does
-not have this problem as well. But I run Mandrake and they currently do
-not want to enable ACPI for different reasons). But I'll try anyway.
+Well RAM is a hell of a lot cheaper than NVRAM. If you don't have
+the required RAM on your box, the hardware engineers screwed up
+and have to be "educated" preferably with an axe in the parking-lot.
 
-Thank you 
+The machine configuration should NOT have NVRAM addressed as a
+bunch of RAM occupying a lot of address space. It should be
+an easily-decodable chunk (0x1000, 0x2000, 0x4000, 0x8000, etc.)
+that is paged, under software control. The base address should
+be wherever memory-mapped hardware for your architecture usually
+is.
 
--andrej
+> > FYI, generally NVRAM access is sooooo slow. I don't think you'd
+> > like to use it directly as a file-system and access-time will be
+> > a problem unless you modify the kernel. 
+> 
+> Modify the kernel how?
+>
+
+You have to keep it from failing when it tries to update the access-time
+of files/directories. This means that your read/only NVRAM/ROM must
+either pretend that it can be written or the driver for the hardware
+has to do the same.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+ Santa Claus is coming to town...
+          He knows if you've been sleeping,
+             He knows if you're awake;
+          He knows if you've been bad or good,
+             So he must be Attorney General Ashcroft.
+
+

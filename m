@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270142AbUJSXb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270146AbUJTFod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270142AbUJSXb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 19:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270154AbUJSX2D
+	id S270146AbUJTFod (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 01:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269885AbUJTFoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:28:03 -0400
-Received: from mail.kroah.org ([69.55.234.183]:14218 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270153AbUJSWqg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:46:36 -0400
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI fixes for 2.6.9
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <10982257363931@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:16 -0700
-Message-Id: <1098225736472@kroah.com>
+	Wed, 20 Oct 2004 01:44:00 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:63650 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S270062AbUJTFkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 01:40:47 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U7
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+In-Reply-To: <20041019180059.GA23113@elte.hu>
+References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+	 <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+	 <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+	 <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
+	 <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
+	 <20041019180059.GA23113@elte.hu>
+Content-Type: text/plain
+Message-Id: <1098250845.1429.3.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 01:40:46 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.36, 2004/10/06 12:56:27-07:00, hannal@us.ibm.com
+On Tue, 2004-10-19 at 14:00, Ingo Molnar wrote:
+> i have released the -U7 Real-Time Preemption patch:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U7
 
-[PATCH] PCI: Fix one missed pci_find_device
+OK, this one boots but Gnome does not start.  It hangs at "Session
+Manager".  The system does not hang, but I never get to my desktop. 
+Nothing useful in the logs.
 
-Just noticed this in my update to the latest mm kernel...
+While this was going on I switched to a text console and noticed that if
+I enabled/ Caps Lock at just the right moment then _all_ text output
+(LOGIN, PASSWORD, etc) would be in caps.  Toggling it a few times seemed
+to get rid of the problem.
 
+Any particular debug options I should try?
 
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- arch/i386/kernel/cpu/cyrix.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/arch/i386/kernel/cpu/cyrix.c b/arch/i386/kernel/cpu/cyrix.c
---- a/arch/i386/kernel/cpu/cyrix.c	2004-10-19 15:24:27 -07:00
-+++ b/arch/i386/kernel/cpu/cyrix.c	2004-10-19 15:24:27 -07:00
-@@ -280,7 +280,7 @@
- 			pci_dev_put(dev);
- 			pit_latch_buggy = 1;
- 		}
--		dev =  pci_find_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520, NULL);
-+		dev =  pci_get_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520, NULL);
- 		if (dev) {
- 			pci_dev_put(dev);
- 			pit_latch_buggy = 1;
+Lee
 

@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbUKRKXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbUKRKXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbUKRKXg (ORCPT <rfc822;willy@w.ods.org>);
+	id S262716AbUKRKXg (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 18 Nov 2004 05:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbUKRKWg
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbUKRKWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 05:22:36 -0500
-Received: from phoenix.infradead.org ([81.187.226.98]:44551 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262714AbUKRKNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 05:13:41 -0500
-Date: Thu, 18 Nov 2004 10:13:38 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, Keir.Fraser@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, alan@redhat.com
-Subject: Re: [patch 3] Xen core patch : runtime VT console disable
-Message-ID: <20041118101338.GB20859@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
-	akpm@osdl.org, Keir.Fraser@cl.cam.ac.uk,
-	Christian.Limpach@cl.cam.ac.uk, alan@redhat.com
-References: <E1CUZZz-00055l-00@mta1.cl.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CUZZz-00055l-00@mta1.cl.cam.ac.uk>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 18 Nov 2004 05:22:41 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:15064 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S262718AbUKRKSe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 05:18:34 -0500
+To: Andrew Morton <akpm@osdl.org>
+cc: "Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk>, Keir.Fraser@cl.cam.ac.uk,
+       haveblue@us.ibm.com, Ian.Pratt@cl.cam.ac.uk,
+       linux-kernel@vger.kernel.org, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [patch 2] Xen core patch : arch_free_page return value 
+In-Reply-To: Your message of "Thu, 18 Nov 2004 02:14:19 PST."
+             <20041118021419.0c0d1dad.akpm@osdl.org> 
+Date: Thu, 18 Nov 2004 10:18:28 +0000
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Message-Id: <E1CUjMz-0005DI-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 11:51:14PM +0000, Ian Pratt wrote:
+> "Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk> wrote:
+> >
+> > We forwarded the patches around
+> >  so many different people for comment before sending them to lkml that
+> >  somewhere along the line something bad happned.
 > 
-> This patch enables the VT console to be disabled at runtime even if it
-> is built into the kernel. arch-xen needs this to avoid trying to
-> initialise a VT in virtual machine that doesn't have access to the
-> console hardware.
+> Just send 'em to linux-kernel first-up and cc everyone else.  That way you
+> avoid duplication of effort and everyone is on the same page.
+> 
+> I'm still struggling to understand the rationale behind the mem.c change
+> btw.  io_remap_page_range() _is_ remap_page_range() (or, now,
+> remap_pfn_range()) on x86.  So whatever the patch is supposed to be doing,
+> it's a no-op.
 
-You should only need the conditional initialization - all the runtime
-checks couldn't be reached anymore if the device isn't actually registered.
+We need to sync up to the current BK tree and see what needs to be
+done. If remap_pfn_range() is arch-dep and only used in contexts where
+you want to remap real physical address ranges (not "kernel physical"
+address ranges) then we can reimplement remap_pfn_range() and remove
+that CONFIG_XEN part of mem.c.
 
+ -- Keir

@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263111AbTDXLUO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 07:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbTDXLUO
+	id S263303AbTDXLXg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 07:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263333AbTDXLXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 07:20:14 -0400
-Received: from [80.190.48.67] ([80.190.48.67]:31237 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263111AbTDXLUN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 07:20:13 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.21-rc1 - unresolved
-Date: Thu, 24 Apr 2003 13:32:00 +0200
-User-Agent: KMail/1.5.1
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva> <Pine.LNX.4.53L.0304231650300.7085@freak.distro.conectiva> <200304241320.52469.m.c.p@wolk-project.de>
-In-Reply-To: <200304241320.52469.m.c.p@wolk-project.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 24 Apr 2003 07:23:35 -0400
+Received: from [12.47.58.68] ([12.47.58.68]:6427 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S263303AbTDXLXf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 07:23:35 -0400
+Date: Thu, 24 Apr 2003 04:36:37 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: pavel@suse.cz, cat@zip.com.au, mbligh@aracnet.com, gigerstyle@gmx.ch,
+       geert@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: Re: Fix SWSUSP & !SWAP
+Message-Id: <20030424043637.71c3812e.akpm@digeo.com>
+In-Reply-To: <1051182797.2250.10.camel@laptop-linux>
+References: <1051136725.4439.5.camel@laptop-linux>
+	<1584040000.1051140524@flay>
+	<20030423235820.GB32577@atrey.karlin.mff.cuni.cz>
+	<20030423170759.2b4e6294.akpm@digeo.com>
+	<20030424001733.GB678@zip.com.au>
+	<1051143408.4305.15.camel@laptop-linux>
+	<20030423173720.6cc5ee50.akpm@digeo.com>
+	<20030424091236.GA3039@elf.ucw.cz>
+	<20030424022505.5b22eeed.akpm@digeo.com>
+	<20030424093534.GB3084@elf.ucw.cz>
+	<20030424024613.053fbdb9.akpm@digeo.com>
+	<1051182797.2250.10.camel@laptop-linux>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304241332.00471.m.c.p@wolk-project.de>
+X-OriginalArrivalTime: 24 Apr 2003 11:35:38.0757 (UTC) FILETIME=[A115E350:01C30A55]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 April 2003 13:27, Marc-Christian Petersen wrote:
+Nigel Cunningham <ncunningham@clear.net.nz> wrote:
+>
+> On Thu, 2003-04-24 at 21:46, Andrew Morton wrote:
+> > > > Sorry, I still don't get it.  Go through the steps for me:
+> > > > 
+> > > > 1) suspend writes pages to disk
+> > > > 
+> > > > 2) machine is shutdown
+> > > > 
+> > > > 3) restart, journal replay
+> 
+> Corruption comes here. The journal reply tidies things up that shouldn't
+> be tidied up. They shouldn't be tidied up because once we reload the
+> image, things should be in the same state as prior to suspend. If replay
+> frees a block (thinking it wasn't properly linked or something similar),
+> it introduces corruption.
 
-Hi again,
+No, this will not happen.  All swapfile blocks must be allocated by swapon
+time.  It is just a chunk of disk and replay will not touch it.
 
->     I can ack that this fixes the silly behaviour of the oom killer if the
->     patch is _not_ applied. _With_ the patch, it works great.
-
-bullshit. I can ack that this fixes the silly behaviour of the oom killer if 
-the patch _is_ applied. :)
-
-ciao, Marc
+That's for ext3, and no other filesystems journal data anyway...

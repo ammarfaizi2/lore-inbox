@@ -1,90 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbTLBLvh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 06:51:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbTLBLvh
+	id S262048AbTLBL6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 06:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTLBL6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 06:51:37 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:2223 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S261928AbTLBLve
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 06:51:34 -0500
-Date: Tue, 2 Dec 2003 09:48:34 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Nathan Scott <nathans@sgi.com>, <linux-kernel@vger.kernel.org>,
-       <linux-xfs@oss.sgi.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: XFS for 2.4
-In-Reply-To: <Pine.LNX.4.44.0312020858320.13692-100000@logos.cnet>
-Message-ID: <Pine.LNX.4.44.0312020948171.13692-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Dec 2003 06:58:25 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:40722 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S262048AbTLBL6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 06:58:24 -0500
+Date: Tue, 2 Dec 2003 10:03:15 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 future
+Message-ID: <20031202120315.GK13388@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312011226.04750.nbensa@gmx.net> <20031202115436.GA10288@physik.tu-cottbus.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031202115436.GA10288@physik.tu-cottbus.de>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Tue, Dec 02, 2003 at 12:54:36PM +0100, Ionut Georgescu escreveu:
+> I can only second that. We've been using XFS here since the days of
+> 2.4.0-testxx and the only problems we've had were sitting between the
+> chair and the keyboard.
 
+So if there is no problems at all using it as a patch why add this to a
+kernel that is phasing out?
 
-On Tue, 2 Dec 2003, Marcelo Tosatti wrote:
-
-> 
-> 
-> On Tue, 2 Dec 2003, Nathan Scott wrote:
-> 
-> > On Mon, Dec 01, 2003 at 12:06:14PM -0200, Marcelo Tosatti wrote:
-> > > On Mon, 1 Dec 2003, Nathan Scott wrote:
-> > > 
-> > > > Hi Marcelo,
-> > > > 
-> > > > Please do a
-> > > > 
-> > > > 	bk pull http://xfs.org:8090/linux-2.4+coreXFS
-> > > > 
-> > > > This will merge the core 2.4 kernel changes required for supporting
-> > > > the XFS filesystem, as listed below.  If this all looks acceptable,
-> > > > then please also pull the filesystem-specific code (fs/xfs/*)
-> > > > 
-> > > > 	bk pull http://xfs.org:8090/linux-2.4+justXFS
-> > > 
-> > > Nathan, 
-> > > 
-> > > I think XFS should be a 2.6 only feature.
-> > > 
-> > > 2.6 is already stable enough for people to use it. 
-> > > 
-> > 
-> > Hi Marcelo,
-> > 
-> > Please reconsider -- the "core" kernel changes we need have existed
-> > for three+ years outside of the mainline tree, and each is a small
-> > and easily understood change that doesn't affect other filesystems.
-> > There is also a VFS fix in there from Ethan Benson, as we discussed
-> > during 2.4.23-pre, when you asked us to resend XFS for 2.4.24-pre!)
-> > Everything there is a backport from 2.6 in some form, there should
-> > be no surprises.
-> 
-> Nathan,
-> 
-> I remember I have said to you "resend me XFS for 2.4.24-pre". A changed my 
-> mind since then...
-> 
-> > Not having XFS in 2.4 is extremely disadvantageous for us XFS folks
-> > (especially since every other journaled filesystem has been merged
-> > now).  
-> 
-> JFS did not touch generic code as I remember.
-> 
-> > To our users it means some rescue disks simply don't support
-> > XFS, meaning you can't mount filesystems when you _really_ need to,
-> > etc, etc.  Its also always extra work for distributors to merge XFS
-> > themselves, and hence a few just don't (and occasionally tell us
-> > that they are waiting for you to merge it) - which means some users
-> > don't even get the option of using XFS, despite our best efforts.
-> 
-> Come one, it is not so hard to maintain a patch in a distros kernel.  
-
-s/one/on/
-
-Ugh
-
-
+- Arnaldo

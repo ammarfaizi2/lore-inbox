@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271197AbTHRDI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 23:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271201AbTHRDI7
+	id S271205AbTHRDYk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 23:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271206AbTHRDYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 23:08:59 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:26117 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S271197AbTHRDI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 23:08:57 -0400
-Date: Sun, 17 Aug 2003 23:59:28 -0300
-From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-To: Richard Russon <ntfs@flatcap.org>
-Cc: aia21@cus.cam.ac.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix all warning deprecated in NTFS 1.1.22 (2.4)
-Message-Id: <20030817235928.759adbb0.vmlinuz386@yahoo.com.ar>
-In-Reply-To: <1061152213.1114.42.camel@ipa.flatcap.org>
-References: <20030814035719.6905b4fd.vmlinuz386@yahoo.com.ar>
-	<1061152213.1114.42.camel@ipa.flatcap.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
+	Sun, 17 Aug 2003 23:24:40 -0400
+Received: from thunk.org ([140.239.227.29]:29610 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S271205AbTHRDYi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 23:24:38 -0400
+Date: Sun, 17 Aug 2003 23:23:48 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Matt Mackall <mpm@selenic.com>
+Cc: James Morris <jmorris@intercode.com.au>,
+       Jamie Lokier <jamie@shareable.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, davem@redhat.com
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+Message-ID: <20030818032348.GA9456@think>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Matt Mackall <mpm@selenic.com>,
+	James Morris <jmorris@intercode.com.au>,
+	Jamie Lokier <jamie@shareable.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, davem@redhat.com
+References: <20030809173329.GU31810@waste.org> <Mutt.LNX.4.44.0308102317470.7218-100000@excalibur.intercode.com.au> <20030810174528.GZ31810@waste.org> <20030813032038.GA1244@think> <20030813040614.GP31810@waste.org> <20030815221211.GA4306@think> <20030815235501.GB325@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030815235501.GB325@waste.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Aug 2003 21:30:13 +0100, Richard Russon wrote:
->Hi djgera,
->
->Anton isn't ignoring you, he's just extremely busy.
->
+On Fri, Aug 15, 2003 at 06:55:01PM -0500, Matt Mackall wrote:
+> I posted a proof of concept patch for discussion on $SUBJECT. In that
+> patch, I removed the folding for the purposes of having a reasonable
+> comparison between cryptoapi and native. Cryptoapi does FIPS-180-1 and
+> thus does twice as much hashing on 512 bits. 
 
-no problem, he I answer myself Marcelo and my, accepting the patch.
+It would be nice if there was a Crypto API algorithm variant which
+didn't do the FIPS-180-1 padding, for those applications (like
+/dev/random) that don't need it.
 
->> total 191 warnings fixed!!! (it took enough hours to me)
->
->Wow, thank you very much.  You've done an amazing job.
->
+> Removing the folding was a convenient and obvious way of addressing
+> it for the purposes of discussing $SUBECT until a good way to work
+> around the extra padding was found. I've already indicated my
+> willingness to accept your
+> SHA-may-be-backdoored-and-somehow-leverageable argument, so can we
+> kindly discuss $SUBJECT instead of this trivia?
 
-:) it was a pleasure.
+Multiple arguments were made for dropping the folding, not just as a
+"temporary measure".  You were the one that made the excuse of "cat
+/dev/urandom > /dev/hda1", not me...
 
->I've read through the patch (yawn) and tested it.  I found a couple of
->problems (debug only), but they weren't your fault.  Several of the
->ntfs_debug's had the wrong arguments.  I've rebuilt the patch and put
->it here:
->
->  http://flatcap.org/ntfs/fix.warning.deprecated.ntfs.patch2
->  http://flatcap.org/ntfs/fix.warning.deprecated.ntfs.patch2.bz2
->
->> Please review, and confirm to Marcelo Tosatti
->
+> As for "screwing with /dev/random", it's got rather more serious and
+> longstanding problems than speed that I've been addressing. For
+> instance, I'm pretty sure there was never a time when entropy
+> accounting wasn't racy let alone wrong, SMP or no (fixed in -mm, thank
+> you). Nor has there ever been a time when change_poolsize() wasn't an
+> oops waiting to happen (patch queued for resend).
 
-yup, by the way it forgets to me to comment to them of the lack of
-arguments in original code (sorry), and thanks to correct
-them.
+Agreed, fixing the locking is much more important than CryptoAPI
+changes.  Can you send me a pointer to your latest locking patches?
+I'd like to look them over.  Thanks!!
 
->Now we just need to keep poking Anton :-)
->
->Thanks for your hard work.
->
-
-excelent!
-
-my patch is at the moment in the tree of Alan, since -ac3.
-
-
-Best Regards,
- djgera
-
-
--- 
-Gerardo Exequiel Pozzi ( djgera )
-http://www.vmlinuz.com.ar http://www.djgera.com.ar
-KeyID: 0x1B8C330D
-Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D
+							- Ted

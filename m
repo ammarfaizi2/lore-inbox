@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264818AbTBOS0A>; Sat, 15 Feb 2003 13:26:00 -0500
+	id <S264836AbTBOScK>; Sat, 15 Feb 2003 13:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264822AbTBOS0A>; Sat, 15 Feb 2003 13:26:00 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:58122 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264818AbTBOS0A>; Sat, 15 Feb 2003 13:26:00 -0500
-Date: Sat, 15 Feb 2003 18:35:55 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.61
-Message-ID: <20030215183555.A22045@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0302141709410.1376-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302141709410.1376-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Feb 14, 2003 at 05:11:43PM -0800
+	id <S264838AbTBOScK>; Sat, 15 Feb 2003 13:32:10 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:40117 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S264836AbTBOScJ>; Sat, 15 Feb 2003 13:32:09 -0500
+Date: Sat, 15 Feb 2003 13:41:52 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: A long time ago , (was re: 2.5.7 oops & ksymoops 2.4.5 & libbfd..)
+In-Reply-To: <6748.1038199294@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.53.0302151335170.6988@filesrv1.baby-dragons.com>
+References: <6748.1038199294@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   o use per-cpu data for ia32 profiler
 
-any reason you only changed prof_counter to pr-cpu data and not the
-two NR_CPUS arrays above it?
+	Hello Keith ,  If you would please add this to the link for those
+	with this trouble .  It appeasr to be a difficulty in Slackware
+	8.0-8.1 distributions .  Some application installs a bad libbdf*
+	or libiberty* during the install of the distribution .  This can
+	be easily remidied ,  Re install the binutils .  Hth ,  JimL
+	ie:
+	# Note: Must be root to do this
+	#Slackware: In my case the vars are:
+	VER="2.12.90.0.9"
+	num="1"
 
->   o acpi: Split i386 support up
-
-Shouldn't this be in arch/i386/acpi/ instead of arch/i386/kernel/acpi/
-
+	installpkg ${PATH}/binutils-${VER}-i386-${num}.tgz
+-- 
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+

@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbUJaW4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUJaW5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbUJaW4c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 17:56:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbUJaW4b
+	id S261680AbUJaW5p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 17:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbUJaW5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 17:56:31 -0500
-Received: from [193.112.238.6] ([193.112.238.6]:54658 "EHLO caveman.xisl.com")
-	by vger.kernel.org with ESMTP id S261678AbUJaW4a (ORCPT
+	Sun, 31 Oct 2004 17:57:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63391 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261680AbUJaW5a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 17:56:30 -0500
-From: John M Collins <jmc@xisl.com>
-Organization: Xi Software Ltd
-To: linux-kernel@vger.kernel.org
-Subject: Fchown on unix domain sockets?
-Date: Sun, 31 Oct 2004 23:55:00 +0100
-User-Agent: KMail/1.6.1
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410312255.00621.jmc@xisl.com>
+	Sun, 31 Oct 2004 17:57:30 -0500
+Date: Sun, 31 Oct 2004 14:57:20 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Fabio Coatti <cova@ferrara.linux.it>
+Cc: Paulo da Silva <psdasilva@esoterica.pt>, linux-kernel@vger.kernel.org,
+       zaitcev@redhat.com
+Subject: Re: k 2.6.9: ub module causes /dev/sda and /dev/sda1 not being
+ created
+Message-ID: <20041031145720.448d2ee9@lembas.zaitcev.lan>
+In-Reply-To: <200410312310.43557.cova@ferrara.linux.it>
+References: <mailman.1099103401.11097.linux-kernel2news@redhat.com>
+	<20041030091522.6f2da605@lembas.zaitcev.lan>
+	<200410312310.43557.cova@ferrara.linux.it>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC any reply to jmc AT xisl.com as I'm not subscribed.
+On Sun, 31 Oct 2004 23:10:43 +0100, Fabio Coatti <cova@ferrara.linux.it> wrote:
 
-I wanted to change the ownership on a unix domain socket in a program (running 
-as root) I was writing and I was wondering if "fchown" worked on the socket 
-descriptor (after I'd run "bind" of course).
+> Maybe this is not a problem, but it's supposed that a /dev/uba1 is created, 
+> after /dev/uba, instead of sdaX? well, on my system uba is created but 
+> not /dev/uba1, and I've reported below a syslog excerpt for usb flash 
+> pendrive;
+>[...]
+> Oct 28 00:32:22 kefk kernel: uba: device 4 capacity nsec 50 bsize 512
+> Oct 28 00:32:22 kefk kernel: uba: made changed
+> Oct 28 00:32:22 kefk kernel: uba: device 4 capacity nsec 1024000 bsize 512
+> Oct 28 00:32:22 kefk kernel: uba: device 4 capacity nsec 1024000 bsize 512
+> Oct 28 00:32:22 kefk kernel:  uba: uba1
+> Oct 28 00:32:22 kefk kernel:  uba: uba1
+> Oct 28 00:32:22 kefk kernel: kobject_register failed for uba1 (-17)
 
-It doesn't, you have to use "chown" on the path name - however "fchown" 
-silently does nothing, it doesn't report an error.
+In your case, it's a bug which needs to be fixed. It hasn't got anything to
+do with usb-storage or SCSI. But I'm still trying to find an approach which
+works well. The basic problem is a combination of:
+1. failure to start the device before calling add_disk
+2. calling check_disk_change for all opens
+3. returning a failure from media_present
 
-I don't mind it not working but I think it should report an error. This is on 
-2.6.3 kernel.
+If any of these conditions is removed, you will not see the problem.
+I tried #1 for so-called "Key Distributed on Kernel Summit", but this
+is not general enough, in particular your device appears resilient to that.
 
-I tried it on HP/UX 11 and it gave EINVAL (which the HP manual page doesn't 
-document) and on Solaris 9 which likewise silently did nothing.
+#2 would require distinguishing opens coming from user level from opens
+called by the partition reading code, called indirectly from do_open.
+I do not see how I can do that smoothly.
 
--- 
-John Collins Xi Software Ltd www.xisl.com
+#3 causes the boolean logics on flags to become too involved.
+
+-- Pete

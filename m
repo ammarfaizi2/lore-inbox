@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268321AbTBYUvO>; Tue, 25 Feb 2003 15:51:14 -0500
+	id <S268317AbTBYU4g>; Tue, 25 Feb 2003 15:56:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268359AbTBYUvN>; Tue, 25 Feb 2003 15:51:13 -0500
-Received: from home.alltec.com ([66.46.63.194]:45041 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S268321AbTBYUvM>; Tue, 25 Feb 2003 15:51:12 -0500
-Message-ID: <3E5BD9A2.6090705@alltec.com>
-Date: Tue, 25 Feb 2003 16:01:22 -0500
-From: Mike Sullivan <mike.sullivan@alltec.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+	id <S268319AbTBYU4f>; Tue, 25 Feb 2003 15:56:35 -0500
+Received: from vbws78.voicebs.com ([66.238.160.78]:37638 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S268317AbTBYU4f>; Tue, 25 Feb 2003 15:56:35 -0500
+Message-ID: <3E5BDADC.2040606@didntduck.org>
+Date: Tue, 25 Feb 2003 16:06:36 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.2.1) Gecko/20021130
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Mark Hahn <hahn@physics.mcmaster.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduling with Hyperthreading
-References: <Pine.LNX.4.44.0302250852190.26386-100000@coffee.psychology.mcmaster.ca>
+To: Michael Hayes <mike@aiinc.ca>
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Spelling fixes for 2.5.63 - won't
+References: <200302252031.h1PKVI824928@aiinc.aiinc.ca>
+In-Reply-To: <200302252031.h1PKVI824928@aiinc.aiinc.ca>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Mark
-
-I would to a quick snap with top, and when I saw 99.9% I assumed the the 
-process had
-been there during the time top was starting up.
-
-Looking at /proc/(pid)/cpu, shows that with two jobs running they are 
-sticking to cpu 0 and 1
-which are siblings
-
-
-                                                                        
-                                                                        
-Regards
-                                                                        
-                                                                        Mike
-
-Mark Hahn wrote:
-
->>that if I run two compute intensive jobs on a Dual Xeon, the processes 
->>run on separate
->>physical cpus and can spend a significant amount of time with both on a 
->>single
->>cpu.
->>    
->>
->
->how did you determine this?  running another program, such as top,
->will naturally disturb the scheduler and corrupt any observations.
->the only means I can think of is to look in /proc/<pid>/cpu near
->very infrequently (ideally, just before the processes exit.)
->or is this what you've done?
+Michael Hayes wrote:
+> This fixes:
+>     wont -> won't (25 occurrences)
+> 
+> diff -ur a/arch/alpha/lib/ev6-stxcpy.S b/arch/alpha/lib/ev6-stxcpy.S
+> --- a/arch/alpha/lib/ev6-stxcpy.S	Mon Feb 24 11:05:04 2003
+> +++ b/arch/alpha/lib/ev6-stxcpy.S	Tue Feb 25 10:07:59 2003
+> @@ -128,7 +128,7 @@
+>  	ldq_u	t1, 0(a1)		# L : load first src word
+>  	and	a0, 7, t0		# E : take care not to load a word ...
+>  	addq	a1, 8, a1		# E :
+> -	beq	t0, stxcpy_aligned	# U : ... if we wont need it (stall)
+> +	beq	t0, stxcpy_aligned	# U : ... if we won't need it (stall)
 >  
->
+>  	ldq_u	t0, 0(a0)	# L :
+>  	br	stxcpy_aligned	# L0 : Latency=3
 
--- 
-----------------------------------------------------------------------
-Mike Sullivan                           Director Performance Computing
-@lliance Technologies,                  Voice: (416) 385-3255, 
-18 Wynford Dr, Suite 407                Fax:   (416) 385-1774
-Toronto, ON, Canada, M3C-3S2            Toll Free:1-877-216-3199
-http://www.alltec.com
+Be careful with apostrophes in asm files.  Some assemblers will barf on 
+them when not in C style comments.
 
+--
+				Brian Gerst
 
 

@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266263AbRHTKqr>; Mon, 20 Aug 2001 06:46:47 -0400
+	id <S268100AbRHTKyS>; Mon, 20 Aug 2001 06:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267520AbRHTKqi>; Mon, 20 Aug 2001 06:46:38 -0400
-Received: from [203.161.228.202] ([203.161.228.202]:56332 "EHLO
-	spf1.hq.outblaze.com") by vger.kernel.org with ESMTP
-	id <S266263AbRHTKqW>; Mon, 20 Aug 2001 06:46:22 -0400
-Date: Mon, 20 Aug 2001 18:56:56 +0800
-From: Yusuf Goolamabbas <yusufg@outblaze.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Cliff Albert <cliff@oisec.net>, linux-kernel@vger.kernel.org,
-        gibbs@scsiguy.com
+	id <S267977AbRHTKyI>; Mon, 20 Aug 2001 06:54:08 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44550 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267852AbRHTKxv>; Mon, 20 Aug 2001 06:53:51 -0400
 Subject: Re: aic7xxx errors with 2.4.8-ac7 on 440gx mobo
-Message-ID: <20010820185656.A17435@outblaze.com>
-In-Reply-To: <20010820105520.A22087@oisec.net> <E15YmR3-0005mb-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: yusufg@outblaze.com (Yusuf Goolamabbas)
+Date: Mon, 20 Aug 2001 11:56:50 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), cliff@oisec.net (Cliff Albert),
+        linux-kernel@vger.kernel.org, gibbs@scsiguy.com
+In-Reply-To: <20010820185656.A17435@outblaze.com> from "Yusuf Goolamabbas" at Aug 20, 2001 06:56:56 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15YmR3-0005mb-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 20, 2001 at 11:37:33AM +0100
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Ymji-0005ph-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > With 2.4.8-ac7, I get SCSI errors and the kernel fails to boot. If I
-> > > compile with APIC enabled and APIC on UP also enabled, it boots
-> > > cleanly
-> > 
-> > I'm getting similair errors on 2.4.8-ac7 on my P2B-S motherboard using
-> > the NEW AIC7xxx driver, the old isn't experiencing these problems. Further
-> > i've been getting these errors since 2.4.3.
+> > There is a known BIOS irq routing table problem with a large number of Intel
+> > BIOS boards with onboard adaptec controllers. The fact that making it use
+> > the io-apic works suggest this is the same thing.
 > 
-> There is a known BIOS irq routing table problem with a large number of Intel
-> BIOS boards with onboard adaptec controllers. The fact that making it use
-> the io-apic works suggest this is the same thing.
+> But 2.4.8 and 2.4.9 work without using io-apic. 
 
-But 2.4.8 and 2.4.9 work without using io-apic. 
+I'm not currently sure what that proves. Is your board intel bios ?
 
--- 
-Yusuf Goolamabbas
-yusufg@outblaze.com

@@ -1,75 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129146AbRCEKVf>; Mon, 5 Mar 2001 05:21:35 -0500
+	id <S129155AbRCEK4W>; Mon, 5 Mar 2001 05:56:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129155AbRCEKVZ>; Mon, 5 Mar 2001 05:21:25 -0500
-Received: from iso.horizon.ie ([193.120.106.19]:16089 "EHLO iso.horizon.ie")
-	by vger.kernel.org with ESMTP id <S129146AbRCEKVI>;
-	Mon, 5 Mar 2001 05:21:08 -0500
-Message-Id: <200103051006.f25A6FD06987@luggage.horizon.ie>
-X-Mailer: exmh version 2.3.1 01/18/2001 with nmh-1.0.4
-From: chris.higgins@horizon.ie
+	id <S129156AbRCEK4L>; Mon, 5 Mar 2001 05:56:11 -0500
+Received: from mailhub2.shef.ac.uk ([143.167.2.154]:8876 "EHLO
+	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
+	id <S129155AbRCEK4H>; Mon, 5 Mar 2001 05:56:07 -0500
+Date: Mon, 5 Mar 2001 11:00:00 +0000 (GMT)
+From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
 To: linux-kernel@vger.kernel.org
-cc: chris.higgins@horizon.ie (Chris Higgins)
-Subject: PATCH: kernel/sched.c - Optimisation of some variable assignments
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 05 Mar 2001 10:06:15 +0000
+Subject: locked pts/x
+Message-ID: <Pine.LNX.4.21.0103051050170.6480-100000@erdos.shef.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear all
 
-I was reading through sched.c and noticed two places where variable
-assignments occur immediately prior to 'if(test) goto label:' statements.
-If the test is TRUE, then the jump happens and in both cases the
-variables are either not used, or immediately over-written..
+This isn't really a problem - everything works, but, rather, a VERY
+strange (as it appears to me) behaviour. I looked through lkml's archives,
+asked several news-groups - no success. So, here goes:
 
-So I've re-sequenced the two sets of statements to 'test then assign'
-rather than 'assign regardless, then test'.
+I am observing this behaviour on 2 VERY different machines, but I'll
+describe one of them to make it easier. Maybe it's a known feature, so,
+you'll tell me straight away. Shortly - when opening new remote sessions
+some pts's don't get allocated, although they are not currently in use by
+any login (`who`), and corresponding /dev/pts/x don't exist. Already know
+what it is? If not - I'll give a bit more detail. This machine is running
+2.2.18 (another one 2.4.2). It doesn't have X installed on it (only couple
+X-clients, including rxvt - an xterm clone. So, - it went like this:
+1) open rxvt, pts/2 appears, `who` has extra line (I didn't check, but I
+assume)
+2) rxvt crashes, pts/2 disappears, line in who stays, pts/2 locked
+3) I re-initialize /var/run/utmp, line in who goes, pts/2 still locked
+(present state)
 
-I presume that the C compiler is optimising this out, but not all 
-platforms may been seeing this... It's probably only going to save
-a couple of cycles on any iteration through the scheduler, but
-the more available for everyone else the better :)
+On another occasion pts/4 got locked in exactly the same way, but before
+I re-initialized utmp, one of terminals got associated with pts/4 (then
+who produced 2 lines with pts/4!), and, when I closed that other session
+with pts/4 both lines from who disappeared and pts/4 got unlocked! VERY
+weird, to say the least:-)
 
+On another machine pts's get locked also when ssh sessions get cut.
 
---- kernel/sched.c.orig Fri Feb  9 19:37:03 2001
-+++ kernel/sched.c      Sun Mar  4 20:27:42 2001
-@@ -507,11 +507,11 @@
- 
-        if (!current->active_mm) BUG();
- need_resched_back:
-+       if (in_interrupt())
-+               goto scheduling_in_interrupt;
-        prev = current;
-        this_cpu = prev->processor;
- 
--       if (in_interrupt())
--               goto scheduling_in_interrupt;
- 
-        release_kernel_lock(prev, this_cpu);
- 
-@@ -553,10 +553,10 @@
-        /*
-         * Default process to select..
-         */
--       next = idle_task(this_cpu);
--       c = -1000;
-        if (prev->state == TASK_RUNNING)
-                goto still_running;
-+       next = idle_task(this_cpu);
-+       c = -1000;
- 
- still_running_back:
-        list_for_each(tmp, &runqueue_head) {
+Any ideas?
+Thanks
+Guennadi
+___
 
+Dr. Guennadi V. Liakhovetski
+Department of Applied Mathematics
+University of Sheffield, U.K.
+email: G.Liakhovetski@sheffield.ac.uk
 
---END-OF-PATCH---
-
-
--- 
-** Chris Higgins                         e: chris.higgins at horizon.ie **
-** Technical Business Development        tel: +353-1-6204916            **
-** Horizon Technology Group              fax: +353-1-6204949            **
 
 

@@ -1,106 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267917AbRHASeY>; Wed, 1 Aug 2001 14:34:24 -0400
+	id <S267923AbRHASly>; Wed, 1 Aug 2001 14:41:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267916AbRHASeO>; Wed, 1 Aug 2001 14:34:14 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:12811 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S267915AbRHASeF>; Wed, 1 Aug 2001 14:34:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Mike Black" <mblack@csihq.com>, <tridge@valinux.com>,
-        <marcelo@conectiva.com.br>
-Subject: Re: 2.4.8preX VM problems
-Date: Wed, 1 Aug 2001 20:39:22 +0200
-X-Mailer: KMail [version 1.2]
-Cc: <linux-kernel@vger.kernel.org>, <riel@conectiva.com.br>,
-        "Andrew Morton" <andrewm@uow.edu.au>
-In-Reply-To: <Pine.LNX.4.21.0108010504160.9379-100000@freak.distro.conectiva> <20010801105419.8F078424A@lists.samba.org> <020001c11a80$43297110$e1de11cc@csihq.com>
-In-Reply-To: <020001c11a80$43297110$e1de11cc@csihq.com>
+	id <S267937AbRHASlp>; Wed, 1 Aug 2001 14:41:45 -0400
+Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:62180 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S267923AbRHASlg>; Wed, 1 Aug 2001 14:41:36 -0400
+Importance: Normal
+Subject: Re: [PATCH] register_inet6addr_notifier
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OFA376540F.BE06ACC0-ONC1256A9B.0062A90E@de.ibm.com>
+From: "Utz Bacher" <utz.bacher@de.ibm.com>
+Date: Wed, 1 Aug 2001 20:41:29 +0200
+X-MIMETrack: Serialize by Router on D12ML009/12/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 01/08/2001 20:41:35
 MIME-Version: 1.0
-Message-Id: <01080120392200.00933@starship>
-Content-Transfer-Encoding: 7BIT
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 August 2001 13:51, Mike Black wrote:
-> I have come to the opinion that kswapd needs to be a little smarter
-> -- if it doesn't find anything to swap shouldn't it go to sleep a
-> little longer before trying again?  That way it could gracefully
-> degrade itself when it's not making any progress.
->
-> In my testing (on a dual 1Ghz/2G machine) the machine "locks up" for
-> long periods of time while kswapd runs around trying to do it's
-> thing. If I could disable kswapd I would just to test this.
 
-Your wish is my command.  This patch provides a crude-but-effective 
-method of disabling kswapd, using:
+Hi Alexey,
 
-  echo 1 >/proc/sys/kernel/disable_kswapd
+> Very interesting. I am very curious, what kind of "offload" is possible
+> with current stack are possible. Even if you know addresses. :-)
 
-I tested this with dbench and found it runs about half as fast, but 
-runs.  This is reassuring because kswapd is supposed to be doing 
-something useful.
+it's the same kind of offload we use in IPv4 -- we set the
+net_device->flags to IFF_NOARP and can then talk IP to the card. That
+means,
+the card does ARP and the tasks of hard_header etc. itself. We register
+ourselves to get informed as soon as an IP address has been added/removed
+and can tell that information to the card. As soon as the card knows about
+the IP addresses of the device in the stack, it can respond to ARP queries
+of other nodes.
 
-To apply:
+Now hardware header generation and ARP don't cost a lot of performance, but
+this whole story gets in particular interesting, as an S/390 can share a
+single card between partitions on the same physical box (and that's very
+common; obvious by looking at the price tag of the card :-). The card
+peeks into incoming packets and according to the destination address, it
+passes the packets on to the right partition(s).
 
-  cd /usr/src/your.2.4.7.tree
-  patch -p0 <this.patch
+We have the problem, that we won't be informed about any address changes
+in IPv6 other than somehow polling for them.
+(un)register_inet6addr_notifier would help us here.
 
---- ../2.4.7.clean/include/linux/swap.h	Fri Jul 20 21:52:18 2001
-+++ ./include/linux/swap.h	Wed Aug  1 19:35:27 2001
-@@ -78,6 +78,7 @@
- 	int next;			/* next entry on swap list */
- };
- 
-+extern int disable_kswapd;
- extern int nr_swap_pages;
- extern unsigned int nr_free_pages(void);
- extern unsigned int nr_inactive_clean_pages(void);
---- ../2.4.7.clean/include/linux/sysctl.h	Fri Jul 20 21:52:18 2001
-+++ ./include/linux/sysctl.h	Wed Aug  1 19:35:28 2001
-@@ -118,7 +118,8 @@
- 	KERN_SHMPATH=48,	/* string: path to shm fs */
- 	KERN_HOTPLUG=49,	/* string: path to hotplug policy agent */
- 	KERN_IEEE_EMULATION_WARNINGS=50, /* int: unimplemented ieee 
-instructions */
--	KERN_S390_USER_DEBUG_LOGGING=51  /* int: dumps of user faults */
-+	KERN_S390_USER_DEBUG_LOGGING=51, /* int: dumps of user faults */
-+	KERN_DISABLE_KSWAPD=52,	/* int: disable kswapd for testing */
- };
- 
- 
---- ../2.4.7.clean/kernel/sysctl.c	Thu Apr 12 21:20:31 2001
-+++ ./kernel/sysctl.c	Wed Aug  1 19:35:28 2001
-@@ -249,6 +249,8 @@
- 	{KERN_S390_USER_DEBUG_LOGGING,"userprocess_debug",
- 	 &sysctl_userprocess_debug,sizeof(int),0644,NULL,&proc_dointvec},
- #endif
-+	{KERN_DISABLE_KSWAPD, "disable_kswapd", &disable_kswapd, sizeof (int),
-+	 0644, NULL, &proc_dointvec},
- 	{0}
- };
- 
---- ../2.4.7.clean/mm/vmscan.c	Mon Jul  9 19:18:50 2001
-+++ ./mm/vmscan.c	Wed Aug  1 19:35:28 2001
-@@ -875,6 +875,8 @@
- DECLARE_WAIT_QUEUE_HEAD(kswapd_wait);
- DECLARE_WAIT_QUEUE_HEAD(kswapd_done);
- 
-+int disable_kswapd /* = 0 */;
-+
- /*
-  * The background pageout daemon, started as a kernel thread
-  * from the init process. 
-@@ -915,6 +917,9 @@
- 	 */
- 	for (;;) {
- 		static long recalc = 0;
-+
-+		while (disable_kswapd)
-+			interruptible_sleep_on_timeout(&kswapd_wait, HZ/10);
- 
- 		/* If needed, try to free some memory. */
- 		if (inactive_shortage() || free_shortage()) 
+> What's about the patch... Do you understand that currently
+> it is impossible to call notifiers for adding/deletion of each IPv6
+address
+> in an intelligible context? Not seeing uses of such notifiers,
+> it is difficult to approve such feature because of danger of misuse
+> now and even worse misuse in (near) future, when context will change.
 
+Yes, we are fully aware, that we cannot call the notifier functions
+ourselves
+resp. cannot expect any useful result by doing so. We are only interested
+in
+being always up to date wrt. IP addresses.
+
+Regards,
+Utz
+
+Linux for S/390 and zSeries
+:wq
 

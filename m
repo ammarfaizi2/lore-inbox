@@ -1,118 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVAUKFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVAUKIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbVAUKFR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 05:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVAUKFR
+	id S262251AbVAUKIb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 05:08:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVAUKIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 05:05:17 -0500
-Received: from gprs215-198.eurotel.cz ([160.218.215.198]:44233 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262220AbVAUKFD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 05:05:03 -0500
-Date: Fri, 21 Jan 2005 11:04:22 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: hugang@soulinfo.com
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] swsusp: speed up image restoring on x86-64
-Message-ID: <20050121100422.GC18373@elf.ucw.cz>
-References: <200501202032.31481.rjw@sisk.pl> <20050120205950.GF468@openzaurus.ucw.cz> <200501202246.38506.rjw@sisk.pl> <20050121022348.GA18166@hugang.soulinfo.com>
+	Fri, 21 Jan 2005 05:08:30 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:10462 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262251AbVAUKGL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 05:06:11 -0500
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based
+	crashdumps.
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, fastboot <fastboot@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Hariprasad Nellitheertha <hari@in.ibm.com>,
+       Maneesh Soni <maneesh@in.ibm.com>
+In-Reply-To: <m1sm4v2p5t.fsf@ebiederm.dsl.xmission.com>
+References: <overview-11061198973484@ebiederm.dsl.xmission.com>
+	 <1106294155.26219.26.camel@2fwv946.in.ibm.com>
+	 <m1sm4v2p5t.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1106305073.26219.46.camel@2fwv946.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050121022348.GA18166@hugang.soulinfo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Jan 2005 16:27:54 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Sure, but I think it's there for a reason.
-> > 
-> > > Anyway, this is likely to clash with hugang's work; I'd prefer this not to be applied.
-> > 
-> > I am aware of that, but you are not going to merge the hugang's patches soon, are you?
-> > If necessary, I can change the patch to work with his code (hugang, what do you think?).
-> > 
-> I like this patch, And I change my code with this, Please have a look,
-> It pass in qemu X86_64. :)
+On Fri, 2005-01-21 at 13:24, Eric W. Biederman wrote:
+> Vivek Goyal <vgoyal@in.ibm.com> writes:
 > 
-> Full patch still can get from
->  http://soulinfo.com/~hugang/swsusp/2005-1-21/
+> > Hi Andrew,
+> > 
+> > Following patch is against 2.6.11-rc1-mm2. 
+> > 
+> > As mentioned by following note from Eric, crashdump code is currently
+> > broken.
+> > > 
+> > > The crashdump code is currently slightly broken.  I have attempted to
+> > > minimize the breakage so things can quick be made to work again.
+> > 
+> > We have started doing changes to make crashdump up and running again.
+> > Following are few identified items to be done.
+> > 
+> > 1. Reserve the backup region (640k) during kernel bootup. 
 > 
-> here is only x86_64 part.
+> Why do we need a separate region for this?
+> 
+> It should be simple enough to take 640 out of the area kexec reserves
+> for the crash dump kernel.  That is what the previous code implemented.
 
-Okay, why not, if you are changing it anyway...
+Previous code also reserved the backup memory region after crash kernel
+region. It is just a matter of interpretation. What I understand that
+crash kernel reserved region represents something where one can load the
+panic kernel directly and new kernel can use this memory region for
+memory allocation.
+
+I don't want to steal the backup region from crash kernel region
+otherwise, I shall have to boot the crash kernel with some strange
+values like memmap=(32M-640k)@16M (symbolically) to prevent crash kernel
+overwriting backup region. Why to make user aware of location of backup
+region.
+
+Alternatively, this can be managed by reserving this backup region again
+in crash kernel to avoid any stomping. May be pass backup region
+location to new kernel through parameter segment or through command line
+but don't see a strong reason for doing that.
 
 
-> --- 2.6.11-rc1-mm1/arch/x86_64/kernel/suspend_asm.S	2004-12-30 14:56:35.000000000 +0800
-> +++ 2.6.11-rc1-mm1-swsusp-x86_64/arch/x86_64/kernel/suspend_asm.S	2005-01-21 10:13:15.000000000 +0800
-> @@ -35,6 +35,7 @@ ENTRY(swsusp_arch_suspend)
->  	call swsusp_save
->  	ret
->  
-> +	.section    .data.nosave
->  ENTRY(swsusp_arch_resume)
->  	/* set up cr3 */	
->  	leaq	init_level4_pgt(%rip),%rax
+Thanks
+Vivek
 
-But why does it go into data section?
-
-> @@ -49,43 +50,32 @@ ENTRY(swsusp_arch_resume)
->  	movq	%rcx, %cr3;
->  	movq	%rax, %cr4;  # turn PGE back on
->  
-> -	movl	nr_copy_pages(%rip), %eax
-> -	xorl	%ecx, %ecx
-> -	movq	$0, %r10
-> -	testl	%eax, %eax
-> -	jz	done
-> -.L105:
-> -	xorl	%esi, %esi
-> -	movq	$0, %r11
-> -	jmp	.L104
-> -	.p2align 4,,7
-> -copy_one_page:
-> -	movq	%r10, %rcx
-> -.L104:
-> -	movq	pagedir_nosave(%rip), %rdx
-> -	movq	%rcx, %rax
-> -	salq	$5, %rax
-> -	movq	8(%rdx,%rax), %rcx
-> -	movq	(%rdx,%rax), %rax
-> -	movzbl	(%rsi,%rax), %eax
-> -	movb	%al, (%rsi,%rcx)
-> -
-> -	movq	%cr3, %rax;  # flush TLB
-> -	movq	%rax, %cr3;
-> -
-> -	movq	%r11, %rax
-> -	incq	%rax
-> -	cmpq	$4095, %rax
-> -	movq	%rax, %rsi
-> -	movq	%rax, %r11
-> -	jbe	copy_one_page
-> -	movq	%r10, %rax
-> -	incq	%rax
-> -	movq	%rax, %rcx
-> -	movq	%rax, %r10
-> -	mov	nr_copy_pages(%rip), %eax
-> -	cmpq	%rax, %rcx
-> -	jb	.L105
-> +	movq	pagedir_nosave(%rip), %rax
-> +	testq	%rax, %rax
-> +	je		done
-> +
-> +copyback_page:
-> +	movq	24(%rax), %r9
-> +	xorl	%r8d, %r8d
-> +
-
-Are you sure %r8 and %r9 are caller-saved? I'd use low registers if I
-were you, they look nincer and generate shorter opcodes ;-).
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

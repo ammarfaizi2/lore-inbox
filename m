@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbTDXJMH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 05:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbTDXJMH
+	id S262024AbTDXJHE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 05:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbTDXJHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 05:12:07 -0400
-Received: from [12.47.58.68] ([12.47.58.68]:39955 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S261962AbTDXJMF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 05:12:05 -0400
-Date: Thu, 24 Apr 2003 02:25:05 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: ncunningham@clear.net.nz, cat@zip.com.au, mbligh@aracnet.com,
-       gigerstyle@gmx.ch, geert@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: Fix SWSUSP & !SWAP
-Message-Id: <20030424022505.5b22eeed.akpm@digeo.com>
-In-Reply-To: <20030424091236.GA3039@elf.ucw.cz>
-References: <1051136725.4439.5.camel@laptop-linux>
-	<1584040000.1051140524@flay>
-	<20030423235820.GB32577@atrey.karlin.mff.cuni.cz>
-	<20030423170759.2b4e6294.akpm@digeo.com>
-	<20030424001733.GB678@zip.com.au>
-	<1051143408.4305.15.camel@laptop-linux>
-	<20030423173720.6cc5ee50.akpm@digeo.com>
-	<20030424091236.GA3039@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 24 Apr 2003 05:07:03 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9476 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262024AbTDXJHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 05:07:00 -0400
+Date: Thu, 24 Apr 2003 10:19:03 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Arjan van de Ven <arjan@fenrus.demon.nl>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030424101903.C9597@flint.arm.linux.org.uk>
+Mail-Followup-To: Arjan van de Ven <arjan@fenrus.demon.nl>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <1051174641.1385.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Apr 2003 09:24:07.0382 (UTC) FILETIME=[41759F60:01C30A43]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1051174641.1385.4.camel@laptop.fenrus.com>; from arjan@fenrus.demon.nl on Thu, Apr 24, 2003 at 10:57:21AM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> No, ext3 will be "unclean" during resume (you can't really unmount it
-> during suspend!) and r-o mounting of ext3 will replay journal and
-> cause data corruption.
+On Thu, Apr 24, 2003 at 10:57:21AM +0200, Arjan van de Ven wrote:
+> where it seems to say that if you need a script to be able to usefully
+> install a self compiled kernel, that script is part of "the sourcecode".
+> Now this of course can't and doesn't mean that people would need to give
+> up their private keys to the public; said "script" of course can also
+> install a second key or disable the keychecking. 
+> 
+> Or maybe I'm just totally interpreting this wrong.
 
-Sorry, I still don't get it.  Go through the steps for me:
+You just arrange for the script to detect whether a private key is
+present.  If none exists, it asks the user whether they want to generate
+a private key, and then calls gpg with the relevant options to do so.
 
-1) suspend writes pages to disk
+The private key isn't part of the script, nor is it a requirement to
+be able to (successfully) run the script.
 
-2) machine is shutdown
+Note that the GPL does not say whether the output from the installation
+script has to be usable with the target hardware.
 
-3) restart, journal replay
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-4) resume reads pages from disk.
-
-Where did the corruption happen?
-
-Please bear in mind that I don't really know how swsusp works, so tell it to
-me in nice simple steps.

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUBOLMk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 06:12:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUBOLMk
+	id S261681AbUBOLQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 06:16:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUBOLQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 06:12:40 -0500
-Received: from gate.crashing.org ([63.228.1.57]:1950 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261606AbUBOLMj (ORCPT
+	Sun, 15 Feb 2004 06:16:16 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:34531 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261681AbUBOLQP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 06:12:39 -0500
-Subject: Re: Linux 2.6.3-rc3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m2k72o4nvk.fsf@p4.localdomain>
-References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org>
-	 <m2znbk4s8j.fsf@p4.localdomain> <1076838882.6957.48.camel@gaston>
-	 <1076840755.6949.50.camel@gaston>  <m2k72o4nvk.fsf@p4.localdomain>
-Content-Type: text/plain
-Message-Id: <1076843487.6957.56.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 15 Feb 2004 22:11:28 +1100
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Feb 2004 06:16:15 -0500
+Date: Sun, 15 Feb 2004 12:16:10 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Herbert Poetzl <herbert@13thfloor.at>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Cross Compiling
+In-Reply-To: <20040213234554.GA32440@MAIL.13thfloor.at>
+Message-ID: <Pine.GSO.4.58.0402151214520.22078@waterleaf.sonytel.be>
+References: <20040213205743.GA30245@MAIL.13thfloor.at.suse.lists.linux.kernel>
+ <p73n07my8nn.fsf@verdi.suse.de> <20040213234554.GA32440@MAIL.13thfloor.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 14 Feb 2004, Herbert Poetzl wrote:
+>   linux-2.4.25-rc2        config  dep     kernel  modules
+>   m68k/m68k:              OK      OK      OK      OK
 
-> Yes, you can still build the old driver, but it doesn't work unless
-> you also apply this patch:
+Good! :-)
 
-Ah, I forgot the old fbdev init shit. Indeed, Linus, please apply
-this patch.
+One related question: anyone who knows how to run a cross-depmod, so I can find
+missing symbol exports without running depmod on the target?
 
-> --- linux/drivers/video/fbmem.c.old	2004-02-15 11:47:26.000000000 +0100
-> +++ linux/drivers/video/fbmem.c	2004-02-15 11:43:42.000000000 +0100
-> @@ -222,6 +222,9 @@
->  #ifdef CONFIG_FB_RADEON
->  	{ "radeonfb", radeonfb_init, radeonfb_setup },
->  #endif
-> +#ifdef CONFIG_FB_RADEON_OLD
-> +	{ "radeonfb_old", radeonfb_init, radeonfb_setup },
-> +#endif
->  #ifdef CONFIG_FB_CONTROL
->  	{ "controlfb", control_init, control_setup },
->  #endif
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

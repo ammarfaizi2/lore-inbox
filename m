@@ -1,82 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbTJLVmq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 17:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTJLVmq
+	id S261188AbTJLVwS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 17:52:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbTJLVwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 17:42:46 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:31196 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S261162AbTJLVmn
+	Sun, 12 Oct 2003 17:52:18 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:49294 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261188AbTJLVwR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 17:42:43 -0400
-Date: Sun, 12 Oct 2003 23:42:26 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Michael Hunold <hunold@convergence.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcel Holtmann <marcel@holtmann.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/14] firmware update for av7110 dvb driver
-Message-ID: <20031012214226.GC12939@ranty.pantax.net>
-Reply-To: ranty@debian.org
-References: <10656197272107@convergence.de> <1065624307.5470.242.camel@pegasus> <3F842EEE.5070001@convergence.de> <3F84332A.6080707@convergence.de>
+	Sun, 12 Oct 2003 17:52:17 -0400
+Date: Sun, 12 Oct 2003 22:52:00 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: retu <retu834@yahoo.com>
+Cc: Kenn Humborg <kenn@linux.ie>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.7 thoughts: common well-architected object model
+Message-ID: <20031012215200.GA15749@mail.shareable.org>
+References: <20031012115900.GC13427@mail.shareable.org> <20031012160419.30891.qmail@web13007.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F84332A.6080707@convergence.de>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031012160419.30891.qmail@web13007.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 08, 2003 at 05:54:18PM +0200, Michael Hunold wrote:
-> Hello Marcel,
-> >>>... send to Linus only. (You don't want a 150kB bzip2 compressed 
-> >>>firmware blob, don't you? In case you do, drop me a line.)
-> >
-> >
-> >>the request_firmware() framework is part of Linux 2.4 and 2.6 and so for
-> >>most drivers the firmware file can be loaded from userspace through proc
-> >>or sysfs. Please take a look at it.
-> 
-> >Yes, we know. When I looked at it the last time, there were some 
-> >problems that kept us from actually finishing the work.
-> >
-> >(If you did not use a hotplug agent, then the system was frozen, because 
-> >the firmware foo did not use it's own workqueue)
-> 
-> As a follow-up to my post: I just checked what already got in and what's 
-> still missing. I attached the stuff from request_firmwar() that didn't 
-> make it into the kernel yet.
-> 
-> Please note that I did not check if the problem has been solved 
-> otherwise. Perhaps Manuel Estrada Sainz <ranty@debian.org> can tell us 
-> what the current state is?
+retu wrote:
+> What's the solution out of this - a clean, open object
+> model designed by the core folks, extensible and free
+> of licensing issues - and that in the next months.  
 
- The patch should work but Andrew Morton didn't like the fact that in
- practice the kernel end's up having some threads around full time for
- the sole purpose of loading firmware once in a while.
+You still haven't said a single word about why this is good.
+You haven't explained a _single_ advantage.
 
- I should make a new patch to spawn a thread for each firmware load and
- have them die when the job is done. And stop using workqueues at all.
+If you want anyone to take you seriously, you have to do this.  Give
+real, convincing examples of what could be done, and why it's much
+better, to justify the work of creating the model.
 
- 	- Performance should not be an issue since firmware should
-	  seldom be needed.
-	- Code complexity shouldn't change much either.
+Perhaps you think your idea is self-evidently great, so you don't need
+to explain why it is?  Well, it isn't.  I've seen startups fail due to not
+grasping this basic point.
 
- Comments are welcomed.
+Almost everyone here does not think this is a good idea.  But we're
+all old and prejudiced around here.  Perhaps we are mistaken, but if
+so it's up to you to explain _why_.  Just saying "we need an object
+model" will not convince anyone.
 
- If the issue seams urgent, the current "private workqueue" patch could
- be applied and replaced later with a cleaner solution.
- 
- Just for the record I should get the job done within a couple of weeks.
- A proposal patch would of course help :)
+If you look into the kernel right now, you see that it's one of the
+most object oriented C programs you will find.  There's even a type
+called "kobject".  Another well known polymorphic object is called
+"fd".  "pid_t" really is an object.  Filesystems, buses, devices,
+network cards, protocols, timers and many other things have
+hierarchies of object types inside the kernel.
 
- Have a nice day
+It seems to me we _already_ have an object model in the kernel, and
+it's a pretty good one because people figure out how to use it very
+easily.  So what is wrong with the object model we already have?
+Convince us, because what we have seems to be working quite well.
 
- 	Manuel
-
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.
+-- Jamie

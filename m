@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274752AbRJNIJI>; Sun, 14 Oct 2001 04:09:08 -0400
+	id <S274746AbRJNIMi>; Sun, 14 Oct 2001 04:12:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274789AbRJNII7>; Sun, 14 Oct 2001 04:08:59 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:33421 "EHLO ookhoi.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S274752AbRJNIIo>;
-	Sun, 14 Oct 2001 04:08:44 -0400
-Date: Sun, 14 Oct 2001 10:09:05 +0200
-From: Ookhoi <ookhoi@dds.nl>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Ed Tomlinson <tomlins@CAM.ORG>, linux-kernel@vger.kernel.org
-Subject: Re: mount hanging 2.4.12
-Message-ID: <20011014100905.D30428@humilis>
-Reply-To: ookhoi@dds.nl
-In-Reply-To: <20011014015115.E894D11718@oscar.casa.dyndns.org> <Pine.GSO.4.21.0110132201150.3903-100000@weyl.math.psu.edu>
+	id <S274756AbRJNIM2>; Sun, 14 Oct 2001 04:12:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:396 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S274746AbRJNIMR>;
+	Sun, 14 Oct 2001 04:12:17 -0400
+Date: Sun, 14 Oct 2001 01:12:46 -0700 (PDT)
+Message-Id: <20011014.011246.59654800.davem@redhat.com>
+To: Mika.Liljeberg@welho.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TCP acking too fast
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BC9441C.887258DA@welho.com>
+In-Reply-To: <3BC9393D.765A156@welho.com>
+	<20011014.004744.51856957.davem@redhat.com>
+	<3BC9441C.887258DA@welho.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0110132201150.3903-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.19i
-X-Uptime: 12:53:32 up 5 days, 16:11,  9 users,  load average: 0.08, 0.02, 0.01
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >> He said in his original email that it was a USB SmartMedia reader,
-> > >> which reads the SmartMedia cards used with FujiFilm digital cameras
-> > >> (amongst others). The actual file system is determined by the cards
-> > >> themselves and can't be changed.
-> > 
-> > >Ahem.  Which fs driver is used when it's successfully mounted?
-> > 
-> > fat.  Would an strace help?
-> 
-> It might, but another thing I'd like to see is stack trace of hung mount.
+   From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+   Date: Sun, 14 Oct 2001 10:51:56 +0300
+   
+   I don't control the remote machine, but it's linux (don't know which
+   version). I tried with both HTTP (Apache 1.3.9) and FTP. I doubt it's
+   the application. :-)
 
-I have the same with sony memorystick. Load usb/scsi/fat modules, mount,
-umount, mount again but it fails. I just unload and load all the
-relevant modules again and I can read the stick again. This is with
-2.4.6-ac2 for example.
+Well, the version of the kernel is pretty important.
+Setting PSH all the time does sound like a possibly familiar bug.
 
-	Ookhoi
+Franks a lot,
+David S. Miller
+davem@redhat.com

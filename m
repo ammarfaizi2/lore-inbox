@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbUKBVqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbUKBVrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbUKBVqy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 16:46:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbUKBVqx
+	id S261612AbUKBVrv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 16:47:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUKBVru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 16:46:53 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:45837 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262094AbUKBVpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 16:45:49 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Subject: Re: [rc4-amd64] RC4 optimized for AMD64
-Date: Tue, 2 Nov 2004 23:45:38 +0200
-User-Agent: KMail/1.5.4
-Cc: Marc Bevand <bevand_m@epita.fr>, linux-kernel@vger.kernel.org
-References: <cm4moc$c7t$1@sea.gmane.org> <200411020854.21629.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.61.0411021049510.6586@twinlark.arctic.org>
-In-Reply-To: <Pine.LNX.4.61.0411021049510.6586@twinlark.arctic.org>
+	Tue, 2 Nov 2004 16:47:50 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:37285 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261807AbUKBVmz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 16:42:55 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jack Steiner <steiner@sgi.com>
+Subject: Re: contention on profile_lock
+Date: Tue, 2 Nov 2004 13:42:36 -0800
+User-Agent: KMail/1.7
+Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org, edwardsg@sgi.com
+References: <200411021152.16038.jbarnes@engr.sgi.com> <20041102200222.GA5135@sgi.com>
+In-Reply-To: <20041102200222.GA5135@sgi.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="koi8-r"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200411022345.38122.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <200411021342.36918.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 November 2004 20:52, dean gaudet wrote:
-> On Tue, 2 Nov 2004, Denis Vlasenko wrote:
-> 
-> > On Monday 01 November 2004 22:44, dean gaudet wrote:
-> > > note that 
-> > > p4 would prefer "sub $1, %r11b" here instead of dec... but the difference 
-> > > is likely minimal.
-> > 
-> > p4 is not the only x86 CPU on the planet. Why should I use
-> > longer instruction then?
-> 
-> you're asking about spending one byte?  one byte extra for code which 
-> could perform better on more CPUs?
+On Tuesday, November 2, 2004 12:02 pm, Jack Steiner wrote:
+> On Tue, Nov 02, 2004 at 11:52:15AM -0800, Jesse Barnes wrote:
+> > Hmm, the last patch you sent me worked ok, so I'm not sure why we're
+> > seeing problems with profiling now.  There seems to be very heavy
+> > contention on profile_lock since profile_hook is called unconditionally
+> > every timer tick. Should it only be called if profiling is enabled?  Is
+> > there a way we can check the notifier list to see if it's empty before
+> > calling it or something? The only user appears to be oprofile timer based
+> > profiling, so in the general case we're taking the profile_lock and not
+> > doing anything.
+> >
+> > Thanks,
+> > Jesse
+>
+> Calling profile_hook() only if the notifier list is non-empty seems like a
+> good step but I don't think that is the complete fix. We need to be able to
+> enable profiling without killing performance.
 
-You're asking about speedup by 1 cycle on a CPU which will be outdated
-6 months from now?
---
-vda
+Agreed.  Dipankar already suggested RCUifying the notifier list, but another 
+option would be to simply check to see if oprofile timer based profiling is 
+enabled since it seems to be the only user.  That would turn a lock into a 
+read-mostly variable at least.
 
+Jesse

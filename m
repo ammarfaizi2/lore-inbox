@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268477AbTANB2H>; Mon, 13 Jan 2003 20:28:07 -0500
+	id <S268482AbTANB3l>; Mon, 13 Jan 2003 20:29:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268479AbTANB2G>; Mon, 13 Jan 2003 20:28:06 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:63260 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id <S268477AbTANB2E>; Mon, 13 Jan 2003 20:28:04 -0500
-Message-ID: <3E23696A.9040006@google.com>
-Date: Mon, 13 Jan 2003 17:35:38 -0800
-From: Ross Biro <rossb@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+	id <S268485AbTANB3l>; Mon, 13 Jan 2003 20:29:41 -0500
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:45847
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S268482AbTANB3k>; Mon, 13 Jan 2003 20:29:40 -0500
+Message-ID: <3E236A0F.2080605@rackable.com>
+Date: Mon, 13 Jan 2003 17:38:23 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ross Biro <rossb@google.com>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre3-ac4
-References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>	 <1042399796.525.215.camel@zion.wanadoo.fr>	 <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>	 <1042401074.525.219.camel@zion.wanadoo.fr>  <3E230A4D.6020706@google.com>	 <1042484609.30837.31.camel@zion.wanadoo.fr>  <3E23114E.8070400@google.com> <1042491409.586.4.camel@zion.wanadoo.fr> <3E233160.3040901@google.com>
+To: Soeren Sonnenburg <bugreports@nn7.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: system freezes when using udma on promise pdc20268
+References: <1042492068.1199.11.camel@sun>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Jan 2003 01:38:26.0501 (UTC) FILETIME=[A2168750:01C2BB6D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ross Biro wrote:
+Soeren Sonnenburg wrote:
 
->>>
->>> This is technically a spec violation, but it's probably safe.  I'm 
->>> going to send an email to a couple of the drive manufacturers and 
->>> see what they think.
->>>   
->>
-I just heard back from one ide controller chip vendor and they think we 
-should disable PCI write posting.  From the tone of the response, I 
-believe that they may not have thought of this before and it may be a 
-problem in their non-opensource drivers as well.
+>Hi!
+>
+>I experience cold freezes of my new system reproducably (can still
+>toggle numlock, but on alt+sysrq+t it freezes completely, watchdog_nmi=1
+>does not help so no printout over serial console) when I enable any 
+>udma mode >0 using the old or new pdc202xx driver.
+>
+>However the system seems to work stably (as far I can tell) when using
+>the mdma0 or pio modes.
+>
+>The setup is asus a7v8x with sound/ide/firewire onboard. Two 180GB WDC
+>WD1800JB-00DUA0 on the primary and secondary internal VIA controller and
+>3 drives on two pdc20268, where the third hard disk is on the secondary
+>controller (I explain later why!). All harddisk are jumpered to be
+>master's.
+>  
+>
+  Are you stating this correctly.   You've got 2 drives on the PDC20268 
+on a single ide chain jumpered as masters?  You should have one jumpered 
+as a master and a as a slave.  A single ide chain can have only one master.
 
-    Ross
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+
 
 

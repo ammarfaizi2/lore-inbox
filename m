@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132225AbRA2JN7>; Mon, 29 Jan 2001 04:13:59 -0500
+	id <S131296AbRA2JUm>; Mon, 29 Jan 2001 04:20:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132372AbRA2JNt>; Mon, 29 Jan 2001 04:13:49 -0500
-Received: from saw.sw.com.sg ([203.120.9.98]:26506 "HELO saw.sw.com.sg")
-	by vger.kernel.org with SMTP id <S132225AbRA2JNh>;
-	Mon, 29 Jan 2001 04:13:37 -0500
-Message-ID: <20010129171318.A15688@saw.sw.com.sg>
-Date: Mon, 29 Jan 2001 17:13:18 +0800
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Micah Gorrell <angelcode@myrealbox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 problems in 2.4.0
-In-Reply-To: <003401c0870c$3362e390$9b2f4189@angelw2k>
+	id <S131817AbRA2JUb>; Mon, 29 Jan 2001 04:20:31 -0500
+Received: from mail15.bigmailbox.com ([209.132.220.46]:39436 "EHLO
+	mail15.bigmailbox.com") by vger.kernel.org with ESMTP
+	id <S131296AbRA2JUV>; Mon, 29 Jan 2001 04:20:21 -0500
+Date: Mon, 29 Jan 2001 01:20:15 -0800
+Message-Id: <200101290920.BAA28321@mail15.bigmailbox.com>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <003401c0870c$3362e390$9b2f4189@angelw2k>; from "Micah Gorrell" on Thu, Jan 25, 2001 at 01:20:03PM
+X-Originating-Ip: [24.5.157.48]
+From: "Quim K Holland" <qkholland@my-deja.com>
+To: Dylan_G@bigfoot.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: More on the VIA KT133 chipset misbehaving in Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>>>>> "DG" == Dylan Griffiths <Dylan_G@bigfoot.com> writes:
 
-On Thu, Jan 25, 2001 at 01:20:03PM -0700, Micah Gorrell wrote:
-> I have doing some testing with kernel 2.4 and I have had constant problems
-> with the eepro100 driver.  Under 2.2 it works perfectly but under 2.4 I am
-> unable to use more than one card in a server and when I do use one card I
-> get errors stating that eth0 reports no recources.  Has anyone else seen
-> this kind of problem?
+DG> The VIA KT133 chipset exhibits the following bugs under Linux
+DG> 2.2.17 and 2.4.0:
+DG> 1) PS/2 mouse cursor randomly jumps to upper right hand corner
+DG> of screen and locks for a bit
+DG> 2) Detects a maximum of 64mb of ram, unless worked around by the
+DG> "mem=" switch
+DG> 3) The clock drifts slowly (more so under heavy load than light
+DG> load), leaking time.
 
-It's a known problem.
-I submitted the patch to Linus and the mailing list this weekend.
+I am not a guru, but AOpen AK73PRO which uses VIA KT133 does not
+show any of these symptoms that you describe (I cannot be sure
+about #3 since I run ntp).  You may want to make your hardware
+description a bit more specific to help gurus to help you...
 
-Best regards
-					Andrey V.
-					Savochkin
+
+------------------------------------------------------------
+--== Sent via Deja.com ==--
+http://www.deja.com/
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

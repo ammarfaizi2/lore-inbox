@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263997AbTE3Uwz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 16:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbTE3Uwz
+	id S264248AbTE3U4U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 16:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTE3U4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 16:52:55 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:14499 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263997AbTE3Uwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 16:52:54 -0400
-Date: Fri, 30 May 2003 23:06:10 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+	Fri, 30 May 2003 16:56:20 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38669 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264035AbTE3U4T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 16:56:19 -0400
+Date: Fri, 30 May 2003 22:09:36 +0100
+From: Russell King <rmk@arm.linux.org.uk>
 To: Steven Cole <elenstev@mesatop.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: [PATCH] 2.5 Documentation/CodingStyle ANSI C function declarations.
-Message-ID: <20030530210610.GD3308@wohnheim.fh-wedel.de>
-References: <1054324633.3754.119.camel@spc9.esa.lanl.gov> <20030530201429.GA3308@wohnheim.fh-wedel.de> <1054326307.3751.124.camel@spc9.esa.lanl.gov> <20030530204055.GB3308@wohnheim.fh-wedel.de>
+Message-ID: <20030530220936.G9419@flint.arm.linux.org.uk>
+Mail-Followup-To: Steven Cole <elenstev@mesatop.com>,
+	linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <1054324633.3754.119.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030530204055.GB3308@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1054324633.3754.119.camel@spc9.esa.lanl.gov>; from elenstev@mesatop.com on Fri, May 30, 2003 at 01:57:13PM -0600
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2003 22:40:55 +0200, Jörn Engel wrote:
-> 
-> I would agree with that strategy, if the zlib wasn't actively
-> maintained anymore and we'd have to take over that part anyway.  But
-> as it is, this will create extra work with little bonus on our side,
-> except to set a better example maybe.
+On Fri, May 30, 2003 at 01:57:13PM -0600, Steven Cole wrote:
+> +int foo(
+> +	long bar,
+> +	long day,
+> +	struct magic *xyzzy
+> +)
 
-In related news, the kernel zlib still claims to be 1.1.3.  The
-security bug fixed with 1.1.4 was a double-free problem which doesn't
-apply to the kernel version anymore, but other functional changes were
-missed as well.  Does anyone really understand what those changes are
-about? David perhaps?
-
-If not, I will prepare a patch.
-
-Jörn
+Is this really part of the kernel coding style?
 
 -- 
-They laughed at Galileo.  They laughed at Copernicus.  They laughed at
-Columbus. But remember, they also laughed at Bozo the Clown.
--- unknown
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,63 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293448AbSCVImt>; Fri, 22 Mar 2002 03:42:49 -0500
+	id <S293276AbSCVIm3>; Fri, 22 Mar 2002 03:42:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293452AbSCVImd>; Fri, 22 Mar 2002 03:42:33 -0500
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:42236 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S310241AbSCVImS>; Fri, 22 Mar 2002 03:42:18 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Fri, 22 Mar 2002 01:42:09 -0700
-To: Michal Jaegermann <michal@harddata.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: max partition size
-Message-ID: <20020322084209.GD3451@turbolinux.com>
-Mail-Followup-To: Michal Jaegermann <michal@harddata.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020322005037.A9256@mail.harddata.com>
+	id <S310258AbSCVImU>; Fri, 22 Mar 2002 03:42:20 -0500
+Received: from dialin-145-254-149-022.arcor-ip.net ([145.254.149.22]:19438
+	"HELO schottelius.org") by vger.kernel.org with SMTP
+	id <S293276AbSCVImD>; Fri, 22 Mar 2002 03:42:03 -0500
+Date: Thu, 21 Mar 2002 22:00:10 +0000
+From: Nico Schottelius <nicos-mutt@pcsystems.de>
+To: ecd@skynet.be, brad@neruo.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: atyfb makes the screen black
+Message-ID: <20020321220010.GA15951@schottelius.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
 Content-Disposition: inline
 User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-MSMail-Priority: Is not really needed
+X-Mailer: Yam on Linux ?
+X-Operating-System: Linux flapp 2.5.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 22, 2002  00:50 -0700, Michal Jaegermann wrote:
-> Who knows for sure what is the current upper limit on ext2/ext3
-> file system size (4KiB blocks as this is what tools will accept)?  It
-> definitely is not 1 TB as we were making working partition nearly twice
-> that.  But practice seems to indicate that 2 TB, or whereabout, can be
-> too much.  Is this a property of a file system or we bumping into
-> block device boundaries or this are just tools?
 
-2TB is the limit for all block devices in 2.2 and 2.4 kernels.  This is
-from 2^32 * 512 byte sectors.  Using LVM or MD devices will not overcome
-this limitation.
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There was a patch floating around which extended the block counts to
-64-bit ints (Jens Axboe and/or Ben LaHaise posted it), and I think at
-least part of it is in 2.5.  Even if you have 64-bit block counts,
-there are other issues which pop up fairly soon - 32-bit page indexes
-and other 32-bit overflows in calculations in the ext2 code.  There
-is definitely a hard limit at 16TB for 4kB block ext2 filesystems,
-but I suspect you will have problems at 8TB even after the 2TB block
-device limit is lifted.
+Hello!=20
 
-> BTW - mke2fs goes most of the way but gets stuck eventually when
-> writing inode tables if that it is too close to 2 TB.  Yes, there
-> are people who really want that much of a file system or maybe even
-> more. :-)   This was not done for a sake of a record.
+I tried to get a nice fbdev running with my card, but when I load aty_fb
+from kernel 2.4.17 or 2.5.6 it just makes my screen black and forces me to
+reboot so I can see anything again.
+It looks like it is supported in aty/atyfb_base.c, but=20
+Q: Is my card supported ?
+Q: Will it ever be supported ?
 
-You could always try it on a real 64-bit machine to see if that helps.
-You can concievably use 8kB blocks on an Alpha, giving you an upper
-limit of 32TB for the filesystem until the ext2 extent code is
-implemented (which will give us 64-bit block numbers among other things).
+Here's my lspci output, so you can see what I use...
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage P/M Mobilit=
+y AGP        Subsystem: Acer Incorporated [ALI]: Unknown device 1010
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-=
+ Step        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAb=
+ort- <TAbort        Latency: 32 (2000ns min), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at 81000000 (32-bit, non-prefetchable) [size=3D16M]
+        Region 1: I/O ports at 8000 [size=3D256]
+        Region 2: Memory at 80600000 (32-bit, non-prefetchable) [size=3D4K]
+        Expansion ROM at 80620000 [disabled] [size=3D128K]
+        Capabilities: [50] AGP version 1.0
+                Status: RQ=3D255 SBA+ 64bit- FW- Rate=3Dx1,x2
+                Command: RQ=3D0 SBA- AGP- 64bit- FW- Rate=3D<none>
+        Capabilities: [5c] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D0mA PME(D0-,D1-,D2=
+-,D3hot                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
 
+
+
+Thanks in advance!
+
+Nico
+
+p.s.: hopefully i hit the maintainer (who is not in the MAINTAINERS file)
+with this mail...
+
+--=20
+Nico Schottelius
+
+Please send your messages pgp-signed or pgp-encrypted.
+If you don't know what pgp is visit www.gnupg.org.
+(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Weitere Infos: siehe http://www.gnupg.org
+
+iD8DBQE8mlfptnlUggLJsX0RAos+AJ4oL113FnPN5ELsxhbSDhwoq95B6QCeOL2D
+rE+t8z8H8Oxqh9BdmsukIKE=
+=ja/D
+-----END PGP SIGNATURE-----
+
+--qMm9M+Fa2AknHoGS--

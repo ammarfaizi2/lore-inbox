@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313537AbSGYNGT>; Thu, 25 Jul 2002 09:06:19 -0400
+	id <S313419AbSGYNJM>; Thu, 25 Jul 2002 09:09:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313508AbSGYNGR>; Thu, 25 Jul 2002 09:06:17 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36363 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313537AbSGYNGC>; Thu, 25 Jul 2002 09:06:02 -0400
-Date: Thu, 25 Jul 2002 09:03:33 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dual Athlon MP 1900+ on MSI K7D Master-L
-In-Reply-To: <200207182114.30806.kelledin+LKML@skarpsey.dyndns.org>
-Message-ID: <Pine.LNX.3.96.1020725085414.11202E-100000@gatekeeper.tmr.com>
+	id <S313416AbSGYNJL>; Thu, 25 Jul 2002 09:09:11 -0400
+Received: from mta01bw.bigpond.com ([139.134.6.78]:15321 "EHLO
+	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S313305AbSGYNJJ>; Thu, 25 Jul 2002 09:09:09 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Header files and the kernel ABI
+Date: Thu, 25 Jul 2002 23:08:00 +1000
+User-Agent: KMail/1.4.5
+References: <aho5ql$9ja$1@cesium.transmeta.com>
+In-Reply-To: <aho5ql$9ja$1@cesium.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200207252308.00656.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jul 2002, Kelledin wrote:
-> Alan may have a different answer for you, but in my experience, 
-> you can just specify the -j<whatever> flag when you run make 
-> (and also set the MAKE variable to "make -j<whatever>".  The 
-> speed benefit really kicks in when making bzImage or modules.
-> 
-> In general, I find it best to set the number of jobs to the 
-> number of CPUs _plus 1_--i.e. for single CPU, use make -j2, and 
-> for dual CPUs, use make -j3.  Going for that "plus 1" makes most 
-> builds just a smidgen faster.  For me, on my dual PPro box, the 
-> process would be something like:
-> 
-> make menuconfig
-> make -j3 MAKE="make -j3" dep clean bzImage modules
+On Thu, 25 Jul 2002 16:28, H. Peter Anvin wrote:
+> It seems to me that a reasonable solution for how to do this is not
+> for user space to use kernel headers, but for user space and the
+> kernel to share a set of common ABI description files[1].  These files
+> should be highly stylized, and only describe things visible to user
+> space.  Furthermore, if they introduce types, they should use the
+> already-established __kernel_ namespace, and of course __s* and __u*
+> could be used for specific types.
+I like it (having just argued for it), except for the __s* and __u*.
+The ABI definitions aren't for kernel programmers. They are for 
+userspace programmers. So we should use standard types,
+even if they are a bit ugly (and uint16_t isn't really much uglier
+than __u16, and at least it doesn't carry connotations of
+something that is meant to be internal, which is what the standard
+double-underscore convention means). 
 
-These do different things...
+Please, let us agree that the ABI definition should use standard
+types wherever possible.
 
-If you put -j3 on the command line as an option to the primary make, it
-can (will) run that many processes and do things out of order. If you use
-MAKE='make -j3' it only takes effect after a new make process is started.
-So you can put all the things on one command line and they will be run to
-completion sequentially. I find this helpful to avoid mixing bzImage and
-modules, one may get an error and the other will keep on going, scrolling
-the error off the screen.
+Brad
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

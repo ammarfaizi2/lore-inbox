@@ -1,71 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269692AbUJMNC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269695AbUJMNIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269692AbUJMNC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 09:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269694AbUJMNC7
+	id S269695AbUJMNIr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 09:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269697AbUJMNIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 09:02:59 -0400
-Received: from wine.ocn.ne.jp ([220.111.47.146]:6353 "EHLO smtp.wine.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S269692AbUJMNC5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 09:02:57 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Bug? R/W mount succeeds on a write protected media!
-From: <200410@i-love.sakura.ne.jp>
-Message-Id: <200410132202.JAF46725.213151@i-love.sakura.ne.jp>
-X-Mailer: Winbiff [Version 2.43]
-X-Accept-Language: ja,en
-Date: Wed, 13 Oct 2004 22:02:56 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 13 Oct 2004 09:08:47 -0400
+Received: from zamok.crans.org ([138.231.136.6]:23703 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S269695AbUJMNIW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 09:08:22 -0400
+To: "Harald Dunkel" <harald.dunkel@t-online.de>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: udev: what's up with old /dev ?
+References: <1097446129l.5815l.0l@werewolf.able.es>
+	<20041012001901.GA23831@kroah.com> <416B91C4.7050905@t-online.de>
+	<20041012165809.GA11635@kroah.com> <416C26B4.6040408@t-online.de>
+	<20041012185733.GA31222@kroah.com> <416C3BB6.4040200@t-online.de>
+	<20041012203022.GB32139@kroah.com> <416C4E15.9000503@t-online.de>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Wed, 13 Oct 2004 15:08:23 +0200
+In-Reply-To: <416C4E15.9000503@t-online.de> (Harald Dunkel's message of "Tue,
+	12 Oct 2004 23:35:17 +0200")
+Message-ID: <87vfde3gvs.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello.
+"Harald Dunkel" <harald.dunkel@t-online.de> disait dernièrement que :
 
-I found a strange behavior with kernel 2.4.27 .
-I installed GRUB into a USB flash memory (BUFFALO's RUF-X, USB2.0, 1GB),
-and it boots normally. (Although I need to insert "sleep" inside /linuxrc
-so that "mount /dev/root /sysroot" doesn't fail with errno = 6 .)
+> Greg KH wrote:
+>> On Tue, Oct 12, 2004 at 10:16:54PM +0200, Harald Dunkel wrote:
 
-This USB memory has a "write protect tab" and if it is on,
-the kernel message "Write protect is on." appears when the media is recognized.
-However, I can remount the root fs (stored in this media) as R/W when the tab is on!
-Also, I can create and delete files within the root fs,
-although the files are not written to the media.
-(The kernel message "write protected" appears
-some seconds after any write operations.)
+> Sorry, somewhere in this thread I had clicked the wrong
+> reply button.
+>
+> Talking about initramfs: I am still trying to become
+> familiar with this stuff. I have found a lot of small
+> pieces of information (still reading), and the cpio
+> stuff in the kernel usr directory. But I have 2 questions:
+>
+> Why is the initramfs built at the beginning of the
+> kernel build procedure? Wouldn't it be more reasonable
+> to build it when all kernel modules are available?
 
-The media is recognized as /dev/sda, and has only one partition /dev/sda1
-formatted as ext2.
+because for now, the initramfs built into the kernel is quasi-empty and
+isn't used as-is.
 
-The kernel includes all drivers that is needed for mounting USB flash memory
-formatted as ext2. (SCSI disk modules, USB storage modules, ext2 modules etc.)
+>
+> And why is it compiled into the kernel at all? The
+> README in Documentation/early-userspace says
+>
+> <quote>
+> "Early userspace" is a set of libraries and programs that provide
+> various pieces of functionality that are important enough to be
+> available while a Linux kernel is coming up, but that don't need to be
+> run inside the kernel itself.
+> </quote>
 
-I think the R/W mount attempt should fail if the write protect is on.
-The problem occurs because the SCSI driver ( or something else ?) doesn't check
-whether the media is write protected or not when R/W mount attempt occurs.
+the last statement just says it does not run in _kernelspace_ but in
+_userspace_. 
+it has to be in the kernel.
+I use it to mount my dm-crypt'd / and no initrd is needed.
+(well as I wasn't able to get a small cryptsetup binary, my kernels
+are ~1850kB worth of size)
 
-When I boot this media with SYSLINUX and mount the root fs image (stored in this
-media) using loopback, the R/W mount attempt fails if the write protect is on.
+> So why compile it into the kernel? IMHO it would be more
+> flexible to load the early-userspace stuff similar to initrd
+> via the grub command line. Compiling it into the kernel
+> could be optional.
 
-The PC is IBM ThinkPad X31 . (I eject the HDD when I boot from USB memory.)
-The kernel is 2.4.27 . (I don't know how to compile non-vanilla kernels.)
-Using devfs and automatically mounted. (Because root fs is in a write protected media.)
+huh, well initrd is / that is mounted over the so-called _rootfs_
+initramfs is here to _be_ that rootfs. So no pivot_root needed and the run-it
+program included in klibc tarballs takes care of wiping-out everything that
+could waste memory into the initramfs before mounting the real /. 
+If it was to compiled out of the kernel, it would just be an initrd....
 
-What information do I need to provide?
+rootfs is _needed_ for mounting the real root, so is initramfs.
 
-Regards...
+have a nice day,
 
--------
+Mathieu
 
-By the way ...
-I subscribe this ML as digest mode to save POP3'ing time and disk spaces.
-But the digested message has no Message-Id: for individual messages,
-so I can't reply to individual messages to keep a thread tree.
-Is "subscribing this ML as non digest mode" the only way to track Message-Id:
-for individual messages to keep a thread tree?
-Please tell me if there is another way.
+-- 
+"My pan plays down an unprecedented amount of our national debt."
 
--------
-  Tetsuo Handa
+George W. Bush
+February 27, 2001
+>From a speech concerning the proposed federal budget.
+

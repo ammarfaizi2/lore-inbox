@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262220AbRE0Ukv>; Sun, 27 May 2001 16:40:51 -0400
+	id <S262195AbRE0UoB>; Sun, 27 May 2001 16:44:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262212AbRE0Ukm>; Sun, 27 May 2001 16:40:42 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:30064 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S262195AbRE0Uk2>; Sun, 27 May 2001 16:40:28 -0400
-Date: Sun, 27 May 2001 16:40:18 -0400 (EDT)
-From: Ben LaHaise <bcrl@redhat.com>
-X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
-To: Edgar Toernig <froese@gmx.de>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
- w/info-PATCH]device arguments from lookup)
-In-Reply-To: <3B1101ED.3BF181F6@gmx.de>
-Message-ID: <Pine.LNX.4.33.0105271626500.15241-100000@toomuch.toronto.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262208AbRE0Unv>; Sun, 27 May 2001 16:43:51 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:835
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S262195AbRE0Une>; Sun, 27 May 2001 16:43:34 -0400
+Date: Sun, 27 May 2001 22:43:25 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: dag@brattli.net
+Cc: linux-irda@pasta.cs.uit.no, linux-kernel@vger.kernel.org
+Subject: [PATCH] add restore_flags to error path in irttp.c (245ac1)
+Message-ID: <20010527224325.Q857@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 May 2001, Edgar Toernig wrote:
+Hi.
 
-> You really mean that "magicdev" is a directory and:
->
-> 	open("magicdev/.", O_RDONLY);
+The following patch makes irttp_read_proc restore_flags()
+in error cases too. Applies against 245ac1.
 
-At least for the patch I posted, that would return -ENOTDIR, and exactly
-for the reason that not doing so would break find.  I've been convinced
-that we really need to be careful which, if any, options are permitted in
-this fashion.
 
-		-ben
+--- linux-245-ac1-clean/net/irda/irttp.c	Sun May 27 22:15:34 2001
++++ linux-245-ac1/net/irda/irttp.c	Sun May 27 22:37:59 2001
+@@ -1598,7 +1598,7 @@
+ 	self = (struct tsap_cb *) hashbin_get_first(irttp->tsaps);
+ 	while (self != NULL) {
+ 		if (!self || self->magic != TTP_TSAP_MAGIC)
+-			return len;
++			break;
+ 
+ 		len += sprintf(buf+len, "TSAP %d, ", i++);
+ 		len += sprintf(buf+len, "stsap_sel: %02x, ", 
 
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+Which is worse: Ignorance or Apathy?
+Who knows? Who cares?

@@ -1,118 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281787AbRKWIhF>; Fri, 23 Nov 2001 03:37:05 -0500
+	id <S281777AbRKWIs3>; Fri, 23 Nov 2001 03:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281811AbRKWIg4>; Fri, 23 Nov 2001 03:36:56 -0500
-Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:59148 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S281787AbRKWIgs>;
-	Fri, 23 Nov 2001 03:36:48 -0500
-Message-ID: <3BFE0A9B.5010006@si.rr.com>
-Date: Fri, 23 Nov 2001 03:36:43 -0500
-From: Frank Davis <fdavis@si.rr.com>
-Reply-To: fdavis@si.rr.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: rob@osinvestor.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15-final
-In-Reply-To: <Pine.LNX.4.33.0111230312480.10570-100000@pita.lan>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S281805AbRKWIsU>; Fri, 23 Nov 2001 03:48:20 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:61701 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S281777AbRKWIsL>; Fri, 23 Nov 2001 03:48:11 -0500
+Date: Fri, 23 Nov 2001 09:48:05 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: safemode <safemode@speakeasy.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: slowdown on Via ide chipsets with 2.4.15?
+Message-ID: <20011123094805.A32287@suse.cz>
+In-Reply-To: <20011122192037Z281458-17408+17489@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011122192037Z281458-17408+17489@vger.kernel.org>; from safemode@speakeasy.net on Thu, Nov 22, 2001 at 02:20:31PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Nor did I see an official announcement of Linux 2.5.0 from Linus on 
-lkml. :)
-Regards,
--Frank
+On Thu, Nov 22, 2001 at 02:20:31PM -0500, safemode wrote:
+> something i just took notice while fixing my computers.  
+> hdparm -t to test the speed of drives, i have in the past had about 30MB/s 
+> across all my drives.  
+> Now, my primary disk, which is the only one on it's channel, gets 19MB/s 
+> (udma2 speeds).  It's an udma4 drive and i've seen it get 30+ on average in 
+> earlier kernels.  My primary master on the promise card gets 30+ still, but 
+> my slave on the same channel gets 19MB/s even though the master is not being 
+> used.  I know there is to be expected some performance drop, but that much is 
+> a little disconcerting.  I have my atapi devices on the secondary channel of 
+> my via controller (motherboard) and the second channel on the promise card 
+> will be used for my new drive.  
+> The harddrives are configured exactly the way they used to be and the kernel 
+> is compiled with the exact same options for ide/dma and such.   The 
+> changefile doesn't look like the via ide drivers were messed with.   The only 
+> other difference is that all my drives are now ext3.
+> 
+> Controller (motherboard)  VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 
+> controller on pci00:07.1
+> Controller (card)  PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode 
+> Secondary PCI Mode.
+> 
+> All drives are set to UDMA4 (ATA66)    hdparm isn't used,  simple check shows 
+> that everything is set the way it should be default.  
+> 
+> Also, the kernel displays UDMA(66)    wouldn't it be  ATA66.  UDMA comes in 
+> 1,2,4, and 5.  that's like, ata16, ata33, ata66 and ata100.        
 
-Rob Radez wrote:
+Send me your /proc/ide/via and hdparm -i /dev/hd*, and I'll see if I see
+any problems there ...
 
-> Didn't see Linus post the final ChangeLog, so here it is:
-> 
-> final:
->  - Jan Kara: fix quota SMP races with BKL
-> 
-> pre9:
->  - David Brownell: usbnet update
->  - Greg KH: USB and PCI hotplug update
->  - Ingo/me: fix SCHED_FIFO for UP/SMP for good (flw).
->  - Add back direct_IO now that it works again.
-> 
-> pre8:
->  - Richard Henderson: alpha update
->  - Andrew Morton: fix ext3/minix/sysv fsync behaviour.
-> 
-> pre7:
->  - Jeff Garzik: network driver updates
->  - Christoph Hellwig: UFS filesystem byteorder cleanups
->  - me: modified Andrea VM page allocator tuning
-> 
-> pre6:
->  - Russell King: /proc/cpuinfo for ARM
->  - Paul Mackerras: PPC update (cpuinfo etc)
->  - Nicolas Aspert: fix Intel 8xx agptlb flush
->  - Marko Myllynen: "Lindent" doesn't really need bash ;)
->  - Alexander Viro: /proc/cpuinfo for s390/s390x/sh, /proc/pci cleanup
->  - Alexander Viro: make lseek work on seqfiles
-> 
-> pre5:
->  - Greg KH: enable hotplug driver support
->  - Andrea Arcangeli: remove bogus sanity check
->  - David Mosberger: /proc/cpuinfo and scsi scatter-gather for ia64
->  - David Hinds: 16-bit pcmcia network driver updates/cleanups
->  - Hugh Dickins: remove some stale code from VM
->  - David Miller: /proc/cpuinfo for sparc, sparc fork bug fix, network
->    fixes, warning fixes
->  - Peter Braam: intermezzo update
->  - Greg KH: USB updates
->  - Ivan Kokshaysky: /proc/cpuinfo for alpha
->  - David Woodhouse: jffs2 - remove dead code, remove gcc3 warning
->  - Hugh Dickins: fix kiobuf page allocation/deallocation
-> 
-> pre4:
->  - Mikael Pettersson: make proc_misc happy without modules
->  - Arjan van de Ven: clean up acpitable implementation ("micro-acpi")
->  - Anton Altaparmakov: LDM partition code update
->  - Alan Cox: final (yeah, sure) small missing pieces
->  - Andrey Savochkin/Andrew Morton: eepro100 config space save/restore over suspend
->  - Arjan van de Ven: remove power from pcmcia socket on card remove
->  - Greg KH: USB updates
->  - Neil Brown: multipath updates
->  - Martin Dalecki: fix up some "asmlinkage" routine markings
-> 
-> pre3:
->  - Alan Cox: more driver merging
->  - Al Viro: make ext2 group allocation more readable
-> 
-> pre2:
->  - Ivan Kokshaysky: fix alpha dec_and_lock with modules, for alpha config entry
->  - Kai Germaschewski: ISDN updates
->  - Jeff Garzik: network driver updates, sysv fs update
->  - Kai Mäkisara: SCSI tape update
->  - Alan Cox: large drivers merge
->  - Nikita Danilov: reiserfs procfs information
->  - Andrew Morton: ext3 merge
->  - Christoph Hellwig: vxfs livelock fix
->  - Trond Myklebust: NFS updates
->  - Jens Axboe: cpqarray + cciss dequeue fix
->  - Tim Waugh: parport_serial base_baud setting
->  - Matthew Dharm: usb-storage Freecom driver fixes
->  - Dave McCracken: wait4() thread group race fix
-> 
-> pre1:
->  - me: fix page flags race condition Andrea found
->  - David Miller: sparc and network updates
->  - various: fix loop driver that thought it was part of the VM system
->  - me: teach DRM about VM_RESERVED
->  - Alan Cox: more merging
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

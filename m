@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbUCAL0N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 06:26:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbUCAL0N
+	id S261184AbUCALff (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 06:35:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbUCALfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 06:26:13 -0500
-Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:12444 "EHLO
-	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261217AbUCAL0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 06:26:08 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMT Nice 2.6.4-rc1-mm1
-Date: Mon, 1 Mar 2004 22:25:59 +1100
-User-Agent: KMail/1.6
-Cc: Andrew Morton <akpm@osdl.org>
-References: <200403011752.56600.kernel@kolivas.org>
-In-Reply-To: <200403011752.56600.kernel@kolivas.org>
-MIME-Version: 1.0
+	Mon, 1 Mar 2004 06:35:34 -0500
+Received: from hell.org.pl ([212.244.218.42]:29449 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S261184AbUCALf2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 06:35:28 -0500
+Date: Mon, 1 Mar 2004 12:35:29 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Michael Frank <mhf@linuxmail.org>, Micha Feigin <michf@post.tau.ac.il>,
+       Software suspend <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] Re: Dropping CONFIG_PM_DISK?
+Message-ID: <20040301113528.GA21778@hell.org.pl>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Michael Frank <mhf@linuxmail.org>,
+	Micha Feigin <michf@post.tau.ac.il>,
+	Software suspend <swsusp-devel@lists.sourceforge.net>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl> <20040229162317.GC283@elf.ucw.cz> <yw1x4qt93i6y.fsf@kth.se> <opr348q7yi4evsfm@smtp.pacific.net.th> <20040229213302.GA23719@luna.mooo.com> <opr35wvvrw4evsfm@smtp.pacific.net.th> <1078139361.21578.65.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403012225.59538.kernel@kolivas.org>
+In-Reply-To: <1078139361.21578.65.camel@gaston>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Mar 2004 05:52 pm, Con Kolivas wrote:
-> This patch provides full per-package priority support for SMT processors
-> (aka pentium4 hyperthreading) when combined with CONFIG_SCHED_SMT.
+Thus wrote Benjamin Herrenschmidt:
+> > - that 2.4 style PM got depreciated and let die before the
+> >    "new-driver-model" PM is workin
+> Except that it never worked
+> > - that perfectly good drivers were rewritten from scratch,
+> >    but without functioning PM support
+> Please, give names.
 
-And here are some benchmarks to demonstrate what happens. 
-P4 3.06Ghz booted with bios HT off as UP (up), SMP with mm1(mm1), SMP with 
-mm1-smtnice(sn)
+USB UHCI driver could be a fine example of a regression -- it could survive
+suspend in 2.4 under certain conditions, this is no longer true for 2.6.
 
-What would a benchmark from me be if not based on a kernel compile?  These 
-numbers are coarse so the range is about +/- 2 seconds however the results 
-should be clear. Time is in seconds, rounded.
+There's also a great deal of people, who can't resume when AGP is being 
+used -- that is again a regression over 2.4.
 
+The above are major showstoppers for most laptop users that already got
+used to stable and reliable swsusp and hence prefer to stick with 2.4.
 
-Straight kernel compile: make
-		Time
-up		87
-mm1		88
-sn		88
+Best regards,
 
-
-Concurrent kernel compiles, one make, the other nice +19 make
-		Nice0	Nice19
-up		183		235
-mm1		208		211
-sn		180		237
-
-
-Kernel compile with an artifical cpu load running nice +19 (while true ; do 
-a=1 ; done)
-		Time
-up		92
-mm1		129
-sn		104
-
-
-Kernel compile with a true distributed computing cache burner running nice +19 
-(mprime www.mersenne.org)
-		Time
-up		96
-mm1		168
-sn		94
-
-
-Clearly the type of load running will influence the balance here depending on 
-how long the task actually runs and how cache intensive it is. Basically for 
-real world loads priority is very poorly preserved by default because of the 
-shared cpu resources, and the worst case is a very common one; running a 
-distributed computing client.
-
-Note this patch has no demonstrable effect if tasks are run at the same nice 
-value.
-
-Con
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

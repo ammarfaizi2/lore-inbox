@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbUCVUEO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 15:04:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUCVUEO
+	id S262509AbUCVUV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 15:21:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUCVUV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 15:04:14 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:27847
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262374AbUCVUEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 15:04:13 -0500
-Date: Mon, 22 Mar 2004 21:05:05 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: VMA_MERGING_FIXUP and patch
-Message-ID: <20040322200505.GB22639@dualathlon.random>
-References: <Pine.LNX.4.44.0403221640230.11645-100000@localhost.localdomain> <20040322115734.064f24f4.akpm@osdl.org>
+	Mon, 22 Mar 2004 15:21:58 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:14806 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S262509AbUCVUV4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 15:21:56 -0500
+Date: Mon, 22 Mar 2004 21:21:55 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Disassemble vmlinuz (i386)
+Message-ID: <20040322202155.GJ17857@lug-owl.de>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040322175807.GA22404@us.ibm.com> <200403221821.i2MILCox004241@eeyore.valparaiso.cl> <20040322191810.GB22607@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xbxyguyUcy/oJisi"
 Content-Disposition: inline
-In-Reply-To: <20040322115734.064f24f4.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20040322191810.GB22607@us.ibm.com>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 11:57:34AM -0800, Andrew Morton wrote:
-> set_page_dirty() takes ->tree_lock and inode_lock.  tree_lock surely is OK
-> and while I cannot think of any deadlocks which could occur with taking
-> inode_lock inside the rmap lock, it doesn't sound very nice.
-> 
-> It would of course be best if we could avoid adding a new ranking
-> relationship between these locks.
 
-agreed. the inode_lock especially is more a vfs thing than a mm thing,
-so it lives quite far away. (btw, in my last email I only mentioned
-the mapping tree_lock because I was thinking at the swapcache, with
-filebacked pagecache and the inode_lock it gets worse, probably still ok
-today though)
+--xbxyguyUcy/oJisi
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, 2004-03-22 11:18:10 -0800, Russ Weight <rweight@us.ibm.com>
+wrote in message <20040322191810.GB22607@us.ibm.com>:
+> The decompressed file did not contain an elf header, and could not be
+> opened with objdump.
+
+--target=3Dbinary and possibly --adjust-vma=3D0xXXXXXXXX
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--xbxyguyUcy/oJisi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAX0rjHb1edYOZ4bsRApPFAJ96peduhV+4Rpqw9NJdfsNWUltYlwCfeBEM
+MAtT03XYmyisvzMJgYQyc68=
+=ltWR
+-----END PGP SIGNATURE-----
+
+--xbxyguyUcy/oJisi--

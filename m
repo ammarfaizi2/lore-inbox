@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264882AbSJ3Umt>; Wed, 30 Oct 2002 15:42:49 -0500
+	id <S264908AbSJ3Uup>; Wed, 30 Oct 2002 15:50:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264886AbSJ3Ums>; Wed, 30 Oct 2002 15:42:48 -0500
-Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:41620 "EHLO
-	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S264882AbSJ3Ums>; Wed, 30 Oct 2002 15:42:48 -0500
-Date: Wed, 30 Oct 2002 13:42:21 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: [BK fbdev updates]
-Message-ID: <Pine.LNX.4.33.0210301331210.1392-100000@maxwell.earthlink.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264911AbSJ3Uup>; Wed, 30 Oct 2002 15:50:45 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:35344 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S264908AbSJ3Uun>;
+	Wed, 30 Oct 2002 15:50:43 -0500
+Date: Wed, 30 Oct 2002 21:56:52 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: "Matthew J. Fanto" <mattf@mattjf.com>, linux-kernel@vger.kernel.org
+Subject: Re: The Ext3sj Filesystem
+Message-ID: <20021030205652.GC22178@marowsky-bree.de>
+References: <200210301434.17901.mattf@mattjf.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200210301434.17901.mattf@mattjf.com>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2002-10-30T14:34:17,
+   "Matthew J. Fanto" <mattf@mattjf.com> said:
 
-Hi!
+> Encryption/decryption is transparent to the user, so the only thing 
+> they will need to know is their key, and how to mount a device. We do not 
+> encrypt the entire volume under the same key as some solutions do (this can 
+> not only aid in a known-plaintext attack, but it gives the users less 
+> options). Instead, every file is encrypted seperately under the key of the 
+> users choice.
 
-  The latest changes to the framebuffer layer are avaiable to be merged.
-The changes include the final removal of all console related code in the
-low level drivers. This allows for a very simple api. Also with this
-design is to possible to run a test/debug a fbdev driver without the
-framebuffer console. We can use another console system to see the results
-of what we have done. This will allow greater speed at developing a new
-driver because of the new simple api and the new approaches at
-debugging them. Please merge with your tree.
+Do you encrypt before the data has hit the data journal or after? Does that
+work for mmap etc?
 
-bk://fbdev.bkbits.net/fbdev-2.5
+> We are also adding support for reading keys off floppies, 
+> cdroms, and USB keychain drives. Currently, ext3sj supports the following 
+> algorithms: AES, 3DES, Twofish, Serpent, RC6, RC5, RC2, Blowfish, CAST-256, 
+> XTea, Safer+, SHA1, SHA256, SHA384, SHA512, MD5, with more to come. 
+
+This sounds like something you might want to abstract into a generic
+architecture to be shared with the loop device code, or anything which might
+need encryption in the kernel. Otherwise it is a PITA to maintain.
+
+And I thought some of those algorithms were strictly signature / hash
+algorithms, but you never stop learning ;-)
 
 
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-James Simmons  [jsimmons@users.sf.net] 	                ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
-
+-- 
+Principal Squirrel 
+SuSE Labs - Research & Development, SuSE Linux AG
+  
+"If anything can go wrong, it will." "Chance favors the prepared (mind)."
+  -- Capt. Edward A. Murphy            -- Louis Pasteur

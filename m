@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285482AbSATUfU>; Sun, 20 Jan 2002 15:35:20 -0500
+	id <S285369AbSATUox>; Sun, 20 Jan 2002 15:44:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285369AbSATUfA>; Sun, 20 Jan 2002 15:35:00 -0500
-Received: from isis.telemach.net ([213.143.65.10]:15880 "HELO
-	isis.telemach.net") by vger.kernel.org with SMTP id <S284305AbSATUe7>;
-	Sun, 20 Jan 2002 15:34:59 -0500
-Date: Sun, 20 Jan 2002 21:35:54 +0100
-From: Jure Pecar <pegasus@telemach.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17rc2aa2 oops in page_alloc.c
-Message-Id: <20020120213554.667bd8d2.pegasus@telemach.net>
-In-Reply-To: <20020120190835.H21279@athlon.random>
-In-Reply-To: <20020120182655.301234b4.pegasus@telemach.net>
-	<20020120190835.H21279@athlon.random>
-Organization: Select Technology 
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S285073AbSATUom>; Sun, 20 Jan 2002 15:44:42 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:24077 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S285369AbSATUod>; Sun, 20 Jan 2002 15:44:33 -0500
+Date: Sun, 20 Jan 2002 21:44:31 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: linux-kernel@vger.kernel.org
+Cc: Ville Herva <vherva@twilight.cs.hut.fi>
+Subject: Re: rm-ing files with open file descriptors
+Message-ID: <20020120214430.A4000@devcon.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Ville Herva <vherva@niksula.cs.hut.fi>
+In-Reply-To: <87lmevjrep.fsf@localhost.localdomain> <Pine.LNX.3.95.1020118163838.3008B-100000@chaos.analogic.com> <a2afsg$73g$2@ncc1701.cistron.net> <20020120152359.B326@localhost> <20020120200255.GG135220@niksula.cs.hut.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020120200255.GG135220@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Sun, Jan 20, 2002 at 10:02:55PM +0200
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jan 2002 19:08:35 +0100
-Andrea Arcangeli <andrea@suse.de> wrote:
-
-ok, will recompile with this patch.
-
-> the real question is, does it feel slower with 50mbyte in swap? I mean,
-
-can't really say, as there is almost no shell usage to get the true feeling of the box. but judging by the users' feedback it is much better with aa2 than with stock 2.4.17.
-
-> some very very lightweight background activity in the long run should be
-> a very good thing, it should save you some ram on the very long run. of
-> course unless you keep seeing swapin/swapout almost all the time, in
-
-will setup a mrtg script to monitor the amount of swap in use. 
-
-> such a case it would be a big mistake but I don't think it's the case.
-> If after a week you see 50mbyte in swap (and you almost never seen any
-> swapin, and maybe only a few very seldom swapout), that sounds good.
-> Infact it's not even sure that you did any real swapout yet, part of the
-> 50mbyte in swap may only be preallocated.
+On Sun, Jan 20, 2002 at 10:02:55PM +0200, Ville Herva wrote:
 > 
-> with -aa if you don't want to see such 50mbyte in swap (even if they
-> seems very sane at first sight, so this is not a suggestion, this is
-> just informational, just if you want to try) you can run:
+> Just out of interest (I'm not actually suggesting this would be useful, or
+> feasible): what about ilink(dev, inode_nr, "path") or iopen(dev, inode_nr)?
 > 
-> 	echo 1000 >/proc/sys/vm/vm_mapped_ratio
-> 
-> Andrea
-> 
+> Or /proc/inodes/dev/<nr> ?
 
+...which would successfully defeat any access control scheme based on
+directory permissions...
 
+Andreas
 -- 
-
-
-Jure Pecar
-
-
-Unfortunatly, SMTP email is anything but a small set of problems.  Quite the opposite: it's a tarpit of bureaucratic standards committees, arrogant implementors, impatient administrators and whiny end-users.
-
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

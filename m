@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265479AbTFMSPq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 14:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265476AbTFMSN2
+	id S265481AbTFMSXp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 14:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265486AbTFMSXo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 14:13:28 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:49652 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265475AbTFMSNW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 14:13:22 -0400
-Date: Fri, 13 Jun 2003 11:26:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Steven Dake <sdake@mvista.com>
-Cc: Patrick Mochel <mochel@osdl.org>, Oliver Neukum <oliver@neukum.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-Message-ID: <20030613182643.GF6037@kroah.com>
-References: <Pine.LNX.4.44.0306130942040.908-100000@cherise> <3EEA0577.8050200@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EEA0577.8050200@mvista.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 13 Jun 2003 14:23:44 -0400
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:28809 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S265481AbTFMSXn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 14:23:43 -0400
+Date: Fri, 13 Jun 2003 12:37:30 -0600 (MDT)
+From: James Bourne <jbourne@hardrock.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-uv1 patch released
+Message-ID: <Pine.LNX.4.44.0306131232460.9166-100000@cafe.hardrock.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 13, 2003 at 10:10:15AM -0700, Steven Dake wrote:
-> Brian Jackson has said there are 50 disks in the OSDL cluster, of which 
-> he could put 3 partitions on, which would test 150 device enumerations.
+Hi all,
+I've placed the update version 1 (2.4.21-uv1) patch at
+http://www.hardrock.org/kernel/current-updates/ for those who require it.
 
-You can also create 2000+ virtual disks today on your desktop using
-scsi-debug to eliminate any hardware spin up times :)
+The current version contains only the NFS silly rename patch as posted for
+-rc7 and the updated of EXTRAVERSION.
 
-thanks,
+Please send bug reports to jbourne@hardrock.org.
 
-greg k-h
+Regards
+James Bourne
+
+-- 
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  
+
+

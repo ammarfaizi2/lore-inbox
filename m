@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283942AbRLAE4N>; Fri, 30 Nov 2001 23:56:13 -0500
+	id <S283803AbRK3VdI>; Fri, 30 Nov 2001 16:33:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283937AbRLAEux>; Fri, 30 Nov 2001 23:50:53 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:62358 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S283919AbRLAEub>;
-	Fri, 30 Nov 2001 23:50:31 -0500
-Message-ID: <3C085B04.50ABE0B5@starband.net>
-Date: Fri, 30 Nov 2001 23:22:28 -0500
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S283802AbRK3Vc5>; Fri, 30 Nov 2001 16:32:57 -0500
+Received: from eos.telenet-ops.be ([195.130.132.40]:24525 "EHLO
+	eos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S283815AbRK3Vch>; Fri, 30 Nov 2001 16:32:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: DevilKin <DevilKin@gmx.net>
+To: Aaron Smith <yoda_2002@yahoo.com>
+Subject: Re: 2.4.16 bugs???
+Date: Sat, 1 Dec 2001 22:30:02 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011127171855.A492@jacana.dyn.dhs.org>
+In-Reply-To: <20011127171855.A492@jacana.dyn.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+X-Cats: All your linux' belong to us!
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Is it normal for freezing while...
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011130213236.CC46E206B8@eos.telenet-ops.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it normal for a system to lockup while creating a 3GB test file?
+On Wednesday 28 November 2001 00:18, Aaron Smith wrote:
+> I just tried upgrading to linux kernel 2.4.16, and it did not like loopback
+> or sound devices.  Is this a bug? It is configured right.  2.4.15 works
+> fine.
 
-Following command: dd if=/dev/zero of=file bs=1M count=3000
+Loopback and sound works great here. Can you be a bit more specific?
 
-The system freezes up for 30-60 seconds for as many as 3-4 times during
-the creation of the file.
+And don't use 2.4.15, since it's got a nasty bug that can cause filesystem 
+damage.
 
-Is this normal?
-Anyway to tweak the /proc settings to avoid system freezing?
-
-
-
+DK
+-- 
+devilkin@gmx.net

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263331AbUCTKWT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263321AbUCTKWS
+	id S263323AbUCTKX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:23:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263321AbUCTKWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:22:18 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40598 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263336AbUCTKV3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:21:29 -0500
-Message-ID: <405C1B1C.4000804@pobox.com>
-Date: Sat, 20 Mar 2004 05:21:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+	Sat, 20 Mar 2004 05:22:25 -0500
+Received: from mail.gmx.de ([213.165.64.20]:24458 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263323AbUCTKVL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 05:21:11 -0500
+X-Authenticated: #4512188
+Message-ID: <405C1B14.6000206@gmx.de>
+Date: Sat, 20 Mar 2004 11:21:08 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] barrier patch set
-References: <20040319153554.GC2933@suse.de> <200403200140.59543.bzolnier@elka.pw.edu.pl> <405B936C.50200@pobox.com> <200403200224.14055.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200403200224.14055.bzolnier@elka.pw.edu.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.5-rc2, hotplug and ohci-hcd issue
+References: <Pine.LNX.4.58.0403191937160.1106@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0403191937160.1106@ppc970.osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> Yep but in your original mail you suggested that we should explicitly enable
-> FLUSH CACHE and FLUSH CACHE EXT features - there are even no subcommands
-> to do this.  ;-)
+Hi,
 
-Whoops, you're right.  I was thinking about the general protocol for 
-features.
+it already started with 2.6.5-rc1: On shutdown/reboot when hotplug 
+service stops, it hangs. I found out that hotplug has trouble in 
+removing ohci-hcd module, ie, it doesn't seem to work. killall -9 rmmod 
+doesn't remove that process, neither. (Module unloading is in the kernel).
 
+Which infos are needed furthermore?
 
-> I wish it was so simple.  Here is an example to make it clear:
-> 
-> model: WDC WD800JB-00CRA1 firmware: 17.07W77
-> word 0x83 is 4b01, word 0x86 is 0x0801
-> 
-> and drive of course supports CACHE FLUSH command.
+Cheers,
 
-What ATA revision?
-
-Sending down opcodes because they will "probably" work isn't the best 
-idea in the world...
-
-	Jeff
-
-
-
+Prakash

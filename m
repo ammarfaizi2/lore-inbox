@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266825AbTGOIbK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 04:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbTGOIbK
+	id S266905AbTGOIcr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 04:32:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266907AbTGOIcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 04:31:10 -0400
-Received: from gandalf.avalon.ru ([195.209.229.227]:62580 "EHLO smtp.avalon.ru")
-	by vger.kernel.org with ESMTP id S266825AbTGOIbJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 04:31:09 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Partitioned loop device..
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Tue, 15 Jul 2003 12:46:44 +0400
-Message-ID: <E1B7C89B8DCB084C809A22D7FEB90B384E34B4@frodo.avalon.ru>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Partitioned loop device..
-Thread-Index: AcNKoDYS/Tjw0E9QQL6ghxeWBjRT2A==
-From: "Dimitry V. Ketov" <Dimitry.Ketov@avalon.ru>
-To: <linux-kernel@vger.kernel.org>
+	Tue, 15 Jul 2003 04:32:47 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:14285 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S266905AbTGOIcn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 04:32:43 -0400
+Subject: Re: radeonfb patch for 2.4.22...
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: ajoshi@kernel.crashing.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10307141342420.28472-100000@gate.crashing.org>
+References: <Pine.LNX.4.10.10307141342420.28472-100000@gate.crashing.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1058258835.629.12.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 15 Jul 2003 10:47:16 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-	Is there any (un)official patch for current stable (or
-development) kernel that makes loop device partitioned? I found one on
-the ftp://ftp.hq.nasa.gov/pub/ig/ccd/enhanced_loopback/ (it contains
-port of Scyld's partition enhancements), but it seems still needs a fix.
-In general I plan to use partitioned loop device to simulate real disks
-in linux labs, possibly with a help from Stephen Tweedie's testdrive
-fault simulator. I just wonder if partitionable/faultable loop device
-planned in the future official kernels, or it will be better to write a
-separate 'simulated disk' driver???
 
-Thanks in advance,
-Dimitry.
+
+> This is not true, see the above.  Also, its hard to "accept patches" from
+> people if you do NOT recieve any patches from them!  Ben's style is to get
+> the maintainers of drivers to go around and search for his personal tree
+> and do their own diffs from that tree, instead of him sending a patch to
+> the maintainer.
+
+Ok, please stop that, I did post patches publically and you were always
+CCed, I have really no time to spend on useless arguments here, the code
+is there, it works, it fixes bugs, you didn't even look at it since you
+claim it's all in your 0.1.8, so please, stop bs'ing us.
+
+I spent a significant amount of time tracking problems that users
+reported after they told me they never got any useful reply from you.
+Some obvious fixes like the VRAM amount fix for LY chips, which is still
+broken in your 0.1.8, have been around -ac etc... for monthes. I DO NOT
+care about beeing "maintainer" just to get my name in there, all I care
+about right now is getting those fixes in so the driver works and
+concentrate on more interesting matters.
+
+I spent several hours redoing most of my patches against 0.1.8, which is
+what Marcelo merged, I won't do it again. If you don't agree with the
+version change (which was here only to avoid confusion when getting user
+reports), then send Marcelo a patch that tells "0.1.9" and be done with
+it.
+ 
+Ben.
+

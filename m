@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbTBUBOO>; Thu, 20 Feb 2003 20:14:14 -0500
+	id <S264739AbTBUBVy>; Thu, 20 Feb 2003 20:21:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267034AbTBUBOO>; Thu, 20 Feb 2003 20:14:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32776 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261615AbTBUBON>;
-	Thu, 20 Feb 2003 20:14:13 -0500
-Message-ID: <3E557F9F.9000803@pobox.com>
-Date: Thu, 20 Feb 2003 20:23:43 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Stacy Woods <spwoods@us.ibm.com>
-Subject: Re: Bugs sitting in RESOLVED state
-References: <273770000.1045789304@flay>
-In-Reply-To: <273770000.1045789304@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264790AbTBUBVy>; Thu, 20 Feb 2003 20:21:54 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:9880 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S264739AbTBUBVx>; Thu, 20 Feb 2003 20:21:53 -0500
+Message-Id: <5.1.0.14.2.20030220172624.0d4c5070@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 20 Feb 2003 17:31:43 -0800
+To: "David S. Miller" <davem@redhat.com>
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: ioctl32 consolidation
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+       ak@suse.de
+In-Reply-To: <20030220.163619.133744671.davem@redhat.com>
+References: <5.1.0.14.2.20030220145240.0d449118@mail1.qualcomm.com>
+ <20030220223119.GA18545@elf.ucw.cz>
+ <5.1.0.14.2.20030220145240.0d449118@mail1.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> These bugs have been sitting in RESOLVED state for > 1 week, ie
-> they have fixes, but aren't back in the mainline tree (when they
-> should move to CLOSED state). If the fixes are back in mainline
-> already, could the owner close them out? Otherwise, perhaps we
-> can get those fixes back in?
+At 04:36 PM 2/20/2003, David S. Miller wrote:
+>   From: Max Krasnyansky <maxk@qualcomm.com>
+>   Date: Thu, 20 Feb 2003 14:56:22 -0800
+>   
+>   Eventually we'll be able to kill ugly mess like arch/sparc64/kernel/ioctl32.c.
+>   That stuff really belongs to the actual subsystems that implement those ioctls.
+>
+>Not really possible with things like SIOCDEVPRIVATE...
+>Those need special processing and even that is insufficient.
+Hmm. It seems to that all you need for SIOCDEVPRIVATE is ability to register
+ranges of ioctls. 
+i.e. something like this
+        int register_ioctl32_conversion_rage(uint start, uint end, handler);
 
+net/core/dev.c
+        register_ioctl32_conversion_range(SIOCDEVPRIVATE, SIOCDEVPRIVATE + 15, siocdevprivate_ioctl);
 
-Several of my bugs are sitting in the resolve state because of Bugzilla 
-user interface issues.  The interface does not allow me to take a bug 
-directly from "assigned" to "closed" state.  Closed is not even 
-presented as an option.  If the bug is indeed in the resolved state, 
-then I can close the bug.  But this two-step process is a bit silly.
+Am I missing something here ?
 
-Also, several of my 'resolved' bugs have comments that clearly indicate 
-the fix has been merged.  So, now I must go in a clicking spree, taking 
-valuable time away from hacking :)  Don't we have kind and gracious 
-Bugzilla janitors for this sort of thing?
-
-	Jeff
-
-
+Max
 

@@ -1,62 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbTITNSE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 09:18:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbTITNSE
+	id S261879AbTITN16 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 09:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbTITN16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 09:18:04 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:64974 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261874AbTITNSB (ORCPT
+	Sat, 20 Sep 2003 09:27:58 -0400
+Received: from verein.lst.de ([212.34.189.10]:58497 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261879AbTITN14 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 09:18:01 -0400
-Date: Sat, 20 Sep 2003 15:17:37 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Roger Luethi <rl@hellgate.ch>
-cc: acpi-devel@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: Vaio doesn't poweroff with 2.4.22
-In-Reply-To: <20030915224136.GA11666@k3.hellgate.ch>
-Message-ID: <Pine.GSO.4.21.0309191053140.4488-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 20 Sep 2003 09:27:56 -0400
+Date: Sat, 20 Sep 2003 15:27:52 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kill superflous kdev_t.h inclusions
+Message-ID: <20030920132752.GB23153@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -3 () PATCH_UNIFIED_DIFF,USER_AGENT_MUTT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Sep 2003, Roger Luethi wrote:
-> On Mon, 15 Sep 2003 08:43:56 +0200, Geert Uytterhoeven wrote:
-> > With 2.4.22, my Sony Vaio PCG-Z600TEK (s/600/505/ in US/JP) shows a regression
-> > w.r.t. power management:
-> >   - It doesn't poweroff anymore (screen contents are still there after the
-> >     powering down message)
-> >   - It doesn't reboot anymore (screen goes black, though)
-> >   - It accidentally suspended to RAM once while I was actively working on it (I
-> >     never managed to get suspend working, except for this `accident'). I didn't
-> >     see any messages about this in the kernel log.
-> 
-> On some machines APIC (sic) support can cause this. Try turning off UP APIC
-> if you have it turned on.
+now that kdev_t is gone very few places needs this still, the only
+header of those beeing fs.h
 
-If I turn off CONFIG_X86_UP_APIC I get:
 
-| ACPI disabled because your bios is from 00 and too old
-| You can enable it with acpi=force
-| Sony Vaio laptop detected.
-
-and ACPI is disabled. Halt doesn't work.
-
-If I then pass `acpi=force' to explicitly enable ACPI, `halt' works again and
-powers off the machine, but `reboot' causes a black screen with IDE disk spun
-down, but no restart.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+--- 1.33/include/linux/bio.h	Fri Jul 25 20:09:32 2003
++++ edited/include/linux/bio.h	Fri Sep 19 12:09:17 2003
+@@ -20,7 +20,6 @@
+ #ifndef __LINUX_BIO_H
+ #define __LINUX_BIO_H
+ 
+-#include <linux/kdev_t.h>
+ #include <linux/highmem.h>
+ #include <linux/mempool.h>
+ 
+--- 1.8/include/linux/console.h	Mon May 26 08:17:30 2003
++++ edited/include/linux/console.h	Fri Sep 19 12:09:11 2003
+@@ -15,7 +15,6 @@
+ #define _LINUX_CONSOLE_H_ 1
+ 
+ #include <linux/types.h>
+-#include <linux/kdev_t.h>
+ #include <linux/spinlock.h>
+ 
+ struct vc_data;
+--- 1.46/include/linux/devfs_fs_kernel.h	Tue May 13 06:23:09 2003
++++ edited/include/linux/devfs_fs_kernel.h	Fri Sep 19 12:09:05 2003
+@@ -4,7 +4,6 @@
+ #include <linux/fs.h>
+ #include <linux/config.h>
+ #include <linux/spinlock.h>
+-#include <linux/kdev_t.h>
+ #include <linux/types.h>
+ 
+ #include <asm/semaphore.h>
+--- 1.77/include/linux/swap.h	Thu May  8 06:19:58 2003
++++ edited/include/linux/swap.h	Fri Sep 19 12:08:58 2003
+@@ -3,7 +3,6 @@
+ 
+ #include <linux/config.h>
+ #include <linux/spinlock.h>
+-#include <linux/kdev_t.h>
+ #include <linux/linkage.h>
+ #include <linux/mmzone.h>
+ #include <linux/list.h>

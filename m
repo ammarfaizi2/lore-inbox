@@ -1,83 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262186AbTJGLHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 07:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTJGLHQ
+	id S262262AbTJGLdj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 07:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTJGLdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 07:07:16 -0400
-Received: from mail01.hansenet.de ([213.191.73.61]:31709 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S262186AbTJGLF7 convert rfc822-to-8bit
+	Tue, 7 Oct 2003 07:33:39 -0400
+Received: from docsis106-17.menta.net ([62.57.106.17]:38289 "EHLO
+	pau.newtral.org") by vger.kernel.org with ESMTP id S262262AbTJGLdg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 07:05:59 -0400
-Date: Tue, 7 Oct 2003 13:05:51 +0200
-From: Malte =?ISO-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 3c59x on 2.6.0-test3->test6 slow
-Message-Id: <20031007130551.36899cd9.MalteSch@gmx.de>
-In-Reply-To: <200310070631.30972.MalteSch@gmx.de>
-References: <200310061529.56959.domen@coderock.org>
-	<200310070144.47822.domen@coderock.org>
-	<Pine.LNX.4.53.0310062016340.19396@montezuma.fsmlabs.com>
-	<200310070631.30972.MalteSch@gmx.de>
-X-Mailer: Sylpheed version 0.9.5claws28 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 7 Oct 2003 07:33:36 -0400
+Date: Tue, 7 Oct 2003 13:33:35 +0200 (CEST)
+From: Pau Aliagas <linuxnow@newtral.org>
+X-X-Sender: pau@pau.intranet.ct
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: ksymoops in 2.6.0test6-mm4
+Message-ID: <Pine.LNX.4.44.0310071330180.2847-100000@pau.intranet.ct>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Oct 2003 06:31:30 +0200
-Malte Schröder <MalteSch@gmx.de> wrote:
 
-> mii-tool does not work for me either. I thought mine was outdated or something 
-> like that ;)
-> Oh, kernel is -test6-mm4.
-> 
-> # mii-tool -V
-> mii-tool.c 1.9 2000/04/28 00:56:08 (David Hinds)
-> 
-> # mii-tool eth0
-> SIOCGMIIPHY on 'eth0' failed: Operation not supported
+I've got this symoops in my log, but the computer still works :)
 
-just tested this with a RealTek-NIC (8139too), it gives the same message.
+This is what gets logged:
 
-> 
-> On Tuesday 07 October 2003 02:18, Zwane Mwaikambo wrote:
-> > On Tue, 7 Oct 2003, Domen Puncer wrote:
-> > > On Tuesday 07 of October 2003 00:43, Zwane Mwaikambo wrote:
-> > > > On Tue, 7 Oct 2003, Domen Puncer wrote:
-> > > > > > Ok, could you send your .config too, i use the 3c59x driver and
-> > > > > > haven't noticed this in 2.6.0-test5-mm4. My card is;
-> > > > >
-> > > > > .config at the end of mail
-> > > >
-> > > > Sorry i forgot to ask for a dmesg too (from a kernel exhibiting the
-> > > > problem)
-> > >
-> > > 0000:00:0a.0: 3Com PCI 3c905B Cyclone 100baseTx at 0xd400. Vers LK1.1.19
-> > > eth0: no IPv6 routers present
-> > > eth0: Setting full-duplex based on MII #24 link partner capability of
-> > > 0141.
-> >
-> > What is your link peer?
-> >
-> > > Might be relevant... the last line is lagged a couple of seconds, and
-> > > network works fine before i see that line in dmesg.
-> >
-> > I'm also curious as to why mii-tool doesn't work, can you attach an strace
-> > mii-tool eth0?
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> ---------------------------------------
-> Malte Schröder
-> MalteSch@gmx.de
-> ICQ# 68121508
-> ---------------------------------------
-> 
-> 
+Oct  7 13:28:27 pau kernel: Unable to handle kernel NULL pointer 
+dereference at virtual address 00000034
+Oct  7 13:28:27 pau kernel:  printing eip:
+Oct  7 13:28:27 pau kernel: c0190be8
+Oct  7 13:28:27 pau kernel: *pde = 00000000
+Oct  7 13:28:27 pau kernel: Oops: 0000 [#2]
+Oct  7 13:28:27 pau kernel: PREEMPT 
+Oct  7 13:28:27 pau kernel: CPU:    0
+Oct  7 13:28:27 pau kernel: EIP:    0060:[<c0190be8>]    Not tainted VLI
+Oct  7 13:28:27 pau kernel: EFLAGS: 00010212
+Oct  7 13:28:27 pau kernel: EIP is at proc_pid_stat+0x268/0x520
+Oct  7 13:28:27 pau kernel: eax: 00000000   ebx: 00000000   ecx: 05de0c5f   
+edx: c0126daf
+Oct  7 13:28:27 pau kernel: esi: 0000000a   edi: e461c4c0   ebp: d962d940   
+esp: d0a57e44
+Oct  7 13:28:27 pau kernel: ds: 007b   es: 007b   ss: 0068
+Oct  7 13:28:27 pau kernel: Process lsof (pid: 29943, threadinfo=d0a56000 
+task=da88e0c0)
+Oct  7 13:28:27 pau kernel: Stack: d962d940 c02cdf00 c02cdf00 c02cdf00 
+d1edc990 c018ea34 d81b6200 d1edc990 
+Oct  7 13:28:27 pau kernel:        0000000d c02b34dc d962d940 ffffffea 
+fffffff4 d1edcb78 d1edcb10 d81b6200 
+Oct  7 13:28:27 pau kernel:        c016affb d1edcb10 d81b6200 c02cdea0 
+00000000 d0a57f70 edfe4fc0 d0a57f00 
+Oct  7 13:28:27 pau kernel: Call Trace:
+Oct  7 13:28:27 pau kernel:  [<c018ea34>] proc_pident_lookup+0x104/0x260
+Oct  7 13:28:27 pau kernel:  [<c016affb>] real_lookup+0xcb/0xf0
+Oct  7 13:28:27 pau kernel:  [<c01747a2>] dput+0x22/0x270
+Oct  7 13:28:27 pau kernel:  [<c016b898>] link_path_walk+0x5f8/0x920
+Oct  7 13:28:27 pau kernel:  [<c0144db0>] buffered_rmqueue+0xd0/0x180
+Oct  7 13:28:27 pau kernel:  [<c0126daf>] do_exit+0x2ff/0x3d0
+Oct  7 13:28:27 pau kernel:  [<c018d934>] proc_info_read+0x74/0x160
+Oct  7 13:28:27 pau kernel:  [<c015d3ec>] vfs_read+0xbc/0x130
+Oct  7 13:28:27 pau kernel:  [<c015d6c2>] sys_read+0x42/0x70
+Oct  7 13:28:27 pau kernel:  [<c028b826>] sysenter_past_esp+0x43/0x65
+Oct  7 13:28:27 pau kernel: 
+Oct  7 13:28:27 pau kernel: Code: f3 01 c0 29 c2 be 0a 00 00 00 89 c8 f7 
+f6 89 da 89 94 24 b4 00 00 00 89 84 24 b0 00 00 00 8b 94 24 d8 00 00 00 8b 
+85 ac 05 00 00 <8b> 58 34 8b 70 2c 8b 45 40 89 84 24 ac 00 00 00 8b 85 60 
+01 00 
+
+And this is run through ksymoops:
+
+
+>>EIP; c0190be8 <proc_pid_stat+268/520>   <=====
+
+>>ecx; 05de0c5f <__crc___getblk+5e45/3835f1>
+>>edx; c0126daf <do_exit+2ff/3d0>
+>>edi; e461c4c0 <__crc_tcp_unhash+50de8e/832eb7>
+>>ebp; d962d940 <__crc_tty_hangup+1ad7e/c0d20>
+>>esp; d0a57e44 <__crc_dev_set_allmulti+e99c4/10a115>
+
+Code;  c0190bbd <proc_pid_stat+23d/520>
+00000000 <_EIP>:
+Code;  c0190bbd <proc_pid_stat+23d/520>
+   0:   f3 01 c0                  repz add %eax,%eax
+Code;  c0190bc0 <proc_pid_stat+240/520>
+   3:   29 c2                     sub    %eax,%edx
+Code;  c0190bc2 <proc_pid_stat+242/520>
+   5:   be 0a 00 00 00            mov    $0xa,%esi
+Code;  c0190bc7 <proc_pid_stat+247/520>
+   a:   89 c8                     mov    %ecx,%eax
+Code;  c0190bc9 <proc_pid_stat+249/520>
+   c:   f7 f6                     div    %esi
+Code;  c0190bcb <proc_pid_stat+24b/520>
+   e:   89 da                     mov    %ebx,%edx
+Code;  c0190bcd <proc_pid_stat+24d/520>
+  10:   89 94 24 b4 00 00 00      mov    %edx,0xb4(%esp,1)
+Code;  c0190bd4 <proc_pid_stat+254/520>
+  17:   89 84 24 b0 00 00 00      mov    %eax,0xb0(%esp,1)
+Code;  c0190bdb <proc_pid_stat+25b/520>
+  1e:   8b 94 24 d8 00 00 00      mov    0xd8(%esp,1),%edx
+Code;  c0190be2 <proc_pid_stat+262/520>
+  25:   8b 85 ac 05 00 00         mov    0x5ac(%ebp),%eax
+Code;  c0190be8 <proc_pid_stat+268/520>   <=====
+  2b:   8b 58 34                  mov    0x34(%eax),%ebx   <=====
+Code;  c0190beb <proc_pid_stat+26b/520>
+  2e:   8b 70 2c                  mov    0x2c(%eax),%esi
+Code;  c0190bee <proc_pid_stat+26e/520>
+  31:   8b 45 40                  mov    0x40(%ebp),%eax
+Code;  c0190bf1 <proc_pid_stat+271/520>
+  34:   89 84 24 ac 00 00 00      mov    %eax,0xac(%esp,1)
+Code;  c0190bf8 <proc_pid_stat+278/520>
+  3b:   8b                        .byte 0x8b
+Code;  c0190bf9 <proc_pid_stat+279/520>
+  3c:   85 60 01                  test   %esp,0x1(%eax)
+
+
+-- 
+
+Pau
+

@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbUJaOxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbUJaO52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbUJaOxU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 09:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUJaOqT
+	id S261635AbUJaO52 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 09:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUJaO52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 09:46:19 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:12725 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261638AbUJaOp3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 09:45:29 -0500
-Date: Sun, 31 Oct 2004 15:45:10 +0100
-From: maximilian attems <janitor@sternwelten.at>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Margit Schubert-While <margitsw@t-online.de>,
-       Nishanth Aravamudan <nacc@us.ibm.com>, hvr@gnu.org,
-       mcgrof@studorgs.rutgers.edu, kernel-janitors@lists.osdl.org,
-       netdev@oss.sgi.com, Domen Puncer <domen@coderock.org>,
-       linux-kernel@vger.kernel.org
-Subject: [patch 5/6] sata_promise remove duplicate msleep() definition
-Message-ID: <20041031144510.GF28667@stro.at>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Margit Schubert-While <margitsw@t-online.de>,
-	Nishanth Aravamudan <nacc@us.ibm.com>, hvr@gnu.org,
-	mcgrof@studorgs.rutgers.edu, kernel-janitors@lists.osdl.org,
-	netdev@oss.sgi.com, Domen Puncer <domen@coderock.org>,
-	linux-kernel@vger.kernel.org
-References: <20040923221303.GB13244@us.ibm.com> <20040923221303.GB13244@us.ibm.com> <5.1.0.14.2.20040924074745.00b1cd40@pop.t-online.de> <415CD9D9.2000607@pobox.com> <20041030222228.GB1456@stro.at> <41841886.2080609@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 31 Oct 2004 09:57:28 -0500
+Received: from chello083144090118.chello.pl ([83.144.90.118]:32775 "EHLO
+	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S261635AbUJaO5J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 09:57:09 -0500
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: unit-at-a-time...
+Date: Sun, 31 Oct 2004 15:57:00 +0100
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41841886.2080609@pobox.com>
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200410311557.00839.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-remove now duplicate define.
-driver already includes delay.
+Hi,
 
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+/i386/Makefile:# Disable unit-at-a-time mode, it makes gcc use a lot morestack
+/i386/Makefile:CFLAGS += $(call cc-option,-fno-unit-at-a-time)
 
+/x86_64/Makefile:# -funit-at-a-time shrinks the kernel .text considerably
+/x86_64/Makefile:CFLAGS += $(call cc-option,-funit-at-a-time)
 
----
+Which solution is correct?
 
- linux-2.4.28-rc1-max/drivers/scsi/sata_promise.c |    2 --
- 1 files changed, 2 deletions(-)
+-- 
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
 
-diff -puN drivers/scsi/sata_promise.c~remove-msleep-drivers_scsi_sata_promise drivers/scsi/sata_promise.c
---- linux-2.4.28-rc1/drivers/scsi/sata_promise.c~remove-msleep-drivers_scsi_sata_promise	2004-10-31 13:59:39.000000000 +0100
-+++ linux-2.4.28-rc1-max/drivers/scsi/sata_promise.c	2004-10-31 14:00:12.000000000 +0100
-@@ -42,8 +42,6 @@
- #define DRV_NAME	"sata_promise"
- #define DRV_VERSION	"1.00"
- 
--#define msleep libata_msleep	/* 2.4-specific */
--
- enum {
- 	PDC_PKT_SUBMIT		= 0x40, /* Command packet pointer addr */
- 	PDC_INT_SEQMASK		= 0x40,	/* Mask of asserted SEQ INTs */
-_
+                           #define say(x) lie(x)

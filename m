@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276021AbRJLSDc>; Fri, 12 Oct 2001 14:03:32 -0400
+	id <S275981AbRJLR4b>; Fri, 12 Oct 2001 13:56:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274299AbRJLSDX>; Fri, 12 Oct 2001 14:03:23 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11791 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276021AbRJLSDE>; Fri, 12 Oct 2001 14:03:04 -0400
-Subject: Re: kapm-idled Funny in 2.4.10-ac12?
-To: gallir@uib.es
-Date: Fri, 12 Oct 2001 19:08:52 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20011012193019.A612@linux.uib.es> from "Ricardo Galli" at Oct 12, 2001 07:30:19 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S277702AbRJLR4W>; Fri, 12 Oct 2001 13:56:22 -0400
+Received: from cx680915-a.cv1.sdca.home.com ([24.177.181.157]:6897 "EHLO
+	rei.moonkingdom.net") by vger.kernel.org with ESMTP
+	id <S277271AbRJLR4M>; Fri, 12 Oct 2001 13:56:12 -0400
+Date: Fri, 12 Oct 2001 10:56:43 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Re: No love for the PPC
+Message-ID: <20011012105643.C30739@moonkingdom.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0110121002200.13818-100000@asuka.nerv-9.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15s6js-0008Pf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0110121002200.13818-100000@asuka.nerv-9.net>
+User-Agent: Mutt/1.3.22i
+From: Marc Wilson <mwilson@moonkingdom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am having almost the same problem in 2.4.12-ac1:
+On Fri, Oct 12, 2001 at 10:08:39AM -0700, Mike Borrelli wrote:
+> It isn't even big problems either.  A single line (#include
+> <linux/pm.h>) is missing from pc_keyb.c and has been for at least three
+> -ac releases.  Now, process.c in arch/ppc/kernel/ dies from an undeclared
+> identifier (init_mmap).
 > 
-> gallir@linux:~$ uname -a
-> Linux linux 2.4.12-ac1 #2 Fri Oct 12 19:01:03 CEST 2001 i686 unknown
-> 
-> kapm-idled consumes a 14% of CPU (in a P3 1GHz)
-> 
-> PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
->   3 root      17   0     0    0     0 RW   14.3  0.0   1:17 kapm-idled
-> 
-> The same happens with vanilla Linus tree (tested up to 2.4.11). In a P2,
-> CPU consuption was more than 85%.
-> 
-> The CPU's temperature, while the system idle, is more than 4 degrees (C)
-> higher than the same conditions with the kapm-idled disabled.
+> Anyway, the real question is, why does the ppc arhitecture /always/ break
+> between versions?
 
-I've been reading throught the APM spec and code a bit further. The more
-I read the more I wonder quite how our idle code is meant to work and what
-kind of beer was overconsumed during its writing.
+An -ac kernel is SUPPOSED to break.  It's not a release kernel.  WHEN it
+breaks, it gets fixed, and then it becomes a release kernel.
 
-There are two glaring issues I can see right now
+Seems simple enough.
 
-#1	The BIOS might sleep for a tick, but it is also is allowed to slow
-	the cpu and return straight back to us.
+If you want intermediate kernel revisions that don't break, head over to
+http://penguinppc.org and look at how to rsync yourself a benh or bk
+kernel tree.
 
-	If it returns back to us we spin in a tight loop at the lower clock
-	speed calling the APM bios. Not ideal.
+-- 
+Marc Wilson
+mwilson@moonkingdom.net
+mwilson@cts.com
 
-	Just fixed that in my tree for the next -ac
-
-#2	We test system_idle() nr_running==1, but we spent all our time 
-	pretending we aren't running. Im not 100% sure the test is safe
-	yet
-
-Alan

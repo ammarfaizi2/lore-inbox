@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289058AbSBMXCt>; Wed, 13 Feb 2002 18:02:49 -0500
+	id <S287816AbSBMXF3>; Wed, 13 Feb 2002 18:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289084AbSBMXC3>; Wed, 13 Feb 2002 18:02:29 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:57095 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S289058AbSBMXCT>; Wed, 13 Feb 2002 18:02:19 -0500
-Date: Wed, 13 Feb 2002 18:00:42 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <E16b1nb-0001p5-00@starship.berlin>
-Message-ID: <Pine.LNX.3.96.1020213175335.12448I-100000@gatekeeper.tmr.com>
+	id <S289062AbSBMXFT>; Wed, 13 Feb 2002 18:05:19 -0500
+Received: from ppp1238-cwdsl.fr.cw.net ([62.210.116.215]:49426 "EHLO
+	calvin.paulbristow.lan") by vger.kernel.org with ESMTP
+	id <S287816AbSBMXFG>; Wed, 13 Feb 2002 18:05:06 -0500
+Message-ID: <3C6AF196.4060206@paulbristow.net>
+Date: Thu, 14 Feb 2002 00:07:02 +0100
+From: Paul Bristow <paul@paulbristow.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Align removeable media behaviour?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Daniel Phillips wrote:
+During the 2.5 cycle, I see we are going to remove ide-scsi.  This means 
+Iomega are going to have to accept that ide-floppy works for ATAPI 
+Zip/PocketZip drives and they may wish to consider not trying to force 
+people to use ide-scsi any more.  I guess they will want some IOCTLs 
+implemented to do this.
 
-> > A module can get displaced as easily as a plain text file, and the wrong
-> > "configutarion module" version won't do any good in any case.
-> 
-> Not necessarily, check out the work on bootfs, I think this can be adapted to
-> suit the purpose.  If the config is in a module then we'd normally want that
-> module to be one of the modules that is included in the boot image.
+Rather than add yet more code to ide-floppy, (yes I know it needs 
+cleaning - if I ever get a 2.5.x to compile I may be able to do so), 
+should we consider aligning the behaviour of all removeable devices?  I 
+know Jens is working on the ATAPI CD burning and MO drives, but we have 
+parallel port drives, USB, Firewire, ATAPI, SCSI, floppy and god knows 
+what else out there, all in different subsystems with different 
+maintainers.  Should we attempt to have a common set of IOCTLs for ll 
+format, lock, unlock, eject, validate, grok_partitions etc etc?
 
-It should not be in the boot image, or at least it should be usable
-elsewhere, because it isn't used at boot. It is only used in a running
-system (not necessarily booted from the kernel in question, but running as
-opposed to needed by lilo/grub).
-
-> There is no good way to know where you have put those things.  We're looking
-> for a tight coupling between the kernel image and metadata that describes
-> what's in it - like a label on an electronic component: stuck right on it,
-> not filed away in a filing cabinet.
-
-But that tight coupling has a cost, and the reason for compressed kernel
-is to make it small to fit {places}, which is one of the benefits of
-modules. Putting it in the kernel or nowhere is not optimal, most people
-can manage to find documentation which isn't bound that tightly. If it's
-available as a module it's useful in all the ways people currently use
-things they may or may not want in the kernel, even if "in the kernel"
-only means "stuck to the boot image."
+It might be a lot easier for userland utilities to have a set of 
+expected behaviours and supported IOCTLs from the drivers.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+Paul Bristow
+
+Email: 
+paul@paulbristow.net
+Web: 
+http://paulbristow.net
+ICQ: 
+11965223
 

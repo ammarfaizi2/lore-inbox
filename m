@@ -1,74 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313083AbSD3FbJ>; Tue, 30 Apr 2002 01:31:09 -0400
+	id <S312998AbSD3G1O>; Tue, 30 Apr 2002 02:27:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313087AbSD3FbI>; Tue, 30 Apr 2002 01:31:08 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:13713 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S313083AbSD3FbH>; Tue, 30 Apr 2002 01:31:07 -0400
-Date: Tue, 30 Apr 2002 11:01:08 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org, marcelo@brutus.conectiva.com.br,
-        linux-mm@kvack.org
-Subject: Re: [PATCH]Fix: Init page count for all pages during higher order allocs
-Message-ID: <20020430110108.A1275@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-In-Reply-To: <20020429202446.A2326@in.ibm.com> <m1r8ky1jzu.fsf@frodo.biederman.org>
+	id <S313090AbSD3G1N>; Tue, 30 Apr 2002 02:27:13 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:7183 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S312998AbSD3G1M>; Tue, 30 Apr 2002 02:27:12 -0400
+Date: Tue, 30 Apr 2002 07:26:54 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Patricia Gaughen <gone@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] discontigmem support for ia32 NUMA box against 2.4.19pre7
+Message-ID: <20020430072654.B2262@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Patricia Gaughen <gone@us.ibm.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200204300115.g3U1FQc16634@w-gaughen.des.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 29, 2002 at 11:40:21AM -0600, Eric W. Biederman wrote:
-> Suparna Bhattacharya <suparna@in.ibm.com> writes:
-> 
-> > The call to set_page_count(page, 1) in page_alloc.c appears to happen 
-> > only for the first page, for order 1 and higher allocations.
-> > This leaves the count for the rest of the pages in that block 
-> > uninitialised.
-> 
-> Actually it should be zero.
-> 
-> This is deliberate because high order pages should not be referenced by
-> their partial pages.  
+On Mon, Apr 29, 2002 at 06:15:26PM -0700, Patricia Gaughen wrote:
+> +	if [ "$CONFIG_MULTIQUAD" = "y" ]; then
+> +   	bool 'Discontiguous Memory Support' CONFIG_DISCONTIGMEM
+> +		if [ "$CONFIG_DISCONTIGMEM" = "y" ]; then
+> +		define_bool CONFIG_DISCONTIGMEM_X86 y
+> +		define_bool CONFIG_IBMNUMAQ y
+> +		define_bool CONFIG_NUMA y
+> +		fi
+> +	fi
 
-That sounds reasonable provided there is a way to identify the main 
-page struct corresponding to an area that's part of a higher 
-order page. 
+CML code uses three tab indentes. Also the way you do the config looks
+rather strange. I'd rather ask for IBM NUMAQ support and imply NUMA &
+DISCONTIGMEM support if set.  Also CONFIG_DISCONTIGMEM_X86 looks like
+an ugly workaround to me, all places where it is used should rather check
+for one of CONFIG_DISCONTIGMEM/CONFIG_NUMA/CONFIG_IBMNUMAQ.
+(and CONFIG_IBMNUMAQ would better be named CONFIG_X86_NUMAQ, IMHO).
 
-> It might make sense to add a PG_large flag and
-> then in the immediately following struct page add a pointer to the next
-> page, so you can identify these pages by inspection.  Doing something
-> similar to the PG_skip flag.
+> +
+> +#ifdef CONFIG_SMP
+> +	/*
+> +	 * But first pinch a few for the stack/trampoline stuff
+> +	 * FIXME: Don't need the extra page at 4K, but need to fix
+> +	 * trampoline before removing it. (see the GDT stuff)
+> +	 */
+> +	reserve_bootmem_node(NODE_DATA(0), PAGE_SIZE, PAGE_SIZE);
+> +#endif
 
-Maybe different solutions could emerge for this in 2.4 and 2.5. 
+Umm, NUMA without SMP looks rather strange to me..
 
-Even a PG_partial flag for the partial pages will enable us to
-traverse back to the main page, and vice-versa to determine the
-partial pages covered by the main page, without any additional
-pointers. Is that an acceptable option for 2.4 ? (That's one
-more page flag ...)
+> +#ifdef CONFIG_X86_LOCAL_APIC
+> +	/*
+> +	 * Find and reserve possible boot-time SMP configuration:
+> +	 */
+> +	find_smp_config();
+> +#endif
 
-It would be good to have a way to determine the order directly
-from the page struct, without such traversals, at least in 2.5. 
+Dito for local APIC.
 
-> 
-> Beyond that I get nervous, that people will treat it as endorsement of
-> doing a high order continuous allocation and then fragmenting the page.
-
-I don't think it would amount to such an endorsement. It's just a matter
-of replicating the settings from the main page to the partial pages - 
-which might be considered an alternate protocol, though a little 
-inefficient for really high orders. However, having the partial page 
-counts zeroed out probably helps as a safeguard in some situations in
-view of the page count sanity checks. Or are there any scenarios where 
-you forsee a problem/breakage ?
-
-Regards
-Suparna
-
-> 
-> Eric

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272708AbRIPTbo>; Sun, 16 Sep 2001 15:31:44 -0400
+	id <S272682AbRIPTbn>; Sun, 16 Sep 2001 15:31:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272717AbRIPTbd>; Sun, 16 Sep 2001 15:31:33 -0400
-Received: from family.zawodny.com ([63.174.200.26]:16132 "EHLO
-	family.zawodny.com") by vger.kernel.org with ESMTP
-	id <S272712AbRIPTbY>; Sun, 16 Sep 2001 15:31:24 -0400
-Date: Sun, 16 Sep 2001 12:33:09 -0700
-From: Jeremy Zawodny <Jeremy@Zawodny.com>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: broken VM in 2.4.10-pre9
-Message-ID: <20010916123309.A15108@peach.zawodny.com>
-In-Reply-To: <Pine.LNX.4.33L.0109161559500.21279-100000@imladris.rielhome.conectiva> <200109161919.f8GJJwA25036@smtp-server3.tampabay.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200109161919.f8GJJwA25036@smtp-server3.tampabay.rr.com>
-User-Agent: Mutt/1.3.20i
-X-message-flag: Mailbox corrupt.  Please upgrade your mail software.
-X-Uptime: 12:32:04 up 49 days, 10:30, 10 users,  load average: 0.01, 0.01, 0.00
+	id <S272718AbRIPTbd>; Sun, 16 Sep 2001 15:31:33 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34309 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272717AbRIPTbZ>; Sun, 16 Sep 2001 15:31:25 -0400
+Date: Sun, 16 Sep 2001 12:30:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Tonu Samuel <tonu@please.do.not.remove.this.spam.ee>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: vm rewrite ready [Re: broken VM in 2.4.10-pre9]
+In-Reply-To: <20010916211934.C1315@athlon.random>
+Message-ID: <Pine.LNX.4.33.0109161229140.8286-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 16, 2001 at 03:19:29PM +0000, Phillip Susi wrote:
 
-> Maybe I'm missing something here, but it seems to me that these
-> problems are due to the cache putting pressure on VM, so process
-> pages get swapped out.
+On Sun, 16 Sep 2001, Andrea Arcangeli wrote:
+>
+> as said it is quite a major change, it discards most of the the 2.4 vm
+> that I don't agree with, it is basically an evolution of the classzone
+> patch.
 
-That's what it felt like in the cases that I ran into it.  It was
-trying to treat all memory equally, when it probably shouldn't have.
+That is the wrong direction to go into.
 
-Jeremy
--- 
-Jeremy D. Zawodny     |  Perl, Web, MySQL, Linux Magazine, Yahoo!
-<Jeremy@Zawodny.com>  |  http://jeremy.zawodny.com/
+We'll be completely screwed on NuMA with the classzone patch. I've said so
+before, I'll say so again.
+
+The basic approach of the classzone patch is _wrong_, in making global
+decisions where no "globality" exists.
+
+I bet that the improvements are from other things, not from classzone
+itself. An dI will bet that if we start doing classzones, we'll regret it
+a LOT in a few years.
+
+		Linus
+

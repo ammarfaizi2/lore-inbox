@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264015AbVBDXAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264060AbVBDXA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264015AbVBDXAz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 18:00:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbVBDW7v
+	id S264060AbVBDXA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 18:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266353AbVBDW7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 17:59:51 -0500
-Received: from smtp-105-friday.nerim.net ([62.4.16.105]:62727 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S266138AbVBDWnx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 17:43:53 -0500
-Date: Fri, 4 Feb 2005 23:44:22 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Prarit Bhargava <prarit@sgi.com>
-Subject: 2.6.11-rc3-bk1: ide1: failed to initialize IDE interface
-Message-Id: <20050204234422.4a9c6fd0.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 4 Feb 2005 17:59:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:56508 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264324AbVBDWed (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 17:34:33 -0500
+Date: Fri, 4 Feb 2005 14:39:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: bstroesser@fujitsu-siemens.com, roland@redhat.com, jdike@addtoit.com,
+       blaisorblade_spam@yahoo.it, user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Race condition in ptrace
+Message-Id: <20050204143917.1f9507cb.akpm@osdl.org>
+In-Reply-To: <4203F40C.8040707@yahoo.com.au>
+References: <42021E35.8050601@fujitsu-siemens.com>
+	<4202C18F.5010605@yahoo.com.au>
+	<42036C2C.5040503@fujitsu-siemens.com>
+	<4203F40C.8040707@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> Bodo Stroesser wrote:
+> > Nick Piggin wrote:
+> > 
+> >> Bodo Stroesser wrote:
+> 
+> >> I don't see how this could help because AFAIKS, child->saving is only
+> >> set and cleared while the runqueue is locked. And the same runqueue lock
+> >> is taken by wait_task_inactive.
+> >>
+> > 
+> > Sorry, that not right. There are some routines called by sched(), that 
+> > release
+> > and reacquire the runqueue lock.
+> > 
+> 
+> Oh yeah, it is the wake_sleeping_dependent / dependent_sleeper crap.
+> Sorry, you are right. And that's definitely a bug in sched.c, because
+> it breaks wait_task_inactive, as you've rightly observed.
+> 
+> Andrew, IMO this is another bug to hold 2.6.11 for.
 
-I just gave a quick try to 2.6.11-rc3-bk1, and noticed the following
-new message in dmesg:
-ide1: failed to initialize IDE interface
-
-This seems to be new in 2.6.11-rc3-bk1. I could find the relevant
-changeset in bk:
-http://linux.bkbits.net:8080/linux-2.5/cset@1.1992.9.16
-
-My (admittedly quick) analysis of the code (drivers/ide/ide-probe.c) is
-that init_hwif() can return 0 in two cases: either because the IDE
-interface is somehow not really there (!hwif->present) or because
-something wrong happened while initializing the IDE interface. My
-system's ide1 happens to be enabled (BIOS settings) but no IDE device is
-connected to it. I traced the code and it unsurprisingly happens that I
-am in the first "error" case - init_hwif() exits immediately because
-!hwif->present.
-
-I would tend to think that this is *not* an error, so we shouldn't
-display an error message in this case. Maybe init_hwif() should return 1
-instead of 0 in this case. Or maybe it should return -1, 0 and 1 for
-error, no interface and success, respectively. I'm not certain I
-understand the semantics behind the returned value, does it mean
-error/success or interface absent/present (or a bit of each)? Or maybe
-we could move the error message into init_hwif() itself, but that would
-require some error path changes.
-
-I do not propose a patch because I'm not exactly sure what has to be
-done, but I still believe something has to be done. Insight anyone?
-
-Thanks,
--- 
-Jean Delvare
+Sure.  I wouldn't consider Bodo's patch to be the one to use though..

@@ -1,67 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311144AbSCHVaS>; Fri, 8 Mar 2002 16:30:18 -0500
+	id <S311147AbSCHV24>; Fri, 8 Mar 2002 16:28:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311141AbSCHV37>; Fri, 8 Mar 2002 16:29:59 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:30469 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S311136AbSCHV3o>; Fri, 8 Mar 2002 16:29:44 -0500
-Date: Fri, 8 Mar 2002 22:29:42 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Danek Duvall <duvall@emufarm.org>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: root-owned /proc/pid files for threaded apps?
-Message-ID: <20020308222942.A7163@devcon.net>
-Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-	Danek Duvall <duvall@emufarm.org>, linux-kernel@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20020307060110.GA303@lorien.emufarm.org> <E16iyBW-0002HP-00@the-village.bc.nu> <20020308100632.GA192@lorien.emufarm.org> <20020308195939.A6295@devcon.net> <20020308203157.GA457@lorien.emufarm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020308203157.GA457@lorien.emufarm.org>; from duvall@emufarm.org on Fri, Mar 08, 2002 at 12:31:57PM -0800
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+	id <S311146AbSCHV2r>; Fri, 8 Mar 2002 16:28:47 -0500
+Received: from gateway2.ensim.com ([65.164.64.250]:31493 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S311136AbSCHV2d>; Fri, 8 Mar 2002 16:28:33 -0500
+X-mailer: xrn 8.03-beta-26
+From: Paul Menage <pmenage@ensim.com>
+Subject: Re: [PATCH] 2.5.6-pre3 Fast Walk Dcache
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org, pmenage@ensim.com
+X-Newsgroups: 
+In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D2260CB@nasdaq.ms.ensim.com>
+Message-Id: <E16jRuZ-00076W-00@pmenage-dt.ensim.com>
+Date: Fri, 08 Mar 2002 13:28:23 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 08, 2002 at 12:31:57PM -0800, Danek Duvall wrote:
-> 
-> So it also turns out that either by changing that argument to 0 or just
-> reverting that hunk of the patch, xmms starts skipping whenever mozilla
-> loads a page, even a really simple one.
 
-ie. always when mozilla tries to do a socket(PF_INET6, ...), which
-ends up requesting the ipv6 module. 
+In article <0C01A29FBAE24448A792F5C68F5EA47D2260CB@nasdaq.ms.ensim.com>,
+you write:
+>
+>Changed path_lookup to hold the dcache_lock instead of incrementing the 
+>d_count reference counter while walking the path as long as the desired 
+>dentry's are found in the dcache. Dave Olien wrote permission_exec_lite. 
+>These ideas came from Al Viro to decrease cacheline bouncing.
 
-As a side note, IMHO it would be sensible to have some way of
-disabling module autoloading of protocol modules in the network stack.
-As more and more apps start supporting IPv6, those ipv6 module
-requests are getting more frequent on machines without IPv6 support
-(the vast majority for now), which might turn into a real performance
-penalty (fork+exec+wait for modprobe finish...)
+Some points:
 
-> Disk activity and other network
-> activity don't seem to cause the skipping, and the skipping disappears
-> when I go back to an unaltered ac kernel, so there seems to be something
-> wrong with set_user(0, 0) as well, just a different problem.
+1) You're missing parentheses in cached_lookup_nd() and path_lookup():
 
-Uhm, this one seems rather strange. AFAICT, the dumpable flag is used
-purely for access control to the processes in-memory data, ie.
-/proc/<pid>/*, coredump generation etc., it doesn't affect scheduler,
-memory management or the like.
+	if(!nd->flags & LOOKUP_LOCKED)
+		return cached_lookup(nd->dentry, name, flags);
 
-Maybe it's related to the wmb() done by set_user() if dumpclear is
-set? (although it's actually a nop on most x86 (which arch are you
-using?))
+...
 
-Just for testing, can you try moving the wmb() in set_user()
-(kernel/sys.c, line 512 in 2.4.19-pre2-ac3) out of the if statement?
-(ie. put it right after the closing brace)
+	if (!nd->flags & LOOKUP_LOCKED)
+		dput(nd->dentry);
 
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+
+! binds closer than binary &, so the tests will never be true (and gcc
+probably optimises the entire tests/calls away).
+
+2) Since cached_lookup_nd() calls __d_lookup() and hence
+__dget_locked(), it's not clear how you actually avoid incrementing the
+d_count values of the dentries, other than the root/cwd dentries. Can
+you explain the logic in a little more detail?
+
+e.g. if you do path_lookup("/usr/bin", 0, nd), this translates into
+(substituting names for dentries for readability ...)
+
+path_walk("/usr/bin", nd)
+  cached_lookup("/", "usr", LOOKUP_CONTINUE)
+    __d_lookup("/", "usr")
+      __dget_locked("/usr")
+        atomic_inc(&"/usr"->d_count)
+
+3) If you replace walk_init_root() and path_lookup() with something
+like the following, you can pull the ugliness of walk_init_root() out
+of path_lookup(). Basically, make walk_init_root() recognise
+LOOKUP_LOCKED and take the dcache_lock rather than grabbing refcounts. 
+walk_init_root() drops the LOOKUP_LOCKED flag if necessary while
+calling __emul_lookup_dentry() to avoid additional complexity. If
+walk_init_root() returns 0, then the dcache lock wasn't taken,
+regardless of whether the nd.flags had LOOKUP_LOCKED set.
+
+static inline int
+walk_init_root(const char *name, struct nameidata *nd)
+{
+	unsigned int flags = nd->flags;
+	read_lock(&current->fs->lock);
+	if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
+
+		if(flags & LOOKUP_LOCKED)
+			nd->flags &= ~LOOKUP_LOCKED;
+
+		nd->mnt = mntget(current->fs->altrootmnt);
+		nd->dentry = dget(current->fs->altroot);
+		read_unlock(&current->fs->lock);
+		if (__emul_lookup_dentry(name,nd))
+			return 0;
+
+		if(flags & LOOKUP_LOCKED) 
+			nd->flags = flags;
+
+		read_lock(&current->fs->lock);
+	}
+	nd->mnt = current->fs->rootmnt;
+	nd->dentry = current->fs->root;
+	if(flags & LOOKUP_LOCKED) {
+		read_lock(&dcache_lock);
+	} else {
+		mntget(nd->mnt);
+		dget(nd->dentry);
+	}
+	read_unlock(&current->fs->lock);
+	return 1;
+}
+
+...
+
+int path_lookup(const char *name, unsigned int flags, struct nameidata
+*nd)
+{
+	nd->last_type = LAST_ROOT; /* if there are only slashes... */
+	nd->flags = flags | LOOKUP_LOCKED;
+	if (*name=='/'){
+		if(!walk_init_root(name, nd)) 
+			return 0;
+	} else{
+		read_lock(&current->fs->lock);
+		spin_lock(&dcache_lock);
+		nd->mnt = current->fs->pwdmnt;
+		nd->dentry = current->fs->pwd;
+		read_unlock(&current->fs->lock);
+	}
+	return (path_walk(name, nd));
+}
+
+Paul

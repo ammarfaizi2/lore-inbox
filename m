@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265929AbTIKAvx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 20:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265930AbTIKAvx
+	id S266053AbTIJXlT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 19:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266054AbTIJXlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 20:51:53 -0400
-Received: from holomorphy.com ([66.224.33.161]:56757 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265929AbTIKAvw (ORCPT
+	Wed, 10 Sep 2003 19:41:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31906 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266053AbTIJXlQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 20:51:52 -0400
-Date: Wed, 10 Sep 2003 17:52:53 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jesse Barnes <jbarnes@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] you have how many nodes??
-Message-ID: <20030911005253.GO4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, Jesse Barnes <jbarnes@sgi.com>,
-	linux-kernel@vger.kernel.org
-References: <20030910213602.GC17266@sgi.com> <20030910151254.52f53e62.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910151254.52f53e62.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 10 Sep 2003 19:41:16 -0400
+Date: Wed, 10 Sep 2003 16:41:05 -0700 (PDT)
+From: Judith Lebzelter <judith@osdl.org>
+To: <linux-kernel@vger.kernel.org>
+cc: <plm-devel@lists.sourceforge.net>
+Subject: PowerPC Cross-compile of 2.6 kernels 
+Message-ID: <Pine.LNX.4.33.0309101629260.24847-100000@osdlab.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 03:12:54PM -0700, Andrew Morton wrote:
-> Instead of going backwards like this we'd like to actually free up _more_
-> bits in page->flags.  The worst (and controlling) case is on 32-bit NUMA:
-> eight nodes, three zones per node.  That's five bits, leaving us 27 page
-> flags.
+Hello,
 
-The worst case for i386 NUMA is actually 16 nodes.
+In response to requests at OLS, we've added cross-compile
+capability to the PLM, and the first architecture
+implemented is PowerPC.  The powerpc code is
+generated via a cross-compiler set up using Dan
+Kegels's crosstool-0.22 on an i386 host using gcc-3.3.1,
+glibc-2.3.2 and built for the powerpc-750.
+
+The filter run is the compile regress developed by John
+Cherry at OSDL.  Refer to his prior mail on lkml for the
+results of this filter on ia386 and IA64.
+
+Look at
+    http://www.osdl.org/plm-cgi/plm?module=search
+and look up linux-2.6.0-test5 or any later kernels for the
+results of this filter under 'PPC-Cross Compile Regress'.
+
+Does anyone have any input regarding requests for
+additional architectures or improvements to the
+filters?  Please cc me in any responses to lkml as I do
+not currently monitor this list, though other OSDL
+employees do.
+
+Thanks;
+
+Judith Lebzelter
+OSDL
 
 
--- wli

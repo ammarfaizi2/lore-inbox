@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312674AbSCVFZw>; Fri, 22 Mar 2002 00:25:52 -0500
+	id <S312670AbSCVFYc>; Fri, 22 Mar 2002 00:24:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312673AbSCVFZm>; Fri, 22 Mar 2002 00:25:42 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:13574 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S312671AbSCVFZ1>;
-	Fri, 22 Mar 2002 00:25:27 -0500
+	id <S312671AbSCVFYX>; Fri, 22 Mar 2002 00:24:23 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56838
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S312670AbSCVFYO>; Fri, 22 Mar 2002 00:24:14 -0500
+Date: Thu, 21 Mar 2002 21:23:36 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Stephen Williams <mrsteve@midsouth.rr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.19pre3-ac5
+In-Reply-To: <1016734453.1017.11.camel@swilliam.home.net>
+Message-ID: <Pine.LNX.4.10.10203212115360.4958-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15514.48690.588277.606822@gargle.gargle.HOWL>
-Date: Fri, 22 Mar 2002 16:16:34 +1100
-From: Christopher Yeoh <cyeoh@samba.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH] msync writing when MS_INVALIDATE set and memory locked
-X-Mailer: VM 7.03 under Emacs 21.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 21 Mar 2002, Stephen Williams wrote:
 
-For msync, SUSv2 states that it will fail if:
+> I can compile ac-5 fine but when trying to boot I get the following
+> error:
+> 
+> kernel BUG at ide-cd.c:790!
+> invalid operand: 0000
+> 
+> I am running 2.4.19pre3 without a problem.  I didn't have a way (as far
+> as I know) to get the full panic output but I can copy by hand and post
+> here if needed.
+> 
+> Have a good one,
+> Steve
 
-"[EBUSY] Some or all of the addresses in the range starting at addr
-and continuing for len bytes are locked, and MS_INVALIDATE is
-specified."
+It is a BUG() check to see if there are cases where the interrupt handler
+is being set (re armed) while it is currently set for another event.
 
-This check isn't being done. The following patch (against 2.4.19pre4)
-adds the correct behaviour:
+if (HWGROUP(drive)->handler != NULL)
+     BUG();
+ide_set_handler(drive, handler, timeout, expirey);
 
---- linux-2.4.18/mm/filemap.c~	Thu Mar 21 16:04:48 2002
-+++ linux-2.4.18/mm/filemap.c	Fri Mar 22 15:48:40 2002
-@@ -2205,6 +2205,9 @@
- 	int ret = 0;
- 	struct file * file = vma->vm_file;
- 
-+	if ( (flags & MS_INVALIDATE) && (vma->vm_flags & VM_LOCKED) )
-+		return -EBUSY;
-+
- 	if (file && (vma->vm_flags & VM_SHARED)) {
- 		ret = filemap_sync(vma, start, end-start, flags);
- 
-Chris
--- 
-cyeoh@au.ibm.com
-IBM OzLabs Linux Development Group
-Canberra, Australia
+If we are reloading the handler but it was set but something else , never
+called during a completion, and/or is dangling.  It is a typo my bad :-(
+
+Edit and change it from "==" to "!="
+
+Apology for the typo folks.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

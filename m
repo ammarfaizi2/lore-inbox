@@ -1,66 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262585AbRE3EXy>; Wed, 30 May 2001 00:23:54 -0400
+	id <S262593AbRE3EkP>; Wed, 30 May 2001 00:40:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262589AbRE3EXe>; Wed, 30 May 2001 00:23:34 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:37639 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S262585AbRE3EX1>; Wed, 30 May 2001 00:23:27 -0400
-Date: Tue, 29 May 2001 21:24:12 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: <linux-kernel@vger.kernel.org>
-cc: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Plain 2.4.5 VM
-Message-ID: <Pine.LNX.4.33.0105292009310.9556-100000@loke.as.arizona.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262604AbRE3EkF>; Wed, 30 May 2001 00:40:05 -0400
+Received: from 213.237.80.42.adsl.he.worldonline.dk ([213.237.80.42]:15675
+	"EHLO udgaard.com") by vger.kernel.org with ESMTP
+	id <S262593AbRE3EkB>; Wed, 30 May 2001 00:40:01 -0400
+Date: Wed, 30 May 2001 06:42:56 +0200
+From: Peter Rasmussen <plr@udgaard.com>
+Message-Id: <200105300442.GAA01571@udgaard.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Swap problems persisting?
+Cc: plr@udgaard.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 May 2001 22:55:43 Alan Cox wrote:
 
-
-Mike Galbraith (mikeg@wen-online.de) wrote:
+>> I found myself in trouble with sudden shutdowns while playing DVDs (LiViD) and sometimes
+>> running Mozilla 0.8.1 simultaneously, but running mozilla wasn't always necessary.
+>> 
 >
-> Emphatic yes.  We went from cache collapse to cache bloat.
+>Describe "sudden shutdown" more precisely first of all
+>
+I'm terribly sorry for my unprecise description.
 
-Rik, I think Mike deserves his beer.  ;)
+By "sudden shutdown" I meant that the machine freezes hard and when running X
+using the Magic SysRq key combinations don't seem to work so power cycling was
+the only option. It seems that it wasn't just the keyboard that had frozen
+because a webserver I'm running on the machine also stopped serving pages.
 
-Agreed.  Swap reclaim doesn't seem to be the root issue here, IMHO.
-But instead: his box was capable of maintaining a modest cache
-and the desired user processes without massive allocations (and use)
-of swap space.  There was plenty of cache to reap, but VM decided to
-swapout instead.  Seems we're out of balance here (IMHO).
+Thanks,
 
-I see this too, and it's only a symptom of post-2.4.4 kernels.
-
-Example: on a 128M system w/2.4.5, loading X and a simulation code of
-RSS=70M causes the system to drop 40-50M into swap...with 100M of cache
-sitting there, and some of those cache pages are fairly old. It's not
-just allocation; there is noticable disk activity associated with paging
-that causes a lag in interactivity.  In 2.4.4, there is no swap activity
-at all.
-
-And if the application causes heavy I/O *and* memory load (think
-StarOffice, or Quake 3), this situation gets even worse (because there's
-typically more competition/demand for cache pages).
-
-And on low-memory systems (ex. 32M), even a basic Web browsing test w/
-Opera drops the 2.4.5 system 25M into swap where 2.4.4 barely cracks 5 MB
-on the same test (and the interactivity shows).  This is all independent
-of swap reclaim.
-
-So is there an ideal VM balance for everyone?  I have found that low-RAM
-systems seem to benefit from being on the "cache-collapse" side of the
-curve (so I prefer the pre-2.4.5 balance more than Mike probably does) and
-those low-RAM systems are the first hit when, as now, we're favoring
-"cache bloat".  Should balance behaviors could be altered by the user
-(via sysctl's maybe?  Yeah, I hear the cringes)?  Or better, is it
-possible to dynamically choose where the watermarks in balancing should
-lie, and alter them automatically?  2.5 stuff there, no doubt.  Balancing
-seems so *fragile* (to me).
-
-Cheers,
-
-Craig Kulesa
-ckulesa@as.arizona.edu
-
+Peter

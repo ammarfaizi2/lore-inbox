@@ -1,96 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265336AbTLHE5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 23:57:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265337AbTLHE5Y
+	id S265329AbTLHEvK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 23:51:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265334AbTLHEvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 23:57:24 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:27100 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265336AbTLHE5V
+	Sun, 7 Dec 2003 23:51:10 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:22247 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S265329AbTLHEvI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 23:57:21 -0500
-Date: Mon, 8 Dec 2003 10:26:38 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Mike Gorse <mgorse@mgorse.dhs.org>, linux-kernel@vger.kernel.org,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: Oops w/sysfs when closing a disconnected usb serial device
-Message-ID: <20031208045638.GA4667@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <Pine.LNX.4.58.0311301900110.32493@mgorse.dhs.org> <20031201093804.GA6918@in.ibm.com> <20031206005644.GA14249@kroah.com>
+	Sun, 7 Dec 2003 23:51:08 -0500
+Date: Sun, 7 Dec 2003 20:51:05 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Bob <recbo@nishanet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cdrecord hangs my computer
+Message-ID: <20031208045105.GA17586@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Bob <recbo@nishanet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <Law9-F31u8ohMschTC00001183f@hotmail.com> <Pine.LNX.4.58.0312060011130.2092@home.osdl.org> <3FD1994C.10607@stinkfoot.org> <20031206084032.A3438@animx.eu.org> <Pine.LNX.4.58.0312061044450.2092@home.osdl.org> <20031206220227.GA19016@work.bitmover.com> <3FD3FFB9.40305@nishanet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031206005644.GA14249@kroah.com>
+In-Reply-To: <3FD3FFB9.40305@nishanet.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 05, 2003 at 04:56:44PM -0800, Greg KH wrote:
-[..]
-> 
-> I agree with this patch.  It fixes the usbserial oops for me in my
-> testing.  
-> 
-> But wait, no, this patch is not good...
-> 
-> I think Mike's patch is correct.  Here's the problem (tree simplified
-> for this example to make it readable):
-> 	- insert usb device, this creates a sysfs directory something
-> 	  like:
-> 		- pci.../usb1/1.0
-> 	- the usbserial driver binds to this device and creates a
-> 	  ttyUSB0 directory:
-> 	  	- pci.../usb1/1.0/ttyUSB0
-> 	- a user opens the ttyUSB0 device node (in /dev) which
-> 	  increments the reference count of the kobject that controls
-> 	  the ttyUSB0 directory in sysfs.
-> 	- the usb device is removed from the system.  In doing this,
-> 	  the driver core, and then the kobject code has to delete the
-> 	  tree 1.0 directory.  
-> 	  
-> Now at this point, Maneesh, your patch would prevent this directory from
-> being removed, until after the ttyUSB0 directory is removed.  That's all
-> well and good, but what happens if we have another USB device plugged
-> into the same place before this happens.  Then the USB code would try to
-> create the 1.0 directory over again (the directory names are built off
-> of the USB topology.  but even if they were built off of something
-> unique, we would still have a mess...)  If that happens, the creation of
-> the directory would fail, which is not acceptable.
+On Sun, Dec 07, 2003 at 11:36:09PM -0500, Bob wrote:
+> Larry McVoy wrote:
+> >Hey, that "piece of crap" has burned one heck of a lot of ISO images of
+> >Linux over the years.  How about a nod of thanks to the author before you
+> >tell him you don't like his interface?  And how about acknowledgement that
+> >he made that "piece of crap" work on a lot of different Unix platforms?
+> > 
+> Naming "1,0,0" won't work everywhere for me.
 
-I see and agree, in this case my patch will create more problems.. Actually the 
-problem here is _not_ that the directory is removed even though it is in use. 
-The inherent dentry ref. counting should take care for that and 
-corresponding dentry will be around as long as there are existing users. The 
-problem here is parent going away before child and we are trying to remove the 
-child directory more than once.
+You're missing my point.  I was not claiming that cdrecord's naming 
+scheme was great and I'm still not claiming that.  I was objecting to
+what I saw as a needless slam on someone who has produced a useful tool,
+maintained it for years, and we've all used it for years.
 
-> But Mike's patch allows the whole tree from 1.0 on down to be removed,
-> and then later, when the ttyUSB0 node is really closed, the directory
-> will not tried to be removed.  Memory is still cleaned up properly, and
-> the kobjects are properly reference counted.
-> 
-> I know in the past I've argued against this kind of patch (sorry scsi
-> people), but now in thinking about it a bunch (and sitting though a
-> zillion oops messages trying to figure out what's wrong here) I think
-> this is the correct fix.
-> 
-> Any other opinions?
-> 
+Personally, I think a
 
-The only problem with Mike's fix is that it fixes the symptom and does
-not fix the real cause. I don't see in which case we can have a NULL
-d_inode at that point, checking for that means hiding the real problem.
+    The cdrecord naming scheme is broken, we aren't going to support it.
 
-Probably dump_stack() in sysfs_remove_dir() could bring more light in this 
-problem. 
-
-Maneesh
-
+would have been enough.  Maybe Linus has some issues with the author but
+that's no excuse to be that rude.  I'm a little tired of this mailing
+list hammering on people more than is needed.
 -- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

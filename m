@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130085AbRAWLSW>; Tue, 23 Jan 2001 06:18:22 -0500
+	id <S130113AbRAWL31>; Tue, 23 Jan 2001 06:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130113AbRAWLSN>; Tue, 23 Jan 2001 06:18:13 -0500
-Received: from office.mandrakesoft.com ([195.68.114.34]:13306 "HELO
-	dark.mandrakesoft.com") by vger.kernel.org with SMTP
-	id <S130085AbRAWLSD>; Tue, 23 Jan 2001 06:18:03 -0500
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre8/10 klogd taking 100% of CPU time -- bug?
-In-Reply-To: <m3g0iaxzr6.fsf@giants.mandrakesoft.com>
-	<Pine.LNX.4.21.0101231044220.1386-100000@penguin.homenet>
-	<3A6D6602.BCA969E2@uow.edu.au>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 23 Jan 2001 12:18:11 +0000
-In-Reply-To: <3A6D6602.BCA969E2@uow.edu.au>
-Message-ID: <m3y9w2a2d8.fsf@giants.mandrakesoft.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.95
-MIME-Version: 1.0
+	id <S129944AbRAWL3R>; Tue, 23 Jan 2001 06:29:17 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:15882 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130113AbRAWL27>;
+	Tue, 23 Jan 2001 06:28:59 -0500
+Date: Tue, 23 Jan 2001 12:28:49 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Keith Owens <kaos@ocs.com.au>, Karsten Keil <keil@isdn4linux.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: BUG in modutils or drivers/isdn/hisax/
+Message-ID: <20010123122849.A27379@gruyere.muc.suse.de>
+Mail-Followup-To: Karsten Keil <kkeil@suse.de>,
+	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+	Keith Owens <kaos@ocs.com.au>, Karsten Keil <keil@isdn4linux.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010123013155.E1173@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010123013155.E1173@nightmaster.csn.tu-chemnitz.de>; from ingo.oeser@informatik.tu-chemnitz.de on Tue, Jan 23, 2001 at 01:31:55AM +0100
+Organization: SuSE Muenchen GmbH
+X-Operating-System: Linux 2.2.10 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <andrewm@uow.edu.au> writes:
+Hi,
 
-> As far as the klogd problem is concerned, see
+On Tue, Jan 23, 2001 at 01:31:55AM +0100, Ingo Oeser wrote:
+> Hi Keith,
+> hi Karsten,
+> hi linux-kernel,
 > 
-> 	http://www.uwsg.iu.edu/hypermail/linux/kernel/0101.1/1053.html
+> the current modutils (2.4.1) cannot read the
+> __module_pci_device_table of a kernel/drivers/isdn/hisax/hisax.o
+> module of linux 2.4.0 (vanilla).
 > 
-> for a probable solution.
+> What's wrong with it?
 
-it look like it fixes the problem for me, thanks.
+Nothing. Only the HFC-PCI part in hisax has such a table yet, all other
+card drivers in hisax don't have one at the moment.
 
 -- 
-MandrakeSoft Inc                     http://www.chmouel.org
-                      --Chmouel
+Karsten Keil
+SuSE Labs
+ISDN development
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

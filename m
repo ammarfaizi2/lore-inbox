@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129894AbQLHOTl>; Fri, 8 Dec 2000 09:19:41 -0500
+	id <S129511AbQLHOWV>; Fri, 8 Dec 2000 09:22:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131848AbQLHOTb>; Fri, 8 Dec 2000 09:19:31 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16400 "EHLO
+	id <S129595AbQLHOWL>; Fri, 8 Dec 2000 09:22:11 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18192 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132147AbQLHOTT>; Fri, 8 Dec 2000 09:19:19 -0500
-Subject: Re: who is writing to disk
-To: zhiruo@cc.gatech.edu (Zhiruo Cao)
-Date: Fri, 8 Dec 2000 13:50:36 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, zhiruo@cc.gatech.edu
-In-Reply-To: <Pine.GSU.4.21.0012072119450.9251-100000@lennon.cc.gatech.edu> from "Zhiruo Cao" at Dec 07, 2000 09:25:03 PM
+	id <S129511AbQLHOWF>; Fri, 8 Dec 2000 09:22:05 -0500
+Subject: Re: Signal 11
+To: davej@suse.de
+Date: Fri, 8 Dec 2000 13:52:15 +0000 (GMT)
+Cc: jmerkey@timpanogas.org (Jeff V. Merkey), rmager@vgkk.com (Rainer Mager),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.21.0012080217400.12383-100000@neo.local> from "davej@suse.de" at Dec 08, 2000 02:28:49 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E144Nv5-0003ud-00@the-village.bc.nu>
+Message-Id: <E144Nwg-0003uo-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My question then is, is there a (monitoring) tool that can tell me who is
-> writing to disk?  Or how I configure the kernel to know that?
+> Various processes have been getting random signals after heavy CPU usage.
+> Playing an MPEG movie, kernel compile, or even just some small apps
+> compiling sometimes. Just for the record, this isn't an OOM situation,
+> I've watched this box with half its memory free or in buffers left
+> unattended, and suddenly a compile will just die.
 
-Monitoring tool - none that I know of. FInd can do a search and find all very
-new files.
-
-Most likely it's a combination of cruddy CD-ROM drives and magicdev. See
-if /var/log/messages has an ever growing rant from the cdrom drive
-
-
+This is consistent with page cache corruption in memory. We definitely had
+that in older 2.4test kernels. I saw this building stuff on Linux parisc
+and it was because some page of gcc had randomly decided to become something
+different. Since that was test6 I didnt figure it important 8)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

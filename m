@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269859AbRHDTlt>; Sat, 4 Aug 2001 15:41:49 -0400
+	id <S267650AbRHDTyW>; Sat, 4 Aug 2001 15:54:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269858AbRHDTlk>; Sat, 4 Aug 2001 15:41:40 -0400
-Received: from [194.205.184.45] ([194.205.184.45]:41226 "EHLO infradead.org")
-	by vger.kernel.org with ESMTP id <S269857AbRHDTl2>;
-	Sat, 4 Aug 2001 15:41:28 -0400
-Date: Sat, 4 Aug 2001 20:35:37 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-cc: Chris Wedgwood <cw@f00f.org>, Mark Atwood <mra@pobox.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-In-Reply-To: <996888738.24442.1.camel@tduffy-lnx.afara.com>
-Message-ID: <Pine.LNX.4.33.0108042028320.16941-100000@infradead.org>
+	id <S267670AbRHDTyN>; Sat, 4 Aug 2001 15:54:13 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:18960 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S267650AbRHDTyC>;
+	Sat, 4 Aug 2001 15:54:02 -0400
+Date: Sat, 4 Aug 2001 16:53:42 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Ivan Kalvatchev <iive@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: DoS with tmpfs #3
+In-Reply-To: <20010805063657.C20164@weta.f00f.org>
+Message-ID: <Pine.LNX.4.33L.0108041652340.2526-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Thomas.
+On Sun, 5 Aug 2001, Chris Wedgwood wrote:
+> On Sat, Aug 04, 2001 at 03:07:31AM -0300, Rik van Riel wrote:
+>
+>     1) you create a tmpfs with a high limit, such that
+>        (max size tmpfs) + (user memory) > ram + swap
+>
+> maybe, by default, tmpfs should choose a limit of 1/2 ram available or
+> something?  if this is too small, people can change it
 
- >> the kernel calls modprobe asking for the network device 'eth0',
- >> modprobe uses the configuration file to map this to a module
+I guess this would be a decent default; good enough to
+keep most people out of trouble and big enough to be
+useful.
 
- > so, what happens when you have two eth cards that use the same
- > module? in the isa land, the order you pass the io=0x300,0x240
- > would determine which order the eth?'s go to...how about in the
- > pci world?
+regards,
 
-One of my systems has SIX ethernet cards, these being three ISA and
-two PCI NE2000 clones and a DEC Tulip. Here's the relevant section of
-modules.conf on the system in question:
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
- Q> alias eth0 ne
- Q> options eth0 io=0x340
- Q> alias eth1 ne
- Q> options eth1 io=0x320
- Q> alias eth2 ne
- Q> options eth2 io=0x2c0
- Q> alias eth3 ne2k-pci
- Q> alias eth4 ne2k-pci
- Q> alias eth5 tulip
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Best wishes from Riley.
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

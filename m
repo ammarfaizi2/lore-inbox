@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132010AbRAEPfe>; Fri, 5 Jan 2001 10:35:34 -0500
+	id <S129267AbRAEPiy>; Fri, 5 Jan 2001 10:38:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132074AbRAEPfY>; Fri, 5 Jan 2001 10:35:24 -0500
-Received: from AStrasbourg-201-2-1-11.abo.wanadoo.fr ([193.251.1.11]:26897
-	"EHLO lune.perinfo.com") by vger.kernel.org with ESMTP
-	id <S132010AbRAEPfI>; Fri, 5 Jan 2001 10:35:08 -0500
-Message-ID: <000d01c07724$8fa531f0$8900030a@nicolasp>
-From: "Nicolas Parpandet" <nparpand@perinfo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel network problem ?
-Date: Fri, 5 Jan 2001 15:34:07 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129383AbRAEPio>; Fri, 5 Jan 2001 10:38:44 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:29452 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S129183AbRAEPif>;
+	Fri, 5 Jan 2001 10:38:35 -0500
+Date: Fri, 5 Jan 2001 17:38:08 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: jgarzik@mandrakesoft.com, mea@nic.funet.fi, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 tulip bug (was: And oh, btw..)
+Message-ID: <20010105173808.P12545@mea-ext.zmailer.org>
+In-Reply-To: <200101051523.QAA26873@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200101051523.QAA26873@harpo.it.uu.se>; from mikpe@csd.uu.se on Fri, Jan 05, 2001 at 04:23:13PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 05, 2001 at 04:23:13PM +0100, Mikael Pettersson wrote:
+> >Changes since the prerelease:
+> >...
+> >Matti Aarnio:
+> > - teach tulip driver about media types 5 and 6
+>
+> This part of the patch introduces a bug in 2.4.0, as noticed by gcc:
 
-Hi all,
+	Oddly enough the beast works with my test specimen,
+	but real analysis is still incomplete by Donald et.al.
 
-I'm testing 2.4 series for few weeks,
-even the last prerelease
+	So far we think that if the card has MII (type 1) media,
+	it could safely ignore types 5 and 6.
 
-I've seen stranges things  :
+> The patch also adds four unused variables, which looks rather fishy.
 
-I cannot access to some ips adresses ! :
-in http or in smtp using "konqueror", "netscape",
-"mail",  "telnet 25".
+	Indeed, it is copy&paste from somewhere else, which may
+	indeed have different control flows.
 
-I cannot login to hotmail (in the web page:http) 
-or send mail (smtp) to hotmail users (don't blame me !!)
-All the others network things works well, the network in general seems
-good only very few sites like hotmail doesn't works.
+	However unless you have esoteric (taiwanese) special hardware
+	with those media types, it won't affect you.
 
-And only with 2.4 series !! not with 2.2 ...
+> /Mikael
 
-maybe it's a glibc or kernel issue, I'dont know.
-I have an intel SMP motherboard connected to the net (cable) 
-with a PCI realtek 8019.
-
-I didn't analyse packets sent. If somebody else have the
-same problems ...
-
-Nicolas.
-
-Sorry for my poor english.
-
-PS: funny "bug" isn't it ? (hotmail !)
-PS2: thanks for all, very good job done, 
-      2.4 is very fast and seems stable.
-
-
-
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

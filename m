@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269125AbTCBAKL>; Sat, 1 Mar 2003 19:10:11 -0500
+	id <S269152AbTCBANl>; Sat, 1 Mar 2003 19:13:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269128AbTCBAKL>; Sat, 1 Mar 2003 19:10:11 -0500
-Received: from bitmover.com ([192.132.92.2]:33461 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S269125AbTCBAKK>;
-	Sat, 1 Mar 2003 19:10:10 -0500
-Date: Sat, 1 Mar 2003 16:20:21 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org, pavel@janik.cz, pavel@ucw.cz,
-       hch@infradead.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030302002021.GA29749@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Adam J. Richter" <adam@yggdrasil.com>, andrea@suse.de,
-	linux-kernel@vger.kernel.org, pavel@janik.cz, pavel@ucw.cz,
-	hch@infradead.org
-References: <200303020011.QAA13450@adam.yggdrasil.com>
+	id <S269158AbTCBANl>; Sat, 1 Mar 2003 19:13:41 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:41879
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S269152AbTCBANk>; Sat, 1 Mar 2003 19:13:40 -0500
+Subject: Re: 2.5.63: 'Debug: sleeping function called from illegal context
+	at mm/slab.c:1617'
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030301210518.GA740@gallifrey>
+References: <20030301210518.GA740@gallifrey>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046568414.24557.11.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303020011.QAA13450@adam.yggdrasil.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 02 Mar 2003 01:26:55 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	Thanks again for starting this project.  I will at least
-> try to be a user of it.
+On Sat, 2003-03-01 at 21:05, Dr. David Alan Gilbert wrote:
+> Hi,
+>   2.5.63 had a good go at trying to boot for me; the only error during
+> boot was 'Debug: sleeping function called from illegal context at
+> mm/slab.c:1617' during the IDE startup.
 
-Enjoy yourself.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Known problem. Its a bug in the request_irq code on x86. IDE just
+happens to be a victim of it.
+

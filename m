@@ -1,34 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315862AbSEZJq6>; Sun, 26 May 2002 05:46:58 -0400
+	id <S315919AbSEZJw7>; Sun, 26 May 2002 05:52:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315893AbSEZJq5>; Sun, 26 May 2002 05:46:57 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:48912 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S315862AbSEZJq5>; Sun, 26 May 2002 05:46:57 -0400
-Date: Sun, 26 May 2002 11:46:48 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Diego Calleja <DiegoCG@teleline.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.18, pdflush 100% cpu utilization
-Message-ID: <20020526094648.GA15233@louise.pinerecords.com>
-In-Reply-To: <20020525212512.7a14d1d9.DiegoCG@teleline.es>
-Mime-Version: 1.0
+	id <S315921AbSEZJw6>; Sun, 26 May 2002 05:52:58 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25359
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S315919AbSEZJw5>; Sun, 26 May 2002 05:52:57 -0400
+Date: Sun, 26 May 2002 02:50:25 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] New driver for Artop [Acard] controllers.
+In-Reply-To: <Pine.LNX.4.10.10205242204360.31297-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10205260242450.3010-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: GNU/Linux 2.2.21 SMP
-X-Architecture: sparc
-X-Uptime: 3 days, 13:31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Kernel Panic: pse required
-                ^^^
 
-$ cat /proc/cpuinfo
-kala@kirsi:~$ cat /proc/cpuinfo| grep flags
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-                             ^^^
+Look another pair of Copyrights deleted.
+I wonder how many other people besides myself have had their copyright
+deleted, too?  Did you you do it to the AMD driver too?
+I made a mistake in the past when I offered you the option to maintain the
+via82cxxx.c chipset.  IIRC, you deleted 4 Copyrights then.
 
-t.
+Oh well ...
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+
+--- linux-2.5.6-timing/drivers/ide/piix.c       Tue Mar 12 16:26:03 2002
++++ linux-2.5.6-piix/drivers/ide/piix.c Tue Mar 12 20:35:40 2002
+@@ -1,499 +1,510 @@
+ /*
+- *  linux/drivers/ide/piix.c           Version 0.32    June 9, 2000
++ * $Id: piix.c,v 1.1 2002/10/10 22:58:60 vojtech Exp $
+  *
+- *  Copyright (C) 1998-1999 Andrzej Krzysztofowicz, Author and Maintainer
+- *  Copyright (C) 1998-2000 Andre Hedrick <andre@linux-ide.org>
+- *  May be copied or modified under the terms of the GNU General Public License
++ *  Copyright (c) 2000-2002 Vojtech Pavlik
+  *
+
+
+
+On Fri, 24 May 2002, Andre Hedrick wrote:
+
+> 
+> Where do you get off delete copyrights?
+> GPL permits changing it does not give you the right to steal, lie, cheat,
+> defraud, other peoples work.  However I should not expect anything of
+> honor from a person of your high morals.  I know you want to rewrite the
+> past to make it so I and other never existed, but you are pathetic.
+> 
+> On Fri, 24 May 2002, Vojtech Pavlik wrote:
+> 
+> > On Fri, May 24, 2002 at 04:29:39PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > Hi!
+> > > 
+> > > I have a very quick look over patch/driver... looks quite ok...
+> > > 
+> > > But it doesn't support multiple controllers. We should add 'unsigned
+> > > long private' to 'ata_channel struct' and store index in the chipset
+> > > table there.
+> > > You can remove duplicate entries from module data table.
+> > > 
+> > > BTW: please don't touch pdc202xx.c I am playing with it...
+> > 
+> > Here is a new patch. Martin: This one should be OK for inclusion now.
+> > Bartlomiej: Please check it anyway.
+> > 
+> > -- 
+> > Vojtech Pavlik
+> > SuSE Labs
+> > 
+> 
+> Andre Hedrick
+> LAD Storage Consulting Group
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262823AbTIAKwG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 06:52:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTIAKwF
+	id S262814AbTIAKtS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 06:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbTIAKtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 06:52:05 -0400
-Received: from kiuru.kpnet.fi ([193.184.122.21]:730 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S262823AbTIAKwA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 06:52:00 -0400
-Message-ID: <3F5324C7.8030709@ihme.org>
-Date: Mon, 01 Sep 2003 13:51:51 +0300
-From: =?ISO-8859-1?Q?Markus_H=E4stbacka?= <midian@ihme.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en, fi
-MIME-Version: 1.0
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Weird problem with nforce2
-References: <3F4F54F2.4080506@ihme.org> <20030829163958.5c327d6d.martin.zwickel@technotrend.de>
-In-Reply-To: <20030829163958.5c327d6d.martin.zwickel@technotrend.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 1 Sep 2003 06:49:18 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:49801 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262814AbTIAKtR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 06:49:17 -0400
+Date: Mon, 1 Sep 2003 11:48:36 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Sam Creasey <sammy@sammy.net>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-ID: <20030901104836.GA2202@mail.jlokier.co.uk>
+References: <Pine.GSO.4.21.0309011027310.5048-100000@waterleaf.sonytel.be> <Pine.LNX.4.40.0309010632370.19846-100000@sun3>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.40.0309010632370.19846-100000@sun3>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sam Creasey wrote:
+> 68020+Sun-3 MMU results attached below (this is for a 3/60, and it's not
+> suprising that it passes, as there's no real cache in this configuration
+> (the sun3/2xx did have external cache, but the onboard ethernet in my
+> 3/210 is on the fritz, and it's not booting at the moment).  Note that
+> this is the newer version of the program which Jamie just posted.
 
-Hello, I got it working now, thank you anyways. I got another problem 
-straight ahead too.
-My AGP works, but it's darn slow. I need it working probebly so I can 
-use my linux again *sigh*.
-I have a Nforce 2 chipset on my board. If I build Nforce2 support as a 
-module or built in it causes a hang, and I need a hard reboot. I saw 
-that if the module is loaded at startup it will cause a crash, but if I 
-load it later, it wont affect the speed. So, it needs to be loaded in 
-bootup, but it will cause a crash, you know something about this? When 
-starting X it just crashes (And I can reproduce this without taining the 
-kernel) so is Nforce2 support broken for my board?
+Thanks.
 
-Regards,
----
-Markus Hästbacka <midian@ihme.org>
+> bash-2.03# time ./jamie-test2
+> (2048) [10000,10000,0] Test separation: 8192 bytes: pass
 
+Mighty suspicious gettimeofday() you have there.
+
+> real    1m34.330s
+> user    1m30.030s
+> sys     0m4.070s
+
+Indeed, on other systems the test completes in a few seconds at most,
+not because of CPU speed, but because gettimeofday() returns high
+resolution time on them.
+
+Isn't there a way to read high resolution time on the 68020 Sun-3?
+
+-- Jamie

@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261295AbTCBVbB>; Sun, 2 Mar 2003 16:31:01 -0500
+	id <S261173AbTCBV3t>; Sun, 2 Mar 2003 16:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261353AbTCBVbB>; Sun, 2 Mar 2003 16:31:01 -0500
-Received: from almesberger.net ([63.105.73.239]:32016 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S261295AbTCBVa7>; Sun, 2 Mar 2003 16:30:59 -0500
-Date: Sun, 2 Mar 2003 18:41:14 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Norbert Kiesel <nkiesel@tbdnetworks.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Multiple & vs. && and | vs. || bugs in 2.4.20
-Message-ID: <20030302184114.Q2791@almesberger.net>
-References: <20030302121425.GA27040@defiant> <3E6247F7.8060301@redhat.com>
+	id <S261290AbTCBV3t>; Sun, 2 Mar 2003 16:29:49 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:23821 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261173AbTCBV3t>;
+	Sun, 2 Mar 2003 16:29:49 -0500
+Date: Sun, 2 Mar 2003 22:40:13 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kbuild: fix make -j4 on UP
+Message-ID: <20030302214013.GA13138@mars.ravnborg.org>
+Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	linux-kernel@vger.kernel.org
+References: <20030302201648.GA14770@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E6247F7.8060301@redhat.com>; from drepper@redhat.com on Sun, Mar 02, 2003 at 10:05:43AM -0800
+In-Reply-To: <20030302201648.GA14770@mars.ravnborg.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> > -	if (!urb->status & !acm->throttle)  {
-> > +	if (!urb->status && !acm->throttle)  {
-[...]
-> Have you really looked at detail at all these cases?  The problem is
-> that you have made the code less efficient on some platforms.  The use
-> of && requires shortcut evaluation.  I.e., the compiler is forced to not
+On Sun, Mar 02, 2003 at 09:16:48PM +0100, Sam Ravnborg wrote:
+> The following patch moves the generation of compile.h to the
+> top-level makefile, and list it in the prepare rule.
 
-While I agree with your observation in general, this is actually
-something the compiler should be able to figure out by itself:
+Which has the side-effect that compile.h will be generated each time,
+because the version increases. And the kernel is recompiled.
+I will do a proper fix tomorrow.
 
- - there's only a side-effect if acm is NULL
- - in ACM_READY, we've already tested acm for NULL, and subsequently
-   de-referenced it
- - acm is a local variable, and not aliased, so the dbg() can't
-   change it
-
-So, given the negations, || and | are equivalent in this case, and
-whether a jump, conditional execution, a bit operation, or something
-else yields better code is compiler, machine, and context specific.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+	Sam

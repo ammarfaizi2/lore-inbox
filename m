@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318781AbSIPDdx>; Sun, 15 Sep 2002 23:33:53 -0400
+	id <S318783AbSIPDiv>; Sun, 15 Sep 2002 23:38:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318783AbSIPDdx>; Sun, 15 Sep 2002 23:33:53 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:16351 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318781AbSIPDdw>;
-	Sun, 15 Sep 2002 23:33:52 -0400
-Date: Sun, 15 Sep 2002 20:30:06 -0700 (PDT)
-Message-Id: <20020915.203006.123845370.davem@redhat.com>
-To: akropel1@rochester.rr.com
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: Streaming DMA mapping question
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020914035112.GA14647@www.kroptech.com>
-References: <20020913202150.GA24340@www.kroptech.com>
-	<20020913.132842.97163812.davem@redhat.com>
-	<20020914035112.GA14647@www.kroptech.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S318785AbSIPDiv>; Sun, 15 Sep 2002 23:38:51 -0400
+Received: from fwb.seaplace.org ([209.184.155.45]:34176 "EHLO
+	lynn.dmz.seaplace.org") by vger.kernel.org with ESMTP
+	id <S318783AbSIPDiu>; Sun, 15 Sep 2002 23:38:50 -0400
+Message-ID: <3D85536C.1070108@seaplace.org>
+Date: Sun, 15 Sep 2002 22:43:40 -0500
+From: "Kevin N. Carpenter" <kevinc@seaplace.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ahmed Masud <masud@googgun.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Think 2.4.10 broke my PCI subsystem - resolved.
+References: <200209150529.g8F5Tgh14760@lynn.seaplace.org> <3D8451DD.4050106@googgun.com> <3D847E95.9040602@seaplace.org> <3D850523.70608@googgun.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Adam Kropelin <akropel1@rochester.rr.com>
-   Date: Fri, 13 Sep 2002 23:51:13 -0400
-   
-   It seems that pci_dma_sync_*() transfers ownership in either direction.
+2.4.20-pre7 fixes whatever the problem was.  Kernels between 2.4.10 and 
+2.4.19 were broke for these mobo.
 
-That's a bug in the documentation, and no platform which has to care
-about this area actually does what you imply.
+Did notice a new message:  Using IRQ router SIS [1039/0008]
 
-A new interface needs to be added to transfer control in the other
-direction.  pci_dma_sync_*() only handles transferring control from
-device to CPU..
+Thanks to whomever fixed it!
 
-I know this makes drivers like eepro100 buggy, this was discussed
-a month or two ago wrt. MIPS on linux-kernel, check the archives
-for the thread.
+Kevin C.
+
+Ahmed Masud wrote:
+
+> Kevin N. Carpenter wrote:
+>
+>> Thats the whole point.  Nothing past 2.4.9 will run on these mobos.
+>>
+>> Do appreciate the consideration.
+>>
+>> Kevin C.
+>>
+>> Ahmed Masud wrote:
+>>
+>>> Kevin Carpenter wrote:
+>>>
+>>>> I've recently been okaying around with low cost motherboards and 
+>>>> have been
+>>>> problems on two of them:  the BIOSTAT micro-ATX mobo M7VKQ, and the 
+>>>> ESC L7SOM
+>>>> mobos.
+>>>>
+> Wait ... you say that already :) sorry....
+>
+>
+
+

@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316636AbSFZPW1>; Wed, 26 Jun 2002 11:22:27 -0400
+	id <S316635AbSFZPVb>; Wed, 26 Jun 2002 11:21:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316637AbSFZPW0>; Wed, 26 Jun 2002 11:22:26 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:20997 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316636AbSFZPWS>;
-	Wed, 26 Jun 2002 11:22:18 -0400
-Date: Wed, 26 Jun 2002 08:22:13 -0700
-From: Greg KH <greg@kroah.com>
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-Cc: marcelo@conectiva.com.br, mdharm-usb@one-eyed-alien.net, mwilck@freenet.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] USB storage: Datafab KECF-USB, Sagatek DCS-CF
-Message-ID: <20020626152213.GE4611@kroah.com>
-References: <20020626145741.GD4611@kroah.com> <E17NEUr-0005sx-00@alf.amelek.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17NEUr-0005sx-00@alf.amelek.gda.pl>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 29 May 2002 13:38:28 -0700
+	id <S316636AbSFZPVa>; Wed, 26 Jun 2002 11:21:30 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6536 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316635AbSFZPV2>; Wed, 26 Jun 2002 11:21:28 -0400
+Date: Wed, 26 Jun 2002 11:23:41 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Shawn Starr <spstarr@sh0n.net>
+cc: alexander.riesen@synopsys.COM,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: MCE Error - 2.5.24 - Whats this?
+In-Reply-To: <1025103458.31334.1.camel@unaropia>
+Message-ID: <Pine.LNX.3.95.1020626111937.25673A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 26, 2002 at 05:14:17PM +0200, Marek Michalkiewicz wrote:
-> > Heh, send this to me again after 2.4.19-final is out, and I'll
-> > reconsider it :)
+On 26 Jun 2002, Shawn Starr wrote:
+
+> I don't understand that decoded result ;) 
 > 
-> Do you see any potential problems with the patch, or is 2.4.19-final
-> now simply so close that you really don't want to change anything?
+> Is it a phony result or is there a real problem with the CPU itself?
+> It's brand new!
+> 
 
-2.4.19-final is too close.  I'll trust Matt to tell me if the patch is
-ok or not technically, as it's his code.  I'd also prefer for you to
-work through him, as he is the maintainer, and not try to send things
-like this to Marcelo directly (read Documentation/SubmittingPatches).
+It looks to me like a ECC error in external tag RAM (part of the
+external cache).
 
-thanks,
+The CPU is fine, but since it already read bad data from the cache,
+it can't be allowed to restart.
 
-greg k-h
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267552AbTBLQAD>; Wed, 12 Feb 2003 11:00:03 -0500
+	id <S267553AbTBLQBW>; Wed, 12 Feb 2003 11:01:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267553AbTBLQAD>; Wed, 12 Feb 2003 11:00:03 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18442 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267552AbTBLQAC>;
-	Wed, 12 Feb 2003 11:00:02 -0500
-Message-ID: <3E4A71B2.8040007@pobox.com>
-Date: Wed, 12 Feb 2003 11:09:22 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	id <S267558AbTBLQBW>; Wed, 12 Feb 2003 11:01:22 -0500
+Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:1796
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S267553AbTBLQBU>; Wed, 12 Feb 2003 11:01:20 -0500
+Date: Wed, 12 Feb 2003 11:12:02 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Adam Belay <ambx1@neo.rr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for
+ i8042?
+In-Reply-To: <3E4A6BF0.1000004@didntduck.org>
+Message-ID: <Pine.LNX.4.44.0302121110570.211-100000@coredump.sh0n.net>
 MIME-Version: 1.0
-To: Paul Larson <plars@linuxtestproject.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.60 cheerleading...
-References: <3E4A6DBD.8050004@pobox.com> <1045065615.22294.11.camel@plars>
-In-Reply-To: <1045065615.22294.11.camel@plars>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Larson wrote:
-> On Wed, 2003-02-12 at 09:52, Jeff Garzik wrote:
-> 
->>Just to counteract all the 2.5.60 bug reports...
->>
->>After the akpm wave of compile fixes, I booted 2.5.60-BK on my Wal-Mart 
->>PC [via epia], and ran LTP on it, while also stressing it using 
->>fsx-linux in another window.  The LTP run showed a few minor failures, 
->>but overall 2.5.60-BK is surviving just fine, and with no corruption.
-> 
-> Can you send me your list of failures and version of LTP?  I'd like to
-> make sure they match up with the known list of problems.
+
+Right, but this wasn't a problem in 2.4? I had a PS/2 mouse before in 2.4
+and this didnt have the problem.
 
 
-Version is CVS-latest, checked out last night.
+On Wed, 12 Feb 2003, Brian Gerst wrote:
 
-Some of the failures were obvious:  kernel module syscalls were failing, 
-as I would expect them to if they had not been updated for 2.5.x module 
-support.  There were also a couple signal-related things, IIRC. 
-Unexpected failures included some file locking test failures.
-
-Anyway, don't worry... you will be getting more concrete info soon :)  I 
-am tracking down right now why the 2.5.x floppy driver ends all I/O 
-requests with an error.  After that, I'll have output from a full LTP 
-run for you :)
+> Shawn Starr wrote:
+> > 2.4:
+> >            CPU0
+> >   0:    2576292          XT-PIC  timer
+> >   1:        661          XT-PIC  keyboard
+> >   2:          0          XT-PIC  cascade
+> >   3:         10          XT-PIC  serial
+> >   5:    1104824          XT-PIC  soundblaster
+> >   8:          1          XT-PIC  rtc
+> >   9:          0          XT-PIC  acpi
+> >  10:          7          XT-PIC  aic7xxx
+> >  11:      15167          XT-PIC  usb-uhci, eth0
+> >  14:       7554          XT-PIC  ide0
+> >  15:          3          XT-PIC  ide1
+> >
+> > 2.5:
+> >
+> >            CPU0
+> >   0:      36281          XT-PIC  timer
+> >   1:         15          XT-PIC  i8042
+> >   2:          0          XT-PIC  cascade
+> >   3:        149          XT-PIC  serial
+> >   5:          0          XT-PIC  soundblaster
+> >   8:          1          XT-PIC  rtc
+> >   9:          0          XT-PIC  acpi
+> >  10:         20          XT-PIC  aic7xxx
+> >  11:        324          XT-PIC  uhci-hcd, eth0
+> >  12:         60          XT-PIC  i8042 <--???
+> >  14:        723          XT-PIC  ide0
+> >  15:          9          XT-PIC  ide1
+> > NMI:          0
+> > LOC:      35547
+> > ERR:          0
+> > MIS:          0
+> >
+> > Interesting, why are we using two interrupts for the i8042 (keyboard).
+>
+> IRQ12 is for the PS/2 mouse port.
+>
+> --
+> 				Brian Gerst
+>
+>
+>
 

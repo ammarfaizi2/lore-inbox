@@ -1,30 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262911AbREWADB>; Tue, 22 May 2001 20:03:01 -0400
+	id <S262903AbREWADV>; Tue, 22 May 2001 20:03:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262910AbREWACv>; Tue, 22 May 2001 20:02:51 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:29377 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262903AbREWACd>;
-	Tue, 22 May 2001 20:02:33 -0400
-Date: Wed, 23 May 2001 02:01:46 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105230001.CAA70296.aeb@vlet.cwi.nl>
-To: torvalds@transmeta.com, viro@math.psu.edu
+	id <S262910AbREWADL>; Tue, 22 May 2001 20:03:11 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:25763 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262903AbREWAC4>;
+	Tue, 22 May 2001 20:02:56 -0400
+Message-ID: <3B0AFE0C.8392E7C4@mandrakesoft.com>
+Date: Tue, 22 May 2001 20:02:20 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, viro@math.psu.edu, axboe@suse.de
 Subject: Re: [PATCH] struct char_device
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200105222217.AAA79157.aeb@vlet.cwi.nl> <3B0AEC76.F5B425F5@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Do we really want a separate queue for each partition?
-
-No.
-
-> I have a half-baked patch
-
-Me too. (Not half-baked but brewed.) In principle the change
-is trivial, but there are a few IDE issues that are presently
-solved in a very low-level way (and incorrectly).
-This makes the patch larger than expected at first sight.
-
-Andries
-
+IMHO it would be nice to (for 2.4) create wrappers for accessing the
+block arrays, so that we can more easily dispose of the arrays when 2.5
+rolls around...
+-- 
+Jeff Garzik      | "Are you the police?"
+Building 1024    | "No, ma'am.  We're musicians."
+MandrakeSoft     |

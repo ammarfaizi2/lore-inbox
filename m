@@ -1,56 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132513AbQL3CF1>; Fri, 29 Dec 2000 21:05:27 -0500
+	id <S130989AbQL3Cdh>; Fri, 29 Dec 2000 21:33:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132603AbQL3CFR>; Fri, 29 Dec 2000 21:05:17 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56072 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132513AbQL3CFH>; Fri, 29 Dec 2000 21:05:07 -0500
-Subject: Re: [PATCH] i810 audio fixes for 2.4.0-test13-pre5
-To: jim@federated.com (Jim Studt)
-Date: Sat, 30 Dec 2000 01:36:22 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200012300045.SAA25016@core.federated.com> from "Jim Studt" at Dec 29, 2000 06:45:45 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131934AbQL3Cd1>; Fri, 29 Dec 2000 21:33:27 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:5130 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S130989AbQL3CdX>; Fri, 29 Dec 2000 21:33:23 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Dave Gilbert <gilbertd@treblig.org>
+Date: Sat, 30 Dec 2000 13:02:44 +1100 (EST)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14CAwa-00061q-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <14925.16964.875883.863169@notabene.cse.unsw.edu.au>
+Cc: linux-alpha@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: memmove broken on alpha - was Re: NFS oddity (2.4.0test13pre4ac2 server, 2.0.36/2.2.14 clients)
+In-Reply-To: message from Dave Gilbert on Saturday December 30
+In-Reply-To: <14925.12964.995179.63899@notabene.cse.unsw.edu.au>
+	<Pine.LNX.4.10.10012300105100.26235-100000@tardis.home.dave>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch addresses three problems in the i810-audio driver for
-> 2.4.0-test13-pre5.  I will be happy to split it if someone doesn't like
-> part of it.  (I see pre6 just popped out, there are no changes to this
-> driver in pre6.)
 
-> 1) "DMA overrun on send" - this contains a patch from Tjeerd Mulder that
->    prevents almost all of this.  I still get an occasional one during
->    heavy video activity, the driver was unusable before.  (This is a smaller 
->    patch than the previous flamed patch, it does no format conversion.)
+[ extra detail included because I have added linux-alpha and lins to
+the cc list] 
 
-Yeah I have Tjeerd's patches and no quibbles with them
+It appears that memmove is broken on the alpha architecture.
 
-> 3) Add a module parameter to supress powercycling the DACs on rate change -
->    This causes a big pop on the outputs at least for the CS4299 codec in
->    the emachines etower 700, probably others.  I honestly can't find a 
->    reason to power cycle the DACs.  There's nothing in the AC97 spec 
->    that suggests it should be done.  The code is common to OSS and ALSA.
->    I left the old behavior as the default.  Maybe later the default should
->    change if it turns out that everyone wants to force the parameter to 
->    zero.
+memmove is used by net/sunrpc/xdr.c:xdr_decode_string
+to move a string 4 bytes down in memory.
+memmove(X-4, X, 8) should change
+    
+ X:  00 00 00 08  67 69 6c 62 65 72 74 64
+to
+ X:  67 69 6c 62  65 72 74 64 65 72 74 64
 
-What I would love someone to do (hint ;)) is to move the 
+Instead it changes it to
 
-	set_dac_speed
-	set_adc_speed
-	powerup_amp
-	powerdown_amp
+ X:  65 72 74 64  65 72 74 64 65 72 74 64
 
-type stuff into the ac97_codec - actually have a codec_ops in the AC97 
-for each type.
+This is my first time in alpha assembler, but it looks fairly readable
+and the comments help....
 
+Working from 
+  arch/alpha/lib/memmove.S
+
+As the two regions overlap, it doesn't fall back on memcpy,
+As the two regions are not co-aligned so it jumps to $misaligned.
+
+Now the code in $misaligned, like all the code in memmove.S seems to
+move a block of memory starting at the top, and moving downwards.
+But in this example, we need to start at the bottom and move upwards.
+
+Currently the code falls back on memcpy :
+
+ if (dest+n <= src || dest >= src + n)
+
+However if should also fall back on memcpy:
+ 
+ if (dest <= src)
+
+So the test should be:
+
+  if (dest <= src || dest >= src + n)
+
+which I think translates to the following patch:
+
+--- arch/alpha/lib/memmove.S	2000/12/30 01:59:28	1.1
++++ arch/alpha/lib/memmove.S	2000/12/30 01:59:49
+@@ -17,7 +17,7 @@
+ memmove:
+ 	addq $16,$18,$4
+ 	addq $17,$18,$5
+-	cmpule $4,$17,$1		/*  dest + n <= src  */
++	cmpule $16,$17,$1		/*  dest <= src  */
+ 	cmpule $5,$16,$2		/*  dest >= src + n  */
+ 
+ 	bis $1,$2,$1
+
+
+NeilBrown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

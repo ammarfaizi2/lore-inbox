@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288845AbSBMUCp>; Wed, 13 Feb 2002 15:02:45 -0500
+	id <S288821AbSBMUHz>; Wed, 13 Feb 2002 15:07:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288821AbSBMUCf>; Wed, 13 Feb 2002 15:02:35 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:36621 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S288845AbSBMUCV>; Wed, 13 Feb 2002 15:02:21 -0500
-Date: Wed, 13 Feb 2002 16:52:34 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>,
-        Benjamin LaHaise <bcrl@redhat.com>, Gerd Knorr <kraxel@bytesex.org>,
-        Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __free_pages_ok oops
-In-Reply-To: <Pine.LNX.4.21.0202121929230.1468-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0202131652050.20915-100000@freak.distro.conectiva>
+	id <S288830AbSBMUHp>; Wed, 13 Feb 2002 15:07:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25350 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288821AbSBMUHh>; Wed, 13 Feb 2002 15:07:37 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: RFC: /proc key naming consistency
+Date: 13 Feb 2002 12:07:05 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a4eh19$lko$1@cesium.transmeta.com>
+In-Reply-To: <20020213030047.8B1FB2257B@www.webservicesolutions.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <20020213030047.8B1FB2257B@www.webservicesolutions.com>
+By author:    Mark Swanson <swansma@yahoo.com>
+In newsgroup: linux.dev.kernel
+> 
+> Notice the space between "cpu" and "MHz", or "cpu" and "family" yet there is 
+> no space between "fdiv" and "bug" (_).
+> 
+> The reason I think NOT using a space is a good idea because it makes life 
+> easier for developers parsing /proc entries. Specifically, Java developers 
+> could use /proc/cpuinfo as a property file, but the space in the 'key' breaks 
+> java.util.Properties.load(). 
+> 
 
+When I and Dan Quinlan submitted the cleanup for this we used _
+everywhere.  Unfortunately some other people not just added keys with
+spaces, but gracefully "corrected" our "mistakes"...
 
-On Tue, 12 Feb 2002, Hugh Dickins wrote:
-
-> On Sat, 9 Feb 2002, Benjamin LaHaise wrote:
-> > On Fri, Feb 08, 2002 at 05:46:56PM +0000, Hugh Dickins wrote:
-> > > Ben, you probably have an AIO opinion here.  Is there a circumstance
-> > > in which AIO can unpin a user page at interrupt time, after the
-> > > calling task has (exited or) unmapped the page?
-> > 
-> > If the user unmaps the page, then aio is left holding the last reference 
-> > to the page and will unmap it from irq or bh context (potentially task 
-> > context too).  With networked aio, pages from userspace (anonymous or 
-> > page cache pages) will be released by the network stack from bh context.  
-> > Even now, I'm guess that should be possible with the zero copy flag...
-
-Hugh. Are you sure we can free a page from IRQ/BH context with _current_
-2.4 ? 
-
-Please make sure so. 
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbTD2Nf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 09:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTD2Nf4
+	id S262000AbTD2NcB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 09:32:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTD2NcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 09:35:56 -0400
-Received: from pop.gmx.net ([213.165.64.20]:63477 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261832AbTD2Nfz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 09:35:55 -0400
-Message-ID: <3EAE8296.9010904@gmx.net>
-Date: Tue, 29 Apr 2003 15:48:06 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Martin List-Petersen <martin@list-petersen.dk>,
-       "David S. Miller" <davem@redhat.com>, bas.mevissen@hetnet.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: Broadcom BCM4306/BCM2050  support
-References: <1051596982.3eae18b640303@roadrunner.hulpsystems.net> <1051614381.21135.5.camel@rth.ninka.net> <3EAE644A.2000101@gmx.net> <1051618337.3eae6c218bd3c@roadrunner.hulpsystems.net> <Pine.LNX.4.53.0304290851030.23672@chaos>
-In-Reply-To: <Pine.LNX.4.53.0304290851030.23672@chaos>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Apr 2003 09:32:01 -0400
+Received: from mxout4.netvision.net.il ([194.90.9.27]:36844 "EHLO
+	mxout4.netvision.net.il") by vger.kernel.org with ESMTP
+	id S262000AbTD2Nb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 09:31:58 -0400
+Date: Tue, 29 Apr 2003 16:35:13 +0300
+From: Nir Livni <nirl@cyber-ark.com>
+Subject: RE: FileSystem Filter Driver
+To: linux-kernel@vger.kernel.org
+Message-id: <E1298E981AEAD311A98D0000E89F45134B55D5@ORCA>
+MIME-version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> On Tue, 29 Apr 2003, Martin List-Petersen wrote:
-> 
-> 
->>Citat Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>:
->>
->>
->>>>So don't blame the vendors on this one, several of them would love
->>>>to publish drivers public for their cards, but simply cannot with
->>>>upsetting federal regulators.
->>>
->>>/me wants binary only driver for these cards to build opensource driver
->>>with ability to set "interesting" frequency range.
->>>
->>
->>It's there for Windows :) So ...
-> 
-> 
-> Contrary to popular opinion, there is no FCC regulation prohibiting
-> one from receiving some particular frequency. There is, however, a
+Thanks Muli,
+Your answer has been a great help
 
-Contrary to popular opinion, not everybody lives in the US.
-Here in Germany, receiving some particular frequencies (e.g. those used
-by the police) was prohibited a few years ago (I don't know exactly if
-they changed the law). The argument was that some receiver types emitted
-a weak signal on the frequency they were listening to (and could be
-tuned to become a private radio station) which could interfere with the
-low-power police devices. However, it was simply not sensible to
-prohibit all radios, so they were constained to a specific frequency range.
+Nir
 
-Regards,
-Carl-Daniel
+-----Original Message-----
+From: Muli Ben-Yehuda [mailto:mulix@mulix.org] 
+Sent: Wednesday, April 23, 2003 3:22 PM
+To: Nir Livni
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FileSystem Filter Driver
+
+On Wed, Apr 23, 2003 at 02:20:38PM +0200, Nir Livni wrote:
+
+> My goal is to write a driver that runs above the filesystem driver, 
+> and filters calls to this driver. Actually, it should pass all calls 
+> to the filesystem driver, except very few that it should fail for 
+> "Access Denied". Are there any simple examples for that matter ?
+
+A. Sounds like it could be implemented using the LSM (linux security
+modules) framework, assuming the appropriate hooks are in place. 
+
+B. The May 2003 Linux Journal issue has an article on "Writing Stackable
+Filesystems" by Erez Zadok, which might fit your needs better.
+
+Hope this helps, 
+Muli. 
 -- 
-http://www.hailfinger.org/
+Muli Ben-Yehuda
+http://www.mulix.org
+
+
 

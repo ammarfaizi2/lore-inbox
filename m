@@ -1,29 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288725AbSAICc1>; Tue, 8 Jan 2002 21:32:27 -0500
+	id <S288732AbSAICrC>; Tue, 8 Jan 2002 21:47:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288726AbSAICcR>; Tue, 8 Jan 2002 21:32:17 -0500
-Received: from quechua.inka.de ([212.227.14.2]:24358 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S288725AbSAICcF>;
-	Tue, 8 Jan 2002 21:32:05 -0500
-From: Bernd Eckenfels <ecki-news2002-01@lina.inka.de>
+	id <S288733AbSAICqw>; Tue, 8 Jan 2002 21:46:52 -0500
+Received: from panther.fit.edu ([163.118.5.1]:2975 "EHLO fit.edu")
+	by vger.kernel.org with ESMTP id <S288732AbSAICqj>;
+	Tue, 8 Jan 2002 21:46:39 -0500
+Message-ID: <3C3BB082.8020204@fit.edu>
+Date: Tue, 08 Jan 2002 21:52:50 -0500
+From: Kervin Pierre <kpierre@fit.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020104
+X-Accept-Language: en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Filesystem creation problems with 2.4.17
-In-Reply-To: <20020109014216.GB4511@flounder.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E16O8X8-0006yJ-00@sites.inka.de>
-Date: Wed, 9 Jan 2002 03:32:06 +0100
+Subject: fs corruption recovery?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020109014216.GB4511@flounder.net> you wrote:
-> adam@braindb:~$ sudo mke2fs /dev/sda9
-...
-> File size limit exceeded
+Hi,
 
-It is a problem with sudo. Use another way to obtain root, like local root
-login. The reason is a wrong setrlimit call in sudo.
+I install and used 2.4.17 for about a week before my filesystem 
+corrupted.  I've tried 'fsck -a' but it complains that there was no 
+valid superblock found.
 
-Greetings
-Bernd
+Are there any tools or techniques that will recover data from the 
+corrupted filesystem even if there isn't a valid superblock?  Or is 
+there a way to write a temporary superblock so I can access the 
+information on the disk?
+
+Lastly, if all else fails I'm going to try sending the drive one of 
+those 'file recovery companies'.  Does anyone have a recommendation for 
+a particular company?  I'm guessing that there'll be a few that wouldn't 
+know what to do with a ext3 partition.
+
+thanks,
+-Kervin
+

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130643AbRAHU0P>; Mon, 8 Jan 2001 15:26:15 -0500
+	id <S129387AbRAHU2f>; Mon, 8 Jan 2001 15:28:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130347AbRAHU0F>; Mon, 8 Jan 2001 15:26:05 -0500
-Received: from dfmail.f-secure.com ([194.252.6.39]:15110 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S129904AbRAHUZt>; Mon, 8 Jan 2001 15:25:49 -0500
-Date: Mon, 8 Jan 2001 22:39:43 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: <linux-kernel@vger.kernel.org>
-cc: Andi Kleen <ak@suse.de>, Wayne Whitney <whitney@math.berkeley.edu>
-Subject: Re: Subtle MM bug
-Message-ID: <Pine.LNX.4.30.0101082207290.3435-100000@fs129-124.f-secure.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129735AbRAHU20>; Mon, 8 Jan 2001 15:28:26 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:40212 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129387AbRAHU2T>; Mon, 8 Jan 2001 15:28:19 -0500
+Date: Mon, 8 Jan 2001 21:28:33 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+Message-ID: <20010108212833.S27646@athlon.random>
+In-Reply-To: <20010108180857.A26776@athlon.random> <Pine.GSO.4.21.0101081236440.4061-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0101081236440.4061-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Jan 08, 2001 at 12:58:20PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 08, 2001 at 12:58:20PM -0500, Alexander Viro wrote:
+> It's a hell of a pain wrt locking. You need to lock the parent, but it can
 
-Andi Kleen <ak@suse.de> wrote:
-> On Sun, Jan 07, 2001 at 09:29:29PM -0800, Wayne Whitney wrote:
-> > package called MAGMA; at times this requires very large matrices. The
-> > RSS can get up to 870MB; for some reason a MAGMA process under linux
-> > thinks it has run out of memory at 870MB, regardless of the actual
-> > memory/swap in the machine. MAGMA is single-threaded.
-> I think it's caused by the way malloc maps its memory.
-> Newer glibc should work a bit better by falling back to mmap even
-> for smaller allocations (older does it only for very big ones)
+This is a no-brainer and bad implementation, but shows it's obviously right
+wrt locking. (pseudocode, I ignored the uaccess details and all the other not
+relevant things)
 
-AFAIK newer glibc = CVS glibc but the malloc() tune parameters
-work via environment variables for the current stable ones as well,
-e.g. to overcome the above "out of memory" one could do,
-% export MALLOC_MMAP_MAX_=1000000
-% export MALLOC_MMAP_THRESHOLD_=0
-% magma
+	sys_rmdir(path)
+	{
+		char buf[PAGE_SIZE]
 
-At default, on a 32bit Linux current stable glibc malloc uses brk
-between 0x08??????-0x40000000 and max (MALLOC_MMAP_MAX_) 128 mmap if
-the requested chunk is greater than 128 kB (MALLOC_MMAP_THRESHOLD_).
-If MAGMA mallocs memory in less than 128 kB chunks then the above out
-of memory behaviour is expected.
+		err = sys_getcwd(buf, PAGE_SIZE)
+		if (err)
+			goto out
+		
+		if (!memcmp(path, ".", 2))
+			path = buf
+		err = 2_4_0_sys_rmdir(path)
 
-	Szaka
+	out:
+		return err
+	}
 
+Optimizing things just a little more as _worse_ the overhead of supporting
+`rmdir .` can be reduced to a memcmp(name, ".") plus and out of line jump and I
+don't see a performance problem with that.
+
+Could you enlight me on where's the locking pain?
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

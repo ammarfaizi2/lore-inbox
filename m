@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbVCWWe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVCWWhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262302AbVCWWe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 17:34:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVCWWe2
+	id S262433AbVCWWhC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 17:37:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbVCWWhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 17:34:28 -0500
-Received: from main.gmane.org ([80.91.229.2]:35771 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262302AbVCWWdo (ORCPT
+	Wed, 23 Mar 2005 17:37:01 -0500
+Received: from fire.osdl.org ([65.172.181.4]:44494 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262433AbVCWWei (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 17:33:44 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Mike Waychison <mike@waychison.com>
-Subject: Re: [PATCH 1/3] Keys: Pass session keyring to =?utf-8?b?Y2FsbF91c2VybW9kZWhlbHBlcigp?=
-Date: Wed, 23 Mar 2005 22:25:02 +0000 (UTC)
-Message-ID: <loom.20050323T232144-412@post.gmane.org>
-References: <29204.1111608899@redhat.com> <20050323130628.3a230dec.akpm@osdl.org>
+	Wed, 23 Mar 2005 17:34:38 -0500
+Date: Wed, 23 Mar 2005 14:34:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, mahalcro@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] Keys: Pass session keyring to call_usermodehelper()
+Message-Id: <20050323143405.502c1c84.akpm@osdl.org>
+In-Reply-To: <30327.1111613194@redhat.com>
+References: <20050323130628.3a230dec.akpm@osdl.org>
+	<29204.1111608899@redhat.com>
+	<30327.1111613194@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 66.11.176.22 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050110 Firefox/1.0 (Debian package 1.0+dfsg.1-2))
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm <at> osdl.org> writes:
-
+David Howells <dhowells@redhat.com> wrote:
+>
 > 
-> David Howells <dhowells <at> redhat.com> wrote:
-> >
-> > The attached patch makes it possible to pass a session keyring through to the
-> >  process spawned by call_usermodehelper().
+> Andrew Morton <akpm@osdl.org> wrote:
 > 
-> hm.  Seems likely to attract angry emails due to breakage of out-of-tree
-> stuff.  Did you consider
+> > > The attached patch makes it possible to pass a session keyring through to
+> > >  the process spawned by call_usermodehelper().
+> > 
+> > hm.  Seems likely to attract angry emails due to breakage of out-of-tree
+> > stuff.  Did you consider
+> > 
+> > static inline int
+> > call_usermodehelper(char *path, char **argv, char **envp, int wait)
+> > {
+> > 	return call_usermodehelper_keys(path, argv, envp, NULL, wait);
+> > }
 > 
-> static inline int
-> call_usermodehelper(char *path, char **argv, char **envp, int wait)
-> {
-> 	return call_usermodehelper_keys(path, argv, envp, NULL, wait);
-> }
+> No. I can do that if you want. It seems a bit excessive though.
 > 
 
-An alternative is to have the execve happen in a callback, similar to the
-following patch I posted a couple months ago:
+Well one question is "does it make sense to make a keyring session a part
+of the call_usermodehelper() API?".  As it appears that only one caller
+will ever want to do that then I'd say no, and that it should be some
+specialised thing private to the key code and the call_usermodehelper()
+implementation.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109871749900732&w=2
-
-IMHO, this is a better interface as it allows module writers to make arbitrary
-changes.
-
-(Some interface for allowing modules to 'safely' do execve is still required
-though).
-
-Mike Waychison
+So unless you think that a significant number of callers will appear who
+are actually using the new capability then it would be better to keep the
+existing call_usermodehelper() API.
 

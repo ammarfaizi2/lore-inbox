@@ -1,1109 +1,426 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbTH0WY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 18:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbTH0WY5
+	id S262430AbTH0WeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 18:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbTH0WeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 18:24:57 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:55772 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262358AbTH0WYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 18:24:24 -0400
-From: Eric Phillips <ericp732@comcast.net>
-Reply-To: ericp732@comcast.net
+	Wed, 27 Aug 2003 18:34:25 -0400
+Received: from ns2.sezampro.yu ([194.106.188.17]:53765 "HELO ns2.sezampro.yu")
+	by vger.kernel.org with SMTP id S262430AbTH0WeB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 18:34:01 -0400
+From: Toplica =?utf-8?q?Tanaskovi=C4=87?= <toptan@sezampro.yu>
 To: linux-kernel@vger.kernel.org
-Subject: Error trying to compile linux-2.6.0-test4
-Date: Wed, 27 Aug 2003 18:07:37 -0400
-User-Agent: KMail/1.5.2
+Subject: [PROBLEM] ACPI 2.4.22 and ALSA 0.9.6 dislike each other
+Date: Thu, 28 Aug 2003 00:30:15 +0200
+User-Agent: KMail/1.5.9
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_puST/2pcJE95bQA"
-Message-Id: <200308271807.37240.ericp732@comcast.net>
+  boundary="Boundary-00=_3DTT/GgnuoVPO9k"
+Message-Id: <200308280030.21871.toptan@sezampro.yu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_puST/2pcJE95bQA
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+--Boundary-00=_3DTT/GgnuoVPO9k
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-I doubt this is a bug, and I don't know where to send this to but thought maybe this
-could be helpfull.
-
-Thanks
-Eric
-
---Boundary-00=_puST/2pcJE95bQA
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="2-6error"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2-6error"
-
-kernel 2.6 compile failure
-
-Trying to install the 2.6 series fails on my machine.
-
-When trying to install the linux-2.6.0-test4 kernel I get errors and the kernel
-is not compiled.  See bottom of text of the error I am getting.  Listed below is
-my setup.
-
-Linux version 2.4.21 (root@broken) (gcc version 3.2.2) #1 SMP
-Wed Aug 20 20:42:09 EDT 2003
-
-Environment is KDE 3.1.2 using the xconfigure option
-
-CPU info
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(tm) MP 1800+
-stepping        : 2
-cpu MHz         : 1533.403
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
-pat pse36 $bogomips        : 3060.53
-
-processor       : 1
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 1533.403
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
-pat pse36 m$bogomips        : 3060.53
-
-Modules
-nvidia               1629184  11 (autoclean)
-
-IOports
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-0376-0376 : ide1
-03c0-03df : vga+
-03f6-03f6 : ide0
-0cf8-0cff : PCI conf1
-1010-1013 : Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller
-2000-2fff : PCI Bus #02
-  2000-207f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
-  2080-209f : Creative Labs SB Live! EMU10k1
-    2080-209f : EMU10K1
-  20a0-20a7 : Creative Labs SB Live! MIDI/Game Port
-f000-f00f : Advanced Micro Devices [AMD] AMD-768 [Opus] IDE
-  f000-f007 : ide0
-  f008-f00f : ide1
-
-  IOmem
-00000000-0009ebff : System RAM
-0009ec00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000cf000-000cf7ff : Extension ROM
-000e0000-000effff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-1feeffff : System RAM
-  00100000-002cd67d : Kernel code
-  002cd67e-0037591f : Kernel data
-1fef0000-1fefefff : ACPI Tables
-1feff000-1fefffff : ACPI Non-volatile Storage
-1ff00000-1ff7ffff : System RAM
-1ff80000-1fffffff : reserved
-d0000000-d0ffffff : PCI Bus #01
-  d0000000-d0ffffff : nVidia Corporation NV25 [GeForce4 Ti4200]
-d1000000-d10fffff : PCI Bus #02
-  d1000000-d1000fff : Advanced Micro Devices [AMD] AMD-768 [Opus] USB
-    d1000000-d1000fff : usb-ohci
-  d1001000-d100107f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
-d1300000-d1300fff : Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System 
-Controllerd1400000-dfffffff : PCI Bus #01
-  d1400000-d147ffff : nVidia Corporation NV25 [GeForce4 Ti4200]
-  d8000000-dfffffff : nVidia Corporation NV25 [GeForce4 Ti4200]
-e0000000-efffffff : Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System 
-Controllerf0000000-f20fffff : PCI Bus #02
-  f0000000-f1ffffff : Distributed Processing Technology SmartRAID V Controller
-  f2000000-f2000fff : Harris Semiconductor Prism 2.5 Wavelan chipset
-fec00000-fec03fff : reserved
-fee00000-fee00fff : reserved
-fff80000-ffffffff : reserved
-
-PCI info
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System
-Controller (rev 11)        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- 
-VGASnoop- ParErr- Stepping- SERR- FastB2B-        Status: Cap+ 66Mhz+ UDF- 
-FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-        
-Latency: 32        Region 0: Memory at e0000000 (32-bit, prefetchable) 
-[size=256M]        Region 1: Memory at d1300000 (32-bit, prefetchable) [size=4K]
-        Region 2: I/O ports at 1010 [disabled] [size=4]
-        Capabilities: [a0] AGP version 2.0
-                Status: RQ=16 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 
-64bit- FW+ AGP3- Rate=x1,x2,x4                Command: RQ=1 ArqSz=0 Cal=0 SBA- 
-AGP+ GART64- 64bit- FW- Rate=x4
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge 
-(prog-if 00 [Normal decode])        Control: I/O+ Mem+ BusMaster+ SpecCycle- 
-MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz+ 
-UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-     
-   Latency: 99        Bus: primary=00, secondary=01, subordinate=01,
-sec-latency=64        I/O behind bridge: 0000f000-00000fff
-        Memory behind bridge: d0000000-d0ffffff
-        Prefetchable memory behind bridge: d1400000-dfffffff
-        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
-
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 05)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- 
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-        Latency: 0
-
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 04) 
-(prog-if 8a [Master SecP PriP])        Subsystem: Advanced Micro Devices [AMD] 
-AMD-768 [Opus] IDE        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- 
-VGASnoop- ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz- UDF- 
-FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-        
-Latency: 0        Region 4: I/O ports at f000 [size=16]
-
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
-        Subsystem: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- 
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 05) 
-(prog-if 00 [Normal decode])        Control: I/O+ Mem+ BusMaster+ SpecCycle- 
-MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz+ 
-UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-     
-   Latency: 64        Bus: primary=00, secondary=02, subordinate=03, 
-sec-latency=168        I/O behind bridge: 00002000-00002fff
-        Memory behind bridge: d1000000-d10fffff
-        Prefetchable memory behind bridge: f0000000-f20fffff
-        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
-
-01:05.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti 4200] 
-(rev a3) (prog-if 00 [VGA])        Subsystem: Unknown device 17f2:8007
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- 
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-        Latency: 248 
-(1250ns min, 250ns max)        Interrupt: pin A routed to IRQ 18
-        Region 0: Memory at d0000000 (32-bit, non-prefetchable) [size=16M]
-        Region 1: Memory at d8000000 (32-bit, prefetchable) [size=128M]
-        Region 2: Memory at d1400000 (32-bit, prefetchable) [size=512K]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [60] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)                Status: D0 PME-Enable- DSel=0 
-DScale=0 PME-        Capabilities: [44] AGP version 2.0
-                Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 
-64bit- FW+ AGP3- Rate=x1,x2,x4                Command: RQ=16 ArqSz=0 Cal=0 SBA- 
-AGP+ GART64- 64bit- FW- Rate=x4
-02:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB (rev 07) 
-(prog-if 10 [OHCI])        Subsystem: Advanced Micro Devices [AMD] AMD-768 
-[Opus] USB        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-        Status: Cap- 66Mhz- UDF- FastB2B+ 
-ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR+        Latency: 
-64 (20000ns max)        Interrupt: pin D routed to IRQ 19
-        Region 0: Memory at d1000000 (32-bit, non-prefetchable) [size=4K]
-
-02:04.0 PCI bridge: Distributed Processing Technology PCI Bridge (rev 02) 
-(prog-if 00 [Normal decode])        Control: I/O- Mem+ BusMaster+ SpecCycle- 
-MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-        Status: Cap+ 66Mhz- 
-UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-     
-   Latency: 64, cache line size 10        Bus: primary=02, secondary=03, 
-subordinate=03, sec-latency=64        I/O behind bridge: 0000f000-00000fff
-        Memory behind bridge: 00100000-000fffff
-        Prefetchable memory behind bridge: 00100000-000fffff
-        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
-        Capabilities: [68] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)                Status: D0 PME-Enable- DSel=0 
-DScale=0 PME-
-02:04.1 I2O: Distributed Processing Technology SmartRAID V Controller (rev 02) 
-(prog-if 01)        Subsystem: Distributed Processing Technology 2000S Ultra3 
-Single Channel        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ 
-VGASnoop- ParErr- Stepping- SERR- FastB2B-        Status: Cap+ 66Mhz- UDF- 
-FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-        
-Latency: 64 (250ns min, 250ns max), cache line size 10        Interrupt: pin A 
-routed to IRQ 16        BIST result: 00
-        Region 0: Memory at f0000000 (32-bit, prefetchable) [size=32M]
-        Expansion ROM at <unassigned> [disabled] [size=32K]
-        Capabilities: [80] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)                Status: D0 PME-Enable- DSel=0 
-DScale=0 PME-
-02:06.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 04)
-        Subsystem: Creative Labs CT4850 SBLive! Value
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- 
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-        Latency: 64 (500ns 
-min, 5000ns max)        Interrupt: pin A routed to IRQ 18
-        Region 0: I/O ports at 2080 [size=32]
-        Capabilities: [dc] Power Management version 1
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)                Status: D0 PME-Enable- DSel=0 
-DScale=0 PME-
-02:06.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 01)
-        Subsystem: Creative Labs Gameport Joystick
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- 
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-        Latency: 64
-        Region 0: I/O ports at 20a0 [size=8]
-        Capabilities: [dc] Power Management version 1
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)                Status: D0 PME-Enable- DSel=0 
-DScale=0 PME-
-02:07.0 Network controller: Harris Semiconductor Prism 2.5 Wavelan chipset (rev 
-01)        Subsystem: Linksys WMP11 Wireless 802.11b PCI Adapter
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- 
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-        Latency: 64, cache 
-line size 10        Interrupt: pin A routed to IRQ 19
-        Region 0: Memory at f2000000 (32-bit, prefetchable) [size=4K]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold-)                Status: D0 PME-Enable- DSel=0 
-DScale=0 PME-
-02:08.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
-        Subsystem: Tyan Computer: Unknown device 2466
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- 
-DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-        Latency: 80 
-(2500ns min, 2500ns max), cache line size 10        Interrupt: pin A routed to 
-IRQ 19        Region 0: I/O ports at 2000 [size=128]
-        Region 1: Memory at d1001000 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)                Status: D0 PME-Enable+ DSel=0 
-DScale=2 PME-
-
-SCSI info
-Attached devices:
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-  Vendor: IBM      Model: IC35L018UWD210-0 Rev: S5BS
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Adaptec I2O RAID Driver Version: 2.4 Build 5
-
-Vendor: Adaptec  Model: 2100S            FW:370F
-SCSI Host=scsi0  Control Node=/dev/dpti0  irq=16
-        post fifo size  = 255
-        reply fifo size = 255
-        sg table size   = 56
-
-Devices:
-        IBM     IC35L018UWD210-0 Rev: S5BS
-        TID=518, (Channel=0, Target=3, Lun=0)  (online)
-
-Ouput of compile
+=2D----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
+	Hi, everyone.
 
+	In 2.4.22 ACPI detects my bios as buggy, and because of that ALSA modules=
+=20
+refuse to load. This was not the issue with 2.4.21. Everytheng else is=20
+working excellent and about 30-40% faster. I even get 10% frame rate=20
+improvemet for glxgears (in 2.4.21 about 1400 FPS, in 2.4.22 1560 FPS)
 
+	When boot with acpi=3Doff, everything works fine.
 
-eric@broken:~$ su root
-Password:
-root@broken:/home/eric# cd /usr/src/linux
-root@broken:/usr/src/linux# ls
-COPYING        MAINTAINERS  REPORTING-BUGS  drivers  init    lib  scripts   usr
-CREDITS        Makefile     arch            fs       ipc     mm   security
-Documentation  README       crypto          include  kernel  net  sound
-root@broken:/usr/src/linux# make mrproper
-  RM  $(CLEAN_FILES)
-  Making mrproper in the srctree
-  RM  $(MRPROPER_DIRS) + $(MRPROPER_FILES)
-root@broken:/usr/src/linux# make clean
-  RM  $(CLEAN_FILES)
-root@broken:/usr/src/linux# make xconfig
-  HOSTCC  scripts/fixdep
-  HOSTCC  scripts/split-include
-  HOSTCC  scripts/conmakehash
-  HOSTCC  scripts/docproc
-  HOSTCC  scripts/kallsyms
-  CC      scripts/empty.o
-  HOSTCC  scripts/mk_elfconfig
-  MKELF   scripts/elfconfig.h
-  HOSTCC  scripts/file2alias.o
-  HOSTCC  scripts/modpost.o
-  HOSTLD  scripts/modpost
-  HOSTCC  scripts/pnmtologo
-  SHIPPED scripts/kconfig/zconf.tab.h
-  HOSTCC  scripts/kconfig/conf.o
-sed < scripts/kconfig/lkc_proto.h > scripts/kconfig/lkc_defs.h 
-'s/P(\([^,]*\),.*/#define \1 (\*\1_p)/'  HOSTCC  scripts/kconfig/kconfig_load.o
-  HOSTCC  scripts/kconfig/mconf.o
-/usr/lib/qt-3.1.2/bin/moc -i scripts/kconfig/qconf.h -o 
-scripts/kconfig/qconf.moc  HOSTCXX scripts/kconfig/qconf.o
-  SHIPPED scripts/kconfig/zconf.tab.c
-  SHIPPED scripts/kconfig/lex.zconf.c
-  HOSTCC  -fPIC scripts/kconfig/zconf.tab.o
-  HOSTLLD -shared scripts/kconfig/libkconfig.so
-  HOSTLD  scripts/kconfig/qconf
-./scripts/kconfig/qconf arch/i386/Kconfig
-boolean symbol BINFMT_ZFLAT tested for 'm'? test forced to 'n'
-#
-# using defaults found in arch/i386/defconfig
-#
-root@broken:/usr/src/linux# make bzImage
-  CHK     include/linux/version.h
-  UPD     include/linux/version.h
-  Making asm->asm-i386 symlink
-  CC      scripts/empty.o
-  MKELF   scripts/elfconfig.h
-  HOSTCC  scripts/file2alias.o
-  HOSTCC  scripts/modpost.o
-  HOSTLD  scripts/modpost
-  SPLIT   include/linux/autoconf.h -> include/config/*
-  CC      arch/i386/kernel/asm-offsets.s
-  CHK     include/asm-i386/asm_offsets.h
-  UPD     include/asm-i386/asm_offsets.h
-  CC      init/main.o
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  CC      init/do_mounts.o
-  LD      init/mounts.o
-  CC      init/initramfs.o
-  LD      init/built-in.o
-  HOSTCC  usr/gen_init_cpio
-  CPIO    usr/initramfs_data.cpio
-  GZIP    usr/initramfs_data.cpio.gz
-  AS      usr/initramfs_data.o
-  LD      usr/built-in.o
-  CC      arch/i386/kernel/process.o
-  CC      arch/i386/kernel/semaphore.o
-  CC      arch/i386/kernel/signal.o
-  AS      arch/i386/kernel/entry.o
-  CC      arch/i386/kernel/traps.o
-  CC      arch/i386/kernel/irq.o
-  CC      arch/i386/kernel/vm86.o
-  CC      arch/i386/kernel/ptrace.o
-  CC      arch/i386/kernel/i8259.o
-  CC      arch/i386/kernel/ioport.o
-  CC      arch/i386/kernel/ldt.o
-  CC      arch/i386/kernel/setup.o
-  CC      arch/i386/kernel/time.o
-  CC      arch/i386/kernel/sys_i386.o
-  CC      arch/i386/kernel/pci-dma.o
-  CC      arch/i386/kernel/i386_ksyms.o
-  CC      arch/i386/kernel/i387.o
-  CC      arch/i386/kernel/dmi_scan.o
-  CC      arch/i386/kernel/bootflag.o
-  CC      arch/i386/kernel/doublefault.o
-  CC      arch/i386/kernel/acpi/boot.o
-  LD      arch/i386/kernel/acpi/built-in.o
-  CC      arch/i386/kernel/cpu/common.o
-  CC      arch/i386/kernel/cpu/proc.o
-  CC      arch/i386/kernel/cpu/amd.o
-  CC      arch/i386/kernel/cpu/cyrix.o
-  CC      arch/i386/kernel/cpu/centaur.o
-  CC      arch/i386/kernel/cpu/transmeta.o
-  CC      arch/i386/kernel/cpu/intel.o
-  CC      arch/i386/kernel/cpu/rise.o
-  CC      arch/i386/kernel/cpu/nexgen.o
-  CC      arch/i386/kernel/cpu/umc.o
-  CC      arch/i386/kernel/cpu/mcheck/mce.o
-  CC      arch/i386/kernel/cpu/mcheck/k7.o
-  CC      arch/i386/kernel/cpu/mcheck/p4.o
-  CC      arch/i386/kernel/cpu/mcheck/p5.o
-  CC      arch/i386/kernel/cpu/mcheck/p6.o
-  CC      arch/i386/kernel/cpu/mcheck/winchip.o
-  CC      arch/i386/kernel/cpu/mcheck/non-fatal.o
-  LD      arch/i386/kernel/cpu/mcheck/built-in.o
-  CC      arch/i386/kernel/cpu/mtrr/main.o
-  CC      arch/i386/kernel/cpu/mtrr/if.o
-  CC      arch/i386/kernel/cpu/mtrr/generic.o
-  CC      arch/i386/kernel/cpu/mtrr/state.o
-  CC      arch/i386/kernel/cpu/mtrr/amd.o
-  CC      arch/i386/kernel/cpu/mtrr/cyrix.o
-  CC      arch/i386/kernel/cpu/mtrr/centaur.o
-  LD      arch/i386/kernel/cpu/mtrr/built-in.o
-  LD      arch/i386/kernel/cpu/built-in.o
-  CC      arch/i386/kernel/timers/timer.o
-  CC      arch/i386/kernel/timers/timer_none.o
-  CC      arch/i386/kernel/timers/timer_tsc.o
-  CC      arch/i386/kernel/timers/timer_pit.o
-  LD      arch/i386/kernel/timers/built-in.o
-  CC      arch/i386/kernel/reboot.o
-  CC      arch/i386/kernel/suspend.o
-  CC      arch/i386/kernel/smp.o
-  CC      arch/i386/kernel/smpboot.o
-  AS      arch/i386/kernel/trampoline.o
-  CC      arch/i386/kernel/mpparse.o
-  CC      arch/i386/kernel/apic.o
-  CC      arch/i386/kernel/nmi.o
-  CC      arch/i386/kernel/io_apic.o
-  CC      arch/i386/kernel/module.o
-  CC      arch/i386/kernel/sysenter.o
-  AS      arch/i386/kernel/vsyscall-int80.o
-  SYSCALL arch/i386/kernel/vsyscall-int80.so
-  AS      arch/i386/kernel/vsyscall-sysenter.o
-  SYSCALL arch/i386/kernel/vsyscall-sysenter.so
-  AS      arch/i386/kernel/vsyscall.o
-  SYSCALL arch/i386/kernel/vsyscall-syms.o
-  LD      arch/i386/kernel/built-in.o
-  AS      arch/i386/kernel/head.o
-  CC      arch/i386/kernel/init_task.o
-  CPP     arch/i386/kernel/vmlinux.lds.s
-  CC      arch/i386/mm/init.o
-  CC      arch/i386/mm/pgtable.o
-  CC      arch/i386/mm/fault.o
-  CC      arch/i386/mm/ioremap.o
-  CC      arch/i386/mm/extable.o
-  CC      arch/i386/mm/pageattr.o
-  LD      arch/i386/mm/built-in.o
-  CC      arch/i386/mach-default/setup.o
-  CC      arch/i386/mach-default/topology.o
-  LD      arch/i386/mach-default/built-in.o
-  CC      kernel/sched.o
-  CC      kernel/fork.o
-  CC      kernel/exec_domain.o
-  CC      kernel/panic.o
-  CC      kernel/printk.o
-  CC      kernel/profile.o
-  CC      kernel/exit.o
-  CC      kernel/itimer.o
-  CC      kernel/time.o
-  CC      kernel/softirq.o
-  CC      kernel/resource.o
-  CC      kernel/sysctl.o
-  CC      kernel/capability.o
-  CC      kernel/ptrace.o
-  CC      kernel/timer.o
-  CC      kernel/user.o
-  CC      kernel/signal.o
-  CC      kernel/sys.o
-  CC      kernel/kmod.o
-  CC      kernel/workqueue.o
-  CC      kernel/pid.o
-  CC      kernel/rcupdate.o
-  CC      kernel/intermodule.o
-  CC      kernel/extable.o
-  CC      kernel/params.o
-  CC      kernel/posix-timers.o
-  CC      kernel/futex.o
-  CC      kernel/dma.o
-  CC      kernel/cpu.o
-  CC      kernel/uid16.o
-  CC      kernel/ksyms.o
-  CC      kernel/module.o
-  CC      kernel/kallsyms.o
-  CC      kernel/power/main.o
-  CC      kernel/power/process.o
-  CC      kernel/power/console.o
-  CC      kernel/power/pm.o
-  LD      kernel/power/built-in.o
-  LD      kernel/built-in.o
-  CC      mm/bootmem.o
-  CC      mm/filemap.o
-  CC      mm/mempool.o
-  CC      mm/oom_kill.o
-  CC      mm/fadvise.o
-  CC      mm/page_alloc.o
-  CC      mm/page-writeback.o
-  CC      mm/pdflush.o
-  CC      mm/readahead.o
-  CC      mm/slab.o
-  CC      mm/swap.o
-  CC      mm/truncate.o
-  CC      mm/vcache.o
-  CC      mm/vmscan.o
-  CC      mm/fremap.o
-  CC      mm/highmem.o
-  CC      mm/madvise.o
-  CC      mm/memory.o
-  CC      mm/mincore.o
-  CC      mm/mlock.o
-  CC      mm/mmap.o
-  CC      mm/mprotect.o
-  CC      mm/mremap.o
-  CC      mm/msync.o
-  CC      mm/rmap.o
-  CC      mm/shmem.o
-  CC      mm/vmalloc.o
-  CC      mm/page_io.o
-  CC      mm/swap_state.o
-  CC      mm/swapfile.o
-  LD      mm/built-in.o
-  CC      fs/open.o
-  CC      fs/read_write.o
-  CC      fs/file_table.o
-  CC      fs/buffer.o
-  CC      fs/bio.o
-  CC      fs/super.o
-  CC      fs/block_dev.o
-  CC      fs/char_dev.o
-  CC      fs/stat.o
-  CC      fs/exec.o
-  CC      fs/pipe.o
-  CC      fs/namei.o
-  CC      fs/fcntl.o
-  CC      fs/ioctl.o
-  CC      fs/readdir.o
-  CC      fs/select.o
-  CC      fs/fifo.o
-  CC      fs/locks.o
-  CC      fs/dcache.o
-  CC      fs/inode.o
-  CC      fs/attr.o
-  CC      fs/bad_inode.o
-  CC      fs/file.o
-  CC      fs/dnotify.o
-  CC      fs/filesystems.o
-  CC      fs/namespace.o
-  CC      fs/seq_file.o
-  CC      fs/xattr.o
-  CC      fs/libfs.o
-  CC      fs/fs-writeback.o
-  CC      fs/mpage.o
-  CC      fs/direct-io.o
-  CC      fs/aio.o
-  CC      fs/eventpoll.o
-  CC      fs/nfsctl.o
-  CC      fs/binfmt_aout.o
-  CC      fs/binfmt_misc.o
-  CC      fs/binfmt_script.o
-  CC      fs/binfmt_elf.o
-  CC      fs/mbcache.o
-  CC      fs/autofs4/init.o
-  CC      fs/autofs4/inode.o
-  CC      fs/autofs4/root.o
-  CC      fs/autofs4/symlink.o
-  CC      fs/autofs4/waitq.o
-  CC      fs/autofs4/expire.o
-  LD      fs/autofs4/autofs4.o
-  LD      fs/autofs4/built-in.o
-  CC      fs/cifs/cifsfs.o
-  CC      fs/cifs/cifssmb.o
-  CC      fs/cifs/cifs_debug.o
-  CC      fs/cifs/connect.o
-  CC      fs/cifs/dir.o
-  CC      fs/cifs/file.o
-  CC      fs/cifs/inode.o
-  CC      fs/cifs/link.o
-  CC      fs/cifs/misc.o
-  CC      fs/cifs/netmisc.o
-  CC      fs/cifs/smbdes.o
-  CC      fs/cifs/smbencrypt.o
-  CC      fs/cifs/transport.o
-  CC      fs/cifs/asn1.o
-  CC      fs/cifs/md4.o
-  CC      fs/cifs/md5.o
-  CC      fs/cifs/cifs_unicode.o
-  CC      fs/cifs/nterr.o
-  CC      fs/cifs/xattr.o
-  CC      fs/cifs/cifsencrypt.o
-  LD      fs/cifs/cifs.o
-  LD      fs/cifs/built-in.o
-  CC      fs/devpts/inode.o
-  LD      fs/devpts/devpts.o
-  LD      fs/devpts/built-in.o
-  CC      fs/exportfs/expfs.o
-  LD      fs/exportfs/exportfs.o
-  LD      fs/exportfs/built-in.o
-  CC      fs/ext3/balloc.o
-  CC      fs/ext3/bitmap.o
-  CC      fs/ext3/dir.o
-  CC      fs/ext3/file.o
-  CC      fs/ext3/fsync.o
-  CC      fs/ext3/ialloc.o
-  CC      fs/ext3/inode.o
-  CC      fs/ext3/ioctl.o
-  CC      fs/ext3/namei.o
-  CC      fs/ext3/super.o
-  CC      fs/ext3/symlink.o
-  CC      fs/ext3/hash.o
-  CC      fs/ext3/xattr.o
-  CC      fs/ext3/xattr_user.o
-  CC      fs/ext3/xattr_trusted.o
-  LD      fs/ext3/ext3.o
-  LD      fs/ext3/built-in.o
-  CC      fs/fat/cache.o
-  CC      fs/fat/dir.o
-  CC      fs/fat/file.o
-  CC      fs/fat/inode.o
-  CC      fs/fat/misc.o
-  CC      fs/fat/fatfs_syms.o
-  LD      fs/fat/fat.o
-  LD      fs/fat/built-in.o
-  CC      fs/isofs/namei.o
-  CC      fs/isofs/inode.o
-  CC      fs/isofs/dir.o
-  CC      fs/isofs/util.o
-  CC      fs/isofs/rock.o
-  CC      fs/isofs/joliet.o
-  LD      fs/isofs/isofs.o
-  LD      fs/isofs/built-in.o
-  CC      fs/jbd/transaction.o
-  CC      fs/jbd/commit.o
-  CC      fs/jbd/recovery.o
-  CC      fs/jbd/checkpoint.o
-  CC      fs/jbd/revoke.o
-  CC      fs/jbd/journal.o
-  LD      fs/jbd/jbd.o
-  LD      fs/jbd/built-in.o
-  CC      fs/lockd/clntlock.o
-  CC      fs/lockd/clntproc.o
-  CC      fs/lockd/host.o
-  CC      fs/lockd/svc.o
-  CC      fs/lockd/svclock.o
-  CC      fs/lockd/svcshare.o
-  CC      fs/lockd/svcproc.o
-  CC      fs/lockd/svcsubs.o
-  CC      fs/lockd/mon.o
-  CC      fs/lockd/xdr.o
-  CC      fs/lockd/lockd_syms.o
-  LD      fs/lockd/lockd.o
-  LD      fs/lockd/built-in.o
-  CC      fs/msdos/namei.o
-  CC      fs/msdos/msdosfs_syms.o
-  LD      fs/msdos/msdos.o
-  LD      fs/msdos/built-in.o
-  CC      fs/nfs/dir.o
-  CC      fs/nfs/file.o
-  CC      fs/nfs/inode.o
-  CC      fs/nfs/nfs2xdr.o
-  CC      fs/nfs/pagelist.o
-  CC      fs/nfs/proc.o
-  CC      fs/nfs/read.o
-  CC      fs/nfs/symlink.o
-  CC      fs/nfs/unlink.o
-  CC      fs/nfs/write.o
-  LD      fs/nfs/nfs.o
-  LD      fs/nfs/built-in.o
-  CC      fs/nfsd/nfssvc.o
-  CC      fs/nfsd/nfsctl.o
-  CC      fs/nfsd/nfsproc.o
-  CC      fs/nfsd/nfsfh.o
-  CC      fs/nfsd/vfs.o
-  CC      fs/nfsd/export.o
-  CC      fs/nfsd/auth.o
-  CC      fs/nfsd/lockd.o
-  CC      fs/nfsd/nfscache.o
-  CC      fs/nfsd/nfsxdr.o
-  CC      fs/nfsd/stats.o
-  LD      fs/nfsd/nfsd.o
-  LD      fs/nfsd/built-in.o
-  CC      fs/nls/nls_base.o
-  CC      fs/nls/nls_cp437.o
-  CC      fs/nls/nls_iso8859-1.o
-  LD      fs/nls/built-in.o
-  CC      fs/ntfs/aops.o
-  CC      fs/ntfs/attrib.o
-  CC      fs/ntfs/compress.o
-  CC      fs/ntfs/debug.o
-  CC      fs/ntfs/dir.o
-  CC      fs/ntfs/file.o
-  CC      fs/ntfs/inode.o
-  CC      fs/ntfs/mft.o
-  CC      fs/ntfs/mst.o
-  CC      fs/ntfs/namei.o
-  CC      fs/ntfs/super.o
-  CC      fs/ntfs/sysctl.o
-  CC      fs/ntfs/time.o
-  CC      fs/ntfs/unistr.o
-  CC      fs/ntfs/upcase.o
-  LD      fs/ntfs/ntfs.o
-  LD      fs/ntfs/built-in.o
-  CC      fs/partitions/check.o
-  CC      fs/partitions/msdos.o
-  LD      fs/partitions/built-in.o
-  CC      fs/proc/task_mmu.o
-  CC      fs/proc/inode.o
-  CC      fs/proc/root.o
-  CC      fs/proc/base.o
-  CC      fs/proc/generic.o
-  CC      fs/proc/array.o
-  CC      fs/proc/kmsg.o
-  CC      fs/proc/proc_tty.o
-  CC      fs/proc/proc_misc.o
-  CC      fs/proc/kcore.o
-  LD      fs/proc/proc.o
-  LD      fs/proc/built-in.o
-  CC      fs/ramfs/inode.o
-  LD      fs/ramfs/ramfs.o
-  LD      fs/ramfs/built-in.o
-  CC      fs/smbfs/proc.o
-  CC      fs/smbfs/dir.o
-  CC      fs/smbfs/cache.o
-  CC      fs/smbfs/sock.o
-  CC      fs/smbfs/inode.o
-  CC      fs/smbfs/file.o
-  CC      fs/smbfs/ioctl.o
-  CC      fs/smbfs/getopt.o
-  CC      fs/smbfs/symlink.o
-  CC      fs/smbfs/smbiod.o
-  CC      fs/smbfs/request.o
-  LD      fs/smbfs/smbfs.o
-  LD      fs/smbfs/built-in.o
-  CC      fs/sysfs/inode.o
-  CC      fs/sysfs/file.o
-  CC      fs/sysfs/dir.o
-  CC      fs/sysfs/symlink.o
-  CC      fs/sysfs/mount.o
-  CC      fs/sysfs/bin.o
-  CC      fs/sysfs/group.o
-  LD      fs/sysfs/built-in.o
-  CC      fs/udf/balloc.o
-  CC      fs/udf/dir.o
-  CC      fs/udf/file.o
-  CC      fs/udf/ialloc.o
-  CC      fs/udf/inode.o
-  CC      fs/udf/lowlevel.o
-  CC      fs/udf/namei.o
-  CC      fs/udf/partition.o
-  CC      fs/udf/super.o
-  CC      fs/udf/truncate.o
-  CC      fs/udf/symlink.o
-  CC      fs/udf/fsync.o
-  CC      fs/udf/crc.o
-  CC      fs/udf/directory.o
-  CC      fs/udf/misc.o
-  CC      fs/udf/udftime.o
-  CC      fs/udf/unicode.o
-  LD      fs/udf/udf.o
-  LD      fs/udf/built-in.o
-  CC      fs/vfat/namei.o
-  CC      fs/vfat/vfatfs_syms.o
-  LD      fs/vfat/vfat.o
-  LD      fs/vfat/built-in.o
-  LD      fs/built-in.o
-  CC      ipc/util.o
-  CC      ipc/msg.o
-  CC      ipc/sem.o
-  CC      ipc/shm.o
-  LD      ipc/built-in.o
-  CC      security/capability.o
-  LD      security/built-in.o
-  LD      crypto/built-in.o
-  CC      drivers/acpi/acpi_ksyms.o
-  CC      drivers/acpi/tables.o
-  CC      drivers/acpi/blacklist.o
-  CC      drivers/acpi/osl.o
-  CC      drivers/acpi/utils.o
-  CC      drivers/acpi/dispatcher/dsfield.o
-  CC      drivers/acpi/dispatcher/dsmthdat.o
-  CC      drivers/acpi/dispatcher/dsopcode.o
-  CC      drivers/acpi/dispatcher/dswexec.o
-  CC      drivers/acpi/dispatcher/dswscope.o
-  CC      drivers/acpi/dispatcher/dsmethod.o
-  CC      drivers/acpi/dispatcher/dsobject.o
-  CC      drivers/acpi/dispatcher/dsutils.o
-  CC      drivers/acpi/dispatcher/dswload.o
-  CC      drivers/acpi/dispatcher/dswstate.o
-  CC      drivers/acpi/dispatcher/dsinit.o
-  LD      drivers/acpi/dispatcher/built-in.o
-  CC      drivers/acpi/events/evevent.o
-  CC      drivers/acpi/events/evregion.o
-  CC      drivers/acpi/events/evsci.o
-  CC      drivers/acpi/events/evxfevnt.o
-  CC      drivers/acpi/events/evmisc.o
-  CC      drivers/acpi/events/evrgnini.o
-  CC      drivers/acpi/events/evxface.o
-  CC      drivers/acpi/events/evxfregn.o
-  CC      drivers/acpi/events/evgpe.o
-  CC      drivers/acpi/events/evgpeblk.o
-  LD      drivers/acpi/events/built-in.o
-  CC      drivers/acpi/executer/exconfig.o
-  CC      drivers/acpi/executer/exfield.o
-  CC      drivers/acpi/executer/exnames.o
-  CC      drivers/acpi/executer/exoparg6.o
-  CC      drivers/acpi/executer/exresolv.o
-  CC      drivers/acpi/executer/exstorob.o
-  CC      drivers/acpi/executer/exconvrt.o
-  CC      drivers/acpi/executer/exfldio.o
-  CC      drivers/acpi/executer/exoparg1.o
-  CC      drivers/acpi/executer/exprep.o
-  CC      drivers/acpi/executer/exresop.o
-  CC      drivers/acpi/executer/exsystem.o
-  CC      drivers/acpi/executer/excreate.o
-  CC      drivers/acpi/executer/exmisc.o
-  CC      drivers/acpi/executer/exoparg2.o
-  CC      drivers/acpi/executer/exregion.o
-  CC      drivers/acpi/executer/exstore.o
-  CC      drivers/acpi/executer/exutils.o
-  CC      drivers/acpi/executer/exdump.o
-  CC      drivers/acpi/executer/exmutex.o
-  CC      drivers/acpi/executer/exoparg3.o
-  CC      drivers/acpi/executer/exresnte.o
-  CC      drivers/acpi/executer/exstoren.o
-  LD      drivers/acpi/executer/built-in.o
-  CC      drivers/acpi/hardware/hwacpi.o
-  CC      drivers/acpi/hardware/hwgpe.o
-  CC      drivers/acpi/hardware/hwregs.o
-  CC      drivers/acpi/hardware/hwsleep.o
-  CC      drivers/acpi/hardware/hwtimer.o
-  LD      drivers/acpi/hardware/built-in.o
-  CC      drivers/acpi/namespace/nsaccess.o
-  CC      drivers/acpi/namespace/nsdumpdv.o
-  CC      drivers/acpi/namespace/nsload.o
-  CC      drivers/acpi/namespace/nssearch.o
-  CC      drivers/acpi/namespace/nsxfeval.o
-  CC      drivers/acpi/namespace/nsalloc.o
-  CC      drivers/acpi/namespace/nseval.o
-  CC      drivers/acpi/namespace/nsnames.o
-  CC      drivers/acpi/namespace/nsutils.o
-  CC      drivers/acpi/namespace/nsxfname.o
-  CC      drivers/acpi/namespace/nsdump.o
-  CC      drivers/acpi/namespace/nsinit.o
-  CC      drivers/acpi/namespace/nsobject.o
-  CC      drivers/acpi/namespace/nswalk.o
-  CC      drivers/acpi/namespace/nsxfobj.o
-  CC      drivers/acpi/namespace/nsparse.o
-  LD      drivers/acpi/namespace/built-in.o
-  CC      drivers/acpi/parser/psargs.o
-  CC      drivers/acpi/parser/psparse.o
-  CC      drivers/acpi/parser/pstree.o
-  CC      drivers/acpi/parser/pswalk.o
-  CC      drivers/acpi/parser/psopcode.o
-  CC      drivers/acpi/parser/psscope.o
-  CC      drivers/acpi/parser/psutils.o
-  CC      drivers/acpi/parser/psxface.o
-  LD      drivers/acpi/parser/built-in.o
-  CC      drivers/acpi/resources/rsaddr.o
-  CC      drivers/acpi/resources/rscreate.o
-  CC      drivers/acpi/resources/rsio.o
-  CC      drivers/acpi/resources/rslist.o
-  CC      drivers/acpi/resources/rsmisc.o
-  CC      drivers/acpi/resources/rsxface.o
-  CC      drivers/acpi/resources/rscalc.o
-  CC      drivers/acpi/resources/rsdump.o
-  CC      drivers/acpi/resources/rsirq.o
-  CC      drivers/acpi/resources/rsmemory.o
-  CC      drivers/acpi/resources/rsutils.o
-  LD      drivers/acpi/resources/built-in.o
-  CC      drivers/acpi/sleep/poweroff.o
-  LD      drivers/acpi/sleep/built-in.o
-  CC      drivers/acpi/tables/tbconvrt.o
-  CC      drivers/acpi/tables/tbget.o
-  CC      drivers/acpi/tables/tbrsdt.o
-  CC      drivers/acpi/tables/tbxface.o
-  CC      drivers/acpi/tables/tbgetall.o
-  CC      drivers/acpi/tables/tbinstal.o
-  CC      drivers/acpi/tables/tbutils.o
-  CC      drivers/acpi/tables/tbxfroot.o
-  LD      drivers/acpi/tables/built-in.o
-  CC      drivers/acpi/utilities/utalloc.o
-  CC      drivers/acpi/utilities/utdebug.o
-  CC      drivers/acpi/utilities/uteval.o
-  CC      drivers/acpi/utilities/utinit.o
-  CC      drivers/acpi/utilities/utmisc.o
-  CC      drivers/acpi/utilities/utxface.o
-  CC      drivers/acpi/utilities/utcopy.o
-  CC      drivers/acpi/utilities/utdelete.o
-  CC      drivers/acpi/utilities/utglobal.o
-  CC      drivers/acpi/utilities/utmath.o
-  CC      drivers/acpi/utilities/utobject.o
-  LD      drivers/acpi/utilities/built-in.o
-  CC      drivers/acpi/bus.o
-  CC      drivers/acpi/button.o
-  CC      drivers/acpi/ec.o
-  CC      drivers/acpi/fan.o
-  CC      drivers/acpi/pci_root.o
-  CC      drivers/acpi/pci_link.o
-  CC      drivers/acpi/pci_irq.o
-  CC      drivers/acpi/pci_bind.o
-  CC      drivers/acpi/power.o
-  CC      drivers/acpi/processor.o
-  CC      drivers/acpi/thermal.o
-  CC      drivers/acpi/system.o
-  CC      drivers/acpi/event.o
-  CC      drivers/acpi/scan.o
-  LD      drivers/acpi/built-in.o
-  CC      drivers/base/core.o
-  CC      drivers/base/sys.o
-  CC      drivers/base/interface.o
-  CC      drivers/base/bus.o
-  CC      drivers/base/driver.o
-  CC      drivers/base/class.o
-  CC      drivers/base/platform.o
-  CC      drivers/base/cpu.o
-  CC      drivers/base/firmware.o
-  CC      drivers/base/init.o
-  CC      drivers/base/map.o
-  CC      drivers/base/power/shutdown.o
-  CC      drivers/base/power/main.o
-  CC      drivers/base/power/suspend.o
-  CC      drivers/base/power/resume.o
-  CC      drivers/base/power/runtime.o
-  CC      drivers/base/power/sysfs.o
-  LD      drivers/base/power/built-in.o
-  LD      drivers/base/built-in.o
-  CC      drivers/block/elevator.o
-  CC      drivers/block/ll_rw_blk.o
-  CC      drivers/block/ioctl.o
-  CC      drivers/block/genhd.o
-  CC      drivers/block/scsi_ioctl.o
-  CC      drivers/block/noop-iosched.o
-  CC      drivers/block/as-iosched.o
-  CC      drivers/block/deadline-iosched.o
-  CC      drivers/block/floppy.o
-  CC      drivers/block/nbd.o
-  LD      drivers/block/built-in.o
-  CC      drivers/cdrom/cdrom.o
-  LD      drivers/cdrom/built-in.o
-  CC      drivers/char/mem.o
-  CC      drivers/char/tty_io.o
-  CC      drivers/char/n_tty.o
-  CC      drivers/char/tty_ioctl.o
-  CC      drivers/char/pty.o
-  CC      drivers/char/misc.o
-  CC      drivers/char/random.o
-  CC      drivers/char/vt_ioctl.o
-  CC      drivers/char/vc_screen.o
-  CC      drivers/char/consolemap.o
-  CONMK   drivers/char/consolemap_deftbl.c
-  CC      drivers/char/consolemap_deftbl.o
-  CC      drivers/char/selection.o
-  CC      drivers/char/keyboard.o
-  CC      drivers/char/vt.o
-  SHIPPED drivers/char/defkeymap.c
-  CC      drivers/char/defkeymap.o
-  CC      drivers/char/rtc.o
-  CC      drivers/char/hw_random.o
-  CC      drivers/char/agp/backend.o
-  CC      drivers/char/agp/frontend.o
-  CC      drivers/char/agp/generic.o
-  CC      drivers/char/agp/isoch.o
-  LD      drivers/char/agp/agpgart.o
-  CC      drivers/char/agp/amd-k7-agp.o
-  LD      drivers/char/agp/built-in.o
-  LD      drivers/char/built-in.o
-  LD      drivers/i2c/busses/built-in.o
-  LD      drivers/i2c/chips/built-in.o
-  LD      drivers/i2c/built-in.o
-  LD      drivers/ide/arm/built-in.o
-  LD      drivers/ide/legacy/built-in.o
-  CC      drivers/ide/pci/amd74xx.o
-  CC      drivers/ide/pci/generic.o
-  LD      drivers/ide/pci/built-in.o
-  LD      drivers/ide/ppc/built-in.o
-  CC      drivers/ide/ide-io.o
-  CC      drivers/ide/ide-probe.o
-  CC      drivers/ide/ide-iops.o
-  CC      drivers/ide/ide-taskfile.o
-  CC      drivers/ide/ide.o
-  CC      drivers/ide/ide-lib.o
-  CC      drivers/ide/ide-default.o
-  CC      drivers/ide/ide-disk.o
-  CC      drivers/ide/ide-cd.o
-  CC      drivers/ide/setup-pci.o
-  CC      drivers/ide/ide-dma.o
-  CC      drivers/ide/ide-proc.o
-  LD      drivers/ide/built-in.o
-  CC      drivers/input/input.o
-  CC      drivers/input/mousedev.o
-  CC      drivers/input/evdev.o
-  CC      drivers/input/keyboard/atkbd.o
-  LD      drivers/input/keyboard/built-in.o
-  LD      drivers/input/mouse/built-in.o
-  LD      drivers/input/built-in.o
-  CC      drivers/input/serio/i8042.o
-  LD      drivers/input/serio/built-in.o
-  LD      drivers/media/common/built-in.o
-  LD      drivers/media/dvb/b2c2/built-in.o
-  LD      drivers/media/dvb/dvb-core/built-in.o
-  LD      drivers/media/dvb/frontends/built-in.o
-  LD      drivers/media/dvb/ttpci/built-in.o
-  LD      drivers/media/dvb/ttusb-budget/built-in.o
-  LD      drivers/media/dvb/ttusb-dec/built-in.o
-  LD      drivers/media/dvb/built-in.o
-  LD      drivers/media/radio/built-in.o
-  LD      drivers/media/video/built-in.o
-  LD      drivers/media/built-in.o
-  CC      drivers/message/i2o/i2o_core.o
-  CC      drivers/message/i2o/i2o_config.o
-  CC      drivers/message/i2o/i2o_block.o
-  CC      drivers/message/i2o/i2o_scsi.o
-  CC      drivers/message/i2o/i2o_proc.o
-  LD      drivers/message/i2o/built-in.o
-  LD      drivers/message/built-in.o
-  LD      drivers/misc/built-in.o
-  CC      drivers/net/Space.o
-  CC      drivers/net/net_init.o
-  CC      drivers/net/loopback.o
-  CC      drivers/net/wireless/orinoco.o
-  CC      drivers/net/wireless/hermes.o
-  CC      drivers/net/wireless/orinoco_pci.o
-  LD      drivers/net/wireless/built-in.o
-  LD      drivers/net/built-in.o
-  CC      drivers/pci/access.o
-  CC      drivers/pci/bus.o
-  CC      drivers/pci/probe.o
-  CC      drivers/pci/remove.o
-  CC      drivers/pci/pci.o
-  CC      drivers/pci/pool.o
-  CC      drivers/pci/quirks.o
-  HOSTCC  drivers/pci/gen-devlist
-  DEVLIST drivers/pci/devlist.h
-  CC      drivers/pci/names.o
-  CC      drivers/pci/pci-driver.o
-  CC      drivers/pci/search.o
-  CC      drivers/pci/pci-sysfs.o
-  CC      drivers/pci/power.o
-  CC      drivers/pci/proc.o
-  CC      drivers/pci/setup-res.o
-  CC      drivers/pci/hotplug.o
-  CC      drivers/pci/setup-bus.o
-  LD      drivers/pci/built-in.o
-  CC      drivers/pnp/core.o
-  CC      drivers/pnp/card.o
-  CC      drivers/pnp/driver.o
-  CC      drivers/pnp/resource.o
-  CC      drivers/pnp/manager.o
-  CC      drivers/pnp/support.o
-  CC      drivers/pnp/interface.o
-  CC      drivers/pnp/quirks.o
-  CC      drivers/pnp/system.o
-  CC      drivers/pnp/pnpbios/core.o
-  CC      drivers/pnp/pnpbios/bioscalls.o
-  CC      drivers/pnp/pnpbios/rsparser.o
-  CC      drivers/pnp/pnpbios/proc.o
-  LD      drivers/pnp/pnpbios/built-in.o
-  LD      drivers/pnp/built-in.o
-  CC      drivers/scsi/scsi.o
-  CC      drivers/scsi/hosts.o
-  CC      drivers/scsi/scsi_ioctl.o
-  CC      drivers/scsi/constants.o
-  CC      drivers/scsi/scsicam.o
-  CC      drivers/scsi/scsi_error.o
-  CC      drivers/scsi/scsi_lib.o
-  CC      drivers/scsi/scsi_scan.o
-  CC      drivers/scsi/scsi_syms.o
-  CC      drivers/scsi/scsi_sysfs.o
-  CC      drivers/scsi/scsi_devinfo.o
-  CC      drivers/scsi/scsi_proc.o
-  CC      drivers/scsi/sd.o
-  LD      drivers/scsi/scsi_mod.o
-  CC      drivers/scsi/dpt_i2o.o
-drivers/scsi/dpt_i2o.c:32:2: #error Please convert me to 
-Documentation/DMA-mapping.txtdrivers/scsi/dpt_i2o.c: In function 
-`adpt_install_hba':drivers/scsi/dpt_i2o.c:977: warning: passing arg 2 of 
-`request_irq' from incompatible pointer typedrivers/scsi/dpt_i2o.c: In function 
-`adpt_scsi_to_i2o':drivers/scsi/dpt_i2o.c:2118: structure has no member named 
-`address'
---Boundary-00=_puST/2pcJE95bQA--
+	My machine is:
+
+MB:		GA-7VAXPUltra
+CPU:	AMD AthlonXP 1700+
+Video:	ATI Radeon 9000
+=09
+	boot.msg, dmesg, lspci and config are attached. If anything else is needed=
+, I=20
+will be more than glad to provide it.
+
+=2D --=20
+Regards,
+Tanaskovic Toplica
+=2D----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD4DBQE/TTD6Nk55vdPrZiERAjWcAJ43DYnDYq1eWTDPQJ0VJflHAXr/RACWIIxo
+qNkabovWAMhxHi2gkIoKBw=3D=3D
+=3Dgh8r
+=2D----END PGP SIGNATURE-----
+
+--Boundary-00=_3DTT/GgnuoVPO9k
+Content-Type: application/x-bzip2;
+  name="boot.msg.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="boot.msg.bz2"
+
+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
+EA4I+PP1hdccQy77/2f/xdyRThQkL14pukA=
+
+--Boundary-00=_3DTT/GgnuoVPO9k
+Content-Type: application/x-bzip2;
+  name="config.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="config.bz2"
+
+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
+
+--Boundary-00=_3DTT/GgnuoVPO9k
+Content-Type: application/x-bzip2;
+  name="dmesg.txt.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="dmesg.txt.bz2"
+
+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
+C8gIQVi6A2T6rE35Bj89w/iLuSKcKEhtvJgwgA==
+
+--Boundary-00=_3DTT/GgnuoVPO9k
+Content-Type: application/x-bzip2;
+  name="lspci.txt.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="lspci.txt.bz2"
+
+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
+dyRThQkF9aaKoA==
+
+--Boundary-00=_3DTT/GgnuoVPO9k--
 

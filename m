@@ -1,32 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbRL3Qgr>; Sun, 30 Dec 2001 11:36:47 -0500
+	id <S276369AbRL3Qxr>; Sun, 30 Dec 2001 11:53:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280984AbRL3Qgh>; Sun, 30 Dec 2001 11:36:37 -0500
-Received: from fc.capaccess.org ([151.200.199.53]:64268 "EHLO fc.Capaccess.org")
-	by vger.kernel.org with ESMTP id <S276424AbRL3QgV>;
-	Sun, 30 Dec 2001 11:36:21 -0500
-Message-id: <fc.008584120025dba0008584120025dba0.25dbca@Capaccess.org>
-Date: Sun, 30 Dec 2001 11:35:05 -0500
-Subject: pico -w bla.patch
-To: linux-kernel@vger.kernel.org
-From: "Rick A. Hohensee" <rickh@Capaccess.org>
+	id <S279307AbRL3Qxi>; Sun, 30 Dec 2001 11:53:38 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:23446 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S276369AbRL3QxZ>; Sun, 30 Dec 2001 11:53:25 -0500
+Date: Sun, 30 Dec 2001 08:53:19 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: LKML <linux-kernel@vger.kernel.org>
+cc: Ani Joshi <ajoshi@unixbox.com>, Nick Kurshev <nickols_k@mail.ru>
+Subject: radeonfb 0.1.3 (kernel 2.4.18-pre1) report
+Message-ID: <Pine.LNX.4.33.0112300804410.4035-100000@mf1.private>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if Pine lets you -w the called Pico. I only use Pico (and ed
-and sam). -w still wordwraps at about 500 characters also, which breaks
-some of the more demented GNU autoautomakemake stuff, which is a good
-thing.
 
-The quintessential Linux editor is probably the microemacs on kernel.org,
-which is probably the one Torvalds used to use from Minix to the mid-90s. 
-The Amiga 1000 came with that. I couldn't believe it. Fortunately the
-Amiga also had Matt Dillon's dme, which came with his C compiler. Nysche.
-He doesn't feel like translating Intuition to X though. Bummer.
+Hello,
 
-Rick Hohensee
+A few comments on radeonfb 0.1.3, as included in kernel 2.4.18-pre1:
+
+First, as someone previously noted, radeonfb.c fails to compile in
+2.4.18-pre1.  The following symbols are undefined, apparently because they
+were omitted from radeon.h:
+
+TMDS_TRANSMITTER_CNTL
+ICHCSEL
+TMDS_PLLRST
+LVDS_STATE_MASK
+
+Not knowing what values the first three should be, I just commented out
+the code that uses them.  :-)  Since the last value is a mask applied
+against a 32-bit quantity, I set it to 0xFFFFFFFF.  Then with the patch
+appended below, I was able to get radeonfb.c to compile.
+
+Second, it works!  Here are the log messages:
+
+radeonfb: ref_clk=2700, ref_div=12, xclk=18300 from BIOS
+radeonfb: detected DFP panel size: 1280x1024
+Console: switching to colour frame buffer device 80x25
+radeonfb: ATI Radeon QY VE  DDR SGRAM 32 MB
+radeonfb: DVI port DFP monitor connected
+radeonfb: CRT port no monitor connected
+
+As you can see, my setup is a Radeon VE with a 1280x1024 DFP on the DVI
+port and nothing on the VGA port.  No previous mailine radeonfb.c worked
+on this setup, although Nick Kurshev's radeonfb.c from the MPlayer project
+does work.
+
+Third, I have to do a 'fbset 1280x1024-60' after loading the radeonfb
+driver to get an image--despite having detected a 1280x1024 DFP, the
+driver does not initialize the mode properly.  My DFP goes into power-save
+mode (no image to display) after loading radeonfb.o until I do the fbset.
+
+Lastly, a few minor nits:  changing virtual consoles is quite slow--the
+DFP goes into power-save mode during the transition, even when both
+virtual consoles have the same mode.  Scrolling is very slow as well.  
+Also, using ^R in bash results in redraw errors.
+
+I hope this report is of help.
+
+Thanks, Wayne
+
+
+--- linux-2.4.18-pre1/drivers/video/radeonfb.c.orig	Sat Dec 29 20:48:07 2001
++++ linux-2.4.18-pre1/drivers/video/radeonfb.c	Sat Dec 29 22:35:21 2001
+@@ -76,6 +76,7 @@
+ #include <video/fbcon-cfb32.h>
+ 
+ #include "radeon.h"
++#define LVDS_STATE_MASK 0xFFFFFFFF
+ 
+ 
+ #define DEBUG	0
+@@ -2280,7 +2281,7 @@
+ 	save->lvds_gen_cntl = INREG(LVDS_GEN_CNTL);
+ 	save->lvds_pll_cntl = INREG(LVDS_PLL_CNTL);
+ 	save->tmds_crc = INREG(TMDS_CRC);
+-	save->tmds_transmitter_cntl = INREG(TMDS_TRANSMITTER_CNTL);
++/*	save->tmds_transmitter_cntl = INREG(TMDS_TRANSMITTER_CNTL); */
+ }
+ 
+ 
+@@ -2557,8 +2558,8 @@
+ 		} else {
+ 			/* DFP */
+ 			newmode.fp_gen_cntl |= (FP_FPON | FP_TMDS_EN);
+-			newmode.tmds_transmitter_cntl = (TMDS_RAN_PAT_RST |
+-							 ICHCSEL) & ~(TMDS_PLLRST);
++/*			newmode.tmds_transmitter_cntl = (TMDS_RAN_PAT_RST |
++							 ICHCSEL) & ~(TMDS_PLLRST); */
+ 			newmode.crtc_ext_cntl &= ~CRTC_CRT_ON;
+ 		}
+ 
+@@ -2647,7 +2648,7 @@
+ 		OUTREG(FP_VERT_STRETCH, mode->fp_vert_stretch);
+ 		OUTREG(FP_GEN_CNTL, mode->fp_gen_cntl);
+ 		OUTREG(TMDS_CRC, mode->tmds_crc);
+-		OUTREG(TMDS_TRANSMITTER_CNTL, mode->tmds_transmitter_cntl);
++/*		OUTREG(TMDS_TRANSMITTER_CNTL, mode->tmds_transmitter_cntl); */
+ 
+ 		if (primary_mon == MT_LCD) {
+ 			unsigned int tmp = INREG(LVDS_GEN_CNTL);
 

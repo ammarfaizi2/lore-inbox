@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281823AbRK1HMb>; Wed, 28 Nov 2001 02:12:31 -0500
+	id <S281985AbRK1HIv>; Wed, 28 Nov 2001 02:08:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282029AbRK1HMV>; Wed, 28 Nov 2001 02:12:21 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:39405 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S281823AbRK1HMJ>;
-	Wed, 28 Nov 2001 02:12:09 -0500
-Date: Wed, 28 Nov 2001 10:09:53 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Anton Blanchard <anton@samba.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove BKL from llseek
-In-Reply-To: <20011128141116.C22190@krispykreme>
-Message-ID: <Pine.LNX.4.33.0111281009020.1845-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281815AbRK1HIc>; Wed, 28 Nov 2001 02:08:32 -0500
+Received: from aaf16.warszawa.sdi.tpnet.pl ([217.97.85.16]:6149 "EHLO
+	aaf16.warszawa.sdi.tpnet.pl") by vger.kernel.org with ESMTP
+	id <S281823AbRK1HIN>; Wed, 28 Nov 2001 02:08:13 -0500
+Date: Wed, 28 Nov 2001 08:06:58 +0100
+From: Dominik Mierzejewski <dominik@aaf16.warszawa.sdi.tpnet.pl>
+To: Joachim Backes <backes@rhrk.uni-kl.de>
+Cc: LINUX Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.12 ... 2.4.16, /dev/tty
+Message-ID: <20011128080658.A1298@wonko.esi.org.pl>
+In-Reply-To: <20011127180622.B1087@wonko.esi.org.pl> <XFMail.20011128071832.backes@rhrk.uni-kl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <XFMail.20011128071832.backes@rhrk.uni-kl.de>
+User-Agent: Mutt/1.3.23i
+X-Linux-Registered-User: 134951
+X-Homepage: http://home.elka.pw.edu.pl/~dmierzej/
+X-PGP-Key-Fingerprint: B546 B96A 4258 02EF 5CAB  E867 3CDA 420F 7802 6AFE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday, 28 November 2001, Joachim Backes wrote:
+> Hi, Dominik,
+> 
+[snip no controlling tty problem]  
+> >  I believe it's a problem with /bin/login, which has a race condition
+> >  preventing it from opening /dev/tty. It is fixed in rawhide, upgrading
+> >  util-linux to at least 2.11f-6 solved this for me.
+> >  So it's not a kernel issue.
+> 
+> Thanks, this helped me a lot. Only one issue: after installing rawhide
+> vers. 2.11f-16
+> of util-linux and not 2.11f-6, my problem disappeared.
 
-On Wed, 28 Nov 2001, Anton Blanchard wrote:
-
-> The dbench-o-matic results from removing the BKL from llseek can be
-> found here:
->
-> http://samba.org/~anton/linux/llseek/
->
-> Same hardware as the earlier test, 12 way ppc64. The patch is pretty
-> dumb, I just pushed the kernel lock down into the llseek methods and
-> only replaced it with the inode semaphore in generic_llseek. Im sure
-> Al will have a better fix for 2.5, I just wanted to highlight the
-> problem :)
-
-yeah i did that once (about a year ago or more) and it was rejected, cant
-remember why :-) But it's indeed an important optimization and it shows up
-in dbench overhead.
-
-	Ingo
-
+Yes, yes. My mistake. I must've been hungry when writing that, because
+I simply ate the '1'. :-) Sorry.
+ 
+-- 
+"The Universe doesn't give you any points for doing things that are easy."
+        -- Sheridan to Garibaldi in Babylon 5:"The Geometry of Shadows"
+Dominik 'Rathann' Mierzejewski <rathann(at)we.are.one.pl>

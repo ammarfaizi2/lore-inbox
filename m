@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273937AbRI0V46>; Thu, 27 Sep 2001 17:56:58 -0400
+	id <S273940AbRI0V52>; Thu, 27 Sep 2001 17:57:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273940AbRI0V4t>; Thu, 27 Sep 2001 17:56:49 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:47368 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S273937AbRI0V4e>; Thu, 27 Sep 2001 17:56:34 -0400
-Date: Thu, 27 Sep 2001 23:56:55 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linus Torvalds <linus@transmeta.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] Fix 'get mouse type' command emulation in mousedev.c
-Message-ID: <20010927235655.A18423@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S273951AbRI0V5T>; Thu, 27 Sep 2001 17:57:19 -0400
+Received: from daytona.gci.com ([205.140.80.57]:8461 "EHLO daytona.gci.com")
+	by vger.kernel.org with ESMTP id <S273940AbRI0V5K>;
+	Thu, 27 Sep 2001 17:57:10 -0400
+Message-ID: <BF9651D8732ED311A61D00105A9CA315061466BF@berkeley.gci.com>
+From: Leif Sawyer <lsawyer@gci.com>
+To: linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] 2.4.9-ac16 swapoff 2*vfree
+Date: Thu, 27 Sep 2001 13:57:31 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I've applied this patch, and together with 2.4.9-ac16 on
+my UltraSparc (1x300mHz, 1024Mb)  seems to be working just fine
+so far.
 
-New GPM (1.19.4+) uses a more sophisticated method of detecting PS/2
-mice. This uncovers a minor bug in mousedev. Mousedev reports always
-mouse type 4 (ExplorerPS/2) regardless of the mode it is in due to
-missing break;'s in a switch statement. This patch fixes it. Patch against
-2.4.10 or similar.
+I've got a pretty popular Unreal Tournament Map Mirror site,
+so my webserver gets a lot of traffic which should exercise the VM
+pretty well, especially as I keep quite a few xterms open.  Plus
+a mozilla build every now and then.
 
---- linux-2.4.10/drivers/input/mousedev.c	Thu Sep 13 00:34:06 2001
-+++ linux/drivers/input/mousedev.c	Thu Sep 27 23:47:59 2001
-@@ -314,9 +314,9 @@
- 
- 			case 0xf2: /* Get ID */
- 				switch (list->mode) {
--					case 0: list->ps2[1] = 0;
--					case 1: list->ps2[1] = 3;
--					case 2: list->ps2[1] = 4;
-+					case 0: list->ps2[1] = 0; break;
-+					case 1: list->ps2[1] = 3; break;
-+					case 2: list->ps2[1] = 4; break;
- 				}
- 				list->bufsiz = 2;
- 				break;
+But up to now it looks good!  Nice job, all.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> -----Original Message-----
+> From: Hugh Dickins [mailto:hugh@veritas.com]
+> 
+> 2.4.9-ac16 swapoff warns "Trying to vfree() nonexistent vm area":
+> the new (outside locks) vfree added, the old (inside) not removed.
+> 
+> Hugh
+> 
+> --- 2.4.9-ac16/mm/swapfile.c	Thu Sep 27 19:10:00 2001
+> +++ linux/mm/swapfile.c	Thu Sep 27 19:43:12 2001
+> @@ -636,7 +636,6 @@
+>  	p->swap_device = 0;
+>  	p->max = 0;
+>  	swap_map = p->swap_map;
+> -	vfree(p->swap_map);
+>  	p->swap_map = NULL;
+>  	p->flags = 0;
+>  	swap_device_unlock(p);
+> 

@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316886AbSEVH51>; Wed, 22 May 2002 03:57:27 -0400
+	id <S316887AbSEVIDU>; Wed, 22 May 2002 04:03:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316887AbSEVH51>; Wed, 22 May 2002 03:57:27 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:29453 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316886AbSEVH50>; Wed, 22 May 2002 03:57:26 -0400
-Message-ID: <3CEB4084.90806@evision-ventures.com>
-Date: Wed, 22 May 2002 08:53:56 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Vojtech Pavlik <vojtech@suse.cz>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 IDE 65
-In-Reply-To: <Pine.LNX.4.33.0205211626530.22624-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316888AbSEVIDT>; Wed, 22 May 2002 04:03:19 -0400
+Received: from kiruna.synopsys.com ([204.176.20.18]:731 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S316887AbSEVIDS>; Wed, 22 May 2002 04:03:18 -0400
+Date: Wed, 22 May 2002 10:03:05 +0200
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [PATCH] xconfig for tulip subsection
+Message-ID: <20020522080305.GC1402@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	trivial@rustcorp.com.au
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Linus Torvalds napisa?:
-> On Tue, 21 May 2002, Vojtech Pavlik wrote:
-> 
->>>They aren't there to be respected by the ll_rw_blk layer - if some layer
->>>above it has created a request larger than the hard sector size, THAT is
->>>the problem, and there is nothing ll_rw_blk can do (except maybe BUG() on
->>>it, but I don't think we've ever really seen those kinds of bugs).
->>
->>Hum, I'm confused here - shouldn't that be "if some layer above it has
->>created a request SMALLER than the hard sector size"? Or better a
->>request that is not a multiple of hard sector size?
-> 
-> 
-> Yes, yes, you're obviously right, and I just had a brainfart when writing
-> it. It should be basically: "higher levels must make sure on their own
-> that all requests are nice integer multiples of the hw sector-size", and 
-> ll_rw_blk should never have to care.
+fixes broken xconfig for tulip drivers.
 
-Please add the following to the bag:
-"We never saw a filesystem with less then 512 byte sectors,
-so let's assume this is our request size unit." (CP/M uses 256...)
-Not that pretty at all.
+P.S. Why the double quotes in comment break it?
+
+--- a/v2.5/drivers/net/tulip/Config.in	Wed May 22 09:57:08 2002
++++ b/v2.5/drivers/net/tulip/Config.in	Wed May 22 09:41:31 2002
+@@ -3,7 +3,7 @@
+ #
+ 
+ mainmenu_option next_comment
+-comment '"Tulip" family network device support'
++comment 'Tulip family network device support'
+ 
+ bool '"Tulip" family network device support' CONFIG_NET_TULIP
+ if [ "$CONFIG_NET_TULIP" = "y" ]; then
 

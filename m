@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263168AbUCSXub (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 18:50:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbUCSXub
+	id S263172AbUCSXwt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 18:52:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUCSXwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 18:50:31 -0500
-Received: from ozlabs.org ([203.10.76.45]:1170 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263168AbUCSXu0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 18:50:26 -0500
-Subject: Re: module scanning in kgdb 2.x
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Tom Rini <trini@kernel.crashing.org>
-In-Reply-To: <200403192036.04225.amitkale@emsyssoft.com>
-References: <200403121206.16130.amitkale@emsyssoft.com>
-	 <1079471931.19722.15.camel@bach>
-	 <200403192036.04225.amitkale@emsyssoft.com>
-Content-Type: text/plain
-Message-Id: <1079740141.6883.12.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 20 Mar 2004 10:49:01 +1100
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Mar 2004 18:52:49 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:17422 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263172AbUCSXwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 18:52:44 -0500
+Date: Fri, 19 Mar 2004 23:52:37 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Ian Campbell <icampbell@arcom.com>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] PXA255 LCD Driver
+In-Reply-To: <20040318203638.A12978@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0403192352050.14905-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-03-20 at 02:06, Amit S. Kale wrote:
-> On Wednesday 17 Mar 2004 2:48 am, Rusty Russell wrote:
-> > Why not just set the section strings to SHF_ALLOC rather than copying
-> > (and possibly truncating) the names into your struct mod_section?
-> > struct mod_section is then simply void *addr; char *name;
+
+> On Wed, Mar 17, 2004 at 07:03:06PM +0000, James Simmons wrote:
+> > behavior is struct fb_monspecs. Take a look at it in fb.h. I'm interested 
+> > if I got all the needed data from the EDID about a display panel.
 > 
-> How can I do that? Do I have to use objcopy on module files for this purpose?
+> You're thinking too PC-centric.  You don't get EDID data with embedded
+> LCD panels.  Instead, you get timing information, number of pixels per
+> line, and other parameters either from a PDF or paper datasheet on the
+> device.
 
-That'd be one way.  But I was thinking you should add it in the loading
-code the way CONFIG_KALLSYMS does for some other sections.
+Your right. Want I would like to know is what do you guys need!!!
 
-Cheers,
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+
 

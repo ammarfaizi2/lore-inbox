@@ -1,118 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbULWRiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbULWSQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbULWRiR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 12:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbULWRiR
+	id S261213AbULWSQE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 13:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbULWSQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 12:38:17 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:55998 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261276AbULWRhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 12:37:55 -0500
-Date: Thu, 23 Dec 2004 11:37:49 -0600
-From: Robin Holt <holt@sgi.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] AB-BA deadlock between uidhash_lock and tasklist_lock.
-Message-ID: <20041223173749.GA18887@lnx-holt.americas.sgi.com>
-References: <20041222220800.GB6213@lnx-holt.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041222220800.GB6213@lnx-holt.americas.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 23 Dec 2004 13:16:04 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33718 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261213AbULWSPf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 13:15:35 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [PATCH] fix ROM enable/disable in r128 and radeon fb drivers
+Date: Thu, 23 Dec 2004 10:15:27 -0800
+User-Agent: KMail/1.7.1
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200412141256.21143.jbarnes@engr.sgi.com> <9e4733910412141345380559da@mail.gmail.com> <200412141420.12863.jbarnes@engr.sgi.com>
+In-Reply-To: <200412141420.12863.jbarnes@engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_AtwyBsLVL2A58Oi"
+Message-Id: <200412231015.28033.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a replacement patch to one I sent yesterday.  I missed a
-couple instances of the uidhash_lock and was also told I should
-have sent it directly to Linus instead of Andrew.
+--Boundary-00=_AtwyBsLVL2A58Oi
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-We have uncovered a very difficult to trip AB-BA deadlock between the
-uidhash_lock and tasklist_lock.
+On Tuesday, December 14, 2004 2:20 pm, Jesse Barnes wrote:
+> On Tuesday, December 14, 2004 1:45 pm, Jon Smirl wrote:
+> > These drivers should be using the new ROM API in the PCI driver
+> > instead of manipulating the ROMs directly. Now that the ROM API is in
+> > the kernel all direct use of PCI_ENABLE_ROM should be removed. There
+> > are about thirty places in the kernel doing direct access. Kernel
+> > janitors would probably be a good place to track removing
+> > PCI_ENABLE_ROM.
+>
+> Sure... but in the meantime the drivers should probably be trivially fixed
+> like this so things don't break.
 
-reparent_to_init() does write_lock_irq(&tasklist_lock) then calls
-switch_uid() which calls free_uid() which grabs the uidhash_lock.
+Oops, didn't realize that changing them to use pci_rom_enable/disable would be 
+just as trivial as my fix.  Tested on sn2.
 
-Independent of that, we have seen a different cpu call free_uid as a
-result of sys_wait4 and, immediately after acquiring the uidhash_lock,
-receive a timer interrupt which eventually leads to an attempt to grab
-the tasklist_lock.
+This patch fixes a few errors in the aty fb drivers by making them use 
+pci_rom_enable/disable instead of manipulating BARs directly.  They were both 
+a) incorrectly programming resource values into the BARs instead of actual 
+BAR values (resources are cookies and shouldn't be used that way), and b) 
+they were both clobbering the original value of the BAR corresponding to 
+their ROM, also a no-no.  Switching to pci_rom_enable/disable fixes both at 
+once and kills some code.
 
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
 
-Signed-off-by: Robin Holt <holt@sgi.com>
+Thanks,
+Jesse
 
+--Boundary-00=_AtwyBsLVL2A58Oi
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="aty-rom-enable-fixes-2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="aty-rom-enable-fixes-2.patch"
 
-Index: linux/kernel/user.c
-===================================================================
---- linux.orig/kernel/user.c	2004-12-22 13:10:49.000000000 -0600
-+++ linux/kernel/user.c	2004-12-23 11:07:21.100577562 -0600
-@@ -90,6 +90,9 @@
+===== drivers/video/aty/aty128fb.c 1.53 vs edited =====
+--- 1.53/drivers/video/aty/aty128fb.c	2004-12-17 00:09:09 -08:00
++++ edited/drivers/video/aty/aty128fb.c	2004-12-23 10:02:59 -08:00
+@@ -452,7 +452,6 @@
+ static void __init aty128_get_pllinfo(struct aty128fb_par *par,
+ 				      void __iomem *bios);
+ static void __init __iomem *aty128_map_ROM(struct pci_dev *pdev, const struct aty128fb_par *par);
+-static void __init aty128_unmap_ROM(struct pci_dev *dev, void __iomem * rom);
+ #endif
+ static void aty128_timings(struct aty128fb_par *par);
+ static void aty128_init_engine(struct aty128fb_par *par);
+@@ -788,30 +787,12 @@
  
- void free_uid(struct user_struct *up)
+ 
+ #ifndef __sparc__
+-static void __init aty128_unmap_ROM(struct pci_dev *dev, void __iomem * rom)
+-{
+-	struct resource *r = &dev->resource[PCI_ROM_RESOURCE];
+-	
+-	iounmap(rom);
+-	
+-	/* Release the ROM resource if we used it in the first place */
+-	if (r->parent && r->flags & PCI_ROM_ADDRESS_ENABLE) {
+-		release_resource(r);
+-		r->flags &= ~PCI_ROM_ADDRESS_ENABLE;
+-		r->end -= r->start;
+-		r->start = 0;
+-	}
+-	/* This will disable and set address to unassigned */
+-	pci_write_config_dword(dev, dev->rom_base_reg, 0);
+-}
+-
+-
+ static void __iomem * __init aty128_map_ROM(const struct aty128fb_par *par, struct pci_dev *dev)
  {
-+	unsigned long flags;
+-	struct resource *r;
+ 	u16 dptr;
+ 	u8 rom_type;
+ 	void __iomem *bios;
++	size_t rom_size;
+ 
+     	/* Fix from ATI for problem with Rage128 hardware not leaving ROM enabled */
+     	unsigned int temp;
+@@ -821,26 +802,13 @@
+ 	aty_st_le32(RAGE128_MPP_TB_CONFIG, temp);
+ 	temp = aty_ld_le32(RAGE128_MPP_TB_CONFIG);
+ 
+-	/* no need to search for the ROM, just ask the card where it is. */
+-	r = &dev->resource[PCI_ROM_RESOURCE];
++	bios = pci_map_rom(dev, &rom_size);
+ 
+-	/* assign the ROM an address if it doesn't have one */
+-	if (r->parent == NULL)
+-		pci_assign_resource(dev, PCI_ROM_RESOURCE);
+-	
+-	/* enable if needed */
+-	if (!(r->flags & PCI_ROM_ADDRESS_ENABLE)) {
+-		pci_write_config_dword(dev, dev->rom_base_reg,
+-				       r->start | PCI_ROM_ADDRESS_ENABLE);
+-		r->flags |= PCI_ROM_ADDRESS_ENABLE;
+-	}
+-	
+-	bios = ioremap(r->start, r->end - r->start + 1);
+ 	if (!bios) {
+ 		printk(KERN_ERR "aty128fb: ROM failed to map\n");
+ 		return NULL;
+ 	}
+-	
 +
-+	local_irq_save(flags);
- 	if (up && atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
- 		uid_hash_remove(up);
- 		key_put(up->uid_keyring);
-@@ -97,16 +100,18 @@
- 		kmem_cache_free(uid_cachep, up);
- 		spin_unlock(&uidhash_lock);
- 	}
-+	local_irq_restore(flags);
+ 	/* Very simple test to make sure it appeared */
+ 	if (BIOS_IN16(0) != 0xaa55) {
+ 		printk(KERN_ERR "aty128fb: Invalid ROM signature %x should be 0xaa55\n",
+@@ -899,7 +867,7 @@
+ 	return bios;
+ 
+  failed:
+-	aty128_unmap_ROM(dev, bios);
++	pci_unmap_rom(dev, bios);
+ 	return NULL;
  }
  
- struct user_struct * alloc_uid(uid_t uid)
- {
- 	struct list_head *hashent = uidhashentry(uid);
- 	struct user_struct *up;
-+	unsigned long flags;
- 
--	spin_lock(&uidhash_lock);
-+	spin_lock_irqsave(&uidhash_lock, flags);
- 	up = uid_hash_find(uid, hashent);
--	spin_unlock(&uidhash_lock);
-+	spin_unlock_irqrestore(&uidhash_lock, flags);
- 
- 	if (!up) {
- 		struct user_struct *new;
-@@ -132,7 +137,7 @@
- 		 * Before adding this, check whether we raced
- 		 * on adding the same user already..
- 		 */
--		spin_lock(&uidhash_lock);
-+		spin_lock_irqsave(&uidhash_lock, flags);
- 		up = uid_hash_find(uid, hashent);
- 		if (up) {
- 			key_put(new->uid_keyring);
-@@ -142,7 +147,7 @@
- 			uid_hash_insert(new, hashent);
- 			up = new;
- 		}
--		spin_unlock(&uidhash_lock);
-+		spin_unlock_irqrestore(&uidhash_lock, flags);
- 
+@@ -1959,7 +1927,7 @@
+ 	else {
+ 		printk(KERN_INFO "aty128fb: Rage128 BIOS located\n");
+ 		aty128_get_pllinfo(par, bios);
+-		aty128_unmap_ROM(pdev, bios);
++		pci_unmap_rom(pdev, bios);
  	}
- 	return up;
-@@ -170,6 +175,7 @@
- static int __init uid_cache_init(void)
+ #endif /* __sparc__ */
+ 
+===== drivers/video/aty/radeon_base.c 1.35 vs edited =====
+--- 1.35/drivers/video/aty/radeon_base.c	2004-11-11 00:39:04 -08:00
++++ edited/drivers/video/aty/radeon_base.c	2004-12-23 10:03:04 -08:00
+@@ -263,30 +263,17 @@
+ 
+ static void __devexit radeon_unmap_ROM(struct radeonfb_info *rinfo, struct pci_dev *dev)
  {
- 	int n;
-+	unsigned long flags;
- 
- 	uid_cachep = kmem_cache_create("uid_cache", sizeof(struct user_struct),
- 			0, SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
-@@ -178,9 +184,9 @@
- 		INIT_LIST_HEAD(uidhash_table + n);
- 
- 	/* Insert the root user immediately (init already runs as root) */
--	spin_lock(&uidhash_lock);
-+	spin_lock_irqsave(&uidhash_lock, flags);
- 	uid_hash_insert(&root_user, uidhashentry(0));
--	spin_unlock(&uidhash_lock);
-+	spin_unlock_irqrestore(&uidhash_lock, flags);
- 
- 	return 0;
+-	// leave it disabled and unassigned
+-	struct resource *r = &dev->resource[PCI_ROM_RESOURCE];
+-	
+ 	if (!rinfo->bios_seg)
+ 		return;
+-	iounmap(rinfo->bios_seg);
+-	
+-	/* Release the ROM resource if we used it in the first place */
+-	if (r->parent && r->flags & PCI_ROM_ADDRESS_ENABLE) {
+-		release_resource(r);
+-		r->flags &= ~PCI_ROM_ADDRESS_ENABLE;
+-		r->end -= r->start;
+-		r->start = 0;
+-	}
+-	/* This will disable and set address to unassigned */
+-	pci_write_config_dword(dev, dev->rom_base_reg, 0);
++	pci_unmap_rom(dev, rinfo->bios_seg);
  }
+ 
+ static int __devinit radeon_map_ROM(struct radeonfb_info *rinfo, struct pci_dev *dev)
+ {
+ 	void __iomem *rom;
+-	struct resource *r;
+ 	u16 dptr;
+ 	u8 rom_type;
++	size_t rom_size;
+ 
+ 	/* If this is a primary card, there is a shadow copy of the
+ 	 * ROM somewhere in the first meg. We will just ignore the copy
+@@ -301,21 +288,7 @@
+ 	OUTREG(MPP_TB_CONFIG, temp);
+ 	temp = INREG(MPP_TB_CONFIG);
+                                                                                                           
+-	/* no need to search for the ROM, just ask the card where it is. */
+-	r = &dev->resource[PCI_ROM_RESOURCE];
+-	
+-	/* assign the ROM an address if it doesn't have one */
+-	if (r->parent == NULL)
+-		pci_assign_resource(dev, PCI_ROM_RESOURCE);
+-	
+-	/* enable if needed */
+-	if (!(r->flags & PCI_ROM_ADDRESS_ENABLE)) {
+-		pci_write_config_dword(dev, dev->rom_base_reg,
+-				       r->start | PCI_ROM_ADDRESS_ENABLE);
+-		r->flags |= PCI_ROM_ADDRESS_ENABLE;
+-	}
+-	
+-	rom = ioremap(r->start, r->end - r->start + 1);
++	rom = pci_map_rom(dev, &rom_size);
+ 	if (!rom) {
+ 		printk(KERN_ERR "radeonfb: ROM failed to map\n");
+ 		return -ENOMEM;
+
+--Boundary-00=_AtwyBsLVL2A58Oi--

@@ -1,76 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVC2TAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVC2TCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVC2TAn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 14:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVC2TAm
+	id S261304AbVC2TCo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 14:02:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVC2TCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 14:00:42 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:58634 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261297AbVC2TAe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 14:00:34 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <mrmacman_g4@mac.com>
-Cc: "Wichert Akkerman" <wichert@wiggy.net>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Sean" <seanlkml@sympatico.ca>,
-       "Mark Fortescue" <mark@mtfhpc.demon.co.uk>
-Subject: RE: Can't use SYSFS for "Proprietry" driver modules !!!.
-Date: Tue, 29 Mar 2005 11:00:30 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEIHCMAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <be1ed86fc663c1a441ab51ea3d6fd4fe@mac.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 29 Mar 2005 10:59:45 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 29 Mar 2005 10:59:46 -0800
+	Tue, 29 Mar 2005 14:02:44 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:182 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261308AbVC2TCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 14:02:21 -0500
+Message-Id: <200503291902.j2TJ2Dg00724@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>, "Jens Axboe" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] use cheaper elv_queue_empty when unplug a device
+Date: Tue, 29 Mar 2005 11:02:13 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcU0QH4Mpsv7gCQiRQ2gizKKxhPPswAT8Bgg
+In-Reply-To: <42491DBE.6020303@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin wrote on Tuesday, March 29, 2005 1:20 AM
+> Speaking of which, I've had a few ideas lying around for possible
+> performance improvement in the block code.
+>
+> I haven't used a big disk array (or tried any simulation), but I'll
+> attach the patch if you're looking into that area.
+>
+>  linux-2.6-npiggin/drivers/block/ll_rw_blk.c |   63 ++++++++++------------------
+>  1 files changed, 23 insertions(+), 40 deletions(-)
+>
+> diff -puN drivers/block/ll_rw_blk.c~blk-efficient drivers/block/ll_rw_blk.c
+> --- linux-2.6/drivers/block/ll_rw_blk.c~blk-efficient	2005-03-29 19:00:07.000000000 +1000
+> +++ linux-2.6-npiggin/drivers/block/ll_rw_blk.c	2005-03-29 19:10:45.000000000 +1000
+> @@ -2557,7 +2557,7 @@ EXPORT_SYMBOL(__blk_attempt_remerge);
+>
+>  static int __make_request(request_queue_t *q, struct bio *bio)
+>  {
+> -	struct request *req, *freereq = NULL;
+> +	struct request *req;
+>  	int el_ret, rw, nr_sectors, cur_nr_sectors, barrier, err;
+>  	sector_t sector;
+>
+> @@ -2577,19 +2577,18 @@ static int __make_request(request_queue_
+>
+> -again:
+>  	spin_lock_irq(q->queue_lock);
+>
+>  	if (elv_queue_empty(q)) {
+>
 
-> On Mar 28, 2005, at 20:53, David Schwartz wrote:
+....
 
-> > The GPL explicitly permits you to modify the code as you wish, and this
-> > includes removing any restriction or enforcement type code.
+> +get_rq:
+>  	/*
+> -	 * Grab a free request from the freelist - if that is empty, check
+> -	 * if we are doing read ahead and abort instead of blocking for
+> -	 * a free slot.
+> +	 * Grab a free request. This is might sleep but can not fail.
+> +	 */
+> +	spin_unlock_irq(q->queue_lock);
+> +	req = get_request_wait(q, rw);
+> +	/*
+> +	 * After dropping the lock and possibly sleeping here, our request
+> +	 * may now be mergeable after it had proven unmergeable (above).
+> +	 * We don't worry about that case for efficiency. It won't happen
+> +	 * often, and the elevators are able to handle it.
+>  	 */
+> -get_rq:
+> -	if (freereq) {
+> -		req = freereq;
+> -		freereq = NULL;
+> -	} else {
+> -		spin_unlock_irq(q->queue_lock);
+> -		if ((freereq = get_request(q, rw, GFP_ATOMIC)) == NULL) {
+> -			/*
+> -			 * READA bit set
+> -			 */
+> -			err = -EWOULDBLOCK;
+> -			if (bio_rw_ahead(bio))
+> -				goto end_io;
+> -
+> -			freereq = get_request_wait(q, rw);
+> -		}
+> -		goto again;
+> -	}
+>
+>  	req->flags |= REQ_CMD;
+>
 
-> Yeah, sure, one could remove the technological enforcement, but IIRC the
-> thread also brought up that you _still_ couldn't distribute anything
-> that
-> _used_ the broken type enforcement, because changing the source code to
-> include the comment "This is Public Domain!" likewise doesn't make it
-> so.
+....
 
-	The GPL specifically permits unrestricted functional modification and
-distribution. So you cannot violate the GPL by modifying and distributing
-the resulting modifications (except perhaps by altering or removing the text
-of the GPL itself).
+> @@ -2693,10 +2675,11 @@ get_rq:
+>  	req->rq_disk = bio->bi_bdev->bd_disk;
+>  	req->start_time = jiffies;
+>
+> +	spin_lock_irq(q->queue_lock);
+> +	if (elv_queue_empty(q))
+> +		blk_plug_device(q);
+>  	add_request(q, req);
+>  out:
+> -	if (freereq)
+> -		__blk_put_request(q, freereq);
+>  	if (bio_sync(bio))
+>  		__generic_unplug_device(q);
 
-	The GPL contains no technical restrictions or software enforcement
-mechanisms. While you could add some to GPL'd software, you could not
-prohibit their removal. That would be an "additional restriction", which the
-GPL forbids.
-
-	Since the GPL permits their removal, removing them cannot be circumventing
-the GPL. Since the GPL is the only license and the license permits you to
-remove them, they cannot be a license enforcement mechanism. How can you
-enforce a license that permits unrestricted functional modification?
-
-	Perhaps you could make an argument if the code only restricted things
-specifically prohibited by the GPL. But the GPL also permits unrestricted
-usage, so it's not clear how this could happen.
-
-	DS
+This part of change in __make_request() is very welcome for enterprise workload.
+I have an unpublished version of patch does something similar.  I will look through
+all other changes in your patch.
 
 

@@ -1,64 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbTJABXH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 21:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTJABXH
+	id S261828AbTJABT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 21:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTJABT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 21:23:07 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:3810 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S261838AbTJABXE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 21:23:04 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] deal with lack of acpi prt entries gracefully
-Date: Tue, 30 Sep 2003 21:22:59 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE0CC873D@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] deal with lack of acpi prt entries gracefully
-Thread-Index: AcN4sgA1vbyWCHpcS4W+0TmuWOwNNQPB0KCQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Jesse Barnes" <jbarnes@sgi.com>,
-       "Andrew de Quincey" <adq_dvb@lidskialf.net>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 01 Oct 2003 01:23:01.0391 (UTC) FILETIME=[8E14F1F0:01C387BA]
+	Tue, 30 Sep 2003 21:19:57 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:51849 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261828AbTJABTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 21:19:55 -0400
+Subject: Re: Kernel includefile bug not fixed after a year :-(
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       schilling@fokus.fraunhofer.de
+Content-Type: text/plain
+Organization: 
+Message-Id: <1064970349.736.14.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 30 Sep 2003 21:05:50 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Jesse Barnes [mailto:jbarnes@sgi.com] 
-> Sent: Thursday, September 11, 2003 6:05 PM
-> To: Andrew de Quincey
-> Cc: Grover, Andrew; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] deal with lack of acpi prt entries gracefully
-> 
-> 
-> On Thu, Sep 11, 2003 at 11:00:30PM +0100, Andrew de Quincey wrote:
-> > > None of the above.  We have our own NUMAlink based 
-> interrupt protocol
-> > > model.
-> > 
-> > Oooer! Hmm, the existing code would probably NOT like 
-> having _PRT entries for 
-> > a model it doesn't know about.... you could add support for 
-> it fairly easily 
-> > though I suppose...
-> 
-> Yeah, that's what Andy suggested too.  I guess I have to use 
-> one of the
-> reserved fields and try to get the ACPI spec updated.
-> 
-> Thanks,
-> Jesse
+Joerg Schilling writes:
 
-Even if this exotic box shouldn't be running this flavor of the code,
-the inifinite loop part struck me as less than bomb proof;-)
-So I pulled the return on count==0 check into the ACPI patch.
+>> Also Joerg, now that I have your attention: There is a bug
+>> somewhere so that if I set the kernel HZ to 400, recompile
+>> everything including `cdrecord`, I can no longer record a CD.
+>> I think that somewhere, somebody is using a raw jiffie-count
+>> instead of multiplying by HZ in the time-out code. I've check
+>> through all the SCSI stuff, and I use SCSI disks exclusively.
+>> I think something in your code needs fixing. This is for kernel
+>> version 2.4.22
+>
+> Cdrecord and pther programs too includes <sys/param.h>
 
-Thanks,
--Len
+If that's a kernel header, you have a bug.
+
+> If you change HZ in the kernel include files and recompile
+> your problems suffer from the same sort of inconsistencies
+> that have been the reason for my initial mail.
+>
+> If Linux likes to support changes to HZ, then it needs to
+> support POSIX interfaces. On Solaris, sys/param.h looks this way:
+>
+> #define        HZ              ((clock_t)_sysconf(_SC_CLK_TCK))
+
+On a Linux 2.4.xx system and above, you do this:
+
+/////////////////////////////////////////////////////
+#ifndef AT_CLKTCK
+#define AT_CLKTCK       17    // frequency of times()
+#endif
+
+#define NOTE_NOT_FOUND 42
+
+//extern char** environ;  // if _GNU_SOURCE not defined
+
+// for ELF executables, notes are pushed before environment and args
+// (Portable too! This even works on PA_RISC for some reason.)
+static unsigned long find_elf_note(unsigned long findme){
+  unsigned long *ep = (unsigned long *)environ;
+  while(*ep++);
+  while(*ep){
+    if(ep[0]==findme) return ep[1];
+    ep+=2;
+  }
+  return NOTE_NOT_FOUND;
+}
+
+// ...
+
+Hertz = find_elf_note(AT_CLKTCK);
+
+/////////////////////////////////////////////////////
+
+Don't trust any _sysconf() junk. It's broken.
+
+> You may even change HZ on a running Solaris system.... the
+> only programs that are affected may be the ones that have
+> timeouts while the change has been done.
+
+Cute. It's bloat though, because it turns constant
+expressions into variable ones.
+
+> The problem is that the timeouts in the SCSI interface are
+> based on HZ rather than being abstract from kernel internals.
+
+That's a bug. They should be in terms of USER_HZ,
+milliseconds, centiseconds, microseconds, or nanoseconds.
+Pick something good and make a patch.
+
+

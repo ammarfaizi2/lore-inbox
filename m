@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261309AbSIZOxQ>; Thu, 26 Sep 2002 10:53:16 -0400
+	id <S261302AbSIZOvF>; Thu, 26 Sep 2002 10:51:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261314AbSIZOxQ>; Thu, 26 Sep 2002 10:53:16 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:3231 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261309AbSIZOxP>; Thu, 26 Sep 2002 10:53:15 -0400
-Date: Thu, 26 Sep 2002 11:58:14 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Lightweight Patch Manager <patch@luckynet.dynu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Tomas Szepe <szepe@pinerecords.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH][2.5] Single linked lists for Linux,v2
-In-Reply-To: <Pine.LNX.4.44.0209260033420.7827-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44L.0209261157291.15154-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261314AbSIZOvF>; Thu, 26 Sep 2002 10:51:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58890 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261302AbSIZOvE>;
+	Thu, 26 Sep 2002 10:51:04 -0400
+Date: Thu, 26 Sep 2002 15:56:18 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Greg Ungerer <gerg@snapgear.com>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: 2.5.38uc1 (MMU-less support)
+Message-ID: <20020926155618.D5179@parcelfarce.linux.theplanet.co.uk>
+References: <20020925151943.B25721@parcelfarce.linux.theplanet.co.uk> <3D927278.6040205@snapgear.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D927278.6040205@snapgear.com>; from gerg@snapgear.com on Thu, Sep 26, 2002 at 12:35:36PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Sep 2002, Thunder from the hill wrote:
+On Thu, Sep 26, 2002 at 12:35:36PM +1000, Greg Ungerer wrote:
+> BTW, the original this came from is in the kernel tree
+> at arch/ppc/8xx_io/fec.c.
 
-> I'm aware of that possibility. What would you initialize it to, if not
-> the list itself? (And BTW, anyone have a solution for slist_add()?)
+Heh.. looks like that driver should move to drivers/net too.
 
-If I were you, I'd take a large piece of paper and make
-a drawing of what the data structure looks like and what
-the various macros/functions are supposed to do.
+> I don't think this will work. This is not a device that can be
+> determined to be present like a PCI device. It is more like an
+> ISA device, it needs to be probed to figure out if it is really
+> there. I can't see any way not to use Space.c for non-auto-detectable
+> type devices... (Offcourse I could be missing something :-)
 
-That should make things easier.
+Sure you can use module_init for non-pci devices... look at 3c501.c and
+3c59x.c for examples.
 
-regards,
-
-Rik
 -- 
-A: No.
-Q: Should I include quotations after my reply?
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Revolutions do not require corporate support.

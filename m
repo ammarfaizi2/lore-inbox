@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265320AbTBKEIj>; Mon, 10 Feb 2003 23:08:39 -0500
+	id <S265880AbTBKEJy>; Mon, 10 Feb 2003 23:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265880AbTBKEIj>; Mon, 10 Feb 2003 23:08:39 -0500
-Received: from impact.colo.mv.net ([199.125.75.20]:1970 "EHLO
-	impact.colo.mv.net") by vger.kernel.org with ESMTP
-	id <S265320AbTBKEIi>; Mon, 10 Feb 2003 23:08:38 -0500
-Message-ID: <3E487974.3080306@bogonomicon.net>
-Date: Mon, 10 Feb 2003 22:17:56 -0600
-From: Bryan Andersen <bryan@bogonomicon.net>
-Organization: Bogonomicon
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: walt <wa1ter@hotmail.com>
-Subject: Re: 2.4.21-pre4-ac3 hangs at reboot
-References: <3E47E257.3000904@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S265936AbTBKEJx>; Mon, 10 Feb 2003 23:09:53 -0500
+Received: from h80ad257a.async.vt.edu ([128.173.37.122]:45440 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S265880AbTBKEJo>; Mon, 10 Feb 2003 23:09:44 -0500
+Message-Id: <200302110418.h1B4IbjB002565@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6 02/09/2003 with nmh-1.0.4+dev
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Frank Davis <fdavis@si.rr.com>,
+       Vineet M Abraham <vmabraham@hotmail.com>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, brand@eeyore.valparaiso.cl
+Subject: Re: [PATCH] 2.5.59 : drivers/net/fc/iph5526.c 
+In-Reply-To: Your message of "Mon, 10 Feb 2003 14:01:13 +0100."
+             <200302101301.h1AD1DE2001067@eeyore.valparaiso.cl> 
+From: Valdis.Kletnieks@vt.edu
+References: <200302101301.h1AD1DE2001067@eeyore.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-990700808P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Feb 2003 23:18:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You're not the only one hitting this.  My symptoms seam identicle to 
-yours.
+--==_Exmh_-990700808P
+Content-Type: text/plain; charset=us-ascii
 
-What do you notice about the order of messages in relationship to how 
-they were ordered pre 2.4.21-pre4-ac2?  Before I would see all the 
-shutdown messages then "flushing ide" then the reboot or power down 
-message.  Now the reboot or power down message shows up before or 
-durring the md raid device shutdown.  Then I get the flushing ide 
-mesasage and it dies part way through.
+On Mon, 10 Feb 2003 14:01:13 +0100, Horst von Brand said:
+> Rusty Russell <rusty@rustcorp.com.au> said:
+> 
+> [...]
+> 
+> > > -	for (i = 0; i < clone_list[i].vendor_id != 0; i++)
+> 
+> i < clone_list[i].vendor_id != 0 is (i < clone_list[i].vendor_id) != 0 is
+> just i < clone_list[i].vendor_id, so the for is done for i = 0 and possibly
+> for 1. Getting this effect (if desired) with an if is a load clearer.
 
-walt wrote:
-> Hi Alan,
-> 
-> Actually this problem started with ac2.  All seems to work well until I
-> reboot the machine with 'shutdown' or 'reboot' or 'ctl-alt-del'.
-> 
-> The machine shuts down properly to the point where all filesystems
-> are remounted readonly, which is the point where I normally see an
-> immediate reboot.  Starting with pre4-ac2 I just get an indefinite
-> hang instead of the reboot.
-> 
-> The terminal driver still seems to work because I can use the
-> ctl-alt-Fx keys to switch to other pseudo-terminals but the login
-> process is already gone so I can't actually do anything at the
-> login prompts.  It takes a hard reset to complete the reboot,
-> after which the machine comes up normally with clean filesystems.
-> 
-> I see this on three different machines with different motherboards
-> and CPU's [K6-2, athlon, athlon-xp], two VIA chipsets and one SiS.
-> 
-> No error messages print anywhere, so I'm not sure how to debug.
-> Do you need a kernel config file or dmesg output?
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+However, looking at the definition of clone_list[], it's pretty obvious
+that this was intended:
+
+    for (i=0; clone_list[i].vendor_id != 0; i++) {...
+
+It's searching through a zero-terminated table of vendor_id's.
+
+It's possible it started off life as
+     i < sizeof(clone_list) && clone_list[i].vendor_id != 0
+
+or some such.  
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
 
+--==_Exmh_-990700808P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+SHmccC3lWbTT17ARArCmAJ40SoREERsBG+ZlERr/d+QmX3G1xgCg0AOc
+rr3fyyyVfvIJnx9ceHHMBqU=
+=MccP
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-990700808P--

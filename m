@@ -1,41 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbTLXUd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 15:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTLXUd4
+	id S263834AbTLXUlF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 15:41:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263840AbTLXUlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 15:33:56 -0500
-Received: from dukat.upl.cs.wisc.edu ([128.105.45.39]:49869 "EHLO
-	dukat.upl.cs.wisc.edu") by vger.kernel.org with ESMTP
-	id S262731AbTLXUdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 15:33:55 -0500
-Date: Wed, 24 Dec 2003 14:33:54 -0600 (CST)
-From: Ben Srour <srour@cs.wisc.edu>
-X-X-Sender: srour@data.upl.cs.wisc.edu
-To: linux-kernel@vger.kernel.org
-Subject: Safe ISA port probing?
-In-Reply-To: <20031224200433.GC6577@kroah.com>
-Message-ID: <Pine.LNX.4.44.0312241431280.2726-100000@data.upl.cs.wisc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Dec 2003 15:41:05 -0500
+Received: from NPRI54MAI02.Npt.NUWC.Navy.Mil ([164.223.1.101]:16648 "EHLO
+	npri54mai02.npt.nuwc.navy.mil") by vger.kernel.org with ESMTP
+	id S263834AbTLXUlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 15:41:03 -0500
+Date: Wed, 24 Dec 2003 15:40:56 -0500
+From: Pacheco Jason NPRI <PachecoJ@Npt.NUWC.Navy.Mil>
+Subject: RE: linux kernel scheduler
+To: " (linux-kernel@vger.kernel.org)" <linux-kernel@vger.kernel.org>
+Message-id: <3BEEE23D31CAD2118D920008C75D8946059FF5A2@NPRI54EXC21.NPT.NUWC.NAVY.MIL>
+MIME-version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> is it this one?  I'm looking for such a book that covers the 
+> 2.6 kernel
+> 
+> http://www.amazon.com/exec/obidos/tg/detail/-/0672325128/qid=1
+> 072294583//ref=sr_8_xs_ap_i0_xgl14/002-2050823-6096828?v=glanc
+> e&s=books&n=507846
 
-What is the safest way to go about probing for non-pnp ISA devices on a
-system?
-
-Is the only solution to start at a base address and increment until you
-find something interesting? Won't this put devices along the way in an
-unsafe state?
-
-Any advice/suggestions would be appreciated,
-
-Thanks
-Ben
-
--- 
-Ben Srour
-srour@cs.wisc.edu
-
+Yes that's the one.

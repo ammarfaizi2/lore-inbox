@@ -1,74 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284950AbRLFCzA>; Wed, 5 Dec 2001 21:55:00 -0500
+	id <S284951AbRLFDCK>; Wed, 5 Dec 2001 22:02:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284951AbRLFCyu>; Wed, 5 Dec 2001 21:54:50 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:18563 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S284950AbRLFCyp>; Wed, 5 Dec 2001 21:54:45 -0500
-Message-ID: <3C0EDDC2.608@optonline.net>
-Date: Wed, 05 Dec 2001 21:53:54 -0500
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA1CC.1070408@redhat.com> <3C0DAD26.1020906@optonline.net> <3C0DAF35.50008@redhat.com> <3C0E7DCB.6050600@optonline.net> <3C0E7DFB.2030400@optonline.net> <3C0E7F1C.4060603@redhat.com> <3C0E8DBF.5010000@optonline.net> <3C0E90B2.1030601@redhat.com> <3C0EB1F2.7050007@optonline.net> <3C0EB46C.4010806@optonline.net> <3C0EBAEF.5090402@redhat.com> <3C0EC219.8010107@redhat!
- .com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S284952AbRLFDCB>; Wed, 5 Dec 2001 22:02:01 -0500
+Received: from mplspop4.mpls.uswest.net ([204.147.80.14]:10763 "HELO
+	mplspop4.mpls.uswest.net") by vger.kernel.org with SMTP
+	id <S284951AbRLFDB4>; Wed, 5 Dec 2001 22:01:56 -0500
+Date: Wed, 5 Dec 2001 21:01:54 -0600
+Message-ID: <20011206030154.GA5979@iucha.net>
+From: "Florin Iucha" <florin@iucha.net>
+To: linux-kernel@vger.kernel.org
+Cc: faith@acm.org
+Subject: Adaptec-2920 eats too much cpu time when reading from the CD-ROM
+Mail-Followup-To: linux-kernel@vger.kernel.org, faith@acm.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-as evidenced by,
+Hello,
 
+I have recently purchased a Plextor 12x CD-RW and I have attached it to
+and Adaptec-2920 SCSI card. The card uses the "Future Domain Corp. TMC-18C30
+[36C70]" chip.
 
-        /* if we are currently stopped, then our CIV is actually set to our
-         * *last* sg segment and we are ready to wrap to the next.  However,
-         * if we set our LVI to the last sg segment, then it won't wrap to
-         * the next sg segment, it won't even get a start.  So, instead, 
-when
-         * we are stopped, we set both the LVI value and also we increment
-         * the CIV value to the next sg segment to be played so that when
-         * we call start_{dac,adc}, things will operate properly
-         */
-        if (!dmabuf->enable) {
-#ifdef DEBUG_MMAP
-                printk("fnord? %d\n", inb(port+OFF_CIV));
-#endif
-                /* maybe we have to increment LVI to make room before 
-incrementing CIV,
-                   (databook says CELV isn't cleared until new val written
-                    to LVI.)
-                   we'll set LVI where we really want it down below. */
-                //outb((inb(port+OFF_LVI)+1)&31, port+OFF_LVI);
-                newciv = (inb(port+OFF_CIV)+1)&31;
-                outb(newciv, port+OFF_CIV);
-                for (x = 0; inb(port+OFF_CIV) != newciv && x< 5000000; x++);
-                if (x==5000000) printk("foo! civ != %d\n", newciv);
-        }
+The problem I see: when reading from the CD-RW my system becomes very
+unresponsive and top reveals 90-95% of the time is spent on "system".
+My CPU is AMD K6-III/500MHz with 256 Mb RAM.
 
-and
+When reading the same CD using the IDE DVD-ROM the time spent in system
+is 5%. Also when the CD-RW is connected to the Advansys SCSI controller
+the CPU usage is also negligible. The Adaptec-2920 uses IRQ 10 and does
+not share it with any other board.
 
-Dec  5 21:34:32 lasn-001 kernel: foo! civ != 1
+I notice an unusual number of interrupts in /proc/interrupts: after the
+machine has been up for a couple of hours and I have written three CDs,
+the statistics are:
+          CPU0       
+ 0:     638458          XT-PIC  timer
+ 1:      15325          XT-PIC  keyboard
+ 2:          0          XT-PIC  cascade
+ 5:          0          XT-PIC  es1371
+ 8:          1          XT-PIC  rtc
+ 9:      17004          XT-PIC  usb-uhci
+10:    3032143          XT-PIC  fdomain
+11:      58021          XT-PIC  advansys
+12:    2995779          XT-PIC  eth0
+14:     107542          XT-PIC  ide0
+15:       6895          XT-PIC  ide1
 
-CIV doesn't seem to respond to writes on my chipset, at least not in 
-this situation. you'll note that nowhere in the driver are we 
-initializing CIV to anything other than 0 anyway.
+When loading the fdomain module I get:
+   scsi1: <fdomain> No BIOS; using scsi id 7
+   scsi1: <fdomain> TMC-36C70 (PCI bus) chip at 0xdc00 irq 10
+   Bad boy: fdomain (at 0xd08b7866) called us without a dev_id!
 
-two alternatives I can think of:
+Is there anything I can try?
 
-first fix:
-set LVI to desired value minus one SG
-start_dac (which should have side effect of incrementing CIV by one)
-increment LVI to desired value
+Thanks,
+florin
 
-2nd fix:
-back off and perform DMA reset.
+-- 
 
-3rd fix (really fix 1a ;)
-just don't allow use of the last SG when restarting
+"If it's not broken, let's fix it till it is."
 
+41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4

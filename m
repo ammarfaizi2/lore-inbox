@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316158AbSGASnh>; Mon, 1 Jul 2002 14:43:37 -0400
+	id <S316187AbSGASqM>; Mon, 1 Jul 2002 14:46:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316161AbSGASnh>; Mon, 1 Jul 2002 14:43:37 -0400
-Received: from msp-65-29-25-149.mn.rr.com ([65.29.25.149]:42627 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S316158AbSGASnf>; Mon, 1 Jul 2002 14:43:35 -0400
-Date: Mon, 1 Jul 2002 13:45:28 -0500
-From: Shawn <core@enodev.com>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] Module removal
-Message-ID: <20020701134528.A17724@q.mn.rr.com>
-References: <Pine.LNX.3.96.1020701133907.23769A-100000@gatekeeper.tmr.com> <20020701184257.GC1762@localhost>
+	id <S316192AbSGASqL>; Mon, 1 Jul 2002 14:46:11 -0400
+Received: from dingo.clsp.jhu.edu ([128.220.34.67]:43527 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316187AbSGASqK>;
+	Mon, 1 Jul 2002 14:46:10 -0400
+Date: Mon, 1 Jul 2002 04:18:55 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "David S. Miller" <davem@redhat.com>
+Cc: alex@PolesApart.wox.org, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
+Message-ID: <20020701021854.GA829@elf.ucw.cz>
+References: <E17MUf8-00088K-00@the-village.bc.nu> <3D173578.5080205@PolesApart.wox.org> <20020624.080409.79615643.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020701184257.GC1762@localhost>; from linux-kernel@24x7linux.com on Mon, Jul 01, 2002 at 08:42:57PM +0200
+In-Reply-To: <20020624.080409.79615643.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/01, Jose Luis Domingo Lopez said something like:
-> On Monday, 01 July 2002, at 13:48:55 -0400,
-> Bill Davidsen wrote:
+Hi!
+
+>    Maybe I got it the wrong way, but it seems to me that from your point of 
+>    view, as long as proprietary driver is in use, it's not anyone else 
+>    problem but to the vendor, even if the bug could happen to be in the 
+>    kernel, is that right? If so, everyone else in this list who could try 
+>    to fix this (again assuming it could be something related to the kernel 
+>    and not to the proprietary driver) necessarily share your oppinion? (I'm 
+>    not flaming in here, just trying to get the path).
 > 
-> > The suggestion was made that kernel module removal be depreciated or
-> > removed. I'd like to note that there are two common uses for this
-> > capability, and the problems addressed by module removal should be kept in
-> > mind. These are in addition to the PCMCIA issue raised.
-> > 
-> From my non-kernel non-programmer point of view, module removal can be
-> useful under more circunstances than the ones you said. For example,
-> trying some combination of parameters for a module to get you damned
+> This has to do with facts, not opinions.  Since we lack the source to
+> their drivers, we have no idea if some bug in their driver is
+> scribbling over (ie. corrupting) memory.  It is therefore an unknown
+> which makes it a waste of time for us to pursue the bug report.
 
-How about simply upgrading a driver w/out rebooting?
-
---
-Shawn Leas
-core@enodev.com
-
-I planted some bird seed.  A bird came up.  Now I don't know
-what to feed it.
-						-- Stephen Wright
+Actually, then you should taint kernel for starting X, too... Anything
+running with root priviledges can scribble over memory.
+									Pavel 
+PS: Not that I'm advocating nvidia junk, and of course it is way
+easier to cause corruption from kernel.
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

@@ -1,48 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271356AbTHMDj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 23:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271357AbTHMDj4
+	id S271364AbTHMD5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 23:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271365AbTHMD5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 23:39:56 -0400
-Received: from [205.208.236.2] ([205.208.236.2]:50950 "EHLO
-	applegatebroadband.net") by vger.kernel.org with ESMTP
-	id S271356AbTHMDjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 23:39:55 -0400
-Message-ID: <3F39B29C.40802@applegatebroadband.net>
-Date: Tue, 12 Aug 2003 20:38:04 -0700
-From: George Anzinger <george@applegatebroadband.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Tue, 12 Aug 2003 23:57:54 -0400
+Received: from dyn-ctb-210-9-243-246.webone.com.au ([210.9.243.246]:52746 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S271364AbTHMD5w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 23:57:52 -0400
+Message-ID: <3F39B702.7000406@cyberone.com.au>
+Date: Wed, 13 Aug 2003 13:56:50 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-CC: rob@landley.net, Daniel Phillips <phillips@arcor.de>,
-       Eugene Teo <eugene.teo@eugeneteo.net>,
-       LKML <linux-kernel@vger.kernel.org>, kernel@kolivas.org,
-       Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200308061728.04447.rob@landley.net> <200308071642.55517.phillips@arcor.de> <200308071651.07522.rob@landley.net> <3F32C752.4000403@wmich.edu>
-In-Reply-To: <3F32C752.4000403@wmich.edu>
+To: Albert Cahalan <albert@users.sourceforge.net>
+CC: andersen@codepoet.org,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       bernd@firmix.at, Anthony.Truong@mascorp.com, alan@lxorguk.ukuu.org.uk,
+       schwab@suse.de, ysato@users.sourceforge.jp, willy@w.ods.org,
+       Valdis.Kletnieks@vt.edu, william.gallafent@virgin.net
+Subject: Re: generic strncpy - off-by-one error
+References: <1060741101.948.245.camel@cube>	 <20030813024752.GA20369@codepoet.org> <1060745910.948.268.camel@cube>
+In-Reply-To: <1060745910.948.268.camel@cube>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman wrote:
-> >>
-> 
-> the problem is you want a process that works like it was run on a single 
-> tasking OS on an operating system that is built from the ground up to be 
->  a multi-user multi-tasking OS and you want both to work perfectly at 
-> peak performance and you want it to know when you want which to work at 
-> peak performance automatically.
 
-Well said :)
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Albert Cahalan wrote:
 
+>On Tue, 2003-08-12 at 22:47, Erik Andersen wrote:
+>
+>>On Tue Aug 12, 2003 at 10:18:21PM -0400, Albert Cahalan wrote:
+>>
+>>>You're all wrong. This is some kind of programming
+>>>test for sure!
+>>>
+>>>Let us imagine that glibc has a correct version.
+>>>By exhaustive testing, I found a version that works.
+>>>Here it is, along with the test code:
+>>>
+>>>//////////////////////////////////////////////////////
+>>>#define _GNU_SOURCE
+>>>#include <string.h>
+>>>#include <stdlib.h>
+>>>#include <stdio.h>
+>>>
+>>>// first correct implementation!
+>>>char * strncpy_good(char *dest, const char *src, size_t count){
+>>>  char *tmp = dest;
+>>>  memset(dest,'\0',count);
+>>>  while (count-- && (*tmp++ = *src++))
+>>>    ;
+>>>  return dest;
+>>>}
+>>>
+>>char *strncpy(char * s1, const char * s2, size_t n)
+>>{
+>>    register char *s = s1;
+>>    while (n) {
+>>	if ((*s = *s2) != 0) s2++;
+>>	++s;
+>>	--n;
+>>    }
+>>    return s1;
+>>}
+>>
+>
+>That's excellent. On ppc I count 12 instructions,
+>4 of which would go away for typical usage if inlined.
+>Annoyingly, gcc doesn't get the same assembly from my
+>attempt at that general idea:
+>
+>char * strncpy_5(char *dest, const char *src, size_t count){
+>  char *tmp = dest;
+>  while (count--){
+>    if(( *tmp++ = *src )) src++;
+>  }
+>  return dest;
+>}
+>
+>I suppose that gcc could use a bug report.
+>
+
+Its has different semantics though. Well taken as a whole they
+are the same. When your loop finishes, count will be -1.
 
 

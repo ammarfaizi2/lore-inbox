@@ -1,65 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262884AbSJRDvp>; Thu, 17 Oct 2002 23:51:45 -0400
+	id <S262872AbSJRDqO>; Thu, 17 Oct 2002 23:46:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262885AbSJRDvp>; Thu, 17 Oct 2002 23:51:45 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:46351 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262884AbSJRDvo>;
-	Thu, 17 Oct 2002 23:51:44 -0400
-Date: Thu, 17 Oct 2002 20:57:20 -0700
-From: Greg KH <greg@kroah.com>
-To: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "Patterson, David H" <david.h.patterson@intel.com>,
-       "Carbonari, Steven" <steven.carbonari@intel.com>,
-       "Abel, Michael J" <michael.j.abel@intel.com>,
-       "Tarabini, Anthony" <anthony.tarabini@intel.com>,
-       "'andreasW@ati.com'" <andreasW@ati.com>,
-       "Abdul-Khaliq, Rushdan" <rushdan.abdul-khaliq@intel.com>
-Subject: Re: [PATCH] GART driver support for generic AGP 3.0 device detection/ enabling & Intel 7505 chipset support
-Message-ID: <20021018035720.GA3326@kroah.com>
-References: <D1C0BF20D4AFD411AB98009027AE99881167C7BF@fmsmsx40.fm.intel.com>
+	id <S262873AbSJRDqO>; Thu, 17 Oct 2002 23:46:14 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:5904 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S262872AbSJRDqK>; Thu, 17 Oct 2002 23:46:10 -0400
+Date: Fri, 18 Oct 2002 12:52:23 +0900 (JST)
+Message-Id: <20021018.125223.130322644.yoshfuji@linux-ipv6.org>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+CC: usagi@linux-ipv6.org
+Subject: [PATCH] IPv6: Sevaral MLD Fixes
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on XEmacs 21.4.6 (Common Lisp)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D1C0BF20D4AFD411AB98009027AE99881167C7BF@fmsmsx40.fm.intel.com>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 11:13:19AM -0700, Tolentino, Matthew E wrote:
-> Attached is a patch for generic AGP 3.0 device detection and enabling
-> routines as well as specific support for the Intel 7505 chipset against the
-> 2.5.43 kernel.   
+Hi,
 
-Just a minor comment:
+This patch fixes three points.
+ 1. Check address in MLD Query if it is acceptable
+     - unspecified address for General Query
+     - multicast address for Multicast-Address-Specific Queries
+    Otherwise, ignore it.
+ 2. send MLD for link-local addresses (except for link-local scope
+    all nodes address).
+ 3. Don't send MLD for 0(reserved) scope addresses.
 
+Patch is against linux-2.4.20-pre11.
 
-diff -urN linux-2.5.43-vanilla/drivers/char/agp/Makefile linux-2.5.43/drivers/char/agp/Makefile
---- linux-2.5.43-vanilla/drivers/char/agp/Makefile	Tue Oct 15 20:27:49 2002
-+++ linux-2.5.43/drivers/char/agp/Makefile	Thu Oct 17 10:12:41 2002
-@@ -3,12 +3,13 @@
- # space ioctl interface to use agp memory.  It also adds a kernel interface
- # that other drivers could use to manipulate agp memory.
+Thanks is advance.
+
+-------------------------------------------------------------------
+Patch-Name: Several MLD Fixes
+Patch-Id: FIX_2_4_20_pre11_MLD-20021018
+Patch-Author: YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
+Credit: YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
+Reference: RFC2710
+-------------------------------------------------------------------
+Index: include/net/addrconf.h
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux24/include/net/addrconf.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 addrconf.h
+--- include/net/addrconf.h	2002/08/20 09:46:45	1.1.1.1
++++ include/net/addrconf.h	2002/10/17 17:55:52
+@@ -191,5 +191,21 @@
+ 	return (addr->s6_addr32[0] & __constant_htonl(0xFF000000)) == __constant_htonl(0xFF000000);
+ }
  
--export-objs := agp.o
-+export-objs := agp.o agp3.o
++static inline int ipv6_addr_is_ll_all_nodes(const struct in6_addr *addr)
++{
++	return (addr->s6_addr32[0] == htonl(0xff020000) &&
++		addr->s6_addr32[1] == 0 &&
++		addr->s6_addr32[2] == 0 &&
++		addr->s6_addr32[3] == htonl(0x00000001));
++}
++
++static inline int ipv6_addr_is_ll_all_routers(const struct in6_addr *addr)
++{
++	return (addr->s6_addr32[0] == htonl(0xff020000) &&
++		addr->s6_addr32[1] == 0 &&
++		addr->s6_addr32[2] == 0 &&
++		addr->s6_addr32[3] == htonl(0x00000002));
++}
++
+ #endif
+ #endif
+Index: include/net/ipv6.h
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux24/include/net/ipv6.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 ipv6.h
+--- include/net/ipv6.h	2002/08/20 09:46:45	1.1.1.1
++++ include/net/ipv6.h	2002/10/17 17:55:52
+@@ -74,6 +74,20 @@
+ #define IPV6_ADDR_RESERVED	0x2000U	/* reserved address space */
  
--agpgart-y := agp.o frontend.o
-+agpgart-y := agp.o agp3.o frontend.o 
+ /*
++ *	Addr scopes
++ */
++#ifdef __KERNEL__
++#define IPV6_ADDR_MC_SCOPE(a)	\
++	((a)->s6_addr[1] & 0x0f)	/* nonstandard */
++#define __IPV6_ADDR_SCOPE_INVALID	-1
++#endif
++#define IPV6_ADDR_SCOPE_NODELOCAL	0x01
++#define IPV6_ADDR_SCOPE_LINKLOCAL	0x02
++#define IPV6_ADDR_SCOPE_SITELOCAL	0x05
++#define IPV6_ADDR_SCOPE_ORGLOCAL	0x08
++#define IPV6_ADDR_SCOPE_GLOBAL		0x0e
++
++/*
+  *	fragmentation header
+  */
  
- agpgart-$(CONFIG_AGP_INTEL)	+= i8x0-agp.o
- agpgart-$(CONFIG_AGP_I810)	+= i810-agp.o
-+agpgart-$(CONFIG_AGP_I7505)	+= i7505-agp.o
- agpgart-$(CONFIG_AGP_VIA)	+= via-agp.o
- agpgart-$(CONFIG_AGP_AMD)	+= amd-agp.o
- agpgart-$(CONFIG_AGP_SIS)	+= sis-agp.o
-
-
-You should probably not build agp3.o unless i7505-agp.o is built too, or
-do some of the other drivers need functions in agp3.c?
-
-
-thanks,
-
-greg k-h
+Index: net/ipv6/mcast.c
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux24/net/ipv6/mcast.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.1.1.1.32.3
+diff -u -r1.1.1.1 -r1.1.1.1.32.3
+--- net/ipv6/mcast.c	2002/08/20 09:47:02	1.1.1.1
++++ net/ipv6/mcast.c	2002/10/17 17:53:59	1.1.1.1.32.3
+@@ -18,6 +18,9 @@
+ /* Changes:
+  *
+  *	yoshfuji	: fix format of router-alert option
++ *	YOSHIFUJI Hideaki @USAGI:
++ *		- Ignore Queries for invalid addresses.
++ *		- MLD for link-local addresses.
+  */
+ 
+ #define __NO_VERSION__
+@@ -405,6 +408,7 @@
+ 	unsigned long resptime;
+ 	struct inet6_dev *idev;
+ 	struct icmp6hdr *hdr;
++	int addr_type;
+ 
+ 	if (!pskb_may_pull(skb, sizeof(struct in6_addr)))
+ 		return -EINVAL;
+@@ -420,6 +424,11 @@
+ 	resptime = (resptime<<10)/(1024000/HZ);
+ 
+ 	addrp = (struct in6_addr *) (hdr + 1);
++	addr_type = ipv6_addr_type(addrp);
++
++	if (addr_type != IPV6_ADDR_ANY &&
++	    !(addr_type&IPV6_ADDR_MULTICAST))
++		return -EINVAL;
+ 
+ 	idev = in6_dev_get(skb->dev);
+ 
+@@ -427,7 +436,7 @@
+ 		return 0;
+ 
+ 	read_lock(&idev->lock);
+-	if (ipv6_addr_any(addrp)) {
++	if (addr_type == IPV6_ADDR_ANY) {
+ 		for (ma = idev->mc_list; ma; ma=ma->next)
+ 			igmp6_group_queried(ma, resptime);
+ 	} else {
+@@ -566,11 +575,9 @@
+ static void igmp6_join_group(struct ifmcaddr6 *ma)
+ {
+ 	unsigned long delay;
+-	int addr_type;
+-
+-	addr_type = ipv6_addr_type(&ma->mca_addr);
+ 
+-	if ((addr_type & (IPV6_ADDR_LINKLOCAL|IPV6_ADDR_LOOPBACK)))
++	if (IPV6_ADDR_MC_SCOPE(&ma->mca_addr) < IPV6_ADDR_SCOPE_LINKLOCAL ||
++	    ipv6_addr_is_ll_all_nodes(&ma->mca_addr))
+ 		return;
+ 
+ 	igmp6_send(&ma->mca_addr, ma->idev->dev, ICMPV6_MGM_REPORT);
+@@ -592,10 +599,9 @@
+ static void igmp6_leave_group(struct ifmcaddr6 *ma)
+ {
+ 	int addr_type;
+-
+-	addr_type = ipv6_addr_type(&ma->mca_addr);
+ 
+-	if ((addr_type & IPV6_ADDR_LINKLOCAL))
++	if (IPV6_ADDR_MC_SCOPE(&ma->mca_addr) < IPV6_ADDR_SCOPE_LINKLOCAL ||
++	    ipv6_addr_is_ll_all_nodes(&ma->mca_addr))
+ 		return;
+ 
+ 	if (ma->mca_flags & MAF_LAST_REPORTER)

@@ -1,62 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261970AbTDAB1V>; Mon, 31 Mar 2003 20:27:21 -0500
+	id <S261994AbTDABep>; Mon, 31 Mar 2003 20:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261972AbTDAB1V>; Mon, 31 Mar 2003 20:27:21 -0500
-Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:53742 "EHLO
-	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id <S261970AbTDAB1T> convert rfc822-to-8bit; Mon, 31 Mar 2003 20:27:19 -0500
-From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Query about SIS963 Bridges
-Date: Tue, 1 Apr 2003 03:38:14 +0200
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200304010338.14233.volker.hemmann@heim9.tu-clausthal.de>
+	id <S261997AbTDABep>; Mon, 31 Mar 2003 20:34:45 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:994 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id <S261994AbTDABen>;
+	Mon, 31 Mar 2003 20:34:43 -0500
+Date: Mon, 31 Mar 2003 17:45:43 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Daniel Pittman <daniel@rimspace.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Delaying writes to disk when there's no need
+Message-Id: <20030331174543.374030ba.akpm@digeo.com>
+In-Reply-To: <87pto7f1ad.fsf@enki.rimspace.net>
+References: <slrnb843gi.2tt.usenet@bender.home.hensema.net>
+	<20030328231248.GH5147@zaurus.ucw.cz>
+	<slrnb8gbfp.1d6.erik@bender.home.hensema.net>
+	<3E8845A8.20107@aitel.hist.no>
+	<3E88BAF9.8040100@cyberone.com.au>
+	<20030331144500.17bf3a2e.akpm@digeo.com>
+	<87el4ngi8l.fsf@enki.rimspace.net>
+	<20030331170927.013a0d4a.akpm@digeo.com>
+	<87pto7f1ad.fsf@enki.rimspace.net>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Apr 2003 01:46:01.0216 (UTC) FILETIME=[72ED4800:01C2F7F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Daniel Pittman <daniel@rimspace.net> wrote:
+>
+> > What do you think?
+> 
+> I will apply the patch and test later today.  This, however, looks like
+> a *really* good thing to me.
 
- please cc me, bcause I am not suscribed to lkml.
+I think so too.
 
-I have an Asrock K7S8X with such a 746FX/963l combo.
+A possible enhancement is to only do the flush if the backing queue is not
+write-congested.  So the syscall will very probably be async.  If the queue
+is write congested then it's a sure bet that someone else is saturating the
+disk ayway.  We don't want to block in that case.
 
-Networking, IDE is working fine, I am able to access the pci soundcard and a 
-hotrod 66 controller. Even watching Tv is fine.
 
-I am burning cds and have no problems to access an usb-stick.
+ 25-akpm/include/linux/fs.h |    1 +
+ 25-akpm/mm/fadvise.c       |    2 ++
+ 25-akpm/mm/filemap.c       |   18 ++++++++++++++++--
+ 3 files changed, 19 insertions(+), 2 deletions(-)
 
-The only setback is missing support in the agpgart, crippling 3d and problems 
-with dga.
+diff -puN include/linux/fs.h~fadvise-flush-data include/linux/fs.h
+--- 25/include/linux/fs.h~fadvise-flush-data	Mon Mar 31 17:03:39 2003
++++ 25-akpm/include/linux/fs.h	Mon Mar 31 17:43:45 2003
+@@ -1112,6 +1112,7 @@ unsigned long invalidate_inode_pages(str
+ extern void invalidate_inode_pages2(struct address_space *mapping);
+ extern void write_inode_now(struct inode *, int);
+ extern int filemap_fdatawrite(struct address_space *);
++extern int filemap_flush(struct address_space *);
+ extern int filemap_fdatawait(struct address_space *);
+ extern void sync_supers(void);
+ extern void sync_filesystems(int wait);
+diff -puN mm/fadvise.c~fadvise-flush-data mm/fadvise.c
+--- 25/mm/fadvise.c~fadvise-flush-data	Mon Mar 31 17:03:39 2003
++++ 25-akpm/mm/fadvise.c	Mon Mar 31 17:44:49 2003
+@@ -61,6 +61,8 @@ long sys_fadvise64(int fd, loff_t offset
+ 			ret = 0;
+ 		break;
+ 	case POSIX_FADV_DONTNEED:
++		if (!bdi_write_congested(mapping->backing_dev_info))
++			filemap_flush(mapping);
+ 		invalidate_mapping_pages(mapping, offset >> PAGE_CACHE_SHIFT,
+ 				(len >> PAGE_CACHE_SHIFT) + 1);
+ 		break;
+diff -puN mm/filemap.c~fadvise-flush-data mm/filemap.c
+--- 25/mm/filemap.c~fadvise-flush-data	Mon Mar 31 17:03:39 2003
++++ 25-akpm/mm/filemap.c	Mon Mar 31 17:03:39 2003
+@@ -122,11 +122,11 @@ static inline int sync_page(struct page 
+  * if a dirty page/buffer is encountered, it must be waited upon, and not just
+  * skipped over.
+  */
+-int filemap_fdatawrite(struct address_space *mapping)
++static int __filemap_fdatawrite(struct address_space *mapping, int sync_mode)
+ {
+ 	int ret;
+ 	struct writeback_control wbc = {
+-		.sync_mode = WB_SYNC_ALL,
++		.sync_mode = sync_mode,
+ 		.nr_to_write = mapping->nrpages * 2,
+ 	};
+ 
+@@ -140,6 +140,20 @@ int filemap_fdatawrite(struct address_sp
+ 	return ret;
+ }
+ 
++int filemap_fdatawrite(struct address_space *mapping)
++{
++	return __filemap_fdatawrite(mapping, WB_SYNC_ALL);
++}
++
++/*
++ * This is a mostly non-blocking flush.  Not suitable for data-integrity
++ * purposes.
++ */
++int filemap_flush(struct address_space *mapping)
++{
++	return __filemap_fdatawrite(mapping, WB_SYNC_NONE);
++}
++
+ /**
+  * filemap_fdatawait - walk the list of locked pages of the given address
+  *                     space and wait for all of them.
 
-Kernel is gentoo's 2.4.20-gaming, an 2.5.66-mm1 was even able to boot, but had 
-a panic, killing the interrupt handler when loading modules.
-
-ACPI and Local APIC is inabled, enablic IO-APIC gives lost interrupts for the 
-Hotrod.
-
-If desired I can test different kernels, send the output of dmesg etc.
-
-My Hardware:
-
-AMD Xp 2000+
-Asrock K7S8X
-2x256mb ram
-Geforce 4mx 440 (Agp 4x)
-Abit Hotrod 66 udma 66 controller  (one hd at each channel)
-Terratec Tv+
-C-Media 8738 based soundcard.
-
-2 hardrives on ide 0
-1 cdrw-drive and 1 dvd at ide1
-1 usb 1.1 256mb flash stick.
-
-Glück Auf,
-Volker
-
+_
 

@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbUANSbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 13:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUANSbQ
+	id S262228AbUANSaK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 13:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbUANS2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 13:31:16 -0500
-Received: from host.globalsecureserver.com ([209.239.37.116]:6859 "EHLO
-	host.globalsecureserver.com") by vger.kernel.org with ESMTP
-	id S262164AbUANSal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 13:30:41 -0500
-Message-ID: <40058AC2.4040505@hotmail.com>
-Date: Wed, 14 Jan 2004 12:30:26 -0600
-From: Dick Hollenbeck <spamless@hotmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: User Mode Linux Patches for 2.6
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Jan 2004 13:28:44 -0500
+Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:58884 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S263370AbUANS2j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 13:28:39 -0500
+Date: Wed, 14 Jan 2004 19:30:40 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: [PATCH 2.4] i2c cleanups, third wave
+Message-Id: <20040114193040.6606813f.khali@linux-fr.org>
+In-Reply-To: <20040112014840.GE17845@matchmail.com>
+References: <20040111144214.7a6a4e59.khali@linux-fr.org>
+	<20040112014840.GE17845@matchmail.com>
+Reply-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some of the news blips about 2.6 said the UML was integrated into the 
-kernel.  Yet I see some UML patches for 2.6?  Under what circumstances 
-must the 2.6 kernel be patched to compile a UML guest kernel?
+> How about some patches to add some more sensors to the 2.4 kernel,
+> like the ones already in 2.6?
 
+The 2.4 kernel has reached a maintainance-only point so there is no way
+lm_sensors could be officially merged into it now, especially since the
+i2c layer itself would have to be significantly reworked before.
 
+So your options are either to patch your 2.4 tree using the i2c patch
+and additional drivers we provide, or to jump to Linux 2.6.
+
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

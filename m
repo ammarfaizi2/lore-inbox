@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267312AbUINXYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUINX23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267312AbUINXYT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 19:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUINXYP
+	id S265044AbUINX23 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 19:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266733AbUINX22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 19:24:15 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:58014 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S267312AbUINXVZ (ORCPT
+	Tue, 14 Sep 2004 19:28:28 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:9403 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S265044AbUINX10 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 19:21:25 -0400
-Date: Wed, 15 Sep 2004 01:21:16 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [no patch] broken use of mm_release / deactivate_mm
-Message-ID: <20040914232116.GA14580@apps.cwi.nl>
-References: <20040913190633.GA22639@apps.cwi.nl> <Pine.LNX.4.58.0409131224440.2378@ppc970.osdl.org> <4146E6F0.5030405@yahoo.com.au> <Pine.LNX.4.58.0409140803090.2378@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Sep 2004 19:27:26 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Dave Airlie <airlied@linux.ie>
+Subject: Re: [PATCH] DRM: add missing pci_enable_device()
+Date: Tue, 14 Sep 2004 17:27:15 -0600
+User-Agent: KMail/1.6.2
+Cc: dri-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       Evan Paul Fletcher <evanpaul@gmail.com>, linux-kernel@vger.kernel.org
+References: <200409131651.05059.bjorn.helgaas@hp.com> <200409140845.59389.bjorn.helgaas@hp.com> <Pine.LNX.4.58.0409150008130.23838@skynet>
+In-Reply-To: <Pine.LNX.4.58.0409150008130.23838@skynet>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409140803090.2378@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409141727.15643.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 08:06:14AM -0700, Linus Torvalds wrote:
+On Tuesday 14 September 2004 5:12 pm, Dave Airlie wrote:
+> > OK, I'll assume you understand the issue and will resolve it.  In the
+> > meantime, users of DRM will have to supply "pci=routeirq".
+> 
+> is this -mm only or is it mainline kernel stuff now?
 
-> Does everybody also agree that ... mmput() does all of that correctly too?
+It's been in -mm for about a month so far, and it still
+needs some cooking before it's ready for mainline.  The
+remaining issues are:
 
-I think so, but do not have time to check all details.
+	- nvidia: Nvidia posted a patch for the open-source part
+		of their driver, but we'll likely have to keep
+		the "pci=routeirq" option longer than I originally
+		hoped.
+	- swsusp: Some devices like prism54, USB don't
+		work after suspend/resume.  Prototype patch
+		being tested.  I suspect we'll trip over
+		more issues here, because the resume hooks
+		are poorly documented and inconsistently
+		implemented.
+	- DRI: Sounds like you can do the trivial "enable-only"
+		change that will make things work.
 
+I'm a little surprised that I've only heard one report about
+DRI, actually.
 
-Now the first parameter of mm_release() always is current,
-so that this parameter is superfluous. Similarly, the only
-parameter of exit_mm() always is current, and hence is superfluous.
+> I'll throw an enable in to the bk tree later on....
 
-Maybe it is a good idea to remove the pretense that these routines
-might do something useful for general parameters, now that
-deactivate_mm() does sneaky global things.
-
-Andries
-
+Great, thanks!

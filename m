@@ -1,40 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264766AbSLBRCj>; Mon, 2 Dec 2002 12:02:39 -0500
+	id <S264743AbSLBRFh>; Mon, 2 Dec 2002 12:05:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264856AbSLBRCj>; Mon, 2 Dec 2002 12:02:39 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:9150 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S264766AbSLBRCj>;
-	Mon, 2 Dec 2002 12:02:39 -0500
-Date: Mon, 2 Dec 2002 09:06:59 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG]2.5.49-ac1 - more info on make error
-In-Reply-To: <Pine.LNX.4.44.0211271540270.7715-201000@bilbo.tmr.com>
-Message-ID: <Pine.LNX.4.33L2.0212020904210.27194-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264867AbSLBRFh>; Mon, 2 Dec 2002 12:05:37 -0500
+Received: from [198.149.18.6] ([198.149.18.6]:31112 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S264743AbSLBRFe>;
+	Mon, 2 Dec 2002 12:05:34 -0500
+Date: Mon, 2 Dec 2002 19:26:52 -0500
+From: Christoph Hellwig <hch@sgi.com>
+To: marcelo@connectiva.com.br.munich.sgi.com, rml@tech9.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] set_cpus_allowed() for 2.4
+Message-ID: <20021202192652.A25938@sgi.com>
+Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
+	marcelo@connectiva.com.br.munich.sgi.com, rml@tech9.net,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Nov 2002, Bill Davidsen wrote:
+now that all commercial vendors ship a backport of Ingo's O(1) scheduler
+external projects like XFS have to track those projects in addition to the
+mainline kernel.
 
-| Knowing that modules are still broken, I changed all modules to be
-| built-in and dropped all support for modules and retried the compile. I
-| have disabled all but the features I really want to test on the new
-| kernel, so I will not be reducing the features any more.
+Having the common new APIs available in mainline would be a very good thing
+for those projects.  We already have a proper yield() in 2.4.20, but the
+set_cpus_allowed() API as used e.g. for kernelthreads bound to CPUs is
+still missing.
 
-I haven't seen any replies or fixes for this.  Have you?
+Any chance you could apply Robert Love's patch to add it for 2.4.21?  Note
+that it does not change any existing code but just adds that interface.
 
-drivers/built-in.o(.data+0x31e14): undefined reference to `local symbols
-in discarded section .exit.text'
 
-Please visit http://www.kernelnewbies.org/scripts/ and download
-the 'reference-discarded.pl' script, run it, and let us know where the
-problem is.
-
--- 
-~Randy
-
+diff -urN linux-2.4.20-pre8/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.4.20-pre8/include/linux/sched.h	Mon Sep 30 17:41:22 2002
++++ linux/include/linux/sched.h	Tue Oct  1 18:35:28 2002
+@@ -163,6 +164,12 @@
+ extern int start_context_thread(void);
+ extern int current_is_keventd(void);
+ 
++#if CONFIG_SMP
++extern void set_cpus_allowed(struct task_struct *p, unsigned long new_mask);
++#else
++# define set_cpus_allowed(p, new_mask) do { } while (0)
++#endif
++
+ /*
+  * The default fd array needs to be at least BITS_PER_LONG,
+  * as this is the granularity returned by copy_fdset().
+diff -urN linux-2.4.20-pre8/kernel/ksyms.c linux/kernel/ksyms.c
+--- linux-2.4.20-pre8/kernel/ksyms.c	Mon Sep 30 17:41:22 2002
++++ linux/kernel/ksyms.c	Tue Oct  1 18:34:41 2002
+@@ -451,6 +451,9 @@
+ EXPORT_SYMBOL(interruptible_sleep_on_timeout);
+ EXPORT_SYMBOL(schedule);
+ EXPORT_SYMBOL(schedule_timeout);
++#if CONFIG_SMP
++EXPORT_SYMBOL(set_cpus_allowed);
++#endif
+ EXPORT_SYMBOL(yield);
+ EXPORT_SYMBOL(__cond_resched);
+ EXPORT_SYMBOL(jiffies);
+diff -urN linux-2.4.20-pre8/kernel/sched.c linux/kernel/sched.c
+--- linux-2.4.20-pre8/kernel/sched.c	Mon Sep 30 17:41:22 2002
++++ linux/kernel/sched.c	Tue Oct  1 18:54:49 2002
+@@ -850,6 +850,46 @@
+ 
+ void scheduling_functions_end_here(void) { }
+ 
++#if CONFIG_SMP
++
++/**
++ * set_cpus_allowed() - change a given task's processor affinity
++ * @p: task to bind
++ * @new_mask: bitmask of allowed processors
++ *
++ * Upon return, the task is running on a legal processor.  Note the caller
++ * must have a valid reference to the task: it must not exit() prematurely.
++ * This call can sleep; do not hold locks on call.
++ */
++void set_cpus_allowed(struct task_struct *p, unsigned long new_mask)
++{
++	new_mask &= cpu_online_map;
++	BUG_ON(!new_mask);
++
++	p->cpus_allowed = new_mask;
++
++	/*
++	 * If the task is on a no-longer-allowed processor, we need to move
++	 * it.  If the task is not current, then set need_resched and send
++	 * its processor an IPI to reschedule.
++	 */
++	if (!(p->cpus_runnable & p->cpus_allowed)) {
++		if (p != current) {
++			p->need_resched = 1;
++			smp_send_reschedule(p->processor);
++		}
++		/*
++		 * Wait until we are on a legal processor.  If the task is
++		 * current, then we should be on a legal processor the next
++		 * time we reschedule.  Otherwise, we need to wait for the IPI.
++		 */
++		while (!(p->cpus_runnable & p->cpus_allowed))
++			schedule();
++	}
++}
++
++#endif /* CONFIG_SMP */
++
+ #ifndef __alpha__
+ 
+ /*

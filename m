@@ -1,54 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266827AbRIHIyZ>; Sat, 8 Sep 2001 04:54:25 -0400
+	id <S268133AbRIHJOq>; Sat, 8 Sep 2001 05:14:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267043AbRIHIyP>; Sat, 8 Sep 2001 04:54:15 -0400
-Received: from imo-d08.mx.aol.com ([205.188.157.40]:23504 "EHLO
-	imo-d08.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S266827AbRIHIyC>; Sat, 8 Sep 2001 04:54:02 -0400
-From: Floydsmith@aol.com
-Message-ID: <109.548ddae.28cb3697@aol.com>
-Date: Sat, 8 Sep 2001 04:53:43 EDT
-Subject: Re1: LOADLIN and 2.4 kernels
-To: hpa@transmeta.com
-CC: linux-kernel@vger.kernel.org, Floydsmith@aol.com
+	id <S268145AbRIHJOh>; Sat, 8 Sep 2001 05:14:37 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:19777 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S268133AbRIHJOa>; Sat, 8 Sep 2001 05:14:30 -0400
+Date: Sat, 8 Sep 2001 05:14:34 -0400 (EDT)
+From: Francis Galiegue <fg@mandrakesoft.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.9-ac9 bug + patch
+Message-ID: <Pine.LNX.4.30.0109080513360.4681-200000@toy.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: AOL 4.0 for Windows 95 sub 14
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463800575-995472036-999940474=:4681"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
->Hi everyone,
->
->I got a bug report of LOADLIN not working with recent -ac kernels, and
->thought it might have something to do with my recent A20 changes that
->were added to -ac.  However, in trying to reproduce this bug, I have
->been completely unable to boot *any* 2.4 kernel with LOADLIN-1.6, trying
->this from Win98 DOS mode.
->
->Anyone have any insight into this?  I really don't understand how the
->A20 changes could affect LOADLIN, and it's starting to look to me that
->there is some other problem going on...
->
->        -hpa
+---1463800575-995472036-999940474=:4681
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 
-You do not specify exactly what your problem is (error message, where, etc.) 
-so I am not sure I can help you or not. I had a problem with 2.2x kernels 
-booting but not any 2.4.x ones with loadlin but only when "initrd" (ramdisk 
-as "root" filesystem) was used. The symptom was the kernel would attempt to 
-load but a insuficient memory error (I think it said you must have at least 
-4MB) then it would hang. If you have this problem and if you exactly 64MB of 
-ram, then what seems to happen is loadlin probes for and finds the correct 
-amount of memory. Then it loads the 2.4.x kernel into a buffer. The kernel 
-then attempts boot just the "boot" sector stuff. This again probes for the 
-total amount of system ram (64MB). But, because of the much greater size of 
-2.4.x kernels some memory location that himem uses (I think - maybe BIOS 
-though) in relation to "memory size determination" gets over wiritten when 
-loadlin filed the "buffer". The only workaround I have found so far for this 
-is to pass on the loadlin command line the extra "boot param" of:
-    mem=64M
-so that the kernel does not probe.
 
-Floyd,
+Also in 2.4.7, 2.4.9, 2.4.9-ac4, 2.4.9-ac6.
+
+fs/locks.c, line 693:
+
+----
+int locks_mandatory_area(int read_write, struct inode *inode,
+			 struct file *filp, loff_t offset,
+			 size_t count)
+{
+	struct file_lock *fl;
+	struct file_lock *new_fl = locks_alloc_lock(0);
+	int error;
+
+	new_fl->fl_owner = current->files;
+[...]
+----
+
+No check on whether locks_alloc_lock() succeeds. Or do I miss something?
+
+Patch follows:
+
+--- fs/locks.c	Fri Sep  7 23:06:49 2001
++++ fs/locks.c.new	Sat Sep  8 01:03:50 2001
+@@ -698,6 +698,9 @@
+ 	struct file_lock *new_fl = locks_alloc_lock(0);
+ 	int error;
+
++	if (new_fl == NULL)
++		return -ENOMEM;
++
+ 	new_fl->fl_owner = current->files;
+ 	new_fl->fl_pid = current->pid;
+ 	new_fl->fl_file = filp;
+
+-- 
+Francis Galiegue, fg@mandrakesoft.com - Normand et fier de l'être
+"Programming is a race between programmers, who try and make more and more
+idiot-proof software, and universe, which produces more and more remarkable
+idiots. Until now, universe leads the race"  -- R. Cook
+
+
+
+---1463800575-995472036-999940474=:4681
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=foo
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0109080514340.4681@toy.mandrakesoft.com>
+Content-Description: 
+Content-Disposition: attachment; filename=foo
+
+LS0tIGZzL2xvY2tzLmMJRnJpIFNlcCAgNyAyMzowNjo0OSAyMDAxDQorKysg
+ZnMvbG9ja3MuYy5uZXcJU2F0IFNlcCAgOCAwMTowMzo1MCAyMDAxDQpAQCAt
+Njk4LDYgKzY5OCw5IEBADQogCXN0cnVjdCBmaWxlX2xvY2sgKm5ld19mbCA9
+IGxvY2tzX2FsbG9jX2xvY2soMCk7DQogCWludCBlcnJvcjsNCiANCisJaWYg
+KG5ld19mbCA9PSBOVUxMKQ0KKwkJcmV0dXJuIC1FTk9NRU07DQorDQogCW5l
+d19mbC0+Zmxfb3duZXIgPSBjdXJyZW50LT5maWxlczsNCiAJbmV3X2ZsLT5m
+bF9waWQgPSBjdXJyZW50LT5waWQ7DQogCW5ld19mbC0+ZmxfZmlsZSA9IGZp
+bHA7DQo=
+---1463800575-995472036-999940474=:4681--

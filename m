@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275843AbRKNR6s>; Wed, 14 Nov 2001 12:58:48 -0500
+	id <S275973AbRKNR7j>; Wed, 14 Nov 2001 12:59:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275973AbRKNR6i>; Wed, 14 Nov 2001 12:58:38 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:7172 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S275843AbRKNR63>;
-	Wed, 14 Nov 2001 12:58:29 -0500
-Date: Wed, 14 Nov 2001 10:57:17 -0800
-From: Greg KH <greg@kroah.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] CML 1.8.4 is available
-Message-ID: <20011114105717.D5287@kroah.com>
-In-Reply-To: <20011113175010.A15716@thyrsus.com> <20011113182718.A1630@kroah.com> <20011114123325.A500@thyrsus.com> <20011114100020.A5287@kroah.com> <20011114123314.A1978@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011114123314.A1978@thyrsus.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 17 Oct 2001 16:21:52 -0700
+	id <S276424AbRKNR7a>; Wed, 14 Nov 2001 12:59:30 -0500
+Received: from [208.129.208.52] ([208.129.208.52]:48135 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S275973AbRKNR7O>;
+	Wed, 14 Nov 2001 12:59:14 -0500
+Date: Wed, 14 Nov 2001 10:08:04 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mike Kravetz <kravetz@us.ibm.com>
+cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
+In-Reply-To: <20011113205613.A1070@w-mikek2.sequent.com>
+Message-ID: <Pine.LNX.4.40.0111141006010.1582-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 14, 2001 at 12:33:14PM -0500, Eric S. Raymond wrote:
-> > 
-> > CONFIG_HOTPLUG_PCI
-> > CONFIG_HOTPLUG_PCI_COMPAQ
-> > CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM
-> > 
-> > See the Config.in file in that directory for the dependencies they have
-> > on each other.
-> 
-> OK, this wiull be in 1.8.6.  I'm going to have to figure out why my coverage 
-> tools didn't catch those three symbols.
+On Tue, 13 Nov 2001, Mike Kravetz wrote:
 
-Thanks.  2.4.15-pre4 didn't allow the user to select these options.  The
-attached patch is necessary for them to show up.  Perhaps this is the
-reason.
+> On Thu, Nov 08, 2001 at 03:30:11PM +0100, Ingo Molnar wrote:
+> >
+> > i've attached a patch that fixes a long-time performance problem in the
+> > Linux scheduler.
+>
+> Just got back from holiday and saw this patch.  I like the idea
+> slowing down task dynamic priority modifications (the counter
+> field).  My only thought/concern would be in the case where a
+> task with maximum dynamic priority (counter value) decides to
+> use 'all' of its timeslice.  In such a case, the task can not
+> be preempted by another task (with the same static priority)
+> until its entire timeslice is expired.  In the current scheduler,
+> I believe the task can be preempted after 1 timer tick.  In
+> practice, this shouldn't be an issue.  However, it is something
+> we may want to think about.  One simple solution would be to
+> update a tasks dynamic priority (counter value) more frequently
+> it it is above its NICE_TO_TICKS value.
 
-thanks,
+Mike, take a look at my next post in this thread.
+I'm using a watermark value of 10 :
 
-greg k-h
+
+        if (p->counter > TICKS_WMARK)
+            --p->counter;
+        else if (++p->timer_ticks >= p->counter) {
+            p->counter = 0;
+            p->timer_ticks = 0;
+            p->need_resched = 1;
+        }
 
 
-diff --minimal -Nru a/arch/i386/config.in b/arch/i386/config.in
---- a/arch/i386/config.in	Mon Nov 12 11:34:30 2001
-+++ b/arch/i386/config.in	Mon Nov 12 11:34:30 2001
-@@ -234,8 +234,10 @@
- 
- if [ "$CONFIG_HOTPLUG" = "y" ] ; then
-    source drivers/pcmcia/Config.in
-+   source drivers/hotplug/Config.in
- else
-    define_bool CONFIG_PCMCIA n
-+   define_bool CONFIG_HOTPLUG_PCI n
- fi
- 
- bool 'System V IPC' CONFIG_SYSVIPC
+
+
+
+- Davide
+
 

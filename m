@@ -1,54 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129847AbRAQX0c>; Wed, 17 Jan 2001 18:26:32 -0500
+	id <S129812AbRAQXki>; Wed, 17 Jan 2001 18:40:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131503AbRAQX0W>; Wed, 17 Jan 2001 18:26:22 -0500
-Received: from jalon.able.es ([212.97.163.2]:8914 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129847AbRAQX0D>;
-	Wed, 17 Jan 2001 18:26:03 -0500
-Date: Thu, 18 Jan 2001 00:25:51 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Joel Franco Guzmán <joel@gds-corp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 128M memory OK, but with 192M sound card es1391 trouble
-Message-ID: <20010118002551.C883@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.30.0101172037310.1309-100000@thor.gds-corp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.30.0101172037310.1309-100000@thor.gds-corp.com>; from joel@gds-corp.com on Thu, Jan 18, 2001 at 00:11:36 +0100
-X-Mailer: Balsa 1.0.1
+	id <S129830AbRAQXk1>; Wed, 17 Jan 2001 18:40:27 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:62990 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S129812AbRAQXkU>;
+	Wed, 17 Jan 2001 18:40:20 -0500
+Date: Wed, 17 Jan 2001 15:40:26 -0800 (PST)
+From: James Simmons <jsimmons@suse.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        FrameBuffer List <linux-fbdev@vuser.vu.union.edu>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: console spin_lock
+In-Reply-To: <3A65A2F1.690CD6CF@uow.edu.au>
+Message-ID: <Pine.LNX.4.21.0101171514050.266-100000@euclid.oak.suse.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2001.01.18 Joel Franco Guzmán wrote:
-> 1. 128M memory OK, but with 192M the sound card generate a noise while
-> use the DSP.
-.. 
-> the problem: The sound card generates a toc.. toc.. toc .. toc...while
-> playing a sound using the DSP of the soundcard. Two "tocs"/sec
-> aproxiumadetely.
+> heh.
 > 
-> 
-> Linux thor.gds-corp.com 2.4.1-pre8 #2 Wed Jan 17 19:44:31 BRST 2001
-> i686 unknownKernel modules         2.3.21
+> I'm actually planning on grabbing console_lock and thoroughly strangling
+> it
 
-Don't know if it is related, but you should upgrade your modutils up to
-2.4, even 2.4.1 is yet available.
+Ha Ha!!
 
-I have noticed something similar. If I start gqmpeg from the command line in
-a terminal (rxvt), sounds fine. If I start it from the icon in the gnome
-panel, it makes that 'toc toc' noise you describe. ????
-(I know it sounds strange, but real...)
+> - Use a semaphore for serialisation.
 
-How do you launch your sound test ? (btw, which do you use to play sound ?) 
+I think this would be the best solution as well.
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+> - For printk in interrupt context, grab the
+>   semaphore (yes, you can do this).
 
-Linux werewolf 2.4.0-ac9 #2 SMP Sun Jan 14 01:46:07 CET 2001 i686
+Don't forget about the idle task also. How is this done? By reintializing
+the semaphore.
+
+> - If it couldn't be acquired from interrupt context,
+>   buffer the text in the log buffer and return.  The text will be
+>   printed by whoever holds the semaphore before they
+>   drop it.
+
+By you saying couldn't be acquired from interrupt context do you mean
+from a process context or do you mean it failed to aquire it while in 
+the interrupt context?
+
+> - Special "system booting" mode which bypasses all this
+>   stuff.
+
+This wouldn't be to hard to do for VTs using the fact that keybaords 
+are not initialized right away. As for serial consoles well that is
+another story. Of course we could have this flag set/cleared in
+start_kernel. 
+
+> - Special "oops in progress" mode which just
+>   punches through everything.
+
+You already developed the framework for this.
+
+> - Get rid of the special printk buffer - share the
+>   log buffer.  (Implies writes to console
+>   devices will be broken into two writes when they
+>   wrap around).
+> - Teach vsprintf to print into a circular buffer
+>   (snprintf thus comes for free).
+
+> - Get rid of all the printk deadlock opportunities (fourth
+>   attempt).
+
+Good luck.
+
+> - Get rid of console_tasklet.  Do it in process context callback
+>   or just do it synchronously.
+
+What about multidesktop systems? I have vgacon and mdacon working fine 
+along each other. Each one has their own tasklet to allow them to work
+independent of each other. Meaning no race condition when both VC switch
+at the same time.  
+ 
+> Assumption:
+> - Once the system is up and running, it's always safe to
+>   call down() when in_interrupt() returns false - probably
+>   not the case in parts of the exit path - tough.
+
+Don't forget the idle_task case as well. exit path?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

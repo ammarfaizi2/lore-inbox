@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272314AbTHIKPK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 06:15:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272315AbTHIKPJ
+	id S272317AbTHIKQy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 06:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272321AbTHIKQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 06:15:09 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:1287 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S272314AbTHIKPH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 06:15:07 -0400
-Date: Sat, 9 Aug 2003 12:11:48 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       davem@redhat.com
-Subject: Re: [PATCH] TRY #2 - 2.6.0-test2-bk8 - seq_file conversion of /proc/net/atm
-Message-ID: <20030809121148.A8177@electric-eye.fr.zoreil.com>
-References: <20030809000303.A2699@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030809000303.A2699@electric-eye.fr.zoreil.com>; from romieu@fr.zoreil.com on Sat, Aug 09, 2003 at 12:03:03AM +0200
+	Sat, 9 Aug 2003 06:16:53 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:6664 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S272317AbTHIKQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 06:16:18 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: davem@redhat.com (David S. Miller), linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
+In-Reply-To: <20030809015142.56190015.davem@redhat.com>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.21-2-686-smp (i686))
+Message-Id: <E19lQgI-0003ry-00@gondolin.me.apana.org.au>
+Date: Sat, 09 Aug 2003 20:10:38 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re,
+David S. Miller <davem@redhat.com> wrote:
+> 
+> I believe the C language allows for systems where the NULL pointer is
+> not zero.
 
-Assuming some people are willing to test but don't want to play with a stack
-of patches, there is a single patch including the whole serie of changes at:
-<URL:http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.0-test3/extra/atm-seq_file.patch>
+It does.  However it also says that whenever a pointer is compared
+with the integer constant 0 it must be equal if and only if it is
+a NULL pointer.
 
-Patch should be 2.6.0-test2-xxx agnostic.
-
-Please test and send full content of /proc/net/atm before/after the patch if
-things change.
-
---
-Ueimor
+    An integer constant expression with the value 0, or such an expression
+    cast to type void *, is called a null pointer constant.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

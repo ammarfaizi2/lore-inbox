@@ -1,63 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263594AbTJQTiC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 15:38:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbTJQTiB
+	id S263587AbTJQTec (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 15:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbTJQTec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 15:38:01 -0400
-Received: from unthought.net ([212.97.129.88]:15278 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S263594AbTJQTh6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 15:37:58 -0400
-Date: Fri, 17 Oct 2003 21:37:57 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Software RAID5 with 2.6.0-test
-Message-ID: <20031017193756.GH8711@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-	linux-kernel@vger.kernel.org
-References: <1065690658.10389.19.camel@slurv> <Pine.LNX.3.96.1031017125544.24004C-100000@gatekeeper.tmr.com> <yw1xu167kbcw.fsf@users.sourceforge.net> <3F903768.7060803@rackable.com> <yw1xllrjk70f.fsf@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xllrjk70f.fsf@users.sourceforge.net>
-User-Agent: Mutt/1.3.28i
+	Fri, 17 Oct 2003 15:34:32 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:46466 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263587AbTJQTeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 15:34:19 -0400
+Date: Fri, 17 Oct 2003 20:35:36 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200310171935.h9HJZaLm002335@81-2-122-30.bradfords.org.uk>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+       Norman Diamond <ndiamond@wta.att.ne.jp>,
+       Hans Reiser <reiser@namesys.com>, Wes Janzen <superchkn@sbcglobal.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m3zng0yun9.fsf@defiant.pm.waw.pl>
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60>
+ <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
+ <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
+ <20031014064925.GA12342@bitwizard.nl>
+ <3F8BA037.9000705@sbcglobal.net>
+ <3F8BBC08.6030901@namesys.com>
+ <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>
+ <20031017102436.GB10185@bitwizard.nl>
+ <200310171049.h9HAnBbO000594@81-2-122-30.bradfords.org.uk>
+ <m3zng0yun9.fsf@defiant.pm.waw.pl>
+Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 17, 2003 at 09:18:24PM +0200, Måns Rullgård wrote:
-> Samuel Flory <sflory@rackable.com> writes:
-...
-> >    many clock cycles availble to it.  It's even worse when you realize
-> >    the 2Ghz xeon is a better proccessor in many more ways than just
-> >    clock cycles.
+Quote from Krzysztof Halasa <khc@pm.waw.pl>:
+> John Bradford <john@grabjohn.com> writes:
 > 
-> How about this logic:
+> > Besides, are you positive that you always got the correct data off the
+> > disk?  See the discussions about hashing algorithms - maybe the drive
+> > simply returned data that had an additional bit flipped and wasn't
+> > identified as bad.
 > 
-> 1) If the processor on the RAID controller can handle the full
-> bandwidth of the disks, it's fast enough.
-> 2) If someone else does the 10% work, the CPU can do 10% more work.
+> One bit? No chance. The same as with ECC RAM - one bit error will always
+> be detected.
 
-3) You have a four year old machine - one day the RAID controller dies.
-   The company that produced it has been acquired by someone else, and
-   the product is no longer availble.  Can you get a new adapter with
-   firmware that can actually read your disks?   Or are your data lost?
-   Can you find a replacement controller on e-bay?  And would you want
-   to?
+I said an _additional_ bit.  I am assuming that N-1 reads returned the
+same, (bad), data, which was identified as bad.  Read N encountered
+one too many flipped bits and returned a false positive.  Perfectly
+possible, and arguably more likely than all of the existing incorrect
+bits flipping back, resulting in the correct data being read back, in
+some cases.
 
+> >  If you are having to try over 1000 times from
+> > userspace, the drive is in a bad way.  You shouldn't really make
+> > assumptions that you do usually, (that the error correction is good
+> > enough to ensure bad data isn't returned as good data).  If you are
+> > recovering data from a spreadsheet, for example, the errors could go
+> > unnoticed, but have catastrophic results.
+> 
+> Then you have to abandon using any hard drivers. Or computers at all.
 
-Anyway, not wanting to spread more FUD than stricly necessary: It's a
-matter of cost/benefit and risk management.   Everyone has their
-personal preferences on this - and even if it wasn't so, let's not
-begin to pretend that there is a simple answer to what's "best".
+Hardly.  The point I was trying to make is that the likelyhood of a
+critical fault is greater when you are experiencing many non-critical
+faults.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+> Well, mirrors (with read-and-compare) are probably good enough for you,
+> but it has to be done at application level.
+> 
+> > Of course you will - it's remapped, the data isn't overwritten!  You
+> > may need more advanced tools,
+> 
+> = in practice, it's lost. Have you seen such tools?
+
+Tell this to the drive manufacturers.  They are the ones who can sell
+you a specialist firmware if you want to do data recovery, not me.
+
+> > but you can still seek the heads to that
+> > part of the platter and get data from the head-amp.  Just because you
+> > couldn't use your simple method anymore is real reason to argue
+> > against fixing the problem.
+> 
+> against _changing_ the problem (it doesn't go away), breaking things
+> which are now sane.
+
+Your argument is flawed - how can you claim the current situation is
+sane when at least some drive manufactuers don't publish simple facts
+such as what happens when defective blocks are encountered on reads
+and on writes?
+
+> > This may be more sensible, but not for the reasons you are suggesting,
+> > and not in the way that you are suggesting.
+> 
+> Then note that a drive can be temporarily unable to read most of the
+> data - due to, say, incorrect supply voltage or very high level of
+> electromagnetic interferences.
+
+If a system got in to a state as extreme as that, I'd generally take
+the hole system down.  Electromagnatic interference that affects one
+drive immediately noticably may well be affecting other components in
+subtle ways - possible _silent_ data corruption in other words.
+
+> Would you like to trash _all_ your data in such case automatically?
+
+Yes.  Or more specifically, I wouldn't trust that data without
+verifying it.  It's easy to ignore such problems and say that
+everything is probably OK, and maybe 99% of the time you would be
+right, but so what?  What about that 1%?
+
+> > Suspect drive?  Bin it.  Do you really not value your data enough to
+> > do that?
+> 
+> Do you really not value your data enough to mark it as inaccessible?
+
+Not sure what you mean - in what context?
+
+> If it comes to non-standard recovery then you should rather go for
+> backups.
+
+Data recovery is always a last resort.  On the other hand, backing up
+data daily can still result in 23 hours of lost data, so I consider
+early detection of faulty disks very important.  Mirroring brings it's
+own problems to consider - more devices to possibly fail, and if they
+are connected to the same controller, a serious fault with any one
+could usually theoretically destroy all of them.
+
+John.

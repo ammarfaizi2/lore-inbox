@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263972AbTDWHHe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 03:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263973AbTDWHHd
+	id S263975AbTDWHRz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 03:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263976AbTDWHRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 03:07:33 -0400
-Received: from [12.47.58.232] ([12.47.58.232]:32069 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263972AbTDWHHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 03:07:33 -0400
-Date: Wed, 23 Apr 2003 00:20:21 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: geert@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use __GFP_REPEAT in pmd_alloc_one()
-Message-Id: <20030423002021.4a9481c7.akpm@digeo.com>
-In-Reply-To: <1051081930.11999.2.camel@rth.ninka.net>
-References: <Pine.GSO.4.21.0304221033150.15088-100000@vervain.sonytel.be>
-	<1051081930.11999.2.camel@rth.ninka.net>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 23 Apr 2003 03:17:55 -0400
+Received: from kiruna.synopsys.com ([204.176.20.18]:38069 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP id S263975AbTDWHRz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 03:17:55 -0400
+Date: Wed, 23 Apr 2003 09:29:48 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: linux-kernel@vger.kernel.org
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Arne Georg Gleditsch and Per Kristian Gjermshus 
+	<lxr@linux.no>
+Subject: Re: Keeping the overview
+Message-ID: <20030423072948.GD890@riesen-pc.gr05.synopsys.com>
+Reply-To: alexander.riesen@synopsys.COM
+References: <20030421141643.GA1054@neon.pearbough.net> <20030421142805.GU19139@lug-owl.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Apr 2003 07:19:34.0553 (UTC) FILETIME=[B0E4A890:01C30968]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030421142805.GU19139@lug-owl.de>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> wrote:
->
-> On Tue, 2003-04-22 at 02:46, Geert Uytterhoeven wrote:
-> > If this change was bogus (cfr. Davem's checkin):
-> ...
-> > Then this one is bogus, too:
+Jan-Benedict Glaw, Mon, Apr 21, 2003 16:28:05 +0200:
 > 
-> I don't think so, I believe Andrew was just trying to trap cases he
-> didn't understand.
+> > Are there any special tools or development GUIs for the kernel?
+> 
+> ctags may help, as well as LXR (to grovide a hint for non-expert
+> googlers: http://lxr.linux.no/ ).
+> 
 
-No, it was just a flip of the singers.  I typed `l' instead of control-l.
-It was late.  Sorry 'bout that.
-
+It's somewhat outdated, though (they're at 2.5.56 still).
 

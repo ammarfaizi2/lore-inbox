@@ -1,332 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262913AbTCSJig>; Wed, 19 Mar 2003 04:38:36 -0500
+	id <S262955AbTCSJoq>; Wed, 19 Mar 2003 04:44:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262955AbTCSJig>; Wed, 19 Mar 2003 04:38:36 -0500
-Received: from smtp-102.nerim.net ([62.4.16.102]:14346 "EHLO kraid.nerim.net")
-	by vger.kernel.org with ESMTP id <S262913AbTCSJib>;
-	Wed, 19 Mar 2003 04:38:31 -0500
-Date: Wed, 19 Mar 2003 10:49:27 +0100
-From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
+	id <S262956AbTCSJop>; Wed, 19 Mar 2003 04:44:45 -0500
+Received: from mail.bmlv.gv.at ([193.171.152.37]:29091 "HELO mail.bmlv.gv.at")
+	by vger.kernel.org with SMTP id <S262955AbTCSJoo>;
+	Wed, 19 Mar 2003 04:44:44 -0500
+From: "Ph. Marek" <philipp.marek@bmlv.gv.at>
 To: linux-kernel@vger.kernel.org
-Subject: Hard freeze with 2.5.65-mm1
-Message-Id: <20030319104927.77b9ccf9.philippe.gramoulle@mmania.com>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.8.11claws24 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
+Date: Wed, 19 Mar 2003 10:55:31 +0100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303191055.31832.philipp.marek@bmlv.gv.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
 
-Hi,
+which compiler optimization should I use for this test?
 
-I experienced a hard freeze one minute or so  after starting X and few apps ( xmms,gnomeicu, pan,few Eterms,..)
+-O3 shows other values:
+* the empty overhead is 4 cycles shorter
+* but store overhead goes from 3 to 48 cycles!
 
-Machine is 1.5Ghz SMP DELL MT530 WS. Debian unstable. vanilla 2.5.65+mm-1 patches only.
+Please see below.
 
-modules loaded are : usbcore, uhci-hcd, hid, soundcore, ac97_codec and emu10k1.
 
-.config is below.
+Regards,
 
-Thanks,
+Phil
 
-Philippe
 
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
+gcc -O3 linus_i_d_cache.c -o linus_i_d_cache
+./linus_i_d_cache
 
-CONFIG_EXPERIMENTAL=y
+empty overhead=73 cycles
+load overhead=10 cycles
+I$ load overhead=10 cycles
+I$ load overhead=10 cycles
+I$ store overhead=48 cycles
 
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=15
+gcc -g -Wall linus_i_d_cache.c -o linus_i_d_cache
+./linus_i_d_cache
 
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
+empty overhead=77 cycles
+load overhead=12 cycles
+I$ load overhead=12 cycles
+I$ load overhead=12 cycles
+I$ store overhead=3 cycles
 
-CONFIG_X86_BIGSMP=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_PREFETCH=y
-CONFIG_SMP=y
-CONFIG_PREEMPT=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_NR_CPUS=2
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_1284=y
-
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-
-CONFIG_IDE=y
-
-CONFIG_BLK_DEV_IDE=y
-
-CONFIG_BLK_DEV_IDECD=y
-
-
-CONFIG_SCSI=y
-
-CONFIG_BLK_DEV_SD=y
-
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=32
-CONFIG_AIC7XXX_RESET_DELAY_MS=5000
-CONFIG_AIC7XXX_DEBUG_MASK=0
-
-
-CONFIG_IEEE1394=m
-
-CONFIG_IEEE1394_OUI_DB=y
-
-
-CONFIG_IEEE1394_OHCI1394=m
-
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_DV1394=m
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_IEEE1394_CMP=m
-CONFIG_IEEE1394_AMDTP=m
-
-
-CONFIG_NET=y
-
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-
-CONFIG_IPV6_SCTP__=y
-
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_SCH_HTB=m
-CONFIG_NET_SCH_CSZ=m
-CONFIG_NET_SCH_PRIO=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_SCH_SFQ=m
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NET_SCH_TBF=m
-CONFIG_NET_SCH_GRED=m
-CONFIG_NET_SCH_DSMARK=m
-CONFIG_NET_SCH_INGRESS=m
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=m
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=m
-CONFIG_NET_CLS_U32=m
-CONFIG_NET_CLS_RSVP=m
-CONFIG_NET_CLS_RSVP6=m
-CONFIG_NET_CLS_POLICE=y
-
-CONFIG_NETDEVICES=y
-
-
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-
-CONFIG_NET_PCI=y
-CONFIG_E100=y
-
-CONFIG_INPUT=y
-
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
-
-CONFIG_RTC=y
-
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=m
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-CONFIG_REISERFS_PROC_INFO=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_XFS_FS=y
-CONFIG_XFS_QUOTA=y
-CONFIG_QUOTACTL=y
-
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=y
-
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_NTFS_FS=y
-
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-
-CONFIG_CRAMFS=y
-
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=y
-CONFIG_SMB_FS=y
-CONFIG_SUNRPC=y
-
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_CODEPAGE_850=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=y
-CONFIG_NLS_UTF8=y
-
-
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-
-CONFIG_SOUND=m
-
-
-CONFIG_SOUND_PRIME=m
-CONFIG_SOUND_EMU10K1=m
-
-CONFIG_USB=m
-
-CONFIG_USB_DEVICEFS=y
-
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_UHCI_HCD=m
-
-
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-
-
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-
-CONFIG_ZLIB_INFLATE=y
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_X86_TRAMPOLINE=y
+
+cat /proc/cpuinfo
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 3
+model name      : Pentium II (Klamath)
+stepping        : 3
+cpu MHz         : 265.916
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov mmx
+bogomips        : 530.84
+
+
 

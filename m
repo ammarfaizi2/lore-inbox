@@ -1,57 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbUC3Rg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 12:36:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbUC3Rg7
+	id S263767AbUC3Rk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 12:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUC3Rk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 12:36:59 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:22800 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S263415AbUC3Rg4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 12:36:56 -0500
-Date: Tue, 30 Mar 2004 10:35:59 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
-       dm-devel@redhat.com
-Subject: Re: "Enhanced" MD code avaible for review
-Message-ID: <854630000.1080668158@aslan.btc.adaptec.com>
-In-Reply-To: <4069AB1B.90108@pobox.com>
-References: <760890000.1079727553@aslan.btc.adaptec.com> <200403261315.20213.kevcorry@us.ibm.com> <1644340000.1080333901@aslan.btc.adaptec.com> <200403270939.29164.kevcorry@us.ibm.com> <842610000.1080666235@aslan.btc.adaptec.com> <4069AB1B.90108@pobox.com>
-X-Mailer: Mulberry/3.1.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 30 Mar 2004 12:40:56 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:45201 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263767AbUC3Rkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 12:40:42 -0500
+Date: Tue, 30 Mar 2004 18:38:22 +0100
+From: Dave Jones <davej@redhat.com>
+To: greg@kroah.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kill off CONFIG_USB_BRLVGER detritus.
+Message-ID: <20040330173822.GC25834@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, greg@kroah.com,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The kernel should not be validating -trusted- userland inputs.  Root is
-> allowed to scrag the disk, violate limits, and/or crash his own machine.
-> 
-> A simple example is requiring userland, when submitting ATA taskfiles via
-> an ioctl, to specify the data phase (pio read, dma write, no-data, etc.).
-> If the data phase is specified incorrectly, you kill the OS driver's ATA
-> host wwtate machine, and the results are very unpredictable.   Since this
-> is a trusted operation, requiring CAP_RAW_IO, it's up to userland to get the
-> required details right (just like following a spec).
+This died a while ago, but lingers on in defconfigs.
 
-That's unfortunate for those using ATA.  A command submitted from userland
-to the SCSI drivers I've written that causes a protocol violation will
-be detected, result in appropriate recovery, and a nice diagnostic that
-can be used to diagnose the problem.  Part of this is because I cannot know
-if the protocol violation stems from a target defect, the input from the
-user or, for that matter, from the kernel.  The main reason is for robustness
-and ease of debugging.  In SCSI case, there is almost no run-time cost, and
-the system will stop before data corruption occurs.  In the meta-data case
-we've been discussing in terms of EMD, there is no runtime cost, the
-validation has to occur somewhere anyway, and in many cases some validation
-is already required to avoid races with external events.  If the validation
-is done in the kernel, then you get the benefit of nice diagnostics instead
-of strange crashes that are difficult to debug.
+		Dave
 
---
-Justin
-
+--- linux-2.6.4/arch/arm/configs/neponset_defconfig~	2004-03-30 18:35:21.000000000 +0100
++++ linux-2.6.4/arch/arm/configs/neponset_defconfig	2004-03-30 18:35:28.000000000 +0100
+@@ -848,7 +848,6 @@
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_TEST is not set
+ 
+--- linux-2.6.4/arch/ppc/configs/lopec_defconfig~	2004-03-30 18:35:32.000000000 +0100
++++ linux-2.6.4/arch/ppc/configs/lopec_defconfig	2004-03-30 18:35:36.000000000 +0100
+@@ -788,7 +788,6 @@
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_TEST is not set
+ # CONFIG_USB_GADGET is not set
+--- linux-2.6.4/arch/ppc/configs/adir_defconfig~	2004-03-30 18:35:40.000000000 +0100
++++ linux-2.6.4/arch/ppc/configs/adir_defconfig	2004-03-30 18:35:42.000000000 +0100
+@@ -776,7 +776,6 @@
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_TEST is not set
+ # CONFIG_USB_GADGET is not set
+--- linux-2.6.4/arch/ppc/configs/sandpoint_defconfig~	2004-03-30 18:35:48.000000000 +0100
++++ linux-2.6.4/arch/ppc/configs/sandpoint_defconfig	2004-03-30 18:35:50.000000000 +0100
+@@ -775,7 +775,6 @@
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_TEST is not set
+ # CONFIG_USB_GADGET is not set
+--- linux-2.6.4/arch/ppc/configs/common_defconfig~	2004-03-30 18:35:55.000000000 +0100
++++ linux-2.6.4/arch/ppc/configs/common_defconfig	2004-03-30 18:35:57.000000000 +0100
+@@ -1209,7 +1209,6 @@
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_TEST is not set
+ # CONFIG_USB_GADGET is not set
+--- linux-2.6.4/arch/ppc/configs/pmac_defconfig~	2004-03-30 18:36:41.000000000 +0100
++++ linux-2.6.4/arch/ppc/configs/pmac_defconfig	2004-03-30 18:36:43.000000000 +0100
+@@ -1249,7 +1249,6 @@
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_TEST is not set
+ # CONFIG_USB_GADGET is not set
+--- linux-2.6.4/arch/ppc/defconfig~	2004-03-30 18:36:43.000000000 +0100
++++ linux-2.6.4/arch/ppc/defconfig	2004-03-30 18:36:45.000000000 +0100
+@@ -1208,7 +1208,6 @@
+ # CONFIG_USB_TIGL is not set
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_TEST is not set
+ # CONFIG_USB_GADGET is not set
+--- linux-2.6.4/arch/ia64/configs/zx1_defconfig~	2004-03-30 18:36:45.000000000 +0100
++++ linux-2.6.4/arch/ia64/configs/zx1_defconfig	2004-03-30 18:36:46.000000000 +0100
+@@ -1028,7 +1028,6 @@
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+ # CONFIG_USB_LEGOTOWER is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_LED is not set
+ 
+--- linux-2.6.4/arch/ia64/configs/generic_defconfig~	2004-03-30 18:36:46.000000000 +0100
++++ linux-2.6.4/arch/ia64/configs/generic_defconfig	2004-03-30 18:36:48.000000000 +0100
+@@ -976,7 +976,6 @@
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+ # CONFIG_USB_LEGOTOWER is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_TEST is not set
+ # CONFIG_USB_GADGET is not set
+--- linux-2.6.4/arch/ia64/defconfig~	2004-03-30 18:36:48.000000000 +0100
++++ linux-2.6.4/arch/ia64/defconfig	2004-03-30 18:36:50.000000000 +0100
+@@ -906,7 +906,6 @@
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+ # CONFIG_USB_LEGOTOWER is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_LED is not set
+ # CONFIG_USB_TEST is not set
+--- linux-2.6.4/arch/mips/configs/rm200_defconfig~	2004-03-30 18:36:50.000000000 +0100
++++ linux-2.6.4/arch/mips/configs/rm200_defconfig	2004-03-30 18:36:52.000000000 +0100
+@@ -986,7 +986,6 @@
+ CONFIG_USB_AUERSWALD=m
+ CONFIG_USB_RIO500=m
+ CONFIG_USB_LEGOTOWER=m
+-CONFIG_USB_BRLVGER=m
+ CONFIG_USB_LCD=m
+ # CONFIG_USB_LED is not set
+ CONFIG_USB_TEST=m
+--- linux-2.6.4/arch/ppc64/configs/pSeries_defconfig~	2004-03-30 18:36:52.000000000 +0100
++++ linux-2.6.4/arch/ppc64/configs/pSeries_defconfig	2004-03-30 18:36:53.000000000 +0100
+@@ -880,7 +880,6 @@
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+ # CONFIG_USB_LEGOTOWER is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_LED is not set
+ # CONFIG_USB_TEST is not set
+--- linux-2.6.4/arch/ppc64/defconfig~	2004-03-30 18:36:53.000000000 +0100
++++ linux-2.6.4/arch/ppc64/defconfig	2004-03-30 18:36:55.000000000 +0100
+@@ -880,7 +880,6 @@
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+ # CONFIG_USB_LEGOTOWER is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_LED is not set
+ # CONFIG_USB_TEST is not set
+--- linux-2.6.4/arch/parisc/configs/c3000_defconfig~	2004-03-30 18:36:55.000000000 +0100
++++ linux-2.6.4/arch/parisc/configs/c3000_defconfig	2004-03-30 18:36:57.000000000 +0100
+@@ -876,7 +876,6 @@
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+ CONFIG_USB_LEGOTOWER=m
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_LED is not set
+ # CONFIG_USB_TEST is not set
+--- linux-2.6.4/arch/parisc/defconfig~	2004-03-30 18:36:57.000000000 +0100
++++ linux-2.6.4/arch/parisc/defconfig	2004-03-30 18:36:59.000000000 +0100
+@@ -737,7 +737,6 @@
+ # CONFIG_USB_AUERSWALD is not set
+ # CONFIG_USB_RIO500 is not set
+ # CONFIG_USB_LEGOTOWER is not set
+-# CONFIG_USB_BRLVGER is not set
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_LED is not set
+ 

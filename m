@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUGLTgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUGLTlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUGLTgs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 15:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUGLTgs
+	id S262062AbUGLTlI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 15:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUGLTlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 15:36:48 -0400
-Received: from mail-relay-4.tiscali.it ([212.123.84.94]:34726 "EHLO
-	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
-	id S261875AbUGLTgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 15:36:25 -0400
-Date: Mon, 12 Jul 2004 21:36:06 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040712193606.GP20947@dualathlon.random>
-References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040709235017.GP20947@dualathlon.random> <20040710005208.GW20947@dualathlon.random> <s5hpt71cyxq.wl@alsa2.suse.de>
+	Mon, 12 Jul 2004 15:41:08 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:40321 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262062AbUGLTj1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 15:39:27 -0400
+Date: Mon, 12 Jul 2004 21:33:49 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       David Gibson <hermes@gibson.dropbear.id.au>, jt@hpl.hp.com,
+       Dan Williams <dcbw@redhat.com>, Pavel Roskin <proski@gnu.org>
+Subject: [PATCH] Slowly update in-kernel orinoco drivers to upstream current CVS
+Message-ID: <20040712213349.A2540@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5hpt71cyxq.wl@alsa2.suse.de>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 12, 2004 at 12:17:05PM +0200, Takashi Iwai wrote:
-> Couldn't it be simply written like below?
-> 
-> #define BUILD_BUG_ON(condition) do { if (unlikely(condition)) BUILD_BUG(); } while(0)
+A serie of patches is available for at:
+http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.7-mm7
 
-BUILD_BUG_ON is a different thing. the "condition" is meant to be
-evaluated at _compile_ time, not at runtime (so the unlikely is useless
-since the compiler knows the result before it generates the bytecode).
-This is why BUILD_BUG() isn't implemented anywhere, so you get a linker
-error during the compilation.
+It contains 12 patches and applies against 2.6.7-mm7. The patches are
+commented. The comments are partly taken from the cvs log by Pavel Roskin.
 
-For example with it you can do things like:
+Tarball available at:
+http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.7-mm7/orinoco.tar.bz2
 
-	BUILD_BUG_ON(offsetof(struct task_struct, thread.i387.fxsave) & 15);
+Please review/comment/suggest a target to patch-bomb.
 
-(see asm-i386/bugs.h, it's doing the BUILD_BUG_ON by hand right now)
+The remaining 30~35 patches are on the way.
+
+If nobody minds, I'll move the thread to netdev.
+
+--
+Ueimor

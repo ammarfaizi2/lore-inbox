@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132890AbRDQV7r>; Tue, 17 Apr 2001 17:59:47 -0400
+	id <S132900AbRDQWAH>; Tue, 17 Apr 2001 18:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132900AbRDQV7i>; Tue, 17 Apr 2001 17:59:38 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:8208 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S132890AbRDQV73>; Tue, 17 Apr 2001 17:59:29 -0400
-Date: Tue, 17 Apr 2001 15:52:54 -0600
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+	id <S132901AbRDQV75>; Tue, 17 Apr 2001 17:59:57 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:17938 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S132900AbRDQV7u>; Tue, 17 Apr 2001 17:59:50 -0400
+Message-ID: <3ADCBAA3.8F78775A@free.fr>
+Date: Tue, 17 Apr 2001 23:50:27 +0200
+From: Phil <philippe.amelant@free.fr>
+X-Mailer: Mozilla 4.76 [fr] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: Re: BUG() at line 804, slab.c, 2.4.3
-Message-ID: <20010417155254.A344@vger.timpanogas.org>
-In-Reply-To: <20010417152920.A32576@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010417152920.A32576@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Tue, Apr 17, 2001 at 03:29:20PM -0600
+Subject: Re: Ide performance (was RAID0 Performance problems)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 17, 2001 at 03:29:20PM -0600, Jeff V. Merkey wrote:
+Le 15 Apr 2001 21:08:04 +0200, Andreas Peter a écrit :
+> Hi,
+> I've posted about performance problems with my RAID0 setup.
+> RAID works fine, but it's too slow.
 
-Added kmem_cache_destroy() to get around the problem.  I'm still
-curious as to why we need to panic at this point rather than return
-an error.  
+Hi
 
-Thanks
+I have the same problem, but i think it 's a BX chipset related problem.
 
-Jeff
+I Have a BP6 whit a BX chipset and a htp 366 chipset.
+on a single device, hdparm report ~ 18/19 MB/s
 
-> 
-> 
-> I noticed that subsequent calls to kmem_cache_create with the same name
-> does not return an -EEXIST return code, but instead barfs and crashes
-> with a bug at slab.c line 804.  This occurs in 2.4.3.
-> 
-> Is this the expected behavior for kmem_cache_create?  I am using 
-> the slab allocator to create and maintain buffer head chains for 
-> asynch I/O.
->  
-> I would assume that if a valid tag existed, an error would be returned 
-> rather than the system crashing.   I see the problem unloading then 
-> reloading the module on 2.4.3.  
-> 
-> Thanks,
-> 
-> Jeff
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+with 2 devices on the same chipset (hda/hdc) 
+hdparm report ~ 9 MB/s each
+
+with 2 devices not on the same chipset (hda/hdg)
+hdparm report ~ 16/17 MB/s

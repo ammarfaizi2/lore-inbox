@@ -1,81 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265153AbTIEPyL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 11:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265179AbTIEPyL
+	id S264256AbTIEPu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 11:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264589AbTIEPu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 11:54:11 -0400
-Received: from mail-2.tiscali.it ([195.130.225.148]:31123 "EHLO
-	mail-2.tiscali.it") by vger.kernel.org with ESMTP id S265153AbTIEPyG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 11:54:06 -0400
-From: Lorenzo Allegrucci <l.allegrucci@tiscali.it>
-Organization: -ENOENT
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [OOPS] 2.6.0-test4 CONFIG_PREEMPT=y
-Date: Fri, 5 Sep 2003 17:57:34 +0000
-User-Agent: KMail/1.5.1
+	Fri, 5 Sep 2003 11:50:27 -0400
+Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:21778 "EHLO gw.enyo.de")
+	by vger.kernel.org with ESMTP id S264256AbTIEPuT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 11:50:19 -0400
+To: Henning Schmiedehausen <hps@intermeta.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bandwidth for bkbits.net (good news)
+References: <20030830230701.GA25845@work.bitmover.com>
+	<87llt9bvtc.fsf@deneb.enyo.de> <bj1fhj$its$4@tangens.hometree.net>
+	<874qzrsljc.fsf@deneb.enyo.de>
+	<1062776157.20632.1697.camel@forge.intermeta.de>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: Henning Schmiedehausen <hps@intermeta.de>, Linux Kernel
+ Mailing List <linux-kernel@vger.kernel.org>
+Date: Fri, 05 Sep 2003 17:50:04 +0200
+In-Reply-To: <1062776157.20632.1697.camel@forge.intermeta.de> (Henning
+ Schmiedehausen's message of "05 Sep 2003 17:35:57 +0200")
+Message-ID: <871xuvqloz.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200309051757.13205.l.allegrucci@tiscali.it>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Henning Schmiedehausen <hps@intermeta.de> writes:
 
-I can get a quite reproducible oops under -test4 with
-CONFIG_PREEMPT enabled:
+>> Yes, I snipped the DoS context, and your approach would work in a
+>> benign environment. 8-)
+>
+> 225kpps * 64 Bytes (minimum packet len) = 13,7 MBytes / sec
+>
+> 100 MBit / 8 bit = 12,5 MBytes / sec
+>
+> So, IMHO even with a small packet saturated 100 MBit link you won't
+> reach 225kpps. AFAIK this was Ciscos intention to publish this number.
+> It basically says "you will have filled your link before you fill our
+> router". 
 
-Sep  5 17:35:46 odyssey kernel: kernel BUG at kernel/exit.c:729!
-Sep  5 17:35:46 odyssey kernel: invalid operand: 0000 [#1]
-Sep  5 17:35:46 odyssey kernel: CPU:    0
-Sep  5 17:35:46 odyssey kernel: EIP:    0060:[do_exit+526/1024]    Not tainted
-Sep  5 17:35:46 odyssey kernel: EFLAGS: 00010296
-Sep  5 17:35:46 odyssey kernel: EIP is at do_exit+0x20e/0x400
-Sep  5 17:35:46 odyssey kernel: eax: 00000004   ebx: dffeeaa0   ecx: dc0c4040   
-edx: dc230000
-Sep  5 17:35:46 odyssey kernel: esi: 00000000   edi: dcac3380   ebp: dc231ed0   
-esp: dc231eb4
-Sep  5 17:35:46 odyssey kernel: ds: 007b   es: 007b   ss: 0068
-Sep  5 17:35:46 odyssey kernel: Process bomb.sh (pid: 14761, 
-threadinfo=dc230000 task=dcac3380)
-Sep  5 17:35:46 odyssey kernel: Stack: dcac3380 dc681c80 dc231f24 dcac3924 
-dc230000 00000009 00000009 dc231ee4
-Sep  5 17:35:46 odyssey kernel:        c011e09a 00000009 dc230000 dcac3380 
-dc231f0c c0126c39 00000009 dcac3924
-Sep  5 17:35:46 odyssey kernel:        dc231f24 dc230000 dcac3924 dc231fc4 
-dcac3924 dc230000 dc231fb0 c01090d6
-Sep  5 17:35:46 odyssey kernel: Call Trace:
-Sep  5 17:35:46 odyssey kernel:  [do_group_exit+58/176] 
-do_group_exit+0x3a/0xb0
-Sep  5 17:35:46 odyssey kernel:  [get_signal_to_deliver+585/848] 
-get_signal_to_deliver+0x249/0x350
-Sep  5 17:35:46 odyssey kernel:  [do_signal+102/224] do_signal+0x66/0xe0
-Sep  5 17:35:46 odyssey kernel:  [do_fork+77/368] do_fork+0x4d/0x170
-Sep  5 17:35:46 odyssey kernel:  [sys_rt_sigprocmask+254/368] 
-sys_rt_sigprocmask+0xfe/0x170
-Sep  5 17:35:46 odyssey kernel:  [sys_fork+56/64] sys_fork+0x38/0x40
-Sep  5 17:35:46 odyssey kernel:  [do_notify_resume+59/64] 
-do_notify_resume+0x3b/0x40
-Sep  5 17:35:46 odyssey kernel:  [work_notifysig+19/21] 
-work_notifysig+0x13/0x15
-Sep  5 17:35:46 odyssey kernel:
-Sep  5 17:35:46 odyssey kernel: Code: 0f 0b d9 02 ec 51 2f c0 eb fe 8b 77 10 
-85 f6 75 ea 89 3c 24
-Sep  5 17:35:46 odyssey kernel:  <6>note: bomb.sh[14761] exited with 
-preempt_count 1
+Cisco sells Gigabit Ethernet linecards for this router, and the
+situation is quite different in this case.  And with most attacks,
+it's a futile exercise to try to combat them on a Fast Ethernet link,
+anyway. 8-(
 
--------------------------------
+> But I'm pretty sure that a C37xx would handle full 100 MBit traffic to a
+> busy website without any problems. In fact, I know that it does. ;-) (We
+> did switch to a C12000 shortly after, mainly because we went Gigabit).
 
-
-bomb.sh is the old subtle bash script:
-#!/bin/sh
-b(){ b|b&};b
-
-running on a user console with ulimit -u = 512
-
-Playing around with many "killall -9 bomb.sh&", after a while
-there is a chance to get the oops above.
-
+Of course it does.  After all, web traffic is somewhat different from
+pure DoS traffic. 8-)

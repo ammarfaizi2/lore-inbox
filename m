@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVCAT0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVCAT1E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262027AbVCAT0M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 14:26:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVCAT0L
+	id S262028AbVCAT1E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 14:27:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVCAT1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 14:26:11 -0500
-Received: from 83-70-37-232.b-ras1.prp.dublin.eircom.net ([83.70.37.232]:19328
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262027AbVCAT0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 14:26:07 -0500
-Date: Tue, 1 Mar 2005 19:27:27 +0000 (GMT)
-From: Telemaque Ndizihiwe <telendiz@eircom.net>
-X-X-Sender: telendiz@localhost.localdomain
-To: axboe@suse.de, Ingo.Wilken@informatik.uni-oldenburg.de
-cc: marcelo.tosatti@cyclades.com, torvalds@osdl.org, akpm@osdl.org,
-       trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH] Removes unnecessary if statement from /drivers/block/z2ram.c
-Message-ID: <Pine.LNX.4.62.0503011907001.5142@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 1 Mar 2005 14:27:02 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:2433 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262028AbVCAT0w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 14:26:52 -0500
+Message-Id: <200503011926.j21JQ5dP007149@laptop11.inf.utfsm.cl>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       ultralinux@vger.kernel.org
+Subject: Re: SPARC64: Modular floppy? 
+In-Reply-To: Message from "Randy.Dunlap" <rddunlap@osdl.org> 
+   of "Tue, 01 Mar 2005 09:25:38 -0800." <4224A592.1050909@osdl.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Tue, 01 Mar 2005 16:26:05 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 01 Mar 2005 16:26:06 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Randy.Dunlap" <rddunlap@osdl.org> said:
+> Horst von Brand wrote:
+> > "David S. Miller" <davem@davemloft.net> said:
+> >>On Mon, 28 Feb 2005 17:07:43 -0300
+> >>Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
 
-This Patch removes unnecessary if statement from a function that has no 
-implementation (in kernel 2.6.x and 2.4.x); the function returns 0 with 
-or without the if statement:
+> > [...]
 
- 	static int z2_release(struct inode *inode, struct file *filp)
- 	{
- 		if(current_device==-1)
- 			return 0;
+> >>>So, either the dependencies have to get fixed so floppy can't be modular
+> >>>for this architecture, or the relevant functions have to move from entry.S
+> >>>to the module.
 
- 		return 0;
- 	}
+> >>I think the former is the best solution.  The assembler code really
+> >>needs to get at floppy.c symbols.
 
+> >>From my cursory look the stuff depending on the floppy.c symbols is just
+> > in the floppy-related code. Can't that be just included in floppy.c?
+> > (Could be quite a mess, but it looks like short stretches).
 
-Signed-off-by: Telemaque Ndizihiwe <telendiz@eircom.net>
+> The code in entry.S looks self-contained (to me:), so moving it
+> somewhere else should just be a SMOP (mostly kbuild stuff)....
 
+Right. But where? I was thinking under arch/sparc64/drivers/floppy.S or
+such. And then there would need to be some make magic for it to get picked
+up and included only for sparc64. Sounds doable, if somewhat messy.
 
---- linux-2.6.10/drivers/block/z2ram.c.orig	2005-02-23 18:02:51.011967584 +0000
-+++ linux-2.6.10/drivers/block/z2ram.c	2005-02-23 18:05:31.617551824 +0000
-@@ -304,9 +304,6 @@ err_out:
-  static int
-  z2_release( struct inode *inode, struct file *filp )
-  {
--    if ( current_device == -1 )
--	return 0; 
--
-      /*
-       * FIXME: unmap memory
-       */
+But thinking a bit farther, if every arch and random driver starts playing
+this kind of games, we'll soon be in a world of hurt. Not sure if it is
+worth it.
+
+Other solution was to #ifdef that stuff into floppy.c, but again at the
+end of that way lies madness.
+
+I'll see what I come up with. Recomended reading on the whole kbuild stuff?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

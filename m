@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316246AbSEQOhQ>; Fri, 17 May 2002 10:37:16 -0400
+	id <S316245AbSEQOh5>; Fri, 17 May 2002 10:37:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316245AbSEQOhN>; Fri, 17 May 2002 10:37:13 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26474 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316246AbSEQOf4>; Fri, 17 May 2002 10:35:56 -0400
-Date: Fri, 17 May 2002 16:35:38 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@zip.com.au>, Paul Faure <paul@engsoc.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
-Message-ID: <20020517143537.GG11512@dualathlon.random>
-In-Reply-To: <20020517125529.GC11512@dualathlon.random> <E178j4i-0006eT-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S316248AbSEQOhQ>; Fri, 17 May 2002 10:37:16 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14348 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316247AbSEQOgZ>; Fri, 17 May 2002 10:36:25 -0400
+Subject: Re: Dell Inspiron i8100 with 2 batteries
+To: rutt@chezrutt.com
+Date: Fri, 17 May 2002 15:56:16 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15589.4802.37068.931146@localhost.localdomain> from "John Ruttenberg" at May 17, 2002 10:25:06 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E178j9U-0006fz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 17, 2002 at 03:51:20PM +0100, Alan Cox wrote:
-> > > For a 10Mbit ne2k it ought to be if its done with sched fifo. For serious
-> > > devices its not. The ksoftirqd bounce blows everything out of cache and is
-> > > easily measured
-> > 
-> > if you're under a flood of irq ksoftirqd or not won't make differences
+> of the batteries is less than 50% (according to the bios), then /proc/apm
+> shows the battery power level X 2.  If the combined charge of the batteries is
+> greater than 50%, then /proc/apm shows:
 > 
-> I didnt mention a flood of irqs. If stuff falls back to softirqd it 
-> materially harms throughput
+>     1.16 1.2 0x03 0x01 0xff 0x10 -1% -1 ?
+> 
+> I think this is because the bogus calculation it would make would result in a
+> percentage > 100.
+> 
+> I took a quick look at arch/i386/kernel/apm.c but it wasn't obvious what to
+> do.
 
-You did implicitly becuse if there's not a flood of irq or recursive
-softirqs it cannot fall to sofitrqd.
-
-Andrea
+The data basically comes from the BIOS as is

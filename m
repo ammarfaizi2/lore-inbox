@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263176AbTCWUKq>; Sun, 23 Mar 2003 15:10:46 -0500
+	id <S263175AbTCWUIG>; Sun, 23 Mar 2003 15:08:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263177AbTCWUKq>; Sun, 23 Mar 2003 15:10:46 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:26131
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263176AbTCWUKp>; Sun, 23 Mar 2003 15:10:45 -0500
-Subject: re: Ptrace hole / Linux 2.2.25
-From: Robert Love <rml@tech9.net>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Martin Mares <mj@ucw.cz>, Alan Cox <alan@redhat.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, Pavel Machek <pavel@ucw.cz>,
-       arjanv@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030323200956.GJ31079@louise.pinerecords.com>
-References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz>
-	 <200303231938.h2NJcAq14927@devserv.devel.redhat.com>
-	 <20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
-	 <1048448838.1486.12.camel@phantasy.awol.org>
-	 <20030323200956.GJ31079@louise.pinerecords.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048450898.1486.30.camel@phantasy.awol.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 23 Mar 2003 15:21:39 -0500
-Content-Transfer-Encoding: 7bit
+	id <S263176AbTCWUIG>; Sun, 23 Mar 2003 15:08:06 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:44302 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S263175AbTCWUIF>; Sun, 23 Mar 2003 15:08:05 -0500
+Date: Sun, 23 Mar 2003 20:19:06 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: dan carpenter <d_carpenter@sbcglobal.net>
+cc: Brian Gerst <bgerst@didntduck.org>, Thomas Molina <tmolina@cox.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sleeping function call in 2.5.65-bk
+In-Reply-To: <200303231905.h2NJ57OU665784@pimout3-ext.prodigy.net>
+Message-ID: <Pine.LNX.4.44.0303232016050.5720-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-23 at 15:09, Tomas Szepe wrote:
 
-> This sentence is ambiguous and one of its possible meanings is
-> "Most people do and Robert Love suspects Alan Cox does, too," which
-> is also probably what you meant.  A bit strong a statement, don't you
-> think?  How can you know the opinion of most people here?
+> On Sunday 23 March 2003 05:30 pm, Brian Gerst wrote:
+> >
+> > The fbcon driver is calling kmalloc in interrupt context without
+> > GFP_ATOMIC.
+> 
+> Good call.  This is compile tested only.
 
-Yes, sorry, ambiguous.
+Very few cards actaully use a VBL. Each driver also should provide its own 
+interrupt handler. Plus the "generic" vbl handler should NOT be calling 
+accel_cursor. Instead talking to the low level cursor handler instead. I 
+plan to do that next. I haven't got around to fixing that yet. I will in 
+the next release.
 
-I meant "I suspect most people agree with Alan"
-
-I do not presume to know what most people think.  I presume to think I
-know, hence "I suspect ..."
-
-Anyhow, all I am saying is, if people _require_ support or bug fixes or
-instant updates they should use a vendor kernel.  This does not mean we
-should not facilitate users who do make their own kernel.
-
-This thread is getting off-topic...
-
-> As a sidenote, I consider it important to note that it's obvious
-> that if Alan were the 2.4 maintainer, we would likely have a 2.4.21
-> with the critical (and possibly other) fixes out and all the fancy
-> new stuff rescheduled for 2.4.22.
-
-I would of released a 2.4.21, too.
-
-	Robert Love
 

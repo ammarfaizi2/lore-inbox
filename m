@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbTIXD32 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 23:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTIXD32
+	id S261356AbTIXDin (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 23:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbTIXDin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 23:29:28 -0400
-Received: from dp.samba.org ([66.70.73.150]:64203 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261470AbTIXD3X (ORCPT
+	Tue, 23 Sep 2003 23:38:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23210 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261356AbTIXDim (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 23:29:23 -0400
-From: Rusty Trivial Russell <trivial@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] irq_affinity_write_proc no longer writes garbage into irq_affinity[]
-Date: Wed, 24 Sep 2003 12:51:21 +1000
-Message-Id: <20030924032923.104502C267@lists.samba.org>
+	Tue, 23 Sep 2003 23:38:42 -0400
+Date: Tue, 23 Sep 2003 20:38:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Larry McVoy <lm@work.bitmover.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Larry McVoy <lm@bitmover.com>
+Subject: Re: log-buf-len dynamic
+In-Reply-To: <20030924032837.GP16314@velociraptor.random>
+Message-ID: <Pine.LNX.4.44.0309232032510.27940-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  <adobriyan@mail.ru>
 
+On Wed, 24 Sep 2003, Andrea Arcangeli wrote:
+> 
+> Really I don't find anything immoral, nor religious here. I only care
+> about law. Law says if I use bitkeeper I can't develop in the same area,
+> and so I refuse to use it. it's as simple as that.
 
---- trivial-2.6.0-test5-bk10/arch/i386/kernel/irq.c.orig	2003-09-24 12:27:14.000000000 +1000
-+++ trivial-2.6.0-test5-bk10/arch/i386/kernel/irq.c	2003-09-24 12:27:14.000000000 +1000
-@@ -965,6 +965,8 @@
- 		return -EIO;
- 
- 	err = parse_hex_value(buffer, count, &new_value);
-+	if(err)
-+		return err;
- 
- 	/*
- 	 * Do not allow disabling IRQs completely - it's a too easy
--- 
-  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
-  Don't blame me: the Monkey is driving
-  File: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= <adobriyan@mail.ru>: [PATCH] irq_affinity_write_proc no longer writes garbage into irq_affinity[]
+Go away. I will tell you one more time: it is _fine_ that you don't use 
+BK. Nobody has ever asked you to, in fact.
+
+So don't use it. Please. You don't like the license, and what it means. 
+Agreed. That license is a legal document. Agreed. BUT THAT ISN'T THE 
+ISSUE.
+
+And that was NEVER the issue, even though you keep bringing it up. Again
+and again. 
+
+The issue is that you should not complain about other peoples choices. 
+They are not _your_ choices. Never were, and never will be.
+
+		Linus
+

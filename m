@@ -1,66 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbTISLim (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 07:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbTISLim
+	id S261518AbTISLxw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 07:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbTISLxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 07:38:42 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:17551 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261515AbTISLil (ORCPT
+	Fri, 19 Sep 2003 07:53:52 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:29583 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261518AbTISLxu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 07:38:41 -0400
-Date: Fri, 19 Sep 2003 13:38:24 +0200
+	Fri, 19 Sep 2003 07:53:50 -0400
+Date: Fri, 19 Sep 2003 13:48:06 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Another keyboard woes with 2.6.0...
-Message-ID: <20030919113824.GB784@ucw.cz>
-References: <2F284368A@vcnet.vc.cvut.cz> <20030913205244.A3295@pclin040.win.tue.nl> <20030913214047.GF8973@vana.vc.cvut.cz>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Broken synaptics mouse..
+Message-ID: <20030919114806.GD784@ucw.cz>
+References: <Pine.LNX.4.44.0309110744030.28410-100000@home.osdl.org> <Pine.LNX.4.44.0309190129170.32637-100000@telia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030913214047.GF8973@vana.vc.cvut.cz>
+In-Reply-To: <Pine.LNX.4.44.0309190129170.32637-100000@telia.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 11:40:47PM +0200, Petr Vandrovec wrote:
-> On Sat, Sep 13, 2003 at 08:52:44PM +0200, Andries Brouwer wrote:
-> > On Fri, Sep 12, 2003 at 08:33:24PM +0200, Petr Vandrovec wrote:
-> > 
-> > > Andries is already gathering info for this one. This problem (missed
-> > > key release) happens to me on all systems I have (Athlon + via, P3 + i440BX,
-> > > P4 + 845...), most often when I do alt+right-arrow for walking through
-> > > consoles (and for Andries: hitting key stops this, otherwise it 
-> > > endlessly switches all VTs around, and while kernel thinks that key
-> > > is down, keyboard actually does not generate any IRQs, so keyboard knows
-> > > that all keys are released).
-> > 
-> > OK. It seems to me the two main hypotheses are: (i) problem with timers,
-> > (ii) problem with keyboard.
-> > 
-> > In other words: could you (and/or anybody else who can reproduce this
-> > at will) change the #undef DEBUG in i8042.c to #define DEBUG, recreate
-> > the problem, and post or mail the resulting file with keystrokes?
-> > 
-> > [of course: cut away parts corresponding to login sequences etc.]
-> > 
-> > This will probably allow us to decide whether the missing key release
-> > was never sent by the keyboard, or was lost by the kernel.
+On Fri, Sep 19, 2003 at 01:43:11AM +0200, Peter Osterlund wrote:
+> On Thu, 11 Sep 2003, Linus Torvalds wrote:
 > 
-> Unfortunately I'm at home, while box is at work, so I could only reboot it,
-> and confirm that it happened again. Unfortunately I cannot go to the box
-> and hit any key to get some more data. But I'll enable this on my workstation,
-> and if I'll get some "unexpected keycode" or "keyboard reconnect" errors again,
-> I'll have more data in the hand.
+> > Actually, I think I've changed my mind.
+> > 
+> > How hard would it be to have the "event" driver _notice_ when somebody is 
+> > trying to use it?
+> > 
+> > In particular, what about something that
+> >  - just keeps the touchpad in "ps/2 compatibility mode" by default
+> >  - moves to absolute mode only if somebody actually uses the 
+> >    /dev/input/event0 thing for it (and that would obviously disable the 
+> >    ps/2 mode).
+> > 
+> > That sounds like the simpler setup, especially since the touchpad does a 
+> > pretty good job of PS/2 emulation on its own..
 > 
-> >From log it looks like that switch likes 0x41 a lot: it reports ID 0x41AB,
-> it reports current scan set 0x41, and when we enable it, it returns spurious
-> 0x41... And the last 0x41 is one which confuses everything.
+> What do you think about the following patch? This patch makes the touchpad
+> stay in compatibility mode until user space explicitly asks for absolute
+> mode by sending a SYN_CONFIG event with value != 0 to the synaptics event
+> device.
+> 
+> I think this patch will apply on top of Vojtech's private tree, but I have
+> lost track of what patches he said he has applied. Anyway, the whole patch
+> series (14 patches) is available here:
+> 
+> http://w1.894.telia.com/~u89404340/patches/touchpad/2.6.0-test5-bk5/v1/
+> 
+> I dropped the "synaptics_optional" patch, because there should not be any
+> need for the config option now that we have backwards compatibility by
+> default.
 
-I've just sent a patch to Linus that should fix this. Please try ...
-(either get the patch from LKML or wait for next Linus's release).
+The patch is nice and small, but I'm still not sure if we really want
+input devices to have different modes, changing 'under hands' when one
+process switches the mode while another is having the device open.
+Things will then break.
+
+I'd really prefer to contain the ugliness in mousedev.c, which then
+could be removed completely in 2.8 or so, when XFree and GPM is already
+well adapted to the event interface.
+
+>  linux-petero/drivers/input/mouse/psmouse-base.c |    2 
+>  linux-petero/drivers/input/mouse/psmouse.h      |    1 
+>  linux-petero/drivers/input/mouse/synaptics.c    |   62 ++++++++++++++++++++++--
+>  linux-petero/drivers/input/mouse/synaptics.h    |    4 +
+>  4 files changed, 63 insertions(+), 6 deletions(-)
 
 -- 
 Vojtech Pavlik

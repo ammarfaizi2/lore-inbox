@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267272AbSKVBUf>; Thu, 21 Nov 2002 20:20:35 -0500
+	id <S267269AbSKVBVB>; Thu, 21 Nov 2002 20:21:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267271AbSKVBUf>; Thu, 21 Nov 2002 20:20:35 -0500
-Received: from [132.248.33.226] ([132.248.33.226]:65408 "EHLO
-	garaged.homeip.net") by vger.kernel.org with ESMTP
-	id <S267269AbSKVBUe>; Thu, 21 Nov 2002 20:20:34 -0500
-Subject: Re: [CFT][PATCH] Latest -rmap15 stuff against 2.4.20-rc2-ac2
-From: Max Valdez <maxvaldez@yahoo.com>
-To: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021121225507.GH20701@stingr.net>
-References: <20021121225507.GH20701@stingr.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-BtAW35jMO5s9mKeWkhI3"
-X-Mailer: Ximian Evolution 1.0.8-3mdk 
-Date: 21 Nov 2002 19:29:09 +0000
-Message-Id: <1037906949.5478.8.camel@garaged.fis.unam.mx>
+	id <S267271AbSKVBVB>; Thu, 21 Nov 2002 20:21:01 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:1932 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267269AbSKVBU6>; Thu, 21 Nov 2002 20:20:58 -0500
+Subject: Re: Linux 2.4.20-rc2 screwy ac97_codec.c:codec_id()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul <set@pobox.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021122011413.GA1463@squish.home.loc>
+References: <Pine.LNX.4.44L.0211151309400.11268-100000@freak.distro.conectiva> 
+	<20021122011413.GA1463@squish.home.loc>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Nov 2002 01:57:06 +0000
+Message-Id: <1037930226.10314.3.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2002-11-22 at 01:14, Paul wrote:
+> 	Im pretty sure this is broken, but I dont know exactly
+> what it is trying to do.
+> 	The first snprintf is overwritten regardless-- missing
+> else block? And its format string should probably be "%4X:%4X",
+> because whats there wont fit in the buffer.
+> 	Then the first 3 chars in the string are filled in
+> with raw numbers (For my card, non-ascii) and then a single
+> decimal digit?? (This string is printed out during boot time--
+> which is how I noticed it because of the 'garbage' chars.)
+> 	I dont know what a PnP string is supposed to look like...
 
---=-BtAW35jMO5s9mKeWkhI3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+There is an else missing you are correct
 
-Patches against rc3 cleanly too :-)
 
-It did the job in my box, now compiling 2 packages ( "make" and "nice
--19 make -j 4") from kde too, and using vmware with winxp and imesh
-running keeps my box running smoothly. Haven't seen a single paging in
-almost 1 hour of uptime.
+> +       if(id1&0x8080)
+> +               snprintf(buf, 10, "%0x4X:%0x4X", id1, id2);
 
-Thanks for the good job Paul Komkoff and Rik van Riel ! and of course
-Alan and Marcello
-Best regards
-Max
+else 
+{
 
-p.d. sorry for my english, I cant even notice if i made a mistake while
-writing
---=20
-uname -a: Linux garaged.fis.unam.mx 2.4.20-rc2 #2 SMP Sat Nov 16
-19:34:08 UTC 2002 i686 unknown unknown GNU/Linux
------BEGIN GEEK CODE BLOCK-----
-GS/
-d-s:a-C++ILIHA+++P-L++E--W++N+K-w++++O-M--V--PS+PEY+PGP-tXRtv++b+DI--D+Ge++=
-h---r+++z+++
------END GEEK CODE BLOCK-----
-gpg-key: http://garaged.homeip.net/gpg-key.txt
+> +       buf[0] = (id1 >> 8);
+> +       buf[1] = (id1 & 0xFF);
+> +       buf[2] = (id2 >> 8);
+> +       snprintf(buf+3, 7, "%d", id2&0xFF);
 
---=-BtAW35jMO5s9mKeWkhI3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA93TQEsvQlVyd+QikRAliiAJ4hb5ddHVWizS/AKAfelY/LkhMGlACfYbtN
-8klMREDS2kxsThq2Fw2Peak=
-=vHJo
------END PGP SIGNATURE-----
-
---=-BtAW35jMO5s9mKeWkhI3--
+> +       return buf;
+> +}
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130615AbRAZSTh>; Fri, 26 Jan 2001 13:19:37 -0500
+	id <S136424AbRAZSeE>; Fri, 26 Jan 2001 13:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130701AbRAZST2>; Fri, 26 Jan 2001 13:19:28 -0500
-Received: from smtp.primusdsl.net ([209.225.164.93]:24836 "EHLO
-	mailhost.digitalselect.net") by vger.kernel.org with ESMTP
-	id <S130615AbRAZSTM>; Fri, 26 Jan 2001 13:19:12 -0500
-Date: Fri, 26 Jan 2001 13:19:49 -0500
-From: James Lewis Nance <jlnance@intrex.net>
+	id <S136441AbRAZSdy>; Fri, 26 Jan 2001 13:33:54 -0500
+Received: from quechua.inka.de ([212.227.14.2]:11050 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S136424AbRAZSdu>;
+	Fri, 26 Jan 2001 13:33:50 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Renaming lost+found
-Message-ID: <20010126131949.A1041@bessie.dyndns.org>
-In-Reply-To: <20010126141350.Q6979@capsi.com> <Pine.LNX.3.95.1010126084632.208A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.3.95.1010126084632.208A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Fri, Jan 26, 2001 at 08:49:31AM -0500
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <14961.25754.449497.640325@pizda.ninka.net> <Pine.SOL.4.21.0101261351150.11126-100000@red.csi.cam.ac.uk> <20010126151138.B6331@pcep-jamie.cern.ch>
+Organization: private Linux site, southern Germany
+Date: Fri, 26 Jan 2001 19:19:23 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E14MDT5-0001Am-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 26, 2001 at 08:49:31AM -0500, Richard B. Johnson wrote:
+> > I was not suggesting ignoring these. OTOH, there is no reason to treat an
+> > RST packet as "go away and never ever send traffic to this host again" -
+> > i.e. trying another TCP connection, this time with ECN disabled, would be
+> > acceptable.
+> 
+> Using a different source port number, even.
 
-> On Fri, 26 Jan 2001, Rob Kaper wrote:
-> > Is there a way to rename lost+found ?? It bothers me to see it in ls all the
+But that has to be done on the application level, which means we need a
+socket option to not use ECN. It is not acceptable that the kernel changes
+the port number of a socket which already has one, or any application which
+uses getsockname() on the connecting socket will horribly break.[1]
 
-> Get used to it. This is part of the Linux/Unix heritage!  A file-system
-> without a lost+found directory is like love without sex.
+Olaf
 
-FWIW IBM's JFS file system does not have a lost+found directory.  I dont
-remember if reiserfs does or not.
-
-Jim
+[1] and this means any application using libsocks5, so nobody tell me "no
+sane application does need this".
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

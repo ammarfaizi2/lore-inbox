@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbTFHLff (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 07:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbTFHLff
+	id S261589AbTFHLpK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 07:45:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbTFHLpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 07:35:35 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:38162 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S261568AbTFHLfe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 07:35:34 -0400
-Date: Sun, 8 Jun 2003 13:49:01 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org, willy@w.ods.org, gibbs@scsiguy.com,
-       marcelo@conectiva.com.br, green@namesys.com
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-Message-Id: <20030608134901.363ebe42.skraw@ithnet.com>
-In-Reply-To: <20030608131901.7cadf9ea.skraw@ithnet.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	<2804790000.1052441142@aslan.scsiguy.com>
-	<20030509120648.1e0af0c8.skraw@ithnet.com>
-	<20030509120659.GA15754@alpha.home.local>
-	<20030509150207.3ff9cd64.skraw@ithnet.com>
-	<20030605181423.GA17277@alpha.home.local>
-	<20030608131901.7cadf9ea.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 8 Jun 2003 07:45:10 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:60095 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261589AbTFHLpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 07:45:08 -0400
+Date: Sun, 8 Jun 2003 13:58:44 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-kernel@vger.kernel.org
+Cc: compaqandlinux@cpqlin.van-dijk.net
+Subject: [PATCH] MAINTAINERS: compaq raid drivers
+Message-ID: <20030608115844.GC6662@wohnheim.fh-wedel.de>
+References: <200306072357.QAA04100@hpat542.atl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200306072357.QAA04100@hpat542.atl.hp.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello author,
+Hi!
 
-shoot me for the last comment regarding __kmem_cache_alloc (which means: forget
-it).
-Still you have significant source code duplication between "#define
-kmem_cache_alloc_one" and "void* kmem_cache_alloc_batch".
-How about an exit-symbol parameter?
+"Charles White <arrays@compaq.com>" bounces.  Does anyone have a
+better patch for the MAINTAINERS than the one below?
 
-Regards,
-Stephan
+Jörn
 
+-- 
+Anything that can go wrong, will.
+-- Finagle's Law
+
+--- linux-2.5.70-bk12/MAINTAINERS~maintainer_cpqarray	2003-06-08 00:40:50.000000000 +0200
++++ linux-2.5.70-bk12/MAINTAINERS	2003-06-08 13:53:05.000000000 +0200
+@@ -404,14 +404,12 @@
+ 
+ COMPAQ SMART2 RAID DRIVER
+ P:	Charles White	
+-M:	Charles White <arrays@compaq.com>
+ L:	compaqandlinux@cpqlin.van-dijk.net
+ W:	ftp.compaq.com/pub/products/drivers/linux
+ S:	Supported	
+ 
+ COMPAQ SMART CISS RAID DRIVER 
+ P:	Charles White
+-M:	Charles White <arrays@compaq.com>
+ L:	compaqandlinux@cpqlin.van-dijk.net
+ W:	ftp.compaq.com/pub/products/drivers/linux	
+ S:	Supported 

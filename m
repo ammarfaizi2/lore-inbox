@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263134AbTCLKWb>; Wed, 12 Mar 2003 05:22:31 -0500
+	id <S261714AbTCLKVP>; Wed, 12 Mar 2003 05:21:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263136AbTCLKWb>; Wed, 12 Mar 2003 05:22:31 -0500
-Received: from mail.gmx.net ([213.165.64.20]:57935 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S263134AbTCLKWa>;
-	Wed, 12 Mar 2003 05:22:30 -0500
-Message-Id: <5.2.0.9.2.20030312113354.00c8dcc0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Wed, 12 Mar 2003 11:37:38 +0100
-To: Con Kolivas <kernel@kolivas.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.64-mm2->4 hangs on contest
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-In-Reply-To: <200303122125.44731.kernel@kolivas.org>
-References: <5.2.0.9.2.20030312101646.00c8e238@pop.gmx.net>
- <5.2.0.9.2.20030310105217.00cd25b0@pop.gmx.net>
- <5.2.0.9.2.20030310075720.00c832f8@pop.gmx.net>
- <5.2.0.9.2.20030312101646.00c8e238@pop.gmx.net>
+	id <S263134AbTCLKVP>; Wed, 12 Mar 2003 05:21:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:8393 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261714AbTCLKVO>;
+	Wed, 12 Mar 2003 05:21:14 -0500
+Date: Wed, 12 Mar 2003 11:31:55 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Ben Collins <bcollins@debian.org>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <20030312103155.GN811@suse.de>
+References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org> <20030312085517.GK811@suse.de> <20030312032614.G12806@schatzie.adilger.int>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030312032614.G12806@schatzie.adilger.int>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:25 PM 3/12/2003 +1100, Con Kolivas wrote:
->On Wed, 12 Mar 2003 20:21, Mike Galbraith wrote:
-> > I can't help myself... the attached is just too simple and works too darn
-> > well.
-> >
-> > Somebody stop me! :)
->
->Sssssssssssmokin are ya Mike?
+On Wed, Mar 12 2003, Andreas Dilger wrote:
+> Some people will just never be happy no matter what you give them.
 
-;-)
+I've been very happy with BK, been using it shortly after Linus started
+doing so. Mostly out of curiosity at first, later because it was
+actually quite useful. I even see myself as a fairly pragmatic
+individual, but even so I do find it increasingly difficult to defend my
+BK usage.
 
->Is this in addition to your previous errr hack or instead of?
+So please stop thinking you can judge that easily by pushing me into
+your nice little 'some people will never be happy bla bla' category.
 
-Instead of.  The buttugly patch destroyed interactivity.  This one cures 
-starvation, and interactivity is really nice.
-
-         -Mike 
+-- 
+Jens Axboe
 

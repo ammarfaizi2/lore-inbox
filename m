@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUD1T5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbUD1UAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbUD1T5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 15:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUD1T5U
+	id S261991AbUD1UAP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 16:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbUD1T7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 15:57:20 -0400
-Received: from smtp.mailblocks.com ([140.174.9.93]:41930 "HELO
-	smtp3.mailblocks.com") by vger.kernel.org with SMTP id S265071AbUD1S4R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 14:56:17 -0400
-Date: Wed, 28 Apr 2004 11:56:38 -0700
-From: Keith D Burgess Jr <kburgessjr@mailblocks.com>
-Message-Id: <kburgessjr-05pZrAV1BpTwXRPAFHKqDX8TUUVHXXq@mailblocks.com>
-X-MB-Message-Source: WebUI
-X-MB-Message-Type: User
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-X-Priority: 3
+	Wed, 28 Apr 2004 15:59:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24017 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261162AbUD1THv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 15:07:51 -0400
+Date: Wed, 28 Apr 2004 12:07:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: trond.myklebust@fys.uio.no, sgoel01@yahoo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc{1,2} bad VM/NFS interaction in case of dirty page
+ writeback
+Message-Id: <20040428120715.68bc51dd.akpm@osdl.org>
+In-Reply-To: <20040428173811.A1505@infradead.org>
+References: <20040427011237.33342.qmail@web12824.mail.yahoo.com>
+	<20040426191512.69485c42.akpm@osdl.org>
+	<1083035471.3710.65.camel@lade.trondhjem.org>
+	<20040426205928.58d76dbc.akpm@osdl.org>
+	<1083043386.3710.201.camel@lade.trondhjem.org>
+	<20040426225834.7035d2c1.akpm@osdl.org>
+	<1083080207.2616.31.camel@lade.trondhjem.org>
+	<20040428062942.A27705@infradead.org>
+	<1083169062.2856.36.camel@lade.trondhjem.org>
+	<20040428173811.A1505@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc -
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> I'm not yet sure where I'm heading with revamping xfs_aops.c, but what
+>  I'd love to see in the end is more or less xfs implementing only
+>  writepages and some generic implement writepage as writepages wrapper.
 
-Wanted to take a moment to thank you for the incredible job you and 
-Linuxant have done supporting the Linux community. I have been 
-following the threads on the lkml and must say that I am appalled at 
-the way you are being <personally> treated. If it were not for 
-Linuxant, owners of the "linux unfriendly" chipsets would be SOL. I for 
-one was pis**d when I found out my 2100b wireless card in my brand 
-spanking new X31 was not supported; until of course, I stumbled upon 
-driverloader. While there are other "free" alternatives out there and 
-also the ipw2100 project, I for one do not want to go through the 
-effort of compiling, modifying kernel parameters etc. For me, the $20 
-spent on driverloader was well worth it and allowed me to scrap XP for 
-Linux. And how about support? I surely appreciated the personal 
-support, and hours, you spent on my laptop hanging issue. Would I 
-recieve that from the other project's community members?
+That might make sense.  One problem is that writepage expects to be passed
+a locked page whereas writepages() does not.
 
-With that said, I must admit that I was one of those confused users 
-when I first saw the tainted kernel message(s). I have used Linux (I 
-repeat, <<used>> Linux) since about 96 or so. I don't claim to be an 
-expert or a developer but by no means am a Linux newbie. Just because I 
-am more interested in applications, window managers and graphical 
-environments such as gnome and kde, then meaningless (to the user) 
-kernel messages, does not make me a stupid user. However, not fully 
-understanding the kernel message, I thought something was wrong the 
-first time I noticed it (VMware modules as I recall.)
+Any code which implements writearound-inside-writepage should be targetted
+at a generic implementation, not an fs-specific one if poss.  We could go
+look at the ->vm_writeback() a_op which was in in 2.5.20 or thereabouts. 
+it was causing problems and had no discernable benefits so I ripped it out.
 
-The Kernel developers should be focused on bringing Linux to the 
-attention of EVERY desktop user, not just those who are knowledgeable 
-of kernel messages, configuration, APIs and the GPL. Why do you think 
-that distributions such as Xandros have become so popular to users 
-switching to Linux? It seems rather simple to me; the product just 
-plain works! Is the diamond of their OS, the file manager, released 
-under the GPL? Of course not, and the users do not care! They just want 
-to be able to integrate into existing Windows environments, 
-authenticate against their NT/AD domains and be able to map to existing 
-Windows network resources - all seamlessly.
-
-In summary, I firmly feel that there needs to be a mindset change if 
-Linux is to eat away at Windows market share on the desktops. Let's 
-take a certain Linux distributor as an example; here is a quote from a 
-recent posting on the 4K stacks issue:
-
-"Too bad. External binary modules never have, and never will hold back 
-development. NVIDIA need to issue driver updates that work accordingly."
-
-Reworded from a user-focused perspective:
-
-"External binary modules shouldn't hold back development. Although 
-NVIDIA needs to issue driver updates that work accordingly, <> 
-understands that our users are the number one priority. Therefore, 
-until new modules are released, we will offer a workaround for users 
-who are effected."
-
-Sincerely,
-Keith
-
-
-----------------------------------------------
-Mailblocks - A Better Way to Do Email
-http://about.mailblocks.com/info
+A writearound-within-writepage implementation would need to decide whether
+it's goign to use lock_page() or TryLockPage().  I expect lock_page() will
+be OK - we only call in there for __GFP_FS allocators.
 

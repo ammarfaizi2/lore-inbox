@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316053AbSEOMkt>; Wed, 15 May 2002 08:40:49 -0400
+	id <S316156AbSEOMv1>; Wed, 15 May 2002 08:51:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316143AbSEOMks>; Wed, 15 May 2002 08:40:48 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:48655 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S316053AbSEOMkr>; Wed, 15 May 2002 08:40:47 -0400
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: msmith@operamail.com (Malcolm Smith), linux-kernel@vger.kernel.org,
-        chaffee@cs.berkeley.edu
-Subject: Re: [RFC] FAT extension filters
-In-Reply-To: <200205150318.g4F3IPY103245@saturn.cs.uml.edu>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 15 May 2002 21:39:53 +0900
-Message-ID: <87u1p960va.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S316158AbSEOMv0>; Wed, 15 May 2002 08:51:26 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63761 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316156AbSEOMvZ>; Wed, 15 May 2002 08:51:25 -0400
+Subject: Re: [PATCH] 2.5.15 IDE 61
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Wed, 15 May 2002 14:10:00 +0100 (BST)
+Cc: nconway.list@ukaea.org.uk (Neil Conway),
+        aia21@cantab.net (Anton Altaparmakov),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        rmk@arm.linux.org.uk (Russell King), linux-kernel@vger.kernel.org
+In-Reply-To: <3CE24040.4050001@evision-ventures.com> from "Martin Dalecki" at May 15, 2002 01:02:24 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E177yXY-0001t9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
+> The problem is that with the busy flag on we are wasting quite
+> a significant amount of CPU time spinning around it for no good...
 
-> Also I found a bug in the vfat code. It doesn't
-> properly handle old (pre-vfat) files with names
-> that start with 0xE5; these are stored on disk
-> with 0x05 as the first character.
+Why spin on the busy flag. Instead you just let the person who clears
+the flag check the pending work and do it. 
 
-Umm... why? 0xE5 is free entry mark.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316289AbSEaRKw>; Fri, 31 May 2002 13:10:52 -0400
+	id <S316397AbSEaRbE>; Fri, 31 May 2002 13:31:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316397AbSEaRKv>; Fri, 31 May 2002 13:10:51 -0400
-Received: from urtica.linuxnews.pl ([217.67.200.130]:21005 "EHLO
-	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
-	id <S316289AbSEaRKv>; Fri, 31 May 2002 13:10:51 -0400
-Date: Fri, 31 May 2002 19:10:40 +0200 (CEST)
-From: Pawel Kot <pkot@linuxnews.pl>
-To: Kjartan Maraas <kmaraas@online.no>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.19-pre9] DMA not available
-In-Reply-To: <1022855932.11533.41.camel@sevilla.gnome.no>
-Message-ID: <Pine.LNX.4.33.0205311909140.10960-100000@urtica.linuxnews.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316437AbSEaRbD>; Fri, 31 May 2002 13:31:03 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4622 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316397AbSEaRbD>; Fri, 31 May 2002 13:31:03 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: do_mmap
+Date: Fri, 31 May 2002 17:30:39 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <ad8bvv$3tr$1@penguin.transmeta.com>
+In-Reply-To: <Pine.GSO.4.05.10205311456070.10633-100000@mausmaki.cosy.sbg.ac.at> <1022855243.12888.410.camel@irongate.swansea.linux.org.uk>
+X-Trace: palladium.transmeta.com 1022866254 32712 127.0.0.1 (31 May 2002 17:30:54 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 31 May 2002 17:30:54 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 May 2002, Kjartan Maraas wrote:
-
-> tor, 2002-05-30 kl. 17:24 skrev Pawel Kot:
-> > Hi,
-> >
-> > I can't enable DMA with 2.4.19-pre9 with my Dell laptop:
-> > root@bzzzt:~# hdparm -d 1 /dev/hda
-> >
-> > /dev/hda:
-> >  setting using_dma to 1 (on)
-> >  HDIO_SET_DMA failed: Operation not permitted
-> >  using_dma    =  0 (off)
+In article <1022855243.12888.410.camel@irongate.swansea.linux.org.uk>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>On Fri, 2002-05-31 at 14:00, Thomas 'Dent' Mirlacher wrote:
+>> and the checks in various places are really strange. - well some
+>> places check for:
+>> 	o != NULL
+>> 	o > -1024UL
 >
-> This looks like the same problems I had a while back with my Compaq Evo
-> N600. It was fixed for me by using the patches from
-> http://linuxdiskcert.org/
+>"Not an error". Its relying as some other bits of code do actually that
+>the top mappable user address is never in the top 1K of the address
+>space
+>
+>> is it possible to have 0 as a valid address? - if not, this should
+>> be the return on errors.
+>
+>SuS explicitly says that 0 is not a valid mmap return address.
 
-Indeed. I applied the patch (with a few modifications to apply against
-pre9) and it seems to work correctly so far (at least DMA works). Thanks
-for the hint.
+But if so, SuS is _very_ _very_ wrong.
 
-pkot
--- 
-mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
-http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
+The fact is, if you use something like vm86 mode, you absolutely _need_
+to be able to explicitly mmap at address 0. 
 
+So it is correct (and in fact there is no other sane way to do it) to
+say
+
+	addr = mmap(NULL, 1024*1024,
+		PROT_READ | PROT_WRITE ,
+		MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED,
+		-1, 0);
+
+and if SuS says that mmap must not return NULL for this case, then SuS
+is so full of sh*t that it's not worth worrying about.
+
+In short, under Linux 0 _is_, and will always be (at least on x86) a
+perfectly valid return address from mmap() and friends. It's only going
+to be returned when you explicitly ask for it with MAP_FIXED, but it
+absolutely is a valid return.
+
+		Linus
+		Linus

@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271307AbTHCV6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 17:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271313AbTHCV6Q
+	id S271289AbTHCVsC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 17:48:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271283AbTHCVsC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 17:58:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16051 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271307AbTHCV6P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 17:58:15 -0400
-Message-ID: <3F2D8569.1010109@pobox.com>
-Date: Sun, 03 Aug 2003 17:58:01 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: David Lang <david.lang@digitalinsight.com>,
-       Erik Andersen <andersen@codepoet.org>,
-       Werner Almesberger <werner@almesberger.net>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, Nivedita Singhvi <niv@us.ibm.com>
-Subject: Re: TOE brain dump
-References: <20030803194011.GA8324@work.bitmover.com> <Pine.LNX.4.44.0308031253240.24695-100000@dlang.diginsite.com> <20030803203051.GA9057@work.bitmover.com>
-In-Reply-To: <20030803203051.GA9057@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Aug 2003 17:48:02 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:43139 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S271289AbTHCVrj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 17:47:39 -0400
+Date: Sun, 3 Aug 2003 23:47:38 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, devik@cdi.cz,
+       aebr@win.tue.nl
+Subject: Re: [PATCH] Allow /dev/{,k}mem to be disabled to prevent kernel from being modified easily
+Message-ID: <20030803214738.GA16129@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	David Lang <david.lang@digitalinsight.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	devik@cdi.cz, aebr@win.tue.nl
+References: <20030803140031.7665546c.akpm@osdl.org> <Pine.LNX.4.44.0308031425100.24695-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308031425100.24695-100000@dlang.diginsite.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> I can get an entire machine, memory, disk, > Ghz CPU, case, power supply,
-> cdrom, floppy, onboard enet extra net card for routing, for $250 or less,
-> quantity 1, shipped to my door.
-> 
-> Why would I want to spend money on some silly offload card when I can get 
-> the whole PC for less than the card?
+On Sun, Aug 03, 2003 at 02:33:01PM -0700, David Lang wrote:
 
+> we already have the option to not support modules (as Alan Cox points out
+> every time that subject comes up it can be bypassed by people who have
+> access to /dev/*mem) so it would seem that adding the option to bar access
+> to /dev/*mem as well would make exisitng config options mean what they
+> appear to mean.
 
-Yep.  I think we are entering the era of what I call RAIC (pronounced 
-"rake") -- redundant array of inexpensive computers.  For organizations 
-that can handle the space/power/temperature load, a powerful cluster of 
-supercheap PCs, the "Wal-Mart Supercomputer", can be built for a 
-rock-bottom price.
+This was also on my mind, yes. As Wichert said, not all holes are closed
+then, there is also /dev/microcode, iopl() and more.
 
+However, perhaps we could all sweep them under the "don't allow userspace to
+touch kernel memory easily" banner?
+
+We can leave more finegrained tools to outside patchsets then.
+
+I think root will always be able to figure out a way to get into the
+kernel's innards, but we can raise the bar quite a lot easily without too
+much infrastructure.
+
+As to what Alan said about LSM, I've yet to see how to do that in a
+reasonable way. But I didn't look too hard.
+
+As to what Andries said, how about '/proc/sys/raw_memory_access'?
+
+Thanks.
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

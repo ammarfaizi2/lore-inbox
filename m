@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274041AbRISMtx>; Wed, 19 Sep 2001 08:49:53 -0400
+	id <S274042AbRISMyX>; Wed, 19 Sep 2001 08:54:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274042AbRISMtn>; Wed, 19 Sep 2001 08:49:43 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:8539 "EHLO
+	id <S274043AbRISMyN>; Wed, 19 Sep 2001 08:54:13 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:26205 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S274041AbRISMtf>; Wed, 19 Sep 2001 08:49:35 -0400
-Date: Wed, 19 Sep 2001 14:49:47 +0200
+	id <S274042AbRISMxz>; Wed, 19 Sep 2001 08:53:55 -0400
+Date: Wed, 19 Sep 2001 14:54:17 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: David Howells <dhowells@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Manfred Spraul <manfred@colorfullife.com>, Ulrich.Weigand@de.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Deadlock on the mm->mmap_sem
-Message-ID: <20010919144947.Q720@athlon.random>
-In-Reply-To: <torvalds@transmeta.com> <9326.1000893117@warthog.cambridge.redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10pre11aa1
+Message-ID: <20010919145417.R720@athlon.random>
+In-Reply-To: <Pine.GSO.4.21.0109190420510.28824-100000@weyl.math.psu.edu> <Pine.GSO.4.21.0109190800590.28824-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9326.1000893117@warthog.cambridge.redhat.com>; from dhowells@redhat.com on Wed, Sep 19, 2001 at 10:51:57AM +0100
+In-Reply-To: <Pine.GSO.4.21.0109190800590.28824-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Sep 19, 2001 at 08:07:30AM -0400
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 10:51:57AM +0100, David Howells wrote:
-> 
-> Looking through the do_page_fault(), I noticed there's a race in expand stack
-> because expand_stack() expects the caller to have the mm-sem write-locked.
-> 
-> I've attached a patch that might fix it appropriately. Alternatively, it may
-> be worth applying Andrea's 00_silent-stack-overflow-10 patch which fixes this
-> and something else too.
+On Wed, Sep 19, 2001 at 08:07:30AM -0400, Alexander Viro wrote:
+> BTW, what's to stop shrink_cache() from picking a page out of ramdisk
+> pagecache and calling ->writepage() on it?  The thing will immediately
 
-Yep, it's here:
+it's the same trick that ramfs uses also, so it is the right way as far
+as ramfs isn't broken too (and quite frankly these days ramfs is much
+more important than ramdisk given our heavy use of logical caches).
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.10pre11aa1/00_silent-stack-overflow-10
+> If you get a lot of stuff in ramdisks, things can get rather insteresting...
 
-I also added the documentation on the locking on top of expand_stack.
+under heavy memory pressure possibly, that applies to ramfs also as said
+above. Anyways this was a clean approch and the new vm make sure not to
+get confused by writepage marking the page dirty again, the worst thing
+that can happen is some cpu cycle wasted, _but_ we save cpu cycles in
+not having special checks  when ramfs isn't in use and the fact there are no
+special cases also make the code cleaner.
 
-My patch also enforced a gap of one page (sysctl configurable in
-with page granularity) between a growsdown vma and its previous vma, so
-that we can more easily trap stack overflows on the heap. (such part
-isn't related to the race fix but it was controversial but since it's
-quite useful too I didn't splitted it out :)
+Now, I'm fine to add special cases if this sort out to be too much cpu
+wasted [check how much shrink_cache show up on the profiling to be sure]
+(of course not just for ramdisk that isn't very important, but for ramfs
+too which is much more critical to be very efficient).
 
 Andrea

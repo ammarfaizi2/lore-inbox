@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135926AbRAJPZs>; Wed, 10 Jan 2001 10:25:48 -0500
+	id <S135210AbRAJPcJ>; Wed, 10 Jan 2001 10:32:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135927AbRAJPZi>; Wed, 10 Jan 2001 10:25:38 -0500
-Received: from ns.sysgo.de ([213.68.67.98]:41469 "EHLO dagobert.svc.sysgo.de")
-	by vger.kernel.org with ESMTP id <S135926AbRAJPZ0>;
-	Wed, 10 Jan 2001 10:25:26 -0500
-Date: Wed, 10 Jan 2001 16:25:21 +0100 (MET)
-From: Robert Kaiser <rob@sysgo.de>
-To: Miles Lane <miles@megapathdsl.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Anybody got 2.4.0 running on a 386 ?
-In-Reply-To: <3A5BBF5A.7030103@megapathdsl.net>
-Message-ID: <Pine.LNX.4.21.0101101618120.19662-100000@dagobert.svc.sysgo.de>
+	id <S135524AbRAJPb7>; Wed, 10 Jan 2001 10:31:59 -0500
+Received: from lca0042.lss.emc.com ([168.159.120.42]:4510 "EHLO
+	lca0042.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S135210AbRAJPbv>; Wed, 10 Jan 2001 10:31:51 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Mike Harrold <mharrold@cas.org>
+Subject: Re: * 4 converted to << 2 for networking code
+In-Reply-To: <200101101518.KAA11519@mah21awu.cas.org>
+From: Chris Jones <clj@emc.com>
+Date: 10 Jan 2001 10:31:34 -0500
+In-Reply-To: Mike Harrold's message of "Wed, 10 Jan 2001 10:18:38 -0500 (EST)"
+Message-ID: <hplmsjs9t5.fsf@lca2240.lss.emc.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Miles,
+Mike Harrold <mharrold@cas.org> writes:
 
-Thanks very much for your suggestions!
+[...]
 
-On Tue, 9 Jan 2001, Miles Lane wrote:
+  My feeling is that it shouldn't matter if you use <<2 or *4 even if the
+  compiler optimises - one would hope that the compiler would optimise to
+  the fastest in both directions.
 
-> Just out of curiosity, did you use a 2.2 series
-> .config file and then run make oldconfig or did
-> you build a new .config file from scratch?
+I agree this should be left to the compiler.  The programmer should write *4
+when multiplying by 4 and <<2 when shifting left by 2.  In the case that
+sparked this (converting counts of 32 bit units to counts of octets),
+multiplication is the proper conversion operation.
 
-No, I built it from scratch with make xconfig.
-
-> 
-> I have periodically built kernels that crashed
-> immediately at the point you mention.  Usually this
-> was due to me choose configuration options that
-> were incompatible with my machine's hardware.
-
-You mean they crashed at the exact same statement ?
-That would be an interesting hint, can you confirm it ?
-
-> 
-> Another time, the machine wouldn't boot because
-> I needed a new version of LILO.  I also have seen
-> at least one machine where I needed to specify
-> "linear" as one of the options in lilo.conf.
-> If you aren't specifying "linear" now, give it
-> a try.
-
-I am not using LILO (yet). I tried booting with SYSLINUX
-or by dumping the kernel binary to floppy and booting from
-it. Both showed the same result.
-
-----------------------------------------------------------------
-Robert Kaiser                          email: rkaiser@sysgo.de
-SYSGO RTS GmbH
-Am Pfaffenstein 14
-D-55270 Klein-Winternheim / Germany    fax:   (49) 6136 9948-10
-
+(If performance is truly critical AND profiling shows that writing <<2 instead
+of *4 makes a significant difference, doing the shift might be called for.  I
+hardly believe that's the case here, and the fact that the code has to run on
+several architectures and be compiled by various compilers makes it less likely
+that this change is a clearcut win.)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267539AbUBSUGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 15:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267532AbUBSUGP
+	id S267532AbUBSUKp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 15:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267541AbUBSUKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 15:06:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49301 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267539AbUBSUF7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 15:05:59 -0500
-Date: Thu, 19 Feb 2004 20:05:54 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Tridge <tridge@samba.org>, Jamie Lokier <jamie@shareable.org>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
-Message-ID: <20040219200554.GE31035@parcelfarce.linux.theplanet.co.uk>
-References: <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+	Thu, 19 Feb 2004 15:10:45 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:4110 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S267532AbUBSUKl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 15:10:41 -0500
+Date: Thu, 19 Feb 2004 05:04:43 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       arjanv@redhat.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       torvalds@osdl.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040219130442.GJ1269@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org> <20040218230055.A14889@infradead.org> <20040218153234.3956af3a.akpm@osdl.org> <20040219123237.B22406@infradead.org> <20040219105608.30d2c51e.akpm@osdl.org> <20040219190141.A26888@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+In-Reply-To: <20040219190141.A26888@infradead.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 11:48:50AM -0800, Linus Torvalds wrote:
-> The VFS rule is:
->  - all new dentries start off with the two magic bits clear
->  - whenever we shrink a dentry, we clear the two magic bits in the parent
+On Thu, Feb 19, 2004 at 07:01:41PM +0000, Christoph Hellwig wrote:
+> On Thu, Feb 19, 2004 at 10:56:08AM -0800, Andrew Morton wrote:
+> > inter-node cache consistency.  Other distributed filesystems will need this
+> > and probably AIX already provides it.
 > 
-> and that is _all_ the VFS layer ever does. Even Al won't find this 
-> obnoxious (yeah, we might clear the bits after a timeout on things that 
-> need re-validation, but that's in the noise).
- 
-> Notice what the above does? After the above loop, bit two will be set IFF 
-> the dentry cache now contains every single name in the directory. 
-> Otherwise it will be clear. Bit two will basically be a "dcache complete" 
-> bit.
+> You've probably not seen the AIX VM architecture.  Good for you as it's
+> not good for your stomache.  I did when I still was SCAldera and although
+> my NDAs don't allow me to go into details I can tell you that the AIX
+> VM architecture is deeply tied into the segment architecture of the Power
+> CPU and signicicantly different from any other UNIX variant.
+> 
+> So porting code from AIX that touches anything VM related is a complete
+> rewrite.
 
-What about dentry getting dropped in the middle of that loop _and_
-another task setting the first bit again before the loop ends?
+Or, alternatively, requires a surprisingly large glue-code layer.
+
+							Thanx, Paul

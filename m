@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288993AbSANJqO>; Mon, 14 Jan 2002 04:46:14 -0500
+	id <S289146AbSANJ5r>; Mon, 14 Jan 2002 04:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288944AbSANJqF>; Mon, 14 Jan 2002 04:46:05 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:58362 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S289059AbSANJp7>; Mon, 14 Jan 2002 04:45:59 -0500
-Message-Id: <5.1.0.14.2.20020114094537.04dbe140@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 14 Jan 2002 09:46:43 +0000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Linux 2.4.18pre3-ac1-aia21 (IDE patches)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16Q3WP-0001A4-00@the-village.bc.nu>
-In-Reply-To: <5.1.0.14.2.20020114014458.04c1d0b0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S289136AbSANJ5i>; Mon, 14 Jan 2002 04:57:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56080 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289146AbSANJ5d>; Mon, 14 Jan 2002 04:57:33 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+To: skraw@ithnet.com (Stephan von Krawczynski)
+Date: Mon, 14 Jan 2002 10:09:00 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), zippel@linux-m68k.org, rml@tech9.net,
+        ken@canit.se, arjan@fenrus.demon.nl, landley@trommello.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020114104532.59950d86.skraw@ithnet.com> from "Stephan von Krawczynski" at Jan 14, 2002 10:45:32 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Q432-0001FV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:35 14/01/02, Alan Cox wrote:
-> > >Andre's IDE patch is in the ac2 cut. I took it out just to make 
-> testing easier
-> > >in case other people found -ac1 wasnt as reliable as I did 8)
-> >
-> > That's ok. -ac2 isn't out yet AFAICS... (-;
-> >
-> > Do you have the configure help entries in there, too?
->
->I don't - care to send me that patch ?
+> Just a short question: the last (add-on) patch to mini-ll I saw on the list
+> patches: drivers/net/3c59x.c
+> drivers/net/8139too.c
+> drivers/net/eepro100.c
 
-Sure. Will separate out and email you tonight.
-
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+I've seen multiple quite frankly bizarre patches like that. I've not applied
+them and don't see the point

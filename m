@@ -1,93 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271165AbVBERAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272386AbVBERKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271165AbVBERAX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 12:00:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271245AbVBERAX
+	id S272386AbVBERKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 12:10:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272525AbVBERKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 12:00:23 -0500
-Received: from 34.67-18-129.reverse.theplanet.com ([67.18.129.34]:60994 "EHLO
-	krish.dnshostnetwork.net") by vger.kernel.org with ESMTP
-	id S271165AbVBERAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 12:00:00 -0500
-Message-ID: <008501c50ba4$1ed1b890$8d00150a@dreammac>
-From: "Pankaj Agarwal" <pankaj@toughguy.net>
-To: <linux-kernel@vger.kernel.org>, "Linux Net" <linux-net@vger.kernel.org>
-Subject: Help - Getting an error when trying to add prio to tables....
-Date: Sat, 5 Feb 2005 22:29:48 +0530
+	Sat, 5 Feb 2005 12:10:15 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:43972 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S272386AbVBERKH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 12:10:07 -0500
+Message-ID: <4204FDEA.3090306@drzeus.cx>
+Date: Sat, 05 Feb 2005 18:10:02 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Strange device init
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - krish.dnshostnetwork.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - toughguy.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm having problem with a card reader on a laptop (Acer Aspire 1501). 
+The device doesn't get its resources configured properly.
 
-I am getting the errors given below, when I am trying to add the prio to any 
-table. What can be the problem and how can i resolve it.... I have also 
-tried adding the following parameters in /usr/src/.config but to no benefit
+The reader is connected to the LPC bus so there is no standardised way 
+to configure the device. On other laptops the configuration is done via 
+ACPI (_STA & co. in the DSDT). On this laptop these functions don't do a 
+damn thing.
+In Windows this device gets configured through some other means. It's 
+not in the driver (I've disected it to confirm this). But under Linux 
+the device is left unconfigured.
 
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_NAT=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_IP_ROUTE_LARGE_TABLES=y
+So my question is if anyone has any ideas on how this device gets 
+configured by Windows and possibly how we can get this to work on Linux.
 
-Kindly help
+The reason this is an issue is that one cannot detect all the quirks of 
+the hardware so a PNP solution is prefered. In those cases the 
+manufacturer has chosen resources that work ok.
 
-[root /root]# ip rule
-RTNETLINK answers: Invalid argument
-Dump terminated
+For some context: I am the maintainer of the driver for this hardware. I 
+have a laptop where the DSDT properly sets up the hardware. The Acer 
+belongs to some of my users but they are not familiar with the kernel so 
+I'm trying to fix this for them.
 
-[root /root]# ip rule list
-RTNETLINK answers: Invalid argument
-Dump terminated
-
-[root /root]# ip rule list table main
-"ip rule show" need not eny arguments.
-
-[root /root]# ip rule show
-RTNETLINK answers: Invalid argument
-Dump terminated
-
-[root /root]# ip rule add prio 50 table main
-RTNETLINK answers: Invalid argument
-
-[root /root]# ip route
-192.168.2.5 dev eth1  scope link
-61.11.104.63 dev eth0  scope link
-220.227.153.48/28 dev eth2  proto kernel  scope link  src 220.227.153.61
-192.168.2.0/24 dev eth1  proto kernel  scope link  src 192.168.2.5
-61.11.104.0/24 dev eth0  proto kernel  scope link  src 61.11.104.63
-127.0.0.0/8 dev lo  scope link
-default via 61.11.104.1 dev eth0
-
-[root /root]# ip
-Usage: ip [ OPTIONS ] OBJECT { COMMAND | help }
-where  OBJECT := { link | addr | route | rule | neigh | tunnel |
-                   maddr | mroute | monitor }
-       OPTIONS := { -V[ersion] | -s[tatistics] | -r[esolve] |
-                    -f[amily] { inet | inet6 | ipx | dnet | link }
-| -o[neline] }
-
-Thanks and Regards,
-
-Pankaj Agarwal
+Rgds
+Pierre
 

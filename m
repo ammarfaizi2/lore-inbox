@@ -1,19 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267049AbRGIM1g>; Mon, 9 Jul 2001 08:27:36 -0400
+	id <S267046AbRGIMVq>; Mon, 9 Jul 2001 08:21:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267050AbRGIM1Q>; Mon, 9 Jul 2001 08:27:16 -0400
-Received: from www.wen-online.de ([212.223.88.39]:25619 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S267049AbRGIM1I>;
-	Mon, 9 Jul 2001 08:27:08 -0400
-Date: Mon, 9 Jul 2001 14:26:21 +0200 (CEST)
+	id <S267049AbRGIMVh>; Mon, 9 Jul 2001 08:21:37 -0400
+Received: from www.wen-online.de ([212.223.88.39]:55055 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S267046AbRGIMVZ>;
+	Mon, 9 Jul 2001 08:21:25 -0400
+Date: Mon, 9 Jul 2001 14:20:21 +0200 (CEST)
 From: Mike Galbraith <mikeg@wen-online.de>
 X-X-Sender: <mikeg@mikeg.weiden.de>
 To: Christoph Rohland <cr@sap.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <m3r8vq8hla.fsf@linux.local>
-Message-ID: <Pine.LNX.4.33.0107091420580.405-100000@mikeg.weiden.de>
+In-Reply-To: <m3vgl28huc.fsf@linux.local>
+Message-ID: <Pine.LNX.4.33.0107091329390.318-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,29 +28,61 @@ On 9 Jul 2001, Christoph Rohland wrote:
 > Hi Mike,
 >
 > On Mon, 9 Jul 2001, Mike Galbraith wrote:
-> >> > But still this may be a hint.
+> >> But still this may be a hint. You are not running out of swap,
+> >> aren't you?
 > >
-> > _Anyway_, tmpfs is growing and growing from stdout.  If I send
-> > output to /dev/null, no growth.  Nothing in tmpfs is growing, so I
-> > presume the memory is disappearing down one of X or KDE's sockets.
+> > I'm running oom whether I have swap enabled or not.  The inactive
+> > dirty list starts growing forever, until it's full of (aparantly)
+> > dirty pages and I'm utterly oom.
+> >
+> > With swap enabled, I keep allocating until there's nothing left.
+> > Actual space usage is roughly 30mb (of 256mb), but when you can't
+> > allocate anymore you're toast too, with the same dirt buildup.
 >
-> So tmpfs is not growing, but you still have a mem leak only with
-> tmpfs? Is there some deleted file allocating blocks? Or did
-> redirecting stdout fix the problem. I am not sure that I understand
-> the situation.
+> AFAIU you are running oom without the oom killer kicking in.
 
-tmpfs is growing.  Redirecting output to /dev/null fixes it.  (whee)
+Yes.
 
-> > No such leakage without tmpfs, and I can do all kinds of normal
-> > file type use of tmpfs with no leakage.
->
-> BTW I am running /tmp on tmpfs all the time with KDE and never
-> experienced something like that. But of course I ran oom without size
-> limits.
+> That's reasonable with tmpfs: the tmpfs pages are accounted to the
+> page cache, but are not freeable if there is no free swap space. So
+> the vm tries to free memory without success. (The same should be true
+> for ramfs but exaggerated by the fact that ramfs can never free the
+> page)
 
-I only started using tmpfs for /tmp after I found out how much faster
-gcc runs without the -pipe switch.  Writing temp files to disk is
-much faster than using -pipe.. with tmpfs, it's even faster :)
+Why is it growing from stdout output?  (last message.. mail lag)
+
+> In the -ac series I introduced separate accounting for shmem pages and
+> do reduce the page cache size by this count for meminfo and
+> vm_enough_memory. Perhaps the oom coding needs also some knowledge
+> about this?
+
+It doesn't _look_ like that would make a difference.
+
+This is how the oom looks from here:
+
+Start tar -rvf /dev/null /usr/local; box has 128mb ram/256mb swap
+
+We have many dirty and many clean pages at first.  As the dcache/icache
+etc grow beneath, we start consuming clean/dirty pages, but we don't
+have a free shortage at first, so the caches bloat up.  We finally start
+shrinking caches, but it's too late, and we allocate some swap.  (This
+cannot be prevented even by VERY agressive aging/shrinking, even with
+a hard limit to start shrinking caches whether we have a free shortage
+or not)  It is impossible (or I can't get there from here anyway) to
+keep the dirty list long enough to keep inactive_shortage happy.. we're
+at full memory pressure, so we have to have a full 25% of ram inactive.
+
+We keep allocating much swap and writing a little of it until slowly
+but surely, we run out of allocatable swap.  In two runs taring up
+an fs with 341057 inodes, swapspace is gone (but hardly used).
+
+If I stop the tar _well_ before oom, and try to do swapoff, oom.
+
+There is very little in /tmp, and tar isn't touching any of it.  X must
+be pouring pages down a socket to my client, coz that's the only thing
+in /tmp.  It seems to be leaking away whether we have swap active or not..
+just a question of what we run out of first.. swapspace or pages to put
+there.
 
 	-Mike
 

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264902AbSJVSkv>; Tue, 22 Oct 2002 14:40:51 -0400
+	id <S264850AbSJVSwe>; Tue, 22 Oct 2002 14:52:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264903AbSJVSkv>; Tue, 22 Oct 2002 14:40:51 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:46524 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264902AbSJVSkp>;
-	Tue, 22 Oct 2002 14:40:45 -0400
-To: Andrew Morton <akpm@digeo.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch 
-In-reply-to: Your message of Tue, 22 Oct 2002 10:09:47 PDT.
-             <3DB5865B.4462537F@digeo.com> 
+	id <S264833AbSJVSwe>; Tue, 22 Oct 2002 14:52:34 -0400
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:55186 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S264834AbSJVSwd>; Tue, 22 Oct 2002 14:52:33 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Mark Mielke <mark@mark.mielke.cc>
+Subject: Re: Use of yield() in the kernel
+Date: Tue, 22 Oct 2002 20:58:55 +0200
+User-Agent: KMail/1.4.7
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>
+References: <200210151536.39029.baldrick@wanadoo.fr> <200210201110.33254.baldrick@wanadoo.fr> <20021022172404.GB1314@mark.mielke.cc>
+In-Reply-To: <20021022172404.GB1314@mark.mielke.cc>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <6644.1035312307.1@us.ibm.com>
-Date: Tue, 22 Oct 2002 11:45:11 -0700
-Message-Id: <E18441g-0001jW-00@w-gerrit2>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200210222058.55621.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DB5865B.4462537F@digeo.com>, > : Andrew Morton writes:
-> Rik van Riel wrote:
-> > 
-> > ...
-> > In short, we really really want shared page tables.
-> 
-> Or large pages.  I confess to being a little perplexed as to
-> why we're pursuing both.
+On Tuesday 22 October 2002 19:24, Mark Mielke wrote:
+> Would it be sensible to add a "yield_short()" function to the kernel?
 
-Large pages benefit the performance of large applications which
-explicity take advantage of them (at least today - maybe in the
-future, large pages will be automagically handed out to those that
-can use them).  And, as a side effect, they reduce KVA overhead.
-Oh, and at the moment, they are non-pageable, e.g. permanently stuck
-in memory.
+You can do:
 
-On the other hand, shared page tables benefit any application that
-shares data, including those that haven't been trained to roll over
-and beg for large pages.  Shared page tables are already showing large
-space savings with at least one database.
+set_current_state(TASK_RUNNING);
+schedule();
 
-gerrit
+I'm not clear on what you are guaranteed to get - for example,
+it looks as if it can sometimes return without sleeping at all.
+There is also cond_resched(), which is
+
+static inline void cond_resched(void)
+{
+        if (need_resched())
+                __cond_resched();
+}
+
+void __cond_resched(void)
+{
+        set_current_state(TASK_RUNNING);
+        schedule();
+}
+
+I don't know when need_resched evaluates to true, I haven't
+had time to look into this yet.
+
+Ciao, Duncan.

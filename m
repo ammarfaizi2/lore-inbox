@@ -1,62 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264492AbTLLGYn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 01:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTLLGYn
+	id S264493AbTLLHAx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 02:00:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264497AbTLLHAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 01:24:43 -0500
-Received: from dyn-213-36-179-191.ppp.tiscali.fr ([213.36.179.191]:40710 "EHLO
-	nsbm.kicks-ass.org") by vger.kernel.org with ESMTP id S264492AbTLLGYm
+	Fri, 12 Dec 2003 02:00:53 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:33446 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264493AbTLLHAv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 01:24:42 -0500
-Date: Fri, 12 Dec 2003 07:24:23 +0100
-From: Witukind <witukind@nsbm.kicks-ass.org>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.23] cursor dissapears in framebuffer console after
- switching back from X
-Message-Id: <20031212072423.35b7ff7c.witukind@nsbm.kicks-ass.org>
-In-Reply-To: <200312111859.55655.gene.heskett@verizon.net>
-References: <200312081536.26022.andrew@walrond.org>
-	<20031210054253.GA1982@kroah.com>
-	<20031211213235.7a41e3f8.witukind@nsbm.kicks-ass.org>
-	<200312111859.55655.gene.heskett@verizon.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 12 Dec 2003 02:00:51 -0500
+Message-ID: <3FD9679A.1020404@cyberone.com.au>
+Date: Fri, 12 Dec 2003 18:00:42 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
+Subject: Re: [CFT][RFC] HT scheduler
+References: <20031212052812.E016B2C072@lists.samba.org>
+In-Reply-To: <20031212052812.E016B2C072@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Dec 2003 18:59:55 -0500
-Gene Heskett <gene.heskett@verizon.net> wrote:
-
-> On Thursday 11 December 2003 15:32, Witukind wrote:
-> >This is 100% reproduceable on my machine. When I boot Linux the
-> > cursor can be seen. then I start XFree86 and when I switch back to
-> > the framebuffer console with ALT-CTRL-F(x) it is not there anymore.
-> > I am using tdfx.o with a Voodoo 3 2000 PCI, XFree86 4.3.0
-> > (Slackware 9.1). If more information is needed I'll be glad to
-> > provide it.
-> 
-> This was asked by me a week or 2 back,and the answer is that in your 
-> .config that built your kernel, you probably have both a framebuffer 
-> for your card enabled, and a generic vesa framebuffer.  Turn off the 
-> generic framebuffer and make/reinstall your kernel.
-
-I don't have a VESA framebuffer enabled. Only tdfx.o.
-
-> -- 
-> Cheers, Gene
-> AMD K6-III@500mhz 320M
-> Athlon1600XP@1400mhz  512M
-> 99.22% setiathome rank, not too shabby for a WV hillbilly
-> Yahoo.com attornies please note, additions to this message
-> by Gene Heskett are:
-> Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-> 
-> 
 
 
--- 
-Jabber: heimdal@jabber.org
+Rusty Russell wrote:
+
+>In message <3FD7F1B9.5080100@cyberone.com.au> you write:
+>
+>>http://www.kerneltrap.org/~npiggin/w26/
+>>Against 2.6.0-test11
+>>
+>>This includes the SMT description for P4. Initial results shows comparable
+>>performance to Ingo's shared runqueue's patch on a dual P4 Xeon.
+>>
+>
+>I'm still not convinced.  Sharing runqueues is simple, and in fact
+>exactly what you want for HT: you want to balance *runqueues*, not
+>CPUs.  In fact, it can be done without a CONFIG_SCHED_SMT addition.
+>
+>Your patch is more general, more complex, but doesn't actually seem to
+>buy anything.  It puts a general domain structure inside the
+>scheduler, without putting it anywhere else which wants it (eg. slab
+>cache balancing).  My opinion is either (1) produce a general NUMA
+>topology which can then be used by the scheduler, or (2) do the
+>minimal change in the scheduler which makes HT work well.
+>
+>Note: some of your changes I really like, it's just that I think this
+>is overkill.
+>
+>I'll produce a patch so we can have something solid to talk about.
+>
+
+Thanks for having a look Rusty. I'll try to convince you :)
+
+As you know, the domain classes is not just for HT, but can do multi levels
+of NUMA, and it can be built by architecture specific code which is good
+for Opteron, for example. It doesn't need CONFIG_SCHED_SMT either, of 
+course,
+or CONFIG_NUMA even: degenerate domains can just be collapsed (code isn't
+there to do that now).
+
+Shared runqueues I find isn't so flexible. I think it perfectly describes
+the P4 HT architecture, but what happens if (when) siblings get seperate
+L1 caches? What about SMT, CMP, SMP and NUMA levels in the POWER5?
+
+The large SGI (and I imagine IBM's POWER5s) systems need things like
+progressive balancing backoff and would probably benefit with a more
+heirachical balancing scheme so all the balancing operations don't kill
+the system.
+
+w26 does ALL this, while sched.o is 3K smaller than Ingo's shared runqueue
+patch on NUMA and SMP, and 1K smaller on UP (although sched.c is 90 lines
+longer). kernbench system time is down nearly 10% on the NUMAQ, so it isn't
+hurting performance either.
+
+And finally, Linus also wanted the balancing code to be generalised to
+handle SMT, and Ingo said he liked my patch from a first look.
+
+

@@ -1,89 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267362AbUJIUR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUJIU0l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267362AbUJIUR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 16:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267377AbUJIUPL
+	id S267388AbUJIU0l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:26:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUJIUYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 16:15:11 -0400
-Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:31618 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S267362AbUJIUOC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 16:14:02 -0400
-From: Matt Heler <lkml@lpbproductions.com>
-Reply-To: lkml@lpbproductions.com
-To: "Ed Schouten" <ed@il.fontys.nl>
-Subject: Re: [Patch 1/5] xbox: add 'CONFIG_X86_XBOX' to kernel configuration
-Date: Sat, 9 Oct 2004 13:15:10 -0700
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <64778.217.121.83.210.1097351837.squirrel@217.121.83.210>
-In-Reply-To: <64778.217.121.83.210.1097351837.squirrel@217.121.83.210>
+	Sat, 9 Oct 2004 16:24:04 -0400
+Received: from smtpq3.home.nl ([213.51.128.198]:36803 "EHLO smtpq3.home.nl")
+	by vger.kernel.org with ESMTP id S267410AbUJIUWx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 16:22:53 -0400
+Message-ID: <4168479C.5080306@keyaccess.nl>
+Date: Sat, 09 Oct 2004 22:18:36 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Denis Zaitsev <zzz@anda.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG][2.6.8.1] Something wrong with ISAPnP and serial driver
+References: <20041010015206.A30047@natasha.ward.six>
+In-Reply-To: <20041010015206.A30047@natasha.ward.six>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410091315.10988.lkml@lpbproductions.com>
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why can't theese patches be maintained outside the kernel tree , as it is 
-now ? 
+Denis Zaitsev wrote:
 
-I'm strongly against this because the X-Box is a gaming platform and last I 
-heard ( and I could be wrong here ) is that you had to hack your X-Box in 
-order to load any other os then the one supplied with it. I just don't see a 
-justified reason why theese patches should be included into the kernel. 
+> 1) The 2.6 kernel doesn't activate the ISA PnP modem at the boot,
+>    while the 2.4 one always does.
 
-matt
+2.4 used to scan the ISA PnP device ID string for some common substrings 
+indicating a modem given a completely unknown ISA PnP device (the code 
+is still present -- see drivers/serial/8250_pnp.c:check_name()) while 
+2.6 really needs your modem's PnP ID to be listed.
 
+> 2) The 8250 driver finds the PnP card's port, while the 8250_pnp finds
+>    the non-PnP ports.
 
+8250_pnp not finding it is therefore very likely a simple matter of it 
+not knowing that it should be driving it. Try seeing if your modem's PnP 
+ID (/sys/bus/pnp/devices/?/id) is listed in drivers/serial/8250_pnp.c 
+and if not add it (and send as a patch to Russel King).
 
-On Saturday 09 October 2004 12:57 pm, Ed Schouten wrote:
-> In order to support the Microsoft Xbox, we need to add a config option
-> 'CONFIG_X86_XBOX'.
->
-> You can also download this patch at:
-> http://linux.g-rave.nl/patches/patch-xbox-config_option.diff
-> ---
->
->  Kconfig |   14 +++++++++++++-
->  1 files changed, 13 insertions(+), 1 deletion(-)
->
-> diff -u -r --new-file linux-2.6.9-rc3/arch/i386/Kconfig
-> linux-2.6.9-rc3-ed0/arch/i386/Kconfig
-> --- linux-2.6.9-rc3/arch/i386/Kconfig	2004-09-30 05:03:56.000000000 +0200
-> +++ linux-2.6.9-rc3-ed0/arch/i386/Kconfig	2004-10-09 19:32:33.981610000
-> +0200 @@ -55,6 +55,18 @@
->
->  	  If unsure, choose "PC-compatible" instead.
->
-> +config X86_XBOX
-> +	bool "Microsoft Xbox"
-> +	help
-> +	  This option is needed to make Linux boot on a Microsoft Xbox.
-> +
-> +	  If you are not planning on running this kernel on a Microsoft Xbox,
-> +	  say N here, otherwise the kernel you build will not be bootable.
-> +
-> +	  For more information about Xbox Linux, visit:
-> +
-> +	  http://www.xbox-linux.org/
-> +
->  config X86_VOYAGER
->  	bool "Voyager (NCR)"
->  	help
-> @@ -1206,7 +1218,7 @@
->
->  config X86_BIOS_REBOOT
->  	bool
-> -	depends on !(X86_VISWS || X86_VOYAGER)
-> +	depends on !(X86_VISWS || X86_VOYAGER || X86_XBOX)
->  	default y
->
->  config X86_TRAMPOLINE
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+8250 itself finding it was no doubt due to you enabling the port 
+yourself so that from its standpoint, it was just another serial port 
+already present. With your modem's ID added, 8250_pnp should find and 
+activate the mdem itself without you needing to do anything other than 
+"modprobe 8250_pnp"
+
+Hope that helps.
+
+Rene.

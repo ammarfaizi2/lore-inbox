@@ -1,55 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVC3FQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVC3Fbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbVC3FQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 00:16:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVC3FQ5
+	id S261554AbVC3Fbo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 00:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVC3Fbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 00:16:57 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:38086 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261538AbVC3FQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 00:16:53 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-10
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
-In-Reply-To: <20050327085814.GA23082@elte.hu>
-References: <20050325145908.GA7146@elte.hu>
-	 <1111790009.23430.19.camel@mindpipe> <20050325223959.GA24800@elte.hu>
-	 <1111814065.24049.21.camel@mindpipe>  <20050327085814.GA23082@elte.hu>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 00:16:52 -0500
-Message-Id: <1112159812.5598.17.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Wed, 30 Mar 2005 00:31:44 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:18322 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261554AbVC3Far (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 00:30:47 -0500
+Message-ID: <424A3990.9070002@comcast.net>
+Date: Wed, 30 Mar 2005 00:30:56 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Hancock <hancockr@shaw.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Aligning file system data
+References: <3ND9P-2LV-1@gated-at.bofh.it> <424A3002.0@shaw.ca>
+In-Reply-To: <424A3002.0@shaw.ca>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-03-27 at 10:58 +0200, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Well then, the verdict is reached.
+
+My original design is based around storing related data in the same
+block so that the track cache allows me to evade doing reads while I
+poke around.
+
+The design will stay the same; but the dependency on the track cache
+will dissappear.  I'll simply consider 32KiB or 64KiB to be a nice block
+size, 64KiB being the biggest, and leverage the design on the kernel
+reading whole blocks into main memory to play with at a time.
+
+Back to designing my file system. . . .
+
+
+The only lasting regrets I have is that I don't have a good, fast way to
+do on-disk locking for a cluster file system.  This would make my FS a
+complete solution. . . .
+
+It doesn't matter, finishing the design is a while off anyway.  I still
+have to define several extended journal transaction types to support
+fault tolerant dynamic resizing (grow, shrink) while running.  I don't
+see how to grow left; shrinking from the left is easy enough.  Wait,
+suddenly I see how to grow left:  Superblock at the end, and a bit of
+magic. . . .
+
+
+Robert Hancock wrote:
+> John Richard Moser wrote:
 > 
-> > Running for several days with PREEMPT_DESKTOP, on the Athlon XP the 
-> > worst latency I am seeing is ~150 usecs!  But on the C3 its about 4ms:
+>> How likely is it that I can actually align stuff to 31.5KiB on the
+>> physical disk, i.e. have each block be a track?
 > 
-> could you run a bit with tracing disabled (in the .config) on the C3?  
-> (but wakeup timing still enabled) It may very well be tracing overhead 
-> that makes those latencies that high.  Also, we'd thus have some hard 
-> data on how much overhead tracing is in such a situation, on that CPU.
+> 
+> I don't think this is very likely. Even being able to find out what the
+> physical disk arrangement is, or whether it is consistent in terms of
+> track size, etc. seems unlikely.
+> 
+>>
+>> Rather than leveraging the track cache, would it be less expensive for
+>> me to simply read in blocks totaling about 16 or 32KiB all at once?
+> 
+> 
+> For block sizes that small I think that the kernel should be smart
+> enough to do this itself, there is no need to concern with such low
+> level details in the application.
+> 
+>> How much more latency is involved in (B) than in (C)?  Does crossing a
+>> track boundary incur anything expensive?
+> 
+> 
+> Given that both the disk and the kernel will likely read far more than
+> 32KB ahead I can't see much difference other than the overhead inside
+> your application..
 > 
 
-I have not left it to run overnight yet with the swappiness set to 100,
-which triggers the biggest latencies as my entire desktop is swapped
-out, but so far it looks like the problem was tracing overhead.  With
-timing enabled but tracing disabled the longest latency on the C3 so far
-is 270 usecs.
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
-An important giveaway is that with tracing enabled the same code path
-only triggers ~200 usec latencies on the K7 but ~2ms on the C3.  Since
-the longest latency with PREEMPT_DESKTOP is normally more a function of
-memory bandwidth than processor speed, and the machines differ much more
-in the latter, this agrees with the theory that the overhead is the
-problem.
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Lee
-
+iD4DBQFCSjmPhDd4aOud5P8RAgB7AJiWq4Qiyfk1G0SJa+5ZCtJ//WH8AJ9ysogo
+3z6+FLvkNgyU/k0o9HBf1w==
+=OPXo
+-----END PGP SIGNATURE-----

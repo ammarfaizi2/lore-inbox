@@ -1,86 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269394AbUIIJmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269395AbUIIJnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269394AbUIIJmL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 05:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269396AbUIIJmL
+	id S269395AbUIIJnU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 05:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269399AbUIIJnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 05:42:11 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:54461 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S269394AbUIIJmF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 05:42:05 -0400
-Message-ID: <4140256C.5090803@free.fr>
-Date: Thu, 09 Sep 2004 11:42:04 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: eric.valette@free.fr
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc1-mm4 badness in rtl8150.c ethernet driver : fixed
-References: <413DB68C.7030508@free.fr>
-In-Reply-To: <413DB68C.7030508@free.fr>
-Content-Type: multipart/mixed;
- boundary="------------020207070807000906080902"
+	Thu, 9 Sep 2004 05:43:20 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:35500 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S269398AbUIIJnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 05:43:03 -0400
+Subject: Re: What File System supports Application XIP
+From: David Woodhouse <dwmw2@infradead.org>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: colin <colin@realtek.com.tw>, linux-kernel@vger.kernel.org
+In-Reply-To: <4140200B.9060408@grupopie.com>
+References: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>
+	 <4140200B.9060408@grupopie.com>
+Content-Type: text/plain
+Message-Id: <1094722976.4083.1550.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Thu, 09 Sep 2004 10:42:57 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020207070807000906080902
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2004-09-09 at 10:19 +0100, Paulo Marques wrote:
+> colin wrote:
+> > 
+> > Hi there,
+> > We are developing embedded Linux system. Performance is our consideration.
+> > We hope some applications can run as fast as possible,
+> > and are think if they can be put in a filesystem image, which resides in
+> > RAM, and run in XIP (eXecute In Place)  manners.
+> > I know that Cramfs has supported Application XIP. Is there any other FS that
+> > also supports it? Ramdisk? Ramfs? Romfs?
+> 
+> Obvisously cramfs can not support XIP, because the "in-place" image
+> is compressed (unless you have a processor that can execute compressed
+> code :)
 
-Eric Valette wrote:
+Actually there are hacks floating around which do let you use XIP with
+cramfs -- obviously you have to dispense with compression for the files
+you want to access that way.
 
+You won't gain at runtime by using XIP though. Your code and data will
+end up in RAM _whatever_ file system you use, and you'll be running from
+page cache.
 
-> I tried your new test kernel and it broke my USB/Ethernet adapter. 
-> Adapter is detected, ifup works but no ping using IP adress on a point 
-> to point ethernet network. I saw the file change in the diff and 
-> probably something broke (either bogus endianness fixes or changed reset 
-> code data or ...). Bitkeeper being unreachable I can hardly follow what 
-> incremental broke it but, for sure, it is broken (FYI 2.6.9-rc1-mm2 works).
+You may get a _slightly_ faster startup time after reboot if you use XIP
+from flash, because it doesn't have to be loaded into RAM first. But
+that comes at the cost of making it all a low slower during normal
+operation -- it's a lot slower to fetch icache lines from flash than it
+is from RAM.
 
-Andrew,
-
-Here is a small patch that makes the card functionnal again. I've 
-forwarded the patch to driver author also.
-
-Signed off by <eric.valette@free.fr>
-
-Move value used to reset the card back to its previous definition.
+Arjan's right -- you almost certainly don't really want XIP. 
 
 -- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
+dwmw2
 
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
-
-
-
-
---------------020207070807000906080902
-Content-Type: text/x-csrc;
- name="patch_fix_rtl8150.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch_fix_rtl8150.c"
-
---- linux/drivers/usb/net/rtl8150.c-2.6.9-rc1-mm4.orig	2004-09-09 11:15:11.000000000 +0200
-+++ linux/drivers/usb/net/rtl8150.c	2004-09-09 11:15:46.000000000 +0200
-@@ -341,7 +341,7 @@
- 
- static int rtl8150_reset(rtl8150_t * dev)
- {
--	u8 data = 0x11;
-+	u8 data = 0x10;
- 	int i = HZ;
- 
- 	set_registers(dev, CR, 1, &data);
-
---------------020207070807000906080902--

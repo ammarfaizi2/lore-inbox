@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbULAX6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbULAX55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbULAX6U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 18:58:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbULAX6T
+	id S261528AbULAX55 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 18:57:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbULAX4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 18:58:19 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:20971 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261502AbULAXny (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 18:43:54 -0500
-Date: Wed, 1 Dec 2004 15:43:20 -0800 (PST)
+	Wed, 1 Dec 2004 18:56:32 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:31904 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261505AbULAXoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 18:44:06 -0500
+Date: Wed, 1 Dec 2004 15:43:53 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 X-X-Sender: clameter@schroedinger.engr.sgi.com
 To: Linus Torvalds <torvalds@osdl.org>
@@ -17,9 +17,10 @@ cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: page fault scalability patch V12 [3/7]: universal cmpxchg for i386
+Subject: page fault scalability patch V12 [4/7]: atomic pte operations for
+ i386
 In-Reply-To: <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0412011542550.5721@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0412011543230.5721@schroedinger.engr.sgi.com>
 References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
  <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
  <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
@@ -32,278 +33,145 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Changelog
-        * Make cmpxchg and cmpxchg8b generally available on the i386
-	  platform.
-        * Provide emulation of cmpxchg suitable for uniprocessor if
-	  build and run on 386.
-        * Provide emulation of cmpxchg8b suitable for uniprocessor
-	  systems if build and run on 386 or 486.
-	* Provide an inline function to atomically get a 64 bit value
-	  via cmpxchg8b in an SMP system (courtesy of Nick Piggin)
-	  (important for i386 PAE mode and other places where atomic
-	  64 bit operations are useful)
+	* Atomic pte operations for i386 in regular and PAE modes
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.9/arch/i386/Kconfig
+Index: linux-2.6.9/include/asm-i386/pgtable.h
 ===================================================================
---- linux-2.6.9.orig/arch/i386/Kconfig	2004-11-15 11:13:34.000000000 -0800
-+++ linux-2.6.9/arch/i386/Kconfig	2004-11-19 10:02:54.000000000 -0800
-@@ -351,6 +351,11 @@
- 	depends on !M386
- 	default y
+--- linux-2.6.9.orig/include/asm-i386/pgtable.h	2004-11-15 11:13:38.000000000 -0800
++++ linux-2.6.9/include/asm-i386/pgtable.h	2004-11-19 10:05:27.000000000 -0800
+@@ -413,6 +413,7 @@
+ #define __HAVE_ARCH_PTEP_SET_WRPROTECT
+ #define __HAVE_ARCH_PTEP_MKDIRTY
+ #define __HAVE_ARCH_PTE_SAME
++#define __HAVE_ARCH_ATOMIC_TABLE_OPS
+ #include <asm-generic/pgtable.h>
 
-+config X86_CMPXCHG8B
-+	bool
-+	depends on !M386 && !M486
-+	default y
+ #endif /* _I386_PGTABLE_H */
+Index: linux-2.6.9/include/asm-i386/pgtable-3level.h
+===================================================================
+--- linux-2.6.9.orig/include/asm-i386/pgtable-3level.h	2004-10-18 14:54:55.000000000 -0700
++++ linux-2.6.9/include/asm-i386/pgtable-3level.h	2004-11-19 10:10:06.000000000 -0800
+@@ -6,7 +6,8 @@
+  * tables on PPro+ CPUs.
+  *
+  * Copyright (C) 1999 Ingo Molnar <mingo@redhat.com>
+- */
++ * August 26, 2004 added ptep_cmpxchg <christoph@lameter.com>
++*/
+
+ #define pte_ERROR(e) \
+ 	printk("%s:%d: bad pte %p(%08lx%08lx).\n", __FILE__, __LINE__, &(e), (e).pte_high, (e).pte_low)
+@@ -42,26 +43,15 @@
+ 	return pte_x(pte);
+ }
+
+-/* Rules for using set_pte: the pte being assigned *must* be
+- * either not present or in a state where the hardware will
+- * not attempt to update the pte.  In places where this is
+- * not possible, use pte_get_and_clear to obtain the old pte
+- * value and then use set_pte to update it.  -ben
+- */
+-static inline void set_pte(pte_t *ptep, pte_t pte)
+-{
+-	ptep->pte_high = pte.pte_high;
+-	smp_wmb();
+-	ptep->pte_low = pte.pte_low;
+-}
+-#define __HAVE_ARCH_SET_PTE_ATOMIC
+-#define set_pte_atomic(pteptr,pteval) \
++#define set_pte(pteptr,pteval) \
+ 		set_64bit((unsigned long long *)(pteptr),pte_val(pteval))
+ #define set_pmd(pmdptr,pmdval) \
+ 		set_64bit((unsigned long long *)(pmdptr),pmd_val(pmdval))
+ #define set_pgd(pgdptr,pgdval) \
+ 		set_64bit((unsigned long long *)(pgdptr),pgd_val(pgdval))
+
++#define set_pte_atomic set_pte
 +
- config X86_XADD
- 	bool
- 	depends on !M386
-Index: linux-2.6.9/arch/i386/kernel/cpu/intel.c
-===================================================================
---- linux-2.6.9.orig/arch/i386/kernel/cpu/intel.c	2004-11-15 11:13:34.000000000 -0800
-+++ linux-2.6.9/arch/i386/kernel/cpu/intel.c	2004-11-19 10:38:26.000000000 -0800
-@@ -6,6 +6,7 @@
- #include <linux/bitops.h>
- #include <linux/smp.h>
- #include <linux/thread_info.h>
-+#include <linux/module.h>
+ /*
+  * Pentium-II erratum A13: in PAE mode we explicitly have to flush
+  * the TLB via cr3 if the top-level pgd is changed...
+@@ -142,4 +132,23 @@
+ #define __pte_to_swp_entry(pte)		((swp_entry_t){ (pte).pte_high })
+ #define __swp_entry_to_pte(x)		((pte_t){ 0, (x).val })
 
++/* Atomic PTE operations */
++#define ptep_xchg_flush(__vma, __addr, __ptep, __newval) \
++({	pte_t __r;							\
++	/* xchg acts as a barrier before the setting of the high bits. */\
++	__r.pte_low = xchg(&(__ptep)->pte_low, (__newval).pte_low);	\
++	__r.pte_high = (__ptep)->pte_high;				\
++	(__ptep)->pte_high = (__newval).pte_high;			\
++	flush_tlb_page(__vma, __addr);					\
++	(__r);								\
++})
++
++#define __HAVE_ARCH_PTEP_XCHG_FLUSH
++
++static inline int ptep_cmpxchg(struct vm_area_struct *vma, unsigned long address, pte_t *ptep, pte_t oldval, pte_t newval)
++{
++	return cmpxchg((unsigned int *)ptep, pte_val(oldval), pte_val(newval)) == pte_val(oldval);
++}
++
++
+ #endif /* _I386_PGTABLE_3LEVEL_H */
+Index: linux-2.6.9/include/asm-i386/pgtable-2level.h
+===================================================================
+--- linux-2.6.9.orig/include/asm-i386/pgtable-2level.h	2004-10-18 14:54:31.000000000 -0700
++++ linux-2.6.9/include/asm-i386/pgtable-2level.h	2004-11-19 10:05:27.000000000 -0800
+@@ -82,4 +82,7 @@
+ #define __pte_to_swp_entry(pte)		((swp_entry_t) { (pte).pte_low })
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
+
++/* Atomic PTE operations */
++#define ptep_cmpxchg(__vma,__a,__xp,__oldpte,__newpte) (cmpxchg(&(__xp)->pte_low, (__oldpte).pte_low, (__newpte).pte_low)==(__oldpte).pte_low)
++
+ #endif /* _I386_PGTABLE_2LEVEL_H */
+Index: linux-2.6.9/include/asm-i386/pgalloc.h
+===================================================================
+--- linux-2.6.9.orig/include/asm-i386/pgalloc.h	2004-10-18 14:53:10.000000000 -0700
++++ linux-2.6.9/include/asm-i386/pgalloc.h	2004-11-19 10:10:40.000000000 -0800
+@@ -4,9 +4,12 @@
+ #include <linux/config.h>
  #include <asm/processor.h>
- #include <asm/msr.h>
-@@ -287,5 +288,103 @@
- 	return 0;
+ #include <asm/fixmap.h>
++#include <asm/system.h>
+ #include <linux/threads.h>
+ #include <linux/mm.h>		/* for struct page */
+
++#define PMD_NONE 0L
++
+ #define pmd_populate_kernel(mm, pmd, pte) \
+ 		set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)))
+
+@@ -16,6 +19,19 @@
+ 		((unsigned long long)page_to_pfn(pte) <<
+ 			(unsigned long long) PAGE_SHIFT)));
  }
-
-+#ifndef CONFIG_X86_CMPXCHG
-+unsigned long cmpxchg_386_u8(volatile void *ptr, u8 old, u8 new)
++
++/* Atomic version */
++static inline int pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
 +{
-+	u8 prev;
-+	unsigned long flags;
-+	/*
-+	 * Check if the kernel was compiled for an old cpu but the
-+	 * currently running cpu can do cmpxchg after all
-+	 * All CPUs except 386 support CMPXCHG
-+	 */
-+	if (cpu_data->x86 > 3)
-+		return __cmpxchg(ptr, old, new, sizeof(u8));
-+
-+	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
-+	local_irq_save(flags);
-+	prev = *(u8 *)ptr;
-+	if (prev == old)
-+		*(u8 *)ptr = new;
-+	local_irq_restore(flags);
-+	return prev;
-+}
-+
-+EXPORT_SYMBOL(cmpxchg_386_u8);
-+
-+unsigned long cmpxchg_386_u16(volatile void *ptr, u16 old, u16 new)
-+{
-+	u16 prev;
-+	unsigned long flags;
-+	/*
-+	 * Check if the kernel was compiled for an old cpu but the
-+	 * currently running cpu can do cmpxchg after all
-+	 * All CPUs except 386 support CMPXCHG
-+	 */
-+	if (cpu_data->x86 > 3)
-+		return __cmpxchg(ptr, old, new, sizeof(u16));
-+
-+	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
-+	local_irq_save(flags);
-+	prev = *(u16 *)ptr;
-+	if (prev == old)
-+		*(u16 *)ptr = new;
-+	local_irq_restore(flags);
-+	return prev;
-+}
-+
-+EXPORT_SYMBOL(cmpxchg_386_u16);
-+
-+unsigned long cmpxchg_386_u32(volatile void *ptr, u32 old, u32 new)
-+{
-+	u32 prev;
-+	unsigned long flags;
-+	/*
-+	 * Check if the kernel was compiled for an old cpu but the
-+	 * currently running cpu can do cmpxchg after all
-+	 * All CPUs except 386 support CMPXCHG
-+	 */
-+	if (cpu_data->x86 > 3)
-+		return __cmpxchg(ptr, old, new, sizeof(u32));
-+
-+	/* Poor man's cmpxchg for 386. Unsuitable for SMP */
-+	local_irq_save(flags);
-+	prev = *(u32 *)ptr;
-+	if (prev == old)
-+		*(u32 *)ptr = new;
-+	local_irq_restore(flags);
-+	return prev;
-+}
-+
-+EXPORT_SYMBOL(cmpxchg_386_u32);
++#ifdef CONFIG_X86_PAE
++	return cmpxchg8b( ((unsigned long long *)pmd), PMD_NONE, _PAGE_TABLE +
++		((unsigned long long)page_to_pfn(pte) <<
++			(unsigned long long) PAGE_SHIFT) ) == PMD_NONE;
++#else
++	return cmpxchg( (unsigned long *)pmd, PMD_NONE, _PAGE_TABLE + (page_to_pfn(pte) << PAGE_SHIFT)) == PMD_NONE;
 +#endif
-+
-+#ifndef CONFIG_X86_CMPXCHG8B
-+unsigned long long cmpxchg8b_486(volatile unsigned long long *ptr,
-+	       unsigned long long old, unsigned long long newv)
-+{
-+	unsigned long long prev;
-+	unsigned long flags;
-+
-+	/*
-+	 * Check if the kernel was compiled for an old cpu but
-+	 * we are running really on a cpu capable of cmpxchg8b
-+	 */
-+
-+	if (cpu_has(cpu_data, X86_FEATURE_CX8))
-+		return __cmpxchg8b(ptr, old, newv);
-+
-+	/* Poor mans cmpxchg8b for 386 and 486. Not suitable for SMP */
-+	local_irq_save(flags);
-+	prev = *ptr;
-+	if (prev == old)
-+		*ptr = newv;
-+	local_irq_restore(flags);
-+	return prev;
 +}
-+
-+EXPORT_SYMBOL(cmpxchg8b_486);
-+#endif
-+
- // arch_initcall(intel_cpu_init);
-
-Index: linux-2.6.9/include/asm-i386/system.h
-===================================================================
---- linux-2.6.9.orig/include/asm-i386/system.h	2004-11-15 11:13:38.000000000 -0800
-+++ linux-2.6.9/include/asm-i386/system.h	2004-11-19 10:49:46.000000000 -0800
-@@ -149,6 +149,9 @@
- #define __xg(x) ((struct __xchg_dummy *)(x))
-
-
-+#define ll_low(x)	*(((unsigned int*)&(x))+0)
-+#define ll_high(x)	*(((unsigned int*)&(x))+1)
 +
  /*
-  * The semantics of XCHGCMP8B are a bit strange, this is why
-  * there is a loop and the loading of %%eax and %%edx has to
-@@ -184,8 +187,6 @@
- {
- 	__set_64bit(ptr,(unsigned int)(value), (unsigned int)((value)>>32ULL));
- }
--#define ll_low(x)	*(((unsigned int*)&(x))+0)
--#define ll_high(x)	*(((unsigned int*)&(x))+1)
-
- static inline void __set_64bit_var (unsigned long long *ptr,
- 			 unsigned long long value)
-@@ -203,6 +204,26 @@
-  __set_64bit(ptr, (unsigned int)(value), (unsigned int)((value)>>32ULL) ) : \
-  __set_64bit(ptr, ll_low(value), ll_high(value)) )
-
-+static inline unsigned long long __get_64bit(unsigned long long * ptr)
-+{
-+	unsigned long long ret;
-+	__asm__ __volatile__ (
-+		"\n1:\t"
-+		"movl (%1), %%eax\n\t"
-+		"movl 4(%1), %%edx\n\t"
-+		"movl %%eax, %%ebx\n\t"
-+		"movl %%edx, %%ecx\n\t"
-+		LOCK_PREFIX "cmpxchg8b (%1)\n\t"
-+		"jnz 1b"
-+		:	"=A"(ret)
-+		:	"D"(ptr)
-+		:	"ebx", "ecx", "memory");
-+	return ret;
-+}
-+
-+#define get_64bit(ptr) __get_64bit(ptr)
-+
-+
- /*
-  * Note: no "lock" prefix even on SMP: xchg always implies lock anyway
-  * Note 2: xchg has side effect, so that attribute volatile is necessary,
-@@ -240,7 +261,41 @@
+  * Allocate and free page tables.
   */
+@@ -49,6 +65,7 @@
+ #define pmd_free(x)			do { } while (0)
+ #define __pmd_free_tlb(tlb,x)		do { } while (0)
+ #define pgd_populate(mm, pmd, pte)	BUG()
++#define pgd_test_and_populate(mm, pmd, pte)	({ BUG(); 1; })
 
- #ifdef CONFIG_X86_CMPXCHG
-+
- #define __HAVE_ARCH_CMPXCHG 1
-+#define cmpxchg(ptr,o,n)\
-+	((__typeof__(*(ptr)))__cmpxchg((ptr), (unsigned long)(o), \
-+					(unsigned long)(n), sizeof(*(ptr))))
-+
-+#else
-+
-+/*
-+ * Building a kernel capable running on 80386. It may be necessary to
-+ * simulate the cmpxchg on the 80386 CPU. For that purpose we define
-+ * a function for each of the sizes we support.
-+ */
-+
-+extern unsigned long cmpxchg_386_u8(volatile void *, u8, u8);
-+extern unsigned long cmpxchg_386_u16(volatile void *, u16, u16);
-+extern unsigned long cmpxchg_386_u32(volatile void *, u32, u32);
-+
-+static inline unsigned long cmpxchg_386(volatile void *ptr, unsigned long old,
-+				      unsigned long new, int size)
-+{
-+	switch (size) {
-+	case 1:
-+		return cmpxchg_386_u8(ptr, old, new);
-+	case 2:
-+		return cmpxchg_386_u16(ptr, old, new);
-+	case 4:
-+		return cmpxchg_386_u32(ptr, old, new);
-+	}
-+	return old;
-+}
-+
-+#define cmpxchg(ptr,o,n)\
-+	((__typeof__(*(ptr)))cmpxchg_386((ptr), (unsigned long)(o), \
-+					(unsigned long)(n), sizeof(*(ptr))))
- #endif
+ #define check_pgt_cache()	do { } while (0)
 
- static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
-@@ -270,10 +325,32 @@
- 	return old;
- }
-
--#define cmpxchg(ptr,o,n)\
--	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
--					(unsigned long)(n),sizeof(*(ptr))))
--
-+static inline unsigned long long __cmpxchg8b(volatile unsigned long long *ptr,
-+		unsigned long long old, unsigned long long newv)
-+{
-+	unsigned long long prev;
-+	__asm__ __volatile__(
-+	LOCK_PREFIX "cmpxchg8b (%4)"
-+		: "=A" (prev)
-+		: "0" (old), "c" ((unsigned long)(newv >> 32)),
-+		  "b" ((unsigned long)(newv & 0xffffffffULL)), "D" (ptr)
-+		: "memory");
-+	return prev;
-+}
-+
-+#ifdef CONFIG_X86_CMPXCHG8B
-+#define cmpxchg8b __cmpxchg8b
-+#else
-+/*
-+ * Building a kernel capable of running on 80486 and 80386. Both
-+ * do not support cmpxchg8b. Call a function that emulates the
-+ * instruction if necessary.
-+ */
-+extern unsigned long long cmpxchg8b_486(volatile unsigned long long *,
-+		unsigned long long, unsigned long long);
-+#define cmpxchg8b cmpxchg8b_486
-+#endif
-+
- #ifdef __KERNEL__
- struct alt_instr {
- 	__u8 *instr; 		/* original instruction */
 

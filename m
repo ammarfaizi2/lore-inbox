@@ -1,49 +1,179 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310979AbSCWT2L>; Sat, 23 Mar 2002 14:28:11 -0500
+	id <S310953AbSCWTbb>; Sat, 23 Mar 2002 14:31:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310972AbSCWT2A>; Sat, 23 Mar 2002 14:28:00 -0500
-Received: from lord.banki.hu ([193.225.225.14]:19314 "HELO lord.banki.hu")
-	by vger.kernel.org with SMTP id <S310953AbSCWT1m>;
-	Sat, 23 Mar 2002 14:27:42 -0500
-Date: Sat, 23 Mar 2002 20:27:35 +0100
-From: Janos Farkas <chexum@shadow.banki.hu>
-To: Banai Zoltan <bazooka@enclavenet.hu>
+	id <S310972AbSCWTbO>; Sat, 23 Mar 2002 14:31:14 -0500
+Received: from [212.57.170.74] ([212.57.170.74]:1540 "EHLO zzz.zzz")
+	by vger.kernel.org with ESMTP id <S310953AbSCWTbE>;
+	Sat, 23 Mar 2002 14:31:04 -0500
+Date: Sun, 24 Mar 2002 00:29:53 +0500
+From: Denis Zaitsev <zzz@cd-club.ru>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: io-apic not working on i850mv(p4)
-Message-ID: <priv$1016911429.lord@lk8rp.mail.xeon.eu.org>
-Mail-Followup-To: Banai Zoltan <bazooka@enclavenet.hu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020323181736.B9229@bazooka.saturnus.vein.hu>
+Subject: Re: [PATCH] matroxfb_base.c - not a so little patch
+Message-ID: <20020324002952.A22396@natasha.zzz.zzz>
+In-Reply-To: <2F43B06E5F@vcnet.vc.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/0.96.2i
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2002-03-23, 18:17: Banai Zoltan szerint:
-> I have an Intel i850MV motherboard with:
-... 
-> model name	: Intel(R) Pentium(R) 4 CPU 1.70GHz
-> flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-...
-> using 2.4.19-pre3-ac3 kernel with IO-APIC, but it seems not working to me:
->   0:    5420792          XT-PIC  timer
-...
-> why gives XT-PIC instead of IO-APIC for all interrupst
+On Fri, Mar 22, 2002 at 01:17:04PM +0100, Petr Vandrovec wrote:
+> Did you verified effects on generated code/data size? 
 
-Because you don't have an IO APIC?
+   text	   data	    bss	    dec	    hex	filename
+  15191	   1840	    516	  17547	   448b	matroxfb_base.o
+  15431	   1840	    516	  17787	   457b	matroxfb_base.o.orig
 
-> Found and enabled local APIC!
-...
-> Using local APIC timer interrupts.
-> calibrating APIC timer ...
-...
+I.e. 240 bytes.
 
-I/O APIC != local APIC; the latter is on on all CPU's since P5 (at least
-for Intel), I/O APIC's are usable mostly on SMP boards.  Is yours SMP
-capable?
+> Please no. Access fields by their names, and do not assume anything
+> about padding.
 
--- 
-Janos
-romfs is at http://romfs.sourceforge.net/
+Oh, yes...  You are right.  So, the cured patch is below.
+
+
+--- drivers/video/matrox/matroxfb_base.c.orig	Mon Feb 25 21:38:33 2002
++++ drivers/video/matrox/matroxfb_base.c	Sat Mar 23 23:41:21 2002
+@@ -483,89 +483,59 @@ static int matroxfb_decode_var(CPMINFO s
+ 		var->xoffset = var->xres_virtual - var->xres;
+ 	if (var->yoffset + var->yres > var->yres_virtual)
+ 		var->yoffset = var->yres_virtual - var->yres;
++{
++	struct RGBT {
++		unsigned char bpp;
++		struct {
++			unsigned char offset,
++				      length;
++		} red,
++		  green,
++		  blue,
++		  transp;
++		signed char visual;
++	}
++	static const table[]= {
++#if defined FBCON_HAS_VGATEXT
++		{ 0,{ 0,6},{0,6},{0,6},{ 0,0},MX_VISUAL_PSEUDOCOLOR},
++#endif
++#if defined FBCON_HAS_CFB4\
++ || defined FBCON_HAS_CFB8
++		{ 8,{ 0,8},{0,8},{0,8},{ 0,0},MX_VISUAL_PSEUDOCOLOR},
++#endif
++#if defined FBCON_HAS_CFB16
++		{15,{10,5},{5,5},{0,5},{15,1},MX_VISUAL_DIRECTCOLOR},
++		{16,{11,5},{5,6},{0,5},{ 0,0},MX_VISUAL_DIRECTCOLOR},
++#endif
++#if defined FBCON_HAS_CFB24
++		{24,{16,8},{8,8},{0,8},{ 0,0},MX_VISUAL_DIRECTCOLOR},
++#endif
++#if defined FBCON_HAS_CFB32
++		{32,{16,8},{8,8},{0,8},{24,8},MX_VISUAL_DIRECTCOLOR}
++#endif
++	};
++	struct RGBT const *p;
++
++	unsigned char bpp= var->bits_per_pixel;
++	if (bpp == 16 && var->green.length == 5) bpp--;/* an artifical value - 15 */
+ 
+-	if (var->bits_per_pixel == 0) {
+-		var->red.offset = 0;
+-		var->red.length = 6;
+-		var->green.offset = 0;
+-		var->green.length = 6;
+-		var->blue.offset = 0;
+-		var->blue.length = 6;
+-		var->transp.offset = 0;
+-		var->transp.length = 0;
+-		*visual = MX_VISUAL_PSEUDOCOLOR;
+-	} else if (var->bits_per_pixel == 4) {
+-		var->red.offset = 0;
+-		var->red.length = 8;
+-		var->green.offset = 0;
+-		var->green.length = 8;
+-		var->blue.offset = 0;
+-		var->blue.length = 8;
+-		var->transp.offset = 0;
+-		var->transp.length = 0;
+-		*visual = MX_VISUAL_PSEUDOCOLOR;
+-	} else if (var->bits_per_pixel <= 8) {
+-		var->red.offset = 0;
+-		var->red.length = 8;
+-		var->green.offset = 0;
+-		var->green.length = 8;
+-		var->blue.offset = 0;
+-		var->blue.length = 8;
+-		var->transp.offset = 0;
+-		var->transp.length = 0;
+-		*visual = MX_VISUAL_PSEUDOCOLOR;
+-	} else {
+-		if (var->bits_per_pixel <= 16) {
+-			if (var->green.length == 5) {
+-				var->red.offset    = 10;
+-				var->red.length    = 5;
+-				var->green.offset  = 5;
+-				var->green.length  = 5;
+-				var->blue.offset   = 0;
+-				var->blue.length   = 5;
+-				var->transp.offset = 15;
+-				var->transp.length = 1;
+-			} else {
+-				var->red.offset    = 11;
+-				var->red.length    = 5;
+-				var->green.offset  = 5;
+-				var->green.length  = 6;
+-				var->blue.offset   = 0;
+-				var->blue.length   = 5;
+-				var->transp.offset = 0;
+-				var->transp.length = 0;
+-			}
+-		} else if (var->bits_per_pixel <= 24) {
+-			var->red.offset    = 16;
+-			var->red.length    = 8;
+-			var->green.offset  = 8;
+-			var->green.length  = 8;
+-			var->blue.offset   = 0;
+-			var->blue.length   = 8;
+-			var->transp.offset = 0;
+-			var->transp.length = 0;
+-		} else {
+-			var->red.offset    = 16;
+-			var->red.length    = 8;
+-			var->green.offset  = 8;
+-			var->green.length  = 8;
+-			var->blue.offset   = 0;
+-			var->blue.length   = 8;
+-			var->transp.offset = 24;
+-			var->transp.length = 8;
+-		}
++	for (p= table; p->bpp < bpp; p++);
++#define	SETCLR(clr)\
++	var->clr.offset= p->clr.offset;\
++	var->clr.length= p->clr.length
++	SETCLR(red);
++	SETCLR(green);
++	SETCLR(blue);
++	SETCLR(transp);
++#undef	SETCLR
++	*visual= p->visual;
++
++	if (bpp > 8)
+ 		dprintk("matroxfb: truecolor: "
+-		       "size=%d:%d:%d:%d, shift=%d:%d:%d:%d\n",
+-		       var->transp.length,
+-		       var->red.length,
+-		       var->green.length,
+-		       var->blue.length,
+-		       var->transp.offset,
+-		       var->red.offset,
+-		       var->green.offset,
+-		       var->blue.offset);
+-		*visual = MX_VISUAL_DIRECTCOLOR;
+-	}
++			"size=%d:%d:%d:%d, shift=%d:%d:%d:%d\n",
++			var->transp.length, var->red.length, var->green.length, var->blue.length,
++			var->transp.offset, var->red.offset, var->green.offset, var->blue.offset);
++}
+ 	*video_cmap_len = matroxfb_get_cmap_len(var);
+ 	dprintk(KERN_INFO "requested %d*%d/%dbpp (%d*%d)\n", var->xres, var->yres, var->bits_per_pixel,
+ 				var->xres_virtual, var->yres_virtual);

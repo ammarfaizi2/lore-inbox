@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274990AbRKHQFW>; Thu, 8 Nov 2001 11:05:22 -0500
+	id <S274774AbRKHQMc>; Thu, 8 Nov 2001 11:12:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274813AbRKHQFN>; Thu, 8 Nov 2001 11:05:13 -0500
-Received: from posta2.elte.hu ([157.181.151.9]:16360 "HELO posta2.elte.hu")
-	by vger.kernel.org with SMTP id <S274434AbRKHQFB>;
-	Thu, 8 Nov 2001 11:05:01 -0500
-Date: Thu, 8 Nov 2001 18:02:56 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: speed difference between using hard-linked and modular drives?
-In-Reply-To: <Pine.LNX.4.30.0111081700240.1916-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.4.33.0111081802380.15975-100000@localhost.localdomain>
+	id <S274813AbRKHQMW>; Thu, 8 Nov 2001 11:12:22 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59146 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S274774AbRKHQML>; Thu, 8 Nov 2001 11:12:11 -0500
+Date: Thu, 8 Nov 2001 08:08:46 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: out_of_memory() heuristic broken for different mem configurations
+ (fwd)
+In-Reply-To: <Pine.LNX.4.21.0111081239270.1689-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0111080805280.1480-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 8 Nov 2001, Roy Sigurd Karlsbakk wrote:
+On Thu, 8 Nov 2001, Marcelo Tosatti wrote:
+>
+> I guess you forgot to apply the following patch on 2.4.15-pre1, right ?
 
-> Are there any speed difference between hard-linked device drivers and
-> their modular counterparts?
+The thing is, I _really_ think it is broken.
 
-minimal. a few instructions per IO.
+The way to make it fail is to have many large SHARED mappings - in which
+case we have backing space for 99% of all memory, and returning -1 just
+because a few pages need swap-space and can't be thrown out is wrong.
 
-	Ingo
+Try it with no swap, and having some processes that MAP_SHARED much more
+than available memory and many (small) processes that do not, and need
+swap-space. It should work fine - we're never even _close_ to being out of
+memory, but your change makes "swap_out()" fail all the time.
+
+		Linus
 

@@ -1,58 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263786AbTDIUiY (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 16:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbTDIUiY (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 16:38:24 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:58536 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S263786AbTDIUiW (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 16:38:22 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id S263790AbTDIUnC (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 16:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbTDIUnB (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 16:43:01 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:34061 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id S263790AbTDIUnA (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 16:43:00 -0400
+Date: Wed, 9 Apr 2003 22:54:29 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: James Bottomley <James.Bottomley@steeleye.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 64-bit kdev_t - just for playing
+In-Reply-To: <1049913637.1993.73.camel@mulgrave>
+Message-ID: <Pine.LNX.4.44.0304092202570.5042-100000@serv>
+References: <1049913637.1993.73.camel@mulgrave>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16020.34678.824488.248372@napali.hpl.hp.com>
-Date: Wed, 9 Apr 2003 13:49:58 -0700
-To: Christoph Hellwig <hch@infradead.org>
-Cc: davidm@hpl.hp.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: bk pull
-In-Reply-To: <20030409203836.A9397@infradead.org>
-References: <200304091927.h39JRob0010157@napali.hpl.hp.com>
-	<20030409203836.A9397@infradead.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 9 Apr 2003 20:38:36 +0100, Christoph Hellwig <hch@infradead.org> said:
+Hi,
 
-  Christoph> Btw, do you have any plans to push the changes outside
-  Christoph> from arch/ia64 and include/asm-ia64/ in the ia64 patch to
-  Christoph> Linus? It would be really nice if the ia64 port could be
-  Christoph> used with an out-of-the-box kernel.
+On 9 Apr 2003, James Bottomley wrote:
 
-Boy, what a loaded question!
+> > Let's try it with a real example:
+> > I have two onboard SCSI channels, the first one is for external
+> devices 
+> > and the second for internal devices.
+> 
+> There seems to be some confusion here.  As I understand it, you're
+> advocating a completely dynamic device space (both major and minor), but
+> the concrete examples you post come from devices that do dynamic minors
+> only.
 
-Sure, I too would like it if the kernel would always build
-out-of-the-box, but I don't think it's very realistic.  Even if I
-followed Linus's checkins on an hourly basis (no way in hell I'm ever
-gonna do that), there is always a chance that he'll accept a patch
-that will (perhaps subtly) break non-x86 platforms.
+These examples were intended to show problems of the current dynamic and 
+static numbering. I use examples like these to evaluate how a new 
+numbering scheme helps to manage devices.
 
-Having said that, I do submit patches to the respective maintainers
-quite frequently.  I probably should cc linux-kernel more often so
-others can see that.  Anyhow, I think part of the problem is that I'm
-simply not willing to spend inordinate amounts of time pushing the
-patches (no, maintaining a kernel tree is not much fun and most
-definitely underappreciated, so I do want to get some real work done
-occasionally).  For example, the sound driver patches have been around
-forever, have been submitted multiple times, and each time we get a
-"yeah, that looks good, let me work on it" and that's the last thing
-we hear.
+> As far as SCSI goes, in the current 8/8 device scheme, we occupy 16
+> different majors for sd already, but this only gives us room for 256
+> discs and we had to compromise and only have 16 partitions on each (as
+> opposed to the 64 that IDE has).  Even if you expand this (as there are
+> patches to do), we get into trouble because we only have 256 sg nodes,
+> etc.
+> 
+> Expanding the size of the kernel dev_t will allow us to occupy only one
+> major,  for each SCSI device type, supply far more discs and still move
+> to a 64 partition model.
 
-I think the only two biggies right now are the AGP/DRM changes (which
-I'm working on) and the virtual mem_map support.  The latter I haven't
-pushed at all so far, mostly because I just haven't had the
-time/energy/interest to do so.  Also, I'm always optimistic someone
-else comes along to help with the work... ;-)
+Why do we need majors at all? There is no perfect way to partition the 
+device number, it will always be some compromise. This partitioning 
+creates more problems than it solves.
+Simply start allocating from 0x10000 and you can have (2^32-2^16)/partnr 
+block devices.
+The sg nodes problem is also easy to solve, but it requires the character 
+device hash Andries removed.
 
-	--david
+> > I have to come back to the two questions I already asked earlier:
+> > 1. How do we want to manage devices in the future?
+> 
+> Well, it's a legitimate question to ask, but not one anyone is required
+> to answer.  The whole "taste" thing in the kernel is about making
+> correct decisions without necessarily seeing the ultimate end points. 
+> Enabling rather than dictating.  Nothing about an expanded kernel dev_t
+> precludes more dynamism in major number allocation.
+
+So let's "taste" a few ideas. I don't want any decision, I want to get a 
+discussion started, which explores some of the possibilities, so that we 
+have _some_ idea of what we need.
+
+> However, there is already consideration of this issue, see for example:
+> 
+> http://www.linuxsymposium.org/2003/view_abstract.php?talk=94
+
+I'd love to see this implemented and I would certainly like to help, but 
+I'm mostly interested in the kernel side of this.
+I haven't found much information about this, so it's difficult to comment 
+on this.
+
+> > 2. What compromises can we make for 2.6?
+> 
+> I think that's expand the kernel's device type but keep the current
+> static major/static or dynamic minor.  It seems to me, at this late
+> stage in the game, that this will cause the minimum disruption and
+> require the minimum of code changes, while still allowing us to satisfy
+> the enterprise device demands.  Pragmatically as well, we already have
+> the patches for this, we don't for dynamic majors.
+
+These "enterprise device demands" certainly shouldn't break existing 
+setups? The patches I've seen from Andries so far do exactly this.
+What I'm mostly trying to get out of this discussion is how this large 
+dev_t will be used during 2.6, as this requires decisions now, I'd like 
+to know and talk about the possible consequences.
+
+In this mail 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104928874409158&w=2
+I demonstrated how new device numbers can be generated, without breaking 
+backwards compatibility, it's quite trivial to complete this patch.
+

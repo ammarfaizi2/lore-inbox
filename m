@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263095AbSJGP1U>; Mon, 7 Oct 2002 11:27:20 -0400
+	id <S263086AbSJGPYj>; Mon, 7 Oct 2002 11:24:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263096AbSJGP1U>; Mon, 7 Oct 2002 11:27:20 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:30702 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S263095AbSJGP1R>; Mon, 7 Oct 2002 11:27:17 -0400
-Subject: Re: wake_up from interrupt handler
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Amol Lad <dal_loma@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021007142520.56164.qmail@web12406.mail.yahoo.com>
-References: <20021007142520.56164.qmail@web12406.mail.yahoo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-YG6wMCCi7rKuye7aGRG8"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Oct 2002 17:36:37 +0200
-Message-Id: <1034004998.2815.11.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S263087AbSJGPYj>; Mon, 7 Oct 2002 11:24:39 -0400
+Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:8466 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S263086AbSJGPYi>;
+	Mon, 7 Oct 2002 11:24:38 -0400
+Date: Mon, 7 Oct 2002 11:30:14 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: best version for server?
+In-Reply-To: <20021007080132.A13486@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0210071129540.20621-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 7 Oct 2002, Larry McVoy wrote:
 
---=-YG6wMCCi7rKuye7aGRG8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> We're not sure if it is something we've done or just increased usage, but
+> bkbits.net is getting hammered lately.  We see load averages in ~15-20
+> range pretty regularly.  It's got some nasty characteristics from the
+> point of view of server/VM system, tons of data and not really any good
+> working sets.  I'm running 2.4.5 on it and that clearly has to go.  I am
+> going to try the rmap kernel but I'm open to other suggestions.
 
-On Mon, 2002-10-07 at 16:25, Amol Lad wrote:
-> In this code too.. lost-wakeup problem is not solved
->=20
-> if (event_occured)
->   else=20
->     schedule();
->=20
-> what if in check ' if(event_occured) ' goes to 'else'
-> and before calling schedule() my ISR interrupted this
-> thread and set the event..
+I think your being slashdotted..
 
-that's fine; the wake_up() will mark your process as TASK_RUNNING at
-which point the schedule() is effectively a NOP, at which point your
-event loop just loops immediatly again ->  no problem
+	Gerhard
 
-always keep interrupts enabled during this, no need to block them ;)
+--
+Gerhard Mack
 
---=-YG6wMCCi7rKuye7aGRG8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+gmack@innerfire.net
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9oaoFxULwo51rQBIRAnUqAJ9ird9Eyhh0te35p8ty0jzkvZWvPwCgoHW2
-x8ms9MC+cyFH2DYfoKQzSEk=
-=ohpW
------END PGP SIGNATURE-----
-
---=-YG6wMCCi7rKuye7aGRG8--
+<>< As a computer I find your faith in technology amusing.
 

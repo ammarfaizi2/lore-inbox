@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264653AbTEaQz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 12:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264647AbTEaQz5
+	id S264380AbTEaRAz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 13:00:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTEaRAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 12:55:57 -0400
-Received: from main.gmane.org ([80.91.224.249]:23717 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264653AbTEaQzx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 12:55:53 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: weird keyboard with 2.5.70
-Date: 31 May 2003 19:09:08 +0200
-Message-ID: <yw1xisrrnivf.fsf@zaphod.guide>
-References: <5.1.0.14.2.20030531184245.00aecfb0@pop.t-online.de> <1054396897.27312.8.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 31 May 2003 13:00:55 -0400
+Received: from miranda.zianet.com ([216.234.192.169]:27143 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP id S264380AbTEaRAy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 13:00:54 -0400
+Subject: Re: coding style (was Re: [PATCH][2.5] UTF-8 support in console)
+From: Steven Cole <elenstev@mesatop.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chris Heath <chris@heathens.co.nz>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030531153940.GA1280@work.bitmover.com>
+References: <20030531095521.5576.CHRIS@heathens.co.nz>
+	 <20030531152133.A32144@infradead.org>
+	 <20030531144323.GA22810@work.bitmover.com> <20030531150150.GA14829@suse.de>
+	 <20030531153940.GA1280@work.bitmover.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054401248.2900.124.camel@spc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 31 May 2003 11:14:08 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-
-> > Errr, guys - you do know that PS2 is NOT hotplug and you
-> > may well end up hosing your mainboard ?
+On Sat, 2003-05-31 at 09:39, Larry McVoy wrote:
+> On Sat, May 31, 2003 at 04:01:50PM +0100, Dave Jones wrote:
+> > Saving a line over readability is utterly bogus.
 > 
-> For any vaguely modern machine you'll find thats not the case. If
-> I remember rightly the requirement for PS/2 to be hotplug safe was
-> added into the PC specs the vendors use about 1998
+> I agree 100%.  If you have anything more complex than
+> 
+> 	if (error) return (error);
+> 
+> I want it to look like
+> 	
+> 	if ((expr) || (expr2) || (expr3)) {
+> 		return (error);
+> 	}
+> 
+This may just be pedantic minutiae, but aren't those parenthesis around
+"error" unnecessary?
 
-I've never seen any ill effects of hotplugging PS/2 on older gear
-either.  XFree86 used to dislike it, though.
+Here is a proposal for coding style: Only use parenthesis in the return
+statement when needed.
 
--- 
-Måns Rullgård
-mru@users.sf.net
+return -ETOSENDERADDRESSUNKNOWN;	/* this is OK */
+return (value & ZORRO_MASK);		/* so is this */
+return (-ENOTENOUGHCOFFEE);		/* bogus parenthesis */ 
+
+Steven
 

@@ -1,84 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287287AbSAGWNC>; Mon, 7 Jan 2002 17:13:02 -0500
+	id <S287279AbSAGWQn>; Mon, 7 Jan 2002 17:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287284AbSAGWMx>; Mon, 7 Jan 2002 17:12:53 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:16344 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S287276AbSAGWMh>; Mon, 7 Jan 2002 17:12:37 -0500
-Message-ID: <3C3A1D42.9566EB24@folkwang-hochschule.de>
-Date: Mon, 07 Jan 2002 23:12:18 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Nettingsmeier 
-	<nettings@folkwang-hochschule.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Johannes Erdfelt <johannes@erdfelt.com>
-CC: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 usbnet usb.c: USB device not accepting new address
-In-Reply-To: <mailman.1010437020.13415.linux-kernel2news@redhat.com> <200201072141.g07Lf3102857@devserv.devel.redhat.com> <20020107164415.N10145@sventech.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S287274AbSAGWQd>; Mon, 7 Jan 2002 17:16:33 -0500
+Received: from mxzilla2.xs4all.nl ([194.109.6.50]:58889 "EHLO
+	mxzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S287279AbSAGWQW>; Mon, 7 Jan 2002 17:16:22 -0500
+Date: Mon, 7 Jan 2002 23:16:20 +0100
+From: jtv <jtv@xs4all.nl>
+To: Tim Hollebeek <tim@hollebeek.com>
+Cc: Bernard Dautrevaux <Dautrevaux@microprocess.com>,
+        "'dewar@gnat.com'" <dewar@gnat.com>, paulus@samba.org, gcc@gcc.gnu.org,
+        linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+        velco@fadata.bg
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020107231620.H8157@xs4all.nl>
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E402@IIS000> <20020107224907.D8157@xs4all.nl> <20020107172832.A1728@cj44686-b.reston1.va.home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020107172832.A1728@cj44686-b.reston1.va.home.com>; from tim@hollebeek.com on Mon, Jan 07, 2002 at 05:28:32PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Erdfelt wrote:
+On Mon, Jan 07, 2002 at 05:28:32PM -0500, Tim Hollebeek wrote:
 > 
-> On Mon, Jan 07, 2002, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> > >  kernel: usb.c: USB device not accepting new address=6 (error=-110)
-> >
-> > And your /proc/interrupts is ... ?
-> 
-> Almost definately > 0. He was getting hard CRC/Timeout's out of the HC.
-> 
-> JE
+> You're not allowed to be that smart wrt volatile.  If the programmer
+> says the value might change unpredictably and should not be optimized,
+> then It Is So and the compiler must respect that even if it determines
+> It Cannot Possibly Happen.
 
-before plugging the ipaq in again:
-  
- 19:     198150     198207   IO-APIC-level  aic7xxx, eth0, usb-uhci
-NMI:          0          0
-LOC:    2554011    2553990
-ERR:          0
-MIS:          0
+Naturally I hope you're right.  But how does that follow from the Standard?
+I have to admit I don't have a copy handy.  :(
 
-after plugging in: (doing `cat interrupts` continuously)
+Let's say we have this simplified version of the problem:
 
- 19:     198178     198233   IO-APIC-level  aic7xxx, eth0, usb-uhci
-NMI:          0          0
-LOC:    2555170    2555148
-ERR:          0
-MIS:          0
+	int a = 3;
+	{
+		volatile int b = 10;
+		a += b;
+	}
 
- 19:     198187     198241   IO-APIC-level  aic7xxx, eth0, usb-uhci
-NMI:          0          0
-LOC:    2555323    2555301
-ERR:          0
-MIS:          0
-
- 19:     198192     198248   IO-APIC-level  aic7xxx, eth0, usb-uhci
-NMI:          0          0
-LOC:    2555437    2555416
-ERR:          0
-MIS:          0
-
- 19:     198194     198250   IO-APIC-level  aic7xxx, eth0, usb-uhci
-NMI:          0          0
-LOC:    2555515    2555494
-ERR:          0
-MIS:          0
+Is there really language in the Standard preventing the compiler from
+constant-folding this code to "int a = 13;"?
 
 
-i just realized i might have an issue with shared irqs here. aic7xxx
-has my system disk, and eth0 is a realtek 8139too.o
-aic7xxx and usb are on-board, so there's nothing i can do against
-them sharing an interrupt. i might shuffle my nic around tomorrow,
-if you guys think that it makes a difference.
+Jeroen
 
-
-
--- 
-Jörn Nettingsmeier     
-home://Kurfürstenstr.49.45138.Essen.Germany      
-phone://+49.201.491621
-http://spunk.dnsalias.org
-http://www.linuxdj.com/audio/lad/

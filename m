@@ -1,128 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291247AbSAaTsN>; Thu, 31 Jan 2002 14:48:13 -0500
+	id <S291253AbSAaTxx>; Thu, 31 Jan 2002 14:53:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291251AbSAaTsE>; Thu, 31 Jan 2002 14:48:04 -0500
-Received: from mg02.austin.ibm.com ([192.35.232.12]:49563 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S291247AbSAaTrt>; Thu, 31 Jan 2002 14:47:49 -0500
-Message-Id: <200201311947.NAA25750@popmail.austin.ibm.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Theurer <habanero@us.ibm.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: (O)1 Netbench results and some problems
-Date: Thu, 31 Jan 2002 11:45:36 -0800
-X-Mailer: KMail [version 1.3.1]
+	id <S291256AbSAaTxo>; Thu, 31 Jan 2002 14:53:44 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:21199 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S291253AbSAaTxe>; Thu, 31 Jan 2002 14:53:34 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: [linux-lvm] Re: [lvm-devel] [ANNOUNCE] LVM reimplementation ready for
+ beta testing
+To: lvm-devel@sistina.com
+Cc: Jim McDonald <Jim@mcdee.net>, Andreas Dilger <adilger@turbolabs.com>,
+        linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+        lvm-devel@sistina.com, evms-devel@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
+Message-ID: <OFBCE93B66.F7B9C14E-ON85256B52.006B8AB3@raleigh.ibm.com>
+From: "Steve Pratt" <slpratt@us.ibm.com>
+Date: Thu, 31 Jan 2002 13:52:29 -0600
+X-MIMETrack: Serialize by Router on D04NM202/04/M/IBM(Release 5.0.9 |November 16, 2001) at
+ 01/31/2002 02:53:07 PM
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Joe Thornber wrote:
+>On Wed, Jan 30, 2002 at 10:03:40PM +0000, Jim McDonald wrote:
+>> Also, does/where does this fit in with EVMS?
 
-I have run some Netbench tests on Ingo's scheduler (J7), and I'd like
-to share the results here.  Included below is a text version of the
-index.html on:
+>EVMS differs from us in that they seem to be trying to move the whole
+>application into the kernel,
 
-http://lse.sourceforge.net/benchmarks/netbench/results/february_2002/sched/
+No, not really.  We only put in the kernel the things that make sense to be
+in the kernel, discovery logic, ioctl support, I/O path.  All configuration
+is handled in user space.
 
-Please take a look at the "Notes" section at the bottom.  I am having
-trouble with the scheduler on uniprocessor on high loads.  I there is
-anything I can do to help resolve this problem, please let me know!
+> whereas we've taken the opposite route
+>and stripped down the kernel side to just provide services.
 
-Thanks,
+Then why does snapshot.c in device mapper have a read_metadata function
+which populates the exception table from on disk metadata?  Seems like you
+agree with us that having metadata knowledge in the kernel is a GOOD thing.
 
-Andrew Theurer
+>This is fine, I think there's room for both projects.  But it is worth
+>noting that EVMS could be changed to use device-mapper for it's low
+>level functionality.  That way they could take advantage of the cool
+>work we're doing with snapshots and pvmove, and we could take
+>advantage of having more eyes on the core driver.
+
+Since device_mapper does not support in kernel discovery, and EVMS relies
+on this, it would be very difficult to change EVMS to use device_mapper.
+Besides, EVMS already has all the capabilities provided by device mapper,
+including a complete LVM1 compatibility package.
+
+>LVM2 may not seem that exciting initially, since the first release is
+>just concentrating on reproducing LVM1 functionality.  But a lot of
+>the reason for this rewrite is to enable us to add in the new features
+>that we want (such as a transaction based disk format).  It's on this
+>new feature list that we'll be mainly competing with EVMS.
+
+Why compete, come on over and help us :-)
+
+Steve
 
 
->>index.html
-These results compare the linux scheduler to 
-the (O)1 scheduler on 2.4.17.  Version J7 of 
-the (0)1 scheduler is used here. 
+EVMS Development - http://www.sf.net/projects/evms
+Linux Technology Center - IBM Corporation
+(512) 838-9763  EMAIL: SLPratt@US.IBM.COM
 
-Results can be found here: 
-                                                    Peak Throughput 
-./up                       Uniprocessor results 
-./up/baseline              Default scheduler         275.477 Mbps 
-./up/o1                    (O)1 scheduler            289.221 Mbps 
-
-./4p                       4-way SMP results 
-./4p/affinity               IRQ & process affinity 
-./4p/affinity/baseline     Default scheduler         741.147 Mbps 
-./4p/affinity/o1           (O)1 scheduler            774.804 Mbps 
-./4p/no_affinity           No IRQ & process affinity 
-./4p/no_affinity/baseline  Default scheduler         596.774 Mbps 
-./4p/no_affinity/o1        (O)1 scheduler            623.589 Mbps 
-
-Under each of these results are more directories and files: 
-
-./netbench              NetBench results in Excel 
-./sar                   Sysstat files 
-./proc 
-./samba                 Samba log files 
-./config-`uname -r`     .config from kernel build 
-sysctl.conf 
-dropped_packets.txt     Any dropped packets during test 
-  
-
-Hardware: 
-
-Server 
------- 
-4 x 700 MHz PIIIXeon, 1 MB L2 
-2.5 GB memory 
-4 Alteon Gbps Ethernet adapters 
-14 15k rpm SCSI, RAID 5 
-  
-
-Clients (48) 
-------- 
-866 MHz PIII, 256 MB 
-100 Mbps Ethernet 
-  
-
-Network 
-------- 
-2 Switches, 2 Gbps and 24 100 Mbps ports per switch 
-Each switch has 2 VLANS, for a total of 4 networks 
-  
-
-Notes: 
-
-Good News: 4-way tests were conducted initially, and when using affinity, 
-results using the (O)1 scheduler showed a 4.54% increase in peak throughput.  
-The same tests were run without affinity, and results using the (O)1 
-scheduler showed a 4.49% increase in throughput.  This was a little 
-surprising, since previous kernprofs on the default scheduler showed only 
-about 2% in schedule. 
-
-Bad News: Now, on to the uniprocessor results.  Every single test with the 
-(O)1 scheduler resulted in some client errors.  These tests typically start 
-with 4 clients, and add 4 more clients for each test case until 48 clients 
-are used (that's all we have).  The (O)1 scheduler would run without client 
-errors until 20 clients were reached.  Clients would complain about various 
-failed attempts and doing an SMB operation. 
-
-Now, none of these problems were evident with the default scheduler.  I did 
-some poking around during one of the tests. Things like "ps" would take more 
-than 2 minutes to start.  Actually, attempting to start any new task would be 
-delayed until the current NetBench test case would complete (each test case 
-runs for 3 minutes).  With the default scheduler, response time was 
-excellent, within 1 second, even with a run queue length in the 40's. 
-
-I think it's safe to say these two side affects are related.  Both the "ps" 
-and "smbd" seem to have problems getting on to a run queue.  The Netbench 
-test is throttled, so all of the smbd processes get a chance to sit on the 
-wait queue for a while.  I'm not sure why occasionally one of these smbd 
-processes has a very difficult time getting a shot on a run queue. 
-
-There is some good news in this.  Results using the (O)1 scheduler still 
-showed a higher peak throughput than the default scheduler, despite the 
-client errors. 
-  
-So, I am looking for some guidance here.  Has anyone seen this behavior with 
-(O)1 on high load workloads?  What's going on here? 
-
-Andrew Theurer 
-habanero@us.ibm.com 
-  

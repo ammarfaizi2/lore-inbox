@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318028AbSHQRQy>; Sat, 17 Aug 2002 13:16:54 -0400
+	id <S318027AbSHQR1V>; Sat, 17 Aug 2002 13:27:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318031AbSHQRQx>; Sat, 17 Aug 2002 13:16:53 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:8205 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S318028AbSHQRQv>; Sat, 17 Aug 2002 13:16:51 -0400
-Message-Id: <200208171720.g7HHKim03809@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Gabriel Paubert <paubert@iram.es>
-cc: Ingo Molnar <mingo@elte.hu>,
-       James Bottomley <James.Bottomley@HansenPartnership.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Boot failure in 2.5.31 BK with new TLS patch 
-In-Reply-To: Message from Gabriel Paubert <paubert@iram.es> 
-   of "Sat, 17 Aug 2002 19:09:26 +0200." <3D5E8346.5010101@iram.es> 
-Mime-Version: 1.0
+	id <S318031AbSHQR1V>; Sat, 17 Aug 2002 13:27:21 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3957 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S318027AbSHQR1U>; Sat, 17 Aug 2002 13:27:20 -0400
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] reduce stack usage of sanitize_e820_map
+References: <20020815174825.F29874@redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 17 Aug 2002 11:18:11 -0600
+In-Reply-To: <20020815174825.F29874@redhat.com>
+Message-ID: <m11y8xqu98.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 17 Aug 2002 12:20:44 -0500
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-paubert@iram.es said:
-> Hey no, it's cpu_gdt_table that must be aligned. That one does not
-> matter,  it's only used once for the lgdt instruction... 
+Benjamin LaHaise <bcrl@redhat.com> writes:
 
-Actually, the intel manual recommends (but doesn't require) a wierd alignment 
-for the descriptors.  It recommends aligning them at an address which is 2 MOD 
-4 to avoid possible alignment check faults in user mode.  Not that I think we 
-can ever run into the problem, but we should probably obey the recommendation. 
- I'll fix this up as well.
+> Hello,
+> 
+> Currently, sanitize_e820_map uses 0x738 bytes of stack.  The patch below 
+> moves the arrays into __initdata, reducing stack usage to 0x34 bytes.
 
-James
+Can we keep the arrays in sanitize_e820_map and just mark then static
+and __initdata?  That would appear to be a cleaner solution.   
+Polluting the global kernel name space with these is not nice. 
 
-
+Eric

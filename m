@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290832AbSARVVb>; Fri, 18 Jan 2002 16:21:31 -0500
+	id <S290834AbSARVYB>; Fri, 18 Jan 2002 16:24:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290831AbSARVVV>; Fri, 18 Jan 2002 16:21:21 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:17303 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S290824AbSARVVL>; Fri, 18 Jan 2002 16:21:11 -0500
-Message-Id: <200201182120.g0ILKZWH004851@tigger.cs.uni-dortmund.de>
-To: Matt Bernstein <matt@theBachChoir.org.uk>
-cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: probably very irrelevant oops 
-In-Reply-To: Message from Matt Bernstein <matt@theBachChoir.org.uk> 
-   of "Fri, 18 Jan 2002 16:22:03 GMT." <Pine.LNX.4.44.0201181559540.2851-100000@nick.dcs.qmul.ac.uk> 
-Date: Fri, 18 Jan 2002 22:20:35 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S290833AbSARVXv>; Fri, 18 Jan 2002 16:23:51 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38154 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290831AbSARVXj>; Fri, 18 Jan 2002 16:23:39 -0500
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes
+To: yoder1@us.ibm.com (Kent E Yoder)
+Date: Fri, 18 Jan 2002 21:35:19 +0000 (GMT)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
+In-Reply-To: <OFFBBD700A.BEBAFED6-ON85256B44.00724FEA@raleigh.ibm.com> from "Kent E Yoder" at Jan 18, 2002 02:52:47 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16RgfP-0007xJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Bernstein <matt@theBachChoir.org.uk> said:
-> >The bug probably is in the module which immediately preceded
-> >es1371 in your /proc/modules output.  Could you please load
-> >them all up again, send me your /proc/modules output?
-> 
-> Further exploration revealed an oops on loading the modules. Here's a clip
-> from find /lib/modules/2.4.17-expt/kernel -type f
+>   For #6, the udelay(1) had more to do with the following write() than 
+> with spin_lock().  When that delay was not there, the write failed 
+> randomly. The same with the udelay(10) at the end of the interrupt 
+> function...
 
-Could you try just loading that last module (and anything it might depend
-on)? I looks like a problem with the module expecting some parameter it
-doesn't get, and then screwing up. [Just a random guess].
--- 
-Horst von Brand			     http://counter.li.org # 22616
+That smells of covering up a race rather than fixing something. Another
+thing you may be doing perhaps is hiding PCI posting effects ?
+
+Alan

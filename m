@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266712AbSLPNZz>; Mon, 16 Dec 2002 08:25:55 -0500
+	id <S266731AbSLPN2o>; Mon, 16 Dec 2002 08:28:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266720AbSLPNZz>; Mon, 16 Dec 2002 08:25:55 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:8727 "EHLO poup.poupinou.org")
-	by vger.kernel.org with ESMTP id <S266712AbSLPNZy>;
-	Mon, 16 Dec 2002 08:25:54 -0500
-Date: Mon, 16 Dec 2002 14:32:23 +0100
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: rmap and nvidia?
-Message-ID: <20021216133223.GA9328@poup.poupinou.org>
-References: <1039858571.559.15.camel@nirvana> <20021214093831.GL9882@holomorphy.com> <1039859196.771.18.camel@nirvana> <Pine.LNX.4.50L.0212141225320.32283-100000@imladris.surriel.com> <3DFBD98E.53E9D8BB@eyal.emu.id.au> <3DFBDAC6.40100@free.fr> <3DFBDDA0.CD0B55BA@eyal.emu.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DFBDDA0.CD0B55BA@eyal.emu.id.au>
-User-Agent: Mutt/1.4i
-From: Ducrot Bruno <poup@poupinou.org>
+	id <S266733AbSLPN2o>; Mon, 16 Dec 2002 08:28:44 -0500
+Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:54430 "EHLO
+	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S266731AbSLPN2n>; Mon, 16 Dec 2002 08:28:43 -0500
+From: "Scott Robert Ladd" <scott@coyotegulch.com>
+To: "Zwane Mwaikambo" <zwane@holomorphy.com>
+Cc: "Robert Love" <rml@tech9.net>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: re: /proc/cpuinfo and hyperthreading
+Date: Mon, 16 Dec 2002 08:38:05 -0500
+Message-ID: <FKEAJLBKJCGBDJJIPJLJEEKMDLAA.scott@coyotegulch.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.50.0212160133300.12535-100000@montezuma.mastecende.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 15, 2002 at 12:40:48PM +1100, Eyal Lebedinsky wrote:
-> Philip Dodd wrote:
-> > 
-> > Eyal Lebedinsky wrote:
-> > 8<
-> >  > The replies for people in the know (Rik, wli) give a clue but not an
-> >  > answer. Use mere mortals want a proper patch in order to build and
-> >  > use this kernel.
-> > 
-> > This driver, you mean ;-)
-> 
-> Well, yes and no. This kernel is of no use to me without this driver
-> right now.
-> 
+Zwane Mwaikambo wrote:
+> It's ok.
 
-Ah, OK.  You need to play quake3 with this kernel, I guess.
+I'm not so sure.
 
--- 
-Ducrot Bruno
-http://www.poupinou.org        Page profaissionelle
-http://toto.tu-me-saoules.com  Haume page
+To get the most benefit from two logical CPUs, don't I need the kernel to
+operate as a 2-CPU SMP system?
+
+Windows XP initializes the system as SMP with two CPUs; when I run an OpenMP
+application under Windows, it reports two CPUs and a maximum of two threads.
+Under Linux,
+
+Linux SMP should initialize based on the number of logical CPUS, not the
+physical number of ships; thus, I should be seeing two CPUs in
+/proc/cpuinfo, not one.
+
+..Scott
+

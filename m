@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277330AbRJJR06>; Wed, 10 Oct 2001 13:26:58 -0400
+	id <S277334AbRJJRbE>; Wed, 10 Oct 2001 13:31:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277331AbRJJR0p>; Wed, 10 Oct 2001 13:26:45 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31240 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277330AbRJJR0c>; Wed, 10 Oct 2001 13:26:32 -0400
-Subject: Re: Tainted Modules Help Notices
-To: viro@math.psu.edu (Alexander Viro)
-Date: Wed, 10 Oct 2001 18:30:46 +0100 (BST)
-Cc: kaos@ocs.com.au (Keith Owens), dwmw2@infradead.org (David Woodhouse),
-        sirmorcant@morcant.org (Morgan Collins [Ax0n]),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0110100956420.17790-100000@weyl.math.psu.edu> from "Alexander Viro" at Oct 10, 2001 09:59:01 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S277335AbRJJRay>; Wed, 10 Oct 2001 13:30:54 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:48893 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S277334AbRJJRaf>; Wed, 10 Oct 2001 13:30:35 -0400
+Date: Wed, 10 Oct 2001 18:29:12 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: [POT] Which journalised filesystem ?
+Message-ID: <20011010182912.A4099@redhat.com>
+In-Reply-To: <Pine.LNX.4.33L.0110042054490.4835-100000@imladris.rielhome.conectiva> <E15pWQA-0006bs-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15rNBu-0008To-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15pWQA-0006bs-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Oct 05, 2001 at 03:57:49PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What the hell?  BSD without advertisement clause had always been
-> GPL-compatible.
+Hi,
 
-Subject to patent holdings. If you hold a patent on the BSD code you can't
-GPL it nor is it GPL compatible. 
+On Fri, Oct 05, 2001 at 03:57:49PM +0100, Alan Cox wrote:
+> > > We (as in Linux) should make sure that we explicitly tell the disk when
+> > > we need it to flush its disk buffers. We don't do that right, and
+> > > because of _our_ problems some people claim that writeback caching is
+> > > evil and bad.
+> > 
+> > Does this even work right for IDE ?
+> 
+> Current IDE drives it may be a NOP. Worse than that it would totally ruin
+> high end raid performance. We need to pass write barriers. A good i2o card
+> might have 256Mb of writeback cache that we want to avoid flushing - because
+> it is battery backed and can be ordered.
 
-The problem we have is that "BSD without advertisment" can be claimed by
-almost any binary only module whose author doesnt include source or let
-it out fo their company ever
+The important thing is to flush to non-volatile storage: non-volatile
+cache still qualifies.  The one thing we need to avoid is the data
+lingering in volatile cache, and that's a different thing.
 
+Sure, journaling filesystems can benefit from a write barrier, but at
+some point that's not sufficient --- we really need to know, at a high
+level, whether the data is permanently secured.  When your MTA
+finishes its fsync(), it assumes that the mail spool file has been
+securely stored and it can tell the sender to go ahead and delete the
+upstream copy.  
+
+A barrier is not sufficient there.  It's a useful primitive to have,
+but not a substitute for a flush to permanent storage.
+
+--Stephen

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289028AbSANUfM>; Mon, 14 Jan 2002 15:35:12 -0500
+	id <S289034AbSANUom>; Mon, 14 Jan 2002 15:44:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289037AbSANUd6>; Mon, 14 Jan 2002 15:33:58 -0500
-Received: from zero.tech9.net ([209.61.188.187]:64772 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288962AbSANUdn>;
-	Mon, 14 Jan 2002 15:33:43 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: Robert Love <rml@tech9.net>
-To: Oliver.Neukum@lrz.uni-muenchen.de
-Cc: Momchil Velikov <velco@fadata.bg>, yodaiken@fsmlabs.com,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <16QDdD-1EqtSyC@fwd03.sul.t-online.com>
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu>
-	<16QBTc-1er7D6C@fwd03.sul.t-online.com> <1011039031.4603.15.camel@phantasy>
-	 <16QDdD-1EqtSyC@fwd03.sul.t-online.com>
-Content-Type: text/plain
+	id <S289021AbSANUo0>; Mon, 14 Jan 2002 15:44:26 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:11146 "EHLO
+	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S289044AbSANUny>; Mon, 14 Jan 2002 15:43:54 -0500
+Message-ID: <3C43445D.24D5415F@nortelnetworks.com>
+Date: Mon, 14 Jan 2002 15:49:33 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+Cc: David Lang <david.lang@digitalinsight.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, babydr@baby-dragons.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <Pine.GSO.4.21.0201141452520.224-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 14 Jan 2002 15:36:44 -0500
-Message-Id: <1011040605.4604.26.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-14 at 15:22, Oliver Neukum wrote:
-
-> > No, this isn't needed.  This same problem would occur without
-> > preemption.  Our semaphores now have locking rules such that we aren't
-> > going to have blatant priority inversion like this (1 holds A needs B, 2
-> > holds B needs A).
+Alexander Viro wrote:
 > 
-> No this is a good old deadlock.
-> The problem with preemption and SCHED_FIFO is, that due to SCHED_FIFO
-> you have no guarantee that any task will make any progress at all.
-> Thus a semaphore could basically be held forever.
-> That can happen without preemption only if you do something that
-> might block.
+> On Mon, 14 Jan 2002, David Lang wrote:
+> 
+> > doesn't matter, they are likly to be found on dedicated servers where
+> > the flexibility of modules is not needed and the slight performance
+> > advantage is desired.
+> >
+> > making everything modular is fine for desktops/laptops but why should
+> > dedicated servers pay the price?
+> 
+> There should be no price.  And AFAICS that's doable.
 
-Well, semaphores block.  And we have these races right now with
-SCHED_FIFO tasks.  I still contend preempt does not change the nature of
-the problem and it certainly doesn't introduce a new one.
+I haven't been following the initramfs stuff, but now I have a question. 
+Currently we're using initrd to store a kernel and compressed ramdisk bundled
+together as an ~7MB single file that gets netbooted by firmware in a card.  Will
+it be possible to bundle initramfs together with the kernel into a single file
+in this same manner?
 
-	Robert Love
+Thanks,
 
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263003AbRFLSZV>; Tue, 12 Jun 2001 14:25:21 -0400
+	id <S262682AbRFLShE>; Tue, 12 Jun 2001 14:37:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263015AbRFLSZL>; Tue, 12 Jun 2001 14:25:11 -0400
-Received: from gene.pbi.nrc.ca ([204.83.147.150]:27954 "EHLO gene.pbi.nrc.ca")
-	by vger.kernel.org with ESMTP id <S263003AbRFLSZF>;
-	Tue, 12 Jun 2001 14:25:05 -0400
-Date: Tue, 12 Jun 2001 12:24:04 -0600 (CST)
-From: <ognen@gene.pbi.nrc.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: threading question
-Message-ID: <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca>
+	id <S263020AbRFLSgz>; Tue, 12 Jun 2001 14:36:55 -0400
+Received: from mailsorter.in.tmpw.net ([63.121.29.25]:44321 "EHLO
+	mailsorter1.in.tmpw.net") by vger.kernel.org with ESMTP
+	id <S262682AbRFLSgl>; Tue, 12 Jun 2001 14:36:41 -0400
+Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6AE1@nocmail.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'Rik van Riel'" <riel@conectiva.com.br>,
+        Rob Landley <landley@webofficenow.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt Nelson <mnelson@dynatec.com>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Any limitations on bigmem usage?
+Date: Tue, 12 Jun 2001 14:34:40 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I am a summer student implementing a multi-threaded version of a very
-popular bioinformatics tool. So far it compiles and runs without problems
-(as far as I can tell ;) on Linux 2.2.x, Sun Solaris, SGI IRIX and Compaq
-OSF/1 running on Alpha. I have ran a lot of timing tests compared to the
-sequential version of the tool on all of these machines (most of them are
-dual-CPU, although I am also running tests on 12-CPU Solaris and 108 CPU
-SGI IRIX). On dual-CPU machines the speedups are as follows: my version
-is 1.88 faster than the sequential one on IRIX, 1.81 times on Solaris,
-1.8 times on OSF/1, 1.43 times on Linux 2.2.x and 1.52 times on Linux 2.4
-kernel. Why are the numbers on Linux machines so much lower? It is the
-same multi-threaded code, I am not using any tricks, the code basically
-uses PTHREAD_CREATE_DETACHED and PTHREAD_SCOPE_SYSTEM and the thread stack
-size is set to 8K (but the numbers are the same with larger/smaller stack
-sizes).
 
-Is there anything I am missing? Is this to be expected due to Linux way of
-handling threads (clone call)? I am just trying to explain the numbers and
-nothing else comes to mind....
+On Tue, 12 Jun 2001, Rob Landley wrote:
 
-Best regards,
-Ognen Duzlevski
--- 
-ognen@gene.pbi.nrc.ca
-Plant Biotechnology Institute
-National Research Council of Canada
-Bioinformatics team
+> Brilliant.  You need what, a 6x larger cache just to break even with
+> the amount of time you're running in-cache? 
 
+This may be the wrong platform for this question, but after reading Rob
+Landley's note on performance on Itanium and architecture concerns, I am
+interested in Kernel hackers who have had to write code for Itanium's
+comments on the same, if you are not bound by NDA's.  Correct me if I am
+wrong, but I thought I saw the announcement that Itanium is shipping.  Have
+you tested Itanium performance?  We have an preproduction unit with quad
+Itanium's.  I have not had time to benchmark against other units, I am
+interested in performance items.  Feel free to drop me a line off list if
+you can.
+
+B.

@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269442AbUICQqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269520AbUICQsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269442AbUICQqR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 12:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269518AbUICQpM
+	id S269520AbUICQsk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 12:48:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269456AbUICQrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 12:45:12 -0400
-Received: from [195.135.223.198] ([195.135.223.198]:12416 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S269442AbUICQnA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 12:43:00 -0400
-Date: Fri, 3 Sep 2004 17:44:31 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jamie Lokier <jamie@shareable.org>,
+	Fri, 3 Sep 2004 12:47:07 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:11934 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269416AbUICQpg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 12:45:36 -0400
+Date: Fri, 3 Sep 2004 17:43:11 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Spam <spam@tnonline.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
+       Linus Torvalds <torvalds@osdl.org>,
        Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
        Hans Reiser <reiser@namesys.com>,
        viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alexander Lyamin aka FLX <flx@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
-Message-ID: <20040903154431.GB1396@elf.ucw.cz>
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Subject: Re: The argument for fs assistance in handling archives (was: silent
+ semantic changes with reiser4)
+In-Reply-To: <142794710.20040903023906@tnonline.net>
+Message-ID: <Pine.LNX.4.61.0409031730000.23011@fogarty.jakma.org>
+References: <20040826150202.GE5733@mail.shareable.org>
+ <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org>
+ <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
+ <1094118362.4847.23.camel@localhost.localdomain> <20040902161130.GA24932@mail.shareable.org>
+ <Pine.LNX.4.61.0409030028510.23011@fogarty.jakma.org> <1835526621.20040903014915@tnonline.net>
+ <1094165736.6170.19.camel@localhost.localdomain> <32810200.20040903020308@tnonline.net>
+ <Pine.LNX.4.61.0409030112080.23011@fogarty.jakma.org> <142794710.20040903023906@tnonline.net>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 3 Sep 2004, Spam wrote:
 
-> I bet you could write a small library to test this out for a few types.  
-> See if it's useful to you. And only if it's useful (and would make a huge
-> performance difference) would it be worth putting in the kernel.
+>  Indeed. I hope I didn't say otherwise :).
 
-It seemed really usefull in uservfs incarnation. Unfortunately the
-daemon was not multihreaded at that time, so it was not really usefull
-on multiuser systems :-(
+Sure.
 
-> Implementation of the _user_space_ library would be something like this:
-> 
-> 	#define MAXNAME 1024
-> 	int open_cached_view(int base_fd, char *type, char *subname)
+>  Just that I think it  will
+>  be very difficult to have this transparency in all apps. Just
+>  thinking of "nano file.jpg/description.txt" or "ls
+>  file.tar/untar/*.doc". Sure in some environments like Gnome it could
+>  work, but it still doesn't for the rest of the flora of Linux
+>  programs.
 
-Well, you'd need more than simple open. For caching tar (etc), you'd
-need stat_cached_view and opendir_cached_view and ...
+"will it be transparent for all apps?", whether that's worth doing 
+depends on the technical implications. Thankfully we have Al and 
+Linus to make the judgement call on that ;)
 
-And this really works, only that its called mc_open(), mc_stat() etc.
+Personally, I think that if GNOME can provide transparency for GNOME 
+users, I think that's probably enough - unless there are literally no 
+issues in adding some kind of VFS support.
 
-Gnome actually uses newer incarnation of mc_open etc, but they had to
-introduce rather ugly interface to make it asynchronous.
-								Pavel
+The nano / ls /tar user is likely a very different user to the GNOME 
+user. That user is also likely to appreciate the problems with 
+backups and such more.
+
+Anyway, userspace transparency is sufficient for most classes of 
+users. Only reason to provide some kernel support is if it makes 
+sense ("but not all apps can use GNOME transparency" not being one of 
+those reasons).
+
+regards,
 -- 
-When do you have heart between your knees?
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+Beat your son every day; you may not know why, but he will.

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282859AbRLGQKD>; Fri, 7 Dec 2001 11:10:03 -0500
+	id <S282860AbRLGQOq>; Fri, 7 Dec 2001 11:14:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282867AbRLGQJx>; Fri, 7 Dec 2001 11:09:53 -0500
-Received: from mail108.mail.bellsouth.net ([205.152.58.48]:37180 "EHLO
-	imf08bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S282859AbRLGQJj>; Fri, 7 Dec 2001 11:09:39 -0500
-Message-ID: <3C10E9BD.C23437B0@mandrakesoft.com>
-Date: Fri, 07 Dec 2001 11:09:33 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.13-12mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux-Kernel list <linux-kernel@vger.kernel.org>, linux-via@gtf.org
-Subject: via audio: looking for a maintainer
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S282873AbRLGQOg>; Fri, 7 Dec 2001 11:14:36 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:32651 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S282872AbRLGQOa>; Fri, 7 Dec 2001 11:14:30 -0500
+Date: Fri, 7 Dec 2001 09:14:26 -0700
+Message-Id: <200112071614.fB7GEQ514356@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andi Kleen <ak@suse.de>
+Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+Subject: Re: horrible disk thorughput on itanium
+In-Reply-To: <p73n10v6spi.fsf@amdsim2.suse.de>
+In-Reply-To: <p73r8q86lpn.fsf@amdsim2.suse.de.suse.lists.linux.kernel>
+	<Pine.LNX.4.33.0112070710120.747-100000@mikeg.weiden.de.suse.lists.linux.kernel>
+	<9upmqm$7p4$1@penguin.transmeta.com.suse.lists.linux.kernel>
+	<p73n10v6spi.fsf@amdsim2.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After having gone nearly a year without Via hardware to test with or
-time to mess with it, I'm looking for someone else interested, capable
-and willing to take over maintenance of
-drivers/sound/via82cxxx_audio.c.  This is for 2.2 and 2.4 only, as
-presumeably ALSA will be merged for 2.5 and they already have a
-[sometimes more stable] via audio driver.
+Andi Kleen writes:
+> torvalds@transmeta.com (Linus Torvalds) writes:
+> > 
+> > "putc()" is a standard function.  If it sucks, let's get it fixed.  And
+> > instead of changing bonnie, how about pinging the _real_ people who
+> > write sucky code?
+> 
+> It is easy to fix. Just do #define putc putc_unlocked
+> There is just a slight problem: it'll fail if your application is threaded
+> and wants to use the same FILE from multiple threads.
+> 
+> It is a common problem on all OS that eventually got threadsafe stdio. 
+> I bet putc sucks on Solaris too.
 
-	Jeff
+This kind of thing should be covered by _REENTRANT. If you don't
+compile with _REENTRANT (the default), then putc() should be the
+unlocked version.
 
+				Regards,
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,69 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbTISHJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 03:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbTISHJ1
+	id S261413AbTISHjl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 03:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbTISHjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 03:09:27 -0400
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:23747 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S261380AbTISHJY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 03:09:24 -0400
-Date: Fri, 19 Sep 2003 09:09:17 +0200 (CEST)
-From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       James Simmons <jsimmons@infradead.org>
-Subject: Re: Patch: Make iBook1 work again
-In-Reply-To: <1063954659.617.31.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0309190902480.17132-100000@deadlock.et.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 19 Sep 2003 03:39:41 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:43502 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261413AbTISHjh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 03:39:37 -0400
+Subject: Re: [PATCH 7/13] use cpu_relax() in busy loop
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+In-Reply-To: <20030918163523.K16499@osdlab.pdx.osdl.net>
+References: <20030918162522.E16499@osdlab.pdx.osdl.net>
+	 <20030918162748.F16499@osdlab.pdx.osdl.net>
+	 <20030918162930.G16499@osdlab.pdx.osdl.net>
+	 <20030918163156.H16499@osdlab.pdx.osdl.net>
+	 <20030918163311.I16499@osdlab.pdx.osdl.net>
+	 <20030918163408.J16499@osdlab.pdx.osdl.net>
+	 <20030918163523.K16499@osdlab.pdx.osdl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dN3MCQKN5zkwDxw51VNB"
+Organization: Red Hat, Inc.
+Message-Id: <1063957044.5394.7.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
+Date: Fri, 19 Sep 2003 09:37:25 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-dN3MCQKN5zkwDxw51VNB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 19 Sep 2003, Benjamin Herrenschmidt wrote:
+On Fri, 2003-09-19 at 01:35, Chris Wright wrote:
+> Replace busy loop nop with cpu_relax().
+>=20
+> Jeff, here's a batch for net drivers.  They all look pretty straight
+> forward.
+>=20
+> =3D=3D=3D=3D=3D drivers/net/3c501.c 1.19 vs edited =3D=3D=3D=3D=3D
+> --- 1.19/drivers/net/3c501.c	Tue Aug 26 13:21:28 2003
+> +++ edited/drivers/net/3c501.c	Thu Sep 18 11:30:18 2003
+> @@ -251,7 +251,8 @@
+>  		outb(0x00, AX_CMD);
+> =20
+>  		delay =3D jiffies + HZ/50;
+> -		while (time_before(jiffies, delay)) ;
+> +		while (time_before(jiffies, delay))
+> +			cpu_relax();
+>  		autoirq =3D probe_irq_off(irq_mask);
 
->
-> > It also makes me think of the 63 MHz clock speed, as you did indicate it
-> > should be 67 MHz. Knowing that the memory clock speed is used in the display
-> > fifo calculation, I wonder if it was tweaked to get things right.
-> >
-> > Enough speculation, I'll post a patch asap, but I have currently no Linux
-> > machines around me. Expect a patch tomorrow.
->
-> Don't change the clock speeds for now. I'll do some more tests with
-> 67Mhz clocks to make sure it's ok, but since I won't be able to do
-> that until wedenesday next week, let's get a known working version
-> in asap.
+mdelay()
 
-Indeed, we cannot change clocks because of results of only one machine. It
-just makes me wonder. Perhaps the best thing to do is to check this with
-ATi too.
+> =20
+>  		if (autoirq =3D=3D 0)
+> =3D=3D=3D=3D=3D drivers/net/3c505.c 1.25 vs edited =3D=3D=3D=3D=3D
+> --- 1.25/drivers/net/3c505.c	Tue Aug 26 13:29:32 2003
+> +++ edited/drivers/net/3c505.c	Thu Sep 18 11:32:26 2003
+> @@ -299,16 +299,20 @@
+>  	}
+>  	outb_control(adapter->hcr_val | ATTN | DIR, dev);
+>  	timeout =3D jiffies + 1*HZ/100;
+> -	while (time_before_eq(jiffies, timeout));
+> +	while (time_before_eq(jiffies, timeout))
+> +		cpu_relax();
 
-> Also, I just got confirmation that the 101 PowerBook with
-> an LT-Pro works fine as well.
+mdelay()
 
-Nice!
+>  	timeout =3D jiffies + 1*HZ/100;
+> -	while (time_before_eq(jiffies, timeout));
+> +	while (time_before_eq(jiffies, timeout))
+> +		cpu_relax();
 
-> The only additional "fix" I have here is some bts making the sleep
-> code slightly more robust (by preventing things like blank from
-> touching chip registers when the chip is asleep if the blank timer
-> triggers after sleep callback, same goes for cursor etc...)
-> There is no emergency getting that in. It would be nice if that
-> fixes could make it to 2.4.23 final, but I can send a separate patch
-> later.
+mdelay()
 
-Okay.... By the way, how shall we get the powermanagement code to work on
-x86? As far as I saw that register backlight procedure exists only on PowerPC.
+>  	outb_control(adapter->hcr_val | FLSH, dev);
+>  	timeout =3D jiffies + 1*HZ/100;
+> -	while (time_before_eq(jiffies, timeout));
+> +	while (time_before_eq(jiffies, timeout))
+> +		cpu_relax();
+
+mdelay()
+>  	outb_control(adapter->hcr_val & ~FLSH, dev);
+>  	timeout =3D jiffies + 1*HZ/100;
+> -	while (time_before_eq(jiffies, timeout));
+> +	while (time_before_eq(jiffies, timeout))
+> +		cpu_relax();
+> =20
+
+mdelay()
+> =3D=3D=3D=3D=3D drivers/net/eepro.c 1.19 vs edited =3D=3D=3D=3D=3D
+> --- 1.19/drivers/net/eepro.c	Tue Jul 15 10:01:29 2003
+> +++ edited/drivers/net/eepro.c	Thu Sep 18 11:33:52 2003
+> @@ -904,7 +904,8 @@
+>  			eepro_diag(ioaddr); /* RESET the 82595 */
+> =20
+>  			delay =3D jiffies + HZ/50;
+> -			while (time_before(jiffies, delay)) ;
+> +			while (time_before(jiffies, delay))
+> +				cpu_relax();
+
+mdelay()
+> =3D=3D=3D=3D=3D drivers/net/lance.c 1.18 vs edited =3D=3D=3D=3D=3D
+> --- 1.18/drivers/net/lance.c	Sun Apr 20 22:41:09 2003
+> +++ edited/drivers/net/lance.c	Thu Sep 18 11:37:30 2003
+> @@ -554,7 +554,8 @@
+>  		outw(0x0041, ioaddr+LANCE_DATA);
+> =20
+>  		delay =3D jiffies + HZ/50;
+> -		while (time_before(jiffies, delay)) ;
+> +		while (time_before(jiffies, delay))
+> +			cpu_relax();
+
+mdelay()
 
 
-Greetings,
 
-Daniël Mantione
+--=-dN3MCQKN5zkwDxw51VNB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/arI0xULwo51rQBIRAu8/AKCGVSgdsJJZqWloFaoMN4OiDAW9YQCePWZm
+7Ul7jL0IhHH4D5onAsCOvU0=
+=gUjX
+-----END PGP SIGNATURE-----
+
+--=-dN3MCQKN5zkwDxw51VNB--

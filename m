@@ -1,25 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263681AbTKRORw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 09:17:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263688AbTKRORw
+	id S262603AbTKROeh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 09:34:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTKROeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 09:17:52 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:12419 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263681AbTKRORu
+	Tue, 18 Nov 2003 09:34:37 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:50842 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262603AbTKROeg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 09:17:50 -0500
-Date: Tue, 18 Nov 2003 09:19:28 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
+	Tue, 18 Nov 2003 09:34:36 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 18 Nov 2003 06:31:21 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
 To: Jeff Garzik <jgarzik@pobox.com>
-cc: Pontus Fuchs <pof@users.sourceforge.net>, linux-kernel@vger.kernel.org
+cc: Pontus Fuchs <pof@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Announce: ndiswrapper
 In-Reply-To: <3FBA25CD.5020708@pobox.com>
-Message-ID: <Pine.LNX.4.53.0311180915580.30324@chaos>
-References: <1069153340.2200.28.camel@dhcp-225.mlm.tactel.se>
- <3FBA25CD.5020708@pobox.com>
+Message-ID: <Pine.LNX.4.44.0311180630090.1682-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -31,22 +30,16 @@ On Tue, 18 Nov 2003, Jeff Garzik wrote:
 > > Please! I don't want to start a flamewar if this is a good thing to do.
 > > I'm just trying to scratch my own itch and I doubt that this project
 > > changes the way Broadcom treats Linux users.
->
->
+> 
+> 
 > Then help us reverse engineer the driver :)
->
-> 	Jeff
 
-Yes! Entirely! The BIG advantage of the NDIS-6 driver is
-the established interface makes it possible to readily
-reverse-engineer it, i.e., find out how it works. Many
-of the network drivers use the same hardware core (ne).
-It's the extra stuff like the transciever interface that
-the NDIS drivers will expose.
+They're already doing it (non-free) :)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+http://www.linuxant.com/driverloader/
+
+
+
+- Davide
 
 

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130888AbRBDWtN>; Sun, 4 Feb 2001 17:49:13 -0500
+	id <S132383AbRBDXUH>; Sun, 4 Feb 2001 18:20:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131178AbRBDWtE>; Sun, 4 Feb 2001 17:49:04 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:59009 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S131148AbRBDWsz>; Sun, 4 Feb 2001 17:48:55 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <PGEDKPCOHCLFJBPJPLNMAEHPCBAA.denali@sunflower.com> 
-In-Reply-To: <PGEDKPCOHCLFJBPJPLNMAEHPCBAA.denali@sunflower.com> 
-To: "Steve 'Denali' McKnelly" <denali@sunflower.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Motherboard Misdetect 
-Mime-Version: 1.0
+	id <S132381AbRBDXTt>; Sun, 4 Feb 2001 18:19:49 -0500
+Received: from james.kalifornia.com ([208.179.0.2]:29535 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S131225AbRBDXTb>; Sun, 4 Feb 2001 18:19:31 -0500
+Message-ID: <3A7DE293.3DDE329F@kalifornia.com>
+Date: Sun, 04 Feb 2001 15:15:31 -0800
+From: Ben Ford <ben@kalifornia.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: James Sutherland <jas88@cam.ac.uk>, Russell King <rmk@arm.linux.org.uk>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Pavel Machek <pavel@suse.cz>, andrew.grover@intel.com,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Better battery info/status files
+In-Reply-To: <Pine.LNX.4.30.0102041552510.17227-100000@imladris.demon.co.uk>
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 04 Feb 2001 22:48:47 +0000
-Message-ID: <12660.981326927@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Woodhouse wrote:
 
-denali@sunflower.com said:
-> 	I own a M-Technology M-668DS motherboard.  Linux 2.4.1
-> 	identifies my board as a Soyo SY-6KD.  They're not really
-> 	the same board, and they each have features the other doesn't
-> 	have. (The 668DS has onboard SCSI, where as the 6KD doesn't.
-> 	The 6KD can be upgraded for I20 compatibiliy, whereas the 668DS
-> 	can't.)
+> On Sun, 4 Feb 2001, James Sutherland wrote:
+> > On Sun, 4 Feb 2001, Ben Ford wrote:
+> > > David Woodhouse wrote:
 
-Linux is only reporting the information contained within the BIOS. It's not
-going to cause you a problem. Other than printing it, the only thing Linux
-uses the information for is to ensure that we don't lock up the machine by
-trying to use certain APM functinos on certain laptops which have
-known-buggy BIOSes. (You can blame Dell for this particular piece of 
-incompetence).
+> On Sun, 4 Feb 2001, James Sutherland wrote:
+>
+> > For the end-user, the ability to see readings in other units would be
+> > useful - how many people on this list work in litres/metres/kilometres,
+> > and how many in gallons/feet/miles? Probably enough in both groups that
+> > neither could count as universal...
+>
 
+>
+> > > > Yeah. We can have this as part of the locale settings, changeable by
+> > > > echoing the desired locale string to /proc/sys/kernel/lc_all.
+> > >
+> > > Just an idea, . .  but isn't this something better done in userland?
+> >
+> > That's what I'd do, anyway
+>
+> STOP!
+>
+> I'll repeat myself, in the en_US locale this time...
+>
+> <SARCASM>
+> Yeah. We can have this as part of the locale settings, changeable by
+> echoing the desired locale string to /proc/sys/kernel/lc_all.
+> </SARCASM>
+> <SUBTEXT TYPE=HIDDEN>Go away and troll elsewhere</SUBTEXT>
+>
+> --
+> dwmw2
 
---
-dwmw2
+You have an odd definition of troll.  Tell me, who is trolling, the guy who
+posts something trying to help or the guy who posts sarcastic responses to
+things?  You appear to have a major case of little-dick syndrome.
+
+-b
 
 
 -

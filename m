@@ -1,80 +1,104 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317829AbSFMWod>; Thu, 13 Jun 2002 18:44:33 -0400
+	id <S317789AbSFMWnq>; Thu, 13 Jun 2002 18:43:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317838AbSFMWoc>; Thu, 13 Jun 2002 18:44:32 -0400
-Received: from waste.org ([209.173.204.2]:35719 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S317829AbSFMWoa>;
-	Thu, 13 Jun 2002 18:44:30 -0400
-Date: Thu, 13 Jun 2002 17:43:37 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Dawson Engler <engler@csl.Stanford.EDU>
-cc: Alexander Viro <viro@math.psu.edu>, Andi Kleen <ak@muc.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
-In-Reply-To: <200206132150.OAA14200@csl.Stanford.EDU>
-Message-ID: <Pine.LNX.4.44.0206131735270.31423-100000@waste.org>
+	id <S317829AbSFMWnp>; Thu, 13 Jun 2002 18:43:45 -0400
+Received: from ierw.net.avaya.com ([198.152.13.101]:50305 "EHLO
+	ierw.net.avaya.com") by vger.kernel.org with ESMTP
+	id <S317789AbSFMWno>; Thu, 13 Jun 2002 18:43:44 -0400
+Message-ID: <3D09201A.5060305@avaya.com>
+Date: Thu, 13 Jun 2002 16:43:38 -0600
+From: "Bhavesh P. Davda" <bhavesh@avaya.com>
+Organization: Avaya, Inc.
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.0rc2) Gecko/20020512 Netscape/7.0b1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Richard Seaman, Jr." <dick@seaman.org>
+CC: mingo@elte.hu, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] SCHED_FIFO and SCHED_RR scheduler fix, kernel 2.4.18
+In-Reply-To: <Pine.LNX.4.44.0206132007010.8525-100000@elte.hu> <3D090B4D.4060104@avaya.com> <20020613171101.A20472@seaman.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Jun 2002 22:43:55.0843 (UTC) FILETIME=[CCB06930:01C2132B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jun 2002, Dawson Engler wrote:
+And my patch *MAKES* it compliant with these definitions. The scheduler 
+was *NOT* compliant with these definitions.
 
-> > On 13 Jun 2002, Andi Kleen wrote:
-> >
-> > > Alexander Viro <viro@math.psu.edu> writes:
-> > > >
-> > > > I mean that due to the loop (link_path_walk->do_follow_link->foofs_follow_link
-> > > > ->vfs_follow_link->link_path_walk) you will get infinite maximal depth
-> > > > for everything that can be called by any of these functions.  And that's
-> > > > a _lot_ of stuff.
-> > >
-> > > Surely an analysis pass can detect recursive function chains and flag them
-> > > (e.g. the global IPA alias analysis pass in open64 does this)
-> >
-> > Ugh...  OK, let me try again:
-> >
-> > One bit of apriory information needed to get anything interesting from
-> > this analysis:  there is a set of mutually recursive functions (see above)
-> > and there is a limit (5) on the depth of recursion in that loop.
-> >
-> > It has to be known to checker.  Explicitly, since
-> > 	a) automatically deducing it is not realistic
-> > 	b) cutting off the stuff behind that loop will cut off a _lot_ of
-> > things - both in filesystems and in VFS (and in block layer, while we are
-> > at it).
->
-> We're all about jamming system specific information into the checking
-> extensions.  It's usually just a few if statements.  So to be clear: we
-> can simply assume that the loop
->    link_path_walk
-> 	->do_follow_link
-> 		->foofs_follow_link
-> 			->vfs_follow_link
-> 				->link_path_walk
-> can happen exactly 5 times?
->
-> In general such restrictions are interesting, since they concretely
-> show how having a way to include system-specific knowlege into checking
-> is useful.  Are there any other such relationships?  The other example
-> I know of is the do_page_fault (sp?) routine that can potentially be
-> invoked at very copy_*_user site that page faults.  You need to know
-> this to detect certain classes of deadlock, but there's no way to
-> discern this path from the code without a priori knowlege.
+You've quoted me out of context below. My statement that you quote 
+applies to SCHED_OTHER processes.
 
-There are various flags for memory allocation that prevent it (usually)
-from being recursive (or livelocking).
+Please see my original post with the patch. And thanks for reinforcing 
+what I was saying!
 
-Though I'm not really convinced by Al's argument. I think if you do a
-breadth-first traversal of the possible call tree, as you get past a
-certain predicted stack depth, you'll be able to manually prune things
-that aren't of interest. Very few things should be potentially recursive
-or mutally recursive and any that are probably bear closer manual
-scrutiny.
+- Bhavesh
 
-How's Checker do on passing through function pointers?
+Richard Seaman, Jr. wrote:
+> On Thu, Jun 13, 2002 at 03:14:53PM -0600, Bhavesh P. Davda wrote:
+> 
+> 
+>>I would think that the logical place to add any process to the runqueue 
+>>would be the back of the runqueue. If all processes are ALWAYS added to 
+>>the back of the runqueue, then every process is GUARANTEED to eventually 
+>>be scheduled. No process will be starved indefinitely.
+> 
+> 
+> FYI, from SuSv3:
+> 
+> "Under the SCHED_FIFO policy, the modification of the definitional
+> thread lists is as follows:
+> 
+> 1. When a running thread becomes a preempted thread, it becomes
+> the head of the thread list for its priority.
+> 
+> 2. When a blocked thread becomes a runnable thread, it becomes
+> the tail of the thread list for its priority.
+> 
+> ....
+> 
+> 7. If a thread whose policy or priority has been modified other
+> than by pthread_setschedprio() is a running thread or is runnable,
+> it then becomes the tail of the thread list for its new priority.
+> 
+> 8. If a thread whose policy or priority has been modified by
+> pthread_setschedprio() is a running thread or is runnable, the
+> effect on its position in the thread list depends on the direction
+> of the modification, as follows:
+> 
+>    1. If the priority is raised, the thread becomes the tail of
+>       the thread list.
+>    2. If the priority is unchanged, the thread does not change
+>       position in the thread list.
+>    3. If the priority is lowered, the thread becomes the head
+>       of the thread list.
+> 
+> 9. When a running thread issues the sched_yield() function, the
+> thread becomes the tail of the thread list for its priority.
+> 
+> ...."
+> 
+> Also, regarding SCHED_RR:
+> 
+> "...This policy shall be identical to the SCHED_FIFO policy with the
+> additional condition that when the implementation detects that a
+> running thread has been executing as a running thread for a time
+> period of the length returned by the sched_rr_get_interval() function
+> or longer, the thread shall become the tail of its thread list and
+> the head of that thread list shall be removed and made a running
+> thread......"
+> 
+> I'm not suggesting Linux HAS to comply with these requirements,
+> but its worth consideration.
+> 
+
+
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+Bhavesh P. Davda
+Avaya Inc
+Room B3-B03                     E-mail : bhavesh@avaya.com
+1300 West 120th Avenue          Phone  : (303) 538-4438
+Westminster, CO 80234           Fax    : (303) 538-3155
 

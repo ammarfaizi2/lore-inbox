@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264134AbTEWSmP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 14:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264135AbTEWSmP
+	id S264135AbTEWSyo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 14:54:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbTEWSyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 14:42:15 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:12985 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264134AbTEWSmO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 14:42:14 -0400
-Date: Fri, 23 May 2003 13:55:13 -0500
-Mime-Version: 1.0 (Apple Message framework v552)
-Content-Type: multipart/mixed; boundary=Apple-Mail-11-246986084
-Subject: [PATCH] drivers/net/ewrk.c memory leak
-From: Hollis Blanchard <hollis@austin.ibm.com>
-To: linux-kernel@vger.kernel.org
-Message-Id: <1608D98C-8D50-11D7-BCE2-000A95A0560C@austin.ibm.com>
-X-Mailer: Apple Mail (2.552)
+	Fri, 23 May 2003 14:54:44 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:64516 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S264135AbTEWSyn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 14:54:43 -0400
+Date: Fri, 23 May 2003 21:07:48 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch?] truncate and timestamps
+Message-ID: <20030523210748.A1018@pclin040.win.tue.nl>
+References: <Pine.LNX.4.44.0305221726300.19226-100000@home.transmeta.com> <8mRUVSAXw-B@khms.westfalen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <8mRUVSAXw-B@khms.westfalen.de>; from kaih@khms.westfalen.de on Fri, May 23, 2003 at 08:02:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 23, 2003 at 08:02:00PM +0200, Kai Henningsen wrote:
 
---Apple-Mail-11-246986084
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+> > On Fri, 23 May 2003 Andries.Brouwer@cwi.nl wrote:
+> > >
+> > > On the other hand, my question was really a different one:
+> > > do we want to follow POSIX, also in the silly requirement
+> > > that truncate only sets mtime when the size changes, while
+> > > O_TRUNC and ftruncate always set mtime.
+> 
+> See:
+> 
+>    http://www.opengroup.org/onlinepubs/007904975/functions/ftruncate.html
+> 
+> Is it really so hard to look it up that we need to spout FUD instead?
 
-Hi, this was caught by the Stanford memory leak checker a while ago 
-(2.5.48). If the tmp_stats allocation fails, tmp is not being freed.
+Look up ftruncate, look up truncate, loop up open with O_TRUNC and compare.
+You will understand what the discussion is about.
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
-
-
---Apple-Mail-11-246986084
-Content-Disposition: attachment;
-	filename=ewrk3-memleak.diff
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name="ewrk3-memleak.diff"
-
---- drivers/net/ewrk3.c.orig	2003-05-13 13:51:55.000000000 -0500
-+++ drivers/net/ewrk3.c	2003-05-13 13:54:55.000000000 -0500
-@@ -1968,7 +1968,10 @@
- 	case EWRK3_GET_STATS: { /* Get the driver statistics */
- 		struct ewrk3_stats *tmp_stats =
-         		kmalloc(sizeof(lp->pktStats), GFP_KERNEL);
--		if (!tmp_stats) return -ENOMEM;
-+		if (!tmp_stats) {
-+			status = -ENOMEM;
-+			break;
-+		}
- 
- 		spin_lock_irqsave(&lp->hw_lock, flags);
- 		memcpy(tmp_stats, &lp->pktStats, sizeof(lp->pktStats));
-
---Apple-Mail-11-246986084--
 

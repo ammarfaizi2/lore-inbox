@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266288AbUFPM5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266279AbUFPNAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266288AbUFPM5S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 08:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266283AbUFPM5I
+	id S266279AbUFPNAU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 09:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266283AbUFPM5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 08:57:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31655 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266288AbUFPMzW
+	Wed, 16 Jun 2004 08:57:31 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:27788 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S266287AbUFPMzU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 08:55:22 -0400
-Message-ID: <40D0432A.1080006@pobox.com>
-Date: Wed, 16 Jun 2004 08:55:06 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.7 (stty rows 50 columns 140 reports : No such device
- or address)
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org> <20040616095805.GC14936@gemtek.lt>
-In-Reply-To: <20040616095805.GC14936@gemtek.lt>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jun 2004 08:55:20 -0400
+Subject: 2.6.7 warnings
+From: =?ISO-8859-1?Q?Beno=EEt?= Dejean <TazForEver@free.fr>
+Reply-To: TazForEver@free.fr
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Hkbg+1W4Ls0ny0PFeUXb"
+Date: Wed, 16 Jun 2004 14:55:17 +0200
+Message-Id: <1087390517.22712.6.camel@athlon>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zilvinas Valinskas wrote:
-> On Compaq N800 EVO notebook with a radeonfb enabled - stty failes to
-> adjust terminal size. strace log attached. Under 2.6.5/2.6.6 it used to
-> work. 
-> 
-> relevant part:
-> 
-> open("/dev/vc/1", O_RDONLY|O_NONBLOCK|O_LARGEFILE) = 3
-> fcntl64(3, F_GETFL)                     = 0x8800 (flags
-> O_RDONLY|O_NONBLOCK|O_LARGEFILE)
-> fcntl64(3, F_SETFL, O_RDONLY|O_LARGEFILE) = 0
-> ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, {B38400 opost isig icanon echo
-> ...}) = 0
-> ioctl(3, TIOCGWINSZ, {ws_row=65, ws_col=175, ws_xpixel=0, ws_ypixel=0})
-> = 0
-> ioctl(3, TIOCSWINSZ, {ws_row=50, ws_col=175, ws_xpixel=0, ws_ypixel=0})
-> = -1 ENXIO (No such device or address)
-> write(2, "/bin/stty: ", 11)             = 11
-> write(2, "/dev/vc/1", 9)                = 9
-> open("/usr/share/locale/locale.alias", O_RDONLY) = 4
-> 
-> 
-> it makes no difference when doing :
-> 
-> stty rows 50 columns 140 
-> or
-> stty rows 50 columns 140 -F /dev/vc/1 ... 
-> 
-> Exactly same error.
 
+--=-Hkbg+1W4Ls0ny0PFeUXb
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-huh, I wonder if this is why reset(1) doesn't fully reset the terminal, 
-like it used to ...
+drivers/video/fbmem.c: In function `fb_cursor':
+drivers/video/fbmem.c:933: warning: passing arg 1 of `copy_from_user'
+discards qualifiers from pointer target type
 
-	Jeff
+sound/pci/via82xx.c: In function `snd_via82xx_probe':
+sound/pci/via82xx.c:2252: warning: statement with no effect
+(cpp shows that this statement is reduced to -22;)
 
+--=20
+Beno=C3=AEt Dejean
+JID: TazForEver@jabber.org
+http://gdesklets.gnomedesktop.org
+http://www.paulla.asso.fr
+
+--=-Hkbg+1W4Ls0ny0PFeUXb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA0EM1liyxJIUSPQoRAv5qAJoDKtq92Z6CAhRU+KVBsv/d9gRmiwCff6rm
+ABRZiM3sqc12GmUPBOBDpMk=
+=VPIp
+-----END PGP SIGNATURE-----
+
+--=-Hkbg+1W4Ls0ny0PFeUXb--
 

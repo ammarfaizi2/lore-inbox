@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264096AbUEXHcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUEXHfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264096AbUEXHcz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 03:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264117AbUEXHcz
+	id S264097AbUEXHfq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 03:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264088AbUEXHfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 03:32:55 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:22674 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264113AbUEXHcs (ORCPT
+	Mon, 24 May 2004 03:35:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62634 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264097AbUEXHes (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 03:32:48 -0400
-Date: Mon, 24 May 2004 11:34:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Con Kolivas <kernel@kolivas.org>, Billy Biggs <vektor@dumbterm.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: tvtime and the Linux 2.6 scheduler
-Message-ID: <20040524093407.GB26715@elte.hu>
-References: <20040523154859.GC22399@dumbterm.net> <200405240254.20171.kernel@kolivas.org> <20040524084334.GB24967@elte.hu> <40B19D15.1090105@yahoo.com.au> <20040524091243.GB26183@elte.hu>
+	Mon, 24 May 2004 03:34:48 -0400
+Date: Mon, 24 May 2004 03:34:07 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel@vger.kernel.org, mingo@redhat.com,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] Add FUTEX_CMP_REQUEUE futex op
+Message-ID: <20040524073407.GC4736@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20040520093817.GX30909@devserv.devel.redhat.com> <20040520233639.126125ef.akpm@osdl.org> <20040521074358.GG30909@devserv.devel.redhat.com> <200405221858.44752.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040524091243.GB26183@elte.hu>
+In-Reply-To: <200405221858.44752.arnd@arndb.de>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 22, 2004 at 06:58:41PM +0200, Arnd Bergmann wrote:
+> On Friday 21 May 2004 09:43, Jakub Jelinek wrote:
+> > Well, for s390/s390x there is a problem that it doesn't allow (yet) 6
+> > argument syscalls at all, so one possibility for s390* is adding a wrapper around
+> > sys_futex which will take the 5th and 6th arguments for FUTEX_CMP_REQUEUE
+> > from a structure pointed to by 5th argument and pass that to sys_futex.
+> 
+> I would really prefer not re-inventing brain-damage like ipc_kludge. I
+> have tried to do a special s390_futex_cmp_requeue() syscall, which is
+> still somewhat ugly. At least it has the advantage that it does not break
+> the de-facto calling conventions for s390 syscalls that either pass
+> up to five arguments in r2 to r6 or everything in an array pointed to
+> by r2.
+> 
+> Martin and Jakub, does the patch below look ok to you or should we do
+> it in yet another way?
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+My personal preference is:
+1) change s390* entry*.S so that all syscalls can use up to 6 arguments,
+   otherwise we'll have the same problem every now and then
+   (last syscall before this one was fadvise64_64 if I remember well)
+2) allow sys_futex to have 6 arguments (the 6th on the stack, get_user'ed
+   from an s390 wrapper)
+3) special structure passed in 5th argument for FUTEX_CMP_REQUEUE
+4) your solution
+   (you have a special wrapper around futex anyway, so why not to handle
+   it there already and create completely new syscall).
 
-> you mean the spurious 'queue to end of prio-queue' bug noticed by Joe
-> Korty? tvtime should not be affected by this one. This bug only hits
-> if there are multiple SCHED_FIFO tasks on the same priority level -
-> tvtime is a single-process application.
+That said, NPTL can deal with any of these variants and the decision
+is up to Martin I think (assuming the base patch gets accepted, that is).
+http://listman.redhat.com/archives/phil-list/2004-May/msg00031.html
+is the latest version of the userland part of FUTEX_CMP_REQUEUE changes
+(against CVS glibc) and there futex_requeue () macro is defined
+in arch specific headers, so nptl/sysdeps/unix/sysv/linux/s390/lowlevellock.h
+can do there its own black magic.
 
-i checked out the source and it uses multiple threads if recording is
-done to disk - but the disk writer thread is at normal priority, only
-the capture thread is using SCHED_FIFO.
-
-	Ingo
+	Jakub

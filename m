@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129279AbQJ3JZI>; Mon, 30 Oct 2000 04:25:08 -0500
+	id <S129030AbQJ3J2i>; Mon, 30 Oct 2000 04:28:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129217AbQJ3JY7>; Mon, 30 Oct 2000 04:24:59 -0500
-Received: from smtp1.mail.yahoo.com ([128.11.69.60]:25360 "HELO
-	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129278AbQJ3JYr>; Mon, 30 Oct 2000 04:24:47 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <39FD3CB6.2F641BBF@yahoo.com>
-Date: Mon, 30 Oct 2000 04:17:42 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.17 i486)
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: pavel rabel <pavel@web.sajt.cz>, linux-net@vger.kernel.org,
-        netdev@oss.sgi.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] NE2000
-In-Reply-To: <Pine.LNX.4.21.0010300344130.6792-100000@web.sajt.cz> <39FC83CD.B10BF08D@mandrakesoft.com>
+	id <S129071AbQJ3J23>; Mon, 30 Oct 2000 04:28:29 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:2758 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S129030AbQJ3J2U>; Mon, 30 Oct 2000 04:28:20 -0500
+From: kumon@flab.fujitsu.co.jp
+Date: Mon, 30 Oct 2000 18:27:44 +0900
+Message-Id: <200010300927.SAA05368@asami.proc.flab.fujitsu.co.jp>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: kumon@flab.fujitsu.co.jp, Andi Kleen <ak@suse.de>,
+        Alexander Viro <viro@math.psu.edu>,
+        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        Olaf Kirch <okir@monad.swb.de>
+Subject: Re: [PATCH] Re: Negative scalability by removal of lock_kernel()?(Was: 
+ Strange performance behavior of 2.4.0-test9)
+In-Reply-To: <39FB02D5.9AF89277@uow.edu.au>
+In-Reply-To: <39F957BC.4289FF10@uow.edu.au>
+	<39F92187.A7621A09@timpanogas.org>
+	<Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>
+	<20001027094613.A18382@gruyere.muc.suse.de>
+	<200010271257.VAA24374@asami.proc.flab.fujitsu.co.jp>
+	<39FAF4C6.3BB04774@uow.edu.au>
+	<39FB02D5.9AF89277@uow.edu.au>
+Reply-To: kumon@flab.fujitsu.co.jp
+Cc: kumon@flab.fujitsu.co.jp
+X-Mailer: Handmade Mailer version 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> pavel rabel wrote:
-> > help. So I removed PCI code from ne.c to have ISA only driver. It
-> 
-> This change sounds ok to me, if noone else objects.  (I added to the CC
-> a bit)  I saw that code, and was thinking about doing the same thing
-> myself.  ne2k-pci.c definitely has changes which are not included in
-> ne.c, and it seems silly to duplicate ne2000 PCI support.
+Andrew Morton writes:
+ > 
+ > I agree with me.  Could you please test the scalability
+ > of this?
 
-Actually if you look at the archives (ID 39A3A608.1F984C60@yahoo.com)
-you will see that I've stated this will be done for 2.5 a couple of
-months ago.  (Which is also why PCI support in ne.c hasn't tracked that
-of ne2k-pci.c - I want to avoid encouraging new PCI users of ne.c)
+Here is the result, measured on 8-way profusion.
 
-There is no urgency in trying to squeeze a patch like this in the back
-door of a 2.4.0 release.  For example, there are people out there now
-who are using the ne.c driver to run both ISA and PCI cards in the same 
-box without having to use 2 different drivers.  We can wait until 2.5.0
-to break their .config file.
+Andrew posted two paches, so called P1 and P2.
 
-[ I've several other 8390 related patches I've been sitting on - trying
-to not contribute to the delay of 2.4.0 unless explicitly asked, such
-as the 8390.h get_module_symbol deletion.  Other 8390 patches I have 
-are a separated Tx timeout for 8390.c, kill off dev->rmem_start/end 
-and use ioremap() where required, and replace old check/request_region()
-with code that makes use of the newer resource structures. ]
+		Req/s
+test10-pre5:	2255	bad performance
+----
+test9+P2:	5243
+test10-pre5+P1:	5187
+test10-pre5+P2:	5258
 
-Good to know people are still keeping an eye out for dead code though...
+P2 may be a little bit better.
 
-Thanks,
-Paul.
+----------
+Data summary sorted by the performance:
+	test8		5287 <-- best performance
+	test10-pre5+P2:	5258
+	test9+P2:	5243
+	test9+mypatch:	5192 <-- a little bit worse
+	test10-pre5+P1:	5187
+	test1		3702 <-- no good scalability
+	test10-pre5:	2255 <-- negative scalability
+	test9		2193
+
+The value changes within 30-50 seems fluctuations.
 
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+--
+Computer Systems Laboratory, Fujitsu Labs.
+kumon@flab.fujitsu.co.jp
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

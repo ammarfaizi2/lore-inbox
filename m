@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278785AbRJVM4B>; Mon, 22 Oct 2001 08:56:01 -0400
+	id <S278789AbRJVNGv>; Mon, 22 Oct 2001 09:06:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278788AbRJVMzu>; Mon, 22 Oct 2001 08:55:50 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:19721 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S278785AbRJVMzn>; Mon, 22 Oct 2001 08:55:43 -0400
-Date: Mon, 22 Oct 2001 10:55:01 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <abusch@gmx.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [oops] 2.4.12+i kswapd invalid operand: 0000
-In-Reply-To: <18207.1003754971@www8.gmx.net>
-Message-ID: <Pine.LNX.4.33L.0110221053570.22127-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278790AbRJVNGl>; Mon, 22 Oct 2001 09:06:41 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:31241 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S278789AbRJVNGa>; Mon, 22 Oct 2001 09:06:30 -0400
+Date: Mon, 22 Oct 2001 14:07:03 +0100
+From: Roger Gammans <roger@computer-surgery.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+Message-ID: <20011022140703.A7305@knuth.computer-surgery.co.uk>
+Reply-To: rgammans@computer-surgery.co.uk
+In-Reply-To: <20011022140844.A15243@outpost.ds9a.nl> <E15veDQ-0001nl-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <E15veDQ-0001nl-00@the-village.bc.nu>; from Alan Cox on Mon, Oct 22, 2001 at 01:30:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 abusch@gmx.net wrote:
+On Mon, Oct 22, 2001 at 01:30:00PM +0100, Alan Cox wrote:
+> > This would then presumably lead to password protected access for US kernel
+> > developers that need to know? And some kind of NDA?
+> 
+> US kernel developers cannot be told. Period.
 
-> There seems to be a problem with KSWAPD, maybe with the latest vm changes ?
-> Haven't seen oops for a long time. Uptime was only 17 hours.
->
-> The kernel is 2.4.12 patched with the international crypto patch 2.4.3.1
-> and the 1521 NVidia module is loaded.
+Huh, US resident or US citizens?
 
-Can you reproduce this bug without the NVIDIA driver or
-without the crypto patch ?
+If US resident , does that mean we can't send security patches to 
+Linus. 
 
-> >>EIP; c012a17b <__free_pages_ok+1b/1e0>   <=====
-> Trace; c0129901 <shrink_cache+1c1/300>
-> Trace; c0129bbc <shrink_caches+5c/90>
-> Trace; c0129c1c <try_to_free_pages+2c/60>
-> Trace; c0129cd1 <kswapd_balance_pgdat+51/a0>
-> Trace; c0129d46 <kswapd_balance+26/50>
-> Trace; c0129e91 <kswapd+a1/c0>
-> Trace; c0129df0 <kswapd+0/c0>
+*shakes head*
 
-regards,
-
-Rik
+TTFN
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Roger.
+	ashes and diamond,
+	foe and friend,
+	we _are_ all equal in the end. -- Pink Floyd 

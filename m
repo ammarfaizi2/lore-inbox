@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265998AbTBKULb>; Tue, 11 Feb 2003 15:11:31 -0500
+	id <S265987AbTBKURg>; Tue, 11 Feb 2003 15:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266020AbTBKULb>; Tue, 11 Feb 2003 15:11:31 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:14856 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265998AbTBKULa>; Tue, 11 Feb 2003 15:11:30 -0500
-Date: Tue, 11 Feb 2003 20:21:12 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: ISHIKAWA Mutsumi <ishikawa@linux.or.jp>, jejb@steeleye.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.60 aic79xx] aic79xx build and lun detect problem fix
-Message-ID: <20030211202112.A20082@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Justin T. Gibbs" <gibbs@scsiguy.com>,
-	ISHIKAWA Mutsumi <ishikawa@linux.or.jp>, jejb@steeleye.com,
-	linux-kernel@vger.kernel.org
-References: <20030211182558.DED278DC14@master.hanzubon.jp> <3729142704.1044994000@aslan.btc.adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3729142704.1044994000@aslan.btc.adaptec.com>; from gibbs@scsiguy.com on Tue, Feb 11, 2003 at 01:06:41PM -0700
+	id <S266020AbTBKURf>; Tue, 11 Feb 2003 15:17:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44048 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265987AbTBKURf>; Tue, 11 Feb 2003 15:17:35 -0500
+Date: Tue, 11 Feb 2003 12:23:55 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>
+Subject: Re: Fix random memory corruption during suspend-to-RAM resume
+In-Reply-To: <20030211111601.GA11817@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.44.0302111222250.1405-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 11, 2003 at 01:06:41PM -0700, Justin T. Gibbs wrote:
-> >  This patch will fix two problems.
-> > 
-> >   fix build problem related scsi_cmnd changes
-> 
-> The aic7xxx driver has one place that missed the conversion too.
-> Since the cmd->lun field is no longer filled in, why hasn't the
-> field been removed from the cmd structure?  That would make it
-> easy to catch these kinds of bugs.
 
-I don't think that was intentional.  I'll submit a patch to remove it ASAP.
+On Tue, 11 Feb 2003, Pavel Machek wrote:
+> > 
+> > Hmm.. The stack grows downwards, are you sure you don't really mean
+> > 
+> > 	mov $(wakeup_end-wakeup_code),%sp
+> > 
+> > (because wakeup_end is the end of the wakeup_stack area..)
+> 
+> Yes, I'm sure:
+
+No. The code is crap. Please send a _fixed_ patch that clearly puts the 
+stack pointer at the _end_ of the stack.
+
+What you are sure of is that is _happens_ to work by pure luck.
+
+I'd rather have known-broken code in the kernel than code that works by 
+mistake. The former at least gets fixed.
+
+		Linus
 

@@ -1,71 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbUBXUJk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 15:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbUBXUJH
+	id S262434AbUBXUIx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 15:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbUBXUIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 15:09:07 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:43924 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262435AbUBXUIj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 15:08:39 -0500
-Date: Tue, 24 Feb 2004 18:00:05 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Philippe Troin <phil@fifi.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH] Nfs lost locks
-In-Reply-To: <87wu6cckys.fsf@ceramic.fifi.org>
-Message-ID: <Pine.LNX.4.58L.0402241757130.23951@logos.cnet>
-References: <87k72h17n7.fsf@ceramic.fifi.org> <Pine.LNX.4.58L.0402241607500.23951@logos.cnet>
- <87wu6cckys.fsf@ceramic.fifi.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Tue, 24 Feb 2004 15:08:53 -0500
+Received: from ns.suse.de ([195.135.220.2]:39326 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262434AbUBXUIW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 15:08:22 -0500
+Subject: [FIX] CONFIG_REGPARM breaks non-asmlinkage syscalls
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Chris Mason <mason@suse.com>
+Content-Type: multipart/mixed; boundary="=-Klza7mQkJznKoRNB1IaG"
+Organization: SUSE Labs, SUSE LINUX AG
+Message-Id: <1077653339.6776.329.camel@nb.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 24 Feb 2004 21:08:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-Klza7mQkJznKoRNB1IaG
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Tue, 24 Feb 2004, Philippe Troin wrote:
+Hello,
 
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
->
-> > On Fri, 20 Feb 2004, Philippe Troin wrote:
-> >
-> > > The NFS client is prone to loose locks on filesystems when the locking
-> > > process is killed with a signal. This has been discussed on the nfs
-> > > mailing list in these threads:
-> > >
-> > >   http://sourceforge.net/mailarchive/forum.php?thread_id=3213117&forum_id=4930
-> > >
-> > >   http://marc.theaimsgroup.com/?l=linux-nfs&m=107074045907620&w=2
-> > >
-> > > Marcelo, if the above links are not sufficient, please email back for
-> > > more details.
-> > >
-> > > The enclosed patch is from Trond, and it fixes the problem.
-> >
-> > Hi Philippe,
-> >
-> > It might be wise to wait for the patch to be in 2.6 first?
-> >
-> > Trond, what do you think?
->
-> I do not know about the 2.6.x status, but Trond requested help with
-> pushing this patch to the kernel, mentionning he was very busy with
-> NFSv4.
->
-> I personnaly think it fixes a serious problem with file locking on
-> NFS, but that's my assessment.
+with CONFIG_REGPARM=y, syscalls must be declared asmlinkage or else
+calling them will fail. Current gcc unfortunately does not warn about
+this. (I have already told one of our compiler developers.) Attached is
+a fix that adds a few missing declarations.
 
-I also think it fixes a serious problem with file locking on NFS. What I
-dont think is that it has been extensively tested (I seen you stressed
-file locking with it for a couple of days, but thats not enough).
+Regards,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX AG
 
-I feel that it needs to get tested on different setups.
+--=-Klza7mQkJznKoRNB1IaG
+Content-Disposition: attachment; filename=regparm-fix.diff
+Content-Type: text/x-patch; name=regparm-fix.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-If Trond is confident it works reliably, I will apply it right away.
+Index: linux-2.6.3/arch/ia64/ia32/sys_ia32.c
+===================================================================
+--- linux-2.6.3.orig/arch/ia64/ia32/sys_ia32.c
++++ linux-2.6.3/arch/ia64/ia32/sys_ia32.c
+@@ -2990,7 +2990,7 @@ sys32_timer_create(u32 clock, struct sig
+ 	return err;
+ }
+ 
+-extern long sys_fadvise64_64(int fd, loff_t offset, loff_t len, int advice);
++extern asmlinkage long sys_fadvise64_64(int fd, loff_t offset, loff_t len, int advice);
+ 
+ long sys32_fadvise64_64(int fd, __u32 offset_low, __u32 offset_high, 
+ 			__u32 len_low, __u32 len_high, int advice)
+Index: linux-2.6.3/arch/x86_64/ia32/sys_ia32.c
+===================================================================
+--- linux-2.6.3.orig/arch/x86_64/ia32/sys_ia32.c
++++ linux-2.6.3/arch/x86_64/ia32/sys_ia32.c
+@@ -1895,7 +1895,7 @@ sys32_timer_create(u32 clock, struct sig
+ 	return err; 
+ } 
+ 
+-extern long sys_fadvise64_64(int fd, loff_t offset, loff_t len, int advice);
++extern asmlinkage long sys_fadvise64_64(int fd, loff_t offset, loff_t len, int advice);
+ 
+ long sys32_fadvise64_64(int fd, __u32 offset_low, __u32 offset_high, 
+ 			__u32 len_low, __u32 len_high, int advice)
+Index: linux-2.6.3/include/linux/mm.h
+===================================================================
+--- linux-2.6.3.orig/include/linux/mm.h
++++ linux-2.6.3/include/linux/mm.h
+@@ -455,8 +455,8 @@ extern int install_file_pte(struct mm_st
+ extern int handle_mm_fault(struct mm_struct *mm,struct vm_area_struct *vma, unsigned long address, int write_access);
+ extern int make_pages_present(unsigned long addr, unsigned long end);
+ extern int access_process_vm(struct task_struct *tsk, unsigned long addr, void *buf, int len, int write);
+-extern long sys_remap_file_pages(unsigned long start, unsigned long size, unsigned long prot, unsigned long pgoff, unsigned long nonblock);
+-extern long sys_fadvise64_64(int fd, loff_t offset, loff_t len, int advice);
++extern asmlinkage long sys_remap_file_pages(unsigned long start, unsigned long size, unsigned long prot, unsigned long pgoff, unsigned long nonblock);
++extern asmlinkage long sys_fadvise64_64(int fd, loff_t offset, loff_t len, int advice);
+ void put_dirty_page(struct task_struct *tsk, struct page *page,
+ 			unsigned long address, pgprot_t prot);
+ 
+Index: linux-2.6.3/include/linux/shm.h
+===================================================================
+--- linux-2.6.3.orig/include/linux/shm.h
++++ linux-2.6.3/include/linux/shm.h
+@@ -90,7 +90,7 @@ struct shmid_kernel /* private to the ke
+ #define SHM_LOCKED      02000   /* segment will not be swapped */
+ #define SHM_HUGETLB     04000   /* segment will use huge TLB pages */
+ 
+-long sys_shmat (int shmid, char __user *shmaddr, int shmflg, unsigned long *addr);
++asmlinkage long sys_shmat (int shmid, char __user *shmaddr, int shmflg, unsigned long *addr);
+ asmlinkage long sys_shmget (key_t key, size_t size, int flag);
+ asmlinkage long sys_shmdt (char __user *shmaddr);
+ asmlinkage long sys_shmctl (int shmid, int cmd, struct shmid_ds __user *buf);
+Index: linux-2.6.3/mm/fremap.c
+===================================================================
+--- linux-2.6.3.orig/mm/fremap.c
++++ linux-2.6.3/mm/fremap.c
+@@ -155,7 +155,7 @@ err_unlock:
+  * protection is used. Arbitrary protections might be implemented in the
+  * future.
+  */
+-long sys_remap_file_pages(unsigned long start, unsigned long size,
++asmlinkage long sys_remap_file_pages(unsigned long start, unsigned long size,
+ 	unsigned long __prot, unsigned long pgoff, unsigned long flags)
+ {
+ 	struct mm_struct *mm = current->mm;
+
+--=-Klza7mQkJznKoRNB1IaG--
+

@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132239AbRCVXUB>; Thu, 22 Mar 2001 18:20:01 -0500
+	id <S132244AbRCVX1A>; Thu, 22 Mar 2001 18:27:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132240AbRCVXTt>; Thu, 22 Mar 2001 18:19:49 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:15883 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S132239AbRCVXTg>; Thu, 22 Mar 2001 18:19:36 -0500
-Date: Thu, 22 Mar 2001 20:16:44 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Richard Jerrell <jerrell@missioncriticallinux.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mm/memory.c, 2.4.1 : memory leak with swap cache (updated)
-In-Reply-To: <Pine.LNX.4.21.0103221716460.20061-200000@jerrell.lowell.mclinux.com>
-Message-ID: <Pine.LNX.4.33.0103222014510.24040-100000@duckman.distro.conectiva>
+	id <S132245AbRCVX0u>; Thu, 22 Mar 2001 18:26:50 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:43875 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S132244AbRCVX0m>; Thu, 22 Mar 2001 18:26:42 -0500
+Message-ID: <3ABA8B02.F28B333A@redhat.com>
+Date: Thu, 22 Mar 2001 18:30:10 -0500
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.21.0102151740301.1390@jerrell.lowell.mclinux.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Stephen Clouse <stephenc@theiqgroup.com>,
+        Guest section DW <dwguest@win.tue.nl>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <E14gDxd-0003Tw-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Mar 2001, Richard Jerrell wrote:
+Alan Cox wrote:
+> 
+> > > How do you return an out of memory error to a C program that is out of memory
+> > > due to a stack growth fault. There is actually not a language construct for it
+> >
+> > Simple, you reclaim a few of those uptodate buffers.  My testing here has
+> 
+> If you have reclaimable buffers you are not out of memory. If oom is triggered
+> in that state it is a bug. If you are complaining that the oom killer triggers
+> at the wrong time then thats a completely unrelated issue.
 
-> 2.4.1 has a memory leak (temporary) where anonymous memory pages
-> that have been moved into the swap cache will stick around after
-> their vma has been unmapped by the owning process.
+Ummm, yeah, that would pretty much be the claim.  Real easy to reproduce too. 
+Take your favorite machine with lots of RAM, run just a handful of startup
+process and system daemons, then log in on a few terminals and do:
 
-> free_pte in mm/memory.c has been modified to check to see if the
-> page is only being referenced by the swap cache
+while true; do bonnie -s (1/2 ram); done
 
-Your idea is nice, but the patch lacks a few things:
+Pretty soon, system daemons will start to die.
 
-- SMP locking, what if some other process faults in this page
-  between the atomic_read of the page count and the test later?
-- testing if our process is the _only_ user of this swap page,
-  for eg. apache you'll have lots of COW-shared pages .. it would
-  be good to keep the page in memory for our siblings
+-- 
 
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems

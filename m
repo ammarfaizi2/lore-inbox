@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbULPQkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbULPQnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbULPQkN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 11:40:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbULPQkN
+	id S261688AbULPQnz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 11:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbULPQnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 11:40:13 -0500
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:3992 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S261573AbULPQjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 11:39:42 -0500
-Date: Thu, 16 Dec 2004 09:39:41 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Montavista Realtime compilation failures
-Message-ID: <20041216163940.GC25810@smtp.west.cox.net>
-References: <41BFD327.3000408@comcast.net> <20041215094954.GA19147@infradead.org> <41C09244.2030403@comcast.net>
+	Thu, 16 Dec 2004 11:43:55 -0500
+Received: from pop-a065d05.pas.sa.earthlink.net ([207.217.121.249]:4244 "EHLO
+	pop-a065d05.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S261712AbULPQnf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 11:43:35 -0500
+Message-ID: <13677005.1103215413764.JavaMail.root@louie.psp.pas.earthlink.net>
+Date: Thu, 16 Dec 2004 08:43:33 -0800 (PST)
+From: bchimiak@earthlink.net
+Reply-To: bchimiak@earthlink.net
+To: linux-kernel@vger.kernel.org
+Subject: More detail: Re: visor.ko freezes on dlpsh list
+Cc: greg@kroah.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C09244.2030403@comcast.net>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
+X-Mailer: Earthlink Zoo Mail 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 15, 2004 at 02:36:36PM -0500, John Richard Moser wrote:
-> Christoph Hellwig wrote:
-> | On Wed, Dec 15, 2004 at 01:01:11AM -0500, John Richard Moser wrote:
-> |
-> |>-----BEGIN PGP SIGNED MESSAGE-----
-> |>Hash: SHA1
-> |>
-> |>The MontaVista patches[1] I applied to 2.6.9 are not compiling on
-> |>x86_64.  I'm also using a PaX pre-patch, which I don't believe is
-> |>interfering; there were collisions with PaX in mm/, but none of those
-> |>show here (they were all in .c files, not headers, so they cannot have
-> |>an impact here).
-> |
-> |
-> | I think you're much better off complaining to mvista.
-> |
->
-> Ahh, alright, sorry.  I remember they announced this stuff to the list,
-> so I thought it had reached the general interest of the LKML.
+It is the visor.[ch] of vmlinuz-2.6.9-1.681_FC3 that does not work.
+I recompiled a linux-2.6.9 kernel and the pilot-xfer, dlpsh, and kpilot work
+now.  It is the visor.[ch] in vmlinuz-2.6.9-1.681_FC3 that is the culprit.
 
-Yes, this really is the right place for it.  Except that the work in
-question has been superceeded by what's in Ingo's patches now (and I
-thought the original announcement of these particular patches said it
-was i386 only, but I could be mistaken).
+-----Forwarded Message-----
+From: bchimiak@earthlink.net
+Sent: Dec 15, 2004 5:47 AM
+To: Greg KH <greg@kroah.com>
+Subject: Re: visor.ko freezes on dlpsh list
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+You asked: What kernel version are you using?
+vmlinuz-2.6.9-1.681_FC3,
+but the original Fedora Core 3 did not work either.
+It was suggested to remove the visor diffs from the ac10 patch and that would work.
+I may try building linux-2.6.9 and see how that works.
+
+Bill Chimiak
+
+-----Original Message-----
+From: Greg KH <greg@kroah.com>
+Sent: Dec 13, 2004 11:14 PM
+To: Bill Chimiak <bchimiak@earthlink.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: visor.ko freezes on dlpsh list
+
+On Mon, Dec 13, 2004 at 09:19:52PM -0500, Bill Chimiak wrote:
+> Summary: Handspring visor does not  fully sync with kpilot or jpilot
+> or with pilot-xfer.
+> With dlpsh, the user, and df work but it freezes with a ls command
+> after completing about 75% to 80% of the actually listing.
+What kernel version are you using?
+thanks,
+greg k-h

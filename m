@@ -1,188 +1,196 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbTK1Xtw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 18:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTK1Xtw
+	id S263573AbTK1XwL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 18:52:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbTK1XwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 18:49:52 -0500
-Received: from smtp-105-friday.nerim.net ([62.4.16.105]:34573 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S263568AbTK1Xts
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 18:49:48 -0500
-Message-ID: <3FC7DF1E.3090807@malguy.net>
-Date: Sat, 29 Nov 2003 00:49:50 +0100
-From: Baptiste Malguy <baptiste@malguy.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.5) Gecko/20031024 Debian/1.5-2
-X-Accept-Language: fr-fr, fr, en
-MIME-Version: 1.0
+	Fri, 28 Nov 2003 18:52:10 -0500
+Received: from holomorphy.com ([199.26.172.102]:19140 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263573AbTK1Xv6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 18:51:58 -0500
+Date: Fri, 28 Nov 2003 15:51:55 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-Cc: Sebastian Schmidt <yath@yath.eu.org>,
-       Benjamin Reed <breed@almaden.ibm.com>
-Subject: [PATCH] VT driver/char/console.c, kernel 2.4.22
-Content-Type: multipart/mixed;
- boundary="------------050907030708010203090507"
+Subject: Re: pgcl-2.6.0-test5-bk3-17
+Message-ID: <20031128235155.GA19856@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20031128041558.GW19856@holomorphy.com> <20031128072148.GY8039@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031128072148.GY8039@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050907030708010203090507
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+On Thu, Nov 27, 2003 at 08:15:58PM -0800, William Lee Irwin III wrote:
+>> This is a forward port of Hugh Dickins' patch to implement ABI-
+>> preserving large software PAGE_SIZE support, effectively "large VM
+>> blocksize". It's also been called "subpages". "pgcl" is an abbreviation
+>> for "page clustering", after the historical but different BSD notion.
 
-Hello,
+On Thu, Nov 27, 2003 at 11:21:48PM -0800, William Lee Irwin III wrote:
+> Now also ported to 2.6.0-test11:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/pgcl-2.6.0-test11-1.gz
+> This also corrects some PAGE_SHIFT instances that crept into mm/mmap.c
+> while I wasn't looking and drops sym2 driver changes.
 
-Abstract:
------------
+Looks like I missed the update to the Committed_AS accounting in exec.c
+during the conversion. The reduced granularity on RLIMIT_STACK, stack
+fault alignment,  and the argument size Committed_AS accounting bothers
+me. I should teach copy_folio() etc. to cope with unaligned pages, but
+there appears to be some pain wrt. how far and wide to hunt for ptes
+(i.e. this requires some design effort).
 
-This patch makes effective the ability to redirect kernel messages to a 
-specific VT through
-the 'console=' argument. It is already supposed to work (that is, kernel 
-messages only appear
-on /dev/tty1 or /dev/tty2 or ...)  but actually does not (messages are 
-always sent to the
-foreground console, that is /dev/tty or /dev/tty0).
+I do the swap bits a bit differently from the original, so the
+swapfile accounting needs a unit conversion.
 
-Sebastian Schmidt <yath -at- yath.eu.org> already noticed the problem in 
-March 2003.
-Benjamin Reed <breed -at- almaden.ibm.com> wrote a patch two years ago 
-to correct this.
-Here is a link to his post: 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0108.2/1455.html
-It seems have never been taken in account.
-
-The patch I made is almost based on Benjamin's patch, completing its 
-effectiveness via
-vt_console_setup().
-
-Relative comment:
----------------------
-
-In relation to this patch, I want to say that many many websites, FAQs, 
-... say that you must
-have something like console="/dev/ttyX CONSOLE=/dev/ttyN" to redirect 
-the kernel and init
-messages.
-
-About 'CONSOLE=', that's true because this is a environment variable 
-that /sbin/init obtains.
-About 'console=', it's completly wrong ! 'console=' expects a driver 
-name (example: "tty",
-"tty1", "ttyS0"), not device file name. Only the Linux source code 
-reading and a few websites
-says the right usage of 'console='.
-
-Question
------------
-Is the way I attached the patch "correct"  ? Must I Cc: it to Marcello 
-or someone else ? I didn't
-find the ideal maintainer in linux/MAINTAINERS.
-
-Bye.
-
--- 
-Baptiste Malguy - http://baptiste.malguy.net
-Ingénieur en informatique libre
+This also arranges for pr_debug()-based logging of Committed_AS
+accounting, which is useful while this thing is still prototypical in
+nature, but will eventually get removed for "production" patch posting
+along with several other things of a similar nature.
 
 
---------------050907030708010203090507
-Content-Type: text/plain;
- name="console-kmsg.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="console-kmsg.diff"
+-- wli
 
-*** linux-2.4.22/drivers/char/console.c	2002-11-29 00:53:12.000000000 +0100
---- work/linux-2.4.22-bm1/drivers/char/console.c	2003-11-28 16:45:58.000000000 +0100
-***************
-*** 144,149 ****
---- 144,150 ----
-  static int con_open(struct tty_struct *, struct file *);
-  static void vc_init(unsigned int console, unsigned int rows,
-  		    unsigned int cols, int do_clear);
-+ static void con_setup_vt(unsigned int currcons);
-  static void blank_screen(unsigned long dummy);
-  static void gotoxy(int currcons, int new_x, int new_y);
-  static void save_cur(int currcons);
-***************
-*** 2178,2187 ****
---- 2179,2203 ----
-  	return MKDEV(TTY_MAJOR, c->index ? c->index : fg_console + 1);
-  }
-  
-+ int vt_console_setup(struct console *co, char *options)
-+ {
-+ 	if (co == NULL)
-+ 		return -1;
-+ 	
-+ 	if (co->index > 0 &&
-+ 	    co->index < MAX_NR_CONSOLES) {
-+ 		con_setup_vt(co->index - 1);
-+ 		kmsg_redirect = co->index;
-+ 	}
-+ 
-+ 	return 0;
-+ }
-+ 
-  struct console vt_console_driver = {
-  	name:		"tty",
-  	write:		vt_console_print,
-  	device:		vt_console_device,
-+ 	setup:		vt_console_setup,
-  	unblank:	unblank_screen,
-  	flags:		CON_PRINTBUFFER,
-  	index:		-1,
-***************
-*** 2432,2437 ****
---- 2448,2471 ----
-  }
-  
-  /*
-+  * Setup a new VT
-+  */
-+ static void __init con_setup_vt(unsigned int currcons)
-+ {
-+ 	if (vc_cons[currcons].d) return;
-+ 	
-+ 	vc_cons[currcons].d = (struct vc_data *)
-+ 		alloc_bootmem(sizeof(struct vc_data));
-+ 	vt_cons[currcons] = (struct vt_struct *)
-+ 		alloc_bootmem(sizeof(struct vt_struct));
-+ 	visual_init(currcons, 1);
-+ 	screenbuf = (unsigned short *) alloc_bootmem(screenbuf_size);
-+ 	kmalloced = 0;
-+ 	vc_init(currcons, video_num_lines, video_num_columns, 
-+ 		currcons || !sw->con_save_screen);
-+ }
-+ 
-+ /*
-   * This routine initializes console interrupts, and does nothing
-   * else. If you want the screen to clear, call tty_write with
-   * the appropriate escape-sequence.
-***************
-*** 2498,2512 ****
-  	 * kmalloc is not running yet - we use the bootmem allocator.
-  	 */
-  	for (currcons = 0; currcons < MIN_NR_CONSOLES; currcons++) {
-! 		vc_cons[currcons].d = (struct vc_data *)
-! 				alloc_bootmem(sizeof(struct vc_data));
-! 		vt_cons[currcons] = (struct vt_struct *)
-! 				alloc_bootmem(sizeof(struct vt_struct));
-! 		visual_init(currcons, 1);
-! 		screenbuf = (unsigned short *) alloc_bootmem(screenbuf_size);
-! 		kmalloced = 0;
-! 		vc_init(currcons, video_num_lines, video_num_columns, 
-! 			currcons || !sw->con_save_screen);
-  	}
-  	currcons = fg_console = 0;
-  	master_display_fg = vc_cons[currcons].d;
---- 2532,2538 ----
-  	 * kmalloc is not running yet - we use the bootmem allocator.
-  	 */
-  	for (currcons = 0; currcons < MIN_NR_CONSOLES; currcons++) {
-! 		con_setup_vt(currcons); 
-  	}
-  	currcons = fg_console = 0;
-  	master_display_fg = vc_cons[currcons].d;
 
---------------050907030708010203090507--
-
+diff -prauN pgcl-2.6.0-test11-1/fs/exec.c pgcl-2.6.0-test11-2/fs/exec.c
+--- pgcl-2.6.0-test11-1/fs/exec.c	2003-11-27 21:55:19.000000000 -0800
++++ pgcl-2.6.0-test11-2/fs/exec.c	2003-11-28 15:25:51.000000000 -0800
+@@ -417,7 +417,7 @@ int setup_arg_pages(struct linux_binprm 
+ #else
+ 	stack_base = STACK_TOP - MAX_ARG_PAGES * PAGE_SIZE;
+ 	mm->arg_start = bprm->p + stack_base;
+-	arg_size = STACK_TOP - (MMUPAGE_MASK & (unsigned long) mm->arg_start);
++	arg_size = STACK_TOP - (PAGE_MASK & (unsigned long) mm->arg_start);
+ #endif
+ 
+ 	bprm->p += stack_base;
+diff -prauN pgcl-2.6.0-test11-1/include/linux/mman.h pgcl-2.6.0-test11-2/include/linux/mman.h
+--- pgcl-2.6.0-test11-1/include/linux/mman.h	2003-11-26 12:43:05.000000000 -0800
++++ pgcl-2.6.0-test11-2/include/linux/mman.h	2003-11-28 15:26:08.000000000 -0800
+@@ -14,18 +14,42 @@ extern int sysctl_overcommit_memory;
+ extern int sysctl_overcommit_ratio;
+ extern atomic_t vm_committed_space;
+ 
++#define vm_acct_memory(pages)						\
++do {									\
++	long __pages__ = (pages);					\
++	pr_debug("%d: vm_acct_memory(%ld) in %s at %s:%d\n",		\
++		current->pid,						\
++		__pages__,						\
++		__FUNCTION__,						\
++		__FILE__,						\
++		__LINE__);						\
++	__vm_acct_memory(__pages__);					\
++} while (0)
++
++#define vm_unacct_memory(pages)						\
++do {									\
++	long __pages__ = (pages);					\
++	pr_debug("%d: vm_unacct_memory(%ld) in %s at %s:%d\n",		\
++		current->pid,						\
++		__pages__,						\
++		__FUNCTION__,						\
++		__FILE__,						\
++		__LINE__);						\
++	__vm_unacct_memory(__pages__);					\
++} while (0)
++
+ #ifdef CONFIG_SMP
+-extern void vm_acct_memory(long pages);
++void __vm_acct_memory(long pages);
+ #else
+-static inline void vm_acct_memory(long pages)
++static inline void __vm_acct_memory(long pages)
+ {
+ 	atomic_add(pages, &vm_committed_space);
+ }
+ #endif
+ 
+-static inline void vm_unacct_memory(long pages)
++static inline void __vm_unacct_memory(long pages)
+ {
+-	vm_acct_memory(-pages);
++	__vm_acct_memory(-pages);
+ }
+ 
+ /*
+diff -prauN pgcl-2.6.0-test11-1/include/linux/security.h pgcl-2.6.0-test11-2/include/linux/security.h
+--- pgcl-2.6.0-test11-1/include/linux/security.h	2003-11-26 12:44:57.000000000 -0800
++++ pgcl-2.6.0-test11-2/include/linux/security.h	2003-11-28 15:26:01.000000000 -0800
+@@ -84,6 +84,18 @@ struct nfsctl_arg;
+ struct sched_param;
+ struct swap_info_struct;
+ 
++#define security_vm_enough_memory(pages)				\
++({									\
++	long __pages__ = (pages);					\
++	pr_debug("%d: vm_enough_memory(%ld) in %s at %s:%d\n",		\
++		current->pid,						\
++		__pages__,						\
++		__FUNCTION__,						\
++		__FILE__,						\
++		__LINE__);						\
++	__security_vm_enough_memory(__pages__);				\
++})
++
+ #ifdef CONFIG_SECURITY
+ 
+ /**
+@@ -1245,7 +1257,7 @@ static inline int security_syslog(int ty
+ 	return security_ops->syslog(type);
+ }
+ 
+-static inline int security_vm_enough_memory(long pages)
++static inline int __security_vm_enough_memory(long pages)
+ {
+ 	return security_ops->vm_enough_memory(pages);
+ }
+@@ -1911,7 +1923,7 @@ static inline int security_syslog(int ty
+ 	return cap_syslog(type);
+ }
+ 
+-static inline int security_vm_enough_memory(long pages)
++static inline int __security_vm_enough_memory(long pages)
+ {
+ 	return cap_vm_enough_memory(pages);
+ }
+diff -prauN pgcl-2.6.0-test11-1/mm/swap.c pgcl-2.6.0-test11-2/mm/swap.c
+--- pgcl-2.6.0-test11-1/mm/swap.c	2003-11-27 21:55:21.000000000 -0800
++++ pgcl-2.6.0-test11-2/mm/swap.c	2003-11-28 14:14:50.000000000 -0800
+@@ -367,7 +367,7 @@ unsigned int pagevec_lookup(struct pagev
+ 
+ static DEFINE_PER_CPU(long, committed_space) = 0;
+ 
+-void vm_acct_memory(long pages)
++void __vm_acct_memory(long pages)
+ {
+ 	long *local;
+ 
+@@ -380,7 +380,7 @@ void vm_acct_memory(long pages)
+ 	}
+ 	preempt_enable();
+ }
+-EXPORT_SYMBOL(vm_acct_memory);
++EXPORT_SYMBOL(__vm_acct_memory);
+ #endif
+ 
+ #ifdef CONFIG_SMP
+diff -prauN pgcl-2.6.0-test11-1/mm/swapfile.c pgcl-2.6.0-test11-2/mm/swapfile.c
+--- pgcl-2.6.0-test11-1/mm/swapfile.c	2003-11-27 21:55:21.000000000 -0800
++++ pgcl-2.6.0-test11-2/mm/swapfile.c	2003-11-28 01:23:45.000000000 -0800
+@@ -1151,8 +1151,8 @@ asmlinkage long sys_swapoff(const char _
+ 		swap_list_unlock();
+ 		goto out_dput;
+ 	}
+-	if (!security_vm_enough_memory(p->pages))
+-		vm_unacct_memory(p->pages);
++	if (!security_vm_enough_memory(PAGE_MMUCOUNT*p->pages))
++		vm_unacct_memory(PAGE_MMUCOUNT*p->pages);
+ 	else {
+ 		err = -ENOMEM;
+ 		swap_list_unlock();

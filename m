@@ -1,49 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbTH2Owh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 10:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbTH2Ow3
+	id S261304AbTH2O6F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 10:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTH2O5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 10:52:29 -0400
-Received: from amsfep16-int.chello.nl ([213.46.243.26]:10843 "EHLO
+	Fri, 29 Aug 2003 10:57:45 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:36696 "EHLO
 	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261305AbTH2OwA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 10:52:00 -0400
-Date: Fri, 29 Aug 2003 16:51:07 +0200
-Message-Id: <200308291451.h7TEp7tI005896@callisto.of.borg>
+	id S261324AbTH2OwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 10:52:08 -0400
+Date: Fri, 29 Aug 2003 16:51:15 +0200
+Message-Id: <200308291451.h7TEpFPG005944@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k free_io_area()
+Subject: [PATCH] dmasound core fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Take the gap into account in free_io_area() (from Michael Müller)
+Dmasound core fixes from Christoph Hellwig in 2.6.0:
+  - Some exported symbols are declared __init - in the modular case this is
+    freed before the other modules can call it..
 
---- linux-2.4.23-pre1/arch/m68k/mm/kmap.c	Mon Feb 19 10:36:43 2001
-+++ linux-m68k-2.4.23-pre1/arch/m68k/mm/kmap.c	Tue Jul  1 22:06:18 2003
-@@ -71,7 +71,7 @@
- 		addr = tmp->size + (unsigned long)tmp->addr;
- 	}
- 	area->addr = (void *)addr;
--	area->size = size + IO_SIZE;
-+	area->size = size + IO_SIZE;	/* leave a gap between */
- 	area->next = *p;
- 	*p = area;
- 	return area;
-@@ -87,7 +87,10 @@
- 	for (p = &iolist ; (tmp = *p) ; p = &tmp->next) {
- 		if (tmp->addr == addr) {
- 			*p = tmp->next;
--			__iounmap(tmp->addr, tmp->size);
-+			if ( tmp->size > IO_SIZE )
-+				__iounmap(tmp->addr, tmp->size - IO_SIZE);
-+			else
-+				printk("free_io_area: Invalid I/O area size %lu\n", tmp->size);
- 			kfree(tmp);
- 			return;
- 		}
+--- linux-2.4.23-pre1/drivers/sound/dmasound/dmasound_core.c	Tue Aug 26 12:22:41 2003
++++ linux-m68k-2.4.23-pre1/drivers/sound/dmasound/dmasound_core.c	Wed Aug 27 18:46:28 2003
+@@ -374,7 +374,7 @@
+ 	release:	mixer_release,
+ };
+ 
+-static void __init mixer_init(void)
++static void mixer_init(void)
+ {
+ #ifndef MODULE
+ 	int mixer_unit;
+@@ -1339,7 +1339,7 @@
+ #endif
+ };
+ 
+-static int __init sq_init(void)
++static int sq_init(void)
+ {
+ #ifndef MODULE
+ 	int sq_unit;
+@@ -1556,7 +1556,7 @@
+ 	release:	state_release,
+ };
+ 
+-static int __init state_init(void)
++static int state_init(void)
+ {
+ #ifndef MODULE
+ 	int state_unit;
+@@ -1575,7 +1575,7 @@
+      *  This function is called by _one_ chipset-specific driver
+      */
+ 
+-int __init dmasound_init(void)
++int dmasound_init(void)
+ {
+ 	int res ;
+ #ifdef MODULE
+@@ -1646,7 +1646,7 @@
+ 
+ #else /* !MODULE */
+ 
+-static int __init dmasound_setup(char *str)
++static int dmasound_setup(char *str)
+ {
+ 	int ints[6], size;
+ 
 
 Gr{oetje,eeting}s,
 

@@ -1,74 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130132AbQKUXQ5>; Tue, 21 Nov 2000 18:16:57 -0500
+	id <S129581AbQKUXQ5>; Tue, 21 Nov 2000 18:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131010AbQKUXQr>; Tue, 21 Nov 2000 18:16:47 -0500
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:48907 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S130132AbQKUXQf>; Tue, 21 Nov 2000 18:16:35 -0500
-Date: Tue, 21 Nov 2000 15:46:31 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org, axp-list@redhat.com
-Subject: Re: ux164 (ruffian) fixes
-Message-ID: <20001121154631.A27195@mail.harddata.com>
-In-Reply-To: <20001121184609.A2889@jurassic.park.msu.ru> <20001121104720.A11074@twiddle.net>
-Mime-Version: 1.0
+	id <S130132AbQKUXQs>; Tue, 21 Nov 2000 18:16:48 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:17677 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129581AbQKUXQa>; Tue, 21 Nov 2000 18:16:30 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Anil kumar <anils_r@yahoo.com>
+Date: Wed, 22 Nov 2000 09:19:54 +1100 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5us
-In-Reply-To: <20001121104720.A11074@twiddle.net>; from Richard Henderson on Tue, Nov 21, 2000 at 10:47:20AM -0800
+Content-Transfer-Encoding: 7bit
+Message-ID: <14874.62730.601259.997774@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RAID Benchmarking
+In-Reply-To: message from Anil kumar on Tuesday November 21
+In-Reply-To: <20001121194018.9178.qmail@web6103.mail.yahoo.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 21, 2000 at 10:47:20AM -0800, Richard Henderson wrote:
-> On Tue, Nov 21, 2000 at 06:46:09PM +0300, Ivan Kokshaysky wrote:
-> >    Interesting, other pyxis machines do not seem to be so sensitive,
-> >    so I guess some design problems with ux164 motherboard - all this
-> >    looks pretty much like timing issues.
+On Tuesday November 21, anils_r@yahoo.com wrote:
+> Hi,
+>  I want to know , how to Benchmark the performance of
+>  RAID.Is there any tool for benchmarking?
 > 
-> Wow.  Thanks for following through on this.
 
-I can now confirm that I can boot using SCSI disks (the fact that
-this was possible for a while into IDE was a life-saver here :-)
-a Ruffian (pyxis) Alpha using 2.4.0-test11 kernel and two patches
-posted by Ivan (bridges-2.4.0t11.gz and extra ruffian fixes).
+It all depends on what you want to measure.
+If you want to measure "how well will this work for me", then you need
+a tool that generates a load that has similar characteristics to the
+load that you are likely to impose on the system.
 
-Here are fragments from 'dmesg':
+If that is large single threaded sequential reads or sequential
+writes, then bonnie is a pretty good tool.  However, this isn't a very
+typical load for me.
 
-....
-Booting on Ruffian using machine vector Ruffian from MILO
-Command line: bootdevice=sda2 bootfile=/vml240o11.gz root=/dev/sda2
-....
-SCSI subsystem driver Revision: 1.00
-sym53c8xx: at PCI bus 1, device 13, function 0
-sym53c8xx: 53c875 detected 
-sym53c875-0: rev 0x3 on pci bus 1 device 13 function 0 irq 20
-sym53c875-0: ID 7, Fast-20, Parity Checking
-sym53c875-0: on-chip RAM at 0xa101000
-sym53c875-0: restart (scsi reset).
-sym53c875-0: Downloading SCSI SCRIPTS.
-scsi0 : sym53c8xx - version 1.6b
-  Vendor: IBM       Model: DDRS-39130D       Rev: DC1B
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-  Vendor: TOSHIBA   Model: CD-ROM XM-6201TA  Rev: 1037
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-  Vendor: IBM       Model: DDRS-34560D       Rev: DC1B
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-sym53c875-0-<2,0>: tagged command queue depth set to 8
-sym53c875-0-<10,0>: tagged command queue depth set to 8
-Detected scsi disk sda at scsi0, channel 0, id 2, lun 0
-Detected scsi disk sdb at scsi0, channel 0, id 10, lun 0
-....
-VFS: Mounted root (ext2 filesystem) readonly.
+I have been using bonnie and dbench which can be found at
+   ftp://samba.org/pub/tridge/dbench/
 
-Those who posted "me too" could you please test that this is not
-only a fluke on my particular machine?
+I have heard that iozone is pretty good too, though I haven't tried it
+yet:
+     http://www.iozone.org/
 
-Thanks a bunch, Ivan. Also thanks are extended to Gerard Roudier who
-provided a crucial hint in the moment when we appeared to be completly
-stuck. :-)
+If you are looking at software raid5 in 2.4, you might like to look at
+    http://www.cse.unsw.edu.au/~neilb/wiki/?LinuxRaidTest
 
-  Michal
+which has a number of neat graphs and links to some patches that make
+raid5 in 2.4 much faster.
 
+You might also like to look at Gary Murakami's page at
+
+  http://www.research.att.com/~gjm/linux/ide-i75raid.html
+
+particularly if you are thinking IDE raid.
+
+Hope this helps.
+
+NeilBrown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

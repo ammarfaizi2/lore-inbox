@@ -1,127 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270093AbTHLL6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 07:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270210AbTHLL6Q
+	id S270200AbTHLLyP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 07:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270210AbTHLLyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 07:58:16 -0400
-Received: from dyn-ctb-210-9-241-99.webone.com.au ([210.9.241.99]:63750 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S270093AbTHLL6K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 07:58:10 -0400
-Message-ID: <3F38D64C.2030109@cyberone.com.au>
-Date: Tue, 12 Aug 2003 21:58:04 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
+	Tue, 12 Aug 2003 07:54:15 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:20912 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S270200AbTHLLyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 07:54:14 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: mb <mb/lkml@dcs.qmul.ac.uk>
+Date: Tue, 12 Aug 2003 21:53:31 +1000
 MIME-Version: 1.0
-To: rob@landley.net
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O13int for interactivity
-References: <200308050207.18096.kernel@kolivas.org> <200308120629.31476.rob@landley.net> <3F38CAC6.7010808@cyberone.com.au> <200308120735.04035.rob@landley.net>
-In-Reply-To: <200308120735.04035.rob@landley.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16184.54587.28573.816157@gargle.gargle.HOWL>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm1, ext3 (external journal): nasty filesystem corruption
+ under high load
+In-Reply-To: message from mb on Tuesday August 12
+References: <Pine.LNX.4.56.0308121058230.2147@r2-pc.dcs.qmul.ac.uk>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday August 12, mb/lkml@dcs.qmul.ac.uk wrote:
+> Hi,
+> 
+> Admittedly I was being pathological, but I've got a new toy to play with!
+> Our new server is a dual-Athlon, 1.5G RAM (the other .5 failed memtest) +
+> about 6GB swap, with 15x70GB drives running under gdth.o with 12 as the
+> RAID-5 set, and the journal on 2 as a RAID-1 pair. System on IDE for now.
+> 
+> It's currently running Red Hat "severn" + 2.6.0-test2-mm1 (with PREEMPT
+> for now), and this particular stress test was attempting to build 
+> 2.6.0-test3-mm1 with the scary invocation "make -j". More info on request.
+> 
+> I saw thousands of messages like:
+> 	cc1: page allocation failure. order:0, mode:0x20
+> (where only the process names might change). I don't know how Bad
+> this is.
 
+I think this si just noise.  0x20 is GFP_ATOMIC, and you expect atomic
+allocations to fail sometimes.
 
-Rob Landley wrote:
+> 
+> Amazingly I could still ssh in to the box and discover that its load had
+> more than likely broken 1000. However, the compile started to complain
+> bitterly about non-ASCII characters in source files, and indeed corruption
+> did occur (random overwriting, it would appear).
 
->On Tuesday 12 August 2003 07:08, Nick Piggin wrote:
->
->
->>>>I don't quite understand what you are getting at, but if you don't want
->>>>to sleep you should be able to use a non blocking syscall.
->>>>
->>>So you can then block on poll instead, you mean?
->>>
->>Well if thats what you intend, yes. Or set poll to be non-blocking.
->>
->
->So you're still blocking for an unknown amount of time waiting for your 
->outstanding requests to get serviced, now you're just hiding it to 
->intentionally give the scheduler less information to work with.
->
+Almost certainly a raid5 bug, fix by the following patch.
 
-Where are you blocking?
+NeilBrown
 
->
->>>These are hogs, often both of CPU time and I/O bandwidth.  Being blocked
->>>on I/O does not stop them from being hogs, it just means they're juggling
->>>their hoggishness.
->>>
->>This is the CPU scheduler though. A program could be a disk/network
->>hog and use a few % cpu. Its obviously not a cpu hog, and should get
->>the cpu again soon after it is woken. Sooner than non running cpu hogs,
->>anyway.
->>
->
->A program that waits for a known amount of time (I.E. on a timer) cares about 
->when it gets woken up.  A program that blocks on an event that's going to 
->take an unknown amount of time can't be too upset if its wakeup is after an  
->unknown amount of time.
->
->Beyond that there's blocking for input from the user (latency matters) and 
->blocking for input from something else (latency doesn't matter), but we can't 
->tell that directly and have to fake our way around it with heuristics.
->
->
->>>That's what Con's detecting.  It's a heuristic.  But it's a good
->>>heuristic.  A process that plays nice and yields the CPU regularly gets a
->>>priority boost. (That's always BEEN a heuristic.)
->>>
->>>The current scheduler code has moved a bit beyond this, but this is the
->>>bit I was talking about when I disagreed with you earlier.
->>>
->>Yeah, I know Con is trying to detect this. Its just that detecting
->>it using TASK_INTERRUPTIBLE/TASK_UNINTERRUPTIBLE may not be the best
->>way.
->>
->
->Okay, if this isn't the "best way", then what is?  You have yet to suggest an 
->alternative, and this heuristic is obviously better than nothing.
->
+==========================================================================
+Disable raid5 handling of read-ahead
 
-Well I'm not sure what the best way is, but I'm pretty sure its not
-this ;)
+raid5 trys to honour RWA_MASK, but messes it up and can return bad data.
+Just ignore RAW_MASK for now.
 
-I have been hearing of people complaining the scheduler is worse than
-2.4 so its not entirely obvious to me. But yeah lots of it is trial and
-error, so I'm not saying Con is wasting his time.
+ ----------- Diffstat output ------------
+ ./drivers/md/raid5.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
->
->>Suddenly your kernel compile on an NFS mount becomes interactive
->>for example.
->>
->
->Translation: Suppose the heuristics fail.  If it can't fail, it's not a 
->heuristic, is it?  Failure of heuristics must be survivable.  The kernel 
->compile IS a rampant CPU hog, and if it's mis-identified as interactive for 
->some reason it'll get demoted again after using up too many time slices.  In 
->the mean time, your PVR (think home-browed Tivo clone) skips recording your 
->buffy rerun.  This is something to be minimized, but the scheduler isn't 
->psychic.  If it happens to once out of every million hours of use, you're 
->going to see more hard drive failures due and dying power supplies than 
->problems caused by this.  (This is not sufficient for running a nuclear power 
->plant or automated factory, but those guys need hard realtime anyway, which 
->this isn't pretending to be.)
->
-
-Of course. I the problem is people think that the failure
-cases are currently too common and or types of failure are
-unacceptable.
-
->
->>Then again, the way things are, Con might not have any
->>other option.
->>
->
->You're welcome to suggest a better alternative, but criticizing the current 
->approach without suggesting any alternative at all may not be that helpful.
->
-
-I have been trying half hartedly over the past week or two.
-
-
+diff ./drivers/md/raid5.c~current~ ./drivers/md/raid5.c
+--- ./drivers/md/raid5.c~current~	2003-08-11 09:01:44.000000000 +1000
++++ ./drivers/md/raid5.c	2003-08-11 09:01:44.000000000 +1000
+@@ -1326,7 +1326,7 @@ static int make_request (request_queue_t
+ 			(unsigned long long)new_sector, 
+ 			(unsigned long long)logical_sector);
+ 
+-		sh = get_active_stripe(conf, new_sector, pd_idx, (bi->bi_rw&RWA_MASK));
++		sh = get_active_stripe(conf, new_sector, pd_idx, 0/*(bi->bi_rw&RWA_MASK)*/);
+ 		if (sh) {
+ 
+ 			add_stripe_bio(sh, bi, dd_idx, (bi->bi_rw&RW_MASK));

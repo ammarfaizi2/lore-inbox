@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283191AbRK2MOZ>; Thu, 29 Nov 2001 07:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283192AbRK2MOQ>; Thu, 29 Nov 2001 07:14:16 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:53719 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S283191AbRK2MOH>; Thu, 29 Nov 2001 07:14:07 -0500
-Subject: Re: Routing table problems
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S281489AbRKZHdl>; Mon, 26 Nov 2001 02:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S281500AbRKZHdc>; Mon, 26 Nov 2001 02:33:32 -0500
+Received: from mongkok.pacific.net.hk ([202.64.33.131]:12791 "EHLO mongkok.pacific.net.hk") by vger.kernel.org with ESMTP id <S281497AbRKZHdT>; Mon, 26 Nov 2001 02:33:19 -0500
+Message-Id: <200111260733.PAA01649@tsingyi.pacific.net.hk>
+From: "noreply@noreply.com" <noreply@noreply.com>
 To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFAC45A406.7118A3A7-ON65256B31.00430A0D@in.ibm.com>
-From: "Rajasekhar Inguva" <irajasek@in.ibm.com>
-Date: Sat, 29 Dec 2001 17:44:08 +0530
-X-MIMETrack: Serialize by Router on d23m0067/23/M/IBM(Release 5.0.8 |June 18, 2001) at
- 29/11/2001 05:44:16 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Subject: IT JOBS IN ASIA PACIFIC & JAPAN
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+Reply-To: noreply@noreply.com
+Date: Mon, 26 Nov 2001 15:33:17 +0800
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi All, In continuation to my earlier report ...
+Dear, Friend
 
-The problem is only seen with the default gateway entry.
+Just a quick note to introduce you to RECRUIT.NET - the premier web site for Information Technology (IT) recruitment in  Asia Pacific and Japan.
 
-The gateway entry for my subnet is also deleted during a 'down', but is
-restored properly after an 'up' .
+Search through our job listings of the best IT jobs in Asia Pacific and Japan. New jobs are added daily! http://www.recruit.net
 
-Thanx,
+If you are even slightly interested in IT jobs or IT recruitment in Asia then please check us out, if not then please excuse the intrusion.
 
-Raj
+RECRUIT.NET™
+http://www.recruit.net
+email: support@recruit.net
+
+Empowering the Tech Professional (tm)
 
 

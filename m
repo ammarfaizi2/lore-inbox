@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264950AbSLJXqc>; Tue, 10 Dec 2002 18:46:32 -0500
+	id <S266771AbSLJXtj>; Tue, 10 Dec 2002 18:49:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264992AbSLJXqc>; Tue, 10 Dec 2002 18:46:32 -0500
-Received: from dp.samba.org ([66.70.73.150]:46027 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264950AbSLJXqb>;
-	Tue, 10 Dec 2002 18:46:31 -0500
-Date: Wed, 11 Dec 2002 10:53:43 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: greg@ulima.unil.ch, linux-kernel@vger.kernel.org, linux-dvb@linuxtv.org
-Subject: Re: 2.5.51 don't compil with dvb
-Message-Id: <20021211105343.4385029a.rusty@rustcorp.com.au>
-In-Reply-To: <1039536315.14175.2.camel@irongate.swansea.linux.org.uk>
-References: <20021210150748.GB20411@ulima.unil.ch>
-	<1039536315.14175.2.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S266865AbSLJXtj>; Tue, 10 Dec 2002 18:49:39 -0500
+Received: from attila.bofh.it ([213.92.8.2]:11472 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id <S266771AbSLJXti>;
+	Tue, 10 Dec 2002 18:49:38 -0500
+Date: Wed, 11 Dec 2002 00:57:14 +0100
+From: "Marco d'Itri" <md@Linux.IT>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.51 nanosleep fails
+Message-ID: <20021210235714.GA6537@wonderland.linux.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Dec 2002 16:05:15 +0000
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> On Tue, 2002-12-10 at 15:07, Gregoire Favre wrote:
-> > drivers/built-in.o(.text+0x38655): In function `try_attach_device':
-> > : undefined reference to `MOD_CAN_QUERY'
-> > make: *** [vmlinux] Error 1
-> > 
-> 
-> Modules are still very broken in 2.5.51, its best to compile a system
-> which doesn't use modules or stay at an older kernel
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That may be true, but in this case, it's the only occurrance of MOD_CAN_QUERY
-outside the archs which haven't been updated to the new module loader yet,
-and it's a very odd thing to do.
+nanosleep fails after being interrupted:
 
-I assume the author meant this:
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.51/drivers/media/dvb/dvb-core/dvb_i2c.c working-2.5.51-dvb/drivers/media/dvb/dvb-core/dvb_i2c.c
---- linux-2.5.51/drivers/media/dvb/dvb-core/dvb_i2c.c	2002-11-28 10:20:07.000000000 +1100
-+++ working-2.5.51-dvb/drivers/media/dvb/dvb-core/dvb_i2c.c	2002-12-11 10:53:09.000000000 +1100
-@@ -64,10 +64,8 @@ static
- void try_attach_device (struct dvb_i2c_bus *i2c, struct dvb_i2c_device *dev)
- {
- 	if (dev->owner) {
--		if (!MOD_CAN_QUERY(dev->owner))
-+		if (!try_inc_mod_count(dev->owner))
- 			return;
--
--		__MOD_INC_USE_COUNT(dev->owner);
- 	}
- 
- 	if (dev->attach (i2c) == 0) {
+[...]
+fstat64(3, {st_mode=3DS_IFREG|0644, st_size=3D5444, ...}) =3D 0
+gettimeofday({1039564416, 703895}, NULL) =3D 0
+nanosleep({1, 0}, NULL)                 =3D 0
+fstat64(3, {st_mode=3DS_IFREG|0644, st_size=3D5444, ...}) =3D 0
+gettimeofday({1039564417, 777452}, NULL) =3D 0
+nanosleep({1, 0},=20
+[1]+  Stopped                 strace tail -f /var/log/uucp/Log
+md@wonderland:~$ fg
+strace tail -f /var/log/uucp/Log
+ <unfinished ...>
+--- SIGCONT (Continued) ---
+<... nanosleep resumed> 0)              =3D -1 ENOSYS (Function not impleme=
+nted)
 
 
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+This can be reliably reproduced.
+
+
+Linux wonderland 2.5.51 #13 Tue Dec 10 14:15:49 CET 2002 i686 unknown unkno=
+wn GNU/Linux
+
+--=20
+ciao,
+Marco
+
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE99n9aFGfw2OHuP7ERAkTyAJ42rS21yrdjUQ6zQ7Acv2y6kngNiwCgpmfa
+m7mIrMVPea8pLiVbL5CHqTo=
+=xUWa
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--

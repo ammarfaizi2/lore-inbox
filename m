@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284138AbRLMPLh>; Thu, 13 Dec 2001 10:11:37 -0500
+	id <S284090AbRLMPJ5>; Thu, 13 Dec 2001 10:09:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284139AbRLMPL2>; Thu, 13 Dec 2001 10:11:28 -0500
-Received: from mg03.austin.ibm.com ([192.35.232.20]:31104 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S284138AbRLMPLM>; Thu, 13 Dec 2001 10:11:12 -0500
+	id <S284138AbRLMPJr>; Thu, 13 Dec 2001 10:09:47 -0500
+Received: from jalon.able.es ([212.97.163.2]:24288 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S284090AbRLMPJk>;
+	Thu, 13 Dec 2001 10:09:40 -0500
+Date: Thu, 13 Dec 2001 16:10:02 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "David S. Miller" <davem@redhat.com>
+Cc: bodnar42@phalynx.dhs.org, linux-kernel@vger.kernel.org
+Subject: Re: Network related
+Message-ID: <20011213161002.A26081@werewolf.able.es>
+In-Reply-To: <E16EKmH-0003EP-00@the-village.bc.nu> <E16EKv4-00034x-00@phalynx> <20011212.182742.55723846.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: evms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] EVMS Release 0.2.4
-Date: Thu, 13 Dec 2001 09:02:14 -0600
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01121309021400.06777@boiler>
 Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20011212.182742.55723846.davem@redhat.com>; from davem@redhat.com on Thu, Dec 13, 2001 at 03:27:42 +0100
+X-Mailer: Balsa 1.2.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 0.2.4 of the Enterprise Volume Management System (EVMS) is now 
-available for download at the project web site:
-http://www.sf.net/projects/evms
 
-Highlights for version 0.2.4
+On 20011213 David S. Miller wrote:
+>   From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+>   Date: Wed, 12 Dec 2001 17:44:18 -0800
+>   
+>   If more of the internet fit in to the 'A' catagory than the 'B'
+>   catagory, I'd be very tempted to enable ECN and crusade against the
+>   remaining deviants, but right now it seems like merely an annoyance
+>   with no real gains.
+>
+>Amusingly the only web site I regularly visit for which I have to
+>explicitly turn ECN off is www.sun.com :-)
+>
 
-v0.2.4 - 12/11/01
-- Core Engine
-   - New feature header metadata layout
-   - Added expand and shrink for volumes and storage objects
-   - New plugin loading method
-      - Allows multiple plugins per library file (suggested by Andrew Clausen)
-   - Cleanup of unused device nodes in /dev (evms_devnode_fixup command)
-- GUI
-   - Expand and shrink support
-   - User message and alert support
-   - New window for displaying resulting objects after creates
-   - Lots of task code bug-fixes
-   - Better handling of changes to the various tree-views
-- EVMS Command Line
-   - Expand and shrink support
-   - Added lots of on-line help
-- MD/Software RAID Plugin
-   - STILL VERY NEW AND NOT WELL TESTED! USE WITH CAUTION!
-   - Support for Linear personality in the kernel
-   - Ported MD superblock manipulation and I/O to EVMS plugin
-   - Support for Linear and RAID 1 in the engine
-- LVM Plugin
-   - Added support for expanding and shrinking LVM regions
-      - Does not support shrinking striped LVs yet.
-   - Added lvextend and lvreduce to LVM Command Line Utilities
-   - Safer handling of importing VGs/LVs from other machines.
-- OS/2 Plugin
-   - Complete discovery of OS/2 LVM volumes
-- Bad Block Relocation
-   - STILL EXPERIENCING BUGS. USE WITH CAUTION!
-   - Support for one or two copies of BBR metadata
-   - Switched to binary tree for in-memory remapping
-- New ncurses-based user-interface
-   - Currently displays all discovered objects in format similar to the GUI.
-- Added cluster-enablement API stubs to kernel code
-- Endian-neutrality for EVMS feature headers, all EVMS feature plugins, LVM
-   region manager, OS/2 region manager, and default segment manager.
-- New method for accessing the gendisk list during discovery. Uses the
-   walk_gendisk() patch from Christoph Hellwig.
-- Initial support for 2.5 kernels.
-   - Core services and local device manager converted to new bio structures
-   - Segment manager, LVM, Snapshot, and Drive-Linking plugins work as-is.
-   - No testing yet on remaining plugins on 2.5.
+My ISP uses Solaris boxes for mail service and so on. I had to unsubscribe
+of LKML from that address due to ENC. The damned solaris box trashed
+ECN enabled packets so vger could not reach it. Now I am subscribed
+from an IRIX box and it works.
 
+The admin of the Solaris boxes told me he was talking with Sun... that
+was months ago.
 
-Kevin Corry
-corryk@us.ibm.com
-Enterprise Volume Management System
-http://www.sf.net/projects/evms
+Anybody knows if Sun firewall soft is already ECN aware ?
+
+Thanks.
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.17-pre8-beo #2 SMP Tue Dec 11 00:00:10 CET 2001 i686

@@ -1,665 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262777AbUKXSjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbUKXSnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262777AbUKXSjs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 13:39:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbUKXSjn
+	id S262793AbUKXSnN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 13:43:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbUKXSlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 13:39:43 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:4530 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262772AbUKXScR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 13:32:17 -0500
-Subject: Suspend 2 merge: 44/51: Text UI plugin.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-Content-Type: text/plain
-Message-Id: <1101299939.5805.374.camel@desktop.cunninghams>
+	Wed, 24 Nov 2004 13:41:02 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:44716
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262782AbUKXSjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 13:39:41 -0500
+Subject: Re: [PATCH] fix spurious OOM kills
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Martin =?iso-8859-2?Q?MOKREJ=A9?= 
+	<mmokrejs@ribosome.natur.cuni.cz>
+Cc: Andrew Morton <akpm@osdl.org>, piggin@cyberone.com.au, chris@tebibyte.org,
+       marcelo.tosatti@cyclades.com, andrea@novell.com,
+       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Rik van Riel <riel@redhat.com>
+In-Reply-To: <41A4AE3A.4050906@ribosome.natur.cuni.cz>
+References: <20041111112922.GA15948@logos.cnet>
+	 <20041114094417.GC29267@logos.cnet>
+	 <20041114170339.GB13733@dualathlon.random>
+	 <20041114202155.GB2764@logos.cnet>	<419A2B3A.80702@tebibyte.org>
+	 <419B14F9.7080204@tebibyte.org>	<20041117012346.5bfdf7bc.akpm@osdl.org>
+	 <419CD8C1.4030506@ribosome.natur.cuni.cz>
+	 <20041118131655.6782108e.akpm@osdl.org>
+	 <419D25B5.1060504@ribosome.natur.cuni.cz>
+	 <419D2987.8010305@cyberone.com.au>
+	 <419D383D.4000901@ribosome.natur.cuni.cz>
+	 <20041118160824.3bfc961c.akpm@osdl.org>
+	 <419E821F.7010601@ribosome.natur.cuni.cz>
+	 <1100946207.2635.202.camel@thomas> <419F2AB4.30401@ribosome.natur.cuni.cz>
+	 <1100957349.2635.213.camel@thomas>
+	 <419FB4CD.7090601@ribosome.natur.cuni.cz> <1101037999.23692.5.camel@thomas>
+	 <41A08765.7030402@ribosome.natur.cuni.cz>
+	 <1101045469.23692.16.camel@thomas>
+	 <1101120922.19380.17.camel@tglx.tec.linutronix.de>
+	 <41A2E98E.7090109@ribosome.natur.cuni.cz>
+	 <1101205649.3888.6.camel@tglx.tec.linutronix.de>
+	 <41A4AE3A.4050906@ribosome.natur.cuni.cz>
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 24 Nov 2004 17:36:52 +0100
+Message-Id: <1101314212.9481.13.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 00:01:51 +1100
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's our plugin that is used to display text output on the console.
-When the console loglevel is 0 or 1, the user gets a nice progress bar.
-Higher levels display increasing levels of debugging output.
+On Wed, 2004-11-24 at 16:52 +0100, Martin MOKREJŠ wrote:
+> > No, it's not related to hyperthreading. It's on the way out. 
+> > 
+> > I put an additional check into the page allocator. Does this help ?
+> 
+> The application got killed. But, consider yourself the stacktrace ... ;)
 
-diff -ruN 850-text-ui-old/kernel/power/suspend_text.c 850-text-ui-new/kernel/power/suspend_text.c
---- 850-text-ui-old/kernel/power/suspend_text.c	1970-01-01 10:00:00.000000000 +1000
-+++ 850-text-ui-new/kernel/power/suspend_text.c	2004-11-15 09:41:00.000000000 +1100
-@@ -0,0 +1,629 @@
-+/*
-+ * kernel/power/suspend2_text_display.c
-+ *
-+ * Copyright (C) 2002-2004 Nigel Cunningham <ncunningham@linuxmail.org>
-+ *
-+ * This file is released under the GPLv2.
-+ *
-+ * Routines for Software Suspend's user interface.
-+ * 
-+ * The user interface includes support for a text mode 'nice display'.
-+ *
-+ * The 'nice display' is text based and implements a progress bar and
-+ * (optional) textual progress, as well as an overall description of
-+ * the current action and the display of a header and the code version.
-+ *
-+ * It uses /dev/console, and thus also works on a serial console.
-+ */
-+#define SUSPEND_TEXT_MODE_C
-+
-+//#define __KERNEL_SYSCALLS__
-+
-+#include <linux/suspend.h>
-+#include <linux/console.h>
-+#include <linux/selection.h>
-+#include <linux/tty.h>
-+#include <linux/vt_kern.h>
-+ 
-+#include "plugins.h"
-+#include "proc.h"
-+#include "suspend.h"
-+
-+/*
-+ * The original macros use currcons, which we don't have access to.
-+ */
-+#undef video_num_columns
-+#define video_num_columns	(vc_cons[fg_console].d->vc_cols)
-+#undef video_num_lines
-+#define video_num_lines		(vc_cons[fg_console].d->vc_rows)
-+
-+static int barwidth = 0, barposn = -1, newbarposn = 0;
-+static int draw_progress_bar = 1;
-+static char print_buf[1024];	/* Same as printk - should be safe */
-+
-+/* We remember the last header that was (or could have been) displayed for
-+ * use during log level switches */
-+static char lastheader[512];
-+static int lastheader_message_len = 0;
-+
-+static void hide_cursor(void);
-+static void unblank_screen_via_file(void);
-+
-+static int suspend_console_fd = -1;
-+static struct termios termios;
-+static int lastloglevel = -1;
-+
-+#ifdef CONFIG_DEVFS_FS
-+static int mounted_devfs = 0;
-+#endif
-+
-+#define cond_console_print(chars) \
-+	if (suspend_console_fd > -1) { \
-+		int count = strlen(chars); \
-+		sys_write(suspend_console_fd, chars, count); \
-+		hide_cursor(); \
-+		unblank_screen_via_file();  \
-+	}
-+
-+static void move_cursor_to(unsigned char * xy)
-+{
-+	char buf[10];
-+	
-+	snprintf(buf, 10, "\233%d;%dH", xy[1], xy[0]);
-+	cond_console_print(buf);
-+}
-+
-+static void clear_display(void)
-+{
-+	char buf[4] = "\2332J";
-+	unsigned char home[2] = { 0, 0 };
-+	
-+	cond_console_print(buf);
-+	move_cursor_to(home);
-+}
-+
-+static void hide_cursor(void)
-+{
-+	char buf[6] = "\033[?1c";
-+	if (suspend_console_fd > -1)
-+		sys_write(suspend_console_fd, buf, 5);
-+}
-+
-+static void restore_cursor(void)
-+{
-+	char buf[6] = "\033[?0c";
-+	if (suspend_console_fd > -1)
-+		sys_write(suspend_console_fd, buf, 5);
-+}
-+
-+static void unblank_screen_via_file(void)
-+{
-+	char buf[6] = "\033[13]";
-+	if (suspend_console_fd > -1)
-+		sys_write(suspend_console_fd, buf, 5);
-+}
-+
-+/* prepare_status
-+ * Description:	Prepare the 'nice display', drawing the header and version,
-+ * 		along with the current action and perhaps also resetting the
-+ * 		progress bar.
-+ * Arguments:	int printalways: Whether to print the action when debugging
-+ * 		is on.
-+ * 		int clearbar: Whether to reset the progress bar.
-+ * 		const char *fmt, ...: The action to be displayed.
-+ */
-+static void text_prepare_status(int printalways, int clearbar, const char *fmt, va_list args)
-+{
-+	unsigned char posn[2];
-+
-+	if (fmt)
-+		lastheader_message_len = vsnprintf(lastheader, 512, fmt, args);
-+
-+	if (console_loglevel >= SUSPEND_ERROR) {
-+
-+		if (printalways)
-+			printk("\n** %s\n", lastheader);
-+		return;
-+	}
-+	
-+	barwidth = (video_num_columns - 2 * (video_num_columns / 4) - 2);
-+
-+	/* Print version */
-+	posn[0] = (unsigned char) (0);
-+	posn[1] = (unsigned char) (video_num_lines);
-+	move_cursor_to(posn);
-+	cond_console_print(SUSPEND_CORE_VERSION);
-+
-+	/* Print header */
-+	posn[0] = (unsigned char) ((video_num_columns - 31) / 2);
-+	posn[1] = (unsigned char) ((video_num_lines / 3) - 3);
-+	move_cursor_to(posn);
-+
-+	cond_console_print("S O F T W A R E   S U S P E N D");
-+		
-+	/* Print action */
-+	posn[1] = (unsigned char) (video_num_lines / 3);
-+	posn[0] = (unsigned char) 0;
-+	move_cursor_to(posn);
-+	
-+	/* Clear old message */
-+	for (barposn = 0; barposn < video_num_columns; barposn++) 
-+		cond_console_print(" ");
-+
-+	posn[0] = (unsigned char)
-+		((video_num_columns - lastheader_message_len) / 2);
-+	move_cursor_to(posn);
-+	cond_console_print(lastheader);
-+	
-+	if (draw_progress_bar) {
-+		/* Draw left bracket of progress bar. */
-+		posn[0] = (unsigned char) (video_num_columns / 4);
-+		posn[1]++;
-+		move_cursor_to(posn);
-+		cond_console_print("[");
-+
-+		/* Draw right bracket of progress bar. */
-+		posn[0] = (unsigned char) 
-+			(video_num_columns - (video_num_columns / 4) - 1);
-+		move_cursor_to(posn);
-+		cond_console_print("]");
-+
-+		if (clearbar) {
-+			/* Position at start of progress */
-+			posn[0] = (unsigned char) (video_num_columns / 4 + 1);
-+			move_cursor_to(posn);
-+
-+			/* Clear bar */
-+			for (barposn = 0; barposn < barwidth; barposn++)
-+				cond_console_print(" ");
-+			move_cursor_to(posn);
-+		}
-+	}
-+	
-+	hide_cursor();
-+
-+	barposn = 0;
-+}
-+
-+/* text_loglevel_change
-+ *
-+ * Description:	Update the display when the user changes the log level.
-+ * Returns:	Boolean indicating whether the level was changed.
-+ */
-+
-+static void text_loglevel_change(void)
-+{
-+	/* Calculate progress bar width. Note that whether the
-+	 * splash screen is on might have changed (this might be
-+	 * the first call in a new cycle), so we can't take it
-+	 * for granted that the width is the same as last time
-+	 * we came in here */
-+	barwidth = (video_num_columns - 2 * (video_num_columns / 4) - 2);
-+	barposn = 0;
-+
-+	/* Only reset the display if we're switching between nice display
-+	 * and displaying debugging output */
-+	
-+	if (console_loglevel >= SUSPEND_ERROR) {
-+		char message[35];
-+		if (lastloglevel < SUSPEND_ERROR)
-+			clear_display();
-+
-+		snprintf(message, 35,
-+			"Switched to console loglevel %d.\n", 
-+			console_loglevel);
-+		cond_console_print(message);
-+
-+		if (lastloglevel < SUSPEND_ERROR) {
-+			cond_console_print(lastheader);
-+			cond_console_print("\n");
-+		}
-+	
-+	} else if (lastloglevel >= SUSPEND_ERROR) {
-+		clear_display();
-+	
-+		/* Get the nice display or last action [re]drawn */
-+		text_prepare_status(1, 0, NULL, NULL);
-+	}
-+	
-+	lastloglevel = console_loglevel;
-+}
-+/* text_update_progress
-+ *
-+ * Description: Update the progress bar and (if on) in-bar message.
-+ * Arguments:	UL value, maximum: Current progress percentage (value/max).
-+ * 		const char *fmt, ...: Message to be displayed in the middle
-+ * 		of the progress bar.
-+ * 		Note that a NULL message does not mean that any previous
-+ * 		message is erased! For that, you need prepare_status with
-+ * 		clearbar on.
-+ * Returns:	Unsigned long: The next value where status needs to be updated.
-+ * 		This is to reduce unnecessary calls to text_update_progress.
-+ */
-+unsigned long text_update_progress(unsigned long value, unsigned long maximum,
-+		const char *fmt, va_list args)
-+{
-+	unsigned long next_update = 0;
-+	int bitshift = generic_fls(maximum) - 16;
-+	unsigned char posn[2];
-+	int message_len = 0;
-+
-+	if (!barwidth)
-+		barwidth = (video_num_columns - 2 * (video_num_columns / 4) - 2);
-+
-+	if (!maximum)
-+		return maximum;
-+
-+	if (value < 0)
-+		value = 0;
-+
-+	if (value > maximum)
-+		value = maximum;
-+
-+	/* Try to avoid math problems - we can't do 64 bit math here
-+	 * (and shouldn't need it - anyone got screen resolution
-+	 * of 65536 pixels or more?) */
-+	if (bitshift > 0) {
-+		unsigned long temp_maximum = maximum >> bitshift;
-+		unsigned long temp_value = value >> bitshift;
-+		newbarposn = (int) (temp_value * barwidth / temp_maximum);
-+	} else
-+		newbarposn = (int) (value * barwidth / maximum);
-+	
-+	if (newbarposn < barposn)
-+		barposn = 0;
-+
-+	next_update = ((newbarposn + 1) * maximum / barwidth) + 1;
-+
-+	if ((console_loglevel >= SUSPEND_ERROR) || (!draw_progress_bar))
-+		return next_update;
-+
-+	/* Update bar */
-+	if (draw_progress_bar) {
-+		posn[1] = (unsigned char) ((video_num_lines / 3) + 1);
-+
-+		/* Clear bar if at start */
-+		if (!barposn) {
-+			posn[0] = (unsigned char) (video_num_columns / 4 + 1);
-+			move_cursor_to(posn);
-+			for (; barposn < barwidth; barposn++)
-+				cond_console_print(" ");
-+			barposn = 0;
-+		}
-+		posn[0] = (unsigned char) (video_num_columns / 4 + 1 + barposn);
-+		move_cursor_to(posn);
-+
-+		for (; barposn < newbarposn; barposn++)
-+			cond_console_print("-");
-+	}
-+
-+	/* Print string in progress bar on loglevel 1 */
-+	if ((fmt) && (console_loglevel)) {
-+		message_len = vsnprintf(print_buf, sizeof(print_buf), " ", NULL);
-+		message_len += vsnprintf(print_buf + message_len,
-+				sizeof(print_buf) - message_len, fmt, args);
-+		message_len += vsnprintf(print_buf + message_len,
-+				sizeof(print_buf) - message_len, " ", NULL);
-+
-+		if (message_len) {
-+			posn[0] = (unsigned char)
-+				((video_num_columns - message_len) / 2);
-+			posn[1] = (unsigned char)
-+				((video_num_lines / 3) + 1);
-+			move_cursor_to(posn);
-+			cond_console_print(print_buf);
-+		}
-+	}
-+
-+	barposn = newbarposn;
-+	hide_cursor();
-+	
-+	return next_update;
-+}
-+
-+extern asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd, 
-+		unsigned long arg);
-+
-+static void text_message(unsigned long section, unsigned long level,
-+		int normally_logged,
-+		const char *fmt, va_list args)
-+{
-+	int printed_len = 0;
-+
-+	if ((section) && (!TEST_DEBUG_STATE(section)))
-+		return;
-+
-+	if (level == SUSPEND_STATUS) {
-+		text_prepare_status(1, 0, fmt, args);
-+		return;
-+	}
-+	
-+	if (level > console_loglevel)
-+		return;
-+
-+	printed_len = vsnprintf(print_buf + printed_len,
-+			sizeof(print_buf) - printed_len, fmt, args);
-+
-+
-+	if ((TEST_ACTION_STATE(SUSPEND_LOGALL)) ||
-+	    (normally_logged)) {
-+		/* If we didn't print anything, don't do the \n anyway! */
-+		if (!printed_len)
-+			return;
-+		printk(print_buf);
-+	} else
-+		cond_console_print(print_buf);
-+}
-+/*
-+ *
-+ */
-+
-+static void suspend_get_dev_console(void)
-+{
-+	if (suspend_console_fd > -1)
-+		return;
-+
-+	suspend_console_fd = sys_open("/dev/console", O_RDWR | O_NONBLOCK, 0);
-+	if (suspend_console_fd < 0) {
-+		sys_mkdir("/dev", 0700);
-+#ifdef CONFIG_DEVFS_FS
-+		sys_mount("devfs", "/dev", "devfs", 0, NULL);
-+		mounted_devfs = 1;
-+#endif
-+		suspend_console_fd = sys_open("/dev/console", O_RDWR | O_NONBLOCK, 0);
-+	}
-+	if (suspend_console_fd < 0) {
-+		printk("Can't open /dev/console. Error value was %d.\n",
-+				suspend_console_fd);
-+		suspend_console_fd = -1;
-+		return;
-+	}
-+
-+	sys_ioctl(suspend_console_fd, TCGETS, (long)&termios);
-+	termios.c_lflag &= ~ICANON;
-+	sys_ioctl(suspend_console_fd, TCSETSF, (long)&termios);
-+}
-+
-+/* prepare_console
-+ *
-+ */
-+static void text_prepare_console(void)
-+{
-+	suspend_get_dev_console();
-+
-+	if (console_loglevel < 2)
-+		clear_display();
-+
-+	lastloglevel = console_loglevel;
-+}
-+
-+/* cleanup_console
-+ *
-+ * Description: Close our handle on /dev/console. Must be done
-+ * earlier than pm_restore_console to avoid problems with other
-+ * processes trying to grab it when thawed.
-+ */
-+
-+static void cleanup_console(void)
-+{
-+	if (console_loglevel < 2)
-+		clear_display();
-+	restore_cursor();
-+	termios.c_lflag |= ICANON;
-+	sys_ioctl(suspend_console_fd, TCSETSF, (long)&termios);
-+	sys_close(suspend_console_fd);
-+	suspend_console_fd = -1;
-+
-+#ifdef CONFIG_DEVFS_FS
-+	if (mounted_devfs)
-+		sys_umount("/dev", 0);
-+#endif
-+	
-+	lastloglevel = -1;
-+	return;
-+}
-+
-+static void text_redraw(void)
-+{
-+	sys_ioctl(suspend_console_fd, TIOCL_BLANKSCREEN, (long)&termios);
-+	sys_ioctl(suspend_console_fd, TIOCL_UNBLANKSCREEN, (long)&termios);
-+}
-+
-+static int text_keypress(unsigned int key)
-+{
-+	switch (key) {
-+		case 48:
-+			console_loglevel = 0;
-+			break;
-+		case 49:
-+			console_loglevel = 1;
-+			break;
-+#ifdef CONFIG_SOFTWARE_SUSPEND_DEBUG
-+		case 122:
-+			/* `: Toggle slow */
-+			suspend_action ^= (1 << SUSPEND_SLOW);
-+			suspend2_core_ops->schedule_message(7);
-+			break;
-+		case 1:
-+			/* F1: Toggle any section debugging. */
-+			suspend_debug_state ^= (1 << SUSPEND_ANY_SECTION);
-+			suspend2_core_ops->schedule_message(20);
-+			break;
-+		case 2:
-+			/* F2: Freeze. */
-+			suspend_debug_state ^= (1 << SUSPEND_FREEZER);
-+			suspend2_core_ops->schedule_message(21);
-+			break;
-+		case 3:
-+			/* F3: Eat Memory */
-+			suspend_debug_state ^= (1 << SUSPEND_EAT_MEMORY);
-+			suspend2_core_ops->schedule_message(22);
-+			break;
-+		case 4:
-+			/* F4: Pagesets. */
-+			suspend_debug_state ^= (1 << SUSPEND_PAGESETS);
-+			suspend2_core_ops->schedule_message(23);
-+			break;
-+		case 5:
-+			/* F5: IO. */
-+			suspend_debug_state ^= (1 << SUSPEND_IO);
-+			suspend2_core_ops->schedule_message(24);
-+			break;
-+		case 6:
-+			/* F6: Bmapping of pages */
-+			suspend_debug_state ^= (1 << SUSPEND_BMAP);
-+			suspend2_core_ops->schedule_message(25);
-+			break;
-+		case 7:
-+			/* F7: Writer */
-+			suspend_debug_state ^= (1 << SUSPEND_WRITER);
-+			suspend2_core_ops->schedule_message(26);
-+			break;
-+		case 8:
-+			/* F8: Memory */
-+			suspend_debug_state ^= (1 << SUSPEND_MEMORY);
-+			suspend2_core_ops->schedule_message(27);
-+			break;
-+		case 9:
-+			/* F9: Ranges */
-+			suspend_debug_state ^= (1 << SUSPEND_RANGES);
-+			suspend2_core_ops->schedule_message(28);
-+			break;
-+		case 10:
-+			/* F10: Memory Pool */
-+			suspend_debug_state ^= (1 << SUSPEND_MEM_POOL);
-+			suspend2_core_ops->schedule_message(29);
-+			break;
-+		case 11:
-+			/* F11: Nosave */
-+			suspend_debug_state ^= (1 << SUSPEND_NOSAVE);
-+			suspend2_core_ops->schedule_message(30);
-+			break;
-+		case 12:
-+			/* F12: Integrity */
-+			suspend_debug_state ^= (1 << SUSPEND_INTEGRITY);
-+			suspend2_core_ops->schedule_message(31);
-+			break;
-+		case 112:
-+			/* During suspend, toggle pausing with P */
-+			suspend_action ^= (1 << SUSPEND_PAUSE);
-+			suspend2_core_ops->schedule_message(1);
-+			break;
-+		case 115:
-+			/* Otherwise, if S pressed, toggle single step */
-+			suspend_action ^= (1 << SUSPEND_SINGLESTEP);
-+			suspend2_core_ops->schedule_message(3);
-+			break;
-+		case 108:
-+			/* Otherwise, if L pressed, toggle logging everything */
-+			suspend_action ^= (1 << SUSPEND_LOGALL);
-+			suspend2_core_ops->schedule_message(4);
-+			break;
-+		case 116:
-+			/* T: Toggle freezing timers */
-+			clear_suspend_state(SUSPEND_TIMER_FREEZER_ON);
-+			suspend2_core_ops->schedule_message(99);
-+			break;
-+		case 50:
-+		case 51:
-+		case 52:
-+		case 53:
-+		case 54:
-+		case 55:
-+		case 56:
-+		case 57:
-+			console_loglevel = ((key - 48));
-+			break;
-+#endif
-+		default:
-+			return 0;
-+	}
-+	return 1;
-+}
-+
-+/*
-+ * User interface specific /proc/suspend entries.
-+ */
-+
-+static struct suspend_plugin_ops text_mode_ops;
-+
-+static struct suspend_proc_data proc_params[] = {
-+	{ .filename			= "text_mode_progress_bar",
-+	  .permissions			= PROC_RW,
-+	  .type				= SUSPEND_PROC_DATA_INTEGER,
-+	  .data = {
-+		  .integer = {
-+			  .variable	= &draw_progress_bar,
-+			  .minimum	= 0,
-+			  .maximum	= 1,
-+
-+		  }
-+	  }
-+	},
-+	
-+	{ .filename			= "disable_textmode_support",
-+	  .permissions			= PROC_RW,
-+	  .type				= SUSPEND_PROC_DATA_INTEGER,
-+	  .data = {
-+		.integer = {
-+			.variable	= &text_mode_ops.disabled,
-+			.minimum	= 0,
-+			.maximum	= 1,
-+		}
-+	  }
-+	}
-+};
-+
-+static struct suspend_plugin_ops text_mode_ops = {
-+	.type					= UI_PLUGIN,
-+	.name					= "Text Mode Support",
-+	.ops = {
-+		.ui = {
-+			.prepare		= text_prepare_console,	
-+			.log_level_change	= text_loglevel_change,
-+			.message		= text_message,
-+			.update_progress	= text_update_progress,
-+			.cleanup		= cleanup_console,
-+			.keypress		= text_keypress,
-+			.post_kernel_restore_redraw =
-+				text_redraw,
-+		}
-+	}
-+};
-+
-+/* ---- Registration ---- */
-+
-+static __init int text_mode_load(void)
-+{
-+	int i, numfiles = sizeof(proc_params) / sizeof(struct suspend_proc_data);
-+	int result;
-+
-+	if (!(result = suspend_register_plugin(&text_mode_ops))) {
-+		printk("Software Suspend text mode support loaded.\n");
-+		for (i=0; i< numfiles; i++)
-+			suspend_register_procfile(&proc_params[i]);
-+	}
-+	return result;
-+}
-+
-+#ifdef MODULE
-+static __exit void text_mode_unload(void)
-+{
-+	int i, numfiles = sizeof(proc_params) / sizeof(struct suspend_proc_data);
-+
-+	printk("Software Suspend text mode support unloading.\n");
-+
-+	for (i=0; i< numfiles; i++)
-+		suspend_unregister_procfile(&proc_params[i]);
-+	
-+	suspend_unregister_plugin(&text_mode_ops);
-+}
-+
-+module_init(text_mode_load);
-+module_exit(text_mode_unload);
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Nigel Cunningham");
-+MODULE_DESCRIPTION("Suspend2 Text Mode support");
-+#else
-+late_initcall(text_mode_load);
-+#endif
+> oom-killer: gfp_mask=0x1d2
+> Free pages:        3932kB (112kB HighMem)
+>  [<c0103dfd>] dump_stack+0x1e/0x22
+>  [<c013ec1c>] out_of_memory+0x97/0xcf
+>  [<c0146dc8>] try_to_free_pages+0x163/0x184
+>  [<c013fde2>] __alloc_pages+0x27e/0x400
+>  [<c0142368>] do_page_cache_readahead+0x15b/0x1b9
+>  [<c013c5aa>] filemap_nopage+0x2d4/0x375
+>  [<c014aa82>] do_no_page+0xc4/0x38c
+>  [<c014af30>] handle_mm_fault+0xde/0x189
+>  [<c01166d5>] do_page_fault+0x456/0x6ad
+>  [<c0103a43>] error_code+0x2b/0x30
+> Out of Memory: Killed process 6672 (RNAsubopt).
+> RNAsubopt: page allocation failure. order:0, mode:0x1d2
+>  [<c0103dfd>] dump_stack+0x1e/0x22
+>  [<c013fd90>] __alloc_pages+0x22c/0x400
+>  [<c0142368>] do_page_cache_readahead+0x15b/0x1b9
+>  [<c013c5aa>] filemap_nopage+0x2d4/0x375
+>  [<c014aa82>] do_no_page+0xc4/0x38c
+>  [<c014af30>] handle_mm_fault+0xde/0x189
+>  [<c01166d5>] do_page_fault+0x456/0x6ad
+>  [<c0103a43>] error_code+0x2b/0x30
+
+Yep, that's expected. The first stacktrace is from my patch. I added
+this to see from where the allocation is called. The second trace is
+from the page fault handler, as the allocation request now returns
+failed to prevent the second call into oom.
+
+tglx
+
+
+
 
 

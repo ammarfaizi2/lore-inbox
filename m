@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273360AbRJIHD4>; Tue, 9 Oct 2001 03:03:56 -0400
+	id <S273358AbRJIHDv>; Tue, 9 Oct 2001 03:03:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273349AbRJIHDk>; Tue, 9 Oct 2001 03:03:40 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:18321 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S273358AbRJIHD3>;
-	Tue, 9 Oct 2001 03:03:29 -0400
-Date: Tue, 9 Oct 2001 03:03:49 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Nathan Scott <nathans@sgi.com>
-cc: Jan Kara <jack@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: Quotactl change
-In-Reply-To: <20011008203418.A505344@wobbly.melbourne.sgi.com>
-Message-ID: <Pine.GSO.4.21.0110090256140.13381-100000@weyl.math.psu.edu>
+	id <S273360AbRJIHDa>; Tue, 9 Oct 2001 03:03:30 -0400
+Received: from smtp03.uc3m.es ([163.117.136.123]:10001 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S273349AbRJIHDN>;
+	Tue, 9 Oct 2001 03:03:13 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200110090703.f9973Z601609@oboe.it.uc3m.es>
+Subject: share buffer between user and kernel?
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Tue, 9 Oct 2001 09:03:35 +0200 (MET DST)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What is the currently approved method of sharing a buffer between
+userspace and kernelspace, so that I can avoid one or two
+copy_to/from_user?
 
+It used to be that one reimplemented mmap to provide the kernel
+with some vmalloced memory which one went through reserving, then
+the mmap interface automagically provided the right address to
+userspace. I get the impression that there are nowadays much
+slicker and cleaner ways to do this ... but searching the code
+for examples of the absence of copy_to_user is, errm, difficult.
 
-On Mon, 8 Oct 2001, Nathan Scott wrote:
+The sound drivers seem to play around in this area, but they
+are mapping real physical memory, which I don't want. Is there
+an example which uses vmalloced memory?
 
-> hi all,
-> 
-> Al - is the attached patch more along the lines of what you
-> were after?
+Or should I just be making a buffer in userspace, then passing
+the address to the kernel, then locking it somehow, then collapsing
+it to a kernel address? It's going to be about 256K at most.
 
-Quota side looks sane.  fs/super.c one is an overkill - just set default in
-alloc_super().  There is no need to bother with resetting it - in the
-places where you do it superblock is already deactivated, so get_super()
-in quotactl will not return it and at that point there should be no inodes
-left from that filesystem.
+Suggestions very gratefully received!
 
+Peter

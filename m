@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271147AbRIHVRN>; Sat, 8 Sep 2001 17:17:13 -0400
+	id <S271678AbRIHWHP>; Sat, 8 Sep 2001 18:07:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271501AbRIHVRE>; Sat, 8 Sep 2001 17:17:04 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:38134 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S271147AbRIHVQv>; Sat, 8 Sep 2001 17:16:51 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Sat, 8 Sep 2001 15:15:39 -0600
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: linux-2.4.10-pre5
-Message-ID: <20010908151539.F32553@turbolinux.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alexander Viro <viro@math.psu.edu>
-In-Reply-To: <20010908191954.C11329@athlon.random> <Pine.LNX.4.33.0109081028390.936-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109081028390.936-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.20i
+	id <S271708AbRIHWHG>; Sat, 8 Sep 2001 18:07:06 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:62473 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S271678AbRIHWGy>; Sat, 8 Sep 2001 18:06:54 -0400
+Message-Id: <200109082207.f88M7AY01188@aslan.scsiguy.com>
+To: SPATZ1@t-online.de (Frank Schneider)
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors) 
+In-Reply-To: Your message of "Sat, 08 Sep 2001 22:25:31 +0200."
+             <3B9A7EBB.E73115AC@t-online.de> 
+Date: Sat, 08 Sep 2001 16:07:10 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 08, 2001  10:30 -0700, Linus Torvalds wrote:
-> I'll merge the blkdev in pagecache very early in 2.5.x, but I'm a bit
-> nervous about merging it in 2.4.x.
-> 
-> That said, if you'll give a description of how you fixed the aliasing
-> issues etc, maybe I'd be less nervous. Putting it in the page cache is
-> 100% the right thing to do, so in theory I'd really like to merge it
-> earlier rather than later, but...
+>I run a RAID5-Array on three SCSI-Disks, all IBM, all LVD on the
+>AIC7xxx-Controller on the Mobo (ASUS-P2B-DS)...and from time to time
+>(usually about once per week) always the same partition of the RAID5
+>gets a readerror and falls out of the array:
 
-I think this may have bad interactions with the filesystems, which still
-use buffer cache for metadata.  If the block devices move to page cache,
-so should the filesystems.
+This is a very different issue.  The drive has even told you what is
+wrong.
 
-For example, the "tune2fs" program will modify parts of the superblock
-from user space (fields that are read-only from the kernel, e.g. label,
-reserved blocks count, etc), because it knows that the data read/written
-on /dev/hda1 is coherent with that in the kernel for the filesystem
-on /dev/hda1.  The same is true with e2fsck - the metadata should be
-kept coherent from user-space and kernel-space or bad things happen.
+>-------------------------
+>Sep  8 20:49:31 falcon kernel: SCSI disk error : host 0 channel 0 id 0
+>lun 0 return code = 8000002
+>Sep  8 20:49:31 falcon kernel: [valid=0] Info fld=0x0, Current sd08:04:
+>sense key Hardware Error
+>Sep  8 20:49:31 falcon kernel: Additional sense indicates Internal
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>target failure
+ ^^^^^^^^^^^^^^
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Something bad happened inside the disk.  Perhaps IBM can tell you what,
+but it is not the aic7xxx driver, SCSI layer, or md's fault for this
+disk going offline.
 
+>Ok, i also thought: "Bad disk" and to verify this (i have still
+>guarantee on the drive) i formated it, let the AIC-BIOS do a "remap of
+>bad blocks" and ran "badblocks" about 5 times on it with the
+
+Target failures are not "media errors".  If the drive was experiencing
+a media problem, it would have said so.
+
+--
+Justin

@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313808AbSDPS0S>; Tue, 16 Apr 2002 14:26:18 -0400
+	id <S313812AbSDPS0Q>; Tue, 16 Apr 2002 14:26:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313810AbSDPS0R>; Tue, 16 Apr 2002 14:26:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57360 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313808AbSDPS0P>;
-	Tue, 16 Apr 2002 14:26:15 -0400
-Message-ID: <3CBC6CB7.C716911B@zip.com.au>
-Date: Tue, 16 Apr 2002 11:25:59 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org
-Subject: Re: readahead
-In-Reply-To: <UTC200204161354.g3GDsFO28323.aeb@smtp.cwi.nl>
+	id <S313810AbSDPS0P>; Tue, 16 Apr 2002 14:26:15 -0400
+Received: from ns.suse.de ([213.95.15.193]:5902 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313808AbSDPS0O>;
+	Tue, 16 Apr 2002 14:26:14 -0400
+Date: Tue, 16 Apr 2002 20:26:13 +0200
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, haveblue@us.ibm.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix ips driver compile problems
+Message-ID: <20020416202613.B32185@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	"David S. Miller" <davem@redhat.com>, haveblue@us.ibm.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0204161059070.1340-100000@penguin.transmeta.com> <E16xXia-0000Zb-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> 
-> [readahead.c has badly readable comments, on a standard
-> 80-column display: many lines have a size just slightly
-> over 80 chars]
+On Tue, Apr 16, 2002 at 07:30:15PM +0100, Alan Cox wrote:
+ > > Quite frankly, since after several months of being broken, nobody has
+ > > stepped up to actually fix it, I am most definitely going to accept the
+ > > band-aid solutions to SCSI drivers that will thus only work on x86.
+ > 
+ > In which case can you do it so that virt_to_bus() being exposed requires
+ > the user selects
+ > 
+ > CONFIG_UNPORTED_CRAP_WORKAROUNDS 
+ > 
+ > or similar - so that we can find them, and that can't be selected on non
+ > x86 ?
 
-Sigh.  At least it has comments.  Agree with the 80-column
-thing, but I find for the kernel coding style, 80 is just
-5-10 columns too short, often.
+Funny enough, thats exactly what CONFIG_DEBUG_OBSOLETE[1] did in my tree
+since virt_to_bus broke.
 
-> In the good old days we had tunable readahead.
-> Very good, especially for special purposes.
+    Dave.
 
-readahead is tunable, but the window size is stored
-at the request queue layer.  If it has never been
-set, or if the device doesn't have a request queue,
-you get the defaults.
+[1] Ok, the name sucks, but the intention is the same.
 
-Do these cards not have a request queue?  Suggestions
-are sought.
- 
-> I recall the days where I tried to get something off
-> a bad SCSI disk, and the kernel would die in the retries
-> trying to read a bad block, while the data I needed was
-> not in the block but just before. Set readahead to zero
-> and all was fine.
-
-Yes, but things should be OK as-is.  If the readahead attempt
-gets an I/O error, do_generic_file_read will notice the non-uptodate
-page and will issue a single-page read.  So everything up to
-a page's distance from the bad block should be recoverable.
-That's the theory; can't say that I've tested it.
-
-If the driver is actually dying over the bad block, well, foo.
-
-> Yesterday evening I was playing with my sddr09 driver,
-> reading SmartMedia cards, and found to my dismay that
-> the kernel wants to do a 128 block readahead.
-> Not only is that bad on a slow medium, one is waiting
-> a noticeable time for unwanted data, but it is worse
-> that setting the readahead no longer works.
-> 
-> [Indeed, it is very desirable to be able to set readahead
-> to zero. It is also desirable to be able to set it to a
-> small value. Today on 2.5.8 both are impossible, readahead.c
-> insists on a minimum readahead of 16 sectors.]
-
-Yup.  Permitting a window size of zero is on my todo list,
-but it would require that the device have a request queue.
-Maybe the readahead size should be placed in struct blk_dev_struct,
-and not in the request queue?
-
--
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135628AbRDXODx>; Tue, 24 Apr 2001 10:03:53 -0400
+	id <S135626AbRDXOC3>; Tue, 24 Apr 2001 10:02:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135635AbRDXODk>; Tue, 24 Apr 2001 10:03:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11276 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135632AbRDXOCv>; Tue, 24 Apr 2001 10:02:51 -0400
-Subject: Re: [PATCH] Single user linux
-To: imel96@trustix.co.id
-Date: Tue, 24 Apr 2001 15:03:08 +0100 (BST)
-Cc: viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0104241917540.16169-100000@tessy.trustix.co.id> from "imel96@trustix.co.id" at Apr 24, 2001 07:44:17 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135628AbRDXOCS>; Tue, 24 Apr 2001 10:02:18 -0400
+Received: from corp2.cbn.net.id ([202.158.3.25]:26896 "HELO corp2.cbn.net.id")
+	by vger.kernel.org with SMTP id <S135626AbRDXOCI>;
+	Tue, 24 Apr 2001 10:02:08 -0400
+Date: Tue, 24 Apr 2001 21:04:02 +0700 (JAVT)
+From: <imel96@trustix.co.id>
+To: Daniel Stone <daniel@kabuki.openfridge.net>
+cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: problem found (was Re: [PATCH] Single user linux)
+In-Reply-To: <20010424233801.A6067@piro.kabuki.openfridge.net>
+Message-ID: <Pine.LNX.4.33.0104242046250.16242-100000@tessy.trustix.co.id>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14s3PL-00027B-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> so what the hell is transmeta doing with mobile linux (midori).
-> is it going to teach multi-user thing to tablet owners?
 
-Thats you problem. Distinguish the OS from the user interface.
 
-> surely mortals expect midori to behave like their pc. lets say
-> on redhat, they have to login as root to access their files,
-> they don't even know what a root is!
+On Tue, 24 Apr 2001, Daniel Stone wrote:
+> Aah. I see. Where was this? I never saw it.
 
-Even my digital tv box has multiple users. The fact you cannot figure out how
-to make your UI present that to the end user in a suitable manner is not
-the kernels problem. Get a real UI designer
+psst, it's a proto.
+
+> That may be so, so hack up your own OS. It's a MOBILE PHONE, it needs to be
+> absolutely *rock solid*. Look at the 5110, that's just about perfect. The
+> 7110, on the other hand ...
+
+mobile phone to you! already, people has put linux on pdas.
+
+> There are Linux advocates, but I'd say most of us are sane enough to use the
+> right-tool-for-the-job approach. And UNIX on a phone is pure overkill.
+
+problem is you guys are to unix-centric, try to be user-centric a little.
+it's not like it ruins everything. that patch basically do something
+like allowing access to port <1024 to everybody, someone just need
+to bring a notebook to get passwd from nis.
+multi-user security is useless at home as physical access is there.
+
+
+		imel
+
+
 

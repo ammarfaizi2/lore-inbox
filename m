@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbUCOK1R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 05:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbUCOK1R
+	id S262539AbUCOKdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 05:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbUCOKdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 05:27:17 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:47810 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S262528AbUCOK1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 05:27:16 -0500
-Date: Mon, 15 Mar 2004 11:27:04 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Sytse Wielinga <s.b.wielinga@student.utwente.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for testing] cow behaviour for hard links
-Message-ID: <20040315102704.GA16615@wohnheim.fh-wedel.de>
-References: <20040310193429.GB4589@wohnheim.fh-wedel.de> <200403121849.03505.s.b.wielinga@student.utwente.nl> <20040312182912.GB7087@wohnheim.fh-wedel.de> <20040313134330.GC3352@openzaurus.ucw.cz> <20040313194827.GA4748@wohnheim.fh-wedel.de> <20040313210305.GB549@elf.ucw.cz> <20040315074558.GA7188@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040315074558.GA7188@mail.shareable.org>
-User-Agent: Mutt/1.3.28i
+	Mon, 15 Mar 2004 05:33:09 -0500
+Received: from moutng.kundenserver.de ([212.227.126.176]:30933 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262539AbUCOKdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 05:33:05 -0500
+Date: Mon, 15 Mar 2004 11:33:00 +0100 (MET)
+From: Armin Schindler <armin@melware.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] sys_select() return error on bad file
+In-Reply-To: <4054A213.6010402@colorfullife.com>
+Message-ID: <Pine.LNX.4.31.0403151111020.21744-100000@phoenix.one.melware.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 March 2004 07:45:58 +0000, Jamie Lokier wrote:
-> Pavel Machek wrote:
-> > > Or did you mean the problem of tar backups growing *much* larger than
-> > > the real filesystem?  Yes, tar becomes useless for backups then. :)
-> > 
-> > Yep, this is what I meant.
-> 
-> A different but related problem: rsync cannot backup my kernel
-> development directory from one hard disk to another, because it
-> contains lots of kernel trees mostly hard linked to each other.  rsync
-> falls over, trying to keep track of the roughly half a million links.
-> 
-> You might see similar problems trying to backup a strongly "copyfile"'d
-> filesystems.
+On Sun, 14 Mar 2004, Manfred Spraul wrote:
+> Marcelo wrote:
+>
+> >>
+> >> Anyway, I don't see how your proposal would do better performance?
+> >> My patch just adds a new variable on the stack, which should not make any
+> >> difference in performance. And later, it is the same if the new or another
+> >> variable gets changed or checked.
+> >
+> >Curiosity: Does SuS/POSIX define behaviour for "all fds are closed" ?
+> >
+> >
+> I'd interpret SuS that a closed fd is ready for reading and writing:
+>  From the select page:
+> <<<
+> A descriptor shall be considered ready for reading when a call to an
+> input function with O_NONBLOCK clear would not block, whether or not the
+> function would transfer data successfully. (The function might return
+> data, an end-of-file indication, or an error other than one indicating
+> that it is blocked, and in each of these cases the descriptor shall be
+> considered ready for reading.)
+> <<<
+> read(fd,,) will return immediately with EBADF, thus the fd is ready.
+>
+> But that's a grey area, especially if you close the fd during the select
+> call. For example HP UX just kills the current process if an fd that is
+> polled is closed by overwriting it with dup2. I didn't test select, but
+> I'd expect a similar behavior.
+>
+> Armin: did you compare the Linux behavior with other unices? Are there
+> other unices that return EBADF for select() if all fds are closed?
 
-And both are easily fixable, if you don't mind using 16 bytes of RAM
-per inode.  At least for rsync this should be a piece of cake compared
-to the amount of memory already used. :)
+No, I didn't compare yet, but I could not find any definition on that. It
+really seems to be a "grey area".
 
-Jörn
+> Attached is an untested proposal, against 2.6, but I'm not sure if it's
+> really a good idea to change the current code - it might break existing
+> apps.
 
--- 
-When in doubt, use brute force.
--- Ken Thompson
+This patch should also work on 2.4 and looks good to me, if "ready" should
+be returned instead of EBADF. I don't think this would break existing
+apps. Without such a patch, the app would sleep forever unless a signal
+arrives. If any app depends on that behavior, I think it is bad coded.
+
+Armin
+

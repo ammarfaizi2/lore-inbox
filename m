@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262596AbTI1QkX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 12:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTI1QkX
+	id S262613AbTI1QnM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 12:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbTI1QnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 12:40:23 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:10548 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S262596AbTI1QkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 12:40:22 -0400
-Date: Sun, 28 Sep 2003 17:40:02 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [bk patches] 2.6.x misc updates
-Message-ID: <20030928164002.GA4931@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20030928144428.GA16477@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030928144428.GA16477@gtf.org>
-User-Agent: Mutt/1.5.4i
+	Sun, 28 Sep 2003 12:43:12 -0400
+Received: from postoffice9.mail.cornell.edu ([132.236.56.39]:11154 "EHLO
+	postoffice9.mail.cornell.edu") by vger.kernel.org with ESMTP
+	id S262613AbTI1QnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 12:43:08 -0400
+Message-ID: <3F770F88.7050904@cornell.edu>
+Date: Sun, 28 Sep 2003 12:42:48 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030829 Thunderbird/0.2a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: alsa-devel@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test6
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 28, 2003 at 10:44:28AM -0400, Jeff Garzik wrote:
- > 
- > Linus, please do a
- > 
- > 	bk pull bk://kernel.bkbits.net/jgarzik/misc-2.5
- > 
- > This will update the following files:
- > 
- >    * char/agp/amd64-agp: properly suffix 64-bit constants
+This release broke ALSA for me. OSS emulation continued to work for 
+xmms, but not for wine. The via_82xx driver told me to try 
+dxs_support=1, so I did and it works again.
 
-Please don't touch this. It needs fixing in a different way
-for 32bit.
+This is an ALC650-based:
 
-I'll dig out the specs and fix it up properly later.
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. 
+VT8233/A/8235 AC97 Audio Controller (rev 50)
 
-		Dave
+(I'm sorry if this is a second post to LKML - mailer problems)
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+> Jaroslav Kysela:
+>   o ALSA CVS updates
+>     - clean up the usage of the size variable and removes size1.
+>     - define AD198x bits.
+>     - add descriptions for whole-frag and no-silence commands.
+>     - use dxs_support=3 (48k fixed) as default, since there are so many problems
+>       with dxs_support=0.
+>     - add the support for stereo mute switches on AD198x.
+>     - initialize tumbler/snapper audio via gpio before i2c initialization.
+>     - add check of DXS supports (so far, empty).
+>     - add detection of revision of ALC650 chip
+>     - get_page() fix
+>     - fix the SPDIF bit on aureon boards.
+>     - set 48k only for the sample rate of SPDIF on nForce.
+>     - kill of not-required version.h inclusion
+>     - Remove duplicated include
+>     - fix buffer overlap on FX8010 PCM.
+>     - Fix hwdep hotplug problem
+>     - Use try_module_get() and module_put() to block the toplevel module
+>     - Fix returned error code in the release() callback
+>     etc
+> 
+

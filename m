@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264461AbRFXTvb>; Sun, 24 Jun 2001 15:51:31 -0400
+	id <S264475AbRFXUJ5>; Sun, 24 Jun 2001 16:09:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264468AbRFXTvV>; Sun, 24 Jun 2001 15:51:21 -0400
-Received: from gecius-0.dsl.speakeasy.net ([216.254.67.146]:20977 "EHLO
-	maniac.gecius.de") by vger.kernel.org with ESMTP id <S264464AbRFXTvJ>;
-	Sun, 24 Jun 2001 15:51:09 -0400
-To: linux-kernel@vger.kernel.org
-Subject: serial ports in 2.4.x
-From: Jens Gecius <jens@gecius.de>
-Date: 24 Jun 2001 15:51:08 -0400
-Message-ID: <87lmmhodw3.fsf@maniac.gecius.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Academic Rigor)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264477AbRFXUJi>; Sun, 24 Jun 2001 16:09:38 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:60921 "EHLO
+	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id <S264475AbRFXUJc>; Sun, 24 Jun 2001 16:09:32 -0400
+Mime-Version: 1.0
+Message-Id: <a05101000b75bf87731b8@[192.168.239.105]>
+In-Reply-To: <Pine.LNX.4.33.0106242133550.19801-100000@druid.if.uj.edu.pl>
+In-Reply-To: <Pine.LNX.4.33.0106242133550.19801-100000@druid.if.uj.edu.pl>
+Date: Sun, 24 Jun 2001 21:07:55 +0100
+To: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>,
+        <linux-kernel@vger.kernel.org>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: Thrashing WITHOUT swap.
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+>Now my question is how can it be
+>thrashing with swap explicitly turned off?
 
-I don't _exactly_ know if this might be an issue for the
-kernel. However, I noticed that I used to be able to download pictures
-of my digicam (nikon 600) via /dev/ttySx to the box using gphoto 0.4.3
-all the time.
+Easy.  All applications are themselves swap space - the binary is 
+merely memory-mapped onto the executable file.  When the system gets 
+low on memory, the only thing it can do is purge some binary pages, 
+and then repeatedly page them back in from the original executable 
+file.
 
-At some point, unfortunately I don't recall if it happened while
-switching from 2.2.17 to 2.4 at all or within the 2.4.x series, I was
-unable to get any connection to my cam (both up and smp, even same
-problem on two different systems, one gigabyte vxd7, the other
-gigabyte bx). It used to work just fine, so anything changed for
-support of serial ports (serial.c claims no)? Maybe anything related
-with devfsd, which I switched at the same time as 2.2 to 2.4? Any
-other interaction which might have caused this? 
-
-Another symptom is that after I tried to use the port with the digicam
-(which failed), the port is unusable. The otherwise working connection
-to the palm doesn't work anymore, a reboot is required to get it back
-to work.
-
-Speed setting of the port is not the issue right here:
-1. it used to work without special settings
-2. I tried different speed settings (very slow to 115k)
-
-And, of course, it doesn't work with the original software from nikon
-via wine. The orig soft does work under win <argh>.
-
-Nonetheless, the UPS connected to one port via wired wiring (no real
-serial protocol used, just certain lines high/low) does work even
-after the port was used with the digicam and rendered useless for the
-palm.
-
-If any other info is needed, let me know. Unfortunately, I'm currently
-unable to boot into 2.2.17 because I'm using devfsd and was not able
-to apply that patch correctly on a plain vanilla kernel, but that I'm
-not worried about 'cause 2.4.4 runs pretty decent otherwise on both
-boxes. 
-
+If you added a little bit of swap, it would be able to page out some 
+idle data rather than binaries, and would probably avoid thrashing.
 -- 
-Tschoe,                    Get my gpg-public-key here
- Jens                     http://gecius.de/gpg-key.txt
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+website:  http://www.chromatix.uklinux.net/vnc/
+geekcode: GCS$/E dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$
+           V? PS PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+tagline:  The key to knowledge is not to rely on people to teach you it.

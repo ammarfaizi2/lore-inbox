@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313125AbSGIJ6m>; Tue, 9 Jul 2002 05:58:42 -0400
+	id <S312254AbSGIJ5Q>; Tue, 9 Jul 2002 05:57:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313181AbSGIJ6l>; Tue, 9 Jul 2002 05:58:41 -0400
-Received: from realimage.realnet.co.sz ([196.28.7.3]:43497 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S313125AbSGIJ6k>; Tue, 9 Jul 2002 05:58:40 -0400
-Date: Tue, 9 Jul 2002 12:19:08 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: rwhron@earthlink.net, <linux-kernel@vger.kernel.org>
-Subject: Re: pipe and af/unix latency differences between aa and jam on smp
-In-Reply-To: <20020709011536.GC1835@werewolf.able.es>
-Message-ID: <Pine.LNX.4.44.0207091218490.4869-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312560AbSGIJ5P>; Tue, 9 Jul 2002 05:57:15 -0400
+Received: from laibach.mweb.co.za ([196.2.53.177]:49049 "EHLO
+	laibach.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S312254AbSGIJ5O>; Tue, 9 Jul 2002 05:57:14 -0400
+To: Michael Gruner <stockraser@yahoo.de>, linux-kernel@vger.kernel.org
+From: bonganilinux@mweb.co.za
+Subject: Re: freezing afer switching from graphical to console
+Date: Tue, 9 Jul 2002 09:59:33 GMT
+X-Mailer: Endymion MailMan Standard Edition v3.0.33
+Message-Id: <E17Rrf9-0003wV-00@laibach.mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jul 2002, J.A. Magallon wrote:
+> Hi,
+> 
+> since 2.4.17 I have got a problem: trying to switch from graphical
+> screen to console or to stop my X-session my box freezes. The screen
+> gets black and nothing more happens. Pressing any keys or trying to
 
-> Opps, I remembered your tests are done on a Quad Xeon ?
+This only happens to me if I load the NVidia drivers if you are using
+them that could be you
+problem.
 
-Out of interest, is that a P4/Xeon?
+---------------------------------------------
+This message was sent using M-Web Airmail.
+JUST LIKE THAT
+Are you ready for 10-digit dialling on the 8th of May?
+To find out how this will affect your Internet connection go to www.mweb.co.za/ten
+http://airmail.mweb.co.za/
 
-Cheers,
-	Zwane Mwaikambo
--- 
-function.linuxpower.ca
 

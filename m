@@ -1,31 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283006AbRL2OpF>; Sat, 29 Dec 2001 09:45:05 -0500
+	id <S282934AbRL2PBl>; Sat, 29 Dec 2001 10:01:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282823AbRL2Ooz>; Sat, 29 Dec 2001 09:44:55 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60176 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283244AbRL2Oou>; Sat, 29 Dec 2001 09:44:50 -0500
-Subject: Re: Sound stops while playing DVD with via82cxxx_audio driver
-To: andre.dahlqvist@telia.com (=?iso-8859-1?Q?Andr=E9?= Dahlqvist)
-Date: Sat, 29 Dec 2001 14:55:26 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011229133642.GA679@telia.com> from "=?iso-8859-1?Q?Andr=E9?= Dahlqvist" at Dec 29, 2001 02:36:42 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S283234AbRL2PBb>; Sat, 29 Dec 2001 10:01:31 -0500
+Received: from fwext.dif.dk ([130.227.136.2]:65276 "EHLO DIFPST1A.dif.dk")
+	by vger.kernel.org with ESMTP id <S282934AbRL2PBU>;
+	Sat, 29 Dec 2001 10:01:20 -0500
+Subject: Re: [PATCH] console_loglevel broken on ia64 (and possibly other
+	archs)
+From: Jesper Juhl <jju@dif.dk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+In-Reply-To: <20011224233515.B3932@elf.ucw.cz>
+In-Reply-To: <3C23BD30.F8C3B2E1@dif.dk>  <20011224233515.B3932@elf.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16KKtS-0004ZW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 29 Dec 2001 16:02:27 +0100
+Message-Id: <1009638152.11066.0.camel@jju>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> features in the bios to disabled, but still the same thing happens. I'm
-> starting to think that someting has gone wrong with the DVD-drive,
-> especially since the same thing happens in that other OS.
+On Mon, 2001-12-24 at 23:35, Pavel Machek wrote:
+> > This patch fixes the console_loglevel variable(s) so that code that
+> > assumes the variables occupy continuous storage does not break (and
+> > overwrite other data).
+> 
+> It seems to me you are adding feature? And unneeded one, also.
+> 									Pavel
 
-It doesn't sound like the DVD drive. The fact that poking the ac97 side of
-things wakes it up is strange. When you are playing DVD movies the actual
-audio decode is coming off the processor.
+if you do 
 
-Alan
+echo 6 4 1 7 > /proc/sys/kernel/printk
+
+then you will overwrite console_loglevel and the next 3 ints. If the
+next 3 ints are default_message_loglevel, minimum_console_loglevel &
+default_console_loglevel then all is fine, but if these are not stored
+in consecutive memory then you will corrupt other data instead - which
+is a bug. By turning those into an array of ints then you guarantee that
+the variables will occupy consecutive storage and thus the bug is no
+more!
+That is the purpose of the patch.
+
+Keith Owens has confirmed this to be a problem on IA64 and that the
+patch fixes the problem. I'm not aware of other architectures having
+that problem, but with this patch it is impossible for them to have a
+problem, and it has no ill effects as far as I can tell.
+
+Thank you for your feedback!
+
+
+-- 
+Mvh. / Best regards
+Jesper Juhl - jju@dif.dk
+
+

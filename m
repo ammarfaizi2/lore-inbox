@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293088AbSBWEWC>; Fri, 22 Feb 2002 23:22:02 -0500
+	id <S292898AbSBVP1t>; Fri, 22 Feb 2002 10:27:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293090AbSBWEVu>; Fri, 22 Feb 2002 23:21:50 -0500
-Received: from dsl-213-023-039-244.arcor-ip.net ([213.23.39.244]:11914 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S293088AbSBWEVl>;
-	Fri, 22 Feb 2002 23:21:41 -0500
+	id <S292903AbSBVP1g>; Fri, 22 Feb 2002 10:27:36 -0500
+Received: from [212.3.242.3] ([212.3.242.3]:12293 "HELO mail.i4gate.net")
+	by vger.kernel.org with SMTP id <S292901AbSBVP1U>;
+	Fri, 22 Feb 2002 10:27:20 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [RFC] Page table sharing, leak gone
-Date: Fri, 22 Feb 2002 10:21:23 +0100
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 bitkeeper repository
+Date: Fri, 22 Feb 2002 16:26:38 +0100
 X-Mailer: KMail [version 1.3.2]
-Cc: Hugh Dickins <hugh@veritas.com>, <dmccr@us.ibm.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, Robert Love <rml@tech9.net>, <mingo@redhat.com>,
-        Andrew Morton <akpm@zip.com.au>, <manfred@colorfullife.com>,
-        <wli@holomorphy.com>
-In-Reply-To: <Pine.LNX.4.33.0202181758260.24597-100000@home.transmeta.com> <E16e8Gf-0005HN-00@starship.berlin> <E16e9Fw-0005I3-00@starship.berlin>
-In-Reply-To: <E16e9Fw-0005I3-00@starship.berlin>
+In-Reply-To: <20020222160657.A7914@caldera.de> <3C766020.FFC64A87@mandrakesoft.com>
+In-Reply-To: <3C766020.FFC64A87@mandrakesoft.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16eBtL-0005J9-00@starship.berlin>
+Message-Id: <20020222152723Z292901-890+3795@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found the leak.  As predicted, it was stupid, a get_page left over from a 
-previous incarnation.  Now it's behaving pretty nicely.  I haven't seen an
-oops for a while and leaks seem to be down to a dull roar if not entirely 
-gone.  I think swapoff isn't entirely comfortable with the new situation, and 
-tends to hang, I'll look into that in due course.
+On Friday 22 February 2002 16:13, Jeff Garzik wrote:
+> Christoph Hellwig wrote:
+> > Hi Larry & Peter,
+> >
+> > the Linux 2.4 repository at linux.bkbbits.net is orphaned short after
+> > it got created.  Ist there any chance we could see continguous checkins
+> > for it?
+> >
+> > I think it might be a good idea to get it automatically checked in once
+> > Marcelo uploads a new (pre-) patch as part of the kernel.org
+> > notification procedure (is this possible, Peter?).
+>
+> Stuff will start showing up on kernel.org presumeably when BitMover
+> works out how to do proper locking on a repository without giving
+> 'other' and 'group' write permission.
+>
+> I presume one can pretty easily set up a cron to do that... but I wonder
+> if it is ok with Marcelo?  If Marcelo has plans for that repository, we
+> ought not touch it probably.
+>
+> In general, though, agreed :)
+>
+> > If there is no way to automate it I would volunteer to do the checkins,
+> > but for that I'd need write permissions to the repository.
+>
+> As a temporary measure people can pull from
+> 	http://gkernel.bkbits.net/marcelo-2.4
 
-Since I don't actually have a user base for this, I just overwrote the 
-previously posted leaky version, it's still:
+Corrected URL: http://gkernel.bkbits.net:8080/marcelo-2.4
 
-  nl.linux.org/~phillips/ptab-2.4.17-3
+(you forgot the BK port, Jeff)
 
-This is getting to the point of needing heavier testing.
+>
+> which is always up-to-date with the latest Marcelo pre-patch, and
+> contains nothing else.
+>
+> 	Jeff
 
--- 
-Daniel
-
+DK
 

@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130462AbQLUBWR>; Wed, 20 Dec 2000 20:22:17 -0500
+	id <S129774AbQLUBph>; Wed, 20 Dec 2000 20:45:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130797AbQLUBWH>; Wed, 20 Dec 2000 20:22:07 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49163 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130462AbQLUBV5>; Wed, 20 Dec 2000 20:21:57 -0500
-Subject: Re: CPRM copy protection for ATA drives
-To: lk@mailandnews.com
-Date: Thu, 21 Dec 2000 00:54:07 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3lmtazngb.fsf@fork.man2.dom> from "lk@mailandnews.com" at Dec 20, 2000 11:23:48 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129884AbQLUBp2>; Wed, 20 Dec 2000 20:45:28 -0500
+Received: from mail2.edu.stockholm.se ([193.12.6.147]:60678 "EHLO
+	mail2.edu.stockholm.se") by vger.kernel.org with ESMTP
+	id <S129774AbQLUBpL>; Wed, 20 Dec 2000 20:45:11 -0500
+From: Thomas Habets <thomas@habets.pp.se>
+To: linux-kernel@vger.kernel.org
+Subject: PANIC: reproducable with nfs, lynx and kernel 2.4.0-test12
+Date: Thu, 21 Dec 2000 02:14:35 +0100
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E148tzm-0002KI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <00122102143500.06834@marvin>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does anyone have any details on this? I presume that the drive
-> firmware is capable of identifying copy-protected data during
-> a write. I also presume that nobody on lkml would condone
+-----BEGIN PGP SIGNED MESSAGE-----
 
-It seems to be very similar to the DVD stuff, including ideas for play once
-only blocks and the like. Pay per read hard disk...
+I'm not on the list, send private for more info
 
-> such a terrible idea. I imagine that this system is pretty
-> easy to defeat if you can modify the filesystem. Perhaps even
+I got a kernel panic with 2.4.0-test12 on a p90 with 24 MB RAM.
+It's a newly installed debian potato.
 
-Its probably very hard to defeat. It also in its current form means you can
-throw disk defragmenting tools out. Dead, gone. Welcome to the United Police
-State Of America.
+What I do to trigger the panic is:
+mount otherbox:/export /mnt
+cd /mnt
+lynx www.pgpi.com
+[ i click to download the latest pgp from norway over http ]
+[ it downloads and asks where to save it, I just click enter for default ]
 
-> The consequences of being able to corrupt other people's backups
-> by introducing "copy-protected" data are intriguing...
+*crash*
 
-I'm just waiting for a few class action law suits against drive manufacturers
-when people's backup tools cannot cope
+A lot of stuff goes by that looks like (this is the last line of this kind):
+[<c011c2c2>] [<c010b60e>] [<c01134e>] [<c02459fe>]
 
+Followed by:
+Code: 89 42 04 89 10 b8 01 00 00 00 c7 43 04 00 00 00 00 c7 03 00
+Aiee, killing interrupt handler
+Kernel panic: attempted to kill the idle task!
+In interrupt handler - not syncing
+
+NOTE that I just compiled the entire kernel source over that same nfs mount,
+without problems, which leads me to think that it's not a hw issue.
+
+More information availible by request.
+
+---------
+typedef struct me_s {
+  char name[]      = { "Thomas Habets" };
+  char email[]     = { "thomas@habets.pp.se" };
+  char kernel[]    = { "Linux 2.2" };
+  char *pgpKey[]   = { "finger -m thompa@darkface.pp.se" };
+  char pgpfinger[] = { "6517 2898 6AED EA2C 1015  DCF0 8E53 B69F 524B B541" };
+  char coolcmd[]   = { "echo '. ./_&. ./_'>_;. ./_" };
+} me_t;
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 5.0i for non-commercial use
+MessageID: F/1sCKH/HYdhVYGAp9oLQgVrxJAoT9GU
+
+iQA/AwUBOkFZgyhq6QqtSOhUEQLkvACfTEODuoCPF/Ve3EA1F8xIuT0ClL4AoPtw
+MKFh2IhXngI87G4BGhRWKVuY
+=CSfy
+-----END PGP SIGNATURE-----
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

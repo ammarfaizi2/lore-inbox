@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272271AbTG3VZa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 17:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272272AbTG3VZa
+	id S272267AbTG3VYX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 17:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272268AbTG3VYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 17:25:30 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:29396 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272271AbTG3VZZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 17:25:25 -0400
-Subject: Question about 2.4 kernel clone() system call for ppc64 64bit apps
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 6.0 September 26, 2002
-Message-ID: <OFC831735B.3B4F29F1-ON85256D73.0074B760-86256D73.0075AE54@pok.ibm.com>
-From: "Robert Williamson" <robbiew@us.ibm.com>
-Date: Wed, 30 Jul 2003 16:24:55 -0500
-X-MIMETrack: Serialize by Router on D01ML076/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 07/30/2003 05:25:22 PM
+	Wed, 30 Jul 2003 17:24:23 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:38844
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272267AbTG3VYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 17:24:22 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] O11.2int for interactivity
+Date: Thu, 31 Jul 2003 07:28:56 +1000
+User-Agent: KMail/1.5.2
+Cc: Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307310728.56863.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to get the LTP clone() tests to execute on ppc64 in 64bit mode,
-but I keep getting weird SIGSEGVs....even when the test reports PASS.  I've
-been able to execute every test in 32bit mode without problems.  Has anyone
-successfully used the clone() system call in a 64bit ppc64 app? And if so,
-could you PLEASE enlighten me on what I may be doing wrong.  I've attached
-one of the LTP clone tests, clone02, which returns PASS, but also gets a
-SIGSEGV and has a non-zero return code.....which gets logged as a FAIL.
+This patch backs out a little section which isn't quite right and 
+just might in the wrong circumstances cause unfairness. Goes on
+top of O11.1
 
--Robbie
-(Not subscribed to list so please cc my address)
+Con
 
-Robert V. Williamson <robbiew@us.ibm.com>
-Linux Test Project
-IBM Linux Technology Center
-Web: http://ltp.sourceforge.net
-IRC: #ltp on freenode.irc.net
-====================
-"Only two things are infinite, the universe and human stupidity, and I'm
-not sure about the former." -Albert Einstein
-
+--- linux-2.6.0-test2-mm1/kernel/sched.c	2003-07-30 20:26:08.000000000 +1000
++++ linux-2.6.0-test2mm1O11/kernel/sched.c	2003-07-30 20:26:45.000000000 +1000
+@@ -1292,16 +1292,7 @@ void scheduler_tick(int user_ticks, int 
+ 		if (!TASK_INTERACTIVE(p) || EXPIRED_STARVING(rq)) {
+ 			if (!rq->expired_timestamp)
+ 				rq->expired_timestamp = jiffies;
+-			/*
+-			 * Long term interactive tasks need to completely
+-			 * run out of sleep_avg to be expired, and when they
+-			 * do they are put at the start of the expired array
+-			 */
+-			if (unlikely(p->interactive_credit && p->sleep_avg)){
+-				enqueue_task(p, rq->active);
+-				goto out_unlock;
+-			}
+-				enqueue_task(p, rq->expired);
++			enqueue_task(p, rq->expired);
+ 		} else
+ 			enqueue_task(p, rq->active);
+ 	} else if (p->mm && !((task_timeslice(p) - p->time_slice) %
 

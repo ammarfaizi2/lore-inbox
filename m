@@ -1,35 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbUJaKkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbUJaLBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261583AbUJaKkS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 05:40:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUJaKiu
+	id S261581AbUJaLBc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 06:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbUJaLAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 05:38:50 -0500
-Received: from nl-ams-slo-l4-01-pip-6.chellonetwork.com ([213.46.243.23]:40213
-	"EHLO amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261539AbUJaKDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 05:03:43 -0500
-Date: Sun, 31 Oct 2004 11:03:40 +0100
-Message-Id: <200410311003.i9VA3erW009678@anakin.of.borg>
+	Sun, 31 Oct 2004 06:00:18 -0500
+Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:33622
+	"EHLO amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261558AbUJaKFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 05:05:23 -0500
+Date: Sun, 31 Oct 2004 11:03:39 +0100
+Message-Id: <200410311003.i9VA3dnA009647@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 512] M68k: Add defconfig for MVME147
+Subject: [PATCH 506] M68k: Add defconfig for Amiga
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Add defconfig for MVME147 (based on the Debian config)
+M68k: Add defconfig for Amiga (based on the Debian config)
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.9/arch/m68k/configs/mvme147_defconfig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-m68k-2.6.9/arch/m68k/configs/mvme147_defconfig	2004-09-20 11:03:03.000000000 +0200
-@@ -0,0 +1,804 @@
+--- linux-2.6.9/arch/m68k/configs/amiga_defconfig	1970-01-01 01:00:00.000000000 +0100
++++ linux-m68k-2.6.9/arch/m68k/configs/amiga_defconfig	2004-09-20 11:03:03.000000000 +0200
+@@ -0,0 +1,929 @@
 +#
 +# Automatically generated make config: don't edit
 +# Linux kernel version: 2.6.9-m68k
-+# Thu Oct 28 21:23:08 2004
++# Thu Oct 28 21:22:56 2004
 +#
 +CONFIG_M68K=y
 +CONFIG_MMU=y
@@ -46,7 +46,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# General setup
 +#
-+CONFIG_LOCALVERSION="-mvme147"
++CONFIG_LOCALVERSION="-amiga"
 +CONFIG_SWAP=y
 +CONFIG_SYSVIPC=y
 +CONFIG_POSIX_MQUEUE=y
@@ -85,14 +85,11 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# Platform dependent setup
 +#
 +# CONFIG_SUN3 is not set
-+# CONFIG_AMIGA is not set
++CONFIG_AMIGA=y
 +# CONFIG_ATARI is not set
 +# CONFIG_MAC is not set
 +# CONFIG_APOLLO is not set
-+CONFIG_VME=y
-+CONFIG_MVME147=y
-+# CONFIG_MVME16x is not set
-+# CONFIG_BVME6000 is not set
++# CONFIG_VME is not set
 +# CONFIG_HP300 is not set
 +# CONFIG_SUN3X is not set
 +# CONFIG_Q40 is not set
@@ -100,12 +97,14 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# Processor type
 +#
-+# CONFIG_M68020 is not set
++CONFIG_M68020=y
 +CONFIG_M68030=y
-+# CONFIG_M68040 is not set
-+# CONFIG_M68060 is not set
++CONFIG_M68040=y
++CONFIG_M68060=y
 +CONFIG_MMU_MOTOROLA=y
-+# CONFIG_M68KFPU_EMU is not set
++CONFIG_M68KFPU_EMU=y
++CONFIG_M68KFPU_EMU_EXTRAPREC=y
++# CONFIG_M68KFPU_EMU_ONLY is not set
 +# CONFIG_ADVANCED is not set
 +
 +#
@@ -114,7 +113,13 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +CONFIG_BINFMT_ELF=y
 +CONFIG_BINFMT_AOUT=m
 +CONFIG_BINFMT_MISC=m
++CONFIG_ZORRO=y
++CONFIG_AMIGA_PCMCIA=y
++# CONFIG_HEARTBEAT is not set
 +CONFIG_PROC_HARDWARE=y
++CONFIG_ISA=y
++CONFIG_GENERIC_ISA_DMA=y
++CONFIG_ZORRO_NAMES=y
 +
 +#
 +# Device Drivers
@@ -135,15 +140,25 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# Parallel port support
 +#
-+# CONFIG_PARPORT is not set
++CONFIG_PARPORT=m
++# CONFIG_PARPORT_PC is not set
++CONFIG_PARPORT_AMIGA=m
++CONFIG_PARPORT_MFC3=m
++# CONFIG_PARPORT_OTHER is not set
++CONFIG_PARPORT_1284=y
 +
 +#
 +# Plug and Play support
 +#
++# CONFIG_PNP is not set
 +
 +#
 +# Block devices
 +#
++CONFIG_AMIGA_FLOPPY=y
++CONFIG_AMIGA_Z2RAM=y
++# CONFIG_BLK_DEV_XD is not set
++# CONFIG_PARIDE is not set
 +CONFIG_BLK_DEV_LOOP=y
 +CONFIG_BLK_DEV_CRYPTOLOOP=m
 +CONFIG_BLK_DEV_NBD=m
@@ -154,7 +169,34 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# ATA/ATAPI/MFM/RLL support
 +#
-+# CONFIG_IDE is not set
++CONFIG_IDE=y
++CONFIG_BLK_DEV_IDE=y
++
++#
++# Please see Documentation/ide.txt for help/info on IDE drives
++#
++# CONFIG_BLK_DEV_IDE_SATA is not set
++CONFIG_BLK_DEV_IDEDISK=y
++# CONFIG_IDEDISK_MULTI_MODE is not set
++CONFIG_BLK_DEV_IDECD=y
++CONFIG_BLK_DEV_IDETAPE=m
++CONFIG_BLK_DEV_IDEFLOPPY=m
++# CONFIG_BLK_DEV_IDESCSI is not set
++# CONFIG_IDE_TASK_IOCTL is not set
++# CONFIG_IDE_TASKFILE_IO is not set
++
++#
++# IDE chipset support/bugfixes
++#
++CONFIG_IDE_GENERIC=y
++# CONFIG_IDE_ARM is not set
++CONFIG_BLK_DEV_GAYLE=y
++CONFIG_BLK_DEV_IDEDOUBLER=y
++CONFIG_BLK_DEV_BUDDHA=y
++# CONFIG_IDE_CHIPSETS is not set
++# CONFIG_BLK_DEV_IDEDMA is not set
++# CONFIG_IDEDMA_AUTO is not set
++# CONFIG_BLK_DEV_HD is not set
 +
 +#
 +# SCSI device support
@@ -167,7 +209,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +CONFIG_BLK_DEV_SD=y
 +CONFIG_CHR_DEV_ST=m
-+# CONFIG_CHR_DEV_OSST is not set
++CONFIG_CHR_DEV_OSST=m
 +CONFIG_BLK_DEV_SR=y
 +CONFIG_BLK_DEV_SR_VENDOR=y
 +CONFIG_CHR_DEV_SG=m
@@ -188,9 +230,44 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# SCSI low-level drivers
 +#
++# CONFIG_SCSI_7000FASST is not set
++# CONFIG_SCSI_AHA152X is not set
++# CONFIG_SCSI_AHA1542 is not set
++# CONFIG_SCSI_AIC7XXX_OLD is not set
++# CONFIG_SCSI_IN2000 is not set
 +# CONFIG_SCSI_SATA is not set
++# CONFIG_SCSI_BUSLOGIC is not set
++# CONFIG_SCSI_DTC3280 is not set
++# CONFIG_SCSI_EATA is not set
++# CONFIG_SCSI_EATA_PIO is not set
++# CONFIG_SCSI_FUTURE_DOMAIN is not set
++# CONFIG_SCSI_GDTH is not set
++# CONFIG_SCSI_GENERIC_NCR5380 is not set
++# CONFIG_SCSI_GENERIC_NCR5380_MMIO is not set
++# CONFIG_SCSI_PPA is not set
++# CONFIG_SCSI_IMM is not set
++# CONFIG_SCSI_NCR53C406A is not set
++# CONFIG_SCSI_PAS16 is not set
++# CONFIG_SCSI_PSI240I is not set
++# CONFIG_SCSI_QLOGIC_FAS is not set
++# CONFIG_SCSI_SYM53C416 is not set
++# CONFIG_SCSI_T128 is not set
++# CONFIG_SCSI_U14_34F is not set
 +# CONFIG_SCSI_DEBUG is not set
-+CONFIG_MVME147_SCSI=y
++CONFIG_A3000_SCSI=y
++CONFIG_A2091_SCSI=y
++CONFIG_GVP11_SCSI=y
++CONFIG_CYBERSTORM_SCSI=y
++CONFIG_CYBERSTORMII_SCSI=y
++CONFIG_BLZ2060_SCSI=y
++CONFIG_BLZ1230_SCSI=y
++CONFIG_FASTLANE_SCSI=y
++CONFIG_OKTAGON_SCSI=y
++
++#
++# Old CD-ROM drivers (not SCSI, not IDE)
++#
++# CONFIG_CD_NO_IDESCSI is not set
 +
 +#
 +# Multi-device support (RAID and LVM)
@@ -238,10 +315,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +CONFIG_INET=y
 +# CONFIG_IP_MULTICAST is not set
 +# CONFIG_IP_ADVANCED_ROUTER is not set
-+CONFIG_IP_PNP=y
-+CONFIG_IP_PNP_DHCP=y
-+CONFIG_IP_PNP_BOOTP=y
-+CONFIG_IP_PNP_RARP=y
++# CONFIG_IP_PNP is not set
 +CONFIG_NET_IPIP=m
 +CONFIG_NET_IPGRE=m
 +# CONFIG_ARPD is not set
@@ -407,11 +481,30 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# CONFIG_ETHERTAP is not set
 +
 +#
++# ARCnet devices
++#
++# CONFIG_ARCNET is not set
++
++#
 +# Ethernet (10 or 100Mbit)
 +#
 +CONFIG_NET_ETHERNET=y
 +CONFIG_MII=m
-+CONFIG_MVME147_NET=y
++CONFIG_ARIADNE=m
++CONFIG_A2065=m
++CONFIG_HYDRA=m
++CONFIG_ZORRO8390=m
++CONFIG_APNE=m
++# CONFIG_NET_VENDOR_3COM is not set
++# CONFIG_LANCE is not set
++# CONFIG_NET_VENDOR_SMC is not set
++# CONFIG_NET_VENDOR_RACAL is not set
++# CONFIG_AT1700 is not set
++# CONFIG_DEPCA is not set
++# CONFIG_HP100 is not set
++# CONFIG_NET_ISA is not set
++# CONFIG_NET_PCI is not set
++# CONFIG_NET_POCKET is not set
 +
 +#
 +# Ethernet (1000 Mbit)
@@ -424,6 +517,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# Token Ring devices
 +#
++# CONFIG_TR is not set
 +
 +#
 +# Wireless LAN (non-hamradio)
@@ -434,6 +528,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# Wan interfaces
 +#
 +# CONFIG_WAN is not set
++CONFIG_PLIP=m
 +CONFIG_PPP=m
 +# CONFIG_PPP_MULTILINK is not set
 +CONFIG_PPP_FILTER=y
@@ -484,6 +579,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +CONFIG_SERIO=m
 +CONFIG_SERIO_SERPORT=m
 +# CONFIG_SERIO_CT82C710 is not set
++# CONFIG_SERIO_PARKBD is not set
 +# CONFIG_SERIO_RAW is not set
 +
 +#
@@ -495,11 +591,27 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# CONFIG_KEYBOARD_LKKBD is not set
 +# CONFIG_KEYBOARD_XTKBD is not set
 +# CONFIG_KEYBOARD_NEWTON is not set
++CONFIG_KEYBOARD_AMIGA=y
 +CONFIG_INPUT_MOUSE=y
-+CONFIG_MOUSE_PS2=m
-+CONFIG_MOUSE_SERIAL=m
++# CONFIG_MOUSE_PS2 is not set
++# CONFIG_MOUSE_SERIAL is not set
++# CONFIG_MOUSE_INPORT is not set
++# CONFIG_MOUSE_LOGIBM is not set
++# CONFIG_MOUSE_PC110PAD is not set
++CONFIG_MOUSE_AMIGA=y
 +# CONFIG_MOUSE_VSXXXAA is not set
-+# CONFIG_INPUT_JOYSTICK is not set
++CONFIG_INPUT_JOYSTICK=y
++# CONFIG_JOYSTICK_IFORCE is not set
++# CONFIG_JOYSTICK_WARRIOR is not set
++# CONFIG_JOYSTICK_MAGELLAN is not set
++# CONFIG_JOYSTICK_SPACEORB is not set
++# CONFIG_JOYSTICK_SPACEBALL is not set
++# CONFIG_JOYSTICK_STINGER is not set
++# CONFIG_JOYSTICK_TWIDDLER is not set
++# CONFIG_JOYSTICK_DB9 is not set
++# CONFIG_JOYSTICK_GAMECON is not set
++# CONFIG_JOYSTICK_TURBOGRAFX is not set
++CONFIG_JOYSTICK_AMIGA=m
 +# CONFIG_INPUT_TOUCHSCREEN is not set
 +# CONFIG_INPUT_MISC is not set
 +
@@ -510,6 +622,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +CONFIG_VT_CONSOLE=y
 +CONFIG_HW_CONSOLE=y
 +# CONFIG_SERIAL_NONSTANDARD is not set
++CONFIG_A2232=m
 +
 +#
 +# Serial drivers
@@ -522,6 +635,10 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +CONFIG_UNIX98_PTYS=y
 +CONFIG_LEGACY_PTYS=y
 +CONFIG_LEGACY_PTY_COUNT=256
++CONFIG_PRINTER=m
++# CONFIG_LP_CONSOLE is not set
++# CONFIG_PPDEV is not set
++# CONFIG_TIPAR is not set
 +
 +#
 +# IPMI
@@ -572,6 +689,12 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +CONFIG_FB=y
 +CONFIG_FB_MODE_HELPERS=y
++CONFIG_FB_CIRRUS=m
++CONFIG_FB_AMIGA=y
++CONFIG_FB_AMIGA_OCS=y
++CONFIG_FB_AMIGA_ECS=y
++CONFIG_FB_AMIGA_AGA=y
++CONFIG_FB_FM2=y
 +# CONFIG_FB_VIRTUAL is not set
 +
 +#
@@ -582,6 +705,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# CONFIG_FONTS is not set
 +CONFIG_FONT_8x8=y
 +CONFIG_FONT_8x16=y
++CONFIG_FONT_PEARL_8x8=y
 +
 +#
 +# Logo configuration
@@ -594,7 +718,9 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# Sound
 +#
-+# CONFIG_SOUND is not set
++CONFIG_SOUND=m
++CONFIG_DMASOUND_PAULA=m
++CONFIG_DMASOUND=m
 +
 +#
 +# USB support
@@ -608,8 +734,10 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# Character devices
 +#
-+CONFIG_MVME147_SCC=y
-+CONFIG_SERIAL_CONSOLE=y
++CONFIG_AMIGA_BUILTIN_SERIAL=y
++# CONFIG_WHIPPET_SERIAL is not set
++CONFIG_MULTIFACE_III_TTY=m
++# CONFIG_SERIAL_CONSOLE is not set
 +
 +#
 +# File systems
@@ -656,8 +784,8 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# DOS/FAT/NT Filesystems
 +#
-+CONFIG_FAT_FS=y
-+CONFIG_MSDOS_FS=y
++CONFIG_FAT_FS=m
++CONFIG_MSDOS_FS=m
 +CONFIG_VFAT_FS=m
 +CONFIG_FAT_DEFAULT_CODEPAGE=437
 +CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
@@ -669,9 +797,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +CONFIG_PROC_FS=y
 +CONFIG_PROC_KCORE=y
 +CONFIG_SYSFS=y
-+CONFIG_DEVFS_FS=y
-+# CONFIG_DEVFS_MOUNT is not set
-+# CONFIG_DEVFS_DEBUG is not set
++# CONFIG_DEVFS_FS is not set
 +# CONFIG_DEVPTS_FS_XATTR is not set
 +CONFIG_TMPFS=y
 +# CONFIG_HUGETLB_PAGE is not set
@@ -681,7 +807,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# Miscellaneous filesystems
 +#
 +# CONFIG_ADFS_FS is not set
-+CONFIG_AFFS_FS=m
++CONFIG_AFFS_FS=y
 +CONFIG_HFS_FS=m
 +CONFIG_HFSPLUS_FS=m
 +# CONFIG_BEFS_FS is not set
@@ -698,7 +824,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +#
 +# Network File Systems
 +#
-+CONFIG_NFS_FS=y
++CONFIG_NFS_FS=m
 +CONFIG_NFS_V3=y
 +CONFIG_NFS_V4=y
 +# CONFIG_NFS_DIRECTIO is not set
@@ -706,13 +832,12 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +CONFIG_NFSD_V3=y
 +CONFIG_NFSD_V4=y
 +CONFIG_NFSD_TCP=y
-+CONFIG_ROOT_NFS=y
-+CONFIG_LOCKD=y
++CONFIG_LOCKD=m
 +CONFIG_LOCKD_V4=y
 +CONFIG_EXPORTFS=m
-+CONFIG_SUNRPC=y
-+CONFIG_SUNRPC_GSS=y
-+CONFIG_RPCSEC_GSS_KRB5=y
++CONFIG_SUNRPC=m
++CONFIG_SUNRPC_GSS=m
++CONFIG_RPCSEC_GSS_KRB5=m
 +# CONFIG_RPCSEC_GSS_SPKM3 is not set
 +CONFIG_SMB_FS=m
 +CONFIG_SMB_NLS_DEFAULT=y
@@ -722,8 +847,8 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# CONFIG_NCPFS_PACKET_SIGNING is not set
 +# CONFIG_NCPFS_IOCTL_LOCKING is not set
 +# CONFIG_NCPFS_STRONG is not set
-+# CONFIG_NCPFS_NFS_NS is not set
-+# CONFIG_NCPFS_OS2_NS is not set
++CONFIG_NCPFS_NFS_NS=y
++CONFIG_NCPFS_OS2_NS=y
 +# CONFIG_NCPFS_SMALLDOS is not set
 +CONFIG_NCPFS_NLS=y
 +# CONFIG_NCPFS_EXTRAS is not set
@@ -735,7 +860,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# Partition Types
 +#
 +# CONFIG_PARTITION_ADVANCED is not set
-+CONFIG_MSDOS_PARTITION=y
++CONFIG_AMIGA_PARTITION=y
 +
 +#
 +# Native Language Support
@@ -802,12 +927,12 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +CONFIG_CRYPTO_HMAC=y
 +CONFIG_CRYPTO_NULL=m
 +CONFIG_CRYPTO_MD4=m
-+CONFIG_CRYPTO_MD5=y
++CONFIG_CRYPTO_MD5=m
 +CONFIG_CRYPTO_SHA1=m
 +CONFIG_CRYPTO_SHA256=m
 +CONFIG_CRYPTO_SHA512=m
 +# CONFIG_CRYPTO_WP512 is not set
-+CONFIG_CRYPTO_DES=y
++CONFIG_CRYPTO_DES=m
 +CONFIG_CRYPTO_BLOWFISH=m
 +CONFIG_CRYPTO_TWOFISH=m
 +CONFIG_CRYPTO_SERPENT=m
@@ -826,7 +951,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 +# Library routines
 +#
 +CONFIG_CRC_CCITT=m
-+CONFIG_CRC32=y
++CONFIG_CRC32=m
 +CONFIG_LIBCRC32C=m
 +CONFIG_ZLIB_INFLATE=y
 +CONFIG_ZLIB_DEFLATE=m

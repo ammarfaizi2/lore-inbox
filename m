@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbVCXFdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263038AbVCXFdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbVCXFdM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 00:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263038AbVCXFdM
+	id S263038AbVCXFdw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 00:33:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbVCXFdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 00:33:12 -0500
-Received: from graphe.net ([209.204.138.32]:36105 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262418AbVCXFdI (ORCPT
+	Thu, 24 Mar 2005 00:33:51 -0500
+Received: from fire.osdl.org ([65.172.181.4]:6375 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263037AbVCXFdo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 00:33:08 -0500
-Date: Wed, 23 Mar 2005 21:32:54 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Tina Yang <tinay@chelsio.com>, Scott Bardone <sbardone@chelsio.com>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       linux-net@vger.kernel.org
-Subject: Re: [-mm patch] drivers/net/chelsio/osdep.h: small cleanups
-In-Reply-To: <42424ECB.4060807@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503232131570.13007@server.graphe.net>
-References: <20050321025159.1cabd62e.akpm@osdl.org> <20050324031026.GV1948@stusta.de>
- <Pine.LNX.4.58.0503231934430.11120@server.graphe.net> <42424ECB.4060807@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Thu, 24 Mar 2005 00:33:44 -0500
+Date: Wed, 23 Mar 2005 21:32:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: davidm@snapgear.com, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       jmorris@redhat.com, herbert@gondor.apana.org.au
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+ (2.6.11)
+Message-Id: <20050323213226.1b8010f8.akpm@osdl.org>
+In-Reply-To: <42424D52.7070508@pobox.com>
+References: <20050315133644.GA25903@beast>
+	<20050324042708.GA2806@beast>
+	<20050323203856.17d650ec.akpm@osdl.org>
+	<42424D52.7070508@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Mar 2005, Randy.Dunlap wrote:
-
-> Christoph Lameter wrote:
-> > We just send an update to Andrew and Jeff that also fixes this issue.
-> > Sadly that patch is >300k so we cannot post it to the list.
+Jeff Garzik <jgarzik@pobox.com> wrote:
 >
-> you can post it to netdev@oss.sgi.com
-> it doesn't seem to block large patches.
+> > It neither applies correctly nor compiles in current kernels.  2.6.11 is
+>  > very old in kernel time.
+> 
+>  Hrm.  This is getting pretty lame, if you can't take patches from the 
+>  -latest- stable release.  It's pretty easy in BK:
+> 
+>  	bk clone -ql -rv2.6.11 linux-2.6 rng-2.6.11
+>  	cd rng-2.6.11
+>  	{ apply patch }
+>  	bk pull ../linux-2.6
+> 
+>  Can you set up something like that?
 
-Ok. Sent in a separate message. I avoided ccing anyone on
-this to cut down the mail volume.
+About thirty patches have gone into random.c since 2.6.11.  But the patch
+was easy enough to apply anyway.
+
+And then, it didn't compile.  I don't think bk will fix that.
 

@@ -1,58 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265800AbSKKQ6k>; Mon, 11 Nov 2002 11:58:40 -0500
+	id <S265816AbSKKQ7k>; Mon, 11 Nov 2002 11:59:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265806AbSKKQ6j>; Mon, 11 Nov 2002 11:58:39 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22290 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265800AbSKKQ6j>; Mon, 11 Nov 2002 11:58:39 -0500
-Date: Mon, 11 Nov 2002 12:03:57 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andy Pfiffer <andyp@osdl.org>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: kexec (was: [lkcd-devel] Re: What's left over.)
-In-Reply-To: <1036697556.10457.254.camel@andyp>
-Message-ID: <Pine.LNX.3.96.1021111115948.18680A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265825AbSKKQ7k>; Mon, 11 Nov 2002 11:59:40 -0500
+Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:58565 "EHLO
+	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
+	id <S265816AbSKKQ7W>; Mon, 11 Nov 2002 11:59:22 -0500
+Date: Mon, 11 Nov 2002 10:06:04 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: [PATCH] Have split-include take another argument
+Message-ID: <20021111170604.GA658@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Nov 2002, Andy Pfiffer wrote:
-
-> Just an idea:
-> 
-> Could a new, unrunnable process be created to "hold" the image?
-> 
-> <hand-wave>
-> Use a hypothetical sys_kexec() to:
-> 1. create an empty process.
-> 2. copy the kernel image and parameters into the processes' address
-> space.
-> 3. put the process to sleep.
-> </hand-wave>
-> 
-> If it's floating out there for weeks or years, the data could get paged
-> out and not wired down.  It would show up in ps, so you'd have at least
-> some visibility into the allocation.
-
-  The only problem is that if you wanted it to run on panic, you really
-couldn't trust the burning embers of a dying kernel to pull in the pages
-and run them. I'd actually hope the init (and some cleanup??) code would
-be there to get the new kernel going. Where kernel could be something
-other than another kernel, hopefully.
+Hello.  The following patch makes split-include take another argument,
+which is the prefix of what is being split up.  This is needed since I'm
+working on a system which will allow for various params in the kernel to
+be tweaked at compile-time, without offering numerous CONFIG options
+(see http://marc.theaimsgroup.com/?l=linux-kernel&m=103669658505842&w=2).
+I'm sending this out for two reasons.  First, does anyone see any
+problems with the patch itself?  Second, Kai, would you be willing to
+apply this patch now, or would should I wait until the system is ready?
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 
+===== Makefile 1.320 vs edited =====
+--- 1.320/Makefile	Mon Nov 11 08:08:41 2002
++++ edited/Makefile	Mon Nov 11 09:30:45 2002
+@@ -413,7 +413,7 @@
+ 
+ include/config/MARKER: scripts/split-include include/linux/autoconf.h
+ 	@echo '  SPLIT  include/linux/autoconf.h -> include/config/*'
+-	@scripts/split-include include/linux/autoconf.h include/config
++	@scripts/split-include include/linux/autoconf.h include/config CONFIG_
+ 	@touch $@
+ 
+ # 	if .config is newer than include/linux/autoconf.h, someone tinkered
+===== scripts/split-include.c 1.3 vs edited =====
+--- 1.3/scripts/split-include.c	Sun Jun  2 18:34:13 2002
++++ edited/scripts/split-include.c	Mon Nov 11 09:29:55 2002
+@@ -46,6 +46,7 @@
+     const char * str_my_name;
+     const char * str_file_autoconf;
+     const char * str_dir_config;
++    const char * str_split_token;
+ 
+     FILE * fp_config;
+     FILE * fp_target;
+@@ -61,7 +62,7 @@
+     struct stat stat_buf;
+ 
+     /* Check arg count. */
+-    if (argc != 3)
++    if (argc != 4)
+     {
+ 	fprintf(stderr, "%s: wrong number of arguments.\n", argv[0]);
+ 	exit(1);
+@@ -70,6 +71,7 @@
+     str_my_name       = argv[0];
+     str_file_autoconf = argv[1];
+     str_dir_config    = argv[2];
++    str_split_token   = argv[3];
+ 
+     /* Find a buffer size. */
+     if (stat(str_file_autoconf, &stat_buf) != 0)
+@@ -110,11 +112,11 @@
+ 
+ 	if (line[0] != '#')
+ 	    continue;
+-	if ((str_config = strstr(line, "CONFIG_")) == NULL)
++	if ((str_config = strstr(line, str_split_token)) == NULL)
+ 	    continue;
+ 
+ 	/* Make the output file name. */
+-	str_config += sizeof("CONFIG_") - 1;
++	str_config += strlen(str_split_token);
+ 	for (itarget = 0; !isspace(str_config[itarget]); itarget++)
+ 	{
+ 	    int c = (unsigned char) str_config[itarget];

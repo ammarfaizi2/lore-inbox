@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316838AbSINNhl>; Sat, 14 Sep 2002 09:37:41 -0400
+	id <S316845AbSINObG>; Sat, 14 Sep 2002 10:31:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316842AbSINNhl>; Sat, 14 Sep 2002 09:37:41 -0400
-Received: from news.cistron.nl ([62.216.30.38]:5380 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S316838AbSINNhj>;
-	Sat, 14 Sep 2002 09:37:39 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Possible bug and question about ide_notify_reboot in
-	drivers/ide/ide.c (2.4.19)
-Date: Sat, 14 Sep 2002 13:42:06 +0000 (UTC)
-Organization: Cistron
-Message-ID: <alvebe$45r$1@ncc1701.cistron.net>
-References: <20020914010101.75725.qmail@web40502.mail.yahoo.com> <20020914095356.GA28271@merlin.emma.line.org> <1032010655.12892.8.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1032010926 4283 62.216.29.67 (14 Sep 2002 13:42:06 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+	id <S316856AbSINObG>; Sat, 14 Sep 2002 10:31:06 -0400
+Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:6826 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S316845AbSINObF> convert rfc822-to-8bit; Sat, 14 Sep 2002 10:31:05 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
 To: linux-kernel@vger.kernel.org
+Subject: Re: DMA problems w/ PIIX3 IDE, 2.4.20-pre4-ac2
+Date: Sat, 14 Sep 2002 16:35:33 +0200
+X-Mailer: KMail [version 1.4]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209141525.22349.jan-hinnerk_reichert@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1032010655.12892.8.camel@irongate.swansea.linux.org.uk>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->> How about this: The FLUSH CACHE command has only recently become a
->> mandatory command for non-PACKET devices, so there may be drives that do
->> implement a write cache, but do NOT implement the FLUSH CACHE -- and
->> still adhere to some older edition of the ATA standard.
->
->Worse than that. There are drives that did implement it - as a no-op.
->They didn't even say "Umm sorry no can do"
+Florian Hinzmann wrote:
 
-Putting the drive in stand-by mode has the side effect of flushing
-the cache. So before poweroff, send the FLUSH CACHE command,
-then send the standby command, hope that one of them works ..
+> Hi!
+> 
+> I have problems with DMA mode at one of my boxes ( more technical
+> details at the end of this mail ).
+[...] 
+> But I do issue a "hdparm -d0" for each of them at bootup currently and
+> they are running fine then. Enabling DMA with "hdparm -d1" (or not using
+> hdparm at all) leads to errors like the following quite fast and
+> reproducable:
+> 
+> kernel: hdb: dma_timer_expiry: dma status == 0x60
+> kernel: hdb: timeout waiting for DMA
+> kernel: hdb: timeout waiting for DMA
+> kernel: hdb: (__ide_dma_test_irq) called while not waiting
+> kernel: hdb: status error: status=0x58 { DriveReady SeekComplete
+> DataRequest } kernel:
+> kernel: hdb: drive not ready for command
+> 
+> Turning DMA off again stops these.
+> 
+> 
+> I'd love to hear any experience other people have with this mainboard
+> or even some statement if DMA is supposed to work with my setup.
 
-I put put-the-drive-in-standby-mode stuff in halt.c of sysvinit
-after several reports of fs corruption at poweroff and it seems
-to have fixed the problems for the people who reported them.
+I had some problems like this using 2.4.17 on a PIIX3 board (don't know the 
+board type). The problems disappeared after switching to 2.4.19. 
+Unforunately I had to change the processor and processor fan about the same 
+time.
 
-Mike.
+I tend to believe that this problem was related to CPU temperature not to 
+kernel bugs. I don't have any means of measuring CPU temperature on this 
+board. But the old CPU certainly burnt out, because the fan was not 
+working too well ;-(((
 

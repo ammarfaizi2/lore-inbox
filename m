@@ -1,52 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265787AbSKYWtM>; Mon, 25 Nov 2002 17:49:12 -0500
+	id <S265851AbSKYWxE>; Mon, 25 Nov 2002 17:53:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265791AbSKYWtM>; Mon, 25 Nov 2002 17:49:12 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:23309 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S265787AbSKYWtL>; Mon, 25 Nov 2002 17:49:11 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB19C3@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: "'Joao \"Alberto M. dos Reis \" \"(listas de discucao)'" 
-	<lista@vudu.ath.cx>,
-       lista do kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Network Load Balance
-Date: Mon, 25 Nov 2002 14:56:00 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S265854AbSKYWxE>; Mon, 25 Nov 2002 17:53:04 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51695 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S265851AbSKYWxD>; Mon, 25 Nov 2002 17:53:03 -0500
+Date: Tue, 26 Nov 2002 00:00:12 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Voyager subarchitecture (and other subarch updates) for 2.5.49
+Message-ID: <20021125230011.GB24796@fs.tum.de>
+References: <200211251625.gAPGPup02807@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211251625.gAPGPup02807@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you try to work with ANS (Advanced Network Service) in the e1000 driver?
-bThere is also a utility procfg that ca be used to configure this 
+On Mon, Nov 25, 2002 at 10:25:56AM -0600, James Bottomley wrote:
 
-Thanks
-Manish
+> This patch adds
+>...
+> - Subarchitecture menu (Adrian Bunk)
+>...
 
------Original Message-----
-From: Joao "Alberto M. dos Reis " "(listas de discucao)
-[mailto:lista@vudu.ath.cx]
-Sent: Monday, November 25, 2002 2:44 PM
-To: lista do kernel
-Subject: Network Load Balance
+Thanks for adding it, just a note that this diff includes a version that
+is different from the one I sent (that's no problem for me, you know
+more about Voyager than I do).
+
+> James
+
+Content-Description: voyager-2.5.49.diff
+>...
+> --- a/arch/i386/Kconfig	Mon Nov 25 10:17:13 2002
+> +++ b/arch/i386/Kconfig	Mon Nov 25 10:17:13 2002
+>...
+>  config MCA
+>  	bool "MCA support"
+> -	depends on !VISWS
+> +	depends on !VISWS && !VOYAGER
+>  	help
+>  	  MicroChannel Architecture is found in some IBM PS/2 machines and
+>  	  laptops.  It is a bus system similar to PCI or ISA. See
+>  	  <file:Documentation/mca.txt> (and especially the web page given
+>  	  there) before attempting to build an MCA bus kernel.
+>  
+> +config MCA
+> +	depends on VOYAGER
+> +	default y if VOYAGER
+>...
 
 
-There is any way to make 2 intel ethernet cards working as one, like the
-Network Load Balance (NLB - Windows) in the Intel Ethernet adapters with
-the Adaptive Load Balance feature on linux? 
+I'm not sure whether the latter works. My original patch included a
 
-I know that in windows it works, but in the linux? Anyone has any
-ideias? 
+config MCA
+       bool
+       depends on VOYAGER
 
-Joao Reis.
+instead. This makes it more clear that it is actually what was called
+define_bool in the old kconfig (even if it works a "default" entry in a
+define_bool sounds really strange).
 
 
+cu
+Adrian
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+

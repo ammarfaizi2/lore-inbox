@@ -1,70 +1,248 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264076AbUDGDjb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 23:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbUDGDjb
+	id S264095AbUDGDmD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 23:42:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264093AbUDGDlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 23:39:31 -0400
-Received: from pacific.moreton.com.au ([203.143.235.130]:45072 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S264076AbUDGDj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 23:39:29 -0400
-Message-ID: <40737800.9010503@snapgear.com>
-Date: Wed, 07 Apr 2004 13:39:44 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Tue, 6 Apr 2004 23:41:32 -0400
+Received: from 228.17.30.61.isp.tfn.net.tw ([61.30.17.228]:59122 "EHLO
+	cm-msg-02.cmedia.com.tw") by vger.kernel.org with ESMTP
+	id S264085AbUDGDj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 23:39:57 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.6.5-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C41C4B.F04C9B36"
+Subject: RE: cmpci 6.77 released (kernel 2.4/2.6 files patch)
+Date: Wed, 7 Apr 2004 10:56:35 +0800
+Message-ID: <92C0412E07F63549B2A2F2345D3DB515F7D41E@cm-msg-02.cmedia.com.tw>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]: cmpci.c
+Thread-Index: AcPoPln518nTM2OeR7+CNxqaVKXWNQn7zVPjAcoAQ/YBOeYRLgADYixL
+From: =?big5?B?Qy5MLiBUaWVuIC0gpdCp08Kn?= <cltien@cmedia.com.tw>
+To: <linux-kernel@vger.kernel.org>, <linux-audio-dev@music.columbia.edu>
+Cc: =?big5?B?pqyrSLhzstUtuvSttiBTdXBwb3J0IKtIvWM=?= 
+	<support@cmedia.com.tw>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+This is a multi-part message in MIME format.
 
-An update of the uClinux (MMU-less) fixups against 2.6.5.
-A few additions and some fixes.
+------_=_NextPart_001_01C41C4B.F04C9B36
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: quoted-printable
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.5-uc0.patch.gz
+Hi,
 
-Change log:
+The kernel 2.4/2.6 kernel config files need the patch file for the
+ new driver. Please check them in the attached files. CMI8738 contains
+ parameter description in detail.
 
-. patch against 2.6.5                     me
-. COBRA5272/5282 support                  Heiko Degenhardht
-. fix m68knommu kernel_thread() return    me
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+Sincerely,
+ChenLi Tien
 
 
+-----Original Message-----
+From:	C.L. Tien - =A5=D0=A9=D3=C2=A7
+Sent:	2004/4/6 [=ACP=B4=C1=A4G] =A4U=A4=C8 10:05
+To:	linux-kernel@vger.kernel.org; linux-audio-dev@music.columbia.edu
+Cc:	=A6=AC=ABH=B8s=B2=D5-=BA=F4=AD=B6 Support =ABH=BDc
+Subject:	ANN: cmpci 6.77 released
+Hi,
+
+I made changes based on the previous released (6.67), now the version is =
+6.77.
+
+Major changes are described as follows:
+
+1. I found that the legacy devices I/O ranges cannot be accessed on
+ platforms other than X86, such as PowerPC and IA-64 systems.
+ Now I only leave legacy devices enable selection on kernel config,
+ user still need to set proper value for mpuio, fmio and joystick to
+ use them, I think this matches other driver style.
+ I also check the legacy device existance before enabling them, as
+ there are chipset (i.e., Intel ICHx) support mpu401.
+
+2. Fix the DUAL_DAC 4-channel PCM mode, now the 2 DACs play in
+ synchronized way. Only user use 37 or earlier chip will feel =
+difference.
+
+3. Add AFMT_S16_BE format support so it can support more PowerPC
+  platforms applications, too many APs insisted on using this format,
+  although I report AFMT_S16_LE in GETFMT ioctl.
+
+4. Fix AFMT_AC3 data sent on big-endian system, now MPlayer and Xine
+   can send AC3 audio data correctly on Mac.
+
+5. Fix CD/Line-in/AUX-in single channel mute bug.
+
+The There are 3 patch files, which should be applied to the previous =
+version
+ (6.67) and the change-6.67-6.77 shows version change in detail.
+
+Enjoy!
+
+Sincerely,
+ChenLi Tien
 
 
 
 
 
+------_=_NextPart_001_01C41C4B.F04C9B36
+Content-Type: application/x-bzip2;
+	name="cmpci-patch-2.4.tar.bz2"
+Content-Transfer-Encoding: base64
+Content-Description: cmpci-patch-2.4.tar.bz2
+Content-Disposition: attachment;
+	filename="cmpci-patch-2.4.tar.bz2"
 
+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
 
+------_=_NextPart_001_01C41C4B.F04C9B36
+Content-Type: application/x-bzip2;
+	name="cmpci-patch-2.6.tar.bz2"
+Content-Transfer-Encoding: base64
+Content-Description: cmpci-patch-2.6.tar.bz2
+Content-Disposition: attachment;
+	filename="cmpci-patch-2.6.tar.bz2"
 
+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
+IQ==
 
+------_=_NextPart_001_01C41C4B.F04C9B36
+Content-Type: application/octet-stream;
+	name="CMI8738"
+Content-Transfer-Encoding: base64
+Content-Description: CMI8738
+Content-Disposition: attachment;
+	filename="CMI8738"
 
+QXVkaW8gZHJpdmVyIGZvciBDTTgzMzgvQ004NzM4IGNoaXBzIGJ5IENoZW4tTGkgVGllbgoKCkhB
+UkRXQVJFIFNVUFBPUlRFRAo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpDLU1lZGlhIENNSTg3MzgK
+CgpEUklWRVIgUEFSQU1FVEVSCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09CgogIFNvbWUgZnVuY3Rp
+b25zIGZvciB0aGUgY204NzM4IGNhbiBiZSBjb25maWd1cmVkIGluIEtlcm5lbCBDb25maWd1cmF0
+aW9uCiAgb3IgbW9kdWxlcyBwYXJhbWV0ZXJzLiBTZXQgdGhlc2UgcGFyYW1ldGVycyB0byAxIHRv
+IGVuYWJsZS4KCiAgbXB1aW86CUkvTyBwb3J0cyBiYXNlIGZvciBNUFUtNDAxLCBzZXQgdG8gMCBp
+ZiB5b3UgZG9uJ3QgbmVlZCBpdC4KICBmbWlvOgkJSS9PIHBvcnRzIGJhc2UgZm9yIE9QTC0zLCBz
+ZXQgdG8gMCBpZiB5b3UgZG9uJ3QgbmVlZCBpdC4KICBqb3lzdGljazoJRW5hYmxlIGpveXN0aWNr
+LiBZb3Ugd2lsbCBuZWVkIHRvIGluc3RhbGwgTGludXggam95c3RpY2sKCQlkcml2ZXIgKGdhbWVw
+b3J0Lm8pLgogIHNwZGlmX2ludmVyc2U6SW52ZXJzZSB0aGUgUy9QRElGLWluIHNpZ25hbCwgdGhp
+cyBkZXBlbmRzIG9uIHlvdXIKCQlDRC1ST00gb3IgRFZELVJPTS4KICBzcGRpZl9sb29wOiAgIEVu
+YWJsZSBTL1BESUYgbG9vcCwgdGhpcyByb3V0ZSBTL1BESUYtaW4gdG8gUy9QRElGLW91dAogICAg
+ICAgICAgICAgICAgZGlyZWN0bHksIHNvbWUgQ0QtUk9NIHN1cHBvcnQgZGlnaXRhbCBhdWRpbyBz
+byB5b3UKCQljYW4gdXNlIHRoaXMgb3B0aW9uIHRvIHBsYXkgbXVzaWMgb24gYW4gYW1wbGlmaWVy
+LgogIHNwZGlmX291dDoJU2V0IHRvIDEgdG8gZW5hYmxlIFBDTSBkYXRhIG91dHB1dCB0aHJvdWdo
+IFMvUERJRi1vdXQKCQlzbyB5b3UgY2FuIHVzZSBhbiBleHRlcm5hbCBhbXBsaWZpZXIuCiAgdXNl
+X2xpbmVfYXNfcmVhcjpTZXQgdG8gMSBpZiB5b3Ugd2FudCB0byB1c2UgbGluZS1pbiBqYWNrIGFz
+CiAgICAgICAgICAgICAgICByZWFyLW91dChzdXJyb3VuZC1vdXQpLgogIHVzZV9saW5lX2FzX2Jh
+c3M6U2V0IHRvIDEgaWYgeW91IHdhbnQgdG8gdXNlIGxpbmUtaW4gamFjayBhcwogICAgICAgICAg
+ICAgICAgQ2VudGVyL0Jhc3Mgb3V0cHV0LgogIHVzZV9taWNfYXNfYmFzczpTZXQgdG8gMSBpZiB5
+b3Ugd2FudCB0byB1c2UgbWljLWluIGphY2sgYXMgY2VudGVyL2Jhc3MKCQlvdXRwdXQuCiAgbWlj
+X2Jvb3N0OglTZXQgdG8gMSB0byBlbmFibGUgbWljIGJvb3N0LgogIGh3X2NvcHk6CVNldCB0byAx
+IHRvIGNvcHkgUENNIGFuZCBhbmFsb2cgb2YgZnJvbnQgc3BlYWtlcnMgdG8KCQlzdXJyb3VuZCBz
+cGVha2Vycy4KClEgJiBBCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09ClE6IEhvdyB0byB1c2UgQUMz
+IGF1ZGlvIGZvciBEVkQgcGxheWVyPwpBOiBUaGlzIGlzIGVuYWJsZWQgYnkgZGVmYXVsdC4KICAg
+Rm9yIE1QbGF5ZXIsIHVzZSAtYWMgaHdhYzMgdG8gcGxheSB0aHJvdWdoIFMvUERJRi1vdXQuCiAg
+IEZvciBYaW5lIHBsYXllciwgZWRpdCB5b3VyIHhpbmUgY29uZmlnIGZpbGUgdG8gY29udGFpbnMK
+ICAgImF1ZGlvLmE1Ml9wYXNzX3Rocm91Z2g6MSIsIG9yIGNoYW5nZSBpdCBpbiBpdHMgR1VJIGlu
+dGVyZmFjZS4KClE6IEhvdyB0byB1c2UgbXVsdGktY2hhbm5lbCBmb3IgRFZEIHBsYXllcj8KQTog
+VGhpcyBpcyBzdXBwb3J0ZWQgYnkgZGVmYXVsdC4KICAgRm9yIE1QbGF5ZXIsIHVzZSAtY2hhbm5l
+bHMgNiB0byBlbmFibGUgNS4xIGNoYW5uZWxzIHN1cHBvcnQuCiAgIEZvciBYaW5lIHBsYXllciwg
+ZWRpdCB5b3VyIHhpbmUgY29uZmlnIGZpbGUgc28gaXQgY29udGFpbHMKICAgImF1ZGlvLmZpdmVf
+bGZlX2NoYW5uZWw6MSIgdG8gdXNlIGl0LCBvciBjaGFuZ2UgaXQgaW4gaXRzIEdVSSBpbnRlcmZh
+Y2UuCgpROiBXaHkgYXVkaW8gY2Fubm90IGJlIGhlYXJkIGZyb20gc3Vycm91bmQgc3BlYWtlcnM/
+CkE6IFlvdSBuZWVkIHRvIHNldCB0aGUgaHdfY29weSBwYXJhbWV0ZXIgYXMgMSwgcGxlYXNlIG5v
+dCB0aGUgQ2VudGVyL0Jhc3MKICAgc3BlYWtlcnMgd2lsbCBiZSBzdGlsbCBzaWxlbnQgZm9yIGdl
+bmVyYWwgYXVkaW8sIHRoaXMgbW9kZSB3aWxsIGJlIGRpc2FibGVkCiAgIGlmIEFDMyBvciBtdWx0
+bC1jaGFubmVsIFBDTSBwbGF5YmFjayAoaWUuIERWRCkuCgpROiBNeSBzb3VuZCBjYXJkIChvciBv
+bi1ib2FyZCBhdWRpbykgaGFzIG9ubHkgMyBqYWNrcywgaG93IHRvIHBsYXkgbXVsdGktY2hhbm5l
+bAogICBhdWRpbz8KQTogWW91IGNhbiB1c2UgdXNlX2xpbmVfYXNfcmVhciBhbmQgdXNlX21pY19h
+c19iYXNzIHRvIHR1cm4gbGluZS1pbiBqYWNrIGFzCiAgIHJlYXItb3V0LCBhbmQgbWljLWluIGph
+Y2sgdG8gY2VudGVyL2Jhc3Mgb3V0cHV0LgoKUTogSG93IHRvIHBsYXkgUENNIHRocm91Z2ggUy9Q
+RElGLW91dD8KQTogWW91IG5lZWQgdGhlIHNwZGlmX291dCBvcHRpb24gdG8gb3V0cHV0IGdlbmVy
+YWwgKG1vbm8gb3Igc3RlcmVvKSBQQ00gc3RyZWFtcwogICBmcm9tIFMvUERJRi1vdXQsIGhvd2V2
+ZXIsIHRoaXMgaXMgbGltaXRlZCB0byA0NC4xay80OGsgMTYtYml0IHN0ZXJlbyBQQ00uCiAgIE5v
+dGU6IEluIHRoaXMgbW9kZSwgUENNIHZvbHVtZSB3aWxsIG5vdCBmdW5jdGlvbiBmb3Igc3RyZWFt
+cyBwbGF5IHRocnUKICAgUy9QRElGLW91dC4KClE6IEhvdyB0byBkaXNhYmxlIGxlZ2FjeSBkZXZp
+Y2VzIHN1cHBvcnQgd2l0aG91dCByZWNvbXBpbGU/CkE6IFNldCBtcHVpbyBhcyAwIHRvIGRpc2Fi
+bGUgTVBVNDAxLiBUaGUgbXB1NDAxIG1vZHVsZSB3aWxsIHN0aWxsIGJlIGxvYWRlZC4KICAgU2V0
+IGZtaW8gdG8gMCB0byBkaXNhYmxlIEZNLiBUaGUgb3BsMyBtb2R1bGUgd2lsbCBzdGlsbCBiZSBs
+b2FkZWQuCiAgIFNldCBqb3lzdGljayBhcyAwIHRvIGRpc2FibGUgZ2FtZXBvcnQgc3VwcG9ydC4g
+VGhlIGdhbWVwb3J0IG1vZHVsZSB3aWxsCiAgIHN0aWxsIGJlIGxvYWRlZC4K
 
-
-
-
-
-
-
-
-
-
+------_=_NextPart_001_01C41C4B.F04C9B36--

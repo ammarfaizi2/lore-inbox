@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266501AbTGEVaT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 17:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266502AbTGEVaT
+	id S266512AbTGEVcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 17:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbTGEVcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 17:30:19 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:31371 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266501AbTGEVaQ
+	Sat, 5 Jul 2003 17:32:25 -0400
+Received: from evrtwa1-ar2-4-33-045-074.evrtwa1.dsl-verizon.net ([4.33.45.74]:6071
+	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S266512AbTGEVcX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 17:30:16 -0400
-Date: Sat, 5 Jul 2003 22:44:13 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.74-mm1
-Message-ID: <20030705214413.GA28824@mail.jlokier.co.uk>
-References: <20030703023714.55d13934.akpm@osdl.org> <200307051728.12891.phillips@arcor.de> <20030705121416.62afd279.akpm@osdl.org> <200307052309.12680.phillips@arcor.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307052309.12680.phillips@arcor.de>
-User-Agent: Mutt/1.4.1i
+	Sat, 5 Jul 2003 17:32:23 -0400
+Message-ID: <3F074739.9090006@candelatech.com>
+Date: Sat, 05 Jul 2003 14:46:33 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Sipek <jeffpc@optonline.net>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com
+Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
+References: <Pine.LNX.4.44.0307032005340.8468-100000@home.osdl.org> <200307051449.32934.jeffpc@optonline.net>
+In-Reply-To: <200307051449.32934.jeffpc@optonline.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> Unfortunately, negative priority requires root privilege, at least
-> on Debian.
->
-> That's dumb.  By default, the root privilege requirement should kick
-> in at something like -5 or -10, so ordinary users can set priorities
-> higher than the default, as well as lower.  For the millions of
-> desktop users out there, sound ought to work by default, not be
-> broken by default.
+Jeff Sipek wrote:
 
-The security problem, on a multi-user box, is that negative priority
-apps can easily take all of the CPU and effectively lock up the box.
+> Using KB would give us additional 10 bits (making the overflow at 4 TB.) I 
+> don't really like the idea of using MB, but the underlying idea is the same - 
+> 20 more bits, making the limit 4 PB.
+> 
+> What is the consensus on this way of solving the problem?
 
-Something I've often thought would fix this is to allow normal users
-to set negative priority which is limited to using X% of the CPU -
-i.e. those tasks would have their priority raised if they spent more
-than a small proportion of their time using the CPU.
+I guess it could be useful for something like ifconfig, but serious
+applications will need more precision and should deal with wraps anyway
+(even on 64-bits, in my opinion..why have to fix bugs in 10 years because
+we were too lazy to take the 10 minutes to make it right now).
 
--- Jamie
+Ben
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

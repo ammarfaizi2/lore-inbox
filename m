@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbTEHP3z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 11:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbTEHP3z
+	id S261753AbTEHPcy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 11:32:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTEHPcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 11:29:55 -0400
-Received: from fed1mtao06.cox.net ([68.6.19.125]:9704 "EHLO fed1mtao06.cox.net")
-	by vger.kernel.org with ESMTP id S261706AbTEHP3y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 11:29:54 -0400
-Message-ID: <3EBA7AE2.4000004@cox.net>
-Date: Thu, 08 May 2003 08:42:26 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4a) Gecko/20030401
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg Boyce <gboyce@rakis.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Not enough ptys in 2.5.69-mm2
-References: <Pine.LNX.4.42.0305081126040.15163-300000@egg>
-In-Reply-To: <Pine.LNX.4.42.0305081126040.15163-300000@egg>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 8 May 2003 11:32:54 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:647
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261753AbTEHPcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 11:32:53 -0400
+Subject: Re: [PATCH] 2.5 ide 48-bit usage
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SOL.4.30.0305081532170.12362-100000@mion.elka.pw.edu.pl>
+References: <Pine.SOL.4.30.0305081532170.12362-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052405215.10038.44.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 May 2003 15:46:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Boyce wrote:
+On Iau, 2003-05-08 at 14:35, Bartlomiej Zolnierkiewicz wrote:
+> Yep, you are right, hwif->addressing logic is reversed, what a mess.
 
-
-> gboyce@cthulhu gboyce $ xterm
-> xterm: Error 32, errno 2: No such file or directory
-> Reason: get_pty: not enough ptys
-> 
-
-Have you mounted devpts on /dev/pts? If not, that's now mandatory after 
-some devfs changes that went in during 2.5.68/2.5.69 timefreame.
+No the problem is you keep treating it as a binary value. Addressing is
+a mode. Right now 0 is LBA28/CHS and 1 is LBA48. SATA next generation
+stuff extends this even further so will I imagine be addressing=2
 

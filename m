@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVALX0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVALX0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbVALX0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 18:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVALXZr
+	id S261579AbVALX0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 18:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVALXZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 18:25:47 -0500
-Received: from mail.kroah.org ([69.55.234.183]:44173 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261578AbVALXYO (ORCPT
+	Wed, 12 Jan 2005 18:25:25 -0500
+Received: from mail.kroah.org ([69.55.234.183]:46477 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261579AbVALXYR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 18:24:14 -0500
-Date: Wed, 12 Jan 2005 15:21:12 -0800
+	Wed, 12 Jan 2005 18:24:17 -0500
+Date: Wed, 12 Jan 2005 15:16:30 -0800
 From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Export symbol from I2C eeprom driver
-Message-ID: <20050112232112.GD15085@kroah.com>
-References: <9e47339105010721347fbeb907@mail.gmail.com> <20050108055315.GC8571@kroah.com> <9e473391050107220875baa32b@mail.gmail.com> <20050108222719.GA3226@kroah.com> <9e473391050108161426b36e4d@mail.gmail.com> <20050110234726.GE3286@kroah.com> <9e4733910501101820388563bb@mail.gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ak@suse.de, mst@mellanox.co.il, tiwai@suse.de, mingo@elte.hu,
+       rlrevell@joe-job.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       discuss@x86-64.org, gordon.jin@intel.com,
+       alsa-devel@lists.sourceforge.net, VANDROVE@vc.cvut.cz
+Subject: Re: [PATCH] fix: macros to detect existance of unlocked_ioctl and compat_ioctl
+Message-ID: <20050112231630.GB15085@kroah.com>
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il> <20050112203606.GA23307@mellanox.co.il> <20050112212954.GA13558@kroah.com> <20050112214326.GB14703@wotan.suse.de> <20050112225230.GA14590@kroah.com> <20050112151049.7473db7d.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e4733910501101820388563bb@mail.gmail.com>
+In-Reply-To: <20050112151049.7473db7d.akpm@osdl.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 09:20:49PM -0500, Jon Smirl wrote:
-> On Mon, 10 Jan 2005 15:47:26 -0800, Greg KH <greg@kroah.com> wrote:
-> > > I don't want to load the driver from the script because the radeon
-> > > driver is creating a sysfs link into the eeprom directory from the
-> > > radeon one.
-> > 
-> > How are you getting the kobject to the eeprom directory from the radeon
-> > driver?
-> > 
+On Wed, Jan 12, 2005 at 03:10:49PM -0800, Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
+> > ...
+> > And as for that "policy", it's been stated in public by Andrew and
+> > Linus and me (if I count for anything, doubtful...) a number of
+> > documented times.
 > 
-> I own the private I2C bus and eeprom is the only chip that will attach
-> to the bus. I need to do the link in the driver since there are four
-> busses and upto two monitors. The driver knows how to pair the head up
-> with the right bus.
-> 
-> if (dev_priv->primary_head.connector != ddc_none)
->   list_for_each(item,
-> &dev_priv->i2c[dev_priv->primary_head.connector].adapter.clients) {
->     client = list_entry(item, struct i2c_client, list);
->     sysfs_create_link(&dev->primary.dev_class->kobj,
-> &client->dev.kobj, "monitor");
->     break;
->   }
+> not me ;) It's two lines of code and makes things much simpler for the
+> users of our work.  Seems a no-brainer.
 
-Ick.  Oh well, sure, that's ok.  But I really think that a Kconfig rule
-could be made for this, instead of trying to pull an exported symbol in.
+Sorry, the "policy" I was referring to was the "out-of-the-tree drivers
+are on their own" statement.  Not the use of the HAVE macros.
 
-And I have a patch in my queue to delete that id, so you will have to
-come up with another symbol in the driver to do that with :)
+> And practically speaking, we don't make such fundamental driver-visible
+> changes _that_ often - if we end up getting buried under a proliferation of
+> HAVE_FOO macros, then the presence of the macros is the least of our
+> problems, yes?
+
+Ok, but can someone add a section in the feature-removal-schedule.txt
+file about when these specific macros will be removed?  They must be
+created with some specific use in mind, right?
 
 thanks,
 

@@ -1,207 +1,219 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313238AbSDJPeF>; Wed, 10 Apr 2002 11:34:05 -0400
+	id <S313242AbSDJPjC>; Wed, 10 Apr 2002 11:39:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313239AbSDJPeE>; Wed, 10 Apr 2002 11:34:04 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:7554 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S313238AbSDJPeC>; Wed, 10 Apr 2002 11:34:02 -0400
-Date: Wed, 10 Apr 2002 09:33:58 -0600
-Message-Id: <200204101533.g3AFXwS09100@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org
-Subject: RAID superblock confusion
+	id <S313243AbSDJPjB>; Wed, 10 Apr 2002 11:39:01 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:14607 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S313242AbSDJPi7>;
+	Wed, 10 Apr 2002 11:38:59 -0400
+Date: Wed, 10 Apr 2002 17:38:58 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Reducing root filesystem
+Message-ID: <20020410153858.GA8136@lug-owl.de>
+Mail-Followup-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <7CFD7CA8510CD6118F950002A519EA3001067D06@leonoid.in.ishoni.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux mail 2.4.15-pre2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. I've found the following (vexing) problem with the way the
-raid code handles superblocks/migrating devices. This was with
-2.4.19-pre6. This machine has 7 SCSI controllers: 4 isp2x00 (qlogicfc)
-and 3 sym53c8xxx. On 3 of the isp2x00 controllers, there are 2 drives
-each. The second partition on each of these 6 drives forms part of the
-RAID0 set. The sym53c8xx driver is built into the kernel, always (it
-has the boot drive).
 
-If the isp2x00 driver is built-in to the kernel, then host numbers
-[0-3] are assigned to the isp2x00 controllers, and [4-6] to the
-sym53c8xx controllers. The devices on the isp2x00 controllers are
-detected first, which means they have lower minor numbers. This is
-configuration used when the RAID set was configured many moons ago,
-and continues to work.
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If the isp2x00 driver is built as a module, and the scsihosts boot
-parameter is passed to the kernel to reserve host numbers [0-3] for
-the isp2x00 controllers, then the RAID code gets confused. Even though
-the host numbers are the same, the device detection order is changed,
-and thus the minor numbers are changed. Even though I'm using
-persistent superblockss, which is supposed to allow one to move
-devices from one controller to another, I can't use my RAID) set in
-this configuration. Looks like a bug.
+On Wed, 2002-04-10 19:38:09 +0530, Amol Kumar Lad <amolk@ishoni.com>
+wrote in message <7CFD7CA8510CD6118F950002A519EA3001067D06@leonoid.in.ishon=
+i.com>:
+> Hi,
+>   I am porting Linux to an embedded system. Currently my rootfilesystem is
+> around 2.5 MB (after keeping it to minimal and adding tools like busybox)=
+. I
+> want to furthur reduce it to say maximum of 1.5 MB.=20
+> Please suggest some link/references where I can find the details to optim=
+ise
+> my root filesystem
 
-Below is some relevant information.
+I really can't help you with the root filesystem, but you can do sth
+like this:
 
-Kernel log for first (working) configuration:
-===============================================================================
- [events: 0000004a]
- [events: 0000004a]
- [events: 0000004a]
- [events: 0000004a]
- [events: 0000004a]
- [events: 0000004a]
-md: autorun ...
-md: considering scsi/host2/bus0/target2/lun0/part2 ...
-md:  adding scsi/host2/bus0/target2/lun0/part2 ...
-md:  adding scsi/host2/bus0/target1/lun0/part2 ...
-md:  adding scsi/host1/bus0/target2/lun0/part2 ...
-md:  adding scsi/host1/bus0/target1/lun0/part2 ...
-md:  adding scsi/host0/bus0/target2/lun0/part2 ...
-md:  adding scsi/host0/bus0/target1/lun0/part2 ...
-md: created md0
-md: bind<scsi/host0/bus0/target1/lun0/part2,1>
-md: bind<scsi/host0/bus0/target2/lun0/part2,2>
-md: bind<scsi/host1/bus0/target1/lun0/part2,3>
-md: bind<scsi/host1/bus0/target2/lun0/part2,4>
-md: bind<scsi/host2/bus0/target1/lun0/part2,5>
-md: bind<scsi/host2/bus0/target2/lun0/part2,6>
-md: running: <scsi/host2/bus0/target2/lun0/part2><scsi/host2/bus0/target1/lun0/part2><scsi/host1/bus0/target2/lun0/part2><scsi/host1/bus0/target1/lun0/part2><scsi/host0/bus0/target2/lun0/part2><scsi/host0/bus0/target1/lun0/part2>
-md: scsi/host2/bus0/target2/lun0/part2's event counter: 0000004a
-md: scsi/host2/bus0/target1/lun0/part2's event counter: 0000004a
-md: scsi/host1/bus0/target2/lun0/part2's event counter: 0000004a
-md: scsi/host1/bus0/target1/lun0/part2's event counter: 0000004a
-md: scsi/host0/bus0/target2/lun0/part2's event counter: 0000004a
-md: scsi/host0/bus0/target1/lun0/part2's event counter: 0000004a
-md0: max total readahead window set to 1536k
-md0: 6 data-disks, max readahead per data-disk: 256k
-raid0: looking at scsi/host0/bus0/target1/lun0/part2
-raid0:   comparing scsi/host0/bus0/target1/lun0/part2(11767488) with scsi/host0/bus0/target1/lun0/part2(11767488)
-raid0:   END
-raid0:   ==> UNIQUE
-raid0: 1 zones
-raid0: looking at scsi/host0/bus0/target2/lun0/part2
-raid0:   comparing scsi/host0/bus0/target2/lun0/part2(11767488) with scsi/host0/bus0/target1/lun0/part2(11767488)
-raid0:   EQUAL
-raid0: looking at scsi/host1/bus0/target1/lun0/part2
-raid0:   comparing scsi/host1/bus0/target1/lun0/part2(11767488) with scsi/host0/bus0/target1/lun0/part2(11767488)
-raid0:   EQUAL
-raid0: looking at scsi/host1/bus0/target2/lun0/part2
-raid0:   comparing scsi/host1/bus0/target2/lun0/part2(11767488) with scsi/host0/bus0/target1/lun0/part2(11767488)
-raid0:   EQUAL
-raid0: looking at scsi/host2/bus0/target1/lun0/part2
-raid0:   comparing scsi/host2/bus0/target1/lun0/part2(11767488) with scsi/host0/bus0/target1/lun0/part2(11767488)
-raid0:   EQUAL
-raid0: looking at scsi/host2/bus0/target2/lun0/part2
-raid0:   comparing scsi/host2/bus0/target2/lun0/part2(11767488) with scsi/host0/bus0/target1/lun0/part2(11767488)
-raid0:   EQUAL
-raid0: FINAL 1 zones
-raid0: zone 0
-raid0: checking scsi/host0/bus0/target1/lun0/part2 ... contained as device 0
-  (11767488) is smallest!.
-raid0: checking scsi/host0/bus0/target2/lun0/part2 ... contained as device 1
-raid0: checking scsi/host1/bus0/target1/lun0/part2 ... contained as device 2
-raid0: checking scsi/host1/bus0/target2/lun0/part2 ... contained as device 3
-raid0: checking scsi/host2/bus0/target1/lun0/part2 ... contained as device 4
-raid0: checking scsi/host2/bus0/target2/lun0/part2 ... contained as device 5
-raid0: zone->nb_dev: 6, size: 70604928
-raid0: current zone offset: 11767488
-raid0: done.
-raid0 : md_size is 70604928 blocks.
-raid0 : conf->smallest->size is 70604928 blocks.
-raid0 : nb_zone is 1.
-raid0 : Allocating 8 bytes for hash.
-md: updating md0 RAID superblock on device
-md: scsi/host2/bus0/target2/lun0/part2 [events: 0000004b]<6>(write) scsi/host2/bus0/target2/lun0/part2's sb offset: 11767488
-md: scsi/host2/bus0/target1/lun0/part2 [events: 0000004b]<6>(write) scsi/host2/bus0/target1/lun0/part2's sb offset: 11767488
-md: scsi/host1/bus0/target2/lun0/part2 [events: 0000004b]<6>(write) scsi/host1/bus0/target2/lun0/part2's sb offset: 11767488
-md: scsi/host1/bus0/target1/lun0/part2 [events: 0000004b]<6>(write) scsi/host1/bus0/target1/lun0/part2's sb offset: 11767488
-md: scsi/host0/bus0/target2/lun0/part2 [events: 0000004b]<6>(write) scsi/host0/bus0/target2/lun0/part2's sb offset: 11767488
-md: scsi/host0/bus0/target1/lun0/part2 [events: 0000004b]<6>(write) scsi/host0/bus0/target1/lun0/part2's sb offset: 11767488
-md: ... autorun DONE.
-===============================================================================
 
-Kernel log for second (failing) configuration:
-===============================================================================
- [events: 0000004a]
-md: can not import scsi/host6/bus0/target0/lun0/part2, has active inodes!
-md: could not import scsi/host6/bus0/target0/lun0/part2, trying to run array nevertheless.
- [events: 0000004a]
- [events: 0000004a]
- [events: 0000004a]
- [events: 0000004a]
-md: autorun ...
-md: considering scsi/host2/bus0/target1/lun0/part2 ...
-md:  adding scsi/host2/bus0/target1/lun0/part2 ...
-md:  adding scsi/host1/bus0/target2/lun0/part2 ...
-md:  adding scsi/host1/bus0/target1/lun0/part2 ...
-md:  adding scsi/host0/bus0/target2/lun0/part2 ...
-md:  adding scsi/host0/bus0/target1/lun0/part2 ...
-md: created md0
-md: bind<scsi/host0/bus0/target1/lun0/part2,1>
-md: bind<scsi/host0/bus0/target2/lun0/part2,2>
-md: bind<scsi/host1/bus0/target1/lun0/part2,3>
-md: bind<scsi/host1/bus0/target2/lun0/part2,4>
-md: bind<scsi/host2/bus0/target1/lun0/part2,5>
-md: running: <scsi/host2/bus0/target1/lun0/part2><scsi/host1/bus0/target2/lun0/part2><scsi/host1/bus0/target1/lun0/part2><scsi/host0/bus0/target2/lun0/part2><scsi/host0/bus0/target1/lun0/part2>
-md: scsi/host2/bus0/target1/lun0/part2's event counter: 0000004a
-md: scsi/host1/bus0/target2/lun0/part2's event counter: 0000004a
-md: scsi/host1/bus0/target1/lun0/part2's event counter: 0000004a
-md: scsi/host0/bus0/target2/lun0/part2's event counter: 0000004a
-md: scsi/host0/bus0/target1/lun0/part2's event counter: 0000004a
-md: device name has changed from scsi/host1/bus0/target2/lun0/part2 to scsi/host2/bus0/target1/lun0/part2 since last import!
-md: device name has changed from scsi/host1/bus0/target1/lun0/part2 to scsi/host1/bus0/target2/lun0/part2 since last import!
-md: device name has changed from scsi/host0/bus0/target2/lun0/part2 to scsi/host1/bus0/target1/lun0/part2 since last import!
-md: device name has changed from scsi/host0/bus0/target1/lun0/part2 to scsi/host0/bus0/target2/lun0/part2 since last import!
-md: device name has changed from scsi/host6/bus0/target0/lun0/part2 to scsi/host0/bus0/target1/lun0/part2 since last import!
-md0: former device scsi/host2/bus0/target1/lun0/part2 is unavailable, removing from array!
-md0: max total readahead window set to 1536k
-md0: 6 data-disks, max readahead per data-disk: 256k
-md: md0, array needs 6 disks, has 5, aborting.
-raid0: disks are not ordered, aborting!
-md: pers->run() failed ...
-md :do_md_run() returned -22
-md: md0 stopped.
-md: unbind<scsi/host2/bus0/target1/lun0/part2,4>
-md: export_rdev(scsi/host2/bus0/target1/lun0/part2)
-md: unbind<scsi/host1/bus0/target2/lun0/part2,3>
-md: export_rdev(scsi/host1/bus0/target2/lun0/part2)
-md: unbind<scsi/host1/bus0/target1/lun0/part2,2>
-md: export_rdev(scsi/host1/bus0/target1/lun0/part2)
-md: unbind<scsi/host0/bus0/target2/lun0/part2,1>
-md: export_rdev(scsi/host0/bus0/target2/lun0/part2)
-md: unbind<scsi/host0/bus0/target1/lun0/part2,0>
-md: export_rdev(scsi/host0/bus0/target1/lun0/part2)
-md: ... autorun DONE.
-===============================================================================
-Note the following line from the kernel logs above:
-md: can not import scsi/host6/bus0/target0/lun0/part2, has active inodes!
+diff -Nur test-remove-me/linux-2.2.19-clean/Documentation/Configure.help li=
+nux-schlecker-2.2.19/Documentation/Configure.help
+--- test-remove-me/linux-2.2.19-clean/Documentation/Configure.help	Sun Mar =
+25 18:37:29 2001
++++ linux-schlecker-2.2.19/Documentation/Configure.help	Mon Nov  5 12:42:46=
+ 2001
+@@ -4942,6 +4942,14 @@
+   important data. This is primarily of use to people trying to debug
+   the middle and upper layers of the SCSI subsystem. If unsure, say N.
+=20
++Smaller kernel by omitting most messages
++CONFIG_NO_PRINTK
++  Enabling this option will result in a smaller kernel by removing
++  most text strings. This is only useful for emdedded systems where
++  you've got to live with <=3D 4MB of RAM. I386-only for now...
++
++  If unsure, say no.
++
+ Fibre Channel support
+ CONFIG_FC4
+   This is an experimental support for storage arrays connected to
+@@ -210,5 +221,6 @@
+=20
+ #bool 'Debug kmalloc/kfree' CONFIG_DEBUG_MALLOC
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Eleminate *most* printk()s' CONFIG_NO_PRINTK
+ endmenu
+=20
+diff -Nur test-remove-me/linux-2.2.19-clean/arch/i386/kernel/head.S linux-s=
+chlecker-2.2.19/arch/i386/kernel/head.S
+--- test-remove-me/linux-2.2.19-clean/arch/i386/kernel/head.S	Sun Mar 25 18=
+:31:45 2001
++++ linux-schlecker-2.2.19/arch/i386/kernel/head.S	Fri Nov  2 11:21:42 2001
+@@ -315,7 +315,7 @@
+ 	movl %ax,%ds
+ 	movl %ax,%es
+ 	pushl $int_msg
+-	call SYMBOL_NAME(printk)
++	call SYMBOL_NAME(real_printk)
+ 	popl %eax
+ 	popl %ds
+ 	popl %es
+diff -Nur test-remove-me/linux-2.2.19-clean/include/asm-i386/system.h linux=
+-schlecker-2.2.19/include/asm-i386/system.h
+--- test-remove-me/linux-2.2.19-clean/include/asm-i386/system.h	Sun Mar 25 =
+18:31:05 2001
++++ linux-schlecker-2.2.19/include/asm-i386/system.h	Mon Dec 17 14:32:03 20=
+01
+@@ -135,21 +135,15 @@
+ 	switch (size) {
+ 		case 1:
+ 			__asm__("xchgb %b0,%1"
+-				:"=3Dq" (x)
+-				:"m" (*__xg(ptr)), "0" (x)
+-				:"memory");
++					:"+q" (x),"=3Dm" (*__xg(ptr)));
+ 			break;
+ 		case 2:
+ 			__asm__("xchgw %w0,%1"
+-				:"=3Dr" (x)
+-				:"m" (*__xg(ptr)), "0" (x)
+-				:"memory");
++					:"+r" (x),"=3Dm" (*__xg(ptr)));
+ 			break;
+ 		case 4:
+ 			__asm__("xchgl %0,%1"
+-				:"=3Dr" (x)
+-				:"m" (*__xg(ptr)), "0" (x)
+-				:"memory");
++					:"+r" (x), "=3Dm" (*__xg(ptr)));
+ 			break;
+ 	}
+ 	return x;
+diff -Nur test-remove-me/linux-2.2.19-clean/include/linux/kernel.h linux-sc=
+hlecker-2.2.19/include/linux/kernel.h
+--- test-remove-me/linux-2.2.19-clean/include/linux/kernel.h	Sun Mar 25 18:=
+31:03 2001
++++ linux-schlecker-2.2.19/include/linux/kernel.h	Fri Dec 14 14:53:14 2001
+@@ -9,6 +9,7 @@
+=20
+ #include <stdarg.h>
+ #include <linux/linkage.h>
++#include <linux/config.h>
+=20
+ /* Optimization barrier */
+ /* The "volatile" is due to gcc bugs */
+@@ -54,8 +55,16 @@
+=20
+ extern int session_of_pgrp(int pgrp);
+=20
+-asmlinkage int printk(const char * fmt, ...)
++asmlinkage int real_printk(const char * fmt, ...)
+ 	__attribute__ ((format (printf, 1, 2)));
++
++#ifdef CONFIG_NO_PRINTK
++#	define printk(format, arg...) do {} while(0)
++#else
++#	define printk(format, arg...) real_printk(format, ## arg)
++#endif /* CONFIG_NO_PRINTK */
++
++#define oops_printk(format, arg...) real_printk(format, ## arg)
+=20
+ #if DEBUG
+ #define pr_debug(fmt,arg...) \
+diff -Nur test-remove-me/linux-2.2.19-clean/kernel/ksyms.c linux-schlecker-=
+2.2.19/kernel/ksyms.c
+--- test-remove-me/linux-2.2.19-clean/kernel/ksyms.c	Sun Mar 25 18:31:02 20=
+01
++++ linux-schlecker-2.2.19/kernel/ksyms.c	Fri Dec 14 15:24:52 2001
+@@ -357,7 +357,7 @@
+=20
+ /* misc */
+ EXPORT_SYMBOL(panic);
+-EXPORT_SYMBOL(printk);
++EXPORT_SYMBOL(real_printk);
+ EXPORT_SYMBOL(sprintf);
+ EXPORT_SYMBOL(vsprintf);
+ EXPORT_SYMBOL(kdevname);
+diff -Nur test-remove-me/linux-2.2.19-clean/kernel/printk.c linux-schlecker=
+-2.2.19/kernel/printk.c
+--- test-remove-me/linux-2.2.19-clean/kernel/printk.c	Sun Mar 25 18:31:02 2=
+001
++++ linux-schlecker-2.2.19/kernel/printk.c	Fri Dec 14 14:52:50 2001
+@@ -249,7 +249,7 @@
+ 	return do_syslog(type, buf, len);
+ }
+=20
+-asmlinkage int printk(const char *fmt, ...)
++asmlinkage int real_printk(const char *fmt, ...)
+ {
+ 	va_list args;
+ 	int i;
 
-Well, that's no surprise, as this partition has /usr! And this
-partition isn't even mentioned in the /etc/raidtab file. But I note
-that it has the same device number in this (the broken) configuration
-as /dev/sd/c0b0t1u0p2 has in the working configuration.
 
-The /etc/raidtab file:
-===============================================================================
-raiddev /dev/md/0
-        raid-level             0
-        nr-raid-disks          6
-        persistent-superblock  1
-        chunk-size             4
-        device                 /dev/sd/c0b0t1u0p2
-        raid-disk              0
-        device                 /dev/sd/c0b0t2u0p2
-        raid-disk              1
-        device                 /dev/sd/c1b0t1u0p2
-        raid-disk              2
-        device                 /dev/sd/c1b0t2u0p2
-        raid-disk              3
-        device                 /dev/sd/c2b0t1u0p2
-        raid-disk              4
-        device                 /dev/sd/c2b0t2u0p2
-        raid-disk              5
-===============================================================================
 
-				Regards,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+This is for i386, but it can be implemented like this for other
+architectures. Please note:
+
+	- The patch to system.h is only neccessary because gcc will
+	  magically miscompile the code if there's no printk()
+	  resulting (at least) in a broken DMA (de)registering
+	  functions rendering the floppy.o module useless. Maybe
+	  you don't need this patch. It was _not_ developed by
+	  me but send by Momchil Velikov <velco@fadata.bg>.
+	- In 2.4.x, EXPORT_SYMBOL((real)printk) is not in
+	  kernel/ksyms.c, but in kernel/printk.c
+	- BigFatWarning: It shouldn't be, but there might
+	  be code fragments that do more than only printing
+	  in a printk call (like 'printk(KERN_ERR "%d\n", a=3Dfunc(a))')
+	  Things like this _will_ break!!!
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
+	 -- New APT-Proxy written in shell script --
+	   http://lug-owl.de/~jbglaw/software/ap2/
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjy0XJEACgkQHb1edYOZ4bsxSgCfew49G/g0HVRGWcZj26NVj5lo
+Kp0AnA8HcLeIsPJzyEIebMgAUhvPxrU0
+=AGw6
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--

@@ -1,117 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbTHTBab (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 21:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbTHTBab
+	id S261196AbTHTBnU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 21:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbTHTBnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 21:30:31 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:12282 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S261529AbTHTBa1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 21:30:27 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH][2.6][2/5]Support for HPET based timer
-Date: Tue, 19 Aug 2003 18:30:10 -0700
-Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D1CF@fmsmsx405.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][2.6][2/5]Support for HPET based timer
-Thread-Index: AcNmpHpTOcueUqPtT76X42EcX180QQAEPQrw
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Andi Kleen" <ak@muc.de>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Aug 2003 01:30:11.0189 (UTC) FILETIME=[98E96A50:01C366BA]
+	Tue, 19 Aug 2003 21:43:20 -0400
+Received: from codepoet.org ([166.70.99.138]:33684 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S261196AbTHTBnS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 21:43:18 -0400
+Date: Tue, 19 Aug 2003 19:42:29 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Rob Landley <rob@landley.net>,
+       "Ihar 'Philips' Filipau" <filia@softhome.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: [PATCH] scsi.h uses "u8" which isn't defined.
+Message-ID: <20030820014228.GA7105@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jeff Garzik <jgarzik@pobox.com>, Rob Landley <rob@landley.net>,
+	Ihar 'Philips' Filipau <filia@softhome.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <lRjc.6o4.3@gated-at.bofh.it> <3F4120DD.3030108@softhome.net> <20030818190421.GN24693@gtf.org> <200308190832.24744.rob@landley.net> <20030819172651.GA15781@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030819172651.GA15781@gtf.org>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue Aug 19, 2003 at 01:26:51PM -0400, Jeff Garzik wrote:
+> > Or used directly by uclibc (and linux from scratch) to build the library 
+> > against.
+> 
+> Yes, this is incorrect.
+> 
+> Kernel developers have been telling people for years, "do not directly
+> include kernel headers."
+
+<Kernel developer hat on>
+
+Yes.  As a kernel developer I regularly tell people to make their
+own private copy of the bits of kernel headers they need, to
+prevent breakage when random bits in the kernel headers change.
+I can't begin to count the number of applications I have fixed by
+removing some kernel headers and then copying in the definition
+of some random struct, adding a few ioctl defines, and then
+changing everything to use types from stdint.h rather than the
+kernel's internal typing.
+
+I have also long maintained that this is incredibly stupid....
+When I wrote the cdrom.h header file, for example, I wrote it to
+define the interface which user space would use when talking to
+the kernel.  I _designed_ that header file to be directly used by
+user space, since that is the one and only spot that contains all
+the relevant knowledge needed to interact with the kernel's cdrom
+driver.  I mean, how else would user space know what to do?  It
+is silly there needs to be N copies of the header file defining
+this interface for N applications...  The fact the kernel has
+mingled its internal interfaces and its external interfaces is a
+serious and ugly blemish.
 
 
-The timer stuff in kernel is divided into two levels:
-1) Base kernel timer, the one that generates periodic timer interrupt on
-IRQ 0. There is also associated initializations like APIC timer
-initialization in case of SMP,
-which again depends on the timer hardware. As of now, kernel has only
-have PIT 
-in this level.
+<uClibc maintainer hat on>
 
-2) Various timers under arch/i386/kernel/timers, basically used during
-gettimeofday().
-we currently have different timers here like, timer_cyclone, timer_tsc
-or timer_pit. 
-This part has a clean infrastructure to add and/or prioritize different
-timers.
+Not including kernel headers in user space is of course perfect
+advice for your average piece of user space.  This is _not_
+currently a reasonable request for a C library because the kernel
+folk have not yet provided a reasonable alternative.  Looked at
+glibc recently?  Just like uClibc, it determines the ABI of the
+kernel against which it is compiled (in the case of glibc, via
+the --with-headers configure option).  Distros such as RedHat and
+Debian provide kernel-headers packages against which C libraries
+are compiled.  Guess what those contain?  Kernel headers.  Kernel
+headers which are used by user space because the kernel folk have
+been too damn lazy to provide something better.
 
+That said, for uClibc I have begun the process of eliminating the
+dependence on kernel headers for random structs.  I now have arch
+specific headers such as "kernel_stat.h", mainly since the kernel
+headers are too inconsistant between architectures to be even
+remotely usable.  But as others have noted, extracting and
+sanitizing the entire kernel ABI is a huge amount of work and I
+am nowhere close to done.
 
-With HPET support we are changing stuff at both the levels.
-1) We use HPET hardware to generate HZ interrupts on IRQ 0. This is the
-change that
-is there in PATCH 2/5. Unfortunately, we cannot use the existing timers
-infrastructure 
-for this part. We tried to keep the changes here as less as possible.
-But, still had to
-do changes in apic.c as it was assuming PIT for base timer. And the
-other change is in
-time.c, wherein we have to calibrate/initialize HPET for base timer, in
-place of PIT.
-The reason we kept timer_hpet.c in arch/i386/kernel is because it has
-more to do with
-initialization of the base-kernel-timer, than the gettimeofday-timer.
+ -Erik
 
-2) The timers for gettimeofday will change too, with HPET. The timer
-list will be 
-something like, timer_cyclone, timer_hpet, timer_tsc. This change is
-there in 
-PATCH 3/5. This change uses the exisiting timer infrastructure in 
-arch/i386/kernel/timers
-
-
-Thanks,
--Venkatesh
-
-> -----Original Message-----
-> From: Andi Kleen [mailto:ak@muc.de] 
-> Sent: Tuesday, August 19, 2003 3:41 PM
-> To: Pallipadi, Venkatesh
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH][2.6][2/5]Support for HPET based timer
-> 
-> 
-> "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> writes:
-> 
-> >  /*
-> > + * Default initialization for 8254 timers. If we use other 
-> timers like HPET,
-> > + * we override this later 
-> > + */
-> > +void (*wait_timer_tick)(void) = wait_8254_wraparound;
-> 
-> It would be much cleaner to just poll the generic monotonic 
-> time source here,
-> not add more special cases.
-> 
-> > diff -purN linux-2.6.0-test1/arch/i386/kernel/time_hpet.c 
-> linux-2.6.0-test1-hpet/arch/i386/kernel/time_hpet.c
-> > --- linux-2.6.0-test1/arch/i386/kernel/time_hpet.c	
-> 1969-12-31 16:00:00.000000000 -0800
-> > +++ linux-2.6.0-test1-hpet/arch/i386/kernel/time_hpet.c	
-> 2003-08-18 20:22:06.000
-> 000000 -0700
-> 
-> Shouldn't that be in arch/i386/kernel/timers/hpet.c ? 
-> 
-> Also I suspect it should be made an generic timer object there with
-> a timer_ops structure. If some hook for that is missing it 
-> could be added to 
-> timer_ops and timers/timer.c
-> 
-> When there is already a generic framework to add new timers 
-> it would be a shame
-> not to use it.
-> 
-> -Andi
-> 
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

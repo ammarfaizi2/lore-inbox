@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263763AbTJETSv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 15:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263782AbTJETSv
+	id S263798AbTJET1L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 15:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTJET1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 15:18:51 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:61576 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263763AbTJETSu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 15:18:50 -0400
-Date: Sun, 5 Oct 2003 20:18:21 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>,
-       linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
-       pwaechtler@mac.com, Michal Wronski <wrona@mat.uni.torun.pl>
-Subject: Re: POSIX message queues
-Message-ID: <20031005191821.GA27345@mail.shareable.org>
-References: <Pine.GSO.4.58.0310051047560.12323@ultra60> <3F80484A.3030105@redhat.com> <20031005181630.GA26958@mail.shareable.org> <20031005143239.T26086@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031005143239.T26086@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 5 Oct 2003 15:27:11 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:59025 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263798AbTJET1I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 15:27:08 -0400
+Date: Sun, 5 Oct 2003 21:26:58 +0200 (MEST)
+Message-Id: <200310051926.h95JQwlf009299@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.6.1 released
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakub Jelinek wrote:
-> > Speaking of librt - I should not have to link in pthreads and the
-> > run-time overhead associated with it (locking stdio etc.) just so I
-> > can use shm_open().  Any chance of fixing this?
-> 
-> That overhead is mostly gone in current glibcs (when using NPTL):
-> a) e.g. locking is done unconditionally even when libpthread is not present
->    (it is just lock cmpxchgl, inlined)
-> b) things like cancellation aware syscall wrappers for cancellable syscalls
->    and various other things are only done after first pthread_create has
->    been called, it doesn't matter whether libpthread is loaded or not
+Version 2.6.1 of perfctr, the Linux/x86 performance
+monitoring counters driver, is now available at the usual
+place: http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-That's good.  I still don't like linking in pthreads when I'm not
-using threads or any thread-using services, so I'll continue to use a
-non-libc version of shm_open() in my own programs, particularly the
-ones which use clone() directly.
+Version 2.6.1, 2003-10-05
+- Opening a process' virtual perfctrs is now done via
+  /dev/perfctr instead of /proc/<pid>/perfctr. This is needed
+  due to the changed semantics for /proc/self and /proc/<pid>/
+  in kernel 2.6.0-test6. User-space is not affected since the
+  perfctr-2.6 API and user-space library was prepared for
+  this access method change.
+  User-space code monitoring other processes should use
+  gettid() to identify tasks in 2.6 kernels, since getpid()
+  does the wrong thing for process threads.
+- Driver cleanups from obsoleting 2.4.15 and older kernels.
+- Made examples/global/global.c more robust.
+- Simplified usage with 2.6 kernels: it's no longer necessary
+  to add an 'alias' declaration in /etc/modprobe.conf.
+- Added support for AMD K8 Revision C processors.
 
-Why isn't shm_open() simply part of libc?
-
--- Jamie
+/ Mikael Pettersson

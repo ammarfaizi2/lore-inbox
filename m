@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317395AbSFRMjG>; Tue, 18 Jun 2002 08:39:06 -0400
+	id <S317398AbSFRMwS>; Tue, 18 Jun 2002 08:52:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317397AbSFRMjF>; Tue, 18 Jun 2002 08:39:05 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:15884 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id <S317395AbSFRMjF>; Tue, 18 Jun 2002 08:39:05 -0400
-Date: Tue, 18 Jun 2002 14:42:07 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-To: "Hans E. Kristiansen" <hans@tropic.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.22 problems with compile.h
-In-Reply-To: <009401c216b4$22458160$252ca8c0@sdfg>
-Message-ID: <Pine.LNX.4.21.0206181436570.442-100000@notebook.diehl.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317399AbSFRMwR>; Tue, 18 Jun 2002 08:52:17 -0400
+Received: from employees.nextframe.net ([212.169.100.200]:65522 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S317398AbSFRMwR>; Tue, 18 Jun 2002 08:52:17 -0400
+Date: Tue, 18 Jun 2002 15:00:55 +0200
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] Getting rid of check_region()
+Message-ID: <20020618150055.E129@sexything>
+Reply-To: morten.helgesen@nextframe.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jun 2002, Hans E. Kristiansen wrote:
+Hey guys.
 
-> I really need some help with compiling version 2.5.22
-> 
-> >From a clean install, I can compile, but I get an error with compile.h (Do
-> not know how to make compile.h). If I compile again, I get a working kernel
+It`s time for some real janitor work :)
 
-same here - see below.
+I`ve taken a clean 2.5.22 tree, and started removing
+instances of check_region(). It has been on the kernel janitors`
+TODO list for a long time. 
 
-> (bzImage), "depmod -ae -F xx " works like a charm. But, when I reboot with
-> the new kernel, I can not load any modules. None, they all have symbol
-> problems.
+It struck me that it might be a good idea to see if anyone had any comments 
+or even objections before spending X hours killing it off :-)
 
-There are two patches from Kai Germaschewski in the "2.5.22 broke
-modversions" thread which solved this issue for me.
+I see that there are lots of places where we can just remove
+check_region() and instead just check the return value from
+request_region(), but I`m also sure we have corner cases where
+driver authors are doing 'nifty' things with check_region(), and 
+these drivers might need a bit more surgery. I will contact
+the driver authors and ask for their comments if I can not figure out
+how to work around using check_region() in the specific driver.
 
-> To compile a kernel, I use "make dep clean bzImage modules modules_install",
+When done, I`ll submit separate patches for separate directories.
 
-replacing this by separate "make dep; make clean; make bzImage; make
-modules; make modules_install" invokations solved the compile.h problem
-for me.
+Does this sound like a sane approach to you guys ?
 
-HTH
-Martin
+== Morten
 
+-- 
+
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
+
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

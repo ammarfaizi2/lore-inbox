@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbTJMQZf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 12:25:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbTJMQZf
+	id S261914AbTJMQfM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 12:35:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbTJMQfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 12:25:35 -0400
-Received: from smtp1.fre.skanova.net ([195.67.227.94]:58111 "EHLO
-	smtp1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261967AbTJMQZ1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 12:25:27 -0400
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Why are bad disk sectors numbered strangely, and what happens to them?
-Date: Mon, 13 Oct 2003 18:29:15 +0200
-User-Agent: KMail/1.5.9
-References: <Pine.LNX.4.44.0310131653410.20116-100000@gaia.cela.pl>
-In-Reply-To: <Pine.LNX.4.44.0310131653410.20116-100000@gaia.cela.pl>
+	Mon, 13 Oct 2003 12:35:12 -0400
+Received: from imladris.surriel.com ([66.92.77.98]:32705 "EHLO
+	imladris.surriel.com") by vger.kernel.org with ESMTP
+	id S261914AbTJMQfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 12:35:08 -0400
+Date: Mon, 13 Oct 2003 12:34:52 -0400 (EDT)
+From: Rik van Riel <riel@surriel.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][TRIVIAL] silence warning in reiserfs_ioctl
+Message-ID: <Pine.LNX.4.55L.0310131233460.27244@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200310131829.17691.roger.larsson@skelleftea.mail.telia.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 October 2003 16.54, Maciej Zenczykowski wrote:
-> > find /usr/lib -type f|sed -e 's!.*!cat & >/dev/null || echo &!'|sh
->
-> should obviously be:
->   find /usr/lib -type f|sed -e 's!.*!cat "&" >/dev/null || echo &!'|sh
-> in order to accept spaces in file names... (they do happen).
+Gcc is afraid we might fall off the end of the function without returning.
 
-find /usr/lib -type f|sed -e 's!.*!cat "&" >/dev/null || echo "&"!'|sh
+diff -urNp linux-5110/fs/reiserfs/ioctl.c linux-10010/fs/reiserfs/ioctl.c
+--- linux-5110/fs/reiserfs/ioctl.c
++++ linux-10010/fs/reiserfs/ioctl.c
+@@ -84,6 +84,7 @@ int reiserfs_ioctl (struct inode * inode
+ 	default:
+ 		return -ENOTTY;
+ 	}
++	return 0;
+ }
 
-To accept even stranger characters... Like parantesis '('
-Othervice I get:
-
-sh: line 10051: syntax error near unexpected token `('
-sh: line 10051: `cat "/usr/lib/qt-3.0.5/templates/
-Dialog_with_Buttons_(Bottom).ui" >/dev/null || echo /usr/lib/qt-3.0.5/
-templates/Dialog_with_Buttons_(Bottom).ui'
-
-/RogerL
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
+ /*

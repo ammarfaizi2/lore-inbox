@@ -1,96 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267543AbTBRCAr>; Mon, 17 Feb 2003 21:00:47 -0500
+	id <S267564AbTBRCEQ>; Mon, 17 Feb 2003 21:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267548AbTBRCAr>; Mon, 17 Feb 2003 21:00:47 -0500
-Received: from scrye.com ([216.17.180.1]:37043 "EHLO scrye.com")
-	by vger.kernel.org with ESMTP id <S267543AbTBRCAp>;
-	Mon, 17 Feb 2003 21:00:45 -0500
-Date: 18 Feb 2003 02:10:39 -0000
-Message-ID: <20030218021039.28335.qmail@scrye.com>
-From: Kevin Fenzi <kevin-linux-kernel@scrye.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x end of tape handling error
-In-Reply-To: <200302101904.h1AJ4US05141@devserv.devel.redhat.com>
-References: <mailman.1044901620.21591.linux-kernel2news@redhat.com>
-	<200302101904.h1AJ4US05141@devserv.devel.redhat.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+	id <S267566AbTBRCEQ>; Mon, 17 Feb 2003 21:04:16 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:58340 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S267564AbTBRCEO>; Mon, 17 Feb 2003 21:04:14 -0500
+Date: Mon, 17 Feb 2003 18:14:11 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Steve Lee <steve@tuxsoft.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: What language has Alan's portaloo changed to?
+In-Reply-To: <003001c2d6eb$40954c20$e501a8c0@saturn>
+Message-ID: <Pine.LNX.4.44.0302171812050.15078-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+what's wrong with welsh?
 
->>>>> "Pete" == Pete Zaitcev <zaitcev@redhat.com> writes:
+joelja
 
->> I have had reported from a client that they are having problems
->> with backups that span more than one tape. Instead of getting an
->> EOT error or EOM, they are getting an I/O error wich requires the
->> driver to be unloaded and reloaded before the tape will work again.
->> 
->> http://www.linuxtapecert.org/ Says that the redhat 2.4.9-34 kernel
->> is the last one that had proper EOT handling. Indeed, if they use
->> the 2.4.9-34 kernel, the tape works properly. Thats not a very good
->> solution however.
+On Mon, 17 Feb 2003, Steve Lee wrote:
 
-Pete> You neglected to mention what kind of tape it is. There are
-Pete> several types of tapes, served by a jigsaw puzzle of various
-Pete> drivers.
+> I hadn't noticed this yet, but I'm disappointed as well.  I usually read
+> his diary on a weekly basis.
+> 
+> Alan???
+> 
+> 
+> Steve
+> 
+> 
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of
+> jlnance@unity.ncsu.edu
+> Sent: Monday, February 17, 2003 11:25 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: What language has Alan's portaloo changed to?
+> 
+> I notice that the entries on http://www.linux.org.uk/diary/ have changed
+> to a different language.  Is it Welsh?  Hm.  I wonder if bablefish can
+> help me translate it.
+> 
+> Thanks,
+> 
+> Jim
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-The problem was reported to me on a LTO scsi drive, but they also said
-it happened on normal DAT drives. I am trying to get the exact model
-and such on that drive. 
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
+--    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
+  In Dr. Johnson's famous dictionary patriotism is defined as the last
+  resort of the scoundrel.  With all due respect to an enlightened but
+  inferior lexicographer I beg to submit that it is the first.
+	   	            -- Ambrose Bierce, "The Devil's Dictionary"
 
->> Is this fixed in the latest 2.4.21-pres? How about in 2.5.x?
 
-Pete> Why don't you try and verify it, then let us know? You may be
-Pete> the only guy in the world mad enough to use a tape with 2.5.x.
-Pete> Please share your valuable expirience.
-
-well, I have a HP dds2 drive here, so was happy to try and duplicate
-the problem. Starting with the 2.4.18-24.7.x-i686-smp redhat kernel. 
-
-In the interests of getting the problem to occur quickly, I
-partitioned the dds2 tape into 2 partitions, the second having only
-10mb in it. That doesn't show the problem. I get ENOSPC as expected at
-the end of the small partition. 
-
-Without partitions if I write more than can fit on a dds2 tape, I get: 
-
-...
-write(3, "r\342H\\5,\341\235\203\6\245`\264.C\303*\262\27qZ\343\305"..., 10240) = -1 EIO (Input/output error)
-write(2, "tar: ", 5)                    = 5
-write(2, "/dev/nst0: Wrote only 0 of 10240"..., 38) = 38
-write(2, "\n", 1)                       = 1
-write(2, "tar: ", 5)                    = 5
-write(2, "Error is not recoverable: exitin"..., 37) = 37
-write(2, "\n", 1)                       = 1
-munmap(0x4002e000, 4096)                = 0
-_exit(2)                                = ?
-
-st0: Error with sense data: Info fld=0x28000, Current st09:00: sense key Medium Error
-Additional sense indicates Write error
-st0: Error with sense data: Info fld=0x0, Current st09:00: sense key Medium Error
-Additional sense indicates Write error
-st0: Error on write filemark.
-st: Unloaded.
-
-Sounds like it might be this issue: 
-
-http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&frame=right&th=85f41070543a0b41&seekm=DHn4y1.49t%40temic-ech.spacenet.de#s
-
-I am trying another test with buffering off to see if that fixes it. 
-Nope. Tried loading st with everything set to 0, no dice. 
-
-Pete> -- Pete
-
-kevin
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQE+UZYf3imCezTjY0ERAtaeAJsH7cwVy8HCkzHoUH+x4D0t1En0NACeMR91
-osNsXmVCPrvFCDRrUQ3NPPk=
-=9ji/
------END PGP SIGNATURE-----

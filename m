@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265934AbUBJPBp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 10:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265937AbUBJPBo
+	id S265912AbUBJOtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 09:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265915AbUBJOtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 10:01:44 -0500
-Received: from web41203.mail.yahoo.com ([66.218.93.36]:23208 "HELO
-	web41203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265934AbUBJPBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 10:01:43 -0500
-Message-ID: <20040210150125.71542.qmail@web41203.mail.yahoo.com>
-Date: Tue, 10 Feb 2004 07:01:25 -0800 (PST)
-From: Jin Suh <jinssuh@yahoo.com>
-Subject: 2.6.2 with ide cdrom drive problem
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Tue, 10 Feb 2004 09:49:15 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43783 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265912AbUBJOsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 09:48:46 -0500
+Date: Tue, 10 Feb 2004 14:47:19 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dmapool (was: Re: Linux 2.6.3-rc2)
+Message-ID: <20040210144719.B23310@flint.arm.linux.org.uk>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Greg Kroah-Hartman <greg@kroah.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org> <Pine.GSO.4.58.0402101424250.2261@waterleaf.sonytel.be> <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be>; from geert@linux-m68k.org on Tue, Feb 10, 2004 at 03:32:47PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linux-kernel folks,
+On Tue, Feb 10, 2004 at 03:32:47PM +0100, Geert Uytterhoeven wrote:
+> On Tue, 10 Feb 2004, Geert Uytterhoeven wrote:
+> > The dmapool code makes dma_{alloc,free}_coherent() a requirement for all
+> > platforms, breaking platforms that don't have it (e.g. m68k, and from a quick
+> > browse sparc and sparc64 probably, too).
+> >
+> > May not be that nice for a release candidate in a stable series...
+> 
+> This patch seems to fix the problem (all offending platforms include
+> <asm/generic.h> if CONFIG_PCI only):
 
-I built a bootable cdrom using 2.6.2 kernel. It bootd up from a scsi cdrom
-drive (11, 0) but not from ide cdrom drive which is /dev/hdc (22, 0). I use
-BICK (Bootable Iso Construction Kit). Since it doesn't boot from ide cddrive, I
-enabled the scsi aic7xxx and made 2 bootcds. I put one in the scsi cddrive and
-the other in the ide cddrive. The kernel loads from ide cddrive and cdinit1
-from BICK scans cdrom drives (hda, hdb, hdc, hdd and sr0 and sr1). The scanning
-doesn't find hdc cddrive (major 22, minor 0) and finds sr0 and continue the
-rest of the booting. Is 2.6.2 different from 2.4.20 in the device name (22,0)?
-What is the correct device number? When I looked at the /proc/ide/hdc/model
-file, it says "Samsung DVD-ROM SD-616T. It used to work fine with 2.4.20
-kernel. Could you please help me to fix this?
+Please don't - that breaks ARM.  Part of the whole point of dmapool is
+that it provides a generic DMA pool implementation, especially for
+non-PCI USB devices.
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Finance: Get your refund fast by filing online.
-http://taxes.yahoo.com/filing.html
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

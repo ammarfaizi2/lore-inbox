@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbTFCS1b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 14:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTFCS1b
+	id S262165AbTFCScA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 14:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbTFCScA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 14:27:31 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:53764 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261846AbTFCS1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 14:27:30 -0400
-Date: Tue, 3 Jun 2003 20:40:31 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: Steve Brueggeman <xioborg@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA CHIPSET KT 400 / 8235 troubleshooting
-Message-ID: <20030603184031.GA3258@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <0060478E58FDD611A4A200508BCF7BD97BF752@pleyel.chant.com> <bbhli0$v5j$1@ask.hswn.dk> <1054629097.2723.7.camel@sonja> <tdjpdv0ed43luavghf65hfa8jbp7o2u51m@4ax.com>
-Mime-Version: 1.0
+	Tue, 3 Jun 2003 14:32:00 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:62374 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262165AbTFCSb6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 14:31:58 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <tdjpdv0ed43luavghf65hfa8jbp7o2u51m@4ax.com>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16092.60612.352739.581639@napali.hpl.hp.com>
+Date: Tue, 3 Jun 2003 11:45:24 -0700
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: davidm@hpl.hp.com, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
+       linux-ia64@linuxia64.org, netdev@oss.sgi.com
+Subject: Re: fix TCP roundtrip time update code
+In-Reply-To: <1054662070.701.6.camel@tux.rsn.bth.se>
+References: <200306031552.h53FqknC023999@napali.hpl.hp.com>
+	<1054662070.701.6.camel@tux.rsn.bth.se>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Steve Brueggeman <xioborg@yahoo.com>
-Date: Tue, Jun 03, 2003 at 11:37:13AM -0500
-> linux-2.4.21-rc6-ac1 boots fine with APIC enabled, without the
-> "noapic" kernel parameter.
-> 
-> So, to install Mandrake 9.1, specify the "noapic" parameter, and once
-> installed, give linux-2.4.21-rc6-ac1 a try.
-> 
-> 
-> Alan, thanks for the fix.  I was beginning to wonder if my KT400
-> chipset would be supported by a stable kernel.
-> 
-Is this with or without ACPI?
+>>>>> On 03 Jun 2003 19:41:11 +0200, Martin Josefsson <gandalf@wlug.westbo.se> said:
 
-Thanks,
-Jurriaan
--- 
-Top Ten Times In History when using the "F" word was appropriate
-(yes, another *&%#ing top ten list that you may or maybe haven't read
-before. Only one *&%#ing way to find out...)
-10) "What the *&%# was that?"
-	Mayor of Hiroshima
-Debian (Unstable) GNU/Linux 2.5.70 4112 bogomips 5 users load av: 1.25 0.49 0.18
+  Martin> (trimmed CC line and added netdev) On Tue, 2003-06-03 at
+  Martin> 17:52, David Mosberger wrote:
+  >> One of those very-hard-to-track-down, trivial-to-fix kind of
+  >> problems: without this patch, TCP roundtrip time measurements
+  >> will corrupt the routing cache's RTT estimates under heavy
+  >> network load (the bug causes RTAX_RTT to go negative, but since
+  >> its type is u32, you end up with a huge positive value...).  From
+  >> there on, later TCP connections quickly will go south.
+
+  >> The typo was introduced 8 months ago in v1.29 of the file by the
+  >> patch entitled "Cleanup DST metrics and abstrct MSS/PMTU
+  >> further".
+
+  Martin> I tested this patch and it looks like it has cured my
+  Martin> mysterious TCP stalls.
+
+Yes, this sounds reasonable.  I wasn't very clear on this point, but
+"by going south" I meant that TCP is starting to misbehave.  In
+particular, you'll likely end up with the kernel aborting ESTABLISHED
+TCP connections with extreme prejudice (and in violation of the TCP
+protocol), because it thought that it had been unable to communicate
+with the remote end for a _very_ long time.  The net effect typically
+is that you end up with one end having a connection that's in the
+ESTABLISHED state and the other end having no trace of that
+connection.
+
+	--david

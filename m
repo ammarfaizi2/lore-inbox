@@ -1,26 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280659AbRKSTm2>; Mon, 19 Nov 2001 14:42:28 -0500
+	id <S280664AbRKSToI>; Mon, 19 Nov 2001 14:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280662AbRKSTmT>; Mon, 19 Nov 2001 14:42:19 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25103 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280659AbRKSTmH>; Mon, 19 Nov 2001 14:42:07 -0500
-Subject: Re: Memory allocation question
-To: george@mvista.com (george anzinger)
-Date: Mon, 19 Nov 2001 19:50:09 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <3BF95C48.C49B3AE1@mvista.com> from "george anzinger" at Nov 19, 2001 11:23:52 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280663AbRKSTn6>; Mon, 19 Nov 2001 14:43:58 -0500
+Received: from sproxy.gmx.net ([213.165.64.20]:52643 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S280664AbRKSTnm> convert rfc822-to-8bit;
+	Mon, 19 Nov 2001 14:43:42 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Slo Mo Snail <slomosnail@gmx.net>
+Reply-To: slomosnail@gmx.net
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
+Date: Mon, 19 Nov 2001 20:44:33 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.33.0111191003470.8205-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0111191003470.8205-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E165uQj-0007V2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20011119194350Z280664-17408+16369@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> size chuncks.  Currently I am using kmalloc() to allocate a page at a
-> time.  I don't want to have to worry about mapping/unmapping etc.  I
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Use get_free_page() to get page sized chunks
+Am Montag, 19. November 2001 19:07 schrieb Linus Torvalds:
+> On Mon, 19 Nov 2001, Sebastian Dröge wrote:
+> > Hi,
+> > I couldn't answer ealier because I had some problems with my ISP
+> > the heavy swapping problem while burning a cd is solved in pre6aa1
+> > but if you want i can do some statistics tommorow
+>
+> Well, pre6aa1 performs really badly exactly because it by default doesn't
+> swap enough even on _normal_ loads because Andrea is playing with some
+> tuning (and see the bad results of that tuning in the VM testing by
+> rwhron@earthlink.net).
+>
+> So the pre6aa1 numbers are kind of suspect - lack of swapping may not be
+> due to fixing the problem, but due to bad tuning.
+>
+> Does plain pre6 solve it? Plain pre6 has a fix where a locked shared
+> memory area would previously cause unnecessary swapping, and maybe the CD
+> burning buffer is using shmlock..
+
+Hi,
+yes plain pre6 seems to solve it, too. I can't be sure right now because I 
+have recorded only 3 CDs while running pre6
+pre6 swaps more than aa1 but I had so far I had no buffer-underuns and much 
+of the swap appears in SwapCached
+the interactive performance seems to be much better in pre6 than in aa1 so 
+I'll stay with pre6 ;)
+Bye
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7+WEovIHrJes3kVIRAg+nAJ4issDSimDEal2I08CQHEoXBpGFLQCeNQ1x
+AathQZ75U5nhnEZwTkR4WnI=
+=lb0O
+-----END PGP SIGNATURE-----

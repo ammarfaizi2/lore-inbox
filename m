@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbUKPXbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbUKPX3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbUKPXbk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 18:31:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUKPX3r
+	id S261889AbUKPX3g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 18:29:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUKPX1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 18:29:47 -0500
-Received: from pop.gmx.de ([213.165.64.20]:63650 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261886AbUKPX2d (ORCPT
+	Tue, 16 Nov 2004 18:27:48 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:33299 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261886AbUKPX0E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 18:28:33 -0500
-X-Authenticated: #4399952
-Date: Wed, 17 Nov 2004 00:29:26 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Ingo Molnar <mingo@elte.hu>, "K.R. Foley" <kr@cybsft.com>,
-       Mark_H_Johnson@raytheon.com, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Stefan Schweizer <sschweizer@gmail.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
-Message-ID: <20041117002926.32a4b26f@mango.fruits.de>
-In-Reply-To: <20041116235535.6867290d@mango.fruits.de>
-References: <OFE5FC77BB.DA8F1FAE-ON86256F4E.0058C5CF-86256F4E.0058C604@raytheon.com>
-	<20041116184315.GA5492@elte.hu>
-	<419A5A53.6050100@cybsft.com>
-	<20041116212401.GA16845@elte.hu>
-	<20041116222039.662f41ac@mango.fruits.de>
-	<20041116223243.43feddf4@mango.fruits.de>
-	<20041116224257.GB27550@elte.hu>
-	<20041116230443.452497b9@mango.fruits.de>
-	<20041116231145.GC31529@elte.hu>
-	<20041116235535.6867290d@mango.fruits.de>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 16 Nov 2004 18:26:04 -0500
+Date: Wed, 17 Nov 2004 00:26:00 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: akpm <akpm@osdl.org>, ak@suse.de, lkml <linux-kernel@vger.kernel.org>,
+       greg@kroah.com
+Subject: Re: [PATCH] PCI: fix build errors with CONFIG_PCI=n
+Message-ID: <20041116232600.GB2868@pclin040.win.tue.nl>
+References: <419A8088.3010205@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <419A8088.3010205@osdl.org>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004 23:55:35 +0100
-Florian Schmidt <mista.tapas@gmx.net> wrote:
+On Tue, Nov 16, 2004 at 02:34:48PM -0800, Randy.Dunlap wrote:
 
-> yes, this seems to fix it. no more extra jitter or large latencies on
-> console switches. 
+> Fix (most of) kernel build for CONFIG_PCI=n.  Fixes these 3 errors:
 > 
-> Now, on to trying to lock up the machine ;)
-> 
+> 1. drivers/parport/parport_pc.c:3162: error: `parport_init_mode'
+> undeclared (first use in this function)
 
-Arr, it did lock up again. This time i was in X, so i couldn't use any sysrq
-stuff to see something. Will try tomorrow again..
+Life is easier if you do not use attachments.
+(Then I can more easily comment the code.)
 
-flo
+You write
+
+  -static int __init parport_init_mode_setup(const char *str) {
+  -
+  +#ifdef CONFIG_PCI
+  +static int __init parport_init_mode_setup(const char *str)
+
+In my tree I have
+
+  static int __init parport_init_mode_setup(char *str) {
+
+in order to avoid the warning for
+
+  __setup("parport_init_mode=",parport_init_mode_setup);
+
+since the parameter is a int (*setup_func)(char *); - see
+
+  struct obs_kernel_param {
+        const char *str;
+        int (*setup_func)(char *);
+        int early;
+  };
+
+Apart from this prototype change I only moved the single line
+
+  static int __initdata parport_init_mode = 0;
+
+outside the #ifdef's. Is that not good enough, and better
+than introducing more #ifdef's? Keeps the source smaller.
+
+Andries

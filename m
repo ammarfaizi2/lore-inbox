@@ -1,50 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUEKHg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbUEKHrC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbUEKHg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 03:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUEKHg0
+	id S262194AbUEKHrC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 03:47:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUEKHrC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 03:36:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64686 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262190AbUEKHgY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 03:36:24 -0400
-Message-ID: <40A0826B.2040301@pobox.com>
-Date: Tue, 11 May 2004 03:36:11 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Gary Wong <gtw@cs.bu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Segmentation fault in i810_audio.c:__i810_update_lvi
-References: <20040510123607.T9078@cs.bu.edu> <20040511002728.46e05e4c.akpm@osdl.org>
-In-Reply-To: <20040511002728.46e05e4c.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 11 May 2004 03:47:02 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5063 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261704AbUEKHrA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 03:47:00 -0400
+Date: Tue, 11 May 2004 00:45:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Geoff Gustafson <geoff@linux.jf.intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Performance of del_timer_sync
+Message-Id: <20040511004551.7c7af44d.akpm@osdl.org>
+In-Reply-To: <409FFF3B.3090506@linux.intel.com>
+References: <409FFF3B.3090506@linux.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Gary Wong <gtw@cs.bu.edu> wrote:
-> 
->>I believe that one of two fixes should be applied: either the
->> SNDCTL_DSP_SETTRIGGER ioctl handling should not enable the
->> PCM_ENABLE_{IN,OUT}PUT bits unless file->f_mode is compatible,
->> or i810_release() should ignore the PCM_ENABLE_* bits without
->> the corresponding FMODE_*.
-> 
-> 
-> The first option sounds more appropriate but I wonder if it could break
-> existing applications?  Probably not, if it oopses.
-> 
-> Let's try option #1, please.
+Geoff Gustafson <geoff@linux.jf.intel.com> wrote:
+>
+> I started this patch based on profiling an enterprise database application
+>  on a 32p IA64 NUMA machine, where del_timer_sync was one of the top few
+>  functions taking CPU time in the kernel.
 
-Let me also re-diff and spam you with _11_ fixes to i810_audio from 
-Herbert Xu.
-
-	Jeff
-
-
-
-
+Do you know where it's being called from?

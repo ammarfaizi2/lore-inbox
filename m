@@ -1,60 +1,309 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263599AbTJQTwY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 15:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263602AbTJQTwY
+	id S263607AbTJQT5l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 15:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263608AbTJQT5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 15:52:24 -0400
-Received: from main.gmane.org ([80.91.224.249]:18078 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263599AbTJQTwU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 15:52:20 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Software RAID5 with 2.6.0-test
-Date: Fri, 17 Oct 2003 21:52:17 +0200
-Message-ID: <yw1xd6cvk5fy.fsf@users.sourceforge.net>
-References: <1065690658.10389.19.camel@slurv> <Pine.LNX.3.96.1031017125544.24004C-100000@gatekeeper.tmr.com>
- <yw1xu167kbcw.fsf@users.sourceforge.net> <3F903768.7060803@rackable.com>
- <yw1xllrjk70f.fsf@users.sourceforge.net>
- <20031017193756.GH8711@unthought.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:ixjF7cWyHHalMnlcROr115lXSWA=
+	Fri, 17 Oct 2003 15:57:41 -0400
+Received: from paiol.terra.com.br ([200.176.3.18]:56448 "EHLO
+	paiol.terra.com.br") by vger.kernel.org with ESMTP id S263607AbTJQT5C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 15:57:02 -0400
+Message-ID: <3F903C55.5020403@terra.com.br>
+Date: Fri, 17 Oct 2003 17:00:37 -0200
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH]  finer-grained locking in wan/lmc driver
+References: <3F81B086.9050905@terra.com.br> <3F8C3DFD.1050706@pobox.com>
+In-Reply-To: <3F8C3DFD.1050706@pobox.com>
+Content-Type: multipart/mixed;
+ boundary="------------020001080300020004010000"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakob Oestergaard <jakob@unthought.net> writes:
+This is a multi-part message in MIME format.
+--------------020001080300020004010000
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->> >    many clock cycles availble to it.  It's even worse when you realize
->> >    the 2Ghz xeon is a better proccessor in many more ways than just
->> >    clock cycles.
->> 
->> How about this logic:
->> 
->> 1) If the processor on the RAID controller can handle the full
->> bandwidth of the disks, it's fast enough.
->> 2) If someone else does the 10% work, the CPU can do 10% more work.
->
-> 3) You have a four year old machine - one day the RAID controller dies.
->    The company that produced it has been acquired by someone else, and
->    the product is no longer availble.  Can you get a new adapter with
->    firmware that can actually read your disks?   Or are your data lost?
->    Can you find a replacement controller on e-bay?  And would you want
->    to?
+	Hi Jeff,
 
-What are backups for?  That argument applies to any controller, for
-anything.  What if you wanted to read those old 8" floppies?  Or that
-hard disk from the PDP/11.
+Jeff Garzik wrote:
+> conflicts with a just-applied patch... can you wait a few days, then 
+> resend against the latest -bk snapshot?
 
-If a four year old RAID controller breaks, maybe it's time to get new
-disks anyway.
+	Resend against 2.6.0-test7-bk9.
 
--- 
-Måns Rullgård
-mru@users.sf.net
+	Please apply,
+
+Felipe
+
+--------------020001080300020004010000
+Content-Type: text/plain;
+ name="lmc-locking.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="lmc-locking.patch"
+
+--- linux-2.6.0-test7-bk9/drivers/net/wan/lmc/lmc_main.c.orig	2003-10-17 16:57:28.000000000 -0200
++++ linux-2.6.0-test7-bk9/drivers/net/wan/lmc/lmc_main.c	2003-10-17 16:58:19.000000000 -0200
+@@ -132,7 +132,6 @@
+     lmc_ctl_t ctl;
+     int ret;
+     u_int16_t regVal;
+-    unsigned long flags;
+ 
+     struct sppp *sp;
+ 
+@@ -142,12 +141,6 @@
+ 
+     lmc_trace(dev, "lmc_ioctl in");
+ 
+-    /*
+-     * Most functions mess with the structure
+-     * Disable interrupts while we do the polling
+-     */
+-    spin_lock_irqsave(&sc->lmc_lock, flags);
+-
+     switch (cmd) {
+         /*
+          * Return current driver state.  Since we keep this up
+@@ -173,7 +166,8 @@
+ 
+         if (copy_from_user(&ctl, ifr->ifr_data, sizeof (lmc_ctl_t)))
+             return -EFAULT;
+-
++	
++	spin_lock_irq(&sc->lmc_lock);
+         sc->lmc_media->set_status (sc, &ctl);
+ 
+         if(ctl.crc_length != sc->ictl.crc_length) {
+@@ -188,9 +182,11 @@
+             sp->pp_flags &= ~PP_KEEPALIVE;	/* Turn off */
+         else
+             sp->pp_flags |= PP_KEEPALIVE;	/* Turn on */
++	
++	spin_unlock_irq(&sc->lmc_lock);
+ 
+         ret = 0;
+-        break;
++	break;
+ 
+     case LMCIOCIFTYPE: /*fold01*/
+         {
+@@ -204,14 +200,14 @@
+ 
+ 	    if (copy_from_user(&new_type, ifr->ifr_data, sizeof(u_int16_t)))
+                 return -EFAULT;
+-
+-            
++     
+ 	    if (new_type == old_type)
+ 	    {
+-		ret = 0 ;
++		ret = 0;
+ 		break;				/* no change */
+             }
+-            
++
++	    spin_lock_irq(&sc->lmc_lock);
+             lmc_proto_close(sc);
+             lmc_proto_detach(sc);
+ 
+@@ -219,12 +215,14 @@
+ //            lmc_proto_init(sc);
+             lmc_proto_attach(sc);
+             lmc_proto_open(sc);
++	    spin_unlock_irq(&sc->lmc_lock);
+ 
+ 	    ret = 0 ;
+ 	    break ;
+ 	}
+ 
+     case LMCIOCGETXINFO: /*fold01*/
++	spin_lock_irq(&sc->lmc_lock);
+         sc->lmc_xinfo.Magic0 = 0xBEEFCAFE;
+ 
+         sc->lmc_xinfo.PciCardType = sc->lmc_cardtype;
+@@ -240,6 +238,7 @@
+ 
+         sc->lmc_xinfo.Magic1 = 0xDEADBEEF;
+ 
++	spin_unlock_irq(&sc->lmc_lock);
+         if (copy_to_user(ifr->ifr_data, &sc->lmc_xinfo,
+                          sizeof (struct lmc_xinfo)))
+             return -EFAULT;
+@@ -248,6 +247,7 @@
+         break;
+ 
+     case LMCIOCGETLMCSTATS: /*fold01*/
++	spin_lock_irq(&sc->lmc_lock);
+         if (sc->lmc_cardtype == LMC_CARDTYPE_T1){
+             lmc_mii_writereg (sc, 0, 17, T1FRAMER_FERR_LSB);
+             sc->stats.framingBitErrorCount +=
+@@ -271,6 +271,7 @@
+             sc->stats.severelyErroredFrameCount +=
+                 regVal & T1FRAMER_SEF_MASK;
+         }
++	spin_unlock_irq(&sc->lmc_lock);
+ 
+         if (copy_to_user(ifr->ifr_data, &sc->stats,
+                          sizeof (struct lmc_statistics)))
+@@ -285,11 +286,13 @@
+             break;
+         }
+ 
++	spin_lock_irq(&sc->lmc_lock);
+         memset (&sc->stats, 0, sizeof (struct lmc_statistics));
+         sc->stats.check = STATCHECK;
+         sc->stats.version_size = (DRIVER_VERSION << 16) +
+             sizeof (struct lmc_statistics);
+         sc->stats.lmc_cardtype = sc->lmc_cardtype;
++	spin_unlock_irq(&sc->lmc_lock);
+         ret = 0;
+         break;
+ 
+@@ -306,8 +309,11 @@
+ 
+         if (copy_from_user(&ctl, ifr->ifr_data, sizeof (lmc_ctl_t)))
+             return -EFAULT;
+-        sc->lmc_media->set_circuit_type(sc, ctl.circuit_type);
++	
++	spin_lock_irq(&sc->lmc_lock);
++	sc->lmc_media->set_circuit_type(sc, ctl.circuit_type);
+         sc->ictl.circuit_type = ctl.circuit_type;
++	spin_unlock_irq(&sc->lmc_lock);
+         ret = 0;
+ 
+         break;
+@@ -319,9 +325,11 @@
+         }
+ 
+         /* Reset driver and bring back to current state */
++	spin_lock_irq(&sc->lmc_lock);
+         printk (" REG16 before reset +%04x\n", lmc_mii_readreg (sc, 0, 16));
+         lmc_running_reset (dev);
+         printk (" REG16 after reset +%04x\n", lmc_mii_readreg (sc, 0, 16));
++	spin_unlock_irq(&sc->lmc_lock);
+ 
+         LMC_EVENT_LOG(LMC_EVENT_FORCEDRESET, LMC_CSR_READ (sc, csr_status), lmc_mii_readreg (sc, 0, 16));
+ 
+@@ -364,6 +372,8 @@
+             case lmc_xilinx_reset: /*fold02*/
+                 {
+                     u16 mii;
++		    
++		    spin_lock_irq(&sc->lmc_lock);
+                     mii = lmc_mii_readreg (sc, 0, 16);
+ 
+                     /*
+@@ -422,11 +432,8 @@
+                             lmc_led_off(sc, LMC_DS3_LED2);
+                         }
+                     }
+-                    
+-                    
+-
+                     ret = 0x0;
+-
++		    spin_unlock_irq(&sc->lmc_lock);
+                 }
+ 
+                 break;
+@@ -434,6 +441,7 @@
+                 {
+                     u16 mii;
+                     int timeout = 500000;
++		    spin_lock_irq(&sc->lmc_lock);
+                     mii = lmc_mii_readreg (sc, 0, 16);
+ 
+                     /*
+@@ -476,12 +484,10 @@
+                      * stop driving Xilinx-related signals
+                      */
+                     lmc_gpio_mkinput(sc, 0xff);
+-
+                     ret = 0x0;
+-                    
+ 
++		    spin_unlock_irq(&sc->lmc_lock);
+                     break;
+-
+                 }
+ 
+             case lmc_xilinx_load: /*fold02*/
+@@ -505,12 +511,13 @@
+                     if(copy_from_user(data, xc.data, xc.len))
+                     {
+                     	kfree(data);
+-                    	ret = -ENOMEM;
++                    	ret = -EFAULT;
+                     	break;
+                     }
+ 
+                     printk("%s: Starting load of data Len: %d at 0x%p == 0x%p\n", dev->name, xc.len, xc.data, data);
+ 
++		    spin_lock_irq(&sc->lmc_lock);
+                     lmc_gpio_mkinput(sc, 0xff);
+ 
+                     /*
+@@ -609,8 +616,8 @@
+ 
+                     kfree(data);
+                     
++		    spin_unlock_irq(&sc->lmc_lock);
+                     ret = 0;
+-                    
+                     break;
+                 }
+             default: /*fold02*/
+@@ -619,7 +626,9 @@
+             }
+ 
+             netif_wake_queue(dev);
+-            sc->lmc_txfull = 0;
++            spin_lock_irq(&sc->lmc_lock);
++	    sc->lmc_txfull = 0;
++            spin_unlock_irq(&sc->lmc_lock);
+ 
+         }
+         break;
+@@ -629,8 +638,6 @@
+         break;
+     }
+ 
+-    spin_unlock_irqrestore(&sc->lmc_lock, flags); /*fold01*/
+-
+     lmc_trace(dev, "lmc_ioctl out");
+ 
+     return ret;
+@@ -930,7 +937,10 @@
+      * later on, no one else will take our card away from
+      * us.
+      */
+-    request_region (ioaddr, LMC_REG_RANGE, dev->name);
++    if (!request_region (ioaddr, LMC_REG_RANGE, dev->name)) {
++	    printk (KERN_WARNING "io port %3lX is busy", ioaddr);
++	    return NULL;
++    }
+ 
+     sc->lmc_cardtype = LMC_CARDTYPE_UNKNOWN;
+     sc->lmc_timing = LMC_CTL_CLOCK_SOURCE_EXT;
+@@ -1060,8 +1070,7 @@
+          * Fix the two variables
+          *
+          */
+-        if (!(check_region (pci_ioaddr, LMC_REG_RANGE)) &&
+-            (vendor == CORRECT_VENDOR_ID) &&
++        if ((vendor == CORRECT_VENDOR_ID) &&
+             (device == CORRECT_DEV_ID) &&
+             ((subvendor == PCI_VENDOR_LMC)  || (subdevice == PCI_VENDOR_LMC))){
+             struct net_device *cur, *prev = NULL;
+
+--------------020001080300020004010000--
 

@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbTEHWf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 18:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTEHWe7
+	id S262191AbTEHWdC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 18:33:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTEHWdC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 18:34:59 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:47500 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262189AbTEHWda (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 18:33:30 -0400
-Date: Thu, 8 May 2003 23:47:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: mikpe@csd.uu.se, Dave Jones <davej@codemonkey.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore sysenter MSRs at resume
-Message-ID: <20030508214737.GD4466@elf.ucw.cz>
-References: <16057.16684.101916.709412@gargle.gargle.HOWL> <Pine.LNX.4.44.0305071033400.2997-100000@home.transmeta.com>
+	Thu, 8 May 2003 18:33:02 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:55177
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262191AbTEHWdB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 18:33:01 -0400
+Subject: Re: The disappearing sys_call_table export.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200305081546_MC3-1-3809-363D@compuserve.com>
+References: <200305081546_MC3-1-3809-363D@compuserve.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052430257.13551.15.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305071033400.2997-100000@home.transmeta.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 May 2003 22:44:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > We don't do apm suspend/resume on SMP, so this is no different from the
-> > current situation. I don't know if acpi does it or not.
+On Iau, 2003-05-08 at 20:43, Chuck Ebbert wrote:
+> > you can write a stackable filesystem on linux, too and intercept any
+> > I/O request.  You just have to do it through a sane interface, mount
+> > and not by patching the syscall table - which you can do under
+> > windows either.  (at least not as part of the public API).
 > 
-> Well, the thing is, if we ever do want to support it (and I suspect we 
-> do), we should have the infrastructure ready. It shouldn't be too hard to 
-> support SMP suspend in a 2.7.x timeframe, since it from a technology angle 
-> looks like simply hot-plug CPU's. Some of the infrastructure for that 
-> already exists.
+>   So when I register my filesystem, can I indicate that I want to be
+> layered over top of the ext3 driver and get control anytime someone
+> mounts an ext3 fileystem, so I can decide whether the volume being
+> mounted is one that I want to intercept open/read/write requests for?
 
-Actually, then MSRs should restored during hotadd operation, so resume
-still does *not* care about non-boot cpus...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+That would assume you had a right to dictate that the administrator
+couldnt mount other file systems without your stacking.
+

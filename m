@@ -1,132 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280032AbRKMPGx>; Tue, 13 Nov 2001 10:06:53 -0500
+	id <S273065AbRKMPJX>; Tue, 13 Nov 2001 10:09:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280059AbRKMPGo>; Tue, 13 Nov 2001 10:06:44 -0500
-Received: from smtp5.wanadoo.es ([62.37.236.139]:49834 "EHLO smtp.wanadoo.es")
-	by vger.kernel.org with ESMTP id <S280032AbRKMPGd>;
-	Tue, 13 Nov 2001 10:06:33 -0500
-From: Juan Minaya <jminaya@bigfoot.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.14 oops when mounting a vfat partition 
-Date: Tue, 13 Nov 2001 16:01:46 +0100
-Message-ID: <mta2vtou628s0fakmak0m6kvj0visq4jnu@4ax.com>
-X-Mailer: Forte Agent 1.8/32.548
+	id <S279846AbRKMPJP>; Tue, 13 Nov 2001 10:09:15 -0500
+Received: from smtp02.uc3m.es ([163.117.136.122]:2054 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S279822AbRKMPJC>;
+	Tue, 13 Nov 2001 10:09:02 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200111131508.fADF8Yi09728@oboe.it.uc3m.es>
+Subject: Re: what is teh current meaning of blk_size?
+In-Reply-To: From (env: ptb) at "Nov 12, 2001 11:10:44 pm"
+To: ptb@it.uc3m.es
+Date: Tue, 13 Nov 2001 16:08:34 +0100 (MET)
+Cc: dalecki@evision.ag, "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"ptb wrote:"
+> "Martin Dalecki wrote:"
+> > "Peter T. Breuer" wrote:
+> > > Is blk_size[][] supposed to contain the size in KB or blocks?
+> > There is no rumor it's in blocks.
 
-With 2.4.14, if I mount a certain vfat partition, I receive the following
-error message:
+Nevertheless, experiments on 2.4.3 appear to show it is still in KB
+there.
 
-FAT: Did not find valid FSINFO signature.
-Found signature1 0x4161ff00 signature2 0x61417272 sector=1.
+> Uh, thanks! I was looking at fs/block_dev.c.
+> 
+>  if (blk_size[MAJOR(dev)])
+>   size = ((loff_t) blk_size[MAJOR(dev)][MINOR(dev)] << BLOCK_SIZE_BITS) >> blocksize_bits;
+> 
+> which sets the size to the entered blk_size << 10 - blksize_bits.
+> 
+> I missed that BLOCK_SIZE_BITS was constant but blksize_bits is variable.
+> Amongst other things.
 
-And the same when unmounting. If I then mount it again, there is an oops.
-With 2.4.13-ac7 I get the same error messages, but no oops. With 2.2.19
-there is no problem.
+Thing is, in my driver I have now chenged from setting blk_size to be in KB
+and put it in blocks instead (while keeping the blksize the same) and
+the result is that using lseek, the device measures to be 1/4 the size
+it really is. This is in kernel 2.4.3.
 
-The oops and the output of ksymoops follows (note that the kernel is
-tainted because of vfat, which still doesn't have a license tag):
+If in look in ll_rw_blk.c, I see, for example:
 
+ if (blk_size[major]) {
+   unsigned long maxsector = (blk_size[major][MINOR(bh->b_rdev)] << 1) + 1;
+   // (ptb) 1ST SECTOR BEYOND END OF DISK
 
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c016409d>]    Tainted: P
-EFLAGS: 00010246
-eax: 00002000   ebx: 00000341   ecx: c022eb2c   edx: 00000000
-esi: 00000000   edi: ccf5d7e0   ebp: 00000001   esp: cd337ccc
-ds: 0018   es: 0018   ss: 0018
-Process mount (pid: 513, stackpage=cd337000)
-Stack: 00000341 ccf5d7e0 00000000 0007dfe0 c01b15e6 00002000 c023b444
-cd336000
-       c1428e20 00000e6c 00000000 00000000 00000000 00000341 c016472c
-c023b424
-       00000000 ccf5d7e0 00000001 00000000 00000000 00000001 c016477b
-00000000
-Call Trace: [<c01b15e6>] [<c016472c>] [<c016477b>] [<c01648c7>] [<c012e689>]
-   [<d08179bb>] [<d081ef4b>] [<d081f3e0>] [<c0130bbf>] [<d081f420>]
-[<c013e923>]
-   [<c013110b>] [<d081f420>] [<c013f655>] [<c013f8db>] [<c013f74d>]
-[<c013f978>]
-   [<c0106b03>]
+which implies to me that blk_size is still in KB there. 
 
-Code: 0f 0b 0f b6 47 15 0f b7 4f 14 8b 14 85 20 7d 23 c0 85 d2 75
- Segmentation fault
+BTW, I don't know why there should be a +1 at the end. The code goes on
+to say:
 
+      unsigned long sector = bh->b_rsector;   // (ptb) 1ST SECTOR ON DISK
+      unsigned int count = bh->b_size >> 9;   // (ptb) SECTORS IN BUFFER
 
-ksymoops 2.4.3 on i686 2.4.14.  Options used
-     -v /home/juan/src/linux/vmlinux (specified)
-     -k ksyms (specified)
-     -l modules (specified)
-     -o /lib/modules/2.4.14/ (default)
-     -m /boot/System.map-2.4.14 (default)
+      if (maxsector < count || maxsector - count < sector) {
+            bh->b_state &= (1 << BH_Lock) | (1 << BH_Mapped);
+            ... good stuff ...
 
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c016409d>]    Tainted: P
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00002000   ebx: 00000341   ecx: c022eb2c   edx: 00000000
-esi: 00000000   edi: ccf5d7e0   ebp: 00000001   esp: cd337ccc
-ds: 0018   es: 0018   ss: 0018
-Process mount (pid: 513, stackpage=cd337000)
-Stack: 00000341 ccf5d7e0 00000000 0007dfe0 c01b15e6 00002000 c023b444
-cd336000
-       c1428e20 00000e6c 00000000 00000000 00000000 00000341 c016472c
-c023b424
-       00000000 ccf5d7e0 00000001 00000000 00000000 00000001 c016477b
-00000000
-Call Trace: [<c01b15e6>] [<c016472c>] [<c016477b>] [<c01648c7>] [<c012e689>]
-   [<d08179bb>] [<d081ef4b>] [<d081f3e0>] [<c0130bbf>] [<d081f420>]
-[<c013e923>]
-   [<c013110b>] [<d081f420>] [<c013f655>] [<c013f8db>] [<c013f74d>]
-[<c013f978>]
-   [<c0106b03>]
-Code: 0f 0b 0f b6 47 15 0f b7 4f 14 8b 14 85 20 7d 23 c0 85 d2 75
+So we look for the nr sectors  in the buffer to be _greater_than_
+the number of sectors in the device _plus 1_. It should be
+_greater_than_or_equal_to ... _plus_1_. But even so it's meaningless.
+What we want is to check to see if the buffer contents will overflow
+the disk.
 
->>EIP; c016409c <__make_request+7c/5f0>   <=====
-Trace; c01b15e6 <clear_user+2e/40>
-Trace; c016472c <generic_make_request+11c/12c>
-Trace; c016477a <submit_bh+3e/60>
-Trace; c01648c6 <ll_rw_block+12a/18c>
-Trace; c012e688 <bread+30/64>
-Trace; d08179ba <[fat]fat_read_super+13e/88c>
-Trace; d081ef4a <[vfat]vfat_read_super+22/88>
-Trace; d081f3e0 <[vfat]vfat_dir_inode_operations+0/40>
-Trace; c0130bbe <get_sb_bdev+226/2cc>
-Trace; d081f420 <[vfat]vfat_fs_type+0/1a>
-Trace; c013e922 <set_devname+26/54>
-Trace; c013110a <do_kern_mount+ae/13c>
-Trace; d081f420 <[vfat]vfat_fs_type+0/1a>
-Trace; c013f654 <do_add_mount+20/cc>
-Trace; c013f8da <do_mount+13e/158>
-Trace; c013f74c <copy_mount_options+4c/9c>
-Trace; c013f978 <sys_mount+84/c4>
-Trace; c0106b02 <system_call+32/38>
-Code;  c016409c <__make_request+7c/5f0>
-00000000 <_EIP>:
-Code;  c016409c <__make_request+7c/5f0>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c016409e <__make_request+7e/5f0>
-   2:   0f b6 47 15               movzbl 0x15(%edi),%eax
-Code;  c01640a2 <__make_request+82/5f0>
-   6:   0f b7 4f 14               movzwl 0x14(%edi),%ecx
-Code;  c01640a6 <__make_request+86/5f0>
-   a:   8b 14 85 20 7d 23 c0      mov    0xc0237d20(,%eax,4),%edx
-Code;  c01640ac <__make_request+8c/5f0>
-  11:   85 d2                     test   %edx,%edx
-Code;  c01640ae <__make_request+8e/5f0>
-  13:   75 00                     jne    15 <_EIP+0x15> c01640b0
-<__make_request+90/5f0>
+I'm not too sure about the other half of the condition either. This 
+is surely what I mentioned above: sector + count > maxsector?
+
+But again it should be >=.  If we are on sector 0 of a 2 sector disk,
+and we try and write 3 sectors, then sector=0, count=3, and maxsector=3,
+and 0+3 /> 3, so the condition would not trigger, while we want it to.
+So it should be >=, not >.
+
+I believe the 1st check is merely a faster calculation and is backed up
+by the second check. However, the second check must be right!
 
 
+> > OK I was to fast to figure it out:
+> > 
+> > /*
+> >  * blk_size contains the size of all block-devices in units of 1024 byte
+> >  * sectors:
+> 
+> But this is not so .. it is the default, not the rule. And it is only
+> the default if the block size is the default value.
+> 
+> > int * blk_size[MAX_BLKDEV];
+> > 
+> > /*
+> >  * blksize_size contains the size of all block-devices:
+> 
+> Err .... they mean the BLOCK SIZE of all ...
 
-Please CC: me in your answers as I'm not subscribed to the list. Thank you.
+> If you knew if the meaning of blk_size had ever changed, and when in
+> terms of kernel version, that would also be very very helpful.
 
--- 
-Juan Minaya  jminaya@bigfoot.com  PGPkeyIDs: RSA:9CC74BF1 DSS/DH:C547D845
+
+Peter

@@ -1,76 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290376AbSAXWWC>; Thu, 24 Jan 2002 17:22:02 -0500
+	id <S290388AbSAXWYX>; Thu, 24 Jan 2002 17:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290389AbSAXWVy>; Thu, 24 Jan 2002 17:21:54 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3081 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290376AbSAXWVk>; Thu, 24 Jan 2002 17:21:40 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: RFC: booleans and the kernel
-Date: 24 Jan 2002 14:21:28 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a2q1d8$vuj$1@cesium.transmeta.com>
-In-Reply-To: <200201242141.g0OLfjL06681@home.ashavan.org.> <Pine.LNX.4.44.0201241545120.2839-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S290378AbSAXWYN>; Thu, 24 Jan 2002 17:24:13 -0500
+Received: from monster.gotadsl.co.uk ([213.208.127.236]:31107 "EHLO
+	monster.gotadsl.co.uk") by vger.kernel.org with ESMTP
+	id <S290389AbSAXWYE>; Thu, 24 Jan 2002 17:24:04 -0500
+Subject: Re: ACPI trouble (Was: Re: [patch] amd athlon cooling on kt266/266a
+	chipset)
+From: Craig Knox <crg@monster.gotadsl.co.uk>
+To: Daniel Nofftz <nofftz@castor.uni-trier.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0201242223490.9957-100000@infcip10.uni-trier.de>
+In-Reply-To: <Pine.LNX.4.40.0201242223490.9957-100000@infcip10.uni-trier.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 24 Jan 2002 22:24:48 +0000
+Message-Id: <1011911089.3572.27.camel@crgs.lowerrd.prv>
+Mime-Version: 1.0
+X-Scanner: exiscan *16TsEe-000140-00*ztkiIlJ8/aY* (monster.gotadsl.co.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0201241545120.2839-100000@waste.org>
-By author:    Oliver Xymoron <oxymoron@waste.org>
-In newsgroup: linux.dev.kernel
+> > As to the merits of the amd_disconnect patch that started this thread,
+> > under 2.4.18-pre7-acpi, I get an idle CPU temperature of about 48 C.
+> > With the amd_disconnect patch, it drops to 32-35 C, wow!  As
+> > previously discussed, APM + amd_disconnect on an Athlon does not
+> > provide any power savings, one needs ACPI + amd_disconnect.
 > 
-> > It doesn't fix  "if ( x = true)". If would
-> > just make it more legit to use "if (x)".
-> 
-> It's been legit and idiomatic since day 1, if not sooner.
-> 
+> ahh ...  anopther "it works"- feedback ... :)
 
-The main reasons for bool is:
+And another.  Dropped my CPU from ~50+C down to 39C (I have a hot
+case).  I haven't had any problems but its a headless, no keyboard/mouse
+machine.
 
-a) The ability to save space.  No need to waste a 32- or 64-bit word
-   to hold a single bit.  If you're on an architecture that has flags
-   or predicates you may be able to carry a boolean in such a value
-   instead of in a full register.
-
-b) Compatibility with other languages, including but not limited to
-   C++ (there is a standard under development for inter-language linking,
-   incidentally.)  C++, of course, needs bool for overloading reasons.
-
-c) The ability to cast to bool and get an unambiguous true or false:
-
-     b = (bool)a;
-
-   This replaces the idiomatic but occationally confusing
-
-     b = !!a;
-
-d) Similarly, you can avoid doing booleanization multiple times:
-
-   /* Highly artificial example */
-   int foo(bool a)
-   {
-       return a ? 55 : 47;
-   }
-
-   ... could be implemented by the compiler as 47 + (a << 3), or
-   depending on your ABI convention, perhaps a caller calling
-   foo(x < 4) could be implemented as foo(x-4) without needing to
-   convert it into an integer of exactly 1 and 0.
-
-   Given the way C currently does it, you pretty much have do
-   booleanize both in the caller and the callee to be on the safe
-   side.
-
-	-hpa
-
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

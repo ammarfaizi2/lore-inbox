@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSERKIg>; Sat, 18 May 2002 06:08:36 -0400
+	id <S311320AbSERKJC>; Sat, 18 May 2002 06:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311320AbSERKIf>; Sat, 18 May 2002 06:08:35 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:13812 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S293680AbSERKIe>; Sat, 18 May 2002 06:08:34 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3CE55009.9050505@colorfullife.com> 
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: "'Roger Luethi'" <rl@hellgate.ch>, linux-kernel@vger.kernel.org,
-        Shing Chuang <ShingChuang@via.com.tw>
-Subject: Re: [PATCH] #2 VIA Rhine stalls: TxAbort handling 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 18 May 2002 11:08:15 +0100
-Message-ID: <15836.1021716495@redhat.com>
+	id <S311839AbSERKI7>; Sat, 18 May 2002 06:08:59 -0400
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:14755 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S311320AbSERKI6>; Sat, 18 May 2002 06:08:58 -0400
+Message-ID: <3CE629F3.5040809@notnowlewis.co.uk>
+Date: Sat, 18 May 2002 11:16:19 +0100
+From: mikeH <mikeH@notnowlewis.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020502
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: linux 2.5.16 and VIA Chipset
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-manfred@colorfullife.com said:
-> IIRC all register reads from the addresses that belong to a pulled out
->  PCMCIA card return 0xFFFFFFFF ;-) 
+I have the VIA kt266 chipset, with CONFIG_BLK_DEV_VIA82CXXX)
+it refuses to boot, hanging just before you'd expect to see the IDE
+boot messages come up.
 
-Not necessarily. It can lock up the bus and require a hard reset.
+lcpsi output :
 
-That's why they make some pins longer than others -- so you can get an
-interrupt which lets you know it's going away a split second before it's
-actually gone, and you have time to remove power from the socket and call
-some kind of abort method on the driver so it knows it must never touch
-the hardware again.
+00:00.0 Host bridge: VIA Technologies, Inc. VT8367 [KT266]
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8367 [KT266 AGP]
+00:08.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI] (rev 01)
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 1b)
+00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 1b)
+00:11.4 USB Controller: VIA Technologies, Inc. USB (rev 1b)
+01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 
+Ti4400] (rev a2)
 
---
-dwmw2
+Is there any other info from my system that would help track down why?
 
+Thanks,
+
+mike
 

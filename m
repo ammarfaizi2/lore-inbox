@@ -1,64 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263300AbTDRXXz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 19:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbTDRXXz
+	id S263301AbTDRXiR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 19:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTDRXiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 19:23:55 -0400
-Received: from siaag1ad.compuserve.com ([149.174.40.6]:49057 "EHLO
-	siaag1ad.compuserve.com") by vger.kernel.org with ESMTP
-	id S263300AbTDRXXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 19:23:53 -0400
-Date: Fri, 18 Apr 2003 19:33:22 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [PATCH] Solved: 2.4.20, 2.5.66 have different IDE channel
-  order
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Greg Kroah-Hartman <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-ID: <200304181935_MC3-1-3503-83F@compuserve.com>
+	Fri, 18 Apr 2003 19:38:17 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:56304 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263301AbTDRXiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 19:38:16 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200304182350.h3INoC728630@devserv.devel.redhat.com>
+Subject: Re: My P3 runs at.... zero Mhz (bug rpt)
+To: pekon@informatics.muni.cz (Petr Konecny)
+Date: Fri, 18 Apr 2003 19:50:12 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk (Dave Jones),
+       thunder7@xs4all.nl (Jurriaan), jgarzik@pobox.com (Jeff Garzik),
+       alan@redhat.com (Alan Cox)
+In-Reply-To: <qwwvfxb1nvu.fsf@decibel.fi.muni.cz> from "Petr Konecny" at Ebr 18, 2003 11:44:53 
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> It does not help me with 2.5.67-ac2 + pcmcia patch. I get 0.000 MHz,
+> 589.82 BogoMIPS with or without CPUFreq. It did the same thing with
+> 2.5.67-ac1 (did not test w/o CPUFreq).
 
-  2.4 builds its global PCI device list in breadth-first order.
+Its a bug in the mach- patches. Someone sent a fix to l/k
 
-  2.5 is doing the scan that way but defers the construction of the
-global list until later and then does it depth-first.  This causes
-devices to found in different order by drivers. The below fixed that
-problem for me:
-
-
---- linux-2.5.66-ref/drivers/pci/bus.c	Sat Mar 29 09:16:22 2003
-+++ linux-2.5.66-uni/drivers/pci/bus.c	Fri Apr 18 19:08:04 2003
-@ -75,7 +75,8 @
-  * Add newly discovered PCI devices (which are on the bus->devices
-  * list) to the global PCI device list, add the sysfs and procfs
-  * entries.  Where a bridge is found, add the discovered bus to
-- * the parents list of child buses, and recurse.
-+ * the parents list of child buses, and recurse (breadth-first
-+ * to be compatible with 2.4)
-  *
-  * Call hotplug for each new devices.
-  */
-@ -98,6 +99,12 @
- #endif
- 		pci_create_sysfs_dev_files(dev);
- 
-+	}
-+
-+	list_for_each_entry(dev, &bus->devices, bus_list) {
-+
-+		BUG_ON(list_empty(&dev->global_list));
-+
- 		/*
- 		 * If there is an unattached subordinate bus, attach
- 		 * it and then scan for unattached PCI devices.
-
-
-------
- Chuck

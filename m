@@ -1,27 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292522AbSCTBqY>; Tue, 19 Mar 2002 20:46:24 -0500
+	id <S311180AbSCTBuE>; Tue, 19 Mar 2002 20:50:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311180AbSCTBqO>; Tue, 19 Mar 2002 20:46:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44804 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292522AbSCTBp4>; Tue, 19 Mar 2002 20:45:56 -0500
-Subject: Re: Filesystem Corruption (ext2) on Tyan S2462, 2xAMD1900MP, 2.4.17SMP (RH7.2)
-To: ken@irridia.com (Ken Brownfield)
-Date: Wed, 20 Mar 2002 02:01:28 +0000 (GMT)
-Cc: andre@linux-ide.org (Andre Hedrick), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020319194138.D15811@asooo.flowerfire.com> from "Ken Brownfield" at Mar 19, 2002 07:41:38 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311199AbSCTBty>; Tue, 19 Mar 2002 20:49:54 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:53778 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S311180AbSCTBtm>; Tue, 19 Mar 2002 20:49:42 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A771C@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: FW: Intel PII machine hangs with MCE enabled in linux-2.4.19-pre3
+Date: Tue, 19 Mar 2002 17:49:39 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16nVPs-000100-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ya, Martin has cleaned this up for 2.4 I believe, and I'll do the grunt
+On Mon Mar 18, 2002 at 12:20 PM, Dual Mobius wrote:
+> 
+> Intel PII machine hangs with MCE enabled in
+> linux-2.4.19-pre3
+> 
+> Under linux 2.4.19-pre3, my Intel Pentium II system
+> hangs with the "machine check" turned on
+> (CONFIG_X86_MCE=y).  The same machine booted correctly
+> under 2.4.19-pre2 with MCE enabled.
+> 
+> I get the following output from the kernel when
+> booting, and then it freezes:
+> 
+> [snip]
+> 
+> Intel machine check architecture supported.
+>
 
-2.4 IDE cleanups are Andre mostly. Martin has been beating the crap out of
-2.5
+Me too.
+
+Pentium II mobile module in Motorola CPV5350, 2.4.19-pre3 kernel.
+Hangs after boot message "Intel machine check architecture supported".
+Turning off CONFIG-X86_MCE did not help in my case, but I didn't do a make
+mrproper before recompiling the kernel ... so I suppose I don't really know
+that for sure yet.
+
+Best regards,
+
+---------------------------------------------------------------- 
+Ed Vance              serial24@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
+

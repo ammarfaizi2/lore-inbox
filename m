@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264767AbSKNF47>; Thu, 14 Nov 2002 00:56:59 -0500
+	id <S264766AbSKNF4w>; Thu, 14 Nov 2002 00:56:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264771AbSKNF46>; Thu, 14 Nov 2002 00:56:58 -0500
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:63964 "EHLO
-	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S264767AbSKNF45>; Thu, 14 Nov 2002 00:56:57 -0500
-Message-ID: <3DD34E39.67FCB16F@earthlink.net>
-Date: Wed, 13 Nov 2002 23:18:17 -0800
-From: alfredo & iole <alfiole@earthlink.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i586)
-X-Accept-Language: en
+	id <S264767AbSKNF4w>; Thu, 14 Nov 2002 00:56:52 -0500
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:57535 "EHLO
+	mail.kolivas.net") by vger.kernel.org with ESMTP id <S264766AbSKNF4v>;
+	Thu, 14 Nov 2002 00:56:51 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+Reply-To: conman@kolivas.net
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: ck performance patchset updated to 2.4.19-ck14
+Date: Thu, 14 Nov 2002 17:03:09 +1100
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel: eth0: Transmit error, Tx status register 90, kernel 2.4.19
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <200211141703.39883.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I installed 2.4.19 and I got 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-kernel: eth0: Transmit error, Tx status register 90
+I've updated my patchset for the stable kernel.
 
-I red some e-mail about this problem and I realize that it was a issue
-in the old version of the 3c59x driver (1999).
-I think it was fix in 2.4.14 and it is back in 2.4.19.
-I saw a revert patch in che changelog of 2.4.19 ....................
+It includes 
+O(1) Batch scheduler
+Preemptible
+Low Latency
+AA VM addons
+Compressed caching VM
+Optional RMAP14c VM
+ALSA
+Supermount
+XFS
+ACPI
 
-Has anybody notice this problem ?
+Changes to this release:
 
-( I am not in the mailing list please reply to my e-mail )
+Andrea Arcangeli's fix for "processes stuck in D" has been put in. It was a 
+serious recurring problem with my patchset. It seemed to be responsible for 
+the pausing seen by a few. Compressed caching now works fine with the aa vm 
+addons as well so they are merged. Minor changes to cc should make it safer 
+for ext3 but I dont guarantee it so only try it on experimental boxes. XFS 
+has been updated to the 1.2pre3 release. Rmap has been updated to 14c. A full 
+split out patchset is also available. 
 
-Thanks
-Alfredo
+Check it out here:
+http://kernel.kolivas.net
+
+Cheers,
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE90zyhF6dfvkL3i1gRAmNdAKCsBpcF125i70dmuXTS0UFiMbLs0QCeO9Yx
+xJ4Jo2Z3V8da6hqAooeJlHs=
+=TzYJ
+-----END PGP SIGNATURE-----

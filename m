@@ -1,68 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131108AbRAQEje>; Tue, 16 Jan 2001 23:39:34 -0500
+	id <S132216AbRAQEtH>; Tue, 16 Jan 2001 23:49:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132216AbRAQEjY>; Tue, 16 Jan 2001 23:39:24 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:59408 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S131108AbRAQEjF>; Tue, 16 Jan 2001 23:39:05 -0500
-Date: Tue, 16 Jan 2001 20:39:04 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Jonathan Thackray <jthackray@zeus.com>
-Subject: Re: 'native files', 'object fingerprints' [was: sendpath()]
-In-Reply-To: <Pine.LNX.4.30.0101161020200.673-100000@elte.hu>
-Message-ID: <Pine.LNX.4.30.0101162036040.12389-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S132316AbRAQEs5>; Tue, 16 Jan 2001 23:48:57 -0500
+Received: from [129.94.172.186] ([129.94.172.186]:10737 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S132216AbRAQEsq>; Tue, 16 Jan 2001 23:48:46 -0500
+Date: Wed, 17 Jan 2001 15:48:39 +1100 (EST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@localhost.localdomain>
+To: Zlatko Calusic <zlatko@iskon.hr>
+cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: Subtle MM bug
+In-Reply-To: <87y9wlh4a7.fsf@atlas.iskon.hr>
+Message-ID: <Pine.LNX.4.31.0101171546130.5464-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jan 2001, Ingo Molnar wrote:
+On 9 Jan 2001, Zlatko Calusic wrote:
+> Rik van Riel <riel@conectiva.com.br> writes:
+>
+> > Now if 2.4 has worse _performance_ than 2.2 due to one
+> > reason or another, that I'd like to hear about ;)
+> >
+>
+> Oh, well, it seems that I was wrong. :)
+>
+> First test: hogmem 180 5 = allocate 180MB and dirty it 5 times (on a
+> 192MB machine)
+>
+> kernel | swap usage | speed
+> -------------------------------
+> 2.2.17 |  48 MB     | 11.8 MB/s
+> -------------------------------
+> 2.4.0  | 206 MB     | 11.1 MB/s
+> -------------------------------
+>
+> So 2.2 is only marginally faster. Also it can be seen that 2.4
+> uses 4 times more swap space. If Linus says it's ok... :)
 
-> But even user-space code could use 'native files', via the following, safe
-> mechanizm:
+I have been working on some changes to page_launder() which
+might just fix this problem. Quick and dirty patches are on
+my home page and I'll try to clean things up and make something
+correct & clean later today or tomorrow ;)
 
-so here's an alternative to ingo's proposal which i think solves some of
-the other objections raised.  it's something i've proposed in the past
-under the name "extended file handles".
+> Second test: kernel compile make -j32 (empirically this puts the
+> VM under load, but not excessively!)
+>
+> 2.2.17 -> make -j32  392.49s user 47.87s system 168% cpu 4:21.13 total
+> 2.4.0  -> make -j32  389.59s user 31.29s system 182% cpu 3:50.24 total
+>
+> Now, is this great news or what, 2.4.0 is definitely faster.
 
-struct extended_file_permission {
-	int refcount;
-	some form of mutex to protect refcount;
-        some list structure head;
-};
+One problem is that these tasks may be waiting on kswapd when
+kswapd might not get scheduled in on time. On the one hand this
+will mean lower load and less thrashing, on the other hand it
+means more IO wait.
 
-struct extended_file {
-	struct file *file;
-	struct extended_file_permission *perm;
-        whatever list foo is needed to link with extended_file_perm above;
-};
+This is another area where we may be able to improve some things.
 
-if you allocate a few huge arrays of struct extended_file, then you can
-verify if a pointer passed from user space fits into one of those arrays
-pretty quickly.
+(btw, according to Alan the 2.4 kernel is the first one to break
+the 1.2 kernel compiling speed record on an 8MB machine he has ;))
 
-struct task has a struct extended_file_permission * added to it to
-indicate which perm struct that task is associated with.
+cheers,
 
-so you just compare the f->perm to current->extended_file_perm and you
-know if the task is allowed to use it or not.
+Rik  (stuck in australia on a conference)
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-clone() allows you to create tasks sharing the same
-extended_file_permissions.
-
-fork()/exec() would create new extended_file_perms -- which implicitly
-causes all those files to be closed.  this gives you pretty light cgi
-fork()/exec() off a main "process" which is handling thousands of sockets.
-
-i also proposed various methods of doing O_foo flag inheritance... but the
-above is more interesting.
-
--dean
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

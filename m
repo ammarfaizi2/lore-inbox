@@ -1,60 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUIEKPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266289AbUIEKkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266519AbUIEKPi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 06:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266531AbUIEKPi
+	id S266289AbUIEKkA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 06:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUIEKkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 06:15:38 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:62864 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266519AbUIEKOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 06:14:17 -0400
-Message-ID: <413AE6E7.5070103@yahoo.com.au>
-Date: Sun, 05 Sep 2004 20:13:59 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
+	Sun, 5 Sep 2004 06:40:00 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.71]:57241 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S266289AbUIEKj5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 06:39:57 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH 4/5][RFC] fbdev: Clean up framebuffer initialization
+Date: Sun, 5 Sep 2004 18:40:10 +0800
+User-Agent: KMail/1.5.4
+Cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Thomas Winischhofer <thomas@winischhofer.net>
+References: <200409041108.40276.adaplas@hotpop.com> <200409051750.47987.adaplas@hotpop.com> <Pine.GSO.4.58.0409051206180.28961@waterleaf.sonytel.be>
+In-Reply-To: <Pine.GSO.4.58.0409051206180.28961@waterleaf.sonytel.be>
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org, torvalds@osdl.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
-References: <413AA7B2.4000907@yahoo.com.au> <20040904230210.03fe3c11.davem@davemloft.net> <413AAF49.5070600@yahoo.com.au>
-In-Reply-To: <413AAF49.5070600@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409051840.10202.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> David S. Miller wrote:
-> 
->> On Sun, 05 Sep 2004 15:44:18 +1000
->> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->>
->>
->>> So my solution? Just teach kswapd and the watermark code about higher
->>> order allocations in a fairly simple way. If pages_low is (say), 1024KB,
->>> we now also require 512KB of order-1 and above pages, 256K of order-2
->>> and up, 128K of order 3, etc. (perhaps we should stop at about order-3?)
->>
->>
->>
->> Whether to stop at order 3 is indeed an interesting question.
->>
->> The reality is that the high-order allocations come mostly from folks
->> using jumbo 9K MTUs on gigabit and faster technologies.  On x86, an
->> order 2 would cover those packet allocations, but on sparc64 for example
->> order 1 would be enough, whereas on a 2K PAGE_SIZE system order 3 would
->> be necessary.
->>
-> 
-> Yeah I see.
-> 
+On Sunday 05 September 2004 18:13, Geert Uytterhoeven wrote:
+> On Sun, 5 Sep 2004, Antonino A. Daplas wrote:
+> > On Sunday 05 September 2004 17:16, Geert Uytterhoeven wrote:
+> > > On Sat, 4 Sep 2004, Antonino A. Daplas wrote:
+> > > > Currently, the framebuffer system is initialized in a roundabout
+> > > > manner. First, drivers/char/mem.c calls fbmem_init().  fbmem_init()
+> > > > will then iterate over an array of individual drivers' xxxfb_init(),
+> > > > then each driver registers its presence back to fbmem.  During
+> > > > console_init(), drivers/char/vt.c will call fb_console_init(). fbcon
+> > > > will check for registered drivers, and if any are present, will call
+> > > > take_over_console() in drivers/char/vt.c.
+> > > >
+> > > > This patch changes the initialization sequence so it proceeds in this
+> > > > manner: Each driver has its own module_init(). Each driver calls
+> > > > register_framebuffer() in fbmem.c. fbmem.c will then notify fbcon of
+> > > > the driver registration.  Upon notification, fbcon calls
+> > > > take_over_console() in vt.c.
+> > >
+> > > My main concern with this change is that it will be no longer possible
+> > > to change initialization order (and hence choose the primary display
+> > > for systems with multiple graphics adapters) by specifying
+> > > `video=xxxfb' on the kernel command line.
+> >
+> > I see your point.  But, can we use "fbcon=" setup options to choose which
+> > fb gets mapped to what console? We already have fbcon=map:<option> so we
+> > can choose which becomes the primary display. Granted the "fbcon=" setup
+> > is currently broken, but if fixed, will that be a fair compromise?
+>
+> Yes, sounds fine.
 
-Hmm, and the crowning argument for not stopping at order 3 is that if we
-never use higher order allocations, nothing will care about their watermarks
-anyway. I think I had myself confused when that question in the first place.
+Thanks.
 
-So yeah, stopping at a fixed number isn't required, and as you say it keeps
-things general and special cases minimal.
+>
+> Just thinking of something else: right now it's possible to disable a fbdev
+> by saying `video=xxxfb:off'. This can be useful if the fbdev driver doesn't
+> work with your hardware. After you change, individual fbdev drivers will
+> have to reimplement this theirselves in their __setup() functions.
+
+Yes.  I hope this doesn't bite too deep.  If it does, I think we can let
+fb_get_options() return an error  when the "off" option is present.  But I'm
+not going to implement it unless we get a lot of complaints.
+
+Tony 
+
+

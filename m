@@ -1,43 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbUCIN2N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 08:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbUCIN2N
+	id S261924AbUCINja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 08:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbUCINja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 08:28:13 -0500
-Received: from ANancy-107-1-38-158.w80-14.abo.wanadoo.fr ([80.14.40.158]:32015
-	"EHLO xiii.freealter.fr") by vger.kernel.org with ESMTP
-	id S261918AbUCIN2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 08:28:06 -0500
-Message-ID: <404DC638.5030200@linbox.com>
-Date: Tue, 09 Mar 2004 14:27:20 +0100
-From: Ludovic Drolez <ldrolez@linbox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, fr, en
-MIME-Version: 1.0
-To: Nick Warne <nick@ukfsn.org>, linux-kernel@vger.kernel.org
-Subject: Re: transmit timeouts with b44 and 2.6.2
-References: <4048B632.25551.483318ED@localhost>
-In-Reply-To: <4048B632.25551.483318ED@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Mar 2004 08:39:30 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:12489 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261924AbUCINj2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 08:39:28 -0500
+Date: Tue, 9 Mar 2004 19:10:29 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mingo@redhat.com, rusty@au1.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: more efficient current_is_keventd macro? [was Re: [lhcs-devel] Re: Kthread_create() never returns when called from worker_thread]
+Message-ID: <20040309134028.GA26645@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20040308123030.GA7428@in.ibm.com> <20040308143658.25c1d378.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040308143658.25c1d378.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Warne wrote:
-> Have a read of my problem here (read from bottom up) - very similar 
-> problems!!
-> 
-> http://marc.theaimsgroup.com/?t=107790369700001&r=1&w=2
+On Mon, Mar 08, 2004 at 02:36:58PM -0800, Andrew Morton wrote:
+> Is racy in the presence of preemption.  Please replace smp_processor_id()
+> with get_cpu(), stick a put_cpu() at the end, avoid having two function
+> return points, test it and send me the diff?
 
-Many thanks for the hint !
+Hi Andrew,
+	I had considered preemption and had thought using just
+smp_processor_id() should be safe, since anyway the per-cpu kevent
+thread is bound to its cpu alone.
 
-Does anyone know if I can apply this 8139too patch to the b44 driver also ?
+Patch below is booted/tested against 2.6.4-rc2-mm1 on a 4-way x86 SMP box.
+For testing, I basically called call_usermodehelper from inside a 
+work function (activated using schedule_work) and checked that 
+current_is_keventd() macro was returning true.
 
-Cheers,
+--- workqueue.c.org	2004-03-09 11:34:30.000000000 +0530
++++ workqueue.c	2004-03-09 19:06:51.000000000 +0530
+@@ -374,16 +374,17 @@
+ int current_is_keventd(void)
+ {
+ 	struct cpu_workqueue_struct *cwq;
+-	int cpu;
++	int cpu = smp_processor_id();
++	int ret = 0;
+ 
+ 	BUG_ON(!keventd_wq);
+ 
+-	for_each_cpu(cpu) {
+-		cwq = keventd_wq->cpu_wq + cpu;
+-		if (current == cwq->thread)
+-			return 1;
+-	}
+-	return 0;
++	cwq = keventd_wq->cpu_wq + cpu;
++	if (current == cwq->thread)
++		ret = 1;
++	
++	return ret;
++
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
 
 -- 
-Ludovic DROLEZ                              Linbox / Free&ALter Soft
-152 rue de Grigy - Technopole Metz 2000                   57070 METZ
-tel : 03 87 50 87 90                            fax : 03 87 75 19 26
 
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

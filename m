@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283016AbRLDXjG>; Tue, 4 Dec 2001 18:39:06 -0500
+	id <S283581AbRLDXbg>; Tue, 4 Dec 2001 18:31:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283597AbRLDXi5>; Tue, 4 Dec 2001 18:38:57 -0500
-Received: from user-119a3cr.biz.mindspring.com ([66.149.13.155]:61704 "HELO
-	fancypants.trellisinc.com") by vger.kernel.org with SMTP
-	id <S283016AbRLDXii>; Tue, 4 Dec 2001 18:38:38 -0500
-Date: Tue, 4 Dec 2001 18:38:37 -0500
-From: Faux Pas III <fauxpas@trellisinc.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PM + Maestro weirdness
-Message-ID: <20011204183837.A429@trellisinc.com>
-In-Reply-To: <20011204182724.A356@trellisinc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011204182724.A356@trellisinc.com>; from fauxpas@trellisinc.com on Tue, Dec 04, 2001 at 06:27:24PM -0500
+	id <S283583AbRLDXb0>; Tue, 4 Dec 2001 18:31:26 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:36480 "EHLO
+	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
+	id <S283581AbRLDXbK>; Tue, 4 Dec 2001 18:31:10 -0500
+Message-ID: <3C0D5CB6.1080600@optonline.net>
+Date: Tue, 04 Dec 2001 18:31:02 -0500
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Doug Ledford <dledford@redhat.com>
+CC: Mario Mikocevic <mozgy@hinet.hr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 06:27:24PM -0500, Faux Pas III wrote:
+Doug Ledford wrote:
 
-> This state persists until reboot.
+> Yes, on underrun the DAC is stopped and dmabuf->enable is cleared. 
+> That's clearly a bug in this case.  However, it should only cause your 
+> problem if you are in fact getting an underrun.  Anyway, here's a 
+> proposed fix you can try to see if that's what's causing the problem:
 
-Actually, putting the laptop to sleep (apm -s) and waking it back
-up will allow the module to be inserted again (once).
+[snip]
 
--- 
-Josh Litherland (fauxpas@trellisinc.com)
- It is by caffeine alone that I set my mind in motion.
-  It is by the juice of Mtn Dew that thoughts acquire speed.
+That works.
+

@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVCWPTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVCWPVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbVCWPTb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 10:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVCWPTb
+	id S262683AbVCWPVU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 10:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVCWPVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 10:19:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26288 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261624AbVCWPTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 10:19:22 -0500
-Date: Wed, 23 Mar 2005 05:49:31 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Horms <horms@verge.net.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix sign checks in copy_from_read_buf() in 2.4
-Message-ID: <20050323084931.GA4017@logos.cnet>
-References: <20050323074931.GA3092@verge.net.au>
+	Wed, 23 Mar 2005 10:21:19 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:54656 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261648AbVCWPU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 10:20:28 -0500
+Subject: Re: [PATCH scsi-misc-2.6 08/08] scsi: fix hot unplug sequence
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Tejun Heo <htejun@gmail.com>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050323071920.GJ24105@suse.de>
+References: <20050323021335.960F95F8@htj.dyndns.org>
+	 <20050323021335.4682C732@htj.dyndns.org>
+	 <1111550882.5520.93.camel@mulgrave> <4240F5A9.80205@gmail.com>
+	 <20050323071920.GJ24105@suse.de>
+Content-Type: text/plain
+Date: Wed, 23 Mar 2005 09:20:12 -0600
+Message-Id: <1111591213.5441.19.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050323074931.GA3092@verge.net.au>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-03-23 at 08:19 +0100, Jens Axboe wrote:
+> It is not the oops I am getting. When I get a few minutes today, I'll
+> reproduce with vanilla and post it here.
 
-Hi Horms,
+Well, I have news too.  Unfortunately, the python script I posted is
+hanging in D wait.  When I tested all of this out (with a similar
+script) in the 2.6.10 timeframe, it wasn't doing this, so we have some
+other problem introduced into the stack since then, sigh.
 
-On Wed, Mar 23, 2005 at 04:49:35PM +0900, Horms wrote:
-> Applologies if this is already pending, but the signdness fix for
-> copy_from_read_buf() in  2.6 seems to be needed for 2.4 as well.
-> 
-> This relates to the bugs reported in this document
-> http://www.guninski.com/where_do_you_want_billg_to_go_today_3.html
+Also it means my test isn't effective, so I need to track down the
+open/close hang before I can make progress.
 
-v2.4 does not suffer from the issue mentioned by Guninski because 
-the first argument of the arithmetic comparison is not casted
-to a "signed" value:
+James
 
-  n = min((ssize_t)*nr, n);
 
-That was the problem in v2.6, where an unsigned value bigger than 2^31 
-would be treated as a negative signed.
-
-Thanks anyway for pinging me, highly appreciated.
-
-> -- 
-> Horms
-> 
-> Backport of copy_from_read_buf() signedness fix from 2.6
-> 
-> Signed-off-by: Simon Horman <horms@verge.net.au>
-> 
-> ===== drivers/char/n_tty.c 1.7 vs edited =====
-> --- 1.7/drivers/char/n_tty.c	2004-12-16 22:57:23 +09:00
-> +++ edited/drivers/char/n_tty.c	2005-03-23 13:08:37 +09:00
-> @@ -1095,7 +1095,7 @@
->  
->  {
->  	int retval;
-> -	ssize_t n;
-> +	size_t n;
->  	unsigned long flags;
->  
->  	retval = 0;

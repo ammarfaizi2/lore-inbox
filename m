@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288281AbSACSrL>; Thu, 3 Jan 2002 13:47:11 -0500
+	id <S288286AbSACSre>; Thu, 3 Jan 2002 13:47:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288287AbSACSq7>; Thu, 3 Jan 2002 13:46:59 -0500
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:55530 "HELO
-	dardhal") by vger.kernel.org with SMTP id <S288281AbSACSqS>;
-	Thu, 3 Jan 2002 13:46:18 -0500
-Date: Thu, 3 Jan 2002 19:46:10 +0100
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Suspected bug in shrink_caches()
-Message-ID: <20020103184609.GA3890@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200201030538.g035ceM31957@mysql.sashanet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200201030538.g035ceM31957@mysql.sashanet.com>
-User-Agent: Mutt/1.3.25i
+	id <S288284AbSACSrO>; Thu, 3 Jan 2002 13:47:14 -0500
+Received: from ns.suse.de ([213.95.15.193]:10767 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288285AbSACSqx>;
+	Thu, 3 Jan 2002 13:46:53 -0500
+Date: Thu, 3 Jan 2002 19:46:28 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Uros Bizjak <uros@kss-loka.si>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, <petkan@dce.bg>
+Subject: Re: 2.5.1-dj10, 486 string copies
+In-Reply-To: <Pine.LNX.4.05.10201031141560.6476-100000@pulsar.kss-loka.si>
+Message-ID: <Pine.LNX.4.33.0201031944480.12592-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 02 January 2002, at 22:38:40 -0700,
-Sasha Pachev wrote:
+On Thu, 3 Jan 2002, Uros Bizjak wrote:
 
-> I am quite sure there is still a bug in shrink_caches(), at least there was 
-> one in 2.4.17-rc2. I have not tried later releases, but there is nothing in 
-> the changelog about the fixes anywhere near that area of the code, so I have 
-> to assume the problem is still there.
-> [...]
-> When we get to the point where free memory starts running low, even though we 
-> may have something like 100 MB of cache, shrink_caches() fails to free up 
-> enough memory, which triggers the evil oom killer. Obviously, in the above 
-> situation the correct behaviour is to go on cache diet before considering the 
-> murders.
-> 
-I can confirm this behaviour in my own machine. 128 MB of RAM, swap
-space turned off, machine running KDE 2.2.x, Konqueror, rxvt's, gkrellm,
-xmms and some daemons, and mighty Mozilla :). At this point there are
-still a couple of MB free, a couple buffered and aproximately 40 MB
-in caches.
+>   There is still patch to string-486.h at http://www.dce.bg/~petkan/
+> waiting for inclusion in 2.4 kernel.
+>
+>   This patch was written by Petko Manolov (petkan@dce.bg) and can be found
+> at http://www.dce.bg/~petkan/linux/string-486.diff
+>
+>   Intro to patch says:
+>
+>   Patch to .../linux-2.4.0-test7/include/asm-i386/string-486.h. memset and
+> memcpy routines was completely rewritten in order to get higher
+> performance. The aim is to go in final 2.4 kernels so please test.
 
-Trying to load OpenOffice641 the kernel feels it's OOM time, and kills
-something, usually Mozilla (as it should). However, "watch cat
-/proc/meminfo" reports about 30 MB in caches when OOM kicks in. Any
-attempt to "tune" parameters under "/proc/sys/vm/" changes nothing.
-Attempted changes include:
-echo "0 0" > /proc/sys/vm/pagetable_cache
+If they've been tested, and shown to be faster (and more importantly,
+they work correctly), I've no problem including this.
 
-All this is with plain 2.4.17, no patches applied. Another thing I have
-observed is caches growing "too" much, but this is more of a subjective
-feeling than anything else.
-
-Maybe unrelated, maybe not, is the fact that in 2.4.17 I still see short
-"freezes" in interactive response after doing intensive disk access
-(untarring something, finishing some dd'ing, rebuilding Debian package
-database, etc.). Both on medium-end hardware (128 MB RAM, PIII 600) and
-low-end hardware (64 MB RAM, P166). Vanilla 2.4.17 on both, with ext2 as
-the only filesystem used in mounted partitions.
+It could still use some work though. 3dnow!/mmx copies in a file
+called string-486.h is a bit.. odd.
 
 -- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo AT internautas DOT   org  => Spam at your own risk
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

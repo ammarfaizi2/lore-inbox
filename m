@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261893AbRE2AaY>; Mon, 28 May 2001 20:30:24 -0400
+	id <S261892AbRE2A2O>; Mon, 28 May 2001 20:28:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261898AbRE2AaO>; Mon, 28 May 2001 20:30:14 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16902 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261893AbRE2A37>; Mon, 28 May 2001 20:29:59 -0400
-Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
-To: lk@tantalophile.demon.co.uk (Jamie Lokier)
-Date: Tue, 29 May 2001 01:24:58 +0100 (BST)
-Cc: jas88@cam.ac.uk (James Sutherland), adam@yggdrasil.com (Adam J. Richter),
-        lm@bitmover.com, aaronl@vitelus.com, acahalan@cs.uml.edu,
-        dledford@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010529020300.A6061@pcep-jamie.cern.ch> from "Jamie Lokier" at May 29, 2001 02:03:00 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E154XJi-0003jI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S261874AbRE2A2F>; Mon, 28 May 2001 20:28:05 -0400
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:9226 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S261855AbRE2A1y>;
+	Mon, 28 May 2001 20:27:54 -0400
+Message-Id: <200105280126.f4S1QmFM017170@sleipnir.valparaiso.cl>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Edgar Toernig <froese@gmx.de>, Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup) 
+In-Reply-To: Message from Daniel Phillips <phillips@bonn-fries.net> 
+   of "Sun, 27 May 2001 22:45:17 +0200." <01052722451714.06233@starship> 
+Date: Sun, 27 May 2001 21:26:48 -0400
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > AFAICS, the firmware is just a file served up to the device as needed
-> > - no more a derivative work from the kernel than my homepage is a
-> > derivative work of Apache.
+Daniel Phillips <phillips@bonn-fries.net> said:
+> On Sunday 27 May 2001 15:32, Edgar Toernig wrote:
+
+[...]
+
+> > you break UNIX fundamentals.  But I'm quite relieved now because I'm
+> > pretty sure that something like that will never go into the kernel.
+
+> OK, I'll take that as "I couldn't find a piece of code that breaks, so 
+> it's on to the legal issues".
+
+It boggles my (perhaps underdeveloped) mind to have things that are files
+_and_ directories at the same time. The last time this was discussed was
+for handling forks (a la Mac et al) in files, and it was shot down.
+
+> SUS doesn't seem to have a lot to say about this.  The nearest thing to 
+> a ruling I found was "The special filename dot refers to the directory 
+> specified by its predecessor".  Which is not the same thing as:
 > 
-> Indeed.  But if you compiled your home page, linked it into Emacs to
-> display on startup, and distributed the binary, the _combination_
-> "Emacs+homepage" binary would be a derived work, and you'd be required
-> to offer source for both parts.
+>    open("foo", O_RDONLY) == open ("foo/.", O_RDONLY)
 
-In which case GNU Emacs violates the GPL by containing a copy of COPYING which
-is more restricted than the GPL. After all it displays copying on a hotkey
-combination
-
-Is that really what you are trying to say ??
-
-Alan
-
-
-
+It says "foo" and "foo/." are the same _directory_, where "foo" is a
+directory as otherwise "foo/<something>" makes no sense, AFAICS. Is there
+any mention on a _file_ "bar" and going "bar/" or "bar/<something>"?
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

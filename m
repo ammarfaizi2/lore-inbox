@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbTINLWd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 07:22:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTINLWd
+	id S262385AbTINLXI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 07:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbTINLXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 07:22:33 -0400
-Received: from smtp3.att.ne.jp ([165.76.15.139]:3028 "EHLO smtp3.att.ne.jp")
-	by vger.kernel.org with ESMTP id S262384AbTINLWS (ORCPT
+	Sun, 14 Sep 2003 07:23:08 -0400
+Received: from smtp3.att.ne.jp ([165.76.15.139]:9172 "EHLO smtp3.att.ne.jp")
+	by vger.kernel.org with ESMTP id S262385AbTINLWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 07:22:18 -0400
-Message-ID: <206501c37ab2$63f565e0$2dee4ca5@DIAMONDLX60>
+	Sun, 14 Sep 2003 07:22:24 -0400
+Message-ID: <206601c37ab2$6763ffc0$2dee4ca5@DIAMONDLX60>
 From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
 To: "Andries Brouwer" <aebr@win.tue.nl>
 Cc: <linux-kernel@vger.kernel.org>, "Vojtech Pavlik" <vojtech@suse.cz>
 References: <1b7301c37a73$861bea70$2dee4ca5@DIAMONDLX60> <20030914122034.C3371@pclin040.win.tue.nl>
-Subject: Re: 2.6.0-test5 vs. Japanese keyboards [1]
-Date: Sun, 14 Sep 2003 20:14:52 +0900
+Subject: Re: 2.6.0-test5 vs. Japanese keyboards [2]
+Date: Sun, 14 Sep 2003 20:15:50 +0900
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -44,79 +44,44 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Due to the complexity of this answer, I am making three separate postings.
 
-The posting by junkio@cox.net on July 24, 2003 was correct for Japanese PS/2
-keyboards because it resulted in the yen pipe key working in a plain text
-console.  The yen sign is the same as the backslash so the unshifted version
-of this key was partly tolerable, but the pipe is not available otherwise so
-this fix was really needed.
-
-However, this was not enough for Japanese USB keyboards.  I recommend that
-my revised patch, posted on August 31, 2003, be used instead.  This will be
-quoted in a subsequent message.
-
-The reasons for posting this partial patch are that junkio@cox.net kindly
-provided a fix which was good enough for PS/2, taught me how to do the
-patch, and resulted in further discussion by people who really should not be
-capable of simply forgetting it.
-
-For these historical reasons, it follows here:
+The posting by myself on August 31, 2003 was correct for both Japanese PS/2
+and Japanese USB keyboards because it resulted in the yen pipe key working
+in a plain text console.  The yen sign is the same as the backslash so the
+unshifted version of this key was partly tolerable, but the pipe is not
+available otherwise so this fix was really needed.
 
 
 ----- Original Message ----- 
-From: <junkio@cox.net>
-To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, July 24, 2003 7:55 AM
-Subject: [PATCH] keycode 183 in defkeymap.map (was Re: Japanese keyboards broken in 2.6)
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+Newsgroups: linux.kernel
+Sent: Sunday, August 31, 2003 6:20 PM
+Subject: [PATCH] 2.6.0-test4, Japanese USB keyboards, keycodes 181 and 183
 
 
-> >>>>> "ND" == Norman Diamond <ndiamond@wta.att.ne.jp> writes:
+> If this gets posted correctly, it will patch
+>  [...]/drivers/char/defkeymap.c_shipped
+> and
+>  [...]/drivers/char/defkeymap.mapped
+> so that keys \| and \_ will work for both Japanese PS/2 and Japanese USB
+> keyboards.
 > 
-> ND> "Andries Brouwer" <aebr@win.tue.nl> replied to me, thank you.  Again, sorry
-> ND> I cannot keep up with the mailing list.  If Dr. Brouwer or anyone else has
-> ND> advice or questions, please contact me directly.  I am sending this both
-> ND> personally and to the list.
+> I did not develop the patch in the same way as was done by junkio@cox.net
+> (sorry I misplaced his real name somewhere), but am trying to post it in
+> the same manner as he posted his on July 23, 2003.
 > 
-> I also got help from Brouwer with a similar (maybe the same)
-> problem.  Although his "keycode 183 = backslash bar" comment is
-> a bit cryptic, but here is what I did and worked:
+> Sorry I use Monopolysoft for most internet stuff so I cannot mail this by
+> an ordinary method.  Outlook Express changes each tab to a single space.
+> So I'm using the telnet command to submit this mail.  Odds are that the
+> LKML's spam controls will detect that and reject this message, but I'll
+> try anyway, in hopes of preserving tab characters.
 > 
->  1. Add that line in drivers/char/defkeymap.map (that's kernel
->     source, not a file in /etc/{kbd,console}/).
-> 
->  2. Get his kbd-1.08 source and rebuild loadkeys with the header
->     files from 2.6 kernel.  /usr/include/linux/keyboard.h you
->     have probably would not work---NR_KEYS is capped to 128.
->     (Note that the result of the compilation does not have to be
->     installed anywhere).
-> 
->  3. Using the rebuilt loadkeys, rebuild drivers/char/defkeymap.c, 
->     mimicking what drivers/char/Makefile does (the rule is at
->     the endof the Makefile).
-> 
->  4. Build the kernel.
-> 
-> For your convenience, I have attached patch that updates
-> defkeymap.c and defkeymap.map to include the key definition, so
-> you do not have to recompile loadkeys just to regenerate
-> defkeymap.c file.  You should be able to apply the following to
-> your 2.6.0-test1 source and rebuild the kernel.
+> Sorry I cannot keep up with the mailing list.  Any questions or advice,
+> personal e-mail please.
 > 
 > 
-> --- linux-2.6.0-test1/drivers/char/defkeymap.map 2003-07-13 20:31:58 -0700
-> +++ linux-2.6.0-test1/drivers/char/defkeymap.map 2003-07-19 16:10:48 -0700
-> @@ -259,6 +259,7 @@
->  keycode 125 =
->  keycode 126 =
->  keycode 127 =
-> +keycode 183 = backslash bar
->  string F1 = "\033[[A"
->  string F2 = "\033[[B"
->  string F3 = "\033[[C"
-> 
-> 
-> --- linux-2.6.0-test1/drivers/char/defkeymap.c_shipped 2003-07-13 20:33:13 -0700
-> +++ linux-2.6.0-test1/drivers/char/defkeymap.c_shipped 2003-07-19 16:21:00 -0700
+> diff -ru linux-2.6-keymaps1/defkeymap.c_shipped linux-2.6-keymaps2/defkeymap.c_shipped
+> --- linux-2.6-keymaps1/defkeymap.c_shipped 2003-08-31 16:51:38.000000000 +0900
+> +++ linux-2.6-keymaps2/defkeymap.c_shipped 2003-08-31 16:52:22.000000000 +0900
 > @@ -22,6 +22,54 @@
 >   0xf118, 0xf601, 0xf602, 0xf117, 0xf600, 0xf119, 0xf115, 0xf116,
 >   0xf11a, 0xf10c, 0xf10d, 0xf11b, 0xf11c, 0xf110, 0xf311, 0xf11d,
@@ -127,7 +92,7 @@ Subject: [PATCH] keycode 183 in defkeymap.map (was Re: Japanese keyboards broken
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
-> + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf05c,
+> + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf05c, 0xf200, 0xf05c,
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
@@ -187,7 +152,7 @@ Subject: [PATCH] keycode 183 in defkeymap.map (was Re: Japanese keyboards broken
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
-> + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf07c,
+> + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf05f, 0xf200, 0xf07c,
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
 > + 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
@@ -522,6 +487,24 @@ Subject: [PATCH] keycode 183 in defkeymap.map (was Re: Japanese keyboards broken
 >  };
 >  
 >  ushort *key_maps[MAX_NR_KEYMAPS] = {
-> 
-> 
-> 
+> diff -ru linux-2.6-keymaps1/defkeymap.map linux-2.6-keymaps2/defkeymap.map
+> --- linux-2.6-keymaps1/defkeymap.map 2003-08-31 16:51:38.000000000 +0900
+> +++ linux-2.6-keymaps2/defkeymap.map 2003-08-31 16:52:22.000000000 +0900
+> @@ -259,6 +259,12 @@
+>  keycode 125 =
+>  keycode 126 =
+>  keycode 127 =
+> +keycode 181 = backslash        underscore
+> + control keycode 181 = Control_backslash
+> + alt     keycode 181 = Meta_backslash  
+> +keycode 183 = backslash        bar             
+> + control keycode 183 = Control_backslash
+> + alt     keycode 183 = Meta_backslash  
+>  string F1 = "\033[[A"
+>  string F2 = "\033[[B"
+>  string F3 = "\033[[C"
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

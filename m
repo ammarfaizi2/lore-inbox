@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263188AbSKKXUx>; Mon, 11 Nov 2002 18:20:53 -0500
+	id <S261613AbSKKXQN>; Mon, 11 Nov 2002 18:16:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263246AbSKKXUx>; Mon, 11 Nov 2002 18:20:53 -0500
-Received: from packet.digeo.com ([12.110.80.53]:38383 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263188AbSKKXUw>;
-	Mon, 11 Nov 2002 18:20:52 -0500
-Message-ID: <3DD03CDC.562D7C0@digeo.com>
-Date: Mon, 11 Nov 2002 15:27:24 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S262295AbSKKXQN>; Mon, 11 Nov 2002 18:16:13 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:13768 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261613AbSKKXQM>;
+	Mon, 11 Nov 2002 18:16:12 -0500
+Date: Mon, 11 Nov 2002 18:23:00 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+cc: dm@uk.sistina.com, linux-lvm@sistina.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] make device mapper compile on 2.5.4x
+In-Reply-To: <20021111225340.GA3587@lina.inka.de>
+Message-ID: <Pine.GSO.4.21.0211111821210.29617-100000@steklov.math.psu.edu>
 MIME-Version: 1.0
-To: CaT <cat@zip.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.47 / unusual ext3 fs errors
-References: <20021111231053.GA1518@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Nov 2002 23:27:24.0562 (UTC) FILETIME=[E3FB9720:01C289D9]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CaT wrote:
-> 
-> Under 2.5.x I seem to be getting a lot of fs errors on fsck, mainly
-> dealing with bad inode counts in groups. Just now though, I had /var
-> remounted read-only due to the following:
-> 
-> t_transaction: Journal has aborted
-> EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-> EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-> EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-> ...
-> EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-> EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-> EXT3-fs error (device ide0(3,9)) in start_transaction: Journal has aborted
-> 
-> And again, on reboot into single user mode and a full fsck bad inode
-> count errors were present. There were no errors detected whilst testing
-> the disk with -c.
 
-There was a problem in 2.5.46 which mucked up these counters.  On disk.
 
-2.5.47 fixed that bug, and now you have fixed the on-disk mess which 2.5.46
-created, all should be well.
+On Mon, 11 Nov 2002, Bernd Eckenfels wrote:
+
+> -	set_device_ro(dm_kdev(md), 0/*(param->flags & DM_READONLY_FLAG)*/);
+> +	bdev = bdget(kdev_t_to_nr(dm_kdev(md)));
+> +	if (!bdev)
+> +		return -ENXIO;
+> +	set_device_ro(bdev, (param->flags & DM_READONLY_FLAG));
+> +	bdput(bdev);
+
+That is simply wrong.  set_device_ro() works only on opened block_device.
+Correct fix is to use set_disk_ro() and it's already in the tree (1.830
+on bkbits).
+

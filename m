@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbSJHTuj>; Tue, 8 Oct 2002 15:50:39 -0400
+	id <S261492AbSJHTk4>; Tue, 8 Oct 2002 15:40:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261559AbSJHTtd>; Tue, 8 Oct 2002 15:49:33 -0400
-Received: from borg.org ([208.218.135.231]:5366 "HELO borg.org")
-	by vger.kernel.org with SMTP id <S261526AbSJHTsf>;
-	Tue, 8 Oct 2002 15:48:35 -0400
-Date: Tue, 8 Oct 2002 15:54:15 -0400
-From: Kent Borg <kentborg@borg.org>
-To: linux-kernel@vger.kernel.org
-Subject: Loading init and ld.so.1 for Coldfire V4e
-Message-ID: <20021008155415.D9391@borg.org>
-Mime-Version: 1.0
+	id <S261451AbSJHTMb>; Tue, 8 Oct 2002 15:12:31 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24336 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263245AbSJHTGM>; Tue, 8 Oct 2002 15:06:12 -0400
+Subject: PATCH: fix ips compile
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 20:03:19 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17yzdX-0004uG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to get Linux working on a Coldfire V4e (no, they don't
-exist yet in the outside world).  This is kind of an m68k, but being a
-Coldfire, it is a subset of the old m68k.  This is a Coldfire, but
-being new and spiffy, it has an MMU (32 instruction TLB entries, 32
-data TLB entries). 
-
-Currently I am at the point where a lot of the memory stuff is
-possibly working, the kernel thinks it has booted, and it is trying to
-fire up init.  And it is failing.
-
-Does anyone have a pointer to something I can read to tell me a bit of
-how programs load, what ld.so.1 does, etc?  I am in the midst of elf
-headers, I see ld.so.1 being opened, I see sections with various
-addresses flying by, and I end up trying to execute an address that is
-not executable, only read-write.  It is possible that stuff really is
-percolating correctly from vma's to page tables, it is possible stuff
-really is percolating correctly from page tables to TLBs.  It is
-possible that ld.so.1 and init really are being built correctly and
-even at sensible addresses, but I don't know.  There are too many
-variables here that I don't know about.
-
-Any suggestions on where I could learn more on how init is supposed to
-get up and running?
-
-
-Thanks,
-
--kb, the Kent who happens to work for an obscure little corner of
-Motorola.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/scsi/ips.c linux.2.5.41-ac1/drivers/scsi/ips.c
+--- linux.2.5.41/drivers/scsi/ips.c	2002-10-02 21:33:29.000000000 +0100
++++ linux.2.5.41-ac1/drivers/scsi/ips.c	2002-10-08 00:10:34.000000000 +0100
+@@ -164,7 +164,6 @@
+ #include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/reboot.h>
+-#include <linux/tqueue.h>
+ #include <linux/interrupt.h>
+ 
+ #include <linux/blk.h>

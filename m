@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263788AbUEMGFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263800AbUEMGHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbUEMGFH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 02:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263798AbUEMGFH
+	id S263800AbUEMGHn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 02:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbUEMGHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 02:05:07 -0400
-Received: from zero.aec.at ([193.170.194.10]:22799 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263788AbUEMGFE (ORCPT
+	Thu, 13 May 2004 02:07:43 -0400
+Received: from holomorphy.com ([207.189.100.168]:3260 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263800AbUEMGHm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 02:05:04 -0400
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] kernel modules profile support (2.6.6)
-References: <1VcTA-5Th-11@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 13 May 2004 08:04:36 +0200
-In-Reply-To: <1VcTA-5Th-11@gated-at.bofh.it> (Randy Dunlap's message of
- "Thu, 13 May 2004 03:10:06 +0200")
-Message-ID: <m3isf0q2vf.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 13 May 2004 02:07:42 -0400
+Date: Wed, 12 May 2004 23:06:39 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: David Gibson <david@gibson.dropbear.id.au>, Andrew Morton <akpm@osdl.org>,
+       Anton Blanchard <anton@samba.org>, Adam Litke <agl@us.ibm.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+Subject: Re: More convenient way to grab hugepage memory
+Message-ID: <20040513060639.GN1397@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+	Adam Litke <agl@us.ibm.com>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+References: <20040513055520.GF27403@zax>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040513055520.GF27403@zax>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> writes:
+On Thu, May 13, 2004 at 03:55:20PM +1000, David Gibson wrote:
+> +int mmap_use_hugepages = 0;
+> +int mmap_hugepages_map_sz = 256;
 
-> This patch (below) is an update of a 2.4.18 kernel patch that
-> supports module profiling in the in-kernel profiler.
+These aren't used anywhere else in your patch; any chance you could
+nuke them?
 
-I don't think that's a good idea. Please keep the standard profiler
-simple. And for anything complex we already have oprofile.
+Thanks.
 
--Andi
 
+-- wli
 

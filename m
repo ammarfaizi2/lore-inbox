@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264608AbUASLeG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 06:34:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264591AbUASLcW
+	id S264565AbUASMB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 07:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264575AbUASMB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 06:32:22 -0500
-Received: from mail36.messagelabs.com ([193.109.254.211]:37018 "HELO
-	mail36.messagelabs.com") by vger.kernel.org with SMTP
-	id S264575AbUASLb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 06:31:57 -0500
-X-VirusChecked: Checked
-X-Env-Sender: okiddle@yahoo.co.uk
-X-Msg-Ref: server-17.tower-36.messagelabs.com!1074511912!3197532
-X-StarScan-Version: 5.1.15; banners=-,-,-
-X-VirusChecked: Checked
-X-StarScan-Version: 5.1.13; banners=.,-,-
-From: Oliver Kiddle <okiddle@yahoo.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: page allocation failure
-Date: Mon, 19 Jan 2004 12:36:02 +0100
-Message-ID: <7641.1074512162@gmcs3.local>
+	Mon, 19 Jan 2004 07:01:26 -0500
+Received: from dp.samba.org ([66.70.73.150]:4737 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264565AbUASMBZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 07:01:25 -0500
+Date: Mon, 19 Jan 2004 22:42:19 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jamagallon@able.es, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.1-mm4
+Message-Id: <20040119224219.65991501.rusty@rustcorp.com.au>
+In-Reply-To: <20040118001708.09291455.akpm@osdl.org>
+References: <20040115225948.6b994a48.akpm@osdl.org>
+	<20040118001217.GE3125@werewolf.able.es>
+	<20040117215535.0e4674b8.akpm@osdl.org>
+	<20040118081128.GA3153@werewolf.able.es>
+	<20040118001708.09291455.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be a problem with 2.6.1 on my machine. It will be fine
-for a matter of a few days and then this error will appear on the
-console. The message then appears repeatedly and continuously. The
-first I know is that my remote login shell ceases to respond. About the
-only thing I can do is switch between virtual consoles (until I hit the
-reset button).
+On Sun, 18 Jan 2004 00:17:08 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-/var/log/messages shows:
-kernel: cat: page allocation failure. order:0, mode:0x20
+> Presumably, recent gcc's remove the variable altogether and just expand the
+> constant inline.  When the central module code checks for the parameter's
+> existence in the module's symbol table it errors out.
 
-Then the same for lots of other processes (pdflush, syslogd, klogd,
-kswapd0, nfsd to name a few). I expect that after a point it is unable
-to even log stuff so syslog is quiet after a while.
+MODULE_PARM considered harmful.
 
-It has happened three times now and on all occasions, I was untarring a
-huge file on an XFS partition. I assume the problem is something to do
-with VM. The machine has 1GB of RAM which should be plenty. For the
-most part it is just serving NFS and NIS (to no more than about 10
-clients).
+Unfortunately, there's no easy way of fixing this, since MODULE_PARM()
+is often used on variables which aren't declared yet 8(.  (I tried this
+in an early patch).
 
-The hardware is a Dell PowerEdge 600SC. It's a new machine that never
-ran 2.4 before. I can supply any other information that might help in
-diagnosing the problem. I don't subscribe so please CC me in any reply
-(but I'll keep an eye on the archives).
+Migrating to module_param() is the Right Thing here IMHO, which actually
+takes the damn address,
 
-If anyone can suggest any /proc variables I might change to reduce the
-risk of it doing this again, I would appreciate it. I tried increasing
-/proc/sys/vm/min_free_kbytes after the first time this happened. Not
-that I understand what that does: I searched the archives and it was
-mentioned in a vaguely relevant looking post.
-
-Cheers
-
-Oliver Kiddle
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

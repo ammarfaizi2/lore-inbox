@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132828AbRDDOgr>; Wed, 4 Apr 2001 10:36:47 -0400
+	id <S132830AbRDDOp1>; Wed, 4 Apr 2001 10:45:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132830AbRDDOgh>; Wed, 4 Apr 2001 10:36:37 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:43020 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132828AbRDDOg0>;
-	Wed, 4 Apr 2001 10:36:26 -0400
-Date: Wed, 4 Apr 2001 15:34:22 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Hubertus Franke <frankeh@us.ibm.com>
-Cc: Mike Kravetz <mkravetz@sequent.com>, Fabio Riccardi <fabio@chromium.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        <lse-tech@lists.sourceforge.net>
-Subject: Re: a quest for a better scheduler
-In-Reply-To: <OF401BD38B.CF3B1E9F-ON85256A24.0048543A@pok.ibm.com>
-Message-ID: <Pine.LNX.4.30.0104041527190.5382-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132831AbRDDOpI>; Wed, 4 Apr 2001 10:45:08 -0400
+Received: from mail.inup.com ([194.250.46.226]:19211 "EHLO mailhost.lineo.fr")
+	by vger.kernel.org with ESMTP id <S132830AbRDDOow>;
+	Wed, 4 Apr 2001 10:44:52 -0400
+Date: Wed, 4 Apr 2001 16:48:58 +0200
+From: christophe barbe <christophe.barbe@lineo.fr>
+To: Paul Jakma <paulj@itg.ie>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: uninteruptable sleep (D state => load_avrg++)
+Message-ID: <20010404164858.A14009@pc8.inup.com>
+In-Reply-To: <20010404141349.A6702@pc8.inup.com> <Pine.LNX.4.33.0104041518300.1150-100000@rossi.itg.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.33.0104041518300.1150-100000@rossi.itg.ie>; from paulj@itg.ie on mer, avr 04, 2001 at 16:20:04 +0200
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+<skip>
+I've unfortunately no significant Unix culture. 
+I'm certainly young enough to be excused and by luck Linux shows me the road to the hacker heaven.
+So now I move forward the good direction, trying to understand the POSIX stuff ....
+</skip>
 
-On Wed, 4 Apr 2001, Hubertus Franke wrote:
+>From me, a POV without technical reasons is not a philosical one but more certainly an historical one.
 
-> Another point to raise is that the current scheduler does a exhaustive
-> search for the "best" task to run. It touches every process in the
-> runqueue. this is ok if the runqueue length is limited to a very small
-> multiple of the #cpus. [...]
+Process that will be runnable are not participating to the load so why incrementing the load average.
+Moreover if a process should be in state D only for a short time, the influence of the incrementation should be near null for an AVERAGE value.
+So why doing that (I mean load++) if there's an influence only when a process stay in a D state for a long time (= when the only effect is to distort the load measure) ?
 
-indeed. The current scheduler handles UP and SMP systems, up to 32
-(perhaps 64) CPUs efficiently. Agressively NUMA systems need a different
-approach anyway in many other subsystems too, Kanoj is doing some
-scheduler work in that area.
+What's the technical reason behind this load_avrg++ ???
 
-but the original claim was that the scheduling of thousands of runnable
-processes (which is not equal to having thousands of sleeping processes)
-must perform well - which is a completely different issue.
+Christophe
 
-	Ingo
 
+On mer, 04 avr 2001 16:20:04 Paul Jakma wrote:
+> On Wed, 4 Apr 2001, christophe barbe wrote:
+> 
+> > The sleep should certainly be interruptible and I that's what I
+> > said to the GFS guy. But what the reason to increment the load
+> > average for each D process ?
+> 
+> from a philosical POV: they are processes that will be runnable as
+> soon as the kernel returns to them.
+> 
+> no idea if there are technical reasons for it.
+> 
+> >
+> > Thanks,
+> > Christophe
+> 
+> --paulj
+> 
+-- 
+Christophe Barbé
+Software Engineer
+Lineo High Availability Group
+42-46, rue Médéric
+92110 Clichy - France
+phone (33).1.41.40.02.12
+fax (33).1.41.40.02.01
+www.lineo.com

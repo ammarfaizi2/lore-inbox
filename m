@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbULTHzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbULTIDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbULTHzs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 02:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbULTHub
+	id S261244AbULTIDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 03:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbULTICe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 02:50:31 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:36078 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261474AbULTGoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 01:44:00 -0500
-Date: Mon, 20 Dec 2004 07:41:52 +0100 (CET)
-From: Armin Schindler <armin@melware.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: isdn4linux@listserv.isdn4linux.de,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       developers@melware.de
-Subject: Re: RFC: [2.6 patch] Eicon: disable debuglib for modules
-In-Reply-To: <20041220002225.GJ21288@stusta.de>
-Message-ID: <Pine.LNX.4.61.0412200731170.10821@phoenix.one.melware.de>
-References: <20041030072256.GH4374@stusta.de>
- <Pine.LNX.4.31.0410301343450.24225-100000@phoenix.one.melware.de>
- <20041220002225.GJ21288@stusta.de>
-Organization: Cytronics & Melware
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
+	Mon, 20 Dec 2004 03:02:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:23734 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261487AbULTHQg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 02:16:36 -0500
+Date: Sun, 19 Dec 2004 23:06:03 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] let BLK_DEV_UB depend on EMBEDDED
+Message-ID: <20041219230603.7956d309@lembas.zaitcev.lan>
+In-Reply-To: <200412192243.06324.david-b@pacbell.net>
+References: <20041220001644.GI21288@stusta.de>
+	<41C65EA0.7020805@osdl.org>
+	<20041220062055.GA22120@one-eyed-alien.net>
+	<200412192243.06324.david-b@pacbell.net>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Dec 2004, Adrian Bunk wrote:
-> > > Is there a good reason why debuglib is enabled for modules?
-> > 
-> > Yes.
-> > Without it, there would be no possibility to use the maintainance module
-> > to debug the isdn/card/capi interaction.
-> > 
-> > > If not, I'd propose the patch below to disable it.
-> > 
-> > I have to disagree. This patch would disable a major feature of the
-> > diva driver collection.
-> 
-> How do I enable this maintainance module in the kernel?
+On Sun, 19 Dec 2004 22:43:05 -0800, David Brownell <david-b@pacbell.net> wrote:
 
-The option 'DIVA Maint driver support' enables this module.
-When the module is loaded, all diva modules provide trace logs to that 
-module. Using the user-space utility 'divactrl' you can set e.g. trace masks 
-and read the messages.
+> It also seems to mean significantly slower access (at high speed)
+> for the most standard devices.  That doesn't seem like a win,
+> though I suspect fixing it should be as simple as switching over
+> to use the USB scatterlist calls (which usb-storage uses) ...
 
-Armin
+They do not allow asynchronous operation, last time I checked.
+
+-- Pete

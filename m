@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbULBODE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbULBOFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbULBODE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 09:03:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbULBODE
+	id S261626AbULBOFj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 09:05:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbULBOFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 09:03:04 -0500
-Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:56241
-	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261620AbULBODB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 09:03:01 -0500
-Message-ID: <41AF207F.6060704@portrix.net>
-Date: Thu, 02 Dec 2004 15:02:39 +0100
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Dittmer <j.dittmer@portrix.net>
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, kuba@mareimbrium.org,
-       greg@kroah.com, bryder@sgi.com, linux-kernel@vger.kernel.org,
-       edwin@harddisk-recovery.nl
-Subject: Re: FTDI SIO patch to allow custom vendor/product IDs.
-References: <20041202124831.GA31745@bitwizard.nl> <41AF1F4C.2030707@portrix.net>
-In-Reply-To: <41AF1F4C.2030707@portrix.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 2 Dec 2004 09:05:39 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:51369 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261626AbULBOFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 09:05:32 -0500
+Subject: Re: Block layer question - indicating EOF on block devices
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041202081828.GC10454@suse.de>
+References: <1101829852.25628.47.camel@localhost.localdomain>
+	 <20041130184345.47e80323.akpm@osdl.org>
+	 <1101912876.30770.14.camel@localhost.localdomain>
+	 <20041202081828.GC10454@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1101992502.5624.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 02 Dec 2004 13:01:43 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Dittmer wrote:
-> Rogier Wolff wrote:
+On Iau, 2004-12-02 at 08:18, Jens Axboe wrote:
+> The upper buffer layer could do something intelligent if EOF is set on
+> the bio, it really should. The problem is that there's no -EXXX to flag
+> EOF from the driver, it would be nicest if one could just do:
 > 
->>+MODULE_PARM(vendor, "i");
->>+MODULE_PARM_DESC(vendor, "User specified USB idVendor");
->>+
->>+MODULE_PARM(product, "i");
->>+MODULE_PARM_DESC(product, "User specified USB idProduct");
+> 	end_that_request_chunk(req, 1, good_bytes);
+> 	end_that_request_chunk(req, -EOF, residual);
 > 
-> 
-> Use module_param instead.
 
-Sorry, I didn't see that it's an 2.4 patch ;-)
+We have a set of internal error codes around -512 for things like
+"please use
+the default ioctl behaviour". The error codes don't seem to get
+propogated up through the page cache however when I tried using this (I
+just "borrowed"
+-ENOMEDIUM for testing) with the idea of catching it at the top.
 
-Jan
+

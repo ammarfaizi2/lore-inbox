@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267008AbSLPSQm>; Mon, 16 Dec 2002 13:16:42 -0500
+	id <S266991AbSLPSNp>; Mon, 16 Dec 2002 13:13:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267010AbSLPSQm>; Mon, 16 Dec 2002 13:16:42 -0500
-Received: from 216-42-72-142.ppp.netsville.net ([216.42.72.142]:34442 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id <S267008AbSLPSQl>;
-	Mon, 16 Dec 2002 13:16:41 -0500
-Subject: Re: [BK][PATCH] ReiserFS CPU and memory bandwidth efficient large
-	writes
-From: Chris Mason <mason@suse.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: Andrew Morton <akpm@digeo.com>, Hans Reiser <reiser@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021214232520.A10786@namesys.com>
-References: <3DFA2D4F.3010301@namesys.com> <3DFA53DA.DE6788C1@digeo.com>
-	<20021214162108.A3452@namesys.com> <3DFB7B9E.FC404B6B@digeo.com>
-	<20021214222053.A10506@namesys.com> <3DFB904F.2ADDE2D4@digeo.com> 
-	<20021214232520.A10786@namesys.com>
+	id <S266996AbSLPSNp>; Mon, 16 Dec 2002 13:13:45 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:44785 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S266991AbSLPSNo>; Mon, 16 Dec 2002 13:13:44 -0500
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A5A4@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Pavel Machek'" <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: RE: [ACPI] Metolious hardware-sensors-using-ACPI specs
+Date: Mon, 16 Dec 2002 10:21:22 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 16 Dec 2002 13:24:28 -0500
-Message-Id: <1040063068.17501.31.camel@tiny>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-12-14 at 15:25, Oleg Drokin wrote:
+> From: Pavel Machek [mailto:pavel@suse.cz] 
+> Is it goign to be implemented in linux-acpi?
+> 
+> I took a look at specs at intel, and it has rather funny legaleese:
 
-> reiserfs v3  was traditionally hungry on stack space I think.
+Wow, is that still on a website somewhere?
 
-Well, if you want to drop stack usage, kill some inlines from stree.c. 
-I really doubt we gain anything from inlining these:
+So as you may know from looking at the spec, Metolious was a spec that
+defined a way for platforms to enumerate various motherboard sensors to the
+OS, for manageability purposes.
 
---- linux/fs/reiserfs/stree.c.1	Tue Sep 24 09:50:50 2002
-+++ linux/fs/reiserfs/stree.c	Tue Sep 24 09:51:18 2002
-@@ -340,7 +340,7 @@
- 
+It never took off, except for a couple companies that used the Windows
+driver for other things because they didn't want to write a driver that
+received ACPI device Notify()s.
 
- /* Get delimiting key of the buffer at the path and its right neighbor. */
--inline	const struct  key * get_rkey  (
-+const struct  key * get_rkey  (
- 	                const struct path         * p_s_chk_path,
-                         const struct super_block  * p_s_sb
-                       ) {
-@@ -925,7 +925,7 @@
- 
+The licensing may be weird, but given that there really is no point in
+implementing it on Linux, does that really matter?
 
- // prepare for delete or cut of direct item
--static inline int prepare_for_direct_item (struct path * path,
-+static int prepare_for_direct_item (struct path * path,
- 					   struct item_head * le_ih,
- 					   struct inode * inode,
- 					   loff_t new_file_length,
-@@ -970,7 +970,7 @@
- }
- 
-
--static inline int prepare_for_direntry_item (struct path * path,
-+static int prepare_for_direntry_item (struct path * path,
- 					     struct item_head * le_ih,
- 					     struct inode * inode,
- 					     loff_t new_file_length,
-
-
-
+Regards -- Andy

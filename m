@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261872AbSLJQGT>; Tue, 10 Dec 2002 11:06:19 -0500
+	id <S262258AbSLJQGa>; Tue, 10 Dec 2002 11:06:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbSLJQGT>; Tue, 10 Dec 2002 11:06:19 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:39686 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S261872AbSLJQGT>; Tue, 10 Dec 2002 11:06:19 -0500
-Subject: Re: [BUG]: agpgart for i810 chipsets broken in 2.5.51
-From: Antonino Daplas <adaplas@pol.net>
-To: Dave Jones <davej@suse.de>
+	id <S262394AbSLJQGa>; Tue, 10 Dec 2002 11:06:30 -0500
+Received: from irongate.swansea.linux.org.uk ([194.168.151.19]:2496 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262258AbSLJQG3>; Tue, 10 Dec 2002 11:06:29 -0500
+Subject: Re: 2.4.20-ac1 hangs IBM Thinkpad
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "J.D. Hood" <jdthood@yahoo.co.uk>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021210144852.GD26361@suse.de>
-References: <1039522886.1041.17.camel@localhost.localdomain>
-	<20021210131143.GA26361@suse.de>
-	<1039538881.2025.2.camel@localhost.localdomain> 
-	<20021210144852.GD26361@suse.de>
+In-Reply-To: <20021210125332.69872.qmail@web10305.mail.yahoo.com>
+References: <20021210125332.69872.qmail@web10305.mail.yahoo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1039547205.1086.25.camel@localhost.localdomain>
-Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 00:07:45 +0500
+Date: 10 Dec 2002 16:49:41 +0000
+Message-Id: <1039538981.14166.26.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-10 at 19:48, Dave Jones wrote:
-> On Tue, Dec 10, 2002 at 09:47:24PM +0500, Antonino Daplas wrote:
->  > On Tue, 2002-12-10 at 18:11, Dave Jones wrote:
->  > > On Tue, Dec 10, 2002 at 05:21:29PM +0500, Antonino Daplas wrote:
->  > >  > 2.  The i810 driver for Xfree86 will also fail to load because of
->  > >  > version mismatch (0.99 vs 1.0).  Rolling back the version corrects the
->  > >  > problem.
->  > > 
->  > > Ugh, that's great. So X has to be patched every time the agpgart code
->  > > gets a new revision ? That sounds really unpleasant.
->  > > 
->  > Actually, X is complaining that the kernel version was too old, crazy
->  > no?
-> 
-> That chunk of X code is crap. So much so, that someone even put a
-> comment there (not that what they suggested was much better).
-> 
-> See line 122 of http://www.atomised.org/docs/XFree86-4.2.1/agp_8c-source.html
-> 
-Ouch.  That's a sh??ty version check.  And it has to be present from
-4.0.0 to 4.2.1, and if they don't correct it, 4.3.0.
- 
-Tony
+On Tue, 2002-12-10 at 12:53, J.D. Hood wrote:
+> I have also stopped using 2.4.20-ac1 on my ThinkPad.
+> It performs much worse than 2.4.20-pre8-ac1 when running
+> large applications such as OpenOffice.  (It never crashed
+> on me, though.)  Having read the recent thread on changes
+> to the scheduler and yield(), I suspect that the problem
+> is related to that, since the 2.4-ac series has the O(1)
+> scheduler.
+
+Thats a bug in openoffice (or more accurately in the glibc thread
+library). Our yield now does what it is *supposed* to do. Unfortunately
+glibc is coded to rely on what used to happen. Andrea has a nice fix for
+this which I'll probably merge soon
 

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135666AbREAXoC>; Tue, 1 May 2001 19:44:02 -0400
+	id <S136779AbREAXtN>; Tue, 1 May 2001 19:49:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136773AbREAXnw>; Tue, 1 May 2001 19:43:52 -0400
-Received: from pa147.bialystok.sdi.tpnet.pl ([213.25.59.147]:1284 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S135666AbREAXnm>; Tue, 1 May 2001 19:43:42 -0400
-Date: Wed, 2 May 2001 01:42:16 +0200
-From: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jp@ulgo.koti.com.pl>
-To: linux-kernel@vger.kernel.org
-Subject: reason for VIA performance drop since 2.4.2-ac21
-Message-ID: <20010502014216.A604@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S136777AbREAXtD>; Tue, 1 May 2001 19:49:03 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:4748 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S136781AbREAXsz>;
+	Tue, 1 May 2001 19:48:55 -0400
+Date: Tue, 1 May 2001 16:48:53 -0700 (PDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.19 locks up on SMP
+In-Reply-To: <15086.48447.264388.289216@charged.uio.no>
+Message-ID: <Pine.LNX.4.33.0105011644280.15751-100000@age.cs.columbia.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have motherboard with VIA MVP3 chipset. 
+On Tue, 1 May 2001, Trond Myklebust wrote:
 
-I noticed big video slowdown since 2.4.2-ac21. Watching "divx" by avifile with
-new kernels is impossible, becouse very bad performance. Now, after few hours -
-I found the reason, and I don't understand it.
+>      > I'll give your patch a spin tomorrow, after I catch some
+>      > zzz's. :-)
+> 
+> Right you are.
 
-It has nothing to do with mtrr or K6.  In file arch/i386/kernel/pci-pc.c there
-is a pci_fixup_via691_2 function.  It appeared in 2.4.2-ac21. And it works for
-my chipset - VIA_82C598. When I put "return" in body of this function,
-recompile and start kernel 2.4.4 - "x11perf -putimage100" shows that video
-works fast again.
+And indeed, the tcp-hang patch fixed the problem! Thanks a lot!
 
-I see two possibilities:
+> FYI I've now put up those patches of which I am aware against 2.2.19
+> on
+> 
+>   http://www.fys.uio.no/~trondmy/src/2.2.19
+> 
+> I'll try to keep that area updated with a brief explanation for each
+> patch...
 
-1) this is just a debug code, and kernels >2.4.2-ac20 shouldn't be used by VIA
-MVP3 owners
-2) this code fix crash possibility, and all kernels without it (including
-2.2.19) are buggy with VIA MVP3
+That's where I tried looking first, two days ago, but couldn't find 
+anything, and I must have overlooked the patch you sent to the list.
 
-What is true, and is it safe to skip that function if I need 2.4 and fast video?
+Thanks for crediting me, btw. :-) Just one little nit: the readdir() 
+problem appears only when using glibc-2.0, glibc-2.1 seems to be fine.
+
+Thanks again to everybody,
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 

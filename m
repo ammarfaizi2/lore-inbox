@@ -1,37 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbVCQSUC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVCQSYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbVCQSUC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 13:20:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbVCQSUC
+	id S261992AbVCQSYg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 13:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVCQSYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 13:20:02 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:1402 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261987AbVCQST7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 13:19:59 -0500
-Date: Thu, 17 Mar 2005 19:20:48 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jens Langner <Jens.Langner@light-speed.de>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 17 Mar 2005 13:24:35 -0500
+Received: from gandalf.light-speed.de ([82.165.28.152]:28127 "EHLO
+	gandalf.light-speed.de") by vger.kernel.org with ESMTP
+	id S261992AbVCQSYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 13:24:34 -0500
+Message-ID: <4239CB59.8020805@light-speed.de>
+Date: Thu, 17 Mar 2005 19:24:25 +0100
+From: Jens Langner <Jens.Langner@light-speed.de>
+User-Agent: Mozilla Thunderbird 1.0 (Macintosh/20050206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 2.6.11.4 1/1] fs: new filesystem implementation VXEXT1.0
-Message-ID: <20050317182048.GA16328@mars.ravnborg.org>
-References: <42399F54.1010108@light-speed.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42399F54.1010108@light-speed.de>
-User-Agent: Mutt/1.5.6i
+References: <42399F54.1010108@light-speed.de> <20050317182048.GA16328@mars.ravnborg.org>
+In-Reply-To: <20050317182048.GA16328@mars.ravnborg.org>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 17, 2005 at 04:16:36PM +0100, Jens Langner wrote:
-> Hi,
+Sam Ravnborg wrote:
+
+>>The following URL is link to a large patch for a possible integration of 
+>>a new filesystem implementation in the misc section of the kernel tree. 
 > 
-> The following URL is link to a large patch for a possible integration of 
-> a new filesystem implementation in the misc section of the kernel tree. 
+> If you like people to review it te best thing to do is to break it up
+> in smaller logical selfcontained pieces (not just file-by-file) and post
+> these. People on this mailing list seldom follow URL's.
 
-If you like people to review it te best thing to do is to break it up
-in smaller logical selfcontained pieces (not just file-by-file) and post
-these. People on this mailing list seldom follow URL's.
+Sorry, but as the patch is a complete new implementation the patch file 
+is almost 110KB long. So I thought it might be a better idea to just 
+post an URL.
+Also the "Documentation/SubmittingPatches" file in the kernel tree does 
+suggest to just post an URL if the files are too large. And IMHO 110KB 
+is quite large, isn't it? ;)
+But if someone wants me to submitt the whole patchfile, I can of course 
+do so.
 
-	Sam
+cheers,
+jens
+-- 
+Jens Langner                                         Ph: +49-351-4716545
+Lannerstrasse 1
+01219 Dresden                                Jens.Langner@light-speed.de
+Germany                                      http://www.jens-langner.de/
